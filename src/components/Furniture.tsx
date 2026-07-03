@@ -475,8 +475,8 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
     // ---- airport ----
     case 'glasswall':
       return (
-        <div style={{ width: w ?? 260, height: 66, background: 'linear-gradient(180deg,#cfe6f7,#9dc4e0)', border: '4px solid #cdd6e2', display: 'flex' }}>
-          {[0, 1, 2, 3].map((i) => <div key={i} style={{ flex: 1, borderRight: i < 3 ? '3px solid #cdd6e2' : 'none' }} />)}
+        <div style={{ width: w ?? 260, height: 66, background: 'var(--win-b)', border: '3px solid var(--win-frame)', display: 'flex' }}>
+          {[0, 1, 2, 3].map((i) => <div key={i} style={{ flex: 1, borderRight: i < 3 ? '3px solid var(--win-frame)' : 'none' }} />)}
         </div>
       )
     case 'departboard':
@@ -534,8 +534,8 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
     // ---- hospital ----
     case 'hospwindow':
       return (
-        <div style={{ width: w ?? 200, height: 62, background: 'linear-gradient(180deg,#e9f7ff,#c8e8f5)', border: '5px solid #eef4f2', boxShadow: 'inset 0 0 0 3px #d3e6e0', display: 'flex' }}>
-          <div style={{ width: '50%', borderRight: '5px solid #eef4f2' }} />
+        <div style={{ width: w ?? 200, height: 62, background: 'var(--win-b)', border: '4px solid var(--win-frame)', display: 'flex' }}>
+          <div style={{ width: '50%', height: '100%', borderRight: '4px solid var(--win-frame)' }} />
         </div>
       )
     case 'hospbed':

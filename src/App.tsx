@@ -6,6 +6,7 @@ import { TreasuryPanel } from './components/TreasuryPanel'
 import { ActivityLog } from './components/ActivityLog'
 import { Toasts } from './components/Toasts'
 import { XamanPanel } from './components/XamanPanel'
+import { Defs } from './components/Defs'
 import { useDojo } from './store'
 import { NETWORKS } from './xrpl/network'
 import { audio } from './audio'
@@ -59,6 +60,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <Defs />
       <TopBar />
       <main className="layout">
         <div className="col-office">

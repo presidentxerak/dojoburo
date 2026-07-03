@@ -130,14 +130,24 @@ const hospital: FurniturePiece[] = [
   { kind: 'plant', x: 470, y: 420, z: 2 },
 ]
 
+// Everything is monochrome now — scenes differ by their decor shapes, not colour.
+const FLOOR_A = '#ffffff'
+const FLOOR_B = '#ececec'
+const TINT = 'rgba(0,0,0,0.05)'
+const WALL = '#e6e6e6'
+const WALL_TRIM = '#000000'
+const mono = (id: SceneId, label: string, pieces: FurniturePiece[]): Scene => ({
+  id, label, floorA: FLOOR_A, floorB: FLOOR_B, tint: TINT, wall: WALL, wallTrim: WALL_TRIM, pieces,
+})
+
 export const SCENES: Record<SceneId, Scene> = {
-  office: { id: 'office', label: 'Office', floorA: '#efe3cf', floorB: '#e8dabf', tint: 'rgba(255,255,255,0.14)', wall: '#d9cbb0', wallTrim: '#b9a785', pieces: office },
-  space: { id: 'space', label: 'Space station', floorA: '#1b2233', floorB: '#141a29', tint: 'rgba(99,208,255,0.14)', wall: '#242c40', wallTrim: '#3a4560', pieces: space },
-  lab: { id: 'lab', label: 'Lab', floorA: '#eef3f6', floorB: '#e2edf1', tint: 'rgba(120,216,143,0.16)', wall: '#dfe9ee', wallTrim: '#c2d2d8', pieces: lab },
-  castle: { id: 'castle', label: 'Castle', floorA: '#6f6a63', floorB: '#615c56', tint: 'rgba(255,207,59,0.12)', wall: '#585049', wallTrim: '#736a60', pieces: castle },
-  airport: { id: 'airport', label: 'Airport', floorA: '#dfe6ee', floorB: '#d2dbe6', tint: 'rgba(63,127,224,0.12)', wall: '#cdd7e3', wallTrim: '#adbccd', pieces: airport },
-  mall: { id: 'mall', label: 'Shopping center', floorA: '#f3e9f2', floorB: '#ecdcea', tint: 'rgba(240,80,122,0.12)', wall: '#e6d6e4', wallTrim: '#c9b3c6', pieces: mall },
-  hospital: { id: 'hospital', label: 'Hospital', floorA: '#eaf5f2', floorB: '#dcefe9', tint: 'rgba(90,209,192,0.14)', wall: '#dceceb', wallTrim: '#bcd6d1', pieces: hospital },
+  office: mono('office', 'Office', office),
+  space: mono('space', 'Space station', space),
+  lab: mono('lab', 'Lab', lab),
+  castle: mono('castle', 'Castle', castle),
+  airport: mono('airport', 'Airport', airport),
+  mall: mono('mall', 'Shopping center', mall),
+  hospital: mono('hospital', 'Hospital', hospital),
 }
 
 export const SCENE_LIST: Scene[] = [
