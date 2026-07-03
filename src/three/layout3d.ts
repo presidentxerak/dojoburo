@@ -22,3 +22,6 @@ export function heroPos3D(targetId: string | null): [number, number] {
 }
 
 export const ROOM = { w: 20, d: 16, wallH: 6 }
+
+// how far in front of a seated agent (toward camera) the desk sits
+export const DESK_FWD = 1.05

@@ -41,8 +41,32 @@ function Box({ p, s, c, rot }: { p: [number, number, number]; s: [number, number
   )
 }
 
+// A typing arm: pivots at the shoulder, forearm reaches forward-down onto the
+// laptop keyboard; taps up and down (offset phase per side).
+function Arm({ side, color, hand, busy }: { side: number; color: string; hand: string; busy: boolean }) {
+  const g = useRef<THREE.Group>(null)
+  useFrame((state) => {
+    if (!g.current) return
+    const t = state.clock.elapsedTime
+    const spd = busy ? 16 : 7
+    g.current.rotation.x = -0.42 + Math.sin(t * spd + (side > 0 ? 0 : 1.4)) * (busy ? 0.16 : 0.07)
+  })
+  return (
+    <group ref={g} position={[side * 0.42, 1.22, 0.06]} rotation={[-0.42, 0, 0]}>
+      <mesh position={[0, 0, 0.36]} castShadow>
+        <boxGeometry args={[0.16, 0.16, 0.72]} />
+        <meshStandardMaterial color={color} {...MAT} />
+      </mesh>
+      <mesh position={[0, 0, 0.74]} castShadow>
+        <sphereGeometry args={[0.14, 14, 12]} />
+        <meshStandardMaterial color={hand} {...MAT} />
+      </mesh>
+    </group>
+  )
+}
+
 function Toppers({ c }: { c: Character }) {
-  const hy = 1.95 // head centre Y
+  const hy = 1.95
   switch (c.kind) {
     case 'cat':
       return (
@@ -122,10 +146,9 @@ function Toppers({ c }: { c: Character }) {
           <Cyl p={[0.5, hy + 0.6, 0]} r={0.04} h={0.35} c={'#8b93a1'} />
         </group>
       )
-    case 'skeleton':
-      return <group>{null}</group>
     case 'human':
       return <Ball p={[0, hy + 0.32, -0.08]} r={0.6} c={c.extra} s={[1, 0.55, 1]} />
+    case 'skeleton':
     case 'slime':
     default:
       return null
@@ -157,86 +180,80 @@ export function Character3D({
   const [hover, setHover] = useState(false)
   const faceDark = isDark(character.face)
   const faceColor = faceDark ? '#f4f4f4' : '#1c2029'
+  const isSlime = character.kind === 'slime'
 
   useFrame((state) => {
     if (!g.current) return
     const t = state.clock.elapsedTime
-    const amp = busy ? 0.09 : 0.045
-    const spd = busy ? 9 : 1.6
-    g.current.position.y = Math.abs(Math.sin(t * spd + x)) * amp
-    const target = hover ? 1.08 : 1
+    g.current.position.y = Math.sin(t * 1.6 + x) * 0.02
+    const target = hover ? 1.06 : 1
     g.current.scale.lerp(new THREE.Vector3(target, target, target), 0.2)
   })
 
-  const isSlime = character.kind === 'slime'
+  const events = {
+    onClick: (e: any) => {
+      e.stopPropagation()
+      onSelect()
+    },
+    onPointerOver: (e: any) => {
+      e.stopPropagation()
+      setHover(true)
+      document.body.style.cursor = 'pointer'
+    },
+    onPointerOut: () => {
+      setHover(false)
+      document.body.style.cursor = 'auto'
+    },
+  }
 
   return (
     <group position={[x, 0, z]}>
-      {/* selection ring on the floor */}
       {selected && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
-          <ringGeometry args={[0.85, 1.05, 40]} />
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+          <ringGeometry args={[0.95, 1.15, 40]} />
           <meshBasicMaterial color={'#ff7eb6'} transparent opacity={0.85} side={THREE.DoubleSide} />
         </mesh>
       )}
-      {/* soft contact shadow */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-        <circleGeometry args={[0.55, 24]} />
-        <meshBasicMaterial color={'#000'} transparent opacity={0.18} />
-      </mesh>
 
-      <group
-        ref={g}
-        onClick={(e) => {
-          e.stopPropagation()
-          onSelect()
-        }}
-        onPointerOver={(e) => {
-          e.stopPropagation()
-          setHover(true)
-          document.body.style.cursor = 'pointer'
-        }}
-        onPointerOut={() => {
-          setHover(false)
-          document.body.style.cursor = 'auto'
-        }}
-      >
+      <group ref={g} {...events}>
         {isSlime ? (
-          <group>
-            <Ball p={[0, 0.72, 0]} r={0.85} c={character.face} s={[1, 0.82, 1]} />
+          <group position={[0, 0.05, 0]}>
+            <Ball p={[0, 0.78, 0]} r={0.8} c={character.face} s={[1, 0.86, 1]} />
             <Cyl p={[0, 1.5, 0]} r={0.05} h={0.4} c={character.face} />
             <Ball p={[0, 1.78, 0]} r={0.14} c={'#fff'} />
             <Ball p={[0, 1.8, 0.1]} r={0.06} c={'#333'} />
-            <AsciiFace3D mood={mood} position={[0, 0.82, 0.7]} scale={0.72} color={faceColor} />
+            <AsciiFace3D mood={mood} position={[0, 0.9, 0.72]} scale={0.72} color={faceColor} />
+            <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
+            <Arm side={1} color={character.face} hand={character.face} busy={busy} />
           </group>
         ) : (
           <group>
-            {/* legs */}
-            <Cyl p={[-0.24, 0.32, 0]} r={0.17} h={0.6} c={character.pants} />
-            <Cyl p={[0.24, 0.32, 0]} r={0.17} h={0.6} c={character.pants} />
-            {/* body */}
-            <Ball p={[0, 1.05, 0]} r={0.56} c={character.outfit} s={[1, 1.05, 0.9]} />
-            {/* arms */}
-            <Ball p={[-0.58, 1.05, 0]} r={0.19} c={character.outfit} />
-            <Ball p={[0.58, 1.05, 0]} r={0.19} c={character.outfit} />
+            {/* seated: lap + torso, legs hidden behind the desk */}
+            <Box p={[0, 0.62, 0.34]} s={[0.7, 0.24, 0.7]} c={character.pants} />
+            <Ball p={[0, 1.12, 0]} r={0.56} c={character.outfit} s={[1, 1.02, 0.9]} />
+            {/* shoulders */}
+            <Ball p={[-0.46, 1.3, 0.02]} r={0.18} c={character.outfit} />
+            <Ball p={[0.46, 1.3, 0.02]} r={0.18} c={character.outfit} />
             {/* head */}
             <Ball p={[0, 1.95, 0]} r={0.62} c={character.face} />
-            {/* cheeks */}
             <Ball p={[-0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
             <Ball p={[0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
             <Toppers c={character} />
             <AsciiFace3D mood={mood} position={[0, 1.98, 0.6]} scale={0.72} color={faceColor} />
+            {/* typing arms */}
+            <Arm side={-1} color={character.outfit} hand={character.face} busy={busy} />
+            <Arm side={1} color={character.outfit} hand={character.face} busy={busy} />
           </group>
         )}
       </group>
 
-      <Html position={[0, isSlime ? 2.2 : 3.05, 0]} center distanceFactor={11} zIndexRange={[6, 0]} pointerEvents="none" occlude={false}>
+      <Html position={[0, isSlime ? 2.35 : 2.95, 0]} center distanceFactor={11} zIndexRange={[6, 0]} pointerEvents="none" occlude={false}>
         <div className={`tag3d ${selected ? 'sel' : ''}`}>
           {name} <span>Lv.{level}</span>
         </div>
       </Html>
       {busy && (
-        <Html position={[0, isSlime ? 2.5 : 3.5, 0]} center distanceFactor={12} zIndexRange={[6, 0]} pointerEvents="none">
+        <Html position={[0, isSlime ? 2.7 : 3.4, 0]} center distanceFactor={12} zIndexRange={[6, 0]} pointerEvents="none">
           <div className="work3d" />
         </Html>
       )}
