@@ -571,95 +571,96 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
       const cols = Math.max(2, Math.round(vw / 12))
       return (
         <svg width={w ?? 170} height="66" viewBox={`0 0 ${vw} 33`}>
-          <rect x="0" y="0" width={vw} height="30" fill="#f2f2f2" stroke="#2a2a2a" strokeWidth="1" />
-          <rect x="0" y="14" width={vw} height="1.4" fill="#2a2a2a" />
+          <rect x="0" y="0" width={vw} height="30" fill="#fff7e6" stroke="#8a5a2b" strokeWidth="2" />
+          <rect x="0" y="14" width={vw} height="1.6" fill="#a9723b" />
           {Array.from({ length: cols - 1 }).map((_, i) => (
-            <rect key={i} x={(vw / cols) * (i + 1)} y="1" width="1.4" height="28" fill="#2a2a2a" />
+            <rect key={i} x={(vw / cols) * (i + 1)} y="1" width="1.6" height="28" fill="#a9723b" />
           ))}
-          <rect x={vw / 2 - 1} y="0" width="2" height="30" fill="#555" />
+          <rect x={vw / 2 - 1} y="0" width="2" height="30" fill="#8a5a2b" />
         </svg>
       )
     }
     case 'pillar':
       return (
         <svg width="28" height="480" viewBox="0 0 14 240">
-          <rect x="1" y="0" width="12" height="240" fill="#8a8a8a" />
-          <rect x="1" y="0" width="3" height="240" fill="#adadad" />
-          <rect x="0" y="0" width="14" height="6" fill="#555" />
-          <rect x="0" y="30" width="14" height="4" fill="#555" />
-          <rect x="4" y="60" width="1" height="170" fill="#5a5a5a" />
+          <rect x="1" y="0" width="12" height="240" fill="#b5793f" />
+          <rect x="1" y="0" width="3" height="240" fill="#d9a15e" />
+          <rect x="0" y="0" width="14" height="6" fill="#6f4423" />
+          <rect x="0" y="30" width="14" height="4" fill="#6f4423" />
+          <rect x="4" y="60" width="1" height="170" fill="#8a5a2b" />
         </svg>
       )
     case 'scroll':
       return (
         <svg width="46" height="96" viewBox="0 0 23 48">
-          <rect x="1" y="0" width="21" height="3" fill="#6a6a6a" />
-          <rect x="3" y="3" width="17" height="40" fill="#f4f4f4" stroke="#2a2a2a" />
-          <circle cx="11.5" cy="20" r="6" fill="none" stroke="#2a2a2a" strokeWidth="1" />
+          <rect x="1" y="0" width="21" height="3" fill="#8a5a2b" />
+          <rect x="3" y="3" width="17" height="40" fill="#fff7e6" stroke="#c9a15e" />
+          <circle cx="11.5" cy="20" r="6" fill="none" stroke="#c0392b" strokeWidth="2" />
           <path d="M9 20 h5 M11.5 15 v10" stroke="#2a2a2a" strokeWidth="1" />
-          <rect x="1" y="43" width="21" height="4" fill="#6a6a6a" />
+          <rect x="1" y="43" width="21" height="4" fill="#8a5a2b" />
         </svg>
       )
     case 'lantern':
       return (
         <svg width="40" height="64" viewBox="0 0 20 32">
-          <rect x="9" y="0" width="2" height="4" fill="#555" />
-          <rect x="6" y="4" width="8" height="2" fill="#555" />
-          <rect x="4" y="6" width="12" height="18" fill="#f2f2f2" stroke="#2a2a2a" strokeWidth="1" />
-          <rect x="4" y="11" width="12" height="1.4" fill="#2a2a2a" />
-          <rect x="4" y="17" width="12" height="1.4" fill="#2a2a2a" />
-          <circle cx="10" cy="15" r="2.4" fill="#888" />
-          <rect x="6" y="24" width="8" height="2" fill="#555" />
+          <rect x="9" y="0" width="2" height="4" fill="#5a3a1a" />
+          <rect x="6" y="4" width="8" height="2" fill="#2a2a2a" />
+          <rect x="4" y="6" width="12" height="18" rx="3" fill="#e0524f" stroke="#8a1d1a" strokeWidth="1.4" />
+          <rect x="4" y="11" width="12" height="1.4" fill="#8a1d1a" />
+          <rect x="4" y="17" width="12" height="1.4" fill="#8a1d1a" />
+          <rect x="8" y="13" width="4" height="4" fill="#fff2c4" />
+          <rect x="6" y="24" width="8" height="2" fill="#2a2a2a" />
         </svg>
       )
     case 'katanarack':
       return (
         <svg width="46" height="80" viewBox="0 0 23 40">
-          <rect x="2" y="4" width="3" height="34" fill="#8a8a8a" />
-          <rect x="18" y="4" width="3" height="34" fill="#8a8a8a" />
-          <rect x="2" y="10" width="19" height="2" fill="#8a8a8a" />
-          <rect x="2" y="24" width="19" height="2" fill="#8a8a8a" />
-          <path d="M3 9 q9 -4 18 0" fill="none" stroke="#2a2a2a" strokeWidth="1" />
-          <path d="M3 23 q9 -3 18 0" fill="none" stroke="#555" strokeWidth="1" />
-          <rect x="1" y="37" width="21" height="3" fill="#6a6a6a" />
+          <rect x="2" y="4" width="3" height="34" fill="#8a5a2b" />
+          <rect x="18" y="4" width="3" height="34" fill="#8a5a2b" />
+          <rect x="2" y="10" width="19" height="2" fill="#a9723b" />
+          <rect x="2" y="24" width="19" height="2" fill="#a9723b" />
+          <path d="M3 9 q9 -4 18 0" fill="none" stroke="#cfd6e0" strokeWidth="1.6" />
+          <path d="M3 23 q9 -3 18 0" fill="none" stroke="#cfd6e0" strokeWidth="1.6" />
+          <rect x="1" y="37" width="21" height="3" fill="#6f4423" />
         </svg>
       )
     case 'zabuton':
       return (
         <svg width="52" height="22" viewBox="0 0 26 11">
-          <rect x="1" y="2" width="24" height="7" rx="2" fill="#8a8a8a" stroke="#2a2a2a" strokeWidth="1" />
-          <rect x="12" y="2" width="2" height="7" fill="#6a6a6a" />
+          <rect x="1" y="2" width="24" height="7" rx="2.5" fill="#5b6fb0" stroke="#33427a" strokeWidth="1.4" />
+          <rect x="1" y="2" width="24" height="2.5" rx="2.5" fill="#7488c9" />
+          <rect x="12" y="2" width="2" height="7" fill="#33427a" />
         </svg>
       )
     case 'bonsai':
       return (
         <svg width="42" height="42" viewBox="0 0 21 21">
-          <rect x="9" y="6" width="2" height="8" fill="#5a5a5a" />
-          <path d="M10 5 q-6 -2 -7 3 q7 -1 7 1" fill="#8a8a8a" />
-          <path d="M11 5 q6 -2 7 3 q-7 -1 -7 1" fill="#8a8a8a" />
-          <circle cx="10" cy="4" r="3.4" fill="#8a8a8a" />
-          <rect x="4" y="14" width="13" height="5" fill="#6a6a6a" stroke="#2a2a2a" />
+          <rect x="9" y="6" width="2" height="8" fill="#7a4a24" />
+          <path d="M10 5 q-6 -2 -7 3 q7 -1 7 1" fill="#5faf5f" stroke="#357a35" strokeWidth="0.6" />
+          <path d="M11 5 q6 -2 7 3 q-7 -1 -7 1" fill="#5faf5f" stroke="#357a35" strokeWidth="0.6" />
+          <circle cx="10" cy="4" r="3.6" fill="#6cbf6c" stroke="#357a35" strokeWidth="0.6" />
+          <rect x="4" y="14" width="13" height="5" rx="1" fill="#c17a4a" stroke="#8a5330" />
         </svg>
       )
     case 'lowtable':
       return (
         <svg width="110" height="42" viewBox="0 0 55 21">
-          <rect x="2" y="4" width="51" height="6" fill="#9a9a9a" />
-          <rect x="2" y="4" width="51" height="2" fill="#b8b8b8" />
-          <rect x="6" y="10" width="4" height="9" fill="#6a6a6a" />
-          <rect x="45" y="10" width="4" height="9" fill="#6a6a6a" />
-          <rect x="24" y="6" width="8" height="2" fill="#f2f2f2" />
+          <rect x="2" y="4" width="51" height="6" rx="1.5" fill="#b5793f" stroke="#6f4423" strokeWidth="0.8" />
+          <rect x="2" y="4" width="51" height="2" fill="#d9a15e" />
+          <rect x="6" y="10" width="4" height="9" fill="#8a5a2b" />
+          <rect x="45" y="10" width="4" height="9" fill="#8a5a2b" />
+          <rect x="24" y="6" width="8" height="2" fill="#fff7e6" />
         </svg>
       )
     case 'taiko':
       return (
         <svg width="72" height="72" viewBox="0 0 36 36">
-          <rect x="3" y="26" width="30" height="3" fill="#5a5a5a" />
-          <rect x="6" y="10" width="4" height="18" fill="#6a6a6a" transform="rotate(12 8 20)" />
-          <rect x="26" y="10" width="4" height="18" fill="#6a6a6a" transform="rotate(-12 28 20)" />
-          <ellipse cx="18" cy="14" rx="12" ry="10" fill="#8a8a8a" stroke="#2a2a2a" strokeWidth="1" />
-          <ellipse cx="18" cy="14" rx="8" ry="6.5" fill="#f2f2f2" />
-          {[6, 10, 18, 26, 30].map((cx, i) => <circle key={i} cx={cx} cy={i % 2 ? 8 : 20} r="1" fill="#2a2a2a" />)}
+          <rect x="3" y="26" width="30" height="3" fill="#6f4423" />
+          <rect x="6" y="10" width="4" height="18" fill="#8a5a2b" transform="rotate(12 8 20)" />
+          <rect x="26" y="10" width="4" height="18" fill="#8a5a2b" transform="rotate(-12 28 20)" />
+          <ellipse cx="18" cy="14" rx="12" ry="10" fill="#c0392b" stroke="#7a1d16" strokeWidth="1.4" />
+          <ellipse cx="18" cy="14" rx="8" ry="6.5" fill="#fff2df" stroke="#e0b483" strokeWidth="0.8" />
+          {[6, 10, 18, 26, 30].map((cx, i) => <circle key={i} cx={cx} cy={i % 2 ? 8 : 20} r="1" fill="#ffcf3b" />)}
         </svg>
       )
     case 'door':
@@ -667,22 +668,22 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
       return (
         <svg width="72" height="94" viewBox="0 0 36 47">
           {/* timber frame */}
-          <rect x="0" y="0" width="36" height="47" fill="#3a3a3a" />
-          <rect x="0" y="0" width="36" height="3" fill="#5a5a5a" />
+          <rect x="0" y="0" width="36" height="47" rx="2" fill="#7a4a24" />
+          <rect x="0" y="0" width="36" height="3" fill="#9c6a38" />
           {/* two paper panels */}
-          <rect x="3" y="4" width="14" height="40" fill="#f2f2f2" />
-          <rect x="19" y="4" width="14" height="40" fill="#f2f2f2" />
+          <rect x="3" y="4" width="14" height="40" fill="#fff7e6" />
+          <rect x="19" y="4" width="14" height="40" fill="#fff7e6" />
           {/* lattice: verticals */}
-          {[7, 11, 23, 27].map((lx) => <rect key={lx} x={lx} y="4" width="1" height="40" fill="#3a3a3a" />)}
+          {[7, 11, 23, 27].map((lx) => <rect key={lx} x={lx} y="4" width="1" height="40" fill="#a9723b" />)}
           {/* lattice: horizontals */}
-          {[12, 20, 28, 36].map((ly) => <rect key={ly} x="3" y={ly} width="30" height="1" fill="#3a3a3a" />)}
+          {[12, 20, 28, 36].map((ly) => <rect key={ly} x="3" y={ly} width="30" height="1" fill="#a9723b" />)}
           {/* central sliding gap + posts */}
-          <rect x="17" y="4" width="2" height="40" fill="#3a3a3a" />
+          <rect x="17" y="4" width="2" height="40" fill="#7a4a24" />
           {/* recessed handles */}
-          <rect x="15" y="22" width="1" height="5" fill="#8a8a8a" />
-          <rect x="20" y="22" width="1" height="5" fill="#8a8a8a" />
+          <rect x="15" y="22" width="1" height="5" fill="#e0b34a" />
+          <rect x="20" y="22" width="1" height="5" fill="#e0b34a" />
           {/* sill */}
-          <rect x="0" y="44" width="36" height="3" fill="#5a5a5a" />
+          <rect x="0" y="44" width="36" height="3" fill="#9c6a38" />
         </svg>
       )
     case 'poster':

@@ -17,15 +17,12 @@ export default function App() {
   const theme = useDojo((s) => s.theme)
   const net = useDojo((s) => s.net)
   const hasWallets = useDojo((s) => Object.keys(s.wallets).length > 0)
-
   const muted = useDojo((s) => s.muted)
 
-  // Apply the saved theme to <html> (light by default).
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
 
-  // Unlock the audio context on the first user gesture (autoplay policy).
   useEffect(() => {
     const unlock = () => {
       audio.setMuted(muted)
@@ -35,12 +32,10 @@ export default function App() {
     return () => window.removeEventListener('pointerdown', unlock)
   }, [muted])
 
-  // Pull real balances from the ledger on load / network change.
   useEffect(() => {
     if (hasWallets) void refresh()
   }, [net, hasWallets, refresh])
 
-  // Random office events fire on a loose cadence.
   useEffect(() => {
     let cancelled = false
     const schedule = () => {
@@ -61,27 +56,27 @@ export default function App() {
   return (
     <div className="app">
       <Defs />
-      <TopBar />
-      <main className="layout">
-        <div className="col-office">
-          <Office />
-          <p className="office-caption">
-            DojoBuro office · {NETWORKS[net].label}
-            {NETWORKS[net].faucet ? ' · faucet enabled' : ' · real value'}
-          </p>
+      {/* fullscreen scene */}
+      <div className="scene-bg">
+        <Office />
+      </div>
+
+      {/* UI overlaid on top */}
+      <div className="hud">
+        <TopBar />
+        <div className="hud-body">
+          <aside className="hud-side">
+            <AgentPanel />
+            <TreasuryPanel />
+            <XamanPanel />
+            <ActivityLog />
+          </aside>
         </div>
-        <div className="col-side">
-          <AgentPanel />
-          <TreasuryPanel />
-          <XamanPanel />
-          <ActivityLog />
+        <div className="hud-credit">
+          Real XRPL · {NETWORKS[net].label}{NETWORKS[net].faucet ? ' · faucet' : ' · live'}
         </div>
-      </main>
-      <footer className="app-footer">
-        <span>
-          Real transactions on the XRP Ledger via {NETWORKS[net].wss}. No mock. Seeds stored in this browser only.
-        </span>
-      </footer>
+      </div>
+
       <Toasts />
     </div>
   )

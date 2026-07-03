@@ -166,7 +166,12 @@ const mono = (id: SceneId, label: string, pieces: FurniturePiece[]): Scene => ({
 })
 
 export const SCENES: Record<SceneId, Scene> = {
-  dojo: mono('dojo', 'Dojo', dojo),
+  dojo: {
+    id: 'dojo', label: 'Dojo', pieces: dojo,
+    floorA: '#cde0a0', floorB: '#bcd189',
+    tint: 'rgba(255,246,214,0.18)',
+    wall: '#ecd9b0', wallTrim: '#8a5a2b',
+  },
   office: mono('office', 'Office', office),
   space: mono('space', 'Space station', space),
   lab: mono('lab', 'Lab', lab),
