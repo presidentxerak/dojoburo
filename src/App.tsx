@@ -4,18 +4,44 @@ import { Office } from './components/Office'
 import { AgentPanel } from './components/AgentPanel'
 import { TreasuryPanel } from './components/TreasuryPanel'
 import { ActivityLog } from './components/ActivityLog'
+import { Toasts } from './components/Toasts'
 import { useDojo } from './store'
 import { NETWORKS } from './xrpl/network'
 
 export default function App() {
   const refresh = useDojo((s) => s.refreshBalances)
+  const fireEvent = useDojo((s) => s.fireEvent)
+  const theme = useDojo((s) => s.theme)
   const net = useDojo((s) => s.net)
   const hasWallets = useDojo((s) => Object.keys(s.wallets).length > 0)
+
+  // Apply the saved theme to <html> (light by default).
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
 
   // Pull real balances from the ledger on load / network change.
   useEffect(() => {
     if (hasWallets) void refresh()
   }, [net, hasWallets, refresh])
+
+  // Random office events fire on a loose cadence.
+  useEffect(() => {
+    let cancelled = false
+    const schedule = () => {
+      const delay = 16000 + Math.random() * 14000
+      return setTimeout(() => {
+        if (cancelled) return
+        fireEvent()
+        timer = schedule()
+      }, delay)
+    }
+    let timer = schedule()
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [fireEvent])
 
   return (
     <div className="app">
@@ -40,6 +66,7 @@ export default function App() {
           navigateur uniquement.
         </span>
       </footer>
+      <Toasts />
     </div>
   )
 }

@@ -13,9 +13,15 @@ et **toutes les transactions se règlent sur le [XRP Ledger](https://xrpl.org)**
 
 ## ✨ Ce que ça fait
 
-- **Bureau pixel art** en grille : chaque agent est assis à son poste, avec un
-  petit écran CRT affichant son **visage ASCII animé** (clignement, frappe,
-  parole, cœurs, erreur…).
+- **Bureau pixel art** vivant : décor riche (fenêtres, tableau blanc, canapé,
+  tapis, rack serveur, bibliothèque, fontaine à eau, machine à café, plantes…),
+  **12 personnages tous différents** (coiffures, tenues, accessoires uniques),
+  chacun à son poste avec **bulles d'émotions en ASCII art animées**.
+- **Un héros** (le fondateur) qui **se déplace jusqu'à l'agent** dès qu'une tâche
+  est lancée et **échange des blagues** avec lui pendant l'exécution.
+- **Gameplay & récompenses** : XP, niveaux, médailles 🥉🥈🥇💎👑, pièces 🪙, et
+  des **événements aléatoires** (client VIP, Product Hunt, levée de fonds, bug en
+  prod, kudos…) qui récompensent les agents via des toasts.
 - **12 agents**, chacun avec une **fonction de startup** et ses **skills**.
 - **XRPL intégré** : chaque agent (et la trésorerie) possède un **wallet XRPL**
   réel. Faucet sur Testnet, paiements agentiques **x402** on-ledger, ancrage du
@@ -24,6 +30,7 @@ et **toutes les transactions se règlent sur le [XRP Ledger](https://xrpl.org)**
   confirmation explicite avant de manipuler de la valeur réelle.
 - **Feed « Track »** : chaque action d'agent et chaque transaction on-ledger
   (avec lien vers l'explorer) apparaissent en temps réel.
+- **Thème clair par défaut** (+ bascule sombre 🌙) et typographie **Silkscreen**.
 
 ---
 

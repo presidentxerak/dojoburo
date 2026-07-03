@@ -1,55 +1,59 @@
-import { AsciiFace } from './AsciiFace'
 import type { AgentDef } from '../data/agents'
+import { LOOKS } from '../data/looks'
+import { POSITIONS } from '../data/layout'
 import { useDojo } from '../store'
+import { PixelAvatar } from './PixelAvatar'
+import { AsciiFace } from './AsciiFace'
 
-interface Props {
-  agent: AgentDef
-}
-
-/**
- * A pixel-art desk with a character. The character's head is a little CRT
- * "screen" showing the animated ASCII face. Clicking selects the agent.
- */
-export function AgentSprite({ agent }: Props) {
+/** An agent standing at their desk. Shows the animated ASCII emote bubble,
+ *  a level badge, and an XP bar. Clicking selects the agent. */
+export function AgentSprite({ agent }: { agent: AgentDef }) {
   const rt = useDojo((s) => s.runtime[agent.id])
   const selected = useDojo((s) => s.selectedAgent === agent.id)
   const select = useDojo((s) => s.selectAgent)
   const wallet = useDojo((s) => s.wallets[agent.id])
+  const stats = useDojo((s) => s.stats[agent.id])
+  const banter = useDojo((s) => s.banter)
 
   const mood = rt?.mood ?? 'idle'
   const busy = rt?.busy
+  const pos = POSITIONS[agent.id]
+  const look = LOOKS[agent.id]
+
+  const showAgentBubble = banter && banter.who === 'agent' && banter.agentId === agent.id
 
   return (
     <button
-      className={`sprite ${selected ? 'is-selected' : ''} ${busy ? 'is-busy' : ''}`}
-      style={{ gridColumn: agent.desk.x, gridRow: agent.desk.y }}
+      className={`agent ${selected ? 'is-selected' : ''} ${busy ? 'is-busy' : ''}`}
+      style={{ left: pos.x, top: pos.y, zIndex: 20 }}
       onClick={() => select(agent.id)}
       title={`${agent.name} — ${agent.role}`}
     >
-      {/* desk */}
-      <span className="sprite-desk" style={{ ['--accent' as string]: agent.palette.accent }} />
+      {/* emote bubble (animated ASCII face) */}
+      <div className={`emote ${busy || mood !== 'idle' ? 'show' : ''}`}>
+        <AsciiFace mood={mood} />
+      </div>
 
-      {/* character */}
-      <span className="sprite-char">
-        <span
-          className="sprite-head"
-          style={{ ['--shirt' as string]: agent.palette.shirt, ['--skin' as string]: agent.palette.skin }}
-        >
-          <AsciiFace mood={mood} className="sprite-facescreen" />
-        </span>
-        <span
-          className="sprite-body"
-          style={{ ['--shirt' as string]: agent.palette.shirt, ['--skin' as string]: agent.palette.skin }}
-        />
-      </span>
-
-      <span className="sprite-name">
-        {agent.emoji} {agent.name}
-      </span>
-      {wallet?.funded && wallet.balanceXrp != null && (
-        <span className="sprite-bal">{wallet.balanceXrp.toFixed(1)} XRP</span>
+      {showAgentBubble && (
+        <div className="bubble agent-bubble">
+          {banter!.text}
+          <span className="bubble-tail" />
+        </div>
       )}
-      {busy && <span className="sprite-status">…</span>}
+
+      <div className="agent-avatar">
+        <PixelAvatar look={look} size={72} />
+      </div>
+      <div className="agent-shadow" />
+
+      <div className="agent-plate">
+        <span className="agent-plate-name">{agent.emoji} {agent.name}</span>
+        {stats && <span className="agent-lvl">{stats.medals[stats.medals.length - 1]} Nv.{stats.level}</span>}
+      </div>
+      {wallet?.funded && wallet.balanceXrp != null && (
+        <span className="agent-bal">{wallet.balanceXrp.toFixed(1)} XRP</span>
+      )}
+      {busy && <span className="agent-working">⚙</span>}
     </button>
   )
 }

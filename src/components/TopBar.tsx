@@ -7,6 +7,8 @@ export function TopBar() {
   const setNetwork = useDojo((s) => s.setNetwork)
   const refresh = useDojo((s) => s.refreshBalances)
   const loading = useDojo((s) => s.balancesLoading)
+  const theme = useDojo((s) => s.theme)
+  const setTheme = useDojo((s) => s.setTheme)
   const [confirmMainnet, setConfirmMainnet] = useState(false)
 
   const pick = (id: NetworkId) => {
@@ -44,6 +46,13 @@ export function TopBar() {
         </div>
         <button className="btn tiny" onClick={() => void refresh()} disabled={loading}>
           {loading ? '…' : '↻ Soldes'}
+        </button>
+        <button
+          className="btn tiny theme-btn"
+          onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+          aria-label="Basculer le thème"
+        >
+          {theme === 'light' ? '🌙' : '☀️'}
         </button>
       </div>
 

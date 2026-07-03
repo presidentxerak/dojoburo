@@ -1,10 +1,13 @@
 // ---------------------------------------------------------------------------
-// DojoBuro global state — network, wallets, activity/behavior tracker and the
-// skill orchestrator that drives real XRPL transactions + agent animations.
+// DojoBuro global state — network, wallets, behavior tracker, the hero, the
+// reward/event game layer, and the skill orchestrator that drives real XRPL
+// transactions + agent animations.
 // ---------------------------------------------------------------------------
 import { create } from 'zustand'
 import { Wallet } from 'xrpl'
 import { AGENTS, AGENT_BY_ID, type AgentSkill } from './data/agents'
+import { getBanter } from './data/jokes'
+import { pickEvent, medalForLevel, xpForLevel } from './data/events'
 import {
   NETWORKS,
   loadNetworkId,
@@ -21,14 +24,10 @@ import {
   forgetWallet,
   type WalletState,
 } from './xrpl/wallet'
-import {
-  sendPayment,
-  trackAction,
-  fetchHistory,
-  type X402Memo,
-} from './xrpl/payments'
+import { sendPayment, trackAction, fetchHistory, type X402Memo } from './xrpl/payments'
 
 export type Mood = 'idle' | 'work' | 'happy' | 'think' | 'talk' | 'love' | 'error'
+export type Theme = 'light' | 'dark'
 
 export interface Activity {
   id: string
@@ -40,6 +39,22 @@ export interface Activity {
   txHash?: string
 }
 
+export interface Toast {
+  id: string
+  emoji: string
+  title: string
+  text: string
+  kind: 'event' | 'reward' | 'level'
+}
+
+export interface AgentStats {
+  xp: number
+  level: number
+  coins: number
+  medals: string[]
+  tasksDone: number
+}
+
 interface RuntimeAgent {
   mood: Mood
   busy: boolean
@@ -47,16 +62,27 @@ interface RuntimeAgent {
   moodUntil: number
 }
 
+export interface Banter {
+  agentId: string
+  who: 'hero' | 'agent'
+  text: string
+}
+
 interface DojoState {
   net: NetworkId
+  theme: Theme
   wallets: Record<string, WalletState>
   runtime: Record<string, RuntimeAgent>
+  stats: Record<string, AgentStats>
   activity: Activity[]
+  toasts: Toast[]
   selectedAgent: string | null
   balancesLoading: boolean
+  heroTargetId: string // agent id or 'home'
+  banter: Banter | null
 
-  // selectors / actions
   setNetwork: (net: NetworkId) => void
+  setTheme: (t: Theme) => void
   selectAgent: (id: string | null) => void
   setMood: (id: string, mood: Mood, ms?: number) => void
 
@@ -68,6 +94,11 @@ interface DojoState {
   runSkill: (agentId: string, skill: AgentSkill) => Promise<void>
   transfer: (fromId: string, toId: string, amountXrp: number, note?: string) => Promise<void>
   auditWallet: (ownerId: string) => Promise<void>
+
+  grantXp: (agentId: string, xp: number, coins: number) => void
+  fireEvent: () => void
+  pushToast: (t: Omit<Toast, 'id'>) => void
+  dismissToast: (id: string) => void
 
   log: (a: Omit<Activity, 'id' | 'ts'>) => void
 }
@@ -81,6 +112,7 @@ const now = () => {
 }
 let seq = 0
 const uid = () => `${now()}-${seq++}`
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 function seedRuntime(): Record<string, RuntimeAgent> {
   const r: Record<string, RuntimeAgent> = {}
@@ -88,21 +120,44 @@ function seedRuntime(): Record<string, RuntimeAgent> {
   return r
 }
 
+function loadStats(): Record<string, AgentStats> {
+  let saved: Record<string, AgentStats> = {}
+  try {
+    const raw = localStorage.getItem('dojoburo.stats')
+    if (raw) saved = JSON.parse(raw)
+  } catch {
+    /* ignore */
+  }
+  const out: Record<string, AgentStats> = {}
+  for (const a of AGENTS) {
+    out[a.id] = saved[a.id] ?? { xp: 0, level: 1, coins: 0, medals: ['🥉'], tasksDone: 0 }
+  }
+  return out
+}
+function saveStats(stats: Record<string, AgentStats>) {
+  try {
+    localStorage.setItem('dojoburo.stats', JSON.stringify(stats))
+  } catch {
+    /* ignore */
+  }
+}
+
+function loadTheme(): Theme {
+  const raw = localStorage.getItem('dojoburo.theme')
+  return raw === 'dark' ? 'dark' : 'light' // light by default
+}
+
 function loadWalletStates(net: NetworkId): Record<string, WalletState> {
   const stored = loadWallets(net)
   const out: Record<string, WalletState> = {}
-  for (const [id, w] of Object.entries(stored)) {
-    out[id] = { ...w, balanceXrp: null, funded: false }
-  }
+  for (const [id, w] of Object.entries(stored)) out[id] = { ...w, balanceXrp: null, funded: false }
   return out
 }
 
 async function sha256Hex(input: string): Promise<string> {
   try {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input))
-    return Array.from(new Uint8Array(buf))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('')
+    return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('')
   } catch {
     return input.slice(0, 32)
   }
@@ -110,14 +165,31 @@ async function sha256Hex(input: string): Promise<string> {
 
 export const useDojo = create<DojoState>((set, get) => ({
   net: loadNetworkId(),
+  theme: loadTheme(),
   wallets: loadWalletStates(loadNetworkId()),
   runtime: seedRuntime(),
+  stats: loadStats(),
   activity: [],
+  toasts: [],
   selectedAgent: null,
   balancesLoading: false,
+  heroTargetId: 'home',
+  banter: null,
 
-  log: (a) =>
-    set((s) => ({ activity: [{ ...a, id: uid(), ts: now() }, ...s.activity].slice(0, 200) })),
+  log: (a) => set((s) => ({ activity: [{ ...a, id: uid(), ts: now() }, ...s.activity].slice(0, 200) })),
+
+  pushToast: (t) => {
+    const toast = { ...t, id: uid() }
+    set((s) => ({ toasts: [...s.toasts, toast].slice(-4) }))
+    setTimeout(() => get().dismissToast(toast.id), 4200)
+  },
+  dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+
+  setTheme: (t) => {
+    localStorage.setItem('dojoburo.theme', t)
+    document.documentElement.dataset.theme = t
+    set({ theme: t })
+  },
 
   setNetwork: (net) => {
     saveNetworkId(net)
@@ -134,12 +206,7 @@ export const useDojo = create<DojoState>((set, get) => ({
   selectAgent: (id) => set({ selectedAgent: id }),
 
   setMood: (id, mood, ms = 2200) =>
-    set((s) => ({
-      runtime: {
-        ...s.runtime,
-        [id]: { ...s.runtime[id], mood, moodUntil: now() + ms },
-      },
-    })),
+    set((s) => ({ runtime: { ...s.runtime, [id]: { ...s.runtime[id], mood, moodUntil: now() + ms } } })),
 
   ensureWallet: (ownerId) => {
     const { net, wallets } = get()
@@ -155,33 +222,17 @@ export const useDojo = create<DojoState>((set, get) => ({
     const { net } = get()
     const cfg = NETWORKS[net]
     const ws = get().ensureWallet(ownerId)
+    const who = ownerId === 'treasury' ? 'fin' : ownerId
     if (!cfg.faucet) {
-      get().log({
-        agentId: ownerId === 'treasury' ? 'fin' : ownerId,
-        skill: 'wallet',
-        level: 'error',
-        message: `Pas de faucet sur ${cfg.label}. Financez ${ws.address} manuellement.`,
-      })
+      get().log({ agentId: who, skill: 'wallet', level: 'error', message: `Pas de faucet sur ${cfg.label}. Financez ${ws.address} manuellement.` })
       return
     }
     try {
       const bal = await fundFromFaucet(net, ws)
-      set((s) => ({
-        wallets: { ...s.wallets, [ownerId]: { ...s.wallets[ownerId], balanceXrp: bal, funded: true } },
-      }))
-      get().log({
-        agentId: ownerId === 'treasury' ? 'fin' : ownerId,
-        skill: 'wallet',
-        level: 'success',
-        message: `Faucet: ${ws.address.slice(0, 10)}… financé → ${bal.toFixed(2)} XRP.`,
-      })
+      set((s) => ({ wallets: { ...s.wallets, [ownerId]: { ...s.wallets[ownerId], balanceXrp: bal, funded: true } } }))
+      get().log({ agentId: who, skill: 'wallet', level: 'success', message: `Faucet: ${ws.address.slice(0, 10)}… financé → ${bal.toFixed(2)} XRP.` })
     } catch (e) {
-      get().log({
-        agentId: ownerId === 'treasury' ? 'fin' : ownerId,
-        skill: 'wallet',
-        level: 'error',
-        message: `Échec faucet: ${errMsg(e)}`,
-      })
+      get().log({ agentId: who, skill: 'wallet', level: 'error', message: `Échec faucet: ${errMsg(e)}` })
     }
   },
 
@@ -194,12 +245,7 @@ export const useDojo = create<DojoState>((set, get) => ({
       ids.map(async (id) => {
         try {
           const bal = await getBalance(net, wallets[id].address)
-          set((s) => ({
-            wallets: {
-              ...s.wallets,
-              [id]: { ...s.wallets[id], balanceXrp: bal, funded: bal !== null },
-            },
-          }))
+          set((s) => ({ wallets: { ...s.wallets, [id]: { ...s.wallets[id], balanceXrp: bal, funded: bal !== null } } }))
         } catch {
           /* leave as-is */
         }
@@ -209,8 +255,7 @@ export const useDojo = create<DojoState>((set, get) => ({
   },
 
   forget: (ownerId) => {
-    const { net } = get()
-    forgetWallet(net, ownerId)
+    forgetWallet(get().net, ownerId)
     set((s) => {
       const w = { ...s.wallets }
       delete w[ownerId]
@@ -222,35 +267,17 @@ export const useDojo = create<DojoState>((set, get) => ({
     const { net } = get()
     const from = get().ensureWallet(fromId)
     const to = get().ensureWallet(toId)
-    const agentForLog = fromId === 'treasury' ? 'fin' : fromId
-    get().setMood(agentForLog, 'work', 4000)
+    const who = fromId === 'treasury' ? 'fin' : fromId
+    get().setMood(who, 'work', 4000)
     try {
-      const memo: X402Memo = {
-        protocol: 'x402',
-        skill: 'transfer',
-        invoice: `INV-${now().toString(36)}`,
-        from: fromId,
-        to: toId,
-        note,
-      }
+      const memo: X402Memo = { protocol: 'x402', skill: 'transfer', invoice: `INV-${now().toString(36)}`, from: fromId, to: toId, note }
       const res = await sendPayment(net, toWallet(from), to.address, amountXrp, memo)
-      get().log({
-        agentId: agentForLog,
-        skill: 'x402.pay',
-        level: 'xrpl',
-        message: `Paiement ${amountXrp} XRP → ${labelOf(toId)} (${res.engineResult})`,
-        txHash: res.hash,
-      })
-      get().setMood(agentForLog, 'love', 1800)
+      get().log({ agentId: who, skill: 'x402.pay', level: 'xrpl', message: `Paiement ${amountXrp} XRP → ${labelOf(toId)} (${res.engineResult})`, txHash: res.hash })
+      get().setMood(who, 'love', 1800)
       await get().refreshBalances()
     } catch (e) {
-      get().setMood(agentForLog, 'error', 2000)
-      get().log({
-        agentId: agentForLog,
-        skill: 'x402.pay',
-        level: 'error',
-        message: `Paiement échoué: ${errMsg(e)}`,
-      })
+      get().setMood(who, 'error', 2000)
+      get().log({ agentId: who, skill: 'x402.pay', level: 'error', message: `Paiement échoué: ${errMsg(e)}` })
     }
   },
 
@@ -261,20 +288,47 @@ export const useDojo = create<DojoState>((set, get) => ({
       const history = await fetchHistory(net, ws.address, 25)
       const income = history.filter((h) => h.direction === 'in').reduce((a, h) => a + (h.amountXrp ?? 0), 0)
       const outgo = history.filter((h) => h.direction === 'out').reduce((a, h) => a + (h.amountXrp ?? 0), 0)
-      get().log({
-        agentId: 'ada',
-        skill: 'audit',
-        level: 'xrpl',
-        message: `Audit ${labelOf(ownerId)}: ${history.length} tx, +${income.toFixed(2)} / −${outgo.toFixed(2)} XRP.`,
-      })
+      get().log({ agentId: 'ada', skill: 'audit', level: 'xrpl', message: `Audit ${labelOf(ownerId)}: ${history.length} tx, +${income.toFixed(2)} / −${outgo.toFixed(2)} XRP.` })
     } catch (e) {
-      get().log({
-        agentId: 'ada',
-        skill: 'audit',
-        level: 'error',
-        message: `Audit impossible: ${errMsg(e)}`,
-      })
+      get().log({ agentId: 'ada', skill: 'audit', level: 'error', message: `Audit impossible: ${errMsg(e)}` })
     }
+  },
+
+  grantXp: (agentId, xp, coins) => {
+    const s = get()
+    const cur = s.stats[agentId] ?? { xp: 0, level: 1, coins: 0, medals: ['🥉'], tasksDone: 0 }
+    let newXp = cur.xp + xp
+    let level = cur.level
+    const medals = [...cur.medals]
+    let leveled = false
+    while (newXp >= xpForLevel(level)) {
+      newXp -= xpForLevel(level)
+      level += 1
+      leveled = true
+      const medal = medalForLevel(level)
+      if (!medals.includes(medal)) medals.push(medal)
+    }
+    const next = { ...cur, xp: newXp, level, coins: cur.coins + coins, medals }
+    const stats = { ...s.stats, [agentId]: next }
+    set({ stats })
+    saveStats(stats)
+    if (leveled) {
+      s.setMood(agentId, 'love', 2600)
+      s.pushToast({ kind: 'level', emoji: medalForLevel(level), title: `${AGENT_BY_ID[agentId]?.name} niveau ${level} !`, text: `Nouvelle médaille ${medalForLevel(level)} débloquée.` })
+    }
+  },
+
+  fireEvent: () => {
+    const s = get()
+    const ev = pickEvent()
+    const targets = ev.target === 'all' ? AGENTS.map((a) => a.id) : [AGENTS[Math.floor(Math.random() * AGENTS.length)].id]
+    const whoName = ev.target === 'all' ? "L'équipe" : AGENT_BY_ID[targets[0]]?.name ?? ''
+    for (const id of targets) {
+      s.setMood(id, ev.mood, 2400)
+      s.grantXp(id, ev.xp, ev.coins)
+    }
+    s.pushToast({ kind: 'event', emoji: ev.emoji, title: ev.title, text: ev.message(whoName) })
+    s.log({ agentId: targets[0], skill: 'event', level: ev.good ? 'success' : 'info', message: `${ev.emoji} ${ev.message(whoName)} (+${ev.xp} XP, +${ev.coins}🪙)` })
   },
 
   runSkill: async (agentId, skill) => {
@@ -282,38 +336,32 @@ export const useDojo = create<DojoState>((set, get) => ({
     if (rt?.busy) return
     const agent = AGENT_BY_ID[agentId]
 
-    set((s) => ({
-      runtime: { ...s.runtime, [agentId]: { ...s.runtime[agentId], busy: true, lastSkill: skill.id } },
-    }))
+    set((s) => ({ runtime: { ...s.runtime, [agentId]: { ...s.runtime[agentId], busy: true, lastSkill: skill.id } } }))
     get().setMood(agentId, skill.kind === 'analysis' ? 'think' : 'work', skill.duration + 400)
 
-    get().log({
-      agentId,
-      skill: skill.id,
-      level: 'info',
-      message: `${agent.name} lance « ${skill.name} »…`,
-    })
+    // Hero walks over and starts joking.
+    set({ heroTargetId: agentId })
+    startBanter(get, set, agentId, skill.duration)
+
+    get().log({ agentId, skill: skill.id, level: 'info', message: `${agent.name} lance « ${skill.name} »…` })
 
     try {
-      // 1) x402 settlement for priced skills: treasury pays the agent on-ledger.
-      if (skill.price > 0) {
-        await settlePricedSkill(get, agentId, skill)
-      }
-
-      // 2) skill-specific effect.
+      if (skill.price > 0) await settlePricedSkill(get, agentId, skill)
       await executeSkill(get, agentId, skill)
-
       get().setMood(agentId, skill.id.endsWith('morale') ? 'love' : 'happy', 1800)
     } catch (e) {
       get().setMood(agentId, 'error', 2000)
       get().log({ agentId, skill: skill.id, level: 'error', message: errMsg(e) })
     } finally {
-      // Let the animation play out, then free the agent.
-      const wait = Math.min(skill.duration, 4200)
-      await sleep(wait)
-      set((s) => ({
-        runtime: { ...s.runtime, [agentId]: { ...s.runtime[agentId], busy: false } },
-      }))
+      await sleep(Math.min(skill.duration, 4200))
+      set((s) => ({ runtime: { ...s.runtime, [agentId]: { ...s.runtime[agentId], busy: false } } }))
+      // Reward the agent for the completed task.
+      const reward = skill.kind === 'xrpl' ? 18 : skill.kind === 'analysis' ? 14 : 12
+      const cur = get().stats[agentId]
+      set((sst) => ({ stats: { ...sst.stats, [agentId]: { ...cur, tasksDone: (cur?.tasksDone ?? 0) + 1 } } }))
+      get().grantXp(agentId, reward, Math.round(reward / 3))
+      // Hero heads home, banter clears.
+      set({ heroTargetId: 'home', banter: null })
     }
   },
 }))
@@ -321,36 +369,37 @@ export const useDojo = create<DojoState>((set, get) => ({
 // --- helpers ---------------------------------------------------------------
 
 type Get = typeof useDojo.getState
+type Set = (partial: Partial<DojoState> | ((s: DojoState) => Partial<DojoState>)) => void
+
+function startBanter(get: Get, set: Set, agentId: string, durationMs: number) {
+  const lines = getBanter(agentId)
+  let i = 0
+  const step = () => {
+    // stop if the hero already moved on to something else
+    if (get().heroTargetId !== agentId) return
+    if (i >= lines.length) return
+    const l = lines[i++]
+    set({ banter: { agentId, who: l.who, text: l.text } })
+    setTimeout(step, 1600)
+  }
+  // small delay so the hero "arrives" first
+  setTimeout(step, 650)
+  setTimeout(() => {
+    if (get().heroTargetId === agentId) set({ banter: null })
+  }, Math.max(durationMs, 2000))
+}
 
 async function settlePricedSkill(get: Get, agentId: string, skill: AgentSkill) {
   const s = get()
   const treasury = s.ensureWallet('treasury')
   const agentWallet = s.ensureWallet(agentId)
-  const memo: X402Memo = {
-    protocol: 'x402',
-    skill: skill.id,
-    invoice: `SKL-${now().toString(36)}`,
-    from: 'treasury',
-    to: agentId,
-    note: skill.name,
-  }
+  const memo: X402Memo = { protocol: 'x402', skill: skill.id, invoice: `SKL-${now().toString(36)}`, from: 'treasury', to: agentId, note: skill.name }
   try {
     const res = await sendPayment(s.net, toWallet(treasury), agentWallet.address, skill.price, memo)
-    s.log({
-      agentId,
-      skill: skill.id,
-      level: 'xrpl',
-      message: `x402 réglé: ${skill.price} XRP versés à ${labelOf(agentId)} pour « ${skill.name} » (${res.engineResult}).`,
-      txHash: res.hash,
-    })
+    s.log({ agentId, skill: skill.id, level: 'xrpl', message: `x402 réglé: ${skill.price} XRP versés à ${labelOf(agentId)} pour « ${skill.name} » (${res.engineResult}).`, txHash: res.hash })
     await s.refreshBalances()
   } catch (e) {
-    s.log({
-      agentId,
-      skill: skill.id,
-      level: 'error',
-      message: `x402 non réglé (skill exécuté quand même): ${errMsg(e)}. Financez la trésorerie.`,
-    })
+    s.log({ agentId, skill: skill.id, level: 'error', message: `x402 non réglé (skill exécuté quand même): ${errMsg(e)}. Financez la trésorerie.` })
   }
 }
 
@@ -358,25 +407,17 @@ async function executeSkill(get: Get, agentId: string, skill: AgentSkill) {
   const s = get()
   const [, verb] = skill.id.split('.')
 
-  // -- Generic XRPL skills shared by every agent -----------------------------
   if (verb === 'wallet') {
     const ws = s.ensureWallet(agentId)
-    if (s.net !== 'mainnet' && ws.balanceXrp === null) {
-      await s.fund(agentId)
-    } else {
+    if (s.net !== 'mainnet' && ws.balanceXrp === null) await s.fund(agentId)
+    else {
       const bal = await getBalance(s.net, ws.address)
       patchBalance(agentId, bal)
-      s.log({
-        agentId,
-        skill: skill.id,
-        level: 'xrpl',
-        message: `Wallet ${ws.address} — ${bal === null ? 'non financé' : bal.toFixed(2) + ' XRP'}.`,
-      })
+      s.log({ agentId, skill: skill.id, level: 'xrpl', message: `Wallet ${ws.address} — ${bal === null ? 'non financé' : bal.toFixed(2) + ' XRP'}.` })
     }
     return
   }
   if (verb === 'pay') {
-    // Agent pays a small internal fee to the treasury with an x402 memo.
     await s.transfer(agentId, 'treasury', 0.1, `Contribution de ${labelOf(agentId)}`)
     return
   }
@@ -384,26 +425,14 @@ async function executeSkill(get: Get, agentId: string, skill: AgentSkill) {
     const ws = s.ensureWallet(agentId)
     const hash = await sha256Hex(`${agentId}:${skill.id}:${now()}`)
     try {
-      const res = await trackAction(s.net, toWallet(ws), {
-        agent: agentId,
-        skill: skill.id,
-        hash,
-        ts: now(),
-      })
-      s.log({
-        agentId,
-        skill: skill.id,
-        level: 'xrpl',
-        message: `Comportement ancré on-ledger (memo ${hash.slice(0, 10)}…, ${res.engineResult}).`,
-        txHash: res.hash,
-      })
+      const res = await trackAction(s.net, toWallet(ws), { agent: agentId, skill: skill.id, hash, ts: now() })
+      s.log({ agentId, skill: skill.id, level: 'xrpl', message: `Comportement ancré on-ledger (memo ${hash.slice(0, 10)}…, ${res.engineResult}).`, txHash: res.hash })
     } catch (e) {
       s.log({ agentId, skill: skill.id, level: 'error', message: `Track échoué: ${errMsg(e)}` })
     }
     return
   }
 
-  // -- Named XRPL skills -----------------------------------------------------
   switch (skill.id) {
     case 'fin.treasury': {
       s.ensureWallet('treasury')
@@ -414,9 +443,7 @@ async function executeSkill(get: Get, agentId: string, skill: AgentSkill) {
     case 'fin.payroll': {
       const receivers = AGENTS.map((a) => a.id)
       s.log({ agentId: 'fin', skill: skill.id, level: 'info', message: `Paie de ${receivers.length} agents…` })
-      for (const rid of receivers) {
-        await s.transfer('treasury', rid, 0.2, 'Payroll')
-      }
+      for (const rid of receivers) await s.transfer('treasury', rid, 0.2, 'Payroll')
       return
     }
     case 'fin.audit':
@@ -425,13 +452,10 @@ async function executeSkill(get: Get, agentId: string, skill: AgentSkill) {
     case 'ada.ledger':
       await s.auditWallet('treasury')
       return
-    case 'ava.fund': {
+    case 'ava.fund':
       await s.transfer('treasury', 'rex', 0.5, 'Budget Tech')
       return
-    }
     case 'sol.invoice': {
-      // A "client" settles an x402 invoice with Sol. On faucet networks we
-      // spin up a real, funded ephemeral client wallet to pay on-ledger.
       if (s.net === 'mainnet') {
         s.log({ agentId: 'sol', skill: skill.id, level: 'info', message: 'Facture x402 émise — en attente de règlement client.' })
         return
@@ -451,20 +475,13 @@ async function executeSkill(get: Get, agentId: string, skill: AgentSkill) {
     }
   }
 
-  // -- Non-XRPL skills: produce a concrete, deterministic result -------------
   await sleep(Math.min(skill.duration, 2600))
   s.log({ agentId, skill: skill.id, level: 'success', message: skillOutput(agentId, skill) })
 
-  // Special: HR morale skill lifts everyone's mood.
-  if (skill.id === 'hana.morale') {
-    for (const a of AGENTS) get().setMood(a.id, 'love', 2600)
-  }
-  if (skill.id === 'ava.standup') {
-    for (const a of AGENTS) get().setMood(a.id, 'talk', 2400)
-  }
+  if (skill.id === 'hana.morale') for (const a of AGENTS) get().setMood(a.id, 'love', 2600)
+  if (skill.id === 'ava.standup') for (const a of AGENTS) get().setMood(a.id, 'talk', 2400)
 }
 
-// Patch a single agent's cached balance without touching the rest of the map.
 function patchBalance(agentId: string, bal: number | null) {
   useDojo.setState((st) => ({
     wallets: st.wallets[agentId]
@@ -477,7 +494,7 @@ function skillOutput(agentId: string, skill: AgentSkill): string {
   const a = AGENT_BY_ID[agentId]
   const lines: Record<string, string> = {
     'ava.okr': 'OKR Q3 définis: +30% activation, MRR ×2, NPS > 50.',
-    'rex.ship': 'Feature shippée ✅ build #' + Math.abs(hashStr(skill.id + now())) % 9000 + '.',
+    'rex.ship': 'Feature shippée ✅ build #' + (Math.abs(hashStr(skill.id + now())) % 9000),
     'rex.review': 'Review: 2 bugs corrigés, 3 simplifications proposées.',
     'otto.deploy': 'Déploiement prod OK — health-checks au vert.',
     'otto.scale': 'Autoscaling: +2 instances, latence p95 stable.',
@@ -503,16 +520,11 @@ function labelOf(ownerId: string): string {
   if (ownerId === 'treasury') return 'Trésorerie'
   return AGENT_BY_ID[ownerId]?.name ?? ownerId
 }
-
 function errMsg(e: unknown): string {
-  if (e instanceof Error) return e.message
-  return String(e)
+  return e instanceof Error ? e.message : String(e)
 }
-
 function hashStr(s: string): number {
   let h = 0
   for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i)
   return h
 }
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
