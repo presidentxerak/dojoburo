@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AGENTS } from '../data/agents'
 import { STAGE, STATIONS } from '../data/layout'
-import { SCENES } from '../data/scenes'
+import { SCENES, WALL_H } from '../data/scenes'
 import { useDojo } from '../store'
 import { AgentSprite } from './AgentSprite'
 import { Furniture } from './Furniture'
@@ -38,6 +38,10 @@ export function Office() {
           }}
         >
           <div className="floor-grid" />
+          <div
+            className="scene-wall"
+            style={{ height: WALL_H, background: scene.wall, borderBottom: `4px solid ${scene.wallTrim}` }}
+          />
           {scene.pieces.map((piece, i) => (
             <Furniture key={`d-${i}`} piece={piece} />
           ))}

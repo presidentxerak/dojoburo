@@ -4,57 +4,85 @@ import type { DeskVariant, FurnitureKind, FurniturePiece } from '../data/layout'
 // Small pixel furniture pieces as inline SVG (anti-aliased). Colours are tuned
 // to read on both the light and dark floor.
 
+// desks are drawn BEHIND the character, so the interesting props live near the
+// left & right edges where they stay visible.
 function Desk({ variant }: { variant: DeskVariant }) {
   const wood = '#a9855b'
   const woodT = '#c6a374'
-  const leg = '#6f5638'
+  const legc = '#6f5638'
   const screen = '#63d0ff'
+
+  const monitor = (x: number, tint = screen) => (
+    <g>
+      <rect x={x} y={0} width="13" height="8" fill="#2b2f3d" />
+      <rect x={x + 1} y={1} width="11" height="6" fill={tint} />
+      <rect x={x + 5} y={8} width="3" height="2" fill="#2b2f3d" />
+    </g>
+  )
+  const mug = (x: number, c = '#e2574c') => <rect x={x} y={5} width="3" height="4" fill={c} />
+  const papers = (x: number) => <g><rect x={x} y={6} width="9" height="3" fill="#e7ecf5" /><rect x={x + 1} y={7} width="6" height="1" fill="#a7b0c0" /></g>
+  const lamp = (x: number) => <g><rect x={x} y={2} width="1.5" height="7" fill="#8b93a1" /><path d={`M${x - 2} 2 L${x + 4} 2 L${x + 2} 5 L${x} 5 Z`} fill="#ffcf3b" /></g>
+  const potted = (x: number) => <g><rect x={x} y={2} width="5" height="4" fill="#2fae5f" /><rect x={x + 1} y={6} width="3" height="3" fill="#c96f3a" /></g>
+  const phone = (x: number) => <g><rect x={x} y={4} width="3" height="5" fill="#2b3145" /><rect x={x + 0.6} y={5} width="1.8" height="2.5" fill="#7bd88f" /></g>
+
   if (variant === 'l') {
     return (
-      <svg width="150" height="52" viewBox="0 0 75 26">
-        <rect x="2" y="6" width="71" height="8" fill={wood} />
-        <rect x="2" y="6" width="71" height="2" fill={woodT} />
-        <rect x="4" y="14" width="4" height="10" fill={leg} />
-        <rect x="66" y="14" width="4" height="10" fill={leg} />
-        <rect x="34" y="14" width="4" height="10" fill={leg} />
-        <rect x="40" y="0" width="16" height="8" fill="#2b2f3d" />
-        <rect x="41" y="1" width="14" height="6" fill={screen} />
-        <rect x="47" y="8" width="2" height="2" fill="#2b2f3d" />
-        <rect x="12" y="8" width="14" height="4" fill="#e7ecf5" />
-        <rect x="6" y="5" width="3" height="4" fill="#e2574c" />
+      <svg width="150" height="54" viewBox="0 0 75 27">
+        <rect x="2" y="9" width="71" height="8" fill={wood} />
+        <rect x="2" y="9" width="71" height="2" fill={woodT} />
+        <rect x="4" y="17" width="4" height="10" fill={legc} />
+        <rect x="35" y="17" width="4" height="10" fill={legc} />
+        <rect x="67" y="17" width="4" height="10" fill={legc} />
+        {monitor(6)}
+        {monitor(56, '#7bd88f')}
+        {papers(24)}
+        {potted(44)}
+        {mug(38, '#3f7fe0')}
       </svg>
     )
   }
   if (variant === 'standing') {
     return (
-      <svg width="112" height="66" viewBox="0 0 56 33">
-        <rect x="4" y="2" width="18" height="10" fill="#2b2f3d" />
-        <rect x="5" y="3" width="16" height="7" fill={screen} />
-        <rect x="26" y="4" width="16" height="8" fill="#2b2f3d" />
-        <rect x="27" y="5" width="14" height="6" fill="#7bd88f" />
+      <svg width="112" height="70" viewBox="0 0 56 35">
+        {monitor(6)}
+        {monitor(37, '#7bd88f')}
         <rect x="2" y="14" width="52" height="6" fill={wood} />
         <rect x="2" y="14" width="52" height="2" fill={woodT} />
-        <rect x="10" y="20" width="4" height="12" fill={leg} />
-        <rect x="42" y="20" width="4" height="12" fill={leg} />
-        <rect x="8" y="30" width="40" height="2" fill="#4a3b2a" />
+        <rect x="10" y="20" width="4" height="13" fill={legc} />
+        <rect x="42" y="20" width="4" height="13" fill={legc} />
+        <rect x="8" y="33" width="40" height="2" fill="#4a3b2a" />
+        <g transform="translate(24,6)">{potted(0)}</g>
       </svg>
     )
   }
-  // 'a' and 'b'
+  if (variant === 'b') {
+    return (
+      <svg width="112" height="50" viewBox="0 0 56 25">
+        <rect x="2" y="6" width="52" height="8" fill={wood} />
+        <rect x="2" y="6" width="52" height="2" fill={woodT} />
+        <rect x="4" y="14" width="4" height="11" fill={legc} />
+        <rect x="42" y="14" width="12" height="11" fill="#8a6c47" />
+        <rect x="44" y="17" width="8" height="1" fill="#5c4630" />
+        <rect x="44" y="21" width="8" height="1" fill="#5c4630" />
+        {lamp(7)}
+        {monitor(38)}
+        {papers(20)}
+        {phone(14)}
+      </svg>
+    )
+  }
+  // 'a' — classic
   return (
-    <svg width="112" height="48" viewBox="0 0 56 24">
-      <rect x="2" y="4" width="52" height="8" fill={wood} />
-      <rect x="2" y="4" width="52" height="2" fill={woodT} />
-      <rect x="4" y="12" width="4" height="11" fill={leg} />
-      <rect x="48" y="12" width="4" height="11" fill={leg} />
-      {variant === 'b' && <rect x="42" y="12" width="10" height="11" fill="#8a6c47" />}
-      {variant === 'b' && <rect x="44" y="15" width="6" height="1" fill="#5c4630" />}
-      {variant === 'b' && <rect x="44" y="19" width="6" height="1" fill="#5c4630" />}
-      <rect x="30" y="0" width="16" height="9" fill="#2b2f3d" />
-      <rect x="31" y="1" width="14" height="6" fill={screen} />
-      <rect x="37" y="9" width="2" height="3" fill="#2b2f3d" />
-      <rect x="10" y="6" width="12" height="4" fill="#e7ecf5" />
-      <rect x="6" y="4" width="3" height="4" fill="#e2574c" />
+    <svg width="112" height="50" viewBox="0 0 56 25">
+      <rect x="2" y="6" width="52" height="8" fill={wood} />
+      <rect x="2" y="6" width="52" height="2" fill={woodT} />
+      <rect x="4" y="14" width="4" height="11" fill={legc} />
+      <rect x="48" y="14" width="4" height="11" fill={legc} />
+      {monitor(5)}
+      {papers(21)}
+      {mug(46)}
+      {potted(38)}
+      <rect x="20" y="10" width="14" height="3" fill="#e7ecf5" />
     </svg>
   )
 }
@@ -537,6 +565,46 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
           <rect x="4" y="8" width="12" height="4" fill="#e2574c" />
         </svg>
       )
+    case 'door':
+      return (
+        <svg width="60" height="92" viewBox="0 0 30 46">
+          <rect x="1" y="0" width="28" height="46" fill="#8a6c47" />
+          <rect x="3" y="2" width="24" height="44" fill="#6f5638" />
+          <rect x="5" y="4" width="20" height="15" fill="#5c4630" />
+          <rect x="5" y="22" width="20" height="20" fill="#5c4630" />
+          <rect x="9" y="7" width="12" height="9" fill="#3f7fbf" opacity="0.5" />
+          <circle cx="22" cy="30" r="1.6" fill="#ffcf3b" />
+          <rect x="1" y="0" width="28" height="2" fill="#9c7c52" />
+        </svg>
+      )
+    case 'poster':
+      return (
+        <svg width="58" height="48" viewBox="0 0 29 24">
+          <rect x="0" y="0" width="29" height="24" fill="#f6f8fc" stroke="#c3ccdb" strokeWidth="1.5" />
+          <rect x="3" y="3" width="23" height="18" fill="#bfe0ff" />
+          <path d="M3 21 L11 12 L16 17 L21 10 L26 21 Z" fill="#7bd88f" />
+          <circle cx="21" cy="8" r="2.5" fill="#ffcf3b" />
+        </svg>
+      )
+    case 'watercooler':
+      return (
+        <svg width="34" height="62" viewBox="0 0 17 31">
+          <path d="M5 0 L12 0 L13 9 L4 9 Z" fill="#8fd3ff" />
+          <rect x="4" y="9" width="9" height="2" fill="#cfe8ff" />
+          <rect x="3" y="11" width="11" height="16" fill="#eef2f6" stroke="#c3ccdb" />
+          <rect x="6" y="15" width="5" height="3" fill="#63b6e6" />
+          <rect x="6" y="20" width="2" height="3" fill="#c3ccdb" />
+          <rect x="3" y="27" width="11" height="4" fill="#b9c2d2" />
+        </svg>
+      )
+    case 'deskplant':
+      return (
+        <svg width="22" height="26" viewBox="0 0 11 13">
+          <rect x="2" y="1" width="7" height="6" fill="#2fae5f" />
+          <rect x="4" y="0" width="2" height="4" fill="#3ed071" />
+          <rect x="3" y="7" width="5" height="5" fill="#c96f3a" />
+        </svg>
+      )
     case 'rug':
       return (
         <div
@@ -572,6 +640,7 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
 const DECOR = new Set([
   'window', 'rug', 'plant', 'plantTall', 'couch', 'coffee', 'cooler',
   'bookshelf', 'printer', 'clock', 'lamp', 'boxes', 'arcade',
+  'door', 'poster', 'watercooler', 'deskplant',
   'porthole', 'console', 'satellite', 'hologram',
   'labpanel', 'microscope', 'beakers', 'dnahelix',
   'stonewindow', 'torch', 'banner', 'armor',

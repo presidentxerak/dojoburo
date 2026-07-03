@@ -222,6 +222,12 @@ a:hover { text-decoration: underline; }
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(120% 80% at 50% -20%, var(--scene-tint, rgba(255,255,255,0.14)), transparent 60%);
 }
+/* back wall band behind the top decor (windows, door, clock…) */
+.scene-wall {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 0;
+  background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.03) 0 2px, transparent 2px 46px);
+  box-shadow: inset 0 -10px 14px rgba(0,0,0,0.05);
+}
 
 /* ---- agent sprite -------------------------------------------------------- */
 .agent {
@@ -232,14 +238,26 @@ a:hover { text-decoration: underline; }
 /* animated ASCII expression sitting on the character's head */
 .character { position: relative; }
 .char-inner { position: relative; display: block; transform-origin: bottom center; animation: breathe 3.2s ease-in-out infinite; }
+/* de-synced, per-kind idle motion for life */
 .kind-slime .char-inner { animation: squish 1.9s ease-in-out infinite; }
 .kind-alien .char-inner { animation: float 2.6s ease-in-out infinite; }
 .kind-cat .char-inner { animation: breathe 2.4s ease-in-out infinite; }
-.kind-ghost .char-inner, .kind-vampire .char-inner { animation: float 3.4s ease-in-out infinite; }
-@keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.025) translateY(-1px); } }
-@keyframes squish { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.09, 0.9) translateY(2px); } }
+.kind-vampire .char-inner { animation: float 3.4s ease-in-out infinite; }
+.kind-monster .char-inner { animation: squish 2.6s ease-in-out infinite; }
+.kind-goldorak .char-inner { animation: breathe 3.6s ease-in-out infinite; }
+.kind-robot .char-inner { animation: breathe 2.8s steps(6, end) infinite; }
+.kind-cyborg .char-inner { animation: breathe 3.0s ease-in-out infinite; }
+.kind-ninja .char-inner { animation: breathe 3.1s ease-in-out infinite; }
+.kind-skeleton .char-inner { animation: breathe 3.3s ease-in-out infinite; }
+.kind-wizard .char-inner { animation: float 3.3s ease-in-out infinite; }
+.kind-human .char-inner { animation: breathe 3.5s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.03) translateY(-1px); } }
+@keyframes squish { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.1, 0.88) translateY(2px); } }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 .face-on-head { z-index: 2; }
+/* the shadow breathes with the body for depth */
+.agent-shadow { animation: shadowpulse 3.2s ease-in-out infinite; }
+@keyframes shadowpulse { 0%, 100% { transform: scaleX(1); opacity: 0.16; } 50% { transform: scaleX(0.9); opacity: 0.12; } }
 .face-on-head {
   position: absolute; left: 0; right: 0; top: 16.5%; text-align: center; pointer-events: none;
   line-height: 0; /* kill the inherited large line-box so the face sits on the head */

@@ -12,18 +12,18 @@ export const STAGE = { w: 1040, h: 700 }
 
 // avatar anchor (top-left) per agent — deliberately organic, not a grid.
 export const POSITIONS: Record<string, { x: number; y: number }> = {
-  ava: { x: 476, y: 70 },
-  lex: { x: 656, y: 92 },
-  fin: { x: 858, y: 120 },
-  rex: { x: 116, y: 128 },
-  ada: { x: 268, y: 250 },
-  dex: { x: 96, y: 344 },
-  pia: { x: 486, y: 248 },
-  mia: { x: 672, y: 300 },
-  sol: { x: 858, y: 336 },
-  otto: { x: 120, y: 528 },
-  hana: { x: 356, y: 504 },
-  sam: { x: 632, y: 520 },
+  ava: { x: 470, y: 132 },
+  lex: { x: 652, y: 150 },
+  fin: { x: 860, y: 150 },
+  rex: { x: 120, y: 156 },
+  ada: { x: 276, y: 268 },
+  dex: { x: 96, y: 356 },
+  pia: { x: 492, y: 262 },
+  mia: { x: 676, y: 312 },
+  sol: { x: 860, y: 344 },
+  otto: { x: 122, y: 536 },
+  hana: { x: 360, y: 512 },
+  sam: { x: 636, y: 528 },
 }
 
 export const HERO_HOME = { x: 496, y: 420 }
@@ -44,6 +44,7 @@ export type DecorKind =
   // office
   | 'window' | 'rug' | 'plant' | 'plantTall' | 'couch' | 'coffee' | 'cooler'
   | 'bookshelf' | 'printer' | 'clock' | 'lamp' | 'boxes' | 'arcade'
+  | 'door' | 'poster' | 'watercooler' | 'deskplant'
   // space station
   | 'porthole' | 'console' | 'satellite' | 'hologram'
   // lab
@@ -85,12 +86,15 @@ const STATIONS_CFG: Record<string, { desk: DeskVariant; prop: PropKind; px: numb
   sam: { desk: 'b', prop: 'tickets', px: 60, py: -4 },
 }
 
-// Desks render IN FRONT of the character (z 24 > agent z 20); props sit behind.
+// The character stands IN FRONT of its desk: the desk sits BEHIND (z 8 < agent
+// z 20) at roughly waist height, so the full character is visible and the desk
+// peeks out on either side. Props sit further back.
 export const STATIONS: FurniturePiece[] = AGENTS.flatMap((a) => {
   const p = POSITIONS[a.id]
   const s = STATIONS_CFG[a.id]
+  const deskX = s.desk === 'l' ? p.x - 22 : p.x - 8
   return [
-    { kind: 'desk', variant: s.desk, x: p.x - 30, y: p.y + 50, z: 24 } as FurniturePiece,
+    { kind: 'desk', variant: s.desk, x: deskX, y: p.y + 30, z: 8 } as FurniturePiece,
     { kind: s.prop, x: p.x + s.px, y: p.y + s.py, z: 3 } as FurniturePiece,
   ]
 })
