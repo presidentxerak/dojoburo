@@ -175,6 +175,19 @@ a:hover { text-decoration: underline; }
 .panel { background: var(--panel); border: 3px solid var(--border); box-shadow: var(--shadow); }
 .panel-hint { padding: 20px; color: var(--muted); text-align: center; font-size: 11px; line-height: 1.7; }
 
+/* ---- scene switcher ------------------------------------------------------ */
+.scene-switch {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+}
+.scene-btn {
+  font: inherit; font-size: 10px; color: var(--muted); cursor: pointer;
+  background: var(--panel); border: 2px solid var(--border); border-radius: 8px;
+  padding: 7px 11px; box-shadow: var(--shadow); transition: transform 0.06s, border-color 0.12s, color 0.12s;
+}
+.scene-btn:hover { color: var(--ink); border-color: var(--border-lit); }
+.scene-btn:active { transform: translateY(2px); box-shadow: none; }
+.scene-btn.active { background: var(--cyan); color: #fff; border-color: var(--cyan); }
+
 /* ---- office scene -------------------------------------------------------- */
 .office-wrap { width: 100%; max-width: 100%; overflow: hidden; }
 .office-viewport {
@@ -207,7 +220,7 @@ a:hover { text-decoration: underline; }
 @keyframes srv { 50% { filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.12)) brightness(1.12); } }
 .floor-grid::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(120% 80% at 50% -20%, rgba(255,255,255,0.14), transparent 60%);
+  background: radial-gradient(120% 80% at 50% -20%, var(--scene-tint, rgba(255,255,255,0.14)), transparent 60%);
 }
 
 /* ---- agent sprite -------------------------------------------------------- */
@@ -218,6 +231,15 @@ a:hover { text-decoration: underline; }
 .agent .agent-avatar { transition: transform 0.15s; filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.22)); }
 /* animated ASCII expression sitting on the character's head */
 .character { position: relative; }
+.char-inner { position: relative; display: block; transform-origin: bottom center; animation: breathe 3.2s ease-in-out infinite; }
+.kind-slime .char-inner { animation: squish 1.9s ease-in-out infinite; }
+.kind-alien .char-inner { animation: float 2.6s ease-in-out infinite; }
+.kind-cat .char-inner { animation: breathe 2.4s ease-in-out infinite; }
+.kind-ghost .char-inner, .kind-vampire .char-inner { animation: float 3.4s ease-in-out infinite; }
+@keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.025) translateY(-1px); } }
+@keyframes squish { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.09, 0.9) translateY(2px); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.face-on-head { z-index: 2; }
 .face-on-head {
   position: absolute; left: 0; right: 0; top: 16.5%; text-align: center; pointer-events: none;
   line-height: 0; /* kill the inherited large line-box so the face sits on the head */

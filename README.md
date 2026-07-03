@@ -21,6 +21,9 @@ orchestrate agents in a fun way (à la [WorkAdventure](https://workadventu.re)),
 - **12 wild characters**, all different (alien, ninja, robot, Goldorak mecha, skeleton,
   cat, wizard, monster, cyborg, slime, vampire, human) with the **animated ASCII
   expression drawn directly on the head**.
+- **Switchable scene templates** (buttons below the scene): Office, Space station, Lab,
+  Castle, Airport, Shopping center, Hospital — each swaps the floor, ambient tint and
+  themed decor while the agents keep working.
 - **A hero** (the founder) who **walks to the working agent** when a task starts and
   **trades jokes** with them during the task (varied, department-flavored dialogue).
 - **Game layer**: XP, levels, tiers, coins, per-agent stats, and **random office events**
@@ -109,6 +112,14 @@ Anything that touches money is a real on-ledger transaction.
 > build box, **not** the app. In a normal browser everything connects and works.
 
 ---
+
+## Security
+
+See [`SECURITY.md`](./SECURITY.md) for the full threat model. Highlights: strict
+**Content-Security-Policy** + security headers (`public/_headers`, `vercel.json`),
+React auto-escaping (no `dangerouslySetInnerHTML`/`eval`), `frame-ancestors 'none'`
+(anti-clickjacking), non-custodial **Xaman** signing so private keys never touch the
+app, and edge/WAF guidance for bots/scraping/DDoS.
 
 ## Getting started
 

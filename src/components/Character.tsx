@@ -19,11 +19,13 @@ export function Character({
   const dark = isDark(character.face)
   const height = size * AVATAR_RATIO
   return (
-    <div className={`character ${className ?? ''}`} style={{ width: size, height, fontSize: size }}>
-      <PixelAvatar character={character} width={size} />
-      <div className="face-on-head" style={{ color: dark ? '#f4f4f4' : '#181818' }}>
-        <AsciiFace mood={mood} />
-      </div>
+    <div className={`character kind-${character.kind} ${className ?? ''}`} style={{ width: size, height, fontSize: size }}>
+      <span className="char-inner">
+        <PixelAvatar character={character} width={size} />
+        <div className="face-on-head" style={{ color: dark ? '#f4f4f4' : '#181818' }}>
+          <AsciiFace mood={mood} />
+        </div>
+      </span>
     </div>
   )
 }

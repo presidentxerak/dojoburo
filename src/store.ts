@@ -9,6 +9,7 @@ import { AGENTS, AGENT_BY_ID, type AgentSkill } from './data/agents'
 import { getBanter } from './data/jokes'
 import { pickEvent, tierForLevel, xpForLevel } from './data/events'
 import { NETWORKS, loadNetworkId, saveNetworkId, type NetworkId } from './xrpl/network'
+import { loadSceneId, saveSceneId, type SceneId } from './data/scenes'
 import {
   createWallet,
   fundFromFaucet,
@@ -79,10 +80,12 @@ interface DojoState {
   banter: Banter | null
   muted: boolean
   musicOn: boolean
+  sceneId: SceneId
   xaman: { account: string | null; busy: boolean; signLink: string | null; signQr: string | null; configured: boolean }
 
   setNetwork: (net: NetworkId) => void
   setTheme: (t: Theme) => void
+  setScene: (id: SceneId) => void
   toggleMute: () => void
   toggleMusic: () => void
   xamanConnect: () => Promise<void>
@@ -184,7 +187,14 @@ export const useDojo = create<DojoState>((set, get) => ({
   banter: null,
   muted: localStorage.getItem('dojoburo.muted') === '1',
   musicOn: false,
+  sceneId: loadSceneId(),
   xaman: { account: null, busy: false, signLink: null, signQr: null, configured: xaman.isConfigured() },
+
+  setScene: (id) => {
+    saveSceneId(id)
+    audio.sfx('click')
+    set({ sceneId: id })
+  },
 
   log: (a) => set((s) => ({ activity: [{ ...a, id: uid(), ts: now() }, ...s.activity].slice(0, 200) })),
 

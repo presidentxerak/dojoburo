@@ -319,6 +319,224 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
           <rect x="2" y="34" width="20" height="4" fill="#1c1f2b" />
         </svg>
       )
+    // ---- space station ----
+    case 'porthole':
+      return (
+        <svg width="66" height="66" viewBox="0 0 33 33">
+          <circle cx="16.5" cy="16.5" r="15" fill="#3a4256" />
+          <circle cx="16.5" cy="16.5" r="12" fill="#0a1024" />
+          {[[8, 9], [22, 7], [12, 20], [24, 22], [17, 14]].map(([sx, sy], i) => (
+            <rect key={i} x={sx} y={sy} width="1.4" height="1.4" fill="#cfe8ff" />
+          ))}
+          <circle cx="21" cy="12" r="3" fill="#63d0ff" />
+          {[0, 1, 2, 3].map((i) => <rect key={i} x={16} y={1.5} width="1" height="3" fill="#8b93a1" transform={`rotate(${i * 90} 16.5 16.5)`} />)}
+        </svg>
+      )
+    case 'console':
+      return (
+        <svg width={w ?? 120} height="50" viewBox={`0 0 ${(w ?? 120) / 2} 25`}>
+          <rect x="0" y="6" width={(w ?? 120) / 2} height="15" fill="#2b3145" />
+          <rect x="2" y="8" width="18" height="8" fill="#63d0ff" />
+          <rect x="22" y="8" width="14" height="8" fill="#7bd88f" />
+          {[2, 6, 10, 14, 18].map((bx) => <rect key={bx} x={bx} y={18} width="2" height="2" fill="#e2574c" />)}
+          {[26, 30, 34, 38].map((bx) => <rect key={bx} x={bx} y={18} width="2" height="2" fill="#ffcf3b" />)}
+        </svg>
+      )
+    case 'satellite':
+      return (
+        <svg width="52" height="60" viewBox="0 0 26 30">
+          <ellipse cx="10" cy="10" rx="9" ry="6" fill="#c9d2e2" />
+          <ellipse cx="10" cy="10" rx="5" ry="3" fill="#8b93a1" />
+          <rect x="10" y="10" width="1.5" height="10" fill="#8b93a1" />
+          <rect x="4" y="20" width="14" height="8" fill="#2b3145" />
+          <rect x="5" y="21" width="6" height="6" fill="#63d0ff" />
+          <rect x="12" y="21" width="5" height="6" fill="#63d0ff" />
+        </svg>
+      )
+    case 'hologram':
+      return (
+        <svg width="60" height="70" viewBox="0 0 30 35">
+          <ellipse cx="15" cy="31" rx="12" ry="3" fill="#1a5fa0" opacity="0.5" />
+          <path d="M15 6 L26 28 L4 28 Z" fill="#63d0ff" opacity="0.35" />
+          <path d="M15 6 L26 28 L4 28 Z" fill="none" stroke="#63d0ff" strokeWidth="1" />
+          <circle cx="15" cy="16" r="4" fill="none" stroke="#8ef6ff" strokeWidth="1" />
+        </svg>
+      )
+    // ---- lab ----
+    case 'labpanel':
+      return (
+        <svg width={w ?? 200} height="60" viewBox={`0 0 ${(w ?? 200) / 2} 30`}>
+          <rect x="0" y="0" width={(w ?? 200) / 2} height="26" fill="#e7f0f4" stroke="#b7cdd4" />
+          <rect x="6" y="5" width="24" height="6" fill="#7bd88f" />
+          <rect x="6" y="14" width={(w ?? 200) / 2 - 20} height="2" fill="#a7c3cc" />
+          <rect x="6" y="19" width={(w ?? 200) / 2 - 30} height="2" fill="#a7c3cc" />
+          <circle cx={(w ?? 200) / 2 - 10} cy="8" r="3" fill="#63d0ff" />
+        </svg>
+      )
+    case 'microscope':
+      return (
+        <svg width="44" height="60" viewBox="0 0 22 30">
+          <rect x="6" y="26" width="12" height="3" fill="#2b3145" />
+          <rect x="9" y="10" width="3" height="16" fill="#565d78" />
+          <path d="M11 6 q6 0 6 8" fill="none" stroke="#565d78" strokeWidth="2.5" />
+          <rect x="9" y="4" width="4" height="5" fill="#3a3f52" />
+          <rect x="7" y="20" width="10" height="2" fill="#8b93a1" />
+        </svg>
+      )
+    case 'beakers':
+      return (
+        <svg width="46" height="52" viewBox="0 0 23 26">
+          <path d="M6 6 L6 12 L3 22 L11 22 L8 12 L8 6 Z" fill="#dff2f6" stroke="#a7c3cc" />
+          <path d="M4.5 18 L9.5 18 L11 22 L3 22 Z" fill="#7bd88f" />
+          <rect x="14" y="8" width="6" height="14" fill="#dff2f6" stroke="#a7c3cc" />
+          <rect x="14" y="16" width="6" height="6" fill="#f2617a" />
+          <rect x="5" y="5" width="4" height="1" fill="#8b93a1" />
+        </svg>
+      )
+    case 'dnahelix':
+      return (
+        <svg width="40" height="64" viewBox="0 0 20 32">
+          {[0, 4, 8, 12, 16, 20, 24, 28].map((yy, i) => (
+            <g key={yy}>
+              <circle cx={i % 2 ? 14 : 6} cy={yy + 2} r="2" fill="#63d0ff" />
+              <circle cx={i % 2 ? 6 : 14} cy={yy + 2} r="2" fill="#f2617a" />
+              <rect x="6" y={yy + 1.4} width="8" height="1.2" fill="#8b93a1" />
+            </g>
+          ))}
+        </svg>
+      )
+    // ---- castle ----
+    case 'stonewindow':
+      return (
+        <svg width="60" height="80" viewBox="0 0 30 40">
+          <path d="M4 40 L4 12 A11 11 0 0 1 26 12 L26 40 Z" fill="#8a8078" stroke="#6a6058" strokeWidth="2" />
+          <path d="M8 40 L8 13 A7 7 0 0 1 22 13 L22 40 Z" fill="#3a5a7a" />
+          <rect x="14" y="8" width="2" height="32" fill="#6a6058" />
+        </svg>
+      )
+    case 'torch':
+      return (
+        <svg width="26" height="60" viewBox="0 0 13 30">
+          <rect x="5" y="10" width="3" height="18" fill="#6f5638" />
+          <path d="M6.5 0 C3 5 9 6 6.5 12 C4 8 4 5 6.5 0Z" fill="#ff8a1f" />
+          <path d="M6.5 3 C5 6 8 7 6.5 11 C5.5 8 5.5 6 6.5 3Z" fill="#ffd23b" />
+        </svg>
+      )
+    case 'banner':
+      return (
+        <svg width="44" height="76" viewBox="0 0 22 38">
+          <rect x="2" y="0" width="18" height="3" fill="#6f5638" />
+          <path d="M4 2 L18 2 L18 32 L11 36 L4 32 Z" fill="#8a1420" />
+          <path d="M4 2 L18 2 L18 32 L11 36 L4 32 Z" fill="none" stroke="#c9a94a" strokeWidth="1" />
+          <path d="M11 10 L14 15 L11 20 L8 15 Z" fill="#ffcf3b" />
+        </svg>
+      )
+    case 'armor':
+      return (
+        <svg width="40" height="76" viewBox="0 0 20 38">
+          <rect x="7" y="1" width="6" height="6" fill="#b7c0cc" />
+          <rect x="8" y="3" width="4" height="2" fill="#2b3145" />
+          <rect x="5" y="8" width="10" height="12" fill="#c9d2e2" />
+          <rect x="3" y="9" width="2" height="8" fill="#8b93a1" />
+          <rect x="15" y="9" width="2" height="8" fill="#8b93a1" />
+          <rect x="6" y="20" width="3" height="12" fill="#b7c0cc" />
+          <rect x="11" y="20" width="3" height="12" fill="#b7c0cc" />
+          <rect x="4" y="32" width="12" height="2" fill="#8b93a1" />
+        </svg>
+      )
+    // ---- airport ----
+    case 'glasswall':
+      return (
+        <div style={{ width: w ?? 260, height: 66, background: 'linear-gradient(180deg,#cfe6f7,#9dc4e0)', border: '4px solid #cdd6e2', display: 'flex' }}>
+          {[0, 1, 2, 3].map((i) => <div key={i} style={{ flex: 1, borderRight: i < 3 ? '3px solid #cdd6e2' : 'none' }} />)}
+        </div>
+      )
+    case 'departboard':
+      return (
+        <svg width="90" height="60" viewBox="0 0 45 30">
+          <rect x="0" y="0" width="45" height="28" fill="#141a24" />
+          {[3, 9, 15, 21].map((yy) => (
+            <g key={yy}>
+              <rect x="3" y={yy} width="16" height="3" fill="#ffcf3b" />
+              <rect x="22" y={yy} width="10" height="3" fill="#7bd88f" />
+              <rect x="35" y={yy} width="7" height="3" fill="#63d0ff" />
+            </g>
+          ))}
+        </svg>
+      )
+    case 'luggage':
+      return (
+        <svg width="46" height="44" viewBox="0 0 23 22">
+          <rect x="3" y="8" width="12" height="12" rx="1.5" fill="#e2574c" />
+          <rect x="6" y="5" width="6" height="3" fill="#8a2a22" />
+          <rect x="3" y="12" width="12" height="1.5" fill="#8a2a22" />
+          <rect x="12" y="4" width="9" height="9" rx="1" fill="#3f7fe0" />
+          <rect x="14" y="2" width="5" height="2" fill="#274a86" />
+        </svg>
+      )
+    // ---- shopping center ----
+    case 'storefront':
+      return (
+        <svg width={w ?? 200} height="66" viewBox={`0 0 ${(w ?? 200) / 2} 33`}>
+          <rect x="0" y="10" width={(w ?? 200) / 2} height="22" fill="#f6eef6" stroke="#d9c4d6" />
+          <rect x="4" y="14" width={(w ?? 200) / 2 - 8} height="14" fill="#bfe0ff" />
+          {Array.from({ length: Math.ceil((w ?? 200) / 20) }).map((_, i) => (
+            <rect key={i} x={i * 10} y="4" width="10" height="6" fill={i % 2 ? '#f2617a' : '#ffe08a'} />
+          ))}
+        </svg>
+      )
+    case 'saletag':
+      return (
+        <svg width="44" height="52" viewBox="0 0 22 26">
+          <path d="M2 2 L13 2 L20 9 L11 18 L2 9 Z" fill="#f2617a" />
+          <circle cx="6" cy="6" r="1.6" fill="#fff" />
+          <text x="8" y="14" fontSize="6" fill="#fff" fontFamily="monospace">%</text>
+        </svg>
+      )
+    case 'fountain':
+      return (
+        <svg width="90" height="60" viewBox="0 0 45 30">
+          <ellipse cx="22" cy="24" rx="21" ry="5" fill="#8fd3ff" />
+          <ellipse cx="22" cy="24" rx="21" ry="5" fill="none" stroke="#5aa2d6" />
+          <rect x="20" y="8" width="4" height="14" fill="#b9c2d2" />
+          <ellipse cx="22" cy="8" rx="6" ry="2" fill="#cfe8ff" />
+          <path d="M22 8 C 18 12 18 16 20 20 M22 8 C 26 12 26 16 24 20" fill="none" stroke="#8fd3ff" />
+        </svg>
+      )
+    // ---- hospital ----
+    case 'hospwindow':
+      return (
+        <div style={{ width: w ?? 200, height: 62, background: 'linear-gradient(180deg,#e9f7ff,#c8e8f5)', border: '5px solid #eef4f2', boxShadow: 'inset 0 0 0 3px #d3e6e0', display: 'flex' }}>
+          <div style={{ width: '50%', borderRight: '5px solid #eef4f2' }} />
+        </div>
+      )
+    case 'hospbed':
+      return (
+        <svg width="90" height="52" viewBox="0 0 45 26">
+          <rect x="2" y="8" width="41" height="10" fill="#dfeef0" stroke="#b7cdd4" />
+          <rect x="2" y="6" width="12" height="12" fill="#eef7f8" />
+          <rect x="2" y="4" width="3" height="18" fill="#9aa8ac" />
+          <rect x="40" y="4" width="3" height="18" fill="#9aa8ac" />
+          <rect x="2" y="18" width="41" height="2" fill="#c8dadd" />
+        </svg>
+      )
+    case 'ivstand':
+      return (
+        <svg width="30" height="66" viewBox="0 0 15 33">
+          <rect x="7" y="2" width="1.5" height="28" fill="#b7c0cc" />
+          <rect x="8" y="4" width="5" height="7" rx="1" fill="#c6f0c0" />
+          <rect x="8.5" y="11" width="0.6" height="8" fill="#b7c0cc" />
+          <rect x="3" y="30" width="9" height="2" fill="#8b93a1" />
+        </svg>
+      )
+    case 'redcross':
+      return (
+        <svg width="40" height="40" viewBox="0 0 20 20">
+          <rect x="1" y="1" width="18" height="18" rx="3" fill="#f6f8fc" stroke="#d33" />
+          <rect x="8" y="4" width="4" height="12" fill="#e2574c" />
+          <rect x="4" y="8" width="12" height="4" fill="#e2574c" />
+        </svg>
+      )
     case 'rug':
       return (
         <div
@@ -354,6 +572,12 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
 const DECOR = new Set([
   'window', 'rug', 'plant', 'plantTall', 'couch', 'coffee', 'cooler',
   'bookshelf', 'printer', 'clock', 'lamp', 'boxes', 'arcade',
+  'porthole', 'console', 'satellite', 'hologram',
+  'labpanel', 'microscope', 'beakers', 'dnahelix',
+  'stonewindow', 'torch', 'banner', 'armor',
+  'glasswall', 'departboard', 'luggage',
+  'storefront', 'saletag', 'fountain',
+  'hospwindow', 'hospbed', 'ivstand', 'redcross',
 ])
 
 export function Furniture({ piece }: { piece: FurniturePiece }) {

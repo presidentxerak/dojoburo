@@ -1,7 +1,10 @@
 // ---------------------------------------------------------------------------
-// Office scene layout. A fixed design-space stage (scaled to fit the viewport)
-// with organic desk positions, per-agent desk variants + job-specific props,
-// and ambient decor. Characters stand; their desk sits in front of them.
+// Office scene layout. Fixed design-space stage (scaled to fit). Agent stations
+// (desk + job prop) are CONSTANT across scenes; the ambient set-dressing comes
+// from the selected scene template (see scenes.ts).
+//
+// Depth: a desk sits IN FRONT of its agent (higher z) so the character stands
+// behind it, at their desk — never on top of it.
 // ---------------------------------------------------------------------------
 import { AGENTS } from './agents'
 
@@ -23,44 +26,36 @@ export const POSITIONS: Record<string, { x: number; y: number }> = {
   sam: { x: 632, y: 520 },
 }
 
-export const HERO_HOME = { x: 496, y: 430 }
+export const HERO_HOME = { x: 496, y: 420 }
 
 export function heroPosFor(targetId: string | null): { x: number; y: number } {
   if (!targetId || targetId === 'home') return HERO_HOME
   const p = POSITIONS[targetId]
   if (!p) return HERO_HOME
-  return { x: p.x - 54, y: p.y + 20 }
+  return { x: p.x - 56, y: p.y + 6 }
 }
 
 export type DeskVariant = 'a' | 'b' | 'l' | 'standing'
 export type PropKind =
-  | 'flag'
-  | 'codeboard'
-  | 'server'
-  | 'safe'
-  | 'megaphone'
-  | 'salesboard'
-  | 'kanban'
-  | 'easel'
-  | 'chartboard'
-  | 'hiringboard'
-  | 'tickets'
-  | 'scales'
+  | 'flag' | 'codeboard' | 'server' | 'safe' | 'megaphone' | 'salesboard'
+  | 'kanban' | 'easel' | 'chartboard' | 'hiringboard' | 'tickets' | 'scales'
 
 export type DecorKind =
-  | 'window'
-  | 'rug'
-  | 'plant'
-  | 'plantTall'
-  | 'couch'
-  | 'coffee'
-  | 'cooler'
-  | 'bookshelf'
-  | 'printer'
-  | 'clock'
-  | 'lamp'
-  | 'boxes'
-  | 'arcade'
+  // office
+  | 'window' | 'rug' | 'plant' | 'plantTall' | 'couch' | 'coffee' | 'cooler'
+  | 'bookshelf' | 'printer' | 'clock' | 'lamp' | 'boxes' | 'arcade'
+  // space station
+  | 'porthole' | 'console' | 'satellite' | 'hologram'
+  // lab
+  | 'labpanel' | 'microscope' | 'beakers' | 'dnahelix'
+  // castle
+  | 'stonewindow' | 'torch' | 'banner' | 'armor'
+  // airport
+  | 'glasswall' | 'departboard' | 'luggage'
+  // shopping center
+  | 'storefront' | 'saletag' | 'fountain'
+  // hospital
+  | 'hospwindow' | 'hospbed' | 'ivstand' | 'redcross'
 
 export type FurnitureKind = 'desk' | PropKind | DecorKind
 
@@ -74,51 +69,28 @@ export interface FurniturePiece {
   z?: number
 }
 
-// Per-agent station: desk style + which side the desk sits, and a job prop.
-const STATIONS: Record<string, { desk: DeskVariant; prop: PropKind; px: number; py: number }> = {
-  ava: { desk: 'l', prop: 'flag', px: 62, py: -6 },
-  lex: { desk: 'l', prop: 'scales', px: -46, py: 4 },
-  fin: { desk: 'a', prop: 'safe', px: 60, py: 6 },
-  rex: { desk: 'b', prop: 'codeboard', px: -52, py: 2 },
-  ada: { desk: 'l', prop: 'chartboard', px: 60, py: 0 },
-  dex: { desk: 'a', prop: 'easel', px: -50, py: 0 },
-  pia: { desk: 'b', prop: 'kanban', px: 60, py: 2 },
-  mia: { desk: 'a', prop: 'megaphone', px: 58, py: 6 },
-  sol: { desk: 'b', prop: 'salesboard', px: -50, py: 0 },
-  otto: { desk: 'standing', prop: 'server', px: -46, py: -6 },
-  hana: { desk: 'a', prop: 'hiringboard', px: 58, py: 0 },
-  sam: { desk: 'b', prop: 'tickets', px: 58, py: 6 },
+// Per-agent station: desk style + a job prop, offset from the avatar anchor.
+const STATIONS_CFG: Record<string, { desk: DeskVariant; prop: PropKind; px: number; py: number }> = {
+  ava: { desk: 'l', prop: 'flag', px: 66, py: -20 },
+  lex: { desk: 'l', prop: 'scales', px: -46, py: -14 },
+  fin: { desk: 'a', prop: 'safe', px: 62, py: -8 },
+  rex: { desk: 'b', prop: 'codeboard', px: -54, py: -14 },
+  ada: { desk: 'l', prop: 'chartboard', px: 62, py: -16 },
+  dex: { desk: 'a', prop: 'easel', px: -52, py: -16 },
+  pia: { desk: 'b', prop: 'kanban', px: 62, py: -14 },
+  mia: { desk: 'a', prop: 'megaphone', px: 60, py: -6 },
+  sol: { desk: 'b', prop: 'salesboard', px: -52, py: -16 },
+  otto: { desk: 'standing', prop: 'server', px: -46, py: -20 },
+  hana: { desk: 'a', prop: 'hiringboard', px: 60, py: -16 },
+  sam: { desk: 'b', prop: 'tickets', px: 60, py: -4 },
 }
 
-function stations(): FurniturePiece[] {
-  const out: FurniturePiece[] = []
-  for (const a of AGENTS) {
-    const p = POSITIONS[a.id]
-    const s = STATIONS[a.id]
-    out.push({ kind: 'desk', variant: s.desk, x: p.x - 14, y: p.y + 56, z: 6 })
-    out.push({ kind: s.prop, x: p.x + s.px, y: p.y + s.py, z: 3 })
-  }
-  return out
-}
-
-export const FURNITURE: FurniturePiece[] = [
-  // wall windows band
-  { kind: 'window', x: 40, y: 18, w: 190, z: 0 },
-  { kind: 'window', x: 250, y: 18, w: 190, z: 0 },
-  { kind: 'window', x: 700, y: 18, w: 190, z: 0 },
-  { kind: 'clock', x: 566, y: 20, z: 0 },
-  // floor decor
-  { kind: 'rug', x: 430, y: 400, w: 260, h: 150, z: 0 },
-  { kind: 'couch', x: 430, y: 430, z: 1 },
-  { kind: 'plantTall', x: 12, y: 250, z: 2 },
-  { kind: 'plant', x: 250, y: 430, z: 2 },
-  { kind: 'plantTall', x: 992, y: 470, z: 2 },
-  { kind: 'coffee', x: 984, y: 250, z: 2 },
-  { kind: 'cooler', x: 700, y: 470, z: 2 },
-  { kind: 'bookshelf', x: 792, y: 470, z: 1 },
-  { kind: 'printer', x: 300, y: 360, z: 2 },
-  { kind: 'lamp', x: 640, y: 430, z: 2 },
-  { kind: 'boxes', x: 20, y: 640, z: 2 },
-  { kind: 'arcade', x: 936, y: 620, z: 2 },
-  ...stations(),
-]
+// Desks render IN FRONT of the character (z 24 > agent z 20); props sit behind.
+export const STATIONS: FurniturePiece[] = AGENTS.flatMap((a) => {
+  const p = POSITIONS[a.id]
+  const s = STATIONS_CFG[a.id]
+  return [
+    { kind: 'desk', variant: s.desk, x: p.x - 30, y: p.y + 50, z: 24 } as FurniturePiece,
+    { kind: s.prop, x: p.x + s.px, y: p.y + s.py, z: 3 } as FurniturePiece,
+  ]
+})

@@ -36,19 +36,20 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
         </div>
       )}
 
+      {/* name tag floats above the head so the desk never hides it */}
+      <div className="agent-plate">
+        <span className="agent-plate-name">{agent.name}</span>
+        {stats && <span className="agent-lvl">Lv.{stats.level}</span>}
+        {wallet?.funded && wallet.balanceXrp != null && (
+          <span className="agent-bal">{wallet.balanceXrp.toFixed(1)} XRP</span>
+        )}
+      </div>
+      {busy && <span className="agent-progress" />}
+
       <div className="agent-avatar">
         <Character character={character} mood={mood} size={50} />
       </div>
       <div className="agent-shadow" />
-
-      <div className="agent-plate">
-        <span className="agent-plate-name">{agent.name}</span>
-        {stats && <span className="agent-lvl">Lv.{stats.level}</span>}
-      </div>
-      {wallet?.funded && wallet.balanceXrp != null && (
-        <span className="agent-bal">{wallet.balanceXrp.toFixed(1)} XRP</span>
-      )}
-      {busy && <span className="agent-progress" />}
       {busy && <span className="agent-working" aria-hidden />}
     </button>
   )

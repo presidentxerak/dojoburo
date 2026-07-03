@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# DojoBuro is a client-side app; there is no server-side data to scrape.
+# Aggressive bots/scrapers should be handled at the CDN/WAF layer (rate
+# limiting + bot management), not by robots.txt (which malicious bots ignore).
