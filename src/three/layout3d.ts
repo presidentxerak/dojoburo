@@ -18,7 +18,7 @@ export function heroPos3D(targetId: string | null): [number, number] {
   if (!targetId || targetId === 'home') return HERO_HOME3D
   const p = POS3D[targetId]
   if (!p) return HERO_HOME3D
-  return [p[0], p[1] + 2.1] // stand just in front of the agent
+  return [p[0], p[1] + 0.15] // hover directly over the agent's head
 }
 
 export const ROOM = { w: 20, d: 16, wallH: 6 }

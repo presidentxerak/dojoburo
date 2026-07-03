@@ -23,16 +23,20 @@ function Puff({ p, r }: { p: [number, number, number]; r: number }) {
 export function Hero3D() {
   const targetId = useDojo((s) => s.heroTargetId)
   const g = useRef<THREE.Group>(null)
+  const baseY = useRef(1.35)
 
   useFrame((state, dt) => {
     if (!g.current) return
     const [tx, tz] = heroPos3D(targetId)
     const p = g.current.position
-    p.x += (tx - p.x) * Math.min(1, dt * 2.4)
-    p.z += (tz - p.z) * Math.min(1, dt * 2.4)
-    // gentle float + tiny wobble
+    const k = Math.min(1, dt * 2.4)
+    p.x += (tx - p.x) * k
+    p.z += (tz - p.z) * k
+    // rise up over the agent's head when visiting; drift low when idle at home
+    const targetY = targetId === 'home' ? 1.35 : 2.95
+    baseY.current += (targetY - baseY.current) * k
     const t = state.clock.elapsedTime
-    p.y = 1.35 + Math.sin(t * 1.6) * 0.12
+    p.y = baseY.current + Math.sin(t * 1.6) * 0.12
     g.current.rotation.z = Math.sin(t * 0.9) * 0.04
   })
 
