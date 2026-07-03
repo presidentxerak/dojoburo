@@ -13,8 +13,9 @@ export function Defs() {
 
         {/* grayscale + posterize, then add a black outline around the silhouette */}
         <filter id="macmono" x="-15%" y="-15%" width="130%" height="130%" colorInterpolationFilters="sRGB">
-          {/* black outline from a dilated alpha */}
-          <feMorphology in="SourceAlpha" operator="dilate" radius="0.6" result="dilated" />
+          {/* black outline from a dilated alpha — every furniture SVG is drawn at
+             exactly 2px per user unit, so radius 1 = a uniform 2px outline */}
+          <feMorphology in="SourceAlpha" operator="dilate" radius="1" result="dilated" />
           <feFlood floodColor="#000" result="blk" />
           <feComposite in="blk" in2="dilated" operator="in" result="outline" />
           {/* monochrome fill */}

@@ -13,13 +13,15 @@ export const AVATAR_RATIO = VIEW_H / VIEW_W
 const B = '#000'
 const W = '#fff'
 const D = 'url(#dith)'
-const O = 0.55 // outline thickness (grid units)
+const O = 0.64 // outline thickness — ~2px at the office avatar scale (50px / 16u)
 
-// outlined box: black border + `fill` interior
-const box = (x: number, y: number, w: number, h: number, fill: string): Rect[] => [
-  r(x, y, w, h, B),
-  r(x + O, y + O, w - 2 * O, h - 2 * O, fill),
-]
+// outlined box: black border + `fill` interior (skip interior if too thin)
+const box = (x: number, y: number, w: number, h: number, fill: string): Rect[] => {
+  const iw = w - 2 * O
+  const ih = h - 2 * O
+  if (iw <= 0 || ih <= 0) return [r(x, y, w, h, B)]
+  return [r(x, y, w, h, B), r(x + O, y + O, iw, ih, fill)]
+}
 const blk = (x: number, y: number, w: number, h: number): Rect[] => [r(x, y, w, h, B)]
 
 function lowerBody(c: Character): Rect[] {

@@ -160,7 +160,7 @@ function Prop({ kind }: { kind: FurnitureKind }) {
         <g>
           <rect x="4" y="4" width="1" height="22" fill="#8b93a7" />
           <rect x="4" y="25" width="26" height="1" fill="#8b93a7" />
-          <polyline points="5,22 12,16 18,18 28,6" fill="none" stroke="#22a35a" strokeWidth="2" />
+          <polyline points="5,22 12,16 18,18 28,6" fill="none" stroke="#22a35a" strokeWidth="1" />
           <path d="M28 6 L24 6 L28 2 Z" fill="#22a35a" />
         </g>,
       )
@@ -310,7 +310,7 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
     case 'clock':
       return (
         <svg width="40" height="40" viewBox="0 0 20 20">
-          <circle cx="10" cy="10" r="9" fill="#f6f8fc" stroke="#8b93a7" strokeWidth="1.5" />
+          <circle cx="10" cy="10" r="9" fill="#f6f8fc" stroke="#8b93a7" strokeWidth="1" />
           <rect x="9.2" y="4" width="1.6" height="6" fill="#2b2f3d" />
           <rect x="10" y="9.2" width="5" height="1.6" fill="#2b2f3d" />
         </svg>
@@ -406,7 +406,7 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
         <svg width="44" height="60" viewBox="0 0 22 30">
           <rect x="6" y="26" width="12" height="3" fill="#2b3145" />
           <rect x="9" y="10" width="3" height="16" fill="#565d78" />
-          <path d="M11 6 q6 0 6 8" fill="none" stroke="#565d78" strokeWidth="2.5" />
+          <path d="M11 6 q6 0 6 8" fill="none" stroke="#565d78" strokeWidth="1" />
           <rect x="9" y="4" width="4" height="5" fill="#3a3f52" />
           <rect x="7" y="20" width="10" height="2" fill="#8b93a1" />
         </svg>
@@ -437,7 +437,7 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
     case 'stonewindow':
       return (
         <svg width="60" height="80" viewBox="0 0 30 40">
-          <path d="M4 40 L4 12 A11 11 0 0 1 26 12 L26 40 Z" fill="#8a8078" stroke="#6a6058" strokeWidth="2" />
+          <path d="M4 40 L4 12 A11 11 0 0 1 26 12 L26 40 Z" fill="#8a8078" stroke="#6a6058" strokeWidth="1" />
           <path d="M8 40 L8 13 A7 7 0 0 1 22 13 L22 40 Z" fill="#3a5a7a" />
           <rect x="14" y="8" width="2" height="32" fill="#6a6058" />
         </svg>
@@ -475,8 +475,8 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
     // ---- airport ----
     case 'glasswall':
       return (
-        <div style={{ width: w ?? 260, height: 66, background: 'var(--win-b)', border: '3px solid var(--win-frame)', display: 'flex' }}>
-          {[0, 1, 2, 3].map((i) => <div key={i} style={{ flex: 1, borderRight: i < 3 ? '3px solid var(--win-frame)' : 'none' }} />)}
+        <div style={{ width: w ?? 260, height: 66, background: 'var(--win-b)', border: '2px solid var(--win-frame)', display: 'flex' }}>
+          {[0, 1, 2, 3].map((i) => <div key={i} style={{ flex: 1, borderRight: i < 3 ? '2px solid var(--win-frame)' : 'none' }} />)}
         </div>
       )
     case 'departboard':
@@ -534,8 +534,8 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
     // ---- hospital ----
     case 'hospwindow':
       return (
-        <div style={{ width: w ?? 200, height: 62, background: 'var(--win-b)', border: '4px solid var(--win-frame)', display: 'flex' }}>
-          <div style={{ width: '50%', height: '100%', borderRight: '4px solid var(--win-frame)' }} />
+        <div style={{ width: w ?? 200, height: 62, background: 'var(--win-b)', border: '2px solid var(--win-frame)', display: 'flex' }}>
+          <div style={{ width: '50%', height: '100%', borderRight: '2px solid var(--win-frame)' }} />
         </div>
       )
     case 'hospbed':
@@ -571,7 +571,7 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
       const cols = Math.max(2, Math.round(vw / 12))
       return (
         <svg width={w ?? 170} height="66" viewBox={`0 0 ${vw} 33`}>
-          <rect x="0" y="0" width={vw} height="30" fill="#f2f2f2" stroke="#2a2a2a" strokeWidth="2" />
+          <rect x="0" y="0" width={vw} height="30" fill="#f2f2f2" stroke="#2a2a2a" strokeWidth="1" />
           <rect x="0" y="14" width={vw} height="1.4" fill="#2a2a2a" />
           {Array.from({ length: cols - 1 }).map((_, i) => (
             <rect key={i} x={(vw / cols) * (i + 1)} y="1" width="1.4" height="28" fill="#2a2a2a" />
@@ -595,8 +595,8 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
         <svg width="46" height="96" viewBox="0 0 23 48">
           <rect x="1" y="0" width="21" height="3" fill="#6a6a6a" />
           <rect x="3" y="3" width="17" height="40" fill="#f4f4f4" stroke="#2a2a2a" />
-          <circle cx="11.5" cy="20" r="6" fill="none" stroke="#2a2a2a" strokeWidth="1.6" />
-          <path d="M9 20 h5 M11.5 15 v10" stroke="#2a2a2a" strokeWidth="1.2" />
+          <circle cx="11.5" cy="20" r="6" fill="none" stroke="#2a2a2a" strokeWidth="1" />
+          <path d="M9 20 h5 M11.5 15 v10" stroke="#2a2a2a" strokeWidth="1" />
           <rect x="1" y="43" width="21" height="4" fill="#6a6a6a" />
         </svg>
       )
@@ -605,7 +605,7 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
         <svg width="40" height="64" viewBox="0 0 20 32">
           <rect x="9" y="0" width="2" height="4" fill="#555" />
           <rect x="6" y="4" width="8" height="2" fill="#555" />
-          <rect x="4" y="6" width="12" height="18" fill="#f2f2f2" stroke="#2a2a2a" strokeWidth="1.5" />
+          <rect x="4" y="6" width="12" height="18" fill="#f2f2f2" stroke="#2a2a2a" strokeWidth="1" />
           <rect x="4" y="11" width="12" height="1.4" fill="#2a2a2a" />
           <rect x="4" y="17" width="12" height="1.4" fill="#2a2a2a" />
           <circle cx="10" cy="15" r="2.4" fill="#888" />
@@ -619,15 +619,15 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
           <rect x="18" y="4" width="3" height="34" fill="#8a8a8a" />
           <rect x="2" y="10" width="19" height="2" fill="#8a8a8a" />
           <rect x="2" y="24" width="19" height="2" fill="#8a8a8a" />
-          <path d="M3 9 q9 -4 18 0" fill="none" stroke="#2a2a2a" strokeWidth="2" />
-          <path d="M3 23 q9 -3 18 0" fill="none" stroke="#555" strokeWidth="2" />
+          <path d="M3 9 q9 -4 18 0" fill="none" stroke="#2a2a2a" strokeWidth="1" />
+          <path d="M3 23 q9 -3 18 0" fill="none" stroke="#555" strokeWidth="1" />
           <rect x="1" y="37" width="21" height="3" fill="#6a6a6a" />
         </svg>
       )
     case 'zabuton':
       return (
         <svg width="52" height="22" viewBox="0 0 26 11">
-          <rect x="1" y="2" width="24" height="7" rx="2" fill="#8a8a8a" stroke="#2a2a2a" strokeWidth="1.4" />
+          <rect x="1" y="2" width="24" height="7" rx="2" fill="#8a8a8a" stroke="#2a2a2a" strokeWidth="1" />
           <rect x="12" y="2" width="2" height="7" fill="#6a6a6a" />
         </svg>
       )
@@ -657,27 +657,38 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
           <rect x="3" y="26" width="30" height="3" fill="#5a5a5a" />
           <rect x="6" y="10" width="4" height="18" fill="#6a6a6a" transform="rotate(12 8 20)" />
           <rect x="26" y="10" width="4" height="18" fill="#6a6a6a" transform="rotate(-12 28 20)" />
-          <ellipse cx="18" cy="14" rx="12" ry="10" fill="#8a8a8a" stroke="#2a2a2a" strokeWidth="2" />
+          <ellipse cx="18" cy="14" rx="12" ry="10" fill="#8a8a8a" stroke="#2a2a2a" strokeWidth="1" />
           <ellipse cx="18" cy="14" rx="8" ry="6.5" fill="#f2f2f2" />
           {[6, 10, 18, 26, 30].map((cx, i) => <circle key={i} cx={cx} cy={i % 2 ? 8 : 20} r="1" fill="#2a2a2a" />)}
         </svg>
       )
     case 'door':
+      // Japanese dojo sliding doors (shoji fusuma) in a dark timber frame.
       return (
-        <svg width="60" height="92" viewBox="0 0 30 46">
-          <rect x="1" y="0" width="28" height="46" fill="#8a6c47" />
-          <rect x="3" y="2" width="24" height="44" fill="#6f5638" />
-          <rect x="5" y="4" width="20" height="15" fill="#5c4630" />
-          <rect x="5" y="22" width="20" height="20" fill="#5c4630" />
-          <rect x="9" y="7" width="12" height="9" fill="#3f7fbf" opacity="0.5" />
-          <circle cx="22" cy="30" r="1.6" fill="#ffcf3b" />
-          <rect x="1" y="0" width="28" height="2" fill="#9c7c52" />
+        <svg width="72" height="94" viewBox="0 0 36 47">
+          {/* timber frame */}
+          <rect x="0" y="0" width="36" height="47" fill="#3a3a3a" />
+          <rect x="0" y="0" width="36" height="3" fill="#5a5a5a" />
+          {/* two paper panels */}
+          <rect x="3" y="4" width="14" height="40" fill="#f2f2f2" />
+          <rect x="19" y="4" width="14" height="40" fill="#f2f2f2" />
+          {/* lattice: verticals */}
+          {[7, 11, 23, 27].map((lx) => <rect key={lx} x={lx} y="4" width="1" height="40" fill="#3a3a3a" />)}
+          {/* lattice: horizontals */}
+          {[12, 20, 28, 36].map((ly) => <rect key={ly} x="3" y={ly} width="30" height="1" fill="#3a3a3a" />)}
+          {/* central sliding gap + posts */}
+          <rect x="17" y="4" width="2" height="40" fill="#3a3a3a" />
+          {/* recessed handles */}
+          <rect x="15" y="22" width="1" height="5" fill="#8a8a8a" />
+          <rect x="20" y="22" width="1" height="5" fill="#8a8a8a" />
+          {/* sill */}
+          <rect x="0" y="44" width="36" height="3" fill="#5a5a5a" />
         </svg>
       )
     case 'poster':
       return (
         <svg width="58" height="48" viewBox="0 0 29 24">
-          <rect x="0" y="0" width="29" height="24" fill="#f6f8fc" stroke="#c3ccdb" strokeWidth="1.5" />
+          <rect x="0" y="0" width="29" height="24" fill="#f6f8fc" stroke="#c3ccdb" strokeWidth="1" />
           <rect x="3" y="3" width="23" height="18" fill="#bfe0ff" />
           <path d="M3 21 L11 12 L16 17 L21 10 L26 21 Z" fill="#7bd88f" />
           <circle cx="21" cy="8" r="2.5" fill="#ffcf3b" />
@@ -709,7 +720,7 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
             width: w ?? 200,
             height: h ?? 140,
             background: 'repeating-linear-gradient(45deg, var(--rug-a) 0 14px, var(--rug-b) 14px 28px)',
-            border: '4px solid var(--rug-border)',
+            border: '2px solid var(--rug-border)',
             borderRadius: 8,
           }}
         />
@@ -721,12 +732,12 @@ function Decor({ kind, w, h }: { kind: FurnitureKind; w?: number; h?: number }) 
             width: w ?? 190,
             height: 62,
             background: 'linear-gradient(180deg, var(--win-a), var(--win-b))',
-            border: '5px solid var(--win-frame)',
-            boxShadow: 'inset 0 0 0 3px var(--win-inner)',
+            border: '2px solid var(--win-frame)',
+            boxShadow: 'inset 0 0 0 2px var(--win-inner)',
             display: 'flex',
           }}
         >
-          <div style={{ width: '50%', height: '100%', borderRight: '5px solid var(--win-frame)' }} />
+          <div style={{ width: '50%', height: '100%', borderRight: '2px solid var(--win-frame)' }} />
         </div>
       )
     default:

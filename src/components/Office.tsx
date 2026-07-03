@@ -40,7 +40,7 @@ export function Office() {
           <div className="floor-grid" />
           <div
             className="scene-wall"
-            style={{ height: WALL_H, background: scene.wall, borderBottom: `4px solid ${scene.wallTrim}` }}
+            style={{ height: WALL_H, background: scene.wall, borderBottom: `2px solid ${scene.wallTrim}` }}
           />
           {scene.pieces.map((piece, i) => (
             <Furniture key={`d-${i}`} piece={piece} />
