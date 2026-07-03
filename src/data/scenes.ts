@@ -5,7 +5,7 @@
 // ---------------------------------------------------------------------------
 import type { FurniturePiece } from './layout'
 
-export type SceneId = 'office' | 'space' | 'lab' | 'castle' | 'airport' | 'mall' | 'hospital'
+export type SceneId = 'dojo' | 'office' | 'space' | 'lab' | 'castle' | 'airport' | 'mall' | 'hospital'
 
 export interface Scene {
   id: SceneId
@@ -117,6 +117,31 @@ const mall: FurniturePiece[] = [
   { kind: 'storefront', x: 20, y: 630, w: 120, z: 0 },
 ]
 
+const dojo: FurniturePiece[] = [
+  // shoji screens + hanging scroll + sliding door on the wall
+  { kind: 'shoji', x: 40, y: 20, w: 170, z: 1 },
+  { kind: 'shoji', x: 224, y: 20, w: 170, z: 1 },
+  { kind: 'scroll', x: 452, y: 12, z: 1 },
+  { kind: 'door', x: 522, y: 16, z: 1 },
+  { kind: 'shoji', x: 616, y: 20, w: 170, z: 1 },
+  { kind: 'shoji', x: 800, y: 20, w: 190, z: 1 },
+  // hanging paper lanterns
+  { kind: 'lantern', x: 140, y: 104, z: 2 },
+  { kind: 'lantern', x: 884, y: 104, z: 2 },
+  // wooden pillars framing the room
+  { kind: 'pillar', x: 4, y: 108, z: 2 },
+  { kind: 'pillar', x: 1008, y: 108, z: 2 },
+  // dojo props
+  { kind: 'katanarack', x: 18, y: 320, z: 2 },
+  { kind: 'bonsai', x: 250, y: 452, z: 2 },
+  { kind: 'taiko', x: 706, y: 452, z: 2 },
+  { kind: 'lowtable', x: 448, y: 402, z: 1 },
+  { kind: 'zabuton', x: 418, y: 452, z: 1 },
+  { kind: 'zabuton', x: 516, y: 452, z: 1 },
+  { kind: 'bonsai', x: 940, y: 604, z: 2 },
+  { kind: 'katanarack', x: 940, y: 300, z: 2 },
+]
+
 const hospital: FurniturePiece[] = [
   { kind: 'door', x: 500, y: 20, z: 1 },
   { kind: 'hospwindow', x: 40, y: 18, w: 200, z: 0 },
@@ -141,6 +166,7 @@ const mono = (id: SceneId, label: string, pieces: FurniturePiece[]): Scene => ({
 })
 
 export const SCENES: Record<SceneId, Scene> = {
+  dojo: mono('dojo', 'Dojo', dojo),
   office: mono('office', 'Office', office),
   space: mono('space', 'Space station', space),
   lab: mono('lab', 'Lab', lab),
@@ -150,13 +176,11 @@ export const SCENES: Record<SceneId, Scene> = {
   hospital: mono('hospital', 'Hospital', hospital),
 }
 
-export const SCENE_LIST: Scene[] = [
-  SCENES.office, SCENES.space, SCENES.lab, SCENES.castle, SCENES.airport, SCENES.mall, SCENES.hospital,
-]
+// Only the dojo is exposed for now (the other templates are hidden).
+export const SCENE_LIST: Scene[] = [SCENES.dojo]
 
 export function loadSceneId(): SceneId {
-  const raw = localStorage.getItem('dojoburo.scene')
-  return (raw && raw in SCENES ? (raw as SceneId) : 'office')
+  return 'dojo'
 }
 export function saveSceneId(id: SceneId) {
   localStorage.setItem('dojoburo.scene', id)

@@ -6,6 +6,9 @@ export function SceneSwitcher() {
   const sceneId = useDojo((s) => s.sceneId)
   const setScene = useDojo((s) => s.setScene)
 
+  // Only one template is exposed for now — hide the switcher entirely.
+  if (SCENE_LIST.length <= 1) return null
+
   return (
     <div className="scene-switch" role="tablist" aria-label="Scene template">
       {SCENE_LIST.map((s) => (

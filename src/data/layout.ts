@@ -57,6 +57,8 @@ export type DecorKind =
   | 'storefront' | 'saletag' | 'fountain'
   // hospital
   | 'hospwindow' | 'hospbed' | 'ivstand' | 'redcross'
+  // japanese dojo
+  | 'shoji' | 'pillar' | 'scroll' | 'lantern' | 'katanarack' | 'zabuton' | 'bonsai' | 'lowtable' | 'taiko'
 
 export type FurnitureKind = 'desk' | PropKind | DecorKind
 
