@@ -15,8 +15,11 @@ et **toutes les transactions se règlent sur le [XRP Ledger](https://xrpl.org)**
 
 - **Bureau pixel art** vivant : décor riche (fenêtres, tableau blanc, canapé,
   tapis, rack serveur, bibliothèque, fontaine à eau, machine à café, plantes…),
-  **12 personnages tous différents** (coiffures, tenues, accessoires uniques),
-  chacun à son poste avec **bulles d'émotions en ASCII art animées**.
+  **12 personnages déjantés tous différents** (alien, ninja, robot, mecha
+  Goldorak, squelette, chat, sorcier, monstre, cyborg, slime, vampire…) avec
+  leur **expression ASCII art animée directement sur la tête**. Rendu
+  **anti-aliasé**, typographie **Silkscreen regular** et icône **carré noir à
+  visage ASCII animé**.
 - **Un héros** (le fondateur) qui **se déplace jusqu'à l'agent** dès qu'une tâche
   est lancée et **échange des blagues** avec lui pendant l'exécution.
 - **Gameplay & récompenses** : XP, niveaux, médailles 🥉🥈🥇💎👑, pièces 🪙, et

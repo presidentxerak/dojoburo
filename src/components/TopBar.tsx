@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useDojo } from '../store'
 import { NETWORKS, type NetworkId } from '../xrpl/network'
+import { AsciiFace } from './AsciiFace'
 
 export function TopBar() {
   const net = useDojo((s) => s.net)
@@ -26,7 +27,7 @@ export function TopBar() {
   return (
     <header className="topbar">
       <div className="brand">
-        <span className="brand-logo">▚▞</span>
+        <span className="brand-logo"><AsciiFace mood="idle" /></span>
         <div>
           <h1>DojoBuro</h1>
           <p className="tagline">Startup pixel · orchestrée sur XRPL</p>

@@ -1,120 +1,170 @@
-import type { Look, HairStyle, Accessory } from '../data/looks'
+import type { Character } from '../data/looks'
 
-// A 16x16 pixel character built from <rect>s. Crisp at any scale.
+// 16x16 character built from <rect>s. Anti-aliased (no crispEdges). Carries no
+// eyes/mouth — the ASCII expression is overlaid by <Character/>.
 type Rect = { x: number; y: number; w: number; h: number; f: string }
 const r = (x: number, y: number, w: number, h: number, f: string): Rect => ({ x, y, w, h, f })
 
-function darken(hex: string, amt = 0.22): string {
+function shade(hex: string, amt: number): string {
+  // amt < 0 lightens, > 0 darkens
   const n = hex.replace('#', '')
   const v = n.length === 3 ? n.split('').map((c) => c + c).join('') : n
   const num = parseInt(v, 16)
-  const rr = Math.max(0, ((num >> 16) & 255) * (1 - amt))
-  const gg = Math.max(0, ((num >> 8) & 255) * (1 - amt))
-  const bb = Math.max(0, (num & 255) * (1 - amt))
-  return `#${[rr, gg, bb].map((c) => Math.round(c).toString(16).padStart(2, '0')).join('')}`
+  const ch = (c: number) => Math.max(0, Math.min(255, Math.round(c * (1 - amt))))
+  const rr = ch((num >> 16) & 255)
+  const gg = ch((num >> 8) & 255)
+  const bb = ch(num & 255)
+  return `#${[rr, gg, bb].map((c) => c.toString(16).padStart(2, '0')).join('')}`
 }
 
-function hairRects(style: HairStyle, hair: string): Rect[] {
-  const h = hair
-  const hd = darken(hair, 0.25)
-  switch (style) {
-    case 'buzz':
-      return [r(5, 2, 6, 1, h), r(4, 3, 1, 1, hd), r(11, 3, 1, 1, hd)]
-    case 'short':
-      return [r(4, 2, 8, 2, h), r(4, 4, 1, 2, hd), r(11, 4, 1, 2, hd)]
-    case 'long':
-      return [r(4, 2, 8, 2, h), r(3, 3, 1, 8, h), r(12, 3, 1, 8, h), r(4, 4, 1, 4, hd), r(11, 4, 1, 4, hd)]
-    case 'ponytail':
-      return [r(4, 2, 8, 2, h), r(4, 4, 1, 2, hd), r(11, 4, 1, 2, hd), r(12, 2, 2, 1, h), r(13, 3, 1, 5, h), r(13, 8, 1, 1, hd)]
-    case 'bun':
-      return [r(4, 2, 8, 2, h), r(6, 0, 4, 2, h), r(7, 0, 2, 1, darken(hair, -0.1)), r(4, 4, 1, 2, hd), r(11, 4, 1, 2, hd)]
-    case 'spiky':
-      return [r(4, 2, 8, 1, h), r(4, 1, 1, 1, h), r(6, 0, 1, 2, h), r(8, 1, 1, 1, h), r(9, 0, 1, 2, h), r(11, 1, 1, 1, h)]
-    case 'afro':
-      return [r(3, 0, 10, 3, h), r(2, 2, 1, 4, h), r(13, 2, 1, 4, h), r(4, 3, 8, 1, hd)]
-    case 'mohawk':
-      return [r(7, 0, 2, 4, h), r(7, 0, 2, 1, darken(hair, -0.15)), r(6, 2, 1, 1, hd), r(9, 2, 1, 1, hd)]
-    case 'beanie':
-      return [r(4, 1, 8, 2, h), r(4, 3, 8, 1, darken(hair, -0.12)), r(5, 0, 6, 1, h)]
-    case 'cap':
-      return [r(4, 2, 8, 2, h), r(4, 3, 9, 1, hd), r(11, 3, 3, 1, h), r(6, 1, 4, 1, h)]
-    case 'hijab':
-      return [r(3, 1, 10, 3, h), r(3, 4, 1, 7, h), r(12, 4, 1, 7, h), r(4, 3, 8, 1, hd), r(4, 10, 1, 2, hd)]
-    case 'bald':
-      return [r(5, 3, 6, 1, 'rgba(255,255,255,0.12)')]
-  }
-}
-
-function accessoryRects(acc: Accessory, look: Look): Rect[] {
-  const dark = '#1c1f2b'
-  switch (acc) {
-    case 'glasses':
-      return [r(5, 6, 2, 1, dark), r(8, 6, 2, 1, dark), r(7, 6, 1, 1, dark), r(5, 5, 2, 1, dark), r(8, 5, 2, 1, dark)]
-    case 'shades':
-      return [r(5, 5, 2, 2, dark), r(8, 5, 2, 2, dark), r(7, 6, 1, 1, dark)]
-    case 'headset':
-      return [r(4, 2, 8, 1, dark), r(3, 5, 1, 3, dark), r(3, 8, 3, 1, dark), r(5, 9, 1, 1, look.outfit2)]
-    case 'monocle':
-      return [r(8, 5, 2, 1, dark), r(8, 7, 2, 1, dark), r(10, 6, 1, 1, dark), r(7, 6, 1, 1, dark)]
-    case 'earrings':
-      return [r(4, 8, 1, 1, '#ffd23b'), r(11, 8, 1, 1, '#ffd23b')]
-    case 'tie':
-      return [r(7, 11, 2, 1, look.outfit2), r(7, 12, 2, 3, darken(look.outfit2, 0.1))]
-    case 'none':
-      return []
-  }
-}
-
-export function PixelAvatar({ look, size = 64, className }: { look: Look; size?: number; className?: string }) {
-  const skin = look.skin
-  const skinShade = darken(skin, 0.14)
-  const eye = '#20242f'
-  const mouth = darken(skin, 0.4)
-  const outfit = look.outfit
-  const outfitShade = darken(outfit, 0.2)
-
+// Shared torso. `noArms` for slime.
+function body(c: Character, noArms = false): Rect[] {
+  const o = c.outfit
   const rects: Rect[] = [
-    // back hair for long styles is included via hairRects
-    // face
-    r(5, 3, 6, 7, skin),
-    r(4, 4, 1, 4, skin),
-    r(11, 4, 1, 4, skin),
-    // ears
-    r(4, 6, 1, 2, skinShade),
-    r(11, 6, 1, 2, skinShade),
-    // cheeks shade
-    r(5, 9, 6, 1, skinShade),
-    // eyes
-    r(6, 6, 1, 1, eye),
-    r(9, 6, 1, 1, eye),
-    // blush
-    r(5, 8, 1, 1, 'rgba(240,120,120,0.35)'),
-    r(10, 8, 1, 1, 'rgba(240,120,120,0.35)'),
-    // mouth
-    r(7, 8, 2, 1, mouth),
-    // neck
-    r(7, 10, 2, 1, skinShade),
-    // shoulders / torso
-    r(3, 11, 10, 5, outfit),
-    r(3, 11, 10, 1, darken(outfit, -0.12)),
-    // arms
-    r(3, 12, 1, 4, outfitShade),
-    r(12, 12, 1, 4, outfitShade),
-    // collar
-    r(6, 11, 4, 1, look.outfit2),
-    r(7, 11, 2, 2, skin), // neck V
+    r(3, 11, 10, 5, o),
+    r(3, 11, 10, 1, shade(o, -0.16)), // shoulder highlight
+    r(5, 11, 6, 1, c.outfit2), // collar
+    r(7, 10, 2, 1, shade(c.face, 0.12)), // neck
   ]
+  if (!noArms) {
+    rects.push(r(3, 12, 1, 4, shade(o, 0.2)), r(12, 12, 1, 4, shade(o, 0.2)))
+  }
+  return rects
+}
 
-  const all = [...hairRects(look.hairStyle, look.hair), ...rects, ...accessoryRects(look.accessory, look)]
+// Default oval-ish head plate; face-centre stays around (8,6) for every kind so
+// the ASCII overlay lines up.
+function plate(color: string, x = 4, y = 3, w = 8, h = 7): Rect[] {
+  return [
+    r(x, y, w, h, color),
+    r(x, y, w, 1, shade(color, -0.1)),
+    r(x, y + h - 1, w, 1, shade(color, 0.12)),
+  ]
+}
 
+function head(c: Character): Rect[] {
+  const f = c.face
+  const e = c.extra
+  switch (c.kind) {
+    case 'human':
+      return [
+        r(4, 2, 8, 2, e), // hair
+        r(4, 4, 1, 2, shade(e, 0.2)),
+        r(11, 4, 1, 2, shade(e, 0.2)),
+        ...plate(f, 4, 3, 8, 7),
+      ]
+    case 'goldorak':
+      return [
+        r(2, 3, 2, 1, e), r(2, 4, 1, 2, shade(e, 0.15)), // left fin
+        r(12, 3, 2, 1, e), r(13, 4, 1, 2, shade(e, 0.15)), // right fin
+        r(8, 0, 1, 3, '#8b93a1'), r(7, 0, 3, 1, e), // antenna + tip
+        ...plate(f, 4, 3, 8, 7),
+        r(7, 2, 2, 2, e), // gold crest
+        r(4, 4, 8, 1, shade(f, 0.18)), // brow bar
+      ]
+    case 'ninja':
+      return [
+        r(3, 2, 10, 2, e), // hood top
+        r(3, 4, 1, 6, e), r(12, 4, 1, 6, e), // hood sides
+        ...plate(f, 4, 3, 8, 7),
+        r(3, 4, 10, 1, c.outfit2), // headband
+        r(12, 4, 2, 1, c.outfit2), r(13, 5, 1, 2, c.outfit2), // knot tails
+      ]
+    case 'robot':
+      return [
+        r(8, 0, 1, 3, '#8b93a1'), r(7, 0, 2, 1, e), // antenna
+        ...plate(f, 4, 3, 8, 7),
+        r(3, 5, 1, 2, shade(f, 0.25)), r(12, 5, 1, 2, shade(f, 0.25)), // ears/bolts
+        r(4, 4, 8, 1, shade(f, 0.22)), // brow panel
+        r(5, 9, 6, 1, shade(f, 0.15)), // grille
+      ]
+    case 'alien':
+      return [
+        r(4, 0, 2, 1, e), r(5, 1, 1, 2, shade(f, 0.1)), // left antenna
+        r(10, 0, 2, 1, e), r(10, 1, 1, 2, shade(f, 0.1)), // right antenna
+        ...plate(f, 3, 3, 10, 6), // wide head
+        r(5, 9, 6, 1, f), // tapered chin
+        r(6, 10, 4, 1, shade(f, 0.12)),
+      ]
+    case 'cat':
+      return [
+        r(4, 1, 2, 2, f), r(4, 1, 1, 1, e), // left ear
+        r(10, 1, 2, 2, f), r(11, 1, 1, 1, e), // right ear
+        ...plate(f, 4, 3, 8, 7),
+        r(2, 7, 2, 1, shade(f, -0.3)), r(12, 7, 2, 1, shade(f, -0.3)), // whiskers
+      ]
+    case 'skeleton':
+      return [
+        r(5, 2, 6, 1, f), // cranium dome
+        ...plate(f, 4, 3, 8, 7),
+        r(4, 7, 1, 2, shade(f, 0.14)), r(11, 7, 1, 2, shade(f, 0.14)), // cheek hollows
+        r(5, 10, 6, 1, f), // jaw
+      ]
+    case 'wizard':
+      return [
+        // pointy hat
+        r(3, 3, 9, 1, c.outfit2),
+        r(5, 2, 5, 1, c.outfit2),
+        r(6, 1, 3, 1, c.outfit2),
+        r(7, 0, 2, 1, c.outfit2),
+        r(8, 3, 1, 1, e), // star on hat
+        ...plate(f, 4, 4, 8, 6),
+      ]
+    case 'monster':
+      return [
+        r(4, 1, 1, 2, '#f2efe4'), r(11, 1, 1, 2, '#f2efe4'), // horns
+        r(4, 2, 1, 1, e), r(6, 2, 1, 1, e), r(8, 2, 1, 1, e), r(10, 2, 1, 1, e), // fur spikes
+        ...plate(f, 4, 3, 8, 7),
+        r(5, 8, 1, 1, shade(f, 0.25)), r(9, 7, 1, 1, shade(f, 0.25)), // spots
+      ]
+    case 'cyborg':
+      return [
+        ...plate(f, 4, 3, 4, 7), // left skin half
+        r(8, 3, 4, 7, '#b7c0cc'), // right metal half
+        r(8, 3, 4, 1, '#8b93a1'),
+        r(8, 6, 4, 1, e), // red visor line uses extra
+        r(11, 0, 1, 3, '#8b93a1'), r(10, 0, 2, 1, '#d8232a'), // antenna
+        r(12, 5, 1, 2, '#8b93a1'), // bolt
+      ]
+    case 'slime':
+      return [
+        r(5, 3, 6, 1, c.face), // rounded top
+        ...plate(c.face, 4, 4, 8, 6),
+        r(5, 4, 1, 1, '#ffffff'), // shine
+        r(5, 15, 1, 1, c.face), r(9, 15, 1, 1, c.face), // drips
+      ]
+    case 'vampire':
+      return [
+        // slicked hair with widow's peak
+        r(4, 2, 8, 1, e),
+        r(4, 3, 1, 3, e), r(11, 3, 1, 3, e),
+        r(7, 3, 2, 1, e),
+        ...plate(f, 4, 3, 8, 7),
+      ]
+  }
+}
+
+// Bits drawn BEHIND the body (capes, slime base).
+function backdrop(c: Character): Rect[] {
+  if (c.kind === 'vampire') {
+    return [
+      r(1, 11, 3, 5, c.outfit2), r(12, 11, 3, 5, c.outfit2), // cape
+      r(3, 10, 2, 2, c.outfit2), r(11, 10, 2, 2, c.outfit2), // high collar
+    ]
+  }
+  return []
+}
+
+export function PixelAvatar({ character, size = 64, className }: { character: Character; size?: number; className?: string }) {
+  const noArms = character.kind === 'slime'
+  const all = [...backdrop(character), ...body(character, noArms), ...head(character)]
   return (
     <svg
       className={className}
       width={size}
       height={size}
       viewBox="0 0 16 16"
-      shapeRendering="crispEdges"
-      style={{ imageRendering: 'pixelated', display: 'block' }}
+      style={{ display: 'block', overflow: 'visible' }}
       aria-hidden
     >
       {all.map((rc, i) => (

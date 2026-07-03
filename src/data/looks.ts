@@ -1,74 +1,64 @@
 // ---------------------------------------------------------------------------
-// Per-agent pixel-avatar specs. Each agent gets a distinct silhouette via a mix
-// of hairstyle, skin/hair/outfit colors and an accessory. Rendered by
-// <PixelAvatar/>. Emotions are shown separately by the animated ASCII bubble.
+// Character roster. Each agent is a wild "kind" (alien, ninja, robot, skeleton,
+// goldorak mecha, monster…) with its own head, body and colors. The animated
+// ASCII expression is drawn ON TOP of the head by <Character/> — the avatar art
+// itself carries NO eyes/mouth.
 // ---------------------------------------------------------------------------
 
-export type HairStyle =
-  | 'buzz'
-  | 'short'
-  | 'long'
-  | 'ponytail'
-  | 'bun'
-  | 'spiky'
-  | 'afro'
-  | 'mohawk'
-  | 'beanie'
-  | 'cap'
-  | 'hijab'
-  | 'bald'
+export type Kind =
+  | 'human'
+  | 'goldorak'
+  | 'ninja'
+  | 'robot'
+  | 'alien'
+  | 'cat'
+  | 'skeleton'
+  | 'wizard'
+  | 'monster'
+  | 'cyborg'
+  | 'slime'
+  | 'vampire'
 
-export type Accessory =
-  | 'none'
-  | 'glasses'
-  | 'shades'
-  | 'headset'
-  | 'tie'
-  | 'earrings'
-  | 'monocle'
-
-export interface Look {
-  skin: string
-  hair: string
-  hairStyle: HairStyle
-  outfit: string
+export interface Character {
+  kind: Kind
+  face: string // head material colour
+  outfit: string // torso
   outfit2: string // collar / accent
-  accessory: Accessory
+  extra: string // horns / hat / hair / antenna accent
 }
 
-export const LOOKS: Record<string, Look> = {
-  // Ava — CEO: elegant bun, gold blazer, glasses
-  ava: { skin: '#f1c9a5', hair: '#3a2a20', hairStyle: 'bun', outfit: '#f4b400', outfit2: '#fff4d6', accessory: 'glasses' },
-  // Rex — CTO: spiky hair, hoodie-blue, headset
-  rex: { skin: '#e7b184', hair: '#1c1c1c', hairStyle: 'spiky', outfit: '#2f80ed', outfit2: '#0b3b73', accessory: 'headset' },
-  // Otto — DevOps: beanie, green tee
-  otto: { skin: '#d59d6e', hair: '#4a3420', hairStyle: 'beanie', outfit: '#22a35a', outfit2: '#0f5a2f', accessory: 'none' },
-  // Fin — CFO: short neat hair, purple suit, tie, monocle
-  fin: { skin: '#eec6a0', hair: '#2b2b2b', hairStyle: 'short', outfit: '#7c5cdf', outfit2: '#efe6ff', accessory: 'tie' },
-  // Mia — CMO: long pink-tinted hair, coral top, earrings
-  mia: { skin: '#f3cbab', hair: '#7a2f16', hairStyle: 'long', outfit: '#f2617a', outfit2: '#7a1730', accessory: 'earrings' },
-  // Sol — Sales: cap, orange shirt, shades
-  sol: { skin: '#dfa475', hair: '#141414', hairStyle: 'cap', outfit: '#f2843b', outfit2: '#7a3a10', accessory: 'shades' },
-  // Pia — PM: ponytail, teal top, glasses
-  pia: { skin: '#eec3a0', hair: '#33404a', hairStyle: 'ponytail', outfit: '#17b8a6', outfit2: '#0a4f48', accessory: 'glasses' },
-  // Dex — Designer: mohawk, violet tee
-  dex: { skin: '#e8bf98', hair: '#7b2ff2', hairStyle: 'mohawk', outfit: '#b06cf0', outfit2: '#3a1466', accessory: 'earrings' },
-  // Ada — Data: hijab, sky top, glasses
-  ada: { skin: '#e6b98f', hair: '#0e6f66', hairStyle: 'hijab', outfit: '#1aa0e6', outfit2: '#0a5a86', accessory: 'glasses' },
-  // Hana — HR: afro, green top, warm
-  hana: { skin: '#c78a54', hair: '#20140c', hairStyle: 'afro', outfit: '#2fce88', outfit2: '#0f5a3a', accessory: 'none' },
-  // Sam — Support: buzz cut, blue tee, headset
-  sam: { skin: '#e0aa7f', hair: '#1a2a4a', hairStyle: 'buzz', outfit: '#5aa2f5', outfit2: '#14345f', accessory: 'headset' },
-  // Lex — Legal: bald, grey suit, monocle
-  lex: { skin: '#eac49b', hair: '#2b2620', hairStyle: 'bald', outfit: '#8a94a6', outfit2: '#2a3140', accessory: 'monocle' },
+export const CHARACTERS: Record<string, Character> = {
+  // Ava — CEO: golden Goldorak-style mecha (the leader shines).
+  ava: { kind: 'goldorak', face: '#c9d2de', outfit: '#f4b400', outfit2: '#b3141d', extra: '#d8232a' },
+  // Rex — CTO: ninja.
+  rex: { kind: 'ninja', face: '#e7b184', outfit: '#2f80ed', outfit2: '#0b3b73', extra: '#12203a' },
+  // Otto — DevOps: boxy robot.
+  otto: { kind: 'robot', face: '#b7c0cc', outfit: '#22a35a', outfit2: '#0f5a2f', extra: '#4be08a' },
+  // Fin — CFO: little green alien treasurer.
+  fin: { kind: 'alien', face: '#8fdc7a', outfit: '#7c5cdf', outfit2: '#efe6ff', extra: '#d6ff8f' },
+  // Mia — CMO: cat.
+  mia: { kind: 'cat', face: '#f3cbab', outfit: '#f2617a', outfit2: '#7a1730', extra: '#3a2a20' },
+  // Sol — Sales: cool skeleton with shades vibe.
+  sol: { kind: 'skeleton', face: '#eef0f2', outfit: '#f2843b', outfit2: '#7a3a10', extra: '#c9ccd2' },
+  // Pia — PM: wizard planning the roadmap.
+  pia: { kind: 'wizard', face: '#eec3a0', outfit: '#17b8a6', outfit2: '#0a4f48', extra: '#123a63' },
+  // Dex — Designer: colourful monster.
+  dex: { kind: 'monster', face: '#b06cf0', outfit: '#8b2ff2', outfit2: '#3a1466', extra: '#ffe08a' },
+  // Ada — Data: cyborg (half metal, visor).
+  ada: { kind: 'cyborg', face: '#e6b98f', outfit: '#1aa0e6', outfit2: '#0a5a86', extra: '#b7c0cc' },
+  // Hana — HR: friendly purple alien.
+  hana: { kind: 'alien', face: '#c79bf0', outfit: '#2fce88', outfit2: '#0f5a3a', extra: '#ffd23b' },
+  // Sam — Support: slime blob.
+  sam: { kind: 'slime', face: '#5ad1c0', outfit: '#5aa2f5', outfit2: '#14345f', extra: '#c9fff5' },
+  // Lex — Legal: vampire.
+  lex: { kind: 'vampire', face: '#e6c6a0', outfit: '#3a3140', outfit2: '#8a1420', extra: '#141118' },
 }
 
-// The player-hero: a founder in a hoodie + cap with a backpack vibe.
-export const HERO_LOOK: Look = {
-  skin: '#eab98c',
-  hair: '#2a1d12',
-  hairStyle: 'cap',
+// The player-hero: a human founder in a red hoodie.
+export const HERO_CHARACTER: Character = {
+  kind: 'human',
+  face: '#eab98c',
   outfit: '#e23b57',
   outfit2: '#ffd23b',
-  accessory: 'none',
+  extra: '#2a1d12',
 }

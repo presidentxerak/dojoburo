@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { PixelAvatar } from './PixelAvatar'
-import { HERO_LOOK } from '../data/looks'
+import { Character } from './Character'
+import { HERO_CHARACTER } from '../data/looks'
 import { heroPosFor } from '../data/layout'
 import { useDojo } from '../store'
 
@@ -21,8 +21,8 @@ export function Hero() {
     }
   }, [pos.x, pos.y])
 
-  const faceLeft = targetId !== 'home' // face the agent's desk (to the right)
   const showBubble = banter && banter.who === 'hero'
+  const heroMood = targetId === 'home' ? 'idle' : 'talk'
 
   return (
     <div
@@ -35,8 +35,8 @@ export function Hero() {
           <span className="bubble-tail" />
         </div>
       )}
-      <div className={`hero-avatar ${faceLeft ? '' : 'flip'}`}>
-        <PixelAvatar look={HERO_LOOK} size={72} />
+      <div className="hero-avatar">
+        <Character character={HERO_CHARACTER} mood={heroMood} size={72} />
       </div>
       <div className="hero-shadow" />
       <div className="hero-tag">HÉRO</div>

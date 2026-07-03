@@ -73,9 +73,22 @@ body {
   color: var(--ink);
   font-family: var(--font-pixel);
   font-size: 12px;
+  font-weight: 400;
   line-height: 1.5;
-  -webkit-font-smoothing: none;
+  /* anti-aliasing across the whole app */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
+
+/* Silkscreen regular everywhere — never bold */
+h1, h2, h3, h4, h5, h6, strong, b, .brand h1, .skill-name, .toast-body strong {
+  font-weight: 400;
+}
+
+/* smooth (anti-aliased) pixel art instead of hard pixels */
+svg { shape-rendering: geometricPrecision; }
+img { image-rendering: auto; }
 
 a { color: var(--cyan); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -114,10 +127,12 @@ a:hover { text-decoration: underline; }
 }
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand-logo {
-  font-size: 20px; color: var(--cyan); background: var(--bg-2);
-  border: 3px solid var(--border-lit); padding: 4px 8px; box-shadow: var(--shadow); letter-spacing: -2px;
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  background: #111111; border: 3px solid #000; border-radius: 6px; box-shadow: var(--shadow);
+  color: #eafff4;
 }
-.brand h1 { margin: 0; font-size: 20px; letter-spacing: 1px; }
+.brand-logo .ascii-face { font-size: 11px; line-height: 1; color: #7dffc0; }
+.brand h1 { margin: 0; font-size: 19px; letter-spacing: 1px; }
 .tagline { margin: 2px 0 0; font-size: 9px; color: var(--muted); }
 
 .topbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -171,8 +186,8 @@ a:hover { text-decoration: underline; }
   background-size: 48px 48px; background-position: 0 0, 24px 24px;
 }
 
-.furn { position: absolute; image-rendering: pixelated; pointer-events: none; }
-.furn svg { display: block; filter: drop-shadow(2px 3px 0 rgba(0,0,0,0.12)); }
+.furn { position: absolute; pointer-events: none; }
+.furn svg { display: block; filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.18)); }
 /* living decor */
 .furn-plant svg, .furn-plantTall svg { transform-origin: bottom center; animation: leaf 4.2s ease-in-out infinite; }
 .furn-plantTall svg { animation-duration: 5.4s; }
@@ -195,7 +210,14 @@ a:hover { text-decoration: underline; }
   position: absolute; width: 96px; display: flex; flex-direction: column; align-items: center;
   background: transparent; border: none; cursor: pointer; padding: 0; color: var(--ink); font: inherit;
 }
-.agent .agent-avatar { image-rendering: pixelated; transition: transform 0.15s; filter: drop-shadow(1px 2px 0 rgba(0,0,0,0.18)); }
+.agent .agent-avatar { transition: transform 0.15s; filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.22)); }
+/* animated ASCII expression sitting on the character's head */
+.character { position: relative; }
+.face-on-head {
+  position: absolute; left: 0; right: 0; top: 26%; text-align: center; pointer-events: none;
+  line-height: 0; /* kill the inherited large line-box so the face sits on the head */
+}
+.face-on-head .ascii-face { display: inline-block; font-size: 0.17em; line-height: 1.05; letter-spacing: 0.03em; font-weight: 400; }
 .agent:not(.is-busy) .agent-avatar { animation: sway 3.6s ease-in-out infinite; }
 .agent:hover .agent-avatar { animation: none; transform: translateY(-3px) scale(1.05); }
 .agent.is-busy .agent-avatar { animation: bob 0.42s steps(2) infinite; }
@@ -238,16 +260,6 @@ a:hover { text-decoration: underline; }
 @keyframes bob { to { transform: translateY(-3px); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* emote bubble (animated ASCII face) */
-.emote {
-  position: absolute; top: -34px; opacity: 0; transform: translateY(4px) scale(0.9);
-  transition: opacity 0.15s, transform 0.15s;
-  background: var(--panel); border: 2px solid var(--border-lit); padding: 3px 4px; box-shadow: var(--shadow);
-  z-index: 30;
-}
-.emote.show { opacity: 1; transform: translateY(0) scale(1); }
-.emote .ascii-face { font-size: 7px; line-height: 1; color: var(--ink); }
-
 .ascii-face { margin: 0; font-family: var(--font-read); white-space: pre; }
 
 /* speech bubbles */
@@ -269,8 +281,7 @@ a:hover { text-decoration: underline; }
   position: absolute; width: 72px; display: flex; flex-direction: column; align-items: center;
   transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1), top 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.hero-avatar { image-rendering: pixelated; filter: drop-shadow(1px 2px 0 rgba(0,0,0,0.22)); }
-.hero-avatar.flip { transform: scaleX(-1); }
+.hero-avatar { filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.26)); }
 .hero.is-walking .hero-avatar { animation: bob 0.28s steps(2) infinite; }
 .hero.is-walking .hero-shadow { animation: dust 0.4s steps(3) infinite; }
 @keyframes dust { 50% { box-shadow: -10px 2px 0 -2px rgba(0,0,0,0.12), 10px 2px 0 -2px rgba(0,0,0,0.12); } }
@@ -286,12 +297,10 @@ a:hover { text-decoration: underline; }
 .agent-panel.empty { display: flex; align-items: center; justify-content: center; min-height: 120px; }
 
 .agent-head { display: flex; gap: 12px; align-items: flex-start; }
-.agent-head-avatar { position: relative; background: var(--bg-2); border: 3px solid var(--border-lit); padding: 4px; }
-.agent-head-emote {
-  position: absolute; top: -10px; right: -10px; background: var(--panel); border: 2px solid var(--border-lit);
-  padding: 2px 3px; box-shadow: var(--shadow);
+.agent-head-avatar {
+  background: linear-gradient(160deg, var(--panel-2), var(--bg-2));
+  border: 3px solid var(--border-lit); padding: 6px; border-radius: 4px;
 }
-.agent-head-emote .ascii-face { font-size: 7px; line-height: 1; color: var(--ink); }
 .agent-head-meta { flex: 1; }
 .agent-head-meta h2 { margin: 0; font-size: 16px; }
 .agent-role { margin: 4px 0 6px; color: var(--muted); font-size: 10px; }
@@ -434,6 +443,40 @@ a:hover { text-decoration: underline; }
   .composer-row { gap: 6px; }
   .amount-field input { width: 72px; }
 }
+
+/* ---- UI polish (softer, rounded, works with anti-aliasing) --------------- */
+.panel, .modal, .office-viewport { border-radius: 12px; }
+.toast { border-radius: 12px; }
+.btn { border-radius: 8px; }
+.icon-btn { border-radius: 6px; }
+.net-switch { border-radius: 9px; overflow: hidden; }
+.skill-btn, .act-item, .agent-wallet-row, .treasury-summary, .agent-stats, .xaman-sign,
+.composer-row select, .composer-row input, .xp-bar { border-radius: 7px; }
+.chip, .tag, .agent-plate, .agent-bal, .hero-tag { border-radius: 5px; }
+.agent-head-avatar { border-radius: 8px; }
+
+/* section headers get a soft accent underline */
+.activity-head, .transfer-composer h4, .skills-title {
+  position: relative;
+}
+.panel > .activity-head { padding-bottom: 8px; border-bottom: 2px solid var(--border); margin-bottom: 12px; }
+.activity-head h3::before {
+  content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 7px;
+  background: var(--cyan); border-radius: 2px; transform: rotate(45deg); vertical-align: middle;
+}
+
+/* topbar controls grouped with a subtle panel */
+.topbar { border-bottom-width: 2px; box-shadow: 0 2px 0 rgba(0,0,0,0.05); }
+.topbar-right { background: var(--bg-2); padding: 5px; border-radius: 10px; border: 2px solid var(--border); }
+
+/* buttons feel a touch more tactile */
+.btn { transition: transform 0.06s, border-color 0.12s, background 0.12s; }
+.skill-btn { transition: transform 0.1s, border-color 0.12s, box-shadow 0.12s; }
+.skill-btn:hover:not(:disabled) { box-shadow: var(--shadow); }
+
+/* nicer panel entrance */
+.agent-panel, .treasury, .xaman, .activity { animation: rise 0.28s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
 
 /* ---- reduced motion ------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {

@@ -1,10 +1,9 @@
 import type { AgentDef } from '../data/agents'
-import { LOOKS } from '../data/looks'
+import { CHARACTERS } from '../data/looks'
 import { POSITIONS } from '../data/layout'
 import { useDojo } from '../store'
 import { audio } from '../audio'
-import { PixelAvatar } from './PixelAvatar'
-import { AsciiFace } from './AsciiFace'
+import { Character } from './Character'
 
 /** An agent standing at their desk. Shows the animated ASCII emote bubble,
  *  a level badge, and an XP bar. Clicking selects the agent. */
@@ -19,7 +18,7 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
   const mood = rt?.mood ?? 'idle'
   const busy = rt?.busy
   const pos = POSITIONS[agent.id]
-  const look = LOOKS[agent.id]
+  const character = CHARACTERS[agent.id]
 
   const showAgentBubble = banter && banter.who === 'agent' && banter.agentId === agent.id
 
@@ -30,11 +29,6 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
       onClick={() => { audio.sfx('click'); select(agent.id) }}
       title={`${agent.name} — ${agent.role}`}
     >
-      {/* emote bubble (animated ASCII face) */}
-      <div className={`emote ${busy || mood !== 'idle' ? 'show' : ''}`}>
-        <AsciiFace mood={mood} />
-      </div>
-
       {showAgentBubble && (
         <div className="bubble agent-bubble">
           {banter!.text}
@@ -43,7 +37,7 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
       )}
 
       <div className="agent-avatar">
-        <PixelAvatar look={look} size={72} />
+        <Character character={character} mood={mood} size={74} />
       </div>
       <div className="agent-shadow" />
 

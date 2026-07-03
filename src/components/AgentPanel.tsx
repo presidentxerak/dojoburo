@@ -1,10 +1,9 @@
 import { AGENT_BY_ID, type AgentSkill } from '../data/agents'
-import { LOOKS } from '../data/looks'
+import { CHARACTERS } from '../data/looks'
 import { xpForLevel } from '../data/events'
 import { useDojo } from '../store'
 import { NETWORKS } from '../xrpl/network'
-import { AsciiFace } from './AsciiFace'
-import { PixelAvatar } from './PixelAvatar'
+import { Character } from './Character'
 
 export function AgentPanel() {
   const id = useDojo((s) => s.selectedAgent)
@@ -34,9 +33,8 @@ export function AgentPanel() {
   return (
     <aside className="panel agent-panel">
       <header className="agent-head">
-        <div className="agent-head-avatar" style={{ ['--shirt' as string]: agent.palette.shirt }}>
-          <PixelAvatar look={LOOKS[agent.id]} size={72} />
-          <div className="agent-head-emote"><AsciiFace mood={rt?.mood ?? 'idle'} /></div>
+        <div className="agent-head-avatar">
+          <Character character={CHARACTERS[agent.id]} mood={rt?.mood ?? 'idle'} size={78} />
         </div>
         <div className="agent-head-meta">
           <h2>{agent.emoji} {agent.name}</h2>
