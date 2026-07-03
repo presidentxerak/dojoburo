@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { TopBar } from './components/TopBar'
-import { Office } from './components/Office'
+import { Scene3D } from './components/Scene3D'
 import { AgentPanel } from './components/AgentPanel'
 import { TreasuryPanel } from './components/TreasuryPanel'
 import { ActivityLog } from './components/ActivityLog'
@@ -18,6 +18,7 @@ export default function App() {
   const net = useDojo((s) => s.net)
   const hasWallets = useDojo((s) => Object.keys(s.wallets).length > 0)
   const muted = useDojo((s) => s.muted)
+  const [hudOpen, setHudOpen] = useState(true)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -56,14 +57,22 @@ export default function App() {
   return (
     <div className="app">
       <Defs />
-      {/* fullscreen scene */}
+      {/* real-3D fullscreen scene */}
       <div className="scene-bg">
-        <Office />
+        <Scene3D />
       </div>
 
       {/* UI overlaid on top */}
-      <div className="hud">
+      <div className={`hud ${hudOpen ? '' : 'collapsed'}`}>
         <TopBar />
+        <button
+          className="hud-toggle"
+          onClick={() => setHudOpen((v) => !v)}
+          aria-label={hudOpen ? 'Hide panel' : 'Show panel'}
+          title={hudOpen ? 'Hide panel' : 'Show panel'}
+        >
+          {hudOpen ? '▸' : '◂'}
+        </button>
         <div className="hud-body">
           <aside className="hud-side">
             <AgentPanel />
