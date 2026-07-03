@@ -19,5 +19,5 @@ export function AsciiFace({ mood, className }: Props) {
     return () => clearInterval(id)
   }, [mood, frames.length])
 
-  return <pre className={`ascii-face ${className ?? ''}`} aria-label={`humeur: ${mood}`}>{frames[i]}</pre>
+  return <pre className={`ascii-face ${className ?? ''}`} aria-label={`mood: ${mood}`}>{frames[i]}</pre>
 }

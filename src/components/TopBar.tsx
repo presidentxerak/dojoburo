@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useDojo } from '../store'
 import { NETWORKS, type NetworkId } from '../xrpl/network'
 import { AsciiFace } from './AsciiFace'
+import { Icon } from './Icon'
 
 export function TopBar() {
   const net = useDojo((s) => s.net)
@@ -30,12 +31,12 @@ export function TopBar() {
         <span className="brand-logo"><AsciiFace mood="idle" /></span>
         <div>
           <h1>DojoBuro</h1>
-          <p className="tagline">Startup pixel · orchestrée sur XRPL</p>
+          <p className="tagline">Pixel startup, orchestrated on XRPL</p>
         </div>
       </div>
 
       <div className="topbar-right">
-        <div className="net-switch" role="tablist" aria-label="Réseau XRPL">
+        <div className="net-switch" role="tablist" aria-label="XRPL network">
           {(['testnet', 'devnet', 'mainnet'] as NetworkId[]).map((id) => (
             <button
               key={id}
@@ -45,51 +46,36 @@ export function TopBar() {
               onClick={() => pick(id)}
             >
               {NETWORKS[id].label}
-              {id === 'mainnet' && ' ⚠'}
             </button>
           ))}
         </div>
-        <button className="btn tiny" onClick={() => void refresh()} disabled={loading}>
-          {loading ? '…' : '↻ Soldes'}
+        <button className="btn tiny" onClick={() => void refresh()} disabled={loading} title="Refresh balances">
+          <Icon name="refresh" /> {loading ? '…' : 'Balances'}
         </button>
-        <button
-          className={`btn tiny theme-btn ${musicOn ? 'on' : ''}`}
-          onClick={() => toggleMusic()}
-          aria-label="Musique d'ambiance"
-          title="Musique d'ambiance"
-        >
-          {musicOn ? '♪' : '♪̶'}
+        <button className={`btn tiny icon-only ${musicOn ? 'on' : ''}`} onClick={() => toggleMusic()} aria-label="Ambient music" title="Ambient music">
+          <Icon name="music" />
         </button>
-        <button
-          className="btn tiny theme-btn"
-          onClick={() => toggleMute()}
-          aria-label="Couper le son"
-          title="Sons"
-        >
-          {muted ? '🔇' : '🔊'}
+        <button className="btn tiny icon-only" onClick={() => toggleMute()} aria-label="Sound" title="Sound">
+          <Icon name={muted ? 'mute' : 'sound'} />
         </button>
-        <button
-          className="btn tiny theme-btn"
-          onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-          aria-label="Basculer le thème"
-        >
-          {theme === 'light' ? '🌙' : '☀️'}
+        <button className="btn tiny icon-only" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Toggle theme" title="Theme">
+          <Icon name={theme === 'light' ? 'moon' : 'sun'} />
         </button>
       </div>
 
       {confirmMainnet && (
         <div className="modal-backdrop" onClick={() => setConfirmMainnet(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Passer en Mainnet ?</h3>
+            <h3>Switch to Mainnet?</h3>
             <p>
-              Le Mainnet manipule de la <strong>vraie valeur</strong>. Il n'y a pas de faucet : vous devez financer
-              les wallets vous-même. Les paiements entre agents seront réels et irréversibles.
+              Mainnet moves <strong>real value</strong>. There is no faucet: you fund the wallets yourself.
+              Payments between agents will be real and irreversible.
             </p>
             <p className="muted small">
-              Astuce : gardez de petits montants sur ces wallets « chauds » stockés dans ce navigateur.
+              Tip: keep small amounts on these hot wallets stored in this browser, or use Xaman signing.
             </p>
             <div className="modal-actions">
-              <button className="btn ghost" onClick={() => setConfirmMainnet(false)}>Annuler</button>
+              <button className="btn ghost" onClick={() => setConfirmMainnet(false)}>Cancel</button>
               <button
                 className="btn danger"
                 onClick={() => {
@@ -97,7 +83,7 @@ export function TopBar() {
                   setConfirmMainnet(false)
                 }}
               >
-                Je comprends, passer en Mainnet
+                I understand, switch to Mainnet
               </button>
             </div>
           </div>

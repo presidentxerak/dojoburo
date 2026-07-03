@@ -36,10 +36,10 @@ export function Hero() {
         </div>
       )}
       <div className="hero-avatar">
-        <Character character={HERO_CHARACTER} mood={heroMood} size={72} />
+        <Character character={HERO_CHARACTER} mood={heroMood} size={50} />
       </div>
       <div className="hero-shadow" />
-      <div className="hero-tag">HÉRO</div>
+      <div className="hero-tag">HERO</div>
     </div>
   )
 }

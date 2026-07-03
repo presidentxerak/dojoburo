@@ -1,176 +1,167 @@
-# 🏢 DojoBuro
+# DojoBuro
 
-Une web app **responsive en pixel art 2D** : un bureau de startup où une équipe
-d'**agents IA** — chacun avec une vraie fonction dans une startup — travaille,
-avec des **visages en ASCII art animés**. C'est un **dashboard-jeu** pour
-orchestrer ses agents de façon fun, façon [WorkAdventure](https://workadventu.re/fr/),
-et **toutes les transactions se règlent sur le [XRP Ledger](https://xrpl.org)**.
+A **responsive 2D pixel-art web app**: a startup office where a team of **AI agents**
+— each with a real startup function and its own skills — works at their desks with
+**animated ASCII-art expressions on their heads**. It's a **game-like dashboard** to
+orchestrate agents in a fun way (à la [WorkAdventure](https://workadventu.re)), and
+**every transaction settles on the [XRP Ledger](https://xrpl.org)**.
 
-> 100% fonctionnel, **aucun mock**. L'app parle directement aux nœuds publics
-> XRPL en WebSocket depuis le navigateur — pas de backend.
-
----
-
-## ✨ Ce que ça fait
-
-- **Bureau pixel art** vivant : décor riche (fenêtres, tableau blanc, canapé,
-  tapis, rack serveur, bibliothèque, fontaine à eau, machine à café, plantes…),
-  **12 personnages déjantés tous différents** (alien, ninja, robot, mecha
-  Goldorak, squelette, chat, sorcier, monstre, cyborg, slime, vampire…) avec
-  leur **expression ASCII art animée directement sur la tête**. Rendu
-  **anti-aliasé**, typographie **Silkscreen regular** et icône **carré noir à
-  visage ASCII animé**.
-- **Un héros** (le fondateur) qui **se déplace jusqu'à l'agent** dès qu'une tâche
-  est lancée et **échange des blagues** avec lui pendant l'exécution.
-- **Gameplay & récompenses** : XP, niveaux, médailles 🥉🥈🥇💎👑, pièces 🪙, et
-  des **événements aléatoires** (client VIP, Product Hunt, levée de fonds, bug en
-  prod, kudos…) qui récompensent les agents via des toasts.
-- **12 agents**, chacun avec une **fonction de startup** et ses **skills**.
-- **XRPL intégré** : chaque agent (et la trésorerie) possède un **wallet XRPL**
-  réel. Faucet sur Testnet, paiements agentiques **x402** on-ledger, ancrage du
-  comportement (**track**) et **audit** via `account_tx`.
-- **Testnet → Mainnet** : bascule de réseau dans la barre du haut, avec une
-  confirmation explicite avant de manipuler de la valeur réelle.
-- **Feed « Track »** : chaque action d'agent et chaque transaction on-ledger
-  (avec lien vers l'explorer) apparaissent en temps réel.
-- **Thème clair par défaut** (+ bascule sombre 🌙) et typographie **Silkscreen**.
+> 100% functional, **no mock**. The app talks directly to public XRPL nodes over
+> WebSocket from the browser — no backend.
 
 ---
 
-## 👥 Les agents et leurs fonctions
+## What it does
 
-| Agent | Fonction | Département | Skills clés |
-|------|----------|-----------|-------------|
-| 👑 **Ava** | CEO — Orchestratrice | Direction | Daily standup, OKR, Allouer le budget (XRPL) |
-| 🛠️ **Rex** | CTO — Ingénierie | Tech | Ship une feature, Code review (x402) |
-| ⚙️ **Otto** | DevOps — Infrastructure | Ops | Déployer en prod, Scaler |
-| 💰 **Fin** | CFO — Trésorerie | Finance | Ouvrir la trésorerie, Payer les agents, Audit on-ledger |
-| 📣 **Mia** | CMO — Marketing | Growth | Lancer une campagne, Audit de marque (x402) |
-| 🤝 **Sol** | Head of Sales | Growth | Closer un deal, Encaisser (x402) |
-| 🧭 **Pia** | Product Manager | Produit | Écrire une spec, Prioriser le backlog |
-| 🎨 **Dex** | Lead Designer | Produit | Maquette, Design system (x402) |
-| 📊 **Ada** | Data Analyst | Tech | Rapport hebdo, Analyse on-ledger |
-| 🌱 **Hana** | People Ops — RH | People | Recruter, Boost de moral |
-| 🎧 **Sam** | Customer Support | Ops | Traiter un ticket, Mesurer le CSAT |
-| ⚖️ **Lex** | Legal & Compliance | Direction | Rédiger un contrat, Check conformité |
-
-Chaque agent dispose aussi des **3 skills XRPL partagés** :
-**Wallet XRPL**, **Paiement agentique (x402)** et **Track behavior**.
+- **Living pixel-art office**: full-body characters, organic desk layout with varied
+  desk styles, **job-specific props per agent** (server rack, safe, megaphone, kanban,
+  easel, chart board, scales of justice, hiring board, support tickets…) and ambient
+  decor (windows, clock, couch, rug, bookshelf, cooler, coffee machine, plants, lamp,
+  boxes, arcade). Anti-aliased rendering, **Silkscreen** typography, emoji-free UI icons.
+- **12 wild characters**, all different (alien, ninja, robot, Goldorak mecha, skeleton,
+  cat, wizard, monster, cyborg, slime, vampire, human) with the **animated ASCII
+  expression drawn directly on the head**.
+- **A hero** (the founder) who **walks to the working agent** when a task starts and
+  **trades jokes** with them during the task (varied, department-flavored dialogue).
+- **Game layer**: XP, levels, tiers, coins, per-agent stats, and **random office events**
+  (VIP client, Product Hunt, fundraise, prod bug, kudos…) that reward agents via toasts.
+- **The office scene stays pinned (sticky)** while you scroll the agent panel next to it.
+- **Light theme by default** (+ dark toggle), procedural **lo-fi ambient music + SFX**.
 
 ---
 
-## ⛓️ Intégration XRPL
+## Agents and their functions
 
-L'app suit les guides agents de XRPL :
+| Agent | Function | Department | Key skills |
+|------|----------|-----------|-----------|
+| Ava | CEO — Orchestrator | Leadership | Daily standup, Set OKRs, Allocate budget (XRPL) |
+| Rex | CTO — Engineering | Engineering | Ship a feature, Code review (x402) |
+| Otto | DevOps — Infrastructure | Ops | Deploy to prod, Scale |
+| Fin | CFO — Treasury | Finance | Open treasury, Pay agents, On-ledger audit |
+| Mia | CMO — Marketing | Growth | Launch a campaign, Brand audit (x402) |
+| Sol | Head of Sales | Growth | Close a deal, Get paid (x402) |
+| Pia | Product Manager | Product | Write a spec, Prioritize the backlog |
+| Dex | Lead Designer | Product | Produce a mockup, Design system (x402) |
+| Ada | Data Analyst | Engineering | Weekly report, On-ledger analysis |
+| Hana | People Ops — HR | People | Recruit an agent, Morale boost |
+| Sam | Customer Support | Ops | Handle a ticket, Measure CSAT |
+| Lex | Legal & Compliance | Leadership | Draft a contract, Compliance check |
 
-- **Installation** — la lib officielle [`xrpl`](https://xrpl.org/docs/infrastructure/installation)
-  (`npm i xrpl`) tourne dans le navigateur via des polyfills Node.
+Every agent also has the **3 shared XRPL skills**: XRPL wallet, Agentic payment (x402)
+and Track behavior.
+
+---
+
+## XRPL integration
+
+- **Install** — the official [`xrpl`](https://xrpl.org/docs/infrastructure/installation)
+  library (`npm i xrpl`) runs in the browser via Node polyfills.
 - **Wallets** ([xrpl-agent-wallet-skill](https://xrpl.org/docs/agents/xrpl-agent-wallet-skill)) —
-  `src/xrpl/wallet.ts` : génération de keypairs, financement par **faucet**
-  (Testnet/Devnet), lecture de solde (`account_info`).
-- **Transactions agentiques** ([getting-started](https://xrpl.org/docs/agents/getting-started-with-agentic-transactions)) —
-  `src/xrpl/payments.ts` : `Payment` autofill → sign → `submitAndWait`.
-- **Paiements x402** ([agentic-payments-x402](https://xrpl.org/docs/agents/agentic-payments-x402)) —
-  chaque règlement porte un **mémo x402** structuré (`{protocol, skill, invoice,
-  from, to}`). Les skills « premium » (tarifés) déclenchent un vrai règlement
-  on-ledger depuis la trésorerie.
+  `src/xrpl/wallet.ts`: real keypair generation, **faucet** funding (Testnet/Devnet),
+  balance reads (`account_info`).
+- **Agentic transactions** ([getting started](https://xrpl.org/docs/agents/getting-started-with-agentic-transactions)) —
+  `src/xrpl/payments.ts`: `Payment` autofill → sign → `submitAndWait`.
+- **x402 payments** ([agentic-payments-x402](https://xrpl.org/docs/agents/agentic-payments-x402)) —
+  every settlement carries a structured **x402 memo** `{protocol, skill, invoice, from, to}`.
 - **Track behavior** ([track-agent-behavior](https://xrpl.org/docs/agents/track-agent-behavior)) —
-  ancrage on-ledger d'une empreinte SHA-256 de l'action (self-payment + mémo),
-  auditable via `account_tx`.
+  on-ledger anchoring of a SHA-256 fingerprint (self-payment + memo), auditable via `account_tx`.
+- **Xaman (XUMM)** — non-custodial, frontend-only signing (OAuth2 PKCE, API key without
+  secret). Secure Mainnet on-ramp: fund the treasury from your real wallet, approved on
+  your phone; no seed exposed. Configure via `VITE_XUMM_API_KEY` or the in-app panel.
 
-### 🔐 Xaman — signature sécurisée (Mainnet)
+### Networks
 
-Pour éviter d'exposer une seed en Mainnet, l'app intègre **Xaman (XUMM)** en mode
-**non-custodial, frontend-only** (OAuth2 PKCE, clé API sans secret) :
-
-1. Récupérez une **clé API Xaman** gratuite sur [apps.xaman.dev](https://apps.xaman.dev)
-   et collez-la dans le panneau **Xaman** (ou via `VITE_XUMM_API_KEY`, voir
-   `.env.example`).
-2. **Connecter Xaman** → login par QR / deeplink, l'app lit votre adresse `r…`.
-3. **Financer via Xaman** → l'app crée un `Payment` réel (vous → trésorerie) que
-   vous **approuvez sur votre téléphone**. Aucune clé privée ne touche le
-   navigateur. La trésorerie redistribue ensuite aux agents.
-
-Le SDK `xumm` est **chargé à la demande** (code-split), il n'alourdit pas le
-bundle principal.
-
-### 🎧 Audio
-
-Musique d'ambiance **lo-fi générée en Web Audio** (aucun fichier, 100% offline)
-+ **SFX chiptune** (clic, succès, pièces, level-up, événement, erreur, whoosh du
-héros). Contrôles dans la barre du haut : `♪` musique, `🔊` sons. L'audio démarre
-au premier clic (politique d'autoplay des navigateurs). `prefers-reduced-motion`
-et le mute sont respectés.
-
-### Réseaux
-
-| Réseau | Endpoint | Faucet |
+| Network | Endpoint | Faucet |
 |--------|----------|--------|
-| Testnet *(défaut)* | `wss://s.altnet.rippletest.net:51233` | ✅ |
-| Devnet | `wss://s.devnet.rippletest.net:51233` | ✅ |
-| Mainnet | `wss://xrplcluster.com` | ❌ valeur réelle |
-
-**Passage en Mainnet** : cliquez sur l'onglet *Mainnet*, confirmez l'avertissement,
-puis financez les wallets vous-même (pas de faucet). Les paiements deviennent
-réels et irréversibles.
-
-> 🔐 **Sécurité** : les seeds sont stockées **uniquement dans le localStorage du
-> navigateur**, namespacées par réseau. Parfait pour jouer sur Testnet. Sur
-> Mainnet, traitez ces wallets comme des *hot wallets* : ne financez que de
-> petits montants.
+| Testnet *(default)* | `wss://s.altnet.rippletest.net:51233` | yes |
+| Devnet | `wss://s.devnet.rippletest.net:51233` | yes |
+| Mainnet | `wss://xrplcluster.com` | no — real value |
 
 ---
 
-## 🚀 Démarrage
+## What is real vs simulated (no data mocks)
+
+**Real / production-functional:**
+
+- **Wallets** — real XRPL keypairs (agents + treasury), generated client-side.
+- **Balances** — read live from the ledger (`account_info`).
+- **Payments** — real `Payment` transactions, autofilled, signed and `submitAndWait`-ed:
+  agentic x402 settlements, treasury allocations, payroll batches, per-agent contributions,
+  the Sales "get paid" flow (a real faucet-funded client wallet pays Sol on Testnet).
+- **Track behavior** — real on-ledger memo anchoring.
+- **Audit** — real `account_tx` reads, aggregated into inbound/outbound flows.
+- **Faucet** — real Testnet/Devnet funding.
+- **Xaman** — real payload creation + signing when an API key is configured.
+- **Explorer links** — every tx/account links to the real XRPL explorer.
+
+**Game layer (in-world state, not fake external data):**
+
+- Non-XRPL skills (ship, campaign, spec, ticket…) are **office actions** that produce a
+  real state change — XP, coins, mood, activity log — plus a short in-world result line.
+  They are game mechanics, not placeholders pretending to be real API responses.
+- Random events and rewards are game design.
+
+There are **no hardcoded fake balances, fake tx hashes, or stubbed ledger responses**.
+Anything that touches money is a real on-ledger transaction.
+
+> Note: XRPL public nodes, Google Fonts (Silkscreen) and the Xaman SDK are unreachable
+> from some sandboxed CI environments due to network egress policy — this affects the
+> build box, **not** the app. In a normal browser everything connects and works.
+
+---
+
+## Getting started
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
 ```
 
-Puis dans l'app :
+In the app:
 
-1. Ouvrez la fiche de **Fin** (CFO) ou le panneau **Trésorerie**.
-2. Cliquez **🚀 Démarrer la startup** : crée tous les wallets et les finance via
-   le faucet Testnet.
-3. Cliquez un agent → lancez ses **skills**. Les skills XRPL et x402 produisent
-   de vraies transactions ; suivez-les dans le feed **Track** (liens explorer).
+1. Open **Fin** (CFO) or the **Treasury** panel.
+2. Click **Boot the startup**: creates every wallet and funds them from the Testnet faucet.
+3. Click an agent → run their **skills**. XRPL / x402 skills produce real transactions;
+   follow them in the **Track** feed (with explorer links).
 
-### Build de production
+### Production build
 
 ```bash
 npm run build      # tsc + vite build → dist/
-npm run preview    # sert le build
+npm run preview    # serve the build
 ```
 
-`dist/` est un site statique : déployable tel quel sur n'importe quel hébergeur
-(Netlify, Vercel, Cloudflare Pages, GitHub Pages…).
+`dist/` is a static site — deploy as-is to any host (Netlify, Vercel, Cloudflare Pages,
+GitHub Pages…).
+
+### Optional: Xaman on Mainnet
+
+Get a free API key at [apps.xaman.dev](https://apps.xaman.dev), paste it into the Xaman
+panel (or set `VITE_XUMM_API_KEY`, see `.env.example`), connect your wallet, then fund the
+treasury with a payment you approve in the Xaman app.
 
 ---
 
-## 🧪 Vérification
-
-- `scripts/xrpl-smoke.mjs` — flux XRPL réel de bout en bout (connexion Testnet,
-  faucet ×2, `Payment` avec mémo x402, `account_tx`). *Nécessite un accès réseau
-  sortant vers les nœuds XRPL.*
-- `scripts/ui-verify.mjs` — pilote l'app avec Playwright (rendu, sélection
-  d'agent, exécution de skill, création de wallet, modal Mainnet).
-
----
-
-## 🗂️ Architecture
+## Architecture
 
 ```
 src/
-  data/agents.ts     # roster : fonctions + skills + palettes + postes
-  data/faces.ts      # frames ASCII animés par humeur
-  xrpl/network.ts    # config réseaux + client WebSocket partagé
-  xrpl/wallet.ts     # génération / faucet / soldes
-  xrpl/payments.ts   # Payment + mémos x402 + track + account_tx
-  store.ts           # état global (zustand) + orchestrateur de skills
-  components/        # Office, AgentSprite, AsciiFace, AgentPanel,
-                     # TreasuryPanel, ActivityLog, TopBar
+  data/agents.ts     # roster: functions + skills
+  data/looks.ts      # per-agent character kind + colours
+  data/layout.ts     # stage, desk positions, desk variants + job props, decor
+  data/faces.ts      # animated ASCII expression frames per mood
+  data/jokes.ts      # hero/agent banter
+  data/events.ts     # random office events
+  components/         # Office, Character, PixelAvatar, Furniture, Hero,
+                      # AgentSprite, AgentPanel, TreasuryPanel, XamanPanel,
+                      # ActivityLog, Toasts, TopBar, Icon
+  xrpl/network.ts     # network config + shared WebSocket client
+  xrpl/wallet.ts      # generation / faucet / balances
+  xrpl/payments.ts    # Payment + x402 memos + track + account_tx
+  xrpl/xaman.ts       # Xaman (XUMM) non-custodial signing
+  audio.ts            # procedural music + SFX (Web Audio)
+  store.ts            # global state (zustand) + skill orchestrator
 ```
 
-**Stack** : React 18 · TypeScript · Vite · Zustand · xrpl.js. Aucun backend,
-aucun mock.
+**Stack**: React · TypeScript · Vite · Zustand · xrpl.js · xumm · Web Audio. No backend,
+no mock.

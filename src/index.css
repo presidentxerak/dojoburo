@@ -99,7 +99,7 @@ a:hover { text-decoration: underline; }
 .pad { padding: 12px; }
 
 /* ---- layout -------------------------------------------------------------- */
-.app { display: flex; flex-direction: column; min-height: 100%; overflow-x: hidden; }
+.app { display: flex; flex-direction: column; min-height: 100%; }
 .layout {
   flex: 1;
   display: grid;
@@ -108,7 +108,8 @@ a:hover { text-decoration: underline; }
   padding: 14px;
   align-items: start;
 }
-.col-office { position: sticky; top: 14px; min-width: 0; }
+/* the office scene stays pinned while the agent UI scrolls next to it */
+.col-office { position: sticky; top: 14px; min-width: 0; align-self: start; }
 .col-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 @media (max-width: 980px) {
   .layout { grid-template-columns: 1fr; }
@@ -151,7 +152,11 @@ a:hover { text-decoration: underline; }
   font: inherit; font-size: 11px; color: var(--ink); background: var(--panel-2);
   border: 3px solid var(--border-lit); padding: 8px 12px; cursor: pointer;
   box-shadow: var(--shadow); transition: transform 0.05s;
+  display: inline-flex; align-items: center; gap: 6px;
 }
+.btn svg { flex-shrink: 0; }
+.btn.icon-only { padding: 7px 8px; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; }
 .btn:hover:not(:disabled) { border-color: var(--cyan); }
 .btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -214,7 +219,7 @@ a:hover { text-decoration: underline; }
 /* animated ASCII expression sitting on the character's head */
 .character { position: relative; }
 .face-on-head {
-  position: absolute; left: 0; right: 0; top: 26%; text-align: center; pointer-events: none;
+  position: absolute; left: 0; right: 0; top: 16.5%; text-align: center; pointer-events: none;
   line-height: 0; /* kill the inherited large line-box so the face sits on the head */
 }
 .face-on-head .ascii-face { display: inline-block; font-size: 0.17em; line-height: 1.05; letter-spacing: 0.03em; font-weight: 400; }
@@ -255,7 +260,11 @@ a:hover { text-decoration: underline; }
 .agent-lvl { font-size: 8px; color: var(--gold); }
 .agent.is-selected .agent-lvl { color: #fff2cf; }
 .agent-bal { margin-top: 2px; font-size: 8px; color: var(--gold); background: var(--panel); padding: 1px 4px; border: 1px solid var(--border); }
-.agent-working { position: absolute; top: -6px; right: 12px; font-size: 13px; animation: spin 1.4s linear infinite; }
+.agent-working {
+  position: absolute; top: -4px; right: 12px; width: 12px; height: 12px;
+  border: 2px solid var(--cyan); border-top-color: transparent; border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
 
 @keyframes bob { to { transform: translateY(-3px); } }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -306,21 +315,24 @@ a:hover { text-decoration: underline; }
 .agent-role { margin: 4px 0 6px; color: var(--muted); font-size: 10px; }
 
 .chip { display: inline-block; font-size: 9px; padding: 3px 8px; border: 2px solid var(--border-lit); background: var(--panel-2); }
-.dept-Direction { border-color: var(--gold); color: var(--gold); }
-.dept-Tech { border-color: var(--cyan); color: var(--cyan); }
+.dept-Leadership { border-color: var(--gold); color: var(--gold); }
+.dept-Engineering { border-color: var(--cyan); color: var(--cyan); }
 .dept-Finance { border-color: var(--violet); color: var(--violet); }
 .dept-Growth { border-color: var(--pink); color: var(--pink); }
-.dept-Produit { border-color: var(--teal); color: var(--teal); }
+.dept-Product { border-color: var(--teal); color: var(--teal); }
 .dept-People { border-color: var(--green); color: var(--green); }
 .dept-Ops { border-color: var(--blue); color: var(--blue); }
 
 .agent-stats { margin: 12px 0; background: var(--bg-2); border: 2px solid var(--border); padding: 10px; }
 .stat-line { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.stat-medals { font-size: 13px; letter-spacing: 2px; }
+.stat-stars { display: inline-flex; gap: 2px; color: var(--gold); }
 .stat-lvl { font-size: 10px; color: var(--gold); }
 .xp-bar { height: 10px; background: var(--panel); border: 2px solid var(--border-lit); overflow: hidden; }
 .xp-fill { height: 100%; background: repeating-linear-gradient(90deg, var(--green) 0 6px, #2fce88 6px 8px); transition: width 0.4s; }
 .stat-foot { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9px; color: var(--muted); }
+.stat-coins, .stat-tasks { display: inline-flex; align-items: center; gap: 4px; }
+.stat-coins { color: var(--gold); }
+.stat-tasks { color: var(--green); }
 
 .agent-mission { font-family: var(--font-read); font-size: 12px; line-height: 1.6; color: var(--ink); margin: 12px 0; }
 
@@ -380,8 +392,12 @@ a:hover { text-decoration: underline; }
 .act-item.lvl-xrpl { border-left-color: var(--gold); }
 .act-item.lvl-success { border-left-color: var(--green); }
 .act-item.lvl-error { border-left-color: var(--red); }
-.act-emoji { font-size: 15px; }
+.act-dot { flex-shrink: 0; width: 8px; height: 8px; margin-top: 4px; border-radius: 2px; background: var(--border-lit); }
+.lvl-xrpl .act-dot { background: var(--gold); }
+.lvl-success .act-dot { background: var(--green); }
+.lvl-error .act-dot { background: var(--red); }
 .act-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.act-meta a { display: inline-flex; align-items: center; gap: 2px; }
 .act-msg { font-family: var(--font-read); font-size: 11px; line-height: 1.4; }
 .act-meta { font-size: 9px; color: var(--muted); }
 
@@ -393,9 +409,10 @@ a:hover { text-decoration: underline; }
   background: var(--panel); border: 3px solid var(--gold); box-shadow: var(--shadow-lg);
   padding: 10px 12px; animation: pop 0.25s ease-out;
 }
-.toast-level { border-color: var(--violet); }
-.toast-reward { border-color: var(--green); }
-.toast-emoji { font-size: 22px; }
+.toast-badge {
+  flex-shrink: 0; min-width: 42px; text-align: center; color: #fff; font-size: 9px;
+  padding: 6px 6px; border-radius: 6px; letter-spacing: 0.5px;
+}
 .toast-body { display: flex; flex-direction: column; gap: 2px; }
 .toast-body strong { font-size: 10px; }
 .toast-body span { font-family: var(--font-read); font-size: 10px; color: var(--muted); }

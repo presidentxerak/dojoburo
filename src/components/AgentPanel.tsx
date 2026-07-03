@@ -1,9 +1,10 @@
 import { AGENT_BY_ID, type AgentSkill } from '../data/agents'
 import { CHARACTERS } from '../data/looks'
-import { xpForLevel } from '../data/events'
+import { xpForLevel, tierForLevel } from '../data/events'
 import { useDojo } from '../store'
 import { NETWORKS } from '../xrpl/network'
 import { Character } from './Character'
+import { Icon } from './Icon'
 
 export function AgentPanel() {
   const id = useDojo((s) => s.selectedAgent)
@@ -19,7 +20,7 @@ export function AgentPanel() {
   if (!id) {
     return (
       <aside className="panel agent-panel empty">
-        <p className="panel-hint">👆 Clique sur un agent du bureau pour ouvrir sa fiche, voir son niveau et lancer ses skills.</p>
+        <p className="panel-hint">Click an agent in the office to open their card, see their level and run their skills.</p>
       </aside>
     )
   }
@@ -34,27 +35,31 @@ export function AgentPanel() {
     <aside className="panel agent-panel">
       <header className="agent-head">
         <div className="agent-head-avatar">
-          <Character character={CHARACTERS[agent.id]} mood={rt?.mood ?? 'idle'} size={78} />
+          <Character character={CHARACTERS[agent.id]} mood={rt?.mood ?? 'idle'} size={56} />
         </div>
         <div className="agent-head-meta">
-          <h2>{agent.emoji} {agent.name}</h2>
+          <h2>{agent.name}</h2>
           <p className="agent-role">{agent.role}</p>
           <span className={`chip dept-${agent.department}`}>{agent.department}</span>
         </div>
-        <button className="icon-btn" onClick={() => close(null)} aria-label="Fermer">✕</button>
+        <button className="icon-btn" onClick={() => close(null)} aria-label="Close"><Icon name="close" /></button>
       </header>
 
       {stats && (
         <div className="agent-stats">
           <div className="stat-line">
-            <span className="stat-medals">{stats.medals.join(' ')}</span>
-            <span className="stat-lvl">Niveau {stats.level}</span>
+            <span className="stat-stars">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Icon key={i} name={i < Math.min(stats.level, 5) ? 'star' : 'star-o'} size={12} />
+              ))}
+            </span>
+            <span className="stat-lvl">Level {stats.level} · {tierForLevel(stats.level)}</span>
           </div>
           <div className="xp-bar"><div className="xp-fill" style={{ width: `${xpPct}%` }} /></div>
           <div className="stat-foot">
             <span>{stats.xp}/{xpNeed} XP</span>
-            <span>🪙 {stats.coins}</span>
-            <span>✅ {stats.tasksDone} tâches</span>
+            <span className="stat-coins"><Icon name="coin" size={12} /> {stats.coins}</span>
+            <span className="stat-tasks"><Icon name="check" size={12} /> {stats.tasksDone} tasks</span>
           </div>
         </div>
       )}
@@ -71,9 +76,9 @@ export function AgentPanel() {
           </div>
         </div>
         <div className="agent-wallet-actions">
-          <span className="bal">{wallet?.balanceXrp != null ? `${wallet.balanceXrp.toFixed(2)} XRP` : 'non financé'}</span>
+          <span className="bal">{wallet?.balanceXrp != null ? `${wallet.balanceXrp.toFixed(2)} XRP` : 'unfunded'}</span>
           {!wallet ? (
-            <button className="btn tiny" onClick={() => ensureWallet(agent.id)}>Créer wallet</button>
+            <button className="btn tiny" onClick={() => ensureWallet(agent.id)}>Create wallet</button>
           ) : cfg.faucet ? (
             <button className="btn tiny" onClick={() => void fund(agent.id)}>Faucet</button>
           ) : null}
@@ -102,5 +107,5 @@ export function AgentPanel() {
 }
 
 function kindLabel(k: AgentSkill['kind']): string {
-  return k === 'xrpl' ? 'XRPL' : k === 'analysis' ? 'analyse' : 'action'
+  return k === 'xrpl' ? 'XRPL' : k === 'analysis' ? 'analysis' : 'action'
 }

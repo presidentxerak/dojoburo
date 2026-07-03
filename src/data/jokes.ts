@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
-// Banter between the hero (le fondateur) and an agent while a task runs.
+// Banter between the hero (the founder) and an agent while a task runs.
 // A line is { who: 'hero' | 'agent', text }. getBanter() returns a short
-// exchange, flavoured by the agent's department when possible.
+// exchange, flavoured by the agent's department when possible. No emoji.
 // ---------------------------------------------------------------------------
 import { AGENT_BY_ID } from './agents'
 
@@ -12,78 +12,118 @@ export interface Line {
 
 const GENERIC: Line[][] = [
   [
-    { who: 'hero', text: 'Alors, ça avance ?' },
-    { who: 'agent', text: 'Toujours ! Enfin… presque.' },
-    { who: 'hero', text: "T'inquiète, je crois en toi 💪" },
+    { who: 'hero', text: 'So, how is it going?' },
+    { who: 'agent', text: 'Always shipping. Well... almost.' },
+    { who: 'hero', text: "Don't worry, I believe in you." },
   ],
   [
-    { who: 'hero', text: 'Un café pendant que ça tourne ?' },
-    { who: 'agent', text: 'Je carbure déjà au XRP ⚡' },
+    { who: 'hero', text: 'Coffee while it runs?' },
+    { who: 'agent', text: 'I already run on XRP.' },
   ],
   [
-    { who: 'hero', text: 'Combien de temps encore ?' },
-    { who: 'agent', text: "42 secondes. Ou 42 minutes. Suspense." },
-    { who: 'hero', text: '😅' },
+    { who: 'hero', text: 'How much longer?' },
+    { who: 'agent', text: '42 seconds. Or 42 minutes. Suspense.' },
+    { who: 'hero', text: 'Classic.' },
   ],
   [
-    { who: 'hero', text: "C'est en prod, ça ?" },
-    { who: 'agent', text: '“Ça marche sur mon ledger” 😎' },
+    { who: 'hero', text: 'Is this in prod?' },
+    { who: 'agent', text: '"Works on my ledger."' },
+  ],
+  [
+    { who: 'hero', text: 'Any blockers?' },
+    { who: 'agent', text: 'Only the laws of physics.' },
+  ],
+  [
+    { who: 'hero', text: 'Remember to take a break.' },
+    { who: 'agent', text: 'Breaks are for validated ledgers.' },
+  ],
+  [
+    { who: 'hero', text: 'You are crushing it.' },
+    { who: 'agent', text: 'Team effort. Mostly me, though.' },
   ],
 ]
 
 const BY_DEPT: Record<string, Line[][]> = {
-  Tech: [
+  Engineering: [
     [
-      { who: 'hero', text: 'Pas trop de bugs ?' },
-      { who: 'agent', text: "Ce ne sont pas des bugs, ce sont des features." },
+      { who: 'hero', text: 'Many bugs?' },
+      { who: 'agent', text: "They're not bugs, they're features." },
     ],
     [
-      { who: 'hero', text: 'On refactore un jour ?' },
-      { who: 'agent', text: 'Ajouté au backlog… ligne 9001.' },
+      { who: 'hero', text: 'Refactor someday?' },
+      { who: 'agent', text: 'Added to the backlog. Line 9001.' },
+    ],
+    [
+      { who: 'hero', text: 'Tests green?' },
+      { who: 'agent', text: 'Green enough to ship.' },
     ],
   ],
   Finance: [
     [
-      { who: 'hero', text: 'Le burn-rate ?' },
-      { who: 'agent', text: 'Sous contrôle. Chaque drop compte 💧' },
+      { who: 'hero', text: 'Burn rate?' },
+      { who: 'agent', text: 'Under control. Every drop counts.' },
     ],
     [
-      { who: 'hero', text: 'On est riches ?' },
-      { who: 'agent', text: 'On est… liquides. En XRP.' },
+      { who: 'hero', text: 'Are we rich?' },
+      { who: 'agent', text: "We're... liquid. In XRP." },
+    ],
+    [
+      { who: 'hero', text: 'Runway?' },
+      { who: 'agent', text: 'Long enough to be dangerous.' },
     ],
   ],
   Growth: [
     [
-      { who: 'hero', text: 'Ça buzz ?' },
-      { who: 'agent', text: 'On est trending dans mon cœur ❤️' },
+      { who: 'hero', text: 'Are we trending?' },
+      { who: 'agent', text: 'Trending in my heart, at least.' },
     ],
     [
-      { who: 'hero', text: 'Des leads ?' },
-      { who: 'agent', text: "Plein ! Enfin, un. Mais un bon." },
+      { who: 'hero', text: 'Any leads?' },
+      { who: 'agent', text: 'Plenty. Well, one. But a good one.' },
+    ],
+    [
+      { who: 'hero', text: 'Pipeline looking good?' },
+      { who: 'agent', text: 'Fatter than the roadmap.' },
     ],
   ],
-  Produit: [
+  Product: [
     [
-      { who: 'hero', text: 'Les users vont aimer ?' },
-      { who: 'agent', text: "Ils vont A-DO-RER. Ou pivoter." },
+      { who: 'hero', text: 'Will users love it?' },
+      { who: 'agent', text: "They'll ADORE it. Or we pivot." },
+    ],
+    [
+      { who: 'hero', text: 'Scope creep?' },
+      { who: 'agent', text: 'I prefer "emergent vision".' },
     ],
   ],
   People: [
     [
-      { who: 'hero', text: 'Le moral des troupes ?' },
-      { who: 'agent', text: 'Au top ! Regarde ces sourires ASCII 😄' },
+      { who: 'hero', text: 'Team morale?' },
+      { who: 'agent', text: 'Peak. Look at those ASCII smiles.' },
+    ],
+    [
+      { who: 'hero', text: 'Hiring going well?' },
+      { who: 'agent', text: 'Only A-players and friendly aliens.' },
     ],
   ],
   Ops: [
     [
-      { who: 'hero', text: "Tout tient debout ?" },
-      { who: 'agent', text: 'Uptime 99,9%. Le 0,1%, c’est pour le café.' },
+      { who: 'hero', text: 'Still standing?' },
+      { who: 'agent', text: 'Uptime 99.9%. The 0.1% is coffee.' },
+    ],
+    [
+      { who: 'hero', text: 'Everything stable?' },
+      { who: 'agent', text: 'Stable like a three-legged desk.' },
     ],
   ],
-  Direction: [
+  Leadership: [
     [
-      { who: 'hero', text: 'On garde le cap ?' },
-      { who: 'agent', text: 'Vision claire, exécution nette. On y va !' },
+      { who: 'hero', text: 'Staying on course?' },
+      { who: 'agent', text: 'Clear vision, crisp execution. Onward.' },
+    ],
+    [
+      { who: 'hero', text: 'Big picture?' },
+      { who: 'agent', text: 'World domination. Politely.' },
     ],
   ],
 }

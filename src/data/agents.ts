@@ -1,11 +1,20 @@
 // ---------------------------------------------------------------------------
 // DojoBuro — Agent roster
-// Every agent has a real function inside a startup, a set of skills, a pixel
-// palette and a desk position on the office floor. Skills marked `priced` cost
-// XRP and are settled on the XRP Ledger (x402-style agentic payments).
+// Every agent has a real function inside a startup, a set of skills and a
+// department. Skills marked with a price are settled on the XRP Ledger
+// (x402-style agentic payments).
 // ---------------------------------------------------------------------------
 
 export type SkillKind = 'action' | 'xrpl' | 'analysis'
+
+export type Department =
+  | 'Leadership'
+  | 'Engineering'
+  | 'Finance'
+  | 'Growth'
+  | 'Product'
+  | 'People'
+  | 'Ops'
 
 export interface AgentSkill {
   id: string
@@ -22,14 +31,9 @@ export interface AgentDef {
   id: string
   name: string
   role: string
-  department: 'Direction' | 'Tech' | 'Finance' | 'Growth' | 'Produit' | 'People' | 'Ops'
-  emoji: string
+  department: Department
   /** Short mission statement shown in the agent panel. */
   mission: string
-  /** Pixel-sprite palette. */
-  palette: { skin: string; hair: string; shirt: string; accent: string }
-  /** Desk coordinates on the office grid (col,row on a 12x8 grid). */
-  desk: { x: number; y: number }
   skills: AgentSkill[]
 }
 
@@ -37,18 +41,18 @@ export interface AgentDef {
 const xrplSkills = (idp: string): AgentSkill[] => [
   {
     id: `${idp}.wallet`,
-    name: 'Wallet XRPL',
+    name: 'XRPL wallet',
     description:
-      "Génère / consulte le wallet XRPL de l'agent, affiche solde et adresse (r...). Sur Testnet, finance via le faucet.",
+      "Create / inspect the agent's XRPL wallet, show its balance and r-address. On Testnet, top it up from the faucet.",
     kind: 'xrpl',
     price: 0,
     duration: 2600,
   },
   {
     id: `${idp}.pay`,
-    name: 'Paiement agentique (x402)',
+    name: 'Agentic payment (x402)',
     description:
-      "Règle une prestation entre agents sur le XRP Ledger. Le paiement porte un mémo x402 (skill, invoice) et est signé + soumis on-ledger.",
+      'Settle a service between agents on the XRP Ledger. The payment carries an x402 memo (skill, invoice) and is signed + submitted on-ledger.',
     kind: 'xrpl',
     price: 0,
     duration: 3200,
@@ -57,7 +61,7 @@ const xrplSkills = (idp: string): AgentSkill[] => [
     id: `${idp}.track`,
     name: 'Track behavior',
     description:
-      "Publie l'empreinte de l'action de l'agent (hash mémo) sur le ledger pour tracer son comportement de façon auditable.",
+      "Anchor the agent's action fingerprint (memo hash) on-ledger, making its behavior auditable.",
     kind: 'xrpl',
     price: 0,
     duration: 2400,
@@ -68,34 +72,31 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'ava',
     name: 'Ava',
-    role: 'CEO — Orchestratrice',
-    department: 'Direction',
-    emoji: '👑',
+    role: 'CEO — Orchestrator',
+    department: 'Leadership',
     mission:
-      "Fixe la vision, priorise la roadmap et orchestre les autres agents. Déclenche les rituels d'équipe et arbitre le budget.",
-    palette: { skin: '#f2c8a0', hair: '#3a2d28', shirt: '#f5b301', accent: '#ffffff' },
-    desk: { x: 6, y: 1 },
+      'Sets the vision, prioritizes the roadmap and orchestrates the other agents. Runs the team rituals and arbitrates the budget.',
     skills: [
       {
         id: 'ava.standup',
         name: 'Daily standup',
-        description: "Fait tourner l'équipe : chaque agent joue une micro-tâche et rapporte son statut.",
+        description: 'Rallies the team: each agent plays a micro-task and reports its status.',
         kind: 'action',
         price: 0,
         duration: 3800,
       },
       {
         id: 'ava.okr',
-        name: 'Définir les OKR',
-        description: "Génère les objectifs trimestriels et les répartit par département.",
+        name: 'Set the OKRs',
+        description: 'Generates the quarterly objectives and splits them across departments.',
         kind: 'analysis',
         price: 0,
         duration: 3000,
       },
       {
         id: 'ava.fund',
-        name: 'Allouer le budget',
-        description: "Verse une allocation XRP depuis la trésorerie vers un département (paiement on-ledger).",
+        name: 'Allocate budget',
+        description: 'Sends an XRP allocation from the treasury to a department (on-ledger payment).',
         kind: 'xrpl',
         price: 0.5,
         duration: 3400,
@@ -106,17 +107,14 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'rex',
     name: 'Rex',
-    role: 'CTO — Ingénierie',
-    department: 'Tech',
-    emoji: '🛠️',
-    mission: "Conçoit l'architecture, écrit et review le code, garde la dette technique sous contrôle.",
-    palette: { skin: '#e8b98a', hair: '#1f1a17', shirt: '#38bdf8', accent: '#0f172a' },
-    desk: { x: 2, y: 2 },
+    role: 'CTO — Engineering',
+    department: 'Engineering',
+    mission: 'Designs the architecture, writes and reviews code, keeps technical debt under control.',
     skills: [
       {
         id: 'rex.ship',
-        name: 'Ship une feature',
-        description: "Implémente puis 'déploie' un incrément produit. Émet un artefact de build.",
+        name: 'Ship a feature',
+        description: 'Implements then "deploys" a product increment. Emits a build artifact.',
         kind: 'action',
         price: 0,
         duration: 4200,
@@ -124,7 +122,7 @@ export const AGENTS: AgentDef[] = [
       {
         id: 'rex.review',
         name: 'Code review',
-        description: "Analyse un diff, relève les bugs et suggère des simplifications.",
+        description: 'Analyzes a diff, surfaces bugs and suggests simplifications.',
         kind: 'analysis',
         price: 0.2,
         duration: 3200,
@@ -137,23 +135,20 @@ export const AGENTS: AgentDef[] = [
     name: 'Otto',
     role: 'DevOps — Infrastructure',
     department: 'Ops',
-    emoji: '⚙️',
-    mission: "Automatise le déploiement, surveille l'uptime, tient les pipelines CI/CD au vert.",
-    palette: { skin: '#d8a978', hair: '#4a3b2a', shirt: '#22c55e', accent: '#052e16' },
-    desk: { x: 1, y: 4 },
+    mission: 'Automates deployments, watches uptime and keeps the CI/CD pipelines green.',
     skills: [
       {
         id: 'otto.deploy',
-        name: 'Déployer en prod',
-        description: "Lance un déploiement, joue les health-checks et rollback si besoin.",
+        name: 'Deploy to prod',
+        description: 'Runs a deployment, plays the health-checks and rolls back if needed.',
         kind: 'action',
         price: 0,
         duration: 3800,
       },
       {
         id: 'otto.scale',
-        name: 'Scaler la charge',
-        description: "Ajuste les ressources en fonction du trafic simulé.",
+        name: 'Scale the load',
+        description: 'Adjusts resources based on simulated traffic.',
         kind: 'action',
         price: 0,
         duration: 3000,
@@ -164,34 +159,31 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'fin',
     name: 'Fin',
-    role: 'CFO — Trésorerie',
+    role: 'CFO — Treasury',
     department: 'Finance',
-    emoji: '💰',
     mission:
-      "Gère la trésorerie XRPL, suit le burn-rate, exécute et réconcilie les paiements agentiques.",
-    palette: { skin: '#f0c9a4', hair: '#2b2b2b', shirt: '#a78bfa', accent: '#1e1b4b' },
-    desk: { x: 10, y: 2 },
+      'Manages the XRPL treasury, tracks the burn rate, executes and reconciles agentic payments.',
     skills: [
       {
         id: 'fin.treasury',
-        name: 'Ouvrir la trésorerie',
-        description: "Crée / recharge le wallet de trésorerie de la startup et affiche le solde consolidé.",
+        name: 'Open the treasury',
+        description: 'Creates / tops up the startup treasury wallet and shows the consolidated balance.',
         kind: 'xrpl',
         price: 0,
         duration: 3000,
       },
       {
         id: 'fin.payroll',
-        name: 'Payer les agents',
-        description: "Distribue une paie XRP à chaque agent depuis la trésorerie, en un batch on-ledger.",
+        name: 'Pay the agents',
+        description: 'Distributes an XRP payroll to every agent from the treasury, in one on-ledger batch.',
         kind: 'xrpl',
         price: 0,
         duration: 4600,
       },
       {
         id: 'fin.audit',
-        name: 'Audit on-ledger',
-        description: "Récupère l'historique account_tx d'un wallet et calcule les flux entrants/sortants.",
+        name: 'On-ledger audit',
+        description: "Fetches a wallet's account_tx history and computes inbound/outbound flows.",
         kind: 'analysis',
         price: 0,
         duration: 3200,
@@ -204,23 +196,20 @@ export const AGENTS: AgentDef[] = [
     name: 'Mia',
     role: 'CMO — Marketing',
     department: 'Growth',
-    emoji: '📣',
-    mission: "Construit la marque, lance les campagnes et alimente le haut du funnel.",
-    palette: { skin: '#f4d0b0', hair: '#7c2d12', shirt: '#fb7185', accent: '#4c0519' },
-    desk: { x: 4, y: 5 },
+    mission: 'Builds the brand, launches campaigns and feeds the top of the funnel.',
     skills: [
       {
         id: 'mia.campaign',
-        name: 'Lancer une campagne',
-        description: "Rédige un angle, une accroche et un plan de diffusion multicanal.",
+        name: 'Launch a campaign',
+        description: 'Writes an angle, a hook and a multi-channel distribution plan.',
         kind: 'action',
         price: 0,
         duration: 3600,
       },
       {
         id: 'mia.brand',
-        name: 'Audit de marque',
-        description: "Évalue la cohérence de marque et propose des ajustements.",
+        name: 'Brand audit',
+        description: 'Assesses brand consistency and proposes adjustments.',
         kind: 'analysis',
         price: 0.15,
         duration: 3000,
@@ -231,25 +220,22 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'sol',
     name: 'Sol',
-    role: 'Head of Sales — Revenus',
+    role: 'Head of Sales — Revenue',
     department: 'Growth',
-    emoji: '🤝',
-    mission: "Qualifie les leads, mène les démos et signe les contrats. Encaisse en XRP.",
-    palette: { skin: '#e6b087', hair: '#111827', shirt: '#f97316', accent: '#431407' },
-    desk: { x: 8, y: 5 },
+    mission: 'Qualifies leads, runs demos and closes contracts. Gets paid in XRP.',
     skills: [
       {
         id: 'sol.close',
-        name: 'Closer un deal',
-        description: "Fait avancer une opportunité dans le pipeline jusqu'à la signature.",
+        name: 'Close a deal',
+        description: 'Moves an opportunity through the pipeline to signature.',
         kind: 'action',
         price: 0,
         duration: 3600,
       },
       {
         id: 'sol.invoice',
-        name: 'Encaisser (x402)',
-        description: "Émet une facture x402 et reçoit le règlement d'un client sur le XRP Ledger.",
+        name: 'Get paid (x402)',
+        description: 'Issues an x402 invoice and receives a client settlement on the XRP Ledger.',
         kind: 'xrpl',
         price: 0,
         duration: 3400,
@@ -261,24 +247,21 @@ export const AGENTS: AgentDef[] = [
     id: 'pia',
     name: 'Pia',
     role: 'Product Manager',
-    department: 'Produit',
-    emoji: '🧭',
-    mission: "Traduit les besoins en specs, priorise le backlog et mesure l'impact.",
-    palette: { skin: '#f1c7a2', hair: '#374151', shirt: '#2dd4bf', accent: '#042f2e' },
-    desk: { x: 6, y: 3 },
+    department: 'Product',
+    mission: 'Turns needs into specs, prioritizes the backlog and measures impact.',
     skills: [
       {
         id: 'pia.spec',
-        name: 'Écrire une spec',
-        description: "Transforme une idée en spec produit avec critères d'acceptation.",
+        name: 'Write a spec',
+        description: 'Turns an idea into a product spec with acceptance criteria.',
         kind: 'action',
         price: 0,
         duration: 3400,
       },
       {
         id: 'pia.prioritize',
-        name: 'Prioriser le backlog',
-        description: "Classe les items via un scoring impact/effort.",
+        name: 'Prioritize the backlog',
+        description: 'Ranks items with an impact/effort score.',
         kind: 'analysis',
         price: 0,
         duration: 2800,
@@ -290,16 +273,13 @@ export const AGENTS: AgentDef[] = [
     id: 'dex',
     name: 'Dex',
     role: 'Lead Designer — UX/UI',
-    department: 'Produit',
-    emoji: '🎨',
-    mission: "Dessine les parcours, les maquettes et le design system pixel-perfect.",
-    palette: { skin: '#eabf98', hair: '#6d28d9', shirt: '#c084fc', accent: '#2e1065' },
-    desk: { x: 3, y: 3 },
+    department: 'Product',
+    mission: 'Draws the flows, the mockups and a pixel-perfect design system.',
     skills: [
       {
         id: 'dex.mockup',
-        name: 'Produire une maquette',
-        description: "Génère un écran clé et ses variantes d'états.",
+        name: 'Produce a mockup',
+        description: 'Generates a key screen and its state variants.',
         kind: 'action',
         price: 0,
         duration: 3400,
@@ -307,7 +287,7 @@ export const AGENTS: AgentDef[] = [
       {
         id: 'dex.system',
         name: 'Design system',
-        description: "Formalise tokens, composants et règles d'accessibilité.",
+        description: 'Formalizes tokens, components and accessibility rules.',
         kind: 'analysis',
         price: 0.15,
         duration: 3000,
@@ -319,24 +299,21 @@ export const AGENTS: AgentDef[] = [
     id: 'ada',
     name: 'Ada',
     role: 'Data Analyst',
-    department: 'Tech',
-    emoji: '📊',
-    mission: "Instrumente les métriques, construit les dashboards et détecte les signaux.",
-    palette: { skin: '#e9bd93', hair: '#0f766e', shirt: '#0ea5e9', accent: '#082f49' },
-    desk: { x: 10, y: 4 },
+    department: 'Engineering',
+    mission: 'Instruments metrics, builds dashboards and detects signals.',
     skills: [
       {
         id: 'ada.report',
-        name: 'Rapport hebdo',
-        description: "Compile KPIs (activation, rétention, MRR) et met en évidence les tendances.",
+        name: 'Weekly report',
+        description: 'Compiles KPIs (activation, retention, MRR) and highlights trends.',
         kind: 'analysis',
         price: 0,
         duration: 3400,
       },
       {
         id: 'ada.ledger',
-        name: 'Analyse on-ledger',
-        description: "Agrège les transactions XRPL des agents pour mesurer l'activité économique interne.",
+        name: 'On-ledger analysis',
+        description: "Aggregates the agents' XRPL transactions to measure internal economic activity.",
         kind: 'xrpl',
         price: 0,
         duration: 3200,
@@ -347,25 +324,22 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'hana',
     name: 'Hana',
-    role: 'People Ops — RH',
+    role: 'People Ops — HR',
     department: 'People',
-    emoji: '🌱',
-    mission: "Recrute, onboarde et prend soin du moral de l'équipe d'agents.",
-    palette: { skin: '#f3cdaa', hair: '#9d174d', shirt: '#34d399', accent: '#064e3b' },
-    desk: { x: 2, y: 6 },
+    mission: "Recruits, onboards and looks after the agent team's morale.",
     skills: [
       {
         id: 'hana.hire',
-        name: 'Recruter un agent',
-        description: "Ouvre un poste, évalue des profils et fait une offre.",
+        name: 'Recruit an agent',
+        description: 'Opens a role, screens profiles and makes an offer.',
         kind: 'action',
         price: 0,
         duration: 3600,
       },
       {
         id: 'hana.morale',
-        name: 'Boost de moral',
-        description: "Remonte l'humeur de toute l'équipe (les visages sourient !).",
+        name: 'Morale boost',
+        description: 'Lifts the whole team mood (every face starts smiling).',
         kind: 'action',
         price: 0,
         duration: 3000,
@@ -378,23 +352,20 @@ export const AGENTS: AgentDef[] = [
     name: 'Sam',
     role: 'Customer Support',
     department: 'Ops',
-    emoji: '🎧',
-    mission: "Répond aux tickets, résout les incidents et remonte les irritants produit.",
-    palette: { skin: '#e4ad82', hair: '#1e3a8a', shirt: '#60a5fa', accent: '#172554' },
-    desk: { x: 9, y: 6 },
+    mission: 'Answers tickets, resolves incidents and surfaces product pain points.',
     skills: [
       {
         id: 'sam.ticket',
-        name: 'Traiter un ticket',
-        description: "Prend un ticket, diagnostique et répond au client.",
+        name: 'Handle a ticket',
+        description: 'Picks up a ticket, diagnoses and replies to the customer.',
         kind: 'action',
         price: 0,
         duration: 3000,
       },
       {
         id: 'sam.csat',
-        name: 'Mesurer le CSAT',
-        description: "Calcule la satisfaction et propose des améliorations.",
+        name: 'Measure CSAT',
+        description: 'Computes satisfaction and proposes improvements.',
         kind: 'analysis',
         price: 0,
         duration: 2600,
@@ -406,24 +377,21 @@ export const AGENTS: AgentDef[] = [
     id: 'lex',
     name: 'Lex',
     role: 'Legal & Compliance',
-    department: 'Direction',
-    emoji: '⚖️',
-    mission: "Rédige les contrats, vérifie la conformité et sécurise les paiements on-chain.",
-    palette: { skin: '#edc39c', hair: '#292524', shirt: '#94a3b8', accent: '#0f172a' },
-    desk: { x: 7, y: 6 },
+    department: 'Leadership',
+    mission: 'Drafts contracts, checks compliance and secures on-chain payments.',
     skills: [
       {
         id: 'lex.contract',
-        name: 'Rédiger un contrat',
-        description: "Produit un contrat type et ses clauses clés.",
+        name: 'Draft a contract',
+        description: 'Produces a standard contract and its key clauses.',
         kind: 'action',
         price: 0,
         duration: 3400,
       },
       {
         id: 'lex.compliance',
-        name: 'Check conformité',
-        description: "Vérifie qu'une action (dont un paiement XRPL) respecte les règles internes.",
+        name: 'Compliance check',
+        description: 'Verifies that an action (including an XRPL payment) follows the internal rules.',
         kind: 'analysis',
         price: 0,
         duration: 3000,
@@ -435,12 +403,12 @@ export const AGENTS: AgentDef[] = [
 
 export const AGENT_BY_ID = Object.fromEntries(AGENTS.map((a) => [a.id, a])) as Record<string, AgentDef>
 
-export const DEPARTMENTS = [
-  'Direction',
-  'Tech',
+export const DEPARTMENTS: Department[] = [
+  'Leadership',
+  'Engineering',
   'Finance',
   'Growth',
-  'Produit',
+  'Product',
   'People',
   'Ops',
-] as const
+]

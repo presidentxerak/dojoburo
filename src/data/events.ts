@@ -6,9 +6,10 @@ import type { Mood } from '../store'
 
 export interface GameEvent {
   id: string
-  emoji: string
+  tag: string // short badge label (no emoji)
+  color: string // badge colour
   title: string
-  /** message builder; `who` is the target agent name (or "l'équipe"). */
+  /** message builder; `who` is the target agent name (or "The team"). */
   message: (who: string) => string
   xp: number
   coins: number
@@ -19,126 +20,16 @@ export interface GameEvent {
 }
 
 export const EVENTS: GameEvent[] = [
-  {
-    id: 'vip',
-    emoji: '🌟',
-    title: 'Client VIP',
-    message: (w) => `${w} décroche un client VIP ! +réputation.`,
-    xp: 40,
-    coins: 15,
-    weight: 8,
-    target: 'random',
-    mood: 'happy',
-    good: true,
-  },
-  {
-    id: 'ph',
-    emoji: '🚀',
-    title: 'Product Hunt',
-    message: () => `Lancement Product Hunt : #1 du jour ! Toute l'équipe exulte.`,
-    xp: 25,
-    coins: 10,
-    weight: 5,
-    target: 'all',
-    mood: 'love',
-    good: true,
-  },
-  {
-    id: 'raise',
-    emoji: '💸',
-    title: 'Levée de fonds',
-    message: () => `Seed round bouclé ! La trésorerie respire.`,
-    xp: 30,
-    coins: 20,
-    weight: 4,
-    target: 'all',
-    mood: 'love',
-    good: true,
-  },
-  {
-    id: 'bug',
-    emoji: '🐛',
-    title: 'Bug en prod',
-    message: (w) => `${w} éteint un incendie en prod. Sang-froid légendaire.`,
-    xp: 35,
-    coins: 8,
-    weight: 7,
-    target: 'random',
-    mood: 'work',
-    good: false,
-  },
-  {
-    id: 'coffee',
-    emoji: '☕',
-    title: 'Pause café',
-    message: () => `Pause café collective. Recharge des batteries.`,
-    xp: 10,
-    coins: 3,
-    weight: 9,
-    target: 'all',
-    mood: 'happy',
-    good: true,
-  },
-  {
-    id: 'kudos',
-    emoji: '🏅',
-    title: 'Kudos',
-    message: (w) => `${w} reçoit un kudos de toute l'équipe. Bravo !`,
-    xp: 20,
-    coins: 6,
-    weight: 8,
-    target: 'random',
-    mood: 'love',
-    good: true,
-  },
-  {
-    id: 'demo',
-    emoji: '🎤',
-    title: 'Démo réussie',
-    message: (w) => `${w} bluffe le board en démo. Standing ovation.`,
-    xp: 28,
-    coins: 9,
-    weight: 6,
-    target: 'random',
-    mood: 'talk',
-    good: true,
-  },
-  {
-    id: 'churn',
-    emoji: '📉',
-    title: 'Churn',
-    message: (w) => `Un client part… ${w} lance une action de rétention.`,
-    xp: 22,
-    coins: 5,
-    weight: 5,
-    target: 'random',
-    mood: 'think',
-    good: false,
-  },
-  {
-    id: 'ship',
-    emoji: '📦',
-    title: 'Feature shippée',
-    message: (w) => `${w} livre une feature en avance. La roadmap sourit.`,
-    xp: 26,
-    coins: 8,
-    weight: 7,
-    target: 'random',
-    mood: 'happy',
-    good: true,
-  },
-  {
-    id: 'viral',
-    emoji: '🔥',
-    title: 'Post viral',
-    message: (w) => `${w} fait un carton viral. +10k impressions.`,
-    xp: 24,
-    coins: 7,
-    weight: 5,
-    target: 'random',
-    mood: 'love',
-    good: true,
-  },
+  { id: 'vip', tag: 'VIP', color: '#d98a1f', title: 'VIP client', message: (w) => `${w} lands a VIP client. Reputation up.`, xp: 40, coins: 15, weight: 8, target: 'random', mood: 'happy', good: true },
+  { id: 'ph', tag: 'LAUNCH', color: '#2f80ed', title: 'Product Hunt', message: () => `Product Hunt launch: #1 of the day! The whole team cheers.`, xp: 25, coins: 10, weight: 5, target: 'all', mood: 'love', good: true },
+  { id: 'raise', tag: 'RAISE', color: '#7c5cdf', title: 'Fundraise', message: () => `Seed round closed! The treasury breathes.`, xp: 30, coins: 20, weight: 4, target: 'all', mood: 'love', good: true },
+  { id: 'bug', tag: 'INCIDENT', color: '#e2574c', title: 'Prod bug', message: (w) => `${w} puts out a prod fire. Legendary composure.`, xp: 35, coins: 8, weight: 7, target: 'random', mood: 'work', good: false },
+  { id: 'coffee', tag: 'BREAK', color: '#8a6c47', title: 'Coffee break', message: () => `Team coffee break. Batteries recharged.`, xp: 10, coins: 3, weight: 9, target: 'all', mood: 'happy', good: true },
+  { id: 'kudos', tag: 'KUDOS', color: '#22a35a', title: 'Kudos', message: (w) => `${w} gets kudos from the whole team. Nice!`, xp: 20, coins: 6, weight: 8, target: 'random', mood: 'love', good: true },
+  { id: 'demo', tag: 'DEMO', color: '#12a396', title: 'Great demo', message: (w) => `${w} wows the board in a demo. Standing ovation.`, xp: 28, coins: 9, weight: 6, target: 'random', mood: 'talk', good: true },
+  { id: 'churn', tag: 'CHURN', color: '#e0507a', title: 'Churn', message: (w) => `A client leaves… ${w} kicks off a retention play.`, xp: 22, coins: 5, weight: 5, target: 'random', mood: 'think', good: false },
+  { id: 'ship', tag: 'SHIP', color: '#3f7fe0', title: 'Feature shipped', message: (w) => `${w} ships a feature ahead of schedule. The roadmap smiles.`, xp: 26, coins: 8, weight: 7, target: 'random', mood: 'happy', good: true },
+  { id: 'viral', tag: 'VIRAL', color: '#f2843b', title: 'Viral post', message: (w) => `${w} goes viral. +10k impressions.`, xp: 24, coins: 7, weight: 5, target: 'random', mood: 'love', good: true },
 ]
 
 export function pickEvent(): GameEvent {
@@ -151,10 +42,10 @@ export function pickEvent(): GameEvent {
   return EVENTS[0]
 }
 
-// Medal thresholds by level.
-export const MEDALS = ['🥉', '🥈', '🥇', '💎', '👑', '🛸']
-export function medalForLevel(level: number): string {
-  return MEDALS[Math.min(level - 1, MEDALS.length - 1)] ?? '🥉'
+/** Named tiers unlocked as an agent levels up (no emoji). */
+export const TIERS = ['Rookie', 'Builder', 'Senior', 'Staff', 'Principal', 'Legend']
+export function tierForLevel(level: number): string {
+  return TIERS[Math.min(level - 1, TIERS.length - 1)] ?? 'Rookie'
 }
 
 export function xpForLevel(level: number): number {

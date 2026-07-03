@@ -1,6 +1,7 @@
 import { useDojo } from '../store'
 import { AGENT_BY_ID } from '../data/agents'
 import { NETWORKS } from '../xrpl/network'
+import { Icon } from './Icon'
 
 /** The behavior tracker feed: every agent action + on-ledger transaction. */
 export function ActivityLog() {
@@ -11,16 +12,16 @@ export function ActivityLog() {
   return (
     <section className="panel activity">
       <header className="activity-head">
-        <h3>📡 Track — comportement des agents</h3>
-        <span className="muted small">{activity.length} événements</span>
+        <h3>Track — agent behavior</h3>
+        <span className="muted small">{activity.length} events</span>
       </header>
       <ul className="activity-list">
-        {activity.length === 0 && <li className="muted pad">Aucune activité pour l'instant. Lance un skill !</li>}
+        {activity.length === 0 && <li className="muted pad">No activity yet. Run a skill!</li>}
         {activity.map((a) => {
           const agent = AGENT_BY_ID[a.agentId]
           return (
             <li key={a.id} className={`act-item lvl-${a.level}`}>
-              <span className="act-emoji">{agent?.emoji ?? '•'}</span>
+              <span className="act-dot" aria-hidden />
               <div className="act-body">
                 <span className="act-msg">{a.message}</span>
                 <span className="act-meta mono">
@@ -29,7 +30,7 @@ export function ActivityLog() {
                     <>
                       {' · '}
                       <a href={cfg.explorerTx(a.txHash)} target="_blank" rel="noreferrer">
-                        tx {a.txHash.slice(0, 8)}↗
+                        tx {a.txHash.slice(0, 8)} <Icon name="link" size={10} />
                       </a>
                     </>
                   )}
@@ -45,8 +46,7 @@ export function ActivityLog() {
 
 function clock(ts: number): string {
   try {
-    const d = new Date(ts)
-    return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    return new Date(ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
   } catch {
     return ''
   }

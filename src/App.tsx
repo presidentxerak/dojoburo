@@ -64,8 +64,8 @@ export default function App() {
         <div className="col-office">
           <Office />
           <p className="office-caption">
-            🏢 Bureau DojoBuro · {NETWORKS[net].label}
-            {NETWORKS[net].faucet ? ' · faucet activé' : ' · valeur réelle'}
+            DojoBuro office · {NETWORKS[net].label}
+            {NETWORKS[net].faucet ? ' · faucet enabled' : ' · real value'}
           </p>
         </div>
         <div className="col-side">
@@ -77,8 +77,7 @@ export default function App() {
       </main>
       <footer className="app-footer">
         <span>
-          Transactions réelles sur le XRP Ledger via {NETWORKS[net].wss}. Aucun mock. Seeds stockées dans ce
-          navigateur uniquement.
+          Real transactions on the XRP Ledger via {NETWORKS[net].wss}. No mock. Seeds stored in this browser only.
         </span>
       </footer>
       <Toasts />
