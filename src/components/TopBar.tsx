@@ -9,6 +9,10 @@ export function TopBar() {
   const loading = useDojo((s) => s.balancesLoading)
   const theme = useDojo((s) => s.theme)
   const setTheme = useDojo((s) => s.setTheme)
+  const muted = useDojo((s) => s.muted)
+  const musicOn = useDojo((s) => s.musicOn)
+  const toggleMute = useDojo((s) => s.toggleMute)
+  const toggleMusic = useDojo((s) => s.toggleMusic)
   const [confirmMainnet, setConfirmMainnet] = useState(false)
 
   const pick = (id: NetworkId) => {
@@ -46,6 +50,22 @@ export function TopBar() {
         </div>
         <button className="btn tiny" onClick={() => void refresh()} disabled={loading}>
           {loading ? '…' : '↻ Soldes'}
+        </button>
+        <button
+          className={`btn tiny theme-btn ${musicOn ? 'on' : ''}`}
+          onClick={() => toggleMusic()}
+          aria-label="Musique d'ambiance"
+          title="Musique d'ambiance"
+        >
+          {musicOn ? '♪' : '♪̶'}
+        </button>
+        <button
+          className="btn tiny theme-btn"
+          onClick={() => toggleMute()}
+          aria-label="Couper le son"
+          title="Sons"
+        >
+          {muted ? '🔇' : '🔊'}
         </button>
         <button
           className="btn tiny theme-btn"

@@ -5,8 +5,10 @@ import { AgentPanel } from './components/AgentPanel'
 import { TreasuryPanel } from './components/TreasuryPanel'
 import { ActivityLog } from './components/ActivityLog'
 import { Toasts } from './components/Toasts'
+import { XamanPanel } from './components/XamanPanel'
 import { useDojo } from './store'
 import { NETWORKS } from './xrpl/network'
+import { audio } from './audio'
 
 export default function App() {
   const refresh = useDojo((s) => s.refreshBalances)
@@ -15,10 +17,22 @@ export default function App() {
   const net = useDojo((s) => s.net)
   const hasWallets = useDojo((s) => Object.keys(s.wallets).length > 0)
 
+  const muted = useDojo((s) => s.muted)
+
   // Apply the saved theme to <html> (light by default).
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
+
+  // Unlock the audio context on the first user gesture (autoplay policy).
+  useEffect(() => {
+    const unlock = () => {
+      audio.setMuted(muted)
+      audio.resume()
+    }
+    window.addEventListener('pointerdown', unlock, { once: true })
+    return () => window.removeEventListener('pointerdown', unlock)
+  }, [muted])
 
   // Pull real balances from the ledger on load / network change.
   useEffect(() => {
@@ -57,6 +71,7 @@ export default function App() {
         <div className="col-side">
           <AgentPanel />
           <TreasuryPanel />
+          <XamanPanel />
           <ActivityLog />
         </div>
       </main>

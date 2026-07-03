@@ -2,6 +2,7 @@ import type { AgentDef } from '../data/agents'
 import { LOOKS } from '../data/looks'
 import { POSITIONS } from '../data/layout'
 import { useDojo } from '../store'
+import { audio } from '../audio'
 import { PixelAvatar } from './PixelAvatar'
 import { AsciiFace } from './AsciiFace'
 
@@ -26,7 +27,7 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
     <button
       className={`agent ${selected ? 'is-selected' : ''} ${busy ? 'is-busy' : ''}`}
       style={{ left: pos.x, top: pos.y, zIndex: 20 }}
-      onClick={() => select(agent.id)}
+      onClick={() => { audio.sfx('click'); select(agent.id) }}
       title={`${agent.name} — ${agent.role}`}
     >
       {/* emote bubble (animated ASCII face) */}
@@ -53,6 +54,7 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
       {wallet?.funded && wallet.balanceXrp != null && (
         <span className="agent-bal">{wallet.balanceXrp.toFixed(1)} XRP</span>
       )}
+      {busy && <span className="agent-progress" />}
       {busy && <span className="agent-working">⚙</span>}
     </button>
   )

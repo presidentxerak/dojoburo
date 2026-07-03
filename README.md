@@ -75,6 +75,30 @@ L'app suit les guides agents de XRPL :
   ancrage on-ledger d'une empreinte SHA-256 de l'action (self-payment + mémo),
   auditable via `account_tx`.
 
+### 🔐 Xaman — signature sécurisée (Mainnet)
+
+Pour éviter d'exposer une seed en Mainnet, l'app intègre **Xaman (XUMM)** en mode
+**non-custodial, frontend-only** (OAuth2 PKCE, clé API sans secret) :
+
+1. Récupérez une **clé API Xaman** gratuite sur [apps.xaman.dev](https://apps.xaman.dev)
+   et collez-la dans le panneau **Xaman** (ou via `VITE_XUMM_API_KEY`, voir
+   `.env.example`).
+2. **Connecter Xaman** → login par QR / deeplink, l'app lit votre adresse `r…`.
+3. **Financer via Xaman** → l'app crée un `Payment` réel (vous → trésorerie) que
+   vous **approuvez sur votre téléphone**. Aucune clé privée ne touche le
+   navigateur. La trésorerie redistribue ensuite aux agents.
+
+Le SDK `xumm` est **chargé à la demande** (code-split), il n'alourdit pas le
+bundle principal.
+
+### 🎧 Audio
+
+Musique d'ambiance **lo-fi générée en Web Audio** (aucun fichier, 100% offline)
++ **SFX chiptune** (clic, succès, pièces, level-up, événement, erreur, whoosh du
+héros). Contrôles dans la barre du haut : `♪` musique, `🔊` sons. L'audio démarre
+au premier clic (politique d'autoplay des navigateurs). `prefers-reduced-motion`
+et le mute sont respectés.
+
 ### Réseaux
 
 | Réseau | Endpoint | Faucet |

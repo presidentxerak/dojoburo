@@ -2,63 +2,55 @@ import { chromium } from 'playwright'
 
 const URL = 'http://localhost:4173/'
 const OUT = process.env.SCRATCH || '.'
-
 const browser = await chromium.launch({
   ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}),
   args: ['--no-sandbox'],
 })
+
+// ---- desktop pass ----
 const page = await browser.newPage({ viewport: { width: 1320, height: 880 } })
 const errors = []
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()) })
 page.on('pageerror', (e) => errors.push('PAGEERR: ' + e.message))
-
 await page.goto(URL, { waitUntil: 'load' })
-await page.waitForTimeout(900)
+await page.waitForTimeout(800)
 
-const agents = await page.locator('.agent').count()
-const furn = await page.locator('.furn').count()
-const hero = await page.locator('.hero').count()
-console.log('agents:', agents, '| furniture:', furn, '| hero:', hero)
+console.log('agents:', await page.locator('.agent').count(), '| furniture:', await page.locator('.furn').count(), '| hero:', await page.locator('.hero').count())
+console.log('theme:', await page.evaluate(() => document.documentElement.dataset.theme))
+console.log('xaman panel:', await page.locator('.xaman').count(), '| music btn:', await page.locator('.theme-btn').count())
 
-// theme should be light by default
-const theme = await page.evaluate(() => document.documentElement.dataset.theme)
-console.log('default theme:', theme)
+await page.locator('.agent', { hasText: 'Rex' }).click()
+await page.waitForTimeout(200)
+await page.locator('.skill-btn', { hasText: 'Ship une feature' }).click()
+await page.waitForTimeout(1200)
+console.log('busy progress bar:', await page.locator('.agent-progress').count())
+console.log('banter:', (await page.locator('.bubble').first().textContent().catch(() => '(none)'))?.trim())
+await page.screenshot({ path: `${OUT}/v3-desktop.png` })
+await page.waitForTimeout(3500)
 
-// open an agent, run a skill -> hero should walk + banter + xp
-await page.locator('.agent', { hasText: 'Ada' }).click()
+// dark
+await page.locator('.theme-btn', { hasText: '🌙' }).click().catch(async () => { await page.locator('.topbar-right .theme-btn').last().click() })
 await page.waitForTimeout(300)
-const skills = await page.locator('.skill-btn').count()
-const lvlBefore = await page.locator('.stat-lvl').textContent().catch(() => '?')
-console.log('panel skills:', skills, '| level:', lvlBefore?.trim())
+await page.screenshot({ path: `${OUT}/v3-dark.png` })
 
-await page.locator('.skill-btn', { hasText: 'Rapport hebdo' }).click()
-await page.waitForTimeout(1400)
-const bubble = await page.locator('.bubble').first().textContent().catch(() => null)
-console.log('banter bubble:', bubble?.trim() ?? '(none yet)')
-await page.screenshot({ path: `${OUT}/dojoburo-working.png` })
+// ---- mobile pass ----
+const m = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, deviceScaleFactor: 2 })
+const mErr = []
+m.on('pageerror', (e) => mErr.push(e.message))
+await m.goto(URL, { waitUntil: 'load' })
+await m.waitForTimeout(700)
+const overflow = await m.evaluate(() => ({
+  bodyScrollW: document.body.scrollWidth,
+  innerW: window.innerWidth,
+  overflowing: document.body.scrollWidth > window.innerWidth + 1,
+}))
+console.log('MOBILE overflow check:', JSON.stringify(overflow))
+await m.locator('.agent').first().click()
+await m.waitForTimeout(300)
+await m.screenshot({ path: `${OUT}/v3-mobile.png`, fullPage: false })
+await m.screenshot({ path: `${OUT}/v3-mobile-full.png`, fullPage: true })
 
-// trigger an event manually to snapshot a toast
-await page.evaluate(() => window.__dojo?.getState?.().fireEvent?.())
-await page.waitForTimeout(600)
-
-await page.waitForTimeout(3000)
-const acts = await page.locator('.act-item').count()
-console.log('activity items:', acts)
-
-// dark mode screenshot
-await page.locator('.theme-btn').click()
-await page.waitForTimeout(400)
-const theme2 = await page.evaluate(() => document.documentElement.dataset.theme)
-console.log('after toggle theme:', theme2)
-await page.screenshot({ path: `${OUT}/dojoburo-dark.png` })
-
-// back to light + full scene
-await page.locator('.theme-btn').click()
-await page.waitForTimeout(300)
-await page.locator('.icon-btn').click().catch(() => {})
-await page.waitForTimeout(300)
-await page.screenshot({ path: `${OUT}/dojoburo-light.png` })
-
-console.log('console errors:', errors.length ? errors : 'none')
+console.log('desktop console errors:', errors.filter((e) => !/fonts\.g|ERR_CONNECTION|xumm|Failed to load resource/.test(e)))
+console.log('mobile page errors:', mErr)
 await browser.close()
 console.log('DONE')

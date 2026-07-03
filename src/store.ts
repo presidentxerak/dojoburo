@@ -25,6 +25,8 @@ import {
   type WalletState,
 } from './xrpl/wallet'
 import { sendPayment, trackAction, fetchHistory, type X402Memo } from './xrpl/payments'
+import { audio } from './audio'
+import * as xaman from './xrpl/xaman'
 
 export type Mood = 'idle' | 'work' | 'happy' | 'think' | 'talk' | 'love' | 'error'
 export type Theme = 'light' | 'dark'
@@ -80,9 +82,24 @@ interface DojoState {
   balancesLoading: boolean
   heroTargetId: string // agent id or 'home'
   banter: Banter | null
+  muted: boolean
+  musicOn: boolean
+  xaman: {
+    account: string | null
+    busy: boolean
+    signLink: string | null
+    signQr: string | null
+    configured: boolean
+  }
 
   setNetwork: (net: NetworkId) => void
   setTheme: (t: Theme) => void
+  toggleMute: () => void
+  toggleMusic: () => void
+  xamanConnect: () => Promise<void>
+  xamanDisconnect: () => Promise<void>
+  xamanFundTreasury: (amountXrp: number) => Promise<void>
+  setXamanKey: (key: string) => void
   selectAgent: (id: string | null) => void
   setMood: (id: string, mood: Mood, ms?: number) => void
 
@@ -175,6 +192,73 @@ export const useDojo = create<DojoState>((set, get) => ({
   balancesLoading: false,
   heroTargetId: 'home',
   banter: null,
+  muted: localStorage.getItem('dojoburo.muted') === '1',
+  musicOn: false,
+  xaman: { account: null, busy: false, signLink: null, signQr: null, configured: xaman.isConfigured() },
+
+  toggleMute: () => {
+    const muted = !get().muted
+    localStorage.setItem('dojoburo.muted', muted ? '1' : '0')
+    audio.setMuted(muted)
+    set({ muted })
+  },
+  toggleMusic: () => {
+    const on = !get().musicOn
+    if (on) audio.startMusic()
+    else audio.stopMusic()
+    set({ musicOn: on })
+  },
+
+  setXamanKey: (key) => {
+    xaman.setApiKey(key)
+    set((s) => ({ xaman: { ...s.xaman, configured: xaman.isConfigured() } }))
+  },
+
+  xamanConnect: async () => {
+    set((s) => ({ xaman: { ...s.xaman, busy: true } }))
+    try {
+      const session = await xaman.connect()
+      set((s) => ({ xaman: { ...s.xaman, account: session.account, busy: false } }))
+      audio.sfx('success')
+      get().log({ agentId: 'lex', skill: 'xaman', level: 'success', message: `Xaman connecté: ${session.account.slice(0, 12)}… (Mainnet).` })
+    } catch (e) {
+      set((s) => ({ xaman: { ...s.xaman, busy: false } }))
+      audio.sfx('error')
+      get().log({ agentId: 'lex', skill: 'xaman', level: 'error', message: `Xaman: ${errMsg(e)}` })
+    }
+  },
+
+  xamanDisconnect: async () => {
+    await xaman.disconnect()
+    set((s) => ({ xaman: { ...s.xaman, account: null, signLink: null, signQr: null } }))
+  },
+
+  xamanFundTreasury: async (amountXrp) => {
+    const s = get()
+    const from = s.xaman.account
+    if (!from) {
+      audio.sfx('error')
+      s.log({ agentId: 'fin', skill: 'xaman', level: 'error', message: 'Connectez Xaman avant de financer la trésorerie.' })
+      return
+    }
+    const treasury = s.ensureWallet('treasury')
+    set((st) => ({ xaman: { ...st.xaman, busy: true, signLink: null, signQr: null } }))
+    audio.sfx('start')
+    try {
+      const memo = { protocol: 'x402', skill: 'treasury.fund', from: 'user', to: 'treasury', note: 'Xaman top-up' }
+      const res = await xaman.signPayment(from, treasury.address, amountXrp, memo, (link, qr) => {
+        set((st) => ({ xaman: { ...st.xaman, signLink: link, signQr: qr } }))
+      })
+      set((st) => ({ xaman: { ...st.xaman, busy: false, signLink: null, signQr: null } }))
+      audio.sfx('coin')
+      s.log({ agentId: 'fin', skill: 'xaman', level: 'xrpl', message: `Trésorerie financée via Xaman: ${amountXrp} XRP (signé).`, txHash: res.txid })
+      await s.refreshBalances()
+    } catch (e) {
+      set((st) => ({ xaman: { ...st.xaman, busy: false, signLink: null, signQr: null } }))
+      audio.sfx('error')
+      s.log({ agentId: 'fin', skill: 'xaman', level: 'error', message: `Financement Xaman échoué: ${errMsg(e)}` })
+    }
+  },
 
   log: (a) => set((s) => ({ activity: [{ ...a, id: uid(), ts: now() }, ...s.activity].slice(0, 200) })),
 
@@ -272,11 +356,13 @@ export const useDojo = create<DojoState>((set, get) => ({
     try {
       const memo: X402Memo = { protocol: 'x402', skill: 'transfer', invoice: `INV-${now().toString(36)}`, from: fromId, to: toId, note }
       const res = await sendPayment(net, toWallet(from), to.address, amountXrp, memo)
+      audio.sfx('coin')
       get().log({ agentId: who, skill: 'x402.pay', level: 'xrpl', message: `Paiement ${amountXrp} XRP → ${labelOf(toId)} (${res.engineResult})`, txHash: res.hash })
       get().setMood(who, 'love', 1800)
       await get().refreshBalances()
     } catch (e) {
       get().setMood(who, 'error', 2000)
+      audio.sfx('error')
       get().log({ agentId: who, skill: 'x402.pay', level: 'error', message: `Paiement échoué: ${errMsg(e)}` })
     }
   },
@@ -314,7 +400,10 @@ export const useDojo = create<DojoState>((set, get) => ({
     saveStats(stats)
     if (leveled) {
       s.setMood(agentId, 'love', 2600)
+      audio.sfx('level')
       s.pushToast({ kind: 'level', emoji: medalForLevel(level), title: `${AGENT_BY_ID[agentId]?.name} niveau ${level} !`, text: `Nouvelle médaille ${medalForLevel(level)} débloquée.` })
+    } else if (coins > 0) {
+      audio.sfx('coin')
     }
   },
 
@@ -327,6 +416,7 @@ export const useDojo = create<DojoState>((set, get) => ({
       s.setMood(id, ev.mood, 2400)
       s.grantXp(id, ev.xp, ev.coins)
     }
+    audio.sfx('event')
     s.pushToast({ kind: 'event', emoji: ev.emoji, title: ev.title, text: ev.message(whoName) })
     s.log({ agentId: targets[0], skill: 'event', level: ev.good ? 'success' : 'info', message: `${ev.emoji} ${ev.message(whoName)} (+${ev.xp} XP, +${ev.coins}🪙)` })
   },
@@ -340,6 +430,8 @@ export const useDojo = create<DojoState>((set, get) => ({
     get().setMood(agentId, skill.kind === 'analysis' ? 'think' : 'work', skill.duration + 400)
 
     // Hero walks over and starts joking.
+    audio.sfx('start')
+    audio.sfx('whoosh')
     set({ heroTargetId: agentId })
     startBanter(get, set, agentId, skill.duration)
 
