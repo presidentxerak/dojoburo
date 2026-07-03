@@ -19,12 +19,13 @@ function CameraRig() {
   const camPos = useRef(new THREE.Vector3(2.2, 8.4, 14))
 
   useFrame((_, dt) => {
-    // default: whole room framed, biased left so nothing sits under the panel
-    let tx = 2.6
+    // default: whole room framed, biased left + zoomed out so nothing sits
+    // under the right-hand panel
+    let tx = 3.7
     let tz = 1
-    let px = 2.6
-    let pz = 16.5
-    let py = 9.6
+    let px = 3.7
+    let pz = 18.5
+    let py = 10.4
     if (selected && POS3D[selected]) {
       const [ax, az] = POS3D[selected]
       tx = ax + 1.4

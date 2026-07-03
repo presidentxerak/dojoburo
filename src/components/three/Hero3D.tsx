@@ -3,51 +3,62 @@ import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { useDojo } from '../../store'
-import { HERO_CHARACTER } from '../../data/looks'
 import { heroPos3D } from '../../three/layout3d'
 import { AsciiFace3D } from './AsciiFace3D'
 
-const MAT = { roughness: 0.72, metalness: 0.05 }
+const CLOUD = '#f7fbff'
+const MAT = { roughness: 0.9, metalness: 0 }
 
+function Puff({ p, r }: { p: [number, number, number]; r: number }) {
+  return (
+    <mesh position={p} castShadow>
+      <sphereGeometry args={[r, 20, 18]} />
+      <meshStandardMaterial color={CLOUD} {...MAT} />
+    </mesh>
+  )
+}
+
+/** The founder-hero as a small floating kawaii cloud. Drifts to whichever agent
+ *  is working. */
 export function Hero3D() {
   const targetId = useDojo((s) => s.heroTargetId)
   const g = useRef<THREE.Group>(null)
-  const walk = useRef(0)
-  const c = HERO_CHARACTER
 
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     if (!g.current) return
     const [tx, tz] = heroPos3D(targetId)
     const p = g.current.position
-    const moving = Math.abs(p.x - tx) + Math.abs(p.z - tz) > 0.05
-    p.x += (tx - p.x) * Math.min(1, dt * 3)
-    p.z += (tz - p.z) * Math.min(1, dt * 3)
-    walk.current += dt * (moving ? 14 : 3)
-    g.current.position.y = moving ? Math.abs(Math.sin(walk.current)) * 0.12 : Math.abs(Math.sin(walk.current)) * 0.04
+    p.x += (tx - p.x) * Math.min(1, dt * 2.4)
+    p.z += (tz - p.z) * Math.min(1, dt * 2.4)
+    // gentle float + tiny wobble
+    const t = state.clock.elapsedTime
+    p.y = 1.35 + Math.sin(t * 1.6) * 0.12
+    g.current.rotation.z = Math.sin(t * 0.9) * 0.04
   })
 
   return (
-    <group ref={g} position={[0, 0, 7.4]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-        <circleGeometry args={[0.5, 24]} />
-        <meshBasicMaterial color={'#000'} transparent opacity={0.2} />
+    <group ref={g} position={[0, 1.35, 7.4]}>
+      {/* soft ground shadow */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.34, 0]}>
+        <circleGeometry args={[0.55, 24]} />
+        <meshBasicMaterial color={'#000'} transparent opacity={0.14} />
       </mesh>
-      {/* legs / body / arms / head */}
-      <mesh position={[-0.22, 0.3, 0]} castShadow><cylinderGeometry args={[0.16, 0.16, 0.56, 14]} /><meshStandardMaterial color={c.pants} {...MAT} /></mesh>
-      <mesh position={[0.22, 0.3, 0]} castShadow><cylinderGeometry args={[0.16, 0.16, 0.56, 14]} /><meshStandardMaterial color={c.pants} {...MAT} /></mesh>
-      <mesh position={[0, 1.0, 0]} scale={[1, 1.05, 0.9]} castShadow><sphereGeometry args={[0.52, 20, 18]} /><meshStandardMaterial color={c.outfit} {...MAT} /></mesh>
-      <mesh position={[-0.54, 1.0, 0]} castShadow><sphereGeometry args={[0.17, 16, 14]} /><meshStandardMaterial color={c.outfit} {...MAT} /></mesh>
-      <mesh position={[0.54, 1.0, 0]} castShadow><sphereGeometry args={[0.17, 16, 14]} /><meshStandardMaterial color={c.outfit} {...MAT} /></mesh>
-      <mesh position={[0, 1.85, 0]} castShadow><sphereGeometry args={[0.58, 22, 20]} /><meshStandardMaterial color={c.face} {...MAT} /></mesh>
-      {/* cap */}
-      <mesh position={[0, 2.2, -0.05]} scale={[1, 0.5, 1]} castShadow><sphereGeometry args={[0.58, 20, 16]} /><meshStandardMaterial color={c.outfit} {...MAT} /></mesh>
-      <mesh position={[0, 2.12, 0.5]} castShadow><boxGeometry args={[0.7, 0.08, 0.3]} /><meshStandardMaterial color={c.outfit} {...MAT} /></mesh>
-      {/* cheeks + face */}
-      <mesh position={[-0.3, 1.72, 0.44]} castShadow><sphereGeometry args={[0.11, 12, 12]} /><meshStandardMaterial color={'#ff8fa3'} {...MAT} /></mesh>
-      <mesh position={[0.3, 1.72, 0.44]} castShadow><sphereGeometry args={[0.11, 12, 12]} /><meshStandardMaterial color={'#ff8fa3'} {...MAT} /></mesh>
-      <AsciiFace3D mood={targetId === 'home' ? 'idle' : 'talk'} position={[0, 1.88, 0.56]} scale={0.68} color="#1c2029" />
+      {/* cloud puffs (flat-ish bottom) */}
+      <Puff p={[0, 0.05, 0]} r={0.6} />
+      <Puff p={[-0.55, -0.02, 0]} r={0.42} />
+      <Puff p={[0.55, -0.02, 0]} r={0.42} />
+      <Puff p={[-0.2, 0.32, -0.02]} r={0.4} />
+      <Puff p={[0.28, 0.3, -0.02]} r={0.36} />
+      <mesh position={[0, -0.18, 0]} scale={[1, 0.5, 1]} castShadow>
+        <sphereGeometry args={[0.75, 22, 16]} />
+        <meshStandardMaterial color={CLOUD} {...MAT} />
+      </mesh>
+      {/* rosy cheeks + face */}
+      <mesh position={[-0.34, -0.05, 0.5]}><sphereGeometry args={[0.1, 12, 12]} /><meshStandardMaterial color={'#ff8fa3'} {...MAT} /></mesh>
+      <mesh position={[0.34, -0.05, 0.5]}><sphereGeometry args={[0.1, 12, 12]} /><meshStandardMaterial color={'#ff8fa3'} {...MAT} /></mesh>
+      <AsciiFace3D mood={targetId === 'home' ? 'happy' : 'talk'} position={[0, 0.02, 0.66]} scale={0.6} color="#5566aa" />
 
-      <Html position={[0, 2.85, 0]} center distanceFactor={11} zIndexRange={[6, 0]} pointerEvents="none">
+      <Html position={[0, 0.95, 0]} center distanceFactor={11} zIndexRange={[6, 0]} pointerEvents="none">
         <div className="tag3d hero">HERO</div>
       </Html>
     </group>

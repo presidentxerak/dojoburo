@@ -65,7 +65,9 @@ export function AsciiFace3D({
 
   return (
     <sprite position={position} scale={[scale * 1.33, scale, 1]}>
-      <spriteMaterial map={texture} transparent depthWrite={false} depthTest={false} />
+      {/* depthTest so a face behind another character is properly occluded;
+          depthWrite off so the transparent quad doesn't hide anything itself */}
+      <spriteMaterial map={texture} transparent depthWrite={false} depthTest />
     </sprite>
   )
 }

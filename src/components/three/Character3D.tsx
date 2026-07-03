@@ -222,7 +222,7 @@ export function Character3D({
             <Cyl p={[0, 1.5, 0]} r={0.05} h={0.4} c={character.face} />
             <Ball p={[0, 1.78, 0]} r={0.14} c={'#fff'} />
             <Ball p={[0, 1.8, 0.1]} r={0.06} c={'#333'} />
-            <AsciiFace3D mood={mood} position={[0, 0.9, 0.72]} scale={0.72} color={faceColor} />
+            <AsciiFace3D mood={mood} position={[0, 0.92, 0.9]} scale={0.72} color={faceColor} />
             <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
             <Arm side={1} color={character.face} hand={character.face} busy={busy} />
           </group>
@@ -239,7 +239,7 @@ export function Character3D({
             <Ball p={[-0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
             <Ball p={[0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
             <Toppers c={character} />
-            <AsciiFace3D mood={mood} position={[0, 1.98, 0.6]} scale={0.72} color={faceColor} />
+            <AsciiFace3D mood={mood} position={[0, 1.98, 0.72]} scale={0.72} color={faceColor} />
             {/* typing arms */}
             <Arm side={-1} color={character.outfit} hand={character.face} busy={busy} />
             <Arm side={1} color={character.outfit} hand={character.face} busy={busy} />

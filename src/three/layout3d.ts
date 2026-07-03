@@ -2,7 +2,7 @@
 // hero roams in front. Coordinates are world units (X right, Z toward camera).
 import { AGENTS } from '../data/agents'
 
-export const CELL = { xs: [-4.7, -1.55, 1.55, 4.7], zs: [-2.8, 0.7, 4.2] }
+export const CELL = { xs: [-4.2, -1.4, 1.4, 4.2], zs: [-2.8, 0.7, 4.2] }
 
 // deterministic grid position per agent (order of AGENTS)
 export const POS3D: Record<string, [number, number]> = {}
