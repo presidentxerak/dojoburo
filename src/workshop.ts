@@ -5,6 +5,7 @@
 import { create } from 'zustand'
 import type { Department } from './data/agents'
 import { AGENTS } from './data/agents'
+import { CHARACTERS } from './data/looks'
 import { SKINS, skinById } from './data/skins'
 import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
@@ -68,16 +69,20 @@ const uid = () => Math.random().toString(36).slice(2, 10)
 const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People', 'Ops']
 
 function seedDojo(): Dojo {
-  const agents: WAgent[] = AGENTS.slice(0, MAX_AGENTS).map((a, i) => ({
-    id: a.id,
-    name: a.name,
-    fn: a.department,
-    skinId: SKINS[i % SKINS.length].id,
-    tasks: defaultTasksFor(a.department),
-    budgetXrp: 5,
-    gx: i % GRID.cols,
-    gy: Math.floor(i / GRID.cols),
-  }))
+  const agents: WAgent[] = AGENTS.slice(0, MAX_AGENTS).map((a, i) => {
+    const kind = CHARACTERS[a.id]?.kind
+    const skin = SKINS.find((s) => s.kind === kind) ?? SKINS[i % SKINS.length]
+    return {
+      id: a.id,
+      name: a.name,
+      fn: a.department,
+      skinId: skin.id,
+      tasks: defaultTasksFor(a.department),
+      budgetXrp: 5,
+      gx: i % GRID.cols,
+      gy: Math.floor(i / GRID.cols),
+    }
+  })
   return { id: uid(), name: 'HQ Dojo', agents }
 }
 

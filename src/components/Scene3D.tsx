@@ -1,9 +1,9 @@
-import { Suspense, useRef } from 'react'
+import { Suspense, useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { AGENTS, AGENT_BY_ID } from '../data/agents'
-import { CHARACTERS } from '../data/looks'
-import { POS3D } from '../three/layout3d'
+import { SEATS, setAgentPositions, agentWorldPos } from '../three/layout3d'
+import { skinById } from '../data/skins'
+import { useWorkshop, GRID } from '../workshop'
 import { useDojo } from '../store'
 import { audio } from '../audio'
 import { Decor3D } from './three/Decor3D'
@@ -28,8 +28,9 @@ function CameraRig() {
     let pz = 18.5
     let py = 10.4
     let ty = 1.2
-    if (selected && POS3D[selected]) {
-      const [ax, az] = POS3D[selected]
+    const sp = selected ? agentWorldPos(selected) : undefined
+    if (sp) {
+      const [ax, az] = sp
       tx = ax + 1.4
       tz = az
       ty = 2.3 // lift the look-at so the brain hovering high above stays framed
@@ -50,27 +51,43 @@ function Agents() {
   const stats = useDojo((s) => s.stats)
   const selectedAgent = useDojo((s) => s.selectedAgent)
   const select = useDojo((s) => s.selectAgent)
+  const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
+
+  // the active dojo's agents, seated in grid reading order onto the desk slots
+  const seated = useMemo(() => {
+    const list = [...(dojo?.agents ?? [])]
+      .sort((a, b) => a.gy * GRID.cols + a.gx - (b.gy * GRID.cols + b.gx))
+      .slice(0, SEATS.length)
+    return list.map((wa, i) => ({ wa, pos: SEATS[i] }))
+  }, [dojo])
+
+  // publish id -> world position so the Chief + camera can follow any agent
+  useEffect(() => {
+    const m: Record<string, [number, number]> = {}
+    for (const { wa, pos } of seated) m[wa.id] = pos
+    setAgentPositions(m)
+  }, [seated])
 
   return (
     <group>
-      {AGENTS.map((a) => {
-        const [x, z] = POS3D[a.id]
-        const rt = runtime[a.id]
+      {seated.map(({ wa, pos }) => {
+        const [x, z] = pos
+        const rt = runtime[wa.id]
         return (
           <Character3D
-            key={a.id}
-            id={a.id}
-            character={CHARACTERS[a.id]}
+            key={wa.id}
+            id={wa.id}
+            character={skinById(wa.skinId)}
             x={x}
             z={z}
             mood={rt?.mood ?? 'idle'}
             busy={!!rt?.busy}
-            selected={selectedAgent === a.id}
-            name={AGENT_BY_ID[a.id].name}
-            level={stats[a.id]?.level ?? 1}
+            selected={selectedAgent === wa.id}
+            name={wa.name}
+            level={stats[wa.id]?.level ?? 1}
             onSelect={() => {
               audio.sfx('click')
-              select(a.id)
+              select(wa.id)
             }}
           />
         )

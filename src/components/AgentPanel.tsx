@@ -1,7 +1,8 @@
-import { AGENT_BY_ID, type AgentSkill } from '../data/agents'
-import { CHARACTERS } from '../data/looks'
+import { type AgentSkill } from '../data/agents'
+import { getAgentView } from '../agentView'
 import { xpForLevel, tierForLevel } from '../data/events'
 import { useDojo } from '../store'
+import { useWorkshop } from '../workshop'
 import { NETWORKS } from '../xrpl/network'
 import { Character } from './Character'
 import { Icon } from './Icon'
@@ -16,8 +17,11 @@ export function AgentPanel() {
   const wallet = useDojo((s) => (id ? s.wallets[id] : undefined))
   const rt = useDojo((s) => (id ? s.runtime[id] : undefined))
   const stats = useDojo((s) => (id ? s.stats[id] : undefined))
+  // re-render when the active dojo changes so live edits (name, skin, skills) show
+  useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
 
-  if (!id) {
+  const agent = getAgentView(id)
+  if (!id || !agent) {
     return (
       <aside className="panel agent-panel empty">
         <p className="panel-hint">Click an agent in the office to open their card, see their level and run their skills.</p>
@@ -25,7 +29,6 @@ export function AgentPanel() {
     )
   }
 
-  const agent = AGENT_BY_ID[id]
   const cfg = NETWORKS[net]
   const run = (skill: AgentSkill) => void runSkill(agent.id, skill)
   const xpNeed = stats ? xpForLevel(stats.level) : 100
@@ -35,7 +38,7 @@ export function AgentPanel() {
     <aside className="panel agent-panel">
       <header className="agent-head">
         <div className="agent-head-avatar">
-          <Character character={CHARACTERS[agent.id]} mood={rt?.mood ?? 'idle'} size={56} />
+          <Character character={agent.character} mood={rt?.mood ?? 'idle'} size={56} />
         </div>
         <div className="agent-head-meta">
           <h2>{agent.name}</h2>

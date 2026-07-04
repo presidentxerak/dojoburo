@@ -6,6 +6,7 @@
 import { create } from 'zustand'
 import { Wallet } from 'xrpl'
 import { AGENTS, AGENT_BY_ID, type AgentSkill } from './data/agents'
+import { agentLabel } from './agentView'
 import { getBanter } from './data/jokes'
 import { pickEvent, tierForLevel, xpForLevel } from './data/events'
 import { NETWORKS, loadNetworkId, saveNetworkId, type NetworkId } from './xrpl/network'
@@ -410,7 +411,7 @@ export const useDojo = create<DojoState>((set, get) => ({
     if (leveled) {
       s.setMood(agentId, 'love', 2600)
       audio.sfx('level')
-      s.pushToast({ kind: 'level', badge: 'LVL', color: '#7c5cdf', title: `${AGENT_BY_ID[agentId]?.name} reached level ${level}`, text: `New tier unlocked: ${tierForLevel(level)}.` })
+      s.pushToast({ kind: 'level', badge: 'LVL', color: '#7c5cdf', title: `${agentLabel(agentId)} reached level ${level}`, text: `New tier unlocked: ${tierForLevel(level)}.` })
     } else if (coins > 0) {
       audio.sfx('coin')
     }
@@ -433,7 +434,6 @@ export const useDojo = create<DojoState>((set, get) => ({
   runSkill: async (agentId, skill) => {
     const rt = get().runtime[agentId]
     if (rt?.busy) return
-    const agent = AGENT_BY_ID[agentId]
 
     set((s) => ({ runtime: { ...s.runtime, [agentId]: { ...s.runtime[agentId], busy: true, lastSkill: skill.id } } }))
     get().setMood(agentId, skill.kind === 'analysis' ? 'think' : 'work', skill.duration + 400)
@@ -443,7 +443,7 @@ export const useDojo = create<DojoState>((set, get) => ({
     set({ heroTargetId: agentId })
     startBanter(get, set, agentId, skill.duration)
 
-    get().log({ agentId, skill: skill.id, level: 'info', message: `${agent.name} runs "${skill.name}"…` })
+    get().log({ agentId, skill: skill.id, level: 'info', message: `${agentLabel(agentId)} runs "${skill.name}"…` })
 
     try {
       if (skill.price > 0) await settlePricedSkill(get, agentId, skill)
@@ -592,7 +592,6 @@ function patchBalance(agentId: string, bal: number | null) {
 }
 
 function skillOutput(agentId: string, skill: AgentSkill): string {
-  const a = AGENT_BY_ID[agentId]
   const lines: Record<string, string> = {
     'ava.okr': 'Q3 OKRs set: +30% activation, MRR x2, NPS > 50.',
     'rex.ship': 'Feature shipped — build #' + (Math.abs(hashStr(skill.id + now())) % 9000),
@@ -614,7 +613,7 @@ function skillOutput(agentId: string, skill: AgentSkill): string {
     'lex.contract': 'Contract drafted, key clauses validated.',
     'lex.compliance': 'Compliance OK — action authorized.',
   }
-  return lines[skill.id] ?? `${a.name} finished "${skill.name}".`
+  return lines[skill.id] ?? `${agentLabel(agentId)} finished "${skill.name}".`
 }
 
 function labelOf(ownerId: string): string {
