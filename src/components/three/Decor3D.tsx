@@ -166,9 +166,9 @@ function Station({ id, x, z }: { id: string; x: number; z: number }) {
         ))}
       </group>
 
-      {/* laptop: big deck with the keyboard toward the agent, the open lid
-          hinged at the far edge and the glowing screen tilted up to the camera */}
-      <group position={[0, 0.96, z + 0.58]}>
+      {/* laptop: palm-rest & keyboard toward the agent, lid hinged behind the
+          keys with the glowing screen facing back to the agent (we see its back) */}
+      <group position={[0, 0.96, z + 0.55]}>
         {/* deck / keyboard base */}
         <B p={[0, 0, 0]} s={[0.92, 0.05, 0.62]} c="#20242f" />
         <B p={[0, 0.02, 0]} s={[0.86, 0.03, 0.56]} c="#2b2f3d" />
@@ -176,12 +176,21 @@ function Station({ id, x, z }: { id: string; x: number; z: number }) {
           [...Array(9)].map((_, k) => <B key={`${r}-${k}`} p={[-0.34 + k * 0.085, 0.045, -0.16 + r * 0.09]} s={[0.06, 0.02, 0.06]} c="#454b63" />),
         )}
         {/* trackpad nearest the agent */}
-        <B p={[0, 0.045, 0.24]} s={[0.26, 0.012, 0.14]} c="#3a4058" />
-        {/* open lid hinged at the far edge, tilting the screen toward the camera */}
-        <group position={[0, 0, 0.31]} rotation={[0.32, 0, 0]}>
-          <B p={[0, 0.44, 0]} s={[0.94, 0.66, 0.04]} c="#20242f" />
-          <B p={[0, 0.44, 0.024]} s={[0.82, 0.54, 0.02]} c="#0f2233" emissive="#2a7fa8" ei={0.6} />
-          <B p={[0, 0.7, 0.026]} s={[0.7, 0.05, 0.01]} c="#63d0ff" emissive="#63d0ff" ei={0.7} />
+        <B p={[0, 0.045, -0.22]} s={[0.26, 0.012, 0.14]} c="#3a4058" />
+        {/* screen light spilling onto the keyboard */}
+        <mesh position={[0, 0.055, -0.02]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.72, 0.42]} />
+          <meshBasicMaterial color="#2a7fa8" transparent opacity={0.16} depthWrite={false} />
+        </mesh>
+        {/* open lid hinged behind the keys, screen face toward the agent (-z) */}
+        <group position={[0, 0, 0.22]} rotation={[0.3, 0, 0]}>
+          {/* case back — this is what the camera sees */}
+          <B p={[0, 0.44, 0.02]} s={[0.94, 0.66, 0.04]} c="#2b2f3d" />
+          {/* the actual screen, facing the agent */}
+          <B p={[0, 0.44, -0.02]} s={[0.82, 0.54, 0.02]} c="#0f2233" emissive="#2a7fa8" ei={0.6} />
+          {/* lit top edge + a logo on the back, so it still reads as "on" */}
+          <B p={[0, 0.72, 0.02]} s={[0.9, 0.05, 0.06]} c="#63d0ff" emissive="#63d0ff" ei={0.7} />
+          <mesh position={[0, 0.42, 0.042]}><circleGeometry args={[0.08, 20]} /><meshBasicMaterial color="#63d0ff" transparent opacity={0.85} /></mesh>
         </group>
       </group>
 
@@ -302,14 +311,6 @@ export function Decor3D() {
       ))}
       <Lantern x={-4} z={backZ + 1.5} />
       <Lantern x={4} z={backZ + 1.5} />
-
-      {/* exposed ceiling beams */}
-      {[-6, -2, 2, 6].map((zc) => (
-        <mesh key={zc} position={[0, ROOM.wallH - 0.25, zc]}>
-          <boxGeometry args={[ROOM.w, 0.3, 0.4]} />
-          <meshStandardMaterial color={WOOD_D} {...M} />
-        </mesh>
-      ))}
 
       {/* garden corners: a cherry tree, a stone lantern and bamboo clusters */}
       <CherryTree x={-8.6} z={2.6} />

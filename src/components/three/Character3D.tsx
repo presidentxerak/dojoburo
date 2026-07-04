@@ -43,14 +43,21 @@ function Box({ p, s, c, rot }: { p: [number, number, number]; s: [number, number
 }
 
 // A typing arm: pivots at the shoulder, forearm reaches forward-down onto the
-// laptop keyboard; taps up and down (offset phase per side).
-function Arm({ side, color, hand, busy }: { side: number; color: string; hand: string; busy: boolean }) {
+// laptop keyboard and taps; or raises up to wave hello at the Chief.
+function Arm({ side, color, hand, busy, wave }: { side: number; color: string; hand: string; busy: boolean; wave?: boolean }) {
   const g = useRef<THREE.Group>(null)
   useFrame((state) => {
     if (!g.current) return
     const t = state.clock.elapsedTime
-    const spd = busy ? 16 : 7
-    g.current.rotation.x = -0.42 + Math.sin(t * spd + (side > 0 ? 0 : 1.4)) * (busy ? 0.16 : 0.07)
+    if (wave) {
+      // raise the forearm and swing it side to side
+      g.current.rotation.x += (-1.4 - g.current.rotation.x) * 0.14
+      g.current.rotation.z = side * (0.5 + Math.sin(t * 9) * 0.45)
+    } else {
+      const spd = busy ? 15 : 6
+      g.current.rotation.x += (-0.42 + Math.sin(t * spd + (side > 0 ? 0 : 1.4)) * (busy ? 0.16 : 0.06) - g.current.rotation.x) * 0.4
+      g.current.rotation.z += (0 - g.current.rotation.z) * 0.2
+    }
   })
   return (
     <group ref={g} position={[side * 0.42, 1.22, 0.06]} rotation={[-0.42, 0, 0]}>
@@ -228,18 +235,45 @@ export function Character3D({
   const g = useRef<THREE.Group>(null)
   const [hover, setHover] = useState(false)
   const banter = useDojo((s) => s.banter)
+  const heroTargetId = useDojo((s) => s.heroTargetId)
   const faceDark = isDark(character.face)
   const faceColor = faceDark ? '#f4f4f4' : '#1c2029'
   const isSlime = character.kind === 'slime'
   const isOcto = character.kind === 'octopus'
   const isMonitor = character.kind === 'monitor'
   const speaking = banter && banter.who === 'agent' && banter.agentId === id
+  const visited = heroTargetId === id // the Chief is hovering above this agent
 
   useFrame((state) => {
     if (!g.current) return
     const t = state.clock.elapsedTime
-    g.current.position.y = Math.sin(t * 1.6 + x) * 0.02
-    const target = hover ? 1.06 : 1
+    const happy = mood === 'happy' || mood === 'love'
+    const think = mood === 'think'
+    const error = mood === 'error'
+
+    // vertical: breathing, plus excited jumps when the Chief visits and
+    // celebratory hops when a task lands well
+    let y = Math.sin(t * 1.6 + x) * 0.03
+    if (visited) y += Math.abs(Math.sin(t * 3.2)) * 0.13
+    if (busy) y += Math.sin(t * 9 + x) * 0.015
+    if (happy) y += Math.max(0, Math.sin(t * 4 + x)) * 0.16
+    g.current.position.y = y
+
+    // lean / tilt driven by activity + mood
+    let rotX = 0
+    if (busy) rotX += 0.1 // hunch over the keyboard
+    if (visited) rotX -= 0.2 // look up at the Chief
+    if (error) rotX += 0.16 // slump
+    let rotZ = 0
+    if (think) rotZ = Math.sin(t * 1.4) * 0.13 // pensive head tilt
+    if (error) rotZ += Math.sin(t * 26) * 0.06 // frustrated shake
+    if (visited) rotZ += Math.sin(t * 2.4) * 0.09 // happy sway toward the Chief
+    g.current.rotation.x += (rotX - g.current.rotation.x) * 0.12
+    g.current.rotation.z += (rotZ - g.current.rotation.z) * 0.3
+
+    // scale: hover + excitement / celebration pulse
+    const pulse = (visited ? 0.04 : 0) + (happy ? Math.max(0, Math.sin(t * 4)) * 0.05 : 0)
+    const target = (hover ? 1.06 : 1) + pulse
     g.current.scale.lerp(new THREE.Vector3(target, target, target), 0.2)
   })
 
@@ -277,7 +311,7 @@ export function Character3D({
             <Ball p={[0, 1.8, 0.1]} r={0.06} c={'#333'} />
             <AsciiFace3D mood={mood} position={[0, 0.92, 0.9]} scale={0.72} color={faceColor} />
             <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
-            <Arm side={1} color={character.face} hand={character.face} busy={busy} />
+            <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} />
           </group>
         ) : isOcto ? (
           <group position={[0, 0.05, 0]}>
@@ -285,10 +319,12 @@ export function Character3D({
             <Ball p={[0, 1.78, 0]} r={0.8} c={character.face} s={[1, 1.14, 1]} />
             <Ball p={[-0.3, 2.32, 0.2]} r={0.17} c={character.face} />
             <Ball p={[0.3, 2.32, 0.2]} r={0.17} c={character.face} />
-            {/* rosy cheeks + ASCII expression */}
-            <Ball p={[-0.46, 1.62, 0.58]} r={0.12} c={'#ff8fa3'} />
-            <Ball p={[0.46, 1.62, 0.58]} r={0.12} c={'#ff8fa3'} />
-            <AsciiFace3D mood={mood} position={[0, 1.74, 0.82]} scale={0.72} color={faceColor} />
+            {/* pale face patch so the ASCII eyes read clearly on the mantle */}
+            <Ball p={[0, 1.74, 0.5]} r={0.56} c={'#ffe6ef'} s={[1.05, 1, 0.5]} />
+            {/* rosy cheeks + big, high-contrast ASCII expression */}
+            <Ball p={[-0.52, 1.6, 0.6]} r={0.12} c={'#ff8fa3'} />
+            <Ball p={[0.52, 1.6, 0.6]} r={0.12} c={'#ff8fa3'} />
+            <AsciiFace3D mood={mood} position={[0, 1.78, 0.9]} scale={0.94} color={'#3a1526'} />
             {/* eight tentacles splaying out around the mantle */}
             {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
               const ang = (i / 8) * Math.PI * 2 + 0.4
@@ -300,7 +336,7 @@ export function Character3D({
                   dir={dir}
                   color={i % 2 ? character.face : character.outfit}
                   phase={i * 0.8}
-                  busy={busy}
+                  busy={busy || visited}
                 />
               )
             })}
@@ -325,9 +361,9 @@ export function Character3D({
                 <AsciiFace3D mood={mood} position={[0, 1.98, 0.72]} scale={0.72} color={faceColor} />
               </>
             )}
-            {/* typing arms */}
+            {/* typing arms — the right one waves hello when the Chief drops by */}
             <Arm side={-1} color={character.outfit} hand={character.face} busy={busy} />
-            <Arm side={1} color={character.outfit} hand={character.face} busy={busy} />
+            <Arm side={1} color={character.outfit} hand={character.face} busy={busy} wave={visited} />
           </group>
         )}
       </group>
