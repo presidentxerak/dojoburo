@@ -5,10 +5,10 @@
 import { create } from 'zustand'
 import type { Department } from './data/agents'
 import { AGENTS } from './data/agents'
-import { CHARACTERS } from './data/looks'
-import { SKINS, skinById } from './data/skins'
+import { SKINS, skinById, variedSkins, crewSkins } from './data/skins'
 import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
+import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
 
 export const GRID = { cols: 6, rows: 4 } // 24 cells, up to 12 agents
 export const MAX_AGENTS = 12
@@ -27,6 +27,8 @@ export interface WAgent {
 export interface Dojo {
   id: string
   name: string
+  /** environment template id (see data/templates) — drives the 3D scene look */
+  template: string
   agents: WAgent[]
 }
 
@@ -57,8 +59,9 @@ interface WorkshopState {
   updateAccount: (patch: Partial<Account>) => void
   setCurrency: (c: CurrencyCode) => void
 
-  createDojo: (name?: string) => void
+  createDojo: (name?: string, templateId?: string) => void
   renameDojo: (id: string, name: string) => void
+  setDojoTemplate: (id: string, templateId: string) => void
   deleteDojo: (id: string) => void
   setActiveDojo: (id: string) => void
 
@@ -71,23 +74,49 @@ interface WorkshopState {
 const KEY = 'dojoburo.workshop.v1'
 const uid = () => Math.random().toString(36).slice(2, 10)
 const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People', 'Ops']
+const DEPT_NAME: Record<Department, string> = {
+  Leadership: 'Chief', Engineering: 'Engineer', Finance: 'Finance', Growth: 'Growth',
+  Product: 'Product', People: 'People', Ops: 'Ops',
+}
 
+// The default HQ keeps the 12 named built-in agents, but each gets a maximally
+// distinct skin so the office reads as a colourful, varied crew.
 function seedDojo(): Dojo {
-  const agents: WAgent[] = AGENTS.slice(0, MAX_AGENTS).map((a, i) => {
-    const kind = CHARACTERS[a.id]?.kind
-    const skin = SKINS.find((s) => s.kind === kind) ?? SKINS[i % SKINS.length]
+  const skins = variedSkins(MAX_AGENTS)
+  const agents: WAgent[] = AGENTS.slice(0, MAX_AGENTS).map((a, i) => ({
+    id: a.id,
+    name: a.name,
+    fn: a.department,
+    skinId: skins[i].id,
+    tasks: defaultTasksFor(a.department),
+    budgetXrp: 5,
+    gx: i % GRID.cols,
+    gy: Math.floor(i / GRID.cols),
+  }))
+  return { id: uid(), name: 'HQ Dojo', template: 'dojo', agents }
+}
+
+// A new dojo from a template: a coherent-but-distinct starter crew in the
+// template's palette, seated left-to-right.
+function makeTemplatedDojo(name: string, tpl: DojoTemplate): Dojo {
+  const skins = crewSkins(tpl.skinTheme, tpl.crew.length)
+  const seen = new Map<string, number>()
+  const agents: WAgent[] = tpl.crew.map((fn, i) => {
+    const base = DEPT_NAME[fn]
+    const n = (seen.get(base) ?? 0) + 1
+    seen.set(base, n)
     return {
-      id: a.id,
-      name: a.name,
-      fn: a.department,
-      skinId: skin.id,
-      tasks: defaultTasksFor(a.department),
+      id: 'a_' + uid(),
+      name: n > 1 ? `${base} ${n}` : base,
+      fn,
+      skinId: skins[i % skins.length].id,
+      tasks: defaultTasksFor(fn),
       budgetXrp: 5,
       gx: i % GRID.cols,
       gy: Math.floor(i / GRID.cols),
     }
   })
-  return { id: uid(), name: 'HQ Dojo', agents }
+  return { id: uid(), name, template: tpl.id, agents }
 }
 
 function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null } {
@@ -95,7 +124,11 @@ function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string 
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const p = JSON.parse(raw)
-      if (p && Array.isArray(p.dojos) && p.dojos.length) return p
+      if (p && Array.isArray(p.dojos) && p.dojos.length) {
+        // backfill the template field for dojos saved before templates existed
+        for (const d of p.dojos) if (!d.template) d.template = DEFAULT_TEMPLATE_ID
+        return p
+      }
     }
   } catch {
     /* ignore */
@@ -177,12 +210,18 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
       persist()
     },
 
-    createDojo: (name) => {
-      const d: Dojo = { id: uid(), name: name?.trim() || `Dojo ${get().dojos.length + 1}`, agents: [] }
+    createDojo: (name, templateId) => {
+      const tpl = templateById(templateId ?? DEFAULT_TEMPLATE_ID)
+      const nm = name?.trim() || `${tpl.label} ${get().dojos.length + 1}`
+      const d = makeTemplatedDojo(nm, tpl)
       set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))
     },
     renameDojo: (id, name) => {
       set((s) => ({ dojos: s.dojos.map((d) => (d.id === id ? { ...d, name: name.trim() || d.name } : d)), dirty: true }))
+    },
+    setDojoTemplate: (id, templateId) => {
+      const tpl = templateById(templateId)
+      set((s) => ({ dojos: s.dojos.map((d) => (d.id === id ? { ...d, template: tpl.id } : d)), dirty: true }))
     },
     deleteDojo: (id) => {
       set((s) => {

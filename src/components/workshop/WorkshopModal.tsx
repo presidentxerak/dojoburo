@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useWorkshop, GRID, MAX_AGENTS, type WAgent } from '../../workshop'
 import { SKINS, SKIN_THEMES, skinById } from '../../data/skins'
+import { DOJO_TEMPLATES, templateById } from '../../data/templates'
 import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
 import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/currency'
 import { privyConfigured, privyControls } from '../../auth/controls'
@@ -50,14 +51,18 @@ function StudioTab() {
   const dirty = useWorkshop((s) => s.dirty)
   const save = useWorkshop((s) => s.save)
 
+  const setDojoTemplate = useWorkshop((s) => s.setDojoTemplate)
   const dojo = dojos.find((d) => d.id === activeId) ?? dojos[0]
   const [sel, setSel] = useState<string | null>(null)
   const [picking, setPicking] = useState(false)
+  // 'create' opens the picker to spin up a new dojo; 'change' re-themes this one
+  const [tplPick, setTplPick] = useState<null | 'create' | 'change'>(null)
   useEffect(() => setSel(null), [activeId])
 
   if (!dojo) return null
   const agent = dojo.agents.find((a) => a.id === sel) ?? null
   const cellAt = (x: number, y: number) => dojo?.agents.find((a) => a.gx === x && a.gy === y)
+  const tpl = templateById(dojo.template)
 
   return (
     <div className="ws-studio">
@@ -65,11 +70,12 @@ function StudioTab() {
       <div className="ws-dojobar">
         <select value={dojo?.id} onChange={(e) => setActive(e.target.value)}>
           {dojos.map((d) => (
-            <option key={d.id} value={d.id}>{d.name} · {d.agents.length}/{MAX_AGENTS}</option>
+            <option key={d.id} value={d.id}>{templateById(d.template).emoji} {d.name} · {d.agents.length}/{MAX_AGENTS}</option>
           ))}
         </select>
+        <button className="ws-btn" title="Change environment" onClick={() => setTplPick('change')}>{tpl.emoji} {tpl.label}</button>
         <button className="ws-btn" onClick={() => renameDojo(dojo.id, prompt('Rename dojo', dojo.name) || dojo.name)}>Rename</button>
-        <button className="ws-btn" onClick={() => createDojo()}>+ New dojo</button>
+        <button className="ws-btn primary" onClick={() => setTplPick('create')}>+ New dojo</button>
         <button className="ws-btn danger" onClick={() => confirm(`Delete "${dojo.name}"?`) && deleteDojo(dojo.id)}>Delete</button>
       </div>
 
@@ -130,7 +136,50 @@ function StudioTab() {
           onClose={() => setPicking(false)}
         />
       )}
+
+      {tplPick && (
+        <TemplatePicker
+          current={dojo.template}
+          mode={tplPick}
+          onPick={(id) => {
+            if (tplPick === 'create') createDojo(undefined, id)
+            else setDojoTemplate(dojo.id, id)
+            setTplPick(null)
+          }}
+          onClose={() => setTplPick(null)}
+        />
+      )}
     </div>
+  )
+}
+
+function TemplatePicker({ current, mode, onPick, onClose }: { current: string; mode: 'create' | 'change'; onPick: (id: string) => void; onClose: () => void }) {
+  return createPortal(
+    <div className="ws-overlay ws-over-top" onClick={onClose}>
+      <div className="ws-picker" onClick={(e) => e.stopPropagation()}>
+        <header className="ws-head">
+          <strong>{mode === 'create' ? 'Choose a dojo template' : 'Change environment'}</strong>
+          <button className="ws-x" onClick={onClose} aria-label="Close">×</button>
+        </header>
+        <div className="ws-tplgrid">
+          {DOJO_TEMPLATES.map((t) => (
+            <button
+              key={t.id}
+              className={`ws-tplcard ${t.id === current && mode === 'change' ? 'sel' : ''}`}
+              onClick={() => onPick(t.id)}
+              style={{ ['--tpl-accent' as any]: t.palette.accent }}
+            >
+              <span className="ws-tplemoji" style={{ background: t.palette.bg }}>{t.emoji}</span>
+              <strong>{t.label}</strong>
+              <span className="ws-blurb">{t.blurb}</span>
+              <span className="ws-tpltheme">{mode === 'create' ? `Seeds a ${t.skinTheme} crew` : t.skinTheme}</span>
+            </button>
+          ))}
+        </div>
+        {mode === 'change' && <p className="ws-blurb ws-tplnote">Re-theming keeps your agents; it only swaps the environment.</p>}
+      </div>
+    </div>,
+    document.body,
   )
 }
 

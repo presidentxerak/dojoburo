@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { SEATS, setAgentPositions, agentWorldPos } from '../three/layout3d'
 import { skinById } from '../data/skins'
+import { templateById } from '../data/templates'
 import { useWorkshop, GRID } from '../workshop'
 import { useDojo } from '../store'
 import { audio } from '../audio'
@@ -98,6 +99,9 @@ function Agents() {
 
 export function Scene3D() {
   const deselect = useDojo((s) => s.selectAgent)
+  const templateId = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId)?.template)
+  const tpl = templateById(templateId)
+  const P = tpl.palette
   return (
     <Canvas
       shadows
@@ -106,10 +110,10 @@ export function Scene3D() {
       gl={{ antialias: true }}
       onPointerMissed={() => deselect(null)}
     >
-      <color attach="background" args={['#eaf3ff']} />
-      <fog attach="fog" args={['#eaf3ff', 24, 44]} />
-      <hemisphereLight args={['#ffffff', '#c8d0a0', 0.7]} />
-      <ambientLight intensity={0.35} />
+      <color attach="background" args={[P.bg]} />
+      <fog attach="fog" args={[P.fog, 24, 44]} />
+      <hemisphereLight args={['#ffffff', P.ground, 0.7]} />
+      <ambientLight intensity={0.4} />
       <directionalLight
         position={[6, 12, 8]}
         intensity={1.15}
@@ -122,7 +126,7 @@ export function Scene3D() {
         shadow-camera-bottom={-16}
       />
       <Suspense fallback={null}>
-        <Decor3D />
+        <Decor3D palette={P} style={tpl.style} />
         <Agents />
         <Hero3D />
         <Lazy3D />

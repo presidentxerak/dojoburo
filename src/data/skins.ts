@@ -72,6 +72,29 @@ export function skinById(id: string): Skin {
   return SKIN_BY_ID[id] ?? SKINS[0]
 }
 
+export function skinsForTheme(theme: string): Skin[] {
+  return SKINS.filter((s) => s.theme === theme)
+}
+
+/** n skins spread as widely as possible across all themes & kinds — maximally
+ *  distinct, for the default HQ dojo. */
+export function variedSkins(n: number): Skin[] {
+  const out: Skin[] = []
+  const step = SKINS.length / n
+  for (let i = 0; i < n; i++) out.push(SKINS[Math.floor(i * step) % SKINS.length])
+  return out
+}
+
+/** n distinct skins for a themed starter crew: the theme's own skins first
+ *  (coherent palette, different creatures), then spread from other themes so
+ *  no two agents ever share a skin. */
+export function crewSkins(theme: string, n: number): Skin[] {
+  const themed = skinsForTheme(theme)
+  const others = variedSkins(SKINS.length).filter((s) => s.theme !== theme)
+  const ordered = [...themed, ...others]
+  return ordered.slice(0, Math.max(1, n))
+}
+
 export function kindLabel(kind: Kind): string {
   return KIND_LABEL[kind]
 }

@@ -1,10 +1,10 @@
 import { AGENTS } from '../../data/agents'
 import { POS3D, ROOM, DESK_FWD } from '../../three/layout3d'
+import type { DojoPalette, DecorStyle } from '../../data/templates'
 
 const WOOD = '#b5793f'
 const WOOD_D = '#7a4a24'
 const PAPER = '#fff7e6'
-const TATAMI = '#bcd189'
 const M = { roughness: 0.75, metalness: 0.06 }
 
 function B({ p, s, c, rot, emissive, ei }: { p: [number, number, number]; s: [number, number, number]; c: string; rot?: [number, number, number]; emissive?: string; ei?: number }) {
@@ -199,13 +199,13 @@ function Station({ id, x, z }: { id: string; x: number; z: number }) {
   )
 }
 
-function Lantern({ x, z }: { x: number; z: number }) {
+function Lantern({ x, z, c = '#e0524f' }: { x: number; z: number; c?: string }) {
   return (
     <group position={[x, ROOM.wallH - 1.2, z]}>
       <mesh><cylinderGeometry args={[0.02, 0.02, 1.2, 6]} /><meshStandardMaterial color={'#333'} /></mesh>
       <mesh position={[0, -0.9, 0]} castShadow>
         <cylinderGeometry args={[0.34, 0.34, 0.7, 18]} />
-        <meshStandardMaterial color={'#e0524f'} emissive={'#7a1d1a'} emissiveIntensity={0.35} />
+        <meshStandardMaterial color={c} emissive={c} emissiveIntensity={0.4} />
       </mesh>
       <mesh position={[0, -0.9, 0]}>
         <cylinderGeometry args={[0.35, 0.35, 0.24, 18]} />
@@ -215,7 +215,74 @@ function Lantern({ x, z }: { x: number; z: number }) {
   )
 }
 
-function CherryTree({ x, z }: { x: number; z: number }) {
+// A glowing accent orb on a slim post — the "plain" template corner marker.
+function Beacon({ x, z, c }: { x: number; z: number; c: string }) {
+  return (
+    <group position={[x, 0, z]}>
+      <Cy p={[0, 0.9, 0]} r={0.14} h={1.8} c="#3a3f52" />
+      <mesh position={[0, 1.95, 0]} castShadow>
+        <icosahedronGeometry args={[0.34, 0]} />
+        <meshStandardMaterial color={c} emissive={c} emissiveIntensity={0.7} roughness={0.3} />
+      </mesh>
+    </group>
+  )
+}
+
+// A themed planter/console for the back corners of a "plain" template.
+function Planter({ x, z, c, accent }: { x: number; z: number; c: string; accent: string }) {
+  return (
+    <group position={[x, 0, z]}>
+      <B p={[0, 0.4, 0]} s={[1.0, 0.8, 0.7]} c={c} />
+      <B p={[0, 0.86, 0]} s={[1.05, 0.12, 0.75]} c={accent} emissive={accent} ei={0.35} />
+      <Cy p={[0, 1.2, 0]} r={0.06} h={0.6} c="#4a5270" />
+      <Sp p={[0, 1.55, 0]} r={0.28} c={accent} />
+    </group>
+  )
+}
+
+// Zen garden: cherry tree, stone lantern, bamboo, paper lanterns, taiko & bonsai.
+function ZenGarden({ backZ, accent }: { backZ: number; accent: string }) {
+  return (
+    <group>
+      <Lantern x={-4} z={backZ + 1.5} c={accent} />
+      <Lantern x={4} z={backZ + 1.5} c={accent} />
+      <CherryTree x={-8.6} z={2.6} blossom={accent} />
+      <StoneLantern x={-8.7} z={-2.2} />
+      <Bamboo x={8.7} z={-1.5} />
+      <Bamboo x={8.9} z={backZ + 2.6} />
+      {[-6, -3.4, 3.4, 6].map((rx) => (
+        <group key={rx} position={[rx, 0, backZ + 1.3]}>
+          <Sp p={[0, 0.14, 0]} r={0.3} c="#b7b2a6" />
+          <Sp p={[0.42, 0.09, 0.22]} r={0.17} c="#c9c4b8" />
+        </group>
+      ))}
+      <group position={[8, 0, backZ + 2]}>
+        <mesh position={[0, 0.9, 0]} rotation={[0, 0, Math.PI / 2]} castShadow><cylinderGeometry args={[0.7, 0.7, 0.9, 24]} /><meshStandardMaterial color={'#c0392b'} {...M} /></mesh>
+        {[-0.5, 0.5].map((s) => <mesh key={s} position={[s * 0.5, 0.35, 0]} rotation={[0, 0, s * 0.3]}><boxGeometry args={[0.1, 0.8, 0.1]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+      </group>
+      <group position={[-8, 0, backZ + 2]}>
+        <mesh position={[0, 0.3, 0]}><boxGeometry args={[0.7, 0.5, 0.7]} /><meshStandardMaterial color={'#c17a4a'} /></mesh>
+        <mesh position={[0, 1.05, 0]} castShadow><sphereGeometry args={[0.45, 14, 12]} /><meshStandardMaterial color={'#6cbf6c'} /></mesh>
+      </group>
+    </group>
+  )
+}
+
+// Generic themed accents for non-zen templates: corner beacons + planters.
+function PlainAccents({ backZ, P }: { backZ: number; P: DojoPalette }) {
+  return (
+    <group>
+      <Beacon x={-8.6} z={2.6} c={P.accent} />
+      <Beacon x={8.6} z={2.6} c={P.accent} />
+      <Beacon x={-8.7} z={backZ + 2.2} c={P.accent} />
+      <Beacon x={8.7} z={backZ + 2.2} c={P.accent} />
+      <Planter x={-8} z={backZ + 2} c={P.wallSide} accent={P.accent} />
+      <Planter x={8} z={backZ + 2} c={P.wallSide} accent={P.accent} />
+    </group>
+  )
+}
+
+function CherryTree({ x, z, blossom = '#ffb0d0' }: { x: number; z: number; blossom?: string }) {
   const blossoms: [number, number, number][] = [
     [0, 3.1, 0], [-0.7, 2.8, 0.2], [0.7, 2.9, -0.2], [-0.45, 3.45, -0.3], [0.5, 3.45, 0.3], [0, 2.55, 0.6], [0, 2.7, -0.6],
   ]
@@ -224,7 +291,7 @@ function CherryTree({ x, z }: { x: number; z: number }) {
       <Cy p={[0, 1.2, 0]} r={0.22} h={2.4} c={WOOD_D} />
       <Cy p={[-0.45, 2.2, 0.2]} r={0.09} h={1.0} c={WOOD_D} rot={[0, 0, 0.7]} />
       <Cy p={[0.5, 2.1, -0.2]} r={0.09} h={1.0} c={WOOD_D} rot={[0, 0, -0.6]} />
-      {blossoms.map((p, i) => <Sp key={i} p={p} r={0.62} c={i % 2 ? '#ffc4dd' : '#ffb0d0'} />)}
+      {blossoms.map((p, i) => <Sp key={i} p={p} r={0.62} c={blossom} />)}
     </group>
   )
 }
@@ -264,77 +331,69 @@ function Bamboo({ x, z }: { x: number; z: number }) {
   )
 }
 
-export function Decor3D() {
+export function Decor3D({ palette, style }: { palette: DojoPalette; style: DecorStyle }) {
+  const P = palette
+  const zen = style === 'zen'
   const halfW = ROOM.w / 2
   const backZ = -ROOM.d / 2
+  const pillarC = zen ? WOOD : P.trim
   return (
     <group>
+      {/* floor + grid */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
         <planeGeometry args={[ROOM.w, ROOM.d]} />
-        <meshStandardMaterial color={TATAMI} roughness={1} />
+        <meshStandardMaterial color={P.ground} roughness={1} />
       </mesh>
-      <gridHelper args={[ROOM.w, 8, '#8fae5a', '#8fae5a']} position={[0, 0.02, 0]} />
+      <gridHelper args={[ROOM.w, 8, P.grid, P.grid]} position={[0, 0.02, 0]} />
 
+      {/* back + side walls */}
       <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow>
         <boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} />
-        <meshStandardMaterial color={'#ecd9b0'} roughness={1} />
+        <meshStandardMaterial color={P.wallBack} roughness={1} />
       </mesh>
       <mesh position={[0, 0.2, backZ + 0.22]}>
         <boxGeometry args={[ROOM.w, 0.4, 0.1]} />
-        <meshStandardMaterial color={WOOD_D} />
+        <meshStandardMaterial color={P.trim} />
       </mesh>
       {[-1, 1].map((s) => (
         <mesh key={s} position={[s * halfW, ROOM.wallH / 2, 0]} receiveShadow>
           <boxGeometry args={[0.4, ROOM.wallH, ROOM.d]} />
-          <meshStandardMaterial color={'#e3cfa2'} roughness={1} />
+          <meshStandardMaterial color={P.wallSide} roughness={1} />
         </mesh>
       ))}
 
-      {[-7.5, -3.5, 3.5, 7.5].map((x) => (
-        <group key={x} position={[x, 2.4, backZ + 0.25]}>
-          <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
-          {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.06]}><boxGeometry args={[0.05, 2.6, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
-          {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.06]}><boxGeometry args={[2.6, 0.05, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
-        </group>
-      ))}
+      {/* back-wall panels: shoji grid (zen) or glowing accent screens (plain) */}
+      {[-7.5, -3.5, 3.5, 7.5].map((x) =>
+        zen ? (
+          <group key={x} position={[x, 2.4, backZ + 0.25]}>
+            <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
+            {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.06]}><boxGeometry args={[0.05, 2.6, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+            {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.06]}><boxGeometry args={[2.6, 0.05, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+          </group>
+        ) : (
+          <group key={x} position={[x, 2.6, backZ + 0.25]}>
+            <mesh><boxGeometry args={[2.5, 1.7, 0.08]} /><meshStandardMaterial color={P.trim} /></mesh>
+            <mesh position={[0, 0, 0.06]}><boxGeometry args={[2.2, 1.4, 0.03]} /><meshStandardMaterial color={P.wallBack} emissive={P.accent} emissiveIntensity={0.5} /></mesh>
+          </group>
+        ),
+      )}
+
+      {/* centrepiece: hanging scroll (zen) or an accent banner (plain) */}
       <group position={[0, 2.1, backZ + 0.25]}>
-        <mesh><boxGeometry args={[2.4, 4.0, 0.14]} /><meshStandardMaterial color={WOOD_D} /></mesh>
-        <mesh position={[-0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={PAPER} /></mesh>
+        <mesh><boxGeometry args={[2.4, 4.0, 0.14]} /><meshStandardMaterial color={zen ? WOOD_D : P.trim} /></mesh>
+        <mesh position={[-0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={zen ? PAPER : P.accent} emissive={zen ? '#000' : P.accent} emissiveIntensity={zen ? 0 : 0.3} /></mesh>
         <mesh position={[0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={PAPER} /></mesh>
       </group>
 
+      {/* framing pillars */}
       {[-halfW + 0.6, halfW - 0.6].map((x) => (
         <mesh key={x} position={[x, ROOM.wallH / 2, backZ + 1]} castShadow>
           <boxGeometry args={[0.5, ROOM.wallH, 0.5]} />
-          <meshStandardMaterial color={WOOD} roughness={0.9} />
+          <meshStandardMaterial color={pillarC} roughness={0.9} />
         </mesh>
       ))}
-      <Lantern x={-4} z={backZ + 1.5} />
-      <Lantern x={4} z={backZ + 1.5} />
 
-      {/* garden corners: a cherry tree, a stone lantern and bamboo clusters */}
-      <CherryTree x={-8.6} z={2.6} />
-      <StoneLantern x={-8.7} z={-2.2} />
-      <Bamboo x={8.7} z={-1.5} />
-      <Bamboo x={8.9} z={backZ + 2.6} />
-
-      {/* raked zen-garden stones along the back wall */}
-      {[-6, -3.4, 3.4, 6].map((rx) => (
-        <group key={rx} position={[rx, 0, backZ + 1.3]}>
-          <Sp p={[0, 0.14, 0]} r={0.3} c="#b7b2a6" />
-          <Sp p={[0.42, 0.09, 0.22]} r={0.17} c="#c9c4b8" />
-        </group>
-      ))}
-
-      {/* taiko + bonsai in the back corners so the front stays clear */}
-      <group position={[8, 0, backZ + 2]}>
-        <mesh position={[0, 0.9, 0]} rotation={[0, 0, Math.PI / 2]} castShadow><cylinderGeometry args={[0.7, 0.7, 0.9, 24]} /><meshStandardMaterial color={'#c0392b'} {...M} /></mesh>
-        {[-0.5, 0.5].map((s) => <mesh key={s} position={[s * 0.5, 0.35, 0]} rotation={[0, 0, s * 0.3]}><boxGeometry args={[0.1, 0.8, 0.1]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
-      </group>
-      <group position={[-8, 0, backZ + 2]}>
-        <mesh position={[0, 0.3, 0]}><boxGeometry args={[0.7, 0.5, 0.7]} /><meshStandardMaterial color={'#c17a4a'} /></mesh>
-        <mesh position={[0, 1.05, 0]} castShadow><sphereGeometry args={[0.45, 14, 12]} /><meshStandardMaterial color={'#6cbf6c'} /></mesh>
-      </group>
+      {zen ? <ZenGarden backZ={backZ} accent={P.accent} /> : <PlainAccents backZ={backZ} P={P} />}
 
       {AGENTS.map((a) => {
         const [x, z] = POS3D[a.id]

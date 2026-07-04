@@ -547,6 +547,24 @@ a:hover { text-decoration: underline; }
 .ws-chip-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 720px) { .ws-chip-name { display: none; } }
 
+/* quick dojo switcher in the dock */
+.ws-dojoswitch { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1.5px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-sm); backdrop-filter: blur(6px); padding: 2px; }
+.ws-swbtn { border: none; background: transparent; color: var(--ink); cursor: pointer; font-size: 15px; line-height: 1; padding: 4px 7px; border-radius: 8px; }
+.ws-swbtn:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.ws-swbtn:disabled { opacity: 0.35; cursor: default; }
+.ws-swsel { border: none; background: transparent; color: var(--ink); font-family: var(--font-pixel); font-size: 10px; cursor: pointer; max-width: 130px; padding: 4px 2px; }
+.ws-swsel:focus { outline: none; }
+
+/* dojo template picker */
+.ws-tplgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; padding: 16px; overflow-y: auto; }
+.ws-tplcard { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; text-align: left; cursor: pointer; background: var(--panel-solid); border: 1.5px solid var(--border); border-radius: 14px; padding: 12px; color: var(--ink); transition: transform 0.14s, border-color 0.14s, box-shadow 0.14s; }
+.ws-tplcard:hover { transform: translateY(-2px); border-color: var(--tpl-accent, var(--violet)); box-shadow: 0 10px 24px rgba(60, 40, 110, 0.18); }
+.ws-tplcard.sel { border-color: var(--tpl-accent, var(--violet)); box-shadow: 0 0 0 2px var(--tpl-accent, var(--violet)) inset; }
+.ws-tplcard strong { font-family: var(--font-pixel); font-size: 12px; }
+.ws-tplemoji { width: 100%; height: 62px; display: grid; place-items: center; font-size: 30px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 3px; }
+.ws-tpltheme { font-family: var(--font-pixel); font-size: 8px; color: var(--tpl-accent, var(--violet)); }
+.ws-tplnote { padding: 0 16px 14px; }
+
 .ws-overlay { position: fixed; inset: 0; z-index: 66; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(30, 22, 50, 0.44); backdrop-filter: blur(4px); opacity: 1; animation: fade 0.2s ease-out both; }
 .ws-over-top { z-index: 80; animation: none; opacity: 1; }
 .ws-modal, .ws-picker { width: min(860px, 96vw); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; background: var(--panel-solid); color: var(--ink); border: 1.5px solid var(--border-lit); border-radius: 18px; box-shadow: var(--shadow); opacity: 1; animation: wspop 0.2s ease-out; }
@@ -682,6 +700,8 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 /* neutralise coloured surfaces */
 .sb-head, .aw-head { background: var(--panel-2); color: var(--ink); }
 .sb-head .sb-avatar { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.sb-head .sb-x { background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
+.sb-head .sb-x:hover { background: color-mix(in srgb, var(--ink) 20%, transparent); }
 .aw-head .aw-btn { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
 .aw-dot { background: color-mix(in srgb, var(--ink) 25%, transparent); }
 .sb-body { background: var(--panel-solid); }

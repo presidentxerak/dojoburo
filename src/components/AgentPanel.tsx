@@ -4,7 +4,7 @@ import { xpForLevel, tierForLevel } from '../data/events'
 import { useDojo } from '../store'
 import { useWorkshop } from '../workshop'
 import { NETWORKS } from '../xrpl/network'
-import { Character } from './Character'
+import { Agent3DPreview } from './three/Agent3DPreview'
 import { Icon } from './Icon'
 
 export function AgentPanel() {
@@ -38,7 +38,7 @@ export function AgentPanel() {
     <aside className="panel agent-panel">
       <header className="agent-head">
         <div className="agent-head-avatar">
-          <Character character={agent.character} mood={rt?.mood ?? 'idle'} size={56} />
+          <Agent3DPreview character={agent.character} mood={rt?.mood ?? 'idle'} size={64} />
         </div>
         <div className="agent-head-meta">
           <h2>{agent.name}</h2>
