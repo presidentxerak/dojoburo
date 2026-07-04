@@ -5,6 +5,7 @@ import { SKINS, SKIN_THEMES, skinById } from '../../data/skins'
 import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
 import { CURRENCY_LIST, formatFrom } from '../../data/currency'
 import { SkinAvatar } from './SkinAvatar'
+import { Agent3DPreview } from '../three/Agent3DPreview'
 
 type Tab = 'studio' | 'account' | 'billing'
 
@@ -131,7 +132,7 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
   return (
     <div className="ws-form">
       <div className="ws-skinrow">
-        <SkinAvatar skin={skin} size={56} />
+        <div className="ws-preview3d"><Agent3DPreview character={skin} size={104} /></div>
         <div>
           <div className="ws-skinname">{skin.name}</div>
           <button className="ws-btn" onClick={onPickSkin}>Change skin (100)</button>
@@ -188,7 +189,9 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
 
 function SkinPicker({ current, onPick, onClose }: { current: string; onPick: (id: string) => void; onClose: () => void }) {
   const [theme, setTheme] = useState<string>('all')
+  const [focus, setFocus] = useState<string>(current)
   const list = theme === 'all' ? SKINS : SKINS.filter((s) => s.theme === theme)
+  const focusSkin = skinById(focus)
   return createPortal(
     <div className="ws-overlay ws-over-top" onClick={onClose}>
       <div className="ws-picker" onClick={(e) => e.stopPropagation()}>
@@ -200,13 +203,28 @@ function SkinPicker({ current, onPick, onClose }: { current: string; onPick: (id
           </select>
           <button className="ws-x" onClick={onClose} aria-label="Close">×</button>
         </header>
-        <div className="ws-skingrid">
-          {list.map((s) => (
-            <button key={s.id} className={`ws-skincell ${s.id === current ? 'sel' : ''}`} onClick={() => onPick(s.id)} title={s.name}>
-              <SkinAvatar skin={s} size={46} />
-              <span>{s.name}</span>
-            </button>
-          ))}
+        <div className="ws-pickbody">
+          <aside className="ws-pick-preview">
+            <Agent3DPreview character={focusSkin} size={168} />
+            <div className="ws-skinname">{focusSkin.name}</div>
+            <span className="ws-blurb">{focusSkin.theme} theme</span>
+            <button className="ws-btn primary" onClick={() => onPick(focusSkin.id)}>Use this skin</button>
+          </aside>
+          <div className="ws-skingrid">
+            {list.map((s) => (
+              <button
+                key={s.id}
+                className={`ws-skincell ${s.id === focus ? 'sel' : ''}`}
+                onMouseEnter={() => setFocus(s.id)}
+                onFocus={() => setFocus(s.id)}
+                onClick={() => onPick(s.id)}
+                title={s.name}
+              >
+                <SkinAvatar skin={s} size={46} />
+                <span>{s.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>,
@@ -239,7 +257,7 @@ function AccountTab() {
   return (
     <div className="ws-account">
       <div className="ws-skinrow">
-        <SkinAvatar skin={skinById(account.avatarSkinId)} size={56} />
+        <div className="ws-preview3d"><Agent3DPreview character={skinById(account.avatarSkinId)} size={96} /></div>
         <div><div className="ws-skinname">{account.name || 'Founder'}</div><span className="ws-blurb">{account.provider === 'privy' ? 'Privy account' : 'Local guest account'}</span></div>
       </div>
       <label className="ws-field"><span>Name</span><input value={account.name} onChange={(e) => update({ name: e.target.value })} /></label>

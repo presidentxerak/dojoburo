@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useDojo } from '../store'
 import { NETWORKS, type NetworkId } from '../xrpl/network'
-import { AsciiFace } from './AsciiFace'
+import { Logo } from './Logo'
 import { Icon } from './Icon'
 
 export function TopBar() {
@@ -28,7 +28,7 @@ export function TopBar() {
   return (
     <header className="topbar">
       <div className="brand">
-        <span className="brand-logo"><AsciiFace mood="idle" /></span>
+        <Logo size={34} />
         <div>
           <h1>DojoBuro</h1>
           <p className="tagline">Pixel startup, orchestrated on XRPL</p>

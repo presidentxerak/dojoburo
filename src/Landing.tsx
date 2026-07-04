@@ -1,5 +1,7 @@
 import { AGENTS } from './data/agents'
 import { SupportBot } from './components/SupportBot'
+import { Logo } from './components/Logo'
+import { AgentCarousel3D } from './components/three/AgentCarousel3D'
 
 /** A-to-Z landing page: what DojoBuro is, how the office works, what a task
  *  costs in XRP, how agents get wired to real tools, where they run, and the
@@ -9,7 +11,7 @@ export function Landing({ enter }: { enter: () => void }) {
     <div className="landing">
       <header className="lp-nav">
         <div className="lp-brand">
-          <span className="lp-logo">◕‿◕</span> DojoBuro
+          <Logo size={30} /> DojoBuro
         </div>
         <button className="lp-cta sm" onClick={enter}>Enter the office →</button>
       </header>
@@ -27,13 +29,31 @@ export function Landing({ enter }: { enter: () => void }) {
           <a className="lp-ghost" href="#how">See how it works</a>
         </div>
         <div className="lp-badges">
-          <span>Real XRPL wallets</span><span>x402 payments</span><span>Non-custodial (Xaman)</span><span>No backend to run</span>
+          <span>Real XRPL wallets</span><span>x402 payments</span><span>Non-custodial (Privy · Xaman)</span><span>100 skins</span><span>Multi-dojo</span>
+        </div>
+        <AgentCarousel3D />
+      </section>
+
+      <section className="lp-sec" id="studio">
+        <h2>Build your own team</h2>
+        <p className="lp-lead">Open the Dojo Studio to create, edit and delete agents. Pick one of 100 skins across 20 themes, choose the agent's function and tasks, and set a per-agent XRP budget. Arrange them on a grid and run several dojos side by side.</p>
+        <div className="lp-schema">
+          <div className="lp-node"><b>Create</b><span>Add up to 12 agents per dojo</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><b>Skin</b><span>100 skins · 20 themes, in 3D</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><b>Function</b><span>Pick tasks &amp; a budget</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><b>Arrange</b><span>Drag on the grid · many dojos</span></div>
+        </div>
+        <div className="lp-actions" style={{ marginTop: 18 }}>
+          <button className="lp-cta" onClick={enter}>Open the Dojo Studio →</button>
         </div>
       </section>
 
-      <section className="lp-sec" id="cast">
+      <section className="lp-sec alt" id="cast">
         <h2>Meet the office</h2>
-        <p className="lp-lead">Twelve agents across Leadership, Engineering, Finance, Growth, Product, People and Ops — plus two mascots.</p>
+        <p className="lp-lead">Twelve starter agents across Leadership, Engineering, Finance, Growth, Product, People and Ops — plus two mascots. Reskin, rename or replace any of them.</p>
         <div className="lp-cast">
           {AGENTS.map((a) => (
             <div className="lp-card" key={a.id}>
@@ -53,6 +73,42 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-step"><span className="lp-n">2</span><h3>Agents run skills</h3><p>Click an agent, run a skill. The Chief flies over, thought particles stream down, and the agent works and reacts.</p></div>
           <div className="lp-step"><span className="lp-n">3</span><h3>Settle on-ledger</h3><p>Priced skills settle an x402 invoice as a real signed Payment, with the skill + invoice written into the transaction memo.</p></div>
           <div className="lp-step"><span className="lp-n">4</span><h3>Track &amp; reward</h3><p>Every action is anchored on-ledger (a memo hash), agents earn XP/levels, and Lazy tallies tokens, XRP and productivity.</p></div>
+        </div>
+      </section>
+
+      <section className="lp-sec" id="cascade">
+        <h2>Smart, and genuinely cheap</h2>
+        <p className="lp-lead">Every task runs through a cost cascade: it stops at the cheapest tier that passes a quality check. Most work is free; frontier models are the rare last resort — so a task costs about a cent.</p>
+        <div className="lp-cascade">
+          <div className="lp-tier"><b>0</b><span className="lp-tier-main">Templates &amp; on-chain data — no model</span><span className="lp-tier-cost">free</span></div>
+          <div className="lp-tier"><b>1</b><span className="lp-tier-main">Free tiers — Groq · Gemini · Cerebras</span><span className="lp-tier-cost">≈ free</span></div>
+          <div className="lp-tier"><b>2</b><span className="lp-tier-main">Open models — DeepSeek · Llama</span><span className="lp-tier-cost">≈ $0.01</span></div>
+          <div className="lp-tier"><b>3</b><span className="lp-tier-main">Frontier — Claude, only when needed</span><span className="lp-tier-cost">rare</span></div>
+        </div>
+        <p className="lp-note">A built-in support assistant uses the same cascade with hard spending limits and keys kept server-side.</p>
+      </section>
+
+      <section className="lp-sec alt" id="pay">
+        <h2>Pay your way — settle in XRP</h2>
+        <p className="lp-lead">Prices show in your currency. XRP is the transactional rail via x402; fiat is converted and settles on-ledger.</p>
+        <div className="lp-schema">
+          <div className="lp-node"><b>XRP · $ · € · ¥</b><span>Pick your currency</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><b>x402</b><span>Convert &amp; meter the task</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><b>XRP Ledger</b><span>Signed settlement + receipt</span></div>
+        </div>
+      </section>
+
+      <section className="lp-sec" id="widget">
+        <h2>Watch your dojo while you work</h2>
+        <p className="lp-lead">A compact activity widget follows your dojo — agents working, tasks done, XRP spent, live feed — so you can keep an eye on it beside your other work. The same view powers a reduced desktop window.</p>
+        <div className="lp-schema">
+          <div className="lp-node"><b>Web app</b><span>The full 3D office</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><b>Widget</b><span>Minimised live monitor</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><b>Desktop</b><span>Always-on-top window</span></div>
         </div>
       </section>
 

@@ -220,6 +220,7 @@ export function Character3D({
   name,
   level,
   onSelect,
+  bare = false,
 }: {
   id: string
   character: Character
@@ -231,6 +232,7 @@ export function Character3D({
   name: string
   level: number
   onSelect: () => void
+  bare?: boolean
 }) {
   const g = useRef<THREE.Group>(null)
   const [hover, setHover] = useState(false)
@@ -295,14 +297,14 @@ export function Character3D({
 
   return (
     <group position={[x, 0, z]}>
-      {selected && (
+      {!bare && selected && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
           <ringGeometry args={[0.95, 1.15, 40]} />
           <meshBasicMaterial color={'#ff7eb6'} transparent opacity={0.85} side={THREE.DoubleSide} />
         </mesh>
       )}
 
-      <group ref={g} {...events}>
+      <group ref={g} {...(bare ? {} : events)}>
         {isSlime ? (
           <group position={[0, 0.05, 0]}>
             <Ball p={[0, 0.78, 0]} r={0.8} c={character.face} s={[1, 0.86, 1]} />
@@ -369,18 +371,20 @@ export function Character3D({
         )}
       </group>
 
-      <Html position={[0, isSlime ? 2.35 : 2.95, 0]} center distanceFactor={11} zIndexRange={[6, 0]} pointerEvents="none" occlude={false}>
-        <div className={`tag3d ${selected ? 'sel' : ''}`}>
-          {name} <span>Lv.{level}</span>
-        </div>
-      </Html>
+      {!bare && (
+        <Html position={[0, isSlime ? 2.35 : 2.95, 0]} center distanceFactor={11} zIndexRange={[6, 0]} pointerEvents="none" occlude={false}>
+          <div className={`tag3d ${selected ? 'sel' : ''}`}>
+            {name} <span>Lv.{level}</span>
+          </div>
+        </Html>
+      )}
       {/* the agent's line of the conversation with the brain */}
-      {speaking && (
+      {!bare && speaking && (
         <Html position={[0.7, isSlime ? 2.05 : 2.5, 0]} center distanceFactor={9} zIndexRange={[8, 0]} pointerEvents="none">
           <div className="bubble3d">{banter.text}</div>
         </Html>
       )}
-      {busy && (
+      {!bare && busy && (
         <Html position={[0, isSlime ? 2.7 : 3.4, 0]} center distanceFactor={12} zIndexRange={[6, 0]} pointerEvents="none">
           <div className="work3d" />
         </Html>

@@ -5,17 +5,24 @@
    =========================================================================== */
 
 :root {
-  --ink: #3b3350;
-  --muted: #857e9e;
-  --panel: rgba(255, 255, 255, 0.9);
+  --bg: #ffffff;
+  --ink: #14151a;
+  --muted: #6b6f7a;
+  --panel: rgba(255, 255, 255, 0.92);
   --panel-solid: #ffffff;
-  --panel-2: #f4f0ff;
-  --border: rgba(90, 70, 140, 0.22);
-  --border-lit: rgba(90, 70, 140, 0.4);
-  --shadow: 0 6px 18px rgba(70, 50, 120, 0.18);
-  --shadow-sm: 0 3px 8px rgba(70, 50, 120, 0.16);
+  --panel-2: #f5f6f8;
+  --border: rgba(20, 20, 32, 0.12);
+  --border-lit: rgba(20, 20, 32, 0.26);
+  --shadow: 0 8px 24px rgba(20, 20, 40, 0.12);
+  --shadow-sm: 0 3px 10px rgba(20, 20, 40, 0.10);
   --radius: 18px;
   --radius-sm: 12px;
+
+  /* mono emphasis: black in light, white in dark */
+  --btn-bg: #14151a;
+  --btn-fg: #ffffff;
+  /* purple → blue title gradient */
+  --title-grad: linear-gradient(100deg, #7c3aed 0%, #4f7cff 100%);
 
   --pink: #ff7eb6;
   --blue: #4f9df7;
@@ -40,14 +47,18 @@
   color-scheme: light;
 }
 :root[data-theme='dark'] {
-  --ink: #eef0ff;
-  --muted: #a6a2c6;
-  --panel: rgba(38, 34, 58, 0.86);
-  --panel-solid: #262238;
-  --panel-2: #2e2a44;
-  --border: rgba(180, 160, 240, 0.22);
-  --border-lit: rgba(180, 160, 240, 0.4);
-  --shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --bg: #000000;
+  --ink: #f2f3f7;
+  --muted: #9aa0ad;
+  --panel: rgba(18, 18, 22, 0.9);
+  --panel-solid: #131317;
+  --panel-2: #1c1c22;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-lit: rgba(255, 255, 255, 0.26);
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 3px 12px rgba(0, 0, 0, 0.5);
+  --btn-bg: #ffffff;
+  --btn-fg: #131317;
   color-scheme: dark;
 }
 
@@ -58,7 +69,7 @@ body {
   font-family: var(--font-pixel);
   font-size: 12px; font-weight: 400; line-height: 1.5;
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
-  background: #eef1fb;
+  background: var(--bg);
   overflow: hidden;
 }
 h1, h2, h3, h4, h5, h6, strong, b, .skill-name { font-weight: 400; }
@@ -402,8 +413,7 @@ a:hover { text-decoration: underline; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* ---- Landing page -------------------------------------------------------- */
-.landing { height: 100vh; height: 100dvh; overflow-y: auto; color: var(--ink); font-family: var(--font-read); background: #eef1fb; }
-:root[data-theme='dark'] .landing { background: #1a1726; }
+.landing { height: 100vh; height: 100dvh; overflow-y: auto; color: var(--ink); font-family: var(--font-read); background: var(--bg); }
 .landing h1, .landing h2, .landing h3 { font-family: var(--font-pixel); font-weight: 400; }
 .lp-nav {
   position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
@@ -628,6 +638,86 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .aw-feed li.aw-success { border-color: #2fae6a; }
 .aw-idle { color: var(--muted) !important; }
 @media (max-width: 720px) { .aw { bottom: 76px; } }
+
+/* ===========================================================================
+   Theme v2 — neutral white/black surfaces, monochrome buttons, purple→blue
+   gradient titles, 3D previews, richer card/button interaction.
+   =========================================================================== */
+.scene-bg { background: var(--bg); }
+
+/* gradient title text everywhere titles appear */
+.brand h1, .lp-hero h1, .lp-sec h2, .lp-final h2, .lp-kicker,
+.ws-head strong, .stats-head h2, .sb-head strong, .aw-head strong,
+.ws-account h3, .ws-billing h3 {
+  background: var(--title-grad); -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+
+/* monochrome emphasis buttons / chips (black in light, white in dark) */
+.btn.primary, .lp-cta, .ws-btn.primary, .sb-input button, .sb-launch,
+.net-tab.active, .tag3d.sel, .tag3d.hero, .ws-dockbtn.on, .ws-cur.on, .lp-n {
+  background: var(--btn-bg) !important; color: var(--btn-fg) !important; border: none !important;
+}
+.net-tab.is-live.active { background: var(--btn-bg) !important; color: var(--btn-fg) !important; }
+.sb-row.user .sb-bubble, .bubble3d.hero { background: var(--btn-bg); color: var(--btn-fg); }
+.board-bar span, .xp-fill, .agent-progress .agent-progress-fill { background: var(--btn-bg); }
+.btn.danger, .ws-btn.danger { background: transparent; color: #e0475f; border: 1.5px solid color-mix(in srgb, #e0475f 45%, transparent); }
+:root[data-theme='dark'] .btn.danger { color: #ff8a9c; }
+
+/* neutralise coloured surfaces */
+.sb-head, .aw-head { background: var(--panel-2); color: var(--ink); }
+.sb-head .sb-avatar { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.aw-head .aw-btn { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
+.aw-dot { background: color-mix(in srgb, var(--ink) 25%, transparent); }
+.sb-body { background: var(--panel-solid); }
+.lp-sec.alt { background: var(--panel-2); }
+.lp-card.mascot { background: var(--panel-2); }
+.stat-tile, .stat-tile.lazy-tile { background: var(--panel-2); }
+.agent-head-avatar { background: var(--panel-2); }
+.lp-hero h1 { background: var(--title-grad); -webkit-background-clip: text; background-clip: text; }
+
+/* logo mark — black square base + kawaii face */
+.logo-badge { display: inline-grid; place-items: center; background: #14151a; color: #fff; border-radius: 26%; box-shadow: var(--shadow-sm); flex: none; }
+:root[data-theme='dark'] .logo-badge { box-shadow: 0 0 0 1px rgba(255,255,255,0.16); }
+
+/* 3D agent previews — soft neutral backdrop so light + dark skins both read */
+.a3d { border-radius: 12px; overflow: hidden; background: radial-gradient(120% 120% at 50% 22%, color-mix(in srgb, var(--ink) 5%, var(--panel-solid)), color-mix(in srgb, var(--ink) 18%, var(--panel-solid))); }
+.ws-preview3d { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.ws-pickbody { display: flex; gap: 14px; padding: 14px; flex: 1; min-height: 0; }
+.ws-pick-preview { width: 190px; flex: none; display: flex; flex-direction: column; align-items: center; gap: 8px; padding-right: 14px; border-right: 1px solid var(--border); }
+.ws-pick-preview .a3d { border: 1px solid var(--border); }
+.ws-pickbody .ws-skingrid { flex: 1; padding: 0; }
+@media (max-width: 620px) { .ws-pickbody { flex-direction: column; } .ws-pick-preview { width: 100%; flex-direction: row; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 12px; } }
+
+/* landing 3D agent carousel */
+.lp-carousel { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+.lp-agentcard { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px; width: 190px; background: var(--panel-solid); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow-sm); transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s; animation: rise 0.5s both; }
+.lp-agentcard:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--border-lit); }
+.lp-agentcard .a3d { border-radius: 14px; }
+.lp-agentcard strong { font-family: var(--font-pixel); font-size: 13px; margin-top: 4px; }
+.lp-agentcard span { font-size: 11px; color: var(--muted); }
+.lp-editchip { font-family: var(--font-read); font-size: 9px; color: var(--muted); font-style: normal; background: var(--panel-2); border: 1px solid var(--border); padding: 3px 9px; border-radius: 20px; margin-top: 4px; }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* schema / diagram blocks (pedagogy) */
+.lp-schema { display: flex; align-items: stretch; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px; }
+.lp-node { flex: 1; min-width: 120px; background: var(--panel-solid); border: 1px solid var(--border); border-radius: 14px; padding: 14px; text-align: center; transition: transform 0.16s, box-shadow 0.16s; }
+.lp-node:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.lp-node b { font-family: var(--font-pixel); font-size: 12px; display: block; margin-bottom: 4px; }
+.lp-node span { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.lp-arrow { align-self: center; color: var(--muted); font-size: 18px; }
+.lp-cascade { display: flex; flex-direction: column; gap: 6px; }
+.lp-tier { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 10px; background: var(--panel-solid); border: 1px solid var(--border); border-radius: 12px; padding: 9px 12px; }
+.lp-tier b { grid-column: 1; font-family: var(--font-pixel); font-size: 11px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--panel-2); }
+.lp-tier .lp-tier-main { font-size: 12px; }
+.lp-tier .lp-tier-cost { font-family: var(--font-pixel); font-size: 11px; background: var(--title-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* richer card / button interaction */
+.lp-card, .lp-step { transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s; }
+.lp-card:hover, .lp-step:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--border-lit); }
+.btn, .ws-btn, .sb-chip, .ws-chip, .ws-dockbtn { transition: transform 0.14s, box-shadow 0.14s, border-color 0.14s, background 0.14s; }
+.ws-btn:hover:not(:disabled), .ws-chip:hover, .ws-dockbtn:hover { transform: translateY(-1px); }
+.lp-table tbody tr { transition: background 0.14s; }
 
 /* ---- scrollbars ---------------------------------------------------------- */
 ::-webkit-scrollbar { height: 10px; width: 10px; }
