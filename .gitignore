@@ -6,3 +6,9 @@ dist-ssr
 npm-debug.log*
 
 *.tsbuildinfo
+
+# secrets — never commit real keys (.env.example is the safe template)
+.env
+.env.*
+!.env.example
+.vercel

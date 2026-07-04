@@ -176,3 +176,38 @@ src/
 
 **Stack**: React · TypeScript · Vite · Zustand · xrpl.js · xumm · Web Audio. No backend,
 no mock.
+
+## Support chatbot & LLM cascade
+
+A guided support assistant (bottom-left of the app and landing) answers questions
+with link buttons. It runs a **cost-optimized cascade**:
+
+1. **Tier-0 — local FAQ** (`src/support/knowledge.ts`): deterministic, on-brand
+   answers. Zero cost, works with no backend — this handles most questions.
+2. **Cascade proxy** (`api/chat.ts`, Vercel Edge): for unmatched questions the
+   browser calls a server-side proxy that tries **free** providers first
+   (Groq → Gemini → Cerebras → OpenRouter) and only falls back to **paid** ones
+   (DeepSeek → Anthropic) under a daily cap.
+
+**Provider keys live only on the server** — never in the browser. Configure any
+subset; with none set, the bot stays in free FAQ mode.
+
+| Env var | Provider | Cost | Get a key |
+|---|---|---|---|
+| `GROQ_API_KEY` | Groq | free tier | https://console.groq.com/keys |
+| `GEMINI_API_KEY` | Google Gemini | free tier | https://aistudio.google.com/apikey |
+| `CEREBRAS_API_KEY` | Cerebras | free tier | https://cloud.cerebras.ai/ |
+| `OPENROUTER_API_KEY` | OpenRouter | free models | https://openrouter.ai/keys |
+| `DEEPSEEK_API_KEY` | DeepSeek | paid (cheap) | https://platform.deepseek.com/api_keys |
+| `ANTHROPIC_API_KEY` | Anthropic Claude | paid | https://console.anthropic.com/settings/keys |
+| `VITE_XUMM_API_KEY` | Xaman (frontend) | free | https://apps.xaman.dev |
+
+**Spending limits & security** (all in `.env`, see `.env.example`):
+`SUPPORT_MAX_TOKENS`, `SUPPORT_MAX_INPUT_CHARS`, `SUPPORT_RATE_MAX` /
+`SUPPORT_RATE_WINDOW_MS` (per-IP rate limit), `SUPPORT_PAID_DAILY_CAP` (max paid
+calls/day), `SUPPORT_ALLOWED_ORIGIN` (origin lock), and `SUPPORT_LLM_ENABLED=false`
+(kill switch → FAQ only). The proxy also validates method/size/JSON, wraps user
+text against prompt injection, times out upstream calls, and never returns keys
+or internal errors. For a hard **global** budget cap across instances, back the
+counters with a KV store (e.g. Upstash Redis) — the in-memory limiter is
+per-instance.

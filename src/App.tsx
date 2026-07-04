@@ -7,6 +7,7 @@ import { ActivityLog } from './components/ActivityLog'
 import { Toasts } from './components/Toasts'
 import { XamanPanel } from './components/XamanPanel'
 import { StatsPanel } from './components/StatsPanel'
+import { SupportBot } from './components/SupportBot'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
 import { NETWORKS } from './xrpl/network'
@@ -91,6 +92,7 @@ export default function App() {
 
       <StatsPanel />
       <Toasts />
+      <SupportBot />
     </div>
   )
 }

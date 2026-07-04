@@ -1,4 +1,5 @@
 import { AGENTS } from './data/agents'
+import { SupportBot } from './components/SupportBot'
 
 /** A-to-Z landing page: what DojoBuro is, how the office works, what a task
  *  costs in XRP, how agents get wired to real tools, where they run, and the
@@ -152,6 +153,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <button className="lp-cta big" onClick={enter}>Enter DojoBuro →</button>
         <p className="lp-foot">Real XRPL · x402 · non-custodial · open in your browser</p>
       </section>
+      <SupportBot />
     </div>
   )
 }
