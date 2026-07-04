@@ -9,6 +9,7 @@ import { audio } from '../audio'
 import { Decor3D } from './three/Decor3D'
 import { Character3D } from './three/Character3D'
 import { Hero3D } from './three/Hero3D'
+import { Lazy3D } from './three/Lazy3D'
 
 /** Camera rig: gentle default framing, biased LEFT so the room isn't hidden by
  *  the right-hand UI; pans to focus the selected agent. */
@@ -107,6 +108,7 @@ export function Scene3D() {
         <Decor3D />
         <Agents />
         <Hero3D />
+        <Lazy3D />
       </Suspense>
       <CameraRig />
     </Canvas>

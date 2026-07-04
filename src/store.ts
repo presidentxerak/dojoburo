@@ -81,6 +81,8 @@ interface DojoState {
   muted: boolean
   musicOn: boolean
   sceneId: SceneId
+  usage: { xrp: number; tokens: number; tx: number }
+  showStats: boolean
   xaman: { account: string | null; busy: boolean; signLink: string | null; signQr: string | null; configured: boolean }
 
   setNetwork: (net: NetworkId) => void
@@ -95,6 +97,8 @@ interface DojoState {
 
   selectAgent: (id: string | null) => void
   setMood: (id: string, mood: Mood, ms?: number) => void
+  openStats: () => void
+  closeStats: () => void
 
   ensureWallet: (ownerId: string) => WalletState
   fund: (ownerId: string) => Promise<void>
@@ -188,7 +192,15 @@ export const useDojo = create<DojoState>((set, get) => ({
   muted: localStorage.getItem('dojoburo.muted') === '1',
   musicOn: false,
   sceneId: loadSceneId(),
+  usage: { xrp: 0, tokens: 0, tx: 0 },
+  showStats: false,
   xaman: { account: null, busy: false, signLink: null, signQr: null, configured: xaman.isConfigured() },
+
+  openStats: () => {
+    audio.sfx('click')
+    set({ showStats: true, selectedAgent: null })
+  },
+  closeStats: () => set({ showStats: false }),
 
   setScene: (id) => {
     saveSceneId(id)
@@ -447,6 +459,9 @@ export const useDojo = create<DojoState>((set, get) => ({
       const cur = get().stats[agentId]
       set((sst) => ({ stats: { ...sst.stats, [agentId]: { ...cur, tasksDone: (cur?.tasksDone ?? 0) + 1 } } }))
       get().grantXp(agentId, reward, Math.round(reward / 3))
+      // usage accounting for Lazy's dashboard: estimated compute tokens + a tx
+      const tokens = skill.kind === 'analysis' ? 2400 : skill.kind === 'action' ? 1500 : skill.kind === 'xrpl' ? 800 : 1200
+      set((s) => ({ usage: { ...s.usage, tokens: s.usage.tokens + tokens, tx: s.usage.tx + 1 } }))
       set({ heroTargetId: 'home', banter: null })
     }
   },
@@ -481,6 +496,7 @@ async function settlePricedSkill(get: Get, agentId: string, skill: AgentSkill) {
   try {
     const res = await sendPayment(s.net, toWallet(treasury), agentWallet.address, skill.price, memo)
     s.log({ agentId, skill: skill.id, level: 'xrpl', message: `x402 settled: ${skill.price} XRP paid to ${labelOf(agentId)} for "${skill.name}" (${res.engineResult}).`, txHash: res.hash })
+    useDojo.setState((st) => ({ usage: { ...st.usage, xrp: st.usage.xrp + skill.price } }))
     await s.refreshBalances()
   } catch (e) {
     s.log({ agentId, skill: skill.id, level: 'error', message: `x402 not settled (skill still ran): ${errMsg(e)}. Fund the treasury.` })

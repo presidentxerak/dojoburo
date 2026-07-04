@@ -319,12 +319,13 @@ export function Character3D({
             <Ball p={[0, 1.78, 0]} r={0.8} c={character.face} s={[1, 1.14, 1]} />
             <Ball p={[-0.3, 2.32, 0.2]} r={0.17} c={character.face} />
             <Ball p={[0.3, 2.32, 0.2]} r={0.17} c={character.face} />
-            {/* pale face patch so the ASCII eyes read clearly on the mantle */}
-            <Ball p={[0, 1.74, 0.5]} r={0.56} c={'#ffe6ef'} s={[1.05, 1, 0.5]} />
+            {/* pale face patch: a round sphere tucked inside the mantle so only
+                its front cap pokes out — no side clipping artifacts */}
+            <Ball p={[0, 1.74, 0.42]} r={0.52} c={'#ffe6ef'} />
             {/* rosy cheeks + big, high-contrast ASCII expression */}
-            <Ball p={[-0.52, 1.6, 0.6]} r={0.12} c={'#ff8fa3'} />
-            <Ball p={[0.52, 1.6, 0.6]} r={0.12} c={'#ff8fa3'} />
-            <AsciiFace3D mood={mood} position={[0, 1.78, 0.9]} scale={0.94} color={'#3a1526'} />
+            <Ball p={[-0.5, 1.58, 0.62]} r={0.12} c={'#ff8fa3'} />
+            <Ball p={[0.5, 1.58, 0.62]} r={0.12} c={'#ff8fa3'} />
+            <AsciiFace3D mood={mood} position={[0, 1.76, 0.98]} scale={0.86} color={'#3a1526'} />
             {/* eight tentacles splaying out around the mantle */}
             {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
               const ang = (i / 8) * Math.PI * 2 + 0.4

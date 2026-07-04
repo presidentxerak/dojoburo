@@ -6,6 +6,7 @@ import { TreasuryPanel } from './components/TreasuryPanel'
 import { ActivityLog } from './components/ActivityLog'
 import { Toasts } from './components/Toasts'
 import { XamanPanel } from './components/XamanPanel'
+import { StatsPanel } from './components/StatsPanel'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
 import { NETWORKS } from './xrpl/network'
@@ -83,9 +84,12 @@ export default function App() {
         </div>
         <div className="hud-credit">
           Real XRPL · {NETWORKS[net].label}{NETWORKS[net].faucet ? ' · faucet' : ' · live'}
+          {' · '}
+          <a href="#" onClick={(e) => { e.preventDefault(); location.hash = '' }}>About</a>
         </div>
       </div>
 
+      <StatsPanel />
       <Toasts />
     </div>
   )
