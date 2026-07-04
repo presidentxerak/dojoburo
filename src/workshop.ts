@@ -1,0 +1,221 @@
+// Workshop store: the user's account, their Dojos (max 12 agents each) and the
+// editable agents inside them. Everything persists to localStorage. This is the
+// customization foundation — the office scene and skill engine read agent
+// identity from here going forward.
+import { create } from 'zustand'
+import type { Department } from './data/agents'
+import { AGENTS } from './data/agents'
+import { SKINS, skinById } from './data/skins'
+import { defaultTasksFor } from './data/functions'
+import type { CurrencyCode } from './data/currency'
+
+export const GRID = { cols: 6, rows: 4 } // 24 cells, up to 12 agents
+export const MAX_AGENTS = 12
+
+export interface WAgent {
+  id: string
+  name: string
+  fn: Department
+  skinId: string
+  tasks: string[]
+  budgetXrp: number
+  gx: number
+  gy: number
+}
+
+export interface Dojo {
+  id: string
+  name: string
+  agents: WAgent[]
+}
+
+export interface Account {
+  id: string
+  name: string
+  handle: string
+  email: string
+  provider: 'guest' | 'privy'
+  currency: CurrencyCode
+  avatarSkinId: string
+}
+
+interface WorkshopState {
+  account: Account | null
+  dojos: Dojo[]
+  activeDojoId: string | null
+
+  signInGuest: (name?: string) => void
+  signOut: () => void
+  updateAccount: (patch: Partial<Account>) => void
+  setCurrency: (c: CurrencyCode) => void
+
+  createDojo: (name?: string) => void
+  renameDojo: (id: string, name: string) => void
+  deleteDojo: (id: string) => void
+  setActiveDojo: (id: string) => void
+
+  addAgent: (partial?: Partial<WAgent>) => string | null
+  updateAgent: (id: string, patch: Partial<WAgent>) => void
+  deleteAgent: (id: string) => void
+  moveAgent: (id: string, gx: number, gy: number) => void
+}
+
+const KEY = 'dojoburo.workshop.v1'
+const uid = () => Math.random().toString(36).slice(2, 10)
+const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People', 'Ops']
+
+function seedDojo(): Dojo {
+  const agents: WAgent[] = AGENTS.slice(0, MAX_AGENTS).map((a, i) => ({
+    id: a.id,
+    name: a.name,
+    fn: a.department,
+    skinId: SKINS[i % SKINS.length].id,
+    tasks: defaultTasksFor(a.department),
+    budgetXrp: 5,
+    gx: i % GRID.cols,
+    gy: Math.floor(i / GRID.cols),
+  }))
+  return { id: uid(), name: 'HQ Dojo', agents }
+}
+
+function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null } {
+  try {
+    const raw = localStorage.getItem(KEY)
+    if (raw) {
+      const p = JSON.parse(raw)
+      if (p && Array.isArray(p.dojos) && p.dojos.length) return p
+    }
+  } catch {
+    /* ignore */
+  }
+  const d = seedDojo()
+  return { account: null, dojos: [d], activeDojoId: d.id }
+}
+
+function firstFreeCell(agents: WAgent[]): { gx: number; gy: number } {
+  const taken = new Set(agents.map((a) => `${a.gx},${a.gy}`))
+  for (let y = 0; y < GRID.rows; y++)
+    for (let x = 0; x < GRID.cols; x++) if (!taken.has(`${x},${y}`)) return { gx: x, gy: y }
+  return { gx: 0, gy: 0 }
+}
+
+export const useWorkshop = create<WorkshopState>((set, get) => {
+  const persist = () => {
+    const { account, dojos, activeDojoId } = get()
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ account, dojos, activeDojoId }))
+    } catch {
+      /* ignore */
+    }
+  }
+  const editActive = (fn: (d: Dojo) => Dojo) => {
+    set((s) => ({ dojos: s.dojos.map((d) => (d.id === s.activeDojoId ? fn(d) : d)) }))
+    persist()
+  }
+
+  return {
+    ...load(),
+
+    signInGuest: (name) => {
+      set({
+        account: {
+          id: uid(),
+          name: name?.trim() || 'Founder',
+          handle: '',
+          email: '',
+          provider: 'guest',
+          currency: 'XRP',
+          avatarSkinId: SKINS[0].id,
+        },
+      })
+      persist()
+    },
+    signOut: () => {
+      set({ account: null })
+      persist()
+    },
+    updateAccount: (patch) => {
+      set((s) => (s.account ? { account: { ...s.account, ...patch } } : {}))
+      persist()
+    },
+    setCurrency: (c) => {
+      set((s) => (s.account ? { account: { ...s.account, currency: c } } : {}))
+      persist()
+    },
+
+    createDojo: (name) => {
+      const d: Dojo = { id: uid(), name: name?.trim() || `Dojo ${get().dojos.length + 1}`, agents: [] }
+      set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id }))
+      persist()
+    },
+    renameDojo: (id, name) => {
+      set((s) => ({ dojos: s.dojos.map((d) => (d.id === id ? { ...d, name: name.trim() || d.name } : d)) }))
+      persist()
+    },
+    deleteDojo: (id) => {
+      set((s) => {
+        const dojos = s.dojos.filter((d) => d.id !== id)
+        const safe = dojos.length ? dojos : [seedDojo()]
+        const active = s.activeDojoId === id ? safe[0].id : s.activeDojoId
+        return { dojos: safe, activeDojoId: active }
+      })
+      persist()
+    },
+    setActiveDojo: (id) => {
+      set({ activeDojoId: id })
+      persist()
+    },
+
+    addAgent: (partial) => {
+      const dojo = get().dojos.find((d) => d.id === get().activeDojoId)
+      if (!dojo) return null
+      if (dojo.agents.length >= MAX_AGENTS) return null
+      const cell = firstFreeCell(dojo.agents)
+      const fn = (partial?.fn as Department) || DEPTS[dojo.agents.length % DEPTS.length]
+      const agent: WAgent = {
+        id: 'a_' + uid(),
+        name: partial?.name || `Agent ${dojo.agents.length + 1}`,
+        fn,
+        skinId: partial?.skinId || SKINS[Math.floor(Math.random() * SKINS.length)].id,
+        tasks: partial?.tasks || defaultTasksFor(fn),
+        budgetXrp: partial?.budgetXrp ?? 5,
+        gx: partial?.gx ?? cell.gx,
+        gy: partial?.gy ?? cell.gy,
+      }
+      editActive((d) => ({ ...d, agents: [...d.agents, agent] }))
+      return agent.id
+    },
+    updateAgent: (id, patch) => {
+      editActive((d) => ({ ...d, agents: d.agents.map((a) => (a.id === id ? { ...a, ...patch } : a)) }))
+    },
+    deleteAgent: (id) => {
+      editActive((d) => ({ ...d, agents: d.agents.filter((a) => a.id !== id) }))
+    },
+    moveAgent: (id, gx, gy) => {
+      gx = Math.max(0, Math.min(GRID.cols - 1, gx))
+      gy = Math.max(0, Math.min(GRID.rows - 1, gy))
+      editActive((d) => {
+        const occupant = d.agents.find((a) => a.gx === gx && a.gy === gy && a.id !== id)
+        const me = d.agents.find((a) => a.id === id)
+        if (!me) return d
+        return {
+          ...d,
+          agents: d.agents.map((a) => {
+            if (a.id === id) return { ...a, gx, gy }
+            if (occupant && a.id === occupant.id) return { ...a, gx: me.gx, gy: me.gy } // swap
+            return a
+          }),
+        }
+      })
+    },
+  }
+})
+
+export function activeDojo(): Dojo | null {
+  const s = useWorkshop.getState()
+  return s.dojos.find((d) => d.id === s.activeDojoId) ?? null
+}
+
+export function agentSkin(a: WAgent) {
+  return skinById(a.skinId)
+}
