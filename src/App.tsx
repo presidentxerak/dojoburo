@@ -21,11 +21,19 @@ export default function App() {
   const net = useDojo((s) => s.net)
   const hasWallets = useDojo((s) => Object.keys(s.wallets).length > 0)
   const muted = useDojo((s) => s.muted)
-  const [hudOpen, setHudOpen] = useState(true)
+  const selected = useDojo((s) => s.selectedAgent)
+  // start collapsed on phones so the dojo is fully visible; open on desktop
+  const [hudOpen, setHudOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth > 720 : true))
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
+
+  // on mobile, tapping an agent reveals the panel (its card); deselect hides it
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.innerWidth > 720) return
+    setHudOpen(selected != null)
+  }, [selected])
 
   useEffect(() => {
     const unlock = () => {
@@ -78,12 +86,16 @@ export default function App() {
         </button>
         <div className="hud-body">
           <aside className="hud-side">
+            {/* mobile: grab-handle that collapses the bottom sheet */}
+            <button className="hud-grip" onClick={() => setHudOpen(false)} aria-label="Hide panel"><span /></button>
             <AgentPanel />
             <TreasuryPanel />
             <XamanPanel />
             <ActivityLog />
           </aside>
         </div>
+        {/* mobile: floating handle to open the panel sheet when collapsed */}
+        <button className="hud-open-fab" onClick={() => setHudOpen(true)} aria-label="Open dojo panel">▴ Panel</button>
         <div className="hud-credit">
           Real XRPL · {NETWORKS[net].label}{NETWORKS[net].faucet ? ' · faucet' : ' · live'}
           {' · '}
