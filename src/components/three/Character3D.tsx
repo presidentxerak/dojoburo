@@ -4,6 +4,7 @@ import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import type { Character } from '../../data/looks'
 import type { Mood } from '../../store'
+import { useDojo } from '../../store'
 import { AsciiFace3D } from './AsciiFace3D'
 
 const MAT = { roughness: 0.72, metalness: 0.05 }
@@ -61,6 +62,52 @@ function Arm({ side, color, hand, busy }: { side: number; color: string; hand: s
         <sphereGeometry args={[0.14, 14, 12]} />
         <meshStandardMaterial color={hand} {...MAT} />
       </mesh>
+    </group>
+  )
+}
+
+// An octopus tentacle: a taper of shrinking balls splaying out from the mantle
+// along a horizontal direction, drooping gently and undulating as it goes.
+function Tentacle({ base, dir, color, phase, busy }: { base: [number, number, number]; dir: [number, number]; color: string; phase: number; busy: boolean }) {
+  const g = useRef<THREE.Group>(null)
+  const perp: [number, number] = [-dir[1], dir[0]]
+  useFrame((state) => {
+    if (!g.current) return
+    const t = state.clock.elapsedTime
+    const spd = busy ? 6 : 2.6
+    g.current.children.forEach((c, i) => {
+      const w = Math.sin(t * spd + phase + i * 0.8) * 0.07 * (i + 1)
+      c.position.x = dir[0] * i * 0.19 + perp[0] * w
+      c.position.z = dir[1] * i * 0.19 + perp[1] * w
+      c.position.y = -i * i * 0.05 // gentle accelerating droop
+    })
+  })
+  return (
+    <group ref={g} position={base}>
+      {[0, 1, 2, 3].map((i) => (
+        <mesh key={i} position={[dir[0] * i * 0.19, -i * i * 0.05, dir[1] * i * 0.19]} castShadow>
+          <sphereGeometry args={[0.19 - i * 0.035, 12, 10]} />
+          <meshStandardMaterial color={color} {...MAT} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+// ADA's retro computer-monitor head: beige case, glowing terminal, ASCII face.
+function MonitorHead({ c, mood }: { c: Character; mood: Mood }) {
+  return (
+    <group position={[0, 1.98, 0]}>
+      <Cyl p={[0, -0.66, 0]} r={0.1} h={0.28} c={c.extra} />
+      <Box p={[0, -0.82, 0]} s={[0.44, 0.08, 0.34]} c={c.extra} />
+      <Box p={[0, 0, 0]} s={[1.16, 0.94, 0.72]} c={c.face} />
+      <Box p={[0, 0.02, 0.37]} s={[0.9, 0.7, 0.04]} c={'#10222e'} />
+      <mesh position={[0, 0.02, 0.395]}>
+        <planeGeometry args={[0.82, 0.62]} />
+        <meshStandardMaterial color={'#0a251d'} emissive={'#1f9e6a'} emissiveIntensity={0.55} {...MAT} />
+      </mesh>
+      <Ball p={[0.44, -0.34, 0.37]} r={0.04} c={'#37d67a'} />
+      <AsciiFace3D mood={mood} position={[0, 0.03, 0.44]} scale={0.62} color={'#8bffbf'} />
     </group>
   )
 }
@@ -156,6 +203,7 @@ function Toppers({ c }: { c: Character }) {
 }
 
 export function Character3D({
+  id,
   character,
   x,
   z,
@@ -166,6 +214,7 @@ export function Character3D({
   level,
   onSelect,
 }: {
+  id: string
   character: Character
   x: number
   z: number
@@ -178,9 +227,13 @@ export function Character3D({
 }) {
   const g = useRef<THREE.Group>(null)
   const [hover, setHover] = useState(false)
+  const banter = useDojo((s) => s.banter)
   const faceDark = isDark(character.face)
   const faceColor = faceDark ? '#f4f4f4' : '#1c2029'
   const isSlime = character.kind === 'slime'
+  const isOcto = character.kind === 'octopus'
+  const isMonitor = character.kind === 'monitor'
+  const speaking = banter && banter.who === 'agent' && banter.agentId === id
 
   useFrame((state) => {
     if (!g.current) return
@@ -226,6 +279,32 @@ export function Character3D({
             <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
             <Arm side={1} color={character.face} hand={character.face} busy={busy} />
           </group>
+        ) : isOcto ? (
+          <group position={[0, 0.05, 0]}>
+            {/* bulbous mantle, lifted so the face clears the laptop */}
+            <Ball p={[0, 1.78, 0]} r={0.8} c={character.face} s={[1, 1.14, 1]} />
+            <Ball p={[-0.3, 2.32, 0.2]} r={0.17} c={character.face} />
+            <Ball p={[0.3, 2.32, 0.2]} r={0.17} c={character.face} />
+            {/* rosy cheeks + ASCII expression */}
+            <Ball p={[-0.46, 1.62, 0.58]} r={0.12} c={'#ff8fa3'} />
+            <Ball p={[0.46, 1.62, 0.58]} r={0.12} c={'#ff8fa3'} />
+            <AsciiFace3D mood={mood} position={[0, 1.74, 0.82]} scale={0.72} color={faceColor} />
+            {/* eight tentacles splaying out around the mantle */}
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+              const ang = (i / 8) * Math.PI * 2 + 0.4
+              const dir: [number, number] = [Math.cos(ang) * 1.1, Math.sin(ang) * 0.7 + 0.35]
+              return (
+                <Tentacle
+                  key={i}
+                  base={[Math.cos(ang) * 0.42, 1.28, Math.sin(ang) * 0.3 + 0.12]}
+                  dir={dir}
+                  color={i % 2 ? character.face : character.outfit}
+                  phase={i * 0.8}
+                  busy={busy}
+                />
+              )
+            })}
+          </group>
         ) : (
           <group>
             {/* seated: lap + torso, legs hidden behind the desk */}
@@ -234,12 +313,18 @@ export function Character3D({
             {/* shoulders */}
             <Ball p={[-0.46, 1.3, 0.02]} r={0.18} c={character.outfit} />
             <Ball p={[0.46, 1.3, 0.02]} r={0.18} c={character.outfit} />
-            {/* head */}
-            <Ball p={[0, 1.95, 0]} r={0.62} c={character.face} />
-            <Ball p={[-0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
-            <Ball p={[0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
-            <Toppers c={character} />
-            <AsciiFace3D mood={mood} position={[0, 1.98, 0.72]} scale={0.72} color={faceColor} />
+            {isMonitor ? (
+              <MonitorHead c={character} mood={mood} />
+            ) : (
+              <>
+                {/* head */}
+                <Ball p={[0, 1.95, 0]} r={0.62} c={character.face} />
+                <Ball p={[-0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
+                <Ball p={[0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
+                <Toppers c={character} />
+                <AsciiFace3D mood={mood} position={[0, 1.98, 0.72]} scale={0.72} color={faceColor} />
+              </>
+            )}
             {/* typing arms */}
             <Arm side={-1} color={character.outfit} hand={character.face} busy={busy} />
             <Arm side={1} color={character.outfit} hand={character.face} busy={busy} />
@@ -252,6 +337,12 @@ export function Character3D({
           {name} <span>Lv.{level}</span>
         </div>
       </Html>
+      {/* the agent's line of the conversation with the brain */}
+      {speaking && (
+        <Html position={[0.7, isSlime ? 2.05 : 2.5, 0]} center distanceFactor={9} zIndexRange={[8, 0]} pointerEvents="none">
+          <div className="bubble3d">{banter.text}</div>
+        </Html>
+      )}
       {busy && (
         <Html position={[0, isSlime ? 2.7 : 3.4, 0]} center distanceFactor={12} zIndexRange={[6, 0]} pointerEvents="none">
           <div className="work3d" />

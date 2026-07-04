@@ -166,14 +166,23 @@ function Station({ id, x, z }: { id: string; x: number; z: number }) {
         ))}
       </group>
 
-      {/* laptop on the desk (keyboard toward the agent) */}
-      <group position={[0, 0.96, z + 0.78]}>
-        <B p={[0, 0, 0]} s={[0.56, 0.04, 0.36]} c="#2b2f3d" />
+      {/* laptop: big deck with the keyboard toward the agent, the open lid
+          hinged at the far edge and the glowing screen tilted up to the camera */}
+      <group position={[0, 0.96, z + 0.58]}>
+        {/* deck / keyboard base */}
+        <B p={[0, 0, 0]} s={[0.92, 0.05, 0.62]} c="#20242f" />
+        <B p={[0, 0.02, 0]} s={[0.86, 0.03, 0.56]} c="#2b2f3d" />
         {[...Array(4)].map((_, r) =>
-          [...Array(7)].map((_, k) => <B key={`${r}-${k}`} p={[-0.21 + k * 0.07, 0.03, -0.1 + r * 0.06]} s={[0.05, 0.02, 0.04]} c="#3a3f52" />),
+          [...Array(9)].map((_, k) => <B key={`${r}-${k}`} p={[-0.34 + k * 0.085, 0.045, -0.16 + r * 0.09]} s={[0.06, 0.02, 0.06]} c="#454b63" />),
         )}
-        <B p={[0, 0.18, 0.2]} s={[0.56, 0.36, 0.03]} c="#2b2f3d" rot={[-0.38, 0, 0]} />
-        <B p={[0, 0.18, 0.21]} s={[0.48, 0.28, 0.02]} c="#0f2233" rot={[-0.38, 0, 0]} emissive="#2a7fa8" ei={0.55} />
+        {/* trackpad nearest the agent */}
+        <B p={[0, 0.045, 0.24]} s={[0.26, 0.012, 0.14]} c="#3a4058" />
+        {/* open lid hinged at the far edge, tilting the screen toward the camera */}
+        <group position={[0, 0, 0.31]} rotation={[0.32, 0, 0]}>
+          <B p={[0, 0.44, 0]} s={[0.94, 0.66, 0.04]} c="#20242f" />
+          <B p={[0, 0.44, 0.024]} s={[0.82, 0.54, 0.02]} c="#0f2233" emissive="#2a7fa8" ei={0.6} />
+          <B p={[0, 0.7, 0.026]} s={[0.7, 0.05, 0.01]} c="#63d0ff" emissive="#63d0ff" ei={0.7} />
+        </group>
       </group>
 
       <JobProp id={id} dz={dz} />
@@ -193,6 +202,55 @@ function Lantern({ x, z }: { x: number; z: number }) {
         <cylinderGeometry args={[0.35, 0.35, 0.24, 18]} />
         <meshStandardMaterial color={'#fff2c4'} emissive={'#ffcf6a'} emissiveIntensity={0.6} />
       </mesh>
+    </group>
+  )
+}
+
+function CherryTree({ x, z }: { x: number; z: number }) {
+  const blossoms: [number, number, number][] = [
+    [0, 3.1, 0], [-0.7, 2.8, 0.2], [0.7, 2.9, -0.2], [-0.45, 3.45, -0.3], [0.5, 3.45, 0.3], [0, 2.55, 0.6], [0, 2.7, -0.6],
+  ]
+  return (
+    <group position={[x, 0, z]}>
+      <Cy p={[0, 1.2, 0]} r={0.22} h={2.4} c={WOOD_D} />
+      <Cy p={[-0.45, 2.2, 0.2]} r={0.09} h={1.0} c={WOOD_D} rot={[0, 0, 0.7]} />
+      <Cy p={[0.5, 2.1, -0.2]} r={0.09} h={1.0} c={WOOD_D} rot={[0, 0, -0.6]} />
+      {blossoms.map((p, i) => <Sp key={i} p={p} r={0.62} c={i % 2 ? '#ffc4dd' : '#ffb0d0'} />)}
+    </group>
+  )
+}
+
+function StoneLantern({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0, z]}>
+      <Cy p={[0, 0.15, 0]} r={0.34} h={0.3} c="#9aa0a6" />
+      <Cy p={[0, 0.55, 0]} r={0.12} h={0.6} c="#aab0b6" />
+      <Cy p={[0, 0.95, 0]} r={0.34} h={0.24} c="#9aa0a6" />
+      <mesh position={[0, 1.22, 0]} castShadow>
+        <boxGeometry args={[0.42, 0.36, 0.42]} />
+        <meshStandardMaterial color="#b7bcc2" emissive="#ffcf6a" emissiveIntensity={0.55} {...M} />
+      </mesh>
+      <mesh position={[0, 1.55, 0]} castShadow>
+        <coneGeometry args={[0.42, 0.36, 4]} />
+        <meshStandardMaterial color="#8a9096" {...M} />
+      </mesh>
+      <Sp p={[0, 1.78, 0]} r={0.08} c="#8a9096" />
+    </group>
+  )
+}
+
+function Bamboo({ x, z }: { x: number; z: number }) {
+  const stalks: [number, number, number][] = [[-0.25, 0, 3.0], [0.12, 0.2, 3.6], [0.36, -0.16, 2.6]]
+  return (
+    <group position={[x, 0, z]}>
+      {stalks.map(([bx, bz, h], i) => (
+        <group key={i} position={[bx, 0, bz]}>
+          <Cy p={[0, h / 2, 0]} r={0.07} h={h} c="#7bbf5a" />
+          {[0.9, 1.7, 2.5].filter((yy) => yy < h).map((yy) => <Sp key={yy} p={[0, yy, 0]} r={0.085} c="#5fa53f" />)}
+          <Sp p={[0.2, h, 0.1]} r={0.2} c="#6cbf6c" />
+          <Sp p={[-0.16, h - 0.12, -0.1]} r={0.16} c="#5faf5f" />
+        </group>
+      ))}
     </group>
   )
 }
@@ -244,6 +302,28 @@ export function Decor3D() {
       ))}
       <Lantern x={-4} z={backZ + 1.5} />
       <Lantern x={4} z={backZ + 1.5} />
+
+      {/* exposed ceiling beams */}
+      {[-6, -2, 2, 6].map((zc) => (
+        <mesh key={zc} position={[0, ROOM.wallH - 0.25, zc]}>
+          <boxGeometry args={[ROOM.w, 0.3, 0.4]} />
+          <meshStandardMaterial color={WOOD_D} {...M} />
+        </mesh>
+      ))}
+
+      {/* garden corners: a cherry tree, a stone lantern and bamboo clusters */}
+      <CherryTree x={-8.6} z={2.6} />
+      <StoneLantern x={-8.7} z={-2.2} />
+      <Bamboo x={8.7} z={-1.5} />
+      <Bamboo x={8.9} z={backZ + 2.6} />
+
+      {/* raked zen-garden stones along the back wall */}
+      {[-6, -3.4, 3.4, 6].map((rx) => (
+        <group key={rx} position={[rx, 0, backZ + 1.3]}>
+          <Sp p={[0, 0.14, 0]} r={0.3} c="#b7b2a6" />
+          <Sp p={[0.42, 0.09, 0.22]} r={0.17} c="#c9c4b8" />
+        </group>
+      ))}
 
       {/* taiko + bonsai in the back corners so the front stays clear */}
       <group position={[8, 0, backZ + 2]}>

@@ -26,15 +26,17 @@ function CameraRig() {
     let px = 3.7
     let pz = 18.5
     let py = 10.4
+    let ty = 1.2
     if (selected && POS3D[selected]) {
       const [ax, az] = POS3D[selected]
       tx = ax + 1.4
       tz = az
+      ty = 2.3 // lift the look-at so the brain hovering high above stays framed
       px = ax + 1.4
-      pz = az + 9
-      py = 6.2
+      pz = az + 10.5
+      py = 7.4
     }
-    target.current.lerp(new THREE.Vector3(tx, 1.2, tz), Math.min(1, dt * 2.2))
+    target.current.lerp(new THREE.Vector3(tx, ty, tz), Math.min(1, dt * 2.2))
     camPos.current.lerp(new THREE.Vector3(px, py, pz), Math.min(1, dt * 2.2))
     camera.position.copy(camPos.current)
     camera.lookAt(target.current)
@@ -56,6 +58,7 @@ function Agents() {
         return (
           <Character3D
             key={a.id}
+            id={a.id}
             character={CHARACTERS[a.id]}
             x={x}
             z={z}

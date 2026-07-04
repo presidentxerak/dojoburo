@@ -18,6 +18,8 @@ export type Kind =
   | 'cyborg'
   | 'slime'
   | 'vampire'
+  | 'octopus'
+  | 'monitor'
 
 export interface Character {
   kind: Kind
@@ -34,10 +36,10 @@ export const CHARACTERS: Record<string, Character> = {
   otto: { kind: 'robot', face: '#b7c0cc', outfit: '#22a35a', outfit2: '#0f5a2f', pants: '#5b6470', extra: '#4be08a' },
   fin: { kind: 'alien', face: '#8fdc7a', outfit: '#7c5cdf', outfit2: '#efe6ff', pants: '#4a3a86', extra: '#d6ff8f' },
   mia: { kind: 'cat', face: '#f3cbab', outfit: '#f2617a', outfit2: '#7a1730', pants: '#3a2a20', extra: '#3a2a20' },
-  sol: { kind: 'skeleton', face: '#eef0f2', outfit: '#f2843b', outfit2: '#7a3a10', pants: '#4a4d55', extra: '#c9ccd2' },
+  sol: { kind: 'octopus', face: '#d65a86', outfit: '#b8446e', outfit2: '#7a2246', pants: '#8a2f57', extra: '#ffd0e0' },
   pia: { kind: 'wizard', face: '#eec3a0', outfit: '#17b8a6', outfit2: '#0a4f48', pants: '#0d3b52', extra: '#123a63' },
   dex: { kind: 'monster', face: '#b06cf0', outfit: '#8b2ff2', outfit2: '#3a1466', pants: '#2a0f4a', extra: '#ffe08a' },
-  ada: { kind: 'cyborg', face: '#e6b98f', outfit: '#1aa0e6', outfit2: '#0a5a86', pants: '#0d4a66', extra: '#b7c0cc' },
+  ada: { kind: 'monitor', face: '#dfe6ee', outfit: '#1aa0e6', outfit2: '#0a5a86', pants: '#0d4a66', extra: '#9aa6b4' },
   hana: { kind: 'alien', face: '#c79bf0', outfit: '#2fce88', outfit2: '#0f5a3a', pants: '#0f5a3a', extra: '#ffd23b' },
   sam: { kind: 'slime', face: '#5ad1c0', outfit: '#5aa2f5', outfit2: '#14345f', pants: '#2fae9c', extra: '#c9fff5' },
   lex: { kind: 'vampire', face: '#e6c6a0', outfit: '#3a3140', outfit2: '#8a1420', pants: '#22202a', extra: '#141118' },
