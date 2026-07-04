@@ -719,6 +719,35 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .ws-btn:hover:not(:disabled), .ws-chip:hover, .ws-dockbtn:hover { transform: translateY(-1px); }
 .lp-table tbody tr { transition: background 0.14s; }
 
+/* studio save bar */
+.ws-savebar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding-top: 13px; border-top: 1px solid var(--border); }
+.ws-saveflag { font-family: var(--font-read); font-size: 11px; color: var(--muted); }
+.ws-saveflag.on { color: #c98a00; }
+:root[data-theme='dark'] .ws-saveflag.on { color: #ffcf6a; }
+
+/* ---- landing design polish ---------------------------------------------- */
+.lp-nav { box-shadow: 0 1px 0 var(--border); }
+.lp-hero { position: relative; }
+.lp-hero::before { content: ''; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 620px; max-width: 90%; height: 320px; background: radial-gradient(60% 60% at 50% 40%, color-mix(in srgb, #7c3aed 14%, transparent), transparent 70%); filter: blur(20px); z-index: -1; pointer-events: none; }
+.lp-sub { font-size: 15.5px; }
+.lp-badges span { transition: transform 0.14s, border-color 0.14s, color 0.14s; }
+.lp-badges span:hover { transform: translateY(-2px); border-color: var(--border-lit); color: var(--ink); }
+.lp-sec h2 { position: relative; display: inline-block; padding-bottom: 8px; }
+.lp-sec h2::after { content: ''; position: absolute; left: 0; bottom: 0; width: 46px; height: 3px; border-radius: 3px; background: var(--title-grad); }
+.lp-node, .lp-tier, .lp-plan { position: relative; overflow: hidden; }
+.lp-node::before, .lp-plan::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--title-grad); opacity: 0.9; }
+.lp-cta { position: relative; overflow: hidden; }
+.lp-cta::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.22), transparent 70%); transform: translateX(-120%); transition: transform 0.5s; }
+.lp-cta:hover::after { transform: translateX(120%); }
+.lp-card { position: relative; }
+.lp-card::before { content: ''; position: absolute; top: 0; left: 14px; right: 14px; height: 2px; border-radius: 2px; background: var(--title-grad); opacity: 0; transition: opacity 0.16s; }
+.lp-card:hover::before { opacity: 1; }
+.lp-footer { max-width: 960px; margin: 0 auto; padding: 30px 22px 50px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+.lp-footer .lp-brand { font-family: var(--font-pixel); font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.lp-foot-links { display: flex; gap: 16px; flex-wrap: wrap; }
+.lp-foot-links a { font-size: 12px; color: var(--muted); }
+.lp-foot-links a:hover { color: var(--ink); text-decoration: none; }
+
 /* ---- scrollbars ---------------------------------------------------------- */
 ::-webkit-scrollbar { height: 10px; width: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }

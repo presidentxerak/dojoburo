@@ -18,7 +18,7 @@ export function AgentCarousel3D() {
     <div className="lp-carousel">
       {SHOW.map((s, i) => (
         <div className="lp-agentcard" key={s.kind} style={{ animationDelay: `${i * 0.08}s` }}>
-          <Agent3DPreview character={pick(s.kind)} size={150} speed={0.5 + i * 0.06} />
+          <Agent3DPreview character={pick(s.kind)} size={150} speed={1} phase={i * 0.7} />
           <strong>{s.name}</strong>
           <span>{s.role}</span>
           <em className="lp-editchip">Editable · 100 skins</em>

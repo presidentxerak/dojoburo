@@ -44,6 +44,8 @@ function StudioTab() {
   const addAgent = useWorkshop((s) => s.addAgent)
   const moveAgent = useWorkshop((s) => s.moveAgent)
   const currency = useWorkshop((s) => s.account?.currency ?? 'XRP')
+  const dirty = useWorkshop((s) => s.dirty)
+  const save = useWorkshop((s) => s.save)
 
   const dojo = dojos.find((d) => d.id === activeId) ?? dojos[0]
   const [sel, setSel] = useState<string | null>(null)
@@ -110,6 +112,12 @@ function StudioTab() {
           {!agent && <p className="ws-empty">Select or add an agent to edit its skin, function, tasks and budget.</p>}
           {agent && <AgentEditor agent={agent} currency={currency} onPickSkin={() => setPicking(true)} onDeleted={() => setSel(null)} />}
         </div>
+      </div>
+
+      {/* save bar — dojo & agent edits are drafts until validated */}
+      <div className="ws-savebar">
+        <span className={`ws-saveflag ${dirty ? 'on' : ''}`}>{dirty ? '● Unsaved changes' : '✓ All changes saved'}</span>
+        <button className="ws-btn primary" disabled={!dirty} onClick={save}>Validate &amp; save dojo</button>
       </div>
 
       {picking && agent && (

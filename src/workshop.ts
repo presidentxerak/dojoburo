@@ -43,7 +43,10 @@ interface WorkshopState {
   account: Account | null
   dojos: Dojo[]
   activeDojoId: string | null
+  /** true when there are dojo/agent edits not yet written to localStorage */
+  dirty: boolean
 
+  save: () => void
   signInGuest: (name?: string) => void
   signOut: () => void
   updateAccount: (patch: Partial<Account>) => void
@@ -100,6 +103,8 @@ function firstFreeCell(agents: WAgent[]): { gx: number; gy: number } {
 }
 
 export const useWorkshop = create<WorkshopState>((set, get) => {
+  // persist() is the single save point — it writes localStorage and clears the
+  // dirty flag. Dojo/agent edits stay in memory (dirty) until save() is called.
   const persist = () => {
     const { account, dojos, activeDojoId } = get()
     try {
@@ -107,14 +112,18 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     } catch {
       /* ignore */
     }
+    set({ dirty: false })
   }
+  // dojo/agent mutation: update in memory and mark dirty (not yet saved)
   const editActive = (fn: (d: Dojo) => Dojo) => {
-    set((s) => ({ dojos: s.dojos.map((d) => (d.id === s.activeDojoId ? fn(d) : d)) }))
-    persist()
+    set((s) => ({ dojos: s.dojos.map((d) => (d.id === s.activeDojoId ? fn(d) : d)), dirty: true }))
   }
 
   return {
     ...load(),
+    dirty: false,
+
+    save: () => persist(),
 
     signInGuest: (name) => {
       set({
@@ -145,21 +154,18 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
 
     createDojo: (name) => {
       const d: Dojo = { id: uid(), name: name?.trim() || `Dojo ${get().dojos.length + 1}`, agents: [] }
-      set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id }))
-      persist()
+      set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))
     },
     renameDojo: (id, name) => {
-      set((s) => ({ dojos: s.dojos.map((d) => (d.id === id ? { ...d, name: name.trim() || d.name } : d)) }))
-      persist()
+      set((s) => ({ dojos: s.dojos.map((d) => (d.id === id ? { ...d, name: name.trim() || d.name } : d)), dirty: true }))
     },
     deleteDojo: (id) => {
       set((s) => {
         const dojos = s.dojos.filter((d) => d.id !== id)
         const safe = dojos.length ? dojos : [seedDojo()]
         const active = s.activeDojoId === id ? safe[0].id : s.activeDojoId
-        return { dojos: safe, activeDojoId: active }
+        return { dojos: safe, activeDojoId: active, dirty: true }
       })
-      persist()
     },
     setActiveDojo: (id) => {
       set({ activeDojoId: id })

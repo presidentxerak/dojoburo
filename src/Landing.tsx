@@ -209,6 +209,17 @@ export function Landing({ enter }: { enter: () => void }) {
         <button className="lp-cta big" onClick={enter}>Enter DojoBuro →</button>
         <p className="lp-foot">Real XRPL · x402 · non-custodial · open in your browser</p>
       </section>
+
+      <footer className="lp-footer">
+        <div className="lp-brand"><Logo size={26} /> DojoBuro</div>
+        <nav className="lp-foot-links">
+          <a href="#studio">Dojo Studio</a>
+          <a href="#cascade">Cost</a>
+          <a href="#pay">Payments</a>
+          <a href="#prod">Production</a>
+          <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Enter the office</a>
+        </nav>
+      </footer>
       <SupportBot />
     </div>
   )
