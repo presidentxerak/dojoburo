@@ -1,0 +1,20 @@
+[package]
+name = "dojoburo"
+version = "1.0.0"
+description = "DojoBuro desktop — the 3D startup office with an always-on-top dojo widget"
+authors = ["DojoBuro"]
+edition = "2021"
+rust-version = "1.77.2"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+# by default Tauri runs in production mode; `tauri dev` sets this automatically
+custom-protocol = ["tauri/custom-protocol"]

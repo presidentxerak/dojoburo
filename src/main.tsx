@@ -2,6 +2,8 @@ import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import { Landing } from './Landing'
+import { AuthProvider } from './auth/AuthProvider'
+import { WidgetApp } from './WidgetApp'
 import './index.css'
 
 function Root() {
@@ -11,12 +13,16 @@ function Root() {
     window.addEventListener('hashchange', on)
     return () => window.removeEventListener('hashchange', on)
   }, [])
+  // standalone always-on-top widget window (Tauri desktop) — no auth chrome
+  if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />
   return <Landing enter={() => { location.hash = 'app' }} />
 }
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Root />
+    <AuthProvider>
+      <Root />
+    </AuthProvider>
   </StrictMode>,
 )

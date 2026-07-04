@@ -49,6 +49,7 @@ interface WorkshopState {
 
   save: () => void
   signInGuest: (name?: string) => void
+  signInPrivy: (p: { name?: string; email?: string; handle?: string }) => void
   signOut: () => void
   updateAccount: (patch: Partial<Account>) => void
   setCurrency: (c: CurrencyCode) => void
@@ -142,6 +143,21 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
           avatarSkinId: SKINS[0].id,
         },
       })
+      persist()
+    },
+    signInPrivy: (p) => {
+      set((s) => ({
+        account: {
+          // keep currency/avatar if a guest account was already set up
+          id: s.account?.id ?? uid(),
+          name: p.name?.trim() || s.account?.name || 'Founder',
+          handle: p.handle?.trim() || s.account?.handle || '',
+          email: p.email?.trim() || s.account?.email || '',
+          provider: 'privy',
+          currency: s.account?.currency ?? 'XRP',
+          avatarSkinId: s.account?.avatarSkinId ?? SKINS[0].id,
+        },
+      }))
       persist()
     },
     signOut: () => {

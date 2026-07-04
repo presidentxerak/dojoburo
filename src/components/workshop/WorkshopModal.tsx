@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom'
 import { useWorkshop, GRID, MAX_AGENTS, type WAgent } from '../../workshop'
 import { SKINS, SKIN_THEMES, skinById } from '../../data/skins'
 import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
-import { CURRENCY_LIST, formatFrom } from '../../data/currency'
+import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/currency'
+import { privyConfigured, privyControls } from '../../auth/controls'
 import { SkinAvatar } from './SkinAvatar'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 
@@ -248,38 +249,58 @@ function AccountTab() {
   const update = useWorkshop((s) => s.updateAccount)
   const [name, setName] = useState('')
 
+  const privyOn = privyConfigured()
+
   if (!account) {
     return (
       <div className="ws-account">
         <h3>Sign in</h3>
-        <p className="ws-blurb">Create a local account now. Connect Privy (email, wallet, social) in production for a portable account across devices.</p>
+        <p className="ws-blurb">
+          {privyOn
+            ? 'Connect with Privy (email, wallet or social) for a portable account across devices — or continue locally as a guest.'
+            : 'Create a local account now. Connect Privy (email, wallet, social) in production for a portable account across devices.'}
+        </p>
         <label className="ws-field"><span>Your name</span><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Founder" /></label>
         <div className="ws-row">
-          <button className="ws-btn primary" onClick={() => signIn(name)}>Continue as guest</button>
-          <button className="ws-btn" disabled title="Set VITE_PRIVY_APP_ID to enable">Connect Privy (soon)</button>
+          {privyOn ? (
+            <button className="ws-btn primary" onClick={() => privyControls.login?.()}>Connect with Privy</button>
+          ) : (
+            <button className="ws-btn" disabled title="Set VITE_PRIVY_APP_ID to enable">Connect Privy (soon)</button>
+          )}
+          <button className="ws-btn" onClick={() => signIn(name)}>Continue as guest</button>
         </div>
       </div>
     )
   }
 
+  const isPrivy = account.provider === 'privy'
   return (
     <div className="ws-account">
       <div className="ws-skinrow">
         <div className="ws-preview3d"><Agent3DPreview character={skinById(account.avatarSkinId)} size={96} /></div>
-        <div><div className="ws-skinname">{account.name || 'Founder'}</div><span className="ws-blurb">{account.provider === 'privy' ? 'Privy account' : 'Local guest account'}</span></div>
+        <div><div className="ws-skinname">{account.name || 'Founder'}</div><span className="ws-blurb">{isPrivy ? 'Privy account · synced' : 'Local guest account'}</span></div>
       </div>
       <label className="ws-field"><span>Name</span><input value={account.name} onChange={(e) => update({ name: e.target.value })} /></label>
       <label className="ws-field"><span>Handle</span><input value={account.handle} placeholder="@founder" onChange={(e) => update({ handle: e.target.value })} /></label>
       <label className="ws-field"><span>Email</span><input value={account.email} type="email" placeholder="you@dojo.app" onChange={(e) => update({ email: e.target.value })} /></label>
-      <button className="ws-btn danger" onClick={signOut}>Sign out</button>
+      {isPrivy && privyControls.ready && (
+        <p className="ws-blurb">Signed in with Privy. Manage linked wallets & socials from the Privy dialog.</p>
+      )}
+      <button
+        className="ws-btn danger"
+        onClick={() => { if (isPrivy && privyControls.logout) privyControls.logout(); else signOut() }}
+      >
+        Sign out
+      </button>
     </div>
   )
 }
 
 function BillingTab() {
-  const currency = useWorkshop((s) => s.account?.currency ?? 'XRP')
+  const currency = useWorkshop((s) => s.account?.currency ?? 'XRP') as CurrencyCode
   const setCurrency = useWorkshop((s) => s.setCurrency)
   const hasAccount = useWorkshop((s) => !!s.account)
+  const email = useWorkshop((s) => s.account?.email ?? '')
 
   return (
     <div className="ws-billing">
@@ -294,6 +315,8 @@ function BillingTab() {
       </div>
       {!hasAccount && <p className="ws-blurb">Sign in (Account tab) to set a currency.</p>}
 
+      <TopUp currency={currency} email={email} disabled={!hasAccount} />
+
       <h3 style={{ marginTop: 18 }}>Plans</h3>
       <div className="ws-plans">
         {[
@@ -306,6 +329,84 @@ function BillingTab() {
         ))}
       </div>
       <p className="ws-blurb">Pay with XRP, USD, EUR or JPY — fiat routes through a processor and settles in XRP via x402. Bring-your-own model key is supported.</p>
+    </div>
+  )
+}
+
+// Fiat top-up: pick an amount in the chosen currency, "Pay with card" posts to
+// the /api/checkout Edge processor and redirects to the hosted checkout. The
+// charge settles in XRP via x402 (webhook) — see api/checkout.ts. When the
+// processor isn't configured the button explains the activation step instead
+// of failing silently.
+const PRESETS: Record<CurrencyCode, number[]> = {
+  XRP: [10, 25, 50, 100],
+  USD: [10, 25, 50, 100],
+  EUR: [10, 25, 50, 100],
+  JPY: [1500, 3500, 7000, 14000],
+}
+
+function TopUp({ currency, email, disabled }: { currency: CurrencyCode; email: string; disabled: boolean }) {
+  const presets = PRESETS[currency] ?? PRESETS.XRP
+  const [amount, setAmount] = useState<number>(presets[1])
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState<string>('')
+  const xrp = toXrp(amount, currency)
+
+  async function pay() {
+    setBusy(true)
+    setMsg('')
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ amount, currency, email, kind: 'credits' }),
+      })
+      const j = await res.json().catch(() => ({}))
+      if (j?.ok && j.url) {
+        window.location.href = j.url as string // hosted checkout
+        return
+      }
+      if (j?.error === 'not_configured') {
+        setMsg('Card payments aren’t live yet on this deployment. Set STRIPE_SECRET_KEY to enable — you can still fund agents directly in XRP.')
+      } else {
+        setMsg('Could not start checkout. Please try again in a moment.')
+      }
+    } catch {
+      setMsg('Network error starting checkout.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // XRP is the settlement rail itself — a card processor can't charge in XRP, so
+  // for an XRP display currency we point users at direct on-ledger funding.
+  const isXrp = currency === 'XRP'
+
+  return (
+    <div className="ws-topup">
+      <h3 style={{ marginTop: 18 }}>Add credits</h3>
+      {isXrp ? (
+        <p className="ws-blurb">You're in XRP — fund agents directly from their card in the office. Switch to USD, EUR or JPY above to top up by card (it settles back into XRP via x402).</p>
+      ) : (
+        <>
+          <p className="ws-blurb">Top up your balance with a card. The charge settles in XRP via x402.</p>
+          <div className="ws-amounts">
+            {presets.map((v) => (
+              <button key={v} className={`ws-cur ${amount === v ? 'on' : ''}`} disabled={disabled} onClick={() => setAmount(v)}>
+                {formatFrom(toXrp(v, currency), currency)}
+              </button>
+            ))}
+          </div>
+          <div className="ws-payrow">
+            <span className="ws-blurb">≈ {xrp.toFixed(2)} XRP settled</span>
+            <button className="ws-btn primary" disabled={disabled || busy} onClick={pay}>
+              {busy ? 'Starting…' : `Pay ${formatFrom(xrp, currency)} with card`}
+            </button>
+          </div>
+          {disabled && <p className="ws-blurb">Sign in (Account tab) to add credits.</p>}
+          {msg && <p className="ws-blurb ws-paynote">{msg}</p>}
+        </>
+      )}
     </div>
   )
 }

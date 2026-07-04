@@ -608,6 +608,12 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .ws-price { font-family: var(--font-pixel); font-size: 15px; color: var(--violet); }
 .ws-price i { font-size: 9px; color: var(--muted); font-style: normal; }
 
+/* fiat top-up */
+.ws-topup { margin-top: 16px; }
+.ws-amounts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.ws-payrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ws-paynote { color: var(--violet); }
+
 /* 2D skin avatar */
 .skin-av { position: relative; border-radius: 10px; flex: none; }
 .sa-body { position: absolute; left: 16%; right: 16%; bottom: 4%; height: 44%; border-radius: 40% 40% 24% 24%; }
@@ -638,6 +644,15 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .aw-feed li.aw-success { border-color: #2fae6a; }
 .aw-idle { color: var(--muted) !important; }
 @media (max-width: 720px) { .aw { bottom: 76px; } }
+
+/* Standalone widget window (#widget route / Tauri): the ActivityWidget fills
+   the small OS window instead of floating over the office. */
+.widget-page { position: fixed; inset: 0; background: var(--bg); display: flex; }
+.widget-page .aw { position: static; inset: auto; width: 100%; height: 100%; border-radius: 0; border: none; box-shadow: none; display: flex; flex-direction: column; }
+.widget-page .aw.min { width: 100%; }
+.widget-page .aw-head { -webkit-app-region: drag; cursor: grab; }
+.widget-page .aw-btn { -webkit-app-region: no-drag; }
+.widget-page .aw-feed { flex: 1; max-height: none; }
 
 /* ===========================================================================
    Theme v2 — neutral white/black surfaces, monochrome buttons, purple→blue

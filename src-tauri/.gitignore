@@ -1,0 +1,4 @@
+# Rust / Tauri build artifacts
+/target
+# generated at build time by tauri-build
+/gen
