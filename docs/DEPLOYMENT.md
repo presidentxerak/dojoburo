@@ -18,11 +18,14 @@ core product. Two optional **Vercel Edge functions** add server‑side secrets:
 | Xaman (Mainnet signing) | browser (OAuth2 PKCE) | no | no |
 | Privy auth (email/wallet/social) | browser (code‑split) | no | no |
 | Support chatbot cascade (`api/chat.ts`) | Vercel Edge | yes (keys) | no |
-| Fiat top‑up (`api/checkout.ts`) | Vercel Edge | yes (Stripe key) | **yes, for settlement** |
+| Fiat top‑up (`api/checkout.ts`) | Vercel Edge | yes (Stripe key) | no |
+| **Settlement webhook** (`api/checkout-webhook.ts`) | Vercel Node | yes (Stripe + DB) | **yes** |
+| Settlement retry cron (`api/settle-pending.ts`) | Vercel Node (cron) | yes | yes |
 | Desktop app + widget | Tauri (Rust shell) | no | no |
 
 > The **only** part that requires a database is the fiat → XRP **settlement**
-> webhook (§5). Everything else is fully functional without one.
+> (§5) — the webhook is implemented; you just provision Postgres + apply
+> `db/schema.sql`. Everything else is fully functional without one.
 
 ---
 
@@ -95,8 +98,9 @@ tiers first. With none set the bot still works in free local‑FAQ mode.
 |----------|-----------|--------------|-----------------|
 | `DATABASE_URL` | for settlement | Postgres connection string for the credits ledger + idempotency. | Supabase / Neon / Vercel Postgres dashboard |
 | `SETTLEMENT_WALLET_SEED` | for auto‑XRP payout | Seed of the hot wallet that submits XRP to users after a paid top‑up. Fund small. | generate with `xrpl` `Wallet.generate()` |
-| `SETTLEMENT_NETWORK` | for settlement | `mainnet` \| `testnet`. | — |
-| `XRP_PRICE_URL` | optional | Live FX source for fiat→XRP conversion at settlement. | e.g. CoinGecko / your oracle |
+| `SETTLEMENT_NETWORK` | for on‑ledger payout | `mainnet` \| `testnet` \| `devnet`. | — |
+| `XRP_PRICE_URL` | recommended | Live FX for fiat→XRP at settlement (CoinGecko‑style `{ripple:{usd,eur,jpy}}`). Unset → indicative fallback. | https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd,eur,jpy |
+| `CRON_SECRET` | recommended | Bearer token guarding the `settle-pending` cron. | any random string |
 
 ---
 
@@ -114,130 +118,74 @@ XRP direct funding). Add keys to light up each optional brick.
 
 ---
 
-## 5. Remaining work: fiat → XRP settlement (webhook + SQL)
+## 5. Fiat → XRP settlement (IMPLEMENTED)
 
-`api/checkout.ts` already creates the Checkout Session and stamps the fiat
-amount/currency into `metadata`. To **close the loop** (charge card → credit the
-user → pay out XRP via x402), add a webhook and a small Postgres schema.
+The full loop is built — no code left to write, only config.
 
-### 5.1 SQL schema (PostgreSQL — Supabase / Neon / Vercel Postgres)
+**Flow:** `api/checkout.ts` (Edge) creates the Stripe Checkout Session and stamps
+`fiat_amount`, `fiat_currency`, and optional `privy_did` / `xrpl_address` into
+`metadata` → `api/checkout-webhook.ts` (Node) verifies the signature, idempotently
+credits the user's XRP balance in `credit_ledger`, and — when a hot wallet is
+configured — delivers the XRP on-ledger to the user's treasury wallet with an
+x402 memo → `api/settle-pending.ts` (cron, every 15 min) retries any pending
+on-ledger deliveries.
 
-```sql
--- =====================================================================
--- DojoBuro settlement schema. Run once against DATABASE_URL.
--- Design goals: idempotent webhook processing, an auditable credit
--- ledger, and a record of each on-ledger XRP settlement.
--- =====================================================================
+**Files:**
 
-create extension if not exists "pgcrypto";  -- for gen_random_uuid()
+| File | Role |
+|------|------|
+| `db/schema.sql` | Postgres schema (apply once) |
+| `api/_lib/stripe.ts` | Web-Crypto Stripe signature verification (no SDK) |
+| `api/_lib/db.ts` | pooled `pg` client |
+| `api/_lib/fx.ts` | fiat→XRP via `XRP_PRICE_URL` (+ fallback) |
+| `api/_lib/settle.ts` | xrpl.js on-ledger payout with x402 memo |
+| `api/checkout-webhook.ts` | the webhook (verify → credit → settle) |
+| `api/settle-pending.ts` | cron retry for pending settlements |
 
--- Users. Keyed by Privy DID when Privy is on; guests never hit the DB.
-create table if not exists accounts (
-  id           uuid primary key default gen_random_uuid(),
-  privy_did    text unique,                       -- Privy user id (did:privy:...)
-  email        text,
-  xrpl_address text,                              -- where settled XRP is paid
-  currency     text not null default 'USD',
-  created_at   timestamptz not null default now()
-);
+### 5.1 Schema
 
--- Every Checkout Session we create (idempotency + amount mapping).
-create table if not exists checkout_sessions (
-  id            text primary key,                 -- Stripe cs_... id
-  account_id    uuid references accounts(id),
-  fiat_amount   numeric(12,2) not null,           -- major units (e.g. 25.00)
-  fiat_currency text not null,                    -- USD / EUR / JPY
-  xrp_expected  numeric(20,6),                    -- indicative at creation
-  status        text not null default 'created',  -- created|paid|settled|failed
-  created_at    timestamptz not null default now()
-);
-
--- Stripe events we've already handled — the idempotency guard.
-create table if not exists webhook_events (
-  id           text primary key,                  -- Stripe evt_... id
-  type         text not null,
-  processed_at timestamptz not null default now()
-);
-
--- Double-entry-ish credit movements. Positive = grant, negative = spend.
-create table if not exists credit_ledger (
-  id          bigint generated always as identity primary key,
-  account_id  uuid not null references accounts(id),
-  delta_xrp   numeric(20,6) not null,             -- +topup / -task spend
-  reason      text not null,                      -- 'topup' | 'skill:run' | ...
-  ref         text,                               -- cs_... / tx hash / invoice
-  created_at  timestamptz not null default now()
-);
-
--- The on-ledger XRP payout for a paid top-up (the x402 settlement).
-create table if not exists settlements (
-  id           uuid primary key default gen_random_uuid(),
-  session_id   text not null references checkout_sessions(id),
-  account_id   uuid not null references accounts(id),
-  xrp_amount   numeric(20,6) not null,
-  tx_hash      text,                              -- XRPL Payment hash
-  tx_result    text,                              -- tesSUCCESS / ...
-  status       text not null default 'pending',   -- pending|submitted|validated|failed
-  created_at   timestamptz not null default now(),
-  unique (session_id)                             -- one settlement per session
-);
-
--- Live balance per account (sum of the ledger).
-create or replace view account_balances as
-  select account_id, coalesce(sum(delta_xrp), 0) as balance_xrp
-  from credit_ledger group by account_id;
-
-create index if not exists idx_ledger_account on credit_ledger(account_id);
-create index if not exists idx_sessions_account on checkout_sessions(account_id);
+```bash
+psql "$DATABASE_URL" -f db/schema.sql
 ```
 
-### 5.2 The webhook (`api/checkout-webhook.ts`, Vercel Edge)
+Tables: `accounts`, `checkout_sessions`, `webhook_events` (idempotency guard),
+`credit_ledger` (balance = `sum(delta_xrp)`, exposed via the `account_balances`
+view), `settlements` (one per session, `unique(session_id)`). See the file for
+the full DDL.
 
-Sketch — verify signature, guard idempotency, credit + settle:
+### 5.2 Idempotency & safety
 
-```ts
-export const config = { runtime: 'edge' }
+- `webhook_events(id)` unique → the ledger credit is applied **exactly once**,
+  even on Stripe retries.
+- `settlements(session_id)` unique → at most one on-ledger payout per session;
+  failures stay `pending` and are drained by the cron.
+- The credit is committed in a DB transaction **before** the network payout, so a
+  failed XRPL submit never loses the user's balance.
+- Signature check rejects tampered bodies, wrong secret, and timestamps older
+  than 5 min (replay guard). Verified by `scripts/test-webhook-lib.mjs` (10/10).
 
-export default async function handler(req: Request): Promise<Response> {
-  const sig = req.headers.get('stripe-signature') || ''
-  const raw = await req.text()
+### 5.3 Activate
 
-  // 1. Verify with STRIPE_WEBHOOK_SECRET (HMAC-SHA256 over `${t}.${raw}`).
-  //    Use stripe's constructEventAsync, or verify manually with Web Crypto.
-  const evt = await verifyStripeSignature(raw, sig, ENV.STRIPE_WEBHOOK_SECRET)
-  if (!evt) return new Response('bad sig', { status: 400 })
+1. Provision Postgres (Supabase / Neon / Vercel Postgres) → set `DATABASE_URL`.
+2. `psql "$DATABASE_URL" -f db/schema.sql`.
+3. Set `STRIPE_SECRET_KEY`, `CHECKOUT_SITE_URL`, `XRP_PRICE_URL`.
+4. **Stripe → Developers → Webhooks →** add endpoint
+   `https://<your-site>/api/checkout-webhook`, event
+   `checkout.session.completed` → copy the signing secret to
+   `STRIPE_WEBHOOK_SECRET`.
+5. (Optional on-ledger delivery) set `SETTLEMENT_WALLET_SEED` (funded, small) +
+   `SETTLEMENT_NETWORK`; set `CRON_SECRET` for the retry cron.
 
-  // 2. Idempotency: INSERT ... ON CONFLICT DO NOTHING into webhook_events.
-  if (await alreadyProcessed(evt.id)) return new Response('ok', { status: 200 })
+### 5.4 Notes
 
-  if (evt.type === 'checkout.session.completed') {
-    const s = evt.data.object
-    const fiat = Number(s.metadata.fiat_amount)
-    const cur = s.metadata.fiat_currency
-    const xrp = fiat / (await xrpPerUnit(cur))          // live FX
-
-    // 3. Credit the ledger (+xrp, reason 'topup', ref session id).
-    // 4. Submit an XRP Payment (SETTLEMENT_WALLET_SEED → account.xrpl_address)
-    //    with an x402 memo, record tx_hash/result in settlements.
-    await creditAndSettle(s.id, fiat, cur, xrp)
-  }
-  return new Response('ok', { status: 200 })
-}
-```
-
-Register the endpoint in **Stripe → Webhooks** for the
-`checkout.session.completed` event and copy the signing secret into
-`STRIPE_WEBHOOK_SECRET`.
-
-### 5.3 Notes
-
-- **FX rate:** convert with a live oracle (`XRP_PRICE_URL`), never the indicative
-  `perXrp` rates in `src/data/currency.ts` (those are display‑only).
-- **Rate limiting:** `api/chat.ts` / `api/checkout.ts` limit in‑memory *per Edge
-  instance*. For a hard global cap, back `allow()` with Upstash Redis / Vercel KV
-  (`UPSTASH_REDIS_REST_URL` + `_TOKEN`).
-- **Hot wallet:** `SETTLEMENT_WALLET_SEED` is a hot wallet — fund it small and
-  rotate. Consider a signing service or multisig for volume.
+- **FX:** always set `XRP_PRICE_URL`; the `src/data/currency.ts` rates are
+  display-only fallbacks.
+- **Rate limiting:** the Edge endpoints limit in-memory *per instance*. For a hard
+  global cap, back `allow()` with Upstash Redis / Vercel KV.
+- **Hot wallet:** `SETTLEMENT_WALLET_SEED` is hot — fund small, rotate, consider
+  multisig/a signing service at volume.
+- **Cron plan:** Vercel Cron every 15 min needs a Pro plan; on Hobby lower the
+  frequency (the webhook already settles inline — the cron is only a safety net).
 
 ---
 
@@ -268,9 +216,14 @@ tray, close‑to‑hide. See `src-tauri/README.md`.
 - [ ] `VITE_XUMM_API_KEY` set → Mainnet signing
 - [ ] ≥1 LLM key set (or accept local‑FAQ mode)
 - [ ] `STRIPE_SECRET_KEY` + `CHECKOUT_SITE_URL` + `CHECKOUT_ALLOWED_ORIGIN`
-- [ ] Postgres provisioned, §5.1 schema applied, `DATABASE_URL` set
-- [ ] `api/checkout-webhook.ts` deployed, Stripe webhook registered, `STRIPE_WEBHOOK_SECRET` set
-- [ ] `SETTLEMENT_WALLET_SEED` (funded, small) + `SETTLEMENT_NETWORK=mainnet`
+- [ ] Postgres provisioned, `db/schema.sql` applied, `DATABASE_URL` set
+- [ ] Stripe webhook → `/api/checkout-webhook` (`checkout.session.completed`), `STRIPE_WEBHOOK_SECRET` set
+- [ ] `XRP_PRICE_URL` set (live FX)
+- [ ] (optional on‑ledger delivery) `SETTLEMENT_WALLET_SEED` (funded, small) + `SETTLEMENT_NETWORK` + `CRON_SECRET`
 - [ ] Origin locks set on both Edge endpoints
 - [ ] (optional) Upstash/Vercel KV for durable rate limits
 - [ ] (optional) Tauri icons + signed desktop build
+
+> **CSP note:** `vercel.json` already whitelists Privy, WalletConnect, Cloudflare
+> Turnstile and Stripe domains. If you enable extra Privy login connectors, their
+> RPC/frame hosts may need adding to `connect-src` / `frame-src`.

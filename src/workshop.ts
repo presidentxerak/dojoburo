@@ -38,6 +38,9 @@ export interface Account {
   provider: 'guest' | 'privy'
   currency: CurrencyCode
   avatarSkinId: string
+  /** Privy user id (did:privy:…) when signed in with Privy — used to map
+   *  server-side settlements to this account. */
+  privyDid?: string
 }
 
 interface WorkshopState {
@@ -49,7 +52,7 @@ interface WorkshopState {
 
   save: () => void
   signInGuest: (name?: string) => void
-  signInPrivy: (p: { name?: string; email?: string; handle?: string }) => void
+  signInPrivy: (p: { name?: string; email?: string; handle?: string; did?: string }) => void
   signOut: () => void
   updateAccount: (patch: Partial<Account>) => void
   setCurrency: (c: CurrencyCode) => void
@@ -156,6 +159,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
           provider: 'privy',
           currency: s.account?.currency ?? 'XRP',
           avatarSkinId: s.account?.avatarSkinId ?? SKINS[0].id,
+          privyDid: p.did || s.account?.privyDid,
         },
       }))
       persist()

@@ -65,6 +65,9 @@ export default async function handler(req: Request): Promise<Response> {
   const amount = Number(body?.amount)
   const email = typeof body?.email === 'string' ? body.email.slice(0, 200) : ''
   const kind = typeof body?.kind === 'string' ? body.kind.slice(0, 40) : 'credits'
+  // optional account-mapping hints carried through to the settlement webhook
+  const privyDid = typeof body?.privyDid === 'string' ? body.privyDid.slice(0, 120) : ''
+  const xrplAddress = typeof body?.xrplAddress === 'string' && /^r[1-9A-HJ-NP-Za-km-z]{24,35}$/.test(body.xrplAddress) ? body.xrplAddress : ''
 
   // XRP is settled directly on-ledger, not through the card processor.
   if (currency === 'XRP') return json({ ok: false, error: 'use_xrp_wallet' }, 200, req)
@@ -97,6 +100,8 @@ export default async function handler(req: Request): Promise<Response> {
   form.set('metadata[settle_asset]', 'XRP')
   form.set('metadata[fiat_amount]', String(amount))
   form.set('metadata[fiat_currency]', currency)
+  if (privyDid) form.set('metadata[privy_did]', privyDid)
+  if (xrplAddress) form.set('metadata[xrpl_address]', xrplAddress)
 
   const ctrl = new AbortController()
   const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS)

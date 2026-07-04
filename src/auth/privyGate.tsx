@@ -60,7 +60,7 @@ function Bridge({ children }: { children: ReactNode }) {
           handle: ws.account.handle || handle,
         })
       } else {
-        ws.signInPrivy({ name, email, handle })
+        ws.signInPrivy({ name, email, handle, did: user.id })
       }
     } else if (!authenticated && ws.account?.provider === 'privy') {
       // Privy session ended elsewhere → drop the mirrored account

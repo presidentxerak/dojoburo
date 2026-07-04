@@ -5,6 +5,8 @@ import { SKINS, SKIN_THEMES, skinById } from '../../data/skins'
 import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
 import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/currency'
 import { privyConfigured, privyControls } from '../../auth/controls'
+import { getStoredWallet } from '../../xrpl/wallet'
+import { loadNetworkId } from '../../xrpl/network'
 import { SkinAvatar } from './SkinAvatar'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 
@@ -301,6 +303,7 @@ function BillingTab() {
   const setCurrency = useWorkshop((s) => s.setCurrency)
   const hasAccount = useWorkshop((s) => !!s.account)
   const email = useWorkshop((s) => s.account?.email ?? '')
+  const privyDid = useWorkshop((s) => s.account?.privyDid ?? '')
 
   return (
     <div className="ws-billing">
@@ -315,7 +318,7 @@ function BillingTab() {
       </div>
       {!hasAccount && <p className="ws-blurb">Sign in (Account tab) to set a currency.</p>}
 
-      <TopUp currency={currency} email={email} disabled={!hasAccount} />
+      <TopUp currency={currency} email={email} privyDid={privyDid} disabled={!hasAccount} />
 
       <h3 style={{ marginTop: 18 }}>Plans</h3>
       <div className="ws-plans">
@@ -345,7 +348,7 @@ const PRESETS: Record<CurrencyCode, number[]> = {
   JPY: [1500, 3500, 7000, 14000],
 }
 
-function TopUp({ currency, email, disabled }: { currency: CurrencyCode; email: string; disabled: boolean }) {
+function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode; email: string; privyDid: string; disabled: boolean }) {
   const presets = PRESETS[currency] ?? PRESETS.XRP
   const [amount, setAmount] = useState<number>(presets[1])
   const [busy, setBusy] = useState(false)
@@ -356,10 +359,12 @@ function TopUp({ currency, email, disabled }: { currency: CurrencyCode; email: s
     setBusy(true)
     setMsg('')
     try {
+      // deliver the settled XRP to the user's own treasury wallet when they have one
+      const treasury = getStoredWallet(loadNetworkId(), 'treasury')
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ amount, currency, email, kind: 'credits' }),
+        body: JSON.stringify({ amount, currency, email, kind: 'credits', privyDid, xrplAddress: treasury?.address }),
       })
       const j = await res.json().catch(() => ({}))
       if (j?.ok && j.url) {
