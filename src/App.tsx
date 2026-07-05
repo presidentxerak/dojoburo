@@ -22,8 +22,10 @@ export default function App() {
   const hasWallets = useDojo((s) => Object.keys(s.wallets).length > 0)
   const muted = useDojo((s) => s.muted)
   const selected = useDojo((s) => s.selectedAgent)
+  const selectAgent = useDojo((s) => s.selectAgent)
   // start collapsed on phones so the dojo is fully visible; open on desktop
   const [hudOpen, setHudOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth > 720 : true))
+  const closeSheet = () => { setHudOpen(false); selectAgent(null) }
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -66,7 +68,7 @@ export default function App() {
   }, [fireEvent])
 
   return (
-    <div className="app">
+    <div className={`app${hudOpen ? ' sheet-open' : ''}`}>
       <Defs />
       {/* real-3D fullscreen scene */}
       <div className="scene-bg">
@@ -86,8 +88,11 @@ export default function App() {
         </button>
         <div className="hud-body">
           <aside className="hud-side">
-            {/* mobile: grab-handle that collapses the bottom sheet */}
-            <button className="hud-grip" onClick={() => setHudOpen(false)} aria-label="Hide panel"><span /></button>
+            {/* mobile: sheet header — grab handle + explicit close button */}
+            <div className="hud-sheet-head">
+              <button className="hud-grip" onClick={closeSheet} aria-label="Collapse panel"><span /></button>
+              <button className="hud-close" onClick={closeSheet} aria-label="Close panel">✕</button>
+            </div>
             <AgentPanel />
             <TreasuryPanel />
             <XamanPanel />

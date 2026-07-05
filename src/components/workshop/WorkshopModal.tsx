@@ -83,7 +83,7 @@ function StudioTab() {
         {/* grid editor */}
         <div className="ws-gridwrap">
           <p className="ws-hint">Tap an agent, then tap a cell to move it. Tap a name to edit.</p>
-          <div className="ws-grid" style={{ gridTemplateColumns: `repeat(${GRID.cols}, 1fr)` }}>
+          <div className="ws-grid" style={{ gridTemplateColumns: `repeat(${GRID.cols}, minmax(0, 1fr))` }}>
             {Array.from({ length: GRID.rows * GRID.cols }).map((_, i) => {
               const x = i % GRID.cols
               const y = Math.floor(i / GRID.cols)

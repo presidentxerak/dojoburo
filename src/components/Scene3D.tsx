@@ -12,32 +12,52 @@ import { Character3D } from './three/Character3D'
 import { Hero3D } from './three/Hero3D'
 import { Lazy3D } from './three/Lazy3D'
 
-/** Camera rig: gentle default framing, biased LEFT so the room isn't hidden by
- *  the right-hand UI; pans to focus the selected agent. */
+/** Camera rig: gentle default framing. On desktop it's biased LEFT so the room
+ *  isn't hidden by the right-hand panel; on portrait/phone it's centred, widened
+ *  (higher fov) and pulled back so the whole room fits without clipping. */
 function CameraRig() {
-  const { camera } = useThree()
+  const { camera, size } = useThree()
   const selected = useDojo((s) => s.selectedAgent)
   const target = useRef(new THREE.Vector3(2.2, 1.2, 1))
   const camPos = useRef(new THREE.Vector3(2.2, 8.4, 14))
+  const portrait = size.height > size.width
+
+  // widen the field of view on narrow/portrait screens so the room fits
+  useEffect(() => {
+    const cam = camera as THREE.PerspectiveCamera
+    const fov = portrait ? 66 : 42
+    if (cam.fov !== fov) {
+      cam.fov = fov
+      cam.updateProjectionMatrix()
+    }
+  }, [camera, portrait])
 
   useFrame((_, dt) => {
-    // default: whole room framed, biased left + zoomed out so nothing sits
-    // under the right-hand panel
+    // default (desktop): whole room framed, biased left, zoomed out
     let tx = 3.7
     let tz = 1
     let px = 3.7
     let pz = 18.5
     let py = 10.4
     let ty = 1.2
+    if (portrait) {
+      // centred + pulled back so agents aren't clipped at the sides
+      tx = 0
+      tz = 1
+      ty = 1.6
+      px = 0
+      pz = 20
+      py = 12
+    }
     const sp = selected ? agentWorldPos(selected) : undefined
     if (sp) {
       const [ax, az] = sp
-      tx = ax + 1.4
+      tx = portrait ? ax : ax + 1.4
       tz = az
       ty = 2.3 // lift the look-at so the brain hovering high above stays framed
-      px = ax + 1.4
-      pz = az + 10.5
-      py = 7.4
+      px = portrait ? ax : ax + 1.4
+      pz = az + (portrait ? 8.5 : 10.5)
+      py = portrait ? 6.4 : 7.4
     }
     target.current.lerp(new THREE.Vector3(tx, ty, tz), Math.min(1, dt * 2.2))
     camPos.current.lerp(new THREE.Vector3(px, py, pz), Math.min(1, dt * 2.2))

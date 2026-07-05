@@ -52,10 +52,10 @@ export function TopBar() {
         <button className="btn tiny" onClick={() => void refresh()} disabled={loading} title="Refresh balances">
           <Icon name="refresh" /> {loading ? '…' : 'Balances'}
         </button>
-        <button className={`btn tiny icon-only ${musicOn ? 'on' : ''}`} onClick={() => toggleMusic()} aria-label="Ambient music" title="Ambient music">
+        <button className={`btn tiny icon-only tb-audio ${musicOn ? 'on' : ''}`} onClick={() => toggleMusic()} aria-label="Ambient music" title="Ambient music">
           <Icon name="music" />
         </button>
-        <button className="btn tiny icon-only" onClick={() => toggleMute()} aria-label="Sound" title="Sound">
+        <button className="btn tiny icon-only tb-audio" onClick={() => toggleMute()} aria-label="Sound" title="Sound">
           <Icon name={muted ? 'mute' : 'sound'} />
         </button>
         <button className="btn tiny icon-only" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Toggle theme" title="Theme">
