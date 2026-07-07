@@ -32,6 +32,8 @@ export function AgentPanel() {
   const disconnect = useWork((s) => s.disconnect)
   const runningTask = useWork((s) => s.runningTask)
   const runError = useWork((s) => s.runError)
+  const byok = useWork((s) => s.byok)
+  const openStudio = useWork((s) => s.openStudio)
   const [brief, setBrief] = useState('')
 
   useEffect(() => {
@@ -95,6 +97,11 @@ export function AgentPanel() {
       {workTasks.length > 0 && (
         <section className="work-block">
           <h3 className="skills-title">Deliver real work <span className="tag tag-live">Claude</span></h3>
+          <p className="work-intro">
+            {byok.connected
+              ? <>🔑 Runs on <strong>your</strong> Claude key — billed to you.</>
+              : <>Free for text · <button className="linklike" onClick={() => openStudio('billing')}>add your Claude key</button> for the design system & tool actions.</>}
+          </p>
           <input
             className="work-brief"
             placeholder="Optional brief (what should it be about?)"
@@ -124,10 +131,24 @@ export function AgentPanel() {
               )
             })}
           </ul>
-          {runError === 'not_configured' && (
-            <p className="work-hint">Set <code>ANTHROPIC_API_KEY</code> in the deployment to enable real deliverables.</p>
+          {runError?.code === 'needs_key' && (
+            <p className="work-hint">
+              This deliverable {runError.reason === 'tool' ? 'acts inside a connected tool' : 'is the design system'} — it runs on Claude.{' '}
+              <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (billed to your account).
+            </p>
           )}
-          {runError && runError !== 'not_configured' && <p className="work-hint err">Run failed: {runError}</p>}
+          {runError?.code === 'quota' && (
+            <p className="work-hint">
+              Free tier used up for today.{' '}
+              <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> to keep going.
+            </p>
+          )}
+          {runError?.code === 'not_configured' && (
+            <p className="work-hint">No LLM is configured on this deployment yet (free providers or a Claude key).</p>
+          )}
+          {runError && !['needs_key', 'quota', 'not_configured'].includes(runError.code) && (
+            <p className="work-hint err">Run failed: {runError.detail || runError.code}</p>
+          )}
         </section>
       )}
 
@@ -135,6 +156,7 @@ export function AgentPanel() {
       {connectors.length > 0 && (
         <section className="conn-block">
           <h3 className="skills-title">Connect tools</h3>
+          <p className="work-intro">Link a tool once (secure OAuth) — then this agent works <em>inside</em> it: creates the page, opens the PR, drafts the mail.</p>
           <ul className="conn-list">
             {connectors.map((c) => {
               const st = tools[c.id]

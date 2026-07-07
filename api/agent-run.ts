@@ -22,15 +22,22 @@ import { findAccountId } from './_lib/accounts'
 import { open, vaultConfigured } from './_lib/vault'
 import { connectorAvailable } from './_lib/connectors'
 import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle'
+import { cascadeComplete, freeCascadeConfigured } from './_lib/llm'
 
 export const config = { maxDuration: 60 }
 
 const ENV = process.env as Record<string, string | undefined>
 const ALLOWED_ORIGIN = ENV.CHECKOUT_ALLOWED_ORIGIN || ENV.SUPPORT_ALLOWED_ORIGIN || ''
-const MODEL = ENV.ANTHROPIC_WORK_MODEL || 'claude-opus-4-8'
+const MODEL = ENV.ANTHROPIC_WORK_MODEL || 'claude-sonnet-5'          // default text/tool model
+const DESIGN_MODEL = ENV.ANTHROPIC_WORK_MODEL_DESIGN || 'claude-opus-4-8' // Claude Design flagship
 const MAX_TOKENS = int(ENV.ANTHROPIC_WORK_MAX_TOKENS, 6000)
 const MCP_BETA = ENV.ANTHROPIC_MCP_BETA || 'mcp-client-2025-04-04'
 const THINKING = ENV.ANTHROPIC_WORK_THINKING || '' // 'adaptive' to enable extended thinking
+// Billing policy: by default the operator's Claude key is NOT spent on user runs
+// (BYOK model — the user brings their own key). Set WORK_OPERATOR_CLAUDE=true to
+// offer Claude on the operator's dime (e.g. a hackathon demo).
+const OPERATOR_CLAUDE = ENV.WORK_OPERATOR_CLAUDE === 'true'
+const FREE_DAILY = int(ENV.WORK_FREE_DAILY, 10) // free-cascade runs / account / day on operator keys
 const RATE_MAX = int(ENV.WORK_RATE_MAX, 20)
 const RATE_WINDOW_MS = int(ENV.WORK_RATE_WINDOW_MS, 10 * 60 * 1000)
 const hits = new Map<string, number[]>()
@@ -48,8 +55,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const ip = (header(req, 'x-forwarded-for') || '').split(',')[0].trim() || 'anon'
   if (!allow(ip)) return send(res, 429, { ok: false, error: 'rate' })
 
-  if (!ENV.ANTHROPIC_API_KEY) return send(res, 200, { ok: false, error: 'not_configured' })
-
   let body: any
   try {
     body = JSON.parse(await readBody(req))
@@ -64,22 +69,53 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const brief = String(body?.brief || '').slice(0, 800)
   const startup = String(body?.startup || '').slice(0, 200)
   const net = String(body?.net || 'testnet')
+  const ref = { privy: body?.privy as string | undefined, client: body?.client as string | undefined }
   const requested: string[] = Array.isArray(body?.connectors) ? body.connectors.map((s: any) => String(s)).slice(0, 8) : []
 
   // ---- resolve connected tools → MCP servers (best-effort) ----------------
-  const mcpServers = await resolveMcpServers(task.usesConnectors.filter((c) => requested.includes(c)), {
-    privy: body?.privy, client: body?.client,
-  })
+  const mcpServers = await resolveMcpServers(task.usesConnectors.filter((c) => requested.includes(c)), ref)
 
-  // ---- run Claude ---------------------------------------------------------
-  let text: string
-  let modelUsed = MODEL
+  // ---- billing policy: who pays for this run? -----------------------------
+  // BYOK (the user's own Claude key) → billed to the user, operator pays $0.
+  // Otherwise: text tasks run on the operator's FREE providers (capped per user);
+  // the design system and any tool-acting run need Claude, so they require a BYOK
+  // key (or the operator opting in via WORK_OPERATOR_CLAUDE).
+  const byokKey = await resolveByokKey(ref)
+  const wantsClaude = task.format === 'design-system' || mcpServers.length > 0
+  const system = task.system
+  const prompt = task.user({ agentName, brief, startup })
+
+  let text = ''
+  let modelUsed = ''
   let usage: any = null
+  let engine: 'byok' | 'operator' | 'free' = 'free'
+
   try {
-    const out = await callClaude(task.system, task.user({ agentName, brief, startup }), mcpServers)
-    text = out.text
-    modelUsed = out.model
-    usage = out.usage
+    if (wantsClaude) {
+      const key = byokKey || (OPERATOR_CLAUDE ? ENV.ANTHROPIC_API_KEY : undefined)
+      if (!key) return send(res, 200, { ok: false, error: 'needs_key', reason: mcpServers.length ? 'tool' : 'design' })
+      const model = task.format === 'design-system' ? DESIGN_MODEL : MODEL
+      const out = await callClaude(key, model, system, prompt, mcpServers)
+      text = out.text; modelUsed = out.model; usage = out.usage
+      engine = byokKey ? 'byok' : 'operator'
+    } else if (byokKey) {
+      const out = await callClaude(byokKey, MODEL, system, prompt, [])
+      text = out.text; modelUsed = out.model; usage = out.usage
+      engine = 'byok'
+    } else {
+      // free cascade on the operator's free tiers, metered per account
+      const gate = await checkFreeTier(ref)
+      if (!gate.allowed) return send(res, 200, { ok: false, error: 'quota', remaining: 0 })
+      if (freeCascadeConfigured()) {
+        const out = await cascadeComplete(system, prompt, MAX_TOKENS)
+        if (out) { text = out.text; modelUsed = out.model; engine = 'free'; await bumpFreeTier(ref) }
+      }
+      if (!text && OPERATOR_CLAUDE && ENV.ANTHROPIC_API_KEY) {
+        const out = await callClaude(ENV.ANTHROPIC_API_KEY, MODEL, system, prompt, [])
+        text = out.text; modelUsed = out.model; usage = out.usage; engine = 'operator'
+      }
+      if (!text) return send(res, 200, { ok: false, error: 'not_configured' })
+    }
   } catch (e: any) {
     return send(res, 200, { ok: false, error: 'run_failed', detail: String(e?.message || e).slice(0, 160) })
   }
@@ -102,6 +138,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     ok: true,
     deliverable,
     tools: mcpServers.map((m) => m.name),
+    engine,
     usage,
     settlement,
     priceXrp: task.priceXrp,
@@ -109,12 +146,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 }
 
 // ---- Claude call ----------------------------------------------------------
-async function callClaude(system: string, user: string, mcpServers: McpServer[]): Promise<{ text: string; model: string; usage: any }> {
+async function callClaude(apiKey: string, model: string, system: string, user: string, mcpServers: McpServer[]): Promise<{ text: string; model: string; usage: any }> {
   const betas: string[] = []
   if (mcpServers.length) betas.push(MCP_BETA)
 
   const bodyObj: any = {
-    model: MODEL,
+    model,
     max_tokens: MAX_TOKENS,
     system,
     messages: [{ role: 'user', content: user }],
@@ -126,7 +163,7 @@ async function callClaude(system: string, user: string, mcpServers: McpServer[])
     method: 'POST',
     headers: {
       'content-type': 'application/json',
-      'x-api-key': ENV.ANTHROPIC_API_KEY!,
+      'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
       ...(betas.length ? { 'anthropic-beta': betas.join(',') } : {}),
     },
@@ -139,7 +176,52 @@ async function callClaude(system: string, user: string, mcpServers: McpServer[])
     .map((b: any) => b.text)
     .join('\n')
     .trim()
-  return { text, model: j?.model || MODEL, usage: j?.usage || null }
+  return { text, model: j?.model || model, usage: j?.usage || null }
+}
+
+// ---- BYOK + free-tier metering -------------------------------------------
+async function resolveByokKey(ref: { privy?: string; client?: string }): Promise<string | undefined> {
+  if (!dbConfigured() || !vaultConfigured()) return undefined
+  try {
+    const pool = getPool()
+    const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
+    if (!accountId) return undefined
+    const r = await pool.query(`select access_token from connections where account_id = $1 and connector_id = 'anthropic' and status = 'connected'`, [accountId])
+    if (!r.rows[0]) return undefined
+    return open(r.rows[0].access_token) || undefined
+  } catch {
+    return undefined
+  }
+}
+
+async function checkFreeTier(ref: { privy?: string; client?: string }): Promise<{ allowed: boolean }> {
+  if (!dbConfigured()) return { allowed: true } // no DB → rely on the in-memory IP rate limit
+  try {
+    const pool = getPool()
+    const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
+    if (!accountId) return { allowed: true }
+    const r = await pool.query(`select free_runs from work_usage where account_id = $1 and day = current_date`, [accountId])
+    const used = r.rows[0]?.free_runs ?? 0
+    return { allowed: used < FREE_DAILY }
+  } catch {
+    return { allowed: true }
+  }
+}
+
+async function bumpFreeTier(ref: { privy?: string; client?: string }): Promise<void> {
+  if (!dbConfigured()) return
+  try {
+    const pool = getPool()
+    const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
+    if (!accountId) return
+    await pool.query(
+      `insert into work_usage (account_id, day, free_runs) values ($1, current_date, 1)
+       on conflict (account_id, day) do update set free_runs = work_usage.free_runs + 1`,
+      [accountId],
+    )
+  } catch {
+    /* metering is best-effort */
+  }
 }
 
 // ---- MCP server resolution ------------------------------------------------

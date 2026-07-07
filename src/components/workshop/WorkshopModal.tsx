@@ -8,13 +8,15 @@ import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/
 import { privyConfigured, privyControls } from '../../auth/controls'
 import { getStoredWallet } from '../../xrpl/wallet'
 import { loadNetworkId } from '../../xrpl/network'
+import { useWork } from '../../agents/workStore'
 import { SkinAvatar } from './SkinAvatar'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 
 type Tab = 'studio' | 'account' | 'billing'
 
 export function WorkshopModal({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<Tab>('studio')
+  const intent = useWork((s) => s.studioIntent)
+  const [tab, setTab] = useState<Tab>(intent ?? 'studio')
   return (
     <div className="ws-overlay" onClick={onClose}>
       <div className="ws-modal" onClick={(e) => e.stopPropagation()}>
@@ -356,6 +358,8 @@ function BillingTab() {
 
   return (
     <div className="ws-billing">
+      <ClaudeKeyPanel hasAccount={hasAccount} />
+
       <h3>Currency</h3>
       <p className="ws-blurb">Prices show in your currency. XRP is the settlement rail via x402 — fiat is converted to XRP at checkout.</p>
       <div className="ws-currencies">
@@ -380,7 +384,69 @@ function BillingTab() {
           <div key={pl.n} className="ws-plan"><strong>{pl.n}</strong><span className="ws-price">{pl.p}<i>/mo</i></span><span className="ws-blurb">{pl.d}</span></div>
         ))}
       </div>
-      <p className="ws-blurb">Pay with XRP, USD, EUR or JPY — fiat routes through a processor and settles in XRP via x402. Bring-your-own model key is supported.</p>
+      <p className="ws-blurb">Pay with XRP, USD, EUR or JPY — fiat routes through a processor and settles in XRP via x402.</p>
+    </div>
+  )
+}
+
+// Bring-your-own Claude key. The key is sealed server-side (AES-256-GCM) and used
+// only to run THIS user's deliverables — so their real work is billed to their
+// own Anthropic account, not the operator's. Text tasks work without a key on a
+// capped free tier; the design system and tool-acting need a key.
+function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
+  const byok = useWork((s) => s.byok)
+  const backend = useWork((s) => s.backend)
+  const loadedOnce = useWork((s) => s.loadedOnce)
+  const loadTools = useWork((s) => s.loadTools)
+  const saveKey = useWork((s) => s.saveKey)
+  const clearKey = useWork((s) => s.clearKey)
+  const [key, setKey] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState('')
+
+  useEffect(() => { if (!loadedOnce) void loadTools() }, [loadedOnce, loadTools])
+
+  async function save() {
+    setBusy(true); setMsg('')
+    const r = await saveKey(key.trim())
+    setBusy(false)
+    if (r.ok) { setKey(''); setMsg('') }
+    else setMsg(r.error === 'bad_key' ? 'That doesn’t look like a Claude key (starts with sk-ant-…).' : r.error === 'no_backend' ? 'Connections backend not configured on this deployment.' : 'Could not save the key.')
+  }
+
+  return (
+    <div className="ws-keypanel">
+      <h3>Your Claude key <span className="ws-tag-byok">you pay only for what you use</span></h3>
+      <p className="ws-blurb">
+        Agents produce real deliverables with Claude. Add <strong>your own</strong> Anthropic key and every run is billed to
+        <strong> your</strong> account — you pay only for your choices and connected tools. Without a key, text deliverables still
+        run on a free tier; the <strong>Design system</strong> and acting inside your tools (Notion, GitHub…) need a key.
+      </p>
+
+      {byok.connected ? (
+        <div className="ws-keyrow on">
+          <span className="ws-keyhint">🔑 {byok.hint || 'Key saved'} · billed to your Anthropic account</span>
+          <button className="ws-btn danger" onClick={() => void clearKey()}>Remove</button>
+        </div>
+      ) : (
+        <>
+          <div className="ws-keyrow">
+            <input
+              type="password" value={key} placeholder="sk-ant-…" autoComplete="off" spellCheck={false}
+              disabled={!hasAccount || !backend} onChange={(e) => setKey(e.target.value)}
+            />
+            <button className="ws-btn primary" disabled={!hasAccount || !backend || busy || key.trim().length < 20} onClick={save}>
+              {busy ? 'Saving…' : 'Save key'}
+            </button>
+          </div>
+          <p className="ws-blurb ws-keynote">
+            Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a>.
+            It’s stored encrypted server-side and never shown again. {!hasAccount && 'Sign in (Account tab) first.'}
+            {hasAccount && !backend && ' Connections aren’t enabled on this deployment yet.'}
+          </p>
+          {msg && <p className="ws-blurb ws-paynote">{msg}</p>}
+        </>
+      )}
     </div>
   )
 }

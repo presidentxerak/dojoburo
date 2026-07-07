@@ -32,6 +32,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   if (action === 'list') return list(req, res, q)
   if (action === 'start') return start(req, res, q)
   if (action === 'disconnect') return disconnect(req, res)
+  if (action === 'setkey') return setkey(req, res)
+  if (action === 'removekey') return removekey(req, res)
 
   return json(res, 400, { ok: false, error: 'bad_action' })
 }
@@ -57,7 +59,11 @@ async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParam
     connected: !!connected[id] && connected[id].status === 'connected',
     account: connected[id]?.external_account ?? null,
   }))
-  return json(res, 200, { ok: true, tools, backend: dbConfigured() && vaultConfigured() })
+  const byok = {
+    connected: !!connected['anthropic'] && connected['anthropic'].status === 'connected',
+    hint: connected['anthropic']?.external_account ?? null,
+  }
+  return json(res, 200, { ok: true, tools, byok, backend: dbConfigured() && vaultConfigured() })
 }
 
 // ---- start ----------------------------------------------------------------
@@ -131,6 +137,55 @@ async function disconnect(req: IncomingMessage, res: ServerResponse): Promise<vo
     const pool = getPool()
     const accountId = await findAccountId(pool, { privyDid: body?.privy, clientRef: body?.client })
     if (accountId) await pool.query(`delete from connections where account_id = $1 and connector_id = $2`, [accountId, id])
+    return json(res, 200, { ok: true })
+  } catch {
+    return json(res, 200, { ok: false, error: 'db' })
+  }
+}
+
+// ---- BYOK: the user's own Claude key --------------------------------------
+async function setkey(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'method' })
+  if (!dbConfigured() || !vaultConfigured()) return json(res, 200, { ok: false, error: 'no_backend' })
+  let body: any
+  try {
+    body = JSON.parse(await readBody(req))
+  } catch {
+    return json(res, 400, { ok: false, error: 'bad_json' })
+  }
+  const raw = String(body?.key || '').trim()
+  if (!/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(raw)) return json(res, 200, { ok: false, error: 'bad_key' })
+  try {
+    const pool = getPool()
+    const accountId = await resolveAccountId(pool, { privyDid: body?.privy || null, clientRef: body?.client || null })
+    if (!accountId) return json(res, 200, { ok: false, error: 'no_account' })
+    const hint = `sk-ant-…${raw.slice(-4)}`
+    await pool.query(
+      `insert into connections (account_id, connector_id, status, external_account, access_token, updated_at)
+       values ($1, 'anthropic', 'connected', $2, $3, now())
+       on conflict (account_id, connector_id) do update set
+         status='connected', external_account=excluded.external_account, access_token=excluded.access_token, updated_at=now()`,
+      [accountId, hint, seal(raw)],
+    )
+    return json(res, 200, { ok: true, hint })
+  } catch {
+    return json(res, 200, { ok: false, error: 'db' })
+  }
+}
+
+async function removekey(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'method' })
+  if (!dbConfigured()) return json(res, 200, { ok: false, error: 'no_backend' })
+  let body: any
+  try {
+    body = JSON.parse(await readBody(req))
+  } catch {
+    return json(res, 400, { ok: false, error: 'bad_json' })
+  }
+  try {
+    const pool = getPool()
+    const accountId = await findAccountId(pool, { privyDid: body?.privy, clientRef: body?.client })
+    if (accountId) await pool.query(`delete from connections where account_id = $1 and connector_id = 'anthropic'`, [accountId])
     return json(res, 200, { ok: true })
   } catch {
     return json(res, 200, { ok: false, error: 'db' })

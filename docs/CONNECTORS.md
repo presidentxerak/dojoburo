@@ -71,12 +71,15 @@ https://www.dojoburo.com/api/connect
 
 | Variable | Required | What / where to get it |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | ✅ deliverables | Claude key — [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys) |
-| `ANTHROPIC_WORK_MODEL` | optional | `claude-opus-4-8` (default, best) · `claude-sonnet-5` · `claude-haiku-4-5` |
+| **Free providers** (Gemini/Groq/…) | for free tier | Reuses the support cascade keys (`GEMINI_API_KEY`, `GROQ_API_KEY`, …) — free text deliverables, operator cost ~$0 |
+| `ANTHROPIC_API_KEY` | optional | Operator Claude key. **Not** spent on user runs unless `WORK_OPERATOR_CLAUDE=true` — [console.anthropic.com](https://console.anthropic.com/settings/keys) |
+| `WORK_OPERATOR_CLAUDE` | optional | `true` to run Claude on the operator's dime (demo). Default `false` → users bring their own key (BYOK) |
+| `WORK_FREE_DAILY` | optional | Free-cascade runs / account / day on operator keys (default `10`) |
+| `ANTHROPIC_WORK_MODEL` | optional | Default text/tool model — `claude-sonnet-5` (default) · `claude-haiku-4-5` |
+| `ANTHROPIC_WORK_MODEL_DESIGN` | optional | Claude Design flagship — `claude-opus-4-8` (default) |
 | `ANTHROPIC_WORK_MAX_TOKENS` | optional | Output cap per deliverable (default `6000`) |
-| `ANTHROPIC_WORK_THINKING` | optional | `adaptive` for deeper reasoning (slower/costlier) |
-| `DATABASE_URL` | ✅ connectors | Pooled Postgres — [Neon](https://neon.tech) / [Supabase](https://supabase.com) / Vercel Postgres |
-| `CONNECTOR_ENC_KEY` | ✅ connectors | 32-byte vault key (see generate command above) |
+| `DATABASE_URL` | ✅ connectors/BYOK | Pooled Postgres — [Neon](https://neon.tech) / [Supabase](https://supabase.com) / Vercel Postgres |
+| `CONNECTOR_ENC_KEY` | ✅ connectors/BYOK | 32-byte vault key (see generate command above) — encrypts tool tokens **and** BYOK keys |
 | `CONNECT_STATE_SECRET` | optional | Signs the OAuth `state` (falls back to `CONNECTOR_ENC_KEY`) |
 | `CONNECT_SITE_URL` | ✅ connectors | Public base URL, e.g. `https://www.dojoburo.com` (redirect = `<URL>/api/connect`) |
 
@@ -125,6 +128,26 @@ On **Mainnet** with a settlement hot wallet configured (`SETTLEMENT_WALLET_SEED`
 the deliverable shows the explorer link.
 
 ---
+
+## Who pays — BYOK + free tier
+
+The only variable cost is LLM tokens. DojoBuro routes it so the **operator pays
+~$0** and each **user pays for their own choices**:
+
+| Run type | Runs on | Billed to |
+|---|---|---|
+| Text deliverables (PRD, campaign, strategy…) **without** a user key | operator's **free** providers (Gemini/Groq/…), capped `WORK_FREE_DAILY`/day | nobody (free tier) |
+| Any run **with** a user key (BYOK) | the user's own Claude key | **the user** |
+| Design system **or** acting in a connected tool, no key | — → returns `needs_key` | prompts the user to add their key |
+| Anything, if `WORK_OPERATOR_CLAUDE=true` | operator's Claude key | operator (demo mode) |
+
+**BYOK flow (in the UI):** *Dojo Studio → Billing → “Your Claude key”* → paste
+`sk-ant-…` → it's sealed server-side (AES-256-GCM) and used only for that user's
+runs. The agent card shows *“🔑 runs on your key”*, and a run needing Claude that
+has no key shows an *“Add your Claude key”* link that deep-links to this panel.
+
+For the hackathon demo, set `WORK_OPERATOR_CLAUDE=true` so the design system works
+for everyone on your key; flip it to `false` in production so users self-fund.
 
 ## Cost per user (rule of thumb)
 

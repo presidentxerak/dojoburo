@@ -29,3 +29,14 @@ create table if not exists connections (
   unique (account_id, connector_id)                -- one live connection per tool
 );
 create index if not exists idx_connections_account on connections(account_id);
+
+-- Free-tier metering: count of free-cascade runs per account per day. Lets the
+-- operator cap what runs on THEIR keys, so users past the free tier bring their
+-- own Claude key (BYOK). The user's own key + connected tools are stored in the
+-- connections table above (connector_id = 'anthropic' holds the sealed BYOK key).
+create table if not exists work_usage (
+  account_id uuid not null references accounts(id) on delete cascade,
+  day        date not null,
+  free_runs  int  not null default 0,
+  primary key (account_id, day)
+);

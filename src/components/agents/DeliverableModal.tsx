@@ -29,6 +29,8 @@ export function DeliverableModal() {
             <h2>{d.title}</h2>
             <p className="dlv-sub">
               Delivered by <strong>{d.model}</strong>
+              {d.engine === 'byok' && <> · your key</>}
+              {d.engine === 'free' && <> · free tier</>}
               {d.tools && d.tools.length > 0 && <> · acted in {d.tools.join(', ')}</>}
             </p>
           </div>

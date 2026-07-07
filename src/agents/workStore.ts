@@ -1,42 +1,65 @@
-// UI state for tool connections and real-work deliverables. Kept separate from
-// the XRPL/game store (src/store.ts) — this is the "real work" layer.
+// UI state for tool connections, the user's Claude key (BYOK) and real-work
+// deliverables. Kept separate from the XRPL/game store (src/store.ts).
 import { create } from 'zustand'
-import { listTools, disconnectTool, runWork, type ToolStatus, type Deliverable, type RunResult } from './workApi'
+import {
+  listTools, disconnectTool, runWork, setClaudeKey, removeClaudeKey,
+  type ToolStatus, type Deliverable, type RunResult, type ByokStatus,
+} from './workApi'
 
 interface WorkState {
   tools: Record<string, ToolStatus>
   backend: boolean
+  byok: ByokStatus
   loadedOnce: boolean
   runningTask: string | null
-  deliverable: (Deliverable & { settlement?: RunResult['settlement']; tools?: string[]; priceXrp?: number }) | null
-  runError: string | null
+  deliverable: (Deliverable & { settlement?: RunResult['settlement']; tools?: string[]; priceXrp?: number; engine?: RunResult['engine'] }) | null
+  /** structured run failure: { code, reason? } */
+  runError: { code: string; reason?: 'tool' | 'design'; detail?: string } | null
+
+  /** deep-link signal: open Dojo Studio on a tab (e.g. from a "add your key" hint) */
+  studioIntent: null | 'billing' | 'account'
 
   loadTools: () => Promise<void>
   disconnect: (id: string) => Promise<void>
+  saveKey: (key: string) => Promise<{ ok: boolean; error?: string }>
+  clearKey: () => Promise<void>
   run: (input: { task: string; agentName: string; connectors: string[]; brief?: string }) => Promise<void>
   closeDeliverable: () => void
+  clearError: () => void
+  openStudio: (tab: 'billing' | 'account') => void
+  clearStudioIntent: () => void
 }
 
 export const useWork = create<WorkState>((set, get) => ({
   tools: {},
   backend: false,
+  byok: { connected: false, hint: null },
   loadedOnce: false,
   runningTask: null,
   deliverable: null,
   runError: null,
+  studioIntent: null,
 
   loadTools: async () => {
-    const { tools, backend } = await listTools()
+    const { tools, backend, byok } = await listTools()
     const map: Record<string, ToolStatus> = {}
     for (const t of tools) map[t.id] = t
-    set({ tools: map, backend, loadedOnce: true })
+    set({ tools: map, backend, byok, loadedOnce: true })
   },
 
   disconnect: async (id) => {
     const ok = await disconnectTool(id)
-    if (ok) {
-      set((s) => ({ tools: { ...s.tools, [id]: { ...s.tools[id], connected: false, account: null } } }))
-    }
+    if (ok) set((s) => ({ tools: { ...s.tools, [id]: { ...s.tools[id], connected: false, account: null } } }))
+  },
+
+  saveKey: async (key) => {
+    const r = await setClaudeKey(key)
+    if (r.ok) set({ byok: { connected: true, hint: r.hint ?? null } })
+    return { ok: !!r.ok, error: r.error }
+  },
+  clearKey: async () => {
+    const ok = await removeClaudeKey()
+    if (ok) set({ byok: { connected: false, hint: null } })
   },
 
   run: async (input) => {
@@ -44,11 +67,14 @@ export const useWork = create<WorkState>((set, get) => ({
     set({ runningTask: input.task, runError: null })
     const r = await runWork(input)
     if (r.ok && r.deliverable) {
-      set({ deliverable: { ...r.deliverable, settlement: r.settlement, tools: r.tools, priceXrp: r.priceXrp }, runningTask: null })
+      set({ deliverable: { ...r.deliverable, settlement: r.settlement, tools: r.tools, priceXrp: r.priceXrp, engine: r.engine }, runningTask: null })
     } else {
-      set({ runError: r.error === 'not_configured' ? 'not_configured' : r.detail || r.error || 'failed', runningTask: null })
+      set({ runError: { code: r.error || 'failed', reason: r.reason, detail: r.detail }, runningTask: null })
     }
   },
 
-  closeDeliverable: () => set({ deliverable: null, runError: null }),
+  closeDeliverable: () => set({ deliverable: null }),
+  clearError: () => set({ runError: null }),
+  openStudio: (tab) => set({ studioIntent: tab }),
+  clearStudioIntent: () => set({ studioIntent: null }),
 }))

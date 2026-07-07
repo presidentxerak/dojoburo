@@ -24,15 +24,45 @@ function refParams(): string {
   return p.toString()
 }
 
-export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boolean }> {
+export interface ByokStatus { connected: boolean; hint: string | null }
+
+export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boolean; byok: ByokStatus }> {
   try {
     const res = await fetch(`/api/connect?action=list&${refParams()}`, { headers: { accept: 'application/json' } })
     const j = await res.json()
-    if (j?.ok) return { tools: j.tools, backend: !!j.backend }
+    if (j?.ok) return { tools: j.tools, backend: !!j.backend, byok: j.byok ?? { connected: false, hint: null } }
   } catch {
     /* offline / not deployed */
   }
-  return { tools: [], backend: false }
+  return { tools: [], backend: false, byok: { connected: false, hint: null } }
+}
+
+/** Store the user's own Claude key (BYOK) — sealed server-side, billed to them. */
+export async function setClaudeKey(key: string): Promise<{ ok: boolean; hint?: string; error?: string }> {
+  try {
+    const res = await fetch('/api/connect?action=setkey', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ key, ...ref() }),
+    })
+    return await res.json()
+  } catch {
+    return { ok: false, error: 'network' }
+  }
+}
+
+export async function removeClaudeKey(): Promise<boolean> {
+  try {
+    const res = await fetch('/api/connect?action=removekey', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...ref() }),
+    })
+    const j = await res.json()
+    return !!j?.ok
+  } catch {
+    return false
+  }
 }
 
 /** Top-level navigation to the provider's OAuth screen. */
@@ -70,6 +100,8 @@ export interface RunResult {
   ok: boolean
   error?: string
   detail?: string
+  reason?: 'tool' | 'design'
+  engine?: 'byok' | 'operator' | 'free'
   deliverable?: Deliverable
   tools?: string[]
   settlement?: { ok: boolean; hash?: string; explorerUrl?: string; amountXrp?: number; error?: string } | null

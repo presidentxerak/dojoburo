@@ -976,3 +976,17 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
   .dlv-overlay { padding: 0; align-items: flex-end; }
   .dlv { width: 100%; max-height: 92vh; border-radius: 18px 18px 0 0; }
 }
+
+/* real-work intros + inline link buttons */
+.work-intro { font-family: var(--font-read); font-size: 10px; color: var(--muted); line-height: 1.5; margin: 0 0 8px; }
+.linklike { background: none; border: none; padding: 0; font: inherit; font-size: inherit; color: #7c5cff; cursor: pointer; text-decoration: underline; }
+.linklike:hover { opacity: 0.8; }
+
+/* BYOK Claude key panel (Billing) */
+.ws-keypanel { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1.5px solid var(--border); }
+.ws-tag-byok { font-size: 9px; background: #2fae6a; color: #fff; padding: 2px 7px; border-radius: 8px; margin-left: 8px; font-weight: 700; vertical-align: middle; }
+.ws-keyrow { display: flex; align-items: center; gap: 8px; margin: 10px 0 4px; }
+.ws-keyrow input { flex: 1; min-width: 0; font-family: var(--font-read); font-size: 12px; background: var(--panel-solid); color: var(--ink); border: 1.5px solid var(--border-lit); padding: 8px 10px; border-radius: 10px; }
+.ws-keyrow.on { background: color-mix(in srgb, #2fae6a 8%, var(--panel-2)); border: 1.5px solid color-mix(in srgb, #2fae6a 40%, var(--border)); border-radius: 12px; padding: 8px 10px; }
+.ws-keyhint { flex: 1; font-size: 11px; color: var(--ink); }
+.ws-keynote { margin-top: 4px; }

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
+import { useWork } from '../../agents/workStore'
 import { skinById } from '../../data/skins'
 import { templateById } from '../../data/templates'
 import { WorkshopModal } from './WorkshopModal'
@@ -11,7 +12,13 @@ import { SkinAvatar } from './SkinAvatar'
 export function Workshop() {
   const [modalOpen, setModalOpen] = useState(false)
   const [widget, setWidget] = useState(false)
+  const studioIntent = useWork((s) => s.studioIntent)
   const account = useWorkshop((s) => s.account)
+
+  // a "add your key" hint elsewhere can request the studio open on a tab
+  useEffect(() => {
+    if (studioIntent) setModalOpen(true)
+  }, [studioIntent])
   const dojos = useWorkshop((s) => s.dojos)
   const activeId = useWorkshop((s) => s.activeDojoId)
   const setActive = useWorkshop((s) => s.setActiveDojo)
@@ -47,7 +54,7 @@ export function Workshop() {
       </div>
 
       {widget && <ActivityWidget onClose={() => setWidget(false)} />}
-      {modalOpen && <WorkshopModal onClose={() => setModalOpen(false)} />}
+      {modalOpen && <WorkshopModal onClose={() => { setModalOpen(false); useWork.getState().clearStudioIntent() }} />}
     </>
   )
 }
