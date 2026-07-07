@@ -438,6 +438,31 @@ function StartupDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <Glow p={[0, -0.92, 0]} r={0.08} c="#ffd98a" i={0.9} />
         </group>
       ))}
+      {/* accent area rug under the team */}
+      <mesh position={[0, 0.02, 1.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[13, 8]} />
+        <meshStandardMaterial color={P.accent} roughness={0.95} transparent opacity={0.16} />
+      </mesh>
+      {/* lounge couch + coffee table on the front-left */}
+      <group position={[-8, 0, 5.4]} rotation={[0, 0.5, 0]}>
+        <B p={[0, 0.32, 0]} s={[2.2, 0.4, 0.9]} c="#6b74a8" />
+        <B p={[0, 0.7, -0.42]} s={[2.2, 0.7, 0.16]} c="#7c86bd" />
+        <B p={[-1.02, 0.62, 0]} s={[0.18, 0.5, 0.9]} c="#7c86bd" />
+        <B p={[1.02, 0.62, 0]} s={[0.18, 0.5, 0.9]} c="#7c86bd" />
+      </group>
+      {/* water cooler */}
+      <group position={[8.6, 0, 5]}>
+        <B p={[0, 0.55, 0]} s={[0.5, 1.1, 0.5]} c="#eef2f6" />
+        <Sp p={[0, 1.35, 0]} r={0.34} c="#8fd0ff" emissive="#8fd0ff" ei={0.15} />
+      </group>
+      {/* pennant string across the room */}
+      {[-4, -3.2, -2.4, -1.6, -0.8, 0, 0.8, 1.6, 2.4, 3.2, 4].map((x, i) => (
+        <mesh key={x} position={[x, ROOM.wallH - 1.5 + Math.abs(x) * 0.02, 4.6]} rotation={[Math.PI, 0, 0]}>
+          <coneGeometry args={[0.16, 0.3, 3]} />
+          <meshStandardMaterial color={['#ff7eb6', '#ffd23f', '#4fc3f7', '#7bd88f', '#c98cff'][i % 5]} {...M} />
+        </mesh>
+      ))}
+      <LoftPlant x={2.4} z={5.6} />
     </group>
   )
 }
@@ -466,6 +491,10 @@ function SpaceDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         <mesh position={[0.4, -0.2, 0.2]} scale={[1, 0.4, 1]}><sphereGeometry args={[0.92, 20, 8]} /><meshStandardMaterial color="#6fae6a" transparent opacity={0.5} /></mesh>
         {[[-1, 0.9], [1.1, 0.6], [-0.7, -1.1], [0.9, 1.1]].map(([x, y], i) => <Glow key={i} p={[x as number, y as number, 0.1]} r={0.03} c="#eaf6ff" i={1} />)}
       </group>
+      {/* starfield across the back wall */}
+      {[[-8, 4.6], [-6.4, 5.2], [-5.2, 3.8], [-3.4, 5], [6.2, 4.4], [7.6, 5.1], [5, 3.9], [3.6, 5.2], [-8.6, 2.4], [8.4, 2.8], [-2, 5.4], [2, 5.3]].map(([x, y], i) => (
+        <Glow key={i} p={[x as number, y as number, backZ + 0.5]} r={0.04 + (i % 3) * 0.015} c="#eaf6ff" i={0.9} />
+      ))}
       {/* control consoles along the back */}
       {[-6, 6].map((cx) => (
         <group key={cx} position={[cx, 0, backZ + 1.4]}>
@@ -492,6 +521,22 @@ function SpaceDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
 function LabDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   return (
     <group>
+      {/* reagent shelves on the side walls */}
+      {[-9, 9].map((sx, si) => [1.6, 2.6].map((sy) => (
+        <group key={`${sx}-${sy}`} position={[sx, sy, 1]} rotation={[0, si ? -Math.PI / 2 : Math.PI / 2, 0]}>
+          <B p={[0, 0, 0]} s={[5, 0.08, 0.4]} c="#dfeaee" />
+          {[-1.8, -1.1, -0.4, 0.4, 1.1, 1.8].map((bx, i) => (
+            <group key={bx} position={[bx, 0.28, 0]}>
+              <Cy p={[0, 0, 0]} r={0.11} h={0.46} c="#e6f3f6" />
+              <Cy p={[0, -0.06, 0]} r={0.1} h={0.28} c={['#00e6ff', '#37d67a', '#ffcf3b', '#ff5aa0', '#8a5cff', '#ff8a1e'][i]} emissive={['#00e6ff', '#37d67a', '#ffcf3b', '#ff5aa0', '#8a5cff', '#ff8a1e'][i]} ei={0.4} />
+            </group>
+          ))}
+        </group>
+      )))}
+      {/* bubbles rising above the back flasks */}
+      {[1.0, 1.7].map((x) => [0.7, 1.0, 1.3].map((y, k) => (
+        <Sp key={`${x}-${y}`} p={[x + (k % 2 ? 0.05 : -0.05), y, backZ + 1.5]} r={0.05 - k * 0.008} c="#bff0ff" emissive="#bff0ff" ei={0.5} />
+      )))}
       {/* glassware bench along back */}
       <group position={[0, 0, backZ + 1.5]}>
         <B p={[0, 0.95, 0]} s={[6, 0.12, 0.9]} c="#dfeaee" />
@@ -595,6 +640,22 @@ function CastleDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   const stone = '#8f959c'
   return (
     <group>
+      {/* red carpet runner down the central aisle */}
+      <mesh position={[0, 0.03, 1.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[3, 12]} />
+        <meshStandardMaterial color="#8e2436" roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 0.04, 1.5]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2.4, 12]} />
+        <meshStandardMaterial color={P.accent} roughness={0.7} transparent opacity={0.4} />
+      </mesh>
+      {/* iron chandeliers extra + hanging shields on side walls */}
+      {[-9.2, 9.2].map((x, i) => [0, 4].map((z) => (
+        <mesh key={`${x}-${z}`} position={[x, 3, z]} rotation={[0, i ? -Math.PI / 2 : Math.PI / 2, 0]}>
+          <cylinderGeometry args={[0.5, 0.42, 0.14, 6]} />
+          <meshStandardMaterial color={i ? '#6b5426' : P.accent} metalness={0.5} roughness={0.5} />
+        </mesh>
+      )))}
       {/* arched windows on the back wall */}
       {[-5.5, 5.5].map((x) => (
         <group key={x} position={[x, 2.6, backZ + 0.3]}>
@@ -643,6 +704,24 @@ function GardenDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
     <group>
       <BlossomTree x={-8.5} z={2.6} c={P.accent} />
       <BlossomTree x={8.6} z={backZ + 2.4} c="#c98cff" />
+      <BlossomTree x={8.8} z={5.4} c="#ffb0d8" />
+      {/* lily pond on the front-left with pads + blossoms */}
+      <group position={[-7.6, 0, 5.4]}>
+        <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.8, 32]} /><meshStandardMaterial color="#5fb0c4" transparent opacity={0.8} roughness={0.3} emissive="#3f8f9f" emissiveIntensity={0.15} /></mesh>
+        {[[0.4, 0.3], [-0.6, -0.2], [0.2, -0.7], [-0.3, 0.7]].map(([lx, lz], i) => (
+          <group key={i} position={[lx as number, 0.06, lz as number]}>
+            <mesh rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[0.36, 18]} /><meshStandardMaterial color="#4f9e52" /></mesh>
+            {i % 2 === 0 && <Sp p={[0, 0.08, 0]} r={0.12} c="#ff9ecb" emissive="#ff9ecb" ei={0.3} />}
+          </group>
+        ))}
+      </group>
+      {/* butterflies / fireflies drifting mid-air */}
+      {[[-4.5, 2.6, 4], [4.6, 3, 3], [-1.5, 2.4, 5], [2.2, 3.2, backZ + 3], [6, 2.2, 2], [-6.5, 2.8, 0]].map(([x, y, z], i) => (
+        <group key={i} position={[x as number, y as number, z as number]}>
+          <Sp p={[-0.1, 0, 0]} r={0.09} c={i % 2 ? '#ff9ecb' : '#ffd6f0'} emissive="#ff9ecb" ei={0.4} />
+          <Sp p={[0.1, 0, 0]} r={0.09} c={i % 2 ? '#c98cff' : '#e0c2ff'} emissive="#c98cff" ei={0.4} />
+        </group>
+      ))}
       {/* fountain centrepiece */}
       <group position={[0, 0, backZ + 2.6]}>
         <Cy p={[0, 0.2, 0]} r={1.3} h={0.4} c="#bfc9b0" />
@@ -693,6 +772,34 @@ function FactoryDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   const steelD = '#5b606b'
   return (
     <group>
+      {/* hazard tape stripes on the floor edges */}
+      {[-8.4, 8.4].map((x) => (
+        <group key={x}>
+          {Array.from({ length: 9 }).map((_, i) => (
+            <mesh key={i} position={[x, 0.03, -6 + i * 1.5]} rotation={[-Math.PI / 2, 0, Math.PI / 4]}>
+              <planeGeometry args={[0.5, 0.5]} />
+              <meshStandardMaterial color={i % 2 ? '#1c1c22' : '#f2c200'} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+      {/* stacked barrels */}
+      <group position={[-8.2, 0, 5.2]}>
+        {[[0, 0], [0.7, 0], [0.35, 0.7]].map(([bx, bz], i) => (
+          <Cy key={i} p={[bx as number, 0.55, bz as number]} r={0.34} h={1.1} c={['#c0392b', '#f2c200', '#2e6da4'][i]} />
+        ))}
+        <Cy p={[0.35, 1.35, 0.35]} r={0.34} h={0.6} c="#2e6da4" />
+      </group>
+      {/* sparks near the robot arm */}
+      {[[8.1, 1.0, backZ + 2], [8.4, 0.8, backZ + 2.2], [7.8, 1.2, backZ + 1.9]].map(([x, y, z], i) => (
+        <Glow key={i} p={[x as number, y as number, z as number]} r={0.05} c="#ffcf3b" i={1} />
+      ))}
+      {/* big gear on the back wall */}
+      <group position={[6.4, 3.4, backZ + 0.35]}>
+        {Array.from({ length: 10 }).map((_, i) => { const a = (i / 10) * Math.PI * 2; return <B key={i} p={[Math.cos(a) * 0.9, Math.sin(a) * 0.9, 0]} s={[0.28, 0.28, 0.14]} c={steelD} rot={[0, 0, a]} /> })}
+        <Cy p={[0, 0, 0]} r={0.7} h={0.16} c={steel} rot={[Math.PI / 2, 0, 0]} />
+        <Cy p={[0, 0, 0.02]} r={0.24} h={0.2} c={P.trim} rot={[Math.PI / 2, 0, 0]} />
+      </group>
       {/* overhead gantry */}
       <group position={[0, ROOM.wallH - 0.5, 1]}>
         {[-8, 8].map((x) => <B key={x} p={[x, 0, 0]} s={[0.3, 1.2, 0.3]} c={steelD} />)}
@@ -825,6 +932,17 @@ export function Decor3D({ palette, style, decor }: { palette: DojoPalette; style
             <planeGeometry args={[17.6, 9.6]} />
             <meshStandardMaterial color={P.accent} emissive={P.accent} emissiveIntensity={0.15} transparent opacity={0.78} roughness={0.25} />
           </mesh>
+          {/* ripple rings on the surface */}
+          {[[-5, 5], [6, 4], [-2, -2], [3.5, 5.5]].map(([x, z], i) => (
+            <mesh key={i} position={[x as number, 0.52, z as number]} rotation={[-Math.PI / 2, 0, 0]}>
+              <ringGeometry args={[0.5 + i * 0.1, 0.62 + i * 0.1, 30]} />
+              <meshBasicMaterial color="#ffffff" transparent opacity={0.35} side={2} />
+            </mesh>
+          ))}
+          {/* floating beach balls + a drink ring */}
+          <mesh position={[-6, 0.75, 5.6]} castShadow><sphereGeometry args={[0.42, 18, 16]} /><meshStandardMaterial color="#ff5d6c" {...M} /></mesh>
+          <mesh position={[5.6, 0.72, 5.2]} castShadow><sphereGeometry args={[0.36, 18, 16]} /><meshStandardMaterial color="#ffd23f" {...M} /></mesh>
+          <mesh position={[2, 0.6, 5.8]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.34, 0.12, 12, 24]} /><meshStandardMaterial color="#4fc3f7" {...M} /></mesh>
         </group>
       )}
 
