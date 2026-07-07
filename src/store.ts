@@ -22,6 +22,7 @@ import {
   type WalletState,
 } from './xrpl/wallet'
 import { sendPayment, trackAction, fetchHistory, type X402Memo } from './xrpl/payments'
+import { settleServer } from './xrpl/settleApi'
 import { audio } from './audio'
 import * as xaman from './xrpl/xaman'
 
@@ -45,6 +46,8 @@ export interface Toast {
   title: string
   text: string
   kind: 'event' | 'reward' | 'level'
+  /** optional link (e.g. an explorer URL) — makes the toast clickable */
+  url?: string
 }
 
 export interface AgentStats {
@@ -490,9 +493,29 @@ function startBanter(get: Get, set: Set, agentId: string, durationMs: number) {
 
 async function settlePricedSkill(get: Get, agentId: string, skill: AgentSkill) {
   const s = get()
+  const invoice = `SKL-${now().toString(36)}`
+
+  // MAINNET: settle a REAL x402 payment server-side. The hot-wallet seed lives
+  // only on the server; the payment is self-anchored so it always validates
+  // (no 1-XRP account-reserve pitfall). Every priced skill = a verifiable
+  // Mainnet transaction, surfaced with an explorer link.
+  if (s.net === 'mainnet') {
+    const r = await settleServer({ skill: skill.id, invoice, amountXrp: skill.price, note: skill.name })
+    if (r?.ok && r.hash) {
+      s.log({ agentId, skill: skill.id, level: 'xrpl', message: `x402 settled on Mainnet — ${skill.price} XRP for "${skill.name}" (${r.result}).`, txHash: r.hash })
+      s.pushToast({ kind: 'event', badge: 'XRP', color: '#2fae6a', title: 'Settled on Mainnet', text: `${skill.price} XRP · x402 · tap to view on XRPL`, url: r.explorerUrl })
+      useDojo.setState((st) => ({ usage: { ...st.usage, xrp: st.usage.xrp + skill.price } }))
+      return
+    }
+    s.log({ agentId, skill: skill.id, level: 'error', message: `Mainnet settlement unavailable (skill still ran)${r?.error ? ' — ' + r.error : ''}. Set SETTLEMENT_WALLET_SEED + SETTLEMENT_NETWORK=mainnet.` })
+    return
+  }
+
+  // TESTNET / DEVNET: real client-side payment between local faucet wallets
+  // (play money, seeds are throwaway).
   const treasury = s.ensureWallet('treasury')
   const agentWallet = s.ensureWallet(agentId)
-  const memo: X402Memo = { protocol: 'x402', skill: skill.id, invoice: `SKL-${now().toString(36)}`, from: 'treasury', to: agentId, note: skill.name }
+  const memo: X402Memo = { protocol: 'x402', skill: skill.id, invoice, from: 'treasury', to: agentId, note: skill.name }
   try {
     const res = await sendPayment(s.net, toWallet(treasury), agentWallet.address, skill.price, memo)
     s.log({ agentId, skill: skill.id, level: 'xrpl', message: `x402 settled: ${skill.price} XRP paid to ${labelOf(agentId)} for "${skill.name}" (${res.engineResult}).`, txHash: res.hash })

@@ -18,7 +18,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { verifyStripeEvent } from './_lib/stripe'
 import { getPool, dbConfigured } from './_lib/db'
 import { fiatToXrp } from './_lib/fx'
-import { settlementConfigured, settleOnLedger } from './_lib/settle'
+import { settlementConfigured, settleX402 } from './_lib/settle'
 
 export const config = { maxDuration: 30 }
 
@@ -124,39 +124,40 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     client.release()
   }
 
-  // ---- 2. optional on-ledger delivery (idempotent, best-effort) ----------
-  // Only when a hot wallet is configured AND we know the user's XRPL address.
+  // ---- 2. real x402 settlement on-ledger (idempotent, best-effort) --------
+  // When a hot wallet is configured, every paid checkout emits a REAL x402
+  // Payment on SETTLEMENT_NETWORK: delivered to the user's own wallet when we
+  // know their address (Mode B on-ramp), otherwise self-anchored so the card
+  // payment still produces a verifiable Mainnet transaction for the demo.
   const dest = xrplAddress || (await lookupAddress(pool, accountId!))
-  if (settlementConfigured() && dest) {
+  if (settlementConfigured()) {
     try {
-      // reserve the settlement row; skip if another delivery already did it
       const reserve = await pool.query(
         `insert into settlements (session_id, account_id, xrp_amount, destination, status)
          values ($1, $2, $3, $4, 'pending')
          on conflict (session_id) do nothing
          returning id`,
-        [session.id, accountId, xrp, dest],
+        [session.id, accountId, xrp, dest || 'self-anchor'],
       )
-      const alreadySettledRow = reserve.rowCount === 0
-      const done = alreadySettledRow
-        ? (await pool.query(`select status from settlements where session_id = $1`, [session.id])).rows[0]?.status === 'validated'
-        : false
+      const alreadyDone = reserve.rowCount === 0 &&
+        (await pool.query(`select status from settlements where session_id = $1`, [session.id])).rows[0]?.status === 'validated'
 
-      if (!done) {
-        const r = await settleOnLedger(dest, xrp, session.id)
+      if (!alreadyDone) {
+        const r = await settleX402({ skill: 'fiat-topup', invoice: session.id, amountXrp: xrp, destination: dest || undefined })
         const ok = r.result === 'tesSUCCESS' && r.validated
         await pool.query(
-          `update settlements set tx_hash = $2, tx_result = $3, status = $4 where session_id = $1`,
-          [session.id, r.hash, r.result, ok ? 'validated' : 'failed'],
+          `update settlements set tx_hash = $2, tx_result = $3, destination = $4, status = $5 where session_id = $1`,
+          [session.id, r.hash, r.result, r.to, ok ? 'validated' : 'failed'],
         )
-        if (ok) {
-          // value now lives on the user's own wallet → net the in-app credit
+        // only net the in-app credit when the XRP was DELIVERED to the user's own
+        // wallet; a self-anchored demo tx leaves the credit balance intact.
+        if (ok && dest) {
           await pool.query(
             `insert into credit_ledger (account_id, delta_xrp, reason, ref) values ($1, $2, 'settle:onledger', $3)`,
             [accountId, -xrp, r.hash],
           )
-          await pool.query(`update checkout_sessions set status = 'settled' where id = $1`, [session.id])
         }
+        if (ok) await pool.query(`update checkout_sessions set status = 'settled' where id = $1`, [session.id])
       }
     } catch {
       // leave the settlement row pending; api/settle-pending (cron) will retry.
