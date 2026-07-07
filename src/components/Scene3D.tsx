@@ -146,7 +146,7 @@ export function Scene3D() {
         shadow-camera-bottom={-16}
       />
       <Suspense fallback={null}>
-        <Decor3D palette={P} style={tpl.style} />
+        <Decor3D palette={P} style={tpl.style} decor={tpl.id} />
         <Agents />
         <Hero3D />
         <Lazy3D />
