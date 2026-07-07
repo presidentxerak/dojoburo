@@ -1,9 +1,18 @@
-// A small illustrated preview per dojo template — a flat cross-section of the
-// environment drawn from the template's own palette, with a theme-specific motif.
-// Replaces the old letter/emoji thumbnail so the environments are distinguishable.
+// Dojo template preview. Prefers a REAL 3D render of the environment
+// (public/thumbs/<id>.jpg, captured from the actual scene) and falls back to a
+// flat SVG cross-section drawn from the template's palette if the image is missing.
+import { useState } from 'react'
 import type { DojoTemplate } from '../../data/templates'
 
 export function TemplateThumb({ t }: { t: DojoTemplate }) {
+  const [failed, setFailed] = useState(false)
+  if (!failed) {
+    return <img className="ws-thumb-img" src={`/thumbs/${t.id}.jpg`} alt={`${t.label} preview`} loading="lazy" decoding="async" onError={() => setFailed(true)} />
+  }
+  return <ThumbSVG t={t} />
+}
+
+function ThumbSVG({ t }: { t: DojoTemplate }) {
   const p = t.palette
   return (
     <svg className="ws-thumb" viewBox="0 0 120 74" width="100%" preserveAspectRatio="xMidYMid slice" aria-hidden>
