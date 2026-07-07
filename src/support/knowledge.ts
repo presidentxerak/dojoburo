@@ -52,8 +52,8 @@ export const KB: KBTopic[] = [
       { label: 'Cost breakdown', href: '#cost' },
       { label: 'XRPL fees explained', href: 'https://xrpl.org/transaction-cost.html', external: true },
     ],
-    follow: ['pricing', 'networks'],
-    keywords: ['cost', 'price', 'xrp', 'fee', 'how much', 'expensive', 'pay', 'x402', 'per task', 'drops'],
+    follow: ['x402', 'onramp', 'pricing'],
+    keywords: ['cost', 'price', 'xrp', 'fee', 'how much', 'expensive', 'pay', 'per task', 'drops'],
   },
   {
     id: 'pricing',
@@ -64,8 +64,32 @@ export const KB: KBTopic[] = [
       { label: 'See the numbers', href: '#cost' },
       { label: 'Production roadmap', href: '#prod' },
     ],
-    follow: ['cost', 'tools'],
+    follow: ['cost', 'onramp', 'tools'],
     keywords: ['plan', 'plans', 'pricing', 'subscription', 'quota', 'credits', 'tier', 'upgrade', 'billing'],
+  },
+  {
+    id: 'onramp',
+    chip: 'Buy XRP with a card',
+    answer:
+      'Top up with a card (€/$/¥) and you receive real XRP in your own wallet — not a locked in-app balance. Stripe takes the fiat, the amount is converted at a live rate, and an x402-tagged Payment delivers the XRP on-ledger to your dojo treasury. It is non-custodial: the XRP is yours to keep, spend or withdraw. Prefer play money? On Testnet you fund from the free faucet instead.',
+    links: [
+      { label: 'See the full flow', href: '#onramp' },
+      { label: 'Cost per task', href: '#cost' },
+    ],
+    follow: ['x402', 'wallet', 'security'],
+    keywords: ['buy xrp', 'card', 'credit card', 'top up', 'topup', 'add credits', 'fiat', 'euro', 'dollar', 'stripe', 'on-ramp', 'onramp', 'deposit', 'purchase', 'settle in xrp'],
+  },
+  {
+    id: 'x402',
+    chip: 'What is x402?',
+    answer:
+      'x402 is a payment protocol — the HTTP 402 "Payment Required" status made real. In DojoBuro every priced service settles an x402 invoice as a signed XRP Ledger Payment, with the skill and invoice written into the transaction memo. It is what lets autonomous agents pay each other for work, on-chain and verifiably — the frontier of agent-to-agent (agentic) commerce.',
+    links: [
+      { label: 'From card to agents', href: '#onramp' },
+      { label: 'How it works', href: '#how' },
+    ],
+    follow: ['onramp', 'cost', 'tools'],
+    keywords: ['x402', '402', 'agentic', 'agent to agent', 'protocol', 'micropayment', 'micro-payment', 'settlement', 'invoice', 'memo', 'innovation'],
   },
   {
     id: 'security',

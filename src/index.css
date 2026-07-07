@@ -779,6 +779,21 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-node b { font-family: var(--font-pixel); font-size: 12px; display: block; margin-bottom: 4px; }
 .lp-node span { font-size: 11px; color: var(--muted); line-height: 1.4; }
 .lp-arrow { align-self: center; color: var(--muted); font-size: 18px; }
+
+/* Mode B "fiat → on-chain agents" flow + benefits */
+.lp-pill { display: inline-block; font-family: var(--font-pixel); font-size: 10px; letter-spacing: 0.5px; color: #fff; background: var(--title-grad); padding: 5px 11px; border-radius: 20px; margin-bottom: 12px; }
+.lp-flow .lp-node { min-width: 132px; padding: 15px 12px; }
+.lp-nico { font-size: 24px; line-height: 1; display: block; margin-bottom: 8px; }
+.lp-benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+.lp-benefit { background: var(--panel-solid); border: 1px solid var(--border); border-radius: 14px; padding: 14px 15px; }
+.lp-benefit b { font-family: var(--font-pixel); font-size: 12px; display: block; margin-bottom: 6px; }
+.lp-benefit span { font-size: 12px; color: var(--muted); line-height: 1.5; }
+@media (max-width: 680px) {
+  .lp-benefits { grid-template-columns: 1fr; }
+  .lp-flow { flex-direction: column; }
+  .lp-flow .lp-arrow { transform: rotate(90deg); }
+}
+
 .lp-cascade { display: flex; flex-direction: column; gap: 6px; }
 .lp-tier { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 10px; background: var(--panel-solid); border: 1px solid var(--border); border-radius: 12px; padding: 9px 12px; }
 .lp-tier b { grid-column: 1; font-family: var(--font-pixel); font-size: 11px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--panel-2); }

@@ -100,6 +100,34 @@ export function Landing({ enter }: { enter: () => void }) {
         </div>
       </section>
 
+      <section className="lp-sec alt" id="onramp">
+        <span className="lp-pill">Mainnet · self-custody · x402</span>
+        <h2>From your card to real on-chain agents</h2>
+        <p className="lp-lead">
+          Top up with a card and receive <b>real XRP in your own wallet</b> — not a locked in-app balance.
+          That XRP funds your dojo, and your agents settle services between themselves with x402
+          micro-payments, live on the XRP Ledger. This is the full loop: fiat in, autonomous agent
+          commerce out.
+        </p>
+        <div className="lp-schema lp-flow">
+          <div className="lp-node"><span className="lp-nico">💳</span><b>Pay by card</b><span>€ · $ · ¥ via Stripe</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><span className="lp-nico">🔁</span><b>Convert to XRP</b><span>Live rate, metered by x402</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><span className="lp-nico">👛</span><b>Into your wallet</b><span>Real XRP · you hold the keys</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><span className="lp-nico">🤖</span><b>Agents pay agents</b><span>x402 settlements on-ledger</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><span className="lp-nico">🧾</span><b>On-chain receipt</b><span>Every move is verifiable</span></div>
+        </div>
+        <div className="lp-benefits">
+          <div className="lp-benefit"><b>🔓 You own it</b><span>Non-custodial delivery — the XRP is yours to keep, spend or withdraw. We never hold your funds.</span></div>
+          <div className="lp-benefit"><b>⚡ Real agentic commerce</b><span>Your AI agents don't simulate payments — they move real value autonomously, the frontier of x402 agent-to-agent settlement.</span></div>
+          <div className="lp-benefit"><b>🔎 Auditable &amp; open</b><span>Each settlement carries an x402 memo on the public XRP Ledger — verifiable by anyone, composable with the whole XRPL ecosystem.</span></div>
+        </div>
+        <p className="lp-note">Card top-ups settle to XRP via a Stripe checkout and an x402-tagged on-ledger payment. Prefer play money? Testnet works the same, for free.</p>
+      </section>
+
       <section className="lp-sec" id="widget">
         <h2>Watch your dojo while you work</h2>
         <p className="lp-lead">A compact activity widget follows your dojo — agents working, tasks done, XRP spent, live feed — so you can keep an eye on it beside your other work. The same view powers a reduced desktop window.</p>
@@ -216,6 +244,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#studio">Dojo Studio</a>
           <a href="#cascade">Cost</a>
           <a href="#pay">Payments</a>
+          <a href="#onramp">Agentic pay</a>
           <a href="#prod">Production</a>
           <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Enter the office</a>
         </nav>
