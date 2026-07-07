@@ -10,6 +10,7 @@ import { getStoredWallet } from '../../xrpl/wallet'
 import { loadNetworkId } from '../../xrpl/network'
 import { useWork } from '../../agents/workStore'
 import { SkinAvatar } from './SkinAvatar'
+import { TemplateThumb } from './TemplateThumb'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 
 type Tab = 'studio' | 'account' | 'billing'
@@ -171,7 +172,7 @@ function TemplatePicker({ current, mode, onPick, onClose }: { current: string; m
               onClick={() => onPick(t.id)}
               style={{ ['--tpl-accent' as any]: t.palette.accent }}
             >
-              <span className="ws-tplemoji" style={{ background: t.palette.bg, color: t.palette.accent }}>{t.label.charAt(0)}</span>
+              <span className="ws-tplthumb"><TemplateThumb t={t} /></span>
               <strong>{t.label}</strong>
               <span className="ws-blurb">{t.blurb}</span>
               <span className="ws-tpltheme">{mode === 'create' ? `Seeds a ${t.skinTheme} crew` : t.skinTheme}</span>
