@@ -104,6 +104,24 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     crew: ['Leadership', 'Engineering', 'Ops', 'Finance', 'Product', 'Growth'],
     palette: { ground: '#b8bcc4', grid: '#8f949e', wallBack: '#cfd3da', wallSide: '#c2c6ce', trim: '#b8241d', accent: '#ff8a1e', bg: '#eceef2', fog: '#e4e7ec' },
   },
+  {
+    id: 'forest',
+    label: 'Forest Lake',
+    blurb: 'A red torii on a still lake, pines and misty hills.',
+    skinTheme: 'Forest',
+    style: 'zen',
+    crew: CREW_DEFAULT,
+    palette: { ground: '#b9d99a', grid: '#8fbf6a', wallBack: '#cfe8d6', wallSide: '#c2e0c8', trim: '#c0392b', accent: '#ffcf6a', bg: '#d7ecec', fog: '#dcefe6' },
+  },
+  {
+    id: 'wonderland',
+    label: 'Wonderland',
+    blurb: 'Rainbows, candy clouds and dreamy pastels.',
+    skinTheme: 'Sakura',
+    style: 'plain',
+    crew: CREW_DEFAULT,
+    palette: { ground: '#ffe6f2', grid: '#ffc7e2', wallBack: '#fff0f8', wallSide: '#ffe8f4', trim: '#c98cff', accent: '#ff5db1', bg: '#f0eaff', fog: '#f4ecff' },
+  },
 ]
 
 export const TEMPLATE_BY_ID: Record<string, DojoTemplate> = Object.fromEntries(DOJO_TEMPLATES.map((t) => [t.id, t]))

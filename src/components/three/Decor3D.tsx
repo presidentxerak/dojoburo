@@ -1,6 +1,6 @@
 import { AGENTS } from '../../data/agents'
 import { POS3D, ROOM, DESK_FWD } from '../../three/layout3d'
-import type { DojoPalette, DecorStyle } from '../../data/templates'
+import type { DojoPalette } from '../../data/templates'
 
 const WOOD = '#b5793f'
 const WOOD_D = '#7a4a24'
@@ -172,17 +172,101 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
   }
 }
 
-// Per-theme workstation palette so each dojo's desks match its environment.
-interface DeskTheme { top: string; leg: string; chair: string; back: string; trim?: string }
-function deskTheme(v: string): DeskTheme {
-  switch (v) {
-    case 'space': return { top: '#1b2038', leg: '#0e1226', chair: '#20263f', back: '#2b3358', trim: '#8ad0ff' }
-    case 'lab': return { top: '#eef5f7', leg: '#cbdde3', chair: '#dfeaee', back: '#c3d6dc', trim: '#00e6ff' }
-    case 'castle': return { top: '#6b4f2a', leg: '#3f2e18', chair: '#5a4a2b', back: '#4a3c22', trim: '#c9a94a' }
-    case 'factory': return { top: '#9aa0aa', leg: '#565c68', chair: '#6b7280', back: '#565c68', trim: '#ff8a1e' }
-    case 'garden': return { top: '#8a6a44', leg: '#5a4326', chair: '#6b8f4a', back: '#4f7d3a', trim: '#ff86c0' }
-    case 'startup': return { top: '#e2e7ef', leg: '#b3bac6', chair: '#4a5270', back: '#4a5270', trim: '#7c5cff' }
-    case 'dojo': default: return { top: WOOD, leg: WOOD_D, chair: '#4a5270', back: '#4a5270' }
+// A cheerful per-agent accent so a whole crew of saucers / mushrooms / clouds
+// reads as a colourful set rather than identical clones.
+const FUN_COLORS = ['#ff6b8a', '#ffd23f', '#4fc3f7', '#7bd88f', '#ff9a52', '#c98cff', '#2fe0c0', '#ff5db1']
+const funColor = (id: string) => FUN_COLORS[Math.abs(hashStr(id)) % FUN_COLORS.length]
+
+// chair seat/back colour per theme (chairs are skipped for saucers & pools)
+const CHAIR: Record<string, [string, string]> = {
+  lab: ['#dfeaee', '#c3d6dc'], castle: ['#5a4a2b', '#4a3c22'], factory: ['#6b7280', '#565c68'],
+  garden: ['#6b8f4a', '#4f7d3a'], startup: ['#4a5270', '#4a5270'], forest: ['#6b4a2a', '#4f3620'],
+  wonderland: ['#ff9ecb', '#c98cff'], dojo: ['#7a4a24', '#5a3a1c'],
+}
+
+// The distinctive, fun desk shape for each theme. The surface sits at y≈0.9 so
+// the shared Laptop lands on top. Rendered inside the desk group (at dz).
+function WorkstationBase({ variant, id }: { variant: string; id: string }) {
+  const hue = funColor(id)
+  switch (variant) {
+    case 'space': // a hovering flying saucer
+      return (
+        <group>
+          <Cy p={[0, 0.42, 0]} r={1.25} h={0.05} c={hue} emissive={hue} ei={0.9} />
+          <mesh position={[0, 0.7, 0]} scale={[1, 0.3, 1]} castShadow><sphereGeometry args={[1.22, 28, 18]} /><meshStandardMaterial color="#c3ccd8" metalness={0.55} roughness={0.3} /></mesh>
+          <Cy p={[0, 0.84, 0]} r={0.5} h={0.14} c="#9aa3b2" />
+          <mesh position={[0, 0.98, 0]}><sphereGeometry args={[0.44, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color={hue} emissive={hue} emissiveIntensity={0.5} transparent opacity={0.85} /></mesh>
+          {Array.from({ length: 8 }).map((_, i) => { const a = (i / 8) * Math.PI * 2; return <Glow key={i} p={[Math.cos(a) * 1.05, 0.72, Math.sin(a) * 1.05]} r={0.06} c={i % 2 ? '#ffffff' : hue} i={1} /> })}
+        </group>
+      )
+    case 'garden': // a toadstool mushroom desk
+      return (
+        <group>
+          <Cy p={[0, 0.42, 0]} r={0.34} h={0.84} c="#f4ecd8" />
+          <mesh position={[0, 0.9, 0]} scale={[1, 0.5, 1]} castShadow><sphereGeometry args={[1.05, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color={hue} {...M} /></mesh>
+          {[[0.4, 0.2], [-0.5, 0.1], [0.1, -0.5], [-0.2, 0.5], [0.55, -0.3]].map(([dx, dz], i) => <Sp key={i} p={[dx as number, 0.98, dz as number]} r={0.1} c="#fff6ec" />)}
+        </group>
+      )
+    case 'wonderland': // a fluffy cloud desk
+      return (
+        <group>
+          {[[0, 0, 1.1], [0.75, 0.08, 0.72], [-0.75, 0.08, 0.72], [0.5, -0.06, 0.62], [-0.5, -0.06, 0.62], [0, 0.16, 0.78]].map(([dx, dy, r], i) => (
+            <mesh key={i} position={[dx as number, 0.84 + (dy as number), 0]} castShadow><sphereGeometry args={[r as number, 18, 14]} /><meshStandardMaterial color="#ffffff" roughness={0.95} /></mesh>
+          ))}
+          <Cy p={[0, 0.42, 0]} r={0.14} h={0.84} c={hue} emissive={hue} ei={0.35} />
+        </group>
+      )
+    case 'forest': // a log across two stumps
+      return (
+        <group>
+          {[-0.72, 0.72].map((sx) => <Cy key={sx} p={[sx, 0.38, 0]} r={0.24} h={0.76} c="#6b4a2a" />)}
+          <Cy p={[0, 0.88, 0]} r={0.34} h={2.0} c="#8a5a34" rot={[Math.PI / 2, 0, Math.PI / 2]} />
+          <Sp p={[0.95, 1.06, 0.15]} r={0.13} c={hue} emissive={hue} ei={0.4} />
+          <Sp p={[-0.9, 0.6, -0.2]} r={0.16} c="#6cbf6c" />
+        </group>
+      )
+    case 'lab': // a clean pod bench with glowing edges
+      return (
+        <group>
+          <B p={[0, 0.9, 0]} s={[1.9, 0.12, 0.86]} c="#eef5f7" />
+          <B p={[0, 0.9, 0.45]} s={[1.9, 0.05, 0.04]} c="#00e6ff" emissive="#00e6ff" ei={0.7} />
+          <B p={[0, 0.9, -0.45]} s={[1.9, 0.05, 0.04]} c={hue} emissive={hue} ei={0.5} />
+          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <Cy key={i} p={[lx as number, 0.44, lz as number]} r={0.06} h={0.88} c="#cbdde3" />)}
+        </group>
+      )
+    case 'castle': // a banquet table with a coloured runner
+      return (
+        <group>
+          <B p={[0, 0.9, 0]} s={[2.0, 0.14, 0.95]} c="#6b4f2a" />
+          <B p={[0, 0.985, 0]} s={[0.66, 0.02, 0.97]} c={hue} />
+          {[[-0.9, -0.4], [0.9, -0.4], [-0.9, 0.4], [0.9, 0.4]].map(([lx, lz], i) => <B key={i} p={[lx as number, 0.44, lz as number]} s={[0.16, 0.88, 0.16]} c="#3f2e18" />)}
+        </group>
+      )
+    case 'factory': // a steel machine bench with a control strip
+      return (
+        <group>
+          <B p={[0, 0.9, 0]} s={[1.9, 0.14, 0.86]} c="#9aa0aa" />
+          <B p={[0, 0.9, 0.45]} s={[1.9, 0.06, 0.05]} c="#f2c200" />
+          {[-0.5, -0.1, 0.3].map((bx, i) => <Glow key={bx} p={[bx, 0.98, -0.3]} r={0.05} c={['#37d67a', '#ff5a3a', hue][i]} i={0.9} />)}
+          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <B key={i} p={[lx as number, 0.44, lz as number]} s={[0.12, 0.88, 0.12]} c="#565c68" />)}
+        </group>
+      )
+    case 'startup': // a sleek desk with a neon underglow
+      return (
+        <group>
+          <B p={[0, 0.9, 0]} s={[1.9, 0.1, 0.85]} c="#20242f" />
+          <B p={[0, 0.82, 0]} s={[1.96, 0.04, 0.9]} c={hue} emissive={hue} ei={0.8} />
+          {[-0.8, 0.8].map((lx) => <B key={lx} p={[lx, 0.44, 0]} s={[0.1, 0.86, 0.72]} c="#2b2f3d" />)}
+        </group>
+      )
+    case 'dojo':
+    default: // warm wood desk
+      return (
+        <group>
+          <B p={[0, 0.9, 0]} s={[1.9, 0.1, 0.85]} c={WOOD} />
+          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <B key={i} p={[lx as number, 0.44, lz as number]} s={[0.1, 0.88, 0.1]} c={WOOD_D} />)}
+        </group>
+      )
   }
 }
 
@@ -236,24 +320,22 @@ function Station({ id, x, z, variant }: { id: string; x: number; z: number; vari
     )
   }
 
-  const t = deskTheme(variant)
+  // saucers hover (no chair); every other theme keeps a themed chair
+  const chair = CHAIR[variant] ?? ['#4a5270', '#4a5270']
+  const noChair = variant === 'space'
   return (
     <group position={[x, 0, 0]}>
-      {/* chair behind the agent */}
-      <group position={[0, 0, z - 0.5]}>
-        <Cy p={[0, 0.28, 0]} r={0.05} h={0.56} c="#2b2f3d" />
-        <B p={[0, 0.06, 0]} s={[0.5, 0.06, 0.5]} c="#2b2f3d" />
-        <B p={[0, 0.6, 0]} s={[0.64, 0.12, 0.62]} c={t.chair} />
-        <B p={[0, 1.05, -0.28]} s={[0.6, 0.85, 0.12]} c={t.back} />
-      </group>
+      {!noChair && (
+        <group position={[0, 0, z - 0.5]}>
+          <Cy p={[0, 0.28, 0]} r={0.05} h={0.56} c="#2b2f3d" />
+          <B p={[0, 0.06, 0]} s={[0.5, 0.06, 0.5]} c="#2b2f3d" />
+          <B p={[0, 0.6, 0]} s={[0.64, 0.12, 0.62]} c={chair[0]} />
+          <B p={[0, 1.05, -0.28]} s={[0.6, 0.85, 0.12]} c={chair[1]} />
+        </group>
+      )}
 
-      {/* themed desk */}
       <group position={[0, 0, dz]}>
-        <B p={[0, 0.9, 0]} s={[1.9, 0.1, 0.85]} c={t.top} />
-        {t.trim && <B p={[0, 0.9, 0.44]} s={[1.9, 0.04, 0.03]} c={t.trim} emissive={t.trim} ei={0.4} />}
-        {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => (
-          <B key={i} p={[lx, 0.44, lz]} s={[0.1, 0.88, 0.1]} c={t.leg} />
-        ))}
+        <WorkstationBase variant={variant} id={id} />
       </group>
 
       <Laptop y={0.96} z={z + 0.55} />
@@ -843,6 +925,95 @@ function FactoryDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   )
 }
 
+// --- Forest Lake (Japanese): torii in a lake, pines, hills, stone lanterns ---
+function Pine({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0, z]}>
+      <Cy p={[0, 0.6, 0]} r={0.2} h={1.2} c="#6b4a2a" />
+      {[1.35, 2.05, 2.65].map((y, i) => <Co key={y} p={[0, y, 0]} r={1.15 - i * 0.3} h={1.05} c={i % 2 ? '#3f7d4a' : '#4f9e58'} />)}
+    </group>
+  )
+}
+function ForestDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
+  return (
+    <group>
+      {/* soft hills on the horizon */}
+      {[[-7, backZ - 3], [0, backZ - 4], [7, backZ - 3]].map(([x, z], i) => (
+        <mesh key={i} position={[x as number, 0, z as number]} scale={[1, 0.7, 1]}><coneGeometry args={[6, 6, 20]} /><meshStandardMaterial color={i === 1 ? '#8fae9a' : '#a3c4a8'} roughness={1} /></mesh>
+      ))}
+      {/* the lake */}
+      <mesh position={[0, 0.05, backZ + 1.5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[24, 9]} /><meshStandardMaterial color="#4f8fb0" transparent opacity={0.9} roughness={0.15} emissive="#2f6f90" emissiveIntensity={0.18} /></mesh>
+      {/* a great red torii standing in the water */}
+      <group position={[0, 0, backZ + 2]}>
+        {[-1.7, 1.7].map((x) => <Cy key={x} p={[x, 1.55, 0]} r={0.17} h={3.1} c="#c0392b" />)}
+        <B p={[0, 3.2, 0]} s={[4.8, 0.32, 0.34]} c="#a02a1c" />
+        <B p={[0, 3.4, 0]} s={[5.2, 0.18, 0.24]} c="#8f2418" />
+        <B p={[0, 2.65, 0]} s={[3.9, 0.24, 0.26]} c="#c0392b" />
+      </group>
+      <Pine x={-9} z={backZ + 3} />
+      <Pine x={9} z={backZ + 3} />
+      <Pine x={-8.6} z={4.5} />
+      <Pine x={8.8} z={4.6} />
+      <StoneLantern x={-6} z={5.4} />
+      <StoneLantern x={6} z={5.4} />
+      {/* lily pads + a couple of glowing floating lanterns on the lake */}
+      {[[-3.5, backZ + 1], [3.5, backZ + 2], [-1, backZ + 0.5], [1.5, backZ + 2.5]].map(([x, z], i) => (
+        <mesh key={i} position={[x as number, 0.1, z as number]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[0.42, 16]} /><meshStandardMaterial color="#3f9e6a" /></mesh>
+      ))}
+      {[[-4.5, backZ + 2.5], [4.5, backZ + 1]].map(([x, z], i) => <Glow key={i} p={[x as number, 0.35, z as number]} r={0.16} c={P.accent} i={0.8} />)}
+    </group>
+  )
+}
+
+// --- Wonderland: giant rainbow, floating clouds, lollipops, stars ------------
+function Cloud({ x, y, z, s = 1 }: { x: number; y: number; z: number; s?: number }) {
+  return (
+    <group position={[x, y, z]} scale={s}>
+      {[[0, 0, 0.95], [0.72, 0, 0.62], [-0.72, 0, 0.62], [0.36, 0.16, 0.56], [-0.36, 0.16, 0.56]].map(([dx, dy, r], i) => (
+        <mesh key={i} position={[dx as number, dy as number, 0]} castShadow><sphereGeometry args={[r as number, 16, 12]} /><meshStandardMaterial color="#ffffff" roughness={0.95} /></mesh>
+      ))}
+    </group>
+  )
+}
+function WonderlandDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
+  const rainbow = ['#ff5d6c', '#ff9a52', '#ffd23f', '#7bd88f', '#4fc3f7', '#c98cff']
+  return (
+    <group>
+      {/* a giant rainbow arch over the back */}
+      <group position={[0, 0, backZ]}>
+        {rainbow.map((c, i) => (
+          <mesh key={c}><torusGeometry args={[8 - i * 0.55, 0.28, 12, 48, Math.PI]} /><meshStandardMaterial color={c} emissive={c} emissiveIntensity={0.3} roughness={0.6} /></mesh>
+        ))}
+      </group>
+      {/* fluffy floating clouds */}
+      <Cloud x={-8} y={4.5} z={backZ + 2} s={1.2} />
+      <Cloud x={8} y={5.2} z={backZ + 1} />
+      <Cloud x={-5.5} y={6.4} z={2} s={0.8} />
+      <Cloud x={6} y={5.6} z={3} s={0.9} />
+      <Cloud x={0} y={7.2} z={backZ + 1} s={1.1} />
+      {/* giant lollipops */}
+      {[[-9.2, 5], [9.2, 4.6]].map(([x, z], i) => (
+        <group key={i} position={[x as number, 0, z as number]}>
+          <Cy p={[0, 1.6, 0]} r={0.09} h={3.2} c="#ffffff" />
+          <mesh position={[0, 3.3, 0]}><torusGeometry args={[0.55, 0.18, 14, 28]} /><meshStandardMaterial color={rainbow[i * 3]} emissive={rainbow[i * 3]} emissiveIntensity={0.3} /></mesh>
+          <mesh position={[0, 3.3, 0.02]}><circleGeometry args={[0.42, 24]} /><meshStandardMaterial color={rainbow[i * 3 + 2]} emissive={rainbow[i * 3 + 2]} emissiveIntensity={0.2} /></mesh>
+        </group>
+      ))}
+      {/* twinkling stars + floating hearts */}
+      {[[-6, 3, 4], [5, 4, 3], [-2, 5, backZ + 3], [3, 3.5, 5], [7, 3, 1], [-7, 2.5, 1]].map(([x, y, z], i) => (
+        <Glow key={i} p={[x as number, y as number, z as number]} r={0.09} c={rainbow[i % 6]} i={1} />
+      ))}
+      {/* candy-cane pillars flanking the scene */}
+      {[-9.4, 9.4].map((x) => (
+        <group key={x} position={[x, 0, backZ + 4]}>
+          <Cy p={[0, 1.6, 0]} r={0.2} h={3.2} c="#ffffff" />
+          {[0.4, 1.0, 1.6, 2.2, 2.8].map((y) => <Cy key={y} p={[0, y, 0]} r={0.205} h={0.22} c={P.accent} rot={[0, 0, 0.5]} />)}
+        </group>
+      ))}
+    </group>
+  )
+}
+
 // Dispatch to the right themed decor for a template id.
 function ThemeDecor({ id, backZ, P }: { id: string; backZ: number; P: DojoPalette }) {
   switch (id) {
@@ -854,71 +1025,38 @@ function ThemeDecor({ id, backZ, P }: { id: string; backZ: number; P: DojoPalett
     case 'castle': return <CastleDecor backZ={backZ} P={P} />
     case 'factory': return <FactoryDecor backZ={backZ} P={P} />
     case 'startup': return <StartupDecor backZ={backZ} P={P} />
+    case 'forest': return <ForestDecor backZ={backZ} P={P} />
+    case 'wonderland': return <WonderlandDecor backZ={backZ} P={P} />
     default: return <PlainAccents backZ={backZ} P={P} />
   }
 }
 
-export function Decor3D({ palette, style, decor }: { palette: DojoPalette; style: DecorStyle; decor: string }) {
+export function Decor3D({ palette, decor }: { palette: DojoPalette; decor: string }) {
   const P = palette
-  const zen = style === 'zen'
-  const halfW = ROOM.w / 2
   const backZ = -ROOM.d / 2
-  const pillarC = zen ? WOOD : P.trim
   return (
     <group>
-      {/* floor + grid */}
+      {/* open-air ground platform (no walls — the theme decor is the backdrop) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
-        <planeGeometry args={[ROOM.w, ROOM.d]} />
+        <circleGeometry args={[26, 64]} />
         <meshStandardMaterial color={P.ground} roughness={1} />
       </mesh>
-      <gridHelper args={[ROOM.w, 8, P.grid, P.grid]} position={[0, 0.02, 0]} />
-
-      {/* back + side walls */}
-      <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow>
-        <boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} />
-        <meshStandardMaterial color={P.wallBack} roughness={1} />
+      {/* a soft accent rim so the platform reads as a floating island */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+        <ringGeometry args={[13.4, 26, 64]} />
+        <meshStandardMaterial color={P.grid} roughness={1} transparent opacity={0.5} />
       </mesh>
-      <mesh position={[0, 0.2, backZ + 0.22]}>
-        <boxGeometry args={[ROOM.w, 0.4, 0.1]} />
-        <meshStandardMaterial color={P.trim} />
-      </mesh>
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[s * halfW, ROOM.wallH / 2, 0]} receiveShadow>
-          <boxGeometry args={[0.4, ROOM.wallH, ROOM.d]} />
-          <meshStandardMaterial color={P.wallSide} roughness={1} />
-        </mesh>
-      ))}
+      <gridHelper args={[26, 13, P.grid, P.grid]} position={[0, 0.02, 0]} />
 
-      {/* back-wall panels: shoji grid (zen) or glowing accent screens (plain) */}
-      {[-7.5, -3.5, 3.5, 7.5].map((x) =>
-        zen ? (
-          <group key={x} position={[x, 2.4, backZ + 0.25]}>
-            <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
-            {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.06]}><boxGeometry args={[0.05, 2.6, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
-            {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.06]}><boxGeometry args={[2.6, 0.05, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+      {/* only the Zen Dojo keeps free-standing shoji screens as its backdrop */}
+      {decor === 'dojo' &&
+        [-7.5, -3.5, 3.5, 7.5].map((x) => (
+          <group key={x} position={[x, 2.4, backZ - 0.5]}>
+            <mesh castShadow><boxGeometry args={[2.6, 2.6, 0.12]} /><meshStandardMaterial color={PAPER} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
+            {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.08]}><boxGeometry args={[0.06, 2.6, 0.04]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+            {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.08]}><boxGeometry args={[2.6, 0.06, 0.04]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
           </group>
-        ) : (
-          <group key={x} position={[x, 2.6, backZ + 0.25]}>
-            <mesh><boxGeometry args={[2.5, 1.7, 0.08]} /><meshStandardMaterial color={P.trim} /></mesh>
-            <mesh position={[0, 0, 0.06]}><boxGeometry args={[2.2, 1.4, 0.03]} /><meshStandardMaterial color={P.wallBack} emissive={P.accent} emissiveIntensity={0.5} /></mesh>
-          </group>
-        ),
-      )}
-
-      {/* centrepiece: hanging scroll (zen) or an accent banner (plain) */}
-      <group position={[0, 2.1, backZ + 0.25]}>
-        <mesh><boxGeometry args={[2.4, 4.0, 0.14]} /><meshStandardMaterial color={zen ? WOOD_D : P.trim} /></mesh>
-        <mesh position={[-0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={zen ? PAPER : P.accent} emissive={zen ? '#000' : P.accent} emissiveIntensity={zen ? 0 : 0.3} /></mesh>
-        <mesh position={[0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={PAPER} /></mesh>
-      </group>
-
-      {/* framing pillars */}
-      {[-halfW + 0.6, halfW - 0.6].map((x) => (
-        <mesh key={x} position={[x, ROOM.wallH / 2, backZ + 1]} castShadow>
-          <boxGeometry args={[0.5, ROOM.wallH, 0.5]} />
-          <meshStandardMaterial color={pillarC} roughness={0.9} />
-        </mesh>
-      ))}
+        ))}
 
       <ThemeDecor id={decor} backZ={backZ} P={P} />
 

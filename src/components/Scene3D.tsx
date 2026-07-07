@@ -150,7 +150,7 @@ export function Scene3D() {
       <pointLight position={[-7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />
       <pointLight position={[7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />
       <Suspense fallback={null}>
-        <Decor3D palette={P} style={tpl.style} decor={tpl.id} />
+        <Decor3D palette={P} decor={tpl.id} />
         <Agents />
         <Hero3D />
         <Lazy3D />
