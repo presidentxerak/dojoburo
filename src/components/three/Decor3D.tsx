@@ -208,9 +208,9 @@ function WorkstationBase({ variant, id }: { variant: string; id: string }) {
         <group>
           <Cy p={[0, 0.42, 0]} r={0.34} h={0.84} c="#f4ecd8" />
           <mesh position={[0, 0.9, 0]} scale={[1, 0.5, 1]} castShadow><sphereGeometry args={[1.05, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color={hue} {...M} /></mesh>
-          {/* classic white spots, sitting on the curve of the cap */}
-          {[[0, 1.34, 0, 0.15], [0.55, 1.12, 0.2, 0.14], [-0.55, 1.1, -0.15, 0.13], [0.25, 1.18, -0.55, 0.12], [-0.35, 1.16, 0.5, 0.13], [0.7, 0.98, -0.35, 0.11], [-0.65, 0.98, 0.35, 0.12], [0.1, 1.05, 0.72, 0.11]].map(([dx, dy, dz, r], i) => (
-            <mesh key={i} position={[dx as number, dy as number, dz as number]} scale={[1, 0.55, 1]}><sphereGeometry args={[r as number, 14, 12]} /><meshStandardMaterial color="#ffffff" roughness={0.85} /></mesh>
+          {/* classic chunky white spots, sitting on the curve of the cap */}
+          {[[0, 1.35, 0.05, 0.22], [0.6, 1.1, 0.28, 0.2], [-0.6, 1.08, -0.1, 0.18], [0.28, 1.16, -0.55, 0.17], [-0.32, 1.14, 0.55, 0.19], [0.75, 0.95, -0.3, 0.15], [-0.72, 0.95, 0.4, 0.16], [0.15, 1.02, 0.78, 0.15]].map(([dx, dy, dz, r], i) => (
+            <mesh key={i} position={[dx as number, dy as number, dz as number]} scale={[1, 0.7, 1]}><sphereGeometry args={[r as number, 16, 12]} /><meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.12} roughness={0.8} /></mesh>
           ))}
         </group>
       )
@@ -572,17 +572,17 @@ function LoftPlant({ x, z }: { x: number; z: number }) {
 function SpaceDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   return (
     <group>
-      {/* Saturn in the deep background, with tilted rings */}
-      <group position={[-10, 7, backZ - 6]} rotation={[0, 0, 0.4]}>
-        <Sp p={[0, 0, 0]} r={2.2} c="#d9b877" emissive="#8a6f3a" ei={0.25} />
-        <mesh position={[0, 0, 0]} scale={[1, 1, 0.16]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[3.2, 0.5, 2, 64]} /><meshStandardMaterial color="#cdb48a" emissive="#8a7550" emissiveIntensity={0.2} transparent opacity={0.9} side={2} /></mesh>
-        <mesh position={[0, 0, 0]} scale={[1, 1, 0.16]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[4.0, 0.18, 2, 64]} /><meshStandardMaterial color="#b8a074" emissive="#7a663f" emissiveIntensity={0.2} transparent opacity={0.7} side={2} /></mesh>
+      {/* Saturn in the background, with tilted rings */}
+      <group position={[-8.5, 4.4, backZ - 2.5]} rotation={[0, 0, 0.4]}>
+        <Sp p={[0, 0, 0]} r={2.0} c="#d9b877" emissive="#8a6f3a" ei={0.3} />
+        <mesh position={[0, 0, 0]} scale={[1, 1, 0.18]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[3.0, 0.45, 2, 64]} /><meshStandardMaterial color="#cdb48a" emissive="#8a7550" emissiveIntensity={0.25} transparent opacity={0.92} side={2} /></mesh>
+        <mesh position={[0, 0, 0]} scale={[1, 1, 0.18]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[3.7, 0.16, 2, 64]} /><meshStandardMaterial color="#b8a074" emissive="#7a663f" emissiveIntensity={0.25} transparent opacity={0.75} side={2} /></mesh>
       </group>
       {/* the Moon on the other side, cratered */}
-      <group position={[11, 8, backZ - 4]}>
-        <Sp p={[0, 0, 0]} r={1.5} c="#c9ccd6" emissive="#5a5f6b" ei={0.2} />
-        {[[-0.5, 0.4, 0.3], [0.5, -0.2, 0.35], [0.1, 0.6, 0.22], [-0.3, -0.5, 0.28], [0.6, 0.4, 0.2]].map(([cx, cy, r], i) => (
-          <mesh key={i} position={[cx as number, cy as number, 1.3]}><circleGeometry args={[r as number, 16]} /><meshBasicMaterial color="#9aa0ad" /></mesh>
+      <group position={[8.5, 5, backZ - 2]}>
+        <Sp p={[0, 0, 0]} r={1.35} c="#c9ccd6" emissive="#6a6f7b" ei={0.25} />
+        {[[-0.45, 0.35, 0.28], [0.45, -0.2, 0.32], [0.1, 0.55, 0.2], [-0.25, -0.45, 0.25], [0.55, 0.35, 0.18]].map(([cx, cy, r], i) => (
+          <mesh key={i} position={[cx as number, cy as number, 1.2]}><circleGeometry args={[r as number, 16]} /><meshBasicMaterial color="#9aa0ad" /></mesh>
         ))}
       </group>
       {/* porthole with a planet */}
