@@ -9,8 +9,10 @@ import { XamanPanel } from './components/XamanPanel'
 import { StatsPanel } from './components/StatsPanel'
 import { SupportBot } from './components/SupportBot'
 import { Workshop } from './components/workshop/Workshop'
+import { DeliverableModal } from './components/agents/DeliverableModal'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
+import { useWork } from './agents/workStore'
 import { NETWORKS } from './xrpl/network'
 import { audio } from './audio'
 
@@ -30,6 +32,21 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
+
+  // OAuth return from a tool connect: surface a toast + refresh connections
+  useEffect(() => {
+    const h = window.location.hash
+    const okm = h.match(/#connected=([\w-]+)/)
+    const errm = h.match(/#connect_error=([^&]+)/)
+    if (okm) {
+      useDojo.getState().pushToast({ kind: 'event', badge: '🔌', color: '#2fae6a', title: 'Tool connected', text: `${okm[1]} is now linked to your agents.` })
+      void useWork.getState().loadTools()
+      history.replaceState(null, '', window.location.pathname + window.location.search)
+    } else if (errm) {
+      useDojo.getState().pushToast({ kind: 'event', badge: '⚠️', color: '#d9822b', title: 'Connection failed', text: decodeURIComponent(errm[1]) })
+      history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }, [])
 
   // on mobile, tapping an agent reveals the panel (its card); deselect hides it
   useEffect(() => {
@@ -111,6 +128,7 @@ export default function App() {
       <StatsPanel />
       <Toasts />
       <Workshop />
+      <DeliverableModal />
       <SupportBot />
     </div>
   )

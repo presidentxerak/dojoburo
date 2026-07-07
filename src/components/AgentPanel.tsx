@@ -1,9 +1,13 @@
-import { type AgentSkill } from '../data/agents'
+import { useEffect, useState } from 'react'
+import { type AgentSkill, type Department } from '../data/agents'
 import { getAgentView } from '../agentView'
 import { xpForLevel, tierForLevel } from '../data/events'
 import { useDojo } from '../store'
 import { useWorkshop } from '../workshop'
 import { NETWORKS } from '../xrpl/network'
+import { connectorsForFunction, tasksForFunction } from '../data/connectors'
+import { useWork } from '../agents/workStore'
+import { startConnect } from '../agents/workApi'
 import { Agent3DPreview } from './three/Agent3DPreview'
 import { Icon } from './Icon'
 
@@ -20,6 +24,20 @@ export function AgentPanel() {
   // re-render when the active dojo changes so live edits (name, skin, skills) show
   useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
 
+  const tools = useWork((s) => s.tools)
+  const backend = useWork((s) => s.backend)
+  const loadedOnce = useWork((s) => s.loadedOnce)
+  const loadTools = useWork((s) => s.loadTools)
+  const run = useWork((s) => s.run)
+  const disconnect = useWork((s) => s.disconnect)
+  const runningTask = useWork((s) => s.runningTask)
+  const runError = useWork((s) => s.runError)
+  const [brief, setBrief] = useState('')
+
+  useEffect(() => {
+    if (!loadedOnce) void loadTools()
+  }, [loadedOnce, loadTools])
+
   const agent = getAgentView(id)
   if (!id || !agent) {
     return (
@@ -30,7 +48,11 @@ export function AgentPanel() {
   }
 
   const cfg = NETWORKS[net]
-  const run = (skill: AgentSkill) => void runSkill(agent.id, skill)
+  const dept = agent.department as Department
+  const workTasks = tasksForFunction(dept)
+  const connectors = connectorsForFunction(dept)
+  const connectedIds = connectors.filter((c) => tools[c.id]?.connected).map((c) => c.id)
+  const run3d = (skill: AgentSkill) => void runSkill(agent.id, skill)
   const xpNeed = stats ? xpForLevel(stats.level) : 100
   const xpPct = stats ? Math.min(100, Math.round((stats.xp / xpNeed) * 100)) : 0
 
@@ -69,6 +91,79 @@ export function AgentPanel() {
 
       <p className="agent-mission">{agent.mission}</p>
 
+      {/* ---- Real work (Claude-powered deliverables) ---- */}
+      {workTasks.length > 0 && (
+        <section className="work-block">
+          <h3 className="skills-title">Deliver real work <span className="tag tag-live">Claude</span></h3>
+          <input
+            className="work-brief"
+            placeholder="Optional brief (what should it be about?)"
+            value={brief}
+            onChange={(e) => setBrief(e.target.value)}
+            maxLength={300}
+          />
+          <ul className="work-list">
+            {workTasks.map((t) => {
+              const busy = runningTask === t.id
+              const usable = (t.usesConnectors || []).filter((c) => connectedIds.includes(c))
+              return (
+                <li key={t.id}>
+                  <button className="work-btn" disabled={!!runningTask} onClick={() => void run({ task: t.id, agentName: agent.name, connectors: connectedIds, brief })}>
+                    <span className="work-emoji">{t.emoji}</span>
+                    <span className="work-main">
+                      <span className="work-name">{busy ? 'Working…' : t.label}</span>
+                      <span className="work-desc">{t.blurb}</span>
+                      <span className="work-tags">
+                        <span className="tag tag-price">x402 · {t.priceXrp} XRP</span>
+                        {usable.length > 0 && <span className="tag tag-tool">acts in {usable.join(', ')}</span>}
+                      </span>
+                    </span>
+                    {busy && <span className="work-spin" />}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          {runError === 'not_configured' && (
+            <p className="work-hint">Set <code>ANTHROPIC_API_KEY</code> in the deployment to enable real deliverables.</p>
+          )}
+          {runError && runError !== 'not_configured' && <p className="work-hint err">Run failed: {runError}</p>}
+        </section>
+      )}
+
+      {/* ---- Connect real tools (per function) ---- */}
+      {connectors.length > 0 && (
+        <section className="conn-block">
+          <h3 className="skills-title">Connect tools</h3>
+          <ul className="conn-list">
+            {connectors.map((c) => {
+              const st = tools[c.id]
+              const connected = !!st?.connected
+              const available = !!st?.available
+              return (
+                <li key={c.id} className={`conn-row${connected ? ' on' : ''}`}>
+                  <span className="conn-emoji">{c.emoji}</span>
+                  <span className="conn-meta">
+                    <span className="conn-name">{c.label}</span>
+                    <span className="conn-blurb">{connected && st?.account ? `Connected · ${st.account}` : c.blurb}</span>
+                  </span>
+                  {connected ? (
+                    <button className="btn tiny ghost" onClick={() => void disconnect(c.id)}>Disconnect</button>
+                  ) : available ? (
+                    <button className="btn tiny" onClick={() => startConnect(c.id)}>Connect</button>
+                  ) : (
+                    <a className="conn-setup" href={c.docsUrl} target="_blank" rel="noreferrer" title="Operator must configure this connector">setup ↗</a>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+          {loadedOnce && !backend && (
+            <p className="work-hint">Tool connections need <code>DATABASE_URL</code> + <code>CONNECTOR_ENC_KEY</code> and each tool's OAuth keys.</p>
+          )}
+        </section>
+      )}
+
       <div className="agent-wallet-row">
         <div>
           <span className="muted small">Wallet ({cfg.label})</span>
@@ -92,7 +187,7 @@ export function AgentPanel() {
       <ul className="skill-list">
         {agent.skills.map((skill) => (
           <li key={skill.id}>
-            <button className={`skill-btn kind-${skill.kind}`} disabled={rt?.busy} onClick={() => run(skill)}>
+            <button className={`skill-btn kind-${skill.kind}`} disabled={rt?.busy} onClick={() => run3d(skill)}>
               <span className="skill-main">
                 <span className="skill-name">{skill.name}</span>
                 <span className="skill-tags">

@@ -15,6 +15,7 @@ type Name =
   | 'bolt'
   | 'rocket'
   | 'building'
+  | 'download'
 
 export function Icon({ name, size = 14, className }: { name: Name; size?: number; className?: string }) {
   const p = { width: size, height: size, viewBox: '0 0 16 16', fill: 'currentColor', className, 'aria-hidden': true } as const
@@ -49,5 +50,7 @@ export function Icon({ name, size = 14, className }: { name: Name; size?: number
       return <svg {...p}><path d="M8 1c3 1.5 4 4.5 4 7l-2 2H6L4 8c0-2.5 1-5.5 4-7Zm0 4a1.3 1.3 0 1 0 0 2.6A1.3 1.3 0 0 0 8 5ZM5 11l-1 3 3-1M11 11l1 3-3-1" /></svg>
     case 'building':
       return <svg {...p}><path d="M2 14V4l5-2v12H2Zm6 0V6l6 2v6H8Zm-4-8h1v1H4V6Zm0 3h1v1H4V9Zm6 0h1v1h-1V9Zm2 0h1v1h-1V9Zm-2 3h1v1h-1v-1Zm2 0h1v1h-1v-1Z" /></svg>
+    case 'download':
+      return <svg {...p}><path d="M7 1h2v6h2.5L8 11 4.5 7H7V1ZM3 12h10v2H3v-2Z" /></svg>
   }
 }

@@ -1,0 +1,92 @@
+// Client wrappers for the connector + real-work endpoints. All identity is a
+// ref: the Privy DID when signed in, else the workshop account id (guest). No
+// token ever crosses this boundary — the browser only sees connector status.
+import { useWorkshop } from '../workshop'
+import { useDojo } from '../store'
+
+export interface ToolStatus {
+  id: string
+  available: boolean
+  connected: boolean
+  account: string | null
+}
+
+function ref(): { privy?: string; client?: string } {
+  const acc = useWorkshop.getState().account
+  return { privy: acc?.privyDid || undefined, client: acc?.id || undefined }
+}
+
+function refParams(): string {
+  const r = ref()
+  const p = new URLSearchParams()
+  if (r.privy) p.set('privy', r.privy)
+  if (r.client) p.set('client', r.client)
+  return p.toString()
+}
+
+export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boolean }> {
+  try {
+    const res = await fetch(`/api/connect?action=list&${refParams()}`, { headers: { accept: 'application/json' } })
+    const j = await res.json()
+    if (j?.ok) return { tools: j.tools, backend: !!j.backend }
+  } catch {
+    /* offline / not deployed */
+  }
+  return { tools: [], backend: false }
+}
+
+/** Top-level navigation to the provider's OAuth screen. */
+export function startConnect(connectorId: string): void {
+  const p = new URLSearchParams({ action: 'start', connector: connectorId })
+  const r = ref()
+  if (r.privy) p.set('privy', r.privy)
+  if (r.client) p.set('client', r.client)
+  window.location.href = `/api/connect?${p.toString()}`
+}
+
+export async function disconnectTool(connectorId: string): Promise<boolean> {
+  try {
+    const res = await fetch('/api/connect?action=disconnect', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ connector: connectorId, ...ref() }),
+    })
+    const j = await res.json()
+    return !!j?.ok
+  } catch {
+    return false
+  }
+}
+
+export interface Deliverable {
+  taskId: string
+  title: string
+  format: 'design-system' | 'markdown'
+  markdown: string
+  tokens?: any
+  model: string
+}
+export interface RunResult {
+  ok: boolean
+  error?: string
+  detail?: string
+  deliverable?: Deliverable
+  tools?: string[]
+  settlement?: { ok: boolean; hash?: string; explorerUrl?: string; amountXrp?: number; error?: string } | null
+  priceXrp?: number
+}
+
+export async function runWork(input: { task: string; agentName: string; connectors: string[]; brief?: string }): Promise<RunResult> {
+  const startup = useWorkshop.getState().dojos.find((d) => d.id === useWorkshop.getState().activeDojoId)?.name || ''
+  const net = useDojo.getState().net
+  try {
+    const res = await fetch('/api/agent-run', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...input, startup, net, ...ref() }),
+    })
+    return (await res.json()) as RunResult
+  } catch (e: any) {
+    return { ok: false, error: 'network', detail: String(e?.message || e) }
+  }
+}
