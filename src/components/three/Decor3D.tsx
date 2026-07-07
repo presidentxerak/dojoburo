@@ -196,7 +196,11 @@ function WorkstationBase({ variant, id }: { variant: string; id: string }) {
           <mesh position={[0, 0.7, 0]} scale={[1, 0.3, 1]} castShadow><sphereGeometry args={[1.22, 28, 18]} /><meshStandardMaterial color="#c3ccd8" metalness={0.55} roughness={0.3} /></mesh>
           <Cy p={[0, 0.84, 0]} r={0.5} h={0.14} c="#9aa3b2" />
           <mesh position={[0, 0.98, 0]}><sphereGeometry args={[0.44, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color={hue} emissive={hue} emissiveIntensity={0.5} transparent opacity={0.85} /></mesh>
-          {Array.from({ length: 8 }).map((_, i) => { const a = (i / 8) * Math.PI * 2; return <Glow key={i} p={[Math.cos(a) * 1.05, 0.72, Math.sin(a) * 1.05]} r={0.06} c={i % 2 ? '#ffffff' : hue} i={1} /> })}
+          {/* blinking nav beacon on the dome */}
+          <Glow p={[0, 1.28, 0]} r={0.06} c="#ff4d4d" i={1.2} />
+          {/* rim running lights + a ring of hull portholes on the carlingue */}
+          {Array.from({ length: 10 }).map((_, i) => { const a = (i / 10) * Math.PI * 2; return <Glow key={`r${i}`} p={[Math.cos(a) * 1.12, 0.72, Math.sin(a) * 1.12]} r={0.055} c={i % 2 ? '#ffffff' : hue} i={1.1} /> })}
+          {Array.from({ length: 14 }).map((_, i) => { const a = (i / 14) * Math.PI * 2 + 0.2; return <mesh key={`h${i}`} position={[Math.cos(a) * 0.92, 0.78, Math.sin(a) * 0.92]}><sphereGeometry args={[0.05, 10, 8]} /><meshStandardMaterial color={i % 3 === 0 ? '#ffe066' : '#63d0ff'} emissive={i % 3 === 0 ? '#ffe066' : '#63d0ff'} emissiveIntensity={0.9} /></mesh> })}
         </group>
       )
     case 'garden': // a toadstool mushroom desk
@@ -204,16 +208,19 @@ function WorkstationBase({ variant, id }: { variant: string; id: string }) {
         <group>
           <Cy p={[0, 0.42, 0]} r={0.34} h={0.84} c="#f4ecd8" />
           <mesh position={[0, 0.9, 0]} scale={[1, 0.5, 1]} castShadow><sphereGeometry args={[1.05, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color={hue} {...M} /></mesh>
-          {[[0.4, 0.2], [-0.5, 0.1], [0.1, -0.5], [-0.2, 0.5], [0.55, -0.3]].map(([dx, dz], i) => <Sp key={i} p={[dx as number, 0.98, dz as number]} r={0.1} c="#fff6ec" />)}
+          {/* classic white spots, sitting on the curve of the cap */}
+          {[[0, 1.34, 0, 0.15], [0.55, 1.12, 0.2, 0.14], [-0.55, 1.1, -0.15, 0.13], [0.25, 1.18, -0.55, 0.12], [-0.35, 1.16, 0.5, 0.13], [0.7, 0.98, -0.35, 0.11], [-0.65, 0.98, 0.35, 0.12], [0.1, 1.05, 0.72, 0.11]].map(([dx, dy, dz, r], i) => (
+            <mesh key={i} position={[dx as number, dy as number, dz as number]} scale={[1, 0.55, 1]}><sphereGeometry args={[r as number, 14, 12]} /><meshStandardMaterial color="#ffffff" roughness={0.85} /></mesh>
+          ))}
         </group>
       )
-    case 'wonderland': // a fluffy cloud desk
+    case 'wonderland': // a fluffy white cloud desk
       return (
         <group>
-          {[[0, 0, 1.1], [0.75, 0.08, 0.72], [-0.75, 0.08, 0.72], [0.5, -0.06, 0.62], [-0.5, -0.06, 0.62], [0, 0.16, 0.78]].map(([dx, dy, r], i) => (
-            <mesh key={i} position={[dx as number, 0.84 + (dy as number), 0]} castShadow><sphereGeometry args={[r as number, 18, 14]} /><meshStandardMaterial color="#ffffff" roughness={0.95} /></mesh>
+          {[[0, 0.02, 1.05], [0.7, 0.06, 0.7], [-0.7, 0.06, 0.7], [0.42, -0.02, 0.66], [-0.42, -0.02, 0.66], [0, 0.2, 0.82], [0.28, 0.16, 0.6], [-0.28, 0.16, 0.6]].map(([dx, dy, r], i) => (
+            <mesh key={i} position={[dx as number, 0.86 + (dy as number), 0]} castShadow><sphereGeometry args={[r as number, 20, 16]} /><meshStandardMaterial color="#ffffff" emissive="#eef4ff" emissiveIntensity={0.18} roughness={1} /></mesh>
           ))}
-          <Cy p={[0, 0.42, 0]} r={0.14} h={0.84} c={hue} emissive={hue} ei={0.35} />
+          <Cy p={[0, 0.42, 0]} r={0.13} h={0.86} c={hue} emissive={hue} ei={0.35} />
         </group>
       )
     case 'forest': // a log across two stumps
@@ -565,6 +572,19 @@ function LoftPlant({ x, z }: { x: number; z: number }) {
 function SpaceDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   return (
     <group>
+      {/* Saturn in the deep background, with tilted rings */}
+      <group position={[-10, 7, backZ - 6]} rotation={[0, 0, 0.4]}>
+        <Sp p={[0, 0, 0]} r={2.2} c="#d9b877" emissive="#8a6f3a" ei={0.25} />
+        <mesh position={[0, 0, 0]} scale={[1, 1, 0.16]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[3.2, 0.5, 2, 64]} /><meshStandardMaterial color="#cdb48a" emissive="#8a7550" emissiveIntensity={0.2} transparent opacity={0.9} side={2} /></mesh>
+        <mesh position={[0, 0, 0]} scale={[1, 1, 0.16]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[4.0, 0.18, 2, 64]} /><meshStandardMaterial color="#b8a074" emissive="#7a663f" emissiveIntensity={0.2} transparent opacity={0.7} side={2} /></mesh>
+      </group>
+      {/* the Moon on the other side, cratered */}
+      <group position={[11, 8, backZ - 4]}>
+        <Sp p={[0, 0, 0]} r={1.5} c="#c9ccd6" emissive="#5a5f6b" ei={0.2} />
+        {[[-0.5, 0.4, 0.3], [0.5, -0.2, 0.35], [0.1, 0.6, 0.22], [-0.3, -0.5, 0.28], [0.6, 0.4, 0.2]].map(([cx, cy, r], i) => (
+          <mesh key={i} position={[cx as number, cy as number, 1.3]}><circleGeometry args={[r as number, 16]} /><meshBasicMaterial color="#9aa0ad" /></mesh>
+        ))}
+      </group>
       {/* porthole with a planet */}
       <group position={[0, 3, backZ + 0.35]}>
         <mesh><torusGeometry args={[1.7, 0.22, 16, 40]} /><meshStandardMaterial color="#3a4890" metalness={0.6} roughness={0.3} /></mesh>
@@ -967,10 +987,15 @@ function ForestDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
 
 // --- Wonderland: giant rainbow, floating clouds, lollipops, stars ------------
 function Cloud({ x, y, z, s = 1 }: { x: number; y: number; z: number; s?: number }) {
+  // overlapping puffs with a flat-ish base so it reads as a real fluffy cloud
+  const puffs = [[0, 0, 1.0], [0.85, 0.05, 0.68], [-0.85, 0.05, 0.68], [0.45, 0.28, 0.62], [-0.45, 0.28, 0.62], [0, 0.34, 0.66], [1.5, -0.02, 0.5], [-1.5, -0.02, 0.5]]
   return (
     <group position={[x, y, z]} scale={s}>
-      {[[0, 0, 0.95], [0.72, 0, 0.62], [-0.72, 0, 0.62], [0.36, 0.16, 0.56], [-0.36, 0.16, 0.56]].map(([dx, dy, r], i) => (
-        <mesh key={i} position={[dx as number, dy as number, 0]} castShadow><sphereGeometry args={[r as number, 16, 12]} /><meshStandardMaterial color="#ffffff" roughness={0.95} /></mesh>
+      {puffs.map(([dx, dy, r], i) => (
+        <mesh key={i} position={[dx as number, dy as number, 0]} castShadow>
+          <sphereGeometry args={[r as number, 20, 16]} />
+          <meshStandardMaterial color="#ffffff" emissive="#eef4ff" emissiveIntensity={0.2} roughness={1} />
+        </mesh>
       ))}
     </group>
   )

@@ -106,6 +106,27 @@ function Motif({ id, p }: { id: string; p: DojoTemplate['palette'] }) {
           </g>
         </g>
       )
+    case 'forest': // torii + lake + pine
+      return (
+        <g>
+          <rect x="0" y="40" width="120" height="8" fill="#4f8fb0" />
+          <rect x="44" y="18" width="4" height="26" fill={tr} />
+          <rect x="72" y="18" width="4" height="26" fill={tr} />
+          <rect x="38" y="15" width="44" height="5" rx="1" fill={tr} />
+          <rect x="42" y="22" width="36" height="3.5" fill={tr} />
+          <g transform="translate(22,30)"><polygon points="0,-14 7,0 -7,0" fill="#4f9e58" /><polygon points="0,-8 9,6 -9,6" fill="#3f7d4a" /></g>
+          <g transform="translate(98,30)"><polygon points="0,-14 7,0 -7,0" fill="#4f9e58" /><polygon points="0,-8 9,6 -9,6" fill="#3f7d4a" /></g>
+        </g>
+      )
+    case 'wonderland': // rainbow + clouds
+      return (
+        <g>
+          {['#ff5d6c', '#ff9a52', '#ffd23f', '#7bd88f', '#4fc3f7', '#c98cff'].map((c, i) => (
+            <path key={c} d={`M ${18 + i * 4} 46 A ${42 - i * 4} ${42 - i * 4} 0 0 1 ${102 - i * 4} 46`} fill="none" stroke={c} strokeWidth="4" />
+          ))}
+          <g fill="#fff"><circle cx="26" cy="50" r="7" /><circle cx="34" cy="50" r="9" /><circle cx="90" cy="52" r="7" /><circle cx="98" cy="52" r="9" /></g>
+        </g>
+      )
     case 'factory': // gear + smokestack
       return (
         <g>
