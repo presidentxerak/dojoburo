@@ -72,10 +72,10 @@ function StudioTab() {
       <div className="ws-dojobar">
         <select value={dojo?.id} onChange={(e) => setActive(e.target.value)}>
           {dojos.map((d) => (
-            <option key={d.id} value={d.id}>{templateById(d.template).emoji} {d.name} · {d.agents.length}/{MAX_AGENTS}</option>
+            <option key={d.id} value={d.id}>{d.name} · {d.agents.length}/{MAX_AGENTS}</option>
           ))}
         </select>
-        <button className="ws-btn" title="Change environment" onClick={() => setTplPick('change')}>{tpl.emoji} {tpl.label}</button>
+        <button className="ws-btn" title="Change environment" onClick={() => setTplPick('change')}>{tpl.label}</button>
         <button className="ws-btn" onClick={() => renameDojo(dojo.id, prompt('Rename dojo', dojo.name) || dojo.name)}>Rename</button>
         <button className="ws-btn primary" onClick={() => setTplPick('create')}>+ New dojo</button>
         <button className="ws-btn danger" onClick={() => confirm(`Delete "${dojo.name}"?`) && deleteDojo(dojo.id)}>Delete</button>
@@ -171,7 +171,7 @@ function TemplatePicker({ current, mode, onPick, onClose }: { current: string; m
               onClick={() => onPick(t.id)}
               style={{ ['--tpl-accent' as any]: t.palette.accent }}
             >
-              <span className="ws-tplemoji" style={{ background: t.palette.bg }}>{t.emoji}</span>
+              <span className="ws-tplemoji" style={{ background: t.palette.bg, color: t.palette.accent }}>{t.label.charAt(0)}</span>
               <strong>{t.label}</strong>
               <span className="ws-blurb">{t.blurb}</span>
               <span className="ws-tpltheme">{mode === 'create' ? `Seeds a ${t.skinTheme} crew` : t.skinTheme}</span>
@@ -425,7 +425,7 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
 
       {byok.connected ? (
         <div className="ws-keyrow on">
-          <span className="ws-keyhint">🔑 {byok.hint || 'Key saved'} · billed to your Anthropic account</span>
+          <span className="ws-keyhint">{byok.hint || 'Key saved'} · billed to your Anthropic account</span>
           <button className="ws-btn danger" onClick={() => void clearKey()}>Remove</button>
         </div>
       ) : (

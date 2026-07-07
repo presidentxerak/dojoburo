@@ -42,8 +42,10 @@
   --warn: #ffab3d;
   --err: #ff5d6c;
 
-  --font-pixel: 'Silkscreen', 'Courier New', monospace;
-  --font-read: ui-monospace, 'SFMono-Regular', Menlo, 'Courier New', monospace;
+  --font-pixel: 'Silkscreen', 'Courier New', monospace;   /* titles only */
+  --font-ui: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; /* body text */
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, 'Courier New', monospace;  /* addresses/hashes */
+  --font-read: var(--font-ui);
   color-scheme: light;
 }
 :root[data-theme='dark'] {
@@ -66,17 +68,20 @@
 html, body, #root { height: 100%; margin: 0; }
 body {
   color: var(--ink);
-  font-family: var(--font-pixel);
-  font-size: 12px; font-weight: 400; line-height: 1.5;
+  font-family: var(--font-ui);
+  font-size: 14.5px; font-weight: 400; line-height: 1.6;
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
   background: var(--bg);
   overflow: hidden;
 }
+/* Titles keep the pixel display face; body copy uses Outfit for legibility. */
+h1, h2, h3, h4, h5, h6, .brand-title, .lp-logo, .tag3d { font-family: var(--font-pixel); }
 h1, h2, h3, h4, h5, h6, strong, b, .skill-name { font-weight: 400; }
+strong, b { font-weight: 600; }
 a { color: var(--blue); text-decoration: none; }
 a:hover { text-decoration: underline; }
-.mono { font-family: var(--font-read); }
-.small { font-size: 10px; }
+.mono { font-family: var(--font-mono); }
+.small { font-size: 12px; }
 .muted { color: var(--muted); }
 .pad { padding: 12px; }
 
@@ -601,7 +606,7 @@ a:hover { text-decoration: underline; }
 .ws-tplcard:hover { transform: translateY(-2px); border-color: var(--tpl-accent, var(--violet)); box-shadow: 0 10px 24px rgba(60, 40, 110, 0.18); }
 .ws-tplcard.sel { border-color: var(--tpl-accent, var(--violet)); box-shadow: 0 0 0 2px var(--tpl-accent, var(--violet)) inset; }
 .ws-tplcard strong { font-family: var(--font-pixel); font-size: 12px; }
-.ws-tplemoji { width: 100%; height: 62px; display: grid; place-items: center; font-size: 30px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 3px; }
+.ws-tplemoji { width: 100%; height: 62px; display: grid; place-items: center; font-size: 30px; font-weight: 700; text-transform: uppercase; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 3px; }
 .ws-tpltheme { font-family: var(--font-pixel); font-size: 8px; color: var(--tpl-accent, var(--violet)); }
 .ws-tplnote { padding: 0 16px 14px; }
 
@@ -917,7 +922,8 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 .conn-row { display: flex; align-items: center; gap: 9px; background: var(--panel-2); border: 1.5px solid var(--border); padding: 8px 10px; border-radius: 12px; }
 .conn-row.on { border-color: color-mix(in srgb, #2fae6a 45%, var(--border)); background: color-mix(in srgb, #2fae6a 8%, var(--panel-2)); }
-.conn-emoji { font-size: 18px; line-height: 1; }
+.conn-mono { flex: none; width: 26px; height: 26px; display: grid; place-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 8px; background: var(--panel-solid); border: 1.5px solid var(--border-lit); color: var(--muted); }
+.conn-row.on .conn-mono { color: #2fae6a; border-color: color-mix(in srgb, #2fae6a 45%, var(--border)); }
 .conn-meta { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
 .conn-name { font-weight: 700; font-size: 11px; }
 .conn-blurb { font-family: var(--font-read); font-size: 9px; color: var(--muted); line-height: 1.4; overflow: hidden; text-overflow: ellipsis; }
@@ -990,3 +996,32 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .ws-keyrow.on { background: color-mix(in srgb, #2fae6a 8%, var(--panel-2)); border: 1.5px solid color-mix(in srgb, #2fae6a 40%, var(--border)); border-radius: 12px; padding: 8px 10px; }
 .ws-keyhint { flex: 1; font-size: 11px; color: var(--ink); }
 .ws-keynote { margin-top: 4px; }
+
+/* ===================================================================
+   Accessibility type scale — larger, more legible body copy (Outfit).
+   Titles stay in the pixel display face; these bump reading text.
+   =================================================================== */
+.panel-hint { font-size: 13px; }
+.agent-role { font-size: 12px; }
+.agent-mission { font-size: 13.5px; }
+.skill-name { font-size: 13px; }
+.skill-desc { font-size: 11.5px; }
+.work-name { font-size: 13.5px; }
+.work-desc { font-size: 11.5px; }
+.work-intro { font-size: 11.5px; }
+.work-brief { font-size: 13px; }
+.conn-name { font-size: 12.5px; }
+.conn-blurb { font-size: 11px; }
+.work-hint { font-size: 11.5px; }
+.ws-blurb { font-size: 12px; }
+.ws-field span { font-size: 12px; }
+.ws-field input, .ws-field select, .composer-row select, .composer-row input { font-size: 13px; }
+.btn { font-size: 12.5px; }
+.btn.tiny { font-size: 11.5px; }
+.tag { font-size: 9.5px; }
+.toast-body strong { font-size: 13px; }
+.toast-body span { font-size: 12px; }
+.stat-lvl, .stat-foot { font-size: 11px; }
+.net-tab { font-size: 12px; }
+.ws-tabs button { font-size: 12.5px; }
+.md { font-size: 13.5px; }

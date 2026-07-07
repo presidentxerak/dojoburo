@@ -39,11 +39,11 @@ export default function App() {
     const okm = h.match(/#connected=([\w-]+)/)
     const errm = h.match(/#connect_error=([^&]+)/)
     if (okm) {
-      useDojo.getState().pushToast({ kind: 'event', badge: '🔌', color: '#2fae6a', title: 'Tool connected', text: `${okm[1]} is now linked to your agents.` })
+      useDojo.getState().pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Tool connected', text: `${okm[1]} is now linked to your agents.` })
       void useWork.getState().loadTools()
       history.replaceState(null, '', window.location.pathname + window.location.search)
     } else if (errm) {
-      useDojo.getState().pushToast({ kind: 'event', badge: '⚠️', color: '#d9822b', title: 'Connection failed', text: decodeURIComponent(errm[1]) })
+      useDojo.getState().pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Connection failed', text: decodeURIComponent(errm[1]) })
       history.replaceState(null, '', window.location.pathname + window.location.search)
     }
   }, [])

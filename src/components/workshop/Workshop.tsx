@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
 import { skinById } from '../../data/skins'
-import { templateById } from '../../data/templates'
 import { WorkshopModal } from './WorkshopModal'
 import { ActivityWidget } from './ActivityWidget'
 import { SkinAvatar } from './SkinAvatar'
@@ -43,7 +42,7 @@ export function Workshop() {
           <button className="ws-swbtn" onClick={() => cycle(-1)} disabled={dojos.length < 2} aria-label="Previous dojo">‹</button>
           <select className="ws-swsel" value={active?.id} onChange={(e) => setActive(e.target.value)}>
             {dojos.map((d) => (
-              <option key={d.id} value={d.id}>{templateById(d.template).emoji} {d.name}</option>
+              <option key={d.id} value={d.id}>{d.name}</option>
             ))}
           </select>
           <button className="ws-swbtn" onClick={() => cycle(1)} disabled={dojos.length < 2} aria-label="Next dojo">›</button>

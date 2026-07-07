@@ -20,7 +20,6 @@ export type DecorStyle = 'zen' | 'plain'
 export interface DojoTemplate {
   id: string
   label: string
-  emoji: string
   blurb: string
   /** skin theme (see data/skins THEMES) used to colour the starter crew */
   skinTheme: string
@@ -36,7 +35,6 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'startup',
     label: 'Start-up HQ',
-    emoji: '🚀',
     blurb: 'Bright, fast-moving founder loft.',
     skinTheme: 'Neon',
     style: 'plain',
@@ -46,7 +44,6 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'dojo',
     label: 'Zen Dojo',
-    emoji: '🎎',
     blurb: 'Tatami, shoji screens and a cherry tree.',
     skinTheme: 'Sakura',
     style: 'zen',
@@ -56,7 +53,6 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'space',
     label: 'Space Station',
-    emoji: '🛰️',
     blurb: 'Orbital deck under a starfield.',
     skinTheme: 'Space',
     style: 'plain',
@@ -66,7 +62,6 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'lab',
     label: 'Science Lab',
-    emoji: '🧪',
     blurb: 'Clean-room whites and neon glassware.',
     skinTheme: 'Cyber',
     style: 'plain',
@@ -76,7 +71,6 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'villa',
     label: 'Miami Villa',
-    emoji: '🌴',
     blurb: 'Sunset pastels, palms and teal water.',
     skinTheme: 'Sunset',
     style: 'plain',
@@ -86,7 +80,6 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'castle',
     label: 'Castle',
-    emoji: '🏰',
     blurb: 'Stone halls, banners and torchlight.',
     skinTheme: 'Royal',
     style: 'plain',
@@ -96,7 +89,6 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'garden',
     label: 'Magical Garden',
-    emoji: '🌸',
     blurb: 'Lush greenery and glowing blossoms.',
     skinTheme: 'Forest',
     style: 'zen',
@@ -106,7 +98,6 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'factory',
     label: 'Factory',
-    emoji: '🏭',
     blurb: 'Steel gantries and warning stripes.',
     skinTheme: 'Fire',
     style: 'plain',

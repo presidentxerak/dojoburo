@@ -113,6 +113,7 @@ export async function signPayment(
     Account: from,
     Destination: destination,
     Amount: String(Math.round(amountXrp * 1_000_000)),
+    SourceTag: 2606230006, // DojoBuro app source tag for on-ledger activity tracking
   }
   if (memoJson) {
     const hex = toHex(JSON.stringify(memoJson))

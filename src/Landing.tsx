@@ -110,20 +110,20 @@ export function Landing({ enter }: { enter: () => void }) {
           commerce out.
         </p>
         <div className="lp-schema lp-flow">
-          <div className="lp-node"><span className="lp-nico">💳</span><b>Pay by card</b><span>€ · $ · ¥ via Stripe</span></div>
+          <div className="lp-node"><span className="lp-nico">1</span><b>Pay by card</b><span>€ · $ · ¥ via Stripe</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">🔁</span><b>Convert to XRP</b><span>Live rate, metered by x402</span></div>
+          <div className="lp-node"><span className="lp-nico">2</span><b>Convert to XRP</b><span>Live rate, metered by x402</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">👛</span><b>Into your wallet</b><span>Real XRP · you hold the keys</span></div>
+          <div className="lp-node"><span className="lp-nico">3</span><b>Into your wallet</b><span>Real XRP · you hold the keys</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">🤖</span><b>Agents pay agents</b><span>x402 settlements on-ledger</span></div>
+          <div className="lp-node"><span className="lp-nico">4</span><b>Agents pay agents</b><span>x402 settlements on-ledger</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">🧾</span><b>On-chain receipt</b><span>Every move is verifiable</span></div>
+          <div className="lp-node"><span className="lp-nico">5</span><b>On-chain receipt</b><span>Every move is verifiable</span></div>
         </div>
         <div className="lp-benefits">
-          <div className="lp-benefit"><b>🔓 You own it</b><span>Non-custodial delivery — the XRP is yours to keep, spend or withdraw. We never hold your funds.</span></div>
-          <div className="lp-benefit"><b>⚡ Real agentic commerce</b><span>Your AI agents don't simulate payments — they move real value autonomously, the frontier of x402 agent-to-agent settlement.</span></div>
-          <div className="lp-benefit"><b>🔎 Auditable &amp; open</b><span>Each settlement carries an x402 memo on the public XRP Ledger — verifiable by anyone, composable with the whole XRPL ecosystem.</span></div>
+          <div className="lp-benefit"><b>You own it</b><span>Non-custodial delivery — the XRP is yours to keep, spend or withdraw. We never hold your funds.</span></div>
+          <div className="lp-benefit"><b>Real agentic commerce</b><span>Your AI agents don't simulate payments — they move real value autonomously, the frontier of x402 agent-to-agent settlement.</span></div>
+          <div className="lp-benefit"><b>Auditable &amp; open</b><span>Each settlement carries an x402 memo on the public XRP Ledger — verifiable by anyone, composable with the whole XRPL ecosystem.</span></div>
         </div>
         <p className="lp-note">Card top-ups settle to XRP via a Stripe checkout and an x402-tagged on-ledger payment. Prefer play money? Testnet works the same, for free.</p>
       </section>

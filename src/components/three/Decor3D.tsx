@@ -172,54 +172,91 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
   }
 }
 
-function Station({ id, x, z }: { id: string; x: number; z: number }) {
+// Per-theme workstation palette so each dojo's desks match its environment.
+interface DeskTheme { top: string; leg: string; chair: string; back: string; trim?: string }
+function deskTheme(v: string): DeskTheme {
+  switch (v) {
+    case 'space': return { top: '#1b2038', leg: '#0e1226', chair: '#20263f', back: '#2b3358', trim: '#8ad0ff' }
+    case 'lab': return { top: '#eef5f7', leg: '#cbdde3', chair: '#dfeaee', back: '#c3d6dc', trim: '#00e6ff' }
+    case 'castle': return { top: '#6b4f2a', leg: '#3f2e18', chair: '#5a4a2b', back: '#4a3c22', trim: '#c9a94a' }
+    case 'factory': return { top: '#9aa0aa', leg: '#565c68', chair: '#6b7280', back: '#565c68', trim: '#ff8a1e' }
+    case 'garden': return { top: '#8a6a44', leg: '#5a4326', chair: '#6b8f4a', back: '#4f7d3a', trim: '#ff86c0' }
+    case 'startup': return { top: '#e2e7ef', leg: '#b3bac6', chair: '#4a5270', back: '#4a5270', trim: '#7c5cff' }
+    case 'dojo': default: return { top: WOOD, leg: WOOD_D, chair: '#4a5270', back: '#4a5270' }
+  }
+}
+
+// The laptop, positioned at a given base y/z (agent-facing keyboard, glowing lid).
+function Laptop({ y, z }: { y: number; z: number }) {
+  return (
+    <group position={[0, y, z]}>
+      <B p={[0, 0, 0]} s={[0.92, 0.05, 0.62]} c="#20242f" />
+      <B p={[0, 0.02, 0]} s={[0.86, 0.03, 0.56]} c="#2b2f3d" />
+      {[...Array(4)].map((_, r) =>
+        [...Array(9)].map((_, k) => <B key={`${r}-${k}`} p={[-0.34 + k * 0.085, 0.045, -0.16 + r * 0.09]} s={[0.06, 0.02, 0.06]} c="#454b63" />),
+      )}
+      <B p={[0, 0.045, -0.22]} s={[0.26, 0.012, 0.14]} c="#3a4058" />
+      <mesh position={[0, 0.055, -0.02]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.72, 0.42]} />
+        <meshBasicMaterial color="#2a7fa8" transparent opacity={0.16} depthWrite={false} />
+      </mesh>
+      <group position={[0, 0, 0.22]} rotation={[0.3, 0, 0]}>
+        <B p={[0, 0.44, 0.02]} s={[0.94, 0.66, 0.04]} c="#2b2f3d" />
+        <B p={[0, 0.44, -0.02]} s={[0.82, 0.54, 0.02]} c="#0f2233" emissive="#2a7fa8" ei={0.6} />
+        <B p={[0, 0.72, 0.02]} s={[0.9, 0.05, 0.06]} c="#63d0ff" emissive="#63d0ff" ei={0.7} />
+        <mesh position={[0, 0.42, 0.042]}><circleGeometry args={[0.08, 20]} /><meshBasicMaterial color="#63d0ff" transparent opacity={0.85} /></mesh>
+      </group>
+    </group>
+  )
+}
+
+const FLOAT_COLORS = ['#ff6b8a', '#ffd23f', '#4fc3f7', '#7bd88f', '#ff9a52', '#c98cff']
+
+function Station({ id, x, z, variant }: { id: string; x: number; z: number; variant: string }) {
   const dz = z + DESK_FWD // desk centre (toward camera)
+
+  // Villa: no desks — agents lounge in the pool on inflatable ring floats,
+  // with a laptop on a floating tray in front of them.
+  if (variant === 'villa') {
+    const fc = FLOAT_COLORS[Math.abs(hashStr(id)) % FLOAT_COLORS.length]
+    return (
+      <group position={[x, 0, 0]}>
+        {/* inflatable ring float around the agent */}
+        <mesh position={[0, 0.55, z + 0.1]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <torusGeometry args={[0.95, 0.3, 16, 30]} />
+          <meshStandardMaterial color={fc} roughness={0.5} />
+        </mesh>
+        {/* floating laptop tray */}
+        <group position={[0, 0, dz + 0.1]}>
+          <mesh position={[0, 0.52, 0]} castShadow><cylinderGeometry args={[0.62, 0.62, 0.12, 22]} /><meshStandardMaterial color="#fff6e6" roughness={0.6} /></mesh>
+          <mesh position={[0, 0.46, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.62, 0.12, 12, 24]} /><meshStandardMaterial color="#ffffff" /></mesh>
+          <Laptop y={0.62} z={-0.05} />
+        </group>
+      </group>
+    )
+  }
+
+  const t = deskTheme(variant)
   return (
     <group position={[x, 0, 0]}>
-      {/* office chair behind the agent */}
+      {/* chair behind the agent */}
       <group position={[0, 0, z - 0.5]}>
         <Cy p={[0, 0.28, 0]} r={0.05} h={0.56} c="#2b2f3d" />
         <B p={[0, 0.06, 0]} s={[0.5, 0.06, 0.5]} c="#2b2f3d" />
-        <B p={[0, 0.6, 0]} s={[0.64, 0.12, 0.62]} c="#4a5270" />
-        <B p={[0, 1.05, -0.28]} s={[0.6, 0.85, 0.12]} c="#4a5270" />
+        <B p={[0, 0.6, 0]} s={[0.64, 0.12, 0.62]} c={t.chair} />
+        <B p={[0, 1.05, -0.28]} s={[0.6, 0.85, 0.12]} c={t.back} />
       </group>
 
-      {/* desk */}
+      {/* themed desk */}
       <group position={[0, 0, dz]}>
-        <B p={[0, 0.9, 0]} s={[1.9, 0.1, 0.85]} c={WOOD} />
+        <B p={[0, 0.9, 0]} s={[1.9, 0.1, 0.85]} c={t.top} />
+        {t.trim && <B p={[0, 0.9, 0.44]} s={[1.9, 0.04, 0.03]} c={t.trim} emissive={t.trim} ei={0.4} />}
         {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => (
-          <B key={i} p={[lx, 0.44, lz]} s={[0.1, 0.88, 0.1]} c={WOOD_D} />
+          <B key={i} p={[lx, 0.44, lz]} s={[0.1, 0.88, 0.1]} c={t.leg} />
         ))}
       </group>
 
-      {/* laptop: palm-rest & keyboard toward the agent, lid hinged behind the
-          keys with the glowing screen facing back to the agent (we see its back) */}
-      <group position={[0, 0.96, z + 0.55]}>
-        {/* deck / keyboard base */}
-        <B p={[0, 0, 0]} s={[0.92, 0.05, 0.62]} c="#20242f" />
-        <B p={[0, 0.02, 0]} s={[0.86, 0.03, 0.56]} c="#2b2f3d" />
-        {[...Array(4)].map((_, r) =>
-          [...Array(9)].map((_, k) => <B key={`${r}-${k}`} p={[-0.34 + k * 0.085, 0.045, -0.16 + r * 0.09]} s={[0.06, 0.02, 0.06]} c="#454b63" />),
-        )}
-        {/* trackpad nearest the agent */}
-        <B p={[0, 0.045, -0.22]} s={[0.26, 0.012, 0.14]} c="#3a4058" />
-        {/* screen light spilling onto the keyboard */}
-        <mesh position={[0, 0.055, -0.02]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.72, 0.42]} />
-          <meshBasicMaterial color="#2a7fa8" transparent opacity={0.16} depthWrite={false} />
-        </mesh>
-        {/* open lid hinged behind the keys, screen face toward the agent (-z) */}
-        <group position={[0, 0, 0.22]} rotation={[0.3, 0, 0]}>
-          {/* case back — this is what the camera sees */}
-          <B p={[0, 0.44, 0.02]} s={[0.94, 0.66, 0.04]} c="#2b2f3d" />
-          {/* the actual screen, facing the agent */}
-          <B p={[0, 0.44, -0.02]} s={[0.82, 0.54, 0.02]} c="#0f2233" emissive="#2a7fa8" ei={0.6} />
-          {/* lit top edge + a logo on the back, so it still reads as "on" */}
-          <B p={[0, 0.72, 0.02]} s={[0.9, 0.05, 0.06]} c="#63d0ff" emissive="#63d0ff" ei={0.7} />
-          <mesh position={[0, 0.42, 0.042]}><circleGeometry args={[0.08, 20]} /><meshBasicMaterial color="#63d0ff" transparent opacity={0.85} /></mesh>
-        </group>
-      </group>
-
+      <Laptop y={0.96} z={z + 0.55} />
       <JobProp id={id} dz={dz} />
     </group>
   )
@@ -518,26 +555,24 @@ function VillaDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         <Sp p={[0, 0, 0]} r={1.5} c="#ff9a52" emissive="#ff7a3a" ei={0.6} />
         {[1.9, 2.3, 2.7].map((r, i) => <mesh key={r} rotation={[0, 0, 0]}><torusGeometry args={[r, 0.05, 8, 40]} /><meshStandardMaterial color="#ffcaa0" emissive="#ffb07a" emissiveIntensity={0.5 - i * 0.12} transparent opacity={0.7} /></mesh>)}
       </group>
-      {/* pool */}
-      <group position={[0, 0, backZ + 3.2]}>
-        <B p={[0, 0.03, 0]} s={[6.4, 0.06, 2.6]} c="#e9f6f4" />
-        <Strip p={[0, 0.07, 0]} s={[5.8, 2]} c={P.accent} rot={[-Math.PI / 2, 0, 0]} i={0.5} />
-      </group>
-      <PalmTree x={-8.4} z={backZ + 2} />
-      <PalmTree x={8.4} z={backZ + 2.3} />
-      {/* sun loungers */}
-      {[-6.5, 6.5].map((x, i) => (
-        <group key={x} position={[x, 0, 3]} rotation={[0, i ? -0.4 : 0.4, 0]}>
+      {/* the seating pool itself is drawn in Decor3D (agents lounge in it) */}
+      <PalmTree x={-9} z={backZ + 2} />
+      <PalmTree x={9} z={backZ + 2.3} />
+      <PalmTree x={-9.1} z={6.5} />
+      <PalmTree x={9.1} z={6.5} />
+      {/* poolside sun loungers on the front deck */}
+      {[-7.2, 7.2].map((x, i) => (
+        <group key={x} position={[x, 0, 6.6]} rotation={[0, i ? -0.4 : 0.4, 0]}>
           <B p={[0, 0.28, 0]} s={[0.8, 0.08, 1.8]} c="#ffffff" />
           <B p={[0, 0.5, -0.7]} s={[0.8, 0.08, 0.7]} c="#ff7a59" rot={[-0.6, 0, 0]} />
           {[-0.25, 0, 0.25].map((lx) => <Cy key={lx} p={[lx, 0.12, 0.8]} r={0.04} h={0.24} c="#d8b18a" />)}
         </group>
       ))}
-      {/* beach umbrella */}
-      <group position={[7.2, 0, 2.6]}>
+      {/* beach umbrella on the deck */}
+      <group position={[8.4, 0, 6.4]}>
         <Cy p={[0, 1.1, 0]} r={0.05} h={2.2} c="#e7ded0" />
         <Co p={[0, 2.4, 0]} r={1.2} h={0.7} c="#ff7a59" />
-        <Co p={[0, 2.4, 0]} r={1.2} h={0.7} c="#22c7b8" rot={[0, 0.4, 0]} open />
+        <Co p={[0, 2.4, 0]} r={1.2} h={0.7} c={P.accent} rot={[0, 0.4, 0]} open />
       </group>
     </group>
   )
@@ -780,10 +815,29 @@ export function Decor3D({ palette, style, decor }: { palette: DojoPalette; style
 
       <ThemeDecor id={decor} backZ={backZ} P={P} />
 
+      {/* Villa: a pool covering the seating area — agents lounge in the water */}
+      {decor === 'villa' && (
+        <group>
+          {/* pool coping / tiled edge */}
+          <mesh position={[0, 0.16, 1]} receiveShadow><boxGeometry args={[18.4, 0.32, 10.4]} /><meshStandardMaterial color="#eaf6f4" roughness={0.7} /></mesh>
+          {/* water surface */}
+          <mesh position={[0, 0.5, 1]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[17.6, 9.6]} />
+            <meshStandardMaterial color={P.accent} emissive={P.accent} emissiveIntensity={0.15} transparent opacity={0.78} roughness={0.25} />
+          </mesh>
+        </group>
+      )}
+
       {AGENTS.map((a) => {
         const [x, z] = POS3D[a.id]
-        return <Station key={a.id} id={a.id} x={x} z={z} />
+        return <Station key={a.id} id={a.id} x={x} z={z} variant={decor} />
       })}
     </group>
   )
+}
+
+function hashStr(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i)
+  return h
 }

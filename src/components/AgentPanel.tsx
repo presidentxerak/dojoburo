@@ -99,7 +99,7 @@ export function AgentPanel() {
           <h3 className="skills-title">Deliver real work <span className="tag tag-live">Claude</span></h3>
           <p className="work-intro">
             {byok.connected
-              ? <>🔑 Runs on <strong>your</strong> Claude key — billed to you.</>
+              ? <>Runs on <strong>your</strong> Claude key — billed to you.</>
               : <>Free for text · <button className="linklike" onClick={() => openStudio('billing')}>add your Claude key</button> for the design system & tool actions.</>}
           </p>
           <input
@@ -116,7 +116,6 @@ export function AgentPanel() {
               return (
                 <li key={t.id}>
                   <button className="work-btn" disabled={!!runningTask} onClick={() => void run({ task: t.id, agentName: agent.name, connectors: connectedIds, brief })}>
-                    <span className="work-emoji">{t.emoji}</span>
                     <span className="work-main">
                       <span className="work-name">{busy ? 'Working…' : t.label}</span>
                       <span className="work-desc">{t.blurb}</span>
@@ -164,7 +163,7 @@ export function AgentPanel() {
               const available = !!st?.available
               return (
                 <li key={c.id} className={`conn-row${connected ? ' on' : ''}`}>
-                  <span className="conn-emoji">{c.emoji}</span>
+                  <span className="conn-mono">{c.label.slice(0, 2)}</span>
                   <span className="conn-meta">
                     <span className="conn-name">{c.label}</span>
                     <span className="conn-blurb">{connected && st?.account ? `Connected · ${st.account}` : c.blurb}</span>

@@ -29,7 +29,6 @@ export interface ConnectorEnv {
 export interface Connector {
   id: string
   label: string
-  emoji: string
   provider: string
   /** what an agent of this function actually does with the tool */
   blurb: string
@@ -51,7 +50,6 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'notion',
     label: 'Notion',
-    emoji: '📓',
     provider: 'Notion',
     blurb: 'Create pages & databases — PRDs, roadmaps, meeting notes — in your workspace.',
     functions: ['Product', 'Leadership', 'Ops'],
@@ -62,7 +60,6 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'github',
     label: 'GitHub',
-    emoji: '🐙',
     provider: 'GitHub',
     blurb: 'Open pull requests, push code, file & triage issues in your repositories.',
     functions: ['Engineering', 'Product'],
@@ -73,7 +70,6 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'gmail',
     label: 'Gmail',
-    emoji: '✉️',
     provider: 'Google',
     blurb: 'Draft and send outreach, follow-ups and campaign emails from your inbox.',
     functions: ['Growth', 'People'],
@@ -87,7 +83,6 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'gdrive',
     label: 'Google Drive',
-    emoji: '🗂️',
     provider: 'Google',
     blurb: 'Read briefs and write docs / sheets deliverables to your Drive.',
     functions: ['Product', 'Ops', 'Leadership'],
@@ -101,7 +96,6 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'slack',
     label: 'Slack',
-    emoji: '💬',
     provider: 'Slack',
     blurb: 'Post updates, gather feedback and run team rituals in your channels.',
     functions: ['People', 'Ops', 'Leadership'],
@@ -112,7 +106,6 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'linear',
     label: 'Linear',
-    emoji: '📐',
     provider: 'Linear',
     blurb: 'Create issues, groom the backlog and move tickets through the cycle.',
     functions: ['Product', 'Engineering'],
@@ -123,7 +116,6 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'stripe',
     label: 'Stripe',
-    emoji: '💳',
     provider: 'Stripe',
     blurb: 'Create products & prices, send invoices and read revenue for the startup.',
     functions: ['Finance', 'Growth'],
@@ -137,7 +129,6 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'figma',
     label: 'Figma',
-    emoji: '🎨',
     provider: 'Figma',
     blurb: 'Push generated design tokens & frames, or read a file for a redesign.',
     functions: ['Product'],
@@ -162,7 +153,6 @@ export function connectorsForFunction(fn: Department): Connector[] {
 export interface WorkTask {
   id: string
   label: string
-  emoji: string
   /** short description of the deliverable */
   blurb: string
   /** x402 price in XRP for a real run (settled on Mainnet) */
@@ -176,27 +166,27 @@ export interface WorkTask {
 /** Real Claude-powered deliverables per function. Keyed by department. */
 export const WORK_TASKS: Record<Department, WorkTask[]> = {
   Product: [
-    { id: 'design-system', label: 'Claude Design — Design system', emoji: '🎨', blurb: 'A real design system: tokens, palette, type scale, components & a11y rules.', priceXrp: 0.4, format: 'design-system', usesConnectors: ['figma'] },
-    { id: 'prd', label: 'Write a PRD', emoji: '📄', blurb: 'A product requirements doc with goals, scope and acceptance criteria.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['notion', 'linear'] },
+    { id: 'design-system', label: 'Claude Design — Design system', blurb: 'A real design system: tokens, palette, type scale, components & a11y rules.', priceXrp: 0.4, format: 'design-system', usesConnectors: ['figma'] },
+    { id: 'prd', label: 'Write a PRD', blurb: 'A product requirements doc with goals, scope and acceptance criteria.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['notion', 'linear'] },
   ],
   Engineering: [
-    { id: 'tech-spec', label: 'Technical design doc', emoji: '🛠️', blurb: 'Architecture, data model, API surface and a delivery plan.', priceXrp: 0.3, format: 'markdown', usesConnectors: ['github', 'linear'] },
-    { id: 'code-review', label: 'Code review checklist', emoji: '🔍', blurb: 'A concrete review of a described change: risks, bugs, simplifications.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['github'] },
+    { id: 'tech-spec', label: 'Technical design doc', blurb: 'Architecture, data model, API surface and a delivery plan.', priceXrp: 0.3, format: 'markdown', usesConnectors: ['github', 'linear'] },
+    { id: 'code-review', label: 'Code review checklist', blurb: 'A concrete review of a described change: risks, bugs, simplifications.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['github'] },
   ],
   Growth: [
-    { id: 'campaign', label: 'Go-to-market campaign', emoji: '📣', blurb: 'Positioning, channels, a content calendar and email copy.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['gmail'] },
+    { id: 'campaign', label: 'Go-to-market campaign', blurb: 'Positioning, channels, a content calendar and email copy.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['gmail'] },
   ],
   Finance: [
-    { id: 'model', label: 'Financial model & runway', emoji: '📈', blurb: 'A simple revenue/cost model, runway and the key metrics to watch.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['stripe'] },
+    { id: 'model', label: 'Financial model & runway', blurb: 'A simple revenue/cost model, runway and the key metrics to watch.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['stripe'] },
   ],
   Leadership: [
-    { id: 'strategy', label: 'Strategy & OKRs', emoji: '🧭', blurb: 'Vision, quarterly OKRs and a prioritized roadmap.', priceXrp: 0.3, format: 'markdown', usesConnectors: ['notion'] },
+    { id: 'strategy', label: 'Strategy & OKRs', blurb: 'Vision, quarterly OKRs and a prioritized roadmap.', priceXrp: 0.3, format: 'markdown', usesConnectors: ['notion'] },
   ],
   People: [
-    { id: 'jd', label: 'Job description & scorecard', emoji: '🧑‍💼', blurb: 'A role JD, an interview scorecard and an onboarding plan.', priceXrp: 0.15, format: 'markdown', usesConnectors: ['slack'] },
+    { id: 'jd', label: 'Job description & scorecard', blurb: 'A role JD, an interview scorecard and an onboarding plan.', priceXrp: 0.15, format: 'markdown', usesConnectors: ['slack'] },
   ],
   Ops: [
-    { id: 'runbook', label: 'Ops runbook', emoji: '📊', blurb: 'A runbook: monitoring, on-call, incident steps and SLOs.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['slack', 'gdrive'] },
+    { id: 'runbook', label: 'Ops runbook', blurb: 'A runbook: monitoring, on-call, incident steps and SLOs.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['slack', 'gdrive'] },
   ],
 }
 
