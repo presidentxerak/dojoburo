@@ -1517,3 +1517,59 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .cx-hint code { background: color-mix(in srgb, var(--violet) 12%, transparent); padding: 0 4px; border-radius: 4px; font-size: 11px; }
 
 .ws-conn { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+/* ===========================================================================
+   Mobile navigation · burger menu + slide-down sheet
+   =========================================================================== */
+.lp-nav-right { display: flex; align-items: center; gap: 10px; }
+.lp-burger {
+  display: none; flex-direction: column; justify-content: center; gap: 5px;
+  width: 44px; height: 44px; padding: 12px; cursor: pointer;
+  background: var(--panel-solid); border: 1.5px solid var(--border-lit); border-radius: 2px;
+}
+.lp-burger span { display: block; height: 2.5px; width: 100%; background: var(--ink); border-radius: 2px; transition: transform 0.2s, opacity 0.2s; }
+.lp-burger.on span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.lp-burger.on span:nth-child(2) { opacity: 0; }
+.lp-burger.on span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+@media (max-width: 860px) { .lp-burger { display: flex; } }
+
+.lp-menu-scrim { position: fixed; inset: 0; z-index: 8; background: color-mix(in srgb, #0b0d16 45%, transparent); backdrop-filter: blur(2px); }
+.lp-mobile-menu {
+  position: fixed; top: 70px; left: 12px; right: 12px; z-index: 9;
+  display: flex; flex-direction: column; gap: 4px; padding: 12px;
+  background: var(--panel-solid); border: 1px solid var(--border-lit); border-radius: 14px; box-shadow: var(--shadow);
+  animation: sbpop 0.18s ease-out;
+}
+.lp-mobile-menu a { font-family: var(--font-pixel); font-weight: 800; font-size: 17px; color: var(--ink); text-decoration: none; padding: 14px 12px; border-radius: 8px; }
+.lp-mobile-menu a:hover, .lp-mobile-menu a:active { background: color-mix(in srgb, var(--violet) 10%, transparent); }
+.lp-mobile-menu .lp-cta { margin-top: 8px; text-align: center; justify-content: center; font-size: 16px; }
+
+/* ===========================================================================
+   Flow cards as clear numbered steps · vertical stepper on mobile
+   =========================================================================== */
+.lp-schema:not(.lp-flow) { counter-reset: flowstep; }
+.lp-schema:not(.lp-flow) .lp-node { counter-increment: flowstep; }
+.lp-schema:not(.lp-flow) .lp-node::after {
+  content: counter(flowstep); position: absolute; top: 8px; left: 10px;
+  width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
+  font-family: var(--font-pixel); font-weight: 800; font-size: 11px; color: #fff;
+  background: var(--c-blue); box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+}
+@media (max-width: 680px) {
+  .lp-schema { flex-direction: column; align-items: stretch; gap: 8px; }
+  .lp-schema .lp-node { width: 100%; min-width: 0; }
+  .lp-schema .lp-arrow { transform: rotate(90deg); align-self: center; font-size: 22px; margin: -2px 0; }
+}
+
+/* ===========================================================================
+   Meet-the-team cards on mobile · full-width, much bigger character
+   =========================================================================== */
+@media (max-width: 600px) {
+  .lp-teamgrid { grid-template-columns: 1fr; gap: 14px; }
+  .lp-team { padding: 20px 16px 24px; }
+  .lp-team-3d { width: 260px; height: 260px; margin-bottom: 4px; }
+  .lp-team .a3d { width: 260px !important; height: 260px !important; }
+  .lp-team strong { font-size: 19px; }
+  .lp-team-role { font-size: 15px; }
+  .lp-team-more { font-size: 14px; }
+}

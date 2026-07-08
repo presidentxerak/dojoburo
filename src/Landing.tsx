@@ -20,8 +20,17 @@ const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff
 /** A-to-Z landing page: what DojoBuro is, how the office works, what a task
  *  costs in XRP, how agents get wired to real tools, where they run, and the
  *  path to a fully-functional production deployment. */
+const NAV_LINKS: [string, string][] = [
+  ['#studio', 'Build'],
+  ['#stack', 'Connect'],
+  ['#cast', 'Team'],
+  ['#how', 'How it works'],
+  ['#pricing', 'Pricing'],
+]
+
 export function Landing({ enter }: { enter: () => void }) {
   const [deckOpen, setDeckOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   return (
     <div className="landing">
       <header className="lp-nav">
@@ -29,14 +38,32 @@ export function Landing({ enter }: { enter: () => void }) {
           <Logo size={30} /> <Wordmark />
         </div>
         <nav className="lp-nav-links">
-          <a href="#studio">Build</a>
-          <a href="#stack">Connect</a>
-          <a href="#cast">Team</a>
-          <a href="#how">How it works</a>
-          <a href="#pricing">Pricing</a>
+          {NAV_LINKS.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
         </nav>
-        <button className="lp-cta sm" onClick={enter}>Enter the office →</button>
+        <div className="lp-nav-right">
+          <button
+            className={`lp-burger${menuOpen ? ' on' : ''}`}
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
+            <span /><span /><span />
+          </button>
+          <button className="lp-cta sm" onClick={enter}>Enter the office →</button>
+        </div>
       </header>
+
+      {menuOpen && (
+        <>
+          <div className="lp-menu-scrim" onClick={() => setMenuOpen(false)} />
+          <nav className="lp-mobile-menu">
+            {NAV_LINKS.map(([href, label]) => (
+              <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
+            ))}
+            <button className="lp-cta" onClick={() => { setMenuOpen(false); enter() }}>Enter the office →</button>
+          </nav>
+        </>
+      )}
 
       <section className="lp-hero">
         <p className="lp-kicker">An automated productivity hub, run by AI agents · orchestrated on the XRP Ledger</p>
