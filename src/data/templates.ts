@@ -27,6 +27,8 @@ export interface DojoTemplate {
   palette: DojoPalette
   /** default department mix for the seeded starter crew */
   crew: Department[]
+  /** classic enclosed room (walls) instead of the open-air platform */
+  enclosed?: boolean
 }
 
 const CREW_DEFAULT: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People']
@@ -39,7 +41,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Neon',
     style: 'plain',
     crew: CREW_DEFAULT,
-    palette: { ground: '#dfe6ee', grid: '#c3ccd8', wallBack: '#f2f4f8', wallSide: '#e9edf3', trim: '#7c5cff', accent: '#7c5cff', bg: '#eef2fb', fog: '#eef2fb' },
+    palette: { ground: '#dfe0ff', grid: '#b6a8ff', wallBack: '#f2f4f8', wallSide: '#e9edf3', trim: '#7b2ff7', accent: '#7b2ff7', bg: '#e9e6ff', fog: '#ece9ff' },
   },
   {
     id: 'dojo',
@@ -48,7 +50,8 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Sakura',
     style: 'zen',
     crew: CREW_DEFAULT,
-    palette: { ground: '#bcd189', grid: '#8fae5a', wallBack: '#ecd9b0', wallSide: '#e3cfa2', trim: '#7a4a24', accent: '#e0524f', bg: '#eaf3ff', fog: '#eaf3ff' },
+    enclosed: true,
+    palette: { ground: '#a6d15f', grid: '#7fae3f', wallBack: '#f0dcac', wallSide: '#e7d09c', trim: '#8a4a24', accent: '#ff4d57', bg: '#bfe3ff', fog: '#cfeaff' },
   },
   {
     id: 'space',
@@ -57,7 +60,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Space',
     style: 'plain',
     crew: ['Leadership', 'Engineering', 'Ops', 'Product', 'Finance', 'Growth'],
-    palette: { ground: '#1a1f3a', grid: '#39447e', wallBack: '#10142e', wallSide: '#141a38', trim: '#6c5ce7', accent: '#8ad0ff', bg: '#070a1a', fog: '#0b1030' },
+    palette: { ground: '#1c2456', grid: '#4b59b8', wallBack: '#10142e', wallSide: '#141a38', trim: '#8a6cff', accent: '#63d0ff', bg: '#05061c', fog: '#0a0f34' },
   },
   {
     id: 'lab',
@@ -66,7 +69,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Cyber',
     style: 'plain',
     crew: ['Leadership', 'Engineering', 'Product', 'Ops', 'People', 'Finance'],
-    palette: { ground: '#eaf3f6', grid: '#bcd6de', wallBack: '#f4fbfd', wallSide: '#e6f2f6', trim: '#0f8fb5', accent: '#00e6ff', bg: '#eafaff', fog: '#eafaff' },
+    palette: { ground: '#cdeef6', grid: '#7fd0e0', wallBack: '#f4fbfd', wallSide: '#e6f2f6', trim: '#00b8d4', accent: '#00e6ff', bg: '#d8faff', fog: '#dffaff' },
   },
   {
     id: 'villa',
@@ -75,7 +78,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Sunset',
     style: 'plain',
     crew: ['Leadership', 'Growth', 'Product', 'Finance', 'People', 'Engineering'],
-    palette: { ground: '#ffe0c2', grid: '#ffcfa0', wallBack: '#ffd9e6', wallSide: '#ffe4cf', trim: '#ff7a59', accent: '#22c7b8', bg: '#fff0e6', fog: '#ffe9dc' },
+    palette: { ground: '#ffce9a', grid: '#ffb072', wallBack: '#ffc2dd', wallSide: '#ffe4cf', trim: '#ff5a4d', accent: '#08c6c0', bg: '#ffd9b0', fog: '#ffdcb8' },
   },
   {
     id: 'castle',
@@ -84,7 +87,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Royal',
     style: 'plain',
     crew: ['Leadership', 'People', 'Finance', 'Ops', 'Growth', 'Engineering'],
-    palette: { ground: '#9aa0a6', grid: '#7c8288', wallBack: '#b7bcc2', wallSide: '#aab0b6', trim: '#5a4a2b', accent: '#c9a94a', bg: '#dfe0e4', fog: '#cfd2d8' },
+    palette: { ground: '#a89a84', grid: '#7f7060', wallBack: '#b7bcc2', wallSide: '#aab0b6', trim: '#6b4a24', accent: '#f5c542', bg: '#cbc3b2', fog: '#c7bfae' },
   },
   {
     id: 'garden',
@@ -93,7 +96,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Forest',
     style: 'zen',
     crew: ['Leadership', 'People', 'Product', 'Growth', 'Engineering', 'Finance'],
-    palette: { ground: '#cdeab0', grid: '#9fd07a', wallBack: '#dff0d0', wallSide: '#d2ecc0', trim: '#3f7d3a', accent: '#ff86c0', bg: '#eafff0', fog: '#e6fbe9' },
+    palette: { ground: '#a8e070', grid: '#74c644', wallBack: '#dff0d0', wallSide: '#d2ecc0', trim: '#2f9e4a', accent: '#ff4da6', bg: '#d6ffe0', fog: '#dcffe4' },
   },
   {
     id: 'factory',
@@ -102,7 +105,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Fire',
     style: 'plain',
     crew: ['Leadership', 'Engineering', 'Ops', 'Finance', 'Product', 'Growth'],
-    palette: { ground: '#b8bcc4', grid: '#8f949e', wallBack: '#cfd3da', wallSide: '#c2c6ce', trim: '#b8241d', accent: '#ff8a1e', bg: '#eceef2', fog: '#e4e7ec' },
+    palette: { ground: '#a4acbd', grid: '#798494', wallBack: '#cfd3da', wallSide: '#c2c6ce', trim: '#e01e0e', accent: '#ff8a00', bg: '#dfe4ee', fog: '#dbe0ea' },
   },
   {
     id: 'forest',
@@ -111,7 +114,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Forest',
     style: 'zen',
     crew: CREW_DEFAULT,
-    palette: { ground: '#b9d99a', grid: '#8fbf6a', wallBack: '#cfe8d6', wallSide: '#c2e0c8', trim: '#c0392b', accent: '#ffcf6a', bg: '#d7ecec', fog: '#dcefe6' },
+    palette: { ground: '#9ad35f', grid: '#71b23f', wallBack: '#cfe8d6', wallSide: '#c2e0c8', trim: '#d63a2a', accent: '#ffce4a', bg: '#c6ecee', fog: '#d0eee8' },
   },
   {
     id: 'wonderland',
@@ -120,7 +123,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     skinTheme: 'Sakura',
     style: 'plain',
     crew: CREW_DEFAULT,
-    palette: { ground: '#ffe6f2', grid: '#ffc7e2', wallBack: '#fff0f8', wallSide: '#ffe8f4', trim: '#c98cff', accent: '#ff5db1', bg: '#f0eaff', fog: '#f4ecff' },
+    palette: { ground: '#ffd0ea', grid: '#ff9ed6', trim: '#b45cff', wallBack: '#fff0f8', wallSide: '#ffe8f4', accent: '#ff3da0', bg: '#e9dcff', fog: '#efe4ff' },
   },
 ]
 

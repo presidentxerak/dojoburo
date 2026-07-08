@@ -214,13 +214,13 @@ function WorkstationBase({ variant, id }: { variant: string; id: string }) {
           ))}
         </group>
       )
-    case 'wonderland': // a fluffy white cloud desk
+    case 'wonderland': // a small fluffy white cloud desk
       return (
         <group>
-          {[[0, 0.02, 1.05], [0.7, 0.06, 0.7], [-0.7, 0.06, 0.7], [0.42, -0.02, 0.66], [-0.42, -0.02, 0.66], [0, 0.2, 0.82], [0.28, 0.16, 0.6], [-0.28, 0.16, 0.6]].map(([dx, dy, r], i) => (
-            <mesh key={i} position={[dx as number, 0.86 + (dy as number), 0]} castShadow><sphereGeometry args={[r as number, 20, 16]} /><meshStandardMaterial color="#ffffff" emissive="#eef4ff" emissiveIntensity={0.18} roughness={1} /></mesh>
+          {[[0, 0.02, 0.72], [0.5, 0.04, 0.48], [-0.5, 0.04, 0.48], [0.28, -0.02, 0.44], [-0.28, -0.02, 0.44], [0, 0.14, 0.56]].map(([dx, dy, r], i) => (
+            <mesh key={i} position={[dx as number, 0.9 + (dy as number), 0]} castShadow><sphereGeometry args={[r as number, 20, 16]} /><meshStandardMaterial color="#ffffff" emissive="#eef4ff" emissiveIntensity={0.18} roughness={1} /></mesh>
           ))}
-          <Cy p={[0, 0.42, 0]} r={0.13} h={0.86} c={hue} emissive={hue} ei={0.35} />
+          <Cy p={[0, 0.45, 0]} r={0.12} h={0.9} c={hue} emissive={hue} ei={0.35} />
         </group>
       )
     case 'forest': // a log across two stumps
@@ -490,9 +490,60 @@ function Bamboo({ x, z }: { x: number; z: number }) {
 // ===========================================================================
 
 // --- Start-up HQ: whiteboard, plants, beanbags, moving boxes, neon sign ------
+// A low-poly mountain range for the far background of open-air dojos.
+function Mountains({ z, c1, c2, snow }: { z: number; c1: string; c2: string; snow?: boolean }) {
+  const peaks: [number, number, number][] = [[-13, 6, 6.5], [-7.5, 8, 7.5], [-2, 6, 6], [3.5, 8.5, 8], [9, 6.5, 7], [14, 7.5, 7]]
+  return (
+    <group position={[0, 0, z]}>
+      {peaks.map(([x, h, r], i) => (
+        <group key={i}>
+          <mesh position={[x, 0, 0]} scale={[1, 1, 0.45]}><coneGeometry args={[r, h, 4]} /><meshStandardMaterial color={i % 2 ? c1 : c2} roughness={1} flatShading /></mesh>
+          {snow && <mesh position={[x, h * 0.52 - 0.5, 0.2]} scale={[1, 1, 0.45]}><coneGeometry args={[r * 0.34, h * 0.34, 4]} /><meshStandardMaterial color="#ffffff" roughness={1} flatShading /></mesh>}
+        </group>
+      ))}
+    </group>
+  )
+}
+
+// A modern glass-and-white villa, sat behind the Miami pool.
+function ModernVilla({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0, z]}>
+      <B p={[0, 1.4, 0]} s={[6, 2.8, 3.4]} c="#f3efe6" />
+      <B p={[2.1, 2.5, 0.4]} s={[2.6, 1.8, 2.4]} c="#eae3d6" />
+      <B p={[0, 2.9, 0]} s={[6.3, 0.16, 3.7]} c="#d9d1c2" />
+      {/* glass window walls */}
+      <B p={[-1.6, 1.3, 1.72]} s={[2.4, 2.0, 0.06]} c="#8fd7e6" emissive="#4fc3d0" ei={0.25} />
+      <B p={[1.4, 1.2, 1.72]} s={[1.8, 1.6, 0.06]} c="#8fd7e6" emissive="#4fc3d0" ei={0.25} />
+      <B p={[2.1, 2.5, 1.62]} s={[2.2, 1.3, 0.06]} c="#a7e0ec" emissive="#4fc3d0" ei={0.2} />
+      {/* mullions */}
+      {[-2.4, -1.6, -0.8].map((mx) => <B key={mx} p={[mx, 1.3, 1.76]} s={[0.05, 2.0, 0.04]} c="#e8e2d6" />)}
+      <Co p={[4, 1.3, 1]} r={0.7} h={0.9} c="#3f9e52" />
+      <Cy p={[4, 0.6, 1]} r={0.14} h={1.4} c="#b98a58" />
+    </group>
+  )
+}
+
+// A soft city skyline silhouette for the start-up loft.
+function Skyline({ z, c }: { z: number; c: string }) {
+  const towers: [number, number, number][] = [[-11, 5, 1.6], [-8.6, 7, 1.4], [-6.4, 4, 1.8], [-2, 8, 1.6], [0.6, 5.5, 1.4], [3, 9, 1.7], [6, 6, 1.5], [8.5, 7.5, 1.5], [11, 4.5, 1.7]]
+  return (
+    <group position={[0, 0, z]}>
+      {towers.map(([x, h, w], i) => (
+        <group key={i}>
+          <B p={[x, h / 2, 0]} s={[w, h, 1]} c={c} />
+          {Array.from({ length: Math.max(2, Math.round(h / 1.4)) }).map((_, r) => <Glow key={r} p={[x + (r % 2 ? 0.3 : -0.3), 1 + r * 1.2, 0.55]} r={0.05} c="#ffe9a0" i={0.7} />)}
+        </group>
+      ))}
+    </group>
+  )
+}
+
 function StartupDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   return (
     <group>
+      {/* city skyline behind the loft */}
+      <Skyline z={backZ - 4} c="#c6cbe8" />
       {/* big wall whiteboard with sticky notes */}
       <group position={[0, 2.7, backZ + 0.3]}>
         <B p={[0, 0, 0]} s={[5, 2.6, 0.1]} c="#f7f9fc" />
@@ -697,8 +748,11 @@ function LabDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
 function VillaDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   return (
     <group>
-      {/* sunset sun on the back wall */}
-      <group position={[0, 3.2, backZ + 0.35]}>
+      {/* tropical hills + a modern villa behind the pool */}
+      <Mountains z={backZ - 7} c1="#7fb08a" c2="#95c49a" />
+      <ModernVilla x={0} z={backZ - 2.5} />
+      {/* sunset sun high in the sky */}
+      <group position={[6, 6.5, backZ - 4]}>
         <Sp p={[0, 0, 0]} r={1.5} c="#ff9a52" emissive="#ff7a3a" ei={0.6} />
         {[1.9, 2.3, 2.7].map((r, i) => <mesh key={r} rotation={[0, 0, 0]}><torusGeometry args={[r, 0.05, 8, 40]} /><meshStandardMaterial color="#ffcaa0" emissive="#ffb07a" emissiveIntensity={0.5 - i * 0.12} transparent opacity={0.7} /></mesh>)}
       </group>
@@ -742,6 +796,15 @@ function CastleDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   const stone = '#8f959c'
   return (
     <group>
+      <Mountains z={backZ - 8} c1="#7b8a9a" c2="#8fa0ad" snow />
+      {/* distant castle keep towers */}
+      {[-8, 8].map((x) => (
+        <group key={x} position={[x, 0, backZ - 4]}>
+          <B p={[0, 3, 0]} s={[2.4, 6, 2.4]} c="#9aa0ad" />
+          {[-0.8, 0, 0.8].map((cx) => <B key={cx} p={[cx, 6.2, 0]} s={[0.5, 0.6, 2.4]} c="#9aa0ad" />)}
+          <Co p={[0, 7, 0]} r={1.6} h={1.6} c={P.accent} />
+        </group>
+      ))}
       {/* red carpet runner down the central aisle */}
       <mesh position={[0, 0.03, 1.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[3, 12]} />
@@ -804,6 +867,7 @@ function CastleDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
 function GardenDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   return (
     <group>
+      <Mountains z={backZ - 7} c1="#7fbf6a" c2="#95cf7f" />
       <BlossomTree x={-8.5} z={2.6} c={P.accent} />
       <BlossomTree x={8.6} z={backZ + 2.4} c="#c98cff" />
       <BlossomTree x={8.8} z={5.4} c="#ffb0d8" />
@@ -874,6 +938,15 @@ function FactoryDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   const steelD = '#5b606b'
   return (
     <group>
+      {/* industrial skyline + smoking chimneys behind */}
+      <Mountains z={backZ - 8} c1="#6b7280" c2="#7c8490" />
+      {[-7, 7].map((x) => (
+        <group key={x} position={[x, 0, backZ - 3]}>
+          <Cy p={[0, 3, 0]} r={0.7} h={6} c="#6b6068" />
+          <Cy p={[0, 5.6, 0]} r={0.78} h={0.5} c="#8f2418" />
+          <Sp p={[0, 6.6, 0]} r={0.9} c="#c9ccd6" />
+        </group>
+      ))}
       {/* hazard tape stripes on the floor edges */}
       {[-8.4, 8.4].map((x) => (
         <group key={x}>
@@ -957,7 +1030,8 @@ function Pine({ x, z }: { x: number; z: number }) {
 function ForestDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   return (
     <group>
-      {/* soft hills on the horizon */}
+      {/* snowy mountains far behind + soft hills on the horizon */}
+      <Mountains z={backZ - 9} c1="#8fa6ad" c2="#a3b8bd" snow />
       {[[-7, backZ - 3], [0, backZ - 4], [7, backZ - 3]].map(([x, z], i) => (
         <mesh key={i} position={[x as number, 0, z as number]} scale={[1, 0.7, 1]}><coneGeometry args={[6, 6, 20]} /><meshStandardMaterial color={i === 1 ? '#8fae9a' : '#a3c4a8'} roughness={1} /></mesh>
       ))}
@@ -1004,6 +1078,8 @@ function WonderlandDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   const rainbow = ['#ff5d6c', '#ff9a52', '#ffd23f', '#7bd88f', '#4fc3f7', '#c98cff']
   return (
     <group>
+      {/* pastel candy hills far behind */}
+      <Mountains z={backZ - 7} c1="#ffb0d8" c2="#c9b0ff" />
       {/* a giant rainbow arch over the back */}
       <group position={[0, 0, backZ]}>
         {rainbow.map((c, i) => (
@@ -1056,32 +1132,55 @@ function ThemeDecor({ id, backZ, P }: { id: string; backZ: number; P: DojoPalett
   }
 }
 
-export function Decor3D({ palette, decor }: { palette: DojoPalette; decor: string }) {
+export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; decor: string; enclosed?: boolean }) {
   const P = palette
   const backZ = -ROOM.d / 2
+  const halfW = ROOM.w / 2
   return (
     <group>
-      {/* open-air ground platform (no walls — the theme decor is the backdrop) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
-        <circleGeometry args={[26, 64]} />
-        <meshStandardMaterial color={P.ground} roughness={1} />
-      </mesh>
-      {/* a soft accent rim so the platform reads as a floating island */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-        <ringGeometry args={[13.4, 26, 64]} />
-        <meshStandardMaterial color={P.grid} roughness={1} transparent opacity={0.5} />
-      </mesh>
-      <gridHelper args={[26, 13, P.grid, P.grid]} position={[0, 0.02, 0]} />
-
-      {/* only the Zen Dojo keeps free-standing shoji screens as its backdrop */}
-      {decor === 'dojo' &&
-        [-7.5, -3.5, 3.5, 7.5].map((x) => (
-          <group key={x} position={[x, 2.4, backZ - 0.5]}>
-            <mesh castShadow><boxGeometry args={[2.6, 2.6, 0.12]} /><meshStandardMaterial color={PAPER} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
-            {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.08]}><boxGeometry args={[0.06, 2.6, 0.04]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
-            {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.08]}><boxGeometry args={[2.6, 0.06, 0.04]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+      {enclosed ? (
+        // classic enclosed dojo room (walls, shoji screens, hanging scroll)
+        <group>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
+            <planeGeometry args={[ROOM.w, ROOM.d]} />
+            <meshStandardMaterial color={P.ground} roughness={1} />
+          </mesh>
+          <gridHelper args={[ROOM.w, 8, P.grid, P.grid]} position={[0, 0.02, 0]} />
+          <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} /><meshStandardMaterial color={P.wallBack} roughness={1} /></mesh>
+          <mesh position={[0, 0.2, backZ + 0.22]}><boxGeometry args={[ROOM.w, 0.4, 0.1]} /><meshStandardMaterial color={P.trim} /></mesh>
+          {[-1, 1].map((s) => (
+            <mesh key={s} position={[s * halfW, ROOM.wallH / 2, 0]} receiveShadow><boxGeometry args={[0.4, ROOM.wallH, ROOM.d]} /><meshStandardMaterial color={P.wallSide} roughness={1} /></mesh>
+          ))}
+          {[-7.5, -3.5, 3.5, 7.5].map((x) => (
+            <group key={x} position={[x, 2.4, backZ + 0.25]}>
+              <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
+              {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.06]}><boxGeometry args={[0.05, 2.6, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+              {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.06]}><boxGeometry args={[2.6, 0.05, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+            </group>
+          ))}
+          <group position={[0, 2.1, backZ + 0.25]}>
+            <mesh><boxGeometry args={[2.4, 4.0, 0.14]} /><meshStandardMaterial color={WOOD_D} /></mesh>
+            <mesh position={[-0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={PAPER} /></mesh>
+            <mesh position={[0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={P.accent} emissive={P.accent} emissiveIntensity={0.15} /></mesh>
           </group>
-        ))}
+          {[-halfW + 0.6, halfW - 0.6].map((x) => (
+            <mesh key={x} position={[x, ROOM.wallH / 2, backZ + 1]} castShadow><boxGeometry args={[0.5, ROOM.wallH, 0.5]} /><meshStandardMaterial color={WOOD} roughness={0.9} /></mesh>
+          ))}
+        </group>
+      ) : (
+        // open-air floating platform — the theme decor is the backdrop
+        <group>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
+            <circleGeometry args={[26, 64]} />
+            <meshStandardMaterial color={P.ground} roughness={1} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+            <ringGeometry args={[13.4, 26, 64]} />
+            <meshStandardMaterial color={P.grid} roughness={1} transparent opacity={0.5} />
+          </mesh>
+          <gridHelper args={[26, 13, P.grid, P.grid]} position={[0, 0.02, 0]} />
+        </group>
+      )}
 
       <ThemeDecor id={decor} backZ={backZ} P={P} />
 

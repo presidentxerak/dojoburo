@@ -209,6 +209,40 @@ function Toppers({ c }: { c: Character }) {
   }
 }
 
+// --- rare head accessories: only ~1 agent in 3 gets one, picked deterministically
+type Acc = 'bowler' | 'tophat' | 'cowboy' | 'wizardhat' | 'cap' | 'shades'
+const ACCS: Acc[] = ['bowler', 'tophat', 'cowboy', 'wizardhat', 'cap', 'shades']
+const CAP_COLORS = ['#e0524f', '#4f9df7', '#45c46a', '#ffc24b', '#a78bfa', '#ff7eb6']
+function hashCode(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i)
+  return h
+}
+function accForId(id: string, kind: string): Acc | null {
+  if (kind === 'wizard' || kind === 'monitor' || kind === 'octopus' || kind === 'slime') return null
+  const h = Math.abs(hashCode(id + '·hat'))
+  if (h % 100 >= 34) return null // ~34% wear an accessory
+  return ACCS[h % ACCS.length]
+}
+function Accessory({ kind, id }: { kind: Acc; id: string }) {
+  switch (kind) {
+    case 'bowler':
+      return <group><Cyl p={[0, 2.5, 0]} r={0.66} h={0.06} c="#2a2a34" /><Ball p={[0, 2.64, 0]} r={0.42} c="#33333f" s={[1, 0.8, 1]} /></group>
+    case 'tophat':
+      return <group><Cyl p={[0, 2.5, 0]} r={0.72} h={0.05} c="#1a1a20" /><Cyl p={[0, 3.05, 0]} r={0.44} h={0.92} c="#22222c" /><Cyl p={[0, 2.66, 0]} r={0.45} h={0.1} c="#c0392b" /></group>
+    case 'cowboy':
+      return <group><Cyl p={[0, 2.44, 0]} r={0.94} h={0.05} c="#b07a42" /><Cyl p={[0, 2.72, 0]} r={0.42} h={0.52} c="#a9743f" /><Cyl p={[0, 2.52, 0]} r={0.44} h={0.09} c="#5a3a1c" /></group>
+    case 'wizardhat':
+      return <group><Cyl p={[0, 2.48, 0]} r={0.72} h={0.05} c="#5a34b0" /><Cone p={[0, 3.25, 0]} r={0.5} h={1.35} c="#6c3fd0" /><Ball p={[0.2, 3.15, 0.32]} r={0.08} c="#ffe066" /><Ball p={[-0.14, 3.6, 0.2]} r={0.06} c="#ffe066" /><Ball p={[0.05, 2.92, 0.42]} r={0.06} c="#fff" /></group>
+    case 'cap': {
+      const c = CAP_COLORS[Math.abs(hashCode(id)) % CAP_COLORS.length]
+      return <group><Ball p={[0, 2.42, 0]} r={0.6} c={c} s={[1, 0.68, 1]} /><Box p={[0, 2.3, 0.56]} s={[0.72, 0.06, 0.42]} c={c} /><Ball p={[0, 2.66, 0]} r={0.06} c="#ffcf3b" /></group>
+    }
+    case 'shades':
+      return <group><Box p={[-0.26, 1.98, 0.6]} s={[0.3, 0.2, 0.06]} c="#15151a" /><Box p={[0.26, 1.98, 0.6]} s={[0.3, 0.2, 0.06]} c="#15151a" /><Box p={[0, 2.0, 0.6]} s={[0.2, 0.05, 0.05]} c="#15151a" /></group>
+  }
+}
+
 export function Character3D({
   id,
   character,
@@ -243,6 +277,7 @@ export function Character3D({
   const isSlime = character.kind === 'slime'
   const isOcto = character.kind === 'octopus'
   const isMonitor = character.kind === 'monitor'
+  const acc = accForId(id, character.kind)
   const speaking = banter && banter.who === 'agent' && banter.agentId === id
   const visited = heroTargetId === id // the Chief is hovering above this agent
 
@@ -362,6 +397,7 @@ export function Character3D({
                 <Ball p={[0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
                 <Toppers c={character} />
                 <AsciiFace3D mood={mood} position={[0, 1.98, 0.72]} scale={0.72} color={faceColor} />
+                {acc && <Accessory kind={acc} id={id} />}
               </>
             )}
             {/* typing arms — the right one waves hello when the Chief drops by */}
