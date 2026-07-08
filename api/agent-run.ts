@@ -19,8 +19,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { serverWorkTask, type ServerWorkTask } from './_lib/worktasks'
 import { getPool, dbConfigured } from './_lib/db'
 import { findAccountId } from './_lib/accounts'
-import { open, vaultConfigured } from './_lib/vault'
-import { connectorAvailable } from './_lib/connectors'
+import { open, seal, vaultConfigured } from './_lib/vault'
+import { connectorAvailable, serverConnector, refreshOAuthToken } from './_lib/connectors'
 import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle'
 import { cascadeComplete, freeCascadeConfigured } from './_lib/llm'
 
@@ -234,15 +234,43 @@ async function resolveMcpServers(connectorIds: string[], ref: { privy?: string; 
     const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
     if (!accountId) return []
     const r = await pool.query(
-      `select connector_id, access_token, mcp_url from connections
+      `select connector_id, access_token, refresh_token, expires_at, mcp_url from connections
        where account_id = $1 and status = 'connected' and connector_id = any($2)`,
       [accountId, connectorIds],
     )
     const servers: McpServer[] = []
     for (const row of r.rows) {
       if (!row.mcp_url || !connectorAvailable(row.connector_id)) continue
-      const token = open(row.access_token)
+      let token = open(row.access_token)
       if (!token) continue
+      // Refresh an access token that is expired (or within a 60s skew) when we
+      // hold a refresh token — Google/Gmail/Drive tokens live ~1h. Reseal and
+      // persist the new token so later runs reuse it; on failure keep the old
+      // one (it may still be valid).
+      const expMs = row.expires_at ? Date.parse(row.expires_at) : NaN
+      const stale = Number.isFinite(expMs) && expMs - Date.now() < 60_000
+      if (stale && row.refresh_token) {
+        const c = serverConnector(row.connector_id)
+        const rt = open(row.refresh_token)
+        if (c && rt) {
+          const fresh = await refreshOAuthToken(c, rt)
+          if (fresh?.accessToken) {
+            token = fresh.accessToken
+            const newExpiry = fresh.expiresIn ? new Date(Date.now() + fresh.expiresIn * 1000).toISOString() : null
+            try {
+              await pool.query(
+                `update connections set access_token = $3,
+                   refresh_token = coalesce($4, refresh_token),
+                   expires_at = $5, updated_at = now()
+                 where account_id = $1 and connector_id = $2`,
+                [accountId, row.connector_id, seal(token), fresh.refreshToken ? seal(fresh.refreshToken) : null, newExpiry],
+              )
+            } catch {
+              /* the token still works this run even if persistence fails */
+            }
+          }
+        }
+      }
       servers.push({ type: 'url', url: row.mcp_url, name: row.connector_id, authorization_token: token })
     }
     return servers

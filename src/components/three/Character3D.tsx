@@ -202,11 +202,168 @@ function Toppers({ c }: { c: Character }) {
       )
     case 'human':
       return <Ball p={[0, hy + 0.32, -0.08]} r={0.6} c={c.extra} s={[1, 0.55, 1]} />
+    case 'poodle': // caniche — poofy fur, floppy ears, snout
+      return (
+        <group>
+          <Ball p={[0, hy + 0.52, 0]} r={0.36} c={c.face} />
+          <Ball p={[-0.24, hy + 0.42, 0.16]} r={0.2} c={c.face} />
+          <Ball p={[0.24, hy + 0.42, 0.16]} r={0.2} c={c.face} />
+          <Ball p={[-0.62, hy - 0.06, 0.06]} r={0.26} c={c.face} s={[0.82, 1.35, 0.82]} />
+          <Ball p={[0.62, hy - 0.06, 0.06]} r={0.26} c={c.face} s={[0.82, 1.35, 0.82]} />
+          <Ball p={[0, hy - 0.2, 0.5]} r={0.2} c={c.face} s={[1.1, 0.9, 1]} />
+          <Ball p={[0, hy - 0.16, 0.68]} r={0.07} c={'#2a2226'} />
+        </group>
+      )
+    case 'rabbit': // lapin — tall ears, buck teeth
+      return (
+        <group>
+          {[-0.24, 0.24].map((ex, i) => (
+            <group key={ex} rotation={[0, 0, (i ? -1 : 1) * 0.14]}>
+              <Box p={[ex, hy + 0.78, -0.04]} s={[0.22, 0.92, 0.14]} c={c.face} />
+              <Box p={[ex, hy + 0.82, 0.03]} s={[0.11, 0.62, 0.06]} c={'#ff9fb4'} />
+            </group>
+          ))}
+          <Box p={[0, hy - 0.36, 0.56]} s={[0.18, 0.16, 0.05]} c={'#fffdf6'} />
+        </group>
+      )
+    case 'frog': // pepe — big bulging eyes on top
+      return (
+        <group>
+          {[-0.3, 0.3].map((ex) => (
+            <group key={ex}>
+              <Ball p={[ex, hy + 0.48, 0.06]} r={0.29} c={'#f3fff0'} />
+              <Ball p={[ex * 1.08, hy + 0.5, 0.32]} r={0.11} c={'#141414'} />
+            </group>
+          ))}
+        </group>
+      )
+    case 'duck': // canard — flat bill + head feather
+      return (
+        <group>
+          <Box p={[0, hy - 0.14, 0.62]} s={[0.46, 0.13, 0.36]} c={'#ff9e2c'} />
+          <Box p={[0, hy - 0.22, 0.66]} s={[0.4, 0.08, 0.3]} c={'#e07d16'} />
+          <Cone p={[0, hy + 0.62, -0.12]} r={0.09} h={0.42} c={c.face} rot={[-0.5, 0, 0]} />
+        </group>
+      )
+    case 'godzilla': // dorsal spine plates + jaw
+      return (
+        <group>
+          {[0, 1, 2, 3].map((i) => (
+            <Cone key={i} p={[0, hy + 0.5 - i * 0.28, -i * 0.42]} r={0.13 + i * 0.02} h={0.4 - i * 0.03} c={c.extra} />
+          ))}
+          <Box p={[0, hy - 0.22, 0.48]} s={[0.52, 0.3, 0.42]} c={c.face} />
+          {[-0.14, 0.14].map((tx) => <Box key={tx} p={[tx, hy - 0.34, 0.66]} s={[0.06, 0.1, 0.05]} c={'#fff'} />)}
+        </group>
+      )
+    case 'bear': // ours — round ears + snout
+      return (
+        <group>
+          <Ball p={[-0.42, hy + 0.5, -0.04]} r={0.2} c={c.face} />
+          <Ball p={[0.42, hy + 0.5, -0.04]} r={0.2} c={c.face} />
+          <Ball p={[-0.42, hy + 0.5, 0.04]} r={0.1} c={c.extra} />
+          <Ball p={[0.42, hy + 0.5, 0.04]} r={0.1} c={c.extra} />
+          <Ball p={[0, hy - 0.2, 0.5]} r={0.24} c={c.extra} s={[1.2, 0.9, 1]} />
+          <Ball p={[0, hy - 0.12, 0.72]} r={0.09} c={'#2a2018'} />
+        </group>
+      )
+    case 'chicken': // poulet — comb, beak, wattle
+      return (
+        <group>
+          {[[-0.15, 0.12], [0, 0.16], [0.15, 0.12]].map(([cx, r], i) => <Ball key={i} p={[cx, hy + 0.6, 0]} r={r} c={'#e23b3b'} />)}
+          <Cone p={[0, hy - 0.1, 0.62]} r={0.14} h={0.32} c={'#ffb400'} rot={[Math.PI / 2, 0, 0]} />
+          {[-0.08, 0.08].map((wx) => <Ball key={wx} p={[wx, hy - 0.36, 0.5]} r={0.08} c={'#c0201d'} />)}
+        </group>
+      )
+    case 'penguin': // beak + white belly
+      return (
+        <group>
+          <Cone p={[0, hy - 0.14, 0.58]} r={0.12} h={0.28} c={'#ff9e2c'} rot={[Math.PI / 2, 0, 0]} />
+          <Ball p={[0, 1.12, 0.42]} r={0.38} c={'#f5f9ff'} s={[1, 1.25, 0.42]} />
+        </group>
+      )
+    case 'panda': // black ears + eye patches
+      return (
+        <group>
+          <Ball p={[-0.42, hy + 0.48, -0.04]} r={0.19} c={'#1c1c1c'} />
+          <Ball p={[0.42, hy + 0.48, -0.04]} r={0.19} c={'#1c1c1c'} />
+          <Ball p={[-0.3, 1.9, 0.48]} r={0.15} c={'#1c1c1c'} s={[1, 1.3, 0.5]} />
+          <Ball p={[0.3, 1.9, 0.48]} r={0.15} c={'#1c1c1c'} s={[1, 1.3, 0.5]} />
+        </group>
+      )
+    case 'dragon': // swept horns + snout + back spikes
+      return (
+        <group>
+          {[-0.28, 0.28].map((ex, i) => <Cone key={ex} p={[ex, hy + 0.5, -0.16]} r={0.1} h={0.5} c={c.extra} rot={[-0.5, 0, (i ? -1 : 1) * 0.2]} />)}
+          <Box p={[0, hy - 0.2, 0.5]} s={[0.42, 0.26, 0.42]} c={c.face} />
+          {[-0.1, 0.1].map((nx) => <Ball key={nx} p={[nx, hy - 0.14, 0.7]} r={0.05} c={'#2a1a1a'} />)}
+          {[0, 1, 2].map((i) => <Cone key={i} p={[0, hy + 0.1 - i * 0.32, -0.55 - i * 0.3]} r={0.08} h={0.28} c={c.extra} />)}
+        </group>
+      )
+    case 'mushroom': // red cap with white dots over a pale stem head
+      return (
+        <group>
+          <Ball p={[0, hy + 0.34, 0]} r={0.86} c={c.outfit} s={[1, 0.68, 1]} />
+          {[[-0.4, 0.24, 0.2], [0.36, 0.34, -0.1], [0.05, 0.5, 0.34], [-0.14, 0.42, -0.34], [0.5, 0.16, 0.28]].map(([dx, dy, dz], i) => (
+            <Ball key={i} p={[dx as number, hy + 0.36 + (dy as number) * 0.24, dz as number]} r={0.12} c={'#fdfcf6'} />
+          ))}
+        </group>
+      )
     case 'skeleton':
     case 'slime':
     default:
       return null
   }
+}
+
+// A single hanging jellyfish tentacle: a vertical chain of shrinking balls that
+// sways gently, faster when the agent is busy.
+function JellyLeg({ base, color, phase, busy }: { base: [number, number, number]; color: string; phase: number; busy: boolean }) {
+  const g = useRef<THREE.Group>(null)
+  useFrame((state) => {
+    if (!g.current) return
+    const t = state.clock.elapsedTime
+    const spd = busy ? 5 : 2.4
+    g.current.children.forEach((c, i) => {
+      c.position.x = Math.sin(t * spd + phase + i * 0.7) * 0.05 * (i + 1)
+      c.position.z = Math.cos(t * spd * 0.8 + phase + i * 0.6) * 0.04 * (i + 1)
+    })
+  })
+  return (
+    <group ref={g} position={base}>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <mesh key={i} position={[0, -i * 0.24, 0]}>
+          <sphereGeometry args={[0.1 - i * 0.012, 10, 8]} />
+          <meshStandardMaterial color={color} transparent opacity={0.72} {...MAT} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+// Abstract-geometric body: a slowly tumbling icosahedron core with a few
+// polyhedra orbiting it — no organic parts.
+function GeoBody({ c, mood }: { c: Character; mood: Mood }) {
+  const core = useRef<THREE.Mesh>(null)
+  const orbit = useRef<THREE.Group>(null)
+  useFrame((state) => {
+    const t = state.clock.elapsedTime
+    if (core.current) { core.current.rotation.y = t * 0.5; core.current.rotation.x = Math.sin(t * 0.4) * 0.3 }
+    if (orbit.current) orbit.current.rotation.y = t * 0.9
+  })
+  return (
+    <group position={[0, 1.5, 0]}>
+      <mesh ref={core} castShadow>
+        <icosahedronGeometry args={[0.72, 0]} />
+        <meshStandardMaterial color={c.outfit} flatShading roughness={0.4} metalness={0.2} />
+      </mesh>
+      <AsciiFace3D mood={mood} position={[0, 0.02, 0.74]} scale={0.6} color={'#ffffff'} />
+      <group ref={orbit}>
+        <mesh position={[1.1, 0.2, 0]}><tetrahedronGeometry args={[0.24, 0]} /><meshStandardMaterial color={c.outfit2} flatShading /></mesh>
+        <mesh position={[-1.0, -0.1, 0.3]}><octahedronGeometry args={[0.22, 0]} /><meshStandardMaterial color={c.extra} flatShading /></mesh>
+        <mesh position={[0.2, 0.1, -1.1]} rotation={[0.5, 0.5, 0]}><boxGeometry args={[0.3, 0.3, 0.3]} /><meshStandardMaterial color={c.pants} flatShading /></mesh>
+      </group>
+    </group>
+  )
 }
 
 // --- rare head accessories: only ~1 agent in 3 gets one, picked deterministically
@@ -218,8 +375,12 @@ function hashCode(s: string): number {
   for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i)
   return h
 }
+const NO_ACC = new Set([
+  'wizard', 'monitor', 'octopus', 'slime', 'ghost', 'jellyfish', 'bibendum', 'geo',
+  'mushroom', 'rabbit', 'frog', 'godzilla', 'chicken', 'dragon', 'poodle', 'duck',
+])
 function accForId(id: string, kind: string): Acc | null {
-  if (kind === 'wizard' || kind === 'monitor' || kind === 'octopus' || kind === 'slime') return null
+  if (NO_ACC.has(kind)) return null
   const h = Math.abs(hashCode(id + '·hat'))
   if (h % 100 >= 34) return null // ~34% wear an accessory
   return ACCS[h % ACCS.length]
@@ -277,6 +438,10 @@ export function Character3D({
   const isSlime = character.kind === 'slime'
   const isOcto = character.kind === 'octopus'
   const isMonitor = character.kind === 'monitor'
+  const isGhost = character.kind === 'ghost'
+  const isJelly = character.kind === 'jellyfish'
+  const isBib = character.kind === 'bibendum'
+  const isGeo = character.kind === 'geo'
   const acc = accForId(id, character.kind)
   const speaking = banter && banter.who === 'agent' && banter.agentId === id
   const visited = heroTargetId === id // the Chief is hovering above this agent
@@ -379,6 +544,70 @@ export function Character3D({
               )
             })}
           </group>
+        ) : isGhost ? (
+          <group position={[0, 0.35, 0]}>
+            {/* floaty sheet: rounded dome + wavy skirt, translucent */}
+            <mesh position={[0, 1.5, 0]} castShadow>
+              <sphereGeometry args={[0.72, 22, 20]} />
+              <meshStandardMaterial color={character.face} transparent opacity={0.9} {...MAT} />
+            </mesh>
+            <mesh position={[0, 1.02, 0]}>
+              <cylinderGeometry args={[0.72, 0.82, 0.9, 22]} />
+              <meshStandardMaterial color={character.face} transparent opacity={0.9} {...MAT} />
+            </mesh>
+            {[0, 1, 2, 3, 4, 5].map((i) => {
+              const a = (i / 6) * Math.PI * 2
+              return (
+                <mesh key={i} position={[Math.cos(a) * 0.68, 0.52, Math.sin(a) * 0.68]}>
+                  <coneGeometry args={[0.16, 0.4, 12]} />
+                  <meshStandardMaterial color={character.face} transparent opacity={0.85} {...MAT} />
+                </mesh>
+              )
+            })}
+            {/* little arm nubs */}
+            <Ball p={[-0.78, 1.28, 0.1]} r={0.16} c={character.face} />
+            <Ball p={[0.78, 1.28, 0.1]} r={0.16} c={character.face} />
+            <AsciiFace3D mood={mood} position={[0, 1.52, 0.72]} scale={0.74} color={faceColor} />
+          </group>
+        ) : isJelly ? (
+          <group position={[0, 0.15, 0]}>
+            {/* translucent bell */}
+            <mesh position={[0, 1.95, 0]} scale={[1, 0.82, 1]} castShadow>
+              <sphereGeometry args={[0.82, 24, 20]} />
+              <meshStandardMaterial color={character.face} emissive={character.outfit} emissiveIntensity={0.25} transparent opacity={0.7} roughness={0.3} />
+            </mesh>
+            <mesh position={[0, 1.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.78, 0.1, 12, 28]} />
+              <meshStandardMaterial color={character.outfit2} transparent opacity={0.75} {...MAT} />
+            </mesh>
+            <AsciiFace3D mood={mood} position={[0, 1.9, 0.78]} scale={0.72} color={faceColor} />
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+              const a = (i / 8) * Math.PI * 2
+              return <JellyLeg key={i} base={[Math.cos(a) * 0.6, 1.45, Math.sin(a) * 0.6]} color={i % 2 ? character.face : character.outfit} phase={i * 0.8} busy={busy || visited} />
+            })}
+          </group>
+        ) : isBib ? (
+          <group position={[0, 0.05, 0]}>
+            {/* puffy stacked tire-man */}
+            <Ball p={[0, 0.66, 0.32]} r={0.56} c={character.face} />
+            <Ball p={[0, 1.16, 0.06]} r={0.62} c={character.face} />
+            <Ball p={[0, 1.62, 0]} r={0.48} c={character.face} />
+            <Ball p={[-0.5, 1.34, 0.04]} r={0.2} c={character.face} />
+            <Ball p={[0.5, 1.34, 0.04]} r={0.2} c={character.face} />
+            {/* dark tire grooves */}
+            {[0.92, 1.4].map((gy) => (
+              <mesh key={gy} position={[0, gy, 0.02]} rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.55, 0.04, 8, 24]} />
+                <meshStandardMaterial color={character.outfit2} {...MAT} />
+              </mesh>
+            ))}
+            <Ball p={[0, 2.12, 0]} r={0.5} c={character.face} />
+            <AsciiFace3D mood={mood} position={[0, 2.14, 0.5]} scale={0.62} color={faceColor} />
+            <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
+            <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} />
+          </group>
+        ) : isGeo ? (
+          <GeoBody c={character} mood={mood} />
         ) : (
           <group>
             {/* seated: lap + torso, legs hidden behind the desk */}

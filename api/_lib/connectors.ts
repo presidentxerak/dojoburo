@@ -172,3 +172,48 @@ export function siteUrl(): string {
 export function redirectUri(): string {
   return `${siteUrl()}/api/connect`
 }
+
+export interface RefreshedToken { accessToken: string; refreshToken?: string; expiresIn?: number }
+
+/** Exchange a stored refresh_token for a fresh access_token. Returns null when
+ *  the connector is misconfigured or the provider declines — the caller then
+ *  falls back to the existing (possibly still valid) token. */
+export async function refreshOAuthToken(c: ServerConnector, refreshTok: string): Promise<RefreshedToken | null> {
+  const cid = clientId(c)
+  const csec = clientSecret(c)
+  if (!cid || !csec) return null
+  const headers: Record<string, string> = { accept: 'application/json' }
+  const params: Record<string, string> = { grant_type: 'refresh_token', refresh_token: refreshTok }
+  if (c.oauth.tokenAuth === 'basic') {
+    headers.authorization = 'Basic ' + Buffer.from(`${cid}:${csec}`).toString('base64')
+    headers['content-type'] = 'application/json'
+  } else {
+    params.client_id = cid
+    params.client_secret = csec
+    headers['content-type'] = 'application/x-www-form-urlencoded'
+  }
+  try {
+    const res = await fetch(c.oauth.tokenUrl, {
+      method: 'POST',
+      headers,
+      body: c.oauth.tokenAuth === 'basic' ? JSON.stringify(params) : new URLSearchParams(params).toString(),
+    })
+    const text = await res.text()
+    let j: any
+    try {
+      j = JSON.parse(text)
+    } catch {
+      j = Object.fromEntries(new URLSearchParams(text))
+    }
+    if (!res.ok || j?.error) return null
+    const accessToken = j.access_token
+    if (!accessToken) return null
+    return {
+      accessToken,
+      refreshToken: j.refresh_token || undefined,
+      expiresIn: Number.isFinite(Number(j.expires_in)) ? Number(j.expires_in) : undefined,
+    }
+  } catch {
+    return null
+  }
+}

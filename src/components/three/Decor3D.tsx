@@ -513,21 +513,37 @@ function Mountains({ z, c1, c2, snow }: { z: number; c1: string; c2: string; sno
   )
 }
 
-// A modern glass-and-white villa, sat behind the Miami pool.
+// A modern two-storey glass-and-white villa with a rooftop pergola, balcony
+// railings and a warm terrace — sat behind the Miami pool.
 function ModernVilla({ x, z }: { x: number; z: number }) {
+  const white = '#f5f1e8'
+  const warm = '#e7dccb'
+  const glass = '#8fd7e6'
   return (
     <group position={[x, 0, z]}>
-      <B p={[0, 1.4, 0]} s={[6, 2.8, 3.4]} c="#f3efe6" />
-      <B p={[2.1, 2.5, 0.4]} s={[2.6, 1.8, 2.4]} c="#eae3d6" />
-      <B p={[0, 2.9, 0]} s={[6.3, 0.16, 3.7]} c="#d9d1c2" />
-      {/* glass window walls */}
-      <B p={[-1.6, 1.3, 1.72]} s={[2.4, 2.0, 0.06]} c="#8fd7e6" emissive="#4fc3d0" ei={0.25} />
-      <B p={[1.4, 1.2, 1.72]} s={[1.8, 1.6, 0.06]} c="#8fd7e6" emissive="#4fc3d0" ei={0.25} />
-      <B p={[2.1, 2.5, 1.62]} s={[2.2, 1.3, 0.06]} c="#a7e0ec" emissive="#4fc3d0" ei={0.2} />
-      {/* mullions */}
-      {[-2.4, -1.6, -0.8].map((mx) => <B key={mx} p={[mx, 1.3, 1.76]} s={[0.05, 2.0, 0.04]} c="#e8e2d6" />)}
-      <Co p={[4, 1.3, 1]} r={0.7} h={0.9} c="#3f9e52" />
-      <Cy p={[4, 0.6, 1]} r={0.14} h={1.4} c="#b98a58" />
+      {/* ground floor + cantilevered upper floor */}
+      <B p={[0, 1.4, 0]} s={[6.4, 2.8, 3.4]} c={white} />
+      <B p={[0, 2.9, 0]} s={[6.7, 0.18, 3.9]} c={warm} />
+      <B p={[1.6, 4.0, 0.3]} s={[3.6, 2.0, 2.9]} c={white} />
+      <B p={[1.6, 5.1, 0.3]} s={[3.9, 0.16, 3.2]} c={warm} />
+      {/* glass window walls (ground) */}
+      <B p={[-1.7, 1.3, 1.72]} s={[2.6, 2.0, 0.06]} c={glass} emissive="#4fc3d0" ei={0.28} />
+      <B p={[1.5, 1.2, 1.72]} s={[2.0, 1.6, 0.06]} c={glass} emissive="#4fc3d0" ei={0.28} />
+      {[-2.6, -1.7, -0.8].map((mx) => <B key={mx} p={[mx, 1.3, 1.76]} s={[0.05, 2.0, 0.04]} c={white} />)}
+      {/* warm front door */}
+      <B p={[2.5, 0.95, 1.73]} s={[0.9, 1.9, 0.06]} c="#c9784a" />
+      {/* upper glass + balcony rail on the ground-floor roof */}
+      <B p={[1.6, 4.1, 1.78]} s={[3.0, 1.5, 0.06]} c="#a7e0ec" emissive="#4fc3d0" ei={0.22} />
+      <B p={[-1.8, 3.05, 1.8]} s={[2.6, 0.06, 0.06]} c={warm} />
+      {[-3.0, -2.4, -1.8, -1.2, -0.6].map((rx) => <Cy key={rx} p={[rx, 3.0, 1.8]} r={0.03} h={0.32} c={warm} />)}
+      {/* rooftop pergola: posts + slatted shade + greenery */}
+      {[[-0.1, -0.9], [3.3, -0.9], [-0.1, 1.5], [3.3, 1.5]].map(([px, pz], i) => <Cy key={i} p={[px, 5.55, pz]} r={0.06} h={0.9} c="#c9b89a" />)}
+      {[-0.6, 0.1, 0.8, 1.5, 2.2, 2.9].map((sx) => <B key={sx} p={[1.6 + (sx - 1.6), 6.02, 0.3]} s={[0.08, 0.06, 2.6]} c="#c9b89a" />)}
+      <Sp p={[0.2, 5.7, -0.9]} r={0.4} c="#4faf5a" />
+      <Sp p={[3.0, 5.7, 1.4]} r={0.36} c="#5cbf62" />
+      {/* palm by the entrance */}
+      <Co p={[4.3, 1.3, 1.2]} r={0.75} h={0.95} c="#3f9e52" />
+      <Cy p={[4.3, 0.6, 1.2]} r={0.14} h={1.4} c="#b98a58" />
     </group>
   )
 }
@@ -771,6 +787,62 @@ function LabDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   )
 }
 
+// A sagging string of festoon party lights, glowing bulbs strung on a catenary.
+function Festoon({ x1, x2, z, y, sag = 1.3 }: { x1: number; x2: number; z: number; y: number; sag?: number }) {
+  const cols = ['#ffe08a', '#ff8fa3', '#8be0ff', '#b9f0c0', '#ffc24b']
+  const n = 12
+  return (
+    <group>
+      {Array.from({ length: n }).map((_, i) => {
+        const t = i / (n - 1)
+        const x = x1 + (x2 - x1) * t
+        const by = y - Math.sin(t * Math.PI) * sag
+        return <Glow key={i} p={[x, by, z]} r={0.09} c={cols[i % cols.length]} i={0.95} />
+      })}
+    </group>
+  )
+}
+
+// A thatched tiki bar with bamboo posts and a couple of stools.
+function TikiBar({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0, z]}>
+      {/* counter */}
+      <B p={[0, 0.72, 0]} s={[2.6, 0.18, 0.9]} c="#8a5a34" />
+      <B p={[0, 0.36, 0.36]} s={[2.6, 0.72, 0.14]} c="#a5733f" />
+      {[[-1.15, -0.35], [1.15, -0.35]].map(([px, pz], i) => <Cy key={i} p={[px, 0.9, pz]} r={0.08} h={1.8} c="#b98a58" />)}
+      {/* thatch roof */}
+      <Co p={[0, 2.1, 0]} r={1.9} h={0.9} c="#c9a24a" />
+      <Co p={[0, 1.86, 0]} r={2.0} h={0.5} c="#b8902f" open />
+      {/* stools */}
+      {[-0.8, 0.8].map((sx) => (
+        <group key={sx} position={[sx, 0, 1.1]}>
+          <Cy p={[0, 0.66, 0]} r={0.05} h={1.32} c="#7a5a3a" />
+          <Cy p={[0, 1.34, 0]} r={0.24} h={0.12} c="#ff7a59" />
+        </group>
+      ))}
+      {/* a couple of tropical drinks on the bar */}
+      {[-0.5, 0.4].map((dx, i) => <Cy key={dx} p={[dx, 0.92, 0.1]} r={0.09} h={0.28} c={i ? '#ffd23f' : '#ff5d6c'} />)}
+    </group>
+  )
+}
+
+// A potted monstera-style plant for the villa deck.
+function MonsteraPot({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0, z]}>
+      <Cy p={[0, 0.3, 0]} r={0.34} h={0.6} c="#d9cdb8" />
+      <Cy p={[0, 0.62, 0]} r={0.36} h={0.08} c="#c7b89c" />
+      {[[0.2, 1.1, 0], [-0.25, 0.95, 0.1], [0.05, 1.35, -0.1], [-0.1, 1.15, 0.25]].map(([lx, ly, lz], i) => (
+        <mesh key={i} position={[lx as number, ly as number, lz as number]} rotation={[0.3, i, 0.2]} scale={[0.5, 0.06, 0.7]} castShadow>
+          <sphereGeometry args={[0.5, 10, 8]} />
+          <meshStandardMaterial color={i % 2 ? '#3f9e52' : '#57b85f'} {...M} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
 // --- Miami Villa: pool, palms, loungers, umbrella, sunset disc ---------------
 function VillaDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   return (
@@ -788,9 +860,22 @@ function VillaDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
       <PalmTree x={9} z={backZ + 2.3} />
       <PalmTree x={-9.1} z={6.5} />
       <PalmTree x={9.1} z={6.5} />
+      {/* festoon party lights strung between the palms across the pool */}
+      <Festoon x1={-8.8} x2={8.8} z={backZ + 2.2} y={4.4} sag={1.6} />
+      <Festoon x1={-8.9} x2={9} z={6.4} y={4.2} sag={1.7} />
+      {/* diving board reaching out over the back of the pool */}
+      <group position={[-4.6, 0, backZ + 3]}>
+        <B p={[0, 0.6, 0]} s={[0.5, 0.1, 0.5]} c="#cfd6da" />
+        <B p={[0, 0.72, 1.5]} s={[0.7, 0.1, 3]} c="#eef3f5" />
+        <Cy p={[0, 0.36, 0.2]} r={0.05} h={0.72} c="#9aa4ab" />
+      </group>
+      {/* poolside tiki bar + planters */}
+      <TikiBar x={-8} z={7.4} />
+      <MonsteraPot x={6.2} z={7.6} />
+      <MonsteraPot x={0.4} z={7.8} />
       {/* poolside sun loungers on the front deck */}
-      {[-7.2, 7.2].map((x, i) => (
-        <group key={x} position={[x, 0, 6.6]} rotation={[0, i ? -0.4 : 0.4, 0]}>
+      {[-4.4, 4.4].map((x, i) => (
+        <group key={x} position={[x, 0, 7.2]} rotation={[0, i ? -0.4 : 0.4, 0]}>
           <B p={[0, 0.28, 0]} s={[0.8, 0.08, 1.8]} c="#ffffff" />
           <B p={[0, 0.5, -0.7]} s={[0.8, 0.08, 0.7]} c="#ff7a59" rot={[-0.6, 0, 0]} />
           {[-0.25, 0, 0.25].map((lx) => <Cy key={lx} p={[lx, 0.12, 0.8]} r={0.04} h={0.24} c="#d8b18a" />)}
@@ -1279,6 +1364,16 @@ export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; de
           <mesh position={[-6, 0.75, 5.6]} castShadow><sphereGeometry args={[0.42, 18, 16]} /><meshStandardMaterial color="#ff5d6c" {...M} /></mesh>
           <mesh position={[5.6, 0.72, 5.2]} castShadow><sphereGeometry args={[0.36, 18, 16]} /><meshStandardMaterial color="#ffd23f" {...M} /></mesh>
           <mesh position={[2, 0.6, 5.8]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.34, 0.12, 12, 24]} /><meshStandardMaterial color="#4fc3f7" {...M} /></mesh>
+          {/* a pink flamingo pool float */}
+          <group position={[6.6, 0.62, -1.6]} rotation={[0, -0.5, 0]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]} castShadow><torusGeometry args={[0.72, 0.26, 14, 28]} /><meshStandardMaterial color="#ff8fc0" {...M} /></mesh>
+            <Cy p={[0, 0.5, 0.55]} r={0.09} h={1.0} c="#ff8fc0" rot={[0.5, 0, 0]} />
+            <Sp p={[0.02, 0.98, 0.78]} r={0.2} c="#ff8fc0" />
+            <Co p={[0.02, 0.96, 0.98]} r={0.07} h={0.24} c="#ffb400" rot={[Math.PI / 2, 0, 0]} />
+          </group>
+          {/* a yellow donut float */}
+          <mesh position={[-2.4, 0.6, -1.2]} rotation={[Math.PI / 2, 0, 0]} castShadow><torusGeometry args={[0.6, 0.24, 14, 28]} /><meshStandardMaterial color="#ffd23f" {...M} /></mesh>
+          <mesh position={[-2.4, 0.72, -1.2]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.6, 0.12, 12, 24, Math.PI * 1.3]} /><meshStandardMaterial color="#ff6fae" {...M} /></mesh>
         </group>
       )}
 

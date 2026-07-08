@@ -198,7 +198,7 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
         <div className="ws-preview3d"><Agent3DPreview character={skin} size={104} /></div>
         <div>
           <div className="ws-skinname">{skin.name}</div>
-          <button className="ws-btn" onClick={onPickSkin}>Change skin (100)</button>
+          <button className="ws-btn" onClick={onPickSkin}>Change skin ({SKINS.length})</button>
         </div>
       </div>
 

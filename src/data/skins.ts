@@ -12,12 +12,18 @@ export interface Skin extends Character {
 const KINDS: Kind[] = [
   'robot', 'ninja', 'alien', 'cat', 'wizard', 'monster', 'cyborg', 'slime',
   'vampire', 'skeleton', 'octopus', 'goldorak', 'human', 'monitor',
+  // second wave
+  'poodle', 'rabbit', 'frog', 'duck', 'ghost', 'godzilla', 'bear', 'chicken',
+  'bibendum', 'jellyfish', 'geo', 'penguin', 'panda', 'dragon', 'mushroom',
 ]
 
 const KIND_LABEL: Record<Kind, string> = {
   robot: 'Bot', ninja: 'Ninja', alien: 'Alien', cat: 'Cat', wizard: 'Wizard',
   monster: 'Monster', cyborg: 'Cyborg', slime: 'Slime', vampire: 'Vampire',
   skeleton: 'Skelly', octopus: 'Octo', goldorak: 'Mecha', human: 'Human', monitor: 'Terminal',
+  poodle: 'Poodle', rabbit: 'Bunny', frog: 'Frog', duck: 'Duck', ghost: 'Ghost',
+  godzilla: 'Kaiju', bear: 'Bear', chicken: 'Chick', bibendum: 'Puffy', jellyfish: 'Jelly',
+  geo: 'Prism', penguin: 'Penguin', panda: 'Panda', dragon: 'Dragon', mushroom: 'Shroom',
 }
 
 // [name, head, outfit, outfit2, pants, extra]
@@ -42,13 +48,23 @@ const THEMES: [string, string, string, string, string, string][] = [
   ['Aurora', '#eafff6', '#3ad6a0', '#6c5cff', '#0f2a3a', '#a0ffe0'],
   ['Lava', '#ffe9d6', '#b8241d', '#ff5a2a', '#2a0d08', '#ffb03b'],
   ['Mint', '#effff8', '#4fd6a6', '#2f9c78', '#123a2e', '#c9fff0'],
+  ['Bubblegum', '#fff2fa', '#ff7ec8', '#ffd0ec', '#c94f9a', '#8be0ff'],
+  ['Vapor', '#f0eaff', '#8a6cff', '#ff6ad5', '#2a2350', '#5ffbf1'],
+  ['Emerald', '#e9fff2', '#12b36a', '#0a6e42', '#0e3a28', '#7bffc0'],
+  ['Rose', '#fff0f0', '#e35d72', '#a52a44', '#5a2230', '#ffc2cf'],
+  ['Cobalt', '#e6efff', '#2f5fe0', '#12306e', '#0d1c3a', '#7fb0ff'],
+  ['Peach', '#fff3ea', '#ff9e6b', '#e0663a', '#7a3a24', '#ffd9a0'],
+  ['Onyx', '#e4e6ec', '#2a2d38', '#14161f', '#0c0d14', '#e0c14a'],
+  ['Citrus', '#fbffe6', '#bcd42c', '#7a9410', '#3a4410', '#fff06a'],
+  ['Lilac', '#f6efff', '#b07eff', '#7a4ad0', '#3a2a5a', '#e6c6ff'],
+  ['Coral', '#fff0ec', '#ff6f61', '#c93f34', '#5a231c', '#ffd0b0'],
 ]
 
 export const SKINS: Skin[] = (() => {
   const out: Skin[] = []
   THEMES.forEach(([theme, head, outfit, outfit2, pants, extra], ti) => {
-    for (let k = 0; k < 5; k++) {
-      const kind = KINDS[(ti * 5 + k) % KINDS.length]
+    for (let k = 0; k < 6; k++) {
+      const kind = KINDS[(ti * 6 + k) % KINDS.length]
       out.push({
         id: `${theme.toLowerCase()}-${kind}`,
         name: `${theme} ${KIND_LABEL[kind]}`,

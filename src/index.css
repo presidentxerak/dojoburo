@@ -687,6 +687,22 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .sa-monitor .sa-head, .sa-robot .sa-head { border-radius: 22%; }
 .sa-alien .sa-head { border-radius: 50% 50% 46% 46%; }
 .sa-wizard .sa-top { height: 26%; top: -6%; border-radius: 50% 50% 0 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+/* second-wave kinds */
+.sa-bear .sa-top, .sa-panda .sa-top, .sa-poodle .sa-top { left: 24%; right: 24%; top: 2%; height: 20%; background: transparent !important; border: none !important; box-shadow: -7px 5px 0 -2px currentColor, 7px 5px 0 -2px currentColor; }
+.sa-rabbit .sa-top, .sa-dragon .sa-top { left: 40%; right: 40%; top: -18%; height: 40%; border-radius: 40% 40% 0 0; background: transparent !important; border: none !important; box-shadow: -6px 2px 0 0 currentColor, 6px 2px 0 0 currentColor; }
+.sa-frog .sa-top { left: 26%; right: 26%; top: -4%; height: 22%; background: transparent !important; border: none !important; box-shadow: -6px 2px 0 0 #f3fff0, 6px 2px 0 0 #f3fff0; }
+.sa-chicken .sa-top { top: -6%; left: 40%; right: 40%; height: 18%; border-radius: 50% 50% 0 0; background: #e23b3b !important; }
+.sa-godzilla .sa-top { top: -4%; left: 18%; right: 18%; height: 24%; border-radius: 0; clip-path: polygon(0 100%, 14% 30%, 28% 100%, 42% 24%, 56% 100%, 72% 34%, 86% 100%, 100% 40%); }
+.sa-mushroom .sa-top { top: -6%; left: 10%; right: 10%; height: 30%; border-radius: 50% 50% 42% 42%; }
+.sa-duck .sa-head { border-radius: 50% 50% 46% 46%; }
+.sa-ghost .sa-head { border-radius: 50% 50% 34% 34%; }
+.sa-ghost .sa-body { border-radius: 44% 44% 10% 10%; }
+.sa-jellyfish .sa-head { border-radius: 50% 50% 42% 42%; }
+.sa-jellyfish .sa-body, .sa-jellyfish .sa-top { opacity: 0.6; }
+.sa-bibendum .sa-body { border-radius: 46%; }
+.sa-bibendum .sa-head { border-radius: 50%; }
+.sa-geo .sa-head { border-radius: 12%; transform: rotate(45deg); }
+.sa-geo .sa-top { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
 .sa-eyes { display: flex; gap: 26%; }
 .sa-eyes i { width: 8%; min-width: 2px; aspect-ratio: 1; border-radius: 50%; background: currentColor; display: block; }
 

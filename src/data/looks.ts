@@ -20,6 +20,22 @@ export type Kind =
   | 'vampire'
   | 'octopus'
   | 'monitor'
+  // second wave — animals, memes & abstracts
+  | 'poodle'
+  | 'rabbit'
+  | 'frog'
+  | 'duck'
+  | 'ghost'
+  | 'godzilla'
+  | 'bear'
+  | 'chicken'
+  | 'bibendum'
+  | 'jellyfish'
+  | 'geo'
+  | 'penguin'
+  | 'panda'
+  | 'dragon'
+  | 'mushroom'
 
 export interface Character {
   kind: Kind
