@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Xaman (formerly XUMM) integration — secure, non-custodial signing for Mainnet.
+// Xaman (formerly XUMM) integration · secure, non-custodial signing for Mainnet.
 // Instead of exposing a seed, the user connects their Xaman wallet (OAuth2 PKCE,
 // frontend-only, API key without secret) and approves each transaction in the
 // Xaman app. Used here as a secure on-ramp: fund the DojoBuro treasury from the

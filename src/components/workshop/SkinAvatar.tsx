@@ -1,6 +1,6 @@
 import type { Skin } from '../../data/skins'
 
-/** Lightweight 2D avatar for a skin — head + eyes + a kind-specific topper,
+/** Lightweight 2D avatar for a skin · head + eyes + a kind-specific topper,
  *  coloured from the skin palette. Cheap enough to render a 100-skin grid. */
 export function SkinAvatar({ skin, size = 44 }: { skin: Skin; size?: number }) {
   const s = size

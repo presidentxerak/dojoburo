@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // Character roster. Each agent is a wild "kind" (alien, ninja, robot, skeleton,
 // goldorak mecha, monster…) with its own head, full body and colors. The
-// animated ASCII expression is drawn ON TOP of the head by <Character/> — the
+// animated ASCII expression is drawn ON TOP of the head by <Character/> · the
 // avatar art itself carries NO eyes/mouth.
 // ---------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ export type Kind =
   | 'vampire'
   | 'octopus'
   | 'monitor'
-  // second wave — animals, memes & abstracts
+  // second wave · animals, memes & abstracts
   | 'poodle'
   | 'rabbit'
   | 'frog'

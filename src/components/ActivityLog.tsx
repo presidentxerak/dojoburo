@@ -12,7 +12,7 @@ export function ActivityLog() {
   return (
     <section className="panel activity">
       <header className="activity-head">
-        <h3>Track — agent behavior</h3>
+        <h3>Track · agent behavior</h3>
         <span className="muted small">{activity.length} events</span>
       </header>
       <ul className="activity-list">

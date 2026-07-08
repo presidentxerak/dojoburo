@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // Procedural audio: a chill lo-fi ambient loop + chiptune SFX, synthesised with
-// the Web Audio API. No asset files — works fully offline, no CSP issues.
+// the Web Audio API. No asset files · works fully offline, no CSP issues.
 // All output is gated behind a user gesture (browser autoplay policy).
 // ---------------------------------------------------------------------------
 

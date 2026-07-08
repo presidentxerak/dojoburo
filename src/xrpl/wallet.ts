@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------------------
-// XRPL wallet management — the "xrpl-agent-wallet-skill".
+// XRPL wallet management · the "xrpl-agent-wallet-skill".
 // Each agent (and the company treasury) owns a real XRPL wallet. Seeds are
 // stored client-side, namespaced per network. On Testnet/Devnet wallets are
 // funded from the faucet; on Mainnet you fund them yourself.
 //
 // SECURITY: seeds live in this browser's localStorage only. This is fine for
-// Testnet play money. On Mainnet, treat these as hot wallets — fund small.
+// Testnet play money. On Mainnet, treat these as hot wallets · fund small.
 // ---------------------------------------------------------------------------
 import { Wallet, dropsToXrp } from 'xrpl'
 import { getClient, type NetworkId } from './network'

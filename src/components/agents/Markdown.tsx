@@ -1,6 +1,6 @@
 // Minimal, safe Markdown renderer for agent deliverables. Escapes first, then
 // applies a small, well-known subset (headings, bold/italic/code, lists, hr,
-// simple tables). No raw HTML passes through — LLM output is treated as text.
+// simple tables). No raw HTML passes through · LLM output is treated as text.
 import { Fragment } from 'react'
 
 function esc(s: string): string {

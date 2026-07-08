@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // XRPL network configuration + shared client.
-// The app talks DIRECTLY to public XRPL nodes over WebSocket — no backend,
+// The app talks DIRECTLY to public XRPL nodes over WebSocket · no backend,
 // no mock. Default network is Testnet (real ledger, faucet-funded wallets).
 // Flip to Mainnet from the UI once you are ready to move real value.
 // ---------------------------------------------------------------------------

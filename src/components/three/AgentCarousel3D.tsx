@@ -21,7 +21,7 @@ export function AgentCarousel3D() {
           <Agent3DPreview character={pick(s.kind)} size={150} speed={1} phase={i * 0.7} />
           <strong>{s.name}</strong>
           <span>{s.role}</span>
-          <em className="lp-editchip">Editable · 100 skins</em>
+          <em className="lp-editchip">Editable · {SKINS.length} skins</em>
         </div>
       ))}
     </div>

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// DojoBuro global state — network, wallets, behavior tracker, the hero, the
+// DojoBuro global state · network, wallets, behavior tracker, the hero, the
 // reward/event game layer, and the skill orchestrator that drives real XRPL
 // transactions + agent animations.
 // ---------------------------------------------------------------------------
@@ -46,7 +46,7 @@ export interface Toast {
   title: string
   text: string
   kind: 'event' | 'reward' | 'level'
-  /** optional link (e.g. an explorer URL) — makes the toast clickable */
+  /** optional link (e.g. an explorer URL) · makes the toast clickable */
   url?: string
 }
 
@@ -298,7 +298,7 @@ export const useDojo = create<DojoState>((set, get) => ({
       agentId: 'ava',
       skill: 'system',
       level: 'info',
-      message: `Network switched to ${NETWORKS[net].label}${NETWORKS[net].live ? ' — real value' : ''}.`,
+      message: `Network switched to ${NETWORKS[net].label}${NETWORKS[net].live ? ' · real value' : ''}.`,
     })
     void get().refreshBalances()
   },
@@ -502,12 +502,12 @@ async function settlePricedSkill(get: Get, agentId: string, skill: AgentSkill) {
   if (s.net === 'mainnet') {
     const r = await settleServer({ skill: skill.id, invoice, amountXrp: skill.price, note: skill.name })
     if (r?.ok && r.hash) {
-      s.log({ agentId, skill: skill.id, level: 'xrpl', message: `x402 settled on Mainnet — ${skill.price} XRP for "${skill.name}" (${r.result}).`, txHash: r.hash })
+      s.log({ agentId, skill: skill.id, level: 'xrpl', message: `x402 settled on Mainnet · ${skill.price} XRP for "${skill.name}" (${r.result}).`, txHash: r.hash })
       s.pushToast({ kind: 'event', badge: 'XRP', color: '#2fae6a', title: 'Settled on Mainnet', text: `${skill.price} XRP · x402 · tap to view on XRPL`, url: r.explorerUrl })
       useDojo.setState((st) => ({ usage: { ...st.usage, xrp: st.usage.xrp + skill.price } }))
       return
     }
-    s.log({ agentId, skill: skill.id, level: 'error', message: `Mainnet settlement unavailable (skill still ran)${r?.error ? ' — ' + r.error : ''}. Set SETTLEMENT_WALLET_SEED + SETTLEMENT_NETWORK=mainnet.` })
+    s.log({ agentId, skill: skill.id, level: 'error', message: `Mainnet settlement unavailable (skill still ran)${r?.error ? ' · ' + r.error : ''}. Set SETTLEMENT_WALLET_SEED + SETTLEMENT_NETWORK=mainnet.` })
     return
   }
 
@@ -536,7 +536,7 @@ async function executeSkill(get: Get, agentId: string, skill: AgentSkill) {
     else {
       const bal = await getBalance(s.net, ws.address)
       patchBalance(agentId, bal)
-      s.log({ agentId, skill: skill.id, level: 'xrpl', message: `Wallet ${ws.address} — ${bal === null ? 'unfunded' : bal.toFixed(2) + ' XRP'}.` })
+      s.log({ agentId, skill: skill.id, level: 'xrpl', message: `Wallet ${ws.address} · ${bal === null ? 'unfunded' : bal.toFixed(2) + ' XRP'}.` })
     }
     return
   }
@@ -580,7 +580,7 @@ async function executeSkill(get: Get, agentId: string, skill: AgentSkill) {
       return
     case 'sol.invoice': {
       if (s.net === 'mainnet') {
-        s.log({ agentId: 'sol', skill: skill.id, level: 'info', message: 'x402 invoice issued — awaiting client settlement.' })
+        s.log({ agentId: 'sol', skill: skill.id, level: 'info', message: 'x402 invoice issued · awaiting client settlement.' })
         return
       }
       const sol = s.ensureWallet('sol')
@@ -617,24 +617,24 @@ function patchBalance(agentId: string, bal: number | null) {
 function skillOutput(agentId: string, skill: AgentSkill): string {
   const lines: Record<string, string> = {
     'ava.okr': 'Q3 OKRs set: +30% activation, MRR x2, NPS > 50.',
-    'rex.ship': 'Feature shipped — build #' + (Math.abs(hashStr(skill.id + now())) % 9000),
+    'rex.ship': 'Feature shipped · build #' + (Math.abs(hashStr(skill.id + now())) % 9000),
     'rex.review': 'Review done: 2 bugs fixed, 3 simplifications proposed.',
-    'otto.deploy': 'Prod deploy OK — health-checks green.',
+    'otto.deploy': 'Prod deploy OK · health-checks green.',
     'otto.scale': 'Autoscaling: +2 instances, p95 latency stable.',
     'mia.campaign': '"Build in public" campaign planned across 3 channels.',
     'mia.brand': 'Brand audit: 82% consistency, palette tightened.',
-    'sol.close': 'Deal signed — estimated ACV up.',
+    'sol.close': 'Deal signed · estimated ACV up.',
     'pia.spec': 'Spec written with testable acceptance criteria.',
     'pia.prioritize': 'Backlog re-prioritized: 5 items to the top of the sprint.',
     'dex.mockup': 'Mockup produced: main screen + 3 states.',
     'dex.system': 'Design system: tokens + 12 documented components.',
     'ada.report': 'Weekly report: activation up, churn down, MRR stable.',
     'hana.hire': 'New agent sourced and onboarded.',
-    'hana.morale': 'Team morale maxed out — everyone is smiling.',
+    'hana.morale': 'Team morale maxed out · everyone is smiling.',
     'sam.ticket': 'Ticket resolved, customer happy.',
-    'sam.csat': 'CSAT at 94% — 2 pain points sent to product.',
+    'sam.csat': 'CSAT at 94% · 2 pain points sent to product.',
     'lex.contract': 'Contract drafted, key clauses validated.',
-    'lex.compliance': 'Compliance OK — action authorized.',
+    'lex.compliance': 'Compliance OK · action authorized.',
   }
   return lines[skill.id] ?? `${agentLabel(agentId)} finished "${skill.name}".`
 }

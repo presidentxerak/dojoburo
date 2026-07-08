@@ -1,6 +1,6 @@
 // Workshop store: the user's account, their Dojos (max 12 agents each) and the
 // editable agents inside them. Everything persists to localStorage. This is the
-// customization foundation — the office scene and skill engine read agent
+// customization foundation · the office scene and skill engine read agent
 // identity from here going forward.
 import { create } from 'zustand'
 import type { Department } from './data/agents'
@@ -28,7 +28,7 @@ export interface WAgent {
 export interface Dojo {
   id: string
   name: string
-  /** environment template id (see data/templates) — drives the 3D scene look */
+  /** environment template id (see data/templates) · drives the 3D scene look */
   template: string
   agents: WAgent[]
 }
@@ -41,7 +41,7 @@ export interface Account {
   provider: 'guest' | 'privy'
   currency: CurrencyCode
   avatarSkinId: string
-  /** Privy user id (did:privy:…) when signed in with Privy — used to map
+  /** Privy user id (did:privy:…) when signed in with Privy · used to map
    *  server-side settlements to this account. */
   privyDid?: string
 }
@@ -122,7 +122,7 @@ function makeTemplatedDojo(name: string, tpl: DojoTemplate): Dojo {
 }
 
 // A dojo tailored to a profession: the profession's crew in its chosen 3D
-// world, named after the trade — the starting point the picker seeds.
+// world, named after the trade · the starting point the picker seeds.
 function makeProfessionDojo(professionId: string): Dojo {
   const prof = professionById(professionId)
   if (!prof) return makeTemplatedDojo('New dojo', templateById(DEFAULT_TEMPLATE_ID))
@@ -173,7 +173,7 @@ function firstFreeCell(agents: WAgent[]): { gx: number; gy: number } {
 }
 
 export const useWorkshop = create<WorkshopState>((set, get) => {
-  // persist() is the single save point — it writes localStorage and clears the
+  // persist() is the single save point · it writes localStorage and clears the
   // dirty flag. Dojo/agent edits stay in memory (dirty) until save() is called.
   const persist = () => {
     const { account, dojos, activeDojoId } = get()

@@ -3,7 +3,7 @@ import { useDojo } from '../../store'
 import { useWorkshop } from '../../workshop'
 import { formatFrom } from '../../data/currency'
 
-/** Compact, always-visible monitor of the dojo's live activity — the same view
+/** Compact, always-visible monitor of the dojo's live activity · the same view
  *  a reduced desktop widget would show while you work on other things. */
 export function ActivityWidget({ onClose }: { onClose: () => void }) {
   const [min, setMin] = useState(false)
@@ -22,7 +22,7 @@ export function ActivityWidget({ onClose }: { onClose: () => void }) {
       <header className="aw-head">
         <span className="aw-dot" data-live={busy > 0} />
         <strong>{dojo?.name ?? 'Dojo'}</strong>
-        <button className="aw-btn" onClick={() => setMin((m) => !m)} aria-label={min ? 'Expand' : 'Minimize'}>{min ? '▢' : '—'}</button>
+        <button className="aw-btn" onClick={() => setMin((m) => !m)} aria-label={min ? 'Expand' : 'Minimize'}>{min ? '▢' : '-'}</button>
         <button className="aw-btn" onClick={onClose} aria-label="Close widget">×</button>
       </header>
       {!min && (
@@ -37,7 +37,7 @@ export function ActivityWidget({ onClose }: { onClose: () => void }) {
             {activity.slice(0, 4).map((a) => (
               <li key={a.id} className={`aw-${a.level}`}>{a.message}</li>
             ))}
-            {activity.length === 0 && <li className="aw-idle">Idle — run a skill to see live activity.</li>}
+            {activity.length === 0 && <li className="aw-idle">Idle · run a skill to see live activity.</li>}
           </ul>
         </>
       )}

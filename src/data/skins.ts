@@ -92,7 +92,7 @@ export function skinsForTheme(theme: string): Skin[] {
   return SKINS.filter((s) => s.theme === theme)
 }
 
-/** n skins spread as widely as possible across all themes & kinds — maximally
+/** n skins spread as widely as possible across all themes & kinds · maximally
  *  distinct, for the default HQ dojo. */
 export function variedSkins(n: number): Skin[] {
   const out: Skin[] = []

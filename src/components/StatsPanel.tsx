@@ -7,7 +7,7 @@ function fmt(n: number): string {
   return String(Math.round(n))
 }
 
-/** Lazy the panda's clipboard: the one thing he does is watch the numbers —
+/** Lazy the panda's clipboard: the one thing he does is watch the numbers -
  *  compute tokens, XRP spent and how productive the team has been. */
 export function StatsPanel() {
   const show = useDojo((s) => s.showStats)
@@ -73,7 +73,7 @@ export function StatsPanel() {
           {board.slice(0, 6).map((b, i) => (
             <li key={b.id}>
               <span className="board-rank">{i + 1}</span>
-              <span className="board-name">{b.name} <em>{AGENT_BY_ID[b.id].role.split('—')[0].trim()}</em></span>
+              <span className="board-name">{b.name} <em>{AGENT_BY_ID[b.id].role.split('-')[0].trim()}</em></span>
               <span className="board-bar"><span style={{ width: `${Math.max(6, (b.done / top) * 100)}%` }} /></span>
               <span className="board-done">{b.done}</span>
             </li>

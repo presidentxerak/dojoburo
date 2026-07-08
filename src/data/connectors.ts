@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// DojoBuro — tool connectors.
+// DojoBuro · tool connectors.
 //
 // Each agent function (department) can "branch" real external tools. A user
 // creating an agent picks its function, then connects the tools that function
@@ -54,7 +54,7 @@ const hubEnv = (idp: string): ConnectorEnv => ({ name: `${idp}_MCP_URL`, note: '
 export const CONNECTORS: Connector[] = [
   {
     id: 'notion', label: 'Notion', provider: 'Notion', category: 'Docs & Notes',
-    blurb: 'Create pages & databases — PRDs, roadmaps, meeting notes — in your workspace.',
+    blurb: 'Create pages & databases · PRDs, roadmaps, meeting notes · in your workspace.',
     functions: ['Product', 'Leadership', 'Ops'], auth: 'oauth',
     docsUrl: 'https://www.notion.so/my-integrations',
     env: oauthEnv('NOTION', 'Notion integrations', 'https://www.notion.so/my-integrations'),
@@ -138,7 +138,7 @@ export const CONNECTORS: Connector[] = [
   },
   {
     id: 'airtable', label: 'Airtable', provider: 'Airtable', category: 'Docs & Notes',
-    blurb: 'Read and write structured records — CRMs, trackers, datasets.',
+    blurb: 'Read and write structured records · CRMs, trackers, datasets.',
     functions: ['Ops', 'Growth', 'Product'], auth: 'oauth',
     docsUrl: 'https://airtable.com/create/oauth',
     env: [...oauthEnv('AIRTABLE', 'Airtable OAuth', 'https://airtable.com/create/oauth'), hubEnv('AIRTABLE')],
@@ -176,7 +176,7 @@ export const CONNECTORS: Connector[] = [
   },
   {
     id: 'hubspot', label: 'HubSpot', provider: 'HubSpot', category: 'CRM & Sales',
-    blurb: 'Work the CRM — contacts, deals, pipelines and notes.',
+    blurb: 'Work the CRM · contacts, deals, pipelines and notes.',
     functions: ['Growth', 'Finance', 'People'], auth: 'oauth',
     docsUrl: 'https://developers.hubspot.com/get-started',
     env: [...oauthEnv('HUBSPOT', 'HubSpot developer apps', 'https://developers.hubspot.com/get-started'), hubEnv('HUBSPOT')],
@@ -261,7 +261,7 @@ export function connectorsForFunction(fn: Department): Connector[] {
 }
 
 // ---------------------------------------------------------------------------
-// Built-in engines — real capabilities that need NO external OAuth. They run on
+// Built-in engines · real capabilities that need NO external OAuth. They run on
 // Claude directly (server-side), so they work the moment ANTHROPIC_API_KEY is
 // set. "Claude Design" is the design engine for the Product/Design function.
 // ---------------------------------------------------------------------------
@@ -281,7 +281,7 @@ export interface WorkTask {
 /** Real Claude-powered deliverables per function. Keyed by department. */
 export const WORK_TASKS: Record<Department, WorkTask[]> = {
   Product: [
-    { id: 'design-system', label: 'Claude Design — Design system', blurb: 'A real design system: tokens, palette, type scale, components & a11y rules.', priceXrp: 0.4, format: 'design-system', usesConnectors: ['figma'] },
+    { id: 'design-system', label: 'Claude Design · Design system', blurb: 'A real design system: tokens, palette, type scale, components & a11y rules.', priceXrp: 0.4, format: 'design-system', usesConnectors: ['figma'] },
     { id: 'prd', label: 'Write a PRD', blurb: 'A product requirements doc with goals, scope and acceptance criteria.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['notion', 'linear'] },
   ],
   Engineering: [

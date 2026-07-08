@@ -22,14 +22,14 @@ export function XamanPanel() {
   return (
     <section className="panel xaman">
       <header className="activity-head">
-        <h3>Xaman — secure signing</h3>
+        <h3>Xaman · secure signing</h3>
         {live ? <span className="chip dept-Leadership">Mainnet</span> : <span className="muted small">recommended on Mainnet</span>}
       </header>
 
       {!xa.configured ? (
         <div className="xaman-key">
           <p className="muted small">
-            Non-custodial signing: connect your Xaman wallet and approve each transaction on your phone — no seed
+            Non-custodial signing: connect your Xaman wallet and approve each transaction on your phone · no seed
             exposed. Paste a free Xaman API key (<a href="https://apps.xaman.dev" target="_blank" rel="noreferrer">apps.xaman.dev</a>).
           </p>
           <div className="composer-row">

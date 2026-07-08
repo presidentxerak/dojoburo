@@ -6,7 +6,7 @@ import type { Mood } from '../../store'
 import { Character3D } from './Character3D'
 
 // Keep the agent facing forward with a gentle idle: a soft look left/right,
-// a tiny lean, and a subtle bob — no full turntable rotation.
+// a tiny lean, and a subtle bob · no full turntable rotation.
 function Idle({ speed, phase, children }: { speed: number; phase: number; children: ReactNode }) {
   const g = useRef<THREE.Group>(null)
   useFrame((s) => {

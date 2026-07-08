@@ -1,9 +1,9 @@
 // ---------------------------------------------------------------------------
-// DojoBuro — profession profiles.
+// DojoBuro · profession profiles.
 //
 // DojoBuro adapts to the user's job. Picking a profession tailors the office:
 // it seeds a matching crew, drops you into a fitting 3D environment, and
-// surfaces the exact tools (connectors) that trade needs — so the agents can
+// surfaces the exact tools (connectors) that trade needs · so the agents can
 // connect to those apps and actually run the work of that profession.
 //
 // Each profession maps to:
@@ -38,7 +38,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'founder',
     label: 'Startup Founder',
-    blurb: 'Build a company from zero — product, growth, money and hiring at once.',
+    blurb: 'Build a company from zero · product, growth, money and hiring at once.',
     category: 'Business',
     template: 'startup',
     crew: ALL,
@@ -58,7 +58,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'entrepreneur',
     label: 'Solo Entrepreneur',
-    blurb: 'One person, a whole company — sell, deliver and keep the books.',
+    blurb: 'One person, a whole company · sell, deliver and keep the books.',
     category: 'Business',
     template: 'villa',
     crew: ['Leadership', 'Growth', 'Finance', 'Product'],
@@ -68,7 +68,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'pm',
     label: 'Product Manager',
-    blurb: 'Turn problems into shipped product — specs, backlog, roadmap.',
+    blurb: 'Turn problems into shipped product · specs, backlog, roadmap.',
     category: 'Product & Tech',
     template: 'startup',
     crew: ['Product', 'Engineering', 'Growth', 'People'],
@@ -78,7 +78,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'engineer',
     label: 'Software Engineer',
-    blurb: 'Design, build and ship code — reviews, specs, tickets, deploys.',
+    blurb: 'Design, build and ship code · reviews, specs, tickets, deploys.',
     category: 'Product & Tech',
     template: 'factory',
     crew: ['Engineering', 'Product', 'Ops'],
@@ -88,7 +88,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'gamedev',
     label: 'App & Game Maker',
-    blurb: 'Build apps and games — from prototype to store, art to backlog.',
+    blurb: 'Build apps and games · from prototype to store, art to backlog.',
     category: 'Product & Tech',
     template: 'lab',
     crew: ['Engineering', 'Product', 'Growth'],
@@ -98,7 +98,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'researcher',
     label: 'Researcher',
-    blurb: 'Read, synthesize and write — literature, data, findings.',
+    blurb: 'Read, synthesize and write · literature, data, findings.',
     category: 'Product & Tech',
     template: 'lab',
     crew: ['Product', 'Engineering', 'Leadership'],
@@ -108,7 +108,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'growth',
     label: 'Growth Hacker',
-    blurb: 'Find the loops that scale — experiments, funnels, channels.',
+    blurb: 'Find the loops that scale · experiments, funnels, channels.',
     category: 'Marketing & Growth',
     template: 'space',
     crew: ['Growth', 'Product', 'Finance'],
@@ -118,7 +118,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'community',
     label: 'Community Manager',
-    blurb: 'Grow and tend an audience — content, replies, calendar, events.',
+    blurb: 'Grow and tend an audience · content, replies, calendar, events.',
     category: 'Marketing & Growth',
     template: 'wonderland',
     crew: ['Growth', 'People', 'Product'],
@@ -128,7 +128,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'marketer',
     label: 'Marketer',
-    blurb: 'Campaigns that land — positioning, email, ads, creative.',
+    blurb: 'Campaigns that land · positioning, email, ads, creative.',
     category: 'Marketing & Growth',
     template: 'space',
     crew: ['Growth', 'Product', 'Leadership'],
@@ -138,7 +138,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'sales',
     label: 'Sales / Account Exec',
-    blurb: 'Fill and close the pipeline — outreach, demos, follow-ups.',
+    blurb: 'Fill and close the pipeline · outreach, demos, follow-ups.',
     category: 'Marketing & Growth',
     template: 'villa',
     crew: ['Growth', 'Finance', 'People'],
@@ -148,7 +148,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'designer',
     label: 'Designer / Graphic Artist',
-    blurb: 'Make it beautiful — brand, UI, tokens, assets.',
+    blurb: 'Make it beautiful · brand, UI, tokens, assets.',
     category: 'Creative',
     template: 'wonderland',
     crew: ['Product', 'Growth', 'Engineering'],
@@ -158,7 +158,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'lawyer',
     label: 'Lawyer / Legal',
-    blurb: 'Contracts, review and compliance — drafted, tracked, signed.',
+    blurb: 'Contracts, review and compliance · drafted, tracked, signed.',
     category: 'Professional',
     template: 'castle',
     crew: ['Leadership', 'People', 'Ops'],
@@ -168,7 +168,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'accountant',
     label: 'Accountant',
-    blurb: 'Keep the books straight — invoices, reconciliation, reports.',
+    blurb: 'Keep the books straight · invoices, reconciliation, reports.',
     category: 'Professional',
     template: 'factory',
     crew: ['Finance', 'Ops', 'Leadership'],
@@ -178,7 +178,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'hr',
     label: 'HR / People Ops',
-    blurb: 'Hire, onboard and care for the team — JD to offer to onboarding.',
+    blurb: 'Hire, onboard and care for the team · JD to offer to onboarding.',
     category: 'Operations',
     template: 'garden',
     crew: ['People', 'Leadership', 'Ops'],
@@ -188,7 +188,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'manager',
     label: 'Team Manager',
-    blurb: 'Keep a team shipping — plans, standups, reviews, rituals.',
+    blurb: 'Keep a team shipping · plans, standups, reviews, rituals.',
     category: 'Operations',
     template: 'startup',
     crew: ['Leadership', 'Product', 'People', 'Ops'],
@@ -198,7 +198,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'secretary',
     label: 'Assistant / Secretary',
-    blurb: 'Run the diary and the inbox — schedule, email, notes, docs.',
+    blurb: 'Run the diary and the inbox · schedule, email, notes, docs.',
     category: 'Operations',
     template: 'dojo',
     crew: ['Ops', 'People', 'Leadership'],
@@ -208,7 +208,7 @@ export const PROFESSIONS: Profession[] = [
   {
     id: 'callcenter',
     label: 'Support / Call Center',
-    blurb: 'Answer, resolve, follow up — tickets, macros, escalations.',
+    blurb: 'Answer, resolve, follow up · tickets, macros, escalations.',
     category: 'Operations',
     template: 'factory',
     crew: ['Ops', 'People', 'Product'],

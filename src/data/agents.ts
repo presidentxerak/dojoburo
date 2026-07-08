@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// DojoBuro — Agent roster
+// DojoBuro · Agent roster
 // Every agent has a real function inside a startup, a set of skills and a
 // department. Skills marked with a price are settled on the XRP Ledger
 // (x402-style agentic payments).
@@ -72,7 +72,7 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'ava',
     name: 'Ava',
-    role: 'CEO — Orchestrator',
+    role: 'CEO · Orchestrator',
     department: 'Leadership',
     mission:
       'Sets the vision, prioritizes the roadmap and orchestrates the other agents. Runs the team rituals and arbitrates the budget.',
@@ -107,7 +107,7 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'rex',
     name: 'Rex',
-    role: 'CTO — Engineering',
+    role: 'CTO · Engineering',
     department: 'Engineering',
     mission: 'Designs the architecture, writes and reviews code, keeps technical debt under control.',
     skills: [
@@ -133,7 +133,7 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'otto',
     name: 'Otto',
-    role: 'DevOps — Infrastructure',
+    role: 'DevOps · Infrastructure',
     department: 'Ops',
     mission: 'Automates deployments, watches uptime and keeps the CI/CD pipelines green.',
     skills: [
@@ -159,7 +159,7 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'fin',
     name: 'Fin',
-    role: 'CFO — Treasury',
+    role: 'CFO · Treasury',
     department: 'Finance',
     mission:
       'Manages the XRPL treasury, tracks the burn rate, executes and reconciles agentic payments.',
@@ -194,7 +194,7 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'mia',
     name: 'Mia',
-    role: 'CMO — Marketing',
+    role: 'CMO · Marketing',
     department: 'Growth',
     mission: 'Builds the brand, launches campaigns and feeds the top of the funnel.',
     skills: [
@@ -220,7 +220,7 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'sol',
     name: 'Sol',
-    role: 'Head of Sales — Revenue',
+    role: 'Head of Sales · Revenue',
     department: 'Growth',
     mission: 'Qualifies leads, runs demos and closes contracts. Gets paid in XRP.',
     skills: [
@@ -272,7 +272,7 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'dex',
     name: 'Dex',
-    role: 'Lead Designer — UX/UI',
+    role: 'Lead Designer · UX/UI',
     department: 'Product',
     mission: 'Draws the flows, the mockups and a pixel-perfect design system.',
     skills: [
@@ -324,7 +324,7 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'hana',
     name: 'Hana',
-    role: 'People Ops — HR',
+    role: 'People Ops · HR',
     department: 'People',
     mission: "Recruits, onboards and looks after the agent team's morale.",
     skills: [

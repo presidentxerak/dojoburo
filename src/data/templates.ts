@@ -1,4 +1,4 @@
-// Dojo templates — each is a themed environment for a dojo: a 3D palette
+// Dojo templates · each is a themed environment for a dojo: a 3D palette
 // (floor / walls / accent / background / fog), a decor style, a matching skin
 // theme used to seed a coherent starter crew, and copy for the create dialog.
 // The active dojo's template drives the look of the 3D office.

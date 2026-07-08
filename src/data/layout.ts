@@ -4,13 +4,13 @@
 // from the selected scene template (see scenes.ts).
 //
 // Depth: a desk sits IN FRONT of its agent (higher z) so the character stands
-// behind it, at their desk — never on top of it.
+// behind it, at their desk · never on top of it.
 // ---------------------------------------------------------------------------
 import { AGENTS } from './agents'
 
 export const STAGE = { w: 1040, h: 700 }
 
-// avatar anchor (top-left) per agent — deliberately organic, not a grid.
+// avatar anchor (top-left) per agent · deliberately organic, not a grid.
 export const POSITIONS: Record<string, { x: number; y: number }> = {
   ava: { x: 470, y: 132 },
   lex: { x: 652, y: 150 },

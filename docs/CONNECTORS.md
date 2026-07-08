@@ -6,8 +6,10 @@ Two capabilities:
 1. **Claude-powered deliverables** — each agent function runs a real Claude task
    and returns a genuine artifact (a **design system** via *Claude Design*, a PRD,
    a tech spec, a GTM campaign, a financial model…). Rendered in-app, downloadable.
-2. **Tool connectors** — a user "branches" real tools onto an agent (Notion,
-   GitHub, Gmail, Slack, Linear, Stripe, Figma, Drive). The OAuth token is stored
+2. **Tool connectors** — a user "branches" real tools onto an agent, choosing
+   from **28 apps** across dev, comms, CRM & sales, marketing & social, finance,
+   scheduling, support, design and storage (Notion, GitHub, Gmail, Slack, Linear,
+   Stripe, Figma, Drive, Jira, HubSpot, Shopify, Zendesk, …). The OAuth token is stored
    **encrypted server-side** and exposed to Claude as a **remote MCP server** at
    run time, so the agent *acts inside the tool* (creates the Notion page, opens
    the PR, drafts the email).
@@ -98,6 +100,26 @@ shows as *"operator setup"* in the UI (never an error).
 | 📐 **Linear** | Product, Engineering | `LINEAR_CLIENT_ID`, `LINEAR_CLIENT_SECRET` | [linear.app OAuth apps](https://linear.app/settings/api/applications/new) | `https://mcp.linear.app/mcp` · `LINEAR_MCP_URL` |
 | 💳 **Stripe** | Finance, Growth | `STRIPE_CONNECT_CLIENT_ID` (+ reuses `STRIPE_SECRET_KEY`) | [dashboard.stripe.com/settings/connect](https://dashboard.stripe.com/settings/connect) | `https://mcp.stripe.com` · `STRIPE_MCP_URL` |
 | 🎨 **Figma** | Product | `FIGMA_CLIENT_ID`, `FIGMA_CLIENT_SECRET` | [figma.com OAuth](https://www.figma.com/developers/api#oauth2) | `FIGMA_MCP_URL` |
+| **Google Calendar** | Ops, People, Leadership | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (shared with Gmail) | [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials) | `GCAL_MCP_URL` |
+| **Discord** | Growth, People | `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET` | [discord.com/developers/applications](https://discord.com/developers/applications) | `DISCORD_MCP_URL` |
+| **Zoom** | Ops, People, Leadership | `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET` | [marketplace.zoom.us/develop/create](https://marketplace.zoom.us/develop/create) | `ZOOM_MCP_URL` |
+| **Jira** | Engineering, Product, Ops | `JIRA_CLIENT_ID`, `JIRA_CLIENT_SECRET` | [developer.atlassian.com/console/myapps](https://developer.atlassian.com/console/myapps/) | `JIRA_MCP_URL` |
+| **Trello** | Product, Ops | `TRELLO_API_KEY` (token-based, no OAuth) | [trello.com/power-ups/admin](https://trello.com/power-ups/admin) | `TRELLO_MCP_URL` |
+| **Asana** | Ops, Product, Leadership | `ASANA_CLIENT_ID`, `ASANA_CLIENT_SECRET` | [app.asana.com/0/my-apps](https://app.asana.com/0/my-apps) | `ASANA_MCP_URL` |
+| **Airtable** | Ops, Growth, Product | `AIRTABLE_CLIENT_ID`, `AIRTABLE_CLIENT_SECRET` · PKCE | [airtable.com/create/oauth](https://airtable.com/create/oauth) | `AIRTABLE_MCP_URL` |
+| **QuickBooks** | Finance, Ops | `QUICKBOOKS_CLIENT_ID`, `QUICKBOOKS_CLIENT_SECRET` | [developer.intuit.com/app/developer/dashboard](https://developer.intuit.com/app/developer/dashboard) | `QUICKBOOKS_MCP_URL` |
+| **Xero** | Finance, Ops | `XERO_CLIENT_ID`, `XERO_CLIENT_SECRET` | [developer.xero.com/app/manage](https://developer.xero.com/app/manage) | `XERO_MCP_URL` |
+| **Shopify** | Growth, Finance, Product | `SHOPIFY_CLIENT_ID`, `SHOPIFY_CLIENT_SECRET` · set `SHOPIFY_AUTH_URL`/`_TOKEN_URL` (per-store) | [partners.shopify.com](https://partners.shopify.com/) | `SHOPIFY_MCP_URL` |
+| **HubSpot** | Growth, Finance, People | `HUBSPOT_CLIENT_ID`, `HUBSPOT_CLIENT_SECRET` | [developers.hubspot.com/get-started](https://developers.hubspot.com/get-started) | `HUBSPOT_MCP_URL` |
+| **Calendly** | Growth, People, Ops | `CALENDLY_CLIENT_ID`, `CALENDLY_CLIENT_SECRET` | [developer.calendly.com](https://developer.calendly.com/) | `CALENDLY_MCP_URL` |
+| **Mailchimp** | Growth | `MAILCHIMP_CLIENT_ID`, `MAILCHIMP_CLIENT_SECRET` | [mailchimp.com/developer](https://mailchimp.com/developer/) | `MAILCHIMP_MCP_URL` |
+| **X / Twitter** | Growth, People | `TWITTER_CLIENT_ID`, `TWITTER_CLIENT_SECRET` · PKCE | [developer.x.com/en/portal/dashboard](https://developer.x.com/en/portal/dashboard) | `TWITTER_MCP_URL` |
+| **LinkedIn** | Growth, People | `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET` | [linkedin.com/developers/apps](https://www.linkedin.com/developers/apps) | `LINKEDIN_MCP_URL` |
+| **Buffer** | Growth | `BUFFER_CLIENT_ID`, `BUFFER_CLIENT_SECRET` | [buffer.com/developers/apps](https://buffer.com/developers/apps) | `BUFFER_MCP_URL` |
+| **Canva** | Growth, Product | `CANVA_CLIENT_ID`, `CANVA_CLIENT_SECRET` · PKCE | [canva.com/developers](https://www.canva.com/developers/) | `CANVA_MCP_URL` |
+| **DocuSign** | Leadership, People, Ops | `DOCUSIGN_CLIENT_ID`, `DOCUSIGN_CLIENT_SECRET` | [developers.docusign.com](https://developers.docusign.com/) | `DOCUSIGN_MCP_URL` |
+| **Zendesk** | Ops, People | `ZENDESK_CLIENT_ID`, `ZENDESK_CLIENT_SECRET` · set `ZENDESK_AUTH_URL`/`_TOKEN_URL` (per-subdomain) | [developer.zendesk.com](https://developer.zendesk.com/) | `ZENDESK_MCP_URL` |
+| **Intercom** | Ops, People, Growth | `INTERCOM_CLIENT_ID`, `INTERCOM_CLIENT_SECRET` | [developers.intercom.com](https://developers.intercom.com/) | `INTERCOM_MCP_URL` |
 
 > **Override any connector** without a code change:
 > `<IDP>_AUTH_URL`, `<IDP>_TOKEN_URL`, `<IDP>_MCP_URL`, `<IDP>_SCOPE`.
@@ -106,6 +128,12 @@ shows as *"operator setup"* in the UI (never an error).
 
 > ⚠️ **MCP tokens ≠ REST API keys.** Hosted MCP servers expect the **OAuth
 > bearer token** issued by the connect flow, not a personal API key.
+
+> 🔄 **PKCE + auto-refresh.** The OAuth flow supports **PKCE** (RFC 7636) for
+> providers that require it (**Airtable**, **X/Twitter**, **Canva**). Stored
+> OAuth **access tokens are auto-refreshed** from the sealed refresh token before
+> each run, so short-lived tokens (Google / Gmail / Drive, ~1h) keep working
+> without a re-connect.
 
 ---
 

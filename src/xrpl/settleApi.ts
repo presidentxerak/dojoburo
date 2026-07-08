@@ -2,7 +2,7 @@
 // priced skill settles a REAL x402 payment from the server-held hot wallet and
 // we get back a tx hash + explorer URL to surface. Returns null on any failure
 // (endpoint absent, hot wallet not configured, network error) so the caller can
-// fall back gracefully — no seed ever touches the browser.
+// fall back gracefully · no seed ever touches the browser.
 
 export interface SettleReply {
   ok: boolean

@@ -1,6 +1,6 @@
 // Multi-currency display layer. XRP is the settlement rail (x402); fiat amounts
 // are shown for convenience and converted to XRP at checkout. Rates are
-// indicative defaults — wire a live FX + on-ramp for production charges.
+// indicative defaults · wire a live FX + on-ramp for production charges.
 
 export type CurrencyCode = 'XRP' | 'USD' | 'EUR' | 'JPY'
 

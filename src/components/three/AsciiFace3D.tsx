@@ -5,7 +5,7 @@ import { FACES, FACE_SPEED } from '../../data/faces'
 import type { Mood } from '../../store'
 
 /** Renders the animated ASCII expression to a canvas texture on a billboard
- *  sprite so it always faces the camera — the signature ASCII face, in 3D. */
+ *  sprite so it always faces the camera · the signature ASCII face, in 3D. */
 export function AsciiFace3D({
   mood,
   position,

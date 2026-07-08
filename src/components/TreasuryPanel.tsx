@@ -65,7 +65,7 @@ export function TreasuryPanel() {
             )}
           </div>
         </div>
-        <div className="treasury-bal">{treasury?.balanceXrp != null ? `${treasury.balanceXrp.toFixed(2)} XRP` : '—'}</div>
+        <div className="treasury-bal">{treasury?.balanceXrp != null ? `${treasury.balanceXrp.toFixed(2)} XRP` : '-'}</div>
       </div>
 
       <div className="treasury-actions">

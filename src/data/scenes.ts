@@ -155,7 +155,7 @@ const hospital: FurniturePiece[] = [
   { kind: 'plant', x: 470, y: 420, z: 2 },
 ]
 
-// Everything is monochrome now — scenes differ by their decor shapes, not colour.
+// Everything is monochrome now · scenes differ by their decor shapes, not colour.
 const FLOOR_A = '#ffffff'
 const FLOOR_B = '#ececec'
 const TINT = 'rgba(0,0,0,0.05)'

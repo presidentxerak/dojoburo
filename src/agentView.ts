@@ -22,7 +22,7 @@ const TASK_DESC: Record<string, string> = {
   wallet: 'Create / inspect the agent XRPL wallet and top it up from the faucet.',
   pay: 'Settle a service on the XRP Ledger with an x402 memo (signed + submitted).',
   track: 'Anchor the agent action fingerprint on-ledger, making its behavior auditable.',
-  standup: 'Rally the team — each agent reports its status.',
+  standup: 'Rally the team · each agent reports its status.',
   okr: 'Generate the quarterly objectives and split them across departments.',
   allocate: 'Send an XRP allocation from the treasury (on-ledger payment).',
   ship: 'Implement then "deploy" a product increment.',

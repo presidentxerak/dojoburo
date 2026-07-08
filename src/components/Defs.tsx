@@ -1,6 +1,6 @@
 // Shared SVG defs: a 1-bit dither pattern (classic Mac 50% gray) and a
 // monochrome filter that (a) forces art to black/white and (b) wraps every
-// piece in a 1px black outline — the Macintosh icon look.
+// piece in a 1px black outline · the Macintosh icon look.
 export function Defs() {
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden focusable="false">
@@ -13,7 +13,7 @@ export function Defs() {
 
         {/* grayscale + posterize, then add a black outline around the silhouette */}
         <filter id="macmono" x="-15%" y="-15%" width="130%" height="130%" colorInterpolationFilters="sRGB">
-          {/* black outline from a dilated alpha — every furniture SVG is drawn at
+          {/* black outline from a dilated alpha · every furniture SVG is drawn at
              exactly 2px per user unit, so radius 1 = a uniform 2px outline */}
           <feMorphology in="SourceAlpha" operator="dilate" radius="1" result="dilated" />
           <feFlood floodColor="#000" result="blk" />

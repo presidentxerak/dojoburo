@@ -37,7 +37,7 @@ export function Workshop() {
           <span className="ws-chip-name">{account ? account.name || 'Founder' : 'Sign in'}</span>
         </button>
 
-        {/* quick dojo switcher — flip active dojo without opening the studio */}
+        {/* quick dojo switcher · flip active dojo without opening the studio */}
         <div className="ws-dojoswitch" title="Switch dojo">
           <button className="ws-swbtn" onClick={() => cycle(-1)} disabled={dojos.length < 2} aria-label="Previous dojo">‹</button>
           <select className="ws-swsel" value={active?.id} onChange={(e) => setActive(e.target.value)}>

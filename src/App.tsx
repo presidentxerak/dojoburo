@@ -105,7 +105,7 @@ export default function App() {
         </button>
         <div className="hud-body">
           <aside className="hud-side">
-            {/* mobile: sheet header — grab handle + explicit close button */}
+            {/* mobile: sheet header · grab handle + explicit close button */}
             <div className="hud-sheet-head">
               <button className="hud-grip" onClick={closeSheet} aria-label="Collapse panel"><span /></button>
               <button className="hud-close" onClick={closeSheet} aria-label="Close panel">✕</button>

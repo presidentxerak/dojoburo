@@ -2,10 +2,16 @@ import { AGENTS } from './data/agents'
 import { PROFESSIONS } from './data/professions'
 import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
 import { SKINS } from './data/skins'
+import type { Kind } from './data/looks'
 import { DOJO_TEMPLATES } from './data/templates'
 import { SupportBot } from './components/SupportBot'
 import { Logo } from './components/Logo'
 import { AgentCarousel3D } from './components/three/AgentCarousel3D'
+import { AsciiIcon } from './components/AsciiIcon'
+import { Hero3D } from './components/landing/Hero3D'
+
+// pick a skin id for a given creature kind (for the parallax heroes)
+const heroSkin = (k: Kind): string => (SKINS.find((s) => s.kind === k) ?? SKINS[0]).id
 
 /** A-to-Z landing page: what DojoBuro is, how the office works, what a task
  *  costs in XRP, how agents get wired to real tools, where they run, and the
@@ -27,7 +33,7 @@ export function Landing({ enter }: { enter: () => void }) {
           DojoBuro is a living 3D office where a team of specialised AI agents each own a real
           function of your work. It adapts to your profession, connects your everyday apps, runs the
           tasks for real, and settles the cost on-ledger with x402 micro-payments. You are the
-          founder — the Chief atom hovering over the team.
+          founder · the Chief atom hovering over the team.
         </p>
         <div className="lp-actions">
           <button className="lp-cta" onClick={enter}>Enter the office →</button>
@@ -40,11 +46,12 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec" id="jobs">
+        <Hero3D skin={heroSkin('dragon')} side="right" mood="happy" phase={0.4} parallax={0.16} />
         <span className="lp-pill">New · adapts to your trade</span>
         <h2>Built around your job</h2>
         <p className="lp-lead">
           DojoBuro is a productivity hub that reshapes itself to your profession. Pick your trade and the
-          office is tailored for you — a matching crew of specialists, a fitting 3D environment, and the exact
+          office is tailored for you · a matching crew of specialists, a fitting 3D environment, and the exact
           apps your work needs, wired and ready to run the real tasks of that job.
         </p>
         <div className="lp-jobs">
@@ -61,14 +68,16 @@ export function Landing({ enter }: { enter: () => void }) {
             </div>
           ))}
         </div>
-        <p className="lp-note">Don't see yours exactly? Every dojo is fully editable — mix any crew, any environment and any apps. These are just fast starting points.</p>
+        <p className="lp-note">Don't see yours exactly? Every dojo is fully editable · mix any crew, any environment and any apps. These are just fast starting points.</p>
       </section>
 
       <section className="lp-sec alt" id="stack">
+        <Hero3D skin={heroSkin('octopus')} side="left" mood="work" phase={1.1} parallax={0.12} />
+        <span className="lp-ico"><AsciiIcon kind="stack" /></span>
         <h2>Connect your whole stack</h2>
         <p className="lp-lead">
-          {CONNECTORS.length} app connectors and counting. Connect with one click — OAuth (with PKCE), tokens
-          sealed server-side in an encrypted vault — and your agents act inside them for real: create the
+          {CONNECTORS.length} app connectors and counting. Connect with one click · OAuth (with PKCE), tokens
+          sealed server-side in an encrypted vault · and your agents act inside them for real: create the
           Notion page, open the GitHub PR, draft the Gmail, post the campaign, raise the Stripe invoice, move
           the Jira ticket.
         </p>
@@ -88,7 +97,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <div>
             <h3>Or keep it local</h3>
             <ul>
-              <li>Self-host the worker and point connectors at your own MCP endpoints — your keys, your machine, the same office.</li>
+              <li>Self-host the worker and point connectors at your own MCP endpoints · your keys, your machine, the same office.</li>
               <li>Bring your own model key (Claude) or run the free-model cascade; nothing leaves your control.</li>
             </ul>
           </div>
@@ -96,6 +105,7 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec" id="studio">
+        <span className="lp-ico"><AsciiIcon kind="build" /></span>
         <h2>Build your own team</h2>
         <p className="lp-lead">Open the Dojo Studio to create, edit and delete agents. Pick one of {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, choose the agent's function and tasks, and set a per-agent XRP budget. Arrange them on a grid and run several dojos side by side.</p>
         <div className="lp-schema">
@@ -113,8 +123,9 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec alt" id="cast">
+        <span className="lp-ico"><AsciiIcon kind="cast" /></span>
         <h2>Meet the office</h2>
-        <p className="lp-lead">Twelve starter agents across Leadership, Engineering, Finance, Growth, Product, People and Ops — plus two mascots. Reskin, rename or replace any of them.</p>
+        <p className="lp-lead">Twelve starter agents across Leadership, Engineering, Finance, Growth, Product, People and Ops · plus two mascots. Reskin, rename or replace any of them.</p>
         <div className="lp-cast">
           {AGENTS.map((a) => (
             <div className="lp-card" key={a.id}>
@@ -122,12 +133,13 @@ export function Landing({ enter }: { enter: () => void }) {
               <span>{a.role}</span>
             </div>
           ))}
-          <div className="lp-card mascot"><strong>Chief</strong><span>You — the founder atom</span></div>
+          <div className="lp-card mascot"><strong>Chief</strong><span>You · the founder atom</span></div>
           <div className="lp-card mascot"><strong>Lazy</strong><span>The panda who only watches the numbers</span></div>
         </div>
       </section>
 
       <section className="lp-sec alt" id="how">
+        <span className="lp-ico"><AsciiIcon kind="bolt" /></span>
         <h2>How it works</h2>
         <div className="lp-steps">
           <div className="lp-step"><span className="lp-n">1</span><h3>Fund the treasury</h3><p>Create the treasury wallet and top it up from the Testnet faucet, or connect Xaman and fund from your own XRP on Mainnet.</p></div>
@@ -138,19 +150,84 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec" id="cascade">
+        <Hero3D skin={heroSkin('panda')} side="right" mood="think" phase={1.6} parallax={0.15} />
+        <span className="lp-ico"><AsciiIcon kind="cost" /></span>
         <h2>Smart, and genuinely cheap</h2>
-        <p className="lp-lead">Every task runs through a cost cascade: it stops at the cheapest tier that passes a quality check. Most work is free; frontier models are the rare last resort — so a task costs about a cent.</p>
+        <p className="lp-lead">Every task runs through a cost cascade: it stops at the cheapest tier that passes a quality check. Most work is free; frontier models are the rare last resort, so a task costs about a cent.</p>
         <div className="lp-cascade">
-          <div className="lp-tier"><b>0</b><span className="lp-tier-main">Templates &amp; on-chain data — no model</span><span className="lp-tier-cost">free</span></div>
-          <div className="lp-tier"><b>1</b><span className="lp-tier-main">Free tiers — Groq · Gemini · Cerebras</span><span className="lp-tier-cost">≈ free</span></div>
-          <div className="lp-tier"><b>2</b><span className="lp-tier-main">Open models — DeepSeek · Llama</span><span className="lp-tier-cost">≈ $0.01</span></div>
-          <div className="lp-tier"><b>3</b><span className="lp-tier-main">Frontier — Claude, only when needed</span><span className="lp-tier-cost">rare</span></div>
+          <div className="lp-tier"><b>0</b><span className="lp-tier-main">Templates &amp; on-chain data · no model</span><span className="lp-tier-cost">free</span></div>
+          <div className="lp-tier"><b>1</b><span className="lp-tier-main">Free tiers · Groq · Gemini · Cerebras</span><span className="lp-tier-cost">≈ free</span></div>
+          <div className="lp-tier"><b>2</b><span className="lp-tier-main">Open models · DeepSeek · Llama</span><span className="lp-tier-cost">≈ $0.01</span></div>
+          <div className="lp-tier"><b>3</b><span className="lp-tier-main">Frontier · Claude, only when needed</span><span className="lp-tier-cost">rare</span></div>
         </div>
         <p className="lp-note">A built-in support assistant uses the same cascade with hard spending limits and keys kept server-side.</p>
       </section>
 
+      <section className="lp-sec alt" id="pricing">
+        <Hero3D skin={heroSkin('bear')} side="left" mood="love" phase={0.9} parallax={0.12} />
+        <span className="lp-ico"><AsciiIcon kind="price" /></span>
+        <h2>Simple pricing</h2>
+        <p className="lp-lead">
+          Start free on Testnet. Bring your own model key and most work costs you almost nothing; the paid
+          plans add hosted convenience, higher quotas and every app connector. You always hold your own wallet
+          and keys.
+        </p>
+        <div className="lp-plans">
+          <div className="lp-plan">
+            <div className="lp-plan-name">Free</div>
+            <div className="lp-plan-price">$0<small> / forever</small></div>
+            <div className="lp-plan-sub">Explore the whole office on Testnet, for free.</div>
+            <ul>
+              <li>1 dojo · up to 12 agents</li>
+              <li>All {DOJO_TEMPLATES.length} worlds &amp; {SKINS.length} skins</li>
+              <li>~30 tasks / month</li>
+              <li>Free-model cascade</li>
+            </ul>
+            <button className="lp-cta" onClick={enter}>Start free →</button>
+          </div>
+          <div className="lp-plan">
+            <div className="lp-plan-name">Starter</div>
+            <div className="lp-plan-price">$9<small> / month</small></div>
+            <div className="lp-plan-sub">For a solo maker running real work.</div>
+            <ul>
+              <li>Unlimited dojos</li>
+              <li>Bring your own Claude key</li>
+              <li>Connect up to 5 apps</li>
+              <li>Mainnet x402 settlement</li>
+            </ul>
+            <button className="lp-ghost" onClick={enter}>Choose Starter</button>
+          </div>
+          <div className="lp-plan feat">
+            <div className="lp-plan-badge">Most popular</div>
+            <div className="lp-plan-name">Pro</div>
+            <div className="lp-plan-price">$29<small> / month</small></div>
+            <div className="lp-plan-sub">A full automated team with your whole stack.</div>
+            <ul>
+              <li>Everything in Starter</li>
+              <li>All {CONNECTORS.length} app connectors</li>
+              <li>Hosted cloud worker</li>
+              <li>Higher quotas &amp; priority</li>
+            </ul>
+            <button className="lp-cta" onClick={enter}>Go Pro →</button>
+          </div>
+          <div className="lp-plan">
+            <div className="lp-plan-name">Business</div>
+            <div className="lp-plan-price">Custom</div>
+            <div className="lp-plan-sub">For teams that need control and scale.</div>
+            <ul>
+              <li>Multi-seat &amp; SSO</li>
+              <li>Self-hosted / local worker</li>
+              <li>Dedicated support</li>
+              <li>Audit &amp; spend controls</li>
+            </ul>
+            <button className="lp-ghost" onClick={enter}>Talk to us</button>
+          </div>
+        </div>
+        <p className="lp-note">Every plan is non-custodial: your XRP lives in your own wallet and your keys stay yours. Testnet stays free on every plan.</p>
+      </section>
+
       <section className="lp-sec alt" id="pay">
-        <h2>Pay your way — settle in XRP</h2>
+        <h2>Pay your way · settle in XRP</h2>
         <p className="lp-lead">Prices show in your currency. XRP is the transactional rail via x402; fiat is converted and settles on-ledger.</p>
         <div className="lp-schema">
           <div className="lp-node"><b>XRP · $ · € · ¥</b><span>Pick your currency</span></div>
@@ -162,10 +239,11 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec alt" id="onramp">
+        <Hero3D skin={heroSkin('bibendum')} side="right" mood="happy" phase={0.7} parallax={0.13} />
         <span className="lp-pill">Mainnet · self-custody · x402</span>
         <h2>From your card to real on-chain agents</h2>
         <p className="lp-lead">
-          Top up with a card and receive <b>real XRP in your own wallet</b> — not a locked in-app balance.
+          Top up with a card and receive <b>real XRP in your own wallet</b> · not a locked in-app balance.
           That XRP funds your dojo, and your agents settle services between themselves with x402
           micro-payments, live on the XRP Ledger. This is the full loop: fiat in, autonomous agent
           commerce out.
@@ -182,16 +260,18 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-node"><span className="lp-nico">5</span><b>On-chain receipt</b><span>Every move is verifiable</span></div>
         </div>
         <div className="lp-benefits">
-          <div className="lp-benefit"><b>You own it</b><span>Non-custodial delivery — the XRP is yours to keep, spend or withdraw. We never hold your funds.</span></div>
-          <div className="lp-benefit"><b>Real agentic commerce</b><span>Your AI agents don't simulate payments — they move real value autonomously, the frontier of x402 agent-to-agent settlement.</span></div>
-          <div className="lp-benefit"><b>Auditable &amp; open</b><span>Each settlement carries an x402 memo on the public XRP Ledger — verifiable by anyone, composable with the whole XRPL ecosystem.</span></div>
+          <div className="lp-benefit"><b>You own it</b><span>Non-custodial delivery · the XRP is yours to keep, spend or withdraw. We never hold your funds.</span></div>
+          <div className="lp-benefit"><b>Real agentic commerce</b><span>Your AI agents don't simulate payments · they move real value autonomously, the frontier of x402 agent-to-agent settlement.</span></div>
+          <div className="lp-benefit"><b>Auditable &amp; open</b><span>Each settlement carries an x402 memo on the public XRP Ledger · verifiable by anyone, composable with the whole XRPL ecosystem.</span></div>
         </div>
         <p className="lp-note">Card top-ups settle to XRP via a Stripe checkout and an x402-tagged on-ledger payment. Prefer play money? Testnet works the same, for free.</p>
       </section>
 
       <section className="lp-sec" id="widget">
+        <Hero3D skin={heroSkin('ghost')} side="right" mood="talk" phase={1.3} parallax={0.15} />
+        <span className="lp-ico"><AsciiIcon kind="watch" /></span>
         <h2>Watch your dojo while you work</h2>
-        <p className="lp-lead">A compact activity widget follows your dojo — agents working, tasks done, XRP spent, live feed — so you can keep an eye on it beside your other work. The same view powers a reduced desktop window.</p>
+        <p className="lp-lead">A compact activity widget follows your dojo · agents working, tasks done, XRP spent, live feed · so you can keep an eye on it beside your other work. The same view powers a reduced desktop window.</p>
         <div className="lp-schema">
           <div className="lp-node"><b>Web app</b><span>The full 3D office</span></div>
           <span className="lp-arrow">→</span>
@@ -207,8 +287,8 @@ export function Landing({ enter }: { enter: () => void }) {
           <div>
             <h3>Two ways to hold funds</h3>
             <ul>
-              <li><b>Testnet / Devnet (play):</b> DojoBuro generates real XRPL wallets in your browser and funds them from the public faucet. Seeds are stored only in your browser's localStorage — never sent anywhere.</li>
-              <li><b>Mainnet (real value):</b> connect <b>Xaman</b> (XUMM). Signing is non-custodial — every payment is approved on your phone and no seed ever touches the app.</li>
+              <li><b>Testnet / Devnet (play):</b> DojoBuro generates real XRPL wallets in your browser and funds them from the public faucet. Seeds are stored only in your browser's localStorage · never sent anywhere.</li>
+              <li><b>Mainnet (real value):</b> connect <b>Xaman</b> (XUMM). Signing is non-custodial · every payment is approved on your phone and no seed ever touches the app.</li>
             </ul>
           </div>
           <div>
@@ -216,7 +296,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <ul>
               <li>Your "profile" today is your connected wallet + local preferences (network, theme, sound) persisted in localStorage.</li>
               <li>The treasury wallet is your company account; each agent has its own wallet so payments between them are real transfers.</li>
-              <li>For a hosted multi-user product, this becomes an account (email / passkey) with server-held preferences and read-only wallet links — see the roadmap below.</li>
+              <li>For a hosted multi-user product, this becomes an account (email / passkey) with server-held preferences and read-only wallet links · see the roadmap below.</li>
             </ul>
           </div>
         </div>
@@ -239,20 +319,20 @@ export function Landing({ enter }: { enter: () => void }) {
 
       <section className="lp-sec" id="tools">
         <h2>Real tools, real deliverables</h2>
-        <p className="lp-lead">The agents don't just animate — they produce real work with your connected apps, metered on-ledger.</p>
+        <p className="lp-lead">The agents don't just animate · they produce real work with your connected apps, metered on-ledger.</p>
         <div className="lp-two">
           <div>
             <h3>The model + tool layer</h3>
             <ul>
-              <li>Each task maps to a <b>tool contract</b> (inputs → output). Behind it sits a Claude model call — your own key (BYOK) or a free-model cascade — with the tools that function needs.</li>
-              <li>Your connected apps are exposed as <b>remote MCP servers</b> — Notion, GitHub, Gmail, Slack, Jira, Stripe and {CONNECTORS.length - 6}+ more — so an agent opens a PR, posts a message or drafts a doc for real.</li>
+              <li>Each task maps to a <b>tool contract</b> (inputs → output). Behind it sits a Claude model call · your own key (BYOK) or a free-model cascade · with the tools that function needs.</li>
+              <li>Your connected apps are exposed as <b>remote MCP servers</b> · Notion, GitHub, Gmail, Slack, Jira, Stripe and {CONNECTORS.length - 6}+ more · so an agent opens a PR, posts a message or drafts a doc for real.</li>
               <li>The x402 payment is the <b>metering</b>: a task runs its tool calls and settles an on-ledger receipt, so every unit of real work is auditable.</li>
             </ul>
           </div>
           <div>
             <h3>Real deliverables, today</h3>
             <ul>
-              <li>Claude Design ships a real design system, Pia writes a PRD, Rex opens a PR, Mia drafts a campaign, Fin builds a financial model — each returns an artifact you can open.</li>
+              <li>Claude Design ships a real design system, Pia writes a PRD, Rex opens a PR, Mia drafts a campaign, Fin builds a financial model · each returns an artifact you can open.</li>
               <li>Outputs render in the agent card and activity log, and land in your connected tool (the Notion page, the Drive doc, the Linear issue).</li>
               <li>OAuth tokens are sealed with AES-256-GCM server-side and auto-refreshed; the browser never sees a secret.</li>
             </ul>
@@ -264,16 +344,16 @@ export function Landing({ enter }: { enter: () => void }) {
         <h2>Where the agents actually run</h2>
         <div className="lp-two">
           <div>
-            <h3>Today — 100% in your browser</h3>
+            <h3>Today · 100% in your browser</h3>
             <ul>
               <li>DojoBuro is a static single-page app. The 3D office, wallet generation, faucet funding and XRPL payments all run client-side, talking straight to public XRPL WebSocket nodes.</li>
-              <li>No server, no database — it deploys to any static host and there is nothing to operate.</li>
+              <li>No server, no database · it deploys to any static host and there is nothing to operate.</li>
             </ul>
           </div>
           <div>
-            <h3>For real work — a cloud worker</h3>
+            <h3>For real work · a cloud worker</h3>
             <ul>
-              <li>Model + tool execution runs in the cloud (a serverless function or a container/worker), not on your machine — so it keeps running when the tab is closed and keeps keys safe.</li>
+              <li>Model + tool execution runs in the cloud (a serverless function or a container/worker), not on your machine · so it keeps running when the tab is closed and keeps keys safe.</li>
               <li>The browser stays the cockpit: it shows the office, triggers skills and signs Mainnet payments through Xaman; the worker does the heavy, authenticated work.</li>
             </ul>
           </div>
@@ -290,10 +370,11 @@ export function Landing({ enter }: { enter: () => void }) {
           <li>Persist artifacts and the activity ledger; expose an audit view backed by <code>account_tx</code>.</li>
           <li>Observability (logs, traces, spend dashboards), automated tests and CI, plus a staged Testnet → Mainnet rollout.</li>
         </ul>
-        <p className="lp-note">The client is already production-grade and non-custodial. "100% functional" is about adding the authenticated worker that turns each skill into a real deliverable — everything else is live today.</p>
+        <p className="lp-note">The client is already production-grade and non-custodial. "100% functional" is about adding the authenticated worker that turns each skill into a real deliverable · everything else is live today.</p>
       </section>
 
       <section className="lp-final">
+        <span className="lp-ico"><AsciiIcon kind="run" /></span>
         <h2>Ready to run your office?</h2>
         <button className="lp-cta big" onClick={enter}>Enter DojoBuro →</button>
         <p className="lp-foot">Real XRPL · x402 · non-custodial · open in your browser</p>
@@ -305,7 +386,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#jobs">Your job</a>
           <a href="#stack">Connect apps</a>
           <a href="#studio">Dojo Studio</a>
-          <a href="#cascade">Cost</a>
+          <a href="#pricing">Pricing</a>
           <a href="#onramp">Agentic pay</a>
           <a href="#prod">Production</a>
           <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Enter the office</a>

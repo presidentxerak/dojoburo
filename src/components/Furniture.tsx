@@ -71,7 +71,7 @@ function Desk({ variant }: { variant: DeskVariant }) {
       </svg>
     )
   }
-  // 'a' — classic
+  // 'a' · classic
   return (
     <svg width="112" height="50" viewBox="0 0 56 25">
       <rect x="2" y="6" width="52" height="8" fill={wood} />

@@ -61,7 +61,7 @@ function Strip({ p, s, c, rot, i = 0.6 }: { p: [number, number, number]; s: [num
 /** Job-specific 3D prop, placed on/beside each agent's desk. */
 function JobProp({ id, dz }: { id: string; dz: number }) {
   switch (id) {
-    case 'ava': // CEO — trophy on desk
+    case 'ava': // CEO · trophy on desk
       return (
         <group position={[0.7, 0.96, dz - 0.1]}>
           <Cy p={[0, 0.18, 0]} r={0.11} h={0.16} c="#ffcf3b" />
@@ -69,7 +69,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <B p={[0, -0.02, 0]} s={[0.18, 0.06, 0.18]} c="#7a4a24" />
         </group>
       )
-    case 'rex': // CTO — second monitor with code
+    case 'rex': // CTO · second monitor with code
       return (
         <group position={[0.72, 0.9, dz]}>
           <B p={[0, 0.2, 0]} s={[0.5, 0.34, 0.05]} c="#2b2f3d" />
@@ -77,7 +77,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <B p={[0, 0.0, 0]} s={[0.1, 0.06, 0.1]} c="#2b2f3d" />
         </group>
       )
-    case 'otto': // DevOps — server rack beside
+    case 'otto': // DevOps · server rack beside
       return (
         <group position={[1.5, 0, dz - 0.4]}>
           <B p={[0, 0.9, 0]} s={[0.6, 1.8, 0.5]} c="#2a2e3d" />
@@ -90,7 +90,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           ))}
         </group>
       )
-    case 'fin': // CFO — safe + coins
+    case 'fin': // CFO · safe + coins
       return (
         <group position={[1.45, 0, dz - 0.3]}>
           <B p={[0, 0.5, 0]} s={[0.8, 1, 0.7]} c="#3a3f52" />
@@ -99,14 +99,14 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <Cy p={[0, 1.11, 0]} r={0.14} h={0.05} c="#ffd94b" />
         </group>
       )
-    case 'mia': // CMO — megaphone
+    case 'mia': // CMO · megaphone
       return (
         <group position={[0.72, 1.0, dz]} rotation={[0, -0.5, 0.3]}>
           <mesh castShadow><coneGeometry args={[0.2, 0.36, 18, 1, true]} /><meshStandardMaterial color="#f2617a" side={2} {...M} /></mesh>
           <Cy p={[0, -0.24, 0]} r={0.07} h={0.16} c="#7a1730" />
         </group>
       )
-    case 'sol': // Sales — upward chart board
+    case 'sol': // Sales · upward chart board
       return (
         <group position={[1.4, 0.9, dz - 0.2]}>
           <B p={[0, 0.5, 0]} s={[0.9, 0.7, 0.05]} c="#f6f8fc" />
@@ -115,14 +115,14 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <B p={[0.2, 0.52, 0.04]} s={[0.12, 0.5, 0.02]} c="#ffcf3b" />
         </group>
       )
-    case 'pia': // PM — kanban board
+    case 'pia': // PM · kanban board
       return (
         <group position={[1.42, 0.9, dz - 0.2]}>
           <B p={[0, 0.5, 0]} s={[0.9, 0.7, 0.05]} c="#f6f8fc" />
           {[-0.28, 0, 0.28].map((cx) => [0.6, 0.4].map((cy) => <B key={`${cx}-${cy}`} p={[cx, cy, 0.04]} s={[0.2, 0.14, 0.02]} c={cy > 0.5 ? '#ffe08a' : '#a7d8ff'} />))}
         </group>
       )
-    case 'dex': // Designer — easel
+    case 'dex': // Designer · easel
       return (
         <group position={[1.5, 0, dz - 0.2]}>
           <B p={[0, 1.0, 0]} s={[0.7, 0.8, 0.05]} c="#f6f8fc" />
@@ -132,7 +132,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <B p={[0.28, 0.45, 0]} s={[0.05, 0.9, 0.05]} c={WOOD_D} rot={[0, 0, -0.12]} />
         </group>
       )
-    case 'ada': // Data — floating bar chart
+    case 'ada': // Data · floating bar chart
       return (
         <group position={[0.7, 1.02, dz]}>
           <B p={[-0.18, 0.12, 0]} s={[0.1, 0.24, 0.1]} c="#63d0ff" emissive="#2a7fa8" ei={0.3} />
@@ -140,7 +140,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <B p={[0.18, 0.3, 0]} s={[0.1, 0.6, 0.1]} c="#ffcf3b" emissive="#a87f00" ei={0.3} />
         </group>
       )
-    case 'hana': // HR — potted plant + heart
+    case 'hana': // HR · potted plant + heart
       return (
         <group position={[1.4, 0, dz - 0.2]}>
           <B p={[0, 0.3, 0]} s={[0.5, 0.5, 0.5]} c="#c17a4a" />
@@ -149,7 +149,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <Sp p={[-0.3, 0.9, 0]} r={0.26} c="#5faf5f" />
         </group>
       )
-    case 'sam': // Support — headset stand + ticket
+    case 'sam': // Support · headset stand + ticket
       return (
         <group position={[0.72, 0.96, dz]}>
           <Cy p={[0, 0.14, 0]} r={0.03} h={0.28} c="#2b3145" />
@@ -158,7 +158,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <Sp p={[0.16, 0.28, 0]} r={0.06} c="#5aa2f5" />
         </group>
       )
-    case 'lex': // Legal — scales of justice
+    case 'lex': // Legal · scales of justice
       return (
         <group position={[0.72, 0.96, dz]}>
           <Cy p={[0, 0.28, 0]} r={0.03} h={0.56} c="#c9a94a" />
@@ -314,7 +314,7 @@ const FLOAT_COLORS = ['#ff6b8a', '#ffd23f', '#4fc3f7', '#7bd88f', '#ff9a52', '#c
 function Station({ id, x, z, variant }: { id: string; x: number; z: number; variant: string }) {
   const dz = z + DESK_FWD // desk centre (toward camera)
 
-  // Villa: no desks — agents lounge in the pool on inflatable ring floats,
+  // Villa: no desks · agents lounge in the pool on inflatable ring floats,
   // with a laptop on a floating tray in front of them.
   if (variant === 'villa') {
     const fc = FLOAT_COLORS[Math.abs(hashStr(id)) % FLOAT_COLORS.length]
@@ -375,7 +375,7 @@ function Lantern({ x, z, c = '#e0524f' }: { x: number; z: number; c?: string }) 
   )
 }
 
-// A glowing accent orb on a slim post — the "plain" template corner marker.
+// A glowing accent orb on a slim post · the "plain" template corner marker.
 function Beacon({ x, z, c }: { x: number; z: number; c: string }) {
   return (
     <group position={[x, 0, z]}>
@@ -492,7 +492,7 @@ function Bamboo({ x, z }: { x: number; z: number }) {
 }
 
 // ===========================================================================
-// Theme-specific decor — one distinctive set per dojo template. Placed along the
+// Theme-specific decor · one distinctive set per dojo template. Placed along the
 // back wall and side edges (behind the desks), so each environment reads clearly
 // as a start-up loft / space station / lab / villa / castle / garden / factory.
 // ===========================================================================
@@ -514,7 +514,7 @@ function Mountains({ z, c1, c2, snow }: { z: number; c1: string; c2: string; sno
 }
 
 // A modern two-storey glass-and-white villa with a rooftop pergola, balcony
-// railings and a warm terrace — sat behind the Miami pool.
+// railings and a warm terrace · sat behind the Miami pool.
 function ModernVilla({ x, z }: { x: number; z: number }) {
   const white = '#f5f1e8'
   const warm = '#e7dccb'
@@ -1293,7 +1293,7 @@ export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; de
   return (
     <group>
       {enclosed ? (
-        // an enclosed room (walls) — the classic dojo, or the Backrooms
+        // an enclosed room (walls) · the classic dojo, or the Backrooms
         <group>
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
             <planeGeometry args={[ROOM.w, ROOM.d]} />
@@ -1327,7 +1327,7 @@ export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; de
           ))}
         </group>
       ) : (
-        // open-air floating platform — the theme decor is the backdrop
+        // open-air floating platform · the theme decor is the backdrop
         <group>
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
             <circleGeometry args={[26, 64]} />
@@ -1343,7 +1343,7 @@ export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; de
 
       <ThemeDecor id={decor} backZ={backZ} P={P} />
 
-      {/* Villa: a pool covering the seating area — agents lounge in the water */}
+      {/* Villa: a pool covering the seating area · agents lounge in the water */}
       {decor === 'villa' && (
         <group>
           {/* pool coping / tiled edge */}

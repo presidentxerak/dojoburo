@@ -129,7 +129,7 @@ function StudioTab() {
         </div>
       </div>
 
-      {/* save bar — dojo & agent edits are drafts until validated */}
+      {/* save bar · dojo & agent edits are drafts until validated */}
       <div className="ws-savebar">
         <span className={`ws-saveflag ${dirty ? 'on' : ''}`}>{dirty ? '● Unsaved changes' : '✓ All changes saved'}</span>
         <button className="ws-btn primary" disabled={!dirty} onClick={save}>Validate &amp; save dojo</button>
@@ -170,7 +170,7 @@ function TemplatePicker({ current, mode, onPick, onPickProfession, onClose }: { 
         </header>
         {mode === 'create' && onPickProfession && (
           <div className="ws-profwrap">
-            <div className="ws-prof-h">Start from your profession — seeds a tailored crew, world &amp; apps</div>
+            <div className="ws-prof-h">Start from your profession · seeds a tailored crew, world &amp; apps</div>
             <div className="ws-profgrid">
               {PROFESSIONS.map((p) => (
                 <button key={p.id} className="ws-profcard" onClick={() => onPickProfession(p.id)} title={p.blurb}>
@@ -330,7 +330,7 @@ function AccountTab() {
         <h3>Sign in</h3>
         <p className="ws-blurb">
           {privyOn
-            ? 'Connect with Privy (email, wallet or social) for a portable account across devices — or continue locally as a guest.'
+            ? 'Connect with Privy (email, wallet or social) for a portable account across devices · or continue locally as a guest.'
             : 'Create a local account now. Connect Privy (email, wallet, social) in production for a portable account across devices.'}
         </p>
         <label className="ws-field"><span>Your name</span><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Founder" /></label>
@@ -381,7 +381,7 @@ function BillingTab() {
       <ClaudeKeyPanel hasAccount={hasAccount} />
 
       <h3>Currency</h3>
-      <p className="ws-blurb">Prices show in your currency. XRP is the settlement rail via x402 — fiat is converted to XRP at checkout.</p>
+      <p className="ws-blurb">Prices show in your currency. XRP is the settlement rail via x402 · fiat is converted to XRP at checkout.</p>
       <div className="ws-currencies">
         {CURRENCY_LIST.map((c) => (
           <button key={c.code} className={`ws-cur ${currency === c.code ? 'on' : ''}`} disabled={!hasAccount} onClick={() => setCurrency(c.code)}>
@@ -404,13 +404,13 @@ function BillingTab() {
           <div key={pl.n} className="ws-plan"><strong>{pl.n}</strong><span className="ws-price">{pl.p}<i>/mo</i></span><span className="ws-blurb">{pl.d}</span></div>
         ))}
       </div>
-      <p className="ws-blurb">Pay with XRP, USD, EUR or JPY — fiat routes through a processor and settles in XRP via x402.</p>
+      <p className="ws-blurb">Pay with XRP, USD, EUR or JPY · fiat routes through a processor and settles in XRP via x402.</p>
     </div>
   )
 }
 
 // Bring-your-own Claude key. The key is sealed server-side (AES-256-GCM) and used
-// only to run THIS user's deliverables — so their real work is billed to their
+// only to run THIS user's deliverables · so their real work is billed to their
 // own Anthropic account, not the operator's. Text tasks work without a key on a
 // capped free tier; the design system and tool-acting need a key.
 function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
@@ -439,7 +439,7 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
       <h3>Your Claude key <span className="ws-tag-byok">you pay only for what you use</span></h3>
       <p className="ws-blurb">
         Agents produce real deliverables with Claude. Add <strong>your own</strong> Anthropic key and every run is billed to
-        <strong> your</strong> account — you pay only for your choices and connected tools. Without a key, text deliverables still
+        <strong> your</strong> account · you pay only for your choices and connected tools. Without a key, text deliverables still
         run on a free tier; the <strong>Design system</strong> and acting inside your tools (Notion, GitHub…) need a key.
       </p>
 
@@ -473,7 +473,7 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
 
 // Fiat top-up: pick an amount in the chosen currency, "Pay with card" posts to
 // the /api/checkout Edge processor and redirects to the hosted checkout. The
-// charge settles in XRP via x402 (webhook) — see api/checkout.ts. When the
+// charge settles in XRP via x402 (webhook) · see api/checkout.ts. When the
 // processor isn't configured the button explains the activation step instead
 // of failing silently.
 const PRESETS: Record<CurrencyCode, number[]> = {
@@ -507,7 +507,7 @@ function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode
         return
       }
       if (j?.error === 'not_configured') {
-        setMsg('Card payments aren’t live yet on this deployment. Set STRIPE_SECRET_KEY to enable — you can still fund agents directly in XRP.')
+        setMsg('Card payments aren’t live yet on this deployment. Set STRIPE_SECRET_KEY to enable · you can still fund agents directly in XRP.')
       } else {
         setMsg('Could not start checkout. Please try again in a moment.')
       }
@@ -518,7 +518,7 @@ function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode
     }
   }
 
-  // XRP is the settlement rail itself — a card processor can't charge in XRP, so
+  // XRP is the settlement rail itself · a card processor can't charge in XRP, so
   // for an XRP display currency we point users at direct on-ledger funding.
   const isXrp = currency === 'XRP'
 
@@ -526,7 +526,7 @@ function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode
     <div className="ws-topup">
       <h3 style={{ marginTop: 18 }}>Add credits</h3>
       {isXrp ? (
-        <p className="ws-blurb">You're in XRP — fund agents directly from their card in the office. Switch to USD, EUR or JPY above to top up by card (it settles back into XRP via x402).</p>
+        <p className="ws-blurb">You're in XRP · fund agents directly from their card in the office. Switch to USD, EUR or JPY above to top up by card (it settles back into XRP via x402).</p>
       ) : (
         <>
           <p className="ws-blurb">Top up your balance with a card. The charge settles in XRP via x402.</p>

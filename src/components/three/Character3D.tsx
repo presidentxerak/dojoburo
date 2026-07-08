@@ -202,7 +202,7 @@ function Toppers({ c }: { c: Character }) {
       )
     case 'human':
       return <Ball p={[0, hy + 0.32, -0.08]} r={0.6} c={c.extra} s={[1, 0.55, 1]} />
-    case 'poodle': // caniche — poofy fur, floppy ears, snout
+    case 'poodle': // caniche · poofy fur, floppy ears, snout
       return (
         <group>
           <Ball p={[0, hy + 0.52, 0]} r={0.36} c={c.face} />
@@ -214,7 +214,7 @@ function Toppers({ c }: { c: Character }) {
           <Ball p={[0, hy - 0.16, 0.68]} r={0.07} c={'#2a2226'} />
         </group>
       )
-    case 'rabbit': // lapin — tall ears, buck teeth
+    case 'rabbit': // lapin · tall ears, buck teeth
       return (
         <group>
           {[-0.24, 0.24].map((ex, i) => (
@@ -226,7 +226,7 @@ function Toppers({ c }: { c: Character }) {
           <Box p={[0, hy - 0.36, 0.56]} s={[0.18, 0.16, 0.05]} c={'#fffdf6'} />
         </group>
       )
-    case 'frog': // pepe — big bulging eyes on top
+    case 'frog': // pepe · big bulging eyes on top
       return (
         <group>
           {[-0.3, 0.3].map((ex) => (
@@ -237,7 +237,7 @@ function Toppers({ c }: { c: Character }) {
           ))}
         </group>
       )
-    case 'duck': // canard — flat bill + head feather
+    case 'duck': // canard · flat bill + head feather
       return (
         <group>
           <Box p={[0, hy - 0.14, 0.62]} s={[0.46, 0.13, 0.36]} c={'#ff9e2c'} />
@@ -255,7 +255,7 @@ function Toppers({ c }: { c: Character }) {
           {[-0.14, 0.14].map((tx) => <Box key={tx} p={[tx, hy - 0.34, 0.66]} s={[0.06, 0.1, 0.05]} c={'#fff'} />)}
         </group>
       )
-    case 'bear': // ours — round ears + snout
+    case 'bear': // ours · round ears + snout
       return (
         <group>
           <Ball p={[-0.42, hy + 0.5, -0.04]} r={0.2} c={c.face} />
@@ -266,7 +266,7 @@ function Toppers({ c }: { c: Character }) {
           <Ball p={[0, hy - 0.12, 0.72]} r={0.09} c={'#2a2018'} />
         </group>
       )
-    case 'chicken': // poulet — comb, beak, wattle
+    case 'chicken': // poulet · comb, beak, wattle
       return (
         <group>
           {[[-0.15, 0.12], [0, 0.16], [0.15, 0.12]].map(([cx, r], i) => <Ball key={i} p={[cx, hy + 0.6, 0]} r={r} c={'#e23b3b'} />)}
@@ -341,7 +341,7 @@ function JellyLeg({ base, color, phase, busy }: { base: [number, number, number]
 }
 
 // Abstract-geometric body: a slowly tumbling icosahedron core with a few
-// polyhedra orbiting it — no organic parts.
+// polyhedra orbiting it · no organic parts.
 function GeoBody({ c, mood }: { c: Character; mood: Mood }) {
   const core = useRef<THREE.Mesh>(null)
   const orbit = useRef<THREE.Group>(null)
@@ -522,7 +522,7 @@ export function Character3D({
             <Ball p={[-0.3, 2.32, 0.2]} r={0.17} c={character.face} />
             <Ball p={[0.3, 2.32, 0.2]} r={0.17} c={character.face} />
             {/* pale face patch: a round sphere tucked inside the mantle so only
-                its front cap pokes out — no side clipping artifacts */}
+                its front cap pokes out · no side clipping artifacts */}
             <Ball p={[0, 1.74, 0.42]} r={0.52} c={'#ffe6ef'} />
             {/* rosy cheeks + big, high-contrast ASCII expression */}
             <Ball p={[-0.5, 1.58, 0.62]} r={0.12} c={'#ff8fa3'} />
@@ -629,7 +629,7 @@ export function Character3D({
                 {acc && <Accessory kind={acc} id={id} />}
               </>
             )}
-            {/* typing arms — the right one waves hello when the Chief drops by */}
+            {/* typing arms · the right one waves hello when the Chief drops by */}
             <Arm side={-1} color={character.outfit} hand={character.face} busy={busy} />
             <Arm side={1} color={character.outfit} hand={character.face} busy={busy} wave={visited} />
           </group>

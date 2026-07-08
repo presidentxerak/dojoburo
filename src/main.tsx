@@ -13,7 +13,7 @@ function Root() {
     window.addEventListener('hashchange', on)
     return () => window.removeEventListener('hashchange', on)
   }, [])
-  // standalone always-on-top widget window (Tauri desktop) — no auth chrome
+  // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />
   return <Landing enter={() => { location.hash = 'app' }} />

@@ -2,7 +2,7 @@
 // Agentic payments on the XRP Ledger.
 //  - sendPayment: a real signed Payment tx between two agent wallets.
 //  - x402 memos:  each agentic payment carries a structured memo describing the
-//                 skill invoked and an invoice id — the on-ledger equivalent of
+//                 skill invoked and an invoice id · the on-ledger equivalent of
 //                 an HTTP 402 "Payment Required" settlement.
 //  - trackAction: a 0-amount self-payment carrying a hashed memo, used to
 //                 anchor an agent's behavior on-ledger (track-agent-behavior).
@@ -11,7 +11,7 @@
 import { xrpToDrops, convertStringToHex, type Payment, type Wallet } from 'xrpl'
 import { getClient, type NetworkId } from './network'
 
-/** DojoBuro app source tag — stamped on every outgoing Payment so the app's
+/** DojoBuro app source tag · stamped on every outgoing Payment so the app's
  *  on-ledger activity is attributable/trackable on the XRP Ledger. */
 export const SOURCE_TAG = 2606230006
 
@@ -142,7 +142,7 @@ export interface LedgerTx {
   result: string | null
 }
 
-/** Real account_tx read — the basis of the "audit on-ledger" skill. */
+/** Real account_tx read · the basis of the "audit on-ledger" skill. */
 export async function fetchHistory(
   net: NetworkId,
   address: string,

@@ -145,7 +145,7 @@ export function Scene3D() {
         shadow-camera-top={16}
         shadow-camera-bottom={-16}
       />
-      {/* per-theme accent glow — tints the back of the room for mood */}
+      {/* per-theme accent glow · tints the back of the room for mood */}
       <pointLight position={[0, 4.5, -4]} color={P.accent} intensity={0.7} distance={30} />
       <pointLight position={[-7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />
       <pointLight position={[7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />

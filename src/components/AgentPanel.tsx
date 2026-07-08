@@ -99,7 +99,7 @@ export function AgentPanel() {
           <h3 className="skills-title">Deliver real work <span className="tag tag-live">Claude</span></h3>
           <p className="work-intro">
             {byok.connected
-              ? <>Runs on <strong>your</strong> Claude key — billed to you.</>
+              ? <>Runs on <strong>your</strong> Claude key · billed to you.</>
               : <>Free for text · <button className="linklike" onClick={() => openStudio('billing')}>add your Claude key</button> for the design system & tool actions.</>}
           </p>
           <input
@@ -132,7 +132,7 @@ export function AgentPanel() {
           </ul>
           {runError?.code === 'needs_key' && (
             <p className="work-hint">
-              This deliverable {runError.reason === 'tool' ? 'acts inside a connected tool' : 'is the design system'} — it runs on Claude.{' '}
+              This deliverable {runError.reason === 'tool' ? 'acts inside a connected tool' : 'is the design system'} · it runs on Claude.{' '}
               <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (billed to your account).
             </p>
           )}
@@ -155,7 +155,7 @@ export function AgentPanel() {
       {connectors.length > 0 && (
         <section className="conn-block">
           <h3 className="skills-title">Connect tools</h3>
-          <p className="work-intro">Link a tool once (secure OAuth) — then this agent works <em>inside</em> it: creates the page, opens the PR, drafts the mail.</p>
+          <p className="work-intro">Link a tool once (secure OAuth) · then this agent works <em>inside</em> it: creates the page, opens the PR, drafts the mail.</p>
           <ul className="conn-list">
             {connectors.map((c) => {
               const st = tools[c.id]
@@ -191,7 +191,7 @@ export function AgentPanel() {
           <div className="mono small">
             {wallet ? (
               <a href={cfg.explorerAccount(wallet.address)} target="_blank" rel="noreferrer">{wallet.address.slice(0, 14)}…</a>
-            ) : ('—')}
+            ) : ('-')}
           </div>
         </div>
         <div className="agent-wallet-actions">

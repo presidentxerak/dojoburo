@@ -1,6 +1,6 @@
 // Client wrappers for the connector + real-work endpoints. All identity is a
 // ref: the Privy DID when signed in, else the workshop account id (guest). No
-// token ever crosses this boundary — the browser only sees connector status.
+// token ever crosses this boundary · the browser only sees connector status.
 import { useWorkshop } from '../workshop'
 import { useDojo } from '../store'
 
@@ -37,7 +37,7 @@ export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boole
   return { tools: [], backend: false, byok: { connected: false, hint: null } }
 }
 
-/** Store the user's own Claude key (BYOK) — sealed server-side, billed to them. */
+/** Store the user's own Claude key (BYOK) · sealed server-side, billed to them. */
 export async function setClaudeKey(key: string): Promise<{ ok: boolean; hint?: string; error?: string }> {
   try {
     const res = await fetch('/api/connect?action=setkey', {

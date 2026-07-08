@@ -27,7 +27,7 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
       className={`agent ${selected ? 'is-selected' : ''} ${busy ? 'is-busy' : ''}`}
       style={{ left: pos.x, top: pos.y, zIndex: 20 }}
       onClick={() => { audio.sfx('click'); select(agent.id) }}
-      title={`${agent.name} — ${agent.role}`}
+      title={`${agent.name} · ${agent.role}`}
     >
       {showAgentBubble && (
         <div className="bubble agent-bubble">

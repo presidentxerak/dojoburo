@@ -1,4 +1,4 @@
-// Real Privy integration — code-split so @privy-io/react-auth (and its ~600
+// Real Privy integration · code-split so @privy-io/react-auth (and its ~600
 // transitive deps) never touch the main bundle when Privy isn't configured.
 // This module is only ever imported lazily by AuthProvider, and only when
 // VITE_PRIVY_APP_ID is set.
