@@ -124,8 +124,21 @@ export const KB: KBTopic[] = [
       { label: 'Connect your stack', href: '#stack' },
       { label: 'Real deliverables', href: '#tools' },
     ],
-    follow: ['jobs', 'environment', 'pricing'],
+    follow: ['setup', 'jobs', 'environment'],
     keywords: ['tool', 'tools', 'connect', 'integration', 'mcp', 'oauth', 'github', 'slack', 'notion', 'gmail', 'stripe', 'jira', 'hubspot', 'figma', 'real content', 'output', 'api', 'apps'],
+  },
+  {
+    id: 'setup',
+    chip: 'How to connect an app',
+    answer:
+      'Two roles. As a USER: open an agent card, pick the tool, click Connect, approve the OAuth screen — the token is sealed server-side and the agent can act. As the OPERATOR (one-time, per app): 1) create an OAuth app in the provider console (e.g. Notion integrations, GitHub OAuth apps, Google Cloud credentials) and set the redirect URI to https://YOUR-SITE/api/connect; 2) copy the client id + secret into env as <APP>_CLIENT_ID and <APP>_CLIENT_SECRET (e.g. NOTION_CLIENT_ID / NOTION_CLIENT_SECRET; Google apps share GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET); 3) apps WITH a first-party MCP server (Notion, GitHub, Linear, Stripe) work right away. Apps WITHOUT one (Gmail, Google Drive, Google Calendar, Slack, and most others) also need an MCP endpoint: set <APP>_MCP_URL to a hosted MCP hub — Composio, Zapier or Pipedream — e.g. GMAIL_MCP_URL, GDRIVE_MCP_URL, GCAL_MCP_URL, SLACK_MCP_URL. Modern providers that require PKCE (Airtable, X/Twitter, Canva) are handled automatically. Once the env is set the tool shows a Connect button instead of a “set up” link.',
+    links: [
+      { label: 'Connectors setup guide', href: 'https://github.com/presidentxerak/dojoburo/blob/main/docs/CONNECTORS.md', external: true },
+      { label: 'MCP hub (Composio)', href: 'https://composio.dev', external: true },
+      { label: 'What is MCP', href: 'https://modelcontextprotocol.io', external: true },
+    ],
+    follow: ['tools', 'security', 'environment'],
+    keywords: ['setup', 'set up', 'client id', 'client secret', 'oauth app', 'redirect', 'env', 'configure', 'composio', 'zapier', 'pipedream', 'mcp url', 'mcp_url', 'hub', 'how to connect', 'create app', 'pkce', 'credentials'],
   },
   {
     id: 'environment',

@@ -2,16 +2,15 @@ import { AGENTS } from './data/agents'
 import { PROFESSIONS } from './data/professions'
 import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
 import { SKINS } from './data/skins'
-import type { Kind } from './data/looks'
 import { DOJO_TEMPLATES } from './data/templates'
 import { SupportBot } from './components/SupportBot'
 import { Logo } from './components/Logo'
-import { AgentCarousel3D } from './components/three/AgentCarousel3D'
 import { AsciiIcon } from './components/AsciiIcon'
-import { Hero3D } from './components/landing/Hero3D'
+import { Object3D } from './components/landing/Object3D'
+import { DojoDiorama } from './components/landing/DojoDiorama'
 
-// pick a skin id for a given creature kind (for the parallax heroes)
-const heroSkin = (k: Kind): string => (SKINS.find((s) => s.kind === k) ?? SKINS[0]).id
+// vivid complementary primaries used as per-section accent touches
+const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
 
 /** A-to-Z landing page: what DojoBuro is, how the office works, what a task
  *  costs in XRP, how agents get wired to real tools, where they run, and the
@@ -42,11 +41,11 @@ export function Landing({ enter }: { enter: () => void }) {
         <div className="lp-badges">
           <span>{PROFESSIONS.length} profession profiles</span><span>{CONNECTORS.length} app connectors</span><span>Real XRPL · x402</span><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds</span><span>Cloud or local</span>
         </div>
-        <AgentCarousel3D />
+        <DojoDiorama />
       </section>
 
       <section className="lp-sec" id="jobs">
-        <Hero3D skin={heroSkin('dragon')} side="right" mood="happy" phase={0.4} parallax={0.16} />
+        <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
         <span className="lp-pill">New · adapts to your trade</span>
         <h2>Built around your job</h2>
         <p className="lp-lead">
@@ -72,8 +71,8 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec alt" id="stack">
-        <Hero3D skin={heroSkin('octopus')} side="left" mood="work" phase={1.1} parallax={0.12} />
-        <span className="lp-ico"><AsciiIcon kind="stack" /></span>
+        <Object3D kind="network" color={C.teal} side="left" parallax={0.12} />
+        <span className="lp-ico" style={{ background: C.teal }}><AsciiIcon kind="stack" /></span>
         <h2>Connect your whole stack</h2>
         <p className="lp-lead">
           {CONNECTORS.length} app connectors and counting. Connect with one click · OAuth (with PKCE), tokens
@@ -102,10 +101,19 @@ export function Landing({ enter }: { enter: () => void }) {
             </ul>
           </div>
         </div>
+        <div className="lp-connect-steps">
+          <h3>How to connect an app</h3>
+          <div className="lp-steps3">
+            <div className="lp-step3"><span className="lp-step3-n" style={{ background: C.magenta }}>1</span><div><b>Create the OAuth app</b><span>In the provider console (Notion, GitHub, Google Cloud…), create an app and set the redirect to <code>your-site/api/connect</code>. Copy the <b>client id</b> &amp; <b>secret</b>.</span></div></div>
+            <div className="lp-step3"><span className="lp-step3-n" style={{ background: C.teal }}>2</span><div><b>Add the keys to env</b><span>Set <code>APP_CLIENT_ID</code> / <code>APP_CLIENT_SECRET</code> (Google apps share <code>GOOGLE_CLIENT_ID/SECRET</code>). PKCE apps (Airtable, X, Canva) are automatic.</span></div></div>
+            <div className="lp-step3"><span className="lp-step3-n" style={{ background: C.orange }}>3</span><div><b>Point an MCP endpoint</b><span>Notion, GitHub, Linear &amp; Stripe work as-is. For Gmail, Drive, Calendar, Slack &amp; others, set <code>APP_MCP_URL</code> to a hub (Composio / Zapier / Pipedream).</span></div></div>
+          </div>
+          <p className="lp-note">Then the user just clicks <b>Connect</b> on the agent card, approves the OAuth screen once, and the agent acts inside the app. Ask the assistant for the exact env var of any tool.</p>
+        </div>
       </section>
 
       <section className="lp-sec" id="studio">
-        <span className="lp-ico"><AsciiIcon kind="build" /></span>
+        <span className="lp-ico" style={{ background: C.blue }}><AsciiIcon kind="build" /></span>
         <h2>Build your own team</h2>
         <p className="lp-lead">Open the Dojo Studio to create, edit and delete agents. Pick one of {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, choose the agent's function and tasks, and set a per-agent XRP budget. Arrange them on a grid and run several dojos side by side.</p>
         <div className="lp-schema">
@@ -123,7 +131,7 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec alt" id="cast">
-        <span className="lp-ico"><AsciiIcon kind="cast" /></span>
+        <span className="lp-ico" style={{ background: C.magenta }}><AsciiIcon kind="cast" /></span>
         <h2>Meet the office</h2>
         <p className="lp-lead">Twelve starter agents across Leadership, Engineering, Finance, Growth, Product, People and Ops · plus two mascots. Reskin, rename or replace any of them.</p>
         <div className="lp-cast">
@@ -139,7 +147,8 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec alt" id="how">
-        <span className="lp-ico"><AsciiIcon kind="bolt" /></span>
+        <Object3D kind="gear" color={C.yellow} side="right" parallax={0.14} />
+        <span className="lp-ico" style={{ background: C.yellow, color: '#1a1300' }}><AsciiIcon kind="bolt" /></span>
         <h2>How it works</h2>
         <div className="lp-steps">
           <div className="lp-step"><span className="lp-n">1</span><h3>Fund the treasury</h3><p>Create the treasury wallet and top it up from the Testnet faucet, or connect Xaman and fund from your own XRP on Mainnet.</p></div>
@@ -150,8 +159,8 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec" id="cascade">
-        <Hero3D skin={heroSkin('panda')} side="right" mood="think" phase={1.6} parallax={0.15} />
-        <span className="lp-ico"><AsciiIcon kind="cost" /></span>
+        <Object3D kind="coins" color={C.yellow} side="right" parallax={0.15} />
+        <span className="lp-ico" style={{ background: C.yellow, color: '#1a1300' }}><AsciiIcon kind="cost" /></span>
         <h2>Smart, and genuinely cheap</h2>
         <p className="lp-lead">Every task runs through a cost cascade: it stops at the cheapest tier that passes a quality check. Most work is free; frontier models are the rare last resort, so a task costs about a cent.</p>
         <div className="lp-cascade">
@@ -164,8 +173,8 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec alt" id="pricing">
-        <Hero3D skin={heroSkin('bear')} side="left" mood="love" phase={0.9} parallax={0.12} />
-        <span className="lp-ico"><AsciiIcon kind="price" /></span>
+        <Object3D kind="gem" color={C.orange} side="left" parallax={0.12} />
+        <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="price" /></span>
         <h2>Pricing that pays for itself</h2>
         <p className="lp-lead">
           You bring your own model key, or use the free-model cascade, so the intelligence is basically free.
@@ -262,7 +271,7 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec alt" id="onramp">
-        <Hero3D skin={heroSkin('bibendum')} side="right" mood="happy" phase={0.7} parallax={0.13} />
+        <Object3D kind="card" color={C.blue} side="right" parallax={0.13} />
         <span className="lp-pill">Mainnet · self-custody · x402</span>
         <h2>From your card to real on-chain agents</h2>
         <p className="lp-lead">
@@ -291,8 +300,8 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec" id="widget">
-        <Hero3D skin={heroSkin('ghost')} side="right" mood="talk" phase={1.3} parallax={0.15} />
-        <span className="lp-ico"><AsciiIcon kind="watch" /></span>
+        <Object3D kind="eye" color={C.magenta} side="right" parallax={0.15} />
+        <span className="lp-ico" style={{ background: C.magenta }}><AsciiIcon kind="watch" /></span>
         <h2>Watch your dojo while you work</h2>
         <p className="lp-lead">A compact activity widget follows your dojo · agents working, tasks done, XRP spent, live feed · so you can keep an eye on it beside your other work. The same view powers a reduced desktop window.</p>
         <div className="lp-schema">
@@ -397,7 +406,8 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-final">
-        <span className="lp-ico"><AsciiIcon kind="run" /></span>
+        <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
+        <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>
         <h2>Ready to run your office?</h2>
         <button className="lp-cta big" onClick={enter}>Enter DojoBuro →</button>
         <p className="lp-foot">Real XRPL · x402 · non-custodial · open in your browser</p>
