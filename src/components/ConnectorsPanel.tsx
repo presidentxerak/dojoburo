@@ -3,6 +3,7 @@ import { type Department } from '../data/agents'
 import { connectorsForFunction, WORK_TASKS } from '../data/connectors'
 import { useWork } from '../agents/workStore'
 import { startConnect } from '../agents/workApi'
+import { ConnectorLogo } from './ConnectorLogo'
 
 // Which real deliverables (WORK_TASKS) of this department act inside a connector,
 // so the UI can say "Powers: Write a PRD, Design system" under each app.
@@ -53,7 +54,7 @@ export function ConnectorsPanel({ dept }: { dept: Department }) {
           const uses = tasksUsing(dept, c.id)
           return (
             <li key={c.id} className={`cx-row${connected ? ' on' : ''}`}>
-              <span className="cx-logo" aria-hidden>{c.label.slice(0, 2)}</span>
+              <ConnectorLogo id={c.id} label={c.label} size={30} />
               <span className="cx-meta">
                 <span className="cx-name">
                   {c.label}

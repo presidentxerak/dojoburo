@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useDojo } from '../store'
 import { NETWORKS, type NetworkId } from '../xrpl/network'
+import { WALLETS, walletsForDevice } from '../xrpl/wallets'
 import { Logo } from './Logo'
 import { Wordmark } from './Wordmark'
 import { Icon } from './Icon'
@@ -8,14 +9,14 @@ import { Icon } from './Icon'
 export function TopBar() {
   const net = useDojo((s) => s.net)
   const setNetwork = useDojo((s) => s.setNetwork)
-  const refresh = useDojo((s) => s.refreshBalances)
-  const loading = useDojo((s) => s.balancesLoading)
   const theme = useDojo((s) => s.theme)
   const setTheme = useDojo((s) => s.setTheme)
   const muted = useDojo((s) => s.muted)
   const musicOn = useDojo((s) => s.musicOn)
   const toggleMute = useDojo((s) => s.toggleMute)
   const toggleMusic = useDojo((s) => s.toggleMusic)
+  const wallet = useDojo((s) => s.wallet)
+  const walletConnect = useDojo((s) => s.walletConnect)
   const [confirmMainnet, setConfirmMainnet] = useState(false)
 
   const pick = (id: NetworkId) => {
@@ -24,6 +25,15 @@ export function TopBar() {
       return
     }
     setNetwork(id)
+  }
+
+  const focusWalletPanel = () => document.querySelector('.panel.xaman')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  const onConnectWallet = () => {
+    if (wallet.account) { focusWalletPanel(); return }
+    const top = walletsForDevice()[0]
+    // wallets that need a key / setup can't connect in one click · reveal the panel
+    if (WALLETS[top.id].needsConfig?.()) { focusWalletPanel(); return }
+    void walletConnect(top.id)
   }
 
   return (
@@ -50,8 +60,8 @@ export function TopBar() {
             </button>
           ))}
         </div>
-        <button className="btn tiny" onClick={() => void refresh()} disabled={loading} title="Refresh balances">
-          <Icon name="refresh" /> {loading ? '…' : 'Balances'}
+        <button className={`btn tiny tb-wallet ${wallet.account ? 'on' : ''}`} onClick={onConnectWallet} disabled={wallet.busy} title={wallet.account ? `Connected via ${wallet.provider}` : 'Connect a wallet'}>
+          {wallet.busy ? 'Connecting…' : wallet.account ? `✓ ${wallet.account.slice(0, 6)}…` : 'Connect wallet'}
         </button>
         <button className={`btn tiny icon-only tb-audio ${musicOn ? 'on' : ''}`} onClick={() => toggleMusic()} aria-label="Ambient music" title="Ambient music">
           <Icon name="music" />

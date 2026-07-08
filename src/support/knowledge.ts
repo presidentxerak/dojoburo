@@ -192,14 +192,14 @@ export const KB: KBTopic[] = [
     id: 'xaman',
     chip: 'Connect a wallet',
     answer:
-      'Connect any of three non-custodial XRPL wallets and approve each transaction yourself · no seed is ever exposed. GemWallet is a browser extension (one click, no setup · install it from gemwallet.app). Xaman (XUMM) is mobile: paste a free API key from apps.xaman.dev AND add this site to the app\'s OAuth redirect URLs · if that list is missing your URL you get "access_denied · invalid client/redirect URL". Joey is mobile via WalletConnect: set VITE_WALLETCONNECT_PROJECT_ID (free at cloud.reown.com) and scan the QR. On Testnet you can also just use the built-in browser wallets funded from the faucet.',
+      'Connect a non-custodial XRPL wallet and approve each transaction yourself · no seed is ever exposed. On desktop, GemWallet and Crossmark are browser extensions · one click, no setup (install from gemwallet.app or crossmark.io). On mobile, use Xaman (XUMM): paste a free API key from apps.xaman.dev AND add this site to the app\'s OAuth redirect URLs · if that list is missing your URL you get "access_denied · invalid client/redirect URL". The Connect-wallet button in the header connects the best wallet for your device; the wallet panel has a step-by-step setup guide for each. On Testnet you can also just use the built-in browser wallets funded from the faucet.',
     links: [
       { label: 'GemWallet', href: 'https://gemwallet.app', external: true },
+      { label: 'Crossmark', href: 'https://crossmark.io', external: true },
       { label: 'Xaman key + redirect URLs', href: 'https://apps.xaman.dev', external: true },
-      { label: 'WalletConnect project id', href: 'https://cloud.reown.com', external: true },
     ],
     follow: ['security', 'wallet'],
-    keywords: ['xaman', 'xumm', 'gem', 'gemwallet', 'joey', 'walletconnect', 'sign', 'signing', 'connect wallet', 'non-custodial', 'mainnet', 'access_denied', 'redirect', 'invalid client'],
+    keywords: ['xaman', 'xumm', 'gem', 'gemwallet', 'crossmark', 'sign', 'signing', 'connect wallet', 'non-custodial', 'mainnet', 'access_denied', 'redirect', 'invalid client'],
   },
   {
     id: 'troubleshoot',

@@ -4,8 +4,8 @@ import { audio } from '../audio'
 import { WALLETS, walletsForDevice, deviceKind, type WalletId } from '../xrpl/wallets'
 
 /** Connect an external XRPL wallet for non-custodial signing · Xaman, GemWallet
- *  or Joey (WalletConnect). Most useful on Mainnet, where it funds the treasury
- *  from the user's real wallet without ever exposing a seed. */
+ *  or Crossmark. Most useful on Mainnet, where it funds the treasury from the
+ *  user's real wallet without ever exposing a seed. */
 export function WalletPanel() {
   const net = useDojo((s) => s.net)
   const w = useDojo((s) => s.wallet)

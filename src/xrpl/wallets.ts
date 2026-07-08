@@ -1,16 +1,14 @@
 // ---------------------------------------------------------------------------
-// Unified external-wallet registry. One interface over Xaman, GemWallet,
-// Crossmark and Joey (WalletConnect) so the UI + store can connect / sign
-// through any of them. Wallets are ordered by how well they fit the current
-// device: mobile apps (Xaman, Joey) lead on phones, browser extensions
-// (GemWallet, Crossmark) lead on desktop.
+// Unified external-wallet registry. One interface over Xaman, GemWallet and
+// Crossmark so the UI + store can connect / sign through any of them. Wallets
+// are ordered by how well they fit the current device: Xaman (mobile app) leads
+// on phones, browser extensions (GemWallet, Crossmark) lead on desktop.
 // ---------------------------------------------------------------------------
 import * as xamanP from './xaman'
 import * as gemP from './gem'
 import * as crossmarkP from './crossmark'
-import * as joeyP from './joey'
 
-export type WalletId = 'xaman' | 'gem' | 'crossmark' | 'joey'
+export type WalletId = 'xaman' | 'gem' | 'crossmark'
 export type DeviceKind = 'mobile' | 'desktop'
 
 export interface WalletApi {
@@ -50,15 +48,6 @@ const META: WalletMeta[] = [
       'Create a free API key at apps.xaman.dev · pick a frontend (OAuth2 / PKCE) app, no secret.',
       'In that app, add your site to the OAuth2 Redirect URLs (e.g. https://dojoburo.com and http://localhost:5173). If your URL is missing you get "access_denied · invalid client/redirect URL".',
       'Paste the API key here (or set VITE_XUMM_API_KEY), click Connect, then approve on your phone.',
-    ],
-  },
-  {
-    id: 'joey', label: 'Joey', blurb: 'Mobile · connect via WalletConnect', mono: 'JO', color: '#a06bff',
-    fit: { mobile: 3, desktop: 2 }, docsUrl: 'https://cloud.reown.com',
-    setup: [
-      'Get a free WalletConnect project id at cloud.reown.com.',
-      'Set VITE_WALLETCONNECT_PROJECT_ID in the app env, then rebuild / redeploy.',
-      'Install Joey on your phone, click Connect, scan the QR (or tap the deeplink) and approve.',
     ],
   },
   {
@@ -114,12 +103,5 @@ export const WALLETS: Record<WalletId, WalletApi> = {
     disconnect: crossmarkP.disconnect,
     signPayment: (f, d, a, m) => crossmarkP.signPayment(f, d, a, m),
     available: crossmarkP.available,
-  },
-  joey: {
-    connect: joeyP.connect,
-    disconnect: joeyP.disconnect,
-    signPayment: (f, d, a, m) => joeyP.signPayment(f, d, a, m),
-    needsConfig: joeyP.needsConfig,
-    configHint: joeyP.configHint,
   },
 }

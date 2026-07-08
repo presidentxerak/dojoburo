@@ -339,19 +339,6 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lp-note">Card top-ups settle to XRP via a Stripe checkout and an x402-tagged on-ledger payment. Prefer play money? Testnet works the same, for free.</p>
       </section>
 
-      <section className="lp-sec" id="widget">
-        <Object3D kind="eye" color={C.magenta} side="right" parallax={0.15} />
-        <span className="lp-ico" style={{ background: C.magenta }}><AsciiIcon kind="watch" /></span>
-        <h2>Watch your dojo while you work</h2>
-        <p className="lp-lead">A compact activity widget follows your dojo · agents working, tasks done, XRP spent, live feed · so you can keep an eye on it beside your other work. The same view powers a reduced desktop window.</p>
-        <div className="lp-schema">
-          <div className="lp-node"><b>Web app</b><span>The full 3D office</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Widget</b><span>Minimised live monitor</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Desktop</b><span>Always-on-top window</span></div>
-        </div>
-      </section>
 
       <section className="lp-sec" id="profile">
         <h2>How you manage your profile</h2>

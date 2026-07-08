@@ -1,38 +1,30 @@
 import { CONNECTORS } from '../../data/connectors'
+import { ConnectorLogo, connectorColor } from '../ConnectorLogo'
 
-// A left-to-right animated banner of the rails and every app connector. Shown
-// in light grey (a clean, uniform strip) and each brand swaps to its own colour
-// on hover. Purely decorative · the track is duplicated for a seamless loop.
+// A left-to-right animated banner of the rails and every app connector. Each app
+// shows its brand-coloured logo tile; the strip runs in light grey and each
+// brand swaps to full colour on hover. The track is duplicated for a seamless loop.
 
-interface Brand { id: string; label: string; mono: string; color: string }
+interface Brand { id: string; label: string; color: string }
 
 const RAILS: Brand[] = [
-  { id: 'xrpl', label: 'XRP Ledger', mono: 'XRPL', color: '#23c1d6' },
-  { id: 'x402', label: 'x402', mono: '402', color: '#ff2d9b' },
+  { id: 'xrpl', label: 'XRP Ledger', color: '#23c1d6' },
+  { id: 'x402', label: 'x402', color: '#ff2d9b' },
 ]
-
-// give each brand a stable colour for the hover swap
-const PALETTE = ['#2f6bff', '#08c2ac', '#ff7a1a', '#a06bff', '#ff2d9b', '#ffc61a', '#e0524f', '#2fae60']
-function colorFor(id: string, i: number): string {
-  let h = 0
-  for (let k = 0; k < id.length; k++) h = (h << 5) - h + id.charCodeAt(k)
-  return PALETTE[(Math.abs(h) + i) % PALETTE.length]
-}
 
 const BRANDS: Brand[] = [
   ...RAILS,
-  ...CONNECTORS.map((c, i) => ({
-    id: c.id,
-    label: c.label,
-    mono: c.label.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase(),
-    color: colorFor(c.id, i),
-  })),
+  ...CONNECTORS.map((c) => ({ id: c.id, label: c.label, color: connectorColor(c.id) })),
 ]
+
+const RAIL_IDS = new Set(RAILS.map((r) => r.id))
 
 function Chip({ b }: { b: Brand }) {
   return (
     <span className="lm-chip" style={{ ['--bc' as any]: b.color }}>
-      <span className="lm-mono">{b.mono}</span>
+      {RAIL_IDS.has(b.id)
+        ? <span className="lm-mono" style={{ background: b.color }}>{b.id === 'x402' ? '402' : 'XRPL'}</span>
+        : <ConnectorLogo id={b.id} label={b.label} size={30} />}
       <span className="lm-label">{b.label}</span>
     </span>
   )
