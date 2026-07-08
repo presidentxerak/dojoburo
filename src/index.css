@@ -483,12 +483,12 @@ a:hover { text-decoration: underline; }
 .lp-cta.big { font-size: 18px; padding: 16px 30px; }
 .lp-ghost { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; padding: 12px 18px; border-radius: 14px; border: 1.5px solid var(--border-lit); color: var(--ink); }
 
-.lp-hero { max-width: 960px; margin: 0 auto; padding: 88px 22px 52px; text-align: center; }
-.lp-kicker { color: var(--violet); font-size: 13.5px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; margin: 0 0 16px; }
-.lp-hero h1 { font-size: clamp(38px, 6.4vw, 66px); line-height: 1.05; margin: 0 0 22px; background: linear-gradient(120deg, var(--pink), var(--violet), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.lp-sub { font-size: 19.5px; line-height: 1.62; color: var(--muted); max-width: 720px; margin: 0 auto 30px; }
+.lp-hero { max-width: 960px; margin: 0 auto; padding: 38px 22px 16px; text-align: center; }
+.lp-kicker { color: var(--violet); font-size: 13.5px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; margin: 0 0 12px; }
+.lp-hero h1 { font-size: clamp(38px, 6.4vw, 66px); line-height: 1.05; margin: 0 0 16px; background: linear-gradient(120deg, var(--pink), var(--violet), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lp-sub { font-size: 19.5px; line-height: 1.55; color: var(--muted); max-width: 720px; margin: 0 auto 18px; }
 .lp-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.lp-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+.lp-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
 .lp-badges span { font-size: 11px; color: var(--muted); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; }
 
 .lp-sec { max-width: 1080px; margin: 0 auto; padding: 92px 26px; }
@@ -923,8 +923,8 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 @media (max-width: 1300px) { .lp-obj3d { display: none; } }
 
 /* rotating dojo diorama hero */
-.lp-dojo3d { width: 100%; max-width: 780px; height: 440px; margin: 26px auto 0; will-change: transform; }
-@media (max-width: 720px) { .lp-dojo3d { height: 320px; } }
+.lp-dojo3d { width: 100%; max-width: 760px; height: clamp(300px, 42vh, 380px); margin: 8px auto 0; will-change: transform; }
+@media (max-width: 720px) { .lp-dojo3d { height: 300px; } }
 
 /* ===== landing v3: bigger type, black titles, vivid primary accents ===== */
 .landing { font-size: 16px; }

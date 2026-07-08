@@ -7,9 +7,10 @@ Two capabilities:
    and returns a genuine artifact (a **design system** via *Claude Design*, a PRD,
    a tech spec, a GTM campaign, a financial model…). Rendered in-app, downloadable.
 2. **Tool connectors** — a user "branches" real tools onto an agent, choosing
-   from **28 apps** across dev, comms, CRM & sales, marketing & social, finance,
-   scheduling, support, design and storage (Notion, GitHub, Gmail, Slack, Linear,
-   Stripe, Figma, Drive, Jira, HubSpot, Shopify, Zendesk, …). The OAuth token is stored
+   from **31 apps** across dev, comms, CRM & sales, marketing & social, finance,
+   scheduling, support, education, design and storage (Notion, GitHub, Gmail, Slack, Linear,
+   Stripe, Figma, Drive, Jira, HubSpot, Shopify, Salesforce, WhatsApp, Google Classroom,
+   Zendesk, …). The OAuth token is stored
    **encrypted server-side** and exposed to Claude as a **remote MCP server** at
    run time, so the agent *acts inside the tool* (creates the Notion page, opens
    the PR, drafts the email).
@@ -120,6 +121,9 @@ shows as *"operator setup"* in the UI (never an error).
 | **DocuSign** | Leadership, People, Ops | `DOCUSIGN_CLIENT_ID`, `DOCUSIGN_CLIENT_SECRET` | [developers.docusign.com](https://developers.docusign.com/) | `DOCUSIGN_MCP_URL` |
 | **Zendesk** | Ops, People | `ZENDESK_CLIENT_ID`, `ZENDESK_CLIENT_SECRET` · set `ZENDESK_AUTH_URL`/`_TOKEN_URL` (per-subdomain) | [developer.zendesk.com](https://developer.zendesk.com/) | `ZENDESK_MCP_URL` |
 | **Intercom** | Ops, People, Growth | `INTERCOM_CLIENT_ID`, `INTERCOM_CLIENT_SECRET` | [developers.intercom.com](https://developers.intercom.com/) | `INTERCOM_MCP_URL` |
+| **Google Classroom** | People, Ops, Product | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (shared with Gmail) | [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials) | `GCLASSROOM_MCP_URL` |
+| **Salesforce** | Growth, Finance, People | `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET` | [developer.salesforce.com](https://developer.salesforce.com/) | `SALESFORCE_MCP_URL` |
+| **WhatsApp Business** | Growth, People, Ops | `WHATSAPP_CLIENT_ID`, `WHATSAPP_CLIENT_SECRET` (Meta app) | [developers.facebook.com/apps](https://developers.facebook.com/apps) | `WHATSAPP_MCP_URL` |
 
 > **Override any connector** without a code change:
 > `<IDP>_AUTH_URL`, `<IDP>_TOKEN_URL`, `<IDP>_MCP_URL`, `<IDP>_SCOPE`.
