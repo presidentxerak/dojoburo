@@ -35,13 +35,13 @@ export const KB: KBTopic[] = [
     id: 'jobs',
     chip: 'Adapts to your job',
     answer:
-      'DojoBuro is a productivity hub that reshapes itself to your profession. Pick your trade · startup founder, product manager, engineer, growth hacker, community manager, freelance, lawyer, HR, accountant, app & game maker, designer, researcher, secretary, support/call-centre, sales, marketer, manager and more · and the office is tailored: a matching crew, a fitting 3D world, and the exact apps that job needs, wired to run the real tasks. Everything stays editable, so you can mix any crew, world and tools.',
+      'DojoBuro is a productivity hub that reshapes itself to your profession. 23 ready profiles · startup founder, CEO, entrepreneur, product manager, engineer, app & game maker, researcher, growth hacker, community manager, marketer, sales, seller/vendor, designer, lawyer, accountant, real-estate agent, wealth advisor (CGP), HR, manager, secretary, support/call-centre, student and teacher · each seeds a matching crew, a fitting 3D world, and the exact apps that job needs (a teacher gets Google Classroom + Drive + Calendar; a realtor gets a CRM + DocuSign + WhatsApp; a CGP gets Salesforce + DocuSign). Everything stays editable, so you can mix any crew, world and tools.',
     links: [
       { label: 'Built for your job', href: '#jobs' },
-      { label: 'Connect your stack', href: '#stack' },
+      { label: 'How to connect an app', href: '#stack' },
     ],
-    follow: ['tools', 'environment', 'cost'],
-    keywords: ['job', 'profession', 'metier', 'role', 'trade', 'growth hacker', 'community', 'freelance', 'lawyer', 'accountant', 'hr', 'designer', 'researcher', 'manager', 'secretary', 'sales', 'marketer', 'founder', 'my work'],
+    follow: ['setup', 'tools', 'cost'],
+    keywords: ['job', 'profession', 'metier', 'role', 'trade', 'growth hacker', 'community', 'freelance', 'lawyer', 'accountant', 'hr', 'designer', 'researcher', 'manager', 'secretary', 'sales', 'seller', 'vendor', 'marketer', 'founder', 'realtor', 'real estate', 'wealth', 'cgp', 'advisor', 'student', 'teacher', 'educator', 'school', 'my work'],
   },
   {
     id: 'wallet',
@@ -119,7 +119,7 @@ export const KB: KBTopic[] = [
     id: 'tools',
     chip: 'Connect real tools',
     answer:
-      'Connect 28+ apps · Notion, GitHub, Gmail, Google Drive & Calendar, Slack, Discord, Zoom, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, DocuSign, Zendesk, Intercom. One-click OAuth (with PKCE); tokens are sealed with AES-256-GCM server-side and auto-refreshed. At run time each app is exposed to Claude as a remote MCP server, so the agent does real work in your account · and the x402 payment meters it with an on-ledger receipt.',
+      'Connect 30+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, DocuSign, Zendesk, Intercom. One-click OAuth (with PKCE); tokens are sealed with AES-256-GCM server-side and auto-refreshed. At run time each app is exposed to Claude as a remote MCP server, so the agent does real work in your account · and the x402 payment meters it with an on-ledger receipt.',
     links: [
       { label: 'Connect your stack', href: '#stack' },
       { label: 'Real deliverables', href: '#tools' },

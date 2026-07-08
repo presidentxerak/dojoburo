@@ -377,6 +377,43 @@ const REGISTRY: Record<string, ServerConnector> = {
     },
     mcp: mcp('intercom', null, 'INTERCOM_MCP_URL'),
   },
+  gclassroom: {
+    id: 'gclassroom',
+    oauth: {
+      authorizeUrl: env('GOOGLE_AUTH_URL') || 'https://accounts.google.com/o/oauth2/v2/auth',
+      tokenUrl: env('GOOGLE_TOKEN_URL') || 'https://oauth2.googleapis.com/token',
+      scope: env('GCLASSROOM_SCOPE') || 'https://www.googleapis.com/auth/classroom.courses https://www.googleapis.com/auth/classroom.coursework.students',
+      clientIdEnv: 'GOOGLE_CLIENT_ID',
+      clientSecretEnv: 'GOOGLE_CLIENT_SECRET',
+      tokenAuth: 'body',
+      extraAuthorize: { access_type: 'offline', prompt: 'consent' },
+    },
+    mcp: mcp('gclassroom', null, 'GCLASSROOM_MCP_URL'),
+  },
+  salesforce: {
+    id: 'salesforce',
+    oauth: {
+      authorizeUrl: env('SALESFORCE_AUTH_URL') || 'https://login.salesforce.com/services/oauth2/authorize',
+      tokenUrl: env('SALESFORCE_TOKEN_URL') || 'https://login.salesforce.com/services/oauth2/token',
+      scope: env('SALESFORCE_SCOPE') || 'api refresh_token',
+      clientIdEnv: 'SALESFORCE_CLIENT_ID',
+      clientSecretEnv: 'SALESFORCE_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('salesforce', null, 'SALESFORCE_MCP_URL'),
+  },
+  whatsapp: {
+    id: 'whatsapp',
+    oauth: {
+      authorizeUrl: env('WHATSAPP_AUTH_URL') || 'https://www.facebook.com/v19.0/dialog/oauth',
+      tokenUrl: env('WHATSAPP_TOKEN_URL') || 'https://graph.facebook.com/v19.0/oauth/access_token',
+      scope: env('WHATSAPP_SCOPE') || 'whatsapp_business_messaging whatsapp_business_management',
+      clientIdEnv: 'WHATSAPP_CLIENT_ID',
+      clientSecretEnv: 'WHATSAPP_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('whatsapp', null, 'WHATSAPP_MCP_URL'),
+  },
 }
 
 export const CONNECTOR_IDS: string[] = Object.keys(REGISTRY)

@@ -964,6 +964,22 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-step3 span { font-size: 15px; color: var(--muted); line-height: 1.5; }
 .lp-step3 code { background: color-mix(in srgb, var(--c-teal) 16%, transparent); padding: 1px 5px; border-radius: 5px; font-size: 13px; }
 
+/* ===== brand wordmark: Dojo (Outfit Black) + buro (Silkscreen, magenta) ===== */
+.wordmark { display: inline-flex; align-items: baseline; line-height: 1; white-space: nowrap; }
+.wm-dojo { font-family: var(--font-ui); font-weight: 900; letter-spacing: -0.02em; color: var(--ink); -webkit-text-fill-color: var(--ink); background: none; }
+.wm-buro { font-family: 'Silkscreen', 'Courier New', monospace; font-weight: 400; color: var(--c-magenta); -webkit-text-fill-color: var(--c-magenta); background: none; margin-left: 2px; font-size: 0.82em; }
+.lp-brand .wordmark { font-size: 20px; }
+.lp-footer .lp-brand .wordmark { font-size: 17px; }
+
+/* ===== hero title in Silkscreen (100px); big titles at 60px ===== */
+.landing .lp-hero h1 { font-family: 'Silkscreen', 'Courier New', monospace !important; font-weight: 400 !important; font-size: clamp(38px, 8.4vw, 100px) !important; line-height: 1.08; letter-spacing: 0; }
+.landing .lp-sec h2 { font-size: clamp(30px, 5vw, 60px) !important; }
+.landing .lp-final h2 { font-size: clamp(32px, 5.6vw, 60px) !important; }
+
+/* ===== coloured emphasis words in copy ===== */
+.hl-m { color: var(--c-magenta) !important; -webkit-text-fill-color: var(--c-magenta); font-weight: 700; }
+.hl-b { color: #2aa8ff !important; -webkit-text-fill-color: #2aa8ff; font-weight: 700; }
+
 /* ---- pricing plans ------------------------------------------------------- */
 .lp-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(212px, 1fr)); gap: 18px; align-items: stretch; }
 .lp-plan { position: relative; overflow: hidden; background: var(--panel-solid); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px 22px 24px; display: flex; flex-direction: column; gap: 5px; transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s; }

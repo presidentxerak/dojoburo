@@ -21,7 +21,7 @@ export interface Profession {
   /** the trade in one line */
   blurb: string
   /** grouping for the picker */
-  category: 'Business' | 'Product & Tech' | 'Marketing & Growth' | 'Creative' | 'Operations' | 'Professional'
+  category: 'Business' | 'Product & Tech' | 'Marketing & Growth' | 'Creative' | 'Operations' | 'Professional' | 'Education'
   /** default 3D environment (templates.ts id) */
   template: string
   /** which specialists to seed for this profession */
@@ -215,12 +215,62 @@ export const PROFESSIONS: Profession[] = [
     connectors: ['zendesk', 'intercom', 'zoom', 'slack', 'gmail'],
     tasks: ['Draft ticket replies', 'Write a macro library', 'Escalation runbook', 'CSAT summary'],
   },
+  {
+    id: 'seller',
+    label: 'Seller / Vendor',
+    blurb: 'Sell and follow up · storefront, orders, outreach, payments.',
+    category: 'Marketing & Growth',
+    template: 'villa',
+    crew: ['Growth', 'Finance', 'People'],
+    connectors: ['shopify', 'stripe', 'hubspot', 'whatsapp', 'gmail', 'mailchimp'],
+    tasks: ['List a product', 'Chase an abandoned cart', 'Message a lead on WhatsApp', 'Send the invoice'],
+  },
+  {
+    id: 'realtor',
+    label: 'Real Estate Agent',
+    blurb: 'Win and close deals · listings, viewings, offers, signatures.',
+    category: 'Professional',
+    template: 'villa',
+    crew: ['Growth', 'People', 'Finance', 'Ops'],
+    connectors: ['hubspot', 'docusign', 'gcal', 'whatsapp', 'canva', 'gmail'],
+    tasks: ['Write a listing', 'Schedule viewings', 'Draft the offer', 'Send for e-signature'],
+  },
+  {
+    id: 'wealth',
+    label: 'Wealth Advisor / CGP',
+    blurb: 'Advise and manage portfolios · clients, plans, reviews, compliance.',
+    category: 'Professional',
+    template: 'castle',
+    crew: ['Finance', 'Leadership', 'People', 'Ops'],
+    connectors: ['salesforce', 'docusign', 'gcal', 'gmail', 'gdrive', 'notion'],
+    tasks: ['Prepare a client review', 'Draft an allocation proposal', 'Build a retirement plan', 'Log KYC & compliance notes'],
+  },
+  {
+    id: 'student',
+    label: 'Student',
+    blurb: 'Study smarter · notes, deadlines, research and revision.',
+    category: 'Education',
+    template: 'garden',
+    crew: ['Product', 'Leadership', 'People'],
+    connectors: ['gclassroom', 'gdrive', 'gcal', 'notion', 'gmail'],
+    tasks: ['Summarize a lecture', 'Build a revision plan', 'Draft an essay outline', 'Track assignment deadlines'],
+  },
+  {
+    id: 'teacher',
+    label: 'Teacher / Educator',
+    blurb: 'Teach and grade · lessons, assignments, feedback, parents.',
+    category: 'Education',
+    template: 'dojo',
+    crew: ['People', 'Product', 'Leadership', 'Ops'],
+    connectors: ['gclassroom', 'gdrive', 'gcal', 'canva', 'zoom', 'gmail'],
+    tasks: ['Plan a lesson', 'Create a quiz', 'Draft assignment feedback', 'Write a parent update'],
+  },
 ]
 
 export const PROFESSION_BY_ID: Record<string, Profession> = Object.fromEntries(PROFESSIONS.map((p) => [p.id, p]))
 
 export const PROFESSION_CATEGORIES: Profession['category'][] = [
-  'Business', 'Product & Tech', 'Marketing & Growth', 'Creative', 'Professional', 'Operations',
+  'Business', 'Product & Tech', 'Marketing & Growth', 'Creative', 'Professional', 'Education', 'Operations',
 ]
 
 export function professionById(id: string | null | undefined): Profession | null {

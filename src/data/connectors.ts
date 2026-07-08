@@ -251,6 +251,27 @@ export const CONNECTORS: Connector[] = [
     docsUrl: 'https://developers.intercom.com/',
     env: [...oauthEnv('INTERCOM', 'Intercom developer apps', 'https://developers.intercom.com/'), hubEnv('INTERCOM')],
   },
+  {
+    id: 'gclassroom', label: 'Google Classroom', provider: 'Google', category: 'Docs & Notes',
+    blurb: 'Manage courses, post assignments and read rosters for a class.',
+    functions: ['People', 'Ops', 'Product'], auth: 'oauth',
+    docsUrl: 'https://console.cloud.google.com/apis/credentials',
+    env: [...oauthEnv('GOOGLE', 'Google Cloud credentials (shared with Gmail)', 'https://console.cloud.google.com/apis/credentials'), hubEnv('GCLASSROOM')],
+  },
+  {
+    id: 'salesforce', label: 'Salesforce', provider: 'Salesforce', category: 'CRM & Sales',
+    blurb: 'Work leads, accounts and opportunities in the CRM.',
+    functions: ['Growth', 'Finance', 'People'], auth: 'oauth',
+    docsUrl: 'https://developer.salesforce.com/',
+    env: [...oauthEnv('SALESFORCE', 'Salesforce connected app', 'https://developer.salesforce.com/'), hubEnv('SALESFORCE')],
+  },
+  {
+    id: 'whatsapp', label: 'WhatsApp Business', provider: 'Meta', category: 'Comms',
+    blurb: 'Send templated messages and follow up with clients on WhatsApp.',
+    functions: ['Growth', 'People', 'Ops'], auth: 'oauth',
+    docsUrl: 'https://developers.facebook.com/apps',
+    env: [...oauthEnv('WHATSAPP', 'Meta app (WhatsApp Business)', 'https://developers.facebook.com/apps'), hubEnv('WHATSAPP')],
+  },
 ]
 
 export const CONNECTOR_BY_ID: Record<string, Connector> = Object.fromEntries(CONNECTORS.map((c) => [c.id, c]))
