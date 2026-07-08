@@ -33,7 +33,7 @@ function Halo({ color }: { color: string }) {
 
 function Shape({ kind, color }: { kind: string; color: string }) {
   switch (kind) {
-    case 'briefcase': // jobs — a rounded work case with a lock
+    case 'briefcase': // jobs · a rounded work case with a lock
       return (
         <group rotation={[0.08, 0, 0]}>
           <mesh castShadow><boxGeometry args={[2.3, 1.6, 0.8]} />{M(color)}</mesh>
@@ -45,7 +45,7 @@ function Shape({ kind, color }: { kind: string; color: string }) {
           <mesh position={[0.75, 0.5, 0.42]}><boxGeometry args={[0.14, 0.14, 0.06]} />{M(WHITE, WHITE, 0.05)}</mesh>
         </group>
       )
-    case 'network': // stack — a glowing hub cube with orbiting connected nodes
+    case 'network': // stack · a glowing hub cube with orbiting connected nodes
       return (
         <group>
           <mesh castShadow><boxGeometry args={[1.2, 1.2, 1.2]} />{M(color, color, 0.34)}</mesh>
@@ -65,7 +65,7 @@ function Shape({ kind, color }: { kind: string; color: string }) {
           })}
         </group>
       )
-    case 'coins': // cost — a stack of shiny coins with a $ token
+    case 'coins': // cost · a stack of shiny coins with a $ token
       return (
         <group rotation={[0.28, 0, 0.06]}>
           {[-0.62, -0.02, 0.58].map((y, i) => (
@@ -77,7 +77,7 @@ function Shape({ kind, color }: { kind: string; color: string }) {
           <mesh position={[0.22, 0.58, 0.19]} rotation={[0, 0, Math.PI / 2]}><boxGeometry args={[0.14, 0.4, 0.06]} />{M('#a06a00')}</mesh>
         </group>
       )
-    case 'gem': // pricing — a faceted crystal with sparkles
+    case 'gem': // pricing · a faceted crystal with sparkles
       return (
         <group>
           <mesh castShadow><octahedronGeometry args={[1.55, 0]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.4} roughness={0.08} metalness={0.35} flatShading /></mesh>
@@ -87,7 +87,7 @@ function Shape({ kind, color }: { kind: string; color: string }) {
           ))}
         </group>
       )
-    case 'card': // onramp — a glossy credit card with chip + stripe
+    case 'card': // onramp · a glossy credit card with chip + stripe
       return (
         <group rotation={[0.34, -0.15, -0.1]}>
           <mesh castShadow><boxGeometry args={[2.9, 1.8, 0.14]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.24} roughness={0.16} metalness={0.4} /></mesh>
@@ -99,7 +99,7 @@ function Shape({ kind, color }: { kind: string; color: string }) {
           <mesh position={[1.12, 0.42, 0.11]}><circleGeometry args={[0.18, 24]} /><meshBasicMaterial color="#ffc61a" transparent opacity={0.85} /></mesh>
         </group>
       )
-    case 'eye': // widget — a friendly monitor with a blinking eye
+    case 'eye': // widget · a friendly monitor with a blinking eye
       return (
         <group>
           <mesh castShadow><boxGeometry args={[2.5, 1.8, 0.5]} />{M(color, color, 0.2)}</mesh>
@@ -111,7 +111,7 @@ function Shape({ kind, color }: { kind: string; color: string }) {
           <mesh position={[0, -1.05, 0]}><boxGeometry args={[1.1, 0.16, 0.5]} />{M(color, color, 0.16)}</mesh>
         </group>
       )
-    case 'gear': // how — a chunky gear with a coloured hub
+    case 'gear': // how · a chunky gear with a coloured hub
       return (
         <group rotation={[Math.PI / 2, 0, 0]}>
           <mesh castShadow><cylinderGeometry args={[1.15, 1.15, 0.55, 36]} />{M(color, color, 0.24)}</mesh>
@@ -123,7 +123,7 @@ function Shape({ kind, color }: { kind: string; color: string }) {
           <mesh position={[0, 0.05, 0]}><cylinderGeometry args={[0.28, 0.28, 0.66, 20]} />{M('#2f6bff', '#2f6bff', 0.35)}</mesh>
         </group>
       )
-    case 'rocket': // final — a launching rocket with window + flame
+    case 'rocket': // final · a launching rocket with window + flame
       return (
         <group rotation={[0, 0, -0.16]}>
           <mesh position={[0, 0.6, 0]} castShadow><cylinderGeometry args={[0.58, 0.58, 1.9, 28]} /><meshStandardMaterial color={WHITE} emissive={WHITE} emissiveIntensity={0.08} {...GLOSS} /></mesh>

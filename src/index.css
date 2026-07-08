@@ -24,7 +24,7 @@
   /* purple → blue title gradient */
   --title-grad: linear-gradient(100deg, #7c3aed 0%, #4f7cff 100%);
 
-  /* vivid complementary primaries — playful accent touches on the landing */
+  /* vivid complementary primaries · playful accent touches on the landing */
   --c-magenta: #ff2d9b;
   --c-teal: #08c2ac;
   --c-yellow: #ffc61a;

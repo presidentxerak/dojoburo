@@ -6,7 +6,7 @@ import { SKINS, skinById } from '../../data/skins'
 
 // A full-3D dojo diorama that slowly rotates as the landing hero, with a
 // vertical-scroll parallax. A little tatami island: torii gate, cherry tree,
-// desks and a seated kawaii crew — the office, in miniature.
+// desks and a seated kawaii crew · the office, in miniature.
 
 const MAT = { roughness: 0.6, metalness: 0.05 }
 function Box({ p, s, c, r }: { p: [number, number, number]; s: [number, number, number]; c: string; r?: [number, number, number] }) {
