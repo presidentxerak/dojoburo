@@ -25,6 +25,7 @@ import { sendPayment, trackAction, fetchHistory, type X402Memo } from './xrpl/pa
 import { settleServer } from './xrpl/settleApi'
 import { audio } from './audio'
 import * as xaman from './xrpl/xaman'
+import { WALLETS, type WalletId } from './xrpl/wallets'
 
 export type Mood = 'idle' | 'work' | 'happy' | 'think' | 'talk' | 'love' | 'error'
 export type Theme = 'light' | 'dark'
@@ -87,16 +88,16 @@ interface DojoState {
   sceneId: SceneId
   usage: { xrp: number; tokens: number; tx: number }
   showStats: boolean
-  xaman: { account: string | null; busy: boolean; signLink: string | null; signQr: string | null; configured: boolean }
+  wallet: { provider: WalletId | null; account: string | null; busy: boolean; signLink: string | null; signQr: string | null; error: string | null; xamanConfigured: boolean }
 
   setNetwork: (net: NetworkId) => void
   setTheme: (t: Theme) => void
   setScene: (id: SceneId) => void
   toggleMute: () => void
   toggleMusic: () => void
-  xamanConnect: () => Promise<void>
-  xamanDisconnect: () => Promise<void>
-  xamanFundTreasury: (amountXrp: number) => Promise<void>
+  walletConnect: (id: WalletId) => Promise<void>
+  walletDisconnect: () => Promise<void>
+  walletFund: (amountXrp: number) => Promise<void>
   setXamanKey: (key: string) => void
 
   selectAgent: (id: string | null) => void
@@ -198,7 +199,7 @@ export const useDojo = create<DojoState>((set, get) => ({
   sceneId: loadSceneId(),
   usage: { xrp: 0, tokens: 0, tx: 0 },
   showStats: false,
-  xaman: { account: null, busy: false, signLink: null, signQr: null, configured: xaman.isConfigured() },
+  wallet: { provider: null, account: null, busy: false, signLink: null, signQr: null, error: null, xamanConfigured: xaman.isConfigured() },
 
   openStats: () => {
     audio.sfx('click')
@@ -242,52 +243,53 @@ export const useDojo = create<DojoState>((set, get) => ({
 
   setXamanKey: (key) => {
     xaman.setApiKey(key)
-    set((s) => ({ xaman: { ...s.xaman, configured: xaman.isConfigured() } }))
+    set((s) => ({ wallet: { ...s.wallet, xamanConfigured: xaman.isConfigured() } }))
   },
 
-  xamanConnect: async () => {
-    set((s) => ({ xaman: { ...s.xaman, busy: true } }))
+  walletConnect: async (id) => {
+    set((s) => ({ wallet: { ...s.wallet, busy: true, error: null, provider: id } }))
     try {
-      const session = await xaman.connect()
-      set((s) => ({ xaman: { ...s.xaman, account: session.account, busy: false } }))
+      const account = await WALLETS[id].connect()
+      set((s) => ({ wallet: { ...s.wallet, account, provider: id, busy: false } }))
       audio.sfx('success')
-      get().log({ agentId: 'lex', skill: 'xaman', level: 'success', message: `Xaman connected: ${session.account.slice(0, 12)}… (Mainnet).` })
+      get().log({ agentId: 'lex', skill: 'wallet', level: 'success', message: `${id} connected: ${account.slice(0, 12)}… (Mainnet).` })
     } catch (e) {
-      set((s) => ({ xaman: { ...s.xaman, busy: false } }))
+      set((s) => ({ wallet: { ...s.wallet, busy: false, provider: s.wallet.account ? s.wallet.provider : null, error: errMsg(e) } }))
       audio.sfx('error')
-      get().log({ agentId: 'lex', skill: 'xaman', level: 'error', message: `Xaman: ${errMsg(e)}` })
+      get().log({ agentId: 'lex', skill: 'wallet', level: 'error', message: `${id}: ${errMsg(e)}` })
     }
   },
 
-  xamanDisconnect: async () => {
-    await xaman.disconnect()
-    set((s) => ({ xaman: { ...s.xaman, account: null, signLink: null, signQr: null } }))
+  walletDisconnect: async () => {
+    const p = get().wallet.provider
+    if (p) { try { await WALLETS[p].disconnect() } catch { /* ignore */ } }
+    set((s) => ({ wallet: { ...s.wallet, provider: null, account: null, signLink: null, signQr: null, error: null } }))
   },
 
-  xamanFundTreasury: async (amountXrp) => {
+  walletFund: async (amountXrp) => {
     const s = get()
-    const from = s.xaman.account
-    if (!from) {
+    const { provider, account } = s.wallet
+    if (!provider || !account) {
       audio.sfx('error')
-      s.log({ agentId: 'fin', skill: 'xaman', level: 'error', message: 'Connect Xaman before funding the treasury.' })
+      s.log({ agentId: 'fin', skill: 'wallet', level: 'error', message: 'Connect a wallet before funding the treasury.' })
       return
     }
     const treasury = s.ensureWallet('treasury')
-    set((st) => ({ xaman: { ...st.xaman, busy: true, signLink: null, signQr: null } }))
+    set((st) => ({ wallet: { ...st.wallet, busy: true, signLink: null, signQr: null, error: null } }))
     audio.sfx('start')
     try {
-      const memo = { protocol: 'x402', skill: 'treasury.fund', from: 'user', to: 'treasury', note: 'Xaman top-up' }
-      const res = await xaman.signPayment(from, treasury.address, amountXrp, memo, (link, qr) => {
-        set((st) => ({ xaman: { ...st.xaman, signLink: link, signQr: qr } }))
+      const memo = { protocol: 'x402', skill: 'treasury.fund', from: 'user', to: 'treasury', note: `${provider} top-up` }
+      const res = await WALLETS[provider].signPayment(account, treasury.address, amountXrp, memo, (link, qr) => {
+        set((st) => ({ wallet: { ...st.wallet, signLink: link, signQr: qr } }))
       })
-      set((st) => ({ xaman: { ...st.xaman, busy: false, signLink: null, signQr: null } }))
+      set((st) => ({ wallet: { ...st.wallet, busy: false, signLink: null, signQr: null } }))
       audio.sfx('coin')
-      s.log({ agentId: 'fin', skill: 'xaman', level: 'xrpl', message: `Treasury funded via Xaman: ${amountXrp} XRP (signed).`, txHash: res.txid })
+      s.log({ agentId: 'fin', skill: 'wallet', level: 'xrpl', message: `Treasury funded via ${provider}: ${amountXrp} XRP (signed).`, txHash: res.txid })
       await s.refreshBalances()
     } catch (e) {
-      set((st) => ({ xaman: { ...st.xaman, busy: false, signLink: null, signQr: null } }))
+      set((st) => ({ wallet: { ...st.wallet, busy: false, signLink: null, signQr: null, error: errMsg(e) } }))
       audio.sfx('error')
-      s.log({ agentId: 'fin', skill: 'xaman', level: 'error', message: `Xaman funding failed: ${errMsg(e)}` })
+      s.log({ agentId: 'fin', skill: 'wallet', level: 'error', message: `${provider} funding failed: ${errMsg(e)}` })
     }
   },
 

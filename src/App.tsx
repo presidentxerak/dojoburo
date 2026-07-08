@@ -5,7 +5,7 @@ import { AgentPanel } from './components/AgentPanel'
 import { TreasuryPanel } from './components/TreasuryPanel'
 import { ActivityLog } from './components/ActivityLog'
 import { Toasts } from './components/Toasts'
-import { XamanPanel } from './components/XamanPanel'
+import { WalletPanel } from './components/WalletPanel'
 import { StatsPanel } from './components/StatsPanel'
 import { SupportBot } from './components/SupportBot'
 import { Workshop } from './components/workshop/Workshop'
@@ -112,7 +112,7 @@ export default function App() {
             </div>
             <AgentPanel />
             <TreasuryPanel />
-            <XamanPanel />
+            <WalletPanel />
             <ActivityLog />
           </aside>
         </div>

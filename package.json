@@ -16,9 +16,12 @@
     "desktop:build": "tauri build"
   },
   "dependencies": {
+    "@gemwallet/api": "^3.8.0",
     "@privy-io/react-auth": "^3.33.1",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
+    "@walletconnect/modal": "^2.7.0",
+    "@walletconnect/sign-client": "^2.23.10",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "pg": "^8.22.0",

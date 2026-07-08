@@ -190,15 +190,16 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'xaman',
-    chip: 'Xaman signing',
+    chip: 'Connect a wallet',
     answer:
-      'Xaman (formerly XUMM) is a non-custodial XRPL wallet. Paste a free Xaman API key in the app, connect, and approve each transaction on your phone · the app only ever receives a signed result, never your seed. Recommended for Mainnet.',
+      'Connect any of three non-custodial XRPL wallets and approve each transaction yourself · no seed is ever exposed. GemWallet is a browser extension (one click, no setup · install it from gemwallet.app). Xaman (XUMM) is mobile: paste a free API key from apps.xaman.dev AND add this site to the app\'s OAuth redirect URLs · if that list is missing your URL you get "access_denied · invalid client/redirect URL". Joey is mobile via WalletConnect: set VITE_WALLETCONNECT_PROJECT_ID (free at cloud.reown.com) and scan the QR. On Testnet you can also just use the built-in browser wallets funded from the faucet.',
     links: [
-      { label: 'Get a free key', href: 'https://apps.xaman.dev', external: true },
-      { label: 'Xaman app', href: 'https://xaman.app', external: true },
+      { label: 'GemWallet', href: 'https://gemwallet.app', external: true },
+      { label: 'Xaman key + redirect URLs', href: 'https://apps.xaman.dev', external: true },
+      { label: 'WalletConnect project id', href: 'https://cloud.reown.com', external: true },
     ],
     follow: ['security', 'wallet'],
-    keywords: ['xaman', 'xumm', 'sign', 'signing', 'connect wallet', 'non-custodial', 'mainnet'],
+    keywords: ['xaman', 'xumm', 'gem', 'gemwallet', 'joey', 'walletconnect', 'sign', 'signing', 'connect wallet', 'non-custodial', 'mainnet', 'access_denied', 'redirect', 'invalid client'],
   },
   {
     id: 'troubleshoot',
