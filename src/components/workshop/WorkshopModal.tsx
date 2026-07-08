@@ -63,7 +63,14 @@ function StudioTab() {
   const [picking, setPicking] = useState(false)
   // 'create' opens the picker to spin up a new dojo; 'change' re-themes this one
   const [tplPick, setTplPick] = useState<null | 'create' | 'change'>(null)
-  useEffect(() => setSel(null), [activeId])
+
+  // deep-link: clicking an agent's avatar opens the Studio focused on it
+  const studioAgentId = useWork((s) => s.studioAgentId)
+  useEffect(() => {
+    if (!studioAgentId) return
+    const d = dojos.find((dj) => dj.agents.some((a) => a.id === studioAgentId))
+    if (d) { setActive(d.id); setSel(studioAgentId) }
+  }, [studioAgentId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!dojo) return null
   const agent = dojo.agents.find((a) => a.id === sel) ?? null
@@ -74,7 +81,7 @@ function StudioTab() {
     <div className="ws-studio">
       {/* dojo switcher */}
       <div className="ws-dojobar">
-        <select value={dojo?.id} onChange={(e) => setActive(e.target.value)}>
+        <select value={dojo?.id} onChange={(e) => { setActive(e.target.value); setSel(null) }}>
           {dojos.map((d) => (
             <option key={d.id} value={d.id}>{d.name} · {d.agents.length}/{MAX_AGENTS}</option>
           ))}
@@ -210,6 +217,14 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
   const remove = useWorkshop((s) => s.deleteAgent)
   const fn = FUNCTION_BY_ID[agent.fn]
   const skin = skinById(agent.skinId)
+  const [customTask, setCustomTask] = useState('')
+  const addCustom = () => {
+    const v = customTask.trim()
+    if (!v || agent.tasks.includes(v)) { setCustomTask(''); return }
+    update(agent.id, { tasks: [...agent.tasks, v] })
+    setCustomTask('')
+  }
+  const taskName = (tid: string) => fn?.tasks.find((x) => x.id === tid)?.name ?? tid
 
   return (
     <div className="ws-form">
@@ -238,20 +253,37 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
       <p className="ws-blurb">{fn?.blurb}</p>
 
       <div className="ws-field">
-        <span>Tasks</span>
+        <span>Tasks · add or remove</span>
+        {/* the agent's current tasks · each removable */}
         <div className="ws-tasks">
-          {(fn?.tasks ?? []).map((t) => {
-            const on = agent.tasks.includes(t.id)
-            return (
-              <button
-                key={t.id}
-                className={`ws-task ${on ? 'on' : ''}`}
-                onClick={() => update(agent.id, { tasks: on ? agent.tasks.filter((x) => x !== t.id) : [...agent.tasks, t.id] })}
-              >
-                {t.name}{t.price > 0 ? ` · ${t.price} XRP` : ''}
+          {agent.tasks.map((tid) => (
+            <span key={tid} className="ws-task on">
+              {taskName(tid)}
+              <button className="ws-task-x" onClick={() => update(agent.id, { tasks: agent.tasks.filter((x) => x !== tid) })} aria-label={`Remove ${taskName(tid)}`}>×</button>
+            </span>
+          ))}
+          {agent.tasks.length === 0 && <span className="ws-blurb">No tasks yet · add some below.</span>}
+        </div>
+        {/* tasks available for this function, not yet added */}
+        {(fn?.tasks ?? []).some((t) => !agent.tasks.includes(t.id)) && (
+          <div className="ws-task-add">
+            {(fn?.tasks ?? []).filter((t) => !agent.tasks.includes(t.id)).map((t) => (
+              <button key={t.id} className="ws-task add" onClick={() => update(agent.id, { tasks: [...agent.tasks, t.id] })}>
+                + {t.name}{t.price > 0 ? ` · ${t.price} XRP` : ''}
               </button>
-            )
-          })}
+            ))}
+          </div>
+        )}
+        {/* a fully custom task */}
+        <div className="ws-task-custom">
+          <input
+            value={customTask}
+            placeholder="Add a custom task…"
+            maxLength={40}
+            onChange={(e) => setCustomTask(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom() } }}
+          />
+          <button className="ws-btn" onClick={addCustom} disabled={!customTask.trim()}>Add</button>
         </div>
       </div>
 

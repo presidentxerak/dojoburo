@@ -34,6 +34,7 @@ export function AgentPanel() {
   const runError = useWork((s) => s.runError)
   const byok = useWork((s) => s.byok)
   const openStudio = useWork((s) => s.openStudio)
+  const editAgent = useWork((s) => s.editAgent)
   const [brief, setBrief] = useState('')
 
   useEffect(() => {
@@ -61,14 +62,16 @@ export function AgentPanel() {
   return (
     <aside className="panel agent-panel">
       <header className="agent-head">
-        <div className="agent-head-avatar">
+        <button className="agent-head-avatar edit" onClick={() => editAgent(agent.id)} title="Edit this agent" aria-label="Edit this agent">
           <Agent3DPreview character={agent.character} mood={rt?.mood ?? 'idle'} size={64} />
-        </div>
+          <span className="avatar-edit-badge">Edit</span>
+        </button>
         <div className="agent-head-meta">
           <h2>{agent.name}</h2>
           <p className="agent-role">{agent.role}</p>
           <span className={`chip dept-${agent.department}`}>{agent.department}</span>
         </div>
+        <button className="agent-edit-btn" onClick={() => editAgent(agent.id)} title="Edit this agent">Edit</button>
         <button className="icon-btn" onClick={() => close(null)} aria-label="Close"><Icon name="close" /></button>
       </header>
 

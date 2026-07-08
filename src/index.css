@@ -1190,27 +1190,54 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
    Accessibility type scale · larger, more legible body copy (Outfit).
    Titles stay in the pixel display face; these bump reading text.
    =================================================================== */
-.panel-hint { font-size: 13px; }
-.agent-role { font-size: 12px; }
-.agent-mission { font-size: 13.5px; }
-.skill-name { font-size: 13px; }
-.skill-desc { font-size: 11.5px; }
-.work-name { font-size: 13.5px; }
-.work-desc { font-size: 11.5px; }
-.work-intro { font-size: 11.5px; }
-.work-brief { font-size: 13px; }
-.conn-name { font-size: 12.5px; }
-.conn-blurb { font-size: 11px; }
-.work-hint { font-size: 11.5px; }
-.ws-blurb { font-size: 12px; }
-.ws-field span { font-size: 12px; }
-.ws-field input, .ws-field select, .composer-row select, .composer-row input { font-size: 13px; }
-.btn { font-size: 12.5px; }
-.btn.tiny { font-size: 11.5px; }
-.tag { font-size: 9.5px; }
-.toast-body strong { font-size: 13px; }
-.toast-body span { font-size: 12px; }
-.stat-lvl, .stat-foot { font-size: 11px; }
-.net-tab { font-size: 12px; }
-.ws-tabs button { font-size: 12.5px; }
-.md { font-size: 13.5px; }
+.panel-hint { font-size: 14px; }
+.agent-head h2 { font-size: 19px; }
+.agent-role { font-size: 13.5px; }
+.agent-mission { font-size: 14.5px; line-height: 1.62; color: var(--ink); }
+.skills-title { font-size: 13.5px; }
+.skill-name { font-size: 14px; }
+.skill-desc { font-size: 12.5px; color: var(--muted); }
+.work-name { font-size: 14.5px; }
+.work-desc { font-size: 12.5px; }
+.work-intro { font-size: 12.5px; }
+.work-brief { font-size: 13.5px; }
+.conn-name { font-size: 13.5px; }
+.conn-blurb { font-size: 12px; }
+.work-hint { font-size: 12.5px; }
+.ws-blurb { font-size: 12.5px; }
+.ws-field span { font-size: 12.5px; }
+.ws-field input, .ws-field select, .composer-row select, .composer-row input { font-size: 14px; }
+.ws-task { font-size: 12.5px !important; }
+.btn { font-size: 13px; }
+.btn.tiny { font-size: 12px; }
+.tag { font-size: 10.5px; }
+.toast-body strong { font-size: 13.5px; }
+.toast-body span { font-size: 12.5px; }
+.stat-lvl { font-size: 12.5px; }
+.stat-foot { font-size: 12px; }
+.bal { font-size: 12.5px; }
+.muted.small, .small { font-size: 12.5px; }
+.act-msg { font-size: 12.5px; }
+.aw-stats span { font-size: 14px; }
+.net-tab { font-size: 12.5px; }
+.ws-tabs button { font-size: 13px; }
+.ws-cellname { font-size: 9px; }
+.md { font-size: 14px; line-height: 1.65; }
+
+/* ===== click the avatar (or Edit) to open the agent editor ===== */
+.agent-head-avatar.edit { position: relative; cursor: pointer; padding: 6px; border: 1.5px solid var(--border); border-radius: 14px; transition: border-color 0.14s, transform 0.14s, box-shadow 0.14s; }
+.agent-head-avatar.edit:hover { border-color: var(--violet); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.avatar-edit-badge { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); font-family: var(--font-pixel); font-weight: 800; font-size: 9px; color: #fff; background: var(--btn-bg); border-radius: 2px; padding: 2px 7px; opacity: 0; transition: opacity 0.14s; pointer-events: none; white-space: nowrap; }
+.agent-head-avatar.edit:hover .avatar-edit-badge { opacity: 1; }
+.agent-edit-btn { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; cursor: pointer; color: var(--btn-fg); background: var(--btn-bg); border: none; border-radius: 2px; padding: 7px 13px; align-self: flex-start; }
+.agent-edit-btn:hover { opacity: 0.88; }
+
+/* ===== richer task editor: removable chips + add + custom ===== */
+.ws-task.on { display: inline-flex; align-items: center; gap: 6px; background: color-mix(in srgb, var(--violet) 12%, transparent); border-color: color-mix(in srgb, var(--violet) 40%, var(--border)); color: var(--ink); }
+.ws-task-x { border: none; background: none; cursor: pointer; color: var(--muted); font-size: 15px; line-height: 1; padding: 0 0 0 2px; }
+.ws-task-x:hover { color: #e0475f; }
+.ws-task.add { color: var(--violet); border-style: dashed; background: transparent; cursor: pointer; }
+.ws-task.add:hover { background: color-mix(in srgb, var(--violet) 10%, transparent); }
+.ws-task-add { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ws-task-custom { display: flex; gap: 8px; margin-top: 10px; }
+.ws-task-custom input { flex: 1; }

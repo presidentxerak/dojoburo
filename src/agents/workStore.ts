@@ -17,7 +17,9 @@ interface WorkState {
   runError: { code: string; reason?: 'tool' | 'design'; detail?: string } | null
 
   /** deep-link signal: open Dojo Studio on a tab (e.g. from a "add your key" hint) */
-  studioIntent: null | 'billing' | 'account'
+  studioIntent: null | 'billing' | 'account' | 'studio'
+  /** when set, the Studio opens with this agent pre-selected for editing */
+  studioAgentId: string | null
 
   loadTools: () => Promise<void>
   disconnect: (id: string) => Promise<void>
@@ -27,6 +29,8 @@ interface WorkState {
   closeDeliverable: () => void
   clearError: () => void
   openStudio: (tab: 'billing' | 'account') => void
+  /** open the Studio editor focused on a specific agent */
+  editAgent: (agentId: string) => void
   clearStudioIntent: () => void
 }
 
@@ -39,6 +43,7 @@ export const useWork = create<WorkState>((set, get) => ({
   deliverable: null,
   runError: null,
   studioIntent: null,
+  studioAgentId: null,
 
   loadTools: async () => {
     const { tools, backend, byok } = await listTools()
@@ -76,5 +81,6 @@ export const useWork = create<WorkState>((set, get) => ({
   closeDeliverable: () => set({ deliverable: null }),
   clearError: () => set({ runError: null }),
   openStudio: (tab) => set({ studioIntent: tab }),
-  clearStudioIntent: () => set({ studioIntent: null }),
+  editAgent: (agentId) => set({ studioIntent: 'studio', studioAgentId: agentId }),
+  clearStudioIntent: () => set({ studioIntent: null, studioAgentId: null }),
 }))

@@ -28,7 +28,7 @@ class AudioEngine {
     this.musicGain.gain.value = 0.0
     this.musicGain.connect(this.master)
     this.sfxGain = ctx.createGain()
-    this.sfxGain.gain.value = 0.5
+    this.sfxGain.gain.value = 0.3 // matched to the music bus so neither dominates
     this.sfxGain.connect(this.master)
     this.ctx = ctx
     return ctx
@@ -52,7 +52,7 @@ class AudioEngine {
     const ctx = this.ensure()
     if (ctx.state === 'suspended') void ctx.resume()
     this.musicOn = true
-    if (this.musicGain) this.musicGain.gain.setTargetAtTime(0.16, ctx.currentTime, 0.8)
+    if (this.musicGain) this.musicGain.gain.setTargetAtTime(0.3, ctx.currentTime, 0.8) // matched to the sfx bus
     if (this.musicTimer != null) return
     this.step = 0
     this.nextTime = ctx.currentTime + 0.1
