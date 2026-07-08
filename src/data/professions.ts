@@ -269,6 +269,14 @@ export const PROFESSIONS: Profession[] = [
 
 export const PROFESSION_BY_ID: Record<string, Profession> = Object.fromEntries(PROFESSIONS.map((p) => [p.id, p]))
 
+/** A distinct vivid accent colour per profession (hues spread evenly). */
+export const PROFESSION_COLOR_BY_ID: Record<string, string> = Object.fromEntries(
+  PROFESSIONS.map((p, i) => [p.id, `hsl(${Math.round((i * 360) / PROFESSIONS.length)}, 68%, 52%)`]),
+)
+export function professionColor(id: string): string {
+  return PROFESSION_COLOR_BY_ID[id] ?? 'hsl(268, 68%, 52%)'
+}
+
 export const PROFESSION_CATEGORIES: Profession['category'][] = [
   'Business', 'Product & Tech', 'Marketing & Growth', 'Creative', 'Professional', 'Education', 'Operations',
 ]

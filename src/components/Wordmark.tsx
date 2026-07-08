@@ -1,9 +1,5 @@
-/** The DojoBuro wordmark, identical on the landing and inside the office:
- *  "Dojo" in Outfit Black + "buro" in Silkscreen regular, magenta. */
+/** The DojoBuro wordmark: "dojoburo" in lowercase Outfit Black, solid black.
+ *  Identical on the landing and inside the office. Size is set by context. */
 export function Wordmark({ className }: { className?: string }) {
-  return (
-    <span className={`wordmark ${className ?? ''}`}>
-      <span className="wm-dojo">Dojo</span><span className="wm-buro">buro</span>
-    </span>
-  )
+  return <span className={`wordmark ${className ?? ''}`}>dojoburo</span>
 }

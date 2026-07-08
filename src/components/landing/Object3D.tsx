@@ -13,24 +13,6 @@ function M(color: string, emissive?: string, ei = 0.22) {
 const DARK = '#232538'
 const WHITE = '#f6f8ff'
 
-// a soft glowing backplate: a bright ring + a faint disc, always facing camera
-function Halo({ color }: { color: string }) {
-  const g = useRef<THREE.Group>(null)
-  useFrame((s) => { if (g.current) g.current.rotation.z = s.clock.elapsedTime * 0.25 })
-  return (
-    <group position={[0, 0, -2.2]}>
-      <mesh><circleGeometry args={[2.7, 40]} /><meshBasicMaterial color={color} transparent opacity={0.1} /></mesh>
-      <group ref={g}>
-        <mesh><ringGeometry args={[2.5, 2.62, 48]} /><meshBasicMaterial color={color} transparent opacity={0.55} /></mesh>
-        {Array.from({ length: 8 }).map((_, i) => {
-          const a = (i / 8) * Math.PI * 2
-          return <mesh key={i} position={[Math.cos(a) * 2.95, Math.sin(a) * 2.95, 0]}><circleGeometry args={[0.09, 12]} /><meshBasicMaterial color={color} transparent opacity={0.7} /></mesh>
-        })}
-      </group>
-    </group>
-  )
-}
-
 function Shape({ kind, color }: { kind: string; color: string }) {
   switch (kind) {
     case 'briefcase': // jobs · a rounded work case with a lock
@@ -190,11 +172,11 @@ export function Object3D({
   }, [parallax])
   return (
     <div ref={ref} className={`lp-obj3d lp-obj3d-${side}`} style={{ width: size, height: size, transform: `translate3d(0, ${y.toFixed(1)}px, 0)`, ['--obj' as any]: color }} aria-hidden>
-      <Canvas camera={{ position: [0, 0.4, 6.4], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
-        <hemisphereLight args={['#ffffff', '#c7cede', 1.05]} />
-        <directionalLight position={[4, 6, 5]} intensity={1.3} />
-        <pointLight position={[-4, 1, 4]} intensity={0.7} color={color} />
-        <Halo color={color} />
+      <Canvas camera={{ position: [0, 0.4, 6.2], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
+        <hemisphereLight args={['#ffffff', '#c7cede', 1.0]} />
+        <directionalLight position={[4, 6, 5]} intensity={1.35} />
+        <directionalLight position={[-5, 2, 3]} intensity={0.5} color="#ffffff" />
+        <pointLight position={[-3, -1, 4]} intensity={0.9} color={color} />
         <Spin speed={speed}>
           <Shape kind={kind} color={color} />
         </Spin>

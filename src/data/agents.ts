@@ -403,6 +403,14 @@ export const AGENTS: AgentDef[] = [
 
 export const AGENT_BY_ID = Object.fromEntries(AGENTS.map((a) => [a.id, a])) as Record<string, AgentDef>
 
+/** A distinct vivid accent colour per built-in agent (hues spread evenly). */
+export const AGENT_COLOR_BY_ID: Record<string, string> = Object.fromEntries(
+  AGENTS.map((a, i) => [a.id, `hsl(${Math.round((i * 360) / AGENTS.length)}, 70%, 55%)`]),
+)
+export function agentColor(id: string): string {
+  return AGENT_COLOR_BY_ID[id] ?? 'hsl(210, 70%, 55%)'
+}
+
 export const DEPARTMENTS: Department[] = [
   'Leadership',
   'Engineering',

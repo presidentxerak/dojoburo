@@ -626,7 +626,9 @@ a:hover { text-decoration: underline; }
 .ws-profcard { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left; cursor: pointer; background: var(--panel-2); border: 1.5px solid var(--border); border-radius: 12px; padding: 11px 12px; color: var(--ink); transition: transform 0.14s, border-color 0.14s, box-shadow 0.14s; }
 .ws-profcard:hover { transform: translateY(-2px); border-color: var(--violet); box-shadow: 0 8px 20px rgba(60, 40, 110, 0.16); }
 .ws-profcard strong { font-family: var(--font-pixel); font-weight: 800; font-size: 11.5px; line-height: 1.2; }
-.ws-prof-cat { font-family: var(--font-pixel); font-weight: 800; font-size: 7.5px; letter-spacing: 0.3px; color: var(--violet); text-transform: uppercase; }
+.ws-prof-cat { font-family: var(--font-pixel); font-weight: 800; font-size: 7.5px; letter-spacing: 0.3px; color: var(--pc, var(--violet)); text-transform: uppercase; }
+.ws-profcard { border-left: 3px solid var(--pc, var(--violet)); }
+.ws-profcard:hover { border-color: var(--pc, var(--violet)); }
 .ws-prof-tools { font-size: 10px; color: var(--muted); line-height: 1.3; }
 .ws-prof-or { font-family: var(--font-pixel); font-weight: 800; font-size: 9px; color: var(--muted); text-align: center; margin: 14px 0 2px; text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -930,7 +932,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .landing { font-size: 16px; }
 .lp-hero h1 { font-size: clamp(40px, 6.2vw, 60px); }
 .lp-sub, .lp-lead { font-size: clamp(18px, 2.1vw, 24px); line-height: 1.55; max-width: 900px; }
-.lp-kicker { font-size: 16px; background: none !important; -webkit-text-fill-color: var(--c-magenta); color: var(--c-magenta) !important; }
+.lp-kicker { font-size: 16px; background: none !important; -webkit-text-fill-color: var(--muted); color: var(--muted) !important; }
 .lp-sec h2 { font-size: clamp(30px, 4.2vw, 46px); }
 .lp-final h2 { font-size: clamp(32px, 5vw, 56px); }
 .lp-card span, .lp-note, .lp-node span, .lp-benefit span, .lp-two li, .lp-check li,
@@ -964,12 +966,12 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-step3 span { font-size: 15px; color: var(--muted); line-height: 1.5; }
 .lp-step3 code { background: color-mix(in srgb, var(--c-teal) 16%, transparent); padding: 1px 5px; border-radius: 5px; font-size: 13px; }
 
-/* ===== brand wordmark: Dojo (Outfit Black) + buro (Silkscreen, magenta) ===== */
-.wordmark { display: inline-flex; align-items: baseline; line-height: 1; white-space: nowrap; }
-.wm-dojo { font-family: var(--font-ui); font-weight: 900; letter-spacing: -0.02em; color: var(--ink); -webkit-text-fill-color: var(--ink); background: none; }
-.wm-buro { font-family: 'Silkscreen', 'Courier New', monospace; font-weight: 400; color: var(--c-magenta); -webkit-text-fill-color: var(--c-magenta); background: none; margin-left: 2px; font-size: 0.82em; }
-.lp-brand .wordmark { font-size: 20px; }
-.lp-footer .lp-brand .wordmark { font-size: 17px; }
+/* ===== brand wordmark: "dojoburo" in lowercase Outfit Black, solid black ===== */
+.wordmark { font-family: var(--font-ui); font-weight: 900; letter-spacing: -0.02em; text-transform: lowercase; color: var(--ink); -webkit-text-fill-color: var(--ink); background: none; white-space: nowrap; }
+.lp-brand .wordmark { font-size: 24px; }
+.lp-footer .lp-brand .wordmark { font-size: 20px; }
+.brand h1 .wordmark { font-size: 24px; }
+.brand h1 { line-height: 1; }
 
 /* ===== hero title in Silkscreen (100px); big titles at 60px ===== */
 .landing .lp-hero h1 { font-family: 'Silkscreen', 'Courier New', monospace !important; font-weight: 400 !important; font-size: clamp(38px, 8.4vw, 100px) !important; line-height: 1.08; letter-spacing: 0; }
@@ -979,6 +981,15 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 /* ===== coloured emphasis words in copy ===== */
 .hl-m { color: var(--c-magenta) !important; -webkit-text-fill-color: var(--c-magenta); font-weight: 700; }
 .hl-b { color: #2aa8ff !important; -webkit-text-fill-color: #2aa8ff; font-weight: 700; }
+
+/* ===== a distinct colour touch per profession + per agent ===== */
+.lp-job::before { background: var(--pc, var(--c-magenta)) !important; opacity: 1; }
+.lp-job-cat { color: var(--pc, var(--violet)); }
+.lp-job:hover { border-color: color-mix(in srgb, var(--pc) 55%, var(--border)); }
+.lp-job .lp-tool-chip { border-color: color-mix(in srgb, var(--pc) 42%, var(--border)); background: color-mix(in srgb, var(--pc) 10%, transparent); }
+.lp-card::before { background: var(--ac, var(--c-magenta)) !important; opacity: 1 !important; }
+.lp-card-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-bottom: 2px; }
+.lp-card:hover { border-color: color-mix(in srgb, var(--ac) 50%, var(--border)); }
 
 /* ---- pricing plans ------------------------------------------------------- */
 .lp-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(212px, 1fr)); gap: 18px; align-items: stretch; }

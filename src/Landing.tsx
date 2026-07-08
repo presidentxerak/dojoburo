@@ -1,5 +1,5 @@
-import { AGENTS } from './data/agents'
-import { PROFESSIONS } from './data/professions'
+import { AGENTS, agentColor } from './data/agents'
+import { PROFESSIONS, professionColor } from './data/professions'
 import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
 import { SKINS } from './data/skins'
 import { DOJO_TEMPLATES } from './data/templates'
@@ -28,12 +28,12 @@ export function Landing({ enter }: { enter: () => void }) {
 
       <section className="lp-hero">
         <p className="lp-kicker">An automated productivity hub, run by AI agents · orchestrated on the XRP Ledger</p>
-        <h1>Your <span className="hl-m">AI team</span>, working while you <span className="hl-b">watch</span>.</h1>
+        <h1>Your AI team, working while you watch.</h1>
         <p className="lp-sub">
           <Wordmark /> is a living 3D office where a team of specialised AI agents each own a real
-          function of your work. It <span className="hl-m">adapts to your profession</span>, connects your
-          everyday apps, runs the tasks <span className="hl-b">for real</span>, and settles the cost
-          on-ledger with x402 micro-payments. You are the founder · the Chief atom hovering over the team.
+          function of your work. It adapts to your profession, connects your everyday apps, runs the
+          tasks for real, and settles the cost on-ledger with x402 micro-payments. You are the founder ·
+          the Chief atom hovering over the team.
         </p>
         <div className="lp-actions">
           <button className="lp-cta" onClick={enter}>Enter the office →</button>
@@ -50,14 +50,13 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-pill">New · adapts to your trade</span>
         <h2>Built around your job</h2>
         <p className="lp-lead">
-          <Wordmark /> is a productivity hub that <span className="hl-m">reshapes itself to your profession</span>.
-          Pick your trade and the office is tailored for you · a matching crew of specialists, a fitting 3D
-          environment, and <span className="hl-b">the exact apps your work needs</span>, wired and ready to run
-          the real tasks of that job.
+          <Wordmark /> is a productivity hub that reshapes itself to your profession. Pick your trade and the
+          office is tailored for you · a matching crew of specialists, a fitting 3D environment, and the exact
+          apps your work needs, wired and ready to run the real tasks of that job.
         </p>
         <div className="lp-jobs">
           {PROFESSIONS.map((p) => (
-            <div className="lp-job" key={p.id}>
+            <div className="lp-job" key={p.id} style={{ ['--pc' as any]: professionColor(p.id) }}>
               <span className="lp-job-cat">{p.category}</span>
               <strong>{p.label}</strong>
               <span className="lp-job-blurb">{p.blurb}</span>
@@ -138,7 +137,8 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lp-lead">Twelve starter agents across Leadership, Engineering, Finance, Growth, Product, People and Ops · plus two mascots. Reskin, rename or replace any of them.</p>
         <div className="lp-cast">
           {AGENTS.map((a) => (
-            <div className="lp-card" key={a.id}>
+            <div className="lp-card" key={a.id} style={{ ['--ac' as any]: agentColor(a.id) }}>
+              <span className="lp-card-dot" style={{ background: agentColor(a.id) }} />
               <strong>{a.name}</strong>
               <span>{a.role}</span>
             </div>
@@ -179,10 +179,9 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="price" /></span>
         <h2>Pricing that pays for itself</h2>
         <p className="lp-lead">
-          You bring your own model key, or use the free-model cascade, so the intelligence is
-          <span className="hl-m"> basically free</span>. You pay only for the hub around it: the apps you connect,
-          the always-on worker, and team features. That is why <Wordmark /> runs a whole automated team for
-          <span className="hl-b"> less than a single Zapier or ChatGPT seat</span>.
+          You bring your own model key, or use the free-model cascade, so the intelligence is basically free.
+          You pay only for the hub around it: the apps you connect, the always-on worker, and team features.
+          That is why <Wordmark /> runs a whole automated team for less than a single Zapier or ChatGPT seat.
         </p>
         <div className="lp-billing-note">
           <span><b>BYOK &amp; free-cascade tasks are unlimited</b> · they never touch a credit.</span>

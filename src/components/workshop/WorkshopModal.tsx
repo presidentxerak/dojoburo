@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useWorkshop, GRID, MAX_AGENTS, type WAgent } from '../../workshop'
 import { SKINS, SKIN_THEMES, skinById } from '../../data/skins'
 import { DOJO_TEMPLATES, templateById } from '../../data/templates'
-import { PROFESSIONS } from '../../data/professions'
+import { PROFESSIONS, professionColor } from '../../data/professions'
 import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
 import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/currency'
@@ -173,7 +173,7 @@ function TemplatePicker({ current, mode, onPick, onPickProfession, onClose }: { 
             <div className="ws-prof-h">Start from your profession · seeds a tailored crew, world &amp; apps</div>
             <div className="ws-profgrid">
               {PROFESSIONS.map((p) => (
-                <button key={p.id} className="ws-profcard" onClick={() => onPickProfession(p.id)} title={p.blurb}>
+                <button key={p.id} className="ws-profcard" onClick={() => onPickProfession(p.id)} title={p.blurb} style={{ ['--pc' as any]: professionColor(p.id) }}>
                   <span className="ws-prof-cat">{p.category}</span>
                   <strong>{p.label}</strong>
                   <span className="ws-prof-tools">{p.connectors.slice(0, 3).map((id) => CONNECTOR_BY_ID[id]?.label ?? id).join(' · ')}</span>
