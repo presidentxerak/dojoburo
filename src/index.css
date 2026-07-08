@@ -1348,14 +1348,34 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-job .lp-job-blurb { color: #46464f; }
 .lp-job .lp-tool-chip { background: #f4f5f8 !important; border-color: rgba(0, 0, 0, 0.12) !important; color: #33333c; }
 
-/* ===== footer: download the investor pitch deck ===== */
+/* ===== footer: download / preview the investor pitch deck ===== */
+.lp-deck-actions { flex-basis: 100%; display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
 .lp-deck-dl {
-  margin: 4px auto 0; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   font-family: var(--font-pixel); font-weight: 800; font-size: 12px; cursor: pointer; color: #fff;
-  background: #14141a; border: none; border-radius: 2px; padding: 9px 15px;
+  background: #14141a; border: none; border-radius: 2px; padding: 10px 16px;
   box-shadow: var(--shadow-sm); transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
 }
 .lp-deck-dl:hover { transform: translateY(-1px); opacity: 0.88; }
+.lp-deck-view { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; cursor: pointer; color: var(--ink); background: transparent; border: 1.5px solid var(--border-lit); border-radius: 2px; padding: 10px 16px; }
+.lp-deck-view:hover { border-color: var(--ink); }
+
+/* ===== animated brand marquee · rails + every connector, greyscale w/ hover ===== */
+.lm-band { max-width: 1180px; margin: 4px auto 0; padding: 26px 26px 8px; text-align: center; }
+.lm-cap { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0 0 14px; }
+.lm { position: relative; overflow: hidden; width: 100%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.lm-track { display: flex; width: max-content; gap: 12px; animation: lm-scroll 60s linear infinite; will-change: transform; }
+.lm:hover .lm-track { animation-play-state: paused; }
+@keyframes lm-scroll { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+.lm-chip {
+  display: inline-flex; align-items: center; gap: 9px; flex: none; padding: 9px 15px 9px 9px;
+  border: 1px solid var(--border); border-radius: 2px; background: var(--panel-solid);
+  filter: grayscale(1); opacity: 0.7; transition: filter 0.2s, opacity 0.2s, border-color 0.2s;
+}
+.lm-chip:hover { filter: grayscale(0); opacity: 1; border-color: color-mix(in srgb, var(--bc) 55%, var(--border)); }
+.lm-mono { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 2px; font-family: var(--font-pixel); font-weight: 800; font-size: 11px; color: #fff; background: var(--bc); }
+.lm-label { font-family: var(--font-pixel); font-weight: 800; font-size: 14px; color: var(--ink); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .lm-track { animation: none; } }
 
 /* ===========================================================================
    Investor pitch deck · 10 landscape slides on a light background
@@ -1388,22 +1408,35 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .pd-copy { display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: 7% 6%; min-width: 0; }
 .pd-kicker { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--pa); }
 .pd-brandmark .wordmark { font-size: clamp(38px, 5vw, 60px); color: #14141a; -webkit-text-fill-color: #14141a; }
-.pd-line { font-size: 24px; line-height: 1.5; font-weight: 600; color: #1b1c24; margin: 0; max-width: 32ch; }
+/* one impactful line · Outfit black, 24px */
+.pd-line { font-family: var(--font-pixel); font-weight: 900; font-size: 24px; line-height: 1.35; letter-spacing: -0.01em; color: #14141a; margin: 0; max-width: 34ch; }
 .pd-foot { font-size: 12px; color: #8890a0; }
 .pd-foot .wordmark { font-size: 12px; color: #8890a0; -webkit-text-fill-color: #8890a0; }
+.pd-contact { font-style: normal; font-weight: 700; color: var(--pa); }
 
 .pd-visual { position: relative; display: grid; place-items: center; padding: 4%; background: radial-gradient(circle at 58% 42%, color-mix(in srgb, var(--pa) 14%, transparent), transparent 68%); }
 .pd-bigicon { font-family: 'Silkscreen', 'Courier New', monospace; font-size: clamp(40px, 7.5vw, 92px); letter-spacing: 2px; }
-.pd-visual-icon .pd-obj3d { width: 100%; height: 100%; }
-.pd-obj3d { display: block; }
-.pd-ascii-chip { position: absolute; right: 10%; bottom: 12%; font-family: 'Silkscreen', 'Courier New', monospace; font-size: clamp(18px, 2.4vw, 30px); opacity: 0.85; }
-.pd-visual-brand { grid-template-columns: none; }
-.pd-visual-brand .pd-bigicon { position: absolute; right: 8%; top: 14%; opacity: 0.5; font-size: clamp(28px, 4vw, 54px); }
-.pd-char-lg { width: 220px; height: 220px; }
+.pd-hero3d { display: block; }
+.pd-visual-hero .pd-hero3d { width: 100%; height: 100%; }
+.pd-ascii-chip { position: absolute; right: 9%; bottom: 10%; font-family: 'Silkscreen', 'Courier New', monospace; font-size: clamp(18px, 2.4vw, 30px); opacity: 0.8; }
 .pd-visual-dojo { padding: 0; }
 .pd-visual-dojo .lp-dojo3d { width: 100%; max-width: none; height: 100%; margin: 0; }
 .pd-visual-team { display: flex; gap: 2px; align-items: center; justify-content: center; flex-wrap: wrap; }
 .pd-char { width: 150px; height: 150px; flex: none; }
+
+/* table slides · single column, financial table in the brand style */
+.pd-v-table .pd-slide-inner { grid-template-columns: 1fr; }
+.pd-v-table .pd-copy { padding: 4.5% 6%; gap: 12px; justify-content: flex-start; }
+.pd-v-table .pd-line { font-size: 22px; max-width: none; }
+.pd-table-wrap { margin: 4px 0; overflow-x: auto; }
+.pd-table { width: 100%; border-collapse: collapse; font-family: var(--font-read); font-size: 15px; }
+.pd-table th, .pd-table td { text-align: right; padding: 9px 14px; border: 1px solid #e4e6ec; color: #24262e; white-space: nowrap; }
+.pd-table th.lbl, .pd-table td.lbl { text-align: left; }
+.pd-table thead th { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; color: #fff; background: var(--pa); border-color: var(--pa); }
+.pd-table tbody tr:nth-child(even) { background: #f7f8fb; }
+.pd-table td.lbl { font-family: var(--font-pixel); font-weight: 800; font-size: 13.5px; color: #14141a; }
+.pd-table tr.net td { font-weight: 800; color: #14141a; border-top: 2px solid var(--pa); background: color-mix(in srgb, var(--pa) 8%, #fff); }
+.pd-table-note { font-size: 12.5px; line-height: 1.5; color: #8890a0; margin: 8px 0 0; }
 
 .pd-dots { display: flex; gap: 8px; justify-content: center; padding: 14px; }
 .pd-dot { width: 9px; height: 9px; border-radius: 50%; border: none; background: #cfd3de; cursor: pointer; padding: 0; transition: width 0.18s, background 0.18s; }
@@ -1434,8 +1467,8 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
   .pd-brandmark .wordmark, .pd-bar-brand .wordmark { color: #14141a; -webkit-text-fill-color: #14141a; }
   .pd-foot, .pd-foot .wordmark { color: #6a6a76; -webkit-text-fill-color: #6a6a76; }
   .pd-visual { background: #fff; }
-  .a3d, .lp-dojo3d, .pd-obj3d { display: none !important; } /* WebGL can't print · fall back to ascii */
-  .pd-visual-team::after, .pd-visual-dojo::after, .pd-visual-icon::after, .pd-visual-brand::after {
+  .a3d, .lp-dojo3d, .pd-hero3d { display: none !important; } /* WebGL can't print · fall back to ascii */
+  .pd-visual-team::after, .pd-visual-dojo::after, .pd-visual-hero::after {
     content: '( o_o )  ( ^_^ )  ( o_o )'; font-family: 'Silkscreen', 'Courier New', monospace; font-size: 44px; color: var(--pa); letter-spacing: 2px;
   }
 }

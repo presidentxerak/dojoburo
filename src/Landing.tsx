@@ -11,6 +11,8 @@ import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
 import { TeamCards } from './components/landing/TeamCards'
 import { PitchDeck } from './components/landing/PitchDeck'
+import { downloadDeckPdf } from './components/landing/deckPdf'
+import { LogoMarquee } from './components/landing/LogoMarquee'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -54,6 +56,11 @@ export function Landing({ enter }: { enter: () => void }) {
         </div>
         <DojoDiorama />
       </section>
+
+      <div className="lm-band">
+        <p className="lm-cap">Built on open rails · connects your whole stack</p>
+        <LogoMarquee />
+      </div>
 
       <section className="lp-sec" id="jobs">
         <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
@@ -438,7 +445,10 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#prod">Production</a>
           <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Enter the office</a>
         </nav>
-        <button className="lp-deck-dl" onClick={() => setDeckOpen(true)}>⤓ Investor pitch deck</button>
+        <div className="lp-deck-actions">
+          <button className="lp-deck-dl" onClick={() => downloadDeckPdf()}>⤓ Download Investors Pitch Deck</button>
+          <button className="lp-deck-view" onClick={() => setDeckOpen(true)}>Preview deck</button>
+        </div>
       </footer>
       <SupportBot />
       {deckOpen && <PitchDeck onClose={() => setDeckOpen(false)} />}

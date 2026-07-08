@@ -14,7 +14,7 @@ function M(color: string, emissive?: string, ei = 0.22) {
 const DARK = '#232538'
 const WHITE = '#f6f8ff'
 
-function Shape({ kind, color }: { kind: string; color: string }) {
+export function Shape({ kind, color }: { kind: string; color: string }) {
   switch (kind) {
     case 'briefcase': // jobs · a rounded work case with a lock
       return (
@@ -124,7 +124,7 @@ function Shape({ kind, color }: { kind: string; color: string }) {
   }
 }
 
-function Spin({ children, speed = 0.5, bob = 0.14 }: { children: ReactNode; speed?: number; bob?: number }) {
+export function Spin({ children, speed = 0.5, bob = 0.14 }: { children: ReactNode; speed?: number; bob?: number }) {
   const g = useRef<THREE.Group>(null)
   useFrame((s) => {
     if (!g.current) return
