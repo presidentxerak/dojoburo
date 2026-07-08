@@ -19,6 +19,8 @@ export interface OAuthConfig {
   tokenAuth: 'basic' | 'body'
   /** extra params appended to the authorize request */
   extraAuthorize?: Record<string, string>
+  /** provider requires PKCE (RFC 7636); adds code_challenge + code_verifier */
+  pkce?: boolean
 }
 
 export interface McpConfig {
@@ -141,6 +143,239 @@ const REGISTRY: Record<string, ServerConnector> = {
       tokenAuth: 'body',
     },
     mcp: mcp('figma', null, 'FIGMA_MCP_URL'),
+  },
+  gcal: {
+    id: 'gcal',
+    oauth: {
+      authorizeUrl: env('GCAL_AUTH_URL') || 'https://accounts.google.com/o/oauth2/v2/auth',
+      tokenUrl: env('GCAL_TOKEN_URL') || 'https://oauth2.googleapis.com/token',
+      scope: env('GCAL_SCOPE') || 'https://www.googleapis.com/auth/calendar',
+      clientIdEnv: 'GOOGLE_CLIENT_ID',
+      clientSecretEnv: 'GOOGLE_CLIENT_SECRET',
+      tokenAuth: 'body',
+      extraAuthorize: { access_type: 'offline', prompt: 'consent' },
+    },
+    mcp: mcp('gcal', null, 'GCAL_MCP_URL'),
+  },
+  discord: {
+    id: 'discord',
+    oauth: {
+      authorizeUrl: env('DISCORD_AUTH_URL') || 'https://discord.com/oauth2/authorize',
+      tokenUrl: env('DISCORD_TOKEN_URL') || 'https://discord.com/api/oauth2/token',
+      scope: env('DISCORD_SCOPE') || 'identify guilds',
+      clientIdEnv: 'DISCORD_CLIENT_ID',
+      clientSecretEnv: 'DISCORD_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('discord', null, 'DISCORD_MCP_URL'),
+  },
+  zoom: {
+    id: 'zoom',
+    oauth: {
+      authorizeUrl: env('ZOOM_AUTH_URL') || 'https://zoom.us/oauth/authorize',
+      tokenUrl: env('ZOOM_TOKEN_URL') || 'https://zoom.us/oauth/token',
+      scope: env('ZOOM_SCOPE') || '',
+      clientIdEnv: 'ZOOM_CLIENT_ID',
+      clientSecretEnv: 'ZOOM_CLIENT_SECRET',
+      tokenAuth: 'basic',
+    },
+    mcp: mcp('zoom', null, 'ZOOM_MCP_URL'),
+  },
+  jira: {
+    id: 'jira',
+    oauth: {
+      authorizeUrl: env('JIRA_AUTH_URL') || 'https://auth.atlassian.com/authorize',
+      tokenUrl: env('JIRA_TOKEN_URL') || 'https://auth.atlassian.com/oauth/token',
+      scope: env('JIRA_SCOPE') || 'read:jira-work write:jira-work offline_access',
+      clientIdEnv: 'JIRA_CLIENT_ID',
+      clientSecretEnv: 'JIRA_CLIENT_SECRET',
+      tokenAuth: 'body',
+      extraAuthorize: { audience: 'api.atlassian.com', prompt: 'consent' },
+    },
+    mcp: mcp('jira', null, 'JIRA_MCP_URL'),
+  },
+  asana: {
+    id: 'asana',
+    oauth: {
+      authorizeUrl: env('ASANA_AUTH_URL') || 'https://app.asana.com/-/oauth_authorize',
+      tokenUrl: env('ASANA_TOKEN_URL') || 'https://app.asana.com/-/oauth_token',
+      scope: env('ASANA_SCOPE') || 'default',
+      clientIdEnv: 'ASANA_CLIENT_ID',
+      clientSecretEnv: 'ASANA_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('asana', null, 'ASANA_MCP_URL'),
+  },
+  airtable: {
+    id: 'airtable',
+    oauth: {
+      authorizeUrl: env('AIRTABLE_AUTH_URL') || 'https://airtable.com/oauth2/v1/authorize',
+      tokenUrl: env('AIRTABLE_TOKEN_URL') || 'https://airtable.com/oauth2/v1/token',
+      scope: env('AIRTABLE_SCOPE') || 'data.records:read data.records:write schema.bases:read',
+      clientIdEnv: 'AIRTABLE_CLIENT_ID',
+      clientSecretEnv: 'AIRTABLE_CLIENT_SECRET',
+      tokenAuth: 'basic',
+      pkce: true,
+    },
+    mcp: mcp('airtable', null, 'AIRTABLE_MCP_URL'),
+  },
+  quickbooks: {
+    id: 'quickbooks',
+    oauth: {
+      authorizeUrl: env('QUICKBOOKS_AUTH_URL') || 'https://appcenter.intuit.com/connect/oauth2',
+      tokenUrl: env('QUICKBOOKS_TOKEN_URL') || 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
+      scope: env('QUICKBOOKS_SCOPE') || 'com.intuit.quickbooks.accounting',
+      clientIdEnv: 'QUICKBOOKS_CLIENT_ID',
+      clientSecretEnv: 'QUICKBOOKS_CLIENT_SECRET',
+      tokenAuth: 'basic',
+    },
+    mcp: mcp('quickbooks', null, 'QUICKBOOKS_MCP_URL'),
+  },
+  xero: {
+    id: 'xero',
+    oauth: {
+      authorizeUrl: env('XERO_AUTH_URL') || 'https://login.xero.com/identity/connect/authorize',
+      tokenUrl: env('XERO_TOKEN_URL') || 'https://identity.xero.com/connect/token',
+      scope: env('XERO_SCOPE') || 'accounting.transactions accounting.contacts offline_access',
+      clientIdEnv: 'XERO_CLIENT_ID',
+      clientSecretEnv: 'XERO_CLIENT_SECRET',
+      tokenAuth: 'basic',
+    },
+    mcp: mcp('xero', null, 'XERO_MCP_URL'),
+  },
+  shopify: {
+    id: 'shopify',
+    oauth: {
+      authorizeUrl: env('SHOPIFY_AUTH_URL') || '',
+      tokenUrl: env('SHOPIFY_TOKEN_URL') || '',
+      scope: env('SHOPIFY_SCOPE') || 'read_products,write_products,read_orders',
+      clientIdEnv: 'SHOPIFY_CLIENT_ID',
+      clientSecretEnv: 'SHOPIFY_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('shopify', null, 'SHOPIFY_MCP_URL'),
+  },
+  hubspot: {
+    id: 'hubspot',
+    oauth: {
+      authorizeUrl: env('HUBSPOT_AUTH_URL') || 'https://app.hubspot.com/oauth/authorize',
+      tokenUrl: env('HUBSPOT_TOKEN_URL') || 'https://api.hubapi.com/oauth/v1/token',
+      scope: env('HUBSPOT_SCOPE') || 'crm.objects.contacts.read crm.objects.contacts.write oauth',
+      clientIdEnv: 'HUBSPOT_CLIENT_ID',
+      clientSecretEnv: 'HUBSPOT_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('hubspot', null, 'HUBSPOT_MCP_URL'),
+  },
+  calendly: {
+    id: 'calendly',
+    oauth: {
+      authorizeUrl: env('CALENDLY_AUTH_URL') || 'https://auth.calendly.com/oauth/authorize',
+      tokenUrl: env('CALENDLY_TOKEN_URL') || 'https://auth.calendly.com/oauth/token',
+      scope: env('CALENDLY_SCOPE') || '',
+      clientIdEnv: 'CALENDLY_CLIENT_ID',
+      clientSecretEnv: 'CALENDLY_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('calendly', null, 'CALENDLY_MCP_URL'),
+  },
+  mailchimp: {
+    id: 'mailchimp',
+    oauth: {
+      authorizeUrl: env('MAILCHIMP_AUTH_URL') || 'https://login.mailchimp.com/oauth2/authorize',
+      tokenUrl: env('MAILCHIMP_TOKEN_URL') || 'https://login.mailchimp.com/oauth2/token',
+      scope: env('MAILCHIMP_SCOPE') || '',
+      clientIdEnv: 'MAILCHIMP_CLIENT_ID',
+      clientSecretEnv: 'MAILCHIMP_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('mailchimp', null, 'MAILCHIMP_MCP_URL'),
+  },
+  twitter: {
+    id: 'twitter',
+    oauth: {
+      authorizeUrl: env('TWITTER_AUTH_URL') || 'https://twitter.com/i/oauth2/authorize',
+      tokenUrl: env('TWITTER_TOKEN_URL') || 'https://api.twitter.com/2/oauth2/token',
+      scope: env('TWITTER_SCOPE') || 'tweet.read tweet.write users.read offline.access',
+      clientIdEnv: 'TWITTER_CLIENT_ID',
+      clientSecretEnv: 'TWITTER_CLIENT_SECRET',
+      tokenAuth: 'basic',
+      pkce: true,
+    },
+    mcp: mcp('twitter', null, 'TWITTER_MCP_URL'),
+  },
+  linkedin: {
+    id: 'linkedin',
+    oauth: {
+      authorizeUrl: env('LINKEDIN_AUTH_URL') || 'https://www.linkedin.com/oauth/v2/authorization',
+      tokenUrl: env('LINKEDIN_TOKEN_URL') || 'https://www.linkedin.com/oauth/v2/accessToken',
+      scope: env('LINKEDIN_SCOPE') || 'w_member_social openid profile',
+      clientIdEnv: 'LINKEDIN_CLIENT_ID',
+      clientSecretEnv: 'LINKEDIN_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('linkedin', null, 'LINKEDIN_MCP_URL'),
+  },
+  buffer: {
+    id: 'buffer',
+    oauth: {
+      authorizeUrl: env('BUFFER_AUTH_URL') || 'https://bufferapp.com/oauth2/authorize',
+      tokenUrl: env('BUFFER_TOKEN_URL') || 'https://api.bufferapp.com/1/oauth2/token.json',
+      scope: env('BUFFER_SCOPE') || '',
+      clientIdEnv: 'BUFFER_CLIENT_ID',
+      clientSecretEnv: 'BUFFER_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('buffer', null, 'BUFFER_MCP_URL'),
+  },
+  canva: {
+    id: 'canva',
+    oauth: {
+      authorizeUrl: env('CANVA_AUTH_URL') || 'https://www.canva.com/api/oauth/authorize',
+      tokenUrl: env('CANVA_TOKEN_URL') || 'https://api.canva.com/rest/v1/oauth/token',
+      scope: env('CANVA_SCOPE') || 'design:content:read design:content:write asset:read',
+      clientIdEnv: 'CANVA_CLIENT_ID',
+      clientSecretEnv: 'CANVA_CLIENT_SECRET',
+      tokenAuth: 'basic',
+      pkce: true,
+    },
+    mcp: mcp('canva', null, 'CANVA_MCP_URL'),
+  },
+  docusign: {
+    id: 'docusign',
+    oauth: {
+      authorizeUrl: env('DOCUSIGN_AUTH_URL') || 'https://account.docusign.com/oauth/auth',
+      tokenUrl: env('DOCUSIGN_TOKEN_URL') || 'https://account.docusign.com/oauth/token',
+      scope: env('DOCUSIGN_SCOPE') || 'signature',
+      clientIdEnv: 'DOCUSIGN_CLIENT_ID',
+      clientSecretEnv: 'DOCUSIGN_CLIENT_SECRET',
+      tokenAuth: 'basic',
+    },
+    mcp: mcp('docusign', null, 'DOCUSIGN_MCP_URL'),
+  },
+  zendesk: {
+    id: 'zendesk',
+    oauth: {
+      authorizeUrl: env('ZENDESK_AUTH_URL') || '',
+      tokenUrl: env('ZENDESK_TOKEN_URL') || '',
+      scope: env('ZENDESK_SCOPE') || 'read write',
+      clientIdEnv: 'ZENDESK_CLIENT_ID',
+      clientSecretEnv: 'ZENDESK_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('zendesk', null, 'ZENDESK_MCP_URL'),
+  },
+  intercom: {
+    id: 'intercom',
+    oauth: {
+      authorizeUrl: env('INTERCOM_AUTH_URL') || 'https://app.intercom.com/oauth',
+      tokenUrl: env('INTERCOM_TOKEN_URL') || 'https://api.intercom.io/auth/eagle/token',
+      scope: env('INTERCOM_SCOPE') || '',
+      clientIdEnv: 'INTERCOM_CLIENT_ID',
+      clientSecretEnv: 'INTERCOM_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('intercom', null, 'INTERCOM_MCP_URL'),
   },
 }
 

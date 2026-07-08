@@ -9,6 +9,7 @@ import { SKINS, skinById, variedSkins, crewSkins } from './data/skins'
 import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
 import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
+import { professionById } from './data/professions'
 
 export const GRID = { cols: 6, rows: 4 } // 24 cells, up to 12 agents
 export const MAX_AGENTS = 12
@@ -60,6 +61,7 @@ interface WorkshopState {
   setCurrency: (c: CurrencyCode) => void
 
   createDojo: (name?: string, templateId?: string) => void
+  createDojoForProfession: (professionId: string) => void
   renameDojo: (id: string, name: string) => void
   setDojoTemplate: (id: string, templateId: string) => void
   deleteDojo: (id: string) => void
@@ -117,6 +119,32 @@ function makeTemplatedDojo(name: string, tpl: DojoTemplate): Dojo {
     }
   })
   return { id: uid(), name, template: tpl.id, agents }
+}
+
+// A dojo tailored to a profession: the profession's crew in its chosen 3D
+// world, named after the trade — the starting point the picker seeds.
+function makeProfessionDojo(professionId: string): Dojo {
+  const prof = professionById(professionId)
+  if (!prof) return makeTemplatedDojo('New dojo', templateById(DEFAULT_TEMPLATE_ID))
+  const tpl = templateById(prof.template)
+  const skins = crewSkins(tpl.skinTheme, prof.crew.length)
+  const seen = new Map<string, number>()
+  const agents: WAgent[] = prof.crew.map((fn, i) => {
+    const base = DEPT_NAME[fn]
+    const n = (seen.get(base) ?? 0) + 1
+    seen.set(base, n)
+    return {
+      id: 'a_' + uid(),
+      name: n > 1 ? `${base} ${n}` : base,
+      fn,
+      skinId: skins[i % skins.length].id,
+      tasks: defaultTasksFor(fn),
+      budgetXrp: 5,
+      gx: i % GRID.cols,
+      gy: Math.floor(i / GRID.cols),
+    }
+  })
+  return { id: uid(), name: `${prof.label}`, template: tpl.id, agents }
 }
 
 function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null } {
@@ -214,6 +242,10 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
       const tpl = templateById(templateId ?? DEFAULT_TEMPLATE_ID)
       const nm = name?.trim() || `${tpl.label} ${get().dojos.length + 1}`
       const d = makeTemplatedDojo(nm, tpl)
+      set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))
+    },
+    createDojoForProfession: (professionId) => {
+      const d = makeProfessionDojo(professionId)
       set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))
     },
     renameDojo: (id, name) => {

@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom'
 import { useWorkshop, GRID, MAX_AGENTS, type WAgent } from '../../workshop'
 import { SKINS, SKIN_THEMES, skinById } from '../../data/skins'
 import { DOJO_TEMPLATES, templateById } from '../../data/templates'
+import { PROFESSIONS } from '../../data/professions'
+import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
 import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/currency'
 import { privyConfigured, privyControls } from '../../auth/controls'
@@ -46,6 +48,7 @@ function StudioTab() {
   const activeId = useWorkshop((s) => s.activeDojoId)
   const setActive = useWorkshop((s) => s.setActiveDojo)
   const createDojo = useWorkshop((s) => s.createDojo)
+  const createDojoForProfession = useWorkshop((s) => s.createDojoForProfession)
   const renameDojo = useWorkshop((s) => s.renameDojo)
   const deleteDojo = useWorkshop((s) => s.deleteDojo)
   const addAgent = useWorkshop((s) => s.addAgent)
@@ -149,6 +152,7 @@ function StudioTab() {
             else setDojoTemplate(dojo.id, id)
             setTplPick(null)
           }}
+          onPickProfession={(id) => { createDojoForProfession(id); setTplPick(null) }}
           onClose={() => setTplPick(null)}
         />
       )}
@@ -156,14 +160,29 @@ function StudioTab() {
   )
 }
 
-function TemplatePicker({ current, mode, onPick, onClose }: { current: string; mode: 'create' | 'change'; onPick: (id: string) => void; onClose: () => void }) {
+function TemplatePicker({ current, mode, onPick, onPickProfession, onClose }: { current: string; mode: 'create' | 'change'; onPick: (id: string) => void; onPickProfession?: (id: string) => void; onClose: () => void }) {
   return createPortal(
     <div className="ws-overlay ws-over-top" onClick={onClose}>
       <div className="ws-picker" onClick={(e) => e.stopPropagation()}>
         <header className="ws-head">
-          <strong>{mode === 'create' ? 'Choose a dojo template' : 'Change environment'}</strong>
+          <strong>{mode === 'create' ? 'New dojo' : 'Change environment'}</strong>
           <button className="ws-x" onClick={onClose} aria-label="Close">×</button>
         </header>
+        {mode === 'create' && onPickProfession && (
+          <div className="ws-profwrap">
+            <div className="ws-prof-h">Start from your profession — seeds a tailored crew, world &amp; apps</div>
+            <div className="ws-profgrid">
+              {PROFESSIONS.map((p) => (
+                <button key={p.id} className="ws-profcard" onClick={() => onPickProfession(p.id)} title={p.blurb}>
+                  <span className="ws-prof-cat">{p.category}</span>
+                  <strong>{p.label}</strong>
+                  <span className="ws-prof-tools">{p.connectors.slice(0, 3).map((id) => CONNECTOR_BY_ID[id]?.label ?? id).join(' · ')}</span>
+                </button>
+              ))}
+            </div>
+            <div className="ws-prof-or">or pick a world directly</div>
+          </div>
+        )}
         <div className="ws-tplgrid">
           {DOJO_TEMPLATES.map((t) => (
             <button

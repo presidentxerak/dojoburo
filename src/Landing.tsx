@@ -1,4 +1,8 @@
 import { AGENTS } from './data/agents'
+import { PROFESSIONS } from './data/professions'
+import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
+import { SKINS } from './data/skins'
+import { DOJO_TEMPLATES } from './data/templates'
 import { SupportBot } from './components/SupportBot'
 import { Logo } from './components/Logo'
 import { AgentCarousel3D } from './components/three/AgentCarousel3D'
@@ -17,30 +21,87 @@ export function Landing({ enter }: { enter: () => void }) {
       </header>
 
       <section className="lp-hero">
-        <p className="lp-kicker">A startup office run by AI agents · orchestrated on the XRP Ledger</p>
-        <h1>Your AI startup, working while you watch.</h1>
+        <p className="lp-kicker">An automated productivity hub, run by AI agents · orchestrated on the XRP Ledger</p>
+        <h1>Your AI team, working while you watch.</h1>
         <p className="lp-sub">
-          DojoBuro is a living 2.5D office where a dozen specialised AI agents each own a real startup
-          function. They run skills, pay each other on-ledger with x402 micro-payments, and level up.
-          You are the founder — the Chief atom hovering over the team.
+          DojoBuro is a living 3D office where a team of specialised AI agents each own a real
+          function of your work. It adapts to your profession, connects your everyday apps, runs the
+          tasks for real, and settles the cost on-ledger with x402 micro-payments. You are the
+          founder — the Chief atom hovering over the team.
         </p>
         <div className="lp-actions">
           <button className="lp-cta" onClick={enter}>Enter the office →</button>
-          <a className="lp-ghost" href="#how">See how it works</a>
+          <a className="lp-ghost" href="#jobs">Built for your job</a>
         </div>
         <div className="lp-badges">
-          <span>Real XRPL wallets</span><span>x402 payments</span><span>Non-custodial (Privy · Xaman)</span><span>100 skins</span><span>Multi-dojo</span>
+          <span>{PROFESSIONS.length} profession profiles</span><span>{CONNECTORS.length} app connectors</span><span>Real XRPL · x402</span><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds</span><span>Cloud or local</span>
         </div>
         <AgentCarousel3D />
       </section>
 
+      <section className="lp-sec" id="jobs">
+        <span className="lp-pill">New · adapts to your trade</span>
+        <h2>Built around your job</h2>
+        <p className="lp-lead">
+          DojoBuro is a productivity hub that reshapes itself to your profession. Pick your trade and the
+          office is tailored for you — a matching crew of specialists, a fitting 3D environment, and the exact
+          apps your work needs, wired and ready to run the real tasks of that job.
+        </p>
+        <div className="lp-jobs">
+          {PROFESSIONS.map((p) => (
+            <div className="lp-job" key={p.id}>
+              <span className="lp-job-cat">{p.category}</span>
+              <strong>{p.label}</strong>
+              <span className="lp-job-blurb">{p.blurb}</span>
+              <div className="lp-job-tools">
+                {p.connectors.slice(0, 5).map((id) => (
+                  <span className="lp-tool-chip" key={id}>{CONNECTOR_BY_ID[id]?.label ?? id}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="lp-note">Don't see yours exactly? Every dojo is fully editable — mix any crew, any environment and any apps. These are just fast starting points.</p>
+      </section>
+
+      <section className="lp-sec alt" id="stack">
+        <h2>Connect your whole stack</h2>
+        <p className="lp-lead">
+          {CONNECTORS.length} app connectors and counting. Connect with one click — OAuth (with PKCE), tokens
+          sealed server-side in an encrypted vault — and your agents act inside them for real: create the
+          Notion page, open the GitHub PR, draft the Gmail, post the campaign, raise the Stripe invoice, move
+          the Jira ticket.
+        </p>
+        <div className="lp-toolwall">
+          {CONNECTORS.map((c) => (
+            <span className="lp-toolpill" key={c.id} title={c.blurb}>{c.label}</span>
+          ))}
+        </div>
+        <div className="lp-two" style={{ marginTop: 26 }}>
+          <div>
+            <h3>Run it in the cloud</h3>
+            <ul>
+              <li>A managed worker keeps your agents running when the tab is closed, with every key held in a server-side vault.</li>
+              <li>One-click OAuth for every app; the browser never sees a secret.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Or keep it local</h3>
+            <ul>
+              <li>Self-host the worker and point connectors at your own MCP endpoints — your keys, your machine, the same office.</li>
+              <li>Bring your own model key (Claude) or run the free-model cascade; nothing leaves your control.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <section className="lp-sec" id="studio">
         <h2>Build your own team</h2>
-        <p className="lp-lead">Open the Dojo Studio to create, edit and delete agents. Pick one of 100 skins across 20 themes, choose the agent's function and tasks, and set a per-agent XRP budget. Arrange them on a grid and run several dojos side by side.</p>
+        <p className="lp-lead">Open the Dojo Studio to create, edit and delete agents. Pick one of {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, choose the agent's function and tasks, and set a per-agent XRP budget. Arrange them on a grid and run several dojos side by side.</p>
         <div className="lp-schema">
           <div className="lp-node"><b>Create</b><span>Add up to 12 agents per dojo</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Skin</b><span>100 skins · 20 themes, in 3D</span></div>
+          <div className="lp-node"><b>Skin</b><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds, in 3D</span></div>
           <span className="lp-arrow">→</span>
           <div className="lp-node"><b>Function</b><span>Pick tasks &amp; a budget</span></div>
           <span className="lp-arrow">→</span>
@@ -177,23 +238,23 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec" id="tools">
-        <h2>Connecting real tools so agents create real content</h2>
-        <p className="lp-lead">Today the agents animate and settle real payments; wiring them to real output is a thin, well-scoped layer.</p>
+        <h2>Real tools, real deliverables</h2>
+        <p className="lp-lead">The agents don't just animate — they produce real work with your connected apps, metered on-ledger.</p>
         <div className="lp-two">
           <div>
             <h3>The model + tool layer</h3>
             <ul>
-              <li>Each skill maps to a <b>tool contract</b> (inputs → output). Behind it sits a model call (Claude via the Anthropic API) with the tools that function needs.</li>
-              <li>Tools are exposed through <b>MCP servers</b> — GitHub, Slack, Notion, Google Drive, a browser, a mailer, analytics — so an agent can open a PR, post a message, or draft a doc.</li>
-              <li>The x402 payment becomes the <b>metering</b>: a skill only runs its tool calls after its invoice settles, giving every unit of real work an on-ledger receipt.</li>
+              <li>Each task maps to a <b>tool contract</b> (inputs → output). Behind it sits a Claude model call — your own key (BYOK) or a free-model cascade — with the tools that function needs.</li>
+              <li>Your connected apps are exposed as <b>remote MCP servers</b> — Notion, GitHub, Gmail, Slack, Jira, Stripe and {CONNECTORS.length - 6}+ more — so an agent opens a PR, posts a message or drafts a doc for real.</li>
+              <li>The x402 payment is the <b>metering</b>: a task runs its tool calls and settles an on-ledger receipt, so every unit of real work is auditable.</li>
             </ul>
           </div>
           <div>
-            <h3>Real deliverables</h3>
+            <h3>Real deliverables, today</h3>
             <ul>
-              <li>Rex ships a real PR, Mia drafts a campaign, Ada builds a live dashboard, Fin reconciles the treasury — each returns an artifact link.</li>
-              <li>Outputs are stored (object storage / a database) and shown in the agent card and activity log, not just simulated.</li>
-              <li>Secrets (API keys, MCP tokens) live server-side; the browser never sees them.</li>
+              <li>Claude Design ships a real design system, Pia writes a PRD, Rex opens a PR, Mia drafts a campaign, Fin builds a financial model — each returns an artifact you can open.</li>
+              <li>Outputs render in the agent card and activity log, and land in your connected tool (the Notion page, the Drive doc, the Linear issue).</li>
+              <li>OAuth tokens are sealed with AES-256-GCM server-side and auto-refreshed; the browser never sees a secret.</li>
             </ul>
           </div>
         </div>
@@ -241,9 +302,10 @@ export function Landing({ enter }: { enter: () => void }) {
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> DojoBuro</div>
         <nav className="lp-foot-links">
+          <a href="#jobs">Your job</a>
+          <a href="#stack">Connect apps</a>
           <a href="#studio">Dojo Studio</a>
           <a href="#cascade">Cost</a>
-          <a href="#pay">Payments</a>
           <a href="#onramp">Agentic pay</a>
           <a href="#prod">Production</a>
           <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Enter the office</a>

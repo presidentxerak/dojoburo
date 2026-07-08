@@ -10,7 +10,7 @@
 // only ever learns a connector's status. Requires db/schema.sql + db/connectors.sql
 // applied, CONNECTOR_ENC_KEY set, and each tool's OAuth client id/secret set.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { createHmac } from 'node:crypto'
+import { createHmac, createHash, randomBytes } from 'node:crypto'
 import { getPool, dbConfigured } from './_lib/db'
 import { resolveAccountId, findAccountId } from './_lib/accounts'
 import { seal, vaultConfigured } from './_lib/vault'
@@ -77,8 +77,18 @@ async function start(req: IncomingMessage, res: ServerResponse, q: URLSearchPara
   const ref = { privyDid: q.get('privy'), clientRef: q.get('client') }
   if (!ref.privyDid && !ref.clientRef) return json(res, 400, { ok: false, error: 'no_account' })
 
-  const state = signState({ id, privy: ref.privyDid || '', client: ref.clientRef || '', n: nonce() })
+  // PKCE (RFC 7636): generate a URL-safe code_verifier and carry it through the
+  // signed (HMAC'd) state so callback can complete the exchange.
+  let verifier = ''
   const auth = new URL(c.oauth.authorizeUrl)
+  if (c.oauth.pkce) {
+    verifier = b64u(randomBytes(32))
+    const challenge = b64u(createHash('sha256').update(verifier).digest())
+    auth.searchParams.set('code_challenge', challenge)
+    auth.searchParams.set('code_challenge_method', 'S256')
+  }
+
+  const state = signState({ id, privy: ref.privyDid || '', client: ref.clientRef || '', n: nonce(), v: verifier })
   auth.searchParams.set('client_id', clientId(c)!)
   auth.searchParams.set('redirect_uri', redirectUri())
   auth.searchParams.set('response_type', 'code')
@@ -100,7 +110,7 @@ async function callback(req: IncomingMessage, res: ServerResponse, q: URLSearchP
   if (!c || !connectorAvailable(parsed.id)) return backTo(res, `${siteUrl()}/#connect_error=${parsed.id}:not_available`)
 
   try {
-    const tok = await exchange(c, q.get('code')!)
+    const tok = await exchange(c, q.get('code')!, parsed.v || '')
     const pool = getPool()
     const accountId = await resolveAccountId(pool, { privyDid: parsed.privy || null, clientRef: parsed.client || null })
     if (!accountId) return backTo(res, `${siteUrl()}/#connect_error=${parsed.id}:no_account`)
@@ -195,13 +205,14 @@ async function removekey(req: IncomingMessage, res: ServerResponse): Promise<voi
 // ---- token exchange -------------------------------------------------------
 interface Token { accessToken: string; refreshToken?: string; expiresIn?: number; scope: string | null; label: string | null }
 
-async function exchange(c: ServerConnector, code: string): Promise<Token> {
+async function exchange(c: ServerConnector, code: string, verifier = ''): Promise<Token> {
   const headers: Record<string, string> = { accept: 'application/json' }
   const params: Record<string, string> = {
     grant_type: 'authorization_code',
     code,
     redirect_uri: redirectUri(),
   }
+  if (c.oauth.pkce && verifier) params.code_verifier = verifier
   if (c.oauth.tokenAuth === 'basic') {
     headers.authorization = 'Basic ' + Buffer.from(`${clientId(c)}:${clientSecret(c)}`).toString('base64')
     headers['content-type'] = 'application/json'
@@ -236,7 +247,7 @@ async function exchange(c: ServerConnector, code: string): Promise<Token> {
 }
 
 // ---- signed state ---------------------------------------------------------
-interface State { id: string; privy: string; client: string; n: string }
+interface State { id: string; privy: string; client: string; n: string; v?: string }
 function stateSecret(): string {
   return process.env.CONNECT_STATE_SECRET || process.env.CONNECTOR_ENC_KEY || 'dojoburo-connect'
 }

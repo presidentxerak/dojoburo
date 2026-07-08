@@ -28,8 +28,20 @@ export const KB: KBTopic[] = [
       { label: 'Enter the office', href: '#app' },
       { label: 'How it works', href: '#how' },
     ],
-    follow: ['wallet', 'cost', 'security'],
+    follow: ['jobs', 'tools', 'cost'],
     keywords: ['start', 'begin', 'how do i', 'get started', 'first', 'use', 'run a skill', 'onboard'],
+  },
+  {
+    id: 'jobs',
+    chip: 'Adapts to your job',
+    answer:
+      'DojoBuro is a productivity hub that reshapes itself to your profession. Pick your trade — startup founder, product manager, engineer, growth hacker, community manager, freelance, lawyer, HR, accountant, app & game maker, designer, researcher, secretary, support/call-centre, sales, marketer, manager and more — and the office is tailored: a matching crew, a fitting 3D world, and the exact apps that job needs, wired to run the real tasks. Everything stays editable, so you can mix any crew, world and tools.',
+    links: [
+      { label: 'Built for your job', href: '#jobs' },
+      { label: 'Connect your stack', href: '#stack' },
+    ],
+    follow: ['tools', 'environment', 'cost'],
+    keywords: ['job', 'profession', 'metier', 'role', 'trade', 'growth hacker', 'community', 'freelance', 'lawyer', 'accountant', 'hr', 'designer', 'researcher', 'manager', 'secretary', 'sales', 'marketer', 'founder', 'my work'],
   },
   {
     id: 'wallet',
@@ -107,25 +119,25 @@ export const KB: KBTopic[] = [
     id: 'tools',
     chip: 'Connect real tools',
     answer:
-      'Each skill maps to a tool contract wired to a model call plus MCP servers (GitHub, Slack, Notion, Drive, a browser, a mailer). The x402 payment meters the work, so every real deliverable gets an on-ledger receipt. Secrets stay server-side; the browser never sees them.',
+      'Connect 28+ apps — Notion, GitHub, Gmail, Google Drive & Calendar, Slack, Discord, Zoom, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, DocuSign, Zendesk, Intercom. One-click OAuth (with PKCE); tokens are sealed with AES-256-GCM server-side and auto-refreshed. At run time each app is exposed to Claude as a remote MCP server, so the agent does real work in your account — and the x402 payment meters it with an on-ledger receipt.',
     links: [
-      { label: 'Tools & real content', href: '#tools' },
-      { label: 'What is MCP', href: 'https://modelcontextprotocol.io', external: true },
+      { label: 'Connect your stack', href: '#stack' },
+      { label: 'Real deliverables', href: '#tools' },
     ],
-    follow: ['environment', 'pricing'],
-    keywords: ['tool', 'tools', 'connect', 'integration', 'mcp', 'github', 'slack', 'notion', 'real content', 'output', 'api'],
+    follow: ['jobs', 'environment', 'pricing'],
+    keywords: ['tool', 'tools', 'connect', 'integration', 'mcp', 'oauth', 'github', 'slack', 'notion', 'gmail', 'stripe', 'jira', 'hubspot', 'figma', 'real content', 'output', 'api', 'apps'],
   },
   {
     id: 'environment',
-    chip: 'Where agents run',
+    chip: 'Cloud or local',
     answer:
-      'Today the whole office runs in your browser — a static app that talks straight to public XRPL nodes, with no server to operate. For real work, model and tool execution run in a cloud worker so tasks keep going when the tab is closed and keys stay safe. The browser stays the cockpit.',
+      'Run it two ways. Cloud: a managed worker runs the model + tool calls and keeps agents going when the tab is closed, with every key in a server-side vault. Local / self-hosted: run your own worker and point connectors at your own MCP endpoints — your keys, your machine, the same office. Either way the browser is just the cockpit: it shows the 3D office, triggers tasks and signs Mainnet payments through Xaman, talking straight to public XRPL nodes.',
     links: [
+      { label: 'Cloud or local', href: '#stack' },
       { label: 'Runtime & environment', href: '#env' },
-      { label: 'Production roadmap', href: '#prod' },
     ],
     follow: ['tools', 'security'],
-    keywords: ['run', 'runs', 'where', 'cloud', 'server', 'browser', 'local', 'backend', 'worker', 'environment'],
+    keywords: ['run', 'runs', 'where', 'cloud', 'server', 'browser', 'local', 'self-host', 'self hosted', 'backend', 'worker', 'environment', 'on premise'],
   },
   {
     id: 'networks',
