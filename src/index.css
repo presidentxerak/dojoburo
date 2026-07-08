@@ -923,6 +923,15 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-plan li { font-size: 14.5px; line-height: 1.4; padding-left: 22px; position: relative; color: var(--ink); }
 .lp-plan li::before { content: '+'; position: absolute; left: 4px; color: var(--violet); font-weight: 800; }
 .lp-plan .lp-cta, .lp-plan .lp-ghost { margin-top: 16px; text-align: center; justify-content: center; }
+.lp-billing-note { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 28px; }
+.lp-billing-note span { font-size: 13.5px; line-height: 1.5; color: var(--muted); background: var(--panel-solid); border: 1px solid var(--border); border-left: 3px solid var(--violet); border-radius: 10px; padding: 12px 14px; }
+.lp-billing-note b { color: var(--ink); font-weight: 700; }
+@media (max-width: 760px) { .lp-billing-note { grid-template-columns: 1fr; } }
+.lp-enterprise { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-top: 18px; background: var(--panel-solid); border: 1.5px solid var(--border-lit); border-radius: var(--radius); padding: 24px 26px; }
+.lp-enterprise strong { font-family: var(--font-pixel); font-weight: 800; font-size: 17px; display: block; margin-bottom: 6px; }
+.lp-enterprise span { font-size: 14.5px; color: var(--muted); line-height: 1.55; }
+.lp-enterprise .lp-ghost { flex: none; }
+@media (max-width: 680px) { .lp-enterprise { flex-direction: column; align-items: flex-start; } }
 
 /* ---- scrollbars ---------------------------------------------------------- */
 ::-webkit-scrollbar { height: 10px; width: 10px; }

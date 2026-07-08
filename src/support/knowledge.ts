@@ -71,13 +71,13 @@ export const KB: KBTopic[] = [
     id: 'pricing',
     chip: 'Plans & pricing',
     answer:
-      'DojoBuro runs a cost-optimized model cascade (free tiers first, paid frontier models last) so a task costs about a cent. Plans: Free (Testnet, ~30 tasks/mo), Starter, Pro, Team and Business · each with a monthly task quota and hard spending limits. Bring-your-own model key is also supported.',
+      'You bring your own model key (or use the free-model cascade), so intelligence is basically free; you pay only for the hub: connected apps, an always-on worker and team features. Plans: Free ($0, Testnet, 2 apps, ~50 tasks/mo), Solo ($12/mo, Mainnet, 6 apps, 300 credits), Pro ($29/mo, all 28 connectors, 1,500 credits, cloud worker), Team ($22/seat/mo, shared dojos, SSO, audit) and Business (custom, self-hosted, SLA). BYOK and free-cascade tasks are unlimited and never use a credit; managed credits (1 credit ≈ 1 hosted task) cover hosted-model runs and can be topped up or settled in XRP via x402. Annual billing saves about two months.',
     links: [
-      { label: 'See the numbers', href: '#cost' },
-      { label: 'Production roadmap', href: '#prod' },
+      { label: 'See the plans', href: '#pricing' },
+      { label: 'Cost per task', href: '#cost' },
     ],
-    follow: ['cost', 'onramp', 'tools'],
-    keywords: ['plan', 'plans', 'pricing', 'subscription', 'quota', 'credits', 'tier', 'upgrade', 'billing'],
+    follow: ['cost', 'tools', 'onramp'],
+    keywords: ['plan', 'plans', 'pricing', 'price', 'cost', 'subscription', 'quota', 'credits', 'credit', 'tier', 'upgrade', 'billing', 'free', 'solo', 'pro', 'team', 'business', 'byok', 'how much'],
   },
   {
     id: 'onramp',

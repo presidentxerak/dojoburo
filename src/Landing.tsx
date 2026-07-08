@@ -166,64 +166,87 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec alt" id="pricing">
         <Hero3D skin={heroSkin('bear')} side="left" mood="love" phase={0.9} parallax={0.12} />
         <span className="lp-ico"><AsciiIcon kind="price" /></span>
-        <h2>Simple pricing</h2>
+        <h2>Pricing that pays for itself</h2>
         <p className="lp-lead">
-          Start free on Testnet. Bring your own model key and most work costs you almost nothing; the paid
-          plans add hosted convenience, higher quotas and every app connector. You always hold your own wallet
-          and keys.
+          You bring your own model key, or use the free-model cascade, so the intelligence is basically free.
+          You pay only for the hub around it: the apps you connect, the always-on worker, and team features.
+          That is why DojoBuro runs a whole automated team for less than a single Zapier or ChatGPT seat.
         </p>
+        <div className="lp-billing-note">
+          <span><b>BYOK &amp; free-cascade tasks are unlimited</b> · they never touch a credit.</span>
+          <span><b>Managed credits</b> cover hosted-model runs: 1 credit ≈ 1 agentic task. Top up anytime, or settle in XRP via x402.</span>
+          <span><b>Save ~2 months</b> on annual billing. Prices below are per month, billed annually.</span>
+        </div>
         <div className="lp-plans">
           <div className="lp-plan">
             <div className="lp-plan-name">Free</div>
             <div className="lp-plan-price">$0<small> / forever</small></div>
-            <div className="lp-plan-sub">Explore the whole office on Testnet, for free.</div>
+            <div className="lp-plan-sub">Explore the whole office on Testnet.</div>
             <ul>
               <li>1 dojo · up to 12 agents</li>
               <li>All {DOJO_TEMPLATES.length} worlds &amp; {SKINS.length} skins</li>
-              <li>~30 tasks / month</li>
-              <li>Free-model cascade</li>
+              <li>Testnet sandbox (free XRP)</li>
+              <li>Free-model cascade or your key</li>
+              <li>Connect 2 apps · ~50 tasks/mo</li>
+              <li>Community support</li>
             </ul>
             <button className="lp-cta" onClick={enter}>Start free →</button>
           </div>
           <div className="lp-plan">
-            <div className="lp-plan-name">Starter</div>
-            <div className="lp-plan-price">$9<small> / month</small></div>
-            <div className="lp-plan-sub">For a solo maker running real work.</div>
+            <div className="lp-plan-name">Solo</div>
+            <div className="lp-plan-price">$12<small> / mo</small></div>
+            <div className="lp-plan-sub">One person running real work on Mainnet.</div>
             <ul>
-              <li>Unlimited dojos</li>
-              <li>Bring your own Claude key</li>
-              <li>Connect up to 5 apps</li>
+              <li>Everything in Free</li>
               <li>Mainnet x402 settlement</li>
+              <li>Unlimited dojos</li>
+              <li>Connect 6 apps</li>
+              <li>300 credits/mo · unlimited BYOK</li>
+              <li>Email support</li>
             </ul>
-            <button className="lp-ghost" onClick={enter}>Choose Starter</button>
+            <button className="lp-ghost" onClick={enter}>Choose Solo</button>
           </div>
           <div className="lp-plan feat">
             <div className="lp-plan-badge">Most popular</div>
             <div className="lp-plan-name">Pro</div>
-            <div className="lp-plan-price">$29<small> / month</small></div>
+            <div className="lp-plan-price">$29<small> / mo</small></div>
             <div className="lp-plan-sub">A full automated team with your whole stack.</div>
             <ul>
-              <li>Everything in Starter</li>
+              <li>Everything in Solo</li>
               <li>All {CONNECTORS.length} app connectors</li>
-              <li>Hosted cloud worker</li>
-              <li>Higher quotas &amp; priority</li>
+              <li>1,500 credits/mo · unlimited BYOK</li>
+              <li>Always-on cloud worker</li>
+              <li>Priority model routing</li>
+              <li>Priority support</li>
             </ul>
             <button className="lp-cta" onClick={enter}>Go Pro →</button>
           </div>
           <div className="lp-plan">
-            <div className="lp-plan-name">Business</div>
-            <div className="lp-plan-price">Custom</div>
-            <div className="lp-plan-sub">For teams that need control and scale.</div>
+            <div className="lp-plan-name">Team</div>
+            <div className="lp-plan-price">$22<small> / seat/mo</small></div>
+            <div className="lp-plan-sub">Shared automation for a whole team.</div>
             <ul>
-              <li>Multi-seat &amp; SSO</li>
-              <li>Self-hosted / local worker</li>
-              <li>Dedicated support</li>
-              <li>Audit &amp; spend controls</li>
+              <li>Everything in Pro, per seat</li>
+              <li>Shared dojos &amp; connectors</li>
+              <li>Roles &amp; permissions</li>
+              <li>Pooled credits + admin console</li>
+              <li>Google SSO</li>
+              <li>On-chain audit log</li>
             </ul>
-            <button className="lp-ghost" onClick={enter}>Talk to us</button>
+            <button className="lp-ghost" onClick={enter}>Start a team</button>
           </div>
         </div>
-        <p className="lp-note">Every plan is non-custodial: your XRP lives in your own wallet and your keys stay yours. Testnet stays free on every plan.</p>
+        <div className="lp-enterprise">
+          <div>
+            <strong>Business / Enterprise</strong>
+            <span>Self-hosted or local worker, SAML SSO &amp; security review, a dedicated MCP hub with an SLA, budgets &amp; spend controls, custom connectors and dedicated support. Keep everything on your own infrastructure.</span>
+          </div>
+          <button className="lp-ghost" onClick={enter}>Talk to us</button>
+        </div>
+        <p className="lp-note">
+          Every plan is non-custodial: your XRP lives in your own wallet and your keys stay yours. Testnet is
+          always free. Bring your own Claude key on any paid plan and hosted-model credits become optional.
+        </p>
       </section>
 
       <section className="lp-sec alt" id="pay">
