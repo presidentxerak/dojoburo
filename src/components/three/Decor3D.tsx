@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 import { AGENTS } from '../../data/agents'
 import { POS3D, ROOM, DESK_FWD } from '../../three/layout3d'
 import type { DojoPalette } from '../../data/templates'
@@ -6,6 +7,37 @@ const WOOD = '#b5793f'
 const WOOD_D = '#7a4a24'
 const PAPER = '#fff7e6'
 const M = { roughness: 0.75, metalness: 0.06 }
+
+// Procedural Backrooms wallpaper: mono-yellow with faint vertical pinstripes,
+// panel seams and damp mottling. Lazily built once and shared across walls.
+let _wallTex: THREE.CanvasTexture | null = null
+function backroomsWallpaper(): THREE.CanvasTexture | null {
+  if (_wallTex) return _wallTex
+  if (typeof document === 'undefined') return null
+  const s = 128
+  const c = document.createElement('canvas')
+  c.width = s; c.height = s
+  const g = c.getContext('2d')
+  if (!g) return null
+  g.fillStyle = '#c9b84e'; g.fillRect(0, 0, s, s)
+  // faint vertical pinstripes
+  for (let x = 0; x < s; x += 9) { g.fillStyle = 'rgba(138,122,44,0.22)'; g.fillRect(x, 0, 2, s) }
+  // horizontal panel seams
+  g.fillStyle = 'rgba(120,106,40,0.30)'; g.fillRect(0, 2, s, 2); g.fillRect(0, s - 3, s, 2)
+  // deterministic damp mottling
+  let seed = 7
+  const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280 }
+  for (let i = 0; i < 26; i++) {
+    const r = 4 + rnd() * 12
+    g.fillStyle = `rgba(${100 + rnd() * 30 | 0}, ${90 + rnd() * 24 | 0}, 40, 0.10)`
+    g.beginPath(); g.arc(rnd() * s, rnd() * s, r, 0, Math.PI * 2); g.fill()
+  }
+  const t = new THREE.CanvasTexture(c)
+  t.wrapS = t.wrapT = THREE.RepeatWrapping
+  t.repeat.set(5, 2)
+  _wallTex = t
+  return t
+}
 
 function B({ p, s, c, rot, emissive, ei }: { p: [number, number, number]; s: [number, number, number]; c: string; rot?: [number, number, number]; emissive?: string; ei?: number }) {
   return (
@@ -1228,29 +1260,53 @@ function WonderlandDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
 }
 
 // --- The Backrooms: endless yellow rooms, buzzing fluorescents, damp carpet ---
-function BackroomsDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
+function BackroomsDecor({ backZ }: { backZ: number }) {
   const halfW = ROOM.w / 2
-  const ceilY = ROOM.wallH - 0.9
+  const tex = backroomsWallpaper()
+  const doorH = ROOM.wallH - 2 // corridor height (matches the doorway lintel)
+  const CW = 3 // corridor half-width (doorway is 6 wide)
+  const LEN = 34 // how far the corridor recedes before the fog swallows it
+  const start = backZ // corridor mouth = the room's back wall
+  // fluorescent fixtures receding down the hallway (some flicker-dead), the
+  // fog (yellow) dissolves the far ones into an endless perspective
+  const lights = Array.from({ length: 9 }).map((_, i) => start - 1.5 - i * 3.8)
   return (
     <group>
-      {/* drop-tile ceiling */}
-      <mesh position={[0, ceilY, 0]} rotation={[Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[ROOM.w, ROOM.d]} /><meshStandardMaterial color="#cdbf6a" side={2} roughness={1} /></mesh>
-      {/* recessed fluorescent light panels (one is dead) */}
-      {[-5, 0, 5].map((gx) => [-3.4, 0, 3.4].map((gz) => {
-        const dead = gx === 5 && gz === 0
-        return (
-          <group key={`${gx}-${gz}`} position={[gx, ceilY - 0.06, gz]}>
-            <B p={[0, 0.05, 0]} s={[3.2, 0.12, 1.4]} c="#b7ab5e" />
-            <mesh position={[0, -0.02, 0]} rotation={[Math.PI / 2, 0, 0]}><planeGeometry args={[2.9, 1.15]} /><meshStandardMaterial color={dead ? '#7a7248' : '#fff8d8'} emissive={dead ? '#3a3722' : '#fff2b0'} emissiveIntensity={dead ? 0.05 : 1.1} side={2} /></mesh>
-          </group>
-        )
-      }))}
-      {/* a doorway to yet another identical yellow room */}
-      <group position={[-3.5, 0, backZ + 0.24]}>
-        <B p={[0, 1.75, 0]} s={[1.9, 3.5, 0.16]} c={P.trim} />
-        <B p={[0, 1.65, 0.06]} s={[1.5, 3.1, 0.06]} c="#14120a" />
-        <mesh position={[0, 1.65, -0.9]}><planeGeometry args={[1.4, 3.0]} /><meshStandardMaterial color={P.wallSide} emissive={P.accent} emissiveIntensity={0.35} side={2} /></mesh>
+      {/* no ceiling over the room · a couple of fixtures hang in the open space */}
+      {[[-4, 3], [5, -3]].map(([x, z], i) => (
+        <group key={i} position={[x as number, ROOM.wallH - 0.5, z as number]}>
+          <Cy p={[0, 0.35, 0]} r={0.03} h={0.7} c="#8a7f4a" />
+          <B p={[0, 0, 0]} s={[2.4, 0.14, 1.0]} c="#b7ab5e" />
+          <mesh position={[0, -0.09, 0]} rotation={[Math.PI / 2, 0, 0]}><planeGeometry args={[2.1, 0.82]} /><meshStandardMaterial color={i ? '#7a7248' : '#fff8d8'} emissive={i ? '#3a3722' : '#fff2b0'} emissiveIntensity={i ? 0.05 : 1.15} side={2} /></mesh>
+        </group>
+      ))}
+
+      {/* ===== the infinite corridor beyond the doorway ===== */}
+      <group>
+        {/* corridor floor (damp carpet) */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, start - LEN / 2]} receiveShadow><planeGeometry args={[CW * 2, LEN]} /><meshStandardMaterial color="#9a8a3c" roughness={1} /></mesh>
+        {/* corridor side walls (papered) */}
+        {[-CW, CW].map((x) => (
+          <mesh key={x} position={[x, doorH / 2, start - LEN / 2]} receiveShadow><boxGeometry args={[0.3, doorH, LEN]} /><meshStandardMaterial color="#e8dca0" map={tex} roughness={1} /></mesh>
+        ))}
+        {/* corridor ceiling strip (this is where the receding lights live) */}
+        <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, doorH, start - LEN / 2]}><planeGeometry args={[CW * 2, LEN]} /><meshStandardMaterial color="#cdbf6a" side={2} roughness={1} /></mesh>
+        {/* receding fluorescent panels */}
+        {lights.map((z, i) => {
+          const dead = i === 3 || i === 6
+          return (
+            <group key={i} position={[0, doorH - 0.08, z]}>
+              <B p={[0, 0.06, 0]} s={[2.2, 0.1, 1.1]} c="#b7ab5e" />
+              <mesh position={[0, -0.02, 0]} rotation={[Math.PI / 2, 0, 0]}><planeGeometry args={[1.9, 0.9]} /><meshStandardMaterial color={dead ? '#7a7248' : '#fff8d8'} emissive={dead ? '#2f2c1a' : '#fff2b0'} emissiveIntensity={dead ? 0.04 : 1.2} side={2} /></mesh>
+            </group>
+          )
+        })}
+        {/* doorways punched along the corridor walls into yet more yellow rooms */}
+        {[start - 6, start - 15, start - 24].map((z, i) => (
+          <mesh key={i} position={[(i % 2 ? 1 : -1) * (CW - 0.02), doorH / 2 - 0.5, z]}><boxGeometry args={[0.06, doorH - 1, 2.2]} /><meshStandardMaterial color="#14120a" /></mesh>
+        ))}
       </group>
+
       {/* wall power outlets */}
       {[[-halfW + 0.24, 0.7, -2], [-halfW + 0.24, 0.7, 3], [halfW - 0.24, 0.7, 0]].map(([x, y, z], i) => (
         <group key={i} position={[x as number, y as number, z as number]}>
@@ -1259,9 +1315,8 @@ function BackroomsDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <B p={[0.02, -0.06, 0]} s={[0.02, 0.05, 0.04]} c="#3a3320" />
         </group>
       ))}
-      {/* moist stains on the wall + carpet */}
-      <mesh position={[4, 2.4, backZ + 0.23]} scale={[1.6, 2, 1]}><circleGeometry args={[0.7, 20]} /><meshStandardMaterial color="#7c6f2e" transparent opacity={0.5} /></mesh>
-      {[[3, 4], [-6, 2]].map(([x, z], i) => <mesh key={i} position={[x as number, 0.03, z as number]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.1 + i * 0.3, 20]} /><meshStandardMaterial color="#6f6428" transparent opacity={0.55} /></mesh>)}
+      {/* moist stains on the carpet */}
+      {[[3, 4], [-6, 2], [5, -4]].map(([x, z], i) => <mesh key={i} position={[x as number, 0.03, z as number]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.1 + i * 0.3, 20]} /><meshStandardMaterial color="#6f6428" transparent opacity={0.5} /></mesh>)}
       {/* an exposed pipe running along a side wall */}
       <Cy p={[halfW - 0.3, 4.4, 0]} r={0.14} h={ROOM.d - 2} c="#b3a86a" rot={[Math.PI / 2, 0, 0]} />
     </group>
@@ -1281,7 +1336,7 @@ function ThemeDecor({ id, backZ, P }: { id: string; backZ: number; P: DojoPalett
     case 'startup': return <StartupDecor backZ={backZ} P={P} />
     case 'forest': return <ForestDecor backZ={backZ} P={P} />
     case 'wonderland': return <WonderlandDecor backZ={backZ} P={P} />
-    case 'backrooms': return <BackroomsDecor backZ={backZ} P={P} />
+    case 'backrooms': return <BackroomsDecor backZ={backZ} />
     default: return <PlainAccents backZ={backZ} P={P} />
   }
 }
@@ -1299,11 +1354,21 @@ export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; de
             <planeGeometry args={[ROOM.w, ROOM.d]} />
             <meshStandardMaterial color={P.ground} roughness={1} />
           </mesh>
-          <gridHelper args={[ROOM.w, 8, P.grid, P.grid]} position={[0, 0.02, 0]} />
-          <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} /><meshStandardMaterial color={P.wallBack} roughness={1} /></mesh>
-          <mesh position={[0, 0.2, backZ + 0.22]}><boxGeometry args={[ROOM.w, 0.4, 0.1]} /><meshStandardMaterial color={P.trim} /></mesh>
+          {decor !== 'backrooms' && <gridHelper args={[ROOM.w, 8, P.grid, P.grid]} position={[0, 0.02, 0]} />}
+          {decor === 'backrooms' ? (
+            <group>
+              {/* back wall split by a central doorway that opens onto the corridor */}
+              {[-6.5, 6.5].map((x) => (
+                <mesh key={x} position={[x, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[7, ROOM.wallH, 0.4]} /><meshStandardMaterial color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
+              ))}
+              <mesh position={[0, ROOM.wallH - 1, backZ]} receiveShadow><boxGeometry args={[6.2, 2, 0.4]} /><meshStandardMaterial color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
+            </group>
+          ) : (
+            <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} /><meshStandardMaterial color={P.wallBack} roughness={1} /></mesh>
+          )}
+          {decor !== 'backrooms' && <mesh position={[0, 0.2, backZ + 0.22]}><boxGeometry args={[ROOM.w, 0.4, 0.1]} /><meshStandardMaterial color={P.trim} /></mesh>}
           {[-1, 1].map((s) => (
-            <mesh key={s} position={[s * halfW, ROOM.wallH / 2, 0]} receiveShadow><boxGeometry args={[0.4, ROOM.wallH, ROOM.d]} /><meshStandardMaterial color={P.wallSide} roughness={1} /></mesh>
+            <mesh key={s} position={[s * halfW, ROOM.wallH / 2, 0]} receiveShadow><boxGeometry args={[0.4, ROOM.wallH, ROOM.d]} /><meshStandardMaterial color={decor === 'backrooms' ? '#e8dca0' : P.wallSide} map={decor === 'backrooms' ? backroomsWallpaper() : undefined} roughness={1} /></mesh>
           ))}
           {/* only the Zen Dojo gets shoji screens + a hanging scroll */}
           {decor === 'dojo' && (

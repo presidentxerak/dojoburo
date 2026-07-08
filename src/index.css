@@ -987,9 +987,26 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-job-cat { color: var(--pc, var(--violet)); }
 .lp-job:hover { border-color: color-mix(in srgb, var(--pc) 55%, var(--border)); }
 .lp-job .lp-tool-chip { border-color: color-mix(in srgb, var(--pc) 42%, var(--border)); background: color-mix(in srgb, var(--pc) 10%, transparent); }
-.lp-card::before { background: var(--ac, var(--c-magenta)) !important; opacity: 1 !important; }
 .lp-card-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-bottom: 2px; }
 .lp-card:hover { border-color: color-mix(in srgb, var(--ac) 50%, var(--border)); }
+
+/* ===== card polish: 2px radius · bottom hover line (wipes left→right) · white number squares ===== */
+.lp-card, .lp-job, .lp-plan, .lp-node, .lp-step, .lp-benefit, .lp-tier, .lp-enterprise, .lp-step3,
+.lp-billing-note span, .lp-agentcard, .ws-tplcard, .ws-profcard, .ws-plan { border-radius: 2px !important; }
+.lp-toolpill, .lp-tool-chip, .lp-pill, .lp-badges span { border-radius: 2px !important; }
+
+.lp-card, .lp-job, .lp-plan, .lp-node, .lp-step, .lp-benefit, .lp-enterprise { position: relative; }
+.lp-card::before, .lp-job::before, .lp-plan::before, .lp-node::before,
+.lp-step::before, .lp-benefit::before, .lp-enterprise::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; top: auto; height: 3px; border-radius: 0 !important;
+  background: var(--ac, var(--pc, var(--c-blue))) !important; opacity: 1 !important;
+  transform: scaleX(0); transform-origin: left; transition: transform 0.32s ease;
+}
+.lp-card:hover::before, .lp-job:hover::before, .lp-plan:hover::before, .lp-node:hover::before,
+.lp-step:hover::before, .lp-benefit:hover::before, .lp-enterprise:hover::before { transform: scaleX(1); }
+
+/* number squares: white digits */
+.lp-step3-n, .lp-n { color: #fff !important; -webkit-text-fill-color: #fff !important; }
 
 /* ---- pricing plans ------------------------------------------------------- */
 .lp-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(212px, 1fr)); gap: 18px; align-items: stretch; }
