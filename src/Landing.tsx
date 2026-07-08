@@ -1,4 +1,3 @@
-import { AGENTS, agentColor } from './data/agents'
 import { PROFESSIONS, professionColor } from './data/professions'
 import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
 import { SKINS } from './data/skins'
@@ -9,6 +8,7 @@ import { Wordmark } from './components/Wordmark'
 import { AsciiIcon } from './components/AsciiIcon'
 import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
+import { TeamCards } from './components/landing/TeamCards'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -23,6 +23,13 @@ export function Landing({ enter }: { enter: () => void }) {
         <div className="lp-brand">
           <Logo size={30} /> <Wordmark />
         </div>
+        <nav className="lp-nav-links">
+          <a href="#studio">Build</a>
+          <a href="#stack">Connect</a>
+          <a href="#cast">Team</a>
+          <a href="#how">How it works</a>
+          <a href="#pricing">Pricing</a>
+        </nav>
         <button className="lp-cta sm" onClick={enter}>Enter the office →</button>
       </header>
 
@@ -134,15 +141,9 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec alt" id="cast">
         <span className="lp-ico" style={{ background: C.magenta }}><AsciiIcon kind="cast" /></span>
         <h2>Meet the office</h2>
-        <p className="lp-lead">Twelve starter agents across Leadership, Engineering, Finance, Growth, Product, People and Ops · plus two mascots. Reskin, rename or replace any of them.</p>
-        <div className="lp-cast">
-          {AGENTS.map((a) => (
-            <div className="lp-card" key={a.id} style={{ ['--ac' as any]: agentColor(a.id) }}>
-              <span className="lp-card-dot" style={{ background: agentColor(a.id) }} />
-              <strong>{a.name}</strong>
-              <span>{a.role}</span>
-            </div>
-          ))}
+        <p className="lp-lead">Twelve starter agents across Leadership, Engineering, Finance, Growth, Product, People and Ops · plus two mascots. Click any teammate to see their characteristics. Reskin, rename or replace any of them.</p>
+        <TeamCards />
+        <div className="lp-cast" style={{ marginTop: 16 }}>
           <div className="lp-card mascot"><strong>Chief</strong><span>You · the founder atom</span></div>
           <div className="lp-card mascot"><strong>Lazy</strong><span>The panda who only watches the numbers</span></div>
         </div>

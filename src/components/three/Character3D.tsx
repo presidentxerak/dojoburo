@@ -404,6 +404,56 @@ function Accessory({ kind, id }: { kind: Acc; id: string }) {
   }
 }
 
+// --- legs + shoes: every bodied skin gets a pair of legs with a shoe; the shoe
+// style + colours are picked deterministically so each skin keeps its own kicks
+const SHOE_KINDS = ['blob', 'sneaker', 'boot', 'sandal', 'heel', 'sport', 'clog', 'hitop']
+const SHOE_COLORS = ['#ffcf3b', '#ff5d6c', '#4fc3f7', '#7bd88f', '#c98cff', '#ff9a52', '#2fe0c0', '#ff7eb6', '#1c2029', '#f4f4f4']
+const SOLE_COLORS = ['#45c46a', '#2b3550', '#ffffff', '#e0475f', '#20242f', '#ffd23f']
+function shoeForId(id: string) {
+  const h = Math.abs(hashCode(id + '·shoe'))
+  return {
+    kind: SHOE_KINDS[h % SHOE_KINDS.length],
+    color: SHOE_COLORS[(h >> 3) % SHOE_COLORS.length],
+    sole: SOLE_COLORS[(h >> 6) % SOLE_COLORS.length],
+  }
+}
+
+function Shoe({ kind, color, sole }: { kind: string; color: string; sole: string }) {
+  switch (kind) {
+    case 'blob': // fat cartoon shoe (like a mascot boot)
+      return <group><Ball p={[0, 0.1, 0.12]} r={0.19} c={color} s={[1, 0.85, 1.5]} /><Box p={[0, -0.01, 0.14]} s={[0.34, 0.09, 0.52]} c={sole} /></group>
+    case 'sneaker':
+      return <group><Box p={[0, 0.1, 0.04]} s={[0.28, 0.18, 0.32]} c={color} /><Ball p={[0, 0.1, 0.24]} r={0.15} c={color} s={[0.95, 0.85, 1.1]} /><Box p={[0, 0.0, 0.1]} s={[0.32, 0.08, 0.5]} c={sole} /><Box p={[0, 0.15, 0.0]} s={[0.2, 0.05, 0.06]} c="#ffffff" /></group>
+    case 'boot':
+      return <group><Cyl p={[0, 0.28, 0.0]} r={0.15} h={0.44} c={color} /><Ball p={[0, 0.1, 0.2]} r={0.15} c={color} s={[1, 0.9, 1.2]} /><Box p={[0, 0.0, 0.08]} s={[0.32, 0.08, 0.46]} c={sole} /></group>
+    case 'sandal':
+      return <group><Box p={[0, 0.04, 0.12]} s={[0.32, 0.07, 0.5]} c={sole} /><Box p={[0, 0.14, 0.16]} s={[0.3, 0.05, 0.14]} c={color} rot={[0.3, 0, 0]} /><Box p={[0, 0.12, 0.02]} s={[0.24, 0.05, 0.1]} c={color} /></group>
+    case 'heel':
+      return <group><Box p={[0, 0.08, 0.1]} s={[0.24, 0.06, 0.5]} c={color} /><Ball p={[0, 0.1, 0.28]} r={0.12} c={color} s={[1, 0.8, 1.2]} /><Box p={[0, -0.04, -0.16]} s={[0.07, 0.2, 0.07]} c={color} /></group>
+    case 'sport':
+      return <group><Ball p={[0, 0.11, 0.14]} r={0.17} c={color} s={[1, 0.9, 1.5]} /><Box p={[0, 0.01, 0.14]} s={[0.34, 0.1, 0.52]} c={sole} /><Ball p={[0.08, 0.15, 0.24]} r={0.05} c="#ffffff" /></group>
+    case 'clog':
+      return <group><Ball p={[0, 0.11, 0.1]} r={0.2} c={color} s={[1, 0.82, 1.4]} /><Box p={[0, 0.0, 0.12]} s={[0.34, 0.06, 0.5]} c={sole} /></group>
+    case 'hitop':
+    default:
+      return <group><Cyl p={[0, 0.24, -0.02]} r={0.14} h={0.34} c={color} /><Box p={[0, 0.1, 0.14]} s={[0.28, 0.16, 0.3]} c={color} /><Ball p={[0, 0.1, 0.28]} r={0.14} c={color} s={[0.95, 0.85, 1.1]} /><Box p={[0, 0.0, 0.1]} s={[0.32, 0.08, 0.5]} c={sole} /></group>
+  }
+}
+
+function Legs({ id, pants }: { id: string; pants: string }) {
+  const s = shoeForId(id)
+  return (
+    <group>
+      {[-0.22, 0.22].map((x) => (
+        <group key={x} position={[x, 0, 0.14]}>
+          <Cyl p={[0, 0.36, 0]} r={0.13} h={0.5} c={pants} />
+          <Shoe kind={s.kind} color={s.color} sole={s.sole} />
+        </group>
+      ))}
+    </group>
+  )
+}
+
 export function Character3D({
   id,
   character,
@@ -588,6 +638,7 @@ export function Character3D({
           </group>
         ) : isBib ? (
           <group position={[0, 0.05, 0]}>
+            <Legs id={id} pants={character.pants} />
             {/* puffy stacked tire-man */}
             <Ball p={[0, 0.66, 0.32]} r={0.56} c={character.face} />
             <Ball p={[0, 1.16, 0.06]} r={0.62} c={character.face} />
@@ -610,7 +661,9 @@ export function Character3D({
           <GeoBody c={character} mood={mood} />
         ) : (
           <group>
-            {/* seated: lap + torso, legs hidden behind the desk */}
+            {/* legs + shoes (mostly tucked under the desk in the office, shown in previews) */}
+            <Legs id={id} pants={character.pants} />
+            {/* seated: lap + torso */}
             <Box p={[0, 0.62, 0.34]} s={[0.7, 0.24, 0.7]} c={character.pants} />
             <Ball p={[0, 1.12, 0]} r={0.56} c={character.outfit} s={[1, 1.02, 0.9]} />
             {/* shoulders */}

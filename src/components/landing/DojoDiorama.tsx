@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Character3D } from '../three/Character3D'
 import { SKINS, skinById } from '../../data/skins'
+import { useInView } from './useInView'
 
 // A full-3D dojo diorama that slowly rotates as the landing hero, with a
 // vertical-scroll parallax. A little tatami island: torii gate, cherry tree,
@@ -82,7 +83,7 @@ function Scene() {
 
 /** The rotating dojo hero with vertical-scroll parallax. */
 export function DojoDiorama() {
-  const ref = useRef<HTMLDivElement>(null)
+  const [ref, inView] = useInView<HTMLDivElement>('300px')
   const [t, setT] = useState(0)
   useEffect(() => {
     let raf = 0
@@ -95,11 +96,13 @@ export function DojoDiorama() {
   }, [])
   return (
     <div className="lp-dojo3d" ref={ref} style={{ transform: `translateY(${(t * -0.12).toFixed(1)}px) scale(${Math.max(0.86, 1 - t * 0.0004)})` }}>
-      <Canvas shadows camera={{ position: [0, 6.4, 15], fov: 30 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
-        <hemisphereLight args={['#ffffff', '#cfe0ff', 0.95]} />
-        <directionalLight position={[6, 10, 6]} intensity={1.25} castShadow shadow-mapSize={[1024, 1024]} />
-        <Scene />
-      </Canvas>
+      {inView && (
+        <Canvas shadows camera={{ position: [0, 6.4, 15], fov: 30 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
+          <hemisphereLight args={['#ffffff', '#cfe0ff', 0.95]} />
+          <directionalLight position={[6, 10, 6]} intensity={1.25} castShadow shadow-mapSize={[1024, 1024]} />
+          <Scene />
+        </Canvas>
+      )}
     </div>
   )
 }

@@ -60,17 +60,31 @@ const THEMES: [string, string, string, string, string, string][] = [
   ['Coral', '#fff0ec', '#ff6f61', '#c93f34', '#5a231c', '#ffd0b0'],
 ]
 
+// Vivid, saturated face colours. The theme still drives the outfit/body, but
+// every skin gets a bright, distinct face so the crew reads as a colourful set.
+const VIVID_FACES = [
+  '#7ed957', '#4fc3f7', '#ff7eb6', '#ffcf3b', '#c98cff', '#ff9a52',
+  '#2fe0c0', '#ff5d6c', '#63d0ff', '#a0e85b', '#ff8fd0', '#ffd23f',
+  '#9b8cff', '#5adfae', '#ffb454', '#6cc6ff', '#ff6f91', '#8de06a',
+]
+function hashStr(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i)
+  return Math.abs(h)
+}
+
 export const SKINS: Skin[] = (() => {
   const out: Skin[] = []
-  THEMES.forEach(([theme, head, outfit, outfit2, pants, extra], ti) => {
+  THEMES.forEach(([theme, , outfit, outfit2, pants, extra], ti) => {
     for (let k = 0; k < 6; k++) {
       const kind = KINDS[(ti * 6 + k) % KINDS.length]
+      const id = `${theme.toLowerCase()}-${kind}`
       out.push({
-        id: `${theme.toLowerCase()}-${kind}`,
+        id,
         name: `${theme} ${KIND_LABEL[kind]}`,
         theme,
         kind,
-        face: head,
+        face: VIVID_FACES[hashStr(id) % VIVID_FACES.length],
         outfit,
         outfit2,
         pants,

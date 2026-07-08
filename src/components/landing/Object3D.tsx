@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, type ReactNode } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { useInView } from './useInView'
 
 // Vivid, polished full-3D objects standing in for each landing section's theme.
 // Each spins + bobs over a soft glowing halo, coloured from the section accent.
@@ -151,7 +152,7 @@ export function Object3D({
   parallax?: number
   speed?: number
 }) {
-  const ref = useRef<HTMLDivElement>(null)
+  const [ref, inView] = useInView<HTMLDivElement>()
   const [y, setY] = useState(0)
   useEffect(() => {
     let raf = 0
@@ -169,18 +170,20 @@ export function Object3D({
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
     return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); cancelAnimationFrame(raf) }
-  }, [parallax])
+  }, [parallax, ref])
   return (
     <div ref={ref} className={`lp-obj3d lp-obj3d-${side}`} style={{ width: size, height: size, transform: `translate3d(0, ${y.toFixed(1)}px, 0)`, ['--obj' as any]: color }} aria-hidden>
-      <Canvas camera={{ position: [0, 0.4, 6.2], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
-        <hemisphereLight args={['#ffffff', '#c7cede', 1.0]} />
-        <directionalLight position={[4, 6, 5]} intensity={1.35} />
-        <directionalLight position={[-5, 2, 3]} intensity={0.5} color="#ffffff" />
-        <pointLight position={[-3, -1, 4]} intensity={0.9} color={color} />
-        <Spin speed={speed}>
-          <Shape kind={kind} color={color} />
-        </Spin>
-      </Canvas>
+      {inView && (
+        <Canvas camera={{ position: [0, 0.4, 6.2], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
+          <hemisphereLight args={['#ffffff', '#c7cede', 1.0]} />
+          <directionalLight position={[4, 6, 5]} intensity={1.35} />
+          <directionalLight position={[-5, 2, 3]} intensity={0.5} color="#ffffff" />
+          <pointLight position={[-3, -1, 4]} intensity={0.9} color={color} />
+          <Spin speed={speed}>
+            <Shape kind={kind} color={color} />
+          </Spin>
+        </Canvas>
+      )}
     </div>
   )
 }
