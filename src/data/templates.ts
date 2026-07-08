@@ -125,6 +125,16 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
     crew: CREW_DEFAULT,
     palette: { ground: '#ffd0ea', grid: '#ff9ed6', trim: '#b45cff', wallBack: '#fff0f8', wallSide: '#ffe8f4', accent: '#ff3da0', bg: '#e9dcff', fog: '#efe4ff' },
   },
+  {
+    id: 'backrooms',
+    label: 'The Backrooms',
+    blurb: 'Endless yellow rooms, damp carpet and buzzing fluorescent lights.',
+    skinTheme: 'Cyber',
+    style: 'plain',
+    crew: CREW_DEFAULT,
+    enclosed: true,
+    palette: { ground: '#9a8a3c', grid: '#7c6f2e', wallBack: '#c9b84e', wallSide: '#c2b048', trim: '#8a7a2e', accent: '#f2e06a', bg: '#b8a840', fog: '#b0a03c' },
+  },
 ]
 
 export const TEMPLATE_BY_ID: Record<string, DojoTemplate> = Object.fromEntries(DOJO_TEMPLATES.map((t) => [t.id, t]))

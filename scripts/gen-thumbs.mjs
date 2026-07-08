@@ -21,7 +21,7 @@ const PORT = Number(process.env.THUMBS_PORT || 4310)
 const BASE = `http://localhost:${PORT}`
 
 // Keep in sync with DOJO_TEMPLATES ids in src/data/templates.ts
-const TEMPLATES = ['startup', 'dojo', 'space', 'lab', 'villa', 'castle', 'garden', 'factory', 'forest', 'wonderland']
+const TEMPLATES = ['startup', 'dojo', 'space', 'lab', 'villa', 'castle', 'garden', 'factory', 'forest', 'wonderland', 'backrooms']
 
 // Clean crop of the 3D room (excludes the topbar, dock, side panel, Lazy widget).
 const CLIP = { x: 150, y: 108, width: 560, height: 372 }

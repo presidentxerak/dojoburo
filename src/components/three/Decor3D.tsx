@@ -266,6 +266,14 @@ function WorkstationBase({ variant, id }: { variant: string; id: string }) {
           {[-0.8, 0.8].map((lx) => <B key={lx} p={[lx, 0.44, 0]} s={[0.1, 0.86, 0.72]} c="#2b2f3d" />)}
         </group>
       )
+    case 'backrooms': // a grimy beige folding office table
+      return (
+        <group>
+          <B p={[0, 0.9, 0]} s={[1.9, 0.08, 0.85]} c="#d9cfa4" />
+          <B p={[0, 0.855, 0]} s={[1.94, 0.03, 0.89]} c="#a89e70" />
+          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <Cy key={i} p={[lx as number, 0.44, lz as number]} r={0.05} h={0.86} c="#8a8a92" />)}
+        </group>
+      )
     case 'dojo':
     default: // warm wood desk
       return (
@@ -623,6 +631,25 @@ function LoftPlant({ x, z }: { x: number; z: number }) {
 function SpaceDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   return (
     <group>
+      {/* a Stargate looming in the deep background */}
+      <group position={[0, 4.4, backZ - 6]}>
+        {/* outer naquadah ring */}
+        <mesh castShadow><torusGeometry args={[3.4, 0.55, 16, 48]} /><meshStandardMaterial color="#6b6f7a" metalness={0.7} roughness={0.35} /></mesh>
+        <mesh><torusGeometry args={[3.0, 0.18, 12, 48]} /><meshStandardMaterial color="#4a4e58" metalness={0.6} roughness={0.4} /></mesh>
+        {/* rippling event horizon */}
+        <mesh position={[0, 0, -0.1]}><circleGeometry args={[2.85, 48]} /><meshStandardMaterial color="#2fb6e6" emissive="#39c6f0" emissiveIntensity={0.8} transparent opacity={0.9} /></mesh>
+        <mesh position={[0, 0, 0]}><ringGeometry args={[1.6, 2.0, 48]} /><meshBasicMaterial color="#bfeeff" transparent opacity={0.4} side={2} /></mesh>
+        {/* 9 chevrons; the top one locked (orange) */}
+        {Array.from({ length: 9 }).map((_, i) => {
+          const a = (i / 9) * Math.PI * 2 + Math.PI / 2
+          const lit = i === 0
+          return (
+            <group key={i} position={[Math.cos(a) * 3.4, Math.sin(a) * 3.4, 0.2]} rotation={[0, 0, a - Math.PI / 2]}>
+              <mesh><coneGeometry args={[0.34, 0.5, 3]} /><meshStandardMaterial color={lit ? '#ff7a1e' : '#8a2a12'} emissive={lit ? '#ff8a2e' : '#000'} emissiveIntensity={lit ? 0.9 : 0} metalness={0.5} roughness={0.4} /></mesh>
+            </group>
+          )
+        })}
+      </group>
       {/* Saturn in the background, with tilted rings */}
       <group position={[-8.5, 4.4, backZ - 2.5]} rotation={[0, 0, 0.4]}>
         <Sp p={[0, 0, 0]} r={2.0} c="#d9b877" emissive="#8a6f3a" ei={0.3} />
@@ -1115,6 +1142,47 @@ function WonderlandDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
   )
 }
 
+// --- The Backrooms: endless yellow rooms, buzzing fluorescents, damp carpet ---
+function BackroomsDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
+  const halfW = ROOM.w / 2
+  const ceilY = ROOM.wallH - 0.9
+  return (
+    <group>
+      {/* drop-tile ceiling */}
+      <mesh position={[0, ceilY, 0]} rotation={[Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[ROOM.w, ROOM.d]} /><meshStandardMaterial color="#cdbf6a" side={2} roughness={1} /></mesh>
+      {/* recessed fluorescent light panels (one is dead) */}
+      {[-5, 0, 5].map((gx) => [-3.4, 0, 3.4].map((gz) => {
+        const dead = gx === 5 && gz === 0
+        return (
+          <group key={`${gx}-${gz}`} position={[gx, ceilY - 0.06, gz]}>
+            <B p={[0, 0.05, 0]} s={[3.2, 0.12, 1.4]} c="#b7ab5e" />
+            <mesh position={[0, -0.02, 0]} rotation={[Math.PI / 2, 0, 0]}><planeGeometry args={[2.9, 1.15]} /><meshStandardMaterial color={dead ? '#7a7248' : '#fff8d8'} emissive={dead ? '#3a3722' : '#fff2b0'} emissiveIntensity={dead ? 0.05 : 1.1} side={2} /></mesh>
+          </group>
+        )
+      }))}
+      {/* a doorway to yet another identical yellow room */}
+      <group position={[-3.5, 0, backZ + 0.24]}>
+        <B p={[0, 1.75, 0]} s={[1.9, 3.5, 0.16]} c={P.trim} />
+        <B p={[0, 1.65, 0.06]} s={[1.5, 3.1, 0.06]} c="#14120a" />
+        <mesh position={[0, 1.65, -0.9]}><planeGeometry args={[1.4, 3.0]} /><meshStandardMaterial color={P.wallSide} emissive={P.accent} emissiveIntensity={0.35} side={2} /></mesh>
+      </group>
+      {/* wall power outlets */}
+      {[[-halfW + 0.24, 0.7, -2], [-halfW + 0.24, 0.7, 3], [halfW - 0.24, 0.7, 0]].map(([x, y, z], i) => (
+        <group key={i} position={[x as number, y as number, z as number]}>
+          <B p={[0, 0, 0]} s={[0.06, 0.32, 0.22]} c="#e8e0b8" />
+          <B p={[0.02, 0.06, 0]} s={[0.02, 0.05, 0.04]} c="#3a3320" />
+          <B p={[0.02, -0.06, 0]} s={[0.02, 0.05, 0.04]} c="#3a3320" />
+        </group>
+      ))}
+      {/* moist stains on the wall + carpet */}
+      <mesh position={[4, 2.4, backZ + 0.23]} scale={[1.6, 2, 1]}><circleGeometry args={[0.7, 20]} /><meshStandardMaterial color="#7c6f2e" transparent opacity={0.5} /></mesh>
+      {[[3, 4], [-6, 2]].map(([x, z], i) => <mesh key={i} position={[x as number, 0.03, z as number]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.1 + i * 0.3, 20]} /><meshStandardMaterial color="#6f6428" transparent opacity={0.55} /></mesh>)}
+      {/* an exposed pipe running along a side wall */}
+      <Cy p={[halfW - 0.3, 4.4, 0]} r={0.14} h={ROOM.d - 2} c="#b3a86a" rot={[Math.PI / 2, 0, 0]} />
+    </group>
+  )
+}
+
 // Dispatch to the right themed decor for a template id.
 function ThemeDecor({ id, backZ, P }: { id: string; backZ: number; P: DojoPalette }) {
   switch (id) {
@@ -1128,6 +1196,7 @@ function ThemeDecor({ id, backZ, P }: { id: string; backZ: number; P: DojoPalett
     case 'startup': return <StartupDecor backZ={backZ} P={P} />
     case 'forest': return <ForestDecor backZ={backZ} P={P} />
     case 'wonderland': return <WonderlandDecor backZ={backZ} P={P} />
+    case 'backrooms': return <BackroomsDecor backZ={backZ} P={P} />
     default: return <PlainAccents backZ={backZ} P={P} />
   }
 }
@@ -1139,7 +1208,7 @@ export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; de
   return (
     <group>
       {enclosed ? (
-        // classic enclosed dojo room (walls, shoji screens, hanging scroll)
+        // an enclosed room (walls) — the classic dojo, or the Backrooms
         <group>
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
             <planeGeometry args={[ROOM.w, ROOM.d]} />
@@ -1151,20 +1220,25 @@ export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; de
           {[-1, 1].map((s) => (
             <mesh key={s} position={[s * halfW, ROOM.wallH / 2, 0]} receiveShadow><boxGeometry args={[0.4, ROOM.wallH, ROOM.d]} /><meshStandardMaterial color={P.wallSide} roughness={1} /></mesh>
           ))}
-          {[-7.5, -3.5, 3.5, 7.5].map((x) => (
-            <group key={x} position={[x, 2.4, backZ + 0.25]}>
-              <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
-              {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.06]}><boxGeometry args={[0.05, 2.6, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
-              {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.06]}><boxGeometry args={[2.6, 0.05, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+          {/* only the Zen Dojo gets shoji screens + a hanging scroll */}
+          {decor === 'dojo' && (
+            <group>
+              {[-7.5, -3.5, 3.5, 7.5].map((x) => (
+                <group key={x} position={[x, 2.4, backZ + 0.25]}>
+                  <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
+                  {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.06]}><boxGeometry args={[0.05, 2.6, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+                  {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.06]}><boxGeometry args={[2.6, 0.05, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
+                </group>
+              ))}
+              <group position={[0, 2.1, backZ + 0.25]}>
+                <mesh><boxGeometry args={[2.4, 4.0, 0.14]} /><meshStandardMaterial color={WOOD_D} /></mesh>
+                <mesh position={[-0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={PAPER} /></mesh>
+                <mesh position={[0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={P.accent} emissive={P.accent} emissiveIntensity={0.15} /></mesh>
+              </group>
             </group>
-          ))}
-          <group position={[0, 2.1, backZ + 0.25]}>
-            <mesh><boxGeometry args={[2.4, 4.0, 0.14]} /><meshStandardMaterial color={WOOD_D} /></mesh>
-            <mesh position={[-0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={PAPER} /></mesh>
-            <mesh position={[0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={P.accent} emissive={P.accent} emissiveIntensity={0.15} /></mesh>
-          </group>
+          )}
           {[-halfW + 0.6, halfW - 0.6].map((x) => (
-            <mesh key={x} position={[x, ROOM.wallH / 2, backZ + 1]} castShadow><boxGeometry args={[0.5, ROOM.wallH, 0.5]} /><meshStandardMaterial color={WOOD} roughness={0.9} /></mesh>
+            <mesh key={x} position={[x, ROOM.wallH / 2, backZ + 1]} castShadow><boxGeometry args={[0.5, ROOM.wallH, 0.5]} /><meshStandardMaterial color={decor === 'dojo' ? WOOD : P.trim} roughness={0.9} /></mesh>
           ))}
         </group>
       ) : (

@@ -142,6 +142,16 @@ function Motif({ id, p }: { id: string; p: DojoTemplate['palette'] }) {
           <rect x="84" y="17" width="13" height="4" fill={tr} />
         </g>
       )
+    case 'backrooms': // yellow room + doorway + ceiling light
+      return (
+        <g>
+          <rect x="8" y="6" width="104" height="4" fill={tr} />
+          <rect x="34" y="6" width="52" height="5" rx="1" fill="#fff6cf" />
+          <rect x="48" y="14" width="24" height="34" fill="#14120a" />
+          <rect x="51" y="17" width="18" height="31" fill={p.wallSide} />
+          <rect x="86" y="26" width="10" height="14" rx="2" fill={tr} opacity="0.5" />
+        </g>
+      )
     default:
       return <circle cx="60" cy="28" r="12" fill={a} />
   }
