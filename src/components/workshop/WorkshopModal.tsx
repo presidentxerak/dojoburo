@@ -229,7 +229,7 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
   return (
     <div className="ws-form">
       <div className="ws-skinrow">
-        <div className="ws-preview3d"><Agent3DPreview character={skin} size={104} /></div>
+        <div className="ws-preview3d"><Agent3DPreview id={skin.id} character={skin} size={104} /></div>
         <div>
           <div className="ws-skinname">{skin.name}</div>
           <button className="ws-btn" onClick={onPickSkin}>Change skin ({SKINS.length})</button>
@@ -319,7 +319,7 @@ function SkinPicker({ current, onPick, onClose }: { current: string; onPick: (id
         </header>
         <div className="ws-pickbody">
           <aside className="ws-pick-preview">
-            <Agent3DPreview character={focusSkin} size={168} />
+            <Agent3DPreview id={focusSkin.id} character={focusSkin} size={168} />
             <div className="ws-skinname">{focusSkin.name}</div>
             <span className="ws-blurb">{focusSkin.theme} theme</span>
             <button className="ws-btn primary" onClick={() => onPick(focusSkin.id)}>Use this skin</button>
@@ -382,7 +382,7 @@ function AccountTab() {
   return (
     <div className="ws-account">
       <div className="ws-skinrow">
-        <div className="ws-preview3d"><Agent3DPreview character={skinById(account.avatarSkinId)} size={96} /></div>
+        <div className="ws-preview3d"><Agent3DPreview id={account.avatarSkinId} character={skinById(account.avatarSkinId)} size={96} /></div>
         <div><div className="ws-skinname">{account.name || 'Founder'}</div><span className="ws-blurb">{isPrivy ? 'Privy account · synced' : 'Local guest account'}</span></div>
       </div>
       <label className="ws-field"><span>Name</span><input value={account.name} onChange={(e) => update({ name: e.target.value })} /></label>

@@ -11,7 +11,7 @@ function TeamCard({ agent, i, onOpen }: { agent: AgentDef; i: number; onOpen: ()
   const [ref, inView] = useInView<HTMLButtonElement>('250px')
   return (
     <button ref={ref} className="lp-team" style={{ ['--ac' as any]: agentColor(agent.id) }} onClick={onOpen} title={`See ${agent.name}'s characteristics`}>
-      <span className="lp-team-3d">{inView ? <Agent3DPreview character={charFor(agent.id)} size={132} phase={i * 0.6} /> : null}</span>
+      <span className="lp-team-3d">{inView ? <Agent3DPreview id={agent.id} character={charFor(agent.id)} size={132} phase={i * 0.6} /> : null}</span>
       <strong>{agent.name}</strong>
       <span className="lp-team-role">{agent.role}</span>
       <span className="lp-team-more">View characteristics</span>
@@ -24,7 +24,7 @@ function TeamModal({ agent, onClose }: { agent: AgentDef; onClose: () => void })
     <div className="lp-team-overlay" onClick={onClose}>
       <div className="lp-team-modal" onClick={(e) => e.stopPropagation()} style={{ ['--ac' as any]: agentColor(agent.id) }}>
         <button className="lp-team-x" onClick={onClose} aria-label="Close">×</button>
-        <div className="lp-team-modal-3d"><Agent3DPreview character={charFor(agent.id)} size={200} mood="happy" /></div>
+        <div className="lp-team-modal-3d"><Agent3DPreview id={agent.id} character={charFor(agent.id)} size={200} mood="happy" /></div>
         <div className="lp-team-info">
           <span className="lp-team-cat">{agent.department}</span>
           <h3>{agent.name}</h3>

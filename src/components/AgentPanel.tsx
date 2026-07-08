@@ -63,7 +63,7 @@ export function AgentPanel() {
     <aside className="panel agent-panel">
       <header className="agent-head">
         <button className="agent-head-avatar edit" onClick={() => editAgent(agent.id)} title="Edit this agent" aria-label="Edit this agent">
-          <Agent3DPreview character={agent.character} mood={rt?.mood ?? 'idle'} size={64} />
+          <Agent3DPreview id={agent.id} character={agent.character} mood={rt?.mood ?? 'idle'} size={64} />
           <span className="avatar-edit-badge">Edit</span>
         </button>
         <div className="agent-head-meta">

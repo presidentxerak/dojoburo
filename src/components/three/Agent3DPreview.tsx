@@ -27,12 +27,14 @@ export function Agent3DPreview({
   mood = 'happy',
   speed = 1,
   phase = 0,
+  id = 'preview',
 }: {
   character: Character
   size?: number
   mood?: Mood
   speed?: number
   phase?: number
+  id?: string
 }) {
   return (
     <div className="a3d" style={{ width: size, height: size }}>
@@ -40,7 +42,7 @@ export function Agent3DPreview({
         <hemisphereLight args={['#ffffff', '#c7cede', 0.95]} />
         <directionalLight position={[3, 5, 4]} intensity={1.1} />
         <Idle speed={speed} phase={phase}>
-          <Character3D bare id="preview" character={character} x={0} z={0} mood={mood} selected={false} busy={false} name="" level={1} onSelect={() => {}} />
+          <Character3D bare id={id} character={character} x={0} z={0} mood={mood} selected={false} busy={false} name="" level={1} onSelect={() => {}} />
         </Idle>
       </Canvas>
     </div>

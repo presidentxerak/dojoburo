@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { PROFESSIONS, professionColor } from './data/professions'
 import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
 import { SKINS } from './data/skins'
@@ -9,6 +10,7 @@ import { AsciiIcon } from './components/AsciiIcon'
 import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
 import { TeamCards } from './components/landing/TeamCards'
+import { PitchDeck } from './components/landing/PitchDeck'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -17,6 +19,7 @@ const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff
  *  costs in XRP, how agents get wired to real tools, where they run, and the
  *  path to a fully-functional production deployment. */
 export function Landing({ enter }: { enter: () => void }) {
+  const [deckOpen, setDeckOpen] = useState(false)
   return (
     <div className="landing">
       <header className="lp-nav">
@@ -35,7 +38,7 @@ export function Landing({ enter }: { enter: () => void }) {
 
       <section className="lp-hero">
         <p className="lp-kicker">An automated productivity hub, run by AI agents · orchestrated on the XRP Ledger</p>
-        <h1>Your <span className="hl-m">AI</span> team, working while you <span className="hl-b">watch</span>.</h1>
+        <h1>Your <span className="hl-outline">AI</span> <span className="hl-outline">TEAM</span>, working while you <span className="hl-b">watch</span>.</h1>
         <p className="lp-sub">
           <Wordmark /> is a living 3D office where a team of specialised AI agents each own a real
           function of your work. It adapts to your profession, connects your everyday apps, runs the
@@ -427,8 +430,10 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#prod">Production</a>
           <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Enter the office</a>
         </nav>
+        <button className="lp-deck-dl" onClick={() => setDeckOpen(true)}>⤓ Investor pitch deck</button>
       </footer>
       <SupportBot />
+      {deckOpen && <PitchDeck onClose={() => setDeckOpen(false)} />}
     </div>
   )
 }

@@ -49,7 +49,7 @@ export function Hero3D({
   }, [parallax])
   return (
     <div ref={ref} className={`lp-hero3d lp-hero3d-${side}`} style={{ transform: `translate3d(0, ${y.toFixed(1)}px, 0)` }} aria-hidden>
-      <Agent3DPreview character={skinById(skin)} size={size} mood={mood} speed={speed} phase={phase} />
+      <Agent3DPreview id={skin} character={skinById(skin)} size={size} mood={mood} speed={speed} phase={phase} />
     </div>
   )
 }

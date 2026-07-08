@@ -367,13 +367,18 @@ function GeoBody({ c, mood }: { c: Character; mood: Mood }) {
 }
 
 // --- rare head accessories: only ~1 agent in 3 gets one, picked deterministically
-type Acc = 'bowler' | 'tophat' | 'cowboy' | 'wizardhat' | 'cap' | 'shades'
-const ACCS: Acc[] = ['bowler', 'tophat', 'cowboy', 'wizardhat', 'cap', 'shades']
+type Acc = 'bowler' | 'tophat' | 'cowboy' | 'wizardhat' | 'cap' | 'shades' | 'beret' | 'beanie' | 'party' | 'flower'
+const ACCS: Acc[] = ['bowler', 'tophat', 'cowboy', 'wizardhat', 'cap', 'shades', 'beret', 'beanie', 'party', 'flower']
 const CAP_COLORS = ['#e0524f', '#4f9df7', '#45c46a', '#ffc24b', '#a78bfa', '#ff7eb6']
+// a vivid palette so hats come in many colours, not just black
+const HAT_COLORS = ['#2a2a34', '#e0524f', '#3b6fd4', '#2f9e57', '#d9a11f', '#7b52c9', '#d94f8a', '#1b8f9e', '#ff7a1a', '#08c2ac', '#394150', '#c0392b']
 function hashCode(s: string): number {
   let h = 0
   for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i)
   return h
+}
+function hatColor(id: string, salt = ''): string {
+  return HAT_COLORS[Math.abs(hashCode(id + '·hatc' + salt)) % HAT_COLORS.length]
 }
 const NO_ACC = new Set([
   'wizard', 'monitor', 'octopus', 'slime', 'ghost', 'jellyfish', 'bibendum', 'geo',
@@ -382,22 +387,44 @@ const NO_ACC = new Set([
 function accForId(id: string, kind: string): Acc | null {
   if (NO_ACC.has(kind)) return null
   const h = Math.abs(hashCode(id + '·hat'))
-  if (h % 100 >= 34) return null // ~34% wear an accessory
+  if (h % 100 >= 40) return null // ~40% wear an accessory · most heads stay bare
   return ACCS[h % ACCS.length]
 }
 function Accessory({ kind, id }: { kind: Acc; id: string }) {
   switch (kind) {
-    case 'bowler':
-      return <group><Cyl p={[0, 2.5, 0]} r={0.66} h={0.06} c="#2a2a34" /><Ball p={[0, 2.64, 0]} r={0.42} c="#33333f" s={[1, 0.8, 1]} /></group>
-    case 'tophat':
-      return <group><Cyl p={[0, 2.5, 0]} r={0.72} h={0.05} c="#1a1a20" /><Cyl p={[0, 3.05, 0]} r={0.44} h={0.92} c="#22222c" /><Cyl p={[0, 2.66, 0]} r={0.45} h={0.1} c="#c0392b" /></group>
+    case 'bowler': {
+      const c = hatColor(id)
+      return <group><Cyl p={[0, 2.5, 0]} r={0.66} h={0.06} c={c} /><Ball p={[0, 2.64, 0]} r={0.42} c={c} s={[1, 0.8, 1]} /></group>
+    }
+    case 'tophat': {
+      const c = hatColor(id)
+      return <group><Cyl p={[0, 2.5, 0]} r={0.72} h={0.05} c={c} /><Cyl p={[0, 3.05, 0]} r={0.44} h={0.92} c={c} /><Cyl p={[0, 2.66, 0]} r={0.45} h={0.1} c={hatColor(id, 'band')} /></group>
+    }
     case 'cowboy':
-      return <group><Cyl p={[0, 2.44, 0]} r={0.94} h={0.05} c="#b07a42" /><Cyl p={[0, 2.72, 0]} r={0.42} h={0.52} c="#a9743f" /><Cyl p={[0, 2.52, 0]} r={0.44} h={0.09} c="#5a3a1c" /></group>
-    case 'wizardhat':
-      return <group><Cyl p={[0, 2.48, 0]} r={0.72} h={0.05} c="#5a34b0" /><Cone p={[0, 3.25, 0]} r={0.5} h={1.35} c="#6c3fd0" /><Ball p={[0.2, 3.15, 0.32]} r={0.08} c="#ffe066" /><Ball p={[-0.14, 3.6, 0.2]} r={0.06} c="#ffe066" /><Ball p={[0.05, 2.92, 0.42]} r={0.06} c="#fff" /></group>
+      return <group><Cyl p={[0, 2.44, 0]} r={0.94} h={0.05} c="#b07a42" /><Cyl p={[0, 2.72, 0]} r={0.42} h={0.52} c="#a9743f" /><Cyl p={[0, 2.52, 0]} r={0.44} h={0.09} c={hatColor(id, 'band')} /></group>
+    case 'wizardhat': {
+      const c = hatColor(id)
+      return <group><Cyl p={[0, 2.48, 0]} r={0.72} h={0.05} c={c} /><Cone p={[0, 3.25, 0]} r={0.5} h={1.35} c={c} /><Ball p={[0.2, 3.15, 0.32]} r={0.08} c="#ffe066" /><Ball p={[-0.14, 3.6, 0.2]} r={0.06} c="#ffe066" /><Ball p={[0.05, 2.92, 0.42]} r={0.06} c="#fff" /></group>
+    }
     case 'cap': {
       const c = CAP_COLORS[Math.abs(hashCode(id)) % CAP_COLORS.length]
       return <group><Ball p={[0, 2.42, 0]} r={0.6} c={c} s={[1, 0.68, 1]} /><Box p={[0, 2.3, 0.56]} s={[0.72, 0.06, 0.42]} c={c} /><Ball p={[0, 2.66, 0]} r={0.06} c="#ffcf3b" /></group>
+    }
+    case 'beret': {
+      const c = hatColor(id)
+      return <group><Ball p={[0, 2.34, 0]} r={0.58} c={c} s={[1, 0.44, 1]} /><Ball p={[0, 2.5, 0]} r={0.06} c={c} /></group>
+    }
+    case 'beanie': {
+      const c = hatColor(id)
+      return <group><Ball p={[0, 2.36, 0]} r={0.6} c={c} s={[1, 0.72, 1]} /><Cyl p={[0, 2.22, 0]} r={0.6} h={0.16} c={hatColor(id, 'cuff')} /><Ball p={[0, 2.78, 0]} r={0.11} c="#ffffff" /></group>
+    }
+    case 'party': {
+      const c = hatColor(id)
+      return <group><Cone p={[0, 2.9, 0]} r={0.42} h={1.0} c={c} /><Ball p={[0, 3.42, 0]} r={0.12} c={hatColor(id, 'pom')} /><Ball p={[0.24, 2.7, 0.28]} r={0.05} c="#fff" /><Ball p={[-0.2, 2.5, 0.3]} r={0.05} c="#ffe066" /></group>
+    }
+    case 'flower': {
+      const c = hatColor(id, 'petal')
+      return <group>{[0, 1, 2, 3, 4].map((k) => { const a = (k / 5) * Math.PI * 2; return <Ball key={k} p={[Math.cos(a) * 0.26, 2.42, Math.sin(a) * 0.26]} r={0.15} c={c} /> })}<Ball p={[0, 2.44, 0]} r={0.13} c="#ffe066" /></group>
     }
     case 'shades':
       return <group><Box p={[-0.26, 1.98, 0.6]} s={[0.3, 0.2, 0.06]} c="#15151a" /><Box p={[0.26, 1.98, 0.6]} s={[0.3, 0.2, 0.06]} c="#15151a" /><Box p={[0, 2.0, 0.6]} s={[0.2, 0.05, 0.05]} c="#15151a" /></group>
