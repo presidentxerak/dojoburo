@@ -36,6 +36,10 @@ export type Kind =
   | 'panda'
   | 'dragon'
   | 'mushroom'
+  // third wave · heroes & characters
+  | 'knight'
+  | 'mage'
+  | 'madscientist'
 
 export interface Character {
   kind: Kind

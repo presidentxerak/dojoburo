@@ -15,6 +15,8 @@ const KINDS: Kind[] = [
   // second wave
   'poodle', 'rabbit', 'frog', 'duck', 'ghost', 'godzilla', 'bear', 'chicken',
   'bibendum', 'jellyfish', 'geo', 'penguin', 'panda', 'dragon', 'mushroom',
+  // third wave · heroes & characters
+  'knight', 'mage', 'madscientist',
 ]
 
 const KIND_LABEL: Record<Kind, string> = {
@@ -24,6 +26,7 @@ const KIND_LABEL: Record<Kind, string> = {
   poodle: 'Poodle', rabbit: 'Bunny', frog: 'Frog', duck: 'Duck', ghost: 'Ghost',
   godzilla: 'Kaiju', bear: 'Bear', chicken: 'Chick', bibendum: 'Puffy', jellyfish: 'Jelly',
   geo: 'Prism', penguin: 'Penguin', panda: 'Panda', dragon: 'Dragon', mushroom: 'Shroom',
+  knight: 'Knight', mage: 'Mage', madscientist: 'Prof',
 }
 
 // [name, head, outfit, outfit2, pants, extra]

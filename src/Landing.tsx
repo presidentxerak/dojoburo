@@ -411,6 +411,14 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lp-note">The client is already production-grade and non-custodial. "100% functional" is about adding the authenticated worker that turns each skill into a real deliverable · everything else is live today.</p>
       </section>
 
+      <section className="lp-sec" id="assistant">
+        <Object3D kind="eye" color={C.teal} side="left" parallax={0.13} />
+        <span className="lp-ico" style={{ background: C.teal }}><AsciiIcon kind="cast" /></span>
+        <h2>Ask the assistant anything</h2>
+        <p className="lp-lead">Not sure where to start, how connectors work, or what a task costs? The DojoBuro assistant answers right here · it uses the free knowledge base first and only escalates to a model for the tricky questions.</p>
+        <div className="lp-assistant"><SupportBot embedded /></div>
+      </section>
+
       <section className="lp-final">
         <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>

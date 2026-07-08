@@ -13,7 +13,7 @@ interface Msg {
 let uid = 0
 const nid = () => ++uid
 const MAX_LEN = 1500
-const START_CHIPS = ['start', 'wallet', 'cost', 'pricing', 'security', 'tools']
+const START_CHIPS = ['start', 'setup', 'skins', 'cost', 'pricing', 'deck', 'tools']
 
 function LinkButton({ link }: { link: KBLink }) {
   const external = link.external
@@ -31,8 +31,8 @@ function LinkButton({ link }: { link: KBLink }) {
 
 /** DojoBuro support assistant. Answers from the free local knowledge base first
  *  and only escalates to the server-side LLM cascade for unmatched questions. */
-export function SupportBot() {
-  const [open, setOpen] = useState(false)
+export function SupportBot({ embedded = false }: { embedded?: boolean }) {
+  const [open, setOpen] = useState(embedded)
   const [busy, setBusy] = useState(false)
   const [input, setInput] = useState('')
   const [msgs, setMsgs] = useState<Msg[]>([])
@@ -99,7 +99,7 @@ export function SupportBot() {
 
   return (
     <>
-      {!open && (
+      {!embedded && !open && (
         <button className="sb-launch" onClick={() => setOpen(true)} aria-label="Open help & support">
           <span className="sb-face" aria-hidden>◕‿◕</span>
           <span className="sb-launch-label">Help</span>
@@ -107,14 +107,14 @@ export function SupportBot() {
       )}
 
       {open && (
-        <section className="sb-panel" role="dialog" aria-label="DojoBuro support assistant">
+        <section className={`sb-panel${embedded ? ' sb-embed' : ''}`} role="dialog" aria-label="DojoBuro support assistant">
           <header className="sb-head">
             <span className="sb-avatar" aria-hidden>◕‿◕</span>
             <div className="sb-title">
               <strong>DojoBuro Assistant</strong>
               <span className="sb-status"><i /> online · guided help</span>
             </div>
-            <button className="sb-x" onClick={() => setOpen(false)} aria-label="Close">×</button>
+            {!embedded && <button className="sb-x" onClick={() => setOpen(false)} aria-label="Close">×</button>}
           </header>
 
           <div className="sb-body" ref={scrollRef}>

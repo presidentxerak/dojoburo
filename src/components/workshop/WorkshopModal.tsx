@@ -14,6 +14,7 @@ import { useWork } from '../../agents/workStore'
 import { SkinAvatar } from './SkinAvatar'
 import { TemplateThumb } from './TemplateThumb'
 import { Agent3DPreview } from '../three/Agent3DPreview'
+import { ConnectorsPanel } from '../ConnectorsPanel'
 
 type Tab = 'studio' | 'account' | 'billing'
 
@@ -295,6 +296,9 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
         />
         <em className="ws-conv">≈ {formatFrom(agent.budgetXrp, currency as any)}</em>
       </label>
+
+      {/* apps this agent's tasks can act inside · connect them right here */}
+      <div className="ws-conn"><ConnectorsPanel dept={agent.fn} /></div>
 
       <button className="ws-btn danger" onClick={() => { remove(agent.id); onDeleted() }}>Delete agent</button>
     </div>

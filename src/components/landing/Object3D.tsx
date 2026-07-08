@@ -136,6 +136,25 @@ function Spin({ children, speed = 0.5, bob = 0.14 }: { children: ReactNode; spee
   return <group ref={g}>{children}</group>
 }
 
+/** A centred, self-contained spinning 3D object · no scroll parallax, no
+ *  absolute positioning. Used inside the pitch deck slides. */
+export function Object3DInline({ kind, color, size = 220, speed = 0.5 }: { kind: string; color: string; size?: number; speed?: number }) {
+  const [ref, inView] = useInView<HTMLDivElement>('120px')
+  return (
+    <div ref={ref} className="pd-obj3d" style={{ width: size, height: size, ['--obj' as any]: color }} aria-hidden>
+      {inView && (
+        <Canvas camera={{ position: [0, 0.4, 6.2], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
+          <hemisphereLight args={['#ffffff', '#c7cede', 1.0]} />
+          <directionalLight position={[4, 6, 5]} intensity={1.35} />
+          <directionalLight position={[-5, 2, 3]} intensity={0.5} color="#ffffff" />
+          <pointLight position={[-3, -1, 4]} intensity={0.9} color={color} />
+          <Spin speed={speed}><Shape kind={kind} color={color} /></Spin>
+        </Canvas>
+      )}
+    </div>
+  )
+}
+
 /** A spinning full-3D object hero that drifts on scroll (parallax). */
 export function Object3D({
   kind,

@@ -131,14 +131,38 @@ export const KB: KBTopic[] = [
     id: 'setup',
     chip: 'How to connect an app',
     answer:
-      'Two roles. As a USER: open an agent card, pick the tool, click Connect, approve the OAuth screen · the token is sealed server-side and the agent can act. As the OPERATOR (one-time, per app): 1) create an OAuth app in the provider console (e.g. Notion integrations, GitHub OAuth apps, Google Cloud credentials) and set the redirect URI to https://YOUR-SITE/api/connect; 2) copy the client id + secret into env as <APP>_CLIENT_ID and <APP>_CLIENT_SECRET (e.g. NOTION_CLIENT_ID / NOTION_CLIENT_SECRET; Google apps share GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET); 3) apps WITH a first-party MCP server (Notion, GitHub, Linear, Stripe) work right away. Apps WITHOUT one (Gmail, Google Drive, Google Calendar, Slack, and most others) also need an MCP endpoint: set <APP>_MCP_URL to a hosted MCP hub · Composio, Zapier or Pipedream · e.g. GMAIL_MCP_URL, GDRIVE_MCP_URL, GCAL_MCP_URL, SLACK_MCP_URL. Modern providers that require PKCE (Airtable, X/Twitter, Canva) are handled automatically. Once the env is set the tool shows a Connect button instead of a “set up” link.',
+      'Every agent card AND the Dojo Studio editor show a "Connect tools" panel, filtered to the apps that agent\'s tasks actually use, with a 3-step guide: 1 create the OAuth app · 2 add the keys to env · 3 point an MCP endpoint. As a USER it is one click: open the agent, find the tool under its tasks, click Connect, approve the OAuth screen once · the token is sealed server-side (AES-256-GCM) and the agent can act inside the app. As the OPERATOR (one-time, per app): 1) create an OAuth app in the provider console (Notion integrations, GitHub OAuth apps, Google Cloud credentials…) and set the redirect URI to https://YOUR-SITE/api/connect; 2) copy the client id + secret into env as <APP>_CLIENT_ID and <APP>_CLIENT_SECRET (Google apps share GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET); 3) apps WITH a first-party MCP server (Notion, GitHub, Linear, Stripe) work right away; apps WITHOUT one (Gmail, Drive, Calendar, Slack…) also need <APP>_MCP_URL pointed at a hosted MCP hub (Composio, Zapier, Pipedream). PKCE apps (Airtable, X, Canva) are automatic. Once the env is set the tool shows a Connect button instead of a "set up" link.',
     links: [
       { label: 'Connectors setup guide', href: 'https://github.com/presidentxerak/dojoburo/blob/main/docs/CONNECTORS.md', external: true },
       { label: 'MCP hub (Composio)', href: 'https://composio.dev', external: true },
       { label: 'What is MCP', href: 'https://modelcontextprotocol.io', external: true },
     ],
     follow: ['tools', 'security', 'environment'],
-    keywords: ['setup', 'set up', 'client id', 'client secret', 'oauth app', 'redirect', 'env', 'configure', 'composio', 'zapier', 'pipedream', 'mcp url', 'mcp_url', 'hub', 'how to connect', 'create app', 'pkce', 'credentials'],
+    keywords: ['setup', 'set up', 'client id', 'client secret', 'oauth app', 'redirect', 'env', 'configure', 'composio', 'zapier', 'pipedream', 'mcp url', 'mcp_url', 'hub', 'how to connect', 'create app', 'pkce', 'credentials', 'connect panel', 'studio'],
+  },
+  {
+    id: 'skins',
+    chip: 'Skins & customization',
+    answer:
+      'Every agent is fully customizable in the Dojo Studio: 180+ skins across 30 themes and many characters · robots, ninjas, aliens, cats, dragons, ghosts, pandas, a bibendum, a jellyfish, plus Zelda-style knights, mages and mad-scientist professors · each with a vivid face, legs and its own shoes, and sometimes a hat (bowler, top hat, beret, party or flower crown). Click an agent\'s avatar to open its editor, then change the skin, rename it, swap its function and tasks, set an XRP budget, or move it on the grid. You can run several dojos in different worlds side by side.',
+    links: [
+      { label: 'Build your own team', href: '#studio' },
+      { label: 'Meet the office', href: '#cast' },
+    ],
+    follow: ['jobs', 'tools'],
+    keywords: ['skin', 'skins', 'avatar', 'character', 'customize', 'customise', 'knight', 'zelda', 'mage', 'wizard', 'scientist', 'hat', 'edit agent', 'appearance', 'look', 'theme', 'world'],
+  },
+  {
+    id: 'deck',
+    chip: 'Investor pitch deck',
+    answer:
+      'There is a 10-slide investor pitch deck built in the same style as the app · ascii-art icons, full-3D object icons, the rotating 3D dojo and kawaii characters, one punchy line per slide. Open it from the "Investor pitch deck" button in the landing footer, flip through with the arrows or dots, and use Download PDF to save it as a landscape PDF.',
+    links: [
+      { label: 'Open the deck', href: '#app' },
+      { label: 'How it works', href: '#how' },
+    ],
+    follow: ['pricing', 'x402'],
+    keywords: ['deck', 'pitch', 'investor', 'slides', 'presentation', 'pdf', 'fundraise', 'raise'],
   },
   {
     id: 'environment',
@@ -209,4 +233,4 @@ export function matchTopic(text: string): KBTopic | null {
 }
 
 export const GREETING =
-  "Hi! I'm the DojoBuro assistant. Ask me anything, or pick a topic below.";
+  "Hi! I'm the DojoBuro assistant. Ask me how to connect an app, customise your agents, what a task costs · or pick a topic below.";

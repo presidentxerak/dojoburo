@@ -308,6 +308,45 @@ function Toppers({ c }: { c: Character }) {
           ))}
         </group>
       )
+    case 'knight': // Zelda-style hero · steel helm, nose guard and a bright crest plume
+      return (
+        <group>
+          <Ball p={[0, hy + 0.34, -0.02]} r={0.66} c={'#c7cfda'} s={[1, 0.7, 1.02]} />
+          <Cyl p={[0, hy + 0.1, 0]} r={0.66} h={0.12} c={'#9aa4b4'} />
+          <Box p={[0, hy - 0.16, 0.6]} s={[0.12, 0.5, 0.08]} c={'#aeb7c6'} />
+          {/* crest plume, in the theme colour so it varies */}
+          <Box p={[0, hy + 0.72, -0.04]} s={[0.1, 0.16, 0.5]} c={'#8b93a1'} />
+          {[0, 1, 2, 3].map((k) => <Ball key={k} p={[0, hy + 0.86, -0.02 - k * 0.16]} r={0.16 - k * 0.02} c={c.outfit} />)}
+        </group>
+      )
+    case 'mage': // pointed starry hat with a droopy tip, brim and a moon
+      return (
+        <group>
+          <Cyl p={[0, hy + 0.44, 0]} r={0.66} h={0.1} c={c.outfit2} />
+          <Cone p={[0.08, hy + 1.02, -0.05]} r={0.46} h={1.3} c={c.outfit} rot={[0.18, 0, -0.12]} />
+          <Ball p={[0.28, hy + 1.55, -0.16]} r={0.1} c={c.outfit2} />
+          <Ball p={[0.12, hy + 0.92, 0.4]} r={0.07} c={'#ffe066'} />
+          <Ball p={[-0.18, hy + 1.2, 0.24]} r={0.055} c={'#fff'} />
+          <Ball p={[0.02, hy + 0.72, 0.46]} r={0.05} c={'#ffe066'} />
+        </group>
+      )
+    case 'madscientist': // wild frizzy hair + goggles pushed up on the forehead
+      return (
+        <group>
+          {[[-0.5, 0.2, 0.1], [-0.28, 0.5, -0.1], [0.0, 0.62, 0.15], [0.3, 0.5, -0.12], [0.52, 0.24, 0.08], [-0.12, 0.44, 0.4], [0.16, 0.4, -0.38]].map(([dx, dy, dz], i) => (
+            <Ball key={i} p={[dx as number, hy + 0.34 + (dy as number), dz as number]} r={0.2} c={c.extra} />
+          ))}
+          {/* goggles on the brow */}
+          {[-0.28, 0.28].map((ex) => (
+            <mesh key={ex} position={[ex, hy + 0.02, 0.52]}>
+              <torusGeometry args={[0.17, 0.05, 10, 22]} />
+              <meshStandardMaterial color={'#2b2f3a'} {...MAT} />
+            </mesh>
+          ))}
+          {[-0.28, 0.28].map((ex) => <Ball key={`g${ex}`} p={[ex, hy + 0.02, 0.55]} r={0.13} c={'#8fe3ff'} />)}
+          <Box p={[0, hy + 0.02, 0.5]} s={[0.24, 0.05, 0.05]} c={'#2b2f3a'} />
+        </group>
+      )
     case 'skeleton':
     case 'slime':
     default:
@@ -383,6 +422,7 @@ function hatColor(id: string, salt = ''): string {
 const NO_ACC = new Set([
   'wizard', 'monitor', 'octopus', 'slime', 'ghost', 'jellyfish', 'bibendum', 'geo',
   'mushroom', 'rabbit', 'frog', 'godzilla', 'chicken', 'dragon', 'poodle', 'duck',
+  'knight', 'mage', 'madscientist', // these carry their own headwear
 ])
 function accForId(id: string, kind: string): Acc | null {
   if (NO_ACC.has(kind)) return null

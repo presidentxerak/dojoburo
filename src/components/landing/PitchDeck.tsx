@@ -4,6 +4,7 @@ import { Wordmark } from '../Wordmark'
 import { AsciiIcon } from '../AsciiIcon'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 import { DojoDiorama } from './DojoDiorama'
+import { Object3DInline } from './Object3D'
 import { SKINS } from '../../data/skins'
 import { useInView } from './useInView'
 
@@ -12,10 +13,12 @@ function trio(seed: number) {
   const step = Math.floor(SKINS.length / 3)
   return [0, 1, 2].map((k) => SKINS[(seed * 7 + k * step) % SKINS.length])
 }
+// a skin of a given kind if one exists, else a spread pick
+const skinOfKind = (kind: string, fallbackSeed: number) => SKINS.find((s) => s.kind === kind) ?? SKINS[(fallbackSeed * 13) % SKINS.length]
 
 // A 10-slide investor pitch deck in the DojoBuro visual language · ascii-art
-// icons, the 3D dojo, kawaii characters and the magenta/blue accents. One
-// punchy 24px sentence per slide. Presented full-screen and printable to PDF.
+// icons, full-3D object icons, the 3D dojo, kawaii characters and the
+// magenta/blue accents. One punchy 24px sentence per slide. Printable to PDF.
 
 type Visual = 'brand' | 'dojo' | 'team' | 'icon'
 type Slide = {
@@ -23,6 +26,8 @@ type Slide = {
   kicker: string
   line: string
   icon: string
+  /** full-3D object kind (Object3DInline) for 'icon' + 'brand' slides */
+  obj: string
   accent: string
   visual: Visual
 }
@@ -30,25 +35,36 @@ type Slide = {
 const A = { magenta: '#ff2d9b', blue: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', violet: '#a06bff' }
 
 const SLIDES: Slide[] = [
-  { n: '', kicker: 'Investor deck', line: 'Your AI team, working while you watch.', icon: 'cast', accent: A.magenta, visual: 'brand' },
-  { n: '01', kicker: 'The problem', line: 'Running a business means juggling a dozen apps and never mastering any of them.', icon: 'job', accent: A.orange, visual: 'icon' },
-  { n: '02', kicker: 'The solution', line: 'DojoBuro is a living 3D office where AI agents each own a real function of your work.', icon: 'build', accent: A.blue, visual: 'dojo' },
-  { n: '03', kicker: 'How it adapts', line: 'Pick your trade and the office tailors itself: the right crew, the right apps, wired and ready.', icon: 'stack', accent: A.teal, visual: 'team' },
-  { n: '04', kicker: 'The product', line: 'Agents act for real inside your apps: they open the PR, draft the email, raise the invoice.', icon: 'run', accent: A.violet, visual: 'team' },
-  { n: '05', kicker: 'The rail', line: 'Every task settles on the XRP Ledger with x402 micro-payments · real agent-to-agent commerce.', icon: 'pay', accent: A.blue, visual: 'icon' },
-  { n: '06', kicker: 'The market', line: 'Every solo founder, freelancer and small team drowning in SaaS is a DojoBuro seat.', icon: 'watch', accent: A.magenta, visual: 'icon' },
-  { n: '07', kicker: 'The model', line: 'You bring the model key, we run the hub · a whole automated team for less than one SaaS seat.', icon: 'price', accent: A.yellow, visual: 'icon' },
-  { n: '08', kicker: 'Why now', line: 'Agentic payments and MCP just made autonomous, tool-using AI teams finally possible.', icon: 'bolt', accent: A.orange, visual: 'dojo' },
-  { n: '09', kicker: 'The ask', line: 'Join us in building the office where your AI team works while you watch.', icon: 'run', accent: A.magenta, visual: 'brand' },
+  { n: '', kicker: 'Investor deck', line: 'Your AI team, working while you watch.', icon: 'cast', obj: 'rocket', accent: A.magenta, visual: 'brand' },
+  { n: '01', kicker: 'The problem', line: 'Running a business means juggling a dozen apps and never mastering any of them.', icon: 'job', obj: 'briefcase', accent: A.orange, visual: 'icon' },
+  { n: '02', kicker: 'The solution', line: 'DojoBuro is a living 3D office where AI agents each own a real function of your work.', icon: 'build', obj: 'network', accent: A.blue, visual: 'dojo' },
+  { n: '03', kicker: 'How it adapts', line: 'Pick your trade and the office tailors itself: the right crew, the right apps, wired and ready.', icon: 'stack', obj: 'network', accent: A.teal, visual: 'team' },
+  { n: '04', kicker: 'The product', line: 'Agents act for real inside your apps: they open the PR, draft the email, raise the invoice.', icon: 'run', obj: 'gear', accent: A.violet, visual: 'team' },
+  { n: '05', kicker: 'The rail', line: 'Every task settles on the XRP Ledger with x402 micro-payments · real agent-to-agent commerce.', icon: 'pay', obj: 'coins', accent: A.blue, visual: 'icon' },
+  { n: '06', kicker: 'The market', line: 'Every solo founder, freelancer and small team drowning in SaaS is a DojoBuro seat.', icon: 'watch', obj: 'eye', accent: A.magenta, visual: 'icon' },
+  { n: '07', kicker: 'The model', line: 'You bring the model key, we run the hub · a whole automated team for less than one SaaS seat.', icon: 'price', obj: 'gem', accent: A.yellow, visual: 'icon' },
+  { n: '08', kicker: 'Why now', line: 'Agentic payments and MCP just made autonomous, tool-using AI teams finally possible.', icon: 'bolt', obj: 'gear', accent: A.orange, visual: 'dojo' },
+  { n: '09', kicker: 'The ask', line: 'Join us in building the office where your AI team works while you watch.', icon: 'run', obj: 'rocket', accent: A.magenta, visual: 'brand' },
 ]
 
 function SlideVisual({ slide, idx, active }: { slide: Slide; idx: number; active: boolean }) {
   const [ref, inView] = useInView<HTMLDivElement>('120px')
   const show = active && inView
-  if (slide.visual === 'brand' || slide.visual === 'icon') {
+  if (slide.visual === 'brand') {
+    // a hero character (showing off a new skin) beside a big ascii face
+    const hero = skinOfKind(idx === 0 ? 'knight' : 'mage', idx)
     return (
-      <div className="pd-visual" ref={ref}>
+      <div className="pd-visual pd-visual-brand" ref={ref}>
+        {show && <div className="pd-char pd-char-lg"><Agent3DPreview id={hero.id} character={hero} size={220} /></div>}
         <span className="pd-bigicon" style={{ color: slide.accent }}><AsciiIcon kind={slide.icon} speed={420} /></span>
+      </div>
+    )
+  }
+  if (slide.visual === 'icon') {
+    return (
+      <div className="pd-visual pd-visual-icon" ref={ref}>
+        {show ? <Object3DInline kind={slide.obj} color={slide.accent} size={280} /> : null}
+        <span className="pd-ascii-chip" style={{ color: slide.accent }}><AsciiIcon kind={slide.icon} /></span>
       </div>
     )
   }

@@ -7,8 +7,8 @@ import { useWorkshop } from '../workshop'
 import { NETWORKS } from '../xrpl/network'
 import { connectorsForFunction, tasksForFunction } from '../data/connectors'
 import { useWork } from '../agents/workStore'
-import { startConnect } from '../agents/workApi'
 import { Agent3DPreview } from './three/Agent3DPreview'
+import { ConnectorsPanel } from './ConnectorsPanel'
 import { Icon } from './Icon'
 
 export function AgentPanel() {
@@ -25,11 +25,9 @@ export function AgentPanel() {
   useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
 
   const tools = useWork((s) => s.tools)
-  const backend = useWork((s) => s.backend)
   const loadedOnce = useWork((s) => s.loadedOnce)
   const loadTools = useWork((s) => s.loadTools)
   const run = useWork((s) => s.run)
-  const disconnect = useWork((s) => s.disconnect)
   const runningTask = useWork((s) => s.runningTask)
   const runError = useWork((s) => s.runError)
   const byok = useWork((s) => s.byok)
@@ -154,39 +152,8 @@ export function AgentPanel() {
         </section>
       )}
 
-      {/* ---- Connect real tools (per function) ---- */}
-      {connectors.length > 0 && (
-        <section className="conn-block">
-          <h3 className="skills-title">Connect tools</h3>
-          <p className="work-intro">Link a tool once (secure OAuth) · then this agent works <em>inside</em> it: creates the page, opens the PR, drafts the mail.</p>
-          <ul className="conn-list">
-            {connectors.map((c) => {
-              const st = tools[c.id]
-              const connected = !!st?.connected
-              const available = !!st?.available
-              return (
-                <li key={c.id} className={`conn-row${connected ? ' on' : ''}`}>
-                  <span className="conn-mono">{c.label.slice(0, 2)}</span>
-                  <span className="conn-meta">
-                    <span className="conn-name">{c.label}</span>
-                    <span className="conn-blurb">{connected && st?.account ? `Connected · ${st.account}` : c.blurb}</span>
-                  </span>
-                  {connected ? (
-                    <button className="btn tiny ghost" onClick={() => void disconnect(c.id)}>Disconnect</button>
-                  ) : available ? (
-                    <button className="btn tiny" onClick={() => startConnect(c.id)}>Connect</button>
-                  ) : (
-                    <a className="conn-setup" href={c.docsUrl} target="_blank" rel="noreferrer" title="Operator must configure this connector">setup ↗</a>
-                  )}
-                </li>
-              )
-            })}
-          </ul>
-          {loadedOnce && !backend && (
-            <p className="work-hint">Tool connections need <code>DATABASE_URL</code> + <code>CONNECTOR_ENC_KEY</code> and each tool's OAuth keys.</p>
-          )}
-        </section>
-      )}
+      {/* ---- Connect real tools · pedagogical panel shared with the Studio ---- */}
+      {connectors.length > 0 && <ConnectorsPanel dept={dept} />}
 
       <div className="agent-wallet-row">
         <div>
