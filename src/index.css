@@ -1631,3 +1631,16 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 /* ===== reset Xaman (switch app / key) ===== */
 .wal-reset { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); }
+
+/* ===========================================================================
+   Legal pages (/terms, /privacy)
+   =========================================================================== */
+.legal { min-height: 100vh; }
+.legal-body { max-width: 780px; margin: 0 auto; padding: 40px 24px 60px; }
+.legal-body h1 { font-family: var(--font-pixel); font-weight: 900; font-size: clamp(30px, 5vw, 46px); letter-spacing: -0.02em; margin: 8px 0 4px; color: var(--ink); }
+.legal-updated { font-size: 13px; color: var(--muted); margin: 0 0 20px; }
+.legal-lead { font-size: 18px; line-height: 1.6; color: var(--ink); margin: 0 0 24px; }
+.legal-body h2 { font-family: var(--font-pixel); font-weight: 800; font-size: 19px; margin: 28px 0 8px; color: var(--ink); }
+.legal-body p { font-size: 15.5px; line-height: 1.7; color: var(--muted); margin: 0 0 12px; }
+.legal-body a { color: var(--violet); text-decoration: underline; }
+.legal-body a:hover { color: var(--ink); }

@@ -457,6 +457,8 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#pricing">Pricing</a>
           <a href="#onramp">Agentic pay</a>
           <a href="#prod">Production</a>
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
           <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Enter the office</a>
         </nav>
         <div className="lp-deck-actions">
