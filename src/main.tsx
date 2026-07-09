@@ -5,6 +5,7 @@ import { Landing } from './Landing'
 import { AuthProvider } from './auth/AuthProvider'
 import { WidgetApp } from './WidgetApp'
 import { Terms, Privacy } from './LegalPage'
+import { GuidePage } from './DojoGuide'
 import './index.css'
 
 function Root() {
@@ -18,6 +19,7 @@ function Root() {
   const path = location.pathname.replace(/\/+$/, '')
   if (path === '/terms') return <Terms />
   if (path === '/privacy') return <Privacy />
+  if (path === '/guide') return <GuidePage />
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />

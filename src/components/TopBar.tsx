@@ -12,6 +12,7 @@ import { Wordmark } from './Wordmark'
 import { Icon } from './Icon'
 import { InfoDot } from './InfoDot'
 import { SkinAvatar } from './workshop/SkinAvatar'
+import { GuideModal } from '../DojoGuide'
 
 const NETS: NetworkId[] = ['testnet', 'devnet', 'mainnet']
 
@@ -29,6 +30,7 @@ export function TopBar() {
   const signOut = useWorkshop((s) => s.signOut)
 
   const [menuOpen, setMenuOpen] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
   const [confirmMainnet, setConfirmMainnet] = useState(false)
 
   const soundOn = !muted
@@ -97,6 +99,7 @@ export function TopBar() {
 
       <div className="topbar-right">
         {/* desktop inline controls */}
+        <button className="btn tiny tb-guide tb-desktop" onClick={() => setGuideOpen(true)}>Dojo Guide</button>
         <button className="btn tiny tb-desktop" onClick={openStudio}>Studio</button>
         {account ? (
           <button className="tb-profile tb-desktop" onClick={() => setMenuOpen((v) => !v)} aria-label="Profile & settings" title={account.name || 'Founder'}>
@@ -120,6 +123,7 @@ export function TopBar() {
           <div className="tb-menu-scrim" onClick={() => setMenuOpen(false)} />
           <div className="tb-menu" role="menu">
             {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
+            <button className="tb-menu-item tb-only-mobile" onClick={() => { setMenuOpen(false); setGuideOpen(true) }}>Dojo Guide</button>
             <button className="tb-menu-item tb-only-mobile" onClick={openStudio}>Studio</button>
 
             {account ? (
@@ -162,6 +166,8 @@ export function TopBar() {
           </div>
         </div>
       )}
+
+      {guideOpen && <GuideModal onClose={() => setGuideOpen(false)} />}
     </header>
   )
 }

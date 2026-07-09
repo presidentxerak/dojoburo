@@ -141,6 +141,18 @@ export const KB: KBTopic[] = [
     keywords: ['setup', 'set up', 'client id', 'client secret', 'oauth app', 'redirect', 'env', 'configure', 'composio', 'zapier', 'pipedream', 'mcp url', 'mcp_url', 'hub', 'how to connect', 'create app', 'pkce', 'credentials', 'connect panel', 'studio'],
   },
   {
+    id: 'guide',
+    chip: 'Dojo Guide',
+    answer:
+      'The Dojo Guide is the full walkthrough of connectors: how to connect an app, how to configure the OAuth account, how to use it and see the result of the work, how to stay safe (avoid getting hacked), and how to keep your budget under control. Open it from the "Dojo Guide" button in the header (app or landing).',
+    links: [
+      { label: 'Open the Dojo Guide', href: '/guide', external: true },
+      { label: 'How to connect an app', href: '#stack' },
+    ],
+    follow: ['setup', 'tools', 'cost'],
+    keywords: ['guide', 'dojo guide', 'help', 'how to', 'walkthrough', 'tutorial', 'get started guide', 'security', 'safe', 'hack', 'budget', 'configure'],
+  },
+  {
     id: 'skins',
     chip: 'Skins & customization',
     answer:

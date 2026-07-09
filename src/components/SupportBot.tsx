@@ -13,7 +13,7 @@ interface Msg {
 let uid = 0
 const nid = () => ++uid
 const MAX_LEN = 1500
-const START_CHIPS = ['start', 'setup', 'skins', 'cost', 'pricing', 'deck', 'tools']
+const START_CHIPS = ['guide', 'start', 'setup', 'skins', 'cost', 'pricing', 'tools']
 
 function LinkButton({ link }: { link: KBLink }) {
   const external = link.external
