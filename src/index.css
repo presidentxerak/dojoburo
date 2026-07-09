@@ -1690,9 +1690,9 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .tb-burger.on span:nth-child(2) { opacity: 0; }
 .tb-burger.on span:nth-child(3) { transform: translateY(-6.9px) rotate(-45deg); }
 
-.tb-menu-scrim { position: fixed; inset: 0; z-index: 40; }
+.tb-menu-scrim { position: fixed; inset: 0; z-index: 118; }
 .tb-menu {
-  position: absolute; top: calc(100% + 8px); right: 6px; z-index: 41; width: 300px; max-width: calc(100vw - 24px);
+  position: fixed; top: 70px; right: 16px; z-index: 119; width: 300px; max-width: calc(100vw - 24px);
   display: flex; flex-direction: column; gap: 4px; padding: 10px;
   background: var(--panel-solid); border: 1px solid var(--border-lit); border-radius: 14px; box-shadow: var(--shadow);
   animation: sbpop 0.16s ease-out;

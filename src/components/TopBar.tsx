@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useDojo } from '../store'
 import { useWorkshop } from '../workshop'
 import { useWork } from '../agents/workStore'
@@ -114,7 +115,7 @@ export function TopBar() {
         </button>
       </div>
 
-      {menuOpen && (
+      {menuOpen && createPortal(
         <>
           <div className="tb-menu-scrim" onClick={() => setMenuOpen(false)} />
           <div className="tb-menu" role="menu">
@@ -137,7 +138,8 @@ export function TopBar() {
 
             {account && <button className="tb-menu-item tb-signout" onClick={doSignOut}>Sign out</button>}
           </div>
-        </>
+        </>,
+        document.body,
       )}
 
       {confirmMainnet && (
