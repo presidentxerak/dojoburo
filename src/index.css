@@ -1620,7 +1620,8 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 /* ===== header connect-wallet button ===== */
 .tb-wallet { font-family: var(--font-pixel); font-weight: 800; white-space: nowrap; }
-.tb-wallet.on { background: color-mix(in srgb, #12b36a 16%, var(--btn-bg)); color: var(--ink); }
+.tb-wallet.on { background: var(--c-magenta); border-color: var(--c-magenta); color: #fff; }
+.tb-wallet.on:hover { background: color-mix(in srgb, var(--c-magenta) 88%, #000); }
 
 /* ===== brand-coloured connector logo tiles (used in marquee + connector panel) ===== */
 .clogo {
