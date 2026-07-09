@@ -67,7 +67,7 @@ export function Landing({ enter }: { enter: () => void }) {
 
       <section className="lp-hero">
         <p className="lp-kicker">An automated productivity hub, run by AI agents · orchestrated on the XRP Ledger</p>
-        <h1>Your <span className="hl-outline">AI</span> <span className="hl-outline">TEAM</span>, working while you <span className="hl-b">watch</span>.</h1>
+        <h1>Your <span className="hl-mag">AI</span> <span className="hl-mag">TEAM</span>, working while you <span className="hl-outline-b">WATCH</span>.</h1>
         <p className="lp-sub">
           <Wordmark /> is a living 3D office where a team of specialised AI agents each own a real
           function of your work. It adapts to your profession, connects your everyday apps, runs the

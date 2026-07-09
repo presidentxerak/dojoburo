@@ -854,7 +854,13 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-table tbody tr { transition: background 0.14s; }
 
 /* studio save bar */
-.ws-savebar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding-top: 13px; border-top: 1px solid var(--border); }
+.ws-savebar {
+  position: sticky; bottom: 0; z-index: 6;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 16px -16px -16px; padding: 12px 16px;
+  background: var(--panel-solid); border-top: 1px solid var(--border);
+  box-shadow: 0 -6px 16px color-mix(in srgb, var(--ink) 10%, transparent);
+}
 .ws-saveflag { font-family: var(--font-read); font-size: 11px; color: var(--muted); }
 .ws-saveflag.on { color: #c98a00; }
 :root[data-theme='dark'] .ws-saveflag.on { color: #ffcf6a; }
@@ -1328,7 +1334,21 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
   -webkit-text-stroke: 2.5px var(--ink); text-stroke: 2.5px var(--ink);
   paint-order: stroke fill;
 }
-@media (max-width: 600px) { .landing .lp-hero h1 .hl-outline { -webkit-text-stroke-width: 1.5px; } }
+/* AI TEAM · solid rose magenta */
+.landing .lp-hero h1 .hl-mag {
+  font-family: 'Silkscreen', 'Courier New', monospace !important; font-weight: 400 !important;
+  color: var(--c-magenta) !important; -webkit-text-fill-color: var(--c-magenta);
+}
+/* WATCH · blue outline */
+.landing .lp-hero h1 .hl-outline-b {
+  font-family: 'Silkscreen', 'Courier New', monospace !important; font-weight: 400 !important;
+  color: transparent; -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 2.5px #2f6bff; text-stroke: 2.5px #2f6bff;
+  paint-order: stroke fill;
+}
+@media (max-width: 600px) {
+  .landing .lp-hero h1 .hl-outline, .landing .lp-hero h1 .hl-outline-b { -webkit-text-stroke-width: 1.5px; }
+}
 
 /* ===== "Built around your job": white post-it notes · tape + a slight tilt === */
 .lp-jobs { gap: 24px 20px; padding-top: 12px; }

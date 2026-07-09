@@ -4,6 +4,7 @@ import { connectorsForFunction, WORK_TASKS } from '../data/connectors'
 import { useWork } from '../agents/workStore'
 import { startConnect } from '../agents/workApi'
 import { ConnectorLogo } from './ConnectorLogo'
+import { InfoDot } from './InfoDot'
 
 // Which real deliverables (WORK_TASKS) of this department act inside a connector,
 // so the UI can say "Powers: Write a PRD, Design system" under each app.
@@ -60,6 +61,13 @@ export function ConnectorsPanel({ dept }: { dept: Department }) {
                   {c.label}
                   <em className="cx-cat">{c.category}</em>
                   <em className={`cx-auth cx-auth-${c.auth}`}>{c.auth === 'oauth' ? 'OAuth' : 'token'}</em>
+                  <InfoDot title={`Connect ${c.label}`} label={`How to connect ${c.label}`}>
+                    <p>{c.blurb}</p>
+                    <p><b>What it does here:</b> once connected, this agent's tasks act inside {c.label} for real{uses.length > 0 ? ` · ${uses.join(', ')}` : ''}.</p>
+                    <p><b>As a user (1 click):</b> hit <b>Connect</b> and approve the {c.provider} screen once. The token is sealed server-side (AES-256-GCM) and the agent can act · you never share a password or seed. Disconnect anytime.</p>
+                    <p><b>Operator setup (one-time):</b> create an app in the {c.provider} console{c.auth === 'oauth' ? ', set the redirect to ' : ' and '}{c.auth === 'oauth' ? <code>your-site/api/connect</code> : null}{c.auth === 'oauth' ? ', then add the keys to env: ' : 'add the key: '}{c.env.map((e, i) => <span key={e.name}>{i > 0 ? ', ' : ''}<code>{e.name}</code></span>)}.</p>
+                    <p><a href={c.docsUrl} target="_blank" rel="noreferrer">Open the {c.provider} console ↗</a></p>
+                  </InfoDot>
                 </span>
                 <span className="cx-blurb">{connected && st?.account ? `Connected · ${st.account}` : c.blurb}</span>
                 {uses.length > 0 && <span className="cx-uses">Powers: {uses.join(' · ')}</span>}
