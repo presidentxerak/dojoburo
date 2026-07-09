@@ -114,6 +114,12 @@ function Slide({ slide, idx, active }: { slide: DeckSlide; idx: number; active: 
           {copy}
           <Illustration slide={slide} active={active} size={300} />
         </>
+      ) : idx % 2 === 1 ? (
+        // vary the layout: on odd 'object' slides the 3D sits above the text
+        <>
+          <Illustration slide={slide} active={active} size={240} />
+          {copy}
+        </>
       ) : (
         <>
           {copy}

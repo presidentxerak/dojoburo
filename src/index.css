@@ -796,7 +796,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 /* logo mark · apple-green kawaii face (the assistant's head). The SVG carries
    its own rounded-square shape + colour, so the wrapper is just a sizing box. */
-.logo-badge { display: inline-grid; place-items: center; background: transparent; flex: none; line-height: 0; filter: drop-shadow(0 2px 5px rgba(120, 30, 20, 0.28)); }
+.logo-badge { display: inline-grid; place-items: center; background: transparent; flex: none; line-height: 0; filter: drop-shadow(0 2px 5px rgba(20, 80, 130, 0.28)); }
 .logo-badge svg { display: block; }
 
 /* 3D agent previews · soft neutral backdrop so light + dark skins both read */
@@ -1428,7 +1428,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .pd-slide {
   display: none; width: min(100%, 1180px); aspect-ratio: 16 / 9; max-height: 100%;
   background: #ffffff; border: 1px solid #e4e6ec;
-  border-top: 4px solid var(--pa); border-radius: 4px; overflow: hidden; box-shadow: 0 24px 60px rgba(20, 24, 40, 0.16);
+  border-radius: 4px; overflow: hidden; box-shadow: 0 24px 60px rgba(20, 24, 40, 0.16);
 }
 .pd-slide.on { display: block; }
 
@@ -1459,7 +1459,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .pd-cards { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 .pd-card {
   min-width: 180px; padding: 16px 18px; background: #fff; border: 1px solid #e4e6ec;
-  border-top: 3px solid var(--pa); border-radius: 14px; box-shadow: 0 8px 20px rgba(20, 24, 40, 0.06);
+  border-radius: 4px; box-shadow: 0 8px 20px rgba(20, 24, 40, 0.06);
   display: flex; flex-direction: column; gap: 5px; text-align: left;
 }
 .pd-card strong { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: #14141a; }
@@ -1916,3 +1916,35 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
   .dg2-grid { grid-template-columns: 1fr 1fr; }
   .dg2-conn-head { gap: 12px; }
 }
+
+/* ===========================================================================
+   Uniform component shape · every button and card carries a 1px border with
+   4px rounded corners, app-wide. Circular utilities (info dots, nav dots,
+   burgers, the logo, avatars) are deliberately left out.
+   =========================================================================== */
+.btn, .lp-cta, .lp-ghost, .ws-btn, .pd-btn, .work-btn, .skill-btn, .agent-edit-btn,
+.net-tab, .tb-toggle, .tb-menu-item, .tb-wallet-item, .sb-chip, .sb-link, .sb-input button,
+.tb-guide, .lp-navguide, .lp-menu-guide, .lp-deck-dl, .lp-deck-view, .cx-how-t, .dg2-back,
+.ws-dockbtn, .ws-cur, .cx-setup, .linklike,
+.lp-card, .lp-job, .lp-plan, .lp-node, .lp-benefit, .lp-tier, .lp-step, .lp-step3,
+.pd-card, .pd-stat, .dg2-ccard, .dg2-osteps li, .dg2-envbox, .stat-tile,
+.ws-plan, .ws-tplcard, .ws-profcard, .ws-skincell, .ws-cell, .cx-row, .ws-extrow, .ext-reply,
+.lp-toolpill, .lp-tool-chip, .work-brief, .beta-badge {
+  border-radius: 4px !important;
+}
+
+/* cards get a visible 1px border (variants with a stronger coloured border keep
+   theirs · they are more specific than this base rule) */
+.lp-card, .lp-job, .lp-plan, .lp-node, .lp-benefit, .lp-tier, .lp-step, .lp-step3,
+.pd-card, .stat-tile, .ws-plan, .ws-tplcard, .ws-profcard, .ws-skincell, .ws-cell,
+.cx-row, .ws-extrow {
+  border: 1px solid var(--border);
+}
+
+/* buttons get a border too · !important to beat the primary "border:none" rule */
+.btn, .lp-cta, .lp-ghost, .ws-btn, .pd-btn, .work-btn, .skill-btn, .agent-edit-btn,
+.net-tab, .tb-toggle, .sb-chip, .sb-input button, .lp-deck-dl, .lp-deck-view {
+  border: 1px solid var(--border) !important;
+}
+/* preserve the danger buttons' red outline (re-asserted after the rule above) */
+.btn.danger, .ws-btn.danger { border: 1.5px solid color-mix(in srgb, #e0475f 45%, transparent) !important; }

@@ -33,9 +33,8 @@ export function downloadDeckPdf() {
     if (i > 0) doc.addPage()
     const accent = hexRgb(s.accent)
 
-    // paper + accent top bar
+    // clean paper · no coloured top strip
     doc.setFillColor(...PAPER); doc.rect(0, 0, W, H, 'F')
-    doc.setFillColor(...accent); doc.rect(0, 0, W, 4, 'F')
 
     // eyebrow (centred, accent)
     doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...accent)
@@ -56,7 +55,7 @@ export function downloadDeckPdf() {
 
     // illustration area · cards, stat tiles or the financial table
     if (s.layout === 'cards' && s.cards) {
-      drawCards(doc, s.cards.map((c) => [c.label, c.sub]), CX, y + 4, accent)
+      drawCards(doc, s.cards.map((c) => [c.label, c.sub]), CX, y + 4)
     } else if (s.layout === 'stats' && s.stats) {
       drawStats(doc, s.stats.map((c) => [c.big, c.label]), CX, y + 4, accent)
     } else if (s.layout === 'table' && s.table) {
@@ -93,14 +92,13 @@ export function downloadDeckPdf() {
 }
 
 // A centred row of cards (label + sub), landing-style rounded rectangles.
-function drawCards(doc: jsPDF, cards: [string, string][], cx: number, y: number, accent: RGB) {
+function drawCards(doc: jsPDF, cards: [string, string][], cx: number, y: number) {
   const cw = 74, ch = 30, gap = 10
   const total = cards.length * cw + (cards.length - 1) * gap
   let x = cx - total / 2
   cards.forEach(([label, sub]) => {
     doc.setFillColor(...PAPER); doc.setDrawColor(...CARD_LINE); doc.setLineWidth(0.3)
-    doc.roundedRect(x, y, cw, ch, 3, 3, 'FD')
-    doc.setFillColor(...accent); doc.roundedRect(x, y, cw, 2.2, 1, 1, 'F') // accent top edge
+    doc.roundedRect(x, y, cw, ch, 1.4, 1.4, 'FD')
     doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(...INK)
     doc.text(label, x + cw / 2, y + 13, { align: 'center', maxWidth: cw - 8 })
     doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...MUTED)
@@ -116,7 +114,7 @@ function drawStats(doc: jsPDF, stats: [string, string][], cx: number, y: number,
   let x = cx - total / 2
   stats.forEach(([big, label]) => {
     doc.setFillColor(...tint(accent, 0.9)); doc.setDrawColor(...tint(accent, 0.6)); doc.setLineWidth(0.3)
-    doc.roundedRect(x, y, cw, ch, 3, 3, 'FD')
+    doc.roundedRect(x, y, cw, ch, 1.4, 1.4, 'FD')
     doc.setFont('courier', 'bold'); doc.setFontSize(18); doc.setTextColor(...accent)
     doc.text(big, x + cw / 2, y + 15, { align: 'center', maxWidth: cw - 6 })
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...MUTED)
