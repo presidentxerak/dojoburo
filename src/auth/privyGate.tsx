@@ -72,13 +72,16 @@ function Bridge({ children }: { children: ReactNode }) {
 }
 
 export default function PrivyGate({ children }: { children: ReactNode }) {
+  const theme = (document.documentElement.dataset.theme as 'light' | 'dark') || 'light'
   return (
     <PrivyProvider
       appId={APP_ID}
       config={{
-        appearance: { theme: 'dark', accentColor: '#7c5cff', logo: undefined },
-        loginMethods: ['email', 'wallet', 'google', 'apple', 'twitter', 'discord'],
-        embeddedWallets: { ethereum: { createOnLogin: 'users-without-wallets' } },
+        // sign in with email or Google (Gmail) only · nothing else
+        loginMethods: ['email', 'google'],
+        appearance: { theme, accentColor: '#ff2d9b', walletList: [] },
+        // no crypto wallet is created or required for signing in
+        embeddedWallets: { ethereum: { createOnLogin: 'off' } },
       }}
     >
       <Bridge>{children}</Bridge>
