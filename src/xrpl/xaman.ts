@@ -34,6 +34,20 @@ export function setApiKey(key: string) {
   localStorage.setItem(KEY_STORE, key.trim())
 }
 
+/** Fully reset Xaman: log out of the current app, drop the cached SDK instance,
+ *  clear the stored API key AND purge the SDK's persisted OAuth/PKCE session so
+ *  a NEW Xaman app (new client_id) is used cleanly on the next connect. */
+export async function resetSession() {
+  await disconnect()
+  try { localStorage.removeItem(KEY_STORE) } catch { /* ignore */ }
+  try {
+    // the xumm SDK persists its session/JWT under keys like "XummPkceJwt" / "xumm..."
+    for (const k of Object.keys(localStorage)) {
+      if (/^xumm/i.test(k)) localStorage.removeItem(k)
+    }
+  } catch { /* ignore */ }
+}
+
 export function isConfigured(): boolean {
   return !!getApiKey()
 }

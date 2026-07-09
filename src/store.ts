@@ -99,6 +99,7 @@ interface DojoState {
   walletDisconnect: () => Promise<void>
   walletFund: (amountXrp: number) => Promise<void>
   setXamanKey: (key: string) => void
+  resetXaman: () => Promise<void>
 
   selectAgent: (id: string | null) => void
   setMood: (id: string, mood: Mood, ms?: number) => void
@@ -244,6 +245,19 @@ export const useDojo = create<DojoState>((set, get) => ({
   setXamanKey: (key) => {
     xaman.setApiKey(key)
     set((s) => ({ wallet: { ...s.wallet, xamanConfigured: xaman.isConfigured() } }))
+  },
+
+  resetXaman: async () => {
+    await xaman.resetSession()
+    set((s) => ({
+      wallet: {
+        ...s.wallet,
+        xamanConfigured: xaman.isConfigured(),
+        error: null,
+        ...(s.wallet.provider === 'xaman' ? { provider: null, account: null, signLink: null, signQr: null } : {}),
+      },
+    }))
+    get().log({ agentId: 'lex', skill: 'wallet', level: 'success', message: 'Xaman reset · cleared key + session. Add your new API key and reconnect.' })
   },
 
   walletConnect: async (id) => {

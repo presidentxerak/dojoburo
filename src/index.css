@@ -1628,3 +1628,6 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
   font-family: var(--font-pixel); font-weight: 800; letter-spacing: -0.02em; line-height: 1;
   box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
 }
+
+/* ===== reset Xaman (switch app / key) ===== */
+.wal-reset { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); }

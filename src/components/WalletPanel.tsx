@@ -13,6 +13,7 @@ export function WalletPanel() {
   const disconnect = useDojo((s) => s.walletDisconnect)
   const fund = useDojo((s) => s.walletFund)
   const setKey = useDojo((s) => s.setXamanKey)
+  const resetXaman = useDojo((s) => s.resetXaman)
 
   const [keyInput, setKeyInput] = useState('')
   const [showKey, setShowKey] = useState(false)
@@ -114,6 +115,13 @@ export function WalletPanel() {
           )}
 
           {w.error && <p className="wal-err">{w.error}</p>}
+
+          <div className="wal-reset">
+            <span className="muted small">Changed your Xaman app / API key?</span>
+            <button className="btn tiny ghost" onClick={() => { audio.sfx('click'); void resetXaman() }} title="Log out, clear the stored key and purge the old Xaman session">
+              Reset Xaman
+            </button>
+          </div>
         </div>
       ) : (
         <div className="xaman-account">
