@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useWorkshop, GRID, MAX_AGENTS, type WAgent } from '../../workshop'
+import { useWorkshop, GRID, MAX_AGENTS, type WAgent, type ExtAgent } from '../../workshop'
+import { verifyExternalAgent } from '../../agents/externalAgents'
 import { SKINS, SKIN_THEMES, skinById } from '../../data/skins'
 import { DOJO_TEMPLATES, templateById } from '../../data/templates'
 import { PROFESSIONS, professionColor } from '../../data/professions'
@@ -300,7 +301,105 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
       {/* apps this agent's tasks can act inside · connect them right here */}
       <div className="ws-conn"><ConnectorsPanel dept={agent.fn} /></div>
 
+      {/* external agents · link the user's own Notion/Slack/MCP/A2A agents */}
+      <ExternalAgentsPanel agent={agent} onChange={(list) => update(agent.id, { externalAgents: list })} />
+
       <button className="ws-btn danger" onClick={() => { remove(agent.id); onDeleted() }}>Delete agent</button>
+    </div>
+  )
+}
+
+// Link EXTERNAL AI agents (a Notion/Slack agent, or any MCP / A2A host) to this
+// DojoBuro agent. MCP agents plug in as tools during a run; A2A / webhook agents
+// receive delegated tasks. Verify checks reachability + identity via the server
+// proxy (tokens stay off the browser wire).
+const PROTO_HELP: Record<ExtAgent['protocol'], string> = {
+  mcp: 'MCP server · its tools are handed to this agent during a run.',
+  a2a: 'A2A agent · this agent can delegate a whole task to it.',
+  webhook: 'Webhook · POSTs { task } and reads the reply text.',
+}
+
+function ExternalAgentsPanel({ agent, onChange }: { agent: WAgent; onChange: (list: ExtAgent[]) => void }) {
+  const list = agent.externalAgents ?? []
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [protocol, setProtocol] = useState<ExtAgent['protocol']>('mcp')
+  const [url, setUrl] = useState('')
+  const [token, setToken] = useState('')
+  const [status, setStatus] = useState<Record<string, { busy?: boolean; ok?: boolean; msg?: string }>>({})
+
+  const add = () => {
+    const u = url.trim()
+    if (!u || !/^https:\/\//i.test(u)) return
+    const ext: ExtAgent = {
+      id: 'ext_' + u.replace(/[^a-z0-9]/gi, '').slice(-8) + '_' + list.length,
+      name: name.trim() || 'External agent',
+      protocol, url: u, authToken: token.trim() || undefined,
+    }
+    onChange([...list, ext])
+    setName(''); setUrl(''); setToken(''); setOpen(false)
+  }
+
+  const verify = async (ext: ExtAgent) => {
+    setStatus((s) => ({ ...s, [ext.id]: { busy: true } }))
+    const r = await verifyExternalAgent(ext)
+    setStatus((s) => ({
+      ...s,
+      [ext.id]: r.ok
+        ? { ok: true, msg: `${r.name || 'linked'}${r.capabilities?.length ? ' · ' + r.capabilities.slice(0, 4).join(', ') : ''}` }
+        : { ok: false, msg: r.error || 'Could not verify.' },
+    }))
+  }
+
+  return (
+    <div className="ws-extagents">
+      <div className="ws-ext-h">
+        <span>External agents <span className="ws-ext-count">{list.length}</span></span>
+        <button className="ws-btn" onClick={() => setOpen((v) => !v)}>{open ? 'Cancel' : '+ Link an agent'}</button>
+      </div>
+      <p className="ws-blurb">Plug your own agents (Notion, Slack, or any MCP / A2A host) into this one. MCP tools join a run; A2A agents receive delegated tasks.</p>
+
+      {list.length > 0 && (
+        <ul className="ws-extlist">
+          {list.map((ext) => {
+            const st = status[ext.id]
+            return (
+              <li key={ext.id} className="ws-extrow">
+                <div className="ws-extmain">
+                  <strong>{ext.name}</strong>
+                  <span className={`ws-extproto p-${ext.protocol}`}>{ext.protocol.toUpperCase()}</span>
+                  <span className="ws-exturl">{ext.url}</span>
+                  {st?.msg && <span className={`ws-extstatus ${st.ok ? 'ok' : 'err'}`}>{st.busy ? 'Checking…' : st.msg}</span>}
+                </div>
+                <div className="ws-extbtns">
+                  <button className="ws-btn" disabled={st?.busy} onClick={() => void verify(ext)}>{st?.busy ? '…' : 'Verify'}</button>
+                  <button className="ws-btn danger" onClick={() => onChange(list.filter((x) => x.id !== ext.id))} aria-label="Remove">×</button>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+
+      {open && (
+        <div className="ws-extform">
+          <div className="ws-extgrid">
+            <label className="ws-field"><span>Label</span><input value={name} maxLength={30} placeholder="My Notion agent" onChange={(e) => setName(e.target.value)} /></label>
+            <label className="ws-field">
+              <span>Protocol</span>
+              <select value={protocol} onChange={(e) => setProtocol(e.target.value as ExtAgent['protocol'])}>
+                <option value="mcp">MCP (tools)</option>
+                <option value="a2a">A2A (delegate)</option>
+                <option value="webhook">Webhook</option>
+              </select>
+            </label>
+          </div>
+          <label className="ws-field"><span>Endpoint URL (https)</span><input value={url} placeholder="https://…" onChange={(e) => setUrl(e.target.value)} /></label>
+          <label className="ws-field"><span>Auth token (optional)</span><input type="password" value={token} autoComplete="off" placeholder="Bearer token / API key" onChange={(e) => setToken(e.target.value)} /></label>
+          <p className="ws-blurb">{PROTO_HELP[protocol]}</p>
+          <button className="ws-btn primary" disabled={!/^https:\/\//i.test(url.trim())} onClick={add}>Link agent</button>
+        </div>
+      )}
     </div>
   )
 }

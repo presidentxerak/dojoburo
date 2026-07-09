@@ -1545,6 +1545,36 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .ws-conn { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--border); }
 
 /* ===========================================================================
+   External agents · link the user's own Notion/Slack/MCP/A2A agents
+   =========================================================================== */
+.ws-extagents { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
+.ws-ext-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 700; font-size: 13px; }
+.ws-ext-count { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; text-align: center; }
+.ws-extlist { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ws-extrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+.ws-extmain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+.ws-extmain strong { font-size: 12.5px; }
+.ws-extproto { font-size: 9.5px; font-weight: 800; letter-spacing: .04em; padding: 1px 6px; border-radius: 6px; color: #fff; }
+.ws-extproto.p-mcp { background: #6d4bd8; }
+.ws-extproto.p-a2a { background: #0f9d8f; }
+.ws-extproto.p-webhook { background: #c26a12; }
+.ws-exturl { flex-basis: 100%; font-family: var(--font-mono, monospace); font-size: 10px; color: var(--muted); word-break: break-all; }
+.ws-extstatus { flex-basis: 100%; font-size: 11px; line-height: 1.4; }
+.ws-extstatus.ok { color: #128a5b; }
+.ws-extstatus.err { color: #c0392b; }
+.ws-extbtns { display: flex; gap: 4px; flex-shrink: 0; }
+.ws-extform { margin-top: 10px; padding: 10px; border: 1px dashed var(--border); border-radius: 10px; }
+.ws-extgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 520px) { .ws-extgrid { grid-template-columns: 1fr; } }
+
+/* delegation block in the agent card */
+.ext-block .ext-pick { width: 100%; margin-bottom: 8px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--ink); font-family: var(--font-read); font-size: 12.5px; }
+.ext-delegate { justify-content: center; }
+.ext-reply { margin-top: 8px; padding: 9px 11px; border-radius: 10px; font-family: var(--font-read); font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.ext-reply.ok { background: rgba(18, 138, 91, .1); border: 1px solid rgba(18, 138, 91, .4); color: var(--ink); }
+.ext-reply.err { background: rgba(192, 57, 43, .08); border: 1px solid rgba(192, 57, 43, .35); color: #c0392b; }
+
+/* ===========================================================================
    Mobile navigation · burger menu + slide-down sheet
    =========================================================================== */
 .lp-nav-right { display: flex; align-items: center; gap: 10px; }

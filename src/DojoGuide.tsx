@@ -55,8 +55,19 @@ export function GuideContent() {
         </ul>
       </section>
 
+      <section className="dg-sec">
+        <h2>6 · Link your own external agents</h2>
+        <p>Already run agents elsewhere · at Notion, Slack, or any AI platform? Plug them straight into a DojoBuro agent from <b>Studio → the agent → External agents → "+ Link an agent"</b>. Three ways to connect, by protocol:</p>
+        <ul className="dg-list">
+          <li><b>MCP</b> · a Model Context Protocol server. Its tools are handed to this agent on every deliverable it runs, exactly like a connector. Needs a Claude key (Claude drives the tools).</li>
+          <li><b>A2A</b> · an Agent2Agent host (card at <code>/.well-known/agent-card.json</code>, <code>message/send</code>). You delegate a whole task from the agent card and its reply comes straight back.</li>
+          <li><b>Webhook</b> · a simple https endpoint that receives <code>{'{ task }'}</code> and returns text · the lightest way to wire a custom agent.</li>
+        </ul>
+        <p>Paste the https URL and an optional auth token, then hit <b>Verify</b> to confirm it's reachable and read its name + capabilities. The token never touches the browser · a server proxy holds it, exactly like the connector vault. Only link endpoints you trust; the same least-privilege and phishing rules below apply.</p>
+      </section>
+
       <section className="dg-sec dg-callout dg-safe">
-        <h2>6 · Stay safe · avoid getting hacked</h2>
+        <h2>7 · Stay safe · avoid getting hacked</h2>
         <ul className="dg-list">
           <li><b>OAuth, never passwords</b> · you approve access on the provider's own screen. DojoBuro never sees your password.</li>
           <li><b>Tokens are sealed server-side</b> · encrypted with AES-256-GCM, auto-refreshed; the browser never receives a secret.</li>
@@ -68,7 +79,7 @@ export function GuideContent() {
       </section>
 
       <section className="dg-sec dg-callout dg-budget">
-        <h2>7 · Don't blow your budget</h2>
+        <h2>8 · Don't blow your budget</h2>
         <ul className="dg-list">
           <li><b>Intelligence is ~free</b> · bring your own model key (BYOK) or use the free-model cascade. Most tasks cost nothing.</li>
           <li><b>Priced tasks are tiny</b> · a few skills carry an x402 price of ~0.15–0.50 XRP · and that's a transfer between <em>your own</em> wallets, not a fee.</li>
@@ -80,7 +91,7 @@ export function GuideContent() {
       </section>
 
       <section className="dg-sec">
-        <h2>8 · Quick troubleshooting</h2>
+        <h2>9 · Quick troubleshooting</h2>
         <ul className="dg-list">
           <li><b>App shows "Set up" not "Connect"</b> · the operator hasn't added that app's OAuth keys yet.</li>
           <li><b>"needs a key" on a task</b> · add your Claude key in Studio → Billing, or use a free-cascade task.</li>

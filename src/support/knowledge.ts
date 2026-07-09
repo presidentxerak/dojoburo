@@ -124,8 +124,21 @@ export const KB: KBTopic[] = [
       { label: 'Connect your stack', href: '#stack' },
       { label: 'Real deliverables', href: '#tools' },
     ],
-    follow: ['setup', 'jobs', 'environment'],
+    follow: ['setup', 'linkagents', 'environment'],
     keywords: ['tool', 'tools', 'connect', 'integration', 'mcp', 'oauth', 'github', 'slack', 'notion', 'gmail', 'stripe', 'jira', 'hubspot', 'figma', 'real content', 'output', 'api', 'apps'],
+  },
+  {
+    id: 'linkagents',
+    chip: 'Link your own agents',
+    answer:
+      'Already run agents at Notion, Slack, or anywhere else? Plug them straight into a DojoBuro agent. Open the agent editor in the Dojo Studio, scroll to "External agents", click "+ Link an agent", then pick a protocol: MCP (its tools join every deliverable this agent runs, exactly like a connector), A2A (you delegate a whole task and get the reply back · the standard Agent2Agent card at /.well-known/agent-card.json + message/send), or Webhook (a simple https endpoint that receives { task } and returns text). Paste the https endpoint and an optional auth token, then Verify to check it is reachable and read its name + capabilities. The token never touches the browser wire · a server proxy (/api/agent-proxy) holds it, just like the connector vault. Delegate to A2A / webhook agents from the agent card in the office; MCP agents ride along automatically when you run a deliverable (needs a Claude key, since Claude drives the tools).',
+    links: [
+      { label: 'Open the Dojo Studio', href: '#studio' },
+      { label: 'What is A2A', href: 'https://a2a-protocol.org', external: true },
+      { label: 'What is MCP', href: 'https://modelcontextprotocol.io', external: true },
+    ],
+    follow: ['tools', 'setup', 'security'],
+    keywords: ['external agent', 'external agents', 'link agent', 'connect agent', 'my agent', 'own agent', 'a2a', 'agent2agent', 'agent to agent', 'delegate', 'mcp agent', 'webhook', 'notion agent', 'slack agent', 'other agents', 'third party agent'],
   },
   {
     id: 'setup',

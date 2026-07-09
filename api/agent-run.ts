@@ -74,6 +74,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   // ---- resolve connected tools → MCP servers (best-effort) ----------------
   const mcpServers = await resolveMcpServers(task.usesConnectors.filter((c) => requested.includes(c)), ref)
+  // ---- external MCP agents the user attached to THIS agent ----------------
+  // These are user-supplied remote MCP hosts (their own Notion/Slack agents, or
+  // any MCP server). The URL + token live client-side; we validate + attach them
+  // here so Claude can call their tools during the run, exactly like a connector.
+  for (const s of externalMcpServers(body?.extMcp)) mcpServers.push(s)
 
   // ---- billing policy: who pays for this run? -----------------------------
   // BYOK (the user's own Claude key) → billed to the user, operator pays $0.
@@ -226,6 +231,22 @@ async function bumpFreeTier(ref: { privy?: string; client?: string }): Promise<v
 
 // ---- MCP server resolution ------------------------------------------------
 interface McpServer { type: 'url'; url: string; name: string; authorization_token?: string }
+
+// External MCP agents supplied by the client (attached per DojoBuro agent). Each
+// is { url, name, authToken? }. We only accept https URLs, cap at 4, and sanitize
+// the name so Claude's mcp_servers list stays well-formed.
+function externalMcpServers(raw: unknown): McpServer[] {
+  if (!Array.isArray(raw)) return []
+  const out: McpServer[] = []
+  for (const item of raw.slice(0, 4)) {
+    const url = String(item?.url || '').trim()
+    if (!/^https:\/\//i.test(url)) continue
+    const name = String(item?.name || 'external').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40) || 'external'
+    const token = item?.authToken ? String(item.authToken).trim() : ''
+    out.push({ type: 'url', url, name, ...(token ? { authorization_token: token } : {}) })
+  }
+  return out
+}
 
 async function resolveMcpServers(connectorIds: string[], ref: { privy?: string; client?: string }): Promise<McpServer[]> {
   if (!connectorIds.length || !dbConfigured() || !vaultConfigured()) return []

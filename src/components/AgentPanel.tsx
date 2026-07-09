@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { type AgentSkill, type Department } from '../data/agents'
+import type { ExtAgent } from '../workshop'
+import { delegateToAgent } from '../agents/externalAgents'
 import { getAgentView } from '../agentView'
 import { xpForLevel, tierForLevel } from '../data/events'
 import { useDojo } from '../store'
@@ -22,7 +24,9 @@ export function AgentPanel() {
   const rt = useDojo((s) => (id ? s.runtime[id] : undefined))
   const stats = useDojo((s) => (id ? s.stats[id] : undefined))
   // re-render when the active dojo changes so live edits (name, skin, skills) show
-  useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
+  const activeDojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
+  const wAgent = activeDojo?.agents.find((a) => a.id === id)
+  const extAgents = wAgent?.externalAgents ?? []
 
   const tools = useWork((s) => s.tools)
   const loadedOnce = useWork((s) => s.loadedOnce)
@@ -116,7 +120,7 @@ export function AgentPanel() {
               const usable = (t.usesConnectors || []).filter((c) => connectedIds.includes(c))
               return (
                 <li key={t.id}>
-                  <button className="work-btn" disabled={!!runningTask} onClick={() => void run({ task: t.id, agentName: agent.name, connectors: connectedIds, brief })}>
+                  <button className="work-btn" disabled={!!runningTask} onClick={() => void run({ task: t.id, agentName: agent.name, connectors: connectedIds, brief, extAgents })}>
                     <span className="work-main">
                       <span className="work-name">{busy ? 'Working…' : t.label}</span>
                       <span className="work-desc">{t.blurb}</span>
@@ -154,6 +158,9 @@ export function AgentPanel() {
 
       {/* ---- Connect real tools · pedagogical panel shared with the Studio ---- */}
       {connectors.length > 0 && <ConnectorsPanel dept={dept} />}
+
+      {/* ---- External agents linked to this one (MCP tools + A2A delegation) ---- */}
+      {extAgents.length > 0 && <ExternalAgentsBlock agents={extAgents} onEdit={() => editAgent(agent.id)} />}
 
       <div className="agent-wallet-row">
         <div>
@@ -197,4 +204,67 @@ export function AgentPanel() {
 
 function kindLabel(k: AgentSkill['kind']): string {
   return k === 'xrpl' ? 'XRPL' : k === 'analysis' ? 'analysis' : 'action'
+}
+
+// External agents the user linked in the Studio. MCP ones ride along inside every
+// run above (as tools); A2A / webhook ones get a whole task delegated here and the
+// reply text comes straight back. Tokens never touch the browser · the server
+// proxy holds them (see api/agent-proxy).
+function ExternalAgentsBlock({ agents, onEdit }: { agents: ExtAgent[]; onEdit: () => void }) {
+  const mcp = agents.filter((a) => a.protocol === 'mcp')
+  const delegable = agents.filter((a) => a.protocol === 'a2a' || a.protocol === 'webhook')
+  const [pick, setPick] = useState(delegable[0]?.id ?? '')
+  const [task, setTask] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [reply, setReply] = useState<{ ok: boolean; text: string } | null>(null)
+
+  const target = delegable.find((a) => a.id === pick) ?? delegable[0]
+
+  const delegate = async () => {
+    if (!target || !task.trim() || busy) return
+    setBusy(true); setReply(null)
+    const r = await delegateToAgent(target, task.trim())
+    setBusy(false)
+    setReply({ ok: r.ok, text: r.ok ? (r.text || 'Done (no text returned).') : (r.error || 'The agent did not reply.') })
+  }
+
+  return (
+    <section className="work-block ext-block">
+      <h3 className="skills-title">Linked agents <span className="tag tag-live">{agents.length}</span></h3>
+      {mcp.length > 0 && (
+        <p className="work-intro">
+          {mcp.length} MCP agent{mcp.length > 1 ? 's' : ''} ({mcp.map((a) => a.name).join(', ')}) join every deliverable above as tools.{' '}
+          <button className="linklike" onClick={onEdit}>Manage</button>
+        </p>
+      )}
+
+      {delegable.length > 0 ? (
+        <>
+          <p className="work-intro">Delegate a task to one of your linked agents · its reply comes straight back.</p>
+          {delegable.length > 1 && (
+            <select className="ext-pick" value={pick} onChange={(e) => setPick(e.target.value)}>
+              {delegable.map((a) => <option key={a.id} value={a.id}>{a.name} · {a.protocol.toUpperCase()}</option>)}
+            </select>
+          )}
+          <input
+            className="work-brief"
+            placeholder={`Task for ${target?.name ?? 'the agent'}…`}
+            value={task}
+            maxLength={600}
+            onChange={(e) => setTask(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') void delegate() }}
+          />
+          <button className="work-btn ext-delegate" disabled={busy || !task.trim()} onClick={() => void delegate()}>
+            <span className="work-main"><span className="work-name">{busy ? 'Delegating…' : `Delegate to ${target?.name ?? 'agent'}`}</span></span>
+            {busy && <span className="work-spin" />}
+          </button>
+          {reply && (
+            <div className={`ext-reply ${reply.ok ? 'ok' : 'err'}`}>{reply.text}</div>
+          )}
+        </>
+      ) : mcp.length === 0 ? (
+        <p className="work-intro">No linked agents yet. <button className="linklike" onClick={onEdit}>Link one</button> (Notion, Slack, MCP or A2A).</p>
+      ) : null}
+    </section>
+  )
 }

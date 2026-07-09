@@ -14,6 +14,19 @@ import { professionById } from './data/professions'
 export const GRID = { cols: 6, rows: 4 } // 24 cells, up to 12 agents
 export const MAX_AGENTS = 12
 
+/** An external AI agent (at Notion, Slack, a custom host…) linked to a DojoBuro
+ *  agent. MCP agents plug in as tools during a run; A2A / webhook agents receive
+ *  delegated tasks via the server proxy. */
+export interface ExtAgent {
+  id: string
+  name: string
+  protocol: 'mcp' | 'a2a' | 'webhook'
+  url: string
+  /** optional bearer token / api key for the external agent (kept locally) */
+  authToken?: string
+  note?: string
+}
+
 export interface WAgent {
   id: string
   name: string
@@ -23,6 +36,8 @@ export interface WAgent {
   budgetXrp: number
   gx: number
   gy: number
+  /** external agents this DojoBuro agent can call / delegate to */
+  externalAgents?: ExtAgent[]
 }
 
 export interface Dojo {

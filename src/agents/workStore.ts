@@ -5,6 +5,7 @@ import {
   listTools, disconnectTool, runWork, setClaudeKey, removeClaudeKey,
   type ToolStatus, type Deliverable, type RunResult, type ByokStatus,
 } from './workApi'
+import type { ExtAgent } from '../workshop'
 
 interface WorkState {
   tools: Record<string, ToolStatus>
@@ -25,7 +26,7 @@ interface WorkState {
   disconnect: (id: string) => Promise<void>
   saveKey: (key: string) => Promise<{ ok: boolean; error?: string }>
   clearKey: () => Promise<void>
-  run: (input: { task: string; agentName: string; connectors: string[]; brief?: string }) => Promise<void>
+  run: (input: { task: string; agentName: string; connectors: string[]; brief?: string; extAgents?: ExtAgent[] }) => Promise<void>
   closeDeliverable: () => void
   clearError: () => void
   openStudio: (tab: 'billing' | 'account' | 'studio') => void
