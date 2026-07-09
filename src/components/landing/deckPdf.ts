@@ -22,6 +22,9 @@ function hexRgb(hex: string): RGB {
 function tint(c: RGB, t: number): RGB {
   return [Math.round(c[0] + (255 - c[0]) * t), Math.round(c[1] + (255 - c[1]) * t), Math.round(c[2] + (255 - c[2]) * t)]
 }
+function shade(c: RGB, t: number): RGB { // mix toward black
+  return [Math.round(c[0] * (1 - t)), Math.round(c[1] * (1 - t)), Math.round(c[2] * (1 - t))]
+}
 
 export function downloadDeckPdf() {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
@@ -36,32 +39,41 @@ export function downloadDeckPdf() {
     // clean paper · no coloured top strip
     doc.setFillColor(...PAPER); doc.rect(0, 0, W, H, 'F')
 
+    const isTable = s.layout === 'table'
+    const titleH = isTable ? 12 : 15
+    const titleLines = (() => { doc.setFont('courier', 'bold'); doc.setFontSize(isTable ? 28 : 38); return doc.splitTextToSize(s.title, W - 60) })()
+    const leadLines = (() => { doc.setFont('helvetica', 'normal'); doc.setFontSize(14); return doc.splitTextToSize(s.line, Math.min(W - 90, 210)) })()
+    const extraH = s.layout === 'cards' ? 36 : s.layout === 'stats' ? 40 : (s.points && !isTable) ? 20 : 0
+    // measure the whole block so it can be centred vertically (tables stay high)
+    const blockH = 8 + titleLines.length * titleH + 6 + leadLines.length * 7 + (extraH ? 12 + extraH : 0)
+    let y = isTable ? 30 : Math.max(40, (40 + (H - 26)) / 2 - blockH / 2)
+
     // eyebrow (centred, accent)
     doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...accent)
-    doc.text((s.n ? `${s.n} · ` : '') + s.eyebrow.toUpperCase(), CX, 34, { align: 'center' })
+    doc.text((s.n ? `${s.n} · ` : '') + s.eyebrow.toUpperCase(), CX, y, { align: 'center' })
+    y += 15
 
     // big title · Courier bold echoes the Silkscreen monospace face
-    doc.setFont('courier', 'bold'); doc.setTextColor(...INK)
-    doc.setFontSize(s.layout === 'table' ? 30 : 40)
-    const titleLines = doc.splitTextToSize(s.title, W - 60)
-    doc.text(titleLines, CX, 54, { align: 'center' })
-    let y = 54 + titleLines.length * (s.layout === 'table' ? 11 : 15)
+    doc.setFont('courier', 'bold'); doc.setTextColor(...INK); doc.setFontSize(isTable ? 28 : 38)
+    doc.text(titleLines, CX, y, { align: 'center' })
+    y += titleLines.length * titleH
 
     // lead (centred, Helvetica)
     doc.setFont('helvetica', 'normal'); doc.setFontSize(14); doc.setTextColor(...MUTED)
-    const leadLines = doc.splitTextToSize(s.line, Math.min(W - 90, 210))
     doc.text(leadLines, CX, y + 4, { align: 'center' })
-    y += 4 + leadLines.length * 7 + 10
+    y += 4 + leadLines.length * 7 + 12
 
-    // illustration area · cards, stat tiles or the financial table
+    // illustration area · cards, stat tiles, key-point pills or the financial table
     if (s.layout === 'cards' && s.cards) {
-      drawCards(doc, s.cards.map((c) => [c.label, c.sub]), CX, y + 4)
+      drawCards(doc, s.cards.map((c) => [c.label, c.sub]), CX, y)
     } else if (s.layout === 'stats' && s.stats) {
-      drawStats(doc, s.stats.map((c) => [c.big, c.label]), CX, y + 4, accent)
+      drawStats(doc, s.stats.map((c) => [c.big, c.label]), CX, y, accent)
+    } else if (s.points && !isTable) {
+      drawPills(doc, s.points, CX, y, accent)
     } else if (s.layout === 'table' && s.table) {
       const data = s.table === 'forecast' ? FORECAST : BUSINESS_PLAN
       autoTable(doc, {
-        head: [data.head], body: data.rows, startY: Math.max(y, 78),
+        head: [data.head], body: data.rows, startY: Math.max(y, 74),
         margin: { left: 22, right: 22 }, theme: 'grid',
         styles: { font: 'helvetica', fontSize: 12, cellPadding: 3.2, textColor: INK, lineColor: CARD_LINE, lineWidth: 0.2, halign: 'right' },
         headStyles: { fillColor: accent, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 12, halign: 'right' },
@@ -104,6 +116,23 @@ function drawCards(doc: jsPDF, cards: [string, string][], cx: number, y: number)
     doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...MUTED)
     doc.text(sub, x + cw / 2, y + 22, { align: 'center', maxWidth: cw - 8 })
     x += cw + gap
+  })
+}
+
+// A centred row of key-point pills · fills text-only slides.
+function drawPills(doc: jsPDF, points: string[], cx: number, y: number, accent: RGB) {
+  const ph = 12, gap = 8, padX = 7
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11)
+  const widths = points.map((p) => doc.getTextWidth(p) + padX * 2)
+  const total = widths.reduce((a, w) => a + w, 0) + (points.length - 1) * gap
+  let x = cx - total / 2
+  points.forEach((p, i) => {
+    const w = widths[i]
+    doc.setFillColor(...tint(accent, 0.88)); doc.setDrawColor(...tint(accent, 0.55)); doc.setLineWidth(0.3)
+    doc.roundedRect(x, y, w, ph, 1.4, 1.4, 'FD')
+    doc.setTextColor(...shade(accent, 0.5))
+    doc.text(p, x + w / 2, y + 7.8, { align: 'center' })
+    x += w + gap
   })
 }
 

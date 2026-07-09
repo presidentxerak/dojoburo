@@ -74,6 +74,14 @@ function Stats({ stats }: { stats: NonNullable<DeckSlide['stats']> }) {
   )
 }
 
+function Points({ points }: { points: string[] }) {
+  return (
+    <div className="pd-points">
+      {points.map((p) => <span className="pd-point" key={p}>{p}</span>)}
+    </div>
+  )
+}
+
 function Slide({ slide, idx, active }: { slide: DeckSlide; idx: number; active: boolean }) {
   const showContact = idx === 0 || idx === DECK_SLIDES.length - 1 || slide.layout === 'table'
   const copy = (
@@ -107,23 +115,27 @@ function Slide({ slide, idx, active }: { slide: DeckSlide; idx: number; active: 
       ) : slide.layout === 'dojo' ? (
         <>
           {copy}
+          {slide.points ? <Points points={slide.points} /> : null}
           <Illustration slide={slide} active={active} />
         </>
       ) : slide.layout === 'brand' ? (
         <>
           {copy}
-          <Illustration slide={slide} active={active} size={300} />
+          {slide.points ? <Points points={slide.points} /> : null}
+          <Illustration slide={slide} active={active} size={280} />
         </>
       ) : idx % 2 === 1 ? (
         // vary the layout: on odd 'object' slides the 3D sits above the text
         <>
-          <Illustration slide={slide} active={active} size={240} />
+          <Illustration slide={slide} active={active} size={230} />
           {copy}
+          {slide.points ? <Points points={slide.points} /> : null}
         </>
       ) : (
         <>
           {copy}
-          <Illustration slide={slide} active={active} size={260} />
+          {slide.points ? <Points points={slide.points} /> : null}
+          <Illustration slide={slide} active={active} size={230} />
         </>
       )}
       <span className="pd-foot">

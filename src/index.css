@@ -796,7 +796,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 /* logo mark · apple-green kawaii face (the assistant's head). The SVG carries
    its own rounded-square shape + colour, so the wrapper is just a sizing box. */
-.logo-badge { display: inline-grid; place-items: center; background: transparent; flex: none; line-height: 0; filter: drop-shadow(0 2px 5px rgba(20, 80, 130, 0.28)); }
+.logo-badge { display: inline-grid; place-items: center; background: transparent; flex: none; line-height: 0; filter: drop-shadow(0 2px 5px rgba(150, 110, 10, 0.30)); }
 .logo-badge svg { display: block; }
 
 /* 3D agent previews · soft neutral backdrop so light + dark skins both read */
@@ -1464,6 +1464,14 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 }
 .pd-card strong { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: #14141a; }
 .pd-card span { font-family: var(--font-read); font-size: 13px; color: #6a7080; }
+
+/* key-point pills · fill text-only slides */
+.pd-points { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.pd-point {
+  font-family: var(--font-read); font-weight: 600; font-size: 13.5px; color: #33384a;
+  background: color-mix(in srgb, var(--pa) 10%, #fff); border: 1px solid color-mix(in srgb, var(--pa) 30%, #e4e6ec);
+  border-radius: 4px; padding: 7px 14px;
+}
 
 /* stat tiles */
 .pd-stats { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }

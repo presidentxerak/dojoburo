@@ -1,6 +1,7 @@
 import { Logo } from './components/Logo'
 import { Wordmark } from './components/Wordmark'
 import { SiteHeader } from './components/SiteHeader'
+import { SupportBot } from './components/SupportBot'
 import { ConnectorLogo } from './components/ConnectorLogo'
 import { CONNECTORS, type ConnectorCategory } from './data/connectors'
 import { connectorById, userSteps, operatorSteps, REDIRECT_PATH } from './data/connectorGuide'
@@ -26,9 +27,10 @@ function GuideShell({ children }: { children: React.ReactNode }) {
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
         <nav className="lp-foot-links">
-          <a href="/">Home</a><a href="/guide">Guide</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href={`mailto:${CONTACT}`}>Support</a>
+          <a href="/">Home</a><a href="/guide">Guide</a><a href="/#stack">Connect</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href={`mailto:${CONTACT}`}>Support</a>
         </nav>
       </footer>
+      <SupportBot />
     </div>
   )
 }
