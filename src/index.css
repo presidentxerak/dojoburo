@@ -796,7 +796,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 /* logo mark · apple-green kawaii face (the assistant's head). The SVG carries
    its own rounded-square shape + colour, so the wrapper is just a sizing box. */
-.logo-badge { display: inline-grid; place-items: center; background: transparent; flex: none; line-height: 0; filter: drop-shadow(0 2px 5px rgba(20, 40, 10, 0.22)); }
+.logo-badge { display: inline-grid; place-items: center; background: transparent; flex: none; line-height: 0; filter: drop-shadow(0 2px 5px rgba(120, 30, 20, 0.28)); }
 .logo-badge svg { display: block; }
 
 /* 3D agent previews · soft neutral backdrop so light + dark skins both read */
@@ -1256,7 +1256,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .ws-task-custom input { flex: 1; }
 
 /* ===== header nav links (Build · Connect · Team · How it works · Pricing) ==== */
-.lp-nav-links { display: flex; align-items: center; gap: 4px; margin: 0 auto 0 28px; }
+.lp-nav-links { display: flex; align-items: center; gap: 4px; margin: 0 auto; }
 .lp-nav-links a {
   font-family: var(--font-ui); font-weight: 700; font-size: 14px; color: var(--muted);
   text-decoration: none; padding: 8px 12px; border-radius: 2px; position: relative; white-space: nowrap;
@@ -1431,31 +1431,54 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
   border-top: 4px solid var(--pa); border-radius: 4px; overflow: hidden; box-shadow: 0 24px 60px rgba(20, 24, 40, 0.16);
 }
 .pd-slide.on { display: block; }
-.pd-slide-inner { display: grid; grid-template-columns: 1.08fr 0.92fr; height: 100%; }
-.pd-copy { display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: 7% 6%; min-width: 0; }
-.pd-kicker { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--pa); }
-.pd-brandmark .wordmark { font-size: clamp(38px, 5vw, 60px); color: #14141a; -webkit-text-fill-color: #14141a; }
-/* one impactful line · Outfit black, 24px */
-.pd-line { font-family: var(--font-pixel); font-weight: 900; font-size: 24px; line-height: 1.35; letter-spacing: -0.01em; color: #14141a; margin: 0; max-width: 34ch; }
-.pd-foot { font-size: 12px; color: #8890a0; }
+
+/* every slide is centred; the layout only varies the illustration below */
+.pd-inner {
+  height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 16px; padding: 5% 7%;
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--pa) 12%, transparent), transparent 62%);
+}
+.pd-copy { display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 40ch; }
+.pd-eyebrow { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.6px; color: var(--pa); }
+.pd-brandmark .wordmark { font-size: clamp(30px, 4.4vw, 52px); color: #14141a; -webkit-text-fill-color: #14141a; }
+/* the big title · Silkscreen regular, like the landing hero */
+.pd-title { font-family: 'Silkscreen', 'Courier New', monospace; font-weight: 400; font-size: clamp(30px, 5.4vw, 62px); line-height: 1.1; letter-spacing: 0; color: #14141a; margin: 0; }
+/* the Outfit lead under the title */
+.pd-line { font-family: var(--font-read); font-weight: 500; font-size: clamp(15px, 1.9vw, 21px); line-height: 1.5; color: #55596a; margin: 0; }
+.pd-foot { position: absolute; bottom: 4%; font-size: 12px; color: #8890a0; }
 .pd-foot .wordmark { font-size: 12px; color: #8890a0; -webkit-text-fill-color: #8890a0; }
 .pd-contact { font-style: normal; font-weight: 700; color: var(--pa); }
+.pd-slide { position: relative; }
 
-.pd-visual { position: relative; display: grid; place-items: center; padding: 4%; background: radial-gradient(circle at 58% 42%, color-mix(in srgb, var(--pa) 14%, transparent), transparent 68%); }
-.pd-bigicon { font-family: 'Silkscreen', 'Courier New', monospace; font-size: clamp(40px, 7.5vw, 92px); letter-spacing: 2px; }
-.pd-hero3d { display: block; }
-.pd-visual-hero .pd-hero3d { width: 100%; height: 100%; }
-.pd-ascii-chip { position: absolute; right: 9%; bottom: 10%; font-family: 'Silkscreen', 'Courier New', monospace; font-size: clamp(18px, 2.4vw, 30px); opacity: 0.8; }
-.pd-visual-dojo { padding: 0; }
-.pd-visual-dojo .lp-dojo3d { width: 100%; max-width: none; height: 100%; margin: 0; }
-.pd-visual-team { display: flex; gap: 2px; align-items: center; justify-content: center; flex-wrap: wrap; }
-.pd-char { width: 150px; height: 150px; flex: none; }
+/* full-3D illustration */
+.pd-3d { display: grid; place-items: center; filter: drop-shadow(0 16px 24px color-mix(in srgb, var(--pa) 26%, transparent)); }
+.pd-3d-dojo { width: min(78%, 760px); height: 46%; filter: none; }
+.pd-3d-dojo .lp-dojo3d { width: 100%; max-width: none; height: 100%; margin: 0; }
 
-/* table slides · single column, financial table in the brand style */
-.pd-v-table .pd-slide-inner { grid-template-columns: 1fr; }
-.pd-v-table .pd-copy { padding: 4.5% 6%; gap: 12px; justify-content: flex-start; }
-.pd-v-table .pd-line { font-size: 22px; max-width: none; }
-.pd-table-wrap { margin: 4px 0; overflow-x: auto; }
+/* landing-style cards */
+.pd-cards { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.pd-card {
+  min-width: 180px; padding: 16px 18px; background: #fff; border: 1px solid #e4e6ec;
+  border-top: 3px solid var(--pa); border-radius: 14px; box-shadow: 0 8px 20px rgba(20, 24, 40, 0.06);
+  display: flex; flex-direction: column; gap: 5px; text-align: left;
+}
+.pd-card strong { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: #14141a; }
+.pd-card span { font-family: var(--font-read); font-size: 13px; color: #6a7080; }
+
+/* stat tiles */
+.pd-stats { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.pd-stat { min-width: 150px; padding: 14px 20px; background: color-mix(in srgb, var(--pa) 8%, #fff); border: 1px solid color-mix(in srgb, var(--pa) 26%, #e4e6ec); border-radius: 14px; }
+.pd-stat b { display: block; font-family: 'Silkscreen', 'Courier New', monospace; font-weight: 400; font-size: 26px; color: var(--pa); letter-spacing: 0; }
+.pd-stat span { font-family: var(--font-read); font-size: 12.5px; color: #6a7080; }
+
+/* table slides · tighter so the table + note clear the footer */
+.pd-l-table .pd-inner { justify-content: flex-start; gap: 8px; padding: 3% 6% 6%; }
+.pd-l-table .pd-title { font-size: clamp(24px, 4vw, 42px); }
+.pd-l-table .pd-line { font-size: clamp(13px, 1.5vw, 16px); }
+.pd-l-table .pd-table { font-size: 13px; }
+.pd-l-table .pd-table th, .pd-l-table .pd-table td { padding: 6px 12px; }
+.pd-l-table .pd-table-note { margin-top: 6px; font-size: 11.5px; }
+.pd-table-wrap { margin: 2px 0; overflow-x: auto; width: 100%; max-width: 940px; }
 .pd-table { width: 100%; border-collapse: collapse; font-family: var(--font-read); font-size: 15px; }
 .pd-table th, .pd-table td { text-align: right; padding: 9px 14px; border: 1px solid #e4e6ec; color: #24262e; white-space: nowrap; }
 .pd-table th.lbl, .pd-table td.lbl { text-align: left; }
@@ -1471,33 +1494,21 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 @media (max-width: 720px) {
   .pd-slide { aspect-ratio: auto; height: 100%; }
-  .pd-slide-inner { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
-  .pd-line { font-size: 22px; }
+  .pd-inner { padding: 8% 6%; gap: 12px; }
   .pd-arrow { display: none; }
+  .pd-cards, .pd-stats { flex-direction: column; }
 }
 
-/* print → a real landscape PDF: every slide is its own page */
+/* The on-screen deck is exported to PDF via jsPDF (deckPdf.ts), so we don't rely
+   on browser print. Kept minimal in case someone hits Ctrl+P on the overlay. */
 @media print {
-  @page { size: landscape; margin: 0; }
+  @page { size: landscape; margin: 12mm; }
   body > *:not(.pd-overlay) { display: none !important; }
   .pd-overlay { position: static; display: block; background: #fff; color: #14141a; }
   .pd-bar, .pd-dots, .pd-arrow { display: none !important; }
   .pd-stage { display: block; padding: 0; }
-  .pd-slide {
-    display: block !important; width: 100%; aspect-ratio: auto; height: 100vh; max-height: none;
-    page-break-after: always; break-after: page; box-shadow: none; border: none;
-    border-top: 8px solid var(--pa); background: #fff; border-radius: 0;
-  }
-  .pd-slide:last-child { page-break-after: auto; break-after: auto; }
-  .pd-line { color: #14141a; }
-  .pd-kicker { color: var(--pa); }
-  .pd-brandmark .wordmark, .pd-bar-brand .wordmark { color: #14141a; -webkit-text-fill-color: #14141a; }
-  .pd-foot, .pd-foot .wordmark { color: #6a6a76; -webkit-text-fill-color: #6a6a76; }
-  .pd-visual { background: #fff; }
-  .a3d, .lp-dojo3d, .pd-hero3d { display: none !important; } /* WebGL can't print · fall back to ascii */
-  .pd-visual-team::after, .pd-visual-dojo::after, .pd-visual-hero::after {
-    content: '( o_o )  ( ^_^ )  ( o_o )'; font-family: 'Silkscreen', 'Courier New', monospace; font-size: 44px; color: var(--pa); letter-spacing: 2px;
-  }
+  .pd-slide { display: block !important; width: 100%; aspect-ratio: auto; height: auto; max-height: none; page-break-after: always; break-after: page; box-shadow: none; }
+  .pd-3d, .a3d, .lp-dojo3d { display: none !important; } /* WebGL can't print */
 }
 
 /* ===== embedded assistant on the landing page ===== */

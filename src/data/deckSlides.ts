@@ -5,34 +5,71 @@ export const DECK_ACCENTS = {
   magenta: '#ff2d9b', blue: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', violet: '#a06bff',
 }
 
-export type DeckVisual = 'brand' | 'dojo' | 'team' | 'hero' | 'table'
+// how a slide is laid out · all text is centred; the layout varies the
+// illustration (full-3D object, the 3D dojo, cards, stat tiles or a table)
+export type DeckLayout = 'brand' | 'object' | 'cards' | 'dojo' | 'stats' | 'table'
+
+export interface DeckCard { label: string; sub: string }
+export interface DeckStat { big: string; label: string }
 
 export interface DeckSlide {
   n: string
-  kicker: string
+  /** small eyebrow (Outfit black, uppercase) */
+  eyebrow: string
+  /** the big title · Silkscreen regular, kept short + punchy */
+  title: string
+  /** the Outfit lead sentence under the title */
   line: string
-  icon: string
-  /** full-3D object the character carries (Object3D/Shape kind) */
+  /** full-3D object kind (Object3D/Shape) shown on the slide */
   obj: string
   accent: string
-  visual: DeckVisual
-  /** which financial table to render on a 'table' slide */
+  layout: DeckLayout
+  cards?: DeckCard[]
+  stats?: DeckStat[]
   table?: 'forecast' | 'plan'
 }
 
 const A = DECK_ACCENTS
 
 export const DECK_SLIDES: DeckSlide[] = [
-  { n: '', kicker: 'Investor deck', line: 'Your AI team, working while you watch.', icon: 'cast', obj: 'rocket', accent: A.magenta, visual: 'brand' },
-  { n: '01', kicker: 'The problem', line: 'Running a business means juggling a dozen apps and never mastering any of them.', icon: 'job', obj: 'briefcase', accent: A.orange, visual: 'hero' },
-  { n: '02', kicker: 'The solution', line: 'DojoBuro is a living 3D office where AI agents each own a real function of your work.', icon: 'build', obj: 'network', accent: A.blue, visual: 'dojo' },
-  { n: '03', kicker: 'How it adapts', line: 'Pick your trade and the office tailors itself: the right crew, the right apps, wired and ready.', icon: 'stack', obj: 'network', accent: A.teal, visual: 'team' },
-  { n: '04', kicker: 'The product', line: 'Agents act for real inside your apps: they open the PR, draft the email, raise the invoice.', icon: 'run', obj: 'gear', accent: A.violet, visual: 'hero' },
-  { n: '05', kicker: 'The rail', line: 'Every task settles on the XRP Ledger with x402 micro-payments · real agent-to-agent commerce.', icon: 'pay', obj: 'coins', accent: A.blue, visual: 'hero' },
-  { n: '06', kicker: 'The market', line: 'Every solo founder, freelancer and small team drowning in SaaS is a DojoBuro seat.', icon: 'watch', obj: 'eye', accent: A.magenta, visual: 'hero' },
-  { n: '07', kicker: 'The model', line: 'You bring the model key, we run the hub · a whole automated team for less than one SaaS seat.', icon: 'price', obj: 'gem', accent: A.yellow, visual: 'hero' },
-  { n: '08', kicker: 'The forecast', line: 'Near-zero model cost and sublinear infra turn scale straight into margin.', icon: 'cost', obj: 'coins', accent: A.teal, visual: 'table', table: 'forecast' },
-  { n: '09', kicker: 'The business plan', line: 'Cash-flow positive from Year 2, on a path to $3.9M ARR by Year 5.', icon: 'price', obj: 'gem', accent: A.blue, visual: 'table', table: 'plan' },
-  { n: '10', kicker: 'Why now', line: 'Agentic payments and MCP just made autonomous, tool-using AI teams finally possible.', icon: 'bolt', obj: 'gear', accent: A.orange, visual: 'dojo' },
-  { n: '11', kicker: 'The ask', line: 'Join us in building the office where your AI team works while you watch.', icon: 'run', obj: 'rocket', accent: A.magenta, visual: 'brand' },
+  { n: '', eyebrow: 'Investor deck', title: 'Your AI team.', line: 'A living 3D office where AI agents each own a real function of your work — and run it for real while you watch.', obj: 'rocket', accent: A.magenta, layout: 'brand' },
+  { n: '01', eyebrow: 'The problem', title: 'Too many apps.', line: 'Running a business means juggling a dozen tools and never mastering any of them.', obj: 'briefcase', accent: A.orange, layout: 'object' },
+  { n: '02', eyebrow: 'The solution', title: 'One 3D office.', line: 'AI agents each own a real function — product, growth, finance, ops — and act for you inside your apps.', obj: 'network', accent: A.blue, layout: 'dojo' },
+  {
+    n: '03', eyebrow: 'How it adapts', title: 'Fits your trade.', line: 'Pick your profession and the office tailors itself: the right crew, the right apps, wired and ready.', obj: 'network', accent: A.teal, layout: 'cards',
+    cards: [
+      { label: 'Startup Founder', sub: 'Notion · Slack · Stripe' },
+      { label: 'Realtor', sub: 'CRM · DocuSign · WhatsApp' },
+      { label: 'Teacher', sub: 'Classroom · Drive · Calendar' },
+    ],
+  },
+  { n: '04', eyebrow: 'The product', title: 'Real work.', line: 'Agents act for real inside your apps — they open the PR, draft the email, raise the invoice.', obj: 'gear', accent: A.violet, layout: 'object' },
+  {
+    n: '05', eyebrow: 'The rail', title: 'Paid on-chain.', line: 'Every task settles on the XRP Ledger with x402 micro-payments — real agent-to-agent commerce.', obj: 'coins', accent: A.blue, layout: 'stats',
+    stats: [
+      { big: 'x402', label: 'settlement protocol' },
+      { big: '≈ $0.01', label: 'cost per task' },
+      { big: 'XRPL', label: 'instant, final rail' },
+    ],
+  },
+  {
+    n: '06', eyebrow: 'The market', title: 'A huge market.', line: 'Every solo founder, freelancer and small team drowning in SaaS is a DojoBuro seat.', obj: 'eye', accent: A.magenta, layout: 'stats',
+    stats: [
+      { big: '400M+', label: 'SMBs & freelancers' },
+      { big: '$300B+', label: 'annual SaaS spend' },
+      { big: '1 seat', label: 'replaces a whole stack' },
+    ],
+  },
+  {
+    n: '07', eyebrow: 'The model', title: 'One SaaS seat.', line: 'You bring the model key, we run the hub — a whole automated team for less than a single SaaS seat.', obj: 'gem', accent: A.yellow, layout: 'cards',
+    cards: [
+      { label: 'Free', sub: 'Explore on Testnet' },
+      { label: 'Pro · $29/mo', sub: 'Full team, all apps' },
+      { label: 'Team · $22/seat', sub: 'Shared automation' },
+    ],
+  },
+  { n: '08', eyebrow: 'The forecast', title: 'Scale = margin.', line: 'Near-zero model cost and sublinear infra turn scale straight into margin.', obj: 'coins', accent: A.teal, layout: 'table', table: 'forecast' },
+  { n: '09', eyebrow: 'The business plan', title: 'Path to $3.9M.', line: 'Cash-flow positive from Year 2, on a path to $3.9M ARR by Year 5.', obj: 'gem', accent: A.blue, layout: 'table', table: 'plan' },
+  { n: '10', eyebrow: 'Why now', title: 'The moment is now.', line: 'Agentic payments and MCP just made autonomous, tool-using AI teams finally possible.', obj: 'gear', accent: A.orange, layout: 'object' },
+  { n: '11', eyebrow: 'The ask', title: 'Build it with us.', line: 'Join us in building the office where your AI team works while you watch.', obj: 'rocket', accent: A.magenta, layout: 'brand' },
 ]

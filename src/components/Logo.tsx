@@ -1,30 +1,25 @@
-/** DojoBuro mark: the assistant's kawaii face · an apple-green rounded square
- *  (4px corners) with two glinting eyes and a smile that blinks and grins on a
- *  loop. Same face as the support bot. Used in the top bar, the landing nav, the
- *  footers and anywhere the brand appears. Set `animated={false}` for a still
- *  copy (e.g. tiny inline uses). */
-export function Logo({ size = 34, className = '', animated = true }: { size?: number; className?: string; animated?: boolean }) {
+/** DojoBuro mark: a red Japanese temple gate (torii), like the one standing in
+ *  the Forest Lake dojo, with the kawaii ascii face ◕‿◕ between its two pillars.
+ *  Used in the top bar, the landing / guide nav, the footers, the support bot
+ *  and anywhere the brand appears. */
+export function Logo({ size = 34, className = '' }: { size?: number; className?: string; animated?: boolean }) {
   return (
     <span className={`logo-badge ${className}`} style={{ width: size, height: size }} aria-hidden>
       <svg viewBox="0 0 32 32" width={size} height={size}>
-        {/* head · apple green square, 4px rounded corners */}
-        <rect x="1" y="1" width="30" height="30" rx="4" fill="#7ed321" />
-        {/* eyes */}
-        <g fill="#123f14">
-          <ellipse cx="11.2" cy="14" rx="2.5" ry="3.1">
-            {animated && <animate attributeName="ry" values="3.1;3.1;3.1;0.4;3.1;3.1" keyTimes="0;0.85;0.9;0.93;0.965;1" dur="4.2s" repeatCount="indefinite" />}
-          </ellipse>
-          <ellipse cx="20.8" cy="14" rx="2.5" ry="3.1">
-            {animated && <animate attributeName="ry" values="3.1;3.1;3.1;0.4;3.1;3.1" keyTimes="0;0.85;0.9;0.93;0.965;1" dur="4.2s" repeatCount="indefinite" />}
-          </ellipse>
-        </g>
-        {/* highlights · the ◕ glint */}
-        <circle cx="12.2" cy="12.7" r="0.85" fill="#eaffd0" />
-        <circle cx="21.8" cy="12.7" r="0.85" fill="#eaffd0" />
-        {/* smile · gently grins wider on a loop */}
-        <path d="M10.5 20 Q16 24 21.5 20" stroke="#123f14" strokeWidth="2.2" fill="none" strokeLinecap="round">
-          {animated && <animate attributeName="d" values="M10.5 20 Q16 24 21.5 20; M10.5 20 Q16 25.6 21.5 20; M10.5 20 Q16 24 21.5 20" dur="5.6s" repeatCount="indefinite" />}
-        </path>
+        {/* shimaki · thin top ridge, slightly the widest */}
+        <rect x="2" y="4.4" width="28" height="1.9" rx="0.9" fill="#8f2418" />
+        {/* kasagi · main top beam */}
+        <rect x="3.2" y="6.1" width="25.6" height="2.5" rx="0.9" fill="#a02a1c" />
+        {/* hashira · the two pillars */}
+        <rect x="8" y="8.2" width="2.9" height="21.8" rx="0.3" fill="#c0392b" />
+        <rect x="21.1" y="8.2" width="2.9" height="21.8" rx="0.3" fill="#c0392b" />
+        {/* gakuzuka · short central strut */}
+        <rect x="15" y="8.4" width="2" height="4.2" fill="#a02a1c" />
+        {/* nuki · the tie beam across the pillars */}
+        <rect x="6.4" y="12.2" width="19.2" height="2.3" rx="0.3" fill="#b5352a" />
+        {/* the ascii face, sitting in the opening between the pillars */}
+        <text x="16" y="23.6" textAnchor="middle" textLength="9.6" lengthAdjust="spacingAndGlyphs"
+          fontFamily="'Silkscreen','Courier New',monospace" fontSize="7" fill="#3a140d">◕‿◕</text>
       </svg>
     </span>
   )

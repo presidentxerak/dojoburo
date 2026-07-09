@@ -1,30 +1,18 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Wordmark } from '../Wordmark'
-import { AsciiIcon } from '../AsciiIcon'
-import { Agent3DPreview } from '../three/Agent3DPreview'
+import { Object3DInline } from './Object3D'
 import { DojoDiorama } from './DojoDiorama'
-import { DeckHero } from './DeckHero'
-import { SKINS } from '../../data/skins'
 import { DECK_SLIDES, type DeckSlide } from '../../data/deckSlides'
 import { FORECAST, BUSINESS_PLAN, CONTACT_EMAIL } from '../../data/financials'
 import { downloadDeckPdf } from './deckPdf'
 import { useInView } from './useInView'
 
-// The investor pitch deck in the DojoBuro visual language · kawaii characters
-// carrying a relevant 3D object (three-quarter, hopping), the 3D dojo, ascii-art
-// icons, financial tables and the brand magenta/blue. One 24px Outfit-black line
-// per slide. Presented full-screen; exported to a real PDF via jsPDF.
-
-// three widely-spaced, visually distinct skins to dress a slide
-function trio(seed: number) {
-  const step = Math.floor(SKINS.length / 3)
-  return [0, 1, 2].map((k) => SKINS[(seed * 7 + k * step) % SKINS.length])
-}
-// a skin of a given kind if one exists, else a spread pick
-const skinOfKind = (kind: string, fallbackSeed: number) => SKINS.find((s) => s.kind === kind) ?? SKINS[(fallbackSeed * 13) % SKINS.length]
-// a distinct hero skin per hero slide so the roster shows off
-const heroFor = (seed: number) => SKINS[(seed * 17 + 3) % SKINS.length]
+// The investor pitch deck in the DojoBuro visual language · centred text, the
+// landing's typography (Silkscreen title + Outfit Black), full-3D spinning
+// objects and landing-style cards. The layout varies slide to slide (a big
+// object, the 3D dojo, a card row, stat tiles or a financial table). One clean
+// idea per slide. Presented full-screen; exported to a real PDF via jsPDF.
 
 function FinTable({ which }: { which: 'forecast' | 'plan' }) {
   const t = which === 'forecast' ? FORECAST : BUSINESS_PLAN
@@ -45,37 +33,97 @@ function FinTable({ which }: { which: 'forecast' | 'plan' }) {
   )
 }
 
-function SlideVisual({ slide, idx, active }: { slide: DeckSlide; idx: number; active: boolean }) {
+// The full-3D illustration for a slide · lazily mounted when the slide is active
+// and in view (the deck can hold a dozen canvases otherwise).
+function Illustration({ slide, active, size = 240 }: { slide: DeckSlide; active: boolean; size?: number }) {
   const [ref, inView] = useInView<HTMLDivElement>('120px')
   const show = active && inView
-  if (slide.visual === 'brand') {
-    const hero = skinOfKind(idx === 0 ? 'knight' : 'mage', idx)
-    return (
-      <div className="pd-visual pd-visual-hero" ref={ref}>
-        {show && <DeckHero id={hero.id} character={hero} obj={slide.obj} color={slide.accent} size={320} />}
-        <span className="pd-ascii-chip" style={{ color: slide.accent }}><AsciiIcon kind={slide.icon} /></span>
-      </div>
-    )
+  if (slide.layout === 'dojo') {
+    return <div className="pd-3d pd-3d-dojo" ref={ref}>{show ? <DojoDiorama /> : null}</div>
   }
-  if (slide.visual === 'hero') {
-    const hero = heroFor(idx)
-    return (
-      <div className="pd-visual pd-visual-hero" ref={ref}>
-        {show ? <DeckHero id={hero.id} character={hero} obj={slide.obj} color={slide.accent} size={340} /> : null}
-        <span className="pd-ascii-chip" style={{ color: slide.accent }}><AsciiIcon kind={slide.icon} /></span>
-      </div>
-    )
-  }
-  if (slide.visual === 'dojo') {
-    return <div className="pd-visual pd-visual-dojo" ref={ref}>{show ? <DojoDiorama /> : <span className="pd-bigicon" style={{ color: slide.accent }}><AsciiIcon kind={slide.icon} /></span>}</div>
-  }
-  // team
-  const skins = trio(idx)
   return (
-    <div className="pd-visual pd-visual-team" ref={ref}>
-      {skins.map((s, k) => (
-        <div className="pd-char" key={s.id}>{show ? <Agent3DPreview id={s.id} character={s} size={150} phase={k * 0.8} /> : null}</div>
+    <div className="pd-3d" ref={ref}>
+      {show ? <Object3DInline kind={slide.obj} color={slide.accent} size={size} speed={0.6} /> : null}
+    </div>
+  )
+}
+
+function Cards({ cards, accent }: { cards: NonNullable<DeckSlide['cards']>; accent: string }) {
+  return (
+    <div className="pd-cards">
+      {cards.map((c) => (
+        <div className="pd-card" key={c.label} style={{ ['--pa' as any]: accent }}>
+          <strong>{c.label}</strong>
+          <span>{c.sub}</span>
+        </div>
       ))}
+    </div>
+  )
+}
+
+function Stats({ stats }: { stats: NonNullable<DeckSlide['stats']> }) {
+  return (
+    <div className="pd-stats">
+      {stats.map((s) => (
+        <div className="pd-stat" key={s.label}>
+          <b>{s.big}</b>
+          <span>{s.label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Slide({ slide, idx, active }: { slide: DeckSlide; idx: number; active: boolean }) {
+  const showContact = idx === 0 || idx === DECK_SLIDES.length - 1 || slide.layout === 'table'
+  const copy = (
+    <div className="pd-copy">
+      <span className="pd-eyebrow">{slide.n ? `${slide.n} · ` : ''}{slide.eyebrow}</span>
+      {idx === 0 ? <div className="pd-brandmark"><Wordmark /></div> : null}
+      <h2 className="pd-title">{slide.title}</h2>
+      <p className="pd-line">{slide.line}</p>
+    </div>
+  )
+
+  return (
+    <div className={`pd-inner pd-l-${slide.layout}`}>
+      {slide.layout === 'table' ? (
+        <>
+          {copy}
+          <FinTable which={slide.table!} />
+        </>
+      ) : slide.layout === 'cards' ? (
+        <>
+          {copy}
+          <Cards cards={slide.cards!} accent={slide.accent} />
+          <Illustration slide={slide} active={active} size={150} />
+        </>
+      ) : slide.layout === 'stats' ? (
+        <>
+          {copy}
+          <Stats stats={slide.stats!} />
+          <Illustration slide={slide} active={active} size={150} />
+        </>
+      ) : slide.layout === 'dojo' ? (
+        <>
+          {copy}
+          <Illustration slide={slide} active={active} />
+        </>
+      ) : slide.layout === 'brand' ? (
+        <>
+          {copy}
+          <Illustration slide={slide} active={active} size={300} />
+        </>
+      ) : (
+        <>
+          {copy}
+          <Illustration slide={slide} active={active} size={260} />
+        </>
+      )}
+      <span className="pd-foot">
+        <Wordmark /> · automated productivity on the XRP Ledger
+        {showContact ? <em className="pd-contact"> · {CONTACT_EMAIL}</em> : null}
+      </span>
     </div>
   )
 }
@@ -106,30 +154,11 @@ export function PitchDeck({ onClose }: { onClose: () => void }) {
       <div className="pd-stage">
         <button className="pd-arrow left" onClick={() => go(-1)} disabled={i === 0} aria-label="Previous">‹</button>
 
-        {DECK_SLIDES.map((s, k) => {
-          const showContact = s.visual === 'brand' || s.visual === 'table'
-          return (
-            <section
-              key={k}
-              className={`pd-slide ${k === i ? 'on' : ''} pd-v-${s.visual}`}
-              style={{ ['--pa' as any]: s.accent }}
-            >
-              <div className="pd-slide-inner">
-                <div className="pd-copy">
-                  <span className="pd-kicker">{s.n ? `${s.n} · ` : ''}{s.kicker}</span>
-                  {s.visual === 'brand' ? <div className="pd-brandmark"><Wordmark /></div> : null}
-                  <p className="pd-line">{s.line}</p>
-                  {s.visual === 'table' && s.table ? <FinTable which={s.table} /> : null}
-                  <span className="pd-foot">
-                    <Wordmark /> · automated productivity on the XRP Ledger
-                    {showContact ? <em className="pd-contact"> · {CONTACT_EMAIL}</em> : null}
-                  </span>
-                </div>
-                {s.visual !== 'table' ? <SlideVisual slide={s} idx={k} active={k === i} /> : null}
-              </div>
-            </section>
-          )
-        })}
+        {DECK_SLIDES.map((s, k) => (
+          <section key={k} className={`pd-slide ${k === i ? 'on' : ''}`} style={{ ['--pa' as any]: s.accent }}>
+            <Slide slide={s} idx={k} active={k === i} />
+          </section>
+        ))}
 
         <button className="pd-arrow right" onClick={() => go(1)} disabled={i === DECK_SLIDES.length - 1} aria-label="Next">›</button>
       </div>
