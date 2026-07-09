@@ -918,14 +918,17 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-sec > *:not(.lp-hero3d):not(.lp-obj3d), .lp-final > *:not(.lp-obj3d) { position: relative; z-index: 1; }
 @media (max-width: 1280px) { .lp-hero3d { display: none; } }
 
-/* vivid 3D object heroes · centred between sections, never over the text */
+/* vivid 3D object heroes · centred in the gap BELOW each section, so they never
+   sit over the section text */
+.lp-sec, .lp-final { position: relative; }
 .lp-obj3d {
-  position: relative; z-index: 1; display: block; width: 150px !important; height: 150px !important;
-  margin: 0 auto 10px; pointer-events: none; will-change: transform;
+  position: absolute; left: 50%; bottom: -68px; transform: translateX(-50%);
+  z-index: 3; width: 140px !important; height: 140px !important;
+  pointer-events: none;
   filter: drop-shadow(0 16px 22px color-mix(in srgb, var(--obj, #7c3aed) 30%, transparent));
 }
-.lp-obj3d-right, .lp-obj3d-left { left: auto; right: auto; }
-@media (max-width: 640px) { .lp-obj3d { width: 120px !important; height: 120px !important; } }
+.lp-obj3d-right, .lp-obj3d-left { left: 50%; right: auto; }
+@media (max-width: 640px) { .lp-obj3d { width: 108px !important; height: 108px !important; bottom: -52px; } }
 
 /* rotating dojo diorama hero */
 .lp-dojo3d { width: 100%; max-width: 760px; height: clamp(300px, 42vh, 380px); margin: 8px auto 0; will-change: transform; }

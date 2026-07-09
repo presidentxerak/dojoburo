@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, type ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useInView } from './useInView'
@@ -155,43 +155,26 @@ export function Object3DInline({ kind, color, size = 220, speed = 0.5 }: { kind:
   )
 }
 
-/** A spinning full-3D object hero that drifts on scroll (parallax). */
+/** A spinning full-3D object. Rendered centred in the gap below each section
+ *  (positioning is handled in CSS · no scroll parallax, so it never drifts over
+ *  the section text). */
 export function Object3D({
   kind,
   color,
-  size = 220,
-  side = 'right',
-  parallax = 0.14,
+  size = 150,
   speed = 0.5,
 }: {
   kind: string
   color: string
   size?: number
+  /** kept for call-site compatibility; positioning is now purely CSS */
   side?: 'left' | 'right'
   parallax?: number
   speed?: number
 }) {
-  const [ref, inView] = useInView<HTMLDivElement>()
-  const [y, setY] = useState(0)
-  useEffect(() => {
-    let raf = 0
-    const onScroll = () => {
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => {
-        const el = ref.current
-        if (!el) return
-        const r = el.getBoundingClientRect()
-        const vh = window.innerHeight || 800
-        setY((r.top + r.height / 2 - vh / 2) * -parallax)
-      })
-    }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); cancelAnimationFrame(raf) }
-  }, [parallax, ref])
+  const [ref, inView] = useInView<HTMLDivElement>('200px')
   return (
-    <div ref={ref} className={`lp-obj3d lp-obj3d-${side}`} style={{ width: size, height: size, transform: `translate3d(0, ${y.toFixed(1)}px, 0)`, ['--obj' as any]: color }} aria-hidden>
+    <div ref={ref} className="lp-obj3d" style={{ width: size, height: size, ['--obj' as any]: color }} aria-hidden>
       {inView && (
         <Canvas camera={{ position: [0, 0.4, 6.2], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
           <hemisphereLight args={['#ffffff', '#c7cede', 1.0]} />
