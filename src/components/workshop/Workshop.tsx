@@ -1,18 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
-import { skinById } from '../../data/skins'
 import { WorkshopModal } from './WorkshopModal'
-import { SkinAvatar } from './SkinAvatar'
 
-/** Left-edge dock: account chip, a quick dojo switcher, Dojo Studio launcher and
- *  the activity widget toggle. Holds the workshop modal + widget open state. */
+/** Left-edge dock: a quick dojo switcher. The Studio launcher and account now
+ *  live in the top-bar header; this just flips the active dojo. Holds the
+ *  workshop modal open state (opened from the header Studio button). */
 export function Workshop() {
   const [modalOpen, setModalOpen] = useState(false)
   const studioIntent = useWork((s) => s.studioIntent)
-  const account = useWorkshop((s) => s.account)
 
-  // a "add your key" hint elsewhere can request the studio open on a tab
+  // the header Studio button (and "add your key" hints) request the studio open
   useEffect(() => {
     if (studioIntent) setModalOpen(true)
   }, [studioIntent])
@@ -29,25 +27,20 @@ export function Workshop() {
 
   return (
     <>
-      <div className="ws-dock">
-        <button className="ws-chip" onClick={() => setModalOpen(true)} title="Account & Dojo Studio">
-          {account ? <SkinAvatar skin={skinById(account.avatarSkinId)} size={22} /> : null}
-          <span className="ws-chip-name">{account ? account.name || 'Founder' : 'Sign in'}</span>
-        </button>
-
-        {/* quick dojo switcher · flip active dojo without opening the studio */}
-        <div className="ws-dojoswitch" title="Switch dojo">
-          <button className="ws-swbtn" onClick={() => cycle(-1)} disabled={dojos.length < 2} aria-label="Previous dojo">‹</button>
-          <select className="ws-swsel" value={active?.id} onChange={(e) => setActive(e.target.value)}>
-            {dojos.map((d) => (
-              <option key={d.id} value={d.id}>{d.name}</option>
-            ))}
-          </select>
-          <button className="ws-swbtn" onClick={() => cycle(1)} disabled={dojos.length < 2} aria-label="Next dojo">›</button>
+      {dojos.length > 1 && (
+        <div className="ws-dock">
+          {/* quick dojo switcher · flip active dojo without opening the studio */}
+          <div className="ws-dojoswitch" title="Switch dojo">
+            <button className="ws-swbtn" onClick={() => cycle(-1)} aria-label="Previous dojo">‹</button>
+            <select className="ws-swsel" value={active?.id} onChange={(e) => setActive(e.target.value)}>
+              {dojos.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+            <button className="ws-swbtn" onClick={() => cycle(1)} aria-label="Next dojo">›</button>
+          </div>
         </div>
-
-        <button className="ws-dockbtn" onClick={() => setModalOpen(true)}>Dojo Studio</button>
-      </div>
+      )}
 
       {modalOpen && <WorkshopModal onClose={() => { setModalOpen(false); useWork.getState().clearStudioIntent() }} />}
     </>

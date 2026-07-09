@@ -28,7 +28,7 @@ interface WorkState {
   run: (input: { task: string; agentName: string; connectors: string[]; brief?: string }) => Promise<void>
   closeDeliverable: () => void
   clearError: () => void
-  openStudio: (tab: 'billing' | 'account') => void
+  openStudio: (tab: 'billing' | 'account' | 'studio') => void
   /** open the Studio editor focused on a specific agent */
   editAgent: (agentId: string) => void
   clearStudioIntent: () => void

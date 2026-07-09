@@ -1645,3 +1645,85 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .legal-body p { font-size: 15.5px; line-height: 1.7; color: var(--muted); margin: 0 0 12px; }
 .legal-body a { color: var(--violet); text-decoration: underline; }
 .legal-body a:hover { color: var(--ink); }
+
+/* ===========================================================================
+   Info dots + explainer modals
+   =========================================================================== */
+.infodot {
+  flex: none; width: 17px; height: 17px; margin-left: 5px; vertical-align: middle;
+  display: inline-grid; place-items: center; border-radius: 50%; cursor: pointer;
+  font-family: var(--font-pixel); font-weight: 800; font-size: 11px; font-style: normal;
+  color: #fff; background: var(--violet); border: none; line-height: 1; padding: 0;
+}
+.infodot:hover { background: var(--c-magenta); }
+.infodot-overlay {
+  position: fixed; inset: 0; z-index: 130; display: grid; place-items: center; padding: 20px;
+  background: color-mix(in srgb, #0b0d16 66%, transparent); backdrop-filter: blur(5px); animation: fade 0.14s ease;
+}
+.infodot-modal {
+  width: 100%; max-width: 460px; max-height: 80vh; overflow-y: auto; display: flex; flex-direction: column;
+  background: var(--panel-solid); border: 1px solid var(--border-lit); border-top: 3px solid var(--violet);
+  border-radius: 14px; box-shadow: var(--shadow); padding: 18px 20px 20px;
+}
+.infodot-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.infodot-head h3 { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; margin: 0; color: var(--ink); }
+.infodot-x { border: none; background: none; cursor: pointer; font-size: 24px; line-height: 1; color: var(--muted); padding: 0 2px; }
+.infodot-x:hover { color: var(--ink); }
+.infodot-body p { font-size: 14.5px; line-height: 1.6; color: var(--muted); margin: 0 0 10px; }
+.infodot-body b { color: var(--ink); }
+.infodot-close {
+  align-self: flex-end; margin-top: 6px; font-family: var(--font-pixel); font-weight: 800; font-size: 13px;
+  cursor: pointer; color: #fff; background: var(--btn-bg); border: none; border-radius: 2px; padding: 9px 18px;
+}
+.infodot-close:hover { opacity: 0.9; }
+
+/* ===========================================================================
+   App header · Studio / auth / profile menu / burger
+   =========================================================================== */
+.topbar { position: relative; }
+.tb-profile { border: 1.5px solid var(--border-lit); background: var(--panel-solid); border-radius: 50%; padding: 3px; cursor: pointer; line-height: 0; transition: border-color 0.14s, transform 0.14s; }
+.tb-profile:hover { border-color: var(--violet); transform: translateY(-1px); }
+
+.tb-burger { display: none; flex-direction: column; justify-content: center; gap: 4.5px; width: 40px; height: 40px; padding: 11px; cursor: pointer; background: var(--panel-solid); border: 1.5px solid var(--border-lit); border-radius: 2px; }
+.tb-burger span { display: block; height: 2.4px; width: 100%; background: var(--ink); border-radius: 2px; transition: transform 0.2s, opacity 0.2s; }
+.tb-burger.on span:nth-child(1) { transform: translateY(6.9px) rotate(45deg); }
+.tb-burger.on span:nth-child(2) { opacity: 0; }
+.tb-burger.on span:nth-child(3) { transform: translateY(-6.9px) rotate(-45deg); }
+
+.tb-menu-scrim { position: fixed; inset: 0; z-index: 40; }
+.tb-menu {
+  position: absolute; top: calc(100% + 8px); right: 6px; z-index: 41; width: 300px; max-width: calc(100vw - 24px);
+  display: flex; flex-direction: column; gap: 4px; padding: 10px;
+  background: var(--panel-solid); border: 1px solid var(--border-lit); border-radius: 14px; box-shadow: var(--shadow);
+  animation: sbpop 0.16s ease-out;
+}
+.tb-menu-profile { display: flex; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 8px; border-radius: 9px; text-align: left; }
+.tb-menu-profile:hover { background: color-mix(in srgb, var(--violet) 8%, transparent); }
+.tb-menu-name { display: flex; flex-direction: column; font-family: var(--font-pixel); font-weight: 800; font-size: 14px; color: var(--ink); }
+.tb-menu-name em { font-family: var(--font-read); font-weight: 400; font-style: normal; font-size: 11px; color: var(--muted); }
+.tb-menu-auth { display: flex; gap: 8px; padding: 4px; }
+.tb-menu-auth .btn { flex: 1; justify-content: center; }
+.tb-menu-sec { display: flex; flex-direction: column; gap: 4px; padding: 6px 4px; margin: 4px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.tb-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 6px; }
+.tb-row > span { font-size: 13.5px; color: var(--ink); font-weight: 600; display: inline-flex; align-items: center; }
+.tb-toggle { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-pixel); font-weight: 800; font-size: 12px; cursor: pointer; color: var(--ink); background: var(--panel-2); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; }
+.tb-toggle.on { color: #fff; background: var(--c-teal, #08c2ac); border-color: transparent; }
+.tb-toggle:hover { border-color: var(--border-lit); }
+.tb-row-net { flex-direction: column; align-items: stretch; gap: 6px; }
+.tb-netseg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.tb-netseg button { font-family: var(--font-pixel); font-weight: 800; font-size: 11px; cursor: pointer; color: var(--muted); background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 4px; }
+.tb-netseg button.on { color: #fff; background: var(--btn-bg); border-color: transparent; }
+.tb-netseg button.live.on { background: linear-gradient(140deg, #e0475f, #b8241d); }
+.tb-menu-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-family: var(--font-pixel); font-weight: 800; font-size: 13.5px; cursor: pointer; color: var(--ink); background: none; border: none; border-radius: 9px; padding: 10px 8px; text-align: left; }
+.tb-menu-item:hover { background: color-mix(in srgb, var(--violet) 8%, transparent); }
+.tb-wallet-item .tb-wallet-state { font-family: var(--font-read); font-weight: 700; font-size: 12px; color: var(--muted); }
+.tb-wallet-item.on .tb-wallet-state { color: var(--c-magenta); }
+.tb-signout { color: #e0475f; }
+.tb-only-mobile { display: none; }
+
+@media (max-width: 720px) {
+  .tb-desktop { display: none !important; }
+  .tb-burger { display: flex; }
+  .tb-only-mobile { display: flex; }
+  .tb-menu { position: fixed; top: 66px; left: 10px; right: 10px; width: auto; max-width: none; }
+}

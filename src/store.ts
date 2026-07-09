@@ -95,6 +95,7 @@ interface DojoState {
   setScene: (id: SceneId) => void
   toggleMute: () => void
   toggleMusic: () => void
+  toggleSound: () => void
   walletConnect: (id: WalletId) => Promise<void>
   walletDisconnect: () => Promise<void>
   walletFund: (amountXrp: number) => Promise<void>
@@ -240,6 +241,15 @@ export const useDojo = create<DojoState>((set, get) => ({
     if (on) audio.startMusic()
     else audio.stopMusic()
     set({ musicOn: on })
+  },
+  // one merged sound control: flips music + sound-fx together
+  toggleSound: () => {
+    const nextOn = get().muted // currently muted → turning sound ON
+    audio.setMuted(!nextOn)
+    if (nextOn) audio.startMusic()
+    else audio.stopMusic()
+    localStorage.setItem('dojoburo.muted', nextOn ? '0' : '1')
+    set({ muted: !nextOn, musicOn: nextOn })
   },
 
   setXamanKey: (key) => {
