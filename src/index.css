@@ -553,7 +553,7 @@ a:hover { text-decoration: underline; }
 @media (max-width: 480px) { .sb-panel { left: 0; right: 0; bottom: 0; width: 100%; max-width: 100%; height: 82dvh; border-radius: 18px 18px 0 0; } }
 
 .sb-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: linear-gradient(140deg, var(--pink), var(--violet)); color: #fff; }
-.sb-avatar { font-size: 18px; background: rgba(255,255,255,0.22); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; }
+.sb-avatar { background: transparent; display: grid; place-items: center; }
 .sb-title { display: flex; flex-direction: column; line-height: 1.2; flex: 1; }
 .sb-title strong { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; }
 .sb-status { font-size: 10px; opacity: 0.9; display: flex; align-items: center; gap: 5px; }
@@ -782,7 +782,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 /* neutralise coloured surfaces */
 .sb-head, .aw-head { background: var(--panel-2); color: var(--ink); }
-.sb-head .sb-avatar { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.sb-head .sb-avatar { background: transparent; }
 .sb-head .sb-x { background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
 .sb-head .sb-x:hover { background: color-mix(in srgb, var(--ink) 20%, transparent); }
 .aw-head .aw-btn { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
@@ -794,9 +794,10 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .agent-head-avatar { background: var(--panel-2); }
 .lp-hero h1 { background: var(--title-grad); -webkit-background-clip: text; background-clip: text; }
 
-/* logo mark · black square base + kawaii face */
-.logo-badge { display: inline-grid; place-items: center; background: #14151a; color: #fff; border-radius: 26%; box-shadow: var(--shadow-sm); flex: none; }
-:root[data-theme='dark'] .logo-badge { box-shadow: 0 0 0 1px rgba(255,255,255,0.16); }
+/* logo mark · apple-green kawaii face (the assistant's head). The SVG carries
+   its own rounded-square shape + colour, so the wrapper is just a sizing box. */
+.logo-badge { display: inline-grid; place-items: center; background: transparent; flex: none; line-height: 0; filter: drop-shadow(0 2px 5px rgba(20, 40, 10, 0.22)); }
+.logo-badge svg { display: block; }
 
 /* 3D agent previews · soft neutral backdrop so light + dark skins both read */
 .a3d { border-radius: 12px; overflow: hidden; background: radial-gradient(120% 120% at 50% 22%, color-mix(in srgb, var(--ink) 5%, var(--panel-solid)), color-mix(in srgb, var(--ink) 18%, var(--panel-solid))); }
@@ -928,13 +929,13 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
    sit over the section text */
 .lp-sec, .lp-final { position: relative; }
 .lp-obj3d {
-  position: absolute; left: 50%; bottom: -68px; transform: translateX(-50%);
-  z-index: 3; width: 140px !important; height: 140px !important;
+  position: absolute; left: 50%; bottom: -74px; transform: translateX(-50%);
+  z-index: 3; width: 168px !important; height: 168px !important;
   pointer-events: none;
   filter: drop-shadow(0 16px 22px color-mix(in srgb, var(--obj, #7c3aed) 30%, transparent));
 }
 .lp-obj3d-right, .lp-obj3d-left { left: 50%; right: auto; }
-@media (max-width: 640px) { .lp-obj3d { width: 108px !important; height: 108px !important; bottom: -52px; } }
+@media (max-width: 640px) { .lp-obj3d { width: 132px !important; height: 132px !important; bottom: -58px; } }
 
 /* rotating dojo diorama hero */
 .lp-dojo3d { width: 100%; max-width: 760px; height: clamp(300px, 42vh, 380px); margin: 8px auto 0; will-change: transform; }
@@ -1783,8 +1784,9 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
    =========================================================================== */
 .tb-guide { background: var(--c-magenta) !important; color: #fff !important; border: none !important; text-decoration: none; display: inline-flex; align-items: center; }
 .tb-guide:hover { background: #ff1790 !important; }
-.lp-navguide { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; cursor: pointer; color: #fff; background: var(--c-magenta); border: none; border-radius: 2px; padding: 8px 13px; text-decoration: none; display: inline-flex; align-items: center; }
-.lp-navguide:hover { background: #ff1790; }
+.lp-navguide, .lp-nav-links a.lp-navguide { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; cursor: pointer; color: #fff; background: var(--c-magenta); border: none; border-radius: 2px; padding: 8px 13px; text-decoration: none; display: inline-flex; align-items: center; }
+.lp-navguide:hover, .lp-nav-links a.lp-navguide:hover { background: #ff1790; color: #fff; }
+.lp-nav-links a.lp-navguide::after { display: none; }
 .lp-menu-guide { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; cursor: pointer; color: #fff; background: var(--c-magenta); border: none; border-radius: 8px; padding: 13px 12px; text-align: left; text-decoration: none; display: block; }
 .tb-menu-link { text-decoration: none; display: flex; align-items: center; }
 
@@ -1882,6 +1884,12 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .dg2-callout { border-left: 4px solid; }
 .dg2-safe { border-left-color: #2f6bff; }
 .dg2-budget { border-left-color: #12b36a; }
+.dg2-real { border-left-color: #7ed321; }
+
+/* cloud-vs-local · two columns of numbered setup steps */
+.dg2-run { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 8px; }
+.dg2-run h3 { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; margin: 0 0 10px; color: var(--ink); }
+@media (max-width: 780px) { .dg2-run { grid-template-columns: 1fr; } }
 
 /* step-number accents shared by guide step rows (lp-step3-n base already sized) */
 .dg2-n1 { background: var(--c-magenta); }

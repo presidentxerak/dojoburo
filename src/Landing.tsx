@@ -6,6 +6,7 @@ import { DOJO_TEMPLATES } from './data/templates'
 import { SupportBot } from './components/SupportBot'
 import { Logo } from './components/Logo'
 import { Wordmark } from './components/Wordmark'
+import { SiteHeader } from './components/SiteHeader'
 import { AsciiIcon } from './components/AsciiIcon'
 import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
@@ -20,52 +21,11 @@ const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff
 /** A-to-Z landing page: what DojoBuro is, how the office works, what a task
  *  costs in XRP, how agents get wired to real tools, where they run, and the
  *  path to a fully-functional production deployment. */
-const NAV_LINKS: [string, string][] = [
-  ['#studio', 'Build'],
-  ['#stack', 'Connect'],
-  ['#cast', 'Team'],
-  ['#how', 'How it works'],
-  ['#pricing', 'Pricing'],
-]
-
 export function Landing({ enter }: { enter: () => void }) {
   const [deckOpen, setDeckOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
   return (
     <div className="landing">
-      <header className="lp-nav">
-        <div className="lp-brand">
-          <Logo size={30} /> <Wordmark />
-        </div>
-        <nav className="lp-nav-links">
-          {NAV_LINKS.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-          <a className="lp-navguide" href="/guide">Dojo Guide</a>
-        </nav>
-        <div className="lp-nav-right">
-          <button
-            className={`lp-burger${menuOpen ? ' on' : ''}`}
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
-          >
-            <span /><span /><span />
-          </button>
-          <button className="lp-cta sm" onClick={enter}>Enter the office →</button>
-        </div>
-      </header>
-
-      {menuOpen && (
-        <>
-          <div className="lp-menu-scrim" onClick={() => setMenuOpen(false)} />
-          <nav className="lp-mobile-menu">
-            {NAV_LINKS.map(([href, label]) => (
-              <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
-            ))}
-            <a className="lp-menu-guide" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
-            <button className="lp-cta" onClick={() => { setMenuOpen(false); enter() }}>Enter the office →</button>
-          </nav>
-        </>
-      )}
+      <SiteHeader enter={enter} />
 
       <section className="lp-hero">
         <p className="lp-kicker">An automated productivity hub, run by AI agents · orchestrated on the XRP Ledger</p>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { TOPIC_BY_ID, matchTopic, matchConnector, connectorReply, GREETING, type KBLink } from '../support/knowledge'
 import { askCascade } from '../support/askCascade'
+import { Logo } from './Logo'
 
 interface Msg {
   id: number
@@ -111,7 +112,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
     <>
       {!embedded && !open && (
         <button className="sb-launch" onClick={() => setOpen(true)} aria-label="Open help & support">
-          <span className="sb-face" aria-hidden>◕‿◕</span>
+          <Logo size={26} className="sb-face" />
           <span className="sb-launch-label">Help</span>
         </button>
       )}
@@ -119,7 +120,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
       {open && (
         <section className={`sb-panel${embedded ? ' sb-embed' : ''}`} role="dialog" aria-label="DojoBuro support assistant">
           <header className="sb-head">
-            <span className="sb-avatar" aria-hidden>◕‿◕</span>
+            <Logo size={32} className="sb-avatar" />
             <div className="sb-title">
               <strong>DojoBuro Assistant</strong>
               <span className="sb-status"><i /> online · guided help</span>

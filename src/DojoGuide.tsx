@@ -1,5 +1,6 @@
 import { Logo } from './components/Logo'
 import { Wordmark } from './components/Wordmark'
+import { SiteHeader } from './components/SiteHeader'
 import { ConnectorLogo } from './components/ConnectorLogo'
 import { CONNECTORS, type ConnectorCategory } from './data/connectors'
 import { connectorById, userSteps, operatorSteps, REDIRECT_PATH } from './data/connectorGuide'
@@ -20,15 +21,7 @@ const CATEGORY_ORDER: ConnectorCategory[] = [
 function GuideShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="landing dg2">
-      <header className="lp-nav">
-        <a className="lp-brand" href="/" style={{ textDecoration: 'none' }}><Logo size={30} /> <Wordmark /></a>
-        <nav className="lp-nav-links">
-          <a href="/guide">Guide</a>
-          <a href="/#stack">Connect</a>
-          <a href="/#pricing">Pricing</a>
-        </nav>
-        <a className="lp-cta sm" href="/#app" style={{ textDecoration: 'none' }}>Enter the office →</a>
-      </header>
+      <SiteHeader />
       {children}
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
@@ -121,26 +114,56 @@ export function GuidePage() {
 
       <section className="lp-sec" id="runtime">
         <h2>5 · Run DojoBuro in the cloud or locally</h2>
-        <p className="lp-lead">The browser is always the cockpit · it shows the 3D office, triggers tasks and signs Mainnet payments through your wallet. The model and tool calls run in a worker, and you choose where that worker lives.</p>
+        <p className="lp-lead">The browser is always the cockpit · it shows the 3D office, triggers tasks and signs Mainnet payments through your wallet. The model and tool calls run in a small worker (serverless functions under <code>/api</code>), and you choose where that worker lives. Here is exactly how to run each way.</p>
+
+        <div className="dg2-run">
+          <div className="dg2-runcol">
+            <h3>A · In the cloud (managed · fastest)</h3>
+            <ol className="dg2-osteps">
+              <li><b>Deploy the repo</b><span>Import <code>presidentxerak/dojoburo</code> into Vercel (or any host that runs the <code>/api</code> functions). The static client builds with <code>npm run build</code>.</span></li>
+              <li><b>Add a database + vault key</b><span>Set <code>DATABASE_URL</code> (any Postgres · Neon, Supabase, RDS) and a 32-byte <code>CONNECTOR_ENC_KEY</code> for the token vault. Apply the schema: <code>psql "$DATABASE_URL" -f db/connectors.sql</code>.</span></li>
+              <li><b>Add the keys you want live</b><span>Each connector's OAuth keys (see its page), plus a model path: users bring their own Claude key (BYOK) or you enable the free-model cascade. Optional: <code>STRIPE_SECRET_KEY</code> for card top-ups, settlement keys for Mainnet x402.</span></li>
+              <li><b>Redeploy</b><span>The worker keeps agents running when the tab is closed, every secret stays in the server-side vault, and Connect buttons go live.</span></li>
+            </ol>
+          </div>
+          <div className="dg2-runcol">
+            <h3>B · Locally / self-hosted</h3>
+            <ol className="dg2-osteps">
+              <li><b>Clone &amp; install</b><span><code>git clone</code> the repo, then <code>npm install</code>.</span></li>
+              <li><b>Configure <code>.env</code></b><span>Copy <code>.env.example</code> to <code>.env</code> and fill the same vars as the cloud (database, vault key, connector keys, model key). Every option is documented inline.</span></li>
+              <li><b>Run it</b><span><code>npm run dev</code> serves the client + the <code>/api</code> worker locally. Point connectors at your own MCP endpoints if you self-host those too · your keys, your machine, the same office.</span></li>
+              <li><b>Keep control</b><span>Bring your own Claude key or the free cascade; nothing leaves your infrastructure. Ideal for privacy-sensitive stacks and Enterprise self-hosting.</span></li>
+            </ol>
+          </div>
+        </div>
+        <div className="dg2-links">
+          <a className="lp-cta sm" href="https://github.com/presidentxerak/dojoburo/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noreferrer">Full deployment guide ↗</a>
+          <a className="lp-ghost" href="https://github.com/presidentxerak/dojoburo/blob/main/.env.example" target="_blank" rel="noreferrer">All env vars (.env.example) ↗</a>
+        </div>
+        <p className="lp-note">Either way the client is a static single-page app: the 3D office, wallet generation, faucet funding and XRPL payments all run in your browser, talking straight to public XRPL nodes · no server needed for those.</p>
+      </section>
+
+      <section className="lp-sec alt dg2-callout dg2-real" id="real">
+        <h2>Is it real, or a mock?</h2>
+        <p className="lp-lead">It's <b>real, not a mock</b> · and it degrades honestly when a key is missing.</p>
         <div className="lp-two">
           <div>
-            <h3>In the cloud (managed)</h3>
+            <h3>Live today, for real</h3>
             <ul>
-              <li>A managed serverless worker runs the model + MCP tool calls and keeps agents going when the tab is closed.</li>
-              <li>Every secret lives in a server-side vault (OAuth tokens sealed with AES-256-GCM, auto-refreshed); the browser never receives one.</li>
-              <li>One-click OAuth for every app. Fastest way to get real deliverables · set <code>DATABASE_URL</code>, <code>CONNECTOR_ENC_KEY</code> and each app's keys, and deploy.</li>
+              <li>The 3D office, agents, wallets and XRPL payments are real: signed transactions on the actual XRP Ledger with x402 memos (free Testnet XRP, or real value on Mainnet).</li>
+              <li>Connectors do real work: with the worker + OAuth configured, an agent really creates the Notion page, opens the GitHub PR, drafts the Gmail.</li>
+              <li>Deliverables are real Claude output (your BYOK key or the free-model cascade), rendered in-app and written to your connected tool.</li>
             </ul>
           </div>
           <div>
-            <h3>Locally / self-hosted</h3>
+            <h3>What needs configuration</h3>
             <ul>
-              <li>Run the worker on your own machine or infra and point connectors at your own MCP endpoints · your keys, your machine, the same office.</li>
-              <li>Bring your own model key (Claude) or run the free-model cascade; nothing leaves your control.</li>
-              <li>Clone the repo, set the same env vars in a local <code>.env</code>, run the dev server, and the app talks to your local worker. Ideal for privacy-sensitive stacks and Enterprise self-hosting.</li>
+              <li>No worker/keys yet? The app still runs fully as a client · you explore the office, build dojos and run Testnet payments. Model + connector actions simply show a clear "needs a key / set up" state instead of faking a result.</li>
+              <li>Nothing is stubbed or faked behind the scenes: a task either runs for real or tells you exactly what to configure.</li>
+              <li>That's why the setup pages above matter · they turn each capability from "ready" to "live".</li>
             </ul>
           </div>
         </div>
-        <p className="lp-note">Either way the client is a static single-page app: the 3D office, wallet generation, faucet funding and XRPL payments all run in your browser, talking straight to public XRPL nodes.</p>
       </section>
 
       <section className="lp-sec alt" id="external">

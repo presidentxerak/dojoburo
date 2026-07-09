@@ -143,7 +143,7 @@ export function Object3DInline({ kind, color, size = 220, speed = 0.5 }: { kind:
   return (
     <div ref={ref} className="pd-obj3d" style={{ width: size, height: size, ['--obj' as any]: color }} aria-hidden>
       {inView && (
-        <Canvas camera={{ position: [0, 0.4, 6.2], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
+        <Canvas camera={{ position: [0, 0.4, 7.8], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
           <hemisphereLight args={['#ffffff', '#c7cede', 1.0]} />
           <directionalLight position={[4, 6, 5]} intensity={1.35} />
           <directionalLight position={[-5, 2, 3]} intensity={0.5} color="#ffffff" />
@@ -176,7 +176,7 @@ export function Object3D({
   return (
     <div ref={ref} className="lp-obj3d" style={{ width: size, height: size, ['--obj' as any]: color }} aria-hidden>
       {inView && (
-        <Canvas camera={{ position: [0, 0.4, 6.2], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
+        <Canvas camera={{ position: [0, 0.4, 7.8], fov: 40 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
           <hemisphereLight args={['#ffffff', '#c7cede', 1.0]} />
           <directionalLight position={[4, 6, 5]} intensity={1.35} />
           <directionalLight position={[-5, 2, 3]} intensity={0.5} color="#ffffff" />
