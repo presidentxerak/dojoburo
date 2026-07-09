@@ -12,7 +12,6 @@ import { Wordmark } from './Wordmark'
 import { Icon } from './Icon'
 import { InfoDot } from './InfoDot'
 import { SkinAvatar } from './workshop/SkinAvatar'
-import { GuideModal } from '../DojoGuide'
 
 const NETS: NetworkId[] = ['testnet', 'devnet', 'mainnet']
 
@@ -30,7 +29,6 @@ export function TopBar() {
   const signOut = useWorkshop((s) => s.signOut)
 
   const [menuOpen, setMenuOpen] = useState(false)
-  const [guideOpen, setGuideOpen] = useState(false)
   const [confirmMainnet, setConfirmMainnet] = useState(false)
 
   const soundOn = !muted
@@ -92,14 +90,14 @@ export function TopBar() {
       <div className="brand">
         <Logo size={34} />
         <div>
-          <h1><Wordmark /></h1>
+          <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
           <p className="tagline">Pixel startup, orchestrated on XRPL</p>
         </div>
       </div>
 
       <div className="topbar-right">
         {/* desktop inline controls */}
-        <button className="btn tiny tb-guide tb-desktop" onClick={() => setGuideOpen(true)}>Dojo Guide</button>
+        <a className="btn tiny tb-guide tb-desktop" href="/guide">Dojo Guide</a>
         <button className="btn tiny tb-desktop" onClick={openStudio}>Studio</button>
         {account ? (
           <button className="tb-profile tb-desktop" onClick={() => setMenuOpen((v) => !v)} aria-label="Profile & settings" title={account.name || 'Founder'}>
@@ -123,7 +121,7 @@ export function TopBar() {
           <div className="tb-menu-scrim" onClick={() => setMenuOpen(false)} />
           <div className="tb-menu" role="menu">
             {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
-            <button className="tb-menu-item tb-only-mobile" onClick={() => { setMenuOpen(false); setGuideOpen(true) }}>Dojo Guide</button>
+            <a className="tb-menu-item tb-only-mobile tb-menu-link" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
             <button className="tb-menu-item tb-only-mobile" onClick={openStudio}>Studio</button>
 
             {account ? (
@@ -166,8 +164,6 @@ export function TopBar() {
           </div>
         </div>
       )}
-
-      {guideOpen && <GuideModal onClose={() => setGuideOpen(false)} />}
     </header>
   )
 }

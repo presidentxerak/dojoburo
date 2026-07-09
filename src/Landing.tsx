@@ -11,7 +11,6 @@ import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
 import { TeamCards } from './components/landing/TeamCards'
 import { PitchDeck } from './components/landing/PitchDeck'
-import { GuideModal } from './DojoGuide'
 import { downloadDeckPdf } from './components/landing/deckPdf'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 
@@ -32,7 +31,6 @@ const NAV_LINKS: [string, string][] = [
 export function Landing({ enter }: { enter: () => void }) {
   const [deckOpen, setDeckOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [guideOpen, setGuideOpen] = useState(false)
   return (
     <div className="landing">
       <header className="lp-nav">
@@ -41,7 +39,7 @@ export function Landing({ enter }: { enter: () => void }) {
         </div>
         <nav className="lp-nav-links">
           {NAV_LINKS.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-          <button className="lp-navguide" onClick={() => setGuideOpen(true)}>Dojo Guide</button>
+          <a className="lp-navguide" href="/guide">Dojo Guide</a>
         </nav>
         <div className="lp-nav-right">
           <button
@@ -63,7 +61,7 @@ export function Landing({ enter }: { enter: () => void }) {
             {NAV_LINKS.map(([href, label]) => (
               <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
             ))}
-            <button className="lp-menu-guide" onClick={() => { setMenuOpen(false); setGuideOpen(true) }}>Dojo Guide</button>
+            <a className="lp-menu-guide" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
             <button className="lp-cta" onClick={() => { setMenuOpen(false); enter() }}>Enter the office →</button>
           </nav>
         </>
@@ -472,7 +470,6 @@ export function Landing({ enter }: { enter: () => void }) {
       </footer>
       <SupportBot />
       {deckOpen && <PitchDeck onClose={() => setDeckOpen(false)} />}
-      {guideOpen && <GuideModal onClose={() => setGuideOpen(false)} />}
     </div>
   )
 }

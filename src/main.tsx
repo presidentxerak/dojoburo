@@ -5,7 +5,7 @@ import { Landing } from './Landing'
 import { AuthProvider } from './auth/AuthProvider'
 import { WidgetApp } from './WidgetApp'
 import { Terms, Privacy } from './LegalPage'
-import { GuidePage } from './DojoGuide'
+import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import './index.css'
 
 function Root() {
@@ -20,6 +20,8 @@ function Root() {
   if (path === '/terms') return <Terms />
   if (path === '/privacy') return <Privacy />
   if (path === '/guide') return <GuidePage />
+  const gm = path.match(/^\/guide\/([a-z0-9-]+)$/i)
+  if (gm) return <ConnectorGuidePage id={gm[1].toLowerCase()} />
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />

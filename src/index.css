@@ -1781,11 +1781,12 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 /* ===========================================================================
    Dojo Guide · connectors walkthrough (page + overlay)
    =========================================================================== */
-.tb-guide { background: linear-gradient(140deg, var(--c-magenta), #7b52c9) !important; color: #fff !important; border: none !important; }
-.tb-guide:hover { opacity: 0.9; }
-.lp-navguide { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; cursor: pointer; color: #fff; background: linear-gradient(140deg, var(--c-magenta), #7b52c9); border: none; border-radius: 2px; padding: 8px 13px; }
-.lp-navguide:hover { opacity: 0.9; }
-.lp-menu-guide { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; cursor: pointer; color: #fff; background: linear-gradient(140deg, var(--c-magenta), #7b52c9); border: none; border-radius: 8px; padding: 13px 12px; text-align: left; }
+.tb-guide { background: var(--c-magenta) !important; color: #fff !important; border: none !important; text-decoration: none; display: inline-flex; align-items: center; }
+.tb-guide:hover { background: #ff1790 !important; }
+.lp-navguide { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; cursor: pointer; color: #fff; background: var(--c-magenta); border: none; border-radius: 2px; padding: 8px 13px; text-decoration: none; display: inline-flex; align-items: center; }
+.lp-navguide:hover { background: #ff1790; }
+.lp-menu-guide { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; cursor: pointer; color: #fff; background: var(--c-magenta); border: none; border-radius: 8px; padding: 13px 12px; text-align: left; text-decoration: none; display: block; }
+.tb-menu-link { text-decoration: none; display: flex; align-items: center; }
 
 .dg-overlay {
   position: fixed; inset: 0; z-index: 125; display: grid; place-items: center; padding: 20px;
@@ -1819,3 +1820,80 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .dg-safe { background: color-mix(in srgb, #2f6bff 8%, transparent); border: 1px solid color-mix(in srgb, #2f6bff 26%, transparent); }
 .dg-budget { background: color-mix(in srgb, #12b36a 8%, transparent); border: 1px solid color-mix(in srgb, #12b36a 26%, transparent); }
 .dg-callout h2 { margin-top: 0; }
+
+/* ===========================================================================
+   Beta badge (header) + Dojo Guide page in the landing's visual language
+   =========================================================================== */
+.beta-badge {
+  display: inline-block; vertical-align: middle; margin-left: 6px;
+  font-family: var(--font-read); font-weight: 800; font-size: 9.5px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: #fff; background: var(--c-magenta);
+  padding: 2px 6px; border-radius: 6px; line-height: 1;
+  /* the brand h1 clips its background to text · opt this chip out so it stays solid */
+  -webkit-background-clip: border-box; background-clip: border-box; -webkit-text-fill-color: #fff;
+}
+
+/* guide page · reuses .landing / .lp-* ; these are the page-specific extras */
+.dg2-hero { padding-top: 30px; padding-bottom: 6px; }
+.dg2 .lp-sec { scroll-margin-top: 80px; }
+
+.dg2-catblock { margin-top: 20px; }
+.dg2-cat { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; color: var(--muted); margin: 18px 0 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+.dg2-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.dg2-ccard {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-decoration: none;
+  background: var(--panel-solid, var(--card)); border: 1px solid var(--border); border-radius: 14px;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.dg2-ccard:hover { transform: translateY(-2px); border-color: var(--c-magenta); box-shadow: var(--shadow); }
+.dg2-ccard-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dg2-ccard-meta strong { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; color: var(--ink); }
+.dg2-ccard-meta em { font-style: normal; font-size: 12px; color: var(--muted); }
+
+/* connector page */
+.dg2-conn-hero { padding-top: 26px; }
+.dg2-back { display: inline-block; margin-bottom: 14px; font-family: var(--font-read); font-weight: 700; font-size: 13px; color: var(--c-magenta); text-decoration: none; }
+.dg2-back:hover { text-decoration: underline; }
+.dg2-conn-head { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.dg2-conn-head h1 { font-family: var(--font-pixel); font-weight: 900; font-size: clamp(28px, 5vw, 40px); margin: 0; color: var(--ink); }
+.dg2-conn-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 0; }
+.dg2-conn-tags em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--muted); background: color-mix(in srgb, var(--violet) 12%, transparent); padding: 3px 9px; border-radius: 999px; }
+
+.dg2-osteps { counter-reset: dg2; list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.dg2-osteps li { position: relative; padding: 14px 16px 14px 52px; background: var(--panel-solid, var(--card)); border: 1px solid var(--border); border-radius: 14px; }
+.dg2-osteps li::before {
+  counter-increment: dg2; content: counter(dg2); position: absolute; left: 14px; top: 14px;
+  width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px;
+  background: var(--c-magenta); color: #fff; font-family: var(--font-pixel); font-weight: 800; font-size: 14px;
+}
+.dg2-osteps li b { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 15px; color: var(--ink); margin-bottom: 3px; }
+.dg2-osteps li span { font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+.dg2-osteps code { background: color-mix(in srgb, var(--violet) 14%, transparent); padding: 0 5px; border-radius: 5px; font-size: 12.5px; }
+
+.dg2-envbox { margin-top: 18px; padding: 16px 18px; background: color-mix(in srgb, var(--violet) 6%, transparent); border: 1px solid var(--border); border-radius: 14px; }
+.dg2-envbox h3 { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; margin: 0 0 10px; color: var(--ink); }
+.dg2-envbox ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.dg2-envbox li { display: flex; flex-direction: column; gap: 2px; }
+.dg2-envbox code { align-self: flex-start; background: var(--ink); color: var(--bg, #fff); padding: 2px 7px; border-radius: 6px; font-size: 12.5px; font-weight: 700; }
+.dg2-envbox li span { font-size: 13px; color: var(--muted); }
+.dg2-envbox li span a { color: var(--c-magenta); }
+.dg2-links { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+
+.dg2-callout { border-left: 4px solid; }
+.dg2-safe { border-left-color: #2f6bff; }
+.dg2-budget { border-left-color: #12b36a; }
+
+/* step-number accents shared by guide step rows (lp-step3-n base already sized) */
+.dg2-n1 { background: var(--c-magenta); }
+.dg2-n2 { background: #08c2ac; }
+.dg2-n3 { background: #ff7a1a; }
+.dg2-n4 { background: #2f6bff; }
+.dg2-n5 { background: #7b52c9; }
+.dg2-n6 { background: #ffc61a; color: #1a1300; }
+
+.cx-guide-cta a { color: var(--c-magenta); }
+
+@media (max-width: 560px) {
+  .dg2-grid { grid-template-columns: 1fr 1fr; }
+  .dg2-conn-head { gap: 12px; }
+}

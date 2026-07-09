@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { TOPIC_BY_ID, matchTopic, GREETING, type KBLink } from '../support/knowledge'
+import { TOPIC_BY_ID, matchTopic, matchConnector, connectorReply, GREETING, type KBLink } from '../support/knowledge'
 import { askCascade } from '../support/askCascade'
 
 interface Msg {
@@ -71,10 +71,20 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
     setInput('')
     setMsgs((s) => [...s, { id: nid(), who: 'user', text }])
 
+    // a named app → deep-link to its dedicated step-by-step setup page
+    const conn = matchConnector(text)
+    const topic = matchTopic(text)
+    // prefer the connector reply when the app name is the clear subject (no
+    // stronger generic topic like pricing/security also matched)
+    if (conn && (!topic || ['tools', 'setup', 'start', 'jobs', 'guide'].includes(topic.id))) {
+      const r = connectorReply(conn)
+      setTimeout(() => pushBot({ text: r.text, links: r.links, chips: ['setup', 'tools', 'security'] }), 150)
+      return
+    }
+
     // free path first: answer common questions from the local KB
-    const local = matchTopic(text)
-    if (local) {
-      setTimeout(() => answerTopic(local.id), 150)
+    if (topic) {
+      setTimeout(() => answerTopic(topic.id), 150)
       return
     }
 

@@ -66,6 +66,7 @@ export function ConnectorsPanel({ dept }: { dept: Department }) {
                     <p><b>What it does here:</b> once connected, this agent's tasks act inside {c.label} for real{uses.length > 0 ? ` · ${uses.join(', ')}` : ''}.</p>
                     <p><b>As a user (1 click):</b> hit <b>Connect</b> and approve the {c.provider} screen once. The token is sealed server-side (AES-256-GCM) and the agent can act · you never share a password or seed. Disconnect anytime.</p>
                     <p><b>Operator setup (one-time):</b> create an app in the {c.provider} console{c.auth === 'oauth' ? ', set the redirect to ' : ' and '}{c.auth === 'oauth' ? <code>your-site/api/connect</code> : null}{c.auth === 'oauth' ? ', then add the keys to env: ' : 'add the key: '}{c.env.map((e, i) => <span key={e.name}>{i > 0 ? ', ' : ''}<code>{e.name}</code></span>)}.</p>
+                    <p className="cx-guide-cta"><a href={`/guide/${c.id}`} target="_blank" rel="noreferrer"><b>Full step-by-step guide for {c.label} ↗</b></a></p>
                     <p><a href={c.docsUrl} target="_blank" rel="noreferrer">Open the {c.provider} console ↗</a></p>
                   </InfoDot>
                 </span>

@@ -2,6 +2,7 @@
 // on-brand answers with link buttons that cost nothing and work with no backend.
 // The support bot answers from here first and only escalates to the LLM cascade
 // (via /api/chat) for questions it can't match.
+import { CONNECTORS, type Connector } from '../data/connectors'
 
 export interface KBLink {
   label: string
@@ -121,8 +122,8 @@ export const KB: KBTopic[] = [
     answer:
       'Connect 30+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, DocuSign, Zendesk, Intercom. One-click OAuth (with PKCE); tokens are sealed with AES-256-GCM server-side and auto-refreshed. At run time each app is exposed to Claude as a remote MCP server, so the agent does real work in your account · and the x402 payment meters it with an on-ledger receipt.',
     links: [
+      { label: 'Set up each app · step by step', href: '/guide', external: true },
       { label: 'Connect your stack', href: '#stack' },
-      { label: 'Real deliverables', href: '#tools' },
     ],
     follow: ['setup', 'linkagents', 'environment'],
     keywords: ['tool', 'tools', 'connect', 'integration', 'mcp', 'oauth', 'github', 'slack', 'notion', 'gmail', 'stripe', 'jira', 'hubspot', 'figma', 'real content', 'output', 'api', 'apps'],
@@ -144,13 +145,13 @@ export const KB: KBTopic[] = [
     id: 'setup',
     chip: 'How to connect an app',
     answer:
-      'Every agent card AND the Dojo Studio editor show a "Connect tools" panel, filtered to the apps that agent\'s tasks actually use, with a 3-step guide: 1 create the OAuth app · 2 add the keys to env · 3 point an MCP endpoint. As a USER it is one click: open the agent, find the tool under its tasks, click Connect, approve the OAuth screen once · the token is sealed server-side (AES-256-GCM) and the agent can act inside the app. As the OPERATOR (one-time, per app): 1) create an OAuth app in the provider console (Notion integrations, GitHub OAuth apps, Google Cloud credentials…) and set the redirect URI to https://YOUR-SITE/api/connect; 2) copy the client id + secret into env as <APP>_CLIENT_ID and <APP>_CLIENT_SECRET (Google apps share GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET); 3) apps WITH a first-party MCP server (Notion, GitHub, Linear, Stripe) work right away; apps WITHOUT one (Gmail, Drive, Calendar, Slack…) also need <APP>_MCP_URL pointed at a hosted MCP hub (Composio, Zapier, Pipedream). PKCE apps (Airtable, X, Canva) are automatic. Once the env is set the tool shows a Connect button instead of a "set up" link.',
+      'Every agent card AND the Dojo Studio editor show a "Connect tools" panel, filtered to the apps that agent\'s tasks actually use, with a 3-step guide: 1 create the OAuth app · 2 add the keys to env · 3 point an MCP endpoint. As a USER it is one click: open the agent, find the tool under its tasks, click Connect, approve the OAuth screen once · the token is sealed server-side (AES-256-GCM) and the agent can act inside the app. As the OPERATOR (one-time, per app): 1) create an OAuth app in the provider console (Notion integrations, GitHub OAuth apps, Google Cloud credentials…) and set the redirect URI to https://YOUR-SITE/api/connect; 2) copy the client id + secret into env as <APP>_CLIENT_ID and <APP>_CLIENT_SECRET (Google apps share GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET); 3) apps WITH a first-party MCP server (Notion, GitHub, Linear, Stripe) work right away; apps WITHOUT one (Gmail, Drive, Calendar, Slack…) also need <APP>_MCP_URL pointed at a hosted MCP hub (Composio, Zapier, Pipedream). PKCE apps (Airtable, X, Canva) are automatic. Once the env is set the tool shows a Connect button instead of a "set up" link. Every app also has its own step-by-step page in the Dojo Guide (scopes, exact env vars, gotchas) · just name the app and I will link it.',
     links: [
-      { label: 'Connectors setup guide', href: 'https://github.com/presidentxerak/dojoburo/blob/main/docs/CONNECTORS.md', external: true },
+      { label: 'Step-by-step setup for every app', href: '/guide', external: true },
       { label: 'MCP hub (Composio)', href: 'https://composio.dev', external: true },
       { label: 'What is MCP', href: 'https://modelcontextprotocol.io', external: true },
     ],
-    follow: ['tools', 'security', 'environment'],
+    follow: ['tools', 'linkagents', 'environment'],
     keywords: ['setup', 'set up', 'client id', 'client secret', 'oauth app', 'redirect', 'env', 'configure', 'composio', 'zapier', 'pipedream', 'mcp url', 'mcp_url', 'hub', 'how to connect', 'create app', 'pkce', 'credentials', 'connect panel', 'studio'],
   },
   {
@@ -240,6 +241,42 @@ export const KB: KBTopic[] = [
 ]
 
 export const TOPIC_BY_ID: Record<string, KBTopic> = Object.fromEntries(KB.map((t) => [t.id, t]))
+
+// Aliases the way people actually name apps in chat, mapped to a connector id.
+const CONNECTOR_ALIASES: Record<string, string> = {
+  'google drive': 'gdrive', drive: 'gdrive', 'google calendar': 'gcal', calendar: 'gcal',
+  'google classroom': 'gclassroom', classroom: 'gclassroom', gsheet: 'gdrive', sheets: 'gdrive',
+  twitter: 'twitter', x: 'twitter', 'whatsapp business': 'whatsapp', qb: 'quickbooks',
+}
+
+/** If the user names a specific app, return its connector so the bot can deep-link
+ *  to that connector's dedicated /guide/<id> setup page. */
+export function matchConnector(text: string): Connector | null {
+  const q = text.toLowerCase()
+  // longest alias first so "google drive" beats a bare "google"
+  const aliases = Object.keys(CONNECTOR_ALIASES).sort((a, b) => b.length - a.length)
+  for (const a of aliases) if (q.includes(a)) return CONNECTORS.find((c) => c.id === CONNECTOR_ALIASES[a]) ?? null
+  let best: Connector | null = null
+  for (const c of CONNECTORS) {
+    const label = c.label.toLowerCase()
+    if (q.includes(label) || q.includes(c.id.toLowerCase())) {
+      if (!best || label.length > best.label.length) best = c
+    }
+  }
+  return best
+}
+
+/** A ready-made chat answer that points to a connector's dedicated setup page. */
+export function connectorReply(c: Connector): { text: string; links: KBLink[] } {
+  return {
+    text: `${c.label}: ${c.blurb} Connecting is a one-click OAuth once the operator has wired it. Here is the full step-by-step setup page for ${c.label} · scopes, exact env vars and gotchas.`,
+    links: [
+      { label: `Set up ${c.label} · step by step`, href: `/guide/${c.id}`, external: true },
+      { label: `Open the ${c.provider} console`, href: c.docsUrl, external: true },
+      { label: 'All connectors (Dojo Guide)', href: '/guide', external: true },
+    ],
+  }
+}
 
 /** Cheap keyword scorer so the bot can answer offline before spending anything. */
 export function matchTopic(text: string): KBTopic | null {
