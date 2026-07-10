@@ -47,7 +47,11 @@ export async function signPayment(
 ): Promise<{ txid: string }> {
   const { sendPayment } = await api()
   const payment: Record<string, unknown> = {
-    amount: String(amountXrp), // GemWallet treats a string amount as XRP
+    // GemWallet follows the XRPL convention: a string amount is DROPS, not XRP,
+    // and must be a whole number. Sending "0.01" (raw XRP) is invalid drops and
+    // makes the extension's signing UI bail out with a generic error, so convert
+    // XRP → integer drops here (1 XRP = 1,000,000 drops), same as Xaman/Crossmark.
+    amount: String(Math.round(amountXrp * 1_000_000)),
     destination,
     sourceTag: SOURCE_TAG,
   }

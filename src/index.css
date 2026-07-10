@@ -201,7 +201,12 @@ a:hover { text-decoration: underline; }
 .brand-logo .ascii-face { font-size: 10px; line-height: 1; color: #fff; }
 .brand h1 { margin: 0; font-size: 17px; letter-spacing: 1px; background: linear-gradient(90deg, var(--pink), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .tagline { margin: 1px 0 0; font-size: 8px; color: var(--muted); }
-.topbar-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+/* three-column header · brand and right cluster each take equal flex so the
+   middle group sits at the true horizontal centre (and it stays in flow, so it
+   wraps instead of overlapping when the header gets tight) */
+.topbar .brand { flex: 1 1 0; min-width: 0; }
+.topbar-mid { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; }
+.topbar-right { flex: 1 1 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
 /* landing-style section nav inside the dojo header */
 .tb-nav { display: flex; align-items: center; gap: 1px; margin-right: 4px; }
 .tb-nav a { font-family: var(--font-ui); font-weight: 700; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 9px; border-radius: 4px; white-space: nowrap; transition: color 0.14s; }
@@ -804,12 +809,12 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
    in dark mode (the wrapper is just a sizing box; colours flip with the theme). */
 .logo-badge { display: inline-grid; place-items: center; background: transparent; flex: none; line-height: 0; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.16)); }
 .logo-badge svg { display: block; }
-.logo-badge .lg-shape { fill: #14141a; }
-.logo-badge .lg-face { fill: #ffffff; }
-.logo-badge .lg-smile { stroke: #ffffff; }
-:root[data-theme='dark'] .logo-badge .lg-shape { fill: #ffffff; }
-:root[data-theme='dark'] .logo-badge .lg-face { fill: #14141a; }
-:root[data-theme='dark'] .logo-badge .lg-smile { stroke: #14141a; }
+.logo-badge .lg-shape { fill: #ffffff; }
+.logo-badge .lg-face { fill: #14141a; }
+.logo-badge .lg-smile { stroke: #14141a; }
+:root[data-theme='dark'] .logo-badge .lg-shape { fill: #14141a; }
+:root[data-theme='dark'] .logo-badge .lg-face { fill: #ffffff; }
+:root[data-theme='dark'] .logo-badge .lg-smile { stroke: #ffffff; }
 
 /* 3D agent previews · soft neutral backdrop so light + dark skins both read */
 .a3d { border-radius: 12px; overflow: hidden; background: radial-gradient(120% 120% at 50% 22%, color-mix(in srgb, var(--ink) 5%, var(--panel-solid)), color-mix(in srgb, var(--ink) 18%, var(--panel-solid))); }

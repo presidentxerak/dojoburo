@@ -1,6 +1,7 @@
 /** DojoBuro mark: a rounded-square kawaii face with glinting ◕‿◕ eyes and a
- *  smile. Monochrome — dark on light, inverted to white in dark mode (colours
- *  driven by CSS on .lg-shape / .lg-face / .lg-smile so it flips with the theme).
+ *  smile. Monochrome — a white square with a dark face in light mode, inverted
+ *  to a dark square with a white face in dark mode (colours driven by CSS on
+ *  .lg-shape / .lg-face / .lg-smile so it flips with the theme).
  *  Its eyes blink and the smile grins on a loop. Used in the top bar, the landing
  *  / guide nav, the footers, the support bot and anywhere the brand appears. */
 export function Logo({ size = 34, className = '' }: { size?: number; className?: string; animated?: boolean }) {
