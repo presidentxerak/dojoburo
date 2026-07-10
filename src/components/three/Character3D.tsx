@@ -730,8 +730,7 @@ export function Character3D({
           <group>
             {/* legs + shoes (mostly tucked under the desk in the office, shown in previews) */}
             <Legs id={id} pants={character.pants} />
-            {/* seated: lap + torso */}
-            <Box p={[0, 0.62, 0.34]} s={[0.7, 0.24, 0.7]} c={character.pants} />
+            {/* torso */}
             <Ball p={[0, 1.12, 0]} r={0.56} c={character.outfit} s={[1, 1.02, 0.9]} />
             {/* shoulders */}
             <Ball p={[-0.46, 1.3, 0.02]} r={0.18} c={character.outfit} />
