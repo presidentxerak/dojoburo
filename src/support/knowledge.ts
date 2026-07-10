@@ -179,18 +179,6 @@ export const KB: KBTopic[] = [
     keywords: ['skin', 'skins', 'avatar', 'character', 'customize', 'customise', 'knight', 'zelda', 'mage', 'wizard', 'scientist', 'hat', 'edit agent', 'appearance', 'look', 'theme', 'world'],
   },
   {
-    id: 'deck',
-    chip: 'Investor pitch deck',
-    answer:
-      'There is a 10-slide investor pitch deck built in the same style as the app · ascii-art icons, full-3D object icons, the rotating 3D dojo and kawaii characters, one punchy line per slide. Open it from the "Investor pitch deck" button in the landing footer, flip through with the arrows or dots, and use Download PDF to save it as a landscape PDF.',
-    links: [
-      { label: 'Open the deck', href: '#app' },
-      { label: 'How it works', href: '#how' },
-    ],
-    follow: ['pricing', 'x402'],
-    keywords: ['deck', 'pitch', 'investor', 'slides', 'presentation', 'pdf', 'fundraise', 'raise'],
-  },
-  {
     id: 'environment',
     chip: 'Cloud or local',
     answer:

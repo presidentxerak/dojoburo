@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { PROFESSIONS, professionColor } from './data/professions'
 import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
 import { SKINS } from './data/skins'
@@ -11,8 +10,6 @@ import { AsciiIcon } from './components/AsciiIcon'
 import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
 import { TeamCards } from './components/landing/TeamCards'
-import { PitchDeck } from './components/landing/PitchDeck'
-import { downloadDeckPdf } from './components/landing/deckPdf'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 
 // vivid complementary primaries used as per-section accent touches
@@ -22,7 +19,6 @@ const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff
  *  costs in XRP, how agents get wired to real tools, where they run, and the
  *  path to a fully-functional production deployment. */
 export function Landing({ enter }: { enter: () => void }) {
-  const [deckOpen, setDeckOpen] = useState(false)
   return (
     <div className="landing">
       <SiteHeader enter={enter} />
@@ -423,13 +419,8 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="/privacy">Privacy</a>
           <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Enter the office</a>
         </nav>
-        <div className="lp-deck-actions">
-          <button className="lp-deck-dl" onClick={() => downloadDeckPdf()}>⤓ Download Investors Pitch Deck</button>
-          <button className="lp-deck-view" onClick={() => setDeckOpen(true)}>Preview deck</button>
-        </div>
       </footer>
       <SupportBot />
-      {deckOpen && <PitchDeck onClose={() => setDeckOpen(false)} />}
     </div>
   )
 }
