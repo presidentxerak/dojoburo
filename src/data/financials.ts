@@ -3,7 +3,7 @@
 // users convert to paid, model cost near-zero (BYOK / free cascade), costs
 // scale sublinearly with users. Figures are illustrative projections.
 
-export const CONTACT_EMAIL = 'presidentxerak@gmail.com'
+export const CONTACT_EMAIL = ''
 
 /** Unit economics by scale · how the business looks at each user tier (steady state, per year). */
 export const FORECAST = {

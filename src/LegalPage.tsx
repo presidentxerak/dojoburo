@@ -4,7 +4,6 @@ import { Wordmark } from './components/Wordmark'
 // Terms of Service + Privacy Policy · served at /terms and /privacy. Plain,
 // original copy tailored to DojoBuro (non-custodial, client-side, on XRPL).
 
-const CONTACT = 'presidentxerak@gmail.com'
 const UPDATED = 'Last updated · July 2026'
 
 function Shell({ title, children }: { title: string; children: React.ReactNode }) {
@@ -31,7 +30,6 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
           <a href="/">Home</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
-          <a href={`mailto:${CONTACT}`}>Support</a>
         </nav>
       </footer>
     </div>
@@ -77,7 +75,7 @@ export function Terms() {
       <p>We may update these terms; material changes will be reflected by the date above. Continued use after changes means you accept them.</p>
 
       <h2>12. Contact</h2>
-      <p>Questions about these terms: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
+      <p>Questions about these terms: reach us through the in-app assistant.</p>
     </Shell>
   )
 }
@@ -115,7 +113,7 @@ export function Privacy() {
       <p>We may update this policy; the date above reflects the latest version.</p>
 
       <h2>10. Contact</h2>
-      <p>Privacy questions or requests: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
+      <p>Privacy questions or requests: reach us through the in-app assistant.</p>
     </Shell>
   )
 }

@@ -3,6 +3,7 @@ import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
 import { SKINS } from './data/skins'
 import { DOJO_TEMPLATES } from './data/templates'
 import { SupportBot } from './components/SupportBot'
+import { useWork } from './agents/workStore'
 import { Logo } from './components/Logo'
 import { Wordmark } from './components/Wordmark'
 import { SiteHeader } from './components/SiteHeader'
@@ -19,6 +20,9 @@ const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff
  *  costs in XRP, how agents get wired to real tools, where they run, and the
  *  path to a fully-functional production deployment. */
 export function Landing({ enter }: { enter: () => void }) {
+  // paid plans drop the user on the Billing / plans view inside the dojo
+  const goBilling = () => { useWork.getState().openStudio('billing'); enter() }
+  const goAssistant = () => document.querySelector('#assistant')?.scrollIntoView({ behavior: 'smooth' })
   return (
     <div className="landing">
       <SiteHeader enter={enter} />
@@ -211,7 +215,7 @@ export function Landing({ enter }: { enter: () => void }) {
               <li>300 credits/mo · unlimited BYOK</li>
               <li>Email support</li>
             </ul>
-            <button className="lp-ghost" onClick={enter}>Choose Solo</button>
+            <button className="lp-ghost" onClick={goBilling}>Choose Solo</button>
           </div>
           <div className="lp-plan feat">
             <div className="lp-plan-badge">Most popular</div>
@@ -226,7 +230,7 @@ export function Landing({ enter }: { enter: () => void }) {
               <li>Priority model routing</li>
               <li>Priority support</li>
             </ul>
-            <button className="lp-cta" onClick={enter}>Go Pro →</button>
+            <button className="lp-cta" onClick={goBilling}>Go Pro →</button>
           </div>
           <div className="lp-plan">
             <div className="lp-plan-name">Team</div>
@@ -240,7 +244,7 @@ export function Landing({ enter }: { enter: () => void }) {
               <li>Google SSO</li>
               <li>On-chain audit log</li>
             </ul>
-            <button className="lp-ghost" onClick={enter}>Start a team</button>
+            <button className="lp-ghost" onClick={goBilling}>Start a team</button>
           </div>
         </div>
         <div className="lp-enterprise">
@@ -248,7 +252,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <strong>Business / Enterprise</strong>
             <span>Self-hosted or local worker, SAML SSO &amp; security review, a dedicated MCP hub with an SLA, budgets &amp; spend controls, custom connectors and dedicated support. Keep everything on your own infrastructure.</span>
           </div>
-          <button className="lp-ghost" onClick={enter}>Talk to us</button>
+          <button className="lp-ghost" onClick={goAssistant}>Talk to us</button>
         </div>
         <p className="lp-note">
           Every plan is non-custodial: your XRP lives in your own wallet and your keys stay yours. Testnet is

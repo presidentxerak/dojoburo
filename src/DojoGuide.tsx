@@ -12,8 +12,6 @@ import { connectorById, userSteps, operatorSteps, REDIRECT_PATH } from './data/c
 // DojoBuro locally or in the cloud, linking your own external agents, and a
 // directory that deep-links to a dedicated step-by-step page for each connector.
 
-const CONTACT = 'presidentxerak@gmail.com'
-
 // gallery order for the connector directory
 const CATEGORY_ORDER: ConnectorCategory[] = [
   'Docs & Notes', 'Dev', 'Comms', 'CRM & Sales', 'Marketing & Social', 'Design', 'Finance', 'Scheduling', 'Support', 'Storage & Legal',
@@ -27,7 +25,7 @@ function GuideShell({ children }: { children: React.ReactNode }) {
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
         <nav className="lp-foot-links">
-          <a href="/">Home</a><a href="/guide">Guide</a><a href="/#stack">Connect</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href={`mailto:${CONTACT}`}>Support</a>
+          <a href="/">Home</a><a href="/guide">Guide</a><a href="/#stack">Connect</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a>
         </nav>
       </footer>
       <SupportBot />
@@ -40,7 +38,6 @@ export function GuidePage() {
   return (
     <GuideShell>
       <section className="lp-hero dg2-hero">
-        <p className="lp-kicker">Dojo Guide · connect your apps, run real work, stay safe</p>
         <h1>Wire your <span className="hl-mag">tools</span>, keep control.</h1>
         <p className="lp-sub">
           Connectors let your AI agents do real work inside your everyday apps · create the Notion page, open the
@@ -226,7 +223,7 @@ export function GuidePage() {
           <li><b>App shows "Set up" not "Connect"</b> · the operator hasn't added that app's OAuth keys yet (see its setup page).</li>
           <li><b>"needs a key" on a task</b> · add your Claude key in Studio → Billing, or use a free-cascade task.</li>
           <li><b>Payment won't settle</b> · make sure the treasury wallet is created and funded (faucet on Testnet).</li>
-          <li><b>Still stuck?</b> · ask the in-app assistant, or email <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</li>
+          <li><b>Still stuck?</b> · ask the in-app assistant, it walks you through every step.</li>
         </ul>
       </section>
     </GuideShell>

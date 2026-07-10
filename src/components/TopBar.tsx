@@ -96,9 +96,17 @@ export function TopBar() {
       </div>
 
       <div className="topbar-right">
+        {/* landing-style section nav (links back to the landing sections) */}
+        <nav className="tb-nav tb-desktop">
+          <a href="/#studio">Build</a>
+          <a href="/#stack">Connect</a>
+          <a href="/#cast">Team</a>
+          <a href="/#how">How it works</a>
+          <a href="/#pricing">Pricing</a>
+        </nav>
         {/* desktop inline controls */}
         <a className="btn tiny tb-guide tb-desktop" href="/guide">Dojo Guide</a>
-        <button className="btn tiny tb-desktop" onClick={openStudio}>Studio</button>
+        <button className="btn tiny tb-studio tb-desktop" onClick={openStudio}>Studio</button>
         {account ? (
           <button className="tb-profile tb-desktop" onClick={() => setMenuOpen((v) => !v)} aria-label="Profile & settings" title={account.name || 'Founder'}>
             <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />
