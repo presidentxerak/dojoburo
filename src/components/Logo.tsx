@@ -1,36 +1,34 @@
-/** DojoBuro mark: the kawaii yellow-circle face wearing a samurai kabuto helmet
- *  (dark bowl, golden kuwagata horns + centre ornament). Used in the top bar,
- *  the landing / guide nav, the footers, the support bot and anywhere the brand
- *  appears. */
+/** DojoBuro mark: a black computer terminal (4px rounded corners) with a glowing
+ *  green face whose expressions animate — blinking eyes, a blinking prompt cursor
+ *  and a gently grinning smile. Used in the top bar, the landing / guide nav, the
+ *  footers, the support bot and anywhere the brand appears. */
 export function Logo({ size = 34, className = '' }: { size?: number; className?: string; animated?: boolean }) {
   return (
     <span className={`logo-badge ${className}`} style={{ width: size, height: size }} aria-hidden>
       <svg viewBox="0 0 32 32" width={size} height={size}>
-        {/* head · yellow circle */}
-        <circle cx="16" cy="16" r="15" fill="#ffc61a" />
-        {/* eyes */}
-        <g fill="#4a3600">
-          <ellipse cx="11.2" cy="15.2" rx="2.4" ry="2.9" />
-          <ellipse cx="20.8" cy="15.2" rx="2.4" ry="2.9" />
+        {/* terminal · black screen, 4px rounded corners */}
+        <rect x="1.5" y="3" width="29" height="26" rx="4" fill="#11151d" />
+        <rect x="3" y="4.4" width="26" height="23.2" rx="2.6" fill="#0a0e14" />
+        {/* prompt · >_ with a blinking cursor */}
+        <path d="M5.6 8 l1.8 1.4 -1.8 1.4" stroke="#2f9d63" strokeWidth="1" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="8.6" y="9.1" width="4" height="1.1" rx="0.55" fill="#2f9d63">
+          <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.45;0.5;0.95;1" dur="1.4s" repeatCount="indefinite" />
+        </rect>
+        {/* eyes · blink on a loop */}
+        <g fill="#46e08a">
+          <ellipse cx="11.5" cy="16.4" rx="2.5" ry="3.1">
+            <animate attributeName="ry" values="3.1;3.1;3.1;0.4;3.1;3.1" keyTimes="0;0.82;0.88;0.92;0.96;1" dur="4.2s" repeatCount="indefinite" />
+          </ellipse>
+          <ellipse cx="20.5" cy="16.4" rx="2.5" ry="3.1">
+            <animate attributeName="ry" values="3.1;3.1;3.1;0.4;3.1;3.1" keyTimes="0;0.82;0.88;0.92;0.96;1" dur="4.2s" repeatCount="indefinite" />
+          </ellipse>
         </g>
-        <circle cx="12.1" cy="14.1" r="0.8" fill="#fff6cf" />
-        <circle cx="21.7" cy="14.1" r="0.8" fill="#fff6cf" />
-        {/* smile */}
-        <path d="M10.6 20.8 Q16 24.6 21.4 20.8" stroke="#4a3600" strokeWidth="2.1" fill="none" strokeLinecap="round" />
-        {/* --- samurai kabuto helmet --- */}
-        {/* bowl */}
-        <path d="M1.6 11.4 C1.6 3.6 7.8 0.4 16 0.4 C24.2 0.4 30.4 3.6 30.4 11.4 C22 8.8 10 8.8 1.6 11.4 Z" fill="#2a2f4a" />
-        {/* visor rim */}
-        <path d="M2.2 11.2 C10 9 22 9 29.8 11.2 C22 12.6 10 12.6 2.2 11.2 Z" fill="#1c2036" />
-        {/* fukigaeshi side flares */}
-        <path d="M1.8 10.6 C-0.6 10.2 -0.3 13.6 2.6 13.2 C2 12.2 1.8 11.5 1.8 10.6 Z" fill="#ffd23f" />
-        <path d="M30.2 10.6 C32.6 10.2 32.3 13.6 29.4 13.2 C30 12.2 30.2 11.5 30.2 10.6 Z" fill="#ffd23f" />
-        {/* kuwagata horns */}
-        <path d="M12.6 2.0 C8.4 0.3 6.0 3.6 8.0 7.8 C8.6 4.9 10.4 3.9 12.9 4.7 Z" fill="#ffd23f" />
-        <path d="M19.4 2.0 C23.6 0.3 26.0 3.6 24.0 7.8 C23.4 4.9 21.6 3.9 19.1 4.7 Z" fill="#ffd23f" />
-        {/* maedate centre ornament */}
-        <circle cx="16" cy="5.0" r="1.8" fill="#ffd23f" />
-        <circle cx="16" cy="5.0" r="0.75" fill="#8a5a00" />
+        <circle cx="12.4" cy="15.3" r="0.8" fill="#bafbd8" />
+        <circle cx="21.4" cy="15.3" r="0.8" fill="#bafbd8" />
+        {/* smile · grins a touch wider on a loop */}
+        <path d="M10.8 21.6 Q16 24.8 21.2 21.6" stroke="#46e08a" strokeWidth="2.1" fill="none" strokeLinecap="round">
+          <animate attributeName="d" values="M10.8 21.6 Q16 24.8 21.2 21.6; M10.8 21.6 Q16 26.4 21.2 21.6; M10.8 21.6 Q16 24.8 21.2 21.6" dur="5.6s" repeatCount="indefinite" />
+        </path>
       </svg>
     </span>
   )
