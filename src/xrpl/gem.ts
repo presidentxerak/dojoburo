@@ -8,8 +8,14 @@ import { toHex } from './hex'
 
 const SOURCE_TAG = 2606230006
 
-async function api() {
-  return await import('@gemwallet/api')
+// Memoise the dynamic import so the SDK is loaded exactly once. connect() warms
+// it, so by the time the user funds, signPayment() no longer awaits a network
+// import between the click and sendPayment() — that async gap was letting the
+// browser's transient user-activation lapse, which suppresses the extension's
+// signing popup ("nothing happens" on click).
+let sdkP: Promise<typeof import('@gemwallet/api')> | null = null
+function api() {
+  return (sdkP ??= import('@gemwallet/api'))
 }
 
 /** True when the GemWallet extension is installed in this browser. */
@@ -45,7 +51,13 @@ export async function signPayment(
   amountXrp: number,
   memoJson?: unknown,
 ): Promise<{ txid: string }> {
-  const { sendPayment } = await api()
+  const { sendPayment, isInstalled } = await api()
+  // Pre-flight: if the extension isn't present/unlocked the signing popup never
+  // appears — surface an actionable error rather than a silent no-op.
+  const inst = await isInstalled()
+  if (!inst.result?.isInstalled) {
+    throw new Error('GemWallet not detected. Open and unlock the GemWallet extension, then retry.')
+  }
   const payment: Record<string, unknown> = {
     // GemWallet follows the XRPL convention: a string amount is DROPS, not XRP,
     // and must be a whole number. Sending "0.01" (raw XRP) is invalid drops and
