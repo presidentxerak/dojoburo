@@ -13,6 +13,9 @@ import { DeliverableModal } from './components/agents/DeliverableModal'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
 import { useWork } from './agents/workStore'
+import { useWorkshop } from './workshop'
+import { privyConfigured } from './auth/controls'
+import { AuthGate } from './auth/AuthGate'
 import { NETWORKS } from './xrpl/network'
 import { audio } from './audio'
 
@@ -25,6 +28,10 @@ export default function App() {
   const muted = useDojo((s) => s.muted)
   const selected = useDojo((s) => s.selectedAgent)
   const selectAgent = useDojo((s) => s.selectAgent)
+  // Option-2 auth gate: require an account to enter the dojo when Privy is
+  // configured · a guest escape hatch keeps the app usable if Privy is down.
+  const account = useWorkshop((s) => s.account)
+  const needsAuth = !account && privyConfigured()
   // start collapsed on phones so the dojo is fully visible; open on desktop
   const [hudOpen, setHudOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth > 720 : true))
   const closeSheet = () => { setHudOpen(false); selectAgent(null) }
@@ -130,6 +137,7 @@ export default function App() {
       <Workshop />
       <DeliverableModal />
       <SupportBot />
+      {needsAuth && <AuthGate />}
     </div>
   )
 }
