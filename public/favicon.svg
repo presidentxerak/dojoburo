@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <style>
-    text{fill:#14141a;font-family:'Segoe UI Symbol','Noto Sans Symbols2','Apple Symbols',sans-serif}
-    @media (prefers-color-scheme: dark){text{fill:#ffffff}}
-  </style>
-  <text x="16" y="17" text-anchor="middle" dominant-baseline="central" font-size="15" letter-spacing="-1.4">◕‿◕</text>
+  <rect x="1" y="4.5" width="30" height="23" rx="4.5" fill="#11151d"/>
+  <text x="16" y="16.6" text-anchor="middle" dominant-baseline="central"
+        font-size="12.5" letter-spacing="-1.2" fill="#ffffff"
+        font-family="'Segoe UI Symbol','Noto Sans Symbols2','Apple Symbols',sans-serif">◕‿◕</text>
 </svg>

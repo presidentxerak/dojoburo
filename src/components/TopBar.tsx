@@ -88,7 +88,7 @@ export function TopBar() {
   return (
     <header className="topbar">
       <div className="brand">
-        <Logo size={64} />
+        <Logo size={38} />
         <div>
           <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
           <p className="tagline">Pixel startup, orchestrated on XRPL</p>

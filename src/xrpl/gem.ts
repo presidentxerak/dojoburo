@@ -8,14 +8,20 @@ import { toHex } from './hex'
 
 const SOURCE_TAG = 2606230006
 
-// Memoise the dynamic import so the SDK is loaded exactly once. connect() warms
-// it, so by the time the user funds, signPayment() no longer awaits a network
-// import between the click and sendPayment() — that async gap was letting the
-// browser's transient user-activation lapse, which suppresses the extension's
-// signing popup ("nothing happens" on click).
+// Memoise the dynamic import so the SDK loads once and the eventual
+// sendPayment() call stays inside the click's user-activation window (no network
+// import in between). We DON'T cache a rejected promise — otherwise a single
+// transient import failure would wedge every later call — so on failure we clear
+// the cache and let the next call retry.
 let sdkP: Promise<typeof import('@gemwallet/api')> | null = null
 function api() {
-  return (sdkP ??= import('@gemwallet/api'))
+  if (!sdkP) {
+    sdkP = import('@gemwallet/api').catch((e) => {
+      sdkP = null
+      throw e
+    })
+  }
+  return sdkP
 }
 
 /** True when the GemWallet extension is installed in this browser. */
@@ -37,7 +43,7 @@ export async function connect(): Promise<string> {
   }
   const r = await getAddress()
   const address = r.result?.address
-  if (!address) throw new Error('GemWallet connection was rejected.')
+  if (!address) throw new Error('GemWallet connection was rejected in the extension.')
   return address
 }
 
@@ -51,27 +57,37 @@ export async function signPayment(
   amountXrp: number,
   memoJson?: unknown,
 ): Promise<{ txid: string }> {
-  const { sendPayment, isInstalled } = await api()
-  // Pre-flight: if the extension isn't present/unlocked the signing popup never
-  // appears — surface an actionable error rather than a silent no-op.
-  const inst = await isInstalled()
-  if (!inst.result?.isInstalled) {
-    throw new Error('GemWallet not detected. Open and unlock the GemWallet extension, then retry.')
-  }
+  const { sendPayment } = await api()
+  // GemWallet follows the XRPL convention: a string amount is DROPS (a whole
+  // number), not XRP. Sending raw XRP like "0.01" is invalid drops and crashes
+  // the extension's signing popup ("Sorry, something went wrong"). Convert to
+  // integer drops, same as the Xaman / Crossmark adapters. 1 XRP = 1e6 drops.
   const payment: Record<string, unknown> = {
-    // GemWallet follows the XRPL convention: a string amount is DROPS, not XRP,
-    // and must be a whole number. Sending "0.01" (raw XRP) is invalid drops and
-    // makes the extension's signing UI bail out with a generic error, so convert
-    // XRP → integer drops here (1 XRP = 1,000,000 drops), same as Xaman/Crossmark.
     amount: String(Math.round(amountXrp * 1_000_000)),
     destination,
     sourceTag: SOURCE_TAG,
   }
   if (memoJson) {
-    payment.memos = [{ memo: { memoType: toHex('x402'), memoFormat: toHex('application/json'), memoData: toHex(JSON.stringify(memoJson)) } }]
+    payment.memos = [{
+      memo: {
+        memoType: toHex('x402'),
+        memoFormat: toHex('application/json'),
+        memoData: toHex(JSON.stringify(memoJson)),
+      },
+    }]
   }
-  const r = await sendPayment(payment as never)
-  const hash = (r as { result?: { hash?: string } }).result?.hash
-  if (!hash) throw new Error('GemWallet payment was rejected.')
+
+  let r: unknown
+  try {
+    r = await sendPayment(payment as never)
+  } catch (e) {
+    // The SDK rejects (rather than resolving) when the extension is absent or
+    // locked · turn that into an actionable message.
+    const msg = e instanceof Error ? e.message : String(e)
+    throw new Error(`GemWallet could not open the signing window: ${msg}. Open and unlock the GemWallet extension, then retry.`)
+  }
+  const res = r as { type?: string; result?: { hash?: string } }
+  const hash = res.result?.hash
+  if (!hash) throw new Error('GemWallet payment was rejected or cancelled.')
   return { txid: hash }
 }
