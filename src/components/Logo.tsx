@@ -1,6 +1,7 @@
-/** DojoBuro mark: a friendly yellow circle with the kawaii ◕‿◕ face. Same face
- *  as the support bot. Used in the top bar, the landing / guide nav, the footers
- *  and anywhere the brand appears. */
+/** DojoBuro mark: the kawaii yellow-circle face wearing a samurai kabuto helmet
+ *  (dark bowl, golden kuwagata horns + centre ornament). Used in the top bar,
+ *  the landing / guide nav, the footers, the support bot and anywhere the brand
+ *  appears. */
 export function Logo({ size = 34, className = '' }: { size?: number; className?: string; animated?: boolean }) {
   return (
     <span className={`logo-badge ${className}`} style={{ width: size, height: size }} aria-hidden>
@@ -9,14 +10,27 @@ export function Logo({ size = 34, className = '' }: { size?: number; className?:
         <circle cx="16" cy="16" r="15" fill="#ffc61a" />
         {/* eyes */}
         <g fill="#4a3600">
-          <ellipse cx="11.2" cy="14.5" rx="2.5" ry="3.1" />
-          <ellipse cx="20.8" cy="14.5" rx="2.5" ry="3.1" />
+          <ellipse cx="11.2" cy="15.2" rx="2.4" ry="2.9" />
+          <ellipse cx="20.8" cy="15.2" rx="2.4" ry="2.9" />
         </g>
-        {/* highlights · the ◕ glint */}
-        <circle cx="12.2" cy="13.2" r="0.85" fill="#fff6cf" />
-        <circle cx="21.8" cy="13.2" r="0.85" fill="#fff6cf" />
+        <circle cx="12.1" cy="14.1" r="0.8" fill="#fff6cf" />
+        <circle cx="21.7" cy="14.1" r="0.8" fill="#fff6cf" />
         {/* smile */}
-        <path d="M10.5 20.5 Q16 24.5 21.5 20.5" stroke="#4a3600" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+        <path d="M10.6 20.8 Q16 24.6 21.4 20.8" stroke="#4a3600" strokeWidth="2.1" fill="none" strokeLinecap="round" />
+        {/* --- samurai kabuto helmet --- */}
+        {/* bowl */}
+        <path d="M1.6 11.4 C1.6 3.6 7.8 0.4 16 0.4 C24.2 0.4 30.4 3.6 30.4 11.4 C22 8.8 10 8.8 1.6 11.4 Z" fill="#2a2f4a" />
+        {/* visor rim */}
+        <path d="M2.2 11.2 C10 9 22 9 29.8 11.2 C22 12.6 10 12.6 2.2 11.2 Z" fill="#1c2036" />
+        {/* fukigaeshi side flares */}
+        <path d="M1.8 10.6 C-0.6 10.2 -0.3 13.6 2.6 13.2 C2 12.2 1.8 11.5 1.8 10.6 Z" fill="#ffd23f" />
+        <path d="M30.2 10.6 C32.6 10.2 32.3 13.6 29.4 13.2 C30 12.2 30.2 11.5 30.2 10.6 Z" fill="#ffd23f" />
+        {/* kuwagata horns */}
+        <path d="M12.6 2.0 C8.4 0.3 6.0 3.6 8.0 7.8 C8.6 4.9 10.4 3.9 12.9 4.7 Z" fill="#ffd23f" />
+        <path d="M19.4 2.0 C23.6 0.3 26.0 3.6 24.0 7.8 C23.4 4.9 21.6 3.9 19.1 4.7 Z" fill="#ffd23f" />
+        {/* maedate centre ornament */}
+        <circle cx="16" cy="5.0" r="1.8" fill="#ffd23f" />
+        <circle cx="16" cy="5.0" r="0.75" fill="#8a5a00" />
       </svg>
     </span>
   )
