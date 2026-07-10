@@ -1957,6 +1957,11 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .authgate-primary { padding: 12px; font-size: 14px; }
 .authgate-guest { background: none; border: none; cursor: pointer; font-family: var(--font-read); font-size: 13px; color: var(--muted); padding: 4px; text-decoration: underline; text-underline-offset: 2px; }
 .authgate-guest:hover { color: var(--ink); }
+/* minimal gate · only the Privy modal shows · this is just the backdrop + a tiny
+   guest escape pinned to the bottom (clicking the backdrop re-opens Privy) */
+.authgate-min { place-items: end center; padding: 26px; cursor: pointer; }
+.authgate-min .authgate-guest { color: rgba(255, 255, 255, 0.82); font-size: 13.5px; padding: 8px 14px; }
+.authgate-min .authgate-guest:hover { color: #fff; }
 .authgate-back { font-family: var(--font-read); font-size: 12.5px; color: var(--muted); text-decoration: none; margin-top: 2px; }
 .authgate-back:hover { color: var(--ink); }
 

@@ -8,6 +8,15 @@ import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import './index.css'
 
+// Route ephemeral Vercel preview URLs (which change every deploy and aren't in
+// Privy's allowed-origins) to the canonical production domain, so auth and
+// everything else always run on the origin where they're configured. No-op on
+// the real domain and on localhost.
+const CANONICAL_HOST = 'www.dojoburo.com'
+if (location.hostname.endsWith('.vercel.app')) {
+  location.replace(`https://${CANONICAL_HOST}${location.pathname}${location.search}${location.hash}`)
+}
+
 function Root() {
   const [route, setRoute] = useState(() => location.hash.replace(/^#\/?/, ''))
   useEffect(() => {
