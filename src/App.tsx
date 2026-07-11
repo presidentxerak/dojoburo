@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { TopBar } from './components/TopBar'
 import { Scene3D } from './components/Scene3D'
+import { Dashboard } from './components/dashboard/Dashboard'
 import { AgentPanel } from './components/AgentPanel'
 import { TreasuryPanel } from './components/TreasuryPanel'
 import { ActivityLog } from './components/ActivityLog'
@@ -16,7 +17,6 @@ import { useWork } from './agents/workStore'
 import { useWorkshop } from './workshop'
 import { privyConfigured } from './auth/controls'
 import { AuthGate } from './auth/AuthGate'
-import { NETWORKS } from './xrpl/network'
 import { audio } from './audio'
 
 export default function App() {
@@ -28,17 +28,13 @@ export default function App() {
   const muted = useDojo((s) => s.muted)
   const selected = useDojo((s) => s.selectedAgent)
   const selectAgent = useDojo((s) => s.selectAgent)
-  // Option-2 auth gate: require an account to enter the dojo when Privy is
-  // configured · a guest escape hatch keeps the app usable if Privy is down.
   const account = useWorkshop((s) => s.account)
   const needsAuth = !account && privyConfigured()
-  // start collapsed on phones so the dojo is fully visible; open on desktop
-  const [hudOpen, setHudOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth > 720 : true))
-  const closeSheet = () => { setHudOpen(false); selectAgent(null) }
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-  }, [theme])
+  // the dojo can expand to fill the window (nanocorp "Desktop View" equivalent)
+  const [dojoFull, setDojoFull] = useState(false)
+
+  useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
 
   // OAuth return from a tool connect: surface a toast + refresh connections
   useEffect(() => {
@@ -46,89 +42,69 @@ export default function App() {
     const okm = h.match(/#connected=([\w-]+)/)
     const errm = h.match(/#connect_error=([^&]+)/)
     if (okm) {
-      useDojo.getState().pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Tool connected', text: `${okm[1]} is now linked to your agents.` })
+      useDojo.getState().pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'App connectée', text: `${okm[1]} est relié à tes agents.` })
       void useWork.getState().loadTools()
       history.replaceState(null, '', window.location.pathname + window.location.search)
     } else if (errm) {
-      useDojo.getState().pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Connection failed', text: decodeURIComponent(errm[1]) })
+      useDojo.getState().pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Connexion échouée', text: decodeURIComponent(errm[1]) })
       history.replaceState(null, '', window.location.pathname + window.location.search)
     }
   }, [])
 
-  // on mobile, tapping an agent reveals the panel (its card); deselect hides it
   useEffect(() => {
-    if (typeof window === 'undefined' || window.innerWidth > 720) return
-    setHudOpen(selected != null)
-  }, [selected])
-
-  useEffect(() => {
-    const unlock = () => {
-      audio.setMuted(muted)
-      audio.resume()
-    }
+    const unlock = () => { audio.setMuted(muted); audio.resume() }
     window.addEventListener('pointerdown', unlock, { once: true })
     return () => window.removeEventListener('pointerdown', unlock)
   }, [muted])
 
-  useEffect(() => {
-    if (hasWallets) void refresh()
-  }, [net, hasWallets, refresh])
+  useEffect(() => { if (hasWallets) void refresh() }, [net, hasWallets, refresh])
 
   useEffect(() => {
     let cancelled = false
-    const schedule = () => {
-      const delay = 16000 + Math.random() * 14000
-      return setTimeout(() => {
-        if (cancelled) return
-        fireEvent()
-        timer = schedule()
-      }, delay)
-    }
+    const schedule = () => setTimeout(() => {
+      if (cancelled) return
+      fireEvent()
+      timer = schedule()
+    }, 16000 + Math.random() * 14000)
     let timer = schedule()
-    return () => {
-      cancelled = true
-      clearTimeout(timer)
-    }
+    return () => { cancelled = true; clearTimeout(timer) }
   }, [fireEvent])
 
   return (
-    <div className={`app${hudOpen ? ' sheet-open' : ''}`}>
+    <div className={`app dash-layout${dojoFull ? ' dojo-full' : ''}`}>
       <Defs />
-      {/* real-3D fullscreen scene */}
-      <div className="scene-bg">
-        <Scene3D />
-      </div>
+      <TopBar />
 
-      {/* UI overlaid on top */}
-      <div className={`hud ${hudOpen ? '' : 'collapsed'}`}>
-        <TopBar />
-        <button
-          className="hud-toggle"
-          onClick={() => setHudOpen((v) => !v)}
-          aria-label={hudOpen ? 'Hide panel' : 'Show panel'}
-          title={hudOpen ? 'Hide panel' : 'Show panel'}
-        >
-          {hudOpen ? '▸' : '◂'}
-        </button>
-        <div className="hud-body">
-          <aside className="hud-side">
-            {/* mobile: sheet header · grab handle + explicit close button */}
-            <div className="hud-sheet-head">
-              <button className="hud-grip" onClick={closeSheet} aria-label="Collapse panel"><span /></button>
-              <button className="hud-close" onClick={closeSheet} aria-label="Close panel">✕</button>
+      <div className="dash-main">
+        {!dojoFull && (
+          <div className="dash-left">
+            <Dashboard onOpenDojo={() => setDojoFull(true)} />
+          </div>
+        )}
+
+        <div className={`dash-right${dojoFull ? ' full' : ''}`}>
+          <div className="scene-bg"><Scene3D /></div>
+
+          <button className="dojo-full-toggle" onClick={() => setDojoFull((v) => !v)} title={dojoFull ? 'Réduire le dojo' : 'Dojo en plein écran'}>
+            {dojoFull ? '⤡ Réduire' : '⤢ Plein écran'}
+          </button>
+
+          {/* selected-agent card floats over the dojo pane */}
+          {selected && (
+            <div className="dojo-agent-overlay">
+              <button className="dojo-agent-close" onClick={() => selectAgent(null)} aria-label="Fermer">✕</button>
+              <AgentPanel />
             </div>
-            <AgentPanel />
-            <TreasuryPanel />
-            <WalletPanel />
-            <ActivityLog />
-          </aside>
-        </div>
-        {/* mobile: floating handle to open the panel sheet when collapsed */}
-        <button className="hud-open-fab" onClick={() => setHudOpen(true)} aria-label="Open dojo panel">▴ Panel</button>
-        <div className="hud-credit">
-          Real XRPL · {NETWORKS[net].label}{NETWORKS[net].faucet ? ' · faucet' : ' · live'}
-          {' · '}
-          <a href="#" onClick={(e) => { e.preventDefault(); location.hash = '' }}>About</a>
+          )}
+
+          {/* fullscreen dojo also exposes treasury / wallet / activity */}
+          {dojoFull && (
+            <div className="dojo-hud">
+              <TreasuryPanel />
+              <WalletPanel />
+              <ActivityLog />
+            </div>
+          )}
         </div>
       </div>
 
