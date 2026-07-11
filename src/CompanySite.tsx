@@ -66,6 +66,27 @@ function ProductMock({ c }: { c: MockCo }) {
   )
 }
 
+// Per-company layout archetype + button shape, so the 15 sites don't share one
+// template. `layout` swaps the whole page composition; `btnRad` reshapes buttons.
+type Layout = 'center' | 'split' | 'editorial' | 'bold'
+const VARIANT: Record<string, { layout: Layout; btnRad: number }> = {
+  lumina: { layout: 'split', btnRad: 999 },
+  cratebox: { layout: 'bold', btnRad: 999 },
+  verdea: { layout: 'center', btnRad: 10 },
+  nomadly: { layout: 'split', btnRad: 6 },
+  pixelforge: { layout: 'bold', btnRad: 3 },
+  brewly: { layout: 'editorial', btnRad: 8 },
+  sootheer: { layout: 'center', btnRad: 999 },
+  ledgerly: { layout: 'split', btnRad: 8 },
+  fitloop: { layout: 'bold', btnRad: 2 },
+  petto: { layout: 'center', btnRad: 999 },
+  draftly: { layout: 'editorial', btnRad: 4 },
+  bloombox: { layout: 'editorial', btnRad: 14 },
+  trailhead: { layout: 'split', btnRad: 8 },
+  cardexo: { layout: 'bold', btnRad: 4 },
+  munchkit: { layout: 'center', btnRad: 999 },
+}
+
 /** A full, standalone marketing site for one of the showcase companies, rendered
  *  entirely in that company's own brand identity (colours + typeface). Served at
  *  https://dojoburo.com/<company-id>. */
@@ -87,15 +108,17 @@ export function CompanySite({ id }: { id: string }) {
   }
 
   const t = c.theme
+  const v = VARIANT[c.id] || { layout: 'center' as Layout, btnRad: t.radius }
   const domain = c.handle.replace('@', '') + '.co'
   const style = {
     ['--bg' as any]: t.bg, ['--ink' as any]: t.ink, ['--sub' as any]: t.sub,
-    ['--ac' as any]: t.accent, ['--rad' as any]: t.radius + 'px', fontFamily: t.font,
+    ['--ac' as any]: t.accent, ['--rad' as any]: t.radius + 'px', ['--btnrad' as any]: v.btnRad + 'px',
+    fontFamily: t.font,
   }
   const up: React.CSSProperties | undefined = t.upper ? { textTransform: 'uppercase' } : undefined
 
   return (
-    <div className="cs" style={style}>
+    <div className={`cs cs--${v.layout}`} style={style}>
       <header className="cs-nav">
         <a className="cs-brand" href={`/${c.id}`}>
           <span className="cs-logo" style={{ background: t.accent }}>{c.name[0]}</span>
@@ -110,12 +133,14 @@ export function CompanySite({ id }: { id: string }) {
       </header>
 
       <section className="cs-hero">
-        <span className="cs-kicker" style={{ color: t.accent }}>{c.cat}</span>
-        <h1 style={up}>{c.site.headline}</h1>
-        <p className="cs-lede">{c.site.sub}</p>
-        <div className="cs-cta-row">
-          <a className="cs-cta" href="#pricing" style={{ background: t.accent }}>{c.site.cta}</a>
-          <a className="cs-ghost" href="#features">See how it works</a>
+        <div className="cs-hero-copy">
+          <span className="cs-kicker" style={{ color: t.accent }}>{c.cat}</span>
+          <h1 style={up}>{c.site.headline}</h1>
+          <p className="cs-lede">{c.site.sub}</p>
+          <div className="cs-cta-row">
+            <a className="cs-cta" href="#pricing" style={{ background: t.accent }}>{c.site.cta}</a>
+            <a className="cs-ghost" href="#features">See how it works</a>
+          </div>
         </div>
         <div className="cs-hero-card">
           <div className="cs-hero-chrome"><span /><span /><span /><em>{domain}</em></div>
