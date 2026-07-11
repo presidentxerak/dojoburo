@@ -125,6 +125,11 @@ export const MOCK_COMPANIES: MockCo[] = [
     baseRevenue: 1610, baseSales: 420, testimonial: { quote: 'Nights, weekends, holidays — the company just keeps running. No babysitting.', author: 'Founder of Munchkit' } },
 ]
 
+/** Canonical public URL for a company's site (real page served by the SPA). */
+export const companyPath = (c: MockCo | string) => `/${typeof c === 'string' ? c : c.id}`
+export const companyUrl = (c: MockCo | string) => `https://dojoburo.com${companyPath(c)}`
+export const companyById = (id: string) => MOCK_COMPANIES.find((c) => c.id === id) || null
+
 // ---- daily-drifting mock metrics (deterministic per calendar day) -----------
 const DAY = Math.floor(Date.now() / 86400000)
 function hashStr(s: string) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h) }

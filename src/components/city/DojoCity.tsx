@@ -11,12 +11,12 @@ import { useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrthographicCamera, MapControls, Html, Edges } from '@react-three/drei'
 import * as THREE from 'three'
-import { buildCity, ZOOM_LEVELS, SPAN, HALF, type BuildingSpec, type Lot } from '../../three/cityLayout'
+import { buildCity, ZOOM_LEVELS, SPAN, HALF, GRID, CELL, type BuildingSpec, type Lot, type CivicKind } from '../../three/cityLayout'
 import { useWorkshop } from '../../workshop'
 import { templateById } from '../../data/templates'
 import { Character3D } from '../three/Character3D'
 import { SKINS } from '../../data/skins'
-import { MOCK_COMPANIES, coRevenue, coSales, type MockCo } from '../../data/showcase'
+import { MOCK_COMPANIES, coRevenue, coSales, companyPath, type MockCo } from '../../data/showcase'
 
 // ---- facade texture · clean daytime windows (glass + floor slabs) -----------
 function facadeTexture(spec: BuildingSpec): THREE.CanvasTexture {
@@ -260,7 +260,7 @@ interface Mover { axis: 'x' | 'z'; fixed: number; pos: number; dir: number; spee
 function makeMovers(kind: 'ped' | 'car' | 'bus', count: number): Mover[] {
   const out: Mover[] = []
   const lines: number[] = []
-  for (let i = 0; i < 11; i++) if (i % 3 === 0) lines.push(i * 5 - HALF + 2.5)
+  for (let i = 0; i < GRID; i++) if (i % 3 === 0) lines.push(i * CELL - HALF + CELL / 2)
   let n = 0
   const per = Math.ceil(count / lines.length)
   for (const line of lines) {
@@ -280,6 +280,7 @@ function makeMovers(kind: 'ped' | 'car' | 'bus', count: number): Mover[] {
 // ---- shaped vehicles + little people ----------------------------------------
 const CAR_COLORS = ['#e6564f', '#3d7bd6', '#f0b429', '#37946e', '#f0f2f5', '#8b5cf6', '#ff8a3d']
 const BUS_COLORS = ['#e8592e', '#1f9d5a', '#2f7fd6', '#f2b705']
+const TRUCK_COLORS = ['#d64545', '#2f6bd6', '#2b8a5a', '#e08a1e', '#5a4fd6', '#444b57']
 
 function Car({ color }: { color: string }) {
   return (
@@ -307,11 +308,29 @@ function Bus({ color }: { color: string }) {
     </group>
   )
 }
+// delivery / cargo truck · cab + boxy trailer, for the "camions" on the avenues
+function Truck({ color }: { color: string }) {
+  return (
+    <group>
+      {/* trailer box */}
+      <mesh position={[0, 0.62, -0.35]} castShadow><boxGeometry args={[0.98, 1.0, 2.0]} /><meshStandardMaterial color="#eef1f5" roughness={0.6} /></mesh>
+      <mesh position={[0.5, 0.62, -0.35]}><boxGeometry args={[0.02, 0.9, 1.9]} /><meshStandardMaterial color={color} /></mesh>
+      <mesh position={[-0.5, 0.62, -0.35]}><boxGeometry args={[0.02, 0.9, 1.9]} /><meshStandardMaterial color={color} /></mesh>
+      {/* cab */}
+      <mesh position={[0, 0.5, 1.05]} castShadow><boxGeometry args={[0.92, 0.72, 0.9]} /><meshStandardMaterial color={color} roughness={0.4} /></mesh>
+      <mesh position={[0, 0.62, 1.52]}><boxGeometry args={[0.82, 0.4, 0.04]} /><meshStandardMaterial color="#bfe0f5" metalness={0.3} roughness={0.1} /></mesh>
+      {[[-0.44, 1.0], [0.44, 1.0], [-0.44, -0.6], [0.44, -0.6], [-0.44, -1.1], [0.44, -1.1]].map(([x, z], i) => (
+        <mesh key={i} position={[x, 0.16, z]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.17, 0.17, 0.13, 10]} /><meshStandardMaterial color="#1c1f24" /></mesh>
+      ))}
+    </group>
+  )
+}
 function Traffic({ show }: { show: boolean }) {
   const items = useMemo(() => {
-    const cars = makeMovers('car', 12).map((m, i) => ({ m, kind: 'car' as const, color: CAR_COLORS[i % CAR_COLORS.length] }))
-    const buses = makeMovers('bus', 4).map((m, i) => ({ m, kind: 'bus' as const, color: BUS_COLORS[i % BUS_COLORS.length] }))
-    return [...cars, ...buses]
+    const cars = makeMovers('car', 22).map((m, i) => ({ m, kind: 'car' as const, color: CAR_COLORS[i % CAR_COLORS.length] }))
+    const buses = makeMovers('bus', 7).map((m, i) => ({ m, kind: 'bus' as const, color: BUS_COLORS[i % BUS_COLORS.length] }))
+    const trucks = makeMovers('bus', 7).map((m, i) => ({ m, kind: 'truck' as const, color: TRUCK_COLORS[i % TRUCK_COLORS.length] }))
+    return [...cars, ...buses, ...trucks]
   }, [])
   const refs = useRef<(THREE.Group | null)[]>([])
   useFrame((_, dt) => {
@@ -328,7 +347,7 @@ function Traffic({ show }: { show: boolean }) {
     })
   })
   if (!show) return null
-  return <>{items.map((it, i) => <group key={i} ref={(el) => { refs.current[i] = el }}>{it.kind === 'bus' ? <Bus color={it.color} /> : <Car color={it.color} />}</group>)}</>
+  return <>{items.map((it, i) => <group key={i} ref={(el) => { refs.current[i] = el }}>{it.kind === 'bus' ? <Bus color={it.color} /> : it.kind === 'truck' ? <Truck color={it.color} /> : <Car color={it.color} />}</group>)}</>
 }
 
 // real dojo character skins walking the streets (Character3D in `bare` mode ·
@@ -380,6 +399,128 @@ function SkyEvents({ show }: { show: boolean }) {
         <mesh castShadow><sphereGeometry args={[1, 12, 12]} /><meshStandardMaterial color="#f87171" /></mesh>
         <mesh position={[0, -1.3, 0]}><boxGeometry args={[0.5, 0.4, 0.5]} /><meshStandardMaterial color="#7c4a2d" /></mesh>
       </group>
+    </>
+  )
+}
+
+// ---- giant walking monsters · they tower over the metropolis ----------------
+type LegRef = React.RefObject<THREE.Group>
+
+function GundamModel({ legL, legR }: { legL: LegRef; legR: LegRef }) {
+  return (
+    <group>
+      <mesh position={[0, 3.4, 0]} castShadow><boxGeometry args={[1.6, 2.0, 1.0]} /><meshStandardMaterial color="#eef1f5" /></mesh>
+      <mesh position={[0, 3.6, 0.52]}><boxGeometry args={[1.2, 0.8, 0.1]} /><meshStandardMaterial color="#c0392b" /></mesh>
+      <mesh position={[0, 4.7, 0]} castShadow><boxGeometry args={[0.72, 0.64, 0.64]} /><meshStandardMaterial color="#f5f7fa" /></mesh>
+      <mesh position={[0, 4.72, 0.33]}><boxGeometry args={[0.42, 0.12, 0.05]} /><meshBasicMaterial color="#12d0ff" toneMapped={false} /></mesh>
+      <mesh position={[0, 5.05, 0.18]} rotation={[0, 0, 0]}><boxGeometry args={[0.7, 0.08, 0.05]} /><meshStandardMaterial color="#f0b429" metalness={0.4} /></mesh>
+      {[-1, 1].map((s) => <mesh key={s} position={[s * 1.08, 3.9, 0]} castShadow><boxGeometry args={[0.7, 0.7, 0.9]} /><meshStandardMaterial color="#2f6bd6" /></mesh>)}
+      {[-1, 1].map((s) => <mesh key={s} position={[s * 1.18, 2.8, 0]} castShadow><boxGeometry args={[0.42, 1.7, 0.42]} /><meshStandardMaterial color="#dfe6ee" /></mesh>)}
+      <mesh position={[0, 2.3, 0]}><boxGeometry args={[1.3, 0.7, 0.8]} /><meshStandardMaterial color="#c0392b" /></mesh>
+      <group ref={legL} position={[-0.42, 2.2, 0]}>
+        <mesh position={[0, -1.1, 0]} castShadow><boxGeometry args={[0.52, 2.2, 0.52]} /><meshStandardMaterial color="#e7edf3" /></mesh>
+        <mesh position={[0, -2.25, 0.16]} castShadow><boxGeometry args={[0.52, 0.32, 0.85]} /><meshStandardMaterial color="#2f6bd6" /></mesh>
+      </group>
+      <group ref={legR} position={[0.42, 2.2, 0]}>
+        <mesh position={[0, -1.1, 0]} castShadow><boxGeometry args={[0.52, 2.2, 0.52]} /><meshStandardMaterial color="#e7edf3" /></mesh>
+        <mesh position={[0, -2.25, 0.16]} castShadow><boxGeometry args={[0.52, 0.32, 0.85]} /><meshStandardMaterial color="#2f6bd6" /></mesh>
+      </group>
+    </group>
+  )
+}
+
+function GodzillaModel({ legL, legR }: { legL: LegRef; legR: LegRef }) {
+  const skin = '#37503a', belly = '#8fae74', spike = '#cfe3b0'
+  return (
+    <group>
+      {/* hunched body */}
+      <mesh position={[0, 3.0, 0]} rotation={[0.25, 0, 0]} castShadow><capsuleGeometry args={[0.95, 1.7, 6, 10]} /><meshStandardMaterial color={skin} flatShading /></mesh>
+      <mesh position={[0, 2.9, 0.55]} rotation={[0.25, 0, 0]}><capsuleGeometry args={[0.55, 1.4, 4, 8]} /><meshStandardMaterial color={belly} flatShading /></mesh>
+      {/* neck + head */}
+      <mesh position={[0, 4.3, 0.5]} castShadow><boxGeometry args={[0.7, 0.7, 1.1]} /><meshStandardMaterial color={skin} flatShading /></mesh>
+      <mesh position={[0, 4.15, 1.05]} castShadow><boxGeometry args={[0.6, 0.4, 0.7]} /><meshStandardMaterial color={skin} flatShading /></mesh>
+      <mesh position={[0.18, 4.4, 1.0]}><boxGeometry args={[0.12, 0.12, 0.12]} /><meshBasicMaterial color="#ffe14a" toneMapped={false} /></mesh>
+      <mesh position={[-0.18, 4.4, 1.0]}><boxGeometry args={[0.12, 0.12, 0.12]} /><meshBasicMaterial color="#ffe14a" toneMapped={false} /></mesh>
+      {/* dorsal spikes */}
+      {[-0.2, 0.5, 1.2, 1.9].map((z, i) => <mesh key={i} position={[0, 4.0 - i * 0.15, -0.2 - z * 0.4]} rotation={[0.2, 0, 0]}><coneGeometry args={[0.26, 0.7, 4]} /><meshStandardMaterial color={spike} flatShading /></mesh>)}
+      {/* tail */}
+      <mesh position={[0, 2.4, -1.4]} rotation={[-0.5, 0, 0]} castShadow><coneGeometry args={[0.55, 2.6, 6]} /><meshStandardMaterial color={skin} flatShading /></mesh>
+      {/* little arms */}
+      {[-1, 1].map((s) => <mesh key={s} position={[s * 0.85, 3.1, 0.5]} rotation={[0.6, 0, 0]}><capsuleGeometry args={[0.16, 0.6, 4, 6]} /><meshStandardMaterial color={skin} flatShading /></mesh>)}
+      {/* legs */}
+      <group ref={legL} position={[-0.5, 2.1, 0]}>
+        <mesh position={[0, -1.0, 0]} castShadow><capsuleGeometry args={[0.42, 1.3, 4, 8]} /><meshStandardMaterial color={skin} flatShading /></mesh>
+        <mesh position={[0, -2.0, 0.3]}><boxGeometry args={[0.6, 0.3, 0.9]} /><meshStandardMaterial color={skin} flatShading /></mesh>
+      </group>
+      <group ref={legR} position={[0.5, 2.1, 0]}>
+        <mesh position={[0, -1.0, 0]} castShadow><capsuleGeometry args={[0.42, 1.3, 4, 8]} /><meshStandardMaterial color={skin} flatShading /></mesh>
+        <mesh position={[0, -2.0, 0.3]}><boxGeometry args={[0.6, 0.3, 0.9]} /><meshStandardMaterial color={skin} flatShading /></mesh>
+      </group>
+    </group>
+  )
+}
+
+function BibendumModel({ legL, legR }: { legL: LegRef; legR: LegRef }) {
+  const w = '#f3f4f6', ring = '#e2e5ea'
+  return (
+    <group>
+      {/* stacked tyre torso */}
+      {[2.5, 3.15, 3.75, 4.25].map((y, i) => <mesh key={i} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><torusGeometry args={[0.85 - i * 0.13, 0.34 - i * 0.04, 8, 16]} /><meshStandardMaterial color={i % 2 ? ring : w} /></mesh>)}
+      {/* head */}
+      <mesh position={[0, 4.9, 0]} castShadow><sphereGeometry args={[0.62, 16, 16]} /><meshStandardMaterial color={w} /></mesh>
+      <mesh position={[0.2, 5.0, 0.5]}><sphereGeometry args={[0.1, 8, 8]} /><meshStandardMaterial color="#222" /></mesh>
+      <mesh position={[-0.2, 5.0, 0.5]}><sphereGeometry args={[0.1, 8, 8]} /><meshStandardMaterial color="#222" /></mesh>
+      <mesh position={[0, 4.75, 0.55]} rotation={[0, 0, 0]}><torusGeometry args={[0.2, 0.04, 8, 12, Math.PI]} /><meshStandardMaterial color="#c0392b" /></mesh>
+      {/* arms */}
+      {[-1, 1].map((s) => <group key={s} position={[s * 1.0, 3.7, 0]}>{[0, 1, 2].map((k) => <mesh key={k} position={[s * k * 0.32, -k * 0.28, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.24, 0.12, 6, 12]} /><meshStandardMaterial color={k % 2 ? ring : w} /></mesh>)}</group>)}
+      {/* legs */}
+      <group ref={legL} position={[-0.45, 2.3, 0]}>
+        {[0, 1].map((k) => <mesh key={k} position={[0, -0.5 - k * 0.55, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><torusGeometry args={[0.34, 0.16, 6, 12]} /><meshStandardMaterial color={k % 2 ? ring : w} /></mesh>)}
+        <mesh position={[0, -1.5, 0.2]}><boxGeometry args={[0.5, 0.3, 0.7]} /><meshStandardMaterial color="#c0392b" /></mesh>
+      </group>
+      <group ref={legR} position={[0.45, 2.3, 0]}>
+        {[0, 1].map((k) => <mesh key={k} position={[0, -0.5 - k * 0.55, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><torusGeometry args={[0.34, 0.16, 6, 12]} /><meshStandardMaterial color={k % 2 ? ring : w} /></mesh>)}
+        <mesh position={[0, -1.5, 0.2]}><boxGeometry args={[0.5, 0.3, 0.7]} /><meshStandardMaterial color="#c0392b" /></mesh>
+      </group>
+    </group>
+  )
+}
+
+function GiantMonsters({ show }: { show: boolean }) {
+  const bodies = [useRef<THREE.Group>(null), useRef<THREE.Group>(null), useRef<THREE.Group>(null)]
+  const legsL = [useRef<THREE.Group>(null), useRef<THREE.Group>(null), useRef<THREE.Group>(null)]
+  const legsR = [useRef<THREE.Group>(null), useRef<THREE.Group>(null), useRef<THREE.Group>(null)]
+  const lanes = useMemo(() => {
+    const L = ROAD_LINES
+    return [
+      { axis: 'x' as const, fixed: L[Math.min(2, L.length - 1)], dir: 1, speed: 2.4, scale: 2.3 },
+      { axis: 'z' as const, fixed: L[Math.floor(L.length / 2)], dir: -1, speed: 2.0, scale: 2.1 },
+      { axis: 'x' as const, fixed: L[Math.max(0, L.length - 3)], dir: 1, speed: 1.7, scale: 2.2 },
+    ]
+  }, [])
+  const pos = useRef(lanes.map((_, i) => -HALF + i * 26))
+  useFrame((state, dt) => {
+    if (!show) return
+    const d = Math.min(dt, 0.05); const t = state.clock.elapsedTime
+    lanes.forEach((ln, i) => {
+      pos.current[i] += ln.dir * ln.speed * d
+      if (pos.current[i] > HALF + 12) pos.current[i] = -HALF - 12
+      const p = pos.current[i]
+      const g = bodies[i].current; if (!g) return
+      const bob = Math.abs(Math.sin(t * 2.4 + i)) * 0.18 * ln.scale
+      g.position.set(ln.axis === 'x' ? p : ln.fixed, bob, ln.axis === 'z' ? p : ln.fixed)
+      g.rotation.y = ln.axis === 'x' ? (ln.dir > 0 ? Math.PI / 2 : -Math.PI / 2) : (ln.dir > 0 ? 0 : Math.PI)
+      const sw = Math.sin(t * 2.4 + i) * 0.5
+      if (legsL[i].current) legsL[i].current!.rotation.x = sw
+      if (legsR[i].current) legsR[i].current!.rotation.x = -sw
+    })
+  })
+  if (!show) return null
+  return (
+    <>
+      <group ref={bodies[0]} scale={lanes[0].scale}><GundamModel legL={legsL[0]} legR={legsR[0]} /></group>
+      <group ref={bodies[1]} scale={lanes[1].scale}><GodzillaModel legL={legsL[1]} legR={legsR[1]} /></group>
+      <group ref={bodies[2]} scale={lanes[2].scale}><BibendumModel legL={legsL[2]} legR={legsR[2]} /></group>
     </>
   )
 }
@@ -569,6 +710,200 @@ function LakePark({ x, z }: { x: number; z: number }) {
   )
 }
 
+// The metropolis is huge, so we only render what's near the camera. This reads
+// the MapControls target each frame and re-renders (throttled) when you pan far
+// enough that a new set of lots should come into view.
+const CULL_R = 82
+function useCityCenter(): [number, number] {
+  const controls = useThree((s) => s.controls) as unknown as { target?: THREE.Vector3 } | null
+  const [c, setC] = useState<[number, number]>([0, 0])
+  const last = useRef<[number, number]>([0, 0])
+  useFrame(() => {
+    const t = controls?.target
+    if (!t) return
+    if (Math.hypot(t.x - last.current[0], t.z - last.current[1]) > 7) {
+      last.current = [t.x, t.z]
+      setC([t.x, t.z])
+    }
+  })
+  return c
+}
+
+// ---- civic landmarks ---------------------------------------------------------
+// window-band facade shared by the boxy civic buildings
+function Bands({ w, d, floors, floorH, y0 }: { w: number; d: number; floors: number; floorH: number; y0: number }) {
+  return <>{Array.from({ length: floors }).map((_, k) => (
+    <mesh key={k} position={[0, y0 + 0.45 + k * floorH, d / 2 + 0.01]}><planeGeometry args={[w * 0.82, 0.42]} /><meshStandardMaterial color="#bcd8ef" metalness={0.15} roughness={0.2} /></mesh>
+  ))}</>
+}
+
+function Hotel() {
+  const floors = 7, floorH = 0.82, w = 2.5, d = 2.3, h = floors * floorH
+  const sign = useMemo(() => brandSign('HOTEL', '#b8323a'), [])
+  return (
+    <group>
+      <mesh position={[0, 0.35, 0]} castShadow receiveShadow><boxGeometry args={[w + 0.2, 0.7, d + 0.2]} /><meshStandardMaterial color="#b8323a" /></mesh>
+      <mesh position={[0, 0.7 + h / 2, 0]} castShadow receiveShadow><boxGeometry args={[w, h, d]} /><meshStandardMaterial color="#efe6d3" /><Edges threshold={15} color="#d8ccb2" /></mesh>
+      <Bands w={w} d={d} floors={floors} floorH={floorH} y0={0.7} />
+      {/* entrance canopy */}
+      <mesh position={[0, 0.72, d / 2 + 0.35]} rotation={[Math.PI * 0.12, 0, 0]} castShadow><boxGeometry args={[w * 0.7, 0.06, 0.6]} /><meshStandardMaterial color="#b8323a" /></mesh>
+      <mesh position={[0, 0.7 + h + 0.1, 0]} castShadow><boxGeometry args={[w + 0.1, 0.16, d + 0.1]} /><meshStandardMaterial color="#c3ccd6" /></mesh>
+      <group position={[0, 0.7 + h + 0.6, 0]}>
+        <mesh position={[-w * 0.32, -0.24, 0]}><boxGeometry args={[0.05, 0.5, 0.05]} /><meshStandardMaterial color="#7a8291" /></mesh>
+        <mesh position={[w * 0.32, -0.24, 0]}><boxGeometry args={[0.05, 0.5, 0.05]} /><meshStandardMaterial color="#7a8291" /></mesh>
+        <mesh><planeGeometry args={[w * 0.95, 0.5]} /><meshBasicMaterial map={sign} toneMapped={false} side={THREE.DoubleSide} /></mesh>
+      </group>
+    </group>
+  )
+}
+
+function Mall() {
+  const w = 3.4, d = 3.0, h = 1.9
+  const sign = useMemo(() => brandSign('MALL', '#7a3ff0'), [])
+  return (
+    <group>
+      <mesh position={[0, h / 2, 0]} castShadow receiveShadow><boxGeometry args={[w, h, d]} /><meshStandardMaterial color="#f2f4f8" /><Edges threshold={15} color="#d6dbe4" /></mesh>
+      {/* glass storefront */}
+      <mesh position={[0, h * 0.42, d / 2 + 0.01]}><planeGeometry args={[w * 0.9, h * 0.6]} /><meshStandardMaterial color="#243447" metalness={0.4} roughness={0.15} /></mesh>
+      <mesh position={[0, 0.5, d / 2 + 0.3]} rotation={[Math.PI * 0.1, 0, 0]} castShadow><boxGeometry args={[w * 0.95, 0.06, 0.7]} /><meshStandardMaterial color="#e2265f" /></mesh>
+      {/* big rooftop billboard */}
+      <mesh position={[0, h + 0.55, 0]}><boxGeometry args={[w * 0.9, 0.9, 0.12]} /><meshBasicMaterial map={sign} toneMapped={false} /></mesh>
+      {[-1, 1].map((s) => <mesh key={s} position={[s * w * 0.3, h + 0.05, 0]}><boxGeometry args={[0.06, 0.3, 0.06]} /><meshStandardMaterial color="#8892a0" /></mesh>)}
+    </group>
+  )
+}
+
+function crossTex(): THREE.CanvasTexture {
+  const c = document.createElement('canvas'); c.width = 64; c.height = 64
+  const g = c.getContext('2d')!; g.fillStyle = '#ffffff'; g.fillRect(0, 0, 64, 64)
+  g.fillStyle = '#e5352b'; g.fillRect(26, 12, 12, 40); g.fillRect(12, 26, 40, 12)
+  return new THREE.CanvasTexture(c)
+}
+function Hospital() {
+  const w = 2.8, d = 2.5, h = 3.4
+  const cross = useMemo(() => crossTex(), [])
+  return (
+    <group>
+      <mesh position={[0, h / 2, 0]} castShadow receiveShadow><boxGeometry args={[w, h, d]} /><meshStandardMaterial color="#fbfdff" /><Edges threshold={15} color="#dbe3ec" /></mesh>
+      {Array.from({ length: 4 }).map((_, k) => (
+        <mesh key={k} position={[0, 0.6 + k * 0.75, d / 2 + 0.01]}><planeGeometry args={[w * 0.82, 0.4]} /><meshStandardMaterial color="#bcd8ef" /></mesh>
+      ))}
+      {/* red cross on the facade + a rooftop cross */}
+      <mesh position={[0, h * 0.7, d / 2 + 0.02]}><planeGeometry args={[0.8, 0.8]} /><meshBasicMaterial map={cross} toneMapped={false} /></mesh>
+      <mesh position={[0, h + 0.1, 0]}><boxGeometry args={[w + 0.1, 0.16, d + 0.1]} /><meshStandardMaterial color="#c3ccd6" /></mesh>
+      <mesh position={[0, h + 0.5, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1, 1]} /><meshBasicMaterial map={cross} toneMapped={false} /></mesh>
+      {/* ambulance bay canopy */}
+      <mesh position={[w * 0.1, 0.7, d / 2 + 0.5]} castShadow><boxGeometry args={[w * 0.8, 0.06, 0.9]} /><meshStandardMaterial color="#e5352b" /></mesh>
+    </group>
+  )
+}
+
+function School() {
+  const w = 3.0, d = 2.4, h = 1.7
+  const sign = useMemo(() => brandSign('SCHOOL', '#2f6bd6'), [])
+  return (
+    <group>
+      <mesh position={[0, h / 2, 0]} castShadow receiveShadow><boxGeometry args={[w, h, d]} /><meshStandardMaterial color="#c96a4a" /><Edges threshold={15} color="#a8543a" /></mesh>
+      {[-1, 0, 1].map((x) => <mesh key={x} position={[x * w * 0.28, h * 0.5, d / 2 + 0.01]}><planeGeometry args={[0.5, 0.7]} /><meshStandardMaterial color="#f3ecdc" /></mesh>)}
+      {/* pitched roof */}
+      <mesh position={[0, h + 0.28, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[w * 0.62, 0.6, 4]} /><meshStandardMaterial color="#6a4433" flatShading /></mesh>
+      {/* bell tower + flag */}
+      <group position={[w * 0.32, 0, 0]}>
+        <mesh position={[0, h + 0.4, 0]} castShadow><boxGeometry args={[0.6, 1.6, 0.6]} /><meshStandardMaterial color="#d3765a" /></mesh>
+        <mesh position={[0, h + 1.2, 0.31]}><planeGeometry args={[0.34, 0.34]} /><meshBasicMaterial map={sign} toneMapped={false} /></mesh>
+        <mesh position={[0, h + 1.35, 0]} rotation={[0, Math.PI / 4, 0]}><coneGeometry args={[0.5, 0.4, 4]} /><meshStandardMaterial color="#6a4433" flatShading /></mesh>
+      </group>
+      <mesh position={[-w * 0.42, 1.1, d * 0.3]}><cylinderGeometry args={[0.03, 0.03, 2.2, 6]} /><meshStandardMaterial color="#9aa0a8" /></mesh>
+      <mesh position={[-w * 0.42 + 0.3, 1.9, d * 0.3]}><planeGeometry args={[0.6, 0.36]} /><meshStandardMaterial color="#2f6bd6" side={THREE.DoubleSide} /></mesh>
+    </group>
+  )
+}
+
+function Police() {
+  const w = 2.6, d = 2.4, h = 2.4
+  const sign = useMemo(() => brandSign('POLICE', '#12233f'), [])
+  return (
+    <group>
+      <mesh position={[0, h / 2, 0]} castShadow receiveShadow><boxGeometry args={[w, h, d]} /><meshStandardMaterial color="#26426b" /><Edges threshold={15} color="#16294a" /></mesh>
+      {Array.from({ length: 3 }).map((_, k) => (
+        <mesh key={k} position={[0, 0.55 + k * 0.72, d / 2 + 0.01]}><planeGeometry args={[w * 0.82, 0.4]} /><meshStandardMaterial color="#a9c7e6" /></mesh>
+      ))}
+      <mesh position={[0, h * 0.78, d / 2 + 0.02]}><planeGeometry args={[w * 0.7, 0.4]} /><meshBasicMaterial map={sign} toneMapped={false} /></mesh>
+      {/* entrance + blue roof beacon */}
+      <mesh position={[0, 0.6, d / 2 + 0.28]} rotation={[Math.PI * 0.12, 0, 0]}><boxGeometry args={[w * 0.6, 0.05, 0.5]} /><meshStandardMaterial color="#12233f" /></mesh>
+      <mesh position={[0, h + 0.18, 0]}><cylinderGeometry args={[0.18, 0.18, 0.24, 10]} /><meshBasicMaterial color="#2f8fff" toneMapped={false} /></mesh>
+    </group>
+  )
+}
+
+function Pool() {
+  return (
+    <group>
+      {/* tiled deck */}
+      <mesh position={[0, 0.06, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[4, 3.6]} /><meshStandardMaterial color="#e9eef2" /></mesh>
+      {/* water */}
+      <mesh position={[0, 0.12, 0]} castShadow receiveShadow><boxGeometry args={[3, 0.24, 2.4]} /><meshStandardMaterial color="#2fbfe0" metalness={0.2} roughness={0.15} /></mesh>
+      {/* lane ropes */}
+      {[-0.6, 0, 0.6].map((z) => <mesh key={z} position={[0, 0.26, z]}><boxGeometry args={[2.9, 0.03, 0.03]} /><meshStandardMaterial color="#ffffff" /></mesh>)}
+      {/* diving board */}
+      <group position={[-1.7, 0, 0]}>
+        <mesh position={[0, 0.35, 0]}><boxGeometry args={[0.2, 0.5, 0.2]} /><meshStandardMaterial color="#c3ccd6" /></mesh>
+        <mesh position={[0.5, 0.55, 0]} castShadow><boxGeometry args={[1.0, 0.06, 0.4]} /><meshStandardMaterial color="#eef1f5" /></mesh>
+      </group>
+      {/* umbrella + loungers */}
+      <group position={[1.5, 0, 1.2]}>
+        <mesh position={[0, 0.06, 0]} rotation={[-Math.PI / 2, 0, 0]}><boxGeometry args={[0.6, 0.16, 0.001]} /><meshStandardMaterial color="#ffffff" /></mesh>
+        <mesh position={[0.3, 0.4, 0]}><cylinderGeometry args={[0.02, 0.02, 0.8, 6]} /><meshStandardMaterial color="#8a5a34" /></mesh>
+        <mesh position={[0.3, 0.85, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[0.6, 0.3, 8]} /><meshStandardMaterial color="#e6564f" flatShading /></mesh>
+      </group>
+    </group>
+  )
+}
+
+function ParkLot() {
+  return (
+    <group>
+      <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[4, 3.8]} /><meshStandardMaterial color="#7fc98a" roughness={1} /></mesh>
+      {/* winding path */}
+      <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.7, 3.6]} /><meshStandardMaterial color="#d8cba0" /></mesh>
+      {/* pond */}
+      <mesh position={[1.1, 0.05, -0.9]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[0.8, 24]} /><meshStandardMaterial color="#3aa7d8" metalness={0.2} roughness={0.25} /></mesh>
+      {/* fountain */}
+      <mesh position={[-1.0, 0.2, 0.8]}><cylinderGeometry args={[0.4, 0.45, 0.3, 16]} /><meshStandardMaterial color="#c3ccd6" /></mesh>
+      <mesh position={[-1.0, 0.55, 0.8]}><cylinderGeometry args={[0.05, 0.05, 0.5, 6]} /><meshStandardMaterial color="#bfe0f5" /></mesh>
+      {[[-1.4, -1.2], [1.4, 1.2], [0.2, 1.4]].map(([x, z], i) => <Tree key={i} position={[x, 0, z]} scale={1.1} blossom={i % 2 === 0} />)}
+      {/* bench */}
+      <mesh position={[0.1, 0.2, 1.0]}><boxGeometry args={[0.8, 0.08, 0.28]} /><meshStandardMaterial color="#8a5a34" /></mesh>
+    </group>
+  )
+}
+
+// a simple green lawn (pelouse) with a tree or two, for the open plots
+function GrassLot({ lot }: { lot: Lot }) {
+  const v = (lot.i * 7 + lot.j) % 3
+  return (
+    <group>
+      <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[4.2, 4.2]} /><meshStandardMaterial color="#7fc98a" roughness={1} /></mesh>
+      <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[1.2, 24]} /><meshStandardMaterial color="#6bbf7a" /></mesh>
+      <Tree position={[-1.1, 0, -0.9]} scale={1.0} blossom={v === 0} />
+      {v !== 2 && <Tree position={[1.2, 0, 1.0]} scale={0.85} blossom={v === 1} />}
+      {v === 2 && <mesh position={[0.6, 0.2, 0.6]}><boxGeometry args={[0.9, 0.1, 0.3]} /><meshStandardMaterial color="#8a5a34" /></mesh>}
+    </group>
+  )
+}
+
+function CivicBuilding({ kind }: { kind: CivicKind }) {
+  switch (kind) {
+    case 'hotel': return <Hotel />
+    case 'mall': return <Mall />
+    case 'hospital': return <Hospital />
+    case 'school': return <School />
+    case 'police': return <Police />
+    case 'pool': return <Pool />
+    case 'park': return <ParkLot />
+  }
+}
+
 function CameraZoom({ level }: { level: number }) {
   const cam = useThree((s) => s.camera) as THREE.OrthographicCamera
   useFrame(() => {
@@ -581,7 +916,7 @@ function CameraZoom({ level }: { level: number }) {
 
 const ROAD_LINES = (() => {
   const out: number[] = []
-  for (let i = 0; i < 11; i++) if (i % 3 === 0) out.push(i * 5 - HALF + 2.5)
+  for (let i = 0; i < GRID; i++) if (i % 3 === 0) out.push(i * CELL - HALF + CELL / 2)
   return out
 })()
 
@@ -601,24 +936,29 @@ function Ground() {
         </group>
       ))}
       {ROAD_LINES.map((x) => ROAD_LINES.map((z) => (
+        // crosswalks only near the middle of the map · keeps the mesh count sane
+        Math.hypot(x, z) > 52 ? null : (
         <group key={`${x},${z}`} position={[x, 0.01, z]}>
           {stripes.map((s) => <mesh key={`h${s}`} rotation={[-Math.PI / 2, 0, 0]} position={[-1.9, 0, -1.0 + s * 0.4]}><planeGeometry args={[0.7, 0.22]} /><meshBasicMaterial color="#f2f4f6" /></mesh>)}
           {stripes.map((s) => <mesh key={`v${s}`} rotation={[-Math.PI / 2, 0, Math.PI / 2]} position={[-1.0 + s * 0.4, 0, 1.9]}><planeGeometry args={[0.7, 0.22]} /><meshBasicMaterial color="#f2f4f6" /></mesh>)}
         </group>
+        )
       )))}
     </group>
   )
 }
 
-function StreetTrees() {
+function StreetTrees({ center }: { center: [number, number] }) {
   const spots = useMemo(() => {
     const out: [number, number, number][] = []
     ROAD_LINES.forEach((at) => {
       for (let p = -HALF + 3; p < HALF; p += 4.5) { out.push([at + 1.9, 0, p]); out.push([p, 0, at + 1.9]) }
     })
-    return out.filter((_, i) => i % 2 === 0)
+    return out.filter((_, i) => i % 3 === 0)
   }, [])
-  return <>{spots.map((s, i) => <Tree key={i} position={s} scale={0.9 + (i % 3) * 0.12} blossom={i % 4 === 0} />)}</>
+  // only the trees near the camera get drawn (huge map · keep it light)
+  return <>{spots.map((s, i) => (Math.hypot(s[0] - center[0], s[2] - center[1]) > CULL_R ? null
+    : <Tree key={i} position={s} scale={0.9 + (i % 3) * 0.12} blossom={i % 4 === 0} />))}</>
 }
 
 // ---- the scene --------------------------------------------------------------
@@ -639,6 +979,7 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
   const detail = level >= 2
   const showTraffic = level >= 1
   const builtRadius = maxDist * 0.82
+  const center = useCityCenter()
 
   // Our 15 showcase companies get their own HQs on the building lots ringing the
   // player's HQ — spread out (every other building lot) so they read as a cluster
@@ -663,18 +1004,29 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
       <directionalLight position={[34, 52, 22]} intensity={1.5} color="#fff6e6" castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-60} shadow-camera-right={60} shadow-camera-top={60} shadow-camera-bottom={-60} shadow-bias={-0.0004} />
       <fog attach="fog" args={['#d6e8f7', 150, 340]} />
       <Ground />
-      <StreetTrees />
+      <StreetTrees center={center} />
 
       {sorted.map((l) => {
         if (reserved.has(l.id)) return null
+        // cull anything far from the camera · the metropolis is huge
+        if (Math.hypot(l.cx - center[0], l.cz - center[1]) > CULL_R) return null
         const dist = Math.hypot(l.cx, l.cz)
         // one of our showcase companies?
         const co = companyByLot.get(l.id)
         if (co) {
           return <group key={l.id} position={[l.cx, 0, l.cz]}><CompanyBuilding co={co} onSelect={() => onSelectCo(co)} /></group>
         }
-        // near the centre → finished ambient buildings; toward the edges (or on
-        // reserved-empty plots) → construction sites.
+        // a civic landmark (hotel, mall, hospital, school, police, pool, park)?
+        if (l.civic) {
+          return <group key={l.id} position={[l.cx, 0, l.cz]}><CivicBuilding kind={l.civic} /></group>
+        }
+        // open plots → lawns or construction sites (varied); edges → construction.
+        if (l.kind === 'available') {
+          return (l.i + l.j) % 2 === 0
+            ? <group key={l.id} position={[l.cx, 0, l.cz]}><GrassLot lot={l} /></group>
+            : <ConstructionSite key={l.id} lot={l} />
+        }
+        // near the centre → finished ambient buildings; toward the edges → sites.
         if (l.kind === 'building' && dist < builtRadius) {
           return <group key={l.id} position={[l.cx, 0, l.cz]}><Building spec={l.building!} detail={detail} /></group>
         }
@@ -688,6 +1040,7 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
 
       <Traffic show={showTraffic} />
       <Walkers show={showTraffic} />
+      <GiantMonsters show />
       <SkyEvents show={level >= 1} />
     </>
   )
@@ -751,7 +1104,10 @@ function CompanyFiche({ co, onClose }: { co: MockCo; onClose: () => void }) {
 
         <p className="cofiche-quote">“{co.testimonial.quote}” <b>— {co.testimonial.author}</b></p>
 
-        <a className="cofiche-open" href="/#showcase" style={{ background: t.accent }}>Voir toutes les entreprises →</a>
+        <div className="cofiche-actions">
+          <a className="cofiche-open" href={companyPath(co)} style={{ background: t.accent }}>Ouvrir le site ↗</a>
+          <a className="cofiche-open ghost" href="/#showcase">Toutes les entreprises</a>
+        </div>
       </div>
     </div>
   )
@@ -795,7 +1151,7 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
       <div className="city-top">
         <div className="city-title">
           <h1>Dojo City</h1>
-          <p>Ton immeuble grandit d’un étage par Dojo. Clique-le pour revenir au tableau de bord · visite l’Académie et le konbini.</p>
+          <p>Une métropole entière : hôtels, centres commerciaux, hôpitaux, écoles, parcs et piscines — et nos 15 entreprises. Clique une société pour sa fiche. Attention aux géants qui s’y promènent.</p>
         </div>
         <button className="btn tiny ghost city-exit" onClick={exit}>← Tableau de bord</button>
       </div>

@@ -1,4 +1,4 @@
-import { MOCK_COMPANIES, topEarners, fleetStats, coRevenue, type MockCo } from '../../data/showcase'
+import { MOCK_COMPANIES, topEarners, fleetStats, coRevenue, companyPath, type MockCo } from '../../data/showcase'
 
 const money = (n: number) => '$' + n.toLocaleString('en-US')
 const compact = (n: number) =>
@@ -13,8 +13,10 @@ const compact = (n: number) =>
 function CompanyCard({ c }: { c: MockCo }) {
   const t = c.theme
   return (
-    <article
+    <a
       className="sc-card"
+      href={companyPath(c)}
+      title={`Open ${c.name}'s site`}
       style={{
         ['--bg' as any]: t.bg,
         ['--ink' as any]: t.ink,
@@ -47,7 +49,7 @@ function CompanyCard({ c }: { c: MockCo }) {
           <span className="sc-rev-l">today</span>
         </div>
       </div>
-    </article>
+    </a>
   )
 }
 

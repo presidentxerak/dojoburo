@@ -17,11 +17,15 @@ export function rng(seed: number) {
   }
 }
 
-export const GRID = 11 // cells per side
+export const GRID = 31 // cells per side · a big metropolis (~10× the old area)
 export const CELL = 5 // world units per cell
 export const ROAD_EVERY = 3 // every Nth index (0-based) is a road
 export const SPAN = GRID * CELL
 export const HALF = SPAN / 2
+
+/** Civic landmarks scattered across the metropolis (hotels, malls, hospitals…). */
+export type CivicKind = 'hotel' | 'mall' | 'hospital' | 'school' | 'police' | 'pool' | 'park'
+const CIVIC_ROTATION: CivicKind[] = ['hotel', 'mall', 'hospital', 'school', 'police', 'pool', 'park']
 
 export type BuildingKind = 'tower' | 'office' | 'shophouse' | 'apartment' | 'mall' | 'pagoda' | 'villa' | 'temple'
 export type RoofKind = 'flat' | 'gable' | 'pagoda' | 'hip'
@@ -65,6 +69,7 @@ export interface Lot {
   cz: number // world center z
   kind: 'building' | 'available'
   building?: BuildingSpec
+  civic?: CivicKind // a landmark (hotel, mall, hospital…) overrides the ambient building
 }
 
 export interface Road {
@@ -140,19 +145,21 @@ export function buildCity(seed = 20260711): { lots: Lot[]; roads: Road[] } {
       buildable.push({ i, j })
     }
   }
-  // Reserve a spread-out set of "available" plots (every ~4th buildable cell).
-  const availableIdx = new Set<number>()
-  for (let k = 0; k < buildable.length; k++) {
-    if (k % 4 === 2) availableIdx.add(k)
-  }
+  // Reserve a spread-out set of "available" plots (every ~5th buildable cell) ·
+  // these become lawns / construction sites. Every ~6th building lot becomes a
+  // civic landmark (hotel, mall, hospital, school, police, pool, park), cycling
+  // through the types so all of them appear many times across the metropolis.
+  let civicCursor = 0
   buildable.forEach((c, k) => {
     const [cx, cz] = cellCenter(c.i, c.j)
-    const available = availableIdx.has(k)
+    const available = k % 5 === 2
+    const civic = !available && k % 6 === 4 ? CIVIC_ROTATION[civicCursor++ % CIVIC_ROTATION.length] : undefined
     lots.push({
       id: `lot-${c.i}-${c.j}`,
       i: c.i, j: c.j, cx, cz,
       kind: available ? 'available' : 'building',
-      building: available ? undefined : makeBuilding(rand),
+      building: available || civic ? undefined : makeBuilding(rand),
+      civic,
     })
   })
 
