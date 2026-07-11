@@ -3,6 +3,7 @@ import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
 import { useDojo } from '../../store'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
+import { useSecrets } from '../../agents/secretsStore'
 import { skinById } from '../../data/skins'
 import { SkinAvatar } from '../workshop/SkinAvatar'
 import { InfoDot } from '../InfoDot'
@@ -18,6 +19,7 @@ const CARD_CAT: Record<string, string> = {
   'CEO': 'Direction', 'Engine · autonomie': 'Moteur', 'Tâches': 'Travail',
   'Site web': 'Web', 'Publicités': 'Acquisition', 'Email & prospects': 'Outbound',
   'Analytics': 'Mesure', 'Offres & paiements': 'Revenus', 'Crédits': 'Crédits',
+  'Réglages & secrets': 'Config',
 }
 
 /** A step-by-step explainer for an InfoDot: a short lead, numbered steps, and an
@@ -77,6 +79,20 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [budget, setBudget] = useState('20')
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
+  // secrets (env vars) for the active company
+  const dojoId = dojo?.id ?? ''
+  const secrets = useSecrets((s) => s.byDojo[dojoId] ?? [])
+  const addSecret = useSecrets((s) => s.add)
+  const removeSecret = useSecrets((s) => s.remove)
+  const [secKey, setSecKey] = useState('')
+  const [secVal, setSecVal] = useState('')
+  const [secDesc, setSecDesc] = useState('')
+  const saveSecret = () => {
+    if (!secKey.trim() || !secVal.trim() || !dojoId) return
+    addSecret(dojoId, secKey, secVal, secDesc)
+    setSecKey(''); setSecVal(''); setSecDesc('')
+    pushToast({ kind: 'event', badge: 'OK', color: '#0e9bb5', title: 'Secret enregistré', text: 'Exposé à tes agents comme variable d’environnement.' })
+  }
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
   const fiatCur = account?.currency && account.currency !== 'XRP' ? account.currency : 'USD'
 
@@ -112,7 +128,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     setMsg('')
   }
 
-  const tint = { ceo: '#7b5cff', engine: '#e07a2a', tasks: '#1fa563', site: '#2f7fd6', ads: '#e0459b', mail: '#d98c17', ana: '#0e9b6a', prod: '#e0483f', credit: '#0e9bb5' }
+  const tint = { ceo: '#7b5cff', engine: '#e07a2a', tasks: '#1fa563', site: '#2f7fd6', ads: '#e0459b', mail: '#d98c17', ana: '#0e9b6a', prod: '#e0483f', credit: '#0e9bb5', cfg: '#5b6472' }
 
   return (
     <div className="dash-panels">
@@ -323,6 +339,54 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         </div>
         {payMsg && <p className="muted small">{payMsg}</p>}
         <p className="muted small">Crédits utilisés aujourd’hui : <b>{engine.creditsToday}</b> · apps branchées : <b>{connectedCount}</b>.</p>
+      </Card>
+
+      {/* Settings & secrets (nanocorp's "Settings" panel) */}
+      <Card title="Réglages & secrets" tint={tint.cfg} info={<Guide
+        lead="Les variables d’environnement (clés API, tokens…) que tes agents utilisent, plus les interrupteurs de sécurité."
+        steps={[
+          <>Donne un <b>nom</b> à ta variable (ex : <code>STRIPE_KEY</code>), colle sa <b>valeur</b> et une note facultative.</>,
+          <>Elle est exposée à tes agents comme <b>variable d’environnement</b> quand ils exécutent une tâche.</>,
+          <>En production, la valeur part dans le <b>coffre chiffré</b> (AES-256-GCM, côté serveur) — le navigateur ne la garde pas.</>,
+          <>Mets l’entreprise <b>en pause</b> pour tout arrêter, ou coupe seulement les <b>emails sortants</b>.</>,
+        ]}
+        tip="Utilise des clés restreintes (scopées) et fais-les tourner régulièrement."
+      />}>
+        <div className="sec-add">
+          <input className="sec-key" placeholder="SERVICE_API_KEY" value={secKey} onChange={(e) => setSecKey(e.target.value.toUpperCase())} maxLength={48} />
+          <input className="sec-val" type="password" placeholder="Valeur du secret" value={secVal} onChange={(e) => setSecVal(e.target.value)} />
+          <input className="sec-desc" placeholder="Description (facultatif) — aide tes agents à choisir le bon secret" value={secDesc} onChange={(e) => setSecDesc(e.target.value)} maxLength={80} />
+          <button className="btn tiny" disabled={!secKey.trim() || !secVal.trim()} onClick={saveSecret}>Enregistrer le secret</button>
+        </div>
+
+        {secrets.length > 0 ? (
+          <ul className="sec-list">
+            {secrets.map((s) => (
+              <li key={s.id}>
+                <div className="sec-row-main">
+                  <code>{s.key}</code>
+                  <span className="sec-mask">••••••••{s.value.slice(-3)}</span>
+                </div>
+                {s.desc && <span className="sec-note">{s.desc}</span>}
+                <button className="sec-del" onClick={() => removeSecret(dojoId, s.id)} aria-label={`Supprimer ${s.key}`}>Supprimer</button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted small">Aucun secret pour l’instant. Ajoute-en un pour l’exposer à tes agents comme variable d’environnement.</p>
+        )}
+
+        <div className="sec-toggles">
+          <label className="sec-toggle">
+            <span><b>Couper les emails sortants</b><em>En pause, l’entreprise n’envoie aucun email.</em></span>
+            <button role="switch" aria-checked={engine.pauseOutbound} className={`tgl${engine.pauseOutbound ? ' on' : ''}`} onClick={() => engine.setPauseOutbound(!engine.pauseOutbound)}><span /></button>
+          </label>
+          <label className="sec-toggle">
+            <span><b>Mettre l’entreprise en pause</b><em>Aucune tâche ne tourne tant que c’est en pause.</em></span>
+            <button role="switch" aria-checked={engine.paused} className={`tgl danger${engine.paused ? ' on' : ''}`} onClick={() => engine.setPaused(!engine.paused)}><span /></button>
+          </label>
+        </div>
+        {engine.paused && <p className="sec-paused">⏸ Entreprise en pause — les tâches sont bloquées.</p>}
       </Card>
     </div>
   )

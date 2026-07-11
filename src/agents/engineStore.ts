@@ -23,10 +23,12 @@ interface Persisted {
   tasksToday: number
   creditsToday: number
   recent: string[] // last few task signatures, to catch loops
+  paused: boolean // "Pause Company" · no tasks run while paused
+  pauseOutbound: boolean // block outbound email/DMs while on
 }
 
 function load(): Persisted {
-  const base: Persisted = { autonomy: 'medium', dailyCreditCap: 30, day: today(), tasksToday: 0, creditsToday: 0, recent: [] }
+  const base: Persisted = { autonomy: 'medium', dailyCreditCap: 30, day: today(), tasksToday: 0, creditsToday: 0, recent: [], paused: false, pauseOutbound: false }
   try {
     const p = JSON.parse(localStorage.getItem(KEY) || 'null') as Persisted | null
     if (!p) return base
@@ -38,6 +40,8 @@ function load(): Persisted {
 interface EngineState extends Persisted {
   setAutonomy: (a: Autonomy) => void
   setDailyCap: (n: number) => void
+  setPaused: (v: boolean) => void
+  setPauseOutbound: (v: boolean) => void
   /** Is another autonomous task allowed right now? Returns a reason if not. */
   gate: (signature: string) => { ok: boolean; reason?: string }
   /** Record a dispatched task (call after gate() passes and work starts). */
@@ -46,15 +50,18 @@ interface EngineState extends Persisted {
 
 export const useEngine = create<EngineState>((set, get) => {
   const persist = () => {
-    const { autonomy, dailyCreditCap, day, tasksToday, creditsToday, recent } = get()
-    try { localStorage.setItem(KEY, JSON.stringify({ autonomy, dailyCreditCap, day, tasksToday, creditsToday, recent })) } catch { /* ignore */ }
+    const { autonomy, dailyCreditCap, day, tasksToday, creditsToday, recent, paused, pauseOutbound } = get()
+    try { localStorage.setItem(KEY, JSON.stringify({ autonomy, dailyCreditCap, day, tasksToday, creditsToday, recent, paused, pauseOutbound })) } catch { /* ignore */ }
   }
   return {
     ...load(),
     setAutonomy: (a) => { set({ autonomy: a }); persist() },
     setDailyCap: (n) => { set({ dailyCreditCap: Math.max(1, Math.round(n)) }); persist() },
+    setPaused: (v) => { set({ paused: v }); persist() },
+    setPauseOutbound: (v) => { set({ pauseOutbound: v }); persist() },
     gate: (signature) => {
       const s = get()
+      if (s.paused) return { ok: false, reason: 'Entreprise en pause — aucune tâche ne tourne. Reprends dans Réglages.' }
       if (s.day !== today()) { set({ day: today(), tasksToday: 0, creditsToday: 0, recent: [] }); return { ok: true } }
       const cap = AUTONOMY_CAP[s.autonomy]
       if (s.tasksToday >= cap) return { ok: false, reason: `Plafond d’autonomie atteint (${AUTONOMY_LABEL[s.autonomy]} · ${cap}/jour). Repasse en Auto ou attends demain.` }

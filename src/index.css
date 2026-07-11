@@ -331,6 +331,32 @@ a:hover { text-decoration: underline; }
 .cred-pack span { font-family: var(--font-pixel); font-weight: 800; font-size: 14px; color: var(--ink); }
 .cred-pack em { font-style: normal; font-size: 13px; color: var(--dc); font-weight: 700; }
 
+/* Settings & secrets card */
+.sec-add { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.sec-add input { width: 100%; font-family: var(--font-mono); }
+.sec-add .sec-key { font-weight: 700; letter-spacing: 0.02em; }
+.sec-add .sec-desc { font-family: var(--font-ui); }
+.sec-add .btn { align-self: flex-start; }
+.sec-list { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.sec-list li { position: relative; padding: 10px 12px; background: var(--panel-2); border: 1.5px solid var(--border); border-radius: 10px; }
+.sec-row-main { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sec-row-main code { background: color-mix(in srgb, var(--dc) 12%, transparent); color: var(--dc); padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+.sec-mask { font-family: var(--font-mono); font-size: 13px; color: var(--muted); letter-spacing: 1px; }
+.sec-note { display: block; margin-top: 4px; font-size: 12.5px; color: var(--muted); }
+.sec-del { position: absolute; top: 10px; right: 10px; border: none; background: transparent; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; }
+.sec-del:hover { color: #e0483f; }
+.sec-toggles { display: flex; flex-direction: column; gap: 12px; border-top: 1.5px solid var(--border); padding-top: 14px; }
+.sec-toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.sec-toggle span { display: flex; flex-direction: column; }
+.sec-toggle b { font-size: 14.5px; }
+.sec-toggle em { font-style: normal; font-size: 12.5px; color: var(--muted); }
+.tgl { flex: none; width: 46px; height: 27px; border-radius: 999px; border: none; background: var(--border); cursor: pointer; position: relative; transition: background 0.16s; }
+.tgl span { position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: transform 0.16s; }
+.tgl.on { background: #0e9bb5; }
+.tgl.on.danger { background: #e0483f; }
+.tgl.on span { transform: translateX(19px); }
+.sec-paused { margin: 12px 0 0; padding: 9px 12px; background: color-mix(in srgb, #e0483f 12%, transparent); color: #c0392b; border-radius: 8px; font-size: 13px; font-weight: 700; }
+
 @media (max-width: 900px) {
   .dash-main { flex-direction: column; }
   .dash-side { flex: 1; border-left: none; }
