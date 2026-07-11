@@ -218,7 +218,7 @@ function brandSign(text: string, bg: string): THREE.CanvasTexture {
   return tex
 }
 
-function CompanyBuilding({ co, onSelect }: { co: MockCo; onSelect: () => void }) {
+function CompanyBuilding({ co, onSelect, labeled }: { co: MockCo; onSelect: () => void; labeled: boolean }) {
   const [hover, setHover] = useState(false)
   const floors = 4
   const floorH = 0.92
@@ -249,7 +249,9 @@ function CompanyBuilding({ co, onSelect }: { co: MockCo; onSelect: () => void })
       {/* click halo on the ground */}
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[w + 1.3, d + 1.3]} /><meshStandardMaterial color={hover ? '#fde68a' : co.theme.accent} transparent opacity={hover ? 0.9 : 0.16} /></mesh>
       <Html position={[0, podiumH + h + 1.5, 0]} center pointerEvents="none" zIndexRange={[28, 0]}>
-        <div style={{ ...nameTag, background: co.theme.accent }}>{co.name} · {co.cat} →</div>
+        {labeled || hover
+          ? <div style={{ ...nameTag, background: co.theme.accent }}>{co.name} · {co.cat} →</div>
+          : <div style={{ ...pinTag, background: co.theme.accent }}>{co.name[0]}</div>}
       </Html>
     </group>
   )
@@ -376,6 +378,22 @@ function Walkers({ show }: { show: boolean }) {
     <group key={i} ref={(el) => { refs.current[i] = el }} scale={0.5}>
       <Character3D bare walk id={it.id} character={it.skin} x={0} z={0} mood="idle" selected={false} busy={false} name="" level={1} onSelect={() => {}} />
     </group>
+  ))}</>
+}
+
+// ---- soft low-poly clouds drifting over the metropolis ----------------------
+function Clouds({ center }: { center: [number, number] }) {
+  const puffs = useMemo<[number, number, number][]>(() => [
+    [-30, 33, -20], [22, 36, -34], [42, 31, 14], [-46, 34, 26], [6, 32, 42], [-12, 37, -50], [30, 33, 44], [-38, 32, -44],
+  ], [])
+  return <>{puffs.map((p, i) => (
+    Math.hypot(p[0] - center[0], p[2] - center[1]) > CULL_R + 20 ? null : (
+    <group key={i} position={[p[0] + center[0] * 0.15, p[1], p[2] + center[1] * 0.15]}>
+      <mesh><sphereGeometry args={[3, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+      <mesh position={[3, 0.4, 0.5]}><sphereGeometry args={[2.2, 10, 10]} /><meshStandardMaterial color="#ffffff" /></mesh>
+      <mesh position={[-2.8, -0.2, 0.4]}><sphereGeometry args={[2.4, 10, 10]} /><meshStandardMaterial color="#f2f7ff" /></mesh>
+    </group>
+    )
   ))}</>
 }
 
@@ -516,11 +534,16 @@ function GiantMonsters({ show }: { show: boolean }) {
     })
   })
   if (!show) return null
+  const label = (name: string, color: string) => (
+    <Html position={[0, 6.2, 0]} center pointerEvents="none" zIndexRange={[24, 0]}>
+      <div style={{ ...nameTag, background: color }}>{name}</div>
+    </Html>
+  )
   return (
     <>
-      <group ref={bodies[0]} scale={lanes[0].scale}><GundamModel legL={legsL[0]} legR={legsR[0]} /></group>
-      <group ref={bodies[1]} scale={lanes[1].scale}><GodzillaModel legL={legsL[1]} legR={legsR[1]} /></group>
-      <group ref={bodies[2]} scale={lanes[2].scale}><BibendumModel legL={legsL[2]} legR={legsR[2]} /></group>
+      <group ref={bodies[0]} scale={lanes[0].scale}><GundamModel legL={legsL[0]} legR={legsR[0]} />{label('GUNDAM', '#2f6bd6')}</group>
+      <group ref={bodies[1]} scale={lanes[1].scale}><GodzillaModel legL={legsL[1]} legR={legsR[1]} />{label('GODZILLA', '#37503a')}</group>
+      <group ref={bodies[2]} scale={lanes[2].scale}><BibendumModel legL={legsL[2]} legR={legsR[2]} />{label('BIBENDUM', '#c0392b')}</group>
     </>
   )
 }
@@ -529,6 +552,21 @@ const nameTag: React.CSSProperties = {
   font: "700 12px 'Silkscreen', ui-monospace, monospace", color: '#fff', background: '#11151d',
   padding: '3px 8px', borderRadius: 4, whiteSpace: 'nowrap', border: '1px solid rgba(255,255,255,0.25)',
   boxShadow: '0 2px 6px rgba(0,0,0,0.35)',
+}
+// compact marker shown for far-away companies so the wide view isn't a wall of labels
+const pinTag: React.CSSProperties = {
+  font: "800 12px 'Silkscreen', ui-monospace, monospace", color: '#fff', background: '#11151d',
+  width: 22, height: 22, display: 'grid', placeItems: 'center', borderRadius: '50%',
+  border: '2px solid rgba(255,255,255,0.85)', boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
+}
+// small label for civic landmarks, shown only near the camera
+const civicTag: React.CSSProperties = {
+  font: "700 10px 'Outfit', system-ui, sans-serif", color: '#fff', background: 'rgba(20,24,34,0.82)',
+  padding: '2px 7px', borderRadius: 999, whiteSpace: 'nowrap', letterSpacing: '0.02em',
+}
+const CIVIC_LABEL: Record<CivicKind, string> = {
+  hotel: 'Hôtel', mall: 'Centre commercial', hospital: 'Hôpital', school: 'École',
+  police: 'Police', pool: 'Piscine', park: 'Parc',
 }
 
 // ---- player HQ · grows one floor per Dojo (1 Dojo = a villa) -----------------
@@ -892,16 +930,19 @@ function GrassLot({ lot }: { lot: Lot }) {
   )
 }
 
-function CivicBuilding({ kind }: { kind: CivicKind }) {
-  switch (kind) {
-    case 'hotel': return <Hotel />
-    case 'mall': return <Mall />
-    case 'hospital': return <Hospital />
-    case 'school': return <School />
-    case 'police': return <Police />
-    case 'pool': return <Pool />
-    case 'park': return <ParkLot />
-  }
+function CivicBuilding({ kind, labeled }: { kind: CivicKind; labeled: boolean }) {
+  const model = kind === 'hotel' ? <Hotel /> : kind === 'mall' ? <Mall /> : kind === 'hospital' ? <Hospital />
+    : kind === 'school' ? <School /> : kind === 'police' ? <Police /> : kind === 'pool' ? <Pool /> : <ParkLot />
+  return (
+    <>
+      {model}
+      {labeled && (
+        <Html position={[0, kind === 'pool' || kind === 'park' ? 1.4 : 4.4, 0]} center pointerEvents="none" zIndexRange={[26, 0]}>
+          <div style={civicTag}>{CIVIC_LABEL[kind]}</div>
+        </Html>
+      )}
+    </>
+  )
 }
 
 function CameraZoom({ level }: { level: number }) {
@@ -1009,16 +1050,20 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
       {sorted.map((l) => {
         if (reserved.has(l.id)) return null
         // cull anything far from the camera · the metropolis is huge
-        if (Math.hypot(l.cx - center[0], l.cz - center[1]) > CULL_R) return null
+        const camDist = Math.hypot(l.cx - center[0], l.cz - center[1])
+        if (camDist > CULL_R) return null
+        // show text labels only when zoomed in enough and near the camera, so the
+        // widest view isn't a wall of tags (companies fall back to compact pins).
+        const near = camDist < 46 && level >= 1
         const dist = Math.hypot(l.cx, l.cz)
         // one of our showcase companies?
         const co = companyByLot.get(l.id)
         if (co) {
-          return <group key={l.id} position={[l.cx, 0, l.cz]}><CompanyBuilding co={co} onSelect={() => onSelectCo(co)} /></group>
+          return <group key={l.id} position={[l.cx, 0, l.cz]}><CompanyBuilding co={co} onSelect={() => onSelectCo(co)} labeled={level >= 1} /></group>
         }
         // a civic landmark (hotel, mall, hospital, school, police, pool, park)?
         if (l.civic) {
-          return <group key={l.id} position={[l.cx, 0, l.cz]}><CivicBuilding kind={l.civic} /></group>
+          return <group key={l.id} position={[l.cx, 0, l.cz]}><CivicBuilding kind={l.civic} labeled={near} /></group>
         }
         // open plots → lawns or construction sites (varied); edges → construction.
         if (l.kind === 'available') {
@@ -1041,6 +1086,7 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
       <Traffic show={showTraffic} />
       <Walkers show={showTraffic} />
       <GiantMonsters show />
+      <Clouds center={center} />
       <SkyEvents show={level >= 1} />
     </>
   )

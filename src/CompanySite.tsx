@@ -21,6 +21,51 @@ function plans(c: MockCo) {
   ]
 }
 
+function faqs(c: MockCo): Array<{ q: string; a: string }> {
+  return [
+    { q: `What is ${c.name}?`, a: `${c.mission} It’s the fastest way to get there — no setup headaches, no long onboarding.` },
+    { q: 'Is there a free trial?', a: 'Yes. Every plan starts with a no-card-needed trial, and you can cancel or switch tiers whenever you like.' },
+    { q: 'How quickly can I get started?', a: `Minutes. Sign up, follow the ${c.cat.toLowerCase()} setup, and you’re live the same day.` },
+    { q: 'Do you offer support?', a: 'Real humans, fast. Email on every plan, and priority support on Pro and Team.' },
+  ]
+}
+
+// A believable little product screenshot rendered in the brand accent, so the
+// hero shows "the app" instead of a flat placeholder. Deliberately light-themed
+// (like most SaaS screenshots) so it pops on any brand background.
+function ProductMock({ c }: { c: MockCo }) {
+  const ac = c.theme.accent
+  const bars = [52, 74, 40, 88, 63, 96, 71]
+  return (
+    <div className="pm">
+      <aside className="pm-side">
+        <div className="pm-brand"><span className="pm-dot" style={{ background: ac }} />{c.name}</div>
+        {['Overview', 'Activity', 'Reports', 'Settings'].map((n, i) => (
+          <div key={n} className={`pm-nav${i === 0 ? ' on' : ''}`} style={i === 0 ? { background: `color-mix(in srgb, ${ac} 16%, #fff)`, color: ac } : undefined}>
+            <span className="pm-nav-ic" style={{ background: i === 0 ? ac : '#cfd6e0' }} />{n}
+          </div>
+        ))}
+      </aside>
+      <main className="pm-main">
+        <div className="pm-topbar"><b>{c.cat}</b><span className="pm-pill" style={{ background: ac }}>{c.site.cta}</span></div>
+        <div className="pm-tiles">
+          {['Today', 'This week', 'Total'].map((l, i) => (
+            <div className="pm-tile" key={l}><span className="pm-tile-l">{l}</span><b style={i === 1 ? { color: ac } : undefined}>{['1,204', '8,940', '47.2k'][i]}</b></div>
+          ))}
+        </div>
+        <div className="pm-chart">
+          {bars.map((h, i) => <span key={i} style={{ height: `${h}%`, background: i === 5 ? ac : `color-mix(in srgb, ${ac} 34%, #dfe4ec)` }} />)}
+        </div>
+        <div className="pm-rows">
+          {[0, 1, 2].map((i) => (
+            <div className="pm-row" key={i}><span className="pm-avatar" style={{ background: `color-mix(in srgb, ${ac} ${70 - i * 18}%, #e5e9f0)` }} /><span className="pm-bar" style={{ width: `${70 - i * 14}%` }} /><span className="pm-tag" style={{ background: `color-mix(in srgb, ${ac} 18%, #fff)`, color: ac }}>OK</span></div>
+          ))}
+        </div>
+      </main>
+    </div>
+  )
+}
+
 /** A full, standalone marketing site for one of the showcase companies, rendered
  *  entirely in that company's own brand identity (colours + typeface). Served at
  *  https://dojoburo.com/<company-id>. */
@@ -74,11 +119,16 @@ export function CompanySite({ id }: { id: string }) {
         </div>
         <div className="cs-hero-card">
           <div className="cs-hero-chrome"><span /><span /><span /><em>{domain}</em></div>
-          <div className="cs-hero-art" style={{ background: `linear-gradient(135deg, ${t.accent}, color-mix(in srgb, ${t.accent} 40%, #ffffff))` }}>
-            <span className="cs-hero-emoji">{c.name[0]}</span>
-          </div>
+          <ProductMock c={c} />
         </div>
       </section>
+
+      <div className="cs-logos">
+        <span>Loved by teams at</span>
+        <div className="cs-logo-row">
+          {['Northwind', 'Vertex', 'Loop', 'Kanso', 'Meridian', 'Foundry'].map((n) => <b key={n}>{n}</b>)}
+        </div>
+      </div>
 
       <div className="cs-stats">
         <div><b>{coSales(c).toLocaleString('en-US')}+</b><span>happy customers</span></div>
@@ -127,6 +177,18 @@ export function CompanySite({ id }: { id: string }) {
       <section className="cs-quote" id="story">
         <blockquote>“{c.testimonial.quote}”</blockquote>
         <figcaption><span className="cs-q-badge" style={{ background: t.accent }}>{c.name[0]}</span>{c.testimonial.author}</figcaption>
+      </section>
+
+      <section className="cs-sec cs-faq">
+        <h2 style={up}>Questions</h2>
+        <div className="cs-faq-list">
+          {faqs(c).map((f) => (
+            <details className="cs-faq-item" key={f.q}>
+              <summary>{f.q}<span className="cs-faq-plus" style={{ color: t.accent }}>+</span></summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <section className="cs-final">
