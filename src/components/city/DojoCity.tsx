@@ -16,6 +16,7 @@ import { useWorkshop } from '../../workshop'
 import { templateById } from '../../data/templates'
 import { Character3D } from '../three/Character3D'
 import { SKINS } from '../../data/skins'
+import { MOCK_COMPANIES, coRevenue, coSales, type MockCo } from '../../data/showcase'
 
 // ---- facade texture · clean daytime windows (glass + floor slabs) -----------
 function facadeTexture(spec: BuildingSpec): THREE.CanvasTexture {
@@ -117,20 +118,30 @@ function Building({ spec, detail }: { spec: BuildingSpec; detail: boolean }) {
     )
   }
 
-  // vintage villa · low timber house, tall bright hip roof (peaked so it reads
-  // in the iso view), engawa porch + a garden shrub
+  // vintage villa · a proper two-storey timber house with a tall, steep hip roof
+  // (peaked so two slopes read in iso), engawa porch + a garden shrub. Given real
+  // wall height so it no longer looks flattened.
   if (spec.roof === 'hip') {
     const rc = VILLA_ROOFS[(spec.floors + Math.round(spec.w * 10)) % VILLA_ROOFS.length]
     const rcDark = VILLA_ROOFS_D[(spec.floors + Math.round(spec.w * 10)) % VILLA_ROOFS.length]
+    const vbh = Math.max(2.0, bodyH + 1.15) // taller walls: villas were too flat
+    const roofH = 1.7                        // steep peaked roof
     return (
       <group>
-        <mesh position={[0, 0.04, 0]} receiveShadow><boxGeometry args={[spec.w + 0.5, 0.16, spec.d + 0.5]} /><meshStandardMaterial color="#b7a98f" /></mesh>
-        <mesh position={[0, bodyH / 2 + 0.12, 0]} castShadow receiveShadow><boxGeometry args={[spec.w, bodyH, spec.d]} /><meshStandardMaterial color={spec.body} /></mesh>
-        <mesh position={[0, bodyH * 0.5 + 0.12, spec.d / 2 + 0.01]}><planeGeometry args={[spec.w * 0.8, bodyH * 0.6]} /><meshStandardMaterial color="#f6efe0" /></mesh>
-        {/* peaked hip roof · corner faces the camera so two slopes read in iso */}
-        <mesh position={[0, bodyH + 0.66, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 0.86, 0.95, 4]} /><meshStandardMaterial color={rc} flatShading /></mesh>
-        <mesh position={[0, bodyH + 0.2, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 1.06, 0.42, 4]} /><meshStandardMaterial color={rcDark} flatShading /></mesh>
-        <mesh position={[spec.w * 0.5, 0.35, spec.d * 0.5]} castShadow><icosahedronGeometry args={[0.34, 0]} /><meshStandardMaterial color="#5bbf4a" flatShading /></mesh>
+        <mesh position={[0, 0.08, 0]} receiveShadow><boxGeometry args={[spec.w + 0.5, 0.24, spec.d + 0.5]} /><meshStandardMaterial color="#b7a98f" /></mesh>
+        <mesh position={[0, vbh / 2 + 0.2, 0]} castShadow receiveShadow><boxGeometry args={[spec.w, vbh, spec.d]} /><meshStandardMaterial color={spec.body} /></mesh>
+        {/* ground-floor shoji band + upper-floor window */}
+        <mesh position={[0, vbh * 0.32 + 0.2, spec.d / 2 + 0.01]}><planeGeometry args={[spec.w * 0.82, vbh * 0.34]} /><meshStandardMaterial color="#f6efe0" /></mesh>
+        <mesh position={[0, vbh * 0.74 + 0.2, spec.d / 2 + 0.01]}><planeGeometry args={[spec.w * 0.62, vbh * 0.22]} /><meshStandardMaterial color="#cfe6f5" /></mesh>
+        {/* mid-floor beam line */}
+        <mesh position={[0, vbh * 0.52 + 0.2, spec.d / 2 + 0.02]}><boxGeometry args={[spec.w + 0.04, 0.08, 0.04]} /><meshStandardMaterial color="#7a6a4c" /></mesh>
+        {/* steep peaked hip roof · corner faces the camera so two slopes read in iso */}
+        <mesh position={[0, vbh + roofH * 0.5 + 0.2, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 0.82, roofH, 4]} /><meshStandardMaterial color={rc} flatShading /></mesh>
+        {/* eaves flare */}
+        <mesh position={[0, vbh + 0.32, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 1.05, 0.5, 4]} /><meshStandardMaterial color={rcDark} flatShading /></mesh>
+        {/* ridge finial */}
+        <mesh position={[0, vbh + roofH + 0.28, 0]}><boxGeometry args={[0.12, 0.34, 0.12]} /><meshStandardMaterial color="#6a5a3c" /></mesh>
+        <mesh position={[spec.w * 0.52, 0.42, spec.d * 0.52]} castShadow><icosahedronGeometry args={[0.36, 0]} /><meshStandardMaterial color="#5bbf4a" flatShading /></mesh>
       </group>
     )
   }
@@ -187,6 +198,59 @@ function Building({ spec, detail }: { spec: BuildingSpec; detail: boolean }) {
           ? <mesh position={[0, podiumH + bodyH * 0.55, spec.d / 2 + 0.04]}><planeGeometry args={spec.sign.vertical ? [bodyH * 0.16, bodyH * 0.42] : [bodyW * 0.66, bodyH * 0.16]} /><meshBasicMaterial map={sign} toneMapped={false} /></mesh>
           : <mesh position={[spec.w / 2 + 0.04, podiumH + bodyH * 0.5, 0]} rotation={[0, Math.PI / 2, 0]}><planeGeometry args={[bodyH * 0.5, bodyH * 0.18]} /><meshBasicMaterial map={sign} toneMapped={false} /></mesh>
       )}
+    </group>
+  )
+}
+
+// ---- one of OUR showcase companies · a clean modern HQ you can click ---------
+function brandSign(text: string, bg: string): THREE.CanvasTexture {
+  const W = 256, H = 64
+  const c = document.createElement('canvas')
+  c.width = W; c.height = H
+  const g = c.getContext('2d')!
+  g.fillStyle = bg; g.fillRect(0, 0, W, H)
+  g.fillStyle = 'rgba(255,255,255,0.9)'; g.fillRect(4, 4, W - 8, 3)
+  g.fillStyle = '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle'
+  g.font = "800 34px 'Outfit','Segoe UI',system-ui,sans-serif"
+  g.fillText(text, W / 2, H / 2 + 2)
+  const tex = new THREE.CanvasTexture(c)
+  tex.anisotropy = 4
+  return tex
+}
+
+function CompanyBuilding({ co, onSelect }: { co: MockCo; onSelect: () => void }) {
+  const [hover, setHover] = useState(false)
+  const floors = 4
+  const floorH = 0.92
+  const h = floors * floorH
+  const w = 2.6, d = 2.3
+  const podiumH = 0.7
+  const sign = useMemo(() => brandSign(co.name, co.theme.accent), [co])
+  return (
+    <group
+      onClick={(e) => { e.stopPropagation(); onSelect() }}
+      onPointerOver={(e) => { e.stopPropagation(); setHover(true) }}
+      onPointerOut={() => setHover(false)}>
+      {/* accent podium / storefront */}
+      <mesh position={[0, podiumH / 2, 0]} castShadow receiveShadow><boxGeometry args={[w + 0.16, podiumH, d + 0.16]} /><meshStandardMaterial color={co.theme.accent} roughness={0.5} /></mesh>
+      {/* clean glass tower body */}
+      <mesh position={[0, podiumH + h / 2, 0]} castShadow receiveShadow><boxGeometry args={[w, h, d]} /><meshStandardMaterial color="#f3f6fb" roughness={0.55} /><Edges threshold={15} color={hover ? '#ffffff' : '#d3dce7'} /></mesh>
+      {/* window bands per floor */}
+      {Array.from({ length: floors }).map((_, k) => (
+        <mesh key={k} position={[0, podiumH + 0.5 + k * floorH, d / 2 + 0.01]}><planeGeometry args={[w * 0.82, 0.42]} /><meshStandardMaterial color="#bcd8ef" metalness={0.2} roughness={0.15} /></mesh>
+      ))}
+      {/* roof cap + rooftop brand sign */}
+      <mesh position={[0, podiumH + h + 0.08, 0]} castShadow><boxGeometry args={[w + 0.12, 0.16, d + 0.12]} /><meshStandardMaterial color="#c9d3de" /></mesh>
+      <group position={[0, podiumH + h + 0.62, 0]}>
+        <mesh position={[-w * 0.34, -0.22, 0]}><boxGeometry args={[0.06, 0.5, 0.06]} /><meshStandardMaterial color="#7a8291" /></mesh>
+        <mesh position={[w * 0.34, -0.22, 0]}><boxGeometry args={[0.06, 0.5, 0.06]} /><meshStandardMaterial color="#7a8291" /></mesh>
+        <mesh><planeGeometry args={[w * 0.98, 0.52]} /><meshBasicMaterial map={sign} toneMapped={false} side={THREE.DoubleSide} /></mesh>
+      </group>
+      {/* click halo on the ground */}
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[w + 1.3, d + 1.3]} /><meshStandardMaterial color={hover ? '#fde68a' : co.theme.accent} transparent opacity={hover ? 0.9 : 0.16} /></mesh>
+      <Html position={[0, podiumH + h + 1.5, 0]} center pointerEvents="none" zIndexRange={[28, 0]}>
+        <div style={{ ...nameTag, background: co.theme.accent }}>{co.name} · {co.cat} →</div>
+      </Html>
     </group>
   )
 }
@@ -339,10 +403,16 @@ function PlayerHQ({ lot, floors, name, accent, onEnter }: { lot: Lot; floors: nu
       onPointerOut={() => setHover(false)}>
       {isVilla ? (
         <group>
-          <mesh position={[0, 0.08, 0]} receiveShadow><boxGeometry args={[3.4, 0.28, 3.4]} /><meshStandardMaterial color="#8f8577" /></mesh>
-          <mesh position={[0, 0.78, 0]} castShadow receiveShadow><boxGeometry args={[2.6, 1.1, 2.6]} /><meshStandardMaterial color="#efe6d3" /></mesh>
-          <mesh position={[0, 1.35, 1.31]}><planeGeometry args={[1.9, 0.8]} /><meshStandardMaterial color="#f3ecdc" /></mesh>
-          <mesh position={[0, 1.7, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[2.35, 0.7, 4]} /><meshStandardMaterial color={accent} flatShading /></mesh>
+          <mesh position={[0, 0.12, 0]} receiveShadow><boxGeometry args={[3.4, 0.4, 3.4]} /><meshStandardMaterial color="#8f8577" /></mesh>
+          <mesh position={[0, 1.25, 0]} castShadow receiveShadow><boxGeometry args={[2.6, 2.0, 2.6]} /><meshStandardMaterial color="#efe6d3" /></mesh>
+          {/* two window bands so the taller wall reads as two storeys */}
+          <mesh position={[0, 0.95, 1.31]}><planeGeometry args={[2.0, 0.7]} /><meshStandardMaterial color="#f3ecdc" /></mesh>
+          <mesh position={[0, 1.85, 1.31]}><planeGeometry args={[1.6, 0.5]} /><meshStandardMaterial color="#cfe6f5" /></mesh>
+          <mesh position={[0, 1.5, 1.32]}><boxGeometry args={[2.64, 0.09, 0.04]} /><meshStandardMaterial color="#7a6a4c" /></mesh>
+          {/* eaves flare + tall steep roof */}
+          <mesh position={[0, 2.5, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[2.5, 0.5, 4]} /><meshStandardMaterial color="#6a5a3c" flatShading /></mesh>
+          <mesh position={[0, 3.15, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[2.05, 1.5, 4]} /><meshStandardMaterial color={accent} flatShading /></mesh>
+          <mesh position={[0, 4.0, 0]}><boxGeometry args={[0.16, 0.4, 0.16]} /><meshStandardMaterial color="#6a5a3c" /></mesh>
         </group>
       ) : (
         <group>
@@ -362,7 +432,7 @@ function PlayerHQ({ lot, floors, name, accent, onEnter }: { lot: Lot; floors: nu
         <mesh position={[0, 1.05, 0]}><boxGeometry args={[1.6, 0.16, 0.16]} /><meshStandardMaterial color="#d1362f" /></mesh>
       </group>
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[4.6, 4.6]} /><meshStandardMaterial color={hover ? '#fde68a' : '#aeb9a2'} /></mesh>
-      <Html position={[0, height + 1.4, 0]} center pointerEvents="none" zIndexRange={[30, 0]}>
+      <Html position={[0, isVilla ? 4.7 : height + 1.4, 0]} center pointerEvents="none" zIndexRange={[30, 0]}>
         <div style={{ ...nameTag, background: accent }}>{name} · {floors} {floors > 1 ? 'Dojos' : 'Dojo'} ↵</div>
       </Html>
     </group>
@@ -434,12 +504,19 @@ function ConstructionSite({ lot }: { lot: Lot }) {
       <HazardFence />
       {variant === 0 && (
         <group>
-          {/* scaffold + tower crane */}
-          {[[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]].map(([x, z], i) => <mesh key={i} position={[x, 0.9, z]}><boxGeometry args={[0.08, 1.8, 0.08]} /><meshStandardMaterial color="#9aa0a8" /></mesh>)}
-          <mesh position={[0, 1.4, 0]}><boxGeometry args={[1.5, 0.08, 1.5]} /><meshStandardMaterial color="#9aa0a8" /></mesh>
-          <mesh position={[1.0, 1.6, 1.0]}><boxGeometry args={[0.12, 3.2, 0.12]} /><meshStandardMaterial color="#e6564f" /></mesh>
-          <mesh position={[0.2, 3.1, 1.0]}><boxGeometry args={[1.9, 0.12, 0.12]} /><meshStandardMaterial color="#f0b429" /></mesh>
-          <mesh position={[-0.5, 2.4, 1.0]}><boxGeometry args={[0.06, 1.3, 0.06]} /><meshStandardMaterial color="#333" /></mesh>
+          {/* scaffold + a tall yellow tower crane that towers over the block */}
+          {[[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]].map(([x, z], i) => <mesh key={i} position={[x, 1.1, z]}><boxGeometry args={[0.08, 2.2, 0.08]} /><meshStandardMaterial color="#9aa0a8" /></mesh>)}
+          <mesh position={[0, 1.7, 0]}><boxGeometry args={[1.5, 0.08, 1.5]} /><meshStandardMaterial color="#9aa0a8" /></mesh>
+          {/* crane mast · lattice tower */}
+          <mesh position={[1.0, 2.9, 1.0]}><boxGeometry args={[0.18, 5.8, 0.18]} /><meshStandardMaterial color="#f0b429" /></mesh>
+          {[1.4, 2.4, 3.4, 4.4, 5.4].map((y) => <mesh key={y} position={[1.0, y, 1.0]} rotation={[0, Math.PI / 4, 0]}><boxGeometry args={[0.24, 0.05, 0.05]} /><meshStandardMaterial color="#c8901f" /></mesh>)}
+          {/* jib arm + counter-jib + cab */}
+          <mesh position={[-0.1, 5.8, 1.0]}><boxGeometry args={[2.9, 0.14, 0.14]} /><meshStandardMaterial color="#f0b429" /></mesh>
+          <mesh position={[1.9, 5.55, 1.0]}><boxGeometry args={[0.5, 0.22, 0.3]} /><meshStandardMaterial color="#3a3f47" /></mesh>
+          <mesh position={[1.0, 5.55, 1.0]}><boxGeometry args={[0.34, 0.34, 0.34]} /><meshStandardMaterial color="#e6564f" /></mesh>
+          {/* hoist cable + hook + swinging load */}
+          <mesh position={[-1.1, 5.2, 1.0]}><cylinderGeometry args={[0.015, 0.015, 1.2, 4]} /><meshStandardMaterial color="#222" /></mesh>
+          <mesh position={[-1.1, 4.5, 1.0]} castShadow><boxGeometry args={[0.55, 0.4, 0.55]} /><meshStandardMaterial color="#b9762e" /></mesh>
         </group>
       )}
       {variant === 1 && (
@@ -545,9 +622,9 @@ function StreetTrees() {
 }
 
 // ---- the scene --------------------------------------------------------------
-function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip }: {
+function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip, onSelectCo }: {
   level: number; hqFloors: number; hqName: string; hqAccent: string
-  onEnter: () => void; onGuide: () => void; onTip: () => void
+  onEnter: () => void; onGuide: () => void; onTip: () => void; onSelectCo: (co: MockCo) => void
 }) {
   const { lots } = useMemo(() => buildCity(), [])
   // sort lots by distance from centre · nearest is the player HQ, the rest fill
@@ -562,6 +639,19 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip 
   const detail = level >= 2
   const showTraffic = level >= 1
   const builtRadius = maxDist * 0.82
+
+  // Our 15 showcase companies get their own HQs on the building lots ringing the
+  // player's HQ — spread out (every other building lot) so they read as a cluster
+  // of neighbouring startups rather than a wall.
+  const companyByLot = useMemo(() => {
+    const map = new Map<string, MockCo>()
+    const candidates = sorted.filter((l) => l.kind === 'building' && !reserved.has(l.id) && Math.hypot(l.cx, l.cz) < builtRadius)
+    let ci = 0
+    for (let k = 0; k < candidates.length && ci < MOCK_COMPANIES.length; k += 2) {
+      map.set(candidates[k].id, MOCK_COMPANIES[ci++])
+    }
+    return map
+  }, [sorted, reserved, builtRadius])
 
   return (
     <>
@@ -578,6 +668,11 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip 
       {sorted.map((l) => {
         if (reserved.has(l.id)) return null
         const dist = Math.hypot(l.cx, l.cz)
+        // one of our showcase companies?
+        const co = companyByLot.get(l.id)
+        if (co) {
+          return <group key={l.id} position={[l.cx, 0, l.cz]}><CompanyBuilding co={co} onSelect={() => onSelectCo(co)} /></group>
+        }
         // near the centre → finished ambient buildings; toward the edges (or on
         // reserved-empty plots) → construction sites.
         if (l.kind === 'building' && dist < builtRadius) {
@@ -606,6 +701,62 @@ const TIPS = [
   'Astuce : règle l’autonomie de ton CEO pour éviter qu’il tourne en rond et pour faire durer tes crédits.',
 ]
 
+// ---- company fiche · opens when you click one of our showcase HQs -----------
+// Shows the company in its own brand identity (colours + typeface): a live
+// mini-site preview (its "app"), its running ad campaign, today's numbers and a
+// founder quote, plus a link into the full showcase.
+function CompanyFiche({ co, onClose }: { co: MockCo; onClose: () => void }) {
+  const t = co.theme
+  const rev = coRevenue(co)
+  const sales = coSales(co)
+  return (
+    <div className="cofiche-scrim" onClick={onClose}>
+      <div
+        className="cofiche"
+        onClick={(e) => e.stopPropagation()}
+        style={{ ['--bg' as any]: t.bg, ['--ink' as any]: t.ink, ['--sub' as any]: t.sub, ['--ac' as any]: t.accent, ['--rad' as any]: t.radius + 'px', fontFamily: t.font }}
+      >
+        <button className="cofiche-x" onClick={onClose} aria-label="Fermer">✕</button>
+
+        <div className="cofiche-head">
+          <span className="cofiche-logo" style={{ background: t.accent }}>{co.name[0]}</span>
+          <div>
+            <h3 style={t.upper ? { textTransform: 'uppercase', letterSpacing: '.05em' } : undefined}>{co.name}</h3>
+            <span className="cofiche-cat">{co.cat} · {co.handle}</span>
+          </div>
+        </div>
+        <p className="cofiche-mission">{co.mission}</p>
+
+        {/* mini-site preview · the company's "app" in its own look */}
+        <div className="cofiche-site">
+          <div className="cofiche-chrome"><span /><span /><span /><em>{co.handle.replace('@', '')}.co</em></div>
+          <div className="cofiche-site-body">
+            <h4 style={t.upper ? { textTransform: 'uppercase' } : undefined}>{co.site.headline}</h4>
+            <p>{co.site.sub}</p>
+            <span className="cofiche-cta" style={{ background: t.accent }}>{co.site.cta}</span>
+          </div>
+        </div>
+
+        {/* running ad campaign */}
+        <div className="cofiche-ad">
+          <span className="cofiche-ad-tag" style={{ background: t.accent }}>PUB</span>
+          <div><b>{co.ad.headline}</b><span>{co.ad.body}</span></div>
+        </div>
+
+        {/* today's numbers (drift daily) */}
+        <div className="cofiche-stats">
+          <div><span className="cofiche-n">${rev.toLocaleString('en-US')}</span><span className="cofiche-l">Revenu · aujourd’hui</span></div>
+          <div><span className="cofiche-n">{sales.toLocaleString('en-US')}</span><span className="cofiche-l">Ventes · aujourd’hui</span></div>
+        </div>
+
+        <p className="cofiche-quote">“{co.testimonial.quote}” <b>— {co.testimonial.author}</b></p>
+
+        <a className="cofiche-open" href="/#showcase" style={{ background: t.accent }}>Voir toutes les entreprises →</a>
+      </div>
+    </div>
+  )
+}
+
 // ---- public component -------------------------------------------------------
 export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () => void }) {
   const dojos = useWorkshop((s) => s.dojos)
@@ -614,6 +765,7 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
 
   const [level, setLevel] = useState(1)
   const [tip, setTip] = useState<string | null>(null)
+  const [co, setCo] = useState<MockCo | null>(null)
 
   const floors = Math.max(1, dojos.length)
   const active = dojos.find((d) => d.id === activeDojoId) ?? dojos[0]
@@ -634,8 +786,11 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
           onEnter={enterDojo}
           onGuide={() => { window.location.href = '/guide' }}
           onTip={showTip}
+          onSelectCo={setCo}
         />
       </Canvas>
+
+      {co && <CompanyFiche co={co} onClose={() => setCo(null)} />}
 
       <div className="city-top">
         <div className="city-title">

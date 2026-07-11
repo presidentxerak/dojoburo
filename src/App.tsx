@@ -25,7 +25,6 @@ export default function App() {
   const hasWallets = useDojo((s) => Object.keys(s.wallets).length > 0)
   const muted = useDojo((s) => s.muted)
   const selected = useDojo((s) => s.selectedAgent)
-  const selectAgent = useDojo((s) => s.selectAgent)
   const account = useWorkshop((s) => s.account)
   const needsAuth = !account && privyConfigured()
 
@@ -90,10 +89,10 @@ export default function App() {
             {dojoFull ? '⤡ Réduire' : '⤢ Plein écran'}
           </button>
 
-          {/* selected-agent card floats over the dojo pane */}
+          {/* selected-agent card takes over the whole dojo pane · closed from
+              the panel's own header close button (single ✕) */}
           {selected && (
             <div className="dojo-agent-overlay">
-              <button className="dojo-agent-close" onClick={() => selectAgent(null)} aria-label="Fermer">✕</button>
               <AgentPanel />
             </div>
           )}
