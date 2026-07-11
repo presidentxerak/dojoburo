@@ -33,29 +33,26 @@ function CameraRig() {
   }, [camera, portrait])
 
   useFrame((_, dt) => {
-    // default (desktop): whole room framed, biased left, zoomed out
-    let tx = 3.7
+    // the dojo lives in its own pane now (no right-hand overlay), so centre it
+    let tx = 0
     let tz = 1
-    let px = 3.7
+    let px = 0
     let pz = 18.5
     let py = 10.4
-    let ty = 1.2
+    let ty = 1.3
     if (portrait) {
-      // centred + pulled back so agents aren't clipped at the sides
-      tx = 0
-      tz = 1
+      // pulled back so agents aren't clipped at the sides
       ty = 1.6
-      px = 0
       pz = 20
       py = 12
     }
     const sp = selected ? agentWorldPos(selected) : undefined
     if (sp) {
       const [ax, az] = sp
-      tx = portrait ? ax : ax + 1.4
+      tx = ax
       tz = az
       ty = 2.3 // lift the look-at so the brain hovering high above stays framed
-      px = portrait ? ax : ax + 1.4
+      px = ax
       pz = az + (portrait ? 8.5 : 10.5)
       py = portrait ? 6.4 : 7.4
     }

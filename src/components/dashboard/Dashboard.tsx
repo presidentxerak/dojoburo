@@ -70,7 +70,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         body: JSON.stringify({ amount, currency: fiatCur, email: '', kind: 'credits', privyDid: account?.privyDid || '' }),
       })
       const j = await res.json().catch(() => ({}))
-      if (j?.ok && j.url) { window.location.href = j.url as string; return }
+      if (j?.ok && j.url) { window.open(j.url as string, '_blank', 'noopener,noreferrer'); return }
       setPayMsg(j?.error === 'not_configured'
         ? 'Les paiements par carte ne sont pas encore activés sur ce déploiement.'
         : 'Impossible de démarrer le paiement. Réessaie dans un instant.')

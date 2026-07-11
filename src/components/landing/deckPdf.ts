@@ -89,7 +89,7 @@ export function downloadDeckPdf() {
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...INK)
     doc.text('dojoburo', 22, H - 12)
     doc.setFont('helvetica', 'normal'); doc.setTextColor(...MUTED)
-    doc.text('· automated productivity on the XRP Ledger', 44, H - 12)
+    doc.text('· a company in one sentence, run by AI agents', 44, H - 12)
 
     const showContact = i === 0 || i === DECK_SLIDES.length - 1 || s.layout === 'table'
     if (showContact) {

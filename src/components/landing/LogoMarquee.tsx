@@ -7,10 +7,8 @@ import { ConnectorLogo, connectorColor } from '../ConnectorLogo'
 
 interface Brand { id: string; label: string; color: string }
 
-const RAILS: Brand[] = [
-  { id: 'xrpl', label: 'XRP Ledger', color: '#23c1d6' },
-  { id: 'x402', label: 'x402', color: '#ff2d9b' },
-]
+// no payment-rail chips · the user never sees the settlement layer
+const RAILS: Brand[] = []
 
 const BRANDS: Brand[] = [
   ...RAILS,

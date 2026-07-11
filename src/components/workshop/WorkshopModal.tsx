@@ -638,7 +638,7 @@ function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode
       })
       const j = await res.json().catch(() => ({}))
       if (j?.ok && j.url) {
-        window.location.href = j.url as string // hosted checkout
+        window.open(j.url as string, '_blank', 'noopener,noreferrer') // hosted checkout · new window
         return
       }
       if (j?.error === 'not_configured') {

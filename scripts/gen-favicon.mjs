@@ -11,19 +11,19 @@ const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'public')
 
 const temple = (t, f) => `
   <g fill="${t}">
-    <rect x="15.4" y="2.6" width="1.2" height="2.9"/>
-    <circle cx="16" cy="2.4" r="0.85"/>
-    <path d="M12.4 6.4 L19.6 6.4 L21.6 8.8 Q16 9.7 10.4 8.8 Z"/>
-    <rect x="14" y="8.4" width="4" height="2.4"/>
-    <path d="M10 10.6 L22 10.6 L24.4 13.4 Q16 14.5 7.6 13.4 Z"/>
-    <rect x="12.5" y="13" width="7" height="2.6"/>
-    <path d="M7.5 15.4 L24.5 15.4 L27.6 18.7 Q16 20.1 4.4 18.7 Z"/>
-    <rect x="7" y="18.2" width="18" height="8.4" rx="0.8"/>
-    <rect x="4.5" y="26" width="23" height="2.8" rx="0.6"/>
-    <rect x="9.5" y="28.4" width="13" height="1.4"/>
+    <circle cx="16" cy="3.4" r="0.9"/>
+    <rect x="15.5" y="3.6" width="1" height="1.8"/>
+    <path d="M10.6 8.4 Q11.8 5.6 16 5.9 Q20.2 5.6 21.4 8.4 Q16 7.5 10.6 8.4 Z"/>
+    <rect x="10.2" y="8.2" width="11.6" height="1.4"/>
+    <path d="M2 14.6 Q3.6 12.4 6.2 12.9 L7.4 10.8 L24.6 10.8 L25.8 12.9 Q28.4 12.4 30 14.6 L27.4 14 Q16 12.4 4.6 14 Z"/>
+    <rect x="8" y="14" width="16" height="8" rx="0.6"/>
+    <rect x="8.4" y="22" width="4" height="6"/>
+    <rect x="19.6" y="22" width="4" height="6"/>
+    <rect x="6" y="27.6" width="20" height="2" rx="0.5"/>
+    <rect x="8.5" y="29.4" width="15" height="1.1"/>
   </g>
-  <text fill="${f}" x="16" y="22.6" text-anchor="middle" dominant-baseline="central"
-    font-size="6.4" letter-spacing="-0.5"
+  <text fill="${f}" x="16" y="18" text-anchor="middle" dominant-baseline="central"
+    font-size="5.6" letter-spacing="-0.4"
     font-family="'Segoe UI Symbol','Noto Sans Symbols2','Apple Symbols',sans-serif">◕‿◕</text>`
 
 const page = (px, tile) => `<!doctype html><html><head><style>

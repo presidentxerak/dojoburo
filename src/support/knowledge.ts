@@ -24,9 +24,9 @@ export const KB: KBTopic[] = [
     id: 'start',
     chip: 'Getting started',
     answer:
-      'Enter the office, click any agent to open their card, then run a skill. The Chief atom flies over, the agent works, and priced skills settle on the XRP Ledger. On Testnet everything is free, so explore freely.',
+      'Describe your company in one sentence and your CEO agent assembles a crew that builds and runs it · website, offers, growth (B2B outreach, email, Meta ads, SEO) and analytics. You steer by chatting with your CEO and get a daily report by email. Each task costs about one credit, settled behind the scenes · no crypto. Exploring is free, so dive in.',
     links: [
-      { label: 'Enter the office', href: '#app' },
+      { label: 'Open your cockpit', href: '#app' },
       { label: 'How it works', href: '#how' },
     ],
     follow: ['jobs', 'tools', 'cost'],
@@ -46,33 +46,33 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'wallet',
-    chip: 'Wallet & profile',
+    chip: 'Credits & profile',
     answer:
-      'Your profile is your connected wallet plus local preferences (network, theme, sound) saved only in your browser. On Testnet/Devnet DojoBuro generates real XRPL wallets locally and funds them from the faucet; seeds never leave your browser. On Mainnet, connect Xaman for non-custodial signing · you approve each payment on your phone and no seed touches the app.',
+      'There is no wallet and no crypto to manage. Your profile is your account plus a simple credits balance in your own currency (USD, EUR, JPY…) and your preferences (theme, sound, notifications). You top up by card, spend about one credit per task, and everything settles on a fast rail behind the scenes · you never see a wallet, a seed or any coin.',
     links: [
-      { label: 'Profile & wallets', href: '#profile' },
-      { label: 'Get a free Xaman key', href: 'https://apps.xaman.dev', external: true },
+      { label: 'Profile & credits', href: '#profile' },
+      { label: 'Plans & pricing', href: '#pricing' },
     ],
-    follow: ['xaman', 'security', 'networks'],
-    keywords: ['wallet', 'profile', 'account', 'seed', 'address', 'fund', 'faucet', 'balance', 'treasury'],
+    follow: ['onramp', 'security', 'pricing'],
+    keywords: ['wallet', 'profile', 'account', 'seed', 'address', 'fund', 'faucet', 'balance', 'treasury', 'credits', 'no crypto'],
   },
   {
     id: 'cost',
-    chip: 'Cost per task (XRP)',
+    chip: 'Cost per task (credits)',
     answer:
-      'Most skills are free (0 XRP). A few carry an x402 price of 0.15–0.50 XRP, but that is an internal transfer between your own wallets · not a net cost. The only real on-chain cost is the network fee, about 0.00001 XRP (~10 drops) per transaction. Tap Lazy the panda for your live totals.',
+      'Most tasks are free or about one credit; only heavier jobs (like a full campaign) cost a couple more. You buy credits in your own currency and they settle on a fast rail behind the scenes · no crypto, no network fees to think about. Tap Lazy the panda for your live totals, and set a daily credit cap so nothing overspends.',
     links: [
       { label: 'Cost breakdown', href: '#cost' },
-      { label: 'XRPL fees explained', href: 'https://xrpl.org/transaction-cost.html', external: true },
+      { label: 'Plans & pricing', href: '#pricing' },
     ],
-    follow: ['x402', 'onramp', 'pricing'],
-    keywords: ['cost', 'price', 'xrp', 'fee', 'how much', 'expensive', 'pay', 'per task', 'drops'],
+    follow: ['onramp', 'pricing', 'wallet'],
+    keywords: ['cost', 'price', 'xrp', 'fee', 'how much', 'expensive', 'pay', 'per task', 'credit', 'credits'],
   },
   {
     id: 'pricing',
     chip: 'Plans & pricing',
     answer:
-      'You bring your own model key (or use the free-model cascade), so intelligence is basically free; you pay only for the hub: connected apps, an always-on worker and team features. Plans: Free ($0, Testnet, 2 apps, ~50 tasks/mo), Solo ($12/mo, Mainnet, 6 apps, 300 credits), Pro ($29/mo, all 28 connectors, 1,500 credits, cloud worker), Team ($22/seat/mo, shared dojos, SSO, audit) and Business (custom, self-hosted, SLA). BYOK and free-cascade tasks are unlimited and never use a credit; managed credits (1 credit ≈ 1 hosted task) cover hosted-model runs and can be topped up or settled in XRP via x402. Annual billing saves about two months.',
+      'You bring your own model key (or use the free-model cascade), so intelligence is basically free; you pay only for the hub: connected apps, an always-on worker and team features. Plans: Free ($0, explore + build your first company, 2 apps, ~50 tasks/mo), Solo ($12/mo, 6 apps, 300 credits), Pro ($29/mo, all 28 connectors, 1,500 credits, cloud worker), Team ($22/seat/mo, shared dojos, SSO, audit) and Business (custom, self-hosted, SLA). BYOK and free-cascade tasks are unlimited and never use a credit; managed credits (1 credit ≈ 1 hosted task) cover hosted-model runs, are bought in your own currency (USD, EUR, JPY…) and top up anytime · no crypto. Annual billing saves about two months.',
     links: [
       { label: 'See the plans', href: '#pricing' },
       { label: 'Cost per task', href: '#cost' },
@@ -82,45 +82,45 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'onramp',
-    chip: 'Buy XRP with a card',
+    chip: 'Buy credits with a card',
     answer:
-      'Top up with a card (€/$/¥) and you receive real XRP in your own wallet · not a locked in-app balance. Stripe takes the fiat, the amount is converted at a live rate, and an x402-tagged Payment delivers the XRP on-ledger to your dojo treasury. It is non-custodial: the XRP is yours to keep, spend or withdraw. Prefer play money? On Testnet you fund from the free faucet instead.',
+      'Top up with a card (€/$/¥) and you get credits in your own currency · a simple, transparent balance. Stripe takes the payment and your balance updates instantly; each task then spends about one credit, settled on a fast rail behind the scenes. No wallet, no coins, no crypto to manage. Just exploring? The free tier lets you build and run without spending anything.',
     links: [
       { label: 'See the full flow', href: '#onramp' },
       { label: 'Cost per task', href: '#cost' },
     ],
-    follow: ['x402', 'wallet', 'security'],
-    keywords: ['buy xrp', 'card', 'credit card', 'top up', 'topup', 'add credits', 'fiat', 'euro', 'dollar', 'stripe', 'on-ramp', 'onramp', 'deposit', 'purchase', 'settle in xrp'],
+    follow: ['wallet', 'pricing', 'security'],
+    keywords: ['buy credits', 'card', 'credit card', 'top up', 'topup', 'add credits', 'fiat', 'euro', 'dollar', 'stripe', 'on-ramp', 'onramp', 'deposit', 'purchase', 'currency'],
   },
   {
     id: 'x402',
-    chip: 'What is x402?',
+    chip: 'How payments work',
     answer:
-      'x402 is a payment protocol · the HTTP 402 "Payment Required" status made real. In DojoBuro every priced service settles an x402 invoice as a signed XRP Ledger Payment, with the skill and invoice written into the transaction memo. It is what lets autonomous agents pay each other for work, on-chain and verifiably · the frontier of agent-to-agent (agentic) commerce.',
+      'Simple: you buy credits in your own currency and each task spends about one credit. Behind the scenes those credits settle on a fast payment rail, but you never touch it · no wallet, no coins, no crypto. Every task leaves a receipt in your dashboard, so you always see exactly what ran and what it cost.',
     links: [
-      { label: 'From card to agents', href: '#onramp' },
+      { label: 'From card to credits', href: '#onramp' },
       { label: 'How it works', href: '#how' },
     ],
     follow: ['onramp', 'cost', 'tools'],
-    keywords: ['x402', '402', 'agentic', 'agent to agent', 'protocol', 'micropayment', 'micro-payment', 'settlement', 'invoice', 'memo', 'innovation'],
+    keywords: ['x402', '402', 'agentic', 'protocol', 'payment', 'payments', 'settlement', 'receipt', 'rail', 'behind the scenes', 'how do payments'],
   },
   {
     id: 'security',
     chip: 'Security & privacy',
     answer:
-      'DojoBuro is non-custodial: on Mainnet, Xaman signs every payment and no seed is ever exposed. The app ships with a strict Content-Security-Policy, security headers and scraper protection. Support-bot and model API keys live only on the server · never in your browser · behind rate limits and spending caps.',
+      'There is no crypto for you to secure · no wallet, no seed, no coins. You just hold a credits balance, and payments settle on a fast rail behind the scenes. The app ships with a strict Content-Security-Policy, security headers and scraper protection. App-key, connector tokens and model API keys live only on the server · never in your browser · behind rate limits and spending caps.',
     links: [
       { label: 'Security details', href: '#prod' },
-      { label: 'Xaman (non-custodial)', href: 'https://xaman.app', external: true },
+      { label: 'Credits & profile', href: '#profile' },
     ],
-    follow: ['wallet', 'xaman'],
+    follow: ['wallet', 'pricing'],
     keywords: ['security', 'secure', 'safe', 'privacy', 'hack', 'scam', 'phishing', 'seed', 'csp', 'protect', 'data'],
   },
   {
     id: 'tools',
     chip: 'Connect real tools',
     answer:
-      'Connect 30+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, DocuSign, Zendesk, Intercom. One-click OAuth (with PKCE); tokens are sealed with AES-256-GCM server-side and auto-refreshed. At run time each app is exposed to Claude as a remote MCP server, so the agent does real work in your account · and the x402 payment meters it with an on-ledger receipt.',
+      'Connect 30+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, DocuSign, Zendesk, Intercom. One-click OAuth (with PKCE); tokens are sealed with AES-256-GCM server-side and auto-refreshed. At run time each app is exposed to Claude as a remote MCP server, so the agent does real work in your account · and each task is metered as about one credit, with a receipt in your dashboard.',
     links: [
       { label: 'Set up each app · step by step', href: '/guide', external: true },
       { label: 'Connect your stack', href: '#stack' },
@@ -170,7 +170,7 @@ export const KB: KBTopic[] = [
     id: 'skins',
     chip: 'Skins & customization',
     answer:
-      'Every agent is fully customizable in the Dojo Studio: 180+ skins across 30 themes and many characters · robots, ninjas, aliens, cats, dragons, ghosts, pandas, a bibendum, a jellyfish, plus Zelda-style knights, mages and mad-scientist professors · each with a vivid face, legs and its own shoes, and sometimes a hat (bowler, top hat, beret, party or flower crown). Click an agent\'s avatar to open its editor, then change the skin, rename it, swap its function and tasks, set an XRP budget, or move it on the grid. You can run several dojos in different worlds side by side.',
+      'Every agent is fully customizable in the Dojo Studio: 180+ skins across 30 themes and many characters · robots, ninjas, aliens, cats, dragons, ghosts, pandas, a bibendum, a jellyfish, plus Zelda-style knights, mages and mad-scientist professors · each with a vivid face, legs and its own shoes, and sometimes a hat (bowler, top hat, beret, party or flower crown). Click an agent\'s avatar to open its editor, then change the skin, rename it, swap its function and tasks, set a credit budget, or move it on the grid. You can run several dojos (companies) in different worlds side by side.',
     links: [
       { label: 'Build your own team', href: '#studio' },
       { label: 'Meet the office', href: '#cast' },
@@ -182,7 +182,7 @@ export const KB: KBTopic[] = [
     id: 'environment',
     chip: 'Cloud or local',
     answer:
-      'Run it two ways. Cloud: a managed worker runs the model + tool calls and keeps agents going when the tab is closed, with every key in a server-side vault. Local / self-hosted: run your own worker and point connectors at your own MCP endpoints · your keys, your machine, the same office. Either way the browser is just the cockpit: it shows the 3D office, triggers tasks and signs Mainnet payments through Xaman, talking straight to public XRPL nodes.',
+      'Run it two ways. Cloud: a managed worker runs the model + tool calls and keeps agents going when the tab is closed, with every key in a server-side vault. Local / self-hosted: run your own worker and point connectors at your own MCP endpoints · your keys, your machine, the same office. Either way the browser is just the cockpit: it shows the 3D office and Dojo City, triggers tasks and tracks your credits; the worker does the authenticated work.',
     links: [
       { label: 'Cloud or local', href: '#stack' },
       { label: 'Runtime & environment', href: '#env' },
@@ -192,34 +192,33 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'networks',
-    chip: 'Testnet vs Mainnet',
+    chip: 'Explore free vs go live',
     answer:
-      'Use the network switch in the top bar. Testnet and Devnet use free, valueless XRP from a faucet · perfect for exploring. Mainnet uses real XRP; connect Xaman first so signing stays non-custodial. Wallets are per-network and stored locally.',
+      'Start on the free tier · build your company, meet the crew and run tasks that don\'t need credits, at no cost. When you\'re ready to go live, add credits in your own currency and the crew runs the priced work for real. Same office, same agents · you just switch from exploring to running. No crypto at any point.',
     links: [
       { label: 'Open the app', href: '#app' },
-      { label: 'XRPL testnet faucet', href: 'https://xrpl.org/xrp-testnet-faucet.html', external: true },
+      { label: 'Plans & pricing', href: '#pricing' },
     ],
-    follow: ['wallet', 'xaman'],
-    keywords: ['network', 'testnet', 'devnet', 'mainnet', 'faucet', 'switch', 'live'],
+    follow: ['wallet', 'pricing'],
+    keywords: ['network', 'testnet', 'devnet', 'mainnet', 'faucet', 'switch', 'live', 'free tier', 'go live', 'explore'],
   },
   {
     id: 'xaman',
-    chip: 'Connect a wallet',
+    chip: 'Do I need a wallet?',
     answer:
-      'Connect a non-custodial XRPL wallet and approve each transaction yourself · no seed is ever exposed. On desktop, GemWallet and Crossmark are browser extensions · one click, no setup (install from gemwallet.app or crossmark.io). On mobile, use Xaman (XUMM): paste a free API key from apps.xaman.dev AND add this site to the app\'s OAuth redirect URLs · if that list is missing your URL you get "access_denied · invalid client/redirect URL". The Connect-wallet button in the header connects the best wallet for your device; the wallet panel has a step-by-step setup guide for each. On Testnet you can also just use the built-in browser wallets funded from the faucet.',
+      'No · there is no wallet, no seed and no coins to connect anywhere. You pay in your own currency (USD, EUR, JPY…) with a card, hold a simple credits balance, and each task spends about one credit. Payments settle on a fast rail behind the scenes, so there is nothing crypto for you to set up or secure.',
     links: [
-      { label: 'GemWallet', href: 'https://gemwallet.app', external: true },
-      { label: 'Crossmark', href: 'https://crossmark.io', external: true },
-      { label: 'Xaman key + redirect URLs', href: 'https://apps.xaman.dev', external: true },
+      { label: 'Buy credits with a card', href: '#onramp' },
+      { label: 'Credits & profile', href: '#profile' },
     ],
     follow: ['security', 'wallet'],
-    keywords: ['xaman', 'xumm', 'gem', 'gemwallet', 'crossmark', 'sign', 'signing', 'connect wallet', 'non-custodial', 'mainnet', 'access_denied', 'redirect', 'invalid client'],
+    keywords: ['xaman', 'xumm', 'gem', 'gemwallet', 'crossmark', 'sign', 'signing', 'connect wallet', 'wallet', 'crypto', 'coin', 'metamask'],
   },
   {
     id: 'troubleshoot',
     chip: 'Troubleshooting',
     answer:
-      "If a skill won't settle, make sure the treasury wallet is created and funded (use the faucet on Testnet). If balances look stale, switch network and back to refresh. If the 3D office is blank, your browser may be blocking WebGL · try another browser or enable hardware acceleration.",
+      "If a task won't run, check your credits balance isn't empty or capped by your daily limit, and that the app it needs is connected. If totals look stale, reload to refresh. If the 3D office is blank, your browser may be blocking WebGL · try another browser or enable hardware acceleration.",
     links: [
       { label: 'Open the app', href: '#app' },
     ],

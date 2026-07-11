@@ -97,7 +97,7 @@ export function GuidePage() {
             <h3>Run the work</h3>
             <ul>
               <li>Give the agent a task in Studio, or run one from its card. When a task uses a connected app, the agent performs the real action · it creates the page, opens the PR, drafts the mail.</li>
-              <li>Priced tasks settle an x402 payment on the XRP Ledger, so each unit of work is metered and auditable.</li>
+              <li>Priced tasks spend about one credit, settled on a fast rail behind the scenes, so each unit of work is metered and auditable · no crypto.</li>
             </ul>
           </div>
           <div>
@@ -105,7 +105,7 @@ export function GuidePage() {
             <ul>
               <li><b>In the app</b> · the deliverable renders in the agent card and the activity log, with a link.</li>
               <li><b>In your tool</b> · the real artifact lands in the connected app (the Notion page, the Drive doc, the Linear issue, the GitHub PR).</li>
-              <li><b>On-ledger</b> · every priced action writes an x402 memo · a verifiable receipt of what ran.</li>
+              <li><b>Receipt</b> · every priced action leaves a receipt in your dashboard · a clear record of what ran and what it cost.</li>
             </ul>
           </div>
         </div>
@@ -113,7 +113,7 @@ export function GuidePage() {
 
       <section className="lp-sec" id="runtime">
         <h2>5 · Run DojoBuro in the cloud or locally</h2>
-        <p className="lp-lead">The browser is always the cockpit · it shows the 3D office, triggers tasks and signs Mainnet payments through your wallet. The model and tool calls run in a small worker (serverless functions under <code>/api</code>), and you choose where that worker lives. Here is exactly how to run each way.</p>
+        <p className="lp-lead">The browser is always the cockpit · it shows the 3D office and Dojo City, triggers tasks and tracks your credits. The model and tool calls run in a small worker (serverless functions under <code>/api</code>), and you choose where that worker lives. Here is exactly how to run each way.</p>
 
         <div className="dg2-run">
           <div className="dg2-runcol">
@@ -121,7 +121,7 @@ export function GuidePage() {
             <ol className="dg2-osteps">
               <li><b>Deploy the repo</b><span>Import <code>presidentxerak/dojoburo</code> into Vercel (or any host that runs the <code>/api</code> functions). The static client builds with <code>npm run build</code>.</span></li>
               <li><b>Add a database + vault key</b><span>Set <code>DATABASE_URL</code> (any Postgres · Neon, Supabase, RDS) and a 32-byte <code>CONNECTOR_ENC_KEY</code> for the token vault. Apply the schema: <code>psql "$DATABASE_URL" -f db/connectors.sql</code>.</span></li>
-              <li><b>Add the keys you want live</b><span>Each connector's OAuth keys (see its page), plus a model path: users bring their own Claude key (BYOK) or you enable the free-model cascade. Optional: <code>STRIPE_SECRET_KEY</code> for card top-ups, settlement keys for Mainnet x402.</span></li>
+              <li><b>Add the keys you want live</b><span>Each connector's OAuth keys (see its page), plus a model path: users bring their own Claude key (BYOK) or you enable the free-model cascade. Optional: <code>STRIPE_SECRET_KEY</code> for card top-ups and credit settlement.</span></li>
               <li><b>Redeploy</b><span>The worker keeps agents running when the tab is closed, every secret stays in the server-side vault, and Connect buttons go live.</span></li>
             </ol>
           </div>
@@ -139,7 +139,7 @@ export function GuidePage() {
           <a className="lp-cta sm" href="https://github.com/presidentxerak/dojoburo/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noreferrer">Full deployment guide ↗</a>
           <a className="lp-ghost" href="https://github.com/presidentxerak/dojoburo/blob/main/.env.example" target="_blank" rel="noreferrer">All env vars (.env.example) ↗</a>
         </div>
-        <p className="lp-note">Either way the client is a static single-page app: the 3D office, wallet generation, faucet funding and XRPL payments all run in your browser, talking straight to public XRPL nodes · no server needed for those.</p>
+        <p className="lp-note">Either way the client is a static single-page app: the 3D office and the Dojo City you visit from the dashboard all run in your browser · no server needed for those.</p>
       </section>
 
       <section className="lp-sec alt dg2-callout dg2-real" id="real">
@@ -149,7 +149,7 @@ export function GuidePage() {
           <div>
             <h3>Live today, for real</h3>
             <ul>
-              <li>The 3D office, agents, wallets and XRPL payments are real: signed transactions on the actual XRP Ledger with x402 memos (free Testnet XRP, or real value on Mainnet).</li>
+              <li>The 3D office, Dojo City and agents are real, and so are payments: you buy credits in your own currency and each task spends about one, settled on a fast rail behind the scenes · no crypto.</li>
               <li>Connectors do real work: with the worker + OAuth configured, an agent really creates the Notion page, opens the GitHub PR, drafts the Gmail.</li>
               <li>Deliverables are real Claude output (your BYOK key or the free-model cascade), rendered in-app and written to your connected tool.</li>
             </ul>
@@ -157,7 +157,7 @@ export function GuidePage() {
           <div>
             <h3>What needs configuration</h3>
             <ul>
-              <li>No worker/keys yet? The app still runs fully as a client · you explore the office, build dojos and run Testnet payments. Model + connector actions simply show a clear "needs a key / set up" state instead of faking a result.</li>
+              <li>No worker/keys yet? The app still runs fully as a client · you explore the office, build dojos (companies) and try the free tier. Model + connector actions simply show a clear "needs a key / set up" state instead of faking a result.</li>
               <li>Nothing is stubbed or faked behind the scenes: a task either runs for real or tells you exactly what to configure.</li>
               <li>That's why the setup pages above matter · they turn each capability from "ready" to "live".</li>
             </ul>
@@ -189,7 +189,7 @@ export function GuidePage() {
           <div>
             <ul>
               <li><b>Revoke anytime</b> · Disconnect in the app, or remove DojoBuro from the provider's connected-apps settings.</li>
-              <li><b>Non-custodial wallets</b> · your XRP stays in your wallet; you approve every payment. Never paste a seed or private key anywhere · DojoBuro never asks for one.</li>
+              <li><b>No crypto to manage</b> · you pay in your own currency and hold a simple credits balance · there is no wallet, seed or private key to secure, and DojoBuro never asks for one.</li>
               <li><b>Beware phishing</b> · only connect from your real site URL and check the provider's domain on the OAuth screen.</li>
             </ul>
           </div>
@@ -203,14 +203,14 @@ export function GuidePage() {
           <div>
             <ul>
               <li><b>Intelligence is ~free</b> · bring your own model key (BYOK) or use the free-model cascade. Most tasks cost nothing.</li>
-              <li><b>Priced tasks are tiny</b> · a few skills carry an x402 price of ~0.15–0.50 XRP, and that's a transfer between your own wallets, not a fee.</li>
-              <li><b>Set a per-agent XRP budget</b> in Studio so an agent can't overspend.</li>
+              <li><b>Priced tasks are tiny</b> · most cost about one credit; only heavier jobs cost a couple more, and you buy credits in your own currency.</li>
+              <li><b>Set a daily credit cap</b> and per-agent budgets in Studio so nothing can overspend · a guard also stops the CEO from looping.</li>
             </ul>
           </div>
           <div>
             <ul>
-              <li><b>Practise on Testnet</b> · Testnet / Devnet XRP is free and worthless · run everything there first, then switch to Mainnet.</li>
-              <li><b>Disconnect unused apps</b> and watch Lazy's dashboard for live totals (XRP, tokens, tasks).</li>
+              <li><b>Explore for free</b> · the free tier lets you build your company and run no-cost tasks first · add credits only when you go live.</li>
+              <li><b>Disconnect unused apps</b> and watch Lazy's dashboard for live totals (credits, tokens, tasks).</li>
               <li><b>Managed credits</b> (optional) cover hosted-model runs · 1 credit ≈ 1 task · top up only if you don't use BYOK.</li>
             </ul>
           </div>
@@ -222,7 +222,7 @@ export function GuidePage() {
         <ul className="lp-check">
           <li><b>App shows "Set up" not "Connect"</b> · the operator hasn't added that app's OAuth keys yet (see its setup page).</li>
           <li><b>"needs a key" on a task</b> · add your Claude key in Studio → Billing, or use a free-cascade task.</li>
-          <li><b>Payment won't settle</b> · make sure the treasury wallet is created and funded (faucet on Testnet).</li>
+          <li><b>A task won't run</b> · check your credits balance isn't empty or capped by your daily limit.</li>
           <li><b>Still stuck?</b> · ask the in-app assistant, it walks you through every step.</li>
         </ul>
       </section>

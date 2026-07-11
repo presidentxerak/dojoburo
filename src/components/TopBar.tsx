@@ -91,7 +91,7 @@ export function TopBar() {
         <Logo size={38} />
         <div>
           <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
-          <p className="tagline">Pixel startup, orchestrated on XRPL</p>
+          <p className="tagline">Ton entreprise, pilotée par des agents</p>
         </div>
       </div>
 

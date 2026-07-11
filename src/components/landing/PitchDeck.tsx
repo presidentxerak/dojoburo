@@ -139,7 +139,7 @@ function Slide({ slide, idx, active }: { slide: DeckSlide; idx: number; active: 
         </>
       )}
       <span className="pd-foot">
-        <Wordmark /> · automated productivity on the XRP Ledger
+        <Wordmark /> · a company in one sentence, run by AI agents
         {showContact ? <em className="pd-contact"> · {CONTACT_EMAIL}</em> : null}
       </span>
     </div>
