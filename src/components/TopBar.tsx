@@ -87,7 +87,7 @@ export function TopBar() {
 
   return (
     <header className="topbar">
-      <div className="brand brand-link" onClick={() => { location.hash = 'city' }} title="Retour à Dojo City" role="link">
+      <div className="brand">
         <Logo size={38} />
         <div>
           <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
@@ -107,6 +107,7 @@ export function TopBar() {
         </nav>
         <a className="btn tiny tb-guide" href="/guide">Dojo Guide</a>
         <button className="btn tiny tb-studio" onClick={openStudio}>Studio</button>
+        <button className="btn tiny tb-studio tb-city" onClick={() => { location.hash = 'city' }}>City</button>
       </div>
 
       <div className="topbar-right">
@@ -134,6 +135,7 @@ export function TopBar() {
             {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
             <a className="tb-menu-item tb-only-mobile tb-menu-link" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
             <button className="tb-menu-item tb-only-mobile" onClick={openStudio}>Studio</button>
+            <button className="tb-menu-item tb-only-mobile" onClick={() => { setMenuOpen(false); location.hash = 'city' }}>City</button>
 
             {account ? (
               <button className="tb-menu-profile" onClick={openAccount}>

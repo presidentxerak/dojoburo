@@ -35,9 +35,10 @@ function Root() {
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />
-  // Dojo City · the isometric hub where you found / enter your Dojo (company)
-  if (route === 'city') return <DojoCity enterDojo={() => { location.hash = 'app' }} exit={() => { location.hash = '' }} />
-  return <Landing enter={() => { location.hash = 'city' }} />
+  // Dojo City · the isometric map you visit from the dashboard (header · City).
+  // Your building grows with the number of Dojos you run; click it to go back in.
+  if (route === 'city') return <DojoCity enterDojo={() => { location.hash = 'app' }} exit={() => { location.hash = 'app' }} />
+  return <Landing enter={() => { location.hash = 'app' }} />
 }
 
 createRoot(document.getElementById('root')!).render(

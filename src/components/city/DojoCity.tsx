@@ -1,12 +1,13 @@
 // ---------------------------------------------------------------------------
-// Dojo City · the full-3D isometric city that is the new front door. Each player
-// Dojo (company) is a building on a lot; empty lots are plots you found a new
-// Dojo on by describing it in one sentence. Tokyo-style low buildings + houses
-// with wireframe ("filaire") facades, instanced pedestrians and vehicles moving
-// straight down the streets, ambient fun events, and 4 discrete zoom levels with
-// level-of-detail so the whole city stays cheap to render.
+// Dojo City · the bright, daytime isometric city you visit from the dashboard
+// (header · City). You DON'T found companies here — that happens in the
+// dashboard. Instead the city visualises what you've built: your HQ sits at the
+// centre and grows a floor for every Dojo you run (1 Dojo = a Japanese villa).
+// Around it: vintage villas + temples, a konbini for tips, an academy that opens
+// the guide, lakes and parks, shaped traffic and little people walking, and
+// construction sites on the empty plots toward the edges.
 // ---------------------------------------------------------------------------
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrthographicCamera, MapControls, Html, Edges } from '@react-three/drei'
 import * as THREE from 'three'
@@ -14,233 +15,285 @@ import { buildCity, ZOOM_LEVELS, SPAN, HALF, type BuildingSpec, type Lot } from 
 import { useWorkshop } from '../../workshop'
 import { templateById } from '../../data/templates'
 
-const LOT_MAP_KEY = 'dojoburo.city.lots.v1'
-const loadLotMap = (): Record<string, string> => {
-  try { return JSON.parse(localStorage.getItem(LOT_MAP_KEY) || '{}') } catch { return {} }
-}
-const saveLotMap = (m: Record<string, string>) => {
-  try { localStorage.setItem(LOT_MAP_KEY, JSON.stringify(m)) } catch { /* ignore */ }
-}
-
-// ---- facade texture · a dark base with a bright wireframe window grid --------
+// ---- facade texture · clean daytime windows (glass + floor slabs) -----------
 function facadeTexture(spec: BuildingSpec): THREE.CanvasTexture {
-  const S = 64
+  const S = 128
   const c = document.createElement('canvas')
   c.width = S; c.height = S
   const g = c.getContext('2d')!
-  g.fillStyle = `hsl(${spec.hue} ${spec.sat}% ${Math.max(14, spec.light - 30)}%)`
-  g.fillRect(0, 0, S, S)
-  const cols = [3, 4, 5, 4][spec.facade]
-  const pad = 6
-  const step = (S - pad * 2) / cols
-  const lit = spec.neon ? `hsl(${spec.neonHue} 90% 68%)` : `hsl(${(spec.hue + 20) % 360} ${spec.sat + 10}% ${Math.min(88, spec.light + 26)}%)`
-  const line = `hsl(${(spec.hue + 30) % 360} ${Math.min(80, spec.sat + 30)}% ${Math.min(80, spec.light + 20)}%)`
-  // lit / dark windows
-  for (let r = 0; r < cols; r++) {
+  g.fillStyle = spec.body; g.fillRect(0, 0, S, S)
+  const cols = spec.w > 2.9 ? 5 : spec.w > 2.4 ? 4 : 3
+  const rows = 3
+  const mX = 10, gapX = (S - mX * 2) / cols
+  const mY = 8, gapY = (S - mY * 2) / rows
+  g.fillStyle = spec.trim
+  for (let r = 0; r <= rows; r++) g.fillRect(0, mY + r * gapY - 2, S, 4)
+  for (let r = 0; r < rows; r++) {
     for (let col = 0; col < cols; col++) {
-      const x = pad + col * step + 1.5
-      const y = pad + r * step + 1.5
-      const w = step - 3
-      const h = step - 3
-      // deterministic-ish window state from spec
-      const on = ((r * 7 + col * 13 + spec.floors) % 5) < 2
-      g.fillStyle = on ? lit : `hsl(${spec.hue} ${spec.sat}% ${Math.max(10, spec.light - 40)}%)`
-      g.fillRect(x, y, w, h)
+      const x = mX + col * gapX + 4, y = mY + r * gapY + 5, w = gapX - 8, h = gapY - 11
+      const lit = ((r * 3 + col * 7 + spec.floors) % 5) === 0
+      g.fillStyle = lit ? '#fff1c2' : '#bcd6ef'; g.fillRect(x, y, w, h)
+      g.fillStyle = 'rgba(28,52,86,0.28)'; g.fillRect(x, y, w, Math.max(2, h * 0.28))
     }
   }
-  // wireframe grid lines over the whole facade (the "filaire" look)
-  g.strokeStyle = line
-  g.lineWidth = 1
-  g.globalAlpha = 0.5
-  for (let k = 0; k <= cols; k++) {
-    const p = pad + k * step
-    g.beginPath(); g.moveTo(p, pad); g.lineTo(p, S - pad); g.stroke()
-    g.beginPath(); g.moveTo(pad, p); g.lineTo(S - pad, p); g.stroke()
-  }
-  g.globalAlpha = 1
   const tex = new THREE.CanvasTexture(c)
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping
   tex.magFilter = THREE.NearestFilter
-  tex.repeat.set(1, Math.max(1, Math.round(spec.floors / 2)))
+  tex.repeat.set(1, Math.max(1, Math.round(spec.floors / rows)))
   return tex
 }
 
-// ---- one Tokyo building -----------------------------------------------------
-function Building({ spec, detail }: { spec: BuildingSpec; detail: boolean }) {
-  const height = spec.floors * spec.floorH
-  const tex = useMemo(() => facadeTexture(spec), [spec])
-  const edge = `hsl(${(spec.hue + 30) % 360} 70% 72%)`
-  const wallColor = `hsl(${spec.hue} ${spec.sat}% ${spec.light}%)`
+function signTexture(text: string, bg: string, vertical: boolean): THREE.CanvasTexture {
+  const w = vertical ? 64 : 128
+  const h = vertical ? 128 : 56
+  const c = document.createElement('canvas')
+  c.width = w; c.height = h
+  const g = c.getContext('2d')!
+  g.fillStyle = bg; g.fillRect(0, 0, w, h)
+  g.strokeStyle = 'rgba(255,255,255,0.85)'; g.lineWidth = 3; g.strokeRect(3, 3, w - 6, h - 6)
+  g.fillStyle = '#ffffff'; g.textAlign = 'center'; g.textBaseline = 'middle'
+  const font = `800 REMpx 'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif`
+  if (vertical) {
+    const chars = [...text].slice(0, 4)
+    const fs = Math.min(30, (h - 14) / chars.length)
+    g.font = font.replace('REM', String(Math.round(fs)))
+    chars.forEach((ch, i) => g.fillText(ch, w / 2, 10 + (i + 0.5) * (h - 16) / chars.length))
+  } else {
+    g.font = font.replace('REM', '30')
+    g.fillText([...text].slice(0, 5).join(''), w / 2, h / 2 + 1)
+  }
+  return new THREE.CanvasTexture(c)
+}
 
-  const roof = useMemo(() => {
-    if (spec.roof === 'pagoda') {
-      const tiers = Math.min(3, spec.floors)
-      return (
-        <group position={[0, height, 0]}>
-          {Array.from({ length: tiers }).map((_, k) => (
-            <mesh key={k} position={[0, k * 0.5, 0]} castShadow>
-              <coneGeometry args={[spec.w * (0.95 - k * 0.18), 0.42, 4]} />
-              <meshStandardMaterial color="#7a2530" flatShading />
-            </mesh>
-          ))}
-        </group>
-      )
-    }
-    if (spec.roof === 'gable' || spec.roof === 'hip') {
-      return (
-        <mesh position={[0, height + 0.35, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
-          <coneGeometry args={[spec.w * 0.82, 0.9, 4]} />
-          <meshStandardMaterial color="#5b4636" flatShading />
-        </mesh>
-      )
-    }
+function Tree({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
+  return (
+    <group position={position} scale={scale}>
+      <mesh position={[0, 0.35, 0]} castShadow><cylinderGeometry args={[0.08, 0.1, 0.7, 6]} /><meshStandardMaterial color="#8a5a34" /></mesh>
+      <mesh position={[0, 0.95, 0]} castShadow><icosahedronGeometry args={[0.55, 0]} /><meshStandardMaterial color="#5bbf4a" flatShading /></mesh>
+      <mesh position={[0.18, 1.3, 0.1]} castShadow><icosahedronGeometry args={[0.34, 0]} /><meshStandardMaterial color="#6fd05a" flatShading /></mesh>
+    </group>
+  )
+}
+
+// ---- one Tokyo building · clean low-poly, richly detailed --------------------
+function Building({ spec, detail }: { spec: BuildingSpec; detail: boolean }) {
+  const podiumH = spec.podium ? spec.floorH * 1.15 : 0
+  const bodyH = spec.floors * spec.floorH
+  const tex = useMemo(() => facadeTexture(spec), [spec])
+  const sign = useMemo(() => (spec.sign ? signTexture(spec.sign.text, spec.sign.bg, spec.sign.vertical) : null), [spec])
+  const roofSign = useMemo(() => (spec.roofSign ? signTexture(spec.roofSignText, '#e2265f', false) : null), [spec])
+
+  // temple · vermilion timber body, tiered green-tile roofs, gold finial, torii
+  if (spec.roof === 'pagoda') {
+    const tiers = Math.min(3, Math.max(2, spec.floors))
+    const tierY = (k: number) => bodyH + 0.2 + k * 0.5
     return (
-      <mesh position={[0, height + 0.06, 0]} castShadow>
-        <boxGeometry args={[spec.w + 0.08, 0.12, spec.d + 0.08]} />
-        <meshStandardMaterial color="#2b3038" />
-      </mesh>
+      <group>
+        <mesh position={[0, 0.1, 0]} receiveShadow><boxGeometry args={[spec.w + 0.3, 0.2, spec.d + 0.3]} /><meshStandardMaterial color="#cfc6b4" /></mesh>
+        <mesh position={[0, bodyH / 2 + 0.2, 0]} castShadow receiveShadow><boxGeometry args={[spec.w * 0.8, bodyH, spec.d * 0.8]} /><meshStandardMaterial color="#c0392b" /></mesh>
+        {/* pillars */}
+        {[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sz], i) => (
+          <mesh key={i} position={[sx * spec.w * 0.36, bodyH / 2 + 0.2, sz * spec.d * 0.36]}><cylinderGeometry args={[0.08, 0.08, bodyH, 8]} /><meshStandardMaterial color="#8c2f24" /></mesh>
+        ))}
+        {Array.from({ length: tiers }).map((_, k) => (
+          <mesh key={k} position={[0, tierY(k), 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * (0.74 - k * 0.14), 0.4, 4]} /><meshStandardMaterial color="#2e6e5a" flatShading /></mesh>
+        ))}
+        <mesh position={[0, tierY(tiers - 1) + 0.28, 0]}><coneGeometry args={[0.09, 0.34, 8]} /><meshStandardMaterial color="#e6c34a" metalness={0.5} roughness={0.3} /></mesh>
+        <group position={[0, 0, spec.d * 0.55]}>
+          <mesh position={[-0.55, 0.55, 0]}><boxGeometry args={[0.12, 1.1, 0.12]} /><meshStandardMaterial color="#d1362f" /></mesh>
+          <mesh position={[0.55, 0.55, 0]}><boxGeometry args={[0.12, 1.1, 0.12]} /><meshStandardMaterial color="#d1362f" /></mesh>
+          <mesh position={[0, 1.12, 0]}><boxGeometry args={[1.5, 0.16, 0.16]} /><meshStandardMaterial color="#d1362f" /></mesh>
+        </group>
+      </group>
     )
-  }, [spec, height])
+  }
+
+  // vintage villa · low timber house, wide hip roof, engawa porch
+  if (spec.roof === 'hip') {
+    return (
+      <group>
+        <mesh position={[0, 0.04, 0]} receiveShadow><boxGeometry args={[spec.w + 0.5, 0.16, spec.d + 0.5]} /><meshStandardMaterial color="#8f8577" /></mesh>
+        <mesh position={[0, bodyH / 2 + 0.12, 0]} castShadow receiveShadow><boxGeometry args={[spec.w, bodyH, spec.d]} /><meshStandardMaterial color={spec.body} /></mesh>
+        <mesh position={[0, bodyH * 0.5 + 0.12, spec.d / 2 + 0.01]}><planeGeometry args={[spec.w * 0.8, bodyH * 0.6]} /><meshStandardMaterial color="#f3ecdc" /></mesh>
+        <mesh position={[0, bodyH + 0.34, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 0.95, 0.5, 4]} /><meshStandardMaterial color="#3f4a4f" flatShading /></mesh>
+        <mesh position={[0, bodyH + 0.14, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 1.08, 0.28, 4]} /><meshStandardMaterial color="#33393d" flatShading /></mesh>
+        <mesh position={[spec.w * 0.5, 0.35, spec.d * 0.5]} castShadow><icosahedronGeometry args={[0.34, 0]} /><meshStandardMaterial color="#5bbf4a" flatShading /></mesh>
+      </group>
+    )
+  }
+
+  const bodyW = spec.w
+  const upperW = spec.setback ? spec.w * 0.7 : spec.w
+  const upperD = spec.setback ? spec.d * 0.7 : spec.d
+  const upperH = spec.setback ? bodyH * 0.42 : 0
+  const lowerH = bodyH - upperH
 
   return (
     <group>
-      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[spec.w, height, spec.d]} />
-        <meshStandardMaterial map={tex} color={wallColor} roughness={0.85} metalness={0.05} />
-        <Edges threshold={15} color={edge} />
-      </mesh>
-      {roof}
-      {/* rooftop clutter · only when close */}
-      {detail && spec.roof === 'flat' && (
-        <group position={[0, height + 0.12, 0]}>
-          {spec.waterTank && (
-            <mesh position={[spec.w * 0.25, 0.35, -spec.d * 0.2]} castShadow>
-              <cylinderGeometry args={[0.28, 0.28, 0.5, 8]} />
-              <meshStandardMaterial color="#8a8f98" />
-            </mesh>
+      {spec.podium && (
+        <group>
+          <mesh position={[0, podiumH / 2, 0]} castShadow receiveShadow><boxGeometry args={[spec.w + 0.12, podiumH, spec.d + 0.12]} /><meshStandardMaterial color={spec.podiumColor} roughness={0.6} /></mesh>
+          <mesh position={[0, podiumH * 0.45, spec.d / 2 + 0.08]}><planeGeometry args={[spec.w * 0.82, podiumH * 0.55]} /><meshStandardMaterial color="#20303f" metalness={0.3} roughness={0.2} /></mesh>
+          {spec.awning && (
+            <mesh position={[0, podiumH * 0.82, spec.d / 2 + 0.26]} rotation={[Math.PI * 0.14, 0, 0]} castShadow><boxGeometry args={[spec.w * 0.9, 0.06, 0.5]} /><meshStandardMaterial color={spec.awningColor} /></mesh>
           )}
-          {spec.rooftopGarden && (
-            <mesh position={[-spec.w * 0.2, 0.06, spec.d * 0.2]}>
-              <boxGeometry args={[spec.w * 0.5, 0.1, spec.d * 0.4]} />
-              <meshStandardMaterial color="#3f7d3a" />
-            </mesh>
-          )}
-          {Array.from({ length: spec.acUnits }).map((_, k) => (
-            <mesh key={k} position={[(-0.3 + k * 0.3), 0.1, spec.d * 0.28]}>
-              <boxGeometry args={[0.22, 0.16, 0.22]} />
-              <meshStandardMaterial color="#c3c7cc" />
-            </mesh>
-          ))}
         </group>
       )}
-      {/* neon sign on the front */}
-      {spec.neon && (
-        <mesh position={[0, height * 0.62, spec.d / 2 + 0.02]}>
-          <planeGeometry args={[spec.w * 0.5, height * 0.16]} />
-          <meshBasicMaterial color={`hsl(${spec.neonHue} 90% 62%)`} />
-        </mesh>
+      <mesh position={[0, podiumH + lowerH / 2, 0]} castShadow receiveShadow><boxGeometry args={[bodyW, lowerH, spec.d]} /><meshStandardMaterial map={tex} color={spec.body} roughness={0.8} /></mesh>
+      {spec.setback && (
+        <mesh position={[0, podiumH + lowerH + upperH / 2, 0]} castShadow receiveShadow><boxGeometry args={[upperW, upperH, upperD]} /><meshStandardMaterial map={tex} color={spec.body} roughness={0.8} /></mesh>
+      )}
+      {spec.balconies && detail && Array.from({ length: Math.min(spec.floors - 1, 5) }).map((_, k) => (
+        <mesh key={k} position={[0, podiumH + (k + 1) * spec.floorH, spec.d / 2 + 0.08]} castShadow><boxGeometry args={[spec.w * 0.9, 0.08, 0.28]} /><meshStandardMaterial color="#d7dde3" /></mesh>
+      ))}
+      <mesh position={[0, podiumH + bodyH + 0.06, 0]} castShadow><boxGeometry args={[(spec.setback ? upperW : bodyW) + 0.1, 0.14, (spec.setback ? upperD : spec.d) + 0.1]} /><meshStandardMaterial color="#c3ccd6" /></mesh>
+      {detail && (
+        <group position={[0, podiumH + bodyH + 0.14, 0]}>
+          {spec.waterTank && (
+            <group position={[spec.w * 0.22, 0, -spec.d * 0.18]}>
+              <mesh position={[0, 0.18, 0]}><boxGeometry args={[0.2, 0.36, 0.2]} /><meshStandardMaterial color="#9aa0a8" /></mesh>
+              <mesh position={[0, 0.44, 0]} castShadow><boxGeometry args={[0.4, 0.22, 0.4]} /><meshStandardMaterial color="#6f7681" /></mesh>
+            </group>
+          )}
+          {Array.from({ length: spec.acUnits }).map((_, k) => (
+            <mesh key={k} position={[-spec.w * 0.28 + k * 0.26, 0.1, spec.d * 0.26]} castShadow><boxGeometry args={[0.22, 0.16, 0.22]} /><meshStandardMaterial color="#e2e6ea" /></mesh>
+          ))}
+          {spec.antenna && <mesh position={[-spec.w * 0.2, 0.7, spec.d * 0.1]}><cylinderGeometry args={[0.02, 0.02, 1.4, 4]} /><meshStandardMaterial color="#b03a2e" /></mesh>}
+          {roofSign && (
+            <group position={[0, 0.55, 0]}>
+              <mesh position={[-0.5, -0.2, 0]}><boxGeometry args={[0.05, 0.5, 0.05]} /><meshStandardMaterial color="#444" /></mesh>
+              <mesh position={[0.5, -0.2, 0]}><boxGeometry args={[0.05, 0.5, 0.05]} /><meshStandardMaterial color="#444" /></mesh>
+              <mesh><planeGeometry args={[spec.w * 0.85, 0.55]} /><meshBasicMaterial map={roofSign} toneMapped={false} side={THREE.DoubleSide} /></mesh>
+            </group>
+          )}
+          {spec.billboard && <mesh position={[0, 0.4, spec.d * 0.1]}><boxGeometry args={[spec.w * 0.8, 0.7, 0.08]} /><meshBasicMaterial color="#12a5ff" toneMapped={false} /></mesh>}
+        </group>
+      )}
+      {sign && spec.sign && (
+        spec.sign.place === 'facade'
+          ? <mesh position={[0, podiumH + bodyH * 0.55, spec.d / 2 + 0.04]}><planeGeometry args={spec.sign.vertical ? [bodyH * 0.16, bodyH * 0.42] : [bodyW * 0.66, bodyH * 0.16]} /><meshBasicMaterial map={sign} toneMapped={false} /></mesh>
+          : <mesh position={[spec.w / 2 + 0.04, podiumH + bodyH * 0.5, 0]} rotation={[0, Math.PI / 2, 0]}><planeGeometry args={[bodyH * 0.5, bodyH * 0.18]} /><meshBasicMaterial map={sign} toneMapped={false} /></mesh>
       )}
     </group>
   )
 }
 
-// ---- instanced movers (pedestrians + vehicles) ------------------------------
-interface Mover { axis: 'x' | 'z'; fixed: number; pos: number; dir: number; speed: number; y: number; s: number }
-
-function makeMovers(kind: 'ped' | 'car', count: number): Mover[] {
+// ---- movement lanes shared by traffic + walkers -----------------------------
+interface Mover { axis: 'x' | 'z'; fixed: number; pos: number; dir: number; speed: number }
+function makeMovers(kind: 'ped' | 'car' | 'bus', count: number): Mover[] {
   const out: Mover[] = []
-  // road lines are at multiples matching cityLayout's ROAD_EVERY grid
   const lines: number[] = []
   for (let i = 0; i < 11; i++) if (i % 3 === 0) lines.push(i * 5 - HALF + 2.5)
   let n = 0
+  const per = Math.ceil(count / lines.length)
   for (const line of lines) {
-    const per = Math.ceil(count / lines.length)
     for (let k = 0; k < per && n < count; k++, n++) {
       const axis: 'x' | 'z' = k % 2 === 0 ? 'x' : 'z'
-      const laneOff = kind === 'car' ? (k % 2 === 0 ? 0.9 : -0.9) : (k % 2 === 0 ? 1.7 : -1.7)
-      const dir = k % 2 === 0 ? 1 : -1
+      const vehicle = kind !== 'ped'
+      const laneOff = vehicle ? (k % 2 === 0 ? 0.75 : -0.75) : (k % 2 === 0 ? 1.7 : -1.7)
       out.push({
-        axis,
-        fixed: line + laneOff * (axis === 'x' ? 1 : 1),
-        pos: (k / per) * SPAN - HALF,
-        dir,
-        speed: kind === 'car' ? 3.4 + (k % 3) : 1.1 + (k % 3) * 0.25,
-        y: kind === 'car' ? 0.22 : 0.42,
-        s: kind === 'car' ? 1 : 0.5 + (k % 3) * 0.08,
+        axis, fixed: line + laneOff, pos: (k / per) * SPAN - HALF, dir: k % 2 === 0 ? 1 : -1,
+        speed: kind === 'car' ? 3.4 + (k % 3) : kind === 'bus' ? 2.6 + (k % 2) : 1.1 + (k % 3) * 0.25,
       })
     }
   }
   return out
 }
 
-function Movers({ kind, count, show }: { kind: 'ped' | 'car'; count: number; show: boolean }) {
-  const ref = useRef<THREE.InstancedMesh>(null)
-  const movers = useMemo(() => makeMovers(kind, count), [kind, count])
-  const dummy = useMemo(() => new THREE.Object3D(), [])
-  useEffect(() => {
-    const m = ref.current
-    if (!m) return
-    const palette = kind === 'car'
-      ? ['#e6564f', '#3d7bd6', '#f0b429', '#37946e', '#e5e7eb', '#8b5cf6']
-      : ['#ef7d9d', '#6ee7b7', '#fcd34d', '#93c5fd', '#c4b5fd', '#fca5a5']
-    movers.forEach((_, i) => m.setColorAt(i, new THREE.Color(palette[i % palette.length])))
-    if (m.instanceColor) m.instanceColor.needsUpdate = true
-  }, [movers, kind])
-  useFrame((_, dt) => {
-    const m = ref.current
-    if (!m || !show) return
-    const d = Math.min(dt, 0.05)
-    for (let i = 0; i < movers.length; i++) {
-      const mv = movers[i]
-      mv.pos += mv.dir * mv.speed * d
-      if (mv.pos > HALF + 3) mv.pos = -HALF - 3
-      else if (mv.pos < -HALF - 3) mv.pos = HALF + 3
-      const x = mv.axis === 'x' ? mv.pos : mv.fixed
-      const z = mv.axis === 'z' ? mv.pos : mv.fixed
-      dummy.position.set(x, mv.y, z)
-      dummy.rotation.set(0, mv.axis === 'x' ? Math.PI / 2 : 0, 0)
-      dummy.scale.setScalar(mv.s)
-      dummy.updateMatrix()
-      m.setMatrixAt(i, dummy.matrix)
-    }
-    m.instanceMatrix.needsUpdate = true
-  })
-  if (!show) return null
+// ---- shaped vehicles + little people ----------------------------------------
+const CAR_COLORS = ['#e6564f', '#3d7bd6', '#f0b429', '#37946e', '#f0f2f5', '#8b5cf6', '#ff8a3d']
+const BUS_COLORS = ['#e8592e', '#1f9d5a', '#2f7fd6', '#f2b705']
+const SKIN_BODY = ['#ef7d9d', '#6ee7b7', '#fcd34d', '#93c5fd', '#c4b5fd', '#fca5a5', '#7ee0c8', '#ffb3de']
+const HAIR = ['#2b2b33', '#5a3a24', '#e2b04a', '#c94f4f', '#3a5a8c']
+
+function Car({ color }: { color: string }) {
   return (
-    <instancedMesh ref={ref} args={[undefined, undefined, movers.length]} castShadow>
-      {kind === 'car'
-        ? <boxGeometry args={[0.8, 0.5, 1.7]} />
-        : <capsuleGeometry args={[0.22, 0.34, 3, 6]} />}
-      <meshStandardMaterial roughness={0.6} />
-    </instancedMesh>
+    <group>
+      <mesh position={[0, 0.22, 0]} castShadow><boxGeometry args={[0.82, 0.34, 1.7]} /><meshStandardMaterial color={color} roughness={0.4} metalness={0.1} /></mesh>
+      <mesh position={[0, 0.5, -0.05]} castShadow><boxGeometry args={[0.7, 0.34, 0.9]} /><meshStandardMaterial color={color} roughness={0.4} /></mesh>
+      <mesh position={[0, 0.5, -0.05]}><boxGeometry args={[0.72, 0.24, 0.62]} /><meshStandardMaterial color="#bfe0f5" metalness={0.3} roughness={0.1} /></mesh>
+      {[[-0.42, 0.6], [0.42, 0.6], [-0.42, -0.6], [0.42, -0.6]].map(([x, z], i) => (
+        <mesh key={i} position={[x, 0.12, z]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.14, 0.14, 0.12, 10]} /><meshStandardMaterial color="#1c1f24" /></mesh>
+      ))}
+      <mesh position={[0, 0.22, 0.87]}><boxGeometry args={[0.5, 0.12, 0.04]} /><meshBasicMaterial color="#fff6c0" /></mesh>
+    </group>
+  )
+}
+function Bus({ color }: { color: string }) {
+  return (
+    <group>
+      <mesh position={[0, 0.5, 0]} castShadow><boxGeometry args={[1.0, 0.86, 2.9]} /><meshStandardMaterial color={color} roughness={0.4} /></mesh>
+      <mesh position={[0.51, 0.56, 0]}><boxGeometry args={[0.02, 0.36, 2.5]} /><meshBasicMaterial color="#bfe0f5" /></mesh>
+      <mesh position={[-0.51, 0.56, 0]}><boxGeometry args={[0.02, 0.36, 2.5]} /><meshBasicMaterial color="#bfe0f5" /></mesh>
+      <mesh position={[0, 0.56, 1.46]}><boxGeometry args={[0.9, 0.4, 0.02]} /><meshBasicMaterial color="#bfe0f5" /></mesh>
+      {[[-0.42, 1.0], [0.42, 1.0], [-0.42, -1.0], [0.42, -1.0]].map(([x, z], i) => (
+        <mesh key={i} position={[x, 0.14, z]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.16, 0.16, 0.14, 10]} /><meshStandardMaterial color="#1c1f24" /></mesh>
+      ))}
+    </group>
+  )
+}
+function Person({ body, hair }: { body: string; hair: string }) {
+  return (
+    <group>
+      <mesh position={[0, 0.28, 0]} castShadow><capsuleGeometry args={[0.16, 0.3, 3, 6]} /><meshStandardMaterial color={body} /></mesh>
+      <mesh position={[0, 0.62, 0]} castShadow><sphereGeometry args={[0.16, 10, 8]} /><meshStandardMaterial color="#f6d3b0" /></mesh>
+      <mesh position={[0, 0.7, 0]}><sphereGeometry args={[0.17, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.6]} /><meshStandardMaterial color={hair} /></mesh>
+    </group>
   )
 }
 
-// ---- ambient fun events -----------------------------------------------------
+function Traffic({ show }: { show: boolean }) {
+  const items = useMemo(() => {
+    const cars = makeMovers('car', 12).map((m, i) => ({ m, kind: 'car' as const, color: CAR_COLORS[i % CAR_COLORS.length] }))
+    const buses = makeMovers('bus', 4).map((m, i) => ({ m, kind: 'bus' as const, color: BUS_COLORS[i % BUS_COLORS.length] }))
+    return [...cars, ...buses]
+  }, [])
+  const refs = useRef<(THREE.Group | null)[]>([])
+  useFrame((_, dt) => {
+    if (!show) return
+    const d = Math.min(dt, 0.05)
+    items.forEach((it, i) => {
+      const g = refs.current[i]; if (!g) return
+      const mv = it.m
+      mv.pos += mv.dir * mv.speed * d
+      if (mv.pos > HALF + 3) mv.pos = -HALF - 3
+      else if (mv.pos < -HALF - 3) mv.pos = HALF + 3
+      g.position.set(mv.axis === 'x' ? mv.pos : mv.fixed, 0, mv.axis === 'z' ? mv.pos : mv.fixed)
+      g.rotation.y = mv.axis === 'x' ? (mv.dir > 0 ? Math.PI / 2 : -Math.PI / 2) : (mv.dir > 0 ? 0 : Math.PI)
+    })
+  })
+  if (!show) return null
+  return <>{items.map((it, i) => <group key={i} ref={(el) => { refs.current[i] = el }}>{it.kind === 'bus' ? <Bus color={it.color} /> : <Car color={it.color} />}</group>)}</>
+}
+
+function Walkers({ show }: { show: boolean }) {
+  const items = useMemo(() => makeMovers('ped', 16).map((m, i) => ({ m, body: SKIN_BODY[i % SKIN_BODY.length], hair: HAIR[i % HAIR.length] })), [])
+  const refs = useRef<(THREE.Group | null)[]>([])
+  useFrame((state, dt) => {
+    if (!show) return
+    const d = Math.min(dt, 0.05)
+    items.forEach((it, i) => {
+      const g = refs.current[i]; if (!g) return
+      const mv = it.m
+      mv.pos += mv.dir * mv.speed * d
+      if (mv.pos > HALF + 3) mv.pos = -HALF - 3
+      else if (mv.pos < -HALF - 3) mv.pos = HALF + 3
+      g.position.set(mv.axis === 'x' ? mv.pos : mv.fixed, Math.abs(Math.sin(state.clock.elapsedTime * 6 + i)) * 0.05, mv.axis === 'z' ? mv.pos : mv.fixed)
+      g.rotation.y = mv.axis === 'x' ? (mv.dir > 0 ? Math.PI / 2 : -Math.PI / 2) : (mv.dir > 0 ? 0 : Math.PI)
+    })
+  })
+  if (!show) return null
+  return <>{items.map((it, i) => <group key={i} ref={(el) => { refs.current[i] = el }}><Person body={it.body} hair={it.hair} /></group>)}</>
+}
+
+// ---- ambient sky events -----------------------------------------------------
 function SkyEvents({ show }: { show: boolean }) {
   const blimp = useRef<THREE.Group>(null)
-  const ufo = useRef<THREE.Group>(null)
   const balloon = useRef<THREE.Group>(null)
-  const train = useRef<THREE.Group>(null)
-  useFrame((state, dt) => {
+  useFrame((state) => {
     const t = state.clock.elapsedTime
-    if (blimp.current) {
-      blimp.current.position.set(((t * 1.6) % (SPAN + 20)) - HALF - 10, 16, -HALF + 6)
-    }
-    if (ufo.current) {
-      ufo.current.position.set(HALF - 8, 13 + Math.sin(t * 0.8) * 1.5, ((t * 2.2) % (SPAN + 16)) - HALF - 8)
-      ufo.current.rotation.y += dt * 1.4
-    }
-    if (balloon.current) {
-      balloon.current.position.set(-HALF + 5, 10 + Math.sin(t * 0.5) * 0.8, ((t * 0.9) % (SPAN + 12)) - HALF - 6)
-    }
-    if (train.current) {
-      // shinkansen sweeps along an elevated line on one avenue, periodically
-      const cycle = (t % 22)
-      const x = cycle < 12 ? cycle * (SPAN + 20) / 12 - HALF - 10 : -HALF - 40
-      train.current.position.set(x, 2.4, HALF - 7.5)
-      train.current.visible = cycle < 12
-    }
+    if (blimp.current) blimp.current.position.set(((t * 1.6) % (SPAN + 20)) - HALF - 10, 16, -HALF + 6)
+    if (balloon.current) balloon.current.position.set(-HALF + 5, 11 + Math.sin(t * 0.5) * 0.8, ((t * 0.9) % (SPAN + 12)) - HALF - 6)
   })
   if (!show) return null
   return (
@@ -249,143 +302,146 @@ function SkyEvents({ show }: { show: boolean }) {
         <mesh castShadow><capsuleGeometry args={[0.9, 2.4, 4, 8]} /><meshStandardMaterial color="#eef1f5" /></mesh>
         <mesh position={[0, -0.9, 0]}><boxGeometry args={[0.5, 0.3, 0.8]} /><meshStandardMaterial color="#334155" /></mesh>
       </group>
-      <group ref={ufo}>
-        <mesh castShadow><cylinderGeometry args={[1.1, 1.4, 0.4, 16]} /><meshStandardMaterial color="#b8c0cc" metalness={0.7} roughness={0.3} /></mesh>
-        <mesh position={[0, 0.3, 0]}><sphereGeometry args={[0.6, 12, 8]} /><meshStandardMaterial color="#7dd3fc" transparent opacity={0.75} /></mesh>
-        <mesh position={[0, -1.6, 0]}><coneGeometry args={[1.2, 3, 16, 1, true]} /><meshBasicMaterial color="#a7f3d0" transparent opacity={0.14} side={THREE.DoubleSide} /></mesh>
-      </group>
       <group ref={balloon}>
         <mesh castShadow><sphereGeometry args={[1, 12, 12]} /><meshStandardMaterial color="#f87171" /></mesh>
         <mesh position={[0, -1.3, 0]}><boxGeometry args={[0.5, 0.4, 0.5]} /><meshStandardMaterial color="#7c4a2d" /></mesh>
-      </group>
-      <group ref={train}>
-        {[0, 1.9, 3.8].map((o) => (
-          <mesh key={o} position={[o, 0, 0]} castShadow>
-            <boxGeometry args={[1.7, 0.7, 0.9]} />
-            <meshStandardMaterial color={o === 0 ? '#0f5fb0' : '#e8eef5'} metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
       </group>
     </>
   )
 }
 
-// ---- lots: player dojos + foundable plots -----------------------------------
-function DojoBuilding({ lot, name, templateId, onEnter, showName }: { lot: Lot; name: string; templateId: string; onEnter: () => void; showName: boolean }) {
+const nameTag: React.CSSProperties = {
+  font: "700 12px 'Silkscreen', ui-monospace, monospace", color: '#fff', background: '#11151d',
+  padding: '3px 8px', borderRadius: 4, whiteSpace: 'nowrap', border: '1px solid rgba(255,255,255,0.25)',
+  boxShadow: '0 2px 6px rgba(0,0,0,0.35)',
+}
+
+// ---- player HQ · grows one floor per Dojo (1 Dojo = a villa) -----------------
+function PlayerHQ({ lot, floors, name, accent, onEnter }: { lot: Lot; floors: number; name: string; accent: string; onEnter: () => void }) {
   const [hover, setHover] = useState(false)
-  const tpl = templateById(templateId)
-  const col = tpl.palette?.accent || '#ef7d9d'
+  const isVilla = floors <= 1
+  const floorH = 1.0
+  const height = Math.max(1, floors) * floorH
   return (
-    <group
-      position={[lot.cx, 0, lot.cz]}
+    <group position={[lot.cx, 0, lot.cz]}
       onClick={(e) => { e.stopPropagation(); onEnter() }}
       onPointerOver={(e) => { e.stopPropagation(); setHover(true) }}
-      onPointerOut={() => setHover(false)}
-    >
-      {/* HQ · a pagoda-topped tower in the dojo's colour */}
-      <mesh position={[0, 1.6, 0]} castShadow receiveShadow>
-        <boxGeometry args={[2.6, 3.2, 2.6]} />
-        <meshStandardMaterial color={col} roughness={0.7} />
-        <Edges threshold={15} color="#ffffff" />
-      </mesh>
-      {[0, 1, 2].map((k) => (
-        <mesh key={k} position={[0, 3.3 + k * 0.5, 0]} castShadow>
-          <coneGeometry args={[1.7 - k * 0.35, 0.42, 4]} />
-          <meshStandardMaterial color="#7a2530" flatShading />
-        </mesh>
-      ))}
-      {/* torii marker */}
-      <group position={[0, 0, 1.5]}>
-        <mesh position={[-0.6, 0.5, 0]}><boxGeometry args={[0.12, 1, 0.12]} /><meshStandardMaterial color="#c1272d" /></mesh>
-        <mesh position={[0.6, 0.5, 0]}><boxGeometry args={[0.12, 1, 0.12]} /><meshStandardMaterial color="#c1272d" /></mesh>
-        <mesh position={[0, 1.05, 0]}><boxGeometry args={[1.6, 0.16, 0.16]} /><meshStandardMaterial color="#c1272d" /></mesh>
-      </group>
-      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[4.2, 4.2]} />
-        <meshStandardMaterial color={hover ? '#fde68a' : '#3a4048'} />
-      </mesh>
-      {(showName || hover) && (
-        <Html position={[0, 5.4, 0]} center pointerEvents="none" zIndexRange={[20, 0]}>
-          <div style={nameTag}>{name}</div>
-        </Html>
-      )}
-    </group>
-  )
-}
-
-function EmptyLot({ lot, onFound, showTag }: { lot: Lot; onFound: () => void; showTag: boolean }) {
-  const [hover, setHover] = useState(false)
-  return (
-    <group
-      position={[lot.cx, 0, lot.cz]}
-      onClick={(e) => { e.stopPropagation(); onFound() }}
-      onPointerOver={(e) => { e.stopPropagation(); setHover(true) }}
-      onPointerOut={() => setHover(false)}
-    >
-      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[3.4, 3.4]} />
-        <meshStandardMaterial color={hover ? '#a7f3d0' : '#39424a'} />
-        <Edges threshold={1} color={hover ? '#34d399' : '#8b98a6'} />
-      </mesh>
-      {/* floating "+" plot marker */}
-      <group position={[0, hover ? 1.4 : 1.1, 0]}>
-        <mesh><boxGeometry args={[0.8, 0.18, 0.18]} /><meshBasicMaterial color="#34d399" /></mesh>
-        <mesh><boxGeometry args={[0.18, 0.8, 0.18]} /><meshBasicMaterial color="#34d399" /></mesh>
-      </group>
-      {(showTag || hover) && (
-        <Html position={[0, 2.2, 0]} center pointerEvents="none" zIndexRange={[20, 0]}>
-          <div style={{ ...nameTag, background: '#065f46' }}>Terrain libre</div>
-        </Html>
-      )}
-    </group>
-  )
-}
-
-const nameTag: React.CSSProperties = {
-  font: "700 12px 'Silkscreen', ui-monospace, monospace",
-  color: '#fff', background: '#11151d', padding: '3px 8px', borderRadius: 4,
-  whiteSpace: 'nowrap', border: '1px solid rgba(255,255,255,0.25)', boxShadow: '0 2px 6px rgba(0,0,0,0.35)',
-}
-
-// ---- ground + roads ---------------------------------------------------------
-function Ground() {
-  const roads = useMemo(() => {
-    const out: number[] = []
-    for (let i = 0; i < 11; i++) if (i % 3 === 0) out.push(i * 5 - HALF + 2.5)
-    return out
-  }, [])
-  return (
-    <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
-        <planeGeometry args={[SPAN + 12, SPAN + 12]} />
-        <meshStandardMaterial color="#2a2f36" />
-      </mesh>
-      {roads.map((at, k) => (
-        <group key={k}>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[at, 0, 0]} receiveShadow>
-            <planeGeometry args={[3.2, SPAN + 12]} />
-            <meshStandardMaterial color="#1b1f25" />
-          </mesh>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, at]} receiveShadow>
-            <planeGeometry args={[SPAN + 12, 3.2]} />
-            <meshStandardMaterial color="#1b1f25" />
-          </mesh>
-          {/* centre dashes */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[at, 0.003, 0]}>
-            <planeGeometry args={[0.12, SPAN + 12]} />
-            <meshBasicMaterial color="#f0b429" />
-          </mesh>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.004, at]}>
-            <planeGeometry args={[SPAN + 12, 0.12]} />
-            <meshBasicMaterial color="#f0b429" />
-          </mesh>
+      onPointerOut={() => setHover(false)}>
+      {isVilla ? (
+        <group>
+          <mesh position={[0, 0.08, 0]} receiveShadow><boxGeometry args={[3.4, 0.28, 3.4]} /><meshStandardMaterial color="#8f8577" /></mesh>
+          <mesh position={[0, 0.78, 0]} castShadow receiveShadow><boxGeometry args={[2.6, 1.1, 2.6]} /><meshStandardMaterial color="#efe6d3" /></mesh>
+          <mesh position={[0, 1.35, 1.31]}><planeGeometry args={[1.9, 0.8]} /><meshStandardMaterial color="#f3ecdc" /></mesh>
+          <mesh position={[0, 1.7, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[2.35, 0.7, 4]} /><meshStandardMaterial color={accent} flatShading /></mesh>
         </group>
-      ))}
+      ) : (
+        <group>
+          <mesh position={[0, height / 2, 0]} castShadow receiveShadow><boxGeometry args={[2.6, height, 2.6]} /><meshStandardMaterial color={accent} roughness={0.7} /><Edges threshold={15} color="#ffffff" /></mesh>
+          {Array.from({ length: floors }).map((_, k) => (
+            <mesh key={k} position={[0, 0.5 + k * floorH, 1.31]}><planeGeometry args={[2.0, 0.5]} /><meshStandardMaterial color="#cde4f5" /></mesh>
+          ))}
+          <mesh position={[0, height + 0.1, 0]} castShadow><boxGeometry args={[2.9, 0.2, 2.9]} /><meshStandardMaterial color="#c3ccd6" /></mesh>
+          {[0, 1, 2].map((k) => (
+            <mesh key={k} position={[0, height + 0.4 + k * 0.42, 0]} castShadow><coneGeometry args={[1.5 - k * 0.35, 0.36, 4]} /><meshStandardMaterial color="#3a2b2b" flatShading /></mesh>
+          ))}
+        </group>
+      )}
+      <group position={[0, 0, 1.85]}>
+        <mesh position={[-0.6, 0.5, 0]}><boxGeometry args={[0.12, 1, 0.12]} /><meshStandardMaterial color="#d1362f" /></mesh>
+        <mesh position={[0.6, 0.5, 0]}><boxGeometry args={[0.12, 1, 0.12]} /><meshStandardMaterial color="#d1362f" /></mesh>
+        <mesh position={[0, 1.05, 0]}><boxGeometry args={[1.6, 0.16, 0.16]} /><meshStandardMaterial color="#d1362f" /></mesh>
+      </group>
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[4.6, 4.6]} /><meshStandardMaterial color={hover ? '#fde68a' : '#aeb9a2'} /></mesh>
+      <Html position={[0, height + 1.4, 0]} center pointerEvents="none" zIndexRange={[30, 0]}>
+        <div style={{ ...nameTag, background: accent }}>{name} · {floors} {floors > 1 ? 'Dojos' : 'Dojo'} ↵</div>
+      </Html>
     </group>
   )
 }
 
-// ---- camera zoom (4 discrete levels, eased) ---------------------------------
+// ---- academy (opens the guide) ----------------------------------------------
+function Academy({ lot, onOpen }: { lot: Lot; onOpen: () => void }) {
+  const [hover, setHover] = useState(false)
+  const banner = useMemo(() => signTexture('学院', '#1f6fd0', false), [])
+  return (
+    <group position={[lot.cx, 0, lot.cz]}
+      onClick={(e) => { e.stopPropagation(); onOpen() }}
+      onPointerOver={(e) => { e.stopPropagation(); setHover(true) }}
+      onPointerOut={() => setHover(false)}>
+      <mesh position={[0, 0.12, 0]} receiveShadow><boxGeometry args={[3.6, 0.34, 3.2]} /><meshStandardMaterial color="#d9cdb2" /></mesh>
+      <mesh position={[0, 1.0, 0]} castShadow receiveShadow><boxGeometry args={[3.0, 1.5, 2.6]} /><meshStandardMaterial color="#f4eee2" /></mesh>
+      {[0, 0.55].map((o, k) => (
+        <mesh key={k} position={[0, 1.9 + o, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[2.7 - k * 0.55, 0.62, 4]} /><meshStandardMaterial color="#3a2b2b" flatShading /></mesh>
+      ))}
+      {[-1.1, -0.37, 0.37, 1.1].map((x) => (
+        <mesh key={x} position={[x, 0.85, 1.32]} castShadow><cylinderGeometry args={[0.12, 0.12, 1.4, 10]} /><meshStandardMaterial color="#c04b3f" /></mesh>
+      ))}
+      <mesh position={[0, 1.15, 1.36]}><planeGeometry args={[1.5, 0.55]} /><meshBasicMaterial map={banner} toneMapped={false} /></mesh>
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[4.4, 4.4]} /><meshStandardMaterial color={hover ? '#bfe0f5' : '#b9c2cc'} /></mesh>
+      <Html position={[0, 3.4, 0]} center pointerEvents="none" zIndexRange={[30, 0]}>
+        <div style={{ ...nameTag, background: '#1f6fd0' }}>Académie · Guide & ressources</div>
+      </Html>
+    </group>
+  )
+}
+
+// ---- konbini (gives a tip) --------------------------------------------------
+function Konbini({ lot, onTip }: { lot: Lot; onTip: () => void }) {
+  const [hover, setHover] = useState(false)
+  const sign = useMemo(() => signTexture('コンビニ', '#0f8f5f', false), [])
+  return (
+    <group position={[lot.cx, 0, lot.cz]}
+      onClick={(e) => { e.stopPropagation(); onTip() }}
+      onPointerOver={(e) => { e.stopPropagation(); setHover(true) }}
+      onPointerOut={() => setHover(false)}>
+      <mesh position={[0, 0.7, 0]} castShadow receiveShadow><boxGeometry args={[2.6, 1.4, 2.4]} /><meshStandardMaterial color="#f4f7f9" /></mesh>
+      <mesh position={[0, 1.5, 0]} castShadow><boxGeometry args={[2.7, 0.18, 2.5]} /><meshStandardMaterial color="#0f8f5f" /></mesh>
+      <mesh position={[0, 0.55, 1.21]}><planeGeometry args={[2.2, 0.9]} /><meshStandardMaterial color="#243447" metalness={0.3} roughness={0.2} /></mesh>
+      <mesh position={[0, 1.18, 1.22]}><planeGeometry args={[2.0, 0.42]} /><meshBasicMaterial map={sign} toneMapped={false} /></mesh>
+      <mesh position={[0, 1.02, 1.5]} rotation={[Math.PI * 0.12, 0, 0]}><boxGeometry args={[2.4, 0.06, 0.55]} /><meshStandardMaterial color="#e63946" /></mesh>
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[3.4, 3.4]} /><meshStandardMaterial color={hover ? '#a7f3d0' : '#b9c2cc'} /></mesh>
+      <Html position={[0, 2.4, 0]} center pointerEvents="none" zIndexRange={[30, 0]}>
+        <div style={{ ...nameTag, background: '#0f8f5f' }}>Konbini · une astuce ?</div>
+      </Html>
+    </group>
+  )
+}
+
+// ---- construction site (empty plot) -----------------------------------------
+function ConstructionSite({ lot }: { lot: Lot }) {
+  return (
+    <group position={[lot.cx, 0, lot.cz]}>
+      <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[3.2, 3.2]} /><meshStandardMaterial color="#b8a06a" /></mesh>
+      {/* hazard fence */}
+      {[-1.5, 1.5].map((x) => <mesh key={'fx' + x} position={[x, 0.35, 0]}><boxGeometry args={[0.06, 0.7, 3.2]} /><meshStandardMaterial color="#f2b705" /></mesh>)}
+      {[-1.5, 1.5].map((z) => <mesh key={'fz' + z} position={[0, 0.35, z]}><boxGeometry args={[3.2, 0.7, 0.06]} /><meshStandardMaterial color="#f2b705" /></mesh>)}
+      {/* scaffold frame */}
+      {[[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]].map(([x, z], i) => (
+        <mesh key={i} position={[x, 0.9, z]}><boxGeometry args={[0.08, 1.8, 0.08]} /><meshStandardMaterial color="#8a8f98" /></mesh>
+      ))}
+      <mesh position={[0, 1.4, 0]}><boxGeometry args={[1.5, 0.08, 1.5]} /><meshStandardMaterial color="#8a8f98" /></mesh>
+      {/* little crane */}
+      <mesh position={[1.1, 1.4, 1.1]}><boxGeometry args={[0.1, 2.8, 0.1]} /><meshStandardMaterial color="#e6564f" /></mesh>
+      <mesh position={[0.4, 2.7, 1.1]}><boxGeometry args={[1.6, 0.1, 0.1]} /><meshStandardMaterial color="#e6564f" /></mesh>
+      {/* stacked girders */}
+      <mesh position={[-0.9, 0.2, 0.9]} castShadow><boxGeometry args={[0.9, 0.2, 0.3]} /><meshStandardMaterial color="#6b7178" /></mesh>
+    </group>
+  )
+}
+
+// ---- lake + park ------------------------------------------------------------
+function LakePark({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0, z]}>
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><circleGeometry args={[3.6, 40]} /><meshStandardMaterial color="#7fc98a" roughness={1} /></mesh>
+      <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[2.1, 40]} /><meshStandardMaterial color="#3aa7d8" metalness={0.2} roughness={0.25} /></mesh>
+      {/* red bridge */}
+      <mesh position={[0, 0.35, 0]} rotation={[0, Math.PI / 5, 0]}><boxGeometry args={[4.6, 0.12, 0.5]} /><meshStandardMaterial color="#d1362f" /></mesh>
+      {[[-2.6, -1.4], [2.4, 1.6], [-2.2, 2.0], [2.8, -1.2]].map(([tx, tz], i) => <Tree key={i} position={[tx, 0, tz]} scale={1.05} />)}
+    </group>
+  )
+}
+
 function CameraZoom({ level }: { level: number }) {
   const cam = useThree((s) => s.camera) as THREE.OrthographicCamera
   useFrame(() => {
@@ -396,126 +452,147 @@ function CameraZoom({ level }: { level: number }) {
   return null
 }
 
+const ROAD_LINES = (() => {
+  const out: number[] = []
+  for (let i = 0; i < 11; i++) if (i % 3 === 0) out.push(i * 5 - HALF + 2.5)
+  return out
+})()
+
+function Ground() {
+  const stripes = useMemo(() => Array.from({ length: 6 }, (_, k) => k), [])
+  return (
+    <group>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow><planeGeometry args={[SPAN + 16, SPAN + 16]} /><meshStandardMaterial color="#c6cbd1" /></mesh>
+      {ROAD_LINES.map((at, k) => (
+        <group key={k}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[at, 0.0, 0]} receiveShadow><planeGeometry args={[3.7, SPAN + 16]} /><meshStandardMaterial color="#d9dde2" /></mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, at]} receiveShadow><planeGeometry args={[SPAN + 16, 3.7]} /><meshStandardMaterial color="#d9dde2" /></mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[at, 0.004, 0]} receiveShadow><planeGeometry args={[3.0, SPAN + 16]} /><meshStandardMaterial color="#6b7178" /></mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, at]} receiveShadow><planeGeometry args={[SPAN + 16, 3.0]} /><meshStandardMaterial color="#6b7178" /></mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[at, 0.007, 0]}><planeGeometry args={[0.1, SPAN + 16]} /><meshBasicMaterial color="#eef1f4" /></mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.008, at]}><planeGeometry args={[SPAN + 16, 0.1]} /><meshBasicMaterial color="#eef1f4" /></mesh>
+        </group>
+      ))}
+      {ROAD_LINES.map((x) => ROAD_LINES.map((z) => (
+        <group key={`${x},${z}`} position={[x, 0.01, z]}>
+          {stripes.map((s) => <mesh key={`h${s}`} rotation={[-Math.PI / 2, 0, 0]} position={[-1.9, 0, -1.0 + s * 0.4]}><planeGeometry args={[0.7, 0.22]} /><meshBasicMaterial color="#f2f4f6" /></mesh>)}
+          {stripes.map((s) => <mesh key={`v${s}`} rotation={[-Math.PI / 2, 0, Math.PI / 2]} position={[-1.0 + s * 0.4, 0, 1.9]}><planeGeometry args={[0.7, 0.22]} /><meshBasicMaterial color="#f2f4f6" /></mesh>)}
+        </group>
+      )))}
+    </group>
+  )
+}
+
+function StreetTrees() {
+  const spots = useMemo(() => {
+    const out: [number, number, number][] = []
+    ROAD_LINES.forEach((at) => {
+      for (let p = -HALF + 3; p < HALF; p += 4.5) { out.push([at + 1.9, 0, p]); out.push([p, 0, at + 1.9]) }
+    })
+    return out.filter((_, i) => i % 2 === 0)
+  }, [])
+  return <>{spots.map((s, i) => <Tree key={i} position={s} scale={0.9 + (i % 3) * 0.12} />)}</>
+}
+
 // ---- the scene --------------------------------------------------------------
-function CityScene({ level, dojoLots, emptyLots, onEnter, onFound }: {
-  level: number
-  dojoLots: Array<{ lot: Lot; id: string; name: string; template: string }>
-  emptyLots: Lot[]
-  onEnter: (id: string) => void
-  onFound: (lot: Lot) => void
+function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip }: {
+  level: number; hqFloors: number; hqName: string; hqAccent: string
+  onEnter: () => void; onGuide: () => void; onTip: () => void
 }) {
   const { lots } = useMemo(() => buildCity(), [])
-  const ambient = lots.filter((l) => l.kind === 'building')
+  // sort lots by distance from centre · nearest is the player HQ, the rest fill
+  // outward; edges become construction sites.
+  const sorted = useMemo(() => [...lots].sort((a, b) => Math.hypot(a.cx, a.cz) - Math.hypot(b.cx, b.cz)), [lots])
+  const maxDist = useMemo(() => Math.max(...sorted.map((l) => Math.hypot(l.cx, l.cz))), [sorted])
+  const hqLot = sorted[0]
+  const academyLot = sorted[3]
+  const konbiniLot = sorted[5]
+  const lakeLot = sorted[8]
+  const reserved = new Set([hqLot?.id, academyLot?.id, konbiniLot?.id, lakeLot?.id])
   const detail = level >= 2
-  const showMovers = level >= 1
-  const showNames = level >= 2
+  const showTraffic = level >= 1
+  const builtRadius = maxDist * 0.82
+
   return (
     <>
       <OrthographicCamera makeDefault position={[46, 46, 46]} zoom={ZOOM_LEVELS[level]} near={-200} far={400} />
       <CameraZoom level={level} />
       <MapControls makeDefault enableRotate={false} enableZoom={false} screenSpacePanning={false} maxDistance={200} />
-      <hemisphereLight args={['#cfe4ff', '#2a2f36', 0.9]} />
-      <directionalLight position={[30, 50, 20]} intensity={1.15} castShadow shadow-mapSize={[1024, 1024]} shadow-camera-left={-60} shadow-camera-right={60} shadow-camera-top={60} shadow-camera-bottom={-60} />
-      <fog attach="fog" args={['#aeb9c6', 90, 220]} />
+      <ambientLight intensity={0.55} />
+      <hemisphereLight args={['#eaf4ff', '#c6cbd1', 0.85]} />
+      <directionalLight position={[34, 52, 22]} intensity={1.5} color="#fff6e6" castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-60} shadow-camera-right={60} shadow-camera-top={60} shadow-camera-bottom={-60} shadow-bias={-0.0004} />
+      <fog attach="fog" args={['#d6e8f7', 150, 340]} />
       <Ground />
-      {ambient.map((l) => (
-        <group key={l.id} position={[l.cx, 0, l.cz]}>
-          <Building spec={l.building!} detail={detail} />
-        </group>
-      ))}
-      {dojoLots.map((d) => (
-        <DojoBuilding key={d.id} lot={d.lot} name={d.name} templateId={d.template} onEnter={() => onEnter(d.id)} showName={showNames} />
-      ))}
-      {emptyLots.map((l) => (
-        <EmptyLot key={l.id} lot={l} onFound={() => onFound(l)} showTag={showNames} />
-      ))}
-      <Movers kind="car" count={14} show={showMovers} />
-      <Movers kind="ped" count={26} show={showMovers} />
+      <StreetTrees />
+
+      {sorted.map((l) => {
+        if (reserved.has(l.id)) return null
+        const dist = Math.hypot(l.cx, l.cz)
+        // near the centre → finished ambient buildings; toward the edges (or on
+        // reserved-empty plots) → construction sites.
+        if (l.kind === 'building' && dist < builtRadius) {
+          return <group key={l.id} position={[l.cx, 0, l.cz]}><Building spec={l.building!} detail={detail} /></group>
+        }
+        return <ConstructionSite key={l.id} lot={l} />
+      })}
+
+      {hqLot && <PlayerHQ lot={hqLot} floors={hqFloors} name={hqName} accent={hqAccent} onEnter={onEnter} />}
+      {academyLot && <Academy lot={academyLot} onOpen={onGuide} />}
+      {konbiniLot && <Konbini lot={konbiniLot} onTip={onTip} />}
+      {lakeLot && <LakePark x={lakeLot.cx} z={lakeLot.cz} />}
+
+      <Traffic show={showTraffic} />
+      <Walkers show={showTraffic} />
       <SkyEvents show={level >= 1} />
     </>
   )
 }
 
-// ---- founding modal ---------------------------------------------------------
-function deriveName(sentence: string): string {
-  const words = sentence.trim().replace(/[^\p{L}\p{N} ]/gu, '').split(/\s+/).filter(Boolean)
-  if (!words.length) return 'Nouveau Dojo'
-  const pick = words.slice(0, 2).map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ')
-  return pick.slice(0, 22)
-}
+const TIPS = [
+  'Astuce : décris ton entreprise en une phrase — ton CEO construit le site, l’offre et le plan growth.',
+  'Astuce : connecte tes agents (Email, Meta, SEO) dans le Studio pour déléguer le growth B2B.',
+  'Astuce : chaque nouveau Dojo ajoute un étage à ton immeuble dans la ville.',
+  'Astuce : achète des crédits dans ta monnaie — pas de crypto à gérer, tout se règle en coulisse.',
+  'Astuce : règle l’autonomie de ton CEO pour éviter qu’il tourne en rond et pour faire durer tes crédits.',
+]
 
 // ---- public component -------------------------------------------------------
 export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () => void }) {
   const dojos = useWorkshop((s) => s.dojos)
-  const createDojo = useWorkshop((s) => s.createDojo)
-  const setActiveDojo = useWorkshop((s) => s.setActiveDojo)
-  const save = useWorkshop((s) => s.save)
+  const activeDojoId = useWorkshop((s) => s.activeDojoId)
+  const account = useWorkshop((s) => s.account)
 
   const [level, setLevel] = useState(1)
-  const [founding, setFounding] = useState<Lot | null>(null)
-  const [sentence, setSentence] = useState('')
+  const [tip, setTip] = useState<string | null>(null)
 
-  const { lots } = useMemo(() => buildCity(), [])
-  const available = useMemo(() => lots.filter((l) => l.kind === 'available'), [lots])
+  const floors = Math.max(1, dojos.length)
+  const active = dojos.find((d) => d.id === activeDojoId) ?? dojos[0]
+  const hqName = account?.name || active?.name || 'Mon Dojo'
+  const hqAccent = templateById(active?.template).palette?.accent || '#ef7d9d'
 
-  // map each dojo → a lot (persisted), filling free plots in order
-  const [lotMap, setLotMap] = useState<Record<string, string>>(loadLotMap)
-  useEffect(() => {
-    const map = { ...lotMap }
-    const taken = new Set(Object.values(map))
-    let changed = false
-    for (const d of dojos) {
-      if (map[d.id]) continue
-      const free = available.find((l) => !taken.has(l.id))
-      if (free) { map[d.id] = free.id; taken.add(free.id); changed = true }
-    }
-    if (changed) { setLotMap(map); saveLotMap(map) }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dojos, available])
-
-  const dojoLots = useMemo(() => {
-    return dojos
-      .map((d) => {
-        const lot = available.find((l) => l.id === lotMap[d.id])
-        return lot ? { lot, id: d.id, name: d.name, template: d.template } : null
-      })
-      .filter(Boolean) as Array<{ lot: Lot; id: string; name: string; template: string }>
-  }, [dojos, available, lotMap])
-
-  const emptyLots = useMemo(() => {
-    const taken = new Set(dojoLots.map((d) => d.lot.id))
-    return available.filter((l) => !taken.has(l.id))
-  }, [available, dojoLots])
-
-  const enter = (id: string) => { setActiveDojo(id); save(); enterDojo() }
-  const doFound = () => {
-    const lot = founding
-    if (!lot) return
-    createDojo(deriveName(sentence) || 'Nouveau Dojo')
-    const newId = useWorkshop.getState().activeDojoId
-    if (newId) {
-      const map = { ...lotMap, [newId]: lot.id }
-      setLotMap(map); saveLotMap(map)
-    }
-    save()
-    setFounding(null); setSentence('')
-    enterDojo()
-  }
+  const showTip = () => setTip(TIPS[Math.floor((Date.now() / 1000) % TIPS.length)])
 
   return (
     <div className="dojo-city">
       <Canvas shadows dpr={[1, 1.8]} gl={{ antialias: true }}>
-        <color attach="background" args={['#aeb9c6']} />
-        <CityScene level={level} dojoLots={dojoLots} emptyLots={emptyLots} onEnter={enter} onFound={setFounding} />
+        <color attach="background" args={['#bfe1fb']} />
+        <CityScene
+          level={level}
+          hqFloors={floors}
+          hqName={hqName}
+          hqAccent={hqAccent}
+          onEnter={enterDojo}
+          onGuide={() => { window.location.href = '/guide' }}
+          onTip={showTip}
+        />
       </Canvas>
 
-      {/* HUD */}
       <div className="city-top">
         <div className="city-title">
           <h1>Dojo City</h1>
-          <p>{dojos.length ? 'Clique ton Dojo pour entrer · ou fonde-en un nouveau sur un terrain libre' : 'Choisis un terrain libre et fonde ton Dojo'}</p>
+          <p>Ton immeuble grandit d’un étage par Dojo. Clique-le pour revenir au tableau de bord · visite l’Académie et le konbini.</p>
         </div>
-        <button className="btn tiny ghost city-exit" onClick={exit}>← Accueil</button>
+        <button className="btn tiny ghost city-exit" onClick={exit}>← Tableau de bord</button>
       </div>
 
       <div className="city-zoom" role="group" aria-label="Zoom">
@@ -526,23 +603,10 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
         ))}
       </div>
 
-      {founding && (
-        <div className="modal-backdrop" onClick={() => setFounding(null)}>
-          <div className="modal city-found" onClick={(e) => e.stopPropagation()}>
-            <h3>Fonde ton Dojo</h3>
-            <p className="muted small">Décris ton entreprise en une phrase. Ton CEO s’occupe du reste — nom, site, offres, growth.</p>
-            <textarea
-              autoFocus
-              rows={3}
-              value={sentence}
-              onChange={(e) => setSentence(e.target.value)}
-              placeholder="Ex : une app qui aide les cafés de quartier à fidéliser leurs clients."
-            />
-            <div className="modal-actions">
-              <button className="btn ghost" onClick={() => setFounding(null)}>Annuler</button>
-              <button className="btn primary" disabled={!sentence.trim()} onClick={doFound}>Fonder mon Dojo →</button>
-            </div>
-          </div>
+      {tip && (
+        <div className="city-tip" onClick={() => setTip(null)}>
+          <p>{tip}</p>
+          <button className="btn tiny" onClick={() => setTip(null)}>OK</button>
         </div>
       )}
     </div>

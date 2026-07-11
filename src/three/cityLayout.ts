@@ -23,25 +23,38 @@ export const ROAD_EVERY = 3 // every Nth index (0-based) is a road
 export const SPAN = GRID * CELL
 export const HALF = SPAN / 2
 
-export type BuildingKind = 'house' | 'shop' | 'apartment' | 'tower' | 'pagoda'
-export type RoofKind = 'flat' | 'gable' | 'hip' | 'pagoda'
+export type BuildingKind = 'tower' | 'office' | 'shophouse' | 'apartment' | 'mall' | 'pagoda' | 'villa' | 'temple'
+export type RoofKind = 'flat' | 'gable' | 'pagoda' | 'hip'
+
+/** Short Japanese signboard strings (shop / office names) for facades + roofs. */
+export const SIGNS = ['商ビル', '東よう', 'フン', 'ラーメン', 'カフェ', '音楽', '銀行', 'ショウ', 'マート', 'ゆめ', 'さくら', 'でんき', '本屋', '薬', '酒場', '鮨', '天ぷら', 'カラオケ']
+
+// Bright, clean daytime palette (whites + saturated pops), à la low-poly Tokyo.
+const BODY = ['#ffffff', '#f5f7fa', '#eef1f5', '#ff6fae', '#ff924a', '#ffd23f', '#3ecfae', '#3bb0ff', '#8b7bf0', '#8ed94f', '#ff6b6b', '#e9edf2', '#ffb8d9', '#57d1c6', '#ffe08a']
+const SIGN_BG = ['#e2265f', '#0f8f5f', '#1f6fd0', '#f0a020', '#7a3ff0', '#e63946', '#00a5b5', '#ff3d81']
 
 export interface BuildingSpec {
   kind: BuildingKind
-  w: number // footprint width (x)
-  d: number // footprint depth (z)
+  w: number
+  d: number
   floors: number
   floorH: number
-  hue: number // facade base hue 0..360
-  sat: number
-  light: number
-  facade: number // window-grid variant 0..3
-  neon: boolean
-  neonHue: number
-  roof: RoofKind
+  body: string // facade base colour (hex)
+  trim: string // window / mullion accent (hex)
+  podium: boolean // ground-floor storefront
+  podiumColor: string
+  awning: boolean
+  awningColor: string
+  sign: { text: string; bg: string; vertical: boolean; place: 'facade' | 'side' } | null
+  roofSign: boolean
+  roofSignText: string
+  billboard: boolean // rooftop screen
+  balconies: boolean
+  setback: boolean
   waterTank: boolean
-  rooftopGarden: boolean
+  antenna: boolean
   acUnits: number
+  roof: RoofKind
 }
 
 export interface Lot {
@@ -66,36 +79,52 @@ export function cellCenter(i: number, j: number): [number, number] {
   return [i * CELL - HALF + CELL / 2, j * CELL - HALF + CELL / 2]
 }
 
+const pick = <T,>(rand: () => number, arr: T[]): T => arr[Math.floor(rand() * arr.length)]
+
 function makeBuilding(rand: () => number): BuildingSpec {
-  const kinds: BuildingKind[] = ['house', 'house', 'shop', 'apartment', 'apartment', 'tower', 'pagoda']
-  const kind = kinds[Math.floor(rand() * kinds.length)]
-  const floors = kind === 'tower' ? 6 + Math.floor(rand() * 9)
+  // weighted kinds · shophouses + offices dominate, towers/apartments common,
+  // malls + pagodas rare (for silhouette variety).
+  const bag: BuildingKind[] = ['shophouse', 'shophouse', 'office', 'office', 'apartment', 'apartment', 'tower', 'tower', 'mall', 'villa', 'villa', 'temple']
+  const kind = pick(rand, bag)
+  const floors = kind === 'tower' ? 8 + Math.floor(rand() * 9)
+    : kind === 'office' ? 4 + Math.floor(rand() * 5)
     : kind === 'apartment' ? 3 + Math.floor(rand() * 4)
-    : kind === 'pagoda' ? 2 + Math.floor(rand() * 3)
-    : kind === 'shop' ? 1 + Math.floor(rand() * 2)
-    : 1 + Math.floor(rand() * 2)
-  const footprint = kind === 'tower' ? 2.4 + rand() * 0.5
-    : kind === 'house' ? 2.2 + rand() * 0.6
-    : 2.6 + rand() * 0.7
-  // Tokyo-ish palette: mostly cool greys/teals with occasional warm signage.
-  const warm = rand() < 0.25
-  const hue = warm ? 8 + rand() * 40 : 190 + rand() * 60
+    : kind === 'mall' ? 2 + Math.floor(rand() * 3)
+    : kind === 'pagoda' || kind === 'temple' ? 2 + Math.floor(rand() * 2)
+    : kind === 'villa' ? 1 + Math.floor(rand() * 2)
+    : 2 + Math.floor(rand() * 2) // shophouse
+  const wide = kind === 'mall' || kind === 'villa' || kind === 'temple'
+  const footprint = kind === 'tower' ? 2.3 + rand() * 0.5
+    : wide ? 2.9 + rand() * 0.6
+    : 2.4 + rand() * 0.7
+  const body = kind === 'tower' ? pick(rand, ['#ffffff', '#f5f7fa', '#eef1f5', '#e9edf2', '#dfe6ee'])
+    : kind === 'villa' ? pick(rand, ['#efe6d3', '#e7d9be', '#d9c9a8', '#f0ead9'])
+    : kind === 'temple' ? pick(rand, ['#7c3a3f', '#8c2f39', '#6f3b2e'])
+    : pick(rand, BODY)
+  const natural = kind === 'villa' || kind === 'temple' || kind === 'pagoda'
+  const hasSign = !natural && rand() < 0.7
   return {
     kind,
     w: footprint,
     d: footprint * (0.82 + rand() * 0.3),
     floors,
-    floorH: kind === 'pagoda' ? 1.1 : 0.9 + rand() * 0.25,
-    hue,
-    sat: warm ? 40 + rand() * 25 : 12 + rand() * 22,
-    light: 52 + rand() * 26,
-    facade: Math.floor(rand() * 4),
-    neon: kind !== 'house' && rand() < 0.55,
-    neonHue: [320, 190, 45, 265, 150][Math.floor(rand() * 5)],
-    roof: kind === 'pagoda' ? 'pagoda' : kind === 'house' ? (rand() < 0.6 ? 'gable' : 'hip') : 'flat',
-    waterTank: kind !== 'house' && rand() < 0.4,
-    rooftopGarden: rand() < 0.22,
-    acUnits: Math.floor(rand() * 4),
+    floorH: kind === 'pagoda' || kind === 'temple' ? 1.15 : kind === 'villa' ? 1.0 : 0.85 + rand() * 0.2,
+    body,
+    trim: pick(rand, ['#2b3442', '#3a4658', '#c9d3e0', '#1f6fd0', '#e2265f']),
+    podium: !natural && (kind === 'shophouse' || kind === 'mall' || rand() < 0.4),
+    podiumColor: pick(rand, ['#e2265f', '#0f8f5f', '#1f6fd0', '#f0a020', '#7a3ff0', '#111820']),
+    awning: kind === 'shophouse' && rand() < 0.7,
+    awningColor: pick(rand, ['#e63946', '#0f8f5f', '#1f6fd0', '#f0a020', '#ffffff']),
+    sign: hasSign ? { text: pick(rand, SIGNS), bg: pick(rand, SIGN_BG), vertical: rand() < 0.5, place: rand() < 0.5 ? 'facade' : 'side' } : null,
+    roofSign: (kind === 'office' || kind === 'mall' || kind === 'tower') && rand() < 0.45,
+    roofSignText: pick(rand, SIGNS),
+    billboard: kind === 'mall' && rand() < 0.7,
+    balconies: kind === 'apartment' && rand() < 0.7,
+    setback: kind === 'tower' && rand() < 0.7,
+    waterTank: (kind === 'office' || kind === 'apartment' || kind === 'shophouse') && rand() < 0.5,
+    antenna: kind === 'tower' && rand() < 0.7,
+    acUnits: natural ? 0 : Math.floor(rand() * 4),
+    roof: kind === 'temple' || kind === 'pagoda' ? 'pagoda' : kind === 'villa' ? 'hip' : 'flat',
   }
 }
 

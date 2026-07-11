@@ -17,6 +17,27 @@ export const HERO_HOME3D: [number, number] = [0, 7.4]
 // the 12 desk slots in seating order (a dojo's agents are placed onto these)
 export const SEATS: [number, number][] = AGENTS.map((a) => POS3D[a.id])
 
+/** Positions for exactly `n` agents on a centred grid (≤4 per row), so a dojo
+ *  only ever shows as many desks as it has agents — no empty slots, and each
+ *  row is centred (a short final row too). Rows are centred around z≈0.7 to keep
+ *  the crew framed with room for the Chief out front. */
+export function seatPositions(n: number): [number, number][] {
+  if (n <= 0) return []
+  const cols = Math.min(4, n)
+  const rows = Math.ceil(n / cols)
+  const xStep = 2.8
+  const zStep = 3.4
+  const zStart = -((rows - 1) / 2) * zStep + 0.7
+  const out: [number, number][] = []
+  for (let i = 0; i < n; i++) {
+    const row = Math.floor(i / cols)
+    const inRow = Math.min(cols, n - row * cols)
+    const col = i - row * cols
+    out.push([(col - (inRow - 1) / 2) * xStep, zStart + row * zStep])
+  }
+  return out
+}
+
 // live map of the active dojo's agent id -> world [x,z], published by the scene.
 // Lets the Chief and camera follow custom agents seated at dynamic slots.
 export const AGENT_POS: Record<string, [number, number]> = {}

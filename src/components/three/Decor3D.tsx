@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { AGENTS } from '../../data/agents'
-import { POS3D, ROOM, DESK_FWD } from '../../three/layout3d'
+import type { Department } from '../../data/agents'
+import { ROOM, DESK_FWD } from '../../three/layout3d'
 import type { DojoPalette } from '../../data/templates'
 
 const WOOD = '#b5793f'
@@ -90,10 +90,11 @@ function Strip({ p, s, c, rot, i = 0.6 }: { p: [number, number, number]; s: [num
   )
 }
 
-/** Job-specific 3D prop, placed on/beside each agent's desk. */
-function JobProp({ id, dz }: { id: string; dz: number }) {
-  switch (id) {
-    case 'ava': // CEO · trophy on desk
+/** Job-specific 3D prop, placed on/beside each agent's desk · keyed by the
+ *  agent's function (department) so any dojo's crew gets fitting props. */
+function JobProp({ fn, dz }: { fn: Department; dz: number }) {
+  switch (fn) {
+    case 'Leadership': // trophy on desk
       return (
         <group position={[0.7, 0.96, dz - 0.1]}>
           <Cy p={[0, 0.18, 0]} r={0.11} h={0.16} c="#ffcf3b" />
@@ -101,7 +102,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <B p={[0, -0.02, 0]} s={[0.18, 0.06, 0.18]} c="#7a4a24" />
         </group>
       )
-    case 'rex': // CTO · second monitor with code
+    case 'Engineering': // second monitor with code
       return (
         <group position={[0.72, 0.9, dz]}>
           <B p={[0, 0.2, 0]} s={[0.5, 0.34, 0.05]} c="#2b2f3d" />
@@ -109,7 +110,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <B p={[0, 0.0, 0]} s={[0.1, 0.06, 0.1]} c="#2b2f3d" />
         </group>
       )
-    case 'otto': // DevOps · server rack beside
+    case 'Ops': // server rack beside
       return (
         <group position={[1.5, 0, dz - 0.4]}>
           <B p={[0, 0.9, 0]} s={[0.6, 1.8, 0.5]} c="#2a2e3d" />
@@ -122,7 +123,7 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           ))}
         </group>
       )
-    case 'fin': // CFO · safe + coins
+    case 'Finance': // safe + coins
       return (
         <group position={[1.45, 0, dz - 0.3]}>
           <B p={[0, 0.5, 0]} s={[0.8, 1, 0.7]} c="#3a3f52" />
@@ -131,72 +132,27 @@ function JobProp({ id, dz }: { id: string; dz: number }) {
           <Cy p={[0, 1.11, 0]} r={0.14} h={0.05} c="#ffd94b" />
         </group>
       )
-    case 'mia': // CMO · megaphone
+    case 'Growth': // megaphone
       return (
         <group position={[0.72, 1.0, dz]} rotation={[0, -0.5, 0.3]}>
           <mesh castShadow><coneGeometry args={[0.2, 0.36, 18, 1, true]} /><meshStandardMaterial color="#f2617a" side={2} {...M} /></mesh>
           <Cy p={[0, -0.24, 0]} r={0.07} h={0.16} c="#7a1730" />
         </group>
       )
-    case 'sol': // Sales · upward chart board
-      return (
-        <group position={[1.4, 0.9, dz - 0.2]}>
-          <B p={[0, 0.5, 0]} s={[0.9, 0.7, 0.05]} c="#f6f8fc" />
-          <B p={[-0.28, 0.35, 0.04]} s={[0.12, 0.18, 0.02]} c="#63d0ff" />
-          <B p={[-0.05, 0.42, 0.04]} s={[0.12, 0.32, 0.02]} c="#7bd88f" />
-          <B p={[0.2, 0.52, 0.04]} s={[0.12, 0.5, 0.02]} c="#ffcf3b" />
-        </group>
-      )
-    case 'pia': // PM · kanban board
+    case 'Product': // kanban board
       return (
         <group position={[1.42, 0.9, dz - 0.2]}>
           <B p={[0, 0.5, 0]} s={[0.9, 0.7, 0.05]} c="#f6f8fc" />
           {[-0.28, 0, 0.28].map((cx) => [0.6, 0.4].map((cy) => <B key={`${cx}-${cy}`} p={[cx, cy, 0.04]} s={[0.2, 0.14, 0.02]} c={cy > 0.5 ? '#ffe08a' : '#a7d8ff'} />))}
         </group>
       )
-    case 'dex': // Designer · easel
-      return (
-        <group position={[1.5, 0, dz - 0.2]}>
-          <B p={[0, 1.0, 0]} s={[0.7, 0.8, 0.05]} c="#f6f8fc" />
-          <B p={[-0.12, 1.05, 0.04]} s={[0.28, 0.28, 0.02]} c="#b06cf0" />
-          <B p={[0.12, 0.9, 0.04]} s={[0.24, 0.24, 0.02]} c="#63d0ff" />
-          <B p={[-0.28, 0.45, 0]} s={[0.05, 0.9, 0.05]} c={WOOD_D} rot={[0, 0, 0.12]} />
-          <B p={[0.28, 0.45, 0]} s={[0.05, 0.9, 0.05]} c={WOOD_D} rot={[0, 0, -0.12]} />
-        </group>
-      )
-    case 'ada': // Data · floating bar chart
-      return (
-        <group position={[0.7, 1.02, dz]}>
-          <B p={[-0.18, 0.12, 0]} s={[0.1, 0.24, 0.1]} c="#63d0ff" emissive="#2a7fa8" ei={0.3} />
-          <B p={[0, 0.2, 0]} s={[0.1, 0.4, 0.1]} c="#7bd88f" emissive="#2f7a4a" ei={0.3} />
-          <B p={[0.18, 0.3, 0]} s={[0.1, 0.6, 0.1]} c="#ffcf3b" emissive="#a87f00" ei={0.3} />
-        </group>
-      )
-    case 'hana': // HR · potted plant + heart
+    case 'People': // potted plant
       return (
         <group position={[1.4, 0, dz - 0.2]}>
           <B p={[0, 0.3, 0]} s={[0.5, 0.5, 0.5]} c="#c17a4a" />
           <Cy p={[0, 0.7, 0]} r={0.06} h={0.4} c={WOOD_D} />
           <Sp p={[0, 1.05, 0]} r={0.42} c="#6cbf6c" />
           <Sp p={[-0.3, 0.9, 0]} r={0.26} c="#5faf5f" />
-        </group>
-      )
-    case 'sam': // Support · headset stand + ticket
-      return (
-        <group position={[0.72, 0.96, dz]}>
-          <Cy p={[0, 0.14, 0]} r={0.03} h={0.28} c="#2b3145" />
-          <mesh position={[0, 0.34, 0]} rotation={[0, 0, 0]}><torusGeometry args={[0.16, 0.03, 10, 20, Math.PI]} /><meshStandardMaterial color="#2b3145" {...M} /></mesh>
-          <Sp p={[-0.16, 0.28, 0]} r={0.06} c="#5aa2f5" />
-          <Sp p={[0.16, 0.28, 0]} r={0.06} c="#5aa2f5" />
-        </group>
-      )
-    case 'lex': // Legal · scales of justice
-      return (
-        <group position={[0.72, 0.96, dz]}>
-          <Cy p={[0, 0.28, 0]} r={0.03} h={0.56} c="#c9a94a" />
-          <B p={[0, 0.54, 0]} s={[0.5, 0.03, 0.03]} c="#c9a94a" />
-          <mesh position={[-0.22, 0.42, 0]}><cylinderGeometry args={[0.1, 0.02, 0.12, 12]} /><meshStandardMaterial color="#e7d18a" {...M} /></mesh>
-          <mesh position={[0.22, 0.42, 0]}><cylinderGeometry args={[0.1, 0.02, 0.12, 12]} /><meshStandardMaterial color="#e7d18a" {...M} /></mesh>
         </group>
       )
     default:
@@ -343,7 +299,7 @@ function Laptop({ y, z }: { y: number; z: number }) {
 
 const FLOAT_COLORS = ['#ff6b8a', '#ffd23f', '#4fc3f7', '#7bd88f', '#ff9a52', '#c98cff']
 
-function Station({ id, x, z, variant }: { id: string; x: number; z: number; variant: string }) {
+function Station({ id, fn, x, z, variant }: { id: string; fn: Department; x: number; z: number; variant: string }) {
   const dz = z + DESK_FWD // desk centre (toward camera)
 
   // Villa: no desks · agents lounge in the pool on inflatable ring floats,
@@ -386,7 +342,7 @@ function Station({ id, x, z, variant }: { id: string; x: number; z: number; vari
       </group>
 
       <Laptop y={0.96} z={z + 0.55} />
-      <JobProp id={id} dz={dz} />
+      <JobProp fn={fn} dz={dz} />
     </group>
   )
 }
@@ -1341,7 +1297,7 @@ function ThemeDecor({ id, backZ, P }: { id: string; backZ: number; P: DojoPalett
   }
 }
 
-export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; decor: string; enclosed?: boolean }) {
+export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoPalette; decor: string; enclosed?: boolean; stations: Array<{ id: string; fn: Department; x: number; z: number }> }) {
   const P = palette
   const backZ = -ROOM.d / 2
   const halfW = ROOM.w / 2
@@ -1442,10 +1398,9 @@ export function Decor3D({ palette, decor, enclosed }: { palette: DojoPalette; de
         </group>
       )}
 
-      {AGENTS.map((a) => {
-        const [x, z] = POS3D[a.id]
-        return <Station key={a.id} id={a.id} x={x} z={z} variant={decor} />
-      })}
+      {stations.map((s) => (
+        <Station key={s.id} id={s.id} fn={s.fn} x={s.x} z={s.z} variant={decor} />
+      ))}
     </group>
   )
 }

@@ -1,10 +1,10 @@
 import { Suspense, useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { SEATS, setAgentPositions, agentWorldPos } from '../three/layout3d'
+import { setAgentPositions, agentWorldPos } from '../three/layout3d'
 import { skinById } from '../data/skins'
 import { templateById } from '../data/templates'
-import { useWorkshop, GRID } from '../workshop'
+import { useWorkshop, seatedAgents, type WAgent } from '../workshop'
 import { useDojo } from '../store'
 import { audio } from '../audio'
 import { Decor3D } from './three/Decor3D'
@@ -67,32 +67,22 @@ function CameraRig() {
   return null
 }
 
-function Agents() {
+function Agents({ seated }: { seated: Array<{ agent: WAgent; x: number; z: number }> }) {
   const runtime = useDojo((s) => s.runtime)
   const stats = useDojo((s) => s.stats)
   const selectedAgent = useDojo((s) => s.selectedAgent)
   const select = useDojo((s) => s.selectAgent)
-  const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
-
-  // the active dojo's agents, seated in grid reading order onto the desk slots
-  const seated = useMemo(() => {
-    const list = [...(dojo?.agents ?? [])]
-      .sort((a, b) => a.gy * GRID.cols + a.gx - (b.gy * GRID.cols + b.gx))
-      .slice(0, SEATS.length)
-    return list.map((wa, i) => ({ wa, pos: SEATS[i] }))
-  }, [dojo])
 
   // publish id -> world position so the Chief + camera can follow any agent
   useEffect(() => {
     const m: Record<string, [number, number]> = {}
-    for (const { wa, pos } of seated) m[wa.id] = pos
+    for (const { agent, x, z } of seated) m[agent.id] = [x, z]
     setAgentPositions(m)
   }, [seated])
 
   return (
     <group>
-      {seated.map(({ wa, pos }) => {
-        const [x, z] = pos
+      {seated.map(({ agent: wa, x, z }) => {
         const rt = runtime[wa.id]
         return (
           <Character3D
@@ -119,9 +109,12 @@ function Agents() {
 
 export function Scene3D() {
   const deselect = useDojo((s) => s.selectAgent)
-  const templateId = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId)?.template)
-  const tpl = templateById(templateId)
+  const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
+  const tpl = templateById(dojo?.template)
   const P = tpl.palette
+  // one seating layout, shared by the desks (Decor3D) and the characters (Agents)
+  const seated = useMemo(() => seatedAgents(dojo ?? null), [dojo])
+  const stations = useMemo(() => seated.map(({ agent, x, z }) => ({ id: agent.id, fn: agent.fn, x, z })), [seated])
   return (
     <Canvas
       shadows
@@ -150,8 +143,8 @@ export function Scene3D() {
       <pointLight position={[-7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />
       <pointLight position={[7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />
       <Suspense fallback={null}>
-        <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} />
-        <Agents />
+        <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
+        <Agents seated={seated} />
         <Hero3D />
         <Lazy3D />
       </Suspense>

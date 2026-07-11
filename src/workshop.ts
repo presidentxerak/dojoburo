@@ -10,6 +10,7 @@ import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
 import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
 import { professionById } from './data/professions'
+import { seatPositions } from './three/layout3d'
 
 export const GRID = { cols: 6, rows: 4 } // 24 cells, up to 12 agents
 export const MAX_AGENTS = 12
@@ -335,4 +336,15 @@ export function activeDojo(): Dojo | null {
 
 export function agentSkin(a: WAgent) {
   return skinById(a.skinId)
+}
+
+/** The active dojo's agents placed on a grid sized to their count — so the
+ *  scene shows exactly one desk per agent (no empty desks). Used by both the
+ *  characters and the desks so they always line up. */
+export function seatedAgents(dojo: Dojo | null): Array<{ agent: WAgent; x: number; z: number }> {
+  const list = [...(dojo?.agents ?? [])]
+    .sort((a, b) => (a.gy * GRID.cols + a.gx) - (b.gy * GRID.cols + b.gx))
+    .slice(0, 12)
+  const pos = seatPositions(list.length)
+  return list.map((agent, i) => ({ agent, x: pos[i][0], z: pos[i][1] }))
 }
