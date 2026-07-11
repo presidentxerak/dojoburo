@@ -53,8 +53,15 @@ function Card({ title, tint, info, children }: { title: string; tint: string; in
  *  credits, engine) as sticky notes; the dojo shows the same crew in 3D. */
 export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
+  const dojos = useWorkshop((s) => s.dojos)
+  const setActiveDojo = useWorkshop((s) => s.setActiveDojo)
   const account = useWorkshop((s) => s.account)
   const agents = dojo?.agents ?? []
+  const cycleDojo = (dir: 1 | -1) => {
+    if (dojos.length < 2 || !dojo) return
+    const i = dojos.findIndex((d) => d.id === dojo.id)
+    setActiveDojo(dojos[(i + dir + dojos.length) % dojos.length].id)
+  }
   const ceo = agents.find((a) => a.fn === 'Leadership') ?? agents[0]
 
   const run = useWork((s) => s.run)
@@ -109,6 +116,15 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
   return (
     <div className="dash-panels">
+      {dojos.length > 1 && (
+        <div className="dash-hero-switch">
+          <button onClick={() => cycleDojo(-1)} aria-label="Dojo précédent">‹</button>
+          <select value={dojo?.id} onChange={(e) => setActiveDojo(e.target.value)} aria-label="Changer de dojo">
+            {dojos.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          </select>
+          <button onClick={() => cycleDojo(1)} aria-label="Dojo suivant">›</button>
+        </div>
+      )}
       <div className="dash-hero">
         <div>
           <h2>{account?.name || 'Ton'} · {dojo?.name || 'Dojo'}</h2>
