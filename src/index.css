@@ -296,6 +296,27 @@ a:hover { text-decoration: underline; }
   .dash-layout.dojo-full .dash-stage { display: block; flex: 1; }
 }
 
+/* mobile bottom navigation bar */
+.mbar { display: none; }
+@media (max-width: 720px) {
+  .mbar {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    background: color-mix(in srgb, var(--panel) 96%, transparent); backdrop-filter: blur(12px);
+    border-top: 1.5px solid var(--border); padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+  .mbar button {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: none; border: none; cursor: pointer; padding: 4px 2px;
+    font-family: var(--font-ui); font-weight: 700; font-size: 11px; color: var(--muted);
+  }
+  .mbar button:active { color: var(--ink); }
+  .mbar-ic { font-size: 20px; line-height: 1; }
+  /* keep content + the help button clear of the bar */
+  .dash-side { padding-bottom: 76px; }
+  .sb-launch { left: auto; right: 12px; bottom: 74px; }
+  .dojo-agent-overlay, .dojo-hud { bottom: 74px; }
+}
+
 /* ===========================================================================
    Onboarding · "what company do you want to create?"
    =========================================================================== */
@@ -769,6 +790,10 @@ a:hover { text-decoration: underline; }
 .ws-prof-or { font-family: var(--font-pixel); font-weight: 800; font-size: 9px; color: var(--muted); text-align: center; margin: 14px 0 2px; text-transform: uppercase; letter-spacing: 0.5px; }
 
 .ws-overlay { position: fixed; inset: 0; z-index: 66; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(30, 22, 50, 0.44); backdrop-filter: blur(4px); opacity: 1; animation: fade 0.2s ease-out both; }
+/* Studio opens full screen (mobile especially) */
+.ws-overlay { padding: 0; }
+.ws-modal, .ws-picker { width: 100vw !important; max-width: 100vw !important; height: 100vh; height: 100dvh; max-height: 100dvh !important; border-radius: 0 !important; border: none !important; }
+@media (min-width: 900px) { .ws-overlay { padding: 24px; } .ws-modal, .ws-picker { width: min(960px, 96vw) !important; max-width: min(960px, 96vw) !important; height: auto; max-height: 92vh !important; border-radius: 18px !important; border: 1.5px solid var(--border-lit) !important; } }
 .ws-over-top { z-index: 80; animation: none; opacity: 1; }
 .ws-modal, .ws-picker { width: min(860px, 96vw); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; background: var(--panel-solid); color: var(--ink); border: 1.5px solid var(--border-lit); border-radius: 18px; box-shadow: var(--shadow); opacity: 1; animation: wspop 0.2s ease-out; }
 @keyframes wspop { from { transform: translateY(8px) scale(0.985); } to { transform: none; } }

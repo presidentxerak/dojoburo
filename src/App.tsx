@@ -112,6 +112,23 @@ export default function App() {
       <Workshop />
       <DeliverableModal />
       <SupportBot />
+
+      {/* mobile bottom navigation bar */}
+      <nav className="mbar" aria-label="Navigation">
+        <button onClick={() => { setDojoFull(false); document.querySelector('.dash-side')?.scrollTo({ top: 0, behavior: 'smooth' }) }}>
+          <span className="mbar-ic">▤</span>Tableau
+        </button>
+        <button onClick={() => setDojoFull((v) => !v)}>
+          <span className="mbar-ic">◳</span>Dojo
+        </button>
+        <button onClick={() => useWork.getState().openStudio('studio')}>
+          <span className="mbar-ic">✎</span>Studio
+        </button>
+        <button onClick={() => { location.hash = 'city' }}>
+          <span className="mbar-ic">⌂</span>City
+        </button>
+      </nav>
+
       {needsAuth && <AuthGate />}
       {!needsAuth && !onboarded && <Onboarding onDone={finishOnboarding} />}
     </div>

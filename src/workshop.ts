@@ -9,7 +9,7 @@ import { SKINS, skinById, variedSkins, crewSkins } from './data/skins'
 import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
 import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
-import { professionById } from './data/professions'
+import { professionById, type Profession } from './data/professions'
 import { seatPositions } from './three/layout3d'
 
 export const GRID = { cols: 6, rows: 4 } // 24 cells, up to 12 agents
@@ -78,6 +78,7 @@ interface WorkshopState {
 
   createDojo: (name?: string, templateId?: string) => void
   createDojoForProfession: (professionId: string) => void
+  createDojoForProfessions: (professionIds: string[]) => void
   renameDojo: (id: string, name: string) => void
   setDojoTemplate: (id: string, templateId: string) => void
   deleteDojo: (id: string) => void
@@ -161,6 +162,36 @@ function makeProfessionDojo(professionId: string): Dojo {
     }
   })
   return { id: uid(), name: `${prof.label}`, template: tpl.id, agents }
+}
+
+/** Build one dojo from SEVERAL professions/domains: the union of every trade's
+ *  departments (deduped, capped at the grid) so the crew covers all of them. */
+function makeProfessionsDojo(ids: string[]): Dojo {
+  const profs = ids.map(professionById).filter(Boolean) as Profession[]
+  if (profs.length <= 1) return makeProfessionDojo(profs[0]?.id ?? ids[0] ?? '')
+  const tpl = templateById(profs[0].template)
+  const depts: Department[] = []
+  for (const p of profs) for (const fn of p.crew) if (!depts.includes(fn)) depts.push(fn)
+  const crew = depts.slice(0, GRID.cols * GRID.rows)
+  const skins = crewSkins(tpl.skinTheme, crew.length)
+  const seen = new Map<string, number>()
+  const agents: WAgent[] = crew.map((fn, i) => {
+    const base = DEPT_NAME[fn]
+    const n = (seen.get(base) ?? 0) + 1
+    seen.set(base, n)
+    return {
+      id: 'a_' + uid(),
+      name: n > 1 ? `${base} ${n}` : base,
+      fn,
+      skinId: skins[i % skins.length].id,
+      tasks: defaultTasksFor(fn),
+      budgetXrp: 5,
+      gx: i % GRID.cols,
+      gy: Math.floor(i / GRID.cols),
+    }
+  })
+  const name = `${profs[0].label} +${profs.length - 1}`
+  return { id: uid(), name, template: tpl.id, agents }
 }
 
 function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null } {
@@ -262,6 +293,10 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     },
     createDojoForProfession: (professionId) => {
       const d = makeProfessionDojo(professionId)
+      set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))
+    },
+    createDojoForProfessions: (professionIds) => {
+      const d = makeProfessionsDojo(professionIds)
       set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))
     },
     renameDojo: (id, name) => {

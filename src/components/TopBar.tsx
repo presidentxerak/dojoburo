@@ -3,52 +3,30 @@ import { createPortal } from 'react-dom'
 import { useDojo } from '../store'
 import { useWorkshop } from '../workshop'
 import { useWork } from '../agents/workStore'
-import { NETWORKS, type NetworkId } from '../xrpl/network'
-import { WALLETS, walletsForDevice } from '../xrpl/wallets'
 import { privyConfigured, privyControls } from '../auth/controls'
 import { skinById } from '../data/skins'
 import { Logo } from './Logo'
 import { Wordmark } from './Wordmark'
 import { Icon } from './Icon'
-import { InfoDot } from './InfoDot'
 import { SkinAvatar } from './workshop/SkinAvatar'
 
-const NETS: NetworkId[] = ['testnet', 'devnet', 'mainnet']
-
 export function TopBar() {
-  const net = useDojo((s) => s.net)
-  const setNetwork = useDojo((s) => s.setNetwork)
   const theme = useDojo((s) => s.theme)
   const setTheme = useDojo((s) => s.setTheme)
   const muted = useDojo((s) => s.muted)
   const toggleSound = useDojo((s) => s.toggleSound)
-  const wallet = useDojo((s) => s.wallet)
-  const walletConnect = useDojo((s) => s.walletConnect)
   const account = useWorkshop((s) => s.account)
   const signInGuest = useWorkshop((s) => s.signInGuest)
   const signOut = useWorkshop((s) => s.signOut)
 
   const [menuOpen, setMenuOpen] = useState(false)
-  const [confirmMainnet, setConfirmMainnet] = useState(false)
 
   const soundOn = !muted
 
-  const pickNet = (id: NetworkId) => {
-    if (id === 'mainnet' && net !== 'mainnet') { setConfirmMainnet(true); return }
-    setNetwork(id)
-  }
   const openStudio = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
   const doLogin = () => { setMenuOpen(false); if (privyConfigured()) privyControls.login?.(); else signInGuest() }
   const doSignOut = () => { setMenuOpen(false); if (account?.provider === 'privy' && privyControls.logout) privyControls.logout(); else signOut() }
-  const focusWalletPanel = () => document.querySelector('.panel.xaman')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  const onConnectWallet = () => {
-    setMenuOpen(false)
-    if (wallet.account) { focusWalletPanel(); return }
-    const top = walletsForDevice()[0]
-    if (WALLETS[top.id].needsConfig?.()) { focusWalletPanel(); return }
-    void walletConnect(top.id)
-  }
 
   // shared settings + wallet rows (used in the desktop dropdown and mobile sheet)
   const Settings = (
@@ -65,23 +43,6 @@ export function TopBar() {
           <Icon name={theme === 'light' ? 'moon' : 'sun'} /> {theme === 'light' ? 'Light' : 'Dark'}
         </button>
       </div>
-      <div className="tb-row tb-row-net">
-        <span>Network <InfoDot title="Networks · Testnet, Devnet, Mainnet">
-          <p><b>Testnet</b> and <b>Devnet</b> are practice networks: the XRP is free (from a faucet) and has no value · perfect to explore everything safely.</p>
-          <p><b>Mainnet</b> is the real XRP Ledger: transactions move real value and are irreversible. There is no faucet · you fund wallets yourself (card top-up or Connect wallet).</p>
-        </InfoDot></span>
-        <div className="tb-netseg">
-          {NETS.map((id) => (
-            <button key={id} className={`${net === id ? 'on' : ''} ${id === 'mainnet' ? 'live' : ''}`} onClick={() => pickNet(id)}>
-              {NETWORKS[id].label}
-            </button>
-          ))}
-        </div>
-      </div>
-      <button className={`tb-menu-item tb-wallet-item ${wallet.account ? 'on' : ''}`} onClick={onConnectWallet}>
-        <span>Connect wallet</span>
-        <span className="tb-wallet-state">{wallet.busy ? 'Connecting…' : wallet.account ? `✓ ${wallet.account.slice(0, 6)}…` : 'Connect'}</span>
-      </button>
     </>
   )
 
@@ -155,27 +116,6 @@ export function TopBar() {
           </div>
         </>,
         document.body,
-      )}
-
-      {confirmMainnet && (
-        <div className="modal-backdrop" onClick={() => setConfirmMainnet(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Switch to Mainnet?</h3>
-            <p>
-              Mainnet moves <strong>real value</strong>. There is no faucet: you fund the wallets yourself.
-              Payments between agents will be real and irreversible.
-            </p>
-            <p className="muted small">
-              Tip: keep small amounts on these hot wallets stored in this browser, or connect a wallet (Xaman, GemWallet, Crossmark) for signing.
-            </p>
-            <div className="modal-actions">
-              <button className="btn ghost" onClick={() => setConfirmMainnet(false)}>Cancel</button>
-              <button className="btn danger" onClick={() => { setNetwork('mainnet'); setConfirmMainnet(false) }}>
-                I understand, switch to Mainnet
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </header>
   )

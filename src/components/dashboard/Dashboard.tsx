@@ -226,7 +226,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       />}>
         <label className="dash-inline">Budget /jour
           <input type="number" min="1" value={budget} onChange={(e) => setBudget(e.target.value)} />
-          <span className="muted small">{account?.currency || 'USD'}</span>
+          <span className="muted small">{fiatCur}</span>
         </label>
         <div className="dash-actions">
           <button className="btn tiny" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#ec4899', title: 'Créas', text: 'Génération de créas Meta — bientôt.' })}>Générer des créas</button>

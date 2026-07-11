@@ -14,30 +14,34 @@ function deriveName(s: string): string {
  *  business-domain tag buttons that seed the right crew + connectors, a little
  *  preview to guide the choice, a Surprise-me, and a free-text describe box. */
 export function Onboarding({ onDone }: { onDone: () => void }) {
-  const createForProf = useWorkshop((s) => s.createDojoForProfession)
+  const createForProfs = useWorkshop((s) => s.createDojoForProfessions)
   const createDojo = useWorkshop((s) => s.createDojo)
   const save = useWorkshop((s) => s.save)
 
-  const [sel, setSel] = useState<string | null>(null)
+  // multi-select · pick as many domains / trades as you like
+  const [sel, setSel] = useState<string[]>([])
   const [desc, setDesc] = useState('')
   const cats = useMemo(() => [...new Set(PROFESSIONS.map((p) => p.category))], [])
-  const selected = PROFESSIONS.find((p) => p.id === sel)
+  const selected = PROFESSIONS.filter((p) => sel.includes(p.id))
+  const toggle = (id: string) => setSel((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
 
-  const surprise = () => { setSel(PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)].id); setDesc('') }
+  const surprise = () => { setSel([PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)].id]); setDesc('') }
   const create = () => {
-    if (sel) createForProf(sel)
+    if (sel.length) createForProfs(sel)
     else if (desc.trim()) createDojo(deriveName(desc))
     else return
     save()
     onDone()
   }
+  // combined connectors across all chosen domains, for the preview
+  const previewConnectors = useMemo(() => [...new Set(selected.flatMap((p) => p.connectors))], [selected])
 
   return (
     <div className="onb">
       <div className="onb-card">
         <span className="onb-kicker">Nouvelle entreprise</span>
         <h1>Quelle entreprise veux-tu créer ?</h1>
-        <p className="onb-sub">Choisis un métier pour démarrer avec la bonne équipe et les bons connecteurs — ou décris ton idée en une phrase. Ton CEO s’occupe du reste.</p>
+        <p className="onb-sub">Choisis un ou <b>plusieurs</b> métiers et domaines : ton équipe et tes connecteurs se combinent. Ou décris simplement ton idée en une phrase. Ton CEO s’occupe du reste.</p>
 
         <button className="onb-surprise" onClick={surprise}>✦ Surprends-moi</button>
 
@@ -47,8 +51,8 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
               <h4>{cat}</h4>
               <div className="onb-tags">
                 {PROFESSIONS.filter((p) => p.category === cat).map((p) => (
-                  <button key={p.id} className={`onb-tag${sel === p.id ? ' on' : ''}`} onClick={() => { setSel(sel === p.id ? null : p.id); setDesc('') }}>
-                    {p.label}
+                  <button key={p.id} className={`onb-tag${sel.includes(p.id) ? ' on' : ''}`} onClick={() => { toggle(p.id); setDesc('') }}>
+                    {sel.includes(p.id) ? '✓ ' : ''}{p.label}
                   </button>
                 ))}
               </div>
@@ -56,11 +60,11 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
           ))}
         </div>
 
-        {selected && (
+        {selected.length > 0 && (
           <div className="onb-preview">
-            <p>{selected.blurb}</p>
+            <p><b>{sel.length} domaine{sel.length > 1 ? 's' : ''} sélectionné{sel.length > 1 ? 's' : ''} :</b> {selected.map((p) => p.label).join(' · ')}</p>
             <div className="onb-chips">
-              {selected.connectors.slice(0, 6).map((c) => <span key={c}>{conName(c)}</span>)}
+              {previewConnectors.slice(0, 10).map((c) => <span key={c}>{conName(c)}</span>)}
             </div>
           </div>
         )}
@@ -68,14 +72,14 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
         <div className="onb-or"><span>ou</span></div>
         <textarea
           value={desc}
-          onChange={(e) => { setDesc(e.target.value); if (e.target.value) setSel(null) }}
+          onChange={(e) => { setDesc(e.target.value); if (e.target.value) setSel([]) }}
           rows={2}
           placeholder="Décris ton entreprise en une phrase — ex : une app qui aide les cafés à fidéliser leurs clients."
         />
 
         <div className="onb-actions">
           <button className="btn ghost" onClick={onDone}>Passer</button>
-          <button className="onb-create" disabled={!sel && !desc.trim()} onClick={create}>Créer mon entreprise →</button>
+          <button className="onb-create" disabled={!sel.length && !desc.trim()} onClick={create}>Créer mon entreprise →</button>
         </div>
       </div>
     </div>
