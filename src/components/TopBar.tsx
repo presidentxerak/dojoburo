@@ -87,7 +87,7 @@ export function TopBar() {
 
   return (
     <header className="topbar">
-      <div className="brand">
+      <div className="brand brand-link" onClick={() => { location.hash = 'city' }} title="Retour à Dojo City" role="link">
         <Logo size={38} />
         <div>
           <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
