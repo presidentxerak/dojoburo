@@ -281,6 +281,12 @@ a:hover { text-decoration: underline; }
 .dash-metrics div { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .dash-metrics span { font-family: var(--font-pixel); font-size: 20px; color: var(--dc); }
 .dash-metrics em { font-size: 11px; font-style: normal; color: var(--muted); text-align: center; }
+.cred-packs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+.cred-pack { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 6px; background: var(--panel-2); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; transition: transform 0.12s, border-color 0.12s; }
+.cred-pack:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--dc); }
+.cred-pack:disabled { opacity: 0.6; cursor: default; }
+.cred-pack span { font-family: var(--font-pixel); font-weight: 800; font-size: 14px; color: var(--ink); }
+.cred-pack em { font-style: normal; font-size: 13px; color: var(--dc); font-weight: 700; }
 
 @media (max-width: 900px) {
   .dash-main { flex-direction: column; }
@@ -921,19 +927,18 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .agent-head-avatar { background: var(--panel-2); }
 .lp-hero h1 { background: var(--title-grad); -webkit-background-clip: text; background-clip: text; }
 
-/* logo mark · the ascii face ◕‿◕ inside a black rounded rectangle (a little
-   terminal badge). The rectangle is black and the face white in both themes;
-   the face blinks gently on a loop. */
-.logo-badge {
-  display: inline-flex; align-items: center; justify-content: center; flex: none;
-  background: #11151d; color: #ffffff; line-height: 1; white-space: nowrap;
-  padding: 0.2em 0.28em; border-radius: 0.24em; user-select: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
-}
+/* logo mark · a black pagoda-temple silhouette (ombre chinoise) with the ascii
+   face ◕‿◕ on its main hall. Temple is black in light mode, white in dark; the
+   face flips the opposite way so it always reads. Face blinks gently. */
+.logo-badge { position: relative; display: inline-flex; flex: none; line-height: 0; user-select: none; }
+.logo-badge .lg-temple { display: block; fill: #11151d; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.25)); }
+:root[data-theme='dark'] .logo-badge .lg-temple { fill: #ffffff; }
 .logo-badge .lg-face {
-  display: inline-block; letter-spacing: -0.05em; font-weight: 400;
-  animation: logo-blink 4.6s steps(1, end) infinite;
+  position: absolute; left: 0; right: 0; top: 70%; transform: translateY(-50%);
+  text-align: center; line-height: 1; letter-spacing: -0.06em; font-weight: 400;
+  color: #ffffff; animation: logo-blink 4.6s steps(1, end) infinite;
 }
+:root[data-theme='dark'] .logo-badge .lg-face { color: #11151d; }
 @keyframes logo-blink {
   0%, 92%, 100% { opacity: 1; }
   94%, 97% { opacity: 0.26; }

@@ -7,6 +7,12 @@ import { skinById } from '../../data/skins'
 import { SkinAvatar } from '../workshop/SkinAvatar'
 import { InfoDot } from '../InfoDot'
 
+// fiat credit packs · ~1 credit per task. Price per credit by currency (XRP
+// display falls back to USD — the user never sees the settlement rail).
+const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
+const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
+const CREDIT_PACKS = [30, 100, 500]
+
 // category shown above each card title, landing-style
 const CARD_CAT: Record<string, string> = {
   'CEO': 'Direction', 'Engine · autonomie': 'Moteur', 'Tâches': 'Travail',
@@ -50,7 +56,27 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
   const [msg, setMsg] = useState('')
   const [budget, setBudget] = useState('20')
+  const [buying, setBuying] = useState(false)
+  const [payMsg, setPayMsg] = useState('')
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
+  const fiatCur = account?.currency && account.currency !== 'XRP' ? account.currency : 'USD'
+
+  const buyCredits = async (credits: number) => {
+    setBuying(true); setPayMsg('')
+    try {
+      const amount = credits * (CREDIT_UNIT[fiatCur] ?? 1)
+      const res = await fetch('/api/checkout', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ amount, currency: fiatCur, email: '', kind: 'credits', privyDid: account?.privyDid || '' }),
+      })
+      const j = await res.json().catch(() => ({}))
+      if (j?.ok && j.url) { window.location.href = j.url as string; return }
+      setPayMsg(j?.error === 'not_configured'
+        ? 'Les paiements par carte ne sont pas encore activés sur ce déploiement.'
+        : 'Impossible de démarrer le paiement. Réessaie dans un instant.')
+    } catch { setPayMsg('Erreur réseau au démarrage du paiement.') }
+    finally { setBuying(false) }
+  }
   const tasksDone = Object.values(stats).reduce((n, s) => n + (s?.tasksDone ?? 0), 0)
 
   const dispatch = (agentName: string, task: string) => {
@@ -160,12 +186,12 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Analytics */}
-      <Card title="Analytics" tint={tint.ana} info={<p>L’activité réelle de ton conglomérat : tâches livrées, calcul consommé et règlements.</p>}>
+      <Card title="Analytics" tint={tint.ana} info={<p>L’activité réelle de ton conglomérat : tâches livrées, calcul consommé, crédits et apps branchées.</p>}>
         <div className="dash-metrics">
           <div><span>{tasksDone}</span><em>tâches livrées</em></div>
           <div><span>{Math.round(usage.tokens / 1000)}k</span><em>jetons</em></div>
-          <div><span>{usage.xrp.toFixed(2)}</span><em>réglé (rail)</em></div>
-          <div><span>{usage.tx}</span><em>transactions</em></div>
+          <div><span>{engine.creditsToday}</span><em>crédits (jour)</em></div>
+          <div><span>{connectedCount}</span><em>connecteurs</em></div>
         </div>
       </Card>
 
@@ -178,9 +204,17 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Credits */}
-      <Card title="Crédits" tint={tint.credit} info={<p>Achète des crédits dans ta monnaie (USD, EUR, JPY…). Pas de crypto à gérer — le règlement se fait sur un rail rapide, en coulisse.</p>}>
-        <p className="muted small">Environ 1 crédit par tâche. Connecteurs branchés : <b>{connectedCount}</b>.</p>
-        <button className="btn primary tiny" onClick={() => openStudio('billing')}>Acheter des crédits</button>
+      <Card title="Crédits" tint={tint.credit} info={<p>Achète des crédits dans ta monnaie ({fiatCur}). Pas de crypto à gérer — le règlement se fait sur un rail rapide, en coulisse. Environ 1 crédit par tâche.</p>}>
+        <div className="cred-packs">
+          {CREDIT_PACKS.map((c) => (
+            <button key={c} className="cred-pack" disabled={buying} onClick={() => buyCredits(c)}>
+              <span>{c} crédits</span>
+              <em>{CREDIT_SYM[fiatCur]}{c * (CREDIT_UNIT[fiatCur] ?? 1)}</em>
+            </button>
+          ))}
+        </div>
+        {payMsg && <p className="muted small">{payMsg}</p>}
+        <p className="muted small">Crédits utilisés aujourd’hui : <b>{engine.creditsToday}</b> · apps branchées : <b>{connectedCount}</b>.</p>
       </Card>
     </div>
   )
