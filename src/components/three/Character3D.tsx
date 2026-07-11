@@ -507,14 +507,26 @@ function Shoe({ kind, color, sole }: { kind: string; color: string; sole: string
   }
 }
 
-function Legs({ id, pants }: { id: string; pants: string }) {
+function Legs({ id, pants, walk }: { id: string; pants: string; walk?: boolean }) {
   const s = shoeForId(id)
+  const left = useRef<THREE.Group>(null)
+  const right = useRef<THREE.Group>(null)
+  useFrame((st) => {
+    if (!walk) return
+    const t = st.clock.elapsedTime * 7 + hashCode(id) * 0.3
+    if (left.current) left.current.rotation.x = Math.sin(t) * 0.7
+    if (right.current) right.current.rotation.x = Math.sin(t + Math.PI) * 0.7
+  })
   return (
     <group>
-      {[-0.22, 0.22].map((x) => (
-        <group key={x} position={[x, 0, 0.14]}>
-          <Cyl p={[0, 0.36, 0]} r={0.13} h={0.5} c={pants} />
-          <Shoe kind={s.kind} color={s.color} sole={s.sole} />
+      {[-0.22, 0.22].map((x, i) => (
+        // pivot at the hip (y≈0.62) so the whole leg swings, then offset the
+        // leg + shoe back down to the floor.
+        <group key={x} ref={i === 0 ? left : right} position={[x, 0.62, 0.14]}>
+          <group position={[0, -0.62, 0]}>
+            <Cyl p={[0, 0.36, 0]} r={0.13} h={0.5} c={pants} />
+            <Shoe kind={s.kind} color={s.color} sole={s.sole} />
+          </group>
         </group>
       ))}
     </group>
@@ -533,6 +545,7 @@ export function Character3D({
   level,
   onSelect,
   bare = false,
+  walk = false,
 }: {
   id: string
   character: Character
@@ -545,6 +558,7 @@ export function Character3D({
   level: number
   onSelect: () => void
   bare?: boolean
+  walk?: boolean
 }) {
   const g = useRef<THREE.Group>(null)
   const [hover, setHover] = useState(false)
@@ -705,7 +719,7 @@ export function Character3D({
           </group>
         ) : isBib ? (
           <group position={[0, 0.05, 0]}>
-            <Legs id={id} pants={character.pants} />
+            <Legs id={id} pants={character.pants} walk={walk} />
             {/* puffy stacked tire-man */}
             <Ball p={[0, 0.66, 0.32]} r={0.56} c={character.face} />
             <Ball p={[0, 1.16, 0.06]} r={0.62} c={character.face} />
@@ -729,7 +743,7 @@ export function Character3D({
         ) : (
           <group>
             {/* legs + shoes (mostly tucked under the desk in the office, shown in previews) */}
-            <Legs id={id} pants={character.pants} />
+            <Legs id={id} pants={character.pants} walk={walk} />
             {/* torso */}
             <Ball p={[0, 1.12, 0]} r={0.56} c={character.outfit} s={[1, 1.02, 0.9]} />
             {/* shoulders */}

@@ -7,16 +7,25 @@ import { skinById } from '../../data/skins'
 import { SkinAvatar } from '../workshop/SkinAvatar'
 import { InfoDot } from '../InfoDot'
 
-/** A post-it card. `tint` colours the pinned corner + top edge. */
+// category shown above each card title, landing-style
+const CARD_CAT: Record<string, string> = {
+  'CEO': 'Direction', 'Engine · autonomie': 'Moteur', 'Tâches': 'Travail',
+  'Site web': 'Web', 'Publicités': 'Acquisition', 'Email & prospects': 'Outbound',
+  'Analytics': 'Mesure', 'Offres & paiements': 'Revenus', 'Crédits': 'Crédits',
+}
+
+/** A landing-style card: white, a washi-tape strip pinned at the top, a small
+ *  coloured category label, a bold title and the body. `tint` is the accent. */
 function Card({ title, tint, info, children }: { title: string; tint: string; info?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="pi" style={{ ['--pi' as string]: tint }}>
-      <header className="pi-head">
-        <span className="pi-pin" />
-        <h3>{title}</h3>
+    <section className="dcard" style={{ ['--dc' as string]: tint }}>
+      <span className="dcard-tape" />
+      <div className="dcard-head">
+        <span className="dcard-cat">{CARD_CAT[title] || ''}</span>
         {info && <InfoDot title={title}>{info}</InfoDot>}
-      </header>
-      <div className="pi-body">{children}</div>
+      </div>
+      <h3 className="dcard-title">{title}</h3>
+      <div className="dcard-body">{children}</div>
     </section>
   )
 }
@@ -58,7 +67,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     setMsg('')
   }
 
-  const tint = { ceo: '#c8b6ff', engine: '#ffd6a5', tasks: '#a7f3d0', site: '#bfdbfe', ads: '#fbcfe8', mail: '#fde68a', ana: '#bbf7d0', prod: '#fecaca', credit: '#c7f9ff' }
+  const tint = { ceo: '#7b5cff', engine: '#e07a2a', tasks: '#1fa563', site: '#2f7fd6', ads: '#e0459b', mail: '#d98c17', ana: '#0e9b6a', prod: '#e0483f', credit: '#0e9bb5' }
 
   return (
     <div className="dash-panels">

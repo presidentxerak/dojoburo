@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { TopBar } from './components/TopBar'
 import { Scene3D } from './components/Scene3D'
 import { Dashboard } from './components/dashboard/Dashboard'
+import { Onboarding } from './components/Onboarding'
 import { AgentPanel } from './components/AgentPanel'
 import { TreasuryPanel } from './components/TreasuryPanel'
 import { ActivityLog } from './components/ActivityLog'
@@ -33,6 +34,14 @@ export default function App() {
 
   // the dojo can expand to fill the window (nanocorp "Desktop View" equivalent)
   const [dojoFull, setDojoFull] = useState(false)
+  // first-run onboarding · "what company do you want to create?"
+  const [onboarded, setOnboarded] = useState(() => {
+    try { return localStorage.getItem('dojoburo.onboarded.v1') === '1' } catch { return true }
+  })
+  const finishOnboarding = () => {
+    try { localStorage.setItem('dojoburo.onboarded.v1', '1') } catch { /* ignore */ }
+    setOnboarded(true)
+  }
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
 
@@ -76,13 +85,8 @@ export default function App() {
       <TopBar />
 
       <div className="dash-main">
-        {!dojoFull && (
-          <div className="dash-left">
-            <Dashboard onOpenDojo={() => setDojoFull(true)} />
-          </div>
-        )}
-
-        <div className={`dash-right${dojoFull ? ' full' : ''}`}>
+        {/* dojo on the LEFT, dashboard on the RIGHT */}
+        <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
           <div className="scene-bg"><Scene3D /></div>
 
           <button className="dojo-full-toggle" onClick={() => setDojoFull((v) => !v)} title={dojoFull ? 'Réduire le dojo' : 'Dojo en plein écran'}>
@@ -106,6 +110,12 @@ export default function App() {
             </div>
           )}
         </div>
+
+        {!dojoFull && (
+          <div className="dash-side">
+            <Dashboard onOpenDojo={() => setDojoFull(true)} />
+          </div>
+        )}
       </div>
 
       <StatsPanel />
@@ -114,6 +124,7 @@ export default function App() {
       <DeliverableModal />
       <SupportBot />
       {needsAuth && <AuthGate />}
+      {!needsAuth && !onboarded && <Onboarding onDone={finishOnboarding} />}
     </div>
   )
 }

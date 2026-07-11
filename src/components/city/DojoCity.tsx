@@ -291,7 +291,7 @@ function Walkers({ show }: { show: boolean }) {
   if (!show) return null
   return <>{items.map((it, i) => (
     <group key={i} ref={(el) => { refs.current[i] = el }} scale={0.5}>
-      <Character3D bare id={it.id} character={it.skin} x={0} z={0} mood="idle" selected={false} busy={false} name="" level={1} onSelect={() => {}} />
+      <Character3D bare walk id={it.id} character={it.skin} x={0} z={0} mood="idle" selected={false} busy={false} name="" level={1} onSelect={() => {}} />
     </group>
   ))}</>
 }
