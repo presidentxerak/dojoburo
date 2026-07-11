@@ -28,13 +28,11 @@ export function Landing({ enter }: { enter: () => void }) {
       <SiteHeader enter={enter} />
 
       <section className="lp-hero">
-        <p className="lp-kicker">Found a company in one sentence · a CEO agent and a specialised crew build and run it · powered by growth hacking</p>
+        <p className="lp-kicker">Autonomous AI companies · powered by growth hacking</p>
         <h1>Found a <span className="hl-mag">COMPANY</span> in one <span className="hl-mag">SENTENCE</span>, and let AI run it while you <span className="hl-outline-b">STEER</span>.</h1>
         <p className="lp-sub">
-          Describe your company and <Wordmark /> stands up a living 3D office to build and run it: a CEO
-          agent leads a crew of specialists who ship your website, craft your offers, drive growth (B2B
-          outreach, email, Meta ads, paid acquisition, SEO) and read the analytics. You steer by chatting
-          with your CEO and get a daily report by email · WhatsApp &amp; Telegram bientôt.
+          Describe it, and <Wordmark /> stands up a living 3D office: a CEO agent leads a crew that ships
+          your site, crafts your offers and drives growth. You steer by chatting — and get a daily report.
         </p>
         <div className="lp-actions">
           <button className="lp-cta" onClick={enter}>Open your cockpit →</button>
