@@ -14,6 +14,8 @@ import * as THREE from 'three'
 import { buildCity, ZOOM_LEVELS, SPAN, HALF, type BuildingSpec, type Lot } from '../../three/cityLayout'
 import { useWorkshop } from '../../workshop'
 import { templateById } from '../../data/templates'
+import { Character3D } from '../three/Character3D'
+import { SKINS } from '../../data/skins'
 
 // ---- facade texture · clean daytime windows (glass + floor slabs) -----------
 function facadeTexture(spec: BuildingSpec): THREE.CanvasTexture {
@@ -65,12 +67,19 @@ function signTexture(text: string, bg: string, vertical: boolean): THREE.CanvasT
   return new THREE.CanvasTexture(c)
 }
 
-function Tree({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
+// bright, varied kawaii tile colours for villa hip roofs
+const VILLA_ROOFS = ['#6f9ec9', '#e0865a', '#4fbfa8', '#8ba3b8', '#b07ba6', '#5f8f6a', '#d9a441']
+const VILLA_ROOFS_D = ['#5a86b0', '#c66e45', '#3fa891', '#748ba0', '#976690', '#4f7a58', '#bf8a2e']
+
+// a normal leafy tree or (1 in 4) a pink cherry-blossom, for kawaii colour
+function Tree({ position, scale = 1, blossom = false }: { position: [number, number, number]; scale?: number; blossom?: boolean }) {
+  const top = blossom ? '#ffb3d1' : '#5bbf4a'
+  const top2 = blossom ? '#ff9ec4' : '#6fd05a'
   return (
     <group position={position} scale={scale}>
       <mesh position={[0, 0.35, 0]} castShadow><cylinderGeometry args={[0.08, 0.1, 0.7, 6]} /><meshStandardMaterial color="#8a5a34" /></mesh>
-      <mesh position={[0, 0.95, 0]} castShadow><icosahedronGeometry args={[0.55, 0]} /><meshStandardMaterial color="#5bbf4a" flatShading /></mesh>
-      <mesh position={[0.18, 1.3, 0.1]} castShadow><icosahedronGeometry args={[0.34, 0]} /><meshStandardMaterial color="#6fd05a" flatShading /></mesh>
+      <mesh position={[0, 0.95, 0]} castShadow><icosahedronGeometry args={[0.55, 0]} /><meshStandardMaterial color={top} flatShading /></mesh>
+      <mesh position={[0.18, 1.3, 0.1]} castShadow><icosahedronGeometry args={[0.34, 0]} /><meshStandardMaterial color={top2} flatShading /></mesh>
     </group>
   )
 }
@@ -96,7 +105,7 @@ function Building({ spec, detail }: { spec: BuildingSpec; detail: boolean }) {
           <mesh key={i} position={[sx * spec.w * 0.36, bodyH / 2 + 0.2, sz * spec.d * 0.36]}><cylinderGeometry args={[0.08, 0.08, bodyH, 8]} /><meshStandardMaterial color="#8c2f24" /></mesh>
         ))}
         {Array.from({ length: tiers }).map((_, k) => (
-          <mesh key={k} position={[0, tierY(k), 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * (0.74 - k * 0.14), 0.4, 4]} /><meshStandardMaterial color="#2e6e5a" flatShading /></mesh>
+          <mesh key={k} position={[0, tierY(k), 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * (0.78 - k * 0.14), 0.5, 4]} /><meshStandardMaterial color="#3fae8a" flatShading /></mesh>
         ))}
         <mesh position={[0, tierY(tiers - 1) + 0.28, 0]}><coneGeometry args={[0.09, 0.34, 8]} /><meshStandardMaterial color="#e6c34a" metalness={0.5} roughness={0.3} /></mesh>
         <group position={[0, 0, spec.d * 0.55]}>
@@ -108,15 +117,19 @@ function Building({ spec, detail }: { spec: BuildingSpec; detail: boolean }) {
     )
   }
 
-  // vintage villa · low timber house, wide hip roof, engawa porch
+  // vintage villa · low timber house, tall bright hip roof (peaked so it reads
+  // in the iso view), engawa porch + a garden shrub
   if (spec.roof === 'hip') {
+    const rc = VILLA_ROOFS[(spec.floors + Math.round(spec.w * 10)) % VILLA_ROOFS.length]
+    const rcDark = VILLA_ROOFS_D[(spec.floors + Math.round(spec.w * 10)) % VILLA_ROOFS.length]
     return (
       <group>
-        <mesh position={[0, 0.04, 0]} receiveShadow><boxGeometry args={[spec.w + 0.5, 0.16, spec.d + 0.5]} /><meshStandardMaterial color="#8f8577" /></mesh>
+        <mesh position={[0, 0.04, 0]} receiveShadow><boxGeometry args={[spec.w + 0.5, 0.16, spec.d + 0.5]} /><meshStandardMaterial color="#b7a98f" /></mesh>
         <mesh position={[0, bodyH / 2 + 0.12, 0]} castShadow receiveShadow><boxGeometry args={[spec.w, bodyH, spec.d]} /><meshStandardMaterial color={spec.body} /></mesh>
-        <mesh position={[0, bodyH * 0.5 + 0.12, spec.d / 2 + 0.01]}><planeGeometry args={[spec.w * 0.8, bodyH * 0.6]} /><meshStandardMaterial color="#f3ecdc" /></mesh>
-        <mesh position={[0, bodyH + 0.34, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 0.95, 0.5, 4]} /><meshStandardMaterial color="#3f4a4f" flatShading /></mesh>
-        <mesh position={[0, bodyH + 0.14, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 1.08, 0.28, 4]} /><meshStandardMaterial color="#33393d" flatShading /></mesh>
+        <mesh position={[0, bodyH * 0.5 + 0.12, spec.d / 2 + 0.01]}><planeGeometry args={[spec.w * 0.8, bodyH * 0.6]} /><meshStandardMaterial color="#f6efe0" /></mesh>
+        {/* peaked hip roof · corner faces the camera so two slopes read in iso */}
+        <mesh position={[0, bodyH + 0.66, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 0.86, 0.95, 4]} /><meshStandardMaterial color={rc} flatShading /></mesh>
+        <mesh position={[0, bodyH + 0.2, 0]} rotation={[0, Math.PI / 4, 0]} castShadow><coneGeometry args={[spec.w * 1.06, 0.42, 4]} /><meshStandardMaterial color={rcDark} flatShading /></mesh>
         <mesh position={[spec.w * 0.5, 0.35, spec.d * 0.5]} castShadow><icosahedronGeometry args={[0.34, 0]} /><meshStandardMaterial color="#5bbf4a" flatShading /></mesh>
       </group>
     )
@@ -203,8 +216,6 @@ function makeMovers(kind: 'ped' | 'car' | 'bus', count: number): Mover[] {
 // ---- shaped vehicles + little people ----------------------------------------
 const CAR_COLORS = ['#e6564f', '#3d7bd6', '#f0b429', '#37946e', '#f0f2f5', '#8b5cf6', '#ff8a3d']
 const BUS_COLORS = ['#e8592e', '#1f9d5a', '#2f7fd6', '#f2b705']
-const SKIN_BODY = ['#ef7d9d', '#6ee7b7', '#fcd34d', '#93c5fd', '#c4b5fd', '#fca5a5', '#7ee0c8', '#ffb3de']
-const HAIR = ['#2b2b33', '#5a3a24', '#e2b04a', '#c94f4f', '#3a5a8c']
 
 function Car({ color }: { color: string }) {
   return (
@@ -232,16 +243,6 @@ function Bus({ color }: { color: string }) {
     </group>
   )
 }
-function Person({ body, hair }: { body: string; hair: string }) {
-  return (
-    <group>
-      <mesh position={[0, 0.28, 0]} castShadow><capsuleGeometry args={[0.16, 0.3, 3, 6]} /><meshStandardMaterial color={body} /></mesh>
-      <mesh position={[0, 0.62, 0]} castShadow><sphereGeometry args={[0.16, 10, 8]} /><meshStandardMaterial color="#f6d3b0" /></mesh>
-      <mesh position={[0, 0.7, 0]}><sphereGeometry args={[0.17, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.6]} /><meshStandardMaterial color={hair} /></mesh>
-    </group>
-  )
-}
-
 function Traffic({ show }: { show: boolean }) {
   const items = useMemo(() => {
     const cars = makeMovers('car', 12).map((m, i) => ({ m, kind: 'car' as const, color: CAR_COLORS[i % CAR_COLORS.length] }))
@@ -266,8 +267,13 @@ function Traffic({ show }: { show: boolean }) {
   return <>{items.map((it, i) => <group key={i} ref={(el) => { refs.current[i] = el }}>{it.kind === 'bus' ? <Bus color={it.color} /> : <Car color={it.color} />}</group>)}</>
 }
 
+// real dojo character skins walking the streets (Character3D in `bare` mode ·
+// no nameplate, no click, just the little figure), scaled down to street size.
 function Walkers({ show }: { show: boolean }) {
-  const items = useMemo(() => makeMovers('ped', 16).map((m, i) => ({ m, body: SKIN_BODY[i % SKIN_BODY.length], hair: HAIR[i % HAIR.length] })), [])
+  const items = useMemo(() => {
+    const pool = SKINS.filter((_, i) => i % 6 === 0).slice(0, 14)
+    return makeMovers('ped', 14).map((m, i) => ({ m, skin: pool[i % pool.length], id: `city-npc-${i}` }))
+  }, [])
   const refs = useRef<(THREE.Group | null)[]>([])
   useFrame((state, dt) => {
     if (!show) return
@@ -278,12 +284,16 @@ function Walkers({ show }: { show: boolean }) {
       mv.pos += mv.dir * mv.speed * d
       if (mv.pos > HALF + 3) mv.pos = -HALF - 3
       else if (mv.pos < -HALF - 3) mv.pos = HALF + 3
-      g.position.set(mv.axis === 'x' ? mv.pos : mv.fixed, Math.abs(Math.sin(state.clock.elapsedTime * 6 + i)) * 0.05, mv.axis === 'z' ? mv.pos : mv.fixed)
+      g.position.set(mv.axis === 'x' ? mv.pos : mv.fixed, Math.abs(Math.sin(state.clock.elapsedTime * 5 + i)) * 0.06, mv.axis === 'z' ? mv.pos : mv.fixed)
       g.rotation.y = mv.axis === 'x' ? (mv.dir > 0 ? Math.PI / 2 : -Math.PI / 2) : (mv.dir > 0 ? 0 : Math.PI)
     })
   })
   if (!show) return null
-  return <>{items.map((it, i) => <group key={i} ref={(el) => { refs.current[i] = el }}><Person body={it.body} hair={it.hair} /></group>)}</>
+  return <>{items.map((it, i) => (
+    <group key={i} ref={(el) => { refs.current[i] = el }} scale={0.5}>
+      <Character3D bare id={it.id} character={it.skin} x={0} z={0} mood="idle" selected={false} busy={false} name="" level={1} onSelect={() => {}} />
+    </group>
+  ))}</>
 }
 
 // ---- ambient sky events -----------------------------------------------------
@@ -407,24 +417,64 @@ function Konbini({ lot, onTip }: { lot: Lot; onTip: () => void }) {
   )
 }
 
-// ---- construction site (empty plot) -----------------------------------------
+// ---- construction site · 4 varied designs (by lot) --------------------------
+function HazardFence() {
+  return (
+    <>
+      {[-1.5, 1.5].map((x) => <mesh key={'fx' + x} position={[x, 0.32, 0]}><boxGeometry args={[0.06, 0.64, 3.2]} /><meshStandardMaterial color="#f2b705" /></mesh>)}
+      {[-1.5, 1.5].map((z) => <mesh key={'fz' + z} position={[0, 0.32, z]}><boxGeometry args={[3.2, 0.64, 0.06]} /><meshStandardMaterial color="#f2b705" /></mesh>)}
+    </>
+  )
+}
 function ConstructionSite({ lot }: { lot: Lot }) {
+  const variant = (lot.i * 3 + lot.j) % 4
   return (
     <group position={[lot.cx, 0, lot.cz]}>
-      <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[3.2, 3.2]} /><meshStandardMaterial color="#b8a06a" /></mesh>
-      {/* hazard fence */}
-      {[-1.5, 1.5].map((x) => <mesh key={'fx' + x} position={[x, 0.35, 0]}><boxGeometry args={[0.06, 0.7, 3.2]} /><meshStandardMaterial color="#f2b705" /></mesh>)}
-      {[-1.5, 1.5].map((z) => <mesh key={'fz' + z} position={[0, 0.35, z]}><boxGeometry args={[3.2, 0.7, 0.06]} /><meshStandardMaterial color="#f2b705" /></mesh>)}
-      {/* scaffold frame */}
-      {[[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]].map(([x, z], i) => (
-        <mesh key={i} position={[x, 0.9, z]}><boxGeometry args={[0.08, 1.8, 0.08]} /><meshStandardMaterial color="#8a8f98" /></mesh>
-      ))}
-      <mesh position={[0, 1.4, 0]}><boxGeometry args={[1.5, 0.08, 1.5]} /><meshStandardMaterial color="#8a8f98" /></mesh>
-      {/* little crane */}
-      <mesh position={[1.1, 1.4, 1.1]}><boxGeometry args={[0.1, 2.8, 0.1]} /><meshStandardMaterial color="#e6564f" /></mesh>
-      <mesh position={[0.4, 2.7, 1.1]}><boxGeometry args={[1.6, 0.1, 0.1]} /><meshStandardMaterial color="#e6564f" /></mesh>
-      {/* stacked girders */}
-      <mesh position={[-0.9, 0.2, 0.9]} castShadow><boxGeometry args={[0.9, 0.2, 0.3]} /><meshStandardMaterial color="#6b7178" /></mesh>
+      <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[3.2, 3.2]} /><meshStandardMaterial color="#c2ab72" /></mesh>
+      <HazardFence />
+      {variant === 0 && (
+        <group>
+          {/* scaffold + tower crane */}
+          {[[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]].map(([x, z], i) => <mesh key={i} position={[x, 0.9, z]}><boxGeometry args={[0.08, 1.8, 0.08]} /><meshStandardMaterial color="#9aa0a8" /></mesh>)}
+          <mesh position={[0, 1.4, 0]}><boxGeometry args={[1.5, 0.08, 1.5]} /><meshStandardMaterial color="#9aa0a8" /></mesh>
+          <mesh position={[1.0, 1.6, 1.0]}><boxGeometry args={[0.12, 3.2, 0.12]} /><meshStandardMaterial color="#e6564f" /></mesh>
+          <mesh position={[0.2, 3.1, 1.0]}><boxGeometry args={[1.9, 0.12, 0.12]} /><meshStandardMaterial color="#f0b429" /></mesh>
+          <mesh position={[-0.5, 2.4, 1.0]}><boxGeometry args={[0.06, 1.3, 0.06]} /><meshStandardMaterial color="#333" /></mesh>
+        </group>
+      )}
+      {variant === 1 && (
+        <group>
+          {/* dug pit + dirt mounds + yellow excavator */}
+          <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[2.2, 2.2]} /><meshStandardMaterial color="#7a6647" /></mesh>
+          <mesh position={[-1.0, 0.2, -1.0]} castShadow><coneGeometry args={[0.5, 0.5, 6]} /><meshStandardMaterial color="#8a7350" flatShading /></mesh>
+          <group position={[0.5, 0, 0.4]}>
+            <mesh position={[0, 0.35, 0]} castShadow><boxGeometry args={[0.7, 0.4, 1.0]} /><meshStandardMaterial color="#f2b705" /></mesh>
+            <mesh position={[0, 0.55, 0.3]} castShadow><boxGeometry args={[0.5, 0.4, 0.5]} /><meshStandardMaterial color="#f0a020" /></mesh>
+            <mesh position={[0, 0.35, 0.9]} rotation={[0.5, 0, 0]}><boxGeometry args={[0.12, 0.9, 0.12]} /><meshStandardMaterial color="#3a3f47" /></mesh>
+            {[-0.28, 0.28].map((x) => <mesh key={x} position={[x, 0.12, 0]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.12, 0.12, 0.72, 8]} /><meshStandardMaterial color="#1c1f24" /></mesh>)}
+          </group>
+        </group>
+      )}
+      {variant === 2 && (
+        <group>
+          {/* poured foundation + rebar grid + cement mixer */}
+          <mesh position={[0, 0.12, 0]} castShadow><boxGeometry args={[2.2, 0.24, 2.2]} /><meshStandardMaterial color="#b9bcc0" /></mesh>
+          {[-0.8, -0.3, 0.2, 0.7].map((x) => [-0.8, -0.3, 0.2, 0.7].map((z) => <mesh key={`${x},${z}`} position={[x, 0.5, z]}><cylinderGeometry args={[0.02, 0.02, 0.6, 4]} /><meshStandardMaterial color="#c56b3a" /></mesh>))}
+          <group position={[1.0, 0, -0.8]}>
+            <mesh position={[0, 0.5, 0]} rotation={[0, 0, 0.5]} castShadow><cylinderGeometry args={[0.3, 0.4, 0.6, 12]} /><meshStandardMaterial color="#e6564f" /></mesh>
+            <mesh position={[0, 0.1, 0]}><boxGeometry args={[0.4, 0.2, 0.6]} /><meshStandardMaterial color="#3a3f47" /></mesh>
+          </group>
+        </group>
+      )}
+      {variant === 3 && (
+        <group>
+          {/* steel frame going up + safety-net wrap */}
+          {[[-0.8, -0.8], [0.8, -0.8], [-0.8, 0.8], [0.8, 0.8]].map(([x, z], i) => <mesh key={i} position={[x, 1.3, z]}><boxGeometry args={[0.12, 2.6, 0.12]} /><meshStandardMaterial color="#5a6470" /></mesh>)}
+          {[0.6, 1.4, 2.2].map((y) => <mesh key={y} position={[0, y, 0]}><boxGeometry args={[1.7, 0.1, 1.7]} /><meshStandardMaterial color="#5a6470" /></mesh>)}
+          <mesh position={[0, 1.6, 0.85]}><planeGeometry args={[1.7, 2.4]} /><meshStandardMaterial color="#2f9d6a" transparent opacity={0.4} side={THREE.DoubleSide} /></mesh>
+          <mesh position={[0.85, 1.6, 0]} rotation={[0, Math.PI / 2, 0]}><planeGeometry args={[1.7, 2.4]} /><meshStandardMaterial color="#2f9d6a" transparent opacity={0.4} side={THREE.DoubleSide} /></mesh>
+        </group>
+      )}
     </group>
   )
 }
@@ -437,7 +487,7 @@ function LakePark({ x, z }: { x: number; z: number }) {
       <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[2.1, 40]} /><meshStandardMaterial color="#3aa7d8" metalness={0.2} roughness={0.25} /></mesh>
       {/* red bridge */}
       <mesh position={[0, 0.35, 0]} rotation={[0, Math.PI / 5, 0]}><boxGeometry args={[4.6, 0.12, 0.5]} /><meshStandardMaterial color="#d1362f" /></mesh>
-      {[[-2.6, -1.4], [2.4, 1.6], [-2.2, 2.0], [2.8, -1.2]].map(([tx, tz], i) => <Tree key={i} position={[tx, 0, tz]} scale={1.05} />)}
+      {[[-2.6, -1.4], [2.4, 1.6], [-2.2, 2.0], [2.8, -1.2]].map(([tx, tz], i) => <Tree key={i} position={[tx, 0, tz]} scale={1.05} blossom={i % 2 === 0} />)}
     </group>
   )
 }
@@ -491,7 +541,7 @@ function StreetTrees() {
     })
     return out.filter((_, i) => i % 2 === 0)
   }, [])
-  return <>{spots.map((s, i) => <Tree key={i} position={s} scale={0.9 + (i % 3) * 0.12} />)}</>
+  return <>{spots.map((s, i) => <Tree key={i} position={s} scale={0.9 + (i % 3) * 0.12} blossom={i % 4 === 0} />)}</>
 }
 
 // ---- the scene --------------------------------------------------------------
