@@ -12,6 +12,7 @@ import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
 import { TeamCards } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
+import { ShowcaseGallery, PerformanceBoard, Testimonials } from './components/landing/Showcase'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -28,15 +29,16 @@ export function Landing({ enter }: { enter: () => void }) {
       <SiteHeader enter={enter} />
 
       <section className="lp-hero">
-        <p className="lp-kicker">Autonomous AI companies · powered by growth hacking</p>
-        <h1>Found a <span className="hl-mag">COMPANY</span> in one <span className="hl-mag">SENTENCE</span>, and let AI run it while you <span className="hl-outline-b">STEER</span>.</h1>
+        <p className="lp-kicker">Autonomous AI companies · a living 3D office you can watch</p>
+        <h1>A company you can <span className="hl-mag">WATCH</span> run <span className="hl-outline-b">itself</span>.</h1>
         <p className="lp-sub">
-          Describe it, and <Wordmark /> stands up a living 3D office: a CEO agent leads a crew that ships
-          your site, crafts your offers and drives growth. You steer by chatting — and get a daily report.
+          Describe your idea in a sentence, and <Wordmark /> stands up a tiny 3D office where a CEO agent and
+          its crew ship your site, craft your offers and chase growth — around the clock. You steer by chatting,
+          and read a daily report while the dojo does the work.
         </p>
         <div className="lp-actions">
           <button className="lp-cta" onClick={enter}>Open your cockpit →</button>
-          <a className="lp-ghost" href="#jobs">Built for your job</a>
+          <a className="lp-ghost" href="#showcase">See 15 companies it built</a>
         </div>
         <div className="lp-badges">
           <span>{PROFESSIONS.length} company profiles</span><span>{CONNECTORS.length} app connectors</span><span>Credits · no crypto</span><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds</span><span>Cloud or local</span>
@@ -48,6 +50,26 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lm-cap">Built on open rails · connects your whole stack</p>
         <LogoMarquee />
       </div>
+
+      <section className="lp-sec" id="board">
+        <span className="lp-pill">Live · updates every day</span>
+        <h2>Real companies. Real revenue.</h2>
+        <p className="lp-lead">
+          A snapshot of the fleet founded inside <Wordmark />: today's top earners and the numbers the crews are
+          putting up right now. The board re-ranks itself every day.
+        </p>
+        <PerformanceBoard />
+      </section>
+
+      <section className="lp-sec alt" id="showcase">
+        <span className="lp-pill">Showcase · 15 companies, 15 identities</span>
+        <h2>Every company gets its own look</h2>
+        <p className="lp-lead">
+          Each dojo ships a real website and ad campaigns in its own voice — its own colours, typography and tone.
+          Here are fifteen it built, from AI headshots to same-day flowers. No two look alike.
+        </p>
+        <ShowcaseGallery />
+      </section>
 
       <section className="lp-sec" id="jobs">
         <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
@@ -144,6 +166,13 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-card mascot"><strong>Chief</strong><span>You · the founder atom</span></div>
           <div className="lp-card mascot"><strong>Lazy</strong><span>The panda who only watches the numbers</span></div>
         </div>
+      </section>
+
+      <section className="lp-sec" id="testimonials">
+        <span className="lp-pill">Founders, in their words</span>
+        <h2>What the founders say</h2>
+        <p className="lp-lead">Real talk from the people running these companies — each set in their own brand's typeface.</p>
+        <Testimonials />
       </section>
 
       <section className="lp-sec alt" id="how">
@@ -411,6 +440,8 @@ export function Landing({ enter }: { enter: () => void }) {
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
         <nav className="lp-foot-links">
+          <a href="#board">Leaderboard</a>
+          <a href="#showcase">Showcase</a>
           <a href="#jobs">Your job</a>
           <a href="#stack">Connect apps</a>
           <a href="#studio">Dojo Studio</a>
