@@ -1890,6 +1890,11 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .infodot-x:hover { color: var(--ink); }
 .infodot-body p { font-size: 14.5px; line-height: 1.6; color: var(--muted); margin: 0 0 10px; }
 .infodot-body b { color: var(--ink); }
+.info-steps { margin: 4px 0 12px; padding: 0; list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 10px; }
+.info-steps li { position: relative; padding-left: 40px; min-height: 28px; font-size: 14.5px; line-height: 1.6; color: var(--ink); }
+.info-steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: -1px; width: 28px; height: 28px; display: grid; place-items: center; font-family: var(--font-pixel); font-weight: 800; font-size: 13px; color: #fff; background: var(--btn-bg); border-radius: 50%; }
+.info-tip { font-size: 14px; line-height: 1.55; color: var(--muted); background: var(--panel-2); border-radius: 10px; padding: 10px 12px; margin: 4px 0 0 !important; }
+.info-tip b { color: var(--ink); }
 .infodot-close {
   align-self: flex-end; margin-top: 6px; font-family: var(--font-pixel); font-weight: 800; font-size: 13px;
   cursor: pointer; color: #fff; background: var(--btn-bg); border: none; border-radius: 2px; padding: 9px 18px;

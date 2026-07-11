@@ -20,6 +20,18 @@ const CARD_CAT: Record<string, string> = {
   'Analytics': 'Mesure', 'Offres & paiements': 'Revenus', 'Crédits': 'Crédits',
 }
 
+/** A step-by-step explainer for an InfoDot: a short lead, numbered steps, and an
+ *  optional tip — so each dashboard feature is spelled out clearly. */
+function Guide({ lead, steps, tip }: { lead: string; steps: React.ReactNode[]; tip?: React.ReactNode }) {
+  return (
+    <>
+      <p>{lead}</p>
+      <ol className="info-steps">{steps.map((s, i) => <li key={i}>{s}</li>)}</ol>
+      {tip && <p className="info-tip"><b>Astuce :</b> {tip}</p>}
+    </>
+  )
+}
+
 /** A landing-style card: white, a washi-tape strip pinned at the top, a small
  *  coloured category label, a bold title and the body. `tint` is the accent. */
 function Card({ title, tint, info, children }: { title: string; tint: string; info?: React.ReactNode; children: React.ReactNode }) {
@@ -106,7 +118,16 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </div>
 
       {/* CEO */}
-      <Card title="CEO" tint={tint.ceo} info={<p>Ton CEO décide quoi faire ensuite. Parle-lui en une phrase; il répartit le travail à ses agents et t’envoie un rapport quotidien.</p>}>
+      <Card title="CEO" tint={tint.ceo} info={<Guide
+        lead="Ton CEO est le cerveau de ton entreprise : tu lui parles en langage normal et il décide quoi faire, puis répartit le travail à ses agents."
+        steps={[
+          <>Écris ton objectif en une phrase dans le champ (ex : « trouve-moi 20 prospects et écris-leur »).</>,
+          <>Clique <b>Envoyer</b> : le CEO découpe l’objectif en tâches et les confie aux bons agents (growth, email, site…).</>,
+          <>Suis l’avancement dans la carte <b>Tâches</b> et dans le dojo, où tu vois les agents travailler.</>,
+          <>Chaque matin, le CEO t’envoie un <b>rapport par email</b> (bientôt aussi WhatsApp / Telegram).</>,
+        ]}
+        tip="Reste simple et concret : un objectif clair par message donne de meilleurs résultats."
+      />}>
         <div className="ceo-row">
           {ceo && <SkinAvatar skin={skinById(ceo.skinId)} size={40} />}
           <div>
@@ -122,7 +143,16 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Engine / autonomy */}
-      <Card title="Engine · autonomie" tint={tint.engine} info={<><p>Règle jusqu’où le CEO agit seul. <b>Auto</b> se rythme pour faire durer tes crédits; Low/Medium/Hard/Ultra plafonnent les tâches autonomes à 1/5/10/25 par jour.</p><p>Un plafond de crédits quotidien et un garde anti-boucle évitent qu’il tourne en rond.</p></>}>
+      <Card title="Engine · autonomie" tint={tint.engine} info={<Guide
+        lead="L’Engine règle à quel point ton CEO agit tout seul, et l’empêche de dépenser trop ou de tourner en rond."
+        steps={[
+          <>Choisis un <b>niveau d’autonomie</b> : <b>Auto</b> s’auto-régule pour faire durer tes crédits ; <b>Low / Medium / Hard / Ultra</b> limitent à <b>1 / 5 / 10 / 25</b> tâches autonomes par jour.</>,
+          <>Fixe un <b>plafond de crédits par jour</b> : une fois atteint, plus aucune tâche ne part jusqu’au lendemain.</>,
+          <>Un <b>garde anti-boucle</b> bloque une tâche qui se répète en boucle (le CEO qui tourne en rond).</>,
+          <>Suis en direct le nombre de <b>tâches</b> et de <b>crédits</b> utilisés aujourd’hui.</>,
+        ]}
+        tip="Commence en Medium : assez actif pour avancer, sans surprise sur tes crédits."
+      />}>
         <div className="tb-netseg eng-seg">
           {(['auto', 'low', 'medium', 'hard', 'ultra'] as Autonomy[]).map((a) => (
             <button key={a} className={engine.autonomy === a ? 'on' : ''} onClick={() => engine.setAutonomy(a)}>{AUTONOMY_LABEL[a]}</button>
@@ -144,7 +174,16 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Tasks */}
-      <Card title="Tâches" tint={tint.tasks} info={<p>Les tâches que tes agents savent livrer. Lance-les à la demande; l’Engine limite le rythme.</p>}>
+      <Card title="Tâches" tint={tint.tasks} info={<Guide
+        lead="Ce sont les livrables concrets que tes agents savent produire. Tu peux en lancer à la demande, sans attendre le CEO."
+        steps={[
+          <>Parcours la liste : chaque ligne montre l’<b>agent</b> et la <b>tâche</b> qu’il peut livrer.</>,
+          <>Clique <b>Lancer</b> pour l’exécuter tout de suite.</>,
+          <>L’agent travaille (tu le vois s’animer dans le dojo) et le <b>résultat s’ouvre</b> dès qu’il est prêt.</>,
+          <>L’<b>Engine</b> vérifie tes limites avant chaque lancement pour éviter les excès.</>,
+        ]}
+        tip="Une tâche consomme environ 1 crédit. Connecte les apps concernées (Studio) pour des résultats plus riches."
+      />}>
         {agents.length === 0 && <p className="muted small">Pas encore d’agents — crée ton Dojo dans le Studio.</p>}
         <ul className="dash-tasks">
           {agents.flatMap((a) => (a.tasks || []).slice(0, 2).map((t) => (
@@ -157,7 +196,16 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Website */}
-      <Card title="Site web" tint={tint.site} info={<p>Ton CEO génère et déploie un site public. Édite-le dans un éditeur visuel, ou branche Figma / Claude Design.</p>}>
+      <Card title="Site web" tint={tint.site} info={<Guide
+        lead="Ton CEO génère et déploie un vrai site public pour ton entreprise, que tu peux ensuite personnaliser."
+        steps={[
+          <>Le CEO crée une <b>première version</b> du site à partir de ta description.</>,
+          <>Édite-le dans un <b>éditeur visuel</b> façon Lovable — textes, sections, images. <em>(bientôt)</em></>,
+          <>Ou branche <b>Figma / Claude Design</b> pour importer ton propre design. <em>(bientôt)</em></>,
+          <>Publie : ton site est en ligne sur ton adresse <b>dojoburo.app</b> (domaine perso possible).</>,
+        ]}
+        tip="Commence par le contenu (offre, bénéfices, appel à l’action) avant de peaufiner le style."
+      />}>
         <p className="muted small">Statut : <b>non déployé</b> · adresse <code>{(dojo?.name || 'dojo').toLowerCase().replace(/\s+/g, '-')}.dojoburo.app</code></p>
         <div className="dash-actions">
           <button className="btn tiny" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#3b82f6', title: 'Éditeur de site', text: 'Éditeur visuel + Figma / Claude Design — bientôt.' })}>Éditer le site</button>
@@ -166,7 +214,16 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Ads */}
-      <Card title="Publicités" tint={tint.ads} info={<p>Génère et lance des campagnes Meta (Facebook / Instagram), ou importe tes propres créas (Photoshop, Figma, Capcut, Seedance).</p>}>
+      <Card title="Publicités" tint={tint.ads} info={<Guide
+        lead="Lance des campagnes payantes pour attirer des clients, avec des visuels générés ou les tiens."
+        steps={[
+          <>Fixe un <b>budget quotidien</b> dans ta monnaie.</>,
+          <><b>Génère</b> automatiquement des créas (visuels + textes) pour Meta / Facebook / Instagram. <em>(bientôt)</em></>,
+          <>Ou <b>importe tes propres créas</b> faites avec Photoshop, Figma, Capcut, Seedance… <em>(bientôt)</em></>,
+          <>Connecte ton compte <b>Meta</b> (Studio) pour diffuser réellement les annonces.</>,
+        ]}
+        tip="Démarre avec un petit budget pour tester, puis mets plus sur ce qui marche."
+      />}>
         <label className="dash-inline">Budget /jour
           <input type="number" min="1" value={budget} onChange={(e) => setBudget(e.target.value)} />
           <span className="muted small">{account?.currency || 'USD'}</span>
@@ -178,7 +235,16 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Email & prospects */}
-      <Card title="Email & prospects" tint={tint.mail} info={<p>Recherche des prospects, vérifie leurs emails et lance des séquences. Branche Gmail et Meta dans le Studio.</p>}>
+      <Card title="Email & prospects" tint={tint.mail} info={<Guide
+        lead="Trouve des clients potentiels, vérifie leurs emails et lance des séquences d’approche."
+        steps={[
+          <>Décris ta <b>cible</b> (secteur, poste, région) et lance une <b>recherche de prospects</b>. <em>(bientôt)</em></>,
+          <>Les emails trouvés sont <b>vérifiés</b> pour éviter les rebonds.</>,
+          <>Connecte <b>Gmail</b> (bouton « Connecter les apps ») pour envoyer depuis ta boîte.</>,
+          <>Ton agent growth <b>rédige et envoie</b> des séquences, puis suit les réponses.</>,
+        ]}
+        tip="Un message court et personnalisé convertit mieux qu’un long argumentaire."
+      />}>
         <div className="dash-actions">
           <button className="btn tiny" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#d97706', title: 'Prospection', text: 'Recherche & vérification d’emails — bientôt.' })}>Rechercher des prospects</button>
           <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter les apps</button>
@@ -186,7 +252,16 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Analytics */}
-      <Card title="Analytics" tint={tint.ana} info={<p>L’activité réelle de ton conglomérat : tâches livrées, calcul consommé, crédits et apps branchées.</p>}>
+      <Card title="Analytics" tint={tint.ana} info={<Guide
+        lead="Le tableau de bord chiffré de ton entreprise : ce que tes agents ont produit et consommé."
+        steps={[
+          <><b>Tâches livrées</b> : le nombre total de livrables produits par tes agents.</>,
+          <><b>Jetons</b> : le volume de calcul (IA) utilisé.</>,
+          <><b>Crédits (jour)</b> : ce que tu as dépensé aujourd’hui.</>,
+          <><b>Connecteurs</b> : le nombre d’apps branchées à tes agents.</>,
+        ]}
+        tip="Plus tu connectes d’apps, plus tes agents livrent un travail réel et mesurable."
+      />}>
         <div className="dash-metrics">
           <div><span>{tasksDone}</span><em>tâches livrées</em></div>
           <div><span>{Math.round(usage.tokens / 1000)}k</span><em>jetons</em></div>
@@ -196,7 +271,15 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Products & payments */}
-      <Card title="Offres & paiements" tint={tint.prod} info={<p>Ton CEO crée des offres et une page de paiement. Branche Stripe pour encaisser en vrai.</p>}>
+      <Card title="Offres & paiements" tint={tint.prod} info={<Guide
+        lead="Crée ce que tu vends et encaisse tes clients pour de vrai."
+        steps={[
+          <>Ton CEO propose des <b>offres</b> et une <b>page de paiement</b> à partir de ton activité. <em>(bientôt)</em></>,
+          <>Connecte <b>Stripe</b> (Studio) pour recevoir les paiements sur ton compte.</>,
+          <>Partage le <b>lien de paiement</b> ; les ventes remontent dans ton tableau de bord.</>,
+        ]}
+        tip="Commence avec une seule offre claire ; tu pourras en ajouter ensuite."
+      />}>
         <div className="dash-actions">
           <button className="btn tiny" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#ef4444', title: 'Offres', text: 'Création d’offres + page de paiement — bientôt.' })}>Créer une offre</button>
           <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Stripe</button>
@@ -204,7 +287,16 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       </Card>
 
       {/* Credits */}
-      <Card title="Crédits" tint={tint.credit} info={<p>Achète des crédits dans ta monnaie ({fiatCur}). Pas de crypto à gérer — le règlement se fait sur un rail rapide, en coulisse. Environ 1 crédit par tâche.</p>}>
+      <Card title="Crédits" tint={tint.credit} info={<Guide
+        lead="Les crédits alimentent le travail de tes agents. Tu les achètes dans ta monnaie, sans aucune crypto."
+        steps={[
+          <>Choisis un <b>pack</b> (30 / 100 / 500 crédits) affiché dans ta monnaie ({fiatCur}).</>,
+          <>Le paiement s’ouvre dans une <b>nouvelle fenêtre</b> (carte, sécurisé) ; ton solde se met à jour ensuite.</>,
+          <>Chaque tâche consomme <b>environ 1 crédit</b> ; le règlement se fait en coulisse — tu ne vois aucune crypto.</>,
+          <>Suis ta <b>consommation du jour</b> et le nombre d’apps branchées en bas de la carte.</>,
+        ]}
+        tip="Le niveau d’autonomie (Engine) et le plafond quotidien t’aident à maîtriser ta consommation."
+      />}>
         <div className="cred-packs">
           {CREDIT_PACKS.map((c) => (
             <button key={c} className="cred-pack" disabled={buying} onClick={() => buyCredits(c)}>
