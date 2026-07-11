@@ -332,6 +332,7 @@ a:hover { text-decoration: underline; }
 .cred-pack em { font-style: normal; font-size: 13px; color: var(--dc); font-weight: 700; }
 
 /* Settings & secrets card */
+.sec-warn { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #d9822b 14%, transparent); border: 1.5px solid color-mix(in srgb, #d9822b 45%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
 .sec-add { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
 .sec-add input { width: 100%; font-family: var(--font-mono); }
 .sec-add .sec-key { font-weight: 700; letter-spacing: 0.02em; }

@@ -91,7 +91,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     if (!secKey.trim() || !secVal.trim() || !dojoId) return
     addSecret(dojoId, secKey, secVal, secDesc)
     setSecKey(''); setSecVal(''); setSecDesc('')
-    pushToast({ kind: 'event', badge: 'OK', color: '#0e9bb5', title: 'Secret enregistré', text: 'Exposé à tes agents comme variable d’environnement.' })
+    pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Secret enregistré (local)', text: 'Stocké dans ton navigateur — n’y mets pas de vraie clé de production.' })
   }
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
   const fiatCur = account?.currency && account.currency !== 'XRP' ? account.currency : 'USD'
@@ -343,15 +343,16 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
       {/* Settings & secrets (nanocorp's "Settings" panel) */}
       <Card title="Réglages & secrets" tint={tint.cfg} info={<Guide
-        lead="Les variables d’environnement (clés API, tokens…) que tes agents utilisent, plus les interrupteurs de sécurité."
+        lead="Les variables d’environnement (clés API, tokens…) que tes agents utiliseront, plus les interrupteurs de sécurité."
         steps={[
           <>Donne un <b>nom</b> à ta variable (ex : <code>STRIPE_KEY</code>), colle sa <b>valeur</b> et une note facultative.</>,
-          <>Elle est exposée à tes agents comme <b>variable d’environnement</b> quand ils exécutent une tâche.</>,
-          <>En production, la valeur part dans le <b>coffre chiffré</b> (AES-256-GCM, côté serveur) — le navigateur ne la garde pas.</>,
+          <><b>⚠️ Dans cette version, les secrets restent dans ton navigateur</b> (localStorage) — n’y mets <b>pas</b> de vraie clé de production.</>,
+          <>La version <b>chiffrée côté serveur</b> (AES-256-GCM, comme tes <em>apps connectées</em> et ta clé Claude) est en préparation.</>,
           <>Mets l’entreprise <b>en pause</b> pour tout arrêter, ou coupe seulement les <b>emails sortants</b>.</>,
         ]}
-        tip="Utilise des clés restreintes (scopées) et fais-les tourner régulièrement."
+        tip="Pour de vraies clés, passe par tes apps connectées (Studio) — elles, sont déjà scellées côté serveur."
       />}>
+        <p className="sec-warn">⚠️ <b>Bêta locale :</b> les secrets ci-dessous sont stockés <b>dans ton navigateur</b>, non chiffrés côté serveur. N’y colle pas de clé de production réelle — le coffre serveur chiffré arrive.</p>
         <div className="sec-add">
           <input className="sec-key" placeholder="SERVICE_API_KEY" value={secKey} onChange={(e) => setSecKey(e.target.value.toUpperCase())} maxLength={48} />
           <input className="sec-val" type="password" placeholder="Valeur du secret" value={secVal} onChange={(e) => setSecVal(e.target.value)} />
