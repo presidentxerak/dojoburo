@@ -1,7 +1,6 @@
 // Renders the active studio module in the right panel. Live modules load lazily
 // (their own chunk, shown behind a Suspense spinner); modules still on the
 // roadmap render an honest "coming soon" scaffold listing what's planned.
-import { Suspense } from 'react'
 import { MODULE_BY_ID } from './registry'
 import { ErrorBoundary } from '../components/ErrorBoundary'
 
@@ -25,9 +24,7 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
 
       {def.status === 'live' && def.comp ? (
         <ErrorBoundary label={def.label}>
-          <Suspense fallback={<div className="modhost-loading"><span className="ceo-spin" /> Chargement du module…</div>}>
-            <def.comp onClose={onClose} dojoId={dojoId} />
-          </Suspense>
+          <def.comp onClose={onClose} dojoId={dojoId} />
         </ErrorBoundary>
       ) : (
         <div className="ad-body">

@@ -1,10 +1,18 @@
 // Studio modules · the pro-app surfaces that grow each agent into a real tool.
-//
-// Each module is lazy-loaded (its own chunk) so the base bundle stays light —
-// the Video editor's ffmpeg.wasm or the Website builder's canvas only download
-// when the user opens them. The registry is the single source of truth; add a
-// module here and it appears everywhere (missions, agent dashboards).
-import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
+// The registry is the single source of truth; add a module here and it appears
+// everywhere (missions, agent dashboards).
+import type { ComponentType } from 'react'
+// Modules are imported DIRECTLY (not lazy). They were lazy-loaded before, but a
+// stale/missing chunk after a deploy could 404 and leave the panel blank. Bundled
+// into the main chunk, a module always renders as long as the app shell loads.
+import AssetsModule from './assets/AssetsModule'
+import BrandingModule from './branding/BrandingModule'
+import WebsiteModule from './website/WebsiteModule'
+import CampaignModule from './campaign/CampaignModule'
+import VideoModule from './video/VideoModule'
+import FinanceModule from './finance/FinanceModule'
+import CRMModule from './crm/CRMModule'
+import AnalyticsModule from './analytics/AnalyticsModule'
 
 export interface ModuleProps {
   onClose: () => void
@@ -21,8 +29,8 @@ export interface ModuleDef {
   /** which role agent owns this module (opens from its dashboard) */
   agentRole: string
   status: 'live' | 'soon'
-  /** lazy component for a live module */
-  comp?: LazyExoticComponent<ComponentType<ModuleProps>>
+  /** component for a live module (bundled, not lazy) */
+  comp?: ComponentType<ModuleProps>
   /** what's coming, shown on a 'soon' module scaffold */
   planned?: string[]
 }
@@ -36,7 +44,7 @@ export const MODULES: ModuleDef[] = [
     emoji: '🗂️',
     agentRole: 'work',
     status: 'live',
-    comp: lazy(() => import('./assets/AssetsModule')),
+    comp: AssetsModule,
   },
   {
     id: 'branding',
@@ -46,7 +54,7 @@ export const MODULES: ModuleDef[] = [
     emoji: '🎨',
     agentRole: 'web',
     status: 'live',
-    comp: lazy(() => import('./branding/BrandingModule')),
+    comp: BrandingModule,
   },
   {
     id: 'website',
@@ -56,7 +64,7 @@ export const MODULES: ModuleDef[] = [
     emoji: '🌐',
     agentRole: 'web',
     status: 'live',
-    comp: lazy(() => import('./website/WebsiteModule')),
+    comp: WebsiteModule,
   },
   {
     id: 'campaign',
@@ -66,7 +74,7 @@ export const MODULES: ModuleDef[] = [
     emoji: '📣',
     agentRole: 'acq',
     status: 'live',
-    comp: lazy(() => import('./campaign/CampaignModule')),
+    comp: CampaignModule,
   },
   {
     id: 'video',
@@ -76,7 +84,7 @@ export const MODULES: ModuleDef[] = [
     emoji: '🎬',
     agentRole: 'acq',
     status: 'live',
-    comp: lazy(() => import('./video/VideoModule')),
+    comp: VideoModule,
   },
   {
     id: 'finance',
@@ -86,7 +94,7 @@ export const MODULES: ModuleDef[] = [
     emoji: '📊',
     agentRole: 'revenue',
     status: 'live',
-    comp: lazy(() => import('./finance/FinanceModule')),
+    comp: FinanceModule,
   },
   {
     id: 'analytics',
@@ -96,7 +104,7 @@ export const MODULES: ModuleDef[] = [
     emoji: '📈',
     agentRole: 'measure',
     status: 'live',
-    comp: lazy(() => import('./analytics/AnalyticsModule')),
+    comp: AnalyticsModule,
   },
   {
     id: 'crm',
@@ -106,7 +114,7 @@ export const MODULES: ModuleDef[] = [
     emoji: '🤝',
     agentRole: 'outbound',
     status: 'live',
-    comp: lazy(() => import('./crm/CRMModule')),
+    comp: CRMModule,
   },
 ]
 

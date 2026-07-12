@@ -17,6 +17,10 @@ export function getPool(): Pool {
       // most hosted Postgres require TLS; allow the platform CA
       ssl: /sslmode=disable/.test(connectionString) ? undefined : { rejectUnauthorized: false },
     })
+    // CRITICAL: without this listener, an idle-client error (Supabase/pgBouncer
+    // dropping a connection) becomes an unhandled 'error' event that CRASHES the
+    // serverless function → 500. Swallow it; the pool re-establishes clients.
+    pool.on('error', (err) => { console.error('pg pool idle error:', err?.message || err) })
   }
   return pool
 }
