@@ -56,19 +56,7 @@ export function HeroCreate({ enter }: { enter: () => void }) {
 
   return (
     <div className="hc" id="create-hero">
-      <div className="hc-row">
-        <input
-          ref={inputRef}
-          className="hc-input"
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') create() }}
-          placeholder="Décris ton entreprise en une phrase — ex : une app qui aide les cafés à fidéliser leurs clients"
-          maxLength={160}
-        />
-        <button className="hc-go" onClick={create}>Create your company →</button>
-      </div>
-
+      {/* filters ABOVE the field */}
       <div className="hc-filters">
         <span className="hc-flabel">Besoins</span>
         <div className="hc-chips">
@@ -90,6 +78,19 @@ export function HeroCreate({ enter }: { enter: () => void }) {
           ))}
           {!open && <button className="hc-chip hc-more" onClick={() => setOpen(true)}>+{PROFESSIONS.length - 8} métiers</button>}
         </div>
+      </div>
+
+      <div className="hc-row">
+        <input
+          ref={inputRef}
+          className="hc-input"
+          value={desc}
+          onChange={(e) => setDesc(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') create() }}
+          placeholder="Décris ton entreprise en une phrase — ex : une app qui aide les cafés à fidéliser leurs clients"
+          maxLength={160}
+        />
+        <button className="hc-go" onClick={create}>Create your company →</button>
       </div>
 
       {(selectedProfs.length > 0 || needs.length > 0) && (

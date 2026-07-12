@@ -308,6 +308,7 @@ a:hover { text-decoration: underline; }
 .ceo-autopilot { display: flex; align-items: center; gap: 9px; margin: 10px 0 4px; font-size: 13.5px; color: var(--ink); }
 .ceo-spin { width: 14px; height: 14px; flex: none; border-radius: 50%; border: 2px solid color-mix(in srgb, #7b5cff 30%, transparent); border-top-color: #7b5cff; animation: ceo-spin 0.8s linear infinite; }
 @keyframes ceo-spin { to { transform: rotate(360deg); } }
+.ceo-nomodel { margin: 10px 0 2px; padding: 10px 12px; background: color-mix(in srgb, #d9822b 13%, transparent); border: 1.5px solid color-mix(in srgb, #d9822b 42%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
 .ceo-row strong { display: block; font-size: 17px; }
 .ceo-row .muted { display: block; font-size: 14px; }
 .eng-seg { display: flex; gap: 3px; margin-bottom: 14px; background: var(--panel-2); border-radius: 10px; padding: 3px; }
@@ -446,7 +447,15 @@ a:hover { text-decoration: underline; }
 .tb-nav a:hover { color: var(--ink); }
 /* Dojo Guide + Studio buttons in the dojo header carry no outline */
 .topbar .tb-guide, .topbar .tb-studio { border: none !important; }
-.topbar .tb-create { background: linear-gradient(140deg, var(--pink), var(--violet)) !important; color: #fff !important; border: none !important; }
+/* Guide + Create buttons everywhere: the same solid dark style as the other
+   header buttons (no magenta, no gradient). */
+.topbar .tb-guide, .topbar .tb-create, .topbar .tb-studio,
+.lp-navguide, .lp-nav-links a.lp-navguide, .lp-menu-guide,
+.lp-nav .lp-cta, .lp-nav-right .lp-cta {
+  background: var(--btn-bg) !important; background-image: none !important;
+  color: var(--btn-fg) !important; border: none !important;
+}
+.lp-navguide:hover, .lp-nav-links a.lp-navguide:hover, .lp-nav-right .lp-cta:hover { filter: brightness(1.12); }
 
 .net-switch { display: flex; background: var(--panel-2); border-radius: 12px; padding: 2px; }
 .net-tab { background: transparent; border: none; color: var(--muted); padding: 6px 10px; font: inherit; font-size: 10px; cursor: pointer; border-radius: 10px; }
@@ -747,10 +756,11 @@ a:hover { text-decoration: underline; }
 .hc-input:focus { outline: none; border-color: var(--bc); }
 .hc-go {
   flex: none; font-family: var(--font-pixel); font-weight: 800; font-size: 15px; cursor: pointer; white-space: nowrap;
-  color: #fff; background: linear-gradient(140deg, var(--pink), var(--violet)); border: none; border-radius: 14px; padding: 0 22px;
+  color: #fff; background: var(--btn-bg); border: none; border-radius: 14px; padding: 0 22px;
 }
-.hc-go:hover { filter: brightness(1.05); }
-.hc-filters { display: flex; align-items: baseline; gap: 12px; margin-top: 12px; text-align: left; }
+.hc-go:hover { filter: brightness(1.12); }
+.hc-filters { display: flex; align-items: baseline; justify-content: center; gap: 12px; margin-bottom: 10px; text-align: left; }
+.hc-row { margin-top: 4px; }
 .hc-flabel { flex: none; width: 62px; font-family: var(--font-pixel); font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); padding-top: 6px; }
 .hc-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .hc-chip {
@@ -2405,12 +2415,12 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 /* ===========================================================================
    Dojo Guide · connectors walkthrough (page + overlay)
    =========================================================================== */
-.tb-guide { background: var(--c-magenta) !important; color: #fff !important; border: none !important; text-decoration: none; display: inline-flex; align-items: center; }
-.tb-guide:hover { background: #ff1790 !important; }
-.lp-navguide, .lp-nav-links a.lp-navguide { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; cursor: pointer; color: #fff; background: var(--c-magenta); border: none; border-radius: 2px; padding: 8px 13px; text-decoration: none; display: inline-flex; align-items: center; }
-.lp-navguide:hover, .lp-nav-links a.lp-navguide:hover { background: #ff1790; color: #fff; }
+.tb-guide { background: var(--btn-bg) !important; color: var(--btn-fg) !important; border: none !important; text-decoration: none; display: inline-flex; align-items: center; }
+.tb-guide:hover { filter: brightness(1.12); }
+.lp-navguide, .lp-nav-links a.lp-navguide { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; cursor: pointer; color: var(--btn-fg); background: var(--btn-bg); border: none; border-radius: 2px; padding: 8px 13px; text-decoration: none; display: inline-flex; align-items: center; }
+.lp-navguide:hover, .lp-nav-links a.lp-navguide:hover { filter: brightness(1.12); }
 .lp-nav-links a.lp-navguide::after { display: none; }
-.lp-menu-guide { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; cursor: pointer; color: #fff; background: var(--c-magenta); border: none; border-radius: 8px; padding: 13px 12px; text-align: left; text-decoration: none; display: block; }
+.lp-menu-guide { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; cursor: pointer; color: var(--btn-fg); background: var(--btn-bg); border: none; border-radius: 8px; padding: 13px 12px; text-align: left; text-decoration: none; display: block; }
 .tb-menu-link { text-decoration: none; display: flex; align-items: center; }
 
 .dg-overlay {

@@ -40,11 +40,15 @@ export async function launchCeo(brief: string): Promise<void> {
   work.setAutopilot({ running: true, step: PIPELINE[0].label })
   toast({ kind: 'event', badge: 'CEO', color: '#7b2ff7', title: ceoName, text: 'Je me lance — je construis ton entreprise…' })
 
+  const before = useWorkshop.getState().activeDojoId
+    ? useDeliverables.getState().list(useWorkshop.getState().activeDojoId!).length : 0
+
   for (const step of PIPELINE) {
-    const sig = `${ceoName}:${step.task}`
-    const gate = useEngine.getState().gate(sig)
-    if (!gate.ok) { toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'CEO en pause', text: gate.reason! }); break }
-    useEngine.getState().record(sig)
+    // The initial build is an EXPLICIT user action, not background autonomy, so
+    // it isn't capped by the daily autonomy limit — only a hard company Pause
+    // stops it. We still record it so the counters move.
+    if (useEngine.getState().paused) { toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'CEO en pause', text: 'Entreprise en pause — reprends dans Réglages.' }); break }
+    useEngine.getState().record(`${ceoName}:${step.task}`)
     useWork.getState().setAutopilot({ running: true, step: step.label })
     toast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: `CEO · ${step.label}`, text: 'en cours…' })
 
@@ -55,6 +59,12 @@ export async function launchCeo(brief: string): Promise<void> {
   }
 
   useWork.getState().setAutopilot({ running: false, step: null })
-  const produced = useDeliverables.getState().list(useWorkshop.getState().activeDojoId || '').length
-  if (produced) toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'CEO', text: `${produced} livrable(s) prêts — regarde tes panneaux.` })
+  const list = useDeliverables.getState().list(useWorkshop.getState().activeDojoId || '')
+  const produced = list.length - before
+  const drafts = list.some((d) => d.model === 'brouillon local')
+  if (list.length && drafts) {
+    toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Brouillons prêts', text: 'Aucun modèle IA connecté : ce sont des brouillons. Ajoute une clé dans Studio → Facturation pour la vraie génération.' })
+  } else if (produced > 0) {
+    toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'CEO', text: `${produced} livrable(s) prêts — regarde tes panneaux.` })
+  }
 }

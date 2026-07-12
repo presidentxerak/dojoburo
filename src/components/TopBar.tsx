@@ -76,12 +76,12 @@ export function TopBar() {
           <a href="/#pricing">Pricing</a>
         </nav>
         <a className="btn tiny tb-guide" href="/guide">Dojo Guide</a>
-        <button className="btn tiny tb-studio tb-create" onClick={openCreate}>+ Create</button>
         <button className="btn tiny tb-studio" onClick={openStudio}>Studio</button>
         <button className="btn tiny tb-studio tb-city" onClick={() => { location.hash = 'city' }}>City</button>
       </div>
 
       <div className="topbar-right">
+        <button className="btn tiny tb-create tb-desktop" onClick={openCreate}>+ Create</button>
         {account ? (
           <button className="tb-profile tb-desktop" onClick={() => setMenuOpen((v) => !v)} aria-label="Profile & settings" title={account.name || 'Founder'}>
             <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />

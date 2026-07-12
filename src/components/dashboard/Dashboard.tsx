@@ -78,6 +78,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const showDeliverable = useWork((s) => s.showDeliverable)
   const delivs = useDeliverables((s) => s.byDojo[dojo?.id ?? ''] ?? [])
   const got = (kind: string) => delivs.find((d) => d.taskId === kind)
+  const noModel = delivs.some((d) => d.model === 'brouillon local')
   const usage = useDojo((s) => s.usage)
   const stats = useDojo((s) => s.stats)
   const pushToast = useDojo((s) => s.pushToast)
@@ -166,8 +167,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   // quota, no model configured…). On success the deliverable opens automatically.
   const runTask = async (agentName: string, task: string, brief = '') => {
     if (running) return
-    const g = engine.gate(`${agentName}:${task}`)
-    if (!g.ok) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Limite atteinte', text: g.reason! }); return }
+    // explicit user action → only a hard company Pause blocks it (not the daily
+    // autonomy cap, which is for background autonomy)
+    if (engine.paused) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Entreprise en pause', text: 'Reprends dans la carte Réglages & secrets.' }); return }
     engine.record(`${agentName}:${task}`)
     pushToast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: agentName, text: 'Au travail…' })
     await run({ task, agentName, connectors: [], brief })
@@ -238,6 +240,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <p className="ceo-autopilot"><span className="ceo-spin" /> Le CEO travaille · <b>{autopilot.step}</b>…</p>
         ) : (
           <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'mon entreprise')}>▶ Lancer le CEO (tout construire)</button>
+        )}
+        {noModel && (
+          <p className="ceo-nomodel">⚠️ <b>Aucun modèle IA connecté</b> — le CEO produit des <b>brouillons</b>. Pour la vraie génération : <button className="linklike" onClick={() => openStudio('billing')}>ajoute ta clé Claude</button> (Studio → Facturation), ou l’opérateur active une clé gratuite (Groq / Gemini).</p>
         )}
         <p className="muted small">Le CEO enchaîne site, offre, pubs et prospection tout seul (dans les limites de l’Engine) · rapport quotidien par email.</p>
       </Card>
