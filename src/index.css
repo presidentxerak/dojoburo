@@ -506,6 +506,17 @@ a:hover { text-decoration: underline; }
 .camp-persona em { font-style: normal; color: var(--muted); margin-bottom: 3px; }
 @media (max-width: 560px) { .camp-personas { grid-template-columns: 1fr; } }
 
+/* Video Creator */
+.vid-fmt button { font-size: 12px; padding: 6px 9px; }
+.vid-stage { display: flex; justify-content: center; background: #111; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
+.vid-canvas { display: block; max-width: 100%; border-radius: 8px; background: #000; }
+.vid-stage.reel .vid-canvas { max-height: 460px; width: auto; }
+.vid-stage.square .vid-canvas { max-height: 420px; width: auto; }
+.vid-stage.wide .vid-canvas { width: 100%; height: auto; }
+.vid-transport { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.vid-time { font-family: var(--font-pixel); font-size: 13px; color: var(--muted); }
+.vid-empty { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; padding: 28px 16px; border: 2px dashed color-mix(in srgb, var(--dc) 45%, var(--border)); border-radius: 12px; background: color-mix(in srgb, var(--dc) 5%, transparent); cursor: pointer; }
+
 /* Settings & secrets card */
 .sec-warn { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #d9822b 14%, transparent); border: 1.5px solid color-mix(in srgb, #d9822b 45%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
 .sec-ok { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #0e9b6a 12%, transparent); border: 1.5px solid color-mix(in srgb, #0e9b6a 40%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }

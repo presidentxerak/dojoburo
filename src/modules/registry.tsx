@@ -71,12 +71,12 @@ export const MODULES: ModuleDef[] = [
   {
     id: 'video',
     label: 'Video Creator',
-    blurb: 'Montage vidéo local (ffmpeg.wasm + WebCodecs) : timeline, sous-titres, formats réseaux.',
+    blurb: 'Montage vidéo local : import, découpe, textes de marque, formats réseaux, export .webm.',
     tint: '#e0483f',
     emoji: '🎬',
     agentRole: 'acq',
-    status: 'soon',
-    planned: ['Timeline, découpe, transitions (Web Workers + WASM)', 'Sous-titres auto + traduction', 'Formats TikTok / Reels / Shorts / Meta', 'Vidéos jamais envoyées au serveur'],
+    status: 'live',
+    comp: lazy(() => import('./video/VideoModule')),
   },
   {
     id: 'finance',
