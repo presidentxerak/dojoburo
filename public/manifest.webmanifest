@@ -1,0 +1,15 @@
+{
+  "name": "DojoBuro · Studio entrepreneurial IA",
+  "short_name": "DojoBuro",
+  "description": "Crée, gère et développe ton activité avec des agents IA et des studios locaux (branding, site, campagnes, vidéo, finance).",
+  "start_url": "/#app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f7fb",
+  "theme_color": "#0b0b0f",
+  "icons": [
+    { "src": "/favicon-96.png?v=5", "sizes": "96x96", "type": "image/png" },
+    { "src": "/apple-touch-icon.png?v=5", "sizes": "180x180", "type": "image/png" },
+    { "src": "/favicon.svg?v=5", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

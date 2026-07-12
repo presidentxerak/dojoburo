@@ -54,3 +54,13 @@ createRoot(document.getElementById('root')!).render(
     </AuthProvider>
   </StrictMode>,
 )
+
+// PWA · register the service worker (installable + offline shell). Conservative
+// network-first strategy so deploys are never stale. Only in production builds
+// on a secure origin; failures are non-fatal.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => { /* non-fatal */ })
+  })
+}
+

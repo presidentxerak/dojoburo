@@ -9,7 +9,9 @@ import { useSecrets } from '../../agents/secretsStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
 import { ROLE_AGENTS, ROLE_BY_ID } from '../../data/roleAgents'
+import { MISSIONS, type Mission } from '../../data/missions'
 import { isAdmin } from '../../config/admin'
+import { ModuleHost } from '../../modules/ModuleHost'
 import { skinById } from '../../data/skins'
 import { SkinAvatar } from '../workshop/SkinAvatar'
 import { SkinPicker } from '../workshop/WorkshopModal'
@@ -77,6 +79,14 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
   const [picking, setPicking] = useState(false) // skin picker open for the selected agent
+  const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
+
+  // A mission leads to a role agent's dashboard or a studio module.
+  const pickMission = (m: Mission) => {
+    if (m.target.kind === 'module') { setModuleId(m.target.moduleId); selectAgent(null); return }
+    const a = agents.find((x) => x.role === (m.target as { role: string }).role)
+    if (a) { setModuleId(null); selectAgent(a.id) }
+  }
   // secrets (env vars) for the active company. Prefer the encrypted server vault
   // (/api/secrets); fall back to the local browser store when it's not deployed.
   const dojoId = dojo?.id ?? ''
@@ -408,6 +418,11 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     }
   }
 
+  // ------------------------------------------------------------------ MODULE --
+  if (moduleId) {
+    return <ModuleHost moduleId={moduleId} dojoId={dojo?.id ?? ''} onClose={() => setModuleId(null)} />
+  }
+
   // ------------------------------------------------------------------ DETAIL --
   if (selected && selRole) {
     const skin = skinById(selected.skinId)
@@ -471,6 +486,30 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <p>Clique un agent pour ouvrir son dashboard. Le CEO coordonne toute l’équipe.</p>
         </div>
         <button className="btn tiny" onClick={onOpenDojo} title="Voir le dojo en plein écran">⤢ Dojo</button>
+      </div>
+
+      {/* Business overview — the entreprise dashboard at a glance */}
+      <div className="biz-overview">
+        <div className="biz-tile"><span>{engine.creditsToday}</span><em>crédits (jour)</em></div>
+        <div className="biz-tile"><span>{delivs.filter((d) => d.taskId === 'ads').length}</span><em>campagnes</em></div>
+        <div className="biz-tile"><span>{delivs.filter((d) => d.taskId === 'outreach').length}</span><em>prospection</em></div>
+        <div className="biz-tile"><span>{tasksDone}</span><em>livrables</em></div>
+        <div className="biz-tile"><span>{connectedCount}</span><em>apps</em></div>
+      </div>
+
+      {/* Missions — the mission-first entry (tools appear after the outcome) */}
+      <div className="mission-head">
+        <h3>Que veux-tu faire ?</h3>
+        <span className="muted small">Choisis une mission — l’outil et l’agent s’ouvrent ensuite.</span>
+      </div>
+      <div className="mission-grid">
+        {MISSIONS.map((m) => (
+          <button key={m.id} className="mission-card" style={{ ['--dc' as string]: m.tint }} onClick={() => pickMission(m)}>
+            <span className="mission-emoji" aria-hidden>{m.emoji}</span>
+            <strong className="mission-label">{m.label}</strong>
+            <span className="mission-sub">{m.sub}</span>
+          </button>
+        ))}
       </div>
 
       {/* CEO quick action — the orchestrator sits above the roster */}

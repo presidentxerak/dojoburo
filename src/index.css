@@ -378,6 +378,47 @@ a:hover { text-decoration: underline; }
 
 @media (max-width: 560px) { .agent-roster { grid-template-columns: 1fr; } }
 
+/* ===========================================================================
+   Mission-first home · business overview + mission cards + studio modules
+   =========================================================================== */
+.biz-overview { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 0 0 18px; }
+.biz-tile { display: flex; flex-direction: column; align-items: center; gap: 2px; background: var(--panel-solid); border: 1px solid var(--border); border-radius: 12px; padding: 12px 6px; }
+.biz-tile span { font-family: var(--font-pixel); font-weight: 800; font-size: 19px; color: var(--ink); }
+.biz-tile em { font-style: normal; font-size: 10.5px; color: var(--muted); text-align: center; }
+
+.mission-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 2px 10px; }
+.mission-head h3 { margin: 0; font-family: var(--font-pixel); font-weight: 800; font-size: 17px; color: var(--ink); }
+.mission-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+.mission-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left; background: var(--panel-solid); color: var(--ink); border: 1px solid var(--border); border-left: 4px solid var(--dc); border-radius: 14px; padding: 15px 16px; cursor: pointer; box-shadow: 0 5px 14px rgba(30,25,60,0.07); transition: transform 0.13s, box-shadow 0.13s, border-color 0.13s; }
+.mission-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(30,25,60,0.14); border-color: color-mix(in srgb, var(--dc) 55%, var(--border)); }
+.mission-emoji { font-size: 24px; line-height: 1; margin-bottom: 4px; }
+.mission-label { font-family: var(--font-pixel); font-weight: 800; font-size: 15.5px; color: var(--ink); }
+.mission-sub { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+
+/* studio module host + coming-soon scaffold */
+.modhost { display: flex; flex-direction: column; }
+.modhost-tag { font-family: var(--font-pixel); font-weight: 800; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; background: var(--dc); padding: 3px 9px; border-radius: 20px; }
+.modhost-emoji { font-size: 40px; line-height: 1; }
+.modhost-loading { display: flex; align-items: center; gap: 10px; padding: 30px 10px; color: var(--muted); font-size: 14px; }
+.mod-planned { margin: 4px 0 14px; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; font-size: 14px; line-height: 1.45; }
+.mod-planned li::marker { color: var(--dc); }
+
+/* assets module (local-first proof) */
+.assets-mod .asset-drop { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; padding: 24px 16px; border: 2px dashed color-mix(in srgb, var(--dc) 45%, var(--border)); border-radius: 14px; background: color-mix(in srgb, var(--dc) 5%, transparent); cursor: pointer; transition: background 0.13s, border-color 0.13s; }
+.assets-mod .asset-drop.on { background: color-mix(in srgb, var(--dc) 12%, transparent); border-color: var(--dc); }
+.assets-mod .asset-drop strong { font-size: 15px; }
+.asset-stat { font-size: 13px; color: var(--ink); margin: 14px 2px 8px; }
+.asset-saved { color: #1fa563; font-weight: 800; }
+.asset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.asset-cell { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--panel-solid); }
+.asset-cell img { width: 100%; height: 120px; object-fit: cover; display: block; background: var(--panel-2); }
+.asset-ph { width: 100%; height: 120px; background: var(--panel-2); }
+.asset-meta { display: flex; flex-direction: column; gap: 1px; padding: 8px 10px 4px; }
+.asset-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.asset-actions { display: flex; gap: 6px; padding: 6px 10px 10px; }
+.asset-actions .btn { flex: 1; }
+@media (max-width: 560px) { .biz-overview { grid-template-columns: repeat(3, 1fr); } .mission-grid { grid-template-columns: 1fr; } }
+
 /* Settings & secrets card */
 .sec-warn { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #d9822b 14%, transparent); border: 1.5px solid color-mix(in srgb, #d9822b 45%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
 .sec-ok { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #0e9b6a 12%, transparent); border: 1.5px solid color-mix(in srgb, #0e9b6a 40%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
