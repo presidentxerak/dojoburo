@@ -314,14 +314,14 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         </div>
       </Card>
 
-      {/* Ads */}
+      {/* Ads · Meta only (Facebook + Instagram) */}
       <Card title="Publicités" tint={tint.ads} info={<Guide
-        lead="Lance des campagnes payantes pour attirer des clients, avec des visuels générés ou les tiens."
+        lead="Lance des campagnes Meta (Facebook & Instagram) pour attirer des clients — on ne fait que du Meta, pas de Google."
         steps={[
           <>Fixe un <b>budget quotidien</b> dans ta monnaie.</>,
-          <><b>Génère</b> automatiquement des créas (visuels + textes) pour Meta / Facebook / Instagram. <em>(bientôt)</em></>,
+          <>Clique <b>Générer des créas</b> : ton agent produit 5 variantes d’<b>annonces Meta</b> (texte, accroche, visuel, audience, placement).</>,
           <>Ou <b>importe tes propres créas</b> faites avec Photoshop, Figma, Capcut, Seedance… <em>(bientôt)</em></>,
-          <>Connecte ton compte <b>Meta</b> (Studio) pour diffuser réellement les annonces.</>,
+          <>Connecte ton compte <b>Meta</b> (Studio) pour diffuser réellement les annonces sur Facebook & Instagram.</>,
         ]}
         tip="Démarre avec un petit budget pour tester, puis mets plus sur ce qui marche."
       />}>

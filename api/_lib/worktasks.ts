@@ -94,14 +94,14 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   },
   {
     id: 'ads',
-    title: 'Ad creatives',
+    title: 'Meta ad creatives',
     priceXrp: 0.2,
-    usesConnectors: ['whatsapp'],
-    system: 'You are a paid-social performance marketer. Produce ready-to-run ad creatives in Markdown.',
+    usesConnectors: [],
+    system: 'You are a Meta (Facebook/Instagram) paid-social performance marketer. We only run Meta ads — never Google/YouTube/other networks. Produce ready-to-run Meta ad creatives in Markdown.',
     user: ({ agentName, brief, startup }) =>
-      `${startupLine(startup)} As ${agentName}, create a set of Meta (Facebook/Instagram) ad creatives for: ${brief || 'customer acquisition'}. ` +
-      'Return 5 ad variations, each with: primary text, headline, description, a visual concept (what the image/video shows), and the target audience. ' +
-      'Add a testing plan (what to test first) and a suggested starting daily budget split.',
+      `${startupLine(startup)} As ${agentName}, create a set of Meta (Facebook + Instagram) ad creatives for: ${brief || 'customer acquisition'}. Meta only — do not mention Google, YouTube or other ad networks. ` +
+      'Return 5 ad variations, each with: primary text, headline, description, placement (Feed / Reels / Stories), a visual concept (what the image or short video shows), and the target audience (interests + lookalikes). ' +
+      'Add a testing plan (what to test first) and a suggested starting daily budget split across the variations.',
   },
   {
     id: 'outreach',
