@@ -1058,7 +1058,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .logo-badge .lg-temple { display: block; fill: #11151d; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.25)); }
 :root[data-theme='dark'] .logo-badge .lg-temple { fill: #ffffff; }
 .logo-badge .lg-face {
-  position: absolute; left: 0; right: 0; top: 56%; transform: translateY(-50%);
+  position: absolute; left: 0; right: 0; top: 65%; transform: translateY(-50%);
   text-align: center; line-height: 1; letter-spacing: -0.07em; font-weight: 400;
   color: #ffffff; animation: logo-blink 4.6s steps(1, end) infinite;
 }

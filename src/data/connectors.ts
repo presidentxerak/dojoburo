@@ -311,9 +311,13 @@ export const WORK_TASKS: Record<Department, WorkTask[]> = {
   ],
   Growth: [
     { id: 'campaign', label: 'Go-to-market campaign', blurb: 'Positioning, channels, a content calendar and email copy.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['gmail'] },
+    { id: 'website', label: 'Website plan & copy', blurb: 'A ready-to-build landing page: sections, copy, CTAs and SEO.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['figma'] },
+    { id: 'ads', label: 'Ad creatives', blurb: '5 Meta ad variations with visuals, audiences and a test plan.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['whatsapp'] },
+    { id: 'outreach', label: 'Prospect list & outreach', blurb: 'An ICP, target profiles and a 3-step email sequence.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['gmail'] },
   ],
   Finance: [
     { id: 'model', label: 'Financial model & runway', blurb: 'A simple revenue/cost model, runway and the key metrics to watch.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['stripe'] },
+    { id: 'offer', label: 'Offer & pricing', blurb: 'A core offer, 3 pricing tiers and checkout page copy.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['stripe'] },
   ],
   Leadership: [
     { id: 'strategy', label: 'Strategy & OKRs', blurb: 'Vision, quarterly OKRs and a prioritized roadmap.', priceXrp: 0.3, format: 'markdown', usesConnectors: ['notion'] },

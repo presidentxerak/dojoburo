@@ -11,19 +11,14 @@ const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'public')
 
 const temple = (t, f) => `
   <g fill="${t}">
-    <circle cx="16" cy="3.4" r="0.9"/>
-    <rect x="15.5" y="3.6" width="1" height="1.8"/>
-    <path d="M10.6 8.4 Q11.8 5.6 16 5.9 Q20.2 5.6 21.4 8.4 Q16 7.5 10.6 8.4 Z"/>
-    <rect x="10.2" y="8.2" width="11.6" height="1.4"/>
-    <path d="M2 14.6 Q3.6 12.4 6.2 12.9 L7.4 10.8 L24.6 10.8 L25.8 12.9 Q28.4 12.4 30 14.6 L27.4 14 Q16 12.4 4.6 14 Z"/>
-    <rect x="8" y="14" width="16" height="8" rx="0.6"/>
-    <rect x="8.4" y="22" width="4" height="6"/>
-    <rect x="19.6" y="22" width="4" height="6"/>
-    <rect x="6" y="27.6" width="20" height="2" rx="0.5"/>
-    <rect x="8.5" y="29.4" width="15" height="1.1"/>
+    <circle cx="16" cy="4.2" r="1"/>
+    <rect x="15.4" y="4.6" width="1.2" height="2.6"/>
+    <path d="M16 6.6 C 21 8 26.6 11.8 30 16.6 L 25.4 16.6 Q 16 12.4 6.6 16.6 L 2 16.6 C 5.4 11.8 11 8 16 6.6 Z"/>
+    <rect x="8.6" y="16.6" width="14.8" height="9" rx="0.8"/>
+    <rect x="6" y="25.6" width="20" height="2.4" rx="0.8"/>
   </g>
-  <text fill="${f}" x="16" y="18" text-anchor="middle" dominant-baseline="central"
-    font-size="5.6" letter-spacing="-0.4"
+  <text fill="${f}" x="16" y="21.4" text-anchor="middle" dominant-baseline="central"
+    font-size="5.4" letter-spacing="-0.4"
     font-family="'Segoe UI Symbol','Noto Sans Symbols2','Apple Symbols',sans-serif">◕‿◕</text>`
 
 const page = (px, tile) => `<!doctype html><html><head><style>

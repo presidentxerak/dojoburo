@@ -82,6 +82,50 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
       'If Gmail is connected, create the emails as drafts and report it.',
   },
   {
+    id: 'website',
+    title: 'Website plan & copy',
+    priceXrp: 0.25,
+    usesConnectors: ['figma'],
+    system: 'You are a conversion-focused web designer + copywriter. Produce a ready-to-build landing page in Markdown.',
+    user: ({ agentName, brief, startup }) =>
+      `${startupLine(startup)} As ${agentName}, design the company landing page for: ${brief || 'the product'}. ` +
+      'Return, section by section (Hero, Social proof, Features/benefits, How it works, Pricing, FAQ, Final CTA, Footer): the exact copy (headline, subhead, body, button labels), plus notes on layout and imagery. ' +
+      'End with SEO title + meta description and a suggested domain slug.',
+  },
+  {
+    id: 'ads',
+    title: 'Ad creatives',
+    priceXrp: 0.2,
+    usesConnectors: ['whatsapp'],
+    system: 'You are a paid-social performance marketer. Produce ready-to-run ad creatives in Markdown.',
+    user: ({ agentName, brief, startup }) =>
+      `${startupLine(startup)} As ${agentName}, create a set of Meta (Facebook/Instagram) ad creatives for: ${brief || 'customer acquisition'}. ` +
+      'Return 5 ad variations, each with: primary text, headline, description, a visual concept (what the image/video shows), and the target audience. ' +
+      'Add a testing plan (what to test first) and a suggested starting daily budget split.',
+  },
+  {
+    id: 'outreach',
+    title: 'Prospect list & outreach',
+    priceXrp: 0.2,
+    usesConnectors: ['gmail'],
+    system: 'You are a B2B SDR + researcher. Produce a concrete outreach plan in Markdown.',
+    user: ({ agentName, brief, startup }) =>
+      `${startupLine(startup)} As ${agentName}, build an outbound plan for: ${brief || 'ideal customers'}. ` +
+      'Return: the ICP (who to target: industry, role, company size, region), where to find them, 15 example target profiles (role + company type, no fabricated personal data), and a 3-step email sequence (subject + body each) with a follow-up cadence. ' +
+      'If Gmail is connected, create the first email as a draft and report it.',
+  },
+  {
+    id: 'offer',
+    title: 'Offer & pricing',
+    priceXrp: 0.2,
+    usesConnectors: ['stripe'],
+    system: 'You are a monetization strategist. Produce a concrete offer + pricing in Markdown.',
+    user: ({ agentName, brief, startup }) =>
+      `${startupLine(startup)} As ${agentName}, design what to sell and how to price it for: ${brief || 'this business'}. ` +
+      'Return: the core offer (what the customer gets), 3 pricing tiers (name, price, what is included), the recommended primary tier, checkout page copy (headline + bullets + guarantee), and 3 upsell/cross-sell ideas. ' +
+      'If Stripe is connected, create the products/prices and share a payment link.',
+  },
+  {
     id: 'model',
     title: 'Financial model',
     priceXrp: 0.25,

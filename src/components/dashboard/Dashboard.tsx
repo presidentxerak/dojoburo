@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
 import { listSecrets, saveSecret as apiSaveSecret, removeSecret as apiRemoveSecret, type ServerSecret } from '../../agents/workApi'
+import { tasksForFunction } from '../../data/connectors'
 import { useDojo } from '../../store'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
 import { useSecrets } from '../../agents/secretsStore'
@@ -154,18 +155,34 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   }
   const tasksDone = Object.values(stats).reduce((n, s) => n + (s?.tasksDone ?? 0), 0)
 
-  const dispatch = (agentName: string, task: string) => {
+  // Run a real Claude-powered deliverable. Gates on the Engine, records the run,
+  // fires the work, then surfaces a clear toast if it couldn't run (missing key,
+  // quota, no model configured…). On success the deliverable opens automatically.
+  const runTask = async (agentName: string, task: string, brief = '') => {
     if (running) return
     const g = engine.gate(`${agentName}:${task}`)
     if (!g.ok) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Limite atteinte', text: g.reason! }); return }
     engine.record(`${agentName}:${task}`)
-    void run({ task, agentName, connectors: [] })
+    pushToast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: agentName, text: 'Au travail…' })
+    await run({ task, agentName, connectors: [], brief })
+    const err = useWork.getState().runError
+    if (err) {
+      const map: Record<string, string> = {
+        needs_key: 'Ajoute ta clé Claude (Studio → Facturation) pour ce livrable.',
+        quota: 'Quota gratuit du jour atteint — ajoute ta clé Claude pour continuer.',
+        not_configured: 'Aucun modèle IA n’est configuré sur ce déploiement (clé Claude ou cascade gratuite).',
+        network: 'Erreur réseau — réessaie dans un instant.',
+        unknown_task: 'Cette tâche n’est pas reconnue par le serveur.',
+      }
+      pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Livrable non lancé', text: map[err.code] || `Échec : ${err.detail || err.code}.` })
+    }
   }
 
   const sendCeo = () => {
-    if (!msg.trim()) return
-    pushToast({ kind: 'event', badge: 'CEO', color: '#7b2ff7', title: ceo?.name || 'CEO', text: `Bien reçu — je m’en occupe : « ${msg.trim().slice(0, 80)} »` })
+    const brief = msg.trim()
+    if (!brief) return
     setMsg('')
+    void runTask(ceo?.name || 'CEO', 'strategy', brief)
   }
 
   const tint = { ceo: '#7b5cff', engine: '#e07a2a', tasks: '#1fa563', site: '#2f7fd6', ads: '#e0459b', mail: '#d98c17', ana: '#0e9b6a', prod: '#e0483f', credit: '#0e9bb5', cfg: '#5b6472' }
@@ -258,10 +275,10 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       />}>
         {agents.length === 0 && <p className="muted small">Pas encore d’agents — crée ton Dojo dans le Studio.</p>}
         <ul className="dash-tasks">
-          {agents.flatMap((a) => (a.tasks || []).slice(0, 2).map((t) => (
-            <li key={`${a.id}:${t}`}>
-              <span><b>{a.name}</b> · {t}</span>
-              <button className="btn tiny" disabled={!!running} onClick={() => dispatch(a.name, t)}>{running ? '…' : 'Lancer'}</button>
+          {agents.flatMap((a) => tasksForFunction(a.fn).slice(0, 2).map((wt) => (
+            <li key={`${a.id}:${wt.id}`}>
+              <span><b>{a.name}</b> · {wt.label}</span>
+              <button className="btn tiny" disabled={!!running} onClick={() => void runTask(a.name, wt.id)}>{running === wt.id ? '…' : 'Lancer'}</button>
             </li>
           )))}
         </ul>
@@ -280,8 +297,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       />}>
         <p className="muted small">Statut : <b>non déployé</b> · adresse <code>{(dojo?.name || 'dojo').toLowerCase().replace(/\s+/g, '-')}.dojoburo.app</code></p>
         <div className="dash-actions">
-          <button className="btn tiny" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#3b82f6', title: 'Éditeur de site', text: 'Éditeur visuel + Figma / Claude Design — bientôt.' })}>Éditer le site</button>
-          <button className="btn tiny ghost" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#3b82f6', title: 'Déploiement', text: 'Déploiement du site — bientôt.' })}>Déployer</button>
+          <button className="btn tiny" disabled={!!running} onClick={() => void runTask(ceo?.name || 'CEO', 'website', dojo?.name || '')}>Générer le site</button>
+          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Brancher Figma</button>
         </div>
       </Card>
 
@@ -301,8 +318,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <span className="muted small">{fiatCur}</span>
         </label>
         <div className="dash-actions">
-          <button className="btn tiny" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#ec4899', title: 'Créas', text: 'Génération de créas Meta — bientôt.' })}>Générer des créas</button>
-          <button className="btn tiny ghost" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#ec4899', title: 'Import', text: 'Import Photoshop / Figma / Capcut / Seedance — bientôt.' })}>Importer mes créas</button>
+          <button className="btn tiny" disabled={!!running} onClick={() => void runTask(ceo?.name || 'CEO', 'ads', `Budget ${budget} ${fiatCur}/jour pour ${dojo?.name || 'l’entreprise'}`)}>Générer des créas</button>
+          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Meta</button>
         </div>
       </Card>
 
@@ -318,8 +335,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         tip="Un message court et personnalisé convertit mieux qu’un long argumentaire."
       />}>
         <div className="dash-actions">
-          <button className="btn tiny" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#d97706', title: 'Prospection', text: 'Recherche & vérification d’emails — bientôt.' })}>Rechercher des prospects</button>
-          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter les apps</button>
+          <button className="btn tiny" disabled={!!running} onClick={() => void runTask(ceo?.name || 'CEO', 'outreach', dojo?.name || '')}>Rechercher des prospects</button>
+          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Gmail</button>
         </div>
       </Card>
 
@@ -346,14 +363,14 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       <Card title="Offres & paiements" tint={tint.prod} info={<Guide
         lead="Crée ce que tu vends et encaisse tes clients pour de vrai."
         steps={[
-          <>Ton CEO propose des <b>offres</b> et une <b>page de paiement</b> à partir de ton activité. <em>(bientôt)</em></>,
-          <>Connecte <b>Stripe</b> (Studio) pour recevoir les paiements sur ton compte.</>,
+          <>Ton CEO propose une <b>offre</b>, des <b>tarifs</b> et le texte d’une <b>page de paiement</b> à partir de ton activité.</>,
+          <>Connecte <b>Stripe</b> (Studio) pour créer les produits/prix et recevoir les paiements sur ton compte.</>,
           <>Partage le <b>lien de paiement</b> ; les ventes remontent dans ton tableau de bord.</>,
         ]}
         tip="Commence avec une seule offre claire ; tu pourras en ajouter ensuite."
       />}>
         <div className="dash-actions">
-          <button className="btn tiny" onClick={() => pushToast({ kind: 'event', badge: 'i', color: '#ef4444', title: 'Offres', text: 'Création d’offres + page de paiement — bientôt.' })}>Créer une offre</button>
+          <button className="btn tiny" disabled={!!running} onClick={() => void runTask(ceo?.name || 'CEO', 'offer', dojo?.name || '')}>Créer une offre</button>
           <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Stripe</button>
         </div>
       </Card>
