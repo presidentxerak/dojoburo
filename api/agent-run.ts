@@ -39,6 +39,11 @@ const THINKING = ENV.ANTHROPIC_WORK_THINKING || '' // 'adaptive' to enable exten
 // offer Claude on the operator's dime (e.g. a hackathon demo).
 const OPERATOR_CLAUDE = ENV.WORK_OPERATOR_CLAUDE === 'true'
 const FREE_DAILY = int(ENV.WORK_FREE_DAILY, 10) // free-cascade runs / account / day on operator keys
+// Admin / operator allowlist. These accounts test every tool for free with NO
+// daily cap, and may use the operator's Claude key even when WORK_OPERATOR_CLAUDE
+// is off. They only ever spend the OPERATOR's own configured keys / free tiers.
+const ADMIN_EMAILS = (ENV.ADMIN_EMAILS || 'presidentxerak@gmail.com')
+  .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean)
 const RATE_MAX = int(ENV.WORK_RATE_MAX, 20)
 const RATE_WINDOW_MS = int(ENV.WORK_RATE_WINDOW_MS, 10 * 60 * 1000)
 const hits = new Map<string, number[]>()
@@ -71,6 +76,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const startup = String(body?.startup || '').slice(0, 200)
   const net = String(body?.net || 'testnet')
   const ref = { privy: body?.privy as string | undefined, client: body?.client as string | undefined }
+  const email = String(body?.email || '').trim().toLowerCase()
+  const isAdmin = !!email && ADMIN_EMAILS.includes(email)
+  // admin can spend the operator's Claude key even if WORK_OPERATOR_CLAUDE is off
+  const operatorClaude = OPERATOR_CLAUDE || isAdmin
   const dojoId = String(body?.dojo || '').slice(0, 80)
   const requested: string[] = Array.isArray(body?.connectors) ? body.connectors.map((s: any) => String(s)).slice(0, 8) : []
 
@@ -106,7 +115,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   try {
     if (wantsClaude) {
-      const key = byokKey || (OPERATOR_CLAUDE ? ENV.ANTHROPIC_API_KEY : undefined)
+      const key = byokKey || (operatorClaude ? ENV.ANTHROPIC_API_KEY : undefined)
       if (!key) return send(res, 200, { ok: false, error: 'needs_key', reason: mcpServers.length ? 'tool' : 'design' })
       const model = task.format === 'design-system' ? DESIGN_MODEL : MODEL
       const out = await callClaude(key, model, system, prompt, mcpServers)
@@ -117,14 +126,15 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       text = out.text; modelUsed = out.model; usage = out.usage
       engine = 'byok'
     } else {
-      // free cascade on the operator's free tiers, metered per account
-      const gate = await checkFreeTier(ref)
+      // free cascade on the operator's free tiers, metered per account (admins
+      // bypass the daily cap and aren't metered)
+      const gate = isAdmin ? { allowed: true } : await checkFreeTier(ref)
       if (!gate.allowed) return send(res, 200, { ok: false, error: 'quota', remaining: 0 })
       if (freeCascadeConfigured()) {
         const out = await cascadeComplete(system, prompt, MAX_TOKENS)
-        if (out) { text = out.text; modelUsed = out.model; engine = 'free'; await bumpFreeTier(ref) }
+        if (out) { text = out.text; modelUsed = out.model; engine = 'free'; if (!isAdmin) await bumpFreeTier(ref) }
       }
-      if (!text && OPERATOR_CLAUDE && ENV.ANTHROPIC_API_KEY) {
+      if (!text && operatorClaude && ENV.ANTHROPIC_API_KEY) {
         const out = await callClaude(ENV.ANTHROPIC_API_KEY, MODEL, system, prompt, [])
         text = out.text; modelUsed = out.model; usage = out.usage; engine = 'operator'
       }

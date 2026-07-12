@@ -11,9 +11,11 @@ export interface ToolStatus {
   account: string | null
 }
 
-function ref(): { privy?: string; client?: string } {
+function ref(): { privy?: string; client?: string; email?: string } {
   const acc = useWorkshop.getState().account
-  return { privy: acc?.privyDid || undefined, client: acc?.id || undefined }
+  // email lets the server recognise an admin/operator account (unlimited free
+  // testing). Only used in JSON bodies; never added to query strings.
+  return { privy: acc?.privyDid || undefined, client: acc?.id || undefined, email: acc?.email || undefined }
 }
 
 function refParams(): string {

@@ -7,8 +7,9 @@ npm-debug.log*
 
 *.tsbuildinfo
 
-# secrets — never commit real keys (.env.example is the safe template)
+# secrets — never commit real keys (.env.example / .env.starter are safe templates)
 .env
 .env.*
 !.env.example
+!.env.starter
 .vercel

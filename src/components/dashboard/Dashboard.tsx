@@ -9,6 +9,7 @@ import { useSecrets } from '../../agents/secretsStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
 import { ROLE_AGENTS, ROLE_BY_ID } from '../../data/roleAgents'
+import { isAdmin } from '../../config/admin'
 import { skinById } from '../../data/skins'
 import { SkinAvatar } from '../workshop/SkinAvatar'
 import { SkinPicker } from '../workshop/WorkshopModal'
@@ -466,7 +467,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       )}
       <div className="dash-hero">
         <div>
-          <h2>{account?.name || 'Ton'} · {dojo?.name || 'Dojo'}</h2>
+          <h2>{account?.name || 'Ton'} · {dojo?.name || 'Dojo'} {isAdmin(account ?? null) && <span className="admin-badge" title="Compte admin · tests illimités gratuits">ADMIN · illimité</span>}</h2>
           <p>Clique un agent pour ouvrir son dashboard. Le CEO coordonne toute l’équipe.</p>
         </div>
         <button className="btn tiny" onClick={onOpenDojo} title="Voir le dojo en plein écran">⤢ Dojo</button>

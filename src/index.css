@@ -287,6 +287,7 @@ a:hover { text-decoration: underline; }
 .dash-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin: 12px 2px 18px; }
 .dash-hero h2 { margin: 0; font-family: var(--font-pixel); font-size: 22px; color: var(--ink); }
 .dash-hero p { margin: 5px 0 0; font-size: 14px; color: var(--muted); max-width: 46ch; line-height: 1.5; }
+.admin-badge { display: inline-block; vertical-align: middle; margin-left: 8px; font-family: var(--font-pixel); font-weight: 800; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #1fa563, #0e9b6a); padding: 3px 8px; border-radius: 20px; box-shadow: 0 2px 6px rgba(15,150,90,0.35); }
 
 /* landing-style card · white, washi-tape top, category label, bold title */
 .dcard { position: relative; background: var(--panel-solid); color: var(--ink); border: 1px solid var(--border); border-radius: 14px; padding: 22px 22px 20px; margin: 0 0 20px; box-shadow: 0 6px 18px rgba(30, 25, 60, 0.08); overflow: visible; }
