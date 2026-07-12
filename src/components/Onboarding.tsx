@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { PROFESSIONS } from '../data/professions'
 import { CONNECTORS } from '../data/connectors'
 import { useWorkshop } from '../workshop'
+import { launchCeo } from '../agents/autopilot'
 
 const conName = (id: string) => CONNECTORS.find((c) => c.id === id)?.label || id
 function deriveName(s: string): string {
@@ -27,11 +28,15 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
 
   const surprise = () => { setSel([PROFESSIONS[Math.floor(Math.random() * PROFESSIONS.length)].id]); setDesc('') }
   const create = () => {
+    // a one-line brief for the CEO to build from
+    const brief = desc.trim() || (selected.length ? `Une entreprise dans : ${selected.map((p) => p.label).join(', ')}.` : '')
     if (sel.length) createForProfs(sel)
     else if (desc.trim()) createDojo(deriveName(desc))
     else return
     save()
     onDone()
+    // the CEO launches itself right after the prompt and builds the company
+    if (brief) setTimeout(() => void launchCeo(brief), 400)
   }
   // combined connectors across all chosen domains, for the preview
   const previewConnectors = useMemo(() => [...new Set(selected.flatMap((p) => p.connectors))], [selected])

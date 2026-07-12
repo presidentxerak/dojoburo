@@ -6,6 +6,8 @@ import { tasksForFunction } from '../../data/connectors'
 import { useDojo } from '../../store'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
 import { useSecrets } from '../../agents/secretsStore'
+import { useDeliverables } from '../../agents/deliverables'
+import { launchCeo } from '../../agents/autopilot'
 import { skinById } from '../../data/skins'
 import { SkinAvatar } from '../workshop/SkinAvatar'
 import { InfoDot } from '../InfoDot'
@@ -72,6 +74,10 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const running = useWork((s) => s.runningTask)
   const tools = useWork((s) => s.tools)
   const openStudio = useWork((s) => s.openStudio)
+  const autopilot = useWork((s) => s.autopilot)
+  const showDeliverable = useWork((s) => s.showDeliverable)
+  const delivs = useDeliverables((s) => s.byDojo[dojo?.id ?? ''] ?? [])
+  const got = (kind: string) => delivs.find((d) => d.taskId === kind)
   const usage = useDojo((s) => s.usage)
   const stats = useDojo((s) => s.stats)
   const pushToast = useDojo((s) => s.pushToast)
@@ -226,9 +232,14 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         </div>
         <div className="composer-row">
           <input value={msg} onChange={(e) => setMsg(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendCeo()} placeholder="Dis à ton CEO quoi prioriser…" />
-          <button className="btn primary tiny" onClick={sendCeo} disabled={!msg.trim()}>Envoyer</button>
+          <button className="btn primary tiny" onClick={sendCeo} disabled={!msg.trim() || autopilot.running}>Envoyer</button>
         </div>
-        <p className="muted small">Rapport quotidien envoyé par email · réponds aussi via WhatsApp / Telegram <em>(bientôt)</em>.</p>
+        {autopilot.running ? (
+          <p className="ceo-autopilot"><span className="ceo-spin" /> Le CEO travaille · <b>{autopilot.step}</b>…</p>
+        ) : (
+          <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'mon entreprise')}>▶ Lancer le CEO (tout construire)</button>
+        )}
+        <p className="muted small">Le CEO enchaîne site, offre, pubs et prospection tout seul (dans les limites de l’Engine) · rapport quotidien par email.</p>
       </Card>
 
       {/* Engine / autonomy */}
@@ -295,9 +306,10 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         ]}
         tip="Commence par le contenu (offre, bénéfices, appel à l’action) avant de peaufiner le style."
       />}>
-        <p className="muted small">Statut : <b>non déployé</b> · adresse <code>{(dojo?.name || 'dojo').toLowerCase().replace(/\s+/g, '-')}.dojoburo.app</code></p>
+        <p className="muted small">Statut : <b>{got('website') ? 'généré ✓' : 'non déployé'}</b> · adresse <code>{(dojo?.name || 'dojo').toLowerCase().replace(/\s+/g, '-')}.dojoburo.app</code></p>
         <div className="dash-actions">
-          <button className="btn tiny" disabled={!!running} onClick={() => void runTask(ceo?.name || 'CEO', 'website', dojo?.name || '')}>Générer le site</button>
+          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(ceo?.name || 'CEO', 'website', dojo?.name || '')}>{got('website') ? 'Regénérer' : 'Générer le site'}</button>
+          {got('website') && <button className="btn tiny" onClick={() => showDeliverable(got('website')!)}>Voir le site</button>}
           <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Brancher Figma</button>
         </div>
       </Card>
@@ -318,7 +330,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <span className="muted small">{fiatCur}</span>
         </label>
         <div className="dash-actions">
-          <button className="btn tiny" disabled={!!running} onClick={() => void runTask(ceo?.name || 'CEO', 'ads', `Budget ${budget} ${fiatCur}/jour pour ${dojo?.name || 'l’entreprise'}`)}>Générer des créas</button>
+          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(ceo?.name || 'CEO', 'ads', `Budget ${budget} ${fiatCur}/jour pour ${dojo?.name || 'l’entreprise'}`)}>{got('ads') ? 'Regénérer' : 'Générer des créas'}</button>
+          {got('ads') && <button className="btn tiny" onClick={() => showDeliverable(got('ads')!)}>Voir les créas</button>}
           <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Meta</button>
         </div>
       </Card>
@@ -335,7 +348,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         tip="Un message court et personnalisé convertit mieux qu’un long argumentaire."
       />}>
         <div className="dash-actions">
-          <button className="btn tiny" disabled={!!running} onClick={() => void runTask(ceo?.name || 'CEO', 'outreach', dojo?.name || '')}>Rechercher des prospects</button>
+          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(ceo?.name || 'CEO', 'outreach', dojo?.name || '')}>{got('outreach') ? 'Relancer' : 'Rechercher des prospects'}</button>
+          {got('outreach') && <button className="btn tiny" onClick={() => showDeliverable(got('outreach')!)}>Voir la prospection</button>}
           <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Gmail</button>
         </div>
       </Card>
@@ -370,7 +384,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         tip="Commence avec une seule offre claire ; tu pourras en ajouter ensuite."
       />}>
         <div className="dash-actions">
-          <button className="btn tiny" disabled={!!running} onClick={() => void runTask(ceo?.name || 'CEO', 'offer', dojo?.name || '')}>Créer une offre</button>
+          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(ceo?.name || 'CEO', 'offer', dojo?.name || '')}>{got('offer') ? 'Regénérer' : 'Créer une offre'}</button>
+          {got('offer') && <button className="btn tiny" onClick={() => showDeliverable(got('offer')!)}>Voir l’offre</button>}
           <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Stripe</button>
         </div>
       </Card>

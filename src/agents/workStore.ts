@@ -5,7 +5,8 @@ import {
   listTools, disconnectTool, runWork, setClaudeKey, removeClaudeKey,
   type ToolStatus, type Deliverable, type RunResult, type ByokStatus,
 } from './workApi'
-import type { ExtAgent } from '../workshop'
+import { useWorkshop, type ExtAgent } from '../workshop'
+import { useDeliverables } from './deliverables'
 
 interface WorkState {
   tools: Record<string, ToolStatus>
@@ -21,12 +22,16 @@ interface WorkState {
   studioIntent: null | 'billing' | 'account' | 'studio'
   /** when set, the Studio opens with this agent pre-selected for editing */
   studioAgentId: string | null
+  /** the autonomous CEO run: which step is in flight (label) + whether it's active */
+  autopilot: { running: boolean; step: string | null }
 
   loadTools: () => Promise<void>
   disconnect: (id: string) => Promise<void>
   saveKey: (key: string) => Promise<{ ok: boolean; error?: string }>
   clearKey: () => Promise<void>
-  run: (input: { task: string; agentName: string; connectors: string[]; brief?: string; extAgents?: ExtAgent[] }) => Promise<void>
+  run: (input: { task: string; agentName: string; connectors: string[]; brief?: string; extAgents?: ExtAgent[]; silent?: boolean }) => Promise<void>
+  setAutopilot: (a: { running: boolean; step: string | null }) => void
+  showDeliverable: (d: Deliverable) => void
   closeDeliverable: () => void
   clearError: () => void
   openStudio: (tab: 'billing' | 'account' | 'studio') => void
@@ -45,6 +50,7 @@ export const useWork = create<WorkState>((set, get) => ({
   runError: null,
   studioIntent: null,
   studioAgentId: null,
+  autopilot: { running: false, step: null },
 
   loadTools: async () => {
     const { tools, backend, byok } = await listTools()
@@ -73,11 +79,19 @@ export const useWork = create<WorkState>((set, get) => ({
     set({ runningTask: input.task, runError: null })
     const r = await runWork(input)
     if (r.ok && r.deliverable) {
-      set({ deliverable: { ...r.deliverable, settlement: r.settlement, tools: r.tools, priceXrp: r.priceXrp, engine: r.engine }, runningTask: null })
+      // persist the deliverable so it stays in its panel (nanocorp-style)
+      const dojoId = useWorkshop.getState().activeDojoId
+      if (dojoId) useDeliverables.getState().add(dojoId, r.deliverable, Date.now())
+      // open the modal unless this was an autonomous (silent) run
+      set(input.silent
+        ? { runningTask: null }
+        : { deliverable: { ...r.deliverable, settlement: r.settlement, tools: r.tools, priceXrp: r.priceXrp, engine: r.engine }, runningTask: null })
     } else {
       set({ runError: { code: r.error || 'failed', reason: r.reason, detail: r.detail }, runningTask: null })
     }
   },
+  setAutopilot: (a) => set({ autopilot: a }),
+  showDeliverable: (d) => set({ deliverable: d }),
 
   closeDeliverable: () => set({ deliverable: null }),
   clearError: () => set({ runError: null }),
