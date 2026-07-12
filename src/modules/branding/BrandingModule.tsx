@@ -79,6 +79,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
         <label>Slogan<input value={kit.tagline} maxLength={48} onChange={(e) => patch({ tagline: e.target.value })} /></label>
         <button className="btn tiny" onClick={regenerate} title="Nouvelle proposition aléatoire">🎲 Régénérer</button>
       </div>
+      <a className="btn tiny ghost brand-shiver" href="https://shiverbrand.com" target="_blank" rel="noopener noreferrer">✨ Trouver un nom → Shiver Brand</a>
 
       {/* live logo preview on brand background */}
       <div className="brand-hero" style={{ background: kit.palette.bg }}>

@@ -1,20 +1,21 @@
-// DojoBuro service worker · conservative, offline-capable, deploy-safe.
+// DojoBuro service worker · v3 · network-first everywhere (deploy-safe).
 //
-// Strategy:
-//   * navigations (HTML)      → network-first, fall back to cached shell offline
-//   * hashed static assets    → cache-first (Vite emits immutable /assets/*-<hash>)
-//   * /api/* and everything else → network only (never cached)
-// skipWaiting + clients.claim so a new deploy takes over immediately (no stale UI).
-const CACHE = 'dojoburo-v1'
+// Lesson learned: a cache-first strategy on /assets/ can serve a stale index or
+// make a lazy-loaded module chunk 404 after a deploy → blank panels. So this SW
+// is network-first for EVERYTHING and only falls back to cache when offline.
+// It also wipes every old cache on activate so no stale chunk survives an update.
+const CACHE = 'dojoburo-v3'
 
 self.addEventListener('install', (e) => {
   self.skipWaiting()
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/'])))
+  e.waitUntil(caches.open(CACHE).then((c) => c.add('/')))
 })
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()),
+    caches.keys()
+      .then((keys) => Promise.all(keys.map((k) => (k === CACHE ? null : caches.delete(k)))))
+      .then(() => self.clients.claim()),
   )
 })
 
@@ -22,27 +23,17 @@ self.addEventListener('fetch', (event) => {
   const req = event.request
   if (req.method !== 'GET') return
   const url = new URL(req.url)
-  if (url.origin !== self.location.origin) return          // third-party: let it through
-  if (url.pathname.startsWith('/api/')) return               // never cache API
+  if (url.origin !== self.location.origin) return
+  if (url.pathname.startsWith('/api/')) return
 
-  // navigations → network-first with offline shell fallback
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req).catch(() => caches.match('/').then((r) => r || Response.error())),
-    )
-    return
-  }
-
-  // immutable hashed build assets → cache-first
-  if (url.pathname.startsWith('/assets/')) {
-    event.respondWith(
-      caches.match(req).then((hit) =>
-        hit || fetch(req).then((res) => {
-          const copy = res.clone()
-          caches.open(CACHE).then((c) => c.put(req, copy))
-          return res
-        }),
-      ),
-    )
-  }
+  // network-first: always try the network; cache the fresh copy; fall back to
+  // cache only when offline (navigations fall back to the cached shell).
+  event.respondWith(
+    fetch(req)
+      .then((res) => {
+        if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)) }
+        return res
+      })
+      .catch(() => caches.match(req).then((hit) => hit || (req.mode === 'navigate' ? caches.match('/') : undefined) || Response.error())),
+  )
 })

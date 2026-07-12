@@ -12,6 +12,7 @@ import { ROLE_AGENTS, ROLE_BY_ID } from '../../data/roleAgents'
 import { MISSIONS, type Mission } from '../../data/missions'
 import { isAdmin } from '../../config/admin'
 import { ModuleHost } from '../../modules/ModuleHost'
+import { MODULES } from '../../modules/registry'
 import { skinById } from '../../data/skins'
 import { SkinAvatar } from '../workshop/SkinAvatar'
 import { SkinPicker } from '../workshop/WorkshopModal'
@@ -454,6 +455,24 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         </header>
 
         <p className="ad-blurb">{selRole.blurb}</p>
+
+        {/* the agent's studios — each agent IS its tools, opened right here */}
+        {(() => {
+          const roleModules = MODULES.filter((m) => m.agentRole === selRole.id)
+          if (!roleModules.length) return null
+          return (
+            <div className="ad-studios">
+              {roleModules.map((m) => (
+                <button key={m.id} className="ad-studio" style={{ ['--dc' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
+                  <span className="ad-studio-emoji" aria-hidden>{m.emoji}</span>
+                  <span className="ad-studio-txt"><b>{m.label}</b><em>{m.blurb}</em></span>
+                  <span className="ad-studio-go">Ouvrir →</span>
+                </button>
+              ))}
+            </div>
+          )
+        })()}
+
         <div className="ad-body">{bodyFor(selRole.id, selected.name)}</div>
 
         {picking && (
