@@ -91,12 +91,12 @@ export const MODULES: ModuleDef[] = [
   {
     id: 'crm',
     label: 'CRM & Outbound',
-    blurb: 'Prospects, pipeline, séquences email, scoring et recommandations de l’agent Sales.',
+    blurb: 'Prospects, pipeline, séquences email personnalisées et scoring — 100% local.',
     tint: '#d98c17',
     emoji: '🤝',
     agentRole: 'outbound',
-    status: 'soon',
-    planned: ['Prospects, clients, pipeline', 'Séquences email + relances', 'Scoring & analyse des réponses', 'Rédaction IA des messages'],
+    status: 'live',
+    comp: lazy(() => import('./crm/CRMModule')),
   },
 ]
 
