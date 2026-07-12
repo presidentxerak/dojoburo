@@ -81,12 +81,12 @@ export const MODULES: ModuleDef[] = [
   {
     id: 'finance',
     label: 'Finance & Compta',
-    blurb: 'Revenus, dépenses, trésorerie, TVA, factures, prévisions — import CSV local + analyse IA.',
+    blurb: 'Revenus, dépenses, trésorerie, TVA et prévisions — import CSV 100% local.',
     tint: '#1fa563',
     emoji: '📊',
     agentRole: 'revenue',
-    status: 'soon',
-    planned: ['Import & catégorisation locale (CSV/Excel)', 'TVA, marges, trésorerie, prévisions', 'Exports comptables PDF/CSV', 'Analyse IA : rentabilité, anomalies'],
+    status: 'live',
+    comp: lazy(() => import('./finance/FinanceModule')),
   },
   {
     id: 'crm',

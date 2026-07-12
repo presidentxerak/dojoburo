@@ -19,7 +19,7 @@ export const MISSIONS: Mission[] = [
   { id: 'campaign', label: 'Lancer une campagne', sub: 'Pubs Meta : audiences, créas, copies', emoji: '📣', tint: '#e0459b', target: { kind: 'module', moduleId: 'campaign' } },
   { id: 'video', label: 'Monter une vidéo', sub: 'Éditeur local façon CapCut, export .webm', emoji: '🎬', tint: '#e0483f', target: { kind: 'module', moduleId: 'video' } },
   { id: 'clients', label: 'Trouver des clients', sub: 'Prospection & séquences email', emoji: '🤝', tint: '#d98c17', target: { kind: 'agent', role: 'outbound' } },
-  { id: 'finance', label: 'Gérer mes finances', sub: 'Trésorerie, TVA, prévisions', emoji: '📊', tint: '#1fa563', target: { kind: 'agent', role: 'revenue' } },
+  { id: 'finance', label: 'Gérer mes finances', sub: 'Trésorerie, TVA, prévisions', emoji: '📊', tint: '#1fa563', target: { kind: 'module', moduleId: 'finance' } },
   { id: 'analyze', label: 'Analyser mon business', sub: 'Ventes, ROI, CAC, LTV expliqués', emoji: '📈', tint: '#0e9b6a', target: { kind: 'agent', role: 'measure' } },
   { id: 'assets', label: 'Optimiser mes images', sub: 'Compression 100% locale', emoji: '🗂️', tint: '#0e9bb5', target: { kind: 'module', moduleId: 'assets' } },
 ]
