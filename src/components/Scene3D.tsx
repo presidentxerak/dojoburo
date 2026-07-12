@@ -117,8 +117,15 @@ export function Scene3D() {
       shadows
       dpr={[1, 2]}
       camera={{ position: [2.2, 8.4, 14], fov: 42, near: 0.1, far: 100 }}
-      gl={{ antialias: true }}
+      gl={{ antialias: true, powerPreference: 'high-performance' }}
       onPointerMissed={() => deselect(null)}
+      onCreated={({ gl, invalidate }) => {
+        // Recover gracefully from a lost WebGL context (common with DevTools
+        // device mode or many canvases) instead of leaving the scene black.
+        const canvas = gl.domElement
+        canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault() }, false)
+        canvas.addEventListener('webglcontextrestored', () => { invalidate() }, false)
+      }}
     >
       <color attach="background" args={[P.bg]} />
       <fog attach="fog" args={[P.fog, 24, 44]} />

@@ -23,15 +23,21 @@ const normalizeName = (s: string) =>
 const previewOf = (value: string) => '••••' + value.slice(-4)
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
-  const url = new URL(req.url || '/', `https://${req.headers.host || 'localhost'}`)
-  const action = url.searchParams.get('action') || ''
+  // Never 500: any unexpected error (DB down, pool exhausted, bad env) degrades
+  // to a graceful { ok:false } so the client just falls back to its local store.
+  try {
+    const url = new URL(req.url || '/', `https://${req.headers.host || 'localhost'}`)
+    const action = url.searchParams.get('action') || ''
 
-  if (!dbConfigured() || !vaultConfigured()) return json(res, 200, { ok: false, error: 'no_backend' })
+    if (!dbConfigured() || !vaultConfigured()) return json(res, 200, { ok: false, error: 'no_backend' })
 
-  if (action === 'list') return list(req, res, url.searchParams)
-  if (action === 'save') return save(req, res)
-  if (action === 'remove') return remove(req, res)
-  return json(res, 400, { ok: false, error: 'bad_action' })
+    if (action === 'list') return await list(req, res, url.searchParams)
+    if (action === 'save') return await save(req, res)
+    if (action === 'remove') return await remove(req, res)
+    return json(res, 200, { ok: false, error: 'bad_action' })
+  } catch (e) {
+    return json(res, 200, { ok: false, error: 'server', detail: String((e as Error)?.message || e).slice(0, 120) })
+  }
 }
 
 async function list(_req: IncomingMessage, res: ServerResponse, q: URLSearchParams): Promise<void> {
