@@ -89,6 +89,16 @@ export const MODULES: ModuleDef[] = [
     comp: lazy(() => import('./finance/FinanceModule')),
   },
   {
+    id: 'analytics',
+    label: 'Analytics business',
+    blurb: 'Ventes, CAC, LTV, ROI, croissance — et l’IA qui explique tes chiffres. 100% local.',
+    tint: '#0e9b6a',
+    emoji: '📈',
+    agentRole: 'measure',
+    status: 'live',
+    comp: lazy(() => import('./analytics/AnalyticsModule')),
+  },
+  {
     id: 'crm',
     label: 'CRM & Outbound',
     blurb: 'Prospects, pipeline, séquences email personnalisées et scoring — 100% local.',

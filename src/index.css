@@ -575,6 +575,16 @@ a:hover { text-decoration: underline; }
 .crm-mail-actions { display: flex; gap: 8px; }
 @media (max-width: 560px) { .crm-stats { grid-template-columns: 1fr 1fr; } .crm-edit { grid-template-columns: 1fr; } }
 
+/* Analytics business */
+.ana-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 6px; }
+.ana-badge { font-family: var(--font-pixel); font-weight: 800; font-size: 9.5px; letter-spacing: 0.4px; text-transform: uppercase; color: #fff; background: #0e9b6a; padding: 2px 7px; border-radius: 20px; vertical-align: middle; }
+.ana-insights { display: flex; flex-direction: column; gap: 8px; }
+.ana-insight { border: 1px solid var(--border); border-left: 4px solid var(--tone); border-radius: 10px; padding: 11px 13px; background: var(--panel-solid); }
+.ana-insight b { font-size: 13.5px; color: var(--tone); }
+.ana-insight p { margin: 4px 0 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
+.ana-assume { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .ana-kpis { grid-template-columns: 1fr 1fr; } .ana-assume { grid-template-columns: 1fr; } }
+
 /* Settings & secrets card */
 .sec-warn { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #d9822b 14%, transparent); border: 1.5px solid color-mix(in srgb, #d9822b 45%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
 .sec-ok { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #0e9b6a 12%, transparent); border: 1.5px solid color-mix(in srgb, #0e9b6a 40%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
