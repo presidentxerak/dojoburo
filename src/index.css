@@ -2682,6 +2682,17 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
    =========================================================================== */
 .tb-guide { background: var(--btn-bg) !important; color: var(--btn-fg) !important; border: none !important; text-decoration: none; display: inline-flex; align-items: center; }
 .tb-guide:hover { filter: brightness(1.12); }
+/* Header: Dojo Guide / Studio / City styled like the nav links (Build, Connect…),
+   not filled black boxes — a single, consistent header menu. */
+.topbar .tb-guide, .topbar .tb-studio, .topbar .tb-city {
+  background: transparent !important; background-image: none !important;
+  color: var(--muted) !important; border: none !important; box-shadow: none !important;
+  font-family: var(--font-ui); font-weight: 700; font-size: 13px;
+  padding: 6px 9px !important; border-radius: 4px !important; text-decoration: none;
+}
+.topbar .tb-guide:hover, .topbar .tb-studio:hover, .topbar .tb-city:hover {
+  background: transparent !important; color: var(--ink) !important; filter: none;
+}
 .lp-navguide, .lp-nav-links a.lp-navguide { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; cursor: pointer; color: var(--btn-fg); background: var(--btn-bg); border: none; border-radius: 2px; padding: 8px 13px; text-decoration: none; display: inline-flex; align-items: center; }
 .lp-navguide:hover, .lp-nav-links a.lp-navguide:hover { filter: brightness(1.12); }
 .lp-nav-links a.lp-navguide::after { display: none; }
