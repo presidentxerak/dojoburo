@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { companyById, coRevenue, coSales, type MockCo } from './data/showcase'
+import { HeroArt, DemoReel, PhotoStrip, ICONS, featureIcons } from './components/site/SiteArt'
 
 // Three plausible value-props per company, generated from its mission so every
 // site feels bespoke without hand-authoring 45 paragraphs.
@@ -66,25 +67,28 @@ function ProductMock({ c }: { c: MockCo }) {
   )
 }
 
-// Per-company layout archetype + button shape, so the 15 sites don't share one
-// template. `layout` swaps the whole page composition; `btnRad` reshapes buttons.
+// Per-company look: layout archetype, button shape, and which media leads the
+// hero (a branded illustration vs an app screenshot) + its frame — so the 15
+// sites don't share one template.
 type Layout = 'center' | 'split' | 'editorial' | 'bold'
-const VARIANT: Record<string, { layout: Layout; btnRad: number }> = {
-  lumina: { layout: 'split', btnRad: 999 },
-  cratebox: { layout: 'bold', btnRad: 999 },
-  verdea: { layout: 'center', btnRad: 10 },
-  nomadly: { layout: 'split', btnRad: 6 },
-  pixelforge: { layout: 'bold', btnRad: 3 },
-  brewly: { layout: 'editorial', btnRad: 8 },
-  sootheer: { layout: 'center', btnRad: 999 },
-  ledgerly: { layout: 'split', btnRad: 8 },
-  fitloop: { layout: 'bold', btnRad: 2 },
-  petto: { layout: 'center', btnRad: 999 },
-  draftly: { layout: 'editorial', btnRad: 4 },
-  bloombox: { layout: 'editorial', btnRad: 14 },
-  trailhead: { layout: 'split', btnRad: 8 },
-  cardexo: { layout: 'bold', btnRad: 4 },
-  munchkit: { layout: 'center', btnRad: 999 },
+type Frame = 'rounded' | 'circle' | 'blob'
+interface Variant { layout: Layout; btnRad: number; hero: 'art' | 'app'; frame: Frame }
+const VARIANT: Record<string, Variant> = {
+  lumina: { layout: 'split', btnRad: 999, hero: 'app', frame: 'rounded' },
+  cratebox: { layout: 'bold', btnRad: 999, hero: 'art', frame: 'blob' },
+  verdea: { layout: 'center', btnRad: 10, hero: 'art', frame: 'circle' },
+  nomadly: { layout: 'split', btnRad: 6, hero: 'app', frame: 'rounded' },
+  pixelforge: { layout: 'bold', btnRad: 3, hero: 'app', frame: 'rounded' },
+  brewly: { layout: 'editorial', btnRad: 8, hero: 'art', frame: 'rounded' },
+  sootheer: { layout: 'center', btnRad: 999, hero: 'art', frame: 'blob' },
+  ledgerly: { layout: 'split', btnRad: 8, hero: 'app', frame: 'rounded' },
+  fitloop: { layout: 'bold', btnRad: 2, hero: 'art', frame: 'rounded' },
+  petto: { layout: 'center', btnRad: 999, hero: 'art', frame: 'circle' },
+  draftly: { layout: 'editorial', btnRad: 4, hero: 'app', frame: 'rounded' },
+  bloombox: { layout: 'editorial', btnRad: 14, hero: 'art', frame: 'blob' },
+  trailhead: { layout: 'split', btnRad: 8, hero: 'art', frame: 'rounded' },
+  cardexo: { layout: 'bold', btnRad: 4, hero: 'app', frame: 'rounded' },
+  munchkit: { layout: 'center', btnRad: 999, hero: 'art', frame: 'circle' },
 }
 
 /** A full, standalone marketing site for one of the showcase companies, rendered
@@ -108,7 +112,7 @@ export function CompanySite({ id }: { id: string }) {
   }
 
   const t = c.theme
-  const v = VARIANT[c.id] || { layout: 'center' as Layout, btnRad: t.radius }
+  const v: Variant = VARIANT[c.id] || { layout: 'center', btnRad: t.radius, hero: 'app', frame: 'rounded' }
   const domain = c.handle.replace('@', '') + '.co'
   const style = {
     ['--bg' as any]: t.bg, ['--ink' as any]: t.ink, ['--sub' as any]: t.sub,
@@ -142,10 +146,14 @@ export function CompanySite({ id }: { id: string }) {
             <a className="cs-ghost" href="#features">See how it works</a>
           </div>
         </div>
-        <div className="cs-hero-card">
-          <div className="cs-hero-chrome"><span /><span /><span /><em>{domain}</em></div>
-          <ProductMock c={c} />
-        </div>
+        {v.hero === 'app' ? (
+          <div className="cs-hero-card">
+            <div className="cs-hero-chrome"><span /><span /><span /><em>{domain}</em></div>
+            <ProductMock c={c} />
+          </div>
+        ) : (
+          <div className="cs-hero-illus"><HeroArt c={c} frame={v.frame} /></div>
+        )}
       </section>
 
       <div className="cs-logos">
@@ -162,17 +170,28 @@ export function CompanySite({ id }: { id: string }) {
         <div><b>24/7</b><span>always on</span></div>
       </div>
 
+      <section className="cs-sec cs-demo">
+        <h2 style={up}>See it in action</h2>
+        <p className="cs-sub-lead">A 30-second look at {c.name} doing the work.</p>
+        <DemoReel c={c} />
+      </section>
+
       <section className="cs-sec" id="features">
         <h2 style={up}>Why {c.name}</h2>
         <div className="cs-feats">
           {features(c).map((f, i) => (
             <div className="cs-feat" key={i}>
-              <span className="cs-feat-ico" style={{ background: t.accent }}>{['✦', '✱', '✓'][i]}</span>
+              <span className="cs-feat-ico" style={{ color: t.accent, borderColor: t.accent }}>{ICONS[featureIcons(c.id)[i]]}</span>
               <b>{f.t}</b>
               <p>{f.b}</p>
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="cs-sec cs-gallery-sec">
+        <h2 style={up}>A closer look</h2>
+        <PhotoStrip c={c} />
       </section>
 
       <section className="cs-ad" style={{ background: t.accent }}>
