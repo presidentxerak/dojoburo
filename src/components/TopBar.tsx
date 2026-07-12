@@ -25,7 +25,8 @@ export function TopBar() {
 
   const openStudio = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
-  const openCreate = () => { setMenuOpen(false); useWork.getState().openCreate() }
+  // Create → go to the dedicated creation page (the landing hero form), not the dojo
+  const openCreate = () => { setMenuOpen(false); window.location.href = '/#create-hero' }
   const doLogin = () => { setMenuOpen(false); if (privyConfigured()) privyControls.login?.(); else signInGuest() }
   // Sign out → go back to the landing FIRST so the auth gate (which re-opens the
   // Privy modal) never remounts and traps the user on the Privy screen.

@@ -7,6 +7,11 @@ import {
 } from './workApi'
 import { useWorkshop, type ExtAgent } from '../workshop'
 import { useDeliverables } from './deliverables'
+import { localDraft } from './localDraft'
+
+// errors that mean "no real model is available" → we produce a local draft so the
+// CEO is never dead; anything else is a genuine failure surfaced to the user.
+const NO_MODEL = new Set(['not_configured', 'needs_key', 'quota', 'network', 'failed', 'run_failed', 'empty'])
 
 interface WorkState {
   tools: Record<string, ToolStatus>
@@ -83,14 +88,19 @@ export const useWork = create<WorkState>((set, get) => ({
     if (get().runningTask) return
     set({ runningTask: input.task, runError: null })
     const r = await runWork(input)
+    const dojoId = useWorkshop.getState().activeDojoId
     if (r.ok && r.deliverable) {
       // persist the deliverable so it stays in its panel (nanocorp-style)
-      const dojoId = useWorkshop.getState().activeDojoId
       if (dojoId) useDeliverables.getState().add(dojoId, r.deliverable, Date.now())
-      // open the modal unless this was an autonomous (silent) run
       set(input.silent
         ? { runningTask: null }
         : { deliverable: { ...r.deliverable, settlement: r.settlement, tools: r.tools, priceXrp: r.priceXrp, engine: r.engine }, runningTask: null })
+    } else if (NO_MODEL.has(r.error || 'failed')) {
+      // no model / server unreachable → produce a useful local starter draft so
+      // the CEO always delivers something (clearly labelled). No error surfaced.
+      const d = localDraft(input.task, input.brief || '')
+      if (dojoId) useDeliverables.getState().add(dojoId, d, Date.now())
+      set(input.silent ? { runningTask: null } : { deliverable: d, runningTask: null })
     } else {
       set({ runError: { code: r.error || 'failed', reason: r.reason, detail: r.detail }, runningTask: null })
     }

@@ -10,6 +10,7 @@ import { SiteHeader } from './components/SiteHeader'
 import { AsciiIcon } from './components/AsciiIcon'
 import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
+import { HeroCreate } from './components/landing/HeroCreate'
 import { TeamCards } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 import { ShowcaseGallery, PerformanceBoard, Testimonials } from './components/landing/Showcase'
@@ -31,16 +32,13 @@ export function Landing({ enter }: { enter: () => void }) {
 
       <section className="lp-hero">
         <p className="lp-kicker">Autonomous AI companies · a living 3D office you can watch</p>
-        <h1>A company you can <span className="hl-mag">WATCH</span> run <span className="hl-outline-b">itself</span>.</h1>
+        <h1>Create your company with a <span className="hl-mag">phrase</span>.</h1>
         <p className="lp-sub">
           Describe your idea in a sentence, and <Wordmark /> stands up a tiny 3D office where a CEO agent and
           its crew ship your site, craft your offers and chase growth — around the clock. You steer by chatting,
           and read a daily report while the dojo does the work.
         </p>
-        <div className="lp-actions">
-          <button className="lp-cta" onClick={enter}>Open your cockpit →</button>
-          <a className="lp-ghost" href="#how">See how it works</a>
-        </div>
+        <HeroCreate enter={enter} />
         <div className="lp-badges">
           <span>{PROFESSIONS.length} company profiles</span><span>{CONNECTORS.length} app connectors</span><span>Credits · no crypto</span><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds</span><span>Cloud or local</span>
         </div>
@@ -440,7 +438,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>
         <h2>Ready to run your office?</h2>
-        <button className="lp-cta big" onClick={enter}>Enter DojoBuro →</button>
+        <button className="lp-cta big" onClick={() => { document.querySelector<HTMLInputElement>('#create-hero .hc-input')?.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Create your company →</button>
         <p className="lp-foot">Credits · no crypto · powered by growth hacking · open in your browser</p>
       </section>
 
@@ -457,7 +455,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#prod">Production</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
-          <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Enter the office</a>
+          <a href="#create-hero" onClick={(e) => { e.preventDefault(); document.querySelector<HTMLInputElement>('#create-hero .hc-input')?.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Create your company</a>
         </nav>
       </footer>
       <SupportBot />
