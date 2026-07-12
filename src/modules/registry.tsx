@@ -61,12 +61,12 @@ export const MODULES: ModuleDef[] = [
   {
     id: 'campaign',
     label: 'Campaign Studio',
-    blurb: 'Crée une campagne Meta complète : audiences, personas, visuels, copies, tracking.',
+    blurb: 'Crée une campagne Meta complète : objectif, audiences, personas, visuels et copies.',
     tint: '#e0459b',
     emoji: '📣',
     agentRole: 'acq',
-    status: 'soon',
-    planned: ['Objectif → audiences & personas', 'Visuels + copies (éditeur type Canva, local)', 'Landing pages liées', 'Tracking & first draft IA'],
+    status: 'live',
+    comp: lazy(() => import('./campaign/CampaignModule')),
   },
   {
     id: 'video',
