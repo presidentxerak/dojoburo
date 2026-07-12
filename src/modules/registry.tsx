@@ -45,8 +45,8 @@ export const MODULES: ModuleDef[] = [
     tint: '#7b5cff',
     emoji: '🎨',
     agentRole: 'web',
-    status: 'soon',
-    planned: ['Génération de logo + variantes (SVG local)', 'Palette de couleurs & typographies', 'Moodboard & charte graphique', 'Brand Kit central injecté dans site, pubs, vidéos'],
+    status: 'live',
+    comp: lazy(() => import('./branding/BrandingModule')),
   },
   {
     id: 'website',

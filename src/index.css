@@ -419,6 +419,33 @@ a:hover { text-decoration: underline; }
 .asset-actions .btn { flex: 1; }
 @media (max-width: 560px) { .biz-overview { grid-template-columns: repeat(3, 1fr); } .mission-grid { grid-template-columns: 1fr; } }
 
+/* Branding Studio */
+.brand-idrow { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 14px; }
+.brand-idrow label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; color: var(--muted); flex: 1; min-width: 140px; }
+.brand-hero { display: flex; align-items: center; justify-content: center; min-height: 200px; border-radius: 14px; border: 1px solid var(--border); padding: 20px; }
+.brand-logo svg { max-width: 100%; height: auto; }
+.brand-variants { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0 4px; }
+.brand-variant { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px; background: var(--panel-solid); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; }
+.brand-variant.on { border-color: var(--dc); }
+.brand-variant > span { display: flex; align-items: center; justify-content: center; width: 100%; height: 52px; border-radius: 7px; overflow: hidden; }
+.brand-variant svg { max-width: 90%; max-height: 44px; }
+.brand-variant em { font-style: normal; font-size: 10.5px; color: var(--muted); }
+.brand-h { margin: 18px 0 8px; font-family: var(--font-pixel); font-weight: 800; font-size: 14px; color: var(--ink); }
+.brand-controls { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.brand-seg { display: inline-flex; gap: 3px; background: var(--panel-2); border-radius: 9px; padding: 3px; flex-wrap: wrap; }
+.brand-seg.wrap { display: flex; }
+.brand-seg button { font-size: 12.5px; padding: 7px 11px; border: none; background: transparent; border-radius: 6px; cursor: pointer; color: var(--muted); font-weight: 700; font-family: var(--font-ui); }
+.brand-seg button.on { background: var(--btn-bg); color: #fff; }
+.brand-hue { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--muted); flex: 1; min-width: 160px; }
+.brand-hue input { flex: 1; }
+.brand-palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.brand-swatch { height: 62px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; display: flex; align-items: flex-end; padding: 7px; text-align: left; }
+.brand-swatch span { font-size: 10.5px; font-weight: 800; line-height: 1.2; }
+.brand-swatch em { display: block; font-style: normal; font-weight: 600; opacity: 0.9; }
+.brand-type { margin-top: 8px; padding: 16px; border-radius: 12px; border: 1px solid var(--border); }
+.brand-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 8px; }
+@media (max-width: 560px) { .brand-variants { grid-template-columns: repeat(2, 1fr); } .brand-palette { grid-template-columns: repeat(3, 1fr); } }
+
 /* Settings & secrets card */
 .sec-warn { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #d9822b 14%, transparent); border: 1.5px solid color-mix(in srgb, #d9822b 45%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
 .sec-ok { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #0e9b6a 12%, transparent); border: 1.5px solid color-mix(in srgb, #0e9b6a 40%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
