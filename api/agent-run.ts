@@ -19,6 +19,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { serverWorkTask, type ServerWorkTask } from './_lib/worktasks'
 import { getPool, dbConfigured } from './_lib/db'
 import { findAccountId } from './_lib/accounts'
+import { listSecretNames } from './_lib/secretsVault'
 import { open, seal, vaultConfigured } from './_lib/vault'
 import { connectorAvailable, serverConnector, refreshOAuthToken } from './_lib/connectors'
 import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle'
@@ -70,7 +71,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const startup = String(body?.startup || '').slice(0, 200)
   const net = String(body?.net || 'testnet')
   const ref = { privy: body?.privy as string | undefined, client: body?.client as string | undefined }
+  const dojoId = String(body?.dojo || '').slice(0, 80)
   const requested: string[] = Array.isArray(body?.connectors) ? body.connectors.map((s: any) => String(s)).slice(0, 8) : []
+
+  // The company's own env-var secrets: the NAMES are safe to tell the agent so it
+  // knows which credentials exist; the sealed VALUES stay server-side and are
+  // decrypted (loadSecretEnv) only when a tool actually needs them.
+  const secretNames = await loadSecretNames(ref, dojoId)
 
   // ---- resolve connected tools → MCP servers (best-effort) ----------------
   const mcpServers = await resolveMcpServers(task.usesConnectors.filter((c) => requested.includes(c)), ref)
@@ -87,7 +94,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   // key (or the operator opting in via WORK_OPERATOR_CLAUDE).
   const byokKey = await resolveByokKey(ref)
   const wantsClaude = task.format === 'design-system' || mcpServers.length > 0
-  const system = task.system
+  const system = secretNames.length
+    ? `${task.system}\n\nThis company has these environment variables available to its tools (names only — never print the values): ${secretNames.join(', ')}.`
+    : task.system
   const prompt = task.user({ agentName, brief, startup })
 
   let text = ''
@@ -182,6 +191,20 @@ async function callClaude(apiKey: string, model: string, system: string, user: s
     .join('\n')
     .trim()
   return { text, model: j?.model || model, usage: j?.usage || null }
+}
+
+// Names of the company's stored secrets (never the values) so the agent knows
+// which env vars it can use. Fails soft to [] when there's no backend/account.
+async function loadSecretNames(ref: { privy?: string; client?: string }, dojoId: string): Promise<string[]> {
+  if (!dbConfigured() || !vaultConfigured() || !dojoId) return []
+  try {
+    const pool = getPool()
+    const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
+    if (!accountId) return []
+    return await listSecretNames(pool, accountId, dojoId)
+  } catch {
+    return []
+  }
 }
 
 // ---- BYOK + free-tier metering -------------------------------------------

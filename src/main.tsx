@@ -9,6 +9,7 @@ import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { CompanySite } from './CompanySite'
 import { companyById } from './data/showcase'
+import { SHOW_MOCK_COMPANIES } from './config/flags'
 import './index.css'
 
 // Route ephemeral Vercel preview URLs (which change every deploy and aren't in
@@ -34,9 +35,9 @@ function Root() {
   if (path === '/guide') return <GuidePage />
   const gm = path.match(/^\/guide\/([a-z0-9-]+)$/i)
   if (gm) return <ConnectorGuidePage id={gm[1].toLowerCase()} />
-  // per-company showcase sites · https://dojoburo.com/<company-id>
+  // per-company showcase sites · https://dojoburo.com/<company-id> (demo-only)
   const cm = path.match(/^\/([a-z0-9-]+)$/i)
-  if (cm && companyById(cm[1].toLowerCase())) return <CompanySite id={cm[1].toLowerCase()} />
+  if (SHOW_MOCK_COMPANIES && cm && companyById(cm[1].toLowerCase())) return <CompanySite id={cm[1].toLowerCase()} />
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />

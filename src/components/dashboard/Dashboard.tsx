@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
+import { listSecrets, saveSecret as apiSaveSecret, removeSecret as apiRemoveSecret, type ServerSecret } from '../../agents/workApi'
 import { useDojo } from '../../store'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
 import { useSecrets } from '../../agents/secretsStore'
@@ -79,19 +80,58 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [budget, setBudget] = useState('20')
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
-  // secrets (env vars) for the active company
+  // secrets (env vars) for the active company. Prefer the encrypted server vault
+  // (/api/secrets); fall back to the local browser store when it's not deployed.
   const dojoId = dojo?.id ?? ''
-  const secrets = useSecrets((s) => s.byDojo[dojoId] ?? [])
-  const addSecret = useSecrets((s) => s.add)
-  const removeSecret = useSecrets((s) => s.remove)
+  const localSecrets = useSecrets((s) => s.byDojo[dojoId] ?? [])
+  const addLocalSecret = useSecrets((s) => s.add)
+  const removeLocalSecret = useSecrets((s) => s.remove)
+  const [secMode, setSecMode] = useState<'loading' | 'server' | 'local'>('loading')
+  const [serverSecrets, setServerSecrets] = useState<ServerSecret[]>([])
   const [secKey, setSecKey] = useState('')
   const [secVal, setSecVal] = useState('')
   const [secDesc, setSecDesc] = useState('')
-  const saveSecret = () => {
-    if (!secKey.trim() || !secVal.trim() || !dojoId) return
-    addSecret(dojoId, secKey, secVal, secDesc)
-    setSecKey(''); setSecVal(''); setSecDesc('')
-    pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Secret enregistré (local)', text: 'Stocké dans ton navigateur — n’y mets pas de vraie clé de production.' })
+  const [secBusy, setSecBusy] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    if (!dojoId) { setSecMode('local'); return }
+    setSecMode('loading')
+    void listSecrets(dojoId).then((r) => {
+      if (cancelled) return
+      setSecMode(r.backend ? 'server' : 'local')
+      setServerSecrets(r.secrets)
+    })
+    return () => { cancelled = true }
+  }, [dojoId])
+
+  const onServer = secMode === 'server'
+  const secretList = onServer
+    ? serverSecrets.map((s) => ({ id: s.id, key: s.name, mask: s.preview, desc: s.description }))
+    : localSecrets.map((s) => ({ id: s.id, key: s.key, mask: '••••' + s.value.slice(-4), desc: s.desc }))
+
+  const saveSecret = async () => {
+    if (!secKey.trim() || !secVal.trim() || !dojoId || secBusy) return
+    setSecBusy(true)
+    try {
+      if (onServer) {
+        const r = await apiSaveSecret(dojoId, secKey, secVal, secDesc)
+        if (r.ok) {
+          const l = await listSecrets(dojoId); setServerSecrets(l.secrets)
+          pushToast({ kind: 'event', badge: 'OK', color: '#0e9bb5', title: 'Secret chiffré', text: 'Scellé côté serveur (AES-256-GCM) et exposé à tes agents.' })
+        } else {
+          pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Échec', text: 'Impossible d’enregistrer le secret. Réessaie.' })
+        }
+      } else {
+        addLocalSecret(dojoId, secKey, secVal, secDesc)
+        pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Secret enregistré (local)', text: 'Stocké dans ton navigateur — n’y mets pas de vraie clé de production.' })
+      }
+      setSecKey(''); setSecVal(''); setSecDesc('')
+    } finally { setSecBusy(false) }
+  }
+  const deleteSecret = async (id: string) => {
+    if (onServer) { const ok = await apiRemoveSecret(dojoId, id); if (ok) { const l = await listSecrets(dojoId); setServerSecrets(l.secrets) } }
+    else removeLocalSecret(dojoId, id)
   }
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
   const fiatCur = account?.currency && account.currency !== 'XRP' ? account.currency : 'USD'
@@ -346,35 +386,36 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         lead="Les variables d’environnement (clés API, tokens…) que tes agents utiliseront, plus les interrupteurs de sécurité."
         steps={[
           <>Donne un <b>nom</b> à ta variable (ex : <code>STRIPE_KEY</code>), colle sa <b>valeur</b> et une note facultative.</>,
-          <><b>⚠️ Dans cette version, les secrets restent dans ton navigateur</b> (localStorage) — n’y mets <b>pas</b> de vraie clé de production.</>,
-          <>La version <b>chiffrée côté serveur</b> (AES-256-GCM, comme tes <em>apps connectées</em> et ta clé Claude) est en préparation.</>,
+          <>La valeur est <b>chiffrée côté serveur</b> (AES-256-GCM) — le navigateur ne reçoit qu’un aperçu masqué, jamais la valeur.</>,
+          <>Elle est exposée à tes agents comme <b>variable d’environnement</b> au moment d’exécuter une tâche.</>,
           <>Mets l’entreprise <b>en pause</b> pour tout arrêter, ou coupe seulement les <b>emails sortants</b>.</>,
         ]}
-        tip="Pour de vraies clés, passe par tes apps connectées (Studio) — elles, sont déjà scellées côté serveur."
+        tip="Utilise des clés restreintes (scopées) et fais-les tourner régulièrement."
       />}>
-        <p className="sec-warn">⚠️ <b>Bêta locale :</b> les secrets ci-dessous sont stockés <b>dans ton navigateur</b>, non chiffrés côté serveur. N’y colle pas de clé de production réelle — le coffre serveur chiffré arrive.</p>
+        {secMode === 'server' && <p className="sec-ok">🔒 <b>Coffre chiffré :</b> tes secrets sont scellés côté serveur (AES-256-GCM) — jamais stockés dans le navigateur.</p>}
+        {secMode === 'local' && <p className="sec-warn">⚠️ <b>Coffre serveur non configuré</b> ici : les secrets sont gardés <b>dans ton navigateur</b>. N’y colle pas de vraie clé de production.</p>}
         <div className="sec-add">
           <input className="sec-key" placeholder="SERVICE_API_KEY" value={secKey} onChange={(e) => setSecKey(e.target.value.toUpperCase())} maxLength={48} />
           <input className="sec-val" type="password" placeholder="Valeur du secret" value={secVal} onChange={(e) => setSecVal(e.target.value)} />
           <input className="sec-desc" placeholder="Description (facultatif) — aide tes agents à choisir le bon secret" value={secDesc} onChange={(e) => setSecDesc(e.target.value)} maxLength={80} />
-          <button className="btn tiny" disabled={!secKey.trim() || !secVal.trim()} onClick={saveSecret}>Enregistrer le secret</button>
+          <button className="btn tiny" disabled={!secKey.trim() || !secVal.trim() || secBusy} onClick={() => void saveSecret()}>{secBusy ? 'Enregistrement…' : 'Enregistrer le secret'}</button>
         </div>
 
-        {secrets.length > 0 ? (
+        {secretList.length > 0 ? (
           <ul className="sec-list">
-            {secrets.map((s) => (
+            {secretList.map((s) => (
               <li key={s.id}>
                 <div className="sec-row-main">
                   <code>{s.key}</code>
-                  <span className="sec-mask">••••••••{s.value.slice(-3)}</span>
+                  <span className="sec-mask">{s.mask}</span>
                 </div>
                 {s.desc && <span className="sec-note">{s.desc}</span>}
-                <button className="sec-del" onClick={() => removeSecret(dojoId, s.id)} aria-label={`Supprimer ${s.key}`}>Supprimer</button>
+                <button className="sec-del" onClick={() => void deleteSecret(s.id)} aria-label={`Supprimer ${s.key}`}>Supprimer</button>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="muted small">Aucun secret pour l’instant. Ajoute-en un pour l’exposer à tes agents comme variable d’environnement.</p>
+          <p className="muted small">{secMode === 'loading' ? 'Chargement…' : 'Aucun secret pour l’instant. Ajoute-en un pour l’exposer à tes agents comme variable d’environnement.'}</p>
         )}
 
         <div className="sec-toggles">

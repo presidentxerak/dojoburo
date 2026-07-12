@@ -17,6 +17,7 @@ import { templateById } from '../../data/templates'
 import { Character3D } from '../three/Character3D'
 import { SKINS } from '../../data/skins'
 import { MOCK_COMPANIES, coRevenue, coSales, companyPath, type MockCo } from '../../data/showcase'
+import { SHOW_MOCK_COMPANIES } from '../../config/flags'
 
 // ---- facade texture · clean daytime windows (glass + floor slabs) -----------
 function facadeTexture(spec: BuildingSpec): THREE.CanvasTexture {
@@ -1027,6 +1028,7 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
   // of neighbouring startups rather than a wall.
   const companyByLot = useMemo(() => {
     const map = new Map<string, MockCo>()
+    if (!SHOW_MOCK_COMPANIES) return map // fake companies are hidden from the app
     const candidates = sorted.filter((l) => l.kind === 'building' && !reserved.has(l.id) && Math.hypot(l.cx, l.cz) < builtRadius)
     let ci = 0
     for (let k = 0; k < candidates.length && ci < MOCK_COMPANIES.length; k += 2) {
@@ -1197,7 +1199,7 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
       <div className="city-top">
         <div className="city-title">
           <h1>Dojo City</h1>
-          <p>Une métropole entière : hôtels, centres commerciaux, hôpitaux, écoles, parcs et piscines — et nos 15 entreprises. Clique une société pour sa fiche. Attention aux géants qui s’y promènent.</p>
+          <p>Une métropole entière : hôtels, centres commerciaux, hôpitaux, écoles, parcs et piscines. Ton immeuble grandit d’un étage par Dojo. Attention aux géants qui s’y promènent.</p>
         </div>
         <button className="btn tiny ghost city-exit" onClick={exit}>← Tableau de bord</button>
       </div>

@@ -109,7 +109,8 @@ export interface RunResult {
 }
 
 export async function runWork(input: { task: string; agentName: string; connectors: string[]; brief?: string; extAgents?: ExtAgent[] }): Promise<RunResult> {
-  const startup = useWorkshop.getState().dojos.find((d) => d.id === useWorkshop.getState().activeDojoId)?.name || ''
+  const activeDojoId = useWorkshop.getState().activeDojoId
+  const startup = useWorkshop.getState().dojos.find((d) => d.id === activeDojoId)?.name || ''
   const net = useDojo.getState().net
   // external MCP agents attach as tools during the run · A2A / webhook agents are
   // delegated to separately (see delegateToAgent), so only 'mcp' ones ride along
@@ -120,10 +121,51 @@ export async function runWork(input: { task: string; agentName: string; connecto
     const res = await fetch('/api/agent-run', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...input, extAgents: undefined, extMcp, startup, net, ...ref() }),
+      body: JSON.stringify({ ...input, extAgents: undefined, extMcp, startup, net, dojo: activeDojoId || undefined, ...ref() }),
     })
     return (await res.json()) as RunResult
   } catch (e: any) {
     return { ok: false, error: 'network', detail: String(e?.message || e) }
   }
+}
+
+// ---- company secrets (env vars) · sealed server-side ----------------------
+export interface ServerSecret { id: string; name: string; preview: string; description: string; updatedAt?: string }
+
+/** List a company's secrets (names + masked previews only). `backend` is false
+ *  when the encrypted vault isn't configured on this deployment. */
+export async function listSecrets(dojo: string): Promise<{ backend: boolean; secrets: ServerSecret[] }> {
+  try {
+    const p = new URLSearchParams({ action: 'list', dojo })
+    const r = ref(); if (r.privy) p.set('privy', r.privy); if (r.client) p.set('client', r.client)
+    const res = await fetch(`/api/secrets?${p.toString()}`, { headers: { accept: 'application/json' } })
+    const j = await res.json()
+    // server mode ONLY when the endpoint fully works (vault + DB table present);
+    // no_backend or a db error falls back to the local store with a warning.
+    if (j?.ok === true) return { backend: true, secrets: Array.isArray(j.secrets) ? j.secrets : [] }
+    return { backend: false, secrets: [] }
+  } catch {
+    return { backend: false, secrets: [] }
+  }
+}
+
+export async function saveSecret(dojo: string, name: string, value: string, description: string): Promise<{ ok: boolean; secret?: ServerSecret; error?: string }> {
+  try {
+    const res = await fetch('/api/secrets?action=save', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ dojo, name, value, description, ...ref() }),
+    })
+    return await res.json()
+  } catch { return { ok: false, error: 'network' } }
+}
+
+export async function removeSecret(dojo: string, id: string): Promise<boolean> {
+  try {
+    const res = await fetch('/api/secrets?action=remove', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ dojo, id, ...ref() }),
+    })
+    const j = await res.json()
+    return !!j?.ok
+  } catch { return false }
 }

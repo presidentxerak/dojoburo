@@ -333,6 +333,7 @@ a:hover { text-decoration: underline; }
 
 /* Settings & secrets card */
 .sec-warn { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #d9822b 14%, transparent); border: 1.5px solid color-mix(in srgb, #d9822b 45%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
+.sec-ok { margin: 0 0 14px; padding: 10px 12px; background: color-mix(in srgb, #0e9b6a 12%, transparent); border: 1.5px solid color-mix(in srgb, #0e9b6a 40%, transparent); border-radius: 10px; font-size: 12.5px; line-height: 1.45; color: var(--ink); }
 .sec-add { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
 .sec-add input { width: 100%; font-family: var(--font-mono); }
 .sec-add .sec-key { font-weight: 700; letter-spacing: 0.02em; }
