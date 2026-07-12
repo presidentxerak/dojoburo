@@ -15,6 +15,7 @@ import { TeamCards } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 import { ShowcaseGallery, PerformanceBoard, Testimonials } from './components/landing/Showcase'
 import { SHOW_MOCK_COMPANIES } from './config/flags'
+import { MODULES } from './modules/registry'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -31,16 +32,17 @@ export function Landing({ enter }: { enter: () => void }) {
       <SiteHeader enter={enter} />
 
       <section className="lp-hero">
-        <p className="lp-kicker">Autonomous AI companies · a living 3D office you can watch</p>
-        <h1>Create your company with a <span className="hl-mag">phrase</span>.</h1>
+        <p className="lp-kicker">Le studio + l'OS de ton entreprise, augmenté par des agents IA · 100% local</p>
+        <h1>Crée ton entreprise en une <span className="hl-mag">phrase</span>.</h1>
         <p className="lp-sub">
-          Describe your idea in a sentence, and <Wordmark /> stands up a tiny 3D office where a CEO agent and
-          its crew ship your site, craft your offers and chase growth — around the clock. You steer by chatting,
-          and read a daily report while the dojo does the work.
+          Décris ton idée en une phrase et <Wordmark /> monte un bureau 3D où un CEO et ses agents construisent ta
+          marque, ton site, tes pubs, tes vidéos, ta compta et ton CRM. De vrais <b>studios pro</b> — branding,
+          site, campagnes Meta, montage vidéo, finance, prospection, analytics — qui tournent <b>dans ton
+          navigateur</b> : puissance maximale, coûts serveur minimaux.
         </p>
         <HeroCreate enter={enter} />
         <div className="lp-badges">
-          <span>{PROFESSIONS.length} company profiles</span><span>{CONNECTORS.length} app connectors</span><span>Credits · no crypto</span><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds</span><span>Cloud or local</span>
+          <span>7 studios pro</span><span>100% local · rien n'est envoyé</span><span>Crédits · sans crypto</span><span>{CONNECTORS.length} connecteurs</span><span>Installable (PWA)</span>
         </div>
         <DojoDiorama />
       </section>
@@ -49,6 +51,26 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lm-cap">Built on open rails · connects your whole stack</p>
         <LogoMarquee />
       </div>
+
+      <section className="lp-sec" id="studios">
+        <span className="lp-pill">7 studios · 100% dans ton navigateur</span>
+        <h2>Chaque agent est un vrai studio pro</h2>
+        <p className="lp-lead">
+          Clique un agent dans ton bureau et son studio s'ouvre. Chacun génère une première version par IA, puis
+          tu gardes un contrôle total. Le montage vidéo, la compression d'images, le rendu design et l'export
+          tournent <b>en local</b> — tes fichiers ne quittent jamais ta machine.
+        </p>
+        <div className="lp-studios">
+          {MODULES.map((m) => (
+            <div className="lp-studio" key={m.id} style={{ ['--pc' as any]: m.tint }}>
+              <span className="lp-studio-emoji" aria-hidden>{m.emoji}</span>
+              <strong>{m.label}</strong>
+              <span className="lp-studio-blurb">{m.blurb}</span>
+            </div>
+          ))}
+        </div>
+        <p className="lp-note">Marque → site → pubs → vidéo → finance → clients → analytics : un Brand Kit central garde tout cohérent, et tout est réutilisé d'un studio à l'autre.</p>
+      </section>
 
       {SHOW_MOCK_COMPANIES && (
         <section className="lp-sec" id="board">

@@ -21,6 +21,18 @@ export interface KBTopic {
 
 export const KB: KBTopic[] = [
   {
+    id: 'studios',
+    chip: 'Les studios',
+    answer:
+      'Chaque agent de ton bureau est un vrai studio pro, qui s’ouvre quand tu cliques dessus : Branding (logo, palette, typo, Brand Kit), Website Builder (site par blocs, export HTML), Campaign Studio (pubs Meta : audiences, personas, créas), Video Creator (montage + export .webm), Finance & Compta (import CSV, TVA, prévisions), CRM & Outbound (pipeline + séquences email) et Analytics (CAC, LTV, ROI expliqués). Tout tourne 100% dans ton navigateur — le montage vidéo, la compression d’images et les exports restent sur ta machine, rien n’est envoyé au serveur. L’IA crée une première version, tu gardes le contrôle total.',
+    links: [
+      { label: 'Voir les studios', href: '#studios' },
+      { label: 'Ouvrir mon bureau', href: '#app' },
+    ],
+    follow: ['start', 'tools', 'cost'],
+    keywords: ['studio', 'studios', 'branding', 'marque', 'logo', 'site', 'website', 'campagne', 'campaign', 'pub', 'ads', 'video', 'vidéo', 'montage', 'finance', 'compta', 'crm', 'outbound', 'analytics', 'local', 'module'],
+  },
+  {
     id: 'start',
     chip: 'Getting started',
     answer:
@@ -283,4 +295,4 @@ export function matchTopic(text: string): KBTopic | null {
 }
 
 export const GREETING =
-  "Hi! I'm the DojoBuro assistant. Ask me how to connect an app, customise your agents, what a task costs · or pick a topic below.";
+  "Salut ! Je suis l'assistant DojoBuro. Chaque agent est un studio pro (branding, site, campagnes, vidéo, finance, CRM, analytics) qui tourne 100% en local. Demande-moi comment créer ta marque, ton site ou une campagne · ou choisis un sujet ci-dessous.";

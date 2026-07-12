@@ -1474,6 +1474,12 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-footer { max-width: 1080px; }
 
 /* ---- professions grid (Built for your job) ------------------------------- */
+.lp-studios { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.lp-studio { position: relative; background: var(--panel-solid); border: 1px solid var(--border); border-left: 4px solid var(--pc); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 6px; transition: transform 0.16s, box-shadow 0.16s; }
+.lp-studio:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.lp-studio-emoji { font-size: 28px; line-height: 1; }
+.lp-studio strong { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; }
+.lp-studio-blurb { font-size: 13px; color: var(--muted); line-height: 1.5; }
 .lp-jobs { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
 .lp-job { position: relative; background: var(--panel-solid); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 20px 18px; display: flex; flex-direction: column; gap: 7px; transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s; overflow: hidden; }
 .lp-job::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--title-grad); opacity: 0; transition: opacity 0.16s; }

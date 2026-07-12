@@ -38,15 +38,15 @@ export function GuidePage() {
   return (
     <GuideShell>
       <section className="lp-hero dg2-hero">
-        <h1>Wire your <span className="hl-mag">tools</span>, keep control.</h1>
+        <h1>Tes <span className="hl-mag">studios</span> + tes outils, sous contrôle.</h1>
         <p className="lp-sub">
-          Connectors let your AI agents do real work inside your everyday apps · create the Notion page, open the
-          GitHub PR, draft the Gmail, raise the Stripe invoice. This guide shows how to connect them, configure each
-          one step by step, use them safely, see the results, run DojoBuro locally or in the cloud, and keep your
-          spend under control.
+          Dans DojoBuro, chaque agent est un studio pro (branding, site, campagnes Meta, montage vidéo, finance, CRM,
+          analytics) qui tourne <b>100% dans ton navigateur</b> — tes fichiers ne partent jamais. Pour aller plus loin,
+          les <b>connecteurs</b> laissent tes agents agir dans tes apps réelles (Meta, Gmail, Stripe…). Ce guide montre
+          comment ouvrir un studio, brancher une app, tout configurer pas à pas et maîtriser tes coûts.
         </p>
         <div className="lp-badges">
-          <span>{CONNECTORS.length} connectors</span><span>Step-by-step per app</span><span>OAuth · sealed vault</span><span>Cloud or local</span>
+          <span>7 studios · 100% local</span><span>{CONNECTORS.length} connecteurs</span><span>OAuth · coffre chiffré</span><span>Cloud ou local</span>
         </div>
       </section>
 
