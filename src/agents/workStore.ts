@@ -24,6 +24,8 @@ interface WorkState {
   studioAgentId: string | null
   /** the autonomous CEO run: which step is in flight (label) + whether it's active */
   autopilot: { running: boolean; step: string | null }
+  /** signal: open the "create a Dojo" flow (from the header/landing Create button) */
+  createIntent: boolean
 
   loadTools: () => Promise<void>
   disconnect: (id: string) => Promise<void>
@@ -38,6 +40,8 @@ interface WorkState {
   /** open the Studio editor focused on a specific agent */
   editAgent: (agentId: string) => void
   clearStudioIntent: () => void
+  openCreate: () => void
+  clearCreate: () => void
 }
 
 export const useWork = create<WorkState>((set, get) => ({
@@ -51,6 +55,7 @@ export const useWork = create<WorkState>((set, get) => ({
   studioIntent: null,
   studioAgentId: null,
   autopilot: { running: false, step: null },
+  createIntent: false,
 
   loadTools: async () => {
     const { tools, backend, byok } = await listTools()
@@ -98,4 +103,6 @@ export const useWork = create<WorkState>((set, get) => ({
   openStudio: (tab) => set({ studioIntent: tab }),
   editAgent: (agentId) => set({ studioIntent: 'studio', studioAgentId: agentId }),
   clearStudioIntent: () => set({ studioIntent: null, studioAgentId: null }),
+  openCreate: () => set({ createIntent: true }),
+  clearCreate: () => set({ createIntent: false }),
 }))

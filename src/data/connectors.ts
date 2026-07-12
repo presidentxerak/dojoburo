@@ -272,6 +272,13 @@ export const CONNECTORS: Connector[] = [
     docsUrl: 'https://developers.facebook.com/apps',
     env: [...oauthEnv('WHATSAPP', 'Meta app (WhatsApp Business)', 'https://developers.facebook.com/apps'), hubEnv('WHATSAPP')],
   },
+  {
+    id: 'meta', label: 'Meta Ads', provider: 'Meta', category: 'Marketing & Social',
+    blurb: 'Create, launch and manage Facebook & Instagram ad campaigns from your Meta ad account (Marketing API).',
+    functions: ['Growth'], auth: 'oauth',
+    docsUrl: 'https://developers.facebook.com/apps',
+    env: [...oauthEnv('META', 'Meta for Developers (Marketing API app)', 'https://developers.facebook.com/apps'), hubEnv('META')],
+  },
 ]
 
 export const CONNECTOR_BY_ID: Record<string, Connector> = Object.fromEntries(CONNECTORS.map((c) => [c.id, c]))
@@ -312,7 +319,7 @@ export const WORK_TASKS: Record<Department, WorkTask[]> = {
   Growth: [
     { id: 'campaign', label: 'Go-to-market campaign', blurb: 'Positioning, channels, a content calendar and email copy.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['gmail'] },
     { id: 'website', label: 'Website plan & copy', blurb: 'A ready-to-build landing page: sections, copy, CTAs and SEO.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['figma'] },
-    { id: 'ads', label: 'Meta ad creatives', blurb: '5 Meta (Facebook/Instagram) ad variations with visuals, audiences and a test plan.', priceXrp: 0.2, format: 'markdown', usesConnectors: [] },
+    { id: 'ads', label: 'Meta ad creatives', blurb: '5 Meta (Facebook/Instagram) ad variations with visuals, audiences and a test plan.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['meta'] },
     { id: 'outreach', label: 'Prospect list & outreach', blurb: 'An ICP, target profiles and a 3-step email sequence.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['gmail'] },
   ],
   Finance: [

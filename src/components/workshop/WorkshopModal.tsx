@@ -496,7 +496,7 @@ function AccountTab() {
       )}
       <button
         className="ws-btn danger"
-        onClick={() => { if (isPrivy && privyControls.logout) privyControls.logout(); else signOut() }}
+        onClick={() => { location.hash = ''; if (isPrivy && privyControls.logout) privyControls.logout(); else signOut() }}
       >
         Sign out
       </button>

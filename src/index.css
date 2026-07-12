@@ -446,6 +446,7 @@ a:hover { text-decoration: underline; }
 .tb-nav a:hover { color: var(--ink); }
 /* Dojo Guide + Studio buttons in the dojo header carry no outline */
 .topbar .tb-guide, .topbar .tb-studio { border: none !important; }
+.topbar .tb-create { background: linear-gradient(140deg, var(--pink), var(--violet)) !important; color: #fff !important; border: none !important; }
 
 .net-switch { display: flex; background: var(--panel-2); border-radius: 12px; padding: 2px; }
 .net-tab { background: transparent; border: none; color: var(--muted); padding: 6px 10px; font: inherit; font-size: 10px; cursor: pointer; border-radius: 10px; }
@@ -724,6 +725,8 @@ a:hover { text-decoration: underline; }
 }
 .lp-cta:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .lp-cta.sm { padding: 8px 14px; font-size: 12px; }
+.lp-ghost.sm { padding: 8px 14px; font-size: 12px; }
+@media (max-width: 720px) { .lp-nav-create { display: none; } }
 .lp-cta.big { font-size: 18px; padding: 16px 30px; }
 .lp-ghost { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; padding: 12px 18px; border-radius: 14px; border: 1.5px solid var(--border-lit); color: var(--ink); }
 

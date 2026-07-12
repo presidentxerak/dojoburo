@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Logo } from './Logo'
 import { Wordmark } from './Wordmark'
+import { useWork } from '../agents/workStore'
 
 // The one site header, shared by the landing page, the Dojo Guide and every
 // connector page · identical markup so they always match. Section links point at
@@ -19,6 +20,8 @@ const NAV_LINKS: [string, string][] = [
 export function SiteHeader({ enter }: { enter?: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const go = enter ?? (() => { window.location.href = '/#app' })
+  // Create → enter the app and open the "create a Dojo" flow
+  const create = () => { useWork.getState().openCreate(); go() }
   return (
     <>
       <header className="lp-nav">
@@ -38,6 +41,7 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
           >
             <span /><span /><span />
           </button>
+          <button className="lp-ghost sm lp-nav-create" onClick={create}>Create</button>
           <button className="lp-cta sm" onClick={go}>Enter the office →</button>
         </div>
       </header>
@@ -50,6 +54,7 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
               <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
             ))}
             <a className="lp-menu-guide" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
+            <button className="lp-ghost" onClick={() => { setMenuOpen(false); create() }}>Create a company</button>
             <button className="lp-cta" onClick={() => { setMenuOpen(false); go() }}>Enter the office →</button>
           </nav>
         </>

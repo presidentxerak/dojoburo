@@ -25,8 +25,16 @@ export function TopBar() {
 
   const openStudio = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
+  const openCreate = () => { setMenuOpen(false); useWork.getState().openCreate() }
   const doLogin = () => { setMenuOpen(false); if (privyConfigured()) privyControls.login?.(); else signInGuest() }
-  const doSignOut = () => { setMenuOpen(false); if (account?.provider === 'privy' && privyControls.logout) privyControls.logout(); else signOut() }
+  // Sign out → go back to the landing FIRST so the auth gate (which re-opens the
+  // Privy modal) never remounts and traps the user on the Privy screen.
+  const doSignOut = () => {
+    setMenuOpen(false)
+    location.hash = ''
+    if (account?.provider === 'privy' && privyControls.logout) privyControls.logout()
+    else signOut()
+  }
 
   // shared settings + wallet rows (used in the desktop dropdown and mobile sheet)
   const Settings = (
@@ -67,6 +75,7 @@ export function TopBar() {
           <a href="/#pricing">Pricing</a>
         </nav>
         <a className="btn tiny tb-guide" href="/guide">Dojo Guide</a>
+        <button className="btn tiny tb-studio tb-create" onClick={openCreate}>+ Create</button>
         <button className="btn tiny tb-studio" onClick={openStudio}>Studio</button>
         <button className="btn tiny tb-studio tb-city" onClick={() => { location.hash = 'city' }}>City</button>
       </div>
@@ -95,6 +104,7 @@ export function TopBar() {
           <div className="tb-menu" role="menu">
             {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
             <a className="tb-menu-item tb-only-mobile tb-menu-link" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
+            <button className="tb-menu-item" onClick={openCreate}>+ Créer une entreprise</button>
             <button className="tb-menu-item tb-only-mobile" onClick={openStudio}>Studio</button>
             <button className="tb-menu-item tb-only-mobile" onClick={() => { setMenuOpen(false); location.hash = 'city' }}>City</button>
 

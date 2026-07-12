@@ -414,6 +414,19 @@ const REGISTRY: Record<string, ServerConnector> = {
     },
     mcp: mcp('whatsapp', null, 'WHATSAPP_MCP_URL'),
   },
+  meta: {
+    id: 'meta',
+    oauth: {
+      // Meta Marketing API (Facebook + Instagram ads) via Facebook Login
+      authorizeUrl: env('META_AUTH_URL') || 'https://www.facebook.com/v19.0/dialog/oauth',
+      tokenUrl: env('META_TOKEN_URL') || 'https://graph.facebook.com/v19.0/oauth/access_token',
+      scope: env('META_SCOPE') || 'ads_management ads_read business_management',
+      clientIdEnv: 'META_CLIENT_ID',
+      clientSecretEnv: 'META_CLIENT_SECRET',
+      tokenAuth: 'body',
+    },
+    mcp: mcp('meta', null, 'META_MCP_URL'),
+  },
 }
 
 export const CONNECTOR_IDS: string[] = Object.keys(REGISTRY)

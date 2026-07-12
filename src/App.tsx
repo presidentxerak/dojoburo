@@ -27,6 +27,7 @@ export default function App() {
   const selected = useDojo((s) => s.selectedAgent)
   const account = useWorkshop((s) => s.account)
   const needsAuth = !account && privyConfigured()
+  const createIntent = useWork((s) => s.createIntent)
 
   // the dojo can expand to fill the window (nanocorp "Desktop View" equivalent)
   const [dojoFull, setDojoFull] = useState(false)
@@ -37,6 +38,7 @@ export default function App() {
   const finishOnboarding = () => {
     try { localStorage.setItem('dojoburo.onboarded.v1', '1') } catch { /* ignore */ }
     setOnboarded(true)
+    useWork.getState().clearCreate()
   }
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
@@ -129,7 +131,7 @@ export default function App() {
       </nav>
 
       {needsAuth && <AuthGate />}
-      {!needsAuth && !onboarded && <Onboarding onDone={finishOnboarding} />}
+      {!needsAuth && (!onboarded || createIntent) && <Onboarding onDone={finishOnboarding} />}
     </div>
   )
 }
