@@ -55,12 +55,32 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// PWA · register the service worker (installable + offline shell). Conservative
-// network-first strategy so deploys are never stale. Only in production builds
-// on a secure origin; failures are non-fatal.
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => { /* non-fatal */ })
+// Self-healing after deploys. The old caching service worker could serve stale
+// module chunks, blanking panels. We (a) let the kill-switch sw.js remove any
+// existing service worker + wipe caches, (b) reload once when the controller
+// changes, and (c) reload once if a lazy chunk fails to load (stale cache) so
+// the user always ends up on fresh files. All guards prevent reload loops.
+if ('serviceWorker' in navigator) {
+  // remove any previously-registered service worker (kill the stale cache)
+  navigator.serviceWorker.getRegistrations?.().then((regs) => {
+    for (const r of regs) { void r.update?.() }
+  }).catch(() => { /* */ })
+
+  let swReloaded = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (swReloaded) return
+    swReloaded = true
+    location.reload()
   })
 }
+
+// If a dynamically-imported module chunk fails (usually a stale cache after a
+// deploy), reload once to fetch the current chunks.
+window.addEventListener('vite:preloadError', () => {
+  try {
+    if (sessionStorage.getItem('dj_chunk_reload') === '1') return
+    sessionStorage.setItem('dj_chunk_reload', '1')
+    location.reload()
+  } catch { location.reload() }
+})
 
