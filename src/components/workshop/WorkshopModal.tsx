@@ -404,7 +404,7 @@ function ExternalAgentsPanel({ agent, onChange }: { agent: WAgent; onChange: (li
   )
 }
 
-function SkinPicker({ current, onPick, onClose }: { current: string; onPick: (id: string) => void; onClose: () => void }) {
+export function SkinPicker({ current, onPick, onClose }: { current: string; onPick: (id: string) => void; onClose: () => void }) {
   const [theme, setTheme] = useState<string>('all')
   const [focus, setFocus] = useState<string>(current)
   const list = theme === 'all' ? SKINS : SKINS.filter((s) => s.theme === theme)

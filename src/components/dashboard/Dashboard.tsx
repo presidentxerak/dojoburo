@@ -8,8 +8,10 @@ import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../ag
 import { useSecrets } from '../../agents/secretsStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
+import { ROLE_AGENTS, ROLE_BY_ID } from '../../data/roleAgents'
 import { skinById } from '../../data/skins'
 import { SkinAvatar } from '../workshop/SkinAvatar'
+import { SkinPicker } from '../workshop/WorkshopModal'
 import { InfoDot } from '../InfoDot'
 
 // fiat credit packs · ~1 credit per task. Price per credit by currency (XRP
@@ -17,14 +19,6 @@ import { InfoDot } from '../InfoDot'
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
 const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
 const CREDIT_PACKS = [30, 100, 500]
-
-// category shown above each card title, landing-style
-const CARD_CAT: Record<string, string> = {
-  'CEO': 'Direction', 'Engine · autonomie': 'Moteur', 'Tâches': 'Travail',
-  'Site web': 'Web', 'Publicités': 'Acquisition', 'Email & prospects': 'Outbound',
-  'Analytics': 'Mesure', 'Offres & paiements': 'Revenus', 'Crédits': 'Crédits',
-  'Réglages & secrets': 'Config',
-}
 
 /** A step-by-step explainer for an InfoDot: a short lead, numbered steps, and an
  *  optional tip — so each dashboard feature is spelled out clearly. */
@@ -38,29 +32,15 @@ function Guide({ lead, steps, tip }: { lead: string; steps: React.ReactNode[]; t
   )
 }
 
-/** A landing-style card: white, a washi-tape strip pinned at the top, a small
- *  coloured category label, a bold title and the body. `tint` is the accent. */
-function Card({ title, tint, info, children }: { title: string; tint: string; info?: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <section className="dcard" style={{ ['--dc' as string]: tint }}>
-      <span className="dcard-tape" />
-      <div className="dcard-head">
-        <span className="dcard-cat">{CARD_CAT[title] || ''}</span>
-        {info && <InfoDot title={title}>{info}</InfoDot>}
-      </div>
-      <h3 className="dcard-title">{title}</h3>
-      <div className="dcard-body">{children}</div>
-    </section>
-  )
-}
-
-/** The nanocorp-style company dashboard in DojoBuro's post-it style. Your CEO +
- *  the growth primitives (tasks, website, ads, email, analytics, products,
- *  credits, engine) as sticky notes; the dojo shows the same crew in 3D. */
+/** The new dojo mechanic: a company is run by 10 functional agents. The right
+ *  panel shows the roster; clicking an agent (here or in the 3D dojo) opens that
+ *  agent's dedicated management / edition / creation dashboard. */
 export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
   const dojos = useWorkshop((s) => s.dojos)
   const setActiveDojo = useWorkshop((s) => s.setActiveDojo)
+  const updateAgent = useWorkshop((s) => s.updateAgent)
+  const save = useWorkshop((s) => s.save)
   const account = useWorkshop((s) => s.account)
   const agents = dojo?.agents ?? []
   const cycleDojo = (dir: 1 | -1) => {
@@ -68,12 +48,19 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     const i = dojos.findIndex((d) => d.id === dojo.id)
     setActiveDojo(dojos[(i + dir + dojos.length) % dojos.length].id)
   }
-  const ceo = agents.find((a) => a.fn === 'Leadership') ?? agents[0]
+  // the selected agent drives the whole panel (also set by clicking a 3D agent)
+  const selectedId = useDojo((s) => s.selectedAgent)
+  const selectAgent = useDojo((s) => s.selectAgent)
+  const byRole = (roleId: string) => agents.find((a) => a.role === roleId)
+  const ceo = byRole('ceo') ?? agents.find((a) => a.fn === 'Leadership') ?? agents[0]
+  const selected = agents.find((a) => a.id === selectedId) ?? null
+  const selRole = selected?.role ? ROLE_BY_ID[selected.role] : undefined
 
   const run = useWork((s) => s.run)
   const running = useWork((s) => s.runningTask)
   const tools = useWork((s) => s.tools)
   const openStudio = useWork((s) => s.openStudio)
+  const editAgent = useWork((s) => s.editAgent)
   const autopilot = useWork((s) => s.autopilot)
   const showDeliverable = useWork((s) => s.showDeliverable)
   const delivs = useDeliverables((s) => s.byDojo[dojo?.id ?? ''] ?? [])
@@ -88,6 +75,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [budget, setBudget] = useState('20')
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
+  const [picking, setPicking] = useState(false) // skin picker open for the selected agent
   // secrets (env vars) for the active company. Prefer the encrypted server vault
   // (/api/secrets); fall back to the local browser store when it's not deployed.
   const dojoId = dojo?.id ?? ''
@@ -162,14 +150,12 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   }
   const tasksDone = Object.values(stats).reduce((n, s) => n + (s?.tasksDone ?? 0), 0)
 
-  // Run a real Claude-powered deliverable. Gates on the Engine, records the run,
-  // fires the work, then surfaces a clear toast if it couldn't run (missing key,
-  // quota, no model configured…). On success the deliverable opens automatically.
+  // Run a real Claude-powered deliverable. Explicit user action → only a hard
+  // company Pause blocks it (not the daily autonomy cap). On success the
+  // deliverable opens automatically; on failure a clear toast explains why.
   const runTask = async (agentName: string, task: string, brief = '') => {
     if (running) return
-    // explicit user action → only a hard company Pause blocks it (not the daily
-    // autonomy cap, which is for background autonomy)
-    if (engine.paused) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Entreprise en pause', text: 'Reprends dans la carte Réglages & secrets.' }); return }
+    if (engine.paused) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Entreprise en pause', text: 'Reprends dans le dashboard de l’agent Config.' }); return }
     engine.record(`${agentName}:${task}`)
     pushToast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: agentName, text: 'Au travail…' })
     await run({ task, agentName, connectors: [], brief })
@@ -193,8 +179,280 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     void runTask(ceo?.name || 'CEO', 'strategy', brief)
   }
 
-  const tint = { ceo: '#7b5cff', engine: '#e07a2a', tasks: '#1fa563', site: '#2f7fd6', ads: '#e0459b', mail: '#d98c17', ana: '#0e9b6a', prod: '#e0483f', credit: '#0e9bb5', cfg: '#5b6472' }
+  // ---- the guide (InfoDot) for each role dashboard ---------------------------
+  const guideFor = (roleId: string): React.ReactNode => {
+    switch (roleId) {
+      case 'ceo': return <Guide lead="Ton CEO est le cerveau de ton entreprise : tu lui parles en langage normal et il décide quoi faire, puis répartit le travail aux autres agents."
+        steps={[
+          <>Écris ton objectif en une phrase (ex : « trouve-moi 20 prospects et écris-leur »).</>,
+          <>Clique <b>Envoyer</b> : le CEO découpe l’objectif et le confie aux bons agents.</>,
+          <>Ou clique <b>Lancer le CEO</b> : il enchaîne stratégie, site, offre, pubs et prospection tout seul.</>,
+          <>Chaque matin, il t’envoie un <b>rapport par email</b> (bientôt WhatsApp / Telegram).</>,
+        ]} tip="Un objectif clair par message donne de meilleurs résultats." />
+      case 'engine': return <Guide lead="L’agent Moteur règle à quel point ton CEO agit tout seul, et l’empêche de trop dépenser ou de tourner en rond."
+        steps={[
+          <>Choisis un <b>niveau d’autonomie</b> : Auto s’auto-régule ; Low / Medium / Hard / Ultra limitent à 1 / 5 / 10 / 25 tâches autonomes par jour.</>,
+          <>Fixe un <b>plafond de crédits par jour</b>.</>,
+          <>Un <b>garde anti-boucle</b> bloque une tâche qui se répète en boucle.</>,
+          <>Suis en direct les tâches et crédits utilisés aujourd’hui.</>,
+        ]} tip="Ces limites ne freinent que l’autonomie de fond : tes lancements manuels passent toujours." />
+      case 'work': return <Guide lead="L’agent Travail exécute à la demande les livrables concrets que ta crème d’agents sait produire."
+        steps={[
+          <>Parcours la liste : chaque ligne montre l’agent et la tâche.</>,
+          <>Clique <b>Lancer</b> pour l’exécuter tout de suite.</>,
+          <>L’agent s’anime dans le dojo et le <b>résultat s’ouvre</b> dès qu’il est prêt.</>,
+        ]} tip="Connecte les apps concernées (Studio) pour des résultats plus riches." />
+      case 'web': return <Guide lead="L’agent Web génère et déploie un vrai site public pour ton entreprise, que tu personnalises ensuite."
+        steps={[
+          <>Il crée une <b>première version</b> du site à partir de ta description.</>,
+          <>Édite-le dans un éditeur visuel façon Lovable. <em>(bientôt)</em></>,
+          <>Publie : ton site est en ligne sur ton adresse dojoburo.app.</>,
+        ]} tip="Commence par le contenu (offre, bénéfices, appel à l’action)." />
+      case 'acq': return <Guide lead="L’agent Acquisition lance des campagnes Meta (Facebook & Instagram) — uniquement Meta, pas de Google."
+        steps={[
+          <>Fixe un <b>budget quotidien</b> dans ta monnaie.</>,
+          <>Clique <b>Générer des créas</b> : 5 variantes d’annonces Meta (texte, accroche, visuel, audience).</>,
+          <>Connecte ton compte <b>Meta</b> (Studio) pour diffuser réellement.</>,
+        ]} tip="Démarre avec un petit budget, puis mets plus sur ce qui marche." />
+      case 'outbound': return <Guide lead="L’agent Outbound trouve des prospects, vérifie leurs emails et lance des séquences d’approche."
+        steps={[
+          <>Décris ta <b>cible</b> et lance une recherche de prospects.</>,
+          <>Les emails trouvés sont <b>vérifiés</b> pour éviter les rebonds.</>,
+          <>Connecte <b>Gmail</b> pour envoyer depuis ta boîte.</>,
+        ]} tip="Un message court et personnalisé convertit mieux qu’un long argumentaire." />
+      case 'measure': return <Guide lead="L’agent Mesure est le tableau de bord chiffré de ton entreprise : ce que tes agents produisent et consomment."
+        steps={[
+          <><b>Tâches livrées</b> : le total de livrables produits.</>,
+          <><b>Jetons</b> : le volume de calcul IA utilisé.</>,
+          <><b>Crédits (jour)</b> : ta dépense d’aujourd’hui.</>,
+          <><b>Connecteurs</b> : le nombre d’apps branchées.</>,
+        ]} tip="Plus tu connectes d’apps, plus le travail est réel et mesurable." />
+      case 'revenue': return <Guide lead="L’agent Revenu construit ce que tu vends et encaisse tes clients pour de vrai."
+        steps={[
+          <>Il propose une <b>offre</b>, des <b>tarifs</b> et le texte d’une page de paiement.</>,
+          <>Connecte <b>Stripe</b> pour créer les produits et recevoir les paiements.</>,
+          <>Partage le <b>lien de paiement</b> ; les ventes remontent dans Mesure.</>,
+        ]} tip="Commence avec une seule offre claire." />
+      case 'credit': return <Guide lead="L’agent Crédit alimente le travail de tes agents. Tu recharges dans ta monnaie, sans aucune crypto."
+        steps={[
+          <>Choisis un <b>pack</b> (30 / 100 / 500 crédits) affiché en {fiatCur}.</>,
+          <>Le paiement s’ouvre dans une nouvelle fenêtre (carte, sécurisé).</>,
+          <>Chaque tâche consomme <b>environ 1 crédit</b> ; le règlement se fait en coulisse.</>,
+        ]} tip="Le niveau d’autonomie (Moteur) t’aide à maîtriser ta consommation." />
+      case 'config': return <Guide lead="L’agent Config garde tes variables d’environnement chiffrées et les interrupteurs de sécurité."
+        steps={[
+          <>Donne un <b>nom</b> (ex : STRIPE_KEY), colle la <b>valeur</b> et une note.</>,
+          <>La valeur est <b>chiffrée côté serveur</b> (AES-256-GCM).</>,
+          <>Elle est exposée à tes agents comme variable d’environnement.</>,
+          <>Mets l’entreprise <b>en pause</b> pour tout arrêter.</>,
+        ]} tip="Utilise des clés restreintes (scopées) et fais-les tourner régulièrement." />
+      default: return null
+    }
+  }
 
+  // ---- the specialized body for each role dashboard --------------------------
+  const bodyFor = (roleId: string, agentName: string): React.ReactNode => {
+    switch (roleId) {
+      case 'ceo': return (
+        <>
+          <div className="composer-row">
+            <input value={msg} onChange={(e) => setMsg(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendCeo()} placeholder="Dis à ton CEO quoi prioriser…" />
+            <button className="btn primary tiny" onClick={sendCeo} disabled={!msg.trim() || autopilot.running}>Envoyer</button>
+          </div>
+          {autopilot.running ? (
+            <p className="ceo-autopilot"><span className="ceo-spin" /> Le CEO travaille · <b>{autopilot.step}</b>…</p>
+          ) : (
+            <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'mon entreprise')}>▶ Lancer le CEO (tout construire)</button>
+          )}
+          {noModel && (
+            <p className="ceo-nomodel">⚠️ <b>Aucun modèle IA connecté</b> — le CEO produit des <b>brouillons</b>. Pour la vraie génération : <button className="linklike" onClick={() => openStudio('billing')}>ajoute ta clé Claude</button> (Studio → Facturation), ou l’opérateur active une clé gratuite (Groq / Gemini).</p>
+          )}
+          <p className="muted small">Le CEO enchaîne site, offre, pubs et prospection tout seul (dans les limites du Moteur) · rapport quotidien par email.</p>
+        </>
+      )
+      case 'engine': return (
+        <>
+          <div className="tb-netseg eng-seg">
+            {(['auto', 'low', 'medium', 'hard', 'ultra'] as Autonomy[]).map((a) => (
+              <button key={a} className={engine.autonomy === a ? 'on' : ''} onClick={() => engine.setAutonomy(a)}>{AUTONOMY_LABEL[a]}</button>
+            ))}
+          </div>
+          <div className="eng-row">
+            <label>Plafond crédits/jour
+              <input type="number" min="1" value={engine.dailyCreditCap} onChange={(e) => engine.setDailyCap(Number(e.target.value))} />
+            </label>
+            <div className="eng-stat">
+              <span>{engine.tasksToday}{AUTONOMY_CAP[engine.autonomy] === Infinity ? '' : ` / ${AUTONOMY_CAP[engine.autonomy]}`}</span>
+              <em>tâches aujourd’hui</em>
+            </div>
+            <div className="eng-stat">
+              <span>{engine.creditsToday} / {engine.dailyCreditCap}</span>
+              <em>crédits aujourd’hui</em>
+            </div>
+          </div>
+        </>
+      )
+      case 'work': return (
+        <>
+          {agents.length === 0 && <p className="muted small">Pas encore d’agents — crée ton Dojo dans le Studio.</p>}
+          <ul className="dash-tasks">
+            {agents.filter((a) => a.role !== 'ceo').flatMap((a) => tasksForFunction(a.fn).slice(0, 2).map((wt) => (
+              <li key={`${a.id}:${wt.id}`}>
+                <span><b>{a.name}</b> · {wt.label}</span>
+                <button className="btn tiny" disabled={!!running} onClick={() => void runTask(a.name, wt.id)}>{running === wt.id ? '…' : 'Lancer'}</button>
+              </li>
+            )))}
+          </ul>
+        </>
+      )
+      case 'web': return (
+        <>
+          <p className="muted small">Statut : <b>{got('website') ? 'généré ✓' : 'non déployé'}</b> · adresse <code>{(dojo?.name || 'dojo').toLowerCase().replace(/\s+/g, '-')}.dojoburo.app</code></p>
+          <div className="dash-actions">
+            <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(agentName, 'website', dojo?.name || '')}>{got('website') ? 'Regénérer' : 'Générer le site'}</button>
+            {got('website') && <button className="btn tiny" onClick={() => showDeliverable(got('website')!)}>Voir le site</button>}
+            <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Brancher Figma</button>
+          </div>
+        </>
+      )
+      case 'acq': return (
+        <>
+          <label className="dash-inline">Budget /jour
+            <input type="number" min="1" value={budget} onChange={(e) => setBudget(e.target.value)} />
+            <span className="muted small">{fiatCur}</span>
+          </label>
+          <div className="dash-actions">
+            <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(agentName, 'ads', `Budget ${budget} ${fiatCur}/jour pour ${dojo?.name || 'l’entreprise'}`)}>{got('ads') ? 'Regénérer' : 'Générer des créas'}</button>
+            {got('ads') && <button className="btn tiny" onClick={() => showDeliverable(got('ads')!)}>Voir les créas</button>}
+            <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Meta</button>
+          </div>
+        </>
+      )
+      case 'outbound': return (
+        <div className="dash-actions">
+          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(agentName, 'outreach', dojo?.name || '')}>{got('outreach') ? 'Relancer' : 'Rechercher des prospects'}</button>
+          {got('outreach') && <button className="btn tiny" onClick={() => showDeliverable(got('outreach')!)}>Voir la prospection</button>}
+          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Gmail</button>
+        </div>
+      )
+      case 'measure': return (
+        <div className="dash-metrics">
+          <div><span>{tasksDone}</span><em>tâches livrées</em></div>
+          <div><span>{Math.round(usage.tokens / 1000)}k</span><em>jetons</em></div>
+          <div><span>{engine.creditsToday}</span><em>crédits (jour)</em></div>
+          <div><span>{connectedCount}</span><em>connecteurs</em></div>
+        </div>
+      )
+      case 'revenue': return (
+        <div className="dash-actions">
+          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(agentName, 'offer', dojo?.name || '')}>{got('offer') ? 'Regénérer' : 'Créer une offre'}</button>
+          {got('offer') && <button className="btn tiny" onClick={() => showDeliverable(got('offer')!)}>Voir l’offre</button>}
+          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Stripe</button>
+        </div>
+      )
+      case 'credit': return (
+        <>
+          <div className="cred-packs">
+            {CREDIT_PACKS.map((c) => (
+              <button key={c} className="cred-pack" disabled={buying} onClick={() => buyCredits(c)}>
+                <span>{c} crédits</span>
+                <em>{CREDIT_SYM[fiatCur]}{c * (CREDIT_UNIT[fiatCur] ?? 1)}</em>
+              </button>
+            ))}
+          </div>
+          {payMsg && <p className="muted small">{payMsg}</p>}
+          <p className="muted small">Crédits utilisés aujourd’hui : <b>{engine.creditsToday}</b> · apps branchées : <b>{connectedCount}</b>.</p>
+        </>
+      )
+      case 'config': return (
+        <>
+          {secMode === 'server' && <p className="sec-ok">🔒 <b>Coffre chiffré :</b> tes secrets sont scellés côté serveur (AES-256-GCM) — jamais stockés dans le navigateur.</p>}
+          {secMode === 'local' && <p className="sec-warn">⚠️ <b>Coffre serveur non configuré</b> ici : les secrets sont gardés <b>dans ton navigateur</b>. N’y colle pas de vraie clé de production.</p>}
+          <div className="sec-add">
+            <input className="sec-key" placeholder="SERVICE_API_KEY" value={secKey} onChange={(e) => setSecKey(e.target.value.toUpperCase())} maxLength={48} />
+            <input className="sec-val" type="password" placeholder="Valeur du secret" value={secVal} onChange={(e) => setSecVal(e.target.value)} />
+            <input className="sec-desc" placeholder="Description (facultatif) — aide tes agents à choisir le bon secret" value={secDesc} onChange={(e) => setSecDesc(e.target.value)} maxLength={80} />
+            <button className="btn tiny" disabled={!secKey.trim() || !secVal.trim() || secBusy} onClick={() => void saveSecret()}>{secBusy ? 'Enregistrement…' : 'Enregistrer le secret'}</button>
+          </div>
+          {secretList.length > 0 ? (
+            <ul className="sec-list">
+              {secretList.map((s) => (
+                <li key={s.id}>
+                  <div className="sec-row-main">
+                    <code>{s.key}</code>
+                    <span className="sec-mask">{s.mask}</span>
+                  </div>
+                  {s.desc && <span className="sec-note">{s.desc}</span>}
+                  <button className="sec-del" onClick={() => void deleteSecret(s.id)} aria-label={`Supprimer ${s.key}`}>Supprimer</button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted small">{secMode === 'loading' ? 'Chargement…' : 'Aucun secret pour l’instant. Ajoute-en un pour l’exposer à tes agents comme variable d’environnement.'}</p>
+          )}
+          <div className="sec-toggles">
+            <label className="sec-toggle">
+              <span><b>Couper les emails sortants</b><em>En pause, l’entreprise n’envoie aucun email.</em></span>
+              <button role="switch" aria-checked={engine.pauseOutbound} className={`tgl${engine.pauseOutbound ? ' on' : ''}`} onClick={() => engine.setPauseOutbound(!engine.pauseOutbound)}><span /></button>
+            </label>
+            <label className="sec-toggle">
+              <span><b>Mettre l’entreprise en pause</b><em>Aucune tâche ne tourne tant que c’est en pause.</em></span>
+              <button role="switch" aria-checked={engine.paused} className={`tgl danger${engine.paused ? ' on' : ''}`} onClick={() => engine.setPaused(!engine.paused)}><span /></button>
+            </label>
+          </div>
+          {engine.paused && <p className="sec-paused">⏸ Entreprise en pause — les tâches sont bloquées.</p>}
+        </>
+      )
+      default: return null
+    }
+  }
+
+  // ------------------------------------------------------------------ DETAIL --
+  if (selected && selRole) {
+    const skin = skinById(selected.skinId)
+    return (
+      <div className="agentdash" style={{ ['--dc' as string]: selRole.tint }}>
+        <div className="ad-topbar">
+          <button className="ad-back" onClick={() => selectAgent(null)}>‹ Tous les agents</button>
+          <button className="btn tiny ghost" onClick={() => editAgent(selected.id)} title="Édition avancée dans le Studio">Studio ✎</button>
+        </div>
+
+        <header className="ad-head">
+          <button className="ad-avatar" onClick={() => setPicking(true)} title="Changer le skin de cet agent">
+            <SkinAvatar skin={skin} size={64} />
+            <span className="ad-avatar-edit">Skin</span>
+          </button>
+          <div className="ad-meta">
+            <input
+              className="ad-name"
+              value={selected.name}
+              onChange={(e) => updateAgent(selected.id, { name: e.target.value.slice(0, 22) })}
+              onBlur={() => save()}
+              onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+              aria-label="Nom de l’agent"
+            />
+            <p className="ad-role">{selRole.role}</p>
+            <span className="ad-cat" style={{ background: selRole.tint }}>{selRole.cat}</span>
+          </div>
+          <InfoDot title={selRole.cat}>{guideFor(selRole.id)}</InfoDot>
+        </header>
+
+        <p className="ad-blurb">{selRole.blurb}</p>
+        <div className="ad-body">{bodyFor(selRole.id, selected.name)}</div>
+
+        {picking && (
+          <SkinPicker
+            current={selected.skinId}
+            onPick={(id) => { updateAgent(selected.id, { skinId: id }); save(); setPicking(false) }}
+            onClose={() => setPicking(false)}
+          />
+        )}
+      </div>
+    )
+  }
+
+  // ------------------------------------------------------------------ ROSTER --
+  const roster = ROLE_AGENTS.map((r) => byRole(r.id)).filter(Boolean) as typeof agents
   return (
     <div className="dash-panels">
       {dojos.length > 1 && (
@@ -209,264 +467,39 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       <div className="dash-hero">
         <div>
           <h2>{account?.name || 'Ton'} · {dojo?.name || 'Dojo'}</h2>
-          <p>Ton CEO et ses agents pilotent le growth. Délègue, connecte tes apps, garde la main.</p>
+          <p>Clique un agent pour ouvrir son dashboard. Le CEO coordonne toute l’équipe.</p>
         </div>
         <button className="btn tiny" onClick={onOpenDojo} title="Voir le dojo en plein écran">⤢ Dojo</button>
       </div>
 
-      {/* CEO */}
-      <Card title="CEO" tint={tint.ceo} info={<Guide
-        lead="Ton CEO est le cerveau de ton entreprise : tu lui parles en langage normal et il décide quoi faire, puis répartit le travail à ses agents."
-        steps={[
-          <>Écris ton objectif en une phrase dans le champ (ex : « trouve-moi 20 prospects et écris-leur »).</>,
-          <>Clique <b>Envoyer</b> : le CEO découpe l’objectif en tâches et les confie aux bons agents (growth, email, site…).</>,
-          <>Suis l’avancement dans la carte <b>Tâches</b> et dans le dojo, où tu vois les agents travailler.</>,
-          <>Chaque matin, le CEO t’envoie un <b>rapport par email</b> (bientôt aussi WhatsApp / Telegram).</>,
-        ]}
-        tip="Reste simple et concret : un objectif clair par message donne de meilleurs résultats."
-      />}>
-        <div className="ceo-row">
-          {ceo && <SkinAvatar skin={skinById(ceo.skinId)} size={40} />}
-          <div>
-            <strong>{ceo?.name || 'CEO'}</strong>
-            <span className="muted small">Directeur · {dojo?.name}</span>
-          </div>
-        </div>
+      {/* CEO quick action — the orchestrator sits above the roster */}
+      <div className="ceo-quick" style={{ ['--dc' as string]: ROLE_BY_ID.ceo.tint }}>
         <div className="composer-row">
           <input value={msg} onChange={(e) => setMsg(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendCeo()} placeholder="Dis à ton CEO quoi prioriser…" />
           <button className="btn primary tiny" onClick={sendCeo} disabled={!msg.trim() || autopilot.running}>Envoyer</button>
         </div>
-        {autopilot.running ? (
-          <p className="ceo-autopilot"><span className="ceo-spin" /> Le CEO travaille · <b>{autopilot.step}</b>…</p>
-        ) : (
-          <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'mon entreprise')}>▶ Lancer le CEO (tout construire)</button>
-        )}
-        {noModel && (
-          <p className="ceo-nomodel">⚠️ <b>Aucun modèle IA connecté</b> — le CEO produit des <b>brouillons</b>. Pour la vraie génération : <button className="linklike" onClick={() => openStudio('billing')}>ajoute ta clé Claude</button> (Studio → Facturation), ou l’opérateur active une clé gratuite (Groq / Gemini).</p>
-        )}
-        <p className="muted small">Le CEO enchaîne site, offre, pubs et prospection tout seul (dans les limites de l’Engine) · rapport quotidien par email.</p>
-      </Card>
+        {autopilot.running
+          ? <p className="ceo-autopilot"><span className="ceo-spin" /> Le CEO travaille · <b>{autopilot.step}</b>…</p>
+          : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'mon entreprise')}>▶ Lancer le CEO (tout construire)</button>}
+        {noModel && <p className="ceo-nomodel">⚠️ <b>Aucun modèle IA connecté</b> — le CEO produit des <b>brouillons</b>. <button className="linklike" onClick={() => openStudio('billing')}>Ajoute ta clé Claude</button> pour la vraie génération.</p>}
+      </div>
 
-      {/* Engine / autonomy */}
-      <Card title="Engine · autonomie" tint={tint.engine} info={<Guide
-        lead="L’Engine règle à quel point ton CEO agit tout seul, et l’empêche de dépenser trop ou de tourner en rond."
-        steps={[
-          <>Choisis un <b>niveau d’autonomie</b> : <b>Auto</b> s’auto-régule pour faire durer tes crédits ; <b>Low / Medium / Hard / Ultra</b> limitent à <b>1 / 5 / 10 / 25</b> tâches autonomes par jour.</>,
-          <>Fixe un <b>plafond de crédits par jour</b> : une fois atteint, plus aucune tâche ne part jusqu’au lendemain.</>,
-          <>Un <b>garde anti-boucle</b> bloque une tâche qui se répète en boucle (le CEO qui tourne en rond).</>,
-          <>Suis en direct le nombre de <b>tâches</b> et de <b>crédits</b> utilisés aujourd’hui.</>,
-        ]}
-        tip="Commence en Medium : assez actif pour avancer, sans surprise sur tes crédits."
-      />}>
-        <div className="tb-netseg eng-seg">
-          {(['auto', 'low', 'medium', 'hard', 'ultra'] as Autonomy[]).map((a) => (
-            <button key={a} className={engine.autonomy === a ? 'on' : ''} onClick={() => engine.setAutonomy(a)}>{AUTONOMY_LABEL[a]}</button>
-          ))}
-        </div>
-        <div className="eng-row">
-          <label>Plafond crédits/jour
-            <input type="number" min="1" value={engine.dailyCreditCap} onChange={(e) => engine.setDailyCap(Number(e.target.value))} />
-          </label>
-          <div className="eng-stat">
-            <span>{engine.tasksToday}{AUTONOMY_CAP[engine.autonomy] === Infinity ? '' : ` / ${AUTONOMY_CAP[engine.autonomy]}`}</span>
-            <em>tâches aujourd’hui</em>
-          </div>
-          <div className="eng-stat">
-            <span>{engine.creditsToday} / {engine.dailyCreditCap}</span>
-            <em>crédits aujourd’hui</em>
-          </div>
-        </div>
-      </Card>
-
-      {/* Tasks */}
-      <Card title="Tâches" tint={tint.tasks} info={<Guide
-        lead="Ce sont les livrables concrets que tes agents savent produire. Tu peux en lancer à la demande, sans attendre le CEO."
-        steps={[
-          <>Parcours la liste : chaque ligne montre l’<b>agent</b> et la <b>tâche</b> qu’il peut livrer.</>,
-          <>Clique <b>Lancer</b> pour l’exécuter tout de suite.</>,
-          <>L’agent travaille (tu le vois s’animer dans le dojo) et le <b>résultat s’ouvre</b> dès qu’il est prêt.</>,
-          <>L’<b>Engine</b> vérifie tes limites avant chaque lancement pour éviter les excès.</>,
-        ]}
-        tip="Une tâche consomme environ 1 crédit. Connecte les apps concernées (Studio) pour des résultats plus riches."
-      />}>
-        {agents.length === 0 && <p className="muted small">Pas encore d’agents — crée ton Dojo dans le Studio.</p>}
-        <ul className="dash-tasks">
-          {agents.flatMap((a) => tasksForFunction(a.fn).slice(0, 2).map((wt) => (
-            <li key={`${a.id}:${wt.id}`}>
-              <span><b>{a.name}</b> · {wt.label}</span>
-              <button className="btn tiny" disabled={!!running} onClick={() => void runTask(a.name, wt.id)}>{running === wt.id ? '…' : 'Lancer'}</button>
-            </li>
-          )))}
-        </ul>
-      </Card>
-
-      {/* Website */}
-      <Card title="Site web" tint={tint.site} info={<Guide
-        lead="Ton CEO génère et déploie un vrai site public pour ton entreprise, que tu peux ensuite personnaliser."
-        steps={[
-          <>Le CEO crée une <b>première version</b> du site à partir de ta description.</>,
-          <>Édite-le dans un <b>éditeur visuel</b> façon Lovable — textes, sections, images. <em>(bientôt)</em></>,
-          <>Ou branche <b>Figma / Claude Design</b> pour importer ton propre design. <em>(bientôt)</em></>,
-          <>Publie : ton site est en ligne sur ton adresse <b>dojoburo.app</b> (domaine perso possible).</>,
-        ]}
-        tip="Commence par le contenu (offre, bénéfices, appel à l’action) avant de peaufiner le style."
-      />}>
-        <p className="muted small">Statut : <b>{got('website') ? 'généré ✓' : 'non déployé'}</b> · adresse <code>{(dojo?.name || 'dojo').toLowerCase().replace(/\s+/g, '-')}.dojoburo.app</code></p>
-        <div className="dash-actions">
-          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(ceo?.name || 'CEO', 'website', dojo?.name || '')}>{got('website') ? 'Regénérer' : 'Générer le site'}</button>
-          {got('website') && <button className="btn tiny" onClick={() => showDeliverable(got('website')!)}>Voir le site</button>}
-          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Brancher Figma</button>
-        </div>
-      </Card>
-
-      {/* Ads · Meta only (Facebook + Instagram) */}
-      <Card title="Publicités" tint={tint.ads} info={<Guide
-        lead="Lance des campagnes Meta (Facebook & Instagram) pour attirer des clients — on ne fait que du Meta, pas de Google."
-        steps={[
-          <>Fixe un <b>budget quotidien</b> dans ta monnaie.</>,
-          <>Clique <b>Générer des créas</b> : ton agent produit 5 variantes d’<b>annonces Meta</b> (texte, accroche, visuel, audience, placement).</>,
-          <>Ou <b>importe tes propres créas</b> faites avec Photoshop, Figma, Capcut, Seedance… <em>(bientôt)</em></>,
-          <>Connecte ton compte <b>Meta</b> (Studio) pour diffuser réellement les annonces sur Facebook & Instagram.</>,
-        ]}
-        tip="Démarre avec un petit budget pour tester, puis mets plus sur ce qui marche."
-      />}>
-        <label className="dash-inline">Budget /jour
-          <input type="number" min="1" value={budget} onChange={(e) => setBudget(e.target.value)} />
-          <span className="muted small">{fiatCur}</span>
-        </label>
-        <div className="dash-actions">
-          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(ceo?.name || 'CEO', 'ads', `Budget ${budget} ${fiatCur}/jour pour ${dojo?.name || 'l’entreprise'}`)}>{got('ads') ? 'Regénérer' : 'Générer des créas'}</button>
-          {got('ads') && <button className="btn tiny" onClick={() => showDeliverable(got('ads')!)}>Voir les créas</button>}
-          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Meta</button>
-        </div>
-      </Card>
-
-      {/* Email & prospects */}
-      <Card title="Email & prospects" tint={tint.mail} info={<Guide
-        lead="Trouve des clients potentiels, vérifie leurs emails et lance des séquences d’approche."
-        steps={[
-          <>Décris ta <b>cible</b> (secteur, poste, région) et lance une <b>recherche de prospects</b>. <em>(bientôt)</em></>,
-          <>Les emails trouvés sont <b>vérifiés</b> pour éviter les rebonds.</>,
-          <>Connecte <b>Gmail</b> (bouton « Connecter les apps ») pour envoyer depuis ta boîte.</>,
-          <>Ton agent growth <b>rédige et envoie</b> des séquences, puis suit les réponses.</>,
-        ]}
-        tip="Un message court et personnalisé convertit mieux qu’un long argumentaire."
-      />}>
-        <div className="dash-actions">
-          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(ceo?.name || 'CEO', 'outreach', dojo?.name || '')}>{got('outreach') ? 'Relancer' : 'Rechercher des prospects'}</button>
-          {got('outreach') && <button className="btn tiny" onClick={() => showDeliverable(got('outreach')!)}>Voir la prospection</button>}
-          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Gmail</button>
-        </div>
-      </Card>
-
-      {/* Analytics */}
-      <Card title="Analytics" tint={tint.ana} info={<Guide
-        lead="Le tableau de bord chiffré de ton entreprise : ce que tes agents ont produit et consommé."
-        steps={[
-          <><b>Tâches livrées</b> : le nombre total de livrables produits par tes agents.</>,
-          <><b>Jetons</b> : le volume de calcul (IA) utilisé.</>,
-          <><b>Crédits (jour)</b> : ce que tu as dépensé aujourd’hui.</>,
-          <><b>Connecteurs</b> : le nombre d’apps branchées à tes agents.</>,
-        ]}
-        tip="Plus tu connectes d’apps, plus tes agents livrent un travail réel et mesurable."
-      />}>
-        <div className="dash-metrics">
-          <div><span>{tasksDone}</span><em>tâches livrées</em></div>
-          <div><span>{Math.round(usage.tokens / 1000)}k</span><em>jetons</em></div>
-          <div><span>{engine.creditsToday}</span><em>crédits (jour)</em></div>
-          <div><span>{connectedCount}</span><em>connecteurs</em></div>
-        </div>
-      </Card>
-
-      {/* Products & payments */}
-      <Card title="Offres & paiements" tint={tint.prod} info={<Guide
-        lead="Crée ce que tu vends et encaisse tes clients pour de vrai."
-        steps={[
-          <>Ton CEO propose une <b>offre</b>, des <b>tarifs</b> et le texte d’une <b>page de paiement</b> à partir de ton activité.</>,
-          <>Connecte <b>Stripe</b> (Studio) pour créer les produits/prix et recevoir les paiements sur ton compte.</>,
-          <>Partage le <b>lien de paiement</b> ; les ventes remontent dans ton tableau de bord.</>,
-        ]}
-        tip="Commence avec une seule offre claire ; tu pourras en ajouter ensuite."
-      />}>
-        <div className="dash-actions">
-          <button className="btn tiny" disabled={!!running || autopilot.running} onClick={() => void runTask(ceo?.name || 'CEO', 'offer', dojo?.name || '')}>{got('offer') ? 'Regénérer' : 'Créer une offre'}</button>
-          {got('offer') && <button className="btn tiny" onClick={() => showDeliverable(got('offer')!)}>Voir l’offre</button>}
-          <button className="btn tiny ghost" onClick={() => openStudio('studio')}>Connecter Stripe</button>
-        </div>
-      </Card>
-
-      {/* Credits */}
-      <Card title="Crédits" tint={tint.credit} info={<Guide
-        lead="Les crédits alimentent le travail de tes agents. Tu les achètes dans ta monnaie, sans aucune crypto."
-        steps={[
-          <>Choisis un <b>pack</b> (30 / 100 / 500 crédits) affiché dans ta monnaie ({fiatCur}).</>,
-          <>Le paiement s’ouvre dans une <b>nouvelle fenêtre</b> (carte, sécurisé) ; ton solde se met à jour ensuite.</>,
-          <>Chaque tâche consomme <b>environ 1 crédit</b> ; le règlement se fait en coulisse — tu ne vois aucune crypto.</>,
-          <>Suis ta <b>consommation du jour</b> et le nombre d’apps branchées en bas de la carte.</>,
-        ]}
-        tip="Le niveau d’autonomie (Engine) et le plafond quotidien t’aident à maîtriser ta consommation."
-      />}>
-        <div className="cred-packs">
-          {CREDIT_PACKS.map((c) => (
-            <button key={c} className="cred-pack" disabled={buying} onClick={() => buyCredits(c)}>
-              <span>{c} crédits</span>
-              <em>{CREDIT_SYM[fiatCur]}{c * (CREDIT_UNIT[fiatCur] ?? 1)}</em>
+      <div className="agent-roster">
+        {roster.map((a) => {
+          const r = ROLE_BY_ID[a.role as string]
+          return (
+            <button key={a.id} className="ac-card" style={{ ['--dc' as string]: r.tint }} onClick={() => selectAgent(a.id)}>
+              <span className="ac-tape" />
+              <span className="ac-avatar"><SkinAvatar skin={skinById(a.skinId)} size={44} /></span>
+              <span className="ac-cat">{r.cat}</span>
+              <strong className="ac-name">{a.name}</strong>
+              <span className="ac-role">{r.role}</span>
+              <span className="ac-blurb">{r.blurb}</span>
+              <span className="ac-open">Ouvrir le dashboard →</span>
             </button>
-          ))}
-        </div>
-        {payMsg && <p className="muted small">{payMsg}</p>}
-        <p className="muted small">Crédits utilisés aujourd’hui : <b>{engine.creditsToday}</b> · apps branchées : <b>{connectedCount}</b>.</p>
-      </Card>
-
-      {/* Settings & secrets (nanocorp's "Settings" panel) */}
-      <Card title="Réglages & secrets" tint={tint.cfg} info={<Guide
-        lead="Les variables d’environnement (clés API, tokens…) que tes agents utiliseront, plus les interrupteurs de sécurité."
-        steps={[
-          <>Donne un <b>nom</b> à ta variable (ex : <code>STRIPE_KEY</code>), colle sa <b>valeur</b> et une note facultative.</>,
-          <>La valeur est <b>chiffrée côté serveur</b> (AES-256-GCM) — le navigateur ne reçoit qu’un aperçu masqué, jamais la valeur.</>,
-          <>Elle est exposée à tes agents comme <b>variable d’environnement</b> au moment d’exécuter une tâche.</>,
-          <>Mets l’entreprise <b>en pause</b> pour tout arrêter, ou coupe seulement les <b>emails sortants</b>.</>,
-        ]}
-        tip="Utilise des clés restreintes (scopées) et fais-les tourner régulièrement."
-      />}>
-        {secMode === 'server' && <p className="sec-ok">🔒 <b>Coffre chiffré :</b> tes secrets sont scellés côté serveur (AES-256-GCM) — jamais stockés dans le navigateur.</p>}
-        {secMode === 'local' && <p className="sec-warn">⚠️ <b>Coffre serveur non configuré</b> ici : les secrets sont gardés <b>dans ton navigateur</b>. N’y colle pas de vraie clé de production.</p>}
-        <div className="sec-add">
-          <input className="sec-key" placeholder="SERVICE_API_KEY" value={secKey} onChange={(e) => setSecKey(e.target.value.toUpperCase())} maxLength={48} />
-          <input className="sec-val" type="password" placeholder="Valeur du secret" value={secVal} onChange={(e) => setSecVal(e.target.value)} />
-          <input className="sec-desc" placeholder="Description (facultatif) — aide tes agents à choisir le bon secret" value={secDesc} onChange={(e) => setSecDesc(e.target.value)} maxLength={80} />
-          <button className="btn tiny" disabled={!secKey.trim() || !secVal.trim() || secBusy} onClick={() => void saveSecret()}>{secBusy ? 'Enregistrement…' : 'Enregistrer le secret'}</button>
-        </div>
-
-        {secretList.length > 0 ? (
-          <ul className="sec-list">
-            {secretList.map((s) => (
-              <li key={s.id}>
-                <div className="sec-row-main">
-                  <code>{s.key}</code>
-                  <span className="sec-mask">{s.mask}</span>
-                </div>
-                {s.desc && <span className="sec-note">{s.desc}</span>}
-                <button className="sec-del" onClick={() => void deleteSecret(s.id)} aria-label={`Supprimer ${s.key}`}>Supprimer</button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="muted small">{secMode === 'loading' ? 'Chargement…' : 'Aucun secret pour l’instant. Ajoute-en un pour l’exposer à tes agents comme variable d’environnement.'}</p>
-        )}
-
-        <div className="sec-toggles">
-          <label className="sec-toggle">
-            <span><b>Couper les emails sortants</b><em>En pause, l’entreprise n’envoie aucun email.</em></span>
-            <button role="switch" aria-checked={engine.pauseOutbound} className={`tgl${engine.pauseOutbound ? ' on' : ''}`} onClick={() => engine.setPauseOutbound(!engine.pauseOutbound)}><span /></button>
-          </label>
-          <label className="sec-toggle">
-            <span><b>Mettre l’entreprise en pause</b><em>Aucune tâche ne tourne tant que c’est en pause.</em></span>
-            <button role="switch" aria-checked={engine.paused} className={`tgl danger${engine.paused ? ' on' : ''}`} onClick={() => engine.setPaused(!engine.paused)}><span /></button>
-          </label>
-        </div>
-        {engine.paused && <p className="sec-paused">⏸ Entreprise en pause — les tâches sont bloquées.</p>}
-      </Card>
+          )
+        })}
+      </div>
     </div>
   )
 }

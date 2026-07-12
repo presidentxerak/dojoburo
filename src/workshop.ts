@@ -4,8 +4,8 @@
 // identity from here going forward.
 import { create } from 'zustand'
 import type { Department } from './data/agents'
-import { AGENTS } from './data/agents'
 import { SKINS, skinById, variedSkins, crewSkins } from './data/skins'
+import { ROLE_AGENTS } from './data/roleAgents'
 import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
 import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
@@ -32,6 +32,10 @@ export interface WAgent {
   id: string
   name: string
   fn: Department
+  /** role key (see data/roleAgents) · which functional agent this is. Every
+   *  seeded dojo now carries the 10 role agents; this tags each one so the
+   *  roster, the 3D scene and the dedicated dashboards line up. */
+  role?: string
   skinId: string
   tasks: string[]
   budgetXrp: number
@@ -93,105 +97,64 @@ interface WorkshopState {
 const KEY = 'dojoburo.workshop.v1'
 const uid = () => Math.random().toString(36).slice(2, 10)
 const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People', 'Ops']
-const DEPT_NAME: Record<Department, string> = {
-  Leadership: 'Chief', Engineering: 'Engineer', Finance: 'Finance', Growth: 'Growth',
-  Product: 'Product', People: 'People', Ops: 'Ops',
-}
 
-// The default HQ keeps the 12 named built-in agents, but each gets a maximally
-// distinct skin so the office reads as a colourful, varied crew.
-function seedDojo(): Dojo {
-  const skins = variedSkins(MAX_AGENTS)
-  const agents: WAgent[] = AGENTS.slice(0, MAX_AGENTS).map((a, i) => ({
-    id: a.id,
-    name: a.name,
-    fn: a.department,
-    skinId: skins[i].id,
-    tasks: defaultTasksFor(a.department),
+// Every company is run by the SAME 10 functional agents (see data/roleAgents).
+// The template/profession only changes the 3D world and the skin palette — not
+// the crew composition — so the roster, the scene and the dashboards always
+// match. Each role agent is seeded onto the grid with a skin from the theme.
+function roleCrew(skinTheme: string): WAgent[] {
+  const skins = crewSkins(skinTheme, ROLE_AGENTS.length)
+  return ROLE_AGENTS.map((r, i) => ({
+    id: 'a_' + uid(),
+    name: r.name,
+    fn: r.dept,
+    role: r.id,
+    skinId: skins[i % skins.length].id,
+    tasks: defaultTasksFor(r.dept),
     budgetXrp: 5,
     gx: i % GRID.cols,
     gy: Math.floor(i / GRID.cols),
   }))
+}
+
+// The default HQ · role crew in the default dojo world with a varied palette.
+function seedDojo(): Dojo {
+  const varied = variedSkins(ROLE_AGENTS.length)
+  const agents = roleCrew('dojo').map((a, i) => ({ ...a, skinId: varied[i].id }))
   return { id: uid(), name: 'HQ Dojo', template: 'dojo', agents }
 }
 
-// A new dojo from a template: a coherent-but-distinct starter crew in the
-// template's palette, seated left-to-right.
+// A new dojo from a template: the role crew in the template's palette.
 function makeTemplatedDojo(name: string, tpl: DojoTemplate): Dojo {
-  const skins = crewSkins(tpl.skinTheme, tpl.crew.length)
-  const seen = new Map<string, number>()
-  const agents: WAgent[] = tpl.crew.map((fn, i) => {
-    const base = DEPT_NAME[fn]
-    const n = (seen.get(base) ?? 0) + 1
-    seen.set(base, n)
-    return {
-      id: 'a_' + uid(),
-      name: n > 1 ? `${base} ${n}` : base,
-      fn,
-      skinId: skins[i % skins.length].id,
-      tasks: defaultTasksFor(fn),
-      budgetXrp: 5,
-      gx: i % GRID.cols,
-      gy: Math.floor(i / GRID.cols),
-    }
-  })
-  return { id: uid(), name, template: tpl.id, agents }
+  return { id: uid(), name, template: tpl.id, agents: roleCrew(tpl.skinTheme) }
 }
 
-// A dojo tailored to a profession: the profession's crew in its chosen 3D
-// world, named after the trade · the starting point the picker seeds.
+// A dojo tailored to a profession: the role crew in the trade's chosen 3D world.
 function makeProfessionDojo(professionId: string): Dojo {
   const prof = professionById(professionId)
   if (!prof) return makeTemplatedDojo('New dojo', templateById(DEFAULT_TEMPLATE_ID))
   const tpl = templateById(prof.template)
-  const skins = crewSkins(tpl.skinTheme, prof.crew.length)
-  const seen = new Map<string, number>()
-  const agents: WAgent[] = prof.crew.map((fn, i) => {
-    const base = DEPT_NAME[fn]
-    const n = (seen.get(base) ?? 0) + 1
-    seen.set(base, n)
-    return {
-      id: 'a_' + uid(),
-      name: n > 1 ? `${base} ${n}` : base,
-      fn,
-      skinId: skins[i % skins.length].id,
-      tasks: defaultTasksFor(fn),
-      budgetXrp: 5,
-      gx: i % GRID.cols,
-      gy: Math.floor(i / GRID.cols),
-    }
-  })
-  return { id: uid(), name: `${prof.label}`, template: tpl.id, agents }
+  return { id: uid(), name: `${prof.label}`, template: tpl.id, agents: roleCrew(tpl.skinTheme) }
 }
 
-/** Build one dojo from SEVERAL professions/domains: the union of every trade's
- *  departments (deduped, capped at the grid) so the crew covers all of them. */
+/** Build one dojo from SEVERAL professions/domains. The crew is always the 10
+ *  role agents; only the world/palette follow the first trade. */
 function makeProfessionsDojo(ids: string[]): Dojo {
   const profs = ids.map(professionById).filter(Boolean) as Profession[]
   if (profs.length <= 1) return makeProfessionDojo(profs[0]?.id ?? ids[0] ?? '')
   const tpl = templateById(profs[0].template)
-  const depts: Department[] = []
-  for (const p of profs) for (const fn of p.crew) if (!depts.includes(fn)) depts.push(fn)
-  const crew = depts.slice(0, GRID.cols * GRID.rows)
-  const skins = crewSkins(tpl.skinTheme, crew.length)
-  const seen = new Map<string, number>()
-  const agents: WAgent[] = crew.map((fn, i) => {
-    const base = DEPT_NAME[fn]
-    const n = (seen.get(base) ?? 0) + 1
-    seen.set(base, n)
-    return {
-      id: 'a_' + uid(),
-      name: n > 1 ? `${base} ${n}` : base,
-      fn,
-      skinId: skins[i % skins.length].id,
-      tasks: defaultTasksFor(fn),
-      budgetXrp: 5,
-      gx: i % GRID.cols,
-      gy: Math.floor(i / GRID.cols),
-    }
-  })
   const name = `${profs[0].label} +${profs.length - 1}`
-  return { id: uid(), name, template: tpl.id, agents }
+  return { id: uid(), name, template: tpl.id, agents: roleCrew(tpl.skinTheme) }
+}
+
+/** Migrate a dojo saved before the role-agent model: if its crew isn't the 10
+ *  role agents, rebuild the crew in the dojo's own palette while keeping its id,
+ *  name and template. Skins are re-drawn from the theme. */
+function ensureRoleCrew(d: Dojo): Dojo {
+  const hasRoles = Array.isArray(d.agents) && d.agents.length === ROLE_AGENTS.length && d.agents.every((a) => a.role)
+  if (hasRoles) return d
+  const tpl = templateById(d.template)
+  return { ...d, agents: roleCrew(tpl.skinTheme) }
 }
 
 function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null } {
@@ -202,6 +165,8 @@ function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string 
       if (p && Array.isArray(p.dojos) && p.dojos.length) {
         // backfill the template field for dojos saved before templates existed
         for (const d of p.dojos) if (!d.template) d.template = DEFAULT_TEMPLATE_ID
+        // migrate pre-role-agent crews to the 10 canonical role agents
+        p.dojos = p.dojos.map(ensureRoleCrew)
         return p
       }
     }

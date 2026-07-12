@@ -3,7 +3,6 @@ import { TopBar } from './components/TopBar'
 import { Scene3D } from './components/Scene3D'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { Onboarding } from './components/Onboarding'
-import { AgentPanel } from './components/AgentPanel'
 import { Toasts } from './components/Toasts'
 import { StatsPanel } from './components/StatsPanel'
 import { SupportBot } from './components/SupportBot'
@@ -42,6 +41,10 @@ export default function App() {
   }
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
+
+  // clicking an agent (in the 3D dojo or its roster card) opens its dashboard on
+  // the right panel · if the dojo is fullscreen, reveal the panel so it shows.
+  useEffect(() => { if (selected && dojoFull) setDojoFull(false) }, [selected, dojoFull])
 
   // OAuth return from a tool connect: surface a toast + refresh connections
   useEffect(() => {
@@ -90,15 +93,6 @@ export default function App() {
           <button className="dojo-full-toggle" onClick={() => setDojoFull((v) => !v)} title={dojoFull ? 'Réduire le dojo' : 'Dojo en plein écran'}>
             {dojoFull ? '⤡ Réduire' : '⤢ Plein écran'}
           </button>
-
-          {/* selected-agent card takes over the whole dojo pane · closed from
-              the panel's own header close button (single ✕) */}
-          {selected && (
-            <div className="dojo-agent-overlay">
-              <AgentPanel />
-            </div>
-          )}
-
         </div>
 
         {!dojoFull && (
