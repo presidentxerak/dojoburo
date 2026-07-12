@@ -51,12 +51,12 @@ export const MODULES: ModuleDef[] = [
   {
     id: 'website',
     label: 'Website Builder',
-    blurb: 'Constructeur web pro : canvas drag-and-drop, blocs, responsive, thèmes, export local.',
+    blurb: 'Constructeur web pro : blocs, édition live, responsive, thème de marque, export HTML local.',
     tint: '#2f7fd6',
     emoji: '🌐',
     agentRole: 'web',
-    status: 'soon',
-    planned: ['Canvas drag-and-drop + édition directe', 'Blocs (hero, pricing, formulaires, blog…)', 'Responsive, animations, thèmes', 'Première version générée par IA, export HTML local'],
+    status: 'live',
+    comp: lazy(() => import('./website/WebsiteModule')),
   },
   {
     id: 'campaign',

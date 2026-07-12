@@ -15,7 +15,7 @@ export interface Mission {
 
 export const MISSIONS: Mission[] = [
   { id: 'brand', label: 'Créer une marque', sub: 'Logo, couleurs, charte — Brand Kit', emoji: '🎨', tint: '#7b5cff', target: { kind: 'module', moduleId: 'branding' } },
-  { id: 'site', label: 'Créer un site', sub: 'Site pro généré puis éditable', emoji: '🌐', tint: '#2f7fd6', target: { kind: 'agent', role: 'web' } },
+  { id: 'site', label: 'Créer un site', sub: 'Site pro généré puis éditable', emoji: '🌐', tint: '#2f7fd6', target: { kind: 'module', moduleId: 'website' } },
   { id: 'campaign', label: 'Lancer une campagne', sub: 'Pubs Meta : audiences, créas, copies', emoji: '📣', tint: '#e0459b', target: { kind: 'agent', role: 'acq' } },
   { id: 'video', label: 'Monter une vidéo', sub: 'Éditeur local façon CapCut', emoji: '🎬', tint: '#e0483f', target: { kind: 'module', moduleId: 'video' } },
   { id: 'clients', label: 'Trouver des clients', sub: 'Prospection & séquences email', emoji: '🤝', tint: '#d98c17', target: { kind: 'agent', role: 'outbound' } },
