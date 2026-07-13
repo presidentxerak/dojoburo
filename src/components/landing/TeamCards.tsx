@@ -36,7 +36,6 @@ function StudioCard({ mod, i, onOpen }: { mod: ModuleDef; i: number; onOpen: () 
       <span className="lp-team-3d">
         {inView ? <Agent3DPreview id={charKey} character={charFor(charKey)} size={128} phase={i * 0.6} /> : null}
       </span>
-      <span className="lp-studiocard-emoji" aria-hidden>{mod.emoji}</span>
       <strong>{mod.label}</strong>
       <span className="lp-team-role">{agent ? `${agent.name} · ${agent.cat} agent` : mod.blurb}</span>
       <span className="lp-studiocard-blurb">{mod.blurb}</span>

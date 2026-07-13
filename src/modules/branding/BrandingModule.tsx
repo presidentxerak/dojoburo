@@ -77,9 +77,9 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
       <div className="brand-idrow">
         <label>Brand name<input value={kit.name} maxLength={28} onChange={(e) => patch({ name: e.target.value })} /></label>
         <label>Tagline<input value={kit.tagline} maxLength={48} onChange={(e) => patch({ tagline: e.target.value })} /></label>
-        <button className="btn tiny" onClick={regenerate} title="New random suggestion">🎲 Regenerate</button>
+        <button className="btn tiny" onClick={regenerate} title="New random suggestion">Regenerate</button>
       </div>
-      <a className="btn tiny ghost brand-shiver" href="https://shiverbrand.com" target="_blank" rel="noopener noreferrer">✨ Find a name → Shiver Brand</a>
+      <a className="btn tiny ghost brand-shiver" href="https://shiverbrand.com" target="_blank" rel="noopener noreferrer">Find a name → Shiver Brand</a>
 
       {/* live logo preview on brand background */}
       <div className="brand-hero" style={{ background: kit.palette.bg }}>

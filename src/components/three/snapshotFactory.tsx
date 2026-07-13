@@ -84,17 +84,20 @@ export function SnapshotFactory() {
     setJob(queue[0] ?? null) // straight to the next job — no idle gap
   }
 
+  // Only mount the canvas while there's work. When the queue drains the canvas
+  // unmounts — no idle GPU, and its WebGL context is released.
+  if (!job) return null
   return (
     <div aria-hidden style={{ position: 'fixed', left: -10000, top: -10000, width: 128, height: 128, pointerEvents: 'none', opacity: 0 }}>
       <Canvas
-        dpr={1.5}
+        dpr={1.3}
         camera={{ position: [0, 0.25, 4.3], fov: 40 }}
         gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: 'low-power' }}
         frameloop="always"
       >
         <hemisphereLight args={['#ffffff', '#c7cede', 0.95]} />
         <directionalLight position={[3, 5, 4]} intensity={1.1} />
-        {job && <Grab key={job.key} jobKey={job.key} character={job.character} onDone={finish} />}
+        <Grab key={job.key} jobKey={job.key} character={job.character} onDone={finish} />
       </Canvas>
     </div>
   )

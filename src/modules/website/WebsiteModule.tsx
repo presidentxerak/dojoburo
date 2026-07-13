@@ -64,8 +64,8 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       {/* toolbar */}
       <div className="site-toolbar">
         <div className="site-seg">
-          <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Desktop">🖥</button>
-          <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">📱</button>
+          <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Desktop">Desktop</button>
+          <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">Mobile</button>
         </div>
         <div className="site-tb-actions">
           <button className="btn tiny ghost" onClick={regenerate} title="Regenerate a first version">↺ 1st version</button>

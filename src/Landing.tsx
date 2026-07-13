@@ -14,6 +14,7 @@ import { HeroCreate } from './components/landing/HeroCreate'
 import { StudioTeam } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 import { ShowcaseGallery, PerformanceBoard, Testimonials } from './components/landing/Showcase'
+import { Pricing } from './components/landing/Pricing'
 import { SHOW_MOCK_COMPANIES } from './config/flags'
 
 // vivid complementary primaries used as per-section accent touches
@@ -54,7 +55,7 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec" id="studios">
         <span className="lp-pill">8 studios · one agent each · 100% in your browser</span>
         <h2>Meet the office — every agent is a real pro studio</h2>
-        <p className="lp-lead">
+        <p className="lp-lead sm">
           Each agent in your office owns one studio. Click a teammate and their studio opens: it generates a first
           version with AI, then you keep full control. Video editing, image compression, design rendering and export
           all run <b>locally</b> — your files never leave your machine.
@@ -91,7 +92,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
         <span className="lp-pill">New · adapts to your trade</span>
         <h2>Built around your business</h2>
-        <p className="lp-lead">
+        <p className="lp-lead sm">
           <Wordmark /> reshapes your company to your trade. Pick what you do and the office is tailored for
           you · a matching crew of specialists led by your CEO, a fitting 3D environment, and the exact apps
           your business needs, wired and ready to run the real work of that trade.
@@ -211,86 +212,16 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec alt" id="pricing">
         <Object3D kind="gem" color={C.orange} side="left" parallax={0.12} />
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="price" /></span>
-        <h2>Pricing that pays for itself</h2>
+        <h2>Simple, credit-based pricing</h2>
         <p className="lp-lead">
-          You bring your own model key, or use the free-model cascade, so the intelligence is basically free.
-          You pay only for the hub around it: the apps you connect, the always-on worker, and team features.
-          That is why <Wordmark /> runs a whole automated team for less than a single Zapier or ChatGPT seat.
+          Start free. Upgrade when you need more credits. <b>1 credit ≈ 1 agentic task</b> — pick how many you
+          need each month and the price scales with you. Bring your own model key and hosted-model credits become
+          optional; either way there's no crypto to manage.
         </p>
-        <div className="lp-billing-note">
-          <span><b>BYOK &amp; free-cascade tasks are unlimited</b> · they never touch a credit.</span>
-          <span><b>Managed credits</b> cover hosted-model runs: 1 credit ≈ 1 agentic task. Buy them in your own currency (USD, EUR, JPY…) and top up anytime · no crypto to manage.</span>
-          <span><b>Save ~2 months</b> on annual billing. Prices below are per month, billed annually.</span>
-        </div>
-        <div className="lp-plans">
-          <div className="lp-plan">
-            <div className="lp-plan-name">Free</div>
-            <div className="lp-plan-price">$0<small> / forever</small></div>
-            <div className="lp-plan-sub">Explore the whole office and build your first company.</div>
-            <ul>
-              <li>1 dojo (company) · up to 12 agents</li>
-              <li>All {DOJO_TEMPLATES.length} worlds &amp; {SKINS.length} skins</li>
-              <li>Free sandbox to explore</li>
-              <li>Free-model cascade or your key</li>
-              <li>Connect 2 apps · ~50 tasks/mo</li>
-              <li>Community support</li>
-            </ul>
-            <button className="lp-cta" onClick={enter}>Start free →</button>
-          </div>
-          <div className="lp-plan">
-            <div className="lp-plan-name">Solo</div>
-            <div className="lp-plan-price">$12<small> / mo</small></div>
-            <div className="lp-plan-sub">One person running a real company.</div>
-            <ul>
-              <li>Everything in Free</li>
-              <li>Credits in your own currency</li>
-              <li>Unlimited dojos (companies)</li>
-              <li>Connect 6 apps</li>
-              <li>300 credits/mo · unlimited BYOK</li>
-              <li>Email support</li>
-            </ul>
-            <button className="lp-ghost" onClick={goBilling}>Choose Solo</button>
-          </div>
-          <div className="lp-plan feat">
-            <div className="lp-plan-badge">Most popular</div>
-            <div className="lp-plan-name">Pro</div>
-            <div className="lp-plan-price">$29<small> / mo</small></div>
-            <div className="lp-plan-sub">A full automated team with your whole stack.</div>
-            <ul>
-              <li>Everything in Solo</li>
-              <li>All {CONNECTORS.length} app connectors</li>
-              <li>1,500 credits/mo · unlimited BYOK</li>
-              <li>Always-on cloud worker</li>
-              <li>Priority model routing</li>
-              <li>Priority support</li>
-            </ul>
-            <button className="lp-cta" onClick={goBilling}>Go Pro →</button>
-          </div>
-          <div className="lp-plan">
-            <div className="lp-plan-name">Team</div>
-            <div className="lp-plan-price">$22<small> / seat/mo</small></div>
-            <div className="lp-plan-sub">Shared automation for a whole team.</div>
-            <ul>
-              <li>Everything in Pro, per seat</li>
-              <li>Shared dojos &amp; connectors</li>
-              <li>Roles &amp; permissions</li>
-              <li>Pooled credits + admin console</li>
-              <li>Google SSO</li>
-              <li>Full audit log</li>
-            </ul>
-            <button className="lp-ghost" onClick={goBilling}>Start a team</button>
-          </div>
-        </div>
-        <div className="lp-enterprise">
-          <div>
-            <strong>Business / Enterprise</strong>
-            <span>Self-hosted or local worker, SAML SSO &amp; security review, a dedicated MCP hub with an SLA, budgets &amp; spend controls, custom connectors and dedicated support. Keep everything on your own infrastructure.</span>
-          </div>
-          <button className="lp-ghost" onClick={goAssistant}>Talk to us</button>
-        </div>
+        <Pricing enter={enter} goBilling={goBilling} goAssistant={goAssistant} connectors={CONNECTORS.length} />
         <p className="lp-note">
-          No crypto to manage: you buy credits in your own currency and they settle behind the scenes. Exploring
-          is always free. Bring your own Claude key on any paid plan and hosted-model credits become optional.
+          Credits roll over month to month. Buy them in your own currency (USD, EUR, JPY…) and top up anytime —
+          settlement happens behind the scenes. Exploring is always free.
         </p>
       </section>
 

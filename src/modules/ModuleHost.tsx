@@ -15,7 +15,6 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
         <span className="modhost-tag">{def.status === 'live' ? 'Local · serverless' : 'Coming soon'}</span>
       </div>
       <header className="ad-head">
-        <span className="modhost-emoji" aria-hidden>{def.emoji}</span>
         <div className="ad-meta">
           <h2 className="ad-name" style={{ border: 'none', padding: 0, margin: 0 }}>{def.label}</h2>
           <p className="ad-role">{def.blurb}</p>

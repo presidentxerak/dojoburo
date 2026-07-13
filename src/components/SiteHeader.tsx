@@ -33,7 +33,7 @@ export function SiteHeader(_props: { enter?: () => void }) {
         </a>
         <nav className="lp-nav-links">
           {NAV_LINKS.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-          <a className="lp-navguide" href="/guide">Dojo Guide</a>
+          <a href="/guide">Dojo Guide</a>
         </nav>
         <div className="lp-nav-right">
           <button

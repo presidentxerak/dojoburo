@@ -1018,7 +1018,9 @@ a:hover { text-decoration: underline; }
 .lp-hero { max-width: 960px; margin: 0 auto; padding: 38px 22px 16px; text-align: center; }
 .lp-kicker { color: var(--violet); font-size: 13.5px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; margin: 0 0 12px; }
 .lp-hero h1 { font-size: clamp(38px, 6.4vw, 66px); line-height: 1.05; margin: 0 0 16px; background: linear-gradient(120deg, var(--pink), var(--violet), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.lp-sub { font-size: 19.5px; line-height: 1.55; color: var(--muted); max-width: 720px; margin: 0 auto 18px; }
+.lp-sub { font-size: 11px; line-height: 1.5; color: var(--muted); max-width: 560px; margin: 0 auto 18px; }
+/* deliberately-small section leads (halved), used on specific paragraphs */
+.lp-lead.sm { font-size: 11px; line-height: 1.5; max-width: 560px; }
 .lp-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
 /* nanocorp-style creation form in the hero */
@@ -1467,7 +1469,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-nav { box-shadow: 0 1px 0 var(--border); }
 .lp-hero { position: relative; }
 .lp-hero::before { content: ''; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); width: 620px; max-width: 90%; height: 320px; background: radial-gradient(60% 60% at 50% 40%, color-mix(in srgb, #7c3aed 14%, transparent), transparent 70%); filter: blur(20px); z-index: -1; pointer-events: none; }
-.lp-sub { font-size: clamp(17px, 2vw, 20px); }
+.lp-sub { font-size: 11px; }
 .lp-badges span { transition: transform 0.14s, border-color 0.14s, color 0.14s; }
 .lp-badges span:hover { transform: translateY(-2px); border-color: var(--border-lit); color: var(--ink); }
 /* short accent underline under the title · block-level so a preceding pill
@@ -1547,7 +1549,9 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 /* ===== landing v3: bigger type, black titles, vivid primary accents ===== */
 .landing { font-size: 16px; }
 .lp-hero h1 { font-size: clamp(40px, 6.2vw, 60px); }
-.lp-sub, .lp-lead { font-size: clamp(18px, 2.1vw, 24px); line-height: 1.55; max-width: 900px; }
+.lp-lead { font-size: clamp(18px, 2.1vw, 24px); line-height: 1.55; max-width: 900px; }
+.lp-sub { font-size: 11px; line-height: 1.5; max-width: 560px; }
+.lp-lead.sm { font-size: 11px; line-height: 1.5; max-width: 560px; }
 .lp-kicker { font-size: 16px; background: none !important; -webkit-text-fill-color: var(--muted); color: var(--muted) !important; }
 .lp-sec h2 { font-size: clamp(30px, 4.2vw, 46px); }
 .lp-final h2 { font-size: clamp(32px, 5vw, 56px); }
@@ -1638,6 +1642,21 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-plan li { font-size: 14.5px; line-height: 1.4; padding-left: 22px; position: relative; color: var(--ink); }
 .lp-plan li::before { content: '+'; position: absolute; left: 4px; color: var(--violet); font-weight: 800; }
 .lp-plan .lp-cta, .lp-plan .lp-ghost { margin-top: 16px; text-align: center; justify-content: center; }
+
+/* credit-based pricing (Free + Founder with a monthly-credit selector) */
+.lp-plans.credits { grid-template-columns: repeat(2, minmax(260px, 380px)); justify-content: center; }
+@media (max-width: 640px) { .lp-plans.credits { grid-template-columns: 1fr; } }
+.lp-plans.credits .lp-plan { padding: 26px 24px 26px; }
+.lp-plans.credits .lp-cta, .lp-plans.credits .ghostcta { margin: 14px 0 4px; width: 100%; }
+.lp-plans.credits .ghostcta { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+.lp-plans.credits .ghostcta:hover { border-color: var(--ink); filter: none; }
+.lp-credit-select {
+  width: 100%; margin: 6px 0 2px; padding: 11px 12px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: var(--panel-2); color: var(--ink);
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px; cursor: pointer;
+}
+.lp-credit-select:focus { outline: none; border-color: var(--violet); }
+.lp-plan-incl { font-family: var(--font-pixel); font-weight: 800; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin: 16px 0 4px; }
 .lp-billing-note { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 28px; }
 .lp-billing-note span { font-size: 13.5px; line-height: 1.5; color: var(--muted); background: var(--panel-solid); border: 1px solid var(--border); border-left: 3px solid var(--violet); border-radius: 10px; padding: 12px 14px; }
 .lp-billing-note b { color: var(--ink); font-weight: 700; }

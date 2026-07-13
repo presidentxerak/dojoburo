@@ -489,9 +489,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
                   const mSkin = skinForModule(m.id)
                   return (
                     <button key={m.id} className="ad-studio" style={{ ['--dc' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
-                      <span className="ad-studio-3d">
-                        {mSkin ? <Character3DImage skin={mSkin} size={64} /> : <span className="ad-studio-emoji" aria-hidden>{m.emoji}</span>}
-                      </span>
+                      {mSkin && <span className="ad-studio-3d"><Character3DImage skin={mSkin} size={64} /></span>}
                       <span className="ad-studio-txt"><b>{m.label}</b><em>{m.blurb}</em></span>
                       <span className="ad-studio-go">Open →</span>
                     </button>

@@ -1180,7 +1180,7 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
 
   return (
     <div className="dojo-city">
-      <Canvas shadows dpr={[1, 1.8]} gl={{ antialias: true }}>
+      <Canvas shadows dpr={[1, 1.4]} gl={{ antialias: true, powerPreference: 'high-performance' }}>
         <color attach="background" args={['#bfe1fb']} />
         <CityScene
           level={level}

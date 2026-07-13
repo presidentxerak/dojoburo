@@ -64,7 +64,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
         </label>
         <button className="btn primary tiny" onClick={generate}>Generate campaign</button>
       </div>
-      {(camp.budget ?? 0) > 0 && <p className="muted small" style={{ margin: '0 0 12px' }}>💡 This budget shows up as a marketing expense in <b>Finance</b> and feeds the <b>ROI / CAC</b> calculation in <b>Analytics</b>.</p>}
+      {(camp.budget ?? 0) > 0 && <p className="muted small" style={{ margin: '0 0 12px' }}>This budget shows up as a marketing expense in <b>Finance</b> and feeds the <b>ROI / CAC</b> calculation in <b>Analytics</b>.</p>}
       <div className="camp-obj">
         {OBJECTIVES.map((o) => <button key={o.id} className={camp.objective === o.id ? 'on' : ''} onClick={() => setObjective(o.id)}>{o.label}</button>)}
       </div>
@@ -126,7 +126,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
         {camp.personas.map((pp) => (
           <div key={pp.name} className="camp-persona">
             <b>{pp.name}, {pp.age}</b><em>{pp.role}</em>
-            <span>😟 {pp.pain}</span><span>🎯 {pp.desire}</span>
+            <span><b>Pain:</b> {pp.pain}</span><span><b>Wants:</b> {pp.desire}</span>
           </div>
         ))}
       </div>

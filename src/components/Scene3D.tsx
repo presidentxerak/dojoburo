@@ -115,7 +115,7 @@ export function Scene3D() {
   return (
     <Canvas
       shadows
-      dpr={[1, 2]}
+      dpr={[1, 1.5]}
       camera={{ position: [2.2, 8.4, 14], fov: 42, near: 0.1, far: 100 }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       onPointerMissed={() => deselect(null)}
