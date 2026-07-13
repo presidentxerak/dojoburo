@@ -7,6 +7,7 @@ import { Toasts } from './components/Toasts'
 import { StatsPanel } from './components/StatsPanel'
 import { SupportBot } from './components/SupportBot'
 import { Workshop } from './components/workshop/Workshop'
+import { SnapshotFactory } from './components/three/snapshotFactory'
 import { DeliverableModal } from './components/agents/DeliverableModal'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
@@ -104,6 +105,7 @@ export default function App() {
 
       <StatsPanel />
       <Toasts />
+      <SnapshotFactory />
       <Workshop />
       <DeliverableModal />
       <SupportBot />

@@ -17,6 +17,26 @@ import { Character3DImage } from '../three/Character3DImage'
 import { SkinPicker } from '../workshop/WorkshopModal'
 import { InfoDot } from '../InfoDot'
 
+// Build stamp (injected by Vite) so the running version is visible in-app.
+declare const __BUILD_ID__: string
+const BUILD_ID = typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev'
+
+// Nuke every cache + service worker and reload from the network — a one-click
+// escape from a stale cached build.
+async function forceUpdate() {
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations?.()
+      await Promise.all((regs ?? []).map((r) => r.unregister()))
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys()
+      await Promise.all(keys.map((k) => caches.delete(k)))
+    }
+  } catch { /* best effort */ }
+  location.reload()
+}
+
 // fiat credit packs · ~1 credit per task. Price per credit by currency (XRP
 // display falls back to USD — the user never sees the settlement rail).
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
@@ -77,7 +97,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const showDeliverable = useWork((s) => s.showDeliverable)
   const delivs = useDeliverables((s) => s.byDojo[dojo?.id ?? ''] ?? [])
   const got = (kind: string) => delivs.find((d) => d.taskId === kind)
-  const noModel = delivs.some((d) => d.model === 'brouillon local')
+  const noModel = delivs.some((d) => d.model === 'local draft')
   const usage = useDojo((s) => s.usage)
   const stats = useDojo((s) => s.stats)
   const pushToast = useDojo((s) => s.pushToast)
@@ -438,7 +458,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
         <header className="ad-head">
           <button className="ad-avatar ad-avatar-3d" onClick={() => setPicking(true)} title="Change this agent's skin">
-            <Character3DImage character={skin} size={96} />
+            <Character3DImage skin={skin} size={96} />
             <span className="ad-avatar-edit">Skin</span>
           </button>
           <div className="ad-meta">
@@ -470,7 +490,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
                   return (
                     <button key={m.id} className="ad-studio" style={{ ['--dc' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
                       <span className="ad-studio-3d">
-                        {mSkin ? <Character3DImage character={mSkin} size={64} /> : <span className="ad-studio-emoji" aria-hidden>{m.emoji}</span>}
+                        {mSkin ? <Character3DImage skin={mSkin} size={64} /> : <span className="ad-studio-emoji" aria-hidden>{m.emoji}</span>}
                       </span>
                       <span className="ad-studio-txt"><b>{m.label}</b><em>{m.blurb}</em></span>
                       <span className="ad-studio-go">Open →</span>
@@ -512,7 +532,12 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <h2>{account?.name || 'Your'} · {dojo?.name || 'Dojo'} {isAdmin(account ?? null) && <span className="admin-badge" title="Admin account · unlimited free testing">ADMIN · unlimited</span>}</h2>
           <p>Click an agent to open its dashboard. The CEO coordinates the whole team.</p>
         </div>
-        <button className="btn tiny" onClick={onOpenDojo} title="Open the dojo fullscreen">⤢ Dojo</button>
+        <div className="dash-hero-actions">
+          <button className="btn tiny" onClick={onOpenDojo} title="Open the dojo fullscreen">⤢ Dojo</button>
+          <button className="build-refresh" title={`Build ${BUILD_ID} · click to force the latest version`} onClick={forceUpdate}>
+            ⟳ v{BUILD_ID}
+          </button>
+        </div>
       </div>
 
       {/* Business overview — the company dashboard at a glance */}
@@ -547,7 +572,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           return (
             <button key={a.id} className="ac-card" style={{ ['--dc' as string]: r.tint }} onClick={() => selectAgent(a.id)}>
               <span className="ac-tape" />
-              <span className="ac-avatar ac-avatar-3d"><Character3DImage character={skinById(a.skinId)} size={76} /></span>
+              <span className="ac-avatar ac-avatar-3d"><Character3DImage skin={skinById(a.skinId)} size={76} /></span>
               <span className="ac-cat">{r.cat}</span>
               <strong className="ac-name">{a.name}</strong>
               <span className="ac-role">{r.role}</span>

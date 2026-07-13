@@ -285,6 +285,9 @@ a:hover { text-decoration: underline; }
    left-edge dock overlaps the title on narrow screens, so we hide it there) */
 .dash-hero-switch { display: none; }
 .dash-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin: 12px 2px 18px; }
+.dash-hero-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.build-refresh { font-family: var(--font-ui); font-size: 11px; font-weight: 700; color: var(--muted); background: var(--panel-2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; cursor: pointer; white-space: nowrap; transition: color 0.12s, border-color 0.12s; }
+.build-refresh:hover { color: var(--ink); border-color: var(--border-lit); }
 .dash-hero h2 { margin: 0; font-family: var(--font-pixel); font-size: 22px; color: var(--ink); }
 .dash-hero p { margin: 5px 0 0; font-size: 15.5px; color: var(--muted); max-width: 46ch; line-height: 1.5; }
 .admin-badge { display: inline-block; vertical-align: middle; margin-left: 8px; font-family: var(--font-pixel); font-weight: 800; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #1fa563, #0e9b6a); padding: 3px 8px; border-radius: 20px; box-shadow: 0 2px 6px rgba(15,150,90,0.35); }
