@@ -9,7 +9,6 @@ import { useSecrets } from '../../agents/secretsStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
 import { ROLE_AGENTS, ROLE_BY_ID } from '../../data/roleAgents'
-import { MISSIONS, type Mission } from '../../data/missions'
 import { isAdmin } from '../../config/admin'
 import { ModuleHost } from '../../modules/ModuleHost'
 import { MODULES, MODULE_BY_ID } from '../../modules/registry'
@@ -65,7 +64,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const skinForModule = (moduleId: string) => skinForRole(MODULE_BY_ID[moduleId]?.agentRole ?? '')
   const ceo = byRole('ceo') ?? agents.find((a) => a.fn === 'Leadership') ?? agents[0]
   const selected = agents.find((a) => a.id === selectedId) ?? null
-  const selRole = selected?.role ? ROLE_BY_ID[selected.role] : undefined
+  // Always resolve a role for a selected agent so the detail panel never comes
+  // up blank — even if a persisted dojo carries an agent with a legacy role id.
+  const selRole = selected ? (ROLE_BY_ID[selected.role ?? ''] ?? ROLE_BY_ID.ceo) : undefined
 
   const run = useWork((s) => s.run)
   const running = useWork((s) => s.runningTask)
@@ -89,12 +90,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [picking, setPicking] = useState(false) // skin picker open for the selected agent
   const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
 
-  // A mission leads to a role agent's dashboard or a studio module.
-  const pickMission = (m: Mission) => {
-    if (m.target.kind === 'module') { setModuleId(m.target.moduleId); selectAgent(null); return }
-    const a = agents.find((x) => x.role === (m.target as { role: string }).role)
-    if (a) { setModuleId(null); selectAgent(a.id) }
-  }
   // secrets (env vars) for the active company. Prefer the encrypted server vault
   // (/api/secrets); fall back to the local browser store when it's not deployed.
   const dojoId = dojo?.id ?? ''
@@ -529,26 +524,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         <div className="biz-tile"><span>{connectedCount}</span><em>apps</em></div>
       </div>
 
-      {/* Missions — the mission-first entry (tools appear after the outcome) */}
-      <div className="mission-head">
-        <h3>What do you want to do?</h3>
-        <span className="muted small">Pick a mission — the tool and agent open next.</span>
-      </div>
-      <div className="mission-grid">
-        {MISSIONS.map((m) => {
-          const skin = m.target.kind === 'module' ? skinForModule(m.target.moduleId) : skinForRole(m.target.role)
-          return (
-            <button key={m.id} className="mission-card has3d" style={{ ['--dc' as string]: m.tint }} onClick={() => pickMission(m)}>
-              <span className="mission-3d">
-                {skin ? <Character3DImage character={skin} size={72} /> : <span className="mission-emoji" aria-hidden>{m.emoji}</span>}
-              </span>
-              <strong className="mission-label">{m.label}</strong>
-              <span className="mission-sub">{m.sub}</span>
-            </button>
-          )
-        })}
-      </div>
-
       {/* CEO quick action — the orchestrator sits above the roster */}
       <div className="ceo-quick" style={{ ['--dc' as string]: ROLE_BY_ID.ceo.tint }}>
         <div className="composer-row">
@@ -561,9 +536,14 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         {noModel && <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> — the CEO produces <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
       </div>
 
+      <div className="mission-head">
+        <h3>Your team</h3>
+        <span className="muted small">Click an agent to open its studio — one agent per job.</span>
+      </div>
       <div className="agent-roster">
         {roster.map((a) => {
           const r = ROLE_BY_ID[a.role as string]
+          if (!r) return null
           return (
             <button key={a.id} className="ac-card" style={{ ['--dc' as string]: r.tint }} onClick={() => selectAgent(a.id)}>
               <span className="ac-tape" />
