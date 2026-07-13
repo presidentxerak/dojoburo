@@ -1,5 +1,5 @@
 // Analytics engine · 100% local. Reads the Finance + CRM projects already in
-// IndexedDB and computes business metrics (CAC, LTV, LTV:CAC, ROI, croissance,
+// IndexedDB and computes business metrics (CAC, LTV, LTV:CAC, ROI, growth,
 // conversion), then EXPLAINS them in plain language with recommendations — not
 // just charts. No server; templated insight rules run in the browser.
 import { type Txn, totals, byMonth, byCategory, sampleTxns } from './finance'
@@ -53,30 +53,30 @@ export function insights(m: Metrics): Insight[] {
   const out: Insight[] = []
 
   if (m.ltvCac > 0 || m.cac > 0) {
-    if (m.ltvCac >= 3) out.push({ tone: 'good', title: 'Acquisition très rentable', text: `Chaque client coûte ${eur(m.cac)} (CAC) et en rapporte ~${eur(m.ltv)} (LTV) : un ratio LTV:CAC de ${m.ltvCac.toFixed(1)}×. Au-dessus de 3×, tu peux accélérer sereinement les dépenses marketing.` })
-    else if (m.ltvCac >= 1) out.push({ tone: 'warn', title: 'Acquisition à surveiller', text: `Ton ratio LTV:CAC est de ${m.ltvCac.toFixed(1)}× (CAC ${eur(m.cac)}, LTV ${eur(m.ltv)}). C'est rentable mais fragile — vise 3× en augmentant la valeur client (upsell, rétention) ou en baissant le coût d'acquisition.` })
-    else out.push({ tone: 'bad', title: 'Tu perds de l’argent par client', text: `Ton CAC (${eur(m.cac)}) dépasse la LTV (${eur(m.ltv)}) : ratio ${m.ltvCac.toFixed(1)}×. Réduis les dépenses pub inefficaces et augmente le panier moyen (actuellement ${eur(m.avgDeal)}) avant de scaler.` })
+    if (m.ltvCac >= 3) out.push({ tone: 'good', title: 'Highly profitable acquisition', text: `Each customer costs ${eur(m.cac)} (CAC) and returns ~${eur(m.ltv)} (LTV): an LTV:CAC ratio of ${m.ltvCac.toFixed(1)}×. Above 3×, you can confidently scale up your marketing spend.` })
+    else if (m.ltvCac >= 1) out.push({ tone: 'warn', title: 'Acquisition to watch', text: `Your LTV:CAC ratio is ${m.ltvCac.toFixed(1)}× (CAC ${eur(m.cac)}, LTV ${eur(m.ltv)}). It's profitable but fragile — aim for 3× by increasing customer value (upsell, retention) or lowering the acquisition cost.` })
+    else out.push({ tone: 'bad', title: 'You are losing money per customer', text: `Your CAC (${eur(m.cac)}) exceeds LTV (${eur(m.ltv)}): a ratio of ${m.ltvCac.toFixed(1)}×. Cut inefficient ad spend and raise the average order value (currently ${eur(m.avgDeal)}) before scaling.` })
   }
 
   if (m.marketing > 0) {
-    if (m.roi >= 1) out.push({ tone: 'good', title: 'ROI marketing positif', text: `Tes ${eur(m.marketing)} de pub ont généré ${eur(m.roi * m.marketing + m.marketing)} de contrats gagnés — un ROI de ${pct(m.roi)}. Remets plus de budget sur les canaux qui performent.` })
-    else out.push({ tone: 'warn', title: 'ROI marketing faible', text: `Pour ${eur(m.marketing)} dépensés, le retour est de ${pct(m.roi)}. Teste de nouvelles audiences/créas (Campaign Studio) et coupe ce qui ne convertit pas.` })
+    if (m.roi >= 1) out.push({ tone: 'good', title: 'Positive marketing ROI', text: `Your ${eur(m.marketing)} in ads generated ${eur(m.roi * m.marketing + m.marketing)} in deals won — an ROI of ${pct(m.roi)}. Put more budget into the channels that are performing.` })
+    else out.push({ tone: 'warn', title: 'Low marketing ROI', text: `For ${eur(m.marketing)} spent, the return is ${pct(m.roi)}. Test new audiences/creatives (Campaign Studio) and cut what isn't converting.` })
   }
 
   if (m.months.length >= 2) {
-    if (m.growth > 0.05) out.push({ tone: 'good', title: 'Croissance en hausse', text: `Ton chiffre d'affaires progresse de ${pct(m.growth)} sur le dernier mois. Maintiens le rythme d'acquisition et sécurise la trésorerie.` })
-    else if (m.growth < -0.05) out.push({ tone: 'bad', title: 'Chiffre d’affaires en baisse', text: `Le CA recule de ${pct(Math.abs(m.growth))} vs le mois précédent. Relance ton pipeline (CRM) et réactive les clients existants avant d'aller chercher du nouveau.` })
-    else out.push({ tone: 'info', title: 'Croissance stable', text: `Ton CA est stable (${pct(m.growth)}). Un petit coup d'accélérateur marketing ou une hausse de prix pourrait débloquer la croissance.` })
+    if (m.growth > 0.05) out.push({ tone: 'good', title: 'Growth trending up', text: `Your revenue is up ${pct(m.growth)} over the last month. Keep the acquisition pace steady and secure your cash flow.` })
+    else if (m.growth < -0.05) out.push({ tone: 'bad', title: 'Revenue declining', text: `Revenue is down ${pct(Math.abs(m.growth))} vs the previous month. Revive your pipeline (CRM) and re-engage existing customers before chasing new ones.` })
+    else out.push({ tone: 'info', title: 'Stable growth', text: `Your revenue is stable (${pct(m.growth)}). A small marketing push or a price increase could unlock growth.` })
   }
 
   if (m.conversion > 0 || m.newCustomers > 0) {
-    if (m.conversion >= 0.3) out.push({ tone: 'good', title: 'Bon taux de conversion', text: `Tu convertis ${pct(m.conversion)} des affaires closes. Ton discours commercial fonctionne — documente-le et réplique-le.` })
-    else out.push({ tone: 'warn', title: 'Conversion à améliorer', text: `Seulement ${pct(m.conversion)} des affaires closes sont gagnées. Travaille les relances (séquences outbound) et qualifie mieux en amont.` })
+    if (m.conversion >= 0.3) out.push({ tone: 'good', title: 'Strong conversion rate', text: `You convert ${pct(m.conversion)} of closed deals. Your sales pitch works — document it and replicate it.` })
+    else out.push({ tone: 'warn', title: 'Conversion needs improvement', text: `Only ${pct(m.conversion)} of closed deals are won. Work on your follow-ups (outbound sequences) and qualify better upfront.` })
   }
 
-  if (m.result < 0) out.push({ tone: 'bad', title: 'Résultat négatif', text: `Tu dépenses plus que tu ne gagnes (${eur(m.result)}). Priorité : réduire les coûts non essentiels et accélérer l'encaissement.` })
+  if (m.result < 0) out.push({ tone: 'bad', title: 'Negative net result', text: `You're spending more than you earn (${eur(m.result)}). Priority: cut non-essential costs and speed up collections.` })
 
-  if (!out.length) out.push({ tone: 'info', title: 'Pas encore assez de données', text: 'Ajoute tes transactions (Finance) et tes prospects (CRM) pour que j’analyse ta rentabilité et ta croissance.' })
+  if (!out.length) out.push({ tone: 'info', title: 'Not enough data yet', text: 'Add your transactions (Finance) and leads (CRM) so I can analyze your profitability and growth.' })
   return out
 }
 

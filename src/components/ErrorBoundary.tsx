@@ -13,9 +13,9 @@ export class ErrorBoundary extends Component<{ children: ReactNode; label?: stri
       const chunk = /chunk|dynamically imported|Failed to fetch/i.test(this.state.err.message)
       return (
         <div className="ad-body" style={{ textAlign: 'center', padding: '24px 16px' }}>
-          <p style={{ fontWeight: 700, marginTop: 0 }}>⚠️ {this.props.label || 'Ce module'} n’a pas pu s’afficher</p>
-          <p className="muted small">{chunk ? 'Une nouvelle version est disponible — recharge pour récupérer les derniers fichiers.' : 'Une erreur est survenue. Recharge la page pour réessayer.'}</p>
-          <button className="btn tiny" onClick={() => { try { location.reload() } catch { /* */ } }}>Recharger</button>
+          <p style={{ fontWeight: 700, marginTop: 0 }}>⚠️ {this.props.label || 'This module'} could not be displayed</p>
+          <p className="muted small">{chunk ? 'A new version is available — reload to fetch the latest files.' : 'Something went wrong. Reload the page to try again.'}</p>
+          <button className="btn tiny" onClick={() => { try { location.reload() } catch { /* */ } }}>Reload</button>
         </div>
       )
     }

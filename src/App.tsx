@@ -52,11 +52,11 @@ export default function App() {
     const okm = h.match(/#connected=([\w-]+)/)
     const errm = h.match(/#connect_error=([^&]+)/)
     if (okm) {
-      useDojo.getState().pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'App connectée', text: `${okm[1]} est relié à tes agents.` })
+      useDojo.getState().pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'App connected', text: `${okm[1]} is linked to your agents.` })
       void useWork.getState().loadTools()
       history.replaceState(null, '', window.location.pathname + window.location.search)
     } else if (errm) {
-      useDojo.getState().pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Connexion échouée', text: decodeURIComponent(errm[1]) })
+      useDojo.getState().pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Connection failed', text: decodeURIComponent(errm[1]) })
       history.replaceState(null, '', window.location.pathname + window.location.search)
     }
   }, [])
@@ -90,8 +90,8 @@ export default function App() {
         <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
           <div className="scene-bg"><Scene3D /></div>
 
-          <button className="dojo-full-toggle" onClick={() => setDojoFull((v) => !v)} title={dojoFull ? 'Réduire le dojo' : 'Dojo en plein écran'}>
-            {dojoFull ? '⤡ Réduire' : '⤢ Plein écran'}
+          <button className="dojo-full-toggle" onClick={() => setDojoFull((v) => !v)} title={dojoFull ? 'Shrink the dojo' : 'Dojo fullscreen'}>
+            {dojoFull ? '⤡ Shrink' : '⤢ Fullscreen'}
           </button>
         </div>
 

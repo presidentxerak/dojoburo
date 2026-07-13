@@ -44,11 +44,11 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   return (
     <div className="onb">
       <div className="onb-card">
-        <span className="onb-kicker">Nouvelle entreprise</span>
-        <h1>Quelle entreprise veux-tu créer ?</h1>
-        <p className="onb-sub">Choisis un ou <b>plusieurs</b> métiers et domaines : ton équipe et tes connecteurs se combinent. Ou décris simplement ton idée en une phrase. Ton CEO s’occupe du reste.</p>
+        <span className="onb-kicker">New company</span>
+        <h1>What company do you want to build?</h1>
+        <p className="onb-sub">Pick one or <b>several</b> trades and domains: your team and connectors combine. Or just describe your idea in one sentence. Your CEO handles the rest.</p>
 
-        <button className="onb-surprise" onClick={surprise}>✦ Surprends-moi</button>
+        <button className="onb-surprise" onClick={surprise}>✦ Surprise me</button>
 
         <div className="onb-domains">
           {cats.map((cat) => (
@@ -67,24 +67,24 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
 
         {selected.length > 0 && (
           <div className="onb-preview">
-            <p><b>{sel.length} domaine{sel.length > 1 ? 's' : ''} sélectionné{sel.length > 1 ? 's' : ''} :</b> {selected.map((p) => p.label).join(' · ')}</p>
+            <p><b>{sel.length} domain{sel.length > 1 ? 's' : ''} selected:</b> {selected.map((p) => p.label).join(' · ')}</p>
             <div className="onb-chips">
               {previewConnectors.slice(0, 10).map((c) => <span key={c}>{conName(c)}</span>)}
             </div>
           </div>
         )}
 
-        <div className="onb-or"><span>ou</span></div>
+        <div className="onb-or"><span>or</span></div>
         <textarea
           value={desc}
           onChange={(e) => { setDesc(e.target.value); if (e.target.value) setSel([]) }}
           rows={2}
-          placeholder="Décris ton entreprise en une phrase — ex : une app qui aide les cafés à fidéliser leurs clients."
+          placeholder="Describe your company in one sentence — e.g. an app that helps cafés keep their customers coming back."
         />
 
         <div className="onb-actions">
-          <button className="btn ghost" onClick={onDone}>Passer</button>
-          <button className="onb-create" disabled={!sel.length && !desc.trim()} onClick={create}>Créer mon entreprise →</button>
+          <button className="btn ghost" onClick={onDone}>Skip</button>
+          <button className="onb-create" disabled={!sel.length && !desc.trim()} onClick={create}>Create my company →</button>
         </div>
       </div>
     </div>

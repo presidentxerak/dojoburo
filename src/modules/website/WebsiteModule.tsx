@@ -1,7 +1,7 @@
-// Website Builder · a local block-based site builder. The IA gives a first
+// Website Builder · a local block-based website builder. The AI gives a first
 // version instantly (from the company name); the user edits every block, reorders
 // them, previews responsive, and exports a standalone .html — all in the browser.
-// The site automatically uses the saved Brand Kit (colours + fonts). No server.
+// The website automatically uses the saved Brand Kit (colours + fonts). No server.
 import { useEffect, useMemo, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
@@ -13,7 +13,7 @@ import {
 } from '../../lib/site'
 
 export default function WebsiteModule({ dojoId }: ModuleProps) {
-  const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'Ma marque'
+  const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'My brand'
   const pushToast = useDojo((s) => s.pushToast)
   const [site, setSite] = useState<SiteDoc>(() => generateSite(dojoName))
   const [brand, setBrand] = useState<BrandKit | null>(null)
@@ -51,8 +51,8 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     mutate(site.blocks.map((b) => (b.id === selected.id ? { ...b, props } : b)))
   }
 
-  const regenerate = () => { const s = generateSite(dojoName); setSite(s); setSel(s.blocks[0]?.id ?? null); pushToast({ kind: 'event', badge: 'IA', color: '#2f7fd6', title: 'Première version générée', text: 'Édite chaque bloc, puis exporte.' }) }
-  const save = async () => { await saveSite(dojoId, site); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Site enregistré', text: 'Sauvegardé en local (IndexedDB).' }) }
+  const regenerate = () => { const s = generateSite(dojoName); setSite(s); setSel(s.blocks[0]?.id ?? null); pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'First version generated', text: 'Edit each block, then export.' }) }
+  const save = async () => { await saveSite(dojoId, site); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Website saved', text: 'Saved locally (IndexedDB).' }) }
   const exportHtml = () => {
     const blob = new Blob([doc], { type: 'text/html' })
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${site.name.toLowerCase().replace(/\s+/g, '-')}.html`; a.click()
@@ -64,25 +64,25 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       {/* toolbar */}
       <div className="site-toolbar">
         <div className="site-seg">
-          <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Bureau">🖥</button>
+          <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Desktop">🖥</button>
           <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">📱</button>
         </div>
         <div className="site-tb-actions">
-          <button className="btn tiny ghost" onClick={regenerate} title="Régénérer une première version">↺ 1ʳᵉ version</button>
-          <button className="btn tiny" onClick={exportHtml}>Exporter HTML</button>
-          <button className="btn primary tiny" onClick={() => void save()}>Enregistrer</button>
+          <button className="btn tiny ghost" onClick={regenerate} title="Regenerate a first version">↺ 1st version</button>
+          <button className="btn tiny" onClick={exportHtml}>Export HTML</button>
+          <button className="btn primary tiny" onClick={() => void save()}>Save</button>
         </div>
       </div>
 
       {/* responsive preview (WYSIWYG === export) */}
       <div className={`site-preview ${device}`}>
-        <iframe title="Aperçu du site" className="site-frame" srcDoc={doc} />
+        <iframe title="Website preview" className="site-frame" srcDoc={doc} />
       </div>
 
       {/* blocks */}
       <div className="site-blocks-head">
-        <h4 className="brand-h" style={{ margin: 0 }}>Blocs</h4>
-        <button className="btn tiny" onClick={() => setAddOpen((v) => !v)}>＋ Ajouter</button>
+        <h4 className="brand-h" style={{ margin: 0 }}>Blocks</h4>
+        <button className="btn tiny" onClick={() => setAddOpen((v) => !v)}>＋ Add</button>
       </div>
       {addOpen && (
         <div className="site-palette">
@@ -94,10 +94,10 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
           <li key={b.id} className={b.id === sel ? 'on' : ''}>
             <button className="site-bl-name" onClick={() => setSel(b.id)}>{BLOCK_LABELS[b.type]}</button>
             <div className="site-bl-ops">
-              <button onClick={() => move(b.id, -1)} disabled={i === 0} aria-label="Monter">↑</button>
-              <button onClick={() => move(b.id, 1)} disabled={i === site.blocks.length - 1} aria-label="Descendre">↓</button>
-              <button onClick={() => dup(b.id)} aria-label="Dupliquer">⎘</button>
-              <button onClick={() => del(b.id)} aria-label="Supprimer">✕</button>
+              <button onClick={() => move(b.id, -1)} disabled={i === 0} aria-label="Move up">↑</button>
+              <button onClick={() => move(b.id, 1)} disabled={i === site.blocks.length - 1} aria-label="Move down">↓</button>
+              <button onClick={() => dup(b.id)} aria-label="Duplicate">⎘</button>
+              <button onClick={() => del(b.id)} aria-label="Delete">✕</button>
             </div>
           </li>
         ))}
@@ -106,7 +106,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       {/* inspector */}
       {selected ? (
         <div className="site-inspector">
-          <h4 className="brand-h">Éditer · {BLOCK_LABELS[selected.type]}</h4>
+          <h4 className="brand-h">Edit · {BLOCK_LABELS[selected.type]}</h4>
           {fieldsFor(selected).map((f) => {
             const cur = getPath(selected.props, f.path)
             const value = f.kind === 'lines' ? (Array.isArray(cur) ? (cur as string[]).join('\n') : '') : String(cur ?? '')
@@ -121,9 +121,9 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
           })}
         </div>
       ) : (
-        <p className="muted small">Sélectionne un bloc pour l’éditer.</p>
+        <p className="muted small">Select a block to edit it.</p>
       )}
-      <p className="muted small">Le site utilise ton <b>Brand Kit</b> (couleurs + typo). Aperçu = export : le fichier <code>.html</code> est autonome et hébergeable partout.</p>
+      <p className="muted small">The website uses your <b>Brand Kit</b> (colours + fonts). Preview = export: the <code>.html</code> file is standalone and can be hosted anywhere.</p>
     </div>
   )
 }

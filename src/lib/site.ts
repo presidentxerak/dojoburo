@@ -14,29 +14,29 @@ const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g,
 
 // ---- block catalog (defaults + label) --------------------------------------
 export const BLOCK_LABELS: Record<BlockType, string> = {
-  hero: 'Hero', features: 'Points forts', pricing: 'Tarifs', cta: 'Appel à l’action',
-  form: 'Formulaire', text: 'Texte', gallery: 'Galerie', footer: 'Pied de page',
+  hero: 'Hero', features: 'Highlights', pricing: 'Pricing', cta: 'Call to action',
+  form: 'Form', text: 'Text', gallery: 'Gallery', footer: 'Footer',
 }
 export const BLOCK_ORDER: BlockType[] = ['hero', 'features', 'pricing', 'cta', 'form', 'text', 'gallery', 'footer']
 
-export function makeBlock(type: BlockType, name = 'Ma marque'): Block {
+export function makeBlock(type: BlockType, name = 'My brand'): Block {
   const P: Record<BlockType, Record<string, unknown>> = {
-    hero: { title: name, subtitle: 'La solution qui change tout pour vos clients.', cta: 'Commencer' },
-    features: { title: 'Pourquoi nous choisir', items: [
-      { title: 'Rapide', desc: 'Mise en route en quelques minutes.' },
-      { title: 'Fiable', desc: 'Une qualité constante, à chaque fois.' },
-      { title: 'Sur-mesure', desc: 'Adapté à votre activité.' },
+    hero: { title: name, subtitle: 'The solution that changes everything for your customers.', cta: 'Get started' },
+    features: { title: 'Why choose us', items: [
+      { title: 'Fast', desc: 'Up and running in minutes.' },
+      { title: 'Reliable', desc: 'Consistent quality, every time.' },
+      { title: 'Tailored', desc: 'Built around your business.' },
     ] },
-    pricing: { title: 'Nos offres', tiers: [
-      { name: 'Starter', price: '0€', features: ['L’essentiel', 'Support email'] },
-      { name: 'Pro', price: '29€', features: ['Tout Starter', 'Fonctions avancées', 'Support prioritaire'] },
-      { name: 'Business', price: '99€', features: ['Tout Pro', 'Accompagnement dédié'] },
+    pricing: { title: 'Our plans', tiers: [
+      { name: 'Starter', price: '$0', features: ['The essentials', 'Email support'] },
+      { name: 'Pro', price: '$29', features: ['Everything in Starter', 'Advanced features', 'Priority support'] },
+      { name: 'Business', price: '$99', features: ['Everything in Pro', 'Dedicated support'] },
     ] },
-    cta: { title: 'Prêt à démarrer ?', subtitle: 'Rejoignez-nous dès aujourd’hui.', cta: 'Créer un compte' },
-    form: { title: 'Contactez-nous', subtitle: 'On vous répond sous 24h.', button: 'Envoyer' },
-    text: { heading: 'À propos', body: 'Décrivez ici votre activité, votre histoire et ce qui vous rend unique.' },
-    gallery: { title: 'Galerie', count: 6 },
-    footer: { text: `© ${name}`, links: ['Accueil', 'Tarifs', 'Contact'] },
+    cta: { title: 'Ready to get started?', subtitle: 'Join us today.', cta: 'Create an account' },
+    form: { title: 'Contact us', subtitle: 'We reply within 24 hours.', button: 'Send' },
+    text: { heading: 'About', body: 'Describe your business, your story, and what makes you unique here.' },
+    gallery: { title: 'Gallery', count: 6 },
+    footer: { text: `© ${name}`, links: ['Home', 'Pricing', 'Contact'] },
   }
   return { id: uid(), type, props: P[type] }
 }
@@ -76,12 +76,12 @@ export function blockHtml(b: Block): string {
     }
     case 'pricing': {
       const tiers = (p.tiers as { name: string; price: string; features: string[] }[]) || []
-      return `<section class="b b-pricing"><h2>${esc(p.title)}</h2><div class="grid">${tiers.map((t, i) => `<div class="tier${i === 1 ? ' feat' : ''}"><h3>${esc(t.name)}</h3><div class="price">${esc(t.price)}</div><ul>${(t.features || []).map((f) => `<li>${esc(f)}</li>`).join('')}</ul><a class="btn" href="#">Choisir</a></div>`).join('')}</div></section>`
+      return `<section class="b b-pricing"><h2>${esc(p.title)}</h2><div class="grid">${tiers.map((t, i) => `<div class="tier${i === 1 ? ' feat' : ''}"><h3>${esc(t.name)}</h3><div class="price">${esc(t.price)}</div><ul>${(t.features || []).map((f) => `<li>${esc(f)}</li>`).join('')}</ul><a class="btn" href="#">Choose</a></div>`).join('')}</div></section>`
     }
     case 'cta':
       return `<section class="b b-cta"><h2>${esc(p.title)}</h2><p>${esc(p.subtitle)}</p><a class="btn" href="#">${esc(p.cta)}</a></section>`
     case 'form':
-      return `<section class="b b-form"><h2>${esc(p.title)}</h2><p>${esc(p.subtitle)}</p><div class="formx"><input placeholder="Votre nom"/><input placeholder="Votre email" type="email"/><textarea placeholder="Votre message"></textarea><button class="btn" type="button">${esc(p.button)}</button></div></section>`
+      return `<section class="b b-form"><h2>${esc(p.title)}</h2><p>${esc(p.subtitle)}</p><div class="formx"><input placeholder="Your name"/><input placeholder="Your email" type="email"/><textarea placeholder="Your message"></textarea><button class="btn" type="button">${esc(p.button)}</button></div></section>`
     case 'text':
       return `<section class="b b-text"><h2>${esc(p.heading)}</h2><p>${esc(p.body)}</p></section>`
     case 'gallery': {
@@ -127,7 +127,7 @@ h1{font-size:44px}h2{font-size:30px;text-align:center}
 /** A complete standalone HTML document — used for the iframe AND the export. */
 export function fullDoc(site: SiteDoc, kit: BrandKit): string {
   const body = site.blocks.map(blockHtml).join('\n')
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${kitCss(kit)}\n${SITE_CSS}</style></head><body>${body}</body></html>`
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${kitCss(kit)}\n${SITE_CSS}</style></head><body>${body}</body></html>`
 }
 
 // ---- inspector fields per block --------------------------------------------
@@ -135,13 +135,13 @@ export interface Field { path: string; label: string; kind: 'text' | 'area' | 'l
 export function fieldsFor(b: Block): Field[] {
   const t = (path: string, label: string, kind: Field['kind'] = 'text'): Field => ({ path, label, kind })
   switch (b.type) {
-    case 'hero': case 'cta': return [t('title', 'Titre'), t('subtitle', 'Sous-titre', 'area'), t('cta', 'Bouton')]
-    case 'text': return [t('heading', 'Titre'), t('body', 'Texte', 'area')]
-    case 'form': return [t('title', 'Titre'), t('subtitle', 'Sous-titre', 'area'), t('button', 'Bouton')]
-    case 'gallery': return [t('title', 'Titre'), t('count', 'Nombre d’images')]
-    case 'footer': return [t('text', 'Texte'), ...(((b.props.links as string[]) || []).map((_, i) => t(`links.${i}`, `Lien ${i + 1}`)))]
-    case 'features': return [t('title', 'Titre'), ...(((b.props.items as unknown[]) || []).flatMap((_, i) => [t(`items.${i}.title`, `Point ${i + 1} · titre`), t(`items.${i}.desc`, `Point ${i + 1} · texte`, 'area')]))]
-    case 'pricing': return [t('title', 'Titre'), ...(((b.props.tiers as unknown[]) || []).flatMap((_, i) => [t(`tiers.${i}.name`, `Offre ${i + 1} · nom`), t(`tiers.${i}.price`, `Offre ${i + 1} · prix`), t(`tiers.${i}.features`, `Offre ${i + 1} · lignes`, 'lines')]))]
+    case 'hero': case 'cta': return [t('title', 'Title'), t('subtitle', 'Subtitle', 'area'), t('cta', 'Button')]
+    case 'text': return [t('heading', 'Title'), t('body', 'Text', 'area')]
+    case 'form': return [t('title', 'Title'), t('subtitle', 'Subtitle', 'area'), t('button', 'Button')]
+    case 'gallery': return [t('title', 'Title'), t('count', 'Number of images')]
+    case 'footer': return [t('text', 'Text'), ...(((b.props.links as string[]) || []).map((_, i) => t(`links.${i}`, `Link ${i + 1}`)))]
+    case 'features': return [t('title', 'Title'), ...(((b.props.items as unknown[]) || []).flatMap((_, i) => [t(`items.${i}.title`, `Highlight ${i + 1} · title`), t(`items.${i}.desc`, `Highlight ${i + 1} · text`, 'area')]))]
+    case 'pricing': return [t('title', 'Title'), ...(((b.props.tiers as unknown[]) || []).flatMap((_, i) => [t(`tiers.${i}.name`, `Plan ${i + 1} · name`), t(`tiers.${i}.price`, `Plan ${i + 1} · price`), t(`tiers.${i}.features`, `Plan ${i + 1} · lines`, 'lines')]))]
     default: return []
   }
 }

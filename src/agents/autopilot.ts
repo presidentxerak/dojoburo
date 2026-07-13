@@ -11,19 +11,19 @@ import { useWorkshop } from '../workshop'
 import { useDojo } from '../store'
 
 const PIPELINE: Array<{ task: string; label: string }> = [
-  { task: 'strategy', label: 'Stratégie & OKRs' },
-  { task: 'website', label: 'Site web' },
-  { task: 'offer', label: 'Offre & tarifs' },
-  { task: 'ads', label: 'Publicités' },
-  { task: 'outreach', label: 'Prospection' },
+  { task: 'strategy', label: 'Strategy & OKRs' },
+  { task: 'website', label: 'Website' },
+  { task: 'offer', label: 'Offer & pricing' },
+  { task: 'ads', label: 'Ads' },
+  { task: 'outreach', label: 'Outreach' },
 ]
 
 const ERR: Record<string, string> = {
-  needs_key: 'Ajoute ta clé Claude (Studio → Facturation) pour que le CEO travaille.',
-  quota: 'Quota gratuit du jour atteint — ajoute ta clé Claude pour continuer.',
-  not_configured: 'Aucun modèle IA n’est configuré sur ce déploiement (clé Claude ou cascade gratuite).',
-  network: 'Connexion au serveur impossible — réessaie dans un instant.',
-  unknown_task: 'Tâche non reconnue par le serveur.',
+  needs_key: 'Add your Claude key (Studio → Billing) so the CEO can work.',
+  quota: 'Daily free quota reached — add your Claude key to continue.',
+  not_configured: 'No AI model is configured on this deployment (Claude key or free cascade).',
+  network: 'Unable to connect to the server — try again in a moment.',
+  unknown_task: 'Task not recognized by the server.',
 }
 
 /** Run the CEO's full build pipeline. `brief` is the company description. */
@@ -38,7 +38,7 @@ export async function launchCeo(brief: string): Promise<void> {
   const toast = useDojo.getState().pushToast
 
   work.setAutopilot({ running: true, step: PIPELINE[0].label })
-  toast({ kind: 'event', badge: 'CEO', color: '#7b2ff7', title: ceoName, text: 'Je me lance — je construis ton entreprise…' })
+  toast({ kind: 'event', badge: 'CEO', color: '#7b2ff7', title: ceoName, text: 'Getting started — I’m building your company…' })
 
   const before = useWorkshop.getState().activeDojoId
     ? useDeliverables.getState().list(useWorkshop.getState().activeDojoId!).length : 0
@@ -47,7 +47,7 @@ export async function launchCeo(brief: string): Promise<void> {
     // The initial build is an EXPLICIT user action, not background autonomy, so
     // it isn't capped by the daily autonomy limit — only a hard company Pause
     // stops it. We still record it so the counters move.
-    if (useEngine.getState().paused) { toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'CEO en pause', text: 'Entreprise en pause — reprends dans Réglages.' }); break }
+    if (useEngine.getState().paused) { toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'CEO paused', text: 'Company paused — resume in Settings.' }); break }
     useEngine.getState().record(`${ceoName}:${step.task}`)
     useWork.getState().setAutopilot({ running: true, step: step.label })
     toast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: `CEO · ${step.label}`, text: 'en cours…' })
@@ -55,16 +55,16 @@ export async function launchCeo(brief: string): Promise<void> {
     await useWork.getState().run({ task: step.task, agentName: ceoName, connectors: [], brief, silent: true })
 
     const err = useWork.getState().runError
-    if (err) { toast({ kind: 'event', badge: '!', color: '#e0483f', title: 'CEO arrêté', text: ERR[err.code] || `Échec : ${err.detail || err.code}.` }); break }
+    if (err) { toast({ kind: 'event', badge: '!', color: '#e0483f', title: 'CEO stopped', text: ERR[err.code] || `Failed: ${err.detail || err.code}.` }); break }
   }
 
   useWork.getState().setAutopilot({ running: false, step: null })
   const list = useDeliverables.getState().list(useWorkshop.getState().activeDojoId || '')
   const produced = list.length - before
-  const drafts = list.some((d) => d.model === 'brouillon local')
+  const drafts = list.some((d) => d.model === 'local draft')
   if (list.length && drafts) {
-    toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Brouillons prêts', text: 'Aucun modèle IA connecté : ce sont des brouillons. Ajoute une clé dans Studio → Facturation pour la vraie génération.' })
+    toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Drafts ready', text: 'No AI model connected: these are drafts. Add a key in Studio → Billing for real generation.' })
   } else if (produced > 0) {
-    toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'CEO', text: `${produced} livrable(s) prêts — regarde tes panneaux.` })
+    toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'CEO', text: `${produced} deliverable(s) ready — check your panels.` })
   }
 }

@@ -11,16 +11,16 @@ const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10)
 export async function appTransactions(dojoId: string): Promise<Txn[]> {
   const out: Txn[] = []
 
-  // CRM deals marked "Gagné" = real revenue, dated when they were won
+  // CRM deals marked "Won" = real revenue, dated when they were won
   const crm = await loadCrm(dojoId)
   for (const c of crm?.contacts ?? []) {
     if (c.stage === 'gagne' && c.value > 0) {
       out.push({
         id: 'crm_' + c.id,
         date: iso(c.wonAt ?? Date.now()),
-        label: `Vente — ${c.name}${c.company ? ' (' + c.company + ')' : ''}`,
+        label: `Sale — ${c.name}${c.company ? ' (' + c.company + ')' : ''}`,
         amount: c.value,
-        category: 'Ventes',
+        category: 'Sales',
         source: 'app',
       })
     }
@@ -32,7 +32,7 @@ export async function appTransactions(dojoId: string): Promise<Txn[]> {
     out.push({
       id: 'camp_budget',
       date: iso(camp.updatedAt || Date.now()),
-      label: `Budget pub Meta — ${camp.product || 'campagne'}`,
+      label: `Meta ad budget — ${camp.product || 'campaign'}`,
       amount: -camp.budget,
       category: 'Marketing',
       source: 'app',

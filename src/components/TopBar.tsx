@@ -61,7 +61,7 @@ export function TopBar() {
         <Logo size={38} />
         <div>
           <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
-          <p className="tagline">Ton entreprise, pilotée par des agents</p>
+          <p className="tagline">Your company, run by agents</p>
         </div>
       </div>
 
@@ -105,7 +105,7 @@ export function TopBar() {
           <div className="tb-menu" role="menu">
             {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
             <a className="tb-menu-item tb-only-mobile tb-menu-link" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
-            <button className="tb-menu-item" onClick={openCreate}>+ Créer une entreprise</button>
+            <button className="tb-menu-item" onClick={openCreate}>+ Create a company</button>
             <button className="tb-menu-item tb-only-mobile" onClick={openStudio}>Studio</button>
             <button className="tb-menu-item tb-only-mobile" onClick={() => { setMenuOpen(false); location.hash = 'city' }}>City</button>
 

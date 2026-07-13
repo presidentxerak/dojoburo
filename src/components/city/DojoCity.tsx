@@ -550,13 +550,13 @@ function GiantMonsters({ show }: { show: boolean }) {
 }
 
 const nameTag: React.CSSProperties = {
-  font: "700 12px 'Silkscreen', ui-monospace, monospace", color: '#fff', background: '#11151d',
+  font: "800 12px 'Outfit', system-ui, sans-serif", color: '#fff', background: '#11151d',
   padding: '3px 8px', borderRadius: 4, whiteSpace: 'nowrap', border: '1px solid rgba(255,255,255,0.25)',
   boxShadow: '0 2px 6px rgba(0,0,0,0.35)',
 }
 // compact marker shown for far-away companies so the wide view isn't a wall of labels
 const pinTag: React.CSSProperties = {
-  font: "800 12px 'Silkscreen', ui-monospace, monospace", color: '#fff', background: '#11151d',
+  font: "800 12px 'Outfit', system-ui, sans-serif", color: '#fff', background: '#11151d',
   width: 22, height: 22, display: 'grid', placeItems: 'center', borderRadius: '50%',
   border: '2px solid rgba(255,255,255,0.85)', boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
 }
@@ -566,8 +566,8 @@ const civicTag: React.CSSProperties = {
   padding: '2px 7px', borderRadius: 999, whiteSpace: 'nowrap', letterSpacing: '0.02em',
 }
 const CIVIC_LABEL: Record<CivicKind, string> = {
-  hotel: 'Hôtel', mall: 'Centre commercial', hospital: 'Hôpital', school: 'École',
-  police: 'Police', pool: 'Piscine', park: 'Parc',
+  hotel: 'Hotel', mall: 'Mall', hospital: 'Hospital', school: 'School',
+  police: 'Police', pool: 'Pool', park: 'Park',
 }
 
 // ---- player HQ · grows one floor per Dojo (1 Dojo = a villa) -----------------
@@ -639,7 +639,7 @@ function Academy({ lot, onOpen }: { lot: Lot; onOpen: () => void }) {
       <mesh position={[0, 1.15, 1.36]}><planeGeometry args={[1.5, 0.55]} /><meshBasicMaterial map={banner} toneMapped={false} /></mesh>
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[4.4, 4.4]} /><meshStandardMaterial color={hover ? '#bfe0f5' : '#b9c2cc'} /></mesh>
       <Html position={[0, 3.4, 0]} center pointerEvents="none" zIndexRange={[30, 0]}>
-        <div style={{ ...nameTag, background: '#1f6fd0' }}>Académie · Guide & ressources</div>
+        <div style={{ ...nameTag, background: '#1f6fd0' }}>Academy · Guide & resources</div>
       </Html>
     </group>
   )
@@ -1095,11 +1095,11 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
 }
 
 const TIPS = [
-  'Astuce : décris ton entreprise en une phrase — ton CEO construit le site, l’offre et le plan growth.',
-  'Astuce : connecte tes agents (Email, Meta, SEO) dans le Studio pour déléguer le growth B2B.',
-  'Astuce : chaque nouveau Dojo ajoute un étage à ton immeuble dans la ville.',
-  'Astuce : achète des crédits dans ta monnaie — pas de crypto à gérer, tout se règle en coulisse.',
-  'Astuce : règle l’autonomie de ton CEO pour éviter qu’il tourne en rond et pour faire durer tes crédits.',
+  'Tip: describe your company in one sentence — your CEO builds the website, the offer and the growth plan.',
+  'Tip: connect your agents (Email, Meta, SEO) in the Studio to delegate B2B growth.',
+  'Tip: each new Dojo adds a floor to your building in the city.',
+  'Tip: buy credits in your own currency — no crypto to manage, everything settles behind the scenes.',
+  'Tip: tune your CEO’s autonomy so it doesn’t loop and your credits last longer.',
 ]
 
 // ---- company fiche · opens when you click one of our showcase HQs -----------
@@ -1199,9 +1199,9 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
       <div className="city-top">
         <div className="city-title">
           <h1>Dojo City</h1>
-          <p>Une métropole entière : hôtels, centres commerciaux, hôpitaux, écoles, parcs et piscines. Ton immeuble grandit d’un étage par Dojo. Attention aux géants qui s’y promènent.</p>
+          <p>A whole metropolis: hotels, shopping malls, hospitals, schools, parks and pools. Your building grows one floor per Dojo. Watch out for the giants roaming around.</p>
         </div>
-        <button className="btn tiny ghost city-exit" onClick={exit}>← Tableau de bord</button>
+        <button className="btn tiny ghost city-exit" onClick={exit}>← Dashboard</button>
       </div>
 
       <div className="city-zoom" role="group" aria-label="Zoom">

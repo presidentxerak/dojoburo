@@ -1,128 +1,86 @@
 // ---------------------------------------------------------------------------
-// DojoBuro · Role agents — the NEW dojo mechanic.
+// DojoBuro · Role agents — one agent per functionality / studio.
 //
-// A company is run by TEN functional agents, each owning a set of tasks. These
-// are the characters you see in the dojo; clicking one (in the 3D scene or its
-// card on the right) opens that agent's dedicated management / edition /
-// creation dashboard. The CEO coordinates the others.
-//
-// Every dojo is seeded with exactly this crew, so the roster, the 3D scene and
-// the dashboards always line up. The `dept` mapping lets each role reuse the
-// existing 3D characters, connectors and station labels.
+// A company is run by twelve functional agents. Eight of them own a dedicated
+// studio (Branding, Website, Campaign, Video, CRM, Finance, Analytics, Assets);
+// the other four are the CEO plus the Engine, Credits and Config utilities.
+// These are the characters you see in the dojo; clicking one opens that agent's
+// dashboard / studio. The `dept` mapping reuses the existing 3D characters.
 // ---------------------------------------------------------------------------
 import type { Department } from './agents'
 
 export interface RoleAgent {
-  /** stable role key · also the WAgent.role tag and the dashboard router key */
   id: string
-  /** friendly display name (editable per dojo) */
   name: string
-  /** role subtitle shown under the name */
   role: string
-  /** short category chip (matches the old dashboard card categories) */
   cat: string
-  /** one-line mission, shown on the roster card and the dashboard header */
   blurb: string
-  /** accent colour for the card + dashboard */
   tint: string
-  /** maps the role onto a startup department (3D character, connectors, labels) */
   dept: Department
 }
 
 export const ROLE_AGENTS: RoleAgent[] = [
   {
-    id: 'ceo',
-    name: 'Ava',
-    role: 'CEO · orchestrateur',
-    cat: 'Direction',
-    blurb: 'Coordonne tous les agents : tu lui parles, il découpe et délègue le travail.',
-    tint: '#7b5cff',
-    dept: 'Leadership',
+    id: 'ceo', name: 'Ava', role: 'CEO · Orchestrator', cat: 'Direction',
+    blurb: 'Coordinates every agent: you talk to it, it breaks the work down and delegates.',
+    tint: '#7b5cff', dept: 'Leadership',
   },
   {
-    id: 'engine',
-    name: 'Otto',
-    role: 'Agent Moteur · autonomie',
-    cat: 'Moteur',
-    blurb: "Règle l'autonomie du CEO et l'empêche de trop dépenser ou de tourner en rond.",
-    tint: '#e07a2a',
-    dept: 'Ops',
+    id: 'brand', name: 'Bo', role: 'Brand Agent · Branding Studio', cat: 'Brand',
+    blurb: 'Opens the Branding Studio: logo, palette, typography and a central Brand Kit.',
+    tint: '#a855f7', dept: 'Product',
   },
   {
-    id: 'work',
-    name: 'Wade',
-    role: 'Agent Travail · bibliothèque d’assets',
-    cat: 'Travail',
-    blurb: 'Optimise et range tes images en local, et exécute les livrables à la demande.',
-    tint: '#1fa563',
-    dept: 'Engineering',
+    id: 'web', name: 'Wren', role: 'Web Agent · Website Builder', cat: 'Web',
+    blurb: 'Opens the Website Builder: blocks, live editing, responsive, brand theme, HTML export.',
+    tint: '#2f7fd6', dept: 'Product',
   },
   {
-    id: 'web',
-    name: 'Wren',
-    role: 'Agent Web · Branding + Website',
-    cat: 'Web',
-    blurb: 'Ouvre le Branding Studio (marque) et le Website Builder (site) — génère puis édite.',
-    tint: '#2f7fd6',
-    dept: 'Product',
+    id: 'acq', name: 'Mia', role: 'Acquisition Agent · Campaign Studio', cat: 'Growth',
+    blurb: 'Opens the Campaign Studio: full Meta campaigns — objective, audiences, creatives, copy.',
+    tint: '#e0459b', dept: 'Growth',
   },
   {
-    id: 'acq',
-    name: 'Mia',
-    role: 'Agent Acquisition · Campagnes + Vidéo',
-    cat: 'Acquisition',
-    blurb: 'Ouvre le Campaign Studio (pubs Meta) et le Video Creator (montage local).',
-    tint: '#e0459b',
-    dept: 'Growth',
+    id: 'video', name: 'Vic', role: 'Video Agent · Video Creator', cat: 'Video',
+    blurb: 'Opens the Video Creator: import, trim, brand captions, social formats, .webm export.',
+    tint: '#e0483f', dept: 'Growth',
   },
   {
-    id: 'outbound',
-    name: 'Sol',
-    role: 'Agent Outbound · CRM',
-    cat: 'Outbound',
-    blurb: 'Ouvre le CRM & Outbound : pipeline, prospects et séquences email personnalisées.',
-    tint: '#d98c17',
-    dept: 'Growth',
+    id: 'outbound', name: 'Sol', role: 'Sales Agent · CRM & Outbound', cat: 'Sales',
+    blurb: 'Opens the CRM: pipeline, prospects and personalised email sequences.',
+    tint: '#d98c17', dept: 'Growth',
   },
   {
-    id: 'measure',
-    name: 'Ada',
-    role: 'Agent Mesure · Analytics',
-    cat: 'Mesure',
-    blurb: 'Ouvre Analytics business : CAC, LTV, ROI et croissance expliqués par l’IA.',
-    tint: '#0e9b6a',
-    dept: 'Engineering',
+    id: 'revenue', name: 'Fin', role: 'Revenue Agent · Finance', cat: 'Revenue',
+    blurb: 'Opens Finance & Accounting: revenue, expenses, cash, VAT, forecasts.',
+    tint: '#1fa563', dept: 'Finance',
   },
   {
-    id: 'revenue',
-    name: 'Fin',
-    role: 'Agent Revenu · Finance',
-    cat: 'Revenus',
-    blurb: 'Ouvre Finance & Compta : import CSV, trésorerie, TVA, prévisions. Et crée ton offre.',
-    tint: '#e0483f',
-    dept: 'Finance',
+    id: 'measure', name: 'Ada', role: 'Data Agent · Analytics', cat: 'Data',
+    blurb: 'Opens Analytics: sales, CAC, LTV, ROI and growth — explained by AI.',
+    tint: '#0e9b6a', dept: 'Engineering',
   },
   {
-    id: 'credit',
-    name: 'Cleo',
-    role: 'Agent Crédit · recharge',
-    cat: 'Crédits',
-    blurb: 'Gère tes crédits : recharge dans ta monnaie, sans aucune crypto visible.',
-    tint: '#0e9bb5',
-    dept: 'Finance',
+    id: 'work', name: 'Wade', role: 'Ops Agent · Asset Library', cat: 'Assets',
+    blurb: 'Opens the Asset Library: optimise your images locally and keep them offline.',
+    tint: '#14b8a6', dept: 'Engineering',
   },
   {
-    id: 'config',
-    name: 'Cody',
-    role: 'Agent Config · secrets',
-    cat: 'Config',
-    blurb: 'Garde tes variables d’environnement chiffrées et les interrupteurs de sécurité.',
-    tint: '#5b6472',
-    dept: 'Ops',
+    id: 'engine', name: 'Otto', role: 'Engine Agent · Autonomy', cat: 'Engine',
+    blurb: 'Tunes how autonomous the CEO is and keeps it from overspending or looping.',
+    tint: '#e07a2a', dept: 'Ops',
+  },
+  {
+    id: 'credit', name: 'Cleo', role: 'Billing Agent · Credits', cat: 'Credits',
+    blurb: 'Manages your credits: top up in your currency, no crypto in sight.',
+    tint: '#0e9bb5', dept: 'Finance',
+  },
+  {
+    id: 'config', name: 'Cody', role: 'Config Agent · Secrets', cat: 'Config',
+    blurb: 'Keeps your environment variables encrypted plus the safety switches.',
+    tint: '#5b6472', dept: 'Ops',
   },
 ]
 
 export const ROLE_BY_ID: Record<string, RoleAgent> = Object.fromEntries(ROLE_AGENTS.map((r) => [r.id, r]))
-
-/** Order of the roles as seated in the dojo (also the roster order). */
 export const ROLE_IDS: string[] = ROLE_AGENTS.map((r) => r.id)

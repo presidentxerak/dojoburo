@@ -2,10 +2,60 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AGENTS, agentColor, type AgentDef } from '../../data/agents'
 import { CHARACTERS } from '../../data/looks'
+import { MODULES, type ModuleDef } from '../../modules/registry'
+import { ROLE_BY_ID } from '../../data/roleAgents'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 import { useInView } from './useInView'
 
 const charFor = (id: string) => CHARACTERS[id] ?? Object.values(CHARACTERS)[0]
+
+// One distinct 3D character per studio agent, so every studio has its own face.
+const STUDIO_CHAR: Record<string, string> = {
+  brand: 'dex',
+  web: 'rex',
+  acq: 'mia',
+  video: 'lex',
+  outbound: 'sol',
+  revenue: 'fin',
+  measure: 'ada',
+  work: 'otto',
+}
+
+function StudioCard({ mod, i, onOpen }: { mod: ModuleDef; i: number; onOpen: () => void }) {
+  const [ref, inView] = useInView<HTMLButtonElement>('250px')
+  const agent = ROLE_BY_ID[mod.agentRole]
+  const charKey = STUDIO_CHAR[mod.agentRole] ?? mod.agentRole
+  return (
+    <button
+      ref={ref}
+      className="lp-studiocard"
+      style={{ ['--ac' as any]: mod.tint }}
+      onClick={onOpen}
+      title={`Open the ${mod.label}`}
+    >
+      <span className="lp-team-3d">
+        {inView ? <Agent3DPreview id={charKey} character={charFor(charKey)} size={128} phase={i * 0.6} /> : null}
+      </span>
+      <span className="lp-studiocard-emoji" aria-hidden>{mod.emoji}</span>
+      <strong>{mod.label}</strong>
+      <span className="lp-team-role">{agent ? `${agent.name} · ${agent.cat} agent` : mod.blurb}</span>
+      <span className="lp-studiocard-blurb">{mod.blurb}</span>
+      <span className="lp-team-more">Open the studio →</span>
+    </button>
+  )
+}
+
+/** The merged office + studios grid: one 3D agent per studio, each card opening
+ *  its pro studio. Replaces the old split "studios" + "meet the office" blocks. */
+export function StudioTeam({ enter }: { enter: () => void }) {
+  return (
+    <div className="lp-studioteam">
+      {MODULES.map((m, i) => (
+        <StudioCard key={m.id} mod={m} i={i} onOpen={enter} />
+      ))}
+    </div>
+  )
+}
 
 function TeamCard({ agent, i, onOpen }: { agent: AgentDef; i: number; onOpen: () => void }) {
   const [ref, inView] = useInView<HTMLButtonElement>('250px')

@@ -71,7 +71,7 @@ let instanceKey: string | null = null
 
 async function getXumm(): Promise<XummLike> {
   const apiKey = getApiKey()
-  if (!apiKey) throw new Error("Aucune clé API Xaman configurée. Renseignez-la dans le panneau Xaman (gratuite sur apps.xaman.dev).")
+  if (!apiKey) throw new Error("No Xaman API key configured. Add it in the Xaman panel (free at apps.xaman.dev).")
   if (instance && instanceKey === apiKey) return instance
   const mod = await import('xumm')
   const Xumm = (mod as unknown as { Xumm: new (k: string) => XummLike }).Xumm
@@ -84,7 +84,7 @@ export async function connect(): Promise<XamanSession> {
   const xumm = await getXumm()
   await xumm.authorize()
   const account = await xumm.user.account
-  if (!account) throw new Error('Connexion Xaman annulée ou échouée.')
+  if (!account) throw new Error('Xaman connection cancelled or failed.')
   return { account, network: 'MAINNET' }
 }
 
@@ -140,7 +140,7 @@ export async function signPayment(
         const d = evt.data as { signed?: boolean; txid?: string }
         if (typeof d.signed === 'boolean') {
           if (d.signed && d.txid) resolve({ txid: d.txid, signed: true })
-          else reject(new Error('Transaction refusée dans Xaman.'))
+          else reject(new Error('Transaction rejected in Xaman.'))
           return true // unsubscribe
         }
       })

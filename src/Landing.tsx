@@ -11,11 +11,10 @@ import { AsciiIcon } from './components/AsciiIcon'
 import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
 import { HeroCreate } from './components/landing/HeroCreate'
-import { TeamCards } from './components/landing/TeamCards'
+import { StudioTeam } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 import { ShowcaseGallery, PerformanceBoard, Testimonials } from './components/landing/Showcase'
 import { SHOW_MOCK_COMPANIES } from './config/flags'
-import { MODULES } from './modules/registry'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -32,17 +31,17 @@ export function Landing({ enter }: { enter: () => void }) {
       <SiteHeader enter={enter} />
 
       <section className="lp-hero">
-        <p className="lp-kicker">Le studio + l'OS de ton entreprise, augmenté par des agents IA · 100% local</p>
-        <h1>Crée ton entreprise en une <span className="hl-mag">phrase</span>.</h1>
+        <p className="lp-kicker">The studio + operating system for your company, powered by AI agents · 100% local</p>
+        <h1>Found your company in one <span className="hl-mag">sentence</span>.</h1>
         <p className="lp-sub">
-          Décris ton idée en une phrase et <Wordmark /> monte un bureau 3D où un CEO et ses agents construisent ta
-          marque, ton site, tes pubs, tes vidéos, ta compta et ton CRM. De vrais <b>studios pro</b> — branding,
-          site, campagnes Meta, montage vidéo, finance, prospection, analytics — qui tournent <b>dans ton
-          navigateur</b> : puissance maximale, coûts serveur minimaux.
+          Describe your idea in one sentence and <Wordmark /> spins up a 3D office where a CEO and its agents build
+          your brand, your website, your ads, your videos, your finances and your CRM. Real <b>pro studios</b> —
+          branding, website, Meta campaigns, video editing, finance, outreach, analytics — that run <b>right in
+          your browser</b>: maximum power, minimal server cost.
         </p>
         <HeroCreate enter={enter} />
         <div className="lp-badges">
-          <span>7 studios pro</span><span>100% local · rien n'est envoyé</span><span>Crédits · sans crypto</span><span>{CONNECTORS.length} connecteurs</span><span>Installable (PWA)</span>
+          <span>8 pro studios</span><span>100% local · nothing is uploaded</span><span>Credits · no crypto</span><span>{CONNECTORS.length} connectors</span><span>Installable (PWA)</span>
         </div>
         <DojoDiorama />
       </section>
@@ -53,23 +52,15 @@ export function Landing({ enter }: { enter: () => void }) {
       </div>
 
       <section className="lp-sec" id="studios">
-        <span className="lp-pill">7 studios · 100% dans ton navigateur</span>
-        <h2>Chaque agent est un vrai studio pro</h2>
+        <span className="lp-pill">8 studios · one agent each · 100% in your browser</span>
+        <h2>Meet the office — every agent is a real pro studio</h2>
         <p className="lp-lead">
-          Clique un agent dans ton bureau et son studio s'ouvre. Chacun génère une première version par IA, puis
-          tu gardes un contrôle total. Le montage vidéo, la compression d'images, le rendu design et l'export
-          tournent <b>en local</b> — tes fichiers ne quittent jamais ta machine.
+          Each agent in your office owns one studio. Click a teammate and their studio opens: it generates a first
+          version with AI, then you keep full control. Video editing, image compression, design rendering and export
+          all run <b>locally</b> — your files never leave your machine.
         </p>
-        <div className="lp-studios">
-          {MODULES.map((m) => (
-            <div className="lp-studio" key={m.id} style={{ ['--pc' as any]: m.tint }}>
-              <span className="lp-studio-emoji" aria-hidden>{m.emoji}</span>
-              <strong>{m.label}</strong>
-              <span className="lp-studio-blurb">{m.blurb}</span>
-            </div>
-          ))}
-        </div>
-        <p className="lp-note">Marque → site → pubs → vidéo → finance → clients → analytics : un Brand Kit central garde tout cohérent, et tout est réutilisé d'un studio à l'autre.</p>
+        <StudioTeam enter={enter} />
+        <p className="lp-note">Brand → website → ads → video → finance → clients → analytics: a central Brand Kit keeps everything consistent, and every studio reuses the work of the others.</p>
       </section>
 
       {SHOW_MOCK_COMPANIES && (
@@ -182,17 +173,6 @@ export function Landing({ enter }: { enter: () => void }) {
         </div>
       </section>
 
-      <section className="lp-sec alt" id="cast">
-        <span className="lp-ico" style={{ background: C.magenta }}><AsciiIcon kind="cast" /></span>
-        <h2>Meet the office</h2>
-        <p className="lp-lead">Twelve starter agents across Leadership, Engineering, Finance, Growth, Product, People and Ops · plus two mascots. Click any teammate to see their characteristics. Reskin, rename or replace any of them.</p>
-        <TeamCards />
-        <div className="lp-cast" style={{ marginTop: 16 }}>
-          <div className="lp-card mascot"><strong>Chief</strong><span>You · the founder atom</span></div>
-          <div className="lp-card mascot"><strong>Lazy</strong><span>The panda who only watches the numbers</span></div>
-        </div>
-      </section>
-
       {SHOW_MOCK_COMPANIES && (
         <section className="lp-sec" id="testimonials">
           <span className="lp-pill">Founders, in their words</span>
@@ -210,7 +190,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-step"><span className="lp-n">1</span><h3>Describe your company</h3><p>Tell your CEO agent what you're building, in one sentence. It drafts the plan, names the offers and assembles the crew.</p></div>
           <div className="lp-step"><span className="lp-n">2</span><h3>The crew builds &amp; runs it</h3><p>Specialist agents ship your website, craft offers and drive growth · B2B outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · doing real work in your apps.</p></div>
           <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, set its autonomy (Auto → Ultra) and a daily credit cap. A guard stops it from looping.</p></div>
-          <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit, settled behind the scenes. Lazy tallies the numbers and your CEO emails a daily report · WhatsApp &amp; Telegram bientôt.</p></div>
+          <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit, settled behind the scenes. Lazy tallies the numbers and your CEO emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
         </div>
       </section>
 
@@ -371,7 +351,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <ul>
               <li>Set how much rope your CEO gets · autonomy from Auto to Low, Medium, Hard or Ultra · plus a daily credit cap so it can never overspend.</li>
               <li>A built-in guard stops the CEO from looping, and preferences (theme, sound, notifications) are saved to your account.</li>
-              <li>Get a daily report by email today · WhatsApp &amp; Telegram bientôt · and your CEO stays reachable to steer any time.</li>
+              <li>Get a daily report by email today · WhatsApp &amp; Telegram coming soon · and your CEO stays reachable to steer any time.</li>
             </ul>
           </div>
         </div>

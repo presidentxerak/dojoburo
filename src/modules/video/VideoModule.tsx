@@ -14,7 +14,7 @@ import {
 } from '../../lib/video'
 
 export default function VideoModule({ dojoId }: ModuleProps) {
-  const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'Ma marque'
+  const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'My brand'
   const pushToast = useDojo((s) => s.pushToast)
 
   const [clips, setClips] = useState<Clip[]>([])
@@ -184,17 +184,17 @@ export default function VideoModule({ dojoId }: ModuleProps) {
   const updateClip = (id: string, p: Partial<Clip>) => setClips((cs) => cs.map((c) => (c.id === id ? { ...c, ...p } : c)))
   const moveClip = (id: string, dir: -1 | 1) => setClips((cs) => { const i = cs.findIndex((c) => c.id === id); const j = i + dir; if (i < 0 || j < 0 || j >= cs.length) return cs; const a = [...cs];[a[i], a[j]] = [a[j], a[i]]; return a })
   const delClip = (id: string) => { void delClipBlob(id); const v = vids.current.get(id); if (v) { v.pause(); v.remove(); vids.current.delete(id) } setClips((cs) => cs.filter((c) => c.id !== id)); if (sel === id) setSel(null) }
-  const addOverlay = (kind: OverlayKind) => { const o: Overlay = { id: uid('o'), kind, text: kind === 'title' ? (dojoName) : 'Votre sous-titre', start: 0, end: Math.max(3, Math.min(5, totalLen(clips) || 5)) }; setOverlays((x) => [...x, o]); setSelOv(o.id) }
+  const addOverlay = (kind: OverlayKind) => { const o: Overlay = { id: uid('o'), kind, text: kind === 'title' ? (dojoName) : 'Your caption', start: 0, end: Math.max(3, Math.min(5, totalLen(clips) || 5)) }; setOverlays((x) => [...x, o]); setSelOv(o.id) }
   const updateOverlay = (id: string, p: Partial<Overlay>) => setOverlays((x) => x.map((o) => (o.id === id ? { ...o, ...p } : o)))
   const delOverlay = (id: string) => { setOverlays((x) => x.filter((o) => o.id !== id)); if (selOv === id) setSelOv(null) }
 
-  const save = async () => { await saveProject(dojoId, { format, clips, overlays, updatedAt: Date.now() }); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Projet enregistré', text: 'Clips + montage sauvegardés en local.' }) }
+  const save = async () => { await saveProject(dojoId, { format, clips, overlays, updatedAt: Date.now() }); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Project saved', text: 'Clips + edit saved locally.' }) }
 
   // ---- export (record the canvas playthrough) -------------------------------
   const doExport = () => {
     const canvas = canvasRef.current; if (!canvas || !clips.length) return
     const mime = pickExportMime()
-    if (!mime) { pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Export non supporté', text: 'Ton navigateur ne permet pas l’enregistrement vidéo (essaie Chrome).' }); return }
+    if (!mime) { pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Export not supported', text: 'Your browser does not support video recording (try Chrome).' }); return }
     // wire audio for all clips (best-effort) and build the combined stream
     clips.forEach((c) => wireAudio(c.id))
     const stream = canvas.captureStream(30)
@@ -207,7 +207,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${dojoName.toLowerCase().replace(/\s+/g, '-')}-${format}.webm`; a.click()
       setTimeout(() => URL.revokeObjectURL(a.href), 5000)
       setExporting(false); exportingRef.current = false
-      pushToast({ kind: 'event', badge: 'OK', color: '#e0483f', title: 'Vidéo exportée', text: 'Fichier .webm généré 100% en local.' })
+      pushToast({ kind: 'event', badge: 'OK', color: '#e0483f', title: 'Video exported', text: '.webm file generated 100% locally.' })
     }
     recorderRef.current = rec
     setExporting(true); exportingRef.current = true
@@ -231,8 +231,8 @@ export default function VideoModule({ dojoId }: ModuleProps) {
           {FORMATS.map((f) => <button key={f.id} className={format === f.id ? 'on' : ''} onClick={() => setFormat(f.id)} disabled={exporting}>{f.label.split(' ')[0]}</button>)}
         </div>
         <div className="site-tb-actions">
-          <button className="btn tiny" onClick={() => void save()} disabled={exporting}>Enregistrer</button>
-          <button className="btn primary tiny" onClick={doExport} disabled={exporting || !clips.length}>{exporting ? 'Export…' : 'Exporter (.webm)'}</button>
+          <button className="btn tiny" onClick={() => void save()} disabled={exporting}>Save</button>
+          <button className="btn primary tiny" onClick={doExport} disabled={exporting || !clips.length}>{exporting ? 'Exporting…' : 'Export (.webm)'}</button>
         </div>
       </div>
 
@@ -241,21 +241,21 @@ export default function VideoModule({ dojoId }: ModuleProps) {
         <canvas ref={canvasRef} width={cs.w} height={cs.h} className="vid-canvas" />
       </div>
       <div className="vid-transport">
-        <button className="btn tiny" onClick={togglePlay} disabled={!clips.length}>{playing ? '⏸' : '▶'} {playing ? 'Pause' : 'Lire'}</button>
+        <button className="btn tiny" onClick={togglePlay} disabled={!clips.length}>{playing ? '⏸' : '▶'} {playing ? 'Pause' : 'Play'}</button>
         <span className="vid-time">{fmtTime(t)} / {fmtTime(total)}</span>
-        {exporting && <span className="muted small"><span className="ceo-spin" /> Enregistrement en direct…</span>}
+        {exporting && <span className="muted small"><span className="ceo-spin" /> Recording live…</span>}
       </div>
 
       {/* import + clips */}
       <div className="site-blocks-head">
         <h4 className="brand-h" style={{ margin: 0 }}>Clips</h4>
-        <button className="btn tiny" onClick={() => fileRef.current?.click()} disabled={exporting}>{importing ? 'Import…' : '＋ Importer'}</button>
+        <button className="btn tiny" onClick={() => fileRef.current?.click()} disabled={exporting}>{importing ? 'Importing…' : '＋ Import'}</button>
         <input ref={fileRef} type="file" accept="video/*" multiple hidden onChange={(e) => e.target.files && void addFiles(e.target.files)} />
       </div>
       {clips.length === 0 ? (
         <div className="vid-empty" onClick={() => fileRef.current?.click()}>
-          <strong>Importe tes vidéos</strong>
-          <span className="muted small">Elles restent dans ton navigateur (IndexedDB) — jamais envoyées au serveur.</span>
+          <strong>Import your videos</strong>
+          <span className="muted small">They stay in your browser (IndexedDB) — never sent to the server.</span>
         </div>
       ) : (
         <ul className="site-blocklist">
@@ -275,11 +275,11 @@ export default function VideoModule({ dojoId }: ModuleProps) {
       {/* trim */}
       {selClip && (
         <div className="site-inspector">
-          <h4 className="brand-h">Découpe · {selClip.name}</h4>
-          <label className="site-field"><span>Début : {fmtTime(selClip.inSec)}</span>
+          <h4 className="brand-h">Trim · {selClip.name}</h4>
+          <label className="site-field"><span>Start: {fmtTime(selClip.inSec)}</span>
             <input type="range" min={0} max={selClip.duration} step={0.1} value={selClip.inSec} onChange={(e) => { const val = Math.min(Number(e.target.value), selClip.outSec - 0.2); updateClip(selClip.id, { inSec: val }); const v = vids.current.get(selClip.id); if (v) try { v.currentTime = val } catch { /* */ } }} />
           </label>
-          <label className="site-field"><span>Fin : {fmtTime(selClip.outSec)}</span>
+          <label className="site-field"><span>End: {fmtTime(selClip.outSec)}</span>
             <input type="range" min={0} max={selClip.duration} step={0.1} value={selClip.outSec} onChange={(e) => { const val = Math.max(Number(e.target.value), selClip.inSec + 0.2); updateClip(selClip.id, { outSec: val }); const v = vids.current.get(selClip.id); if (v) try { v.currentTime = val } catch { /* */ } }} />
           </label>
         </div>
@@ -287,17 +287,17 @@ export default function VideoModule({ dojoId }: ModuleProps) {
 
       {/* overlays */}
       <div className="site-blocks-head">
-        <h4 className="brand-h" style={{ margin: 0 }}>Textes de marque</h4>
+        <h4 className="brand-h" style={{ margin: 0 }}>Brand text</h4>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button className="btn tiny" onClick={() => addOverlay('title')}>＋ Titre</button>
-          <button className="btn tiny ghost" onClick={() => addOverlay('caption')}>＋ Sous-titre</button>
+          <button className="btn tiny" onClick={() => addOverlay('title')}>＋ Title</button>
+          <button className="btn tiny ghost" onClick={() => addOverlay('caption')}>＋ Caption</button>
         </div>
       </div>
       {overlays.length > 0 && (
         <ul className="site-blocklist">
           {overlays.map((o) => (
             <li key={o.id} className={o.id === selOv ? 'on' : ''}>
-              <button className="site-bl-name" onClick={() => setSelOv(o.id)}>{o.kind === 'title' ? 'Titre' : 'Sous-titre'} · {o.text.slice(0, 22) || '—'}</button>
+              <button className="site-bl-name" onClick={() => setSelOv(o.id)}>{o.kind === 'title' ? 'Title' : 'Caption'} · {o.text.slice(0, 22) || '—'}</button>
               <div className="site-bl-ops"><button onClick={() => delOverlay(o.id)}>✕</button></div>
             </li>
           ))}
@@ -305,15 +305,15 @@ export default function VideoModule({ dojoId }: ModuleProps) {
       )}
       {ov && (
         <div className="site-inspector">
-          <label className="site-field"><span>Texte</span><input value={ov.text} onChange={(e) => updateOverlay(ov.id, { text: e.target.value })} /></label>
+          <label className="site-field"><span>Text</span><input value={ov.text} onChange={(e) => updateOverlay(ov.id, { text: e.target.value })} /></label>
           <div style={{ display: 'flex', gap: 10 }}>
-            <label className="site-field" style={{ flex: 1 }}><span>Début : {ov.start.toFixed(1)}s</span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.start} onChange={(e) => updateOverlay(ov.id, { start: Math.min(Number(e.target.value), ov.end) })} /></label>
-            <label className="site-field" style={{ flex: 1 }}><span>Fin : {ov.end.toFixed(1)}s</span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.end} onChange={(e) => updateOverlay(ov.id, { end: Math.max(Number(e.target.value), ov.start) })} /></label>
+            <label className="site-field" style={{ flex: 1 }}><span>Start: {ov.start.toFixed(1)}s</span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.start} onChange={(e) => updateOverlay(ov.id, { start: Math.min(Number(e.target.value), ov.end) })} /></label>
+            <label className="site-field" style={{ flex: 1 }}><span>End: {ov.end.toFixed(1)}s</span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.end} onChange={(e) => updateOverlay(ov.id, { end: Math.max(Number(e.target.value), ov.start) })} /></label>
           </div>
         </div>
       )}
 
-      <p className="muted small">Montage 100% local (Canvas + MediaRecorder). L’export produit un <code>.webm</code> — jouable partout, importable dans Meta/TikTok. Les textes utilisent ton Brand Kit.</p>
+      <p className="muted small">100% local editing (Canvas + MediaRecorder). Export produces a <code>.webm</code> — playable anywhere, importable into Meta/TikTok. Text uses your Brand Kit.</p>
     </div>
   )
 }

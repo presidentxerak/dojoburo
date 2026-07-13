@@ -11,8 +11,8 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
   return (
     <div className="modhost" style={{ ['--dc' as string]: def.tint }}>
       <div className="ad-topbar">
-        <button className="ad-back" onClick={onClose}>‹ Retour</button>
-        <span className="modhost-tag">{def.status === 'live' ? 'Local · sans serveur' : 'Bientôt'}</span>
+        <button className="ad-back" onClick={onClose}>‹ Back</button>
+        <span className="modhost-tag">{def.status === 'live' ? 'Local · serverless' : 'Coming soon'}</span>
       </div>
       <header className="ad-head">
         <span className="modhost-emoji" aria-hidden>{def.emoji}</span>
@@ -28,11 +28,11 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
         </ErrorBoundary>
       ) : (
         <div className="ad-body">
-          <p className="muted small" style={{ marginTop: 0 }}>Ce module arrive dans une prochaine itération. Au programme :</p>
+          <p className="muted small" style={{ marginTop: 0 }}>This module is coming in a future iteration. On the roadmap:</p>
           <ul className="mod-planned">
             {(def.planned ?? []).map((p, i) => <li key={i}>{p}</li>)}
           </ul>
-          <p className="muted small">En attendant, l’agent correspondant produit déjà une première version par IA depuis son dashboard.</p>
+          <p className="muted small">In the meantime, the matching agent already produces a first AI-generated version from its dashboard.</p>
         </div>
       )}
     </div>

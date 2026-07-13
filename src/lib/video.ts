@@ -10,7 +10,7 @@ export type FormatId = 'reel' | 'square' | 'wide'
 export interface VFormat { id: FormatId; label: string; w: number; h: number }
 export const FORMATS: VFormat[] = [
   { id: 'reel', label: 'Reel / TikTok 9:16', w: 1080, h: 1920 },
-  { id: 'square', label: 'Carré 1:1', w: 1080, h: 1080 },
+  { id: 'square', label: 'Square 1:1', w: 1080, h: 1080 },
   { id: 'wide', label: 'YouTube 16:9', w: 1920, h: 1080 },
 ]
 export const formatById = (id: FormatId): VFormat => FORMATS.find((f) => f.id === id) ?? FORMATS[0]

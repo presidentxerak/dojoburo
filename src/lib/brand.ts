@@ -58,21 +58,21 @@ export function generatePalette(hue: number, scheme: PaletteScheme): Palette {
 // ---- typography · font stacks (no external load, CSP-safe) -----------------
 export const FONT_PAIRS: FontPair[] = [
   { id: 'modern', label: 'Modern', heading: '"Outfit", system-ui, sans-serif', body: '"Outfit", system-ui, sans-serif' },
-  { id: 'editorial', label: 'Éditorial', heading: 'Georgia, "Times New Roman", serif', body: '"Outfit", system-ui, sans-serif' },
+  { id: 'editorial', label: 'Editorial', heading: 'Georgia, "Times New Roman", serif', body: '"Outfit", system-ui, sans-serif' },
   { id: 'grotesk', label: 'Grotesque', heading: '"Helvetica Neue", Arial, sans-serif', body: 'Georgia, serif' },
-  { id: 'mono', label: 'Technique', heading: '"Silkscreen", "Courier New", monospace', body: '"Outfit", system-ui, sans-serif' },
-  { id: 'classic', label: 'Classique', heading: '"Palatino Linotype", "Book Antiqua", serif', body: 'Georgia, serif' },
-  { id: 'geo', label: 'Géométrique', heading: '"Outfit", sans-serif', body: '"Helvetica Neue", Arial, sans-serif' },
+  { id: 'mono', label: 'Technical', heading: '"Silkscreen", "Courier New", monospace', body: '"Outfit", system-ui, sans-serif' },
+  { id: 'classic', label: 'Classic', heading: '"Palatino Linotype", "Book Antiqua", serif', body: 'Georgia, serif' },
+  { id: 'geo', label: 'Geometric', heading: '"Outfit", sans-serif', body: '"Helvetica Neue", Arial, sans-serif' },
 ]
 export const fontPair = (id: string): FontPair => FONT_PAIRS.find((f) => f.id === id) ?? FONT_PAIRS[0]
 
 export const SCHEMES: { id: PaletteScheme; label: string }[] = [
-  { id: 'mono', label: 'Monochrome' }, { id: 'analogous', label: 'Analogue' },
-  { id: 'complementary', label: 'Complémentaire' }, { id: 'triadic', label: 'Triadique' },
+  { id: 'mono', label: 'Monochrome' }, { id: 'analogous', label: 'Analogous' },
+  { id: 'complementary', label: 'Complementary' }, { id: 'triadic', label: 'Triadic' },
 ]
 export const SHAPES: { id: MarkShape; label: string }[] = [
-  { id: 'monogram', label: 'Monogramme' }, { id: 'arch', label: 'Arche' }, { id: 'orbit', label: 'Orbite' },
-  { id: 'spark', label: 'Étincelle' }, { id: 'block', label: 'Bloc' }, { id: 'wave', label: 'Vague' },
+  { id: 'monogram', label: 'Monogram' }, { id: 'arch', label: 'Arch' }, { id: 'orbit', label: 'Orbit' },
+  { id: 'spark', label: 'Spark' }, { id: 'block', label: 'Block' }, { id: 'wave', label: 'Wave' },
 ]
 
 // ---- logo (SVG) ------------------------------------------------------------
@@ -106,7 +106,7 @@ function markSvg(shape: MarkShape, p: Palette, name: string): string {
 export function logoSvg(kit: BrandKit, layout: LogoLayout = kit.layout, size = 320): string {
   const { name, palette, fontId } = kit
   const f = fontPair(fontId)
-  const safeName = name.trim() || 'Marque'
+  const safeName = name.trim() || 'Brand'
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   const wordFont = f.heading.replace(/"/g, "'")
 
@@ -124,9 +124,9 @@ export function logoSvg(kit: BrandKit, layout: LogoLayout = kit.layout, size = 3
 }
 
 // ---- defaults + persistence ------------------------------------------------
-export function defaultKit(name = 'Ma marque'): BrandKit {
+export function defaultKit(name = 'My brand'): BrandKit {
   const hue = 262, scheme: PaletteScheme = 'analogous'
-  return { name, tagline: 'Votre slogan ici', hue, scheme, palette: generatePalette(hue, scheme), fontId: 'modern', shape: 'monogram', layout: 'mark-left', updatedAt: Date.now() }
+  return { name, tagline: 'Your tagline here', hue, scheme, palette: generatePalette(hue, scheme), fontId: 'modern', shape: 'monogram', layout: 'mark-left', updatedAt: Date.now() }
 }
 
 const kitKey = (dojoId: string) => `brand.${dojoId || 'default'}`

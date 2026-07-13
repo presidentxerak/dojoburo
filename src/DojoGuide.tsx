@@ -38,15 +38,15 @@ export function GuidePage() {
   return (
     <GuideShell>
       <section className="lp-hero dg2-hero">
-        <h1>Tes <span className="hl-mag">studios</span> + tes outils, sous contrôle.</h1>
+        <h1>Your <span className="hl-mag">studios</span> + your tools, under control.</h1>
         <p className="lp-sub">
-          Dans DojoBuro, chaque agent est un studio pro (branding, site, campagnes Meta, montage vidéo, finance, CRM,
-          analytics) qui tourne <b>100% dans ton navigateur</b> — tes fichiers ne partent jamais. Pour aller plus loin,
-          les <b>connecteurs</b> laissent tes agents agir dans tes apps réelles (Meta, Gmail, Stripe…). Ce guide montre
-          comment ouvrir un studio, brancher une app, tout configurer pas à pas et maîtriser tes coûts.
+          In DojoBuro, each agent is a pro studio (branding, website, Meta campaigns, video editing, finance, CRM,
+          analytics) that runs <b>100% in your browser</b> — your files never leave. To go further, <b>connectors</b>
+          let your agents act inside your real apps (Meta, Gmail, Stripe…). This guide shows how to open a studio,
+          connect an app, configure everything step by step and keep your costs under control.
         </p>
         <div className="lp-badges">
-          <span>7 studios · 100% local</span><span>{CONNECTORS.length} connecteurs</span><span>OAuth · coffre chiffré</span><span>Cloud ou local</span>
+          <span>8 studios · 100% local</span><span>{CONNECTORS.length} connectors</span><span>OAuth · encrypted vault</span><span>Cloud or local</span>
         </div>
       </section>
 

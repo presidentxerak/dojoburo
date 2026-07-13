@@ -1,5 +1,5 @@
 // Branding Studio · generate a full brand identity locally (logo + palette +
-// typography) and save a central Brand Kit to IndexedDB. The IA gives a first
+// typography) and save a central Brand Kit to IndexedDB. The AI gives a first
 // version instantly (from the company name); the user keeps full control.
 // Everything runs in the browser — no server, no cost.
 import { useEffect, useState } from 'react'
@@ -12,8 +12,8 @@ import {
 } from '../../lib/brand'
 
 const LAYOUTS: { id: LogoLayout; label: string }[] = [
-  { id: 'mark-left', label: 'Logo + texte' }, { id: 'mark-top', label: 'Empilé' },
-  { id: 'mark-only', label: 'Icône seule' }, { id: 'text-only', label: 'Texte seul' },
+  { id: 'mark-left', label: 'Logo + text' }, { id: 'mark-top', label: 'Stacked' },
+  { id: 'mark-only', label: 'Icon only' }, { id: 'text-only', label: 'Text only' },
 ]
 
 function Svg({ markup, className }: { markup: string; className?: string }) {
@@ -23,7 +23,7 @@ function Svg({ markup, className }: { markup: string; className?: string }) {
 export default function BrandingModule({ dojoId }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name)
   const pushToast = useDojo((s) => s.pushToast)
-  const [kit, setKit] = useState<BrandKit>(() => defaultKit(dojoName || 'Ma marque'))
+  const [kit, setKit] = useState<BrandKit>(() => defaultKit(dojoName || 'My brand'))
   const [loaded, setLoaded] = useState(false)
 
   // load a saved kit for this company, else seed from its name
@@ -31,7 +31,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     let alive = true
     void loadBrandKit(dojoId).then((k) => {
       if (!alive) return
-      setKit(k ?? defaultKit(dojoName || 'Ma marque'))
+      setKit(k ?? defaultKit(dojoName || 'My brand'))
       setLoaded(true)
     })
     return () => { alive = false }
@@ -52,11 +52,11 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
   const copy = (text: string, label: string) => {
     void navigator.clipboard?.writeText(text)
-    pushToast({ kind: 'event', badge: 'OK', color: '#7b5cff', title: 'Copié', text: label })
+    pushToast({ kind: 'event', badge: 'OK', color: '#7b5cff', title: 'Copied', text: label })
   }
   const save = async () => {
     await saveBrandKit(dojoId, kit)
-    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand Kit enregistré', text: 'Réutilisé dans tes sites, pubs et vidéos.' })
+    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand Kit saved', text: 'Reused across your websites, ads and videos.' })
   }
   const downloadSvg = () => {
     const blob = new Blob([logoSvg(kit, kit.layout, 640)], { type: 'image/svg+xml' })
@@ -67,19 +67,19 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
   const f = fontPair(kit.fontId)
   const swatches: [string, string][] = [
-    ['Primaire', kit.palette.primary], ['Secondaire', kit.palette.secondary], ['Accent', kit.palette.accent],
-    ['Encre', kit.palette.ink], ['Fond', kit.palette.bg],
+    ['Primary', kit.palette.primary], ['Secondary', kit.palette.secondary], ['Accent', kit.palette.accent],
+    ['Ink', kit.palette.ink], ['Background', kit.palette.bg],
   ]
 
   return (
     <div className="ad-body brand-mod">
       {/* identity */}
       <div className="brand-idrow">
-        <label>Nom de la marque<input value={kit.name} maxLength={28} onChange={(e) => patch({ name: e.target.value })} /></label>
-        <label>Slogan<input value={kit.tagline} maxLength={48} onChange={(e) => patch({ tagline: e.target.value })} /></label>
-        <button className="btn tiny" onClick={regenerate} title="Nouvelle proposition aléatoire">🎲 Régénérer</button>
+        <label>Brand name<input value={kit.name} maxLength={28} onChange={(e) => patch({ name: e.target.value })} /></label>
+        <label>Tagline<input value={kit.tagline} maxLength={48} onChange={(e) => patch({ tagline: e.target.value })} /></label>
+        <button className="btn tiny" onClick={regenerate} title="New random suggestion">🎲 Regenerate</button>
       </div>
-      <a className="btn tiny ghost brand-shiver" href="https://shiverbrand.com" target="_blank" rel="noopener noreferrer">✨ Trouver un nom → Shiver Brand</a>
+      <a className="btn tiny ghost brand-shiver" href="https://shiverbrand.com" target="_blank" rel="noopener noreferrer">✨ Find a name → Shiver Brand</a>
 
       {/* live logo preview on brand background */}
       <div className="brand-hero" style={{ background: kit.palette.bg }}>
@@ -102,41 +102,41 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
         <div className="brand-seg">
           {SCHEMES.map((s) => <button key={s.id} className={kit.scheme === s.id ? 'on' : ''} onClick={() => setScheme(s.id)}>{s.label}</button>)}
         </div>
-        <label className="brand-hue">Teinte
+        <label className="brand-hue">Hue
           <input type="range" min={0} max={359} value={kit.hue} onChange={(e) => setHue(Number(e.target.value))} />
         </label>
       </div>
       <div className="brand-palette">
         {swatches.map(([label, hex]) => (
-          <button key={label} className="brand-swatch" style={{ background: hex }} onClick={() => copy(hex, `${label} ${hex}`)} title={`Copier ${hex}`}>
-            <span style={{ color: label === 'Fond' ? kit.palette.ink : '#fff' }}>{label}<em>{hex}</em></span>
+          <button key={label} className="brand-swatch" style={{ background: hex }} onClick={() => copy(hex, `${label} ${hex}`)} title={`Copy ${hex}`}>
+            <span style={{ color: label === 'Background' ? kit.palette.ink : '#fff' }}>{label}<em>{hex}</em></span>
           </button>
         ))}
       </div>
 
       {/* logo mark */}
-      <h4 className="brand-h">Icône</h4>
+      <h4 className="brand-h">Icon</h4>
       <div className="brand-seg wrap">
         {SHAPES.map((s) => <button key={s.id} className={kit.shape === s.id ? 'on' : ''} onClick={() => patch({ shape: s.id })}>{s.label}</button>)}
       </div>
 
       {/* typography */}
-      <h4 className="brand-h">Typographie</h4>
+      <h4 className="brand-h">Typography</h4>
       <div className="brand-seg wrap">
         {FONT_PAIRS.map((fp) => <button key={fp.id} className={kit.fontId === fp.id ? 'on' : ''} onClick={() => patch({ fontId: fp.id })}>{fp.label}</button>)}
       </div>
       <div className="brand-type" style={{ background: kit.palette.bg, color: kit.palette.ink }}>
-        <div style={{ fontFamily: f.heading, fontWeight: 800, fontSize: 26 }}>{kit.name || 'Aa'} — Titre</div>
-        <div style={{ fontFamily: f.body, fontSize: 14, opacity: 0.85 }}>Corps de texte : {f.body.split(',')[0].replace(/"/g, '')}. Le renard brun rapide saute par-dessus le chien.</div>
+        <div style={{ fontFamily: f.heading, fontWeight: 800, fontSize: 26 }}>{kit.name || 'Aa'} — Heading</div>
+        <div style={{ fontFamily: f.body, fontSize: 14, opacity: 0.85 }}>Body text: {f.body.split(',')[0].replace(/"/g, '')}. The quick brown fox jumps over the lazy dog.</div>
       </div>
 
       {/* actions */}
       <div className="brand-actions">
-        <button className="btn primary tiny" onClick={() => void save()}>Enregistrer le Brand Kit</button>
-        <button className="btn tiny" onClick={downloadSvg}>Télécharger le logo (SVG)</button>
-        <button className="btn tiny ghost" onClick={() => copy(kitCss(kit), 'CSS du Brand Kit')}>Copier le CSS</button>
+        <button className="btn primary tiny" onClick={() => void save()}>Save Brand Kit</button>
+        <button className="btn tiny" onClick={downloadSvg}>Download logo (SVG)</button>
+        <button className="btn tiny ghost" onClick={() => copy(kitCss(kit), 'Brand Kit CSS')}>Copy CSS</button>
       </div>
-      {loaded && <p className="muted small">Le Brand Kit est stocké en local (IndexedDB) et sera injecté automatiquement dans le Website Builder et le Campaign Studio.</p>}
+      {loaded && <p className="muted small">The Brand Kit is stored locally (IndexedDB) and will be injected automatically into the Website Builder and the Campaign Studio.</p>}
     </div>
   )
 }

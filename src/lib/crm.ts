@@ -5,12 +5,12 @@ import { idbGet, idbSet } from './idb'
 
 export type Stage = 'nouveau' | 'contacte' | 'repondu' | 'rdv' | 'gagne' | 'perdu'
 export const STAGES: { id: Stage; label: string; color: string; prob: number }[] = [
-  { id: 'nouveau', label: 'Nouveau', color: '#5b6472', prob: 0.1 },
-  { id: 'contacte', label: 'Contacté', color: '#2f7fd6', prob: 0.25 },
-  { id: 'repondu', label: 'A répondu', color: '#d98c17', prob: 0.5 },
-  { id: 'rdv', label: 'RDV', color: '#7b5cff', prob: 0.7 },
-  { id: 'gagne', label: 'Gagné', color: '#1fa563', prob: 1 },
-  { id: 'perdu', label: 'Perdu', color: '#e0483f', prob: 0 },
+  { id: 'nouveau', label: 'New', color: '#5b6472', prob: 0.1 },
+  { id: 'contacte', label: 'Contacted', color: '#2f7fd6', prob: 0.25 },
+  { id: 'repondu', label: 'Replied', color: '#d98c17', prob: 0.5 },
+  { id: 'rdv', label: 'Meeting', color: '#7b5cff', prob: 0.7 },
+  { id: 'gagne', label: 'Won', color: '#1fa563', prob: 1 },
+  { id: 'perdu', label: 'Lost', color: '#e0483f', prob: 0 },
 ]
 export const stageInfo = (s: Stage) => STAGES.find((x) => x.id === s) ?? STAGES[0]
 const STAGE_SCORE: Record<Stage, number> = { nouveau: 10, contacte: 25, repondu: 55, rdv: 78, gagne: 100, perdu: 0 }
@@ -51,14 +51,14 @@ export function stats(cs: Contact[]): CrmStats {
 // ---- outbound templates ----------------------------------------------------
 export interface Template { id: string; label: string; subject: string; body: string }
 export const TEMPLATES: Template[] = [
-  { id: 'intro', label: 'Prise de contact', subject: 'Une idée pour {{entreprise}}', body: `Bonjour {{prenom}},\n\nJe me permets de vous écrire car j'aide des structures comme {{entreprise}} à gagner du temps et des clients.\n\nSeriez-vous ouvert(e) à un échange rapide de 15 min cette semaine ?\n\nBien à vous,` },
-  { id: 'relance1', label: 'Relance 1', subject: 'Re: une idée pour {{entreprise}}', body: `Bonjour {{prenom}},\n\nJe reviens vers vous suite à mon précédent message — je sais que les journées sont chargées.\n\nEst-ce qu'un court échange aurait du sens de votre côté ?\n\nBelle journée,` },
-  { id: 'rdv', label: 'Proposition de RDV', subject: 'Un créneau cette semaine ?', body: `Bonjour {{prenom}},\n\nRavi de votre intérêt ! Je vous propose un échange de 20 min.\n\nÊtes-vous disponible jeudi 11h ou vendredi 14h ? Je m'adapte sinon.\n\nÀ très vite,` },
-  { id: 'value', label: 'Apport de valeur', subject: 'Un exemple concret pour {{entreprise}}', body: `Bonjour {{prenom}},\n\nJ'ai préparé une idée concrète applicable à {{entreprise}} — je vous la partage sans engagement.\n\nDites-moi si vous voulez que je vous l'envoie.\n\nCordialement,` },
+  { id: 'intro', label: 'Introduction', subject: 'An idea for {{entreprise}}', body: `Hi {{prenom}},\n\nI'm reaching out because I help organizations like {{entreprise}} save time and win more clients.\n\nWould you be open to a quick 15-minute chat this week?\n\nBest regards,` },
+  { id: 'relance1', label: 'Follow-up 1', subject: 'Re: an idea for {{entreprise}}', body: `Hi {{prenom}},\n\nI'm following up on my previous message — I know days get busy.\n\nWould a short conversation make sense on your end?\n\nHave a great day,` },
+  { id: 'rdv', label: 'Meeting proposal', subject: 'A slot this week?', body: `Hi {{prenom}},\n\nGlad to hear you're interested! I'd like to suggest a 20-minute call.\n\nAre you available Thursday at 11am or Friday at 2pm? Happy to work around your schedule otherwise.\n\nTalk soon,` },
+  { id: 'value', label: 'Value add', subject: 'A concrete example for {{entreprise}}', body: `Hi {{prenom}},\n\nI've put together a concrete idea that applies to {{entreprise}} — sharing it with no strings attached.\n\nLet me know if you'd like me to send it over.\n\nBest,` },
 ]
-const firstName = (name: string) => (name.trim().split(/\s+/)[0] || 'là')
+const firstName = (name: string) => (name.trim().split(/\s+/)[0] || 'there')
 export function merge(tpl: Template, c: Contact): { subject: string; body: string } {
-  const sub = (s: string) => s.replace(/\{\{prenom\}\}/g, firstName(c.name)).replace(/\{\{entreprise\}\}/g, c.company || 'votre entreprise')
+  const sub = (s: string) => s.replace(/\{\{prenom\}\}/g, firstName(c.name)).replace(/\{\{entreprise\}\}/g, c.company || 'your company')
   return { subject: sub(tpl.subject), body: sub(tpl.body) }
 }
 export function mailto(c: Contact, subject: string, body: string): string {
@@ -90,10 +90,10 @@ export function importCsv(text: string): Contact[] {
 }
 export function exportCsv(cs: Contact[]): string {
   const esc = (s: string) => (/[";,\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s)
-  return ['nom;entreprise;email;etape;valeur;score', ...cs.map((c) => [esc(c.name), esc(c.company), c.email, c.stage, c.value, c.score].join(';'))].join('\n')
+  return ['name;company;email;stage;value;score', ...cs.map((c) => [esc(c.name), esc(c.company), c.email, c.stage, c.value, c.score].join(';'))].join('\n')
 }
 
-export function newContact(): Contact { return { id: uid(), name: 'Nouveau contact', company: '', email: '', stage: 'nouveau', value: 0, score: STAGE_SCORE.nouveau, note: '' } }
+export function newContact(): Contact { return { id: uid(), name: 'New contact', company: '', email: '', stage: 'nouveau', value: 0, score: STAGE_SCORE.nouveau, note: '' } }
 export function sampleContacts(): Contact[] {
   const raw: [string, string, string, Stage, number][] = [
     ['Camille Roy', 'Studio Miko', 'camille@miko.fr', 'contacte', 2400],

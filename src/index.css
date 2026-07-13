@@ -1578,8 +1578,8 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .brand h1 .wordmark { font-size: 24px; }
 .brand h1 { line-height: 1; }
 
-/* ===== hero title in Silkscreen (100px); big titles at 60px ===== */
-.landing .lp-hero h1 { font-family: 'Silkscreen', 'Courier New', monospace !important; font-weight: 400 !important; font-size: clamp(38px, 8.4vw, 100px) !important; line-height: 1.08; letter-spacing: 0; }
+/* ===== hero title in Outfit Black; big titles at 60px ===== */
+.landing .lp-hero h1 { font-family: 'Outfit', system-ui, sans-serif !important; font-weight: 900 !important; font-size: clamp(38px, 8vw, 92px) !important; line-height: 1.02; letter-spacing: -0.02em; }
 .landing .lp-sec h2 { font-size: clamp(30px, 5vw, 60px) !important; }
 .landing .lp-final h2 { font-size: clamp(32px, 5.6vw, 60px) !important; }
 
@@ -1884,6 +1884,20 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-team-role { font-size: 13px; color: var(--muted); line-height: 1.4; }
 .lp-team-more { font-family: var(--font-ui); font-weight: 700; font-size: 12px; color: var(--ac, var(--violet)); margin-top: 4px; }
 
+/* Merged office × studios grid · one 3D agent per studio */
+.lp-studioteam { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+.lp-studiocard {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  background: var(--panel-solid); border: 1px solid var(--border); border-top: 4px solid var(--ac);
+  border-radius: var(--radius); padding: 16px 16px 20px;
+  cursor: pointer; text-align: center; font-family: var(--font-read);
+  transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s;
+}
+.lp-studiocard:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--ac) 50%, var(--border)); }
+.lp-studiocard-emoji { font-size: 22px; line-height: 1; margin-top: -4px; }
+.lp-studiocard strong { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; color: var(--ink); line-height: 1.2; }
+.lp-studiocard-blurb { font-size: 12.5px; color: var(--muted); line-height: 1.5; flex: 1; }
+
 .lp-team-overlay {
   position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 22px;
   background: color-mix(in srgb, #0b0d16 70%, transparent); backdrop-filter: blur(6px);
@@ -1922,19 +1936,19 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 /* ===== hero title: "AI" and "TEAM" as Silkscreen outline (hollow) words ===== */
 .landing .lp-hero h1 .hl-outline {
-  font-family: 'Silkscreen', 'Courier New', monospace !important; font-weight: 400 !important;
+  font-family: 'Outfit', system-ui, sans-serif !important; font-weight: 900 !important;
   color: transparent; -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 2.5px var(--ink); text-stroke: 2.5px var(--ink);
   paint-order: stroke fill;
 }
 /* AI TEAM · solid rose magenta */
 .landing .lp-hero h1 .hl-mag {
-  font-family: 'Silkscreen', 'Courier New', monospace !important; font-weight: 400 !important;
+  font-family: 'Outfit', system-ui, sans-serif !important; font-weight: 900 !important;
   color: var(--c-magenta) !important; -webkit-text-fill-color: var(--c-magenta);
 }
 /* WATCH · blue outline */
 .landing .lp-hero h1 .hl-outline-b {
-  font-family: 'Silkscreen', 'Courier New', monospace !important; font-weight: 400 !important;
+  font-family: 'Outfit', system-ui, sans-serif !important; font-weight: 900 !important;
   color: transparent; -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 2.5px #2f6bff; text-stroke: 2.5px #2f6bff;
   paint-order: stroke fill;
@@ -2322,7 +2336,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .pd-eyebrow { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.6px; color: var(--pa); }
 .pd-brandmark .wordmark { font-size: clamp(30px, 4.4vw, 52px); color: #14141a; -webkit-text-fill-color: #14141a; }
 /* the big title · Silkscreen regular, like the landing hero */
-.pd-title { font-family: 'Silkscreen', 'Courier New', monospace; font-weight: 400; font-size: clamp(30px, 5.4vw, 62px); line-height: 1.1; letter-spacing: 0; color: #14141a; margin: 0; }
+.pd-title { font-family: 'Outfit', system-ui, sans-serif; font-weight: 900; font-size: clamp(30px, 5.4vw, 62px); line-height: 1.1; letter-spacing: 0; color: #14141a; margin: 0; }
 /* the Outfit lead under the title */
 .pd-line { font-family: var(--font-read); font-weight: 500; font-size: clamp(15px, 1.9vw, 21px); line-height: 1.5; color: #55596a; margin: 0; }
 .pd-foot { position: absolute; bottom: 4%; font-size: 12px; color: #8890a0; }
@@ -2356,7 +2370,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 /* stat tiles */
 .pd-stats { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
 .pd-stat { min-width: 150px; padding: 14px 20px; background: color-mix(in srgb, var(--pa) 8%, #fff); border: 1px solid color-mix(in srgb, var(--pa) 26%, #e4e6ec); border-radius: 14px; }
-.pd-stat b { display: block; font-family: 'Silkscreen', 'Courier New', monospace; font-weight: 400; font-size: 26px; color: var(--pa); letter-spacing: 0; }
+.pd-stat b { display: block; font-family: 'Outfit', system-ui, sans-serif; font-weight: 900; font-size: 26px; color: var(--pa); letter-spacing: 0; }
 .pd-stat span { font-family: var(--font-read); font-size: 12.5px; color: #6a7080; }
 
 /* table slides · tighter so the table + note clear the footer */

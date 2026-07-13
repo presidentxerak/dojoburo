@@ -1,34 +1,34 @@
 // Finance engine · 100% local. Parse a CSV of transactions in the browser,
-// categorise them, and compute every KPI (revenus, dépenses, trésorerie, TVA,
-// prévisions) — no server, nothing uploaded. Data persists in IndexedDB.
+// categorise them, and compute every KPI (revenue, expenses, cash, VAT,
+// forecast) — no server, nothing uploaded. Data persists in IndexedDB.
 import { idbGet, idbSet } from './idb'
 
 export interface Txn { id: string; date: string; label: string; amount: number; category: string; source?: 'app' | 'csv' | 'manual' }
 export interface FinanceProject { txns: Txn[]; vatRate: number; updatedAt: number }
 
-export const CATEGORIES = ['Ventes', 'Logiciels', 'Marketing', 'Salaires', 'Loyer', 'Frais bancaires', 'Impôts & TVA', 'Achats', 'Autre'] as const
+export const CATEGORIES = ['Sales', 'Software', 'Marketing', 'Payroll', 'Rent', 'Bank fees', 'Taxes & VAT', 'Purchases', 'Other'] as const
 export const CAT_COLOR: Record<string, string> = {
-  Ventes: '#1fa563', Logiciels: '#2f7fd6', Marketing: '#e0459b', Salaires: '#7b5cff',
-  Loyer: '#d98c17', 'Frais bancaires': '#0e9bb5', 'Impôts & TVA': '#e0483f', Achats: '#e07a2a', Autre: '#5b6472',
+  Sales: '#1fa563', Software: '#2f7fd6', Marketing: '#e0459b', Payroll: '#7b5cff',
+  Rent: '#d98c17', 'Bank fees': '#0e9bb5', 'Taxes & VAT': '#e0483f', Purchases: '#e07a2a', Other: '#5b6472',
 }
 
 const uid = () => `t_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
 
-// keyword → category rules (expenses); positive amounts default to Ventes
+// keyword → category rules (expenses); positive amounts default to Sales
 const RULES: [RegExp, string][] = [
-  [/stripe|paypal|vente|invoice|facture|client|sales/i, 'Ventes'],
-  [/aws|google|figma|notion|slack|saas|software|logiciel|abonnement|subscription|adobe|vercel|openai|anthropic/i, 'Logiciels'],
+  [/stripe|paypal|vente|invoice|facture|client|sales/i, 'Sales'],
+  [/aws|google|figma|notion|slack|saas|software|logiciel|abonnement|subscription|adobe|vercel|openai|anthropic/i, 'Software'],
   [/meta|facebook|instagram|google ads|ads|pub|campaign|marketing/i, 'Marketing'],
-  [/salaire|payroll|paie|wage|urssaf|freelance/i, 'Salaires'],
-  [/loyer|rent|bureau|office/i, 'Loyer'],
-  [/frais|bank|banque|commission|agios|fee/i, 'Frais bancaires'],
-  [/tva|impot|impôt|tax|vat/i, 'Impôts & TVA'],
-  [/amazon|fourniture|achat|supplier|material/i, 'Achats'],
+  [/salaire|payroll|paie|wage|urssaf|freelance/i, 'Payroll'],
+  [/loyer|rent|bureau|office/i, 'Rent'],
+  [/frais|bank|banque|commission|agios|fee/i, 'Bank fees'],
+  [/tva|impot|impôt|tax|vat/i, 'Taxes & VAT'],
+  [/amazon|fourniture|achat|supplier|material/i, 'Purchases'],
 ]
 export function categorize(label: string, amount: number): string {
-  if (amount > 0) return 'Ventes'
+  if (amount > 0) return 'Sales'
   for (const [re, cat] of RULES) if (re.test(label)) return cat
-  return 'Autre'
+  return 'Other'
 }
 
 // ---- CSV parsing -----------------------------------------------------------
@@ -87,7 +87,7 @@ export function parseCsv(text: string): Txn[] {
 }
 export function toCsv(txns: Txn[]): string {
   const esc = (s: string) => (/[";,\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s)
-  return ['date;libelle;montant;categorie', ...txns.map((t) => [t.date, esc(t.label), t.amount.toFixed(2), t.category].join(';'))].join('\n')
+  return ['date;label;amount;category', ...txns.map((t) => [t.date, esc(t.label), t.amount.toFixed(2), t.category].join(';'))].join('\n')
 }
 
 // ---- aggregations ----------------------------------------------------------
@@ -140,12 +140,12 @@ export function sampleTxns(): Txn[] {
   const base = 2026, rows: [string, string, number][] = []
   const months = [3, 4, 5, 6]
   for (const mo of months) {
-    rows.push([`${base}-${String(mo).padStart(2, '0')}-05`, 'Stripe — ventes abonnements', 3200 + mo * 180])
-    rows.push([`${base}-${String(mo).padStart(2, '0')}-12`, 'Client — prestation', 1500])
-    rows.push([`${base}-${String(mo).padStart(2, '0')}-03`, 'AWS + Vercel (logiciels)', -220])
-    rows.push([`${base}-${String(mo).padStart(2, '0')}-08`, 'Meta Ads — campagne', -450])
-    rows.push([`${base}-${String(mo).padStart(2, '0')}-01`, 'Loyer bureau', -900])
-    rows.push([`${base}-${String(mo).padStart(2, '0')}-28`, 'Frais bancaires', -35])
+    rows.push([`${base}-${String(mo).padStart(2, '0')}-05`, 'Stripe — subscription sales', 3200 + mo * 180])
+    rows.push([`${base}-${String(mo).padStart(2, '0')}-12`, 'Client — services', 1500])
+    rows.push([`${base}-${String(mo).padStart(2, '0')}-03`, 'AWS + Vercel (software)', -220])
+    rows.push([`${base}-${String(mo).padStart(2, '0')}-08`, 'Meta Ads — campaign', -450])
+    rows.push([`${base}-${String(mo).padStart(2, '0')}-01`, 'Office rent', -900])
+    rows.push([`${base}-${String(mo).padStart(2, '0')}-28`, 'Bank fees', -35])
   }
   return rows.map(([date, label, amount]) => ({ id: uid(), date, label, amount, category: categorize(label, amount) }))
 }

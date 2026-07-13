@@ -1,4 +1,4 @@
-// Bibliothèque d'assets · LOCAL-FIRST proof.
+// Asset library · LOCAL-FIRST proof.
 //
 // Drop images → they're resized + re-encoded to WebP entirely in a Web Worker
 // (OffscreenCanvas), stored as Blobs in IndexedDB, and kept offline. Nothing is
@@ -94,15 +94,15 @@ export default function AssetsModule({ dojoId }: ModuleProps) {
         onClick={() => inputRef.current?.click()}
       >
         <input ref={inputRef} type="file" accept="image/*" multiple hidden onChange={(e) => e.target.files && void addFiles(e.target.files)} />
-        <strong>Dépose des images ici</strong>
-        <span className="muted small">ou clique — compression <b>100% locale</b> (WebP), rien n’est envoyé au serveur.</span>
-        {busy > 0 && <span className="muted small"><span className="ceo-spin" /> {busy} en cours…</span>}
+        <strong>Drop images here</strong>
+        <span className="muted small">or click — <b>100% local</b> compression (WebP), nothing is sent to the server.</span>
+        {busy > 0 && <span className="muted small"><span className="ceo-spin" /> {busy} in progress…</span>}
       </div>
 
       {items.length > 0 && (
         <p className="asset-stat">
-          <b>{items.length}</b> asset{items.length > 1 ? 's' : ''} · optimisé de <b>{humanSize(totalBefore)}</b> à <b>{humanSize(totalAfter)}</b>
-          {saved > 0 && <> · <span className="asset-saved">−{Math.round((saved / totalBefore) * 100)}%</span> ({humanSize(saved)} économisés)</>}
+          <b>{items.length}</b> asset{items.length > 1 ? 's' : ''} · optimized from <b>{humanSize(totalBefore)}</b> to <b>{humanSize(totalAfter)}</b>
+          {saved > 0 && <> · <span className="asset-saved">−{Math.round((saved / totalBefore) * 100)}%</span> ({humanSize(saved)} saved)</>}
         </p>
       )}
 
@@ -115,15 +115,15 @@ export default function AssetsModule({ dojoId }: ModuleProps) {
               <span className="muted small">{m.w}×{m.h} · {humanSize(m.after)}</span>
             </div>
             <div className="asset-actions">
-              <button className="btn tiny" onClick={() => void download(m)}>Télécharger</button>
-              <button className="btn tiny ghost" onClick={() => remove(m.id)} aria-label="Supprimer">✕</button>
+              <button className="btn tiny" onClick={() => void download(m)}>Download</button>
+              <button className="btn tiny ghost" onClick={() => remove(m.id)} aria-label="Delete">✕</button>
             </div>
           </div>
         ))}
       </div>
 
       {items.length === 0 && busy === 0 && (
-        <p className="muted small">Aucun asset pour l’instant. Les images restent dans ton navigateur (IndexedDB) — disponibles hors-ligne, réutilisables dans tes sites et pubs.</p>
+        <p className="muted small">No assets yet. Images stay in your browser (IndexedDB) — available offline, reusable across your sites and ads.</p>
       )}
     </div>
   )

@@ -69,14 +69,14 @@ export function HeroCreate({ enter }: { enter: () => void }) {
       </div>
 
       <div className="hc-filters">
-        <span className="hc-flabel">Métier</span>
+        <span className="hc-flabel">Trade</span>
         <div className="hc-chips">
           {(open ? PROFESSIONS : PROFESSIONS.slice(0, 8)).map((p) => (
             <button key={p.id} className={`hc-chip${profs.includes(p.id) ? ' on' : ''}`} onClick={() => toggle(profs, setProfs, p.id)}>
               {profs.includes(p.id) ? '✓ ' : ''}{p.label}
             </button>
           ))}
-          {!open && <button className="hc-chip hc-more" onClick={() => setOpen(true)}>+{PROFESSIONS.length - 8} métiers</button>}
+          {!open && <button className="hc-chip hc-more" onClick={() => setOpen(true)}>+{PROFESSIONS.length - 8} trades</button>}
         </div>
       </div>
 
@@ -87,7 +87,7 @@ export function HeroCreate({ enter }: { enter: () => void }) {
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') create() }}
-          placeholder="Décris ton entreprise en une phrase — ex : une app qui aide les cafés à fidéliser leurs clients"
+          placeholder="Describe your company in one sentence — e.g. an app that helps cafés keep their customers coming back"
           maxLength={160}
         />
         <button className="hc-go" onClick={create}>Create your company →</button>
@@ -95,12 +95,12 @@ export function HeroCreate({ enter }: { enter: () => void }) {
 
       {(selectedProfs.length > 0 || needs.length > 0) && (
         <p className="hc-summary">
-          {selectedProfs.length ? `${selectedProfs.length} métier${selectedProfs.length > 1 ? 's' : ''}` : ''}
+          {selectedProfs.length ? `${selectedProfs.length} trade${selectedProfs.length > 1 ? 's' : ''}` : ''}
           {selectedProfs.length && needs.length ? ' · ' : ''}
-          {needs.length ? `${needs.length} besoin${needs.length > 1 ? 's' : ''}` : ''} sélectionné{(selectedProfs.length + needs.length) > 1 ? 's' : ''} · le CEO construit tout de suite.
+          {needs.length ? `${needs.length} need${needs.length > 1 ? 's' : ''}` : ''} selected · the CEO starts building right away.
         </p>
       )}
-      <p className="hc-hint">Ton CEO se lance automatiquement et construit stratégie, site, offre, pubs Meta et prospection. {cats.length} domaines · tout reste modifiable.</p>
+      <p className="hc-hint">Your CEO launches automatically and builds strategy, website, offer, Meta ads and outreach. {cats.length} domains · everything stays editable.</p>
     </div>
   )
 }
