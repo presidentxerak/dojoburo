@@ -24,6 +24,7 @@ import { open, seal, vaultConfigured } from './_lib/vault'
 import { connectorAvailable, serverConnector, refreshOAuthToken } from './_lib/connectors'
 import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle'
 import { cascadeComplete, freeCascadeConfigured } from './_lib/llm'
+import { originAllowed } from './_lib/origin'
 
 export const config = { maxDuration: 60 }
 
@@ -55,8 +56,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const origin = header(req, 'origin')
   const host = header(req, 'host') || ''
   if (origin) {
-    const ok = ALLOWED_ORIGIN ? origin === ALLOWED_ORIGIN : origin.includes(host)
-    if (!ok) return send(res, 403, { ok: false, error: 'origin' })
+    if (!originAllowed(origin, host, ALLOWED_ORIGIN)) return send(res, 403, { ok: false, error: 'origin' })
   }
   const ip = (header(req, 'x-forwarded-for') || '').split(',')[0].trim() || 'anon'
   if (!allow(ip)) return send(res, 429, { ok: false, error: 'rate' })

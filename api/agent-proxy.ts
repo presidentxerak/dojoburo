@@ -12,6 +12,7 @@
 // as tools inside agent-run instead; here `verify` just confirms MCP init.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { lookup } from 'node:dns/promises'
+import { originAllowed } from './_lib/origin'
 
 export const config = { maxDuration: 30 }
 
@@ -37,8 +38,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const origin = header(req, 'origin')
   const host = header(req, 'host') || ''
   if (origin) {
-    const ok = ALLOWED_ORIGIN ? origin === ALLOWED_ORIGIN : origin.includes(host)
-    if (!ok) return send(res, 403, { ok: false, error: 'origin' })
+    if (!originAllowed(origin, host, ALLOWED_ORIGIN)) return send(res, 403, { ok: false, error: 'origin' })
   }
   const ua = header(req, 'user-agent') || ''
   if (!ua || BOT_UA.test(ua)) return send(res, 403, { ok: false, error: 'forbidden' })

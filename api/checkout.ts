@@ -43,7 +43,10 @@ export default async function handler(req: Request): Promise<Response> {
   const origin = req.headers.get('origin') || ''
   const host = req.headers.get('host') || ''
   if (origin) {
-    const ok = ALLOWED_ORIGIN ? origin === ALLOWED_ORIGIN : origin.includes(host)
+    // same-site (www-insensitive) OR the configured origin — not an exact
+    // string match, so www/non-www/preview URLs of our own site all pass.
+    const bare = (h: string) => { try { return new URL(/^https?:/.test(h) ? h : 'https://' + h).host.replace(/^www\./, '').toLowerCase() } catch { return h.replace(/^www\./, '').toLowerCase() } }
+    const ok = (host && bare(origin) === bare(host)) || (!!ALLOWED_ORIGIN && bare(origin) === bare(ALLOWED_ORIGIN))
     if (!ok) return json({ ok: false, error: 'origin' }, 403, req)
   }
 
