@@ -241,6 +241,16 @@ export const CONNECTORS: Connector[] = [
     env: [...oauthEnv('CANVA', 'Canva developer apps', 'https://www.canva.com/developers/'), hubEnv('CANVA')],
   },
   {
+    id: 'ai-video', label: 'AI Video', provider: 'fal.ai', category: 'Design',
+    blurb: 'Generate AI video clips (Kling, Luma, Runway…) from a prompt or image, dropped straight into the Video Creator.',
+    functions: ['Growth', 'Product'], auth: 'token',
+    docsUrl: 'https://fal.ai/dashboard/keys',
+    env: [
+      { name: 'FAL_KEY', note: 'fal.ai API key that runs the text/image-to-video model', link: 'https://fal.ai/dashboard/keys' },
+      { name: 'FAL_VIDEO_MODEL', note: 'Optional model id (default fal-ai/kling-video). Swap for another host (e.g. Higgsfield) with its own key + endpoint.', link: 'https://fal.ai/models?categories=text-to-video' },
+    ],
+  },
+  {
     id: 'docusign', label: 'DocuSign', provider: 'DocuSign', category: 'Storage & Legal',
     blurb: 'Prepare envelopes, send for signature and track completion.',
     functions: ['Leadership', 'People', 'Ops'], auth: 'oauth',
