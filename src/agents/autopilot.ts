@@ -50,7 +50,7 @@ export async function launchCeo(brief: string): Promise<void> {
     if (useEngine.getState().paused) { toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'CEO paused', text: 'Company paused — resume in Settings.' }); break }
     useEngine.getState().record(`${ceoName}:${step.task}`)
     useWork.getState().setAutopilot({ running: true, step: step.label })
-    toast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: `CEO · ${step.label}`, text: 'en cours…' })
+    toast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: `CEO · ${step.label}`, text: 'in progress…' })
 
     await useWork.getState().run({ task: step.task, agentName: ceoName, connectors: [], brief, silent: true })
 

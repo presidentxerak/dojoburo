@@ -70,17 +70,30 @@ try {
 } catch { /* ignore */ }
 
 if ('serviceWorker' in navigator) {
-  // remove any previously-registered service worker (kill the stale cache)
-  navigator.serviceWorker.getRegistrations?.().then((regs) => {
-    for (const r of regs) { void r.update?.() }
+  // Kill any previously-registered service worker AND wipe its caches. Older
+  // builds shipped a caching SW that served stale bundles after a deploy,
+  // leaving panels blank. We unregister every SW and delete every Cache Storage
+  // entry so the app is always served fresh from the network.
+  navigator.serviceWorker.getRegistrations?.().then(async (regs) => {
+    let hadSW = false
+    for (const r of regs) { hadSW = true; try { await r.unregister() } catch { /* */ } }
+    try {
+      if ('caches' in self) {
+        const keys = await caches.keys()
+        await Promise.all(keys.map((k) => caches.delete(k)))
+      }
+    } catch { /* */ }
+    // If we just removed a controlling SW, reload once so this page is served
+    // straight from the network instead of the SW's stale cache.
+    if (hadSW && navigator.serviceWorker.controller) {
+      try {
+        if (sessionStorage.getItem('dj_sw_reload') !== '1') {
+          sessionStorage.setItem('dj_sw_reload', '1')
+          location.reload()
+        }
+      } catch { /* */ }
+    }
   }).catch(() => { /* */ })
-
-  let swReloaded = false
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (swReloaded) return
-    swReloaded = true
-    location.reload()
-  })
 }
 
 // If a dynamically-imported module chunk fails (usually a stale cache after a

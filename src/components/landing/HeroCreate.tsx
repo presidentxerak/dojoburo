@@ -5,16 +5,16 @@ import { launchCeo } from '../../agents/autopilot'
 
 // Business needs the CEO should build first (shapes the launch brief).
 const NEEDS: { id: string; label: string }[] = [
-  { id: 'website', label: 'Site web' },
-  { id: 'ads', label: 'Pubs Meta' },
-  { id: 'outreach', label: 'Prospection' },
-  { id: 'offer', label: 'Offre & paiements' },
+  { id: 'website', label: 'Website' },
+  { id: 'ads', label: 'Meta ads' },
+  { id: 'outreach', label: 'Outreach' },
+  { id: 'offer', label: 'Offer & payments' },
   { id: 'seo', label: 'SEO' },
 ]
 
 function deriveName(s: string): string {
   const w = s.trim().replace(/[^\p{L}\p{N} ]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2)
-  if (!w.length) return 'Mon Dojo'
+  if (!w.length) return 'My Dojo'
   return w.map((x) => x[0].toUpperCase() + x.slice(1).toLowerCase()).join(' ').slice(0, 22)
 }
 
@@ -42,8 +42,8 @@ export function HeroCreate({ enter }: { enter: () => void }) {
     const needLabels = NEEDS.filter((n) => needs.includes(n.id)).map((n) => n.label)
     const brief = [
       desc.trim(),
-      selectedProfs.length ? `Métiers : ${selectedProfs.map((p) => p.label).join(', ')}` : '',
-      needLabels.length ? `Besoins prioritaires : ${needLabels.join(', ')}` : '',
+      selectedProfs.length ? `Trades: ${selectedProfs.map((p) => p.label).join(', ')}` : '',
+      needLabels.length ? `Priority needs: ${needLabels.join(', ')}` : '',
     ].filter(Boolean).join('. ')
 
     if (profs.length) createForProfs(profs)
@@ -58,7 +58,7 @@ export function HeroCreate({ enter }: { enter: () => void }) {
     <div className="hc" id="create-hero">
       {/* filters ABOVE the field */}
       <div className="hc-filters">
-        <span className="hc-flabel">Besoins</span>
+        <span className="hc-flabel">Needs</span>
         <div className="hc-chips">
           {NEEDS.map((n) => (
             <button key={n.id} className={`hc-chip${needs.includes(n.id) ? ' on' : ''}`} onClick={() => toggle(needs, setNeeds, n.id)}>
