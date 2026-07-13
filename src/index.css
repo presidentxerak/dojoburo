@@ -404,6 +404,14 @@ a:hover { text-decoration: underline; }
 .mission-label { font-family: var(--font-pixel); font-weight: 800; font-size: 15.5px; color: var(--ink); }
 .mission-sub { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
 
+/* 3D agent skins on cards (rendered once to an image, reused everywhere) */
+.c3d-img { display: block; }
+.c3d-img canvas { display: block; width: 100% !important; height: 100% !important; }
+.mission-3d { width: 72px; height: 72px; display: grid; place-items: center; margin: -2px 0 4px -6px; border-radius: 14px; background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--dc) 20%, transparent), transparent 70%); }
+.ac-avatar-3d { width: 76px; height: 76px; margin-bottom: 2px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--dc) 18%, transparent), transparent 68%); }
+.ad-studio-3d { width: 64px; height: 64px; flex: none; display: grid; place-items: center; border-radius: 12px; background: radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--dc) 18%, transparent), transparent 70%); }
+.ad-avatar-3d { width: 96px; height: 96px; display: grid; place-items: center; }
+
 /* studio module host + coming-soon scaffold */
 .modhost { display: flex; flex-direction: column; }
 .modhost-tag { font-family: var(--font-pixel); font-weight: 800; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: #fff; background: var(--dc); padding: 3px 9px; border-radius: 20px; }

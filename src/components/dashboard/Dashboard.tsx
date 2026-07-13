@@ -12,9 +12,9 @@ import { ROLE_AGENTS, ROLE_BY_ID } from '../../data/roleAgents'
 import { MISSIONS, type Mission } from '../../data/missions'
 import { isAdmin } from '../../config/admin'
 import { ModuleHost } from '../../modules/ModuleHost'
-import { MODULES } from '../../modules/registry'
+import { MODULES, MODULE_BY_ID } from '../../modules/registry'
 import { skinById } from '../../data/skins'
-import { SkinAvatar } from '../workshop/SkinAvatar'
+import { Character3DImage } from '../three/Character3DImage'
 import { SkinPicker } from '../workshop/WorkshopModal'
 import { InfoDot } from '../InfoDot'
 
@@ -56,6 +56,13 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const selectedId = useDojo((s) => s.selectedAgent)
   const selectAgent = useDojo((s) => s.selectAgent)
   const byRole = (roleId: string) => agents.find((a) => a.role === roleId)
+  // The 3D skin (character) of the agent that owns a given role / module — so a
+  // mission or studio card shows the real agent that runs it, never an emoji.
+  const skinForRole = (roleId: string) => {
+    const a = byRole(roleId)
+    return a ? skinById(a.skinId) : undefined
+  }
+  const skinForModule = (moduleId: string) => skinForRole(MODULE_BY_ID[moduleId]?.agentRole ?? '')
   const ceo = byRole('ceo') ?? agents.find((a) => a.fn === 'Leadership') ?? agents[0]
   const selected = agents.find((a) => a.id === selectedId) ?? null
   const selRole = selected?.role ? ROLE_BY_ID[selected.role] : undefined
@@ -435,8 +442,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         </div>
 
         <header className="ad-head">
-          <button className="ad-avatar" onClick={() => setPicking(true)} title="Change this agent's skin">
-            <SkinAvatar skin={skin} size={64} />
+          <button className="ad-avatar ad-avatar-3d" onClick={() => setPicking(true)} title="Change this agent's skin">
+            <Character3DImage character={skin} size={96} />
             <span className="ad-avatar-edit">Skin</span>
           </button>
           <div className="ad-meta">
@@ -463,13 +470,18 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           if (roleModules.length) {
             return (
               <div className="ad-studios">
-                {roleModules.map((m) => (
-                  <button key={m.id} className="ad-studio" style={{ ['--dc' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
-                    <span className="ad-studio-emoji" aria-hidden>{m.emoji}</span>
-                    <span className="ad-studio-txt"><b>{m.label}</b><em>{m.blurb}</em></span>
-                    <span className="ad-studio-go">Open →</span>
-                  </button>
-                ))}
+                {roleModules.map((m) => {
+                  const mSkin = skinForModule(m.id)
+                  return (
+                    <button key={m.id} className="ad-studio" style={{ ['--dc' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
+                      <span className="ad-studio-3d">
+                        {mSkin ? <Character3DImage character={mSkin} size={64} /> : <span className="ad-studio-emoji" aria-hidden>{m.emoji}</span>}
+                      </span>
+                      <span className="ad-studio-txt"><b>{m.label}</b><em>{m.blurb}</em></span>
+                      <span className="ad-studio-go">Open →</span>
+                    </button>
+                  )
+                })}
               </div>
             )
           }
@@ -523,13 +535,18 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         <span className="muted small">Pick a mission — the tool and agent open next.</span>
       </div>
       <div className="mission-grid">
-        {MISSIONS.map((m) => (
-          <button key={m.id} className="mission-card" style={{ ['--dc' as string]: m.tint }} onClick={() => pickMission(m)}>
-            <span className="mission-emoji" aria-hidden>{m.emoji}</span>
-            <strong className="mission-label">{m.label}</strong>
-            <span className="mission-sub">{m.sub}</span>
-          </button>
-        ))}
+        {MISSIONS.map((m) => {
+          const skin = m.target.kind === 'module' ? skinForModule(m.target.moduleId) : skinForRole(m.target.role)
+          return (
+            <button key={m.id} className="mission-card has3d" style={{ ['--dc' as string]: m.tint }} onClick={() => pickMission(m)}>
+              <span className="mission-3d">
+                {skin ? <Character3DImage character={skin} size={72} /> : <span className="mission-emoji" aria-hidden>{m.emoji}</span>}
+              </span>
+              <strong className="mission-label">{m.label}</strong>
+              <span className="mission-sub">{m.sub}</span>
+            </button>
+          )
+        })}
       </div>
 
       {/* CEO quick action — the orchestrator sits above the roster */}
@@ -550,7 +567,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           return (
             <button key={a.id} className="ac-card" style={{ ['--dc' as string]: r.tint }} onClick={() => selectAgent(a.id)}>
               <span className="ac-tape" />
-              <span className="ac-avatar"><SkinAvatar skin={skinById(a.skinId)} size={44} /></span>
+              <span className="ac-avatar ac-avatar-3d"><Character3DImage character={skinById(a.skinId)} size={76} /></span>
               <span className="ac-cat">{r.cat}</span>
               <strong className="ac-name">{a.name}</strong>
               <span className="ac-role">{r.role}</span>
