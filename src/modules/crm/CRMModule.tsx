@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useDojo } from '../../store'
 import {
-  type Contact, type Stage, STAGES, TEMPLATES, stats, moveStage, merge, mailto, scoreFor,
+  type Contact, type Stage, STAGES, TEMPLATES, stats, moveStage, setStage, merge, mailto,
   importCsv, exportCsv, newContact, sampleContacts, loadCrm, saveCrm, eur,
 } from '../../lib/crm'
 
@@ -91,7 +91,7 @@ export default function CRMModule({ dojoId }: ModuleProps) {
                 <label className="site-field"><span>Entreprise</span><input value={selc.company} onChange={(e) => update(selc.id, { company: e.target.value })} /></label>
                 <label className="site-field"><span>Email</span><input value={selc.email} onChange={(e) => update(selc.id, { email: e.target.value })} /></label>
                 <label className="site-field"><span>Valeur (€)</span><input type="number" value={selc.value} onChange={(e) => update(selc.id, { value: Number(e.target.value) || 0 })} /></label>
-                <label className="site-field"><span>Étape</span><select value={selc.stage} onChange={(e) => { const stage = e.target.value as Stage; update(selc.id, { stage, score: scoreFor(stage) }) }}>{STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label>
+                <label className="site-field"><span>Étape</span><select value={selc.stage} onChange={(e) => { const nc = setStage(selc, e.target.value as Stage); update(selc.id, { stage: nc.stage, score: nc.score, wonAt: nc.wonAt }) }}>{STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label>
                 <button className="btn tiny ghost crm-del" onClick={() => del(selc.id)}>Supprimer</button>
               </div>
               <label className="site-field"><span>Notes</span><textarea rows={2} value={selc.note} onChange={(e) => update(selc.id, { note: e.target.value })} /></label>

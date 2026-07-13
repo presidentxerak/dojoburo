@@ -12,7 +12,7 @@ export type Angle = 'benefice' | 'urgence' | 'preuve' | 'question' | 'nouveaute'
 export interface AdVariant { id: string; angle: Angle; headline: string; primary: string; description: string; cta: string }
 export interface Persona { name: string; age: number; role: string; pain: string; desire: string }
 export interface Audience { interests: string[]; age: string; geo: string; placements: string[] }
-export interface Campaign { product: string; objective: Objective; audience: Audience; personas: Persona[]; ads: AdVariant[]; format: AdFormat; updatedAt: number }
+export interface Campaign { product: string; objective: Objective; audience: Audience; personas: Persona[]; ads: AdVariant[]; format: AdFormat; budget?: number; updatedAt: number }
 
 const uid = () => `ad_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
 const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')

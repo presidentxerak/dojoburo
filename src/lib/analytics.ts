@@ -4,8 +4,8 @@
 // just charts. No server; templated insight rules run in the browser.
 import { type Txn, totals, byMonth, byCategory, sampleTxns } from './finance'
 import { type Contact, stats as crmStats, sampleContacts } from './crm'
-import { loadFinance } from './finance'
 import { loadCrm } from './crm'
+import { allTransactions } from './ledger'
 
 export interface Assumptions { lifetime: number; margin: number } // repeat factor, gross margin 0..1
 export const DEFAULT_ASSUMPTIONS: Assumptions = { lifetime: 3, margin: 0.7 }
@@ -80,9 +80,9 @@ export function insights(m: Metrics): Insight[] {
   return out
 }
 
-/** Load the company's real data, or fall back to samples for a demo. */
+/** Load the company's real data (app activity + manual), or samples for a demo. */
 export async function loadData(dojoId: string, demo = false): Promise<{ txns: Txn[]; contacts: Contact[] }> {
   if (demo) return { txns: sampleTxns(), contacts: sampleContacts() }
-  const [f, c] = await Promise.all([loadFinance(dojoId), loadCrm(dojoId)])
-  return { txns: f?.txns ?? [], contacts: c?.contacts ?? [] }
+  const [txns, c] = await Promise.all([allTransactions(dojoId), loadCrm(dojoId)])
+  return { txns, contacts: c?.contacts ?? [] }
 }

@@ -15,7 +15,7 @@ export const STAGES: { id: Stage; label: string; color: string; prob: number }[]
 export const stageInfo = (s: Stage) => STAGES.find((x) => x.id === s) ?? STAGES[0]
 const STAGE_SCORE: Record<Stage, number> = { nouveau: 10, contacte: 25, repondu: 55, rdv: 78, gagne: 100, perdu: 0 }
 
-export interface Contact { id: string; name: string; company: string; email: string; stage: Stage; value: number; score: number; note: string }
+export interface Contact { id: string; name: string; company: string; email: string; stage: Stage; value: number; score: number; note: string; wonAt?: number }
 export interface CrmProject { contacts: Contact[]; updatedAt: number }
 
 const uid = () => `k_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
@@ -25,7 +25,13 @@ export function moveStage(c: Contact, dir: -1 | 1): Contact {
   const i = STAGES.findIndex((s) => s.id === c.stage)
   const j = Math.max(0, Math.min(STAGES.length - 1, i + dir))
   const stage = STAGES[j].id
-  return { ...c, stage, score: STAGE_SCORE[stage] }
+  // stamp when a deal is WON so Finance/Analytics can date the revenue
+  const wonAt = stage === 'gagne' ? (c.wonAt ?? Date.now()) : c.wonAt
+  return { ...c, stage, score: STAGE_SCORE[stage], wonAt }
+}
+/** Set a specific stage (from the editor dropdown), stamping wonAt on a win. */
+export function setStage(c: Contact, stage: Stage): Contact {
+  return { ...c, stage, score: STAGE_SCORE[stage], wonAt: stage === 'gagne' ? (c.wonAt ?? Date.now()) : c.wonAt }
 }
 
 // ---- stats -----------------------------------------------------------------
@@ -99,7 +105,7 @@ export function sampleContacts(): Contact[] {
     ['Inès Marchand', 'Café Lumen', 'ines@lumen.fr', 'nouveau', 800],
     ['Karim Ziani', 'Ziani Design', 'karim@ziani.design', 'perdu', 2000],
   ]
-  return raw.map(([name, company, email, stage, value]) => ({ id: uid(), name, company, email, stage, value, score: STAGE_SCORE[stage], note: '' }))
+  return raw.map(([name, company, email, stage, value]) => ({ id: uid(), name, company, email, stage, value, score: STAGE_SCORE[stage], note: '', wonAt: stage === 'gagne' ? Date.now() : undefined }))
 }
 
 // ---- persistence -----------------------------------------------------------

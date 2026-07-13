@@ -3,7 +3,7 @@
 // prévisions) — no server, nothing uploaded. Data persists in IndexedDB.
 import { idbGet, idbSet } from './idb'
 
-export interface Txn { id: string; date: string; label: string; amount: number; category: string }
+export interface Txn { id: string; date: string; label: string; amount: number; category: string; source?: 'app' | 'csv' | 'manual' }
 export interface FinanceProject { txns: Txn[]; vatRate: number; updatedAt: number }
 
 export const CATEGORIES = ['Ventes', 'Logiciels', 'Marketing', 'Salaires', 'Loyer', 'Frais bancaires', 'Impôts & TVA', 'Achats', 'Autre'] as const

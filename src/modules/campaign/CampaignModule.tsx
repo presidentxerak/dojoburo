@@ -59,8 +59,12 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
         <label className="camp-prod">Produit / offre
           <input value={product} maxLength={60} onChange={(e) => setProduct(e.target.value)} placeholder="ex : coaching sportif à domicile" />
         </label>
+        <label className="camp-budget">Budget (€)
+          <input type="number" min={0} value={camp.budget ?? 0} onChange={(e) => setCamp((c) => ({ ...c, budget: Math.max(0, Number(e.target.value) || 0) }))} placeholder="0" />
+        </label>
         <button className="btn primary tiny" onClick={generate}>Générer la campagne</button>
       </div>
+      {(camp.budget ?? 0) > 0 && <p className="muted small" style={{ margin: '0 0 12px' }}>💡 Ce budget apparaît comme dépense marketing dans <b>Finance</b> et sert au calcul du <b>ROI / CAC</b> dans <b>Analytics</b>.</p>}
       <div className="camp-obj">
         {OBJECTIVES.map((o) => <button key={o.id} className={camp.objective === o.id ? 'on' : ''} onClick={() => setObjective(o.id)}>{o.label}</button>)}
       </div>
