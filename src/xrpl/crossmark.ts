@@ -5,7 +5,6 @@
 // ---------------------------------------------------------------------------
 import { toHex } from './hex'
 
-const SOURCE_TAG = 2606230006
 
 // The default export is a ready Sdk instance. Typed loosely · we only touch a
 // small, stable slice of its surface.
@@ -61,7 +60,6 @@ export async function signPayment(
     Account: from,
     Destination: destination,
     Amount: String(Math.round(amountXrp * 1_000_000)),
-    SourceTag: SOURCE_TAG,
   }
   if (memoJson) {
     tx.Memos = [{ Memo: { MemoType: toHex('x402'), MemoFormat: toHex('application/json'), MemoData: toHex(JSON.stringify(memoJson)) } }]

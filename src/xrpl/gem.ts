@@ -6,7 +6,6 @@
 // ---------------------------------------------------------------------------
 import { toHex } from './hex'
 
-const SOURCE_TAG = 2606230006
 
 // Memoise the dynamic import so the SDK loads once and the eventual
 // sendPayment() call stays inside the click's user-activation window (no network
@@ -65,7 +64,6 @@ export async function signPayment(
   const payment: Record<string, unknown> = {
     amount: String(Math.round(amountXrp * 1_000_000)),
     destination,
-    sourceTag: SOURCE_TAG,
   }
   if (memoJson) {
     payment.memos = [{

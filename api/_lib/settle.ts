@@ -12,7 +12,6 @@ import { Client, Wallet, xrpToDrops, convertStringToHex, type Payment } from 'xr
 
 /** DojoBuro app source tag — stamped on every settlement Payment for on-ledger
  *  attribution/tracking of the app's activity. */
-const SOURCE_TAG = 2606230006
 
 const WSS: Record<string, string> = {
   mainnet: 'wss://xrplcluster.com',
@@ -75,7 +74,6 @@ async function submit(destination: string | undefined, amountXrp: number, memo: 
       Account: wallet.classicAddress,
       Destination: to,
       Amount: xrpToDrops(Math.max(0.000001, amountXrp).toFixed(6)),
-      SourceTag: SOURCE_TAG,
       Memos: [x402Memo(memo)],
     }
     const prepared = await client.autofill(tx)

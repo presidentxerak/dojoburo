@@ -11,9 +11,6 @@
 import { xrpToDrops, convertStringToHex, type Payment, type Wallet } from 'xrpl'
 import { getClient, type NetworkId } from './network'
 
-/** DojoBuro app source tag · stamped on every outgoing Payment so the app's
- *  on-ledger activity is attributable/trackable on the XRP Ledger. */
-export const SOURCE_TAG = 2606230006
 
 export interface X402Memo {
   protocol: 'x402'
@@ -62,7 +59,6 @@ export async function sendPayment(
     Account: wallet.classicAddress,
     Destination: destination,
     Amount: xrpToDrops(amountXrp.toFixed(6)),
-    SourceTag: SOURCE_TAG,
   }
 
   if (x402) {
@@ -105,7 +101,6 @@ export async function trackAction(
     Account: wallet.classicAddress,
     Destination: wallet.classicAddress, // self-payment: pure memo anchor
     Amount: '1',
-    SourceTag: SOURCE_TAG,
     Memos: [
       memoField({
         type: 'dojoburo/track',
