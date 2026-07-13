@@ -67,6 +67,16 @@ export const CONNECTORS: Connector[] = [
     env: oauthEnv('GITHUB', 'GitHub OAuth apps', 'https://github.com/settings/developers'),
   },
   {
+    id: 'claude-code', label: 'Claude Code', provider: 'Anthropic', category: 'Dev',
+    blurb: 'Delegate real coding to a headless Claude Code agent · edits your repo, runs commands, opens PRs.',
+    functions: ['Engineering', 'Product'], auth: 'token',
+    docsUrl: 'https://docs.claude.com/en/docs/claude-code',
+    env: [
+      { name: 'ANTHROPIC_API_KEY', note: 'Anthropic API key that runs the Claude Code / Agent SDK session', link: 'https://console.anthropic.com/settings/keys' },
+      { name: 'CLAUDE_CODE_WORKDIR', note: 'Optional working directory / repo path the agent operates in', link: 'https://docs.claude.com/en/docs/claude-code' },
+    ],
+  },
+  {
     id: 'gmail', label: 'Gmail', provider: 'Google', category: 'Comms',
     blurb: 'Draft and send outreach, follow-ups and campaign emails from your inbox.',
     functions: ['Growth', 'People'], auth: 'oauth',
