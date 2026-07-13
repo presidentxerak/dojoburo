@@ -18,7 +18,7 @@ import { Pricing } from './components/landing/Pricing'
 import { SHOW_MOCK_COMPANIES } from './config/flags'
 
 // vivid complementary primaries used as per-section accent touches
-const C = { magenta: '#ff2d9b', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
+const C = { magenta: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
 
 /** A-to-Z landing page: what DojoBuro is, how the CEO + crew run your company,
  *  what a task costs in credits, how agents get wired to real tools, where they
@@ -32,7 +32,6 @@ export function Landing({ enter }: { enter: () => void }) {
       <SiteHeader enter={enter} />
 
       <section className="lp-hero">
-        <p className="lp-kicker">The studio + operating system for your company, powered by AI agents · 100% local</p>
         <h1>Found your company in one <span className="hl-mag">sentence</span>.</h1>
         <p className="lp-sub">
           Describe your idea in one sentence and <Wordmark /> spins up a 3D office where a CEO and its agents build

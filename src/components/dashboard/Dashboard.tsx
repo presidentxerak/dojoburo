@@ -37,6 +37,16 @@ async function forceUpdate() {
   location.reload()
 }
 
+// Expand the dashboard panel to true fullscreen on desktop (native API), or
+// exit if already fullscreen.
+function toggleDashFull() {
+  try {
+    const el = (document.querySelector('.dash-side') as HTMLElement | null) ?? document.querySelector('.dash-panels') as HTMLElement | null
+    if (!document.fullscreenElement) void el?.requestFullscreen?.()
+    else void document.exitFullscreen?.()
+  } catch { /* fullscreen not available */ }
+}
+
 // fiat credit packs · ~1 credit per task. Price per credit by currency (XRP
 // display falls back to USD — the user never sees the settlement rail).
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
@@ -484,14 +494,15 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           const roleModules = MODULES.filter((m) => m.agentRole === selRole.id)
           if (roleModules.length) {
             return (
-              <div className="ad-studios">
+              <div className="lp-studioteam ad-studioteam">
                 {roleModules.map((m) => {
                   const mSkin = skinForModule(m.id)
                   return (
-                    <button key={m.id} className="ad-studio" style={{ ['--dc' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
-                      {mSkin && <span className="ad-studio-3d"><Character3DImage skin={mSkin} size={64} /></span>}
-                      <span className="ad-studio-txt"><b>{m.label}</b><em>{m.blurb}</em></span>
-                      <span className="ad-studio-go">Open →</span>
+                    <button key={m.id} className="lp-studiocard" style={{ ['--ac' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
+                      {mSkin && <span className="lp-team-3d"><Character3DImage skin={mSkin} size={110} /></span>}
+                      <strong>{m.label}</strong>
+                      <span className="lp-studiocard-blurb">{m.blurb}</span>
+                      <span className="lp-team-more">Open the studio →</span>
                     </button>
                   )
                 })}
@@ -531,6 +542,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <p>Click an agent to open its dashboard. The CEO coordinates the whole team.</p>
         </div>
         <div className="dash-hero-actions">
+          <button className="btn tiny" onClick={toggleDashFull} title="Fullscreen dashboard (desktop)">⤢ Fullscreen</button>
           <button className="btn tiny" onClick={onOpenDojo} title="Open the dojo fullscreen">⤢ Dojo</button>
           <button className="build-refresh" title={`Build ${BUILD_ID} · click to force the latest version`} onClick={forceUpdate}>
             ⟳ v{BUILD_ID}
