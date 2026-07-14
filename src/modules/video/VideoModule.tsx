@@ -254,138 +254,119 @@ export default function VideoModule({ dojoId }: ModuleProps) {
   const ov = overlays.find((o) => o.id === selOv) || null
   const total = totalLen(clips)
 
+  const playhead = total > 0 ? Math.min(100, (t / total) * 100) : 0
+
   return (
-    <div className="ad-body video-mod">
+    <div className="ad-body video-mod cc-editor">
       <div ref={hiddenRef} aria-hidden style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} />
 
-      <header className="mod-intro">
-        <h3 className="sq-title">Video creator</h3>
-        <p className="sq-lead">Import clips, trim and sequence them on a timeline, add brand-styled text, pick a social format, and export a real <code>.webm</code> · all in your browser. Nothing is uploaded.</p>
-      </header>
+      <div className="cc-main">
+        {/* preview stage */}
+        <div className="cc-stage-col">
+          <div className="cc-stage-top">
+            <div className="cc-fmt">
+              {FORMATS.map((f) => <button key={f.id} className={format === f.id ? 'on' : ''} onClick={() => setFormat(f.id)} disabled={exporting} title={f.label}>{f.short}</button>)}
+            </div>
+            <div className="cc-stage-actions">
+              <button className="btn tiny" onClick={() => void save()} disabled={exporting}>Save</button>
+              <button className="btn primary tiny" onClick={doExport} disabled={exporting || !clips.length}>{exporting ? 'Exporting…' : 'Export .webm'}</button>
+            </div>
+          </div>
+          <div className={`vid-stage cc-stage ${format}`}>
+            <canvas ref={canvasRef} width={cs.w} height={cs.h} className="vid-canvas" />
+          </div>
+          <div className="vid-transport cc-transport">
+            <button className="btn tiny" onClick={togglePlay} disabled={!clips.length}>{playing ? '⏸ Pause' : '▶ Play'}</button>
+            <span className="vid-time">{fmtTime(t)} / {fmtTime(total)}</span>
+            {exporting && <span className="muted small"><span className="ceo-spin" /> Recording live…</span>}
+            <button className="btn tiny cc-import" onClick={() => fileRef.current?.click()} disabled={exporting}>{importing ? 'Importing…' : '＋ Import clips'}</button>
+            <input ref={fileRef} type="file" accept="video/*" multiple hidden onChange={(e) => e.target.files && void addFiles(e.target.files)} />
+          </div>
 
-      {/* toolbar */}
-      <div className="site-toolbar">
-        <div className="site-seg vid-fmt">
-          {FORMATS.map((f) => <button key={f.id} className={format === f.id ? 'on' : ''} onClick={() => setFormat(f.id)} disabled={exporting}>{f.label.split(' ')[0]}</button>)}
+          {/* timeline · clips track + text track, CapCut-style */}
+          <div className="cc-timeline">
+            <div className="cc-track-label">Video</div>
+            <div className="cc-track">
+              {clips.length === 0 && <button className="cc-track-empty" onClick={() => fileRef.current?.click()}>Import clips to build your timeline →</button>}
+              {clips.map((c) => {
+                const w = total > 0 ? (clipLen(c) / total) * 100 : 100 / Math.max(1, clips.length)
+                return (
+                  <button key={c.id} className={`cc-clip${c.id === sel ? ' on' : ''}`} style={{ width: `${w}%` }} onClick={() => { setSel(c.id); seekTo(c) }} title={c.name}>
+                    <span className="cc-clip-name">{c.name}</span>
+                    <em>{fmtTime(clipLen(c))}</em>
+                  </button>
+                )
+              })}
+              {playing && <span className="cc-playhead" style={{ left: `${playhead}%` }} />}
+            </div>
+            <div className="cc-track-label">Text</div>
+            <div className="cc-track cc-track-ov">
+              {overlays.length === 0 && <span className="cc-track-hint">No text yet · add a Title or Caption on the right.</span>}
+              {overlays.map((o) => {
+                const left = total > 0 ? (o.start / total) * 100 : 0
+                const w = total > 0 ? ((o.end - o.start) / total) * 100 : 30
+                return <button key={o.id} className={`cc-ov${o.id === selOv ? ' on' : ''}`} style={{ left: `${left}%`, width: `${Math.max(8, w)}%` }} onClick={() => setSelOv(o.id)}>{o.text.slice(0, 18) || o.kind}</button>
+              })}
+            </div>
+          </div>
         </div>
-        <div className="site-tb-actions">
-          <button className="btn tiny" onClick={() => void save()} disabled={exporting}>Save</button>
-          <button className="btn primary tiny" onClick={doExport} disabled={exporting || !clips.length}>{exporting ? 'Exporting…' : 'Export (.webm)'}</button>
-        </div>
-      </div>
 
-      {/* preview */}
-      <div className={`vid-stage ${format}`}>
-        <canvas ref={canvasRef} width={cs.w} height={cs.h} className="vid-canvas" />
-      </div>
-      <div className="vid-transport">
-        <button className="btn tiny" onClick={togglePlay} disabled={!clips.length}>{playing ? '⏸' : '▶'} {playing ? 'Pause' : 'Play'}</button>
-        <span className="vid-time">{fmtTime(t)} / {fmtTime(total)}</span>
-        {exporting && <span className="muted small"><span className="ceo-spin" /> Recording live…</span>}
-      </div>
-
-      {/* import + clips */}
-      <div className="site-blocks-head">
-        <h4 className="brand-h" style={{ margin: 0 }}>Clips</h4>
-        <button className="btn tiny" onClick={() => fileRef.current?.click()} disabled={exporting}>{importing ? 'Importing…' : '＋ Import'}</button>
-        <input ref={fileRef} type="file" accept="video/*" multiple hidden onChange={(e) => e.target.files && void addFiles(e.target.files)} />
-      </div>
-      {clips.length === 0 ? (
-        <div className="vid-empty" onClick={() => fileRef.current?.click()}>
-          <strong>Import your videos</strong>
-          <span className="muted small">They stay in your browser (IndexedDB) · never sent to the server.</span>
-        </div>
-      ) : (
-        <ul className="site-blocklist">
-          {clips.map((c, i) => (
-            <li key={c.id} className={c.id === sel ? 'on' : ''}>
-              <button className="site-bl-name" onClick={() => { setSel(c.id); seekTo(c) }}>{c.name} <em className="muted small">· {fmtTime(clipLen(c))}</em></button>
-              <div className="site-bl-ops">
-                <button onClick={() => moveClip(c.id, -1)} disabled={i === 0}>↑</button>
-                <button onClick={() => moveClip(c.id, 1)} disabled={i === clips.length - 1}>↓</button>
-                <button onClick={() => delClip(c.id)}>✕</button>
+        {/* right tools */}
+        <aside className="cc-tools">
+          {selClip && (
+            <div className="cc-panel">
+              <div className="cc-tool-h">Trim · {selClip.name}</div>
+              <div className="cc-clip-ops">
+                <button onClick={() => moveClip(selClip.id, -1)}>← Move</button>
+                <button onClick={() => moveClip(selClip.id, 1)}>Move →</button>
+                <button className="danger" onClick={() => delClip(selClip.id)}>Delete</button>
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
+              <label className="cc-slider"><span>Start<em>{fmtTime(selClip.inSec)}</em></span>
+                <input type="range" min={0} max={selClip.duration} step={0.1} value={selClip.inSec} onChange={(e) => { const val = Math.min(Number(e.target.value), selClip.outSec - 0.2); updateClip(selClip.id, { inSec: val }); const v = vids.current.get(selClip.id); if (v) try { v.currentTime = val } catch { /* */ } }} />
+              </label>
+              <label className="cc-slider"><span>End<em>{fmtTime(selClip.outSec)}</em></span>
+                <input type="range" min={0} max={selClip.duration} step={0.1} value={selClip.outSec} onChange={(e) => { const val = Math.max(Number(e.target.value), selClip.inSec + 0.2); updateClip(selClip.id, { outSec: val }); const v = vids.current.get(selClip.id); if (v) try { v.currentTime = val } catch { /* */ } }} />
+              </label>
+            </div>
+          )}
 
-      {/* trim */}
-      {selClip && (
-        <div className="site-inspector">
-          <h4 className="brand-h">Trim · {selClip.name}</h4>
-          <label className="site-field"><span>Start: {fmtTime(selClip.inSec)}</span>
-            <input type="range" min={0} max={selClip.duration} step={0.1} value={selClip.inSec} onChange={(e) => { const val = Math.min(Number(e.target.value), selClip.outSec - 0.2); updateClip(selClip.id, { inSec: val }); const v = vids.current.get(selClip.id); if (v) try { v.currentTime = val } catch { /* */ } }} />
-          </label>
-          <label className="site-field"><span>End: {fmtTime(selClip.outSec)}</span>
-            <input type="range" min={0} max={selClip.duration} step={0.1} value={selClip.outSec} onChange={(e) => { const val = Math.max(Number(e.target.value), selClip.inSec + 0.2); updateClip(selClip.id, { outSec: val }); const v = vids.current.get(selClip.id); if (v) try { v.currentTime = val } catch { /* */ } }} />
-          </label>
-        </div>
-      )}
-
-      {/* overlays */}
-      <div className="site-blocks-head">
-        <h4 className="brand-h" style={{ margin: 0 }}>Brand text</h4>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <button className="btn tiny" onClick={() => addOverlay('title')}>＋ Title</button>
-          <button className="btn tiny ghost" onClick={() => addOverlay('caption')}>＋ Caption</button>
-        </div>
-      </div>
-      {overlays.length > 0 && (
-        <ul className="site-blocklist">
-          {overlays.map((o) => (
-            <li key={o.id} className={o.id === selOv ? 'on' : ''}>
-              <button className="site-bl-name" onClick={() => setSelOv(o.id)}>{o.kind === 'title' ? 'Title' : 'Caption'} · {o.text.slice(0, 22) || '·'}</button>
-              <div className="site-bl-ops"><button onClick={() => delOverlay(o.id)}>✕</button></div>
-            </li>
-          ))}
-        </ul>
-      )}
-      {ov && (
-        <div className="site-inspector">
-          <label className="site-field"><span>Text</span><input value={ov.text} onChange={(e) => updateOverlay(ov.id, { text: e.target.value })} /></label>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <label className="site-field" style={{ flex: 1 }}><span>Start: {ov.start.toFixed(1)}s</span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.start} onChange={(e) => updateOverlay(ov.id, { start: Math.min(Number(e.target.value), ov.end) })} /></label>
-            <label className="site-field" style={{ flex: 1 }}><span>End: {ov.end.toFixed(1)}s</span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.end} onChange={(e) => updateOverlay(ov.id, { end: Math.max(Number(e.target.value), ov.start) })} /></label>
+          <div className="cc-panel">
+            <div className="cc-tool-h">Text</div>
+            <div className="cc-seg">
+              <button onClick={() => addOverlay('title')}>＋ Title</button>
+              <button onClick={() => addOverlay('caption')}>＋ Caption</button>
+            </div>
+            {ov && (
+              <>
+                <input className="cc-input" value={ov.text} onChange={(e) => updateOverlay(ov.id, { text: e.target.value })} placeholder="Text…" />
+                <label className="cc-slider"><span>Start<em>{ov.start.toFixed(1)}s</em></span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.start} onChange={(e) => updateOverlay(ov.id, { start: Math.min(Number(e.target.value), ov.end) })} /></label>
+                <label className="cc-slider"><span>End<em>{ov.end.toFixed(1)}s</em></span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.end} onChange={(e) => updateOverlay(ov.id, { end: Math.max(Number(e.target.value), ov.start) })} /></label>
+                <button className="btn tiny ghost" onClick={() => delOverlay(ov.id)}>Delete text</button>
+              </>
+            )}
           </div>
-        </div>
-      )}
 
-      {/* voiceover · ElevenLabs (BYOK) */}
-      <div className="site-blocks-head">
-        <h4 className="brand-h" style={{ margin: 0 }}>Voiceover <span className="ana-badge">ElevenLabs</span></h4>
-        <button className="btn tiny ghost" onClick={() => setVoKeyOpen((v) => !v)} title="Your ElevenLabs API key">{getTtsKey() ? 'Key ✓' : 'Add key'}</button>
-      </div>
-      {voKeyOpen && (
-        <div className="site-inspector vo-keybox">
-          <label className="site-field"><span>ElevenLabs API key <em className="muted small">· stays in your browser</em></span>
-            <input type="password" value={voKey} onChange={(e) => setVoKey(e.target.value)} placeholder="sk_…" autoComplete="off" />
-          </label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn tiny" onClick={saveVoKey}>Save key</button>
-            <a className="btn tiny ghost" href="/guide/elevenlabs" title="How to get a key">Where to find it →</a>
+          <div className="cc-panel">
+            <div className="cc-tool-h">Voiceover <span className="ana-badge">ElevenLabs</span>
+              <button className="cc-key-t" onClick={() => setVoKeyOpen((v) => !v)}>{getTtsKey() ? 'Key ✓' : 'Add key'}</button>
+            </div>
+            {voKeyOpen && (
+              <>
+                <input className="cc-input" type="password" value={voKey} onChange={(e) => setVoKey(e.target.value)} placeholder="sk_… (stays in your browser)" autoComplete="off" />
+                <div className="cc-seg"><button onClick={saveVoKey}>Save key</button><a className="cc-link" href="/guide/elevenlabs">Where to find it →</a></div>
+              </>
+            )}
+            <textarea className="cc-input" rows={3} value={voScript} onChange={(e) => setVoScript(e.target.value)} placeholder="Narration · or it fills from your text overlays." />
+            <div className="cc-seg">
+              <select className="cc-input" value={voiceId} onChange={(e) => setVoiceId(e.target.value)}>{VOICES.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}</select>
+              <button className="btn primary tiny" onClick={() => void makeVoiceover()} disabled={voBusy || !voScript.trim()}>{voBusy ? '…' : 'Generate'}</button>
+            </div>
+            {voUrl && <div className="vo-result"><audio controls src={voUrl} className="vo-audio" /><button className="btn tiny" onClick={downloadVo}>Download MP3</button></div>}
           </div>
-        </div>
-      )}
-      <div className="site-inspector">
-        <label className="site-field"><span>Narration script</span>
-          <textarea rows={3} value={voScript} onChange={(e) => setVoScript(e.target.value)} placeholder="Write what the voice should say · or it fills in from your brand text overlays." />
-        </label>
-        <div className="vo-row">
-          <label className="site-field" style={{ flex: 1 }}><span>Voice</span>
-            <select value={voiceId} onChange={(e) => setVoiceId(e.target.value)}>{VOICES.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}</select>
-          </label>
-          <button className="btn primary tiny vo-gen" onClick={() => void makeVoiceover()} disabled={voBusy || !voScript.trim()}>{voBusy ? 'Generating…' : 'Generate voiceover'}</button>
-        </div>
-        {voUrl && (
-          <div className="vo-result">
-            <audio controls src={voUrl} className="vo-audio" />
-            <button className="btn tiny" onClick={downloadVo}>Download MP3</button>
-          </div>
-        )}
-      </div>
 
-      <p className="muted small">100% local editing (Canvas + MediaRecorder). Export produces a <code>.webm</code> · playable anywhere, importable into Meta/TikTok. Text uses your Brand Kit. Voiceover runs on <b>your own ElevenLabs key</b> (kept in this browser) · download the MP3 and drop it onto your edit.</p>
+          <p className="muted small">100% local (Canvas + MediaRecorder). Export a <code>.webm</code> importable into Meta / TikTok. Voiceover runs on your own ElevenLabs key.</p>
+        </aside>
+      </div>
     </div>
   )
 }

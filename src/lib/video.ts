@@ -6,12 +6,17 @@
 import { idbGet, idbSet, idbDel } from './idb'
 import { type BrandKit, defaultKit } from './brand'
 
-export type FormatId = 'reel' | 'square' | 'wide'
-export interface VFormat { id: FormatId; label: string; w: number; h: number }
+export type FormatId = 'reel' | 'portrait' | 'square' | 'wide' | 'link' | 'pin'
+export interface VFormat { id: FormatId; label: string; short: string; w: number; h: number }
+// Every common social format. Ratio drives the canvas; the label names the
+// platforms it fits so a user picks by destination, CapCut-style.
 export const FORMATS: VFormat[] = [
-  { id: 'reel', label: 'Reel / TikTok 9:16', w: 1080, h: 1920 },
-  { id: 'square', label: 'Square 1:1', w: 1080, h: 1080 },
-  { id: 'wide', label: 'YouTube 16:9', w: 1920, h: 1080 },
+  { id: 'reel', label: 'Reels · TikTok · Shorts · Story 9:16', short: '9:16', w: 1080, h: 1920 },
+  { id: 'portrait', label: 'Instagram feed 4:5', short: '4:5', w: 1080, h: 1350 },
+  { id: 'square', label: 'Square 1:1', short: '1:1', w: 1080, h: 1080 },
+  { id: 'wide', label: 'YouTube · Landscape 16:9', short: '16:9', w: 1920, h: 1080 },
+  { id: 'link', label: 'Link · FB / X card 1.91:1', short: '1.91:1', w: 1200, h: 628 },
+  { id: 'pin', label: 'Pinterest 2:3', short: '2:3', w: 1000, h: 1500 },
 ]
 export const formatById = (id: FormatId): VFormat => FORMATS.find((f) => f.id === id) ?? FORMATS[0]
 

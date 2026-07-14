@@ -3706,3 +3706,65 @@ input, textarea, select, button { border-radius: 0 !important; }
 .studio-page .ws-account h3, .studio-page .ws-billing h3, .studio-page .ws-keypanel h3 { color: var(--ink) !important; }
 .studio-page-scroll .ws-account, .studio-page-scroll .ws-billing { max-width: 640px; margin-left: auto; margin-right: auto; width: 100%; }
 .studio-page-scroll .studio-intro, .studio-page-scroll .ws-studio { max-width: 960px; margin-left: auto; margin-right: auto; }
+
+/* ===========================================================================
+   Creatives · CapCut-style editor (shared by the Video editor & Image editor)
+   Two columns: preview stage + tools; a clip/text timeline under the video.
+   =========================================================================== */
+.creatives-wrap { display: flex; flex-direction: column; gap: 12px; }
+.cc-subtabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.cc-subtab { font: inherit; font-size: 13px; font-weight: 700; padding: 7px 13px; border: 1px solid var(--border); background: var(--panel-solid); color: var(--ink); cursor: pointer; }
+.cc-subtab.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.cc-editor { display: flex; flex-direction: column; gap: 12px; }
+.cc-main { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 14px; align-items: start; }
+.cc-stage-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.cc-stage-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.cc-fmt { display: flex; gap: 4px; flex-wrap: wrap; }
+.cc-fmt button, .cc-seg button { font: inherit; font-size: 12px; font-weight: 700; padding: 6px 9px; border: 1px solid var(--border); background: var(--panel-solid); color: var(--ink); cursor: pointer; }
+.cc-fmt button.on, .cc-seg button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.cc-stage-actions { display: flex; gap: 6px; }
+.cc-editor .cc-stage { position: relative; display: grid; place-items: center; background: #0e0f13; border: 1px solid var(--border); min-height: 280px; max-height: 54vh; overflow: hidden; }
+.cc-canvas, .cc-editor .vid-canvas { max-width: 100%; max-height: 52vh; width: auto; height: auto; display: block; }
+.cc-drop { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: rgba(10,11,15,0.55); color: #fff; border: none; cursor: pointer; text-align: center; padding: 20px; }
+.cc-transport { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cc-import { margin-left: auto; }
+
+.cc-timeline { border: 1px solid var(--border); background: var(--panel-2); padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
+.cc-track-label { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.cc-track { position: relative; display: flex; gap: 3px; min-height: 44px; }
+.cc-track-ov { min-height: 28px; }
+.cc-clip { position: relative; min-width: 42px; height: 44px; border: 1px solid #3a465f; background: linear-gradient(180deg, #33415b, #1d2637); color: #fff; display: flex; flex-direction: column; justify-content: center; padding: 3px 8px; cursor: pointer; overflow: hidden; text-align: left; flex: none; }
+.cc-clip.on { outline: 2px solid #fff; outline-offset: -2px; }
+.cc-clip-name { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-clip em { font-size: 10px; opacity: 0.75; font-style: normal; }
+.cc-ov { position: absolute; top: 0; height: 28px; background: #7b5cff; color: #fff; font-size: 11px; font-weight: 700; border: none; padding: 0 8px; cursor: pointer; white-space: nowrap; overflow: hidden; display: flex; align-items: center; }
+.cc-ov.on { outline: 2px solid #14161f; outline-offset: -2px; }
+.cc-playhead { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #ff3b5c; pointer-events: none; z-index: 2; }
+.cc-track-empty { font: inherit; font-size: 12px; color: var(--muted); background: none; border: 1px dashed var(--border-lit); padding: 10px 12px; cursor: pointer; width: 100%; text-align: left; }
+.cc-track-hint { font-size: 12px; color: var(--muted); align-self: center; }
+
+.cc-tools { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.cc-panel { border: 1px solid var(--border); background: var(--panel-solid); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.cc-tool-h { font: inherit; font-size: 13px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+.cc-slider { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted); }
+.cc-slider > span { display: flex; justify-content: space-between; align-items: baseline; }
+.cc-slider em { font-style: normal; color: var(--ink); font-weight: 700; }
+.cc-slider input[type=range] { width: 100%; }
+.cc-seg { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.cc-input { width: 100%; box-sizing: border-box; border: 1px solid var(--border); background: var(--panel-2); padding: 8px 10px; font: inherit; font-size: 14px; color: var(--ink); }
+.cc-input:focus { outline: none; border-color: var(--ink); }
+select.cc-input { flex: 1; min-width: 0; }
+.cc-clip-ops { display: flex; gap: 6px; flex-wrap: wrap; }
+.cc-clip-ops button { font: inherit; font-size: 12px; padding: 5px 8px; border: 1px solid var(--border); background: var(--panel-2); color: var(--ink); cursor: pointer; }
+.cc-clip-ops .danger { color: #e0483f; border-color: #e0483f; }
+.cc-color { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+.cc-color input[type=color] { width: 28px; height: 24px; padding: 0; border: 1px solid var(--border); background: none; cursor: pointer; }
+.cc-key-t, .cc-link { margin-left: auto; font: inherit; font-size: 12px; background: none; border: none; text-decoration: underline; color: var(--muted); cursor: pointer; }
+.cc-reset { align-self: flex-start; }
+.cc-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+@media (max-width: 860px) {
+  .cc-main { grid-template-columns: 1fr; }
+  .cc-tools { order: 3; }
+}
