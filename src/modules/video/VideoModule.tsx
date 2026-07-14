@@ -12,6 +12,7 @@ import {
   FORMATS, formatById, canvasSize, drawCover, drawOverlay, clipLen, totalLen, fmtTime, uid,
   loadProject, saveProject, putClipBlob, getClipBlob, delClipBlob, videoBrand, pickExportMime,
 } from '../../lib/video'
+import { VOICES, getTtsKey, setTtsKey, generateVoiceover } from '../../lib/tts'
 
 export default function VideoModule({ dojoId }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'My brand'
@@ -27,6 +28,14 @@ export default function VideoModule({ dojoId }: ModuleProps) {
   const [exporting, setExporting] = useState(false)
   const [importing, setImporting] = useState(false)
   const [t, setT] = useState(0)
+
+  // ---- voiceover (ElevenLabs · BYOK) ---------------------------------------
+  const [voScript, setVoScript] = useState('')
+  const [voiceId, setVoiceId] = useState(VOICES[0].id)
+  const [voKey, setVoKey] = useState(() => getTtsKey())
+  const [voKeyOpen, setVoKeyOpen] = useState(false)
+  const [voUrl, setVoUrl] = useState<string | null>(null)
+  const [voBusy, setVoBusy] = useState(false)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const hiddenRef = useRef<HTMLDivElement>(null)
@@ -190,6 +199,30 @@ export default function VideoModule({ dojoId }: ModuleProps) {
 
   const save = async () => { await saveProject(dojoId, { format, clips, overlays, updatedAt: Date.now() }); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Project saved', text: 'Clips + edit saved locally.' }) }
 
+  // seed the voiceover script from the overlays / brand name, once
+  useEffect(() => {
+    if (voScript) return
+    const fromOverlays = overlays.map((o) => o.text).filter(Boolean).join('. ')
+    if (fromOverlays) setVoScript(fromOverlays)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [overlays.length])
+
+  const saveVoKey = () => { setTtsKey(voKey); setVoKeyOpen(false); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Key saved', text: 'Your ElevenLabs key stays in this browser only.' }) }
+  const makeVoiceover = async () => {
+    const text = voScript.trim()
+    if (!text) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Empty script', text: 'Write the narration first.' }); return }
+    setVoBusy(true)
+    if (voUrl) { URL.revokeObjectURL(voUrl); setVoUrl(null) }
+    const r = await generateVoiceover(text, voiceId)
+    setVoBusy(false)
+    if (r.ok && r.url) { setVoUrl(r.url); pushToast({ kind: 'event', badge: 'OK', color: '#7b5cff', title: 'Voiceover ready', text: 'Preview it below, then download the MP3.' }) }
+    else {
+      if (r.error === 'no_key') setVoKeyOpen(true)
+      pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Voiceover failed', text: r.hint || r.error || 'Try again.' })
+    }
+  }
+  const downloadVo = () => { if (!voUrl) return; const a = document.createElement('a'); a.href = voUrl; a.download = `${dojoName.toLowerCase().replace(/\s+/g, '-')}-voiceover.mp3`; a.click() }
+
   // ---- export (record the canvas playthrough) -------------------------------
   const doExport = () => {
     const canvas = canvasRef.current; if (!canvas || !clips.length) return
@@ -318,7 +351,41 @@ export default function VideoModule({ dojoId }: ModuleProps) {
         </div>
       )}
 
-      <p className="muted small">100% local editing (Canvas + MediaRecorder). Export produces a <code>.webm</code> — playable anywhere, importable into Meta/TikTok. Text uses your Brand Kit.</p>
+      {/* voiceover · ElevenLabs (BYOK) */}
+      <div className="site-blocks-head">
+        <h4 className="brand-h" style={{ margin: 0 }}>Voiceover <span className="ana-badge">ElevenLabs</span></h4>
+        <button className="btn tiny ghost" onClick={() => setVoKeyOpen((v) => !v)} title="Your ElevenLabs API key">{getTtsKey() ? 'Key ✓' : 'Add key'}</button>
+      </div>
+      {voKeyOpen && (
+        <div className="site-inspector vo-keybox">
+          <label className="site-field"><span>ElevenLabs API key <em className="muted small">· stays in your browser</em></span>
+            <input type="password" value={voKey} onChange={(e) => setVoKey(e.target.value)} placeholder="sk_…" autoComplete="off" />
+          </label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn tiny" onClick={saveVoKey}>Save key</button>
+            <a className="btn tiny ghost" href="/guide/elevenlabs" title="How to get a key">Where to find it →</a>
+          </div>
+        </div>
+      )}
+      <div className="site-inspector">
+        <label className="site-field"><span>Narration script</span>
+          <textarea rows={3} value={voScript} onChange={(e) => setVoScript(e.target.value)} placeholder="Write what the voice should say — or it fills in from your brand text overlays." />
+        </label>
+        <div className="vo-row">
+          <label className="site-field" style={{ flex: 1 }}><span>Voice</span>
+            <select value={voiceId} onChange={(e) => setVoiceId(e.target.value)}>{VOICES.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}</select>
+          </label>
+          <button className="btn primary tiny vo-gen" onClick={() => void makeVoiceover()} disabled={voBusy || !voScript.trim()}>{voBusy ? 'Generating…' : 'Generate voiceover'}</button>
+        </div>
+        {voUrl && (
+          <div className="vo-result">
+            <audio controls src={voUrl} className="vo-audio" />
+            <button className="btn tiny" onClick={downloadVo}>Download MP3</button>
+          </div>
+        )}
+      </div>
+
+      <p className="muted small">100% local editing (Canvas + MediaRecorder). Export produces a <code>.webm</code> — playable anywhere, importable into Meta/TikTok. Text uses your Brand Kit. Voiceover runs on <b>your own ElevenLabs key</b> (kept in this browser) — download the MP3 and drop it onto your edit.</p>
     </div>
   )
 }

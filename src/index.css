@@ -3005,6 +3005,12 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .sq-step.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .sq-step.on .sq-step-n { background: var(--dc); color: #fff; }
 
+.vo-row { display: flex; gap: 12px; align-items: flex-end; }
+.vo-gen { white-space: nowrap; height: 40px; }
+.vo-result { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.vo-audio { height: 40px; max-width: 100%; }
+.vo-keybox { border-color: var(--dc, #7b5cff); }
+@media (max-width: 560px) { .vo-row { flex-direction: column; align-items: stretch; } .vo-gen { width: 100%; } }
 .mod-intro { display: flex; flex-direction: column; gap: 6px; margin: 0 0 18px; padding: 0 0 16px; border-bottom: 1px solid var(--line, rgba(0,0,0,0.08)); }
 .mod-intro .sq-lead { margin: 0; }
 .sq-panel { display: flex; flex-direction: column; gap: 16px; }
