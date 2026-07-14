@@ -33,16 +33,6 @@ async function forceUpdate() {
   location.reload()
 }
 
-// Expand the dashboard panel to true fullscreen on desktop (native API), or
-// exit if already fullscreen.
-function toggleDashFull() {
-  try {
-    const el = (document.querySelector('.dash-side') as HTMLElement | null) ?? document.querySelector('.dash-panels') as HTMLElement | null
-    if (!document.fullscreenElement) void el?.requestFullscreen?.()
-    else void document.exitFullscreen?.()
-  } catch { /* fullscreen not available */ }
-}
-
 // fiat credit packs · ~1 credit per task. Price per credit by currency (XRP
 // display falls back to USD — the user never sees the settlement rail).
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
@@ -441,7 +431,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <p>Click an agent to open its dashboard. Chief coordinates the whole team.</p>
         </div>
         <div className="dash-hero-actions">
-          <button className="btn tiny" onClick={toggleDashFull} title="Fullscreen dashboard (desktop)">⤢ Fullscreen</button>
           <button className="btn tiny" onClick={onOpenDojo} title="Open the dojo fullscreen">⤢ Dojo</button>
           <button className="build-refresh" title={`Build ${BUILD_ID} · click to force the latest version`} onClick={forceUpdate}>
             ⟳ v{BUILD_ID}

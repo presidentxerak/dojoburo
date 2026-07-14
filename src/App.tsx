@@ -50,7 +50,14 @@ export default function App() {
 
   // clicking an agent (in the 3D dojo or its roster card) opens its dashboard on
   // the right panel · if the dojo is fullscreen, reveal the panel so it shows.
-  useEffect(() => { if (selected && dojoFull) setDojoFull(false) }, [selected, dojoFull])
+  // Selecting an agent reveals its dashboard; deselecting (closing a module)
+  // returns the dojo to fullscreen so the company panel never lingers over it —
+  // the company overview now lives inside Chief's dashboard.
+  useEffect(() => {
+    if (selected && dojoFull) setDojoFull(false)
+    if (!selected) setDojoFull(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected])
 
   // OAuth return from a tool connect: surface a toast + refresh connections
   useEffect(() => {
@@ -98,9 +105,6 @@ export default function App() {
             <div className="scene-bg"><Scene3D /></div>
 
             <div className="dojo-controls">
-              <button className="dojo-full-toggle" onClick={() => setDojoFull((v) => !v)} title={dojoFull ? 'Shrink the dojo' : 'Dojo fullscreen'}>
-                {dojoFull ? '⤡ Shrink' : '⤢ Fullscreen'}
-              </button>
               <button className="dojo-full-toggle" onClick={() => setMinimalP(true)} title="Hide the dojo · minimal view">Minimal ▸</button>
             </div>
           </div>

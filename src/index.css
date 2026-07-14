@@ -3310,3 +3310,37 @@ input, textarea, select, button { border-radius: 0 !important; }
   .wiz-preview-pane { min-height: 300px; border-right: none; border-bottom: 1px solid var(--border); }
   .wiz-settings { max-height: none; }
 }
+
+/* ===================================================================
+   UI v2 — fluid full-width (10px gutters), sharp everywhere, refined
+   =================================================================== */
+/* Studios/dashboards fill the width with a 10px gutter each side */
+.modhost-body { padding: 16px 10px 40px !important; }
+.modhost-body > * { max-width: none !important; margin-left: 0 !important; margin-right: 0 !important; width: 100%; }
+.modhost-bar { padding: 14px 10px !important; }
+.dash-panels, .agentdash { padding-left: 10px !important; padding-right: 10px !important; }
+.stepbar { margin-left: -10px !important; margin-right: -10px !important; padding-left: 10px !important; padding-right: 10px !important; }
+
+/* hide the Local · serverless / coming-soon tag */
+.modhost-tag { display: none !important; }
+
+/* sharp corners everywhere (belt-and-braces) */
+.modhost-fs, .modhost-bar, .modhost-close, .btn, button, input, textarea, select, .sq-panel, .sq-opt,
+.sq-info, .biz-tile, .fin-kpi, .fin-kpis > *, .crm-card, .lp-studiocard, .agent-card, .tpl-card,
+.tpl-thumb, .cred-pack, .notif-panel, .notif-btn, .notif-count, .stepbar-back, .stepbar-next,
+.modhost-connect, .wiz-frame, .wiz-preview-pane, .wiz-persona-opt, .toast, .beta-badge, .admin-badge,
+.ceo-quick, .composer-row input, .dash-hero-switch, .build-refresh { border-radius: 0 !important; }
+.modhost-close:hover { transform: none !important; }
+.notif-count { border-radius: 999px !important; }  /* keep the count pill round */
+
+/* Agent nameplates: a light semi-transparent backing (+opacity) — legible,
+   agents still visible through it */
+.tag3d {
+  background: rgba(255,255,255,0.5) !important; padding: 2px 8px !important;
+  border-radius: 0 !important; text-shadow: 0 1px 1px rgba(255,255,255,0.6) !important;
+  backdrop-filter: blur(2px);
+}
+
+/* Refined Squarespace-ish spacing for module headers */
+.modhost-name { font-size: 20px !important; }
+.modhost-blurb { font-size: 14px !important; }

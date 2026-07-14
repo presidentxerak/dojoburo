@@ -10,6 +10,9 @@ import WebsiteModule from './website/WebsiteModule'
 import CRMModule from './crm/CRMModule'
 import MarketusModule from './marketing/MarketusModule'
 import BusinoModule from './business/BusinoModule'
+import ChiefModule from './chief/ChiefModule'
+import SentinelModule from './sentinel/SentinelModule'
+import VaultorModule from './vaultor/VaultorModule'
 
 export interface ModuleProps {
   onClose: () => void
@@ -37,6 +40,11 @@ export interface ModuleDef {
 // every original tool is still reachable — just grouped under one teammate.
 export const MODULES: ModuleDef[] = [
   {
+    id: 'chief', label: 'Command Center',
+    blurb: 'Company overview, priorities and the whole team — Chief coordinates everything.',
+    tint: '#7b5cff', emoji: '🧭', agentRole: 'chief', status: 'live', comp: ChiefModule,
+  },
+  {
     id: 'branding', label: 'Brand Studio',
     blurb: 'Finds available brand names, domains and .com availability for your brand.',
     tint: '#a855f7', emoji: '🎨', agentRole: 'brandi', status: 'live', comp: BrandingModule,
@@ -60,6 +68,16 @@ export const MODULES: ModuleDef[] = [
     id: 'business', label: 'Business Studio',
     blurb: 'One dashboard: finance (revenue, VAT, forecasts) and analytics (CAC, LTV, ROI).',
     tint: '#1fa563', emoji: '📊', agentRole: 'busino', status: 'live', comp: BusinoModule,
+  },
+  {
+    id: 'operations', label: 'Operations',
+    blurb: 'Autonomy, budgets, anti-loop limits, encrypted secrets and safety switches.',
+    tint: '#5b6472', emoji: '🛡️', agentRole: 'sentinel', status: 'live', comp: SentinelModule,
+  },
+  {
+    id: 'billing', label: 'Billing',
+    blurb: 'Credits, top-ups and payments in your own currency — no crypto.',
+    tint: '#0e9bb5', emoji: '💳', agentRole: 'vaultor', status: 'live', comp: VaultorModule,
   },
 ]
 
