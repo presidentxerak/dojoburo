@@ -9,6 +9,7 @@ import { Logo } from './Logo'
 import { Wordmark } from './Wordmark'
 import { Icon } from './Icon'
 import { SkinAvatar } from './workshop/SkinAvatar'
+import { NotificationBell } from './NotificationBell'
 
 export function TopBar() {
   const theme = useDojo((s) => s.theme)
@@ -80,6 +81,7 @@ export function TopBar() {
       </div>
 
       <div className="topbar-right">
+        <NotificationBell />
         <button className="btn tiny tb-create tb-desktop" onClick={openCreate}>+ Create</button>
         {account ? (
           <button className="tb-profile tb-desktop" onClick={() => setMenuOpen((v) => !v)} aria-label="Profile & settings" title={account.name || 'Founder'}>

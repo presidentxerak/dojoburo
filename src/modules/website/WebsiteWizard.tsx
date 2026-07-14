@@ -8,8 +8,9 @@ import { StepBar, type Step as BarStep } from '../StepBar'
 import {
   type BrandKit, type PaletteScheme, defaultKit, generatePalette, saveBrandKit, FONT_PAIRS, fontPair,
 } from '../../lib/brand'
-import { type SiteDoc, type BlockType, makeBlock, BLOCK_ORDER } from '../../lib/site'
-import { saveSite } from '../../lib/site'
+import { type SiteDoc, type BlockType, makeBlock, BLOCK_ORDER, fullDoc, saveSite } from '../../lib/site'
+
+const PERSONALITIES = ['Professional', 'Playful', 'Refined', 'Warm', 'Bold', 'Eccentric']
 
 type Step = 'subject' | 'goals' | 'info' | 'pages' | 'colors' | 'fonts'
 const STEPS: BarStep[] = [
@@ -63,6 +64,7 @@ export function WebsiteWizard({ dojoId, dojoName, onCancel, onCreate }: {
   const [pages, setPages] = useState<BlockType[]>(['hero', 'features', 'text', 'cta', 'footer'])
   const [paletteId, setPaletteId] = useState('ink')
   const [fontId, setFontId] = useState(FONT_PAIRS[0].id)
+  const [personality, setPersonality] = useState('Professional')
 
   const idx = STEPS.findIndex((s) => s.id === step)
   const toggle = <T,>(arr: T[], v: T) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v])
@@ -109,8 +111,29 @@ export function WebsiteWizard({ dojoId, dojoName, onCancel, onCreate }: {
 
   const f = fontPair(fontId)
 
+  // live preview — the big image on the left updates as choices are made
+  const previewKit = useMemo<BrandKit>(() => ({
+    ...defaultKit(name || dojoName || 'My brand'), name: name || dojoName || 'My brand', tagline,
+    hue: chosenPalette.hue, scheme: chosenPalette.scheme,
+    palette: generatePalette(chosenPalette.hue, chosenPalette.scheme), fontId,
+  }), [name, dojoName, tagline, chosenPalette, fontId])
+  const previewDoc = useMemo(() => {
+    const ordered = BLOCK_ORDER.filter((t) => pages.includes(t))
+    const blocks = (ordered.length ? ordered : (['hero', 'features', 'cta', 'footer'] as BlockType[])).map((t) => makeBlock(t, name || dojoName))
+    return fullDoc({ name: name || dojoName || 'My site', blocks, updatedAt: 0 }, previewKit)
+  }, [pages, name, dojoName, previewKit])
+
   return (
     <div className="site-mod sq wiz">
+      <StepBar steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
+        onBack={back} backLabel={idx === 0 ? 'Templates' : 'Back'}
+        onNext={advance} canNext={canNext} nextLabel={nextLabel} />
+
+      <div className="wiz-split">
+        <div className="wiz-preview-pane">
+          <iframe title="Site preview" className="wiz-frame" srcDoc={previewDoc} />
+        </div>
+        <div className="wiz-settings">
       {step === 'subject' && (
         <section className="sq-panel">
           <h3 className="sq-title">What's your website about?</h3>
@@ -153,6 +176,13 @@ export function WebsiteWizard({ dojoId, dojoName, onCancel, onCreate }: {
           <label className="sq-field">Tagline
             <input value={tagline} onChange={(e) => setTagline(e.target.value)} maxLength={72} placeholder="A short line about what you do" />
           </label>
+          <div className="sq-eyebrow">Brand personality</div>
+          <p className="sq-lead" style={{ marginTop: -6 }}>Each personality maps to a distinct tone for AI-generated content.</p>
+          <div className="wiz-persona">
+            {PERSONALITIES.map((pp) => (
+              <button key={pp} className={`wiz-persona-opt${personality === pp ? ' on' : ''}`} onClick={() => setPersonality(pp)}>{pp}</button>
+            ))}
+          </div>
         </section>
       )}
 
@@ -211,10 +241,8 @@ export function WebsiteWizard({ dojoId, dojoName, onCancel, onCreate }: {
           </div>
         </section>
       )}
-
-      <StepBar steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
-        onBack={back} backLabel={idx === 0 ? 'Templates' : 'Back'}
-        onNext={advance} canNext={canNext} nextLabel={nextLabel} />
+        </div>
+      </div>
     </div>
   )
 }

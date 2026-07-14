@@ -3267,3 +3267,46 @@ input, textarea, select, button { border-radius: 0 !important; }
   white-space: nowrap;
 }
 .modhost-connect:hover { background: #f2f2f2; }
+
+/* ===== Notification bell + panel (agent activity, one place) ===== */
+.notif { position: relative; display: inline-flex; }
+.notif-btn {
+  position: relative; width: 36px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
+  background: #fff; border: 1px solid #000; color: #000; cursor: pointer; border-radius: 0;
+}
+.notif-btn:hover { background: #f2f2f2; }
+.notif-count {
+  position: absolute; top: -7px; right: -7px; min-width: 17px; height: 17px; padding: 0 4px;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+  background: #e0483f; color: #fff; border-radius: 999px;
+}
+.notif-scrim { position: fixed; inset: 0; z-index: 300; }
+.notif-panel {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 301; width: 340px; max-width: 92vw;
+  max-height: 440px; overflow-y: auto; background: #fff; border: 1px solid #000; box-shadow: 0 10px 34px rgba(0,0,0,0.18);
+}
+.notif-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: #fff; }
+.notif-head b { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; color: #000; }
+.notif-clear { background: none; border: none; color: #000; font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: underline; }
+.notif-empty { padding: 18px 14px; color: #000; font-size: 14px; margin: 0; }
+.notif-list { list-style: none; margin: 0; padding: 0; }
+.notif-list li { display: flex; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+.notif-list li:last-child { border-bottom: none; }
+.notif-dot { flex: none; width: 9px; height: 9px; border-radius: 999px; margin-top: 5px; }
+.notif-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.notif-txt strong { font-size: 14px; font-weight: 700; color: #000; }
+.notif-txt span { font-size: 13px; color: #000; }
+
+/* ===== Website wizard · Squarespace split (big preview left, settings right) ===== */
+.wiz-split { display: grid; grid-template-columns: 1.55fr 1fr; gap: 0; min-height: 64vh; border: 1px solid var(--border); }
+.wiz-preview-pane { background: #efece7; padding: 26px; display: flex; align-items: stretch; justify-content: center; overflow: hidden; border-right: 1px solid var(--border); }
+.wiz-frame { width: 100%; min-height: 440px; border: none; background: #fff; box-shadow: 0 18px 46px rgba(0,0,0,0.20); }
+.wiz-settings { padding: 26px 24px; overflow-y: auto; max-height: 74vh; }
+.wiz-persona { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wiz-persona-opt { padding: 16px; background: #fff; border: 1px solid var(--border); cursor: pointer; font-size: 15px; font-weight: 600; color: #000; text-align: left; }
+.wiz-persona-opt.on { border-color: #000; box-shadow: inset 0 0 0 1px #000; }
+@media (max-width: 900px) {
+  .wiz-split { grid-template-columns: 1fr; min-height: 0; }
+  .wiz-preview-pane { min-height: 300px; border-right: none; border-bottom: 1px solid var(--border); }
+  .wiz-settings { max-height: none; }
+}
