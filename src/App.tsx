@@ -4,7 +4,6 @@ import { Scene3D } from './components/Scene3D'
 import { Dashboard } from './components/dashboard/Dashboard'
 import { Onboarding } from './components/Onboarding'
 import { Toasts } from './components/Toasts'
-import { StatsPanel } from './components/StatsPanel'
 import { SupportBot } from './components/SupportBot'
 import { Workshop } from './components/workshop/Workshop'
 import { SnapshotFactory } from './components/three/snapshotFactory'
@@ -53,10 +52,10 @@ export default function App() {
   // returns the dojo to fullscreen so the company panel never lingers over it ·
   // the company overview now lives inside Chief's dashboard.
   useEffect(() => {
-    // selecting an agent reveals its dashboard/studio · deselecting keeps you on
-    // the CEO dashboard (the roster + company overview) rather than yanking you
-    // back to the 3D dojo · the mobile bar's Dojo/CEO buttons drive that view.
-    if (selected && dojoFull) setDojoFull(false)
+    // Selecting an agent reveals its studio fullscreen. Deselecting does NOT
+    // force anything here — the closer decides where to land (always the centered
+    // dojo when a feature UI closes; the CEO button opens the dashboard).
+    if (selected) setDojoFull(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected])
 
@@ -122,7 +121,6 @@ export default function App() {
         )}
       </div>
 
-      <StatsPanel />
       <Toasts />
       <SnapshotFactory />
       <Workshop />

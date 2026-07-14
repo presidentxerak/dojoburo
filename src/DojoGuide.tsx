@@ -5,7 +5,7 @@ import { SupportBot } from './components/SupportBot'
 import { ConnectorLogo } from './components/ConnectorLogo'
 import { CONNECTORS, type ConnectorCategory } from './data/connectors'
 import { connectorById, userSteps, operatorSteps, REDIRECT_PATH } from './data/connectorGuide'
-import { ROLE_AGENTS } from './data/roleAgents'
+import { StudioTeam } from './components/landing/TeamCards'
 
 // The Dojo Guide · a full page (not a modal) in the landing page's visual
 // language: same title/subtitle/text sizes, same cards. It covers connectors
@@ -60,17 +60,7 @@ export function GuidePage() {
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Connect your apps</b><span>Link Meta, Gmail, Stripe… so your agents act inside your real accounts.</span></div></div>
         </div>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your eight teammates &amp; what each one does</h3>
-        <div className="dg2-grid">
-          {ROLE_AGENTS.map((a) => (
-            <div key={a.id} className="dg2-ccard dg2-agentcard" style={{ ['--ac' as string]: a.tint }}>
-              <span className="dg2-ccard-meta">
-                <b>{a.code}</b>
-                <em>{a.title}</em>
-                <span>{a.desc}</span>
-              </span>
-            </div>
-          ))}
-        </div>
+        <StudioTeam enter={() => { window.location.href = '/#app' }} />
       </section>
 
       <section className="lp-sec alt" id="what">

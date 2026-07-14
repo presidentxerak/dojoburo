@@ -9,7 +9,6 @@ import { useDojo } from '../store'
 import { audio } from '../audio'
 import { Decor3D } from './three/Decor3D'
 import { Character3D } from './three/Character3D'
-import { Lazy3D } from './three/Lazy3D'
 import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
 
 /** Camera rig: gentle default framing. On desktop it's biased LEFT so the room
@@ -152,7 +151,6 @@ export function Scene3D() {
       <Suspense fallback={null}>
         <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
         <Agents seated={seated} />
-        <Lazy3D />
       </Suspense>
       <CameraRig />
     </Canvas>

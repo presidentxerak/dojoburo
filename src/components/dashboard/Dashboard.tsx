@@ -356,8 +356,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   }
 
   // ------------------------------------------------------------------ MODULE --
+  // Closing a studio always returns to the centered dojo (never the roster).
   if (moduleId) {
-    return <ModuleHost moduleId={moduleId} dojoId={dojo?.id ?? ''} onClose={() => { setModuleId(null); selectAgent(null) }} />
+    return <ModuleHost moduleId={moduleId} dojoId={dojo?.id ?? ''} onClose={() => { setModuleId(null); selectAgent(null); onOpenDojo() }} />
   }
 
   // ------------------------------------------------------------------ DETAIL --
@@ -367,7 +368,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     return (
       <div className="agentdash" style={{ ['--dc' as string]: selRole.tint }}>
         <div className="ad-topbar">
-          <button className="ad-back" onClick={() => selectAgent(null)}>‹ All agents</button>
+          <button className="ad-back" onClick={() => { selectAgent(null); onOpenDojo() }}>‹ Dojo</button>
           <button className="btn tiny ghost" onClick={() => editAgent(selected.id)} title="Advanced editing in the Studio">Studio ✎</button>
         </div>
 

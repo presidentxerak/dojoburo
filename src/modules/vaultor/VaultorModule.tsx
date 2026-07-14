@@ -5,6 +5,7 @@ import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
 import { useEngine } from '../../agents/engineStore'
+import { OfficeStats } from '../../components/OfficeStats'
 
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
 const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
@@ -56,6 +57,9 @@ export default function VaultorModule(_: ModuleProps) {
         <div className="biz-tile"><span>{connectedCount}</span><em>connected apps</em></div>
       </div>
       <p className="muted small">Set your autonomy level and daily cap in <b>Sentinel</b> to keep spend under control.</p>
+
+      {/* the office usage dashboard (moved here from the panda) */}
+      <div style={{ marginTop: 18 }}><OfficeStats /></div>
     </div>
   )
 }
