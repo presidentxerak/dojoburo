@@ -12,6 +12,7 @@ import {
   generateFromTemplate, SITE_TEMPLATES, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
 } from '../../lib/site'
 import { WebsiteWizard } from './WebsiteWizard'
+import { StudioNext } from '../StudioNext'
 
 const CATS: (TemplateCategory | 'All')[] = ['All', 'Business', 'Store', 'Portfolio', 'Restaurant', 'Agency', 'Personal', 'Blog', 'Events']
 const VIBE_LABEL: Record<string, string> = { serif: 'Serif', sans: 'Sans', mono: 'Mono' }
@@ -26,6 +27,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [addOpen, setAddOpen] = useState(false)
   const [view, setView] = useState<'wizard' | 'gallery' | 'edit'>('wizard')
   const [cat, setCat] = useState<(TemplateCategory | 'All')>('All')
+  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -71,7 +73,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   }
 
   const regenerate = () => { const s = generateSite(dojoName); setSite(s); setSel(s.blocks[0]?.id ?? null); pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'First version generated', text: 'Edit each block, then export.' }) }
-  const save = async () => { await saveSite(dojoId, site); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Website saved', text: 'Saved locally (IndexedDB).' }) }
+  const save = async () => { await saveSite(dojoId, site); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Website saved', text: 'Saved locally (IndexedDB).' }) }
   const exportHtml = () => {
     const blob = new Blob([doc], { type: 'text/html' })
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${site.name.toLowerCase().replace(/\s+/g, '-')}.html`; a.click()
@@ -184,6 +186,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         <p className="muted small">Select a block to edit it.</p>
       )}
       <p className="muted small">The website uses your <b>Brand Kit</b> (colours + fonts). Preview = export: the <code>.html</code> file is standalone and can be hosted anywhere.</p>
+      {saved && <StudioNext from="weblos" done="Website saved." />}
     </div>
   )
 }

@@ -12,6 +12,7 @@ import {
   generateCampaign, adSvg, copyPack, loadCampaign, saveCampaign, campaignBrand, ctaForObjective,
 } from '../../lib/campaign'
 import { StepBar } from '../StepBar'
+import { StudioNext } from '../StudioNext'
 
 const angleLabel = (a: string) => ANGLES.find((x) => x.id === a)?.label ?? a
 type Step = 'brief' | 'audience' | 'creatives' | 'export'
@@ -32,6 +33,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
   const [brand, setBrand] = useState<BrandKit | null>(null)
   const [sel, setSel] = useState(0)
   const [product, setProduct] = useState(dojoName)
+  const [saved, setSaved] = useState(false)
   const [step, setStep] = useState<Step>('brief')
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
   const editAudience = (raw: string) => setCamp((c) => ({ ...c, audience: { ...c.audience, interests: raw.split(',').map((s) => s.trim()).filter(Boolean) } }))
 
   const generate = () => { const c = generateCampaign(product || dojoName, camp.objective); setCamp(c); setSel(0); setStep('audience'); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Campaign generated', text: '5 Meta variants ready — review the audience.' }) }
-  const save = async () => { await saveCampaign(dojoId, camp); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Campaign saved', text: 'Saved locally (IndexedDB).' }) }
+  const save = async () => { await saveCampaign(dojoId, camp); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Campaign saved', text: 'Saved locally (IndexedDB).' }) }
   const copyText = () => { void navigator.clipboard?.writeText(copyPack(camp)); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Copied', text: 'Copy pack ready to paste into Meta Ads Manager.' }) }
   const exportSvg = () => {
     if (!brand || !ad) return
@@ -181,6 +183,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
             <button className="btn tiny ghost" onClick={copyText}>Copy the full copy pack</button>
           </div>
           <p className="muted small">Meta only (Facebook &amp; Instagram). Connect your Meta account (Connect apps, top right) to run these ads for real.</p>
+          {saved && <StudioNext from="marketus" done="Campaign saved." />}
         </section>
       )}
     </div>

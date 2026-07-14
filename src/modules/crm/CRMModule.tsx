@@ -8,12 +8,14 @@ import {
   type Contact, type Stage, STAGES, TEMPLATES, stats, moveStage, setStage, merge, mailto,
   importCsv, exportCsv, newContact, sampleContacts, loadCrm, saveCrm, eur,
 } from '../../lib/crm'
+import { StudioNext } from '../StudioNext'
 
 export default function CRMModule({ dojoId }: ModuleProps) {
   const pushToast = useDojo((s) => s.pushToast)
   const [contacts, setContacts] = useState<Contact[]>([])
   const [sel, setSel] = useState<string | null>(null)
   const [tplId, setTplId] = useState(TEMPLATES[0].id)
+  const [saved, setSaved] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function CRMModule({ dojoId }: ModuleProps) {
   const add = () => { const c = newContact(); setContacts((cs) => [c, ...cs]); setSel(c.id) }
   const loadSample = () => { const s = sampleContacts(); setContacts(s); setSel(s[0].id); pushToast({ kind: 'event', badge: 'AI', color: '#d98c17', title: 'Sample loaded', text: 'A demo pipeline.' }) }
   const doImport = async (f: File) => { const cs = importCsv(await f.text()); if (!cs.length) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Empty CSV', text: 'Columns: name, company, email.' }); return } setContacts((x) => [...cs, ...x]); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `${cs.length} contacts imported`, text: 'Stored locally.' }) }
-  const save = async () => { await saveCrm(dojoId, { contacts, updatedAt: Date.now() }); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'CRM saved', text: 'Saved locally (IndexedDB).' }) }
+  const save = async () => { await saveCrm(dojoId, { contacts, updatedAt: Date.now() }); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'CRM saved', text: 'Saved locally (IndexedDB).' }) }
   const exportCsvFile = () => { const blob = new Blob([exportCsv(contacts)], { type: 'text/csv' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'crm.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000) }
   const copyMsg = () => { if (msg) { void navigator.clipboard?.writeText(`${msg.subject}\n\n${msg.body}`); pushToast({ kind: 'event', badge: 'OK', color: '#d98c17', title: 'Message copied', text: 'Personalized and ready to send.' }) } }
 
@@ -117,7 +119,8 @@ export default function CRMModule({ dojoId }: ModuleProps) {
               )}
             </div>
           )}
-          <p className="muted small">Pipeline + outreach, 100% local. Personalize with {'{{prenom}}'} / {'{{entreprise}}'}. Connect Gmail (Studio) for automated sending.</p>
+          <p className="muted small">Pipeline + outreach, 100% local. Personalize with {'{{prenom}}'} / {'{{entreprise}}'}. Connect Gmail (Connect apps) for automated sending.</p>
+          {saved && <StudioNext from="pumpi" done="Pipeline saved." />}
         </>
       )}
     </div>

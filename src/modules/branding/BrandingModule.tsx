@@ -14,6 +14,7 @@ import {
   type BrandProfile, type DomainResult, researchProfile, generateNames, checkDomains, socialHandles,
 } from '../../lib/naming'
 import { StepBar } from '../StepBar'
+import { StudioNext } from '../StudioNext'
 
 type Step = 'concept' | 'research' | 'naming' | 'domain'
 const STEPS: { id: Step; label: string }[] = [
@@ -41,6 +42,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const [nameSeed, setNameSeed] = useState(0)
   const [domains, setDomains] = useState<DomainResult[]>([])
   const [checking, setChecking] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -73,6 +75,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const recheck = async () => { setChecking(true); setDomains(await checkDomains(kit.name)); setChecking(false) }
   const saveName = async () => {
     await saveBrandKit(dojoId, kit)
+    setSaved(true)
     pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name}" is now your brand — reused by the Website and Marketing studios.` })
   }
 
@@ -167,6 +170,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
           </div>
           <div className="sq-eyebrow">Suggested handles</div>
           <div className="sq-tags">{socialHandles(kit.name).map((h) => <span key={h} className="sq-tag">{h}</span>)}</div>
+          {saved && <StudioNext from="brandi" done={`"${kit.name}" saved as your brand.`} />}
         </section>
       )}
     </div>
