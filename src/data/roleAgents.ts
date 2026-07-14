@@ -53,17 +53,17 @@ const SPECS: Spec[] = [
     tint: '#a855f7', dept: 'Product',
   },
   {
-    id: 'weblos', code: 'Weblos', title: 'Website Designer',
+    id: 'weblos', code: 'Weblos', title: 'Web Designer',
     desc: 'Designs and builds beautiful websites tailored to your brand.',
     tint: '#2f7fd6', dept: 'Product',
   },
   {
-    id: 'marketus', code: 'Marketus', title: 'Marketing Studio',
+    id: 'marketus', code: 'Marketus', title: 'Marketer',
     desc: 'Creates campaigns, images, videos and social content from a single creative workflow.',
     tint: '#e0459b', dept: 'Growth',
   },
   {
-    id: 'pumpi', code: 'Pumpi', title: 'Growth Manager',
+    id: 'pumpi', code: 'Pumpi', title: 'Growth Hacker',
     desc: 'Generates leads, manages your pipeline and sends personalized outreach.',
     tint: '#d98c17', dept: 'Growth',
   },
@@ -73,7 +73,7 @@ const SPECS: Spec[] = [
     tint: '#1fa563', dept: 'Finance',
   },
   {
-    id: 'sentinel', code: 'Sentinel', title: 'Operations Guardian',
+    id: 'sentinel', code: 'Sentinel', title: 'Cyber Guardian',
     desc: 'Keeps your AI efficient, secure and under control.',
     tint: '#5b6472', dept: 'Ops',
   },

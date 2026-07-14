@@ -9,6 +9,7 @@ import { SupportBot } from './components/SupportBot'
 import { Workshop } from './components/workshop/Workshop'
 import { SnapshotFactory } from './components/three/snapshotFactory'
 import { DeliverableModal } from './components/agents/DeliverableModal'
+import { SettingsModal } from './components/SettingsModal'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
 import { useWork } from './agents/workStore'
@@ -29,13 +30,9 @@ export default function App() {
   const needsAuth = !account && privyConfigured()
   const createIntent = useWork((s) => s.createIntent)
 
-  // the dojo fills the window on arrival (centered), then reveals the panel when
-  // you pick an agent. A "minimal" mode hides the 3D dojo entirely.
+  // the dojo fills the window on arrival (centered), then reveals the agent's
+  // dashboard when you pick an agent.
   const [dojoFull, setDojoFull] = useState(true)
-  const [minimal, setMinimal] = useState(() => {
-    try { return localStorage.getItem('dojoburo.minimal.v1') === '1' } catch { return false }
-  })
-  const setMinimalP = (v: boolean) => { setMinimal(v); try { localStorage.setItem('dojoburo.minimal.v1', v ? '1' : '0') } catch { /* */ } }
   // first-run onboarding · "what company do you want to create?"
   const [onboarded, setOnboarded] = useState(() => {
     try { return localStorage.getItem('dojoburo.onboarded.v1') === '1' } catch { return true }
@@ -94,28 +91,18 @@ export default function App() {
   }, [fireEvent])
 
   return (
-    <div className={`app dash-layout${dojoFull && !minimal ? ' dojo-full' : ''}${minimal ? ' minimal' : ''}`}>
+    <div className={`app dash-layout${dojoFull ? ' dojo-full' : ''}`}>
       <Defs />
       <TopBar />
 
       <div className="dash-main">
-        {/* dojo on the LEFT, dashboard on the RIGHT · hidden in minimal mode */}
-        {!minimal && (
-          <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
-            <div className="scene-bg"><Scene3D /></div>
+        <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
+          <div className="scene-bg"><Scene3D /></div>
+        </div>
 
-            <div className="dojo-controls">
-              <button className="dojo-full-toggle" onClick={() => setMinimalP(true)} title="Hide the dojo · minimal view">Minimal ▸</button>
-            </div>
-          </div>
-        )}
-
-        {(minimal || !dojoFull) && (
+        {!dojoFull && (
           <div className="dash-side">
-            {minimal && (
-              <button className="dojo-full-toggle show-dojo" onClick={() => setMinimalP(false)} title="Show the 3D dojo">◂ Show dojo</button>
-            )}
-            <Dashboard onOpenDojo={() => { setMinimalP(false); setDojoFull(true) }} />
+            <Dashboard onOpenDojo={() => setDojoFull(true)} />
           </div>
         )}
       </div>
@@ -125,6 +112,7 @@ export default function App() {
       <SnapshotFactory />
       <Workshop />
       <DeliverableModal />
+      <SettingsModal />
       <SupportBot />
 
       {/* mobile bottom navigation bar */}

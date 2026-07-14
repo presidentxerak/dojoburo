@@ -78,17 +78,10 @@ function Guide({ lead, steps, tip }: { lead: string; steps: React.ReactNode[]; t
  *  agent's dedicated management / edition / creation dashboard. */
 export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
-  const dojos = useWorkshop((s) => s.dojos)
-  const setActiveDojo = useWorkshop((s) => s.setActiveDojo)
   const updateAgent = useWorkshop((s) => s.updateAgent)
   const save = useWorkshop((s) => s.save)
   const account = useWorkshop((s) => s.account)
   const agents = dojo?.agents ?? []
-  const cycleDojo = (dir: 1 | -1) => {
-    if (dojos.length < 2 || !dojo) return
-    const i = dojos.findIndex((d) => d.id === dojo.id)
-    setActiveDojo(dojos[(i + dir + dojos.length) % dojos.length].id)
-  }
   // the selected agent drives the whole panel (also set by clicking a 3D agent)
   const selectedId = useDojo((s) => s.selectedAgent)
   const selectAgent = useDojo((s) => s.selectAgent)
@@ -416,15 +409,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const roster = ROLE_AGENTS.map((r) => byRole(r.id)).filter(Boolean) as typeof agents
   return (
     <div className="dash-panels">
-      {dojos.length > 1 && (
-        <div className="dash-hero-switch">
-          <button onClick={() => cycleDojo(-1)} aria-label="Previous dojo">‹</button>
-          <select value={dojo?.id} onChange={(e) => setActiveDojo(e.target.value)} aria-label="Switch dojo">
-            {dojos.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </select>
-          <button onClick={() => cycleDojo(1)} aria-label="Next dojo">›</button>
-        </div>
-      )}
       <div className="dash-hero">
         <div>
           <h2>{account?.name || 'Your'} · {dojo?.name || 'Dojo'} {isAdmin(account ?? null) && <span className="admin-badge" title="Admin account · unlimited free testing">ADMIN · unlimited</span>}</h2>

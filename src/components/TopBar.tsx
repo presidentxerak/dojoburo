@@ -26,8 +26,8 @@ export function TopBar() {
 
   const openStudio = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
-  // Create → go to the dedicated creation page (the landing hero form), not the dojo
-  const openCreate = () => { setMenuOpen(false); window.location.href = '/#create-hero' }
+  const openConnect = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
+  const openCredits = () => { setMenuOpen(false); useWork.getState().openStudio('billing') }
   const doLogin = () => { setMenuOpen(false); if (privyConfigured()) privyControls.login?.(); else signInGuest() }
   // Sign out → go back to the landing FIRST so the auth gate (which re-opens the
   // Privy modal) never remounts and traps the user on the Privy screen.
@@ -59,30 +59,26 @@ export function TopBar() {
   return (
     <header className="topbar">
       <div className="brand">
-        <Logo size={38} />
+        <a href="/" className="brand-home" aria-label="Home"><Logo size={38} /></a>
         <div>
           <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
         </div>
       </div>
 
-      {/* centered middle group · section nav + Dojo Guide + Studio */}
+      {/* centered middle group */}
       <div className="topbar-mid tb-desktop">
-        {/* landing-style section nav (links back to the landing sections) */}
         <nav className="tb-nav">
-          <a href="/#studio">Build</a>
-          <a href="/#stack">Connect</a>
+          <button className="tb-navlink" onClick={openConnect}>Connect Apps</button>
           <a href="/#cast">Team</a>
-          <a href="/#how">How it works</a>
-          <a href="/#pricing">Pricing</a>
         </nav>
         <a className="btn tiny tb-guide" href="/guide">Dojo Guide</a>
-        <button className="btn tiny tb-studio" onClick={openStudio}>Studio</button>
+        <button className="btn tiny tb-studio" onClick={openStudio}>Manage Studio</button>
         <button className="btn tiny tb-studio tb-city" onClick={() => { location.hash = 'city' }}>City</button>
       </div>
 
       <div className="topbar-right">
         <NotificationBell />
-        <button className="btn tiny tb-create tb-desktop" onClick={openCreate}>+ Create</button>
+        <button className="btn tiny tb-create tb-desktop" onClick={openCredits}>Credits</button>
         {account ? (
           <button className="tb-profile tb-desktop" onClick={() => setMenuOpen((v) => !v)} aria-label="Profile & settings" title={account.name || 'Founder'}>
             <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />
@@ -106,8 +102,9 @@ export function TopBar() {
           <div className="tb-menu" role="menu">
             {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
             <a className="tb-menu-item tb-only-mobile tb-menu-link" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
-            <button className="tb-menu-item" onClick={openCreate}>+ Create a company</button>
-            <button className="tb-menu-item tb-only-mobile" onClick={openStudio}>Studio</button>
+            <button className="tb-menu-item" onClick={openCredits}>My Credits</button>
+            <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setSettingsOpen(true) }}>Settings</button>
+            <button className="tb-menu-item tb-only-mobile" onClick={openStudio}>Manage Studio</button>
             <button className="tb-menu-item tb-only-mobile" onClick={() => { setMenuOpen(false); location.hash = 'city' }}>City</button>
 
             {account ? (
