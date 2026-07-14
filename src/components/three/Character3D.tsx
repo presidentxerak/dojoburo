@@ -573,7 +573,9 @@ export function Character3D({
   const isJelly = character.kind === 'jellyfish'
   const isBib = character.kind === 'bibendum'
   const isGeo = character.kind === 'geo'
-  const acc = accForId(id, character.kind)
+  // a skin can force a specific accessory (character.acc); otherwise auto-pick
+  const forcedAcc = character.acc && (ACCS as string[]).includes(character.acc) ? character.acc as Acc : null
+  const acc = forcedAcc ?? accForId(id, character.kind)
   const speaking = banter && banter.who === 'agent' && banter.agentId === id
   const visited = heroTargetId === id // the Chief is hovering above this agent
 

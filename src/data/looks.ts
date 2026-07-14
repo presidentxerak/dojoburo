@@ -48,6 +48,9 @@ export interface Character {
   outfit2: string // collar / accent
   pants: string // legs
   extra: string // horns / hat / hair / antenna accent
+  /** force a specific head accessory (bowler, tophat, shades…) instead of the
+   *  deterministic ~40% auto-pick. Used by the panda skin set. */
+  acc?: string
 }
 
 export const CHARACTERS: Record<string, Character> = {

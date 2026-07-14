@@ -18,6 +18,7 @@ import { Agent3DPreview } from '../three/Agent3DPreview'
 import { ConnectorsPanel } from '../ConnectorsPanel'
 import { TopBar } from '../TopBar'
 import { PageBar } from '../PageBar'
+import { StepBar } from '../../modules/StepBar'
 
 type Tab = 'studio' | 'account' | 'billing'
 
@@ -52,7 +53,6 @@ export function StudioPage() {
           <button className="ws-x studio-page-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">×</button>
         </header>
         <div className="ws-body studio-page-scroll">
-          {tab === 'studio' && <StudioIntro />}
           {tab === 'studio' && <StudioTab />}
           {tab === 'account' && <AccountTab />}
           {tab === 'billing' && <BillingTab />}
@@ -64,18 +64,6 @@ export function StudioPage() {
 }
 
 // A short "here's how the Studio works, A to Z" primer above the grid editor.
-function StudioIntro() {
-  return (
-    <div className="studio-intro">
-      <div className="studio-intro-steps">
-        <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Pick or create a dojo</b><span>A dojo is one company workspace with its own world and crew. Use the switcher below, or <b>+ New dojo</b> to start another.</span></div></div>
-        <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Place &amp; tune your agents</b><span>Tap an agent, then a cell to move it. Tap a name to rename. On the right, set its function, tasks, budget and the apps it may use.</span></div></div>
-        <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Connect apps &amp; save</b><span>Link the real tools each agent acts inside, then <b>Validate &amp; save dojo</b>. Need the full catalogue? <a href="#connect">Open Connect apps →</a></span></div></div>
-      </div>
-    </div>
-  )
-}
-
 export function WorkshopModal({ onClose }: { onClose: () => void }) {
   const intent = useWork((s) => s.studioIntent)
   const [tab, setTab] = useState<Tab>(intent ?? 'studio')
@@ -122,13 +110,15 @@ function StudioTab() {
   const [picking, setPicking] = useState(false)
   // 'create' opens the picker to spin up a new dojo; 'change' re-themes this one
   const [tplPick, setTplPick] = useState<null | 'create' | 'change'>(null)
+  // Squarespace-style stepped flow, matching the Website / Branding studios
+  const [wizStep, setWizStep] = useState<'dojo' | 'agents' | 'save'>('dojo')
 
   // deep-link: clicking an agent's avatar opens the Studio focused on it
   const studioAgentId = useWork((s) => s.studioAgentId)
   useEffect(() => {
     if (!studioAgentId) return
     const d = dojos.find((dj) => dj.agents.some((a) => a.id === studioAgentId))
-    if (d) { setActive(d.id); setSel(studioAgentId) }
+    if (d) { setActive(d.id); setSel(studioAgentId); setWizStep('agents') }
   }, [studioAgentId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!dojo) return null
@@ -136,70 +126,102 @@ function StudioTab() {
   const cellAt = (x: number, y: number) => dojo?.agents.find((a) => a.gx === x && a.gy === y)
   const tpl = templateById(dojo.template)
 
+  const WSTEPS = [{ id: 'dojo', label: 'Dojo' }, { id: 'agents', label: 'Agents' }, { id: 'save', label: 'Review' }]
+  const wIdx = WSTEPS.findIndex((s) => s.id === wizStep)
+  const advance = () => {
+    if (wizStep === 'dojo') return setWizStep('agents')
+    if (wizStep === 'agents') return setWizStep('save')
+    void save()
+  }
+
   return (
-    <div className="ws-studio">
-      {/* dojo switcher */}
-      <div className="ws-dojobar">
-        <select value={dojo?.id} onChange={(e) => { setActive(e.target.value); setSel(null) }}>
-          {dojos.map((d) => (
-            <option key={d.id} value={d.id}>{d.name} · {d.agents.length}/{MAX_AGENTS}</option>
-          ))}
-        </select>
-        <button className="ws-btn" title="Change environment" onClick={() => setTplPick('change')}>{tpl.label}</button>
-        <button className="ws-btn" onClick={() => renameDojo(dojo.id, prompt('Rename dojo', dojo.name) || dojo.name)}>Rename</button>
-        <button className="ws-btn primary" onClick={() => setTplPick('create')}>+ New dojo</button>
-        <button className="ws-btn danger" onClick={() => confirm(`Delete "${dojo.name}"?`) && deleteDojo(dojo.id)}>Delete</button>
-      </div>
+    <div className="ws-studio sq">
+      <StepBar
+        steps={WSTEPS} current={wizStep} onJump={(id) => setWizStep(id as typeof wizStep)}
+        onBack={() => { if (wIdx > 0) setWizStep(WSTEPS[wIdx - 1].id as typeof wizStep) }} backDisabled={wIdx === 0}
+        onNext={advance} canNext={wizStep === 'save' ? dirty : true}
+        nextLabel={wizStep === 'save' ? 'Validate & save dojo' : 'Next'}
+      />
 
-      <div className="ws-cols">
-        {/* grid editor */}
-        <div className="ws-gridwrap">
-          <p className="ws-hint">Tap an agent, then tap a cell to move it. Tap a name to edit.</p>
-          <div className="ws-grid" style={{ gridTemplateColumns: `repeat(${GRID.cols}, minmax(0, 1fr))` }}>
-            {Array.from({ length: GRID.rows * GRID.cols }).map((_, i) => {
-              const x = i % GRID.cols
-              const y = Math.floor(i / GRID.cols)
-              const a = cellAt(x, y)
-              return (
-                <button
-                  key={i}
-                  className={`ws-cell ${a ? 'filled' : ''} ${a && a.id === sel ? 'sel' : ''}`}
-                  onClick={() => {
-                    if (a) setSel(a.id)
-                    else if (sel) { moveAgent(sel, x, y) }
-                  }}
-                >
-                  {a && (
-                    <>
-                      <SkinAvatar skin={skinById(a.skinId)} size={34} />
-                      <span className="ws-cellname">{a.name}</span>
-                    </>
-                  )}
-                </button>
-              )
-            })}
+      {wizStep === 'dojo' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Your dojo</h3>
+          <p className="sq-lead">A dojo is one company workspace with its own world and crew. Pick one, re-theme its environment, rename it, or start another.</p>
+          <div className="ws-dojobar">
+            <select value={dojo?.id} onChange={(e) => { setActive(e.target.value); setSel(null) }}>
+              {dojos.map((d) => (
+                <option key={d.id} value={d.id}>{d.name} · {d.agents.length}/{MAX_AGENTS}</option>
+              ))}
+            </select>
+            <button className="ws-btn" title="Change environment" onClick={() => setTplPick('change')}>{tpl.label}</button>
+            <button className="ws-btn" onClick={() => renameDojo(dojo.id, prompt('Rename dojo', dojo.name) || dojo.name)}>Rename</button>
+            <button className="ws-btn primary" onClick={() => setTplPick('create')}>+ New dojo</button>
+            <button className="ws-btn danger" onClick={() => confirm(`Delete "${dojo.name}"?`) && deleteDojo(dojo.id)}>Delete</button>
           </div>
-          <button
-            className="ws-btn primary"
-            disabled={(dojo?.agents.length ?? 0) >= MAX_AGENTS}
-            onClick={() => { const id = addAgent(); if (id) setSel(id) }}
-          >
-            + Add agent {dojo ? `(${dojo.agents.length}/${MAX_AGENTS})` : ''}
-          </button>
-        </div>
+        </section>
+      )}
 
-        {/* agent editor */}
-        <div className="ws-editor">
-          {!agent && <p className="ws-empty">Select or add an agent to edit its skin, function, tasks and budget.</p>}
-          {agent && <AgentEditor agent={agent} currency={currency} onPickSkin={() => setPicking(true)} onDeleted={() => setSel(null)} />}
-        </div>
-      </div>
+      {wizStep === 'agents' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Place &amp; tune your agents</h3>
+          <p className="sq-lead">Tap an agent, then a cell to move it. Tap a name to edit. On the right, set each one's skin, function, tasks and budget.</p>
+          <div className="ws-cols">
+            <div className="ws-gridwrap">
+              <div className="ws-grid" style={{ gridTemplateColumns: `repeat(${GRID.cols}, minmax(0, 1fr))` }}>
+                {Array.from({ length: GRID.rows * GRID.cols }).map((_, i) => {
+                  const x = i % GRID.cols
+                  const y = Math.floor(i / GRID.cols)
+                  const a = cellAt(x, y)
+                  return (
+                    <button
+                      key={i}
+                      className={`ws-cell ${a ? 'filled' : ''} ${a && a.id === sel ? 'sel' : ''}`}
+                      onClick={() => {
+                        if (a) setSel(a.id)
+                        else if (sel) { moveAgent(sel, x, y) }
+                      }}
+                    >
+                      {a && (
+                        <>
+                          <SkinAvatar skin={skinById(a.skinId)} size={34} />
+                          <span className="ws-cellname">{a.name}</span>
+                        </>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+              <button
+                className="ws-btn primary"
+                disabled={(dojo?.agents.length ?? 0) >= MAX_AGENTS}
+                onClick={() => { const id = addAgent(); if (id) setSel(id) }}
+              >
+                + Add agent {dojo ? `(${dojo.agents.length}/${MAX_AGENTS})` : ''}
+              </button>
+            </div>
+            <div className="ws-editor">
+              {!agent && <p className="ws-empty">Select or add an agent to edit its skin, function, tasks and budget.</p>}
+              {agent && <AgentEditor agent={agent} currency={currency} onPickSkin={() => setPicking(true)} onDeleted={() => setSel(null)} />}
+            </div>
+          </div>
+        </section>
+      )}
 
-      {/* save bar · dojo & agent edits are drafts until validated */}
-      <div className="ws-savebar">
-        <span className={`ws-saveflag ${dirty ? 'on' : ''}`}>{dirty ? '● Unsaved changes' : '✓ All changes saved'}</span>
-        <button className="ws-btn primary" disabled={!dirty} onClick={save}>Validate &amp; save dojo</button>
-      </div>
+      {wizStep === 'save' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Review &amp; save</h3>
+          <p className="sq-lead">Your dojo &amp; agent edits are drafts until you validate them.</p>
+          <div className="sq-cards3">
+            <div className="sq-info"><span className="sq-info-k">Dojo</span><b>{dojo.name}</b></div>
+            <div className="sq-info"><span className="sq-info-k">Environment</span><b>{tpl.label}</b></div>
+            <div className="sq-info"><span className="sq-info-k">Agents</span><b>{dojo.agents.length}/{MAX_AGENTS}</b></div>
+          </div>
+          <div className="ws-savebar">
+            <span className={`ws-saveflag ${dirty ? 'on' : ''}`}>{dirty ? '● Unsaved changes' : '✓ All changes saved'}</span>
+            <button className="ws-btn primary" disabled={!dirty} onClick={save}>Validate &amp; save dojo</button>
+          </div>
+        </section>
+      )}
 
       {picking && agent && (
         <SkinPicker

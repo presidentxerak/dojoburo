@@ -76,6 +76,36 @@ function hashStr(s: string): number {
   return Math.abs(h)
 }
 
+// A dedicated set of 10 panda skins, each with a DIFFERENT head accessory.
+// The panda kind renders a white body with black ears + eye patches; we vary the
+// outfit colour and force one accessory per skin so the whole set reads as a fun,
+// distinct crew (Lazy the panda lives on here, now as a wearable skin).
+const PANDA: [string, string, string, string, string][] = [
+  // [name, accessory, outfit, outfit2, extra(bamboo/accent)]
+  ['Boss Panda', 'bowler', '#2b2f3d', '#14161f', '#5a6272'],
+  ['Top-Hat Panda', 'tophat', '#1c1c1c', '#3a2f10', '#caa32e'],
+  ['Cowboy Panda', 'cowboy', '#a9743f', '#6b4a2b', '#e8c14a'],
+  ['Wizard Panda', 'wizardhat', '#6a2fb5', '#2a1450', '#e6c6ff'],
+  ['Sporty Panda', 'cap', '#2f5fe0', '#12306e', '#7fb0ff'],
+  ['Cool Panda', 'shades', '#14161f', '#0c0d14', '#e0c14a'],
+  ['Beret Panda', 'beret', '#e35d72', '#a52a44', '#ffc2cf'],
+  ['Beanie Panda', 'beanie', '#12b36a', '#0a6e42', '#7bffc0'],
+  ['Party Panda', 'party', '#ff6fae', '#8a2f57', '#8be0ff'],
+  ['Flower Panda', 'flower', '#4fd6a6', '#2f9c78', '#c9fff0'],
+]
+const PANDA_SKINS: Skin[] = PANDA.map(([name, acc, outfit, outfit2, extra]) => ({
+  id: `panda-${acc}`,
+  name,
+  theme: 'Panda',
+  kind: 'panda',
+  face: '#f5f5f7',       // classic white panda body
+  outfit,
+  outfit2,
+  pants: '#1c1c1c',      // black legs
+  extra,
+  acc,
+}))
+
 export const SKINS: Skin[] = (() => {
   const out: Skin[] = []
   THEMES.forEach(([theme, , outfit, outfit2, pants, extra], ti) => {
@@ -95,11 +125,12 @@ export const SKINS: Skin[] = (() => {
       })
     }
   })
+  out.push(...PANDA_SKINS)
   return out
 })()
 
 export const SKIN_BY_ID: Record<string, Skin> = Object.fromEntries(SKINS.map((s) => [s.id, s]))
-export const SKIN_THEMES: string[] = THEMES.map((t) => t[0])
+export const SKIN_THEMES: string[] = [...THEMES.map((t) => t[0]), 'Panda']
 
 export function skinById(id: string): Skin {
   return SKIN_BY_ID[id] ?? SKINS[0]
