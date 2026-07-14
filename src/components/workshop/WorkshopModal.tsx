@@ -27,23 +27,28 @@ type Tab = 'studio' | 'account' | 'billing'
 // the CEO dashboard or the city. The three tabs (Dojos & agents / Account /
 // Billing) reuse the exact same panels the modal used.
 // ---------------------------------------------------------------------------
+const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
+  studio: { title: 'Dojo Studio', sub: 'Build your dojos, place & tune each agent, then connect apps and save.' },
+  account: { title: 'Account', sub: 'Your profile, sign-in and identity across devices.' },
+  billing: { title: 'Billing', sub: 'Credits, currency, your Claude key and plans.' },
+}
+
 export function StudioPage() {
+  // Account & Billing were moved to the burger menu; the Studio page is now just
+  // "Dojos & agents". A deep-link (burger Account / My Credits) can still land on
+  // the account/billing section — the title reflects it, no tab switcher.
   const intent = useWork((s) => s.studioIntent)
-  const [tab, setTab] = useState<Tab>(intent && intent !== 'studio' ? (intent as Tab) : 'studio')
+  const tab: Tab = intent && (intent === 'account' || intent === 'billing') ? intent : 'studio'
+  const head = STUDIO_TITLES[tab]
   return (
     <div className="app studio-page">
       <TopBar />
       <div className="studio-page-body">
         <header className="ws-head studio-page-head">
           <div className="studio-page-head-l">
-            <strong>Dojo Studio</strong>
-            <span className="studio-page-sub">Build your dojos, tune each agent, manage your account &amp; billing.</span>
+            <strong>{head.title}</strong>
+            <span className="studio-page-sub">{head.sub}</span>
           </div>
-          <nav className="ws-tabs">
-            <button className={tab === 'studio' ? 'on' : ''} onClick={() => setTab('studio')}>Dojos &amp; agents</button>
-            <button className={tab === 'account' ? 'on' : ''} onClick={() => setTab('account')}>Account</button>
-            <button className={tab === 'billing' ? 'on' : ''} onClick={() => setTab('billing')}>Billing</button>
-          </nav>
           <button className="ws-x studio-page-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">×</button>
         </header>
         <div className="ws-body studio-page-scroll">

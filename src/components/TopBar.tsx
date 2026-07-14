@@ -103,7 +103,8 @@ export function TopBar() {
             {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
             <a className="tb-menu-item tb-only-mobile tb-menu-link" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setDojosOpen(true) }}>Dojos</button>
-            <button className="tb-menu-item" onClick={openCredits}>My Credits</button>
+            <button className="tb-menu-item" onClick={openAccount}>Account</button>
+            <button className="tb-menu-item" onClick={openCredits}>My Credits · Billing</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setSettingsOpen(true) }}>Settings</button>
             <button className="tb-menu-item tb-only-mobile" onClick={openStudio}>Manage Studio</button>
 

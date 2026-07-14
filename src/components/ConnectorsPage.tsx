@@ -6,18 +6,30 @@
 // header + the mobile bottom bar so a phone user can jump back anywhere.
 // ---------------------------------------------------------------------------
 import { useEffect } from 'react'
-import { CONNECTORS, type ConnectorCategory } from '../data/connectors'
+import { CONNECTORS, connectorsForFunction, type Connector } from '../data/connectors'
+import { ROLE_AGENTS } from '../data/roleAgents'
+import type { Department } from '../data/agents'
 import { useWork } from '../agents/workStore'
 import { startConnect } from '../agents/workApi'
 import { ConnectorLogo } from './ConnectorLogo'
 import { TopBar } from './TopBar'
 import { PageBar } from './PageBar'
 
-// group order · same taxonomy the Dojo Guide uses
-const CATEGORY_ORDER: ConnectorCategory[] = [
-  'Marketing & Social', 'CRM & Sales', 'Comms', 'Docs & Notes', 'Dev',
-  'Finance', 'Design', 'Scheduling', 'Support', 'Storage & Legal',
-]
+// Classify the connectors by the agents' JOB (métier): one section per
+// department, titled with the agent(s) whose job it is — so you see which apps
+// each of your agents can act inside. A connector serving several jobs appears
+// under each (it genuinely works for both).
+const METIER_GROUPS: { key: Department; label: string; connectors: Connector[] }[] = (() => {
+  const seen = new Set<Department>()
+  const groups: { key: Department; label: string; connectors: Connector[] }[] = []
+  for (const a of ROLE_AGENTS) {
+    if (seen.has(a.dept)) continue
+    seen.add(a.dept)
+    const titles = ROLE_AGENTS.filter((x) => x.dept === a.dept).map((x) => x.title)
+    groups.push({ key: a.dept, label: titles.join(' · '), connectors: connectorsForFunction(a.dept) })
+  }
+  return groups
+})()
 
 export function ConnectorsPage() {
   const tools = useWork((s) => s.tools)
@@ -49,7 +61,7 @@ export function ConnectorsPage() {
 
         {/* how it works · A to Z */}
         <div className="connect-how">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Find the app by category</b><span>Apps are grouped by function: Marketing, CRM &amp; Sales, Comms, Dev, Finance… Each agent's tasks light up the apps they use.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Find the app by agent</b><span>Apps are grouped by the agent whose job uses them — your Marketer's channels, your Business Analyst's finance tools, and so on.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve the provider's OAuth screen (or paste an API token). No passwords — you authorise on the provider's own site.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Your agents act for real</b><span>The sealed token lets the agent do real work in that app. Tap <b>Full guide</b> on any app for exact scopes &amp; setup, or <b>Disconnect</b> anytime.</span></div></div>
         </div>
@@ -58,12 +70,12 @@ export function ConnectorsPage() {
           <p className="connect-hint">Live OAuth needs the worker configured (<code>DATABASE_URL</code>, <code>CONNECTOR_ENC_KEY</code> and each app's keys). Until then, <b>Set up ↗</b> opens the provider console and each app's full guide explains every step.</p>
         )}
 
-        {CATEGORY_ORDER.map((cat) => {
-          const list = CONNECTORS.filter((c) => c.category === cat)
+        {METIER_GROUPS.map((group) => {
+          const list = group.connectors
           if (!list.length) return null
           return (
-            <section key={cat} className="connect-cat">
-              <h2 className="connect-cat-h">{cat} <span className="connect-cat-n">{list.length}</span></h2>
+            <section key={group.key} className="connect-cat">
+              <h2 className="connect-cat-h">{group.label} <span className="connect-cat-n">{list.length} apps</span></h2>
               <div className="connect-grid">
                 {list.map((c) => {
                   const st = tools[c.id]
@@ -75,7 +87,7 @@ export function ConnectorsPage() {
                         <ConnectorLogo id={c.id} label={c.label} size={34} />
                         <div className="connect-card-meta">
                           <strong>{c.label}</strong>
-                          <em>{c.auth === 'oauth' ? 'OAuth' : 'API token'}{isOn && st?.account ? ` · ${st.account}` : ''}</em>
+                          <em>{c.auth === 'oauth' ? 'OAuth' : 'API token'} · {c.category}{isOn && st?.account ? ` · ${st.account}` : ''}</em>
                         </div>
                       </div>
                       <p className="connect-card-blurb">{c.blurb}</p>

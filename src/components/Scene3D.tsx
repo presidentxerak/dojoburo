@@ -38,14 +38,15 @@ function CameraRig() {
     let tz = 1
     let px = 0
     let pz = 18.5
-    let py = 10.4
+    let py = 11.6
     let ty = 1.3
     if (portrait) {
-      // closer + lower on phones so the agents read large and are easy to tap
-      // (they were tiny before); the widened fov keeps the side seats in frame
-      ty = 1.5
-      pz = 14.5
-      py = 9
+      // close enough that agents read large + tappable, but a higher vantage so
+      // you look down ONTO the room and see every agent clearly (asked for a more
+      // top-down angle). The widened fov keeps the side seats in frame.
+      ty = 1.35
+      pz = 15.5
+      py = 12.4
     }
     const sp = selected ? agentWorldPos(selected) : undefined
     if (sp) {
