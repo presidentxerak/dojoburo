@@ -93,6 +93,11 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
 
   return (
     <div className="camp-mod sq">
+      <StepBar
+        steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
+        onBack={goBack} backDisabled={stepIdx === 0}
+        onNext={advance} nextLabel={nextLabel}
+      />
 
       {step === 'brief' && (
         <section className="sq-panel">
@@ -175,15 +180,9 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
             <button className="btn tiny" onClick={exportSvg}>Download creative (SVG)</button>
             <button className="btn tiny ghost" onClick={copyText}>Copy the full copy pack</button>
           </div>
-          <p className="muted small">Meta only (Facebook &amp; Instagram). Connect your Meta account (the CONNECT strip above) to run these ads for real.</p>
+          <p className="muted small">Meta only (Facebook &amp; Instagram). Connect your Meta account (Connect apps, top right) to run these ads for real.</p>
         </section>
       )}
-
-      <StepBar
-        steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
-        onBack={goBack} backDisabled={stepIdx === 0}
-        onNext={advance} nextLabel={nextLabel}
-      />
     </div>
   )
 }

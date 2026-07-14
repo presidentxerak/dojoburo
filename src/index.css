@@ -124,17 +124,18 @@ a:hover { text-decoration: underline; }
 .hud-grip, .hud-open-fab, .hud-sheet-head, .hud-close { display: none; }
 @media (max-width: 720px) { .hud-toggle { display: none; } }
 
-/* 3D world labels (drei Html) */
+/* 3D world labels (drei Html) · transparent so they never hide the agents;
+   the job title sits above each agent in a light 14px, legible on any backdrop
+   via a soft white halo. */
 .tag3d {
-  font-family: var(--font-pixel); font-weight: 800; font-size: 16px; letter-spacing: 0.5px; white-space: nowrap;
-  background: var(--panel); border: 1px solid var(--border); color: var(--ink);
-  padding: 3px 9px; border-radius: 11px; box-shadow: var(--shadow-sm); backdrop-filter: blur(4px);
-  transform: translateY(-6px);
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px; letter-spacing: 0.01em; white-space: nowrap;
+  background: transparent; border: none; color: #111; padding: 0;
+  text-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 1px 2px rgba(255,255,255,0.9);
+  transform: translateY(-4px);
 }
-.tag3d span { font-size: 16px; color: var(--muted); }
-.tag3d.sel { background: linear-gradient(150deg, var(--pink), var(--violet)); color: #fff; border: none; }
-.tag3d.sel span { color: #ffe6f3; }
-.tag3d.hero { background: linear-gradient(150deg, var(--pink), var(--peach)); color: #fff; border: none; letter-spacing: 1px; }
+.tag3d span { font-size: 14px; color: #111; }
+.tag3d.sel { color: #000; font-weight: 800; }
+.tag3d.hero { color: #000; font-weight: 800; }
 .work3d { width: 15px; height: 15px; border: 1px solid var(--blue); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
 .bubble3d {
   font-family: var(--font-read); font-size: 16px; line-height: 1.3; max-width: 150px; text-align: center;
@@ -3171,10 +3172,10 @@ input, textarea, select, button { border-radius: 0 !important; }
 
 /* ===== Squarespace-style bottom step navigation ===== */
 .stepbar {
-  position: sticky; bottom: 0; z-index: 5;
+  position: sticky; top: 0; z-index: 6;
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px;
-  padding: 14px 20px; margin: 24px -4px -4px; background: #fff;
-  border-top: 1px solid var(--border);
+  padding: 14px 20px; margin: -4px -4px 22px; background: #fff;
+  border-bottom: 1px solid var(--border);
 }
 .stepbar-back, .stepbar-next {
   font-family: var(--font-ui); font-weight: 800; font-size: 14px; letter-spacing: 0.06em;
@@ -3220,3 +3221,49 @@ input, textarea, select, button { border-radius: 0 !important; }
 .wiz-preview b { margin-left: auto; font-weight: 800; }
 .wiz-fontpreview { padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; color: #000; }
 .sq-opt.locked { opacity: 0.7; cursor: default; }
+
+/* ===================================================================
+   UI FIXES — header alignment, toasts off the dojo, cleaner dashboards
+   =================================================================== */
+/* Header: sharp, black wordmark aligned with the icon, uniform text nav */
+.topbar { border-radius: 0 !important; align-items: center; }
+.brand { align-items: center !important; gap: 10px; }
+.brand > div { display: flex; align-items: center; }
+.brand h1 {
+  margin: 0; color: #000 !important; background: none !important; -webkit-text-fill-color: #000 !important;
+  font-family: var(--font-pixel); font-weight: 800 !important; font-size: 22px !important; line-height: 1 !important;
+  letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 8px;
+}
+.brand h1 .wordmark { font-size: 22px !important; }
+.topbar .tb-nav a, .topbar .tb-guide, .topbar .tb-studio, .topbar .tb-city {
+  color: #000 !important; font-weight: 600 !important; font-size: 15px !important; border-radius: 0 !important;
+}
+.topbar .tb-nav a:hover, .topbar .tb-guide:hover, .topbar .tb-studio:hover, .topbar .tb-city:hover { opacity: 0.6; }
+/* right-side auth/create buttons: uniform height + sharp */
+.topbar-right .btn.tiny { height: 34px; display: inline-flex; align-items: center; border-radius: 0 !important; font-size: 14px; }
+
+/* Toasts: bottom-right, compact — never cover the dojo / agents */
+.toasts {
+  top: auto !important; bottom: 88px !important; left: auto !important; right: 16px !important;
+  transform: none !important; align-items: flex-end !important;
+}
+.toast { border-radius: 0 !important; max-width: 320px; box-shadow: 0 6px 20px rgba(0,0,0,0.14) !important; }
+
+/* Dojo switcher: sharp, clearly below the header, opens downward */
+.dash-hero-switch {
+  border-radius: 0 !important; margin: 14px 2px 12px !important; border: 1px solid var(--border) !important;
+}
+.dash-hero-switch select { color: #000 !important; border-radius: 0 !important; }
+.dash-hero-switch button { border-radius: 0 !important; color: #000 !important; }
+
+/* Dashboard: drop the coloured square/dot next to section titles in the header */
+.modhost-dot { display: none !important; }
+.modhost-bar-l { gap: 0 !important; }
+
+/* Module header "Connect apps" button (replaces the connector strip) */
+.modhost-connect {
+  font-family: var(--font-ui); font-weight: 700; font-size: 14px; color: #000;
+  background: #fff; border: 1px solid #000; border-radius: 0; padding: 8px 14px; cursor: pointer;
+  white-space: nowrap;
+}
+.modhost-connect:hover { background: #f2f2f2; }

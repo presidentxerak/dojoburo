@@ -92,6 +92,11 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
   return (
     <div className="brand-mod sq">
+      <StepBar
+        steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
+        onBack={goBack} backDisabled={stepIdx === 0}
+        onNext={advance} canNext={canNext} nextLabel={nextLabel}
+      />
 
       {step === 'concept' && (
         <section className="sq-panel">
@@ -164,12 +169,6 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
           <div className="sq-tags">{socialHandles(kit.name).map((h) => <span key={h} className="sq-tag">{h}</span>)}</div>
         </section>
       )}
-
-      <StepBar
-        steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
-        onBack={goBack} backDisabled={stepIdx === 0}
-        onNext={advance} canNext={canNext} nextLabel={nextLabel}
-      />
     </div>
   )
 }
