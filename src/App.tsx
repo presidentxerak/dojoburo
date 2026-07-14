@@ -27,6 +27,7 @@ export default function App() {
   const hasWallets = useDojo((s) => Object.keys(s.wallets).length > 0)
   const muted = useDojo((s) => s.muted)
   const selected = useDojo((s) => s.selectedAgent)
+  const selectAgent = useDojo((s) => s.selectAgent)
   const account = useWorkshop((s) => s.account)
   const needsAuth = !account && privyConfigured()
   const createIntent = useWork((s) => s.createIntent)
@@ -52,8 +53,10 @@ export default function App() {
   // returns the dojo to fullscreen so the company panel never lingers over it —
   // the company overview now lives inside Chief's dashboard.
   useEffect(() => {
+    // selecting an agent reveals its dashboard/studio · deselecting keeps you on
+    // the CEO dashboard (the roster + company overview) rather than yanking you
+    // back to the 3D dojo — the mobile bar's Dojo/CEO buttons drive that view.
     if (selected && dojoFull) setDojoFull(false)
-    if (!selected) setDojoFull(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected])
 
@@ -78,7 +81,8 @@ export default function App() {
   useEffect(() => {
     let intent: string | null = null
     try { intent = sessionStorage.getItem('dojoburo.nav'); if (intent) sessionStorage.removeItem('dojoburo.nav') } catch { /* ignore */ }
-    if (intent === 'dashboard') setDojoFull(false)
+    if (intent === 'dashboard') { useDojo.getState().selectAgent(null); setDojoFull(false) }
+    else if (intent === 'dojo') { useDojo.getState().selectAgent(null); setDojoFull(true) }
     else if (intent === 'studio') useWork.getState().openStudio('studio')
   }, [])
 
@@ -127,16 +131,20 @@ export default function App() {
       <DojosManager />
       <SupportBot />
 
-      {/* mobile bottom navigation bar · Dojo (the 3D office) then CEO (dashboard) */}
-      <nav className="mbar" aria-label="Navigation">
-        <button className={dojoFull ? 'on' : ''} onClick={() => setDojoFull(true)}>
+      {/* mobile bottom navigation bar · Dojo (the 3D office) · CEO (the company
+          dashboard that manages every agent) · Studio · Connect apps · City */}
+      <nav className="mbar mbar-5" aria-label="Navigation">
+        <button className={dojoFull ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(true) }}>
           <span className="mbar-ic">◳</span>Dojo
         </button>
-        <button className={!dojoFull ? 'on' : ''} onClick={() => { setDojoFull(false); document.querySelector('.dash-side')?.scrollTo({ top: 0, behavior: 'smooth' }) }}>
+        <button className={!dojoFull && !selected ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(false); document.querySelector('.dash-side')?.scrollTo({ top: 0, behavior: 'smooth' }) }}>
           <span className="mbar-ic">▤</span>CEO
         </button>
         <button onClick={() => useWork.getState().openStudio('studio')}>
           <span className="mbar-ic">✎</span>Studio
+        </button>
+        <button onClick={() => { location.hash = 'connect' }}>
+          <span className="mbar-ic">⊞</span>Connect
         </button>
         <button onClick={() => { location.hash = 'city' }}>
           <span className="mbar-ic">⌂</span>City

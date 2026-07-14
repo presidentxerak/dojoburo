@@ -666,13 +666,16 @@ a:hover { text-decoration: underline; }
     border-top: 1px solid var(--border); padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
   }
   .mbar button {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
     background: none; border: none; cursor: pointer; padding: 4px 2px;
     font-family: var(--font-ui); font-weight: 700; font-size: 16px; color: var(--muted);
   }
   .mbar button:active { color: var(--ink); }
   .mbar button.on { color: var(--ink); }
   .mbar-ic { font-size: 16px; line-height: 1; }
+  /* five tabs (Dojo · CEO · Studio · Connect · City) — smaller labels so they fit */
+  .mbar-5 button { font-size: 11px; letter-spacing: -0.01em; }
+  .mbar-5 .mbar-ic { font-size: 17px; }
   /* keep content + the help button clear of the bar */
   .dash-side { padding-bottom: 84px; }
   .dojo-agent-overlay, .dojo-hud { bottom: 74px; }

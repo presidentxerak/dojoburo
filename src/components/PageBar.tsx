@@ -13,7 +13,7 @@ function toApp(intent: 'dashboard' | 'dojo') {
 
 export function PageBar({ current }: { current: Tab }) {
   return (
-    <nav className="mbar" aria-label="Navigation">
+    <nav className="mbar mbar-5" aria-label="Navigation">
       <button className={current === 'dojo' ? 'on' : ''} onClick={() => toApp('dojo')}>
         <span className="mbar-ic">◳</span>Dojo
       </button>
@@ -22,6 +22,9 @@ export function PageBar({ current }: { current: Tab }) {
       </button>
       <button className={current === 'studio' ? 'on' : ''} onClick={() => { location.hash = 'studio' }}>
         <span className="mbar-ic">✎</span>Studio
+      </button>
+      <button className={current === 'connect' ? 'on' : ''} onClick={() => { location.hash = 'connect' }}>
+        <span className="mbar-ic">⊞</span>Connect
       </button>
       <button className={current === 'city' ? 'on' : ''} onClick={() => { location.hash = 'city' }}>
         <span className="mbar-ic">⌂</span>City

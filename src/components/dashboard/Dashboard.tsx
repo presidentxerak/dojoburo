@@ -113,7 +113,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   // dashboard — no intermediate profile screen. Utility agents (CEO, Engine,
   // Credits, Config) have no studio, so they show their control panel instead.
   useEffect(() => {
-    if (!selectedId) return
+    // deselecting (CEO button, closing a studio, "All agents") drops back to the
+    // company roster — so clear any open module when there's no selected agent.
+    if (!selectedId) { setModuleId(null); return }
     const a = agents.find((x) => x.id === selectedId)
     const mod = a && MODULES.find((m) => m.agentRole === canonicalRole(a.role))
     if (mod) setModuleId(mod.id)
