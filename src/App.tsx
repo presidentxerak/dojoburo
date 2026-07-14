@@ -29,8 +29,13 @@ export default function App() {
   const needsAuth = !account && privyConfigured()
   const createIntent = useWork((s) => s.createIntent)
 
-  // the dojo can expand to fill the window (nanocorp "Desktop View" equivalent)
-  const [dojoFull, setDojoFull] = useState(false)
+  // the dojo fills the window on arrival (centered), then reveals the panel when
+  // you pick an agent. A "minimal" mode hides the 3D dojo entirely.
+  const [dojoFull, setDojoFull] = useState(true)
+  const [minimal, setMinimal] = useState(() => {
+    try { return localStorage.getItem('dojoburo.minimal.v1') === '1' } catch { return false }
+  })
+  const setMinimalP = (v: boolean) => { setMinimal(v); try { localStorage.setItem('dojoburo.minimal.v1', v ? '1' : '0') } catch { /* */ } }
   // first-run onboarding · "what company do you want to create?"
   const [onboarded, setOnboarded] = useState(() => {
     try { return localStorage.getItem('dojoburo.onboarded.v1') === '1' } catch { return true }
@@ -82,23 +87,31 @@ export default function App() {
   }, [fireEvent])
 
   return (
-    <div className={`app dash-layout${dojoFull ? ' dojo-full' : ''}`}>
+    <div className={`app dash-layout${dojoFull && !minimal ? ' dojo-full' : ''}${minimal ? ' minimal' : ''}`}>
       <Defs />
       <TopBar />
 
       <div className="dash-main">
-        {/* dojo on the LEFT, dashboard on the RIGHT */}
-        <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
-          <div className="scene-bg"><Scene3D /></div>
+        {/* dojo on the LEFT, dashboard on the RIGHT · hidden in minimal mode */}
+        {!minimal && (
+          <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
+            <div className="scene-bg"><Scene3D /></div>
 
-          <button className="dojo-full-toggle" onClick={() => setDojoFull((v) => !v)} title={dojoFull ? 'Shrink the dojo' : 'Dojo fullscreen'}>
-            {dojoFull ? '⤡ Shrink' : '⤢ Fullscreen'}
-          </button>
-        </div>
+            <div className="dojo-controls">
+              <button className="dojo-full-toggle" onClick={() => setDojoFull((v) => !v)} title={dojoFull ? 'Shrink the dojo' : 'Dojo fullscreen'}>
+                {dojoFull ? '⤡ Shrink' : '⤢ Fullscreen'}
+              </button>
+              <button className="dojo-full-toggle" onClick={() => setMinimalP(true)} title="Hide the dojo · minimal view">Minimal ▸</button>
+            </div>
+          </div>
+        )}
 
-        {!dojoFull && (
+        {(minimal || !dojoFull) && (
           <div className="dash-side">
-            <Dashboard onOpenDojo={() => setDojoFull(true)} />
+            {minimal && (
+              <button className="dojo-full-toggle show-dojo" onClick={() => setMinimalP(false)} title="Show the 3D dojo">◂ Show dojo</button>
+            )}
+            <Dashboard onOpenDojo={() => { setMinimalP(false); setDojoFull(true) }} />
           </div>
         )}
       </div>

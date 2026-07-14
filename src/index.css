@@ -2935,3 +2935,62 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 }
 /* preserve the danger buttons' red outline (re-asserted after the rule above) */
 .btn.danger, .ws-btn.danger { border: 1.5px solid color-mix(in srgb, #e0475f 45%, transparent) !important; }
+
+/* ===========================================================================
+   Fullscreen studio + Squarespace-inspired design system (clean, high-contrast,
+   generous whitespace, medium-rounded white cards, pill tags, crisp CTAs).
+   Scoped to .modhost-fs so it upgrades every studio without touching the rest.
+   =========================================================================== */
+.modhost-fs {
+  position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column;
+  background: var(--bg); overflow: hidden;
+}
+.modhost-bar {
+  flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 16px 22px; border-bottom: 1px solid var(--border); background: var(--panel-solid);
+}
+.modhost-bar-l { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.modhost-dot { flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--dc); box-shadow: 0 4px 14px color-mix(in srgb, var(--dc) 45%, transparent); }
+.modhost-name { margin: 0; font-family: var(--font-pixel); font-weight: 800; font-size: 22px; letter-spacing: -0.01em; color: var(--ink); }
+.modhost-blurb { margin: 2px 0 0; font-size: 15px; color: var(--muted); line-height: 1.4; max-width: 70ch; }
+.modhost-bar-r { flex: none; display: flex; align-items: center; gap: 12px; }
+.modhost-close {
+  width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--panel-2);
+  color: var(--ink); font-size: 18px; cursor: pointer; display: grid; place-items: center; transition: background 0.14s, border-color 0.14s, transform 0.14s;
+}
+.modhost-close:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); transform: rotate(90deg); }
+.modhost-conns { flex: none; display: flex; align-items: center; gap: 12px; padding: 12px 22px; border-bottom: 1px solid var(--border); background: var(--panel-2); overflow-x: auto; }
+.modhost-conns-label { flex: none; font-family: var(--font-pixel); font-weight: 800; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.modhost-conns-row { display: flex; gap: 8px; }
+.modhost-conn {
+  flex: none; font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; white-space: nowrap;
+  background: var(--panel-solid); border: 1px solid var(--border); border-radius: 999px; padding: 7px 14px; transition: border-color 0.14s, background 0.14s;
+}
+.modhost-conn:hover { border-color: var(--dc); background: color-mix(in srgb, var(--dc) 8%, var(--panel-solid)); }
+.modhost-body { flex: 1; overflow-y: auto; padding: 28px 22px 80px; }
+.modhost-body > * { max-width: 1080px; margin-left: auto; margin-right: auto; }
+
+/* Squarespace-style components, scoped to a studio */
+.modhost-fs .btn, .modhost-fs button.btn { border-radius: 8px; font-family: var(--font-ui); font-weight: 700; }
+.modhost-fs .btn.primary, .modhost-fs .btn.ceo-launch { background: var(--ink); color: var(--bg); border: none; border-radius: 999px; padding: 12px 22px; }
+.modhost-fs .btn.primary:hover { filter: brightness(1.1); }
+.modhost-fs input, .modhost-fs textarea, .modhost-fs select {
+  border-radius: 10px; border: 1.5px solid var(--border); background: var(--panel-2); font-family: var(--font-ui); font-size: 16px; padding: 11px 13px;
+}
+.modhost-fs input:focus, .modhost-fs textarea:focus, .modhost-fs select:focus { outline: none; border-color: var(--dc); }
+.sq-card { background: var(--panel-solid); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 1px 2px rgba(20,18,40,.04), 0 10px 30px rgba(20,18,40,.05); }
+.sq-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--ink); background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; }
+
+@media (max-width: 700px) {
+  .modhost-bar { padding: 12px 14px; }
+  .modhost-name { font-size: 18px; }
+  .modhost-blurb { display: none; }
+  .modhost-body { padding: 18px 14px 90px; }
+}
+
+/* minimal mode (dojo hidden) + dojo control cluster */
+.dash-layout.minimal .dash-side { flex: 1; width: 100%; max-width: 100%; border-left: none; }
+.dash-layout.minimal .dash-side .dash-panels { max-width: 1100px; margin: 0 auto; }
+.dojo-controls { position: absolute; top: 12px; right: 12px; z-index: 26; display: flex; gap: 8px; }
+.dojo-controls .dojo-full-toggle { position: static; }
+.show-dojo { position: sticky; top: 6px; z-index: 26; margin: 2px 0 10px; }
