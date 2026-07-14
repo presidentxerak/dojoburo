@@ -24,7 +24,7 @@ export const KB: KBTopic[] = [
     id: 'studios',
     chip: 'The studios',
     answer:
-      'Each agent in your office is a real pro studio that opens when you click it: Branding (logo, palette, typography, Brand Kit), Website Builder (block-based website, HTML export), Campaign Studio (Meta ads: audiences, personas, creatives), Video Creator (editing + .webm export), Finance & Accounting (CSV import, VAT, forecasts), CRM & Outbound (pipeline + email sequences) and Analytics (CAC, LTV, ROI explained). Everything runs 100% in your browser — video editing, image compression and exports stay on your machine, nothing is sent to a server. The AI creates a first version and you keep full control.',
+      'Your office is run by eight AI teammates, each opening its own workspace when you click it: Chief (CEO — plans and delegates every task), Brandi (Brand Architect — brand names, domains & .com availability), Weblos (Website Designer — block-based website, HTML export), Marketus (Marketing Studio — Meta ads, video editing and image optimisation in one creative workflow), Pumpi (Growth Manager — leads, pipeline & personalised outreach), Busino (Business Analyst — finance and analytics in one dashboard: VAT, forecasts, CAC, LTV, ROI), Sentinel (Operations Guardian — autonomy, budgets & encrypted secrets) and Vaultor (Billing Manager — credits, subscriptions & payments). Everything runs 100% in your browser — video editing, image compression and exports stay on your machine, nothing is sent to a server. The AI creates a first version and you keep full control.',
     links: [
       { label: 'See the studios', href: '#studios' },
       { label: 'Open my office', href: '#app' },

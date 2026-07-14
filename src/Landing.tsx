@@ -160,7 +160,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <h2>Build your own team</h2>
         <p className="lp-lead">Open the Dojo Studio to create, edit and delete agents. Pick one of {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, choose the agent's function and tasks, and set a per-agent credit budget. Arrange them on a grid and run several dojos (companies) side by side.</p>
         <div className="lp-schema">
-          <div className="lp-node"><b>Create</b><span>Add up to 12 agents per dojo</span></div>
+          <div className="lp-node"><b>Create</b><span>Eight AI teammates per company</span></div>
           <span className="lp-arrow">→</span>
           <div className="lp-node"><b>Skin</b><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds, in 3D</span></div>
           <span className="lp-arrow">→</span>

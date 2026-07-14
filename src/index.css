@@ -3011,6 +3011,25 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .vo-audio { height: 40px; max-width: 100%; }
 .vo-keybox { border-color: var(--dc, #7b5cff); }
 @media (max-width: 560px) { .vo-row { flex-direction: column; align-items: stretch; } .vo-gen { width: 100%; } }
+/* Agent teammate card · codename → job title → description → status → last activity → action */
+.agent-card { align-items: flex-start; text-align: left; }
+.agent-card .agent-code { font-family: var(--font-pixel); font-weight: 800; font-size: 22px; line-height: 1.1; letter-spacing: -0.01em; color: var(--ink); margin-top: 4px; }
+.agent-card .agent-title { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ac, #2f6bff); }
+.agent-card .agent-desc { font-size: 15px; line-height: 1.4; color: var(--muted); margin: 2px 0 auto; }
+.agent-card .agent-status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: var(--ink); margin-top: 10px; }
+.agent-card .agent-status i { width: 8px; height: 8px; border-radius: 50%; background: #9aa3ad; box-shadow: 0 0 0 3px rgba(154,163,173,0.18); }
+.agent-card .agent-status.s-active i { background: #1fa563; box-shadow: 0 0 0 3px rgba(31,165,99,0.18); }
+.agent-card .agent-status.s-working i { background: #2f6bff; box-shadow: 0 0 0 3px rgba(47,107,255,0.2); animation: agpulse 1.1s ease-in-out infinite; }
+.agent-card .agent-status.s-ready i { background: #7b8794; box-shadow: 0 0 0 3px rgba(123,135,148,0.16); }
+.agent-card .agent-status.s-paused i { background: #d9822b; box-shadow: 0 0 0 3px rgba(217,130,43,0.18); }
+@keyframes agpulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.agent-card .agent-last { font-size: 12.5px; color: var(--muted); opacity: 0.85; margin-top: 2px; }
+.agent-card .agent-action { margin-top: 12px; align-self: stretch; text-align: center; padding: 9px 12px; border-radius: 12px; background: var(--ink); color: var(--bg); font-weight: 800; font-size: 14px; }
+.agent-card:hover .agent-action { filter: brightness(1.12); }
+
+/* Composite studio switcher (Marketus / Busino) reuses the .sq-steps pill row */
+.studio-switch { margin-bottom: 14px; }
+
 .mod-intro { display: flex; flex-direction: column; gap: 6px; margin: 0 0 18px; padding: 0 0 16px; border-bottom: 1px solid var(--line, rgba(0,0,0,0.08)); }
 .mod-intro .sq-lead { margin: 0; }
 .sq-panel { display: flex; flex-direction: column; gap: 16px; }

@@ -5,14 +5,11 @@ import type { ComponentType } from 'react'
 // Modules are imported DIRECTLY (not lazy). They were lazy-loaded before, but a
 // stale/missing chunk after a deploy could 404 and leave the panel blank. Bundled
 // into the main chunk, a module always renders as long as the app shell loads.
-import AssetsModule from './assets/AssetsModule'
 import BrandingModule from './branding/BrandingModule'
 import WebsiteModule from './website/WebsiteModule'
-import CampaignModule from './campaign/CampaignModule'
-import VideoModule from './video/VideoModule'
-import FinanceModule from './finance/FinanceModule'
 import CRMModule from './crm/CRMModule'
-import AnalyticsModule from './analytics/AnalyticsModule'
+import MarketusModule from './marketing/MarketusModule'
+import BusinoModule from './business/BusinoModule'
 
 export interface ModuleProps {
   onClose: () => void
@@ -35,46 +32,34 @@ export interface ModuleDef {
   planned?: string[]
 }
 
+// One studio module per studio-owning agent. Marketus and Busino are composite
+// workspaces that internally switch between the former standalone studios, so
+// every original tool is still reachable — just grouped under one teammate.
 export const MODULES: ModuleDef[] = [
   {
-    id: 'branding', label: 'Branding Studio',
-    blurb: 'Logo, variants, palette, typography and a central Brand Kit reused everywhere.',
-    tint: '#a855f7', emoji: '🎨', agentRole: 'brand', status: 'live', comp: BrandingModule,
+    id: 'branding', label: 'Brand Studio',
+    blurb: 'Finds available brand names, domains and .com availability for your brand.',
+    tint: '#a855f7', emoji: '🎨', agentRole: 'brandi', status: 'live', comp: BrandingModule,
   },
   {
-    id: 'website', label: 'Website Builder',
+    id: 'website', label: 'Website Studio',
     blurb: 'Pro website builder: blocks, live editing, responsive, brand theme, local HTML export.',
-    tint: '#2f7fd6', emoji: '🌐', agentRole: 'web', status: 'live', comp: WebsiteModule,
+    tint: '#2f7fd6', emoji: '🌐', agentRole: 'weblos', status: 'live', comp: WebsiteModule,
   },
   {
-    id: 'campaign', label: 'Campaign Studio',
-    blurb: 'Full Meta campaign: objective, audiences, personas, creatives and copy.',
-    tint: '#e0459b', emoji: '📣', agentRole: 'acq', status: 'live', comp: CampaignModule,
+    id: 'marketing', label: 'Marketing Studio',
+    blurb: 'One creative workflow: Meta campaigns, video editing and image optimisation.',
+    tint: '#e0459b', emoji: '📣', agentRole: 'marketus', status: 'live', comp: MarketusModule,
   },
   {
-    id: 'video', label: 'Video Creator',
-    blurb: 'Local video editor: import, trim, brand captions, social formats, .webm export.',
-    tint: '#e0483f', emoji: '🎬', agentRole: 'video', status: 'live', comp: VideoModule,
+    id: 'crm', label: 'Growth Studio',
+    blurb: 'Leads, pipeline, personalised email sequences and outreach — 100% local.',
+    tint: '#d98c17', emoji: '🤝', agentRole: 'pumpi', status: 'live', comp: CRMModule,
   },
   {
-    id: 'crm', label: 'CRM & Outbound',
-    blurb: 'Prospects, pipeline, personalised email sequences and scoring — 100% local.',
-    tint: '#d98c17', emoji: '🤝', agentRole: 'outbound', status: 'live', comp: CRMModule,
-  },
-  {
-    id: 'finance', label: 'Finance & Accounting',
-    blurb: 'Revenue, expenses, cash, VAT and forecasts — 100% local CSV import.',
-    tint: '#1fa563', emoji: '📊', agentRole: 'revenue', status: 'live', comp: FinanceModule,
-  },
-  {
-    id: 'analytics', label: 'Business Analytics',
-    blurb: 'Sales, CAC, LTV, ROI, growth — with AI that explains your numbers. 100% local.',
-    tint: '#0e9b6a', emoji: '📈', agentRole: 'measure', status: 'live', comp: AnalyticsModule,
-  },
-  {
-    id: 'assets', label: 'Asset Library',
-    blurb: 'Optimise your images locally (no upload) and keep them offline.',
-    tint: '#14b8a6', emoji: '🗂️', agentRole: 'work', status: 'live', comp: AssetsModule,
+    id: 'business', label: 'Business Studio',
+    blurb: 'One dashboard: finance (revenue, VAT, forecasts) and analytics (CAC, LTV, ROI).',
+    tint: '#1fa563', emoji: '📊', agentRole: 'busino', status: 'live', comp: BusinoModule,
   },
 ]
 
