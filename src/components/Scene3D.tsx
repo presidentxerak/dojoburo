@@ -9,8 +9,8 @@ import { useDojo } from '../store'
 import { audio } from '../audio'
 import { Decor3D } from './three/Decor3D'
 import { Character3D } from './three/Character3D'
-import { Hero3D } from './three/Hero3D'
 import { Lazy3D } from './three/Lazy3D'
+import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
 
 /** Camera rig: gentle default framing. On desktop it's biased LEFT so the room
  *  isn't hidden by the right-hand panel; on portrait/phone it's centred, widened
@@ -92,6 +92,7 @@ function Agents({ seated }: { seated: Array<{ agent: WAgent; x: number; z: numbe
             busy={!!rt?.busy}
             selected={selectedAgent === wa.id}
             name={wa.name}
+            title={ROLE_BY_ID[canonicalRole(wa.role)]?.title ?? ''}
             level={stats[wa.id]?.level ?? 1}
             onSelect={() => {
               audio.sfx('click')
@@ -149,7 +150,6 @@ export function Scene3D() {
       <Suspense fallback={null}>
         <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
         <Agents seated={seated} />
-        <Hero3D />
         <Lazy3D />
       </Suspense>
       <CameraRig />

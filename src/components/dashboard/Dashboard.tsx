@@ -10,10 +10,7 @@ import { launchCeo } from '../../agents/autopilot'
 import { ROLE_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
 import { isAdmin } from '../../config/admin'
 import { ModuleHost } from '../../modules/ModuleHost'
-import { MODULES, MODULE_BY_ID } from '../../modules/registry'
-import { skinById } from '../../data/skins'
-import { Character3DImage } from '../three/Character3DImage'
-import { SkinPicker } from '../workshop/WorkshopModal'
+import { MODULES } from '../../modules/registry'
 import { InfoDot } from '../InfoDot'
 
 // Build stamp (injected by Vite) so the running version is visible in-app.
@@ -106,13 +103,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const selectedId = useDojo((s) => s.selectedAgent)
   const selectAgent = useDojo((s) => s.selectAgent)
   const byRole = (roleId: string) => agents.find((a) => a.role === roleId)
-  // The 3D skin (character) of the agent that owns a given role / module — so a
-  // mission or studio card shows the real agent that runs it, never an emoji.
-  const skinForRole = (roleId: string) => {
-    const a = byRole(roleId)
-    return a ? skinById(a.skinId) : undefined
-  }
-  const skinForModule = (moduleId: string) => skinForRole(MODULE_BY_ID[moduleId]?.agentRole ?? '')
   const ceo = byRole('chief') ?? agents.find((a) => a.fn === 'Leadership') ?? agents[0]
   const selected = agents.find((a) => a.id === selectedId) ?? null
   // Always resolve a role for a selected agent so the detail panel never comes
@@ -134,7 +124,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [msg, setMsg] = useState('')
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
-  const [picking, setPicking] = useState(false) // skin picker open for the selected agent
   const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
 
   // Clicking an agent (roster card OR the 3D dojo) jumps STRAIGHT to its studio
@@ -385,7 +374,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
   // ------------------------------------------------------------------ DETAIL --
   if (selected && selRole) {
-    const skin = skinById(selected.skinId)
     return (
       <div className="agentdash" style={{ ['--dc' as string]: selRole.tint }}>
         <div className="ad-topbar">
@@ -394,10 +382,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         </div>
 
         <header className="ad-head">
-          <button className="ad-avatar ad-avatar-3d" onClick={() => setPicking(true)} title="Change this agent's skin">
-            <Character3DImage skin={skin} size={96} />
-            <span className="ad-avatar-edit">Skin</span>
-          </button>
           <div className="ad-meta">
             <input
               className="ad-name"
@@ -422,30 +406,18 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           if (roleModules.length) {
             return (
               <div className="lp-studioteam ad-studioteam">
-                {roleModules.map((m) => {
-                  const mSkin = skinForModule(m.id)
-                  return (
-                    <button key={m.id} className="lp-studiocard" style={{ ['--ac' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
-                      {mSkin && <span className="lp-team-3d"><Character3DImage skin={mSkin} size={110} /></span>}
-                      <strong>{m.label}</strong>
-                      <span className="lp-studiocard-blurb">{m.blurb}</span>
-                      <span className="lp-team-more">Open the studio →</span>
-                    </button>
-                  )
-                })}
+                {roleModules.map((m) => (
+                  <button key={m.id} className="lp-studiocard agent-card" style={{ ['--ac' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
+                    <strong className="agent-code">{m.label}</strong>
+                    <span className="agent-desc">{m.blurb}</span>
+                    <span className="agent-action">Open →</span>
+                  </button>
+                ))}
               </div>
             )
           }
           return <div className="ad-body">{bodyFor(selRole.id)}</div>
         })()}
-
-        {picking && (
-          <SkinPicker
-            current={selected.skinId}
-            onPick={(id) => { updateAgent(selected.id, { skinId: id }); save(); setPicking(false) }}
-            onClose={() => setPicking(false)}
-          />
-        )}
       </div>
     )
   }
@@ -514,7 +486,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           const statusMod = engine.paused ? 'paused' : working ? 'working' : last ? 'active' : 'ready'
           return (
             <button key={a.id} className="lp-studiocard agent-card" style={{ ['--ac' as string]: r.tint }} onClick={() => selectAgent(a.id)}>
-              <span className="lp-team-3d"><Character3DImage skin={skinById(a.skinId)} size={110} /></span>
               <strong className="agent-code">{a.name}</strong>
               <span className="agent-title">{r.title}</span>
               <span className="agent-desc">{r.desc}</span>

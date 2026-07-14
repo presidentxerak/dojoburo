@@ -541,8 +541,7 @@ export function Character3D({
   mood,
   selected,
   busy,
-  name,
-  level,
+  title = '',
   onSelect,
   bare = false,
   walk = false,
@@ -554,8 +553,9 @@ export function Character3D({
   mood: Mood
   selected: boolean
   busy: boolean
-  name: string
-  level: number
+  name?: string
+  title?: string
+  level?: number
   onSelect: () => void
   bare?: boolean
   walk?: boolean
@@ -772,7 +772,7 @@ export function Character3D({
       {!bare && (
         <Html position={[0, isSlime ? 2.35 : 2.95, 0]} center distanceFactor={11} zIndexRange={[6, 0]} pointerEvents="none" occlude={false}>
           <div className={`tag3d ${selected ? 'sel' : ''}`}>
-            {name} <span>Lv.{level}</span>
+            {title}
           </div>
         </Html>
       )}
