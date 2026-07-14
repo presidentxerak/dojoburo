@@ -8,8 +8,8 @@ import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import type { BrandKit } from '../../lib/brand'
 import {
-  type Clip, type Overlay, type OverlayKind, type FormatId,
-  FORMATS, formatById, canvasSize, drawCover, drawOverlay, clipLen, totalLen, fmtTime, uid,
+  type Clip, type Overlay, type OverlayKind, type FormatId, type TextAnim,
+  FORMATS, TEXT_ANIMS, formatById, canvasSize, drawCover, drawOverlay, clipLen, totalLen, fmtTime, uid,
   loadProject, saveProject, putClipBlob, getClipBlob, delClipBlob, videoBrand, pickExportMime,
 } from '../../lib/video'
 import { VOICES, getTtsKey, setTtsKey, generateVoiceover } from '../../lib/tts'
@@ -97,7 +97,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
           const offset = list.slice(0, idx).reduce((n, c) => n + clipLen(c), 0)
           const tt = clip && v ? offset + Math.max(0, v.currentTime - clip.inSec) : 0
           const kit = brandRef.current
-          if (kit) for (const o of overlaysRef.current) if (tt >= o.start && tt <= o.end) drawOverlay(ctx, canvas.width, canvas.height, o, kit)
+          if (kit) for (const o of overlaysRef.current) if (tt >= o.start && tt <= o.end) drawOverlay(ctx, canvas.width, canvas.height, o, kit, tt)
           // advance during playback
           if (playingRef.current && clip && v) {
             setT(tt)
@@ -193,7 +193,26 @@ export default function VideoModule({ dojoId }: ModuleProps) {
   const updateClip = (id: string, p: Partial<Clip>) => setClips((cs) => cs.map((c) => (c.id === id ? { ...c, ...p } : c)))
   const moveClip = (id: string, dir: -1 | 1) => setClips((cs) => { const i = cs.findIndex((c) => c.id === id); const j = i + dir; if (i < 0 || j < 0 || j >= cs.length) return cs; const a = [...cs];[a[i], a[j]] = [a[j], a[i]]; return a })
   const delClip = (id: string) => { void delClipBlob(id); const v = vids.current.get(id); if (v) { v.pause(); v.remove(); vids.current.delete(id) } setClips((cs) => cs.filter((c) => c.id !== id)); if (sel === id) setSel(null) }
-  const addOverlay = (kind: OverlayKind) => { const o: Overlay = { id: uid('o'), kind, text: kind === 'title' ? (dojoName) : 'Your caption', start: 0, end: Math.max(3, Math.min(5, totalLen(clips) || 5)) }; setOverlays((x) => [...x, o]); setSelOv(o.id) }
+  const addOverlay = (kind: OverlayKind) => { const o: Overlay = { id: uid('o'), kind, text: kind === 'title' ? (dojoName) : 'Your caption', start: 0, end: Math.max(3, Math.min(5, totalLen(clips) || 5)), anim: 'fade' }; setOverlays((x) => [...x, o]); setSelOv(o.id) }
+  // Split (cut) the selected clip at the current playhead — a real cut: the two
+  // halves reference the same source blob with adjusted in/out points.
+  const splitClip = async (clip: Clip) => {
+    const v = vids.current.get(clip.id)
+    const at = v ? v.currentTime : clip.inSec + clipLen(clip) / 2
+    if (at <= clip.inSec + 0.2 || at >= clip.outSec - 0.2) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Move the playhead', text: 'Play/pause inside the clip, then split.' }); return }
+    const bId = uid('c')
+    try {
+      const blob = await getClipBlob(clip.id); if (!blob) return
+      await putClipBlob(bId, blob); makeVideoEl(bId, URL.createObjectURL(blob))
+    } catch { return }
+    setClips((cs) => {
+      const i = cs.findIndex((c) => c.id === clip.id); if (i < 0) return cs
+      const a = { ...clip, outSec: at }
+      const b: Clip = { id: bId, name: `${clip.name} (2)`, inSec: at, outSec: clip.outSec, duration: clip.duration }
+      const arr = [...cs]; arr.splice(i, 1, a, b); return arr
+    })
+    setSel(bId)
+  }
   const updateOverlay = (id: string, p: Partial<Overlay>) => setOverlays((x) => x.map((o) => (o.id === id ? { ...o, ...p } : o)))
   const delOverlay = (id: string) => { setOverlays((x) => x.filter((o) => o.id !== id)); if (selOv === id) setSelOv(null) }
 
@@ -317,6 +336,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
             <div className="cc-panel">
               <div className="cc-tool-h">Trim · {selClip.name}</div>
               <div className="cc-clip-ops">
+                <button onClick={() => void splitClip(selClip)}>✂ Split at playhead</button>
                 <button onClick={() => moveClip(selClip.id, -1)}>← Move</button>
                 <button onClick={() => moveClip(selClip.id, 1)}>Move →</button>
                 <button className="danger" onClick={() => delClip(selClip.id)}>Delete</button>
@@ -339,6 +359,11 @@ export default function VideoModule({ dojoId }: ModuleProps) {
             {ov && (
               <>
                 <input className="cc-input" value={ov.text} onChange={(e) => updateOverlay(ov.id, { text: e.target.value })} placeholder="Text…" />
+                <div className="cc-anim">
+                  {TEXT_ANIMS.map((a) => (
+                    <button key={a.id} className={`cc-anim-b${(ov.anim ?? 'fade') === a.id ? ' on' : ''}`} onClick={() => updateOverlay(ov.id, { anim: a.id as TextAnim })}>{a.label}</button>
+                  ))}
+                </div>
                 <label className="cc-slider"><span>Start<em>{ov.start.toFixed(1)}s</em></span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.start} onChange={(e) => updateOverlay(ov.id, { start: Math.min(Number(e.target.value), ov.end) })} /></label>
                 <label className="cc-slider"><span>End<em>{ov.end.toFixed(1)}s</em></span><input type="range" min={0} max={Math.max(1, total)} step={0.1} value={ov.end} onChange={(e) => updateOverlay(ov.id, { end: Math.max(Number(e.target.value), ov.start) })} /></label>
                 <button className="btn tiny ghost" onClick={() => delOverlay(ov.id)}>Delete text</button>

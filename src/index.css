@@ -3781,3 +3781,8 @@ select.cc-input { flex: 1; min-width: 0; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink) 22%, transparent); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
 ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--ink) 40%, transparent); background-clip: padding-box; }
+
+/* text animation presets in the video editor */
+.cc-anim { display: flex; flex-wrap: wrap; gap: 4px; }
+.cc-anim-b { font: inherit; font-size: 12px; font-weight: 600; padding: 5px 9px; border: 1px solid var(--border); background: var(--panel-2); color: var(--ink); cursor: pointer; }
+.cc-anim-b.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
