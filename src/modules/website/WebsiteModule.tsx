@@ -11,6 +11,7 @@ import {
   type SiteDoc, type Block, type BlockType, type TemplateCategory, BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
   generateFromTemplate, SITE_TEMPLATES, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
 } from '../../lib/site'
+import { WebsiteWizard } from './WebsiteWizard'
 
 const CATS: (TemplateCategory | 'All')[] = ['All', 'Business', 'Store', 'Portfolio', 'Restaurant', 'Agency', 'Personal', 'Blog', 'Events']
 const VIBE_LABEL: Record<string, string> = { serif: 'Serif', sans: 'Sans', mono: 'Mono' }
@@ -23,7 +24,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [sel, setSel] = useState<string | null>(null)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
   const [addOpen, setAddOpen] = useState(false)
-  const [view, setView] = useState<'gallery' | 'edit'>('gallery')
+  const [view, setView] = useState<'wizard' | 'gallery' | 'edit'>('wizard')
   const [cat, setCat] = useState<(TemplateCategory | 'All')>('All')
 
   useEffect(() => {
@@ -36,6 +37,12 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dojoId])
+
+  const onWizardCreate = (s: SiteDoc) => {
+    setSite(s); setSel(s.blocks[0]?.id ?? null); setView('edit')
+    void siteBrand(dojoId, dojoName).then((b) => setBrand(b))
+    pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Site created', text: 'Edit every section, then export. It uses your Brand Kit.' })
+  }
 
   const useTemplate = (id: string) => {
     const s = generateFromTemplate(dojoName, id)
@@ -71,11 +78,20 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     setTimeout(() => URL.revokeObjectURL(a.href), 4000)
   }
 
+  if (view === 'wizard') {
+    return <WebsiteWizard dojoId={dojoId} dojoName={dojoName} onCancel={() => setView('gallery')} onCreate={onWizardCreate} />
+  }
+
   if (view === 'gallery') {
     return (
       <div className="site-mod sq">
-        <h3 className="sq-title">Pick a template</h3>
-        <p className="sq-lead">Start from a high-end layout, then edit every block. Your Brand Kit (colours + fonts) is applied automatically.</p>
+        <div className="wiz-galtop">
+          <div>
+            <h3 className="sq-title">Pick a template</h3>
+            <p className="sq-lead">Start from a high-end layout, then edit every block. Your Brand Kit (colours + fonts) is applied automatically.</p>
+          </div>
+          <button className="btn tiny" onClick={() => setView('wizard')}>‹ Guided setup</button>
+        </div>
         <div className="sq-tags sq-filter">
           {CATS.map((c) => <button key={c} className={`sq-chip${cat === c ? ' on' : ''}`} onClick={() => setCat(c)}>{c}</button>)}
         </div>
