@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import { Landing } from './Landing'
 import { DojoCity } from './components/city/DojoCity'
+import { StudioPage } from './components/workshop/WorkshopModal'
+import { ConnectorsPage } from './components/ConnectorsPage'
 import { AuthProvider } from './auth/AuthProvider'
 import { WidgetApp } from './WidgetApp'
 import { Terms, Privacy } from './LegalPage'
@@ -41,6 +43,10 @@ function Root() {
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />
+  // Dojo Studio · full page (build dojos, tune agents, account & billing).
+  if (route === 'studio') return <StudioPage />
+  // Connect apps · full page, every connector grouped by functionality category.
+  if (route === 'connect') return <ConnectorsPage />
   // Dojo City · the isometric map you visit from the dashboard (header · City).
   // Your building grows with the number of Dojos you run; click it to go back in.
   if (route === 'city') return <DojoCity enterDojo={() => { location.hash = 'app' }} exit={() => { location.hash = 'app' }} />

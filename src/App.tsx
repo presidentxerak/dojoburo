@@ -127,13 +127,13 @@ export default function App() {
       <DojosManager />
       <SupportBot />
 
-      {/* mobile bottom navigation bar */}
+      {/* mobile bottom navigation bar · Dojo (the 3D office) then CEO (dashboard) */}
       <nav className="mbar" aria-label="Navigation">
-        <button onClick={() => { setDojoFull(false); document.querySelector('.dash-side')?.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-          <span className="mbar-ic">▤</span>CEO
-        </button>
-        <button onClick={() => setDojoFull((v) => !v)}>
+        <button className={dojoFull ? 'on' : ''} onClick={() => setDojoFull(true)}>
           <span className="mbar-ic">◳</span>Dojo
+        </button>
+        <button className={!dojoFull ? 'on' : ''} onClick={() => { setDojoFull(false); document.querySelector('.dash-side')?.scrollTo({ top: 0, behavior: 'smooth' }) }}>
+          <span className="mbar-ic">▤</span>CEO
         </button>
         <button onClick={() => useWork.getState().openStudio('studio')}>
           <span className="mbar-ic">✎</span>Studio

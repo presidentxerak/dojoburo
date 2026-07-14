@@ -26,7 +26,7 @@ export function TopBar() {
 
   const openStudio = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
-  const openConnect = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
+  const openConnect = () => { setMenuOpen(false); location.hash = 'connect' }
   const openCredits = () => { setMenuOpen(false); useWork.getState().openStudio('billing') }
   const doLogin = () => { setMenuOpen(false); if (privyConfigured()) privyControls.login?.(); else signInGuest() }
   // Sign out → go back to the landing FIRST so the auth gate (which re-opens the
@@ -102,6 +102,7 @@ export function TopBar() {
           <div className="tb-menu" role="menu">
             {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
             <a className="tb-menu-item tb-only-mobile tb-menu-link" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
+            <button className="tb-menu-item tb-only-mobile" onClick={openConnect}>Connect Apps</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setDojosOpen(true) }}>Dojos</button>
             <button className="tb-menu-item" onClick={openCredits}>My Credits</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setSettingsOpen(true) }}>Settings</button>

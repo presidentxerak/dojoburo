@@ -16,8 +16,60 @@ import { SkinAvatar } from './SkinAvatar'
 import { TemplateThumb } from './TemplateThumb'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 import { ConnectorsPanel } from '../ConnectorsPanel'
+import { TopBar } from '../TopBar'
+import { PageBar } from '../PageBar'
 
 type Tab = 'studio' | 'account' | 'billing'
+
+// ---------------------------------------------------------------------------
+// Dojo Studio · a FULL PAGE (route #studio), not a modal. It carries the app
+// header + the mobile bottom bar, so on a phone you can jump back to the dojo,
+// the CEO dashboard or the city. The three tabs (Dojos & agents / Account /
+// Billing) reuse the exact same panels the modal used.
+// ---------------------------------------------------------------------------
+export function StudioPage() {
+  const intent = useWork((s) => s.studioIntent)
+  const [tab, setTab] = useState<Tab>(intent && intent !== 'studio' ? (intent as Tab) : 'studio')
+  return (
+    <div className="app studio-page">
+      <TopBar />
+      <div className="studio-page-body">
+        <header className="ws-head studio-page-head">
+          <div className="studio-page-head-l">
+            <strong>Dojo Studio</strong>
+            <span className="studio-page-sub">Build your dojos, tune each agent, manage your account &amp; billing.</span>
+          </div>
+          <nav className="ws-tabs">
+            <button className={tab === 'studio' ? 'on' : ''} onClick={() => setTab('studio')}>Dojos &amp; agents</button>
+            <button className={tab === 'account' ? 'on' : ''} onClick={() => setTab('account')}>Account</button>
+            <button className={tab === 'billing' ? 'on' : ''} onClick={() => setTab('billing')}>Billing</button>
+          </nav>
+          <button className="ws-x studio-page-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">×</button>
+        </header>
+        <div className="ws-body studio-page-scroll">
+          {tab === 'studio' && <StudioIntro />}
+          {tab === 'studio' && <StudioTab />}
+          {tab === 'account' && <AccountTab />}
+          {tab === 'billing' && <BillingTab />}
+        </div>
+      </div>
+      <PageBar current="studio" />
+    </div>
+  )
+}
+
+// A short "here's how the Studio works, A to Z" primer above the grid editor.
+function StudioIntro() {
+  return (
+    <div className="studio-intro">
+      <div className="studio-intro-steps">
+        <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Pick or create a dojo</b><span>A dojo is one company workspace with its own world and crew. Use the switcher below, or <b>+ New dojo</b> to start another.</span></div></div>
+        <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Place &amp; tune your agents</b><span>Tap an agent, then a cell to move it. Tap a name to rename. On the right, set its function, tasks, budget and the apps it may use.</span></div></div>
+        <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Connect apps &amp; save</b><span>Link the real tools each agent acts inside, then <b>Validate &amp; save dojo</b>. Need the full catalogue? <a href="#connect">Open Connect apps →</a></span></div></div>
+      </div>
+    </div>
+  )
+}
 
 export function WorkshopModal({ onClose }: { onClose: () => void }) {
   const intent = useWork((s) => s.studioIntent)

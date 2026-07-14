@@ -1,19 +1,8 @@
-import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
-import { useWork } from '../../agents/workStore'
-import { WorkshopModal } from './WorkshopModal'
 
-/** Left-edge dock: a quick dojo switcher. The Studio launcher and account now
- *  live in the top-bar header; this just flips the active dojo. Holds the
- *  workshop modal open state (opened from the header Studio button). */
+/** Left-edge dock: a quick dojo switcher. The Studio is now a full page
+ *  (route #studio); this just flips the active dojo without leaving the dojo. */
 export function Workshop() {
-  const [modalOpen, setModalOpen] = useState(false)
-  const studioIntent = useWork((s) => s.studioIntent)
-
-  // the header Studio button (and "add your key" hints) request the studio open
-  useEffect(() => {
-    if (studioIntent) setModalOpen(true)
-  }, [studioIntent])
   const dojos = useWorkshop((s) => s.dojos)
   const activeId = useWorkshop((s) => s.activeDojoId)
   const setActive = useWorkshop((s) => s.setActiveDojo)
@@ -41,8 +30,6 @@ export function Workshop() {
           </div>
         </div>
       )}
-
-      {modalOpen && <WorkshopModal onClose={() => { setModalOpen(false); useWork.getState().clearStudioIntent() }} />}
     </>
   )
 }

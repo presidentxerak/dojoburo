@@ -3556,3 +3556,57 @@ input, textarea, select, button { border-radius: 0 !important; }
 .dg2-agentcard .dg2-ccard-meta b { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; color: var(--ink); }
 .dg2-agentcard .dg2-ccard-meta em { color: var(--ac); font-style: normal; font-weight: 700; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
 .dg2-agentcard .dg2-ccard-meta > span { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+/* ===========================================================================
+   Studio & Connect · full pages (routes #studio / #connect)
+   Both carry the app TopBar and, on mobile, the .mbar bottom bar. The inner
+   body scrolls; the page itself is a fixed-height flex column.
+   =========================================================================== */
+.studio-page, .connect-page { display: flex; flex-direction: column; background: var(--bg); }
+
+/* --- Dojo Studio page --- */
+.studio-page-body { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.studio-page-head { flex: none; }
+.studio-page-head-l { display: flex; flex-direction: column; gap: 2px; }
+.studio-page-sub { font-family: var(--font-read); font-size: 13px; color: var(--muted); font-weight: 500; }
+.studio-page-x { margin-left: 8px; }
+.studio-page-scroll { flex: 1; min-height: 0; }
+.studio-intro { margin-bottom: 6px; }
+.studio-intro-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+/* --- Connect apps page --- */
+.connect-body { flex: 1; overflow-y: auto; padding-bottom: 44px; }
+.connect-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 20px 6px; max-width: 1120px; margin: 0 auto; width: 100%; }
+.connect-title { font-family: var(--font-pixel); font-weight: 800; font-size: 26px; margin: 0; }
+.connect-count { font-family: var(--font-ui); font-weight: 700; font-size: 13px; color: var(--muted); margin-left: 8px; }
+.connect-lead { margin: 8px 0 0; font-family: var(--font-read); font-size: 15px; color: var(--muted); line-height: 1.5; max-width: 780px; }
+.connect-how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 10px 20px 4px; max-width: 1120px; margin: 0 auto; width: 100%; }
+.connect-hint { max-width: 1120px; margin: 10px auto 0; padding: 0 20px; font-family: var(--font-read); font-size: 13px; color: var(--muted); }
+.connect-cat { max-width: 1120px; margin: 0 auto; padding: 14px 20px 0; width: 100%; }
+.connect-cat-h { font-family: var(--font-pixel); font-weight: 800; font-size: 17px; margin: 10px 0 10px; display: flex; align-items: center; gap: 8px; }
+.connect-cat-n { font-family: var(--font-ui); font-size: 12px; font-weight: 700; color: var(--muted); }
+.connect-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.connect-card { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border); padding: 14px; background: var(--panel-solid); min-width: 0; }
+.connect-card.on { border-color: #1fa563; box-shadow: inset 0 0 0 1px #1fa563; }
+.connect-card-top { display: flex; align-items: center; gap: 10px; }
+.connect-card-meta { display: flex; flex-direction: column; min-width: 0; }
+.connect-card-meta strong { font-family: var(--font-read); font-weight: 800; font-size: 15px; color: var(--ink); }
+.connect-card-meta em { font-style: normal; font-size: 12px; color: var(--muted); }
+.connect-card-blurb { margin: 0; font-family: var(--font-read); font-size: 13px; color: var(--muted); line-height: 1.42; flex: 1; }
+.connect-card-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px; }
+.connect-card-guide { font-family: var(--font-ui); font-size: 12px; font-weight: 700; color: var(--ink); text-decoration: none; opacity: 0.65; white-space: nowrap; }
+.connect-card-guide:hover { opacity: 1; }
+.connect-foot { max-width: 1120px; margin: 22px auto 0; padding: 0 20px; font-family: var(--font-read); font-size: 13px; color: var(--muted); }
+
+@media (max-width: 720px) {
+  .studio-page-scroll, .connect-body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .studio-page-head { flex-wrap: wrap; }
+  .studio-page-head .ws-tabs { order: 3; width: 100%; margin-left: 0; overflow-x: auto; }
+  .studio-page-sub { display: none; }
+  .studio-intro-steps, .connect-how { grid-template-columns: 1fr; }
+  .connect-grid { grid-template-columns: 1fr; }
+  .connect-title { font-size: 21px; }
+  .connect-head { padding: 16px 14px 4px; }
+  .connect-lead { font-size: 14px; }
+  .connect-cat, .connect-how, .connect-hint, .connect-foot { padding-left: 14px; padding-right: 14px; }
+}

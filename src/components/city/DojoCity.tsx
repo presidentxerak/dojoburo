@@ -18,6 +18,7 @@ import { Character3D } from '../three/Character3D'
 import { SKINS } from '../../data/skins'
 import { MOCK_COMPANIES, coRevenue, coSales, companyPath, type MockCo } from '../../data/showcase'
 import { SHOW_MOCK_COMPANIES } from '../../config/flags'
+import { PageBar } from '../PageBar'
 
 // ---- facade texture · clean daytime windows (glass + floor slabs) -----------
 function facadeTexture(spec: BuildingSpec): THREE.CanvasTexture {
@@ -1178,13 +1179,6 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
 
   const showTip = () => setTip(TIPS[Math.floor((Date.now() / 1000) % TIPS.length)])
 
-  // City lives on its own route, so hand a navigation intent to App (read on
-  // mount) then route back to #app — this powers the mobile bottom bar here.
-  const go = (intent: 'dashboard' | 'dojo' | 'studio') => {
-    try { sessionStorage.setItem('dojoburo.nav', intent) } catch { /* ignore */ }
-    location.hash = 'app'
-  }
-
   return (
     <div className="dojo-city">
       <Canvas shadows dpr={[1, 1.4]} gl={{ antialias: true, powerPreference: 'high-performance' }}>
@@ -1226,14 +1220,8 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
         </div>
       )}
 
-      {/* mobile bottom navigation bar · matches the dashboard's, so you can get
-         back to the CEO dashboard / dojo / studio from the city on a phone */}
-      <nav className="mbar" aria-label="Navigation">
-        <button onClick={() => go('dashboard')}><span className="mbar-ic">▤</span>CEO</button>
-        <button onClick={() => go('dojo')}><span className="mbar-ic">◳</span>Dojo</button>
-        <button onClick={() => go('studio')}><span className="mbar-ic">✎</span>Studio</button>
-        <button className="on" aria-current="page"><span className="mbar-ic">⌂</span>City</button>
-      </nav>
+      {/* mobile bottom navigation bar */}
+      <PageBar current="city" />
     </div>
   )
 }
