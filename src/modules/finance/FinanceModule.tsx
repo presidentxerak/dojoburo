@@ -52,6 +52,10 @@ export default function FinanceModule({ dojoId }: ModuleProps) {
 
   return (
     <div className="ad-body fin-mod">
+      <header className="mod-intro">
+        <h3 className="sq-title">Finance &amp; accounting</h3>
+        <p className="sq-lead">Import a CSV (or load a sample) and see every KPI — revenue, expenses, cash, VAT, forecast — computed locally. Sales won in the CRM and campaign budgets flow in automatically.</p>
+      </header>
       <div className="site-toolbar">
         <div className="site-tb-actions">
           <button className="btn tiny" onClick={() => fileRef.current?.click()}>Import CSV</button>

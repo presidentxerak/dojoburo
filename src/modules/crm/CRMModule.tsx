@@ -39,6 +39,10 @@ export default function CRMModule({ dojoId }: ModuleProps) {
 
   return (
     <div className="ad-body crm-mod">
+      <header className="mod-intro">
+        <h3 className="sq-title">CRM &amp; outbound</h3>
+        <p className="sq-lead">Track leads across stages, import a CSV, and generate personalised outreach that merges each contact's details. Pipeline value, conversion and won revenue — all local.</p>
+      </header>
       <div className="site-toolbar">
         <div className="site-tb-actions">
           <button className="btn tiny" onClick={() => fileRef.current?.click()}>Import CSV</button>

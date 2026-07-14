@@ -31,6 +31,10 @@ export default function AnalyticsModule({ dojoId }: ModuleProps) {
 
   return (
     <div className="ad-body ana-mod">
+      <header className="mod-intro">
+        <h3 className="sq-title">Business analytics</h3>
+        <p className="sq-lead">Reads your Finance + CRM data and explains it — CAC, LTV, LTV:CAC, ROI, growth and conversion, with plain-language insights and recommendations. Not just charts.</p>
+      </header>
       {!m.hasData ? (
         <div className="vid-empty">
           <strong>Analyze your business</strong>

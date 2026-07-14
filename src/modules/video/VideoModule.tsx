@@ -225,6 +225,11 @@ export default function VideoModule({ dojoId }: ModuleProps) {
     <div className="ad-body video-mod">
       <div ref={hiddenRef} aria-hidden style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} />
 
+      <header className="mod-intro">
+        <h3 className="sq-title">Video creator</h3>
+        <p className="sq-lead">Import clips, trim and sequence them on a timeline, add brand-styled text, pick a social format, and export a real <code>.webm</code> — all in your browser. Nothing is uploaded.</p>
+      </header>
+
       {/* toolbar */}
       <div className="site-toolbar">
         <div className="site-seg vid-fmt">
