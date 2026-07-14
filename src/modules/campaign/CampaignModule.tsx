@@ -1,6 +1,7 @@
-// Campaign Studio · generate + edit a full Meta (Facebook/Instagram) campaign
-// locally. Objective → audience, personas and 5 ad variants (copy + brand-styled
-// visual), previewed as a real Meta ad. Meta only. Reuses the Brand Kit. No server.
+// Campaign Studio · a stepped Meta (Facebook/Instagram) campaign builder, 100%
+// local. Brief → Audience → Creatives → Export. Objective + product drive a set
+// of personas, an audience and 5 brand-styled ad variants previewed as a real
+// Meta ad. Meta only. Reuses the Brand Kit. No server.
 import { useEffect, useMemo, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
@@ -12,6 +13,16 @@ import {
 } from '../../lib/campaign'
 
 const angleLabel = (a: string) => ANGLES.find((x) => x.id === a)?.label ?? a
+type Step = 'brief' | 'audience' | 'creatives' | 'export'
+const STEPS: { id: Step; label: string }[] = [
+  { id: 'brief', label: 'Brief' }, { id: 'audience', label: 'Audience' }, { id: 'creatives', label: 'Creatives' }, { id: 'export', label: 'Export' },
+]
+const OBJ_SUB: Record<Objective, string> = {
+  acquisition: 'Drive new customers to your offer.',
+  vente: 'Push purchases / conversions.',
+  notoriete: 'Maximise reach & awareness.',
+  leads: 'Collect qualified leads & sign-ups.',
+}
 
 export default function CampaignModule({ dojoId }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'My brand'
@@ -20,6 +31,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
   const [brand, setBrand] = useState<BrandKit | null>(null)
   const [sel, setSel] = useState(0)
   const [product, setProduct] = useState(dojoName)
+  const [step, setStep] = useState<Step>('brief')
 
   useEffect(() => {
     let alive = true
@@ -27,6 +39,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
       if (!alive) return
       const c0 = c ?? generateCampaign(dojoName, 'acquisition')
       setCamp(c0); setBrand(b); setProduct(c0.product)
+      if (c) setStep('creatives')
     })
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,9 +53,9 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
   const editAd = (field: keyof AdVariant, value: string) => setCamp((c) => ({ ...c, ads: c.ads.map((a, i) => (i === sel ? { ...a, [field]: value } : a)) }))
   const editAudience = (raw: string) => setCamp((c) => ({ ...c, audience: { ...c.audience, interests: raw.split(',').map((s) => s.trim()).filter(Boolean) } }))
 
-  const generate = () => { const c = generateCampaign(product || dojoName, camp.objective); setCamp(c); setSel(0); pushToast({ kind: 'event', badge: 'AI', color: '#e0459b', title: 'Campaign generated', text: '5 Meta variants ready — edit, then export.' }) }
+  const generate = () => { const c = generateCampaign(product || dojoName, camp.objective); setCamp(c); setSel(0); setStep('audience'); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Campaign generated', text: '5 Meta variants ready — review the audience.' }) }
   const save = async () => { await saveCampaign(dojoId, camp); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Campaign saved', text: 'Saved locally (IndexedDB).' }) }
-  const copyText = () => { void navigator.clipboard?.writeText(copyPack(camp)); pushToast({ kind: 'event', badge: 'OK', color: '#e0459b', title: 'Copied', text: 'Copy pack ready to paste into Meta Ads Manager.' }) }
+  const copyText = () => { void navigator.clipboard?.writeText(copyPack(camp)); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Copied', text: 'Copy pack ready to paste into Meta Ads Manager.' }) }
   const exportSvg = () => {
     if (!brand || !ad) return
     const blob = new Blob([adSvg(brand, ad, camp.format)], { type: 'image/svg+xml' })
@@ -51,86 +64,129 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
   }
 
   const domain = `${dojoName.toLowerCase().replace(/\s+/g, '')}.com`
+  const stepIdx = STEPS.findIndex((s) => s.id === step)
+
+  const MetaPreview = () => (
+    <div className="meta-ad">
+      <div className="meta-head">
+        <span className="meta-avatar" style={{ background: brand?.palette.primary || '#888' }}>{(dojoName[0] || 'M').toUpperCase()}</span>
+        <div><b>{dojoName}</b><em>Sponsored · Meta</em></div>
+      </div>
+      {ad && <p className="meta-primary">{ad.primary}</p>}
+      <div className={`meta-visual ${camp.format}`} dangerouslySetInnerHTML={{ __html: visual }} />
+      <div className="meta-foot">
+        <div className="meta-foot-txt"><em>{domain}</em><b>{ad?.headline}</b><span>{ad?.description}</span></div>
+        <button className="meta-cta">{ad?.cta}</button>
+      </div>
+    </div>
+  )
 
   return (
-    <div className="ad-body camp-mod">
-      {/* setup */}
-      <div className="camp-setup">
-        <label className="camp-prod">Product / offer
-          <input value={product} maxLength={60} onChange={(e) => setProduct(e.target.value)} placeholder="e.g. in-home personal training" />
-        </label>
-        <label className="camp-budget">Budget (€)
-          <input type="number" min={0} value={camp.budget ?? 0} onChange={(e) => setCamp((c) => ({ ...c, budget: Math.max(0, Number(e.target.value) || 0) }))} placeholder="0" />
-        </label>
-        <button className="btn primary tiny" onClick={generate}>Generate campaign</button>
-      </div>
-      {(camp.budget ?? 0) > 0 && <p className="muted small" style={{ margin: '0 0 12px' }}>This budget shows up as a marketing expense in <b>Finance</b> and feeds the <b>ROI / CAC</b> calculation in <b>Analytics</b>.</p>}
-      <div className="camp-obj">
-        {OBJECTIVES.map((o) => <button key={o.id} className={camp.objective === o.id ? 'on' : ''} onClick={() => setObjective(o.id)}>{o.label}</button>)}
-      </div>
-
-      {/* Meta ad preview */}
-      <div className="camp-toolbar">
-        <div className="site-seg">
-          <button className={camp.format === 'feed' ? 'on' : ''} onClick={() => setFormat('feed')}>Feed 1:1</button>
-          <button className={camp.format === 'story' ? 'on' : ''} onClick={() => setFormat('story')}>Story 9:16</button>
-        </div>
-        <div className="site-tb-actions">
-          <button className="btn tiny" onClick={exportSvg}>Export creative</button>
-          <button className="btn tiny ghost" onClick={copyText}>Copy text</button>
-          <button className="btn primary tiny" onClick={() => void save()}>Save</button>
-        </div>
-      </div>
-
-      <div className="meta-ad">
-        <div className="meta-head">
-          <span className="meta-avatar" style={{ background: brand?.palette.primary || '#888' }}>{(dojoName[0] || 'M').toUpperCase()}</span>
-          <div><b>{dojoName}</b><em>Sponsored · Meta</em></div>
-        </div>
-        {ad && <p className="meta-primary">{ad.primary}</p>}
-        <div className={`meta-visual ${camp.format}`} dangerouslySetInnerHTML={{ __html: visual }} />
-        <div className="meta-foot">
-          <div className="meta-foot-txt"><em>{domain}</em><b>{ad?.headline}</b><span>{ad?.description}</span></div>
-          <button className="meta-cta">{ad?.cta}</button>
-        </div>
-      </div>
-
-      {/* variants */}
-      <h4 className="brand-h">Variants ({camp.ads.length})</h4>
-      <div className="camp-variants">
-        {camp.ads.map((a, i) => (
-          <button key={a.id} className={`camp-vchip${i === sel ? ' on' : ''}`} onClick={() => setSel(i)}>{angleLabel(a.angle)}</button>
+    <div className="camp-mod sq">
+      <div className="sq-steps">
+        {STEPS.map((s, i) => (
+          <button key={s.id} className={`sq-step${step === s.id ? ' on' : ''}${i < stepIdx ? ' done' : ''}`} onClick={() => setStep(s.id)}>
+            <span className="sq-step-n">{i + 1}</span>{s.label}
+          </button>
         ))}
       </div>
 
-      {/* inspector */}
-      {ad && (
-        <div className="site-inspector">
-          <h4 className="brand-h">Edit · {angleLabel(ad.angle)}</h4>
-          <label className="site-field"><span>Headline</span><input value={ad.headline} onChange={(e) => editAd('headline', e.target.value)} /></label>
-          <label className="site-field"><span>Primary text</span><textarea rows={3} value={ad.primary} onChange={(e) => editAd('primary', e.target.value)} /></label>
-          <label className="site-field"><span>Description</span><input value={ad.description} onChange={(e) => editAd('description', e.target.value)} /></label>
-          <label className="site-field"><span>Button (CTA)</span><input value={ad.cta} onChange={(e) => editAd('cta', e.target.value)} /></label>
-        </div>
+      {step === 'brief' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Campaign brief</h3>
+          <p className="sq-lead">What are you promoting, and what's the goal? We build the audience, personas and 5 ad variants from this.</p>
+          <label className="sq-field">Product / offer
+            <input value={product} maxLength={60} onChange={(e) => setProduct(e.target.value)} placeholder="e.g. in-home personal training — first session free" />
+          </label>
+          <div className="sq-eyebrow">Objective</div>
+          <div className="sq-optgrid">
+            {OBJECTIVES.map((o) => (
+              <button key={o.id} className={`sq-opt${camp.objective === o.id ? ' on' : ''}`} onClick={() => setObjective(o.id)}>
+                <span className="sq-opt-radio" />
+                <span className="sq-opt-txt"><b>{o.label}</b><em>{OBJ_SUB[o.id]}</em></span>
+              </button>
+            ))}
+          </div>
+          <label className="sq-field">Daily budget (€)
+            <input type="number" min={0} value={camp.budget ?? 0} onChange={(e) => setCamp((c) => ({ ...c, budget: Math.max(0, Number(e.target.value) || 0) }))} placeholder="0" />
+          </label>
+          {(camp.budget ?? 0) > 0 && <p className="muted small" style={{ margin: 0 }}>This budget shows up as a marketing expense in <b>Finance</b> and feeds <b>ROI / CAC</b> in <b>Analytics</b>.</p>}
+          <div className="sq-cta-row">
+            <button className="sq-cta" onClick={generate}>Generate the campaign →</button>
+          </div>
+        </section>
       )}
 
-      {/* audience + personas */}
-      <h4 className="brand-h">Audience</h4>
-      <label className="site-field"><span>Interests (comma-separated)</span>
-        <textarea rows={2} value={camp.audience.interests.join(', ')} onChange={(e) => editAudience(e.target.value)} />
-      </label>
-      <p className="muted small">Age {camp.audience.age} · {camp.audience.geo} · {camp.audience.placements.join(', ')}</p>
-
-      <h4 className="brand-h">Personas</h4>
-      <div className="camp-personas">
-        {camp.personas.map((pp) => (
-          <div key={pp.name} className="camp-persona">
-            <b>{pp.name}, {pp.age}</b><em>{pp.role}</em>
-            <span><b>Pain:</b> {pp.pain}</span><span><b>Wants:</b> {pp.desire}</span>
+      {step === 'audience' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Audience &amp; personas</h3>
+          <p className="sq-lead">Who you're targeting on Meta. Tune the interests; the personas guide the ad angles.</p>
+          <label className="sq-field">Interests (comma-separated)
+            <textarea rows={2} value={camp.audience.interests.join(', ')} onChange={(e) => editAudience(e.target.value)} />
+          </label>
+          <div className="sq-cards3">
+            <div className="sq-info"><span className="sq-info-k">Age</span><b>{camp.audience.age}</b></div>
+            <div className="sq-info"><span className="sq-info-k">Geo</span><b>{camp.audience.geo}</b></div>
+            <div className="sq-info"><span className="sq-info-k">Placements</span><b>{camp.audience.placements.join(', ')}</b></div>
           </div>
-        ))}
-      </div>
-      <p className="muted small">Meta only (Facebook & Instagram). Connect your Meta account (Studio) to actually run these ads.</p>
+          <div className="sq-eyebrow">Personas</div>
+          <div className="camp-personas">
+            {camp.personas.map((pp) => (
+              <div key={pp.name} className="camp-persona">
+                <b>{pp.name}, {pp.age}</b><em>{pp.role}</em>
+                <span><b>Pain:</b> {pp.pain}</span><span><b>Wants:</b> {pp.desire}</span>
+              </div>
+            ))}
+          </div>
+          <div className="sq-cta-row">
+            <button className="sq-cta ghost" onClick={() => setStep('brief')}>← Brief</button>
+            <button className="sq-cta" onClick={() => setStep('creatives')}>Review creatives →</button>
+          </div>
+        </section>
+      )}
+
+      {step === 'creatives' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Creatives · {camp.ads.length} variants</h3>
+          <div className="camp-toolbar">
+            <div className="site-seg">
+              <button className={camp.format === 'feed' ? 'on' : ''} onClick={() => setFormat('feed')}>Feed 1:1</button>
+              <button className={camp.format === 'story' ? 'on' : ''} onClick={() => setFormat('story')}>Story 9:16</button>
+            </div>
+            <div className="sq-tags">{camp.ads.map((a, i) => (
+              <button key={a.id} className={`sq-chip${i === sel ? ' on' : ''}`} onClick={() => setSel(i)}>{angleLabel(a.angle)}</button>
+            ))}</div>
+          </div>
+          <MetaPreview />
+          {ad && (
+            <div className="site-inspector">
+              <div className="sq-eyebrow">Edit · {angleLabel(ad.angle)}</div>
+              <label className="site-field"><span>Headline</span><input value={ad.headline} onChange={(e) => editAd('headline', e.target.value)} /></label>
+              <label className="site-field"><span>Primary text</span><textarea rows={3} value={ad.primary} onChange={(e) => editAd('primary', e.target.value)} /></label>
+              <label className="site-field"><span>Description</span><input value={ad.description} onChange={(e) => editAd('description', e.target.value)} /></label>
+              <label className="site-field"><span>Button (CTA)</span><input value={ad.cta} onChange={(e) => editAd('cta', e.target.value)} /></label>
+            </div>
+          )}
+          <div className="sq-cta-row">
+            <button className="sq-cta ghost" onClick={() => setStep('audience')}>← Audience</button>
+            <button className="sq-cta" onClick={() => setStep('export')}>Export →</button>
+          </div>
+        </section>
+      )}
+
+      {step === 'export' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Export your campaign</h3>
+          <p className="sq-lead">Copy the full pack into Meta Ads Manager, or download the selected creative.</p>
+          <MetaPreview />
+          <div className="brand-actions">
+            <button className="sq-cta" onClick={() => void save()}>Save campaign</button>
+            <button className="btn tiny" onClick={exportSvg}>Download creative (SVG)</button>
+            <button className="btn tiny ghost" onClick={copyText}>Copy the full copy pack</button>
+          </div>
+          <p className="muted small">Meta only (Facebook &amp; Instagram). Connect your Meta account (the CONNECT strip above) to run these ads for real.</p>
+        </section>
+      )}
     </div>
   )
 }
