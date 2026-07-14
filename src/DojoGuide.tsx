@@ -42,7 +42,7 @@ export function GuidePage() {
         <h1>Your <span className="hl-mag">studios</span> + your tools, under control.</h1>
         <p className="lp-sub">
           In DojoBuro, each agent is a pro studio (branding, website, Meta campaigns, video editing, finance, CRM,
-          analytics) that runs <b>100% in your browser</b> — your files never leave. To go further, <b>connectors</b>
+          analytics) that runs <b>100% in your browser</b> · your files never leave. To go further, <b>connectors</b>
           let your agents act inside your real apps (Meta, Gmail, Stripe…). This guide shows how to open a studio,
           connect an app, configure everything step by step and keep your costs under control.
         </p>
@@ -53,10 +53,10 @@ export function GuidePage() {
 
       <section className="lp-sec" id="how">
         <h2>How it works</h2>
-        <p className="lp-lead">Describe your company in one sentence. <b>Chief</b> (your CEO) breaks it down and delegates to seven specialists. You steer by chatting with Chief and build in each studio — everything runs in your browser. Connect your real apps to go live.</p>
+        <p className="lp-lead">Describe your company in one sentence. <b>Chief</b> (your CEO) breaks it down and delegates to seven specialists. You steer by chatting with Chief and build in each studio · everything runs in your browser. Connect your real apps to go live.</p>
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Describe your company</b><span>One sentence. Chief drafts the plan and assembles your crew of agents.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Open a studio</b><span>Click an agent to open its dashboard and build — brand, website, campaigns, pipeline, finances.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Open a studio</b><span>Click an agent to open its dashboard and build · brand, website, campaigns, pipeline, finances.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Connect your apps</b><span>Link Meta, Gmail, Stripe… so your agents act inside your real accounts.</span></div></div>
         </div>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your eight teammates &amp; what each one does</h3>

@@ -1,4 +1,4 @@
-// Website creation wizard — the Squarespace-style guided flow:
+// Website creation wizard · the Squarespace-style guided flow:
 //   Subject → Goals → Site info → Pages → Colors → Fonts → (build + edit)
 // Navigated with the shared bottom StepBar. It writes the chosen colours +
 // fonts into the Brand Kit and assembles the site's sections from the picked
@@ -111,7 +111,7 @@ export function WebsiteWizard({ dojoId, dojoName, onCancel, onCreate }: {
 
   const f = fontPair(fontId)
 
-  // live preview — the big image on the left updates as choices are made
+  // live preview · the big image on the left updates as choices are made
   const previewKit = useMemo<BrandKit>(() => ({
     ...defaultKit(name || dojoName || 'My brand'), name: name || dojoName || 'My brand', tagline,
     hue: chosenPalette.hue, scheme: chosenPalette.scheme,
@@ -137,7 +137,7 @@ export function WebsiteWizard({ dojoId, dojoName, onCancel, onCreate }: {
       {step === 'subject' && (
         <section className="sq-panel">
           <h3 className="sq-title">What's your website about?</h3>
-          <p className="sq-lead">A word or a sentence. Pick the closest type — it seeds the layout and copy.</p>
+          <p className="sq-lead">A word or a sentence. Pick the closest type · it seeds the layout and copy.</p>
           <label className="sq-field">Subject
             <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. a neighbourhood coffee roaster" maxLength={80} />
           </label>
@@ -236,7 +236,7 @@ export function WebsiteWizard({ dojoId, dojoName, onCancel, onCreate }: {
             ))}
           </div>
           <div className="wiz-fontpreview">
-            <div style={{ fontFamily: f.heading, fontWeight: 800, fontSize: 26 }}>{name || dojoName} — Heading</div>
+            <div style={{ fontFamily: f.heading, fontWeight: 800, fontSize: 26 }}>{name || dojoName} · Heading</div>
             <div style={{ fontFamily: f.body, fontSize: 15 }}>Body text: the quick brown fox jumps over the lazy dog.</div>
           </div>
         </section>

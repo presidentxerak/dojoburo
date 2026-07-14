@@ -5,7 +5,7 @@ import { useWork } from '../agents/workStore'
 import { templateById } from '../data/templates'
 
 /** Fullscreen "Dojos" manager (from the profile menu): every company you've
- *  created — select, rename, edit (Manage Studio) or delete. Replaces the old
+ *  created · select, rename, edit (Manage Studio) or delete. Replaces the old
  *  header dropdown for switching dojos. */
 export function DojosManager() {
   const open = useDojo((s) => s.dojosOpen)

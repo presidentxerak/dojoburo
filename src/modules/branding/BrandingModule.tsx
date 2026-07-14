@@ -91,7 +91,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const saveName = async () => {
     await saveBrandKit(dojoId, kit)
     setSaved(true)
-    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name}" is now your brand — reused by the Website and Marketing studios.` })
+    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name}" is now your brand · reused by the Website and Marketing studios.` })
   }
 
   const stepIdx = STEPS.findIndex((s) => s.id === step)
@@ -123,7 +123,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
           <h3 className="sq-title">Describe your product</h3>
           <p className="sq-lead">One or two sentences: what it does and who it's for. We turn that into a palette of on-theme keywords you can shape into a name.</p>
           <label className="sq-field">Describe your product
-            <textarea rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="e.g. A coffee subscription for offices — freshly roasted beans delivered weekly, with a simple dashboard to manage the team's orders and budget." />
+            <textarea rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="e.g. A coffee subscription for offices · freshly roasted beans delivered weekly, with a simple dashboard to manage the team's orders and budget." />
           </label>
         </section>
       )}
@@ -131,7 +131,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
       {step === 'keywords' && (
         <section className="sq-panel">
           <h3 className="sq-title">Pick your keywords</h3>
-          <p className="sq-lead">{keywords.length} words drawn from your theme{profile ? ` · ${profile.tone.toLowerCase()}` : ''}. Tap the ones that fit, and add your own — we'll combine them into names.</p>
+          <p className="sq-lead">{keywords.length} words drawn from your theme{profile ? ` · ${profile.tone.toLowerCase()}` : ''}. Tap the ones that fit, and add your own · we'll combine them into names.</p>
 
           <div className="bw-add">
             <input
@@ -144,7 +144,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
           <div className="sq-eyebrow">Selected · {selected.size}</div>
           <div className="bw-selected">
-            {selected.size === 0 && <span className="muted small">Nothing selected yet — tap keywords below.</span>}
+            {selected.size === 0 && <span className="muted small">Nothing selected yet · tap keywords below.</span>}
             {[...selected].map((k) => (
               <button key={k} className="bw-chip on" onClick={() => toggleKw(k)}>{k}<span className="bw-x">×</span></button>
             ))}
@@ -193,7 +193,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
             {domains.map((d) => (
               <div key={d.domain} className={`sq-domain ${d.status}`}>
                 <b>{d.domain}</b>
-                <span className={`sq-dot ${d.status}`}>{d.status === 'available' ? 'Available' : d.status === 'taken' ? 'Taken' : '—'}</span>
+                <span className={`sq-dot ${d.status}`}>{d.status === 'available' ? 'Available' : d.status === 'taken' ? 'Taken' : '·'}</span>
               </div>
             ))}
           </div>

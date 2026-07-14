@@ -1,4 +1,4 @@
-// Busino · Business Analyst — one unified dashboard that merges Finance &
+// Busino · Business Analyst · one unified dashboard that merges Finance &
 // Accounting (revenue, expenses, VAT, cash flow, forecasts) with Business
 // Analytics (sales, CAC, LTV, ROI, conversion, growth). Both are the existing
 // engines, unchanged; Busino switches between the financial ledger and the

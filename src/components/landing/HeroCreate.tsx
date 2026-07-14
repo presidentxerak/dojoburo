@@ -87,7 +87,7 @@ export function HeroCreate({ enter }: { enter: () => void }) {
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') create() }}
-          placeholder="Describe your company in one sentence — e.g. an app that helps cafés keep their customers coming back"
+          placeholder="Describe your company in one sentence · e.g. an app that helps cafés keep their customers coming back"
           maxLength={160}
         />
         <button className="hc-go" onClick={create}>Create your company →</button>

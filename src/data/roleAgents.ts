@@ -3,26 +3,26 @@
 //
 // A company is run by eight unified agents, each with a memorable CODENAME
 // (the primary identity shown everywhere) and a plain JOB TITLE underneath.
-// Chief is the only orchestration entry point — you talk to Chief, and Chief
+// Chief is the only orchestration entry point · you talk to Chief, and Chief
 // delegates to the seven specialists. Several agents merge what used to be
 // separate studios (see LEGACY_ROLE_MAP for the old → new mapping).
 //
-//   Chief     · CEO                 — orchestrates everything
-//   Brandi    · Brand Architect     — names, domains, brand
-//   Weblos    · Website Designer     — websites
-//   Marketus  · Marketing Studio     — campaigns + video + assets
-//   Pumpi     · Growth Manager       — CRM + outreach
-//   Busino    · Business Analyst     — finance + analytics
-//   Sentinel  · Operations Guardian  — autonomy + security
-//   Vaultor   · Billing Manager      — credits + billing
+//   Chief     · CEO                 · orchestrates everything
+//   Brandi    · Brand Architect     · names, domains, brand
+//   Weblos    · Website Designer     · websites
+//   Marketus  · Marketing Studio     · campaigns + video + assets
+//   Pumpi     · Growth Manager       · CRM + outreach
+//   Busino    · Business Analyst     · finance + analytics
+//   Sentinel  · Operations Guardian  · autonomy + security
+//   Vaultor   · Billing Manager      · credits + billing
 // ---------------------------------------------------------------------------
 import type { Department } from './agents'
 
 export interface RoleAgent {
   id: string
-  /** Codename — the primary identity shown throughout the app. */
+  /** Codename · the primary identity shown throughout the app. */
   code: string
-  /** Job title — the small subtitle under the codename. */
+  /** Job title · the small subtitle under the codename. */
   title: string
   /** One-line description. */
   desc: string

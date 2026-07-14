@@ -110,7 +110,7 @@ export const useWork = create<WorkState>((set, get) => ({
 
   closeDeliverable: () => set({ deliverable: null }),
   clearError: () => set({ runError: null }),
-  // Dojo Studio is a full PAGE now (route #studio), not a modal — record which
+  // Dojo Studio is a full PAGE now (route #studio), not a modal · record which
   // tab to open, then navigate there.
   openStudio: (tab) => { set({ studioIntent: tab }); try { location.hash = 'studio' } catch { /* ignore */ } },
   editAgent: (agentId) => { set({ studioIntent: 'studio', studioAgentId: agentId }); try { location.hash = 'studio' } catch { /* ignore */ } },

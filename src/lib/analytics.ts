@@ -1,6 +1,6 @@
 // Analytics engine · 100% local. Reads the Finance + CRM projects already in
 // IndexedDB and computes business metrics (CAC, LTV, LTV:CAC, ROI, growth,
-// conversion), then EXPLAINS them in plain language with recommendations — not
+// conversion), then EXPLAINS them in plain language with recommendations · not
 // just charts. No server; templated insight rules run in the browser.
 import { type Txn, totals, byMonth, byCategory, sampleTxns } from './finance'
 import { type Contact, stats as crmStats, sampleContacts } from './crm'
@@ -48,18 +48,18 @@ export interface Insight { tone: Tone; title: string; text: string }
 const eur = (n: number) => `${Math.round(n).toLocaleString('fr-FR')} €`
 const pct = (n: number) => `${Math.round(n * 100)}%`
 
-/** The "AI explains the data" layer — reads the metrics and writes guidance. */
+/** The "AI explains the data" layer · reads the metrics and writes guidance. */
 export function insights(m: Metrics): Insight[] {
   const out: Insight[] = []
 
   if (m.ltvCac > 0 || m.cac > 0) {
     if (m.ltvCac >= 3) out.push({ tone: 'good', title: 'Highly profitable acquisition', text: `Each customer costs ${eur(m.cac)} (CAC) and returns ~${eur(m.ltv)} (LTV): an LTV:CAC ratio of ${m.ltvCac.toFixed(1)}×. Above 3×, you can confidently scale up your marketing spend.` })
-    else if (m.ltvCac >= 1) out.push({ tone: 'warn', title: 'Acquisition to watch', text: `Your LTV:CAC ratio is ${m.ltvCac.toFixed(1)}× (CAC ${eur(m.cac)}, LTV ${eur(m.ltv)}). It's profitable but fragile — aim for 3× by increasing customer value (upsell, retention) or lowering the acquisition cost.` })
+    else if (m.ltvCac >= 1) out.push({ tone: 'warn', title: 'Acquisition to watch', text: `Your LTV:CAC ratio is ${m.ltvCac.toFixed(1)}× (CAC ${eur(m.cac)}, LTV ${eur(m.ltv)}). It's profitable but fragile · aim for 3× by increasing customer value (upsell, retention) or lowering the acquisition cost.` })
     else out.push({ tone: 'bad', title: 'You are losing money per customer', text: `Your CAC (${eur(m.cac)}) exceeds LTV (${eur(m.ltv)}): a ratio of ${m.ltvCac.toFixed(1)}×. Cut inefficient ad spend and raise the average order value (currently ${eur(m.avgDeal)}) before scaling.` })
   }
 
   if (m.marketing > 0) {
-    if (m.roi >= 1) out.push({ tone: 'good', title: 'Positive marketing ROI', text: `Your ${eur(m.marketing)} in ads generated ${eur(m.roi * m.marketing + m.marketing)} in deals won — an ROI of ${pct(m.roi)}. Put more budget into the channels that are performing.` })
+    if (m.roi >= 1) out.push({ tone: 'good', title: 'Positive marketing ROI', text: `Your ${eur(m.marketing)} in ads generated ${eur(m.roi * m.marketing + m.marketing)} in deals won · an ROI of ${pct(m.roi)}. Put more budget into the channels that are performing.` })
     else out.push({ tone: 'warn', title: 'Low marketing ROI', text: `For ${eur(m.marketing)} spent, the return is ${pct(m.roi)}. Test new audiences/creatives (Campaign Studio) and cut what isn't converting.` })
   }
 
@@ -70,7 +70,7 @@ export function insights(m: Metrics): Insight[] {
   }
 
   if (m.conversion > 0 || m.newCustomers > 0) {
-    if (m.conversion >= 0.3) out.push({ tone: 'good', title: 'Strong conversion rate', text: `You convert ${pct(m.conversion)} of closed deals. Your sales pitch works — document it and replicate it.` })
+    if (m.conversion >= 0.3) out.push({ tone: 'good', title: 'Strong conversion rate', text: `You convert ${pct(m.conversion)} of closed deals. Your sales pitch works · document it and replicate it.` })
     else out.push({ tone: 'warn', title: 'Conversion needs improvement', text: `Only ${pct(m.conversion)} of closed deals are won. Work on your follow-ups (outbound sequences) and qualify better upfront.` })
   }
 

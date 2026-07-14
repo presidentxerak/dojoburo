@@ -16,7 +16,7 @@ import { TopBar } from './TopBar'
 import { PageBar } from './PageBar'
 
 // Classify the connectors by the agents' JOB (métier): one section per
-// department, titled with the agent(s) whose job it is — so you see which apps
+// department, titled with the agent(s) whose job it is · so you see which apps
 // each of your agents can act inside. A connector serving several jobs appears
 // under each (it genuinely works for both).
 const METIER_GROUPS: { key: Department; label: string; connectors: Connector[] }[] = (() => {
@@ -51,9 +51,9 @@ export function ConnectorsPage() {
           <div>
             <h1 className="connect-title">Connect apps <span className="connect-count">{connected}/{total} linked</span></h1>
             <p className="connect-lead">
-              Link your real tools so your agents act inside your own accounts — draft the Gmail, open the GitHub PR, launch the
+              Link your real tools so your agents act inside your own accounts · draft the Gmail, open the GitHub PR, launch the
               Meta campaign, post to your CRM. Everything is grouped by what it does. Tap <b>Connect</b>, approve the provider's
-              screen once, and the token is sealed server-side (AES-256-GCM) — the browser never sees a secret.
+              screen once, and the token is sealed server-side (AES-256-GCM) · the browser never sees a secret.
             </p>
           </div>
           <button className="ws-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">×</button>
@@ -61,8 +61,8 @@ export function ConnectorsPage() {
 
         {/* how it works · A to Z */}
         <div className="connect-how">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Find the app by agent</b><span>Apps are grouped by the agent whose job uses them — your Marketer's channels, your Business Analyst's finance tools, and so on.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve the provider's OAuth screen (or paste an API token). No passwords — you authorise on the provider's own site.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Find the app by agent</b><span>Apps are grouped by the agent whose job uses them · your Marketer's channels, your Business Analyst's finance tools, and so on.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve the provider's OAuth screen (or paste an API token). No passwords · you authorise on the provider's own site.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Your agents act for real</b><span>The sealed token lets the agent do real work in that app. Tap <b>Full guide</b> on any app for exact scopes &amp; setup, or <b>Disconnect</b> anytime.</span></div></div>
         </div>
 

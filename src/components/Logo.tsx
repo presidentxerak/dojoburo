@@ -1,6 +1,6 @@
-/** DojoBuro mark — the line-art face icon (public/logo-icon-dojoburo.svg),
+/** DojoBuro mark · the line-art face icon (public/logo-icon-dojoburo.svg),
  *  inlined so it inherits currentColor (black in light mode, white in dark).
- *  Used in the top bar, landing/guide nav, footers, support bot — everywhere the
+ *  Used in the top bar, landing/guide nav, footers, support bot · everywhere the
  *  brand appears. Legible down to favicon size. */
 export function Logo({ size = 34, className = '' }: { size?: number; className?: string; animated?: boolean }) {
   return (

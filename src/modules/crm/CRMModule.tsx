@@ -1,6 +1,6 @@
 // CRM & Outbound · a local pipeline + outreach tool. Track leads across
 // stages, import a CSV, generate personalised email sequences (template merge),
-// and see pipeline stats — 100% in the browser, persisted in IndexedDB.
+// and see pipeline stats · 100% in the browser, persisted in IndexedDB.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useDojo } from '../../store'
@@ -43,7 +43,7 @@ export default function CRMModule({ dojoId }: ModuleProps) {
     <div className="ad-body crm-mod">
       <header className="mod-intro">
         <h3 className="sq-title">CRM &amp; outbound</h3>
-        <p className="sq-lead">Track leads across stages, import a CSV, and generate personalised outreach that merges each contact's details. Pipeline value, conversion and won revenue — all local.</p>
+        <p className="sq-lead">Track leads across stages, import a CSV, and generate personalised outreach that merges each contact's details. Pipeline value, conversion and won revenue · all local.</p>
       </header>
       <div className="site-toolbar">
         <div className="site-tb-actions">
@@ -80,7 +80,7 @@ export default function CRMModule({ dojoId }: ModuleProps) {
                 {contacts.filter((c) => c.stage === s.id).map((c) => (
                   <div key={c.id} className={`crm-card${c.id === sel ? ' on' : ''}`} onClick={() => setSel(c.id)} style={{ ['--sc' as string]: s.color }}>
                     <b>{c.name}</b>
-                    <em>{c.company || '—'}</em>
+                    <em>{c.company || '·'}</em>
                     <div className="crm-card-foot"><span>{eur(c.value)}</span><span className="crm-move"><button onClick={(e) => { e.stopPropagation(); move(c.id, -1) }} aria-label="Move back">‹</button><button onClick={(e) => { e.stopPropagation(); move(c.id, 1) }} aria-label="Move forward">›</button></span></div>
                   </div>
                 ))}

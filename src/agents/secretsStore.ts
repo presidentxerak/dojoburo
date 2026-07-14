@@ -6,7 +6,7 @@
 // NB · storage: this near-side store keeps secrets in localStorage so the UI is
 // live without a backend. In production these are POSTed to the same encrypted
 // vault the app connections already use (AES-256-GCM, server-side) and injected
-// into the worker's process.env at run time — the browser never keeps the value.
+// into the worker's process.env at run time · the browser never keeps the value.
 // See the Réglages card copy + api/ vault for the real path.
 // ---------------------------------------------------------------------------
 import { create } from 'zustand'

@@ -1,4 +1,4 @@
-// Local brand naming + research — no AI needed. Derives a research profile from
+// Local brand naming + research · no AI needed. Derives a research profile from
 // a one-line product description, then generates candidate names with a few
 // naming strategies (suffix, prefix, portmanteau, invented, compound). Domain
 // availability is checked for real via /api/domain (server-side RDAP).
@@ -104,7 +104,7 @@ const UNIVERSAL = ['nova', 'flux', 'atlas', 'orbit', 'vertex', 'lumen', 'echo', 
 
 /** A broad palette (~50) of on-theme keywords for the user to pick from. Seed
  *  words from the description come first, then matched industry vocab, then a
- *  universal brandable set — deduped, clipped and capped. */
+ *  universal brandable set · deduped, clipped and capped. */
 export function generateKeywords(desc: string, limit = 50): string[] {
   const seed = researchProfile(desc).keywords
   const banks = THEME_BANKS.filter(([re]) => re.test(desc)).flatMap(([, w]) => w)

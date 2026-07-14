@@ -18,7 +18,7 @@ export async function appTransactions(dojoId: string): Promise<Txn[]> {
       out.push({
         id: 'crm_' + c.id,
         date: iso(c.wonAt ?? Date.now()),
-        label: `Sale — ${c.name}${c.company ? ' (' + c.company + ')' : ''}`,
+        label: `Sale · ${c.name}${c.company ? ' (' + c.company + ')' : ''}`,
         amount: c.value,
         category: 'Sales',
         source: 'app',
@@ -32,7 +32,7 @@ export async function appTransactions(dojoId: string): Promise<Txn[]> {
     out.push({
       id: 'camp_budget',
       date: iso(camp.updatedAt || Date.now()),
-      label: `Meta ad budget — ${camp.product || 'campaign'}`,
+      label: `Meta ad budget · ${camp.product || 'campaign'}`,
       amount: -camp.budget,
       category: 'Marketing',
       source: 'app',

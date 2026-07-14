@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // Dojo City · the bright, daytime isometric city you visit from the dashboard
-// (header · City). You DON'T found companies here — that happens in the
+// (header · City). You DON'T found companies here · that happens in the
 // dashboard. Instead the city visualises what you've built: your HQ sits at the
 // centre and grows a floor for every Dojo you run (1 Dojo = a Japanese villa).
 // Around it: vintage villas + temples, a konbini for tips, an academy that opens
@@ -1025,7 +1025,7 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
   const center = useCityCenter()
 
   // Our 15 showcase companies get their own HQs on the building lots ringing the
-  // player's HQ — spread out (every other building lot) so they read as a cluster
+  // player's HQ · spread out (every other building lot) so they read as a cluster
   // of neighbouring startups rather than a wall.
   const companyByLot = useMemo(() => {
     const map = new Map<string, MockCo>()
@@ -1096,10 +1096,10 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
 }
 
 const TIPS = [
-  'Tip: describe your company in one sentence — your CEO builds the website, the offer and the growth plan.',
+  'Tip: describe your company in one sentence · your CEO builds the website, the offer and the growth plan.',
   'Tip: connect your agents (Email, Meta, SEO) in the Studio to delegate B2B growth.',
   'Tip: each new Dojo adds a floor to your building in the city.',
-  'Tip: buy credits in your own currency — no crypto to manage, everything settles behind the scenes.',
+  'Tip: buy credits in your own currency · no crypto to manage, everything settles behind the scenes.',
   'Tip: tune your CEO’s autonomy so it doesn’t loop and your credits last longer.',
 ]
 
@@ -1151,7 +1151,7 @@ function CompanyFiche({ co, onClose }: { co: MockCo; onClose: () => void }) {
           <div><span className="cofiche-n">{sales.toLocaleString('en-US')}</span><span className="cofiche-l">Ventes · aujourd’hui</span></div>
         </div>
 
-        <p className="cofiche-quote">“{co.testimonial.quote}” <b>— {co.testimonial.author}</b></p>
+        <p className="cofiche-quote">“{co.testimonial.quote}” <b>· {co.testimonial.author}</b></p>
 
         <div className="cofiche-actions">
           <a className="cofiche-open" href={companyPath(co)} style={{ background: t.accent }}>Ouvrir le site ↗</a>

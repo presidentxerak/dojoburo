@@ -6,7 +6,7 @@ const compact = (n: number) =>
     : n >= 1_000 ? (n / 1_000).toFixed(n >= 10_000 ? 0 : 1) + 'k'
     : String(n)
 
-/** One fake company rendered in its own visual identity — a tiny website preview
+/** One fake company rendered in its own visual identity · a tiny website preview
  *  (browser chrome + headline + CTA) with its live ad + today's revenue. Each card
  *  uses the company's own colours, typography and corner radius, so the wall reads
  *  as 15 genuinely different brands. */
@@ -53,7 +53,7 @@ function CompanyCard({ c }: { c: MockCo }) {
   )
 }
 
-/** The showcase gallery — 15 companies, each in its own style. */
+/** The showcase gallery · 15 companies, each in its own style. */
 export function ShowcaseGallery() {
   return (
     <div className="sc-grid">

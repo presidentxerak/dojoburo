@@ -1,5 +1,5 @@
 // Shared mobile bottom navigation bar for the STANDALONE pages (City, Studio,
-// Connect apps) — the ones that live on their own hash route rather than inside
+// Connect apps) · the ones that live on their own hash route rather than inside
 // <App/>. Each button routes back to #app with a session "nav intent" that App
 // reads on mount (CEO → dashboard, Dojo → the 3D office), or straight to the
 // #studio / #city / #connect routes. App itself keeps its own inline bar because

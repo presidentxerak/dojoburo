@@ -1,4 +1,4 @@
-// Marketus · Marketing Studio — one creative workflow that unifies the three
+// Marketus · Marketing Studio · one creative workflow that unifies the three
 // former studios: Campaigns (Meta ads), Video (editor + .webm export) and
 // Assets (local image optimisation). Each sub-tool is the existing engine,
 // unchanged; Marketus just switches between them with a segmented control.

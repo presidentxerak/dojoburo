@@ -1,6 +1,6 @@
 // Finance engine · 100% local. Parse a CSV of transactions in the browser,
 // categorise them, and compute every KPI (revenue, expenses, cash, VAT,
-// forecast) — no server, nothing uploaded. Data persists in IndexedDB.
+// forecast) · no server, nothing uploaded. Data persists in IndexedDB.
 import { idbGet, idbSet } from './idb'
 
 export interface Txn { id: string; date: string; label: string; amount: number; category: string; source?: 'app' | 'csv' | 'manual' }
@@ -101,7 +101,7 @@ export interface MonthAgg { month: string; income: number; expense: number }
 export function byMonth(txns: Txn[]): MonthAgg[] {
   const m = new Map<string, MonthAgg>()
   for (const t of txns) {
-    const key = t.date.slice(0, 7) || '—'
+    const key = t.date.slice(0, 7) || '·'
     const a = m.get(key) ?? { month: key, income: 0, expense: 0 }
     t.amount >= 0 ? (a.income += t.amount) : (a.expense += -t.amount)
     m.set(key, a)
@@ -140,10 +140,10 @@ export function sampleTxns(): Txn[] {
   const base = 2026, rows: [string, string, number][] = []
   const months = [3, 4, 5, 6]
   for (const mo of months) {
-    rows.push([`${base}-${String(mo).padStart(2, '0')}-05`, 'Stripe — subscription sales', 3200 + mo * 180])
-    rows.push([`${base}-${String(mo).padStart(2, '0')}-12`, 'Client — services', 1500])
+    rows.push([`${base}-${String(mo).padStart(2, '0')}-05`, 'Stripe · subscription sales', 3200 + mo * 180])
+    rows.push([`${base}-${String(mo).padStart(2, '0')}-12`, 'Client · services', 1500])
     rows.push([`${base}-${String(mo).padStart(2, '0')}-03`, 'AWS + Vercel (software)', -220])
-    rows.push([`${base}-${String(mo).padStart(2, '0')}-08`, 'Meta Ads — campaign', -450])
+    rows.push([`${base}-${String(mo).padStart(2, '0')}-08`, 'Meta Ads · campaign', -450])
     rows.push([`${base}-${String(mo).padStart(2, '0')}-01`, 'Office rent', -900])
     rows.push([`${base}-${String(mo).padStart(2, '0')}-28`, 'Bank fees', -35])
   }

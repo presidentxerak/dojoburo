@@ -5,7 +5,7 @@ import { Character3D } from './Character3D'
 
 // ---------------------------------------------------------------------------
 // One shared WebGL context renders every card character to a PNG, once, and
-// caches it. Cards then show plain <img>s — so a whole dashboard of agent
+// caches it. Cards then show plain <img>s · so a whole dashboard of agent
 // skins costs ZERO extra live contexts (only the main 3D dojo scene keeps a
 // live one). This avoids the browser's ~16-context ceiling entirely, which is
 // what could silently blank the scene or a panel on real GPUs.
@@ -81,11 +81,11 @@ export function SnapshotFactory() {
       const i = queue.indexOf(job)
       if (i >= 0) queue.splice(i, 1)
     }
-    setJob(queue[0] ?? null) // straight to the next job — no idle gap
+    setJob(queue[0] ?? null) // straight to the next job · no idle gap
   }
 
   // Only mount the canvas while there's work. When the queue drains the canvas
-  // unmounts — no idle GPU, and its WebGL context is released.
+  // unmounts · no idle GPU, and its WebGL context is released.
   if (!job) return null
   return (
     <div aria-hidden style={{ position: 'fixed', left: -10000, top: -10000, width: 128, height: 128, pointerEvents: 'none', opacity: 0 }}>

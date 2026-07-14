@@ -1,7 +1,7 @@
 // Local-first image processing · runs OFF the main thread.
 //
 // Compress + resize an image entirely in the browser using OffscreenCanvas.
-// The bytes never leave the machine — this is the local-first engine in action.
+// The bytes never leave the machine · this is the local-first engine in action.
 // The wrapper (src/lib/media.ts) falls back to a main-thread canvas when a
 // browser lacks OffscreenCanvas.
 

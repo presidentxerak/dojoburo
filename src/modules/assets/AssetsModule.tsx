@@ -95,7 +95,7 @@ export default function AssetsModule({ dojoId }: ModuleProps) {
       >
         <input ref={inputRef} type="file" accept="image/*" multiple hidden onChange={(e) => e.target.files && void addFiles(e.target.files)} />
         <strong>Drop images here</strong>
-        <span className="muted small">or click — <b>100% local</b> compression (WebP), nothing is sent to the server.</span>
+        <span className="muted small">or click · <b>100% local</b> compression (WebP), nothing is sent to the server.</span>
         {busy > 0 && <span className="muted small"><span className="ceo-spin" /> {busy} in progress…</span>}
       </div>
 
@@ -123,7 +123,7 @@ export default function AssetsModule({ dojoId }: ModuleProps) {
       </div>
 
       {items.length === 0 && busy === 0 && (
-        <p className="muted small">No assets yet. Images stay in your browser (IndexedDB) — available offline, reusable across your sites and ads.</p>
+        <p className="muted small">No assets yet. Images stay in your browser (IndexedDB) · available offline, reusable across your sites and ads.</p>
       )}
     </div>
   )

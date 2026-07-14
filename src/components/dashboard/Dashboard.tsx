@@ -17,7 +17,7 @@ import { InfoDot } from '../InfoDot'
 declare const __BUILD_ID__: string
 const BUILD_ID = typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev'
 
-// Nuke every cache + service worker and reload from the network — a one-click
+// Nuke every cache + service worker and reload from the network · a one-click
 // escape from a stale cached build.
 async function forceUpdate() {
   try {
@@ -34,12 +34,12 @@ async function forceUpdate() {
 }
 
 // fiat credit packs · ~1 credit per task. Price per credit by currency (XRP
-// display falls back to USD — the user never sees the settlement rail).
+// display falls back to USD · the user never sees the settlement rail).
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
 const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
 const CREDIT_PACKS = [30, 100, 500]
 
-// Which deliverable task ids belong to each agent — used to compute a card's
+// Which deliverable task ids belong to each agent · used to compute a card's
 // status + last activity from the deliverables history.
 const AGENT_TASKS: Record<string, string[]> = {
   chief: ['strategy'],
@@ -62,7 +62,7 @@ function relTime(ms: number): string {
 }
 
 /** A step-by-step explainer for an InfoDot: a short lead, numbered steps, and an
- *  optional tip — so each dashboard feature is spelled out clearly. */
+ *  optional tip · so each dashboard feature is spelled out clearly. */
 function Guide({ lead, steps, tip }: { lead: string; steps: React.ReactNode[]; tip?: React.ReactNode }) {
   return (
     <>
@@ -89,7 +89,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const ceo = byRole('chief') ?? agents.find((a) => a.fn === 'Leadership') ?? agents[0]
   const selected = agents.find((a) => a.id === selectedId) ?? null
   // Always resolve a role for a selected agent so the detail panel never comes
-  // up blank — even if a persisted dojo carries an agent with a legacy role id.
+  // up blank · even if a persisted dojo carries an agent with a legacy role id.
   const selRole = selected ? (ROLE_BY_ID[canonicalRole(selected.role)] ?? ROLE_BY_ID.chief) : undefined
 
   const run = useWork((s) => s.run)
@@ -110,13 +110,13 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
 
   // Clicking an agent (roster card OR the 3D dojo) jumps STRAIGHT to its studio
-  // dashboard — no intermediate profile screen. Utility agents (CEO, Engine,
+  // dashboard · no intermediate profile screen. Utility agents (CEO, Engine,
   // Credits, Config) have no studio, so they show their control panel instead.
   useEffect(() => {
     // deselecting (CEO button, closing a studio, "All agents") drops back to the
-    // company roster — so clear any open module when there's no selected agent.
+    // company roster · so clear any open module when there's no selected agent.
     // Chief IS the CEO/company dashboard: clicking it (in the dojo or the roster)
-    // shows this same roster, never a separate module — one CEO page, everywhere.
+    // shows this same roster, never a separate module · one CEO page, everywhere.
     if (!selectedId) { setModuleId(null); return }
     const a = agents.find((x) => x.id === selectedId)
     if (a && canonicalRole(a.role) === 'chief') { setModuleId(null); return }
@@ -169,7 +169,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         }
       } else {
         addLocalSecret(dojoId, secKey, secVal, secDesc)
-        pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Secret saved (local)', text: 'Stored in your browser — do not put a real production key here.' })
+        pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Secret saved (local)', text: 'Stored in your browser · do not put a real production key here.' })
       }
       setSecKey(''); setSecVal(''); setSecDesc('')
     } finally { setSecBusy(false) }
@@ -212,9 +212,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     if (err) {
       const map: Record<string, string> = {
         needs_key: 'Add your Claude key (Studio → Billing) for this deliverable.',
-        quota: 'Daily free quota reached — add your Claude key to continue.',
+        quota: 'Daily free quota reached · add your Claude key to continue.',
         not_configured: 'No AI model is configured on this deployment (Claude key or free cascade).',
-        network: 'Network error — please try again in a moment.',
+        network: 'Network error · please try again in a moment.',
         unknown_task: 'This task is not recognised by the server.',
       }
       pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Deliverable not launched', text: map[err.code] || `Failed: ${err.detail || err.code}.` })
@@ -243,7 +243,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <>Choose an <b>autonomy level</b>: Auto self-regulates; Low / Medium / Hard / Ultra cap Chief at 1 / 5 / 10 / 25 autonomous tasks per day.</>,
           <>Set a <b>daily credit cap</b>; an <b>anti-loop guard</b> stops a task that keeps repeating.</>,
           <>Add <b>encrypted environment variables</b> (sealed server-side, AES-256-GCM) for your agents to use.</>,
-          <>Flip a <b>safety switch</b> — pause outbound email, or pause the whole company.</>,
+          <>Flip a <b>safety switch</b> · pause outbound email, or pause the whole company.</>,
         ]} tip="These limits only rein in background autonomy: your manual launches always go through." />
       case 'vaultor': return <Guide lead="Vaultor manages credits, subscriptions and payments. You top up in your own currency, with no crypto at all."
         steps={[
@@ -270,7 +270,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
             <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>
           )}
           {noModel && (
-            <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> — Chief produces <b>drafts</b>. For real generation: <button className="linklike" onClick={() => openStudio('billing')}>add your Claude key</button> (Studio → Billing), or the operator enables a free key (Groq / Gemini).</p>
+            <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> · Chief produces <b>drafts</b>. For real generation: <button className="linklike" onClick={() => openStudio('billing')}>add your Claude key</button> (Studio → Billing), or the operator enables a free key (Groq / Gemini).</p>
           )}
           <p className="muted small">Chief delegates brand, website, offer, ads and outreach to the specialists (within Sentinel's limits) · daily email report.</p>
         </>
@@ -298,12 +298,12 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           </div>
 
           <div className="sq-eyebrow" style={{ marginTop: 14 }}>Encrypted environment variables</div>
-          {secMode === 'server' && <p className="sec-ok">🔒 <b>Encrypted vault:</b> your secrets are sealed server-side (AES-256-GCM) — never stored in the browser.</p>}
+          {secMode === 'server' && <p className="sec-ok">🔒 <b>Encrypted vault:</b> your secrets are sealed server-side (AES-256-GCM) · never stored in the browser.</p>}
           {secMode === 'local' && <p className="sec-warn">⚠️ <b>Server vault not configured</b> here: secrets are kept <b>in your browser</b>. Don't paste a real production key.</p>}
           <div className="sec-add">
             <input className="sec-key" placeholder="SERVICE_API_KEY" value={secKey} onChange={(e) => setSecKey(e.target.value.toUpperCase())} maxLength={48} />
             <input className="sec-val" type="password" placeholder="Secret value" value={secVal} onChange={(e) => setSecVal(e.target.value)} />
-            <input className="sec-desc" placeholder="Description (optional) — helps your agents pick the right secret" value={secDesc} onChange={(e) => setSecDesc(e.target.value)} maxLength={80} />
+            <input className="sec-desc" placeholder="Description (optional) · helps your agents pick the right secret" value={secDesc} onChange={(e) => setSecDesc(e.target.value)} maxLength={80} />
             <button className="btn tiny" disabled={!secKey.trim() || !secVal.trim() || secBusy} onClick={() => void saveSecret()}>{secBusy ? 'Saving…' : 'Save secret'}</button>
           </div>
           {secretList.length > 0 ? (
@@ -334,7 +334,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
               <button role="switch" aria-checked={engine.paused} className={`tgl danger${engine.paused ? ' on' : ''}`} onClick={() => engine.setPaused(!engine.paused)}><span /></button>
             </label>
           </div>
-          {engine.paused && <p className="sec-paused">⏸ Company paused — tasks are blocked.</p>}
+          {engine.paused && <p className="sec-paused">⏸ Company paused · tasks are blocked.</p>}
         </>
       )
       case 'vaultor': return (
@@ -389,7 +389,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
         <p className="ad-blurb">{selRole.desc}</p>
 
-        {/* the agent's studio(s) — each studio agent IS its tool. Utility agents
+        {/* the agent's studio(s) · each studio agent IS its tool. Utility agents
             (Chief, Sentinel, Vaultor) show their control panel instead. */}
         {(() => {
           const roleModules = MODULES.filter((m) => m.agentRole === selRole.id)
@@ -429,7 +429,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         </div>
       </div>
 
-      {/* Business overview — the company dashboard at a glance */}
+      {/* Business overview · the company dashboard at a glance */}
       <div className="biz-overview">
         <div className="biz-tile"><span>{engine.creditsToday}</span><em>credits (today)</em></div>
         <div className="biz-tile"><span>{delivs.filter((d) => d.taskId === 'ads').length}</span><em>campaigns</em></div>
@@ -438,7 +438,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         <div className="biz-tile"><span>{connectedCount}</span><em>apps</em></div>
       </div>
 
-      {/* Chief quick action — the only orchestration entry point, above the roster */}
+      {/* Chief quick action · the only orchestration entry point, above the roster */}
       <div className="ceo-quick" style={{ ['--dc' as string]: ROLE_BY_ID.chief.tint }}>
         <div className="composer-row">
           <input value={msg} onChange={(e) => setMsg(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendCeo()} placeholder="Tell Chief what to prioritise…" />
@@ -447,12 +447,12 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         {autopilot.running
           ? <p className="ceo-autopilot"><span className="ceo-spin" /> Chief is working · <b>{autopilot.step}</b>…</p>
           : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>}
-        {noModel && <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> — Chief produces <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
+        {noModel && <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> · Chief produces <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
       </div>
 
       <div className="mission-head">
         <h3>Your team</h3>
-        <span className="muted small">Eight AI specialists — click one to open it. Chief coordinates the rest.</span>
+        <span className="muted small">Eight AI specialists · click one to open it. Chief coordinates the rest.</span>
       </div>
       <div className="lp-studioteam agent-roster">
         {roster.map((a) => {

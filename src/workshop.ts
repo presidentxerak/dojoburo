@@ -99,8 +99,8 @@ const uid = () => Math.random().toString(36).slice(2, 10)
 const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People', 'Ops']
 
 // Every company is run by the SAME 10 functional agents (see data/roleAgents).
-// The template/profession only changes the 3D world and the skin palette — not
-// the crew composition — so the roster, the scene and the dashboards always
+// The template/profession only changes the 3D world and the skin palette · not
+// the crew composition · so the roster, the scene and the dashboards always
 // match. Each role agent is seeded onto the grid with a skin from the theme.
 function roleCrew(skinTheme: string): WAgent[] {
   const skins = crewSkins(skinTheme, ROLE_AGENTS.length)
@@ -338,7 +338,7 @@ export function agentSkin(a: WAgent) {
   return skinById(a.skinId)
 }
 
-/** The active dojo's agents placed on a grid sized to their count — so the
+/** The active dojo's agents placed on a grid sized to their count · so the
  *  scene shows exactly one desk per agent (no empty desks). Used by both the
  *  characters and the desks so they always line up. */
 export function seatedAgents(dojo: Dojo | null): Array<{ agent: WAgent; x: number; z: number }> {

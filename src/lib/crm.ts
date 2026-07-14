@@ -1,5 +1,5 @@
 // CRM / Outbound engine · 100% local. A pipeline of contacts, outbound email
-// sequences (templates + merge), scoring and stats — all in the browser,
+// sequences (templates + merge), scoring and stats · all in the browser,
 // persisted in IndexedDB. Nothing is uploaded.
 import { idbGet, idbSet } from './idb'
 
@@ -52,9 +52,9 @@ export function stats(cs: Contact[]): CrmStats {
 export interface Template { id: string; label: string; subject: string; body: string }
 export const TEMPLATES: Template[] = [
   { id: 'intro', label: 'Introduction', subject: 'An idea for {{entreprise}}', body: `Hi {{prenom}},\n\nI'm reaching out because I help organizations like {{entreprise}} save time and win more clients.\n\nWould you be open to a quick 15-minute chat this week?\n\nBest regards,` },
-  { id: 'relance1', label: 'Follow-up 1', subject: 'Re: an idea for {{entreprise}}', body: `Hi {{prenom}},\n\nI'm following up on my previous message — I know days get busy.\n\nWould a short conversation make sense on your end?\n\nHave a great day,` },
+  { id: 'relance1', label: 'Follow-up 1', subject: 'Re: an idea for {{entreprise}}', body: `Hi {{prenom}},\n\nI'm following up on my previous message · I know days get busy.\n\nWould a short conversation make sense on your end?\n\nHave a great day,` },
   { id: 'rdv', label: 'Meeting proposal', subject: 'A slot this week?', body: `Hi {{prenom}},\n\nGlad to hear you're interested! I'd like to suggest a 20-minute call.\n\nAre you available Thursday at 11am or Friday at 2pm? Happy to work around your schedule otherwise.\n\nTalk soon,` },
-  { id: 'value', label: 'Value add', subject: 'A concrete example for {{entreprise}}', body: `Hi {{prenom}},\n\nI've put together a concrete idea that applies to {{entreprise}} — sharing it with no strings attached.\n\nLet me know if you'd like me to send it over.\n\nBest,` },
+  { id: 'value', label: 'Value add', subject: 'A concrete example for {{entreprise}}', body: `Hi {{prenom}},\n\nI've put together a concrete idea that applies to {{entreprise}} · sharing it with no strings attached.\n\nLet me know if you'd like me to send it over.\n\nBest,` },
 ]
 const firstName = (name: string) => (name.trim().split(/\s+/)[0] || 'there')
 export function merge(tpl: Template, c: Contact): { subject: string; body: string } {

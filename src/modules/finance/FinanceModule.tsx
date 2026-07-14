@@ -1,5 +1,5 @@
 // Finance & Accounting · import a CSV of transactions (or load a sample), categorise,
-// and see every KPI — revenue, expenses, cash, VAT, forecast — computed
+// and see every KPI · revenue, expenses, cash, VAT, forecast · computed
 // 100% locally in the browser. Nothing is uploaded. Data persists in IndexedDB.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ModuleProps } from '../registry'
@@ -54,7 +54,7 @@ export default function FinanceModule({ dojoId }: ModuleProps) {
     <div className="ad-body fin-mod">
       <header className="mod-intro">
         <h3 className="sq-title">Finance &amp; accounting</h3>
-        <p className="sq-lead">Import a CSV (or load a sample) and see every KPI — revenue, expenses, cash, VAT, forecast — computed locally. Sales won in the CRM and campaign budgets flow in automatically.</p>
+        <p className="sq-lead">Import a CSV (or load a sample) and see every KPI · revenue, expenses, cash, VAT, forecast · computed locally. Sales won in the CRM and campaign budgets flow in automatically.</p>
       </header>
       <div className="site-toolbar">
         <div className="site-tb-actions">
@@ -69,7 +69,7 @@ export default function FinanceModule({ dojoId }: ModuleProps) {
       </div>
 
       {appTxns.length > 0 && (
-        <p className="fin-appnote">✓ <b>{appTxns.length} line(s) from the app</b> — sales won in the CRM and campaign budgets. They automatically feed these figures.</p>
+        <p className="fin-appnote">✓ <b>{appTxns.length} line(s) from the app</b> · sales won in the CRM and campaign budgets. They automatically feed these figures.</p>
       )}
 
       {!hasAny ? (

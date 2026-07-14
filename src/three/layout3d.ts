@@ -18,7 +18,7 @@ export const HERO_HOME3D: [number, number] = [0, 7.4]
 export const SEATS: [number, number][] = AGENTS.map((a) => POS3D[a.id])
 
 /** Positions for exactly `n` agents on a centred grid (≤4 per row), so a dojo
- *  only ever shows as many desks as it has agents — no empty slots, and each
+ *  only ever shows as many desks as it has agents · no empty slots, and each
  *  row is centred (a short final row too). Rows are centred around z≈0.7 to keep
  *  the crew framed with room for the Chief out front. */
 export function seatPositions(n: number): [number, number][] {

@@ -56,7 +56,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
   const editAd = (field: keyof AdVariant, value: string) => setCamp((c) => ({ ...c, ads: c.ads.map((a, i) => (i === sel ? { ...a, [field]: value } : a)) }))
   const editAudience = (raw: string) => setCamp((c) => ({ ...c, audience: { ...c.audience, interests: raw.split(',').map((s) => s.trim()).filter(Boolean) } }))
 
-  const generate = () => { const c = generateCampaign(product || dojoName, camp.objective); setCamp(c); setSel(0); setStep('audience'); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Campaign generated', text: '5 Meta variants ready — review the audience.' }) }
+  const generate = () => { const c = generateCampaign(product || dojoName, camp.objective); setCamp(c); setSel(0); setStep('audience'); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Campaign generated', text: '5 Meta variants ready · review the audience.' }) }
   const save = async () => { await saveCampaign(dojoId, camp); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Campaign saved', text: 'Saved locally (IndexedDB).' }) }
   const copyText = () => { void navigator.clipboard?.writeText(copyPack(camp)); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Copied', text: 'Copy pack ready to paste into Meta Ads Manager.' }) }
   const exportSvg = () => {
@@ -106,7 +106,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
           <h3 className="sq-title">Campaign brief</h3>
           <p className="sq-lead">What are you promoting, and what's the goal? We build the audience, personas and 5 ad variants from this.</p>
           <label className="sq-field">Product / offer
-            <input value={product} maxLength={60} onChange={(e) => setProduct(e.target.value)} placeholder="e.g. in-home personal training — first session free" />
+            <input value={product} maxLength={60} onChange={(e) => setProduct(e.target.value)} placeholder="e.g. in-home personal training · first session free" />
           </label>
           <div className="sq-eyebrow">Objective</div>
           <div className="sq-optgrid">

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Self-contained brand artwork for the 15 showcase company sites — no external
+// Self-contained brand artwork for the 15 showcase company sites · no external
 // assets (the CSP blocks them and stock photos wouldn't match fictional brands),
 // so everything here is inline SVG + CSS motion: a bespoke hero illustration per
 // company, an animated "product demo" that reads like a screen-recording, a line

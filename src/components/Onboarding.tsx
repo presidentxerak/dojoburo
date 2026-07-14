@@ -11,7 +11,7 @@ function deriveName(s: string): string {
   return w.map((x) => x[0].toUpperCase() + x.slice(1).toLowerCase()).join(' ').slice(0, 22)
 }
 
-/** First-run flow (like nanocorp's "What does your company do?") — improved with
+/** First-run flow (like nanocorp's "What does your company do?") · improved with
  *  business-domain tag buttons that seed the right crew + connectors, a little
  *  preview to guide the choice, a Surprise-me, and a free-text describe box. */
 export function Onboarding({ onDone }: { onDone: () => void }) {
@@ -79,7 +79,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
           value={desc}
           onChange={(e) => { setDesc(e.target.value); if (e.target.value) setSel([]) }}
           rows={2}
-          placeholder="Describe your company in one sentence — e.g. an app that helps cafés keep their customers coming back."
+          placeholder="Describe your company in one sentence · e.g. an app that helps cafés keep their customers coming back."
         />
 
         <div className="onb-actions">

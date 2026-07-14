@@ -7,7 +7,7 @@ import { HeroArt, DemoReel, PhotoStrip, ICONS, featureIcons } from './components
 function features(c: MockCo): Array<{ t: string; b: string }> {
   const base = c.mission.replace(/\.$/, '')
   return [
-    { t: 'Made for you', b: `${base} — set up in minutes, no learning curve, cancel whenever you like.` },
+    { t: 'Made for you', b: `${base} · set up in minutes, no learning curve, cancel whenever you like.` },
     { t: 'Actually delightful', b: `A ${c.cat.toLowerCase()} experience obsessed with the details, so the boring parts disappear.` },
     { t: 'Fair, simple pricing', b: 'One clear price. No hidden fees, no surprises, no long contracts to sign.' },
   ]
@@ -24,7 +24,7 @@ function plans(c: MockCo) {
 
 function faqs(c: MockCo): Array<{ q: string; a: string }> {
   return [
-    { q: `What is ${c.name}?`, a: `${c.mission} It’s the fastest way to get there — no setup headaches, no long onboarding.` },
+    { q: `What is ${c.name}?`, a: `${c.mission} It’s the fastest way to get there · no setup headaches, no long onboarding.` },
     { q: 'Is there a free trial?', a: 'Yes. Every plan starts with a no-card-needed trial, and you can cancel or switch tiers whenever you like.' },
     { q: 'How quickly can I get started?', a: `Minutes. Sign up, follow the ${c.cat.toLowerCase()} setup, and you’re live the same day.` },
     { q: 'Do you offer support?', a: 'Real humans, fast. Email on every plan, and priority support on Pro and Team.' },
@@ -68,7 +68,7 @@ function ProductMock({ c }: { c: MockCo }) {
 }
 
 // Per-company look: layout archetype, button shape, and which media leads the
-// hero (a branded illustration vs an app screenshot) + its frame — so the 15
+// hero (a branded illustration vs an app screenshot) + its frame · so the 15
 // sites don't share one template.
 type Layout = 'center' | 'split' | 'editorial' | 'bold'
 type Frame = 'rounded' | 'circle' | 'blob'
@@ -244,7 +244,7 @@ export function CompanySite({ id }: { id: string }) {
         <div className="cs-foot-brand"><span className="cs-logo sm" style={{ background: t.accent }}>{c.name[0]}</span> {c.name}</div>
         <p className="cs-foot-note">
           {c.name} is a fictional company founded and run by AI agents inside{' '}
-          <a href="/">DojoBuro</a>. This whole site — copy, brand and ads — was produced by its crew.
+          <a href="/">DojoBuro</a>. This whole site · copy, brand and ads · was produced by its crew.
         </p>
         <a className="cs-foot-back" href="/#showcase">← See all 15 companies</a>
       </footer>

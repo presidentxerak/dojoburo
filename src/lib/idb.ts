@@ -1,12 +1,12 @@
 // Local-first persistence · a tiny, dependency-free IndexedDB wrapper.
 //
-// Why: localStorage is ~5 MB, synchronous and string-only — useless for the
+// Why: localStorage is ~5 MB, synchronous and string-only · useless for the
 // pro modules (brand kits, website projects, video timelines, image/video
 // assets). IndexedDB holds hundreds of MB and stores Blobs directly, so heavy
 // work stays on the user's machine and never touches the server.
 //
 // Design: one database, a few object stores, a minimal async KV-style API
-// (get/set/del/keys/values/each). No external dep — keeps the bundle light.
+// (get/set/del/keys/values/each). No external dep · keeps the bundle light.
 
 const DB_NAME = 'dojoburo'
 const DB_VERSION = 1
@@ -70,7 +70,7 @@ export async function idbDel(store: StoreName, key: string): Promise<void> {
   try { await tx(store, 'readwrite', (s) => s.delete(key) as unknown as IDBRequest<void>) } catch { /* ignore */ }
 }
 
-/** All keys in a store (newest-first is the caller's job — keys sort ascending). */
+/** All keys in a store (newest-first is the caller's job · keys sort ascending). */
 export async function idbKeys(store: StoreName): Promise<string[]> {
   if (!idbAvailable()) return []
   try { return (await tx<IDBValidKey[]>(store, 'readonly', (s) => s.getAllKeys() as IDBRequest<IDBValidKey[]>)).map(String) } catch { return [] }

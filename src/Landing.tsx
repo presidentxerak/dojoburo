@@ -34,10 +34,8 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-hero">
         <h1>Found your company in one <span className="hl-mag">sentence</span>.</h1>
         <p className="lp-sub">
-          Describe your idea in one sentence and <Wordmark /> spins up a 3D office where a CEO and its agents build
-          your brand, your website, your ads, your videos, your finances and your CRM. Real <b>pro studios</b> —
-          branding, website, Meta campaigns, video editing, finance, outreach, analytics — that run <b>right in
-          your browser</b>: maximum power, minimal server cost.
+          One sentence, and <Wordmark /> spins up a 3D office where a CEO and its agents build your brand, site,
+          ads and more · <b>real pro studios</b>, right in your browser.
         </p>
         <HeroCreate enter={enter} />
         <div className="lp-badges">
@@ -57,7 +55,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lp-lead sm">
           Each agent in your office owns one studio. Click a teammate and their studio opens: it generates a first
           version with AI, then you keep full control. Video editing, image compression, design rendering and export
-          all run <b>locally</b> — your files never leave your machine.
+          all run <b>locally</b> · your files never leave your machine.
         </p>
         <StudioTeam enter={enter} />
         <p className="lp-note">Brand → website → ads → video → finance → clients → analytics: a central Brand Kit keeps everything consistent, and every studio reuses the work of the others.</p>
@@ -80,7 +78,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <span className="lp-pill">Showcase · 15 companies, 15 identities</span>
           <h2>Every company gets its own look</h2>
           <p className="lp-lead">
-            Each dojo ships a real website and ad campaigns in its own voice — its own colours, typography and tone.
+            Each dojo ships a real website and ad campaigns in its own voice · its own colours, typography and tone.
             Here are fifteen it built, from AI headshots to same-day flowers. No two look alike.
           </p>
           <ShowcaseGallery />
@@ -177,7 +175,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <section className="lp-sec" id="testimonials">
           <span className="lp-pill">Founders, in their words</span>
           <h2>What the founders say</h2>
-          <p className="lp-lead">Real talk from the people running these companies — each set in their own brand's typeface.</p>
+          <p className="lp-lead">Real talk from the people running these companies · each set in their own brand's typeface.</p>
           <Testimonials />
         </section>
       )}
@@ -213,13 +211,13 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="price" /></span>
         <h2>Simple, credit-based pricing</h2>
         <p className="lp-lead">
-          Start free. Upgrade when you need more credits. <b>1 credit ≈ 1 agentic task</b> — pick how many you
+          Start free. Upgrade when you need more credits. <b>1 credit ≈ 1 agentic task</b> · pick how many you
           need each month and the price scales with you. Bring your own model key and hosted-model credits become
           optional; either way there's no crypto to manage.
         </p>
         <Pricing enter={enter} goBilling={goBilling} goAssistant={goAssistant} connectors={CONNECTORS.length} />
         <p className="lp-note">
-          Credits roll over month to month. Buy them in your own currency (USD, EUR, JPY…) and top up anytime —
+          Credits roll over month to month. Buy them in your own currency (USD, EUR, JPY…) and top up anytime ·
           settlement happens behind the scenes. Exploring is always free.
         </p>
       </section>
@@ -271,7 +269,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <h2>How settlement actually works</h2>
         <p className="lp-lead">
           That "fast rail behind the scenes" is the <b>XRP Ledger</b>. Every time an agent completes a task, the
-          run settles as an <b>x402 micropayment</b> — the on-ledger version of an HTTP <code>402 Payment
+          run settles as an <b>x402 micropayment</b> · the on-ledger version of an HTTP <code>402 Payment
           Required</code>. You never see it (you just spend credits), but here is exactly what happens.
         </p>
         <div className="lp-schema lp-flow">
@@ -290,25 +288,25 @@ export function Landing({ enter }: { enter: () => void }) {
             <h3>Why x402</h3>
             <ul>
               <li><b>x402</b> mirrors the HTTP <code>402 Payment Required</code> status: each task is a metered, pay-as-you-go micropayment instead of a monthly bill.</li>
-              <li>Every payment carries a structured <b>memo</b> (the skill invoked + an invoice id), so the ledger itself is the audit trail — one verifiable receipt per unit of real work.</li>
+              <li>Every payment carries a structured <b>memo</b> (the skill invoked + an invoice id), so the ledger itself is the audit trail · one verifiable receipt per unit of real work.</li>
               <li>It's built for <b>autonomous agents</b>: an agent can pay for a tool call, or pay another agent, without a human or a credit card in the loop.</li>
             </ul>
           </div>
           <div>
             <h3>Why the XRP Ledger</h3>
             <ul>
-              <li><b>Micropayments make sense</b>: fees are a tiny fraction of a cent, so metering a task at ~1 credit is actually economical — card rails can't do that.</li>
-              <li><b>Fast &amp; final</b>: transactions validate in about 3–5 seconds, with deterministic finality — no waiting, no reversals.</li>
+              <li><b>Micropayments make sense</b>: fees are a tiny fraction of a cent, so metering a task at ~1 credit is actually economical · card rails can't do that.</li>
+              <li><b>Fast &amp; final</b>: transactions validate in about 3–5 seconds, with deterministic finality · no waiting, no reversals.</li>
               <li><b>Purpose-built for payments</b> and energy-light, with a native DEX and payment channels for streaming micro-settlements.</li>
             </ul>
           </div>
         </div>
         <div className="lp-benefits">
           <div className="lp-benefit"><b>Invisible to you</b><span>You pay in your own currency and hold plain credits · no wallet, no seed, no token to manage. The XRPL rail is the operator's plumbing, not your problem.</span></div>
-          <div className="lp-benefit"><b>Agent-to-agent ready</b><span>Because agents can hold and move value, they can settle between each other — a real internal economy, on the ledger.</span></div>
+          <div className="lp-benefit"><b>Agent-to-agent ready</b><span>Because agents can hold and move value, they can settle between each other · a real internal economy, on the ledger.</span></div>
           <div className="lp-benefit"><b>Fully auditable</b><span>Each task's payment is queryable on-ledger via <code>account_tx</code>, so what ran and what it cost can always be verified.</span></div>
         </div>
-        <p className="lp-note">Live on XRPL Mainnet with x402 memos. Prefer no crypto at all? The same flow runs in pure credit-ledger mode — settlement is an operator choice, never a user requirement.</p>
+        <p className="lp-note">Live on XRPL Mainnet with x402 memos. Prefer no crypto at all? The same flow runs in pure credit-ledger mode · settlement is an operator choice, never a user requirement.</p>
       </section>
 
 

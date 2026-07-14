@@ -49,7 +49,7 @@ function runInWorker(job: ImageJob): Promise<ImageResult> {
   })
 }
 
-// main-thread fallback (older browsers) — same output shape
+// main-thread fallback (older browsers) · same output shape
 async function runOnMainThread(blob: Blob, maxDim: number, quality: number, mime: string): Promise<ImageResult> {
   const url = URL.createObjectURL(blob)
   try {

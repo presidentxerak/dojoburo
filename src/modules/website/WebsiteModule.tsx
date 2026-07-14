@@ -1,6 +1,6 @@
 // Website Builder · a local block-based website builder. The AI gives a first
 // version instantly (from the company name); the user edits every block, reorders
-// them, previews responsive, and exports a standalone .html — all in the browser.
+// them, previews responsive, and exports a standalone .html · all in the browser.
 // The website automatically uses the saved Brand Kit (colours + fonts). No server.
 import { useEffect, useMemo, useState } from 'react'
 import type { ModuleProps } from '../registry'

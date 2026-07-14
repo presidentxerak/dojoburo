@@ -9,8 +9,8 @@ import { toHex } from './hex'
 
 // Memoise the dynamic import so the SDK loads once and the eventual
 // sendPayment() call stays inside the click's user-activation window (no network
-// import in between). We DON'T cache a rejected promise — otherwise a single
-// transient import failure would wedge every later call — so on failure we clear
+// import in between). We DON'T cache a rejected promise · otherwise a single
+// transient import failure would wedge every later call · so on failure we clear
 // the cache and let the next call retry.
 let sdkP: Promise<typeof import('@gemwallet/api')> | null = null
 function api() {

@@ -37,11 +37,11 @@ export interface ModuleDef {
 
 // One studio module per studio-owning agent. Marketus and Busino are composite
 // workspaces that internally switch between the former standalone studios, so
-// every original tool is still reachable — just grouped under one teammate.
+// every original tool is still reachable · just grouped under one teammate.
 export const MODULES: ModuleDef[] = [
   {
     id: 'chief', label: 'Command Center',
-    blurb: 'Company overview, priorities and the whole team — Chief coordinates everything.',
+    blurb: 'Company overview, priorities and the whole team · Chief coordinates everything.',
     tint: '#7b5cff', emoji: '🧭', agentRole: 'chief', status: 'live', comp: ChiefModule,
   },
   {
@@ -61,7 +61,7 @@ export const MODULES: ModuleDef[] = [
   },
   {
     id: 'crm', label: 'Growth Studio',
-    blurb: 'Leads, pipeline, personalised email sequences and outreach — 100% local.',
+    blurb: 'Leads, pipeline, personalised email sequences and outreach · 100% local.',
     tint: '#d98c17', emoji: '🤝', agentRole: 'pumpi', status: 'live', comp: CRMModule,
   },
   {
@@ -76,7 +76,7 @@ export const MODULES: ModuleDef[] = [
   },
   {
     id: 'billing', label: 'Billing',
-    blurb: 'Credits, top-ups and payments in your own currency — no crypto.',
+    blurb: 'Credits, top-ups and payments in your own currency · no crypto.',
     tint: '#0e9bb5', emoji: '💳', agentRole: 'vaultor', status: 'live', comp: VaultorModule,
   },
 ]

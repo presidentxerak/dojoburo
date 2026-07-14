@@ -6,7 +6,7 @@
 
 :root {
   --bg: #ffffff;
-  --ink: #000000;          /* pure black text — no grey levels */
+  --ink: #000000;          /* pure black text · no grey levels */
   --muted: #000000;        /* secondary text is pure black too */
   --panel: rgba(255, 255, 255, 0.92);
   --panel-solid: #ffffff;
@@ -673,7 +673,7 @@ a:hover { text-decoration: underline; }
   .mbar button:active { color: var(--ink); }
   .mbar button.on { color: var(--ink); }
   .mbar-ic { font-size: 16px; line-height: 1; }
-  /* five tabs (Dojo · CEO · Studio · Connect · City) — smaller labels so they fit */
+  /* five tabs (Dojo · CEO · Studio · Connect · City) · smaller labels so they fit */
   .mbar-5 button { font-size: 11px; letter-spacing: -0.01em; }
   .mbar-5 .mbar-ic { font-size: 17px; }
   /* keep content + the help button clear of the bar */
@@ -2739,7 +2739,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .tb-guide { background: var(--btn-bg) !important; color: var(--btn-fg) !important; border: none !important; text-decoration: none; display: inline-flex; align-items: center; }
 .tb-guide:hover { filter: brightness(1.12); }
 /* Header: Dojo Guide / Studio / City styled like the nav links (Build, Connect…),
-   not filled black boxes — a single, consistent header menu. */
+   not filled black boxes · a single, consistent header menu. */
 .topbar .tb-guide, .topbar .tb-studio, .topbar .tb-city {
   background: transparent !important; background-image: none !important;
   color: var(--muted) !important; border: none !important; box-shadow: none !important;
@@ -3102,7 +3102,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .tpl-use { margin-top: 4px; font-family: var(--font-ui); font-weight: 700; font-size: 16px; color: var(--dc); }
 
 /* =====================================================================
-   DESIGN SYSTEM OVERRIDE  (appended last — wins the cascade)
+   DESIGN SYSTEM OVERRIDE  (appended last · wins the cascade)
    Strict Outfit type scale · pure-black text · sharp 1px · one discreet
    colour per agent. Requested app-wide overhaul.
    ===================================================================== */
@@ -3114,7 +3114,7 @@ h2 { font-size: 32px !important; font-weight: 700 !important; line-height: 1.14;
 h3 { font-size: 24px !important; font-weight: 700 !important; line-height: 1.2; }
 h4, h5, h6 { font-size: 20px !important; font-weight: 700 !important; }
 
-/* H0 · the single mega display title (landing hero) — Outfit Black, pure black */
+/* H0 · the single mega display title (landing hero) · Outfit Black, pure black */
 .lp-hero h1 {
   font-size: clamp(52px, 9.5vw, 100px) !important; font-weight: 900 !important;
   letter-spacing: -0.03em; line-height: 0.98;
@@ -3230,7 +3230,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 .sq-opt.locked { opacity: 0.7; cursor: default; }
 
 /* ===================================================================
-   UI FIXES — header alignment, toasts off the dojo, cleaner dashboards
+   UI FIXES · header alignment, toasts off the dojo, cleaner dashboards
    =================================================================== */
 /* Header: sharp, black wordmark aligned with the icon, uniform text nav */
 .topbar { border-radius: 0 !important; align-items: center; }
@@ -3249,13 +3249,13 @@ input, textarea, select, button { border-radius: 0 !important; }
 /* right-side auth/create buttons: uniform height + sharp */
 .topbar-right .btn.tiny { height: 34px; display: inline-flex; align-items: center; border-radius: 0 !important; font-size: 14px; }
 
-/* Toasts: bottom-right, compact — never cover the dojo / agents */
+/* Toasts: bottom-right, compact · never cover the dojo / agents */
 .toasts {
   top: auto !important; bottom: 88px !important; left: auto !important; right: 16px !important;
   transform: none !important; align-items: flex-end !important;
 }
 .toast { border-radius: 0 !important; max-width: 320px; box-shadow: 0 6px 20px rgba(0,0,0,0.14) !important; }
-/* On mobile the floating toasts stack over the 3D dojo and hide the agents —
+/* On mobile the floating toasts stack over the 3D dojo and hide the agents ·
    suppress them entirely; the bell opens the fullscreen notification center. */
 @media (max-width: 720px) { .toasts { display: none !important; } }
 
@@ -3322,7 +3322,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 }
 
 /* ===================================================================
-   UI v2 — fluid full-width (10px gutters), sharp everywhere, refined
+   UI v2 · fluid full-width (10px gutters), sharp everywhere, refined
    =================================================================== */
 /* Studios/dashboards fill the width with a 10px gutter each side */
 .modhost-body { padding: 16px 10px 40px !important; }
@@ -3343,7 +3343,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 .modhost-close:hover { transform: none !important; }
 .notif-count { border-radius: 999px !important; }  /* keep the count pill round */
 
-/* Agent nameplates: a light semi-transparent backing (+opacity) — legible,
+/* Agent nameplates: a light semi-transparent backing (+opacity) · legible,
    agents still visible through it */
 .tag3d {
   background: rgba(255,255,255,0.5) !important; padding: 2px 8px !important;
@@ -3360,7 +3360,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 .tb-navlink { background: none; border: none; cursor: pointer; font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: #000; padding: 6px 9px; }
 .tb-navlink:hover { opacity: 0.6; }
 
-/* ===== Chat bubble — a clean dark speech bubble with the face icon ===== */
+/* ===== Chat bubble · a clean dark speech bubble with the face icon ===== */
 .sb-launch { background: #000 !important; border: none !important; box-shadow: 0 8px 22px rgba(0,0,0,0.28) !important; overflow: visible; }
 .sb-launch .logo-badge { color: #fff !important; }
 .sb-launch .lg-icon { fill: #fff !important; }
@@ -3426,7 +3426,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 :root[data-theme="dark"] .studio-next .studio-next-cta { background: #fff; color: #000; border-color: #fff; }
 
 /* ===================================================================
-   DARK MODE corrections — the pure-black-on-white overrides above force
+   DARK MODE corrections · the pure-black-on-white overrides above force
    light colours; flip the key surfaces so dark mode is clean.
    =================================================================== */
 :root[data-theme="dark"] {
@@ -3520,7 +3520,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 .djm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .djm-card { min-width: 0; }
 .djm-name { max-width: 100%; }
-/* Mobile: one column, no horizontal overflow — cards were being cut off. */
+/* Mobile: one column, no horizontal overflow · cards were being cut off. */
 @media (max-width: 720px) {
   .djm-body { padding: 16px 12px calc(30px + env(safe-area-inset-bottom)); }
   .djm-grid { grid-template-columns: 1fr; max-width: 100%; gap: 12px; }
@@ -3671,3 +3671,32 @@ input, textarea, select, button { border-radius: 0 !important; }
 .biz-tile:hover { border-color: var(--border-lit); }
 .mbar button { transition: color .12s ease, transform .08s ease; }
 .mbar button:active { transform: translateY(1px); }
+
+/* ===========================================================================
+   Batch · Dojos scroll fix · card shadows (no border) · billing monochrome
+   =========================================================================== */
+/* Dojos manager was clipped (unbounded height) — bound it so the body scrolls. */
+.djm { height: 100dvh; max-height: 100dvh; }
+.djm-body { min-height: 0; }
+
+/* Every card: a large soft shadow instead of a hard 1px border. */
+.agent-card, .lp-studiocard, .connect-card, .biz-tile, .djm-card, .cred-pack,
+.sq-info, .sq-name, .dg2-ccard, .dg2-agentcard, .ws-plan, .fin-kpi, .crm-card, .pd-card {
+  border: 1px solid transparent !important;
+  box-shadow: 0 6px 22px rgba(20, 22, 45, 0.10) !important;
+}
+.agent-card:hover, .lp-studiocard:hover, .connect-card:hover, .djm-card:hover,
+.sq-name:hover, .dg2-ccard:hover, .cred-pack:hover {
+  box-shadow: 0 11px 30px rgba(20, 22, 45, 0.16) !important;
+  transform: translateY(-1px);
+}
+.agent-card:active, .lp-studiocard:active, .sq-name:active, .cred-pack:active { transform: translateY(0); }
+
+/* Billing / Studio · monochrome (no violet / green) + centred like other pages. */
+.ws-price { color: var(--ink) !important; }
+.ws-tag-byok { background: #111 !important; color: #fff !important; }
+.ws-cur.on { background: var(--ink) !important; color: #fff !important; border: 1px solid var(--ink) !important; }
+.studio-page-head strong,
+.studio-page .ws-account h3, .studio-page .ws-billing h3, .studio-page .ws-keypanel h3 { color: var(--ink) !important; }
+.studio-page-scroll .ws-account, .studio-page-scroll .ws-billing { max-width: 640px; margin-left: auto; margin-right: auto; width: 100%; }
+.studio-page-scroll .studio-intro, .studio-page-scroll .ws-studio { max-width: 960px; margin-left: auto; margin-right: auto; }

@@ -1,4 +1,4 @@
-// Vaultor · Billing Manager — credits, top-ups, subscription and payment. You
+// Vaultor · Billing Manager · credits, top-ups, subscription and payment. You
 // buy credits in your own currency (no crypto), each task spends about one.
 import { useState } from 'react'
 import type { ModuleProps } from '../registry'
@@ -38,7 +38,7 @@ export default function VaultorModule(_: ModuleProps) {
   return (
     <div className="vaultor-mod sq">
       <div className="sq-eyebrow">Top up credits</div>
-      <p className="sq-lead">Buy credits in {fiatCur}. Each task spends about one credit; settlement happens behind the scenes — no crypto.</p>
+      <p className="sq-lead">Buy credits in {fiatCur}. Each task spends about one credit; settlement happens behind the scenes · no crypto.</p>
       <div className="cred-packs">
         {CREDIT_PACKS.map((c) => (
           <button key={c} className="cred-pack" disabled={buying} onClick={() => void buyCredits(c)}>

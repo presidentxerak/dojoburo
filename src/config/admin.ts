@@ -1,5 +1,5 @@
 // Admin / operator allowlist. An admin account tests every creation tool for
-// free and without the daily caps — the server (api/agent-run.ts) grants the
+// free and without the daily caps · the server (api/agent-run.ts) grants the
 // same accounts unlimited free-cascade runs and lets them use the operator's
 // Claude key. Keep this list in sync with the server's ADMIN_EMAILS env var.
 //

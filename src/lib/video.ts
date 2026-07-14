@@ -15,7 +15,7 @@ export const FORMATS: VFormat[] = [
 ]
 export const formatById = (id: FormatId): VFormat => FORMATS.find((f) => f.id === id) ?? FORMATS[0]
 
-// The canvas we render/record at — the format aspect, scaled so the long side
+// The canvas we render/record at · the format aspect, scaled so the long side
 // is <= 720px (smooth realtime capture; still crisp for social).
 export function canvasSize(fmt: VFormat): { w: number; h: number } {
   const scale = 720 / Math.max(fmt.w, fmt.h)

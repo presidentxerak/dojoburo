@@ -100,7 +100,7 @@ export function SettingsModal() {
           {section === 'billing' && (
             <section className="set-sec">
               <h3>Billing &amp; credits</h3>
-              <p className="set-lead">Credits power hosted tasks (about one per task). Buy in your own currency — no crypto.</p>
+              <p className="set-lead">Credits power hosted tasks (about one per task). Buy in your own currency · no crypto.</p>
               <div className="set-stats">
                 <div><b>{engine.creditsToday}</b><em>credits used today</em></div>
                 <div><b>{engine.dailyCreditCap}</b><em>daily cap</em></div>
@@ -137,7 +137,7 @@ export function SettingsModal() {
           {section === 'about' && (
             <section className="set-sec">
               <h3>About</h3>
-              <p className="set-lead">DojoBuro — found and run a company with a team of AI agents. Local-first; your data stays in your browser.</p>
+              <p className="set-lead">DojoBuro · found and run a company with a team of AI agents. Local-first; your data stays in your browser.</p>
               <div className="set-field"><span>Build</span><b className="set-static">v{BUILD_ID}</b></div>
               <a className="set-link" href="/guide" onClick={close}>Open the Dojo Guide →</a>
               <a className="set-link" href="/terms" onClick={close}>Terms</a>

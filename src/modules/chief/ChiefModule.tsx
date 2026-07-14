@@ -1,4 +1,4 @@
-// Chief · CEO — the company command center. This is the dashboard that used to
+// Chief · CEO · the company command center. This is the dashboard that used to
 // live in the right panel over the dojo: company KPIs, the "tell Chief what to
 // prioritise" composer + Launch Chief, and the team roster (click a teammate to
 // open its studio). Chief is the only orchestration entry point.
@@ -57,9 +57,9 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
     if (err) {
       const map: Record<string, string> = {
         needs_key: 'Add your Claude key (Studio → Billing) for this deliverable.',
-        quota: 'Daily free quota reached — add your Claude key to continue.',
+        quota: 'Daily free quota reached · add your Claude key to continue.',
         not_configured: 'No AI model is configured on this deployment (Claude key or free cascade).',
-        network: 'Network error — please try again in a moment.',
+        network: 'Network error · please try again in a moment.',
         unknown_task: 'This task is not recognised by the server.',
       }
       pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Deliverable not launched', text: map[err.code] || `Failed: ${err.detail || err.code}.` })
@@ -85,12 +85,12 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
         {autopilot.running
           ? <p className="ceo-autopilot"><span className="ceo-spin" /> Chief is working · <b>{autopilot.step}</b>…</p>
           : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>}
-        {noModel && <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> — Chief produces <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
+        {noModel && <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> · Chief produces <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
       </div>
 
       <div className="mission-head">
         <h3 className="sq-title">Your team</h3>
-        <span className="muted small">Eight AI specialists — click one to open it. Chief coordinates the rest.</span>
+        <span className="muted small">Eight AI specialists · click one to open it. Chief coordinates the rest.</span>
       </div>
       <div className="lp-studioteam agent-roster">
         {ROLE_AGENTS.map((r) => {

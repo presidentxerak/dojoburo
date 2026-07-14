@@ -50,12 +50,12 @@ export default function App() {
   // clicking an agent (in the 3D dojo or its roster card) opens its dashboard on
   // the right panel · if the dojo is fullscreen, reveal the panel so it shows.
   // Selecting an agent reveals its dashboard; deselecting (closing a module)
-  // returns the dojo to fullscreen so the company panel never lingers over it —
+  // returns the dojo to fullscreen so the company panel never lingers over it ·
   // the company overview now lives inside Chief's dashboard.
   useEffect(() => {
     // selecting an agent reveals its dashboard/studio · deselecting keeps you on
     // the CEO dashboard (the roster + company overview) rather than yanking you
-    // back to the 3D dojo — the mobile bar's Dojo/CEO buttons drive that view.
+    // back to the 3D dojo · the mobile bar's Dojo/CEO buttons drive that view.
     if (selected && dojoFull) setDojoFull(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected])
@@ -77,7 +77,7 @@ export default function App() {
 
   // navigation intent handed over from the City page (which lives on its own
   // route): the City bottom-bar sets this then routes to #app, and we act on it
-  // once App mounts — "CEO" opens the dashboard, "Studio" opens the studio.
+  // once App mounts · "CEO" opens the dashboard, "Studio" opens the studio.
   useEffect(() => {
     let intent: string | null = null
     try { intent = sessionStorage.getItem('dojoburo.nav'); if (intent) sessionStorage.removeItem('dojoburo.nav') } catch { /* ignore */ }

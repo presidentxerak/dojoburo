@@ -36,7 +36,7 @@ const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
 export function StudioPage() {
   // Account & Billing were moved to the burger menu; the Studio page is now just
   // "Dojos & agents". A deep-link (burger Account / My Credits) can still land on
-  // the account/billing section — the title reflects it, no tab switcher.
+  // the account/billing section · the title reflects it, no tab switcher.
   const intent = useWork((s) => s.studioIntent)
   const tab: Tab = intent && (intent === 'account' || intent === 'billing') ? intent : 'studio'
   const head = STUDIO_TITLES[tab]

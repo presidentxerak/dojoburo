@@ -66,12 +66,12 @@ createRoot(document.getElementById('root')!).render(
 // existing service worker + wipe caches, (b) reload once when the controller
 // changes, and (c) reload once if a lazy chunk fails to load (stale cache) so
 // the user always ends up on fresh files. All guards prevent reload loops.
-// Build stamp — so we can confirm which version is actually running.
+// Build stamp · so we can confirm which version is actually running.
 declare const __BUILD_ID__: string
 try {
   const build = __BUILD_ID__
   ;(window as unknown as { __DOJOBURO_BUILD__: string }).__DOJOBURO_BUILD__ = build
-  console.log('%cDojoBuro — build ' + build + ' — modules bundled', 'font-weight:bold;color:#7b5cff')
+  console.log('%cDojoBuro · build ' + build + ' · modules bundled', 'font-weight:bold;color:#7b5cff')
   document.documentElement.setAttribute('data-build', build)
 } catch { /* ignore */ }
 

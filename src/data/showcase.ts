@@ -2,7 +2,7 @@
 // Showcase · 15 fictional companies "founded" in DojoBuro, each with its own
 // clean, modern visual identity (colours + typography), a one-line site, an ad,
 // a testimonial, and daily-drifting revenue/sales. These power the landing's
-// showcase gallery, the testimonials, and the live performance board. All mock —
+// showcase gallery, the testimonials, and the live performance board. All mock ·
 // the numbers are deterministic per calendar day, so the board "updates" daily
 // without any backend.
 // ---------------------------------------------------------------------------
@@ -36,7 +36,7 @@ const F = {
 export const MOCK_COMPANIES: MockCo[] = [
   { id: 'lumina', name: 'Lumina', handle: '@lumina', cat: 'AI photo', mission: 'Studio-grade headshots from a selfie.',
     theme: { bg: '#0f1220', ink: '#f5f5f7', sub: '#a6accd', accent: '#8b7bff', font: F.grotesk, radius: 18 },
-    site: { headline: 'Look hired.', sub: 'AI headshots that pass for a real studio — in five minutes.', cta: 'Get my photos' },
+    site: { headline: 'Look hired.', sub: 'AI headshots that pass for a real studio · in five minutes.', cta: 'Get my photos' },
     ad: { headline: 'Your next profile photo, minus the studio', body: 'Upload 6 selfies, get 100 polished headshots.' },
     baseRevenue: 2100, baseSales: 640, testimonial: { quote: 'I shipped a full landing page and a Stripe checkout before lunch. I’m not technical at all.', author: 'Founder of Lumina' } },
 
@@ -60,7 +60,7 @@ export const MOCK_COMPANIES: MockCo[] = [
 
   { id: 'pixelforge', name: 'PixelForge', handle: '@pixelforge', cat: 'Assets', mission: 'Drop-in pixel art for game devs.',
     theme: { bg: '#14131a', ink: '#e8ffe0', sub: '#8fa88a', accent: '#63e06a', font: F.mono, radius: 6, upper: true },
-    site: { headline: 'Ship the sprite.', sub: 'Curated pixel packs — tiles, characters, FX — royalty-free for your game.', cta: 'Grab a pack' },
+    site: { headline: 'Ship the sprite.', sub: 'Curated pixel packs · tiles, characters, FX · royalty-free for your game.', cta: 'Grab a pack' },
     ad: { headline: 'Stop drawing tiles at 2am', body: 'Plug-and-play pixel packs for your engine.' },
     baseRevenue: 1310, baseSales: 520, testimonial: { quote: 'It set up the Stripe products and pricing tiers on its own. I’d have spent a weekend on that.', author: 'Founder of PixelForge' } },
 
@@ -80,7 +80,7 @@ export const MOCK_COMPANIES: MockCo[] = [
     theme: { bg: '#ffffff', ink: '#0e1726', sub: '#5b6b82', accent: '#2f6bff', font: F.grotesk, radius: 14 },
     site: { headline: 'Get paid, finally.', sub: 'Send invoices in seconds and chase them automatically.', cta: 'Send an invoice' },
     ad: { headline: 'Invoicing that chases for you', body: 'Late-payment reminders on autopilot.' },
-    baseRevenue: 2450, baseSales: 480, testimonial: { quote: 'It found prospects, verified their emails and started outreach — all before I finished my coffee.', author: 'Founder of Ledgerly' } },
+    baseRevenue: 2450, baseSales: 480, testimonial: { quote: 'It found prospects, verified their emails and started outreach · all before I finished my coffee.', author: 'Founder of Ledgerly' } },
 
   { id: 'fitloop', name: 'Fitloop', handle: '@fitloop', cat: 'Fitness', mission: '15-minute workouts, no gym.',
     theme: { bg: '#111111', ink: '#ffffff', sub: '#9a9a9a', accent: '#ff3b3b', font: F.condensed, radius: 4, upper: true },
@@ -92,7 +92,7 @@ export const MOCK_COMPANIES: MockCo[] = [
     theme: { bg: '#fdf2f6', ink: '#3a1526', sub: '#8a5c70', accent: '#ec4e8a', font: F.rounded, radius: 26 },
     site: { headline: 'A vet in your pocket.', sub: 'Chat with real vets about your pet, day or night.', cta: 'Ask a vet' },
     ad: { headline: 'Is your dog okay? Ask now', body: 'Licensed vets, 24/7, no waiting room.' },
-    baseRevenue: 1120, baseSales: 540, testimonial: { quote: 'I feel what I felt when I started my first web agency in 1994 — except this time I have a whole team.', author: 'Founder of Petto' } },
+    baseRevenue: 1120, baseSales: 540, testimonial: { quote: 'I feel what I felt when I started my first web agency in 1994 · except this time I have a whole team.', author: 'Founder of Petto' } },
 
   { id: 'draftly', name: 'Draftly', handle: '@draftly', cat: 'AI writing', mission: 'Cover letters that sound like you.',
     theme: { bg: '#faf7f0', ink: '#20242b', sub: '#6b7280', accent: '#111111', font: F.serif, radius: 8 },
@@ -109,7 +109,7 @@ export const MOCK_COMPANIES: MockCo[] = [
   { id: 'trailhead', name: 'Trailhead', handle: '@trailhead', cat: 'Outdoors', mission: 'Plan the perfect hike.',
     theme: { bg: '#f0f4ec', ink: '#1e2a17', sub: '#5e6f52', accent: '#5a8a2c', font: F.slab, radius: 10 },
     site: { headline: 'Find your trail.', sub: 'Routes matched to your fitness, time and the weather that day.', cta: 'Plan a hike' },
-    ad: { headline: 'The right trail for today', body: 'Difficulty, distance and weather — sorted.' },
+    ad: { headline: 'The right trail for today', body: 'Difficulty, distance and weather · sorted.' },
     baseRevenue: 860, baseSales: 640, testimonial: { quote: 'One prompt and I had an app deployed on my own custom domain in a couple of minutes.', author: 'Founder of Trailhead' } },
 
   { id: 'cardexo', name: 'Cardexo', handle: '@cardexo', cat: 'SaaS', mission: 'Digital business cards that convert.',
@@ -122,7 +122,7 @@ export const MOCK_COMPANIES: MockCo[] = [
     theme: { bg: '#fff9f0', ink: '#2a2013', sub: '#7c6a4f', accent: '#f2a413', font: F.rounded, radius: 20 },
     site: { headline: 'Dinner, sorted.', sub: 'Pre-portioned kits that cook in 20 minutes, no thinking required.', cta: 'Pick my meals' },
     ad: { headline: 'Stop deciding what’s for dinner', body: 'Fresh 20-minute kits, delivered weekly.' },
-    baseRevenue: 1610, baseSales: 420, testimonial: { quote: 'Nights, weekends, holidays — the company just keeps running. No babysitting.', author: 'Founder of Munchkit' } },
+    baseRevenue: 1610, baseSales: 420, testimonial: { quote: 'Nights, weekends, holidays · the company just keeps running. No babysitting.', author: 'Founder of Munchkit' } },
 ]
 
 /** Canonical public URL for a company's site (real page served by the SPA). */

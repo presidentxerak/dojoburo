@@ -1,4 +1,4 @@
-// Sentinel · Operations Guardian — autonomy tuning, budget/anti-loop limits,
+// Sentinel · Operations Guardian · autonomy tuning, budget/anti-loop limits,
 // encrypted environment variables, and the company safety switches. All local
 // or server-vault; keeps the AI efficient, secure and under control.
 import { useEffect, useState } from 'react'
@@ -45,7 +45,7 @@ export default function SentinelModule({ dojoId }: ModuleProps) {
         else pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Failed', text: 'Could not save the secret.' })
       } else {
         addLocalSecret(dojoId, secKey, secVal, secDesc)
-        pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Secret saved (local)', text: 'Stored in your browser — no production key here.' })
+        pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Secret saved (local)', text: 'Stored in your browser · no production key here.' })
       }
       setSecKey(''); setSecVal(''); setSecDesc('')
     } finally { setSecBusy(false) }
@@ -105,7 +105,7 @@ export default function SentinelModule({ dojoId }: ModuleProps) {
           <button role="switch" aria-checked={engine.paused} className={`tgl danger${engine.paused ? ' on' : ''}`} onClick={() => engine.setPaused(!engine.paused)}><span /></button>
         </label>
       </div>
-      {engine.paused && <p className="sec-paused">⏸ Company paused — tasks are blocked.</p>}
+      {engine.paused && <p className="sec-paused">⏸ Company paused · tasks are blocked.</p>}
     </div>
   )
 }

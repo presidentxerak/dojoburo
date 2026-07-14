@@ -3,7 +3,7 @@
 // Generates a full brand identity (palette + typography + SVG logo) from a few
 // controls, and persists a central Brand Kit in IndexedDB. Other studios
 // (website, campaign, video) read this kit so the brand stays consistent
-// everywhere. No API calls — colour math + SVG string building in the browser.
+// everywhere. No API calls · colour math + SVG string building in the browser.
 import { idbGet, idbSet } from './idb'
 
 // ---- types -----------------------------------------------------------------
@@ -138,7 +138,7 @@ export async function saveBrandKit(dojoId: string, kit: BrandKit): Promise<void>
   await idbSet('projects', kitKey(dojoId), { ...kit, updatedAt: Date.now() })
 }
 
-/** The Brand Kit as CSS custom properties — how other modules consume it. */
+/** The Brand Kit as CSS custom properties · how other modules consume it. */
 export function kitCss(kit: BrandKit): string {
   const p = kit.palette
   const f = fontPair(kit.fontId)

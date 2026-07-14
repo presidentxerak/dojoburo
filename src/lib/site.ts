@@ -1,7 +1,7 @@
 // Website engine · 100% local. A site is an ordered list of section blocks,
 // each rendered to semantic HTML that references the Brand Kit's CSS variables.
 // The same blockHtml() feeds both the live iframe preview and the exported
-// standalone .html file — so what you see is exactly what you export. No server.
+// standalone .html file · so what you see is exactly what you export. No server.
 import { idbGet, idbSet } from './idb'
 import { type BrandKit, defaultKit, kitCss } from './brand'
 
@@ -64,17 +64,17 @@ export interface SiteTemplate {
 }
 
 export const SITE_TEMPLATES: SiteTemplate[] = [
-  { id: 'lumen', name: 'Lumen', category: 'Business', blurb: 'Clean SaaS landing — features, pricing, sign-up.', accent: '#2f6bff', bg: '#ffffff', ink: '#0e1220', vibe: 'sans', blocks: ['hero', 'features', 'pricing', 'cta', 'form', 'footer'] },
+  { id: 'lumen', name: 'Lumen', category: 'Business', blurb: 'Clean SaaS landing · features, pricing, sign-up.', accent: '#2f6bff', bg: '#ffffff', ink: '#0e1220', vibe: 'sans', blocks: ['hero', 'features', 'pricing', 'cta', 'form', 'footer'] },
   { id: 'ledger', name: 'Ledger', category: 'Business', blurb: 'Trusted, editorial look for consulting & finance.', accent: '#1f3a8a', bg: '#f6f5f1', ink: '#161a22', vibe: 'serif', blocks: ['hero', 'features', 'pricing', 'cta', 'footer'] },
-  { id: 'mercato', name: 'Mercato', category: 'Store', blurb: 'Warm online store — products, offers, checkout CTA.', accent: '#e0622e', bg: '#fff8f2', ink: '#2a1a12', vibe: 'sans', blocks: ['hero', 'gallery', 'features', 'pricing', 'cta', 'footer'] },
+  { id: 'mercato', name: 'Mercato', category: 'Store', blurb: 'Warm online store · products, offers, checkout CTA.', accent: '#e0622e', bg: '#fff8f2', ink: '#2a1a12', vibe: 'sans', blocks: ['hero', 'gallery', 'features', 'pricing', 'cta', 'footer'] },
   { id: 'bloom', name: 'Bloom', category: 'Store', blurb: 'Boutique shop with a soft, floral feel.', accent: '#c65b86', bg: '#fdf3f6', ink: '#2c1622', vibe: 'serif', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
   { id: 'aperture', name: 'Aperture', category: 'Portfolio', blurb: 'Dark, image-forward portfolio for creatives.', accent: '#c9a24b', bg: '#0f1012', ink: '#f4f2ec', vibe: 'serif', blocks: ['hero', 'gallery', 'text', 'footer'] },
   { id: 'grid', name: 'Grid', category: 'Portfolio', blurb: 'Minimal black-and-white photography grid.', accent: '#111111', bg: '#ffffff', ink: '#111111', vibe: 'mono', blocks: ['hero', 'gallery', 'text', 'footer'] },
-  { id: 'saveur', name: 'Saveur', category: 'Restaurant', blurb: 'Cream & serif — menu, gallery, reservations.', accent: '#7a5b2e', bg: '#faf5ea', ink: '#2b2114', vibe: 'serif', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
+  { id: 'saveur', name: 'Saveur', category: 'Restaurant', blurb: 'Cream & serif · menu, gallery, reservations.', accent: '#7a5b2e', bg: '#faf5ea', ink: '#2b2114', vibe: 'serif', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
   { id: 'nord', name: 'Studio Nord', category: 'Agency', blurb: 'Bold, minimal agency with a mono accent.', accent: '#16a085', bg: '#101314', ink: '#eef2f1', vibe: 'mono', blocks: ['hero', 'features', 'text', 'cta', 'footer'] },
   { id: 'persona', name: 'Persona', category: 'Personal', blurb: 'Friendly personal site or link-in-bio.', accent: '#7b5cff', bg: '#f7f5ff', ink: '#241b3c', vibe: 'sans', blocks: ['hero', 'text', 'gallery', 'footer'] },
   { id: 'dispatch', name: 'Dispatch', category: 'Blog', blurb: 'Editorial blog / newsletter, serif headlines.', accent: '#b0322b', bg: '#fbfaf7', ink: '#1a1712', vibe: 'serif', blocks: ['hero', 'text', 'gallery', 'footer'] },
-  { id: 'assembly', name: 'Assembly', category: 'Events', blurb: 'High-contrast event page — schedule + RSVP.', accent: '#ffd23b', bg: '#0c0c0f', ink: '#f6f6f4', vibe: 'sans', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
+  { id: 'assembly', name: 'Assembly', category: 'Events', blurb: 'High-contrast event page · schedule + RSVP.', accent: '#ffd23b', bg: '#0c0c0f', ink: '#f6f6f4', vibe: 'sans', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
   { id: 'fresh', name: 'Fresh', category: 'Business', blurb: 'Energetic wellness / fitness landing.', accent: '#1fa563', bg: '#f2fbf5', ink: '#12271c', vibe: 'sans', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
 ]
 
@@ -160,7 +160,7 @@ h1{font-size:44px}h2{font-size:30px;text-align:center}
 @media(max-width:720px){.grid{grid-template-columns:1fr}h1{font-size:32px}.tier.feat{transform:none}}
 `
 
-/** A complete standalone HTML document — used for the iframe AND the export. */
+/** A complete standalone HTML document · used for the iframe AND the export. */
 export function fullDoc(site: SiteDoc, kit: BrandKit): string {
   const body = site.blocks.map(blockHtml).join('\n')
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${kitCss(kit)}\n${SITE_CSS}</style></head><body>${body}</body></html>`

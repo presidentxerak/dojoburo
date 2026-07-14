@@ -1,4 +1,4 @@
-// Studio flow chaining — at the end of a studio's flow we validate the work and
+// Studio flow chaining · at the end of a studio's flow we validate the work and
 // propose moving on to the next studio: Brand → Website → Marketing → Growth →
 // Business. Clicking selects that agent, which opens its studio.
 import { useDojo } from '../store'

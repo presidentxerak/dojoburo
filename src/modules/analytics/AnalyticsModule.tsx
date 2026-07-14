@@ -1,6 +1,6 @@
 // Business analytics · reads your Finance + CRM data (local) and EXPLAINS it.
 // KPIs (CAC, LTV, LTV:CAC, ROI, growth, conversion) plus plain-language
-// insights + recommendations — not just charts. 100% local, nothing uploaded.
+// insights + recommendations · not just charts. 100% local, nothing uploaded.
 import { useEffect, useMemo, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import type { Txn } from '../../lib/finance'
@@ -33,12 +33,12 @@ export default function AnalyticsModule({ dojoId }: ModuleProps) {
     <div className="ad-body ana-mod">
       <header className="mod-intro">
         <h3 className="sq-title">Business analytics</h3>
-        <p className="sq-lead">Reads your Finance + CRM data and explains it — CAC, LTV, LTV:CAC, ROI, growth and conversion, with plain-language insights and recommendations. Not just charts.</p>
+        <p className="sq-lead">Reads your Finance + CRM data and explains it · CAC, LTV, LTV:CAC, ROI, growth and conversion, with plain-language insights and recommendations. Not just charts.</p>
       </header>
       {!m.hasData ? (
         <div className="vid-empty">
           <strong>Analyze your business</strong>
-          <span className="muted small">Add your data in <b>Finance</b> and <b>CRM</b> — it feeds this analysis. Or <button className="linklike" onClick={() => void loadDemo()}>load sample data</button>.</span>
+          <span className="muted small">Add your data in <b>Finance</b> and <b>CRM</b> · it feeds this analysis. Or <button className="linklike" onClick={() => void loadDemo()}>load sample data</button>.</span>
         </div>
       ) : (
         <>

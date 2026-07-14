@@ -4,7 +4,7 @@ import { useWorkshop } from '../workshop'
 import { privyControls } from './controls'
 
 // Dojo entrance gate. The Privy modal is the ONLY auth UI: it opens
-// automatically on entry — there is no second card behind it. Behind Privy sits
+// automatically on entry · there is no second card behind it. Behind Privy sits
 // just a blurred backdrop (click it to re-open Privy if dismissed) plus a small
 // guest escape, so a Privy hiccup can never brick the app. Once an account
 // exists (either path) App stops rendering this and the office is revealed.

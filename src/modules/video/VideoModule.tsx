@@ -1,6 +1,6 @@
 // Video Creator · a local video editor. Import clips, trim them, sequence them
 // on a timeline, add brand-styled text overlays, pick a social format, and export
-// a real .webm — all in the browser (Canvas + MediaRecorder + Web Audio). Clips
+// a real .webm · all in the browser (Canvas + MediaRecorder + Web Audio). Clips
 // are stored in IndexedDB, never uploaded. No ffmpeg.wasm, no server.
 import { useEffect, useRef, useState } from 'react'
 import type { ModuleProps } from '../registry'
@@ -260,7 +260,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
 
       <header className="mod-intro">
         <h3 className="sq-title">Video creator</h3>
-        <p className="sq-lead">Import clips, trim and sequence them on a timeline, add brand-styled text, pick a social format, and export a real <code>.webm</code> — all in your browser. Nothing is uploaded.</p>
+        <p className="sq-lead">Import clips, trim and sequence them on a timeline, add brand-styled text, pick a social format, and export a real <code>.webm</code> · all in your browser. Nothing is uploaded.</p>
       </header>
 
       {/* toolbar */}
@@ -293,7 +293,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
       {clips.length === 0 ? (
         <div className="vid-empty" onClick={() => fileRef.current?.click()}>
           <strong>Import your videos</strong>
-          <span className="muted small">They stay in your browser (IndexedDB) — never sent to the server.</span>
+          <span className="muted small">They stay in your browser (IndexedDB) · never sent to the server.</span>
         </div>
       ) : (
         <ul className="site-blocklist">
@@ -335,7 +335,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
         <ul className="site-blocklist">
           {overlays.map((o) => (
             <li key={o.id} className={o.id === selOv ? 'on' : ''}>
-              <button className="site-bl-name" onClick={() => setSelOv(o.id)}>{o.kind === 'title' ? 'Title' : 'Caption'} · {o.text.slice(0, 22) || '—'}</button>
+              <button className="site-bl-name" onClick={() => setSelOv(o.id)}>{o.kind === 'title' ? 'Title' : 'Caption'} · {o.text.slice(0, 22) || '·'}</button>
               <div className="site-bl-ops"><button onClick={() => delOverlay(o.id)}>✕</button></div>
             </li>
           ))}
@@ -369,7 +369,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
       )}
       <div className="site-inspector">
         <label className="site-field"><span>Narration script</span>
-          <textarea rows={3} value={voScript} onChange={(e) => setVoScript(e.target.value)} placeholder="Write what the voice should say — or it fills in from your brand text overlays." />
+          <textarea rows={3} value={voScript} onChange={(e) => setVoScript(e.target.value)} placeholder="Write what the voice should say · or it fills in from your brand text overlays." />
         </label>
         <div className="vo-row">
           <label className="site-field" style={{ flex: 1 }}><span>Voice</span>
@@ -385,7 +385,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
         )}
       </div>
 
-      <p className="muted small">100% local editing (Canvas + MediaRecorder). Export produces a <code>.webm</code> — playable anywhere, importable into Meta/TikTok. Text uses your Brand Kit. Voiceover runs on <b>your own ElevenLabs key</b> (kept in this browser) — download the MP3 and drop it onto your edit.</p>
+      <p className="muted small">100% local editing (Canvas + MediaRecorder). Export produces a <code>.webm</code> · playable anywhere, importable into Meta/TikTok. Text uses your Brand Kit. Voiceover runs on <b>your own ElevenLabs key</b> (kept in this browser) · download the MP3 and drop it onto your edit.</p>
     </div>
   )
 }

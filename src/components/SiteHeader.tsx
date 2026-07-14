@@ -8,12 +8,12 @@ import { Wordmark } from './Wordmark'
 // `enter` handler on the landing for a smooth in-page transition; elsewhere the
 // CTA navigates to /#app.
 
-// "How it works" is merged into the Dojo Guide — only the Dojo Guide button
+// "How it works" is merged into the Dojo Guide · only the Dojo Guide button
 // remains for it.
 const NAV_LINKS: [string, string][] = [
-  ['/#studio', 'Build'],
+  ['/#jobs', 'Build'],      // → "Built around your business"
   ['/#stack', 'Connect'],
-  ['/#cast', 'Team'],
+  ['/#studios', 'Team'],    // → "Meet the office"
   ['/#pricing', 'Pricing'],
 ]
 
@@ -30,7 +30,7 @@ export function SiteHeader(_props: { enter?: () => void }) {
     <>
       <header className="lp-nav">
         <a className="lp-brand" href="/" style={{ textDecoration: 'none' }}>
-          <Logo size={30} /> <Wordmark />
+          <Logo size={38} /> <Wordmark />
         </a>
         <nav className="lp-nav-links">
           {NAV_LINKS.map(([href, label]) => <a key={href} href={href}>{label}</a>)}

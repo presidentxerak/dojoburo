@@ -6,7 +6,7 @@
 //
 // An error boundary wraps Privy: if it fails to initialize (bad app id, Privy
 // outage, blocked origin at the SDK level), we fall back to rendering the app
-// WITHOUT Privy instead of white-screening — so the guest path always works and
+// WITHOUT Privy instead of white-screening · so the guest path always works and
 // a Privy hiccup can never brick the whole app.
 import { Suspense, lazy, Component, type ReactNode } from 'react'
 import { privyConfigured } from './controls'

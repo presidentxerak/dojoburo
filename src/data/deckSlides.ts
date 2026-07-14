@@ -34,9 +34,9 @@ export interface DeckSlide {
 const A = DECK_ACCENTS
 
 export const DECK_SLIDES: DeckSlide[] = [
-  { n: '', eyebrow: 'Investor deck', title: 'Found a company in one sentence.', line: 'Describe your company and a CEO agent leads a crew that builds and runs it — website, offers, growth and analytics — while you steer.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['A CEO agent + crew', 'Your everyday apps', 'Priced in credits'] },
+  { n: '', eyebrow: 'Investor deck', title: 'Found a company in one sentence.', line: 'Describe your company and a CEO agent leads a crew that builds and runs it · website, offers, growth and analytics · while you steer.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['A CEO agent + crew', 'Your everyday apps', 'Priced in credits'] },
   { n: '01', eyebrow: 'The problem', title: 'Too many apps.', line: 'Running a business means juggling a dozen tools and never mastering any of them.', obj: 'briefcase', accent: A.orange, layout: 'object', points: ['A dozen SaaS tabs', 'Constant context-switching', 'Nothing mastered'] },
-  { n: '02', eyebrow: 'The solution', title: 'One 3D office.', line: 'AI agents each own a real function — product, growth, finance, ops — and act for you inside your apps.', obj: 'network', accent: A.blue, layout: 'dojo', points: ['An agent per function', 'Real actions, not chat', 'You stay the founder'] },
+  { n: '02', eyebrow: 'The solution', title: 'One 3D office.', line: 'AI agents each own a real function · product, growth, finance, ops · and act for you inside your apps.', obj: 'network', accent: A.blue, layout: 'dojo', points: ['An agent per function', 'Real actions, not chat', 'You stay the founder'] },
   {
     n: '03', eyebrow: 'How it adapts', title: 'Fits your trade.', line: 'Pick your profession and the office tailors itself: the right crew, the right apps, wired and ready.', obj: 'network', accent: A.teal, layout: 'cards',
     cards: [
@@ -45,9 +45,9 @@ export const DECK_SLIDES: DeckSlide[] = [
       { label: 'Teacher', sub: 'Classroom · Drive · Calendar' },
     ],
   },
-  { n: '04', eyebrow: 'The product', title: 'Real work.', line: 'Agents act for real inside your apps — they open the PR, draft the email, raise the invoice.', obj: 'gear', accent: A.violet, layout: 'object', points: ['Opens the PR', 'Drafts the email', 'Raises the invoice'] },
+  { n: '04', eyebrow: 'The product', title: 'Real work.', line: 'Agents act for real inside your apps · they open the PR, draft the email, raise the invoice.', obj: 'gear', accent: A.violet, layout: 'object', points: ['Opens the PR', 'Drafts the email', 'Raises the invoice'] },
   {
-    n: '05', eyebrow: 'The rail', title: 'Paid in credits.', line: 'Users buy credits in their own currency; every task spends about one, settled on a fast rail behind the scenes — no crypto to manage.', obj: 'coins', accent: A.blue, layout: 'stats',
+    n: '05', eyebrow: 'The rail', title: 'Paid in credits.', line: 'Users buy credits in their own currency; every task spends about one, settled on a fast rail behind the scenes · no crypto to manage.', obj: 'coins', accent: A.blue, layout: 'stats',
     stats: [
       { big: '~1', label: 'credit per task' },
       { big: '≈ $0.01', label: 'cost per task' },
@@ -63,7 +63,7 @@ export const DECK_SLIDES: DeckSlide[] = [
     ],
   },
   {
-    n: '07', eyebrow: 'The model', title: 'One SaaS seat.', line: 'You bring the model key, we run the hub — a whole automated team for less than a single SaaS seat.', obj: 'gem', accent: A.yellow, layout: 'cards',
+    n: '07', eyebrow: 'The model', title: 'One SaaS seat.', line: 'You bring the model key, we run the hub · a whole automated team for less than a single SaaS seat.', obj: 'gem', accent: A.yellow, layout: 'cards',
     cards: [
       { label: 'Free', sub: 'Explore & build free' },
       { label: 'Pro · $29/mo', sub: 'Full team, all apps' },

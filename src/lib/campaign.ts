@@ -1,6 +1,6 @@
 // Campaign engine · 100% local. Generates a full Meta (Facebook + Instagram)
-// campaign — objective, audience, personas and ad variants (copy + brand-styled
-// visual) — from a product description, reusing the saved Brand Kit. Meta only
+// campaign · objective, audience, personas and ad variants (copy + brand-styled
+// visual) · from a product description, reusing the saved Brand Kit. Meta only
 // (no Google Ads). Everything is templated in the browser; no server, no cost.
 import { idbGet, idbSet } from './idb'
 import { type BrandKit, defaultKit } from './brand'
@@ -35,7 +35,7 @@ function copyFor(angle: Angle, product: string, obj: Objective): { headline: str
   switch (angle) {
     case 'urgence': return {
       headline: `Limited-time offer on ${p}`,
-      primary: `⏳ Don't miss out. ${cap} is available for a limited time — grab it before it's gone.`,
+      primary: `⏳ Don't miss out. ${cap} is available for a limited time · grab it before it's gone.`,
       description: 'Limited spots / stock',
     }
     case 'preuve': return {
@@ -50,7 +50,7 @@ function copyFor(angle: Angle, product: string, obj: Objective): { headline: str
     }
     case 'nouveaute': return {
       headline: `New: ${cap}`,
-      primary: `🚀 We just launched ${p}. The easiest way to get results — finally available.`,
+      primary: `🚀 We just launched ${p}. The easiest way to get results · finally available.`,
       description: 'Just released',
     }
     case 'benefice':
@@ -113,7 +113,7 @@ export function adSvg(kit: BrandKit, ad: AdVariant, format: AdFormat): string {
 
 /** All ad copy as a plain-text pack (for pasting into Meta Ads Manager). */
 export function copyPack(c: Campaign): string {
-  return c.ads.map((a, i) => `— Ad ${i + 1} (${a.angle}) —\nHeadline: ${a.headline}\nPrimary text: ${a.primary}\nDescription: ${a.description}\nCTA: ${a.cta}`).join('\n\n')
+  return c.ads.map((a, i) => `· Ad ${i + 1} (${a.angle}) ·\nHeadline: ${a.headline}\nPrimary text: ${a.primary}\nDescription: ${a.description}\nCTA: ${a.cta}`).join('\n\n')
     + `\n\nAudience: ${c.audience.interests.join(', ')} · ${c.audience.age} · ${c.audience.geo}\nPlacements: ${c.audience.placements.join(', ')}`
 }
 
