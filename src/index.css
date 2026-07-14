@@ -1122,7 +1122,7 @@ a:hover { text-decoration: underline; }
 .sb-face { font-size: 16px; letter-spacing: -1px; }
 /* the temple mascot must stay readable on the white button in both themes */
 .sb-launch .lg-temple { fill: #11151d !important; }
-.sb-launch .lg-face { color: #ffffff !important; }
+.sb-launch .logo-badge { color: #ffffff !important; }
 /* Mobile: a compact round chat button, docked bottom-right and lifted clear of
    the bottom nav bar. NB: this must set left:auto so it doesn't stretch full-width
    (the base rule above sets left:16px, and with right:12px that would span the
@@ -1390,23 +1390,10 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .agent-head-avatar { background: var(--panel-2); }
 .lp-hero h1 { background: var(--title-grad); -webkit-background-clip: text; background-clip: text; }
 
-/* logo mark · a black pagoda-temple silhouette (ombre chinoise) with the ascii
-   face ◕‿◕ on its main hall. Temple is black in light mode, white in dark; the
-   face flips the opposite way so it always reads. Face blinks gently. */
-.logo-badge { position: relative; display: inline-flex; flex: none; line-height: 0; user-select: none; }
-.logo-badge .lg-temple { display: block; fill: #11151d; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.25)); }
-:root[data-theme='dark'] .logo-badge .lg-temple { fill: #ffffff; }
-.logo-badge .lg-face {
-  position: absolute; left: 0; right: 0; top: 65%; transform: translateY(-50%);
-  text-align: center; line-height: 1; letter-spacing: -0.07em; font-weight: 400;
-  color: #ffffff; animation: logo-blink 4.6s steps(1, end) infinite;
-}
-:root[data-theme='dark'] .logo-badge .lg-face { color: #11151d; }
-@keyframes logo-blink {
-  0%, 92%, 100% { opacity: 1; }
-  94%, 97% { opacity: 0.26; }
-}
-@media (prefers-reduced-motion: reduce) { .logo-badge .lg-face { animation: none; } }
+/* logo mark · the line-art face icon. Black in light mode, white in dark. */
+.logo-badge { position: relative; display: inline-flex; flex: none; line-height: 0; user-select: none; color: #000; }
+.logo-badge .lg-icon { display: block; }
+:root[data-theme='dark'] .logo-badge { color: #ffffff; }
 
 /* 3D agent previews · soft neutral backdrop so light + dark skins both read */
 .a3d { border-radius: 12px; overflow: hidden; background: radial-gradient(120% 120% at 50% 22%, color-mix(in srgb, var(--ink) 5%, var(--panel-solid)), color-mix(in srgb, var(--ink) 18%, var(--panel-solid))); }
@@ -3181,3 +3168,40 @@ input, textarea, select, button { border-radius: 0 !important; }
 
 /* flatten shadows app-wide for a cleaner, less-loaded surface */
 .lp-studiocard, .sq-panel, .biz-tile, .fin-kpi, .modhost-fs, .agentdash, .site-inspector { box-shadow: none !important; }
+
+/* ===== Squarespace-style bottom step navigation ===== */
+.stepbar {
+  position: sticky; bottom: 0; z-index: 5;
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px;
+  padding: 14px 20px; margin: 24px -4px -4px; background: #fff;
+  border-top: 1px solid var(--border);
+}
+.stepbar-back, .stepbar-next {
+  font-family: var(--font-ui); font-weight: 800; font-size: 14px; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 12px 22px; cursor: pointer; border-radius: 0;
+  white-space: nowrap; transition: background 0.14s, color 0.14s, border-color 0.14s;
+}
+.stepbar-back { background: #fff; border: 1px solid #000; color: #000; }
+.stepbar-back:hover:not(:disabled) { background: #f2f2f2; }
+.stepbar-next { background: #000; border: 1px solid #000; color: #fff; }
+.stepbar-next:hover:not(:disabled) { background: #222; }
+.stepbar-back:disabled, .stepbar-next:disabled { opacity: 0.35; cursor: not-allowed; }
+.stepbar-steps {
+  position: relative; display: flex; justify-content: center; align-items: center; gap: 34px;
+  padding-top: 12px;
+}
+.stepbar-track { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #e4e4e7; }
+.stepbar-fill { display: block; height: 100%; background: #000; transition: width 0.25s ease; }
+.stepbar-step {
+  background: none; border: none; cursor: pointer; font-family: var(--font-ui);
+  font-size: 16px; font-weight: 500; color: #9098a3; padding: 4px 2px; white-space: nowrap;
+}
+.stepbar-step.done { color: #000; }
+.stepbar-step.on { color: #000; font-weight: 700; }
+.stepbar-step:disabled { cursor: default; }
+@media (max-width: 720px) {
+  .stepbar { grid-template-columns: auto 1fr auto; gap: 10px; padding: 12px 12px; }
+  .stepbar-steps { gap: 14px; overflow-x: auto; justify-content: flex-start; }
+  .stepbar-step { font-size: 14px; }
+  .stepbar-back, .stepbar-next { padding: 10px 14px; font-size: 12px; }
+}

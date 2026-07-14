@@ -11,6 +11,7 @@ import {
   type Campaign, type Objective, type AdFormat, type AdVariant, OBJECTIVES, ANGLES,
   generateCampaign, adSvg, copyPack, loadCampaign, saveCampaign, campaignBrand, ctaForObjective,
 } from '../../lib/campaign'
+import { StepBar } from '../StepBar'
 
 const angleLabel = (a: string) => ANGLES.find((x) => x.id === a)?.label ?? a
 type Step = 'brief' | 'audience' | 'creatives' | 'export'
@@ -81,15 +82,17 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
     </div>
   )
 
+  const advance = () => {
+    if (step === 'brief') return generate()
+    if (step === 'audience') return setStep('creatives')
+    if (step === 'creatives') return setStep('export')
+    if (step === 'export') return void save()
+  }
+  const goBack = () => { if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id) }
+  const nextLabel = step === 'brief' ? 'Generate' : step === 'export' ? 'Save campaign' : 'Next'
+
   return (
     <div className="camp-mod sq">
-      <div className="sq-steps">
-        {STEPS.map((s, i) => (
-          <button key={s.id} className={`sq-step${step === s.id ? ' on' : ''}${i < stepIdx ? ' done' : ''}`} onClick={() => setStep(s.id)}>
-            <span className="sq-step-n">{i + 1}</span>{s.label}
-          </button>
-        ))}
-      </div>
 
       {step === 'brief' && (
         <section className="sq-panel">
@@ -111,9 +114,6 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
             <input type="number" min={0} value={camp.budget ?? 0} onChange={(e) => setCamp((c) => ({ ...c, budget: Math.max(0, Number(e.target.value) || 0) }))} placeholder="0" />
           </label>
           {(camp.budget ?? 0) > 0 && <p className="muted small" style={{ margin: 0 }}>This budget shows up as a marketing expense in <b>Finance</b> and feeds <b>ROI / CAC</b> in <b>Analytics</b>.</p>}
-          <div className="sq-cta-row">
-            <button className="sq-cta" onClick={generate}>Generate the campaign →</button>
-          </div>
         </section>
       )}
 
@@ -137,10 +137,6 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
                 <span><b>Pain:</b> {pp.pain}</span><span><b>Wants:</b> {pp.desire}</span>
               </div>
             ))}
-          </div>
-          <div className="sq-cta-row">
-            <button className="sq-cta ghost" onClick={() => setStep('brief')}>← Brief</button>
-            <button className="sq-cta" onClick={() => setStep('creatives')}>Review creatives →</button>
           </div>
         </section>
       )}
@@ -167,10 +163,6 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
               <label className="site-field"><span>Button (CTA)</span><input value={ad.cta} onChange={(e) => editAd('cta', e.target.value)} /></label>
             </div>
           )}
-          <div className="sq-cta-row">
-            <button className="sq-cta ghost" onClick={() => setStep('audience')}>← Audience</button>
-            <button className="sq-cta" onClick={() => setStep('export')}>Export →</button>
-          </div>
         </section>
       )}
 
@@ -180,13 +172,18 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
           <p className="sq-lead">Copy the full pack into Meta Ads Manager, or download the selected creative.</p>
           <MetaPreview />
           <div className="brand-actions">
-            <button className="sq-cta" onClick={() => void save()}>Save campaign</button>
             <button className="btn tiny" onClick={exportSvg}>Download creative (SVG)</button>
             <button className="btn tiny ghost" onClick={copyText}>Copy the full copy pack</button>
           </div>
           <p className="muted small">Meta only (Facebook &amp; Instagram). Connect your Meta account (the CONNECT strip above) to run these ads for real.</p>
         </section>
       )}
+
+      <StepBar
+        steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
+        onBack={goBack} backDisabled={stepIdx === 0}
+        onNext={advance} nextLabel={nextLabel}
+      />
     </div>
   )
 }

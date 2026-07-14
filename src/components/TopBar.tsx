@@ -61,7 +61,6 @@ export function TopBar() {
         <Logo size={38} />
         <div>
           <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
-          <p className="tagline">Your company, run by agents</p>
         </div>
       </div>
 

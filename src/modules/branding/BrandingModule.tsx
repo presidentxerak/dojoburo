@@ -13,6 +13,7 @@ import { type BrandKit, defaultKit, loadBrandKit, saveBrandKit } from '../../lib
 import {
   type BrandProfile, type DomainResult, researchProfile, generateNames, checkDomains, socialHandles,
 } from '../../lib/naming'
+import { StepBar } from '../StepBar'
 
 type Step = 'concept' | 'research' | 'naming' | 'domain'
 const STEPS: { id: Step; label: string }[] = [
@@ -76,17 +77,21 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   }
 
   const stepIdx = STEPS.findIndex((s) => s.id === step)
+  // bottom Squarespace-style navigation
+  const advance = () => {
+    if (step === 'concept') return runResearch()
+    if (step === 'research') return runNaming()
+    if (step === 'naming') { void recheck(); return setStep('domain') }
+    if (step === 'domain') return void saveName()
+  }
+  const goBack = () => { if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id) }
+  const canNext = step === 'concept' ? (!!desc.trim() || !!dojoName)
+    : step === 'naming' ? !!kit.name.trim()
+    : true
+  const nextLabel = step === 'domain' ? 'Save brand' : 'Next'
 
   return (
     <div className="brand-mod sq">
-      {/* step progress */}
-      <div className="sq-steps">
-        {STEPS.map((s, i) => (
-          <button key={s.id} className={`sq-step${step === s.id ? ' on' : ''}${i < stepIdx ? ' done' : ''}`} onClick={() => setStep(s.id)}>
-            <span className="sq-step-n">{i + 1}</span>{s.label}
-          </button>
-        ))}
-      </div>
 
       {step === 'concept' && (
         <section className="sq-panel">
@@ -104,9 +109,6 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
           <label className="sq-field">Describe your product
             <textarea rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="e.g. A coffee subscription for offices — freshly roasted beans delivered weekly, with a simple dashboard to manage the team's orders and budget." />
           </label>
-          <div className="sq-cta-row">
-            <button className="sq-cta" disabled={!desc.trim() && !dojoName} onClick={runResearch}>Generate the research profile →</button>
-          </div>
         </section>
       )}
 
@@ -121,10 +123,6 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
           </div>
           <div className="sq-eyebrow">Key themes</div>
           <div className="sq-tags">{(profile.keywords.length ? profile.keywords : ['brand', 'modern', 'simple']).map((k) => <span key={k} className="sq-tag">{k}</span>)}</div>
-          <div className="sq-cta-row">
-            <button className="sq-cta ghost" onClick={() => setStep('concept')}>← Back</button>
-            <button className="sq-cta" onClick={runNaming}>Find names →</button>
-          </div>
         </section>
       )}
 
@@ -140,7 +138,6 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
             ))}
           </div>
           <div className="sq-cta-row">
-            <button className="sq-cta ghost" onClick={() => setStep('research')}>← Back</button>
             <button className="sq-cta ghost" onClick={reroll}>↻ Reroll names</button>
           </div>
         </section>
@@ -165,12 +162,14 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
           </div>
           <div className="sq-eyebrow">Suggested handles</div>
           <div className="sq-tags">{socialHandles(kit.name).map((h) => <span key={h} className="sq-tag">{h}</span>)}</div>
-          <div className="sq-cta-row">
-            <button className="sq-cta ghost" onClick={() => setStep('naming')}>← Names</button>
-            <button className="sq-cta" onClick={() => void saveName()}>Use "{kit.name}" as my brand</button>
-          </div>
         </section>
       )}
+
+      <StepBar
+        steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
+        onBack={goBack} backDisabled={stepIdx === 0}
+        onNext={advance} canNext={canNext} nextLabel={nextLabel}
+      />
     </div>
   )
 }
