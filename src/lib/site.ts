@@ -7,7 +7,7 @@ import { type BrandKit, defaultKit, kitCss } from './brand'
 
 export type BlockType = 'hero' | 'features' | 'pricing' | 'cta' | 'form' | 'text' | 'gallery' | 'footer'
 export interface Block { id: string; type: BlockType; props: Record<string, unknown> }
-export interface SiteDoc { name: string; blocks: Block[]; updatedAt: number }
+export interface SiteDoc { name: string; blocks: Block[]; updatedAt: number; templateId?: string }
 
 const uid = () => `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
 const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -45,6 +45,42 @@ export function makeBlock(type: BlockType, name = 'My brand'): Block {
 export function generateSite(name: string): SiteDoc {
   const order: BlockType[] = ['hero', 'features', 'pricing', 'cta', 'footer']
   return { name, blocks: order.map((t) => makeBlock(t, name)), updatedAt: Date.now() }
+}
+
+// ---- template gallery -------------------------------------------------------
+export type TemplateCategory = 'Business' | 'Store' | 'Portfolio' | 'Restaurant' | 'Agency' | 'Personal' | 'Blog' | 'Events'
+export interface SiteTemplate {
+  id: string
+  name: string
+  category: TemplateCategory
+  blurb: string
+  /** preview accent / ground / ink + display face vibe (illustrative card art) */
+  accent: string
+  bg: string
+  ink: string
+  vibe: 'serif' | 'sans' | 'mono'
+  /** the section layout this template starts from */
+  blocks: BlockType[]
+}
+
+export const SITE_TEMPLATES: SiteTemplate[] = [
+  { id: 'lumen', name: 'Lumen', category: 'Business', blurb: 'Clean SaaS landing — features, pricing, sign-up.', accent: '#2f6bff', bg: '#ffffff', ink: '#0e1220', vibe: 'sans', blocks: ['hero', 'features', 'pricing', 'cta', 'form', 'footer'] },
+  { id: 'ledger', name: 'Ledger', category: 'Business', blurb: 'Trusted, editorial look for consulting & finance.', accent: '#1f3a8a', bg: '#f6f5f1', ink: '#161a22', vibe: 'serif', blocks: ['hero', 'features', 'pricing', 'cta', 'footer'] },
+  { id: 'mercato', name: 'Mercato', category: 'Store', blurb: 'Warm online store — products, offers, checkout CTA.', accent: '#e0622e', bg: '#fff8f2', ink: '#2a1a12', vibe: 'sans', blocks: ['hero', 'gallery', 'features', 'pricing', 'cta', 'footer'] },
+  { id: 'bloom', name: 'Bloom', category: 'Store', blurb: 'Boutique shop with a soft, floral feel.', accent: '#c65b86', bg: '#fdf3f6', ink: '#2c1622', vibe: 'serif', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
+  { id: 'aperture', name: 'Aperture', category: 'Portfolio', blurb: 'Dark, image-forward portfolio for creatives.', accent: '#c9a24b', bg: '#0f1012', ink: '#f4f2ec', vibe: 'serif', blocks: ['hero', 'gallery', 'text', 'footer'] },
+  { id: 'grid', name: 'Grid', category: 'Portfolio', blurb: 'Minimal black-and-white photography grid.', accent: '#111111', bg: '#ffffff', ink: '#111111', vibe: 'mono', blocks: ['hero', 'gallery', 'text', 'footer'] },
+  { id: 'saveur', name: 'Saveur', category: 'Restaurant', blurb: 'Cream & serif — menu, gallery, reservations.', accent: '#7a5b2e', bg: '#faf5ea', ink: '#2b2114', vibe: 'serif', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
+  { id: 'nord', name: 'Studio Nord', category: 'Agency', blurb: 'Bold, minimal agency with a mono accent.', accent: '#16a085', bg: '#101314', ink: '#eef2f1', vibe: 'mono', blocks: ['hero', 'features', 'text', 'cta', 'footer'] },
+  { id: 'persona', name: 'Persona', category: 'Personal', blurb: 'Friendly personal site or link-in-bio.', accent: '#7b5cff', bg: '#f7f5ff', ink: '#241b3c', vibe: 'sans', blocks: ['hero', 'text', 'gallery', 'footer'] },
+  { id: 'dispatch', name: 'Dispatch', category: 'Blog', blurb: 'Editorial blog / newsletter, serif headlines.', accent: '#b0322b', bg: '#fbfaf7', ink: '#1a1712', vibe: 'serif', blocks: ['hero', 'text', 'gallery', 'footer'] },
+  { id: 'assembly', name: 'Assembly', category: 'Events', blurb: 'High-contrast event page — schedule + RSVP.', accent: '#ffd23b', bg: '#0c0c0f', ink: '#f6f6f4', vibe: 'sans', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
+  { id: 'fresh', name: 'Fresh', category: 'Business', blurb: 'Energetic wellness / fitness landing.', accent: '#1fa563', bg: '#f2fbf5', ink: '#12271c', vibe: 'sans', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
+]
+
+export function generateFromTemplate(name: string, templateId: string): SiteDoc {
+  const tpl = SITE_TEMPLATES.find((t) => t.id === templateId) ?? SITE_TEMPLATES[0]
+  return { name, templateId: tpl.id, blocks: tpl.blocks.map((t) => makeBlock(t, name)), updatedAt: Date.now() }
 }
 
 // ---- immutable path get/set (supports 'items.0.title', 'tiers.1.name') ------

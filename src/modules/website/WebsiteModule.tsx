@@ -8,9 +8,12 @@ import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import type { BrandKit } from '../../lib/brand'
 import {
-  type SiteDoc, type Block, type BlockType, BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
-  fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
+  type SiteDoc, type Block, type BlockType, type TemplateCategory, BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
+  generateFromTemplate, SITE_TEMPLATES, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
 } from '../../lib/site'
+
+const CATS: (TemplateCategory | 'All')[] = ['All', 'Business', 'Store', 'Portfolio', 'Restaurant', 'Agency', 'Personal', 'Blog', 'Events']
+const VIBE_LABEL: Record<string, string> = { serif: 'Serif', sans: 'Sans', mono: 'Mono' }
 
 export default function WebsiteModule({ dojoId }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'My brand'
@@ -20,17 +23,26 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [sel, setSel] = useState<string | null>(null)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
   const [addOpen, setAddOpen] = useState(false)
+  const [view, setView] = useState<'gallery' | 'edit'>('gallery')
+  const [cat, setCat] = useState<(TemplateCategory | 'All')>('All')
 
   useEffect(() => {
     let alive = true
     void Promise.all([loadSite(dojoId), siteBrand(dojoId, dojoName)]).then(([s, b]) => {
       if (!alive) return
-      const s0 = s ?? generateSite(dojoName)
-      setSite(s0); setBrand(b); setSel(s0.blocks[0]?.id ?? null)
+      setBrand(b)
+      if (s) { setSite(s); setSel(s.blocks[0]?.id ?? null); setView('edit') }
     })
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dojoId])
+
+  const useTemplate = (id: string) => {
+    const s = generateFromTemplate(dojoName, id)
+    setSite(s); setSel(s.blocks[0]?.id ?? null); setView('edit')
+    pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Template applied', text: 'Edit each block, then export. It uses your Brand Kit.' })
+  }
+  const templates = SITE_TEMPLATES.filter((t) => cat === 'All' || t.category === cat)
 
   const doc = useMemo(() => (brand ? fullDoc(site, brand) : ''), [site, brand])
   const selected = site.blocks.find((b) => b.id === sel) || null
@@ -59,10 +71,42 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     setTimeout(() => URL.revokeObjectURL(a.href), 4000)
   }
 
+  if (view === 'gallery') {
+    return (
+      <div className="site-mod sq">
+        <h3 className="sq-title">Pick a template</h3>
+        <p className="sq-lead">Start from a high-end layout, then edit every block. Your Brand Kit (colours + fonts) is applied automatically.</p>
+        <div className="sq-tags sq-filter">
+          {CATS.map((c) => <button key={c} className={`sq-chip${cat === c ? ' on' : ''}`} onClick={() => setCat(c)}>{c}</button>)}
+        </div>
+        <div className="tpl-grid">
+          {templates.map((t) => (
+            <button key={t.id} className="tpl-card" onClick={() => useTemplate(t.id)}>
+              <span className="tpl-thumb" style={{ background: t.bg, color: t.ink }}>
+                <span className="tpl-thumb-bar" style={{ background: t.accent }} />
+                <b>{t.name}</b>
+                <span className="tpl-thumb-line" style={{ background: t.ink, opacity: 0.28 }} />
+                <span className="tpl-thumb-line short" style={{ background: t.ink, opacity: 0.18 }} />
+                <span className="tpl-thumb-btn" style={{ background: t.accent }} />
+              </span>
+              <span className="tpl-meta">
+                <strong>{t.name}</strong>
+                <span className="tpl-cat">{t.category} · {VIBE_LABEL[t.vibe]}</span>
+                <span className="tpl-blurb">{t.blurb}</span>
+                <span className="tpl-use">Use this template →</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="ad-body site-mod">
       {/* toolbar */}
       <div className="site-toolbar">
+        <button className="btn tiny ghost" onClick={() => setView('gallery')} title="Back to templates">‹ Templates</button>
         <div className="site-seg">
           <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Desktop">Desktop</button>
           <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">Mobile</button>
