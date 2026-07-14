@@ -120,6 +120,17 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [picking, setPicking] = useState(false) // skin picker open for the selected agent
   const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
 
+  // Clicking an agent (roster card OR the 3D dojo) jumps STRAIGHT to its studio
+  // dashboard — no intermediate profile screen. Utility agents (CEO, Engine,
+  // Credits, Config) have no studio, so they show their control panel instead.
+  useEffect(() => {
+    if (!selectedId) return
+    const a = agents.find((x) => x.id === selectedId)
+    const mod = a && MODULES.find((m) => m.agentRole === (a.role ?? ''))
+    if (mod) setModuleId(mod.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId])
+
   // secrets (env vars) for the active company. Prefer the encrypted server vault
   // (/api/secrets); fall back to the local browser store when it's not deployed.
   const dojoId = dojo?.id ?? ''
@@ -453,7 +464,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
   // ------------------------------------------------------------------ MODULE --
   if (moduleId) {
-    return <ModuleHost moduleId={moduleId} dojoId={dojo?.id ?? ''} onClose={() => setModuleId(null)} />
+    return <ModuleHost moduleId={moduleId} dojoId={dojo?.id ?? ''} onClose={() => { setModuleId(null); selectAgent(null) }} />
   }
 
   // ------------------------------------------------------------------ DETAIL --
@@ -575,19 +586,19 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         <h3>Your team</h3>
         <span className="muted small">Click an agent to open its studio — one agent per job.</span>
       </div>
-      <div className="agent-roster">
+      <div className="lp-studioteam agent-roster">
         {roster.map((a) => {
           const r = ROLE_BY_ID[a.role as string]
           if (!r) return null
+          const owns = MODULES.some((m) => m.agentRole === r.id)
           return (
-            <button key={a.id} className="ac-card" style={{ ['--dc' as string]: r.tint }} onClick={() => selectAgent(a.id)}>
-              <span className="ac-tape" />
-              <span className="ac-avatar ac-avatar-3d"><Character3DImage skin={skinById(a.skinId)} size={76} /></span>
-              <span className="ac-cat">{r.cat}</span>
-              <strong className="ac-name">{a.name}</strong>
-              <span className="ac-role">{r.role}</span>
-              <span className="ac-blurb">{r.blurb}</span>
-              <span className="ac-open">Open dashboard →</span>
+            <button key={a.id} className="lp-studiocard" style={{ ['--ac' as string]: r.tint }} onClick={() => selectAgent(a.id)}>
+              <span className="lp-team-3d"><Character3DImage skin={skinById(a.skinId)} size={110} /></span>
+              <span className="lp-studiocard-cat">{r.cat}</span>
+              <strong>{a.name}</strong>
+              <span className="lp-team-role">{r.role}</span>
+              <span className="lp-studiocard-blurb">{r.blurb}</span>
+              <span className="lp-team-more">{owns ? 'Open the studio →' : 'Open →'}</span>
             </button>
           )
         })}

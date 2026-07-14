@@ -53,7 +53,7 @@ export function Landing({ enter }: { enter: () => void }) {
 
       <section className="lp-sec" id="studios">
         <span className="lp-pill">8 studios · one agent each · 100% in your browser</span>
-        <h2>Meet the office — every agent is a real pro studio</h2>
+        <h2>Meet the office</h2>
         <p className="lp-lead sm">
           Each agent in your office owns one studio. Click a teammate and their studio opens: it generates a first
           version with AI, then you keep full control. Video editing, image compression, design rendering and export
