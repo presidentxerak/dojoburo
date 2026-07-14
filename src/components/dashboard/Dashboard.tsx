@@ -115,8 +115,11 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   useEffect(() => {
     // deselecting (CEO button, closing a studio, "All agents") drops back to the
     // company roster — so clear any open module when there's no selected agent.
+    // Chief IS the CEO/company dashboard: clicking it (in the dojo or the roster)
+    // shows this same roster, never a separate module — one CEO page, everywhere.
     if (!selectedId) { setModuleId(null); return }
     const a = agents.find((x) => x.id === selectedId)
+    if (a && canonicalRole(a.role) === 'chief') { setModuleId(null); return }
     const mod = a && MODULES.find((m) => m.agentRole === canonicalRole(a.role))
     if (mod) setModuleId(mod.id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -358,7 +361,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   }
 
   // ------------------------------------------------------------------ DETAIL --
-  if (selected && selRole) {
+  // Chief falls through to the roster below (the CEO/company dashboard), so it's
+  // the same page whether you tap Chief in the dojo or the CEO bottom-bar button.
+  if (selected && selRole && selRole.id !== 'chief') {
     return (
       <div className="agentdash" style={{ ['--dc' as string]: selRole.tint }}>
         <div className="ad-topbar">

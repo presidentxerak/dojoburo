@@ -3636,3 +3636,38 @@ input, textarea, select, button { border-radius: 0 !important; }
 
 /* Connect apps · métier (job) group headers read as agent roles */
 .connect-cat-h { text-transform: none; }
+
+/* ===========================================================================
+   Brand Studio · keyword workshop (Shiverbrand-style)
+   Sharp black-on-white chips: tap to select theme keywords, add your own.
+   =========================================================================== */
+.bw-add { display: flex; gap: 8px; margin: 6px 0 16px; }
+.bw-add input { flex: 1; min-width: 0; border: 1px solid var(--border); background: var(--panel-2); padding: 11px 13px; font: inherit; font-size: 16px; color: var(--ink); box-sizing: border-box; }
+.bw-add input:focus { outline: none; border-color: var(--ink); }
+.bw-cloud, .bw-selected { display: flex; flex-wrap: wrap; gap: 8px; }
+.bw-selected { min-height: 22px; margin-bottom: 2px; align-items: center; }
+.bw-chip { font: inherit; font-size: 14px; font-weight: 600; padding: 7px 12px; border: 1px solid var(--border); background: var(--panel-solid); color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; line-height: 1; transition: transform .08s ease, border-color .12s ease, background .12s ease, color .12s ease; }
+.bw-chip:hover { border-color: var(--ink); }
+.bw-chip:active { transform: translateY(1px); }
+.bw-chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.bw-chip.static { cursor: default; }
+.bw-chip.static:hover { border-color: var(--ink); }
+.bw-chip .bw-x { opacity: .55; font-size: 15px; }
+.bw-selected-recap { margin: 8px 0 14px; }
+.bw-editwords { margin-left: auto; background: none; border: none; text-decoration: underline; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; }
+.bw-editwords:hover { color: var(--ink); }
+
+/* ===========================================================================
+   Interaction design · consistent, quiet micro-interactions on every control.
+   Press = a 1px nudge; hover on cards = a firmer border. No new colours.
+   =========================================================================== */
+.btn, .sq-cta, .cred-pack, .connect-card, .agent-card, .lp-studiocard, .biz-tile,
+.djm-btn, .djm-new, .set-cta, .tb-menu-item, .cx-row .btn {
+  transition: transform .09s ease, border-color .14s ease, background .14s ease, box-shadow .14s ease, opacity .14s ease, color .12s ease;
+}
+.btn:active, .sq-cta:active, .cred-pack:active, .djm-btn:active, .djm-new:active { transform: translateY(1px); }
+.agent-card:hover, .lp-studiocard:hover, .connect-card:hover { border-color: var(--ink); }
+.agent-card:active, .lp-studiocard:active { transform: translateY(1px); }
+.biz-tile:hover { border-color: var(--border-lit); }
+.mbar button { transition: color .12s ease, transform .08s ease; }
+.mbar button:active { transform: translateY(1px); }
