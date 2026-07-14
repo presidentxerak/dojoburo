@@ -8,11 +8,12 @@ import { Wordmark } from './Wordmark'
 // `enter` handler on the landing for a smooth in-page transition; elsewhere the
 // CTA navigates to /#app.
 
+// "How it works" is merged into the Dojo Guide — only the Dojo Guide button
+// remains for it.
 const NAV_LINKS: [string, string][] = [
   ['/#studio', 'Build'],
   ['/#stack', 'Connect'],
   ['/#cast', 'Team'],
-  ['/#how', 'How it works'],
   ['/#pricing', 'Pricing'],
 ]
 

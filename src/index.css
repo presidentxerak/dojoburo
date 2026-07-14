@@ -3514,3 +3514,27 @@ input, textarea, select, button { border-radius: 0 !important; }
   .ws-overlay { padding: 0 !important; }
   .ws-modal { width: 100vw !important; max-width: 100vw !important; height: 100vh !important; height: 100dvh !important; max-height: 100dvh !important; border-radius: 0 !important; border: none !important; }
 }
+
+/* ===== Per-agent Connect apps popup ===== */
+.modhost-connect-wrap { position: relative; }
+.modhost-conn-scrim { position: fixed; inset: 0; z-index: 300; }
+.modhost-conn-pop {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 301; width: 320px; max-width: 92vw;
+  max-height: 60vh; overflow-y: auto; background: var(--panel-solid); border: 1px solid #000; box-shadow: 0 12px 34px rgba(0,0,0,0.2);
+}
+.modhost-conn-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--panel-solid); }
+.modhost-conn-head b { font-size: 14px; color: var(--ink); }
+.modhost-conn-all { font-size: 13px; font-weight: 700; color: var(--ink); text-decoration: underline; white-space: nowrap; }
+.modhost-conn-list { list-style: none; margin: 0; padding: 0; }
+.modhost-conn-list li a { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--ink); }
+.modhost-conn-list li a:hover { background: var(--panel-2); }
+.modhost-conn-list li a b { font-size: 14px; font-weight: 700; }
+.modhost-conn-list li a span { font-size: 12px; color: var(--muted); }
+:root[data-theme="dark"] .modhost-conn-pop { border-color: #3a3f4c; }
+
+/* Dojo Guide · agent cards in the How-it-works section */
+.dg2-agentcard { border-left: 3px solid var(--ac); align-items: flex-start; }
+.dg2-agentcard .dg2-ccard-meta { display: flex; flex-direction: column; gap: 3px; }
+.dg2-agentcard .dg2-ccard-meta b { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; color: var(--ink); }
+.dg2-agentcard .dg2-ccard-meta em { color: var(--ac); font-style: normal; font-weight: 700; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+.dg2-agentcard .dg2-ccard-meta > span { font-size: 13px; color: var(--muted); line-height: 1.4; }

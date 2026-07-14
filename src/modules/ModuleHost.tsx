@@ -1,16 +1,21 @@
 // Renders the active studio module as a FULLSCREEN overlay: a clean header with
-// a single "Connect apps" button and a close button, then the module itself.
-// Connectors are no longer shown as a strip in every UI — one button opens the
-// Studio connect panel. Live modules are bundled (no lazy chunk to 404); modules
-// still on the roadmap render an honest "coming soon" scaffold.
+// a "Connect apps" button and a close button, then the module itself. "Connect
+// apps" opens a panel of the connectors relevant to THIS agent's department, each
+// linking to its setup page. Live modules are bundled (no lazy chunk to 404).
+import { useState } from 'react'
 import { MODULE_BY_ID } from './registry'
 import { ErrorBoundary } from '../components/ErrorBoundary'
-import { useWork } from '../agents/workStore'
+import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
+import { CONNECTORS } from '../data/connectors'
 
 export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; dojoId: string; onClose: () => void }) {
   const def = MODULE_BY_ID[moduleId]
-  const openStudio = useWork((s) => s.openStudio)
+  const [connOpen, setConnOpen] = useState(false)
   if (!def) return null
+
+  // connectors relevant to this agent's department (the "apps to connect" for it)
+  const dept = ROLE_BY_ID[canonicalRole(def.agentRole)]?.dept
+  const conns = dept ? CONNECTORS.filter((c) => c.functions.includes(dept)) : []
 
   return (
     <div className="modhost-fs" style={{ ['--dc' as string]: def.tint }}>
@@ -22,7 +27,30 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
           </div>
         </div>
         <div className="modhost-bar-r">
-          <button className="modhost-connect" onClick={() => openStudio('studio')}>Connect apps</button>
+          <div className="modhost-connect-wrap">
+            <button className="modhost-connect" onClick={() => setConnOpen((v) => !v)} aria-expanded={connOpen}>Connect apps</button>
+            {connOpen && (
+              <>
+                <div className="modhost-conn-scrim" onClick={() => setConnOpen(false)} />
+                <div className="modhost-conn-pop" role="dialog" aria-label="Connect apps">
+                  <div className="modhost-conn-head"><b>Connect apps for {def.label}</b><a href="/guide" className="modhost-conn-all">All apps →</a></div>
+                  {conns.length === 0 ? (
+                    <p className="muted small" style={{ padding: '0 4px' }}>No specific apps for this studio yet.</p>
+                  ) : (
+                    <ul className="modhost-conn-list">
+                      {conns.map((c) => (
+                        <li key={c.id}>
+                          <a href={`/guide/${c.id}`} title={c.blurb}>
+                            <b>{c.label}</b><span>{c.category}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
           <span className="modhost-tag">{def.status === 'live' ? 'Local · serverless' : 'Coming soon'}</span>
           <button className="modhost-close" onClick={onClose} aria-label="Close studio">✕</button>
         </div>

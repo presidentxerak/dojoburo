@@ -5,6 +5,7 @@ import { SupportBot } from './components/SupportBot'
 import { ConnectorLogo } from './components/ConnectorLogo'
 import { CONNECTORS, type ConnectorCategory } from './data/connectors'
 import { connectorById, userSteps, operatorSteps, REDIRECT_PATH } from './data/connectorGuide'
+import { ROLE_AGENTS } from './data/roleAgents'
 
 // The Dojo Guide · a full page (not a modal) in the landing page's visual
 // language: same title/subtitle/text sizes, same cards. It covers connectors
@@ -50,7 +51,29 @@ export function GuidePage() {
         </div>
       </section>
 
-      <section className="lp-sec" id="what">
+      <section className="lp-sec" id="how">
+        <h2>How it works</h2>
+        <p className="lp-lead">Describe your company in one sentence. <b>Chief</b> (your CEO) breaks it down and delegates to seven specialists. You steer by chatting with Chief and build in each studio — everything runs in your browser. Connect your real apps to go live.</p>
+        <div className="lp-steps3">
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Describe your company</b><span>One sentence. Chief drafts the plan and assembles your crew of agents.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Open a studio</b><span>Click an agent to open its dashboard and build — brand, website, campaigns, pipeline, finances.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Connect your apps</b><span>Link Meta, Gmail, Stripe… so your agents act inside your real accounts.</span></div></div>
+        </div>
+        <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your eight teammates &amp; what each one does</h3>
+        <div className="dg2-grid">
+          {ROLE_AGENTS.map((a) => (
+            <div key={a.id} className="dg2-ccard dg2-agentcard" style={{ ['--ac' as string]: a.tint }}>
+              <span className="dg2-ccard-meta">
+                <b>{a.code}</b>
+                <em>{a.title}</em>
+                <span>{a.desc}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="lp-sec alt" id="what">
         <h2>1 · What a connector is</h2>
         <p className="lp-lead">A connector is a secure bridge between DojoBuro and one of your apps. Connecting is a one-time OAuth handshake: you approve access once, a token is stored encrypted on the server, and from then on the agent can act inside that app on your behalf. You never hand over a password.</p>
         <p className="lp-note">Each agent function only offers the apps that make sense for it · Engineering gets GitHub and Linear, Growth gets Gmail and HubSpot, Finance gets Stripe and QuickBooks, and so on.</p>
