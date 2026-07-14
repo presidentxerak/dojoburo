@@ -671,6 +671,7 @@ a:hover { text-decoration: underline; }
     font-family: var(--font-ui); font-weight: 700; font-size: 16px; color: var(--muted);
   }
   .mbar button:active { color: var(--ink); }
+  .mbar button.on { color: var(--ink); }
   .mbar-ic { font-size: 16px; line-height: 1; }
   /* keep content + the help button clear of the bar */
   .dash-side { padding-bottom: 84px; }
@@ -725,6 +726,9 @@ a:hover { text-decoration: underline; }
   .city-title h1 { font-size: 16px; }
   .city-title p { font-size: 14px; }
   .city-zoom button { width: 34px; height: 34px; font-size: 16px; }
+  /* lift the zoom control clear of the bottom navigation bar */
+  .city-zoom { bottom: calc(66px + env(safe-area-inset-bottom)); }
+  .city-tip { bottom: calc(72px + env(safe-area-inset-bottom)); }
 }
 /* landing-style section nav inside the dojo header */
 .tb-nav { display: flex; align-items: center; gap: 1px; margin-right: 4px; }
@@ -3248,6 +3252,9 @@ input, textarea, select, button { border-radius: 0 !important; }
   transform: none !important; align-items: flex-end !important;
 }
 .toast { border-radius: 0 !important; max-width: 320px; box-shadow: 0 6px 20px rgba(0,0,0,0.14) !important; }
+/* On mobile the floating toasts stack over the 3D dojo and hide the agents —
+   suppress them entirely; the bell opens the fullscreen notification center. */
+@media (max-width: 720px) { .toasts { display: none !important; } }
 
 /* Dojo switcher: sharp, clearly below the header, opens downward */
 .dash-hero-switch {
@@ -3508,6 +3515,17 @@ input, textarea, select, button { border-radius: 0 !important; }
 .djm-btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .djm-btn.danger { color: #e0483f; border-color: #e0483f; }
 .djm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.djm-card { min-width: 0; }
+.djm-name { max-width: 100%; }
+/* Mobile: one column, no horizontal overflow — cards were being cut off. */
+@media (max-width: 720px) {
+  .djm-body { padding: 16px 12px calc(30px + env(safe-area-inset-bottom)); }
+  .djm-grid { grid-template-columns: 1fr; max-width: 100%; gap: 12px; }
+  .djm-title { font-size: 19px; }
+  .djm-bar { padding: 12px 14px; }
+  .djm-new { padding: 9px 12px; font-size: 13px; }
+  .djm-name { font-size: 18px; }
+}
 
 /* Manage Studio / Manage Dojo modal → fullscreen on desktop too */
 @media (min-width: 900px) {

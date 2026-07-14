@@ -25,7 +25,7 @@ function CameraRig() {
   // widen the field of view on narrow/portrait screens so the room fits
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera
-    const fov = portrait ? 66 : 42
+    const fov = portrait ? 60 : 42
     if (cam.fov !== fov) {
       cam.fov = fov
       cam.updateProjectionMatrix()
@@ -41,10 +41,11 @@ function CameraRig() {
     let py = 10.4
     let ty = 1.3
     if (portrait) {
-      // pulled back so agents aren't clipped at the sides
-      ty = 1.6
-      pz = 20
-      py = 12
+      // closer + lower on phones so the agents read large and are easy to tap
+      // (they were tiny before); the widened fov keeps the side seats in frame
+      ty = 1.5
+      pz = 14.5
+      py = 9
     }
     const sp = selected ? agentWorldPos(selected) : undefined
     if (sp) {

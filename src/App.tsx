@@ -72,6 +72,16 @@ export default function App() {
     }
   }, [])
 
+  // navigation intent handed over from the City page (which lives on its own
+  // route): the City bottom-bar sets this then routes to #app, and we act on it
+  // once App mounts — "CEO" opens the dashboard, "Studio" opens the studio.
+  useEffect(() => {
+    let intent: string | null = null
+    try { intent = sessionStorage.getItem('dojoburo.nav'); if (intent) sessionStorage.removeItem('dojoburo.nav') } catch { /* ignore */ }
+    if (intent === 'dashboard') setDojoFull(false)
+    else if (intent === 'studio') useWork.getState().openStudio('studio')
+  }, [])
+
   useEffect(() => {
     const unlock = () => { audio.setMuted(muted); audio.resume() }
     window.addEventListener('pointerdown', unlock, { once: true })
@@ -120,7 +130,7 @@ export default function App() {
       {/* mobile bottom navigation bar */}
       <nav className="mbar" aria-label="Navigation">
         <button onClick={() => { setDojoFull(false); document.querySelector('.dash-side')?.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-          <span className="mbar-ic">▤</span>Tableau
+          <span className="mbar-ic">▤</span>CEO
         </button>
         <button onClick={() => setDojoFull((v) => !v)}>
           <span className="mbar-ic">◳</span>Dojo
