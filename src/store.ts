@@ -81,6 +81,7 @@ interface DojoState {
   toasts: Toast[]
   notifications: (Toast & { ts: number })[]
   settingsOpen: boolean
+  dojosOpen: boolean
   selectedAgent: string | null
   balancesLoading: boolean
   heroTargetId: string
@@ -124,6 +125,7 @@ interface DojoState {
   dismissToast: (id: string) => void
   clearNotifications: () => void
   setSettingsOpen: (v: boolean) => void
+  setDojosOpen: (v: boolean) => void
 
   log: (a: Omit<Activity, 'id' | 'ts'>) => void
 }
@@ -198,6 +200,7 @@ export const useDojo = create<DojoState>((set, get) => ({
   toasts: [],
   notifications: [],
   settingsOpen: false,
+  dojosOpen: false,
   selectedAgent: null,
   balancesLoading: false,
   heroTargetId: 'home',
@@ -234,6 +237,7 @@ export const useDojo = create<DojoState>((set, get) => ({
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   clearNotifications: () => set({ notifications: [] }),
   setSettingsOpen: (v) => set({ settingsOpen: v }),
+  setDojosOpen: (v) => set({ dojosOpen: v }),
 
   setTheme: (t) => {
     localStorage.setItem('dojoburo.theme', t)

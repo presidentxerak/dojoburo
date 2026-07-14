@@ -3486,3 +3486,31 @@ input, textarea, select, button { border-radius: 0 !important; }
 /* black CTAs invert to light-on-dark for contrast on dark cards */
 :root[data-theme="dark"] .agent-action, :root[data-theme="dark"] .stepbar-next, :root[data-theme="dark"] .sq-cta:not(.ghost),
 :root[data-theme="dark"] .set-cta, :root[data-theme="dark"] .stepbar-next { background: #f2f3f7 !important; color: #14161c !important; border-color: #f2f3f7 !important; }
+
+/* ===== Dojos manager (fullscreen) ===== */
+.djm-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.4); display: grid; place-items: stretch; }
+.djm { display: flex; flex-direction: column; background: var(--panel-solid); color: var(--ink); }
+.djm-bar { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--border); }
+.djm-title { margin: 0; font-family: var(--font-pixel); font-weight: 800; font-size: 22px; color: var(--ink); }
+.djm-bar-r { display: flex; align-items: center; gap: 12px; }
+.djm-new { background: var(--ink); color: var(--bg); border: 1px solid var(--ink); padding: 10px 16px; font-weight: 800; font-size: 14px; cursor: pointer; }
+.djm-close { width: 40px; height: 40px; border: 1px solid var(--border); background: var(--panel-2); color: var(--ink); cursor: pointer; font-size: 16px; }
+.djm-body { flex: 1; overflow-y: auto; padding: 22px 10px 60px; }
+.djm-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.djm-card { position: relative; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border); padding: 16px; background: var(--panel-solid); }
+.djm-card.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.djm-active { position: absolute; top: 10px; right: 10px; font-size: 11px; font-weight: 800; background: #1fa563; color: #fff; padding: 2px 7px; }
+.djm-name { font-family: var(--font-pixel); font-weight: 800; font-size: 20px; color: var(--ink); border: none; background: none; padding: 0; }
+.djm-name:focus { outline: 1px solid var(--border-lit); }
+.djm-meta { font-size: 13px; color: var(--muted); }
+.djm-actions { display: flex; gap: 8px; margin-top: 6px; }
+.djm-btn { flex: 1; border: 1px solid var(--border-lit); background: var(--panel-solid); color: var(--ink); padding: 9px 8px; font-weight: 700; font-size: 13px; cursor: pointer; }
+.djm-btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.djm-btn.danger { color: #e0483f; border-color: #e0483f; }
+.djm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Manage Studio / Manage Dojo modal → fullscreen on desktop too */
+@media (min-width: 900px) {
+  .ws-overlay { padding: 0 !important; }
+  .ws-modal { width: 100vw !important; max-width: 100vw !important; height: 100vh !important; height: 100dvh !important; max-height: 100dvh !important; border-radius: 0 !important; border: none !important; }
+}

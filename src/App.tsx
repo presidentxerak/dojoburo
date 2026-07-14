@@ -10,6 +10,7 @@ import { Workshop } from './components/workshop/Workshop'
 import { SnapshotFactory } from './components/three/snapshotFactory'
 import { DeliverableModal } from './components/agents/DeliverableModal'
 import { SettingsModal } from './components/SettingsModal'
+import { DojosManager } from './components/DojosManager'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
 import { useWork } from './agents/workStore'
@@ -113,6 +114,7 @@ export default function App() {
       <Workshop />
       <DeliverableModal />
       <SettingsModal />
+      <DojosManager />
       <SupportBot />
 
       {/* mobile bottom navigation bar */}
