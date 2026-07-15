@@ -43,6 +43,9 @@ function Root() {
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />
+  // Dojo Guide · opened from inside the dojo · stays in the dojo environment
+  // (compact bar + Back-to-dojo) instead of the landing page.
+  if (route === 'guide') return <GuidePage inApp />
   // Dojo Studio · full page (build dojos, tune agents, account & billing).
   if (route === 'studio') return <StudioPage />
   // Connect apps · full page, every connector grouped by functionality category.

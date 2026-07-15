@@ -1189,7 +1189,7 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
           hqName={hqName}
           hqAccent={hqAccent}
           onEnter={enterDojo}
-          onGuide={() => { window.location.href = '/guide' }}
+          onGuide={() => { location.hash = 'guide' }}
           onTip={showTip}
           onSelectCo={setCo}
         />

@@ -109,7 +109,7 @@ export function ConnectorsPage() {
           )
         })}
 
-        <p className="connect-foot">Need external agents (MCP / A2A / webhook) instead? Open <a href="#studio">Dojo Studio</a> → pick an agent → <b>External agents</b>. Full reference in the <a href="/guide">Dojo Guide</a>.</p>
+        <p className="connect-foot">Need external agents (MCP / A2A / webhook) instead? Open <a href="#studio">Dojo Studio</a> → pick an agent → <b>External agents</b>. Full reference in the <a href="#guide">Dojo Guide</a>.</p>
       </div>
       <PageBar current="connect" />
     </div>

@@ -72,7 +72,7 @@ export function TopBar() {
         <nav className="tb-nav">
           <button className="tb-navlink" onClick={openConnect}>Connect Apps</button>
         </nav>
-        <a className="btn tiny tb-guide" href="/guide">Dojo Guide</a>
+        <button className="btn tiny tb-guide" onClick={() => { location.hash = 'guide' }}>Dojo Guide</button>
         <button className="btn tiny tb-studio" onClick={openStudio}>Manage Studio</button>
         <button className="btn tiny tb-studio tb-city" onClick={() => { location.hash = 'city' }}>City</button>
       </div>
@@ -102,7 +102,7 @@ export function TopBar() {
           <div className="tb-menu-scrim" onClick={() => setMenuOpen(false)} />
           <div className="tb-menu" role="menu">
             {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
-            <a className="tb-menu-item tb-only-mobile tb-menu-link" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
+            <button className="tb-menu-item tb-only-mobile tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>Dojo Guide</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setDojosOpen(true) }}>Dojos</button>
             <button className="tb-menu-item" onClick={openAccount}>Account</button>
             <button className="tb-menu-item" onClick={openCredits}>My Credits · Billing</button>

@@ -18,15 +18,24 @@ const CATEGORY_ORDER: ConnectorCategory[] = [
   'Docs & Notes', 'Dev', 'Comms', 'CRM & Sales', 'Marketing & Social', 'Design', 'Finance', 'Scheduling', 'Support', 'Storage & Legal',
 ]
 
-function GuideShell({ children }: { children: React.ReactNode }) {
+function GuideShell({ children, inApp }: { children: React.ReactNode; inApp?: boolean }) {
   return (
-    <div className="landing dg2">
-      <SiteHeader />
+    <div className={`landing dg2${inApp ? ' dg-inapp' : ''}`}>
+      {inApp ? (
+        // Opened from inside the dojo · keep the user in the dojo environment
+        // with a compact bar + a Back-to-dojo button (no landing header).
+        <header className="dg-appbar">
+          <span className="dg-appbar-brand"><Logo size={30} /> <Wordmark /><span className="dg-appbar-t">Dojo Guide</span></span>
+          <button className="dg-appbar-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">← Back to dojo</button>
+        </header>
+      ) : <SiteHeader />}
       {children}
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
         <nav className="lp-foot-links">
-          <a href="/">Home</a><a href="/guide">Guide</a><a href="/#stack">Connect</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a>
+          {inApp
+            ? <><button className="dg-foot-link" onClick={() => { location.hash = 'app' }}>Back to dojo</button><button className="dg-foot-link" onClick={() => { location.hash = 'connect' }}>Connect</button></>
+            : <><a href="/">Home</a><a href="/guide">Guide</a><a href="/#stack">Connect</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a></>}
         </nav>
       </footer>
       <SupportBot />
@@ -34,10 +43,10 @@ function GuideShell({ children }: { children: React.ReactNode }) {
   )
 }
 
-/** Full guide page at /guide. */
-export function GuidePage() {
+/** Full guide page · at /guide (landing header) or #guide (inside the dojo). */
+export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
   return (
-    <GuideShell>
+    <GuideShell inApp={inApp}>
       <section className="lp-hero dg2-hero">
         <h1>Your <span className="hl-mag">studios</span> + your tools, under control.</h1>
         <p className="lp-sub">

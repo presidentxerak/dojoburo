@@ -114,7 +114,7 @@ export function SettingsModal() {
               <h3>Connected apps</h3>
               <p className="set-lead">Link the external tools your agents use (Meta, Gmail, Stripe, Notion…). Tokens are sealed server-side.</p>
               <button className="set-cta" onClick={() => go('studio')}>Manage connected apps →</button>
-              <a className="set-link" href="/guide" onClick={close}>How to connect each app (Dojo Guide) →</a>
+              <a className="set-link" href="#guide" onClick={close}>How to connect each app (Dojo Guide) →</a>
             </section>
           )}
 
@@ -139,7 +139,7 @@ export function SettingsModal() {
               <h3>About</h3>
               <p className="set-lead">DojoBuro · found and run a company with a team of AI agents. Local-first; your data stays in your browser.</p>
               <div className="set-field"><span>Build</span><b className="set-static">v{BUILD_ID}</b></div>
-              <a className="set-link" href="/guide" onClick={close}>Open the Dojo Guide →</a>
+              <a className="set-link" href="#guide" onClick={close}>Open the Dojo Guide →</a>
               <a className="set-link" href="/terms" onClick={close}>Terms</a>
               <a className="set-link" href="/privacy" onClick={close}>Privacy</a>
             </section>
