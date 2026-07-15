@@ -10,7 +10,10 @@ import { useEffect, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
-import { type BrandKit, defaultKit, loadBrandKit, saveBrandKit } from '../../lib/brand'
+import {
+  type BrandKit, type LogoLayout, defaultKit, loadBrandKit, saveBrandKit,
+  generatePalette, logoSvg, SCHEMES, SHAPES, FONT_PAIRS,
+} from '../../lib/brand'
 import {
   type BrandProfile, type DomainResult, researchProfile, generateKeywords, combineNames,
   checkDomains, socialHandles,
@@ -18,11 +21,14 @@ import {
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
 
-type Step = 'concept' | 'keywords' | 'naming' | 'domain'
+type Step = 'concept' | 'keywords' | 'naming' | 'domain' | 'identity' | 'export'
 const STEPS: { id: Step; label: string }[] = [
   { id: 'concept', label: 'Concept' }, { id: 'keywords', label: 'Keywords' },
   { id: 'naming', label: 'Naming' }, { id: 'domain', label: 'Availability' },
+  { id: 'identity', label: 'Identity' }, { id: 'export', label: 'Export' },
 ]
+const LAYOUTS: LogoLayout[] = ['mark-left', 'mark-top', 'mark-only', 'text-only']
+function hueFrom(s: string): number { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h }
 
 export default function BrandingModule({ dojoId }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name)
@@ -93,13 +99,37 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     setSaved(true)
     pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name}" is now your brand · reused by the Website and Marketing studios.` })
   }
+  // entering Identity: seed a palette hue from the brand name (unless the user
+  // already tuned one) so the first colours feel on-brand, not the default.
+  const goIdentity = () => {
+    setKit((k) => (k.hue === defaultKit('x').hue ? { ...k, hue: hueFrom(k.name || 'brand'), palette: generatePalette(hueFrom(k.name || 'brand'), k.scheme) } : k))
+    setStep('identity')
+  }
+  // downloads
+  const downloadLogo = () => {
+    const blob = new Blob([logoSvg(kit, kit.layout, 512)], { type: 'image/svg+xml' })
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${kit.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'logo'}-logo.svg`; a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000)
+  }
+  const downloadGuidelines = () => {
+    const p = kit.palette
+    const html = `<!doctype html><meta charset="utf-8"><title>${kit.name} · brand guidelines</title><style>body{font-family:Outfit,system-ui,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;color:#14161f}h1{font-size:34px}.sw{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.sw div{width:120px}.sw span{display:block;height:64px;border-radius:8px;border:1px solid #0001}.sw code{font-size:12px}</style>`
+      + `<div>${logoSvg(kit, 'mark-left', 360)}</div><h1>${kit.name}</h1><p><b>${kit.tagline}</b></p>`
+      + `<h2>Palette</h2><div class="sw">${Object.entries(p).map(([k, c]) => `<div><span style="background:${c}"></span><code>${k} ${c}</code></div>`).join('')}</div>`
+      + `<h2>Typography</h2><p>Heading: <b>${FONT_PAIRS.find((f) => f.id === kit.fontId)?.label}</b></p>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${kit.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'brand'}-guidelines.html`; a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000)
+  }
 
   const stepIdx = STEPS.findIndex((s) => s.id === step)
   const advance = () => {
     if (step === 'concept') return runKeywords()
     if (step === 'keywords') return runNaming()
     if (step === 'naming') { void recheck(); return setStep('domain') }
-    if (step === 'domain') return void saveName()
+    if (step === 'domain') return goIdentity()
+    if (step === 'identity') { void saveName(); return setStep('export') }
+    if (step === 'export') return void saveName()
   }
   const goBack = () => { if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id) }
   const canNext = step === 'concept' ? (!!desc.trim() || !!dojoName)
@@ -108,7 +138,9 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     : true
   const nextLabel = step === 'concept' ? 'Find keywords'
     : step === 'keywords' ? `Combine ${selected.size} word${selected.size === 1 ? '' : 's'}`
-    : step === 'domain' ? 'Save brand' : 'Next'
+    : step === 'domain' ? 'Design identity'
+    : step === 'identity' ? 'Save & export'
+    : step === 'export' ? 'Save brand' : 'Next'
 
   return (
     <div className="brand-mod sq">
@@ -199,7 +231,49 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
           </div>
           <div className="sq-eyebrow">Suggested handles</div>
           <div className="sq-tags">{socialHandles(kit.name).map((h) => <span key={h} className="sq-tag">{h}</span>)}</div>
-          {saved && <StudioNext from="brandi" done={`"${kit.name}" saved as your brand.`} />}
+          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Check trademarks before you register</div>
+          <div className="sq-tags">
+            <a className="sq-tag" target="_blank" rel="noreferrer" href={`https://data.inpi.fr/search?type=marques&q=${encodeURIComponent(kit.name)}`}>INPI · FR →</a>
+            <a className="sq-tag" target="_blank" rel="noreferrer" href={`https://www.tmdn.org/tmview/#/tmview/results?page=1&pageSize=30&criteria=C&basicSearch=${encodeURIComponent(kit.name)}`}>EUIPO · EU →</a>
+            <a className="sq-tag" target="_blank" rel="noreferrer" href={`https://tmsearch.uspto.gov/search/search-information?query=${encodeURIComponent(kit.name)}`}>USPTO · US →</a>
+            <a className="sq-tag" target="_blank" rel="noreferrer" href={`https://branddb.wipo.int/en/quicksearch/brand/${encodeURIComponent(kit.name)}`}>WIPO · World →</a>
+          </div>
+        </section>
+      )}
+
+      {step === 'identity' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Brand identity · <span style={{ color: 'var(--dc)' }}>{kit.name}</span></h3>
+          <p className="sq-lead">Your logo, colours and fonts. Saved to the Brand Kit and reused <b>automatically</b> by the Website &amp; Marketing studios.</p>
+          <div className="bi-logo" dangerouslySetInnerHTML={{ __html: logoSvg(kit, kit.layout, 300) }} />
+          <label className="sq-field">Tagline
+            <input value={kit.tagline} maxLength={48} onChange={(e) => patch({ tagline: e.target.value })} />
+          </label>
+          <div className="sq-eyebrow">Colour hue</div>
+          <input className="bi-hue" type="range" min={0} max={359} value={kit.hue} onChange={(e) => { const hue = Number(e.target.value); patch({ hue, palette: generatePalette(hue, kit.scheme) }) }} />
+          <div className="bi-swatches">{Object.entries(kit.palette).map(([k, c]) => <span key={k} className="bi-sw" style={{ background: c }} title={`${k} · ${c}`} />)}</div>
+          <div className="sq-eyebrow">Harmony</div>
+          <div className="bw-cloud">{SCHEMES.map((s) => <button key={s.id} className={`bw-chip${kit.scheme === s.id ? ' on' : ''}`} onClick={() => patch({ scheme: s.id, palette: generatePalette(kit.hue, s.id) })}>{s.label}</button>)}</div>
+          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Logo mark</div>
+          <div className="bw-cloud">{SHAPES.map((s) => <button key={s.id} className={`bw-chip${kit.shape === s.id ? ' on' : ''}`} onClick={() => patch({ shape: s.id })}>{s.label}</button>)}</div>
+          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Layout</div>
+          <div className="bw-cloud">{LAYOUTS.map((l) => <button key={l} className={`bw-chip${kit.layout === l ? ' on' : ''}`} onClick={() => patch({ layout: l })}>{l.replace('-', ' ')}</button>)}</div>
+          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Fonts</div>
+          <div className="bw-cloud">{FONT_PAIRS.map((f) => <button key={f.id} className={`bw-chip${kit.fontId === f.id ? ' on' : ''}`} onClick={() => patch({ fontId: f.id })}>{f.label}</button>)}</div>
+        </section>
+      )}
+
+      {step === 'export' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Export your brand</h3>
+          <p className="sq-lead">Your brand is saved and already powers your <b>Website</b> &amp; <b>Marketing</b> studios. Download the assets here, or save your whole project (all studios &amp; assets) as a <b>.dojo</b> file in Dojo Studio → Review.</p>
+          <div className="bi-logo" dangerouslySetInnerHTML={{ __html: logoSvg(kit, kit.layout, 320) }} />
+          <div className="bi-swatches">{Object.entries(kit.palette).map(([k, c]) => <span key={k} className="bi-sw" style={{ background: c }} title={`${k} · ${c}`} />)}</div>
+          <div className="sq-cta-row" style={{ marginTop: 14 }}>
+            <button className="sq-cta" onClick={downloadLogo}>Download logo (SVG)</button>
+            <button className="sq-cta ghost" onClick={downloadGuidelines}>Brand guidelines (HTML)</button>
+          </div>
+          {saved && <StudioNext from="brandi" done={`"${kit.name}" saved · your Website studio now uses this brand.`} />}
         </section>
       )}
     </div>

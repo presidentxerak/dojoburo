@@ -3786,3 +3786,10 @@ select.cc-input { flex: 1; min-width: 0; }
 .cc-anim { display: flex; flex-wrap: wrap; gap: 4px; }
 .cc-anim-b { font: inherit; font-size: 12px; font-weight: 600; padding: 5px 9px; border: 1px solid var(--border); background: var(--panel-2); color: var(--ink); cursor: pointer; }
 .cc-anim-b.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* Brand Studio · identity + export step */
+.bi-logo { display: grid; place-items: center; padding: 20px; background: var(--panel-2); border: 1px solid var(--border); margin: 10px 0 6px; overflow: hidden; }
+.bi-logo svg { max-width: 100%; height: auto; }
+.bi-hue { width: 100%; }
+.bi-swatches { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+.bi-sw { width: 52px; height: 38px; border-radius: 6px; border: 1px solid var(--border); }
