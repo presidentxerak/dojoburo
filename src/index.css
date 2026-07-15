@@ -3793,3 +3793,13 @@ select.cc-input { flex: 1; min-width: 0; }
 .bi-hue { width: 100%; }
 .bi-swatches { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
 .bi-sw { width: 52px; height: 38px; border-radius: 6px; border: 1px solid var(--border); }
+
+/* Landing header · Sign in / Sign up buttons + ghost variant */
+.lp-nav-right .lp-cta.lp-cta-ghost, .lp-menu-auth .lp-cta.lp-cta-ghost { background: transparent !important; background-image: none !important; color: var(--ink) !important; box-shadow: inset 0 0 0 1px var(--border); }
+.lp-nav-right .lp-cta.lp-cta-ghost:hover, .lp-menu-auth .lp-cta.lp-cta-ghost:hover { box-shadow: inset 0 0 0 1px var(--ink); filter: none; }
+.lp-menu-auth { display: flex; gap: 8px; margin-top: 6px; }
+.lp-menu-auth .lp-cta { flex: 1; }
+/* on narrow screens the inline auth buttons collapse into the burger menu */
+@media (max-width: 960px) { .lp-auth-btn { display: none; } }
+/* the dojo brand no longer navigates anywhere */
+.topbar .brand-home { cursor: default; }

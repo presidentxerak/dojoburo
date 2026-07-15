@@ -17,7 +17,7 @@ const NAV_LINKS: [string, string][] = [
   ['/#pricing', 'Pricing'],
 ]
 
-export function SiteHeader(_props: { enter?: () => void }) {
+export function SiteHeader({ enter }: { enter?: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
   // "Create your company" → the creation form lives in the landing hero. On the
   // landing, focus it; from any other page, go to the landing so it's shown.
@@ -26,6 +26,9 @@ export function SiteHeader(_props: { enter?: () => void }) {
     if (input) { input.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => input.focus(), 300) }
     else window.location.href = '/#create-hero'
   }
+  // Sign in / Sign up → enter the dojo. Without an account the app's auth gate
+  // takes over and runs Privy, so every connection goes through Privy.
+  const goDojo = () => { setMenuOpen(false); if (enter) enter(); else window.location.href = '/#app' }
   return (
     <>
       <header className="lp-nav">
@@ -46,6 +49,8 @@ export function SiteHeader(_props: { enter?: () => void }) {
             <span /><span /><span />
           </button>
           <button className="lp-cta sm" onClick={create}>Create your company</button>
+          <button className="lp-cta sm lp-cta-ghost lp-auth-btn" onClick={goDojo}>Sign in</button>
+          <button className="lp-cta sm lp-auth-btn" onClick={goDojo}>Sign up</button>
         </div>
       </header>
 
@@ -58,6 +63,10 @@ export function SiteHeader(_props: { enter?: () => void }) {
             ))}
             <a className="lp-menu-guide" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
             <button className="lp-cta" onClick={() => { setMenuOpen(false); create() }}>Create your company</button>
+            <div className="lp-menu-auth">
+              <button className="lp-cta lp-cta-ghost" onClick={goDojo}>Sign in</button>
+              <button className="lp-cta" onClick={goDojo}>Sign up</button>
+            </div>
           </nav>
         </>
       )}

@@ -59,7 +59,9 @@ export function TopBar() {
   return (
     <header className="topbar">
       <div className="brand">
-        <a href="/" className="brand-home" aria-label="Home"><Logo size={38} /></a>
+        {/* Once inside the dojo the brand no longer links back to the landing
+            page — a signed-in user stays in the app. */}
+        <span className="brand-home" aria-label="DojoBuro"><Logo size={38} /></span>
         <div>
           <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
         </div>
@@ -69,7 +71,6 @@ export function TopBar() {
       <div className="topbar-mid tb-desktop">
         <nav className="tb-nav">
           <button className="tb-navlink" onClick={openConnect}>Connect Apps</button>
-          <a href="/#cast">Team</a>
         </nav>
         <a className="btn tiny tb-guide" href="/guide">Dojo Guide</a>
         <button className="btn tiny tb-studio" onClick={openStudio}>Manage Studio</button>
