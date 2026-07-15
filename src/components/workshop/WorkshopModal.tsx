@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useDojo } from '../../store'
+import { exportDojoFile, importDojoFile, downloadDojo } from '../../lib/dojoFile'
 import { useWorkshop, GRID, MAX_AGENTS, type WAgent, type ExtAgent } from '../../workshop'
 import { verifyExternalAgent } from '../../agents/externalAgents'
 import { SKINS, SKIN_THEMES, skinById } from '../../data/skins'
@@ -64,6 +66,42 @@ export function StudioPage() {
 }
 
 // A short "here's how the Studio works, A to Z" primer above the grid editor.
+// Save / open the whole workspace as a single .dojo file (all dojos + assets).
+function ProjectFileIO({ label }: { label: string }) {
+  const pushToast = useDojo((s) => s.pushToast)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [busy, setBusy] = useState(false)
+  const save = async () => {
+    setBusy(true)
+    try {
+      const blob = await exportDojoFile(label, Date.now())
+      downloadDojo(blob, label)
+      pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Project saved', text: 'Your .dojo file downloaded · re-open it anytime, anywhere.' })
+    } catch { pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Save failed', text: 'Could not build the .dojo file.' }) }
+    setBusy(false)
+  }
+  const open = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]; e.target.value = ''
+    if (!f) return
+    setBusy(true)
+    const r = await importDojoFile(f)
+    setBusy(false)
+    if (r.ok) { pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Project loaded', text: 'Restoring your workspace · reloading…' }); setTimeout(() => location.reload(), 900) }
+    else pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Could not open', text: r.error || 'Invalid .dojo file.' })
+  }
+  return (
+    <div className="proj-io">
+      <div className="sq-eyebrow" style={{ marginTop: 16 }}>Project file (.dojo)</div>
+      <p className="sq-lead">Save your entire workspace — every dojo and all your studios' assets (brand, website, videos, images, deliverables) — to a single <b>.dojo</b> file on your disk, and re-open it anywhere. 100% local.</p>
+      <div className="cc-clip-ops">
+        <button onClick={() => void save()} disabled={busy}>{busy ? '…' : '⤓ Save project (.dojo)'}</button>
+        <button onClick={() => fileRef.current?.click()} disabled={busy}>⤒ Open a .dojo file</button>
+        <input ref={fileRef} type="file" accept=".dojo,application/octet-stream" hidden onChange={(e) => void open(e)} />
+      </div>
+    </div>
+  )
+}
+
 export function WorkshopModal({ onClose }: { onClose: () => void }) {
   const intent = useWork((s) => s.studioIntent)
   const [tab, setTab] = useState<Tab>(intent ?? 'studio')
@@ -220,6 +258,7 @@ function StudioTab() {
             <span className={`ws-saveflag ${dirty ? 'on' : ''}`}>{dirty ? '● Unsaved changes' : '✓ All changes saved'}</span>
             <button className="ws-btn primary" disabled={!dirty} onClick={save}>Validate &amp; save dojo</button>
           </div>
+          <ProjectFileIO label={dojo.name} />
         </section>
       )}
 
