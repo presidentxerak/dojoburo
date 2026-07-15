@@ -12,11 +12,16 @@ import {
   generateFromTemplate, SITE_TEMPLATES, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
 } from '../../lib/site'
 import { PRESET_PALETTES, randomPalette, paletteToKit, kitToPalette, textOn } from '../../lib/palettes'
-import { WebsiteWizard } from './WebsiteWizard'
+import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
 
 const CATS: (TemplateCategory | 'All')[] = ['All', 'Business', 'Store', 'Portfolio', 'Restaurant', 'Agency', 'Personal', 'Blog', 'Events']
 const VIBE_LABEL: Record<string, string> = { serif: 'Serif', sans: 'Sans', mono: 'Mono' }
+type Step = 'template' | 'design' | 'colours' | 'export'
+const STEPS: { id: Step; label: string }[] = [
+  { id: 'template', label: 'Template' }, { id: 'design', label: 'Design' },
+  { id: 'colours', label: 'Colours' }, { id: 'export', label: 'Export' },
+]
 
 export default function WebsiteModule({ dojoId }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'My brand'
@@ -26,11 +31,10 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [sel, setSel] = useState<string | null>(null)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
   const [addOpen, setAddOpen] = useState(false)
-  const [view, setView] = useState<'wizard' | 'gallery' | 'edit'>('wizard')
+  const [step, setStep] = useState<Step>('template')
   const [cat, setCat] = useState<(TemplateCategory | 'All')>('All')
   const [saved, setSaved] = useState(false)
   // colours · Coolors-style generator + preset palettes
-  const [colorsOpen, setColorsOpen] = useState(false)
   const [gen, setGen] = useState<string[]>([])
   const [locks, setLocks] = useState<boolean[]>([false, false, false, false, false])
   // content · import/generate images, videos & text + connect apps
@@ -41,23 +45,18 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     void Promise.all([loadSite(dojoId), siteBrand(dojoId, dojoName)]).then(([s, b]) => {
       if (!alive) return
       setBrand(b)
-      if (s) { setSite(s); setSel(s.blocks[0]?.id ?? null); setView('edit') }
+      if (s) { setSite(s); setSel(s.blocks[0]?.id ?? null); setStep('design') }
     })
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dojoId])
 
-  const onWizardCreate = (s: SiteDoc) => {
-    setSite(s); setSel(s.blocks[0]?.id ?? null); setView('edit')
-    void siteBrand(dojoId, dojoName).then((b) => setBrand(b))
-    pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Site created', text: 'Edit every section, then export. It uses your Brand Kit.' })
-  }
-
   const useTemplate = (id: string) => {
     const s = generateFromTemplate(dojoName, id)
-    setSite(s); setSel(s.blocks[0]?.id ?? null); setView('edit')
+    setSite(s); setSel(s.blocks[0]?.id ?? null); setStep('design')
     pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Template applied', text: 'Edit each block, then export. It uses your Brand Kit.' })
   }
+  const startBlank = () => { const s = generateSite(dojoName); setSite(s); setSel(s.blocks[0]?.id ?? null); setStep('design') }
   const templates = SITE_TEMPLATES.filter((t) => cat === 'All' || t.category === cat)
 
   const doc = useMemo(() => (brand ? fullDoc(site, brand) : ''), [site, brand])
@@ -87,11 +86,12 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     setTimeout(() => URL.revokeObjectURL(a.href), 4000)
   }
 
-  // ---- colours: presets + Coolors-style generator ----
-  const openColors = () => {
-    if (!colorsOpen && brand && gen.length === 0) setGen(kitToPalette(brand.palette))
-    setColorsOpen((v) => !v)
-  }
+  // ---- colours: presets + Coolors-style generator (lives in the Colours step) ----
+  // seed the swatches from the current brand palette when we enter the step
+  useEffect(() => {
+    if (step === 'colours' && brand && gen.length === 0) setGen(kitToPalette(brand.palette))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, brand])
   const shuffle = () => setGen((cur) => randomPalette(locks.map((l, i) => (l ? (cur[i] || null) : null))))
   const toggleLock = (i: number) => setLocks((ls) => ls.map((l, j) => (j === i ? !l : l)))
   const setSwatch = (i: number, hex: string) => setGen((cur) => cur.map((c, j) => (j === i ? hex : c)))
@@ -149,9 +149,9 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   }
   const openConnect = () => { location.hash = 'connect' }
 
-  // spacebar to generate, like Coolors (only while the panel is open)
+  // spacebar to generate, like Coolors (only on the Colours step)
   useEffect(() => {
-    if (!colorsOpen) return
+    if (step !== 'colours') return
     const onKey = (e: KeyboardEvent) => {
       if (e.code !== 'Space') return
       const tag = (e.target as HTMLElement)?.tagName
@@ -161,15 +161,13 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colorsOpen, locks])
+  }, [step, locks])
 
-  // The colours generator + trending palettes · shared by the gallery & editor
-  // views so it's easy to find (open with the 🎨 Colours button).
-  const colorsPanel = colorsOpen && (
+  // The colours generator + trending palettes · rendered in the Colours step.
+  const colorsBody = (
     <div className="cw-panel">
       <div className="cw-head">
         <div><h4>Colour palette</h4><p>Generate a scheme (or press <kbd>space</kbd>), lock the ones you love, or pick a trending palette. Applies to your whole site.</p></div>
-        <button className="cw-close" onClick={() => setColorsOpen(false)} aria-label="Close">✕</button>
       </div>
       <div className="cw-gen">
         {gen.map((c, i) => (
@@ -195,67 +193,73 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     </div>
   )
 
-  if (view === 'wizard') {
-    return <WebsiteWizard dojoId={dojoId} dojoName={dojoName} onCancel={() => setView('gallery')} onCreate={onWizardCreate} />
+  const stepIdx = STEPS.findIndex((s) => s.id === step)
+  const advance = () => {
+    if (step === 'template') { if (step === 'template') startBlank(); return }
+    if (step === 'design') return setStep('colours')
+    if (step === 'colours') return setStep('export')
+    if (step === 'export') return void save()
   }
-
-  if (view === 'gallery') {
-    return (
-      <div className="site-mod sq">
-        <div className="wiz-galtop">
-          <div>
-            <h3 className="sq-title">Pick a template</h3>
-            <p className="sq-lead">Start from a high-end layout, then edit every block. Your Brand Kit (colours + fonts) is applied automatically.</p>
-          </div>
-          <div className="site-tb-actions">
-            <button className={`btn tiny ghost${colorsOpen ? ' on' : ''}`} onClick={openColors} title="Colours & palettes">🎨 Colours</button>
-            <button className="btn tiny" onClick={() => setView('wizard')}>‹ Guided setup</button>
-          </div>
-        </div>
-        {colorsPanel}
-        <div className="sq-tags sq-filter">
-          {CATS.map((c) => <button key={c} className={`sq-chip${cat === c ? ' on' : ''}`} onClick={() => setCat(c)}>{c}</button>)}
-        </div>
-        <div className="tpl-grid">
-          {templates.map((t) => (
-            <button key={t.id} className="tpl-card" onClick={() => useTemplate(t.id)}>
-              <span className="tpl-thumb" style={{ background: t.bg, color: t.ink }}>
-                <span className="tpl-thumb-bar" style={{ background: t.accent }} />
-                <b>{t.name}</b>
-                <span className="tpl-thumb-line" style={{ background: t.ink, opacity: 0.28 }} />
-                <span className="tpl-thumb-line short" style={{ background: t.ink, opacity: 0.18 }} />
-                <span className="tpl-thumb-btn" style={{ background: t.accent }} />
-              </span>
-              <span className="tpl-meta">
-                <strong>{t.name}</strong>
-                <span className="tpl-cat">{t.category} · {VIBE_LABEL[t.vibe]}</span>
-                <span className="tpl-blurb">{t.blurb}</span>
-                <span className="tpl-use">Use this template →</span>
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-    )
-  }
+  const goBack = () => { if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id) }
+  const nextLabel = step === 'template' ? 'Start blank →' : step === 'design' ? 'Colours →' : step === 'colours' ? 'Export →' : 'Save site'
 
   return (
-    <div className="ad-body site-mod">
-      {/* toolbar */}
-      <div className="site-toolbar">
-        <button className="btn tiny ghost" onClick={() => setView('gallery')} title="Back to templates">‹ Templates</button>
-        <div className="site-seg">
-          <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Desktop">Desktop</button>
-          <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">Mobile</button>
-        </div>
-        <div className="site-tb-actions">
-          <button className={`btn tiny ghost${contentOpen ? ' on' : ''}`} onClick={() => setContentOpen((v) => !v)} title="Import or generate content">＋ Content</button>
-          <button className={`btn tiny ghost${colorsOpen ? ' on' : ''}`} onClick={openColors} title="Colours & palettes">🎨 Colours</button>
-          <button className="btn tiny ghost" onClick={regenerate} title="Regenerate a first version">↺ 1st version</button>
-          <button className="btn tiny" onClick={exportHtml}>Export HTML</button>
-          <button className="btn primary tiny" onClick={() => void save()}>Save</button>
-        </div>
-      </div>
+    <div className="site-mod sq">
+      <StepBar
+        steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
+        onBack={goBack} backDisabled={stepIdx === 0}
+        onNext={advance} nextLabel={nextLabel}
+      />
+
+      {step === 'template' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Pick a template</h3>
+          <p className="sq-lead">Start from a high-end layout (or blank), then edit every block. Colours are tuned in the next steps — never a dead end.</p>
+          <div className="sq-tags sq-filter">
+            {CATS.map((c) => <button key={c} className={`sq-chip${cat === c ? ' on' : ''}`} onClick={() => setCat(c)}>{c}</button>)}
+          </div>
+          <div className="tpl-grid">
+            <button className="tpl-card tpl-blank" onClick={startBlank}>
+              <span className="tpl-thumb" style={{ background: 'var(--panel-2)', color: 'var(--ink)' }}>
+                <b>Blank</b>
+                <span className="tpl-thumb-line" style={{ background: 'var(--border)', opacity: 0.9 }} />
+                <span className="tpl-thumb-line short" style={{ background: 'var(--border)', opacity: 0.6 }} />
+              </span>
+              <span className="tpl-meta"><strong>Start blank</strong><span className="tpl-cat">No template</span><span className="tpl-blurb">A clean hero + sections to build from.</span><span className="tpl-use">Start blank →</span></span>
+            </button>
+            {templates.map((t) => (
+              <button key={t.id} className="tpl-card" onClick={() => useTemplate(t.id)}>
+                <span className="tpl-thumb" style={{ background: t.bg, color: t.ink }}>
+                  <span className="tpl-thumb-bar" style={{ background: t.accent }} />
+                  <b>{t.name}</b>
+                  <span className="tpl-thumb-line" style={{ background: t.ink, opacity: 0.28 }} />
+                  <span className="tpl-thumb-line short" style={{ background: t.ink, opacity: 0.18 }} />
+                  <span className="tpl-thumb-btn" style={{ background: t.accent }} />
+                </span>
+                <span className="tpl-meta">
+                  <strong>{t.name}</strong>
+                  <span className="tpl-cat">{t.category} · {VIBE_LABEL[t.vibe]}</span>
+                  <span className="tpl-blurb">{t.blurb}</span>
+                  <span className="tpl-use">Use this template →</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {step === 'design' && (
+        <section className="sq-panel">
+          <div className="site-toolbar">
+            <div className="site-seg">
+              <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Desktop">Desktop</button>
+              <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">Mobile</button>
+            </div>
+            <div className="site-tb-actions">
+              <button className={`btn tiny ghost${contentOpen ? ' on' : ''}`} onClick={() => setContentOpen((v) => !v)} title="Import or generate content">＋ Content</button>
+              <button className="btn tiny ghost" onClick={regenerate} title="Regenerate a first version">↺ 1st version</button>
+            </div>
+          </div>
 
       {/* content: import / generate images, videos, text + connect apps */}
       {contentOpen && (
@@ -297,9 +301,6 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
           </div>
         </div>
       )}
-
-      {/* colours: generator + presets */}
-      {colorsPanel}
 
       {/* responsive preview (WYSIWYG === export) */}
       <div className={`site-preview ${device}`}>
@@ -350,8 +351,36 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       ) : (
         <p className="muted small">Select a block to edit it.</p>
       )}
-      <p className="muted small">The website uses your <b>Brand Kit</b> (colours + fonts). Preview = export: the <code>.html</code> file is standalone and can be hosted anywhere.</p>
-      {saved && <StudioNext from="weblos" done="Website saved." />}
+          <p className="muted small">Your <b>Brand Kit</b> colours &amp; fonts apply automatically — tune them in the <b>Colours</b> step. Preview = export.</p>
+        </section>
+      )}
+
+      {step === 'colours' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Colours</h3>
+          <p className="sq-lead">Pick a trending palette or generate your own (press <kbd>space</kbd>) — it re-themes your whole site instantly.</p>
+          {colorsBody}
+          <div className={`site-preview ${device}`}>
+            <iframe title="Website preview" className="site-frame" srcDoc={doc} />
+          </div>
+        </section>
+      )}
+
+      {step === 'export' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Export your website</h3>
+          <p className="sq-lead">Download a standalone <code>.html</code> you can host anywhere, or save it to your dojo. It bakes in your Brand Kit colours &amp; fonts.</p>
+          <div className={`site-preview ${device}`}>
+            <iframe title="Website preview" className="site-frame" srcDoc={doc} />
+          </div>
+          <div className="sq-cta-row" style={{ marginTop: 12 }}>
+            <button className="btn tiny" onClick={exportHtml}>Export HTML</button>
+            <button className="btn primary tiny" onClick={() => void save()}>Save site</button>
+            <button className="btn tiny ghost" onClick={openConnect}>Connect apps →</button>
+          </div>
+          {saved && <StudioNext from="weblos" done="Website saved." />}
+        </section>
+      )}
     </div>
   )
 }

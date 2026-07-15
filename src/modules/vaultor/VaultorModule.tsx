@@ -6,12 +6,19 @@ import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
 import { useEngine } from '../../agents/engineStore'
 import { OfficeStats } from '../../components/OfficeStats'
+import { Accounting } from './Accounting'
 
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
 const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
 const CREDIT_PACKS = [30, 100, 500]
 
-export default function VaultorModule(_: ModuleProps) {
+const TABS = [
+  { id: 'billing', label: 'Billing', sub: 'Credits, top-ups & payments' },
+  { id: 'accounting', label: 'Accounting', sub: 'Sales, costs, profit, VAT · .xlsx export' },
+] as const
+
+export default function VaultorModule({ dojoId }: ModuleProps) {
+  const [tab, setTab] = useState<'billing' | 'accounting'>('billing')
   const account = useWorkshop((s) => s.account)
   const tools = useWork((s) => s.tools)
   const engine = useEngine()
@@ -38,6 +45,15 @@ export default function VaultorModule(_: ModuleProps) {
 
   return (
     <div className="vaultor-mod sq">
+      <div className="sq-steps studio-switch">
+        {TABS.map((t) => (
+          <button key={t.id} className={`sq-step${tab === t.id ? ' on' : ''}`} onClick={() => setTab(t.id)} title={t.sub}>{t.label}</button>
+        ))}
+      </div>
+
+      {tab === 'accounting' && <Accounting dojoId={dojoId} />}
+
+      {tab === 'billing' && (<>
       <div className="sq-eyebrow">Top up credits</div>
       <p className="sq-lead">Buy credits in {fiatCur}. Each task spends about one credit; settlement happens behind the scenes · no crypto.</p>
       <div className="cred-packs">
@@ -60,6 +76,7 @@ export default function VaultorModule(_: ModuleProps) {
 
       {/* the office usage dashboard (moved here from the panda) */}
       <div style={{ marginTop: 18 }}><OfficeStats /></div>
+      </>)}
     </div>
   )
 }
