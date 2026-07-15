@@ -163,6 +163,38 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colorsOpen, locks])
 
+  // The colours generator + trending palettes · shared by the gallery & editor
+  // views so it's easy to find (open with the 🎨 Colours button).
+  const colorsPanel = colorsOpen && (
+    <div className="cw-panel">
+      <div className="cw-head">
+        <div><h4>Colour palette</h4><p>Generate a scheme (or press <kbd>space</kbd>), lock the ones you love, or pick a trending palette. Applies to your whole site.</p></div>
+        <button className="cw-close" onClick={() => setColorsOpen(false)} aria-label="Close">✕</button>
+      </div>
+      <div className="cw-gen">
+        {gen.map((c, i) => (
+          <div key={i} className="cw-swatch" style={{ background: c, color: textOn(c) }}>
+            <button className={`cw-lock${locks[i] ? ' on' : ''}`} onClick={() => toggleLock(i)} title={locks[i] ? 'Unlock' : 'Lock'}>{locks[i] ? '🔒' : '🔓'}</button>
+            <input className="cw-hex" value={c.toUpperCase()} style={{ color: textOn(c) }} onChange={(e) => { const v = e.target.value; if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setSwatch(i, v.startsWith('#') ? v : '#' + v) }} />
+          </div>
+        ))}
+      </div>
+      <div className="cw-actions">
+        <button className="btn tiny" onClick={shuffle}>⟳ Generate</button>
+        <button className="btn primary tiny" onClick={() => applyPalette(gen)}>Apply palette</button>
+      </div>
+      <div className="cw-presets-h">Trending palettes</div>
+      <div className="cw-presets">
+        {PRESET_PALETTES.map((p) => (
+          <button key={p.name} className="cw-preset" title={p.name} onClick={() => { setGen(p.colors); applyPalette(p.colors) }}>
+            <span className="cw-preset-strip">{p.colors.map((c, i) => <span key={i} style={{ background: c }} />)}</span>
+            <span className="cw-preset-n">{p.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+
   if (view === 'wizard') {
     return <WebsiteWizard dojoId={dojoId} dojoName={dojoName} onCancel={() => setView('gallery')} onCreate={onWizardCreate} />
   }
@@ -175,8 +207,12 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
             <h3 className="sq-title">Pick a template</h3>
             <p className="sq-lead">Start from a high-end layout, then edit every block. Your Brand Kit (colours + fonts) is applied automatically.</p>
           </div>
-          <button className="btn tiny" onClick={() => setView('wizard')}>‹ Guided setup</button>
+          <div className="site-tb-actions">
+            <button className={`btn tiny ghost${colorsOpen ? ' on' : ''}`} onClick={openColors} title="Colours & palettes">🎨 Colours</button>
+            <button className="btn tiny" onClick={() => setView('wizard')}>‹ Guided setup</button>
+          </div>
         </div>
+        {colorsPanel}
         <div className="sq-tags sq-filter">
           {CATS.map((c) => <button key={c} className={`sq-chip${cat === c ? ' on' : ''}`} onClick={() => setCat(c)}>{c}</button>)}
         </div>
@@ -263,35 +299,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       )}
 
       {/* colours: generator + presets */}
-      {colorsOpen && (
-        <div className="cw-panel">
-          <div className="cw-head">
-            <div><h4>Colour palette</h4><p>Generate a scheme (or press <kbd>space</kbd>), lock the ones you love, or pick a trending palette. Applies to your whole site.</p></div>
-            <button className="cw-close" onClick={() => setColorsOpen(false)} aria-label="Close">✕</button>
-          </div>
-          <div className="cw-gen">
-            {gen.map((c, i) => (
-              <div key={i} className="cw-swatch" style={{ background: c, color: textOn(c) }}>
-                <button className={`cw-lock${locks[i] ? ' on' : ''}`} onClick={() => toggleLock(i)} title={locks[i] ? 'Unlock' : 'Lock'}>{locks[i] ? '🔒' : '🔓'}</button>
-                <input className="cw-hex" value={c.toUpperCase()} style={{ color: textOn(c) }} onChange={(e) => { const v = e.target.value; if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setSwatch(i, v.startsWith('#') ? v : '#' + v) }} />
-              </div>
-            ))}
-          </div>
-          <div className="cw-actions">
-            <button className="btn tiny" onClick={shuffle}>⟳ Generate</button>
-            <button className="btn primary tiny" onClick={() => applyPalette(gen)}>Apply palette</button>
-          </div>
-          <div className="cw-presets-h">Trending palettes</div>
-          <div className="cw-presets">
-            {PRESET_PALETTES.map((p) => (
-              <button key={p.name} className="cw-preset" title={p.name} onClick={() => { setGen(p.colors); applyPalette(p.colors) }}>
-                <span className="cw-preset-strip">{p.colors.map((c, i) => <span key={i} style={{ background: c }} />)}</span>
-                <span className="cw-preset-n">{p.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      {colorsPanel}
 
       {/* responsive preview (WYSIWYG === export) */}
       <div className={`site-preview ${device}`}>

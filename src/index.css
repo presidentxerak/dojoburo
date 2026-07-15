@@ -4172,3 +4172,18 @@ select.cc-input { flex: 1; min-width: 0; }
   .modhost-fs .sq-title, .modhost-fs .se-head h3 { font-size: 22px !important; }
   .modhost-fs .sq-lead, .modhost-fs .se-lead { font-size: 14px !important; }
 }
+
+/* =====================================================================
+   Button normalisation · fix segmented/toggle buttons clipping their text
+   (e.g. "Feed 1:1") everywhere in the app. Consistent padding, no clip.
+   ===================================================================== */
+.site-seg button, .cc-seg button, .cc-fmt button, .cc-subtab,
+.se-seg button, .lg-seg button, .bw-seg-b, .camp-obj button, .brand-seg button, .eng-seg button {
+  white-space: nowrap !important; line-height: 1.35 !important; box-sizing: border-box !important;
+  flex: 0 0 auto; overflow: visible;
+}
+.site-seg { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.site-seg button { font-size: 14px; padding: 8px 14px; }
+.site-seg button.on { background: var(--ink); color: var(--bg); }
+/* make the Website colours tool stand out so it's easy to find */
+.site-tb-actions .btn.ghost.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }

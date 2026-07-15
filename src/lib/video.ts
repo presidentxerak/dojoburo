@@ -6,18 +6,36 @@
 import { idbGet, idbSet, idbDel } from './idb'
 import { type BrandKit, defaultKit } from './brand'
 
-export type FormatId = 'reel' | 'portrait' | 'square' | 'wide' | 'link' | 'pin'
-export interface VFormat { id: FormatId; label: string; short: string; w: number; h: number }
-// Every common social format. Ratio drives the canvas; the label names the
-// platforms it fits so a user picks by destination, CapCut-style.
+export type FormatId =
+  | 'reel' | 'portrait' | 'square' | 'wide' | 'link' | 'pin'
+  | 'ytthumb' | 'linkedin' | 'fbcover' | 'xheader' | 'ytbanner'
+  | 'wallpaper' | 'email' | 'a4' | 'presentation' | 'card'
+export interface VFormat { id: FormatId; label: string; short: string; w: number; h: number; group: string }
+// Every common social / content format. Ratio drives the canvas; the label names
+// the platforms it fits so a user picks by destination, CapCut-style. Grouped so
+// the picker can section them (Social, Cover & banner, Web & print).
 export const FORMATS: VFormat[] = [
-  { id: 'reel', label: 'Reels · TikTok · Shorts · Story 9:16', short: '9:16', w: 1080, h: 1920 },
-  { id: 'portrait', label: 'Instagram feed 4:5', short: '4:5', w: 1080, h: 1350 },
-  { id: 'square', label: 'Square 1:1', short: '1:1', w: 1080, h: 1080 },
-  { id: 'wide', label: 'YouTube · Landscape 16:9', short: '16:9', w: 1920, h: 1080 },
-  { id: 'link', label: 'Link · FB / X card 1.91:1', short: '1.91:1', w: 1200, h: 628 },
-  { id: 'pin', label: 'Pinterest 2:3', short: '2:3', w: 1000, h: 1500 },
+  // Social posts & stories
+  { id: 'reel', label: 'Reels · TikTok · Shorts · Story 9:16', short: '9:16', w: 1080, h: 1920, group: 'Social' },
+  { id: 'portrait', label: 'Instagram feed 4:5', short: '4:5', w: 1080, h: 1350, group: 'Social' },
+  { id: 'square', label: 'Square post 1:1', short: '1:1', w: 1080, h: 1080, group: 'Social' },
+  { id: 'wide', label: 'YouTube · Landscape 16:9', short: '16:9', w: 1920, h: 1080, group: 'Social' },
+  { id: 'link', label: 'Link · FB / X card 1.91:1', short: '1.91:1', w: 1200, h: 628, group: 'Social' },
+  { id: 'pin', label: 'Pinterest 2:3', short: '2:3', w: 1000, h: 1500, group: 'Social' },
+  { id: 'linkedin', label: 'LinkedIn post 1200×627', short: 'LinkedIn', w: 1200, h: 627, group: 'Social' },
+  { id: 'ytthumb', label: 'YouTube thumbnail 1280×720', short: 'YT thumb', w: 1280, h: 720, group: 'Social' },
+  // Covers & banners
+  { id: 'fbcover', label: 'Facebook cover 820×312', short: 'FB cover', w: 820, h: 312, group: 'Cover & banner' },
+  { id: 'xheader', label: 'X / Twitter header 1500×500', short: 'X header', w: 1500, h: 500, group: 'Cover & banner' },
+  { id: 'ytbanner', label: 'YouTube channel banner 2560×1440', short: 'YT banner', w: 2560, h: 1440, group: 'Cover & banner' },
+  { id: 'email', label: 'Email header 1200×600', short: 'Email', w: 1200, h: 600, group: 'Cover & banner' },
+  // Web & print
+  { id: 'presentation', label: 'Presentation slide 16:9', short: 'Slide', w: 1920, h: 1080, group: 'Web & print' },
+  { id: 'wallpaper', label: 'Desktop wallpaper 16:10', short: 'Desktop', w: 1920, h: 1200, group: 'Web & print' },
+  { id: 'a4', label: 'A4 poster / flyer 3:4', short: 'A4', w: 2480, h: 3508, group: 'Web & print' },
+  { id: 'card', label: 'Business card 1050×600', short: 'Card', w: 1050, h: 600, group: 'Web & print' },
 ]
+export const FORMAT_GROUPS = ['Social', 'Cover & banner', 'Web & print']
 export const formatById = (id: FormatId): VFormat => FORMATS.find((f) => f.id === id) ?? FORMATS[0]
 
 // The canvas we render/record at · the format aspect, scaled so the long side

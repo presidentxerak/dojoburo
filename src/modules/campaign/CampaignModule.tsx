@@ -2,7 +2,7 @@
 // local. Brief → Audience → Creatives → Export. Objective + product drive a set
 // of personas, an audience and 5 brand-styled ad variants previewed as a real
 // Meta ad. Meta only. Reuses the Brand Kit. No server.
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
@@ -26,7 +26,8 @@ const OBJ_SUB: Record<Objective, string> = {
   leads: 'Collect qualified leads & sign-ups.',
 }
 
-export default function CampaignModule({ dojoId }: ModuleProps) {
+interface CreativeTool { id: string; label: string; node: ReactNode }
+export default function CampaignModule({ dojoId, creativeTools = [] }: ModuleProps & { creativeTools?: CreativeTool[] }) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'My brand'
   const pushToast = useDojo((s) => s.pushToast)
   const [camp, setCamp] = useState<Campaign>(() => generateCampaign(dojoName, 'acquisition'))
@@ -35,6 +36,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
   const [product, setProduct] = useState(dojoName)
   const [saved, setSaved] = useState(false)
   const [step, setStep] = useState<Step>('brief')
+  const [creativeTab, setCreativeTab] = useState<string>('ads')
 
   useEffect(() => {
     let alive = true
@@ -151,6 +153,16 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
       {step === 'creatives' && (
         <section className="sq-panel">
           <h3 className="sq-title">Creatives · {camp.ads.length} variants</h3>
+          {creativeTools.length > 0 && (
+            <div className="cc-subtabs">
+              <button className={`cc-subtab${creativeTab === 'ads' ? ' on' : ''}`} onClick={() => setCreativeTab('ads')}>Ad variants</button>
+              {creativeTools.map((t) => (
+                <button key={t.id} className={`cc-subtab${creativeTab === t.id ? ' on' : ''}`} onClick={() => setCreativeTab(t.id)}>{t.label}</button>
+              ))}
+            </div>
+          )}
+          {creativeTab !== 'ads' && creativeTools.find((t) => t.id === creativeTab)?.node}
+          {creativeTab === 'ads' && (<>
           <div className="camp-toolbar">
             <div className="site-seg">
               <button className={camp.format === 'feed' ? 'on' : ''} onClick={() => setFormat('feed')}>Feed 1:1</button>
@@ -170,6 +182,7 @@ export default function CampaignModule({ dojoId }: ModuleProps) {
               <label className="site-field"><span>Button (CTA)</span><input value={ad.cta} onChange={(e) => editAd('cta', e.target.value)} /></label>
             </div>
           )}
+          </>)}
         </section>
       )}
 
