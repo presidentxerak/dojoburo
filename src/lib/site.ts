@@ -5,7 +5,7 @@
 import { idbGet, idbSet } from './idb'
 import { type BrandKit, defaultKit, kitCss } from './brand'
 
-export type BlockType = 'hero' | 'features' | 'pricing' | 'cta' | 'form' | 'text' | 'gallery' | 'footer'
+export type BlockType = 'hero' | 'features' | 'pricing' | 'cta' | 'form' | 'text' | 'gallery' | 'image' | 'video' | 'footer'
 export interface Block { id: string; type: BlockType; props: Record<string, unknown> }
 export interface SiteDoc { name: string; blocks: Block[]; updatedAt: number; templateId?: string }
 
@@ -15,9 +15,9 @@ const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g,
 // ---- block catalog (defaults + label) --------------------------------------
 export const BLOCK_LABELS: Record<BlockType, string> = {
   hero: 'Hero', features: 'Highlights', pricing: 'Pricing', cta: 'Call to action',
-  form: 'Form', text: 'Text', gallery: 'Gallery', footer: 'Footer',
+  form: 'Form', text: 'Text', gallery: 'Gallery', image: 'Image', video: 'Video', footer: 'Footer',
 }
-export const BLOCK_ORDER: BlockType[] = ['hero', 'features', 'pricing', 'cta', 'form', 'text', 'gallery', 'footer']
+export const BLOCK_ORDER: BlockType[] = ['hero', 'features', 'pricing', 'cta', 'form', 'text', 'gallery', 'image', 'video', 'footer']
 
 export function makeBlock(type: BlockType, name = 'My brand'): Block {
   const P: Record<BlockType, Record<string, unknown>> = {
@@ -36,6 +36,8 @@ export function makeBlock(type: BlockType, name = 'My brand'): Block {
     form: { title: 'Contact us', subtitle: 'We reply within 24 hours.', button: 'Send' },
     text: { heading: 'About', body: 'Describe your business, your story, and what makes you unique here.' },
     gallery: { title: 'Gallery', count: 6 },
+    image: { src: '', caption: '', alt: `${name} image` },
+    video: { src: '', caption: '' },
     footer: { text: `© ${name}`, links: ['Home', 'Pricing', 'Contact'] },
   }
   return { id: uid(), type, props: P[type] }
@@ -124,6 +126,20 @@ export function blockHtml(b: Block): string {
       const n = Math.max(1, Math.min(12, Number(p.count) || 6))
       return `<section class="b b-gallery"><h2>${esc(p.title)}</h2><div class="grid">${Array.from({ length: n }).map((_, i) => `<div class="ph" style="--i:${i}"></div>`).join('')}</div></section>`
     }
+    case 'image': {
+      const src = String(p.src || '')
+      const inner = src
+        ? `<img src="${src}" alt="${esc(p.alt)}"/>`
+        : `<div class="ph ph-big"></div>`
+      return `<section class="b b-image">${inner}${p.caption ? `<p class="cap">${esc(p.caption)}</p>` : ''}</section>`
+    }
+    case 'video': {
+      const src = String(p.src || '')
+      const inner = src
+        ? `<video src="${src}" controls playsinline preload="metadata"></video>`
+        : `<div class="ph ph-big ph-video">▶</div>`
+      return `<section class="b b-video">${inner}${p.caption ? `<p class="cap">${esc(p.caption)}</p>` : ''}</section>`
+    }
     case 'footer': {
       const links = (p.links as string[]) || []
       return `<footer class="b b-footer"><nav>${links.map((l) => `<a href="#">${esc(l)}</a>`).join('')}</nav><span>${esc(p.text)}</span></footer>`
@@ -155,6 +171,10 @@ h1{font-size:44px}h2{font-size:30px;text-align:center}
 .b-form input,.b-form textarea{padding:12px;border:1px solid #0002;border-radius:10px;font:inherit}
 .b-text{max-width:720px;text-align:center}
 .b-gallery .ph{aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,var(--brand-primary,#889),var(--brand-accent,#39c));opacity:calc(.55 + var(--i)*.06)}
+.b-image,.b-video{text-align:center}
+.b-image img,.b-video video{max-width:100%;border-radius:14px;box-shadow:0 8px 30px #0000001a}
+.b-image .ph,.b-video .ph{aspect-ratio:16/9;border-radius:14px;background:linear-gradient(135deg,var(--brand-primary,#889),var(--brand-accent,#39c));display:flex;align-items:center;justify-content:center;color:#fff;font-size:34px}
+.b-image .cap,.b-video .cap{margin-top:10px;color:#0009;font-size:15px}
 .b-footer{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid #0001;color:#0009}
 .b-footer nav{display:flex;gap:16px}.b-footer a{color:inherit;text-decoration:none}
 @media(max-width:720px){.grid{grid-template-columns:1fr}h1{font-size:32px}.tier.feat{transform:none}}
@@ -175,6 +195,8 @@ export function fieldsFor(b: Block): Field[] {
     case 'text': return [t('heading', 'Title'), t('body', 'Text', 'area')]
     case 'form': return [t('title', 'Title'), t('subtitle', 'Subtitle', 'area'), t('button', 'Button')]
     case 'gallery': return [t('title', 'Title'), t('count', 'Number of images')]
+    case 'image': return [t('src', 'Image URL or data'), t('alt', 'Alt text'), t('caption', 'Caption')]
+    case 'video': return [t('src', 'Video URL or data'), t('caption', 'Caption')]
     case 'footer': return [t('text', 'Text'), ...(((b.props.links as string[]) || []).map((_, i) => t(`links.${i}`, `Link ${i + 1}`)))]
     case 'features': return [t('title', 'Title'), ...(((b.props.items as unknown[]) || []).flatMap((_, i) => [t(`items.${i}.title`, `Highlight ${i + 1} · title`), t(`items.${i}.desc`, `Highlight ${i + 1} · text`, 'area')]))]
     case 'pricing': return [t('title', 'Title'), ...(((b.props.tiers as unknown[]) || []).flatMap((_, i) => [t(`tiers.${i}.name`, `Plan ${i + 1} · name`), t(`tiers.${i}.price`, `Plan ${i + 1} · price`), t(`tiers.${i}.features`, `Plan ${i + 1} · lines`, 'lines')]))]

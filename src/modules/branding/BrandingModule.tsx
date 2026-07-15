@@ -11,9 +11,10 @@ import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import {
-  type BrandKit, type LogoLayout, defaultKit, loadBrandKit, saveBrandKit,
-  generatePalette, logoSvg, FONT_PAIRS, SCHEMES, SHAPES,
+  type BrandKit, type LogoLayout, type LogoStyle, type MarkShape, defaultKit, loadBrandKit, saveBrandKit,
+  generatePalette, logoSvg, logoLockups, FONT_PAIRS, SCHEMES, SHAPES,
 } from '../../lib/brand'
+import { zipStore } from '../../lib/zip'
 import {
   type BrandProfile, type DomainResult, researchProfile, generateKeywords, combineNames,
   checkDomains, socialProfiles, bestPrice, registrarUrl, BRAND_TLDS,
@@ -21,9 +22,9 @@ import {
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
 
-type Step = 'concept' | 'naming' | 'domain' | 'logo' | 'export'
+type Step = 'concept' | 'research' | 'naming' | 'domain' | 'logo' | 'export'
 const STEPS: { id: Step; label: string }[] = [
-  { id: 'concept', label: 'Concept' },
+  { id: 'concept', label: 'Concept' }, { id: 'research', label: 'Research' },
   { id: 'naming', label: 'Naming' }, { id: 'domain', label: 'Availability' },
   { id: 'logo', label: 'Logo' }, { id: 'export', label: 'Export' },
 ]
@@ -77,6 +78,9 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const [checking, setChecking] = useState(false)
   const [shortlist, setShortlist] = useState<Set<string>>(new Set())
   const [saved, setSaved] = useState(false)
+  // logo identity sub-tabs + style (Shiverbrand-style logo pack)
+  const [logoTab, setLogoTab] = useState<'logos' | 'palette' | 'typo'>('logos')
+  const [logoStyle, setLogoStyle] = useState<LogoStyle>('color')
   const toggleShortlist = (d: string) => setShortlist((s) => { const n = new Set(s); n.has(d) ? n.delete(d) : n.add(d); return n })
 
   useEffect(() => {
@@ -104,9 +108,13 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     if (step === 'concept' && keywords.length === 0) setKeywords(generateKeywords(descSrc()))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step])
-  // Concept → build the research profile + first name batch, then Naming.
+  // Concept → build the research profile, then show the Research step.
   const generateProfile = () => {
     setProfile(researchProfile(descSrc()))
+    setStep('research')
+  }
+  // Research → combine the chosen words into names, then Naming.
+  const generateNames = () => {
     setNames(combineNames([...selected], nameSeed))
     setStep('naming')
   }
@@ -154,6 +162,37 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     r.onload = () => { patch({ logoDataUrl: String(r.result) }); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Logo imported', text: 'Your logo now replaces the generated mark.' }) }
     r.readAsDataURL(file)
   }
+  // ---- logo pack (Shiverbrand-style) ----
+  const slugName = () => kit.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'brand'
+  const dl = (blob: Blob, filename: string) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000) }
+  const svgToPng = (svg: string, size = 512): Promise<Blob> => new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      const c = document.createElement('canvas'); c.width = size; c.height = size
+      const ctx = c.getContext('2d'); if (!ctx) return reject(new Error('no ctx'))
+      ctx.drawImage(img, 0, 0, size, size)
+      c.toBlob((b) => (b ? resolve(b) : reject(new Error('no blob'))), 'image/png')
+    }
+    img.onerror = reject
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
+  })
+  const dlLockupSvg = (id: string, svg: string) => dl(new Blob([svg], { type: 'image/svg+xml' }), `${slugName()}-${id}.svg`)
+  const dlLockupPng = async (id: string, svg: string) => { try { dl(await svgToPng(svg, 512), `${slugName()}-${id}.png`) } catch { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'PNG failed', text: 'Could not rasterise · use SVG.' }) } }
+  const downloadAllLogos = () => {
+    const enc = new TextEncoder()
+    const entries = logoLockups(kit, logoStyle).map((l) => ({ name: `${slugName()}-${l.id}.svg`, data: enc.encode(l.svg) }))
+    dl(new Blob([zipStore(entries) as unknown as BlobPart], { type: 'application/zip' }), `${slugName()}-logo-pack.zip`)
+    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Logo pack ready', text: `${entries.length} SVGs downloaded as a .zip.` })
+  }
+  const SHUFFLE_SHAPES: MarkShape[] = SHAPES.map((s) => s.id)
+  const shuffleLogo = () => {
+    const shape = SHUFFLE_SHAPES[Math.floor(Math.random() * SHUFFLE_SHAPES.length)]
+    const layout = (['mark-left', 'mark-top', 'mark-only'] as LogoLayout[])[Math.floor(Math.random() * 3)]
+    const hue = Math.floor(Math.random() * 360)
+    patch({ shape, layout, hue, palette: generatePalette(hue, kit.scheme) })
+  }
+  const regenLogo = () => { const hue = hueFrom(kit.name || 'brand'); patch({ shape: 'monogram', layout: 'mark-left', hue, palette: generatePalette(hue, kit.scheme) }) }
+
   // downloads
   const downloadLogo = () => {
     const blob = new Blob([logoSvg(kit, kit.layout, 512)], { type: 'image/svg+xml' })
@@ -178,8 +217,9 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
       // "I have a name & domain" skips straight to the Logo step.
       if (startMode === 'name-domain') return goLogo()
       if (startMode === 'name-only') return void chooseName(kit.name.trim() || descSrc())
-      return generateProfile() // scratch / domain-only → Naming
+      return generateProfile() // scratch / domain-only → Research
     }
+    if (step === 'research') return generateNames()
     if (step === 'naming') { void recheck(); return setStep('domain') }
     if (step === 'domain') return goLogo()
     if (step === 'logo') return saveAndExport()
@@ -191,6 +231,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     : true
   const nextLabel = step === 'concept'
       ? (startMode === 'name-domain' ? 'Design logo →' : startMode === 'name-only' ? 'Check availability →' : 'Generate research profile →')
+    : step === 'research' ? 'Generate brand names →'
     : step === 'domain' ? 'Design logo'
     : step === 'logo' ? 'Save & export'
     : step === 'export' ? 'Save brand' : 'Next'
@@ -289,17 +330,33 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
         </section>
       )}
 
+      {step === 'research' && profile && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Research profile</h3>
+          <p className="sq-lead">A structured read of your idea — audience, market, positioning and personality — derived from your description. Use it to steer the name &amp; brand.</p>
+          <div className="br-research">
+            <div className="br-block"><span className="br-k">Target audience</span><p>{profile.targetAudience}</p></div>
+            <div className="br-block"><span className="br-k">Key features</span><div className="sq-tags">{profile.keyFeatures.map((f) => <span key={f} className="sq-tag">{f}</span>)}</div></div>
+            <div className="br-block"><span className="br-k">Market category</span><p className="br-mono">{profile.marketCategory}</p></div>
+            <div className="br-block"><span className="br-k">Competitive landscape</span><p>{profile.competitiveLandscape}</p></div>
+            <div className="br-block"><span className="br-k">Differentiation</span><p>{profile.differentiation}</p></div>
+            <div className="br-block"><span className="br-k">Emotional appeal</span><p>{profile.emotionalAppeal}</p></div>
+            <div className="br-block"><span className="br-k">Growth potential</span><p>{profile.growthPotential}</p></div>
+            <div className="br-block"><span className="br-k">Tone keywords</span><div className="sq-tags">{(profile.toneKeywords.length ? profile.toneKeywords : profile.keywords).map((k) => <span key={k} className="sq-tag">{k}</span>)}</div></div>
+            <div className="br-block"><span className="br-k">Brand personality</span><p>{profile.personality}</p></div>
+          </div>
+          <div className="sq-cards3">
+            <div className="sq-info"><span className="sq-info-k">Tone</span><b>{profile.tone}</b></div>
+            <div className="sq-info"><span className="sq-info-k">Audience</span><b>{profile.audience}</b></div>
+            <div className="sq-info"><span className="sq-info-k">Angle</span><b>{profile.angle}</b></div>
+          </div>
+        </section>
+      )}
+
       {step === 'naming' && (
         <section className="sq-panel">
           <h3 className="sq-title">Name candidates</h3>
           <p className="sq-lead">Combinations of your {selected.size} chosen word{selected.size === 1 ? '' : 's'}. Pick one to check its .com &amp; handles, or reroll for a fresh batch.</p>
-          {profile && (
-            <div className="sq-cards3">
-              <div className="sq-info"><span className="sq-info-k">Tone</span><b>{profile.tone}</b></div>
-              <div className="sq-info"><span className="sq-info-k">Audience</span><b>{profile.audience}</b></div>
-              <div className="sq-info"><span className="sq-info-k">Angle</span><b>{profile.angle}</b></div>
-            </div>
-          )}
           <div className="bw-selected bw-selected-recap">
             {[...selected].map((k) => <span key={k} className="bw-chip on static">{k}</span>)}
             <button className="bw-editwords" onClick={() => setStep('concept')}>Edit words</button>
@@ -402,21 +459,55 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
       {step === 'logo' && (
         <section className="sq-panel">
-          <h3 className="sq-title">Create your logo</h3>
-          <p className="sq-lead">A logo is generated for <b style={{ color: 'var(--dc)' }}>{kit.name}</b>. Pick a mark, layout and colour, or import your own. Colours flow into the Website studio.</p>
-          <div className="bi-logo bd-logo-preview" style={{ background: kit.palette.bg }}>
-            {kit.logoDataUrl
-              ? <img src={kit.logoDataUrl} alt={`${kit.name} logo`} style={{ maxWidth: '100%', maxHeight: 180, objectFit: 'contain' }} />
-              : <span dangerouslySetInnerHTML={{ __html: logoSvg(kit, kit.layout, 300) }} />}
+          <h3 className="sq-title">Brand identity</h3>
+          <p className="sq-lead">A full logo pack, palette and type scale for <b style={{ color: 'var(--dc)' }}>{kit.name}</b>. Download any lockup, or import your own logo. Colours flow into the Website studio.</p>
+
+          {/* sub-tabs + actions */}
+          <div className="lg-bar">
+            <div className="lg-tabs">
+              {(['logos', 'palette', 'typo'] as const).map((t) => (
+                <button key={t} className={`lg-tab${logoTab === t ? ' on' : ''}`} onClick={() => setLogoTab(t)}>{t === 'logos' ? 'Logos' : t === 'palette' ? 'Palette' : 'Typography'}</button>
+              ))}
+            </div>
+            <div className="lg-actions">
+              <button className="sq-cta ghost sm" onClick={shuffleLogo}>⟲ Shuffle</button>
+              <button className="sq-cta ghost sm" onClick={regenLogo}>↻ Regenerate</button>
+            </div>
           </div>
-          <div className="sq-cta-row" style={{ marginTop: 2 }}>
-            <label className="sq-cta ghost">
-              {kit.logoDataUrl ? 'Replace with my logo' : 'Import my logo (PNG/SVG)'}
-              <input type="file" accept="image/png,image/svg+xml,image/jpeg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importLogo(f); e.currentTarget.value = '' }} />
-            </label>
-            {kit.logoDataUrl && <button className="sq-cta ghost" onClick={() => patch({ logoDataUrl: undefined })}>Use generated logo</button>}
-          </div>
-          {!kit.logoDataUrl && (
+
+          {logoTab === 'logos' && (
+            <>
+              <div className="lg-toolbar">
+                <div className="lg-seg">
+                  {(['color', 'mono', 'inverted'] as LogoStyle[]).map((s) => (
+                    <button key={s} className={logoStyle === s ? 'on' : ''} onClick={() => setLogoStyle(s)}>{s === 'color' ? 'Colour' : s === 'mono' ? 'Mono' : 'Inverted'}</button>
+                  ))}
+                </div>
+                <label className="sq-cta ghost sm">
+                  {kit.logoDataUrl ? 'Replace logo' : 'Import logo'}
+                  <input type="file" accept="image/png,image/svg+xml,image/jpeg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importLogo(f); e.currentTarget.value = '' }} />
+                </label>
+                <button className="sq-cta sm" onClick={downloadAllLogos}>⬇ Download all</button>
+              </div>
+              {kit.logoDataUrl ? (
+                <div className="bi-logo bd-logo-preview" style={{ background: '#fff' }}>
+                  <img src={kit.logoDataUrl} alt={`${kit.name} logo`} style={{ maxWidth: '100%', maxHeight: 200, objectFit: 'contain' }} />
+                  <button className="sq-cta ghost sm" style={{ marginTop: 12 }} onClick={() => patch({ logoDataUrl: undefined })}>Use generated logo</button>
+                </div>
+              ) : (
+                <div className="lg-grid">
+                  {logoLockups(kit, logoStyle).map((l) => (
+                    <div key={l.id} className="lg-card">
+                      <div className="lg-card-h"><b>{l.label}</b><span className="lg-dl"><button onClick={() => dlLockupSvg(l.id, l.svg)}>SVG</button> · <button onClick={() => void dlLockupPng(l.id, l.svg)}>PNG</button></span></div>
+                      <div className={`lg-preview${l.dark ? ' dark' : ''}`} dangerouslySetInnerHTML={{ __html: l.svg }} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {logoTab === 'palette' && (
             <>
               <div className="sq-eyebrow">Logo mark</div>
               <div className="bw-cloud">{SHAPES.map((s) => <button key={s.id} className={`bw-chip${kit.shape === s.id ? ' on' : ''}`} onClick={() => patch({ shape: s.id })}>{s.label}</button>)}</div>
@@ -427,10 +518,33 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
               <div className="bi-swatches">{Object.entries(kit.palette).map(([k, c]) => <span key={k} className="bi-sw" style={{ background: c }} title={`${k} · ${c}`} />)}</div>
               <div className="sq-eyebrow" style={{ marginTop: 10 }}>Harmony</div>
               <div className="bw-cloud">{SCHEMES.map((s) => <button key={s.id} className={`bw-chip${kit.scheme === s.id ? ' on' : ''}`} onClick={() => patch({ scheme: s.id, palette: generatePalette(kit.hue, s.id) })}>{s.label}</button>)}</div>
-              <div className="sq-eyebrow" style={{ marginTop: 10 }}>Fonts</div>
-              <div className="bw-cloud">{FONT_PAIRS.map((f) => <button key={f.id} className={`bw-chip${kit.fontId === f.id ? ' on' : ''}`} onClick={() => patch({ fontId: f.id })}>{f.label}</button>)}</div>
             </>
           )}
+
+          {logoTab === 'typo' && (
+            <>
+              <div className="sq-eyebrow">Font pairing</div>
+              <div className="bw-cloud">{FONT_PAIRS.map((f) => <button key={f.id} className={`bw-chip${kit.fontId === f.id ? ' on' : ''}`} onClick={() => patch({ fontId: f.id })}>{f.label}</button>)}</div>
+              <div className="lg-typescale">
+                {[
+                  { k: 'HERO', size: 54, w: 800, hint: 'Landing page hero, major headlines' },
+                  { k: 'DISPLAY', size: 40, w: 800, hint: 'Section titles, feature highlights' },
+                  { k: 'H1', size: 30, w: 700, hint: 'Page titles, primary headers' },
+                  { k: 'BODY', size: 17, w: 400, hint: 'Paragraphs and content', body: true },
+                ].map((r) => {
+                  const f = FONT_PAIRS.find((x) => x.id === kit.fontId) || FONT_PAIRS[0]
+                  return (
+                    <div key={r.k} className="lg-ts-row">
+                      <div className="lg-ts-k">{r.k}</div>
+                      <div className="lg-ts-sample" style={{ fontFamily: r.body ? f.body : f.heading, fontSize: r.size, fontWeight: r.w }}>{r.body ? 'The quick brown fox builds a brand.' : `Welcome to ${kit.name}`}</div>
+                      <div className="lg-ts-hint">{r.hint}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </>
+          )}
+
           <label className="sq-field" style={{ marginTop: 6 }}>Tagline
             <input value={kit.tagline} maxLength={48} onChange={(e) => patch({ tagline: e.target.value })} />
           </label>

@@ -32,20 +32,20 @@ function CameraRig() {
   }, [camera, portrait])
 
   useFrame((_, dt) => {
-    // the dojo lives in its own pane now (no right-hand overlay), so centre it
+    // the dojo lives in its own pane now (no right-hand overlay), so centre it.
+    // Pulled in closer + a higher vantage so the characters read large and are
+    // easy to tap, while still looking down ONTO the room (requested).
     let tx = 0
     let tz = 1
     let px = 0
-    let pz = 18.5
-    let py = 11.6
-    let ty = 1.3
+    let pz = 14
+    let py = 12.4
+    let ty = 1.5
     if (portrait) {
-      // close enough that agents read large + tappable, but a higher vantage so
-      // you look down ONTO the room and see every agent clearly (asked for a more
-      // top-down angle). The widened fov keeps the side seats in frame.
-      ty = 1.35
-      pz = 15.5
-      py = 12.4
+      // even closer on phones so agents are big + tappable, from a top-down angle.
+      ty = 1.55
+      pz = 12.5
+      py = 13
     }
     const sp = selected ? agentWorldPos(selected) : undefined
     if (sp) {

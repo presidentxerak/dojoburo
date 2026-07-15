@@ -15,6 +15,16 @@ export interface BrandProfile {
   tone: string
   audience: string
   angle: string
+  // Shiverbrand-style enriched research analysis (derived from the description)
+  targetAudience: string
+  keyFeatures: string[]
+  marketCategory: string
+  competitiveLandscape: string
+  differentiation: string
+  emotionalAppeal: string
+  growthPotential: string
+  toneKeywords: string[]
+  personality: string
 }
 
 const TONE_HINTS: [RegExp, string][] = [
@@ -33,15 +43,61 @@ const AUD_HINTS: [RegExp, string][] = [
   [/develop|engineer|api|technical/i, 'Developers'],
 ]
 
+// market category detection · maps a theme to "parent > child"
+const CATEGORY_HINTS: [RegExp, string][] = [
+  [/coffee|tea|drink|beverage|roast|brew|cafe|food|kitchen|recipe|meal|restaurant|cook|chef/i, 'consumer > food & beverage'],
+  [/\bai\b|data|dev|tech|cloud|api|software|app|saas|code|digital|platform|automat/i, 'software > productivity & tools'],
+  [/eco|green|nature|organic|sustain|plant|garden|climate|energy/i, 'sustainability > green living'],
+  [/finance|bank|invest|money|pay|fintech|budget|wealth|credit|account/i, 'finance > money management'],
+  [/health|care|wellness|fit|medical|therapy|mind|clinic/i, 'health > wellness & care'],
+  [/shop|ecommerce|store|retail|fashion|market|boutique|brand/i, 'commerce > retail & shopping'],
+  [/travel|trip|flight|hotel|tour|journey|adventure|explore/i, 'travel > trips & experiences'],
+  [/learn|course|edu|school|study|teach|skill|knowledge/i, 'education > learning & skills'],
+  [/home|house|room|space|cleaning|chore|household|domestic|logistics|manage/i, 'logistics > home management'],
+  [/game|play|fun|social|community|creator|media|content/i, 'media > community & content'],
+]
+const FEATURE_BANKS: [RegExp, string[]][] = [
+  [/home|house|space|cleaning|chore|household|domestic|manage/i, ['Task & chore management', 'Personalised living space', 'Reminders & alerts', 'Household expense tracking', 'Eco-friendly home tips']],
+  [/\bai\b|data|dev|tech|cloud|software|app|saas|automat/i, ['One-click automation', 'Real-time sync', 'Team collaboration', 'Analytics dashboard', 'Integrations & API']],
+  [/coffee|food|kitchen|recipe|meal|restaurant/i, ['Curated selection', 'Subscription delivery', 'Personalised recommendations', 'Order & budget management', 'Freshness guarantee']],
+  [/finance|bank|invest|money|budget/i, ['Budgeting & tracking', 'Smart insights', 'Secure payments', 'Goal planning', 'Reports & forecasts']],
+  [/health|wellness|fit|care/i, ['Personalised plans', 'Progress tracking', 'Reminders & habits', 'Expert guidance', 'Community support']],
+  [/shop|store|retail|fashion/i, ['Product discovery', 'Personalised store', 'Secure checkout', 'Loyalty & offers', 'Fast delivery']],
+]
+const GENERIC_FEATURES = ['Simple, intuitive interface', 'Personalised experience', 'Fast setup', 'Works everywhere', 'Secure by design']
+
+const PERSONALITY_HINTS: [RegExp, string][] = [
+  [/lux|premium|elegant|fine/i, 'refined and aspirational, like a trusted advisor with impeccable taste'],
+  [/fun|play|game|social|community/i, 'warm and welcoming, playful yet dependable — a friend who makes things easier'],
+  [/eco|green|nature|organic|sustain/i, 'calm, honest and grounded, with quiet confidence and care for the world'],
+  [/finance|bank|secur|invest/i, 'solid and reassuring, precise and transparent — a partner you can rely on'],
+  [/home|house|space|care|wellness|health/i, 'warm and welcoming, offering a sense of safety and confidence, while being innovative and attentive to people’s needs'],
+]
+
 export function researchProfile(desc: string): BrandProfile {
-  const words = desc.toLowerCase().match(/[a-zà-ÿ]{3,}/g) ?? []
+  const src = (desc || '').trim()
+  const words = src.toLowerCase().match(/[a-zà-ÿ]{3,}/g) ?? []
   const freq = new Map<string, number>()
   for (const w of words) if (!STOP.has(w)) freq.set(w, (freq.get(w) ?? 0) + 1)
   const keywords = [...freq.entries()].sort((a, b) => b[1] - a[1]).map((e) => e[0]).slice(0, 6)
-  const tone = TONE_HINTS.find(([re]) => re.test(desc))?.[1] ?? 'Modern & confident'
-  const audience = AUD_HINTS.find(([re]) => re.test(desc))?.[1] ?? 'A broad audience'
+  const tone = TONE_HINTS.find(([re]) => re.test(src))?.[1] ?? 'Modern & confident'
+  const audience = AUD_HINTS.find(([re]) => re.test(src))?.[1] ?? 'A broad audience'
   const angle = keywords.length ? `Built around "${keywords.slice(0, 3).join(', ')}"` : 'A clear, memorable identity'
-  return { keywords, tone, audience, angle }
+  const topic = keywords[0] || 'this space'
+  const marketCategory = CATEGORY_HINTS.find(([re]) => re.test(src))?.[1] ?? 'general > products & services'
+  const feats = FEATURE_BANKS.find(([re]) => re.test(src))?.[1] ?? GENERIC_FEATURES
+  const keyFeatures = feats.slice(0, 5)
+  const targetAudience = `People looking to improve their ${topic} — especially ${audience.toLowerCase()} who value a simpler, more personalised experience.`
+  const competitiveLandscape = `The ${topic} market keeps evolving, with new apps and services appearing regularly, but few offer the holistic, customisable approach this product proposes.`
+  const differentiation = `It stands out by adapting to each user’s specific needs, delivering a unique and efficient experience around ${keywords.slice(0, 2).join(' and ') || topic}.`
+  const emotionalAppeal = `It answers the desire for comfort, simplicity and control people want over their ${topic}, helping them feel more secure and at ease.`
+  const growthPotential = `Growth potential is strong: more and more people are seeking solutions to improve their quality of life and manage their time — a tailwind for ${topic}.`
+  const personality = `The brand personality is ${PERSONALITY_HINTS.find(([re]) => re.test(src))?.[1] ?? 'confident and modern — approachable, clear and genuinely useful'}.`
+  return {
+    keywords, tone, audience, angle,
+    targetAudience, keyFeatures, marketCategory, competitiveLandscape,
+    differentiation, emotionalAppeal, growthPotential, toneKeywords: keywords.slice(0, 5), personality,
+  }
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)

@@ -33,6 +33,8 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [colorsOpen, setColorsOpen] = useState(false)
   const [gen, setGen] = useState<string[]>([])
   const [locks, setLocks] = useState<boolean[]>([false, false, false, false, false])
+  // content · import/generate images, videos & text + connect apps
+  const [contentOpen, setContentOpen] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -100,6 +102,53 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     void saveBrandKit(dojoId, next)
     pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Colours applied', text: 'Your site & Brand Kit now use this palette.' })
   }
+  // ---- content: import / generate images, videos, text ----
+  const addBlock = (b: Block, afterSel = true) => {
+    const arr = [...site.blocks]
+    const i = afterSel && sel ? arr.findIndex((x) => x.id === sel) : arr.length - 1
+    arr.splice((i < 0 ? arr.length : i) + 1, 0, b)
+    mutate(arr); setSel(b.id)
+  }
+  const importMedia = (file: File, kind: 'image' | 'video') => {
+    const cap = kind === 'image' ? 4_000_000 : 12_000_000
+    if (file.size > cap) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'File too large', text: `Keep ${kind}s under ${cap / 1_000_000} MB.` }); return }
+    const r = new FileReader()
+    r.onload = () => {
+      const src = String(r.result)
+      const b = makeBlock(kind, site.name)
+      b.props = kind === 'image' ? { src, alt: `${site.name} image`, caption: '' } : { src, caption: '' }
+      addBlock(b)
+      pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `${kind === 'image' ? 'Image' : 'Video'} added`, text: 'Inserted into your site. Edit its caption in the inspector.' })
+    }
+    r.readAsDataURL(file)
+  }
+  const generateImage = () => {
+    // a branded gradient image (canvas → data URL) — a real, editable asset
+    const c = document.createElement('canvas'); c.width = 1200; c.height = 675
+    const ctx = c.getContext('2d'); if (!ctx) return
+    const p = brand?.palette
+    const g = ctx.createLinearGradient(0, 0, 1200, 675)
+    g.addColorStop(0, p?.primary || '#5b6cff'); g.addColorStop(1, p?.accent || '#39c0ff')
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 1200, 675)
+    ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.font = 'bold 84px Outfit, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+    ctx.fillText(site.name, 600, 337)
+    const b = makeBlock('image', site.name); b.props = { src: c.toDataURL('image/png'), alt: `${site.name} banner`, caption: '' }
+    addBlock(b)
+    pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'Image generated', text: 'A branded banner was added to your site.' })
+  }
+  const generateText = () => {
+    const b = makeBlock('text', site.name)
+    const lines = [
+      `${site.name} helps you do more with less effort.`,
+      `We build simple, reliable tools that adapt to how you work — so you can focus on what matters.`,
+      `Thousands of people trust ${site.name} to save time every day. Join them and see the difference.`,
+    ]
+    b.props = { heading: `Why ${site.name}`, body: lines.join(' ') }
+    addBlock(b)
+    pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'Text generated', text: 'A copy block was added. Edit it in the inspector.' })
+  }
+  const openConnect = () => { location.hash = 'connect' }
+
   // spacebar to generate, like Coolors (only while the panel is open)
   useEffect(() => {
     if (!colorsOpen) return
@@ -164,12 +213,54 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
           <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">Mobile</button>
         </div>
         <div className="site-tb-actions">
+          <button className={`btn tiny ghost${contentOpen ? ' on' : ''}`} onClick={() => setContentOpen((v) => !v)} title="Import or generate content">＋ Content</button>
           <button className={`btn tiny ghost${colorsOpen ? ' on' : ''}`} onClick={openColors} title="Colours & palettes">🎨 Colours</button>
           <button className="btn tiny ghost" onClick={regenerate} title="Regenerate a first version">↺ 1st version</button>
           <button className="btn tiny" onClick={exportHtml}>Export HTML</button>
           <button className="btn primary tiny" onClick={() => void save()}>Save</button>
         </div>
       </div>
+
+      {/* content: import / generate images, videos, text + connect apps */}
+      {contentOpen && (
+        <div className="cw-panel ct-panel">
+          <div className="cw-head">
+            <div><h4>Content &amp; media</h4><p>Import or generate your images, videos and text — or connect Claude Code &amp; your apps to bring in your own code.</p></div>
+            <button className="cw-close" onClick={() => setContentOpen(false)} aria-label="Close">✕</button>
+          </div>
+          <div className="ct-grid">
+            <div className="ct-card">
+              <b>Images</b>
+              <p>Import a photo or generate a branded banner.</p>
+              <div className="ct-actions">
+                <label className="btn tiny">Import image<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'image'); e.currentTarget.value = '' }} /></label>
+                <button className="btn tiny ghost" onClick={generateImage}>✨ Generate</button>
+              </div>
+            </div>
+            <div className="ct-card">
+              <b>Video</b>
+              <p>Import an MP4/WebM clip into a video section.</p>
+              <div className="ct-actions">
+                <label className="btn tiny">Import video<input type="file" accept="video/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'video'); e.currentTarget.value = '' }} /></label>
+              </div>
+            </div>
+            <div className="ct-card">
+              <b>Text</b>
+              <p>Generate a copy block, then edit it inline.</p>
+              <div className="ct-actions">
+                <button className="btn tiny ghost" onClick={generateText}>✨ Generate copy</button>
+              </div>
+            </div>
+            <div className="ct-card ct-connect">
+              <b>Connect Claude Code &amp; apps</b>
+              <p>Bring your own code: connect the Claude Code CLI and external apps (GitHub, Figma, Drive…) to import content and build freely.</p>
+              <div className="ct-actions">
+                <button className="btn tiny" onClick={openConnect}>Open connectors →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* colours: generator + presets */}
       {colorsOpen && (

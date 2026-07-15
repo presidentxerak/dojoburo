@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Logo } from './Logo'
 import { Wordmark } from './Wordmark'
+import { useWorkshop } from '../workshop'
+import { skinById } from '../data/skins'
+import { SkinAvatar } from './workshop/SkinAvatar'
 
 // The one site header, shared by the landing page, the Dojo Guide and every
 // connector page · identical markup so they always match. Section links point at
@@ -19,6 +22,8 @@ const NAV_LINKS: [string, string][] = [
 
 export function SiteHeader({ enter }: { enter?: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  // When signed in we show the profile button + burger instead of Sign in/up.
+  const account = useWorkshop((s) => s.account)
   // "Create your company" → the creation form lives in the landing hero. On the
   // landing, focus it; from any other page, go to the landing so it's shown.
   const create = () => {
@@ -49,8 +54,17 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
             <span /><span /><span />
           </button>
           <button className="lp-cta sm" onClick={create}>Create your company</button>
-          <button className="lp-cta sm lp-cta-ghost lp-auth-btn" onClick={goDojo}>Sign in</button>
-          <button className="lp-cta sm lp-auth-btn" onClick={goDojo}>Sign up</button>
+          {account ? (
+            <button className="lp-profile-btn lp-auth-btn" onClick={goDojo} title={account.name || 'Enter your dojo'}>
+              <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />
+              <span>{account.name || 'My dojo'}</span>
+            </button>
+          ) : (
+            <>
+              <button className="lp-cta sm lp-cta-ghost lp-auth-btn" onClick={goDojo}>Sign in</button>
+              <button className="lp-cta sm lp-auth-btn" onClick={goDojo}>Sign up</button>
+            </>
+          )}
         </div>
       </header>
 
@@ -64,8 +78,17 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
             <a className="lp-menu-guide" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
             <button className="lp-cta" onClick={() => { setMenuOpen(false); create() }}>Create your company</button>
             <div className="lp-menu-auth">
-              <button className="lp-cta lp-cta-ghost" onClick={goDojo}>Sign in</button>
-              <button className="lp-cta" onClick={goDojo}>Sign up</button>
+              {account ? (
+                <button className="lp-menu-profile" onClick={goDojo}>
+                  <SkinAvatar skin={skinById(account.avatarSkinId)} size={30} />
+                  <span>{account.name || 'My dojo'}<em>Enter your dojo →</em></span>
+                </button>
+              ) : (
+                <>
+                  <button className="lp-cta lp-cta-ghost" onClick={goDojo}>Sign in</button>
+                  <button className="lp-cta" onClick={goDojo}>Sign up</button>
+                </>
+              )}
             </div>
           </nav>
         </>

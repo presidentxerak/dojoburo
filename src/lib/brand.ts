@@ -125,6 +125,35 @@ export function logoSvg(kit: BrandKit, layout: LogoLayout = kit.layout, size = 3
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 120" width="${size}" height="${size * 0.27}"><g transform="translate(6 10) scale(1)">${markSvg(kit.shape, palette, name)}</g><text x="120" y="52" font-family="${wordFont}" font-weight="800" font-size="38" fill="${palette.ink}">${esc(safeName)}</text><text x="122" y="80" font-family="${f.body.replace(/"/g, "'")}" font-size="15" fill="${palette.ink}" opacity="0.7">${esc(kit.tagline)}</text></svg>`
 }
 
+/** A rounded-square app icon: the initials in white on the primary colour. */
+export function appIconSvg(kit: BrandKit, size = 256): string {
+  const p = kit.palette
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}"><rect width="100" height="100" rx="22" fill="${p.primary}"/><text x="50" y="50" dy="0.35em" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="46" fill="#fff">${initials(kit.name)}</text></svg>`
+}
+
+/** A kit re-coloured for a logo style variant (full colour / mono / inverted). */
+export type LogoStyle = 'color' | 'mono' | 'inverted'
+export function styledKit(kit: BrandKit, style: LogoStyle): BrandKit {
+  if (style === 'mono') return { ...kit, palette: { primary: '#14161f', secondary: '#14161f', accent: '#14161f', ink: '#14161f', bg: '#ffffff' } }
+  if (style === 'inverted') return { ...kit, palette: { primary: '#ffffff', secondary: '#ffffff', accent: '#ffffff', ink: '#ffffff', bg: '#14161f' } }
+  return kit
+}
+
+export interface Lockup { id: string; label: string; svg: string; dark?: boolean }
+/** The full logo pack (Symbol / Wordmark / Lockups / Favicon / App Icon). */
+export function logoLockups(kit: BrandKit, style: LogoStyle = 'color'): Lockup[] {
+  const k = styledKit(kit, style)
+  const dark = style === 'inverted'
+  return [
+    { id: 'symbol', label: 'Symbol Mark', svg: logoSvg(k, 'mark-only', 300), dark },
+    { id: 'wordmark', label: 'Wordmark', svg: logoSvg(k, 'text-only', 320), dark },
+    { id: 'lockup-h', label: 'Lockup H', svg: logoSvg(k, 'mark-left', 360), dark },
+    { id: 'lockup-v', label: 'Lockup V', svg: logoSvg(k, 'mark-top', 300), dark },
+    { id: 'favicon', label: 'Favicon', svg: logoSvg(k, 'mark-only', 96), dark },
+    { id: 'app-icon', label: 'App Icon', svg: appIconSvg(kit, 256), dark: false },
+  ]
+}
+
 // ---- defaults + persistence ------------------------------------------------
 export function defaultKit(name = 'My brand'): BrandKit {
   const hue = 262, scheme: PaletteScheme = 'analogous'
