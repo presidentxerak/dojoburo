@@ -6,10 +6,11 @@ import { ROLE_AGENTS, type RoleAgent } from '../../data/roleAgents'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 import { useInView } from './useInView'
 
-const charFor = (id: string) => CHARACTERS[id] ?? Object.values(CHARACTERS)[0]
+export const charForAgent = (id: string) => CHARACTERS[id] ?? Object.values(CHARACTERS)[0]
+const charFor = charForAgent
 
 // One distinct 3D character per agent, so every teammate has its own face.
-const AGENT_CHAR: Record<string, string> = {
+export const AGENT_CHAR: Record<string, string> = {
   chief: 'rex',
   brandi: 'dex',
   weblos: 'lex',

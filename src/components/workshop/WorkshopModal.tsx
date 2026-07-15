@@ -43,18 +43,26 @@ export function StudioPage() {
   const intent = useWork((s) => s.studioIntent)
   const tab: Tab = intent && (intent === 'account' || intent === 'billing') ? intent : 'studio'
   const head = STUDIO_TITLES[tab]
+  const backToDojo = () => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* */ } location.hash = 'app' }
   return (
-    <div className="app studio-page">
+    <div className="app studio-page" style={{ ['--dc' as string]: '#7b5cff' }}>
       <TopBar />
       <div className="studio-page-body">
-        <header className="ws-head studio-page-head">
-          <div className="studio-page-head-l">
-            <strong>{head.title}</strong>
-            <span className="studio-page-sub">{head.sub}</span>
+        {/* Same studio shell as the Website / Brand studios (modhost bar + body)
+            so the design constraints match exactly. */}
+        <header className="modhost-bar studio-page-head">
+          <div className="modhost-bar-l">
+            <div>
+              <h2 className="modhost-name">{head.title}</h2>
+              <p className="modhost-blurb">{head.sub}</p>
+            </div>
           </div>
-          <button className="ws-x studio-page-x" onClick={() => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* */ } location.hash = 'app' }} aria-label="Back to dojo">×</button>
+          <div className="modhost-bar-r">
+            <button className="modhost-connect" onClick={() => { location.hash = 'connect' }}>Connect apps</button>
+            <button className="modhost-close" onClick={backToDojo} aria-label="Back to dojo">✕</button>
+          </div>
         </header>
-        <div className="ws-body studio-page-scroll">
+        <div className="modhost-body studio-page-scroll">
           {tab === 'studio' && <StudioTab />}
           {tab === 'account' && <AccountTab />}
           {tab === 'billing' && <BillingTab />}

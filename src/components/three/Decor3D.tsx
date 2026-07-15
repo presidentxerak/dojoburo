@@ -1245,8 +1245,7 @@ function BackroomsDecor({ backZ }: { backZ: number }) {
         {[-CW, CW].map((x) => (
           <mesh key={x} position={[x, doorH / 2, start - LEN / 2]} receiveShadow><boxGeometry args={[0.3, doorH, LEN]} /><meshStandardMaterial color="#e8dca0" map={tex} roughness={1} /></mesh>
         ))}
-        {/* corridor ceiling strip (this is where the receding lights live) */}
-        <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, doorH, start - LEN / 2]}><planeGeometry args={[CW * 2, LEN]} /><meshStandardMaterial color="#cdbf6a" side={2} roughness={1} /></mesh>
+        {/* no corridor ceiling · the receding fixtures hang in the open above */}
         {/* receding fluorescent panels */}
         {lights.map((z, i) => {
           const dead = i === 3 || i === 6

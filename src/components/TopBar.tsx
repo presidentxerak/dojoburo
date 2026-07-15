@@ -24,6 +24,8 @@ export function TopBar() {
 
   const soundOn = !muted
 
+  // The brand (logo + name) links back to the landing page.
+  const goHome = () => { setMenuOpen(false); location.hash = '' }
   const openStudio = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
   const openConnect = () => { setMenuOpen(false); location.hash = 'connect' }
@@ -59,11 +61,10 @@ export function TopBar() {
   return (
     <header className="topbar">
       <div className="brand">
-        {/* Once inside the dojo the brand no longer links back to the landing
-            page — a signed-in user stays in the app. */}
-        <span className="brand-home" aria-label="DojoBuro"><Logo size={38} /></span>
+        {/* The logo + wordmark link back to the landing page. */}
+        <button className="brand-home" aria-label="DojoBuro — landing page" onClick={goHome}><Logo size={38} /></button>
         <div>
-          <h1><Wordmark /> <span className="beta-badge">Beta</span></h1>
+          <h1><button className="brand-name" onClick={goHome} aria-label="DojoBuro — landing page"><Wordmark /></button> <span className="beta-badge">Beta</span></h1>
         </div>
       </div>
 

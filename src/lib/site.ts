@@ -27,6 +27,51 @@ export const GOOGLE_FONTS: GFont[] = [
   ...['Roboto Mono', 'Space Mono', 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', 'Inconsolata', 'Ubuntu Mono', 'Source Code Pro'].map((name) => ({ name, cat: 'Mono' as const })),
   ...['Pacifico', 'Lobster', 'Dancing Script', 'Caveat', 'Satisfy', 'Shadows Into Light', 'Permanent Marker', 'Kalam', 'Gochi Hand', 'Sacramento'].map((name) => ({ name, cat: 'Handwriting' as const })),
 ]
+// The live catalogue, fetched once from the /api/fonts proxy (which pulls the
+// full Google Fonts library behind the operator key). Falls back to the curated
+// GOOGLE_FONTS list when no key is configured or the request fails. Cached in
+// module scope + sessionStorage so the picker loads instantly on re-open.
+let FONT_CATALOGUE: GFont[] | null = null
+let fontFetch: Promise<GFont[]> | null = null
+const FONT_CACHE_KEY = 'dojoburo.gfonts.v1'
+
+function readSessionFonts(): GFont[] | null {
+  try {
+    const raw = sessionStorage.getItem(FONT_CACHE_KEY)
+    if (!raw) return null
+    const arr = JSON.parse(raw)
+    return Array.isArray(arr) && arr.length ? (arr as GFont[]) : null
+  } catch { return null }
+}
+
+/** The best font list available right now (live catalogue if loaded, else curated). */
+export function currentGoogleFonts(): GFont[] {
+  return FONT_CATALOGUE ?? readSessionFonts() ?? GOOGLE_FONTS
+}
+
+/** Load the full Google Fonts catalogue via the server proxy (once). Resolves to
+ *  the live list on success, or the curated fallback otherwise — never rejects. */
+export function loadGoogleFonts(): Promise<GFont[]> {
+  if (FONT_CATALOGUE) return Promise.resolve(FONT_CATALOGUE)
+  const cached = readSessionFonts()
+  if (cached) { FONT_CATALOGUE = cached; return Promise.resolve(cached) }
+  if (fontFetch) return fontFetch
+  fontFetch = (async () => {
+    try {
+      const res = await fetch('/api/fonts', { headers: { accept: 'application/json' } })
+      const data = (await res.json()) as { ok?: boolean; fonts?: GFont[] }
+      if (data?.ok && Array.isArray(data.fonts) && data.fonts.length > 20) {
+        FONT_CATALOGUE = data.fonts
+        try { sessionStorage.setItem(FONT_CACHE_KEY, JSON.stringify(data.fonts)) } catch { /* ignore */ }
+        return data.fonts
+      }
+    } catch { /* fall through to curated */ }
+    FONT_CATALOGUE = GOOGLE_FONTS
+    return GOOGLE_FONTS
+  })()
+  return fontFetch
+}
+
 /** A Google Fonts css2 stylesheet URL for the given families (with common weights). */
 export function googleFontsHref(families: string[]): string {
   const uniq = [...new Set(families.filter(Boolean))]

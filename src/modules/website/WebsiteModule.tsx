@@ -10,7 +10,7 @@ import { type BrandKit, saveBrandKit } from '../../lib/brand'
 import {
   type SiteDoc, type Block, type BlockType, type TemplateCategory, type SiteFont, type SiteLayout,
   BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
-  generateFromTemplate, SITE_TEMPLATES, SITE_FONTS, SITE_LAYOUTS, GOOGLE_FONTS, googleFontsHref, fontSet, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
+  generateFromTemplate, SITE_TEMPLATES, SITE_FONTS, SITE_LAYOUTS, GOOGLE_FONTS, loadGoogleFonts, googleFontsHref, fontSet, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand, type GFont,
 } from '../../lib/site'
 import { PRESET_PALETTES, randomPalette, paletteToKit, kitToPalette, textOn } from '../../lib/palettes'
 import { StepBar } from '../StepBar'
@@ -213,7 +213,13 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const setBaseSize = (baseSize: number) => setSite((s) => ({ ...s, baseSize }))
   const [fontQuery, setFontQuery] = useState('')
   const [fontTarget, setFontTarget] = useState<'heading' | 'body'>('heading')
-  const fontList = GOOGLE_FONTS.filter((f) => f.name.toLowerCase().includes(fontQuery.trim().toLowerCase()))
+  // The full Google Fonts catalogue (via the server proxy) once it loads; the
+  // curated list until then, so the picker is always populated.
+  const [fontCatalogue, setFontCatalogue] = useState<GFont[]>(GOOGLE_FONTS)
+  useEffect(() => { let live = true; void loadGoogleFonts().then((f) => { if (live) setFontCatalogue(f) }); return () => { live = false } }, [])
+  const fontMatches = fontCatalogue.filter((f) => f.name.toLowerCase().includes(fontQuery.trim().toLowerCase()))
+  // cap what we render (the catalogue can be ~1500 fonts) · search narrows it
+  const fontList = fontMatches.slice(0, 120)
   // load the selected + previewed Google fonts into the app doc so the picker renders them
   useEffect(() => {
     const fams = [site.headingFont, site.bodyFont, ...fontList.slice(0, 40).map((f) => f.name)].filter(Boolean) as string[]
@@ -415,9 +421,9 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               <em>Body</em><b style={{ fontFamily: `"${site.bodyFont || fontSet(site.font).body}"` }}>{site.bodyFont || 'Preset'}</b>
             </button>
           </div>
-          <input className="ty-search" value={fontQuery} placeholder={`Search Google Fonts for ${fontTarget}…`} onChange={(e) => setFontQuery(e.target.value)} />
+          <input className="ty-search" value={fontQuery} placeholder={`Search all ${fontCatalogue.length} Google Fonts for ${fontTarget}…`} onChange={(e) => setFontQuery(e.target.value)} />
           <div className="ty-fontlist">
-            {fontList.slice(0, 60).map((f) => {
+            {fontList.map((f) => {
               const active = (fontTarget === 'heading' ? site.headingFont : site.bodyFont) === f.name
               return (
                 <button key={f.name} className={`ty-fontitem${active ? ' on' : ''}`} onClick={() => (fontTarget === 'heading' ? setHeadingFont(f.name) : setBodyFont(f.name))}>
@@ -426,6 +432,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               )
             })}
             {!fontList.length && <p className="muted small">No font matches “{fontQuery}”.</p>}
+            {fontMatches.length > fontList.length && <p className="muted small">Showing {fontList.length} of {fontMatches.length} matches · keep typing to narrow down.</p>}
           </div>
 
           <div className="bw-2col" style={{ marginTop: 4 }}>

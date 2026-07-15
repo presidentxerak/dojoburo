@@ -35,6 +35,15 @@ const CREW_DEFAULT: Department[] = ['Leadership', 'Engineering', 'Finance', 'Gro
 
 export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
+    id: 'default',
+    label: 'Default Dojo',
+    blurb: 'The classic DojoBuro office — clean, neutral and uncluttered.',
+    skinTheme: 'Neon',
+    style: 'plain',
+    crew: CREW_DEFAULT,
+    palette: { ground: '#e7e9f2', grid: '#c4c9dd', wallBack: '#f6f7fb', wallSide: '#eef0f6', trim: '#5b6b8c', accent: '#5b8cff', bg: '#eef1f8', fog: '#f0f3fa' },
+  },
+  {
     id: 'startup',
     label: 'Start-up HQ',
     blurb: 'Bright, fast-moving founder loft.',
@@ -139,7 +148,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
 
 export const TEMPLATE_BY_ID: Record<string, DojoTemplate> = Object.fromEntries(DOJO_TEMPLATES.map((t) => [t.id, t]))
 
-export const DEFAULT_TEMPLATE_ID = 'startup'
+export const DEFAULT_TEMPLATE_ID = 'default'
 
 export function templateById(id: string | undefined | null): DojoTemplate {
   return (id && TEMPLATE_BY_ID[id]) || TEMPLATE_BY_ID[DEFAULT_TEMPLATE_ID]

@@ -12,6 +12,10 @@ import { isAdmin } from '../../config/admin'
 import { ModuleHost } from '../../modules/ModuleHost'
 import { MODULES } from '../../modules/registry'
 import { InfoDot } from '../InfoDot'
+import { Agent3DPreview } from '../three/Agent3DPreview'
+import { AGENT_CHAR, charForAgent } from '../landing/TeamCards'
+import { useInView } from '../landing/useInView'
+import type { RoleAgent } from '../../data/roleAgents'
 
 // Build stamp (injected by Vite) so the running version is visible in-app.
 declare const __BUILD_ID__: string
@@ -70,6 +74,29 @@ function Guide({ lead, steps, tip }: { lead: string; steps: React.ReactNode[]; t
       <ol className="info-steps">{steps.map((s, i) => <li key={i}>{s}</li>)}</ol>
       {tip && <p className="info-tip"><b>Tip:</b> {tip}</p>}
     </>
+  )
+}
+
+/** A CEO roster card · the exact landing-page team card (3D character portrait,
+ *  code, title, description, "Open →") with a management status line added, so
+ *  the CEO dashboard and the landing office share one visual language. The 3D
+ *  portrait mounts lazily (IntersectionObserver) to stay under the WebGL context
+ *  budget alongside the live dojo scene. */
+function RosterCard({ role, name, status, statusMod, lastLabel, phase, onOpen }: {
+  role: RoleAgent; name: string; status: string; statusMod: string; lastLabel: string; phase: number; onOpen: () => void
+}) {
+  const [ref, inView] = useInView<HTMLButtonElement>('250px')
+  const charKey = AGENT_CHAR[role.id] ?? role.id
+  return (
+    <button ref={ref} className="lp-studiocard agent-card" style={{ ['--ac' as string]: role.tint }} onClick={onOpen} title={`Open ${name} · ${role.title}`}>
+      <span className={`agent-status s-${statusMod}`}><i />{status}</span>
+      <span className="lp-team-3d">{inView ? <Agent3DPreview id={charKey} character={charForAgent(charKey)} size={128} phase={phase} /> : null}</span>
+      <strong className="agent-code">{name}</strong>
+      <span className="agent-title">{role.title}</span>
+      <span className="agent-desc">{role.desc}</span>
+      <span className="agent-last">{lastLabel}</span>
+      <span className="lp-team-more">Open →</span>
+    </button>
   )
 }
 
@@ -418,7 +445,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   // orchestration lives in the composer above. Show only the seven specialists.
   const roster = ROLE_AGENTS.filter((r) => r.id !== 'chief').map((r) => byRole(r.id)).filter(Boolean) as typeof agents
   return (
-    <div className="dash-panels">
+    <div className="dash-panels" style={{ ['--dc' as string]: ROLE_BY_ID.chief.tint }}>
       <div className="dash-hero">
         <div>
           <h2>{account?.name || 'Your'} · {dojo?.name || 'Dojo'} {isAdmin(account ?? null) && <span className="admin-badge" title="Admin account · unlimited free testing">ADMIN · unlimited</span>}</h2>
@@ -458,7 +485,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         <span className="muted small">Seven AI specialists · click one to open it. Chief (you) coordinates them from the box above.</span>
       </div>
       <div className="lp-studioteam agent-roster">
-        {roster.map((a) => {
+        {roster.map((a, i) => {
           const r = ROLE_BY_ID[canonicalRole(a.role)]
           if (!r) return null
           const tasks = AGENT_TASKS[r.id] ?? []
@@ -468,14 +495,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           const status = engine.paused ? 'Paused' : working ? 'Working…' : last ? 'Active' : 'Ready'
           const statusMod = engine.paused ? 'paused' : working ? 'working' : last ? 'active' : 'ready'
           return (
-            <button key={a.id} className="lp-studiocard agent-card" style={{ ['--ac' as string]: r.tint }} onClick={() => selectAgent(a.id)}>
-              <strong className="agent-code">{a.name}</strong>
-              <span className="agent-title">{r.title}</span>
-              <span className="agent-desc">{r.desc}</span>
-              <span className={`agent-status s-${statusMod}`}><i />{status}</span>
-              <span className="agent-last">{relTime(last)}</span>
-              <span className="agent-action">Open →</span>
-            </button>
+            <RosterCard key={a.id} role={r} name={a.name} status={status} statusMod={statusMod} lastLabel={relTime(last)} phase={i * 0.6} onOpen={() => selectAgent(a.id)} />
           )
         })}
       </div>

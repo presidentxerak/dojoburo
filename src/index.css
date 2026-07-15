@@ -2975,13 +2975,17 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .modhost-body > * { max-width: 1080px; margin-left: auto; margin-right: auto; }
 
 /* Squarespace-style components, scoped to a studio */
-.modhost-fs .btn, .modhost-fs button.btn { border-radius: 8px; font-family: var(--font-ui); font-weight: 700; }
-.modhost-fs .btn.primary, .modhost-fs .btn.ceo-launch { background: var(--ink); color: var(--bg); border: none; border-radius: 999px; padding: 12px 22px; }
-.modhost-fs .btn.primary:hover { filter: brightness(1.1); }
-.modhost-fs input, .modhost-fs textarea, .modhost-fs select {
+.modhost-fs .btn, .modhost-fs button.btn,
+.studio-page .btn, .studio-page button.btn { border-radius: 8px; font-family: var(--font-ui); font-weight: 700; }
+.modhost-fs .btn.primary, .modhost-fs .btn.ceo-launch,
+.studio-page .btn.primary { background: var(--ink); color: var(--bg); border: none; border-radius: 999px; padding: 12px 22px; }
+.modhost-fs .btn.primary:hover, .studio-page .btn.primary:hover { filter: brightness(1.1); }
+.modhost-fs input, .modhost-fs textarea, .modhost-fs select,
+.studio-page .studio-page-scroll input, .studio-page .studio-page-scroll textarea, .studio-page .studio-page-scroll select {
   border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); font-family: var(--font-ui); font-size: 16px; padding: 11px 13px;
 }
-.modhost-fs input:focus, .modhost-fs textarea:focus, .modhost-fs select:focus { outline: none; border-color: var(--dc); }
+.modhost-fs input:focus, .modhost-fs textarea:focus, .modhost-fs select:focus,
+.studio-page .studio-page-scroll input:focus, .studio-page .studio-page-scroll textarea:focus, .studio-page .studio-page-scroll select:focus { outline: none; border-color: var(--dc, #7b5cff); }
 .sq-card { background: var(--panel-solid); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 1px 2px rgba(20,18,40,.04), 0 10px 30px rgba(20,18,40,.05); }
 .sq-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--ink); background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; }
 
@@ -3030,6 +3034,23 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .agent-card .agent-last { font-size: 14px; color: var(--muted); opacity: 0.85; margin-top: 2px; }
 .agent-card .agent-action { margin-top: 12px; align-self: stretch; text-align: center; padding: 9px 12px; border-radius: 12px; background: var(--ink); color: var(--bg); font-weight: 800; font-size: 14px; }
 .agent-card:hover .agent-action { filter: brightness(1.12); }
+
+/* CEO roster · the landing team card (3D portrait) plus a management status
+   pill floated top-right, and a full-width "Open →" affordance. */
+.agent-roster .agent-card { padding-top: 14px; }
+.agent-roster .agent-card .lp-team-3d { width: 100%; height: 120px; margin: 0 auto 2px; }
+.agent-roster .agent-card .agent-status {
+  position: absolute; top: 10px; right: 10px; margin: 0; z-index: 2;
+  padding: 4px 9px; border-radius: 999px; font-size: 12px;
+  background: color-mix(in srgb, var(--panel-solid) 78%, transparent);
+  border: 1px solid var(--border); backdrop-filter: blur(4px);
+}
+.agent-roster .agent-card .lp-team-more {
+  margin-top: 12px; align-self: stretch; text-align: center; padding: 9px 12px;
+  border-radius: 12px; background: var(--ink); color: var(--bg); font-weight: 800; font-size: 14px;
+}
+.agent-roster .agent-card:hover .lp-team-more { filter: brightness(1.12); }
+:root[data-theme="dark"] .agent-roster .agent-card .lp-team-more { background: #fff; color: #000; }
 
 /* Composite studio switcher (Marketus / Busino) reuses the .sq-steps pill row */
 .studio-switch { margin-bottom: 14px; }
@@ -3373,7 +3394,9 @@ input, textarea, select, button { border-radius: 0 !important; }
 .modhost-blurb { font-size: 14px !important; }
 
 /* ===== Header v3: logo home link + Connect Apps nav button ===== */
-.brand-home { display: inline-flex; line-height: 0; cursor: pointer; text-decoration: none; }
+.brand-home { display: inline-flex; line-height: 0; cursor: pointer; text-decoration: none; background: none; border: none; padding: 0; }
+.brand-name { background: none; border: none; padding: 0; margin: 0; cursor: pointer; font: inherit; color: inherit; display: inline-flex; align-items: center; }
+.brand-name:hover, .brand-home:hover { opacity: 0.72; }
 .tb-navlink { background: none; border: none; cursor: pointer; font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: #000; padding: 6px 9px; }
 .tb-navlink:hover { opacity: 0.6; }
 
@@ -3832,8 +3855,8 @@ select.cc-input { flex: 1; min-width: 0; }
 .lp-menu-auth .lp-cta { flex: 1; }
 /* on narrow screens the inline auth buttons collapse into the burger menu */
 @media (max-width: 960px) { .lp-auth-btn { display: none; } }
-/* the dojo brand no longer navigates anywhere */
-.topbar .brand-home { cursor: default; }
+/* the dojo brand links back to the landing page */
+.topbar .brand-home { cursor: pointer; }
 
 /* =====================================================================
    SEO / GROWTH studios (Semrush-style) · Growth Studio + Business Studio
@@ -4152,18 +4175,21 @@ select.cc-input { flex: 1; min-width: 0; }
    body text and eyebrows match. Appended last → wins the cascade.
    ===================================================================== */
 .modhost-fs .sq-title,
-.modhost-fs .se-head h3 {
+.modhost-fs .se-head h3,
+.studio-page .sq-title {
   font-family: var(--font-pixel) !important; font-weight: 800 !important;
   font-size: 26px !important; letter-spacing: -0.01em !important; line-height: 1.15 !important;
   color: var(--ink) !important; margin: 0 !important;
 }
 .modhost-fs .sq-lead,
-.modhost-fs .se-lead {
+.modhost-fs .se-lead,
+.studio-page .sq-lead {
   font-size: 15px !important; font-weight: 400 !important; color: var(--muted) !important;
   line-height: 1.5 !important; max-width: 68ch;
 }
 .modhost-fs .sq-eyebrow,
-.modhost-fs .se-eyebrow {
+.modhost-fs .se-eyebrow,
+.studio-page .sq-eyebrow {
   font-family: var(--font-pixel) !important; font-weight: 800 !important;
   font-size: 13px !important; letter-spacing: 0.1em !important; text-transform: uppercase !important;
   color: var(--muted) !important;
@@ -4172,8 +4198,8 @@ select.cc-input { flex: 1; min-width: 0; }
 .modhost-fs .se-card-h h4,
 .modhost-fs .brand-h { font-family: var(--font-pixel) !important; font-weight: 800 !important; font-size: 16px !important; color: var(--ink) !important; }
 @media (max-width: 720px) {
-  .modhost-fs .sq-title, .modhost-fs .se-head h3 { font-size: 22px !important; }
-  .modhost-fs .sq-lead, .modhost-fs .se-lead { font-size: 14px !important; }
+  .modhost-fs .sq-title, .modhost-fs .se-head h3, .studio-page .sq-title { font-size: 22px !important; }
+  .modhost-fs .sq-lead, .modhost-fs .se-lead, .studio-page .sq-lead { font-size: 14px !important; }
 }
 
 /* =====================================================================
