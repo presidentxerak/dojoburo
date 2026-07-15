@@ -11,8 +11,8 @@ import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import {
-  type BrandKit, type LogoLayout, defaultKit, loadBrandKit, saveBrandKit,
-  generatePalette, logoSvg, SCHEMES, SHAPES, FONT_PAIRS,
+  type BrandKit, defaultKit, loadBrandKit, saveBrandKit,
+  generatePalette, logoSvg, FONT_PAIRS,
 } from '../../lib/brand'
 import {
   type BrandProfile, type DomainResult, researchProfile, generateKeywords, combineNames,
@@ -21,13 +21,12 @@ import {
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
 
-type Step = 'concept' | 'naming' | 'domain' | 'identity' | 'export'
+type Step = 'concept' | 'naming' | 'domain' | 'export'
 const STEPS: { id: Step; label: string }[] = [
   { id: 'concept', label: 'Concept' },
   { id: 'naming', label: 'Naming' }, { id: 'domain', label: 'Availability' },
-  { id: 'identity', label: 'Identity' }, { id: 'export', label: 'Export' },
+  { id: 'export', label: 'Export' },
 ]
-const LAYOUTS: LogoLayout[] = ['mark-left', 'mark-top', 'mark-only', 'text-only']
 
 // "Where do you start?" · like Shiverbrand, the founder picks an entry point so
 // the pipeline only asks for what they still need.
@@ -131,11 +130,27 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     setSaved(true)
     pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name}" is now your brand · reused by the Website and Marketing studios.` })
   }
-  // entering Identity: seed a palette hue from the brand name (unless the user
-  // already tuned one) so the first colours feel on-brand, not the default.
-  const goIdentity = () => {
-    setKit((k) => (k.hue === defaultKit('x').hue ? { ...k, hue: hueFrom(k.name || 'brand'), palette: generatePalette(hueFrom(k.name || 'brand'), k.scheme) } : k))
-    setStep('identity')
+  // Finish · auto-seed an on-brand palette + logo from the name (colours &
+  // styling are refined in the Website studio; the logo can be re-imported
+  // there too), save the kit, and go to Export.
+  const finishBrand = () => {
+    setKit((k) => {
+      const next = k.hue === defaultKit('x').hue
+        ? { ...k, hue: hueFrom(k.name || 'brand'), palette: generatePalette(hueFrom(k.name || 'brand'), k.scheme) }
+        : k
+      void saveBrandKit(dojoId, next)
+      return next
+    })
+    setSaved(true)
+    setStep('export')
+    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name || 'Your brand'}" is ready · its colours power the Website studio.` })
+  }
+  // import a custom logo (PNG/SVG) · stored on the kit, reused everywhere
+  const importLogo = (file: File) => {
+    if (file.size > 500_000) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Logo too large', text: 'Please use an image under 500 KB.' }); return }
+    const r = new FileReader()
+    r.onload = () => { patch({ logoDataUrl: String(r.result) }); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Logo imported', text: 'Your logo now replaces the generated mark.' }) }
+    r.readAsDataURL(file)
   }
   // downloads
   const downloadLogo = () => {
@@ -158,14 +173,13 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const advance = () => {
     if (step === 'concept') {
       setProfile(researchProfile(descSrc()))
-      // "I have a name" branches skip the name-finding steps.
-      if (startMode === 'name-domain') return goIdentity()
+      // "I have a name & domain" skips straight to Export (finish + save).
+      if (startMode === 'name-domain') return finishBrand()
       if (startMode === 'name-only') return void chooseName(kit.name.trim() || descSrc())
       return generateProfile() // scratch / domain-only → Naming
     }
     if (step === 'naming') { void recheck(); return setStep('domain') }
-    if (step === 'domain') return goIdentity()
-    if (step === 'identity') { void saveName(); return setStep('export') }
+    if (step === 'domain') return finishBrand()
     if (step === 'export') return void saveName()
   }
   const goBack = () => { if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id) }
@@ -173,9 +187,8 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     : step === 'naming' ? !!kit.name.trim()
     : true
   const nextLabel = step === 'concept'
-      ? (startMode === 'name-domain' ? 'Design identity →' : startMode === 'name-only' ? 'Check availability →' : 'Generate research profile →')
-    : step === 'domain' ? 'Design identity'
-    : step === 'identity' ? 'Save & export'
+      ? (startMode === 'name-domain' ? 'Finish brand →' : startMode === 'name-only' ? 'Check availability →' : 'Generate research profile →')
+    : step === 'domain' ? 'Finish & export'
     : step === 'export' ? 'Save brand' : 'Next'
 
   return (
@@ -329,36 +342,28 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
         </section>
       )}
 
-      {step === 'identity' && (
-        <section className="sq-panel">
-          <h3 className="sq-title">Brand identity · <span style={{ color: 'var(--dc)' }}>{kit.name}</span></h3>
-          <p className="sq-lead">Your logo, colours and fonts. Saved to the Brand Kit and reused <b>automatically</b> by the Website &amp; Marketing studios.</p>
-          <div className="bi-logo" dangerouslySetInnerHTML={{ __html: logoSvg(kit, kit.layout, 300) }} />
-          <label className="sq-field">Tagline
-            <input value={kit.tagline} maxLength={48} onChange={(e) => patch({ tagline: e.target.value })} />
-          </label>
-          <div className="sq-eyebrow">Colour hue</div>
-          <input className="bi-hue" type="range" min={0} max={359} value={kit.hue} onChange={(e) => { const hue = Number(e.target.value); patch({ hue, palette: generatePalette(hue, kit.scheme) }) }} />
-          <div className="bi-swatches">{Object.entries(kit.palette).map(([k, c]) => <span key={k} className="bi-sw" style={{ background: c }} title={`${k} · ${c}`} />)}</div>
-          <div className="sq-eyebrow">Harmony</div>
-          <div className="bw-cloud">{SCHEMES.map((s) => <button key={s.id} className={`bw-chip${kit.scheme === s.id ? ' on' : ''}`} onClick={() => patch({ scheme: s.id, palette: generatePalette(kit.hue, s.id) })}>{s.label}</button>)}</div>
-          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Logo mark</div>
-          <div className="bw-cloud">{SHAPES.map((s) => <button key={s.id} className={`bw-chip${kit.shape === s.id ? ' on' : ''}`} onClick={() => patch({ shape: s.id })}>{s.label}</button>)}</div>
-          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Layout</div>
-          <div className="bw-cloud">{LAYOUTS.map((l) => <button key={l} className={`bw-chip${kit.layout === l ? ' on' : ''}`} onClick={() => patch({ layout: l })}>{l.replace('-', ' ')}</button>)}</div>
-          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Fonts</div>
-          <div className="bw-cloud">{FONT_PAIRS.map((f) => <button key={f.id} className={`bw-chip${kit.fontId === f.id ? ' on' : ''}`} onClick={() => patch({ fontId: f.id })}>{f.label}</button>)}</div>
-        </section>
-      )}
-
       {step === 'export' && (
         <section className="sq-panel">
-          <h3 className="sq-title">Export your brand</h3>
-          <p className="sq-lead">Your brand is saved and already powers your <b>Website</b> &amp; <b>Marketing</b> studios. Download the assets here, or save your whole project (all studios &amp; assets) as a <b>.dojo</b> file in Dojo Studio → Review.</p>
-          <div className="bi-logo" dangerouslySetInnerHTML={{ __html: logoSvg(kit, kit.layout, 320) }} />
+          <h3 className="sq-title">Your brand is ready</h3>
+          <p className="sq-lead">Saved as <b style={{ color: 'var(--dc)' }}>{kit.name || 'your brand'}</b>. Its colours already power your <b>Website</b> &amp; <b>Marketing</b> studios — you fine-tune styles there. Use the auto-generated logo, or import your own. Save the whole project (all studios &amp; assets) as a <b>.dojo</b> file in Dojo Studio → Review.</p>
+          <div className="bi-logo">
+            {kit.logoDataUrl
+              ? <img src={kit.logoDataUrl} alt={`${kit.name} logo`} style={{ maxWidth: '100%', maxHeight: 200, objectFit: 'contain' }} />
+              : <span dangerouslySetInnerHTML={{ __html: logoSvg(kit, kit.layout, 320) }} />}
+          </div>
           <div className="bi-swatches">{Object.entries(kit.palette).map(([k, c]) => <span key={k} className="bi-sw" style={{ background: c }} title={`${k} · ${c}`} />)}</div>
-          <div className="sq-cta-row" style={{ marginTop: 14 }}>
-            <button className="sq-cta" onClick={downloadLogo}>Download logo (SVG)</button>
+          <label className="sq-field" style={{ marginTop: 6 }}>Tagline
+            <input value={kit.tagline} maxLength={48} onChange={(e) => patch({ tagline: e.target.value })} />
+          </label>
+          <div className="sq-cta-row" style={{ marginTop: 6 }}>
+            <label className="sq-cta">
+              {kit.logoDataUrl ? 'Replace my logo' : 'Import my logo (PNG/SVG)'}
+              <input type="file" accept="image/png,image/svg+xml,image/jpeg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importLogo(f); e.currentTarget.value = '' }} />
+            </label>
+            {kit.logoDataUrl && <button className="sq-cta ghost" onClick={() => patch({ logoDataUrl: undefined })}>Use generated logo</button>}
+          </div>
+          <div className="sq-cta-row">
+            <button className="sq-cta ghost" onClick={downloadLogo}>Download logo (SVG)</button>
             <button className="sq-cta ghost" onClick={downloadGuidelines}>Brand guidelines (HTML)</button>
           </div>
           {saved && <StudioNext from="brandi" done={`"${kit.name}" saved · your Website studio now uses this brand.`} />}

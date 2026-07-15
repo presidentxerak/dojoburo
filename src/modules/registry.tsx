@@ -7,7 +7,7 @@ import type { ComponentType } from 'react'
 // into the main chunk, a module always renders as long as the app shell loads.
 import BrandingModule from './branding/BrandingModule'
 import WebsiteModule from './website/WebsiteModule'
-import CRMModule from './crm/CRMModule'
+import GrowthModule from './growth/GrowthModule'
 import MarketusModule from './marketing/MarketusModule'
 import BusinoModule from './business/BusinoModule'
 import ChiefModule from './chief/ChiefModule'
@@ -46,7 +46,7 @@ export const MODULES: ModuleDef[] = [
   },
   {
     id: 'branding', label: 'Brand Studio',
-    blurb: 'Finds available brand names, domains and .com availability for your brand.',
+    blurb: 'Names, domains, .com availability and an auto brand kit · colours flow into your site.',
     tint: '#a855f7', emoji: '🎨', agentRole: 'brandi', status: 'live', comp: BrandingModule,
   },
   {
@@ -61,12 +61,12 @@ export const MODULES: ModuleDef[] = [
   },
   {
     id: 'crm', label: 'Growth Studio',
-    blurb: 'Leads, pipeline, personalised email sequences and outreach · 100% local.',
-    tint: '#d98c17', emoji: '🤝', agentRole: 'pumpi', status: 'live', comp: CRMModule,
+    blurb: 'SEO suite for your site: keyword research, rank tracking, site audit, backlinks & leads.',
+    tint: '#d98c17', emoji: '📈', agentRole: 'pumpi', status: 'live', comp: GrowthModule,
   },
   {
     id: 'business', label: 'Business Studio',
-    blurb: 'One dashboard: finance (revenue, VAT, forecasts) and analytics (CAC, LTV, ROI).',
+    blurb: 'Traffic analytics, competitors, AI visibility, plus finance (VAT, forecasts) and analytics.',
     tint: '#1fa563', emoji: '📊', agentRole: 'busino', status: 'live', comp: BusinoModule,
   },
   {

@@ -23,6 +23,8 @@ export interface BrandKit {
   fontId: string
   shape: MarkShape
   layout: LogoLayout
+  /** optional imported logo (data URL) · overrides the generated mark when set */
+  logoDataUrl?: string
   updatedAt: number
 }
 
