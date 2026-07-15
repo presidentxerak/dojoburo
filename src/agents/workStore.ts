@@ -27,6 +27,9 @@ interface WorkState {
   studioIntent: null | 'billing' | 'account' | 'studio'
   /** when set, the Studio opens with this agent pre-selected for editing */
   studioAgentId: string | null
+  /** deep-link: open a composite studio (Business / Growth) on a specific sub-tab
+   *  (e.g. 'finance', 'analytics', 'leads') · read + cleared by the module on mount */
+  moduleTab: string | null
   /** the autonomous CEO run: which step is in flight (label) + whether it's active */
   autopilot: { running: boolean; step: string | null }
   /** signal: open the "create a Dojo" flow (from the header/landing Create button) */
@@ -45,6 +48,7 @@ interface WorkState {
   /** open the Studio editor focused on a specific agent */
   editAgent: (agentId: string) => void
   clearStudioIntent: () => void
+  setModuleTab: (tab: string | null) => void
   openCreate: () => void
   clearCreate: () => void
 }
@@ -59,6 +63,7 @@ export const useWork = create<WorkState>((set, get) => ({
   runError: null,
   studioIntent: null,
   studioAgentId: null,
+  moduleTab: null,
   autopilot: { running: false, step: null },
   createIntent: false,
 
@@ -115,6 +120,7 @@ export const useWork = create<WorkState>((set, get) => ({
   openStudio: (tab) => { set({ studioIntent: tab }); try { location.hash = 'studio' } catch { /* ignore */ } },
   editAgent: (agentId) => { set({ studioIntent: 'studio', studioAgentId: agentId }); try { location.hash = 'studio' } catch { /* ignore */ } },
   clearStudioIntent: () => set({ studioIntent: null, studioAgentId: null }),
+  setModuleTab: (tab) => set({ moduleTab: tab }),
   openCreate: () => set({ createIntent: true }),
   clearCreate: () => set({ createIntent: false }),
 }))

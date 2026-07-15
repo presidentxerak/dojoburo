@@ -193,6 +193,27 @@ export function setPath<T>(obj: T, path: string, value: unknown): T {
   return clone as T
 }
 
+// The same block HTML, but tagged with data-b (block id) + data-lbl so the
+// live editor can make each section clickable in the preview iframe.
+export function blockHtmlTagged(b: Block): string {
+  return blockHtml(b).replace(/^(\s*<(?:section|footer)\b)/, `$1 data-b="${b.id}" data-lbl="${esc(BLOCK_LABELS[b.type])}"`)
+}
+
+// Injected only into the EDITING preview (never the export): a hover/selection
+// outline and a click→postMessage bridge so clicking a section selects it in the
+// builder, plus a listener the builder uses to highlight the current section.
+const EDIT_CSS = `
+[data-b]{position:relative;cursor:pointer}
+[data-b]:hover{outline:2px dashed color-mix(in srgb,var(--brand-accent,#2f6bff) 55%,transparent);outline-offset:-2px}
+[data-b].__sel{outline:2px solid var(--brand-accent,#2f6bff);outline-offset:-2px}
+[data-b].__sel::after{content:attr(data-lbl);position:absolute;top:0;left:0;background:var(--brand-accent,#2f6bff);color:#fff;font:700 11px/1.5 system-ui,sans-serif;padding:2px 9px;border-bottom-right-radius:7px;z-index:99;pointer-events:none}
+`
+const EDIT_JS = `<script>(function(){
+function send(id){try{parent.postMessage({__ds:'select',id:id},'*')}catch(e){}}
+document.addEventListener('click',function(e){var t=e.target;var el=t&&t.closest?t.closest('[data-b]'):null;if(!el)return;e.preventDefault();e.stopPropagation();send(el.getAttribute('data-b'))},true);
+window.addEventListener('message',function(e){var d=e.data||{};if(d.__ds!=='sel')return;var prev=document.querySelector('[data-b].__sel');if(prev)prev.classList.remove('__sel');if(!d.id)return;var el=document.querySelector('[data-b="'+d.id+'"]');if(!el)return;el.classList.add('__sel');if(d.scroll)el.scrollIntoView({behavior:'smooth',block:'center'})});
+})();</scr`+`ipt>`
+
 // ---- render one block to HTML ---------------------------------------------
 export function blockHtml(b: Block): string {
   const p = b.props
@@ -242,41 +263,42 @@ export function blockHtml(b: Block): string {
 
 // ---- base site CSS (uses Brand Kit variables) ------------------------------
 const BASE_SITE_CSS = `
-*{box-sizing:border-box}body{margin:0;font-family:var(--brand-body,system-ui);color:var(--brand-ink,#111);background:var(--brand-bg,#fff);line-height:1.55}
-.b{padding:64px 24px;max-width:1080px;margin:0 auto}
-h1,h2,h3{font-family:var(--brand-heading,inherit);margin:0 0 12px}
-h1{font-size:44px}h2{font-size:30px;text-align:center}
-.btn{display:inline-block;background:var(--brand-accent,#3355ff);color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:700;border:none;cursor:pointer}
-.b-hero{text-align:center;padding:96px 24px;background:linear-gradient(135deg,var(--brand-primary,#5b6)15%,var(--brand-accent,#39c));color:#fff;max-width:none}
-.b-hero h1{color:#fff}.b-hero p{font-size:19px;opacity:.92;max-width:620px;margin:0 auto 24px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px}
-.card{background:#fff;border:1px solid #0001;border-radius:14px;padding:22px;box-shadow:0 6px 18px #0000000d}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}img,video{max-width:100%;height:auto;display:block}
+body{margin:0;font-family:var(--brand-body,system-ui);color:var(--brand-ink,#111);background:var(--brand-bg,#fff);line-height:1.55;overflow-x:hidden}
+.b{padding:clamp(40px,7vw,64px) clamp(16px,4vw,24px);width:100%;max-width:1080px;margin:0 auto}
+h1,h2,h3{font-family:var(--brand-heading,inherit);margin:0 0 12px;overflow-wrap:break-word}
+h1{font-size:clamp(30px,5.4vw,44px);line-height:1.08}h2{font-size:clamp(24px,3.6vw,30px);text-align:center}
+.btn{display:inline-block;background:var(--brand-accent,#3355ff);color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:700;border:none;cursor:pointer;max-width:100%}
+.b-hero{text-align:center;padding:clamp(64px,11vw,96px) clamp(16px,4vw,24px);background:linear-gradient(135deg,var(--brand-primary,#5b6)15%,var(--brand-accent,#39c));color:#fff;max-width:none}
+.b-hero h1{color:#fff}.b-hero p{font-size:clamp(16px,2.2vw,19px);opacity:.92;max-width:620px;margin:0 auto 24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:clamp(12px,2vw,18px);margin-top:24px}
+.card{background:#fff;border:1px solid #0001;border-radius:14px;padding:clamp(16px,2.5vw,22px);box-shadow:0 6px 18px #0000000d;min-width:0}
 .card h3{color:var(--brand-primary,#333)}
-.tier{background:#fff;border:1px solid #0001;border-radius:14px;padding:24px;text-align:center;box-shadow:0 6px 18px #0000000d}
+.tier{background:#fff;border:1px solid #0001;border-radius:14px;padding:clamp(18px,2.5vw,24px);text-align:center;box-shadow:0 6px 18px #0000000d;min-width:0}
 .tier.feat{border:2px solid var(--brand-accent,#39c);transform:scale(1.03)}
-.tier .price{font-size:34px;font-weight:800;color:var(--brand-primary,#333);margin:6px 0 12px}
+.tier .price{font-size:clamp(28px,4vw,34px);font-weight:800;color:var(--brand-primary,#333);margin:6px 0 12px}
 .tier ul{list-style:none;padding:0;margin:0 0 18px;text-align:left}.tier li{padding:6px 0;border-bottom:1px solid #0000000d}
 .b-cta{text-align:center;background:var(--brand-primary,#222);color:#fff;border-radius:0;max-width:none}
 .b-cta h2,.b-cta p{color:#fff}
 .b-form .formx{display:flex;flex-direction:column;gap:10px;max-width:460px;margin:18px auto 0}
-.b-form input,.b-form textarea{padding:12px;border:1px solid #0002;border-radius:10px;font:inherit}
+.b-form input,.b-form textarea{padding:12px;border:1px solid #0002;border-radius:10px;font:inherit;width:100%}
 .b-text{max-width:720px;text-align:center}
 .b-gallery .ph{aspect-ratio:1;border-radius:12px;background:linear-gradient(135deg,var(--brand-primary,#889),var(--brand-accent,#39c));opacity:calc(.55 + var(--i)*.06)}
 .b-image,.b-video{text-align:center}
-.b-image img,.b-video video{max-width:100%;border-radius:14px;box-shadow:0 8px 30px #0000001a}
+.b-image img,.b-video video{width:100%;max-width:100%;border-radius:14px;box-shadow:0 8px 30px #0000001a}
 .b-image .ph,.b-video .ph{aspect-ratio:16/9;border-radius:14px;background:linear-gradient(135deg,var(--brand-primary,#889),var(--brand-accent,#39c));display:flex;align-items:center;justify-content:center;color:#fff;font-size:34px}
 .b-image .cap,.b-video .cap{margin-top:10px;color:#0009;font-size:15px}
 .b-footer{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid #0001;color:#0009}
-.b-footer nav{display:flex;gap:16px}.b-footer a{color:inherit;text-decoration:none}
-@media(max-width:720px){.grid{grid-template-columns:1fr}h1{font-size:32px}.tier.feat{transform:none}}
+.b-footer nav{display:flex;gap:16px;flex-wrap:wrap}.b-footer a{color:inherit;text-decoration:none}
+@media(max-width:560px){.tier.feat{transform:none}.b-footer{justify-content:center;text-align:center}}
 `
 
 // per-layout overrides · what makes each template's sections & type feel unique
 const LAYOUT_CSS: Record<SiteLayout, string> = {
   centered: '',
-  left: `.b-hero{text-align:left;padding-left:24px}.b-hero p{margin-left:0;margin-right:0}h2{text-align:left}.b{max-width:1120px}.grid{grid-template-columns:repeat(3,1fr)}.tier{text-align:left}`,
-  editorial: `.b{max-width:840px}h1{font-size:54px;letter-spacing:-.02em;line-height:1.05}h2{font-size:34px;text-align:left}.b-hero{background:none;color:var(--brand-ink);text-align:left;padding:88px 24px 44px;border-bottom:1px solid #0001}.b-hero h1{color:var(--brand-ink)}.b-hero p{margin:0;max-width:62ch;opacity:.8}.b-hero .btn{margin-top:8px}.grid{grid-template-columns:1fr 1fr}.card,.tier{box-shadow:none;border:1px solid #0002}`,
-  bold: `h1{font-size:76px;font-weight:900;letter-spacing:-.03em;line-height:.96}h2{font-size:46px}.b-hero{padding:128px 24px}.b-hero p{font-size:22px}.btn{border-radius:0;padding:16px 30px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}.card,.tier{border-radius:0}.b-cta h2{font-size:52px}@media(max-width:720px){h1{font-size:44px}}`,
+  left: `.b-hero{text-align:left;padding-left:clamp(16px,4vw,24px)}.b-hero p{margin-left:0;margin-right:0}h2{text-align:left}.b{max-width:1120px}.grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}.tier{text-align:left}`,
+  editorial: `.b{max-width:840px}h1{font-size:clamp(34px,6vw,54px);letter-spacing:-.02em;line-height:1.05}h2{font-size:clamp(26px,4vw,34px);text-align:left}.b-hero{background:none;color:var(--brand-ink);text-align:left;padding:clamp(56px,10vw,88px) clamp(16px,4vw,24px) 44px;border-bottom:1px solid #0001}.b-hero h1{color:var(--brand-ink)}.b-hero p{margin:0;max-width:62ch;opacity:.8}.b-hero .btn{margin-top:8px}.grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}.card,.tier{box-shadow:none;border:1px solid #0002}`,
+  bold: `h1{font-size:clamp(42px,9vw,76px);font-weight:900;letter-spacing:-.03em;line-height:.96}h2{font-size:clamp(32px,6vw,46px)}.b-hero{padding:clamp(72px,15vw,128px) clamp(16px,4vw,24px)}.b-hero p{font-size:clamp(17px,2.6vw,22px)}.btn{border-radius:0;padding:16px 30px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}.card,.tier{border-radius:0}.b-cta h2{font-size:clamp(34px,7vw,52px)}`,
 }
 
 /** The resolved heading/body font-family strings for a site (Google override → preset). */
@@ -295,12 +317,17 @@ function siteVarsCss(site: SiteDoc): string {
   return `:root{--brand-heading:${fam.heading};--brand-body:${fam.body}}\n${BASE_SITE_CSS}\n${LAYOUT_CSS[site.layout ?? 'centered']}\n${hw}${bs}`
 }
 
-/** A complete standalone HTML document · used for the iframe AND the export. */
-export function fullDoc(site: SiteDoc, kit: BrandKit): string {
-  const body = site.blocks.map(blockHtml).join('\n')
+/** A complete standalone HTML document · used for the iframe AND the export.
+ *  With { editable: true } each section becomes clickable (click-to-select in the
+ *  builder); that mode is never used for the exported file. */
+export function fullDoc(site: SiteDoc, kit: BrandKit, opts?: { editable?: boolean }): string {
+  const editable = !!opts?.editable
+  const body = site.blocks.map(editable ? blockHtmlTagged : blockHtml).join('\n')
   const href = googleFontsHref([site.headingFont ?? '', site.bodyFont ?? ''])
   const gimport = href ? `@import url('${href}');\n` : ''
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${gimport}${kitCss(kit)}\n${siteVarsCss(site)}</style></head><body>${body}</body></html>`
+  const editStyle = editable ? EDIT_CSS : ''
+  const editScript = editable ? EDIT_JS : ''
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${gimport}${kitCss(kit)}\n${siteVarsCss(site)}${editStyle}</style></head><body>${body}${editScript}</body></html>`
 }
 
 // ---- inspector fields per block --------------------------------------------

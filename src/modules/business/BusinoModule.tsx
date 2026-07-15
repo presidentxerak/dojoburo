@@ -2,9 +2,10 @@
 // (Finance & Analytics) sits next to a Semrush-style market read-out of the
 // dojo's website: traffic analytics, the competitive landscape and AI
 // visibility. Everything is computed locally from your own site & data.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
+import { useWork } from '../../agents/workStore'
 import FinanceModule from '../finance/FinanceModule'
 import AnalyticsModule from '../analytics/AnalyticsModule'
 import { useSeoData, TrafficAnalytics, Competitors, AiVisibilityPanel } from '../seo/SeoTools'
@@ -21,6 +22,11 @@ const TABS: { id: Tab; label: string; sub: string }[] = [
 export default function BusinoModule({ dojoId, onClose }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'My company'
   const [tab, setTab] = useState<Tab>('traffic')
+  // deep-link: open directly on a sub-tab (e.g. Finance / Analytics from the CEO)
+  useEffect(() => {
+    const t = useWork.getState().moduleTab
+    if (t && TABS.some((x) => x.id === t)) { setTab(t as Tab); useWork.getState().setModuleTab(null) }
+  }, [])
   const bundle = useSeoData(dojoId, dojoName)
   const isSeo = tab === 'traffic' || tab === 'competitors' || tab === 'ai'
   return (

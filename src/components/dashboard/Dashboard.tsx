@@ -444,6 +444,14 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   // This IS the CEO/Chief page, so we don't show a Chief card · the Chief
   // orchestration lives in the composer above. Show only the seven specialists.
   const roster = ROLE_AGENTS.filter((r) => r.id !== 'chief').map((r) => byRole(r.id)).filter(Boolean) as typeof agents
+  // Quick-access: open the owning agent's studio directly on a specific sub-tab
+  // (Finance/Analytics live in Business Studio · Leads in Growth Studio).
+  const openPage = (roleId: string, moduleTab: string) => {
+    const a = byRole(roleId)
+    if (!a) return
+    useWork.getState().setModuleTab(moduleTab)
+    selectAgent(a.id)
+  }
   return (
     <div className="dash-panels" style={{ ['--dc' as string]: ROLE_BY_ID.chief.tint }}>
       <div className="dash-hero">
@@ -466,6 +474,13 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         <div className="biz-tile"><span>{delivs.filter((d) => d.taskId === 'outreach').length}</span><em>outreach</em></div>
         <div className="biz-tile"><span>{tasksDone}</span><em>deliverables</em></div>
         <div className="biz-tile"><span>{connectedCount}</span><em>apps</em></div>
+      </div>
+
+      {/* Quick access · jump straight to the company's key pages */}
+      <div className="dash-quicklinks">
+        <button className="dash-qlink" onClick={() => openPage('busino', 'finance')}>Finance <span>Revenue, VAT, cash, forecasts</span></button>
+        <button className="dash-qlink" onClick={() => openPage('busino', 'analytics')}>Analytics <span>CAC, LTV, ROI, conversion</span></button>
+        <button className="dash-qlink" onClick={() => openPage('pumpi', 'leads')}>Leads <span>Pipeline &amp; outreach (CRM)</span></button>
       </div>
 
       {/* Chief quick action · the only orchestration entry point, above the roster */}

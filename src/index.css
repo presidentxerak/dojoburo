@@ -408,6 +408,13 @@ a:hover { text-decoration: underline; }
 .biz-tile span { font-family: var(--font-pixel); font-weight: 800; font-size: 20px; color: var(--ink); }
 .biz-tile em { font-style: normal; font-size: 12.5px; color: var(--muted); text-align: center; line-height: 1.25; }
 
+/* Quick-access chips · Finance / Analytics / Leads jump straight to their page */
+.dash-quicklinks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 18px; }
+.dash-qlink { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; background: var(--panel-solid); border: 1px solid var(--border); border-left: 2px solid var(--dc, #1fa563); border-radius: 12px; padding: 11px 14px; cursor: pointer; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: var(--ink); transition: transform 0.13s, border-color 0.13s, box-shadow 0.13s; }
+.dash-qlink span { font-family: var(--font-read); font-weight: 400; font-size: 12.5px; color: var(--muted); }
+.dash-qlink:hover { transform: translateY(-2px); border-color: var(--dc, #1fa563); box-shadow: 0 8px 18px rgba(30,25,60,0.1); }
+@media (max-width: 560px) { .dash-quicklinks { grid-template-columns: 1fr; } }
+
 .mission-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 2px 10px; }
 .mission-head h3 { margin: 0; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: var(--ink); }
 .mission-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
@@ -511,6 +518,12 @@ a:hover { text-decoration: underline; }
 .site-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; font-size: 16px; font-weight: 700; color: var(--muted); }
 .site-field input, .site-field textarea { font: inherit; font-size: 16px; font-weight: 400; color: var(--ink); background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
 .site-field input:focus, .site-field textarea:focus { outline: none; border-color: var(--dc); }
+/* in-place media controls for image / video sections */
+.site-media { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 12px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); }
+.site-media-thumb { width: 100%; max-height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+.site-media-ops { display: flex; flex-wrap: wrap; gap: 8px; }
+.site-media-prompt { font: inherit; font-size: 15px; color: var(--ink); background: var(--panel-solid); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+.site-media-prompt:focus { outline: none; border-color: var(--dc); }
 
 /* Campaign Studio */
 .camp-setup { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }

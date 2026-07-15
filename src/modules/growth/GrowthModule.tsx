@@ -2,9 +2,10 @@
 // grow the website the dojo built. Domain overview, keyword research, position
 // tracking, a real site audit and backlink analytics · plus the leads pipeline
 // (CRM) so acquisition and conversion live under one teammate. 100% local.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
+import { useWork } from '../../agents/workStore'
 import CRMModule from '../crm/CRMModule'
 import { useSeoData, SeoOverview, KeywordResearch, RankTracker, SiteAudit, Backlinks } from '../seo/SeoTools'
 
@@ -21,6 +22,11 @@ const TABS: { id: Tab; label: string; sub: string }[] = [
 export default function GrowthModule({ dojoId, onClose }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name) || 'My company'
   const [tab, setTab] = useState<Tab>('overview')
+  // deep-link: open directly on a sub-tab (e.g. Leads from the CEO dashboard)
+  useEffect(() => {
+    const t = useWork.getState().moduleTab
+    if (t && TABS.some((x) => x.id === t)) { setTab(t as Tab); useWork.getState().setModuleTab(null) }
+  }, [])
   const bundle = useSeoData(dojoId, dojoName)
 
   return (

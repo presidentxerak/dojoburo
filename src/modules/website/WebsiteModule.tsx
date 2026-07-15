@@ -2,7 +2,7 @@
 // version instantly (from the company name); the user edits every block, reorders
 // them, previews responsive, and exports a standalone .html · all in the browser.
 // The website automatically uses the saved Brand Kit (colours + fonts). No server.
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
@@ -61,8 +61,33 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const startBlank = () => { const s = generateSite(dojoName); setSite(s); setSel(s.blocks[0]?.id ?? null); setStep('design') }
   const templates = SITE_TEMPLATES.filter((t) => cat === 'All' || t.category === cat)
 
+  // The export/clean doc (no editor chrome) and the editable preview doc
+  // (each section clickable) · the design step renders the editable one.
   const doc = useMemo(() => (brand ? fullDoc(site, brand) : ''), [site, brand])
+  const editDoc = useMemo(() => (brand ? fullDoc(site, brand, { editable: true }) : ''), [site, brand])
   const selected = site.blocks.find((b) => b.id === sel) || null
+
+  // Click-to-select: the preview iframe posts the clicked section's id; we select
+  // it here. A ref mirrors `sel` so the iframe onLoad handler always re-highlights
+  // the current section after the srcDoc reloads (which happens on every edit).
+  const frameRef = useRef<HTMLIFrameElement>(null)
+  const selRef = useRef<string | null>(sel)
+  useEffect(() => { selRef.current = sel }, [sel])
+  useEffect(() => {
+    const onMsg = (e: MessageEvent) => {
+      const d = e.data as { __ds?: string; id?: string }
+      if (d && d.__ds === 'select' && d.id) setSel(d.id)
+    }
+    window.addEventListener('message', onMsg)
+    return () => window.removeEventListener('message', onMsg)
+  }, [])
+  // push the selection outline to the iframe (no scroll — avoids jumping while typing)
+  const postSel = (id: string | null, scroll: boolean) => {
+    frameRef.current?.contentWindow?.postMessage({ __ds: 'sel', id, scroll }, '*')
+  }
+  useEffect(() => { postSel(sel, false); /* re-outline after edits */ }, [sel, editDoc])
+  // selecting from the block list should scroll the preview to that section
+  const selectBlock = (id: string) => { setSel(id); postSel(id, true) }
 
   const mutate = (blocks: Block[]) => setSite((s) => ({ ...s, blocks }))
   const add = (type: BlockType) => { const b = makeBlock(type, site.name); mutate([...site.blocks, b]); setSel(b.id); setAddOpen(false) }
@@ -78,6 +103,25 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     const value: unknown = kind === 'lines' ? raw.split('\n').filter((x) => x.trim()) : kind === 'text' && path === 'count' ? Number(raw) || 0 : raw
     const props = setPath(selected.props, path, value)
     mutate(site.blocks.map((b) => (b.id === selected.id ? { ...b, props } : b)))
+  }
+  // Replace the media / props of the CURRENTLY SELECTED section in place
+  // (Squarespace-style · edit the section you clicked, not a new one).
+  const patchSelected = (patch: Record<string, unknown>) => {
+    if (!selected) return
+    mutate(site.blocks.map((b) => (b.id === selected.id ? { ...b, props: { ...b.props, ...patch } } : b)))
+  }
+  const replaceMedia = (file: File, kind: 'image' | 'video') => {
+    const cap = kind === 'image' ? 4_000_000 : 12_000_000
+    if (file.size > cap) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'File too large', text: `Keep ${kind}s under ${cap / 1_000_000} MB.` }); return }
+    const r = new FileReader()
+    r.onload = () => { patchSelected({ src: String(r.result) }); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `${kind === 'image' ? 'Image' : 'Video'} updated`, text: 'This section now uses your file.' }) }
+    r.readAsDataURL(file)
+  }
+  const aiImageOnSelected = () => {
+    const prompt = imgPrompt.trim() || `${site.name}, modern, professional, clean, high quality`
+    const seed = Math.floor(Math.random() * 1e6)
+    patchSelected({ src: `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1200&height=675&nologo=true&seed=${seed}`, alt: prompt })
+    pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'AI image set', text: 'Generated free (Pollinations) · a few seconds to render.' })
   }
 
   const regenerate = () => { const s = generateSite(dojoName); setSite(s); setSel(s.blocks[0]?.id ?? null); pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'First version generated', text: 'Edit each block, then export.' }) }
@@ -344,14 +388,21 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         </div>
       )}
 
-      {/* responsive preview (WYSIWYG === export) */}
+      {/* responsive preview · click any section to edit it (WYSIWYG === export) */}
       <div className={`site-preview ${device}`}>
-        <iframe title="Website preview" className="site-frame" srcDoc={doc} />
+        <iframe
+          ref={frameRef}
+          title="Website preview"
+          className="site-frame"
+          srcDoc={editDoc}
+          onLoad={() => postSel(selRef.current, false)}
+        />
       </div>
+      <p className="muted small" style={{ margin: '6px 2px 0' }}>Click a section in the preview to edit its text, images and video.</p>
 
       {/* blocks */}
       <div className="site-blocks-head">
-        <h4 className="brand-h" style={{ margin: 0 }}>Blocks</h4>
+        <h4 className="brand-h" style={{ margin: 0 }}>Sections</h4>
         <button className="btn tiny" onClick={() => setAddOpen((v) => !v)}>＋ Add</button>
       </div>
       {addOpen && (
@@ -362,7 +413,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       <ul className="site-blocklist">
         {site.blocks.map((b, i) => (
           <li key={b.id} className={b.id === sel ? 'on' : ''}>
-            <button className="site-bl-name" onClick={() => setSel(b.id)}>{BLOCK_LABELS[b.type]}</button>
+            <button className="site-bl-name" onClick={() => selectBlock(b.id)}>{BLOCK_LABELS[b.type]}</button>
             <div className="site-bl-ops">
               <button onClick={() => move(b.id, -1)} disabled={i === 0} aria-label="Move up">↑</button>
               <button onClick={() => move(b.id, 1)} disabled={i === site.blocks.length - 1} aria-label="Move down">↓</button>
@@ -377,6 +428,33 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       {selected ? (
         <div className="site-inspector">
           <h4 className="brand-h">Edit · {BLOCK_LABELS[selected.type]}</h4>
+
+          {/* media controls · replace the image/video of THIS section in place */}
+          {(selected.type === 'image' || selected.type === 'video') && (
+            <div className="site-media">
+              {selected.type === 'image' && String(selected.props.src || '') && (
+                <img className="site-media-thumb" src={String(selected.props.src)} alt="" />
+              )}
+              <div className="site-media-ops">
+                {selected.type === 'image' ? (
+                  <>
+                    <label className="btn tiny">Upload image<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) replaceMedia(f, 'image'); e.currentTarget.value = '' }} /></label>
+                    <button className="btn tiny ghost" onClick={aiImageOnSelected}>✨ AI image</button>
+                    {String(selected.props.src || '') && <button className="btn tiny ghost" onClick={() => patchSelected({ src: '' })}>Remove</button>}
+                  </>
+                ) : (
+                  <>
+                    <label className="btn tiny">Upload video<input type="file" accept="video/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) replaceMedia(f, 'video'); e.currentTarget.value = '' }} /></label>
+                    {String(selected.props.src || '') && <button className="btn tiny ghost" onClick={() => patchSelected({ src: '' })}>Remove</button>}
+                  </>
+                )}
+              </div>
+              {selected.type === 'image' && (
+                <input className="site-media-prompt" value={imgPrompt} placeholder="Describe an AI image, then ✨" onChange={(e) => setImgPrompt(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') aiImageOnSelected() }} />
+              )}
+            </div>
+          )}
+
           {fieldsFor(selected).map((f) => {
             const cur = getPath(selected.props, f.path)
             const value = f.kind === 'lines' ? (Array.isArray(cur) ? (cur as string[]).join('\n') : '') : String(cur ?? '')
