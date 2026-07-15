@@ -119,6 +119,13 @@ export default function App() {
             <Dashboard onOpenDojo={() => setDojoFull(true)} />
           </div>
         )}
+
+        {/* Fullscreen dojo · a always-visible way back to the CEO dashboard on
+            desktop (the mobile bottom-bar covers phones). Without this, enlarging
+            the dojo was a dead end on desktop. */}
+        {dojoFull && !selected && (
+          <button className="dojo-exit-fs" onClick={() => { selectAgent(null); setDojoFull(false) }} title="Back to your CEO dashboard">⤡ CEO dashboard</button>
+        )}
       </div>
 
       <Toasts />

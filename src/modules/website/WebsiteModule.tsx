@@ -8,8 +8,9 @@ import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import { type BrandKit, saveBrandKit } from '../../lib/brand'
 import {
-  type SiteDoc, type Block, type BlockType, type TemplateCategory, BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
-  generateFromTemplate, SITE_TEMPLATES, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
+  type SiteDoc, type Block, type BlockType, type TemplateCategory, type SiteFont, type SiteLayout,
+  BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
+  generateFromTemplate, SITE_TEMPLATES, SITE_FONTS, SITE_LAYOUTS, fontSet, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
 } from '../../lib/site'
 import { PRESET_PALETTES, randomPalette, paletteToKit, kitToPalette, textOn } from '../../lib/palettes'
 import { StepBar } from '../StepBar'
@@ -17,10 +18,10 @@ import { StudioNext } from '../StudioNext'
 
 const CATS: (TemplateCategory | 'All')[] = ['All', 'Business', 'Store', 'Portfolio', 'Restaurant', 'Agency', 'Personal', 'Blog', 'Events']
 const VIBE_LABEL: Record<string, string> = { serif: 'Serif', sans: 'Sans', mono: 'Mono' }
-type Step = 'template' | 'design' | 'colours' | 'export'
+type Step = 'template' | 'design' | 'typography' | 'colours' | 'export'
 const STEPS: { id: Step; label: string }[] = [
   { id: 'template', label: 'Template' }, { id: 'design', label: 'Design' },
-  { id: 'colours', label: 'Colours' }, { id: 'export', label: 'Export' },
+  { id: 'typography', label: 'Typography' }, { id: 'colours', label: 'Colours' }, { id: 'export', label: 'Export' },
 ]
 
 export default function WebsiteModule({ dojoId }: ModuleProps) {
@@ -39,6 +40,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [locks, setLocks] = useState<boolean[]>([false, false, false, false, false])
   // content · import/generate images, videos & text + connect apps
   const [contentOpen, setContentOpen] = useState(false)
+  const [imgPrompt, setImgPrompt] = useState('')
 
   useEffect(() => {
     let alive = true
@@ -122,8 +124,18 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     }
     r.readAsDataURL(file)
   }
-  const generateImage = () => {
-    // a branded gradient image (canvas → data URL) — a real, editable asset
+  // Free AI image · Pollinations.ai (no key, no signup). The URL renders a fresh
+  // generated image; CSP allows https images so it loads in preview & export.
+  const generateAiImage = () => {
+    const prompt = imgPrompt.trim() || `${site.name}, hero banner, modern, professional, clean, high quality`
+    const seed = Math.floor(Math.random() * 1e6)
+    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1200&height=675&nologo=true&seed=${seed}`
+    const b = makeBlock('image', site.name); b.props = { src: url, alt: prompt, caption: '' }
+    addBlock(b)
+    pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'AI image added', text: 'Generated free (Pollinations) · give it a few seconds to render.' })
+  }
+  // a branded gradient banner (local canvas · always instant, no network)
+  const generateBanner = () => {
     const c = document.createElement('canvas'); c.width = 1200; c.height = 675
     const ctx = c.getContext('2d'); if (!ctx) return
     const p = brand?.palette
@@ -134,7 +146,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     ctx.fillText(site.name, 600, 337)
     const b = makeBlock('image', site.name); b.props = { src: c.toDataURL('image/png'), alt: `${site.name} banner`, caption: '' }
     addBlock(b)
-    pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'Image generated', text: 'A branded banner was added to your site.' })
+    pushToast({ kind: 'event', badge: 'OK', color: '#2f7fd6', title: 'Banner added', text: 'A branded gradient banner was added.' })
   }
   const generateText = () => {
     const b = makeBlock('text', site.name)
@@ -193,15 +205,19 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     </div>
   )
 
+  const setFont = (font: SiteFont) => setSite((s) => ({ ...s, font }))
+  const setLayout = (layout: SiteLayout) => setSite((s) => ({ ...s, layout }))
+
   const stepIdx = STEPS.findIndex((s) => s.id === step)
   const advance = () => {
-    if (step === 'template') { if (step === 'template') startBlank(); return }
-    if (step === 'design') return setStep('colours')
+    if (step === 'template') { startBlank(); return }
+    if (step === 'design') return setStep('typography')
+    if (step === 'typography') return setStep('colours')
     if (step === 'colours') return setStep('export')
     if (step === 'export') return void save()
   }
   const goBack = () => { if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id) }
-  const nextLabel = step === 'template' ? 'Start blank →' : step === 'design' ? 'Colours →' : step === 'colours' ? 'Export →' : 'Save site'
+  const nextLabel = step === 'template' ? 'Start blank →' : step === 'design' ? 'Typography →' : step === 'typography' ? 'Colours →' : step === 'colours' ? 'Export →' : 'Save site'
 
   return (
     <div className="site-mod sq">
@@ -271,10 +287,12 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
           <div className="ct-grid">
             <div className="ct-card">
               <b>Images</b>
-              <p>Import a photo or generate a branded banner.</p>
+              <p>Import a photo, or generate one with a free AI (Pollinations · no key).</p>
+              <input className="ct-input" value={imgPrompt} placeholder="Describe an image, e.g. cozy coffee shop interior" onChange={(e) => setImgPrompt(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') generateAiImage() }} />
               <div className="ct-actions">
-                <label className="btn tiny">Import image<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'image'); e.currentTarget.value = '' }} /></label>
-                <button className="btn tiny ghost" onClick={generateImage}>✨ Generate</button>
+                <button className="btn tiny" onClick={generateAiImage}>✨ AI image</button>
+                <label className="btn tiny ghost">Import<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'image'); e.currentTarget.value = '' }} /></label>
+                <button className="btn tiny ghost" onClick={generateBanner}>Banner</button>
               </div>
             </div>
             <div className="ct-card">
@@ -352,6 +370,32 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         <p className="muted small">Select a block to edit it.</p>
       )}
           <p className="muted small">Your <b>Brand Kit</b> colours &amp; fonts apply automatically — tune them in the <b>Colours</b> step. Preview = export.</p>
+        </section>
+      )}
+
+      {step === 'typography' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Typography &amp; layout</h3>
+          <p className="sq-lead">Pick a font pairing and a layout — it restyles your whole site. Each template starts from a different set, so no two look alike.</p>
+          <div className="sq-eyebrow">Font pairing</div>
+          <div className="ty-fonts">
+            {SITE_FONTS.map((f) => (
+              <button key={f.id} className={`ty-font${(site.font || 'sans') === f.id ? ' on' : ''}`} onClick={() => setFont(f.id)}>
+                <span className="ty-font-h" style={{ fontFamily: f.heading }}>{site.name}</span>
+                <span className="ty-font-b" style={{ fontFamily: f.body }}>{f.label} · the quick brown fox.</span>
+              </button>
+            ))}
+          </div>
+          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Layout</div>
+          <div className="bw-cloud">
+            {SITE_LAYOUTS.map((l) => (
+              <button key={l.id} className={`bw-chip${(site.layout || 'centered') === l.id ? ' on' : ''}`} onClick={() => setLayout(l.id)} title={l.hint}>{l.label}</button>
+            ))}
+          </div>
+          <p className="sq-hint">{SITE_LAYOUTS.find((l) => l.id === (site.layout || 'centered'))?.hint} · {fontSet(site.font).label}</p>
+          <div className={`site-preview ${device}`}>
+            <iframe title="Website preview" className="site-frame" srcDoc={doc} />
+          </div>
         </section>
       )}
 

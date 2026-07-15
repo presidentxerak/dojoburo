@@ -7,7 +7,26 @@ import { type BrandKit, defaultKit, kitCss } from './brand'
 
 export type BlockType = 'hero' | 'features' | 'pricing' | 'cta' | 'form' | 'text' | 'gallery' | 'image' | 'video' | 'footer'
 export interface Block { id: string; type: BlockType; props: Record<string, unknown> }
-export interface SiteDoc { name: string; blocks: Block[]; updatedAt: number; templateId?: string }
+export type SiteFont = 'sans' | 'serif' | 'mono' | 'grotesk' | 'editorial' | 'rounded'
+export type SiteLayout = 'centered' | 'left' | 'editorial' | 'bold'
+export interface SiteDoc { name: string; blocks: Block[]; updatedAt: number; templateId?: string; font?: SiteFont; layout?: SiteLayout }
+
+// Typography sets · distinct heading/body pairings, CSP-safe (system stacks).
+export const SITE_FONTS: { id: SiteFont; label: string; heading: string; body: string }[] = [
+  { id: 'sans', label: 'Modern sans', heading: '"Outfit", system-ui, sans-serif', body: '"Outfit", system-ui, sans-serif' },
+  { id: 'grotesk', label: 'Bold grotesque', heading: '"Helvetica Neue", Arial, sans-serif', body: '"Helvetica Neue", Arial, sans-serif' },
+  { id: 'serif', label: 'Classic serif', heading: 'Georgia, "Times New Roman", serif', body: 'Georgia, serif' },
+  { id: 'editorial', label: 'Editorial (serif + sans)', heading: '"Palatino Linotype", Georgia, serif', body: '"Outfit", system-ui, sans-serif' },
+  { id: 'mono', label: 'Technical mono', heading: '"Courier New", ui-monospace, monospace', body: 'ui-monospace, "Courier New", monospace' },
+  { id: 'rounded', label: 'Friendly rounded', heading: '"Trebuchet MS", "Segoe UI", sans-serif', body: '"Trebuchet MS", "Segoe UI", sans-serif' },
+]
+export const fontSet = (id?: SiteFont) => SITE_FONTS.find((f) => f.id === id) ?? SITE_FONTS[0]
+export const SITE_LAYOUTS: { id: SiteLayout; label: string; hint: string }[] = [
+  { id: 'centered', label: 'Centered', hint: 'Everything centred · classic SaaS' },
+  { id: 'left', label: 'Left-aligned', hint: 'Left text · editorial, roomy' },
+  { id: 'editorial', label: 'Editorial', hint: 'Narrow column · big serif headlines' },
+  { id: 'bold', label: 'Bold', hint: 'Oversized headings · high contrast' },
+]
 
 const uid = () => `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
 const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -46,7 +65,7 @@ export function makeBlock(type: BlockType, name = 'My brand'): Block {
 /** The AI first version (generated locally, instantly) from the company name. */
 export function generateSite(name: string): SiteDoc {
   const order: BlockType[] = ['hero', 'features', 'pricing', 'cta', 'footer']
-  return { name, blocks: order.map((t) => makeBlock(t, name)), updatedAt: Date.now() }
+  return { name, blocks: order.map((t) => makeBlock(t, name)), font: 'sans', layout: 'centered', updatedAt: Date.now() }
 }
 
 // ---- template gallery -------------------------------------------------------
@@ -61,28 +80,31 @@ export interface SiteTemplate {
   bg: string
   ink: string
   vibe: 'serif' | 'sans' | 'mono'
+  /** typography set + layout variant · what makes each template look distinct */
+  font: SiteFont
+  layout: SiteLayout
   /** the section layout this template starts from */
   blocks: BlockType[]
 }
 
 export const SITE_TEMPLATES: SiteTemplate[] = [
-  { id: 'lumen', name: 'Lumen', category: 'Business', blurb: 'Clean SaaS landing · features, pricing, sign-up.', accent: '#2f6bff', bg: '#ffffff', ink: '#0e1220', vibe: 'sans', blocks: ['hero', 'features', 'pricing', 'cta', 'form', 'footer'] },
-  { id: 'ledger', name: 'Ledger', category: 'Business', blurb: 'Trusted, editorial look for consulting & finance.', accent: '#1f3a8a', bg: '#f6f5f1', ink: '#161a22', vibe: 'serif', blocks: ['hero', 'features', 'pricing', 'cta', 'footer'] },
-  { id: 'mercato', name: 'Mercato', category: 'Store', blurb: 'Warm online store · products, offers, checkout CTA.', accent: '#e0622e', bg: '#fff8f2', ink: '#2a1a12', vibe: 'sans', blocks: ['hero', 'gallery', 'features', 'pricing', 'cta', 'footer'] },
-  { id: 'bloom', name: 'Bloom', category: 'Store', blurb: 'Boutique shop with a soft, floral feel.', accent: '#c65b86', bg: '#fdf3f6', ink: '#2c1622', vibe: 'serif', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
-  { id: 'aperture', name: 'Aperture', category: 'Portfolio', blurb: 'Dark, image-forward portfolio for creatives.', accent: '#c9a24b', bg: '#0f1012', ink: '#f4f2ec', vibe: 'serif', blocks: ['hero', 'gallery', 'text', 'footer'] },
-  { id: 'grid', name: 'Grid', category: 'Portfolio', blurb: 'Minimal black-and-white photography grid.', accent: '#111111', bg: '#ffffff', ink: '#111111', vibe: 'mono', blocks: ['hero', 'gallery', 'text', 'footer'] },
-  { id: 'saveur', name: 'Saveur', category: 'Restaurant', blurb: 'Cream & serif · menu, gallery, reservations.', accent: '#7a5b2e', bg: '#faf5ea', ink: '#2b2114', vibe: 'serif', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
-  { id: 'nord', name: 'Studio Nord', category: 'Agency', blurb: 'Bold, minimal agency with a mono accent.', accent: '#16a085', bg: '#101314', ink: '#eef2f1', vibe: 'mono', blocks: ['hero', 'features', 'text', 'cta', 'footer'] },
-  { id: 'persona', name: 'Persona', category: 'Personal', blurb: 'Friendly personal site or link-in-bio.', accent: '#7b5cff', bg: '#f7f5ff', ink: '#241b3c', vibe: 'sans', blocks: ['hero', 'text', 'gallery', 'footer'] },
-  { id: 'dispatch', name: 'Dispatch', category: 'Blog', blurb: 'Editorial blog / newsletter, serif headlines.', accent: '#b0322b', bg: '#fbfaf7', ink: '#1a1712', vibe: 'serif', blocks: ['hero', 'text', 'gallery', 'footer'] },
-  { id: 'assembly', name: 'Assembly', category: 'Events', blurb: 'High-contrast event page · schedule + RSVP.', accent: '#ffd23b', bg: '#0c0c0f', ink: '#f6f6f4', vibe: 'sans', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
-  { id: 'fresh', name: 'Fresh', category: 'Business', blurb: 'Energetic wellness / fitness landing.', accent: '#1fa563', bg: '#f2fbf5', ink: '#12271c', vibe: 'sans', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
+  { id: 'lumen', name: 'Lumen', category: 'Business', blurb: 'Clean SaaS landing · features, pricing, sign-up.', accent: '#2f6bff', bg: '#ffffff', ink: '#0e1220', vibe: 'sans', font: 'sans', layout: 'centered', blocks: ['hero', 'features', 'pricing', 'cta', 'form', 'footer'] },
+  { id: 'ledger', name: 'Ledger', category: 'Business', blurb: 'Trusted, editorial look for consulting & finance.', accent: '#1f3a8a', bg: '#f6f5f1', ink: '#161a22', vibe: 'serif', font: 'editorial', layout: 'editorial', blocks: ['hero', 'features', 'pricing', 'cta', 'footer'] },
+  { id: 'mercato', name: 'Mercato', category: 'Store', blurb: 'Warm online store · products, offers, checkout CTA.', accent: '#e0622e', bg: '#fff8f2', ink: '#2a1a12', vibe: 'sans', font: 'grotesk', layout: 'left', blocks: ['hero', 'gallery', 'features', 'pricing', 'cta', 'footer'] },
+  { id: 'bloom', name: 'Bloom', category: 'Store', blurb: 'Boutique shop with a soft, floral feel.', accent: '#c65b86', bg: '#fdf3f6', ink: '#2c1622', vibe: 'serif', font: 'serif', layout: 'centered', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
+  { id: 'aperture', name: 'Aperture', category: 'Portfolio', blurb: 'Dark, image-forward portfolio for creatives.', accent: '#c9a24b', bg: '#0f1012', ink: '#f4f2ec', vibe: 'serif', font: 'editorial', layout: 'bold', blocks: ['hero', 'gallery', 'text', 'footer'] },
+  { id: 'grid', name: 'Grid', category: 'Portfolio', blurb: 'Minimal black-and-white photography grid.', accent: '#111111', bg: '#ffffff', ink: '#111111', vibe: 'mono', font: 'mono', layout: 'left', blocks: ['hero', 'gallery', 'text', 'footer'] },
+  { id: 'saveur', name: 'Saveur', category: 'Restaurant', blurb: 'Cream & serif · menu, gallery, reservations.', accent: '#7a5b2e', bg: '#faf5ea', ink: '#2b2114', vibe: 'serif', font: 'serif', layout: 'editorial', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
+  { id: 'nord', name: 'Studio Nord', category: 'Agency', blurb: 'Bold, minimal agency with a mono accent.', accent: '#16a085', bg: '#101314', ink: '#eef2f1', vibe: 'mono', font: 'grotesk', layout: 'bold', blocks: ['hero', 'features', 'text', 'cta', 'footer'] },
+  { id: 'persona', name: 'Persona', category: 'Personal', blurb: 'Friendly personal site or link-in-bio.', accent: '#7b5cff', bg: '#f7f5ff', ink: '#241b3c', vibe: 'sans', font: 'rounded', layout: 'centered', blocks: ['hero', 'text', 'gallery', 'footer'] },
+  { id: 'dispatch', name: 'Dispatch', category: 'Blog', blurb: 'Editorial blog / newsletter, serif headlines.', accent: '#b0322b', bg: '#fbfaf7', ink: '#1a1712', vibe: 'serif', font: 'serif', layout: 'editorial', blocks: ['hero', 'text', 'gallery', 'footer'] },
+  { id: 'assembly', name: 'Assembly', category: 'Events', blurb: 'High-contrast event page · schedule + RSVP.', accent: '#ffd23b', bg: '#0c0c0f', ink: '#f6f6f4', vibe: 'sans', font: 'grotesk', layout: 'bold', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
+  { id: 'fresh', name: 'Fresh', category: 'Business', blurb: 'Energetic wellness / fitness landing.', accent: '#1fa563', bg: '#f2fbf5', ink: '#12271c', vibe: 'sans', font: 'rounded', layout: 'left', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
 ]
 
 export function generateFromTemplate(name: string, templateId: string): SiteDoc {
   const tpl = SITE_TEMPLATES.find((t) => t.id === templateId) ?? SITE_TEMPLATES[0]
-  return { name, templateId: tpl.id, blocks: tpl.blocks.map((t) => makeBlock(t, name)), updatedAt: Date.now() }
+  return { name, templateId: tpl.id, blocks: tpl.blocks.map((t) => makeBlock(t, name)), font: tpl.font, layout: tpl.layout, updatedAt: Date.now() }
 }
 
 // ---- immutable path get/set (supports 'items.0.title', 'tiers.1.name') ------
@@ -150,7 +172,7 @@ export function blockHtml(b: Block): string {
 }
 
 // ---- base site CSS (uses Brand Kit variables) ------------------------------
-const SITE_CSS = `
+const BASE_SITE_CSS = `
 *{box-sizing:border-box}body{margin:0;font-family:var(--brand-body,system-ui);color:var(--brand-ink,#111);background:var(--brand-bg,#fff);line-height:1.55}
 .b{padding:64px 24px;max-width:1080px;margin:0 auto}
 h1,h2,h3{font-family:var(--brand-heading,inherit);margin:0 0 12px}
@@ -180,10 +202,24 @@ h1{font-size:44px}h2{font-size:30px;text-align:center}
 @media(max-width:720px){.grid{grid-template-columns:1fr}h1{font-size:32px}.tier.feat{transform:none}}
 `
 
+// per-layout overrides · what makes each template's sections & type feel unique
+const LAYOUT_CSS: Record<SiteLayout, string> = {
+  centered: '',
+  left: `.b-hero{text-align:left;padding-left:24px}.b-hero p{margin-left:0;margin-right:0}h2{text-align:left}.b{max-width:1120px}.grid{grid-template-columns:repeat(3,1fr)}.tier{text-align:left}`,
+  editorial: `.b{max-width:840px}h1{font-size:54px;letter-spacing:-.02em;line-height:1.05}h2{font-size:34px;text-align:left}.b-hero{background:none;color:var(--brand-ink);text-align:left;padding:88px 24px 44px;border-bottom:1px solid #0001}.b-hero h1{color:var(--brand-ink)}.b-hero p{margin:0;max-width:62ch;opacity:.8}.b-hero .btn{margin-top:8px}.grid{grid-template-columns:1fr 1fr}.card,.tier{box-shadow:none;border:1px solid #0002}`,
+  bold: `h1{font-size:76px;font-weight:900;letter-spacing:-.03em;line-height:.96}h2{font-size:46px}.b-hero{padding:128px 24px}.b-hero p{font-size:22px}.btn{border-radius:0;padding:16px 30px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}.card,.tier{border-radius:0}.b-cta h2{font-size:52px}@media(max-width:720px){h1{font-size:44px}}`,
+}
+
+/** Site CSS = base + the chosen typography set + layout variant. */
+function siteCss(font?: SiteFont, layout?: SiteLayout): string {
+  const f = fontSet(font)
+  return `:root{--brand-heading:${f.heading};--brand-body:${f.body}}\n${BASE_SITE_CSS}\n${LAYOUT_CSS[layout ?? 'centered']}`
+}
+
 /** A complete standalone HTML document · used for the iframe AND the export. */
 export function fullDoc(site: SiteDoc, kit: BrandKit): string {
   const body = site.blocks.map(blockHtml).join('\n')
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${kitCss(kit)}\n${SITE_CSS}</style></head><body>${body}</body></html>`
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${kitCss(kit)}\n${siteCss(site.font, site.layout)}</style></head><body>${body}</body></html>`
 }
 
 // ---- inspector fields per block --------------------------------------------

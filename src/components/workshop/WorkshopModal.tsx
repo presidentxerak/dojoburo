@@ -52,7 +52,7 @@ export function StudioPage() {
             <strong>{head.title}</strong>
             <span className="studio-page-sub">{head.sub}</span>
           </div>
-          <button className="ws-x studio-page-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">×</button>
+          <button className="ws-x studio-page-x" onClick={() => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* */ } location.hash = 'app' }} aria-label="Back to dojo">×</button>
         </header>
         <div className="ws-body studio-page-scroll">
           {tab === 'studio' && <StudioTab />}

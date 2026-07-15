@@ -414,7 +414,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   }
 
   // ------------------------------------------------------------------ ROSTER --
-  const roster = ROLE_AGENTS.map((r) => byRole(r.id)).filter(Boolean) as typeof agents
+  // This IS the CEO/Chief page, so we don't show a Chief card · the Chief
+  // orchestration lives in the composer above. Show only the seven specialists.
+  const roster = ROLE_AGENTS.filter((r) => r.id !== 'chief').map((r) => byRole(r.id)).filter(Boolean) as typeof agents
   return (
     <div className="dash-panels">
       <div className="dash-hero">
@@ -453,7 +455,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
       <div className="mission-head">
         <h3>Your team</h3>
-        <span className="muted small">Eight AI specialists · click one to open it. Chief coordinates the rest.</span>
+        <span className="muted small">Seven AI specialists · click one to open it. Chief (you) coordinates them from the box above.</span>
       </div>
       <div className="lp-studioteam agent-roster">
         {roster.map((a) => {
