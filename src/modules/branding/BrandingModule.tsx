@@ -21,13 +21,36 @@ import {
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
 
-type Step = 'concept' | 'keywords' | 'naming' | 'domain' | 'identity' | 'export'
+type Step = 'concept' | 'naming' | 'domain' | 'identity' | 'export'
 const STEPS: { id: Step; label: string }[] = [
-  { id: 'concept', label: 'Concept' }, { id: 'keywords', label: 'Keywords' },
+  { id: 'concept', label: 'Concept' },
   { id: 'naming', label: 'Naming' }, { id: 'domain', label: 'Availability' },
   { id: 'identity', label: 'Identity' }, { id: 'export', label: 'Export' },
 ]
 const LAYOUTS: LogoLayout[] = ['mark-left', 'mark-top', 'mark-only', 'text-only']
+
+// "Where do you start?" · like Shiverbrand, the founder picks an entry point so
+// the pipeline only asks for what they still need.
+type StartMode = 'scratch' | 'name-domain' | 'domain-only' | 'name-only'
+const START_MODES: { id: StartMode; title: string; desc: string }[] = [
+  { id: 'scratch', title: 'Start from scratch', desc: 'Full pipeline · keywords → names → domain → identity.' },
+  { id: 'name-domain', title: 'I have a name & a domain', desc: 'Skip naming · go straight to the visual identity.' },
+  { id: 'domain-only', title: 'I have a domain, no name', desc: 'Find a name that fits · then design the identity.' },
+  { id: 'name-only', title: 'I have a name, no domain', desc: 'Check domains & handles for your name.' },
+]
+const needsName = (m: StartMode) => m === 'name-domain' || m === 'name-only'
+// keyword-generation language (display only · the local banks are English, but
+// we surface the choice to match the Shiverbrand flow).
+const KW_LANGS: { id: string; label: string }[] = [
+  { id: 'en', label: 'English' }, { id: 'fr', label: 'French' }, { id: 'es', label: 'Spanish' },
+  { id: 'de', label: 'German' }, { id: 'it', label: 'Italian' }, { id: 'pt', label: 'Portuguese' },
+  { id: 'nl', label: 'Dutch' },
+]
+const APP_TYPES: { id: string; label: string; sub: string }[] = [
+  { id: 'web', label: 'Web app', sub: 'Desktop + mobile' },
+  { id: 'ios', label: 'iOS app', sub: 'iPhone + iPad' },
+  { id: 'android', label: 'Android app', sub: 'Phones + tablets' },
+]
 function hueFrom(s: string): number { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h }
 
 export default function BrandingModule({ dojoId }: ModuleProps) {
@@ -37,12 +60,15 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
   // pipeline state
   const [step, setStep] = useState<Step>('concept')
+  const [startMode, setStartMode] = useState<StartMode>('scratch')
   const [desc, setDesc] = useState('')
   const [profile, setProfile] = useState<BrandProfile | null>(null)
   // Shiverbrand keyword workshop
   const [keywords, setKeywords] = useState<string[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [customWord, setCustomWord] = useState('')
+  const [kwLang, setKwLang] = useState('en')
+  const [appType, setAppType] = useState('web')
   // naming + availability
   const [names, setNames] = useState<string[]>([])
   const [nameSeed, setNameSeed] = useState(0)
@@ -63,13 +89,23 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const patch = (p: Partial<BrandKit>) => setKit((k) => ({ ...k, ...p }))
 
   // ---- pipeline actions ----
-  const runKeywords = () => {
-    const src = desc || dojoName || 'a modern product'
-    setProfile(researchProfile(src))
-    const kws = generateKeywords(src)
-    setKeywords(kws)
-    setSelected((prev) => (prev.size ? prev : new Set(kws.slice(0, 3)))) // preselect a few
-    setStep('keywords')
+  const descSrc = () => desc || dojoName || 'a modern product'
+  // (Re)generate the ~50 on-theme keyword suggestions from the description.
+  const genSuggestions = () => {
+    setProfile(researchProfile(descSrc()))
+    setKeywords(generateKeywords(descSrc()))
+  }
+  // Auto-populate the suggestion cloud the first time we land on Concept so the
+  // founder always has words to click, even before generating.
+  useEffect(() => {
+    if (step === 'concept' && keywords.length === 0) setKeywords(generateKeywords(descSrc()))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
+  // Concept → build the research profile + first name batch, then Naming.
+  const generateProfile = () => {
+    setProfile(researchProfile(descSrc()))
+    setNames(combineNames([...selected], nameSeed))
+    setStep('naming')
   }
   const toggleKw = (k: string) => setSelected((s) => {
     const next = new Set(s)
@@ -82,10 +118,6 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     setKeywords((ks) => (ks.includes(w) ? ks : [w, ...ks]))
     setSelected((s) => new Set(s).add(w))
     setCustomWord('')
-  }
-  const runNaming = () => {
-    setNames(combineNames([...selected], nameSeed))
-    setStep('naming')
   }
   const reroll = () => { const s = nameSeed + 1; setNameSeed(s); setNames(combineNames([...selected], s)) }
   const chooseName = async (name: string) => {
@@ -124,20 +156,24 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
   const stepIdx = STEPS.findIndex((s) => s.id === step)
   const advance = () => {
-    if (step === 'concept') return runKeywords()
-    if (step === 'keywords') return runNaming()
+    if (step === 'concept') {
+      setProfile(researchProfile(descSrc()))
+      // "I have a name" branches skip the name-finding steps.
+      if (startMode === 'name-domain') return goIdentity()
+      if (startMode === 'name-only') return void chooseName(kit.name.trim() || descSrc())
+      return generateProfile() // scratch / domain-only → Naming
+    }
     if (step === 'naming') { void recheck(); return setStep('domain') }
     if (step === 'domain') return goIdentity()
     if (step === 'identity') { void saveName(); return setStep('export') }
     if (step === 'export') return void saveName()
   }
   const goBack = () => { if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id) }
-  const canNext = step === 'concept' ? (!!desc.trim() || !!dojoName)
-    : step === 'keywords' ? selected.size >= 1
+  const canNext = step === 'concept' ? (needsName(startMode) ? !!kit.name.trim() : selected.size >= 1)
     : step === 'naming' ? !!kit.name.trim()
     : true
-  const nextLabel = step === 'concept' ? 'Find keywords'
-    : step === 'keywords' ? `Combine ${selected.size} word${selected.size === 1 ? '' : 's'}`
+  const nextLabel = step === 'concept'
+      ? (startMode === 'name-domain' ? 'Design identity →' : startMode === 'name-only' ? 'Check availability →' : 'Generate research profile →')
     : step === 'domain' ? 'Design identity'
     : step === 'identity' ? 'Save & export'
     : step === 'export' ? 'Save brand' : 'Next'
@@ -152,41 +188,86 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
       {step === 'concept' && (
         <section className="sq-panel">
-          <h3 className="sq-title">Describe your product</h3>
-          <p className="sq-lead">One or two sentences: what it does and who it's for. We turn that into a palette of on-theme keywords you can shape into a name.</p>
+          <h3 className="sq-title">Create your concept</h3>
+          <p className="sq-lead">Tell us what you're building. We turn it into a palette of on-theme keywords, then combine your favourites into brandable names · all on your device.</p>
+
+          {/* Where do you start? */}
+          <div className="sq-eyebrow">Where do you start?</div>
+          <div className="sq-optgrid">
+            {START_MODES.map((m) => (
+              <button key={m.id} className={`sq-opt${startMode === m.id ? ' on' : ''}`} onClick={() => setStartMode(m.id)}>
+                <span className="sq-opt-radio" />
+                <span className="sq-opt-txt"><b>{m.title}</b><em>{m.desc}</em></span>
+              </button>
+            ))}
+          </div>
+
+          {/* Brand name · only when the founder already has one */}
+          {needsName(startMode) && (
+            <label className="sq-field">Your brand name
+              <input value={kit.name} maxLength={28} placeholder="e.g. Brewline" onChange={(e) => patch({ name: e.target.value })} />
+            </label>
+          )}
+
+          {/* Describe your product */}
           <label className="sq-field">Describe your product
             <textarea rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="e.g. A coffee subscription for offices · freshly roasted beans delivered weekly, with a simple dashboard to manage the team's orders and budget." />
           </label>
-        </section>
-      )}
+          <p className="sq-hint">One or two sentences: what it does and who it's for. The more specific, the sharper the keywords.</p>
 
-      {step === 'keywords' && (
-        <section className="sq-panel">
-          <h3 className="sq-title">Pick your keywords</h3>
-          <p className="sq-lead">{keywords.length} words drawn from your theme{profile ? ` · ${profile.tone.toLowerCase()}` : ''}. Tap the ones that fit, and add your own · we'll combine them into names.</p>
-
-          <div className="bw-add">
-            <input
-              value={customWord} maxLength={16} placeholder="Add your own word…"
-              onChange={(e) => setCustomWord(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom() } }}
-            />
-            <button className="sq-cta" onClick={addCustom} disabled={!customWord.trim()}>+ Add</button>
+          {/* Favourite keywords · required for the name-finding branches */}
+          <div className="sq-eyebrow">Favourite keywords{needsName(startMode) ? '' : ' *'}</div>
+          <div className="bw-howto">
+            <b>How to add your keywords</b>
+            <ol>
+              <li>Generate suggestions from your description, or type your own word.</li>
+              <li>Click a suggestion · or type a word and press <b>Add</b> · to put it on your list.</li>
+              <li>Keep the words that best capture your brand. We combine them into names.</li>
+            </ol>
           </div>
 
-          <div className="sq-eyebrow">Selected · {selected.size}</div>
           <div className="bw-selected">
-            {selected.size === 0 && <span className="muted small">Nothing selected yet · tap keywords below.</span>}
+            {selected.size === 0 && <span className="muted small">No keywords yet · add a few below.</span>}
             {[...selected].map((k) => (
               <button key={k} className="bw-chip on" onClick={() => toggleKw(k)}>{k}<span className="bw-x">×</span></button>
             ))}
           </div>
+          <div className="bw-add">
+            <input
+              value={customWord} maxLength={16} placeholder="Add another keyword…"
+              onChange={(e) => setCustomWord(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom() } }}
+            />
+            <button className="sq-cta ghost" onClick={genSuggestions}>Generate 50 words</button>
+            <button className="sq-cta" onClick={addCustom} disabled={!customWord.trim()}>+ Add</button>
+          </div>
 
-          <div className="sq-eyebrow" style={{ marginTop: 14 }}>Suggested keywords</div>
+          <div className="bw-cloudhead">
+            <span className="sq-eyebrow">{keywords.length} suggestions · click to add</span>
+            {selected.size > 0 && <button className="bw-clear" onClick={() => setSelected(new Set())}>Clear</button>}
+          </div>
           <div className="bw-cloud">
             {keywords.map((k) => (
               <button key={k} className={`bw-chip${selected.has(k) ? ' on' : ''}`} onClick={() => toggleKw(k)}>{k}</button>
             ))}
+          </div>
+
+          {/* Language + app type */}
+          <div className="bw-2col">
+            <label className="sq-field">Keyword language
+              <select value={kwLang} onChange={(e) => setKwLang(e.target.value)}>
+                {KW_LANGS.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
+              </select>
+            </label>
+            <div className="sq-field">Type of app
+              <div className="bw-seg">
+                {APP_TYPES.map((a) => (
+                  <button key={a.id} className={`bw-seg-b${appType === a.id ? ' on' : ''}`} onClick={() => setAppType(a.id)} title={a.sub}>
+                    <b>{a.label}</b><em>{a.sub}</em>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       )}
@@ -195,9 +276,16 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
         <section className="sq-panel">
           <h3 className="sq-title">Name candidates</h3>
           <p className="sq-lead">Combinations of your {selected.size} chosen word{selected.size === 1 ? '' : 's'}. Pick one to check its .com &amp; handles, or reroll for a fresh batch.</p>
+          {profile && (
+            <div className="sq-cards3">
+              <div className="sq-info"><span className="sq-info-k">Tone</span><b>{profile.tone}</b></div>
+              <div className="sq-info"><span className="sq-info-k">Audience</span><b>{profile.audience}</b></div>
+              <div className="sq-info"><span className="sq-info-k">Angle</span><b>{profile.angle}</b></div>
+            </div>
+          )}
           <div className="bw-selected bw-selected-recap">
             {[...selected].map((k) => <span key={k} className="bw-chip on static">{k}</span>)}
-            <button className="bw-editwords" onClick={() => setStep('keywords')}>Edit words</button>
+            <button className="bw-editwords" onClick={() => setStep('concept')}>Edit words</button>
           </div>
           <div className="sq-namegrid">
             {(names.length ? names : combineNames([...selected], 0)).map((n) => (
