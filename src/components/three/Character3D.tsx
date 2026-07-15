@@ -638,6 +638,14 @@ export function Character3D({
       )}
 
       <group ref={g} {...(bare ? {} : events)}>
+        {/* Invisible, generous tap target so agents are easy to click/tap even
+            though their geometry is small · covers the full standing volume. */}
+        {!bare && (
+          <mesh position={[0, 1.25, 0]} raycast={undefined}>
+            <cylinderGeometry args={[0.95, 0.95, 3, 10]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
+        )}
         {isSlime ? (
           <group position={[0, 0.05, 0]}>
             <Ball p={[0, 0.78, 0]} r={0.8} c={character.face} s={[1, 0.86, 1]} />

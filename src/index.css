@@ -3188,11 +3188,12 @@ input, textarea, select, button { border-radius: 0 !important; }
 
 /* ===== Squarespace-style bottom step navigation ===== */
 .stepbar {
-  position: sticky; top: 0; z-index: 6;
+  position: sticky; top: 0; z-index: 8;
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px;
-  padding: 14px 20px; margin: -4px -4px 22px; background: #fff;
-  border-bottom: 1px solid var(--border);
+  padding: 12px 20px; margin: -16px -22px 22px; background: var(--panel-solid, #fff);
+  border-bottom: 1px solid var(--border); box-shadow: 0 6px 14px -10px rgba(0,0,0,0.25);
 }
+.sb-short { display: none; }
 .stepbar-back, .stepbar-next {
   font-family: var(--font-ui); font-weight: 800; font-size: 14px; letter-spacing: 0.06em;
   text-transform: uppercase; padding: 12px 22px; cursor: pointer; border-radius: 0;
@@ -3217,10 +3218,14 @@ input, textarea, select, button { border-radius: 0 !important; }
 .stepbar-step.on { color: #000; font-weight: 700; }
 .stepbar-step:disabled { cursor: default; }
 @media (max-width: 720px) {
-  .stepbar { grid-template-columns: auto 1fr auto; gap: 10px; padding: 12px 12px; }
-  .stepbar-steps { gap: 14px; overflow-x: auto; justify-content: flex-start; }
-  .stepbar-step { font-size: 14px; }
-  .stepbar-back, .stepbar-next { padding: 10px 14px; font-size: 12px; }
+  .stepbar { grid-template-columns: auto 1fr auto; gap: 8px; padding: 10px 12px; }
+  .stepbar-steps { gap: 12px; overflow-x: auto; justify-content: flex-start; padding-top: 10px; scrollbar-width: none; }
+  .stepbar-steps::-webkit-scrollbar { display: none; }
+  .stepbar-step { font-size: 13px; }
+  .stepbar-back, .stepbar-next { padding: 10px 12px; font-size: 12px; }
+  /* compact buttons on mobile so the step names stay visible */
+  .stepbar .sb-full { display: none; }
+  .stepbar .sb-short { display: inline; }
 }
 
 /* ===== Website creation wizard ===== */
@@ -4137,3 +4142,33 @@ select.cc-input { flex: 1; min-width: 0; }
 .dg-appbar-x:hover { border-color: var(--ink, #14121f); }
 .dg-foot-link { background: none; border: none; color: inherit; font: inherit; cursor: pointer; text-decoration: none; padding: 0; }
 .dg-foot-link:hover { text-decoration: underline; }
+
+/* =====================================================================
+   Harmonised studio typography · one consistent scale across EVERY studio
+   (Branding, Website, Growth, Business, Marketing, Finance…) so titles,
+   body text and eyebrows match. Appended last → wins the cascade.
+   ===================================================================== */
+.modhost-fs .sq-title,
+.modhost-fs .se-head h3 {
+  font-family: var(--font-pixel) !important; font-weight: 800 !important;
+  font-size: 26px !important; letter-spacing: -0.01em !important; line-height: 1.15 !important;
+  color: var(--ink) !important; margin: 0 !important;
+}
+.modhost-fs .sq-lead,
+.modhost-fs .se-lead {
+  font-size: 15px !important; font-weight: 400 !important; color: var(--muted) !important;
+  line-height: 1.5 !important; max-width: 68ch;
+}
+.modhost-fs .sq-eyebrow,
+.modhost-fs .se-eyebrow {
+  font-family: var(--font-pixel) !important; font-weight: 800 !important;
+  font-size: 13px !important; letter-spacing: 0.1em !important; text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+/* card / panel sub-titles one step down, consistent everywhere */
+.modhost-fs .se-card-h h4,
+.modhost-fs .brand-h { font-family: var(--font-pixel) !important; font-weight: 800 !important; font-size: 16px !important; color: var(--ink) !important; }
+@media (max-width: 720px) {
+  .modhost-fs .sq-title, .modhost-fs .se-head h3 { font-size: 22px !important; }
+  .modhost-fs .sq-lead, .modhost-fs .se-lead { font-size: 14px !important; }
+}

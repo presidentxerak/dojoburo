@@ -21,7 +21,9 @@ export function StepBar({
   const pct = steps.length > 1 ? (idx / (steps.length - 1)) * 100 : 0
   return (
     <div className="stepbar">
-      <button className="stepbar-back" onClick={onBack} disabled={backDisabled}>{backLabel}</button>
+      <button className="stepbar-back" onClick={onBack} disabled={backDisabled}>
+        <span className="sb-full">{backLabel}</span><span className="sb-short" aria-hidden>←</span>
+      </button>
       <nav className="stepbar-steps" aria-label="Steps">
         <span className="stepbar-track"><span className="stepbar-fill" style={{ width: `${pct}%` }} /></span>
         {steps.map((s, i) => (
@@ -35,7 +37,9 @@ export function StepBar({
           </button>
         ))}
       </nav>
-      <button className="stepbar-next" onClick={onNext} disabled={!canNext}>{nextLabel}</button>
+      <button className="stepbar-next" onClick={onNext} disabled={!canNext} title={nextLabel}>
+        <span className="sb-full">{nextLabel}</span><span className="sb-short">Next →</span>
+      </button>
     </div>
   )
 }
