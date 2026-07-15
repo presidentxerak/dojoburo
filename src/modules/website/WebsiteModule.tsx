@@ -10,7 +10,7 @@ import { type BrandKit, saveBrandKit } from '../../lib/brand'
 import {
   type SiteDoc, type Block, type BlockType, type TemplateCategory, type SiteFont, type SiteLayout,
   BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
-  generateFromTemplate, SITE_TEMPLATES, SITE_FONTS, SITE_LAYOUTS, fontSet, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
+  generateFromTemplate, SITE_TEMPLATES, SITE_FONTS, SITE_LAYOUTS, GOOGLE_FONTS, googleFontsHref, fontSet, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
 } from '../../lib/site'
 import { PRESET_PALETTES, randomPalette, paletteToKit, kitToPalette, textOn } from '../../lib/palettes'
 import { StepBar } from '../StepBar'
@@ -205,8 +205,26 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     </div>
   )
 
-  const setFont = (font: SiteFont) => setSite((s) => ({ ...s, font }))
+  const setFont = (font: SiteFont) => setSite((s) => ({ ...s, font, headingFont: undefined, bodyFont: undefined }))
   const setLayout = (layout: SiteLayout) => setSite((s) => ({ ...s, layout }))
+  const setHeadingFont = (headingFont?: string) => setSite((s) => ({ ...s, headingFont }))
+  const setBodyFont = (bodyFont?: string) => setSite((s) => ({ ...s, bodyFont }))
+  const setHeadingWeight = (headingWeight: number) => setSite((s) => ({ ...s, headingWeight }))
+  const setBaseSize = (baseSize: number) => setSite((s) => ({ ...s, baseSize }))
+  const [fontQuery, setFontQuery] = useState('')
+  const [fontTarget, setFontTarget] = useState<'heading' | 'body'>('heading')
+  const fontList = GOOGLE_FONTS.filter((f) => f.name.toLowerCase().includes(fontQuery.trim().toLowerCase()))
+  // load the selected + previewed Google fonts into the app doc so the picker renders them
+  useEffect(() => {
+    const fams = [site.headingFont, site.bodyFont, ...fontList.slice(0, 40).map((f) => f.name)].filter(Boolean) as string[]
+    const href = googleFontsHref(fams)
+    if (!href) return
+    const id = 'gf-' + href.length
+    if (document.getElementById(id)) return
+    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href; link.id = id
+    document.head.appendChild(link)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [site.headingFont, site.bodyFont, fontQuery, step])
 
   const stepIdx = STEPS.findIndex((s) => s.id === step)
   const advance = () => {
@@ -376,23 +394,58 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       {step === 'typography' && (
         <section className="sq-panel">
           <h3 className="sq-title">Typography &amp; layout</h3>
-          <p className="sq-lead">Pick a font pairing and a layout — it restyles your whole site. Each template starts from a different set, so no two look alike.</p>
-          <div className="sq-eyebrow">Font pairing</div>
+          <p className="sq-lead">Choose from every popular Google Font for your headings and body — or start from a quick pairing. Tune weight, size and layout.</p>
+
+          <div className="sq-eyebrow">Quick pairings</div>
           <div className="ty-fonts">
             {SITE_FONTS.map((f) => (
-              <button key={f.id} className={`ty-font${(site.font || 'sans') === f.id ? ' on' : ''}`} onClick={() => setFont(f.id)}>
+              <button key={f.id} className={`ty-font${(!site.headingFont && (site.font || 'sans') === f.id) ? ' on' : ''}`} onClick={() => setFont(f.id)}>
                 <span className="ty-font-h" style={{ fontFamily: f.heading }}>{site.name}</span>
-                <span className="ty-font-b" style={{ fontFamily: f.body }}>{f.label} · the quick brown fox.</span>
+                <span className="ty-font-b" style={{ fontFamily: f.body }}>{f.label}</span>
               </button>
             ))}
           </div>
-          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Layout</div>
+
+          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Google Fonts</div>
+          <div className="ty-current">
+            <button className={`ty-slot${fontTarget === 'heading' ? ' on' : ''}`} onClick={() => setFontTarget('heading')}>
+              <em>Headings</em><b style={{ fontFamily: `"${site.headingFont || fontSet(site.font).heading}"` }}>{site.headingFont || 'Preset'}</b>
+            </button>
+            <button className={`ty-slot${fontTarget === 'body' ? ' on' : ''}`} onClick={() => setFontTarget('body')}>
+              <em>Body</em><b style={{ fontFamily: `"${site.bodyFont || fontSet(site.font).body}"` }}>{site.bodyFont || 'Preset'}</b>
+            </button>
+          </div>
+          <input className="ty-search" value={fontQuery} placeholder={`Search Google Fonts for ${fontTarget}…`} onChange={(e) => setFontQuery(e.target.value)} />
+          <div className="ty-fontlist">
+            {fontList.slice(0, 60).map((f) => {
+              const active = (fontTarget === 'heading' ? site.headingFont : site.bodyFont) === f.name
+              return (
+                <button key={f.name} className={`ty-fontitem${active ? ' on' : ''}`} onClick={() => (fontTarget === 'heading' ? setHeadingFont(f.name) : setBodyFont(f.name))}>
+                  <span style={{ fontFamily: `"${f.name}"` }}>{f.name}</span><em>{f.cat}</em>
+                </button>
+              )
+            })}
+            {!fontList.length && <p className="muted small">No font matches “{fontQuery}”.</p>}
+          </div>
+
+          <div className="bw-2col" style={{ marginTop: 4 }}>
+            <div className="sq-field">Heading weight
+              <div className="bw-cloud">
+                {[600, 700, 800, 900].map((w) => <button key={w} className={`bw-chip${(site.headingWeight || 800) === w ? ' on' : ''}`} onClick={() => setHeadingWeight(w)}>{w}</button>)}
+              </div>
+            </div>
+            <label className="sq-field">Base size · {site.baseSize || 16}px
+              <input type="range" min={14} max={20} value={site.baseSize || 16} onChange={(e) => setBaseSize(Number(e.target.value))} />
+            </label>
+          </div>
+
+          <div className="sq-eyebrow" style={{ marginTop: 8 }}>Layout</div>
           <div className="bw-cloud">
             {SITE_LAYOUTS.map((l) => (
               <button key={l.id} className={`bw-chip${(site.layout || 'centered') === l.id ? ' on' : ''}`} onClick={() => setLayout(l.id)} title={l.hint}>{l.label}</button>
             ))}
           </div>
-          <p className="sq-hint">{SITE_LAYOUTS.find((l) => l.id === (site.layout || 'centered'))?.hint} · {fontSet(site.font).label}</p>
+
           <div className={`site-preview ${device}`}>
             <iframe title="Website preview" className="site-frame" srcDoc={doc} />
           </div>

@@ -3190,9 +3190,12 @@ input, textarea, select, button { border-radius: 0 !important; }
 .stepbar {
   position: sticky; top: 0; z-index: 8;
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px;
-  padding: 12px 20px; margin: -16px -22px 22px; background: var(--panel-solid, #fff);
+  padding: 12px 20px; margin: 0 -22px 18px; background: var(--panel-solid, #fff);
   border-bottom: 1px solid var(--border); box-shadow: 0 6px 14px -10px rgba(0,0,0,0.25);
 }
+/* When a studio renders a step bar, drop the scroll container's top padding so
+   the sticky bar sits flush under the header (top:0 pins to the padding edge). */
+.modhost-body:has(.stepbar) { padding-top: 0 !important; }
 .sb-short { display: none; }
 .stepbar-back, .stepbar-next {
   font-family: var(--font-ui); font-weight: 800; font-size: 14px; letter-spacing: 0.06em;
@@ -4231,3 +4234,41 @@ select.cc-input { flex: 1; min-width: 0; }
 .ty-font-b { font-size: 13px; color: var(--muted); }
 .ct-input { width: 100%; border: 1px solid var(--border); background: var(--panel-solid); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 14px; color: var(--ink); margin: 2px 0; }
 .ct-input:focus { outline: none; border-color: var(--dc); }
+
+/* ---- Website · full Google-Fonts typography controls --------------------- */
+.ty-current { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ty-slot { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; text-align: left; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; background: var(--panel-solid); cursor: pointer; }
+.ty-slot.on { border-color: var(--dc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--dc) 16%, transparent); }
+.ty-slot em { font-style: normal; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.ty-slot b { font-size: 20px; color: var(--ink); line-height: 1.1; }
+.ty-search { width: 100%; border: 1px solid var(--border); background: var(--panel-solid); border-radius: 10px; padding: 11px 14px; font: inherit; font-size: 15px; color: var(--ink); margin-top: 8px; }
+.ty-search:focus { outline: none; border-color: var(--dc); }
+.ty-fontlist { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-height: 300px; overflow-y: auto; margin-top: 8px; padding-right: 4px; }
+@media (max-width: 760px) { .ty-fontlist { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { .ty-fontlist { grid-template-columns: 1fr; } }
+.ty-fontitem { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; text-align: left; border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; background: var(--panel-solid); cursor: pointer; }
+.ty-fontitem:hover { border-color: color-mix(in srgb, var(--dc) 40%, var(--border)); }
+.ty-fontitem.on { border-color: var(--dc); background: color-mix(in srgb, var(--dc) 8%, var(--panel-solid)); }
+.ty-fontitem span { font-size: 18px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ty-fontitem em { font-style: normal; font-size: 11px; color: var(--muted); flex: none; }
+
+/* ---- Header nav · all items aligned, centred, same charte (Outfit) ------- */
+.topbar-mid { align-items: center !important; }
+.topbar-mid .tb-nav { display: flex; align-items: center; margin-right: 2px; }
+.topbar-mid .tb-navlink,
+.topbar .tb-guide, .topbar .tb-studio, .topbar .tb-city {
+  font-family: var(--font-ui) !important; font-weight: 700 !important; font-size: 16px !important;
+  color: var(--muted) !important; padding: 7px 10px !important; line-height: 1.2 !important;
+  display: inline-flex !important; align-items: center !important; height: 34px; box-sizing: border-box;
+  background: transparent !important; border: none !important; border-radius: 4px !important;
+}
+.topbar-mid .tb-navlink:hover { color: var(--ink) !important; opacity: 1 !important; }
+
+/* ---- Website · block chooser + device toggle · charte typography --------- */
+.site-seg { display: inline-flex; gap: 0; border: 1px solid var(--border); border-radius: 0; overflow: hidden; background: var(--panel-2); }
+.site-seg button { font-family: var(--font-ui) !important; font-weight: 700; font-size: 14px; padding: 9px 16px; border: none; border-right: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; }
+.site-seg button:last-child { border-right: none; }
+.site-seg button.on { background: var(--ink); color: var(--bg); }
+.site-palette { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.site-palette button { font-family: var(--font-ui) !important; font-weight: 700; font-size: 14px; padding: 8px 14px; border: 1px solid var(--border); background: var(--panel-solid); border-radius: 0; cursor: pointer; color: var(--ink); }
+.site-palette button:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }

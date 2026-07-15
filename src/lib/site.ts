@@ -9,7 +9,31 @@ export type BlockType = 'hero' | 'features' | 'pricing' | 'cta' | 'form' | 'text
 export interface Block { id: string; type: BlockType; props: Record<string, unknown> }
 export type SiteFont = 'sans' | 'serif' | 'mono' | 'grotesk' | 'editorial' | 'rounded'
 export type SiteLayout = 'centered' | 'left' | 'editorial' | 'bold'
-export interface SiteDoc { name: string; blocks: Block[]; updatedAt: number; templateId?: string; font?: SiteFont; layout?: SiteLayout }
+export interface SiteDoc {
+  name: string; blocks: Block[]; updatedAt: number; templateId?: string
+  font?: SiteFont; layout?: SiteLayout
+  /** optional Google Fonts (override the preset pairing) + type controls */
+  headingFont?: string; bodyFont?: string; headingWeight?: number; baseSize?: number
+}
+
+// A broad catalogue of Google Fonts (searchable in the Typography step). Loaded
+// on demand via fonts.googleapis.com (allowed by the site CSP). Grouped so the
+// picker can section them.
+export interface GFont { name: string; cat: 'Sans' | 'Serif' | 'Display' | 'Mono' | 'Handwriting' }
+export const GOOGLE_FONTS: GFont[] = [
+  ...['Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Poppins', 'Raleway', 'Nunito', 'Nunito Sans', 'Work Sans', 'Source Sans 3', 'Rubik', 'Manrope', 'DM Sans', 'Outfit', 'Sora', 'Plus Jakarta Sans', 'Figtree', 'Lexend', 'Karla', 'Mulish', 'Barlow', 'Cabin', 'Quicksand', 'PT Sans', 'Josefin Sans', 'Archivo', 'Libre Franklin', 'Kanit', 'Prompt', 'Chivo', 'Red Hat Display', 'Epilogue', 'Urbanist', 'Albert Sans', 'Hanken Grotesk', 'Titillium Web', 'Ubuntu', 'IBM Plex Sans', 'Space Grotesk', 'Onest', 'Schibsted Grotesk', 'Instrument Sans'].map((name) => ({ name, cat: 'Sans' as const })),
+  ...['Playfair Display', 'Merriweather', 'Lora', 'PT Serif', 'Cormorant Garamond', 'EB Garamond', 'Crimson Text', 'Bitter', 'Domine', 'Zilla Slab', 'Roboto Slab', 'Arvo', 'Spectral', 'Frank Ruhl Libre', 'Noto Serif', 'Source Serif 4', 'Libre Baskerville', 'Cardo', 'Cormorant', 'IBM Plex Serif'].map((name) => ({ name, cat: 'Serif' as const })),
+  ...['Bebas Neue', 'Anton', 'Righteous', 'Fredoka', 'Comfortaa', 'Abril Fatface', 'Bricolage Grotesque', 'Alfa Slab One', 'Passion One', 'Staatliches', 'Bungee', 'Rowdies', 'Unbounded'].map((name) => ({ name, cat: 'Display' as const })),
+  ...['Roboto Mono', 'Space Mono', 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', 'Inconsolata', 'Ubuntu Mono', 'Source Code Pro'].map((name) => ({ name, cat: 'Mono' as const })),
+  ...['Pacifico', 'Lobster', 'Dancing Script', 'Caveat', 'Satisfy', 'Shadows Into Light', 'Permanent Marker', 'Kalam', 'Gochi Hand', 'Sacramento'].map((name) => ({ name, cat: 'Handwriting' as const })),
+]
+/** A Google Fonts css2 stylesheet URL for the given families (with common weights). */
+export function googleFontsHref(families: string[]): string {
+  const uniq = [...new Set(families.filter(Boolean))]
+  if (!uniq.length) return ''
+  const q = uniq.map((f) => `family=${encodeURIComponent(f).replace(/%20/g, '+')}:wght@400;500;600;700;800`).join('&')
+  return `https://fonts.googleapis.com/css2?${q}&display=swap`
+}
 
 // Typography sets · distinct heading/body pairings, CSP-safe (system stacks).
 export const SITE_FONTS: { id: SiteFont; label: string; heading: string; body: string }[] = [
@@ -210,16 +234,28 @@ const LAYOUT_CSS: Record<SiteLayout, string> = {
   bold: `h1{font-size:76px;font-weight:900;letter-spacing:-.03em;line-height:.96}h2{font-size:46px}.b-hero{padding:128px 24px}.b-hero p{font-size:22px}.btn{border-radius:0;padding:16px 30px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}.card,.tier{border-radius:0}.b-cta h2{font-size:52px}@media(max-width:720px){h1{font-size:44px}}`,
 }
 
-/** Site CSS = base + the chosen typography set + layout variant. */
-function siteCss(font?: SiteFont, layout?: SiteLayout): string {
-  const f = fontSet(font)
-  return `:root{--brand-heading:${f.heading};--brand-body:${f.body}}\n${BASE_SITE_CSS}\n${LAYOUT_CSS[layout ?? 'centered']}`
+/** The resolved heading/body font-family strings for a site (Google override → preset). */
+export function siteFontFamilies(site: SiteDoc): { heading: string; body: string } {
+  const f = fontSet(site.font)
+  const heading = site.headingFont ? `"${site.headingFont}", ${f.heading}` : f.heading
+  const body = site.bodyFont ? `"${site.bodyFont}", ${f.body}` : f.body
+  return { heading, body }
+}
+
+/** Site CSS (no @import — the Google <link>/@import is emitted first in fullDoc). */
+function siteVarsCss(site: SiteDoc): string {
+  const fam = siteFontFamilies(site)
+  const hw = site.headingWeight ? `h1,h2,h3{font-weight:${site.headingWeight}}` : ''
+  const bs = site.baseSize ? `body{font-size:${site.baseSize}px}` : ''
+  return `:root{--brand-heading:${fam.heading};--brand-body:${fam.body}}\n${BASE_SITE_CSS}\n${LAYOUT_CSS[site.layout ?? 'centered']}\n${hw}${bs}`
 }
 
 /** A complete standalone HTML document · used for the iframe AND the export. */
 export function fullDoc(site: SiteDoc, kit: BrandKit): string {
   const body = site.blocks.map(blockHtml).join('\n')
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${kitCss(kit)}\n${siteCss(site.font, site.layout)}</style></head><body>${body}</body></html>`
+  const href = googleFontsHref([site.headingFont ?? '', site.bodyFont ?? ''])
+  const gimport = href ? `@import url('${href}');\n` : ''
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${gimport}${kitCss(kit)}\n${siteVarsCss(site)}</style></head><body>${body}</body></html>`
 }
 
 // ---- inspector fields per block --------------------------------------------
