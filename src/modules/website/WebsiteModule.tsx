@@ -6,11 +6,12 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
-import type { BrandKit } from '../../lib/brand'
+import { type BrandKit, saveBrandKit } from '../../lib/brand'
 import {
   type SiteDoc, type Block, type BlockType, type TemplateCategory, BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
   generateFromTemplate, SITE_TEMPLATES, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
 } from '../../lib/site'
+import { PRESET_PALETTES, randomPalette, paletteToKit, kitToPalette, textOn } from '../../lib/palettes'
 import { WebsiteWizard } from './WebsiteWizard'
 import { StudioNext } from '../StudioNext'
 
@@ -28,6 +29,10 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [view, setView] = useState<'wizard' | 'gallery' | 'edit'>('wizard')
   const [cat, setCat] = useState<(TemplateCategory | 'All')>('All')
   const [saved, setSaved] = useState(false)
+  // colours · Coolors-style generator + preset palettes
+  const [colorsOpen, setColorsOpen] = useState(false)
+  const [gen, setGen] = useState<string[]>([])
+  const [locks, setLocks] = useState<boolean[]>([false, false, false, false, false])
 
   useEffect(() => {
     let alive = true
@@ -80,6 +85,35 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     setTimeout(() => URL.revokeObjectURL(a.href), 4000)
   }
 
+  // ---- colours: presets + Coolors-style generator ----
+  const openColors = () => {
+    if (!colorsOpen && brand && gen.length === 0) setGen(kitToPalette(brand.palette))
+    setColorsOpen((v) => !v)
+  }
+  const shuffle = () => setGen((cur) => randomPalette(locks.map((l, i) => (l ? (cur[i] || null) : null))))
+  const toggleLock = (i: number) => setLocks((ls) => ls.map((l, j) => (j === i ? !l : l)))
+  const setSwatch = (i: number, hex: string) => setGen((cur) => cur.map((c, j) => (j === i ? hex : c)))
+  const applyPalette = (colors: string[]) => {
+    if (!brand) return
+    const next = { ...brand, palette: paletteToKit(colors) }
+    setBrand(next)
+    void saveBrandKit(dojoId, next)
+    pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Colours applied', text: 'Your site & Brand Kit now use this palette.' })
+  }
+  // spacebar to generate, like Coolors (only while the panel is open)
+  useEffect(() => {
+    if (!colorsOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code !== 'Space') return
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      e.preventDefault(); shuffle()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colorsOpen, locks])
+
   if (view === 'wizard') {
     return <WebsiteWizard dojoId={dojoId} dojoName={dojoName} onCancel={() => setView('gallery')} onCreate={onWizardCreate} />
   }
@@ -130,11 +164,43 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
           <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">Mobile</button>
         </div>
         <div className="site-tb-actions">
+          <button className={`btn tiny ghost${colorsOpen ? ' on' : ''}`} onClick={openColors} title="Colours & palettes">🎨 Colours</button>
           <button className="btn tiny ghost" onClick={regenerate} title="Regenerate a first version">↺ 1st version</button>
           <button className="btn tiny" onClick={exportHtml}>Export HTML</button>
           <button className="btn primary tiny" onClick={() => void save()}>Save</button>
         </div>
       </div>
+
+      {/* colours: generator + presets */}
+      {colorsOpen && (
+        <div className="cw-panel">
+          <div className="cw-head">
+            <div><h4>Colour palette</h4><p>Generate a scheme (or press <kbd>space</kbd>), lock the ones you love, or pick a trending palette. Applies to your whole site.</p></div>
+            <button className="cw-close" onClick={() => setColorsOpen(false)} aria-label="Close">✕</button>
+          </div>
+          <div className="cw-gen">
+            {gen.map((c, i) => (
+              <div key={i} className="cw-swatch" style={{ background: c, color: textOn(c) }}>
+                <button className={`cw-lock${locks[i] ? ' on' : ''}`} onClick={() => toggleLock(i)} title={locks[i] ? 'Unlock' : 'Lock'}>{locks[i] ? '🔒' : '🔓'}</button>
+                <input className="cw-hex" value={c.toUpperCase()} style={{ color: textOn(c) }} onChange={(e) => { const v = e.target.value; if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setSwatch(i, v.startsWith('#') ? v : '#' + v) }} />
+              </div>
+            ))}
+          </div>
+          <div className="cw-actions">
+            <button className="btn tiny" onClick={shuffle}>⟳ Generate</button>
+            <button className="btn primary tiny" onClick={() => applyPalette(gen)}>Apply palette</button>
+          </div>
+          <div className="cw-presets-h">Trending palettes</div>
+          <div className="cw-presets">
+            {PRESET_PALETTES.map((p) => (
+              <button key={p.name} className="cw-preset" title={p.name} onClick={() => { setGen(p.colors); applyPalette(p.colors) }}>
+                <span className="cw-preset-strip">{p.colors.map((c, i) => <span key={i} style={{ background: c }} />)}</span>
+                <span className="cw-preset-n">{p.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* responsive preview (WYSIWYG === export) */}
       <div className={`site-preview ${device}`}>

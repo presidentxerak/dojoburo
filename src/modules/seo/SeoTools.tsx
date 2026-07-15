@@ -1,47 +1,45 @@
-// Semrush-style SEO / growth tool panels, shared by the Growth Studio (pumpi)
-// and Business Studio (busino). Everything is computed locally from the dojo's
-// own website (src/lib/seo.ts) · the Site Audit & keyword extraction are real,
-// the market metrics are seeded from the domain so they stay stable.
+// SEO / growth tool panels, shared by Growth Studio (pumpi) and Business Studio
+// (busino). No fabricated metrics: the Site Audit and On-page analysis are
+// computed live from the dojo's own website; the keyword tools, rank watchlist
+// and competitor list are real local tools the founder owns. Anything that needs
+// an external data source (organic traffic, rankings, backlinks, AI mentions)
+// shows an honest empty state until that source is connected.
 import { useEffect, useMemo, useState } from 'react'
-import { loadSite, generateSite, type SiteDoc } from '../../lib/site'
-import { loadBrandKit, type BrandKit } from '../../lib/brand'
+import { loadSite, type SiteDoc } from '../../lib/site'
 import {
-  buildSeoData, expandKeyword, fmt, kdBand, MONTHS, type SeoData, type KeywordRow, type Intent,
+  siteAudit, onPageReport, keywordIdeas, domainFor, fmt,
+  loadWatch, saveWatch, loadCompetitors, saveCompetitors,
+  type AuditReport, type OnPage, type Watched, type CompetitorEntry, type KeywordIdea,
 } from '../../lib/seo'
-import { AreaChart, Bars, Donut, ScoreRing, Spark } from './charts'
+import { ScoreRing } from './charts'
 import { useDojo } from '../../store'
 
 // ---- shared data hook -------------------------------------------------------
-export interface SeoBundle { data: SeoData | null; loading: boolean; hasSite: boolean; siteName: string }
+export interface SeoBundle { dojoId: string; siteName: string; domain: string; hasSite: boolean; loading: boolean; audit: AuditReport | null; onpage: OnPage | null }
 export function useSeoData(dojoId: string, dojoName: string): SeoBundle {
   const [site, setSite] = useState<SiteDoc | null>(null)
-  const [brand, setBrand] = useState<BrandKit | null>(null)
   const [hasSite, setHasSite] = useState(false)
   const [loading, setLoading] = useState(true)
   useEffect(() => {
     let alive = true
     setLoading(true)
-    Promise.all([loadSite(dojoId), loadBrandKit(dojoId)]).then(([s, b]) => {
-      if (!alive) return
-      setHasSite(!!s)
-      setSite(s || generateSite(dojoName || 'My company'))
-      setBrand(b)
-      setLoading(false)
-    })
+    loadSite(dojoId).then((s) => { if (!alive) return; setHasSite(!!s); setSite(s); setLoading(false) })
     return () => { alive = false }
-  }, [dojoId, dojoName])
-  const data = useMemo(() => (site ? buildSeoData(site, brand, dojoName) : null), [site, brand, dojoName])
-  return { data, loading, hasSite, siteName: site?.name || dojoName || 'My company' }
+  }, [dojoId])
+  const audit = useMemo(() => (site ? siteAudit(site) : null), [site])
+  const onpage = useMemo(() => (site && audit ? onPageReport(site, audit.score) : null), [site, audit])
+  return { dojoId, siteName: site?.name || dojoName || 'My company', domain: domainFor(site?.name || dojoName), hasSite, loading, audit, onpage }
 }
 
-// ---- small building blocks --------------------------------------------------
-function Kpi({ label, value, sub, trend, delta }: { label: string; value: string; sub?: string; trend?: number[]; delta?: number }) {
+// ---- building blocks --------------------------------------------------------
+const goConnect = () => { location.hash = 'connect' }
+function EmptyState({ title, text, connect, icon = '○' }: { title: string; text: string; connect?: string; icon?: string }) {
   return (
-    <div className="se-kpi">
-      <span className="se-kpi-l">{label}</span>
-      <div className="se-kpi-v">{value}{delta !== undefined && <em className={delta >= 0 ? 'up' : 'down'}>{delta >= 0 ? '▲' : '▼'} {Math.abs(delta)}%</em>}</div>
-      {trend && <Spark data={trend} fill />}
-      {sub && <span className="se-kpi-s">{sub}</span>}
+    <div className="se-empty">
+      <div className="se-empty-ic">{icon}</div>
+      <h4>{title}</h4>
+      <p>{text}</p>
+      {connect && <button className="se-btn" onClick={goConnect}>Connect {connect} →</button>}
     </div>
   )
 }
@@ -53,163 +51,95 @@ function Panel({ title, sub, right, children }: { title: string; sub?: string; r
     </section>
   )
 }
-function DomainBadge({ data }: { data: SeoData }) {
-  return <span className="se-domain"><span className="se-dot-live" />{data.domain}</span>
+function Head({ title, domain, hasSite }: { title: string; domain: string; hasSite: boolean }) {
+  return <div className="se-head"><h3>{title}</h3>{hasSite && <span className="se-domain"><span className="se-dot-live" />{domain}</span>}</div>
 }
-function NoSiteBanner({ hasSite }: { hasSite: boolean }) {
-  if (hasSite) return null
-  return <div className="se-banner">No website saved yet · these figures use a preview of your generated site. Build & save your site in <b>Website Studio</b> for a live audit and tracking.</div>
+const NoSite = () => <EmptyState icon="◱" title="No website yet" text="Build and save your site in the Website Studio first. Then this tool analyses it live." />
+
+// ---- watchlist hook (shared by Keyword research + Rank tracker) -------------
+function useWatch(dojoId: string): [Watched[], (k: string) => void, (k: string) => void] {
+  const [list, setList] = useState<Watched[]>([])
+  useEffect(() => { let a = true; loadWatch(dojoId).then((w) => { if (a) setList(w) }); return () => { a = false } }, [dojoId])
+  const add = (keyword: string) => setList((l) => { if (l.some((x) => x.keyword === keyword)) return l; const next = [{ keyword, addedAt: Date.now() }, ...l]; void saveWatch(dojoId, next); return next })
+  const remove = (keyword: string) => setList((l) => { const next = l.filter((x) => x.keyword !== keyword); void saveWatch(dojoId, next); return next })
+  return [list, add, remove]
 }
-const IntentTag = ({ intent }: { intent: Intent }) => <span className={`se-intent i-${intent[0].toLowerCase()}`}>{intent[0]}</span>
-const KdCell = ({ kd }: { kd: number }) => { const b = kdBand(kd); return <span className="se-kd"><span className="se-kd-dot" style={{ background: b.color }} />{kd}<em>{b.label}</em></span> }
-const PosCell = ({ p }: { p: number }) => p === 0 ? <span className="se-pos none">—</span> : <span className={`se-pos${p <= 3 ? ' top' : p <= 10 ? ' ok' : ''}`}>{p}</span>
 
 // =============================================================================
-// 1 · OVERVIEW (Domain overview)
+// 1 · OVERVIEW · real on-page snapshot + honest empty external metrics
 // =============================================================================
 export function SeoOverview({ b }: { b: SeoBundle }) {
-  const { data } = b
-  if (!data) return null
-  const ov = data.overview
+  if (!b.hasSite || !b.onpage) return <div className="se-wrap"><Head title="Overview" domain={b.domain} hasSite={b.hasSite} /><NoSite /></div>
+  const o = b.onpage
   return (
     <div className="se-wrap">
-      <NoSiteBanner hasSite={b.hasSite} />
-      <div className="se-head"><h3>Domain overview</h3><DomainBadge data={data} /></div>
-      <div className="se-kpis">
-        <Kpi label="Authority Score" value={String(ov.authority)} sub="/ 100" trend={ov.authTrend} />
-        <Kpi label="Organic traffic" value={fmt(ov.organicTraffic)} sub="visits / mo" trend={ov.trafficTrend} />
-        <Kpi label="Organic keywords" value={fmt(ov.organicKeywords)} sub="ranking" trend={ov.keywordTrend} />
-        <Kpi label="Backlinks" value={fmt(ov.backlinks)} sub={`${fmt(ov.referringDomains)} ref. domains`} />
-      </div>
+      <Head title="Overview" domain={b.domain} hasSite={b.hasSite} />
       <div className="se-grid-2">
-        <Panel title="Organic traffic trend" sub="Estimated monthly visits, last 12 months">
-          <AreaChart data={ov.trafficTrend} labels={MONTHS} />
-        </Panel>
-        <Panel title="Keyword positions" sub="Where your keywords rank on Google">
-          <div className="se-dist">
-            <Donut size={140} segments={ov.distribution.map((d, i) => ({ label: d.label, value: d.pct, color: ['#1fa563', '#5cb85c', '#d9a017', '#e0722e', '#c0392b'][i] }))}
-              center={<><b>{fmt(ov.organicKeywords)}</b><span>keywords</span></>} />
-            <ul className="se-legend">
-              {ov.distribution.map((d, i) => <li key={d.label}><span style={{ background: ['#1fa563', '#5cb85c', '#d9a017', '#e0722e', '#c0392b'][i] }} />{d.label}<em>{d.pct}%</em></li>)}
+        <Panel title="Site health" sub="Live on-page SEO score for your website">
+          <div className="se-ring-row"><ScoreRing value={o.health} size={132} label="health" />
+            <ul className="se-facts">
+              <li><b>{fmt(o.words)}</b> words · <b>{o.sections}</b> sections</li>
+              <li><b>{o.h1}</b> H1 · <b>{o.h2}</b> H2 · <b>{o.h3}</b> H3</li>
+              <li><b>{o.links}</b> internal links</li>
+              <li>{o.hasForm ? 'Contact form ✓' : 'No contact form'} · {o.hasCta ? 'CTA ✓' : 'No CTA'}</li>
             </ul>
           </div>
         </Panel>
+        <Panel title="Top on-page keywords" sub="Words your page actually emphasises (real density)">
+          {o.density.length ? (
+            <ul className="se-density">
+              {o.density.slice(0, 8).map((d) => (
+                <li key={d.word}><span className="se-dw">{d.word}</span><div className="se-catbar-t"><div style={{ width: `${Math.min(100, d.pct * 8)}%`, background: 'var(--dc)' }} /></div><b>{d.count}</b><em>{d.pct}%</em></li>
+              ))}
+            </ul>
+          ) : <p className="se-muted">Add more text to your site to see keyword density.</p>}
+        </Panel>
       </div>
-      <Panel title="Top organic keywords" sub="Your best-ranking search terms">
-        <KeywordTable rows={ov.topKeywords} />
-      </Panel>
+      <div className="se-eyebrow-row"><span className="se-eyebrow">Traffic & rankings</span></div>
+      <div className="se-grid-3">
+        <div className="se-extcard"><span className="se-kpi-l">Organic traffic</span><EmptyMini connect="Google Analytics" /></div>
+        <div className="se-extcard"><span className="se-kpi-l">Keyword rankings</span><EmptyMini connect="Search Console" /></div>
+        <div className="se-extcard"><span className="se-kpi-l">Backlinks</span><EmptyMini connect="Search Console" /></div>
+      </div>
     </div>
   )
 }
-
-// =============================================================================
-// 2 · KEYWORD RESEARCH (Keyword Magic Tool)
-// =============================================================================
-function KeywordTable({ rows, onAdd, tracked }: { rows: KeywordRow[]; onAdd?: (k: string) => void; tracked?: Set<string> }) {
-  return (
-    <div className="se-tablewrap">
-      <table className="se-table">
-        <thead><tr><th>Keyword</th><th>Intent</th><th className="r">Volume</th><th>KD %</th><th className="r">CPC</th><th className="r">Pos.</th><th>Trend</th>{onAdd && <th></th>}</tr></thead>
-        <tbody>
-          {rows.map((k) => (
-            <tr key={k.keyword}>
-              <td className="se-kw">{k.keyword}{k.serp.length > 0 && <span className="se-serp" title={k.serp.join(', ')}>◈ {k.serp.length}</span>}</td>
-              <td><IntentTag intent={k.intent} /></td>
-              <td className="r"><b>{fmt(k.volume)}</b></td>
-              <td><KdCell kd={k.kd} /></td>
-              <td className="r">${k.cpc.toFixed(2)}</td>
-              <td className="r"><PosCell p={k.position} /></td>
-              <td><Spark data={k.trend} w={64} h={22} /></td>
-              {onAdd && <td><button className={`se-add${tracked?.has(k.keyword) ? ' on' : ''}`} onClick={() => onAdd(k.keyword)}>{tracked?.has(k.keyword) ? '✓' : '+'}</button></td>}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
+function EmptyMini({ connect }: { connect: string }) {
+  return <div className="se-extmini"><b>No data</b><button className="se-link" onClick={goConnect}>Connect {connect} →</button></div>
 }
 
+// =============================================================================
+// 2 · KEYWORD RESEARCH · real idea generator + add to watchlist
+// =============================================================================
 export function KeywordResearch({ b }: { b: SeoBundle }) {
   const pushToast = useDojo((s) => s.pushToast)
-  const { data } = b
   const [q, setQ] = useState('')
-  const [rows, setRows] = useState<KeywordRow[] | null>(null)
-  const [tracked, setTracked] = useState<Set<string>>(new Set())
-  if (!data) return null
-  const run = () => { if (q.trim()) setRows(expandKeyword(q, data.domain)) }
-  const shown = rows || data.universe
-  const add = (k: string) => {
-    setTracked((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n })
-    pushToast({ kind: 'event', badge: 'SEO', color: '#d98c17', title: 'Keyword tracked', text: `"${k}" added to your position tracker.` })
-  }
-  const totalVol = shown.reduce((s, k) => s + k.volume, 0)
-  const avgKd = Math.round(shown.reduce((s, k) => s + k.kd, 0) / (shown.length || 1))
+  const [ideas, setIdeas] = useState<KeywordIdea[] | null>(null)
+  const [watch, addWatch] = useWatch(b.dojoId)
+  const watched = useMemo(() => new Set(watch.map((w) => w.keyword)), [watch])
+  if (!b.hasSite) return <div className="se-wrap"><Head title="Keyword research" domain={b.domain} hasSite={b.hasSite} /><NoSite /></div>
+  const run = () => setIdeas(keywordIdeas(q, { name: b.siteName, blocks: [], updatedAt: 0 } as SiteDoc))
+  const shown = ideas || keywordIdeas('', { name: b.siteName, blocks: [], updatedAt: 0 } as SiteDoc)
+  const add = (k: string) => { addWatch(k); pushToast({ kind: 'event', badge: 'SEO', color: '#d98c17', title: 'Added to tracker', text: `"${k}" is on your rank watchlist.` }) }
   return (
     <div className="se-wrap">
-      <div className="se-head"><h3>Keyword research</h3><DomainBadge data={data} /></div>
+      <Head title="Keyword research" domain={b.domain} hasSite={b.hasSite} />
       <div className="se-search">
         <input value={q} placeholder="Enter a seed keyword, e.g. coffee subscription" onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') run() }} />
-        <button className="se-btn" onClick={run}>Find keywords</button>
-        {rows && <button className="se-btn ghost" onClick={() => { setRows(null); setQ('') }}>Reset</button>}
+        <button className="se-btn" onClick={run}>Generate ideas</button>
       </div>
-      <div className="se-kpis">
-        <Kpi label="Keywords found" value={fmt(shown.length)} />
-        <Kpi label="Total volume" value={fmt(totalVol)} sub="searches / mo" />
-        <Kpi label="Avg. difficulty" value={`${avgKd}%`} sub={kdBand(avgKd).label} />
-        <Kpi label="Tracked" value={String(tracked.size)} sub="in tracker" />
-      </div>
-      <Panel title={rows ? `Ideas for "${q}"` : 'Keywords from your website'} sub="Click + to add a keyword to your position tracker">
-        <KeywordTable rows={shown} onAdd={add} tracked={tracked} />
-      </Panel>
-    </div>
-  )
-}
-
-// =============================================================================
-// 3 · POSITION TRACKING
-// =============================================================================
-export function PositionTracking({ b }: { b: SeoBundle }) {
-  const { data } = b
-  if (!data) return null
-  const tk = data.tracked
-  const avgPos = tk.length ? Math.round(tk.reduce((s, k) => s + k.position, 0) / tk.length) : 0
-  const improved = tk.filter((k) => k.change > 0).length
-  const declined = tk.filter((k) => k.change < 0).length
-  // average position over time (inverted so up = better)
-  const avgSeries = MONTHS.map((_, i) => Math.round(tk.reduce((s, k) => s + k.history[i], 0) / (tk.length || 1)))
-  return (
-    <div className="se-wrap">
-      <NoSiteBanner hasSite={b.hasSite} />
-      <div className="se-head"><h3>Position tracking</h3><DomainBadge data={data} /></div>
-      <div className="se-grid-2">
-        <Panel title="Visibility" sub="Share of clicks captured by your rankings">
-          <div className="se-ring-row"><ScoreRing value={data.visibility} label="visibility" />
-            <ul className="se-facts">
-              <li><b>{tk.length}</b> keywords tracked</li>
-              <li><b className="up">▲ {improved}</b> improved this week</li>
-              <li><b className="down">▼ {declined}</b> declined</li>
-              <li>Avg. position <b>{avgPos || '—'}</b></li>
-            </ul>
-          </div>
-        </Panel>
-        <Panel title="Average position" sub="Lower is better · last 12 months">
-          <AreaChart data={avgSeries.map((v) => 101 - v)} labels={MONTHS} />
-          <p className="se-note">Chart inverted so a rising line means better rankings.</p>
-        </Panel>
-      </div>
-      <Panel title="Tracked keywords" sub="Current rank, weekly change and 12-week history">
+      <div className="se-banner">Ideas are real keyword phrases. Search volume & difficulty need a connected SEO source (Search Console) — <button className="se-link" onClick={goConnect}>connect one →</button></div>
+      <Panel title={ideas ? `Ideas for "${q || b.siteName}"` : 'Keyword ideas for your brand'} sub="“On page” = the phrase already appears on your site">
         <div className="se-tablewrap">
           <table className="se-table">
-            <thead><tr><th>Keyword</th><th className="r">Volume</th><th className="r">Pos.</th><th className="r">Change</th><th className="r">Best</th><th>History</th></tr></thead>
+            <thead><tr><th>Keyword</th><th>Words</th><th>On page?</th><th></th></tr></thead>
             <tbody>
-              {tk.map((k) => (
+              {shown.map((k) => (
                 <tr key={k.keyword}>
                   <td className="se-kw">{k.keyword}</td>
-                  <td className="r">{fmt(k.volume)}</td>
-                  <td className="r"><PosCell p={k.position} /></td>
-                  <td className="r"><span className={k.change > 0 ? 'up' : k.change < 0 ? 'down' : ''}>{k.change > 0 ? `▲ ${k.change}` : k.change < 0 ? `▼ ${Math.abs(k.change)}` : '—'}</span></td>
-                  <td className="r">{k.best}</td>
-                  <td><Spark data={k.history.map((v) => 101 - v)} w={80} h={22} /></td>
+                  <td>{k.words}</td>
+                  <td>{k.onPage ? <span className="se-tag2 follow">On page</span> : <span className="se-tag2 nofollow">Gap</span>}</td>
+                  <td><button className={`se-add${watched.has(k.keyword) ? ' on' : ''}`} onClick={() => add(k.keyword)}>{watched.has(k.keyword) ? '✓' : '+'}</button></td>
                 </tr>
               ))}
             </tbody>
@@ -221,21 +151,53 @@ export function PositionTracking({ b }: { b: SeoBundle }) {
 }
 
 // =============================================================================
-// 4 · SITE AUDIT (real, computed from the SiteDoc)
+// 3 · RANK TRACKER · real local watchlist (positions need Search Console)
+// =============================================================================
+export function RankTracker({ b }: { b: SeoBundle }) {
+  const [watch, , removeWatch] = useWatch(b.dojoId)
+  return (
+    <div className="se-wrap">
+      <Head title="Rank tracker" domain={b.domain} hasSite={b.hasSite} />
+      <div className="se-banner">Live positions require a connected <b>Google Search Console</b> account. Your watchlist below is saved locally — <button className="se-link" onClick={goConnect}>connect to see rankings →</button></div>
+      {watch.length === 0
+        ? <EmptyState icon="◎" title="No keywords tracked yet" text="Add keywords from Keyword research to build your rank watchlist." />
+        : (
+          <Panel title={`Watchlist (${watch.length})`} sub="Keywords you're tracking">
+            <div className="se-tablewrap">
+              <table className="se-table">
+                <thead><tr><th>Keyword</th><th className="r">Position</th><th>Added</th><th></th></tr></thead>
+                <tbody>
+                  {watch.map((w) => (
+                    <tr key={w.keyword}>
+                      <td className="se-kw">{w.keyword}</td>
+                      <td className="r"><span className="se-pos none" title="Connect Search Console">—</span></td>
+                      <td className="se-muted">{new Date(w.addedAt).toLocaleDateString()}</td>
+                      <td><button className="se-add" onClick={() => removeWatch(w.keyword)} title="Remove">✕</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        )}
+    </div>
+  )
+}
+
+// =============================================================================
+// 4 · SITE AUDIT (real)
 // =============================================================================
 const sevColor: Record<string, string> = { error: '#c0392b', warning: '#d9a017', notice: '#2f7fd6' }
 export function SiteAudit({ b }: { b: SeoBundle }) {
-  const { data } = b
   const [filter, setFilter] = useState<'all' | 'error' | 'warning' | 'notice'>('all')
-  if (!data) return null
-  const a = data.audit
+  if (!b.hasSite || !b.audit) return <div className="se-wrap"><Head title="Site audit" domain={b.domain} hasSite={b.hasSite} /><NoSite /></div>
+  const a = b.audit
   const issues = a.issues.filter((i) => filter === 'all' || i.severity === filter)
   return (
     <div className="se-wrap">
-      <NoSiteBanner hasSite={b.hasSite} />
-      <div className="se-head"><h3>Site audit</h3><DomainBadge data={data} /></div>
+      <Head title="Site audit" domain={b.domain} hasSite={b.hasSite} />
       <div className="se-grid-2">
-        <Panel title="Site health" sub={`${a.crawled} page crawled · live analysis of your website`}>
+        <Panel title="Site health" sub={`${a.crawled} page crawled · live analysis`}>
           <div className="se-ring-row"><ScoreRing value={a.score} size={132} label="health" />
             <ul className="se-facts">
               <li><span className="se-chip err">{a.errors} errors</span></li>
@@ -247,25 +209,18 @@ export function SiteAudit({ b }: { b: SeoBundle }) {
         <Panel title="Health by category">
           <div className="se-catbars">
             {a.categories.map((c) => (
-              <div key={c.name} className="se-catbar">
-                <span>{c.name}</span>
-                <div className="se-catbar-t"><div style={{ width: `${c.score}%`, background: c.score >= 80 ? '#1fa563' : c.score >= 55 ? '#d9a017' : '#c0392b' }} /></div>
-                <b>{c.score}</b>
-              </div>
+              <div key={c.name} className="se-catbar"><span>{c.name}</span>
+                <div className="se-catbar-t"><div style={{ width: `${c.score}%`, background: c.score >= 80 ? '#1fa563' : c.score >= 55 ? '#d9a017' : '#c0392b' }} /></div><b>{c.score}</b></div>
             ))}
           </div>
         </Panel>
       </div>
       <Panel title="On-page metrics" sub="Measured from your live site content">
         <div className="se-metrics">
-          {a.metrics.map((m) => (
-            <div key={m.label} className={`se-metric ${m.ok ? 'ok' : 'bad'}`}>
-              <span>{m.label}</span><b>{m.value}</b>
-            </div>
-          ))}
+          {a.metrics.map((m) => <div key={m.label} className={`se-metric ${m.ok ? 'ok' : 'bad'}`}><span>{m.label}</span><b>{m.value}</b></div>)}
         </div>
       </Panel>
-      <Panel title={`Issues (${a.issues.length})`} sub="Prioritised · fix errors first"
+      <Panel title={`Issues (${a.issues.length})`} sub="Fix errors first"
         right={<div className="se-seg">{(['all', 'error', 'warning', 'notice'] as const).map((f) => <button key={f} className={filter === f ? 'on' : ''} onClick={() => setFilter(f)}>{f === 'all' ? 'All' : f + 's'}</button>)}</div>}>
         <ul className="se-issues">
           {issues.map((i) => (
@@ -275,7 +230,7 @@ export function SiteAudit({ b }: { b: SeoBundle }) {
               <span className="se-issue-cat">{i.category}</span>
             </li>
           ))}
-          {!issues.length && <li className="se-issue"><div><b>No issues in this filter 🎉</b></div></li>}
+          {!issues.length && <li className="se-issue"><div><b>No issues in this filter.</b></div></li>}
         </ul>
       </Panel>
     </div>
@@ -283,199 +238,90 @@ export function SiteAudit({ b }: { b: SeoBundle }) {
 }
 
 // =============================================================================
-// 5 · BACKLINKS
+// 5 · BACKLINKS (empty · external source)
 // =============================================================================
 export function Backlinks({ b }: { b: SeoBundle }) {
-  const { data } = b
-  if (!data) return null
-  const bl = data.backlinks
   return (
     <div className="se-wrap">
-      <NoSiteBanner hasSite={b.hasSite} />
-      <div className="se-head"><h3>Backlink analytics</h3><DomainBadge data={data} /></div>
-      <div className="se-kpis">
-        <Kpi label="Total backlinks" value={fmt(bl.total)} trend={bl.authorityTrend} />
-        <Kpi label="Referring domains" value={fmt(bl.referringDomains)} />
-        <Kpi label="Follow links" value={`${bl.follow}%`} sub={`${bl.nofollow}% nofollow`} />
-        <Kpi label="Authority Score" value={String(data.overview.authority)} sub="/ 100" trend={bl.authorityTrend} />
-      </div>
-      <div className="se-grid-2">
-        <Panel title="New vs lost referring domains" sub="Last 6 months">
-          <Bars items={bl.newLost.flatMap((m) => [{ label: m.month, value: m.gained, color: '#1fa563' }])} />
-          <div className="se-legend inline"><li><span style={{ background: '#1fa563' }} />Gained</li></div>
-        </Panel>
-        <Panel title="Anchor text distribution">
-          <div className="se-dist">
-            <Donut size={140} segments={bl.anchors.map((a, i) => ({ label: a.text, value: a.pct, color: ['var(--dc)', '#2f7fd6', '#a855f7', '#e0459b', '#d9a017', '#8a94a6'][i % 6] }))} center={<><b>{bl.anchors.length}</b><span>anchors</span></>} />
-            <ul className="se-legend">
-              {bl.anchors.map((a, i) => <li key={a.text}><span style={{ background: ['var(--dc)', '#2f7fd6', '#a855f7', '#e0459b', '#d9a017', '#8a94a6'][i % 6] }} />{a.text}<em>{a.pct}%</em></li>)}
-            </ul>
-          </div>
-        </Panel>
-      </div>
-      <Panel title="Top referring domains" sub="Sites linking to you, by authority">
-        <div className="se-tablewrap">
-          <table className="se-table">
-            <thead><tr><th>Domain</th><th className="r">Authority</th><th className="r">Links</th><th>Type</th><th>First seen</th></tr></thead>
-            <tbody>
-              {bl.topDomains.map((d) => (
-                <tr key={d.domain}>
-                  <td className="se-kw">{d.domain}</td>
-                  <td className="r"><span className="se-authbar"><span style={{ width: `${d.authority}%` }} />{d.authority}</span></td>
-                  <td className="r">{d.links}</td>
-                  <td><span className={`se-tag2 ${d.follow ? 'follow' : 'nofollow'}`}>{d.follow ? 'Follow' : 'Nofollow'}</span></td>
-                  <td className="se-muted">{d.first}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+      <Head title="Backlinks" domain={b.domain} hasSite={b.hasSite} />
+      <EmptyState icon="⛓" title="No backlink data yet" text="Backlink and referring-domain data comes from Google Search Console. Connect it to see who links to your site." connect="Search Console" />
     </div>
   )
 }
 
 // =============================================================================
-// 6 · TRAFFIC ANALYTICS
+// 6 · TRAFFIC ANALYTICS (empty · external source)
 // =============================================================================
 export function TrafficAnalytics({ b }: { b: SeoBundle }) {
-  const { data } = b
-  if (!data) return null
-  const t = data.traffic
   return (
     <div className="se-wrap">
-      <NoSiteBanner hasSite={b.hasSite} />
-      <div className="se-head"><h3>Traffic analytics</h3><DomainBadge data={data} /></div>
-      <div className="se-kpis">
-        <Kpi label="Visits" value={fmt(t.visits)} sub="/ mo" trend={t.sessionsTrend} />
-        <Kpi label="Unique visitors" value={fmt(t.users)} />
-        <Kpi label="Bounce rate" value={`${t.bounce}%`} />
-        <Kpi label="Avg. visit" value={`${Math.floor(t.duration / 60)}m ${t.duration % 60}s`} sub={`${t.pagesPerVisit} pages/visit`} />
-      </div>
-      <div className="se-grid-2">
-        <Panel title="Sessions" sub="Daily visits, last 30 days"><AreaChart data={t.sessionsTrend} /></Panel>
-        <Panel title="Traffic sources">
-          <div className="se-dist">
-            <Donut size={140} segments={t.sources.map((s) => ({ label: s.name, value: s.value, color: s.color }))} center={<><b>{fmt(t.visits)}</b><span>visits</span></>} />
-            <ul className="se-legend">{t.sources.map((s) => <li key={s.name}><span style={{ background: s.color }} />{s.name}<em>{s.value}%</em></li>)}</ul>
-          </div>
-        </Panel>
-      </div>
-      <div className="se-grid-2">
-        <Panel title="Devices">
-          <div className="se-catbars">
-            {t.devices.map((d) => (
-              <div key={d.name} className="se-catbar"><span>{d.name}</span><div className="se-catbar-t"><div style={{ width: `${d.pct}%`, background: 'var(--dc)' }} /></div><b>{d.pct}%</b></div>
-            ))}
-          </div>
-        </Panel>
-        <Panel title="Top countries">
-          <ul className="se-geo">
-            {t.geo.map((g) => (
-              <li key={g.code}><span className="se-flag">{g.code}</span><span className="se-geo-n">{g.country}</span><div className="se-geo-t"><div style={{ width: `${g.pct}%` }} /></div><b>{g.pct}%</b></li>
-            ))}
-          </ul>
-        </Panel>
-      </div>
-      <Panel title="Top pages" sub="Most-visited pages on your site">
-        <div className="se-tablewrap">
-          <table className="se-table">
-            <thead><tr><th>Page</th><th className="r">Views</th><th className="r">Share</th><th>Distribution</th></tr></thead>
-            <tbody>
-              {t.topPages.map((p) => (
-                <tr key={p.path}><td className="se-kw">{p.path}</td><td className="r">{fmt(p.views)}</td><td className="r">{p.share}%</td>
-                  <td><div className="se-catbar-t"><div style={{ width: `${p.share}%`, background: 'var(--dc)' }} /></div></td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+      <Head title="Traffic analytics" domain={b.domain} hasSite={b.hasSite} />
+      <EmptyState icon="◔" title="No traffic data yet" text="Visitor, source, device and geography data comes from Google Analytics. Connect it to see how people find and use your site." connect="Google Analytics" />
     </div>
   )
 }
 
 // =============================================================================
-// 7 · COMPETITORS (Market explorer)
+// 7 · COMPETITORS · real local list the founder maintains
 // =============================================================================
 export function Competitors({ b }: { b: SeoBundle }) {
-  const { data } = b
-  if (!data) return null
-  const cs = data.competitors
-  const maxTraffic = Math.max(...cs.map((c) => c.traffic), data.overview.organicTraffic, 1)
-  const maxAuth = Math.max(...cs.map((c) => c.authority), data.overview.authority, 1)
-  const dot = (auth: number, traf: number) => ({ left: `${(auth / maxAuth) * 88 + 6}%`, bottom: `${(traf / maxTraffic) * 78 + 8}%` })
+  const pushToast = useDojo((s) => s.pushToast)
+  const [list, setList] = useState<CompetitorEntry[]>([])
+  const [domain, setDomain] = useState('')
+  const [note, setNote] = useState('')
+  useEffect(() => { let a = true; loadCompetitors(b.dojoId).then((c) => { if (a) setList(c) }); return () => { a = false } }, [b.dojoId])
+  const add = () => {
+    const d = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '')
+    if (!d) return
+    if (list.some((x) => x.domain === d)) { setDomain(''); return }
+    const next = [{ domain: d, note: note.trim(), addedAt: Date.now() }, ...list]
+    setList(next); void saveCompetitors(b.dojoId, next); setDomain(''); setNote('')
+    pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: 'Competitor added', text: `Tracking ${d}.` })
+  }
+  const remove = (d: string) => { const next = list.filter((x) => x.domain !== d); setList(next); void saveCompetitors(b.dojoId, next) }
   return (
     <div className="se-wrap">
-      <div className="se-head"><h3>Competitive landscape</h3><DomainBadge data={data} /></div>
-      <Panel title="Positioning map" sub="Authority (→) vs organic traffic (↑) · you in colour">
-        <div className="se-scatter">
-          <span className="se-axis-y">Traffic</span><span className="se-axis-x">Authority Score</span>
-          <div className="se-dotme" style={dot(data.overview.authority, data.overview.organicTraffic)} title={`${data.domain} · you`}>You</div>
-          {cs.map((c) => <div key={c.domain} className="se-dotc" style={dot(c.authority, c.traffic)} title={`${c.domain} · AS ${c.authority} · ${fmt(c.traffic)} visits`}>{c.domain.split('.')[0]}</div>)}
+      <Head title="Competitors" domain={b.domain} hasSite={b.hasSite} />
+      <Panel title="Add a competitor" sub="Track the sites you compete with · saved locally">
+        <div className="se-search">
+          <input value={domain} placeholder="competitor.com" onChange={(e) => setDomain(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') add() }} />
+          <input value={note} placeholder="Note (optional)" onChange={(e) => setNote(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') add() }} />
+          <button className="se-btn" onClick={add}>Add</button>
         </div>
       </Panel>
-      <Panel title="Competitors" sub="Domains competing for your keywords">
-        <div className="se-tablewrap">
-          <table className="se-table">
-            <thead><tr><th>Domain</th><th className="r">Authority</th><th className="r">Traffic</th><th className="r">Keywords</th><th className="r">Common</th><th>Overlap</th></tr></thead>
-            <tbody>
-              <tr className="se-me-row"><td className="se-kw">{data.domain} <em>(you)</em></td><td className="r">{data.overview.authority}</td><td className="r">{fmt(data.overview.organicTraffic)}</td><td className="r">{fmt(data.overview.organicKeywords)}</td><td className="r">—</td><td></td></tr>
-              {cs.map((c) => (
-                <tr key={c.domain}>
-                  <td className="se-kw">{c.domain}</td>
-                  <td className="r"><span className="se-authbar"><span style={{ width: `${c.authority}%` }} />{c.authority}</span></td>
-                  <td className="r">{fmt(c.traffic)}</td>
-                  <td className="r">{fmt(c.keywords)}</td>
-                  <td className="r">{c.common}</td>
-                  <td><div className="se-catbar-t"><div style={{ width: `${c.overlap}%`, background: 'var(--dc)' }} /></div></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+      {list.length === 0
+        ? <EmptyState icon="⚔" title="No competitors tracked" text="Add the domains you compete with above. Traffic & keyword comparison unlocks when you connect an SEO data source." />
+        : (
+          <Panel title={`Your competitors (${list.length})`}>
+            <div className="se-tablewrap">
+              <table className="se-table">
+                <thead><tr><th>Domain</th><th>Note</th><th className="r">Traffic vs you</th><th></th></tr></thead>
+                <tbody>
+                  {list.map((c) => (
+                    <tr key={c.domain}>
+                      <td className="se-kw"><a href={`https://${c.domain}`} target="_blank" rel="noreferrer">{c.domain} ↗</a></td>
+                      <td className="se-muted">{c.note || '—'}</td>
+                      <td className="r"><span className="se-pos none" title="Connect a data source">—</span></td>
+                      <td><button className="se-add" onClick={() => remove(c.domain)} title="Remove">✕</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        )}
     </div>
   )
 }
 
 // =============================================================================
-// 8 · AI VISIBILITY
+// 8 · AI VISIBILITY (empty · external monitoring)
 // =============================================================================
 export function AiVisibilityPanel({ b }: { b: SeoBundle }) {
-  const { data } = b
-  if (!data) return null
-  const ai = data.ai
   return (
     <div className="se-wrap">
-      <div className="se-head"><h3>AI visibility</h3><DomainBadge data={data} /></div>
-      <p className="se-lead">How often AI assistants (ChatGPT, Gemini, Perplexity, Google AI) mention your brand when people ask about your market.</p>
-      <div className="se-grid-2">
-        <Panel title="AI visibility score" sub="Presence across AI answers">
-          <div className="se-ring-row"><ScoreRing value={ai.score} label="AI score" />
-            <ul className="se-facts">
-              <li>Mention rate <b>{ai.mentionRate}%</b></li>
-              <li>Sentiment <b className={ai.sentiment >= 50 ? 'up' : ''}>{ai.sentiment}/100</b></li>
-              <li>{ai.prompts.filter((p) => p.mentioned).length}/{ai.prompts.length} test prompts mention you</li>
-            </ul>
-          </div>
-        </Panel>
-        <Panel title="Share by platform">
-          <div className="se-dist">
-            <Donut size={140} segments={ai.platforms.map((p, i) => ({ label: p.name, value: p.share, color: ['#10a37f', '#4285f4', '#8a3ffc', '#d9a017'][i % 4] }))} center={<><b>{ai.mentionRate}%</b><span>mentions</span></>} />
-            <ul className="se-legend">{ai.platforms.map((p, i) => <li key={p.name}><span style={{ background: ['#10a37f', '#4285f4', '#8a3ffc', '#d9a017'][i % 4] }} />{p.name}<em>{p.mentions}</em></li>)}</ul>
-          </div>
-        </Panel>
-      </div>
-      <Panel title="Prompt monitoring" sub="Sample prompts we check for your brand">
-        <ul className="se-prompts">
-          {ai.prompts.map((p) => (
-            <li key={p.prompt} className={p.mentioned ? 'yes' : 'no'}>
-              <span className="se-prompt-q">“{p.prompt}”</span>
-              {p.mentioned ? <span className="se-prompt-r ok">Mentioned · #{p.position}</span> : <span className="se-prompt-r">Not mentioned</span>}
-            </li>
-          ))}
-        </ul>
-      </Panel>
+      <Head title="AI visibility" domain={b.domain} hasSite={b.hasSite} />
+      <EmptyState icon="✶" title="AI visibility monitoring" text="Track how often AI assistants (ChatGPT, Gemini, Perplexity, Google AI Overviews) mention your brand. This needs a connected AI-monitoring source — no data yet." connect="an AI source" />
     </div>
   )
 }

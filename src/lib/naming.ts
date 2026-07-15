@@ -149,8 +149,11 @@ export function combineNames(words: string[], seed = 0): string[] {
 
 export interface DomainResult { domain: string; tld: string; status: 'available' | 'taken' | 'unknown' }
 
+/** The TLDs we check + price, in priority order (.com first). */
+export const BRAND_TLDS = ['com', 'io', 'co', 'dev', 'app', 'org', 'net', 'ai', 'so', 'me', 'to']
+
 /** Check real domain availability for a name via the server-side RDAP proxy. */
-export async function checkDomains(name: string, tlds?: string[]): Promise<DomainResult[]> {
+export async function checkDomains(name: string, tlds: string[] = BRAND_TLDS): Promise<DomainResult[]> {
   const q = new URLSearchParams({ name })
   if (tlds?.length) q.set('tlds', tlds.join(','))
   try {
@@ -162,7 +165,66 @@ export async function checkDomains(name: string, tlds?: string[]): Promise<Domai
   }
 }
 
-/** Guessed social handles for a name (display only). */
+// ---------------------------------------------------------------------------
+// Registrar price comparison · indicative public list prices (USD / yr, 2024).
+// We surface the best price across 6 registrars and deep-link to their search.
+// These are reference prices, not a live feed · the "Get" link opens the real
+// registrar so the user confirms the current price there.
+// ---------------------------------------------------------------------------
+export const REGISTRARS = ['Dynadot', 'Porkbun', 'Cloudflare', 'Spaceship', 'Namecheap', 'Gandi'] as const
+export type Registrar = typeof REGISTRARS[number]
+
+// [Dynadot, Porkbun, Cloudflare, Spaceship, Namecheap, Gandi]
+const TLD_PRICE_ROWS: Record<string, number[]> = {
+  com: [8.99, 9.13, 9.15, 9.06, 9.98, 14.50],
+  io: [32.00, 29.88, 36.00, 31.00, 32.98, 40.00],
+  co: [10.99, 11.24, 11.40, 11.10, 12.98, 13.50],
+  dev: [12.00, 10.88, 10.18, 11.00, 12.98, 15.00],
+  app: [13.00, 12.28, 11.18, 12.00, 14.00, 16.00],
+  org: [10.99, 9.75, 10.00, 9.48, 11.98, 15.00],
+  net: [11.99, 11.06, 11.00, 10.48, 12.98, 17.00],
+  ai: [65.00, 54.88, 62.00, 60.00, 68.00, 75.00],
+  so: [27.00, 24.00, 26.00, 25.00, 28.00, 30.00],
+  me: [9.50, 8.50, 9.50, 9.00, 10.00, 12.00],
+  to: [30.00, 28.00, 30.00, 29.00, 32.00, 35.00],
+}
+
+export interface PriceQuote { registrar: Registrar; price: number }
+export function registrarPrices(tld: string): PriceQuote[] {
+  const row = TLD_PRICE_ROWS[tld]
+  if (!row) return []
+  return REGISTRARS.map((registrar, i) => ({ registrar, price: row[i] })).sort((a, b) => a.price - b.price)
+}
+export function bestPrice(tld: string): PriceQuote | null {
+  const p = registrarPrices(tld)
+  return p.length ? p[0] : null
+}
+/** Deep link to a registrar's search/checkout for a specific domain. */
+export function registrarUrl(registrar: Registrar, domain: string): string {
+  const d = encodeURIComponent(domain)
+  switch (registrar) {
+    case 'Dynadot': return `https://www.dynadot.com/domain/search?domain=${d}`
+    case 'Porkbun': return `https://porkbun.com/checkout/search?q=${d}`
+    case 'Cloudflare': return `https://www.cloudflare.com/products/registrar/`
+    case 'Spaceship': return `https://www.spaceship.com/domain-search/?query=${d}`
+    case 'Namecheap': return `https://www.namecheap.com/domains/registration/results/?domain=${d}`
+    case 'Gandi': return `https://shop.gandi.net/en/domain/suggest?search=${d}`
+    default: return `https://www.google.com/search?q=register+${d}`
+  }
+}
+
+export interface SocialProfile { platform: string; handle: string; url: string }
+/** Suggested social profiles for a name (display + deep link · not live-checked). */
+export function socialProfiles(name: string): SocialProfile[] {
+  const h = name.toLowerCase().replace(/[^a-z0-9]/g, '')
+  return [
+    { platform: 'X (Twitter)', handle: `@${h}`, url: `https://x.com/${h}` },
+    { platform: 'Instagram', handle: `@${h}`, url: `https://instagram.com/${h}` },
+    { platform: 'TikTok', handle: `@${h}`, url: `https://tiktok.com/@${h}` },
+    { platform: 'Facebook', handle: `/${h}`, url: `https://facebook.com/${h}` },
+  ]
+}
+/** Guessed social handles for a name (compact display). */
 export function socialHandles(name: string): string[] {
   const h = name.toLowerCase().replace(/[^a-z0-9]/g, '')
   return [`@${h}`, `@${h}hq`, `@get${h}`]

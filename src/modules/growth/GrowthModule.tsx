@@ -6,15 +6,15 @@ import { useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import CRMModule from '../crm/CRMModule'
-import { useSeoData, SeoOverview, KeywordResearch, PositionTracking, SiteAudit, Backlinks } from '../seo/SeoTools'
+import { useSeoData, SeoOverview, KeywordResearch, RankTracker, SiteAudit, Backlinks } from '../seo/SeoTools'
 
 type Tab = 'overview' | 'keywords' | 'tracking' | 'audit' | 'backlinks' | 'leads'
 const TABS: { id: Tab; label: string; sub: string }[] = [
-  { id: 'overview', label: 'Overview', sub: 'Authority, traffic & keyword snapshot' },
-  { id: 'keywords', label: 'Keyword research', sub: 'Find and prioritise search terms' },
-  { id: 'tracking', label: 'Position tracking', sub: 'Daily rank tracking & visibility' },
+  { id: 'overview', label: 'Overview', sub: 'Live on-page snapshot of your site' },
+  { id: 'keywords', label: 'Keyword research', sub: 'Generate keyword ideas & track them' },
+  { id: 'tracking', label: 'Rank tracker', sub: 'Your keyword watchlist' },
   { id: 'audit', label: 'Site audit', sub: 'Live on-page SEO health of your site' },
-  { id: 'backlinks', label: 'Backlinks', sub: 'Referring domains & authority' },
+  { id: 'backlinks', label: 'Backlinks', sub: 'Referring domains (needs a source)' },
   { id: 'leads', label: 'Leads', sub: 'Pipeline & outreach (CRM)' },
 ]
 
@@ -33,7 +33,7 @@ export default function GrowthModule({ dojoId, onClose }: ModuleProps) {
       {bundle.loading && tab !== 'leads' && <div className="se-loading">Analysing {dojoName}…</div>}
       {!bundle.loading && tab === 'overview' && <SeoOverview b={bundle} />}
       {!bundle.loading && tab === 'keywords' && <KeywordResearch b={bundle} />}
-      {!bundle.loading && tab === 'tracking' && <PositionTracking b={bundle} />}
+      {!bundle.loading && tab === 'tracking' && <RankTracker b={bundle} />}
       {!bundle.loading && tab === 'audit' && <SiteAudit b={bundle} />}
       {!bundle.loading && tab === 'backlinks' && <Backlinks b={bundle} />}
       {tab === 'leads' && <CRMModule dojoId={dojoId} onClose={onClose} />}

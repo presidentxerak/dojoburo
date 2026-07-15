@@ -11,30 +11,32 @@ import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import {
-  type BrandKit, defaultKit, loadBrandKit, saveBrandKit,
-  generatePalette, logoSvg, FONT_PAIRS,
+  type BrandKit, type LogoLayout, defaultKit, loadBrandKit, saveBrandKit,
+  generatePalette, logoSvg, FONT_PAIRS, SCHEMES, SHAPES,
 } from '../../lib/brand'
 import {
   type BrandProfile, type DomainResult, researchProfile, generateKeywords, combineNames,
-  checkDomains, socialHandles,
+  checkDomains, socialProfiles, bestPrice, registrarUrl, BRAND_TLDS,
 } from '../../lib/naming'
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
 
-type Step = 'concept' | 'naming' | 'domain' | 'export'
+type Step = 'concept' | 'naming' | 'domain' | 'logo' | 'export'
 const STEPS: { id: Step; label: string }[] = [
   { id: 'concept', label: 'Concept' },
   { id: 'naming', label: 'Naming' }, { id: 'domain', label: 'Availability' },
-  { id: 'export', label: 'Export' },
+  { id: 'logo', label: 'Logo' }, { id: 'export', label: 'Export' },
 ]
+const LAYOUTS: LogoLayout[] = ['mark-left', 'mark-top', 'mark-only', 'text-only']
+const REGISTRARS_N = 6
 
 // "Where do you start?" · like Shiverbrand, the founder picks an entry point so
 // the pipeline only asks for what they still need.
 type StartMode = 'scratch' | 'name-domain' | 'domain-only' | 'name-only'
 const START_MODES: { id: StartMode; title: string; desc: string }[] = [
-  { id: 'scratch', title: 'Start from scratch', desc: 'Full pipeline · keywords → names → domain → identity.' },
-  { id: 'name-domain', title: 'I have a name & a domain', desc: 'Skip naming · go straight to the visual identity.' },
-  { id: 'domain-only', title: 'I have a domain, no name', desc: 'Find a name that fits · then design the identity.' },
+  { id: 'scratch', title: 'Start from scratch', desc: 'Full pipeline · keywords → names → domain → logo.' },
+  { id: 'name-domain', title: 'I have a name & a domain', desc: 'Skip naming · go straight to the logo.' },
+  { id: 'domain-only', title: 'I have a domain, no name', desc: 'Find a name that fits · then design the logo.' },
   { id: 'name-only', title: 'I have a name, no domain', desc: 'Check domains & handles for your name.' },
 ]
 const needsName = (m: StartMode) => m === 'name-domain' || m === 'name-only'
@@ -73,7 +75,9 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const [nameSeed, setNameSeed] = useState(0)
   const [domains, setDomains] = useState<DomainResult[]>([])
   const [checking, setChecking] = useState(false)
+  const [shortlist, setShortlist] = useState<Set<string>>(new Set())
   const [saved, setSaved] = useState(false)
+  const toggleShortlist = (d: string) => setShortlist((s) => { const n = new Set(s); n.has(d) ? n.delete(d) : n.add(d); return n })
 
   useEffect(() => {
     let alive = true
@@ -130,20 +134,18 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     setSaved(true)
     pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name}" is now your brand · reused by the Website and Marketing studios.` })
   }
-  // Finish · auto-seed an on-brand palette + logo from the name (colours &
-  // styling are refined in the Website studio; the logo can be re-imported
-  // there too), save the kit, and go to Export.
-  const finishBrand = () => {
-    setKit((k) => {
-      const next = k.hue === defaultKit('x').hue
-        ? { ...k, hue: hueFrom(k.name || 'brand'), palette: generatePalette(hueFrom(k.name || 'brand'), k.scheme) }
-        : k
-      void saveBrandKit(dojoId, next)
-      return next
-    })
+  // Enter the Logo step · auto-seed an on-brand hue from the name (unless the
+  // user already tuned one) so the first logo colours feel on-brand.
+  const goLogo = () => {
+    setKit((k) => (k.hue === defaultKit('x').hue ? { ...k, hue: hueFrom(k.name || 'brand'), palette: generatePalette(hueFrom(k.name || 'brand'), k.scheme) } : k))
+    setStep('logo')
+  }
+  // Save the finished kit (logo + colours) and go to Export.
+  const saveAndExport = () => {
+    setKit((k) => { void saveBrandKit(dojoId, k); return k })
     setSaved(true)
     setStep('export')
-    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name || 'Your brand'}" is ready · its colours power the Website studio.` })
+    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name || 'Your brand'}" is ready · its logo & colours power the Website studio.` })
   }
   // import a custom logo (PNG/SVG) · stored on the kit, reused everywhere
   const importLogo = (file: File) => {
@@ -173,13 +175,14 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const advance = () => {
     if (step === 'concept') {
       setProfile(researchProfile(descSrc()))
-      // "I have a name & domain" skips straight to Export (finish + save).
-      if (startMode === 'name-domain') return finishBrand()
+      // "I have a name & domain" skips straight to the Logo step.
+      if (startMode === 'name-domain') return goLogo()
       if (startMode === 'name-only') return void chooseName(kit.name.trim() || descSrc())
       return generateProfile() // scratch / domain-only → Naming
     }
     if (step === 'naming') { void recheck(); return setStep('domain') }
-    if (step === 'domain') return finishBrand()
+    if (step === 'domain') return goLogo()
+    if (step === 'logo') return saveAndExport()
     if (step === 'export') return void saveName()
   }
   const goBack = () => { if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id) }
@@ -187,8 +190,9 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     : step === 'naming' ? !!kit.name.trim()
     : true
   const nextLabel = step === 'concept'
-      ? (startMode === 'name-domain' ? 'Finish brand →' : startMode === 'name-only' ? 'Check availability →' : 'Generate research profile →')
-    : step === 'domain' ? 'Finish & export'
+      ? (startMode === 'name-domain' ? 'Design logo →' : startMode === 'name-only' ? 'Check availability →' : 'Generate research profile →')
+    : step === 'domain' ? 'Design logo'
+    : step === 'logo' ? 'Save & export'
     : step === 'export' ? 'Save brand' : 'Next'
 
   return (
@@ -313,32 +317,123 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
         </section>
       )}
 
-      {step === 'domain' && (
+      {step === 'domain' && (() => {
+        const slug = kit.name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'brand'
+        const main = domains.find((d) => d.tld === 'com')
+        const others = domains.filter((d) => d.tld !== 'com')
+        const priced = domains.filter((d) => d.status !== 'taken' && bestPrice(d.tld)).sort((a, b) => (bestPrice(a.tld)!.price) - (bestPrice(b.tld)!.price))
+        const st = (id: string) => (id === 'available' ? 'Available' : id === 'taken' ? 'Taken' : '·')
+        return (
         <section className="sq-panel">
-          <h3 className="sq-title">Availability · <span style={{ color: 'var(--dc)' }}>{kit.name}</span></h3>
-          <p className="sq-lead">Live domain check (RDAP). Green = available to register.</p>
-          <div className="sq-namecheck">
-            <input value={kit.name} onChange={(e) => patch({ name: e.target.value })} maxLength={28} />
-            <button className="sq-cta" onClick={() => void recheck()} disabled={checking}>{checking ? 'Checking…' : 'Re-check'}</button>
+          <h3 className="sq-title">Availability &amp; pricing</h3>
+          <p className="sq-lead">Domain availability across {BRAND_TLDS.length} TLDs, social handles and the best registrar prices · {kit.name || 'your brand'}.</p>
+
+          <div className="bd-search">
+            <div className="bd-search-l"><b>Check a domain</b><span>Enter a name or full domain (e.g. my-brand.com) to check availability at the registrars.</span></div>
+            <div className="sq-namecheck">
+              <input value={kit.name} onChange={(e) => patch({ name: e.target.value })} maxLength={28} placeholder="my-brand.com" />
+              <button className="sq-cta" onClick={() => void recheck()} disabled={checking}>{checking ? 'Checking…' : 'Verify'}</button>
+            </div>
           </div>
-          <div className="sq-domains">
-            {checking && domains.length === 0 && <p className="muted">Checking domains…</p>}
-            {domains.map((d) => (
-              <div key={d.domain} className={`sq-domain ${d.status}`}>
-                <b>{d.domain}</b>
-                <span className={`sq-dot ${d.status}`}>{d.status === 'available' ? 'Available' : d.status === 'taken' ? 'Taken' : '·'}</span>
+
+          <div className="bd-namechip">{kit.name || 'Your brand'}</div>
+
+          {/* main domain */}
+          <div className={`bd-main ${main?.status || 'unknown'}`}>
+            <div><b>{slug}.com</b> <span className={`sq-dot ${main?.status || 'unknown'}`}>{main ? st(main.status) : (checking ? 'Checking…' : '·')}</span></div>
+            <span className="bd-main-tag">MAIN DOMAIN</span>
+          </div>
+
+          {/* other TLDs */}
+          <div className="sq-eyebrow">Other TLDs</div>
+          <div className="bd-tlds">
+            {checking && others.length === 0 && <p className="muted small">Checking domains…</p>}
+            {others.map((d) => (
+              <div key={d.domain} className={`bd-tld ${d.status}`}>
+                <span>.{d.tld}</span>
+                <span className="bd-tld-i">{d.status === 'available' ? '✓' : d.status === 'taken' ? '✕' : '·'}</span>
               </div>
             ))}
           </div>
-          <div className="sq-eyebrow">Suggested handles</div>
-          <div className="sq-tags">{socialHandles(kit.name).map((h) => <span key={h} className="sq-tag">{h}</span>)}</div>
-          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Check trademarks before you register</div>
-          <div className="sq-tags">
-            <a className="sq-tag" target="_blank" rel="noreferrer" href={`https://data.inpi.fr/search?type=marques&q=${encodeURIComponent(kit.name)}`}>INPI · FR →</a>
-            <a className="sq-tag" target="_blank" rel="noreferrer" href={`https://www.tmdn.org/tmview/#/tmview/results?page=1&pageSize=30&criteria=C&basicSearch=${encodeURIComponent(kit.name)}`}>EUIPO · EU →</a>
-            <a className="sq-tag" target="_blank" rel="noreferrer" href={`https://tmsearch.uspto.gov/search/search-information?query=${encodeURIComponent(kit.name)}`}>USPTO · US →</a>
-            <a className="sq-tag" target="_blank" rel="noreferrer" href={`https://branddb.wipo.int/en/quicksearch/brand/${encodeURIComponent(kit.name)}`}>WIPO · World →</a>
+
+          {/* best registrar price */}
+          {priced.length > 0 && (
+            <>
+              <div className="sq-eyebrow" style={{ marginTop: 4 }}>Best domain price · {REGISTRARS_N} registrars compared</div>
+              <div className="bd-prices">
+                {priced.map((d) => {
+                  const bp = bestPrice(d.tld)!
+                  const saved = shortlist.has(d.domain)
+                  return (
+                    <div key={d.domain} className="bd-price">
+                      <div className="bd-price-name"><b>{d.domain}</b><span className={`sq-dot ${d.status}`}>{st(d.status)}</span></div>
+                      <div className="bd-price-amt"><b>${bp.price.toFixed(2)}</b><em>/yr</em><span className="bd-reg">{bp.registrar}</span></div>
+                      <a className="bd-get" href={registrarUrl(bp.registrar, d.domain)} target="_blank" rel="noreferrer">Get this domain →</a>
+                      <button className={`bd-save${saved ? ' on' : ''}`} onClick={() => toggleShortlist(d.domain)}>{saved ? 'Saved ✓' : 'Save for later'}</button>
+                    </div>
+                  )
+                })}
+              </div>
+            </>
+          )}
+
+          {/* social handles */}
+          <div className="sq-eyebrow" style={{ marginTop: 4 }}>Social handles</div>
+          <div className="bd-socials">
+            {socialProfiles(kit.name).map((s) => (
+              <a key={s.platform} className="bd-social" href={s.url} target="_blank" rel="noreferrer">
+                <b>{s.platform}</b><code>{s.handle}</code><span className="bd-social-free">Probably available</span>
+              </a>
+            ))}
           </div>
+
+          {/* trademark check */}
+          <div className="bd-tm-head"><span className="sq-eyebrow">Trademark check</span><span className="bd-manual">MANUAL CHECK</span></div>
+          <p className="sq-lead" style={{ margin: 0 }}>Search the name in the official databases before filing. Links open a pre-filled search at INPI (France), EUIPO (EU), USPTO (US) and the WIPO global database.</p>
+          <div className="bd-tms">
+            <a className="bd-tm" target="_blank" rel="noreferrer" href={`https://data.inpi.fr/search?type=marques&q=${encodeURIComponent(kit.name)}`}><b>INPI</b><span>FR ↗</span></a>
+            <a className="bd-tm" target="_blank" rel="noreferrer" href={`https://www.tmdn.org/tmview/#/tmview/results?page=1&pageSize=30&criteria=C&basicSearch=${encodeURIComponent(kit.name)}`}><b>EUIPO TMview</b><span>EU ↗</span></a>
+            <a className="bd-tm" target="_blank" rel="noreferrer" href={`https://tmsearch.uspto.gov/search/search-information?query=${encodeURIComponent(kit.name)}`}><b>USPTO</b><span>US ↗</span></a>
+            <a className="bd-tm" target="_blank" rel="noreferrer" href={`https://branddb.wipo.int/en/quicksearch/brand/${encodeURIComponent(kit.name)}`}><b>WIPO Global Brand DB</b><span>WORLD ↗</span></a>
+          </div>
+        </section>
+        )
+      })()}
+
+      {step === 'logo' && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Create your logo</h3>
+          <p className="sq-lead">A logo is generated for <b style={{ color: 'var(--dc)' }}>{kit.name}</b>. Pick a mark, layout and colour, or import your own. Colours flow into the Website studio.</p>
+          <div className="bi-logo bd-logo-preview" style={{ background: kit.palette.bg }}>
+            {kit.logoDataUrl
+              ? <img src={kit.logoDataUrl} alt={`${kit.name} logo`} style={{ maxWidth: '100%', maxHeight: 180, objectFit: 'contain' }} />
+              : <span dangerouslySetInnerHTML={{ __html: logoSvg(kit, kit.layout, 300) }} />}
+          </div>
+          <div className="sq-cta-row" style={{ marginTop: 2 }}>
+            <label className="sq-cta ghost">
+              {kit.logoDataUrl ? 'Replace with my logo' : 'Import my logo (PNG/SVG)'}
+              <input type="file" accept="image/png,image/svg+xml,image/jpeg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importLogo(f); e.currentTarget.value = '' }} />
+            </label>
+            {kit.logoDataUrl && <button className="sq-cta ghost" onClick={() => patch({ logoDataUrl: undefined })}>Use generated logo</button>}
+          </div>
+          {!kit.logoDataUrl && (
+            <>
+              <div className="sq-eyebrow">Logo mark</div>
+              <div className="bw-cloud">{SHAPES.map((s) => <button key={s.id} className={`bw-chip${kit.shape === s.id ? ' on' : ''}`} onClick={() => patch({ shape: s.id })}>{s.label}</button>)}</div>
+              <div className="sq-eyebrow" style={{ marginTop: 10 }}>Layout</div>
+              <div className="bw-cloud">{LAYOUTS.map((l) => <button key={l} className={`bw-chip${kit.layout === l ? ' on' : ''}`} onClick={() => patch({ layout: l })}>{l.replace('-', ' ')}</button>)}</div>
+              <div className="sq-eyebrow" style={{ marginTop: 10 }}>Colour hue</div>
+              <input className="bi-hue" type="range" min={0} max={359} value={kit.hue} onChange={(e) => { const hue = Number(e.target.value); patch({ hue, palette: generatePalette(hue, kit.scheme) }) }} />
+              <div className="bi-swatches">{Object.entries(kit.palette).map(([k, c]) => <span key={k} className="bi-sw" style={{ background: c }} title={`${k} · ${c}`} />)}</div>
+              <div className="sq-eyebrow" style={{ marginTop: 10 }}>Harmony</div>
+              <div className="bw-cloud">{SCHEMES.map((s) => <button key={s.id} className={`bw-chip${kit.scheme === s.id ? ' on' : ''}`} onClick={() => patch({ scheme: s.id, palette: generatePalette(kit.hue, s.id) })}>{s.label}</button>)}</div>
+              <div className="sq-eyebrow" style={{ marginTop: 10 }}>Fonts</div>
+              <div className="bw-cloud">{FONT_PAIRS.map((f) => <button key={f.id} className={`bw-chip${kit.fontId === f.id ? ' on' : ''}`} onClick={() => patch({ fontId: f.id })}>{f.label}</button>)}</div>
+            </>
+          )}
+          <label className="sq-field" style={{ marginTop: 6 }}>Tagline
+            <input value={kit.tagline} maxLength={48} onChange={(e) => patch({ tagline: e.target.value })} />
+          </label>
         </section>
       )}
 
