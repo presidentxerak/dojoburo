@@ -4415,3 +4415,89 @@ select.cc-input { flex: 1; min-width: 0; }
 .site-palette { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .site-palette button { font-family: var(--font-ui) !important; font-weight: 700; font-size: 14px; padding: 8px 14px; border: 1px solid var(--border); background: var(--panel-solid); border-radius: 0; cursor: pointer; color: var(--ink); }
 .site-palette button:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* =====================================================================
+   Global interaction design v3 · acid blue→green loop animations, 24px
+   rounded cards with a large animated hover glow, gradient CTAs + gauge.
+   Appended last so it wins the cascade across the whole app.
+   ===================================================================== */
+@keyframes acidFlow { 0% { background-position: 0% 50% } 50% { background-position: 100% 50% } 100% { background-position: 0% 50% } }
+@keyframes acidGlow {
+  0%,100% { box-shadow: 0 20px 52px -14px rgba(0,214,255,0.60), 0 6px 18px -8px rgba(24,255,176,0.34); }
+  50%     { box-shadow: 0 20px 52px -14px rgba(24,255,176,0.60), 0 6px 18px -8px rgba(0,214,255,0.34); }
+}
+
+/* every card: 24px radius, no outline, smooth transitions */
+.lp-studiocard, .agent-card, .sq-panel, .sq-info, .biz-tile, .fin-kpi, .fin-kpis > *,
+.crm-card, .tpl-card, .connect-card, .pgpick-card, .mission-card, .cred-pack, .djm-card,
+.dash-qlink, .ct-card, .ct-inline .ct-card, .cw-preset, .ty-font, .insp-theme, .shop-prod,
+.site-inspector, .sq-opt, .sq-namegrid > *, .lp-team, .lp-node, .connect-cat, .guide-card,
+.ceo-quick, .biz-overview .biz-tile {
+  border-radius: 24px !important;
+  outline: none !important;
+  transition: transform 0.2s ease, box-shadow 0.35s ease, border-color 0.2s ease !important;
+}
+/* clickable cards: lift + animated acid glow on hover (large light shadow) */
+.lp-studiocard:hover, .agent-card:hover, .tpl-card:hover, .connect-card:hover,
+.pgpick-card:hover, .mission-card:hover, .cred-pack:hover, .djm-card:hover,
+.dash-qlink:hover, .cw-preset:hover, .ty-font:hover, .insp-theme:hover, .shop-prod:hover,
+.sq-opt:hover, .lp-team:hover, .guide-card:hover, .connect-cat:hover {
+  transform: translateY(-4px);
+  animation: acidGlow 3.4s ease-in-out infinite;
+  border-color: transparent !important;
+}
+/* buttons: subtle lift + soft acid shadow on hover, everywhere */
+.btn, button.btn, .sq-cta, .tb-navlink, .tb-guide, .tb-studio, .tb-city, .tb-create,
+.cred-pack, .connect-card { transition: transform 0.16s ease, box-shadow 0.24s ease, filter 0.16s ease; }
+.btn:hover:not(:disabled), button.btn:hover:not(:disabled), .sq-cta:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px -10px rgba(0,214,255,0.5), 0 4px 12px -6px rgba(24,255,176,0.4);
+}
+.btn:active:not(:disabled), .sq-cta:active:not(:disabled) { transform: translateY(0); }
+
+/* main CTAs: animated acid blue→green gradient */
+.stepbar-next:not(:disabled), .sq-cta:not(.ghost), .btn.primary, .ceo-launch,
+.stepbar-next, .set-cta {
+  background: linear-gradient(120deg, #00d6ff, #12ffb0, #00d6ff) !important;
+  background-size: 220% 220% !important;
+  animation: acidFlow 4.2s linear infinite;
+  color: #04232b !important;
+  border: none !important;
+}
+.stepbar-next:hover:not(:disabled), .sq-cta:not(.ghost):hover, .btn.primary:hover, .ceo-launch:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 12px 30px -10px rgba(0,214,255,0.55), 0 6px 16px -8px rgba(24,255,176,0.45);
+}
+:root[data-theme="dark"] .stepbar-next:not(:disabled), :root[data-theme="dark"] .sq-cta:not(.ghost),
+:root[data-theme="dark"] .btn.primary, :root[data-theme="dark"] .ceo-launch {
+  background: linear-gradient(120deg, #00d6ff, #12ffb0, #00d6ff) !important; color: #04232b !important;
+}
+
+/* step-bar gauge: animated acid blue→green gradient */
+.stepbar-fill {
+  background: linear-gradient(120deg, #00d6ff, #12ffb0, #00d6ff) !important;
+  background-size: 220% 220% !important;
+  animation: acidFlow 3.4s linear infinite;
+  border-radius: 999px;
+}
+.stepbar-track { border-radius: 999px; overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stepbar-next, .sq-cta:not(.ghost), .btn.primary, .ceo-launch, .stepbar-fill,
+  .lp-studiocard:hover, .agent-card:hover, .tpl-card:hover, .pgpick-card:hover { animation: none !important; }
+}
+
+/* Manage Dojo · all dojos as a centered 3-per-row grid under the dropdown */
+.ws-dojogrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 760px; margin: 18px auto 0; }
+.ws-dojocard { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 12px; border: 1px solid var(--border); border-radius: 24px; background: var(--panel-solid); cursor: pointer; transition: transform 0.18s ease, box-shadow 0.3s ease, border-color 0.18s ease; }
+.ws-dojocard.on { border-color: var(--tpl-accent, var(--dc, #2f6bff)); box-shadow: 0 0 0 1px var(--tpl-accent, var(--dc, #2f6bff)); }
+.ws-dojocard:hover { transform: translateY(-4px); animation: acidGlow 3.4s ease-in-out infinite; border-color: transparent; }
+.ws-dojocard-thumb { width: 100%; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; margin-bottom: 4px; background: var(--panel-2); }
+.ws-dojocard-thumb > * { width: 100%; height: 100%; }
+.ws-dojocard-name { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; color: var(--ink); }
+.ws-dojocard-meta { font-size: 12.5px; color: var(--muted); }
+.ws-dojocard-badge { position: absolute; top: 10px; right: 10px; z-index: 2; font-family: var(--font-pixel); font-weight: 800; font-size: 11px; padding: 3px 9px; border-radius: 999px; background: var(--tpl-accent, var(--dc, #2f6bff)); color: #fff; }
+.ws-dojocard-new { align-items: center; justify-content: center; text-align: center; border-style: dashed; }
+.ws-dojocard-plus { font-size: 30px; color: var(--muted); line-height: 1; }
+@media (max-width: 700px) { .ws-dojogrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 460px) { .ws-dojogrid { grid-template-columns: 1fr; } }

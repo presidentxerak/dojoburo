@@ -348,14 +348,16 @@ function Station({ id, fn, x, z, variant }: { id: string; fn: Department; x: num
 }
 
 function Lantern({ x, z, c = '#e0524f' }: { x: number; z: number; c?: string }) {
+  // a floor-standing paper lantern on a slim post (no ceiling to hang from)
   return (
-    <group position={[x, ROOM.wallH - 1.2, z]}>
-      <mesh><cylinderGeometry args={[0.02, 0.02, 1.2, 6]} /><meshStandardMaterial color={'#333'} /></mesh>
-      <mesh position={[0, -0.9, 0]} castShadow>
+    <group position={[x, 0, z]}>
+      <mesh position={[0, 0.05, 0]}><cylinderGeometry args={[0.16, 0.2, 0.1, 16]} /><meshStandardMaterial color={'#2b2b2b'} /></mesh>
+      <mesh position={[0, 1.0, 0]}><cylinderGeometry args={[0.025, 0.025, 1.9, 8]} /><meshStandardMaterial color={'#333'} /></mesh>
+      <mesh position={[0, 1.95, 0]} castShadow>
         <cylinderGeometry args={[0.34, 0.34, 0.7, 18]} />
         <meshStandardMaterial color={c} emissive={c} emissiveIntensity={0.4} />
       </mesh>
-      <mesh position={[0, -0.9, 0]}>
+      <mesh position={[0, 1.95, 0]}>
         <cylinderGeometry args={[0.35, 0.35, 0.24, 18]} />
         <meshStandardMaterial color={'#fff2c4'} emissive={'#ffcf6a'} emissiveIntensity={0.6} />
       </mesh>
@@ -426,6 +428,83 @@ function PlainAccents({ backZ, P }: { backZ: number; P: DojoPalette }) {
       <Beacon x={8.7} z={backZ + 2.2} c={P.accent} />
       <Planter x={-8} z={backZ + 2} c={P.wallSide} accent={P.accent} />
       <Planter x={8} z={backZ + 2} c={P.wallSide} accent={P.accent} />
+      {/* extra furnishings · floor lanterns, a lounge corner, a rug, plants & art */}
+      <Lantern x={-7.2} z={5.2} c={P.accent} />
+      <Lantern x={7.2} z={5.2} c={P.accent} />
+      <LoungeCorner x={7.4} z={-1.5} c={P.wallSide} accent={P.accent} />
+      <PottedPalm x={-8.6} z={-1} />
+      <PottedPalm x={-6.5} z={5.6} />
+      <FloorRug x={0} z={2.4} c={P.accent} />
+      <Sculpture x={5.4} z={5.4} c={P.trim} accent={P.accent} />
+      <CrateStack x={-8.8} z={backZ + 5} c={P.wallSide} />
+      <WallArt x={-6.5} y={3} z={backZ + 0.28} c={P.accent} />
+      <WallArt x={6.5} y={3} z={backZ + 0.28} c={P.trim} />
+    </group>
+  )
+}
+
+// --- shared decorative props (reused across dojos) --------------------------
+function PottedPalm({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0, z]}>
+      <mesh position={[0, 0.28, 0]}><cylinderGeometry args={[0.34, 0.26, 0.56, 16]} /><meshStandardMaterial color="#c9cdd6" roughness={0.8} /></mesh>
+      <mesh position={[0, 0.5, 0]}><cylinderGeometry args={[0.3, 0.3, 0.12, 16]} /><meshStandardMaterial color="#6b4a2a" /></mesh>
+      {Array.from({ length: 7 }).map((_, i) => { const a = (i / 7) * Math.PI * 2; return (
+        <mesh key={i} position={[Math.cos(a) * 0.28, 1.2, Math.sin(a) * 0.28]} rotation={[0.5, a, 0]} castShadow><boxGeometry args={[0.14, 1.5, 0.03]} /><meshStandardMaterial color={i % 2 ? '#3c9a52' : '#2f8747'} /></mesh>
+      ) })}
+      <Cy p={[0, 0.9, 0]} r={0.05} h={0.9} c="#4a7a3a" />
+    </group>
+  )
+}
+function LoungeCorner({ x, z, c, accent }: { x: number; z: number; c: string; accent: string }) {
+  return (
+    <group position={[x, 0, z]} rotation={[0, -0.5, 0]}>
+      <B p={[0, 0.28, 0]} s={[2.2, 0.5, 0.9]} c={c} />
+      <B p={[0, 0.72, -0.34]} s={[2.2, 0.9, 0.22]} c={c} />
+      {[-0.6, 0.6].map((px) => <B key={px} p={[px, 0.72, 0.05]} s={[0.5, 0.22, 0.5]} c={accent} />)}
+      {/* round side table with an orb */}
+      <group position={[1.55, 0, 0.2]}>
+        <Cy p={[0, 0.24, 0]} r={0.06} h={0.48} c="#2b2b2b" />
+        <Cy p={[0, 0.5, 0]} r={0.42} h={0.06} c="#e7e3da" />
+        <Sp p={[0, 0.62, 0]} r={0.12} c={accent} />
+      </group>
+    </group>
+  )
+}
+function FloorRug({ x, z, c }: { x: number; z: number; c: string }) {
+  return (
+    <group position={[x, 0.015, z]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh receiveShadow><planeGeometry args={[7.2, 5]} /><meshStandardMaterial color="#efe9df" roughness={1} /></mesh>
+      <mesh position={[0, 0, 0.001]}><ringGeometry args={[1.6, 1.9, 48]} /><meshStandardMaterial color={c} roughness={1} transparent opacity={0.7} /></mesh>
+      <mesh position={[0, 0, 0.001]}><ringGeometry args={[2.6, 2.75, 48]} /><meshStandardMaterial color={c} roughness={1} transparent opacity={0.4} /></mesh>
+    </group>
+  )
+}
+function Sculpture({ x, z, c, accent }: { x: number; z: number; c: string; accent: string }) {
+  return (
+    <group position={[x, 0, z]}>
+      <B p={[0, 0.3, 0]} s={[0.7, 0.6, 0.7]} c="#1c1c1c" />
+      <Sp p={[0, 1.05, 0]} r={0.32} c={accent} />
+      <Co p={[0, 1.7, 0]} r={0.3} h={0.55} c={c} />
+    </group>
+  )
+}
+function CrateStack({ x, z, c }: { x: number; z: number; c: string }) {
+  return (
+    <group position={[x, 0, z]}>
+      <B p={[0, 0.35, 0]} s={[0.9, 0.7, 0.9]} c={c} />
+      <B p={[0.25, 0.95, 0.1]} s={[0.7, 0.55, 0.7]} c="#c4a878" rot={[0, 0.4, 0]} />
+      <B p={[-0.1, 1.5, -0.1]} s={[0.5, 0.45, 0.5]} c={c} rot={[0, -0.3, 0]} />
+    </group>
+  )
+}
+function WallArt({ x, y, z, c }: { x: number; y: number; z: number; c: string }) {
+  return (
+    <group position={[x, y, z]}>
+      <B p={[0, 0, 0]} s={[1.5, 1.9, 0.06]} c="#20242c" />
+      <B p={[0, 0, 0.04]} s={[1.3, 1.7, 0.02]} c="#f3f1ec" />
+      <B p={[-0.2, 0.2, 0.06]} s={[0.7, 0.7, 0.01]} c={c} rot={[0, 0, 0.1]} />
+      <Cy p={[0.35, -0.35, 0.06]} r={0.28} h={0.01} c="#e7d9b0" rot={[Math.PI / 2, 0, 0]} />
     </group>
   )
 }
@@ -582,14 +661,6 @@ function StartupDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         <B p={[0.1, 1.0, 0.1]} s={[0.6, 0.6, 0.6]} c="#b98a58" />
         <B p={[-0.4, 0.35, 0.5]} s={[0.6, 0.7, 0.6]} c="#c79a6a" />
       </group>
-      {/* hanging pendant lights */}
-      {[-3, 0, 3].map((x) => (
-        <group key={x} position={[x, ROOM.wallH - 0.6, 3.5]}>
-          <Cy p={[0, -0.4, 0]} r={0.012} h={0.8} c="#333" />
-          <Co p={[0, -0.85, 0]} r={0.2} h={0.26} c="#2b2f3d" />
-          <Glow p={[0, -0.92, 0]} r={0.08} c="#ffd98a" i={0.9} />
-        </group>
-      ))}
       {/* accent area rug under the team */}
       <mesh position={[0, 0.02, 1.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[13, 8]} />
@@ -695,8 +766,6 @@ function SpaceDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         <mesh position={[0, 2.4, 0.2]} rotation={[-0.7, 0, 0]}><coneGeometry args={[0.6, 0.4, 24, 1, true]} /><meshStandardMaterial color="#c9d2e2" side={2} metalness={0.4} roughness={0.5} /></mesh>
         <Glow p={[0, 2.5, 0.35]} r={0.05} c={P.accent} i={1} />
       </group>
-      {/* hanging cables */}
-      {[-7, 7].map((x) => <Cy key={x} p={[x, ROOM.wallH - 1.3, backZ + 3]} r={0.03} h={2.4} c="#20263f" rot={[0.15, 0, 0.1]} />)}
     </group>
   )
 }

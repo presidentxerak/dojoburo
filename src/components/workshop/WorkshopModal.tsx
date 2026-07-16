@@ -204,6 +204,26 @@ function StudioTab() {
             <button className="ws-btn primary" onClick={() => setTplPick('create')}>+ New dojo</button>
             <button className="ws-btn danger" onClick={() => confirm(`Delete "${dojo.name}"?`) && deleteDojo(dojo.id)}>Delete</button>
           </div>
+          {/* all your dojos as a centered grid, 3 per row */}
+          <div className="ws-dojogrid">
+            {dojos.map((d) => {
+              const dt = templateById(d.template)
+              const active = d.id === dojo?.id
+              return (
+                <button key={d.id} className={`ws-dojocard${active ? ' on' : ''}`} onClick={() => { setActive(d.id); setSel(null) }} style={{ ['--tpl-accent' as any]: dt.palette.accent }}>
+                  {active && <span className="ws-dojocard-badge">Active</span>}
+                  <span className="ws-dojocard-thumb"><TemplateThumb t={dt} /></span>
+                  <strong className="ws-dojocard-name">{d.name}</strong>
+                  <span className="ws-dojocard-meta">{dt.label} · {d.agents.length}/{MAX_AGENTS} agents</span>
+                </button>
+              )
+            })}
+            <button className="ws-dojocard ws-dojocard-new" onClick={() => setTplPick('create')}>
+              <span className="ws-dojocard-plus">＋</span>
+              <strong className="ws-dojocard-name">New dojo</strong>
+              <span className="ws-dojocard-meta">Start another company</span>
+            </button>
+          </div>
         </section>
       )}
 

@@ -19,6 +19,9 @@ export function StepBar({
 }) {
   const idx = Math.max(0, steps.findIndex((s) => s.id === current))
   const pct = steps.length > 1 ? (idx / (steps.length - 1)) * 100 : 0
+  // every step's action is "Next"; only the final step commits with "Validate".
+  const isLast = idx >= steps.length - 1
+  const nextText = isLast ? 'Validate' : 'Next'
   return (
     <div className="stepbar">
       <button className="stepbar-back" onClick={onBack} disabled={backDisabled}>
@@ -38,7 +41,7 @@ export function StepBar({
         ))}
       </nav>
       <button className="stepbar-next" onClick={onNext} disabled={!canNext} title={nextLabel}>
-        <span className="sb-full">{nextLabel}</span><span className="sb-short">Next →</span>
+        <span className="sb-full">{nextText}</span><span className="sb-short">{isLast ? 'Validate' : 'Next →'}</span>
       </button>
     </div>
   )
