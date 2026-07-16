@@ -41,11 +41,9 @@ export function Landing({ enter }: { enter: () => void }) {
         <div className="lp-badges">
           <span>8 pro studios</span><span>100% local · nothing is uploaded</span><span>Credits · no crypto</span><span>{CONNECTORS.length} connectors</span><span>Installable (PWA)</span>
         </div>
-        {/* the zen dojo · animated backdrop only (non-interactive), softened by
-            a white 80% veil so it never competes with the hero copy. */}
+        {/* the zen dojo · animated backdrop only (non-interactive) */}
         <div className="lp-hero-zen" aria-hidden>
           <DojoDiorama />
-          <div className="lp-hero-veil" />
         </div>
       </section>
 

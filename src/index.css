@@ -4681,11 +4681,9 @@ select.cc-input { flex: 1; min-width: 0; }
   animation: acidFlow 4.6s linear infinite;
 }
 
-/* 3 · zen-dojo hero backdrop · non-interactive, softened by a white 80% veil */
+/* 3 · zen-dojo hero backdrop · non-interactive */
 .lp-hero-zen { position: relative; pointer-events: none; margin-top: 8px; }
 .lp-hero-zen > * { pointer-events: none; }
-.lp-hero-veil { position: absolute; inset: 0; background: rgba(255,255,255,0.8); pointer-events: none; z-index: 2; }
-:root[data-theme="dark"] .lp-hero-veil { background: color-mix(in srgb, var(--bg) 80%, transparent); }
 
 /* 4 · New dojo / Change environment pickers → fullscreen on every viewport */
 @media (min-width: 900px) {
