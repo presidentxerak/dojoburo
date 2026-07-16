@@ -9,6 +9,7 @@ import { AuthProvider } from './auth/AuthProvider'
 import { WidgetApp } from './WidgetApp'
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
+import { CityKitDemo } from './city-kit/demo'
 import { CompanySite } from './CompanySite'
 import { companyById } from './data/showcase'
 import { SHOW_MOCK_COMPANIES } from './config/flags'
@@ -53,6 +54,8 @@ function Root() {
   // Dojo City · the isometric map you visit from the dashboard (header · City).
   // Your building grows with the number of Dojos you run; click it to go back in.
   if (route === 'city') return <DojoCity enterDojo={() => { location.hash = 'app' }} exit={() => { location.hash = 'app' }} />
+  // Standalone demo of the portable city-kit (self-contained, no app stores).
+  if (route === 'city-kit') return <CityKitDemo />
   return <Landing enter={() => { location.hash = 'app' }} />
 }
 
