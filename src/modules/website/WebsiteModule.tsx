@@ -33,6 +33,8 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [sel, setSel] = useState<string | null>(null)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
+  // left sidebar tab · Pages (sections) or Styles (fonts + colours), Squarespace-style
+  const [leftTab, setLeftTab] = useState<'pages' | 'styles'>('pages')
   // floating contextual toolbar anchored to the selected section in the preview
   const [ctx, setCtx] = useState<{ id: string; rect: { top: number; left: number; width: number; height: number } } | null>(null)
   const [addOpen, setAddOpen] = useState(false)
@@ -250,7 +252,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         {gen.map((c, i) => (
           <div key={i} className="cw-swatch" style={{ background: c, color: textOn(c) }}>
             <button className={`cw-lock${locks[i] ? ' on' : ''}`} onClick={() => toggleLock(i)} title={locks[i] ? 'Unlock' : 'Lock'}>{locks[i] ? '🔒' : '🔓'}</button>
-            <input className="cw-hex" value={c.toUpperCase()} style={{ color: textOn(c) }} onChange={(e) => { const v = e.target.value; if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setSwatch(i, v.startsWith('#') ? v : '#' + v) }} />
+            <input className="cw-hex" value={c.toUpperCase()} onChange={(e) => { const v = e.target.value; if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setSwatch(i, v.startsWith('#') ? v : '#' + v) }} />
           </div>
         ))}
       </div>
@@ -413,66 +415,98 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         </div>
       )}
 
-      {/* responsive preview · in Edit mode, click any section for its toolbar +
-          inspector; in Preview mode the real site runs (cart, buttons, links). */}
-      <div className={`site-preview ${device} ${mode}`}>
-        <iframe
-          ref={frameRef}
-          title="Website preview"
-          className="site-frame"
-          srcDoc={mode === 'edit' ? editDoc : doc}
-          onLoad={() => { if (mode === 'edit') postSel(selRef.current, false) }}
-        />
-        {/* floating contextual toolbar anchored to the selected section */}
-        {mode === 'edit' && ctx && selected && (
-          <div
-            className="site-ctx"
-            style={{
-              top: (frameRef.current?.offsetTop || 0) + Math.max(2, Math.min(ctx.rect.top, (frameRef.current?.clientHeight || 460) - 44)),
-              left: (frameRef.current?.offsetLeft || 0) + Math.max(0, ctx.rect.left) + Math.max(0, ctx.rect.width),
-            }}
-          >
-            <span className="site-ctx-lbl">{BLOCK_LABELS[selected.type]}</span>
-            <button title="Edit section" onClick={() => document.getElementById('site-inspector')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>✎</button>
-            <button title="Duplicate" onClick={() => dup(selected.id)}>⎘</button>
-            <button title="Move up" onClick={() => move(selected.id, -1)}>↑</button>
-            <button title="Move down" onClick={() => move(selected.id, 1)}>↓</button>
-            <button className="site-ctx-del" title="Delete" onClick={() => del(selected.id)}>🗑</button>
+      {/* Squarespace-style editor · left Pages/Styles · center canvas · right editor.
+          In Preview mode the side panels hide and the real site runs full-width. */}
+      <div className={`site-editor-body ${mode}`}>
+        {/* LEFT · pages (sections) + styles */}
+        <aside className="site-left">
+          <div className="site-left-tabs">
+            <button className={leftTab === 'pages' ? 'on' : ''} onClick={() => setLeftTab('pages')}>Pages</button>
+            <button className={leftTab === 'styles' ? 'on' : ''} onClick={() => setLeftTab('styles')}>Styles</button>
           </div>
-        )}
-      </div>
-
-      {mode === 'preview' ? (
-        <p className="muted small" style={{ margin: '6px 2px 0' }}>Preview mode · the cart, buttons and links work like the live site. Switch to <b>✎ Edit</b> to change content.</p>
-      ) : (
-      <>
-      <p className="muted small" style={{ margin: '6px 2px 0' }}>Click a section in the preview for its toolbar (edit · duplicate · move · delete), or add one below.</p>
-
-      {/* blocks */}
-      <div className="site-blocks-head">
-        <h4 className="brand-h" style={{ margin: 0 }}>Sections</h4>
-        <button className="btn tiny" onClick={() => setAddOpen((v) => !v)}>＋ Add section</button>
-      </div>
-      {addOpen && (
-        <div className="site-palette">
-          {BLOCK_ORDER.map((t) => <button key={t} onClick={() => add(t)}>{BLOCK_LABELS[t]}</button>)}
-        </div>
-      )}
-      <ul className="site-blocklist">
-        {site.blocks.map((b, i) => (
-          <li key={b.id} className={b.id === sel ? 'on' : ''}>
-            <button className="site-bl-name" onClick={() => selectBlock(b.id)}>{BLOCK_LABELS[b.type]}</button>
-            <div className="site-bl-ops">
-              <button onClick={() => move(b.id, -1)} disabled={i === 0} aria-label="Move up">↑</button>
-              <button onClick={() => move(b.id, 1)} disabled={i === site.blocks.length - 1} aria-label="Move down">↓</button>
-              <button onClick={() => dup(b.id)} aria-label="Duplicate">⎘</button>
-              <button onClick={() => del(b.id)} aria-label="Delete">✕</button>
+          {leftTab === 'pages' ? (
+            <div className="site-left-body">
+              <div className="site-blocks-head">
+                <h4 className="brand-h" style={{ margin: 0 }}>Sections</h4>
+                <button className="btn tiny" onClick={() => setAddOpen((v) => !v)}>＋ Add</button>
+              </div>
+              {addOpen && (
+                <div className="site-palette">
+                  {BLOCK_ORDER.map((t) => <button key={t} onClick={() => add(t)}>{BLOCK_LABELS[t]}</button>)}
+                </div>
+              )}
+              <ul className="site-blocklist">
+                {site.blocks.map((b, i) => (
+                  <li key={b.id} className={b.id === sel ? 'on' : ''}>
+                    <button className="site-bl-name" onClick={() => selectBlock(b.id)}>{BLOCK_LABELS[b.type]}</button>
+                    <div className="site-bl-ops">
+                      <button onClick={() => move(b.id, -1)} disabled={i === 0} aria-label="Move up">↑</button>
+                      <button onClick={() => move(b.id, 1)} disabled={i === site.blocks.length - 1} aria-label="Move down">↓</button>
+                      <button onClick={() => dup(b.id)} aria-label="Duplicate">⎘</button>
+                      <button onClick={() => del(b.id)} aria-label="Delete">✕</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </li>
-        ))}
-      </ul>
+          ) : (
+            <div className="site-left-body">
+              <div className="sq-eyebrow">Font pairing</div>
+              <div className="ty-fonts ty-fonts-mini">
+                {SITE_FONTS.map((f) => (
+                  <button key={f.id} className={`ty-font${(!site.headingFont && (site.font || 'sans') === f.id) ? ' on' : ''}`} onClick={() => setFont(f.id)}>
+                    <span className="ty-font-h" style={{ fontFamily: f.heading }}>{site.name}</span>
+                    <span className="ty-font-b" style={{ fontFamily: f.body }}>{f.label}</span>
+                  </button>
+                ))}
+              </div>
+              <button className="btn tiny ghost" style={{ marginTop: 8 }} onClick={() => setStep('typography')}>More typography →</button>
+              <div className="sq-eyebrow" style={{ marginTop: 14 }}>Colour palette</div>
+              <div className="cw-presets cw-presets-mini">
+                {PRESET_PALETTES.slice(0, 12).map((p) => (
+                  <button key={p.name} className="cw-preset" title={p.name} onClick={() => { setGen(p.colors); applyPalette(p.colors) }}>
+                    <span className="cw-preset-strip">{p.colors.map((c, k) => <span key={k} style={{ background: c }} />)}</span>
+                    <span className="cw-preset-n">{p.name}</span>
+                  </button>
+                ))}
+              </div>
+              <button className="btn tiny ghost" style={{ marginTop: 8 }} onClick={() => setStep('colours')}>More colours →</button>
+            </div>
+          )}
+        </aside>
 
-      {/* inspector */}
+        {/* CENTER · the live canvas */}
+        <div className="site-center">
+          <div className={`site-preview ${device} ${mode}`}>
+            <iframe
+              ref={frameRef}
+              title="Website preview"
+              className="site-frame"
+              srcDoc={mode === 'edit' ? editDoc : doc}
+              onLoad={() => { if (mode === 'edit') postSel(selRef.current, false) }}
+            />
+            {mode === 'edit' && ctx && selected && (
+              <div
+                className="site-ctx"
+                style={{
+                  top: (frameRef.current?.offsetTop || 0) + Math.max(2, Math.min(ctx.rect.top, (frameRef.current?.clientHeight || 460) - 44)),
+                  left: (frameRef.current?.offsetLeft || 0) + Math.max(0, ctx.rect.left) + Math.max(0, ctx.rect.width),
+                }}
+              >
+                <span className="site-ctx-lbl">{BLOCK_LABELS[selected.type]}</span>
+                <button title="Edit section" onClick={() => document.querySelector('.site-right')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>✎</button>
+                <button title="Duplicate" onClick={() => dup(selected.id)}>⎘</button>
+                <button title="Move up" onClick={() => move(selected.id, -1)}>↑</button>
+                <button title="Move down" onClick={() => move(selected.id, 1)}>↓</button>
+                <button className="site-ctx-del" title="Delete" onClick={() => del(selected.id)}>🗑</button>
+              </div>
+            )}
+          </div>
+          <p className="muted small" style={{ margin: '6px 2px 0' }}>{mode === 'preview' ? 'Preview mode · the cart, buttons and links work like the live site. Switch to ✎ Edit to change content.' : 'Click a section in the canvas to edit it on the right · manage sections & styles on the left.'}</p>
+        </div>
+
+        {/* RIGHT · the section editor (shows on select) */}
+        <aside className="site-right">
       {selected ? (
         <div className="site-inspector" id="site-inspector">
           <h4 className="brand-h">Edit · {BLOCK_LABELS[selected.type]}</h4>
@@ -550,11 +584,10 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
           )}
         </div>
       ) : (
-        <p className="muted small">Select a block to edit it.</p>
+        <p className="site-right-empty">Click a section in the canvas (or a page on the left) to edit its text, images, video and products here.</p>
       )}
-          <p className="muted small">Your <b>Brand Kit</b> colours &amp; fonts apply automatically — tune them in the <b>Colours</b> step. Preview = export.</p>
-      </>
-      )}
+        </aside>
+      </div>
         </section>
       )}
 

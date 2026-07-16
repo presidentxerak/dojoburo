@@ -182,23 +182,55 @@ export interface SiteTemplate {
 }
 
 export const SITE_TEMPLATES: SiteTemplate[] = [
-  { id: 'lumen', name: 'Lumen', category: 'Business', blurb: 'Clean SaaS landing · features, pricing, sign-up.', accent: '#2f6bff', bg: '#ffffff', ink: '#0e1220', vibe: 'sans', font: 'sans', layout: 'centered', blocks: ['hero', 'features', 'pricing', 'cta', 'form', 'footer'] },
-  { id: 'ledger', name: 'Ledger', category: 'Business', blurb: 'Trusted, editorial look for consulting & finance.', accent: '#1f3a8a', bg: '#f6f5f1', ink: '#161a22', vibe: 'serif', font: 'editorial', layout: 'editorial', blocks: ['hero', 'features', 'pricing', 'cta', 'footer'] },
-  { id: 'mercato', name: 'Mercato', category: 'Store', blurb: 'Warm online store · products, offers, checkout CTA.', accent: '#e0622e', bg: '#fff8f2', ink: '#2a1a12', vibe: 'sans', font: 'grotesk', layout: 'left', blocks: ['hero', 'gallery', 'features', 'pricing', 'cta', 'footer'] },
-  { id: 'bloom', name: 'Bloom', category: 'Store', blurb: 'Boutique shop with a soft, floral feel.', accent: '#c65b86', bg: '#fdf3f6', ink: '#2c1622', vibe: 'serif', font: 'serif', layout: 'centered', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
-  { id: 'aperture', name: 'Aperture', category: 'Portfolio', blurb: 'Dark, image-forward portfolio for creatives.', accent: '#c9a24b', bg: '#0f1012', ink: '#f4f2ec', vibe: 'serif', font: 'editorial', layout: 'bold', blocks: ['hero', 'gallery', 'text', 'footer'] },
-  { id: 'grid', name: 'Grid', category: 'Portfolio', blurb: 'Minimal black-and-white photography grid.', accent: '#111111', bg: '#ffffff', ink: '#111111', vibe: 'mono', font: 'mono', layout: 'left', blocks: ['hero', 'gallery', 'text', 'footer'] },
-  { id: 'saveur', name: 'Saveur', category: 'Restaurant', blurb: 'Cream & serif · menu, gallery, reservations.', accent: '#7a5b2e', bg: '#faf5ea', ink: '#2b2114', vibe: 'serif', font: 'serif', layout: 'editorial', blocks: ['hero', 'features', 'gallery', 'form', 'footer'] },
-  { id: 'nord', name: 'Studio Nord', category: 'Agency', blurb: 'Bold, minimal agency with a mono accent.', accent: '#16a085', bg: '#101314', ink: '#eef2f1', vibe: 'mono', font: 'grotesk', layout: 'bold', blocks: ['hero', 'features', 'text', 'cta', 'footer'] },
-  { id: 'persona', name: 'Persona', category: 'Personal', blurb: 'Friendly personal site or link-in-bio.', accent: '#7b5cff', bg: '#f7f5ff', ink: '#241b3c', vibe: 'sans', font: 'rounded', layout: 'centered', blocks: ['hero', 'text', 'gallery', 'footer'] },
-  { id: 'dispatch', name: 'Dispatch', category: 'Blog', blurb: 'Editorial blog / newsletter, serif headlines.', accent: '#b0322b', bg: '#fbfaf7', ink: '#1a1712', vibe: 'serif', font: 'serif', layout: 'editorial', blocks: ['hero', 'text', 'gallery', 'footer'] },
-  { id: 'assembly', name: 'Assembly', category: 'Events', blurb: 'High-contrast event page · schedule + RSVP.', accent: '#ffd23b', bg: '#0c0c0f', ink: '#f6f6f4', vibe: 'sans', font: 'grotesk', layout: 'bold', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
-  { id: 'fresh', name: 'Fresh', category: 'Business', blurb: 'Energetic wellness / fitness landing.', accent: '#1fa563', bg: '#f2fbf5', ink: '#12271c', vibe: 'sans', font: 'rounded', layout: 'left', blocks: ['hero', 'features', 'cta', 'form', 'footer'] },
+  { id: 'lumen', name: 'Lumen', category: 'Business', blurb: 'Clean SaaS landing · features, pricing and sign-up.', accent: '#2f6bff', bg: '#ffffff', ink: '#0e1220', vibe: 'sans', font: 'sans', layout: 'centered', blocks: ['hero', 'features', 'text', 'pricing', 'cta', 'form', 'footer'] },
+  { id: 'ledger', name: 'Ledger', category: 'Business', blurb: 'Trusted, editorial look for consulting & finance.', accent: '#1f3a8a', bg: '#f6f5f1', ink: '#161a22', vibe: 'serif', font: 'editorial', layout: 'editorial', blocks: ['hero', 'features', 'text', 'pricing', 'cta', 'form', 'footer'] },
+  { id: 'mercato', name: 'Mercato', category: 'Store', blurb: 'Warm online store · shop grid, story and checkout.', accent: '#e0622e', bg: '#fff8f2', ink: '#2a1a12', vibe: 'sans', font: 'grotesk', layout: 'left', blocks: ['hero', 'store', 'features', 'text', 'cta', 'footer'] },
+  { id: 'bloom', name: 'Bloom', category: 'Store', blurb: 'Boutique shop with a soft, floral feel.', accent: '#c65b86', bg: '#fdf3f6', ink: '#2c1622', vibe: 'serif', font: 'serif', layout: 'centered', blocks: ['hero', 'store', 'gallery', 'text', 'form', 'footer'] },
+  { id: 'atelier', name: 'Atelier', category: 'Store', blurb: 'Product-forward shop for makers & studios.', accent: '#111111', bg: '#faf9f7', ink: '#141414', vibe: 'mono', font: 'grotesk', layout: 'bold', blocks: ['hero', 'store', 'text', 'gallery', 'cta', 'footer'] },
+  { id: 'aperture', name: 'Aperture', category: 'Portfolio', blurb: 'Dark, image-forward portfolio for creatives.', accent: '#c9a24b', bg: '#0f1012', ink: '#f4f2ec', vibe: 'serif', font: 'editorial', layout: 'bold', blocks: ['hero', 'gallery', 'text', 'features', 'cta', 'footer'] },
+  { id: 'grid', name: 'Grid', category: 'Portfolio', blurb: 'Minimal black-and-white photography grid.', accent: '#111111', bg: '#ffffff', ink: '#111111', vibe: 'mono', font: 'mono', layout: 'left', blocks: ['hero', 'gallery', 'text', 'form', 'footer'] },
+  { id: 'saveur', name: 'Saveur', category: 'Restaurant', blurb: 'Cream & serif · menu, gallery and reservations.', accent: '#7a5b2e', bg: '#faf5ea', ink: '#2b2114', vibe: 'serif', font: 'serif', layout: 'editorial', blocks: ['hero', 'features', 'gallery', 'text', 'form', 'footer'] },
+  { id: 'nord', name: 'Studio Nord', category: 'Agency', blurb: 'Bold, minimal agency with a mono accent.', accent: '#16a085', bg: '#101314', ink: '#eef2f1', vibe: 'mono', font: 'grotesk', layout: 'bold', blocks: ['hero', 'features', 'text', 'gallery', 'cta', 'footer'] },
+  { id: 'loft', name: 'Loft', category: 'Agency', blurb: 'Warm studio with services, work and pricing.', accent: '#d97706', bg: '#fbf7f0', ink: '#1c1710', vibe: 'sans', font: 'sans', layout: 'left', blocks: ['hero', 'features', 'gallery', 'pricing', 'cta', 'footer'] },
+  { id: 'persona', name: 'Persona', category: 'Personal', blurb: 'Friendly personal site or link-in-bio.', accent: '#7b5cff', bg: '#f7f5ff', ink: '#241b3c', vibe: 'sans', font: 'rounded', layout: 'centered', blocks: ['hero', 'text', 'gallery', 'features', 'cta', 'footer'] },
+  { id: 'dispatch', name: 'Dispatch', category: 'Blog', blurb: 'Editorial blog / newsletter, serif headlines.', accent: '#b0322b', bg: '#fbfaf7', ink: '#1a1712', vibe: 'serif', font: 'serif', layout: 'editorial', blocks: ['hero', 'text', 'gallery', 'form', 'footer'] },
+  { id: 'assembly', name: 'Assembly', category: 'Events', blurb: 'High-contrast event page · schedule and RSVP.', accent: '#ffd23b', bg: '#0c0c0f', ink: '#f6f6f4', vibe: 'sans', font: 'grotesk', layout: 'bold', blocks: ['hero', 'features', 'text', 'cta', 'form', 'footer'] },
+  { id: 'fresh', name: 'Fresh', category: 'Business', blurb: 'Energetic wellness / fitness landing.', accent: '#1fa563', bg: '#f2fbf5', ink: '#12271c', vibe: 'sans', font: 'rounded', layout: 'left', blocks: ['hero', 'features', 'gallery', 'cta', 'form', 'footer'] },
 ]
+
+// Per-template starting copy · so each template opens looking bespoke (distinct
+// hero + section wording), not the same placeholder everywhere.
+const TEMPLATE_COPY: Record<string, { hero: { title: string; subtitle: string; cta: string }; features?: string; cta?: { title: string; subtitle: string; cta: string } }> = {
+  lumen: { hero: { title: 'Ship faster with {n}', subtitle: 'The all-in-one platform your team will actually enjoy using.', cta: 'Start free' }, features: 'Everything you need', cta: { title: 'Ready to get started?', subtitle: 'Set up in minutes — no credit card required.', cta: 'Create your account' } },
+  ledger: { hero: { title: '{n} — clarity for your finances', subtitle: 'Trusted advisory for founders, teams and growing companies.', cta: 'Book a consultation' }, features: 'How we help' },
+  mercato: { hero: { title: '{n}', subtitle: 'Thoughtfully made goods, delivered to your door.', cta: 'Shop the collection' }, features: 'Why you’ll love it' },
+  bloom: { hero: { title: '{n}', subtitle: 'A little boutique of beautiful, handpicked things.', cta: 'Browse the shop' } },
+  atelier: { hero: { title: '{n}', subtitle: 'Objects made by hand, in small batches.', cta: 'View products' } },
+  aperture: { hero: { title: '{n}', subtitle: 'Selected work — photography, direction and design.', cta: 'See the work' } },
+  grid: { hero: { title: '{n}', subtitle: 'A minimal archive of images.', cta: 'View gallery' } },
+  saveur: { hero: { title: '{n}', subtitle: 'Seasonal plates, natural wine and a warm room.', cta: 'Reserve a table' }, features: 'The experience' },
+  nord: { hero: { title: 'We build brands that move — {n}', subtitle: 'A design & technology studio for ambitious teams.', cta: 'Start a project' }, features: 'What we do' },
+  loft: { hero: { title: '{n} studio', subtitle: 'Design, build and grow — under one roof.', cta: 'Work with us' }, features: 'Our services' },
+  persona: { hero: { title: 'Hi, I’m {n}', subtitle: 'Maker, writer and occasional traveller. Welcome to my corner of the web.', cta: 'Say hello' } },
+  dispatch: { hero: { title: '{n}', subtitle: 'Essays and notes, delivered occasionally.', cta: 'Subscribe' } },
+  assembly: { hero: { title: '{n}', subtitle: 'One day. Great talks. Limited seats.', cta: 'Get your ticket' }, features: 'The line-up' },
+  fresh: { hero: { title: 'Feel your best with {n}', subtitle: 'Coaching, classes and habits that actually stick.', cta: 'Start today' }, features: 'What’s included' },
+}
 
 export function generateFromTemplate(name: string, templateId: string): SiteDoc {
   const tpl = SITE_TEMPLATES.find((t) => t.id === templateId) ?? SITE_TEMPLATES[0]
-  return { name, templateId: tpl.id, blocks: tpl.blocks.map((t) => makeBlock(t, name)), font: tpl.font, layout: tpl.layout, updatedAt: Date.now() }
+  const copy = TEMPLATE_COPY[tpl.id]
+  const fill = (s: string) => s.replace(/\{n\}/g, name)
+  const blocks = tpl.blocks.map((t) => {
+    const b = makeBlock(t, name)
+    if (copy) {
+      if (t === 'hero') b.props = { ...b.props, title: fill(copy.hero.title), subtitle: copy.hero.subtitle, cta: copy.hero.cta }
+      if (t === 'features' && copy.features) b.props = { ...b.props, title: copy.features }
+      if (t === 'cta' && copy.cta) b.props = { ...b.props, title: copy.cta.title, subtitle: copy.cta.subtitle, cta: copy.cta.cta }
+    }
+    return b
+  })
+  return { name, templateId: tpl.id, blocks, font: tpl.font, layout: tpl.layout, updatedAt: Date.now() }
 }
 
 // ---- immutable path get/set (supports 'items.0.title', 'tiers.1.name') ------
