@@ -17,7 +17,7 @@ import {
 import { zipStore } from '../../lib/zip'
 import {
   type BrandProfile, type DomainResult, researchProfile, generateKeywords, combineNames,
-  checkDomains, checkComBatch, socialProfiles, bestPrice, registrarUrl, BRAND_TLDS,
+  checkDomains, checkComBatch, socialProfiles, bestPrice, registrarPrices, registrarUrl, BRAND_TLDS,
 } from '../../lib/naming'
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
@@ -59,6 +59,10 @@ function hueFrom(s: string): number { let h = 0; for (let i = 0; i < s.length; i
 
 export default function BrandingModule({ dojoId }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name)
+  const renameDojo = useWorkshop((s) => s.renameDojo)
+  // Adopting a brand name renames the dojo (and everywhere the dojo name shows:
+  // the CEO header, city HQ, exports) so the whole company takes the new name.
+  const adoptName = (name: string) => { const n = name.trim(); if (n && dojoId) renameDojo(dojoId, n) }
   const pushToast = useDojo((s) => s.pushToast)
   const [kit, setKit] = useState<BrandKit>(() => defaultKit(dojoName || 'My brand'))
 
@@ -154,14 +158,16 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   }, [step, names, nameSeed])
   const chooseName = async (name: string) => {
     patch({ name })
+    adoptName(name) // the found name becomes the dojo & company name immediately
     setStep('domain'); setChecking(true); setDomains([])
     setDomains(await checkDomains(name)); setChecking(false)
   }
   const recheck = async () => { setChecking(true); setDomains(await checkDomains(kit.name)); setChecking(false) }
   const saveName = async () => {
     await saveBrandKit(dojoId, kit)
+    adoptName(kit.name) // keep the dojo/company name in sync with any final edit
     setSaved(true)
-    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name}" is now your brand · reused by the Website and Marketing studios.` })
+    pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Brand saved', text: `"${kit.name}" is now your brand & company name · reused everywhere.` })
   }
   // Enter the Logo step · auto-seed an on-brand hue from the name (unless the
   // user already tuned one) so the first logo colours feel on-brand.
@@ -442,6 +448,23 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
             <div><b>{slug}.com</b> <span className={`sq-dot ${main?.status || 'unknown'}`}>{main ? st(main.status) : (checking ? 'Checking…' : '·')}</span></div>
             <span className="bd-main-tag">MAIN DOMAIN</span>
           </div>
+
+          {/* every registrar that sells the .com · cheapest → priciest, each a
+              direct buy link (indicative list prices, confirmed on the registrar). */}
+          {main?.status !== 'taken' && (
+            <>
+              <div className="sq-eyebrow" style={{ marginTop: 6 }}>All registrars for {slug}.com · cheapest first</div>
+              <div className="bd-regtable">
+                {registrarPrices('com').map((q, i) => (
+                  <a key={q.registrar} className={`bd-regrow${i === 0 ? ' best' : ''}`} href={registrarUrl(q.registrar, `${slug}.com`)} target="_blank" rel="noreferrer">
+                    <span className="bd-regname">{q.registrar}{i === 0 && <em className="bd-regbest">Best price</em>}</span>
+                    <span className="bd-regprice"><b>${q.price.toFixed(2)}</b><em>/yr</em></span>
+                    <span className="bd-regbuy">Buy →</span>
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
 
           {/* other TLDs */}
           <div className="sq-eyebrow">Other TLDs</div>

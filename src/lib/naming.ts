@@ -175,32 +175,69 @@ export function generateKeywords(desc: string, limit = 50): string[] {
   return out.slice(0, limit)
 }
 
-/** Combine the chosen keywords into brandable name candidates: the word itself,
- *  affixed forms, and two-word blends/compounds. `seed` rerolls the batch. */
+// Richer brand-name morphology · every list feeds the combiner so we produce a
+// LOT of varied, on-theme, mostly-available candidates. Longer/compound/invented
+// forms are deliberately favoured because their .com is far more likely free.
+const NAME_SUFFIXES = ['ly', 'ify', 'io', 'hq', 'labs', 'flow', 'kit', 'hub', 'wave', 'base', 'stack', 'loop', 'yard', 'works', 'grid', 'ora', 'ify', 'wise', 'nest', 'spot', 'core', 'lane', 'mint', 'peak', 'dash', 'pilot', 'forge', 'scape', 'verse', 'root']
+const NAME_PREFIXES = ['get', 'try', 'go', 'up', 'neo', 'well', 'ever', 'hey', 'my', 'the', 'joy', 'true', 'one', 'own', 'nova']
+// brandable connector words · glue a keyword to one of these for a real feel
+const CONNECTORS_WORDS = ['flow', 'labs', 'hub', 'works', 'base', 'wave', 'peak', 'nest', 'yard', 'forge', 'grid', 'loop', 'spark', 'craft', 'studio', 'space', 'circle', 'club', 'co', 'go']
+
+/** Fold a word to a tighter, still-pronounceable stem (drops a trailing vowel). */
+function stem(w: string): string {
+  if (w.length > 4 && VOWELS.includes(w[w.length - 1])) return w.slice(0, -1)
+  return w
+}
+
+/** Combine the chosen keywords into a big, varied set of brandable candidates:
+ *  the words, many affixed forms, keyword+connector compounds, two-word blends,
+ *  and pronounceable invented variants. `seed` rerolls to a fresh batch. */
 export function combineNames(words: string[], seed = 0): string[] {
-  const base = words.map((w) => clip(w, 8)).filter((w) => w.length >= 3)
+  const base = [...new Set(words.map((w) => clip(w, 9)).filter((w) => w.length >= 3))]
   if (base.length === 0) return generateNames('nova brand', seed)
   const out = new Set<string>()
-  const pick = <T,>(arr: T[], i: number) => arr[(i + seed) % arr.length]
+  const rot = <T,>(arr: T[], i: number) => arr[(i + seed) % arr.length]
+  const add = (s: string) => { const v = cap(s.replace(/[^a-z]/gi, '')); if (v.length >= 3 && v.length <= 18) out.add(v) }
 
   base.forEach((w, i) => {
-    out.add(cap(w))
-    out.add(cap(w) + pick(SUFFIXES, i))
-    out.add(cap(pick(PREFIXES, i + seed) + w))
+    add(w)
+    // several suffixes + prefixes per word (rotated by seed for reroll variety)
+    for (let s = 0; s < 3; s++) add(w + rot(NAME_SUFFIXES, i * 3 + s))
+    for (let p = 0; p < 2; p++) add(rot(NAME_PREFIXES, i * 2 + p) + w)
+    // keyword glued to a brandable connector, both orders
+    for (let c = 0; c < 3; c++) { const conn = rot(CONNECTORS_WORDS, i * 3 + c + seed); add(w + conn); add(conn + w) }
+    // one clean invented variant · stem + soft vowel ending (Brewa, Cafeo…)
+    add(stem(w) + rot(['a', 'o', 'io', 'ia', 'ova', 'ora'], i + seed))
   })
+
   // blends + compounds of every ordered pair of chosen words
-  for (let i = 0; i < base.length; i++) {
-    for (let j = 0; j < base.length; j++) {
+  for (let i = 0; i < base.length && out.size < 90; i++) {
+    for (let j = 0; j < base.length && out.size < 90; j++) {
       if (i === j) continue
-      const a = clip(base[i], 4), b = clip(base[j], 4)
+      const a = clip(base[i], 5), b = clip(base[j], 5)
       if (!a || !b) continue
-      out.add(cap(a + b))            // compound · CoffeeFlow
-      out.add(cap(a + b.slice(1)))  // blend · Cofflow
-      if (out.size > 60) break
+      add(a + b)                  // compound · CoffeeFlow
+      add(stem(a) + b)            // tighter compound · CoffFlow
+      add(a + b.slice(1))         // blend · Cofflow
     }
-    if (out.size > 60) break
   }
-  return [...out].filter((n) => n.length >= 3 && n.length <= 16).slice(0, 24)
+
+  // stable-ish shuffle by (length then a seed-rotated order) so rerolls differ
+  const all = [...out]
+  const start = (seed * 7) % Math.max(1, all.length)
+  const rolled = all.slice(start).concat(all.slice(0, start))
+  // bias toward brandable lengths (5–11) first, they read best
+  return rolled.sort((a, b) => score(a) - score(b)).slice(0, 40)
+}
+
+/** Lower is better · favours pronounceable, brandable-length names. */
+function score(n: string): number {
+  const len = n.length
+  const lenPenalty = Math.abs(len - 8)               // sweet spot ~8 chars
+  const vowels = (n.match(/[aeiou]/gi) || []).length
+  const ratio = vowels / len
+  const pronounce = ratio < 0.25 || ratio > 0.6 ? 3 : 0   // too few / too many vowels
+  return lenPenalty + pronounce
 }
 
 export interface DomainResult { domain: string; tld: string; status: 'available' | 'taken' | 'unknown' }

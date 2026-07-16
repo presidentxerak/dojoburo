@@ -4740,3 +4740,16 @@ select.cc-input { flex: 1; min-width: 0; }
   .lp-cta-create, .hl-acid, .cred-buy-cta, .modhost-connect, .topbar .tb-navlink { animation: none !important; }
   .modhost-connect, .topbar .tb-navlink { box-shadow: 0 0 0 1.5px rgba(0,214,255,0.6); }
 }
+
+/* Branding · full registrar comparison for the chosen .com (cheapest first) */
+.bd-regtable { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 10px; }
+.bd-regrow { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; padding: 11px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel-solid); color: var(--ink); text-decoration: none; transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.2s ease; }
+.bd-regrow:hover { transform: translateY(-1px); border-color: color-mix(in srgb, #12b877 60%, var(--border)); box-shadow: 0 8px 20px -12px rgba(18,184,119,0.5); }
+.bd-regrow.best { border-color: #12b877; box-shadow: inset 0 0 0 1px #12b877; }
+.bd-regname { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.bd-regbest { font-style: normal; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: #0e9c63; background: color-mix(in srgb, #12b877 15%, transparent); border-radius: 999px; padding: 2px 8px; }
+.bd-regprice { font-variant-numeric: tabular-nums; }
+.bd-regprice b { font-size: 16px; }
+.bd-regprice em { font-style: normal; font-size: 13px; color: var(--muted); margin-left: 2px; }
+.bd-regbuy { font-weight: 800; font-size: 14px; color: var(--dc, #2f6bff); }
+@media (max-width: 480px) { .bd-regrow { grid-template-columns: 1fr auto; } .bd-regbuy { grid-column: 1 / -1; text-align: right; } }
