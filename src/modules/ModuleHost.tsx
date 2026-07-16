@@ -14,6 +14,7 @@ import { useWork } from '../agents/workStore'
 export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; dojoId: string; onClose: () => void }) {
   const def = MODULE_BY_ID[moduleId]
   const tools = useWork((s) => s.tools)
+  const backend = useWork((s) => s.backend)
   const loadedOnce = useWork((s) => s.loadedOnce)
   // load connection status once so we know whether to blink the Connect button
   useEffect(() => { if (!loadedOnce) void useWork.getState().loadTools() }, [loadedOnce])
@@ -25,8 +26,10 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
     [role],
   )
   const anyConnected = apps.some((c) => tools[c.id]?.connected)
-  // blink when the agent genuinely needs an app for full function and none is linked
-  const needsConnect = !!def?.needsApps && apps.length > 0 && !anyConnected
+  // blink when the agent genuinely needs an app for full function and none is
+  // linked · only when the deployment actually has a connector backend, so we
+  // never nag on a build where connecting isn't possible.
+  const needsConnect = !!def?.needsApps && backend && apps.length > 0 && !anyConnected
   const appNames = apps.slice(0, 4).map((c) => c.label).join(', ')
 
   if (!def) return null

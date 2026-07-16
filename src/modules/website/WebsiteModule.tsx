@@ -54,22 +54,25 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [contentOpen, setContentOpen] = useState(false)
   const [imgPrompt, setImgPrompt] = useState('')
 
-  // adopt a freshly created / loaded site: normalise to multi-page, open its home
-  const adopt = (s: SiteDoc) => {
-    const ns = normalizeSite(s)
-    const hp = homePage(ns)
-    setSite(ns); setActivePageId(hp.id); setSel(hp.blocks[0]?.id ?? null); setStep('design')
-  }
   // The Brand Kit is the source of truth for typography · overlay its fonts onto
   // the site so a font chosen in the Branding studio shows up here immediately.
   const seedFonts = (s: SiteDoc, k: BrandKit | null): SiteDoc =>
     k ? { ...s, headingFont: s.headingFont ?? k.headingFont, bodyFont: s.bodyFont ?? k.bodyFont } : s
+  // brandRef holds the latest kit so adopt() can seed fonts on EVERY path
+  // (load, template, blank, regenerate), not just the initial saved-site load.
+  const brandRef = useRef<BrandKit | null>(null)
+  // adopt a freshly created / loaded site: normalise to multi-page, open its home
+  const adopt = (s: SiteDoc) => {
+    const ns = normalizeSite(seedFonts(s, brandRef.current))
+    const hp = homePage(ns)
+    setSite(ns); setActivePageId(hp.id); setSel(hp.blocks[0]?.id ?? null); setStep('design')
+  }
   useEffect(() => {
     let alive = true
     void Promise.all([loadSite(dojoId), siteBrand(dojoId, dojoName)]).then(([s, b]) => {
       if (!alive) return
-      setBrand(b)
-      if (s) adopt(seedFonts(s, b))
+      brandRef.current = b; setBrand(b)
+      if (s) adopt(s)
     })
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,6 +100,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   useEffect(() => { selRef.current = sel }, [sel])
   const siteRef = useRef(site)
   useEffect(() => { siteRef.current = site }, [site])
+  useEffect(() => { brandRef.current = brand }, [brand])
 
   const frameDoc = () => frameRef.current?.contentDocument || null
   // outline + measure the selected section directly on the iframe document

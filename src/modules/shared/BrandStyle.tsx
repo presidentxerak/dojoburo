@@ -122,11 +122,15 @@ export function BrandColours({ palette, onApply }: { palette: Palette; onApply: 
   const setSwatch = (i: number, v: string) => setGen((cur) => cur.map((c, j) => (j === i ? v : c)))
   const shuffle = () => setGen((cur) => randomPalette(locks.map((l, i) => (l ? cur[i] || null : null))))
 
-  // spacebar = generate (Coolors-style), while not typing in a field
+  // spacebar = generate (Coolors-style) · never steal Space from a focused
+  // control (button/link/field) so keyboard activation & typing keep working.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.code !== 'Space') return
       const t = e.target as HTMLElement
-      if (e.code === 'Space' && !/input|textarea/i.test(t?.tagName || '')) { e.preventDefault(); shuffle() }
+      const interactive = /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(t?.tagName || '') || t?.isContentEditable
+      if (interactive) return
+      e.preventDefault(); shuffle()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
