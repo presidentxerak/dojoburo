@@ -263,6 +263,31 @@ export function generateFromTemplate(name: string, templateId: string): SiteDoc 
   return { name, templateId: tpl.id, pages, font: tpl.font, layout: tpl.layout, updatedAt: Date.now() }
 }
 
+// ---- page presets (the "Add page" picker: choose a page type) --------------
+export interface PagePreset { id: string; label: string; desc: string; blocks: BlockType[] }
+export const PAGE_PRESETS: PagePreset[] = [
+  { id: 'blank', label: 'Blank', desc: 'A clean hero to build from.', blocks: ['hero', 'footer'] },
+  { id: 'landing', label: 'Landing', desc: 'Hero, highlights, pricing & CTA.', blocks: ['hero', 'features', 'pricing', 'cta', 'footer'] },
+  { id: 'shop', label: 'Shop', desc: 'Product grid with a working cart.', blocks: ['hero', 'store', 'footer'] },
+  { id: 'about', label: 'About', desc: 'Your story, gallery & highlights.', blocks: ['hero', 'text', 'gallery', 'features', 'footer'] },
+  { id: 'services', label: 'Services', desc: 'What you offer + pricing.', blocks: ['hero', 'features', 'pricing', 'cta', 'footer'] },
+  { id: 'gallery', label: 'Gallery', desc: 'Image-forward portfolio.', blocks: ['hero', 'gallery', 'text', 'footer'] },
+  { id: 'contact', label: 'Contact', desc: 'A contact form + footer.', blocks: ['hero', 'form', 'footer'] },
+]
+export function pagePresetBlocks(presetId: string, name: string): Block[] {
+  const preset = PAGE_PRESETS.find((p) => p.id === presetId) ?? PAGE_PRESETS[0]
+  return preset.blocks.map((t) => makeBlock(t, name))
+}
+
+// ---- section animation effects (Design tab) --------------------------------
+export const SECTION_ANIMS: { id: string; label: string }[] = [
+  { id: 'none', label: 'None' },
+  { id: 'fade', label: 'Fade in' },
+  { id: 'up', label: 'Rise up' },
+  { id: 'zoom', label: 'Zoom in' },
+  { id: 'parallax', label: 'Parallax' },
+]
+
 // ---- immutable path get/set (supports 'items.0.title', 'tiers.1.name') ------
 export function getPath(obj: unknown, path: string): unknown {
   return path.split('.').reduce<unknown>((o, k) => (o == null ? o : (o as Record<string, unknown>)[k]), obj)
@@ -445,6 +470,18 @@ h1{font-size:clamp(30px,5.4vw,44px);line-height:1.08}h2{font-size:clamp(24px,3.6
 .b.b-th-light{background:color-mix(in srgb,var(--brand-ink,#111) 4%,#fff)}
 .b.b-th-dark{background:var(--brand-ink,#141414);color:#fff}.b-th-dark h1,.b-th-dark h2,.b-th-dark h3{color:#fff}.b-th-dark .card,.b-th-dark .tier,.b-th-dark .prod{background:#ffffff12;border-color:#ffffff22;color:#fff}
 .b.b-th-accent{background:var(--brand-accent,#2f6bff);color:#fff}.b-th-accent h1,.b-th-accent h2,.b-th-accent h3{color:#fff}.b-th-accent .btn{background:#fff;color:var(--brand-ink,#111)}
+/* scroll-driven section animations (Design tab) · pure CSS, no JS · degrade to
+   fully-visible on browsers without scroll timelines */
+@media(prefers-reduced-motion:no-preference){@supports (animation-timeline:view()){
+.b-anim-fade{opacity:0;animation:baFade linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+.b-anim-up{opacity:0;animation:baUp linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+.b-anim-zoom{opacity:0;animation:baZoom linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+.b-anim-parallax>*{animation:baPar linear both;animation-timeline:view();animation-range:cover}
+}}
+@keyframes baFade{to{opacity:1}}
+@keyframes baUp{from{transform:translateY(42px)}to{opacity:1;transform:none}}
+@keyframes baZoom{from{transform:scale(.93)}to{opacity:1;transform:none}}
+@keyframes baPar{from{transform:translateY(-34px)}to{transform:translateY(34px)}}
 @media(max-width:560px){.tier.feat{transform:none}.b-footer{justify-content:center;text-align:center}.nav-links{gap:12px;font-size:14px}}
 `
 
@@ -484,6 +521,7 @@ function designClasses(b: Block): string {
   if (p._pad && p._pad !== 'md') cls.push(`b-pad-${p._pad}`)
   if (p._align) cls.push(`b-al-${p._align}`)
   if (p._full) cls.push('b-full')
+  if (p._anim && p._anim !== 'none') cls.push(`b-anim-${p._anim}`)
   return cls.join(' ')
 }
 

@@ -13,6 +13,7 @@ import {
   generateFromTemplate, SITE_TEMPLATES, SITE_FONTS, SITE_LAYOUTS, GOOGLE_FONTS, loadGoogleFonts, googleFontsHref, fontSet, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand, type GFont,
   type Product, makeProduct, SITE_CURRENCIES, currencySymbol,
   type SitePage, sitePages, homePage, makePage, slugify, normalizeSite,
+  PAGE_PRESETS, pagePresetBlocks, SECTION_ANIMS,
 } from '../../lib/site'
 import { PRESET_PALETTES, randomPalette, paletteToKit, kitToPalette, textOn } from '../../lib/palettes'
 import { StepBar } from '../StepBar'
@@ -21,9 +22,10 @@ import { StudioNext } from '../StudioNext'
 const CATS: (TemplateCategory | 'All')[] = ['All', 'Business', 'Store', 'Portfolio', 'Restaurant', 'Agency', 'Personal', 'Blog', 'Events']
 const VIBE_LABEL: Record<string, string> = { serif: 'Serif', sans: 'Sans', mono: 'Mono' }
 type Step = 'template' | 'design' | 'typography' | 'colours' | 'export'
+// Typography & Colours are no longer in the step bar — they live in the left
+// "Styles" panel (with "More typography / More colours" opening their full pages).
 const STEPS: { id: Step; label: string }[] = [
-  { id: 'template', label: 'Template' }, { id: 'design', label: 'Design' },
-  { id: 'typography', label: 'Typography' }, { id: 'colours', label: 'Colours' }, { id: 'export', label: 'Export' },
+  { id: 'template', label: 'Template' }, { id: 'design', label: 'Design' }, { id: 'export', label: 'Export' },
 ]
 
 export default function WebsiteModule({ dojoId }: ModuleProps) {
@@ -39,6 +41,8 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [inspTab, setInspTab] = useState<'content' | 'design' | 'colour'>('content')
   // left sidebar tab · Pages (sections) or Styles (fonts + colours), Squarespace-style
   const [leftTab, setLeftTab] = useState<'pages' | 'styles'>('pages')
+  // "Add page" / "Change page template" picker (choose a page type)
+  const [pagePicker, setPagePicker] = useState<null | 'add' | 'change'>(null)
   // floating contextual toolbar anchored to the selected section in the preview
   const [ctx, setCtx] = useState<{ id: string; rect: { top: number; left: number; width: number; height: number } } | null>(null)
   const [addOpen, setAddOpen] = useState(false)
@@ -181,10 +185,19 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   }
   // ---- pages management (Squarespace-style) ----
   const setPages = (next: SitePage[]) => setSite((s) => ({ ...s, pages: next }))
-  const addPage = () => {
-    const n = pages.length + 1
-    const p = makePage(`Page ${n}`, [makeBlock('hero', site.name), makeBlock('footer', site.name)])
-    setPages([...pages, p]); setActivePageId(p.id); setSel(p.blocks[0]?.id ?? null); setLeftTab('pages')
+  // create a page from a chosen type/template preset
+  const addPageFromPreset = (presetId: string) => {
+    const preset = PAGE_PRESETS.find((p) => p.id === presetId) ?? PAGE_PRESETS[0]
+    const existing = pages.filter((p) => p.title.startsWith(preset.label)).length
+    const title = existing ? `${preset.label} ${existing + 1}` : preset.label
+    const p = makePage(title, pagePresetBlocks(presetId, site.name))
+    setPages([...pages, p]); setActivePageId(p.id); setSel(p.blocks[0]?.id ?? null); setLeftTab('pages'); setPagePicker(null)
+  }
+  // change the current page's sections to a chosen template (keeps its title/slug)
+  const changePageTemplate = (presetId: string) => {
+    const next = pagePresetBlocks(presetId, site.name)
+    setPages(pages.map((p) => (p.id === page.id ? { ...p, blocks: next } : p)))
+    setSel(next[0]?.id ?? null); setPagePicker(null)
   }
   const openPageEdit = (id: string) => { const p = pages.find((x) => x.id === id); if (!p) return; setActivePageId(id); setSel(p.blocks[0]?.id ?? null) }
   const renamePage = (id: string, title: string) => setPages(pages.map((p) => (p.id === id ? { ...p, title, slug: slugify(title) } : p)))
@@ -323,6 +336,32 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   }
   const openConnect = () => { location.hash = 'connect' }
 
+  // Content & media tools · rendered inside each section's editor (right panel).
+  const contentPanel = (
+    <div className="ct-inline">
+      <div className="ct-card">
+        <b>Image</b>
+        <input className="ct-input" value={imgPrompt} placeholder="Describe an image to generate…" onChange={(e) => setImgPrompt(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') generateAiImage() }} />
+        <div className="ct-actions">
+          <button className="btn tiny" onClick={generateAiImage}>✨ AI image</button>
+          <label className="btn tiny ghost">Import<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'image'); e.currentTarget.value = '' }} /></label>
+          <button className="btn tiny ghost" onClick={generateBanner}>Banner</button>
+        </div>
+      </div>
+      <div className="ct-card">
+        <b>Video &amp; text</b>
+        <div className="ct-actions">
+          <label className="btn tiny">Import video<input type="file" accept="video/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'video'); e.currentTarget.value = '' }} /></label>
+          <button className="btn tiny ghost" onClick={generateText}>✨ Copy block</button>
+        </div>
+      </div>
+      <div className="ct-card">
+        <b>Connect Claude Code &amp; apps</b>
+        <div className="ct-actions"><button className="btn tiny" onClick={openConnect}>Open connectors →</button></div>
+      </div>
+    </div>
+  )
+
   // spacebar to generate, like Coolors (only on the Colours step)
   useEffect(() => {
     if (step !== 'colours') return
@@ -394,22 +433,47 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [site.headingFont, site.bodyFont, fontQuery, step])
 
-  const stepIdx = STEPS.findIndex((s) => s.id === step)
+  // typography & colours are off the main flow (opened from the left Styles panel)
+  const barStep: Step = step === 'typography' || step === 'colours' ? 'design' : step
+  const stepIdx = STEPS.findIndex((s) => s.id === barStep)
   const advance = () => {
     if (step === 'template') { startBlank(); return }
-    if (step === 'design') return setStep('typography')
-    if (step === 'typography') return setStep('colours')
-    if (step === 'colours') return setStep('export')
+    if (step === 'design') return setStep('export')
+    if (step === 'typography' || step === 'colours') return setStep('design')
     if (step === 'export') return void save()
   }
-  const goBack = () => { if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id) }
-  const nextLabel = step === 'template' ? 'Start blank →' : step === 'design' ? 'Typography →' : step === 'typography' ? 'Colours →' : step === 'colours' ? 'Export →' : 'Save site'
+  const goBack = () => {
+    if (step === 'typography' || step === 'colours') { setStep('design'); return }
+    if (stepIdx > 0) setStep(STEPS[stepIdx - 1].id)
+  }
+  const nextLabel = step === 'template' ? 'Start blank →' : step === 'design' ? 'Export →' : (step === 'typography' || step === 'colours') ? '← Back to design' : 'Save site'
 
   return (
     <div className="site-mod sq">
+      {/* Add-page / change-template picker · choose a page type */}
+      {pagePicker && (
+        <div className="pgpick-ov" onClick={() => setPagePicker(null)}>
+          <div className="pgpick" onClick={(e) => e.stopPropagation()}>
+            <header className="pgpick-h">
+              <strong>{pagePicker === 'add' ? 'Add a page' : `Change template · ${page.title}`}</strong>
+              <button className="cw-close" onClick={() => setPagePicker(null)} aria-label="Close">✕</button>
+            </header>
+            <p className="muted small" style={{ margin: '0 0 12px' }}>{pagePicker === 'add' ? 'Choose the type of page to add.' : 'Replace this page’s sections with a new layout.'}</p>
+            <div className="pgpick-grid">
+              {PAGE_PRESETS.map((p) => (
+                <button key={p.id} className="pgpick-card" onClick={() => (pagePicker === 'add' ? addPageFromPreset(p.id) : changePageTemplate(p.id))}>
+                  <span className="pgpick-thumb">{p.blocks.slice(0, 4).map((b, i) => <span key={i} className={`pgpick-row pgpick-${b}`} />)}</span>
+                  <strong>{p.label}</strong>
+                  <span className="pgpick-desc">{p.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       <StepBar
-        steps={STEPS} current={step} onJump={(id) => setStep(id as Step)}
-        onBack={goBack} backDisabled={stepIdx === 0}
+        steps={STEPS} current={barStep} onJump={(id) => setStep(id as Step)}
+        onBack={goBack} backDisabled={barStep === 'template'}
         onNext={advance} nextLabel={nextLabel}
       />
 
@@ -462,53 +526,9 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">Mobile</button>
             </div>
             <div className="site-tb-actions">
-              <button className={`btn tiny ghost${contentOpen ? ' on' : ''}`} onClick={() => setContentOpen((v) => !v)} title="Import or generate content">＋ Content</button>
               <button className="btn tiny ghost" onClick={regenerate} title="Regenerate a first version">↺ 1st version</button>
             </div>
           </div>
-
-      {/* content: import / generate images, videos, text + connect apps */}
-      {contentOpen && (
-        <div className="cw-panel ct-panel">
-          <div className="cw-head">
-            <div><h4>Content &amp; media</h4><p>Import or generate your images, videos and text — or connect Claude Code &amp; your apps to bring in your own code.</p></div>
-            <button className="cw-close" onClick={() => setContentOpen(false)} aria-label="Close">✕</button>
-          </div>
-          <div className="ct-grid">
-            <div className="ct-card">
-              <b>Images</b>
-              <p>Import a photo, or generate one with a free AI (Pollinations · no key).</p>
-              <input className="ct-input" value={imgPrompt} placeholder="Describe an image, e.g. cozy coffee shop interior" onChange={(e) => setImgPrompt(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') generateAiImage() }} />
-              <div className="ct-actions">
-                <button className="btn tiny" onClick={generateAiImage}>✨ AI image</button>
-                <label className="btn tiny ghost">Import<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'image'); e.currentTarget.value = '' }} /></label>
-                <button className="btn tiny ghost" onClick={generateBanner}>Banner</button>
-              </div>
-            </div>
-            <div className="ct-card">
-              <b>Video</b>
-              <p>Import an MP4/WebM clip into a video section.</p>
-              <div className="ct-actions">
-                <label className="btn tiny">Import video<input type="file" accept="video/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'video'); e.currentTarget.value = '' }} /></label>
-              </div>
-            </div>
-            <div className="ct-card">
-              <b>Text</b>
-              <p>Generate a copy block, then edit it inline.</p>
-              <div className="ct-actions">
-                <button className="btn tiny ghost" onClick={generateText}>✨ Generate copy</button>
-              </div>
-            </div>
-            <div className="ct-card ct-connect">
-              <b>Connect Claude Code &amp; apps</b>
-              <p>Bring your own code: connect the Claude Code CLI and external apps (GitHub, Figma, Drive…) to import content and build freely.</p>
-              <div className="ct-actions">
-                <button className="btn tiny" onClick={openConnect}>Open connectors →</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Squarespace-style editor · left Pages/Styles · center canvas · right editor.
           In Preview mode the side panels hide and the real site runs full-width. */}
@@ -524,7 +544,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               {/* PAGES · the site's pages (Squarespace-style) */}
               <div className="site-blocks-head">
                 <h4 className="brand-h" style={{ margin: 0 }}>Pages</h4>
-                <button className="btn tiny" onClick={addPage}>＋ Add</button>
+                <button className="btn tiny" onClick={() => setPagePicker('add')}>＋ Add page</button>
               </div>
               <ul className="site-pagelist">
                 {pages.map((p, i) => (
@@ -546,6 +566,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
                 <h4 className="brand-h" style={{ margin: 0 }}>{page.title} · sections</h4>
                 <button className="btn tiny" onClick={() => setAddOpen((v) => !v)}>＋ Add</button>
               </div>
+              <button className="btn tiny ghost" style={{ width: '100%', marginBottom: 8 }} onClick={() => setPagePicker('change')}>⟳ Change page template</button>
               {addOpen && (
                 <div className="site-palette">
                   {BLOCK_ORDER.map((t) => <button key={t} onClick={() => add(t)}>{BLOCK_LABELS[t]}</button>)}
@@ -648,6 +669,11 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               <label className="insp-toggle"><span>Full-width section</span>
                 <button role="switch" aria-checked={!!selected.props._full} className={`tgl${selected.props._full ? ' on' : ''}`} onClick={() => setDesign('_full', !selected.props._full)}><span /></button>
               </label>
+              <div className="site-field"><span>Animation on scroll</span>
+                <div className="insp-anims">
+                  {SECTION_ANIMS.map((a) => <button key={a.id} className={((selected.props._anim as string) || 'none') === a.id ? 'on' : ''} onClick={() => setDesign('_anim', a.id)}>{a.label}</button>)}
+                </div>
+              </div>
             </div>
           )}
 
@@ -666,6 +692,11 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
           )}
 
           {inspTab === 'content' && (<>
+          {/* add content · generate/import media & text into this page */}
+          <div className="insp-addcontent">
+            <button className={`btn tiny ghost insp-addbtn${contentOpen ? ' on' : ''}`} onClick={() => setContentOpen((v) => !v)}>＋ Add content (media · text · apps)</button>
+            {contentOpen && contentPanel}
+          </div>
           {/* media controls · replace the image/video of THIS section in place */}
           {(selected.type === 'image' || selected.type === 'video') && (
             <div className="site-media">
