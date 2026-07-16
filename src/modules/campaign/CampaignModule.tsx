@@ -11,6 +11,7 @@ import {
   type Campaign, type Objective, type AdFormat, type AdVariant, OBJECTIVES, ANGLES,
   generateCampaign, adSvg, copyPack, loadCampaign, saveCampaign, campaignBrand, ctaForObjective,
 } from '../../lib/campaign'
+import { googleFontsHref } from '../../lib/site'
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
 
@@ -49,6 +50,18 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dojoId])
+
+  // Load the brand's shared Google fonts (chosen in Branding/Website) so the ad
+  // previews render on-brand typography here too.
+  useEffect(() => {
+    const fams = [brand?.headingFont, brand?.bodyFont].filter(Boolean) as string[]
+    const href = googleFontsHref(fams)
+    if (!href) return
+    const id = 'gf-mk-' + href.length
+    if (document.getElementById(id)) return
+    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href; link.id = id
+    document.head.appendChild(link)
+  }, [brand?.headingFont, brand?.bodyFont])
 
   const ad = camp.ads[sel] || camp.ads[0]
   const visual = useMemo(() => (brand && ad ? adSvg(brand, ad, camp.format) : ''), [brand, ad, camp.format])

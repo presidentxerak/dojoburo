@@ -12,7 +12,7 @@ import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import {
   type BrandKit, type LogoLayout, type LogoStyle, type MarkShape, defaultKit, loadBrandKit, saveBrandKit,
-  generatePalette, logoSvg, logoLockups, FONT_PAIRS, SCHEMES, SHAPES,
+  generatePalette, logoSvg, logoLockups, FONT_PAIRS, SHAPES,
 } from '../../lib/brand'
 import { zipStore } from '../../lib/zip'
 import {
@@ -21,6 +21,8 @@ import {
 } from '../../lib/naming'
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
+import { BrandTypography, BrandColours } from '../shared/BrandStyle'
+import { paletteToKit } from '../../lib/palettes'
 
 type Step = 'concept' | 'research' | 'naming' | 'domain' | 'logo' | 'export'
 const STEPS: { id: Step; label: string }[] = [
@@ -98,6 +100,9 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   }, [dojoId])
 
   const patch = (p: Partial<BrandKit>) => setKit((k) => ({ ...k, ...p }))
+  // Persist typography/colour immediately so the choice propagates to the
+  // Website & Marketing studios (which read the same Brand Kit) right away.
+  const patchSave = (p: Partial<BrandKit>) => setKit((k) => { const next = { ...k, ...p }; void saveBrandKit(dojoId, next); return next })
 
   // ---- pipeline actions ----
   const descSrc = () => desc || dojoName || 'a modern product'
@@ -542,33 +547,39 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
           {logoTab === 'palette' && (
             <>
               <div className="sq-eyebrow">Logo mark</div>
-              <div className="bw-cloud">{SHAPES.map((s) => <button key={s.id} className={`bw-chip${kit.shape === s.id ? ' on' : ''}`} onClick={() => patch({ shape: s.id })}>{s.label}</button>)}</div>
+              <div className="bw-cloud">{SHAPES.map((s) => <button key={s.id} className={`bw-chip${kit.shape === s.id ? ' on' : ''}`} onClick={() => patchSave({ shape: s.id })}>{s.label}</button>)}</div>
               <div className="sq-eyebrow" style={{ marginTop: 10 }}>Layout</div>
-              <div className="bw-cloud">{LAYOUTS.map((l) => <button key={l} className={`bw-chip${kit.layout === l ? ' on' : ''}`} onClick={() => patch({ layout: l })}>{l.replace('-', ' ')}</button>)}</div>
-              <div className="sq-eyebrow" style={{ marginTop: 10 }}>Colour hue</div>
-              <input className="bi-hue" type="range" min={0} max={359} value={kit.hue} onChange={(e) => { const hue = Number(e.target.value); patch({ hue, palette: generatePalette(hue, kit.scheme) }) }} />
-              <div className="bi-swatches">{Object.entries(kit.palette).map(([k, c]) => <span key={k} className="bi-sw" style={{ background: c }} title={`${k} · ${c}`} />)}</div>
-              <div className="sq-eyebrow" style={{ marginTop: 10 }}>Harmony</div>
-              <div className="bw-cloud">{SCHEMES.map((s) => <button key={s.id} className={`bw-chip${kit.scheme === s.id ? ' on' : ''}`} onClick={() => patch({ scheme: s.id, palette: generatePalette(kit.hue, s.id) })}>{s.label}</button>)}</div>
+              <div className="bw-cloud">{LAYOUTS.map((l) => <button key={l} className={`bw-chip${kit.layout === l ? ' on' : ''}`} onClick={() => patchSave({ layout: l })}>{l.replace('-', ' ')}</button>)}</div>
+              <div className="sq-eyebrow" style={{ marginTop: 10 }}>Palette · shared with your Website &amp; Marketing</div>
+              <BrandColours palette={kit.palette} onApply={(cols) => patchSave({ palette: paletteToKit(cols) })} />
             </>
           )}
 
           {logoTab === 'typo' && (
             <>
-              <div className="sq-eyebrow">Font pairing</div>
-              <div className="bw-cloud">{FONT_PAIRS.map((f) => <button key={f.id} className={`bw-chip${kit.fontId === f.id ? ' on' : ''}`} onClick={() => patch({ fontId: f.id })}>{f.label}</button>)}</div>
-              <div className="lg-typescale">
+              <p className="sq-lead" style={{ marginTop: 0 }}>Same fonts as your Website — pick a heading &amp; body font here and it flows into the Website and Marketing studios.</p>
+              <BrandTypography
+                heading={kit.headingFont}
+                body={kit.bodyFont}
+                sample={kit.name || 'Your brand'}
+                onHeading={(name) => patchSave({ headingFont: name })}
+                onBody={(name) => patchSave({ bodyFont: name })}
+                onPreset={(h, b) => patchSave({ headingFont: h, bodyFont: b })}
+              />
+              <div className="lg-typescale" style={{ marginTop: 12 }}>
                 {[
                   { k: 'HERO', size: 54, w: 800, hint: 'Landing page hero, major headlines' },
                   { k: 'DISPLAY', size: 40, w: 800, hint: 'Section titles, feature highlights' },
                   { k: 'H1', size: 30, w: 700, hint: 'Page titles, primary headers' },
                   { k: 'BODY', size: 17, w: 400, hint: 'Paragraphs and content', body: true },
                 ].map((r) => {
-                  const f = FONT_PAIRS.find((x) => x.id === kit.fontId) || FONT_PAIRS[0]
+                  const preset = FONT_PAIRS.find((x) => x.id === kit.fontId) || FONT_PAIRS[0]
+                  const headFam = kit.headingFont ? `"${kit.headingFont}", ${preset.heading}` : preset.heading
+                  const bodyFam = kit.bodyFont ? `"${kit.bodyFont}", ${preset.body}` : preset.body
                   return (
                     <div key={r.k} className="lg-ts-row">
                       <div className="lg-ts-k">{r.k}</div>
-                      <div className="lg-ts-sample" style={{ fontFamily: r.body ? f.body : f.heading, fontSize: r.size, fontWeight: r.w }}>{r.body ? 'The quick brown fox builds a brand.' : `Welcome to ${kit.name}`}</div>
+                      <div className="lg-ts-sample" style={{ fontFamily: r.body ? bodyFam : headFam, fontSize: r.size, fontWeight: r.w }}>{r.body ? 'The quick brown fox builds a brand.' : `Welcome to ${kit.name}`}</div>
                       <div className="lg-ts-hint">{r.hint}</div>
                     </div>
                   )

@@ -8,14 +8,15 @@ import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import { type BrandKit, saveBrandKit } from '../../lib/brand'
 import {
-  type SiteDoc, type Block, type BlockType, type TemplateCategory, type SiteFont, type SiteLayout,
+  type SiteDoc, type Block, type BlockType, type TemplateCategory, type SiteLayout,
   BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
-  generateFromTemplate, SITE_TEMPLATES, SITE_FONTS, SITE_LAYOUTS, GOOGLE_FONTS, loadGoogleFonts, googleFontsHref, fontSet, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand, type GFont,
+  generateFromTemplate, SITE_TEMPLATES, SITE_LAYOUTS, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand,
   type Product, makeProduct, SITE_CURRENCIES, currencySymbol,
   type SitePage, sitePages, homePage, makePage, slugify, normalizeSite,
   PAGE_PRESETS, pagePresetBlocks, SECTION_ANIMS,
 } from '../../lib/site'
-import { PRESET_PALETTES, randomPalette, paletteToKit, kitToPalette, textOn } from '../../lib/palettes'
+import { PRESET_PALETTES, paletteToKit } from '../../lib/palettes'
+import { BrandTypography, BrandColours, FONT_PAIRINGS } from '../shared/BrandStyle'
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
 
@@ -49,9 +50,6 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [step, setStep] = useState<Step>('template')
   const [cat, setCat] = useState<(TemplateCategory | 'All')>('All')
   const [saved, setSaved] = useState(false)
-  // colours · Coolors-style generator + preset palettes
-  const [gen, setGen] = useState<string[]>([])
-  const [locks, setLocks] = useState<boolean[]>([false, false, false, false, false])
   // content · import/generate images, videos & text + connect apps
   const [contentOpen, setContentOpen] = useState(false)
   const [imgPrompt, setImgPrompt] = useState('')
@@ -62,12 +60,16 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     const hp = homePage(ns)
     setSite(ns); setActivePageId(hp.id); setSel(hp.blocks[0]?.id ?? null); setStep('design')
   }
+  // The Brand Kit is the source of truth for typography · overlay its fonts onto
+  // the site so a font chosen in the Branding studio shows up here immediately.
+  const seedFonts = (s: SiteDoc, k: BrandKit | null): SiteDoc =>
+    k ? { ...s, headingFont: s.headingFont ?? k.headingFont, bodyFont: s.bodyFont ?? k.bodyFont } : s
   useEffect(() => {
     let alive = true
     void Promise.all([loadSite(dojoId), siteBrand(dojoId, dojoName)]).then(([s, b]) => {
       if (!alive) return
       setBrand(b)
-      if (s) adopt(s)
+      if (s) adopt(seedFonts(s, b))
     })
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -263,15 +265,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     setTimeout(() => URL.revokeObjectURL(a.href), 4000)
   }
 
-  // ---- colours: presets + Coolors-style generator (lives in the Colours step) ----
-  // seed the swatches from the current brand palette when we enter the step
-  useEffect(() => {
-    if (step === 'colours' && brand && gen.length === 0) setGen(kitToPalette(brand.palette))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, brand])
-  const shuffle = () => setGen((cur) => randomPalette(locks.map((l, i) => (l ? (cur[i] || null) : null))))
-  const toggleLock = (i: number) => setLocks((ls) => ls.map((l, j) => (j === i ? !l : l)))
-  const setSwatch = (i: number, hex: string) => setGen((cur) => cur.map((c, j) => (j === i ? hex : c)))
+  // ---- colours: the shared Coolors-style generator applies to the Brand Kit ----
   const applyPalette = (colors: string[]) => {
     if (!brand) return
     const next = { ...brand, palette: paletteToKit(colors) }
@@ -362,76 +356,19 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     </div>
   )
 
-  // spacebar to generate, like Coolors (only on the Colours step)
-  useEffect(() => {
-    if (step !== 'colours') return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code !== 'Space') return
-      const tag = (e.target as HTMLElement)?.tagName
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
-      e.preventDefault(); shuffle()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, locks])
-
-  // The colours generator + trending palettes · rendered in the Colours step.
-  const colorsBody = (
-    <div className="cw-panel">
-      <div className="cw-head">
-        <div><h4>Colour palette</h4><p>Generate a scheme (or press <kbd>space</kbd>), lock the ones you love, or pick a trending palette. Applies to your whole site.</p></div>
-      </div>
-      <div className="cw-gen">
-        {gen.map((c, i) => (
-          <div key={i} className="cw-swatch" style={{ background: c, color: textOn(c) }}>
-            <button className={`cw-lock${locks[i] ? ' on' : ''}`} onClick={() => toggleLock(i)} title={locks[i] ? 'Unlock' : 'Lock'}>{locks[i] ? '🔒' : '🔓'}</button>
-            <input className="cw-hex" value={c.toUpperCase()} onChange={(e) => { const v = e.target.value; if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setSwatch(i, v.startsWith('#') ? v : '#' + v) }} />
-          </div>
-        ))}
-      </div>
-      <div className="cw-actions">
-        <button className="btn tiny" onClick={shuffle}>⟳ Generate</button>
-        <button className="btn primary tiny" onClick={() => applyPalette(gen)}>Apply palette</button>
-      </div>
-      <div className="cw-presets-h">Trending palettes</div>
-      <div className="cw-presets">
-        {PRESET_PALETTES.map((p) => (
-          <button key={p.name} className="cw-preset" title={p.name} onClick={() => { setGen(p.colors); applyPalette(p.colors) }}>
-            <span className="cw-preset-strip">{p.colors.map((c, i) => <span key={i} style={{ background: c }} />)}</span>
-            <span className="cw-preset-n">{p.name}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-
-  const setFont = (font: SiteFont) => setSite((s) => ({ ...s, font, headingFont: undefined, bodyFont: undefined }))
   const setLayout = (layout: SiteLayout) => setSite((s) => ({ ...s, layout }))
-  const setHeadingFont = (headingFont?: string) => setSite((s) => ({ ...s, headingFont }))
-  const setBodyFont = (bodyFont?: string) => setSite((s) => ({ ...s, bodyFont }))
+  // Font changes flow back into the Brand Kit so the Branding & Marketing studios
+  // pick them up (bidirectional propagation via the shared kit).
+  const saveKitFonts = (p: { headingFont?: string; bodyFont?: string }) => {
+    if (!brand) return
+    const next = { ...brand, ...p }
+    setBrand(next); void saveBrandKit(dojoId, next)
+  }
+  const setHeadingFont = (headingFont: string) => { setSite((s) => ({ ...s, headingFont })); saveKitFonts({ headingFont }) }
+  const setBodyFont = (bodyFont: string) => { setSite((s) => ({ ...s, bodyFont })); saveKitFonts({ bodyFont }) }
+  const setFontPair = (headingFont: string, bodyFont: string) => { setSite((s) => ({ ...s, headingFont, bodyFont })); saveKitFonts({ headingFont, bodyFont }) }
   const setHeadingWeight = (headingWeight: number) => setSite((s) => ({ ...s, headingWeight }))
   const setBaseSize = (baseSize: number) => setSite((s) => ({ ...s, baseSize }))
-  const [fontQuery, setFontQuery] = useState('')
-  const [fontTarget, setFontTarget] = useState<'heading' | 'body'>('heading')
-  // The full Google Fonts catalogue (via the server proxy) once it loads; the
-  // curated list until then, so the picker is always populated.
-  const [fontCatalogue, setFontCatalogue] = useState<GFont[]>(GOOGLE_FONTS)
-  useEffect(() => { let live = true; void loadGoogleFonts().then((f) => { if (live) setFontCatalogue(f) }); return () => { live = false } }, [])
-  const fontMatches = fontCatalogue.filter((f) => f.name.toLowerCase().includes(fontQuery.trim().toLowerCase()))
-  // cap what we render (the catalogue can be ~1500 fonts) · search narrows it
-  const fontList = fontMatches.slice(0, 120)
-  // load the selected + previewed Google fonts into the app doc so the picker renders them
-  useEffect(() => {
-    const fams = [site.headingFont, site.bodyFont, ...fontList.slice(0, 40).map((f) => f.name)].filter(Boolean) as string[]
-    const href = googleFontsHref(fams)
-    if (!href) return
-    const id = 'gf-' + href.length
-    if (document.getElementById(id)) return
-    const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = href; link.id = id
-    document.head.appendChild(link)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [site.headingFont, site.bodyFont, fontQuery, step])
 
   // typography & colours are off the main flow (opened from the left Styles panel)
   const barStep: Step = step === 'typography' || step === 'colours' ? 'design' : step
@@ -590,18 +527,21 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
             <div className="site-left-body">
               <div className="sq-eyebrow">Font pairing</div>
               <div className="ty-fonts ty-fonts-mini">
-                {SITE_FONTS.map((f) => (
-                  <button key={f.id} className={`ty-font${(!site.headingFont && (site.font || 'sans') === f.id) ? ' on' : ''}`} onClick={() => setFont(f.id)}>
-                    <span className="ty-font-h" style={{ fontFamily: f.heading }}>{site.name}</span>
-                    <span className="ty-font-b" style={{ fontFamily: f.body }}>{f.label}</span>
-                  </button>
-                ))}
+                {FONT_PAIRINGS.map((f) => {
+                  const on = site.headingFont === f.heading && site.bodyFont === f.body
+                  return (
+                    <button key={f.label} className={`ty-font${on ? ' on' : ''}`} onClick={() => setFontPair(f.heading, f.body)}>
+                      <span className="ty-font-h" style={{ fontFamily: `"${f.heading}"` }}>{site.name}</span>
+                      <span className="ty-font-b" style={{ fontFamily: `"${f.body}"` }}>{f.label}</span>
+                    </button>
+                  )
+                })}
               </div>
               <button className="btn tiny ghost" style={{ marginTop: 8 }} onClick={() => setStep('typography')}>More typography →</button>
               <div className="sq-eyebrow" style={{ marginTop: 14 }}>Colour palette</div>
               <div className="cw-presets cw-presets-mini">
                 {PRESET_PALETTES.slice(0, 12).map((p) => (
-                  <button key={p.name} className="cw-preset" title={p.name} onClick={() => { setGen(p.colors); applyPalette(p.colors) }}>
+                  <button key={p.name} className="cw-preset" title={p.name} onClick={() => applyPalette(p.colors)}>
                     <span className="cw-preset-strip">{p.colors.map((c, k) => <span key={k} style={{ background: c }} />)}</span>
                     <span className="cw-preset-n">{p.name}</span>
                   </button>
@@ -781,42 +721,18 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       {step === 'typography' && (
         <section className="sq-panel">
           <h3 className="sq-title">Typography &amp; layout</h3>
-          <p className="sq-lead">Choose from every popular Google Font for your headings and body — or start from a quick pairing. Tune weight, size and layout.</p>
+          <p className="sq-lead">Choose from every popular Google Font for your headings and body — or start from a quick pairing. Your choice flows into the Branding &amp; Marketing studios too. Tune weight, size and layout.</p>
 
-          <div className="sq-eyebrow">Quick pairings</div>
-          <div className="ty-fonts">
-            {SITE_FONTS.map((f) => (
-              <button key={f.id} className={`ty-font${(!site.headingFont && (site.font || 'sans') === f.id) ? ' on' : ''}`} onClick={() => setFont(f.id)}>
-                <span className="ty-font-h" style={{ fontFamily: f.heading }}>{site.name}</span>
-                <span className="ty-font-b" style={{ fontFamily: f.body }}>{f.label}</span>
-              </button>
-            ))}
-          </div>
+          <BrandTypography
+            heading={site.headingFont}
+            body={site.bodyFont}
+            sample={site.name}
+            onHeading={setHeadingFont}
+            onBody={setBodyFont}
+            onPreset={setFontPair}
+          />
 
-          <div className="sq-eyebrow" style={{ marginTop: 12 }}>Google Fonts</div>
-          <div className="ty-current">
-            <button className={`ty-slot${fontTarget === 'heading' ? ' on' : ''}`} onClick={() => setFontTarget('heading')}>
-              <em>Headings</em><b style={{ fontFamily: `"${site.headingFont || fontSet(site.font).heading}"` }}>{site.headingFont || 'Preset'}</b>
-            </button>
-            <button className={`ty-slot${fontTarget === 'body' ? ' on' : ''}`} onClick={() => setFontTarget('body')}>
-              <em>Body</em><b style={{ fontFamily: `"${site.bodyFont || fontSet(site.font).body}"` }}>{site.bodyFont || 'Preset'}</b>
-            </button>
-          </div>
-          <input className="ty-search" value={fontQuery} placeholder={`Search all ${fontCatalogue.length} Google Fonts for ${fontTarget}…`} onChange={(e) => setFontQuery(e.target.value)} />
-          <div className="ty-fontlist">
-            {fontList.map((f) => {
-              const active = (fontTarget === 'heading' ? site.headingFont : site.bodyFont) === f.name
-              return (
-                <button key={f.name} className={`ty-fontitem${active ? ' on' : ''}`} onClick={() => (fontTarget === 'heading' ? setHeadingFont(f.name) : setBodyFont(f.name))}>
-                  <span style={{ fontFamily: `"${f.name}"` }}>{f.name}</span><em>{f.cat}</em>
-                </button>
-              )
-            })}
-            {!fontList.length && <p className="muted small">No font matches “{fontQuery}”.</p>}
-            {fontMatches.length > fontList.length && <p className="muted small">Showing {fontList.length} of {fontMatches.length} matches · keep typing to narrow down.</p>}
-          </div>
-
-          <div className="bw-2col" style={{ marginTop: 4 }}>
+          <div className="bw-2col" style={{ marginTop: 12 }}>
             <div className="sq-field">Heading weight
               <div className="bw-cloud">
                 {[600, 700, 800, 900].map((w) => <button key={w} className={`bw-chip${(site.headingWeight || 800) === w ? ' on' : ''}`} onClick={() => setHeadingWeight(w)}>{w}</button>)}
@@ -843,8 +759,8 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       {step === 'colours' && (
         <section className="sq-panel">
           <h3 className="sq-title">Colours</h3>
-          <p className="sq-lead">Pick a trending palette or generate your own (press <kbd>space</kbd>) — it re-themes your whole site instantly.</p>
-          {colorsBody}
+          <p className="sq-lead">Pick a trending palette or generate your own (press <kbd>space</kbd>) — it re-themes your whole site, Branding &amp; Marketing instantly.</p>
+          {brand && <BrandColours palette={brand.palette} onApply={applyPalette} />}
           <div className={`site-preview ${device}`}>
             <iframe title="Website preview" className="site-frame" srcDoc={doc} />
           </div>

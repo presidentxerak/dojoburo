@@ -97,6 +97,10 @@ function wrap(text: string, max: number): string[] {
 export function adSvg(kit: BrandKit, ad: AdVariant, format: AdFormat): string {
   const [w, h] = format === 'story' ? [1080, 1920] : [1080, 1080]
   const p = kit.palette
+  // Use the brand's shared typography (chosen in Branding/Website) · falls back
+  // to Outfit. The app loads these Google fonts so previews render on-brand.
+  const hf = `${kit.headingFont ? `'${kit.headingFont}', ` : ''}Outfit, sans-serif`
+  const bf = `${kit.bodyFont ? `'${kit.bodyFont}', ` : ''}Outfit, sans-serif`
   const heading = kit.name || 'Brand'
   const lines = wrap(ad.headline, format === 'story' ? 16 : 18)
   const fs = format === 'story' ? 92 : 84
@@ -105,9 +109,9 @@ export function adSvg(kit: BrandKit, ad: AdVariant, format: AdFormat): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="100%" height="100%">
   <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${p.primary}"/><stop offset="1" stop-color="${p.accent}"/></linearGradient></defs>
   <rect width="${w}" height="${h}" fill="url(#g)"/>
-  <text x="64" y="96" font-family="${kit.name ? 'Outfit, sans-serif' : 'sans-serif'}" font-weight="800" font-size="42" fill="#fff" opacity="0.95">${esc(heading)}</text>
-  <text text-anchor="middle" font-family="Outfit, sans-serif" font-weight="800" font-size="${fs}" fill="#fff">${tspans}</text>
-  <g transform="translate(${w / 2} ${h - 150})"><rect x="-190" y="-46" width="380" height="92" rx="46" fill="#fff"/><text text-anchor="middle" y="12" font-family="Outfit, sans-serif" font-weight="800" font-size="40" fill="${p.ink}">${esc(ad.cta)}</text></g>
+  <text x="64" y="96" font-family="${bf}" font-weight="800" font-size="42" fill="#fff" opacity="0.95">${esc(heading)}</text>
+  <text text-anchor="middle" font-family="${hf}" font-weight="800" font-size="${fs}" fill="#fff">${tspans}</text>
+  <g transform="translate(${w / 2} ${h - 150})"><rect x="-190" y="-46" width="380" height="92" rx="46" fill="#fff"/><text text-anchor="middle" y="12" font-family="${hf}" font-weight="800" font-size="40" fill="${p.ink}">${esc(ad.cta)}</text></g>
 </svg>`
 }
 

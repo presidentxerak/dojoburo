@@ -21,6 +21,10 @@ export interface BrandKit {
   scheme: PaletteScheme
   palette: Palette
   fontId: string
+  /** Canonical Google-font families · shared with the Website & Marketing
+   *  studios. When set they win over the fontId preset everywhere. */
+  headingFont?: string
+  bodyFont?: string
   shape: MarkShape
   layout: LogoLayout
   /** optional imported logo (data URL) · overrides the generated mark when set */
@@ -173,5 +177,7 @@ export async function saveBrandKit(dojoId: string, kit: BrandKit): Promise<void>
 export function kitCss(kit: BrandKit): string {
   const p = kit.palette
   const f = fontPair(kit.fontId)
-  return `:root{\n  --brand-primary:${p.primary};\n  --brand-secondary:${p.secondary};\n  --brand-accent:${p.accent};\n  --brand-ink:${p.ink};\n  --brand-bg:${p.bg};\n  --brand-heading:${f.heading};\n  --brand-body:${f.body};\n}`
+  const heading = kit.headingFont ? `"${kit.headingFont}", ${f.heading}` : f.heading
+  const body = kit.bodyFont ? `"${kit.bodyFont}", ${f.body}` : f.body
+  return `:root{\n  --brand-primary:${p.primary};\n  --brand-secondary:${p.secondary};\n  --brand-accent:${p.accent};\n  --brand-ink:${p.ink};\n  --brand-bg:${p.bg};\n  --brand-heading:${heading};\n  --brand-body:${body};\n}`
 }

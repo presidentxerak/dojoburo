@@ -759,6 +759,11 @@ a:hover { text-decoration: underline; }
 .sec-row-main code { background: color-mix(in srgb, var(--dc) 12%, transparent); color: var(--dc); padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 16px; }
 .sec-mask { font-family: var(--font-mono); font-size: 14px; color: var(--muted); letter-spacing: 1px; }
 .sec-note { display: block; margin-top: 4px; font-size: 16px; color: var(--muted); }
+.sec-keywrap { display: flex; flex-direction: column; gap: 3px; }
+.sec-keyhint { font-family: var(--font-ui); font-size: 13px; color: var(--muted); }
+.sec-keyhint code { font-family: var(--font-mono); background: color-mix(in srgb, var(--dc) 12%, transparent); color: var(--dc); padding: 1px 6px; border-radius: 5px; }
+.sec-tag { font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: #0e9b6a; background: color-mix(in srgb, #0e9b6a 14%, transparent); border: 1px solid color-mix(in srgb, #0e9b6a 38%, transparent); padding: 2px 7px; border-radius: 999px; }
+.sec-when { font-size: 13px; color: var(--muted); }
 .sec-del { position: absolute; top: 10px; right: 10px; border: none; background: transparent; color: var(--muted); font-size: 16px; font-weight: 700; cursor: pointer; }
 .sec-del:hover { color: #e0483f; }
 .sec-toggles { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--border); padding-top: 14px; }
