@@ -498,11 +498,13 @@ a:hover { text-decoration: underline; }
 .site-seg button { border: none; background: transparent; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 16px; }
 .site-seg button.on { background: var(--btn-bg); }
 .site-tb-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.site-preview { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; }
+.site-preview { position: relative; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; }
 .site-preview.desktop .site-frame { width: 100%; }
 .site-preview.mobile { display: flex; justify-content: center; background: var(--panel-2); padding: 12px; }
 .site-preview.mobile .site-frame { width: 390px; max-width: 100%; border-radius: 10px; box-shadow: 0 6px 20px #0002; }
-.site-frame { width: 100%; height: 460px; border: none; display: block; background: #fff; }
+/* a big, near-fullscreen editing canvas · Preview mode gets the most room */
+.site-frame { width: 100%; height: 62vh; min-height: 420px; border: none; display: block; background: #fff; }
+.site-preview.preview .site-frame { height: 74vh; }
 .site-blocks-head { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 8px; }
 .site-palette { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .site-palette button { font-size: 16px; padding: 7px 11px; border: 1px solid var(--border); background: var(--panel-solid); border-radius: 8px; cursor: pointer; color: var(--ink); }
@@ -524,6 +526,31 @@ a:hover { text-decoration: underline; }
 .site-media-ops { display: flex; flex-wrap: wrap; gap: 8px; }
 .site-media-prompt { font: inherit; font-size: 15px; color: var(--ink); background: var(--panel-solid); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
 .site-media-prompt:focus { outline: none; border-color: var(--dc); }
+
+/* floating per-section contextual toolbar (Squarespace-style) */
+.site-ctx { position: absolute; z-index: 30; transform: translateX(-100%); display: flex; align-items: center; gap: 2px; background: #111; color: #fff; border-radius: 10px; padding: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+.site-ctx-lbl { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; padding: 0 8px 0 6px; letter-spacing: 0.02em; white-space: nowrap; }
+.site-ctx button { width: 30px; height: 30px; border: none; background: transparent; color: #fff; border-radius: 7px; cursor: pointer; font-size: 15px; display: grid; place-items: center; }
+.site-ctx button:hover { background: rgba(255,255,255,0.16); }
+.site-ctx .site-ctx-del:hover { background: #e0483f; }
+
+/* shop manager · products editor + shop settings inside the inspector */
+.shop-mgr { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
+.shop-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.shop-settings select { font: inherit; font-size: 15px; color: var(--ink); background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+.shop-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.shop-head b { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; }
+.shop-prod { display: flex; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); margin-bottom: 8px; }
+.shop-prod-thumb { width: 58px; height: 58px; flex: none; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+.shop-prod-thumb.ph { background: linear-gradient(135deg, var(--dc, #2f6bff), #b7c6ff); }
+.shop-prod-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.shop-prod-fields input { font: inherit; font-size: 15px; color: var(--ink); background: var(--panel-solid); border: 1px solid var(--border); border-radius: 7px; padding: 6px 9px; width: 100%; }
+.shop-prod-fields input:focus { outline: none; border-color: var(--dc); }
+.shop-prow { display: flex; align-items: center; gap: 6px; }
+.shop-cur { font-weight: 700; color: var(--muted); }
+.shop-pprice { max-width: 90px; }
+.shop-del { color: #e0483f !important; }
+@media (max-width: 560px) { .shop-settings { grid-template-columns: 1fr; } }
 
 /* Campaign Studio */
 .camp-setup { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; }

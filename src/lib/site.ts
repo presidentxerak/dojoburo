@@ -5,16 +5,30 @@
 import { idbGet, idbSet } from './idb'
 import { type BrandKit, defaultKit, kitCss } from './brand'
 
-export type BlockType = 'hero' | 'features' | 'pricing' | 'cta' | 'form' | 'text' | 'gallery' | 'image' | 'video' | 'footer'
+export type BlockType = 'hero' | 'features' | 'pricing' | 'cta' | 'form' | 'text' | 'gallery' | 'image' | 'video' | 'store' | 'footer'
 export interface Block { id: string; type: BlockType; props: Record<string, unknown> }
 export type SiteFont = 'sans' | 'serif' | 'mono' | 'grotesk' | 'editorial' | 'rounded'
 export type SiteLayout = 'centered' | 'left' | 'editorial' | 'bold'
+/** A shop product · used by the Store block + the built-in cart. */
+export interface Product { id: string; name: string; price: number; img?: string; desc?: string }
 export interface SiteDoc {
   name: string; blocks: Block[]; updatedAt: number; templateId?: string
   font?: SiteFont; layout?: SiteLayout
   /** optional Google Fonts (override the preset pairing) + type controls */
   headingFont?: string; bodyFont?: string; headingWeight?: number; baseSize?: number
+  /** shop settings · currency symbol + where checkout orders go */
+  currency?: string; checkoutEmail?: string
 }
+/** Currency options for the shop (symbol used by the cart + product prices). */
+export const SITE_CURRENCIES: { code: string; symbol: string; label: string }[] = [
+  { code: 'USD', symbol: '$', label: 'US Dollar ($)' },
+  { code: 'EUR', symbol: '€', label: 'Euro (€)' },
+  { code: 'GBP', symbol: '£', label: 'British Pound (£)' },
+  { code: 'JPY', symbol: '¥', label: 'Japanese Yen (¥)' },
+  { code: 'CAD', symbol: 'C$', label: 'Canadian Dollar (C$)' },
+  { code: 'CHF', symbol: 'CHF ', label: 'Swiss Franc (CHF)' },
+]
+export const currencySymbol = (code?: string) => SITE_CURRENCIES.find((c) => c.code === code)?.symbol ?? '$'
 
 // A broad catalogue of Google Fonts (searchable in the Typography step). Loaded
 // on demand via fonts.googleapis.com (allowed by the site CSP). Grouped so the
@@ -103,9 +117,15 @@ const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g,
 // ---- block catalog (defaults + label) --------------------------------------
 export const BLOCK_LABELS: Record<BlockType, string> = {
   hero: 'Hero', features: 'Highlights', pricing: 'Pricing', cta: 'Call to action',
-  form: 'Form', text: 'Text', gallery: 'Gallery', image: 'Image', video: 'Video', footer: 'Footer',
+  form: 'Form', text: 'Text', gallery: 'Gallery', image: 'Image', video: 'Video', store: 'Store', footer: 'Footer',
 }
-export const BLOCK_ORDER: BlockType[] = ['hero', 'features', 'pricing', 'cta', 'form', 'text', 'gallery', 'image', 'video', 'footer']
+export const BLOCK_ORDER: BlockType[] = ['hero', 'features', 'store', 'pricing', 'cta', 'form', 'text', 'gallery', 'image', 'video', 'footer']
+
+const uidP = () => `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`
+/** A fresh product with sensible defaults (for the shop manager). */
+export function makeProduct(name = 'New product', price = 20): Product {
+  return { id: uidP(), name, price, img: '', desc: '' }
+}
 
 export function makeBlock(type: BlockType, name = 'My brand'): Block {
   const P: Record<BlockType, Record<string, unknown>> = {
@@ -126,6 +146,11 @@ export function makeBlock(type: BlockType, name = 'My brand'): Block {
     gallery: { title: 'Gallery', count: 6 },
     image: { src: '', caption: '', alt: `${name} image` },
     video: { src: '', caption: '' },
+    store: { title: 'Shop', subtitle: 'Browse our products', products: [
+      makeProduct('Starter', 19),
+      makeProduct('Pro', 49),
+      makeProduct('Premium', 99),
+    ] },
     footer: { text: `© ${name}`, links: ['Home', 'Pricing', 'Contact'] },
   }
   return { id: uid(), type, props: P[type] }
@@ -209,9 +234,13 @@ const EDIT_CSS = `
 [data-b].__sel::after{content:attr(data-lbl);position:absolute;top:0;left:0;background:var(--brand-accent,#2f6bff);color:#fff;font:700 11px/1.5 system-ui,sans-serif;padding:2px 9px;border-bottom-right-radius:7px;z-index:99;pointer-events:none}
 `
 const EDIT_JS = `<script>(function(){
-function send(id){try{parent.postMessage({__ds:'select',id:id},'*')}catch(e){}}
-document.addEventListener('click',function(e){var t=e.target;var el=t&&t.closest?t.closest('[data-b]'):null;if(!el)return;e.preventDefault();e.stopPropagation();send(el.getAttribute('data-b'))},true);
-window.addEventListener('message',function(e){var d=e.data||{};if(d.__ds!=='sel')return;var prev=document.querySelector('[data-b].__sel');if(prev)prev.classList.remove('__sel');if(!d.id)return;var el=document.querySelector('[data-b="'+d.id+'"]');if(!el)return;el.classList.add('__sel');if(d.scroll)el.scrollIntoView({behavior:'smooth',block:'center'})});
+var selId=null;
+function rectOf(id){var el=document.querySelector('[data-b="'+id+'"]');if(!el)return null;var r=el.getBoundingClientRect();return{top:r.top,left:r.left,width:r.width,height:r.height}}
+function post(kind,id){try{parent.postMessage({__ds:kind,id:id,rect:rectOf(id)},'*')}catch(e){}}
+document.addEventListener('click',function(e){var t=e.target;var el=t&&t.closest?t.closest('[data-b]'):null;if(!el)return;e.preventDefault();e.stopPropagation();selId=el.getAttribute('data-b');post('select',selId)},true);
+var raf=0;function onScroll(){if(!selId)return;if(raf)return;raf=requestAnimationFrame(function(){raf=0;post('rect',selId)})}
+window.addEventListener('scroll',onScroll,true);window.addEventListener('resize',onScroll);
+window.addEventListener('message',function(e){var d=e.data||{};if(d.__ds!=='sel')return;selId=d.id;var prev=document.querySelector('[data-b].__sel');if(prev)prev.classList.remove('__sel');if(!d.id)return;var el=document.querySelector('[data-b="'+d.id+'"]');if(!el)return;el.classList.add('__sel');if(d.scroll)el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){post('rect',d.id)},d.scroll?360:0)});
 })();</scr`+`ipt>`
 
 // ---- render one block to HTML ---------------------------------------------
@@ -252,6 +281,16 @@ export function blockHtml(b: Block): string {
         : `<div class="ph ph-big ph-video">▶</div>`
       return `<section class="b b-video">${inner}${p.caption ? `<p class="cap">${esc(p.caption)}</p>` : ''}</section>`
     }
+    case 'store': {
+      const products = (p.products as Product[]) || []
+      const cur = String(p.cur || '$')
+      const cards = products.map((pr) => {
+        const price = Number(pr.price) || 0
+        const media = pr.img ? `<img src="${pr.img}" alt="${esc(pr.name)}"/>` : `<div class="ph"></div>`
+        return `<div class="prod">${media}<div class="prod-b"><h3>${esc(pr.name)}</h3>${pr.desc ? `<p>${esc(pr.desc)}</p>` : ''}<div class="prod-f"><span class="prod-price">${esc(cur)}${price.toFixed(2)}</span><button class="btn prod-add" type="button" data-add="${esc(pr.id)}" data-name="${esc(pr.name)}" data-price="${price}">Add to cart</button></div></div></div>`
+      }).join('')
+      return `<section class="b b-store"><h2>${esc(p.title)}</h2>${p.subtitle ? `<p class="store-sub">${esc(p.subtitle)}</p>` : ''}<div class="prod-grid">${cards || '<p class="store-empty">No products yet.</p>'}</div></section>`
+    }
     case 'footer': {
       const links = (p.links as string[]) || []
       return `<footer class="b b-footer"><nav>${links.map((l) => `<a href="#">${esc(l)}</a>`).join('')}</nav><span>${esc(p.text)}</span></footer>`
@@ -259,6 +298,39 @@ export function blockHtml(b: Block): string {
     default:
       return ''
   }
+}
+
+/** Does this site include a shop? (drives the cart runtime injection) */
+export function hasStore(site: SiteDoc): boolean {
+  return site.blocks.some((b) => b.type === 'store')
+}
+
+// The standalone shopping-cart runtime · injected into EVERY generated site that
+// has a Store block (preview AND export), so the cart works on the real exported
+// page with no server. Add-to-cart, quantities, live total, and a checkout that
+// composes an email order (honest: no fake payment processing).
+function cartRuntime(site: SiteDoc): string {
+  const cur = currencySymbol(site.currency)
+  const email = site.checkoutEmail || ''
+  return `
+<button id="__cartbtn" class="cartbtn" type="button" aria-label="Cart">🛒<span id="__cartn">0</span></button>
+<div id="__cartov" class="cartov" hidden><div class="cartdrawer"><div class="cartdrawer-h"><strong>Your cart</strong><button id="__cartx" class="cartx" type="button" aria-label="Close">×</button></div><div id="__cartlist" class="cartlist"></div><div class="cartfoot"><div class="cartsum"><span>Total</span><b id="__carttot">${cur}0.00</b></div><button id="__cartco" class="btn cartco" type="button">Checkout</button></div></div></div>
+<style>.cartbtn{position:fixed;right:18px;bottom:18px;z-index:1000;border:none;background:var(--brand-accent,#2f6bff);color:#fff;border-radius:999px;padding:12px 16px;font:700 15px system-ui,sans-serif;cursor:pointer;box-shadow:0 8px 24px #0003}.cartbtn span{margin-left:6px;background:#fff3;border-radius:999px;padding:1px 7px}.cartov{position:fixed;inset:0;z-index:1001;background:#0006;display:flex;justify-content:flex-end}.cartdrawer{width:min(380px,100%);background:#fff;color:#111;display:flex;flex-direction:column;height:100%;box-shadow:-8px 0 30px #0003}.cartdrawer-h{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid #0001;font-size:18px}.cartx{border:none;background:none;font-size:24px;cursor:pointer;line-height:1}.cartlist{flex:1;overflow:auto;padding:8px 18px}.citem{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #0001}.citem .cn{flex:1;font-weight:600}.citem .cq{display:flex;align-items:center;gap:6px}.citem .cq button{width:26px;height:26px;border:1px solid #0002;background:#f6f6f6;border-radius:6px;cursor:pointer;font-size:15px}.cempty{color:#0007;text-align:center;padding:40px 0}.cartfoot{padding:16px 18px;border-top:1px solid #0001}.cartsum{display:flex;justify-content:space-between;font-size:18px;margin-bottom:12px}.cartco{width:100%;text-align:center}</style>
+<script>(function(){var CUR=${JSON.stringify(cur)},MAIL=${JSON.stringify(email)},cart={};
+function money(n){return CUR+(Math.round(n*100)/100).toFixed(2)}
+function total(){var t=0;for(var k in cart)t+=cart[k].price*cart[k].qty;return t}
+function count(){var c=0;for(var k in cart)c+=cart[k].qty;return c}
+function render(){var l=document.getElementById('__cartlist');var keys=Object.keys(cart);if(!keys.length){l.innerHTML='<p class="cempty">Your cart is empty.</p>'}else{l.innerHTML=keys.map(function(k){var it=cart[k];return '<div class="citem"><span class="cn">'+it.name+'</span><span class="cq"><button data-dec="'+k+'">−</button><span>'+it.qty+'</span><button data-inc="'+k+'">+</button></span><span>'+money(it.price*it.qty)+'</span></div>'}).join('')}
+document.getElementById('__carttot').textContent=money(total());document.getElementById('__cartn').textContent=count()}
+function open(){document.getElementById('__cartov').hidden=false}function close(){document.getElementById('__cartov').hidden=true}
+document.addEventListener('click',function(e){var t=e.target;
+var add=t.closest?t.closest('[data-add]'):null;if(add){var id=add.getAttribute('data-add');if(!cart[id])cart[id]={name:add.getAttribute('data-name'),price:+add.getAttribute('data-price'),qty:0};cart[id].qty++;render();open();return}
+if(t.closest&&t.closest('#__cartbtn')){render();open();return}
+if(t.id==='__cartx'||t.id==='__cartov'){close();return}
+var inc=t.getAttribute&&t.getAttribute('data-inc');if(inc){cart[inc].qty++;render();return}
+var dec=t.getAttribute&&t.getAttribute('data-dec');if(dec){cart[dec].qty--;if(cart[dec].qty<=0)delete cart[dec];render();return}
+if(t.id==='__cartco'){if(!count())return;var lines=Object.keys(cart).map(function(k){return cart[k].qty+' x '+cart[k].name+' ('+money(cart[k].price*cart[k].qty)+')'}).join('%0D%0A');var body='Order:%0D%0A'+lines+'%0D%0A%0D%0ATotal: '+money(total());if(MAIL){location.href='mailto:'+MAIL+'?subject=New order&body='+body}else{alert('Order summary:\\n\\n'+decodeURIComponent(lines.replace(/%0D%0A/g,'\\n'))+'\\n\\nTotal: '+money(total())+'\\n\\nSet a checkout email in the shop settings to receive orders.')}return}
+});render();})();</script>`
 }
 
 // ---- base site CSS (uses Brand Kit variables) ------------------------------
@@ -290,6 +362,16 @@ h1{font-size:clamp(30px,5.4vw,44px);line-height:1.08}h2{font-size:clamp(24px,3.6
 .b-image .cap,.b-video .cap{margin-top:10px;color:#0009;font-size:15px}
 .b-footer{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid #0001;color:#0009}
 .b-footer nav{display:flex;gap:16px;flex-wrap:wrap}.b-footer a{color:inherit;text-decoration:none}
+.b-store .store-sub{text-align:center;color:#0008;margin:-4px auto 8px;max-width:560px}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:clamp(12px,2vw,20px);margin-top:24px}
+.prod{background:#fff;border:1px solid #0001;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 6px 18px #0000000d;min-width:0}
+.prod img,.prod .ph{width:100%;aspect-ratio:1;object-fit:cover;background:linear-gradient(135deg,var(--brand-primary,#889),var(--brand-accent,#39c))}
+.prod-b{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.prod-b h3{margin:0;font-size:18px}.prod-b p{margin:0;color:#0008;font-size:14px;flex:1}
+.prod-f{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
+.prod-price{font-weight:800;font-size:19px;color:var(--brand-primary,#222)}
+.prod-add{padding:9px 14px;font-size:14px;border-radius:9px}
+.store-empty{grid-column:1/-1;text-align:center;color:#0007;padding:30px 0}
 @media(max-width:560px){.tier.feat{transform:none}.b-footer{justify-content:center;text-align:center}}
 `
 
@@ -322,12 +404,20 @@ function siteVarsCss(site: SiteDoc): string {
  *  builder); that mode is never used for the exported file. */
 export function fullDoc(site: SiteDoc, kit: BrandKit, opts?: { editable?: boolean }): string {
   const editable = !!opts?.editable
-  const body = site.blocks.map(editable ? blockHtmlTagged : blockHtml).join('\n')
+  const cur = currencySymbol(site.currency)
+  // inject the site currency symbol into each Store block so prices render right
+  const render = (b: Block) => {
+    const bb = b.type === 'store' ? { ...b, props: { ...b.props, cur } } : b
+    return editable ? blockHtmlTagged(bb) : blockHtml(bb)
+  }
+  const body = site.blocks.map(render).join('\n')
   const href = googleFontsHref([site.headingFont ?? '', site.bodyFont ?? ''])
   const gimport = href ? `@import url('${href}');\n` : ''
   const editStyle = editable ? EDIT_CSS : ''
   const editScript = editable ? EDIT_JS : ''
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${gimport}${kitCss(kit)}\n${siteVarsCss(site)}${editStyle}</style></head><body>${body}${editScript}</body></html>`
+  // the cart runtime ships in preview + export (not edit mode, where clicks select)
+  const cart = !editable && hasStore(site) ? cartRuntime(site) : ''
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${gimport}${kitCss(kit)}\n${siteVarsCss(site)}${editStyle}</style></head><body>${body}${cart}${editScript}</body></html>`
 }
 
 // ---- inspector fields per block --------------------------------------------
@@ -339,6 +429,7 @@ export function fieldsFor(b: Block): Field[] {
     case 'text': return [t('heading', 'Title'), t('body', 'Text', 'area')]
     case 'form': return [t('title', 'Title'), t('subtitle', 'Subtitle', 'area'), t('button', 'Button')]
     case 'gallery': return [t('title', 'Title'), t('count', 'Number of images')]
+    case 'store': return [t('title', 'Title'), t('subtitle', 'Subtitle', 'area')]
     case 'image': return [t('src', 'Image URL or data'), t('alt', 'Alt text'), t('caption', 'Caption')]
     case 'video': return [t('src', 'Video URL or data'), t('caption', 'Caption')]
     case 'footer': return [t('text', 'Text'), ...(((b.props.links as string[]) || []).map((_, i) => t(`links.${i}`, `Link ${i + 1}`)))]

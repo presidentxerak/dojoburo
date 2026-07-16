@@ -11,6 +11,7 @@ import {
   type SiteDoc, type Block, type BlockType, type TemplateCategory, type SiteFont, type SiteLayout,
   BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
   generateFromTemplate, SITE_TEMPLATES, SITE_FONTS, SITE_LAYOUTS, GOOGLE_FONTS, loadGoogleFonts, googleFontsHref, fontSet, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand, type GFont,
+  type Product, makeProduct, SITE_CURRENCIES, currencySymbol,
 } from '../../lib/site'
 import { PRESET_PALETTES, randomPalette, paletteToKit, kitToPalette, textOn } from '../../lib/palettes'
 import { StepBar } from '../StepBar'
@@ -31,6 +32,9 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [brand, setBrand] = useState<BrandKit | null>(null)
   const [sel, setSel] = useState<string | null>(null)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
+  const [mode, setMode] = useState<'edit' | 'preview'>('edit')
+  // floating contextual toolbar anchored to the selected section in the preview
+  const [ctx, setCtx] = useState<{ id: string; rect: { top: number; left: number; width: number; height: number } } | null>(null)
   const [addOpen, setAddOpen] = useState(false)
   const [step, setStep] = useState<Step>('template')
   const [cat, setCat] = useState<(TemplateCategory | 'All')>('All')
@@ -74,13 +78,18 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const selRef = useRef<string | null>(sel)
   useEffect(() => { selRef.current = sel }, [sel])
   useEffect(() => {
+    type Rect = { top: number; left: number; width: number; height: number }
     const onMsg = (e: MessageEvent) => {
-      const d = e.data as { __ds?: string; id?: string }
-      if (d && d.__ds === 'select' && d.id) setSel(d.id)
+      const d = e.data as { __ds?: string; id?: string; rect?: Rect }
+      if (!d || !d.id) return
+      if (d.__ds === 'select') { setSel(d.id); if (d.rect) setCtx({ id: d.id, rect: d.rect }) }
+      else if (d.__ds === 'rect' && d.rect) setCtx((c) => (c && c.id === d.id ? { id: d.id!, rect: d.rect! } : c))
     }
     window.addEventListener('message', onMsg)
     return () => window.removeEventListener('message', onMsg)
   }, [])
+  // clear the contextual toolbar when nothing is selected
+  useEffect(() => { if (!sel) setCtx(null) }, [sel])
   // push the selection outline to the iframe (no scroll — avoids jumping while typing)
   const postSel = (id: string | null, scroll: boolean) => {
     frameRef.current?.contentWindow?.postMessage({ __ds: 'sel', id, scroll }, '*')
@@ -123,6 +132,18 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
     patchSelected({ src: `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1200&height=675&nologo=true&seed=${seed}`, alt: prompt })
     pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'AI image set', text: 'Generated free (Pollinations) · a few seconds to render.' })
   }
+  // ---- shop: products manager (on the selected Store block) + shop settings ----
+  const storeProducts = (selected?.type === 'store' ? (selected.props.products as Product[]) : []) || []
+  const setProducts = (products: Product[]) => patchSelected({ products })
+  const addProduct = () => setProducts([...storeProducts, makeProduct()])
+  const updateProduct = (id: string, patch: Partial<Product>) => setProducts(storeProducts.map((p) => (p.id === id ? { ...p, ...patch } : p)))
+  const removeProduct = (id: string) => setProducts(storeProducts.filter((p) => p.id !== id))
+  const productImage = (id: string, file: File) => {
+    if (file.size > 4_000_000) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Image too large', text: 'Keep product images under 4 MB.' }); return }
+    const r = new FileReader(); r.onload = () => updateProduct(id, { img: String(r.result) }); r.readAsDataURL(file)
+  }
+  const setCurrency = (currency: string) => setSite((s) => ({ ...s, currency }))
+  const setCheckoutEmail = (checkoutEmail: string) => setSite((s) => ({ ...s, checkoutEmail }))
 
   const regenerate = () => { const s = generateSite(dojoName); setSite(s); setSel(s.blocks[0]?.id ?? null); pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'First version generated', text: 'Edit each block, then export.' }) }
   const save = async () => { await saveSite(dojoId, site); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Website saved', text: 'Saved locally (IndexedDB).' }) }
@@ -336,6 +357,10 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         <section className="sq-panel">
           <div className="site-toolbar">
             <div className="site-seg">
+              <button className={mode === 'edit' ? 'on' : ''} onClick={() => setMode('edit')} title="Edit the site">✎ Edit</button>
+              <button className={mode === 'preview' ? 'on' : ''} onClick={() => { setSel(null); setMode('preview') }} title="Preview the live site (cart & links work)">▷ Preview</button>
+            </div>
+            <div className="site-seg">
               <button className={device === 'desktop' ? 'on' : ''} onClick={() => setDevice('desktop')} title="Desktop">Desktop</button>
               <button className={device === 'mobile' ? 'on' : ''} onClick={() => setDevice('mobile')} title="Mobile">Mobile</button>
             </div>
@@ -388,22 +413,45 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         </div>
       )}
 
-      {/* responsive preview · click any section to edit it (WYSIWYG === export) */}
-      <div className={`site-preview ${device}`}>
+      {/* responsive preview · in Edit mode, click any section for its toolbar +
+          inspector; in Preview mode the real site runs (cart, buttons, links). */}
+      <div className={`site-preview ${device} ${mode}`}>
         <iframe
           ref={frameRef}
           title="Website preview"
           className="site-frame"
-          srcDoc={editDoc}
-          onLoad={() => postSel(selRef.current, false)}
+          srcDoc={mode === 'edit' ? editDoc : doc}
+          onLoad={() => { if (mode === 'edit') postSel(selRef.current, false) }}
         />
+        {/* floating contextual toolbar anchored to the selected section */}
+        {mode === 'edit' && ctx && selected && (
+          <div
+            className="site-ctx"
+            style={{
+              top: (frameRef.current?.offsetTop || 0) + Math.max(2, Math.min(ctx.rect.top, (frameRef.current?.clientHeight || 460) - 44)),
+              left: (frameRef.current?.offsetLeft || 0) + Math.max(0, ctx.rect.left) + Math.max(0, ctx.rect.width),
+            }}
+          >
+            <span className="site-ctx-lbl">{BLOCK_LABELS[selected.type]}</span>
+            <button title="Edit section" onClick={() => document.getElementById('site-inspector')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>✎</button>
+            <button title="Duplicate" onClick={() => dup(selected.id)}>⎘</button>
+            <button title="Move up" onClick={() => move(selected.id, -1)}>↑</button>
+            <button title="Move down" onClick={() => move(selected.id, 1)}>↓</button>
+            <button className="site-ctx-del" title="Delete" onClick={() => del(selected.id)}>🗑</button>
+          </div>
+        )}
       </div>
-      <p className="muted small" style={{ margin: '6px 2px 0' }}>Click a section in the preview to edit its text, images and video.</p>
+
+      {mode === 'preview' ? (
+        <p className="muted small" style={{ margin: '6px 2px 0' }}>Preview mode · the cart, buttons and links work like the live site. Switch to <b>✎ Edit</b> to change content.</p>
+      ) : (
+      <>
+      <p className="muted small" style={{ margin: '6px 2px 0' }}>Click a section in the preview for its toolbar (edit · duplicate · move · delete), or add one below.</p>
 
       {/* blocks */}
       <div className="site-blocks-head">
         <h4 className="brand-h" style={{ margin: 0 }}>Sections</h4>
-        <button className="btn tiny" onClick={() => setAddOpen((v) => !v)}>＋ Add</button>
+        <button className="btn tiny" onClick={() => setAddOpen((v) => !v)}>＋ Add section</button>
       </div>
       {addOpen && (
         <div className="site-palette">
@@ -426,7 +474,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
 
       {/* inspector */}
       {selected ? (
-        <div className="site-inspector">
+        <div className="site-inspector" id="site-inspector">
           <h4 className="brand-h">Edit · {BLOCK_LABELS[selected.type]}</h4>
 
           {/* media controls · replace the image/video of THIS section in place */}
@@ -467,11 +515,46 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               </label>
             )
           })}
+
+          {/* Shop: manage products + shop settings on a Store section */}
+          {selected.type === 'store' && (
+            <div className="shop-mgr">
+              <div className="shop-settings">
+                <label className="site-field"><span>Currency</span>
+                  <select value={site.currency || 'USD'} onChange={(e) => setCurrency(e.target.value)}>
+                    {SITE_CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
+                  </select>
+                </label>
+                <label className="site-field"><span>Orders email (checkout sends here)</span>
+                  <input type="email" value={site.checkoutEmail || ''} placeholder="orders@yourbrand.com" onChange={(e) => setCheckoutEmail(e.target.value)} />
+                </label>
+              </div>
+              <div className="shop-head"><b>Products</b><button className="btn tiny" onClick={addProduct}>＋ Add product</button></div>
+              {storeProducts.length === 0 && <p className="muted small">No products yet. Add one to build your catalogue.</p>}
+              {storeProducts.map((p) => (
+                <div key={p.id} className="shop-prod">
+                  {p.img ? <img className="shop-prod-thumb" src={p.img} alt="" /> : <div className="shop-prod-thumb ph" />}
+                  <div className="shop-prod-fields">
+                    <input className="shop-pname" value={p.name} placeholder="Product name" onChange={(e) => updateProduct(p.id, { name: e.target.value })} />
+                    <div className="shop-prow">
+                      <span className="shop-cur">{currencySymbol(site.currency)}</span>
+                      <input className="shop-pprice" type="number" min="0" step="0.01" value={p.price} onChange={(e) => updateProduct(p.id, { price: Number(e.target.value) || 0 })} />
+                      <label className="btn tiny ghost">Image<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) productImage(p.id, f); e.currentTarget.value = '' }} /></label>
+                      <button className="btn tiny ghost shop-del" onClick={() => removeProduct(p.id)}>Remove</button>
+                    </div>
+                    <input className="shop-pdesc" value={p.desc || ''} placeholder="Short description" onChange={(e) => updateProduct(p.id, { desc: e.target.value })} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <p className="muted small">Select a block to edit it.</p>
       )}
           <p className="muted small">Your <b>Brand Kit</b> colours &amp; fonts apply automatically — tune them in the <b>Colours</b> step. Preview = export.</p>
+      </>
+      )}
         </section>
       )}
 
