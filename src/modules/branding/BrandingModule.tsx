@@ -60,9 +60,15 @@ function hueFrom(s: string): number { let h = 0; for (let i = 0; i < s.length; i
 export default function BrandingModule({ dojoId }: ModuleProps) {
   const dojoName = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId)?.name)
   const renameDojo = useWorkshop((s) => s.renameDojo)
-  // Adopting a brand name renames the dojo (and everywhere the dojo name shows:
-  // the CEO header, city HQ, exports) so the whole company takes the new name.
-  const adoptName = (name: string) => { const n = name.trim(); if (n && dojoId) renameDojo(dojoId, n) }
+  const updateAccount = useWorkshop((s) => s.updateAccount)
+  const hasAccount = useWorkshop((s) => !!s.account)
+  // Adopting a brand name renames the dojo AND the account (company) so the new
+  // name shows everywhere: the CEO header, the profile, city HQ and exports.
+  const adoptName = (name: string) => {
+    const n = name.trim(); if (!n) return
+    if (dojoId) renameDojo(dojoId, n)
+    if (hasAccount) updateAccount({ name: n })
+  }
   const pushToast = useDojo((s) => s.pushToast)
   const [kit, setKit] = useState<BrandKit>(() => defaultKit(dojoName || 'My brand'))
 
