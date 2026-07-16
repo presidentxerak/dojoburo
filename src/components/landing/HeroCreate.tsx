@@ -90,7 +90,7 @@ export function HeroCreate({ enter }: { enter: () => void }) {
           placeholder="Describe your company in one sentence · e.g. an app that helps cafés keep their customers coming back"
           maxLength={160}
         />
-        <button className="hc-go" onClick={create}>Create your company →</button>
+        <button className="hc-go lp-cta-create" onClick={create}>Create your company →</button>
       </div>
 
       {(selectedProfs.length > 0 || needs.length > 0) && (

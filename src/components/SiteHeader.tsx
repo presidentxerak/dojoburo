@@ -38,7 +38,7 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
     <>
       <header className="lp-nav">
         <a className="lp-brand" href="/" style={{ textDecoration: 'none' }}>
-          <Logo size={38} /> <Wordmark />
+          <Logo size={38} /> <span className="lp-brand-wm"><Wordmark /> <span className="beta-badge">Beta</span></span>
         </a>
         <nav className="lp-nav-links">
           {NAV_LINKS.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
@@ -53,7 +53,7 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
           >
             <span /><span /><span />
           </button>
-          <button className="lp-cta sm" onClick={create}>Create your company</button>
+          <button className="lp-cta sm lp-cta-create" onClick={create}>Create your company</button>
           {account ? (
             <button className="lp-profile-btn lp-auth-btn" onClick={goDojo} title={account.name || 'Enter your dojo'}>
               <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />

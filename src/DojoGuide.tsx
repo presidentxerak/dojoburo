@@ -45,7 +45,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
   return (
     <GuideShell inApp={inApp}>
       <section className="lp-hero dg2-hero">
-        <h1>Your <span className="hl-mag">studios</span> + your tools, under control.</h1>
+        <h1>Your <span className="hl-mag">studios</span> + your tools, <span className="hl-acid">under control</span>.</h1>
         <p className="lp-sub">
           In DojoBuro, each agent is a pro studio (branding, website, Meta campaigns, video editing, finance, CRM,
           analytics) that runs <b>100% in your browser</b> · your files never leave. To go further, <b>connectors</b>

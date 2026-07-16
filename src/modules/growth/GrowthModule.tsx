@@ -30,7 +30,7 @@ export default function GrowthModule({ dojoId, onClose }: ModuleProps) {
   const bundle = useSeoData(dojoId, dojoName)
 
   return (
-    <div className="growth-mod se">
+    <div className="growth-mod se sq">
       <div className="sq-steps studio-switch">
         {TABS.map((t) => (
           <button key={t.id} className={`sq-step${tab === t.id ? ' on' : ''}`} onClick={() => setTab(t.id)} title={t.sub}>{t.label}</button>

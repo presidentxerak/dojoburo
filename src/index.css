@@ -4648,3 +4648,97 @@ select.cc-input { flex: 1; min-width: 0; }
 .modhost-fs { left: 10px !important; right: 10px !important; }
 .connect-page .connect-body, .studio-page .studio-page-body { padding-left: 10px; padding-right: 10px; box-sizing: border-box; }
 .dg-inapp { padding-left: 10px; padding-right: 10px; box-sizing: border-box; }
+
+/* =====================================================================
+   Interaction design v6 · landing header parity, gradient create CTAs,
+   gradient hero/guide highlight words, zen-dojo hero backdrop, fullscreen
+   dojo picker, foreground City card, landing-style credit purchase, and
+   one uniform "Connect apps" button treatment.
+   ===================================================================== */
+
+/* 1 · home header brand matches the dojo header (Logo 38 + wordmark 16 + Beta) */
+.lp-brand-wm { display: inline-flex; align-items: center; gap: 8px; }
+.lp-brand .wordmark { font-size: 16px; }
+.lp-brand .beta-badge { vertical-align: middle; }
+
+/* 2 · "Create your company" buttons → animated blue→green gradient everywhere */
+.lp-cta-create, .hc-go.lp-cta-create {
+  background: linear-gradient(120deg, #00d6ff, #12ffb0, #00d6ff) !important;
+  background-size: 220% 220% !important;
+  animation: acidFlow 4.2s linear infinite;
+  color: #04232b !important;
+  border: none !important;
+}
+.lp-cta-create:hover { filter: brightness(1.06); box-shadow: 0 12px 30px -10px rgba(0,214,255,0.55), 0 6px 16px -8px rgba(24,255,176,0.45); }
+
+/* 6 · gradient highlight words in the landing + guide H1 (blue→green loop).
+   Kept separate from .hl-mag (which is forced black elsewhere). */
+.hl-acid {
+  background: linear-gradient(120deg, #00b3d6, #0bb98a, #00b3d6) !important;
+  background-size: 220% 220% !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important; color: transparent !important;
+  animation: acidFlow 4.6s linear infinite;
+}
+
+/* 3 · zen-dojo hero backdrop · non-interactive, softened by a white 80% veil */
+.lp-hero-zen { position: relative; pointer-events: none; margin-top: 8px; }
+.lp-hero-zen > * { pointer-events: none; }
+.lp-hero-veil { position: absolute; inset: 0; background: rgba(255,255,255,0.8); pointer-events: none; z-index: 2; }
+:root[data-theme="dark"] .lp-hero-veil { background: color-mix(in srgb, var(--bg) 80%, transparent); }
+
+/* 4 · New dojo / Change environment pickers → fullscreen on every viewport */
+@media (min-width: 900px) {
+  .ws-over-top { padding: 0 !important; align-items: stretch !important; }
+  .ws-over-top .ws-picker {
+    width: 100vw !important; max-width: 100vw !important;
+    height: 100vh !important; height: 100dvh !important; max-height: 100dvh !important;
+    border-radius: 0 !important; border: none !important;
+  }
+}
+
+/* 5 · Dojo City title card to the foreground; hide the back-to-dashboard button */
+.dojo-city .city-top { z-index: 6; }
+.dojo-city .city-title { position: relative; z-index: 6; }
+.dojo-city .city-exit { display: none !important; }
+
+/* 7 · landing-style credit purchase in the Billing studio */
+.cred-buy { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 14px; align-items: start; margin-bottom: 6px; }
+.cred-buy-card { border: 1px solid var(--border); border-radius: 24px; background: var(--panel-solid); padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-sm); }
+.cred-buy-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.cred-buy-name { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: var(--ink); }
+.cred-buy-price { font-family: var(--font-pixel); font-weight: 800; font-size: 30px; color: var(--ink); }
+.cred-buy-price small { font-size: 14px; font-weight: 600; color: var(--muted); }
+.cred-buy-amt { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 16px; color: var(--muted); }
+.cred-buy .lp-credit-select { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; background: var(--panel-2); color: var(--ink); font-weight: 700; }
+.cred-buy-range { width: 100%; accent-color: #12b877; }
+.cred-buy-cta {
+  margin-top: 2px; border: none; border-radius: 14px; padding: 14px 18px; cursor: pointer;
+  font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: #04232b;
+  background: linear-gradient(120deg, #00d6ff, #12ffb0, #00d6ff); background-size: 220% 220%;
+  animation: acidFlow 4.2s linear infinite;
+}
+.cred-buy-cta:hover:not(:disabled) { filter: brightness(1.06); }
+.cred-buy-cta:disabled { opacity: 0.6; cursor: default; animation: none; }
+.cred-buy-note { font-size: 13px; color: var(--muted); text-align: center; }
+.cred-buy-quick { display: flex; flex-direction: column; gap: 8px; }
+.cred-buy-quick-h { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+@media (max-width: 620px) { .cred-buy { grid-template-columns: 1fr; } }
+
+/* 8 · one uniform "Connect apps" button · white with a pulsing blue→green halo */
+@keyframes connectHalo {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0,214,255,0.55), 0 0 0 0 rgba(24,255,176,0.0); }
+  50%      { box-shadow: 0 0 0 1px rgba(24,255,176,0.65), 0 0 20px 3px rgba(0,214,255,0.5); }
+}
+.modhost-connect, .topbar .tb-navlink {
+  background: #ffffff !important; color: #0a1a2b !important;
+  border: 1.5px solid #ffffff !important; border-radius: 12px !important;
+  font-weight: 800 !important; padding: 9px 16px !important; cursor: pointer;
+  animation: connectHalo 1.9s ease-in-out infinite;
+}
+.modhost-connect:hover, .topbar .tb-navlink:hover { filter: brightness(1.02); }
+.modhost-connect.blink { animation: connectHalo 1.1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .lp-cta-create, .hl-acid, .cred-buy-cta, .modhost-connect, .topbar .tb-navlink { animation: none !important; }
+  .modhost-connect, .topbar .tb-navlink { box-shadow: 0 0 0 1.5px rgba(0,214,255,0.6); }
+}

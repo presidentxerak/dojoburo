@@ -32,7 +32,7 @@ export function Landing({ enter }: { enter: () => void }) {
       <SiteHeader enter={enter} />
 
       <section className="lp-hero">
-        <h1>Found your company in one <span className="hl-mag">sentence</span>.</h1>
+        <h1>Found your company <span className="hl-acid">in one sentence</span>.</h1>
         <p className="lp-sub">
           One sentence, and <Wordmark /> spins up a 3D office where a CEO and its agents build your brand, site,
           ads and more · <b>real pro studios</b>, right in your browser.
@@ -41,7 +41,12 @@ export function Landing({ enter }: { enter: () => void }) {
         <div className="lp-badges">
           <span>8 pro studios</span><span>100% local · nothing is uploaded</span><span>Credits · no crypto</span><span>{CONNECTORS.length} connectors</span><span>Installable (PWA)</span>
         </div>
-        <DojoDiorama />
+        {/* the zen dojo · animated backdrop only (non-interactive), softened by
+            a white 80% veil so it never competes with the hero copy. */}
+        <div className="lp-hero-zen" aria-hidden>
+          <DojoDiorama />
+          <div className="lp-hero-veil" />
+        </div>
       </section>
 
       <div className="lm-band">
@@ -414,7 +419,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>
         <h2>Ready to run your office?</h2>
-        <button className="lp-cta big" onClick={() => { document.querySelector<HTMLInputElement>('#create-hero .hc-input')?.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Create your company →</button>
+        <button className="lp-cta big lp-cta-create" onClick={() => { document.querySelector<HTMLInputElement>('#create-hero .hc-input')?.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Create your company →</button>
         <p className="lp-foot">Credits · no crypto · powered by growth hacking · open in your browser</p>
       </section>
 

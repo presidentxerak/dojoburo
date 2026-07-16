@@ -11,6 +11,8 @@ import { Accounting } from './Accounting'
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
 const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
 const CREDIT_PACKS = [30, 100, 500]
+// same selection ladder as the landing pricing, so the in-app top-up matches it
+const CREDIT_OPTIONS = [30, 60, 120, 240, 480, 960, 1200, 1600, 2000]
 
 const TABS = [
   { id: 'billing', label: 'Billing', sub: 'Credits, top-ups & payments' },
@@ -24,6 +26,7 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
   const engine = useEngine()
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
+  const [sel, setSel] = useState(120)
 
   const fiatCur = account?.currency && account.currency !== 'XRP' ? account.currency : 'USD'
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
@@ -56,13 +59,33 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
       {tab === 'billing' && (<>
       <div className="sq-eyebrow">Top up credits</div>
       <p className="sq-lead">Buy credits in {fiatCur}. Each task spends about one credit; settlement happens behind the scenes · no crypto.</p>
-      <div className="cred-packs">
-        {CREDIT_PACKS.map((c) => (
-          <button key={c} className="cred-pack" disabled={buying} onClick={() => void buyCredits(c)}>
-            <span>{c} credits</span>
-            <em>{CREDIT_SYM[fiatCur]}{c * (CREDIT_UNIT[fiatCur] ?? 1)}</em>
-          </button>
-        ))}
+
+      {/* landing-style selection + payment · pick an amount, see the price, pay by card */}
+      <div className="cred-buy">
+        <div className="cred-buy-card">
+          <div className="cred-buy-head">
+            <span className="cred-buy-name">Credits</span>
+            <span className="cred-buy-price">{CREDIT_SYM[fiatCur]}{sel * (CREDIT_UNIT[fiatCur] ?? 1)}<small> one-off</small></span>
+          </div>
+          <div className="cred-buy-amt">
+            <span>{sel} credits</span>
+            <select className="lp-credit-select" value={sel} onChange={(e) => setSel(Number(e.target.value))} aria-label="Credits to buy">
+              {CREDIT_OPTIONS.map((c) => <option key={c} value={c}>{c} credits</option>)}
+            </select>
+          </div>
+          <input className="cred-buy-range" type="range" min={0} max={CREDIT_OPTIONS.length - 1} value={CREDIT_OPTIONS.indexOf(sel) < 0 ? 2 : CREDIT_OPTIONS.indexOf(sel)} onChange={(e) => setSel(CREDIT_OPTIONS[Number(e.target.value)])} />
+          <button className="cred-buy-cta" disabled={buying} onClick={() => void buyCredits(sel)}>{buying ? 'Starting payment…' : `Buy ${sel} credits · ${CREDIT_SYM[fiatCur]}${sel * (CREDIT_UNIT[fiatCur] ?? 1)}`}</button>
+          <span className="cred-buy-note">Secure card payment · powered by Stripe</span>
+        </div>
+        <div className="cred-buy-quick">
+          <span className="cred-buy-quick-h">Quick packs</span>
+          {CREDIT_PACKS.map((c) => (
+            <button key={c} className="cred-pack" disabled={buying} onClick={() => { setSel(c); void buyCredits(c) }}>
+              <span>{c} credits</span>
+              <em>{CREDIT_SYM[fiatCur]}{c * (CREDIT_UNIT[fiatCur] ?? 1)}</em>
+            </button>
+          ))}
+        </div>
       </div>
       {payMsg && <p className="muted small">{payMsg}</p>}
 
