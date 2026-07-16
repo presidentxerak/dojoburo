@@ -81,7 +81,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   // batch .com availability for the name candidates (find free .com brand names)
   const [comAvail, setComAvail] = useState<Record<string, 'available' | 'taken' | 'unknown'>>({})
   const [comScan, setComScan] = useState<{ on: boolean; done: number; total: number }>({ on: false, done: 0, total: 0 })
-  const [availOnly, setAvailOnly] = useState(false)
+  const [availOnly, setAvailOnly] = useState(true)
   const [shortlist, setShortlist] = useState<Set<string>>(new Set())
   const [saved, setSaved] = useState(false)
   // logo identity sub-tabs + style (Shiverbrand-style logo pack)
@@ -376,21 +376,26 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
       {step === 'naming' && (() => {
         const slugOf = (n: string) => n.toLowerCase().replace(/[^a-z0-9]/g, '')
-        const rank = (n: string) => { const s = comAvail[slugOf(n)]; return s === 'available' ? 0 : s === 'unknown' ? 1 : s === undefined ? 2 : 3 }
+        const rank = (n: string) => { const s = comAvail[slugOf(n)]; return s === 'available' ? 0 : s === undefined ? 1 : s === 'unknown' ? 2 : 3 }
         const sorted = [...nameList].sort((a, b) => rank(a) - rank(b) || a.length - b.length)
-        const shown = availOnly ? sorted.filter((n) => comAvail[slugOf(n)] === 'available') : sorted
+        // Default view: ONLY names whose .com is confirmed free. While the scan is
+        // still running we also keep the not-yet-checked ones so the grid isn't
+        // empty; taken & inconclusive names are never shown in this mode.
+        const shown = availOnly
+          ? sorted.filter((n) => { const s = comAvail[slugOf(n)]; return s === 'available' || (comScan.on && s === undefined) })
+          : sorted
         const availCount = nameList.filter((n) => comAvail[slugOf(n)] === 'available').length
         return (
         <section className="sq-panel">
-          <h3 className="sq-title">Name candidates</h3>
-          <p className="sq-lead">We check the real <b>.com</b> availability of every candidate (RDAP) so the free ones rise to the top. Pick one to check all its handles &amp; TLDs, or reroll for a fresh batch.</p>
+          <h3 className="sq-title">Available .com names</h3>
+          <p className="sq-lead">We check the real <b>.com</b> availability of every candidate (RDAP) and show you <b>only the ones that are still free</b>. Pick one to lock its full set of handles &amp; other TLDs, or reroll for a fresh batch.</p>
           <div className="bw-selected bw-selected-recap">
             {[...selected].map((k) => <span key={k} className="bw-chip on static">{k}</span>)}
             <button className="bw-editwords" onClick={() => setStep('concept')}>Edit words</button>
           </div>
           <div className="nm-availbar">
-            <span className="nm-availstat">{comScan.on ? `Checking .com… ${comScan.done}/${comScan.total}` : `${availCount} of ${nameList.length} have a free .com`}</span>
-            <button className={`nm-availfilter${availOnly ? ' on' : ''}`} onClick={() => setAvailOnly((v) => !v)} disabled={!availCount}>{availOnly ? '✓ Available .com only' : 'Show available .com only'}</button>
+            <span className="nm-availstat">{comScan.on ? `Checking .com availability… ${comScan.done}/${comScan.total}` : `${availCount} free .com found${availOnly ? '' : ` · ${nameList.length} checked`}`}</span>
+            <button className={`nm-availfilter${availOnly ? ' on' : ''}`} onClick={() => setAvailOnly((v) => !v)}>{availOnly ? 'Show all (incl. taken)' : '✓ Free .com only'}</button>
           </div>
           <div className="sq-namegrid">
             {shown.map((n) => {
@@ -398,11 +403,11 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
               return (
                 <button key={n} className={`sq-name nm-${s || 'pending'}${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)}>
                   <b>{n}</b>
-                  <span className="nm-dom">{slugOf(n)}.com {s === 'available' ? <em className="nm-free">● Available</em> : s === 'taken' ? <em className="nm-taken">Taken</em> : s === 'unknown' ? <em className="nm-unk">?</em> : <em className="nm-chk">…</em>}</span>
+                  <span className="nm-dom">{slugOf(n)}.com {s === 'available' ? <em className="nm-free">● Available</em> : s === 'taken' ? <em className="nm-taken">Taken</em> : s === 'unknown' ? <em className="nm-unk">unverified</em> : <em className="nm-chk">…</em>}</span>
                 </button>
               )
             })}
-            {availOnly && !shown.length && <p className="muted small">No free .com in this batch yet — reroll for more.</p>}
+            {!comScan.on && availOnly && !shown.length && <p className="muted small">No free <b>.com</b> in this batch — reroll for a fresh set of candidates.</p>}
           </div>
           <div className="sq-cta-row">
             <button className="sq-cta ghost" onClick={reroll}>↻ Reroll names</button>

@@ -456,7 +456,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     <div className="dash-panels" style={{ ['--dc' as string]: ROLE_BY_ID.chief.tint }}>
       <div className="dash-hero">
         <div>
-          <h2>{account?.name || 'Your'} · {dojo?.name || 'Dojo'} {isAdmin(account ?? null) && <span className="admin-badge" title="Admin account · unlimited free testing">ADMIN · unlimited</span>}</h2>
+          <h2>CEO · {dojo?.name || 'Dojo'} {isAdmin(account ?? null) && <span className="admin-badge" title="Admin account · unlimited free testing">ADMIN · unlimited</span>}</h2>
           <p>Click an agent to open its dashboard. Chief coordinates the whole team.</p>
         </div>
         <div className="dash-hero-actions">

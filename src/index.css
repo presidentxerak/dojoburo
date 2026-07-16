@@ -4588,3 +4588,63 @@ select.cc-input { flex: 1; min-width: 0; }
   .lp-studiocard:hover, .agent-card:hover, .tpl-card:hover, .lp-card:hover, .lp-plan:hover,
   .lp-node:hover, .mission-card:hover, .biz-tile:hover, .fin-kpi:hover { animation: none !important; }
 }
+
+/* =====================================================================
+   Interaction design v5 · agent-page titles, blinking Connect hint,
+   outlined "Open" buttons, consistent dojo header on City & Guide, and
+   a 10px window-side margin on the agent UIs / Guide / Connect surfaces.
+   ===================================================================== */
+
+/* "Open →" buttons on the roster cards → 1px black outline (no fill) */
+.agent-card .agent-action {
+  background: transparent !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--ink) !important;
+}
+.agent-card:hover .agent-action { background: var(--ink) !important; color: var(--bg) !important; filter: none; }
+
+/* agent page header · job speciality + codename beside it, one uniform style */
+.modhost-code {
+  margin-left: 10px; font-family: var(--font-ui); font-weight: 700; font-size: 15px;
+  color: var(--dc); background: color-mix(in srgb, var(--dc) 14%, transparent);
+  border-radius: 999px; padding: 3px 11px; vertical-align: middle; letter-spacing: 0;
+}
+
+/* blinking "Connect apps" hint when the agent needs an external app + info dot */
+.modhost-connect-wrap { position: relative; display: flex; align-items: center; gap: 6px; }
+@keyframes connectBlink {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,214,255,0.0); background: var(--dc); }
+  50%      { box-shadow: 0 0 0 6px rgba(18,255,176,0.0), 0 0 22px 2px rgba(0,214,255,0.65); background: color-mix(in srgb, #12ffb0 30%, var(--dc)); }
+}
+.modhost-connect {
+  font-weight: 800; font-size: 15px; color: #fff; background: var(--dc); border: none;
+  border-radius: 12px; padding: 9px 16px; cursor: pointer; transition: filter 0.15s, box-shadow 0.15s;
+}
+.modhost-connect:hover { filter: brightness(1.08); }
+.modhost-connect.blink { animation: connectBlink 1.25s ease-in-out infinite; }
+.modhost-info {
+  width: 22px; height: 22px; flex: none; display: grid; place-items: center; cursor: help;
+  border-radius: 50%; border: 1px solid var(--border); background: var(--panel-2);
+  color: var(--muted); font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 14px;
+}
+.modhost-info .modhost-tip {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; width: min(320px, 78vw);
+  background: var(--ink); color: var(--bg); font-family: var(--font-ui); font-style: normal;
+  font-weight: 500; font-size: 13.5px; line-height: 1.5; padding: 12px 14px; border-radius: 12px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.32); opacity: 0; visibility: hidden; transform: translateY(-4px);
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s; pointer-events: none; text-align: left;
+}
+.modhost-info .modhost-tip b { color: #fff; }
+.modhost-info:hover .modhost-tip, .modhost-info:focus .modhost-tip { opacity: 1; visibility: visible; transform: none; }
+@media (prefers-reduced-motion: reduce) { .modhost-connect.blink { animation: none !important; box-shadow: 0 0 0 2px color-mix(in srgb, var(--dc) 60%, #12ffb0); } }
+
+/* City page · the dojo header on top, the 3D metropolis fills the rest */
+.dojo-city { display: flex; flex-direction: column; }
+.city-stage { flex: 1; position: relative; min-height: 0; }
+.city-stage canvas { position: absolute; inset: 0; }
+
+/* 10px window-side margin on the agent UIs, Guide (in-app) & Connect surfaces,
+   matching the dojo header's own 10px inset for a consistent frame. */
+.modhost-fs { left: 10px !important; right: 10px !important; }
+.connect-page .connect-body, .studio-page .studio-page-body { padding-left: 10px; padding-right: 10px; box-sizing: border-box; }
+.dg-inapp { padding-left: 10px; padding-right: 10px; box-sizing: border-box; }

@@ -28,6 +28,9 @@ export interface ModuleDef {
   emoji: string
   /** which role agent owns this module (opens from its dashboard) */
   agentRole: string
+  /** true when the agent needs a connected external app to act for real (send
+   *  email, publish, charge). Drives the blinking "Connect apps" hint. */
+  needsApps?: boolean
   status: 'live' | 'soon'
   /** component for a live module (bundled, not lazy) */
   comp?: ComponentType<ModuleProps>
@@ -57,12 +60,12 @@ export const MODULES: ModuleDef[] = [
   {
     id: 'marketing', label: 'Marketing Studio',
     blurb: 'One creative workflow: Meta campaigns, video editing and image optimisation.',
-    tint: '#e0459b', emoji: '📣', agentRole: 'marketus', status: 'live', comp: MarketusModule,
+    tint: '#e0459b', emoji: '📣', agentRole: 'marketus', status: 'live', comp: MarketusModule, needsApps: true,
   },
   {
     id: 'crm', label: 'Growth Studio',
     blurb: 'SEO suite for your site: keyword research, rank tracking, site audit, backlinks & leads.',
-    tint: '#d98c17', emoji: '📈', agentRole: 'pumpi', status: 'live', comp: GrowthModule,
+    tint: '#d98c17', emoji: '📈', agentRole: 'pumpi', status: 'live', comp: GrowthModule, needsApps: true,
   },
   {
     id: 'business', label: 'Business Studio',

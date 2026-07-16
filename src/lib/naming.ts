@@ -219,7 +219,9 @@ export async function checkComBatch(
   const slugs = [...new Set(names.map((n) => n.toLowerCase().replace(/[^a-z0-9]/g, '')).filter((s) => s.length >= 2))].slice(0, 48)
   const out: Record<string, DomainStatus> = {}
   let done = 0
-  const CONC = 6
+  // gentle concurrency · RDAP servers rate-limit aggressive bursts, and a
+  // throttled 429 is exactly what used to slip through as a false "available".
+  const CONC = 4
   for (let i = 0; i < slugs.length; i += CONC) {
     const batch = slugs.slice(i, i + CONC)
     await Promise.all(batch.map(async (s) => {

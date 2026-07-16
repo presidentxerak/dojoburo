@@ -19,6 +19,7 @@ import { SKINS } from '../../data/skins'
 import { MOCK_COMPANIES, coRevenue, coSales, companyPath, type MockCo } from '../../data/showcase'
 import { SHOW_MOCK_COMPANIES } from '../../config/flags'
 import { PageBar } from '../PageBar'
+import { TopBar } from '../TopBar'
 
 // ---- facade texture · clean daytime windows (glass + floor slabs) -----------
 function facadeTexture(spec: BuildingSpec): THREE.CanvasTexture {
@@ -1181,6 +1182,9 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
 
   return (
     <div className="dojo-city">
+      {/* the dojo header · same as every other in-app surface for consistency */}
+      <TopBar />
+      <div className="city-stage">
       <Canvas shadows dpr={[1, 1.4]} gl={{ antialias: true, powerPreference: 'high-performance' }}>
         <color attach="background" args={['#bfe1fb']} />
         <CityScene
@@ -1220,6 +1224,7 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
         </div>
       )}
 
+      </div>
       {/* mobile bottom navigation bar */}
       <PageBar current="city" />
     </div>

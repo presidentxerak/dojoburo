@@ -1,6 +1,7 @@
 import { Logo } from './components/Logo'
 import { Wordmark } from './components/Wordmark'
 import { SiteHeader } from './components/SiteHeader'
+import { TopBar } from './components/TopBar'
 import { SupportBot } from './components/SupportBot'
 import { ConnectorLogo } from './components/ConnectorLogo'
 import { CONNECTORS, type ConnectorCategory } from './data/connectors'
@@ -21,14 +22,10 @@ const CATEGORY_ORDER: ConnectorCategory[] = [
 function GuideShell({ children, inApp }: { children: React.ReactNode; inApp?: boolean }) {
   return (
     <div className={`landing dg2${inApp ? ' dg-inapp' : ''}`}>
-      {inApp ? (
-        // Opened from inside the dojo · keep the user in the dojo environment
-        // with a compact bar + a Back-to-dojo button (no landing header).
-        <header className="dg-appbar">
-          <span className="dg-appbar-brand"><Logo size={30} /> <Wordmark /><span className="dg-appbar-t">Dojo Guide</span></span>
-          <button className="dg-appbar-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">← Back to dojo</button>
-        </header>
-      ) : <SiteHeader />}
+      {/* Opened from inside the dojo · use the full dojo header so the guide is
+          consistent with every other in-app surface. The public /guide page
+          keeps the landing header. */}
+      {inApp ? <TopBar /> : <SiteHeader />}
       {children}
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>

@@ -433,7 +433,6 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
             {templates.map((t) => (
               <button key={t.id} className="tpl-card" onClick={() => useTemplate(t.id)}>
                 <span className="tpl-thumb" style={{ background: t.bg, color: t.ink }}>
-                  <span className="tpl-thumb-bar" style={{ background: t.accent }} />
                   <b>{t.name}</b>
                   <span className="tpl-thumb-line" style={{ background: t.ink, opacity: 0.28 }} />
                   <span className="tpl-thumb-line short" style={{ background: t.ink, opacity: 0.18 }} />

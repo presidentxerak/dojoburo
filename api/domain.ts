@@ -18,15 +18,22 @@ function slug(s: string): string {
   return s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '').slice(0, 40)
 }
 
-async function checkOne(domain: string): Promise<'available' | 'taken' | 'unknown'> {
+// RDAP endpoint for a domain. For .com/.net we hit Verisign's authoritative
+// server directly (skips the rdap.org bootstrap hop → faster & far more reliable
+// under load, which is exactly when false "available" results creep in); every
+// other TLD goes through rdap.org's bootstrap.
+function rdapUrl(domain: string, tld: string): string {
+  if (tld === 'com' || tld === 'net') return `https://rdap.verisign.com/${tld}/v1/domain/${domain}`
+  return `https://rdap.org/domain/${domain}`
+}
+
+async function fetchStatus(url: string): Promise<'available' | 'taken' | 'unknown'> {
   const ctrl = new AbortController()
   const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
   try {
-    const res = await fetch(`https://rdap.org/domain/${domain}`, {
-      signal: ctrl.signal,
-      redirect: 'follow',
-      headers: { accept: 'application/rdap+json' },
-    })
+    const res = await fetch(url, { signal: ctrl.signal, redirect: 'follow', headers: { accept: 'application/rdap+json' } })
+    // 404 = not registered (available); 200 = registered (taken). Any other
+    // status (429 rate-limit, 5xx, redirect loop) is inconclusive, NOT available.
     if (res.status === 404) return 'available'
     if (res.status === 200) return 'taken'
     return 'unknown'
@@ -35,6 +42,17 @@ async function checkOne(domain: string): Promise<'available' | 'taken' | 'unknow
   } finally {
     clearTimeout(t)
   }
+}
+
+async function checkOne(domain: string, tld: string): Promise<'available' | 'taken' | 'unknown'> {
+  const url = rdapUrl(domain, tld)
+  let r = await fetchStatus(url)
+  // One retry when inconclusive (transient rate-limit / hiccup) so we never
+  // mislabel a taken domain as available just because the first call wobbled.
+  if (r === 'unknown') r = await fetchStatus(url)
+  // last-resort cross-check via rdap.org for the direct-registry TLDs
+  if (r === 'unknown' && (tld === 'com' || tld === 'net')) r = await fetchStatus(`https://rdap.org/domain/${domain}`)
+  return r
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -52,7 +70,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const tlds = (req_tlds.length ? req_tlds : TLDS).filter((t) => /^[a-z]{2,10}$/.test(t)).slice(0, 8)
 
   const results = await Promise.all(
-    tlds.map(async (tld) => ({ domain: `${name}.${tld}`, tld, status: await checkOne(`${name}.${tld}`) })),
+    tlds.map(async (tld) => ({ domain: `${name}.${tld}`, tld, status: await checkOne(`${name}.${tld}`, tld) })),
   )
   send(res, 200, { ok: true, name, results })
 }
