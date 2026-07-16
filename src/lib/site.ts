@@ -286,24 +286,15 @@ export function blockHtmlTagged(b: Block): string {
   return blockHtml(b).replace(/^(\s*<(?:section|footer)\b)/, `$1 data-b="${b.id}" data-lbl="${esc(BLOCK_LABELS[b.type])}"`)
 }
 
-// Injected only into the EDITING preview (never the export): a hover/selection
-// outline and a click→postMessage bridge so clicking a section selects it in the
-// builder, plus a listener the builder uses to highlight the current section.
+// Injected into the EDITING preview (a hover/selection outline). The click →
+// select bridge is NOT an inline script (the app CSP blocks inline script in the
+// srcdoc iframe); instead the builder drives selection from the parent, directly
+// on the same-origin iframe document (see WebsiteModule wireEditFrame).
 const EDIT_CSS = `
 [data-b]{position:relative;cursor:pointer}
 [data-b]:hover{outline:2px dashed color-mix(in srgb,var(--brand-accent,#2f6bff) 55%,transparent);outline-offset:-2px}
 [data-b].__sel{outline:2px solid var(--brand-accent,#2f6bff);outline-offset:-2px}
-[data-b].__sel::after{content:attr(data-lbl);position:absolute;top:0;left:0;background:var(--brand-accent,#2f6bff);color:#fff;font:700 11px/1.5 system-ui,sans-serif;padding:2px 9px;border-bottom-right-radius:7px;z-index:99;pointer-events:none}
-`
-const EDIT_JS = `<script>(function(){
-var selId=null;
-function rectOf(id){var el=document.querySelector('[data-b="'+id+'"]');if(!el)return null;var r=el.getBoundingClientRect();return{top:r.top,left:r.left,width:r.width,height:r.height}}
-function post(kind,id){try{parent.postMessage({__ds:kind,id:id,rect:rectOf(id)},'*')}catch(e){}}
-document.addEventListener('click',function(e){var t=e.target;var nv=t&&t.closest?t.closest('[data-nav]'):null;if(nv){e.preventDefault();e.stopPropagation();try{parent.postMessage({__ds:'page',slug:nv.getAttribute('data-nav')},'*')}catch(er){}return}var el=t&&t.closest?t.closest('[data-b]'):null;if(!el)return;e.preventDefault();e.stopPropagation();selId=el.getAttribute('data-b');post('select',selId)},true);
-var raf=0;function onScroll(){if(!selId)return;if(raf)return;raf=requestAnimationFrame(function(){raf=0;post('rect',selId)})}
-window.addEventListener('scroll',onScroll,true);window.addEventListener('resize',onScroll);
-window.addEventListener('message',function(e){var d=e.data||{};if(d.__ds!=='sel')return;selId=d.id;var prev=document.querySelector('[data-b].__sel');if(prev)prev.classList.remove('__sel');if(!d.id)return;var el=document.querySelector('[data-b="'+d.id+'"]');if(!el)return;el.classList.add('__sel');if(d.scroll)el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){post('rect',d.id)},d.scroll?360:0)});
-})();</scr`+`ipt>`
+[data-b].__sel::after{content:attr(data-lbl);position:absolute;top:0;left:0;background:var(--brand-accent,#2f6bff);color:#fff;font:700 11px/1.5 system-ui,sans-serif;padding:2px 9px;border-bottom-right-radius:7px;z-index:99;pointer-events:none}`
 
 // ---- render one block to HTML ---------------------------------------------
 export function blockHtml(b: Block): string {
@@ -371,13 +362,19 @@ export function hasStore(site: SiteDoc): boolean {
 // has a Store block (preview AND export), so the cart works on the real exported
 // page with no server. Add-to-cart, quantities, live total, and a checkout that
 // composes an email order (honest: no fake payment processing).
-function cartRuntime(site: SiteDoc): string {
-  const cur = currencySymbol(site.currency)
-  const email = site.checkoutEmail || ''
+// Cart chrome (button + drawer + styles) · rendered in preview + export. In the
+// in-app studio the interaction is driven from the parent (CSP-safe); the
+// exported file also ships the inline script below so it works standalone.
+export function cartMarkup(cur: string): string {
   return `
 <button id="__cartbtn" class="cartbtn" type="button" aria-label="Cart">🛒<span id="__cartn">0</span></button>
 <div id="__cartov" class="cartov" hidden><div class="cartdrawer"><div class="cartdrawer-h"><strong>Your cart</strong><button id="__cartx" class="cartx" type="button" aria-label="Close">×</button></div><div id="__cartlist" class="cartlist"></div><div class="cartfoot"><div class="cartsum"><span>Total</span><b id="__carttot">${cur}0.00</b></div><button id="__cartco" class="btn cartco" type="button">Checkout</button></div></div></div>
-<style>.cartbtn{position:fixed;right:18px;bottom:18px;z-index:1000;border:none;background:var(--brand-accent,#2f6bff);color:#fff;border-radius:999px;padding:12px 16px;font:700 15px system-ui,sans-serif;cursor:pointer;box-shadow:0 8px 24px #0003}.cartbtn span{margin-left:6px;background:#fff3;border-radius:999px;padding:1px 7px}.cartov{position:fixed;inset:0;z-index:1001;background:#0006;display:flex;justify-content:flex-end}.cartdrawer{width:min(380px,100%);background:#fff;color:#111;display:flex;flex-direction:column;height:100%;box-shadow:-8px 0 30px #0003}.cartdrawer-h{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid #0001;font-size:18px}.cartx{border:none;background:none;font-size:24px;cursor:pointer;line-height:1}.cartlist{flex:1;overflow:auto;padding:8px 18px}.citem{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #0001}.citem .cn{flex:1;font-weight:600}.citem .cq{display:flex;align-items:center;gap:6px}.citem .cq button{width:26px;height:26px;border:1px solid #0002;background:#f6f6f6;border-radius:6px;cursor:pointer;font-size:15px}.cempty{color:#0007;text-align:center;padding:40px 0}.cartfoot{padding:16px 18px;border-top:1px solid #0001}.cartsum{display:flex;justify-content:space-between;font-size:18px;margin-bottom:12px}.cartco{width:100%;text-align:center}</style>
+<style>.cartbtn{position:fixed;right:18px;bottom:18px;z-index:1000;border:none;background:var(--brand-accent,#2f6bff);color:#fff;border-radius:999px;padding:12px 16px;font:700 15px system-ui,sans-serif;cursor:pointer;box-shadow:0 8px 24px #0003}.cartbtn span{margin-left:6px;background:#fff3;border-radius:999px;padding:1px 7px}.cartov{position:fixed;inset:0;z-index:1001;background:#0006;display:flex;justify-content:flex-end}.cartdrawer{width:min(380px,100%);background:#fff;color:#111;display:flex;flex-direction:column;height:100%;box-shadow:-8px 0 30px #0003}.cartdrawer-h{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid #0001;font-size:18px}.cartx{border:none;background:none;font-size:24px;cursor:pointer;line-height:1}.cartlist{flex:1;overflow:auto;padding:8px 18px}.citem{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #0001}.citem .cn{flex:1;font-weight:600}.citem .cq{display:flex;align-items:center;gap:6px}.citem .cq button{width:26px;height:26px;border:1px solid #0002;background:#f6f6f6;border-radius:6px;cursor:pointer;font-size:15px}.cempty{color:#0007;text-align:center;padding:40px 0}.cartfoot{padding:16px 18px;border-top:1px solid #0001}.cartsum{display:flex;justify-content:space-between;font-size:18px;margin-bottom:12px}.cartco{width:100%;text-align:center}</style>`
+}
+function cartRuntime(site: SiteDoc): string {
+  const cur = currencySymbol(site.currency)
+  const email = site.checkoutEmail || ''
+  return `${cartMarkup(cur)}
 <script>(function(){var CUR=${JSON.stringify(cur)},MAIL=${JSON.stringify(email)},cart={};
 function money(n){return CUR+(Math.round(n*100)/100).toFixed(2)}
 function total(){var t=0;for(var k in cart)t+=cart[k].price*cart[k].qty;return t}
@@ -494,8 +491,13 @@ function designClasses(b: Block): string {
  *  Multi-page: renders a nav header + every page (only the active one visible) +
  *  a hash router so links work in preview and the exported file. With
  *  { editable } only the active page's sections are clickable (click-to-select). */
-export function fullDoc(site: SiteDoc, kit: BrandKit, opts?: { editable?: boolean; activeSlug?: string }): string {
+export function fullDoc(site: SiteDoc, kit: BrandKit, opts?: { editable?: boolean; activeSlug?: string; studio?: boolean }): string {
   const editable = !!opts?.editable
+  // `studio` = rendered inside the in-app builder iframe · omit all inline
+  // scripts (the app's CSP blocks inline script in the srcdoc) and let the
+  // parent drive clicks/nav/cart directly. The exported file (studio=false)
+  // ships the inline scripts so it works standalone with no server.
+  const studio = !!opts?.studio
   const cur = currencySymbol(site.currency)
   const pages = sitePages(site)
   const home = homePage(site)
@@ -515,14 +517,15 @@ export function fullDoc(site: SiteDoc, kit: BrandKit, opts?: { editable?: boolea
   const body = editable
     ? pageHtml(active, true)
     : pages.map((p) => pageHtml(p, p.slug === active.slug)).join('\n')
-  const router = editable ? '' : `<script>(function(){var P=[].slice.call(document.querySelectorAll('.pg'));function cur(){return location.hash.replace(/^#\\/?/,'')||${JSON.stringify(home.slug)}}function show(s){var any=false;P.forEach(function(p){var m=p.getAttribute('data-pg')===s;p.style.display=m?'':'none';if(m)any=true});if(!any&&P[0])P[0].style.display='';document.querySelectorAll('[data-nav]').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-nav')===s)});window.scrollTo(0,0)}window.addEventListener('hashchange',function(){show(cur())});show(cur());})();</scr`+`ipt>`
+  // page router · inline only in the export (studio drives it from the parent)
+  const router = (editable || studio) ? '' : `<script>(function(){var P=[].slice.call(document.querySelectorAll('.pg'));function cur(){return location.hash.replace(/^#\\/?/,'')||${JSON.stringify(home.slug)}}function show(s){var any=false;P.forEach(function(p){var m=p.getAttribute('data-pg')===s;p.style.display=m?'':'none';if(m)any=true});if(!any&&P[0])P[0].style.display='';document.querySelectorAll('[data-nav]').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-nav')===s)});window.scrollTo(0,0)}window.addEventListener('hashchange',function(){show(cur())});show(cur());})();</scr`+`ipt>`
   const href = googleFontsHref([site.headingFont ?? '', site.bodyFont ?? ''])
   const gimport = href ? `@import url('${href}');\n` : ''
   const editStyle = editable ? EDIT_CSS : ''
-  const editScript = editable ? EDIT_JS : ''
-  // the cart runtime ships in preview + export (not edit mode, where clicks select)
-  const cart = !editable && hasStore(site) ? cartRuntime(site) : ''
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${gimport}${kitCss(kit)}\n${siteVarsCss(site)}${editStyle}</style></head><body>${nav}${body}${router}${cart}${editScript}</body></html>`
+  // cart: chrome (button + drawer) always renders when there's a shop; the inline
+  // script ships only in the export (studio wires the cart from the parent).
+  const cart = !editable && hasStore(site) ? (studio ? cartMarkup(cur) : cartRuntime(site)) : ''
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${gimport}${kitCss(kit)}\n${siteVarsCss(site)}${editStyle}</style></head><body>${nav}${body}${router}${cart}</body></html>`
 }
 
 // ---- inspector fields per block --------------------------------------------

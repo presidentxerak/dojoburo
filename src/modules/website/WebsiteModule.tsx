@@ -80,42 +80,94 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const pages = sitePages(site)
   const page = pages.find((p) => p.id === activePageId) ?? homePage(site)
   const blocks = page.blocks
-  // The export/clean doc (no editor chrome) and the editable preview doc (each
-  // section clickable) · both open on the active page.
-  const doc = useMemo(() => (brand ? fullDoc(site, brand, { activeSlug: page.slug }) : ''), [site, brand, page.slug])
-  const editDoc = useMemo(() => (brand ? fullDoc(site, brand, { editable: true, activeSlug: page.slug }) : ''), [site, brand, page.slug])
+  // Two studio docs (no inline scripts — the app CSP blocks inline JS inside the
+  // srcdoc iframe, so we drive everything from here on the same-origin document).
+  const doc = useMemo(() => (brand ? fullDoc(site, brand, { activeSlug: page.slug, studio: true }) : ''), [site, brand, page.slug])
+  const editDoc = useMemo(() => (brand ? fullDoc(site, brand, { editable: true, activeSlug: page.slug, studio: true }) : ''), [site, brand, page.slug])
   const selected = blocks.find((b) => b.id === sel) || null
 
-  // Click-to-select: the preview iframe posts the clicked section's id; we select
-  // it here. A ref mirrors `sel` so the iframe onLoad handler always re-highlights
-  // the current section after the srcDoc reloads (which happens on every edit).
   const frameRef = useRef<HTMLIFrameElement>(null)
   const selRef = useRef<string | null>(sel)
   useEffect(() => { selRef.current = sel }, [sel])
   const siteRef = useRef(site)
   useEffect(() => { siteRef.current = site }, [site])
-  useEffect(() => {
-    type Rect = { top: number; left: number; width: number; height: number }
-    const onMsg = (e: MessageEvent) => {
-      const d = e.data as { __ds?: string; id?: string; rect?: Rect; slug?: string }
-      if (!d) return
-      if (d.__ds === 'page' && d.slug) { const p = sitePages(siteRef.current).find((x) => x.slug === d.slug); if (p) { setActivePageId(p.id); setSel(p.blocks[0]?.id ?? null) } return }
-      if (!d.id) return
-      if (d.__ds === 'select') { setSel(d.id); if (d.rect) setCtx({ id: d.id, rect: d.rect }) }
-      else if (d.__ds === 'rect' && d.rect) setCtx((c) => (c && c.id === d.id ? { id: d.id!, rect: d.rect! } : c))
-    }
-    window.addEventListener('message', onMsg)
-    return () => window.removeEventListener('message', onMsg)
-  }, [])
-  // clear the contextual toolbar when nothing is selected
-  useEffect(() => { if (!sel) setCtx(null) }, [sel])
-  // push the selection outline to the iframe (no scroll — avoids jumping while typing)
-  const postSel = (id: string | null, scroll: boolean) => {
-    frameRef.current?.contentWindow?.postMessage({ __ds: 'sel', id, scroll }, '*')
+
+  const frameDoc = () => frameRef.current?.contentDocument || null
+  // outline + measure the selected section directly on the iframe document
+  const highlight = (id: string | null, scroll: boolean) => {
+    const d = frameDoc(); if (!d) return
+    d.querySelectorAll('[data-b].__sel').forEach((e) => e.classList.remove('__sel'))
+    if (!id) { setCtx(null); return }
+    const el = d.querySelector(`[data-b="${(window.CSS && CSS.escape) ? CSS.escape(id) : id}"]`) as HTMLElement | null
+    if (!el) { setCtx(null); return }
+    el.classList.add('__sel')
+    if (scroll) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const r = el.getBoundingClientRect()
+    setCtx({ id, rect: { top: r.top, left: r.left, width: r.width, height: r.height } })
   }
-  useEffect(() => { postSel(sel, false); /* re-outline after edits */ }, [sel, editDoc])
-  // selecting from the block list should scroll the preview to that section
-  const selectBlock = (id: string) => { setSel(id); postSel(id, true) }
+  useEffect(() => { if (!sel) setCtx(null) }, [sel])
+  useEffect(() => { if (mode === 'edit') highlight(sel, false) /* re-outline on select (no reload) */ }, [sel]) // eslint-disable-line react-hooks/exhaustive-deps
+  const selectBlock = (id: string) => { setSel(id); highlight(id, true) }
+
+  // Wire the iframe from the parent (CSP-safe · same-origin srcdoc). Edit mode:
+  // click a section → select it + show its editor; click a nav link → open that
+  // page. Preview mode: real page router + working cart.
+  const onFrameLoad = () => {
+    const d = frameDoc(); if (!d) return
+    if (mode === 'edit') {
+      d.addEventListener('click', (e) => {
+        const t = e.target as HTMLElement
+        const navEl = t.closest?.('[data-nav]') as HTMLElement | null
+        if (navEl) { e.preventDefault(); const slug = navEl.getAttribute('data-nav'); const p = sitePages(siteRef.current).find((x) => x.slug === slug); if (p) { setActivePageId(p.id); setSel(p.blocks[0]?.id ?? null) } return }
+        const el = t.closest?.('[data-b]') as HTMLElement | null
+        if (!el) return
+        e.preventDefault(); e.stopPropagation()
+        const id = el.getAttribute('data-b'); if (id) { setSel(id); highlight(id, false) }
+      }, true)
+      d.addEventListener('scroll', () => { const id = selRef.current; if (id) highlight(id, false) }, true)
+      setTimeout(() => highlight(selRef.current, false), 0)
+    } else {
+      wirePreview(d)
+    }
+  }
+  // parent-driven page router + cart for the in-app Preview (no inline scripts)
+  const wirePreview = (d: Document) => {
+    const site0 = siteRef.current
+    const pgs = [...d.querySelectorAll('.pg')] as HTMLElement[]
+    const showPage = (slug: string) => {
+      let any = false
+      pgs.forEach((p) => { const m = p.getAttribute('data-pg') === slug; p.style.display = m ? '' : 'none'; if (m) any = true })
+      if (!any && pgs[0]) pgs[0].style.display = ''
+      d.querySelectorAll('[data-nav]').forEach((a) => a.classList.toggle('on', a.getAttribute('data-nav') === slug))
+    }
+    showPage(homePage(site0).slug)
+    const cart: Record<string, { name: string; price: number; qty: number }> = {}
+    const cur = currencySymbol(site0.currency)
+    const email = site0.checkoutEmail || ''
+    const money = (n: number) => cur + (Math.round(n * 100) / 100).toFixed(2)
+    const totals = () => { let t = 0, c = 0; for (const k in cart) { t += cart[k].price * cart[k].qty; c += cart[k].qty } return { t, c } }
+    const renderCart = () => {
+      const list = d.getElementById('__cartlist'); if (!list) return
+      const keys = Object.keys(cart)
+      list.innerHTML = keys.length ? keys.map((k) => { const it = cart[k]; return `<div class="citem"><span class="cn">${it.name}</span><span class="cq"><button data-dec="${k}">−</button><span>${it.qty}</span><button data-inc="${k}">+</button></span><span>${money(it.price * it.qty)}</span></div>` }).join('') : '<p class="cempty">Your cart is empty.</p>'
+      const { t, c } = totals()
+      const tot = d.getElementById('__carttot'); if (tot) tot.textContent = money(t)
+      const n = d.getElementById('__cartn'); if (n) n.textContent = String(c)
+    }
+    const setOv = (v: boolean) => { const o = d.getElementById('__cartov') as HTMLElement | null; if (o) o.hidden = !v }
+    d.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement
+      const navEl = t.closest?.('[data-nav]') as HTMLElement | null
+      if (navEl) { e.preventDefault(); showPage(navEl.getAttribute('data-nav') || ''); (d.defaultView || window).scrollTo?.(0, 0); return }
+      const add = t.closest?.('[data-add]') as HTMLElement | null
+      if (add) { const id = add.getAttribute('data-add') || ''; if (!cart[id]) cart[id] = { name: add.getAttribute('data-name') || '', price: +(add.getAttribute('data-price') || 0), qty: 0 }; cart[id].qty++; renderCart(); setOv(true); return }
+      if (t.closest?.('#__cartbtn')) { renderCart(); setOv(true); return }
+      if (t.id === '__cartx' || t.id === '__cartov') { setOv(false); return }
+      const inc = t.getAttribute?.('data-inc'); if (inc && cart[inc]) { cart[inc].qty++; renderCart(); return }
+      const dec = t.getAttribute?.('data-dec'); if (dec && cart[dec]) { cart[dec].qty--; if (cart[dec].qty <= 0) delete cart[dec]; renderCart(); return }
+      if (t.id === '__cartco') { const { t: tt, c } = totals(); if (!c) return; const lines = Object.keys(cart).map((k) => `${cart[k].qty} x ${cart[k].name} (${money(cart[k].price * cart[k].qty)})`).join('\n'); if (email) { (d.defaultView as Window).location.href = `mailto:${email}?subject=New order&body=${encodeURIComponent('Order:\n' + lines + '\n\nTotal: ' + money(tt))}` } else { (d.defaultView as Window).alert(`Order summary:\n\n${lines}\n\nTotal: ${money(tt)}\n\nSet a checkout email in the shop settings to receive orders.`) } return }
+    }, false)
+  }
 
   // mutate the ACTIVE page's sections (all block ops go through here)
   const mutate = (next: Block[]) => setSite((s) => ({ ...s, pages: sitePages(s).map((p) => (p.id === page.id ? { ...p, blocks: next } : p)) }))
@@ -191,7 +243,9 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const regenerate = () => { adopt(generateSite(dojoName)); pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'First version generated', text: 'Edit each block, then export.' }) }
   const save = async () => { await saveSite(dojoId, site); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Website saved', text: 'Saved locally (IndexedDB).' }) }
   const exportHtml = () => {
-    const blob = new Blob([doc], { type: 'text/html' })
+    // the exported file is standalone · ship the inline scripts (cart + router)
+    const out = brand ? fullDoc(site, brand) : doc
+    const blob = new Blob([out], { type: 'text/html' })
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${site.name.toLowerCase().replace(/\s+/g, '-')}.html`; a.click()
     setTimeout(() => URL.revokeObjectURL(a.href), 4000)
   }
@@ -545,7 +599,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               title="Website preview"
               className="site-frame"
               srcDoc={mode === 'edit' ? editDoc : doc}
-              onLoad={() => { if (mode === 'edit') postSel(selRef.current, false) }}
+              onLoad={onFrameLoad}
             />
             {mode === 'edit' && ctx && selected && (
               <div
