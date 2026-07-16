@@ -4656,9 +4656,9 @@ select.cc-input { flex: 1; min-width: 0; }
    one uniform "Connect apps" button treatment.
    ===================================================================== */
 
-/* 1 · home header brand matches the dojo header (Logo 38 + wordmark 16 + Beta) */
+/* 1 · home header brand matches the dojo header (Logo 38 + wordmark 22 + Beta) */
 .lp-brand-wm { display: inline-flex; align-items: center; gap: 8px; }
-.lp-brand .wordmark { font-size: 16px; }
+.lp-nav .lp-brand .wordmark { font-size: 22px !important; }
 .lp-brand .beta-badge { vertical-align: middle; }
 
 /* 2 · "Create your company" buttons → animated blue→green gradient everywhere */
@@ -4753,3 +4753,15 @@ select.cc-input { flex: 1; min-width: 0; }
 .bd-regprice em { font-style: normal; font-size: 13px; color: var(--muted); margin-left: 2px; }
 .bd-regbuy { font-weight: 800; font-size: 14px; color: var(--dc, #2f6bff); }
 @media (max-width: 480px) { .bd-regrow { grid-template-columns: 1fr auto; } .bd-regbuy { grid-column: 1 / -1; text-align: right; } }
+
+/* Growth (SEO) cards adopt the shared studio card charter (24px + hover ring) */
+.se-card, .se-kpi, .se-domain, .se-banner {
+  border-radius: 24px !important;
+  transition: transform 0.2s ease, box-shadow 0.35s ease, border-color 0.2s ease !important;
+}
+.se-card:hover, .se-kpi:hover {
+  transform: translateY(-4px);
+  border-color: transparent !important;
+  animation: acidRing 3.2s ease-in-out infinite;
+}
+.se-domain { border-radius: 999px !important; }
