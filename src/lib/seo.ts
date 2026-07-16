@@ -7,6 +7,7 @@
 // one is connected. The keyword tools and watchlists are real local tools whose
 // data the founder owns. No network.
 import type { SiteDoc, Block } from './site'
+import { sitePages } from './site'
 import { idbGet, idbSet } from './idb'
 
 export const slugify = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '').slice(0, 24) || 'brand'
@@ -26,9 +27,11 @@ export interface SiteContent {
 }
 const textOf = (v: unknown): string => (typeof v === 'string' ? v : '')
 export function extract(site: SiteDoc): SiteContent {
-  const c: SiteContent = { h1: [], h2: [], h3: [], words: 0, text: '', hasForm: false, hasCta: false, hasPricing: false, hasFooter: false, images: 0, imagesNoAlt: 0, internalLinks: 0, buttons: [], blocks: site.blocks.length }
+  // aggregate every section across every page (multi-page aware)
+  const allBlocks = sitePages(site).flatMap((p) => p.blocks)
+  const c: SiteContent = { h1: [], h2: [], h3: [], words: 0, text: '', hasForm: false, hasCta: false, hasPricing: false, hasFooter: false, images: 0, imagesNoAlt: 0, internalLinks: 0, buttons: [], blocks: allBlocks.length }
   const push = (s: string) => { if (s) c.text += ' ' + s }
-  for (const b of site.blocks as Block[]) {
+  for (const b of allBlocks as Block[]) {
     const p = b.props
     switch (b.type) {
       case 'hero': c.h1.push(textOf(p.title)); push(textOf(p.title)); push(textOf(p.subtitle)); if (p.cta) c.buttons.push(textOf(p.cta)); break

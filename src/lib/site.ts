@@ -11,14 +11,35 @@ export type SiteFont = 'sans' | 'serif' | 'mono' | 'grotesk' | 'editorial' | 'ro
 export type SiteLayout = 'centered' | 'left' | 'editorial' | 'bold'
 /** A shop product · used by the Store block + the built-in cart. */
 export interface Product { id: string; name: string; price: number; img?: string; desc?: string }
+/** A page of the site · its own title, URL slug, nav visibility and sections. */
+export interface SitePage { id: string; title: string; slug: string; nav: boolean; home?: boolean; blocks: Block[] }
 export interface SiteDoc {
-  name: string; blocks: Block[]; updatedAt: number; templateId?: string
+  name: string; updatedAt: number; templateId?: string
+  /** multi-page sites · each page has its own sections. `blocks` is the legacy
+   *  single-page field, migrated into a Home page by normalizeSite(). */
+  pages?: SitePage[]; blocks?: Block[]
   font?: SiteFont; layout?: SiteLayout
   /** optional Google Fonts (override the preset pairing) + type controls */
   headingFont?: string; bodyFont?: string; headingWeight?: number; baseSize?: number
   /** shop settings · currency symbol + where checkout orders go */
   currency?: string; checkoutEmail?: string
 }
+
+const pageUid = () => `pg_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`
+export function slugify(s: string): string {
+  return (s || 'page').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'page'
+}
+export function makePage(title: string, blocks: Block[] = [], opts: Partial<SitePage> = {}): SitePage {
+  return { id: pageUid(), title, slug: slugify(title), nav: true, blocks, ...opts }
+}
+/** Ensure the site is in multi-page form (migrating a legacy single-page doc). */
+export function normalizeSite(site: SiteDoc): SiteDoc {
+  if (site.pages && site.pages.length) return site
+  const blocks = site.blocks ?? []
+  return { ...site, pages: [{ id: pageUid(), title: 'Home', slug: 'home', nav: true, home: true, blocks }], blocks: undefined }
+}
+export const sitePages = (site: SiteDoc): SitePage[] => site.pages && site.pages.length ? site.pages : normalizeSite(site).pages!
+export const homePage = (site: SiteDoc): SitePage => { const ps = sitePages(site); return ps.find((p) => p.home) ?? ps[0] }
 /** Currency options for the shop (symbol used by the cart + product prices). */
 export const SITE_CURRENCIES: { code: string; symbol: string; label: string }[] = [
   { code: 'USD', symbol: '$', label: 'US Dollar ($)' },
@@ -159,7 +180,9 @@ export function makeBlock(type: BlockType, name = 'My brand'): Block {
 /** The AI first version (generated locally, instantly) from the company name. */
 export function generateSite(name: string): SiteDoc {
   const order: BlockType[] = ['hero', 'features', 'pricing', 'cta', 'footer']
-  return { name, blocks: order.map((t) => makeBlock(t, name)), font: 'sans', layout: 'centered', updatedAt: Date.now() }
+  const home = makePage('Home', order.map((t) => makeBlock(t, name)), { slug: 'home', home: true })
+  const contact = makePage('Contact', [makeBlock('form', name), makeBlock('footer', name)])
+  return { name, pages: [home, contact], font: 'sans', layout: 'centered', updatedAt: Date.now() }
 }
 
 // ---- template gallery -------------------------------------------------------
@@ -230,7 +253,14 @@ export function generateFromTemplate(name: string, templateId: string): SiteDoc 
     }
     return b
   })
-  return { name, templateId: tpl.id, blocks, font: tpl.font, layout: tpl.layout, updatedAt: Date.now() }
+  // Home + a couple of starter pages (Squarespace-style multi-page site)
+  const home = makePage('Home', blocks, { slug: 'home', home: true })
+  const about = makePage('About', [makeBlock('text', name), makeBlock('gallery', name), makeBlock('footer', name)])
+  const contact = makePage('Contact', [makeBlock('form', name), makeBlock('footer', name)])
+  const pages = tpl.blocks.includes('store')
+    ? [home, makePage('Shop', [makeBlock('store', name), makeBlock('footer', name)]), about, contact]
+    : [home, about, contact]
+  return { name, templateId: tpl.id, pages, font: tpl.font, layout: tpl.layout, updatedAt: Date.now() }
 }
 
 // ---- immutable path get/set (supports 'items.0.title', 'tiers.1.name') ------
@@ -269,7 +299,7 @@ const EDIT_JS = `<script>(function(){
 var selId=null;
 function rectOf(id){var el=document.querySelector('[data-b="'+id+'"]');if(!el)return null;var r=el.getBoundingClientRect();return{top:r.top,left:r.left,width:r.width,height:r.height}}
 function post(kind,id){try{parent.postMessage({__ds:kind,id:id,rect:rectOf(id)},'*')}catch(e){}}
-document.addEventListener('click',function(e){var t=e.target;var el=t&&t.closest?t.closest('[data-b]'):null;if(!el)return;e.preventDefault();e.stopPropagation();selId=el.getAttribute('data-b');post('select',selId)},true);
+document.addEventListener('click',function(e){var t=e.target;var nv=t&&t.closest?t.closest('[data-nav]'):null;if(nv){e.preventDefault();e.stopPropagation();try{parent.postMessage({__ds:'page',slug:nv.getAttribute('data-nav')},'*')}catch(er){}return}var el=t&&t.closest?t.closest('[data-b]'):null;if(!el)return;e.preventDefault();e.stopPropagation();selId=el.getAttribute('data-b');post('select',selId)},true);
 var raf=0;function onScroll(){if(!selId)return;if(raf)return;raf=requestAnimationFrame(function(){raf=0;post('rect',selId)})}
 window.addEventListener('scroll',onScroll,true);window.addEventListener('resize',onScroll);
 window.addEventListener('message',function(e){var d=e.data||{};if(d.__ds!=='sel')return;selId=d.id;var prev=document.querySelector('[data-b].__sel');if(prev)prev.classList.remove('__sel');if(!d.id)return;var el=document.querySelector('[data-b="'+d.id+'"]');if(!el)return;el.classList.add('__sel');if(d.scroll)el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){post('rect',d.id)},d.scroll?360:0)});
@@ -334,7 +364,7 @@ export function blockHtml(b: Block): string {
 
 /** Does this site include a shop? (drives the cart runtime injection) */
 export function hasStore(site: SiteDoc): boolean {
-  return site.blocks.some((b) => b.type === 'store')
+  return sitePages(site).some((p) => p.blocks.some((b) => b.type === 'store'))
 }
 
 // The standalone shopping-cart runtime · injected into EVERY generated site that
@@ -404,7 +434,21 @@ h1{font-size:clamp(30px,5.4vw,44px);line-height:1.08}h2{font-size:clamp(24px,3.6
 .prod-price{font-weight:800;font-size:19px;color:var(--brand-primary,#222)}
 .prod-add{padding:9px 14px;font-size:14px;border-radius:9px}
 .store-empty{grid-column:1/-1;text-align:center;color:#0007;padding:30px 0}
-@media(max-width:560px){.tier.feat{transform:none}.b-footer{justify-content:center;text-align:center}}
+/* multi-page nav header + page wrappers */
+.site-nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(16px,4vw,32px);background:color-mix(in srgb,var(--brand-bg,#fff) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid #0000000f;flex-wrap:wrap}
+.nav-brand{font-family:var(--brand-heading,inherit);font-weight:800;font-size:20px;color:var(--brand-ink,#111);text-decoration:none}
+.nav-links{display:flex;gap:clamp(12px,2vw,24px);flex-wrap:wrap}
+.nav-links a{color:var(--brand-ink,#111);text-decoration:none;font-weight:600;font-size:15px;opacity:.82}
+.nav-links a:hover,.nav-links a.on{opacity:1;color:var(--brand-accent,#2f6bff)}
+.pg{display:block}
+/* section design + colour themes (Design / Couleur tabs) */
+.b.b-pad-sm{padding-top:32px;padding-bottom:32px}.b.b-pad-lg{padding-top:104px;padding-bottom:104px}
+.b.b-al-left{text-align:left}.b.b-al-left h2{text-align:left}.b.b-al-center{text-align:center}.b.b-al-center h2{text-align:center}
+.b.b-full{max-width:none}
+.b.b-th-light{background:color-mix(in srgb,var(--brand-ink,#111) 4%,#fff)}
+.b.b-th-dark{background:var(--brand-ink,#141414);color:#fff}.b-th-dark h1,.b-th-dark h2,.b-th-dark h3{color:#fff}.b-th-dark .card,.b-th-dark .tier,.b-th-dark .prod{background:#ffffff12;border-color:#ffffff22;color:#fff}
+.b.b-th-accent{background:var(--brand-accent,#2f6bff);color:#fff}.b-th-accent h1,.b-th-accent h2,.b-th-accent h3{color:#fff}.b-th-accent .btn{background:#fff;color:var(--brand-ink,#111)}
+@media(max-width:560px){.tier.feat{transform:none}.b-footer{justify-content:center;text-align:center}.nav-links{gap:12px;font-size:14px}}
 `
 
 // per-layout overrides · what makes each template's sections & type feel unique
@@ -434,22 +478,51 @@ function siteVarsCss(site: SiteDoc): string {
 /** A complete standalone HTML document · used for the iframe AND the export.
  *  With { editable: true } each section becomes clickable (click-to-select in the
  *  builder); that mode is never used for the exported file. */
-export function fullDoc(site: SiteDoc, kit: BrandKit, opts?: { editable?: boolean }): string {
+// Section-level design + colour classes (Design / Couleur tabs), stored under
+// underscore-prefixed props so they never collide with content fields.
+function designClasses(b: Block): string {
+  const p = b.props as Record<string, unknown>
+  const cls: string[] = []
+  if (p._theme && p._theme !== 'default') cls.push(`b-th-${p._theme}`)
+  if (p._pad && p._pad !== 'md') cls.push(`b-pad-${p._pad}`)
+  if (p._align) cls.push(`b-al-${p._align}`)
+  if (p._full) cls.push('b-full')
+  return cls.join(' ')
+}
+
+/** A complete standalone HTML document · used for the iframe AND the export.
+ *  Multi-page: renders a nav header + every page (only the active one visible) +
+ *  a hash router so links work in preview and the exported file. With
+ *  { editable } only the active page's sections are clickable (click-to-select). */
+export function fullDoc(site: SiteDoc, kit: BrandKit, opts?: { editable?: boolean; activeSlug?: string }): string {
   const editable = !!opts?.editable
   const cur = currencySymbol(site.currency)
-  // inject the site currency symbol into each Store block so prices render right
+  const pages = sitePages(site)
+  const home = homePage(site)
+  const active = pages.find((p) => p.slug === opts?.activeSlug) ?? home
+  // one section → HTML (currency into Store, design classes, data-b when editable)
   const render = (b: Block) => {
     const bb = b.type === 'store' ? { ...b, props: { ...b.props, cur } } : b
-    return editable ? blockHtmlTagged(bb) : blockHtml(bb)
+    const raw = editable ? blockHtmlTagged(bb) : blockHtml(bb)
+    const dc = designClasses(bb)
+    return dc ? raw.replace(/class="b /, `class="b ${dc} `) : raw
   }
-  const body = site.blocks.map(render).join('\n')
+  const navLinks = pages.filter((p) => p.nav).map((p) => `<a href="#/${p.slug}" data-nav="${p.slug}"${p.slug === active.slug ? ' class="on"' : ''}>${esc(p.title)}</a>`).join('')
+  const nav = `<header class="site-nav"><a class="nav-brand" href="#/${home.slug}" data-nav="${home.slug}">${esc(site.name)}</a><nav class="nav-links">${navLinks}</nav></header>`
+  const pageHtml = (p: SitePage, visible: boolean) => `<main class="pg" data-pg="${p.slug}"${visible ? '' : ' style="display:none"'}>${p.blocks.map(render).join('\n')}</main>`
+  // edit mode renders only the active page (clickable); preview/export renders
+  // every page + a router so navigation actually works.
+  const body = editable
+    ? pageHtml(active, true)
+    : pages.map((p) => pageHtml(p, p.slug === active.slug)).join('\n')
+  const router = editable ? '' : `<script>(function(){var P=[].slice.call(document.querySelectorAll('.pg'));function cur(){return location.hash.replace(/^#\\/?/,'')||${JSON.stringify(home.slug)}}function show(s){var any=false;P.forEach(function(p){var m=p.getAttribute('data-pg')===s;p.style.display=m?'':'none';if(m)any=true});if(!any&&P[0])P[0].style.display='';document.querySelectorAll('[data-nav]').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-nav')===s)});window.scrollTo(0,0)}window.addEventListener('hashchange',function(){show(cur())});show(cur());})();</scr`+`ipt>`
   const href = googleFontsHref([site.headingFont ?? '', site.bodyFont ?? ''])
   const gimport = href ? `@import url('${href}');\n` : ''
   const editStyle = editable ? EDIT_CSS : ''
   const editScript = editable ? EDIT_JS : ''
   // the cart runtime ships in preview + export (not edit mode, where clicks select)
   const cart = !editable && hasStore(site) ? cartRuntime(site) : ''
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${gimport}${kitCss(kit)}\n${siteVarsCss(site)}${editStyle}</style></head><body>${body}${cart}${editScript}</body></html>`
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${esc(site.name)}</title><style>${gimport}${kitCss(kit)}\n${siteVarsCss(site)}${editStyle}</style></head><body>${nav}${body}${router}${cart}${editScript}</body></html>`
 }
 
 // ---- inspector fields per block --------------------------------------------

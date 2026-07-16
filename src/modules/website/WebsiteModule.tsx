@@ -12,6 +12,7 @@ import {
   BLOCK_LABELS, BLOCK_ORDER, makeBlock, generateSite,
   generateFromTemplate, SITE_TEMPLATES, SITE_FONTS, SITE_LAYOUTS, GOOGLE_FONTS, loadGoogleFonts, googleFontsHref, fontSet, fullDoc, fieldsFor, getPath, setPath, loadSite, saveSite, siteBrand, type GFont,
   type Product, makeProduct, SITE_CURRENCIES, currencySymbol,
+  type SitePage, sitePages, homePage, makePage, slugify, normalizeSite,
 } from '../../lib/site'
 import { PRESET_PALETTES, randomPalette, paletteToKit, kitToPalette, textOn } from '../../lib/palettes'
 import { StepBar } from '../StepBar'
@@ -33,6 +34,9 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [sel, setSel] = useState<string | null>(null)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
+  // multi-page · which page is being edited, and the section-editor tab
+  const [activePageId, setActivePageId] = useState<string | null>(null)
+  const [inspTab, setInspTab] = useState<'content' | 'design' | 'colour'>('content')
   // left sidebar tab · Pages (sections) or Styles (fonts + colours), Squarespace-style
   const [leftTab, setLeftTab] = useState<'pages' | 'styles'>('pages')
   // floating contextual toolbar anchored to the selected section in the preview
@@ -48,30 +52,39 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const [contentOpen, setContentOpen] = useState(false)
   const [imgPrompt, setImgPrompt] = useState('')
 
+  // adopt a freshly created / loaded site: normalise to multi-page, open its home
+  const adopt = (s: SiteDoc) => {
+    const ns = normalizeSite(s)
+    const hp = homePage(ns)
+    setSite(ns); setActivePageId(hp.id); setSel(hp.blocks[0]?.id ?? null); setStep('design')
+  }
   useEffect(() => {
     let alive = true
     void Promise.all([loadSite(dojoId), siteBrand(dojoId, dojoName)]).then(([s, b]) => {
       if (!alive) return
       setBrand(b)
-      if (s) { setSite(s); setSel(s.blocks[0]?.id ?? null); setStep('design') }
+      if (s) adopt(s)
     })
     return () => { alive = false }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dojoId])
 
   const useTemplate = (id: string) => {
-    const s = generateFromTemplate(dojoName, id)
-    setSite(s); setSel(s.blocks[0]?.id ?? null); setStep('design')
+    adopt(generateFromTemplate(dojoName, id))
     pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Template applied', text: 'Edit each block, then export. It uses your Brand Kit.' })
   }
-  const startBlank = () => { const s = generateSite(dojoName); setSite(s); setSel(s.blocks[0]?.id ?? null); setStep('design') }
+  const startBlank = () => adopt(generateSite(dojoName))
   const templates = SITE_TEMPLATES.filter((t) => cat === 'All' || t.category === cat)
 
-  // The export/clean doc (no editor chrome) and the editable preview doc
-  // (each section clickable) · the design step renders the editable one.
-  const doc = useMemo(() => (brand ? fullDoc(site, brand) : ''), [site, brand])
-  const editDoc = useMemo(() => (brand ? fullDoc(site, brand, { editable: true }) : ''), [site, brand])
-  const selected = site.blocks.find((b) => b.id === sel) || null
+  // multi-page · the page currently being edited (its sections drive the canvas)
+  const pages = sitePages(site)
+  const page = pages.find((p) => p.id === activePageId) ?? homePage(site)
+  const blocks = page.blocks
+  // The export/clean doc (no editor chrome) and the editable preview doc (each
+  // section clickable) · both open on the active page.
+  const doc = useMemo(() => (brand ? fullDoc(site, brand, { activeSlug: page.slug }) : ''), [site, brand, page.slug])
+  const editDoc = useMemo(() => (brand ? fullDoc(site, brand, { editable: true, activeSlug: page.slug }) : ''), [site, brand, page.slug])
+  const selected = blocks.find((b) => b.id === sel) || null
 
   // Click-to-select: the preview iframe posts the clicked section's id; we select
   // it here. A ref mirrors `sel` so the iframe onLoad handler always re-highlights
@@ -79,11 +92,15 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const frameRef = useRef<HTMLIFrameElement>(null)
   const selRef = useRef<string | null>(sel)
   useEffect(() => { selRef.current = sel }, [sel])
+  const siteRef = useRef(site)
+  useEffect(() => { siteRef.current = site }, [site])
   useEffect(() => {
     type Rect = { top: number; left: number; width: number; height: number }
     const onMsg = (e: MessageEvent) => {
-      const d = e.data as { __ds?: string; id?: string; rect?: Rect }
-      if (!d || !d.id) return
+      const d = e.data as { __ds?: string; id?: string; rect?: Rect; slug?: string }
+      if (!d) return
+      if (d.__ds === 'page' && d.slug) { const p = sitePages(siteRef.current).find((x) => x.slug === d.slug); if (p) { setActivePageId(p.id); setSel(p.blocks[0]?.id ?? null) } return }
+      if (!d.id) return
       if (d.__ds === 'select') { setSel(d.id); if (d.rect) setCtx({ id: d.id, rect: d.rect }) }
       else if (d.__ds === 'rect' && d.rect) setCtx((c) => (c && c.id === d.id ? { id: d.id!, rect: d.rect! } : c))
     }
@@ -100,26 +117,50 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   // selecting from the block list should scroll the preview to that section
   const selectBlock = (id: string) => { setSel(id); postSel(id, true) }
 
-  const mutate = (blocks: Block[]) => setSite((s) => ({ ...s, blocks }))
-  const add = (type: BlockType) => { const b = makeBlock(type, site.name); mutate([...site.blocks, b]); setSel(b.id); setAddOpen(false) }
-  const del = (id: string) => { mutate(site.blocks.filter((b) => b.id !== id)); if (sel === id) setSel(null) }
-  const dup = (id: string) => { const i = site.blocks.findIndex((b) => b.id === id); if (i < 0) return; const c = { ...site.blocks[i], id: `b_${Date.now().toString(36)}` }; const arr = [...site.blocks]; arr.splice(i + 1, 0, c); mutate(arr); setSel(c.id) }
+  // mutate the ACTIVE page's sections (all block ops go through here)
+  const mutate = (next: Block[]) => setSite((s) => ({ ...s, pages: sitePages(s).map((p) => (p.id === page.id ? { ...p, blocks: next } : p)) }))
+  const add = (type: BlockType) => { const b = makeBlock(type, site.name); mutate([...blocks, b]); setSel(b.id); setAddOpen(false) }
+  const del = (id: string) => { mutate(blocks.filter((b) => b.id !== id)); if (sel === id) setSel(null) }
+  const dup = (id: string) => { const i = blocks.findIndex((b) => b.id === id); if (i < 0) return; const c = { ...blocks[i], id: `b_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}` }; const arr = [...blocks]; arr.splice(i + 1, 0, c); mutate(arr); setSel(c.id) }
   const move = (id: string, dir: -1 | 1) => {
-    const i = site.blocks.findIndex((b) => b.id === id); const j = i + dir
-    if (i < 0 || j < 0 || j >= site.blocks.length) return
-    const arr = [...site.blocks];[arr[i], arr[j]] = [arr[j], arr[i]]; mutate(arr)
+    const i = blocks.findIndex((b) => b.id === id); const j = i + dir
+    if (i < 0 || j < 0 || j >= blocks.length) return
+    const arr = [...blocks];[arr[i], arr[j]] = [arr[j], arr[i]]; mutate(arr)
   }
+  // ---- pages management (Squarespace-style) ----
+  const setPages = (next: SitePage[]) => setSite((s) => ({ ...s, pages: next }))
+  const addPage = () => {
+    const n = pages.length + 1
+    const p = makePage(`Page ${n}`, [makeBlock('hero', site.name), makeBlock('footer', site.name)])
+    setPages([...pages, p]); setActivePageId(p.id); setSel(p.blocks[0]?.id ?? null); setLeftTab('pages')
+  }
+  const openPageEdit = (id: string) => { const p = pages.find((x) => x.id === id); if (!p) return; setActivePageId(id); setSel(p.blocks[0]?.id ?? null) }
+  const renamePage = (id: string, title: string) => setPages(pages.map((p) => (p.id === id ? { ...p, title, slug: slugify(title) } : p)))
+  const togglePageNav = (id: string) => setPages(pages.map((p) => (p.id === id ? { ...p, nav: !p.nav } : p)))
+  const movePage = (id: string, dir: -1 | 1) => {
+    const i = pages.findIndex((p) => p.id === id); const j = i + dir
+    if (i < 0 || j < 0 || j >= pages.length) return
+    const arr = [...pages];[arr[i], arr[j]] = [arr[j], arr[i]]; setPages(arr)
+  }
+  const deletePage = (id: string) => {
+    if (pages.length <= 1) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Keep one page', text: 'A site needs at least one page.' }); return }
+    if (pages.find((p) => p.id === id)?.home) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Home stays', text: 'The Home page cannot be deleted.' }); return }
+    const next = pages.filter((p) => p.id !== id); setPages(next)
+    if (activePageId === id) { const hp = next.find((p) => p.home) ?? next[0]; setActivePageId(hp.id); setSel(hp.blocks[0]?.id ?? null) }
+  }
+  // set a design/colour prop (underscore-prefixed) on the selected section
+  const setDesign = (key: string, value: unknown) => patchSelected({ [key]: value })
   const edit = (path: string, raw: string, kind: string) => {
     if (!selected) return
     const value: unknown = kind === 'lines' ? raw.split('\n').filter((x) => x.trim()) : kind === 'text' && path === 'count' ? Number(raw) || 0 : raw
     const props = setPath(selected.props, path, value)
-    mutate(site.blocks.map((b) => (b.id === selected.id ? { ...b, props } : b)))
+    mutate(blocks.map((b) => (b.id === selected.id ? { ...b, props } : b)))
   }
   // Replace the media / props of the CURRENTLY SELECTED section in place
   // (Squarespace-style · edit the section you clicked, not a new one).
   const patchSelected = (patch: Record<string, unknown>) => {
     if (!selected) return
-    mutate(site.blocks.map((b) => (b.id === selected.id ? { ...b, props: { ...b.props, ...patch } } : b)))
+    mutate(blocks.map((b) => (b.id === selected.id ? { ...b, props: { ...b.props, ...patch } } : b)))
   }
   const replaceMedia = (file: File, kind: 'image' | 'video') => {
     const cap = kind === 'image' ? 4_000_000 : 12_000_000
@@ -147,7 +188,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const setCurrency = (currency: string) => setSite((s) => ({ ...s, currency }))
   const setCheckoutEmail = (checkoutEmail: string) => setSite((s) => ({ ...s, checkoutEmail }))
 
-  const regenerate = () => { const s = generateSite(dojoName); setSite(s); setSel(s.blocks[0]?.id ?? null); pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'First version generated', text: 'Edit each block, then export.' }) }
+  const regenerate = () => { adopt(generateSite(dojoName)); pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'First version generated', text: 'Edit each block, then export.' }) }
   const save = async () => { await saveSite(dojoId, site); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Website saved', text: 'Saved locally (IndexedDB).' }) }
   const exportHtml = () => {
     const blob = new Blob([doc], { type: 'text/html' })
@@ -173,7 +214,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   }
   // ---- content: import / generate images, videos, text ----
   const addBlock = (b: Block, afterSel = true) => {
-    const arr = [...site.blocks]
+    const arr = [...blocks]
     const i = afterSel && sel ? arr.findIndex((x) => x.id === sel) : arr.length - 1
     arr.splice((i < 0 ? arr.length : i) + 1, 0, b)
     mutate(arr); setSel(b.id)
@@ -426,8 +467,29 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
           </div>
           {leftTab === 'pages' ? (
             <div className="site-left-body">
+              {/* PAGES · the site's pages (Squarespace-style) */}
               <div className="site-blocks-head">
-                <h4 className="brand-h" style={{ margin: 0 }}>Sections</h4>
+                <h4 className="brand-h" style={{ margin: 0 }}>Pages</h4>
+                <button className="btn tiny" onClick={addPage}>＋ Add</button>
+              </div>
+              <ul className="site-pagelist">
+                {pages.map((p, i) => (
+                  <li key={p.id} className={p.id === page.id ? 'on' : ''}>
+                    <button className="site-pg-name" onClick={() => openPageEdit(p.id)} title={`/${p.slug}`}>{p.home ? '⌂ ' : ''}{p.title}</button>
+                    <div className="site-bl-ops">
+                      <button onClick={() => togglePageNav(p.id)} className={p.nav ? 'on' : ''} title={p.nav ? 'Shown in nav' : 'Hidden from nav'}>{p.nav ? '☰' : '⊘'}</button>
+                      <button onClick={() => movePage(p.id, -1)} disabled={i === 0} aria-label="Move up">↑</button>
+                      <button onClick={() => movePage(p.id, 1)} disabled={i === pages.length - 1} aria-label="Move down">↓</button>
+                      <button onClick={() => { const t = prompt('Rename page', p.title); if (t) renamePage(p.id, t) }} aria-label="Rename">✎</button>
+                      <button onClick={() => deletePage(p.id)} disabled={!!p.home} aria-label="Delete">✕</button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              {/* SECTIONS · the sections of the page you're editing */}
+              <div className="site-blocks-head" style={{ marginTop: 16 }}>
+                <h4 className="brand-h" style={{ margin: 0 }}>{page.title} · sections</h4>
                 <button className="btn tiny" onClick={() => setAddOpen((v) => !v)}>＋ Add</button>
               </div>
               {addOpen && (
@@ -436,12 +498,12 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
                 </div>
               )}
               <ul className="site-blocklist">
-                {site.blocks.map((b, i) => (
+                {blocks.map((b, i) => (
                   <li key={b.id} className={b.id === sel ? 'on' : ''}>
                     <button className="site-bl-name" onClick={() => selectBlock(b.id)}>{BLOCK_LABELS[b.type]}</button>
                     <div className="site-bl-ops">
                       <button onClick={() => move(b.id, -1)} disabled={i === 0} aria-label="Move up">↑</button>
-                      <button onClick={() => move(b.id, 1)} disabled={i === site.blocks.length - 1} aria-label="Move down">↓</button>
+                      <button onClick={() => move(b.id, 1)} disabled={i === blocks.length - 1} aria-label="Move down">↓</button>
                       <button onClick={() => dup(b.id)} aria-label="Duplicate">⎘</button>
                       <button onClick={() => del(b.id)} aria-label="Delete">✕</button>
                     </div>
@@ -510,7 +572,46 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
       {selected ? (
         <div className="site-inspector" id="site-inspector">
           <h4 className="brand-h">Edit · {BLOCK_LABELS[selected.type]}</h4>
+          <div className="insp-tabs">
+            <button className={inspTab === 'content' ? 'on' : ''} onClick={() => setInspTab('content')}>Éléments</button>
+            <button className={inspTab === 'design' ? 'on' : ''} onClick={() => setInspTab('design')}>Design</button>
+            <button className={inspTab === 'colour' ? 'on' : ''} onClick={() => setInspTab('colour')}>Couleur</button>
+          </div>
 
+          {/* DESIGN tab · section layout controls */}
+          {inspTab === 'design' && (
+            <div className="insp-panel">
+              <div className="site-field"><span>Spacing</span>
+                <div className="insp-seg">
+                  {(['sm', 'md', 'lg'] as const).map((v) => <button key={v} className={((selected.props._pad as string) || 'md') === v ? 'on' : ''} onClick={() => setDesign('_pad', v)}>{v === 'sm' ? 'Compact' : v === 'md' ? 'Normal' : 'Spacious'}</button>)}
+                </div>
+              </div>
+              <div className="site-field"><span>Text alignment</span>
+                <div className="insp-seg">
+                  {(['left', 'center'] as const).map((v) => <button key={v} className={((selected.props._align as string) || 'center') === v ? 'on' : ''} onClick={() => setDesign('_align', v)}>{v === 'left' ? 'Left' : 'Center'}</button>)}
+                </div>
+              </div>
+              <label className="insp-toggle"><span>Full-width section</span>
+                <button role="switch" aria-checked={!!selected.props._full} className={`tgl${selected.props._full ? ' on' : ''}`} onClick={() => setDesign('_full', !selected.props._full)}><span /></button>
+              </label>
+            </div>
+          )}
+
+          {/* COULEUR tab · section colour theme */}
+          {inspTab === 'colour' && (
+            <div className="insp-panel">
+              <p className="muted small" style={{ marginTop: 0 }}>Pick a colour theme for this section. Themes use your Brand Kit — tune them in the Colours step.</p>
+              <div className="insp-themes">
+                {([['default', 'Default'], ['light', 'Light'], ['dark', 'Dark'], ['accent', 'Accent']] as const).map(([v, label]) => (
+                  <button key={v} className={`insp-theme insp-th-${v}${((selected.props._theme as string) || 'default') === v ? ' on' : ''}`} onClick={() => setDesign('_theme', v)}>
+                    <span className="insp-th-aa">Aa</span><span className="insp-th-lbl">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {inspTab === 'content' && (<>
           {/* media controls · replace the image/video of THIS section in place */}
           {(selected.type === 'image' || selected.type === 'video') && (
             <div className="site-media">
@@ -582,6 +683,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               ))}
             </div>
           )}
+          </>)}
         </div>
       ) : (
         <p className="site-right-empty">Click a section in the canvas (or a page on the left) to edit its text, images, video and products here.</p>
