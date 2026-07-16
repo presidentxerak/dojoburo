@@ -70,8 +70,8 @@ export const MODULES: ModuleDef[] = [
     tint: '#1fa563', emoji: '📊', agentRole: 'busino', status: 'live', comp: BusinoModule,
   },
   {
-    id: 'operations', label: 'Operations',
-    blurb: 'Autonomy, budgets, anti-loop limits, encrypted secrets and safety switches.',
+    id: 'operations', label: 'Security Studio',
+    blurb: 'Autonomy, budgets, anti-loop limits, an encrypted secrets vault and safety switches.',
     tint: '#5b6472', emoji: '🛡️', agentRole: 'sentinel', status: 'live', comp: SentinelModule,
   },
   {

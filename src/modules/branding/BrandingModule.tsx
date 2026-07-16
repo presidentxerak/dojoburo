@@ -17,7 +17,7 @@ import {
 import { zipStore } from '../../lib/zip'
 import {
   type BrandProfile, type DomainResult, researchProfile, generateKeywords, combineNames,
-  checkDomains, socialProfiles, bestPrice, registrarUrl, BRAND_TLDS,
+  checkDomains, checkComBatch, socialProfiles, bestPrice, registrarUrl, BRAND_TLDS,
 } from '../../lib/naming'
 import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
@@ -76,6 +76,10 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const [nameSeed, setNameSeed] = useState(0)
   const [domains, setDomains] = useState<DomainResult[]>([])
   const [checking, setChecking] = useState(false)
+  // batch .com availability for the name candidates (find free .com brand names)
+  const [comAvail, setComAvail] = useState<Record<string, 'available' | 'taken' | 'unknown'>>({})
+  const [comScan, setComScan] = useState<{ on: boolean; done: number; total: number }>({ on: false, done: 0, total: 0 })
+  const [availOnly, setAvailOnly] = useState(false)
   const [shortlist, setShortlist] = useState<Set<string>>(new Set())
   const [saved, setSaved] = useState(false)
   // logo identity sub-tabs + style (Shiverbrand-style logo pack)
@@ -131,6 +135,18 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     setCustomWord('')
   }
   const reroll = () => { const s = nameSeed + 1; setNameSeed(s); setNames(combineNames([...selected], s)) }
+  // Auto-scan .com availability for the candidates on the Naming step, so free
+  // .com brand names surface immediately (real RDAP via the server proxy).
+  const nameList = names.length ? names : combineNames([...selected], 0)
+  useEffect(() => {
+    if (step !== 'naming' || !nameList.length) return
+    let cancelled = false
+    setComScan({ on: true, done: 0, total: nameList.length })
+    void checkComBatch(nameList, (done, total) => { if (!cancelled) setComScan({ on: true, done, total }) })
+      .then((map) => { if (!cancelled) { setComAvail((prev) => ({ ...prev, ...map })); setComScan((s) => ({ ...s, on: false })) } })
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, names, nameSeed])
   const chooseName = async (name: string) => {
     patch({ name })
     setStep('domain'); setChecking(true); setDomains([])
@@ -353,26 +369,42 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
         </section>
       )}
 
-      {step === 'naming' && (
+      {step === 'naming' && (() => {
+        const slugOf = (n: string) => n.toLowerCase().replace(/[^a-z0-9]/g, '')
+        const rank = (n: string) => { const s = comAvail[slugOf(n)]; return s === 'available' ? 0 : s === 'unknown' ? 1 : s === undefined ? 2 : 3 }
+        const sorted = [...nameList].sort((a, b) => rank(a) - rank(b) || a.length - b.length)
+        const shown = availOnly ? sorted.filter((n) => comAvail[slugOf(n)] === 'available') : sorted
+        const availCount = nameList.filter((n) => comAvail[slugOf(n)] === 'available').length
+        return (
         <section className="sq-panel">
           <h3 className="sq-title">Name candidates</h3>
-          <p className="sq-lead">Combinations of your {selected.size} chosen word{selected.size === 1 ? '' : 's'}. Pick one to check its .com &amp; handles, or reroll for a fresh batch.</p>
+          <p className="sq-lead">We check the real <b>.com</b> availability of every candidate (RDAP) so the free ones rise to the top. Pick one to check all its handles &amp; TLDs, or reroll for a fresh batch.</p>
           <div className="bw-selected bw-selected-recap">
             {[...selected].map((k) => <span key={k} className="bw-chip on static">{k}</span>)}
             <button className="bw-editwords" onClick={() => setStep('concept')}>Edit words</button>
           </div>
+          <div className="nm-availbar">
+            <span className="nm-availstat">{comScan.on ? `Checking .com… ${comScan.done}/${comScan.total}` : `${availCount} of ${nameList.length} have a free .com`}</span>
+            <button className={`nm-availfilter${availOnly ? ' on' : ''}`} onClick={() => setAvailOnly((v) => !v)} disabled={!availCount}>{availOnly ? '✓ Available .com only' : 'Show available .com only'}</button>
+          </div>
           <div className="sq-namegrid">
-            {(names.length ? names : combineNames([...selected], 0)).map((n) => (
-              <button key={n} className={`sq-name${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)}>
-                <b>{n}</b><span>{n.toLowerCase().replace(/[^a-z0-9]/g, '')}.com →</span>
-              </button>
-            ))}
+            {shown.map((n) => {
+              const s = comAvail[slugOf(n)]
+              return (
+                <button key={n} className={`sq-name nm-${s || 'pending'}${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)}>
+                  <b>{n}</b>
+                  <span className="nm-dom">{slugOf(n)}.com {s === 'available' ? <em className="nm-free">● Available</em> : s === 'taken' ? <em className="nm-taken">Taken</em> : s === 'unknown' ? <em className="nm-unk">?</em> : <em className="nm-chk">…</em>}</span>
+                </button>
+              )
+            })}
+            {availOnly && !shown.length && <p className="muted small">No free .com in this batch yet — reroll for more.</p>}
           </div>
           <div className="sq-cta-row">
             <button className="sq-cta ghost" onClick={reroll}>↻ Reroll names</button>
           </div>
         </section>
-      )}
+        )
+      })()}
 
       {step === 'domain' && (() => {
         const slug = kit.name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'brand'

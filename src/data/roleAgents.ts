@@ -73,7 +73,7 @@ const SPECS: Spec[] = [
     tint: '#1fa563', dept: 'Finance',
   },
   {
-    id: 'sentinel', code: 'Sentinel', title: 'Cyber Guardian',
+    id: 'sentinel', code: 'Sentinel', title: 'Security Guardian',
     desc: 'Keeps your AI efficient, secure and under control.',
     tint: '#5b6472', dept: 'Ops',
   },

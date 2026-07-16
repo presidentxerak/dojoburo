@@ -208,6 +208,29 @@ export interface DomainResult { domain: string; tld: string; status: 'available'
 /** The TLDs we check + price, in priority order (.com first). */
 export const BRAND_TLDS = ['com', 'io', 'co', 'dev', 'app', 'org', 'net', 'ai', 'so', 'me', 'to']
 
+export type DomainStatus = 'available' | 'taken' | 'unknown'
+/** Check .com availability for a whole batch of candidate names in parallel
+ *  (throttled), so the Naming step can surface the ones whose .com is free.
+ *  Returns a map keyed by the slugified name. Real RDAP via /api/domain. */
+export async function checkComBatch(
+  names: string[],
+  onProgress?: (done: number, total: number) => void,
+): Promise<Record<string, DomainStatus>> {
+  const slugs = [...new Set(names.map((n) => n.toLowerCase().replace(/[^a-z0-9]/g, '')).filter((s) => s.length >= 2))].slice(0, 48)
+  const out: Record<string, DomainStatus> = {}
+  let done = 0
+  const CONC = 6
+  for (let i = 0; i < slugs.length; i += CONC) {
+    const batch = slugs.slice(i, i + CONC)
+    await Promise.all(batch.map(async (s) => {
+      const r = await checkDomains(s, ['com'])
+      out[s] = (r.find((d) => d.tld === 'com')?.status as DomainStatus) ?? 'unknown'
+      done++; onProgress?.(done, slugs.length)
+    }))
+  }
+  return out
+}
+
 /** Check real domain availability for a name via the server-side RDAP proxy. */
 export async function checkDomains(name: string, tlds: string[] = BRAND_TLDS): Promise<DomainResult[]> {
   const q = new URLSearchParams({ name })

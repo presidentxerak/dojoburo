@@ -4501,3 +4501,16 @@ select.cc-input { flex: 1; min-width: 0; }
 .ws-dojocard-plus { font-size: 30px; color: var(--muted); line-height: 1; }
 @media (max-width: 700px) { .ws-dojogrid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 460px) { .ws-dojogrid { grid-template-columns: 1fr; } }
+
+/* Branding · Naming step · real .com availability scan */
+.nm-availbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 4px 0 12px; }
+.nm-availstat { font-size: 14px; font-weight: 700; color: var(--muted); }
+.nm-availfilter { border: 1px solid var(--border); background: var(--panel-2); border-radius: 999px; padding: 7px 14px; cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink); }
+.nm-availfilter.on { background: #12b877; color: #fff; border-color: #12b877; }
+.nm-availfilter:disabled { opacity: 0.5; cursor: not-allowed; }
+.sq-name .nm-dom { display: flex; align-items: center; gap: 6px; }
+.sq-name .nm-free { color: #0e9c63; font-weight: 800; font-style: normal; }
+.sq-name .nm-taken { color: #b2504a; font-weight: 700; font-style: normal; }
+.sq-name .nm-unk, .sq-name .nm-chk { color: var(--muted); font-style: normal; }
+.sq-name.nm-available { border-color: #12b877 !important; box-shadow: inset 0 0 0 1px #12b877; }
+.sq-name.nm-taken { opacity: 0.62; }
