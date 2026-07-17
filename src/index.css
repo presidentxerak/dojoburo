@@ -4798,3 +4798,13 @@ select.cc-input { flex: 1; min-width: 0; }
 .crm-hs-list li { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 12px; }
 .crm-hs-co { color: var(--muted); }
 .crm-hs-stage { margin-left: auto; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--dc); background: color-mix(in srgb, var(--dc) 12%, transparent); border-radius: 999px; padding: 2px 8px; }
+
+/* Command Center · upcoming meetings (Google Calendar / Calendly) */
+.chief-cal { margin: 14px 0 4px; }
+.chief-cal .mission-head { margin-bottom: 10px; }
+.chief-cal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.chief-cal-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px; border: 1px solid var(--border); border-radius: 14px; font-size: 14px; }
+.chief-cal-when { font-family: var(--font-pixel); font-size: 12px; color: var(--muted); min-width: 132px; }
+.chief-cal-title { font-weight: 600; flex: 1 1 auto; }
+.chief-cal-meta { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; color: var(--muted); font-size: 12px; }
+.chief-cal-meta em { font-style: normal; }

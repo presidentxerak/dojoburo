@@ -48,6 +48,68 @@ const PROVIDERS: Record<string, Provider> = {
   gsc: gscData,
   hubspot: hubspotData,
   mailchimp: mailchimpData,
+  gcal: gcalData,
+  calendly: calendlyData,
+}
+
+// ---- Google Calendar (per-user OAuth · upcoming events) -------------------
+async function gcalData(q: URLSearchParams): Promise<Result> {
+  if (!dbConfigured() || !vaultConfigured()) return { connected: false }
+  const pool = getPool()
+  const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+  if (!accountId) return { connected: false }
+  const conn = await connectionToken(pool, accountId, 'gcal')
+  if (!conn) return { connected: false }
+
+  const now = new Date().toISOString()
+  const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(now)}&maxResults=8&singleEvents=true&orderBy=startTime`
+  const j = await hfetch(url, conn.token)
+  if (!j) return { connected: true, data: null }
+  const items = Array.isArray((j as { items?: unknown[] })?.items) ? (j as { items: unknown[] }).items : []
+  const events = items.map((e) => {
+    const ev = e as { summary?: string; start?: { dateTime?: string; date?: string }; end?: { dateTime?: string; date?: string }; hangoutLink?: string; location?: string; attendees?: unknown[] }
+    return {
+      title: ev.summary || 'Untitled event',
+      start: ev.start?.dateTime || ev.start?.date || '',
+      allDay: !ev.start?.dateTime,
+      location: ev.location || '',
+      link: ev.hangoutLink || '',
+      attendees: Array.isArray(ev.attendees) ? ev.attendees.length : 0,
+    }
+  })
+  return { connected: true, account: conn.external, data: { events } }
+}
+
+// ---- Calendly (per-user OAuth · scheduled invitee events) -----------------
+async function calendlyData(q: URLSearchParams): Promise<Result> {
+  if (!dbConfigured() || !vaultConfigured()) return { connected: false }
+  const pool = getPool()
+  const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+  if (!accountId) return { connected: false }
+  const conn = await connectionToken(pool, accountId, 'calendly')
+  if (!conn) return { connected: false }
+
+  // resolve the current user URI, then list upcoming scheduled events.
+  const me = await hfetch('https://api.calendly.com/users/me', conn.token)
+  const userUri = (me as { resource?: { uri?: string } })?.resource?.uri
+  if (!userUri) return { connected: true, data: null }
+  const now = new Date().toISOString()
+  const url = `https://api.calendly.com/scheduled_events?user=${encodeURIComponent(userUri)}&status=active&min_start_time=${encodeURIComponent(now)}&count=8&sort=start_time:asc`
+  const j = await hfetch(url, conn.token)
+  if (!j) return { connected: true, data: null }
+  const coll = Array.isArray((j as { collection?: unknown[] })?.collection) ? (j as { collection: unknown[] }).collection : []
+  const events = coll.map((e) => {
+    const ev = e as { name?: string; start_time?: string; location?: { join_url?: string; location?: string }; event_memberships?: unknown[] }
+    return {
+      title: ev.name || 'Meeting',
+      start: ev.start_time || '',
+      allDay: false,
+      location: ev.location?.location || '',
+      link: ev.location?.join_url || '',
+      attendees: Array.isArray(ev.event_memberships) ? ev.event_memberships.length : 0,
+    }
+  })
+  return { connected: true, data: { events } }
 }
 
 // ---- Mailchimp (per-user OAuth · audience read) ---------------------------

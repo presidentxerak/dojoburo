@@ -2,12 +2,12 @@
 // live in the right panel over the dojo: company KPIs, the "tell Chief what to
 // prioritise" composer + Launch Chief, and the team roster (click a teammate to
 // open its studio). Chief is the only orchestration entry point.
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import { useWork } from '../../agents/workStore'
-import { postSlack } from '../../agents/workApi'
+import { postSlack, toolData } from '../../agents/workApi'
 import { useEngine } from '../../agents/engineStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
@@ -25,6 +25,17 @@ function relTime(ms: number): string {
   if (s < 3600) return `${Math.floor(s / 60)}m ago`
   if (s < 86400) return `${Math.floor(s / 3600)}h ago`
   return `${Math.floor(s / 86400)}d ago`
+}
+
+interface CalEvent { title: string; start: string; allDay: boolean; location: string; link: string; attendees: number }
+function whenLabel(iso: string, allDay: boolean): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const date = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
+  if (allDay) return date
+  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  return `${date} · ${time}`
 }
 
 export default function ChiefModule({ dojoId }: ModuleProps) {
@@ -79,6 +90,30 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
     else { const map: Record<string, string> = { not_connected: 'Connect Slack first (Connect apps).', no_backend: 'Slack posting needs the server vault configured.', rate: 'Too many posts · wait a minute.', post_failed: 'Slack refused the post · reconnect Slack.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not posted', text: map[r.error || ''] || 'Could not post to Slack.' }) }
   }
 
+  // Upcoming meetings · from Google Calendar (preferred) or Calendly, whichever
+  // is connected. Degrades to nothing when neither is set up.
+  const gcalOn = useWork((s) => !!s.tools['gcal']?.connected)
+  const calendlyOn = useWork((s) => !!s.tools['calendly']?.connected)
+  const [meetings, setMeetings] = useState<{ source: string; events: CalEvent[] } | null>(null)
+  useEffect(() => {
+    let live = true
+    const load = async () => {
+      if (gcalOn) {
+        const r = await toolData('gcal')
+        const ev = (r.data as { events?: CalEvent[] })?.events
+        if (live && r.connected && Array.isArray(ev)) { setMeetings({ source: 'Google Calendar', events: ev }); return }
+      }
+      if (calendlyOn) {
+        const r = await toolData('calendly')
+        const ev = (r.data as { events?: CalEvent[] })?.events
+        if (live && r.connected && Array.isArray(ev)) { setMeetings({ source: 'Calendly', events: ev }); return }
+      }
+      if (live) setMeetings(null)
+    }
+    void load()
+    return () => { live = false }
+  }, [gcalOn, calendlyOn])
+
   return (
     <div className="chief-mod sq">
       <div className="biz-overview">
@@ -100,6 +135,28 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
           : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>}
         {noModel && <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> · Chief produces <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
       </div>
+
+      {meetings && meetings.events.length > 0 && (
+        <div className="chief-cal se-card">
+          <div className="mission-head">
+            <h3 className="sq-title">Upcoming meetings</h3>
+            <span className="muted small">Live from {meetings.source} · your next {meetings.events.length}.</span>
+          </div>
+          <ul className="chief-cal-list">
+            {meetings.events.map((e, i) => (
+              <li key={i} className="chief-cal-row">
+                <span className="chief-cal-when">{whenLabel(e.start, e.allDay)}</span>
+                <span className="chief-cal-title">{e.title}</span>
+                <span className="chief-cal-meta">
+                  {e.attendees > 0 && <em>{e.attendees} guest{e.attendees === 1 ? '' : 's'}</em>}
+                  {e.location && <em>{e.location}</em>}
+                  {e.link && <a href={e.link} target="_blank" rel="noreferrer" className="linklike">Join</a>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="mission-head">
         <h3 className="sq-title">Your team</h3>
