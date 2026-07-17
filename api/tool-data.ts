@@ -12,6 +12,7 @@
 // operator-level financials, so they are only returned to an admin account;
 // everyone else just learns Stripe is connected.
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { createSign } from 'node:crypto'
 import { getPool, dbConfigured } from './_lib/db'
 import { findAccountId } from './_lib/accounts'
 
@@ -41,6 +42,78 @@ type Provider = (q: URLSearchParams) => Promise<Result>
 // ---- provider registry · add a connector's fetcher here -------------------
 const PROVIDERS: Record<string, Provider> = {
   stripe: stripeData,
+  ga4: ga4Data,
+}
+
+// ---- Google Analytics 4 (service account · admin-gated) -------------------
+async function ga4Data(q: URLSearchParams): Promise<Result> {
+  const raw = ENV.GA_SERVICE_ACCOUNT_JSON
+  const propId = String(ENV.GA4_PROPERTY_ID || '').replace(/[^0-9]/g, '')
+  if (!raw || !propId) return { connected: false }
+  const admin = await isAdmin(q)
+  if (!admin) return { connected: true, admin: false }
+
+  let sa: { client_email?: string; private_key?: string }
+  try { sa = JSON.parse(raw) } catch { return { connected: true, admin: true, data: null } }
+  if (!sa.client_email || !sa.private_key) return { connected: true, admin: true, data: null }
+
+  const token = await googleServiceToken(sa.client_email, sa.private_key, 'https://www.googleapis.com/auth/analytics.readonly')
+  if (!token) return { connected: true, admin: true, data: null }
+
+  const report = await gfetch(`https://analyticsdata.googleapis.com/v1beta/properties/${propId}:runReport`, token, {
+    dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
+    dimensions: [{ name: 'date' }],
+    metrics: [{ name: 'sessions' }, { name: 'totalUsers' }, { name: 'screenPageViews' }],
+    orderBys: [{ dimension: { dimensionName: 'date' } }],
+    limit: 40,
+  })
+  if (!report) return { connected: true, admin: true, data: null }
+
+  const rows = Array.isArray((report as { rows?: unknown[] }).rows) ? (report as { rows: unknown[] }).rows : []
+  let sessions = 0, users = 0, views = 0
+  const series = rows.map((r) => {
+    const row = r as { dimensionValues?: { value?: string }[]; metricValues?: { value?: string }[] }
+    const d = row.dimensionValues?.[0]?.value || ''
+    const s = Number(row.metricValues?.[0]?.value) || 0
+    const u = Number(row.metricValues?.[1]?.value) || 0
+    const v = Number(row.metricValues?.[2]?.value) || 0
+    sessions += s; users += u; views += v
+    return { date: d ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}` : '', sessions: s }
+  })
+  return { connected: true, admin: true, data: { range: '28d', sessions, users, views, series } }
+}
+
+/** Sign a service-account JWT (RS256) and exchange it for a Google access token. */
+async function googleServiceToken(clientEmail: string, privateKey: string, scope: string): Promise<string | null> {
+  try {
+    const now = Math.floor(Date.now() / 1000)
+    const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString('base64url')
+    const head = b64({ alg: 'RS256', typ: 'JWT' })
+    const claim = b64({ iss: clientEmail, scope, aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 })
+    const signer = createSign('RSA-SHA256'); signer.update(`${head}.${claim}`); signer.end()
+    const sig = signer.sign(privateKey.replace(/\\n/g, '\n')).toString('base64url')
+    const jwt = `${head}.${claim}.${sig}`
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
+    const res = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST', signal: ctrl.signal,
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: jwt }),
+    }).finally(() => clearTimeout(t))
+    if (!res.ok) return null
+    const j = await res.json()
+    return typeof j?.access_token === 'string' ? j.access_token : null
+  } catch {
+    return null
+  }
+}
+
+async function gfetch(url: string, token: string, body: unknown): Promise<unknown | null> {
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
+  try {
+    const res = await fetch(url, { method: 'POST', signal: ctrl.signal, headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(body) })
+    if (!res.ok) return null
+    return await res.json()
+  } catch { return null } finally { clearTimeout(t) }
 }
 
 // ---- Stripe (operator key · admin-gated financials) -----------------------

@@ -13,6 +13,27 @@ import {
 } from '../../lib/seo'
 import { ScoreRing } from './charts'
 import { useDojo } from '../../store'
+import { toolData } from '../../agents/workApi'
+
+// Live Google Analytics traffic (28d) · null until GA is configured + returns
+// data (admin, GA4_PROPERTY_ID + GA_SERVICE_ACCOUNT_JSON set on the deployment).
+interface GaTraffic { sessions: number; users: number; views: number; series: { date: string; sessions: number }[] }
+function useGaTraffic(): GaTraffic | null {
+  const [ga, setGa] = useState<GaTraffic | null>(null)
+  useEffect(() => {
+    let live = true
+    void toolData('ga4').then((r) => { if (live && r.connected && r.data) setGa(r.data as GaTraffic) })
+    return () => { live = false }
+  }, [])
+  return ga
+}
+function Sparkline({ series }: { series: { sessions: number }[] }) {
+  if (!series.length) return null
+  const max = Math.max(1, ...series.map((p) => p.sessions))
+  const w = 120, h = 28, step = w / Math.max(1, series.length - 1)
+  const d = series.map((p, i) => `${i === 0 ? 'M' : 'L'}${(i * step).toFixed(1)} ${(h - (p.sessions / max) * h).toFixed(1)}`).join(' ')
+  return <svg className="se-spark2" width={w} height={h} viewBox={`0 0 ${w} ${h}`}><path d={d} fill="none" stroke="var(--dc)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" /></svg>
+}
 
 // ---- shared data hook -------------------------------------------------------
 export interface SeoBundle { dojoId: string; siteName: string; domain: string; hasSite: boolean; loading: boolean; audit: AuditReport | null; onpage: OnPage | null }
@@ -69,6 +90,7 @@ function useWatch(dojoId: string): [Watched[], (k: string) => void, (k: string) 
 // 1 · OVERVIEW · real on-page snapshot + honest empty external metrics
 // =============================================================================
 export function SeoOverview({ b }: { b: SeoBundle }) {
+  const ga = useGaTraffic() // hook must run before any early return
   if (!b.hasSite || !b.onpage) return <div className="se-wrap"><Head title="Overview" domain={b.domain} hasSite={b.hasSite} /><NoSite /></div>
   const o = b.onpage
   return (
@@ -97,7 +119,16 @@ export function SeoOverview({ b }: { b: SeoBundle }) {
       </div>
       <div className="se-eyebrow-row"><span className="se-eyebrow">Traffic & rankings</span></div>
       <div className="se-grid-3">
-        <div className="se-extcard"><span className="se-kpi-l">Organic traffic</span><EmptyMini connect="Google Analytics" /></div>
+        <div className="se-extcard">
+          <span className="se-kpi-l">Organic traffic</span>
+          {ga ? (
+            <div className="se-extval">
+              <div className="se-extnum"><b>{fmt(ga.sessions)}</b><em>sessions · 28d</em></div>
+              <Sparkline series={ga.series} />
+              <span className="se-extsub">{fmt(ga.users)} users · {fmt(ga.views)} views</span>
+            </div>
+          ) : <EmptyMini connect="Google Analytics" />}
+        </div>
         <div className="se-extcard"><span className="se-kpi-l">Keyword rankings</span><EmptyMini connect="Search Console" /></div>
         <div className="se-extcard"><span className="se-kpi-l">Backlinks</span><EmptyMini connect="Search Console" /></div>
       </div>
