@@ -1,13 +1,18 @@
 // ---------------------------------------------------------------------------
 // Connect apps · a FULL PAGE (route #connect), reached from the "Connect Apps"
-// button in the header and from every studio's "Connect apps". It lists EVERY
-// connector grouped by functionality category, explains connecting from A to Z,
-// and gives a one-click Connect / Disconnect / Set-up per app. Carries the app
-// header + the mobile bottom bar so a phone user can jump back anywhere.
+// button in the header and from every studio's "Connect apps".
+//
+// Two modes:
+//   * FULL (#connect) · every connector grouped by the agents' jobs.
+//   * FOCUSED (#connect/<roleId>) · pressed from inside ONE agent's studio —
+//     shows ONLY that agent's dedicated apps (role.apps), with a "See all
+//     apps" escape hatch to the full gallery.
+// Both explain connecting from A to Z and give one-click Connect / Disconnect
+// / Set-up per app. Carries the app header + the mobile bottom bar.
 // ---------------------------------------------------------------------------
 import { useEffect } from 'react'
-import { CONNECTORS, connectorsForFunction, type Connector } from '../data/connectors'
-import { ROLE_AGENTS } from '../data/roleAgents'
+import { CONNECTORS, CONNECTOR_BY_ID, connectorsForFunction, type Connector } from '../data/connectors'
+import { ROLE_AGENTS, ROLE_BY_ID } from '../data/roleAgents'
 import type { Department } from '../data/agents'
 import { useWork } from '../agents/workStore'
 import { startConnect } from '../agents/workApi'
@@ -31,7 +36,7 @@ const METIER_GROUPS: { key: Department; label: string; connectors: Connector[] }
   return groups
 })()
 
-export function ConnectorsPage() {
+export function ConnectorsPage({ focusRole = null }: { focusRole?: string | null }) {
   const tools = useWork((s) => s.tools)
   const backend = useWork((s) => s.backend)
   const loadedOnce = useWork((s) => s.loadedOnce)
@@ -40,9 +45,84 @@ export function ConnectorsPage() {
 
   useEffect(() => { if (!loadedOnce) void loadTools() }, [loadedOnce, loadTools])
 
-  const total = CONNECTORS.length
-  const connected = CONNECTORS.filter((c) => tools[c.id]?.connected).length
+  // focused mode: pressed from inside ONE agent's studio → only ITS apps
+  const role = focusRole ? ROLE_BY_ID[focusRole] : undefined
+  const roleApps: Connector[] = role
+    ? (role.apps.length
+        ? role.apps.map((id) => CONNECTOR_BY_ID[id]).filter(Boolean)
+        : connectorsForFunction(role.dept))
+    : []
 
+  const scope = role ? roleApps : CONNECTORS
+  const total = scope.length
+  const connected = scope.filter((c) => tools[c.id]?.connected).length
+
+  const card = (c: Connector) => {
+    const st = tools[c.id]
+    const isOn = !!st?.connected
+    const available = !!st?.available
+    return (
+      <div key={c.id} className={`connect-card${isOn ? ' on' : ''}`}>
+        <div className="connect-card-top">
+          <ConnectorLogo id={c.id} label={c.label} size={34} />
+          <div className="connect-card-meta">
+            <strong>{c.label}</strong>
+            <em>{c.auth === 'oauth' ? 'OAuth' : 'API token'} · {c.category}{isOn && st?.account ? ` · ${st.account}` : ''}</em>
+          </div>
+        </div>
+        <p className="connect-card-blurb">{c.blurb}</p>
+        <div className="connect-card-actions">
+          {isOn ? (
+            <button className="btn tiny ghost" onClick={() => void disconnect(c.id)}>Disconnect</button>
+          ) : available ? (
+            <button className="btn tiny" onClick={() => startConnect(c.id)}>Connect</button>
+          ) : (
+            <a className="btn tiny ghost" href={c.docsUrl} target="_blank" rel="noreferrer">Set up ↗</a>
+          )}
+          <a className="connect-card-guide" href={`/guide/${c.id}`}>Full guide →</a>
+        </div>
+      </div>
+    )
+  }
+
+  // ------------------------------------------------------------- FOCUSED ----
+  if (role) {
+    return (
+      <div className="app connect-page" style={{ ['--ac' as string]: role.tint }}>
+        <TopBar />
+        <div className="connect-body">
+          <header className="connect-head">
+            <div>
+              <h1 className="connect-title">
+                <span className="connect-focus-code" style={{ background: role.tint }}>{role.code}</span>
+                {role.title} · apps <span className="connect-count">{connected}/{total} linked</span>
+              </h1>
+              <p className="connect-lead">
+                The apps <b>{role.code}</b> works with. Link one and this agent acts inside it for real ·
+                the token is sealed server-side (AES-256-GCM), the browser never sees a secret.
+              </p>
+              <div className="connect-focus-actions">
+                <button className="btn tiny ghost" onClick={() => { location.hash = 'app' }}>← Back to the dojo</button>
+                <button className="btn tiny ghost" onClick={() => { location.hash = 'connect' }}>See all apps</button>
+              </div>
+            </div>
+            <button className="ws-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">×</button>
+          </header>
+
+          {loadedOnce && !backend && (
+            <p className="connect-hint">Live OAuth needs the worker configured (<code>DATABASE_URL</code>, <code>CONNECTOR_ENC_KEY</code> and each app's keys). Until then, <b>Set up ↗</b> opens the provider console and each app's full guide explains every step.</p>
+          )}
+
+          <section className="connect-cat">
+            <div className="connect-grid">{roleApps.map(card)}</div>
+          </section>
+        </div>
+        <PageBar current="connect" />
+      </div>
+    )
+  }
+
+  // ---------------------------------------------------------------- FULL ----
   return (
     <div className="app connect-page">
       <TopBar />
@@ -76,35 +156,7 @@ export function ConnectorsPage() {
           return (
             <section key={group.key} className="connect-cat">
               <h2 className="connect-cat-h">{group.label} <span className="connect-cat-n">{list.length} apps</span></h2>
-              <div className="connect-grid">
-                {list.map((c) => {
-                  const st = tools[c.id]
-                  const isOn = !!st?.connected
-                  const available = !!st?.available
-                  return (
-                    <div key={c.id} className={`connect-card${isOn ? ' on' : ''}`}>
-                      <div className="connect-card-top">
-                        <ConnectorLogo id={c.id} label={c.label} size={34} />
-                        <div className="connect-card-meta">
-                          <strong>{c.label}</strong>
-                          <em>{c.auth === 'oauth' ? 'OAuth' : 'API token'} · {c.category}{isOn && st?.account ? ` · ${st.account}` : ''}</em>
-                        </div>
-                      </div>
-                      <p className="connect-card-blurb">{c.blurb}</p>
-                      <div className="connect-card-actions">
-                        {isOn ? (
-                          <button className="btn tiny ghost" onClick={() => void disconnect(c.id)}>Disconnect</button>
-                        ) : available ? (
-                          <button className="btn tiny" onClick={() => startConnect(c.id)}>Connect</button>
-                        ) : (
-                          <a className="btn tiny ghost" href={c.docsUrl} target="_blank" rel="noreferrer">Set up ↗</a>
-                        )}
-                        <a className="connect-card-guide" href={`/guide/${c.id}`}>Full guide →</a>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+              <div className="connect-grid">{list.map(card)}</div>
             </section>
           )
         })}

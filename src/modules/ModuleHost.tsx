@@ -8,7 +8,7 @@ import { useEffect, useMemo } from 'react'
 import { MODULE_BY_ID } from './registry'
 import { ErrorBoundary } from '../components/ErrorBoundary'
 import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
-import { CONNECTORS } from '../data/connectors'
+import { CONNECTORS, CONNECTOR_BY_ID } from '../data/connectors'
 import { useWork } from '../agents/workStore'
 
 export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; dojoId: string; onClose: () => void }) {
@@ -20,11 +20,12 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
   useEffect(() => { if (!loadedOnce) void useWork.getState().loadTools() }, [loadedOnce])
 
   const role = def ? ROLE_BY_ID[canonicalRole(def.agentRole)] : undefined
-  // the external apps that belong to this agent's department
-  const apps = useMemo(
-    () => (role ? CONNECTORS.filter((c) => c.functions.includes(role.dept)) : []),
-    [role],
-  )
+  // THIS agent's dedicated apps (its declared list · falls back to department)
+  const apps = useMemo(() => {
+    if (!role) return []
+    const own = role.apps.map((id) => CONNECTOR_BY_ID[id]).filter(Boolean)
+    return own.length ? own : CONNECTORS.filter((c) => c.functions.includes(role.dept))
+  }, [role])
   const anyConnected = apps.some((c) => tools[c.id]?.connected)
   // blink when the agent genuinely needs an app for full function and none is
   // linked · only when the deployment actually has a connector backend, so we
@@ -45,11 +46,12 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
           </div>
         </div>
         <div className="modhost-bar-r">
-          {/* Connect apps → the full connectors page (all apps by category) */}
+          {/* Connect apps → THIS agent's dedicated connectors (#connect/<role>),
+              with a "See all apps" escape hatch on that page */}
           <div className="modhost-connect-wrap">
             <button
               className={`modhost-connect${needsConnect ? ' blink' : ''}`}
-              onClick={() => { location.hash = 'connect' }}
+              onClick={() => { location.hash = role ? `connect/${role.id}` : 'connect' }}
             >
               Connect apps
             </button>

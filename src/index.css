@@ -3749,6 +3749,9 @@ input, textarea, select, button { border-radius: 0 !important; }
 .connect-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 20px 6px; max-width: 1120px; margin: 0 auto; width: 100%; }
 .connect-title { font-family: var(--font-pixel); font-weight: 800; font-size: 26px; margin: 0; }
 .connect-count { font-family: var(--font-ui); font-weight: 700; font-size: 13px; color: var(--muted); margin-left: 8px; }
+/* focused per-agent mode (#connect/<roleId>) */
+.connect-focus-code { display: inline-grid; place-items: center; font-family: var(--font-ui); font-weight: 800; font-size: 14px; color: #fff; border-radius: 10px; padding: 4px 10px; margin-right: 10px; vertical-align: middle; }
+.connect-focus-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .connect-lead { margin: 8px 0 0; font-family: var(--font-read); font-size: 15px; color: var(--muted); line-height: 1.5; max-width: 780px; }
 .connect-how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 10px 20px 4px; max-width: 1120px; margin: 0 auto; width: 100%; }
 .connect-hint { max-width: 1120px; margin: 10px auto 0; padding: 0 20px; font-family: var(--font-read); font-size: 13px; color: var(--muted); }

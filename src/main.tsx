@@ -52,8 +52,11 @@ function Root() {
   if (route === 'guide') return <GuidePage inApp />
   // Dojo Studio · full page (build dojos, tune agents, account & billing).
   if (route === 'studio') return <StudioPage />
-  // Connect apps · full page, every connector grouped by functionality category.
-  if (route === 'connect') return <ConnectorsPage />
+  // Connect apps · full page. #connect = every connector grouped by agent job;
+  // #connect/<roleId> = ONLY that agent's dedicated apps (from its studio).
+  if (route === 'connect' || route.startsWith('connect/')) {
+    return <ConnectorsPage focusRole={route.startsWith('connect/') ? route.slice('connect/'.length) : null} />
+  }
   // Dojo City · the isometric map you visit from the dashboard (header · City).
   // Your building grows with the number of Dojos you run; click it to go back in.
   if (route === 'city') return <DojoCity enterDojo={() => { location.hash = 'app' }} exit={() => { location.hash = 'app' }} />
