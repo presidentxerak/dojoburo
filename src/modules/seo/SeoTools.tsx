@@ -27,6 +27,18 @@ function useGaTraffic(): GaTraffic | null {
   }, [])
   return ga
 }
+// Live Search Console data (top queries + positions, 28d) · null until GSC is
+// configured (admin, GA_SERVICE_ACCOUNT_JSON + GSC_SITE_URL set).
+interface GscData { site: string; totals: { clicks: number; impressions: number; ctr: number; position: number }; queries: { query: string; clicks: number; impressions: number; position: number }[] }
+function useGsc(): GscData | null {
+  const [g, setG] = useState<GscData | null>(null)
+  useEffect(() => {
+    let live = true
+    void toolData('gsc').then((r) => { if (live && r.connected && r.data) setG(r.data as GscData) })
+    return () => { live = false }
+  }, [])
+  return g
+}
 function Sparkline({ series }: { series: { sessions: number }[] }) {
   if (!series.length) return null
   const max = Math.max(1, ...series.map((p) => p.sessions))
@@ -90,7 +102,8 @@ function useWatch(dojoId: string): [Watched[], (k: string) => void, (k: string) 
 // 1 · OVERVIEW · real on-page snapshot + honest empty external metrics
 // =============================================================================
 export function SeoOverview({ b }: { b: SeoBundle }) {
-  const ga = useGaTraffic() // hook must run before any early return
+  const ga = useGaTraffic() // hooks must run before any early return
+  const gsc = useGsc()
   if (!b.hasSite || !b.onpage) return <div className="se-wrap"><Head title="Overview" domain={b.domain} hasSite={b.hasSite} /><NoSite /></div>
   const o = b.onpage
   return (
@@ -129,8 +142,26 @@ export function SeoOverview({ b }: { b: SeoBundle }) {
             </div>
           ) : <EmptyMini connect="Google Analytics" />}
         </div>
-        <div className="se-extcard"><span className="se-kpi-l">Keyword rankings</span><EmptyMini connect="Search Console" /></div>
-        <div className="se-extcard"><span className="se-kpi-l">Backlinks</span><EmptyMini connect="Search Console" /></div>
+        <div className="se-extcard">
+          <span className="se-kpi-l">Keyword rankings</span>
+          {gsc ? (
+            <div className="se-extval">
+              <div className="se-extnum"><b>{gsc.totals.position || '—'}</b><em>avg position</em></div>
+              <span className="se-extsub">{fmt(gsc.totals.clicks)} clicks · {fmt(gsc.totals.impressions)} impr · {gsc.totals.ctr}% CTR</span>
+              {!!gsc.queries.length && (
+                <ul className="se-gsc-q">
+                  {gsc.queries.slice(0, 4).map((q) => <li key={q.query}><span className="se-gsc-kw">{q.query}</span><b>#{q.position}</b></li>)}
+                </ul>
+              )}
+            </div>
+          ) : <EmptyMini connect="Search Console" />}
+        </div>
+        <div className="se-extcard">
+          <span className="se-kpi-l">Search clicks · 28d</span>
+          {gsc ? (
+            <div className="se-extval"><div className="se-extnum"><b>{fmt(gsc.totals.clicks)}</b><em>clicks</em></div><span className="se-extsub">{fmt(gsc.totals.impressions)} impressions</span></div>
+          ) : <EmptyMini connect="Search Console" />}
+        </div>
       </div>
     </div>
   )

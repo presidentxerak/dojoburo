@@ -4783,3 +4783,9 @@ select.cc-input { flex: 1; min-width: 0; }
 .se-extnum em { font-style: normal; font-size: 12px; color: var(--muted); }
 .se-spark2 { display: block; margin: 2px 0; }
 .se-extsub { font-size: 12px; color: var(--muted); }
+
+/* Growth · live Search Console top queries */
+.se-gsc-q { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.se-gsc-q li { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
+.se-gsc-kw { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.se-gsc-q b { color: var(--dc); font-variant-numeric: tabular-nums; flex: none; }

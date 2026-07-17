@@ -43,6 +43,54 @@ type Provider = (q: URLSearchParams) => Promise<Result>
 const PROVIDERS: Record<string, Provider> = {
   stripe: stripeData,
   ga4: ga4Data,
+  gsc: gscData,
+}
+
+// ---- Google Search Console (service account · admin-gated) ----------------
+// Same Google service account as GA, with the webmasters.readonly scope. The
+// service account must be added as a user on the GSC property (GSC_SITE_URL,
+// e.g. "https://www.example.com/" or "sc-domain:example.com"). Note: the Search
+// Console API exposes queries/positions/clicks but NOT backlinks.
+async function gscData(q: URLSearchParams): Promise<Result> {
+  const raw = ENV.GA_SERVICE_ACCOUNT_JSON
+  const site = ENV.GSC_SITE_URL
+  if (!raw || !site) return { connected: false }
+  const admin = await isAdmin(q)
+  if (!admin) return { connected: true, admin: false }
+
+  let sa: { client_email?: string; private_key?: string }
+  try { sa = JSON.parse(raw) } catch { return { connected: true, admin: true, data: null } }
+  if (!sa.client_email || !sa.private_key) return { connected: true, admin: true, data: null }
+
+  const token = await googleServiceToken(sa.client_email, sa.private_key, 'https://www.googleapis.com/auth/webmasters.readonly')
+  if (!token) return { connected: true, admin: true, data: null }
+
+  const day = (ms: number) => new Date(ms).toISOString().slice(0, 10)
+  const end = day(Date.now() - 2 * 864e5)     // GSC data lags a couple of days
+  const start = day(Date.now() - 30 * 864e5)
+  const url = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site)}/searchAnalytics/query`
+  const [top, totals] = await Promise.all([
+    gfetch(url, token, { startDate: start, endDate: end, dimensions: ['query'], rowLimit: 10 }),
+    gfetch(url, token, { startDate: start, endDate: end, rowLimit: 1 }),
+  ])
+  if (!top && !totals) return { connected: true, admin: true, data: null }
+
+  const r1 = (v: unknown) => Math.round((Number(v) || 0) * 10) / 10
+  const queries = Array.isArray((top as { rows?: unknown[] })?.rows)
+    ? ((top as { rows: unknown[] }).rows).map((r) => {
+        const row = r as { keys?: string[]; clicks?: number; impressions?: number; position?: number }
+        return { query: row.keys?.[0] || '', clicks: Number(row.clicks) || 0, impressions: Number(row.impressions) || 0, position: r1(row.position) }
+      })
+    : []
+  const tr = (Array.isArray((totals as { rows?: unknown[] })?.rows) ? ((totals as { rows: { clicks?: number; impressions?: number; ctr?: number; position?: number }[] }).rows)[0] : {}) || {}
+  return {
+    connected: true, admin: true,
+    data: {
+      site,
+      totals: { clicks: Number(tr.clicks) || 0, impressions: Number(tr.impressions) || 0, ctr: Math.round((Number(tr.ctr) || 0) * 1000) / 10, position: r1(tr.position) },
+      queries,
+    },
+  }
 }
 
 // ---- Google Analytics 4 (service account · admin-gated) -------------------
