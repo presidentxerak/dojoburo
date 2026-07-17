@@ -39,6 +39,22 @@ export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boole
   return { tools: [], backend: false, byok: { connected: false, hint: null } }
 }
 
+/** Send a real email from the user's connected Gmail. Degrades to a clear error
+ *  when Gmail/DB aren't configured. */
+export async function sendGmail(to: string, subject: string, body: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const r = ref()
+    const res = await fetch('/api/tool-action', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ connector: 'gmail', action: 'send', to, subject, body, privy: r.privy, client: r.client }),
+    })
+    const j = await res.json().catch(() => ({}))
+    return { ok: !!j?.ok, error: j?.error }
+  } catch {
+    return { ok: false, error: 'network' }
+  }
+}
+
 /** Live data for a connected tool (Stripe balance, …). Degrades to
  *  { connected:false } when the tool/backend isn't configured. */
 export interface ToolData { connected: boolean; admin?: boolean; account?: string | null; data?: unknown }

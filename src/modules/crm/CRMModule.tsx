@@ -4,6 +4,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useDojo } from '../../store'
+import { useWork } from '../../agents/workStore'
+import { sendGmail } from '../../agents/workApi'
 import {
   type Contact, type Stage, STAGES, TEMPLATES, stats, moveStage, setStage, merge, mailto,
   importCsv, exportCsv, newContact, sampleContacts, loadCrm, saveCrm, eur,
@@ -38,6 +40,23 @@ export default function CRMModule({ dojoId }: ModuleProps) {
   const save = async () => { await saveCrm(dojoId, { contacts, updatedAt: Date.now() }); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'CRM saved', text: 'Saved locally (IndexedDB).' }) }
   const exportCsvFile = () => { const blob = new Blob([exportCsv(contacts)], { type: 'text/csv' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'crm.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000) }
   const copyMsg = () => { if (msg) { void navigator.clipboard?.writeText(`${msg.subject}\n\n${msg.body}`); pushToast({ kind: 'event', badge: 'OK', color: '#d98c17', title: 'Message copied', text: 'Personalized and ready to send.' }) } }
+  // Real Gmail send · appears when Gmail is connected. Uses the user's own inbox.
+  const gmailOn = useWork((s) => !!s.tools['gmail']?.connected)
+  const [sending, setSending] = useState(false)
+  const doSendGmail = async () => {
+    if (!selc || !msg || sending) return
+    if (!selc.email) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'No email', text: 'Add this contact’s email first.' }); return }
+    setSending(true)
+    const r = await sendGmail(selc.email, msg.subject, msg.body)
+    setSending(false)
+    if (r.ok) {
+      pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: 'Email sent', text: `Sent to ${selc.email} from your Gmail.` })
+      if (selc.stage === 'nouveau') update(selc.id, { stage: 'contacte' as Stage })
+    } else {
+      const map: Record<string, string> = { not_connected: 'Connect Gmail first (Connect apps).', no_backend: 'Email sending needs the server vault configured.', rate: 'Too many sends · wait a minute.', bad_to: 'Invalid recipient email.', send_failed: 'Gmail refused the send · reconnect Gmail.' }
+      pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not sent', text: map[r.error || ''] || 'Could not send the email.' })
+    }
+  }
 
   return (
     <div className="ad-body crm-mod">
@@ -112,7 +131,10 @@ export default function CRMModule({ dojoId }: ModuleProps) {
                   <div className="crm-mail-sub"><b>Subject:</b> {msg.subject}</div>
                   <pre className="crm-mail-body">{msg.body}</pre>
                   <div className="crm-mail-actions">
-                    <button className="btn tiny" onClick={copyMsg}>Copy</button>
+                    {gmailOn
+                      ? <button className="btn tiny primary" disabled={sending || !selc.email} onClick={() => void doSendGmail()}>{sending ? 'Sending…' : 'Send via Gmail'}</button>
+                      : <button className="btn tiny" onClick={() => { location.hash = 'connect' }} title="Connect Gmail to send from the app">Connect Gmail to send</button>}
+                    <button className="btn tiny ghost" onClick={copyMsg}>Copy</button>
                     <a className="btn tiny ghost" href={mailto(selc, msg.subject, msg.body)}>Open in email</a>
                   </div>
                 </div>
