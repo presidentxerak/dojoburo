@@ -13,6 +13,7 @@ import BusinoModule from './business/BusinoModule'
 import ChiefModule from './chief/ChiefModule'
 import SentinelModule from './sentinel/SentinelModule'
 import VaultorModule from './vaultor/VaultorModule'
+import { DeviModule, HelpiModule, NexaModule, LegiModule } from './team/TeamStudio'
 
 export interface ModuleProps {
   onClose: () => void
@@ -81,6 +82,27 @@ export const MODULES: ModuleDef[] = [
     id: 'billing', label: 'Billing',
     blurb: 'Credits, top-ups and payments in your own currency · no crypto.',
     tint: '#0e9bb5', emoji: '💳', agentRole: 'vaultor', status: 'live', comp: VaultorModule,
+  },
+  // --- Optional group agents · added by the user from the dojo's empty cells ---
+  {
+    id: 'engineering', label: 'Engineering Studio',
+    blurb: 'Issues, pull requests and sprints across GitHub, Linear, Jira and your dev stack.',
+    tint: '#3b82f6', emoji: '🛠️', agentRole: 'devi', status: 'live', comp: DeviModule, needsApps: true,
+  },
+  {
+    id: 'support', label: 'Support Studio',
+    blurb: 'The support queue: tickets, conversations and quick replies from Zendesk and Intercom.',
+    tint: '#14b8a6', emoji: '🎧', agentRole: 'helpi', status: 'live', comp: HelpiModule, needsApps: true,
+  },
+  {
+    id: 'comms', label: 'Comms Studio',
+    blurb: 'Broadcast to team and community across Slack, Discord, Zoom and WhatsApp.',
+    tint: '#f97316', emoji: '📡', agentRole: 'nexa', status: 'live', comp: NexaModule, needsApps: true,
+  },
+  {
+    id: 'legal', label: 'Legal & Docs Studio',
+    blurb: 'Send contracts for signature and keep documents in order with DocuSign and Drive.',
+    tint: '#8b5cf6', emoji: '📄', agentRole: 'legi', status: 'live', comp: LegiModule, needsApps: true,
   },
 ]
 

@@ -11,7 +11,7 @@ import { postSlack, toolData } from '../../agents/workApi'
 import { useEngine } from '../../agents/engineStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
-import { ROLE_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
+import { CORE_AGENTS, OPTIONAL_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
 
 const AGENT_TASKS: Record<string, string[]> = {
   chief: ['strategy'], brandi: ['brand'], weblos: ['website'],
@@ -54,7 +54,12 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
   const noModel = delivs.some((d) => d.model === 'local draft')
   const [msg, setMsg] = useState('')
 
+  const addRoleAgent = useWorkshop((s) => s.addRoleAgent)
   const byRole = (roleId: string) => agents.find((a) => a.role === roleId)
+  const addOptional = (roleId: string, title: string) => {
+    const id = addRoleAgent(roleId)
+    if (id) { selectAgent(id); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `${title} added`, text: 'Opening its studio…' }) }
+  }
   const chief = byRole('chief') ?? agents.find((a) => a.fn === 'Leadership') ?? agents[0]
   const tasksDone = Object.values(stats).reduce((n, s) => n + (s?.tasksDone ?? 0), 0)
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
@@ -160,12 +165,12 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
 
       <div className="mission-head">
         <h3 className="sq-title">Your team</h3>
-        <span className="muted small">Eight AI specialists · click one to open it. Chief coordinates the rest.</span>
+        <span className="muted small">Eight core specialists · add more from the empty slots. Click one to open it.</span>
       </div>
       <div className="lp-studioteam agent-roster">
-        {ROLE_AGENTS.map((r) => {
+        {[...CORE_AGENTS, ...OPTIONAL_AGENTS].map((r) => {
           const a = byRole(r.id)
-          if (!a) return null
+          if (!a) return null   // an optional agent not yet added → rendered as a slot below
           const tasks = AGENT_TASKS[r.id] ?? []
           const times = delivs.filter((d) => tasks.includes(d.taskId)).map((d) => d.createdAt)
           const last = times.length ? Math.max(...times) : 0
@@ -184,6 +189,15 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
             </button>
           )
         })}
+        {/* Empty dotted slots · add an optional specialist to your dojo */}
+        {OPTIONAL_AGENTS.filter((r) => !byRole(r.id)).map((r) => (
+          <button key={`add-${r.id}`} className="lp-studiocard agent-add" style={{ ['--ac' as string]: r.tint }} onClick={() => addOptional(r.id, r.title)}>
+            <span className="agent-add-plus">+</span>
+            <span className="agent-title">{r.title}</span>
+            <span className="agent-desc">{r.desc}</span>
+            <span className="agent-add-cta">Add agent</span>
+          </button>
+        ))}
       </div>
     </div>
   )

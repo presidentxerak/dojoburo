@@ -4,8 +4,8 @@
 // identity from here going forward.
 import { create } from 'zustand'
 import type { Department } from './data/agents'
-import { SKINS, skinById, variedSkins, crewSkins } from './data/skins'
-import { ROLE_AGENTS } from './data/roleAgents'
+import { SKINS, skinById, variedSkins, crewSkins, skinsForTheme } from './data/skins'
+import { CORE_AGENTS, CORE_IDS, ROLE_BY_ID } from './data/roleAgents'
 import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
 import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
@@ -89,6 +89,9 @@ interface WorkshopState {
   setActiveDojo: (id: string) => void
 
   addAgent: (partial?: Partial<WAgent>) => string | null
+  /** Add an OPTIONAL role agent (Engineering, Support, Comms, Legal…) to the
+   *  active dojo · no-op returning the existing id if already present. */
+  addRoleAgent: (roleId: string) => string | null
   updateAgent: (id: string, patch: Partial<WAgent>) => void
   deleteAgent: (id: string) => void
   moveAgent: (id: string, gx: number, gy: number) => void
@@ -103,8 +106,8 @@ const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', '
 // the crew composition · so the roster, the scene and the dashboards always
 // match. Each role agent is seeded onto the grid with a skin from the theme.
 function roleCrew(skinTheme: string): WAgent[] {
-  const skins = crewSkins(skinTheme, ROLE_AGENTS.length)
-  return ROLE_AGENTS.map((r, i) => ({
+  const skins = crewSkins(skinTheme, CORE_AGENTS.length)
+  return CORE_AGENTS.map((r, i) => ({
     id: 'a_' + uid(),
     name: r.name,
     fn: r.dept,
@@ -119,7 +122,7 @@ function roleCrew(skinTheme: string): WAgent[] {
 
 // The default HQ · role crew in the default dojo world with a varied palette.
 function seedDojo(): Dojo {
-  const varied = variedSkins(ROLE_AGENTS.length)
+  const varied = variedSkins(CORE_AGENTS.length)
   const agents = roleCrew('dojo').map((a, i) => ({ ...a, skinId: varied[i].id }))
   return { id: uid(), name: 'HQ Dojo', template: 'dojo', agents }
 }
@@ -147,14 +150,20 @@ function makeProfessionsDojo(ids: string[]): Dojo {
   return { id: uid(), name, template: tpl.id, agents: roleCrew(tpl.skinTheme) }
 }
 
-/** Migrate a dojo saved before the role-agent model: if its crew isn't the 10
- *  role agents, rebuild the crew in the dojo's own palette while keeping its id,
- *  name and template. Skins are re-drawn from the theme. */
+/** Migrate a dojo saved before the role-agent model. A crew is valid when it
+ *  contains all eight CORE role agents · any OPTIONAL agents the user added are
+ *  preserved. Only when core agents are missing do we rebuild the core (keeping
+ *  the added optional agents and the dojo id/name/template). */
 function ensureRoleCrew(d: Dojo): Dojo {
-  const hasRoles = Array.isArray(d.agents) && d.agents.length === ROLE_AGENTS.length && d.agents.every((a) => a.role)
-  if (hasRoles) return d
+  const agents = Array.isArray(d.agents) ? d.agents : []
+  const coreOk = CORE_IDS.every((id) => agents.some((a) => a.role === id)) && agents.every((a) => a.role)
+  if (coreOk) return d
   const tpl = templateById(d.template)
-  return { ...d, agents: roleCrew(tpl.skinTheme) }
+  // keep any valid optional agents (role present, not a core id) already added
+  const kept = agents.filter((a) => a.role && !CORE_IDS.includes(a.role) && ROLE_BY_ID[a.role])
+  const core = roleCrew(tpl.skinTheme)
+  const reseated = [...core, ...kept].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
+  return { ...d, agents: reseated }
 }
 
 function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null } {
@@ -301,6 +310,34 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
         gy: partial?.gy ?? cell.gy,
       }
       editActive((d) => ({ ...d, agents: [...d.agents, agent] }))
+      return agent.id
+    },
+    addRoleAgent: (roleId) => {
+      const dojo = get().dojos.find((d) => d.id === get().activeDojoId)
+      if (!dojo) return null
+      const existing = dojo.agents.find((a) => a.role === roleId)
+      if (existing) return existing.id
+      const role = ROLE_BY_ID[roleId]
+      if (!role) return null
+      if (dojo.agents.length >= MAX_AGENTS) return null
+      const cell = firstFreeCell(dojo.agents)
+      // give the new agent a skin from the dojo's own palette
+      const themeSkins = skinsForTheme(templateById(dojo.template).skinTheme)
+      const used = new Set(dojo.agents.map((a) => a.skinId))
+      const skin = themeSkins.find((s) => !used.has(s.id)) || themeSkins[0] || SKINS[0]
+      const agent: WAgent = {
+        id: 'a_' + uid(),
+        name: role.name,
+        fn: role.dept,
+        role: role.id,
+        skinId: skin.id,
+        tasks: defaultTasksFor(role.dept),
+        budgetXrp: 5,
+        gx: cell.gx,
+        gy: cell.gy,
+      }
+      editActive((d) => ({ ...d, agents: [...d.agents, agent] }))
+      persist()
       return agent.id
     },
     updateAgent: (id, patch) => {

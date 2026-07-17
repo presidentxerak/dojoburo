@@ -7,7 +7,7 @@ import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../ag
 import { useSecrets } from '../../agents/secretsStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
-import { ROLE_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
+import { ROLE_AGENTS, ROLE_BY_ID, OPTIONAL_AGENTS, canonicalRole } from '../../data/roleAgents'
 import { isAdmin } from '../../config/admin'
 import { ModuleHost } from '../../modules/ModuleHost'
 import { MODULES } from '../../modules/registry'
@@ -106,6 +106,7 @@ function RosterCard({ role, name, status, statusMod, lastLabel, phase, onOpen }:
 export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
   const updateAgent = useWorkshop((s) => s.updateAgent)
+  const addRoleAgent = useWorkshop((s) => s.addRoleAgent)
   const save = useWorkshop((s) => s.save)
   const account = useWorkshop((s) => s.account)
   const agents = dojo?.agents ?? []
@@ -497,7 +498,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
       <div className="mission-head">
         <h3>Your team</h3>
-        <span className="muted small">Seven AI specialists · click one to open it. Chief (you) coordinates them from the box above.</span>
+        <span className="muted small">Your core specialists · add more from the empty slots. Chief (you) coordinates them from the box above.</span>
       </div>
       <div className="lp-studioteam agent-roster">
         {roster.map((a, i) => {
@@ -513,6 +514,20 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
             <RosterCard key={a.id} role={r} name={a.name} status={status} statusMod={statusMod} lastLabel={relTime(last)} phase={i * 0.6} onOpen={() => selectAgent(a.id)} />
           )
         })}
+        {/* Empty dotted slots · add an optional specialist to the dojo */}
+        {OPTIONAL_AGENTS.filter((r) => !byRole(r.id)).map((r) => (
+          <button
+            key={`add-${r.id}`}
+            className="lp-studiocard agent-add"
+            style={{ ['--ac' as string]: r.tint }}
+            onClick={() => { const id = addRoleAgent(r.id); if (id) { selectAgent(id); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `${r.title} added`, text: 'Opening its studio…' }) } }}
+          >
+            <span className="agent-add-plus">+</span>
+            <span className="agent-title">{r.title}</span>
+            <span className="agent-desc">{r.desc}</span>
+            <span className="agent-add-cta">Add agent</span>
+          </button>
+        ))}
       </div>
     </div>
   )

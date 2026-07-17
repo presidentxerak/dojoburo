@@ -28,6 +28,11 @@ export interface RoleAgent {
   desc: string
   tint: string
   dept: Department
+  /** true for the eight core agents seeded into every dojo. Optional agents are
+   *  NOT seeded · the user adds them from the empty grid cells on the dojo. */
+  core: boolean
+  /** the connector ids this agent's studio works with (drives its workspace). */
+  apps: string[]
   // --- legacy aliases (kept so existing consumers keep working) ---
   /** = code (many surfaces read `.name`). */
   name: string
@@ -39,7 +44,7 @@ export interface RoleAgent {
   blurb: string
 }
 
-type Spec = { id: string; code: string; title: string; desc: string; tint: string; dept: Department }
+type Spec = { id: string; code: string; title: string; desc: string; tint: string; dept: Department; core?: boolean; apps?: string[] }
 
 const SPECS: Spec[] = [
   {
@@ -82,14 +87,48 @@ const SPECS: Spec[] = [
     desc: 'Manages credits, subscriptions and payments seamlessly.',
     tint: '#0e9bb5', dept: 'Finance',
   },
+  // --- Optional agents · added by the user from the dojo's empty grid cells.
+  // Each groups a family of connectors and opens its own studio workspace.
+  {
+    id: 'devi', code: 'Devi', title: 'Engineering Lead',
+    desc: 'Tracks issues, pull requests and sprints across your dev stack.',
+    tint: '#3b82f6', dept: 'Engineering', core: false,
+    apps: ['github', 'linear', 'jira', 'trello', 'supabase', 'posthog'],
+  },
+  {
+    id: 'helpi', code: 'Helpi', title: 'Support Lead',
+    desc: 'Runs the support queue: tickets, conversations and replies.',
+    tint: '#14b8a6', dept: 'People', core: false,
+    apps: ['zendesk', 'intercom'],
+  },
+  {
+    id: 'nexa', code: 'Nexa', title: 'Comms Manager',
+    desc: 'Broadcasts to your team and community across every channel.',
+    tint: '#f97316', dept: 'People', core: false,
+    apps: ['slack', 'discord', 'zoom', 'whatsapp'],
+  },
+  {
+    id: 'legi', code: 'Legi', title: 'Legal & Docs',
+    desc: 'Sends contracts for signature and keeps documents in order.',
+    tint: '#8b5cf6', dept: 'Ops', core: false,
+    apps: ['gdrive', 'docusign', 'cloudinary'],
+  },
 ]
 
 export const ROLE_AGENTS: RoleAgent[] = SPECS.map((s) => ({
-  ...s, name: s.code, role: s.id, cat: s.title, blurb: s.desc,
+  ...s, core: s.core !== false, apps: s.apps ?? [],
+  name: s.code, role: s.id, cat: s.title, blurb: s.desc,
 }))
 
 export const ROLE_BY_ID: Record<string, RoleAgent> = Object.fromEntries(ROLE_AGENTS.map((r) => [r.id, r]))
 export const ROLE_IDS: string[] = ROLE_AGENTS.map((r) => r.id)
+
+/** The eight agents seeded into every dojo. */
+export const CORE_AGENTS: RoleAgent[] = ROLE_AGENTS.filter((r) => r.core)
+export const CORE_IDS: string[] = CORE_AGENTS.map((r) => r.id)
+/** Agents the user can add to a dojo from its empty grid cells. */
+export const OPTIONAL_AGENTS: RoleAgent[] = ROLE_AGENTS.filter((r) => !r.core)
+export const OPTIONAL_IDS: string[] = OPTIONAL_AGENTS.map((r) => r.id)
 
 // Backward compatibility: the previous twelve role ids collapse into the eight
 // unified agents. Used to migrate persisted dojos and to resolve any legacy id
