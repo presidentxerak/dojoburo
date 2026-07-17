@@ -25,7 +25,7 @@ function CameraRig() {
   // widen the field of view on narrow/portrait screens so the room fits
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera
-    const fov = portrait ? 60 : 42
+    const fov = portrait ? 66 : 42
     if (cam.fov !== fov) {
       cam.fov = fov
       cam.updateProjectionMatrix()
@@ -43,10 +43,12 @@ function CameraRig() {
     let py = 12.4
     let ty = 1.5
     if (portrait) {
-      // even closer on phones so agents are big + tappable, from a top-down angle.
-      ty = 1.55
-      pz = 12.5
-      py = 13
+      // phones: high vantage, pulled back just enough that all FOUR columns of
+      // the grid (agents + the "+ add" slots at x ±4.2) fit inside the portrait
+      // frame · with the old framing the outer columns were cut in half.
+      ty = 1.5
+      pz = 14.2
+      py = 14
     }
     const sp = selected ? agentWorldPos(selected) : undefined
     if (sp) {

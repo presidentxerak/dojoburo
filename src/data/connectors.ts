@@ -135,7 +135,7 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'trello', label: 'Trello', provider: 'Atlassian', category: 'Dev',
     blurb: 'Add cards, move lists and keep a lightweight board in sync.',
-    functions: ['Product', 'Ops'], auth: 'token',
+    functions: ['Product', 'Ops', 'Engineering'], auth: 'token',
     docsUrl: 'https://trello.com/power-ups/admin',
     env: [{ name: 'TRELLO_API_KEY', note: 'Trello API key', link: 'https://trello.com/power-ups/admin' }, hubEnv('TRELLO')],
   },
@@ -291,7 +291,7 @@ export const CONNECTORS: Connector[] = [
   {
     id: 'posthog', label: 'PostHog', provider: 'PostHog', category: 'Dev',
     blurb: 'Product analytics · funnels, retention and events the agent reads and explains.',
-    functions: ['Product', 'Growth'], auth: 'token',
+    functions: ['Product', 'Growth', 'Engineering'], auth: 'token',
     docsUrl: 'https://app.posthog.com/settings/user-api-keys',
     env: [
       { name: 'POSTHOG_API_KEY', note: 'PostHog personal API key', link: 'https://app.posthog.com/settings/user-api-keys' },

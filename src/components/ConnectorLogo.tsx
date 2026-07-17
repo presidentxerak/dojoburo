@@ -10,12 +10,16 @@ const BRAND: Record<string, string> = {
   xero: '#13B5EA', shopify: '#95BF47', hubspot: '#FF7A59', calendly: '#006BFF', mailchimp: '#FFE01B',
   twitter: '#000000', linkedin: '#0A66C2', buffer: '#231F20', figma: '#F24E1E', canva: '#00C4CC',
   docusign: '#FDB813', zendesk: '#03363D', intercom: '#1F8DED', gclassroom: '#0F9D58',
-  salesforce: '#00A1E0', whatsapp: '#25D366',
+  salesforce: '#00A1E0', whatsapp: '#25D366', meta: '#0081FB', 'claude-code': '#D97757',
+  'ai-video': '#6D28D9', elevenlabs: '#000000', heygen: '#7559FF', apollo: '#FECF33',
+  klaviyo: '#111111', ga4: '#F9AB00', posthog: '#F54E00', supabase: '#3ECF8E',
+  cloudinary: '#3448C5', wave: '#2043D1', perplexity: '#20808D',
 }
 
 const MONO: Record<string, string> = {
   gmail: 'M', gdrive: 'GD', gcal: 'GC', gclassroom: 'GK', twitter: 'X', linkedin: 'in',
   whatsapp: 'WA', quickbooks: 'QB', hubspot: 'HS', salesforce: 'SF', docusign: 'DS',
+  'claude-code': 'CC', ga4: 'GA', posthog: 'PH', wave: 'WV', 'ai-video': 'AI',
 }
 
 function monoFor(id: string, label: string): string {
