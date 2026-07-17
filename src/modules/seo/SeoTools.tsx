@@ -315,10 +315,20 @@ export function Backlinks({ b }: { b: SeoBundle }) {
 // 6 · TRAFFIC ANALYTICS (empty · external source)
 // =============================================================================
 export function TrafficAnalytics({ b }: { b: SeoBundle }) {
+  const ga = useGaTraffic()
   return (
     <div className="se-wrap">
       <Head title="Traffic analytics" domain={b.domain} hasSite={b.hasSite} />
-      <EmptyState icon="◔" title="No traffic data yet" text="Visitor, source, device and geography data comes from Google Analytics. Connect it to see how people find and use your site." connect="Google Analytics" />
+      {ga ? (
+        <Panel title="Organic & overall traffic" sub="Live · Google Analytics · last 28 days">
+          <div className="se-kpis">
+            <div className="se-kpi"><span className="se-kpi-l">Sessions</span><span className="se-kpi-v">{fmt(ga.sessions)}</span></div>
+            <div className="se-kpi"><span className="se-kpi-l">Users</span><span className="se-kpi-v">{fmt(ga.users)}</span></div>
+            <div className="se-kpi"><span className="se-kpi-l">Page views</span><span className="se-kpi-v">{fmt(ga.views)}</span></div>
+            <div className="se-kpi"><span className="se-kpi-l">Trend</span><span className="se-kpi-v"><Sparkline series={ga.series} /></span></div>
+          </div>
+        </Panel>
+      ) : <EmptyState icon="◔" title="No traffic data yet" text="Visitor, source, device and geography data comes from Google Analytics. Connect it to see how people find and use your site." connect="Google Analytics" />}
     </div>
   )
 }

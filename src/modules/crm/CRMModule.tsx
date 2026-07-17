@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useDojo } from '../../store'
 import { useWork } from '../../agents/workStore'
-import { sendGmail } from '../../agents/workApi'
+import { sendGmail, toolData } from '../../agents/workApi'
 import {
   type Contact, type Stage, STAGES, TEMPLATES, stats, moveStage, setStage, merge, mailto,
   importCsv, exportCsv, newContact, sampleContacts, loadCrm, saveCrm, eur,
@@ -25,6 +25,10 @@ export default function CRMModule({ dojoId }: ModuleProps) {
     void loadCrm(dojoId).then((p) => { if (alive && p) { setContacts(p.contacts); setSel(p.contacts[0]?.id ?? null) } })
     return () => { alive = false }
   }, [dojoId])
+
+  // live HubSpot CRM (the user's own · read-only) · null until connected
+  const [hs, setHs] = useState<{ contactsTotal: number; contacts: { name: string; email: string; company: string; stage: string }[]; deals: { count: number; pipeline: number } } | null>(null)
+  useEffect(() => { let live = true; void toolData('hubspot').then((r) => { if (live && r.connected && r.data) setHs(r.data as typeof hs) }); return () => { live = false } }, [])
 
   const st = useMemo(() => stats(contacts), [contacts])
   const selc = contacts.find((c) => c.id === sel) || null
@@ -64,6 +68,25 @@ export default function CRMModule({ dojoId }: ModuleProps) {
         <h3 className="sq-title">CRM &amp; outbound</h3>
         <p className="sq-lead">Track leads across stages, import a CSV, and generate personalised outreach that merges each contact's details. Pipeline value, conversion and won revenue · all local.</p>
       </header>
+
+      {/* live HubSpot CRM · appears when HubSpot is connected */}
+      {hs && (
+        <div className="crm-hs">
+          <div className="crm-hs-head"><b>HubSpot · live</b> <span className="cred-live-dot" /></div>
+          <div className="biz-overview">
+            <div className="biz-tile"><span>{hs.contactsTotal.toLocaleString('en-US')}</span><em>contacts</em></div>
+            <div className="biz-tile"><span>{hs.deals.count}</span><em>open deals</em></div>
+            <div className="biz-tile"><span>{eur(hs.deals.pipeline)}</span><em>pipeline value</em></div>
+          </div>
+          {!!hs.contacts.length && (
+            <ul className="crm-hs-list">
+              {hs.contacts.slice(0, 5).map((c, i) => (
+                <li key={i}><b>{c.name}</b>{c.company && <span className="crm-hs-co">{c.company}</span>}{c.stage && <span className="crm-hs-stage">{c.stage}</span>}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
       <div className="site-toolbar">
         <div className="site-tb-actions">
           <button className="btn tiny" onClick={() => fileRef.current?.click()}>Import CSV</button>

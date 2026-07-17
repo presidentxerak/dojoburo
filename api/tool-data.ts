@@ -14,7 +14,9 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createSign } from 'node:crypto'
 import { getPool, dbConfigured } from './_lib/db'
+import { vaultConfigured } from './_lib/vault'
 import { findAccountId } from './_lib/accounts'
+import { connectionToken } from './_lib/connections'
 
 export const config = { maxDuration: 15 }
 
@@ -44,6 +46,52 @@ const PROVIDERS: Record<string, Provider> = {
   stripe: stripeData,
   ga4: ga4Data,
   gsc: gscData,
+  hubspot: hubspotData,
+}
+
+// ---- HubSpot (per-user OAuth · the caller's own CRM) ----------------------
+async function hubspotData(q: URLSearchParams): Promise<Result> {
+  if (!dbConfigured() || !vaultConfigured()) return { connected: false }
+  const pool = getPool()
+  const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+  if (!accountId) return { connected: false }
+  const conn = await connectionToken(pool, accountId, 'hubspot')
+  if (!conn) return { connected: false }
+
+  const [contactsRes, dealsRes] = await Promise.all([
+    hfetch('https://api.hubapi.com/crm/v3/objects/contacts?limit=8&properties=firstname,lastname,email,company,lifecyclestage&archived=false', conn.token),
+    hfetch('https://api.hubapi.com/crm/v3/objects/deals?limit=50&properties=dealname,amount,dealstage&archived=false', conn.token),
+  ])
+  if (!contactsRes && !dealsRes) return { connected: true, data: null }
+
+  const contacts = Array.isArray((contactsRes as { results?: unknown[] })?.results)
+    ? ((contactsRes as { results: unknown[] }).results).map((c) => {
+        const p = (c as { properties?: Record<string, string> }).properties || {}
+        const name = [p.firstname, p.lastname].filter(Boolean).join(' ').trim()
+        return { name: name || p.email || 'Contact', email: p.email || '', company: p.company || '', stage: p.lifecyclestage || '' }
+      })
+    : []
+  const dealRows = Array.isArray((dealsRes as { results?: unknown[] })?.results) ? ((dealsRes as { results: unknown[] }).results) : []
+  let pipeline = 0
+  for (const d of dealRows) { pipeline += Number((d as { properties?: { amount?: string } }).properties?.amount) || 0 }
+
+  return {
+    connected: true,
+    data: {
+      contactsTotal: Number((contactsRes as { total?: number })?.total) || contacts.length,
+      contacts,
+      deals: { count: dealRows.length, pipeline },
+    },
+  }
+}
+
+async function hfetch(url: string, token: string): Promise<unknown | null> {
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
+  try {
+    const res = await fetch(url, { signal: ctrl.signal, headers: { authorization: `Bearer ${token}`, accept: 'application/json' } })
+    if (!res.ok) return null
+    return await res.json()
+  } catch { return null } finally { clearTimeout(t) }
 }
 
 // ---- Google Search Console (service account · admin-gated) ----------------
