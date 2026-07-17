@@ -54,6 +54,10 @@ const AGENT_TASKS: Record<string, string[]> = {
   busino: ['offer', 'analytics', 'finance'],
   sentinel: [],
   vaultor: [],
+  devi: ['prd', 'tech-spec', 'code-review'],
+  helpi: ['support-reply', 'faq'],
+  nexa: ['announcement'],
+  legi: ['contract', 'policy'],
 }
 
 function relTime(ms: number): string {

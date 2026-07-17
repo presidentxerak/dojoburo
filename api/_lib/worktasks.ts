@@ -159,6 +159,66 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
       'Include: Job description, Interview scorecard (competencies × signals), a 30/60/90 onboarding plan. ' +
       'If Slack is connected, post the JD to the hiring channel.',
   },
+  // --- optional group agents (Support · Comms · Legal) ----------------------
+  {
+    id: 'support-reply',
+    title: 'Support reply',
+    priceXrp: 0.15,
+    usesConnectors: ['zendesk', 'intercom'],
+    system: 'You are an experienced, empathetic customer-support lead. Produce a ready-to-send reply in Markdown.',
+    user: ({ agentName, brief, startup }) =>
+      `${startupLine(startup)} As ${agentName}, answer this customer message: ${brief || 'a customer asking for help'}. ` +
+      'Return: the reply (warm, clear, structured, ready to paste into Zendesk or Intercom), a shorter alternative version, an internal note for the ticket, and the suggested ticket status/priority. ' +
+      'If Zendesk or Intercom is connected, look up the relevant conversation for context and report what you found.',
+  },
+  {
+    id: 'faq',
+    title: 'Help-center FAQ',
+    priceXrp: 0.2,
+    usesConnectors: ['zendesk', 'intercom'],
+    system: 'You are a support-content specialist. Produce a publish-ready help-center section in Markdown.',
+    user: ({ agentName, brief, startup }) =>
+      `${startupLine(startup)} As ${agentName}, write the help-center FAQ for: ${brief || 'the product'}. ` +
+      'Return: the 10 most likely customer questions with clear answers, grouped by theme (Getting started, Billing, Troubleshooting…), plus 3 reusable macro replies for the support inbox. ' +
+      'If Zendesk or Intercom is connected, base the questions on real recent tickets and say so.',
+  },
+  {
+    id: 'announcement',
+    title: 'Announcement pack',
+    priceXrp: 0.15,
+    usesConnectors: ['slack', 'discord'],
+    system: 'You are a crisp internal + community communications manager. Produce ready-to-post messages in Markdown.',
+    user: ({ agentName, brief, startup }) =>
+      `${startupLine(startup)} As ${agentName}, turn this into an announcement: ${brief || 'a company update'}. ` +
+      'Return the SAME announcement adapted per channel: a Slack post (with emoji + formatting), a Discord community post, a 2-line WhatsApp/SMS version, and a short email (subject + body). Keep one consistent voice. ' +
+      'If Slack is connected, post the Slack version to the team channel and report it.',
+  },
+  {
+    id: 'contract',
+    title: 'Contract draft',
+    priceXrp: 0.25,
+    usesConnectors: ['docusign', 'gdrive'],
+    system:
+      'You are a startup legal-operations specialist. Produce a clear, structured contract DRAFT in Markdown. ' +
+      'Always open with a one-line notice that this is a draft to be reviewed by a qualified lawyer before signature.',
+    user: ({ agentName, brief, startup }) =>
+      `${startupLine(startup)} As ${agentName}, draft this agreement: ${brief || 'a mutual NDA'}. ` +
+      'Return: the full agreement with numbered clauses (Parties, Purpose, Term, Obligations, Confidentiality, Liability, Termination, Governing law, Signatures), a plain-language summary of each clause, and a pre-signature checklist. ' +
+      'If DocuSign or Google Drive is connected, save the draft there and report the link.',
+  },
+  {
+    id: 'policy',
+    title: 'Privacy policy & terms',
+    priceXrp: 0.25,
+    usesConnectors: ['gdrive'],
+    system:
+      'You are a startup legal-operations specialist. Produce website legal pages as a clear DRAFT in Markdown. ' +
+      'Always open with a one-line notice that this is a draft to be reviewed by a qualified lawyer before publication.',
+    user: ({ agentName, brief, startup }) =>
+      `${startupLine(startup)} As ${agentName}, write the legal pages for: ${brief || 'the company website'}. ` +
+      'Return two sections: (1) Privacy policy · what data is collected, why, retention, cookies, user rights, contact; (2) Terms of service · the service, accounts, payments, acceptable use, liability, termination. Plain, readable language. ' +
+      'If Google Drive is connected, save the pages as a doc and report the link.',
+  },
   {
     id: 'runbook',
     title: 'Ops runbook',

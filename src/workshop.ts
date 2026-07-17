@@ -5,7 +5,7 @@
 import { create } from 'zustand'
 import type { Department } from './data/agents'
 import { SKINS, skinById, variedSkins, crewSkins, skinsForTheme } from './data/skins'
-import { CORE_AGENTS, CORE_IDS, ROLE_BY_ID } from './data/roleAgents'
+import { CORE_AGENTS, CORE_IDS, OPTIONAL_AGENTS, ROLE_BY_ID, type RoleAgent } from './data/roleAgents'
 import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
 import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
@@ -186,7 +186,7 @@ function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string 
   return { account: null, dojos: [d], activeDojoId: d.id }
 }
 
-function firstFreeCell(agents: WAgent[]): { gx: number; gy: number } {
+export function firstFreeCell(agents: WAgent[]): { gx: number; gy: number } {
   const taken = new Set(agents.map((a) => `${a.gx},${a.gy}`))
   for (let y = 0; y < GRID.rows; y++)
     for (let x = 0; x < GRID.cols; x++) if (!taken.has(`${x},${y}`)) return { gx: x, gy: y }
@@ -384,4 +384,24 @@ export function seatedAgents(dojo: Dojo | null): Array<{ agent: WAgent; x: numbe
     .slice(0, 12)
   const pos = seatPositions(list.length)
   return list.map((agent, i) => ({ agent, x: pos[i][0], z: pos[i][1] }))
+}
+
+/** Full dojo grid seating: the agents PLUS one open slot per optional agent not
+ *  yet added (Engineering, Support, Comms, Legal…). The scene renders the open
+ *  slots as dotted "+ add" pads directly on the dojo floor, so the team grid is
+ *  visible and editable from the dojo itself. */
+export function dojoSeating(dojo: Dojo | null): {
+  seated: Array<{ agent: WAgent; x: number; z: number }>
+  slots: Array<{ role: RoleAgent; x: number; z: number }>
+} {
+  const list = [...(dojo?.agents ?? [])]
+    .sort((a, b) => (a.gy * GRID.cols + a.gx) - (b.gy * GRID.cols + b.gx))
+    .slice(0, MAX_AGENTS)
+  const present = new Set(list.map((a) => a.role))
+  const missing = OPTIONAL_AGENTS.filter((r) => !present.has(r.id)).slice(0, Math.max(0, MAX_AGENTS - list.length))
+  const pos = seatPositions(list.length + missing.length)
+  return {
+    seated: list.map((agent, i) => ({ agent, x: pos[i][0], z: pos[i][1] })),
+    slots: missing.map((role, k) => ({ role, x: pos[list.length + k][0], z: pos[list.length + k][1] })),
+  }
 }

@@ -641,7 +641,7 @@ function Academy({ lot, onOpen }: { lot: Lot; onOpen: () => void }) {
       <mesh position={[0, 1.15, 1.36]}><planeGeometry args={[1.5, 0.55]} /><meshBasicMaterial map={banner} toneMapped={false} /></mesh>
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[4.4, 4.4]} /><meshStandardMaterial color={hover ? '#bfe0f5' : '#b9c2cc'} /></mesh>
       <Html position={[0, 3.4, 0]} center pointerEvents="none" zIndexRange={[30, 0]}>
-        <div style={{ ...nameTag, background: '#1f6fd0' }}>Academy · Guide & resources</div>
+        <div style={{ ...nameTag, background: '#1f6fd0' }}>Academy · open the guide</div>
       </Html>
     </group>
   )
@@ -663,7 +663,7 @@ function Konbini({ lot, onTip }: { lot: Lot; onTip: () => void }) {
       <mesh position={[0, 1.02, 1.5]} rotation={[Math.PI * 0.12, 0, 0]}><boxGeometry args={[2.4, 0.06, 0.55]} /><meshStandardMaterial color="#e63946" /></mesh>
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow><planeGeometry args={[3.4, 3.4]} /><meshStandardMaterial color={hover ? '#a7f3d0' : '#b9c2cc'} /></mesh>
       <Html position={[0, 2.4, 0]} center pointerEvents="none" zIndexRange={[30, 0]}>
-        <div style={{ ...nameTag, background: '#0f8f5f' }}>Konbini · une astuce ?</div>
+        <div style={{ ...nameTag, background: '#0f8f5f' }}>Konbini · get a tip</div>
       </Html>
     </group>
   )
@@ -1119,7 +1119,7 @@ function CompanyFiche({ co, onClose }: { co: MockCo; onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
         style={{ ['--bg' as any]: t.bg, ['--ink' as any]: t.ink, ['--sub' as any]: t.sub, ['--ac' as any]: t.accent, ['--rad' as any]: t.radius + 'px', fontFamily: t.font }}
       >
-        <button className="cofiche-x" onClick={onClose} aria-label="Fermer">✕</button>
+        <button className="cofiche-x" onClick={onClose} aria-label="Close">✕</button>
 
         <div className="cofiche-head">
           <span className="cofiche-logo" style={{ background: t.accent }}>{co.name[0]}</span>
@@ -1142,21 +1142,21 @@ function CompanyFiche({ co, onClose }: { co: MockCo; onClose: () => void }) {
 
         {/* running ad campaign */}
         <div className="cofiche-ad">
-          <span className="cofiche-ad-tag" style={{ background: t.accent }}>PUB</span>
+          <span className="cofiche-ad-tag" style={{ background: t.accent }}>AD</span>
           <div><b>{co.ad.headline}</b><span>{co.ad.body}</span></div>
         </div>
 
         {/* today's numbers (drift daily) */}
         <div className="cofiche-stats">
-          <div><span className="cofiche-n">${rev.toLocaleString('en-US')}</span><span className="cofiche-l">Revenu · aujourd’hui</span></div>
-          <div><span className="cofiche-n">{sales.toLocaleString('en-US')}</span><span className="cofiche-l">Ventes · aujourd’hui</span></div>
+          <div><span className="cofiche-n">${rev.toLocaleString('en-US')}</span><span className="cofiche-l">Revenue · today</span></div>
+          <div><span className="cofiche-n">{sales.toLocaleString('en-US')}</span><span className="cofiche-l">Sales · today</span></div>
         </div>
 
         <p className="cofiche-quote">“{co.testimonial.quote}” <b>· {co.testimonial.author}</b></p>
 
         <div className="cofiche-actions">
-          <a className="cofiche-open" href={companyPath(co)} style={{ background: t.accent }}>Ouvrir le site ↗</a>
-          <a className="cofiche-open ghost" href="/#showcase">Toutes les entreprises</a>
+          <a className="cofiche-open" href={companyPath(co)} style={{ background: t.accent }}>Open the site ↗</a>
+          <a className="cofiche-open ghost" href="/#showcase">All companies</a>
         </div>
       </div>
     </div>
@@ -1175,7 +1175,7 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
 
   const floors = Math.max(1, dojos.length)
   const active = dojos.find((d) => d.id === activeDojoId) ?? dojos[0]
-  const hqName = account?.name || active?.name || 'Mon Dojo'
+  const hqName = account?.name || active?.name || 'My Dojo'
   const hqAccent = templateById(active?.template).palette?.accent || '#ef7d9d'
 
   const showTip = () => setTip(TIPS[Math.floor((Date.now() / 1000) % TIPS.length)])
@@ -1201,12 +1201,11 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
 
       {co && <CompanyFiche co={co} onClose={() => setCo(null)} />}
 
+      {/* no title card over the city · the scene speaks for itself, so the view
+          stays clean and readable. Only the way back remains. */}
       <div className="city-top">
-        <div className="city-title">
-          <h1>Dojo City</h1>
-          <p>A whole metropolis: hotels, shopping malls, hospitals, schools, parks and pools. Your building grows one floor per Dojo. Watch out for the giants roaming around.</p>
-        </div>
-        <button className="btn tiny ghost city-exit" onClick={exit}>← Dashboard</button>
+        <span />
+        <button className="btn tiny ghost city-exit" onClick={exit}>← Back to dashboard</button>
       </div>
 
       <div className="city-zoom" role="group" aria-label="Zoom">

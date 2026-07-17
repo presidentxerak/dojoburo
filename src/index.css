@@ -217,9 +217,6 @@ a:hover { text-decoration: underline; }
 .dojo-city canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .city-top { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 14px 16px; pointer-events: none; }
 .city-top > * { pointer-events: auto; }
-.city-title { background: color-mix(in srgb, var(--panel) 92%, transparent); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 8px 14px; }
-.city-title h1 { margin: 0; font-family: var(--font-pixel); font-size: 16px; letter-spacing: 1px; color: var(--ink); }
-.city-title p { margin: 2px 0 0; font-size: 14px; color: var(--muted); max-width: 46ch; }
 .city-exit { align-self: center; background: #ffffff; color: #14141a; border: 1px solid rgba(20, 20, 26, 0.14); box-shadow: 0 2px 10px rgba(10, 12, 30, 0.14); font-weight: 700; }
 .city-exit:hover { background: #f3f4f7; color: #000; }
 .city-zoom { position: absolute; right: 16px; bottom: 18px; display: flex; flex-direction: column; gap: 6px; background: color-mix(in srgb, var(--panel) 92%, transparent); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 10px; padding: 6px; box-shadow: var(--shadow); }
@@ -855,8 +852,6 @@ a:hover { text-decoration: underline; }
 .onb-create:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .onb-create:not(:disabled):hover { filter: brightness(1.06); }
 @media (max-width: 720px) {
-  .city-title h1 { font-size: 16px; }
-  .city-title p { font-size: 14px; }
   .city-zoom button { width: 34px; height: 34px; font-size: 16px; }
   /* lift the zoom control clear of the bottom navigation bar */
   .city-zoom { bottom: calc(66px + env(safe-area-inset-bottom)); }
@@ -4697,7 +4692,6 @@ select.cc-input { flex: 1; min-width: 0; }
 
 /* 5 · Dojo City title card to the foreground; hide the back-to-dashboard button */
 .dojo-city .city-top { z-index: 6; }
-.dojo-city .city-title { position: relative; z-index: 6; }
 .dojo-city .city-exit { display: none !important; }
 
 /* 7 · landing-style credit purchase in the Billing studio */
@@ -4849,3 +4843,37 @@ select.cc-input { flex: 1; min-width: 0; }
 .team-input { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; font: inherit; background: var(--surface, #fff); color: inherit; resize: vertical; }
 .team-input:focus { outline: none; border-color: var(--dc); }
 .team-action .brand-actions { margin-top: 10px; }
+.team-overview .biz-tile span { color: var(--dc); }
+.team-work .mission-head { margin-bottom: 12px; }
+.team-work-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.team-work-tab {
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px;
+  background: transparent; color: var(--muted);
+  transition: border-color .18s ease, color .18s ease, background .18s ease;
+}
+.team-work-tab:hover { border-color: var(--dc); color: var(--ink); }
+.team-work-tab.on {
+  border-color: var(--dc); color: var(--dc);
+  background: color-mix(in srgb, var(--dc) 10%, transparent);
+}
+.team-work .team-input { margin-top: 8px; }
+.team-work .brand-actions { margin-top: 10px; }
+.team-deliv-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.team-deliv { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 14px; }
+.team-deliv-meta { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.team-deliv-meta b { font-weight: 600; }
+.team-deliv-meta em { font-style: normal; font-size: 12px; color: var(--muted); }
+.team-deliv .btn { margin-left: auto; flex: 0 0 auto; }
+
+/* "+ add agent" slot labels floating on the 3D dojo grid */
+.slot3d-tag {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  background: color-mix(in srgb, var(--panel, #fff) 90%, transparent);
+  border: 2px dashed color-mix(in srgb, var(--ac, #7b5cff) 60%, transparent);
+  border-radius: 10px; padding: 4px 10px; white-space: nowrap;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.slot3d-tag b { font: 700 13px var(--font-body, inherit); color: var(--ac, #7b5cff); }
+.slot3d-tag span { font-size: 11px; color: var(--muted); }
+.slot3d-tag.on { transform: scale(1.08); border-color: var(--ac, #7b5cff); }
