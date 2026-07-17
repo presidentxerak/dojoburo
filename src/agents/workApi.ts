@@ -55,6 +55,21 @@ export async function sendGmail(to: string, subject: string, body: string): Prom
   }
 }
 
+/** Post a message to the team's Slack from the user's connected Slack. */
+export async function postSlack(text: string, channel?: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const r = ref()
+    const res = await fetch('/api/tool-action', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ connector: 'slack', action: 'post', text, channel, privy: r.privy, client: r.client }),
+    })
+    const j = await res.json().catch(() => ({}))
+    return { ok: !!j?.ok, error: j?.error }
+  } catch {
+    return { ok: false, error: 'network' }
+  }
+}
+
 /** Live data for a connected tool (Stripe balance, …). Degrades to
  *  { connected:false } when the tool/backend isn't configured. */
 export interface ToolData { connected: boolean; admin?: boolean; account?: string | null; data?: unknown }

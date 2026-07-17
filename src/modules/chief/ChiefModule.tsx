@@ -7,6 +7,7 @@ import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import { useWork } from '../../agents/workStore'
+import { postSlack } from '../../agents/workApi'
 import { useEngine } from '../../agents/engineStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
@@ -66,6 +67,17 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
     }
   }
   const sendCeo = () => { const brief = msg.trim(); if (!brief) return; setMsg(''); void runTask(chief?.name || 'Chief', 'strategy', brief) }
+  // Real Slack post · shares the current note to the team channel when Slack is connected.
+  const slackOn = useWork((s) => !!s.tools['slack']?.connected)
+  const [posting, setPosting] = useState(false)
+  const doSlack = async () => {
+    const text = msg.trim(); if (!text || posting) return
+    setPosting(true)
+    const r = await postSlack(text)
+    setPosting(false)
+    if (r.ok) { setMsg(''); pushToast({ kind: 'event', badge: 'OK', color: '#4a154b', title: 'Posted to Slack', text: 'Your team update is live in Slack.' }) }
+    else { const map: Record<string, string> = { not_connected: 'Connect Slack first (Connect apps).', no_backend: 'Slack posting needs the server vault configured.', rate: 'Too many posts · wait a minute.', post_failed: 'Slack refused the post · reconnect Slack.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not posted', text: map[r.error || ''] || 'Could not post to Slack.' }) }
+  }
 
   return (
     <div className="chief-mod sq">
@@ -81,6 +93,7 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
         <div className="composer-row">
           <input value={msg} onChange={(e) => setMsg(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendCeo()} placeholder="Tell Chief what to prioritise…" />
           <button className="btn primary tiny" onClick={sendCeo} disabled={!msg.trim() || autopilot.running}>Send</button>
+          {slackOn && <button className="btn tiny ghost" onClick={() => void doSlack()} disabled={!msg.trim() || posting} title="Post this note to your team Slack">{posting ? 'Posting…' : 'Slack'}</button>}
         </div>
         {autopilot.running
           ? <p className="ceo-autopilot"><span className="ceo-spin" /> Chief is working · <b>{autopilot.step}</b>…</p>

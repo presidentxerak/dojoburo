@@ -14,6 +14,8 @@ import { connectionToken } from './_lib/connections'
 
 export const config = { maxDuration: 15 }
 
+const ENV = process.env as Record<string, string | undefined>
+
 // light per-account send throttle (in-memory · best-effort, per lambda instance)
 const HITS = new Map<string, number[]>()
 const WINDOW_MS = 60_000
@@ -33,6 +35,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const connector = String(body.connector || '')
     const action = String(body.action || '')
     if (connector === 'gmail' && action === 'send') return await gmailSend(res, body)
+    if (connector === 'slack' && action === 'post') return await slackPost(res, body)
     return json(res, 200, { ok: false, error: 'unknown_action' })
   } catch (e) {
     return json(res, 200, { ok: false, error: 'server', detail: String((e as Error)?.message || e).slice(0, 100) })
@@ -78,6 +81,35 @@ async function gmailSend(res: ServerResponse, body: Record<string, unknown>): Pr
     return json(res, 200, { ok: true, id: (j as { id?: string })?.id || null, from: conn.external })
   } catch {
     return json(res, 200, { ok: false, error: 'send_failed' })
+  }
+}
+
+// ---- Slack · post a message to the team channel (chat:write) --------------
+async function slackPost(res: ServerResponse, body: Record<string, unknown>): Promise<void> {
+  if (!dbConfigured() || !vaultConfigured()) return json(res, 200, { ok: false, error: 'no_backend' })
+  const text = String(body.text || '').slice(0, 3000)
+  if (!text.trim()) return json(res, 200, { ok: false, error: 'empty' })
+
+  const pool = getPool()
+  const accountId = await findAccountId(pool, { privyDid: (body.privy as string) || null, clientRef: (body.client as string) || null })
+  if (!accountId) return json(res, 200, { ok: false, error: 'no_account' })
+  if (!allow(accountId)) return json(res, 200, { ok: false, error: 'rate' })
+
+  const conn = await connectionToken(pool, accountId, 'slack')
+  if (!conn) return json(res, 200, { ok: false, error: 'not_connected' })
+  const channel = String(body.channel || '').trim() || ENV.SLACK_CHANNEL || '#general'
+
+  try {
+    const r = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${conn.token}`, 'content-type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ channel, text }),
+    })
+    const j = await r.json().catch(() => ({})) as { ok?: boolean; ts?: string; channel?: string; error?: string }
+    if (!j?.ok) return json(res, 200, { ok: false, error: j?.error || 'post_failed' })
+    return json(res, 200, { ok: true, ts: j.ts, channel: j.channel })
+  } catch {
+    return json(res, 200, { ok: false, error: 'post_failed' })
   }
 }
 
