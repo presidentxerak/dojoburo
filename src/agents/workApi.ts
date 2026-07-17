@@ -229,10 +229,12 @@ export async function runWork(input: { task: string; agentName: string; connecto
 // WRITE-ONLY like Vercel: the server never returns the value, nor any preview
 // of it — only the name + description come back.
 export interface ServerSecret { id: string; name: string; description: string; updatedAt?: string }
+/** the caller's role on this dojo's vault (team sharing · /api/team) */
+export type VaultRole = 'owner' | 'admin' | 'viewer'
 
-/** List a company's secrets (names only, never values). `backend` is false
- *  when the encrypted vault isn't configured on this deployment. */
-export async function listSecrets(dojo: string): Promise<{ backend: boolean; secrets: ServerSecret[] }> {
+/** List a company's secrets (names only, never values) + the caller's role.
+ *  `backend` is false when the encrypted vault isn't configured. */
+export async function listSecrets(dojo: string): Promise<{ backend: boolean; secrets: ServerSecret[]; role: VaultRole }> {
   try {
     const p = new URLSearchParams({ action: 'list', dojo })
     const r = ref(); if (r.privy) p.set('privy', r.privy); if (r.client) p.set('client', r.client)
@@ -240,10 +242,65 @@ export async function listSecrets(dojo: string): Promise<{ backend: boolean; sec
     const j = await res.json()
     // server mode ONLY when the endpoint fully works (vault + DB table present);
     // no_backend or a db error falls back to the local store with a warning.
-    if (j?.ok === true) return { backend: true, secrets: Array.isArray(j.secrets) ? j.secrets : [] }
-    return { backend: false, secrets: [] }
+    if (j?.ok === true) return { backend: true, secrets: Array.isArray(j.secrets) ? j.secrets : [], role: (j.role as VaultRole) || 'owner' }
+    return { backend: false, secrets: [], role: 'owner' }
   } catch {
-    return { backend: false, secrets: [] }
+    return { backend: false, secrets: [], role: 'owner' }
+  }
+}
+
+/** The vault's audit trail: who saved/removed which secret NAME, when. */
+export interface AuditEvent { actor: string; action: string; name: string; at: string }
+export async function listSecretAudit(dojo: string): Promise<AuditEvent[]> {
+  try {
+    const p = new URLSearchParams({ action: 'audit', dojo })
+    const r = ref(); if (r.privy) p.set('privy', r.privy); if (r.client) p.set('client', r.client)
+    const res = await fetch(`/api/secrets?${p.toString()}`, { headers: { accept: 'application/json', ...(await authHeader()) } })
+    const j = await res.json()
+    return j?.ok && Array.isArray(j.events) ? j.events : []
+  } catch {
+    return []
+  }
+}
+
+// ---- team roles · share one dojo's vault ----------------------------------
+export interface TeamMember { id: string; email: string; role: 'admin' | 'viewer'; claimed: boolean; addedAt?: string }
+
+export async function listTeam(dojo: string): Promise<{ backend: boolean; members: TeamMember[]; role: VaultRole; claimReady: boolean }> {
+  try {
+    const p = new URLSearchParams({ action: 'list', dojo })
+    const r = ref(); if (r.privy) p.set('privy', r.privy); if (r.client) p.set('client', r.client)
+    const res = await fetch(`/api/team?${p.toString()}`, { headers: { accept: 'application/json', ...(await authHeader()) } })
+    const j = await res.json()
+    if (j?.ok === true) return { backend: true, members: Array.isArray(j.members) ? j.members : [], role: (j.role as VaultRole) || 'owner', claimReady: !!j.claimReady }
+    return { backend: false, members: [], role: 'owner', claimReady: false }
+  } catch {
+    return { backend: false, members: [], role: 'owner', claimReady: false }
+  }
+}
+
+export async function addTeamMember(dojo: string, member: string, role: 'admin' | 'viewer'): Promise<{ ok: boolean; error?: string; member?: TeamMember; claimReady?: boolean }> {
+  try {
+    const res = await fetch('/api/team?action=add', {
+      method: 'POST', headers: { 'content-type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ dojo, member, role, ...ref() }),
+    })
+    return await res.json()
+  } catch {
+    return { ok: false, error: 'network' }
+  }
+}
+
+export async function removeTeamMember(dojo: string, id: string): Promise<boolean> {
+  try {
+    const res = await fetch('/api/team?action=remove', {
+      method: 'POST', headers: { 'content-type': 'application/json', ...(await authHeader()) },
+      body: JSON.stringify({ dojo, id, ...ref() }),
+    })
+    const j = await res.json()
+    return !!j?.ok
+  } catch {
+    return false
   }
 }
 

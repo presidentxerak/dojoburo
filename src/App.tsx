@@ -59,6 +59,23 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected])
 
+  // Team invite link (#team=<dojoId>.<base64url name>): join the SHARED dojo —
+  // a local dojo is created with the owner's exact dojo id so the server-side
+  // vault, roles and audit line up. Requires signing in with Privy to claim
+  // the seat (the server verifies the email against the Privy API).
+  useEffect(() => {
+    const m = window.location.hash.match(/#team=([\w-]+)(?:\.([A-Za-z0-9_-]+))?/)
+    if (!m) return
+    let name = 'Shared dojo'
+    try { if (m[2]) name = decodeURIComponent(escape(atob(m[2].replace(/-/g, '+').replace(/_/g, '/')))) || name } catch { /* keep default */ }
+    useWorkshop.getState().importDojo(m[1], name)
+    useDojo.getState().pushToast({
+      kind: 'event', badge: 'OK', color: '#5b6472', title: `Joined “${name}”`,
+      text: 'Shared vault active · sign in with Privy (the invited email) to claim your seat.',
+    })
+    history.replaceState(null, '', window.location.pathname + window.location.search)
+  }, [])
+
   // OAuth return from a tool connect: surface a toast + refresh connections
   useEffect(() => {
     const h = window.location.hash

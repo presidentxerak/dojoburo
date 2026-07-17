@@ -83,6 +83,10 @@ interface WorkshopState {
   createDojo: (name?: string, templateId?: string) => void
   createDojoForProfession: (professionId: string) => void
   createDojoForProfessions: (professionIds: string[]) => void
+  /** Join a SHARED dojo from a team invite link: create (or activate) a local
+   *  dojo with the EXACT id the owner shared, so the server-side vault, team
+   *  roles and connectors line up across both accounts. */
+  importDojo: (id: string, name?: string) => void
   renameDojo: (id: string, name: string) => void
   setDojoTemplate: (id: string, templateId: string) => void
   deleteDojo: (id: string) => void
@@ -289,6 +293,16 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     createDojoForProfessions: (professionIds) => {
       const d = makeProfessionsDojo(professionIds)
       set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))
+    },
+    importDojo: (id, name) => {
+      const cleanId = String(id || '').trim().slice(0, 80)
+      if (!cleanId) return
+      const existing = get().dojos.find((d) => d.id === cleanId)
+      if (existing) { set({ activeDojoId: existing.id }); persist(); return }
+      const tpl = templateById(DEFAULT_TEMPLATE_ID)
+      const d: Dojo = { ...makeTemplatedDojo(name?.trim() || 'Shared dojo', tpl), id: cleanId }
+      set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id }))
+      persist()
     },
     renameDojo: (id, name) => {
       set((s) => ({ dojos: s.dojos.map((d) => (d.id === id ? { ...d, name: name.trim() || d.name } : d)), dirty: true }))

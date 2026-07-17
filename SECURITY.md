@@ -25,6 +25,19 @@ fully client-side experience.
   returned to any client — not even a partial preview. Only the server
   decrypts them, just-in-time for a run. `/api/secrets` is rate-limited per IP
   and per account (`SECRETS_RATE_MAX` / `SECRETS_RATE_WINDOW_MS`).
+- **KMS-style key rotation.** Ciphertexts are tagged with a key id; old
+  master keys stay readable via `CONNECTOR_ENC_KEY_PREVIOUS` (comma-separated)
+  while new writes use the fresh `CONNECTOR_ENC_KEY` — rotation no longer
+  invalidates stored tokens/secrets (see `api/_lib/vault.ts` for the
+  zero-downtime procedure).
+- **Audit trail.** Every secret save/removal is logged (verified actor, secret
+  NAME, ip, timestamp — never values) in `secrets_audit` and surfaced in the
+  Security Studio.
+- **Team roles.** The vault owner can share one dojo's vault (`/api/team`):
+  `admin` manages secrets, `viewer` sees names + audit only. Seats are added
+  by email and CLAIMED only by a Privy-verified user who really owns that
+  email — checked server-side against the Privy API (`PRIVY_APP_SECRET`),
+  never a client-sent string. Guests cannot hold seats.
 - OAuth connector tokens follow the same rules: sealed at rest, never sent to
   the browser, and the OAuth `state` is HMAC-signed with the identity that was
   verified when the flow started.

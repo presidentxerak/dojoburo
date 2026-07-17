@@ -1,9 +1,10 @@
 // DojoBuro company secrets (env vars) endpoint — the encrypted server vault.
 //
 // One URL (/api/secrets) with ?action= :
-//   ?action=list   GET  &privy=&client=&dojo=  → [{id,name,description,updatedAt}]  (NEVER the value)
+//   ?action=list   GET  &privy=&client=&dojo=  → { secrets:[{id,name,description,updatedAt}], role }
 //   ?action=save   POST {privy,client,dojo,name,value,description}  → seal(value) + upsert
 //   ?action=remove POST {privy,client,dojo,id}                      → delete
+//   ?action=audit  GET  &privy=&client=&dojo=  → { events:[{actor,action,name,at}] }
 //
 // Security model (Vercel-style):
 //   * WRITE-ONLY: the plaintext is sealed with AES-256-GCM (api/_lib/vault.ts)
@@ -11,13 +12,17 @@
 //     the last characters. The client only ever sees the name + description.
 //   * VERIFIED identity: a claimed Privy DID must be proven by a valid Privy
 //     access token (Authorization: Bearer) or the request is rejected.
+//   * TEAM ROLES: the owner can share one dojo's vault (see /api/team) —
+//     'admin' manages secrets, 'viewer' sees names + audit only.
+//   * AUDITED: every save/remove is logged (actor, name, ip · never values).
 //   * RATE-LIMITED per IP and per account (SECRETS_RATE_MAX / _WINDOW_MS).
 // Requires DATABASE_URL, CONNECTOR_ENC_KEY, and db/secrets.sql applied.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { getPool, dbConfigured } from './_lib/db'
 import { resolveAccountId, findAccountId } from './_lib/accounts'
 import { seal, vaultConfigured } from './_lib/vault'
-import { verifiedRef } from './_lib/privyAuth'
+import { verifiedRef, type VerifiedRef } from './_lib/privyAuth'
+import { resolveDojoAccess, auditSecret, auditList } from './_lib/teamAccess'
 
 export const config = { maxDuration: 15 }
 
@@ -39,6 +44,8 @@ function clientIp(req: IncomingMessage): string {
 const normalizeName = (s: string) =>
   String(s || '').trim().toUpperCase().replace(/[^A-Z0-9_]/g, '_').replace(/^([0-9])/, '_$1').slice(0, 48)
 
+const actorOf = (ref: VerifiedRef) => ref.privy || (ref.client ? `guest:${ref.client.slice(0, 12)}` : 'unknown')
+
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   // Never 500: any unexpected error (DB down, pool exhausted, bad env) degrades
   // to a graceful { ok:false } so the client just falls back to its local store.
@@ -52,6 +59,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (action === 'list') return await list(req, res, url.searchParams)
     if (action === 'save') return await save(req, res)
     if (action === 'remove') return await remove(req, res)
+    if (action === 'audit') return await audit(req, res, url.searchParams)
     return json(res, 200, { ok: false, error: 'bad_action' })
   } catch (e) {
     return json(res, 200, { ok: false, error: 'server', detail: String((e as Error)?.message || e).slice(0, 120) })
@@ -65,17 +73,36 @@ async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParam
   try {
     const pool = getPool()
     const accountId = await findAccountId(pool, { privyDid: vr.ref.privy, clientRef: vr.ref.client })
-    if (!accountId || !dojo) return json(res, 200, { ok: true, secrets: [] })
-    if (!allow(`acct:${accountId}`)) return json(res, 429, { ok: false, error: 'rate' })
+    if (!dojo) return json(res, 200, { ok: true, secrets: [], role: 'owner' })
+    const access = await resolveDojoAccess(pool, accountId, vr.ref.privy, dojo)
+    if (!access) return json(res, 200, { ok: true, secrets: [], role: 'owner' })
+    if (!allow(`acct:${access.accountId}`)) return json(res, 429, { ok: false, error: 'rate' })
     const r = await pool.query(
       `select id, name, description, updated_at
          from company_secrets where account_id = $1 and dojo_id = $2 order by name`,
-      [accountId, dojo],
+      [access.accountId, dojo],
     )
     // NB: value_enc (and even the old preview column) is deliberately NOT
     // selected — nothing derived from the value ever leaves the server.
     const secrets = r.rows.map((row) => ({ id: row.id, name: row.name, description: row.description, updatedAt: row.updated_at }))
-    return json(res, 200, { ok: true, secrets })
+    return json(res, 200, { ok: true, secrets, role: access.role })
+  } catch {
+    return json(res, 200, { ok: false, error: 'db' })
+  }
+}
+
+async function audit(req: IncomingMessage, res: ServerResponse, q: URLSearchParams): Promise<void> {
+  const dojo = String(q.get('dojo') || '').slice(0, 80)
+  const vr = await verifiedRef(req, q.get('privy'), q.get('client'))
+  if (!vr.ok) return json(res, 200, { ok: false, error: 'auth' })
+  try {
+    const pool = getPool()
+    const accountId = await findAccountId(pool, { privyDid: vr.ref.privy, clientRef: vr.ref.client })
+    if (!dojo) return json(res, 200, { ok: true, events: [] })
+    const access = await resolveDojoAccess(pool, accountId, vr.ref.privy, dojo)
+    if (!access) return json(res, 200, { ok: true, events: [] })
+    const events = await auditList(pool, access.accountId, dojo)
+    return json(res, 200, { ok: true, events })
   } catch {
     return json(res, 200, { ok: false, error: 'db' })
   }
@@ -100,7 +127,10 @@ async function save(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const pool = getPool()
     const accountId = await resolveAccountId(pool, { privyDid: vr.ref.privy, clientRef: vr.ref.client })
     if (!accountId) return json(res, 200, { ok: false, error: 'no_account' })
-    if (!allow(`acct:${accountId}`)) return json(res, 429, { ok: false, error: 'rate' })
+    const access = await resolveDojoAccess(pool, accountId, vr.ref.privy, dojo)
+    if (!access) return json(res, 200, { ok: false, error: 'no_account' })
+    if (access.role === 'viewer') return json(res, 200, { ok: false, error: 'forbidden' })
+    if (!allow(`acct:${access.accountId}`)) return json(res, 429, { ok: false, error: 'rate' })
     const r = await pool.query(
       `insert into company_secrets (account_id, dojo_id, name, value_enc, preview, description, updated_at)
        values ($1,$2,$3,$4,null,$5, now())
@@ -108,9 +138,10 @@ async function save(req: IncomingMessage, res: ServerResponse): Promise<void> {
          value_enc = excluded.value_enc, preview = null,
          description = excluded.description, updated_at = now()
        returning id, name, description, updated_at`,
-      [accountId, dojo, name, seal(value), description],
+      [access.accountId, dojo, name, seal(value), description],
     )
     const row = r.rows[0]
+    await auditSecret(pool, { accountId: access.accountId, dojoId: dojo, actor: actorOf(vr.ref), action: 'save', name, ip: clientIp(req) })
     return json(res, 200, { ok: true, secret: { id: row.id, name: row.name, description: row.description, updatedAt: row.updated_at } })
   } catch {
     return json(res, 200, { ok: false, error: 'db' })
@@ -129,7 +160,14 @@ async function remove(req: IncomingMessage, res: ServerResponse): Promise<void> 
   try {
     const pool = getPool()
     const accountId = await findAccountId(pool, { privyDid: vr.ref.privy, clientRef: vr.ref.client })
-    if (accountId) await pool.query(`delete from company_secrets where id = $1 and account_id = $2 and dojo_id = $3`, [id, accountId, dojo])
+    const access = await resolveDojoAccess(pool, accountId, vr.ref.privy, dojo)
+    if (!access) return json(res, 200, { ok: true })
+    if (access.role === 'viewer') return json(res, 200, { ok: false, error: 'forbidden' })
+    const r = await pool.query(
+      `delete from company_secrets where id = $1 and account_id = $2 and dojo_id = $3 returning name`,
+      [id, access.accountId, dojo],
+    )
+    if (r.rows[0]) await auditSecret(pool, { accountId: access.accountId, dojoId: dojo, actor: actorOf(vr.ref), action: 'remove', name: r.rows[0].name, ip: clientIp(req) })
     return json(res, 200, { ok: true })
   } catch {
     return json(res, 200, { ok: false, error: 'db' })

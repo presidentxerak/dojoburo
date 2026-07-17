@@ -44,6 +44,9 @@ function Root() {
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />
+  // team invite link (#team=<dojoId>.<name>) · lands in the app, which joins
+  // the shared dojo and clears the hash (see App's #team effect)
+  if (route.startsWith('team=')) return <App />
   // Dojo Guide · opened from inside the dojo · stays in the dojo environment
   // (compact bar + Back-to-dojo) instead of the landing page.
   if (route === 'guide') return <GuidePage inApp />

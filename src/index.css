@@ -763,6 +763,18 @@ a:hover { text-decoration: underline; }
 .sec-when { font-size: 13px; color: var(--muted); }
 .sec-del { position: absolute; top: 10px; right: 10px; border: none; background: transparent; color: var(--muted); font-size: 16px; font-weight: 700; cursor: pointer; }
 .sec-del:hover { color: #e0483f; }
+/* vault team roles + audit trail */
+.sec-roletag { font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: #5b6472; background: color-mix(in srgb, #5b6472 12%, transparent); border: 1px solid color-mix(in srgb, #5b6472 32%, transparent); padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+.team-add-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.team-member-input { flex: 1 1 220px; min-width: 0; text-transform: none; }
+.team-role-sel { font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface, #fff); color: inherit; }
+.team-role-sel:focus { outline: none; border-color: #5b6472; }
+.sec-tag.team-role-admin { color: #2f6bd6; background: color-mix(in srgb, #2f6bd6 12%, transparent); border-color: color-mix(in srgb, #2f6bd6 36%, transparent); }
+.sec-tag.team-role-viewer { color: #5b6472; background: color-mix(in srgb, #5b6472 12%, transparent); border-color: color-mix(in srgb, #5b6472 32%, transparent); }
+.sec-tag.audit-save { color: #0e9b6a; }
+.sec-tag.audit-remove { color: #e0483f; background: color-mix(in srgb, #e0483f 12%, transparent); border-color: color-mix(in srgb, #e0483f 36%, transparent); }
+.sec-tag.audit-inject { color: #7b5cff; background: color-mix(in srgb, #7b5cff 12%, transparent); border-color: color-mix(in srgb, #7b5cff 36%, transparent); }
+.audit-list li, .team-list li { padding-right: 74px; }
 .sec-toggles { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--border); padding-top: 14px; }
 .sec-toggle { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .sec-toggle span { display: flex; flex-direction: column; }
