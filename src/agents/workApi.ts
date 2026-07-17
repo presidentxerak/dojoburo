@@ -39,6 +39,23 @@ export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boole
   return { tools: [], backend: false, byok: { connected: false, hint: null } }
 }
 
+/** Live data for a connected tool (Stripe balance, …). Degrades to
+ *  { connected:false } when the tool/backend isn't configured. */
+export interface ToolData { connected: boolean; admin?: boolean; account?: string | null; data?: unknown }
+export async function toolData(connector: string, dojo?: string): Promise<ToolData> {
+  try {
+    const p = new URLSearchParams(refParams())
+    p.set('connector', connector)
+    if (dojo) p.set('dojo', dojo)
+    const res = await fetch(`/api/tool-data?${p.toString()}`, { headers: { accept: 'application/json' } })
+    const j = await res.json()
+    if (j?.ok) return { connected: !!j.connected, admin: j.admin, account: j.account ?? null, data: j.data }
+  } catch {
+    /* offline / not deployed */
+  }
+  return { connected: false }
+}
+
 /** Store the user's own Claude key (BYOK) · sealed server-side, billed to them. */
 export async function setClaudeKey(key: string): Promise<{ ok: boolean; hint?: string; error?: string }> {
   try {

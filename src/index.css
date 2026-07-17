@@ -4765,3 +4765,13 @@ select.cc-input { flex: 1; min-width: 0; }
   animation: acidRing 3.2s ease-in-out infinite;
 }
 .se-domain { border-radius: 999px !important; }
+
+/* Billing · live Stripe data panel (admin, when configured) */
+.cred-live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #1fa563; box-shadow: 0 0 0 3px color-mix(in srgb, #1fa563 25%, transparent); vertical-align: middle; margin-left: 4px; }
+.cred-pays { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cred-pays li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel-solid); }
+.cred-pay-amt { font-weight: 800; font-variant-numeric: tabular-nums; }
+.cred-pay-label { color: var(--muted); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cred-pay-status { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 999px; background: var(--panel-2); color: var(--muted); }
+.cred-pay-status.s-succeeded { color: #0e9c63; background: color-mix(in srgb, #12b877 14%, transparent); }
+.cred-pay-status.s-failed { color: #b2504a; background: color-mix(in srgb, #e0483f 14%, transparent); }

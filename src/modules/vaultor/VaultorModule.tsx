@@ -1,9 +1,10 @@
 // Vaultor · Billing Manager · credits, top-ups, subscription and payment. You
 // buy credits in your own currency (no crypto), each task spends about one.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
+import { toolData } from '../../agents/workApi'
 import { useEngine } from '../../agents/engineStore'
 import { OfficeStats } from '../../components/OfficeStats'
 import { Accounting } from './Accounting'
@@ -27,6 +28,14 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
   const [sel, setSel] = useState(120)
+  // live Stripe data (balance + recent payments) · only returns to an admin
+  // account when STRIPE_SECRET_KEY is set; degrades to nothing otherwise.
+  const [stripe, setStripe] = useState<{ available?: { amount: number; currency: string }[]; pending?: { amount: number; currency: string }[]; payments?: { amount: number; currency: string; created: number; status: string; label: string }[] } | null>(null)
+  useEffect(() => {
+    let live = true
+    void toolData('stripe').then((r) => { if (live && r.connected && r.data) setStripe(r.data as typeof stripe) })
+    return () => { live = false }
+  }, [])
 
   const fiatCur = account?.currency && account.currency !== 'XRP' ? account.currency : 'USD'
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
@@ -88,6 +97,33 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
         </div>
       </div>
       {payMsg && <p className="muted small">{payMsg}</p>}
+
+      {/* live Stripe data · appears only for an admin account with Stripe configured */}
+      {stripe && (
+        <>
+          <div className="sq-eyebrow" style={{ marginTop: 14 }}>Stripe · live <span className="cred-live-dot" /></div>
+          <div className="biz-overview">
+            {(stripe.available ?? []).slice(0, 1).map((b, i) => (
+              <div key={`a${i}`} className="biz-tile"><span>{b.currency} {b.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span><em>available</em></div>
+            ))}
+            {(stripe.pending ?? []).slice(0, 1).map((b, i) => (
+              <div key={`p${i}`} className="biz-tile"><span>{b.currency} {b.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span><em>pending</em></div>
+            ))}
+            <div className="biz-tile"><span>{stripe.payments?.length ?? 0}</span><em>recent payments</em></div>
+          </div>
+          {!!stripe.payments?.length && (
+            <ul className="cred-pays">
+              {stripe.payments.map((p, i) => (
+                <li key={i}>
+                  <span className="cred-pay-amt">{p.currency} {p.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="cred-pay-label">{p.label}</span>
+                  <span className={`cred-pay-status s-${p.status}`}>{p.status}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
 
       <div className="sq-eyebrow" style={{ marginTop: 14 }}>Usage</div>
       <div className="biz-overview">
