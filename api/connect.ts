@@ -111,6 +111,11 @@ async function callback(req: IncomingMessage, res: ServerResponse, q: URLSearchP
 
   try {
     const tok = await exchange(c, q.get('code')!, parsed.v || '')
+    // QuickBooks returns the company id (realmId) as a callback query param, not
+    // in the token body · persist it as the external_account so reads can target
+    // the right company.
+    const realmId = q.get('realmId')
+    if (realmId) tok.label = realmId
     const pool = getPool()
     const accountId = await resolveAccountId(pool, { privyDid: parsed.privy || null, clientRef: parsed.client || null })
     if (!accountId) return backTo(res, `${siteUrl()}/#connect_error=${parsed.id}:no_account`)

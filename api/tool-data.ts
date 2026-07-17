@@ -50,6 +50,94 @@ const PROVIDERS: Record<string, Provider> = {
   mailchimp: mailchimpData,
   gcal: gcalData,
   calendly: calendlyData,
+  quickbooks: quickbooksData,
+  xero: xeroData,
+}
+
+// A normalised accounting line the Finance studio can drop straight into its
+// local ledger · positive amount = money in, negative = money out.
+interface AcctLine { date: string; label: string; amount: number; kind: 'income' | 'expense' }
+
+// ---- QuickBooks Online (per-user OAuth · invoices + purchases) -------------
+async function quickbooksData(q: URLSearchParams): Promise<Result> {
+  if (!dbConfigured() || !vaultConfigured()) return { connected: false }
+  const pool = getPool()
+  const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+  if (!accountId) return { connected: false }
+  const conn = await connectionToken(pool, accountId, 'quickbooks')
+  if (!conn) return { connected: false }
+  const realm = conn.external
+  if (!realm) return { connected: true, data: null }
+
+  const base = (ENV.QUICKBOOKS_API_BASE || 'https://quickbooks.api.intuit.com').replace(/\/$/, '')
+  const runQuery = async (sql: string): Promise<Record<string, unknown>[]> => {
+    const url = `${base}/v3/company/${encodeURIComponent(realm)}/query?query=${encodeURIComponent(sql)}&minorversion=65`
+    const j = await hfetch(url, conn.token)
+    const qr = (j as { QueryResponse?: Record<string, unknown> })?.QueryResponse
+    if (!qr) return []
+    const key = Object.keys(qr).find((k) => Array.isArray((qr as Record<string, unknown>)[k]))
+    return key ? ((qr as Record<string, unknown[]>)[key] as Record<string, unknown>[]) : []
+  }
+  const [invoices, purchases] = await Promise.all([
+    runQuery('select * from Invoice order by TxnDate desc maxresults 20'),
+    runQuery('select * from Purchase order by TxnDate desc maxresults 20'),
+  ])
+  const lines: AcctLine[] = []
+  for (const inv of invoices) {
+    lines.push({ date: String(inv.TxnDate || '').slice(0, 10), label: `Invoice ${inv.DocNumber || (inv.Id as string) || ''}`.trim(), amount: Number(inv.TotalAmt) || 0, kind: 'income' })
+  }
+  for (const pur of purchases) {
+    const name = (pur.EntityRef as { name?: string })?.name || (pur.AccountRef as { name?: string })?.name || 'Purchase'
+    lines.push({ date: String(pur.TxnDate || '').slice(0, 10), label: String(name), amount: -(Number(pur.TotalAmt) || 0), kind: 'expense' })
+  }
+  return acctResult(conn.external, lines)
+}
+
+// ---- Xero (per-user OAuth · invoices via the Accounting API) --------------
+async function xeroData(q: URLSearchParams): Promise<Result> {
+  if (!dbConfigured() || !vaultConfigured()) return { connected: false }
+  const pool = getPool()
+  const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+  if (!accountId) return { connected: false }
+  const conn = await connectionToken(pool, accountId, 'xero')
+  if (!conn) return { connected: false }
+
+  // the tenant (organisation) id is fetched from the connections endpoint.
+  const conns = await hfetch('https://api.xero.com/connections', conn.token)
+  const tenant = Array.isArray(conns) ? (conns as { tenantId?: string }[])[0]?.tenantId : undefined
+  if (!tenant) return { connected: true, data: null }
+  const inv = await xfetch('https://api.xero.com/api.xro/2.0/Invoices?order=Date%20DESC&page=1', conn.token, tenant)
+  const rows = Array.isArray((inv as { Invoices?: unknown[] })?.Invoices) ? (inv as { Invoices: Record<string, unknown>[] }).Invoices : []
+  const parseDate = (s: unknown): string => {
+    const m = /\/Date\((\d+)/.exec(String(s || ''))
+    if (m) return new Date(Number(m[1])).toISOString().slice(0, 10)
+    return String(s || '').slice(0, 10)
+  }
+  const lines: AcctLine[] = rows.slice(0, 30).map((r) => {
+    // Type ACCREC = money in (sales), ACCPAY = money out (bills).
+    const income = String(r.Type || '') === 'ACCREC'
+    const total = Number(r.Total) || 0
+    return { date: parseDate(r.Date), label: `${income ? 'Invoice' : 'Bill'} ${r.InvoiceNumber || ''}`.trim(), amount: income ? total : -total, kind: income ? 'income' as const : 'expense' as const }
+  })
+  return acctResult(conn.external, lines)
+}
+
+async function xfetch(url: string, token: string, tenant: string): Promise<unknown | null> {
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
+  try {
+    const res = await fetch(url, { signal: ctrl.signal, headers: { authorization: `Bearer ${token}`, 'xero-tenant-id': tenant, accept: 'application/json' } })
+    if (!res.ok) return null
+    return await res.json()
+  } catch { return null } finally { clearTimeout(t) }
+}
+
+/** Roll up accounting lines into totals + the normalised feed for Finance. */
+function acctResult(account: string | null, lines: AcctLine[]): Result {
+  if (!lines.length) return { connected: true, account, data: { income: 0, expense: 0, lines: [] } }
+  let income = 0, expense = 0
+  for (const l of lines) { if (l.amount >= 0) income += l.amount; else expense += -l.amount }
+  lines.sort((a, b) => (a.date < b.date ? 1 : -1))
+  return { connected: true, account, data: { income: Math.round(income), expense: Math.round(expense), lines: lines.slice(0, 40) } }
 }
 
 // ---- Google Calendar (per-user OAuth · upcoming events) -------------------

@@ -6,14 +6,20 @@ import type { ModuleProps } from '../registry'
 import { useDojo } from '../../store'
 import {
   type Txn, CATEGORIES, CAT_COLOR, parseCsv, toCsv, totals, byMonth, byCategory, vat, forecast,
-  sampleTxns, loadFinance, saveFinance, eur,
+  sampleTxns, loadFinance, saveFinance, eur, categorize,
 } from '../../lib/finance'
 import { appTransactions } from '../../lib/ledger'
+import { useWork } from '../../agents/workStore'
+import { toolData } from '../../agents/workApi'
+
+interface AcctLine { date: string; label: string; amount: number; kind: 'income' | 'expense' }
 
 export default function FinanceModule({ dojoId }: ModuleProps) {
   const pushToast = useDojo((s) => s.pushToast)
   const [txns, setTxns] = useState<Txn[]>([])          // manual + imported (editable)
   const [appTxns, setAppTxns] = useState<Txn[]>([])    // from CRM sales + campaign budget (read-only)
+  const [acctTxns, setAcctTxns] = useState<Txn[]>([])  // live QuickBooks / Xero (read-only)
+  const [acctSource, setAcctSource] = useState('')
   const [vatRate, setVatRate] = useState(0.2)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -27,8 +33,32 @@ export default function FinanceModule({ dojoId }: ModuleProps) {
     return () => { alive = false }
   }, [dojoId])
 
-  // the full picture = real app activity (CRM sales, ad budgets) + manual/CSV
-  const all = useMemo(() => [...appTxns, ...txns], [appTxns, txns])
+  // Live accounting feed · QuickBooks (preferred) or Xero when connected. Lines
+  // are read-only and flow straight into the KPIs, like the app ledger.
+  const qbOn = useWork((s) => !!s.tools['quickbooks']?.connected)
+  const xeroOn = useWork((s) => !!s.tools['xero']?.connected)
+  useEffect(() => {
+    let alive = true
+    const toTxns = (lines: AcctLine[], src: string): Txn[] => lines.map((l, i) => ({
+      id: `acct_${src}_${i}_${l.date}`, date: l.date || new Date().toISOString().slice(0, 10),
+      label: l.label || (l.kind === 'income' ? 'Invoice' : 'Expense'), amount: l.amount,
+      category: l.kind === 'income' ? 'Sales' : categorize(l.label, l.amount), source: 'accounting',
+    }))
+    const load = async () => {
+      for (const [id, name] of [['quickbooks', 'QuickBooks'], ['xero', 'Xero']] as const) {
+        if ((id === 'quickbooks' && !qbOn) || (id === 'xero' && !xeroOn)) continue
+        const r = await toolData(id)
+        const lines = (r.data as { lines?: AcctLine[] })?.lines
+        if (alive && r.connected && Array.isArray(lines) && lines.length) { setAcctTxns(toTxns(lines, id)); setAcctSource(name); return }
+      }
+      if (alive) { setAcctTxns([]); setAcctSource('') }
+    }
+    void load()
+    return () => { alive = false }
+  }, [qbOn, xeroOn])
+
+  // the full picture = live accounting + real app activity (CRM sales, ad budgets) + manual/CSV
+  const all = useMemo(() => [...acctTxns, ...appTxns, ...txns], [acctTxns, appTxns, txns])
   const tot = useMemo(() => totals(all), [all])
   const months = useMemo(() => byMonth(all), [all])
   const cats = useMemo(() => byCategory(all), [all])
@@ -68,6 +98,9 @@ export default function FinanceModule({ dojoId }: ModuleProps) {
         </div>
       </div>
 
+      {acctTxns.length > 0 && (
+        <p className="fin-appnote">✓ <b>{acctTxns.length} line(s) live from {acctSource}</b> · invoices and expenses synced from your accounting. They automatically feed these figures.</p>
+      )}
       {appTxns.length > 0 && (
         <p className="fin-appnote">✓ <b>{appTxns.length} line(s) from the app</b> · sales won in the CRM and campaign budgets. They automatically feed these figures.</p>
       )}
@@ -132,11 +165,12 @@ export default function FinanceModule({ dojoId }: ModuleProps) {
           <h4 className="brand-h">Transactions ({all.length})</h4>
           <div className="fin-table">
             {all.slice(0, 200).map((t) => {
-              const isApp = t.source === 'app'
+              const isAcct = t.source === 'accounting'
+              const isApp = t.source === 'app' || isAcct
               return (
                 <div key={t.id} className={`fin-trow${isApp ? ' app' : ''}`}>
                   <span className="fin-date">{t.date.slice(5)}</span>
-                  <span className="fin-label" title={t.label}>{isApp && <span className="fin-src">app</span>}{t.label}</span>
+                  <span className="fin-label" title={t.label}>{isApp && <span className="fin-src">{isAcct ? 'sync' : 'app'}</span>}{t.label}</span>
                   <span className="fin-amt" style={{ color: t.amount >= 0 ? '#1fa563' : '#e0483f' }}>{eur(t.amount)}</span>
                   {isApp ? (
                     <span className="fin-catchip" style={{ color: CAT_COLOR[t.category] || '#888' }}>{t.category}</span>
