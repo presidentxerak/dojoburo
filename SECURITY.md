@@ -1,12 +1,33 @@
 # Security
 
-DojoBuro is a **client-side static SPA** that talks directly to public XRPL
-nodes (and, optionally, the Xaman API) from the browser. There is **no backend
-and no server-side database**, which removes whole classes of risk (SQL
-injection, server RCE, leaked DB) but shifts the threat model to the client,
-the supply chain, and the CDN/edge.
+DojoBuro is a **client-side SPA** that talks directly to public XRPL nodes
+(and, optionally, the Xaman API) from the browser, plus a set of **optional
+serverless functions** (`api/`) that power connectors, the encrypted vault and
+the work engine when the operator configures them (`DATABASE_URL`,
+`CONNECTOR_ENC_KEY`, …). Without that configuration the app degrades to a
+fully client-side experience.
 
 ## Threat model & mitigations
+
+### 0. Server identity & the encrypted vault
+- **Verified identity.** API calls that read or write account data
+  (`/api/secrets`, `/api/connect`, `/api/tool-action`, `/api/tool-data`,
+  `/api/agent-run`) verify the caller: a claimed Privy DID must be proven by a
+  valid **Privy access token** (ES256 JWT, checked server-side against Privy's
+  JWKS — issuer, audience, expiry, signature; see `api/_lib/privyAuth.ts`). An
+  unproven claim is rejected. The token travels only in the `Authorization`
+  header, never in a URL.
+- **Guest accounts** are keyed by a **128-bit CSPRNG id** generated with
+  `crypto.getRandomValues` — the id itself is the bearer credential and is not
+  guessable/enumerable.
+- **Write-only secrets vault.** Company env vars are sealed with
+  **AES-256-GCM** (`CONNECTOR_ENC_KEY`) before touching the DB and are never
+  returned to any client — not even a partial preview. Only the server
+  decrypts them, just-in-time for a run. `/api/secrets` is rate-limited per IP
+  and per account (`SECRETS_RATE_MAX` / `SECRETS_RATE_WINDOW_MS`).
+- OAuth connector tokens follow the same rules: sealed at rest, never sent to
+  the browser, and the OAuth `state` is HMAC-signed with the identity that was
+  verified when the flow started.
 
 ### 1. XSS (cross-site scripting) — highest-impact web risk
 - **React escapes all interpolated text by default.** We never use

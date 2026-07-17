@@ -33,19 +33,22 @@ function readUser(user: any): { name: string; email: string; handle: string } {
 }
 
 function Bridge({ children }: { children: ReactNode }) {
-  const { ready, authenticated, user, login, logout } = usePrivy()
+  const { ready, authenticated, user, login, logout, getAccessToken } = usePrivy()
 
-  // expose the imperative controls to the (Privy-free) Account UI
+  // expose the imperative controls to the (Privy-free) Account UI. The access
+  // token getter lets API calls prove the DID server-side (Bearer header).
   useEffect(() => {
     privyControls.login = login
     privyControls.logout = logout
+    privyControls.getAccessToken = getAccessToken
     privyControls.ready = ready
     return () => {
       privyControls.login = undefined
       privyControls.logout = undefined
+      privyControls.getAccessToken = undefined
       privyControls.ready = false
     }
-  }, [ready, login, logout])
+  }, [ready, login, logout, getAccessToken])
 
   // mirror the authenticated Privy identity into the local account store
   useEffect(() => {

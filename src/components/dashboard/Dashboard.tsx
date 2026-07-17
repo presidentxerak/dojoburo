@@ -183,9 +183,12 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   }, [dojoId])
 
   const onServer = secMode === 'server'
+  // Vercel-style write-only display: a value is NEVER shown again once saved —
+  // not even its last characters. One uniform mask for server and local modes.
+  const SECRET_MASK = '••••••••'
   const secretList = onServer
-    ? serverSecrets.map((s) => ({ id: s.id, key: s.name, mask: s.preview, desc: s.description }))
-    : localSecrets.map((s) => ({ id: s.id, key: s.key, mask: '••••' + s.value.slice(-4), desc: s.desc }))
+    ? serverSecrets.map((s) => ({ id: s.id, key: s.name, mask: SECRET_MASK, desc: s.description }))
+    : localSecrets.map((s) => ({ id: s.id, key: s.key, mask: SECRET_MASK, desc: s.desc }))
 
   const saveSecret = async () => {
     if (!secKey.trim() || !secVal.trim() || !dojoId || secBusy) return

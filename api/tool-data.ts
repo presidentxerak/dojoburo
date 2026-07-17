@@ -17,6 +17,7 @@ import { getPool, dbConfigured } from './_lib/db'
 import { vaultConfigured } from './_lib/vault'
 import { findAccountId } from './_lib/accounts'
 import { connectionToken } from './_lib/connections'
+import { verifiedRef } from './_lib/privyAuth'
 
 export const config = { maxDuration: 15 }
 
@@ -28,6 +29,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   // Never 500: any failure degrades to a graceful "not connected".
   try {
     const url = new URL(req.url || '/', `https://${req.headers.host || 'localhost'}`)
+    // verify the caller's identity, then rewrite the params the providers read
+    // so every fetcher below only ever sees a PROVEN privy DID (or none).
+    const vr = await verifiedRef(req, url.searchParams.get('privy'), url.searchParams.get('client'))
+    if (!vr.ok) return json(res, 200, { ok: true, connected: false, error: 'auth' })
+    if (vr.ref.privy) url.searchParams.set('privy', vr.ref.privy); else url.searchParams.delete('privy')
+    if (vr.ref.client) url.searchParams.set('client', vr.ref.client); else url.searchParams.delete('client')
     const connector = (url.searchParams.get('connector') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40)
     const provider = PROVIDERS[connector]
     if (!provider) return json(res, 200, { ok: true, connected: false, error: 'unknown_connector' })

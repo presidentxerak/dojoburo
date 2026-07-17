@@ -14,6 +14,7 @@ import { createHmac, createHash, randomBytes } from 'node:crypto'
 import { getPool, dbConfigured } from './_lib/db'
 import { resolveAccountId, findAccountId } from './_lib/accounts'
 import { seal, vaultConfigured } from './_lib/vault'
+import { verifiedRef } from './_lib/privyAuth'
 import {
   serverConnector, connectorAvailable, clientId, clientSecret, redirectUri, siteUrl,
   CONNECTOR_IDS, type ServerConnector,
@@ -41,10 +42,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 // ---- list -----------------------------------------------------------------
 async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParams): Promise<void> {
   const connected: Record<string, { external_account: string | null; status: string }> = {}
-  if (dbConfigured() && vaultConfigured()) {
+  const vr = await verifiedRef(req, q.get('privy'), q.get('client'))
+  if (dbConfigured() && vaultConfigured() && vr.ok) {
     try {
       const pool = getPool()
-      const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+      const accountId = await findAccountId(pool, { privyDid: vr.ref.privy, clientRef: vr.ref.client })
       if (accountId) {
         const r = await pool.query(`select connector_id, external_account, status from connections where account_id = $1`, [accountId])
         for (const row of r.rows) connected[row.connector_id] = { external_account: row.external_account, status: row.status }
@@ -67,14 +69,27 @@ async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParam
 }
 
 // ---- start ----------------------------------------------------------------
+// Two modes share this action:
+//   * JSON (Accept: application/json + Authorization: Bearer <privy token>) —
+//     the app fetches, we verify the identity and RETURN the provider URL; the
+//     client then navigates. The access token stays in a header, never a URL.
+//   * legacy 302 — direct navigation. Fine for guests; a claimed Privy DID
+//     without proof is rejected (verifiedRef) like everywhere else.
+// Either way the (verified) identity is sealed into the HMAC-signed `state`,
+// which is what the OAuth callback trusts.
 async function start(req: IncomingMessage, res: ServerResponse, q: URLSearchParams): Promise<void> {
+  const wantsJson = String(req.headers.accept || '').includes('application/json')
   const id = q.get('connector') || ''
   const c = serverConnector(id)
   if (!c) return json(res, 404, { ok: false, error: 'unknown_connector' })
-  if (!connectorAvailable(id)) return backTo(res, `${siteUrl()}/#connect_error=${id}:not_available`)
-  if (!dbConfigured() || !vaultConfigured()) return backTo(res, `${siteUrl()}/#connect_error=${id}:no_backend`)
+  const fail = (code: string, status = 200): void =>
+    wantsJson ? json(res, status, { ok: false, error: code }) : backTo(res, `${siteUrl()}/#connect_error=${id}:${enc(code)}`)
+  if (!connectorAvailable(id)) return fail('not_available')
+  if (!dbConfigured() || !vaultConfigured()) return fail('no_backend')
 
-  const ref = { privyDid: q.get('privy'), clientRef: q.get('client') }
+  const vr = await verifiedRef(req, q.get('privy'), q.get('client'))
+  if (!vr.ok) return fail('auth')
+  const ref = { privyDid: vr.ref.privy, clientRef: vr.ref.client }
   if (!ref.privyDid && !ref.clientRef) return json(res, 400, { ok: false, error: 'no_account' })
 
   // PKCE (RFC 7636): generate a URL-safe code_verifier and carry it through the
@@ -96,6 +111,7 @@ async function start(req: IncomingMessage, res: ServerResponse, q: URLSearchPara
   auth.searchParams.set('state', state)
   for (const [k, v] of Object.entries(c.oauth.extraAuthorize || {})) auth.searchParams.set(k, v)
 
+  if (wantsJson) return json(res, 200, { ok: true, url: auth.toString() })
   res.statusCode = 302
   res.setHeader('location', auth.toString())
   res.end()
@@ -148,9 +164,11 @@ async function disconnect(req: IncomingMessage, res: ServerResponse): Promise<vo
   }
   const id = String(body?.connector || '')
   if (!serverConnector(id)) return json(res, 404, { ok: false, error: 'unknown_connector' })
+  const vr = await verifiedRef(req, body?.privy, body?.client, body?.privyToken)
+  if (!vr.ok) return json(res, 200, { ok: false, error: 'auth' })
   try {
     const pool = getPool()
-    const accountId = await findAccountId(pool, { privyDid: body?.privy, clientRef: body?.client })
+    const accountId = await findAccountId(pool, { privyDid: vr.ref.privy, clientRef: vr.ref.client })
     if (accountId) await pool.query(`delete from connections where account_id = $1 and connector_id = $2`, [accountId, id])
     return json(res, 200, { ok: true })
   } catch {
@@ -170,9 +188,11 @@ async function setkey(req: IncomingMessage, res: ServerResponse): Promise<void> 
   }
   const raw = String(body?.key || '').trim()
   if (!/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(raw)) return json(res, 200, { ok: false, error: 'bad_key' })
+  const vr = await verifiedRef(req, body?.privy, body?.client, body?.privyToken)
+  if (!vr.ok) return json(res, 200, { ok: false, error: 'auth' })
   try {
     const pool = getPool()
-    const accountId = await resolveAccountId(pool, { privyDid: body?.privy || null, clientRef: body?.client || null })
+    const accountId = await resolveAccountId(pool, { privyDid: vr.ref.privy, clientRef: vr.ref.client })
     if (!accountId) return json(res, 200, { ok: false, error: 'no_account' })
     const hint = `sk-ant-…${raw.slice(-4)}`
     await pool.query(
@@ -197,9 +217,11 @@ async function removekey(req: IncomingMessage, res: ServerResponse): Promise<voi
   } catch {
     return json(res, 400, { ok: false, error: 'bad_json' })
   }
+  const vr = await verifiedRef(req, body?.privy, body?.client, body?.privyToken)
+  if (!vr.ok) return json(res, 200, { ok: false, error: 'auth' })
   try {
     const pool = getPool()
-    const accountId = await findAccountId(pool, { privyDid: body?.privy, clientRef: body?.client })
+    const accountId = await findAccountId(pool, { privyDid: vr.ref.privy, clientRef: vr.ref.client })
     if (accountId) await pool.query(`delete from connections where account_id = $1 and connector_id = 'anthropic'`, [accountId])
     return json(res, 200, { ok: true })
   } catch {

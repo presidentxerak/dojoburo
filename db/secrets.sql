@@ -5,9 +5,10 @@
 --
 -- Per-company environment variables (STRIPE_KEY, …). The VALUE is stored
 -- ENCRYPTED at rest (AES-256-GCM, sealed by api/_lib/vault.ts with
--- CONNECTOR_ENC_KEY) — the browser only ever receives the name + a short
--- masked preview, never the plaintext. The server decrypts only to inject the
--- variable into a company's agent run.
+-- CONNECTOR_ENC_KEY) and is WRITE-ONLY: the browser only ever receives the
+-- name + description — never the plaintext, and (since the preview removal)
+-- never any characters derived from it. The server decrypts only to inject
+-- the variable into a company's agent run.
 -- =====================================================================
 
 create table if not exists company_secrets (
@@ -16,7 +17,7 @@ create table if not exists company_secrets (
   dojo_id     text not null,                 -- the company (workshop dojo id)
   name        text not null,                 -- env var name, e.g. STRIPE_KEY
   value_enc   text not null,                 -- SEALED (aes-256-gcm)
-  preview     text,                          -- e.g. '••••1a2b' — safe to show
+  preview     text,                          -- legacy column · no longer written (kept null)
   description text,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now(),

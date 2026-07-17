@@ -43,9 +43,12 @@ export default function SentinelModule({ dojoId }: ModuleProps) {
     if (s < 86400) return `${Math.floor(s / 3600)}h ago`
     return `${Math.floor(s / 86400)}d ago`
   }
+  // write-only display (Vercel-style): a saved value is never shown again,
+  // not even its last characters · one uniform mask everywhere.
+  const SECRET_MASK = '••••••••'
   const secretList = onServer
-    ? serverSecrets.map((s) => ({ id: s.id, key: s.name, mask: s.preview, desc: s.description, when: relTime(s.updatedAt) }))
-    : localSecrets.map((s) => ({ id: s.id, key: s.key, mask: '••••' + s.value.slice(-4), desc: s.desc, when: '' }))
+    ? serverSecrets.map((s) => ({ id: s.id, key: s.name, mask: SECRET_MASK, desc: s.description, when: relTime(s.updatedAt) }))
+    : localSecrets.map((s) => ({ id: s.id, key: s.key, mask: SECRET_MASK, desc: s.desc, when: '' }))
   const nameHint = secKey.trim() && normName(secKey) !== secKey.trim().toUpperCase() ? normName(secKey) : ''
   const exists = secretList.some((s) => s.key === normName(secKey))
 

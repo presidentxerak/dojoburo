@@ -11,6 +11,7 @@ import { getPool, dbConfigured } from './_lib/db'
 import { vaultConfigured } from './_lib/vault'
 import { findAccountId } from './_lib/accounts'
 import { connectionToken } from './_lib/connections'
+import { verifiedRef } from './_lib/privyAuth'
 
 export const config = { maxDuration: 15 }
 
@@ -32,6 +33,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'method' })
     let body: Record<string, unknown>
     try { body = JSON.parse(await readBody(req)) } catch { return json(res, 400, { ok: false, error: 'bad_json' }) }
+    // resolve the caller's identity ONCE, verified (a claimed Privy DID must be
+    // proven by a valid access token) · sub-actions below read body.privy/client
+    const vr = await verifiedRef(req, body.privy as string, body.client as string, body.privyToken as string)
+    if (!vr.ok) return json(res, 200, { ok: false, error: 'auth' })
+    body.privy = vr.ref.privy ?? undefined
+    body.client = vr.ref.client ?? undefined
     const connector = String(body.connector || '')
     const action = String(body.action || '')
     if (connector === 'gmail' && action === 'send') return await gmailSend(res, body)

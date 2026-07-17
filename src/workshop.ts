@@ -98,7 +98,24 @@ interface WorkshopState {
 }
 
 const KEY = 'dojoburo.workshop.v1'
-const uid = () => Math.random().toString(36).slice(2, 10)
+// Crypto-strong ids. The GUEST ACCOUNT id doubles as the bearer credential for
+// all server data (secrets, connections), so it must be unguessable: 128 bits
+// from the CSPRNG (Math.random is NOT acceptable there). Dojo/agent ids reuse
+// the same generator at 64 bits · existing persisted ids keep working as-is.
+function randomHex(bytes: number): string {
+  const c = globalThis.crypto
+  if (c?.getRandomValues) {
+    const a = new Uint8Array(bytes)
+    c.getRandomValues(a)
+    return Array.from(a, (b) => b.toString(16).padStart(2, '0')).join('')
+  }
+  // last-resort fallback (no WebCrypto · never the case in real browsers)
+  let s = ''
+  for (let i = 0; i < bytes * 2; i++) s += Math.floor(Math.random() * 16).toString(16)
+  return s
+}
+const uid = () => randomHex(8)
+const accountId = () => randomHex(16)
 const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People', 'Ops']
 
 // Every company is run by the SAME 10 functional agents (see data/roleAgents).
@@ -219,7 +236,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     signInGuest: (name) => {
       set({
         account: {
-          id: uid(),
+          id: accountId(),
           name: name?.trim() || 'Founder',
           handle: '',
           email: '',
@@ -234,7 +251,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
       set((s) => ({
         account: {
           // keep currency/avatar if a guest account was already set up
-          id: s.account?.id ?? uid(),
+          id: s.account?.id ?? accountId(),
           name: p.name?.trim() || s.account?.name || 'Founder',
           handle: p.handle?.trim() || s.account?.handle || '',
           email: p.email?.trim() || s.account?.email || '',

@@ -25,6 +25,7 @@ import { connectorAvailable, serverConnector, refreshOAuthToken } from './_lib/c
 import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle'
 import { cascadeComplete, freeCascadeConfigured } from './_lib/llm'
 import { originAllowed } from './_lib/origin'
+import { verifiedRef } from './_lib/privyAuth'
 
 export const config = { maxDuration: 60 }
 
@@ -75,7 +76,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const brief = String(body?.brief || '').slice(0, 800)
   const startup = String(body?.startup || '').slice(0, 200)
   const net = String(body?.net || 'testnet')
-  const ref = { privy: body?.privy as string | undefined, client: body?.client as string | undefined }
+  // verified identity: a claimed Privy DID must be proven by a valid access
+  // token, since this run gets the user's connected tools + secret names.
+  const vr = await verifiedRef(req, body?.privy, body?.client, body?.privyToken)
+  if (!vr.ok) return send(res, 200, { ok: false, error: 'auth' })
+  const ref = { privy: vr.ref.privy ?? undefined, client: vr.ref.client ?? undefined }
   const email = String(body?.email || '').trim().toLowerCase()
   const isAdmin = !!email && ADMIN_EMAILS.includes(email)
   // admin can spend the operator's Claude key even if WORK_OPERATOR_CLAUDE is off

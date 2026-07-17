@@ -1,8 +1,11 @@
-// Client wrappers for the connector + real-work endpoints. All identity is a
-// ref: the Privy DID when signed in, else the workshop account id (guest). No
-// token ever crosses this boundary · the browser only sees connector status.
+// Client wrappers for the connector + real-work endpoints. Identity is a ref
+// (the Privy DID when signed in, else the guest account id) PLUS PROOF: every
+// call carries the Privy access token in an Authorization header, which the
+// server verifies against Privy's JWKS — a DID claim alone is rejected. No
+// connector token ever crosses this boundary · the browser only sees status.
 import { useWorkshop, type ExtAgent } from '../workshop'
 import { useDojo } from '../store'
+import { privyAccessToken } from '../auth/controls'
 
 export interface ToolStatus {
   id: string
@@ -26,11 +29,19 @@ function refParams(): string {
   return p.toString()
 }
 
+/** Authorization header proving the Privy identity · {} for guests. The token
+ *  is fetched fresh per call (Privy refreshes it) and travels ONLY in a header,
+ *  never in a URL where it could end up in logs. */
+async function authHeader(): Promise<Record<string, string>> {
+  const t = await privyAccessToken()
+  return t ? { authorization: `Bearer ${t}` } : {}
+}
+
 export interface ByokStatus { connected: boolean; hint: string | null }
 
 export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boolean; byok: ByokStatus }> {
   try {
-    const res = await fetch(`/api/connect?action=list&${refParams()}`, { headers: { accept: 'application/json' } })
+    const res = await fetch(`/api/connect?action=list&${refParams()}`, { headers: { accept: 'application/json', ...(await authHeader()) } })
     const j = await res.json()
     if (j?.ok) return { tools: j.tools, backend: !!j.backend, byok: j.byok ?? { connected: false, hint: null } }
   } catch {
@@ -45,7 +56,7 @@ export async function sendGmail(to: string, subject: string, body: string): Prom
   try {
     const r = ref()
     const res = await fetch('/api/tool-action', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
+      method: 'POST', headers: { 'content-type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ connector: 'gmail', action: 'send', to, subject, body, privy: r.privy, client: r.client }),
     })
     const j = await res.json().catch(() => ({}))
@@ -60,7 +71,7 @@ export async function toolAction(connector: string, action: string, payload: Rec
   try {
     const r = ref()
     const res = await fetch('/api/tool-action', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
+      method: 'POST', headers: { 'content-type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ connector, action, ...payload, privy: r.privy, client: r.client }),
     })
     const j = await res.json().catch(() => ({}))
@@ -75,7 +86,7 @@ export async function postSlack(text: string, channel?: string): Promise<{ ok: b
   try {
     const r = ref()
     const res = await fetch('/api/tool-action', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
+      method: 'POST', headers: { 'content-type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ connector: 'slack', action: 'post', text, channel, privy: r.privy, client: r.client }),
     })
     const j = await res.json().catch(() => ({}))
@@ -93,7 +104,7 @@ export async function toolData(connector: string, dojo?: string): Promise<ToolDa
     const p = new URLSearchParams(refParams())
     p.set('connector', connector)
     if (dojo) p.set('dojo', dojo)
-    const res = await fetch(`/api/tool-data?${p.toString()}`, { headers: { accept: 'application/json' } })
+    const res = await fetch(`/api/tool-data?${p.toString()}`, { headers: { accept: 'application/json', ...(await authHeader()) } })
     const j = await res.json()
     if (j?.ok) return { connected: !!j.connected, admin: j.admin, account: j.account ?? null, data: j.data }
   } catch {
@@ -107,7 +118,7 @@ export async function setClaudeKey(key: string): Promise<{ ok: boolean; hint?: s
   try {
     const res = await fetch('/api/connect?action=setkey', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ key, ...ref() }),
     })
     return await res.json()
@@ -120,7 +131,7 @@ export async function removeClaudeKey(): Promise<boolean> {
   try {
     const res = await fetch('/api/connect?action=removekey', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ ...ref() }),
     })
     const j = await res.json()
@@ -130,20 +141,40 @@ export async function removeClaudeKey(): Promise<boolean> {
   }
 }
 
-/** Top-level navigation to the provider's OAuth screen. */
+/** Open the provider's OAuth consent screen. Preferred path: fetch the
+ *  authorize URL with the Privy token in a HEADER (verified server-side), then
+ *  navigate — so the token never appears in a URL. Falls back to the legacy
+ *  direct redirect (fine for guests) if the JSON mode is unavailable. */
 export function startConnect(connectorId: string): void {
   const p = new URLSearchParams({ action: 'start', connector: connectorId })
   const r = ref()
   if (r.privy) p.set('privy', r.privy)
   if (r.client) p.set('client', r.client)
-  window.location.href = `/api/connect?${p.toString()}`
+  const target = `/api/connect?${p.toString()}`
+  void (async () => {
+    try {
+      const res = await fetch(target, { headers: { accept: 'application/json', ...(await authHeader()) } })
+      const j = await res.json().catch(() => null)
+      if (j?.ok && j.url) { window.location.href = j.url as string; return }
+      if (j && j.ok === false) {
+        const map: Record<string, string> = {
+          auth: 'Your session expired · sign in again, then retry.',
+          not_available: 'This app is not enabled on this deployment yet.',
+          no_backend: 'Connecting needs the server vault configured.',
+        }
+        useDojo.getState().pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Could not connect', text: map[j.error as string] || 'Could not start the connection.' })
+        return
+      }
+    } catch { /* fall through to the legacy redirect */ }
+    window.location.href = target
+  })()
 }
 
 export async function disconnectTool(connectorId: string): Promise<boolean> {
   try {
     const res = await fetch('/api/connect?action=disconnect', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ connector: connectorId, ...ref() }),
     })
     const j = await res.json()
@@ -185,7 +216,7 @@ export async function runWork(input: { task: string; agentName: string; connecto
   try {
     const res = await fetch('/api/agent-run', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ ...input, extAgents: undefined, extMcp, startup, net, dojo: activeDojoId || undefined, ...ref() }),
     })
     return (await res.json()) as RunResult
@@ -195,15 +226,17 @@ export async function runWork(input: { task: string; agentName: string; connecto
 }
 
 // ---- company secrets (env vars) · sealed server-side ----------------------
-export interface ServerSecret { id: string; name: string; preview: string; description: string; updatedAt?: string }
+// WRITE-ONLY like Vercel: the server never returns the value, nor any preview
+// of it — only the name + description come back.
+export interface ServerSecret { id: string; name: string; description: string; updatedAt?: string }
 
-/** List a company's secrets (names + masked previews only). `backend` is false
+/** List a company's secrets (names only, never values). `backend` is false
  *  when the encrypted vault isn't configured on this deployment. */
 export async function listSecrets(dojo: string): Promise<{ backend: boolean; secrets: ServerSecret[] }> {
   try {
     const p = new URLSearchParams({ action: 'list', dojo })
     const r = ref(); if (r.privy) p.set('privy', r.privy); if (r.client) p.set('client', r.client)
-    const res = await fetch(`/api/secrets?${p.toString()}`, { headers: { accept: 'application/json' } })
+    const res = await fetch(`/api/secrets?${p.toString()}`, { headers: { accept: 'application/json', ...(await authHeader()) } })
     const j = await res.json()
     // server mode ONLY when the endpoint fully works (vault + DB table present);
     // no_backend or a db error falls back to the local store with a warning.
@@ -217,7 +250,7 @@ export async function listSecrets(dojo: string): Promise<{ backend: boolean; sec
 export async function saveSecret(dojo: string, name: string, value: string, description: string): Promise<{ ok: boolean; secret?: ServerSecret; error?: string }> {
   try {
     const res = await fetch('/api/secrets?action=save', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
+      method: 'POST', headers: { 'content-type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ dojo, name, value, description, ...ref() }),
     })
     return await res.json()
@@ -227,7 +260,7 @@ export async function saveSecret(dojo: string, name: string, value: string, desc
 export async function removeSecret(dojo: string, id: string): Promise<boolean> {
   try {
     const res = await fetch('/api/secrets?action=remove', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
+      method: 'POST', headers: { 'content-type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify({ dojo, id, ...ref() }),
     })
     const j = await res.json()
