@@ -79,17 +79,20 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
   // Real social publishing · appears per network when connected.
   const xOn = useWork((s) => !!s.tools['twitter']?.connected)
   const bufferOn = useWork((s) => !!s.tools['buffer']?.connected)
+  const liOn = useWork((s) => !!s.tools['linkedin']?.connected)
   const [publishing, setPublishing] = useState('')
   const postText = () => (ad ? `${ad.headline}\n\n${ad.primary}`.trim() : '')
   // live Mailchimp audience (subscriber count) · null until connected
   const [mc, setMc] = useState<{ members: number; total: number } | null>(null)
   useEffect(() => { let live = true; void toolData('mailchimp').then((r) => { if (live && r.connected && r.data) setMc(r.data as typeof mc) }); return () => { live = false } }, [])
-  const publish = async (connector: 'twitter' | 'buffer') => {
+  const publish = async (connector: 'twitter' | 'buffer' | 'linkedin') => {
     const text = postText(); if (!text || publishing) return
     setPublishing(connector)
     const r = await toolAction(connector, 'post', { text: connector === 'twitter' ? text.slice(0, 275) : text })
     setPublishing('')
-    if (r.ok) pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: connector === 'twitter' ? 'Posted to X' : 'Queued to Buffer', text: connector === 'twitter' ? 'Your post is live on X.' : `Queued to ${r.profiles ?? ''} Buffer profile(s).` })
+    const okTitle: Record<string, string> = { twitter: 'Posted to X', buffer: 'Queued to Buffer', linkedin: 'Posted to LinkedIn' }
+    const okText: Record<string, string> = { twitter: 'Your post is live on X.', buffer: `Queued to ${r.profiles ?? ''} Buffer profile(s).`, linkedin: 'Your post is live on LinkedIn.' }
+    if (r.ok) pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: okTitle[connector], text: okText[connector] })
     else { const map: Record<string, string> = { not_connected: 'Connect it first (Connect apps).', no_backend: 'Publishing needs the server vault configured.', rate: 'Too many posts · wait a minute.', no_profiles: 'No Buffer profiles found.', post_failed: 'The network refused the post · reconnect it.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not published', text: map[r.error || ''] || 'Could not publish.' }) }
   }
   const exportSvg = () => {
@@ -228,8 +231,9 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
             <button className="btn tiny ghost" onClick={copyText}>Copy the full copy pack</button>
             {xOn && <button className="btn tiny primary" disabled={!!publishing} onClick={() => void publish('twitter')}>{publishing === 'twitter' ? 'Posting…' : 'Post to X'}</button>}
             {bufferOn && <button className="btn tiny primary" disabled={!!publishing} onClick={() => void publish('buffer')}>{publishing === 'buffer' ? 'Queuing…' : 'Send to Buffer'}</button>}
+            {liOn && <button className="btn tiny primary" disabled={!!publishing} onClick={() => void publish('linkedin')}>{publishing === 'linkedin' ? 'Posting…' : 'Post to LinkedIn'}</button>}
           </div>
-          {!xOn && !bufferOn && <p className="muted small">Connect <b>X</b> or <b>Buffer</b> (Connect apps, top right) to publish these posts for real · or paste the pack into Meta Ads Manager.</p>}
+          {!xOn && !bufferOn && !liOn && <p className="muted small">Connect <b>X</b>, <b>Buffer</b> or <b>LinkedIn</b> (Connect apps, top right) to publish these posts for real · or paste the pack into Meta Ads Manager.</p>}
           {saved && <StudioNext from="marketus" done="Campaign saved." />}
         </section>
       )}

@@ -38,6 +38,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (connector === 'slack' && action === 'post') return await slackPost(res, body)
     if (connector === 'twitter' && action === 'post') return await twitterPost(res, body)
     if (connector === 'buffer' && action === 'post') return await bufferPost(res, body)
+    if (connector === 'linkedin' && action === 'post') return await linkedinPost(res, body)
     if (connector === 'notion' && action === 'create') return await notionCreate(res, body)
     return json(res, 200, { ok: false, error: 'unknown_action' })
   } catch (e) {
@@ -166,6 +167,46 @@ async function bufferPost(res: ServerResponse, body: Record<string, unknown>): P
     const j = await r.json().catch(() => ({})) as { success?: boolean }
     if (!r.ok || !j?.success) return json(res, 200, { ok: false, error: 'post_failed' })
     return json(res, 200, { ok: true, profiles: ids.length })
+  } catch { return json(res, 200, { ok: false, error: 'post_failed' }) }
+}
+
+// ---- LinkedIn · share a text post to the member's feed (w_member_social) --
+async function linkedinPost(res: ServerResponse, body: Record<string, unknown>): Promise<void> {
+  const text = String(body.text || '').slice(0, 3000)
+  if (!text.trim()) return json(res, 200, { ok: false, error: 'empty' })
+  const t = await actionToken(body, 'linkedin')
+  if ('error' in t) return json(res, 200, { ok: false, error: t.error })
+  try {
+    // resolve the member URN from the OpenID userinfo endpoint (`sub`).
+    const ur = await fetch('https://api.linkedin.com/v2/userinfo', {
+      headers: { authorization: `Bearer ${t.token}` },
+    })
+    const ui = await ur.json().catch(() => ({})) as { sub?: string }
+    if (!ur.ok || !ui?.sub) return json(res, 200, { ok: false, error: 'no_member' })
+    const author = `urn:li:person:${ui.sub}`
+    const r = await fetch('https://api.linkedin.com/v2/ugcPosts', {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${t.token}`,
+        'content-type': 'application/json',
+        'X-Restli-Protocol-Version': '2.0.0',
+      },
+      body: JSON.stringify({
+        author,
+        lifecycleState: 'PUBLISHED',
+        specificContent: {
+          'com.linkedin.ugc.ShareContent': {
+            shareCommentary: { text },
+            shareMediaCategory: 'NONE',
+          },
+        },
+        visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' },
+      }),
+    })
+    const j = await r.json().catch(() => ({})) as { id?: string }
+    const hdrId = r.headers.get('x-restli-id') || undefined
+    if (!r.ok || !(j?.id || hdrId)) return json(res, 200, { ok: false, error: 'post_failed' })
+    return json(res, 200, { ok: true, id: j.id || hdrId })
   } catch { return json(res, 200, { ok: false, error: 'post_failed' }) }
 }
 
