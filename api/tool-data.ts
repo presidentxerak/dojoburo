@@ -47,6 +47,38 @@ const PROVIDERS: Record<string, Provider> = {
   ga4: ga4Data,
   gsc: gscData,
   hubspot: hubspotData,
+  mailchimp: mailchimpData,
+}
+
+// ---- Mailchimp (per-user OAuth · audience read) ---------------------------
+async function mailchimpData(q: URLSearchParams): Promise<Result> {
+  if (!dbConfigured() || !vaultConfigured()) return { connected: false }
+  const pool = getPool()
+  const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+  if (!accountId) return { connected: false }
+  const conn = await connectionToken(pool, accountId, 'mailchimp')
+  if (!conn) return { connected: false }
+
+  // the API base (datacenter) lives behind the OAuth metadata endpoint
+  let base = ''
+  try {
+    const m = await fetch('https://login.mailchimp.com/oauth2/metadata', { headers: { authorization: `OAuth ${conn.token}` } })
+    const mj = await m.json().catch(() => ({})) as { api_endpoint?: string }
+    base = String(mj?.api_endpoint || '')
+  } catch { /* ignore */ }
+  if (!base) return { connected: true, data: null }
+
+  const lists = await hfetch(`${base}/3.0/lists?count=5&fields=lists.id,lists.name,lists.stats.member_count,total_items`, conn.token)
+  if (!lists) return { connected: true, data: null }
+  const rows = Array.isArray((lists as { lists?: unknown[] })?.lists) ? (lists as { lists: unknown[] }).lists : []
+  let members = 0
+  const audiences = rows.map((l) => {
+    const row = l as { name?: string; stats?: { member_count?: number } }
+    const c = Number(row.stats?.member_count) || 0
+    members += c
+    return { name: row.name || 'Audience', members: c }
+  })
+  return { connected: true, data: { total: Number((lists as { total_items?: number })?.total_items) || audiences.length, members, audiences } }
 }
 
 // ---- HubSpot (per-user OAuth · the caller's own CRM) ----------------------

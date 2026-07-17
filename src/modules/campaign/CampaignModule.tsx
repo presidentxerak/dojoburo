@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
+import { useWork } from '../../agents/workStore'
+import { toolAction, toolData } from '../../agents/workApi'
 import type { BrandKit } from '../../lib/brand'
 import {
   type Campaign, type Objective, type AdFormat, type AdVariant, OBJECTIVES, ANGLES,
@@ -74,6 +76,22 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
   const generate = () => { const c = generateCampaign(product || dojoName, camp.objective); setCamp(c); setSel(0); setStep('audience'); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Campaign generated', text: '5 Meta variants ready · review the audience.' }) }
   const save = async () => { await saveCampaign(dojoId, camp); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Campaign saved', text: 'Saved locally (IndexedDB).' }) }
   const copyText = () => { void navigator.clipboard?.writeText(copyPack(camp)); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Copied', text: 'Copy pack ready to paste into Meta Ads Manager.' }) }
+  // Real social publishing · appears per network when connected.
+  const xOn = useWork((s) => !!s.tools['twitter']?.connected)
+  const bufferOn = useWork((s) => !!s.tools['buffer']?.connected)
+  const [publishing, setPublishing] = useState('')
+  const postText = () => (ad ? `${ad.headline}\n\n${ad.primary}`.trim() : '')
+  // live Mailchimp audience (subscriber count) · null until connected
+  const [mc, setMc] = useState<{ members: number; total: number } | null>(null)
+  useEffect(() => { let live = true; void toolData('mailchimp').then((r) => { if (live && r.connected && r.data) setMc(r.data as typeof mc) }); return () => { live = false } }, [])
+  const publish = async (connector: 'twitter' | 'buffer') => {
+    const text = postText(); if (!text || publishing) return
+    setPublishing(connector)
+    const r = await toolAction(connector, 'post', { text: connector === 'twitter' ? text.slice(0, 275) : text })
+    setPublishing('')
+    if (r.ok) pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: connector === 'twitter' ? 'Posted to X' : 'Queued to Buffer', text: connector === 'twitter' ? 'Your post is live on X.' : `Queued to ${r.profiles ?? ''} Buffer profile(s).` })
+    else { const map: Record<string, string> = { not_connected: 'Connect it first (Connect apps).', no_backend: 'Publishing needs the server vault configured.', rate: 'Too many posts · wait a minute.', no_profiles: 'No Buffer profiles found.', post_failed: 'The network refused the post · reconnect it.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not published', text: map[r.error || ''] || 'Could not publish.' }) }
+  }
   const exportSvg = () => {
     if (!brand || !ad) return
     const blob = new Blob([adSvg(brand, ad, camp.format)], { type: 'image/svg+xml' })
@@ -120,6 +138,7 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
         <section className="sq-panel">
           <h3 className="sq-title">Campaign brief</h3>
           <p className="sq-lead">What are you promoting, and what's the goal? We build the audience, personas and 5 ad variants from this.</p>
+          {mc && <p className="muted small" style={{ marginTop: 0 }}><b>{mc.members.toLocaleString('en-US')}</b> subscribers across {mc.total} Mailchimp audience{mc.total === 1 ? '' : 's'} · live.</p>}
           <label className="sq-field">Product / offer
             <input value={product} maxLength={60} onChange={(e) => setProduct(e.target.value)} placeholder="e.g. in-home personal training · first session free" />
           </label>
@@ -207,8 +226,10 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
           <div className="brand-actions">
             <button className="btn tiny" onClick={exportSvg}>Download creative (SVG)</button>
             <button className="btn tiny ghost" onClick={copyText}>Copy the full copy pack</button>
+            {xOn && <button className="btn tiny primary" disabled={!!publishing} onClick={() => void publish('twitter')}>{publishing === 'twitter' ? 'Posting…' : 'Post to X'}</button>}
+            {bufferOn && <button className="btn tiny primary" disabled={!!publishing} onClick={() => void publish('buffer')}>{publishing === 'buffer' ? 'Queuing…' : 'Send to Buffer'}</button>}
           </div>
-          <p className="muted small">Meta only (Facebook &amp; Instagram). Connect your Meta account (Connect apps, top right) to run these ads for real.</p>
+          {!xOn && !bufferOn && <p className="muted small">Connect <b>X</b> or <b>Buffer</b> (Connect apps, top right) to publish these posts for real · or paste the pack into Meta Ads Manager.</p>}
           {saved && <StudioNext from="marketus" done="Campaign saved." />}
         </section>
       )}

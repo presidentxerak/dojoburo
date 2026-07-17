@@ -55,6 +55,21 @@ export async function sendGmail(to: string, subject: string, body: string): Prom
   }
 }
 
+/** Generic connector action (post/create/…) via /api/tool-action. */
+export async function toolAction(connector: string, action: string, payload: Record<string, unknown>): Promise<{ ok: boolean; error?: string; [k: string]: unknown }> {
+  try {
+    const r = ref()
+    const res = await fetch('/api/tool-action', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ connector, action, ...payload, privy: r.privy, client: r.client }),
+    })
+    const j = await res.json().catch(() => ({}))
+    return { ok: !!j?.ok, error: j?.error, ...j }
+  } catch {
+    return { ok: false, error: 'network' }
+  }
+}
+
 /** Post a message to the team's Slack from the user's connected Slack. */
 export async function postSlack(text: string, channel?: string): Promise<{ ok: boolean; error?: string }> {
   try {

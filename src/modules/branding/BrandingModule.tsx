@@ -9,6 +9,8 @@
 import { useEffect, useState } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
+import { useWork } from '../../agents/workStore'
+import { toolAction } from '../../agents/workApi'
 import { useDojo } from '../../store'
 import {
   type BrandKit, type LogoLayout, type LogoStyle, type MarkShape, defaultKit, loadBrandKit, saveBrandKit,
@@ -169,6 +171,23 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     setDomains(await checkDomains(name)); setChecking(false)
   }
   const recheck = async () => { setChecking(true); setDomains(await checkDomains(kit.name)); setChecking(false) }
+  // Save a brand summary page to the user's Notion (when connected).
+  const notionOn = useWork((s) => !!s.tools['notion']?.connected)
+  const [notionBusy, setNotionBusy] = useState(false)
+  const saveToNotion = async () => {
+    if (notionBusy) return
+    setNotionBusy(true)
+    const body = [
+      `Tagline: ${kit.tagline}`,
+      `Palette: ${Object.values(kit.palette).join(', ')}`,
+      `Heading font: ${kit.headingFont || 'preset'}`,
+      `Body font: ${kit.bodyFont || 'preset'}`,
+    ].join('\n\n')
+    const r = await toolAction('notion', 'create', { title: `Brand · ${kit.name || 'My brand'}`, body })
+    setNotionBusy(false)
+    if (r.ok) pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: 'Saved to Notion', text: 'Your brand summary page was created.' })
+    else { const map: Record<string, string> = { not_connected: 'Connect Notion first (Connect apps).', no_backend: 'Notion needs the server vault configured.', no_parent: 'Set NOTION_PARENT_ID on the deployment.', create_failed: 'Notion refused the page · reconnect it.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not saved', text: map[r.error || ''] || 'Could not save to Notion.' }) }
+  }
   const saveName = async () => {
     await saveBrandKit(dojoId, kit)
     adoptName(kit.name) // keep the dojo/company name in sync with any final edit
@@ -651,6 +670,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
           <div className="sq-cta-row">
             <button className="sq-cta ghost" onClick={downloadLogo}>Download logo (SVG)</button>
             <button className="sq-cta ghost" onClick={downloadGuidelines}>Brand guidelines (HTML)</button>
+            {notionOn && <button className="sq-cta ghost" disabled={notionBusy} onClick={() => void saveToNotion()}>{notionBusy ? 'Saving…' : 'Save to Notion'}</button>}
           </div>
           {saved && <StudioNext from="brandi" done={`"${kit.name}" saved · your Website studio now uses this brand.`} />}
         </section>

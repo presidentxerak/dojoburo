@@ -36,6 +36,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const action = String(body.action || '')
     if (connector === 'gmail' && action === 'send') return await gmailSend(res, body)
     if (connector === 'slack' && action === 'post') return await slackPost(res, body)
+    if (connector === 'twitter' && action === 'post') return await twitterPost(res, body)
+    if (connector === 'buffer' && action === 'post') return await bufferPost(res, body)
+    if (connector === 'notion' && action === 'create') return await notionCreate(res, body)
     return json(res, 200, { ok: false, error: 'unknown_action' })
   } catch (e) {
     return json(res, 200, { ok: false, error: 'server', detail: String((e as Error)?.message || e).slice(0, 100) })
@@ -111,6 +114,88 @@ async function slackPost(res: ServerResponse, body: Record<string, unknown>): Pr
   } catch {
     return json(res, 200, { ok: false, error: 'post_failed' })
   }
+}
+
+// ---- shared action prelude · resolve account + read the connector token ----
+async function actionToken(body: Record<string, unknown>, connectorId: string): Promise<{ error: string } | { token: string; accountId: string }> {
+  if (!dbConfigured() || !vaultConfigured()) return { error: 'no_backend' }
+  const pool = getPool()
+  const accountId = await findAccountId(pool, { privyDid: (body.privy as string) || null, clientRef: (body.client as string) || null })
+  if (!accountId) return { error: 'no_account' }
+  if (!allow(accountId)) return { error: 'rate' }
+  const conn = await connectionToken(pool, accountId, connectorId)
+  if (!conn) return { error: 'not_connected' }
+  return { token: conn.token, accountId }
+}
+
+// ---- X / Twitter · post a tweet (tweet.write) -----------------------------
+async function twitterPost(res: ServerResponse, body: Record<string, unknown>): Promise<void> {
+  const text = String(body.text || '').slice(0, 280)
+  if (!text.trim()) return json(res, 200, { ok: false, error: 'empty' })
+  const t = await actionToken(body, 'twitter')
+  if ('error' in t) return json(res, 200, { ok: false, error: t.error })
+  try {
+    const r = await fetch('https://api.twitter.com/2/tweets', {
+      method: 'POST', headers: { authorization: `Bearer ${t.token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
+    const j = await r.json().catch(() => ({})) as { data?: { id?: string }; detail?: string }
+    if (!r.ok || !j?.data?.id) return json(res, 200, { ok: false, error: 'post_failed' })
+    return json(res, 200, { ok: true, id: j.data.id })
+  } catch { return json(res, 200, { ok: false, error: 'post_failed' }) }
+}
+
+// ---- Buffer · queue a post to every connected profile ---------------------
+async function bufferPost(res: ServerResponse, body: Record<string, unknown>): Promise<void> {
+  const text = String(body.text || '').slice(0, 2000)
+  if (!text.trim()) return json(res, 200, { ok: false, error: 'empty' })
+  const t = await actionToken(body, 'buffer')
+  if ('error' in t) return json(res, 200, { ok: false, error: t.error })
+  try {
+    const pr = await fetch(`https://api.bufferapp.com/1/profiles.json?access_token=${encodeURIComponent(t.token)}`)
+    const profiles = await pr.json().catch(() => []) as { id?: string }[]
+    const ids = Array.isArray(profiles) ? profiles.map((p) => p.id).filter(Boolean) as string[] : []
+    if (!ids.length) return json(res, 200, { ok: false, error: 'no_profiles' })
+    const form = new URLSearchParams()
+    form.set('access_token', t.token)
+    form.set('text', text)
+    ids.forEach((id) => form.append('profile_ids[]', id))
+    const r = await fetch('https://api.bufferapp.com/1/updates/create.json', {
+      method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: form.toString(),
+    })
+    const j = await r.json().catch(() => ({})) as { success?: boolean }
+    if (!r.ok || !j?.success) return json(res, 200, { ok: false, error: 'post_failed' })
+    return json(res, 200, { ok: true, profiles: ids.length })
+  } catch { return json(res, 200, { ok: false, error: 'post_failed' }) }
+}
+
+// ---- Notion · create a page under NOTION_PARENT_ID ------------------------
+async function notionCreate(res: ServerResponse, body: Record<string, unknown>): Promise<void> {
+  const title = String(body.title || '').slice(0, 200)
+  const content = String(body.body || '').slice(0, 12_000)
+  if (!title.trim()) return json(res, 200, { ok: false, error: 'empty' })
+  const parent = ENV.NOTION_PARENT_ID
+  if (!parent) return json(res, 200, { ok: false, error: 'no_parent' })
+  const t = await actionToken(body, 'notion')
+  if ('error' in t) return json(res, 200, { ok: false, error: t.error })
+  try {
+    const paras = content.split(/\n{2,}/).filter(Boolean).slice(0, 40).map((p) => ({
+      object: 'block', type: 'paragraph',
+      paragraph: { rich_text: [{ type: 'text', text: { content: p.slice(0, 1800) } }] },
+    }))
+    const r = await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${t.token}`, 'content-type': 'application/json', 'Notion-Version': '2022-06-28' },
+      body: JSON.stringify({
+        parent: { page_id: parent },
+        properties: { title: { title: [{ text: { content: title } }] } },
+        children: paras,
+      }),
+    })
+    const j = await r.json().catch(() => ({})) as { id?: string; url?: string }
+    if (!r.ok || !j?.id) return json(res, 200, { ok: false, error: 'create_failed' })
+    return json(res, 200, { ok: true, id: j.id, url: j.url })
+  } catch { return json(res, 200, { ok: false, error: 'create_failed' }) }
 }
 
 function readBody(req: IncomingMessage): Promise<string> {
