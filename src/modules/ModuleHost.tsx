@@ -4,9 +4,10 @@
 // an external app to act for real (send email, publish, charge) and none is
 // connected yet, the "Connect apps" button blinks and an info dot explains why.
 // Live modules are bundled (no lazy chunk to 404).
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { MODULE_BY_ID } from './registry'
 import { ErrorBoundary } from '../components/ErrorBoundary'
+import { StudioConnectors } from '../components/StudioConnectors'
 import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
 import { CONNECTORS } from '../data/connectors'
 import { useWork } from '../agents/workStore'
@@ -16,21 +17,23 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
   const tools = useWork((s) => s.tools)
   const backend = useWork((s) => s.backend)
   const loadedOnce = useWork((s) => s.loadedOnce)
+  const [showApps, setShowApps] = useState(false)
   // load connection status once so we know whether to blink the Connect button
   useEffect(() => { if (!loadedOnce) void useWork.getState().loadTools() }, [loadedOnce])
 
   const role = def ? ROLE_BY_ID[canonicalRole(def.agentRole)] : undefined
-  // the external apps that belong to this agent's department
-  const apps = useMemo(
-    () => (role ? CONNECTORS.filter((c) => c.functions.includes(role.dept)) : []),
-    [role],
-  )
-  const anyConnected = apps.some((c) => tools[c.id]?.connected)
+  // this agent's OWN curated apps (data/roleAgents), falling back to every
+  // connector in its department if none are listed.
+  const appIds = useMemo(() => {
+    if (role?.apps?.length) return role.apps
+    return role ? CONNECTORS.filter((c) => c.functions.includes(role.dept)).map((c) => c.id) : []
+  }, [role])
+  const anyConnected = appIds.some((id) => tools[id]?.connected)
   // blink when the agent genuinely needs an app for full function and none is
   // linked · only when the deployment actually has a connector backend, so we
   // never nag on a build where connecting isn't possible.
-  const needsConnect = !!def?.needsApps && backend && apps.length > 0 && !anyConnected
-  const appNames = apps.slice(0, 4).map((c) => c.label).join(', ')
+  const needsConnect = !!def?.needsApps && backend && appIds.length > 0 && !anyConnected
+  const appNames = appIds.slice(0, 4).map((id) => CONNECTORS.find((c) => c.id === id)?.label || id).join(', ')
 
   if (!def) return null
 
@@ -45,15 +48,16 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
           </div>
         </div>
         <div className="modhost-bar-r">
-          {/* Connect apps → the full connectors page (all apps by category) */}
+          {/* Connect apps → toggles this agent's OWN apps inline (no page jump) */}
           <div className="modhost-connect-wrap">
             <button
-              className={`modhost-connect${needsConnect ? ' blink' : ''}`}
-              onClick={() => { location.hash = 'connect' }}
+              className={`modhost-connect${needsConnect && !showApps ? ' blink' : ''}${showApps ? ' on' : ''}`}
+              onClick={() => setShowApps((v) => !v)}
+              aria-expanded={showApps}
             >
-              Connect apps
+              {showApps ? 'Hide apps' : 'Connect apps'}
             </button>
-            {needsConnect && (
+            {needsConnect && !showApps && (
               <span className="modhost-info" tabIndex={0} aria-label="Why connect an app?">
                 i
                 <span className="modhost-tip" role="tooltip">
@@ -68,6 +72,16 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
           <button className="modhost-close" onClick={onClose} aria-label="Close studio">✕</button>
         </div>
       </header>
+
+      {showApps && (
+        <div className="modhost-apps">
+          <div className="modhost-apps-head">
+            <h3 className="sq-title">{role?.title ?? def.label}'s apps</h3>
+            <button className="linklike" onClick={() => { location.hash = 'connect' }}>See all apps</button>
+          </div>
+          <StudioConnectors appIds={appIds} compact />
+        </div>
+      )}
 
       <div className="modhost-body">
         {def.status === 'live' && def.comp ? (

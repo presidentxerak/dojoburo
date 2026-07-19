@@ -11,7 +11,6 @@ import { useWork } from '../../agents/workStore'
 import { startConnect, postSlack, toolData, toolAction } from '../../agents/workApi'
 import { ROLE_BY_ID } from '../../data/roleAgents'
 import { CONNECTOR_BY_ID } from '../../data/connectors'
-import { ConnectorLogo } from '../../components/ConnectorLogo'
 
 // connectors we have a live read provider for (api/tool-data.ts)
 const LIVE = new Set(['github', 'linear', 'zendesk', 'intercom', 'gdrive', 'docusign', 'slack'])
@@ -61,10 +60,8 @@ export default function TeamStudio({ agentKey }: ModuleProps & { agentKey: strin
   const role = ROLE_BY_ID[agentKey]
   const pushToast = useDojo((s) => s.pushToast)
   const tools = useWork((s) => s.tools)
-  const backend = useWork((s) => s.backend)
   const loadedOnce = useWork((s) => s.loadedOnce)
   const loadTools = useWork((s) => s.loadTools)
-  const disconnect = useWork((s) => s.disconnect)
   const [text, setText] = useState('')
   const [repo, setRepo] = useState('')
   const [busy, setBusy] = useState('')
@@ -189,40 +186,12 @@ export default function TeamStudio({ agentKey }: ModuleProps & { agentKey: strin
         <p className="sq-lead">{role.desc}</p>
       </header>
 
-      {/* Apps this agent works with */}
-      <section className="se-card team-apps">
+      {/* App coverage summary · full connect grid lives in the header "Connect apps" */}
+      <section className="se-card team-cover">
         <div className="mission-head">
           <h3 className="sq-title">Connected apps <span className="team-count">{connectedCount}/{apps.length}</span></h3>
-          <span className="muted small">Link an app and this agent works inside it for real.</span>
+          <span className="muted small">Use <b>Connect apps</b> (top right) to link {apps.map((c) => c.label).slice(0, 3).join(', ')}{apps.length > 3 ? '…' : ''} · then this agent works inside them for real.</span>
         </div>
-        <ul className="team-app-list">
-          {apps.map((c) => {
-            const st = tools[c.id]
-            const connected = !!st?.connected
-            const available = !!st?.available
-            return (
-              <li key={c.id} className={`team-app${connected ? ' on' : ''}`}>
-                <ConnectorLogo id={c.id} label={c.label} size={30} />
-                <span className="team-app-meta">
-                  <span className="team-app-name">{c.label}<em className="team-app-cat">{c.category}</em></span>
-                  <span className="team-app-blurb">{connected && st?.account ? `Connected · ${st.account}` : c.blurb}</span>
-                </span>
-                <span className="team-app-act">
-                  {connected ? (
-                    <button className="btn tiny ghost" onClick={() => void disconnect(c.id)}>Disconnect</button>
-                  ) : available ? (
-                    <button className="btn tiny" onClick={() => startConnect(c.id)}>Connect</button>
-                  ) : (
-                    <a className="cx-setup" href={`/guide/${c.id}`} target="_blank" rel="noreferrer" title="See how to set this app up">Set up</a>
-                  )}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-        {loadedOnce && !backend && (
-          <p className="muted small">Live data needs the worker configured. Until then you can still see each app and use the drafts below.</p>
-        )}
       </section>
 
       {/* Live data from the connected apps */}

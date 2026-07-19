@@ -4918,3 +4918,11 @@ select.cc-input { flex: 1; min-width: 0; }
 .rep-chart { border: 1px solid var(--border); border-radius: 16px; padding: 14px; overflow-x: auto; }
 .rep-svg .rep-lbl { font-size: 12px; fill: var(--text, #222); }
 .rep-svg .rep-val { font-size: 12px; fill: var(--muted); font-weight: 700; }
+
+/* In-studio connectors panel · toggled from the ModuleHost "Connect apps" */
+.modhost-apps { padding: 14px 22px 4px; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--dc, #2f6bff) 3%, transparent); }
+.modhost-apps-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.modhost-apps-head .sq-title { margin: 0; }
+.modhost-connect.on { background: color-mix(in srgb, var(--dc, #2f6bff) 14%, transparent); }
+.studio-apps .team-app-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+@media (min-width: 720px) { .modhost-apps .studio-apps .team-app-list { display: grid; grid-template-columns: 1fr 1fr; } }
