@@ -3829,6 +3829,10 @@ input, textarea, select, button { border-radius: 0 !important; }
 .bw-cloudhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 4px; }
 .bw-clear { background: none; border: none; text-decoration: underline; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 .bw-clear:hover { color: var(--ink); }
+.bw-cloudactions { display: inline-flex; align-items: baseline; gap: 12px; }
+.bw-selectall { background: none; border: none; text-decoration: underline; color: var(--dc, #2f6bff); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.bw-selectall:hover:not(:disabled) { filter: brightness(1.1); }
+.bw-selectall:disabled { color: var(--muted); text-decoration: none; cursor: default; opacity: .6; }
 .bw-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 @media (max-width: 640px) { .bw-2col { grid-template-columns: 1fr; } }
 .bw-seg { display: flex; gap: 0; border: 1px solid var(--border); overflow: hidden; }

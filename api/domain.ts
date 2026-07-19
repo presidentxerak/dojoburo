@@ -46,12 +46,11 @@ async function fetchStatus(url: string): Promise<Status> {
   }
 }
 
-// DNS-over-HTTPS existence check · the reliable fallback when RDAP is
-// rate-limited or slow (RDAP throttles hard under a batch, which used to leave
-// every candidate "unverified" and hidden). A registrable name that does NOT
-// exist in DNS returns NXDOMAIN (Status 3) → available; one that exists returns
-// NOERROR (Status 0) with a delegation → taken. DoH resolvers don't rate-limit
-// like RDAP, so this rescues the vast majority of inconclusive checks.
+// DNS-over-HTTPS existence check · reliable and NOT rate-limited (unlike RDAP,
+// which throttles hard under a batch and used to leave every candidate
+// "unverified" and hidden). A registrable name that doesn't exist in DNS
+// returns NXDOMAIN (Status 3) → available; a delegated one returns NOERROR
+// (Status 0) with NS records → taken. Anything else is inconclusive.
 async function dohStatus(domain: string): Promise<Status> {
   const providers = [
     `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=NS`,
@@ -63,16 +62,12 @@ async function dohStatus(domain: string): Promise<Status> {
     try {
       const res = await fetch(url, { signal: ctrl.signal, headers: { accept: 'application/dns-json' } })
       if (!res.ok) { clearTimeout(t); continue }
-      const j = await res.json() as { Status?: number; Answer?: unknown[]; Authority?: unknown[] }
+      const j = await res.json() as { Status?: number; Answer?: unknown[] }
       clearTimeout(t)
       if (typeof j?.Status !== 'number') continue
-      if (j.Status === 3) return 'available'                                  // NXDOMAIN · name not registered
-      if (j.Status === 0) {
-        const has = (Array.isArray(j.Answer) && j.Answer.length > 0) || (Array.isArray(j.Authority) && j.Authority.length > 0)
-        if (has) return 'taken'                                              // delegated / SOA present · registered
-        return 'unknown'                                                     // NOERROR/NODATA · ambiguous
-      }
-      // other DNS rcodes (SERVFAIL, REFUSED) → try the next provider
+      if (j.Status === 3) return 'available'                                  // NXDOMAIN · not registered
+      if (j.Status === 0 && Array.isArray(j.Answer) && j.Answer.length > 0) return 'taken' // delegated · registered
+      // NOERROR/NODATA or other rcodes → inconclusive, try the next provider
     } catch {
       clearTimeout(t)
     }
@@ -80,14 +75,23 @@ async function dohStatus(domain: string): Promise<Status> {
   return 'unknown'
 }
 
+// DoH-first strategy. DNS is the fast, unthrottled primary signal; RDAP is the
+// authoritative confirmation only where it matters:
+//   • DoH says delegated → TAKEN (no RDAP call · this is most names, so RDAP
+//     load collapses and it stops rate-limiting us).
+//   • DoH says NXDOMAIN → almost certainly free, but confirm with RDAP to catch
+//     the rare registered-but-not-delegated domain (RDAP 200 → taken).
+//   • DoH inconclusive → RDAP decides (with an rdap.org cross-check).
 async function checkOne(domain: string, tld: string): Promise<Status> {
-  // 1) RDAP (authoritative): Verisign direct for .com/.net, rdap.org bootstrap else.
+  const dns = await dohStatus(domain)
+  if (dns === 'taken') return 'taken'
+  if (dns === 'available') {
+    const rdap = await fetchStatus(rdapUrl(domain, tld))
+    return rdap === 'taken' ? 'taken' : 'available'   // 404 or inconclusive → trust the NXDOMAIN
+  }
+  // DoH inconclusive → lean on RDAP
   let r = await fetchStatus(rdapUrl(domain, tld))
-  // 2) cross-check via rdap.org for the direct-registry TLDs when inconclusive.
   if (r === 'unknown' && (tld === 'com' || tld === 'net')) r = await fetchStatus(`https://rdap.org/domain/${domain}`)
-  // 3) still inconclusive? RDAP is rate-limiting us · fall back to DNS existence
-  //    (DoH resolvers don't throttle), so a free name isn't left "unverified".
-  if (r === 'unknown') r = await dohStatus(domain)
   return r
 }
 

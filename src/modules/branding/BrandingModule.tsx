@@ -354,7 +354,10 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
           <div className="bw-cloudhead">
             <span className="sq-eyebrow">{keywords.length} suggestions · click to add</span>
-            {selected.size > 0 && <button className="bw-clear" onClick={() => setSelected(new Set())}>Clear</button>}
+            <span className="bw-cloudactions">
+              <button className="bw-selectall" onClick={() => setSelected(new Set(keywords))} disabled={keywords.length > 0 && selected.size >= keywords.length}>Select all</button>
+              {selected.size > 0 && <button className="bw-clear" onClick={() => setSelected(new Set())}>Clear</button>}
+            </span>
           </div>
           <div className="bw-cloud">
             {keywords.map((k) => (
