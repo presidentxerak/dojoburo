@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AGENTS, agentColor, type AgentDef } from '../../data/agents'
 import { CHARACTERS } from '../../data/looks'
-import { CORE_AGENTS, type RoleAgent } from '../../data/roleAgents'
+import { ROLE_AGENTS, type RoleAgent } from '../../data/roleAgents'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 import { useInView } from './useInView'
 
@@ -47,7 +47,7 @@ function StudioCard({ agent, i, onOpen }: { agent: RoleAgent; i: number; onOpen:
 export function StudioTeam({ enter }: { enter: () => void }) {
   return (
     <div className="lp-studioteam">
-      {CORE_AGENTS.map((a, i) => (
+      {ROLE_AGENTS.map((a, i) => (
         <StudioCard key={a.id} agent={a} i={i} onOpen={enter} />
       ))}
     </div>

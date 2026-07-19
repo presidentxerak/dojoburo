@@ -40,6 +40,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (connector === 'buffer' && action === 'post') return await bufferPost(res, body)
     if (connector === 'linkedin' && action === 'post') return await linkedinPost(res, body)
     if (connector === 'notion' && action === 'create') return await notionCreate(res, body)
+    if (connector === 'github' && action === 'issue') return await githubIssue(res, body)
+    if (connector === 'discord' && action === 'post') return await discordPost(res, body)
+    if (connector === 'intercom' && action === 'reply') return await intercomReply(res, body)
     return json(res, 200, { ok: false, error: 'unknown_action' })
   } catch (e) {
     return json(res, 200, { ok: false, error: 'server', detail: String((e as Error)?.message || e).slice(0, 100) })
@@ -208,6 +211,66 @@ async function linkedinPost(res: ServerResponse, body: Record<string, unknown>):
     if (!r.ok || !(j?.id || hdrId)) return json(res, 200, { ok: false, error: 'post_failed' })
     return json(res, 200, { ok: true, id: j.id || hdrId })
   } catch { return json(res, 200, { ok: false, error: 'post_failed' }) }
+}
+
+// ---- GitHub · open an issue in a repo (repo scope) ------------------------
+async function githubIssue(res: ServerResponse, body: Record<string, unknown>): Promise<void> {
+  const repo = String(body.repo || ENV.GITHUB_DEFAULT_REPO || '').trim()   // "owner/name"
+  const title = String(body.title || '').slice(0, 250)
+  const bodyText = String(body.body || '').slice(0, 10_000)
+  if (!title.trim()) return json(res, 200, { ok: false, error: 'empty' })
+  if (!/^[^/\s]+\/[^/\s]+$/.test(repo)) return json(res, 200, { ok: false, error: 'no_repo' })
+  const t = await actionToken(body, 'github')
+  if ('error' in t) return json(res, 200, { ok: false, error: t.error })
+  try {
+    const r = await fetch(`https://api.github.com/repos/${repo}/issues`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${t.token}`, accept: 'application/vnd.github+json', 'content-type': 'application/json', 'user-agent': 'dojoburo' },
+      body: JSON.stringify({ title, body: bodyText }),
+    })
+    const j = await r.json().catch(() => ({})) as { number?: number; html_url?: string }
+    if (!r.ok || !j?.number) return json(res, 200, { ok: false, error: 'create_failed' })
+    return json(res, 200, { ok: true, number: j.number, url: j.html_url })
+  } catch { return json(res, 200, { ok: false, error: 'create_failed' }) }
+}
+
+// ---- Discord · broadcast to a channel via an incoming webhook -------------
+async function discordPost(res: ServerResponse, body: Record<string, unknown>): Promise<void> {
+  const text = String(body.text || '').slice(0, 1800)
+  if (!text.trim()) return json(res, 200, { ok: false, error: 'empty' })
+  // Discord messaging uses an operator-configured incoming webhook (per deploy).
+  const hook = ENV.DISCORD_WEBHOOK_URL
+  if (!hook) return json(res, 200, { ok: false, error: 'no_webhook' })
+  // still resolve the account so posting is rate-limited per user.
+  const t = await actionToken(body, 'discord')
+  if ('error' in t && t.error !== 'not_connected') return json(res, 200, { ok: false, error: t.error })
+  try {
+    const r = await fetch(hook, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content: text }) })
+    if (!r.ok) return json(res, 200, { ok: false, error: 'post_failed' })
+    return json(res, 200, { ok: true })
+  } catch { return json(res, 200, { ok: false, error: 'post_failed' }) }
+}
+
+// ---- Intercom · reply to a conversation as an admin -----------------------
+async function intercomReply(res: ServerResponse, body: Record<string, unknown>): Promise<void> {
+  const conversationId = String(body.conversationId || '').trim()
+  const text = String(body.text || '').slice(0, 8000)
+  const adminId = ENV.INTERCOM_ADMIN_ID
+  if (!text.trim()) return json(res, 200, { ok: false, error: 'empty' })
+  if (!conversationId) return json(res, 200, { ok: false, error: 'no_conversation' })
+  if (!adminId) return json(res, 200, { ok: false, error: 'no_admin' })
+  const t = await actionToken(body, 'intercom')
+  if ('error' in t) return json(res, 200, { ok: false, error: t.error })
+  try {
+    const r = await fetch(`https://api.intercom.io/conversations/${conversationId}/reply`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${t.token}`, 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ message_type: 'comment', type: 'admin', admin_id: adminId, body: text }),
+    })
+    const j = await r.json().catch(() => ({})) as { id?: string }
+    if (!r.ok || !j?.id) return json(res, 200, { ok: false, error: 'reply_failed' })
+    return json(res, 200, { ok: true, id: j.id })
+  } catch { return json(res, 200, { ok: false, error: 'reply_failed' }) }
 }
 
 // ---- Notion · create a page under NOTION_PARENT_ID ------------------------

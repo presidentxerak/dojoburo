@@ -3,11 +3,13 @@ import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
 import { listSecrets, saveSecret as apiSaveSecret, removeSecret as apiRemoveSecret, type ServerSecret } from '../../agents/workApi'
 import { useDojo } from '../../store'
+import { ArrangeGrid } from './ArrangeGrid'
+import { CompanyReport } from './CompanyReport'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
 import { useSecrets } from '../../agents/secretsStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
-import { ROLE_AGENTS, ROLE_BY_ID, OPTIONAL_AGENTS, canonicalRole } from '../../data/roleAgents'
+import { ROLE_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
 import { isAdmin } from '../../config/admin'
 import { ModuleHost } from '../../modules/ModuleHost'
 import { MODULES } from '../../modules/registry'
@@ -82,13 +84,14 @@ function Guide({ lead, steps, tip }: { lead: string; steps: React.ReactNode[]; t
  *  the CEO dashboard and the landing office share one visual language. The 3D
  *  portrait mounts lazily (IntersectionObserver) to stay under the WebGL context
  *  budget alongside the live dojo scene. */
-function RosterCard({ role, name, status, statusMod, lastLabel, phase, onOpen }: {
-  role: RoleAgent; name: string; status: string; statusMod: string; lastLabel: string; phase: number; onOpen: () => void
+function RosterCard({ role, name, status, statusMod, lastLabel, phase, onOpen, onHide }: {
+  role: RoleAgent; name: string; status: string; statusMod: string; lastLabel: string; phase: number; onOpen: () => void; onHide?: () => void
 }) {
-  const [ref, inView] = useInView<HTMLButtonElement>('250px')
+  const [ref, inView] = useInView<HTMLDivElement>('250px')
   const charKey = AGENT_CHAR[role.id] ?? role.id
   return (
-    <button ref={ref} className="lp-studiocard agent-card" style={{ ['--ac' as string]: role.tint }} onClick={onOpen} title={`Open ${name} · ${role.title}`}>
+    <div ref={ref} className="lp-studiocard agent-card" style={{ ['--ac' as string]: role.tint }} onClick={onOpen} role="button" tabIndex={0} title={`Open ${name} · ${role.title}`}>
+      {onHide && <button className="agent-hide" title={`Hide ${role.title}`} aria-label={`Hide ${role.title}`} onClick={(e) => { e.stopPropagation(); onHide() }}>×</button>}
       <span className={`agent-status s-${statusMod}`}><i />{status}</span>
       <span className="lp-team-3d">{inView ? <Agent3DPreview id={charKey} character={charForAgent(charKey)} size={128} phase={phase} /> : null}</span>
       <strong className="agent-code">{name}</strong>
@@ -96,7 +99,7 @@ function RosterCard({ role, name, status, statusMod, lastLabel, phase, onOpen }:
       <span className="agent-desc">{role.desc}</span>
       <span className="agent-last">{lastLabel}</span>
       <span className="lp-team-more">Open →</span>
-    </button>
+    </div>
   )
 }
 
@@ -106,7 +109,7 @@ function RosterCard({ role, name, status, statusMod, lastLabel, phase, onOpen }:
 export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
   const updateAgent = useWorkshop((s) => s.updateAgent)
-  const addRoleAgent = useWorkshop((s) => s.addRoleAgent)
+  const setAgentHidden = useWorkshop((s) => s.setAgentHidden)
   const save = useWorkshop((s) => s.save)
   const account = useWorkshop((s) => s.account)
   const agents = dojo?.agents ?? []
@@ -133,6 +136,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const engine = useEngine()
 
   const [msg, setMsg] = useState('')
+  const [showArrange, setShowArrange] = useState(false)
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
   const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
@@ -444,7 +448,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   // ------------------------------------------------------------------ ROSTER --
   // This IS the CEO/Chief page, so we don't show a Chief card · the Chief
   // orchestration lives in the composer above. Show only the seven specialists.
-  const roster = ROLE_AGENTS.filter((r) => r.id !== 'chief').map((r) => byRole(r.id)).filter(Boolean) as typeof agents
+  const roster = ROLE_AGENTS.filter((r) => r.id !== 'chief').map((r) => byRole(r.id)).filter((a) => a && !a.hidden) as typeof agents
+  const hiddenRoles = ROLE_AGENTS.filter((r) => r.id !== 'chief' && byRole(r.id)?.hidden)
   // Quick-access: open the owning agent's studio directly on a specific sub-tab
   // (Finance/Analytics live in Business Studio · Leads in Growth Studio).
   const openPage = (roleId: string, moduleTab: string) => {
@@ -498,8 +503,10 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
       <div className="mission-head">
         <h3>Your team</h3>
-        <span className="muted small">Your core specialists · add more from the empty slots. Chief (you) coordinates them from the box above.</span>
+        <span className="muted small">Your full crew · click one to open it. Hide the ones you don't need · restore them from the slots.</span>
+        <button className="btn tiny ghost arrange-toggle" onClick={() => setShowArrange((v) => !v)}>{showArrange ? 'Done arranging' : 'Arrange on grid'}</button>
       </div>
+      {showArrange && <ArrangeGrid />}
       <div className="lp-studioteam agent-roster">
         {roster.map((a, i) => {
           const r = ROLE_BY_ID[canonicalRole(a.role)]
@@ -511,24 +518,27 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           const status = engine.paused ? 'Paused' : working ? 'Working…' : last ? 'Active' : 'Ready'
           const statusMod = engine.paused ? 'paused' : working ? 'working' : last ? 'active' : 'ready'
           return (
-            <RosterCard key={a.id} role={r} name={a.name} status={status} statusMod={statusMod} lastLabel={relTime(last)} phase={i * 0.6} onOpen={() => selectAgent(a.id)} />
+            <RosterCard key={a.id} role={r} name={a.name} status={status} statusMod={statusMod} lastLabel={relTime(last)} phase={i * 0.6} onOpen={() => selectAgent(a.id)}
+              onHide={() => { setAgentHidden(r.id, true); pushToast({ kind: 'event', badge: '–', color: '#5b6472', title: `${r.title} hidden`, text: 'Restore it from the slots below.' }) }} />
           )
         })}
-        {/* Empty dotted slots · add an optional specialist to the dojo */}
-        {OPTIONAL_AGENTS.filter((r) => !byRole(r.id)).map((r) => (
+        {/* Hidden agents · dotted slots to bring a specialist back */}
+        {hiddenRoles.map((r) => (
           <button
-            key={`add-${r.id}`}
+            key={`show-${r.id}`}
             className="lp-studiocard agent-add"
             style={{ ['--ac' as string]: r.tint }}
-            onClick={() => { const id = addRoleAgent(r.id); if (id) { selectAgent(id); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `${r.title} added`, text: 'Opening its studio…' }) } }}
+            onClick={() => { setAgentHidden(r.id, false); const a = byRole(r.id); if (a) selectAgent(a.id); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `${r.title} shown`, text: 'Opening its studio…' }) }}
           >
             <span className="agent-add-plus">+</span>
             <span className="agent-title">{r.title}</span>
             <span className="agent-desc">{r.desc}</span>
-            <span className="agent-add-cta">Add agent</span>
+            <span className="agent-add-cta">Show agent</span>
           </button>
         ))}
       </div>
+
+      <CompanyReport dojoId={dojo?.id ?? ''} />
     </div>
   )
 }

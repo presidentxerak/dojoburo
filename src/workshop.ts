@@ -5,7 +5,7 @@
 import { create } from 'zustand'
 import type { Department } from './data/agents'
 import { SKINS, skinById, variedSkins, crewSkins, skinsForTheme } from './data/skins'
-import { CORE_AGENTS, CORE_IDS, ROLE_BY_ID } from './data/roleAgents'
+import { ROLE_AGENTS, ROLE_IDS, ROLE_BY_ID } from './data/roleAgents'
 import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
 import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
@@ -41,6 +41,8 @@ export interface WAgent {
   budgetXrp: number
   gx: number
   gy: number
+  /** the user hid this agent from the dojo (still restorable from the roster). */
+  hidden?: boolean
   /** external agents this DojoBuro agent can call / delegate to */
   externalAgents?: ExtAgent[]
 }
@@ -89,9 +91,11 @@ interface WorkshopState {
   setActiveDojo: (id: string) => void
 
   addAgent: (partial?: Partial<WAgent>) => string | null
-  /** Add an OPTIONAL role agent (Engineering, Support, Comms, Legal…) to the
-   *  active dojo · no-op returning the existing id if already present. */
+  /** Add a role agent to the active dojo if it isn't there · returns the id of
+   *  the existing or new agent. Seeded dojos already carry all role agents. */
   addRoleAgent: (roleId: string) => string | null
+  /** Hide or restore an agent by its role id (seeded agents are never deleted). */
+  setAgentHidden: (roleId: string, hidden: boolean) => void
   updateAgent: (id: string, patch: Partial<WAgent>) => void
   deleteAgent: (id: string) => void
   moveAgent: (id: string, gx: number, gy: number) => void
@@ -105,9 +109,12 @@ const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', '
 // The template/profession only changes the 3D world and the skin palette · not
 // the crew composition · so the roster, the scene and the dashboards always
 // match. Each role agent is seeded onto the grid with a skin from the theme.
+// Seed the FULL crew · all role agents (the eight core plus Engineering,
+// Comms, Support and Legal) in their logical pipeline order, so every dojo
+// ships with the complete team. Users hide the ones they don't need.
 function roleCrew(skinTheme: string): WAgent[] {
-  const skins = crewSkins(skinTheme, CORE_AGENTS.length)
-  return CORE_AGENTS.map((r, i) => ({
+  const skins = crewSkins(skinTheme, ROLE_AGENTS.length)
+  return ROLE_AGENTS.map((r, i) => ({
     id: 'a_' + uid(),
     name: r.name,
     fn: r.dept,
@@ -122,8 +129,8 @@ function roleCrew(skinTheme: string): WAgent[] {
 
 // The default HQ · role crew in the default dojo world with a varied palette.
 function seedDojo(): Dojo {
-  const varied = variedSkins(CORE_AGENTS.length)
-  const agents = roleCrew('dojo').map((a, i) => ({ ...a, skinId: varied[i].id }))
+  const varied = variedSkins(ROLE_AGENTS.length)
+  const agents = roleCrew('dojo').map((a, i) => ({ ...a, skinId: varied[i % varied.length].id }))
   return { id: uid(), name: 'HQ Dojo', template: 'dojo', agents }
 }
 
@@ -150,20 +157,25 @@ function makeProfessionsDojo(ids: string[]): Dojo {
   return { id: uid(), name, template: tpl.id, agents: roleCrew(tpl.skinTheme) }
 }
 
-/** Migrate a dojo saved before the role-agent model. A crew is valid when it
- *  contains all eight CORE role agents · any OPTIONAL agents the user added are
- *  preserved. Only when core agents are missing do we rebuild the core (keeping
- *  the added optional agents and the dojo id/name/template). */
+/** Migrate a saved dojo to the FULL role crew. A crew is valid when every role
+ *  agent is present. If some are missing (e.g. a dojo saved with only the eight
+ *  core agents, or a pre-role crew), we KEEP the existing agents (positions,
+ *  skins, hidden flags, edits) and APPEND the missing role agents so nobody
+ *  loses their setup while everyone gains the new teammates. */
 function ensureRoleCrew(d: Dojo): Dojo {
   const agents = Array.isArray(d.agents) ? d.agents : []
-  const coreOk = CORE_IDS.every((id) => agents.some((a) => a.role === id)) && agents.every((a) => a.role)
-  if (coreOk) return d
+  const allPresent = ROLE_IDS.every((id) => agents.some((a) => a.role === id)) && agents.every((a) => a.role)
+  if (allPresent) return d
   const tpl = templateById(d.template)
-  // keep any valid optional agents (role present, not a core id) already added
-  const kept = agents.filter((a) => a.role && !CORE_IDS.includes(a.role) && ROLE_BY_ID[a.role])
-  const core = roleCrew(tpl.skinTheme)
-  const reseated = [...core, ...kept].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
-  return { ...d, agents: reseated }
+  // a crew with NO role tags at all → a pre-role-agent dojo · rebuild fresh.
+  const tagged = agents.filter((a) => a.role && ROLE_BY_ID[a.role])
+  if (tagged.length === 0) return { ...d, agents: roleCrew(tpl.skinTheme) }
+  // otherwise keep what's there and append the missing role agents.
+  const have = new Set(tagged.map((a) => a.role))
+  const seed = roleCrew(tpl.skinTheme)
+  const missing = seed.filter((a) => a.role && !have.has(a.role))
+  const merged = [...tagged, ...missing].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
+  return { ...d, agents: merged }
 }
 
 function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null } {
@@ -340,6 +352,10 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
       persist()
       return agent.id
     },
+    setAgentHidden: (roleId, hidden) => {
+      editActive((d) => ({ ...d, agents: d.agents.map((a) => (a.role === roleId ? { ...a, hidden } : a)) }))
+      persist()
+    },
     updateAgent: (id, patch) => {
       editActive((d) => ({ ...d, agents: d.agents.map((a) => (a.id === id ? { ...a, ...patch } : a)) }))
     },
@@ -380,6 +396,7 @@ export function agentSkin(a: WAgent) {
  *  characters and the desks so they always line up. */
 export function seatedAgents(dojo: Dojo | null): Array<{ agent: WAgent; x: number; z: number }> {
   const list = [...(dojo?.agents ?? [])]
+    .filter((a) => !a.hidden)
     .sort((a, b) => (a.gy * GRID.cols + a.gx) - (b.gy * GRID.cols + b.gx))
     .slice(0, 12)
   const pos = seatPositions(list.length)

@@ -11,7 +11,7 @@ import { postSlack, toolData } from '../../agents/workApi'
 import { useEngine } from '../../agents/engineStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
-import { CORE_AGENTS, OPTIONAL_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
+import { ROLE_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
 
 const AGENT_TASKS: Record<string, string[]> = {
   chief: ['strategy'], brandi: ['brand'], weblos: ['website'],
@@ -54,11 +54,12 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
   const noModel = delivs.some((d) => d.model === 'local draft')
   const [msg, setMsg] = useState('')
 
-  const addRoleAgent = useWorkshop((s) => s.addRoleAgent)
+  const setAgentHidden = useWorkshop((s) => s.setAgentHidden)
   const byRole = (roleId: string) => agents.find((a) => a.role === roleId)
-  const addOptional = (roleId: string, title: string) => {
-    const id = addRoleAgent(roleId)
-    if (id) { selectAgent(id); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `${title} added`, text: 'Opening its studio…' }) }
+  const showAgent = (roleId: string, title: string) => {
+    setAgentHidden(roleId, false)
+    const a = byRole(roleId); if (a) selectAgent(a.id)
+    pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `${title} shown`, text: 'Opening its studio…' })
   }
   const chief = byRole('chief') ?? agents.find((a) => a.fn === 'Leadership') ?? agents[0]
   const tasksDone = Object.values(stats).reduce((n, s) => n + (s?.tasksDone ?? 0), 0)
@@ -165,12 +166,12 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
 
       <div className="mission-head">
         <h3 className="sq-title">Your team</h3>
-        <span className="muted small">Eight core specialists · add more from the empty slots. Click one to open it.</span>
+        <span className="muted small">Your full crew · click one to open it. Hide the ones you don't need · restore them below.</span>
       </div>
       <div className="lp-studioteam agent-roster">
-        {[...CORE_AGENTS, ...OPTIONAL_AGENTS].map((r) => {
+        {ROLE_AGENTS.map((r) => {
           const a = byRole(r.id)
-          if (!a) return null   // an optional agent not yet added → rendered as a slot below
+          if (!a || a.hidden) return null   // hidden agents render as restore slots below
           const tasks = AGENT_TASKS[r.id] ?? []
           const times = delivs.filter((d) => tasks.includes(d.taskId)).map((d) => d.createdAt)
           const last = times.length ? Math.max(...times) : 0
@@ -179,23 +180,26 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
           const statusMod = engine.paused ? 'paused' : working ? 'working' : last ? 'active' : 'ready'
           const role = ROLE_BY_ID[canonicalRole(a.role)]
           return (
-            <button key={a.id} className="lp-studiocard agent-card" style={{ ['--ac' as string]: role.tint }} onClick={() => selectAgent(a.id)}>
+            <div key={a.id} className="lp-studiocard agent-card" style={{ ['--ac' as string]: role.tint }} onClick={() => selectAgent(a.id)} role="button" tabIndex={0}>
+              {r.id !== 'chief' && (
+                <button className="agent-hide" title={`Hide ${role.title}`} aria-label={`Hide ${role.title}`} onClick={(e) => { e.stopPropagation(); setAgentHidden(r.id, true); pushToast({ kind: 'event', badge: '–', color: '#5b6472', title: `${role.title} hidden`, text: 'Restore it from the slots below.' }) }}>×</button>
+              )}
               <strong className="agent-code">{a.name}</strong>
               <span className="agent-title">{role.title}</span>
               <span className="agent-desc">{role.desc}</span>
               <span className={`agent-status s-${statusMod}`}><i />{status}</span>
               <span className="agent-last">{relTime(last)}</span>
               <span className="agent-action">Open →</span>
-            </button>
+            </div>
           )
         })}
-        {/* Empty dotted slots · add an optional specialist to your dojo */}
-        {OPTIONAL_AGENTS.filter((r) => !byRole(r.id)).map((r) => (
-          <button key={`add-${r.id}`} className="lp-studiocard agent-add" style={{ ['--ac' as string]: r.tint }} onClick={() => addOptional(r.id, r.title)}>
+        {/* Hidden agents · dotted slots to bring a specialist back */}
+        {ROLE_AGENTS.filter((r) => byRole(r.id)?.hidden).map((r) => (
+          <button key={`show-${r.id}`} className="lp-studiocard agent-add" style={{ ['--ac' as string]: r.tint }} onClick={() => showAgent(r.id, r.title)}>
             <span className="agent-add-plus">+</span>
             <span className="agent-title">{r.title}</span>
             <span className="agent-desc">{r.desc}</span>
-            <span className="agent-add-cta">Add agent</span>
+            <span className="agent-add-cta">Show agent</span>
           </button>
         ))}
       </div>

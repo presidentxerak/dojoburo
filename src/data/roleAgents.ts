@@ -46,49 +46,25 @@ export interface RoleAgent {
 
 type Spec = { id: string; code: string; title: string; desc: string; tint: string; dept: Department; core?: boolean; apps?: string[] }
 
+// Ordered as a company task pipeline · lead → brand → build → engineer →
+// market → grow → communicate → support → analyse → bill → legal → secure.
+// The dojo seats agents in this order and the roster groups them by function.
 const SPECS: Spec[] = [
   {
     id: 'chief', code: 'Chief', title: 'CEO',
     desc: 'Plans, delegates and coordinates every task across your AI workforce.',
-    tint: '#7b5cff', dept: 'Leadership',
+    tint: '#7b5cff', dept: 'Leadership', apps: ['notion', 'slack', 'gmail'],
   },
   {
     id: 'brandi', code: 'Brandi', title: 'Brand Architect',
     desc: 'Finds available brand names, domains and builds your brand identity.',
-    tint: '#a855f7', dept: 'Product',
+    tint: '#a855f7', dept: 'Product', apps: ['notion', 'figma'],
   },
   {
     id: 'weblos', code: 'Weblos', title: 'Web Designer',
     desc: 'Designs and builds beautiful websites tailored to your brand.',
-    tint: '#2f7fd6', dept: 'Product',
+    tint: '#2f7fd6', dept: 'Product', apps: ['figma', 'cloudinary'],
   },
-  {
-    id: 'marketus', code: 'Marketus', title: 'Marketer',
-    desc: 'Creates campaigns, images, videos and social content from a single creative workflow.',
-    tint: '#e0459b', dept: 'Growth',
-  },
-  {
-    id: 'pumpi', code: 'Pumpi', title: 'Growth Hacker',
-    desc: 'Generates leads, manages your pipeline and sends personalized outreach.',
-    tint: '#d98c17', dept: 'Growth',
-  },
-  {
-    id: 'busino', code: 'Busino', title: 'Business Analyst',
-    desc: 'Tracks your finances and turns business data into actionable insights.',
-    tint: '#1fa563', dept: 'Finance',
-  },
-  {
-    id: 'sentinel', code: 'Sentinel', title: 'Security Guardian',
-    desc: 'Keeps your AI efficient, secure and under control.',
-    tint: '#5b6472', dept: 'Ops',
-  },
-  {
-    id: 'vaultor', code: 'Vaultor', title: 'Billing Manager',
-    desc: 'Manages credits, subscriptions and payments seamlessly.',
-    tint: '#0e9bb5', dept: 'Finance',
-  },
-  // --- Optional agents · added by the user from the dojo's empty grid cells.
-  // Each groups a family of connectors and opens its own studio workspace.
   {
     id: 'devi', code: 'Devi', title: 'Engineering Lead',
     desc: 'Tracks issues, pull requests and sprints across your dev stack.',
@@ -96,10 +72,14 @@ const SPECS: Spec[] = [
     apps: ['github', 'linear', 'jira', 'trello', 'supabase', 'posthog'],
   },
   {
-    id: 'helpi', code: 'Helpi', title: 'Support Lead',
-    desc: 'Runs the support queue: tickets, conversations and replies.',
-    tint: '#14b8a6', dept: 'People', core: false,
-    apps: ['zendesk', 'intercom'],
+    id: 'marketus', code: 'Marketus', title: 'Marketer',
+    desc: 'Creates campaigns, images, videos and social content from a single creative workflow.',
+    tint: '#e0459b', dept: 'Growth', apps: ['meta', 'canva', 'mailchimp', 'twitter', 'buffer', 'linkedin'],
+  },
+  {
+    id: 'pumpi', code: 'Pumpi', title: 'Growth Hacker',
+    desc: 'Generates leads, manages your pipeline and sends personalized outreach.',
+    tint: '#d98c17', dept: 'Growth', apps: ['hubspot', 'salesforce', 'apollo', 'gmail', 'calendly'],
   },
   {
     id: 'nexa', code: 'Nexa', title: 'Comms Manager',
@@ -108,10 +88,31 @@ const SPECS: Spec[] = [
     apps: ['slack', 'discord', 'zoom', 'whatsapp'],
   },
   {
+    id: 'helpi', code: 'Helpi', title: 'Support Lead',
+    desc: 'Runs the support queue: tickets, conversations and replies.',
+    tint: '#14b8a6', dept: 'People', core: false,
+    apps: ['zendesk', 'intercom'],
+  },
+  {
+    id: 'busino', code: 'Busino', title: 'Business Analyst',
+    desc: 'Tracks your finances and turns business data into actionable insights.',
+    tint: '#1fa563', dept: 'Finance', apps: ['stripe', 'ga4', 'gsc', 'quickbooks', 'xero', 'shopify'],
+  },
+  {
+    id: 'vaultor', code: 'Vaultor', title: 'Billing Manager',
+    desc: 'Manages credits, subscriptions and payments seamlessly.',
+    tint: '#0e9bb5', dept: 'Finance', apps: ['stripe'],
+  },
+  {
     id: 'legi', code: 'Legi', title: 'Legal & Docs',
     desc: 'Sends contracts for signature and keeps documents in order.',
     tint: '#8b5cf6', dept: 'Ops', core: false,
     apps: ['gdrive', 'docusign', 'cloudinary'],
+  },
+  {
+    id: 'sentinel', code: 'Sentinel', title: 'Security Guardian',
+    desc: 'Keeps your AI efficient, secure and under control.',
+    tint: '#5b6472', dept: 'Ops', apps: ['airtable', 'asana'],
   },
 ]
 

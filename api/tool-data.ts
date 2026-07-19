@@ -52,6 +52,149 @@ const PROVIDERS: Record<string, Provider> = {
   calendly: calendlyData,
   quickbooks: quickbooksData,
   xero: xeroData,
+  github: githubData,
+  linear: linearData,
+  zendesk: zendeskData,
+  intercom: intercomData,
+  gdrive: gdriveData,
+  docusign: docusignData,
+  slack: slackData,
+}
+
+// ---- GitHub (per-user OAuth · assigned issues + open PRs) ------------------
+async function githubData(q: URLSearchParams): Promise<Result> {
+  const conn = await userConn(q, 'github')
+  if (!conn) return { connected: false }
+  const [issuesR, prR, meR] = await Promise.all([
+    ghfetch('https://api.github.com/issues?filter=all&state=open&per_page=10&sort=updated', conn.token),
+    ghfetch('https://api.github.com/search/issues?q=is:pr+is:open+involves:@me&per_page=10&sort=updated', conn.token),
+    ghfetch('https://api.github.com/user', conn.token),
+  ])
+  const issues = Array.isArray(issuesR) ? (issuesR as Record<string, unknown>[]).filter((i) => !i.pull_request).slice(0, 8).map((i) => ({
+    title: String(i.title || ''), number: Number(i.number) || 0,
+    repo: String((i.repository as { full_name?: string })?.full_name || ''),
+    url: String(i.html_url || ''), state: String(i.state || 'open'),
+  })) : []
+  const prs = Array.isArray((prR as { items?: unknown[] })?.items) ? (prR as { items: Record<string, unknown>[] }).items.slice(0, 8).map((p) => ({
+    title: String(p.title || ''), number: Number(p.number) || 0,
+    url: String(p.html_url || ''),
+    repo: String(p.repository_url || '').split('/repos/')[1] || '',
+  })) : []
+  const login = (meR as { login?: string })?.login || null
+  return { connected: true, account: login, data: { login, issues, prs, openIssues: issues.length, openPrs: prs.length } }
+}
+
+// ---- Linear (per-user OAuth · assigned issues via GraphQL) -----------------
+async function linearData(q: URLSearchParams): Promise<Result> {
+  const conn = await userConn(q, 'linear')
+  if (!conn) return { connected: false }
+  const query = `query { viewer { name assignedIssues(first: 10, filter: { state: { type: { neq: "completed" } } }) { nodes { identifier title url state { name } } } } }`
+  const j = await postJson('https://api.linear.app/graphql', conn.token, { query })
+  const viewer = (j as { data?: { viewer?: { name?: string; assignedIssues?: { nodes?: unknown[] } } } })?.data?.viewer
+  if (!viewer) return { connected: true, data: null }
+  const nodes = Array.isArray(viewer.assignedIssues?.nodes) ? viewer.assignedIssues!.nodes as Record<string, unknown>[] : []
+  const issues = nodes.map((n) => ({ id: String(n.identifier || ''), title: String(n.title || ''), url: String(n.url || ''), state: String((n.state as { name?: string })?.name || '') }))
+  return { connected: true, account: viewer.name || null, data: { issues, open: issues.length } }
+}
+
+// ---- Zendesk (per-user OAuth · recent tickets) ----------------------------
+async function zendeskData(q: URLSearchParams): Promise<Result> {
+  const conn = await userConn(q, 'zendesk')
+  if (!conn) return { connected: false }
+  const sub = ENV.ZENDESK_SUBDOMAIN || conn.external
+  if (!sub) return { connected: true, data: null }
+  const base = `https://${String(sub).replace(/\.zendesk\.com.*$/, '')}.zendesk.com`
+  const j = await hfetch(`${base}/api/v2/tickets.json?sort_by=updated_at&sort_order=desc&per_page=10`, conn.token)
+  const rows = Array.isArray((j as { tickets?: unknown[] })?.tickets) ? (j as { tickets: Record<string, unknown>[] }).tickets : []
+  const tickets = rows.slice(0, 8).map((t) => ({ id: Number(t.id) || 0, subject: String(t.subject || 'Ticket'), status: String(t.status || ''), priority: String(t.priority || '') }))
+  const open = tickets.filter((t) => t.status !== 'solved' && t.status !== 'closed').length
+  return { connected: true, data: { tickets, open, total: tickets.length } }
+}
+
+// ---- Intercom (per-user OAuth · open conversations) -----------------------
+async function intercomData(q: URLSearchParams): Promise<Result> {
+  const conn = await userConn(q, 'intercom')
+  if (!conn) return { connected: false }
+  const j = await hfetch('https://api.intercom.io/conversations?per_page=10&order=desc', conn.token)
+  const rows = Array.isArray((j as { conversations?: unknown[] })?.conversations) ? (j as { conversations: Record<string, unknown>[] }).conversations : []
+  const conversations = rows.slice(0, 8).map((c) => ({
+    id: String(c.id || ''), state: String(c.state || ''),
+    title: String((c.source as { subject?: string })?.subject || 'Conversation'),
+    open: c.open !== false,
+  }))
+  const open = conversations.filter((c) => c.open).length
+  return { connected: true, data: { conversations, open, total: conversations.length } }
+}
+
+// ---- Google Drive (per-user OAuth · recent files) -------------------------
+async function gdriveData(q: URLSearchParams): Promise<Result> {
+  const conn = await userConn(q, 'gdrive')
+  if (!conn) return { connected: false }
+  const url = 'https://www.googleapis.com/drive/v3/files?orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,mimeType,modifiedTime,webViewLink)'
+  const j = await hfetch(url, conn.token)
+  const rows = Array.isArray((j as { files?: unknown[] })?.files) ? (j as { files: Record<string, unknown>[] }).files : []
+  const files = rows.slice(0, 8).map((f) => ({
+    name: String(f.name || 'Untitled'),
+    kind: String(f.mimeType || '').split('.').pop()?.replace(/^vnd\.?/, '') || 'file',
+    modified: String(f.modifiedTime || ''), url: String(f.webViewLink || ''),
+  }))
+  return { connected: true, data: { files } }
+}
+
+// ---- DocuSign (per-user OAuth · recent envelopes) -------------------------
+async function docusignData(q: URLSearchParams): Promise<Result> {
+  const conn = await userConn(q, 'docusign')
+  if (!conn) return { connected: false }
+  // resolve the account + base URI from userinfo.
+  const ui = await hfetch('https://account.docusign.com/oauth/userinfo', conn.token)
+  const acct = Array.isArray((ui as { accounts?: unknown[] })?.accounts) ? (ui as { accounts: Record<string, unknown>[] }).accounts.find((a) => a.is_default) || (ui as { accounts: Record<string, unknown>[] }).accounts[0] : null
+  if (!acct) return { connected: true, data: null }
+  const base = String(acct.base_uri || '')
+  const acctId = String(acct.account_id || '')
+  if (!base || !acctId) return { connected: true, data: null }
+  const from = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10)
+  const j = await hfetch(`${base}/restapi/v2.1/accounts/${acctId}/envelopes?from_date=${from}&order=desc&count=10`, conn.token)
+  const rows = Array.isArray((j as { envelopes?: unknown[] })?.envelopes) ? (j as { envelopes: Record<string, unknown>[] }).envelopes : []
+  const envelopes = rows.slice(0, 8).map((e) => ({ subject: String(e.emailSubject || 'Envelope'), status: String(e.status || ''), sent: String(e.sentDateTime || e.createdDateTime || '') }))
+  const pending = envelopes.filter((e) => e.status === 'sent' || e.status === 'delivered').length
+  return { connected: true, account: String(acct.account_name || ''), data: { envelopes, pending, total: envelopes.length } }
+}
+
+// ---- Slack (per-user OAuth · public channels) -----------------------------
+async function slackData(q: URLSearchParams): Promise<Result> {
+  const conn = await userConn(q, 'slack')
+  if (!conn) return { connected: false }
+  const j = await hfetch('https://slack.com/api/conversations.list?exclude_archived=true&types=public_channel&limit=20', conn.token)
+  const rows = Array.isArray((j as { channels?: unknown[] })?.channels) ? (j as { channels: Record<string, unknown>[] }).channels : []
+  const channels = rows.slice(0, 12).map((c) => ({ name: String(c.name || ''), members: Number(c.num_members) || 0 }))
+  return { connected: true, data: { channels, total: channels.length } }
+}
+
+// ---- shared: resolve the caller's sealed OAuth token for a connector -------
+async function userConn(q: URLSearchParams, connectorId: string): Promise<{ token: string; external: string | null } | null> {
+  if (!dbConfigured() || !vaultConfigured()) return null
+  const pool = getPool()
+  const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+  if (!accountId) return null
+  return await connectionToken(pool, accountId, connectorId)
+}
+
+async function ghfetch(url: string, token: string): Promise<unknown | null> {
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
+  try {
+    const res = await fetch(url, { signal: ctrl.signal, headers: { authorization: `Bearer ${token}`, accept: 'application/vnd.github+json', 'user-agent': 'dojoburo' } })
+    if (!res.ok) return null
+    return await res.json()
+  } catch { return null } finally { clearTimeout(t) }
+}
+
+async function postJson(url: string, token: string, body: unknown): Promise<unknown | null> {
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS)
+  try {
+    const res = await fetch(url, { method: 'POST', signal: ctrl.signal, headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(body) })
+    if (!res.ok) return null
+    return await res.json()
+  } catch { return null } finally { clearTimeout(t) }
 }
 
 // A normalised accounting line the Finance studio can drop straight into its

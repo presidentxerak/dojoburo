@@ -53,7 +53,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           connect an app, configure everything step by step and keep your costs under control.
         </p>
         <div className="lp-badges">
-          <span>8 studios · 100% local</span><span>{CONNECTORS.length} connectors</span><span>OAuth · encrypted vault</span><span>Cloud or local</span>
+          <span>12 studios · 100% local</span><span>{CONNECTORS.length} connectors</span><span>OAuth · encrypted vault</span><span>Cloud or local</span>
         </div>
       </section>
 

@@ -39,7 +39,7 @@ export function Landing({ enter }: { enter: () => void }) {
         </p>
         <HeroCreate enter={enter} />
         <div className="lp-badges">
-          <span>8 pro studios</span><span>100% local · nothing is uploaded</span><span>Credits · no crypto</span><span>{CONNECTORS.length} connectors</span><span>Installable (PWA)</span>
+          <span>12 pro studios</span><span>100% local · nothing is uploaded</span><span>Credits · no crypto</span><span>{CONNECTORS.length} connectors</span><span>Installable (PWA)</span>
         </div>
         {/* the zen dojo · animated backdrop only (non-interactive) */}
         <div className="lp-hero-zen" aria-hidden>
@@ -53,7 +53,7 @@ export function Landing({ enter }: { enter: () => void }) {
       </div>
 
       <section className="lp-sec" id="studios">
-        <span className="lp-pill">8 studios · one agent each · 100% in your browser</span>
+        <span className="lp-pill">12 studios · one agent each · 100% in your browser</span>
         <h2>Meet the office</h2>
         <p className="lp-lead sm">
           Each agent in your office owns one studio. Click a teammate and their studio opens: it generates a first
@@ -161,7 +161,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <h2>Build your own team</h2>
         <p className="lp-lead">Open the Dojo Studio to create, edit and delete agents. Pick one of {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, choose the agent's function and tasks, and set a per-agent credit budget. Arrange them on a grid and run several dojos (companies) side by side.</p>
         <div className="lp-schema">
-          <div className="lp-node"><b>Create</b><span>Eight AI teammates per company</span></div>
+          <div className="lp-node"><b>Create</b><span>Twelve AI teammates per company</span></div>
           <span className="lp-arrow">→</span>
           <div className="lp-node"><b>Skin</b><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds, in 3D</span></div>
           <span className="lp-arrow">→</span>
