@@ -4522,7 +4522,11 @@ select.cc-input { flex: 1; min-width: 0; }
 .sq-name .nm-taken { color: #b2504a; font-weight: 700; font-style: normal; }
 .sq-name .nm-unk, .sq-name .nm-chk { color: var(--muted); font-style: normal; }
 .sq-name .nm-likely { color: #c98a1a; font-weight: 700; font-style: normal; }
-.sq-name.nm-unknown { opacity: 0.92; }
+/* Other alternatives · names not confirmed available, shown muted */
+.nm-althead { margin: 18px 0 8px; border-top: 1px dashed var(--border); padding-top: 12px; }
+.nm-altgrid .sq-name { opacity: 0.6; }
+.nm-altgrid .sq-name:hover { opacity: 0.85; }
+.nm-altgrid .sq-name .nm-taken { color: #b2504a; }
 .sq-name.nm-available { border-color: #12b877 !important; box-shadow: inset 0 0 0 1px #12b877; }
 .sq-name.nm-taken { opacity: 0.62; }
 
