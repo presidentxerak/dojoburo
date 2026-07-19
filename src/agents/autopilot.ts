@@ -4,7 +4,7 @@
 // off after you describe the company. Each step is gated by the Engine (autonomy
 // cap + daily credit cap), so it can't run away, and it stops with a clear reason
 // if a model isn't configured yet.
-import { useWork } from './workStore'
+import { useWork, connectedConnectorIds } from './workStore'
 import { useEngine } from './engineStore'
 import { useDeliverables } from './deliverables'
 import { useWorkshop } from '../workshop'
@@ -30,6 +30,9 @@ const ERR: Record<string, string> = {
 export async function launchCeo(brief: string): Promise<void> {
   const work = useWork.getState()
   if (work.autopilot.running || work.runningTask) return
+  // make sure connection status is loaded so connected apps join every step
+  // (launchCeo can fire straight from onboarding, before any panel loaded it)
+  if (!work.loadedOnce) await work.loadTools().catch(() => undefined)
 
   const ws = useWorkshop.getState()
   const dojo = ws.dojos.find((d) => d.id === ws.activeDojoId) ?? ws.dojos[0]
@@ -52,7 +55,10 @@ export async function launchCeo(brief: string): Promise<void> {
     useWork.getState().setAutopilot({ running: true, step: step.label })
     toast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: `CEO · ${step.label}`, text: 'in progress…' })
 
-    await useWork.getState().run({ task: step.task, agentName: ceoName, connectors: [], brief, silent: true })
+    // every CONNECTED app rides along · the server keeps only what each step's
+    // task can use (brand→Figma, outreach→Gmail, ads→Meta, offer→Stripe…), so
+    // "Launch Chief" acts inside the user's real tools when they're linked
+    await useWork.getState().run({ task: step.task, agentName: ceoName, connectors: connectedConnectorIds(), brief, silent: true })
 
     const err = useWork.getState().runError
     if (err) { toast({ kind: 'event', badge: '!', color: '#e0483f', title: 'CEO stopped', text: ERR[err.code] || `Failed: ${err.detail || err.code}.` }); break }

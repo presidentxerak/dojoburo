@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
-import { useWork } from '../../agents/workStore'
+import { useWork, connectedConnectorIds } from '../../agents/workStore'
 import { listSecrets, saveSecret as apiSaveSecret, removeSecret as apiRemoveSecret, type ServerSecret } from '../../agents/workApi'
 import { useDojo } from '../../store'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
@@ -141,6 +141,11 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [payMsg, setPayMsg] = useState('')
   const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
 
+  // load connection status once so runs launched from here (Send / Launch
+  // Chief) know which connected apps to hand to the work engine
+  const toolsLoaded = useWork((s) => s.loadedOnce)
+  useEffect(() => { if (!toolsLoaded) void useWork.getState().loadTools() }, [toolsLoaded])
+
   // Clicking an agent (roster card OR the 3D dojo) jumps STRAIGHT to its studio
   // dashboard · no intermediate profile screen. Utility agents (CEO, Engine,
   // Credits, Config) have no studio, so they show their control panel instead.
@@ -242,7 +247,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     if (engine.paused) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Company paused', text: 'Resume it in Sentinel (Operations Guardian).' }); return }
     engine.record(`${agentName}:${task}`)
     pushToast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: agentName, text: 'Working…' })
-    await run({ task, agentName, connectors: [], brief })
+    // hand the run every CONNECTED app · the server keeps only the ones this
+    // task can use, so connected tools act for real (Notion page, Gmail draft…)
+    await run({ task, agentName, connectors: connectedConnectorIds(), brief })
     const err = useWork.getState().runError
     if (err) {
       const map: Record<string, string> = {

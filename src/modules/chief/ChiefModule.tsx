@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import type { ModuleProps } from '../registry'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
-import { useWork } from '../../agents/workStore'
+import { useWork, connectedConnectorIds } from '../../agents/workStore'
 import { postSlack, toolData } from '../../agents/workApi'
 import { useEngine } from '../../agents/engineStore'
 import { useDeliverables } from '../../agents/deliverables'
@@ -71,7 +71,9 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
     if (engine.paused) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Company paused', text: 'Resume it in Sentinel (Operations Guardian).' }); return }
     engine.record(`${agentName}:${task}`)
     pushToast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: agentName, text: 'Working…' })
-    await run({ task, agentName, connectors: [], brief })
+    // hand the run every CONNECTED app · the server keeps only the ones this
+    // task can use, so connected tools act for real (Notion page, Gmail draft…)
+    await run({ task, agentName, connectors: connectedConnectorIds(), brief })
     const err = useWork.getState().runError
     if (err) {
       const map: Record<string, string> = {

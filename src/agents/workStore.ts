@@ -53,6 +53,15 @@ interface WorkState {
   clearCreate: () => void
 }
 
+/** Ids of every app the user has CONNECTED. Pass this as `connectors` when
+ *  launching a deliverable: the server intersects it with the task's own
+ *  usesConnectors, so any relevant connected app joins the run as a live tool
+ *  (create the Notion page, draft the Gmail, stage the Meta campaign…). */
+export function connectedConnectorIds(): string[] {
+  const tools = useWork.getState().tools
+  return Object.keys(tools).filter((id) => tools[id]?.connected)
+}
+
 export const useWork = create<WorkState>((set, get) => ({
   tools: {},
   backend: false,
