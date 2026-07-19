@@ -176,12 +176,13 @@ export function generateKeywords(desc: string, limit = 50): string[] {
 }
 
 // Richer brand-name morphology · every list feeds the combiner so we produce a
-// LOT of varied, on-theme, mostly-available candidates. Longer/compound/invented
-// forms are deliberately favoured because their .com is far more likely free.
-const NAME_SUFFIXES = ['ly', 'ify', 'io', 'hq', 'labs', 'flow', 'kit', 'hub', 'wave', 'base', 'stack', 'loop', 'yard', 'works', 'grid', 'ora', 'ify', 'wise', 'nest', 'spot', 'core', 'lane', 'mint', 'peak', 'dash', 'pilot', 'forge', 'scape', 'verse', 'root']
-const NAME_PREFIXES = ['get', 'try', 'go', 'up', 'neo', 'well', 'ever', 'hey', 'my', 'the', 'joy', 'true', 'one', 'own', 'nova']
+// LOT of varied, on-theme candidates. Longer/compound/affixed forms are
+// deliberately favoured because their .com is far more likely FREE — a short
+// single word's .com is almost always already registered.
+const NAME_SUFFIXES = ['ly', 'ify', 'io', 'hq', 'labs', 'flow', 'kit', 'hub', 'wave', 'base', 'stack', 'loop', 'yard', 'works', 'grid', 'ora', 'wise', 'nest', 'spot', 'core', 'lane', 'mint', 'peak', 'dash', 'pilot', 'forge', 'scape', 'verse', 'root', 'able', 'ora', 'ora', 'nova', 'zen', 'genix', 'fy', 'sy', 'able', 'ent', 'ary', 'era', 'ia']
+const NAME_PREFIXES = ['get', 'try', 'go', 'up', 'neo', 'well', 'ever', 'hey', 'my', 'the', 'joy', 'true', 'one', 'own', 'nova', 'omni', 'pro', 'meta', 'super', 'ultra', 'prime', 'peak', 'zen', 'vivid', 'bold']
 // brandable connector words · glue a keyword to one of these for a real feel
-const CONNECTORS_WORDS = ['flow', 'labs', 'hub', 'works', 'base', 'wave', 'peak', 'nest', 'yard', 'forge', 'grid', 'loop', 'spark', 'craft', 'studio', 'space', 'circle', 'club', 'co', 'go']
+const CONNECTORS_WORDS = ['flow', 'labs', 'hub', 'works', 'base', 'wave', 'peak', 'nest', 'yard', 'forge', 'grid', 'loop', 'spark', 'craft', 'studio', 'space', 'circle', 'club', 'co', 'go', 'app', 'now', 'pro', 'wise', 'path', 'point', 'pod', 'bloom', 'harbor', 'haven', 'route', 'dash', 'pulse', 'field', 'mode', 'era', 'kind', 'sphere']
 
 /** Fold a word to a tighter, still-pronounceable stem (drops a trailing vowel). */
 function stem(w: string): string {
@@ -189,51 +190,70 @@ function stem(w: string): string {
   return w
 }
 
-/** Combine the chosen keywords into a big, varied set of brandable candidates:
- *  the words, many affixed forms, keyword+connector compounds, two-word blends,
- *  and pronounceable invented variants. `seed` rerolls to a fresh batch. */
+/** Combine the chosen keywords into a big, varied pool of brandable candidates.
+ *  We generate every cross-combination that reads well — affixed words, keyword
+ *  + connector, prefix+word+suffix, and (crucially) two-keyword compounds/blends,
+ *  which are the ones most likely to have a free .com. The returned list is a
+ *  deliberate MIX of short brandable names and longer compounds so the .com
+ *  check actually surfaces available ones. `seed` rerolls to a fresh batch. */
 export function combineNames(words: string[], seed = 0): string[] {
-  const base = [...new Set(words.map((w) => clip(w, 9)).filter((w) => w.length >= 3))]
+  const base = [...new Set(words.map((w) => clip(w, 9)).filter((w) => w.length >= 3))].slice(0, 12)
   if (base.length === 0) return generateNames('nova brand', seed)
   const out = new Set<string>()
-  const rot = <T,>(arr: T[], i: number) => arr[(i + seed) % arr.length]
-  const add = (s: string) => { const v = cap(s.replace(/[^a-z]/gi, '')); if (v.length >= 3 && v.length <= 18) out.add(v) }
+  const rot = <T,>(arr: T[], i: number) => arr[((i % arr.length) + seed) % arr.length]
+  const add = (s: string) => { const v = cap(s.replace(/[^a-z]/gi, '')); if (v.length >= 4 && v.length <= 20) out.add(v) }
 
   base.forEach((w, i) => {
     add(w)
-    // several suffixes + prefixes per word (rotated by seed for reroll variety)
-    for (let s = 0; s < 3; s++) add(w + rot(NAME_SUFFIXES, i * 3 + s))
-    for (let p = 0; p < 2; p++) add(rot(NAME_PREFIXES, i * 2 + p) + w)
+    // MANY suffixes + prefixes per word (rotate the starting point by seed)
+    for (let s = 0; s < 6; s++) add(w + rot(NAME_SUFFIXES, i + s))
+    for (let p = 0; p < 4; p++) add(rot(NAME_PREFIXES, i + p) + w)
     // keyword glued to a brandable connector, both orders
-    for (let c = 0; c < 3; c++) { const conn = rot(CONNECTORS_WORDS, i * 3 + c + seed); add(w + conn); add(conn + w) }
-    // one clean invented variant · stem + soft vowel ending (Brewa, Cafeo…)
-    add(stem(w) + rot(['a', 'o', 'io', 'ia', 'ova', 'ora'], i + seed))
+    for (let c = 0; c < 6; c++) { const conn = rot(CONNECTORS_WORDS, i + c); add(w + conn); add(conn + w) }
+    // prefix + word + suffix · very distinctive, almost always a free .com
+    for (let x = 0; x < 3; x++) add(rot(NAME_PREFIXES, i + x + 3) + w + rot(NAME_SUFFIXES, i + x))
+    // clean invented variants · stem + soft vowel ending (Brewa, Cafeo…)
+    for (let v = 0; v < 2; v++) add(stem(w) + rot(['a', 'o', 'io', 'ia', 'ova', 'ora', 'ella', 'ora', 'aro', 'eno'], i + v))
   })
 
-  // blends + compounds of every ordered pair of chosen words
-  for (let i = 0; i < base.length && out.size < 90; i++) {
-    for (let j = 0; j < base.length && out.size < 90; j++) {
+  // every ordered pair of keywords → compound + blend + connector-joined.
+  // These two-word forms are long and distinctive, so their .com is usually FREE.
+  const compounds = new Set<string>()
+  const addC = (s: string) => { const v = cap(s.replace(/[^a-z]/gi, '')); if (v.length >= 5 && v.length <= 20) compounds.add(v) }
+  for (let i = 0; i < base.length; i++) {
+    for (let j = 0; j < base.length; j++) {
       if (i === j) continue
-      const a = clip(base[i], 5), b = clip(base[j], 5)
+      const a = clip(base[i], 6), b = clip(base[j], 6)
       if (!a || !b) continue
-      add(a + b)                  // compound · CoffeeFlow
-      add(stem(a) + b)            // tighter compound · CoffFlow
-      add(a + b.slice(1))         // blend · Cofflow
+      addC(a + b)                 // compound · CoffeeRoast
+      addC(stem(a) + b)           // tighter compound · CoffRoast
+      addC(a + b.slice(1))        // blend · Coffoast
+      addC(a + b + rot(NAME_SUFFIXES, i + j))       // two-word + suffix · almost always free
+      addC(a + cap(b))            // TitleCase compound reads as two words
     }
   }
 
-  // stable-ish shuffle by (length then a seed-rotated order) so rerolls differ
-  const all = [...out]
-  const start = (seed * 7) % Math.max(1, all.length)
-  const rolled = all.slice(start).concat(all.slice(0, start))
-  // bias toward brandable lengths (5–11) first, they read best
-  return rolled.sort((a, b) => score(a) - score(b)).slice(0, 40)
+  // Build the returned MIX: alternate a short brandable name and a long compound
+  // so the batch the checker runs on contains plenty of likely-available .coms.
+  const brandable = [...out].sort((a, b) => score(a) - score(b))
+  // lead with ~12-char two-word compounds · long enough that the .com is free,
+  // short enough to still read as a real brand.
+  const long = [...compounds].sort((a, b) => Math.abs(a.length - 12) - Math.abs(b.length - 12))
+  // rotate both by seed so rerolls differ
+  const roll = <T,>(arr: T[]) => { const s = (seed * 5) % Math.max(1, arr.length); return arr.slice(s).concat(arr.slice(0, s)) }
+  const bR = roll(brandable), lR = roll(long)
+  const mixed: string[] = []
+  const seen = new Set<string>()
+  const push = (n?: string) => { if (n && !seen.has(n)) { seen.add(n); mixed.push(n) } }
+  const max = Math.max(bR.length, lR.length)
+  for (let i = 0; i < max && mixed.length < 60; i++) { push(lR[i]); push(bR[i]) }  // long first → availability
+  return mixed.slice(0, 60)
 }
 
 /** Lower is better · favours pronounceable, brandable-length names. */
 function score(n: string): number {
   const len = n.length
-  const lenPenalty = Math.abs(len - 8)               // sweet spot ~8 chars
+  const lenPenalty = Math.abs(len - 9)               // sweet spot ~9 chars
   const vowels = (n.match(/[aeiou]/gi) || []).length
   const ratio = vowels / len
   const pronounce = ratio < 0.25 || ratio > 0.6 ? 3 : 0   // too few / too many vowels
@@ -253,12 +273,12 @@ export async function checkComBatch(
   names: string[],
   onProgress?: (done: number, total: number) => void,
 ): Promise<Record<string, DomainStatus>> {
-  const slugs = [...new Set(names.map((n) => n.toLowerCase().replace(/[^a-z0-9]/g, '')).filter((s) => s.length >= 2))].slice(0, 48)
+  const slugs = [...new Set(names.map((n) => n.toLowerCase().replace(/[^a-z0-9]/g, '')).filter((s) => s.length >= 2))].slice(0, 64)
   const out: Record<string, DomainStatus> = {}
   let done = 0
   // gentle concurrency · RDAP servers rate-limit aggressive bursts, and a
   // throttled 429 is exactly what used to slip through as a false "available".
-  const CONC = 4
+  const CONC = 5
   for (let i = 0; i < slugs.length; i += CONC) {
     const batch = slugs.slice(i, i + CONC)
     await Promise.all(batch.map(async (s) => {
