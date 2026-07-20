@@ -29,21 +29,22 @@ export function Landing({ enter }: { enter: () => void }) {
   const goBilling = () => { useWork.getState().openStudio('billing'); enter() }
   const goAssistant = () => document.querySelector('#assistant')?.scrollIntoView({ behavior: 'smooth' })
 
-  // Scroll-reveal · each landing section fades/rises in as it enters the
-  // viewport. JS opts sections in (adding .lp-reveal) so the page is never
-  // hidden if scripting is off; the observer then flips .lp-in when visible.
+  // Scroll-reveal · each landing section cascades in as it enters the viewport.
+  // An IntersectionObserver (root = viewport, so it works whichever element
+  // actually scrolls) flips .lp-in; we keep observing (cheap) so nothing is
+  // missed, and a safety timer reveals everything after a few seconds no matter
+  // what. Reduced-motion / no-JS shows the page fully.
   useEffect(() => {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     const secs = Array.from(document.querySelectorAll<HTMLElement>('.landing .lp-sec'))
     if (reduce || !('IntersectionObserver' in window)) { secs.forEach((s) => s.classList.add('lp-in')); return }
     secs.forEach((s) => s.classList.add('lp-reveal'))
     const io = new IntersectionObserver((entries) => {
-      for (const e of entries) if (e.isIntersecting) { e.target.classList.add('lp-in'); io.unobserve(e.target) }
-    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 })
+      for (const e of entries) if (e.isIntersecting) e.target.classList.add('lp-in')
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 })
     secs.forEach((s) => io.observe(s))
-    // reveal anything already in view on first paint
-    requestAnimationFrame(() => secs.forEach((s) => { if (s.getBoundingClientRect().top < window.innerHeight * 0.92) s.classList.add('lp-in') }))
-    return () => io.disconnect()
+    const safety = window.setTimeout(() => secs.forEach((s) => s.classList.add('lp-in')), 5000)
+    return () => { io.disconnect(); clearTimeout(safety) }
   }, [])
 
   return (
