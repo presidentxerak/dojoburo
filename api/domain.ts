@@ -75,24 +75,22 @@ async function dohStatus(domain: string): Promise<Status> {
   return 'unknown'
 }
 
-// DoH-first strategy. DNS is the fast, unthrottled primary signal; RDAP is the
-// authoritative confirmation only where it matters:
-//   • DoH says delegated → TAKEN (no RDAP call · this is most names, so RDAP
-//     load collapses and it stops rate-limiting us).
-//   • DoH says NXDOMAIN → almost certainly free, but confirm with RDAP to catch
-//     the rare registered-but-not-delegated domain (RDAP 200 → taken).
-//   • DoH inconclusive → RDAP decides (with an rdap.org cross-check).
+// Query RDAP (authoritative) and DoH (fast, unthrottled) IN PARALLEL, then
+// combine so we return a definitive answer whenever EITHER source knows:
+//   • RDAP is authoritative · a clean 404/200 wins.
+//   • If RDAP is inconclusive (rate-limited / blocked from this region), DoH's
+//     NXDOMAIN→available / delegated→taken carries the result.
+//   • Only when BOTH are inconclusive do we retry via rdap.org and, failing
+//     that, report 'unknown' (shown to the user as "to verify", never as taken).
 async function checkOne(domain: string, tld: string): Promise<Status> {
-  const dns = await dohStatus(domain)
-  if (dns === 'taken') return 'taken'
-  if (dns === 'available') {
-    const rdap = await fetchStatus(rdapUrl(domain, tld))
-    return rdap === 'taken' ? 'taken' : 'available'   // 404 or inconclusive → trust the NXDOMAIN
+  const [rdap, dns] = await Promise.all([fetchStatus(rdapUrl(domain, tld)), dohStatus(domain)])
+  if (rdap === 'available' || rdap === 'taken') return rdap
+  if (dns === 'available' || dns === 'taken') return dns
+  if (tld === 'com' || tld === 'net') {
+    const alt = await fetchStatus(`https://rdap.org/domain/${domain}`)
+    if (alt !== 'unknown') return alt
   }
-  // DoH inconclusive → lean on RDAP
-  let r = await fetchStatus(rdapUrl(domain, tld))
-  if (r === 'unknown' && (tld === 'com' || tld === 'net')) r = await fetchStatus(`https://rdap.org/domain/${domain}`)
-  return r
+  return 'unknown'
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {

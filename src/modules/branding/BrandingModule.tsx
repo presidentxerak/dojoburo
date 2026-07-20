@@ -138,7 +138,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   }
   // Research → combine the chosen words into names, then Naming.
   const generateNames = () => {
-    setNames(combineNames([...selected], nameSeed))
+    setNames(combineNames(selected.size ? [...selected] : generateKeywords(descSrc()).slice(0, 8), nameSeed))
     setStep('naming')
   }
   const toggleKw = (k: string) => setSelected((s) => {
@@ -153,10 +153,14 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     setSelected((s) => new Set(s).add(w))
     setCustomWord('')
   }
-  const reroll = () => { const s = nameSeed + 1; setNameSeed(s); setNames(combineNames([...selected], s)) }
+  // The words to combine · the founder's chosen keywords, or (if they skipped
+  // that step) words derived from their description, so we never fall back to a
+  // generic "nova brand" set whose .coms are all long gone.
+  const nameWords = () => (selected.size ? [...selected] : generateKeywords(descSrc()).slice(0, 8))
+  const reroll = () => { const s = nameSeed + 1; setNameSeed(s); setNames(combineNames(nameWords(), s)) }
   // Auto-scan .com availability for the candidates on the Naming step, so free
   // .com brand names surface immediately (real RDAP via the server proxy).
-  const nameList = names.length ? names : combineNames([...selected], 0)
+  const nameList = names.length ? names : combineNames(nameWords(), 0)
   useEffect(() => {
     if (step !== 'naming' || !nameList.length) return
     let cancelled = false
@@ -410,32 +414,48 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
         </section>
       )}
 
+      {step === 'research' && !profile && (
+        <section className="sq-panel">
+          <h3 className="sq-title">Research profile</h3>
+          <div className="br-empty">
+            <div className="br-empty-ic" aria-hidden="true">?</div>
+            <h4>Nothing to research yet</h4>
+            <p>The research profile is built from your idea — audience, market, positioning and personality. It needs a description or a few keywords first.</p>
+            <ol className="br-empty-steps">
+              <li><b>1 · Describe your idea</b><span>Go to <b>Concept</b> and write one sentence about what you're building (e.g. “an app that plans healthy weekly meals”).</span></li>
+              <li><b>2 · Pick keywords</b><span>Tap a few suggested words (or <b>Select all</b>), or add your own — these steer the whole brand.</span></li>
+              <li><b>3 · Generate</b><span>Come back here with <b>Generate research profile</b> · you'll get audience, market, differentiation and tone.</span></li>
+            </ol>
+            <button className="sq-cta" onClick={() => setStep('concept')}>← Go to Concept</button>
+          </div>
+        </section>
+      )}
+
       {step === 'naming' && (() => {
         const slugOf = (n: string) => n.toLowerCase().replace(/[^a-z0-9]/g, '')
         const bySlug = (n: string) => comAvail[slugOf(n)]
         const byLen = (a: string, b: string) => a.length - b.length
-        // GREEN list · only .coms confirmed 100% available. While the scan runs,
-        // not-yet-checked names sit here too (as "…") so the grid isn't empty.
+        // Three buckets so a name is only ever called "not available" when we
+        // KNOW it's registered. During the scan, unchecked names sit in the
+        // green grid as "…" so it isn't empty.
         const available = [...nameList].filter((n) => bySlug(n) === 'available' || (comScan.on && bySlug(n) === undefined)).sort(byLen)
-        // Everything the check did NOT confirm free → shown separately as
-        // alternatives (taken, or the registry couldn't confirm it). Only after
-        // the scan finishes so we don't flash names between buckets.
-        const others = comScan.on ? [] : [...nameList].filter((n) => bySlug(n) && bySlug(n) !== 'available').sort(byLen)
+        const toVerify = comScan.on ? [] : [...nameList].filter((n) => bySlug(n) === 'unknown').sort(byLen)
+        const taken = comScan.on ? [] : [...nameList].filter((n) => bySlug(n) === 'taken').sort(byLen)
         const sureCount = nameList.filter((n) => bySlug(n) === 'available').length
         return (
         <section className="sq-panel">
           <h3 className="sq-title">Available .com names</h3>
-          <p className="sq-lead">We check the real <b>.com</b> availability of every candidate. Names in <b style={{ color: '#0e9c63' }}>green</b> are <b>100% available</b> · pick one to lock its handles &amp; other TLDs. The rest are shown below as alternatives.</p>
+          <p className="sq-lead">We check the real <b>.com</b> availability of every candidate. Names in <b style={{ color: '#0e9c63' }}>green</b> are <b>confirmed free</b> · pick one to lock its handles &amp; other TLDs. Names we couldn't reach the registry for are listed under <b>To verify</b>; only confirmed-registered ones go under <b>Taken</b>.</p>
           <div className="bw-selected bw-selected-recap">
             {[...selected].map((k) => <span key={k} className="bw-chip on static">{k}</span>)}
             <button className="bw-editwords" onClick={() => setStep('concept')}>Edit words</button>
           </div>
           <div className="nm-availbar">
-            <span className="nm-availstat">{comScan.on ? `Checking .com availability… ${comScan.done}/${comScan.total}` : `${sureCount} available .com · ${nameList.length} checked`}</span>
+            <span className="nm-availstat">{comScan.on ? `Checking .com availability… ${comScan.done}/${comScan.total}` : `${sureCount} available${toVerify.length ? ` · ${toVerify.length} to verify` : ''} · ${nameList.length} checked`}</span>
             <button className="nm-availfilter" onClick={reroll}>↻ Reroll names</button>
           </div>
 
-          {/* 100%-available .com · green */}
+          {/* Confirmed-free .com · green */}
           <div className="sq-namegrid">
             {available.map((n) => {
               const s = bySlug(n)
@@ -446,23 +466,35 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
                 </button>
               )
             })}
-            {!comScan.on && !available.length && <p className="muted small">No <b>.com</b> confirmed free in this batch — try the alternatives below or reroll for a fresh set.</p>}
+            {!comScan.on && !available.length && <p className="muted small">No <b>.com</b> confirmed free in this batch — check the “To verify” names below or reroll for a fresh set.</p>}
           </div>
 
-          {/* Not confirmed available · other alternatives */}
-          {others.length > 0 && (
+          {/* Couldn't confirm with the registry · neutral, still worth a look */}
+          {toVerify.length > 0 && (
             <>
-              <div className="nm-althead"><span className="sq-eyebrow">Other alternatives · not available</span></div>
+              <div className="nm-althead"><span className="sq-eyebrow">To verify · registry didn't answer</span></div>
+              <div className="sq-namegrid nm-verifygrid">
+                {toVerify.map((n) => (
+                  <button key={n} className={`sq-name nm-unknown${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)} title="We couldn't confirm this .com · open to check it at the registrars">
+                    <b>{n}</b>
+                    <span className="nm-dom">{slugOf(n)}.com <em className="nm-likely">Check ↗</em></span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Confirmed registered · other alternatives */}
+          {taken.length > 0 && (
+            <>
+              <div className="nm-althead"><span className="sq-eyebrow">Taken · other alternatives</span></div>
               <div className="sq-namegrid nm-altgrid">
-                {others.map((n) => {
-                  const s = bySlug(n)
-                  return (
-                    <button key={n} className={`sq-name nm-${s}${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)} title="Not confirmed available · open to check other TLDs">
-                      <b>{n}</b>
-                      <span className="nm-dom">{slugOf(n)}.com <em className="nm-taken">Not available</em></span>
-                    </button>
-                  )
-                })}
+                {taken.map((n) => (
+                  <button key={n} className={`sq-name nm-taken${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)} title="Registered · open to check other TLDs">
+                    <b>{n}</b>
+                    <span className="nm-dom">{slugOf(n)}.com <em className="nm-taken">Not available</em></span>
+                  </button>
+                ))}
               </div>
             </>
           )}

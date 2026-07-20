@@ -18,6 +18,7 @@ import {
 import { PRESET_PALETTES, paletteToKit } from '../../lib/palettes'
 import { BrandTypography, BrandColours, FONT_PAIRINGS } from '../shared/BrandStyle'
 import { StepBar } from '../StepBar'
+import { InfoDot } from '../../components/InfoDot'
 import { StudioNext } from '../StudioNext'
 
 const CATS: (TemplateCategory | 'All')[] = ['All', 'Business', 'Store', 'Portfolio', 'Restaurant', 'Agency', 'Personal', 'Blog', 'Events']
@@ -132,7 +133,13 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         const el = t.closest?.('[data-b]') as HTMLElement | null
         if (!el) return
         e.preventDefault(); e.stopPropagation()
-        const id = el.getAttribute('data-b'); if (id) { setSel(id); highlight(id, false) }
+        const id = el.getAttribute('data-b')
+        if (id) {
+          setSel(id); highlight(id, false)
+          // clicking directly on an image → jump to the media editor so you can
+          // swap/generate/remove it right away.
+          if (t.tagName === 'IMG' || t.closest?.('img')) { setInspTab('content'); setTimeout(() => document.getElementById('site-inspector')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60) }
+        }
       }, true)
       d.addEventListener('scroll', () => { const id = selRef.current; if (id) highlight(id, false) }, true)
       setTimeout(() => highlight(selRef.current, false), 0)
@@ -258,6 +265,9 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   }
   const setCurrency = (currency: string) => setSite((s) => ({ ...s, currency }))
   const setCheckoutEmail = (checkoutEmail: string) => setSite((s) => ({ ...s, checkoutEmail }))
+  // global component style · corner radius + border width (site-wide)
+  const setRadius = (radius: number) => setSite((s) => ({ ...s, radius }))
+  const setBorderWidth = (borderWidth: number) => setSite((s) => ({ ...s, borderWidth }))
 
   const regenerate = () => { adopt(generateSite(dojoName)); pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'First version generated', text: 'Edit each block, then export.' }) }
   const save = async () => { await saveSite(dojoId, site); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Website saved', text: 'Saved locally (IndexedDB).' }) }
@@ -551,6 +561,20 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
                 ))}
               </div>
               <button className="btn tiny ghost" style={{ marginTop: 8 }} onClick={() => setStep('colours')}>More colours →</button>
+
+              {/* Components · global corner radius + border width */}
+              <div className="sq-eyebrow" style={{ marginTop: 16 }}>Components
+                <InfoDot title="Component style" label="How corners & borders work">
+                  <p>These sliders set the <b>corner radius</b> and <b>border thickness</b> for every component of your site — buttons, cards, pricing tiers, images, product cards and form fields — all at once.</p>
+                  <p>0 px corners = sharp edges; higher = rounder. Border 0 = no visible border. Changes preview live and are included in the export.</p>
+                </InfoDot>
+              </div>
+              <label className="site-field"><span>Corner radius · {site.radius ?? 12}px</span>
+                <input type="range" min={0} max={40} step={1} value={site.radius ?? 12} onChange={(e) => setRadius(Number(e.target.value))} />
+              </label>
+              <label className="site-field"><span>Border width · {site.borderWidth ?? 1}px</span>
+                <input type="range" min={0} max={6} step={1} value={site.borderWidth ?? 1} onChange={(e) => setBorderWidth(Number(e.target.value))} />
+              </label>
             </div>
           )}
         </aside>
