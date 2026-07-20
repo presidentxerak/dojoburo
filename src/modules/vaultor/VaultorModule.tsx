@@ -8,6 +8,7 @@ import { toolData } from '../../agents/workApi'
 import { useEngine } from '../../agents/engineStore'
 import { OfficeStats } from '../../components/OfficeStats'
 import { Accounting } from './Accounting'
+import { InfoDot } from '../../components/InfoDot'
 
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
 const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
@@ -61,6 +62,10 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
         {TABS.map((t) => (
           <button key={t.id} className={`sq-step${tab === t.id ? ' on' : ''}`} onClick={() => setTab(t.id)} title={t.sub}>{t.label}</button>
         ))}
+        <InfoDot title="Billing" label="How billing works">
+          <p>Manage <b>credits</b> that power your agents' real work, top up in your own currency (no crypto), and see recent payments.</p>
+          <p>Connect <b>Stripe</b> (operator) to show your live balance and charges here. Each agent task meters a small amount of credit; the Security Studio caps daily spend.</p>
+        </InfoDot>
       </div>
 
       {tab === 'accounting' && <Accounting dojoId={dojoId} />}

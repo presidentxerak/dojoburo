@@ -7,6 +7,7 @@ import { useDojo } from '../../store'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
 import { useSecrets } from '../../agents/secretsStore'
 import { listSecrets, saveSecret as apiSaveSecret, removeSecret as apiRemoveSecret, type ServerSecret } from '../../agents/workApi'
+import { InfoDot } from '../../components/InfoDot'
 
 export default function SentinelModule({ dojoId }: ModuleProps) {
   const pushToast = useDojo((s) => s.pushToast)
@@ -71,7 +72,12 @@ export default function SentinelModule({ dojoId }: ModuleProps) {
 
   return (
     <div className="sentinel-mod sq">
-      <div className="sq-eyebrow">Autonomy &amp; limits</div>
+      <div className="sq-eyebrow">Autonomy &amp; limits
+        <InfoDot title="Security Studio" label="How security &amp; limits work">
+          <p><b>Autonomy</b> sets how far agents can act on their own — from asking every time to fully autonomous. <b>Daily credit cap</b> hard-limits spend per day; the anti-loop guard stops runaway retries.</p>
+          <p>The <b>encrypted vault</b> below stores your company secrets (API keys, env vars) sealed server-side (AES-256-GCM) — the browser never sees them. Use the switches to pause the whole company instantly.</p>
+        </InfoDot>
+      </div>
       <div className="tb-netseg eng-seg">
         {(['auto', 'low', 'medium', 'hard', 'ultra'] as Autonomy[]).map((a) => (
           <button key={a} className={engine.autonomy === a ? 'on' : ''} onClick={() => engine.setAutonomy(a)}>{AUTONOMY_LABEL[a]}</button>

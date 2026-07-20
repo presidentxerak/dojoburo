@@ -11,6 +11,7 @@ import {
   importCsv, exportCsv, newContact, sampleContacts, loadCrm, saveCrm, eur,
 } from '../../lib/crm'
 import { StudioNext } from '../StudioNext'
+import { InfoDot } from '../../components/InfoDot'
 
 export default function CRMModule({ dojoId }: ModuleProps) {
   const pushToast = useDojo((s) => s.pushToast)
@@ -65,7 +66,13 @@ export default function CRMModule({ dojoId }: ModuleProps) {
   return (
     <div className="ad-body crm-mod">
       <header className="mod-intro">
-        <h3 className="sq-title">CRM &amp; outbound</h3>
+        <h3 className="sq-title">CRM &amp; outbound
+          <InfoDot title="CRM &amp; outbound" label="How the CRM works">
+            <p>Track every lead across stages (new → contacted → won). Add leads manually or <b>import a CSV</b>; drag a lead through the pipeline as it progresses.</p>
+            <p>Open a lead to generate <b>personalised outreach</b> that merges its name/company. Connect <b>Gmail</b> to send for real, or <b>HubSpot</b> to pull your live contacts and pipeline.</p>
+            <p>Pipeline value, conversion rate and won revenue are computed live and flow into Finance &amp; Analytics.</p>
+          </InfoDot>
+        </h3>
         <p className="sq-lead">Track leads across stages, import a CSV, and generate personalised outreach that merges each contact's details. Pipeline value, conversion and won revenue · all local.</p>
       </header>
 

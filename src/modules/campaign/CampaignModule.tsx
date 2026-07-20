@@ -8,6 +8,7 @@ import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import { useWork } from '../../agents/workStore'
 import { toolAction, toolData } from '../../agents/workApi'
+import { InfoDot } from '../../components/InfoDot'
 import type { BrandKit } from '../../lib/brand'
 import {
   type Campaign, type Objective, type AdFormat, type AdVariant, OBJECTIVES, ANGLES,
@@ -139,7 +140,12 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
 
       {step === 'brief' && (
         <section className="sq-panel">
-          <h3 className="sq-title">Campaign brief</h3>
+          <h3 className="sq-title">Campaign brief
+            <InfoDot title="Marketing Studio" label="How campaigns work">
+              <p>Build an ad campaign in four steps: <b>Brief</b> (goal &amp; product) → <b>Audience</b> (personas) → <b>Creatives</b> (ad variants + video/image editors) → <b>Export</b>.</p>
+              <p>Everything generates locally from your Brand Kit. Connect <b>X</b>, <b>Buffer</b> or <b>LinkedIn</b> to publish posts for real; <b>Mailchimp</b> shows your live audience; <b>Meta</b> for Facebook/Instagram ads.</p>
+            </InfoDot>
+          </h3>
           <p className="sq-lead">What are you promoting, and what's the goal? We build the audience, personas and 5 ad variants from this.</p>
           {mc && <p className="muted small" style={{ marginTop: 0 }}><b>{mc.members.toLocaleString('en-US')}</b> subscribers across {mc.total} Mailchimp audience{mc.total === 1 ? '' : 's'} · live.</p>}
           <label className="sq-field">Product / offer

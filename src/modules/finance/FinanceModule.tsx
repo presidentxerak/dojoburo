@@ -11,6 +11,7 @@ import {
 import { appTransactions } from '../../lib/ledger'
 import { useWork } from '../../agents/workStore'
 import { toolData } from '../../agents/workApi'
+import { InfoDot } from '../../components/InfoDot'
 
 interface AcctLine { date: string; label: string; amount: number; kind: 'income' | 'expense' }
 
@@ -83,7 +84,13 @@ export default function FinanceModule({ dojoId }: ModuleProps) {
   return (
     <div className="ad-body fin-mod">
       <header className="mod-intro">
-        <h3 className="sq-title">Finance &amp; accounting</h3>
+        <h3 className="sq-title">Finance &amp; accounting
+          <InfoDot title="Finance &amp; accounting" label="How finance works">
+            <p><b>Import a CSV</b> of transactions (date, label, amount) or load a sample — everything is analysed <b>100% in your browser</b>, nothing is uploaded.</p>
+            <p>You get revenue, expenses, cash, net result, a monthly chart, expenses by category, <b>VAT</b> and a 3-month <b>forecast</b>. Adjust the VAT rate inline.</p>
+            <p>Sales won in the CRM and campaign budgets feed in automatically; connect <b>QuickBooks</b> or <b>Xero</b> to sync live invoices &amp; expenses.</p>
+          </InfoDot>
+        </h3>
         <p className="sq-lead">Import a CSV (or load a sample) and see every KPI · revenue, expenses, cash, VAT, forecast · computed locally. Sales won in the CRM and campaign budgets flow in automatically.</p>
       </header>
       <div className="site-toolbar">

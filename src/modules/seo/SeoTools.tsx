@@ -14,6 +14,7 @@ import {
 import { ScoreRing } from './charts'
 import { useDojo } from '../../store'
 import { toolData } from '../../agents/workApi'
+import { InfoDot } from '../../components/InfoDot'
 
 // Live Google Analytics traffic (28d) · null until GA is configured + returns
 // data (admin, GA4_PROPERTY_ID + GA_SERVICE_ACCOUNT_JSON set on the deployment).
@@ -84,8 +85,8 @@ function Panel({ title, sub, right, children }: { title: string; sub?: string; r
     </section>
   )
 }
-function Head({ title, domain, hasSite }: { title: string; domain: string; hasSite: boolean }) {
-  return <div className="se-head"><h3>{title}</h3>{hasSite && <span className="se-domain"><span className="se-dot-live" />{domain}</span>}</div>
+function Head({ title, domain, hasSite, help }: { title: string; domain: string; hasSite: boolean; help?: React.ReactNode }) {
+  return <div className="se-head"><h3>{title}{help && <InfoDot title={title} label={`How ${title} works`}>{help}</InfoDot>}</h3>{hasSite && <span className="se-domain"><span className="se-dot-live" />{domain}</span>}</div>
 }
 const NoSite = () => <EmptyState icon="◱" title="No website yet" text="Build and save your site in the Website Studio first. Then this tool analyses it live." />
 
@@ -108,7 +109,11 @@ export function SeoOverview({ b }: { b: SeoBundle }) {
   const o = b.onpage
   return (
     <div className="se-wrap">
-      <Head title="Overview" domain={b.domain} hasSite={b.hasSite} />
+      <Head title="Overview" domain={b.domain} hasSite={b.hasSite} help={<>
+        <p>This SEO suite analyses <b>your saved website</b> live — build &amp; save it in the Website Studio first.</p>
+        <p>Overview scores your on-page SEO and surfaces quick wins. The other tabs cover keyword research, rank tracking, a full site audit and backlinks.</p>
+        <p>Connect <b>Google Analytics</b> and <b>Search Console</b> (operator) to replace estimates with your real traffic, clicks and keyword positions.</p>
+      </>} />
       <div className="se-grid-2">
         <Panel title="Site health" sub="Live on-page SEO score for your website">
           <div className="se-ring-row"><ScoreRing value={o.health} size={132} label="health" />

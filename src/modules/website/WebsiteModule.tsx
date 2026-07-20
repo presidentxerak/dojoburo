@@ -493,7 +493,13 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
             <div className="site-left-body">
               {/* PAGES · the site's pages (Squarespace-style) */}
               <div className="site-blocks-head">
-                <h4 className="brand-h" style={{ margin: 0 }}>Pages</h4>
+                <h4 className="brand-h" style={{ margin: 0 }}>Pages
+                  <InfoDot title="Pages &amp; sections" label="How editing works">
+                    <p>Your site has <b>pages</b> (top list) and <b>sections</b> inside each page (below). Click a page to edit it; toggle the <b>☰</b> to show/hide it in the nav.</p>
+                    <p>Click any <b>section in the canvas</b> to edit it on the right (Éléments / Design / Couleur). Click an <b>image</b> to jump straight to its media editor. Reorder, duplicate or delete with the row buttons.</p>
+                    <p><b>Styles</b> (tab above) sets fonts, colours and component radius/borders for the whole site. Switch to <b>Preview</b> to try the live site; <b>Export</b> downloads a standalone .html.</p>
+                  </InfoDot>
+                </h4>
                 <button className="btn tiny" onClick={() => setPagePicker('add')}>＋ Add page</button>
               </div>
               <ul className="site-pagelist">

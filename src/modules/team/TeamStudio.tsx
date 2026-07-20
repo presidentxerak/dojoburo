@@ -11,6 +11,7 @@ import { useWork } from '../../agents/workStore'
 import { startConnect, postSlack, toolData, toolAction } from '../../agents/workApi'
 import { ROLE_BY_ID } from '../../data/roleAgents'
 import { CONNECTOR_BY_ID } from '../../data/connectors'
+import { InfoDot } from '../../components/InfoDot'
 
 // connectors we have a live read provider for (api/tool-data.ts)
 const LIVE = new Set(['github', 'linear', 'zendesk', 'intercom', 'gdrive', 'docusign', 'slack'])
@@ -182,7 +183,13 @@ export default function TeamStudio({ agentKey }: ModuleProps & { agentKey: strin
   return (
     <div className="team-mod se" style={{ ['--dc' as string]: role.tint }}>
       <header className="mod-intro">
-        <h3 className="sq-title">{role.title} <span className="team-code">{role.code}</span></h3>
+        <h3 className="sq-title">{role.title} <span className="team-code">{role.code}</span>
+          <InfoDot title={`${role.title} · how it works`} label="How this studio works">
+            <p>{role.desc}</p>
+            <p><b>Connect apps</b> (top right) links this agent's tools ({role.apps.map((id) => CONNECTOR_BY_ID[id]?.label).filter(Boolean).slice(0, 4).join(', ')}…). Once connected, the panels below show your <b>live data</b> (issues, tickets, files, channels).</p>
+            <p>The action box at the bottom does the real thing when the app is connected (e.g. post to Slack), or copies a ready draft you can paste otherwise.</p>
+          </InfoDot>
+        </h3>
         <p className="sq-lead">{role.desc}</p>
       </header>
 

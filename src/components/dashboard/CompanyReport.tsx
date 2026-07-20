@@ -9,6 +9,7 @@ import { useEngine } from '../../agents/engineStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { toolData } from '../../agents/workApi'
 import { ROLE_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
+import { InfoDot } from '../InfoDot'
 
 // which deliverables each agent produces (mirrors the roster mapping)
 const AGENT_TASKS: Record<string, string[]> = {
@@ -127,7 +128,12 @@ export function CompanyReport({ dojoId }: { dojoId: string }) {
   return (
     <section className="rep">
       <div className="mission-head">
-        <h3>Company report</h3>
+        <h3>Company report
+          <InfoDot title="Company report" label="How the report works">
+            <p>A cross-team snapshot: deliverables and app coverage per agent (bar charts), the work-flow pipeline, and live KPIs where connected (Stripe revenue, GA sessions, HubSpot pipeline, meetings).</p>
+            <p><b>Export CSV</b> downloads the underlying data; <b>Export charts (SVG)</b> saves the graphs as a vector file for slides or docs.</p>
+          </InfoDot>
+        </h3>
         <span className="muted small">Every agent's activity, app coverage and live metrics · exportable.</span>
         <span className="rep-actions">
           <button className="btn tiny" onClick={exportCsv}>Export CSV</button>

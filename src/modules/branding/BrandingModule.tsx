@@ -25,6 +25,7 @@ import { StepBar } from '../StepBar'
 import { StudioNext } from '../StudioNext'
 import { BrandTypography, BrandColours } from '../shared/BrandStyle'
 import { paletteToKit } from '../../lib/palettes'
+import { InfoDot } from '../../components/InfoDot'
 
 type Step = 'concept' | 'research' | 'naming' | 'domain' | 'logo' | 'export'
 const STEPS: { id: Step; label: string }[] = [
@@ -304,7 +305,13 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
 
       {step === 'concept' && (
         <section className="sq-panel">
-          <h3 className="sq-title">Create your concept</h3>
+          <h3 className="sq-title">Create your concept
+            <InfoDot title="Brand Architect · how it works" label="How branding works">
+              <p>Describe your idea in one sentence — we turn it into a palette of on-theme <b>keywords</b>. Tap the ones you like (or <b>Select all</b>) and add your own.</p>
+              <p>Then walk the steps: <b>Research</b> (audience &amp; positioning) → <b>Naming</b> (we combine your words into brandable names and check real <b>.com</b> availability) → <b>Availability</b> (all TLDs + registrar prices) → <b>Logo</b> &amp; <b>Export</b>.</p>
+              <p>Picking a name sets your colours &amp; fonts (the Brand Kit), which flow into the Website and Marketing studios automatically.</p>
+            </InfoDot>
+          </h3>
           <p className="sq-lead">Tell us what you're building. We turn it into a palette of on-theme keywords, then combine your favourites into brandable names · all on your device.</p>
 
           {/* Where do you start? */}
