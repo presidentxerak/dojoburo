@@ -86,7 +86,10 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
       <div className="modhost-body">
         {def.status === 'live' && def.comp ? (
           <ErrorBoundary label={def.label}>
-            <def.comp onClose={onClose} dojoId={dojoId} />
+            {/* keyed so the studio content re-plays its entrance on each open/switch */}
+            <div className="modhost-anim" key={moduleId}>
+              <def.comp onClose={onClose} dojoId={dojoId} />
+            </div>
           </ErrorBoundary>
         ) : (
           <div className="ad-body">

@@ -4948,3 +4948,39 @@ select.cc-input { flex: 1; min-width: 0; }
 .modhost-connect.on { background: color-mix(in srgb, var(--dc, #2f6bff) 14%, transparent); }
 .studio-apps .team-app-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 @media (min-width: 720px) { .modhost-apps .studio-apps .team-app-list { display: grid; grid-template-columns: 1fr 1fr; } }
+
+/* ============================================================================
+   Motion · landing in-page navigation + dojo UI entrance transitions
+   ========================================================================== */
+
+/* Smooth anchor navigation on the landing; offset for the sticky nav */
+html { scroll-behavior: smooth; }
+.lp-sec, .lp-hero, .lp-sec[id] { scroll-margin-top: 78px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Scroll-reveal · Landing.tsx marks sections .lp-reveal, the observer adds .lp-in */
+  .lp-sec.lp-reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1); will-change: opacity, transform; }
+  .lp-sec.lp-reveal.lp-in { opacity: 1; transform: none; }
+
+  /* Menu jump → the targeted section arrives with a soft accent halo + lift */
+  .lp-sec:target { animation: lpTargetArrive 1s cubic-bezier(.22,.61,.36,1); }
+  @keyframes lpTargetArrive {
+    0% { transform: translateY(10px); box-shadow: 0 0 0 0 color-mix(in srgb, var(--violet, #7b5cff) 42%, transparent); }
+    28% { box-shadow: 0 14px 40px -8px color-mix(in srgb, var(--violet, #7b5cff) 34%, transparent); }
+    100% { transform: none; box-shadow: 0 0 0 0 transparent; }
+  }
+
+  /* ---- Dojo UI entrance transitions ---- */
+  .modhost-fs { animation: uiFade .3s ease both; }
+  .modhost-anim { animation: uiRise .36s cubic-bezier(.22,.61,.36,1) both; }
+  .modhost-apps { animation: uiRise .26s cubic-bezier(.22,.61,.36,1) both; }
+  .dash-panels { animation: uiRise .34s cubic-bezier(.22,.61,.36,1) both; }
+  .agent-panel:not(.empty) { animation: uiSlideIn .32s cubic-bezier(.22,.61,.36,1) both; }
+  .site-ctx { animation: uiPop .18s cubic-bezier(.34,1.56,.64,1) both; }
+  .infodot-modal { animation: uiPop .2s cubic-bezier(.34,1.56,.64,1) both; }
+}
+
+@keyframes uiFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes uiRise { from { opacity: 0; transform: translateY(16px) scale(.994); } to { opacity: 1; transform: none; } }
+@keyframes uiSlideIn { from { opacity: 0; transform: translateX(22px); } to { opacity: 1; transform: none; } }
+@keyframes uiPop { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
