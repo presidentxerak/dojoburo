@@ -276,9 +276,37 @@ export interface DomainResult { domain: string; tld: string; status: 'available'
 export const BRAND_TLDS = ['com', 'io', 'co', 'dev', 'app', 'org', 'net', 'ai', 'so', 'me', 'to']
 
 export type DomainStatus = 'available' | 'taken' | 'unknown'
-/** Check .com availability for a whole batch of candidate names in parallel
- *  (throttled), so the Naming step can surface the ones whose .com is free.
- *  Returns a map keyed by the slugified name. Real RDAP via /api/domain. */
+
+// Client-side availability via DNS-over-HTTPS · dns.google and cloudflare-dns
+// both serve CORS-enabled JSON, so the browser can query them directly. This
+// runs in the USER's browser (not our serverless), so it works even when the
+// deployment's egress can't reach the registries. A name that doesn't exist in
+// DNS returns NXDOMAIN (Status 3) → available; a delegated one returns NOERROR
+// with NS records → taken. Not rate-limited like RDAP.
+async function dohStatus(domain: string): Promise<DomainStatus> {
+  const urls = [
+    `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=NS`,
+    `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=NS`,
+  ]
+  for (const url of urls) {
+    try {
+      const ctrl = new AbortController()
+      const t = setTimeout(() => ctrl.abort(), 6000)
+      const res = await fetch(url, { signal: ctrl.signal, headers: { accept: 'application/dns-json' } }).finally(() => clearTimeout(t))
+      if (!res.ok) continue
+      const j = await res.json() as { Status?: number; Answer?: unknown[] }
+      if (typeof j?.Status !== 'number') continue
+      if (j.Status === 3) return 'available'                                   // NXDOMAIN · not registered
+      if (j.Status === 0 && Array.isArray(j.Answer) && j.Answer.length > 0) return 'taken' // delegated
+      // NOERROR/NODATA or other rcode → try the next provider
+    } catch { /* try next provider */ }
+  }
+  return 'unknown'
+}
+
+/** Check .com availability for a whole batch of candidate names. Uses the
+ *  browser DoH check first (reliable everywhere), falling back to the server
+ *  RDAP proxy only when DNS is inconclusive. Keyed by slug. */
 export async function checkComBatch(
   names: string[],
   onProgress?: (done: number, total: number) => void,
@@ -286,22 +314,38 @@ export async function checkComBatch(
   const slugs = [...new Set(names.map((n) => n.toLowerCase().replace(/[^a-z0-9]/g, '')).filter((s) => s.length >= 2))].slice(0, 96)
   const out: Record<string, DomainStatus> = {}
   let done = 0
-  // concurrency · the check now runs DNS + RDAP in parallel per name and DoH
-  // isn't rate-limited, so we can fan out wider to surface more free names fast.
-  const CONC = 8
+  const CONC = 10  // client-side DoH · no serverless bottleneck
   for (let i = 0; i < slugs.length; i += CONC) {
     const batch = slugs.slice(i, i + CONC)
     await Promise.all(batch.map(async (s) => {
-      const r = await checkDomains(s, ['com'])
-      out[s] = (r.find((d) => d.tld === 'com')?.status as DomainStatus) ?? 'unknown'
+      let st = await dohStatus(`${s}.com`)
+      if (st === 'unknown') {
+        const r = await serverCheck(s, ['com'])
+        st = (r.find((d) => d.tld === 'com')?.status as DomainStatus) ?? 'unknown'
+      }
+      out[s] = st
       done++; onProgress?.(done, slugs.length)
     }))
   }
   return out
 }
 
-/** Check real domain availability for a name via the server-side RDAP proxy. */
+/** Availability across several TLDs · browser DoH per TLD, with the server RDAP
+ *  proxy filling in any the DNS couldn't confirm. */
 export async function checkDomains(name: string, tlds: string[] = BRAND_TLDS): Promise<DomainResult[]> {
+  const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '')
+  if (!slug) return []
+  const results = await Promise.all(tlds.map(async (tld) => ({ domain: `${slug}.${tld}`, tld, status: await dohStatus(`${slug}.${tld}`) as DomainStatus })))
+  const unresolved = results.filter((r) => r.status === 'unknown').map((r) => r.tld)
+  if (unresolved.length) {
+    const server = await serverCheck(slug, unresolved)
+    for (const s of server) { const r = results.find((x) => x.tld === s.tld); if (r && s.status !== 'unknown') r.status = s.status }
+  }
+  return results
+}
+
+/** Server-side RDAP proxy · the fallback when browser DNS is inconclusive. */
+async function serverCheck(name: string, tlds: string[]): Promise<DomainResult[]> {
   const q = new URLSearchParams({ name })
   if (tlds?.length) q.set('tlds', tlds.join(','))
   try {

@@ -265,9 +265,12 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   }
   const setCurrency = (currency: string) => setSite((s) => ({ ...s, currency }))
   const setCheckoutEmail = (checkoutEmail: string) => setSite((s) => ({ ...s, checkoutEmail }))
-  // global component style · corner radius + border width (site-wide)
+  // global component style · corner radius + border width + colour (site-wide)
   const setRadius = (radius: number) => setSite((s) => ({ ...s, radius }))
   const setBorderWidth = (borderWidth: number) => setSite((s) => ({ ...s, borderWidth }))
+  const setBorderColor = (borderColor: string) => setSite((s) => ({ ...s, borderColor: borderColor || undefined }))
+  // the <input type=color> needs a #rrggbb value; fall back to a neutral grey
+  const borderColorHex = (c?: string) => (c && /^#[0-9a-fA-F]{6}$/.test(c) ? c : '#cbd2dc')
 
   const regenerate = () => { adopt(generateSite(dojoName)); pushToast({ kind: 'event', badge: 'AI', color: '#2f7fd6', title: 'First version generated', text: 'Edit each block, then export.' }) }
   const save = async () => { await saveSite(dojoId, site); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Website saved', text: 'Saved locally (IndexedDB).' }) }
@@ -568,11 +571,11 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               </div>
               <button className="btn tiny ghost" style={{ marginTop: 8 }} onClick={() => setStep('colours')}>More colours →</button>
 
-              {/* Components · global corner radius + border width */}
+              {/* Components · global corner radius + border width + colour */}
               <div className="sq-eyebrow" style={{ marginTop: 16 }}>Components
                 <InfoDot title="Component style" label="How corners & borders work">
-                  <p>These sliders set the <b>corner radius</b> and <b>border thickness</b> for every component of your site — buttons, cards, pricing tiers, images, product cards and form fields — all at once.</p>
-                  <p>0 px corners = sharp edges; higher = rounder. Border 0 = no visible border. Changes preview live and are included in the export.</p>
+                  <p>These controls style every component of your site at once — buttons, cards, pricing tiers, images, product cards and form fields.</p>
+                  <p><b>Corner radius</b>: 0 = sharp edges, higher = rounder. <b>Border width</b>: how thick the outline is. <b>Border colour</b>: pick a visible colour to make borders stand out (they're very subtle by default). Everything previews live and is included in the export.</p>
                 </InfoDot>
               </div>
               <label className="site-field"><span>Corner radius · {site.radius ?? 12}px</span>
@@ -581,6 +584,18 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
               <label className="site-field"><span>Border width · {site.borderWidth ?? 1}px</span>
                 <input type="range" min={0} max={6} step={1} value={site.borderWidth ?? 1} onChange={(e) => setBorderWidth(Number(e.target.value))} />
               </label>
+              <div className="site-field"><span>Border colour</span>
+                <div className="site-bordercolor">
+                  <input type="color" value={borderColorHex(site.borderColor)} onChange={(e) => setBorderColor(e.target.value)} aria-label="Border colour" />
+                  <input className="site-bc-hex" value={site.borderColor ?? ''} placeholder="subtle (default)" onChange={(e) => setBorderColor(e.target.value)} />
+                  {site.borderColor && <button className="btn tiny ghost" onClick={() => setBorderColor('')}>Reset</button>}
+                  <span className="site-bc-swatches">
+                    {['#111827', '#334155', '#0e9c63', '#2f6bff', '#e0459b', '#d97706'].map((c) => (
+                      <button key={c} className="site-bc-sw" style={{ background: c }} title={c} aria-label={`Border ${c}`} onClick={() => setBorderColor(c)} />
+                    ))}
+                  </span>
+                </div>
+              </div>
             </div>
           )}
         </aside>

@@ -23,9 +23,9 @@ export interface SiteDoc {
   headingFont?: string; bodyFont?: string; headingWeight?: number; baseSize?: number
   /** shop settings · currency symbol + where checkout orders go */
   currency?: string; checkoutEmail?: string
-  /** global component style · corner radius (px) + border width (px). Applied
-   *  site-wide to cards, buttons, images, tiers and inputs. */
-  radius?: number; borderWidth?: number
+  /** global component style · corner radius (px) + border width (px) + border
+   *  colour. Applied site-wide to cards, buttons, images, tiers and inputs. */
+  radius?: number; borderWidth?: number; borderColor?: string
 }
 
 const pageUid = () => `pg_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`
@@ -431,16 +431,16 @@ h1{font-size:clamp(30px,5.4vw,44px);line-height:1.08}h2{font-size:clamp(24px,3.6
 .b-hero{text-align:center;padding:clamp(64px,11vw,96px) clamp(16px,4vw,24px);background:linear-gradient(135deg,var(--brand-primary,#5b6)15%,var(--brand-accent,#39c));color:#fff;max-width:none}
 .b-hero h1{color:#fff}.b-hero p{font-size:clamp(16px,2.2vw,19px);opacity:.92;max-width:620px;margin:0 auto 24px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:clamp(12px,2vw,18px);margin-top:24px}
-.card{background:#fff;border:var(--site-border,1px) solid #0001;border-radius:var(--site-radius,14px);padding:clamp(16px,2.5vw,22px);box-shadow:0 6px 18px #0000000d;min-width:0}
+.card{background:#fff;border:var(--site-border,1px) solid var(--site-border-color,#0000001f);border-radius:var(--site-radius,14px);padding:clamp(16px,2.5vw,22px);box-shadow:0 6px 18px #0000000d;min-width:0}
 .card h3{color:var(--brand-primary,#333)}
-.tier{background:#fff;border:var(--site-border,1px) solid #0001;border-radius:var(--site-radius,14px);padding:clamp(18px,2.5vw,24px);text-align:center;box-shadow:0 6px 18px #0000000d;min-width:0}
+.tier{background:#fff;border:var(--site-border,1px) solid var(--site-border-color,#0000001f);border-radius:var(--site-radius,14px);padding:clamp(18px,2.5vw,24px);text-align:center;box-shadow:0 6px 18px #0000000d;min-width:0}
 .tier.feat{border:calc(var(--site-border,1px) + 1px) solid var(--brand-accent,#39c);transform:scale(1.03)}
 .tier .price{font-size:clamp(28px,4vw,34px);font-weight:800;color:var(--brand-primary,#333);margin:6px 0 12px}
 .tier ul{list-style:none;padding:0;margin:0 0 18px;text-align:left}.tier li{padding:6px 0;border-bottom:1px solid #0000000d}
 .b-cta{text-align:center;background:var(--brand-primary,#222);color:#fff;border-radius:0;max-width:none}
 .b-cta h2,.b-cta p{color:#fff}
 .b-form .formx{display:flex;flex-direction:column;gap:10px;max-width:460px;margin:18px auto 0}
-.b-form input,.b-form textarea{padding:12px;border:var(--site-border,1px) solid #0002;border-radius:var(--site-radius,10px);font:inherit;width:100%}
+.b-form input,.b-form textarea{padding:12px;border:var(--site-border,1px) solid var(--site-border-color,#0000001f);border-radius:var(--site-radius,10px);font:inherit;width:100%}
 .b-text{max-width:720px;text-align:center}
 .b-gallery .ph{aspect-ratio:1;border-radius:var(--site-radius,12px);background:linear-gradient(135deg,var(--brand-primary,#889),var(--brand-accent,#39c));opacity:calc(.55 + var(--i)*.06)}
 .b-gallery img{border-radius:var(--site-radius,12px)}
@@ -452,7 +452,7 @@ h1{font-size:clamp(30px,5.4vw,44px);line-height:1.08}h2{font-size:clamp(24px,3.6
 .b-footer nav{display:flex;gap:16px;flex-wrap:wrap}.b-footer a{color:inherit;text-decoration:none}
 .b-store .store-sub{text-align:center;color:#0008;margin:-4px auto 8px;max-width:560px}
 .prod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:clamp(12px,2vw,20px);margin-top:24px}
-.prod{background:#fff;border:var(--site-border,1px) solid #0001;border-radius:var(--site-radius,14px);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 6px 18px #0000000d;min-width:0}
+.prod{background:#fff;border:var(--site-border,1px) solid var(--site-border-color,#0000001f);border-radius:var(--site-radius,14px);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 6px 18px #0000000d;min-width:0}
 .prod img,.prod .ph{width:100%;aspect-ratio:1;object-fit:cover;background:linear-gradient(135deg,var(--brand-primary,#889),var(--brand-accent,#39c))}
 .prod-b{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
 .prod-b h3{margin:0;font-size:18px}.prod-b p{margin:0;color:#0008;font-size:14px;flex:1}
@@ -510,10 +510,11 @@ function siteVarsCss(site: SiteDoc): string {
   const fam = siteFontFamilies(site)
   const hw = site.headingWeight ? `h1,h2,h3{font-weight:${site.headingWeight}}` : ''
   const bs = site.baseSize ? `body{font-size:${site.baseSize}px}` : ''
-  // global component style · corner radius + border width (site-wide tokens)
+  // global component style · corner radius + border width + colour (site-wide)
   const rad = site.radius != null ? `--site-radius:${Math.max(0, Math.min(40, site.radius))}px;` : ''
   const bw = site.borderWidth != null ? `--site-border:${Math.max(0, Math.min(8, site.borderWidth))}px;` : ''
-  return `:root{--brand-heading:${fam.heading};--brand-body:${fam.body};${rad}${bw}}\n${BASE_SITE_CSS}\n${LAYOUT_CSS[site.layout ?? 'centered']}\n${hw}${bs}`
+  const bc = site.borderColor ? `--site-border-color:${site.borderColor};` : ''
+  return `:root{--brand-heading:${fam.heading};--brand-body:${fam.body};${rad}${bw}${bc}}\n${BASE_SITE_CSS}\n${LAYOUT_CSS[site.layout ?? 'centered']}\n${hw}${bs}`
 }
 
 /** A complete standalone HTML document · used for the iframe AND the export.

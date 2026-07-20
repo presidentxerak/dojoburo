@@ -5061,3 +5061,11 @@ html { scroll-behavior: smooth; }
 .nm-more-t { width: 100%; text-align: left; background: none; border: none; border-top: 1px dashed var(--border); padding: 12px 2px; color: var(--muted); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
 .nm-more-t:hover { color: var(--ink); }
 .nm-subgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
+
+/* Website studio · border colour control */
+.site-bordercolor { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.site-bordercolor input[type=color] { width: 34px; height: 30px; padding: 0; border: 1px solid var(--border); border-radius: 8px; background: none; cursor: pointer; }
+.site-bc-hex { flex: 1 1 90px; min-width: 80px; border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font: inherit; font-size: 13px; }
+.site-bc-swatches { display: inline-flex; gap: 5px; }
+.site-bc-sw { width: 20px; height: 20px; border-radius: 6px; border: 1px solid rgba(0,0,0,.15); cursor: pointer; }
+.site-bc-sw:hover { transform: scale(1.12); }
