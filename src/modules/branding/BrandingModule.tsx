@@ -94,6 +94,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   // batch .com availability for the name candidates (find free .com brand names)
   const [comAvail, setComAvail] = useState<Record<string, 'available' | 'taken' | 'unknown'>>({})
   const [comScan, setComScan] = useState<{ on: boolean; done: number; total: number }>({ on: false, done: 0, total: 0 })
+  const [showMore, setShowMore] = useState(false)
   const [shortlist, setShortlist] = useState<Set<string>>(new Set())
   const [saved, setSaved] = useState(false)
   // logo identity sub-tabs + style (Shiverbrand-style logo pack)
@@ -449,66 +450,83 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
         const toVerify = comScan.on ? [] : [...nameList].filter((n) => bySlug(n) === 'unknown').sort(byLen)
         const taken = comScan.on ? [] : [...nameList].filter((n) => bySlug(n) === 'taken').sort(byLen)
         const sureCount = nameList.filter((n) => bySlug(n) === 'available').length
+        const pct = comScan.total ? Math.round((comScan.done / comScan.total) * 100) : 0
+        const price = bestPrice('com')
+        const moreCount = toVerify.length + taken.length
         return (
-        <section className="sq-panel">
-          <h3 className="sq-title">Available .com names</h3>
-          <p className="sq-lead">We check the real <b>.com</b> availability of every candidate. Names in <b style={{ color: '#0e9c63' }}>green</b> are <b>confirmed free</b> · pick one to lock its handles &amp; other TLDs. Names we couldn't reach the registry for are listed under <b>To verify</b>; only confirmed-registered ones go under <b>Taken</b>.</p>
+        <section className="sq-panel nm-panel">
+          {/* clear hero · the number of free .com found is the headline */}
+          <div className="nm-hero">
+            <div>
+              <span className="sq-eyebrow">Available .com</span>
+              {comScan.on
+                ? <h3 className="nm-hero-h">Checking availability…</h3>
+                : <h3 className="nm-hero-h"><b className="nm-hero-num">{sureCount}</b> free <b>.com</b> found{price ? <span className="nm-hero-price"> · from ${price.price.toFixed(2)}/yr</span> : null}</h3>}
+              <p className="nm-hero-sub">{comScan.on ? `Verifying ${comScan.done}/${comScan.total} candidates for real…` : `Pick a green name to lock it. ${nameList.length} candidates checked${toVerify.length ? ` · ${toVerify.length} need a manual check` : ''}.`}</p>
+            </div>
+            <button className="sq-cta ghost nm-reroll" onClick={reroll}>↻ New names</button>
+          </div>
+          {comScan.on && <div className="nm-progress"><span style={{ width: `${pct}%` }} /></div>}
           <div className="bw-selected bw-selected-recap">
             {[...selected].map((k) => <span key={k} className="bw-chip on static">{k}</span>)}
             <button className="bw-editwords" onClick={() => setStep('concept')}>Edit words</button>
           </div>
-          <div className="nm-availbar">
-            <span className="nm-availstat">{comScan.on ? `Checking .com availability… ${comScan.done}/${comScan.total}` : `${sureCount} available${toVerify.length ? ` · ${toVerify.length} to verify` : ''} · ${nameList.length} checked`}</span>
-            <button className="nm-availfilter" onClick={reroll}>↻ Reroll names</button>
-          </div>
 
-          {/* Confirmed-free .com · green */}
-          <div className="sq-namegrid">
+          {/* Confirmed-free .com · the clear, prominent grid */}
+          <div className="nm-grid">
             {available.map((n) => {
               const s = bySlug(n)
+              const free = s === 'available'
               return (
-                <button key={n} className={`sq-name nm-${s || 'pending'}${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)}>
-                  <b>{n}</b>
-                  <span className="nm-dom">{slugOf(n)}.com {s === 'available' ? <em className="nm-free">● Available</em> : <em className="nm-chk">…</em>}</span>
+                <button key={n} className={`nm-card${free ? ' free' : ' pending'}${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)}>
+                  <span className="nm-card-name">{n}</span>
+                  <span className="nm-card-dom">{slugOf(n)}.com</span>
+                  {free
+                    ? <span className="nm-card-badge free"><span className="nm-check">✓</span> Available{price ? ` · $${price.price.toFixed(2)}` : ''}</span>
+                    : <span className="nm-card-badge pend">Checking…</span>}
                 </button>
               )
             })}
-            {!comScan.on && !available.length && <p className="muted small">No <b>.com</b> confirmed free in this batch — check the “To verify” names below or reroll for a fresh set.</p>}
           </div>
-
-          {/* Couldn't confirm with the registry · neutral, still worth a look */}
-          {toVerify.length > 0 && (
-            <>
-              <div className="nm-althead"><span className="sq-eyebrow">To verify · registry didn't answer</span></div>
-              <div className="sq-namegrid nm-verifygrid">
-                {toVerify.map((n) => (
-                  <button key={n} className={`sq-name nm-unknown${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)} title="We couldn't confirm this .com · open to check it at the registrars">
-                    <b>{n}</b>
-                    <span className="nm-dom">{slugOf(n)}.com <em className="nm-likely">Check ↗</em></span>
-                  </button>
-                ))}
-              </div>
-            </>
+          {!comScan.on && !available.length && (
+            <div className="nm-noresult">
+              <b>No .com confirmed free in this batch.</b>
+              <span>Try <b>↻ New names</b> for a fresh set, or open the “more results” below to check the borderline ones at a registrar.</span>
+            </div>
           )}
 
-          {/* Confirmed registered · other alternatives */}
-          {taken.length > 0 && (
-            <>
-              <div className="nm-althead"><span className="sq-eyebrow">Taken · other alternatives</span></div>
-              <div className="sq-namegrid nm-altgrid">
-                {taken.map((n) => (
-                  <button key={n} className={`sq-name nm-taken${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)} title="Registered · open to check other TLDs">
-                    <b>{n}</b>
-                    <span className="nm-dom">{slugOf(n)}.com <em className="nm-taken">Not available</em></span>
-                  </button>
-                ))}
-              </div>
-            </>
+          {/* Everything else, tucked away so the free names stay the focus */}
+          {!comScan.on && moreCount > 0 && (
+            <div className="nm-more">
+              <button className="nm-more-t" onClick={() => setShowMore((v) => !v)}>{showMore ? '▲ Hide' : `▼ Show ${moreCount} more`} · {toVerify.length} to verify · {taken.length} taken</button>
+              {showMore && (
+                <>
+                  {toVerify.length > 0 && (
+                    <div className="nm-subgrid">
+                      {toVerify.map((n) => (
+                        <button key={n} className={`nm-card verify${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)} title="Couldn't reach the registry · open to check it at the registrars">
+                          <span className="nm-card-name">{n}</span>
+                          <span className="nm-card-dom">{slugOf(n)}.com</span>
+                          <span className="nm-card-badge verify">Verify ↗</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {taken.length > 0 && (
+                    <div className="nm-subgrid">
+                      {taken.map((n) => (
+                        <button key={n} className={`nm-card taken${kit.name === n ? ' on' : ''}`} onClick={() => void chooseName(n)} title="Registered · open to check other TLDs">
+                          <span className="nm-card-name">{n}</span>
+                          <span className="nm-card-dom">{slugOf(n)}.com</span>
+                          <span className="nm-card-badge taken">Taken</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           )}
-
-          <div className="sq-cta-row">
-            <button className="sq-cta ghost" onClick={reroll}>↻ Reroll names</button>
-          </div>
         </section>
         )
       })()}

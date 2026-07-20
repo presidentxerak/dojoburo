@@ -5019,3 +5019,45 @@ html { scroll-behavior: smooth; }
 @keyframes studioIn { from { opacity: 0; transform: translateY(22px) scale(.982); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
 @keyframes panelSlide { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: none; } }
 @keyframes uiPop { from { opacity: 0; transform: scale(.86); } to { opacity: 1; transform: none; } }
+
+/* ============================================================================
+   Naming results · clear "found .com" display (Shiverbrand-style)
+   ========================================================================== */
+.nm-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.nm-hero-h { margin: 4px 0 2px; font-size: clamp(22px, 3vw, 30px); line-height: 1.1; }
+.nm-hero-num { color: #0e9c63; font-family: var(--font-pixel); font-size: 1.15em; }
+.nm-hero-price { color: var(--muted); font-weight: 600; font-size: .62em; }
+.nm-hero-sub { margin: 0; color: var(--muted); font-size: 14px; }
+.nm-reroll { flex: 0 0 auto; }
+.nm-progress { height: 6px; border-radius: 999px; background: color-mix(in srgb, var(--muted) 14%, transparent); overflow: hidden; margin: 2px 0 12px; }
+.nm-progress span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #00d6ff, #12ffb0); transition: width .3s ease; }
+
+.nm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 12px; margin-top: 6px; }
+.nm-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left;
+  border: 1.5px solid var(--border); border-radius: 16px; padding: 14px 16px; cursor: pointer;
+  background: var(--surface, #fff); transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.nm-card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px -14px rgba(0,0,0,.28); }
+.nm-card.free { border-color: color-mix(in srgb, #0e9c63 50%, var(--border)); background: color-mix(in srgb, #0e9c63 6%, var(--surface, #fff)); }
+.nm-card.free:hover { border-color: #0e9c63; box-shadow: 0 14px 30px -14px color-mix(in srgb, #0e9c63 55%, transparent); }
+.nm-card.on { outline: 2px solid var(--dc, #a855f7); outline-offset: 1px; }
+.nm-card-name { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; line-height: 1.05; word-break: break-word; }
+.nm-card-dom { font-size: 13px; color: var(--muted); }
+.nm-card-badge { margin-top: 6px; font-size: 12px; font-weight: 800; letter-spacing: .01em; padding: 3px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px; }
+.nm-card-badge.free { color: #0b7a4e; background: color-mix(in srgb, #0e9c63 16%, transparent); }
+.nm-card-badge.pend { color: var(--muted); background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.nm-card-badge.verify { color: #b07d16; background: color-mix(in srgb, #c98a1a 16%, transparent); }
+.nm-card-badge.taken { color: #b2504a; background: color-mix(in srgb, #b2504a 14%, transparent); }
+.nm-check { font-size: 12px; }
+.nm-card.pending { opacity: .7; }
+.nm-card.taken { opacity: .62; }
+.nm-card.taken:hover { opacity: .82; }
+
+.nm-noresult { border: 1px dashed var(--border); border-radius: 16px; padding: 18px; text-align: center; display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.nm-noresult span { color: var(--muted); font-size: 14px; }
+
+.nm-more { margin-top: 20px; }
+.nm-more-t { width: 100%; text-align: left; background: none; border: none; border-top: 1px dashed var(--border); padding: 12px 2px; color: var(--muted); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.nm-more-t:hover { color: var(--ink); }
+.nm-subgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }

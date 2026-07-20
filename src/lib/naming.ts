@@ -229,12 +229,17 @@ export function combineNames(words: string[], seed = 0): string[] {
       addC(stem(a) + b)           // tighter compound · CoffRoast
       addC(a + b.slice(1))        // blend · Coffoast
       addC(a + b + rot(NAME_SUFFIXES, i + j))       // two-word + suffix · almost always free
+      addC(rot(NAME_PREFIXES, i + j) + a + b)       // prefix + compound · Getcoffeeroast
       addC(a + cap(b))            // TitleCase compound reads as two words
+      // three-keyword chains (when there are enough) · very distinctive
+      const c = base[(i + j + 1) % base.length]
+      if (c && c !== base[i] && c !== base[j]) addC(a + b + clip(c, 4))
     }
   }
 
-  // Build the returned MIX: alternate a short brandable name and a long compound
-  // so the batch the checker runs on contains plenty of likely-available .coms.
+  // Build the returned MIX: heavily favour the long two-word compounds (their
+  // .com is usually FREE) with short brandable names sprinkled in. Compounds
+  // lead so the availability check surfaces plenty of green names.
   const brandable = [...out].sort((a, b) => score(a) - score(b))
   // lead with ~12-char two-word compounds · long enough that the .com is free,
   // short enough to still read as a real brand.
@@ -245,9 +250,14 @@ export function combineNames(words: string[], seed = 0): string[] {
   const mixed: string[] = []
   const seen = new Set<string>()
   const push = (n?: string) => { if (n && !seen.has(n)) { seen.add(n); mixed.push(n) } }
-  const max = Math.max(bR.length, lR.length)
-  for (let i = 0; i < max && mixed.length < 60; i++) { push(lR[i]); push(bR[i]) }  // long first → availability
-  return mixed.slice(0, 60)
+  // ~2 compounds : 1 brandable → more likely-available names in the batch
+  let li = 0, bi = 0
+  while (mixed.length < 84 && (li < lR.length || bi < bR.length)) {
+    if (li < lR.length) push(lR[li++])
+    if (li < lR.length) push(lR[li++])
+    if (bi < bR.length) push(bR[bi++])
+  }
+  return mixed.slice(0, 84)
 }
 
 /** Lower is better · favours pronounceable, brandable-length names. */
@@ -273,12 +283,12 @@ export async function checkComBatch(
   names: string[],
   onProgress?: (done: number, total: number) => void,
 ): Promise<Record<string, DomainStatus>> {
-  const slugs = [...new Set(names.map((n) => n.toLowerCase().replace(/[^a-z0-9]/g, '')).filter((s) => s.length >= 2))].slice(0, 64)
+  const slugs = [...new Set(names.map((n) => n.toLowerCase().replace(/[^a-z0-9]/g, '')).filter((s) => s.length >= 2))].slice(0, 96)
   const out: Record<string, DomainStatus> = {}
   let done = 0
-  // gentle concurrency · RDAP servers rate-limit aggressive bursts, and a
-  // throttled 429 is exactly what used to slip through as a false "available".
-  const CONC = 5
+  // concurrency · the check now runs DNS + RDAP in parallel per name and DoH
+  // isn't rate-limited, so we can fan out wider to surface more free names fast.
+  const CONC = 8
   for (let i = 0; i < slugs.length; i += CONC) {
     const batch = slugs.slice(i, i + CONC)
     await Promise.all(batch.map(async (s) => {
