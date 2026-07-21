@@ -37,8 +37,8 @@ export default function AnalyticsModule({ dojoId }: ModuleProps) {
       </header>
       {!m.hasData ? (
         <div className="vid-empty">
-          <strong>Analyze your business</strong>
-          <span className="muted small">Add your data in <b>Finance</b> and <b>CRM</b> · it feeds this analysis. Or <button className="linklike" onClick={() => void loadDemo()}>load sample data</button>.</span>
+          <strong>No analytics yet</strong>
+          <span className="muted small">These KPIs are computed from your real activity — nothing is mocked. Add transactions in <b>Finance</b> and leads/sales in the <b>CRM</b>, and this analysis fills in automatically. Or <button className="linklike" onClick={() => void loadDemo()}>load sample data</button> to see how it reads.</span>
         </div>
       ) : (
         <>

@@ -98,7 +98,7 @@ export default function CRMModule({ dojoId }: ModuleProps) {
         <div className="site-tb-actions">
           <button className="btn tiny" onClick={() => fileRef.current?.click()}>Import CSV</button>
           <button className="btn tiny ghost" onClick={loadSample}>Sample</button>
-          <button className="btn tiny" onClick={add}>＋ Contact</button>
+          <button className="btn tiny" onClick={add}>+ Contact</button>
           <input ref={fileRef} type="file" accept=".csv,text/csv" hidden onChange={(e) => e.target.files?.[0] && void doImport(e.target.files[0])} />
         </div>
         <div className="site-tb-actions">
@@ -109,8 +109,8 @@ export default function CRMModule({ dojoId }: ModuleProps) {
 
       {contacts.length === 0 ? (
         <div className="vid-empty" onClick={() => fileRef.current?.click()}>
-          <strong>Import your leads (CSV)</strong>
-          <span className="muted small">name, company, email · <button className="linklike" onClick={(e) => { e.stopPropagation(); loadSample() }}>or load a sample</button>.</span>
+          <strong>No leads yet</strong>
+          <span className="muted small">This pipeline is empty by design — no fake contacts. <b>Import a CSV</b> (name, company, email), add one with <b>+ Contact</b>, or connect <b>HubSpot</b> to pull your live contacts. Or <button className="linklike" onClick={(e) => { e.stopPropagation(); loadSample() }}>load a sample</button> to explore.</span>
         </div>
       ) : (
         <>

@@ -668,13 +668,15 @@ a:hover { text-decoration: underline; }
 .vid-stage.square .vid-canvas { max-height: 420px; width: auto; }
 .vid-stage.wide .vid-canvas { width: 100%; height: auto; }
 /* video editor empty state · sits over the black stage, invites the first import */
-.vid-empty { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; text-align: center; background: transparent; border: 0; color: #e7ecf5; cursor: pointer; }
-.vid-empty strong { font-size: 16px; font-weight: 800; }
-.vid-empty span { max-width: 340px; font-size: 12.5px; line-height: 1.5; color: #aab4c6; }
-.vid-empty::before { content: ""; width: 46px; height: 46px; margin-bottom: 6px; border-radius: 12px; border: 2px dashed #4b5568; }
+.vid-stage-empty { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 24px; text-align: center; background: transparent; border: 0; color: #e7ecf5; cursor: pointer; }
+.vid-stage-empty strong { font-size: 16px; font-weight: 800; }
+.vid-stage-empty span { max-width: 340px; font-size: 12.5px; line-height: 1.5; color: #aab4c6; }
+.vid-stage-empty::before { content: ""; width: 46px; height: 46px; margin-bottom: 6px; border-radius: 12px; border: 2px dashed #4b5568; }
 .vid-transport { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .vid-time { font-family: var(--font-pixel); font-size: 16px; color: var(--muted); }
-.vid-empty { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; padding: 28px 16px; border: 2px dashed color-mix(in srgb, var(--dc) 45%, var(--border)); border-radius: 12px; background: color-mix(in srgb, var(--dc) 5%, transparent); cursor: pointer; }
+.vid-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 32px 20px; border: 2px dashed color-mix(in srgb, var(--dc, #2f6bff) 45%, var(--border)); border-radius: 14px; background: color-mix(in srgb, var(--dc, #2f6bff) 5%, transparent); cursor: pointer; }
+.vid-empty strong { font-size: 15.5px; font-weight: 800; color: var(--ink); }
+.vid-empty .muted { max-width: 520px; line-height: 1.55; }
 
 /* Finance & Compta */
 .fin-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 6px; }

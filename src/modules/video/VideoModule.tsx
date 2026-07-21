@@ -299,7 +299,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
           <div className={`vid-stage cc-stage ${format}`}>
             <canvas ref={canvasRef} width={cs.w} height={cs.h} className="vid-canvas" />
             {clips.length === 0 && !importing && (
-              <button className="vid-empty" onClick={() => fileRef.current?.click()}>
+              <button className="vid-stage-empty" onClick={() => fileRef.current?.click()}>
                 <strong>Import a clip to start</strong>
                 <span>Trim, sequence, add text &amp; a voiceover, then export a .webm. Everything stays in your browser.</span>
               </button>

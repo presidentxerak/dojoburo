@@ -106,16 +106,16 @@ export default function FinanceModule({ dojoId }: ModuleProps) {
       </div>
 
       {acctTxns.length > 0 && (
-        <p className="fin-appnote">✓ <b>{acctTxns.length} line(s) live from {acctSource}</b> · invoices and expenses synced from your accounting. They automatically feed these figures.</p>
+        <p className="fin-appnote"><b>{acctTxns.length} line(s) live from {acctSource}</b> · invoices and expenses synced from your accounting. They automatically feed these figures.</p>
       )}
       {appTxns.length > 0 && (
-        <p className="fin-appnote">✓ <b>{appTxns.length} line(s) from the app</b> · sales won in the CRM and campaign budgets. They automatically feed these figures.</p>
+        <p className="fin-appnote"><b>{appTxns.length} line(s) from the app</b> · sales won in the CRM and campaign budgets. They automatically feed these figures.</p>
       )}
 
       {!hasAny ? (
         <div className="vid-empty" onClick={() => fileRef.current?.click()}>
-          <strong>Import your statement (CSV)</strong>
-          <span className="muted small">date, label, amount · analyzed <b>locally</b>, never uploaded. Or <button className="linklike" onClick={(e) => { e.stopPropagation(); loadSample() }}>load a sample</button>.</span>
+          <strong>No financial data yet</strong>
+          <span className="muted small">Nothing here is invented — the figures fill in when you act. <b>Import a CSV</b> (date, label, amount), <b>win a deal in the CRM</b>, run a <b>campaign</b>, or connect <b>QuickBooks / Xero</b>. Everything is analyzed locally, never uploaded. Or <button className="linklike" onClick={(e) => { e.stopPropagation(); loadSample() }}>load a sample</button> to explore.</span>
         </div>
       ) : (
         <>
@@ -184,7 +184,7 @@ export default function FinanceModule({ dojoId }: ModuleProps) {
                   ) : (
                     <select value={t.category} onChange={(e) => setCat(t.id, e.target.value)}>{CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
                   )}
-                  {isApp ? <span /> : <button className="fin-del" onClick={() => del(t.id)} aria-label="Delete">✕</button>}
+                  {isApp ? <span /> : <button className="fin-del" onClick={() => del(t.id)} aria-label="Delete">Delete</button>}
                 </div>
               )
             })}
