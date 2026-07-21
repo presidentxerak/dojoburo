@@ -75,6 +75,9 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
   const editAudience = (raw: string) => setCamp((c) => ({ ...c, audience: { ...c.audience, interests: raw.split(',').map((s) => s.trim()).filter(Boolean) } }))
 
   const generate = () => { const c = generateCampaign(product || dojoName, camp.objective); setCamp(c); setSel(0); setStep('audience'); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Campaign generated', text: '5 Meta variants ready · review the audience.' }) }
+  // Rewrite the 5 ad variants from the current brief without leaving Creatives —
+  // keeps the chosen audience, just refreshes the creative copy + angles.
+  const regenerateAds = () => { const c = generateCampaign(product || dojoName, camp.objective); setCamp((prev) => ({ ...prev, ads: c.ads, format: prev.format })); setSel(0); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Variants refreshed', text: '5 new ad variants from your brief.' }) }
   const save = async () => { await saveCampaign(dojoId, camp); setSaved(true); pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Campaign saved', text: 'Saved locally (IndexedDB).' }) }
   const copyText = () => { void navigator.clipboard?.writeText(copyPack(camp)); pushToast({ kind: 'event', badge: 'OK', color: '#2f6bff', title: 'Copied', text: 'Copy pack ready to paste into Meta Ads Manager.' }) }
   // Real social publishing · appears per network when connected.
@@ -212,6 +215,7 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
             <div className="sq-tags">{camp.ads.map((a, i) => (
               <button key={a.id} className={`sq-chip${i === sel ? ' on' : ''}`} onClick={() => setSel(i)}>{angleLabel(a.angle)}</button>
             ))}</div>
+            <button className="btn tiny ghost" onClick={regenerateAds} title="Rewrite all 5 variants from the brief">Regenerate variants</button>
           </div>
           <MetaPreview />
           {ad && (

@@ -83,29 +83,34 @@ export default function VideoModule({ dojoId }: ModuleProps) {
   useEffect(() => {
     let raf = 0
     const loop = () => {
-      const canvas = canvasRef.current
-      if (canvas) {
-        const ctx = canvas.getContext('2d')
-        if (ctx) {
-          const list = clipsRef.current
-          const idx = playingRef.current ? activeIdx.current : Math.max(0, list.findIndex((c) => c.id === selRef.current))
-          const clip = list[idx]
-          const v = clip ? vids.current.get(clip.id) : undefined
-          if (v && v.readyState >= 2) drawCover(ctx, v, canvas.width, canvas.height)
-          else { ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height) }
-          // timeline time
-          const offset = list.slice(0, idx).reduce((n, c) => n + clipLen(c), 0)
-          const tt = clip && v ? offset + Math.max(0, v.currentTime - clip.inSec) : 0
-          const kit = brandRef.current
-          if (kit) for (const o of overlaysRef.current) if (tt >= o.start && tt <= o.end) drawOverlay(ctx, canvas.width, canvas.height, o, kit, tt)
-          // advance during playback
-          if (playingRef.current && clip && v) {
-            setT(tt)
-            if (v.currentTime >= clip.outSec - 0.04 || v.ended) advance()
+      // Guard the whole frame: a single bad draw (a corrupt clip, an overlay
+      // edge case) must never break the loop — otherwise the preview freezes
+      // permanently and the editor looks broken. try/finally keeps it alive.
+      try {
+        const canvas = canvasRef.current
+        if (canvas) {
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+            const list = clipsRef.current
+            const idx = playingRef.current ? activeIdx.current : Math.max(0, list.findIndex((c) => c.id === selRef.current))
+            const clip = list[idx]
+            const v = clip ? vids.current.get(clip.id) : undefined
+            if (v && v.readyState >= 2) drawCover(ctx, v, canvas.width, canvas.height)
+            else { ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height) }
+            // timeline time
+            const offset = list.slice(0, idx).reduce((n, c) => n + clipLen(c), 0)
+            const tt = clip && v ? offset + Math.max(0, v.currentTime - clip.inSec) : 0
+            const kit = brandRef.current
+            if (kit) for (const o of overlaysRef.current) if (tt >= o.start && tt <= o.end) { try { drawOverlay(ctx, canvas.width, canvas.height, o, kit, tt) } catch { /* skip a bad overlay */ } }
+            // advance during playback
+            if (playingRef.current && clip && v) {
+              setT(tt)
+              if (v.currentTime >= clip.outSec - 0.04 || v.ended) advance()
+            }
           }
         }
-      }
-      raf = requestAnimationFrame(loop)
+      } catch { /* never let one frame kill the render loop */ }
+      finally { raf = requestAnimationFrame(loop) }
     }
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
@@ -293,12 +298,18 @@ export default function VideoModule({ dojoId }: ModuleProps) {
           </div>
           <div className={`vid-stage cc-stage ${format}`}>
             <canvas ref={canvasRef} width={cs.w} height={cs.h} className="vid-canvas" />
+            {clips.length === 0 && !importing && (
+              <button className="vid-empty" onClick={() => fileRef.current?.click()}>
+                <strong>Import a clip to start</strong>
+                <span>Trim, sequence, add text &amp; a voiceover, then export a .webm. Everything stays in your browser.</span>
+              </button>
+            )}
           </div>
           <div className="vid-transport cc-transport">
-            <button className="btn tiny" onClick={togglePlay} disabled={!clips.length}>{playing ? '⏸ Pause' : '▶ Play'}</button>
+            <button className="btn tiny" onClick={togglePlay} disabled={!clips.length}>{playing ? 'Pause' : 'Play'}</button>
             <span className="vid-time">{fmtTime(t)} / {fmtTime(total)}</span>
             {exporting && <span className="muted small"><span className="ceo-spin" /> Recording live…</span>}
-            <button className="btn tiny cc-import" onClick={() => fileRef.current?.click()} disabled={exporting}>{importing ? 'Importing…' : '＋ Import clips'}</button>
+            <button className="btn tiny cc-import" onClick={() => fileRef.current?.click()} disabled={exporting}>{importing ? 'Importing…' : 'Import clips'}</button>
             <input ref={fileRef} type="file" accept="video/*" multiple hidden onChange={(e) => e.target.files && void addFiles(e.target.files)} />
           </div>
 
@@ -336,7 +347,7 @@ export default function VideoModule({ dojoId }: ModuleProps) {
             <div className="cc-panel">
               <div className="cc-tool-h">Trim · {selClip.name}</div>
               <div className="cc-clip-ops">
-                <button onClick={() => void splitClip(selClip)}>✂ Split at playhead</button>
+                <button onClick={() => void splitClip(selClip)}>Split at playhead</button>
                 <button onClick={() => moveClip(selClip.id, -1)}>← Move</button>
                 <button onClick={() => moveClip(selClip.id, 1)}>Move →</button>
                 <button className="danger" onClick={() => delClip(selClip.id)}>Delete</button>
@@ -353,8 +364,8 @@ export default function VideoModule({ dojoId }: ModuleProps) {
           <div className="cc-panel">
             <div className="cc-tool-h">Text</div>
             <div className="cc-seg">
-              <button onClick={() => addOverlay('title')}>＋ Title</button>
-              <button onClick={() => addOverlay('caption')}>＋ Caption</button>
+              <button onClick={() => addOverlay('title')}>Add title</button>
+              <button onClick={() => addOverlay('caption')}>Add caption</button>
             </div>
             {ov && (
               <>

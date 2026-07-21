@@ -116,7 +116,7 @@ export default function AssetsModule({ dojoId }: ModuleProps) {
             </div>
             <div className="asset-actions">
               <button className="btn tiny" onClick={() => void download(m)}>Download</button>
-              <button className="btn tiny ghost" onClick={() => remove(m.id)} aria-label="Delete">✕</button>
+              <button className="btn tiny ghost" onClick={() => remove(m.id)} aria-label="Delete">Delete</button>
             </div>
           </div>
         ))}
