@@ -14,6 +14,7 @@ import {
   type Product, makeProduct, SITE_CURRENCIES, currencySymbol,
   type SitePage, sitePages, homePage, makePage, slugify, normalizeSite,
   PAGE_PRESETS, pagePresetBlocks, SECTION_ANIMS,
+  type CardFx, type BtnFx, CARD_FX_OPTIONS, BTN_FX_OPTIONS,
 } from '../../lib/site'
 import { PRESET_PALETTES, paletteToKit } from '../../lib/palettes'
 import { BrandTypography, BrandColours, FONT_PAIRINGS } from '../shared/BrandStyle'
@@ -269,6 +270,8 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
   const setRadius = (radius: number) => setSite((s) => ({ ...s, radius }))
   const setBorderWidth = (borderWidth: number) => setSite((s) => ({ ...s, borderWidth }))
   const setBorderColor = (borderColor: string) => setSite((s) => ({ ...s, borderColor: borderColor || undefined }))
+  const setCardFx = (cardFx: CardFx) => setSite((s) => ({ ...s, cardFx }))
+  const setBtnFx = (btnFx: BtnFx) => setSite((s) => ({ ...s, btnFx }))
   // the <input type=color> needs a #rrggbb value; fall back to a neutral grey
   const borderColorHex = (c?: string) => (c && /^#[0-9a-fA-F]{6}$/.test(c) ? c : '#cbd2dc')
 
@@ -594,6 +597,38 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
                       <button key={c} className="site-bc-sw" style={{ background: c }} title={c} aria-label={`Border ${c}`} onClick={() => setBorderColor(c)} />
                     ))}
                   </span>
+                </div>
+              </div>
+
+              {/* Interaction design · hover behaviour for cards + buttons */}
+              <div className="sq-eyebrow" style={{ marginTop: 18 }}>Interaction design
+                <InfoDot title="Interaction design" label="Hover effects for cards & buttons">
+                  <p>Choose how components react when a visitor hovers over them. <b>Cards</b> covers cards, pricing tiers and product tiles; <b>Buttons</b> covers every call-to-action.</p>
+                  <p>Hover the live preview to feel each effect. It's saved with your site and included in the export.</p>
+                </InfoDot>
+              </div>
+              <div className="site-field"><span>Card hover</span>
+                <div className="site-fx-row">
+                  {CARD_FX_OPTIONS.map((o) => (
+                    <button
+                      key={o.id}
+                      className={`site-fx${(site.cardFx ?? 'lift') === o.id ? ' on' : ''}`}
+                      title={o.hint}
+                      onClick={() => setCardFx(o.id)}
+                    >{o.label}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="site-field"><span>Button hover</span>
+                <div className="site-fx-row">
+                  {BTN_FX_OPTIONS.map((o) => (
+                    <button
+                      key={o.id}
+                      className={`site-fx${(site.btnFx ?? 'lift') === o.id ? ' on' : ''}`}
+                      title={o.hint}
+                      onClick={() => setBtnFx(o.id)}
+                    >{o.label}</button>
+                  ))}
                 </div>
               </div>
             </div>

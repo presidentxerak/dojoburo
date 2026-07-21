@@ -5069,3 +5069,8 @@ html { scroll-behavior: smooth; }
 .site-bc-swatches { display: inline-flex; gap: 5px; }
 .site-bc-sw { width: 20px; height: 20px; border-radius: 6px; border: 1px solid rgba(0,0,0,.15); cursor: pointer; }
 .site-bc-sw:hover { transform: scale(1.12); }
+/* interaction-design picker · segmented hover-effect buttons */
+.site-fx-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.site-fx { flex: 0 0 auto; padding: 6px 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel, #fff); color: var(--ink, #1a2230); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: border-color .15s ease, background .15s ease, transform .12s ease; }
+.site-fx:hover { border-color: #7fb0ff; transform: translateY(-1px); }
+.site-fx.on { border-color: transparent; background: linear-gradient(120deg, #2f6bff, #12b981); color: #fff; }

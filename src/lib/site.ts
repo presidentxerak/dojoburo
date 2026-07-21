@@ -26,7 +26,11 @@ export interface SiteDoc {
   /** global component style · corner radius (px) + border width (px) + border
    *  colour. Applied site-wide to cards, buttons, images, tiers and inputs. */
   radius?: number; borderWidth?: number; borderColor?: string
+  /** interaction design · hover effect for cards and for buttons. */
+  cardFx?: CardFx; btnFx?: BtnFx
 }
+export type CardFx = 'none' | 'lift' | 'glow' | 'scale' | 'border'
+export type BtnFx = 'none' | 'lift' | 'grow' | 'glow' | 'sheen'
 
 const pageUid = () => `pg_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 5)}`
 export function slugify(s: string): string {
@@ -427,11 +431,11 @@ body{margin:0;font-family:var(--brand-body,system-ui);color:var(--brand-ink,#111
 .b{padding:clamp(40px,7vw,64px) clamp(16px,4vw,24px);width:100%;max-width:1080px;margin:0 auto}
 h1,h2,h3{font-family:var(--brand-heading,inherit);margin:0 0 12px;overflow-wrap:break-word}
 h1{font-size:clamp(30px,5.4vw,44px);line-height:1.08}h2{font-size:clamp(24px,3.6vw,30px);text-align:center}
-.btn{display:inline-block;background:var(--brand-accent,#3355ff);color:#fff;text-decoration:none;padding:12px 22px;border-radius:var(--site-radius,10px);font-weight:700;border:none;cursor:pointer;max-width:100%}
+.btn{display:inline-block;background:var(--brand-accent,#3355ff);color:#fff;text-decoration:none;padding:12px 22px;border-radius:var(--site-radius,10px);font-weight:700;border:none;cursor:pointer;max-width:100%;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;position:relative;overflow:hidden}
 .b-hero{text-align:center;padding:clamp(64px,11vw,96px) clamp(16px,4vw,24px);background:linear-gradient(135deg,var(--brand-primary,#5b6)15%,var(--brand-accent,#39c));color:#fff;max-width:none}
 .b-hero h1{color:#fff}.b-hero p{font-size:clamp(16px,2.2vw,19px);opacity:.92;max-width:620px;margin:0 auto 24px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:clamp(12px,2vw,18px);margin-top:24px}
-.card{background:#fff;border:var(--site-border,1px) solid var(--site-border-color,#0000001f);border-radius:var(--site-radius,14px);padding:clamp(16px,2.5vw,22px);box-shadow:0 6px 18px #0000000d;min-width:0}
+.card{background:#fff;border:var(--site-border,1px) solid var(--site-border-color,#0000001f);border-radius:var(--site-radius,14px);padding:clamp(16px,2.5vw,22px);box-shadow:0 6px 18px #0000000d;min-width:0;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
 .card h3{color:var(--brand-primary,#333)}
 .tier{background:#fff;border:var(--site-border,1px) solid var(--site-border-color,#0000001f);border-radius:var(--site-radius,14px);padding:clamp(18px,2.5vw,24px);text-align:center;box-shadow:0 6px 18px #0000000d;min-width:0}
 .tier.feat{border:calc(var(--site-border,1px) + 1px) solid var(--brand-accent,#39c);transform:scale(1.03)}
@@ -452,7 +456,7 @@ h1{font-size:clamp(30px,5.4vw,44px);line-height:1.08}h2{font-size:clamp(24px,3.6
 .b-footer nav{display:flex;gap:16px;flex-wrap:wrap}.b-footer a{color:inherit;text-decoration:none}
 .b-store .store-sub{text-align:center;color:#0008;margin:-4px auto 8px;max-width:560px}
 .prod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:clamp(12px,2vw,20px);margin-top:24px}
-.prod{background:#fff;border:var(--site-border,1px) solid var(--site-border-color,#0000001f);border-radius:var(--site-radius,14px);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 6px 18px #0000000d;min-width:0}
+.prod{background:#fff;border:var(--site-border,1px) solid var(--site-border-color,#0000001f);border-radius:var(--site-radius,14px);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 6px 18px #0000000d;min-width:0;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
 .prod img,.prod .ph{width:100%;aspect-ratio:1;object-fit:cover;background:linear-gradient(135deg,var(--brand-primary,#889),var(--brand-accent,#39c))}
 .prod-b{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
 .prod-b h3{margin:0;font-size:18px}.prod-b p{margin:0;color:#0008;font-size:14px;flex:1}
@@ -493,7 +497,7 @@ h1{font-size:clamp(30px,5.4vw,44px);line-height:1.08}h2{font-size:clamp(24px,3.6
 const LAYOUT_CSS: Record<SiteLayout, string> = {
   centered: '',
   left: `.b-hero{text-align:left;padding-left:clamp(16px,4vw,24px)}.b-hero p{margin-left:0;margin-right:0}h2{text-align:left}.b{max-width:1120px}.grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}.tier{text-align:left}`,
-  editorial: `.b{max-width:840px}h1{font-size:clamp(34px,6vw,54px);letter-spacing:-.02em;line-height:1.05}h2{font-size:clamp(26px,4vw,34px);text-align:left}.b-hero{background:none;color:var(--brand-ink);text-align:left;padding:clamp(56px,10vw,88px) clamp(16px,4vw,24px) 44px;border-bottom:1px solid #0001}.b-hero h1{color:var(--brand-ink)}.b-hero p{margin:0;max-width:62ch;opacity:.8}.b-hero .btn{margin-top:8px}.grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}.card,.tier{box-shadow:none;border:1px solid #0002}`,
+  editorial: `.b{max-width:840px}h1{font-size:clamp(34px,6vw,54px);letter-spacing:-.02em;line-height:1.05}h2{font-size:clamp(26px,4vw,34px);text-align:left}.b-hero{background:none;color:var(--brand-ink);text-align:left;padding:clamp(56px,10vw,88px) clamp(16px,4vw,24px) 44px;border-bottom:1px solid #0001}.b-hero h1{color:var(--brand-ink)}.b-hero p{margin:0;max-width:62ch;opacity:.8}.b-hero .btn{margin-top:8px}.grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}.card,.tier{box-shadow:none;border:var(--site-border,1px) solid var(--site-border-color,#0002)}`,
   bold: `h1{font-size:clamp(42px,9vw,76px);font-weight:900;letter-spacing:-.03em;line-height:.96}h2{font-size:clamp(32px,6vw,46px)}.b-hero{padding:clamp(72px,15vw,128px) clamp(16px,4vw,24px)}.b-hero p{font-size:clamp(17px,2.6vw,22px)}.btn{border-radius:var(--site-radius,0);padding:16px 30px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}.card,.tier{border-radius:var(--site-radius,0)}.b-cta h2{font-size:clamp(34px,7vw,52px)}`,
 }
 
@@ -505,6 +509,40 @@ export function siteFontFamilies(site: SiteDoc): { heading: string; body: string
   return { heading, body }
 }
 
+/** Interaction design · hover behaviour for cards and buttons (site-wide). */
+const CARD_FX: Record<CardFx, string> = {
+  none: '',
+  lift: '.card:hover,.tier:hover,.prod:hover{transform:translateY(-6px);box-shadow:0 20px 44px -18px #00000033}',
+  glow: '.card:hover,.tier:hover,.prod:hover{box-shadow:0 0 0 2px color-mix(in srgb,var(--brand-accent,#39c) 55%,transparent),0 16px 34px -16px #0000002e}',
+  scale: '.card:hover,.tier:hover,.prod:hover{transform:scale(1.035)}',
+  border: '.card:hover,.tier:hover,.prod:hover{border-color:var(--brand-accent,#39c);box-shadow:0 10px 26px -16px #00000026}',
+}
+const BTN_FX: Record<BtnFx, string> = {
+  none: '',
+  lift: '.btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px -10px #00000047}',
+  grow: '.btn:hover{transform:scale(1.05)}',
+  glow: '.btn:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--brand-accent,#39c) 42%,transparent),0 8px 22px -10px #00000040}',
+  sheen: '.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,#ffffff66 50%,transparent 70%);transform:translateX(-120%);transition:transform .6s ease}.btn:hover::after{transform:translateX(120%)}.btn:hover{filter:brightness(1.04)}',
+}
+function interactionCss(site: SiteDoc): string {
+  return `${CARD_FX[site.cardFx ?? 'lift']}\n${BTN_FX[site.btnFx ?? 'lift']}`
+}
+/** Labels for the interaction-design picker in the Website studio. */
+export const CARD_FX_OPTIONS: { id: CardFx; label: string; hint: string }[] = [
+  { id: 'none', label: 'None', hint: 'No hover effect' },
+  { id: 'lift', label: 'Lift', hint: 'Rises with a soft shadow' },
+  { id: 'glow', label: 'Glow', hint: 'Accent ring on hover' },
+  { id: 'scale', label: 'Scale', hint: 'Grows slightly' },
+  { id: 'border', label: 'Border', hint: 'Accent border on hover' },
+]
+export const BTN_FX_OPTIONS: { id: BtnFx; label: string; hint: string }[] = [
+  { id: 'none', label: 'None', hint: 'No hover effect' },
+  { id: 'lift', label: 'Lift', hint: 'Rises with a shadow' },
+  { id: 'grow', label: 'Grow', hint: 'Scales up on hover' },
+  { id: 'glow', label: 'Glow', hint: 'Accent ring on hover' },
+  { id: 'sheen', label: 'Sheen', hint: 'Light sweep on hover' },
+]
+
 /** Site CSS (no @import — the Google <link>/@import is emitted first in fullDoc). */
 function siteVarsCss(site: SiteDoc): string {
   const fam = siteFontFamilies(site)
@@ -514,7 +552,7 @@ function siteVarsCss(site: SiteDoc): string {
   const rad = site.radius != null ? `--site-radius:${Math.max(0, Math.min(40, site.radius))}px;` : ''
   const bw = site.borderWidth != null ? `--site-border:${Math.max(0, Math.min(8, site.borderWidth))}px;` : ''
   const bc = site.borderColor ? `--site-border-color:${site.borderColor};` : ''
-  return `:root{--brand-heading:${fam.heading};--brand-body:${fam.body};${rad}${bw}${bc}}\n${BASE_SITE_CSS}\n${LAYOUT_CSS[site.layout ?? 'centered']}\n${hw}${bs}`
+  return `:root{--brand-heading:${fam.heading};--brand-body:${fam.body};${rad}${bw}${bc}}\n${BASE_SITE_CSS}\n${LAYOUT_CSS[site.layout ?? 'centered']}\n${interactionCss(site)}\n${hw}${bs}`
 }
 
 /** A complete standalone HTML document · used for the iframe AND the export.
