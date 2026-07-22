@@ -11,6 +11,7 @@ import { DeliverableModal } from './components/agents/DeliverableModal'
 import { SettingsModal } from './components/SettingsModal'
 import { DojosManager } from './components/DojosManager'
 import { CommandPalette } from './components/CommandPalette'
+import { ArrangeGrid } from './components/dashboard/ArrangeGrid'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
 import { useWork } from './agents/workStore'
@@ -35,6 +36,9 @@ export default function App() {
   // the dojo fills the window on arrival (centered), then reveals the agent's
   // dashboard when you pick an agent.
   const [dojoFull, setDojoFull] = useState(true)
+  // arrange-the-team overlay · reachable straight from the dojo on desktop AND
+  // mobile (tap an agent, tap a cell). The 3D scene reseats in grid order.
+  const [arrangeOpen, setArrangeOpen] = useState(false)
   // first-run onboarding · "what company do you want to create?"
   const [onboarded, setOnboarded] = useState(() => {
     try { return localStorage.getItem('dojoburo.onboarded.v1') === '1' } catch { return true }
@@ -113,6 +117,7 @@ export default function App() {
       <div className="dash-main">
         <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
           <div className="scene-bg"><Scene3D /></div>
+          <button className="dojo-arrange-btn" onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Arrange team</button>
         </div>
 
         {!dojoFull && (
@@ -122,6 +127,18 @@ export default function App() {
         )}
 
       </div>
+
+      {arrangeOpen && (
+        <div className="arrange-overlay" onMouseDown={() => setArrangeOpen(false)}>
+          <div className="arrange-modal" onMouseDown={(e) => e.stopPropagation()}>
+            <div className="arrange-modal-h">
+              <h3>Arrange your team</h3>
+              <button className="btn tiny ghost" onClick={() => setArrangeOpen(false)}>Done</button>
+            </div>
+            <ArrangeGrid />
+          </div>
+        </div>
+      )}
 
       <CommandPalette openDojo={() => setDojoFull(true)} showDashboard={() => setDojoFull(false)} />
       <Toasts />

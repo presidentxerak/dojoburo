@@ -17,6 +17,7 @@ import {
   generatePalette, logoSvg, logoLockups, FONT_PAIRS, SHAPES,
 } from '../../lib/brand'
 import { zipStore } from '../../lib/zip'
+import { loadSite, saveSite } from '../../lib/site'
 import {
   type BrandProfile, type DomainResult, researchProfile, generateKeywords, combineNames,
   checkDomains, checkComBatch, socialProfiles, bestPrice, registrarPrices, registrarUrl, BRAND_TLDS,
@@ -66,11 +67,14 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
   const updateAccount = useWorkshop((s) => s.updateAccount)
   const hasAccount = useWorkshop((s) => !!s.account)
   // Adopting a brand name renames the dojo AND the account (company) so the new
-  // name shows everywhere: the CEO header, the profile, city HQ and exports.
+  // name shows everywhere: the CEO header, the profile, city HQ and exports. It
+  // also renames the saved website so Growth/SEO, Business and Marketing all show
+  // the SAME company + domain · the dojo stays coherent across every agent.
   const adoptName = (name: string) => {
     const n = name.trim(); if (!n) return
     if (dojoId) renameDojo(dojoId, n)
     if (hasAccount) updateAccount({ name: n })
+    if (dojoId) void loadSite(dojoId).then((s) => { if (s && s.name !== n) void saveSite(dojoId, { ...s, name: n }) })
   }
   const pushToast = useDojo((s) => s.pushToast)
   const [kit, setKit] = useState<BrandKit>(() => defaultKit(dojoName || 'My brand'))

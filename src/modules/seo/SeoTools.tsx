@@ -6,6 +6,7 @@
 // shows an honest empty state until that source is connected.
 import { useEffect, useMemo, useState } from 'react'
 import { loadSite, type SiteDoc } from '../../lib/site'
+import { companyIdentity, type CompanyIdentity } from '../../lib/company'
 import {
   siteAudit, onPageReport, keywordIdeas, domainFor, fmt,
   loadWatch, saveWatch, loadCompetitors, saveCompetitors,
@@ -54,15 +55,21 @@ export function useSeoData(dojoId: string, dojoName: string): SeoBundle {
   const [site, setSite] = useState<SiteDoc | null>(null)
   const [hasSite, setHasSite] = useState(false)
   const [loading, setLoading] = useState(true)
+  // canonical company identity (brand-first) so the domain matches Branding/Website
+  const [ident, setIdent] = useState<CompanyIdentity | null>(null)
   useEffect(() => {
     let alive = true
     setLoading(true)
     loadSite(dojoId).then((s) => { if (!alive) return; setHasSite(!!s); setSite(s); setLoading(false) })
+    companyIdentity(dojoId, dojoName).then((i) => { if (alive) setIdent(i) })
     return () => { alive = false }
-  }, [dojoId])
+  }, [dojoId, dojoName])
   const audit = useMemo(() => (site ? siteAudit(site) : null), [site])
   const onpage = useMemo(() => (site && audit ? onPageReport(site, audit.score) : null), [site, audit])
-  return { dojoId, siteName: site?.name || dojoName || 'My company', domain: domainFor(site?.name || dojoName), hasSite, loading, audit, onpage }
+  // company name/domain come from the shared brand (falls back to the site/dojo)
+  const siteName = ident?.name || site?.name || dojoName || 'My company'
+  const domain = ident?.domain || domainFor(site?.name || dojoName)
+  return { dojoId, siteName, domain, hasSite, loading, audit, onpage }
 }
 
 // ---- building blocks --------------------------------------------------------

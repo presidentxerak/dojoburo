@@ -5130,3 +5130,11 @@ html { scroll-behavior: smooth; }
 .cmdk-foot kbd { font-family: var(--font-pixel, monospace); font-size: 10.5px; padding: 1px 6px; border: 1px solid var(--border); border-radius: 5px; background: color-mix(in srgb, var(--border) 30%, transparent); }
 .tb-search { display: inline-flex; align-items: center; gap: 6px; }
 .tb-kbd { font-family: var(--font-pixel, monospace); font-size: 10px; padding: 0 5px; border-radius: 4px; background: color-mix(in srgb, currentColor 16%, transparent); opacity: .85; }
+
+/* ============ Arrange team · dojo overlay ============ */
+.dojo-arrange-btn { position: absolute; top: 14px; right: 14px; z-index: 30; padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px; background: color-mix(in srgb, var(--panel-solid, #fff) 88%, transparent); backdrop-filter: blur(6px); color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 22px -12px rgba(0,0,0,.4); transition: transform .12s ease, box-shadow .12s ease; }
+.dojo-arrange-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 28px -12px rgba(0,0,0,.45); }
+.arrange-overlay { position: fixed; inset: 0; z-index: 3600; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(10, 12, 20, 0.5); backdrop-filter: blur(3px); animation: cmdkIn .12s ease; }
+.arrange-modal { width: min(680px, 96vw); max-height: 86vh; overflow-y: auto; background: var(--panel-solid, #fff); color: var(--ink); border: 1px solid var(--border); border-radius: 18px; padding: 18px 20px 22px; box-shadow: 0 30px 80px -30px rgba(0,0,0,.55); }
+.arrange-modal-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.arrange-modal-h h3 { margin: 0; font-size: 18px; }
