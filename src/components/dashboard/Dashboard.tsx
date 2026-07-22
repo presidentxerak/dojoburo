@@ -18,6 +18,8 @@ import { Agent3DPreview } from '../three/Agent3DPreview'
 import { AGENT_CHAR, charForAgent } from '../landing/TeamCards'
 import { useInView } from '../landing/useInView'
 import type { RoleAgent } from '../../data/roleAgents'
+import { CustomAgentWorkspace } from '../../modules/custom/CustomAgentWorkspace'
+import { MAX_AGENTS } from '../../workshop'
 
 // Build stamp (injected by Vite) so the running version is visible in-app.
 declare const __BUILD_ID__: string
@@ -110,6 +112,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
   const updateAgent = useWorkshop((s) => s.updateAgent)
   const setAgentHidden = useWorkshop((s) => s.setAgentHidden)
+  const addCustomAgent = useWorkshop((s) => s.addCustomAgent)
+  const deleteAgent = useWorkshop((s) => s.deleteAgent)
   const save = useWorkshop((s) => s.save)
   const account = useWorkshop((s) => s.account)
   const agents = dojo?.agents ?? []
@@ -140,6 +144,21 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
   const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
+  const [creating, setCreating] = useState(false)   // custom-agent create form
+  const [newName, setNewName] = useState('')
+  const [newTitle, setNewTitle] = useState('')
+
+  // Create a user-defined agent and jump straight into its workspace.
+  const CUSTOM_TINTS = ['#7b5cff', '#2f7fd6', '#e0459b', '#1fa563', '#d98c17', '#14b8a6', '#f97316', '#a855f7']
+  const createCustom = () => {
+    const nm = newName.trim()
+    if (!nm) return
+    const tint = CUSTOM_TINTS[(dojo?.agents.length ?? 0) % CUSTOM_TINTS.length]
+    const id = addCustomAgent({ name: nm, title: newTitle.trim() || 'Specialist', desc: '', tint, apps: [] })
+    setNewName(''); setNewTitle(''); setCreating(false)
+    if (id) { selectAgent(id); pushToast({ kind: 'event', badge: 'OK', color: tint, title: `${nm} created`, text: 'Set up its apps, tasks and notes.' }) }
+    else pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Dojo full', text: `Max ${MAX_AGENTS} agents · hide one first.` })
+  }
 
   // Clicking an agent (roster card OR the 3D dojo) jumps STRAIGHT to its studio
   // dashboard · no intermediate profile screen. Utility agents (CEO, Engine,
@@ -151,6 +170,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     // shows this same roster, never a separate module · one CEO page, everywhere.
     if (!selectedId) { setModuleId(null); return }
     const a = agents.find((x) => x.id === selectedId)
+    // custom agents have no registry module · their workspace renders inline.
+    if (a?.custom) { setModuleId(null); return }
     if (a && canonicalRole(a.role) === 'chief') { setModuleId(null); return }
     const mod = a && MODULES.find((m) => m.agentRole === canonicalRole(a.role))
     if (mod) setModuleId(mod.id)
@@ -393,6 +414,41 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     return <ModuleHost moduleId={moduleId} dojoId={dojo?.id ?? ''} onClose={() => { setModuleId(null); selectAgent(null); onOpenDojo() }} />
   }
 
+  // --------------------------------------------------------- CUSTOM AGENT --
+  // A user-created teammate · its own editable identity + workspace (apps,
+  // tasks, notes). Rendered inline (it has no registry module).
+  if (selected && selected.custom) {
+    const meta = selected.custom
+    return (
+      <div className="agentdash" style={{ ['--dc' as string]: meta.tint }}>
+        <div className="ad-topbar">
+          <button className="ad-back" onClick={() => { selectAgent(null); onOpenDojo() }}>‹ Dojo</button>
+          <button className="btn tiny ghost danger" onClick={() => {
+            if (!confirm(`Delete ${selected.name}? This removes the agent and its workspace.`)) return
+            deleteAgent(selected.id); save(); selectAgent(null)
+            pushToast({ kind: 'event', badge: '–', color: '#e0483f', title: `${selected.name} deleted`, text: 'The custom agent was removed.' })
+          }}>Delete agent</button>
+        </div>
+        <header className="ad-head">
+          <div className="ad-meta">
+            <input
+              className="ad-name"
+              value={selected.name}
+              onChange={(e) => updateAgent(selected.id, { name: e.target.value.slice(0, 22) })}
+              onBlur={() => save()}
+              onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+              aria-label="Agent name"
+            />
+            <p className="ad-role">{meta.title || 'Custom agent'}</p>
+            <span className="ad-cat" style={{ background: meta.tint }}>{selected.fn} · custom</span>
+          </div>
+        </header>
+        {meta.desc && <p className="ad-blurb">{meta.desc}</p>}
+        <CustomAgentWorkspace agent={selected} />
+      </div>
+    )
+  }
+
   // ------------------------------------------------------------------ DETAIL --
   // Chief falls through to the roster below (the CEO/company dashboard), so it's
   // the same page whether you tap Chief in the dojo or the CEO bottom-bar button.
@@ -450,6 +506,8 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   // orchestration lives in the composer above. Show only the seven specialists.
   const roster = ROLE_AGENTS.filter((r) => r.id !== 'chief').map((r) => byRole(r.id)).filter((a) => a && !a.hidden) as typeof agents
   const hiddenRoles = ROLE_AGENTS.filter((r) => r.id !== 'chief' && byRole(r.id)?.hidden)
+  const customAgents = agents.filter((a) => a.custom && !a.hidden)
+  const dojoFull = (dojo?.agents.length ?? 0) >= MAX_AGENTS
   // Quick-access: open the owning agent's studio directly on a specific sub-tab
   // (Finance/Analytics live in Business Studio · Leads in Growth Studio).
   const openPage = (roleId: string, moduleTab: string) => {
@@ -522,6 +580,40 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
               onHide={() => { setAgentHidden(r.id, true); pushToast({ kind: 'event', badge: '–', color: '#5b6472', title: `${r.title} hidden`, text: 'Restore it from the slots below.' }) }} />
           )
         })}
+        {/* Custom agents · the teammates the user created */}
+        {customAgents.map((a) => {
+          const meta = a.custom!
+          return (
+            <div key={a.id} className="lp-studiocard agent-card custom-card" style={{ ['--ac' as string]: meta.tint }} onClick={() => selectAgent(a.id)} role="button" tabIndex={0} title={`Open ${a.name}`}>
+              <span className="agent-status s-ready"><i />Custom</span>
+              <span className="custom-card-badge" style={{ background: meta.tint }}>{(a.name[0] || '?').toUpperCase()}</span>
+              <strong className="agent-code">{a.name}</strong>
+              <span className="agent-title">{meta.title || 'Custom agent'}</span>
+              <span className="agent-desc">{meta.desc || 'Your custom teammate · set up its apps, tasks and notes.'}</span>
+              <span className="lp-team-more">Open →</span>
+            </div>
+          )
+        })}
+
+        {/* Create a custom agent · inline card */}
+        {creating ? (
+          <div className="lp-studiocard agent-add custom-create" style={{ ['--ac' as string]: '#7b5cff' }}>
+            <input className="custom-create-name" value={newName} maxLength={22} autoFocus placeholder="Agent name (e.g. Rex)" onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && createCustom()} />
+            <input className="custom-create-title" value={newTitle} maxLength={40} placeholder="Job title (e.g. Recruiter)" onChange={(e) => setNewTitle(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && createCustom()} />
+            <div className="custom-create-actions">
+              <button className="btn primary tiny" onClick={createCustom} disabled={!newName.trim()}>Create</button>
+              <button className="btn tiny ghost" onClick={() => { setCreating(false); setNewName(''); setNewTitle('') }}>Cancel</button>
+            </div>
+          </div>
+        ) : !dojoFull && (
+          <button className="lp-studiocard agent-add custom-new" style={{ ['--ac' as string]: '#7b5cff' }} onClick={() => setCreating(true)}>
+            <span className="agent-add-plus">+</span>
+            <span className="agent-title">New agent</span>
+            <span className="agent-desc">Build your own teammate: name it, give it a role, apps, tasks and notes.</span>
+            <span className="agent-add-cta">Create agent</span>
+          </button>
+        )}
+
         {/* Hidden agents · dotted slots to bring a specialist back */}
         {hiddenRoles.map((r) => (
           <button

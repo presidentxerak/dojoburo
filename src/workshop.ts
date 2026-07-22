@@ -12,8 +12,10 @@ import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/tem
 import { professionById, type Profession } from './data/professions'
 import { seatPositions } from './three/layout3d'
 
-export const GRID = { cols: 6, rows: 4 } // 24 cells, up to 12 agents
-export const MAX_AGENTS = 12
+export const GRID = { cols: 6, rows: 4 } // 24 cells
+// Up to 24 agents per dojo · the 12 role presets plus room for custom agents the
+// user creates. The 3D scene seats the first 12 visible; the roster shows all.
+export const MAX_AGENTS = 24
 
 /** An external AI agent (at Notion, Slack, a custom host…) linked to a DojoBuro
  *  agent. MCP agents plug in as tools during a run; A2A / webhook agents receive
@@ -26,6 +28,17 @@ export interface ExtAgent {
   /** optional bearer token / api key for the external agent (kept locally) */
   authToken?: string
   note?: string
+}
+
+/** Identity for a user-created (custom) agent · the presets live in
+ *  data/roleAgents, but the user can also build their own teammate. When present
+ *  it drives the roster card, the 3D tint and the agent's own workspace. */
+export interface CustomMeta {
+  title: string
+  desc: string
+  tint: string
+  /** connector ids this custom agent works with (its in-studio apps) */
+  apps: string[]
 }
 
 export interface WAgent {
@@ -45,6 +58,8 @@ export interface WAgent {
   hidden?: boolean
   /** external agents this DojoBuro agent can call / delegate to */
   externalAgents?: ExtAgent[]
+  /** set for user-created agents · their editable identity + apps. */
+  custom?: CustomMeta
 }
 
 export interface Dojo {
@@ -91,6 +106,10 @@ interface WorkshopState {
   setActiveDojo: (id: string) => void
 
   addAgent: (partial?: Partial<WAgent>) => string | null
+  /** Create a user-defined (custom) agent on the active dojo · returns its id. */
+  addCustomAgent: (meta: CustomMeta & { name: string; fn?: Department }) => string | null
+  /** Edit a custom agent's identity (name lives on the agent, rest in custom). */
+  updateCustomAgent: (id: string, patch: Partial<CustomMeta>) => void
   /** Add a role agent to the active dojo if it isn't there · returns the id of
    *  the existing or new agent. Seeded dojos already carry all role agents. */
   addRoleAgent: (roleId: string) => string | null
@@ -164,17 +183,24 @@ function makeProfessionsDojo(ids: string[]): Dojo {
  *  loses their setup while everyone gains the new teammates. */
 function ensureRoleCrew(d: Dojo): Dojo {
   const agents = Array.isArray(d.agents) ? d.agents : []
-  const allPresent = ROLE_IDS.every((id) => agents.some((a) => a.role === id)) && agents.every((a) => a.role)
+  // custom (user-created) agents are always kept · they carry their own identity.
+  const custom = agents.filter((a) => a.custom)
+  const allPresent = ROLE_IDS.every((id) => agents.some((a) => a.role === id)) && agents.every((a) => a.role || a.custom)
   if (allPresent) return d
   const tpl = templateById(d.template)
-  // a crew with NO role tags at all → a pre-role-agent dojo · rebuild fresh.
+  // role-tagged agents we can keep as-is (positions, skins, hidden flags, edits).
   const tagged = agents.filter((a) => a.role && ROLE_BY_ID[a.role])
-  if (tagged.length === 0) return { ...d, agents: roleCrew(tpl.skinTheme) }
-  // otherwise keep what's there and append the missing role agents.
+  // a crew with NO role tags at all → a pre-role-agent dojo · rebuild the role
+  // crew fresh, but never discard any custom agents the user has created.
+  if (tagged.length === 0) {
+    const merged = [...roleCrew(tpl.skinTheme), ...custom].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
+    return { ...d, agents: merged }
+  }
+  // otherwise keep what's there (roles + customs) and append the missing roles.
   const have = new Set(tagged.map((a) => a.role))
   const seed = roleCrew(tpl.skinTheme)
   const missing = seed.filter((a) => a.role && !have.has(a.role))
-  const merged = [...tagged, ...missing].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
+  const merged = [...tagged, ...missing, ...custom].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
   return { ...d, agents: merged }
 }
 
@@ -323,6 +349,35 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
       }
       editActive((d) => ({ ...d, agents: [...d.agents, agent] }))
       return agent.id
+    },
+    addCustomAgent: (meta) => {
+      const dojo = get().dojos.find((d) => d.id === get().activeDojoId)
+      if (!dojo) return null
+      if (dojo.agents.length >= MAX_AGENTS) return null
+      const cell = firstFreeCell(dojo.agents)
+      // give the new agent an unused skin from the dojo's own palette
+      const themeSkins = skinsForTheme(templateById(dojo.template).skinTheme)
+      const used = new Set(dojo.agents.map((a) => a.skinId))
+      const skin = themeSkins.find((s) => !used.has(s.id)) || themeSkins[0] || SKINS[0]
+      const fn = meta.fn || DEPTS[dojo.agents.length % DEPTS.length]
+      const agent: WAgent = {
+        id: 'a_' + uid(),
+        name: meta.name.trim() || 'New agent',
+        fn,
+        skinId: skin.id,
+        tasks: defaultTasksFor(fn),
+        budgetXrp: 5,
+        gx: cell.gx,
+        gy: cell.gy,
+        custom: { title: meta.title.trim() || 'Specialist', desc: meta.desc.trim(), tint: meta.tint, apps: meta.apps },
+      }
+      editActive((d) => ({ ...d, agents: [...d.agents, agent] }))
+      persist()
+      return agent.id
+    },
+    updateCustomAgent: (id, patch) => {
+      editActive((d) => ({ ...d, agents: d.agents.map((a) => (a.id === id && a.custom ? { ...a, custom: { ...a.custom, ...patch } } : a)) }))
+      persist()
     },
     addRoleAgent: (roleId) => {
       const dojo = get().dojos.find((d) => d.id === get().activeDojoId)
