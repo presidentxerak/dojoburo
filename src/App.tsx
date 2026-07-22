@@ -10,6 +10,7 @@ import { SnapshotFactory } from './components/three/snapshotFactory'
 import { DeliverableModal } from './components/agents/DeliverableModal'
 import { SettingsModal } from './components/SettingsModal'
 import { DojosManager } from './components/DojosManager'
+import { CommandPalette } from './components/CommandPalette'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
 import { useWork } from './agents/workStore'
@@ -122,6 +123,7 @@ export default function App() {
 
       </div>
 
+      <CommandPalette openDojo={() => setDojoFull(true)} showDashboard={() => setDojoFull(false)} />
       <Toasts />
       <SnapshotFactory />
       <Workshop />
