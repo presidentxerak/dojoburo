@@ -68,6 +68,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your twelve teammates &amp; what each one does</h3>
         <StudioTeam enter={() => { window.location.href = '/#app' }} />
         <p className="lp-note" style={{ marginTop: 14 }}>Every dojo ships with these twelve · hide the ones you don't need, or <b>create your own custom agents</b> (name, role, apps, tasks &amp; notes) from the CEO dashboard. Rearrange the whole team on the dojo grid, and press <kbd>Cmd/Ctrl&nbsp;+&nbsp;K</kbd> for a quick launcher to jump to any agent, page or action.</p>
+        <p className="lp-note">Front-and-centre in the 3D office stands the team <b>panda</b> · your mascot. He cheers the crew on and dances every time a task is completed. Tap him for a celebration on cue.</p>
       </section>
 
       <section className="lp-sec alt" id="what">

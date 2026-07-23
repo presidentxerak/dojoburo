@@ -82,6 +82,7 @@ export function Landing({ enter }: { enter: () => void }) {
         </p>
         <StudioTeam enter={enter} />
         <p className="lp-note">Brand → website → ads → video → finance → clients → analytics: the brand you pick in Brandi sets one company name, domain and look that flows into every studio, so the whole team stays consistent and reuses each other's work.</p>
+        <p className="lp-note">And front-and-centre in your 3D office: the team <b>panda</b> · your mascot. He cheers the crew on and breaks into a dance every time a task ships. Tap him to make him celebrate on cue.</p>
       </section>
 
       {SHOW_MOCK_COMPANIES && (
@@ -144,6 +145,7 @@ export function Landing({ enter }: { enter: () => void }) {
           Notion page, open the GitHub PR, draft the Gmail, post the campaign, raise the Stripe invoice, move
           the Jira ticket.
         </p>
+        <p className="lp-note">Every agent ships with a small, curated set of the best apps for its job · no clutter, no duplicates. It's fully modular: open any studio's <b>Connect apps</b> panel to add any connector from the catalog, or remove one you don't need. Your choices are saved per company.</p>
         <div className="lp-toolwall">
           {CONNECTORS.map((c) => (
             <span className="lp-toolpill" key={c.id} title={c.blurb}>{c.label}</span>
