@@ -67,8 +67,19 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         </div>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your twelve teammates &amp; what each one does</h3>
         <StudioTeam enter={() => { window.location.href = '/#app' }} />
-        <p className="lp-note" style={{ marginTop: 14 }}>Every dojo ships with these twelve · hide the ones you don't need, or <b>create your own custom agents</b> (name, role, apps, tasks &amp; notes) from the CEO dashboard. Rearrange the whole team on the dojo grid, and press <kbd>Cmd/Ctrl&nbsp;+&nbsp;K</kbd> for a quick launcher to jump to any agent, page or action.</p>
-        <p className="lp-note">Front-and-centre in the 3D office stands the team <b>panda</b> · your mascot. He cheers the crew on and dances every time a task is completed. Tap him for a celebration on cue.</p>
+        <p className="lp-note" style={{ marginTop: 14 }}>These twelve ship with every dojo — and the crew is yours to shape. See <a className="linklike" href="#team">Shape your team</a> just below.</p>
+      </section>
+
+      <section className="lp-sec" id="team">
+        <h2>Shape your team</h2>
+        <p className="lp-lead">Your dojo ships with twelve teammates, but nothing is locked. Hide what you don't need, build your own agents, and arrange the office exactly how you like.</p>
+        <div className="lp-steps3">
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Hide or show</b><span>Hide any preset you don't use from the CEO dashboard; restore it from the roster whenever you want.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Create custom agents</b><span>Build your own teammate — name, job title, colour, the apps it works with, a task list you assign to it and a private notepad. All saved locally.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Arrange the office</b><span>Tap <b>Arrange team</b> on the dojo, tap an agent, then tap a cell. The 3D office reseats live · on desktop and mobile.</span></div></div>
+        </div>
+        <p className="lp-note">Press <kbd>Cmd/Ctrl&nbsp;+&nbsp;K</kbd> (or the <b>Search</b> button) any time for a quick launcher that jumps to any agent, page or action. And front-and-centre in the 3D office stands the team <b>panda</b> · your mascot, who cheers the crew on and dances every time a task ships (tap him for a celebration on cue).</p>
+        <p className="lp-note"><b>One brand, everywhere.</b> The company name and domain you pick in Brandi flow into Website, Growth/SEO, Business and Marketing, so every studio shows the same identity · your dojo always stays coherent.</p>
       </section>
 
       <section className="lp-sec alt" id="what">
@@ -80,7 +91,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
       <section className="lp-sec alt" id="connect">
         <h2>2 · How to connect an app (as a user)</h2>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Open the agent</b><span>Click an agent in the office, or open Studio and select it. You'll see the apps its tasks can use.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Open the agent</b><span>Click an agent, open its <b>Connect apps</b> panel and you'll see its curated apps · use <b>+ Add apps</b> to pull any other connector, or remove one you don't need.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve the provider's screen once. Tap the ⓘ on any app for a per-app explainer and a link to its full setup page.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>The agent acts for real</b><span>The token is sealed server-side (AES-256-GCM); the browser never sees a secret. Disconnect anytime.</span></div></div>
         </div>
