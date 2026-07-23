@@ -24,7 +24,7 @@ export const KB: KBTopic[] = [
     id: 'studios',
     chip: 'The studios',
     answer:
-      'Your office is run by eight AI teammates, each opening its own workspace when you click it: Chief (CEO · plans and delegates every task), Brandi (Brand Architect · brand names, domains & .com availability), Weblos (Web Designer · block-based website, HTML export), Marketus (Marketer · Meta ads, video editing and image optimisation in one creative workflow), Pumpi (Growth Hacker · leads, pipeline & personalised outreach), Busino (Business Analyst · finance and analytics in one dashboard: VAT, forecasts, CAC, LTV, ROI), Sentinel (Cyber Guardian · autonomy, budgets & encrypted secrets) and Vaultor (Billing Manager · credits, subscriptions & payments). Everything runs 100% in your browser · video editing, image compression and exports stay on your machine, nothing is sent to a server. The AI creates a first version and you keep full control.',
+      'Your office ships with twelve AI teammates, each opening its own workspace when you click it: Chief (CEO · plans and delegates every task), Brandi (Brand Architect · brand names, domains & .com availability), Weblos (Web Designer · block-based website with interaction design & HTML export), Devi (Engineering Lead · issues, PRs & sprints), Marketus (Marketer · Meta ads, video editing and image optimisation in one creative workflow), Pumpi (Growth Hacker · leads, pipeline & personalised outreach), Nexa (Comms Manager · team & community broadcasts), Helpi (Support Lead · tickets & replies), Busino (Business Analyst · finance and analytics in one dashboard: VAT, forecasts, CAC, LTV, ROI), Vaultor (Billing Manager · credits, subscriptions & payments), Legi (Legal & Docs · contracts & signatures) and Sentinel (Security Guardian · autonomy, budgets & encrypted secrets). You can hide the ones you don\'t need and create your OWN custom agents too. The brand you choose in Brandi flows into every studio, so the whole team shares one company name, domain and look. Everything runs 100% in your browser · video editing, image compression and exports stay on your machine, nothing is sent to a server. The AI creates a first version and you keep full control.',
     links: [
       { label: 'See the studios', href: '#studios' },
       { label: 'Open my office', href: '#app' },
@@ -72,7 +72,7 @@ export const KB: KBTopic[] = [
     id: 'cost',
     chip: 'Cost per task (credits)',
     answer:
-      'Most tasks are free or about one credit; only heavier jobs (like a full campaign) cost a couple more. You buy credits in your own currency and they settle on a fast rail behind the scenes · no crypto, no network fees to think about. Tap Lazy the panda for your live totals, and set a daily credit cap so nothing overspends.',
+      'Most tasks are free or about one credit; only heavier jobs (like a full campaign) cost a couple more. You buy credits in your own currency and they settle on a fast rail behind the scenes · no crypto, no network fees to think about. Your CEO dashboard shows live totals, and you can set a daily credit cap so nothing overspends.',
     links: [
       { label: 'Cost breakdown', href: '#cost' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -84,7 +84,7 @@ export const KB: KBTopic[] = [
     id: 'pricing',
     chip: 'Plans & pricing',
     answer:
-      'You bring your own model key (or use the free-model cascade), so intelligence is basically free; you pay only for the hub: connected apps, an always-on worker and team features. Plans: Free ($0, explore + build your first company, 2 apps, ~50 tasks/mo), Solo ($12/mo, 6 apps, 300 credits), Pro ($29/mo, all 28 connectors, 1,500 credits, cloud worker), Team ($22/seat/mo, shared dojos, SSO, audit) and Business (custom, self-hosted, SLA). BYOK and free-cascade tasks are unlimited and never use a credit; managed credits (1 credit ≈ 1 hosted task) cover hosted-model runs, are bought in your own currency (USD, EUR, JPY…) and top up anytime · no crypto. Annual billing saves about two months.',
+      'You bring your own model key (or use the free-model cascade), so intelligence is basically free; you pay only for the hub: connected apps, an always-on worker and team features. Plans: Free ($0, explore + build your first company, 2 apps, ~50 tasks/mo), Solo ($12/mo, 6 apps, 300 credits), Pro ($29/mo, every connector, 1,500 credits, cloud worker), Team ($22/seat/mo, shared dojos, SSO, audit) and Business (custom, self-hosted, SLA). BYOK and free-cascade tasks are unlimited and never use a credit; managed credits (1 credit ≈ 1 hosted task) cover hosted-model runs, are bought in your own currency (USD, EUR, JPY…) and top up anytime · no crypto. Annual billing saves about two months.',
     links: [
       { label: 'See the plans', href: '#pricing' },
       { label: 'Cost per task', href: '#cost' },
@@ -132,7 +132,7 @@ export const KB: KBTopic[] = [
     id: 'tools',
     chip: 'Connect real tools',
     answer:
-      'Connect 30+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, DocuSign, Zendesk, Intercom. One-click OAuth (with PKCE); tokens are sealed with AES-256-GCM server-side and auto-refreshed. At run time each app is exposed to Claude as a remote MCP server, so the agent does real work in your account · and each task is metered as about one credit, with a receipt in your dashboard.',
+      'Connect 40+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 and more. One-click OAuth (with PKCE); tokens are sealed with AES-256-GCM server-side and auto-refreshed. At run time each app is exposed to Claude as a remote MCP server, so the agent does real work in your account · and each task is metered as about one credit, with a receipt in your dashboard.',
     links: [
       { label: 'Set up each app · step by step', href: '/guide', external: true },
       { label: 'Connect your stack', href: '#stack' },
@@ -177,6 +177,18 @@ export const KB: KBTopic[] = [
     ],
     follow: ['setup', 'tools', 'cost'],
     keywords: ['guide', 'dojo guide', 'help', 'how to', 'walkthrough', 'tutorial', 'get started guide', 'security', 'safe', 'hack', 'budget', 'configure'],
+  },
+  {
+    id: 'team',
+    chip: 'Create & arrange agents',
+    answer:
+      'Your dojo ships with twelve teammates, and you can shape the crew any way you like. Create your OWN agent from the CEO dashboard: tap "New agent", give it a name and job title, then open it to set its accent colour, the apps it works with (live connect in place), a task list you assign to it and a private notepad · all saved locally. Hide the presets you don\'t need (restore them anytime from the roster), and rearrange everyone on the dojo grid: tap "Arrange team" on the dojo (or "Arrange on grid" in the CEO dashboard), tap an agent, then tap a cell · the 3D office reseats live, on desktop and mobile. Press Cmd/Ctrl+K (or the Search button) any time for a quick launcher that jumps to any agent, page or action.',
+    links: [
+      { label: 'Open the CEO dashboard', href: '#app' },
+      { label: 'Build your own team', href: '#studio' },
+    ],
+    follow: ['skins', 'jobs', 'tools'],
+    keywords: ['custom agent', 'create agent', 'new agent', 'add agent', 'build agent', 'own agent', 'arrange', 'rearrange', 'move agent', 'grid', 'hide agent', 'restore agent', 'tasks', 'notes', 'command palette', 'quick search', 'shortcut', 'cmd k', 'ctrl k', 'search', 'team'],
   },
   {
     id: 'skins',

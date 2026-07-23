@@ -81,7 +81,7 @@ export function Landing({ enter }: { enter: () => void }) {
           all run <b>locally</b> · your files never leave your machine.
         </p>
         <StudioTeam enter={enter} />
-        <p className="lp-note">Brand → website → ads → video → finance → clients → analytics: a central Brand Kit keeps everything consistent, and every studio reuses the work of the others.</p>
+        <p className="lp-note">Brand → website → ads → video → finance → clients → analytics: the brand you pick in Brandi sets one company name, domain and look that flows into every studio, so the whole team stays consistent and reuses each other's work.</p>
       </section>
 
       {SHOW_MOCK_COMPANIES && (
@@ -179,15 +179,15 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec" id="studio">
         <span className="lp-ico" style={{ background: C.blue }}><AsciiIcon kind="build" /></span>
         <h2>Build your own team</h2>
-        <p className="lp-lead">Open the Dojo Studio to create, edit and delete agents. Pick one of {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, choose the agent's function and tasks, and set a per-agent credit budget. Arrange them on a grid and run several dojos (companies) side by side.</p>
+        <p className="lp-lead">Every company ships with twelve teammates · hide the ones you don't need and <b>create your own custom agents</b> (name, job title, colour, apps, a task list and a private notepad) right from the CEO dashboard. Pick from {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, set a per-agent budget, and rearrange the whole team on the dojo grid · tap an agent, tap a cell, and the 3D office reseats live. Press <kbd className="lp-kbd">Cmd/Ctrl&nbsp;K</kbd> anytime to jump to any agent, page or action.</p>
         <div className="lp-schema">
-          <div className="lp-node"><b>Create</b><span>Twelve AI teammates per company</span></div>
+          <div className="lp-node"><b>Create</b><span>12 presets + your own custom agents</span></div>
           <span className="lp-arrow">→</span>
           <div className="lp-node"><b>Skin</b><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds, in 3D</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Function</b><span>Pick tasks &amp; a budget</span></div>
+          <div className="lp-node"><b>Function</b><span>Apps, tasks, notes &amp; a budget</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Arrange</b><span>Drag on the grid · many dojos</span></div>
+          <div className="lp-node"><b>Arrange</b><span>Tap to reseat · many dojos</span></div>
         </div>
         <div className="lp-actions" style={{ marginTop: 18 }}>
           <button className="lp-cta" onClick={enter}>Open the Dojo Studio →</button>
@@ -211,7 +211,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-step"><span className="lp-n">1</span><h3>Describe your company</h3><p>Tell your CEO agent what you're building, in one sentence. It drafts the plan, names the offers and assembles the crew.</p></div>
           <div className="lp-step"><span className="lp-n">2</span><h3>The crew builds &amp; runs it</h3><p>Specialist agents ship your website, craft offers and drive growth · B2B outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · doing real work in your apps.</p></div>
           <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, set its autonomy (Auto → Ultra) and a daily credit cap. A guard stops it from looping.</p></div>
-          <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit, settled behind the scenes. Lazy tallies the numbers and your CEO emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
+          <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit, settled behind the scenes. Your CEO dashboard tallies the numbers and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
         </div>
       </section>
 
@@ -366,7 +366,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <tr><td>Premium agentic task (e.g. a full campaign)</td><td>2–3 credits</td><td>behind the scenes</td><td>≈ 2–3 credits</td></tr>
           </tbody>
         </table>
-        <p className="lp-note">Exploring is free while you try things out. On a paid plan the same tasks spend real credits · Lazy's dashboard shows your running totals live.</p>
+        <p className="lp-note">Exploring is free while you try things out. On a paid plan the same tasks spend real credits · your CEO dashboard shows your running totals live.</p>
       </section>
 
       <section className="lp-sec" id="tools">
@@ -384,7 +384,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <div>
             <h3>Real deliverables, today</h3>
             <ul>
-              <li>Claude Design ships a real design system, Pia writes a PRD, Rex opens a PR, Mia drafts a campaign, Fin builds a financial model · each returns an artifact you can open.</li>
+              <li>Brandi ships a real brand identity, Weblos builds your website, Devi opens a PR, Marketus drafts a campaign and Busino builds a financial model · each returns an artifact you can open.</li>
               <li>Outputs render in the agent card and activity log, and land in your connected tool (the Notion page, the Drive doc, the Linear issue).</li>
               <li>OAuth tokens are sealed with AES-256-GCM server-side and auto-refreshed; the browser never sees a secret.</li>
             </ul>

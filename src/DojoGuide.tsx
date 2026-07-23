@@ -59,14 +59,15 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec" id="how">
         <h2>How it works</h2>
-        <p className="lp-lead">Describe your company in one sentence. <b>Chief</b> (your CEO) breaks it down and delegates to seven specialists. You steer by chatting with Chief and build in each studio · everything runs in your browser. Connect your real apps to go live.</p>
+        <p className="lp-lead">Describe your company in one sentence. <b>Chief</b> (your CEO) breaks it down and delegates to a crew of specialists. You steer by chatting with Chief and build in each studio · everything runs in your browser. Connect your real apps to go live.</p>
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Describe your company</b><span>One sentence. Chief drafts the plan and assembles your crew of agents.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Open a studio</b><span>Click an agent to open its dashboard and build · brand, website, campaigns, pipeline, finances.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Connect your apps</b><span>Link Meta, Gmail, Stripe… so your agents act inside your real accounts.</span></div></div>
         </div>
-        <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your eight teammates &amp; what each one does</h3>
+        <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your twelve teammates &amp; what each one does</h3>
         <StudioTeam enter={() => { window.location.href = '/#app' }} />
+        <p className="lp-note" style={{ marginTop: 14 }}>Every dojo ships with these twelve · hide the ones you don't need, or <b>create your own custom agents</b> (name, role, apps, tasks &amp; notes) from the CEO dashboard. Rearrange the whole team on the dojo grid, and press <kbd>Cmd/Ctrl&nbsp;+&nbsp;K</kbd> for a quick launcher to jump to any agent, page or action.</p>
       </section>
 
       <section className="lp-sec alt" id="what">
@@ -229,7 +230,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <div>
             <ul>
               <li><b>Explore for free</b> · the free tier lets you build your company and run no-cost tasks first · add credits only when you go live.</li>
-              <li><b>Disconnect unused apps</b> and watch Lazy's dashboard for live totals (credits, tokens, tasks).</li>
+              <li><b>Disconnect unused apps</b> and watch your CEO dashboard for live totals (credits, tokens, tasks).</li>
               <li><b>Managed credits</b> (optional) cover hosted-model runs · 1 credit ≈ 1 task · top up only if you don't use BYOK.</li>
             </ul>
           </div>

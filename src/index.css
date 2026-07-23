@@ -5138,3 +5138,5 @@ html { scroll-behavior: smooth; }
 .arrange-modal { width: min(680px, 96vw); max-height: 86vh; overflow-y: auto; background: var(--panel-solid, #fff); color: var(--ink); border: 1px solid var(--border); border-radius: 18px; padding: 18px 20px 22px; box-shadow: 0 30px 80px -30px rgba(0,0,0,.55); }
 .arrange-modal-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
 .arrange-modal-h h3 { margin: 0; font-size: 18px; }
+/* inline keyboard hint in landing + guide copy */
+.landing kbd, .lp-kbd { display: inline-block; font-family: var(--font-pixel, monospace); font-size: 0.82em; line-height: 1; padding: 3px 7px; border: 1px solid color-mix(in srgb, currentColor 28%, transparent); border-radius: 6px; background: color-mix(in srgb, currentColor 10%, transparent); white-space: nowrap; }
