@@ -91,6 +91,9 @@ interface DojoState {
   sceneId: SceneId
   usage: { xrp: number; tokens: number; tx: number }
   showStats: boolean
+  /** monotonic counter · bumped whenever any task/deliverable completes, so the
+   *  panda mascot can dance and cheer the team on. */
+  cheerTick: number
   wallet: { provider: WalletId | null; account: string | null; busy: boolean; signLink: string | null; signQr: string | null; error: string | null; xamanConfigured: boolean }
 
   setNetwork: (net: NetworkId) => void
@@ -120,6 +123,8 @@ interface DojoState {
   auditWallet: (ownerId: string) => Promise<void>
 
   grantXp: (agentId: string, xp: number, coins: number) => void
+  /** celebrate a completed task · the mascot dances and cheers the crew. */
+  cheer: () => void
   fireEvent: () => void
   pushToast: (t: Omit<Toast, 'id'>) => void
   dismissToast: (id: string) => void
@@ -210,6 +215,7 @@ export const useDojo = create<DojoState>((set, get) => ({
   sceneId: loadSceneId(),
   usage: { xrp: 0, tokens: 0, tx: 0 },
   showStats: false,
+  cheerTick: 0,
   wallet: { provider: null, account: null, busy: false, signLink: null, signQr: null, error: null, xamanConfigured: xaman.isConfigured() },
 
   openStats: () => {
@@ -437,6 +443,8 @@ export const useDojo = create<DojoState>((set, get) => ({
     }
   },
 
+  cheer: () => set((s) => ({ cheerTick: s.cheerTick + 1 })),
+
   grantXp: (agentId, xp, coins) => {
     const s = get()
     const cur = s.stats[agentId] ?? { xp: 0, level: 1, coins: 0, tasksDone: 0 }
@@ -502,6 +510,7 @@ export const useDojo = create<DojoState>((set, get) => ({
       const reward = skill.kind === 'xrpl' ? 18 : skill.kind === 'analysis' ? 14 : 12
       const cur = get().stats[agentId]
       set((sst) => ({ stats: { ...sst.stats, [agentId]: { ...cur, tasksDone: (cur?.tasksDone ?? 0) + 1 } } }))
+      get().cheer() // the panda mascot dances + cheers the crew on
       get().grantXp(agentId, reward, Math.round(reward / 3))
       // usage accounting for Lazy's dashboard: estimated compute tokens + a tx
       const tokens = skill.kind === 'analysis' ? 2400 : skill.kind === 'action' ? 1500 : skill.kind === 'xrpl' ? 800 : 1200

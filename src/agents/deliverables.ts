@@ -4,6 +4,7 @@
 // button) instead of vanishing when the modal closes.
 import { create } from 'zustand'
 import type { Deliverable } from './workApi'
+import { useDojo } from '../store'
 
 export interface StoredDeliverable extends Deliverable {
   id: string
@@ -39,6 +40,7 @@ export const useDeliverables = create<DelivState>((set, get) => {
       const next = [item, ...prev.filter((x) => x.taskId !== d.taskId)].slice(0, 24)
       const byDojo = { ...get().byDojo, [dojoId]: next }
       set({ byDojo }); persist(byDojo)
+      try { useDojo.getState().cheer() } catch { /* store not ready */ }
     },
     latest: (dojoId, kind) => (get().byDojo[dojoId] ?? []).find((d) => d.taskId === kind),
     list: (dojoId) => get().byDojo[dojoId] ?? [],

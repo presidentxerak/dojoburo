@@ -5140,3 +5140,27 @@ html { scroll-behavior: smooth; }
 .arrange-modal-h h3 { margin: 0; font-size: 18px; }
 /* inline keyboard hint in landing + guide copy */
 .landing kbd, .lp-kbd { display: inline-block; font-family: var(--font-pixel, monospace); font-size: 0.82em; line-height: 1; padding: 3px 7px; border: 1px solid color-mix(in srgb, currentColor 28%, transparent); border-radius: 6px; background: color-mix(in srgb, currentColor 10%, transparent); white-space: nowrap; }
+
+/* ============ Panda mascot · bubble, hype + confetti ============ */
+.tag3d.panda { background: linear-gradient(150deg, #2f6bff, #12b981); color: #fff; border: none; letter-spacing: .3px; padding: 2px 9px; border-radius: 999px; text-shadow: none; box-shadow: 0 4px 14px -6px rgba(0,0,0,.5); }
+.panda-bubble {
+  font-family: var(--font-ui); font-weight: 800; font-size: 14px; white-space: nowrap;
+  background: #fff; color: #1a2230; padding: 7px 13px; border-radius: 14px; border: 2px solid #e6eaf2;
+  box-shadow: 0 10px 24px -12px rgba(0,0,0,.4); position: relative; animation: pandaPop .3s ease;
+}
+.panda-bubble::after { content: ""; position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%); border: 7px solid transparent; border-top-color: #fff; }
+.panda-bubble.hype { color: #fff; border-color: transparent; background: linear-gradient(120deg, #ff7a1a, #e0459b); animation: pandaHype .5s ease infinite alternate; }
+.panda-bubble.hype::after { border-top-color: #e0459b; }
+@keyframes pandaPop { from { transform: scale(.6); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+@keyframes pandaHype { from { transform: translateY(0) rotate(-1.5deg) } to { transform: translateY(-3px) rotate(1.5deg) } }
+.panda-confetti { position: relative; width: 4px; height: 4px; }
+.panda-confetti span {
+  position: absolute; left: 0; top: 0; width: 7px; height: 11px; border-radius: 2px;
+  background: hsl(calc(var(--i) * 40), 90%, 58%);
+  animation: pandaConfetti 1.5s ease-in forwards; animation-delay: calc(var(--i) * 40ms);
+  transform-origin: center;
+}
+@keyframes pandaConfetti {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translate(calc((var(--i) - 4.5) * 22px), 90px) rotate(540deg) scale(.7); }
+}
