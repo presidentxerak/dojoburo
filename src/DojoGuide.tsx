@@ -73,7 +73,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
       <section className="lp-sec alt" id="what">
         <h2>1 · What a connector is</h2>
         <p className="lp-lead">A connector is a secure bridge between DojoBuro and one of your apps. Connecting is a one-time OAuth handshake: you approve access once, a token is stored encrypted on the server, and from then on the agent can act inside that app on your behalf. You never hand over a password.</p>
-        <p className="lp-note">Each agent function only offers the apps that make sense for it · Engineering gets GitHub and Linear, Growth gets Gmail and HubSpot, Finance gets Stripe and QuickBooks, and so on.</p>
+        <p className="lp-note">Each agent ships with a small, curated set of the best apps for its job · Engineering gets GitHub and Linear, Growth gets Gmail and HubSpot, Finance gets Stripe and QuickBooks, and so on. It's fully modular: open any studio's <b>Connect apps</b> panel, hit <b>+ Add apps</b> to pull any connector from the catalog, or remove one you don't use · your choice is saved per company.</p>
       </section>
 
       <section className="lp-sec alt" id="connect">

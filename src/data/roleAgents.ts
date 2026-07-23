@@ -69,23 +69,23 @@ const SPECS: Spec[] = [
     id: 'devi', code: 'Devi', title: 'Engineering Lead',
     desc: 'Tracks issues, pull requests and sprints across your dev stack.',
     tint: '#3b82f6', dept: 'Engineering', core: false,
-    apps: ['github', 'linear', 'jira', 'trello', 'supabase', 'posthog'],
+    apps: ['github', 'linear'],
   },
   {
     id: 'marketus', code: 'Marketus', title: 'Marketer',
     desc: 'Creates campaigns, images, videos and social content from a single creative workflow.',
-    tint: '#e0459b', dept: 'Growth', apps: ['meta', 'canva', 'mailchimp', 'twitter', 'buffer', 'linkedin'],
+    tint: '#e0459b', dept: 'Growth', apps: ['meta', 'twitter', 'linkedin', 'mailchimp'],
   },
   {
     id: 'pumpi', code: 'Pumpi', title: 'Growth Hacker',
     desc: 'Generates leads, manages your pipeline and sends personalized outreach.',
-    tint: '#d98c17', dept: 'Growth', apps: ['hubspot', 'salesforce', 'apollo', 'gmail', 'calendly'],
+    tint: '#d98c17', dept: 'Growth', apps: ['hubspot', 'gmail', 'calendly'],
   },
   {
     id: 'nexa', code: 'Nexa', title: 'Comms Manager',
     desc: 'Broadcasts to your team and community across every channel.',
     tint: '#f97316', dept: 'People', core: false,
-    apps: ['slack', 'discord', 'zoom', 'whatsapp'],
+    apps: ['slack', 'discord'],
   },
   {
     id: 'helpi', code: 'Helpi', title: 'Support Lead',
@@ -96,7 +96,7 @@ const SPECS: Spec[] = [
   {
     id: 'busino', code: 'Busino', title: 'Business Analyst',
     desc: 'Tracks your finances and turns business data into actionable insights.',
-    tint: '#1fa563', dept: 'Finance', apps: ['stripe', 'ga4', 'gsc', 'quickbooks', 'xero', 'shopify'],
+    tint: '#1fa563', dept: 'Finance', apps: ['stripe', 'ga4', 'gsc', 'quickbooks'],
   },
   {
     id: 'vaultor', code: 'Vaultor', title: 'Billing Manager',
@@ -107,12 +107,12 @@ const SPECS: Spec[] = [
     id: 'legi', code: 'Legi', title: 'Legal & Docs',
     desc: 'Sends contracts for signature and keeps documents in order.',
     tint: '#8b5cf6', dept: 'Ops', core: false,
-    apps: ['gdrive', 'docusign', 'cloudinary'],
+    apps: ['gdrive', 'docusign'],
   },
   {
     id: 'sentinel', code: 'Sentinel', title: 'Security Guardian',
     desc: 'Keeps your AI efficient, secure and under control.',
-    tint: '#5b6472', dept: 'Ops', apps: ['airtable', 'asana'],
+    tint: '#5b6472', dept: 'Ops', apps: [],
   },
 ]
 

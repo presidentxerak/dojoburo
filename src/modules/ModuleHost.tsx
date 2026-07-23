@@ -8,9 +8,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { MODULE_BY_ID } from './registry'
 import { ErrorBoundary } from '../components/ErrorBoundary'
 import { StudioConnectors } from '../components/StudioConnectors'
+import { ConnectorLogo } from '../components/ConnectorLogo'
 import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
 import { CONNECTORS } from '../data/connectors'
 import { useWork } from '../agents/workStore'
+import { useAgentApps, effectiveApps } from '../agents/agentApps'
 
 export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; dojoId: string; onClose: () => void }) {
   const def = MODULE_BY_ID[moduleId]
@@ -18,16 +20,20 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
   const backend = useWork((s) => s.backend)
   const loadedOnce = useWork((s) => s.loadedOnce)
   const [showApps, setShowApps] = useState(false)
+  const [addOpen, setAddOpen] = useState(false)
   // load connection status once so we know whether to blink the Connect button
   useEffect(() => { if (!loadedOnce) void useWork.getState().loadTools() }, [loadedOnce])
 
   const role = def ? ROLE_BY_ID[canonicalRole(def.agentRole)] : undefined
-  // this agent's OWN curated apps (data/roleAgents), falling back to every
-  // connector in its department if none are listed.
-  const appIds = useMemo(() => {
-    if (role?.apps?.length) return role.apps
-    return role ? CONNECTORS.filter((c) => c.functions.includes(role.dept)).map((c) => c.id) : []
-  }, [role])
+  const roleId = role?.id ?? ''
+  // curated defaults for this agent (data/roleAgents) · the user can tailor them.
+  const defaults = useMemo(() => role?.apps ?? [], [role])
+  // per-agent overrides make the connector set fully modular · add any app from
+  // the catalog, or remove a default you don't use. Persisted per dojo + agent.
+  const ovKey = `${dojoId || 'default'}::${roleId}`
+  const ov = useAgentApps((s) => s.byKey[ovKey])
+  const setApp = useAgentApps((s) => s.setApp)
+  const appIds = useMemo(() => effectiveApps(defaults, ov), [defaults, ov])
   const anyConnected = appIds.some((id) => tools[id]?.connected)
   // blink when the agent genuinely needs an app for full function and none is
   // linked · only when the deployment actually has a connector backend, so we
@@ -77,9 +83,27 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
         <div className="modhost-apps">
           <div className="modhost-apps-head">
             <h3 className="sq-title">{role?.title ?? def.label}'s apps</h3>
-            <button className="linklike" onClick={() => { location.hash = 'connect' }}>See all apps</button>
+            <button className="btn tiny ghost" onClick={() => setAddOpen((v) => !v)}>{addOpen ? 'Done' : '+ Add apps'}</button>
           </div>
-          <StudioConnectors appIds={appIds} compact />
+          {addOpen ? (
+            <>
+              <p className="muted small" style={{ marginTop: 0 }}>Pick the tools this agent should work with. Toggle any app on or off · your choice is saved for this company.</p>
+              <div className="modhost-catalog">
+                {[...CONNECTORS].sort((a, b) => a.label.localeCompare(b.label)).map((c) => {
+                  const on = appIds.includes(c.id)
+                  return (
+                    <button key={c.id} className={`custom-appchip${on ? ' on' : ''}`} title={c.blurb} onClick={() => setApp(dojoId, roleId, c.id, !on, defaults)}>
+                      <ConnectorLogo id={c.id} label={c.label} size={18} />{c.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          ) : appIds.length ? (
+            <StudioConnectors appIds={appIds} compact onRemove={roleId ? (id) => setApp(dojoId, roleId, id, false, defaults) : undefined} />
+          ) : (
+            <p className="muted small" style={{ marginTop: 0 }}>No apps yet for this agent. Click <b>+ Add apps</b> to pick the tools it should use.</p>
+          )}
         </div>
       )}
 

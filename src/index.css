@@ -5164,3 +5164,8 @@ html { scroll-behavior: smooth; }
   0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
   100% { opacity: 0; transform: translate(calc((var(--i) - 4.5) * 22px), 90px) rotate(540deg) scale(.7); }
 }
+
+/* modular per-agent apps · catalog picker + remove control */
+.modhost-catalog { display: flex; flex-wrap: wrap; gap: 6px; max-height: 260px; overflow-y: auto; padding: 4px 2px 2px; }
+.team-app-remove { border: 0; background: none; color: var(--muted); font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; padding: 2px 4px; }
+.team-app-remove:hover { color: #e0483f; }

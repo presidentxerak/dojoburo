@@ -1202,10 +1202,6 @@ export function DojoCity({ enterDojo, exit }: { enterDojo: () => void; exit: () 
       {co && <CompanyFiche co={co} onClose={() => setCo(null)} />}
 
       <div className="city-top">
-        <div className="city-title">
-          <h1>Dojo City</h1>
-          <p>A whole metropolis: hotels, shopping malls, hospitals, schools, parks and pools. Your building grows one floor per Dojo. Watch out for the giants roaming around.</p>
-        </div>
         <button className="btn tiny ghost city-exit" onClick={exit}>← Dashboard</button>
       </div>
 

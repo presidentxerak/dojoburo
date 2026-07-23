@@ -8,7 +8,7 @@ import { useWork } from '../agents/workStore'
 import { startConnect } from '../agents/workApi'
 import { ConnectorLogo } from './ConnectorLogo'
 
-export function StudioConnectors({ appIds, compact }: { appIds: string[]; compact?: boolean }) {
+export function StudioConnectors({ appIds, compact, onRemove }: { appIds: string[]; compact?: boolean; onRemove?: (id: string) => void }) {
   const tools = useWork((s) => s.tools)
   const backend = useWork((s) => s.backend)
   const loadedOnce = useWork((s) => s.loadedOnce)
@@ -48,6 +48,9 @@ export function StudioConnectors({ appIds, compact }: { appIds: string[]; compac
                   <button className="btn tiny" onClick={() => startConnect(c.id)}>Connect</button>
                 ) : (
                   <a className="cx-setup" href={`/guide/${c.id}`} target="_blank" rel="noreferrer" title="See how to set this app up">Set up</a>
+                )}
+                {onRemove && !connected && (
+                  <button className="team-app-remove" title={`Remove ${c.label} from this agent`} aria-label={`Remove ${c.label}`} onClick={() => onRemove(c.id)}>Remove</button>
                 )}
               </span>
             </li>
