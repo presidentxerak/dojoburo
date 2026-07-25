@@ -796,6 +796,9 @@ a:hover { text-decoration: underline; }
 /* mobile bottom navigation bar */
 .mbar { display: none; }
 @media (max-width: 720px) {
+  /* real height of the bottom bar (incl. the iOS safe area) · the chat launcher
+     and any other bottom-docked element position themselves against this. */
+  .app { --mbar-h: calc(56px + env(safe-area-inset-bottom, 0px)); }
   .mbar {
     display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
     background: color-mix(in srgb, var(--panel) 96%, transparent); backdrop-filter: blur(12px);
@@ -1273,8 +1276,13 @@ a:hover { text-decoration: underline; }
    whole screen and cover the nav bar). This block comes after it, so it wins. */
 @media (max-width: 720px) {
   .sb-launch-label { display: none; }
+  /* Sticky bottom-right, hugging just above the mobile bottom bar. The offset
+     tracks the real bar height (var --mbar-h, set on .app below) instead of a
+     magic number · on pages with no bar (landing, guide) it falls back to a
+     normal corner. z-index keeps it above the bar so it's never covered. */
   .sb-launch {
-    left: auto; right: 12px; bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    left: auto; right: 12px;
+    bottom: max(16px, calc(var(--mbar-h, 0px) + 10px));
     padding: 12px; width: 48px; height: 48px; justify-content: center; box-sizing: border-box;
   }
 }
