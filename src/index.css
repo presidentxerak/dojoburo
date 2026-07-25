@@ -5169,3 +5169,10 @@ html { scroll-behavior: smooth; }
 .modhost-catalog { display: flex; flex-wrap: wrap; gap: 6px; max-height: 260px; overflow-y: auto; padding: 4px 2px 2px; }
 .team-app-remove { border: 0; background: none; color: var(--muted); font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; padding: 2px 4px; }
 .team-app-remove:hover { color: #e0483f; }
+
+/* Dojo Guide · per-studio FAQ blocks */
+.dg2-studio { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+.dg2-studio:first-of-type { border-top: 0; padding-top: 0; }
+.dg2-studio h3.dg2-cat { margin: 0 0 8px; }
+.dg2-studio ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; }
+.dg2-studio ul li { line-height: 1.5; }

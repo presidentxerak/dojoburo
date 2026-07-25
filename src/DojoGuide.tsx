@@ -82,6 +82,65 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <p className="lp-note"><b>One brand, everywhere.</b> The company name and domain you pick in Brandi flow into Website, Growth/SEO, Business and Marketing, so every studio shows the same identity · your dojo always stays coherent.</p>
       </section>
 
+      <section className="lp-sec alt" id="studios-how">
+        <h2>Inside the studios · how each one works</h2>
+        <p className="lp-lead">Click a teammate to open its studio. The AI generates a first version instantly, then you keep full control · and everything below runs in your browser.</p>
+
+        <div className="dg2-studio">
+          <h3 className="dg2-cat">Brandi · Brand Studio — find a name &amp; build your identity</h3>
+          <ul>
+            <li>Describe your product, pick a few keywords, and it combines them into brandable names · reroll for more.</li>
+            <li><b>Real .com availability</b>, checked live in your browser (DNS-over-HTTPS): a <b>green check</b> means the domain is verified free at the registries; taken names show alternatives and other TLDs.</li>
+            <li>Generates a logo, colour palette and font pairing into a central <b>Brand Kit</b> that every other studio reuses · one identity everywhere.</li>
+          </ul>
+        </div>
+
+        <div className="dg2-studio">
+          <h3 className="dg2-cat">Weblos · Website Studio — a pro, block-based builder</h3>
+          <ul>
+            <li>Left panel <b>Pages</b> + <b>Styles</b> (Squarespace-style). Click any section to edit its text, image or video in place.</li>
+            <li>Global design: corner radius, border width &amp; colour, and an <b>interaction editor</b> for card &amp; button hover effects · all live.</li>
+            <li>Build a multi-page site with working navigation, add an online <b>Store</b> with a real cart, then <b>export a standalone HTML</b> file · nothing is uploaded. Colours &amp; fonts follow your Brand Kit.</li>
+          </ul>
+        </div>
+
+        <div className="dg2-studio">
+          <h3 className="dg2-cat">Marketus · Marketing Studio — one creative flow</h3>
+          <ul>
+            <li>Brief → Audience → Creatives → Export. It builds the audience and <b>5 brand-styled ad variants</b> (Feed &amp; Story) you can edit and regenerate.</li>
+            <li><b>Video editor</b>: import clips, trim, sequence on a timeline, add text overlays and an optional ElevenLabs voiceover (your key), export a real <code>.webm</code>.</li>
+            <li><b>Image editor</b> (filters, any social format, PNG export) and an <b>Assets</b> library that compresses images to WebP locally. Publish to X or LinkedIn once connected.</li>
+          </ul>
+        </div>
+
+        <div className="dg2-studio">
+          <h3 className="dg2-cat">Pumpi · Growth — SEO + leads together</h3>
+          <ul>
+            <li>SEO suite: a live <b>site audit</b> and on-page analysis of your own website, keyword research, a rank-tracker watchlist and a competitor list · honest empty states until an external data source is connected.</li>
+            <li><b>Leads (CRM)</b>: a pipeline board, CSV import, personalised outreach that merges each contact's details, and real <b>Gmail</b> sending or a live <b>HubSpot</b> pull.</li>
+          </ul>
+        </div>
+
+        <div className="dg2-studio">
+          <h3 className="dg2-cat">Busino · Business — finance &amp; analytics that explain themselves</h3>
+          <ul>
+            <li>Finance: import a CSV (or sync <b>QuickBooks</b>/<b>Xero</b>) and see revenue, expenses, cash, VAT and a 3-month forecast.</li>
+            <li>Analytics: CAC, LTV, LTV:CAC, ROI, growth and conversion with plain-language insights. Traffic reads from GA4 / Search Console when connected.</li>
+            <li>Sales won in the CRM and campaign budgets flow in automatically · no fake numbers, real activity only.</li>
+          </ul>
+        </div>
+
+        <div className="dg2-studio">
+          <h3 className="dg2-cat">Chief, Sentinel, Vaultor &amp; the group agents</h3>
+          <ul>
+            <li><b>Chief (CEO)</b>: tell it your goal in one sentence; it plans and delegates. "Launch Chief" chains brand → website → offer → ads → outreach on its own and emails a daily report.</li>
+            <li><b>Sentinel (Operations)</b>: set an autonomy level (Auto → Ultra) and a daily credit cap, an anti-loop guard, encrypted environment variables and safety switches (pause email, pause the company).</li>
+            <li><b>Vaultor (Billing)</b>: buy credit packs in your own currency by card · about one credit per task, no crypto.</li>
+            <li><b>Devi, Nexa, Helpi, Legi</b>: each shows <b>live data</b> from its connected apps (issues &amp; PRs, channels, tickets, documents) and fires one real action.</li>
+          </ul>
+        </div>
+      </section>
+
       <section className="lp-sec alt" id="what">
         <h2>1 · What a connector is</h2>
         <p className="lp-lead">A connector is a secure bridge between DojoBuro and one of your apps. Connecting is a one-time OAuth handshake: you approve access once, a token is stored encrypted on the server, and from then on the agent can act inside that app on your behalf. You never hand over a password.</p>
