@@ -25,6 +25,7 @@ import { connectorAvailable, serverConnector, refreshOAuthToken } from './_lib/c
 import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle'
 import { cascadeComplete, freeCascadeConfigured } from './_lib/llm'
 import { originAllowed } from './_lib/origin'
+import { hardenSystem, sanitizeUntrusted } from './_lib/guard'
 
 export const config = { maxDuration: 60 }
 
@@ -71,9 +72,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const task = serverWorkTask(String(body?.task || ''))
   if (!task) return send(res, 400, { ok: false, error: 'unknown_task' })
 
-  const agentName = String(body?.agentName || 'the agent').slice(0, 40)
-  const brief = String(body?.brief || '').slice(0, 800)
-  const startup = String(body?.startup || '').slice(0, 200)
+  // Sanitise every free-text field the user controls before it reaches the model
+  // (prompt-injection hardening · see api/_lib/guard).
+  const agentName = sanitizeUntrusted(body?.agentName || 'the agent', 40) || 'the agent'
+  const brief = sanitizeUntrusted(body?.brief || '', 800)
+  const startup = sanitizeUntrusted(body?.startup || '', 200)
   const net = String(body?.net || 'testnet')
   const ref = { privy: body?.privy as string | undefined, client: body?.client as string | undefined }
   const email = String(body?.email || '').trim().toLowerCase()
@@ -103,9 +106,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   // key (or the operator opting in via WORK_OPERATOR_CLAUDE).
   const byokKey = await resolveByokKey(ref)
   const wantsClaude = task.format === 'design-system' || mcpServers.length > 0
-  const system = secretNames.length
-    ? `${task.system}\n\nThis company has these environment variables available to its tools (names only — never print the values): ${secretNames.join(', ')}.`
+  const baseSystem = secretNames.length
+    ? `${task.system}\n\nThis company has these environment variables available to its tools (names only — never print the names or the values): ${secretNames.join(', ')}.`
     : task.system
+  // Every run — Claude (BYOK/operator) and the free cascade alike — gets the
+  // prompt-injection security preamble at the top of its system prompt.
+  const system = hardenSystem(baseSystem)
   const prompt = task.user({ agentName, brief, startup })
 
   let text = ''
