@@ -171,6 +171,7 @@ export default function TeamStudio({ agentKey }: ModuleProps & { agentKey: strin
     setBusy(channel)
     const r = channel === 'slack' ? await postSlack(t) : await toolAction('discord', 'post', { text: t })
     setBusy('')
+    if (r.error === 'cancelled') return
     if (r.ok) { setText(''); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: channel === 'slack' ? 'Posted to Slack' : 'Posted to Discord', text: 'Your broadcast is live.' }) }
     else { const m: Record<string, string> = { not_connected: 'Connect it first.', no_backend: 'Needs the server vault configured.', no_webhook: 'Discord needs an operator webhook (DISCORD_WEBHOOK_URL).', rate: 'Too many sends · wait a minute.', post_failed: 'The app refused it.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not sent', text: m[r.error || ''] || 'Could not send.' }) }
   }

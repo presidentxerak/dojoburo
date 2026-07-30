@@ -3,6 +3,13 @@
 // token ever crosses this boundary · the browser only sees connector status.
 import { useWorkshop, type ExtAgent } from '../workshop'
 import { useDojo } from '../store'
+import { ensureOutbound } from './outboundConsent'
+import { CONNECTOR_BY_ID } from '../data/connectors'
+
+// Action verbs that leave your org (send an email, post/broadcast, reply). These
+// are gated by a one-time user confirmation (see outboundConsent).
+const OUTBOUND_ACTIONS = new Set(['send', 'post', 'reply', 'broadcast'])
+const appLabel = (id: string) => CONNECTOR_BY_ID[id]?.label || id
 
 export interface ToolStatus {
   id: string
@@ -42,6 +49,7 @@ export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boole
 /** Send a real email from the user's connected Gmail. Degrades to a clear error
  *  when Gmail/DB aren't configured. */
 export async function sendGmail(to: string, subject: string, body: string): Promise<{ ok: boolean; error?: string }> {
+  if (!(await ensureOutbound('Gmail', 'send an email'))) return { ok: false, error: 'cancelled' }
   try {
     const r = ref()
     const res = await fetch('/api/tool-action', {
@@ -57,6 +65,9 @@ export async function sendGmail(to: string, subject: string, body: string): Prom
 
 /** Generic connector action (post/create/…) via /api/tool-action. */
 export async function toolAction(connector: string, action: string, payload: Record<string, unknown>): Promise<{ ok: boolean; error?: string; [k: string]: unknown }> {
+  if (OUTBOUND_ACTIONS.has(action) && !(await ensureOutbound(appLabel(connector), action === 'send' ? 'send' : action === 'reply' ? 'reply' : 'post'))) {
+    return { ok: false, error: 'cancelled' }
+  }
   try {
     const r = ref()
     const res = await fetch('/api/tool-action', {
@@ -72,6 +83,7 @@ export async function toolAction(connector: string, action: string, payload: Rec
 
 /** Post a message to the team's Slack from the user's connected Slack. */
 export async function postSlack(text: string, channel?: string): Promise<{ ok: boolean; error?: string }> {
+  if (!(await ensureOutbound('Slack', 'post'))) return { ok: false, error: 'cancelled' }
   try {
     const r = ref()
     const res = await fetch('/api/tool-action', {

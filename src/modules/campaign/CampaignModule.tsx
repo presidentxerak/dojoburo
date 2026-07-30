@@ -94,6 +94,7 @@ export default function CampaignModule({ dojoId, creativeTools = [] }: ModulePro
     setPublishing(connector)
     const r = await toolAction(connector, 'post', { text: connector === 'twitter' ? text.slice(0, 275) : text })
     setPublishing('')
+    if (r.error === 'cancelled') return
     const okTitle: Record<string, string> = { twitter: 'Posted to X', buffer: 'Queued to Buffer', linkedin: 'Posted to LinkedIn' }
     const okText: Record<string, string> = { twitter: 'Your post is live on X.', buffer: `Queued to ${r.profiles ?? ''} Buffer profile(s).`, linkedin: 'Your post is live on LinkedIn.' }
     if (r.ok) pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: okTitle[connector], text: okText[connector] })

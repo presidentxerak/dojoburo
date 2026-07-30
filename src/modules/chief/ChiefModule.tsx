@@ -93,6 +93,7 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
     setPosting(true)
     const r = await postSlack(text)
     setPosting(false)
+    if (r.error === 'cancelled') return
     if (r.ok) { setMsg(''); pushToast({ kind: 'event', badge: 'OK', color: '#4a154b', title: 'Posted to Slack', text: 'Your team update is live in Slack.' }) }
     else { const map: Record<string, string> = { not_connected: 'Connect Slack first (Connect apps).', no_backend: 'Slack posting needs the server vault configured.', rate: 'Too many posts · wait a minute.', post_failed: 'Slack refused the post · reconnect Slack.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not posted', text: map[r.error || ''] || 'Could not post to Slack.' }) }
   }

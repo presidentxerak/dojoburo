@@ -4,6 +4,7 @@ import { useDojo } from '../store'
 import { useWorkshop } from '../workshop'
 import { useWork } from '../agents/workStore'
 import { useEngine } from '../agents/engineStore'
+import { useOutboundConsent } from '../agents/outboundConsent'
 import { CURRENCY_LIST, type CurrencyCode } from '../data/currency'
 import { templateById } from '../data/templates'
 
@@ -37,6 +38,8 @@ export function SettingsModal() {
   const renameDojo = useWorkshop((s) => s.renameDojo)
   const openStudio = useWork((s) => s.openStudio)
   const engine = useEngine()
+  const outboundConsented = useOutboundConsent((s) => s.consented)
+  const resetOutboundConsent = useOutboundConsent((s) => s.reset)
   const [section, setSection] = useState<Section>('general')
 
   if (!open) return null
@@ -130,6 +133,11 @@ export function SettingsModal() {
               </div>
               <div className="set-field"><span>Pause outbound email</span>
                 <button className={`set-toggle${engine.pauseOutbound ? ' on' : ''}`} onClick={() => engine.setPauseOutbound(!engine.pauseOutbound)}>{engine.pauseOutbound ? 'Paused' : 'Active'}</button>
+              </div>
+              <div className="set-field"><span>Confirm before outbound actions<em className="set-hint">Ask once before any send/post/broadcast. {outboundConsented ? 'Already confirmed for this browser.' : 'You will be asked on the first outbound action.'}</em></span>
+                {outboundConsented
+                  ? <button className="set-toggle on" onClick={() => resetOutboundConsent()}>Re-enable the prompt</button>
+                  : <button className="set-toggle" disabled>Will ask once</button>}
               </div>
             </section>
           )}

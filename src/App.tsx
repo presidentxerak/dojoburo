@@ -11,6 +11,7 @@ import { DeliverableModal } from './components/agents/DeliverableModal'
 import { SettingsModal } from './components/SettingsModal'
 import { DojosManager } from './components/DojosManager'
 import { CommandPalette } from './components/CommandPalette'
+import { OutboundConsentModal } from './components/OutboundConsentModal'
 import { ArrangeGrid } from './components/dashboard/ArrangeGrid'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
@@ -140,6 +141,7 @@ export default function App() {
         </div>
       )}
 
+      <OutboundConsentModal />
       <CommandPalette openDojo={() => setDojoFull(true)} showDashboard={() => setDojoFull(false)} />
       <Toasts />
       <SnapshotFactory />

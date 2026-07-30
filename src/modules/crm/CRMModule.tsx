@@ -54,6 +54,7 @@ export default function CRMModule({ dojoId }: ModuleProps) {
     setSending(true)
     const r = await sendGmail(selc.email, msg.subject, msg.body)
     setSending(false)
+    if (r.error === 'cancelled') return
     if (r.ok) {
       pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: 'Email sent', text: `Sent to ${selc.email} from your Gmail.` })
       if (selc.stage === 'nouveau') update(selc.id, { stage: 'contacte' as Stage })
