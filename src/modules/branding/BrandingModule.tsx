@@ -13,8 +13,8 @@ import { useWork } from '../../agents/workStore'
 import { toolAction } from '../../agents/workApi'
 import { useDojo } from '../../store'
 import {
-  type BrandKit, type LogoLayout, type LogoStyle, type MarkShape, defaultKit, loadBrandKit, saveBrandKit,
-  generatePalette, logoSvg, logoLockups, FONT_PAIRS, SHAPES,
+  type BrandKit, type LogoLayout, type LogoStyle, type MarkShape, type BgShape, defaultKit, loadBrandKit, saveBrandKit,
+  generatePalette, logoSvg, logoLockups, FONT_PAIRS, SHAPES, BG_SHAPES,
 } from '../../lib/brand'
 import { zipStore } from '../../lib/zip'
 import { loadSite, saveSite } from '../../lib/site'
@@ -249,13 +249,15 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
     pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Logo pack ready', text: `${entries.length} SVGs downloaded as a .zip.` })
   }
   const SHUFFLE_SHAPES: MarkShape[] = SHAPES.map((s) => s.id)
+  const SHUFFLE_BG: BgShape[] = ['squircle', 'circle', 'hex', 'shield', 'square']
   const shuffleLogo = () => {
     const shape = SHUFFLE_SHAPES[Math.floor(Math.random() * SHUFFLE_SHAPES.length)]
+    const bgShape = SHUFFLE_BG[Math.floor(Math.random() * SHUFFLE_BG.length)]
     const layout = (['mark-left', 'mark-top', 'mark-only'] as LogoLayout[])[Math.floor(Math.random() * 3)]
     const hue = Math.floor(Math.random() * 360)
-    patch({ shape, layout, hue, palette: generatePalette(hue, kit.scheme) })
+    patch({ shape, bgShape, layout, hue, palette: generatePalette(hue, kit.scheme) })
   }
-  const regenLogo = () => { const hue = hueFrom(kit.name || 'brand'); patch({ shape: 'monogram', layout: 'mark-left', hue, palette: generatePalette(hue, kit.scheme) }) }
+  const regenLogo = () => { const hue = hueFrom(kit.name || 'brand'); patch({ shape: 'monogram', bgShape: 'squircle', layout: 'mark-left', hue, palette: generatePalette(hue, kit.scheme) }) }
 
   // downloads
   const downloadLogo = () => {
@@ -689,6 +691,8 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
             <>
               <div className="sq-eyebrow">Logo mark</div>
               <div className="bw-cloud">{SHAPES.map((s) => <button key={s.id} className={`bw-chip${kit.shape === s.id ? ' on' : ''}`} onClick={() => patchSave({ shape: s.id })}>{s.label}</button>)}</div>
+              <div className="sq-eyebrow" style={{ marginTop: 10 }}>Backdrop shape</div>
+              <div className="bw-cloud">{BG_SHAPES.map((s) => <button key={s.id} className={`bw-chip${(kit.bgShape ?? 'squircle') === s.id ? ' on' : ''}`} onClick={() => patchSave({ bgShape: s.id })}>{s.label}</button>)}</div>
               <div className="sq-eyebrow" style={{ marginTop: 10 }}>Layout</div>
               <div className="bw-cloud">{LAYOUTS.map((l) => <button key={l} className={`bw-chip${kit.layout === l ? ' on' : ''}`} onClick={() => patchSave({ layout: l })}>{l.replace('-', ' ')}</button>)}</div>
               <div className="sq-eyebrow" style={{ marginTop: 10 }}>Palette · shared with your Website &amp; Marketing</div>
