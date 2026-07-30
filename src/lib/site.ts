@@ -141,6 +141,9 @@ export const SITE_LAYOUTS: { id: SiteLayout; label: string; hint: string }[] = [
 
 const uid = () => `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
 const esc = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+// URL for an HTML attribute · escapes quotes/angle-brackets so a crafted src
+// can't break out of the attribute (matters for the CSP-less EXPORTED site).
+const escUrl = (s: unknown) => esc(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 
 // ---- block catalog (defaults + label) --------------------------------------
 export const BLOCK_LABELS: Record<BlockType, string> = {
@@ -355,14 +358,14 @@ export function blockHtml(b: Block): string {
     case 'image': {
       const src = String(p.src || '')
       const inner = src
-        ? `<img src="${src}" alt="${esc(p.alt)}"/>`
+        ? `<img src="${escUrl(src)}" alt="${esc(p.alt)}"/>`
         : `<div class="ph ph-big"></div>`
       return `<section class="b b-image">${inner}${p.caption ? `<p class="cap">${esc(p.caption)}</p>` : ''}</section>`
     }
     case 'video': {
       const src = String(p.src || '')
       const inner = src
-        ? `<video src="${src}" controls playsinline preload="metadata"></video>`
+        ? `<video src="${escUrl(src)}" controls playsinline preload="metadata"></video>`
         : `<div class="ph ph-big ph-video">▶</div>`
       return `<section class="b b-video">${inner}${p.caption ? `<p class="cap">${esc(p.caption)}</p>` : ''}</section>`
     }
@@ -371,7 +374,7 @@ export function blockHtml(b: Block): string {
       const cur = String(p.cur || '$')
       const cards = products.map((pr) => {
         const price = Number(pr.price) || 0
-        const media = pr.img ? `<img src="${pr.img}" alt="${esc(pr.name)}"/>` : `<div class="ph"></div>`
+        const media = pr.img ? `<img src="${escUrl(pr.img)}" alt="${esc(pr.name)}"/>` : `<div class="ph"></div>`
         return `<div class="prod">${media}<div class="prod-b"><h3>${esc(pr.name)}</h3>${pr.desc ? `<p>${esc(pr.desc)}</p>` : ''}<div class="prod-f"><span class="prod-price">${esc(cur)}${price.toFixed(2)}</span><button class="btn prod-add" type="button" data-add="${esc(pr.id)}" data-name="${esc(pr.name)}" data-price="${price}">Add to cart</button></div></div></div>`
       }).join('')
       return `<section class="b b-store"><h2>${esc(p.title)}</h2>${p.subtitle ? `<p class="store-sub">${esc(p.subtitle)}</p>` : ''}<div class="prod-grid">${cards || '<p class="store-empty">No products yet.</p>'}</div></section>`

@@ -26,12 +26,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   if (req.method === 'OPTIONS') return send(res, 204, {})
   if (req.method !== 'POST') return send(res, 405, { ok: false, error: 'method' })
 
-  // origin lock
+  // origin lock · this endpoint moves real funds, so — unlike read endpoints —
+  // we REQUIRE a valid same-site Origin. A request with no Origin header (curl,
+  // server-to-server) is refused rather than allowed through.
   const origin = header(req, 'origin')
   const host = header(req, 'host') || ''
-  if (origin) {
-    if (!originAllowed(origin, host, ALLOWED_ORIGIN)) return send(res, 403, { ok: false, error: 'origin' })
-  }
+  if (!origin || !originAllowed(origin, host, ALLOWED_ORIGIN)) return send(res, 403, { ok: false, error: 'origin' })
   const ip = (header(req, 'x-forwarded-for') || '').split(',')[0].trim() || 'anon'
   if (!allow(ip)) return send(res, 429, { ok: false, error: 'rate' })
 
@@ -49,11 +49,14 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   let amountXrp = Number(body?.amountXrp)
   if (!Number.isFinite(amountXrp) || amountXrp <= 0) amountXrp = 0.15
   amountXrp = Math.min(amountXrp, MAX_XRP)
-  // optional destination must be a plausible classic address, else self-pay
-  const destination = typeof body?.destination === 'string' && /^r[1-9A-HJ-NP-Za-km-z]{24,35}$/.test(body.destination) ? body.destination : undefined
+  // SECURITY: the payment destination is NEVER taken from the request. Letting a
+  // caller choose where the hot wallet pays would be a fund-drain vector. This
+  // ad-hoc skill settlement always self-pays (an on-ledger, x402-tagged receipt);
+  // real fiat-topup payouts use a server-side destination (checkout-webhook /
+  // settle-pending), bound to a DB row, never to a client-supplied value.
 
   try {
-    const r = await settleX402({ skill, invoice, amountXrp, note, destination })
+    const r = await settleX402({ skill, invoice, amountXrp, note })
     return send(res, 200, {
       ok: r.result === 'tesSUCCESS' && r.validated,
       hash: r.hash,

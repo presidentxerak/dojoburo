@@ -12,7 +12,9 @@ function inline(s: string): string {
   t = t.replace(/`([^`]+)`/g, '<code>$1</code>')
   t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
   t = t.replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>')
-  t = t.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+  // URL excludes quotes/spaces/< > so a crafted link can't break out of the
+  // href attribute and inject event handlers (defense-in-depth; CSP also blocks).
+  t = t.replace(/\[([^\]]+)\]\((https?:[^)"'<>\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
   return t
 }
 

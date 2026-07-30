@@ -50,7 +50,7 @@ function Sparkline({ series }: { series: { sessions: number }[] }) {
 }
 
 // ---- shared data hook -------------------------------------------------------
-export interface SeoBundle { dojoId: string; siteName: string; domain: string; hasSite: boolean; loading: boolean; audit: AuditReport | null; onpage: OnPage | null }
+export interface SeoBundle { dojoId: string; siteName: string; domain: string; hasSite: boolean; loading: boolean; audit: AuditReport | null; onpage: OnPage | null; site: SiteDoc | null }
 export function useSeoData(dojoId: string, dojoName: string): SeoBundle {
   const [site, setSite] = useState<SiteDoc | null>(null)
   const [hasSite, setHasSite] = useState(false)
@@ -69,7 +69,7 @@ export function useSeoData(dojoId: string, dojoName: string): SeoBundle {
   // company name/domain come from the shared brand (falls back to the site/dojo)
   const siteName = ident?.name || site?.name || dojoName || 'My company'
   const domain = ident?.domain || domainFor(site?.name || dojoName)
-  return { dojoId, siteName, domain, hasSite, loading, audit, onpage }
+  return { dojoId, siteName, domain, hasSite, loading, audit, onpage, site }
 }
 
 // ---- building blocks --------------------------------------------------------
@@ -192,8 +192,11 @@ export function KeywordResearch({ b }: { b: SeoBundle }) {
   const [watch, addWatch] = useWatch(b.dojoId)
   const watched = useMemo(() => new Set(watch.map((w) => w.keyword)), [watch])
   if (!b.hasSite) return <div className="se-wrap"><Head title="Keyword research" domain={b.domain} hasSite={b.hasSite} /><NoSite /></div>
-  const run = () => setIdeas(keywordIdeas(q, { name: b.siteName, blocks: [], updatedAt: 0 } as SiteDoc))
-  const shown = ideas || keywordIdeas('', { name: b.siteName, blocks: [], updatedAt: 0 } as SiteDoc)
+  // Use the REAL loaded site so "On page? / Gap" reflects the actual copy, not an
+  // empty synthetic doc (which made every idea read as a Gap).
+  const seoSite = b.site ?? ({ name: b.siteName, blocks: [], updatedAt: 0 } as SiteDoc)
+  const run = () => setIdeas(keywordIdeas(q, seoSite))
+  const shown = ideas || keywordIdeas('', seoSite)
   const add = (k: string) => { addWatch(k); pushToast({ kind: 'event', badge: 'SEO', color: '#d98c17', title: 'Added to tracker', text: `"${k}" is on your rank watchlist.` }) }
   return (
     <div className="se-wrap">

@@ -134,7 +134,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <h3 className="dg2-cat">Chief, Sentinel, Vaultor &amp; the group agents</h3>
           <ul>
             <li><b>Chief (CEO)</b>: tell it your goal in one sentence; it plans and delegates. "Launch Chief" chains brand → website → offer → ads → outreach on its own and emails a daily report.</li>
-            <li><b>Sentinel (Operations)</b>: set an autonomy level (Auto → Ultra) and a daily credit cap, an anti-loop guard, encrypted environment variables and safety switches (pause email, pause the company).</li>
+            <li><b>Sentinel (Security Guardian)</b>: set an autonomy level (Auto → Ultra) and a daily credit cap, an anti-loop guard, encrypted environment variables and safety switches (pause email, pause the company).</li>
             <li><b>Vaultor (Billing)</b>: buy credit packs in your own currency by card · about one credit per task, no crypto.</li>
             <li><b>Devi, Nexa, Helpi, Legi</b>: each shows <b>live data</b> from its connected apps (issues &amp; PRs, channels, tickets, documents) and fires one real action.</li>
           </ul>
@@ -285,7 +285,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
             </ul>
           </div>
         </div>
-        <p className="lp-note">DojoBuro ships a strict Content-Security-Policy, security headers (HSTS, no-sniff, frame-deny), server-side rate limits and spending caps, bot/scraper filtering at the edge, and keeps every model + connector secret out of the browser.</p>
+        <p className="lp-note">DojoBuro ships a strict Content-Security-Policy, security headers (HSTS, no-sniff, frame-deny), server-side rate limits and spending caps, bot/scraper filtering at the edge, and keeps OAuth connector tokens and the operator's model key in a server-side encrypted vault. Note: keys you bring yourself (e.g. an ElevenLabs voice key) and any local wallet material stay in your browser — treat this browser like your own device.</p>
         <p className="lp-note"><b>Prompt-injection defense.</b> When an agent reads content from a connected app (an email, an issue, a ticket, a document), that content is treated as <b>untrusted data, never as instructions</b>. Every agent run carries a security preamble: it won't obey commands hidden in tool output, won't reveal your secrets or env vars, and won't send or share data to anyone you didn't explicitly name · it prefers drafts and never deletes. Your free-text briefs are sanitized too, and deliverables render as plain text (no raw HTML/scripts). As a final safety net, the <b>first</b> outbound action (an email, a post, a broadcast) asks for your explicit confirmation · after you confirm once, it won't ask again (re-enable it anytime in Settings → Automation &amp; safety).</p>
       </section>
 

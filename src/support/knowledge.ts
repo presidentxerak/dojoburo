@@ -120,7 +120,7 @@ export const KB: KBTopic[] = [
     id: 'security',
     chip: 'Security & privacy',
     answer:
-      'There is no crypto for you to secure · no wallet, no seed, no coins. You just hold a credits balance, and payments settle on a fast rail behind the scenes. The app ships with a strict Content-Security-Policy, security headers and scraper protection. App-key, connector tokens and model API keys live only on the server · never in your browser · behind rate limits and spending caps.',
+      'There is no crypto for you to secure · no wallet, no seed, no coins. You just hold a credits balance, and payments settle on a fast rail behind the scenes. The app ships with a strict Content-Security-Policy, security headers and scraper protection. OAuth connector tokens and the operator model key live in a server-side encrypted vault, behind rate limits and spending caps. Keys you bring yourself (e.g. an ElevenLabs voice key) and any local wallet material stay in your browser, so treat this browser like your own device.',
     links: [
       { label: 'Security details', href: '#prod' },
       { label: 'Credits & profile', href: '#profile' },

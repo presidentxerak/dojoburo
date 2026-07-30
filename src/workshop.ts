@@ -183,24 +183,28 @@ function makeProfessionsDojo(ids: string[]): Dojo {
  *  loses their setup while everyone gains the new teammates. */
 function ensureRoleCrew(d: Dojo): Dojo {
   const agents = Array.isArray(d.agents) ? d.agents : []
-  // custom (user-created) agents are always kept · they carry their own identity.
-  const custom = agents.filter((a) => a.custom)
-  const allPresent = ROLE_IDS.every((id) => agents.some((a) => a.role === id)) && agents.every((a) => a.role || a.custom)
+  // Any agent the user created — custom teammates AND plain agents added in the
+  // Studio — is always kept. "extras" = everything that isn't a canonical role
+  // agent, so no user-made agent is ever dropped on migration.
+  const extras = agents.filter((a) => !(a.role && ROLE_BY_ID[a.role]))
+  // valid = every role agent is present (extras are always preserved, so their
+  // mere presence must NOT force a rebuild).
+  const allPresent = ROLE_IDS.every((id) => agents.some((a) => a.role === id))
   if (allPresent) return d
   const tpl = templateById(d.template)
   // role-tagged agents we can keep as-is (positions, skins, hidden flags, edits).
   const tagged = agents.filter((a) => a.role && ROLE_BY_ID[a.role])
   // a crew with NO role tags at all → a pre-role-agent dojo · rebuild the role
-  // crew fresh, but never discard any custom agents the user has created.
+  // crew fresh, but never discard any agents the user has created.
   if (tagged.length === 0) {
-    const merged = [...roleCrew(tpl.skinTheme), ...custom].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
+    const merged = [...roleCrew(tpl.skinTheme), ...extras].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
     return { ...d, agents: merged }
   }
-  // otherwise keep what's there (roles + customs) and append the missing roles.
+  // otherwise keep what's there (roles + user agents) and append the missing roles.
   const have = new Set(tagged.map((a) => a.role))
   const seed = roleCrew(tpl.skinTheme)
   const missing = seed.filter((a) => a.role && !have.has(a.role))
-  const merged = [...tagged, ...missing, ...custom].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
+  const merged = [...tagged, ...missing, ...extras].map((a, i) => ({ ...a, gx: i % GRID.cols, gy: Math.floor(i / GRID.cols) }))
   return { ...d, agents: merged }
 }
 
@@ -433,6 +437,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
           }),
         }
       })
+      persist() // rearrangements are kept even if no other save fires
     },
   }
 })
