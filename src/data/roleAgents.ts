@@ -114,6 +114,29 @@ const SPECS: Spec[] = [
     desc: 'Keeps your AI efficient, secure and under control.',
     tint: '#5b6472', dept: 'Ops', apps: [],
   },
+  // --- specialists · not part of the classic company crew. They exist so a
+  // project archetype (a campaign, a book, an app…) can compose the exact team
+  // that job needs. Added to a dojo by an archetype, or by hand from the roster.
+  {
+    id: 'scout', code: 'Scout', title: 'Research Analyst',
+    desc: 'Digs into the market, the competitors and the audience, and briefs the team.',
+    tint: '#0ea5e9', dept: 'Product', core: false, apps: ['notion', 'gdrive'],
+  },
+  {
+    id: 'scribe', code: 'Scribe', title: 'Writer & Editor',
+    desc: 'Writes and edits long-form: books, articles, scripts and documentation.',
+    tint: '#c026d3', dept: 'Product', core: false, apps: ['notion', 'gdrive'],
+  },
+  {
+    id: 'deck', code: 'Deck', title: 'Presentation Designer',
+    desc: 'Turns the work into clear decks, one-pagers and pitch material.',
+    tint: '#f59e0b', dept: 'Product', core: false, apps: ['gdrive', 'canva'],
+  },
+  {
+    id: 'pixel', code: 'Pixel', title: 'Visual Designer',
+    desc: 'Creates on-brand visuals, covers and image assets.',
+    tint: '#ec4899', dept: 'Product', core: false, apps: ['figma', 'canva', 'cloudinary'],
+  },
 ]
 
 export const ROLE_AGENTS: RoleAgent[] = SPECS.map((s) => ({
@@ -123,6 +146,16 @@ export const ROLE_AGENTS: RoleAgent[] = SPECS.map((s) => ({
 
 export const ROLE_BY_ID: Record<string, RoleAgent> = Object.fromEntries(ROLE_AGENTS.map((r) => [r.id, r]))
 export const ROLE_IDS: string[] = ROLE_AGENTS.map((r) => r.id)
+
+/** The classic "run a company" crew · the twelve agents a full-company dojo
+ *  seeds. The specialists (Scout, Scribe, Deck, Pixel) are deliberately NOT in
+ *  here: they join a dojo only when a project archetype asks for them, so an
+ *  existing company dojo never changes. */
+export const COMPANY_IDS: string[] = [
+  'chief', 'brandi', 'weblos', 'devi', 'marketus', 'pumpi',
+  'nexa', 'helpi', 'busino', 'vaultor', 'legi', 'sentinel',
+]
+export const COMPANY_AGENTS: RoleAgent[] = COMPANY_IDS.map((id) => ROLE_BY_ID[id]).filter(Boolean)
 
 /** The eight agents seeded into every dojo. */
 export const CORE_AGENTS: RoleAgent[] = ROLE_AGENTS.filter((r) => r.core)

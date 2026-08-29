@@ -4,6 +4,7 @@ import { useWork } from '../../agents/workStore'
 import { listSecrets, saveSecret as apiSaveSecret, removeSecret as apiRemoveSecret, type ServerSecret } from '../../agents/workApi'
 import { useDojo } from '../../store'
 import { ArrangeGrid } from './ArrangeGrid'
+import { LoopPanel } from './LoopPanel'
 import { CompanyReport } from './CompanyReport'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
 import { useSecrets } from '../../agents/secretsStore'
@@ -546,6 +547,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         <button className="dash-qlink" onClick={() => openPage('busino', 'analytics')}>Analytics <span>CAC, LTV, ROI, conversion</span></button>
         <button className="dash-qlink" onClick={() => openPage('pumpi', 'leads')}>Leads <span>Pipeline &amp; outreach (CRM)</span></button>
       </div>
+
+      {/* Project loop · the crew's ordered run sheet (archetype projects only) */}
+      {dojo?.archetype && <LoopPanel dojoId={dojo.id} />}
 
       {/* Chief quick action · the only orchestration entry point, above the roster */}
       <div className="ceo-quick" style={{ ['--dc' as string]: ROLE_BY_ID.chief.tint }}>

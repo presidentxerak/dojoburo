@@ -7,6 +7,7 @@ import { ConnectorLogo } from './components/ConnectorLogo'
 import { CONNECTORS, type ConnectorCategory } from './data/connectors'
 import { connectorById, userSteps, operatorSteps, REDIRECT_PATH } from './data/connectorGuide'
 import { StudioTeam } from './components/landing/TeamCards'
+import { Tutorial } from './components/guide/Tutorial'
 
 // The Dojo Guide · a full page (not a modal) in the landing page's visual
 // language: same title/subtitle/text sizes, same cards. It covers connectors
@@ -55,6 +56,12 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <div className="lp-badges">
           <span>12 studios · 100% local</span><span>{CONNECTORS.length} connectors</span><span>OAuth · encrypted vault</span><span>Cloud or local</span>
         </div>
+      </section>
+
+      <section className="lp-sec" id="walkthrough">
+        <h2>See it in 60 seconds</h2>
+        <p className="lp-lead">The whole process, animated · from an empty pipeline to finished deliverables. Step through it, or hit <b>Play all</b>.</p>
+        <Tutorial />
       </section>
 
       <section className="lp-sec" id="how">

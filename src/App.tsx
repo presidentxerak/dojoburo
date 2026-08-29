@@ -13,6 +13,7 @@ import { DojosManager } from './components/DojosManager'
 import { CommandPalette } from './components/CommandPalette'
 import { OutboundConsentModal } from './components/OutboundConsentModal'
 import { ArrangeGrid } from './components/dashboard/ArrangeGrid'
+import { PipelineHome } from './components/home/PipelineHome'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
 import { useWork } from './agents/workStore'
@@ -34,6 +35,9 @@ export default function App() {
   const needsAuth = !account && privyConfigured()
   const createIntent = useWork((s) => s.createIntent)
 
+  // 'home' = the pipeline of projects (the landing surface); 'dojo' = working
+  // inside one project's 3D office.
+  const [view, setView] = useState<'home' | 'dojo'>('home')
   // the dojo fills the window on arrival (centered), then reveals the agent's
   // dashboard when you pick an agent.
   const [dojoFull, setDojoFull] = useState(true)
@@ -110,6 +114,34 @@ export default function App() {
     return () => { cancelled = true; clearTimeout(timer) }
   }, [fireEvent])
 
+  // The HOME is the pipeline of projects. Opening a project drops you into its
+  // 3D office; "Home" in the bottom bar comes back here.
+  if (view === 'home') {
+    return (
+      <div className="app home-layout">
+        <Defs />
+        <TopBar />
+        <div className="home-main">
+          <PipelineHome onOpenProject={() => { setView('dojo'); setDojoFull(true) }} />
+        </div>
+        <OutboundConsentModal />
+        <CommandPalette openDojo={() => { setView('dojo'); setDojoFull(true) }} showDashboard={() => { setView('dojo'); setDojoFull(false) }} />
+        <Toasts />
+        <SettingsModal />
+        <DojosManager />
+        <SupportBot />
+        <nav className="mbar mbar-5" aria-label="Navigation">
+          <button className="on"><span className="mbar-ic">▦</span>Home</button>
+          <button onClick={() => { setView('dojo'); setDojoFull(true) }}><span className="mbar-ic">◳</span>Dojo</button>
+          <button onClick={() => useWork.getState().openStudio('studio')}><span className="mbar-ic">✎</span>Studio</button>
+          <button onClick={() => { location.hash = 'connect' }}><span className="mbar-ic">⊞</span>Connect</button>
+          <button onClick={() => { location.hash = 'city' }}><span className="mbar-ic">⌂</span>City</button>
+        </nav>
+        {needsAuth && <AuthGate />}
+      </div>
+    )
+  }
+
   return (
     <div className={`app dash-layout${dojoFull ? ' dojo-full' : ''}`}>
       <Defs />
@@ -118,6 +150,7 @@ export default function App() {
       <div className="dash-main">
         <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
           <div className="scene-bg"><Scene3D /></div>
+          <button className="dojo-home-btn" onClick={() => { selectAgent(null); setView('home') }} title="Back to your pipeline">‹ Pipeline</button>
           <button className="dojo-arrange-btn" onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Arrange team</button>
         </div>
 
@@ -154,14 +187,14 @@ export default function App() {
       {/* mobile bottom navigation bar · Dojo (the 3D office) · CEO (the company
           dashboard that manages every agent) · Studio · Connect apps · City */}
       <nav className="mbar mbar-5" aria-label="Navigation">
+        <button onClick={() => { selectAgent(null); setView('home') }}>
+          <span className="mbar-ic">▦</span>Home
+        </button>
         <button className={dojoFull ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(true) }}>
           <span className="mbar-ic">◳</span>Dojo
         </button>
         <button className={!dojoFull && !selected ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(false); document.querySelector('.dash-side')?.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-          <span className="mbar-ic">▤</span>CEO
-        </button>
-        <button onClick={() => useWork.getState().openStudio('studio')}>
-          <span className="mbar-ic">✎</span>Studio
+          <span className="mbar-ic">▤</span>Team
         </button>
         <button onClick={() => { location.hash = 'connect' }}>
           <span className="mbar-ic">⊞</span>Connect

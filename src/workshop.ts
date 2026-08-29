@@ -5,7 +5,8 @@
 import { create } from 'zustand'
 import type { Department } from './data/agents'
 import { SKINS, skinById, variedSkins, crewSkins, skinsForTheme } from './data/skins'
-import { ROLE_AGENTS, ROLE_IDS, ROLE_BY_ID } from './data/roleAgents'
+import { ROLE_BY_ID, COMPANY_IDS } from './data/roleAgents'
+import { ARCHETYPE_BY_ID } from './data/archetypes'
 import { defaultTasksFor } from './data/functions'
 import type { CurrencyCode } from './data/currency'
 import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
@@ -68,6 +69,12 @@ export interface Dojo {
   /** environment template id (see data/templates) · drives the 3D scene look */
   template: string
   agents: WAgent[]
+  /** the project archetype this dojo was created from (data/archetypes). When
+   *  set, the dojo keeps EXACTLY its dedicated crew · it is never migrated to
+   *  the twelve-agent company. Undefined = a classic full-company dojo. */
+  archetype?: string
+  /** what this project is trying to achieve · feeds the loop's brief */
+  goal?: string
 }
 
 export interface Account {
@@ -100,6 +107,13 @@ interface WorkshopState {
   createDojo: (name?: string, templateId?: string) => void
   createDojoForProfession: (professionId: string) => void
   createDojoForProfessions: (professionIds: string[]) => void
+  /** Create a PROJECT dojo from an archetype (data/archetypes): it is staffed
+   *  with exactly that archetype's crew. Returns the new dojo id. */
+  createDojoFromArchetype: (archetypeId: string, name?: string, goal?: string) => string | null
+  /** The one-line goal of a project · used as the brief when its loop runs. */
+  setDojoGoal: (id: string, goal: string) => void
+  /** Move a project up (-1) or down (+1) in the pipeline order. */
+  reorderDojo: (id: string, dir: -1 | 1) => void
   renameDojo: (id: string, name: string) => void
   setDojoTemplate: (id: string, templateId: string) => void
   deleteDojo: (id: string) => void
@@ -124,31 +138,38 @@ const KEY = 'dojoburo.workshop.v1'
 const uid = () => Math.random().toString(36).slice(2, 10)
 const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People', 'Ops']
 
-// Every company is run by the SAME 10 functional agents (see data/roleAgents).
-// The template/profession only changes the 3D world and the skin palette · not
-// the crew composition · so the roster, the scene and the dashboards always
-// match. Each role agent is seeded onto the grid with a skin from the theme.
-// Seed the FULL crew · all role agents (the eight core plus Engineering,
-// Comms, Support and Legal) in their logical pipeline order, so every dojo
-// ships with the complete team. Users hide the ones they don't need.
+/** Build a crew from an explicit list of role ids · this is how a PROJECT dojo
+ *  gets exactly the team its archetype calls for (a campaign crew, a book crew…)
+ *  instead of a fixed org chart. */
+function crewFromRoles(roleIds: string[], skinTheme: string): WAgent[] {
+  const ids = roleIds.filter((id) => ROLE_BY_ID[id])
+  const skins = crewSkins(skinTheme, Math.max(1, ids.length))
+  return ids.map((id, i) => {
+    const r = ROLE_BY_ID[id]
+    return {
+      id: 'a_' + uid(),
+      name: r.name,
+      fn: r.dept,
+      role: r.id,
+      skinId: skins[i % skins.length].id,
+      tasks: defaultTasksFor(r.dept),
+      budgetXrp: 5,
+      gx: i % GRID.cols,
+      gy: Math.floor(i / GRID.cols),
+    }
+  })
+}
+
+// The classic "run a company" crew · the twelve company agents (NOT the project
+// specialists, which only join when an archetype asks for them). The template
+// only changes the 3D world and the skin palette, never the crew.
 function roleCrew(skinTheme: string): WAgent[] {
-  const skins = crewSkins(skinTheme, ROLE_AGENTS.length)
-  return ROLE_AGENTS.map((r, i) => ({
-    id: 'a_' + uid(),
-    name: r.name,
-    fn: r.dept,
-    role: r.id,
-    skinId: skins[i % skins.length].id,
-    tasks: defaultTasksFor(r.dept),
-    budgetXrp: 5,
-    gx: i % GRID.cols,
-    gy: Math.floor(i / GRID.cols),
-  }))
+  return crewFromRoles(COMPANY_IDS, skinTheme)
 }
 
 // The default HQ · role crew in the default dojo world with a varied palette.
 function seedDojo(): Dojo {
-  const varied = variedSkins(ROLE_AGENTS.length)
+  const varied = variedSkins(COMPANY_IDS.length)
   const agents = roleCrew('dojo').map((a, i) => ({ ...a, skinId: varied[i % varied.length].id }))
   return { id: uid(), name: 'HQ Dojo', template: 'dojo', agents }
 }
@@ -183,13 +204,22 @@ function makeProfessionsDojo(ids: string[]): Dojo {
  *  loses their setup while everyone gains the new teammates. */
 function ensureRoleCrew(d: Dojo): Dojo {
   const agents = Array.isArray(d.agents) ? d.agents : []
+  // A PROJECT dojo owns its crew: an archetype picked exactly the agents that
+  // job needs, so we never top it up to the twelve-agent company. Only guard
+  // against a corrupted/empty crew.
+  if (d.archetype) {
+    if (agents.length) return d
+    const a = ARCHETYPE_BY_ID[d.archetype]
+    return a ? { ...d, agents: crewFromRoles(a.agents, templateById(d.template).skinTheme) } : d
+  }
   // Any agent the user created — custom teammates AND plain agents added in the
   // Studio — is always kept. "extras" = everything that isn't a canonical role
   // agent, so no user-made agent is ever dropped on migration.
   const extras = agents.filter((a) => !(a.role && ROLE_BY_ID[a.role]))
-  // valid = every role agent is present (extras are always preserved, so their
-  // mere presence must NOT force a rebuild).
-  const allPresent = ROLE_IDS.every((id) => agents.some((a) => a.role === id))
+  // valid = every COMPANY agent is present (the project specialists are opt-in,
+  // so they must never be force-added here; extras are always preserved, so
+  // their mere presence must NOT force a rebuild either).
+  const allPresent = COMPANY_IDS.every((id) => agents.some((a) => a.role === id))
   if (allPresent) return d
   const tpl = templateById(d.template)
   // role-tagged agents we can keep as-is (positions, skins, hidden flags, edits).
@@ -314,6 +344,37 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     createDojoForProfessions: (professionIds) => {
       const d = makeProfessionsDojo(professionIds)
       set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))
+    },
+    createDojoFromArchetype: (archetypeId, name, goal) => {
+      const a = ARCHETYPE_BY_ID[archetypeId]
+      if (!a) return null
+      const tpl = templateById(a.template)
+      const d: Dojo = {
+        id: uid(),
+        name: name?.trim() || a.label,
+        template: tpl.id,
+        agents: crewFromRoles(a.agents, tpl.skinTheme),
+        archetype: a.id,
+        goal: goal?.trim() || '',
+      }
+      set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))
+      persist()
+      return d.id
+    },
+    setDojoGoal: (id, goal) => {
+      set((s) => ({ dojos: s.dojos.map((d) => (d.id === id ? { ...d, goal: goal.slice(0, 240) } : d)), dirty: true }))
+      persist()
+    },
+    reorderDojo: (id, dir) => {
+      set((s) => {
+        const i = s.dojos.findIndex((d) => d.id === id)
+        const j = i + dir
+        if (i < 0 || j < 0 || j >= s.dojos.length) return {}
+        const dojos = [...s.dojos]
+        ;[dojos[i], dojos[j]] = [dojos[j], dojos[i]]
+        return { dojos, dirty: true }
+      })
+      persist()
     },
     renameDojo: (id, name) => {
       set((s) => ({ dojos: s.dojos.map((d) => (d.id === id ? { ...d, name: name.trim() || d.name } : d)), dirty: true }))
