@@ -5,6 +5,7 @@ import { listSecrets, saveSecret as apiSaveSecret, removeSecret as apiRemoveSecr
 import { useDojo } from '../../store'
 import { ArrangeGrid } from './ArrangeGrid'
 import { LoopPanel } from './LoopPanel'
+import { AgentContext } from '../agents/AgentContext'
 import { CompanyReport } from './CompanyReport'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
 import { useSecrets } from '../../agents/secretsStore'
@@ -498,6 +499,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           }
           return <div className="ad-body">{bodyFor(selRole.id)}</div>
         })()}
+
+        {/* the agent's context sheet · how this specialist works */}
+        <AgentContext dojoId={dojo?.id ?? ''} roleId={selRole.id} agentName={selected.name} />
       </div>
     )
   }

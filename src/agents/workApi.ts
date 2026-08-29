@@ -185,7 +185,7 @@ export interface RunResult {
   priceXrp?: number
 }
 
-export async function runWork(input: { task: string; agentName: string; connectors: string[]; brief?: string; extAgents?: ExtAgent[] }): Promise<RunResult> {
+export async function runWork(input: { task: string; agentName: string; connectors: string[]; brief?: string; context?: string; extAgents?: ExtAgent[] }): Promise<RunResult> {
   const activeDojoId = useWorkshop.getState().activeDojoId
   const startup = useWorkshop.getState().dojos.find((d) => d.id === activeDojoId)?.name || ''
   const net = useDojo.getState().net

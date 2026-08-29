@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { TopBar } from './components/TopBar'
 import { Scene3D } from './components/Scene3D'
 import { Dashboard } from './components/dashboard/Dashboard'
-import { Onboarding } from './components/Onboarding'
 import { Toasts } from './components/Toasts'
 import { SupportBot } from './components/SupportBot'
 import { Workshop } from './components/workshop/Workshop'
@@ -33,10 +32,10 @@ export default function App() {
   const selectAgent = useDojo((s) => s.selectAgent)
   const account = useWorkshop((s) => s.account)
   const needsAuth = !account && privyConfigured()
-  const createIntent = useWork((s) => s.createIntent)
 
   // 'home' = the pipeline of projects (the landing surface); 'dojo' = working
-  // inside one project's 3D office.
+  // inside one project's 3D office. There is no prompt-based creation any more:
+  // you build your pipeline by picking ready-made team cards on the home.
   const [view, setView] = useState<'home' | 'dojo'>('home')
   // the dojo fills the window on arrival (centered), then reveals the agent's
   // dashboard when you pick an agent.
@@ -44,15 +43,6 @@ export default function App() {
   // arrange-the-team overlay · reachable straight from the dojo on desktop AND
   // mobile (tap an agent, tap a cell). The 3D scene reseats in grid order.
   const [arrangeOpen, setArrangeOpen] = useState(false)
-  // first-run onboarding · "what company do you want to create?"
-  const [onboarded, setOnboarded] = useState(() => {
-    try { return localStorage.getItem('dojoburo.onboarded.v1') === '1' } catch { return true }
-  })
-  const finishOnboarding = () => {
-    try { localStorage.setItem('dojoburo.onboarded.v1', '1') } catch { /* ignore */ }
-    setOnboarded(true)
-    useWork.getState().clearCreate()
-  }
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
 
@@ -205,7 +195,6 @@ export default function App() {
       </nav>
 
       {needsAuth && <AuthGate />}
-      {!needsAuth && (!onboarded || createIntent) && <Onboarding onDone={finishOnboarding} />}
     </div>
   )
 }

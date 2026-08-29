@@ -17,6 +17,7 @@ import { useDojo } from '../store'
 import { useAgentApps, effectiveApps } from './agentApps'
 import { ARCHETYPE_BY_ID, type LoopStep } from '../data/archetypes'
 import { ROLE_BY_ID } from '../data/roleAgents'
+import { loadContext } from '../data/agentContext'
 
 export type StepState = 'pending' | 'running' | 'done' | 'failed'
 
@@ -91,12 +92,14 @@ export async function runLoop(dojoId: string): Promise<void> {
     setStep(i, 'running')
     useEngine.getState().record(`${step.agentName}:${step.task}`)
 
-    // hand the agent its OWN connected apps so it can act inside them for real
+    // hand the agent its OWN connected apps so it can act inside them for real,
+    // plus its context sheet so it works like that specialist
     const role = ROLE_BY_ID[step.agent]
     const ov = useAgentApps.getState().byKey[`${dojoId}::${step.agent}`]
     const connectors = effectiveApps(role?.apps ?? [], ov)
+    const context = await loadContext(dojoId, step.agent)
 
-    await useWork.getState().run({ task: step.task, agentName: step.agentName, connectors, brief, silent: true })
+    await useWork.getState().run({ task: step.task, agentName: step.agentName, connectors, brief, context, silent: true })
 
     const err = useWork.getState().runError
     if (err) {
@@ -114,4 +117,23 @@ export async function runLoop(dojoId: string): Promise<void> {
   if (done === steps.length) {
     toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: `${dojo.name} · done`, text: `${done} deliverables ready in the project.` })
   }
+}
+
+/** Pilot · the PIPELINE orchestrator. Runs every project's loop, in pipeline
+ *  order, stopping at the first project that can't complete. */
+export async function runPipeline(): Promise<void> {
+  const ws = useWorkshop.getState()
+  const projects = ws.dojos.filter((d) => d.archetype && ARCHETYPE_BY_ID[d.archetype]?.loop.length)
+  if (!projects.length || useLoop.getState().running) return
+  const toast = useDojo.getState().pushToast
+  toast({ kind: 'event', badge: 'PILOT', color: '#6366f1', title: 'Pipeline started', text: `${projects.length} project(s) queued, in order.` })
+
+  for (const p of projects) {
+    await runLoop(p.id)
+    if (useLoop.getState().error) {
+      toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Pipeline stopped', text: `Stopped at "${p.name}".` })
+      return
+    }
+  }
+  toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Pipeline complete', text: 'Every project ran through its loop.' })
 }

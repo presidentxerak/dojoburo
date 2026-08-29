@@ -137,6 +137,17 @@ const SPECS: Spec[] = [
     desc: 'Creates on-brand visuals, covers and image assets.',
     tint: '#ec4899', dept: 'Product', core: false, apps: ['figma', 'canva', 'cloudinary'],
   },
+  // --- the two system-level agents ------------------------------------------
+  {
+    id: 'pilot', code: 'Pilot', title: 'Pipeline Orchestrator',
+    desc: 'Runs your whole pipeline: sequences every project, keeps them moving and reports back.',
+    tint: '#6366f1', dept: 'Leadership', core: false, apps: ['notion', 'slack'],
+  },
+  {
+    id: 'kaizen', code: 'Kaizen', title: 'System Guardian',
+    desc: 'Watches over the app: keeps it healthy and up to date, and protects your data and agents.',
+    tint: '#0f766e', dept: 'Ops', core: false, apps: ['github'],
+  },
 ]
 
 export const ROLE_AGENTS: RoleAgent[] = SPECS.map((s) => ({

@@ -39,7 +39,7 @@ interface WorkState {
   disconnect: (id: string) => Promise<void>
   saveKey: (key: string) => Promise<{ ok: boolean; error?: string }>
   clearKey: () => Promise<void>
-  run: (input: { task: string; agentName: string; connectors: string[]; brief?: string; extAgents?: ExtAgent[]; silent?: boolean }) => Promise<void>
+  run: (input: { task: string; agentName: string; connectors: string[]; brief?: string; context?: string; extAgents?: ExtAgent[]; silent?: boolean }) => Promise<void>
   setAutopilot: (a: { running: boolean; step: string | null }) => void
   showDeliverable: (d: Deliverable) => void
   closeDeliverable: () => void

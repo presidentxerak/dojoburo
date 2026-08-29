@@ -5339,3 +5339,52 @@ html { scroll-behavior: smooth; }
 .tut-nav { display: flex; gap: 6px; }
 
 @media (max-width: 720px) { .tut-view { grid-template-columns: 1fr; } .tut-stage { min-height: 210px; } .tut-txt { padding: 18px 20px 22px; } }
+
+/* ============ HOME hero + system agents + team cards ============ */
+.ph-hero { text-align: center; padding: 22px 0 24px; }
+.ph-hero h1 { margin: 0; font-size: 40px; letter-spacing: -0.03em; line-height: 1.05; }
+.ph-hero-sub { margin: 10px 0 0; font-size: 17px; color: var(--muted); display: inline-flex; align-items: center; gap: 5px; }
+.ph-sec { margin-bottom: 30px; }
+.ph-sec-h { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.ph-sec-h h2 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 5px; }
+.ph-badge { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--ink); color: var(--panel-solid, #fff); font-size: 12px; font-weight: 800; }
+
+/* system agents strip */
+.sys { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 26px; }
+.sys-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-left: 4px solid var(--ac); border-radius: 14px; background: var(--panel-solid, #fff); }
+.sys-face { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 15px; flex-shrink: 0; }
+.sys-b { flex: 1; min-width: 0; }
+.sys-b strong { display: flex; align-items: center; gap: 6px; font-size: 14.5px; }
+.sys-b strong em { font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--muted); }
+.sys-line { display: block; font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+.sys-checks { grid-column: 1 / -1; list-style: none; margin: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--panel-solid, #fff); display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 6px 16px; }
+.sys-check { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: 12.5px; border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent); }
+.sys-check-k { color: var(--muted); }
+.sys-check-v { font-weight: 700; }
+.sys-check.l-warn .sys-check-v { color: #d9822b; }
+.sys-check.l-ok .sys-check-v { color: #1fa563; }
+.sys-note { grid-column: 1 / -1; font-size: 11.5px; color: var(--muted); padding-top: 6px; }
+
+/* the agents listed inside a team card */
+.ph-crewlist { display: flex; flex-direction: column; gap: 3px; width: 100%; margin: 2px 0; }
+.ph-crewrow { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.ph-crewrow b { font-weight: 700; }
+.ph-crewrow em { font-style: normal; color: var(--muted); font-size: 11.5px; }
+.ph-dot.solo { margin-left: 0; width: 18px; height: 18px; font-size: 9.5px; border-width: 0; }
+
+/* landing hero teasers (prompt removed) */
+.hc-teasers { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-bottom: 14px; }
+.hc-teaser { display: inline-flex; align-items: center; gap: 7px; padding: 7px 13px; border: 1px solid var(--border); border-radius: 999px; background: var(--panel-solid, #fff); color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color .12s ease, transform .12s ease; }
+.hc-teaser:hover { border-color: var(--ac); transform: translateY(-1px); }
+.hc-teaser-g { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; color: #fff; font-size: 11px; }
+
+@media (max-width: 720px) { .sys { grid-template-columns: 1fr; } .ph-hero h1 { font-size: 30px; } .ph-hero-sub { font-size: 15px; } }
+
+/* agent context sheet */
+.agx { margin-top: 16px; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.agx-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 11px 14px; border: 0; background: color-mix(in srgb, var(--border) 16%, transparent); color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.agx-h span { display: inline-flex; align-items: center; gap: 5px; }
+.agx-h em { font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.agx-ta { width: 100%; border: 0; border-top: 1px solid var(--border); padding: 12px 14px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; line-height: 1.6; resize: vertical; background: var(--panel-solid, #fff); color: var(--ink); }
+.agx-ta:focus { outline: none; }
+.agx-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--border); }

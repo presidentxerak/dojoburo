@@ -1,26 +1,30 @@
-// The HOME · your pipeline of projects.
+// The HOME · "Create your company".
 //
-// This is the whole first screen: you pick a ready-made project card (an
-// archetype — "social media campaign", "build an app", "write a book"), it drops
-// a dojo into your pipeline already staffed with the exact agents that job needs
-// and wired to their apps. Open a project to work in its 3D office; run its loop
-// to have the crew produce the deliverables in order.
+// One screen, no prompt: your pipeline of projects on top, and below it the
+// catalogue of ready-made dojo teams grouped by speciality. Tick a card and you
+// get a dedicated dojo, already staffed with the exact agents that job needs and
+// wired to their apps — then you land straight in it.
 //
-// Deliberately the ONLY thing on the home: a pipeline, project cards, and an
-// info dot on each concept.
+// Two system agents live here too: Pilot orchestrates the WHOLE pipeline, and
+// Kaizen watches over the app itself.
 import { useState } from 'react'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
-import { ARCHETYPES, ARCHETYPE_BY_ID, archetypeAgents, archetypeConnectors, type Archetype } from '../../data/archetypes'
+import { useLoop, runPipeline } from '../../agents/loop'
+import {
+  ARCHETYPES, ARCHETYPE_BY_ID, archetypeAgents, archetypeConnectors,
+  type Archetype, type ArchCategory,
+} from '../../data/archetypes'
 import { ROLE_BY_ID } from '../../data/roleAgents'
 import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { ConnectorLogo } from '../ConnectorLogo'
 import { InfoDot } from '../InfoDot'
+import { SystemAgents } from './SystemAgents'
 
-const CATS = ['Marketing', 'Product', 'Content', 'Business'] as const
+const CATS: ArchCategory[] = ['Marketing', 'Product', 'Content', 'Creative', 'Business', 'Operations']
 
-/** A card in the "add a project" catalogue. */
-function ArchetypeCard({ a, onPick }: { a: Archetype; onPick: () => void }) {
+/** A team card · the whole crew is visible before you pick it. */
+function TeamCard({ a, onPick }: { a: Archetype; onPick: () => void }) {
   const crew = archetypeAgents(a)
   const apps = archetypeConnectors(a)
   return (
@@ -31,18 +35,23 @@ function ArchetypeCard({ a, onPick }: { a: Archetype; onPick: () => void }) {
       </span>
       <strong className="ph-arch-title">{a.label}</strong>
       <span className="ph-arch-tag">{a.tagline}</span>
-      <span className="ph-arch-crew">
-        {crew.slice(0, 5).map((r) => (
-          <span key={r.id} className="ph-dot" style={{ background: r.tint }} title={`${r.code} · ${r.title}`}>{r.code[0]}</span>
+
+      {/* the agents INSIDE the card, named */}
+      <span className="ph-crewlist">
+        {crew.map((r) => (
+          <span key={r.id} className="ph-crewrow">
+            <span className="ph-dot solo" style={{ background: r.tint }}>{r.code[0]}</span>
+            <b>{r.code}</b><em>{r.title}</em>
+          </span>
         ))}
-        <em>{crew.length} agents · {a.loop.length} steps</em>
       </span>
+
       {apps.length > 0 && (
         <span className="ph-arch-apps">
-          {apps.slice(0, 6).map((id) => CONNECTOR_BY_ID[id] && <ConnectorLogo key={id} id={id} label={CONNECTOR_BY_ID[id].label} size={16} />)}
+          {apps.slice(0, 7).map((id) => CONNECTOR_BY_ID[id] && <ConnectorLogo key={id} id={id} label={CONNECTOR_BY_ID[id].label} size={16} />)}
         </span>
       )}
-      <span className="ph-arch-cta">Add to pipeline →</span>
+      <span className="ph-arch-cta">{a.loop.length} steps · Add this team →</span>
     </button>
   )
 }
@@ -56,103 +65,107 @@ export function PipelineHome({ onOpenProject }: { onOpenProject: (dojoId: string
   const setActive = useWorkshop((s) => s.setActiveDojo)
   const setGoal = useWorkshop((s) => s.setDojoGoal)
   const pushToast = useDojo((s) => s.pushToast)
+  const loopRunning = useLoop((s) => s.running)
 
-  const [picking, setPicking] = useState(false)
-  const [cat, setCat] = useState<string>('all')
-
+  const [cat, setCat] = useState<'all' | ArchCategory>('all')
   const shown = cat === 'all' ? ARCHETYPES : ARCHETYPES.filter((a) => a.category === cat)
-
-  const add = (a: Archetype) => {
-    const id = create(a.id)
-    setPicking(false)
-    if (id) pushToast({ kind: 'event', badge: 'OK', color: a.tint, title: `${a.label} added`, text: `${a.agents.length} agents ready · open it to start.` })
-  }
+  const projects = dojos.filter((d) => d.archetype)
 
   const open = (id: string) => { setActive(id); onOpenProject(id) }
 
+  // picking a card creates its dedicated dojo AND takes you into it
+  const add = (a: Archetype) => {
+    const id = create(a.id)
+    if (!id) return
+    pushToast({ kind: 'event', badge: 'OK', color: a.tint, title: `${a.label}`, text: `${a.agents.length} agents hired · opening your dojo.` })
+    open(id)
+  }
+
   return (
     <div className="ph">
-      <header className="ph-head">
-        <div>
-          <h1>Your pipeline
-            <InfoDot title="What is a pipeline?" label="How the pipeline works">
-              <p>Your <b>pipeline</b> is everything you're working on, in order. Each card is a <b>project</b> — a dojo with its own dedicated team of AI agents.</p>
-              <p>Add a project from a ready-made card, open it to work with its crew, and run its <b>loop</b> to have the agents produce the deliverables one after another.</p>
-            </InfoDot>
-          </h1>
-          <p className="ph-sub">{dojos.length ? `${dojos.length} project${dojos.length > 1 ? 's' : ''} · pick one to open its office.` : 'Start by adding your first project below.'}</p>
-        </div>
-        {dojos.length > 0 && (
-          <button className="ph-add" onClick={() => setPicking((v) => !v)}>{picking ? 'Close' : '+ Add a project'}</button>
-        )}
+      <header className="ph-hero">
+        <h1>Create your company</h1>
+        <p className="ph-hero-sub">Add a pipeline with your dojo teams
+          <InfoDot title="How this works" label="How the pipeline works">
+            <p>Your <b>pipeline</b> is everything you're building, in order. Each entry is a <b>dojo</b>: a project with its own dedicated team of AI agents.</p>
+            <p>Pick a team card below and it becomes a dojo you can open, edit and run. No prompt to write — the crew, their skills and their apps are already set up, and everything stays customisable.</p>
+          </InfoDot>
+        </p>
       </header>
 
-      {/* the pipeline · ordered project cards */}
-      {dojos.length > 0 && (
-        <ol className="ph-list">
-          {dojos.map((d, i) => {
-            const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
-            const crew = d.agents.filter((x) => !x.hidden)
-            const tint = a?.tint ?? '#7b5cff'
-            return (
-              <li key={d.id} className={`ph-proj${d.id === activeId ? ' on' : ''}`} style={{ ['--ac' as string]: tint }}>
-                <span className="ph-step-n">{i + 1}</span>
-                <div className="ph-proj-main" role="button" tabIndex={0} onClick={() => open(d.id)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') open(d.id) }}>
-                  <span className="ph-glyph sm" style={{ background: tint }}>{a?.glyph ?? '◆'}</span>
-                  <div className="ph-proj-txt">
-                    <strong>{d.name}</strong>
-                    <em>{a ? a.label : 'Full company'} · {crew.length} agents{a ? ` · ${a.loop.length} steps` : ''}</em>
-                  </div>
-                  <span className="ph-proj-crew">
-                    {crew.slice(0, 6).map((x) => {
-                      const r = x.role ? ROLE_BY_ID[x.role] : undefined
-                      const c = x.custom?.tint ?? r?.tint ?? '#8892a6'
-                      return <span key={x.id} className="ph-dot" style={{ background: c }} title={x.name}>{x.name[0]}</span>
-                    })}
-                    {crew.length > 6 && <span className="ph-more">+{crew.length - 6}</span>}
-                  </span>
-                </div>
-                <input
-                  className="ph-goal"
-                  value={d.goal ?? ''}
-                  placeholder="What should this project achieve? (one line)"
-                  maxLength={240}
-                  onChange={(e) => setGoal(d.id, e.target.value)}
-                />
-                <div className="ph-proj-acts">
-                  <button className="btn primary tiny" onClick={() => open(d.id)}>Open</button>
-                  <button className="ph-ic" onClick={() => reorder(d.id, -1)} disabled={i === 0} aria-label="Move up" title="Move up">↑</button>
-                  <button className="ph-ic" onClick={() => reorder(d.id, 1)} disabled={i === dojos.length - 1} aria-label="Move down" title="Move down">↓</button>
-                  <button className="ph-ic danger" aria-label={`Delete ${d.name}`} title="Delete project"
-                    onClick={() => { if (confirm(`Delete "${d.name}"? Its agents and work are removed.`)) del(d.id) }}>×</button>
-                </div>
-              </li>
-            )
-          })}
-        </ol>
-      )}
+      {/* the two system agents · pipeline orchestration + app guardian */}
+      <SystemAgents projectCount={projects.length} onRunPipeline={() => void runPipeline()} running={loopRunning} />
 
-      {/* the catalogue · shown when the pipeline is empty, or on demand */}
-      {(picking || dojos.length === 0) && (
-        <section className="ph-cat">
-          <div className="ph-cat-head">
-            <h2>Start a project
-              <InfoDot title="Projects & agents" label="How a project works">
-                <p>Every card is a <b>ready-made team</b>. Pick the one that matches what you want to do and it joins your pipeline with the right agents already hired and connected to the right apps.</p>
-                <p>Nothing is locked: rename agents, add or remove them, change their apps, or run the whole thing on autopilot with the loop.</p>
-              </InfoDot>
-            </h2>
-            <div className="ph-filters">
-              <button className={cat === 'all' ? 'on' : ''} onClick={() => setCat('all')}>All</button>
-              {CATS.map((c) => <button key={c} className={cat === c ? 'on' : ''} onClick={() => setCat(c)}>{c}</button>)}
-            </div>
+      {/* your pipeline */}
+      {dojos.length > 0 && (
+        <section className="ph-sec">
+          <div className="ph-sec-h">
+            <h2>Your pipeline <span className="ph-badge">{dojos.length}</span></h2>
+            <span className="muted small">Tap a dojo to open its office · drag the arrows to reorder.</span>
           </div>
-          <div className="ph-grid">
-            {shown.map((a) => <ArchetypeCard key={a.id} a={a} onPick={() => add(a)} />)}
-          </div>
+          <ol className="ph-list">
+            {dojos.map((d, i) => {
+              const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
+              const crew = d.agents.filter((x) => !x.hidden)
+              const tint = a?.tint ?? '#7b5cff'
+              return (
+                <li key={d.id} className={`ph-proj${d.id === activeId ? ' on' : ''}`} style={{ ['--ac' as string]: tint }}>
+                  <span className="ph-step-n">{i + 1}</span>
+                  <div className="ph-proj-main" role="button" tabIndex={0} onClick={() => open(d.id)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') open(d.id) }}>
+                    <span className="ph-glyph sm" style={{ background: tint }}>{a?.glyph ?? '◆'}</span>
+                    <div className="ph-proj-txt">
+                      <strong>{d.name}</strong>
+                      <em>{a ? a.label : 'Full company'} · {crew.length} agents{a ? ` · ${a.loop.length} steps` : ''}</em>
+                    </div>
+                    <span className="ph-proj-crew">
+                      {crew.slice(0, 6).map((x) => {
+                        const r = x.role ? ROLE_BY_ID[x.role] : undefined
+                        const c = x.custom?.tint ?? r?.tint ?? '#8892a6'
+                        return <span key={x.id} className="ph-dot" style={{ background: c }} title={x.name}>{x.name[0]}</span>
+                      })}
+                      {crew.length > 6 && <span className="ph-more">+{crew.length - 6}</span>}
+                    </span>
+                  </div>
+                  <input
+                    className="ph-goal"
+                    value={d.goal ?? ''}
+                    placeholder="What should this project achieve? (one line)"
+                    maxLength={240}
+                    onChange={(e) => setGoal(d.id, e.target.value)}
+                  />
+                  <div className="ph-proj-acts">
+                    <button className="btn primary tiny" onClick={() => open(d.id)}>Open dojo</button>
+                    <button className="ph-ic" onClick={() => reorder(d.id, -1)} disabled={i === 0} aria-label="Move up" title="Move up">↑</button>
+                    <button className="ph-ic" onClick={() => reorder(d.id, 1)} disabled={i === dojos.length - 1} aria-label="Move down" title="Move down">↓</button>
+                    <button className="ph-ic danger" aria-label={`Delete ${d.name}`} title="Delete project"
+                      onClick={() => { if (confirm(`Delete "${d.name}"? Its agents and work are removed.`)) del(d.id) }}>×</button>
+                  </div>
+                </li>
+              )
+            })}
+          </ol>
         </section>
       )}
+
+      {/* the catalogue · always visible, grouped by speciality */}
+      <section className="ph-sec">
+        <div className="ph-sec-h">
+          <h2>Dojo teams by speciality
+            <InfoDot title="Teams & agents" label="What is in a card">
+              <p>Every card is a <b>complete team</b>: the agents are listed inside it, each with its speciality and its apps.</p>
+              <p>Pick one and it becomes your dojo. Then rename agents, add or remove them, change their connectors, edit each agent's context, or run the whole thing with the loop.</p>
+            </InfoDot>
+          </h2>
+          <div className="ph-filters">
+            <button className={cat === 'all' ? 'on' : ''} onClick={() => setCat('all')}>All {ARCHETYPES.length}</button>
+            {CATS.map((c) => <button key={c} className={cat === c ? 'on' : ''} onClick={() => setCat(c)}>{c}</button>)}
+          </div>
+        </div>
+        <div className="ph-grid">
+          {shown.map((a) => <TeamCard key={a.id} a={a} onPick={() => add(a)} />)}
+        </div>
+      </section>
     </div>
   )
 }

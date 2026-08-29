@@ -106,9 +106,14 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   // key (or the operator opting in via WORK_OPERATOR_CLAUDE).
   const byokKey = await resolveByokKey(ref)
   const wantsClaude = task.format === 'design-system' || mcpServers.length > 0
-  const baseSystem = secretNames.length
+  let baseSystem = secretNames.length
     ? `${task.system}\n\nThis company has these environment variables available to its tools (names only — never print the names or the values): ${secretNames.join(', ')}.`
     : task.system
+  // The agent's own CONTEXT (its speciality sheet, editable by the user). It
+  // shapes HOW the agent works · it can never relax the security preamble,
+  // which is prepended after this by hardenSystem().
+  const agentContext = sanitizeUntrusted(body?.context || '', 4000)
+  if (agentContext) baseSystem = `${baseSystem}\n\n--- Your agent profile (how you work) ---\n${agentContext}`
   // Every run — Claude (BYOK/operator) and the free cascade alike — gets the
   // prompt-injection security preamble at the top of its system prompt.
   const system = hardenSystem(baseSystem)

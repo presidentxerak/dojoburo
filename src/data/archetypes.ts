@@ -24,18 +24,21 @@ export interface LoopStep {
   detail: string
 }
 
+export type ArchCategory = 'Marketing' | 'Product' | 'Content' | 'Business' | 'Creative' | 'Operations'
+
 export interface Archetype {
   id: string
   /** the goal, in the user's words */
   label: string
   tagline: string
-  category: 'Marketing' | 'Product' | 'Content' | 'Business'
+  category: ArchCategory
   /** short non-emoji glyph for the card */
   glyph: string
   tint: string
   /** 3D world (data/templates) */
   template: string
-  /** the dedicated crew, in seating order · first one orchestrates */
+  /** the dedicated crew, in seating order · index 0 is ALWAYS the dojo's
+   *  orchestrator (Chief), who runs this project's loop. */
   agents: string[]
   /** the loop the orchestrator runs, in order */
   loop: LoopStep[]
@@ -182,6 +185,154 @@ export const ARCHETYPES: Archetype[] = [
     ],
   },
 ]
+
+// --- more specialities · every card ships an orchestrator (Chief) plus the
+// exact specialists that trade needs. All of it stays editable afterwards.
+const MORE: Archetype[] = [
+  {
+    id: 'newsletter', label: 'Launch a newsletter', tagline: 'Find your angle, write the issues, grow the list.',
+    category: 'Content', glyph: '✉', tint: '#8b5cf6', template: 'garden',
+    agents: ['chief', 'scout', 'scribe', 'marketus', 'busino'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Angle & audience', detail: 'What you write about and who subscribes.' },
+      { agent: 'scribe', task: 'campaign', label: 'Editorial plan', detail: 'Format, rhythm and the first issues.' },
+      { agent: 'pumpi', task: 'outreach', label: 'Grow the list', detail: 'Where subscribers come from and the invite.' },
+    ],
+  },
+  {
+    id: 'podcast', label: 'Start a podcast', tagline: 'Concept, guests, episode structure and promotion.',
+    category: 'Content', glyph: '◉', tint: '#f43f5e', template: 'villa',
+    agents: ['chief', 'scout', 'scribe', 'pixel', 'marketus'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Concept & audience', detail: 'The show, its angle and who listens.' },
+      { agent: 'scribe', task: 'prd', label: 'Episode format', detail: 'Structure, segments and the guest brief.' },
+      { agent: 'marketus', task: 'campaign', label: 'Promotion', detail: 'How each episode finds listeners.' },
+    ],
+  },
+  {
+    id: 'rebrand', label: 'Rebrand my business', tagline: 'Audit what you have, redesign it, roll it out everywhere.',
+    category: 'Creative', glyph: '◑', tint: '#a855f7', template: 'dojo',
+    agents: ['chief', 'scout', 'brandi', 'pixel', 'weblos'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Brand audit', detail: 'Where you stand and what needs to change.' },
+      { agent: 'brandi', task: 'design-system', label: 'New identity', detail: 'Palette, type and components, for real.' },
+      { agent: 'weblos', task: 'website', label: 'Roll-out', detail: 'The site carrying the new brand.' },
+    ],
+  },
+  {
+    id: 'pitch', label: 'Raise funds', tagline: 'The story, the numbers and the deck investors read.',
+    category: 'Business', glyph: '◭', tint: '#f59e0b', template: 'castle',
+    agents: ['chief', 'scout', 'busino', 'deck', 'legi'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Market & story', detail: 'The opportunity, in investor language.' },
+      { agent: 'busino', task: 'model', label: 'Financial model', detail: 'Revenue build, burn and runway.' },
+      { agent: 'deck', task: 'prd', label: 'Investor deck', detail: 'The narrative, slide by slide.' },
+    ],
+  },
+  {
+    id: 'hiring', label: 'Hire someone', tagline: 'Define the role, write the scorecard, run the process.',
+    category: 'Operations', glyph: '◎', tint: '#14b8a6', template: 'default',
+    agents: ['chief', 'scout', 'nexa', 'legi'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Role definition', detail: 'What this hire owns and why now.' },
+      { agent: 'chief', task: 'jd', label: 'Job description', detail: 'The post, the scorecard and a 30/60/90.' },
+      { agent: 'nexa', task: 'outreach', label: 'Sourcing', detail: 'Where the candidates are and the outreach.' },
+    ],
+  },
+  {
+    id: 'saas', label: 'Launch a SaaS', tagline: 'Spec it, price it, build the funnel and ship it.',
+    category: 'Product', glyph: '◰', tint: '#2563eb', template: 'lab',
+    agents: ['chief', 'scout', 'devi', 'weblos', 'busino', 'vaultor'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Positioning', detail: 'The problem, the users, the wedge.' },
+      { agent: 'chief', task: 'prd', label: 'Product spec', detail: 'Scope, stories and acceptance criteria.' },
+      { agent: 'busino', task: 'offer', label: 'Pricing', detail: 'Tiers, the recommended plan and checkout copy.' },
+      { agent: 'weblos', task: 'website', label: 'Landing page', detail: 'The page that converts.' },
+    ],
+  },
+  {
+    id: 'localbiz', label: 'Grow a local business', tagline: 'Get found nearby, fill the calendar, keep clients coming back.',
+    category: 'Marketing', glyph: '⌂', tint: '#65a30d', template: 'villa',
+    agents: ['chief', 'scout', 'weblos', 'marketus', 'pumpi'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Local market', detail: 'Your area, your competitors, your customers.' },
+      { agent: 'weblos', task: 'website', label: 'Local page', detail: 'The page that turns searches into visits.' },
+      { agent: 'marketus', task: 'ads', label: 'Local ads', detail: 'Campaigns targeted around you.' },
+    ],
+  },
+  {
+    id: 'course', label: 'Create an online course', tagline: 'Curriculum, lessons, landing page and launch.',
+    category: 'Content', glyph: '❖', tint: '#0891b2', template: 'lab',
+    agents: ['chief', 'scout', 'scribe', 'deck', 'weblos', 'vaultor'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Who it is for', detail: 'The learner, their goal and what exists.' },
+      { agent: 'scribe', task: 'prd', label: 'Curriculum', detail: 'Modules, lessons and outcomes.' },
+      { agent: 'weblos', task: 'website', label: 'Sales page', detail: 'The page that sells the course.' },
+    ],
+  },
+  {
+    id: 'video', label: 'Produce a video', tagline: 'Script, storyboard, edit and publish.',
+    category: 'Creative', glyph: '▶', tint: '#e11d48', template: 'factory',
+    agents: ['chief', 'scout', 'scribe', 'pixel', 'marketus'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Concept', detail: 'The idea, the audience and the hook.' },
+      { agent: 'scribe', task: 'prd', label: 'Script & storyboard', detail: 'Beat by beat, shot by shot.' },
+      { agent: 'marketus', task: 'campaign', label: 'Distribution', detail: 'Where it goes and how it travels.' },
+    ],
+  },
+  {
+    id: 'ops', label: 'Organise my operations', tagline: 'Document how you work so it runs without you.',
+    category: 'Operations', glyph: '⚙', tint: '#64748b', template: 'factory',
+    agents: ['chief', 'scout', 'devi', 'helpi', 'legi'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Where it breaks', detail: 'The bottlenecks worth fixing first.' },
+      { agent: 'devi', task: 'runbook', label: 'Runbook', detail: 'Monitoring, on-call and incident steps.' },
+      { agent: 'helpi', task: 'prd', label: 'Support playbook', detail: 'How requests get handled, every time.' },
+    ],
+  },
+  {
+    id: 'support', label: 'Set up customer support', tagline: 'Channels, macros and a playbook your team follows.',
+    category: 'Operations', glyph: '◇', tint: '#06b6d4', template: 'default',
+    agents: ['chief', 'helpi', 'scribe', 'nexa', 'busino'],
+    loop: [
+      { agent: 'helpi', task: 'prd', label: 'Support model', detail: 'Channels, SLAs and escalation.' },
+      { agent: 'scribe', task: 'runbook', label: 'Macros & docs', detail: 'The answers, written once.' },
+      { agent: 'busino', task: 'model', label: 'Cost & volume', detail: 'What support costs as you grow.' },
+    ],
+  },
+  {
+    id: 'partnership', label: 'Land partnerships', tagline: 'Target the right partners and pitch them properly.',
+    category: 'Business', glyph: '⧉', tint: '#7c3aed', template: 'castle',
+    agents: ['chief', 'scout', 'pumpi', 'deck', 'legi'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Partner map', detail: 'Who to approach and what they want.' },
+      { agent: 'deck', task: 'prd', label: 'Partner deck', detail: 'The offer, made obvious.' },
+      { agent: 'pumpi', task: 'outreach', label: 'Outreach', detail: 'The sequence that gets the meeting.' },
+    ],
+  },
+  {
+    id: 'ecom-scale', label: 'Scale my e-commerce', tagline: 'More traffic, better conversion, healthier margin.',
+    category: 'Marketing', glyph: '◈', tint: '#16a34a', template: 'factory',
+    agents: ['chief', 'scout', 'marketus', 'weblos', 'busino'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Growth audit', detail: 'What is capping your growth today.' },
+      { agent: 'marketus', task: 'ads', label: 'Acquisition', detail: 'Campaigns built to scale profitably.' },
+      { agent: 'busino', task: 'model', label: 'Unit economics', detail: 'CAC, margin and the levers.' },
+    ],
+  },
+  {
+    id: 'personal-brand', label: 'Build my personal brand', tagline: 'A clear positioning and a content rhythm that compounds.',
+    category: 'Creative', glyph: '★', tint: '#d946ef', template: 'villa',
+    agents: ['chief', 'scout', 'scribe', 'pixel', 'marketus'],
+    loop: [
+      { agent: 'scout', task: 'strategy', label: 'Positioning', detail: 'What you are known for, and to whom.' },
+      { agent: 'scribe', task: 'campaign', label: 'Content plan', detail: 'Themes and a rhythm you can hold.' },
+      { agent: 'marketus', task: 'ads', label: 'Signature posts', detail: 'The pieces that travel.' },
+    ],
+  },
+]
+
+for (const a of MORE) ARCHETYPES.push(a)
 
 export const ARCHETYPE_BY_ID: Record<string, Archetype> = Object.fromEntries(ARCHETYPES.map((a) => [a.id, a]))
 
