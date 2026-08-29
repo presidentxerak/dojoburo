@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { PROFESSIONS, professionColor } from './data/professions'
 import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
 import { SKINS } from './data/skins'
@@ -11,11 +11,11 @@ import { SiteHeader } from './components/SiteHeader'
 import { AsciiIcon } from './components/AsciiIcon'
 import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
-import { HeroCreate } from './components/landing/HeroCreate'
 import { StudioTeam } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 import { ShowcaseGallery, PerformanceBoard, Testimonials } from './components/landing/Showcase'
 import { Pricing } from './components/landing/Pricing'
+import { TutorialOverlay } from './components/guide/TutorialOverlay'
 import { SHOW_MOCK_COMPANIES } from './config/flags'
 
 // vivid complementary primaries used as per-section accent touches
@@ -28,6 +28,8 @@ export function Landing({ enter }: { enter: () => void }) {
   // paid plans drop the user on the Billing / plans view inside the dojo
   const goBilling = () => { useWork.getState().openStudio('billing'); enter() }
   const goAssistant = () => document.querySelector('#assistant')?.scrollIntoView({ behavior: 'smooth' })
+  // the "How to?" walkthrough · full screen, plays on its own
+  const [howTo, setHowTo] = useState(false)
 
   // Scroll-reveal · each landing section cascades in as it enters the viewport.
   // An IntersectionObserver (root = viewport, so it works whichever element
@@ -51,15 +53,13 @@ export function Landing({ enter }: { enter: () => void }) {
     <div className="landing">
       <SiteHeader enter={enter} />
 
-      <section className="lp-hero">
-        <h1>Found your company <span className="hl-acid">in one sentence</span>.</h1>
-        <p className="lp-sub">
-          One sentence, and <Wordmark /> spins up a 3D office where a CEO and its agents build your brand, site,
-          ads and more · <b>real pro studios</b>, right in your browser.
-        </p>
-        <HeroCreate enter={enter} />
-        <div className="lp-badges">
-          <span>12 pro studios</span><span>100% local · nothing is uploaded</span><span>Credits · no crypto</span><span>{CONNECTORS.length} connectors</span><span>Installable (PWA)</span>
+      {/* The hero is deliberately almost empty: a title, one big button, and a
+          way to watch how it works. Everything else lives further down. */}
+      <section className="lp-hero lp-hero-min">
+        <h1>The company <span className="hl-acid">automator</span></h1>
+        <div className="lp-hero-acts">
+          <button className="lp-hero-go lp-cta-create" onClick={enter}>Create your dojo teams</button>
+          <button className="lp-hero-how" onClick={() => setHowTo(true)}>How to?</button>
         </div>
         {/* the zen dojo · animated backdrop only (non-interactive) */}
         <div className="lp-hero-zen" aria-hidden>
@@ -140,8 +140,8 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-ico" style={{ background: C.teal }}><AsciiIcon kind="stack" /></span>
         <h2>Connect your whole stack</h2>
         <p className="lp-lead">
-          {CONNECTORS.length} app connectors and counting. Connect with one click · OAuth (with PKCE), tokens
-          sealed server-side in an encrypted vault · and your agents act inside them for real: create the
+          {CONNECTORS.length} apps and counting. Connect one in a click · you approve once on the app's own
+          screen and access is sealed away on the server · then your team works inside it for real: create the
           Notion page, open the GitHub PR, draft the Gmail, post the campaign, raise the Stripe invoice, move
           the Jira ticket.
         </p>
@@ -210,8 +210,8 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-ico" style={{ background: C.yellow, color: '#1a1300' }}><AsciiIcon kind="bolt" /></span>
         <h2>How it works</h2>
         <div className="lp-steps">
-          <div className="lp-step"><span className="lp-n">1</span><h3>Describe your company</h3><p>Tell your CEO agent what you're building, in one sentence. It drafts the plan, names the offers and assembles the crew.</p></div>
-          <div className="lp-step"><span className="lp-n">2</span><h3>The crew builds &amp; runs it</h3><p>Specialist agents ship your website, craft offers and drive growth · B2B outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · doing real work in your apps.</p></div>
+          <div className="lp-step"><span className="lp-n">1</span><h3>Name your company</h3><p>One field, no prompt to write. Everything you add afterwards belongs to it · and signing in keeps it all for next time.</p></div>
+          <div className="lp-step"><span className="lp-n">2</span><h3>Pick your dojo teams</h3><p>Tap a ready-made card — a social campaign, an app, a book, a shop. It arrives fully staffed with the teammates that job needs, already wired to the right apps, and they get to work: website, offers, outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · real work in your accounts.</p></div>
           <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, decide how much it does on its own and set a daily spending limit. A guard stops it from going in circles.</p></div>
           <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit, settled behind the scenes. Your CEO dashboard tallies the numbers and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
         </div>
@@ -439,7 +439,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>
         <h2>Ready to run your office?</h2>
-        <button className="lp-cta big lp-cta-create" onClick={() => { document.querySelector<HTMLInputElement>('#create-hero .hc-input')?.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Create your company →</button>
+        <button className="lp-cta big lp-cta-create" onClick={enter}>Create your company →</button>
         <p className="lp-foot">Credits · no crypto · powered by growth hacking · open in your browser</p>
       </section>
 
@@ -457,10 +457,11 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#prod">Production</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
-          <a href="#create-hero" onClick={(e) => { e.preventDefault(); document.querySelector<HTMLInputElement>('#create-hero .hc-input')?.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>Create your company</a>
+          <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Create your company</a>
         </nav>
       </footer>
       <SupportBot />
+      {howTo && <TutorialOverlay onClose={() => setHowTo(false)} onStart={() => { setHowTo(false); enter() }} />}
     </div>
   )
 }

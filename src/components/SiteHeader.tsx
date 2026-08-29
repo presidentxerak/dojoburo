@@ -24,15 +24,15 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
   // When signed in we show the profile button + burger instead of Sign in/up.
   const account = useWorkshop((s) => s.account)
-  // "Create your company" → the creation form lives in the landing hero. On the
-  // landing, focus it; from any other page, go to the landing so it's shown.
+  // "Create your company" → the app's home, where you name it and pick your
+  // teams. Nothing to fill in on the landing any more.
   const create = () => {
-    const input = document.querySelector<HTMLInputElement>('#create-hero .hc-input')
-    if (input) { input.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => input.focus(), 300) }
-    else window.location.href = '/#create-hero'
+    setMenuOpen(false)
+    if (enter) enter()
+    else window.location.href = '/#app'
   }
-  // Sign in / Sign up → enter the dojo. Without an account the app's auth gate
-  // takes over and runs Privy, so every connection goes through Privy.
+  // Sign in / Sign up → enter the dojo. Browsing the home is open to everyone;
+  // Privy is asked for at the moment a project is saved.
   const goDojo = () => { setMenuOpen(false); if (enter) enter(); else window.location.href = '/#app' }
   return (
     <>

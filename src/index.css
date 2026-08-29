@@ -5395,3 +5395,129 @@ html { scroll-behavior: smooth; }
 .agx-field textarea { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 13px; line-height: 1.55; resize: vertical; background: var(--panel-solid, #fff); color: var(--ink); }
 .agx-field textarea:focus { outline: none; border-color: color-mix(in srgb, var(--accent, #2f6bff) 55%, var(--border)); }
 .agx-field textarea::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); }
+
+/* =====================================================================
+   Minimal landing hero · one title, one big button, one "How to?".
+   Everything that used to sit here (sub-copy, teasers, badge row) moved
+   further down the page, so the first screen asks exactly one question.
+   ===================================================================== */
+.lp-hero-min { padding-top: 64px; padding-bottom: 8px; }
+.lp-hero-min h1 { margin-bottom: 30px; }
+.lp-hero-acts { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.lp-hero-go {
+  padding: 20px 46px; border: 0; border-radius: 999px; font: inherit; font-weight: 900;
+  font-size: clamp(17px, 2.4vw, 22px); letter-spacing: -0.01em; cursor: pointer;
+  box-shadow: 0 20px 44px -18px rgba(0,214,255,.55), 0 8px 20px -10px rgba(24,255,176,.42);
+  transition: transform .14s ease, filter .14s ease;
+}
+.lp-hero-go:hover { transform: translateY(-2px); }
+.lp-hero-how {
+  padding: 9px 22px; border: 1px solid var(--border); border-radius: 999px;
+  background: none; color: var(--muted); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer;
+  transition: color .14s ease, border-color .14s ease, transform .14s ease;
+}
+.lp-hero-how:hover { color: var(--ink); border-color: var(--border-lit, var(--ink)); transform: translateY(-1px); }
+
+/* ---- the "How to?" walkthrough, full screen ------------------------- */
+.tutfs {
+  position: fixed; inset: 0; z-index: 12000; display: flex; flex-direction: column;
+  background: var(--panel-solid, #fff); color: var(--ink); animation: tutfs-in .18s ease-out;
+}
+@keyframes tutfs-in { from { opacity: 0; transform: scale(.99) } to { opacity: 1; transform: none } }
+.tutfs-h { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.tutfs-h strong { display: block; font-size: 17px; letter-spacing: -0.01em; }
+.tutfs-h span { display: block; font-size: 13px; color: var(--muted); margin-top: 1px; }
+.tutfs-x { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50%; background: none; color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
+.tutfs-x:hover { border-color: var(--ink); }
+.tutfs-body { flex: 1; min-height: 0; overflow: auto; display: grid; place-items: center; padding: 20px; }
+.tutfs-body .tut { width: 100%; max-width: 1060px; }
+/* full screen means the stage gets the room · bigger art, bigger words */
+.tutfs-body .tut-stage { min-height: min(58vh, 520px); padding: 34px; }
+.tutfs-body .tut-txt { padding: 34px 38px; }
+.tutfs-body .tut-txt h3 { font-size: clamp(22px, 2.4vw, 30px); margin-bottom: 12px; }
+.tutfs-body .tut-txt p { font-size: 16px; }
+.tutfs-body .tut-bar-row { padding: 14px 20px; }
+.tutfs-body .tut-crew, .tutfs-body .tut-apps, .tutfs-body .tut-loop { max-width: 360px; }
+.tutfs-body .tut-crew { max-width: 400px; gap: 20px; }
+.tutfs-body .tut-face { width: 52px; height: 52px; font-size: 19px; }
+.tutfs-body .tut-agent em { font-size: 13px; }
+.tutfs-body .tut-app, .tutfs-body .tut-loop li { font-size: 14.5px; padding: 12px 15px; }
+.tutfs-body .tut-card { width: 96px; }
+.tutfs-body .tut-doc { width: 82px; }
+.tutfs-body .tut-name-lab { font-size: 26px; }
+.tutfs-body .tut-name-field { min-width: 280px; font-size: 19px; padding: 14px 22px; }
+@media (max-width: 860px) { .tutfs-body .tut-stage { min-height: 300px; padding: 22px; } .tutfs-body .tut-txt { padding: 22px; } }
+.tutfs-f { padding: 14px 20px 20px; border-top: 1px solid var(--border); display: grid; place-items: center; }
+.tutfs-go {
+  padding: 14px 32px; border: 0; border-radius: 999px; font: inherit; font-weight: 800; font-size: 16px; cursor: pointer;
+  background: linear-gradient(120deg, #00d6ff, #12ffb0, #00d6ff); background-size: 220% 220%;
+  animation: acidFlow 4.2s linear infinite; color: #04232b;
+}
+.tutfs-go:hover { filter: brightness(1.06); }
+
+/* the walkthrough's first beat · the company-name field */
+.tut-name { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.tut-name-lab { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.tut-name-field {
+  display: inline-flex; align-items: center; gap: 2px; min-width: 220px; justify-content: center;
+  padding: 11px 18px; border: 1px solid var(--border); border-radius: 12px;
+  background: var(--panel-solid, #fff); font-size: 16px; font-weight: 700;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #12b981 18%, transparent);
+}
+.tut-caret { display: inline-block; width: 2px; height: 17px; background: var(--ink); animation: tut-caret 1s step-end infinite; }
+@keyframes tut-caret { 50% { opacity: 0 } }
+
+/* =====================================================================
+   Home · "Create your company": the name field, then the team cards.
+   ===================================================================== */
+/* the global type scale (h1 60px, h2 32px, both !important) is too loud on
+   a phone · the home keeps the hierarchy but scales with the viewport */
+.ph-hero h1 { font-size: clamp(34px, 6.4vw, 54px) !important; }
+.ph-sec-h h2 { font-size: clamp(20px, 3vw, 26px) !important; }
+.ph-name { display: flex; flex-direction: column; align-items: center; gap: 7px; margin: 18px auto 4px; max-width: 460px; }
+.ph-name input {
+  width: 100%; text-align: center; padding: 15px 18px; font: inherit; font-size: 19px; font-weight: 700;
+  letter-spacing: -0.01em; color: var(--ink); background: var(--panel-solid, #fff);
+  border: 1px solid var(--border); border-radius: 14px; transition: border-color .14s ease, box-shadow .14s ease;
+}
+.ph-name input:focus { outline: none; border-color: color-mix(in srgb, #12b981 55%, var(--border)); box-shadow: 0 0 0 4px color-mix(in srgb, #12b981 16%, transparent); }
+.ph-name input::placeholder { font-weight: 600; color: color-mix(in srgb, var(--muted) 75%, transparent); }
+.ph-name-hint { font-size: 12.5px; color: var(--muted); }
+
+/* ---- team cards · same material as the rest of the app's cards ------ */
+.ph-arch {
+  position: relative; overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--ac) 13%, transparent), transparent 62%),
+    linear-gradient(155deg, color-mix(in srgb, var(--ac) 7%, var(--panel-solid, #fff)), var(--panel-solid, #fff) 58%);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,.05));
+}
+/* the accent line that wipes in on hover · the app's card signature */
+.ph-arch::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--ac);
+  transform: scaleX(0); transform-origin: left; transition: transform .32s ease;
+}
+.ph-arch:hover::after { transform: scaleX(1); }
+.ph-arch .ph-glyph { box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--ac) 85%, transparent); }
+.ph-arch .ph-arch-cat { padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--ac) 12%, transparent); color: color-mix(in srgb, var(--ac) 78%, var(--ink)); }
+.ph-crewlist { width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 9px 0 3px; border-top: 1px solid color-mix(in srgb, var(--border) 65%, transparent); }
+.ph-crewmore { font-size: 11.5px; font-weight: 700; color: var(--muted); padding-left: 29px; }
+.ph-grid { align-items: start; }
+.ph-arch-apps { padding-top: 4px; }
+
+/* ---- sign in to save ------------------------------------------------ */
+.savegate { position: fixed; inset: 0; z-index: 12000; display: grid; place-items: center; padding: 20px; background: color-mix(in srgb, var(--ink) 45%, transparent); backdrop-filter: blur(5px); }
+.savegate-card { width: min(420px, 100%); padding: 26px 24px; border: 1px solid var(--border); border-radius: 20px; background: var(--panel-solid, #fff); text-align: center; box-shadow: 0 30px 70px -30px rgba(0,0,0,.5); }
+.savegate-card h3 { margin: 0 0 6px; font-size: 20px; letter-spacing: -0.02em; }
+.savegate-card p { margin: 0 0 18px; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.savegate-acts { display: flex; flex-direction: column; gap: 9px; }
+.savegate-in { padding: 13px 20px; border: 0; border-radius: 12px; background: var(--ink); color: var(--panel-solid, #fff); font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
+.savegate-in:hover { filter: brightness(1.12); }
+.savegate-alt { padding: 10px; border: 0; background: none; color: var(--muted); font: inherit; font-size: 13.5px; cursor: pointer; text-decoration: underline; }
+.savegate-alt:hover { color: var(--ink); }
+
+@media (max-width: 720px) {
+  .lp-hero-min { padding-top: 40px; }
+  .lp-hero-go { width: 100%; max-width: 340px; padding: 18px 24px; }
+  .tutfs-body { padding: 12px; }
+}

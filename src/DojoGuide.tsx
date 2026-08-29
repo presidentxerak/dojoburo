@@ -48,10 +48,10 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
       <section className="lp-hero dg2-hero">
         <h1>Your <span className="hl-mag">studios</span> + your tools, <span className="hl-acid">under control</span>.</h1>
         <p className="lp-sub">
-          In DojoBuro, each agent is a pro studio (branding, website, Meta campaigns, video editing, finance, CRM,
-          analytics) that runs <b>100% in your browser</b> · your files never leave. To go further, <b>connectors</b>
-          let your agents act inside your real apps (Meta, Gmail, Stripe…). This guide shows how to open a studio,
-          connect an app, configure everything step by step and keep your costs under control.
+          You name your company, pick the ready-made teams you need, and each teammate opens a pro studio
+          (branding, website, Meta campaigns, video editing, finance, CRM, analytics) that runs
+          <b> 100% in your browser</b> · your files never leave. Connect your real apps (Meta, Gmail, Stripe…)
+          and they work inside them for you. This guide covers the whole thing, step by step.
         </p>
         <div className="lp-badges">
           <span>12 studios · 100% local</span><span>{CONNECTORS.length} apps</span><span>One-click connect · keys kept safe</span><span>Cloud or local</span>
@@ -60,18 +60,19 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec" id="walkthrough">
         <h2>See it in 60 seconds</h2>
-        <p className="lp-lead">The whole process, animated · from an empty pipeline to finished deliverables. Step through it, or hit <b>Play all</b>.</p>
+        <p className="lp-lead">The whole process, animated · from naming your company to finished work. Step through it, or hit <b>Play all</b>. It is the same walkthrough as the <b>How to?</b> button on the home page.</p>
         <Tutorial />
       </section>
 
       <section className="lp-sec" id="how">
         <h2>How it works</h2>
-        <p className="lp-lead">Describe your company in one sentence. <b>Chief</b> (your CEO) breaks it down and delegates to a crew of specialists. You steer by chatting with Chief and build in each studio · everything runs in your browser. Connect your real apps to go live.</p>
+        <p className="lp-lead">There is no prompt to write. You name your company, then pick the ready-made teams you need · each one arrives already staffed with the right teammates, wired to the right apps. Open any teammate to work with them, and connect your real apps to go live.</p>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Describe your company</b><span>One sentence. Chief drafts the plan and assembles your crew of agents.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Open a studio</b><span>Click an agent to open its dashboard and build · brand, website, campaigns, pipeline, finances.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Connect your apps</b><span>Link Meta, Gmail, Stripe… so your agents act inside your real accounts.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your company</b><span>One field on the home page. Everything you add afterwards belongs to it.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Pick your teams</b><span>Tap a card — a social campaign, an app, a book, a shop. It arrives fully staffed. Saving it asks you to sign in.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts.</span></div></div>
         </div>
+        <p className="lp-note"><b>Do I have to sign in?</b> Only to keep things. Naming a company and reading every team card is free. The moment you add a team, we ask you to sign in so your company, your teammates and everything they make are still there next time · or you can carry on as a guest, saved in this browser only.</p>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your twelve teammates &amp; what each one does</h3>
         <StudioTeam enter={() => { window.location.href = '/#app' }} />
         <p className="lp-note" style={{ marginTop: 14 }}>These twelve ship with every dojo — and the crew is yours to shape. See <a className="linklike" href="#team">Shape your team</a> just below.</p>

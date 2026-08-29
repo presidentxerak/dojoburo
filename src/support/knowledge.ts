@@ -36,13 +36,37 @@ export const KB: KBTopic[] = [
     id: 'start',
     chip: 'Getting started',
     answer:
-      'Describe your company in one sentence and your CEO agent assembles a crew that builds and runs it · website, offers, growth (B2B outreach, email, Meta ads, SEO) and analytics. You steer by chatting with your CEO and get a daily report by email. Each task costs about one credit, settled behind the scenes · no crypto. Exploring is free, so dive in.',
+      'Three steps, no prompt to write. 1) On the home page, type the name of your company in the one field there. 2) Below it, pick a ready-made dojo team card — a social campaign, an app, a book, a shop, a start-up… Each card lists the teammates inside it and the apps they use, and arrives fully staffed. 3) You land straight in that dojo: click a teammate to open their studio, give the project a goal and hit Run every step, and the team works through it in order. Naming a company and browsing every card is free; the moment you add a team we ask you to sign in so it is still there next time (or continue as a guest, saved in this browser only). Want to watch it first? The "How to?" button on the home page plays a 60-second walkthrough full screen.',
     links: [
       { label: 'Open your cockpit', href: '#app' },
-      { label: 'How it works', href: '#how' },
+      { label: 'Watch the walkthrough', href: '/guide#walkthrough' },
     ],
-    follow: ['jobs', 'tools', 'cost'],
-    keywords: ['start', 'begin', 'how do i', 'get started', 'first', 'use', 'run a skill', 'onboard'],
+    follow: ['signin', 'teams', 'tools'],
+    keywords: ['start', 'begin', 'how do i', 'get started', 'first', 'use', 'run a skill', 'onboard', 'how to', 'how does it work', 'company name', 'name my company', 'walkthrough', 'tutorial'],
+  },
+  {
+    id: 'teams',
+    chip: 'Dojo team cards',
+    answer:
+      'A dojo team card is a whole project, ready made. Each card names the teammates inside it (a researcher, a maker, an analyst, a team lead…), what each one does, and the apps they work in — all visible before you pick it. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tap one and it becomes a dojo inside your company: you land in its 3D office, and from there you can rename teammates, add or remove them, change the apps they use, change how each one works, and run every step of the plan in one go. Nothing is locked and nothing needs configuring first.',
+    links: [
+      { label: 'Pick a team', href: '#app' },
+      { label: 'Shape your team', href: '/guide#team' },
+    ],
+    follow: ['start', 'team', 'tools'],
+    keywords: ['team card', 'team cards', 'dojo team', 'dojo teams', 'archetype', 'project card', 'cards', 'speciality', 'specialty', 'pick a team', 'catalogue', 'catalog', 'pipeline'],
+  },
+  {
+    id: 'signin',
+    chip: 'Do I need an account?',
+    answer:
+      'Not to look around. You can open the app, name your company and read every team card without signing in. Signing in is asked for at one moment only: when you add a team, because that saves a real project. Sign in with your email or Google and your company, your teammates and everything they make are still there next time, on any device you sign in from. Prefer not to? "Continue as guest" keeps everything in this browser only — it works exactly the same, but clearing your browser data clears your company with it.',
+    links: [
+      { label: 'Open the app', href: '#app' },
+      { label: 'How it works', href: '/guide#how' },
+    ],
+    follow: ['start', 'security', 'pricing'],
+    keywords: ['sign in', 'signin', 'log in', 'login', 'account', 'register', 'sign up', 'signup', 'save', 'save my project', 'guest', 'do i need an account', 'privy', 'email login', 'google login'],
   },
   {
     id: 'jobs',
@@ -307,4 +331,4 @@ export function matchTopic(text: string): KBTopic | null {
 }
 
 export const GREETING =
-  "Hi! I'm the DojoBuro assistant. Each agent is a pro studio (branding, website, campaigns, video, finance, CRM, analytics) that runs 100% locally. Ask me how to create your brand, your website or a campaign · or pick a topic below.";
+  "Hi! I'm the DojoBuro assistant. Here is the short version: name your company, pick the ready-made teams you need, and each teammate opens a pro studio (branding, website, campaigns, video, finance, CRM, analytics) that runs 100% in your browser. Ask me anything · or pick a topic below.";

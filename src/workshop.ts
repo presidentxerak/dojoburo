@@ -94,6 +94,9 @@ interface WorkshopState {
   account: Account | null
   dojos: Dojo[]
   activeDojoId: string | null
+  /** The name the founder gave their company on the home screen. It prefixes
+   *  every project they add, so the whole pipeline reads as one company. */
+  companyName: string
   /** true when there are dojo/agent edits not yet written to localStorage */
   dirty: boolean
 
@@ -103,6 +106,7 @@ interface WorkshopState {
   signOut: () => void
   updateAccount: (patch: Partial<Account>) => void
   setCurrency: (c: CurrencyCode) => void
+  setCompanyName: (name: string) => void
 
   createDojo: (name?: string, templateId?: string) => void
   createDojoForProfession: (professionId: string) => void
@@ -238,7 +242,7 @@ function ensureRoleCrew(d: Dojo): Dojo {
   return { ...d, agents: merged }
 }
 
-function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null } {
+function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null; companyName: string } {
   try {
     const raw = localStorage.getItem(KEY)
     if (raw) {
@@ -248,14 +252,14 @@ function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string 
         for (const d of p.dojos) if (!d.template) d.template = DEFAULT_TEMPLATE_ID
         // migrate pre-role-agent crews to the 10 canonical role agents
         p.dojos = p.dojos.map(ensureRoleCrew)
-        return p
+        return { ...p, companyName: typeof p.companyName === 'string' ? p.companyName : '' }
       }
     }
   } catch {
     /* ignore */
   }
   const d = seedDojo()
-  return { account: null, dojos: [d], activeDojoId: d.id }
+  return { account: null, dojos: [d], activeDojoId: d.id, companyName: '' }
 }
 
 function firstFreeCell(agents: WAgent[]): { gx: number; gy: number } {
@@ -269,9 +273,9 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
   // persist() is the single save point · it writes localStorage and clears the
   // dirty flag. Dojo/agent edits stay in memory (dirty) until save() is called.
   const persist = () => {
-    const { account, dojos, activeDojoId } = get()
+    const { account, dojos, activeDojoId, companyName } = get()
     try {
-      localStorage.setItem(KEY, JSON.stringify({ account, dojos, activeDojoId }))
+      localStorage.setItem(KEY, JSON.stringify({ account, dojos, activeDojoId, companyName }))
     } catch {
       /* ignore */
     }
@@ -328,6 +332,11 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     },
     setCurrency: (c) => {
       set((s) => (s.account ? { account: { ...s.account, currency: c } } : {}))
+      persist()
+    },
+
+    setCompanyName: (name) => {
+      set({ companyName: name.slice(0, 40) })
       persist()
     },
 

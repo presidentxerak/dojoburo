@@ -33,9 +33,10 @@ export default function App() {
   const account = useWorkshop((s) => s.account)
   const needsAuth = !account && privyConfigured()
 
-  // 'home' = the pipeline of projects (the landing surface); 'dojo' = working
-  // inside one project's 3D office. There is no prompt-based creation any more:
-  // you build your pipeline by picking ready-made team cards on the home.
+  // 'home' = name your company and pick your teams (the landing surface);
+  // 'dojo' = working inside one project's 3D office. The home is open to
+  // everyone — browsing costs nothing — and signing in is asked for at the
+  // moment a project is actually saved (see components/home/SaveGate).
   const [view, setView] = useState<'home' | 'dojo'>('home')
   // the dojo fills the window on arrival (centered), then reveals the agent's
   // dashboard when you pick an agent.
@@ -127,7 +128,6 @@ export default function App() {
           <button onClick={() => { location.hash = 'connect' }}><span className="mbar-ic">⊞</span>Connect</button>
           <button onClick={() => { location.hash = 'city' }}><span className="mbar-ic">⌂</span>City</button>
         </nav>
-        {needsAuth && <AuthGate />}
       </div>
     )
   }

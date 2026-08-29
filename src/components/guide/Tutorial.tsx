@@ -8,10 +8,10 @@ import { useEffect, useRef, useState } from 'react'
 interface Beat { id: string; title: string; body: string }
 
 const BEATS: Beat[] = [
-  { id: 'pipeline', title: '1 · Your pipeline', body: 'You land on one screen: your pipeline. It holds every project you are working on, in order. Nothing else to learn.' },
-  { id: 'pick', title: '2 · Pick a project', body: 'Choose a ready-made card that matches your goal — a social campaign, an app, a book, a shop. It drops into your pipeline instantly.' },
-  { id: 'crew', title: '3 · Your crew is hired', body: 'Each project arrives already staffed with exactly the agents that job needs: a researcher, a maker, an analyst, a team lead…' },
-  { id: 'apps', title: '4 · Their apps connect', body: 'Every agent comes wired to the tools it works in. Connect one in a click and the agent acts inside your real account.' },
+  { id: 'name', title: '1 · Name your company', body: 'You land on one screen. Type the name of your company — that is the whole setup. Everything you add afterwards belongs to it.' },
+  { id: 'pick', title: '2 · Pick a team', body: 'Choose a ready-made card that matches what you want to do — a social campaign, an app, a book, a shop. It joins your company instantly.' },
+  { id: 'crew', title: '3 · Your team is hired', body: 'Each card arrives already staffed with exactly the teammates that job needs: a researcher, a maker, an analyst, a team lead…' },
+  { id: 'apps', title: '4 · Their apps connect', body: 'Every teammate comes wired to the apps they work in. Connect one in a click and they work inside your real account.' },
   { id: 'loop', title: '5 · Run every step', body: 'Give the project a goal and hit Run. The team lead hands each step to the right teammate, in order, and they work through it.' },
   { id: 'ship', title: '6 · You get the work', body: 'Every step produces something real you can open, edit and export. Add another project and your pipeline grows.' },
 ]
@@ -34,13 +34,12 @@ function Stage({ beat }: { beat: string }) {
     return () => window.clearInterval(id)
   }, [beat])
 
-  if (beat === 'pipeline') {
+  if (beat === 'name') {
     return (
       <div className="tut-stage">
-        <div className="tut-empty">
-          <span className="tut-empty-l" />
-          <span className="tut-empty-l" />
-          <button className="tut-plus" type="button" tabIndex={-1}>+ Add a project</button>
+        <div className="tut-name">
+          <span className="tut-name-lab">Create your company</span>
+          <span className="tut-name-field"><b>Novaranly</b><i className="tut-caret" /></span>
         </div>
       </div>
     )
@@ -113,9 +112,9 @@ function Stage({ beat }: { beat: string }) {
   )
 }
 
-export function Tutorial() {
+export function Tutorial({ autoPlay = false }: { autoPlay?: boolean } = {}) {
   const [i, setI] = useState(0)
-  const [playing, setPlaying] = useState(false)
+  const [playing, setPlaying] = useState(autoPlay)
   const timer = useRef<number | undefined>(undefined)
 
   useEffect(() => {
