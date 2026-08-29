@@ -67,7 +67,7 @@ export function Accounting({ dojoId }: { dojoId: string }) {
           <h3 className="sq-title">Accounting</h3>
           <p className="sq-lead">Your books, built automatically from your dojo's activity — CRM sales and campaign spend flow in on their own. Add manual entries in <b>Business → Finance</b>.</p>
         </div>
-        <button className="btn tiny" onClick={exportXlsx} disabled={!hasAny}>⬇ Export .xlsx</button>
+        <button className="btn tiny" onClick={exportXlsx} disabled={!hasAny}>Export .xlsx</button>
       </div>
 
       {!hasAny ? (

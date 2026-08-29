@@ -145,7 +145,7 @@ export function BrandColours({ palette, onApply }: { palette: Palette; onApply: 
       <div className="cw-gen">
         {gen.map((c, i) => (
           <div key={i} className="cw-swatch" style={{ background: c, color: textOn(c) }}>
-            <button className={`cw-lock${locks[i] ? ' on' : ''}`} onClick={() => toggleLock(i)} title={locks[i] ? 'Unlock' : 'Lock'}>{locks[i] ? '🔒' : '🔓'}</button>
+            <button className={`cw-lock${locks[i] ? ' on' : ''}`} onClick={() => toggleLock(i)} title={locks[i] ? 'Unlock' : 'Lock'}>{locks[i] ? '▪' : '▫'}</button>
             <input className="cw-hex" value={c.toUpperCase()} onChange={(e) => { const v = e.target.value; if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setSwatch(i, v.startsWith('#') ? v : '#' + v) }} />
           </div>
         ))}

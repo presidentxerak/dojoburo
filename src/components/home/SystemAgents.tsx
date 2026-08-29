@@ -55,11 +55,11 @@ export function SystemAgents({ projectCount, onRunPipeline, running }: {
     { label: 'App version', value: `v${BUILD}`, level: 'info' },
     { label: 'Projects · agents', value: `${dojos.length} · ${agents}`, level: 'info' },
     { label: 'Local data', value: `${kb} KB in this browser`, level: kb > 4000 ? 'warn' : 'ok' },
-    { label: 'Connector backend', value: backend ? 'live' : 'not configured', level: backend ? 'ok' : 'info' },
+    { label: 'App connections', value: backend ? 'live' : 'not set up yet', level: backend ? 'ok' : 'info' },
     { label: 'Connected apps', value: String(connected), level: connected > 0 ? 'ok' : 'info' },
     { label: 'Outbound confirmation', value: consented ? 'confirmed once' : 'will ask once', level: 'ok' },
     { label: 'Company', value: engine.paused ? 'PAUSED' : 'running', level: engine.paused ? 'warn' : 'ok' },
-    { label: 'Daily credit cap', value: `${engine.creditsToday} / ${engine.dailyCreditCap}`, level: engine.creditsToday >= engine.dailyCreditCap ? 'warn' : 'ok' },
+    { label: 'Daily spending limit', value: `${engine.creditsToday} / ${engine.dailyCreditCap}`, level: engine.creditsToday >= engine.dailyCreditCap ? 'warn' : 'ok' },
   ]
   const warnings = checks.filter((c) => c.level === 'warn').length
 
@@ -69,10 +69,10 @@ export function SystemAgents({ projectCount, onRunPipeline, running }: {
       <div className="sys-card" style={{ ['--ac' as string]: pilot?.tint ?? '#6366f1' }}>
         <span className="sys-face" style={{ background: pilot?.tint }}>P</span>
         <div className="sys-b">
-          <strong>{pilot?.code ?? 'Pilot'} <em>{pilot?.title ?? 'Pipeline Orchestrator'}</em>
+          <strong>{pilot?.code ?? 'Pilot'} <em>{pilot?.title ?? 'Project Manager'}</em>
             <InfoDot title="Pilot" label="What Pilot does">
               <p>Pilot runs your <b>entire pipeline</b>: it takes each project in order and runs its loop, so the whole plan executes end to end.</p>
-              <p>Each project also has its own orchestrator (Chief) that runs only that dojo. Pilot is the level above.</p>
+              <p>Each project also has its own team lead (Chief) who runs just that team. Pilot is the level above.</p>
             </InfoDot>
           </strong>
           <span className="sys-line">{projectCount ? `${projectCount} project${projectCount > 1 ? 's' : ''} ready to run in order.` : 'Add a team below and Pilot will run it.'}</span>
@@ -86,7 +86,7 @@ export function SystemAgents({ projectCount, onRunPipeline, running }: {
       <div className="sys-card" style={{ ['--ac' as string]: kaizen?.tint ?? '#0f766e' }}>
         <span className="sys-face" style={{ background: kaizen?.tint }}>K</span>
         <div className="sys-b">
-          <strong>{kaizen?.code ?? 'Kaizen'} <em>{kaizen?.title ?? 'System Guardian'}</em>
+          <strong>{kaizen?.code ?? 'Kaizen'} <em>{kaizen?.title ?? 'App Caretaker'}</em>
             <InfoDot title="Kaizen" label="What Kaizen does">
               <p>Kaizen looks after the app itself: which version you run, how much data sits in this browser, whether the backend and your apps are live, and whether the safety switches are on.</p>
               <p>It reports only what it can actually observe · it never claims something works when it isn't configured.</p>

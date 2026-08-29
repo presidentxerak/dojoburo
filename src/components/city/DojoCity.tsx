@@ -1101,7 +1101,7 @@ const TIPS = [
   'Tip: connect your agents (Email, Meta, SEO) in the Studio to delegate B2B growth.',
   'Tip: each new Dojo adds a floor to your building in the city.',
   'Tip: buy credits in your own currency · no crypto to manage, everything settles behind the scenes.',
-  'Tip: tune your CEO’s autonomy so it doesn’t loop and your credits last longer.',
+  'Tip: set a daily limit for your CEO so your credits last longer.',
 ]
 
 // ---- company fiche · opens when you click one of our showcase HQs -----------
@@ -1119,7 +1119,7 @@ function CompanyFiche({ co, onClose }: { co: MockCo; onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
         style={{ ['--bg' as any]: t.bg, ['--ink' as any]: t.ink, ['--sub' as any]: t.sub, ['--ac' as any]: t.accent, ['--rad' as any]: t.radius + 'px', fontFamily: t.font }}
       >
-        <button className="cofiche-x" onClick={onClose} aria-label="Fermer">✕</button>
+        <button className="cofiche-x" onClick={onClose} aria-label="Close">✕</button>
 
         <div className="cofiche-head">
           <span className="cofiche-logo" style={{ background: t.accent }}>{co.name[0]}</span>

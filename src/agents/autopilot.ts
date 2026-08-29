@@ -21,7 +21,7 @@ const PIPELINE: Array<{ task: string; label: string }> = [
 const ERR: Record<string, string> = {
   needs_key: 'Add your Claude key (Studio → Billing) so the CEO can work.',
   quota: 'Daily free quota reached · add your Claude key to continue.',
-  not_configured: 'No AI model is configured on this deployment (Claude key or free cascade).',
+  not_configured: 'No AI is set up here yet · add your Claude key to get going.',
   network: 'Unable to connect to the server · try again in a moment.',
   unknown_task: 'Task not recognized by the server.',
 }

@@ -124,8 +124,8 @@ export function SettingsModal() {
           {section === 'automation' && (
             <section className="set-sec">
               <h3>Automation &amp; safety</h3>
-              <p className="set-lead">How autonomous your agents are, and the safety switches. Managed by Sentinel (Cyber Guardian).</p>
-              <div className="set-field"><span>Daily credit cap</span>
+              <p className="set-lead">How much your team does on its own, and the safety switches. Managed by Sentinel (Cyber Guardian).</p>
+              <div className="set-field"><span>Daily spending limit</span>
                 <input type="number" min={1} value={engine.dailyCreditCap} onChange={(e) => engine.setDailyCap(Number(e.target.value))} />
               </div>
               <div className="set-field"><span>Pause the company</span>

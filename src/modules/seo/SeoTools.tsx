@@ -321,7 +321,7 @@ export function Backlinks({ b }: { b: SeoBundle }) {
   return (
     <div className="se-wrap">
       <Head title="Backlinks" domain={b.domain} hasSite={b.hasSite} />
-      <EmptyState icon="⛓" title="No backlink data yet" text="Backlink and referring-domain data comes from Google Search Console. Connect it to see who links to your site." connect="Search Console" />
+      <EmptyState icon="◇" title="No backlink data yet" text="Backlink and referring-domain data comes from Google Search Console. Connect it to see who links to your site." connect="Search Console" />
     </div>
   )
 }
@@ -377,7 +377,7 @@ export function Competitors({ b }: { b: SeoBundle }) {
         </div>
       </Panel>
       {list.length === 0
-        ? <EmptyState icon="⚔" title="No competitors tracked" text="Add the domains you compete with above. Traffic & keyword comparison unlocks when you connect an SEO data source." />
+        ? <EmptyState icon="◆" title="No competitors tracked" text="Add the domains you compete with above. Traffic & keyword comparison unlocks when you connect an SEO data source." />
         : (
           <Panel title={`Your competitors (${list.length})`}>
             <div className="se-tablewrap">

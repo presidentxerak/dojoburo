@@ -139,12 +139,12 @@ const SPECS: Spec[] = [
   },
   // --- the two system-level agents ------------------------------------------
   {
-    id: 'pilot', code: 'Pilot', title: 'Pipeline Orchestrator',
+    id: 'pilot', code: 'Pilot', title: 'Project Manager',
     desc: 'Runs your whole pipeline: sequences every project, keeps them moving and reports back.',
     tint: '#6366f1', dept: 'Leadership', core: false, apps: ['notion', 'slack'],
   },
   {
-    id: 'kaizen', code: 'Kaizen', title: 'System Guardian',
+    id: 'kaizen', code: 'Kaizen', title: 'App Caretaker',
     desc: 'Watches over the app: keeps it healthy and up to date, and protects your data and agents.',
     tint: '#0f766e', dept: 'Ops', core: false, apps: ['github'],
   },

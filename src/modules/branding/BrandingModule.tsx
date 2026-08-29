@@ -667,7 +667,7 @@ export default function BrandingModule({ dojoId }: ModuleProps) {
                   {kit.logoDataUrl ? 'Replace logo' : 'Import logo'}
                   <input type="file" accept="image/png,image/svg+xml,image/jpeg" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importLogo(f); e.currentTarget.value = '' }} />
                 </label>
-                <button className="sq-cta sm" onClick={downloadAllLogos}>⬇ Download all</button>
+                <button className="sq-cta sm" onClick={downloadAllLogos}>Download all</button>
               </div>
               {kit.logoDataUrl ? (
                 <div className="bi-logo bd-logo-preview" style={{ background: '#fff' }}>

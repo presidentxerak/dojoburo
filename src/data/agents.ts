@@ -72,10 +72,10 @@ export const AGENTS: AgentDef[] = [
   {
     id: 'ava',
     name: 'Ava',
-    role: 'CEO · Orchestrator',
+    role: 'CEO · Team lead',
     department: 'Leadership',
     mission:
-      'Sets the vision, prioritizes the roadmap and orchestrates the other agents. Runs the team rituals and arbitrates the budget.',
+      'Sets the vision, prioritizes the roadmap and directs the other agents. Runs the team rituals and arbitrates the budget.',
     skills: [
       {
         id: 'ava.standup',

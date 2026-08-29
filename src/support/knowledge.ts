@@ -24,7 +24,7 @@ export const KB: KBTopic[] = [
     id: 'studios',
     chip: 'The studios',
     answer:
-      'Your office ships with twelve AI teammates, each opening its own workspace when you click it: Chief (CEO · plans and delegates every task), Brandi (Brand Architect · brand names, domains & .com availability), Weblos (Web Designer · block-based website with interaction design & HTML export), Devi (Engineering Lead · issues, PRs & sprints), Marketus (Marketer · Meta ads, video editing and image optimisation in one creative workflow), Pumpi (Growth Hacker · leads, pipeline & personalised outreach), Nexa (Comms Manager · team & community broadcasts), Helpi (Support Lead · tickets & replies), Busino (Business Analyst · finance and analytics in one dashboard: VAT, forecasts, CAC, LTV, ROI), Vaultor (Billing Manager · credits, subscriptions & payments), Legi (Legal & Docs · contracts & signatures) and Sentinel (Security Guardian · autonomy, budgets & encrypted secrets). You can hide the ones you don\'t need and create your OWN custom agents too. The brand you choose in Brandi flows into every studio, so the whole team shares one company name, domain and look. Everything runs 100% in your browser · video editing, image compression and exports stay on your machine, nothing is sent to a server. The AI creates a first version and you keep full control. And front-and-centre in your 3D office stands the team panda · a mascot who cheers the crew on and breaks into a dance every time a task is completed (tap him to make him celebrate on cue).',
+      'Your office ships with twelve AI teammates, each opening its own workspace when you click it: Chief (CEO · plans and delegates every task), Brandi (Brand Architect · brand names, domains & .com availability), Weblos (Web Designer · block-based website with interaction design & HTML export), Devi (Engineering Lead · issues, PRs & sprints), Marketus (Marketer · Meta ads, video editing and image optimisation in one creative workflow), Pumpi (Growth Hacker · leads, pipeline & personalised outreach), Nexa (Comms Manager · team & community broadcasts), Helpi (Support Lead · tickets & replies), Busino (Business Analyst · finance and analytics in one dashboard: VAT, forecasts, CAC, LTV, ROI), Vaultor (Billing Manager · credits, subscriptions & payments), Legi (Legal & Docs · contracts & signatures) and Sentinel (Security Guardian · how much the team does on its own, spending limits & your saved keys). You can hide the ones you don\'t need and create your OWN custom agents too. The brand you choose in Brandi flows into every studio, so the whole team shares one company name, domain and look. Everything runs 100% in your browser · video editing, image compression and exports stay on your machine, nothing is sent to a server. The AI creates a first version and you keep full control. And front-and-centre in your 3D office stands the team panda · a mascot who cheers the crew on and breaks into a dance every time a task is completed (tap him to make him celebrate on cue).',
     links: [
       { label: 'See the studios', href: '#studios' },
       { label: 'Open my office', href: '#app' },
@@ -72,7 +72,7 @@ export const KB: KBTopic[] = [
     id: 'cost',
     chip: 'Cost per task (credits)',
     answer:
-      'Most tasks are free or about one credit; only heavier jobs (like a full campaign) cost a couple more. You buy credits in your own currency and they settle on a fast rail behind the scenes · no crypto, no network fees to think about. Your CEO dashboard shows live totals, and you can set a daily credit cap so nothing overspends.',
+      'Most tasks are free or about one credit; only heavier jobs (like a full campaign) cost a couple more. You buy credits in your own currency and they settle on a fast rail behind the scenes · no crypto, no network fees to think about. Your CEO dashboard shows live totals, and you can set a daily spending limit so nothing overspends.',
     links: [
       { label: 'Cost breakdown', href: '#cost' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -84,7 +84,7 @@ export const KB: KBTopic[] = [
     id: 'pricing',
     chip: 'Plans & pricing',
     answer:
-      'You bring your own model key (or use the free-model cascade), so intelligence is basically free; you pay only for the hub: connected apps, an always-on worker and team features. Plans: Free ($0, explore + build your first company, 2 apps, ~50 tasks/mo), Solo ($12/mo, 6 apps, 300 credits), Pro ($29/mo, every connector, 1,500 credits, cloud worker), Team ($22/seat/mo, shared dojos, SSO, audit) and Business (custom, self-hosted, SLA). BYOK and free-cascade tasks are unlimited and never use a credit; managed credits (1 credit ≈ 1 hosted task) cover hosted-model runs, are bought in your own currency (USD, EUR, JPY…) and top up anytime · no crypto. Annual billing saves about two months.',
+      'You bring your own model key (or run on a free model), so intelligence is basically free; you pay only for the hub: connected apps, an always-on worker and team features. Plans: Free ($0, explore + build your first company, 2 apps, ~50 tasks/mo), Solo ($12/mo, 6 apps, 300 credits), Pro ($29/mo, every app, 1,500 credits, cloud worker), Team ($22/seat/mo, shared dojos, SSO, audit) and Business (custom, self-hosted, SLA). Your-own-key and free-model tasks are unlimited and never use a credit; managed credits (1 credit ≈ 1 hosted task) cover hosted-model runs, are bought in your own currency (USD, EUR, JPY…) and top up anytime · no crypto. Annual billing saves about two months.',
     links: [
       { label: 'See the plans', href: '#pricing' },
       { label: 'Cost per task', href: '#cost' },
@@ -120,7 +120,7 @@ export const KB: KBTopic[] = [
     id: 'security',
     chip: 'Security & privacy',
     answer:
-      'There is no crypto for you to secure · no wallet, no seed, no coins. You just hold a credits balance, and payments settle on a fast rail behind the scenes. The app ships with a strict Content-Security-Policy, security headers and scraper protection. OAuth connector tokens and the operator model key live in a server-side encrypted vault, behind rate limits and spending caps. Keys you bring yourself (e.g. an ElevenLabs voice key) and any local wallet material stay in your browser, so treat this browser like your own device.',
+      'There is no crypto for you to secure · no wallet, no seed, no coins. You just hold a credits balance, and payments settle on a fast rail behind the scenes. The app ships with a strict Content-Security-Policy, security headers and scraper protection. Your app access and the operator\'s model key are sealed away on the server, behind rate limits and spending caps. Keys you bring yourself (e.g. an ElevenLabs voice key) and any local wallet material stay in your browser, so treat this browser like your own device.',
     links: [
       { label: 'Security details', href: '#prod' },
       { label: 'Credits & profile', href: '#profile' },
@@ -132,7 +132,7 @@ export const KB: KBTopic[] = [
     id: 'tools',
     chip: 'Connect real tools',
     answer:
-      'Connect 40+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 and more. One-click OAuth (with PKCE); tokens are sealed with AES-256-GCM server-side and auto-refreshed. At run time each app is exposed to Claude as a remote MCP server, so the agent does real work in your account · and each task is metered as about one credit, with a receipt in your dashboard. Each agent ships with a small, curated set of the best apps for its job (no duplicates), and it\'s fully modular: open its Connect apps panel, tap "+ Add apps" to pull any connector from the catalog, or remove one you don\'t use · saved per company.',
+      'Connect 40+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 and more. Connecting is one click on the app\'s own screen; access is sealed away server-side and kept fresh for you. While your teammate works, it reaches into the app directly, so the work really happens in your account · and each task is metered as about one credit, with a receipt in your dashboard. Each agent ships with a small, curated set of the best apps for its job (no duplicates), and it\'s fully modular: open its Connect apps panel, tap "+ Add apps" to bring in any other app, or remove one you don\'t use · saved per company.',
     links: [
       { label: 'Set up each app · step by step', href: '/guide', external: true },
       { label: 'Connect your stack', href: '#stack' },
@@ -144,7 +144,7 @@ export const KB: KBTopic[] = [
     id: 'linkagents',
     chip: 'Link your own agents',
     answer:
-      'Already run agents at Notion, Slack, or anywhere else? Plug them straight into a DojoBuro agent. Open the agent editor in the Dojo Studio, scroll to "External agents", click "+ Link an agent", then pick a protocol: MCP (its tools join every deliverable this agent runs, exactly like a connector), A2A (you delegate a whole task and get the reply back · the standard Agent2Agent card at /.well-known/agent-card.json + message/send), or Webhook (a simple https endpoint that receives { task } and returns text). Paste the https endpoint and an optional auth token, then Verify to check it is reachable and read its name + capabilities. The token never touches the browser wire · a server proxy (/api/agent-proxy) holds it, just like the connector vault. Delegate to A2A / webhook agents from the agent card in the office; MCP agents ride along automatically when you run a deliverable (needs a Claude key, since Claude drives the tools).',
+      'Already run an AI agent at Notion, Slack, or anywhere else? Bring it in to help one of your teammates. Open the agent editor in the Dojo Studio, scroll to "Outside helpers" and click "+ Add a helper", then pick how it helps: it can lend its tools (they join everything this teammate does, exactly like a connected app · this is the MCP standard), take a whole task off their hands and send the answer back (the A2A standard), or be a plain web address we send the task to and read the reply from. Paste the https address and an optional access key, then hit Verify to check it answers and read back its name and what it can do. The key never touches this browser · the server holds it, just like your connected apps. Hand a whole task across from the teammate\'s card in the office; tool helpers ride along automatically whenever that teammate works (needs a Claude key, since Claude drives the tools).',
     links: [
       { label: 'Open the Dojo Studio', href: '#studio' },
       { label: 'What is A2A', href: 'https://a2a-protocol.org', external: true },
@@ -157,7 +157,7 @@ export const KB: KBTopic[] = [
     id: 'setup',
     chip: 'How to connect an app',
     answer:
-      'Every agent card AND the Dojo Studio editor show a "Connect tools" panel with the agent\'s curated apps (and a "+ Add apps" button to pull any connector from the catalog, or remove one you don\'t use · fully modular, saved per company), plus a 3-step guide: 1 create the OAuth app · 2 add the keys to env · 3 point an MCP endpoint. As a USER it is one click: open the agent, find the tool under its tasks, click Connect, approve the OAuth screen once · the token is sealed server-side (AES-256-GCM) and the agent can act inside the app. As the OPERATOR (one-time, per app): 1) create an OAuth app in the provider console (Notion integrations, GitHub OAuth apps, Google Cloud credentials…) and set the redirect URI to https://YOUR-SITE/api/connect; 2) copy the client id + secret into env as <APP>_CLIENT_ID and <APP>_CLIENT_SECRET (Google apps share GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET); 3) apps WITH a first-party MCP server (Notion, GitHub, Linear, Stripe) work right away; apps WITHOUT one (Gmail, Drive, Calendar, Slack…) also need <APP>_MCP_URL pointed at a hosted MCP hub (Composio, Zapier, Pipedream). PKCE apps (Airtable, X, Canva) are automatic. Once the env is set the tool shows a Connect button instead of a "set up" link. Every app also has its own step-by-step page in the Dojo Guide (scopes, exact env vars, gotchas) · just name the app and I will link it.',
+      'Every agent card AND the Dojo Studio editor show a "Connect tools" panel with the agent\'s curated apps (and a "+ Add apps" button to bring in any other app, or remove one you don\'t use · fully modular, saved per company), plus a short setup guide. FOR YOU it is one click: open the teammate, find the app under its tasks, click Connect and approve once on the app\'s own screen · access is sealed away on the server and your teammate can work inside the app for real. IF YOU RUN THIS DEPLOYMENT (one-time, per app): 1) create an OAuth app in the provider console (Notion integrations, GitHub OAuth apps, Google Cloud credentials…) and set the redirect URI to https://YOUR-SITE/api/connect; 2) copy the client id + secret into env as <APP>_CLIENT_ID and <APP>_CLIENT_SECRET (Google apps share GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET); 3) apps WITH a first-party MCP server (Notion, GitHub, Linear, Stripe) work right away; apps WITHOUT one (Gmail, Drive, Calendar, Slack…) also need <APP>_MCP_URL pointed at a hosted MCP hub (Composio, Zapier, Pipedream). PKCE apps (Airtable, X, Canva) are automatic. Once the env is set the tool shows a Connect button instead of a "set up" link. Every app also has its own step-by-step page in the Dojo Guide (scopes, exact env vars, gotchas) · just name the app and I will link it.',
     links: [
       { label: 'Step-by-step setup for every app', href: '/guide', external: true },
       { label: 'MCP hub (Composio)', href: 'https://composio.dev', external: true },
@@ -170,7 +170,7 @@ export const KB: KBTopic[] = [
     id: 'guide',
     chip: 'Dojo Guide',
     answer:
-      'The Dojo Guide is the full walkthrough of connectors: how to connect an app, how to configure the OAuth account, how to use it and see the result of the work, how to stay safe (avoid getting hacked), and how to keep your budget under control. Open it from the "Dojo Guide" button in the header (app or landing).',
+      'The Dojo Guide is the full walkthrough of your apps: how to connect an app, how to set up the account, how to use it and see the result of the work, how to stay safe (avoid getting hacked), and how to keep your budget under control. Open it from the "Dojo Guide" button in the header (app or landing).',
     links: [
       { label: 'Open the Dojo Guide', href: '/guide', external: true },
       { label: 'How to connect an app', href: '#stack' },
@@ -206,7 +206,7 @@ export const KB: KBTopic[] = [
     id: 'environment',
     chip: 'Cloud or local',
     answer:
-      'Run it two ways. Cloud: a managed worker runs the model + tool calls and keeps agents going when the tab is closed, with every key in a server-side vault. Local / self-hosted: run your own worker and point connectors at your own MCP endpoints · your keys, your machine, the same office. Either way the browser is just the cockpit: it shows the 3D office and Dojo City, triggers tasks and tracks your credits; the worker does the authenticated work.',
+      'Run it two ways. Cloud: a managed worker runs the model + tool calls and keeps agents going when the tab is closed, with every key sealed away on the server. Local / self-hosted: run your own worker and point connectors at your own MCP endpoints · your keys, your machine, the same office. Either way the browser is just the cockpit: it shows the 3D office and Dojo City, triggers tasks and tracks your credits; the worker does the authenticated work.',
     links: [
       { label: 'Cloud or local', href: '#stack' },
       { label: 'Runtime & environment', href: '#env' },
@@ -280,7 +280,7 @@ export function matchConnector(text: string): Connector | null {
 /** A ready-made chat answer that points to a connector's dedicated setup page. */
 export function connectorReply(c: Connector): { text: string; links: KBLink[] } {
   return {
-    text: `${c.label}: ${c.blurb} Connecting is a one-click OAuth once the operator has wired it. Here is the full step-by-step setup page for ${c.label} · scopes, exact env vars and gotchas.`,
+    text: `${c.label}: ${c.blurb} Connecting is one click once the operator has set it up. Here is the full step-by-step setup page for ${c.label}.`,
     links: [
       { label: `Set up ${c.label} · step by step`, href: `/guide/${c.id}`, external: true },
       { label: `Open the ${c.provider} console`, href: c.docsUrl, external: true },

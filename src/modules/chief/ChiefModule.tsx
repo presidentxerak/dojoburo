@@ -75,13 +75,13 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
     const err = useWork.getState().runError
     if (err) {
       const map: Record<string, string> = {
-        needs_key: 'Add your Claude key (Studio → Billing) for this deliverable.',
+        needs_key: 'Add your Claude key (Studio → Billing) for this piece of work.',
         quota: 'Daily free quota reached · add your Claude key to continue.',
-        not_configured: 'No AI model is configured on this deployment (Claude key or free cascade).',
+        not_configured: 'No AI is set up here yet · add your Claude key to get going.',
         network: 'Network error · please try again in a moment.',
         unknown_task: 'This task is not recognised by the server.',
       }
-      pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Deliverable not launched', text: map[err.code] || `Failed: ${err.detail || err.code}.` })
+      pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Could not start', text: map[err.code] || `Failed: ${err.detail || err.code}.` })
     }
   }
   const sendCeo = () => { const brief = msg.trim(); if (!brief) return; setMsg(''); void runTask(chief?.name || 'Chief', 'strategy', brief) }
@@ -128,7 +128,7 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
         <div className="biz-tile"><span>{engine.creditsToday}</span><em>credits (today)</em></div>
         <div className="biz-tile"><span>{delivs.filter((d) => d.taskId === 'ads').length}</span><em>campaigns</em></div>
         <div className="biz-tile"><span>{delivs.filter((d) => d.taskId === 'outreach').length}</span><em>outreach</em></div>
-        <div className="biz-tile"><span>{tasksDone}</span><em>deliverables</em></div>
+        <div className="biz-tile"><span>{tasksDone}</span><em>results</em></div>
         <div className="biz-tile"><span>{connectedCount}</span><em>apps</em></div>
       </div>
 
@@ -150,7 +150,7 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
         {autopilot.running
           ? <p className="ceo-autopilot"><span className="ceo-spin" /> Chief is working · <b>{autopilot.step}</b>…</p>
           : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>}
-        {noModel && <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> · Chief produces <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
+        {noModel && <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
       </div>
 
       {meetings && meetings.events.length > 0 && (

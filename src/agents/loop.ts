@@ -45,11 +45,11 @@ export const useLoop = create<LoopState>(() => ({
 }))
 
 const ERR: Record<string, string> = {
-  needs_key: 'Add your Claude key (Studio → Billing) so the crew can work.',
-  quota: 'Daily free quota reached · add your Claude key to continue.',
-  not_configured: 'No AI model is configured on this deployment yet.',
-  network: 'Unable to reach the server · try again in a moment.',
-  unknown_task: 'That task is not recognised by the server.',
+  needs_key: 'Add your Claude key (Studio → Billing) so your team can work.',
+  quota: 'You have used today\'s free allowance · add your Claude key to keep going.',
+  not_configured: 'No AI is set up here yet · add your Claude key to get going.',
+  network: 'Could not reach the server · try again in a moment.',
+  unknown_task: 'The server does not know that task.',
 }
 
 /** Is this dojo a project with a runnable loop? */
@@ -80,11 +80,11 @@ export async function runLoop(dojoId: string): Promise<void> {
   const setStep = (i: number, state: StepState) =>
     useLoop.setState((s) => ({ steps: s.steps.map((x, j) => (j === i ? { ...x, state } : x)) }))
 
-  toast({ kind: 'event', badge: '▶', color: arch.tint, title: dojo.name, text: `${steps.length} steps · the crew is starting.` })
+  toast({ kind: 'event', badge: '▶', color: arch.tint, title: dojo.name, text: `${steps.length} steps · your team is starting.` })
 
   for (let i = 0; i < steps.length; i++) {
     if (useEngine.getState().paused) {
-      useLoop.setState({ error: 'Company paused · resume it in Settings.' })
+      useLoop.setState({ error: 'Everything is paused · resume it in Settings.' })
       toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Loop paused', text: 'The company is paused.' })
       break
     }
@@ -115,7 +115,7 @@ export async function runLoop(dojoId: string): Promise<void> {
   useLoop.setState({ running: false })
   const done = useLoop.getState().steps.filter((s) => s.state === 'done').length
   if (done === steps.length) {
-    toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: `${dojo.name} · done`, text: `${done} deliverables ready in the project.` })
+    toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: `${dojo.name} · done`, text: `${done} results ready in this project.` })
   }
 }
 
@@ -126,7 +126,7 @@ export async function runPipeline(): Promise<void> {
   const projects = ws.dojos.filter((d) => d.archetype && ARCHETYPE_BY_ID[d.archetype]?.loop.length)
   if (!projects.length || useLoop.getState().running) return
   const toast = useDojo.getState().pushToast
-  toast({ kind: 'event', badge: 'PILOT', color: '#6366f1', title: 'Pipeline started', text: `${projects.length} project(s) queued, in order.` })
+  toast({ kind: 'event', badge: 'PILOT', color: '#6366f1', title: 'Pipeline started', text: `${projects.length} project(s) lined up, in order.` })
 
   for (const p of projects) {
     await runLoop(p.id)
@@ -135,5 +135,5 @@ export async function runPipeline(): Promise<void> {
       return
     }
   }
-  toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Pipeline complete', text: 'Every project ran through its loop.' })
+  toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Pipeline complete', text: 'Every project ran start to finish.' })
 }

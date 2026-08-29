@@ -40,7 +40,7 @@ function copyFor(angle: Angle, product: string, obj: Objective): { headline: str
     }
     case 'preuve': return {
       headline: `They chose ${p}`,
-      primary: `⭐️⭐️⭐️⭐️⭐️ "Ever since ${p}, everything is easier." Join hundreds of happy customers.`,
+      primary: `"Ever since ${p}, everything is easier." Join hundreds of happy customers.`,
       description: 'Rated 4.8/5 by our customers',
     }
     case 'question': return {
@@ -50,7 +50,7 @@ function copyFor(angle: Angle, product: string, obj: Objective): { headline: str
     }
     case 'nouveaute': return {
       headline: `New: ${cap}`,
-      primary: `🚀 We just launched ${p}. The easiest way to get results · finally available.`,
+      primary: `We just launched ${p}. The easiest way to get results · finally available.`,
       description: 'Just released',
     }
     case 'benefice':

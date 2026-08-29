@@ -5385,6 +5385,13 @@ html { scroll-behavior: smooth; }
 .agx-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 11px 14px; border: 0; background: color-mix(in srgb, var(--border) 16%, transparent); color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
 .agx-h span { display: inline-flex; align-items: center; gap: 5px; }
 .agx-h em { font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--muted); }
-.agx-ta { width: 100%; border: 0; border-top: 1px solid var(--border); padding: 12px 14px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; line-height: 1.6; resize: vertical; background: var(--panel-solid, #fff); color: var(--ink); }
-.agx-ta:focus { outline: none; }
 .agx-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--border); }
+.agx-peek { margin: 0; padding: 10px 14px; border-top: 1px solid var(--border); font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+.agx-form { border-top: 1px solid var(--border); }
+.agx-field { display: block; padding: 13px 14px; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.agx-label { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.agx-n { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: color-mix(in srgb, var(--border) 45%, transparent); font-size: 11px; font-weight: 700; color: var(--muted); }
+.agx-hint { display: block; margin: 3px 0 8px; font-size: 12px; line-height: 1.45; color: var(--muted); }
+.agx-field textarea { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 13px; line-height: 1.55; resize: vertical; background: var(--panel-solid, #fff); color: var(--ink); }
+.agx-field textarea:focus { outline: none; border-color: color-mix(in srgb, var(--accent, #2f6bff) 55%, var(--border)); }
+.agx-field textarea::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); }

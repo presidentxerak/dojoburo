@@ -11,7 +11,7 @@ export type Autonomy = 'auto' | 'low' | 'medium' | 'hard' | 'ultra'
 
 /** Daily autonomous-task cap per level · 'auto' paces itself (no hard cap). */
 export const AUTONOMY_CAP: Record<Autonomy, number> = { auto: Infinity, low: 1, medium: 5, hard: 10, ultra: 25 }
-export const AUTONOMY_LABEL: Record<Autonomy, string> = { auto: 'Auto', low: 'Low', medium: 'Medium', hard: 'Hard', ultra: 'Ultra' }
+export const AUTONOMY_LABEL: Record<Autonomy, string> = { auto: 'No limit', low: 'Very light', medium: 'Light', hard: 'Steady', ultra: 'Full speed' }
 
 const KEY = 'dojoburo.engine.v1'
 const today = () => new Date().toISOString().slice(0, 10)
@@ -64,11 +64,11 @@ export const useEngine = create<EngineState>((set, get) => {
       if (s.paused) return { ok: false, reason: 'Company paused · no task is running. Resume in Settings.' }
       if (s.day !== today()) { set({ day: today(), tasksToday: 0, creditsToday: 0, recent: [] }); return { ok: true } }
       const cap = AUTONOMY_CAP[s.autonomy]
-      if (s.tasksToday >= cap) return { ok: false, reason: `Autonomy cap reached (${AUTONOMY_LABEL[s.autonomy]} · ${cap}/day). Switch back to Auto or wait until tomorrow.` }
-      if (s.creditsToday >= s.dailyCreditCap) return { ok: false, reason: `Daily credit cap reached (${s.dailyCreditCap}). Raise it in Engine or wait 24 h.` }
+      if (s.tasksToday >= cap) return { ok: false, reason: `Daily limit reached (${AUTONOMY_LABEL[s.autonomy]} · ${cap}/day). Give them more freedom, or wait until tomorrow.` }
+      if (s.creditsToday >= s.dailyCreditCap) return { ok: false, reason: `Daily spending limit reached (${s.dailyCreditCap}). Raise it in Sentinel, or wait until tomorrow.` }
       // anti-loop · same task 3× in the last few dispatches = going in circles
       const same = s.recent.filter((r) => r === signature).length
-      if (same >= 3) return { ok: false, reason: 'This same task just ran in a loop · change the goal or adjust the instruction.' }
+      if (same >= 3) return { ok: false, reason: 'They just did this same thing three times · change the goal so they move on.' }
       return { ok: true }
     },
     record: (signature, credits = 1) => {

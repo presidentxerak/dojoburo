@@ -50,8 +50,8 @@ export function TreasuryPanel() {
   return (
     <section className="panel treasury">
       <header className="activity-head">
-        <h3>Treasury &amp; orchestration</h3>
-        <InfoDot title="Treasury & orchestration">
+        <h3>Budget &amp; run control</h3>
+        <InfoDot title="Budget & run control">
           <p>This is your company's money desk on the XRP Ledger. The <b>treasury</b> is the shared company wallet; each agent also has its own wallet, so payments between them are real on-ledger transfers.</p>
           <p>From here you boot the whole startup, top the treasury up, and send agent-to-agent payments metered by x402.</p>
         </InfoDot>

@@ -1121,7 +1121,7 @@ const TIPS = [
   'Tip: connect your agents (Email, Meta, SEO) in the Studio to delegate B2B growth.',
   'Tip: each new Dojo adds a floor to your building in the city.',
   'Tip: buy credits in your own currency · no crypto to manage, everything settles behind the scenes.',
-  'Tip: tune your CEO’s autonomy so it doesn’t loop and your credits last longer.',
+  'Tip: set a daily limit for your CEO so your credits last longer.',
 ]
 
 // ---- company fiche · opens when you click one of our showcase HQs -----------

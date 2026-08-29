@@ -101,7 +101,7 @@ export function AgentPanel() {
       {/* ---- Real work (Claude-powered deliverables) ---- */}
       {workTasks.length > 0 && (
         <section className="work-block">
-          <h3 className="skills-title">Deliver real work <span className="tag tag-live">Claude</span></h3>
+          <h3 className="skills-title">Ask for real work <span className="tag tag-live">Claude</span></h3>
           <p className="work-intro">
             {byok.connected
               ? <>Runs on <strong>your</strong> Claude key · billed to you.</>
@@ -109,7 +109,7 @@ export function AgentPanel() {
           </p>
           <input
             className="work-brief"
-            placeholder="Optional brief (what should it be about?)"
+            placeholder="What should this be about? (optional)"
             value={brief}
             onChange={(e) => setBrief(e.target.value)}
             maxLength={300}
@@ -137,7 +137,7 @@ export function AgentPanel() {
           </ul>
           {runError?.code === 'needs_key' && (
             <p className="work-hint">
-              This deliverable {runError.reason === 'tool' ? 'acts inside a connected tool' : 'is the design system'} · it runs on Claude.{' '}
+              This one {runError.reason === 'tool' ? 'works inside one of your apps' : 'builds your design system'} · it needs Claude.{' '}
               <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (billed to your account).
             </p>
           )}
@@ -148,10 +148,10 @@ export function AgentPanel() {
             </p>
           )}
           {runError?.code === 'not_configured' && (
-            <p className="work-hint">No LLM is configured on this deployment yet (free providers or a Claude key).</p>
+            <p className="work-hint">No AI is set up here yet · add your Claude key to get going.</p>
           )}
           {runError && !['needs_key', 'quota', 'not_configured'].includes(runError.code) && (
-            <p className="work-hint err">Run failed: {runError.detail || runError.code}</p>
+            <p className="work-hint err">That didn't go through: {runError.detail || runError.code}</p>
           )}
         </section>
       )}
@@ -225,37 +225,37 @@ function ExternalAgentsBlock({ agents, onEdit }: { agents: ExtAgent[]; onEdit: (
     setBusy(true); setReply(null)
     const r = await delegateToAgent(target, task.trim())
     setBusy(false)
-    setReply({ ok: r.ok, text: r.ok ? (r.text || 'Done (no text returned).') : (r.error || 'The agent did not reply.') })
+    setReply({ ok: r.ok, text: r.ok ? (r.text || 'Done (no text returned).') : (r.error || 'They did not reply.') })
   }
 
   return (
     <section className="work-block ext-block">
-      <h3 className="skills-title">Linked agents <span className="tag tag-live">{agents.length}</span></h3>
+      <h3 className="skills-title">Outside helpers <span className="tag tag-live">{agents.length}</span></h3>
       {mcp.length > 0 && (
         <p className="work-intro">
-          {mcp.length} MCP agent{mcp.length > 1 ? 's' : ''} ({mcp.map((a) => a.name).join(', ')}) join every deliverable above as tools.{' '}
+          {mcp.map((a) => a.name).join(', ')} lend{mcp.length > 1 ? '' : 's'} their tools to everything above.{' '}
           <button className="linklike" onClick={onEdit}>Manage</button>
         </p>
       )}
 
       {delegable.length > 0 ? (
         <>
-          <p className="work-intro">Delegate a task to one of your linked agents · its reply comes straight back.</p>
+          <p className="work-intro">Hand a whole task to one of your outside helpers · their answer comes straight back.</p>
           {delegable.length > 1 && (
             <select className="ext-pick" value={pick} onChange={(e) => setPick(e.target.value)}>
-              {delegable.map((a) => <option key={a.id} value={a.id}>{a.name} · {a.protocol.toUpperCase()}</option>)}
+              {delegable.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </select>
           )}
           <input
             className="work-brief"
-            placeholder={`Task for ${target?.name ?? 'the agent'}…`}
+            placeholder={`What should ${target?.name ?? 'they'} do?`}
             value={task}
             maxLength={600}
             onChange={(e) => setTask(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') void delegate() }}
           />
           <button className="work-btn ext-delegate" disabled={busy || !task.trim()} onClick={() => void delegate()}>
-            <span className="work-main"><span className="work-name">{busy ? 'Delegating…' : `Delegate to ${target?.name ?? 'agent'}`}</span></span>
+            <span className="work-main"><span className="work-name">{busy ? 'Sending…' : `Hand it to ${target?.name ?? 'them'}`}</span></span>
             {busy && <span className="work-spin" />}
           </button>
           {reply && (
@@ -263,7 +263,7 @@ function ExternalAgentsBlock({ agents, onEdit }: { agents: ExtAgent[]; onEdit: (
           )}
         </>
       ) : mcp.length === 0 ? (
-        <p className="work-intro">No linked agents yet. <button className="linklike" onClick={onEdit}>Link one</button> (Notion, Slack, MCP or A2A).</p>
+        <p className="work-intro">No outside helpers yet. <button className="linklike" onClick={onEdit}>Add one</button> · any AI agent you already run elsewhere.</p>
       ) : null}
     </section>
   )

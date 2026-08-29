@@ -266,13 +266,13 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     const err = useWork.getState().runError
     if (err) {
       const map: Record<string, string> = {
-        needs_key: 'Add your Claude key (Studio → Billing) for this deliverable.',
+        needs_key: 'Add your Claude key (Studio → Billing) for this piece of work.',
         quota: 'Daily free quota reached · add your Claude key to continue.',
-        not_configured: 'No AI model is configured on this deployment (Claude key or free cascade).',
+        not_configured: 'No AI is set up here yet · add your Claude key to get going.',
         network: 'Network error · please try again in a moment.',
         unknown_task: 'This task is not recognised by the server.',
       }
-      pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Deliverable not launched', text: map[err.code] || `Failed: ${err.detail || err.code}.` })
+      pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Could not start', text: map[err.code] || `Failed: ${err.detail || err.code}.` })
     }
   }
 
@@ -293,19 +293,19 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <>Or click <b>Launch Chief</b>: it chains brand, website, offer, ads and outreach on its own.</>,
           <>Every morning it sends you an <b>email report</b> (WhatsApp / Telegram coming soon).</>,
         ]} tip="One clear goal per message gives better results." />
-      case 'sentinel': return <Guide lead="Sentinel keeps your AI efficient, secure and under control: it sets how autonomous Chief is, caps spend, blocks loops, and keeps your secrets encrypted."
+      case 'sentinel': return <Guide lead="Sentinel keeps everything safe and under control: how much your team does on its own, how much it can spend, and where your keys are kept."
         steps={[
-          <>Choose an <b>autonomy level</b>: Auto self-regulates; Low / Medium / Hard / Ultra cap Chief at 1 / 5 / 10 / 25 autonomous tasks per day.</>,
-          <>Set a <b>daily credit cap</b>; an <b>anti-loop guard</b> stops a task that keeps repeating.</>,
-          <>Add <b>encrypted environment variables</b> (sealed server-side, AES-256-GCM) for your agents to use.</>,
-          <>Flip a <b>safety switch</b> · pause outbound email, or pause the whole company.</>,
-        ]} tip="These limits only rein in background autonomy: your manual launches always go through." />
+          <>Choose <b>how much they do on their own</b> each day · from Very light (1 task) up to No limit.</>,
+          <>Set a <b>daily spending limit</b> · a built-in guard also stops a task that keeps repeating.</>,
+          <>Save the <b>keys</b> your team needs · they are locked away on the server, never in the browser.</>,
+          <>Flip a <b>safety switch</b> · pause outgoing email, or stop the whole company at once.</>,
+        ]} tip="These limits only apply to what the team does on its own · anything you launch yourself always goes through." />
       case 'vaultor': return <Guide lead="Vaultor manages credits, subscriptions and payments. You top up in your own currency, with no crypto at all."
         steps={[
           <>Choose a <b>pack</b> (30 / 100 / 500 credits) shown in {fiatCur}.</>,
           <>The payment opens in a new window (card, secure).</>,
           <>Each task uses <b>about 1 credit</b>; settlement happens behind the scenes.</>,
-        ]} tip="Set an autonomy level (Sentinel) to keep your consumption under control." />
+        ]} tip="Set a daily limit in Sentinel to keep spending under control." />
       default: return null
     }
   }
@@ -325,41 +325,41 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
             <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>
           )}
           {noModel && (
-            <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> · Chief produces <b>drafts</b>. For real generation: <button className="linklike" onClick={() => openStudio('billing')}>add your Claude key</button> (Studio → Billing), or the operator enables a free key (Groq / Gemini).</p>
+            <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (Studio → Billing) for the real thing.</p>
           )}
           <p className="muted small">Chief delegates brand, website, offer, ads and outreach to the specialists (within Sentinel's limits) · daily email report.</p>
         </>
       )
       case 'sentinel': return (
         <>
-          <div className="sq-eyebrow">Autonomy &amp; limits</div>
+          <div className="sq-eyebrow">How much they do on their own</div>
           <div className="tb-netseg eng-seg">
             {(['auto', 'low', 'medium', 'hard', 'ultra'] as Autonomy[]).map((a) => (
               <button key={a} className={engine.autonomy === a ? 'on' : ''} onClick={() => engine.setAutonomy(a)}>{AUTONOMY_LABEL[a]}</button>
             ))}
           </div>
           <div className="eng-row">
-            <label>Daily credit cap
+            <label>Daily spending limit
               <input type="number" min="1" value={engine.dailyCreditCap} onChange={(e) => engine.setDailyCap(Number(e.target.value))} />
             </label>
             <div className="eng-stat">
               <span>{engine.tasksToday}{AUTONOMY_CAP[engine.autonomy] === Infinity ? '' : ` / ${AUTONOMY_CAP[engine.autonomy]}`}</span>
-              <em>tasks today</em>
+              <em>done today</em>
             </div>
             <div className="eng-stat">
               <span>{engine.creditsToday} / {engine.dailyCreditCap}</span>
-              <em>credits today</em>
+              <em>credits used today</em>
             </div>
           </div>
 
-          <div className="sq-eyebrow" style={{ marginTop: 14 }}>Encrypted environment variables</div>
-          {secMode === 'server' && <p className="sec-ok">🔒 <b>Encrypted vault:</b> your secrets are sealed server-side (AES-256-GCM) · never stored in the browser.</p>}
-          {secMode === 'local' && <p className="sec-warn">⚠️ <b>Server vault not configured</b> here: secrets are kept <b>in your browser</b>. Don't paste a real production key.</p>}
+          <div className="sq-eyebrow" style={{ marginTop: 14 }}>Your saved keys</div>
+          {secMode === 'server' && <p className="sec-ok"><b>Locked away safely</b> · sealed on the server, never kept in this browser.</p>}
+          {secMode === 'local' && <p className="sec-warn"><b>Secure storage is not set up here yet</b> · keys stay <b>in this browser</b>. Don't paste a real production key.</p>}
           <div className="sec-add">
             <input className="sec-key" placeholder="SERVICE_API_KEY" value={secKey} onChange={(e) => setSecKey(e.target.value.toUpperCase())} maxLength={48} />
-            <input className="sec-val" type="password" placeholder="Secret value" value={secVal} onChange={(e) => setSecVal(e.target.value)} />
-            <input className="sec-desc" placeholder="Description (optional) · helps your agents pick the right secret" value={secDesc} onChange={(e) => setSecDesc(e.target.value)} maxLength={80} />
-            <button className="btn tiny" disabled={!secKey.trim() || !secVal.trim() || secBusy} onClick={() => void saveSecret()}>{secBusy ? 'Saving…' : 'Save secret'}</button>
+            <input className="sec-val" type="password" placeholder="The key itself" value={secVal} onChange={(e) => setSecVal(e.target.value)} />
+            <input className="sec-desc" placeholder="What is it for? (optional) · helps your team pick the right one" value={secDesc} onChange={(e) => setSecDesc(e.target.value)} maxLength={80} />
+            <button className="btn tiny" disabled={!secKey.trim() || !secVal.trim() || secBusy} onClick={() => void saveSecret()}>{secBusy ? 'Saving…' : 'Save key'}</button>
           </div>
           {secretList.length > 0 ? (
             <ul className="sec-list">
@@ -541,7 +541,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         <div className="biz-tile"><span>{engine.creditsToday}</span><em>credits (today)</em></div>
         <div className="biz-tile"><span>{delivs.filter((d) => d.taskId === 'ads').length}</span><em>campaigns</em></div>
         <div className="biz-tile"><span>{delivs.filter((d) => d.taskId === 'outreach').length}</span><em>outreach</em></div>
-        <div className="biz-tile"><span>{tasksDone}</span><em>deliverables</em></div>
+        <div className="biz-tile"><span>{tasksDone}</span><em>results</em></div>
         <div className="biz-tile"><span>{connectedCount}</span><em>apps</em></div>
       </div>
 
@@ -564,7 +564,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         {autopilot.running
           ? <p className="ceo-autopilot"><span className="ceo-spin" /> Chief is working · <b>{autopilot.step}</b>…</p>
           : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>}
-        {noModel && <p className="ceo-nomodel">⚠️ <b>No AI model connected</b> · Chief produces <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
+        {noModel && <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for the real thing.</p>}
       </div>
 
       <div className="mission-head">

@@ -72,10 +72,11 @@ export default function SentinelModule({ dojoId }: ModuleProps) {
 
   return (
     <div className="sentinel-mod sq">
-      <div className="sq-eyebrow">Autonomy &amp; limits
-        <InfoDot title="Security Studio" label="How security &amp; limits work">
-          <p><b>Autonomy</b> sets how far agents can act on their own — from asking every time to fully autonomous. <b>Daily credit cap</b> hard-limits spend per day; the anti-loop guard stops runaway retries.</p>
-          <p>The <b>encrypted vault</b> below stores your company secrets (API keys, env vars) sealed server-side (AES-256-GCM) — the browser never sees them. Use the switches to pause the whole company instantly.</p>
+      <div className="sq-eyebrow">How much they do on their own
+        <InfoDot title="Safety" label="Freedom &amp; spending">
+          <p>This sets how much work your team can do <b>without asking you</b> each day. Pick a lighter setting while you get comfortable · your own manual launches are never limited.</p>
+          <p>The <b>daily spending limit</b> caps what they can spend, and a built-in guard stops a teammate repeating the same thing over and over.</p>
+          <p>Below, your <b>saved keys</b> are locked away on the server · the browser never sees them again. Use the switches to stop everything instantly.</p>
         </InfoDot>
       </div>
       <div className="tb-netseg eng-seg">
@@ -84,19 +85,19 @@ export default function SentinelModule({ dojoId }: ModuleProps) {
         ))}
       </div>
       <div className="eng-row">
-        <label>Daily credit cap
+        <label>Daily spending limit
           <input type="number" min="1" value={engine.dailyCreditCap} onChange={(e) => engine.setDailyCap(Number(e.target.value))} />
         </label>
-        <div className="eng-stat"><span>{engine.tasksToday}{AUTONOMY_CAP[engine.autonomy] === Infinity ? '' : ` / ${AUTONOMY_CAP[engine.autonomy]}`}</span><em>tasks today</em></div>
-        <div className="eng-stat"><span>{engine.creditsToday} / {engine.dailyCreditCap}</span><em>credits today</em></div>
+        <div className="eng-stat"><span>{engine.tasksToday}{AUTONOMY_CAP[engine.autonomy] === Infinity ? '' : ` / ${AUTONOMY_CAP[engine.autonomy]}`}</span><em>done today</em></div>
+        <div className="eng-stat"><span>{engine.creditsToday} / {engine.dailyCreditCap}</span><em>credits used today</em></div>
       </div>
 
-      <div className="sq-eyebrow" style={{ marginTop: 14 }}>Environment variables · encrypted vault</div>
+      <div className="sq-eyebrow" style={{ marginTop: 14 }}>Your saved keys</div>
       {secMode === 'server' && (
-        <p className="sec-ok">🔒 <b>Encrypted vault active.</b> Just like Vercel: values are sealed server-side with <b>AES-256-GCM</b>, decrypted only at run time for your agents, and <b>never shown again</b> after you save them. Re-save the same name to rotate a value.</p>
+        <p className="sec-ok"><b>Locked away safely.</b> Values are sealed on the server, unlocked only while your team is working, and <b>never shown again</b> after you save them. Save the same name again to replace a value.</p>
       )}
       {secMode === 'local' && (
-        <p className="sec-warn">⚠️ <b>Server vault not configured</b> in this deployment (needs <code>DATABASE_URL</code> + <code>CONNECTOR_ENC_KEY</code>). Secrets stay <b>in your browser only</b> — safe for testing, but don't paste a real production key here.</p>
+        <p className="sec-warn"><b>Secure storage is not set up here yet.</b> Keys stay <b>in this browser only</b> — fine for trying things out, but don't paste a real production key.</p>
       )}
       <div className="sec-add">
         <div className="sec-keywrap">

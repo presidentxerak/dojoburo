@@ -25,10 +25,10 @@ export function LoopPanel({ dojoId }: { dojoId: string }) {
   return (
     <section className="lp-panel" style={{ ['--ac' as string]: arch.tint }}>
       <header className="lp-panel-h">
-        <h3>The loop
-          <InfoDot title="The loop" label="How the loop works">
-            <p>The loop is your crew working <b>in order</b>. Each step is handed to the agent that owns it, with your project goal as the brief and that agent's own connected apps.</p>
-            <p>Every step produces a real deliverable you can open. You can also run any agent on its own — the loop is just the fast path.</p>
+        <h3>The plan
+          <InfoDot title="The plan" label="How this gets done">
+            <p>Your team works through these steps <b>in order</b>. Each step goes to the teammate who owns it, with your goal as the brief and the apps they can reach.</p>
+            <p>Every step produces something real you can open. You can also ask any teammate to work on their own — this is just the fast way to get everything done at once.</p>
           </InfoDot>
         </h3>
         <span className="lp-count">{done}/{arch.loop.length}</span>
@@ -37,7 +37,7 @@ export function LoopPanel({ dojoId }: { dojoId: string }) {
       <input
         className="lp-goal"
         value={dojo.goal ?? ''}
-        placeholder="The goal of this project · e.g. grow our Instagram to 10k with weekly posts"
+        placeholder="What do you want out of this? e.g. grow our Instagram to 10k with weekly posts"
         maxLength={240}
         onChange={(e) => setGoal(dojo.id, e.target.value)}
       />
@@ -65,7 +65,7 @@ export function LoopPanel({ dojoId }: { dojoId: string }) {
       {loop.error && loop.dojoId === dojoId && <p className="lp-err">{loop.error}</p>}
 
       <button className="btn primary tiny lp-run" disabled={running} onClick={() => void runLoop(dojoId)}>
-        {running ? 'Running…' : done === arch.loop.length && done > 0 ? 'Run again' : 'Run the loop'}
+        {running ? 'Working…' : done === arch.loop.length && done > 0 ? 'Run it again' : 'Run every step'}
       </button>
     </section>
   )

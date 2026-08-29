@@ -136,7 +136,7 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
         <div className="biz-tile"><span>{engine.dailyCreditCap}</span><em>daily cap</em></div>
         <div className="biz-tile"><span>{connectedCount}</span><em>connected apps</em></div>
       </div>
-      <p className="muted small">Set your autonomy level and daily cap in <b>Sentinel</b> to keep spend under control.</p>
+      <p className="muted small">Set how much your team does on its own, and a daily spending limit, in <b>Sentinel</b>.</p>
 
       {/* the office usage dashboard (moved here from the panda) */}
       <div style={{ marginTop: 18 }}><OfficeStats /></div>

@@ -159,7 +159,7 @@ export default function TeamStudio({ agentKey }: ModuleProps & { agentKey: strin
     if (tools.github?.connected && repo.trim()) {
       setBusy('devi'); const r = await toolAction('github', 'issue', { repo: repo.trim(), title }); setBusy('')
       if (r.ok) { setText(''); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: `Issue #${r.number} opened`, text: `In ${repo.trim()}.` }) }
-      else { const m: Record<string, string> = { no_repo: 'Enter a repo as owner/name.', not_connected: 'Connect GitHub first.', no_backend: 'Needs the server vault configured.', create_failed: 'GitHub refused it · check repo access.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not created', text: m[r.error || ''] || 'Could not open the issue.' }) }
+      else { const m: Record<string, string> = { no_repo: 'Enter a repo as owner/name.', not_connected: 'Connect GitHub first.', no_backend: 'Secure storage is not set up here yet.', create_failed: 'GitHub refused it · check repo access.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not created', text: m[r.error || ''] || 'Could not open the issue.' }) }
       return
     }
     const draft = `# ${title}\n\n## Context\n- \n\n## Acceptance criteria\n- [ ] \n- [ ] `
@@ -173,7 +173,7 @@ export default function TeamStudio({ agentKey }: ModuleProps & { agentKey: strin
     setBusy('')
     if (r.error === 'cancelled') return
     if (r.ok) { setText(''); pushToast({ kind: 'event', badge: 'OK', color: '#1fa563', title: channel === 'slack' ? 'Posted to Slack' : 'Posted to Discord', text: 'Your broadcast is live.' }) }
-    else { const m: Record<string, string> = { not_connected: 'Connect it first.', no_backend: 'Needs the server vault configured.', no_webhook: 'Discord needs an operator webhook (DISCORD_WEBHOOK_URL).', rate: 'Too many sends · wait a minute.', post_failed: 'The app refused it.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not sent', text: m[r.error || ''] || 'Could not send.' }) }
+    else { const m: Record<string, string> = { not_connected: 'Connect it first.', no_backend: 'Secure storage is not set up here yet.', no_webhook: 'Discord needs an operator webhook (DISCORD_WEBHOOK_URL).', rate: 'Too many sends · wait a minute.', post_failed: 'The app refused it.' }; pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Not sent', text: m[r.error || ''] || 'Could not send.' }) }
   }
   const runDraft = async (make: (t: string) => string, label: string) => {
     const t = text.trim(); if (!t) return

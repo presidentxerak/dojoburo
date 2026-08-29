@@ -357,7 +357,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         <b>Image</b>
         <input className="ct-input" value={imgPrompt} placeholder="Describe an image to generate…" onChange={(e) => setImgPrompt(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') generateAiImage() }} />
         <div className="ct-actions">
-          <button className="btn tiny" onClick={generateAiImage}>✨ AI image</button>
+          <button className="btn tiny" onClick={generateAiImage}>AI image</button>
           <label className="btn tiny ghost">Import<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'image'); e.currentTarget.value = '' }} /></label>
           <button className="btn tiny ghost" onClick={generateBanner}>Banner</button>
         </div>
@@ -366,7 +366,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
         <b>Video &amp; text</b>
         <div className="ct-actions">
           <label className="btn tiny">Import video<input type="file" accept="video/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) importMedia(f, 'video'); e.currentTarget.value = '' }} /></label>
-          <button className="btn tiny ghost" onClick={generateText}>✨ Copy block</button>
+          <button className="btn tiny ghost" onClick={generateText}>Write copy</button>
         </div>
       </div>
       <div className="ct-card">
@@ -658,7 +658,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
                 <button title="Duplicate" onClick={() => dup(selected.id)}>⎘</button>
                 <button title="Move up" onClick={() => move(selected.id, -1)}>↑</button>
                 <button title="Move down" onClick={() => move(selected.id, 1)}>↓</button>
-                <button className="site-ctx-del" title="Delete" onClick={() => del(selected.id)}>🗑</button>
+                <button className="site-ctx-del" title="Delete" onClick={() => del(selected.id)}>×</button>
               </div>
             )}
           </div>
@@ -730,7 +730,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
                 {selected.type === 'image' ? (
                   <>
                     <label className="btn tiny">Upload image<input type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) replaceMedia(f, 'image'); e.currentTarget.value = '' }} /></label>
-                    <button className="btn tiny ghost" onClick={aiImageOnSelected}>✨ AI image</button>
+                    <button className="btn tiny ghost" onClick={aiImageOnSelected}>AI image</button>
                     {String(selected.props.src || '') && <button className="btn tiny ghost" onClick={() => patchSelected({ src: '' })}>Remove</button>}
                   </>
                 ) : (
@@ -741,7 +741,7 @@ export default function WebsiteModule({ dojoId }: ModuleProps) {
                 )}
               </div>
               {selected.type === 'image' && (
-                <input className="site-media-prompt" value={imgPrompt} placeholder="Describe an AI image, then ✨" onChange={(e) => setImgPrompt(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') aiImageOnSelected() }} />
+                <input className="site-media-prompt" value={imgPrompt} placeholder="Describe the image you want…" onChange={(e) => setImgPrompt(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') aiImageOnSelected() }} />
               )}
             </div>
           )}

@@ -107,7 +107,7 @@ export function CompanyReport({ dojoId }: { dojoId: string }) {
   }, [tools])
 
   const exportCsv = () => {
-    const head = ['Agent', 'Role', 'Department', 'Deliverables', 'Apps connected', 'Apps total']
+    const head = ['Agent', 'Role', 'Team', 'Results', 'Apps connected', 'Apps total']
     const lines = [head.join(',')]
     for (const r of rows) lines.push([r.name, r.title, r.dept, r.deliverables, r.appsOn, r.appsTotal].map((v) => csvEscape(String(v))).join(','))
     lines.push('')
@@ -130,7 +130,7 @@ export function CompanyReport({ dojoId }: { dojoId: string }) {
       <div className="mission-head">
         <h3>Company report
           <InfoDot title="Company report" label="How the report works">
-            <p>A cross-team snapshot: deliverables and app coverage per agent (bar charts), the work-flow pipeline, and live KPIs where connected (Stripe revenue, GA sessions, HubSpot pipeline, meetings).</p>
+            <p>A snapshot across the whole company: how much each teammate produced and which apps they can reach, how work flows between them, and live numbers where connected (Stripe revenue, GA sessions, HubSpot pipeline, meetings).</p>
             <p><b>Export CSV</b> downloads the underlying data; <b>Export charts (SVG)</b> saves the graphs as a vector file for slides or docs.</p>
           </InfoDot>
         </h3>
@@ -142,7 +142,7 @@ export function CompanyReport({ dojoId }: { dojoId: string }) {
       </div>
 
       <div className="rep-kpis">
-        <div className="rep-kpi"><span>{totalDeliv}</span><em>deliverables</em></div>
+        <div className="rep-kpi"><span>{totalDeliv}</span><em>results</em></div>
         <div className="rep-kpi"><span>{engine.creditsToday}</span><em>credits (today)</em></div>
         <div className="rep-kpi"><span>{totalApps}</span><em>apps connected</em></div>
         <div className="rep-kpi"><span>{rows.length}</span><em>active agents</em></div>
@@ -170,8 +170,8 @@ export function CompanyReport({ dojoId }: { dojoId: string }) {
 
       <div ref={svgWrap} className="rep-charts">
         <div className="rep-chart">
-          <h4 className="brand-h">Deliverables by agent</h4>
-          <BarChart rows={rows} valueKey="deliverables" max={maxDeliv} unit="deliverables" />
+          <h4 className="brand-h">Work done, by teammate</h4>
+          <BarChart rows={rows} valueKey="deliverables" max={maxDeliv} unit="results" />
         </div>
         <div className="rep-chart">
           <h4 className="brand-h">App coverage by agent</h4>

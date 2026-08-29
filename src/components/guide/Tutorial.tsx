@@ -10,10 +10,10 @@ interface Beat { id: string; title: string; body: string }
 const BEATS: Beat[] = [
   { id: 'pipeline', title: '1 · Your pipeline', body: 'You land on one screen: your pipeline. It holds every project you are working on, in order. Nothing else to learn.' },
   { id: 'pick', title: '2 · Pick a project', body: 'Choose a ready-made card that matches your goal — a social campaign, an app, a book, a shop. It drops into your pipeline instantly.' },
-  { id: 'crew', title: '3 · Your crew is hired', body: 'Each project arrives already staffed with exactly the agents that job needs: a researcher, a creator, an analyst, an orchestrator…' },
+  { id: 'crew', title: '3 · Your crew is hired', body: 'Each project arrives already staffed with exactly the agents that job needs: a researcher, a maker, an analyst, a team lead…' },
   { id: 'apps', title: '4 · Their apps connect', body: 'Every agent comes wired to the tools it works in. Connect one in a click and the agent acts inside your real account.' },
-  { id: 'loop', title: '5 · Run the loop', body: 'Give the project a goal and hit Run. The orchestrator hands each step to the right agent, in order, and they work through it.' },
-  { id: 'ship', title: '6 · You get the work', body: 'Every step produces a real deliverable you can open, edit and export. Add another project and your pipeline grows.' },
+  { id: 'loop', title: '5 · Run every step', body: 'Give the project a goal and hit Run. The team lead hands each step to the right teammate, in order, and they work through it.' },
+  { id: 'ship', title: '6 · You get the work', body: 'Every step produces something real you can open, edit and export. Add another project and your pipeline grows.' },
 ]
 
 const CREW = [

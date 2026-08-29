@@ -145,7 +145,7 @@ export function Landing({ enter }: { enter: () => void }) {
           Notion page, open the GitHub PR, draft the Gmail, post the campaign, raise the Stripe invoice, move
           the Jira ticket.
         </p>
-        <p className="lp-note">Every agent ships with a small, curated set of the best apps for its job · no clutter, no duplicates. It's fully modular: open any studio's <b>Connect apps</b> panel to add any connector from the catalog, or remove one you don't need. Your choices are saved per company.</p>
+        <p className="lp-note">Every agent ships with a small, curated set of the best apps for its job · no clutter, no duplicates. It's fully modular: open any studio's <b>Connect apps</b> panel to add another app, or remove one you don't need. Your choices are saved per company.</p>
         <div className="lp-toolwall">
           {CONNECTORS.map((c) => (
             <span className="lp-toolpill" key={c.id} title={c.blurb}>{c.label}</span>
@@ -163,7 +163,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <h3>Or keep it local</h3>
             <ul>
               <li>Self-host the worker and point connectors at your own MCP endpoints · your keys, your machine, the same office.</li>
-              <li>Bring your own model key (Claude) or run the free-model cascade; nothing leaves your control.</li>
+              <li>Bring your own Claude key, or run on a free model · nothing leaves your control.</li>
             </ul>
           </div>
         </div>
@@ -212,7 +212,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <div className="lp-steps">
           <div className="lp-step"><span className="lp-n">1</span><h3>Describe your company</h3><p>Tell your CEO agent what you're building, in one sentence. It drafts the plan, names the offers and assembles the crew.</p></div>
           <div className="lp-step"><span className="lp-n">2</span><h3>The crew builds &amp; runs it</h3><p>Specialist agents ship your website, craft offers and drive growth · B2B outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · doing real work in your apps.</p></div>
-          <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, set its autonomy (Auto → Ultra) and a daily credit cap. A guard stops it from looping.</p></div>
+          <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, decide how much it does on its own and set a daily spending limit. A guard stops it from going in circles.</p></div>
           <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit, settled behind the scenes. Your CEO dashboard tallies the numbers and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
         </div>
       </section>
@@ -221,14 +221,14 @@ export function Landing({ enter }: { enter: () => void }) {
         <Object3D kind="coins" color={C.yellow} side="right" parallax={0.15} />
         <span className="lp-ico" style={{ background: C.yellow, color: '#1a1300' }}><AsciiIcon kind="cost" /></span>
         <h2>Smart, and genuinely cheap</h2>
-        <p className="lp-lead">Every task runs through a cost cascade: it stops at the cheapest tier that passes a quality check. Most work is free; frontier models are the rare last resort, so a task costs about a cent.</p>
+        <p className="lp-lead">Every task starts at the cheapest option that can do the job well and only moves up if it has to. Most work is free; the expensive models are a rare last resort, so a task costs about a cent.</p>
         <div className="lp-cascade">
           <div className="lp-tier"><b>0</b><span className="lp-tier-main">Templates &amp; cached data · no model</span><span className="lp-tier-cost">free</span></div>
           <div className="lp-tier"><b>1</b><span className="lp-tier-main">Free tiers · Groq · Gemini · Cerebras</span><span className="lp-tier-cost">≈ free</span></div>
           <div className="lp-tier"><b>2</b><span className="lp-tier-main">Open models · DeepSeek · Llama</span><span className="lp-tier-cost">≈ $0.01</span></div>
           <div className="lp-tier"><b>3</b><span className="lp-tier-main">Frontier · Claude, only when needed</span><span className="lp-tier-cost">rare</span></div>
         </div>
-        <p className="lp-note">A built-in support assistant uses the same cascade with hard spending limits and keys kept server-side.</p>
+        <p className="lp-note">The built-in help assistant works the same way, with hard spending limits and keys kept safely on the server.</p>
       </section>
 
       <section className="lp-sec alt" id="pricing">
@@ -346,9 +346,9 @@ export function Landing({ enter }: { enter: () => void }) {
             </ul>
           </div>
           <div>
-            <h3>Your settings &amp; autonomy</h3>
+            <h3>Your settings &amp; limits</h3>
             <ul>
-              <li>Set how much rope your CEO gets · autonomy from Auto to Low, Medium, Hard or Ultra · plus a daily credit cap so it can never overspend.</li>
+              <li>Decide how much your CEO does on its own · from Very light to No limit · plus a daily spending limit so it can never overspend.</li>
               <li>A built-in guard stops the CEO from looping, and preferences (theme, sound, notifications) are saved to your account.</li>
               <li>Get a daily report by email today · WhatsApp &amp; Telegram coming soon · and your CEO stays reachable to steer any time.</li>
             </ul>
@@ -372,19 +372,19 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec" id="tools">
-        <h2>Real tools, real deliverables</h2>
+        <h2>Real tools, real work</h2>
         <p className="lp-lead">The agents don't just animate · they produce real work with your connected apps, metered as credits.</p>
         <div className="lp-two">
           <div>
             <h3>The model + tool layer</h3>
             <ul>
-              <li>Each task maps to a <b>tool contract</b> (inputs → output). Behind it sits a Claude model call · your own key (BYOK) or a free-model cascade · with the tools that function needs.</li>
+              <li>Each task has a clear shape (what goes in, what comes out). Behind it sits a Claude call · your own key or a free model · with the tools that job needs.</li>
               <li>Your connected apps are exposed as <b>remote MCP servers</b> · Notion, GitHub, Gmail, Slack, Jira, Stripe and {CONNECTORS.length - 6}+ more · so an agent opens a PR, posts a message or drafts a doc for real.</li>
               <li>Credits are the <b>metering</b>: a task runs its tool calls and spends about one credit, settled behind the scenes, so every unit of real work is auditable.</li>
             </ul>
           </div>
           <div>
-            <h3>Real deliverables, today</h3>
+            <h3>Real work, today</h3>
             <ul>
               <li>Brandi ships a real brand identity, Weblos builds your website, Devi opens a PR, Marketus drafts a campaign and Busino builds a financial model · each returns an artifact you can open.</li>
               <li>Outputs render in the agent card and activity log, and land in your connected tool (the Notion page, the Drive doc, the Linear issue).</li>

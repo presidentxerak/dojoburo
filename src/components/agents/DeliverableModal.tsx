@@ -43,7 +43,7 @@ export function DeliverableModal() {
               <>Settled {d.settlement.amountXrp} XRP via x402 on Mainnet ·{' '}
                 <a href={d.settlement.explorerUrl} target="_blank" rel="noreferrer">view on XRPL ↗</a></>
             ) : (
-              <>Deliverable ready · on-ledger settlement pending{d.settlement.error ? ` (${d.settlement.error})` : ''}</>
+              <>Work ready · payment still settling{d.settlement.error ? ` (${d.settlement.error})` : ''}</>
             )}
           </div>
         )}

@@ -18,6 +18,7 @@ import { SkinAvatar } from './SkinAvatar'
 import { TemplateThumb } from './TemplateThumb'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 import { ConnectorsPanel } from '../ConnectorsPanel'
+import { AgentContext } from '../agents/AgentContext'
 import { TopBar } from '../TopBar'
 import { PageBar } from '../PageBar'
 import { StepBar } from '../../modules/StepBar'
@@ -100,7 +101,7 @@ function ProjectFileIO({ label }: { label: string }) {
   return (
     <div className="proj-io">
       <div className="sq-eyebrow" style={{ marginTop: 16 }}>Project file (.dojo)</div>
-      <p className="sq-lead">Save your entire workspace — every dojo and all your studios' assets (brand, website, videos, images, deliverables) — to a single <b>.dojo</b> file on your disk, and re-open it anywhere. 100% local.</p>
+      <p className="sq-lead">Save your entire workspace — every dojo and all your studios' assets (brand, website, videos, images, finished work) — to a single <b>.dojo</b> file on your disk, and re-open it anywhere. 100% local.</p>
       <div className="cc-clip-ops">
         <button onClick={() => void save()} disabled={busy}>{busy ? '…' : '⤓ Save project (.dojo)'}</button>
         <button onClick={() => fileRef.current?.click()} disabled={busy}>⤒ Open a .dojo file</button>
@@ -266,8 +267,8 @@ function StudioTab() {
               </button>
             </div>
             <div className="ws-editor">
-              {!agent && <p className="ws-empty">Select or add an agent to edit its skin, function, tasks and budget.</p>}
-              {agent && <AgentEditor agent={agent} currency={currency} onPickSkin={() => setPicking(true)} onDeleted={() => setSel(null)} />}
+              {!agent && <p className="ws-empty">Pick a teammate to change their look, their job, what they work on and how they work.</p>}
+              {agent && <AgentEditor agent={agent} dojoId={dojo?.id ?? ''} currency={currency} onPickSkin={() => setPicking(true)} onDeleted={() => setSel(null)} />}
             </div>
           </div>
         </section>
@@ -360,7 +361,7 @@ function TemplatePicker({ current, mode, onPick, onPickProfession, onClose }: { 
   )
 }
 
-function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent; currency: string; onPickSkin: () => void; onDeleted: () => void }) {
+function AgentEditor({ agent, dojoId, currency, onPickSkin, onDeleted }: { agent: WAgent; dojoId: string; currency: string; onPickSkin: () => void; onDeleted: () => void }) {
   const update = useWorkshop((s) => s.updateAgent)
   const remove = useWorkshop((s) => s.deleteAgent)
   const fn = FUNCTION_BY_ID[agent.fn]
@@ -390,7 +391,7 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
       </label>
 
       <label className="ws-field">
-        <span>Function</span>
+        <span>Their job</span>
         <select
           value={agent.fn}
           onChange={(e) => update(agent.id, { fn: e.target.value as WAgent['fn'], tasks: (FUNCTION_BY_ID[e.target.value]?.tasks ?? []).slice(0, 4).map((t) => t.id) })}
@@ -401,7 +402,7 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
       <p className="ws-blurb">{fn?.blurb}</p>
 
       <div className="ws-field">
-        <span>Tasks · add or remove</span>
+        <span>What they work on</span>
         {/* the agent's current tasks · each removable */}
         <div className="ws-tasks">
           {agent.tasks.map((tid) => (
@@ -426,7 +427,7 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
         <div className="ws-task-custom">
           <input
             value={customTask}
-            placeholder="Add a custom task…"
+            placeholder="Add something else…"
             maxLength={40}
             onChange={(e) => setCustomTask(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom() } }}
@@ -444,13 +445,16 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
         <em className="ws-conv">≈ {formatFrom(agent.budgetXrp, currency as any)}</em>
       </label>
 
+      {/* the plain-language brief · how this teammate works, editable as a form */}
+      {agent.role && <AgentContext dojoId={dojoId} roleId={agent.role} agentName={agent.name} />}
+
       {/* apps this agent's tasks can act inside · connect them right here */}
       <div className="ws-conn"><ConnectorsPanel dept={agent.fn} /></div>
 
       {/* external agents · link the user's own Notion/Slack/MCP/A2A agents */}
       <ExternalAgentsPanel agent={agent} onChange={(list) => update(agent.id, { externalAgents: list })} />
 
-      <button className="ws-btn danger" onClick={() => { remove(agent.id); onDeleted() }}>Delete agent</button>
+      <button className="ws-btn danger" onClick={() => { remove(agent.id); onDeleted() }}>Remove from the team</button>
     </div>
   )
 }
@@ -459,10 +463,14 @@ function AgentEditor({ agent, currency, onPickSkin, onDeleted }: { agent: WAgent
 // DojoBuro agent. MCP agents plug in as tools during a run; A2A / webhook agents
 // receive delegated tasks. Verify checks reachability + identity via the server
 // proxy (tokens stay off the browser wire).
+const PROTO_TAG: Record<ExtAgent['protocol'], string> = {
+  mcp: 'Tools', a2a: 'Delegate', webhook: 'Web',
+}
+
 const PROTO_HELP: Record<ExtAgent['protocol'], string> = {
-  mcp: 'MCP server · its tools are handed to this agent during a run.',
-  a2a: 'A2A agent · this agent can delegate a whole task to it.',
-  webhook: 'Webhook · POSTs { task } and reads the reply text.',
+  mcp: 'Lends its tools · your teammate can use them while it works. (MCP)',
+  a2a: 'Takes over a whole task · your teammate hands the job across and waits for the answer. (A2A)',
+  webhook: 'A plain web address · we send it the task and read the reply. (Webhook)',
 }
 
 function ExternalAgentsPanel({ agent, onChange }: { agent: WAgent; onChange: (list: ExtAgent[]) => void }) {
@@ -479,7 +487,7 @@ function ExternalAgentsPanel({ agent, onChange }: { agent: WAgent; onChange: (li
     if (!u || !/^https:\/\//i.test(u)) return
     const ext: ExtAgent = {
       id: 'ext_' + u.replace(/[^a-z0-9]/gi, '').slice(-8) + '_' + list.length,
-      name: name.trim() || 'External agent',
+      name: name.trim() || 'Outside helper',
       protocol, url: u, authToken: token.trim() || undefined,
     }
     onChange([...list, ext])
@@ -500,10 +508,10 @@ function ExternalAgentsPanel({ agent, onChange }: { agent: WAgent; onChange: (li
   return (
     <div className="ws-extagents">
       <div className="ws-ext-h">
-        <span>External agents <span className="ws-ext-count">{list.length}</span></span>
-        <button className="ws-btn" onClick={() => setOpen((v) => !v)}>{open ? 'Cancel' : '+ Link an agent'}</button>
+        <span>Outside helpers <span className="ws-ext-count">{list.length}</span></span>
+        <button className="ws-btn" onClick={() => setOpen((v) => !v)}>{open ? 'Cancel' : '+ Add a helper'}</button>
       </div>
-      <p className="ws-blurb">Plug your own agents (Notion, Slack, or any MCP / A2A host) into this one. MCP tools join a run; A2A agents receive delegated tasks.</p>
+      <p className="ws-blurb">Already have an AI agent somewhere else (Notion, Slack, your own)? Bring it in to help this teammate. It can either lend its tools, or take a whole task off their hands.</p>
 
       {list.length > 0 && (
         <ul className="ws-extlist">
@@ -513,7 +521,7 @@ function ExternalAgentsPanel({ agent, onChange }: { agent: WAgent; onChange: (li
               <li key={ext.id} className="ws-extrow">
                 <div className="ws-extmain">
                   <strong>{ext.name}</strong>
-                  <span className={`ws-extproto p-${ext.protocol}`}>{ext.protocol.toUpperCase()}</span>
+                  <span className={`ws-extproto p-${ext.protocol}`}>{PROTO_TAG[ext.protocol]}</span>
                   <span className="ws-exturl">{ext.url}</span>
                   {st?.msg && <span className={`ws-extstatus ${st.ok ? 'ok' : 'err'}`}>{st.busy ? 'Checking…' : st.msg}</span>}
                 </div>
@@ -530,20 +538,20 @@ function ExternalAgentsPanel({ agent, onChange }: { agent: WAgent; onChange: (li
       {open && (
         <div className="ws-extform">
           <div className="ws-extgrid">
-            <label className="ws-field"><span>Label</span><input value={name} maxLength={30} placeholder="My Notion agent" onChange={(e) => setName(e.target.value)} /></label>
+            <label className="ws-field"><span>Name</span><input value={name} maxLength={30} placeholder="My Notion agent" onChange={(e) => setName(e.target.value)} /></label>
             <label className="ws-field">
-              <span>Protocol</span>
+              <span>How it helps</span>
               <select value={protocol} onChange={(e) => setProtocol(e.target.value as ExtAgent['protocol'])}>
-                <option value="mcp">MCP (tools)</option>
-                <option value="a2a">A2A (delegate)</option>
-                <option value="webhook">Webhook</option>
+                <option value="mcp">Lends its tools</option>
+                <option value="a2a">Takes a whole task</option>
+                <option value="webhook">Plain web address</option>
               </select>
             </label>
           </div>
-          <label className="ws-field"><span>Endpoint URL (https)</span><input value={url} placeholder="https://…" onChange={(e) => setUrl(e.target.value)} /></label>
-          <label className="ws-field"><span>Auth token (optional)</span><input type="password" value={token} autoComplete="off" placeholder="Bearer token / API key" onChange={(e) => setToken(e.target.value)} /></label>
+          <label className="ws-field"><span>Web address (https)</span><input value={url} placeholder="https://…" onChange={(e) => setUrl(e.target.value)} /></label>
+          <label className="ws-field"><span>Access key (optional)</span><input type="password" value={token} autoComplete="off" placeholder="Leave empty if it needs none" onChange={(e) => setToken(e.target.value)} /></label>
           <p className="ws-blurb">{PROTO_HELP[protocol]}</p>
-          <button className="ws-btn primary" disabled={!/^https:\/\//i.test(url.trim())} onClick={add}>Link agent</button>
+          <button className="ws-btn primary" disabled={!/^https:\/\//i.test(url.trim())} onClick={add}>Add helper</button>
         </div>
       )}
     </div>
@@ -719,8 +727,8 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
     <div className="ws-keypanel">
       <h3>Your Claude key <span className="ws-tag-byok">you pay only for what you use</span></h3>
       <p className="ws-blurb">
-        Agents produce real deliverables with Claude. Add <strong>your own</strong> Anthropic key and every run is billed to
-        <strong> your</strong> account · you pay only for your choices and connected tools. Without a key, text deliverables still
+        Your teammates produce real work with Claude. Add <strong>your own</strong> Anthropic key and every run is billed to
+        <strong> your</strong> account · you pay only for your choices and connected tools. Without a key, written work still
         run on a free tier; the <strong>Design system</strong> and acting inside your tools (Notion, GitHub…) need a key.
       </p>
 

@@ -116,7 +116,7 @@ export function PipelineHome({ onOpenProject }: { onOpenProject: (dojoId: string
                     <span className="ph-glyph sm" style={{ background: tint }}>{a?.glyph ?? '◆'}</span>
                     <div className="ph-proj-txt">
                       <strong>{d.name}</strong>
-                      <em>{a ? a.label : 'Full company'} · {crew.length} agents{a ? ` · ${a.loop.length} steps` : ''}</em>
+                      <em>{a ? a.label : 'Full company'} · {crew.length} teammates{a ? ` · ${a.loop.length} steps` : ''}</em>
                     </div>
                     <span className="ph-proj-crew">
                       {crew.slice(0, 6).map((x) => {
@@ -130,7 +130,7 @@ export function PipelineHome({ onOpenProject }: { onOpenProject: (dojoId: string
                   <input
                     className="ph-goal"
                     value={d.goal ?? ''}
-                    placeholder="What should this project achieve? (one line)"
+                    placeholder="What do you want out of this? (one line)"
                     maxLength={240}
                     onChange={(e) => setGoal(d.id, e.target.value)}
                   />
@@ -139,7 +139,7 @@ export function PipelineHome({ onOpenProject }: { onOpenProject: (dojoId: string
                     <button className="ph-ic" onClick={() => reorder(d.id, -1)} disabled={i === 0} aria-label="Move up" title="Move up">↑</button>
                     <button className="ph-ic" onClick={() => reorder(d.id, 1)} disabled={i === dojos.length - 1} aria-label="Move down" title="Move down">↓</button>
                     <button className="ph-ic danger" aria-label={`Delete ${d.name}`} title="Delete project"
-                      onClick={() => { if (confirm(`Delete "${d.name}"? Its agents and work are removed.`)) del(d.id) }}>×</button>
+                      onClick={() => { if (confirm(`Delete "${d.name}"? Its team and everything they made are removed.`)) del(d.id) }}>×</button>
                   </div>
                 </li>
               )
@@ -153,8 +153,8 @@ export function PipelineHome({ onOpenProject }: { onOpenProject: (dojoId: string
         <div className="ph-sec-h">
           <h2>Dojo teams by speciality
             <InfoDot title="Teams & agents" label="What is in a card">
-              <p>Every card is a <b>complete team</b>: the agents are listed inside it, each with its speciality and its apps.</p>
-              <p>Pick one and it becomes your dojo. Then rename agents, add or remove them, change their connectors, edit each agent's context, or run the whole thing with the loop.</p>
+              <p>Every card is a <b>ready-made team</b>: the teammates are listed inside it, each with what they do and the apps they use.</p>
+              <p>Pick one and it becomes your dojo. Then rename teammates, add or remove them, change the apps they use, change how each one works, or run the whole plan in one go.</p>
             </InfoDot>
           </h2>
           <div className="ph-filters">

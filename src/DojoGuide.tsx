@@ -54,7 +54,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           connect an app, configure everything step by step and keep your costs under control.
         </p>
         <div className="lp-badges">
-          <span>12 studios · 100% local</span><span>{CONNECTORS.length} connectors</span><span>OAuth · encrypted vault</span><span>Cloud or local</span>
+          <span>12 studios · 100% local</span><span>{CONNECTORS.length} apps</span><span>One-click connect · keys kept safe</span><span>Cloud or local</span>
         </div>
       </section>
 
@@ -141,7 +141,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <h3 className="dg2-cat">Chief, Sentinel, Vaultor &amp; the group agents</h3>
           <ul>
             <li><b>Chief (CEO)</b>: tell it your goal in one sentence; it plans and delegates. "Launch Chief" chains brand → website → offer → ads → outreach on its own and emails a daily report.</li>
-            <li><b>Sentinel (Security Guardian)</b>: set an autonomy level (Auto → Ultra) and a daily credit cap, an anti-loop guard, encrypted environment variables and safety switches (pause email, pause the company).</li>
+            <li><b>Sentinel (Security Guardian)</b>: choose how much your team does on its own each day, set a daily spending limit, save your keys safely, and flip a switch to pause outgoing email or stop everything at once.</li>
             <li><b>Vaultor (Billing)</b>: buy credit packs in your own currency by card · about one credit per task, no crypto.</li>
             <li><b>Devi, Nexa, Helpi, Legi</b>: each shows <b>live data</b> from its connected apps (issues &amp; PRs, channels, tickets, documents) and fires one real action.</li>
           </ul>
@@ -149,23 +149,23 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
       </section>
 
       <section className="lp-sec alt" id="what">
-        <h2>1 · What a connector is</h2>
-        <p className="lp-lead">A connector is a secure bridge between DojoBuro and one of your apps. Connecting is a one-time OAuth handshake: you approve access once, a token is stored encrypted on the server, and from then on the agent can act inside that app on your behalf. You never hand over a password.</p>
-        <p className="lp-note">Each agent ships with a small, curated set of the best apps for its job · Engineering gets GitHub and Linear, Growth gets Gmail and HubSpot, Finance gets Stripe and QuickBooks, and so on. It's fully modular: open any studio's <b>Connect apps</b> panel, hit <b>+ Add apps</b> to pull any connector from the catalog, or remove one you don't use · your choice is saved per company.</p>
+        <h2>1 · What connecting an app means</h2>
+        <p className="lp-lead">Connecting an app is a secure bridge between DojoBuro and something you already use. You approve access once on the app's own screen, and from then on your teammate can work inside it for you. You never hand over a password, and you can disconnect at any time.</p>
+        <p className="lp-note">Each agent ships with a small, curated set of the best apps for its job · Engineering gets GitHub and Linear, Growth gets Gmail and HubSpot, Finance gets Stripe and QuickBooks, and so on. It's fully modular: open any studio's <b>Connect apps</b> panel, hit <b>+ Add apps</b> to bring in any other app, or remove one you don't use · your choice is saved per company.</p>
       </section>
 
       <section className="lp-sec alt" id="connect">
         <h2>2 · How to connect an app (as a user)</h2>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Open the agent</b><span>Click an agent, open its <b>Connect apps</b> panel and you'll see its curated apps · use <b>+ Add apps</b> to pull any other connector, or remove one you don't need.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Open the agent</b><span>Click an agent, open its <b>Connect apps</b> panel and you'll see its curated apps · use <b>+ Add apps</b> to bring in another app, or remove one you don't need.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve the provider's screen once. Tap the ⓘ on any app for a per-app explainer and a link to its full setup page.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>The agent acts for real</b><span>The token is sealed server-side (AES-256-GCM); the browser never sees a secret. Disconnect anytime.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>The agent acts for real</b><span>Access is sealed away on the server · this browser never holds a secret. Disconnect whenever you want.</span></div></div>
         </div>
       </section>
 
       <section className="lp-sec" id="directory">
         <h2>3 · Set up each app · step by step</h2>
-        <p className="lp-lead">Every connector has its own page with precise, numbered setup instructions · scopes to grant, the exact env vars, whether it needs an MCP hub, and the common gotchas. Pick yours:</p>
+        <p className="lp-lead">Every app has its own page with numbered, step-by-step setup instructions · what to allow, what to fill in, and the usual gotchas. Pick yours:</p>
         {CATEGORY_ORDER.map((cat) => {
           const list = CONNECTORS.filter((c) => c.category === cat)
           if (!list.length) return null
@@ -201,7 +201,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <div>
             <h3>See the result</h3>
             <ul>
-              <li><b>In the app</b> · the deliverable renders in the agent card and the activity log, with a link.</li>
+              <li><b>In the app</b> · the result appears on the teammate's card and in the activity log, with a link.</li>
               <li><b>In your tool</b> · the real artifact lands in the connected app (the Notion page, the Drive doc, the Linear issue, the GitHub PR).</li>
               <li><b>Receipt</b> · every priced action leaves a receipt in your dashboard · a clear record of what ran and what it cost.</li>
             </ul>
@@ -249,7 +249,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
             <ul>
               <li>The 3D office, Dojo City and agents are real, and so are payments: you buy credits in your own currency and each task spends about one, settled on a fast rail behind the scenes · no crypto.</li>
               <li>Connectors do real work: with the worker + OAuth configured, an agent really creates the Notion page, opens the GitHub PR, drafts the Gmail.</li>
-              <li>Deliverables are real Claude output (your BYOK key or the free-model cascade), rendered in-app and written to your connected tool.</li>
+              <li>Results are real Claude output (your own key, or a free model when the operator enables one), shown in the app and written to your connected tool.</li>
             </ul>
           </div>
           <div>
@@ -267,11 +267,11 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <h2>6 · Link your own external agents</h2>
         <p className="lp-lead">Already run agents elsewhere · at Notion, Slack, or any AI platform? Plug them straight into a DojoBuro agent from Studio → the agent → External agents → "+ Link an agent". Three ways, by protocol:</p>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>MCP · tools</b><span>An MCP server whose tools join every deliverable this agent runs, exactly like a connector. Needs a Claude key.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Lends its tools</b><span>Its tools join everything this teammate does, exactly like a connected app. Needs a Claude key. (MCP)</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>A2A · delegate</b><span>An Agent2Agent host (card at <code>/.well-known/agent-card.json</code>, <code>message/send</code>). Delegate a whole task and get the reply back.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Webhook</b><span>A simple https endpoint that receives <code>{'{ task }'}</code> and returns text · the lightest way to wire a custom agent.</span></div></div>
         </div>
-        <p className="lp-note">Paste the https URL and an optional auth token, then hit Verify. The token never touches the browser · a server proxy holds it, exactly like the connector vault. Only link endpoints you trust.</p>
+        <p className="lp-note">Paste the https address and an optional access key, then hit Verify. The key never touches this browser · the server holds it, exactly like your connected apps. Only add helpers you trust.</p>
       </section>
 
       <section className="lp-sec dg2-callout dg2-safe" id="safe">
@@ -301,16 +301,16 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <div className="lp-two">
           <div>
             <ul>
-              <li><b>Intelligence is ~free</b> · bring your own model key (BYOK) or use the free-model cascade. Most tasks cost nothing.</li>
+              <li><b>Intelligence is ~free</b> · bring your own Claude key, or use a free model when one is enabled. Most tasks cost nothing.</li>
               <li><b>Priced tasks are tiny</b> · most cost about one credit; only heavier jobs cost a couple more, and you buy credits in your own currency.</li>
-              <li><b>Set a daily credit cap</b> and per-agent budgets in Studio so nothing can overspend · a guard also stops the CEO from looping.</li>
+              <li><b>Set a daily spending limit</b> and per-teammate budgets in Studio so nothing can overspend · a guard also stops the CEO from looping.</li>
             </ul>
           </div>
           <div>
             <ul>
               <li><b>Explore for free</b> · the free tier lets you build your company and run no-cost tasks first · add credits only when you go live.</li>
               <li><b>Disconnect unused apps</b> and watch your CEO dashboard for live totals (credits, tokens, tasks).</li>
-              <li><b>Managed credits</b> (optional) cover hosted-model runs · 1 credit ≈ 1 task · top up only if you don't use BYOK.</li>
+              <li><b>Credits</b> (optional) cover runs on our AI · about 1 credit per task · top up only if you don't bring your own key.</li>
             </ul>
           </div>
         </div>
@@ -320,7 +320,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <h2>9 · Quick troubleshooting</h2>
         <ul className="lp-check">
           <li><b>App shows "Set up" not "Connect"</b> · the operator hasn't added that app's OAuth keys yet (see its setup page).</li>
-          <li><b>"needs a key" on a task</b> · add your Claude key in Studio → Billing, or use a free-cascade task.</li>
+          <li><b>"needs a key" on a task</b> · add your Claude key in Studio → Billing.</li>
           <li><b>A task won't run</b> · check your credits balance isn't empty or capped by your daily limit.</li>
           <li><b>Still stuck?</b> · ask the in-app assistant, it walks you through every step.</li>
         </ul>
@@ -336,8 +336,8 @@ export function ConnectorGuidePage({ id }: { id: string }) {
     return (
       <GuideShell>
         <section className="lp-sec">
-          <h2>Connector not found</h2>
-          <p className="lp-lead">We couldn't find a connector called "{id}".</p>
+          <h2>App not found</h2>
+          <p className="lp-lead">We couldn't find an app called "{id}".</p>
           <p><a className="lp-ghost" href="/guide">← Back to the Dojo Guide</a></p>
         </section>
       </GuideShell>
