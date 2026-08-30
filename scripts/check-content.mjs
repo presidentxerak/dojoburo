@@ -126,6 +126,29 @@ for (const a of arch.ARCHETYPES) {
   }
   if (a.agents[0] !== 'chief') { console.log(`FAIL  archetypes · "${a.label}" does not start with the team lead`); bad++ }
 }
+// Two teammates sitting in the same dojo must not wear the same 3D face · a
+// team of identical strangers with different names is a bug you only see in a
+// screenshot, never in a diff. The map is read as source (it lives in a .tsx
+// beside JSX we cannot import here) — the shape is a flat id: 'char' record.
+{
+  const src = read('src/components/landing/TeamCards.tsx')
+  const block = /export const AGENT_CHAR[^=]*=\s*\{([\s\S]*?)\n\}/.exec(src)
+  if (!block) { console.log('FAIL  TeamCards · AGENT_CHAR is not where check-content expects it'); bad++ }
+  else {
+    const face = Object.fromEntries([...block[1].matchAll(/(\w+):\s*'([^']+)'/g)].map((m) => [m[1], m[2]]))
+    for (const r of roles.ROLE_AGENTS) {
+      if (!face[r.id]) { console.log(`FAIL  AGENT_CHAR · "${r.id}" has no 3D character (it would fall back to somebody else's)`); bad++ }
+    }
+    for (const a of arch.ARCHETYPES) {
+      const used = {}
+      for (const id of a.agents) {
+        const f = face[id]
+        if (f && used[f]) { console.log(`FAIL  AGENT_CHAR · "${a.label}" gives "${id}" and "${used[f]}" the same face (${f})`); bad++ }
+        used[f] = id
+      }
+    }
+  }
+}
 // every app a role reaches for must exist in the connector registry
 const APP_IDS = new Set(conns.CONNECTORS.map((c) => c.id))
 for (const r of roles.ROLE_AGENTS) {

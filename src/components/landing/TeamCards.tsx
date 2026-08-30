@@ -2,53 +2,53 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AGENTS, agentColor, type AgentDef } from '../../data/agents'
 import { CHARACTERS } from '../../data/looks'
-import { ROLE_AGENTS, type RoleAgent } from '../../data/roleAgents'
+import { ROLE_AGENTS } from '../../data/roleAgents'
 import { Agent3DPreview } from '../three/Agent3DPreview'
+import { TeammateCard } from '../TeammateCard'
 import { useInView } from './useInView'
 
 export const charForAgent = (id: string) => CHARACTERS[id] ?? Object.values(CHARACTERS)[0]
 const charFor = charForAgent
 
-// One distinct 3D character per agent, so every teammate has its own face.
+// One distinct 3D character per teammate, so nobody in a team wears somebody
+// else's face.
+//
+// Only eight roles were mapped; the other ten all fell through to the same
+// fallback character, so a dojo could show four identical strangers with
+// different names. There are eighteen roles and twelve characters, so the
+// twelve who can sit in one company dojo get one each, and the six specialists
+// reuse a face that never appears in a team they join.
+// scripts/check-content.mjs fails the build if any team ends up with a
+// duplicate face.
 export const AGENT_CHAR: Record<string, string> = {
+  // the company crew · twelve roles, twelve characters, no repeats
   chief: 'rex',
   brandi: 'dex',
   weblos: 'lex',
+  devi: 'sam',
   marketus: 'mia',
   pumpi: 'sol',
+  nexa: 'hana',
+  helpi: 'pia',
   busino: 'fin',
-  sentinel: 'ada',
   vaultor: 'otto',
+  legi: 'ava',
+  sentinel: 'ada',
+  // the specialists · each avoids every face in the teams it joins
+  scout: 'ada',
+  scribe: 'ava',
+  deck: 'pia',
+  pixel: 'otto',
+  pilot: 'rex',
+  kaizen: 'fin',
 }
 
-function StudioCard({ agent, i, onOpen }: { agent: RoleAgent; i: number; onOpen: () => void }) {
-  const [ref, inView] = useInView<HTMLButtonElement>('250px')
-  const charKey = AGENT_CHAR[agent.id] ?? agent.id
-  return (
-    <button
-      ref={ref}
-      className="lp-studiocard agent-card"
-      style={{ ['--ac' as any]: agent.tint }}
-      onClick={onOpen}
-      title={`Meet ${agent.code} · ${agent.title}`}
-    >
-      <span className="lp-team-3d">
-        {inView ? <Agent3DPreview id={charKey} character={charFor(charKey)} size={128} phase={i * 0.6} /> : null}
-      </span>
-      <strong className="agent-code">{agent.code}</strong>
-      <span className="agent-title">{agent.title}</span>
-      <span className="agent-desc">{agent.desc}</span>
-      <span className="lp-team-more">Open →</span>
-    </button>
-  )
-}
-
-/** The office grid: the eight AI teammates, each card entering the app. */
+/** The office grid: the AI teammates, each card entering the app. */
 export function StudioTeam({ enter }: { enter: () => void }) {
   return (
     <div className="lp-studioteam">
       {ROLE_AGENTS.map((a, i) => (
-        <StudioCard key={a.id} agent={a} i={i} onOpen={enter} />
+        <TeammateCard key={a.id} role={a} phase={i * 0.6} onOpen={enter} />
       ))}
     </div>
   )

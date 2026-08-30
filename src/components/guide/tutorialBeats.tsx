@@ -9,8 +9,10 @@
 //   teams    · what a dojo team is and how you choose them
 //   apps     · connecting your apps, and what it costs on top of your plan
 import { useEffect, useState } from 'react'
-import { Agent3DPreview } from '../three/Agent3DPreview'
-import { skinById } from '../../data/skins'
+import { TeamCard } from '../home/TeamCard'
+import { TeammateCard } from '../TeammateCard'
+import { ARCHETYPE_BY_ID } from '../../data/archetypes'
+import { ROLE_BY_ID } from '../../data/roleAgents'
 
 export interface Beat { id: string; title: string; body: string }
 
@@ -75,23 +77,27 @@ export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }
 // ---------------------------------------------------------------------------
 // the animated stages · one per beat id
 // ---------------------------------------------------------------------------
-// the crew beat shows the real 3D teammates, not initials in circles
-const CREW = [
-  { n: 'Scout', r: 'Research', t: '#0ea5e9', skin: 'forest-dragon' },
-  { n: 'Marketus', r: 'Marketer', t: '#e0459b', skin: 'space-ghost' },
-  { n: 'Busino', r: 'Analyst', t: '#1fa563', skin: 'retro-frog' },
-  { n: 'Chief', r: 'Team lead', t: '#7b5cff', skin: 'space-bibendum' },
-]
+// The walkthrough shows the REAL screens, not drawings of them.
+//
+// It used to mime the app: grey bars where the team cards go, four floating
+// characters where the crew cards go. That is a lesson about a product nobody
+// can find — the cards you are shown are not the cards you then meet, and every
+// change to the real ones widens the gap.
+//
+// So the beats below mount the app's own components with the app's own data:
+// TeamCard from the chooser, TeammateCard from the office. The tour cannot
+// drift, because it is a specimen of the thing itself.
+const TOUR = ARCHETYPE_BY_ID.social                   // the team the tour follows
+const TOUR_CARDS = ['social', 'app', 'book']          // the cards it picks from
+/** The crew of the tour's team, in plan order, as real roles. */
+const CREW_ROLES = (TOUR?.agents ?? []).map((id) => ROLE_BY_ID[id]).filter(Boolean)
+// The plan and its owners come from the archetype itself, so the tour walks the
+// same steps the team really runs.
+const STEPS = (TOUR?.loop ?? []).map((s) => ({
+  s: s.label,
+  by: Math.max(0, CREW_ROLES.findIndex((r) => r.id === s.agent)),
+}))
 const APPS = ['Notion', 'Instagram', 'Gmail', 'Drive']
-// The plan, and who owns each step · the run beat shows the teammate whose
-// turn it is in 3D beside the list, so "handed to the right teammate" is
-// something you watch happen instead of something you read.
-const STEPS: { s: string; by: number }[] = [
-  { s: 'Audience research', by: 0 },
-  { s: 'Content plan', by: 3 },
-  { s: 'Creatives', by: 1 },
-  { s: 'Campaign brief', by: 2 },
-]
 // what the team hands back · a glyph beats three grey bars
 const DOCS = [
   { d: 'Research', g: '◈', c: '#0ea5e9' },
@@ -134,15 +140,13 @@ export function Stage({ beat }: { beat: string }) {
   }
 
   if (beat === 'pick') {
+    // real cards from the real catalogue · the first one ticked, exactly as it
+    // looks the moment you tick it
     return (
       <div className="tut-stage">
-        <div className="tut-cards">
-          {[{ g: '◈', c: '#e0459b' }, { g: '◱', c: '#3b82f6' }, { g: '❑', c: '#c026d3' }].map((c, i) => (
-            <div key={i} className={`tut-card${i === 0 ? ' pick' : ''}`} style={{ ['--c' as string]: c.c }}>
-              <span className="tut-g" style={{ background: c.c }}>{c.g}</span>
-              <span className="tut-bar" /><span className="tut-bar sm" />
-              {i === 0 && <span className="tut-tick">✓</span>}
-            </div>
+        <div className="tut-spec tut-spec-cards" aria-hidden>
+          {TOUR_CARDS.map((id) => ARCHETYPE_BY_ID[id]).filter(Boolean).map((a, i) => (
+            <TeamCard key={a.id} a={a} selected={i === 0} onToggle={() => undefined} />
           ))}
         </div>
       </div>
@@ -150,15 +154,19 @@ export function Stage({ beat }: { beat: string }) {
   }
 
   if (beat === 'crew') {
+    // the crew of that same card, as the cards you meet in the office
     return (
       <div className="tut-stage">
-        <div className="tut-crew">
-          {CREW.map((c, i) => (
-            <span key={c.n} className="tut-agent" style={{ ['--c' as string]: c.t, animationDelay: `${i * 160}ms` }}>
-              <span className="tut-3d"><Agent3DPreview id={c.skin} character={skinById(c.skin)} size={132} phase={i * 0.7} dist={3.4} lift={-1.5} /></span>
-              <b>{c.n}</b>
-              <em>{c.r}</em>
-            </span>
+        <div className="tut-spec tut-spec-crew" aria-hidden>
+          {CREW_ROLES.slice(0, 4).map((r, i) => (
+            <TeammateCard
+              key={r.id}
+              role={r}
+              status={i === 0 ? 'Team lead' : 'Ready'}
+              statusMod={i === 0 ? 'active' : 'ready'}
+              phase={i * 0.6}
+              size={112}
+            />
           ))}
         </div>
       </div>
@@ -182,18 +190,19 @@ export function Stage({ beat }: { beat: string }) {
 
   if (beat === 'loop') {
     const at = Math.min(tick, STEPS.length - 1)
-    const who = CREW[STEPS[at].by]
+    const who = CREW_ROLES[STEPS[at].by]
     const finished = tick >= STEPS.length
     return (
       <div className="tut-stage">
         <div className="tut-run">
-          <div className="tut-run-who" style={{ ['--c' as string]: who.t }}>
-            <span className="tut-3d">
-              <Agent3DPreview key={who.skin} id={who.skin} character={skinById(who.skin)} size={150} dist={3.3} lift={-1.5} />
-            </span>
-            <b>{who.n}</b>
-            <em>{finished ? 'all done' : 'working on it'}</em>
-          </div>
+          {/* the teammate whose turn it is · the office card, working */}
+          <TeammateCard
+            key={who.id}
+            role={who}
+            status={finished ? 'All done' : 'Working…'}
+            statusMod={finished ? 'active' : 'working'}
+            size={120}
+          />
           <ol className="tut-loop">
             {STEPS.map((s, i) => (
               <li key={s.s} className={i < tick ? 'done' : i === tick ? 'run' : ''}>

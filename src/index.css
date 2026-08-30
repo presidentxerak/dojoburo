@@ -3227,6 +3227,10 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 @media (max-width: 560px) { .vo-row { flex-direction: column; align-items: stretch; } .vo-gen { width: 100%; } }
 /* Agent teammate card · codename → job title → description → status → last activity → action */
 .agent-card { align-items: flex-start; text-align: left; }
+/* The portrait plate the preview brings with it is a grey box the character
+   floats in the middle of · let the card's own tinted halo show instead, and
+   let the character overflow it. (.a3d clips, so it must not stay rounded.) */
+.agent-card .lp-team-3d .a3d { background: none !important; border-radius: 0 !important; overflow: visible !important; }
 .agent-card .agent-code { font-family: var(--font-pixel); font-weight: 800; font-size: 22px; line-height: 1.1; letter-spacing: -0.01em; color: var(--ink); margin-top: 4px; }
 .agent-card .agent-title { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ac, #2f6bff); }
 .agent-card .agent-desc { font-size: 16px; line-height: 1.4; color: var(--muted); margin: 2px 0 auto; }
@@ -5357,25 +5361,33 @@ html { scroll-behavior: smooth; }
 .tut-empty-l { width: 100%; height: 34px; border-radius: 10px; border: 2px dashed color-mix(in srgb, var(--ink) 18%, transparent); }
 .tut-plus { margin-top: 6px; padding: 13px 26px; border: 0; border-radius: 999px; background: linear-gradient(120deg, #2f6bff, #12b981); color: #fff; font: inherit; font-weight: 800; font-size: 15.5px; animation: tutPulse 1.8s ease-in-out infinite; }
 
-/* 2 · pick a card */
-.tut-cards { display: flex; gap: 14px; }
-.tut-card { width: 104px; padding: 14px; border-radius: 12px; background: var(--panel-solid, #fff); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; align-items: center; animation: tutIn .4s ease both; }
-.tut-card.pick { border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent); animation: tutSlide .7s ease both, tutPulse 1.6s ease-in-out .7s infinite; }
-.tut-g { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; color: #fff; font-size: 22px; }
-.tut-bar { width: 100%; height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
-.tut-bar.sm { width: 62%; }
+/* 2-3 · SPECIMENS · the app's own cards, shown at a size that fits the stage.
+   Nothing is redrawn here: these are the real TeamCard and TeammateCard, so a
+   change to either one changes the lesson too. The scale is a viewing distance,
+   not a redesign — every proportion inside the card is untouched, and the cards
+   are inert (the stage is aria-hidden; the text beside it carries the meaning). */
+/* The viewing distance is `zoom`, not `transform: scale`, on purpose: zoom
+   shrinks the LAYOUT box, so the stage can centre the specimen. A transform
+   leaves a full-size box behind, the grid refuses to centre something wider
+   than itself, and the cards drift off the right edge. (It also survives the
+   entrance animation, which animates `transform` and would cancel a scale.) */
+.tut-spec { display: flex; gap: 16px; align-items: stretch; pointer-events: none; animation: tutIn .45s ease both; }
+.tut-spec .lp-studiocard:hover, .tut-spec .tcard:hover { transform: none; box-shadow: none; }
+.tut-spec-cards { zoom: .56; }
+.tut-spec-cards .tcard { width: 268px; flex: none; }
+/* the ticked card is the one the lesson is pointing at */
+.tut-spec-cards .tcard.on { animation: tutPulse 1.8s ease-in-out .5s infinite; }
+.tut-spec-crew { zoom: .78; display: grid; grid-template-columns: repeat(2, 232px); gap: 14px; }
+.tut-spec-crew .agent-card { animation: tutPop .5s cubic-bezier(.2,1.3,.4,1) both; }
+.tut-spec-crew .agent-card:nth-child(2) { animation-delay: .1s; }
+.tut-spec-crew .agent-card:nth-child(3) { animation-delay: .2s; }
+.tut-spec-crew .agent-card:nth-child(4) { animation-delay: .3s; }
 
-/* 3 · crew */
-.tut-crew { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 20px; justify-items: center; max-width: 340px; }
-.tut-agent { display: flex; flex-direction: column; align-items: center; gap: 2px; animation: tutPop .5s cubic-bezier(.2,1.3,.4,1) both; }
-.tut-3d { width: 132px; height: 132px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 50% 52%, color-mix(in srgb, var(--c) 26%, transparent), transparent 68%); }
-/* The preview brings its own grey plate · in a tutorial we want the character
-   floating on the stage. Note .a3d clips (overflow:hidden), so it must NOT be
-   rounded here or the character's head gets cut off by the mask. */
+/* A character floating on a stage · the Academy draws its cast this way.
+   .a3d clips (overflow: hidden), so this must NOT be rounded or the mask cuts
+   the character's head off. */
+.tut-3d { display: grid; place-items: center; background: radial-gradient(circle at 50% 52%, color-mix(in srgb, var(--c) 26%, transparent), transparent 68%); }
 .tut-3d .a3d { background: none !important; border-radius: 0 !important; overflow: visible !important; }
-.tut-agent b { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; }
-.tut-face { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 15px; box-shadow: 0 6px 16px -8px var(--c); }
-.tut-agent em { font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--muted); }
 
 /* 4 · apps */
 .tut-apps { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 330px; }
@@ -5385,11 +5397,10 @@ html { scroll-behavior: smooth; }
 
 /* 5 · the loop */
 /* the run beat · the teammate whose turn it is, beside the plan */
-.tut-run { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; justify-content: center; }
-.tut-run-who { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.tut-run-who b { font-family: var(--font-pixel); font-weight: 800; font-size: 17px; }
-.tut-run-who em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--c); }
-.tut-run .tut-3d { width: 150px; height: 150px; }
+/* the working teammate is the office card itself, beside the plan */
+.tut-run { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; justify-content: center; }
+.tut-run .agent-card { width: 236px; flex: none; pointer-events: none; }
+.tut-run .agent-card:hover { transform: none; box-shadow: none; }
 .tut-loop { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; width: 100%; max-width: 340px; }
 .tut-loop li { display: flex; align-items: center; gap: 11px; padding: 13px 16px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 6%, transparent); font-size: 15.5px; font-weight: 700; color: var(--muted); transition: background .3s ease, color .3s ease; }
 .tut-loop li.run { background: color-mix(in srgb, #2f6bff 15%, transparent); color: var(--ink); }
@@ -5414,7 +5425,18 @@ html { scroll-behavior: smooth; }
 .tut-dot.on { background: #2f6bff; transform: scale(1.45); }
 .tut-nav { display: flex; gap: 6px; }
 
-@media (max-width: 720px) { .tut-view { grid-template-columns: 1fr; } .tut-stage { min-height: 210px; } .tut-txt { padding: 18px 20px 22px; } }
+@media (max-width: 720px) {
+  .tut-view { grid-template-columns: 1fr; }
+  .tut-stage { min-height: 210px; }
+  .tut-txt { padding: 18px 20px 22px; }
+  /* a phone cannot read three cards side by side · show one, full size, and
+     two teammates rather than four. Fewer specimens beats illegible ones. */
+  .tut-spec-cards { zoom: .86; }
+  .tut-spec-cards .tcard:nth-child(n+2) { display: none; }
+  .tut-spec-crew { zoom: .7; }
+  .tut-spec-crew .agent-card:nth-child(n+3) { display: none; }
+  .tut-run .agent-card { width: 210px; }
+}
 
 /* ============ HOME hero + system agents + team cards ============ */
 .ph-hero { text-align: center; padding: 22px 0 24px; }

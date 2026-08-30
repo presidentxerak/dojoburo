@@ -17,10 +17,7 @@ import { isAdmin } from '../../config/admin'
 import { ModuleHost } from '../../modules/ModuleHost'
 import { MODULES } from '../../modules/registry'
 import { InfoDot } from '../InfoDot'
-import { Agent3DPreview } from '../three/Agent3DPreview'
-import { AGENT_CHAR, charForAgent } from '../landing/TeamCards'
-import { useInView } from '../landing/useInView'
-import type { RoleAgent } from '../../data/roleAgents'
+import { TeammateCard } from '../TeammateCard'
 import { CustomAgentWorkspace } from '../../modules/custom/CustomAgentWorkspace'
 import { MAX_AGENTS } from '../../workshop'
 import { apiFetch } from '../../lib/apiFetch'
@@ -74,29 +71,6 @@ function Guide({ lead, steps, tip }: { lead: string; steps: React.ReactNode[]; t
   )
 }
 
-/** A CEO roster card · the exact landing-page team card (3D character portrait,
- *  code, title, description, "Open →") with a management status line added, so
- *  the CEO dashboard and the landing office share one visual language. The 3D
- *  portrait mounts lazily (IntersectionObserver) to stay under the WebGL context
- *  budget alongside the live dojo scene. */
-function RosterCard({ role, name, status, statusMod, lastLabel, phase, onOpen, onHide }: {
-  role: RoleAgent; name: string; status: string; statusMod: string; lastLabel: string; phase: number; onOpen: () => void; onHide?: () => void
-}) {
-  const [ref, inView] = useInView<HTMLDivElement>('250px')
-  const charKey = AGENT_CHAR[role.id] ?? role.id
-  return (
-    <div ref={ref} className="lp-studiocard agent-card" style={{ ['--ac' as string]: role.tint }} onClick={onOpen} role="button" tabIndex={0} title={`Open ${name} · ${role.title}`}>
-      {onHide && <button className="agent-hide" title={`Hide ${role.title}`} aria-label={`Hide ${role.title}`} onClick={(e) => { e.stopPropagation(); onHide() }}>×</button>}
-      <span className={`agent-status s-${statusMod}`}><i />{status}</span>
-      <span className="lp-team-3d">{inView ? <Agent3DPreview id={charKey} character={charForAgent(charKey)} size={128} phase={phase} /> : null}</span>
-      <strong className="agent-code">{name}</strong>
-      <span className="agent-title">{role.title}</span>
-      <span className="agent-desc">{role.desc}</span>
-      <span className="agent-last">{lastLabel}</span>
-      <span className="lp-team-more">Open →</span>
-    </div>
-  )
-}
 
 /** The new dojo mechanic: a company is run by 10 functional agents. The right
  *  panel shows the roster; clicking an agent (here or in the 3D dojo) opens that
@@ -578,7 +552,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           const status = engine.paused ? 'Paused' : working ? 'Working…' : last ? 'Active' : 'Ready'
           const statusMod = engine.paused ? 'paused' : working ? 'working' : last ? 'active' : 'ready'
           return (
-            <RosterCard key={a.id} role={r} name={a.name} status={status} statusMod={statusMod} lastLabel={relTime(last)} phase={i * 0.6} onOpen={() => selectAgent(a.id)}
+            <TeammateCard key={a.id} role={r} name={a.name} status={status} statusMod={statusMod} lastLabel={relTime(last)} phase={i * 0.6} onOpen={() => selectAgent(a.id)}
               onHide={() => { setAgentHidden(r.id, true); pushToast({ kind: 'event', badge: '–', color: '#5b6472', title: `${r.title} hidden`, text: 'Restore it from the slots below.' }) }} />
           )
         })}
