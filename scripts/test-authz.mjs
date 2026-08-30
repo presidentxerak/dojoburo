@@ -8,6 +8,8 @@
 //
 // Run: npm run test:authz
 import crypto from 'node:crypto'
+import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 const { publicKey, privateKey } = crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' })
 const { publicKey: otherPub, privateKey: otherPriv } = crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' })
 const jwk = { ...publicKey.export({ format: 'jwk' }), kid: 'k1', alg: 'ES256', use: 'sig' }
@@ -27,8 +29,11 @@ function sign(claims, { alg = 'ES256', kid = 'k1', key = privateKey } = {}) {
 const now = Math.floor(Date.now() / 1000)
 const good = { sub: 'did:privy:alice', iss: 'privy.io', aud: 'app_test_123', exp: now + 600, iat: now }
 
-const { build } = await import('/home/user/dojoburo/node_modules/esbuild/lib/main.js')
-const out = await build({ entryPoints: ['/home/user/dojoburo/api/_lib/authz.ts'], bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent' })
+// Paths are derived from this file, never absolute: an absolute path from a
+// developer's machine passes locally and fails every CI build.
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
+const { build } = await import('esbuild')
+const out = await build({ entryPoints: [join(ROOT, 'api/_lib/authz.ts')], bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent' })
 const m = await import('data:text/javascript;base64,' + Buffer.from(out.outputFiles[0].text).toString('base64'))
 
 let fails = 0

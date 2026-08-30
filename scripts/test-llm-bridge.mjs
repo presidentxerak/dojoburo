@@ -17,8 +17,11 @@ import { createServer } from 'node:http'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { execFileSync } from 'node:child_process'
-import { pathToFileURL } from 'node:url'
+import { pathToFileURL, fileURLToPath } from 'node:url'
+
+// Derived from this file, never from the working directory or an absolute path:
+// the build runs from somewhere else on CI.
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 let bad = 0
 const ok = (cond, msg) => { console.log((cond ? 'ok    ' : 'FAIL  ') + msg); if (!cond) bad++ }
@@ -129,7 +132,13 @@ const B = `http://127.0.0.1:${PORT}`
 // ---- load the real modules --------------------------------------------------
 // Transpiled, not re-implemented: the code under test is the code that ships.
 const out = mkdtempSync(join(tmpdir(), 'bridge-'))
-execFileSync('node_modules/.bin/esbuild', ['api/_lib/llm.ts', 'api/_lib/mcp.ts', `--outdir=${out}`, '--format=esm', '--platform=node', '--log-level=warning'])
+const { build } = await import('esbuild')
+// Transpiled, NOT bundled: llm.js keeps its `./mcp.js` import and resolves it
+// beside itself, exactly as it does on the server.
+await build({
+  entryPoints: [join(ROOT, 'api/_lib/llm.ts'), join(ROOT, 'api/_lib/mcp.ts')],
+  outdir: out, format: 'esm', platform: 'node', bundle: false, logLevel: 'warning',
+})
 
 process.env.WORK_CASCADE = 'groq'
 process.env.GROQ_API_KEY = 'test-groq'
