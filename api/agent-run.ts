@@ -23,7 +23,7 @@ import { listSecretNames } from './_lib/secretsVault.js'
 import { open, seal, vaultConfigured } from './_lib/vault.js'
 import { connectorAvailable, serverConnector, refreshOAuthToken } from './_lib/connectors.js'
 import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle.js'
-import { cascadeComplete, freeCascadeConfigured } from './_lib/llm.js'
+import { cascadeComplete, cascadeToolRun, freeCascadeConfigured } from './_lib/llm.js'
 import { originAllowed } from './_lib/origin.js'
 import { hardenSystem, sanitizeUntrusted } from './_lib/guard.js'
 import { callerRef } from './_lib/authz.js'
@@ -63,6 +63,11 @@ const EFFORT: Record<string, { maxTokens: number; thinking: boolean; maxApps: nu
   max: { maxTokens: 8000, thinking: true, maxApps: 8 },
 }
 const effortOf = (v: unknown) => EFFORT[String(v || '')] ?? EFFORT.balanced
+// How many times a teammate may call an app before it has to write its answer.
+// Every round is another billed request, so the ceiling rises with the mode:
+// Saver carries no apps at all, Balanced gets a short loop, Max a real one.
+const toolRounds = (e: { thinking: boolean; maxApps: number }): number =>
+  e.maxApps === 0 ? 0 : e.thinking ? 6 : 3
 
 const RATE_MAX = int(ENV.WORK_RATE_MAX, 20)
 const RATE_WINDOW_MS = int(ENV.WORK_RATE_WINDOW_MS, 10 * 60 * 1000)
@@ -133,11 +138,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   // ---- billing policy: who pays for this run? -----------------------------
   // BYOK (the user's own Claude key) → billed to the user, operator pays $0.
-  // Otherwise: text tasks run on the operator's FREE providers (capped per user);
-  // the design system and any tool-acting run need Claude, so they require a BYOK
-  // key (or the operator opting in via WORK_OPERATOR_CLAUDE).
+  // Otherwise the run goes to the operator's FREE providers (capped per user),
+  // INCLUDING runs that act inside a connected app: api/_lib/mcp.ts speaks MCP on
+  // their behalf, so a missing Claude key no longer means a teammate can write
+  // about the work but not do it. Operator Claude is the last resort, and only
+  // when WORK_OPERATOR_CLAUDE is on (or the caller is an operator).
   const byokKey = await resolveByokKey(ref)
-  const wantsClaude = task.format === 'design-system' || mcpServers.length > 0
   let baseSystem = secretNames.length
     ? `${task.system}\n\nThis company has these environment variables available to its tools (names only — never print the names or the values): ${secretNames.join(', ')}.`
     : task.system
@@ -155,33 +161,45 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   let modelUsed = ''
   let usage: any = null
   let engine: 'byok' | 'operator' | 'free' = 'free'
+  // Which tools the teammate actually used · reported back so the app can show
+  // what was DONE, not merely which apps were attached.
+  let toolCalls: string[] = []
+  const claudeModel = task.format === 'design-system' ? DESIGN_MODEL : MODEL
 
   try {
-    if (wantsClaude) {
-      const key = byokKey || (operatorClaude ? ENV.ANTHROPIC_API_KEY : undefined)
-      if (!key) return send(res, 200, { ok: false, error: 'needs_key', reason: mcpServers.length ? 'tool' : 'design' })
-      const model = task.format === 'design-system' ? DESIGN_MODEL : MODEL
-      const out = await callClaude(key, model, system, prompt, mcpServers, effort)
-      text = out.text; modelUsed = out.model; usage = out.usage
-      engine = byokKey ? 'byok' : 'operator'
-    } else if (byokKey) {
-      const out = await callClaude(byokKey, MODEL, system, prompt, [], effort)
+    if (byokKey) {
+      // The user's own key: their bill, their choice of engine, no daily cap.
+      const out = await callClaude(byokKey, claudeModel, system, prompt, mcpServers, effort)
       text = out.text; modelUsed = out.model; usage = out.usage
       engine = 'byok'
     } else {
-      // free cascade on the operator's free tiers, metered per account (admins
-      // bypass the daily cap and aren't metered)
+      // The operator's side. Free providers first — including tool-acting runs,
+      // which the MCP bridge makes possible — metered per account (admins bypass
+      // the daily cap and aren't metered).
       const gate = isAdmin ? { allowed: true } : await checkFreeTier(ref)
       if (!gate.allowed) return send(res, 200, { ok: false, error: 'quota', remaining: 0, reason: gate.reason })
+      const budget = Math.min(effort.maxTokens, MAX_TOKENS)
       if (freeCascadeConfigured()) {
-        const out = await cascadeComplete(system, prompt, Math.min(effort.maxTokens, MAX_TOKENS))
-        if (out) { text = out.text; modelUsed = out.model; engine = 'free'; if (!isAdmin) await bumpFreeTier(ref, { inTok: 0, outTok: 0 }) }
+        const out = mcpServers.length
+          ? await cascadeToolRun(system, prompt, budget, mcpServers, toolRounds(effort))
+          : await cascadeComplete(system, prompt, budget)
+        if (out) {
+          text = out.text; modelUsed = out.model; engine = 'free'
+          toolCalls = (out as any).calls ?? []
+          if (!isAdmin) await bumpFreeTier(ref, { inTok: 0, outTok: 0 })
+        }
       }
       if (!text && operatorClaude && ENV.ANTHROPIC_API_KEY) {
-        const out = await callClaude(ENV.ANTHROPIC_API_KEY, MODEL, system, prompt, [], effort)
+        const out = await callClaude(ENV.ANTHROPIC_API_KEY, claudeModel, system, prompt, mcpServers, effort)
         text = out.text; modelUsed = out.model; usage = out.usage; engine = 'operator'
       }
-      if (!text) return send(res, 200, { ok: false, error: 'not_configured' })
+      // Nothing is configured to answer · say which key would fix it rather than
+      // failing blank.
+      if (!text) {
+        return send(res, 200, freeCascadeConfigured()
+          ? { ok: false, error: 'run_failed', detail: 'every provider refused this run' }
+          : { ok: false, error: 'needs_key', reason: mcpServers.length ? 'tool' : 'design' })
+      }
     }
   } catch (e: any) {
     return send(res, 200, { ok: false, error: 'run_failed', detail: String(e?.message || e).slice(0, 160) })
@@ -215,6 +233,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     ok: true,
     deliverable,
     tools: mcpServers.map((m) => m.name),
+    // The tools the teammate actually called (free engine · Claude runs its MCP
+    // loop server-side and reports the apps, not the individual calls).
+    toolCalls,
     engine,
     usage,
     // What the mode actually did · the app records this as measured truth

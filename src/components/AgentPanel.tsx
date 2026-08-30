@@ -101,11 +101,11 @@ export function AgentPanel() {
       {/* ---- Real work (Claude-powered deliverables) ---- */}
       {workTasks.length > 0 && (
         <section className="work-block">
-          <h3 className="skills-title">Ask for real work <span className="tag tag-live">Claude</span></h3>
+          <h3 className="skills-title">Ask for real work <span className="tag tag-live">live</span></h3>
           <p className="work-intro">
             {byok.connected
               ? <>Runs on <strong>your</strong> Claude key · billed to you.</>
-              : <>Free for text · <button className="linklike" onClick={() => openStudio('billing')}>add your Claude key</button> for the design system & tool actions.</>}
+              : <>Free · runs on the built-in models, and they work inside your connected apps too. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> to run everything on it instead.</>}
           </p>
           <input
             className="work-brief"
@@ -137,8 +137,8 @@ export function AgentPanel() {
           </ul>
           {runError?.code === 'needs_key' && (
             <p className="work-hint">
-              This one {runError.reason === 'tool' ? 'works inside one of your apps' : 'builds your design system'} · it needs Claude.{' '}
-              <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (billed to your account).
+              No model is set up on this deployment yet.{' '}
+              <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (billed to your account) and the work runs on it.
             </p>
           )}
           {runError?.code === 'quota' && (

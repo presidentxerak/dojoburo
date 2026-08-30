@@ -331,7 +331,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <h2>6 · Link your own external agents</h2>
         <p className="lp-lead">Already run agents elsewhere · at Notion, Slack, or any AI platform? Plug them straight into a DojoBuro agent from Studio → the agent → External agents → "+ Link an agent". Three ways, by protocol:</p>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Lends its tools</b><span>Its tools join everything this teammate does, exactly like a connected app. Needs a Claude key. (MCP)</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Lends its tools</b><span>Its tools join everything this teammate does, exactly like a connected app · on the free models as well as on your own key. (MCP)</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>A2A · delegate</b><span>An Agent2Agent host (card at <code>/.well-known/agent-card.json</code>, <code>message/send</code>). Delegate a whole task and get the reply back.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Webhook</b><span>A simple https endpoint that receives <code>{'{ task }'}</code> and returns text · the lightest way to wire a custom agent.</span></div></div>
         </div>

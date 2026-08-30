@@ -29,17 +29,27 @@ type Provider = {
   base?: string
   keyEnv: string
   modelEnv: string
-  modelDefault: string
+  /** Candidates, tried in order. A model that has been decommissioned answers
+   *  404 and the next one takes the call · see api/_lib/llm.ts for why this is a
+   *  list rather than one name. */
+  models: string[]
   paid: boolean
 }
 
 const PROVIDERS: Record<string, Provider> = {
-  groq: { kind: 'openai', base: 'https://api.groq.com/openai/v1', keyEnv: 'GROQ_API_KEY', modelEnv: 'GROQ_MODEL', modelDefault: 'llama-3.3-70b-versatile', paid: false },
-  gemini: { kind: 'gemini', keyEnv: 'GEMINI_API_KEY', modelEnv: 'GEMINI_MODEL', modelDefault: 'gemini-2.0-flash', paid: false },
-  cerebras: { kind: 'openai', base: 'https://api.cerebras.ai/v1', keyEnv: 'CEREBRAS_API_KEY', modelEnv: 'CEREBRAS_MODEL', modelDefault: 'llama-3.3-70b', paid: false },
-  openrouter: { kind: 'openai', base: 'https://openrouter.ai/api/v1', keyEnv: 'OPENROUTER_API_KEY', modelEnv: 'OPENROUTER_MODEL', modelDefault: 'meta-llama/llama-3.3-70b-instruct:free', paid: false },
-  deepseek: { kind: 'openai', base: 'https://api.deepseek.com/v1', keyEnv: 'DEEPSEEK_API_KEY', modelEnv: 'DEEPSEEK_MODEL', modelDefault: 'deepseek-chat', paid: true },
-  anthropic: { kind: 'anthropic', keyEnv: 'ANTHROPIC_API_KEY', modelEnv: 'ANTHROPIC_SUPPORT_MODEL', modelDefault: 'claude-haiku-4-5', paid: true },
+  groq: { kind: 'openai', base: 'https://api.groq.com/openai/v1', keyEnv: 'GROQ_API_KEY', modelEnv: 'GROQ_MODEL', models: ['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'qwen/qwen3.6-27b'], paid: false },
+  gemini: { kind: 'gemini', keyEnv: 'GEMINI_API_KEY', modelEnv: 'GEMINI_MODEL', models: ['gemini-3.6-flash', 'gemini-3-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'], paid: false },
+  cerebras: { kind: 'openai', base: 'https://api.cerebras.ai/v1', keyEnv: 'CEREBRAS_API_KEY', modelEnv: 'CEREBRAS_MODEL', models: ['gpt-oss-120b', 'qwen-3-32b'], paid: false },
+  openrouter: { kind: 'openai', base: 'https://openrouter.ai/api/v1', keyEnv: 'OPENROUTER_API_KEY', modelEnv: 'OPENROUTER_MODEL', models: ['deepseek/deepseek-chat-v3.1:free', 'meta-llama/llama-3.3-70b-instruct:free'], paid: false },
+  deepseek: { kind: 'openai', base: 'https://api.deepseek.com/v1', keyEnv: 'DEEPSEEK_API_KEY', modelEnv: 'DEEPSEEK_MODEL', models: ['deepseek-chat'], paid: true },
+  anthropic: { kind: 'anthropic', keyEnv: 'ANTHROPIC_API_KEY', modelEnv: 'ANTHROPIC_SUPPORT_MODEL', models: ['claude-haiku-4-5'], paid: true },
+}
+
+/** An explicit pin (comma-separated) wins over the built-in candidates. */
+function modelsFor(p: Provider): string[] {
+  const pinned = ENV[p.modelEnv]
+  if (pinned) return pinned.split(',').map((s) => s.trim()).filter(Boolean)
+  return p.models
 }
 
 const DEFAULT_ORDER = ['groq', 'gemini', 'cerebras', 'openrouter', 'deepseek', 'anthropic']
@@ -62,6 +72,7 @@ How it works, so your answers match the product:
 - Money is CREDITS in the user's own currency, topped up by card. About one credit per task, so a 4-step team costs 4 credits for a full run (roughly $0.08 at Pro-pack rates). There is no crypto, no wallet and no coins for the user to manage.
 - THE TOKEN DIAL: a chip in the dojo header sets how hard the team works, and shows how many tokens have been spent today. Three modes, each changing exactly three things — the length cap on answers, whether the model thinks before writing, and how many connected apps travel with each run. SAVER: answers capped at 1,500 tokens, no apps attached (the team drafts, it does not act), cheapest, best for tuning a brief. BALANCED (the default): 4,000 tokens, up to 3 apps, real actions — start here. MAX: 8,000 tokens, thinking on, up to 8 apps, three to five times the tokens of Saver — for the run you are going to ship. The panel also shows the REAL token counts of past runs, reported by the model itself, next to our estimates. Every app switched on for a teammate ships its tool definitions with every step that teammate runs, which is why fewer apps means fewer tokens.
 - What is NOT charged on top: connecting an app is free and stays free, there is no per-app or per-teammate fee, and the user's own Notion/Slack/Stripe plans are paid to those companies, never to us. With their own Claude key the work runs on that key: unlimited tasks, no credits spent, Anthropic bills them directly.
+- WHERE THE WORK RUNS: with no key of their own, a run goes to the built-in free models, and those models now act inside connected apps too — the teammate really does create the Notion page or open the pull request. There is a daily free allowance per account (a number of runs and a number of tokens, whichever runs out first); past that they add their own Claude key, which has no allowance at all. Everything they do is charged the same way whichever engine answered.
 - The founder's project and its teams live in their profile (the menu → Account), where the project can be renamed and any team renamed or removed.
 - Navigation: inside the app the header is a transparent rail with no logo (the brand belongs to the landing page). My project, Connect apps, the Dojo Academy, the app setup guide, the City and Quick search are all in the menu (the burger, top right). Inside a dojo the header carries THREE controls in the middle: Manage team, Dojo settings and Graph mode — there is no Project button there any more; to leave a dojo use "My project" in the menu, or the first button of the bottom bar on a phone.
 - Under the header, a tab bar lists every other dojo team in the project, so switching teams is one tap.
@@ -124,14 +135,17 @@ export default async function handler(req: Request): Promise<Response> {
   for (const name of order) {
     const p = PROVIDERS[name]
     if (p.paid && !paidBudgetOk()) continue
-    try {
-      const text = await callProvider(p, history)
-      if (text && text.trim()) {
-        if (p.paid) bumpPaid()
-        return json({ ok: true, text: text.trim(), provider: name, paid: p.paid }, 200, req)
+    for (const model of modelsFor(p)) {
+      try {
+        const text = await callProvider(p, model, history)
+        if (text && text.trim()) {
+          if (p.paid) bumpPaid()
+          return json({ ok: true, text: text.trim(), provider: name, paid: p.paid }, 200, req)
+        }
+      } catch {
+        // a retired model or a rate limit · try the next candidate, then the
+        // next provider. Upstream errors are never surfaced to the client.
       }
-    } catch {
-      // try the next provider; never surface upstream errors to the client
     }
   }
   // everything failed / nothing configured → client falls back to the local FAQ
@@ -139,8 +153,7 @@ export default async function handler(req: Request): Promise<Response> {
 }
 
 // --------------------------------------------------------------------------
-async function callProvider(p: Provider, history: Msg[]): Promise<string> {
-  const model = ENV[p.modelEnv] || p.modelDefault
+async function callProvider(p: Provider, model: string, history: Msg[]): Promise<string> {
   const ctrl = new AbortController()
   const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS)
   try {
