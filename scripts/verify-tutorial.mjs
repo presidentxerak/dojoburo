@@ -1,11 +1,23 @@
+// The walkthrough shows the app's own cards · proof, in a browser.
+//
+// The beats mount the real TeamCard and TeammateCard rather than mock-ups, and
+// the only way to know that still holds — that they are the real components,
+// carrying real data, and that they FIT the little stage they play on — is to
+// open the walkthrough and measure it.
+//
+// Run:  npm run preview   (in another shell)
+//       node scripts/verify-tutorial.mjs
 import { chromium } from 'playwright'
-const SHOT = '/tmp/claude-0/-home-user-dojoburo/8cfcc82d-45a3-56f8-883b-94644fa8ec4b/scratchpad'
-const B = 'http://localhost:4173/'
+import { mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+const SHOT = process.env.SHOT_DIR || mkdtempSync(join(tmpdir(), 'tutorial-'))
+const B = process.env.BASE_URL || 'http://localhost:4173/'
 let fails = 0
 const ok = (c, m) => { console.log((c ? 'ok    ' : 'FAIL  ') + m); if (!c) fails++ }
 process.on('unhandledRejection', (e) => { console.log('threw: ' + (e?.message ?? e)); process.exit(1) })
 
-const br = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
+const br = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {})
 const p = await br.newPage({ viewport: { width: 1440, height: 950 } })
 const errs = []
 p.on('pageerror', (e) => errs.push('PAGEERROR ' + e.message))
