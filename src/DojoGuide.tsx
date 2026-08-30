@@ -125,10 +125,10 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <p className="lp-lead">The app's header is deliberately quiet · no logo, no brand, just the controls for whatever you are looking at. Everything else lives in the menu.</p>
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>The menu (top right)</b><span>Connect apps, the Dojo Guide, the City, Quick search, Dojo settings, your Account, Credits and Settings · all in one place.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Inside a dojo</b><span>Four controls sit in the middle of the header: <b>Project</b> (back to your project), <b>Manage team</b>, <b>Dojo settings</b>, and <b>Graph mode</b>. On a phone they are the bottom bar.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Inside a dojo</b><span>Three controls sit in the middle of the header: <b>Manage team</b>, <b>Dojo settings</b> and <b>Graph mode</b>. To leave the dojo, open the menu and pick <b>My project</b> — on a phone it is the first button in the bottom bar.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>The team tabs</b><span>Right under the header, every other team in your project · switching from the campaign crew to the app crew is one tap.</span></div></div>
         </div>
-        <p className="lp-note"><b>Graph mode</b> is the whole team on one screen: a card per teammate with what they do, how much they have actually produced, when they last worked, and every app they can reach · add or remove an app right on the card.</p>
+        <p className="lp-note"><b>Graph mode</b> draws the team as a graph. The team lead sits at the top with a dashed line down to everyone who reports to it, and green arrows run left to right along the plan, from one step to the next. Each node is a card: what that teammate does, how much they have actually produced, when they last worked, and every app they can reach · add or remove an app right on the node.</p>
       </section>
 
       <section className="lp-sec" id="team">

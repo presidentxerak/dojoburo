@@ -54,6 +54,11 @@ export default function App() {
   const [arrangeOpen, setArrangeOpen] = useState(false)
   // graph mode · the whole team and their apps as cards, full screen
   const [graphOpen, setGraphOpen] = useState(false)
+  // Where the home opens when we send someone back to it. Asking for "my
+  // project" must show the project — the naming card is step one of creating
+  // something new, and landing on it after you already have a project reads as
+  // having lost your work.
+  const [homeStart, setHomeStart] = useState<'create' | 'project'>('create')
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
 
@@ -97,6 +102,14 @@ export default function App() {
     if (intent === 'dashboard') { useDojo.getState().selectAgent(null); setView('dojo'); setDojoFull(false) }
     else if (intent === 'dojo') { useDojo.getState().selectAgent(null); setView('dojo'); setDojoFull(true) }
     else if (intent === 'studio') useWork.getState().openStudio('studio')
+    else if (intent === 'projects') { useDojo.getState().selectAgent(null); setHomeStart('project'); setView('home') }
+  }, [])
+
+  // "My project" from the menu · the project list, never the naming card
+  useEffect(() => {
+    const go = () => { useDojo.getState().selectAgent(null); setHomeStart('project'); setView('home') }
+    window.addEventListener('open-projects', go)
+    return () => window.removeEventListener('open-projects', go)
   }, [])
 
   useEffect(() => {
@@ -126,7 +139,7 @@ export default function App() {
         <Defs />
         <TopBar />
         <div className="home-main">
-          <PipelineHome onOpenProject={() => { setView('dojo'); setDojoFull(true) }} onView={setHomeStep} />
+          <PipelineHome key={homeStart} initialView={homeStart} onOpenProject={() => { setView('dojo'); setDojoFull(true) }} onView={setHomeStep} />
         </div>
         <OutboundConsentModal />
         <CommandPalette openDojo={() => { setView('dojo'); setDojoFull(true) }} showDashboard={() => { setView('dojo'); setDojoFull(false) }} />
@@ -148,9 +161,13 @@ export default function App() {
   // The dojo's controls, centred on the transparent header. Graph mode is a
   // MODE, not an action, so it is only highlighted while the graph is actually
   // open — the default is the dojo itself.
+  //
+  // There is no "Project" button here: it walked you out of the dojo and back
+  // to the start of the create flow. Leaving the dojo is a navigation, so it
+  // lives with the other navigations — the menu ("My project") and the bottom
+  // bar on a phone — and both open the project itself.
   const dojoControls = (
     <nav className="dojo-ctl" aria-label="Dojo">
-      <button onClick={() => { selectAgent(null); setView('home') }} title="Back to your project">Project</button>
       <button onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Manage team</button>
       <button onClick={() => useWork.getState().openStudio('studio')} title="Dojo settings">Dojo settings</button>
       <button
@@ -218,7 +235,7 @@ export default function App() {
       {/* mobile bottom bar · the same four things the header carries on desktop.
           Connect apps, the Dojo Guide and the City live in the menu now. */}
       <nav className="mbar mbar-4" aria-label="Navigation">
-        <button onClick={() => { selectAgent(null); setView('home') }}>
+        <button onClick={() => { selectAgent(null); setHomeStart('project'); setView('home') }}>
           <span className="mbar-ic">▦</span>Project
         </button>
         <button className={dojoFull ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(true) }}>

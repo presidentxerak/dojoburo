@@ -5376,6 +5376,12 @@ html { scroll-behavior: smooth; }
 .tut-app b { margin-left: auto; font-size: 11.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #1fa563; }
 
 /* 5 · the loop */
+/* the run beat · the teammate whose turn it is, beside the plan */
+.tut-run { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; justify-content: center; }
+.tut-run-who { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.tut-run-who b { font-family: var(--font-pixel); font-weight: 800; font-size: 17px; }
+.tut-run-who em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--c); }
+.tut-run .tut-3d { width: 150px; height: 150px; }
 .tut-loop { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; width: 100%; max-width: 340px; }
 .tut-loop li { display: flex; align-items: center; gap: 11px; padding: 13px 16px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 6%, transparent); font-size: 15.5px; font-weight: 700; color: var(--muted); transition: background .3s ease, color .3s ease; }
 .tut-loop li.run { background: color-mix(in srgb, #2f6bff 15%, transparent); color: var(--ink); }
@@ -5387,6 +5393,7 @@ html { scroll-behavior: smooth; }
 /* 6 · deliverables */
 .tut-docs { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; max-width: 420px; }
 .tut-doc { display: flex; flex-direction: column; gap: 6px; width: 88px; padding: 14px 12px; border-radius: 14px; background: var(--panel-solid, #fff); border: 1px solid var(--border); animation: tutPop .45s cubic-bezier(.2,1.3,.4,1) both; }
+.tut-doc-g { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: #fff; font-size: 20px; line-height: 1; align-self: center; margin-bottom: 4px; box-shadow: 0 8px 18px -10px var(--c); }
 .tut-doc-l { height: 7px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 14%, transparent); }
 .tut-doc-l.sm { width: 60%; }
 .tut-doc em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 3px; text-align: center; }
@@ -5487,6 +5494,10 @@ html { scroll-behavior: smooth; }
 .tutfs-body .tut-apps, .tutfs-body .tut-loop { max-width: 400px; }
 .tutfs-body .tut-crew { max-width: 430px; gap: 8px 30px; }
 .tutfs-body .tut-3d { width: 168px; height: 168px; }
+.tutfs-body .tut-run { gap: 32px; }
+.tutfs-body .tut-run .tut-3d { width: 180px; height: 180px; }
+.tutfs-body .tut-run-who b { font-size: 20px; }
+.tutfs-body .tut-doc-g { width: 48px; height: 48px; font-size: 24px; }
 .tutfs-body .tut-agent b { font-size: 17px; }
 .tutfs-body .tut-agent em { font-size: 13.5px; }
 .tutfs-body .tut-app, .tutfs-body .tut-loop li { font-size: 17px; padding: 15px 19px; }
@@ -5923,11 +5934,41 @@ html { scroll-behavior: smooth; }
 .dg-x { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50% !important; background: none; color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; }
 .dg-x:hover { border-color: var(--ink); }
 .dg-body { flex: 1; min-height: 0; overflow: auto; padding: 22px; }
+
+/* the two link kinds, named once so the legend and the SVG agree */
+.dg { --dg-report: #7b5cff; --dg-flow: #1fa563; }
+
+/* `.dg-head span` above turns every span in the header into a block · the
+   legend chips have to out-specify it, not just follow it. */
+.dg-head .dg-legend { display: flex; gap: 14px; flex: none; }
+.dg-head .dg-leg { display: inline-flex; align-items: center; gap: 7px; margin: 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.dg-head .dg-leg::before { content: ''; width: 26px; height: 0; border-top: 2px solid currentColor; }
+.dg-head .dg-leg.report { color: var(--dg-report); }
+.dg-head .dg-leg.report::before { border-top-style: dashed; }
+.dg-head .dg-leg.flow { color: var(--dg-flow); }
+
+/* The canvas is the drawing surface: the nodes lay themselves out in normal
+   flow, the SVG floats over them, and the links are measured from where the
+   cards actually ended up. Nothing here positions a card by hand. */
+.dg-canvas { position: relative; max-width: 1400px; margin: 0 auto; padding: 4px 0 8px; }
+.dg-links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+.dg-link { fill: none; stroke-linecap: round; }
+.dg-link.report { stroke: var(--dg-report); stroke-width: 2; stroke-dasharray: 5 6; opacity: .55; }
+.dg-link.flow { stroke: var(--dg-flow); stroke-width: 2.5; color: var(--dg-flow); opacity: .85; }
+
+/* the lead sits alone on top · everyone else hangs off it */
+.dg-lead-row { position: relative; z-index: 1; display: flex; justify-content: center; margin-bottom: 74px; }
+/* the column gap is where the plan arrows live · give them room to read */
+.dg-crew-row { position: relative; z-index: 1; display: flex; flex-wrap: wrap; justify-content: center; align-items: start; gap: 30px 46px; }
+.dg-node { width: 290px; max-width: 100%; cursor: default; gap: 9px; }
+.dg-node:hover { transform: none; }
+.dg-node.lead { width: 330px; border-color: color-mix(in srgb, var(--ac) 45%, var(--border)); box-shadow: 0 10px 30px color-mix(in srgb, var(--ac) 18%, transparent); }
+.dg-step.lead { background: var(--ink); }
 .dg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; align-items: start; max-width: 1400px; margin: 0 auto; }
 
 .dg-card { cursor: default; gap: 9px; }
 .dg-card:hover { transform: none; }
-.dg-card-h { display: flex; align-items: center; gap: 11px; width: 100%; }
+.dg-card-h { display: flex; align-items: center; gap: 11px 8px; width: 100%; flex-wrap: wrap; }
 .dg-face { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; color: #fff; font-weight: 800; font-size: 17px; }
 .dg-id { flex: 1; min-width: 0; }
 .dg-id strong { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 17px; }
@@ -5972,6 +6013,11 @@ html { scroll-behavior: smooth; }
   .dtab { max-width: 62vw; }
   .dg-body { padding: 14px; }
   .dg-grid { grid-template-columns: 1fr; }
+  /* one column · the links become a single spine down the page */
+  .dg-head .dg-legend { display: none; }
+  .dg-lead-row { margin-bottom: 52px; }
+  .dg-crew-row { gap: 46px 0; }
+  .dg-node, .dg-node.lead { width: 100%; }
   .dg-head { padding: 12px 14px; }
   .dg-head strong { font-size: 17px; }
 }

@@ -36,6 +36,18 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
   const openStudio = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
   const openConnect = () => { setMenuOpen(false); location.hash = 'connect' }
+  // Your project · the teams you have built, not the card that creates one.
+  // From another route we have to come back to #app first, and leave the
+  // intent behind so App knows where to land.
+  const openProjects = () => {
+    setMenuOpen(false)
+    if (location.hash.replace(/^#/, '') !== 'app') {
+      try { sessionStorage.setItem('dojoburo.nav', 'projects') } catch { /* ignore */ }
+      location.hash = 'app'
+      return
+    }
+    window.dispatchEvent(new Event('open-projects'))
+  }
   const openCredits = () => { setMenuOpen(false); useWork.getState().openStudio('billing') }
   const doLogin = () => { setMenuOpen(false); if (privyConfigured()) privyControls.login?.(); else signInGuest() }
   // Sign out → go back to the landing FIRST so the auth gate (which re-opens the
@@ -100,6 +112,7 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
           <div className="tb-menu-scrim" onClick={() => setMenuOpen(false)} />
           <div className="tb-menu" role="menu">
             {/* everything that used to sit in the header lives here now */}
+            <button className="tb-menu-item tb-menu-link" onClick={openProjects}>My project</button>
             <button className="tb-menu-item tb-menu-link" onClick={openConnect}>Connect apps</button>
             <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>Dojo Guide</button>
             <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'city' }}>City</button>

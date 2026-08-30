@@ -83,7 +83,22 @@ const CREW = [
   { n: 'Chief', r: 'Team lead', t: '#7b5cff', skin: 'space-bibendum' },
 ]
 const APPS = ['Notion', 'Instagram', 'Gmail', 'Drive']
-const STEPS = ['Audience research', 'Content plan', 'Creatives', 'Campaign brief']
+// The plan, and who owns each step · the run beat shows the teammate whose
+// turn it is in 3D beside the list, so "handed to the right teammate" is
+// something you watch happen instead of something you read.
+const STEPS: { s: string; by: number }[] = [
+  { s: 'Audience research', by: 0 },
+  { s: 'Content plan', by: 3 },
+  { s: 'Creatives', by: 1 },
+  { s: 'Campaign brief', by: 2 },
+]
+// what the team hands back · a glyph beats three grey bars
+const DOCS = [
+  { d: 'Research', g: '◈', c: '#0ea5e9' },
+  { d: 'Plan', g: '❑', c: '#7b5cff' },
+  { d: 'Creatives', g: '◱', c: '#e0459b' },
+  { d: 'Brief', g: '▤', c: '#1fa563' },
+]
 
 /** The animated stage for a beat. Keyed by beat id so animations replay. */
 export function Stage({ beat }: { beat: string }) {
@@ -166,15 +181,27 @@ export function Stage({ beat }: { beat: string }) {
   }
 
   if (beat === 'loop') {
+    const at = Math.min(tick, STEPS.length - 1)
+    const who = CREW[STEPS[at].by]
+    const finished = tick >= STEPS.length
     return (
       <div className="tut-stage">
-        <ol className="tut-loop">
-          {STEPS.map((s, i) => (
-            <li key={s} className={i < tick ? 'done' : i === tick ? 'run' : ''}>
-              <span className="tut-loop-i">{i < tick ? '✓' : i + 1}</span>{s}
-            </li>
-          ))}
-        </ol>
+        <div className="tut-run">
+          <div className="tut-run-who" style={{ ['--c' as string]: who.t }}>
+            <span className="tut-3d">
+              <Agent3DPreview key={who.skin} id={who.skin} character={skinById(who.skin)} size={150} dist={3.3} lift={-1.5} />
+            </span>
+            <b>{who.n}</b>
+            <em>{finished ? 'all done' : 'working on it'}</em>
+          </div>
+          <ol className="tut-loop">
+            {STEPS.map((s, i) => (
+              <li key={s.s} className={i < tick ? 'done' : i === tick ? 'run' : ''}>
+                <span className="tut-loop-i">{i < tick ? '✓' : i + 1}</span>{s.s}
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     )
   }
@@ -240,10 +267,11 @@ export function Stage({ beat }: { beat: string }) {
   return (
     <div className="tut-stage">
       <div className="tut-docs">
-        {['Research', 'Plan', 'Creatives', 'Brief'].map((d, i) => (
-          <span key={d} className="tut-doc" style={{ animationDelay: `${i * 150}ms` }}>
-            <span className="tut-doc-l" /><span className="tut-doc-l sm" /><span className="tut-doc-l" />
-            <em>{d}</em>
+        {DOCS.map((x, i) => (
+          <span key={x.d} className="tut-doc" style={{ ['--c' as string]: x.c, animationDelay: `${i * 150}ms` }}>
+            <span className="tut-doc-g" style={{ background: x.c }}>{x.g}</span>
+            <span className="tut-doc-l" /><span className="tut-doc-l sm" />
+            <em>{x.d}</em>
           </span>
         ))}
       </div>
