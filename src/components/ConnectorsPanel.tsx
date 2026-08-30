@@ -4,6 +4,7 @@ import { connectorsForFunction, WORK_TASKS } from '../data/connectors'
 import { useWork } from '../agents/workStore'
 import { startConnect } from '../agents/workApi'
 import { ConnectorLogo } from './ConnectorLogo'
+import { TutorialOverlay } from './guide/TutorialOverlay'
 import { InfoDot } from './InfoDot'
 
 // Which real deliverables (WORK_TASKS) of this department act inside a connector,
@@ -24,6 +25,8 @@ export function ConnectorsPanel({ dept }: { dept: Department }) {
   const loadTools = useWork((s) => s.loadTools)
   const disconnect = useWork((s) => s.disconnect)
   const [showHow, setShowHow] = useState(false)
+  // the full-screen walkthrough · connecting apps, and what it costs on top
+  const [tut, setTut] = useState(false)
 
   useEffect(() => { if (!loadedOnce) void loadTools() }, [loadedOnce, loadTools])
 
@@ -35,15 +38,18 @@ export function ConnectorsPanel({ dept }: { dept: Department }) {
     <section className="cx">
       <div className="cx-top">
         <h3 className="skills-title">Connect apps <span className="cx-count">{connectedCount}/{connectors.length}</span></h3>
-        <button className="cx-how-t" onClick={() => setShowHow((v) => !v)}>{showHow ? 'Hide guide' : 'How it works'}</button>
+        <button className="cx-how-t" onClick={() => setTut(true)}>How to?</button>
+        <button className="cx-how-t" onClick={() => setShowHow((v) => !v)}>{showHow ? 'Hide setup' : 'Operator setup'}</button>
       </div>
-      <p className="cx-sub">These are the apps this agent's tasks can act inside. Connect one and the agent does the real work · creates the page, opens the PR, drafts the mail · metered on-ledger by x402.</p>
+      <p className="cx-sub">These are the apps this teammate can work inside. Connect one and they do the real thing · create the page, open the PR, draft the mail. Connecting is free; only the work costs anything, about one credit a task.</p>
+
+      {tut && <TutorialOverlay walk="apps" onClose={() => setTut(false)} />}
 
       {showHow && (
         <ol className="cx-steps">
           <li><b>1 · Create the OAuth app</b><span>In the provider console (Notion, GitHub, Google Cloud…), register an app and set the redirect to <code>your-site/api/connect</code>, then copy the <b>client id</b> &amp; <b>secret</b>.</span></li>
           <li><b>2 · Add the keys to env</b><span>The operator sets <code>APP_CLIENT_ID</code> / <code>APP_CLIENT_SECRET</code> once (Google apps share <code>GOOGLE_CLIENT_ID/SECRET</code>). Apps with no first-party MCP also need <code>APP_MCP_URL</code> (Composio / Zapier). PKCE apps are automatic.</span></li>
-          <li><b>3 · Click Connect</b><span>Approve the OAuth screen once. The token is sealed server-side (AES-256-GCM); the browser never sees a secret, and the agent can now act inside the app.</span></li>
+          <li><b>3 · Click Connect</b><span>The founder approves once on the app's own screen. Access is sealed server-side (AES-256-GCM); the browser never holds a secret, and the teammate can act inside the app.</span></li>
         </ol>
       )}
 

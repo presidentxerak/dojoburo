@@ -19,6 +19,7 @@ import { TemplateThumb } from './TemplateThumb'
 import { Agent3DPreview } from '../three/Agent3DPreview'
 import { ConnectorsPanel } from '../ConnectorsPanel'
 import { AgentContext } from '../agents/AgentContext'
+import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { TopBar } from '../TopBar'
 import { PageBar } from '../PageBar'
 import { StepBar } from '../../modules/StepBar'
@@ -642,6 +643,8 @@ function AccountTab() {
         <div className="ws-preview3d"><Agent3DPreview id={account.avatarSkinId} character={skinById(account.avatarSkinId)} size={96} /></div>
         <div><div className="ws-skinname">{account.name || 'Founder'}</div><span className="ws-blurb">{isPrivy ? 'Privy account · synced' : 'Local guest account'}</span></div>
       </div>
+
+      <CompanyPanel />
       <label className="ws-field"><span>Name</span><input value={account.name} onChange={(e) => update({ name: e.target.value })} /></label>
       <label className="ws-field"><span>Handle</span><input value={account.handle} placeholder="@founder" onChange={(e) => update({ handle: e.target.value })} /></label>
       <label className="ws-field"><span>Email</span><input value={account.email} type="email" placeholder="you@dojo.app" onChange={(e) => update({ email: e.target.value })} /></label>
@@ -654,6 +657,66 @@ function AccountTab() {
       >
         Sign out
       </button>
+    </div>
+  )
+}
+
+// The founder's company, as it looks from their profile: its name, and every
+// dojo team in it. Renaming the company here renames it everywhere; each team
+// can be renamed or removed without leaving the profile.
+function CompanyPanel() {
+  const companyName = useWorkshop((s) => s.companyName)
+  const setCompanyName = useWorkshop((s) => s.setCompanyName)
+  const dojos = useWorkshop((s) => s.dojos)
+  const renameDojo = useWorkshop((s) => s.renameDojo)
+  const deleteDojo = useWorkshop((s) => s.deleteDojo)
+
+  return (
+    <div className="ws-company">
+      <h3>Your company</h3>
+      <label className="ws-field">
+        <span>Company name</span>
+        <input
+          value={companyName}
+          maxLength={40}
+          placeholder="Name your company"
+          onChange={(e) => setCompanyName(e.target.value)}
+        />
+      </label>
+
+      <span className="ws-field-lab">Dojo teams <b>{dojos.length}</b></span>
+      {dojos.length === 0 ? (
+        <p className="ws-blurb">No teams yet · add some from the home page.</p>
+      ) : (
+        <ul className="ws-colist">
+          {dojos.map((d) => {
+            const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
+            const crew = d.agents.filter((x) => !x.hidden).length
+            return (
+              <li key={d.id} className="ws-corow" style={{ ['--ac' as string]: a?.tint ?? '#7b5cff' }}>
+                <span className="ws-coglyph">{a?.glyph ?? '◆'}</span>
+                <span className="ws-cotxt">
+                  <input
+                    className="ws-coname"
+                    value={d.name}
+                    maxLength={40}
+                    aria-label={`Rename ${d.name}`}
+                    onChange={(e) => renameDojo(d.id, e.target.value)}
+                  />
+                  <em>{a ? a.label : 'Full company'} · {crew} teammates</em>
+                </span>
+                <button
+                  className="ws-btn danger"
+                  aria-label={`Remove ${d.name}`}
+                  onClick={() => { if (confirm(`Remove "${d.name}"? Its team and everything they made are removed.`)) deleteDojo(d.id) }}
+                >
+                  Remove
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </div>
   )
 }

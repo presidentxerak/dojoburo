@@ -567,6 +567,9 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         {noModel && <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for the real thing.</p>}
       </div>
 
+      {/* Chief has a brief of their own · same plain-language editor */}
+      {dojo && <AgentContext dojoId={dojo.id} roleId="chief" agentName={roster.find((a) => canonicalRole(a.role) === 'chief')?.name || 'Chief'} />}
+
       <div className="mission-head">
         <h3>Your team</h3>
         <span className="muted small">Your full crew · click one to open it. Hide the ones you don't need · restore them from the slots.</span>

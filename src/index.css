@@ -5237,16 +5237,6 @@ html { scroll-behavior: smooth; }
 .ph-filters button { padding: 6px 13px; border: 1px solid var(--border); border-radius: 999px; background: none; color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 .ph-filters button.on { background: var(--ink); color: var(--panel-solid, #fff); border-color: transparent; }
 .ph-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); gap: 12px; }
-.ph-arch { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; text-align: left; padding: 16px; border: 1px solid var(--border); border-radius: 18px; background: var(--panel-solid, #fff); cursor: pointer; font: inherit; color: var(--ink); transition: transform .13s ease, box-shadow .13s ease, border-color .13s ease; }
-.ph-arch:hover { transform: translateY(-3px); border-color: var(--ac); box-shadow: 0 18px 36px -22px color-mix(in srgb, var(--ac) 70%, transparent); }
-.ph-arch-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-.ph-arch-cat { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.ph-arch-title { font-size: 16.5px; letter-spacing: -0.01em; }
-.ph-arch-tag { font-size: 13px; line-height: 1.45; color: var(--muted); }
-.ph-arch-crew { display: flex; align-items: center; gap: 2px; margin-top: 2px; }
-.ph-arch-crew em { font-style: normal; font-size: 11.5px; color: var(--muted); margin-left: 8px; font-weight: 600; }
-.ph-arch-apps { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; opacity: .75; }
-.ph-arch-cta { margin-top: 4px; font-size: 13px; font-weight: 800; color: var(--ac); }
 
 /* back-to-pipeline button on the 3D stage */
 .dojo-home-btn { position: absolute; top: 14px; left: 14px; z-index: 30; padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px; background: color-mix(in srgb, var(--panel-solid, #fff) 88%, transparent); backdrop-filter: blur(6px); color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 22px -12px rgba(0,0,0,.4); }
@@ -5366,10 +5356,6 @@ html { scroll-behavior: smooth; }
 .sys-note { grid-column: 1 / -1; font-size: 11.5px; color: var(--muted); padding-top: 6px; }
 
 /* the agents listed inside a team card */
-.ph-crewlist { display: flex; flex-direction: column; gap: 3px; width: 100%; margin: 2px 0; }
-.ph-crewrow { display: flex; align-items: center; gap: 7px; font-size: 12px; }
-.ph-crewrow b { font-weight: 700; }
-.ph-crewrow em { font-style: normal; color: var(--muted); font-size: 11.5px; }
 .ph-dot.solo { margin-left: 0; width: 18px; height: 18px; font-size: 9.5px; border-width: 0; }
 
 /* landing hero teasers (prompt removed) */
@@ -5381,20 +5367,6 @@ html { scroll-behavior: smooth; }
 @media (max-width: 720px) { .sys { grid-template-columns: 1fr; } .ph-hero h1 { font-size: 30px; } .ph-hero-sub { font-size: 15px; } }
 
 /* agent context sheet */
-.agx { margin-top: 16px; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-.agx-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 11px 14px; border: 0; background: color-mix(in srgb, var(--border) 16%, transparent); color: var(--ink); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
-.agx-h span { display: inline-flex; align-items: center; gap: 5px; }
-.agx-h em { font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--muted); }
-.agx-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--border); }
-.agx-peek { margin: 0; padding: 10px 14px; border-top: 1px solid var(--border); font-size: 12.5px; line-height: 1.5; color: var(--muted); }
-.agx-form { border-top: 1px solid var(--border); }
-.agx-field { display: block; padding: 13px 14px; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
-.agx-label { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
-.agx-n { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: color-mix(in srgb, var(--border) 45%, transparent); font-size: 11px; font-weight: 700; color: var(--muted); }
-.agx-hint { display: block; margin: 3px 0 8px; font-size: 12px; line-height: 1.45; color: var(--muted); }
-.agx-field textarea { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 13px; line-height: 1.55; resize: vertical; background: var(--panel-solid, #fff); color: var(--ink); }
-.agx-field textarea:focus { outline: none; border-color: color-mix(in srgb, var(--accent, #2f6bff) 55%, var(--border)); }
-.agx-field textarea::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); }
 
 /* =====================================================================
    Minimal landing hero · one title, one big button, one "How to?".
@@ -5474,36 +5446,6 @@ html { scroll-behavior: smooth; }
    a phone · the home keeps the hierarchy but scales with the viewport */
 .ph-hero h1 { font-size: clamp(34px, 6.4vw, 54px) !important; }
 .ph-sec-h h2 { font-size: clamp(20px, 3vw, 26px) !important; }
-.ph-name { display: flex; flex-direction: column; align-items: center; gap: 7px; margin: 18px auto 4px; max-width: 460px; }
-.ph-name input {
-  width: 100%; text-align: center; padding: 15px 18px; font: inherit; font-size: 19px; font-weight: 700;
-  letter-spacing: -0.01em; color: var(--ink); background: var(--panel-solid, #fff);
-  border: 1px solid var(--border); border-radius: 14px; transition: border-color .14s ease, box-shadow .14s ease;
-}
-.ph-name input:focus { outline: none; border-color: color-mix(in srgb, #12b981 55%, var(--border)); box-shadow: 0 0 0 4px color-mix(in srgb, #12b981 16%, transparent); }
-.ph-name input::placeholder { font-weight: 600; color: color-mix(in srgb, var(--muted) 75%, transparent); }
-.ph-name-hint { font-size: 12.5px; color: var(--muted); }
-
-/* ---- team cards · same material as the rest of the app's cards ------ */
-.ph-arch {
-  position: relative; overflow: hidden;
-  background:
-    radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--ac) 13%, transparent), transparent 62%),
-    linear-gradient(155deg, color-mix(in srgb, var(--ac) 7%, var(--panel-solid, #fff)), var(--panel-solid, #fff) 58%);
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,.05));
-}
-/* the accent line that wipes in on hover · the app's card signature */
-.ph-arch::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--ac);
-  transform: scaleX(0); transform-origin: left; transition: transform .32s ease;
-}
-.ph-arch:hover::after { transform: scaleX(1); }
-.ph-arch .ph-glyph { box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--ac) 85%, transparent); }
-.ph-arch .ph-arch-cat { padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--ac) 12%, transparent); color: color-mix(in srgb, var(--ac) 78%, var(--ink)); }
-.ph-crewlist { width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 9px 0 3px; border-top: 1px solid color-mix(in srgb, var(--border) 65%, transparent); }
-.ph-crewmore { font-size: 11.5px; font-weight: 700; color: var(--muted); padding-left: 29px; }
-.ph-grid { align-items: start; }
-.ph-arch-apps { padding-top: 4px; }
 
 /* ---- sign in to save ------------------------------------------------ */
 .savegate { position: fixed; inset: 0; z-index: 12000; display: grid; place-items: center; padding: 20px; background: color-mix(in srgb, var(--ink) 45%, transparent); backdrop-filter: blur(5px); }
@@ -5521,3 +5463,295 @@ html { scroll-behavior: smooth; }
   .lp-hero-go { width: 100%; max-width: 340px; padding: 18px 24px; }
   .tutfs-body { padding: 12px; }
 }
+
+/* =====================================================================
+   ONE CARD, EVERYWHERE · the office card from the landing, promoted to
+   the app's card. White panel, accent hairline along the top, the app's
+   sharp corners, and a lift on hover. Everything that used to invent its
+   own card chrome now sets --ac and adds .appcard.
+   ===================================================================== */
+.appcard {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+  background: var(--panel-solid, #fff); border: 1px solid var(--border); border-top: 2px solid var(--ac, var(--border));
+  border-radius: var(--radius); padding: 16px 16px 18px;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.appcard:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--ac) 50%, var(--border)); border-top-color: var(--ac); }
+.appcard:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+.appcard.on { border-color: var(--ac); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 34%, transparent), var(--shadow); }
+/* the accent wipe along the bottom · the app's card signature */
+.appcard::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--ac);
+  transform: scaleX(0); transform-origin: left; transition: transform .32s ease;
+}
+.appcard:hover::after, .appcard.on::after { transform: scaleX(1); }
+
+/* ---- a dojo team card ----------------------------------------------- */
+.tcard { gap: 7px; }
+.tcard-top { display: flex; align-items: center; gap: 10px; width: 100%; }
+.tcard-glyph {
+  display: grid; place-items: center; width: 46px; height: 46px; flex: none; color: #fff; font-size: 22px; line-height: 1;
+  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--ac) 90%, transparent);
+}
+.tcard-cat { flex: 1; font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--ac); }
+.tcard-check {
+  width: 26px; height: 26px; flex: none; display: grid; place-items: center;
+  border: 1.5px solid var(--border); color: #fff; font-size: 15px; font-weight: 800; transition: background .16s ease, border-color .16s ease;
+}
+.tcard.on .tcard-check { background: var(--ac); border-color: var(--ac); }
+.tcard-title { font-family: var(--font-pixel); font-weight: 800; font-size: 20px; line-height: 1.15; letter-spacing: -0.01em; }
+.tcard-tag { font-size: 15px; line-height: 1.45; color: var(--muted); }
+
+.tcard-sec { width: 100%; display: flex; flex-direction: column; gap: 5px; padding-top: 9px; border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent); }
+.tcard-sech { font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.tcard-sech b { color: var(--ink); }
+.tcard-crew { display: flex; flex-direction: column; gap: 3px; width: 100%; }
+.tcard-mate { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1.3; }
+.tcard-face { display: grid; place-items: center; width: 22px; height: 22px; flex: none; border-radius: 50%; color: #fff; font-size: 11px; font-weight: 800; }
+.tcard-mate b { font-weight: 700; }
+.tcard-mate em { font-style: normal; font-size: 13px; color: var(--muted); }
+.tcard-apps { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.tcard-appmore { font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+
+.tcard-budget {
+  width: 100%; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 9px; margin-top: 2px;
+  padding: 10px 12px; background: color-mix(in srgb, var(--ac) 8%, transparent);
+}
+.tcard-tier { font-size: 11.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; padding: 2px 8px; color: #fff; background: var(--ac); }
+.tcard-tier.t-light { background: #1fa563; }
+.tcard-tier.t-medium { background: #d9822b; }
+.tcard-tier.t-heavy { background: #d1495b; }
+.tcard-bmain { font-size: 15px; font-weight: 700; }
+.tcard-bmain b { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; }
+.tcard-busd { width: 100%; font-size: 12.5px; color: var(--muted); }
+.tcard-cta { margin-top: auto; padding-top: 8px; font-size: 14px; font-weight: 800; color: var(--ac); }
+
+/* =====================================================================
+   Step one · create your company
+   ===================================================================== */
+.cc { min-height: 100%; display: flex; flex-direction: column; align-items: center; padding: 44px 18px 0; background: var(--panel-solid, #fff); }
+.cc-card {
+  width: min(520px, 100%); display: flex; flex-direction: column; align-items: stretch; gap: 12px;
+  padding: 34px 30px 28px; border: 1px solid var(--border); border-top: 2px solid var(--violet, #7b5cff);
+  background: var(--panel-solid, #fff); box-shadow: var(--shadow); text-align: center;
+}
+.cc-card h1 { margin: 0; font-size: clamp(30px, 5.4vw, 44px) !important; line-height: 1.05; letter-spacing: -0.02em; }
+.cc-sub { margin: -4px 0 4px; font-size: 16px; color: var(--muted); }
+.cc-input {
+  width: 100%; padding: 16px 18px; text-align: center; font: inherit; font-size: 20px; font-weight: 700;
+  color: var(--ink); background: var(--panel-solid, #fff); border: 1px solid var(--border);
+  transition: border-color .14s ease, box-shadow .14s ease;
+}
+.cc-input:focus { outline: none; border-color: color-mix(in srgb, #12b981 60%, var(--border)); box-shadow: 0 0 0 4px color-mix(in srgb, #12b981 15%, transparent); }
+.cc-input::placeholder { font-weight: 600; color: color-mix(in srgb, var(--muted) 75%, transparent); }
+.cc-go {
+  padding: 17px 24px; border: 0; font: inherit; font-weight: 900; font-size: 18px; cursor: pointer; color: #04232b;
+  background: linear-gradient(120deg, #00d6ff, #12ffb0, #00d6ff); background-size: 220% 220%;
+  animation: acidFlow 4.2s linear infinite; transition: transform .14s ease, filter .14s ease;
+}
+.cc-go:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.05); }
+.cc-go:disabled { animation: none; background: color-mix(in srgb, var(--ink) 12%, transparent); color: var(--muted); cursor: not-allowed; }
+.cc-art { width: min(640px, 100%); margin-top: -6px; pointer-events: none; }
+.cc-art > * { pointer-events: none; }
+
+/* the "How to?" button · same treatment wherever it appears */
+.howto-btn {
+  align-self: center; padding: 9px 20px; border: 1px solid var(--border); background: none; color: var(--muted);
+  font: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: color .14s ease, border-color .14s ease, transform .14s ease;
+}
+.howto-btn:hover { color: var(--ink); border-color: var(--ink); transform: translateY(-1px); }
+
+/* =====================================================================
+   Step two · choose your dojo teams
+   ===================================================================== */
+.ct { max-width: 1180px; margin: 0 auto; padding: 26px 18px 132px; }
+.ct-hero { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 12px 0 22px; }
+.ct-hero h1 { margin: 0; font-size: clamp(30px, 5vw, 46px) !important; line-height: 1.05; letter-spacing: -0.02em; }
+.ct-sub { margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.5; color: var(--muted); }
+.ct-filters { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; margin-bottom: 18px; }
+.ct-filters button { padding: 8px 16px; border: 1px solid var(--border); background: none; color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; transition: background .14s ease, color .14s ease; }
+.ct-filters button:hover { border-color: var(--ink); }
+.ct-filters button.on { background: var(--ink); color: var(--panel-solid, #fff); border-color: var(--ink); }
+.ct-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 16px; align-items: start; }
+
+.ct-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  border-top: 1px solid var(--border); background: color-mix(in srgb, var(--panel-solid, #fff) 94%, transparent);
+  backdrop-filter: blur(10px); transform: translateY(102%); transition: transform .26s cubic-bezier(.2,.9,.3,1);
+}
+.ct-bar.on { transform: none; }
+.ct-bar-in { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 14px 18px calc(14px + env(safe-area-inset-bottom)); }
+/* the help launcher is fixed bottom-left · lift it over the sticky bar */
+.app:has(.ct-bar.on) .sb-launch { bottom: 104px; }
+.ct-bar-txt strong { display: block; font-size: 16px; }
+.ct-bar-txt span { display: block; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+.ct-bar-acts { display: flex; align-items: center; gap: 8px; }
+.ct-back { padding: 13px 20px; border: 1px solid var(--border); background: none; color: var(--ink); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.ct-back:hover { border-color: var(--ink); }
+.ct-go {
+  padding: 14px 28px; border: 0; font: inherit; font-weight: 900; font-size: 16px; cursor: pointer; color: #04232b;
+  background: linear-gradient(120deg, #00d6ff, #12ffb0, #00d6ff); background-size: 220% 220%; animation: acidFlow 4.2s linear infinite;
+}
+.ct-go:hover:not(:disabled) { filter: brightness(1.06); }
+.ct-go:disabled { animation: none; background: color-mix(in srgb, var(--ink) 12%, transparent); color: var(--muted); cursor: not-allowed; }
+
+/* ---- the pipeline header ------------------------------------------- */
+.ph-top { padding-top: 6px; margin-bottom: 16px; }
+.ph-top h1 { margin: 0; font-size: clamp(28px, 4.6vw, 42px) !important; letter-spacing: -0.02em; display: flex; align-items: center; gap: 6px; }
+.ph-addbtn { padding: 11px 20px; border: 1px solid var(--ink); background: var(--ink); color: var(--panel-solid, #fff); font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+.ph-addbtn:hover { filter: brightness(1.15); }
+
+/* the walkthrough stages added for the new beats */
+.tut-tick { position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; display: grid; place-items: center; background: var(--c); color: #fff; font-size: 11px; font-weight: 800; }
+.tut-card { position: relative; }
+.tut-name-field.done { box-shadow: 0 0 0 3px color-mix(in srgb, #12b981 30%, transparent); }
+.tut-name-field.wide { min-width: 300px; }
+.tut-budget { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px 26px; background: var(--panel-solid, #fff); border: 1px solid var(--border); animation: tutPop .45s cubic-bezier(.2,1.3,.4,1) both; }
+.tut-budget-tier { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #d9822b; padding: 3px 10px; }
+.tut-budget-n { font-family: var(--font-pixel); font-weight: 800; font-size: 44px; line-height: 1; display: flex; align-items: baseline; gap: 8px; }
+.tut-budget-n em { font-family: var(--font-ui); font-style: normal; font-size: 14px; font-weight: 700; color: var(--muted); }
+.tut-budget-sub { font-size: 13px; color: var(--muted); }
+.tut-bill { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 300px; }
+.tut-bill-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; background: var(--panel-solid, #fff); border: 1px solid var(--border); animation: tutSlide .5s ease both; }
+.tut-bill-row em { font-style: normal; font-size: 14px; color: var(--muted); }
+.tut-bill-row b { font-size: 14px; font-weight: 800; color: var(--ink); }
+
+@media (max-width: 720px) {
+  .cc { padding-top: 26px; }
+  .cc-card { padding: 26px 20px 22px; }
+  .ct { padding-bottom: 260px; }
+  .ct-grid { grid-template-columns: 1fr; }
+  /* sit above the bottom nav bar, not under it */
+  .ct-bar { bottom: var(--mbar-h, 62px); }
+  .app:has(.ct-bar.on) .sb-launch { bottom: calc(var(--mbar-h, 0px) + 128px); }
+  .ct-bar-in { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px 16px 14px; }
+  .ct-bar-acts { justify-content: stretch; }
+  .ct-go { flex: 1; }
+  .ph-top { flex-direction: column; align-items: flex-start; }
+}
+
+/* ---- the rest of the app's cards, on the same model ------------------ */
+/* pipeline rows and the system-agent cards used to invent their own
+   chrome (rounded, accent stripe on the left). They now read as the same
+   card as everything else: sharp, accent hairline on top, lift on hover. */
+.ph-proj, .sys-card, .sys-checks {
+  border-radius: var(--radius) !important;
+  border-left: 1px solid var(--border);
+  border-top: 2px solid var(--ac, var(--border));
+}
+.ph-proj { padding: 15px 16px 15px 13px; transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
+.ph-proj:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--ac) 50%, var(--border)); border-top-color: var(--ac); }
+.ph-proj.on { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 34%, transparent); }
+.ph-proj-txt strong { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; }
+.ph-proj-txt em { font-size: 13.5px; }
+.ph-step-n { border-radius: 0; }
+.sys-card { border-top-color: var(--ac); }
+.sys-checks { border-top: 1px solid var(--border); }
+.ph-glyph, .ph-dot.solo { border-radius: 0; }
+
+/* =====================================================================
+   "How this teammate works" · the plain-language brief editor.
+   Eight parts is a lot to face at once, so they open one at a time on a
+   numbered rail, each showing a readable preview when closed. Text is
+   sized to be read and written in, not skimmed.
+   ===================================================================== */
+.agx { margin-top: 18px; border: 1px solid var(--border); border-top: 2px solid var(--violet, #7b5cff); background: var(--panel-solid, #fff); transition: box-shadow .18s ease; }
+.agx.open { box-shadow: var(--shadow); }
+
+.agx-h {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
+  padding: 14px 16px; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer;
+  transition: background .16s ease;
+}
+.agx-h:hover { background: color-mix(in srgb, var(--border) 18%, transparent); }
+.agx-h-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.agx-h-txt strong { display: inline-flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+.agx-h-sub { font-size: 13px; color: var(--muted); }
+.agx-h-cta {
+  flex: none; font-style: normal; font-size: 14px; font-weight: 800; color: var(--ink);
+  padding: 8px 16px; border: 1px solid var(--border); transition: background .16s ease, color .16s ease;
+}
+.agx-h:hover .agx-h-cta { background: var(--ink); color: var(--panel-solid, #fff); border-color: var(--ink); }
+.agx-peek { margin: 0; padding: 0 16px 14px; font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+
+.agx-form { border-top: 1px solid var(--border); }
+.agx-field { border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.agx-field:last-of-type { border-bottom: 0; }
+
+.agx-fh {
+  display: flex; align-items: center; gap: 13px; width: 100%; padding: 14px 16px;
+  border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer;
+  transition: background .16s ease;
+}
+.agx-fh:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 6%, transparent); }
+.agx-num {
+  flex: none; display: grid; place-items: center; width: 30px; height: 30px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--muted);
+  font-family: var(--font-pixel); font-weight: 800; font-size: 15px;
+  transition: background .16s ease, color .16s ease;
+}
+.agx-field.open .agx-num { background: var(--violet, #7b5cff); color: #fff; }
+.agx-field.empty .agx-num { box-shadow: inset 0 0 0 1px color-mix(in srgb, #d9822b 55%, transparent); }
+.agx-fh-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.agx-label { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.agx-n {
+  display: inline-grid; place-items: center; min-width: 21px; height: 21px; padding: 0 6px;
+  background: color-mix(in srgb, var(--violet, #7b5cff) 14%, transparent);
+  color: color-mix(in srgb, var(--violet, #7b5cff) 80%, var(--ink)); font-size: 12px; font-weight: 800;
+}
+.agx-prev {
+  font-size: 14px; line-height: 1.4; color: var(--muted);
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+}
+.agx-field.empty .agx-prev { color: #d9822b; font-style: italic; }
+.agx-caret { flex: none; width: 26px; height: 26px; display: grid; place-items: center; font-size: 20px; line-height: 1; color: var(--muted); transition: transform .2s ease, color .16s ease; }
+.agx-fh:hover .agx-caret { color: var(--ink); transform: scale(1.15); }
+
+.agx-body { padding: 0 16px 16px 59px; animation: agxOpen .22s ease-out both; }
+@keyframes agxOpen { from { opacity: 0; transform: translateY(-4px) } to { opacity: 1; transform: none } }
+.agx-hint { margin: 0 0 10px; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.agx-body textarea {
+  width: 100%; min-height: 96px; padding: 13px 15px; border: 1px solid var(--border);
+  font: inherit; font-size: 16px; line-height: 1.65; resize: vertical; overflow: hidden;
+  background: var(--panel-solid, #fff); color: var(--ink);
+  transition: border-color .14s ease, box-shadow .14s ease;
+}
+.agx-body textarea:focus { outline: none; border-color: color-mix(in srgb, var(--violet, #7b5cff) 60%, var(--border)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--violet, #7b5cff) 13%, transparent); }
+.agx-body textarea::placeholder { color: color-mix(in srgb, var(--muted) 68%, transparent); }
+
+.agx-acts {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 14px 16px; border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--border) 12%, transparent);
+}
+.agx-state { flex: 1; font-size: 13.5px; font-weight: 700; color: var(--muted); }
+.agx-acts.dirty .agx-state { color: #d9822b; }
+.agx-reset { padding: 10px 16px; border: 1px solid var(--border); background: none; color: var(--muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.agx-reset:hover { color: #d1495b; border-color: #d1495b; }
+.agx-save { padding: 10px 22px; border: 1px solid var(--ink); background: var(--ink); color: var(--panel-solid, #fff); font: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; transition: filter .14s ease, transform .14s ease; }
+.agx-save:hover:not(:disabled) { filter: brightness(1.16); transform: translateY(-1px); }
+.agx-save:disabled { opacity: .4; cursor: default; }
+
+@media (max-width: 720px) {
+  .agx-body { padding-left: 16px; }
+  .agx-h-cta { padding: 7px 12px; font-size: 13px; }
+}
+
+/* ---- your company, from the profile --------------------------------- */
+.ws-company { margin: 4px 0 20px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+.ws-company h3 { margin: 0 0 4px; }
+.ws-field-lab { display: block; margin: 14px 0 8px; font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ws-field-lab b { color: var(--ink); }
+.ws-colist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ws-corow {
+  display: flex; align-items: center; gap: 11px; padding: 10px 12px;
+  border: 1px solid var(--border); border-top: 2px solid var(--ac); background: var(--panel-solid, #fff);
+}
+.ws-coglyph { flex: none; display: grid; place-items: center; width: 34px; height: 34px; background: var(--ac); color: #fff; font-size: 17px; }
+.ws-cotxt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ws-coname { width: 100%; padding: 3px 5px; border: 1px solid transparent; background: none; font: inherit; font-size: 15px; font-weight: 700; color: var(--ink); }
+.ws-coname:hover { border-color: var(--border); }
+.ws-coname:focus { outline: none; border-color: var(--ac); }
+.ws-corow em { font-style: normal; font-size: 12.5px; color: var(--muted); padding-left: 6px; }

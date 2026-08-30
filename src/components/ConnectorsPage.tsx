@@ -5,13 +5,14 @@
 // and gives a one-click Connect / Disconnect / Set-up per app. Carries the app
 // header + the mobile bottom bar so a phone user can jump back anywhere.
 // ---------------------------------------------------------------------------
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { CONNECTORS, connectorsForFunction, type Connector } from '../data/connectors'
 import { ROLE_AGENTS } from '../data/roleAgents'
 import type { Department } from '../data/agents'
 import { useWork } from '../agents/workStore'
 import { startConnect } from '../agents/workApi'
 import { ConnectorLogo } from './ConnectorLogo'
+import { TutorialOverlay } from './guide/TutorialOverlay'
 import { TopBar } from './TopBar'
 import { PageBar } from './PageBar'
 
@@ -38,6 +39,9 @@ export function ConnectorsPage() {
   const loadTools = useWork((s) => s.loadTools)
   const disconnect = useWork((s) => s.disconnect)
 
+  // the "How to?" walkthrough · connecting apps, and what it costs on top
+  const [howTo, setHowTo] = useState(false)
+
   useEffect(() => { if (!loadedOnce) void loadTools() }, [loadedOnce, loadTools])
 
   const total = CONNECTORS.length
@@ -51,19 +55,22 @@ export function ConnectorsPage() {
           <div>
             <h1 className="connect-title">Connect apps <span className="connect-count">{connected}/{total} linked</span></h1>
             <p className="connect-lead">
-              Link your real tools so your agents act inside your own accounts · draft the Gmail, open the GitHub PR, launch the
-              Meta campaign, post to your CRM. Everything is grouped by what it does. Tap <b>Connect</b>, approve the provider's
-              screen once, and the token is sealed server-side (AES-256-GCM) · the browser never sees a secret.
+              Link the apps you already use so your teammates work inside your own accounts · draft the Gmail, open the GitHub
+              PR, launch the Meta campaign, add to your CRM. Tap <b>Connect</b>, approve once on the app's own screen, and access
+              is sealed away on the server · this browser never holds a secret.
             </p>
+            <button type="button" className="howto-btn" onClick={() => setHowTo(true)}>How to? · and what it costs</button>
           </div>
           <button className="ws-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">×</button>
         </header>
 
+        {howTo && <TutorialOverlay walk="apps" onClose={() => setHowTo(false)} />}
+
         {/* how it works · A to Z */}
         <div className="connect-how">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Find the app by agent</b><span>Apps are grouped by the agent whose job uses them · your Marketer's channels, your Business Analyst's finance tools, and so on.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve the provider's OAuth screen (or paste an API token). No passwords · you authorise on the provider's own site.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Your agents act for real</b><span>The sealed token lets the agent do real work in that app. Tap <b>Full guide</b> on any app for exact scopes &amp; setup, or <b>Disconnect</b> anytime.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve once on the app's own screen. No password ever leaves your hands · you authorise on their site, not ours.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>They work for real</b><span>Connecting is free and stays free · you only ever pay for the work itself, about one credit a task. Tap <b>Full guide</b> on any app for the exact steps, or <b>Disconnect</b> whenever you want.</span></div></div>
         </div>
 
         {loadedOnce && !backend && (

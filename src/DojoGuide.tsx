@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Logo } from './components/Logo'
 import { Wordmark } from './components/Wordmark'
 import { SiteHeader } from './components/SiteHeader'
@@ -8,6 +9,7 @@ import { CONNECTORS, type ConnectorCategory } from './data/connectors'
 import { connectorById, userSteps, operatorSteps, REDIRECT_PATH } from './data/connectorGuide'
 import { StudioTeam } from './components/landing/TeamCards'
 import { Tutorial } from './components/guide/Tutorial'
+import { type WalkId } from './components/guide/tutorialBeats'
 
 // The Dojo Guide · a full page (not a modal) in the landing page's visual
 // language: same title/subtitle/text sizes, same cards. It covers connectors
@@ -41,6 +43,27 @@ function GuideShell({ children, inApp }: { children: React.ReactNode; inApp?: bo
   )
 }
 
+/** The four walkthroughs, pickable. Same player the app's How-to buttons use. */
+function Walkthroughs() {
+  const [walk, setWalk] = useState<WalkId>('overview')
+  const TABS: { id: WalkId; label: string }[] = [
+    { id: 'overview', label: 'The whole thing' },
+    { id: 'company', label: 'Create your company' },
+    { id: 'teams', label: 'Dojo teams' },
+    { id: 'apps', label: 'Apps & what they cost' },
+  ]
+  return (
+    <>
+      <div className="ct-filters" style={{ justifyContent: 'flex-start' }}>
+        {TABS.map((t) => (
+          <button key={t.id} className={walk === t.id ? 'on' : ''} onClick={() => setWalk(t.id)}>{t.label}</button>
+        ))}
+      </div>
+      <Tutorial walk={walk} />
+    </>
+  )
+}
+
 /** Full guide page · at /guide (landing header) or #guide (inside the dojo). */
 export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
   return (
@@ -60,17 +83,20 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec" id="walkthrough">
         <h2>See it in 60 seconds</h2>
-        <p className="lp-lead">The whole process, animated · from naming your company to finished work. Step through it, or hit <b>Play all</b>. It is the same walkthrough as the <b>How to?</b> button on the home page.</p>
-        <Tutorial />
+        <p className="lp-lead">
+          Four animated walkthroughs · the same ones behind every <b>How to?</b> button in the app. Pick one,
+          step through it, or hit <b>Play all</b>.
+        </p>
+        <Walkthroughs />
       </section>
 
       <section className="lp-sec" id="how">
         <h2>How it works</h2>
         <p className="lp-lead">There is no prompt to write. You name your company, then pick the ready-made teams you need · each one arrives already staffed with the right teammates, wired to the right apps. Open any teammate to work with them, and connect your real apps to go live.</p>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your company</b><span>One field on the home page. Everything you add afterwards belongs to it.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Pick your teams</b><span>Tap a card — a social campaign, an app, a book, a shop. It arrives fully staffed. Saving it asks you to sign in.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your company</b><span>One field on the home page, then <b>Create your company</b>. That is the moment we ask you to sign in, so it is still there next time.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Choose your dojo teams</b><span>Tick as many cards as you need — a social campaign, an app, a book, a shop. Each names its crew, its apps and what a run costs before you pick it.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts. Connecting is free; only the work costs credits.</span></div></div>
         </div>
         <p className="lp-note"><b>Do I have to sign in?</b> Only to keep things. Naming a company and reading every team card is free. The moment you add a team, we ask you to sign in so your company, your teammates and everything they make are still there next time · or you can carry on as a guest, saved in this browser only.</p>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your twelve teammates &amp; what each one does</h3>

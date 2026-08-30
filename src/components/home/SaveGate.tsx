@@ -1,8 +1,9 @@
 // "Sign in to save your company."
 //
-// Browsing is free: anyone can name a company and read every team card. Picking
-// one writes a real project, so that is where we ask for an account. Privy is
-// the sign-in; a guest escape stays so a Privy hiccup can never block the app.
+// Browsing is free: anyone can open the app and read every team card. Creating
+// a company writes something real, so that is where we ask for an account.
+// Privy is the sign-in; a guest escape stays so a Privy hiccup can never block
+// the app.
 //
 // (When Privy isn't configured at all, the caller signs the founder in as a
 // guest without ever showing this card.)
@@ -11,8 +12,9 @@ import { createPortal } from 'react-dom'
 import { useWorkshop } from '../../workshop'
 import { privyControls } from '../../auth/controls'
 
-export function SaveGate({ archetypeLabel, onClose, onSignedIn }: {
-  archetypeLabel: string
+export function SaveGate({ what, onClose, onSignedIn }: {
+  /** what is about to be saved, in the founder's own words */
+  what: string
   onClose: () => void
   onSignedIn: () => void
 }) {
@@ -35,8 +37,8 @@ export function SaveGate({ archetypeLabel, onClose, onSignedIn }: {
       <div className="savegate-card" onMouseDown={(e) => e.stopPropagation()}>
         <h3>Sign in to save your company</h3>
         <p>
-          <b>{archetypeLabel}</b> is ready to join your pipeline. Signing in keeps it — along with everything
-          your team makes — so you find it all again next time.
+          {what} Signing in keeps it — along with your teammates and everything they make — so you find it
+          all again next time, on any device.
         </p>
         <div className="savegate-acts">
           <button className="savegate-in" onClick={() => privyControls.login?.()}>Sign in</button>

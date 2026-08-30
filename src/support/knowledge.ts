@@ -36,7 +36,7 @@ export const KB: KBTopic[] = [
     id: 'start',
     chip: 'Getting started',
     answer:
-      'Three steps, no prompt to write. 1) On the home page, type the name of your company in the one field there. 2) Below it, pick a ready-made dojo team card — a social campaign, an app, a book, a shop, a start-up… Each card lists the teammates inside it and the apps they use, and arrives fully staffed. 3) You land straight in that dojo: click a teammate to open their studio, give the project a goal and hit Run every step, and the team works through it in order. Naming a company and browsing every card is free; the moment you add a team we ask you to sign in so it is still there next time (or continue as a guest, saved in this browser only). Want to watch it first? The "How to?" button on the home page plays a 60-second walkthrough full screen.',
+      'Two screens, no prompt to write. 1) You land on one card: type the name of your company and hit Create your company. That is the moment we ask you to sign in, so it is still there next time (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick as many as you need. Every card names the teammates inside it, the apps they use, and what one full run costs in credits, and a bar at the bottom keeps the running total in view. Hit Add teams and you land straight in the first dojo: click a teammate to open their studio, write the goal of the project in one line, and hit Run every step. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
     links: [
       { label: 'Open your cockpit', href: '#app' },
       { label: 'Watch the walkthrough', href: '/guide#walkthrough' },
@@ -48,7 +48,7 @@ export const KB: KBTopic[] = [
     id: 'teams',
     chip: 'Dojo team cards',
     answer:
-      'A dojo team card is a whole project, ready made. Each card names the teammates inside it (a researcher, a maker, an analyst, a team lead…), what each one does, and the apps they work in — all visible before you pick it. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tap one and it becomes a dojo inside your company: you land in its 3D office, and from there you can rename teammates, add or remove them, change the apps they use, change how each one works, and run every step of the plan in one go. Nothing is locked and nothing needs configuring first.',
+      'A dojo team card is a whole project, ready made. Each card names every teammate inside it and how many there are (a researcher, a maker, an analyst, a team lead…), the apps they work in, how many steps their plan has, and what one full run costs: so many credits, marked Light, Medium or Heavy. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tick as many as you need — the bar at the bottom adds up the teams, the teammates, the credits and the app connections as you go. Each one becomes a dojo inside your company: a 3D office where you can rename teammates, add or remove them, change the apps they use, rewrite how any one of them works, and run the whole plan in one go. Nothing is locked and nothing needs configuring first.',
     links: [
       { label: 'Pick a team', href: '#app' },
       { label: 'Shape your team', href: '/guide#team' },
@@ -57,10 +57,22 @@ export const KB: KBTopic[] = [
     keywords: ['team card', 'team cards', 'dojo team', 'dojo teams', 'archetype', 'project card', 'cards', 'speciality', 'specialty', 'pick a team', 'catalogue', 'catalog', 'pipeline'],
   },
   {
+    id: 'budget',
+    chip: 'What a team costs',
+    answer:
+      'Every dojo team card shows its budget before you pick it. A team\'s plan is a fixed list of steps and one step is about one credit, so a 4-step team costs 4 credits for a full run — roughly $0.08 at Pro-pack rates, a bit more on Solo. Cards are marked Light (up to 3 credits), Medium (up to 5) or Heavy above that, and the bar at the bottom of the chooser adds up everything you have ticked. Two things cost nothing on top: connecting an app is free and stays free, and the apps you connect are billed by them, not by us. And if you add your own Claude key the work runs on it — unlimited tasks, no credits spent, Anthropic bills you directly.',
+    links: [
+      { label: 'Pick a team', href: '#app' },
+      { label: 'Plans & pricing', href: '#pricing' },
+    ],
+    follow: ['pricing', 'tools', 'cost'],
+    keywords: ['budget', 'estimate', 'how much does a team cost', 'team cost', 'credits per run', 'per run', 'light medium heavy', 'expensive', 'what will it cost', 'cost of a dojo'],
+  },
+  {
     id: 'signin',
     chip: 'Do I need an account?',
     answer:
-      'Not to look around. You can open the app, name your company and read every team card without signing in. Signing in is asked for at one moment only: when you add a team, because that saves a real project. Sign in with your email or Google and your company, your teammates and everything they make are still there next time, on any device you sign in from. Prefer not to? "Continue as guest" keeps everything in this browser only — it works exactly the same, but clearing your browser data clears your company with it.',
+      'Not to look around. You can open the app, type a name and read every team card without signing in. Signing in is asked for at one moment only: when you hit Create your company, because that saves something real. Sign in with your email or Google and your company, your teammates and everything they make are still there next time, on any device you sign in from. Prefer not to? "Continue as guest" keeps everything in this browser only — it works exactly the same, but clearing your browser data clears your company with it.',
     links: [
       { label: 'Open the app', href: '#app' },
       { label: 'How it works', href: '/guide#how' },
