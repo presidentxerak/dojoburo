@@ -1,11 +1,13 @@
 // The HOME · three surfaces, in the order you meet them.
 //
-//   create   · one centred card: name your company, create it, or watch how.
+//   create   · one centred card: name your project, create it, or watch how.
+//              This is where you land every time · a project you already have
+//              is one quiet line away, never in the way.
 //   choose   · "Choose your dojo teams" · the whole catalogue, à la carte, with
 //              a sticky bar carrying the running budget.
-//   pipeline · what you have built so far, and the two system agents.
+//   project  · what you have built so far, and the two system agents.
 //
-// Creating a company is the moment an account is needed, because it is the
+// Creating a project is the moment an account is needed, because it is the
 // moment something real is saved (see ./SaveGate).
 import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
@@ -20,13 +22,13 @@ import { CreateCompany } from './CreateCompany'
 import { ChooseTeams } from './ChooseTeams'
 import { privyConfigured } from '../../auth/controls'
 
-type View = 'create' | 'choose' | 'pipeline'
+type View = 'create' | 'choose' | 'project'
 
 export function PipelineHome({ onOpenProject, onView }: { onOpenProject: (dojoId: string) => void; onView?: (v: View) => void }) {
   const dojos = useWorkshop((s) => s.dojos)
   const activeId = useWorkshop((s) => s.activeDojoId)
   const account = useWorkshop((s) => s.account)
-  const companyName = useWorkshop((s) => s.companyName)
+  const projectName = useWorkshop((s) => s.projectName)
   const create = useWorkshop((s) => s.createDojoFromArchetype)
   const del = useWorkshop((s) => s.deleteDojo)
   const reorder = useWorkshop((s) => s.reorderDojo)
@@ -36,10 +38,9 @@ export function PipelineHome({ onOpenProject, onView }: { onOpenProject: (dojoId
   const loopRunning = useLoop((s) => s.running)
 
   const projects = dojos.filter((d) => d.archetype)
-  // A company exists once it has a name AND at least one team. Anything less and
-  // you land on step one, which is the only thing on the screen.
-  const hasCompany = !!companyName.trim() && projects.length > 0
-  const [view, setView] = useState<View>(hasCompany ? 'pipeline' : 'create')
+  // You always land on step one · "Create your project" is the whole screen.
+  // What you already built is one line under the card, not in front of it.
+  const [view, setView] = useState<View>('create')
   // the first two steps own the whole screen · App hides its chrome for them
   useEffect(() => { onView?.(view) }, [view, onView])
   // true while we are waiting for the founder to sign in before creating
@@ -47,7 +48,7 @@ export function PipelineHome({ onOpenProject, onView }: { onOpenProject: (dojoId
 
   const open = (id: string) => { setActive(id); onOpenProject(id) }
 
-  // "Create your company" · the save moment, so the account is asked for here
+  // "Create your project" · the save moment, so the account is asked for here
   const startCreate = () => {
     if (account) { setView('choose'); return }
     if (!privyConfigured()) { useWorkshop.getState().signInGuest(); setView('choose'); return }
@@ -56,26 +57,30 @@ export function PipelineHome({ onOpenProject, onView }: { onOpenProject: (dojoId
 
   // add every ticked team at once, then drop into the first one
   const addTeams = (list: Archetype[]) => {
-    const co = companyName.trim()
+    const co = projectName.trim()
     const ids = list.map((a) => create(a.id, co ? `${co} · ${a.label}` : undefined)).filter(Boolean) as string[]
     if (!ids.length) return
     const mates = list.reduce((n, a) => n + a.agents.length, 0)
     pushToast({
       kind: 'event', badge: 'OK', color: list[0].tint,
-      title: co || 'Your company',
+      title: co || 'Your project',
       text: `${ids.length} team${ids.length > 1 ? 's' : ''} · ${mates} teammates hired.`,
     })
-    setView('pipeline')
+    setView('project')
     open(ids[0])
   }
 
   if (view === 'create') {
     return (
       <>
-        <CreateCompany onCreate={startCreate} />
+        <CreateCompany
+          onCreate={startCreate}
+          existingCount={projects.length}
+          onOpenExisting={projects.length ? () => setView('project') : undefined}
+        />
         {gate && (
           <SaveGate
-            what={`"${companyName.trim() || 'Your company'}" is ready to be created.`}
+            what={`"${projectName.trim() || 'Your project'}" is ready to be created.`}
             onClose={() => setGate(false)}
             onSignedIn={() => { setGate(false); setView('choose') }}
           />
@@ -87,9 +92,9 @@ export function PipelineHome({ onOpenProject, onView }: { onOpenProject: (dojoId
   if (view === 'choose') {
     return (
       <ChooseTeams
-        companyName={companyName.trim()}
+        projectName={projectName.trim()}
         onAdd={addTeams}
-        onBack={projects.length ? () => setView('pipeline') : () => setView('create')}
+        onBack={projects.length ? () => setView('project') : () => setView('create')}
       />
     )
   }
@@ -97,10 +102,10 @@ export function PipelineHome({ onOpenProject, onView }: { onOpenProject: (dojoId
   return (
     <div className="ph">
       <header className="ph-sec-h ph-top">
-        <h1>{companyName.trim() || 'Your company'}
-          <InfoDot title="Your company" label="How this works">
-            <p>Everything here belongs to <b>{companyName.trim() || 'your company'}</b>. Each entry is a <b>dojo</b>: a project with its own dedicated teammates.</p>
-            <p>Rename your company, or remove a team, from your profile at any time.</p>
+        <h1>{projectName.trim() || 'Your project'}
+          <InfoDot title="Your project" label="How this works">
+            <p>Everything here belongs to <b>{projectName.trim() || 'your project'}</b>. Each entry is a <b>dojo</b>: a team with its own dedicated teammates.</p>
+            <p>Rename your project, or remove a team, from your profile at any time.</p>
           </InfoDot>
         </h1>
         <button className="ph-addbtn" onClick={() => setView('choose')}>+ Add dojo teams</button>
@@ -151,7 +156,7 @@ export function PipelineHome({ onOpenProject, onView }: { onOpenProject: (dojoId
         </ol>
       )}
 
-      {/* the two system agents · runs the whole pipeline + looks after the app */}
+      {/* the two system agents · runs the whole project + looks after the app */}
       <SystemAgents projectCount={projects.length} onRunPipeline={() => void runPipeline()} running={loopRunning} />
     </div>
   )

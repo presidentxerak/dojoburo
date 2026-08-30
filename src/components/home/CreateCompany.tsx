@@ -1,19 +1,26 @@
-// Step one · "Create your company".
+// Step one · "Create your project".
 //
 // The whole screen is one centred card on a plain ground: the title, the field
-// where you name your company, the button that creates it, and a "How to?" that
+// where you name your project, the button that creates it, and a "How to?" that
 // plays the A-to-Z walkthrough full screen. Below the card, the dojo turns
 // slowly — the thing you are about to make, in miniature.
+//
+// This is where you land every time you open the app. If you already have a
+// project, one quiet line under the card takes you straight back to it.
 import { useState } from 'react'
 import { useWorkshop } from '../../workshop'
 import { DojoDiorama } from '../landing/DojoDiorama'
 import { TutorialOverlay } from '../guide/TutorialOverlay'
 
-export function CreateCompany({ onCreate }: { onCreate: () => void }) {
-  const companyName = useWorkshop((s) => s.companyName)
-  const setCompanyName = useWorkshop((s) => s.setCompanyName)
+export function CreateCompany({ onCreate, onOpenExisting, existingCount }: {
+  onCreate: () => void
+  onOpenExisting?: () => void
+  existingCount?: number
+}) {
+  const projectName = useWorkshop((s) => s.projectName)
+  const setProjectName = useWorkshop((s) => s.setProjectName)
   const [howTo, setHowTo] = useState(false)
-  const ready = companyName.trim().length > 1
+  const ready = projectName.trim().length > 1
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,24 +30,31 @@ export function CreateCompany({ onCreate }: { onCreate: () => void }) {
   return (
     <div className="cc">
       <form className="cc-card" onSubmit={submit}>
-        <h1>Create your company</h1>
+        <h1>Create your project</h1>
         <p className="cc-sub">Give it a name. That is the whole setup.</p>
 
         <input
           className="cc-input"
-          value={companyName}
-          placeholder="Name your company"
+          value={projectName}
+          placeholder="Name your project"
           maxLength={40}
           autoFocus
-          aria-label="Your company name"
-          onChange={(e) => setCompanyName(e.target.value)}
+          aria-label="Your project name"
+          onChange={(e) => setProjectName(e.target.value)}
         />
 
-        <button className="cc-go" type="submit" disabled={!ready}>Create your company</button>
+        <button className="cc-go" type="submit" disabled={!ready}>Create your project</button>
         <button type="button" className="howto-btn" onClick={() => setHowTo(true)}>How to?</button>
       </form>
 
-      {/* the company you are about to make · slowly turning under the card */}
+      {/* already have something running · one quiet way back into it */}
+      {onOpenExisting && !!existingCount && (
+        <button type="button" className="cc-back" onClick={onOpenExisting}>
+          Or open what you already have · {existingCount} team{existingCount > 1 ? 's' : ''} →
+        </button>
+      )}
+
+      {/* the project you are about to make · slowly turning under the card */}
       <div className="cc-art" aria-hidden>
         <DojoDiorama />
       </div>
@@ -50,7 +64,7 @@ export function CreateCompany({ onCreate }: { onCreate: () => void }) {
           walk="company"
           onClose={() => setHowTo(false)}
           onStart={ready ? () => { setHowTo(false); onCreate() } : undefined}
-          startLabel="Create your company →"
+          startLabel="Create your project →"
         />
       )}
     </div>

@@ -12,8 +12,8 @@ import { TeamCard } from './TeamCard'
 
 const CATS: ArchCategory[] = ['Marketing', 'Product', 'Content', 'Creative', 'Business', 'Operations']
 
-export function ChooseTeams({ companyName, onAdd, onBack }: {
-  companyName: string
+export function ChooseTeams({ projectName, onAdd, onBack }: {
+  projectName: string
   onAdd: (list: Archetype[]) => void
   onBack?: () => void
 }) {
@@ -35,7 +35,7 @@ export function ChooseTeams({ companyName, onAdd, onBack }: {
       <header className="ct-hero">
         <h1>Choose your dojo teams</h1>
         <p className="ct-sub">
-          {companyName ? <>Pick what <b>{companyName}</b> needs. </> : null}
+          {projectName ? <>Pick what <b>{projectName}</b> needs. </> : null}
           Tick as many as you want · you can always add more later.
         </p>
         <button type="button" className="howto-btn" onClick={() => setHowTo(true)}>How to?</button>

@@ -40,7 +40,7 @@ export const KB: KBTopic[] = [
     walk: 'company',
     chip: 'Getting started',
     answer:
-      'Two screens, no prompt to write. 1) You land on one card: type the name of your company and hit Create your company. That is the moment we ask you to sign in, so it is still there next time (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick as many as you need. Every card names the teammates inside it, the apps they use, and what one full run costs in credits, and a bar at the bottom keeps the running total in view. Hit Add teams and you land straight in the first dojo: click a teammate to open their studio, write the goal of the project in one line, and hit Run every step. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
+      'Two screens, no prompt to write. 1) You land on one card: type the name of your project and hit Create your project. That is the moment we ask you to sign in, so it is still there next time (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick as many as you need. Every card names the teammates inside it, the apps they use, and what one full run costs in credits, and a bar at the bottom keeps the running total in view. Hit Add teams and you land straight in the first dojo: click a teammate to open their studio, write the goal of the project in one line, and hit Run every step. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
     links: [
       { label: 'Open your cockpit', href: '#app' },
       { label: 'Watch the walkthrough', href: '/guide#walkthrough' },
@@ -79,7 +79,7 @@ export const KB: KBTopic[] = [
     walk: 'company',
     chip: 'Do I need an account?',
     answer:
-      'Not to look around. You can open the app, type a name and read every team card without signing in. Signing in is asked for at one moment only: when you hit Create your company, because that saves something real. Sign in with your email or Google and your company, your teammates and everything they make are still there next time, on any device you sign in from. Prefer not to? "Continue as guest" keeps everything in this browser only — it works exactly the same, but clearing your browser data clears your company with it.',
+      'Not to look around. You can open the app, type a name and read every team card without signing in. Signing in is asked for at one moment only: when you hit Create your project, because that saves something real. Sign in with your email or Google and your project, your teammates and everything they make are still there next time, on any device you sign in from. Prefer not to? "Continue as guest" keeps everything in this browser only — it works exactly the same, but clearing your browser data clears your project with it.',
     links: [
       { label: 'Open the app', href: '#app' },
       { label: 'How it works', href: '/guide#how' },
@@ -266,7 +266,7 @@ export const KB: KBTopic[] = [
     id: 'networks',
     chip: 'Explore free vs go live',
     answer:
-      'Start on the free tier · build your company, meet the crew and run tasks that don\'t need credits, at no cost. When you\'re ready to go live, add credits in your own currency and the crew runs the priced work for real. Same office, same agents · you just switch from exploring to running. No crypto at any point.',
+      'Start on the free tier · build your project, meet the crew and run tasks that don\'t need credits, at no cost. When you\'re ready to go live, add credits in your own currency and the crew runs the priced work for real. Same office, same agents · you just switch from exploring to running. No crypto at any point.',
     links: [
       { label: 'Open the app', href: '#app' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -355,4 +355,4 @@ export function matchTopic(text: string): KBTopic | null {
 }
 
 export const GREETING =
-  "Hi, I'm Dojobot. Short version: you name your company, tick the ready-made teams you need, and each teammate opens a pro studio (branding, website, campaigns, video, finance, CRM, analytics) that runs in your browser. Ask me anything in your own words — or pick a topic below. When a question has a walkthrough, I can play it for you full screen.";
+  "Hi, I'm Dojobot. Short version: you name your project, tick the ready-made teams you need, and each teammate opens a pro studio (branding, website, campaigns, video, finance, CRM, analytics) that runs in your browser. Ask me anything in your own words — or pick a topic below. When a question has a walkthrough, I can play it for you full screen.";

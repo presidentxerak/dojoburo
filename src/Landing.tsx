@@ -192,7 +192,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-node"><b>Arrange</b><span>Tap to reseat · many dojos</span></div>
         </div>
         <div className="lp-actions" style={{ marginTop: 18 }}>
-          <button className="lp-cta" onClick={enter}>Open the Dojo Studio →</button>
+          <button className="lp-cta" onClick={enter}>Open the dojo settings →</button>
         </div>
       </section>
 
@@ -210,7 +210,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-ico" style={{ background: C.yellow, color: '#1a1300' }}><AsciiIcon kind="bolt" /></span>
         <h2>How it works</h2>
         <div className="lp-steps">
-          <div className="lp-step"><span className="lp-n">1</span><h3>Name your company</h3><p>One field, no prompt to write. Everything you add afterwards belongs to it · and signing in keeps it all for next time.</p></div>
+          <div className="lp-step"><span className="lp-n">1</span><h3>Name your project</h3><p>One field, no prompt to write. Everything you add afterwards belongs to it · and signing in keeps it all for next time.</p></div>
           <div className="lp-step"><span className="lp-n">2</span><h3>Pick your dojo teams</h3><p>Tap a ready-made card — a social campaign, an app, a book, a shop. It arrives fully staffed with the teammates that job needs, already wired to the right apps, and they get to work: website, offers, outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · real work in your accounts.</p></div>
           <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, decide how much it does on its own and set a daily spending limit. A guard stops it from going in circles.</p></div>
           <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit, settled behind the scenes. Your CEO dashboard tallies the numbers and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
@@ -359,6 +359,7 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec alt" id="cost">
         <h2>What a task costs in credits</h2>
         <p className="lp-lead">Most work is free or about one credit; only heavier jobs cost a little more. You buy credits in your own currency and they settle on a fast rail behind the scenes · no crypto, no fees to think about.</p>
+        <div className="lp-tablewrap">
         <table className="lp-table">
           <thead><tr><th>Task type</th><th>Credits</th><th>Settlement</th><th>Total / run</th></tr></thead>
           <tbody>
@@ -368,6 +369,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <tr><td>Premium agentic task (e.g. a full campaign)</td><td>2–3 credits</td><td>behind the scenes</td><td>≈ 2–3 credits</td></tr>
           </tbody>
         </table>
+        </div>
         <p className="lp-note">Exploring is free while you try things out. On a paid plan the same tasks spend real credits · your CEO dashboard shows your running totals live.</p>
       </section>
 
@@ -439,7 +441,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>
         <h2>Ready to run your office?</h2>
-        <button className="lp-cta big lp-cta-create" onClick={enter}>Create your company →</button>
+        <button className="lp-cta big lp-cta-create" onClick={enter}>Create your project →</button>
         <p className="lp-foot">Credits · no crypto · powered by growth hacking · open in your browser</p>
       </section>
 
@@ -450,14 +452,14 @@ export function Landing({ enter }: { enter: () => void }) {
           {SHOW_MOCK_COMPANIES && <a href="#showcase">Showcase</a>}
           <a href="#jobs">Your job</a>
           <a href="#stack">Connect apps</a>
-          <a href="#studio">Dojo Studio</a>
+          <a href="#studio">Dojo settings</a>
           <a href="#pricing">Pricing</a>
           <a href="#onramp">Credits</a>
           <a href="#xrpl">XRPL &amp; x402</a>
           <a href="#prod">Production</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
-          <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Create your company</a>
+          <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Create your project</a>
         </nav>
       </footer>
       <SupportBot />

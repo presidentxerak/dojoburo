@@ -1,7 +1,7 @@
-// "Sign in to save your company."
+// "Sign in to save your project."
 //
 // Browsing is free: anyone can open the app and read every team card. Creating
-// a company writes something real, so that is where we ask for an account.
+// a project writes something real, so that is where we ask for an account.
 // Privy is the sign-in; a guest escape stays so a Privy hiccup can never block
 // the app.
 //
@@ -35,7 +35,7 @@ export function SaveGate({ what, onClose, onSignedIn }: {
   return createPortal(
     <div className="savegate" onMouseDown={onClose} role="dialog" aria-modal="true">
       <div className="savegate-card" onMouseDown={(e) => e.stopPropagation()}>
-        <h3>Sign in to save your company</h3>
+        <h3>Sign in to save your project</h3>
         <p>
           {what} Signing in keeps it — along with your teammates and everything they make — so you find it
           all again next time, on any device.

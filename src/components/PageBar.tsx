@@ -21,7 +21,7 @@ export function PageBar({ current }: { current: Tab }) {
         <span className="mbar-ic">▤</span>CEO
       </button>
       <button className={current === 'studio' ? 'on' : ''} onClick={() => { location.hash = 'studio' }}>
-        <span className="mbar-ic">✎</span>Studio
+        <span className="mbar-ic">✎</span>Settings
       </button>
       <button className={current === 'connect' ? 'on' : ''} onClick={() => { location.hash = 'connect' }}>
         <span className="mbar-ic">⊞</span>Connect

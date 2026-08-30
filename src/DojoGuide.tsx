@@ -63,7 +63,7 @@ function Walkthroughs() {
   const [walk, setWalk] = useState<WalkId>('overview')
   const TABS: { id: WalkId; label: string }[] = [
     { id: 'overview', label: 'The whole thing' },
-    { id: 'company', label: 'Create your company' },
+    { id: 'company', label: 'Create your project' },
     { id: 'teams', label: 'Dojo teams' },
     { id: 'apps', label: 'Apps & what they cost' },
   ]
@@ -86,7 +86,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
       <section className="lp-hero dg2-hero">
         <h1>Your <span className="hl-mag">studios</span> + your tools, <span className="hl-acid">under control</span>.</h1>
         <p className="lp-sub">
-          You name your company, pick the ready-made teams you need, and each teammate opens a pro studio
+          You name your project, pick the ready-made teams you need, and each teammate opens a pro studio
           (branding, website, Meta campaigns, video editing, finance, CRM, analytics) that runs
           <b> 100% in your browser</b> · your files never leave. Connect your real apps (Meta, Gmail, Stripe…)
           and they work inside them for you. This guide covers the whole thing, step by step.
@@ -108,16 +108,27 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
       <section className="lp-sec" id="how">
         <h2>How it works</h2>
         <HowTo walk="company" />
-        <p className="lp-lead">There is no prompt to write. You name your company, then pick the ready-made teams you need · each one arrives already staffed with the right teammates, wired to the right apps. Open any teammate to work with them, and connect your real apps to go live.</p>
+        <p className="lp-lead">There is no prompt to write. You name your project, then pick the ready-made teams you need · each one arrives already staffed with the right teammates, wired to the right apps. Open any teammate to work with them, and connect your real apps to go live.</p>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your company</b><span>One field on the home page, then hit <b>Create your company</b> · that is the moment we ask you to sign in, so it is still there next time.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your project</b><span>One field on the home page, then hit <b>Create your project</b> · that is the moment we ask you to sign in, so it is still there next time.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Choose your dojo teams</b><span>Tick as many cards as you need — a social campaign, an app, a book, a shop. Each names its crew, its apps and what a run costs before you pick it.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts. Connecting is free; only the work costs credits.</span></div></div>
         </div>
-        <p className="lp-note"><b>Do I have to sign in?</b> Only to keep things. Naming a company and reading every team card is free. The moment you add a team, we ask you to sign in so your company, your teammates and everything they make are still there next time · or you can carry on as a guest, saved in this browser only.</p>
+        <p className="lp-note"><b>Do I have to sign in?</b> Only to keep things. Naming a project and reading every team card is free. The moment you add a team, we ask you to sign in so your company, your teammates and everything they make are still there next time · or you can carry on as a guest, saved in this browser only.</p>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your twelve teammates &amp; what each one does</h3>
         <StudioTeam enter={() => { window.location.href = '/#app' }} />
         <p className="lp-note" style={{ marginTop: 14 }}>These twelve ship with every dojo — and the crew is yours to shape. See <a className="linklike" href="#team">Shape your team</a> just below.</p>
+      </section>
+
+      <section className="lp-sec alt" id="around">
+        <h2>Finding your way around</h2>
+        <p className="lp-lead">The app's header is deliberately quiet · no logo, no brand, just the controls for whatever you are looking at. Everything else lives in the menu.</p>
+        <div className="lp-steps3">
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>The menu (top right)</b><span>Connect apps, the Dojo Guide, the City, Quick search, Dojo settings, your Account, Credits and Settings · all in one place.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Inside a dojo</b><span>Four controls sit in the middle of the header: <b>Project</b> (back to your project), <b>Manage team</b>, <b>Dojo settings</b>, and <b>Graph mode</b>. On a phone they are the bottom bar.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>The team tabs</b><span>Right under the header, every other team in your project · switching from the campaign crew to the app crew is one tap.</span></div></div>
+        </div>
+        <p className="lp-note"><b>Graph mode</b> is the whole team on one screen: a card per teammate with what they do, how much they have actually produced, when they last worked, and every app they can reach · add or remove an app right on the card.</p>
       </section>
 
       <section className="lp-sec" id="team">
@@ -243,7 +254,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <div>
             <h3>Run the work</h3>
             <ul>
-              <li>Give the agent a task in Studio, or run one from its card. When a task uses a connected app, the agent performs the real action · it creates the page, opens the PR, drafts the mail.</li>
+              <li>Give the teammate a task from their card, or run the whole plan. When a task uses a connected app, the agent performs the real action · it creates the page, opens the PR, drafts the mail.</li>
               <li>Priced tasks spend about one credit, settled on a fast rail behind the scenes, so each unit of work is metered and auditable · no crypto.</li>
             </ul>
           </div>
@@ -353,12 +364,12 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
             <ul>
               <li><b>Intelligence is ~free</b> · bring your own Claude key, or use a free model when one is enabled. Most tasks cost nothing.</li>
               <li><b>Priced tasks are tiny</b> · most cost about one credit; only heavier jobs cost a couple more, and you buy credits in your own currency.</li>
-              <li><b>Set a daily spending limit</b> and per-teammate budgets in Studio so nothing can overspend · a guard also stops the CEO from looping.</li>
+              <li><b>Set a daily spending limit</b> and per-teammate budgets in the dojo settings so nothing can overspend · a guard also stops the CEO from looping.</li>
             </ul>
           </div>
           <div>
             <ul>
-              <li><b>Explore for free</b> · the free tier lets you build your company and run no-cost tasks first · add credits only when you go live.</li>
+              <li><b>Explore for free</b> · the free tier lets you build your project and run no-cost tasks first · add credits only when you go live.</li>
               <li><b>Disconnect unused apps</b> and watch your CEO dashboard for live totals (credits, tokens, tasks).</li>
               <li><b>Credits</b> (optional) cover runs on our AI · about 1 credit per task · top up only if you don't bring your own key.</li>
             </ul>
@@ -370,7 +381,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <h2>9 · Quick troubleshooting</h2>
         <ul className="lp-check">
           <li><b>App shows "Set up" not "Connect"</b> · the operator hasn't added that app's OAuth keys yet (see its setup page).</li>
-          <li><b>"needs a key" on a task</b> · add your Claude key in Studio → Billing.</li>
+          <li><b>"needs a key" on a task</b> · add your Claude key in the menu → My Credits.</li>
           <li><b>A task won't run</b> · check your credits balance isn't empty or capped by your daily limit.</li>
           <li><b>Still stuck?</b> · ask <b>Dojobot</b> (bottom right) · it answers in plain language and can play any walkthrough full screen.</li>
         </ul>

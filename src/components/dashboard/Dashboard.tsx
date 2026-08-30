@@ -6,6 +6,7 @@ import { useDojo } from '../../store'
 import { ArrangeGrid } from './ArrangeGrid'
 import { LoopPanel } from './LoopPanel'
 import { AgentContext } from '../agents/AgentContext'
+import { AGENT_TASKS } from './agentTasks'
 import { CompanyReport } from './CompanyReport'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
 import { useSecrets } from '../../agents/secretsStore'
@@ -51,17 +52,6 @@ const CREDIT_PACKS = [30, 100, 500]
 
 // Which deliverable task ids belong to each agent · used to compute a card's
 // status + last activity from the deliverables history.
-const AGENT_TASKS: Record<string, string[]> = {
-  chief: ['strategy'],
-  brandi: ['brand'],
-  weblos: ['website'],
-  marketus: ['ads', 'video', 'assets'],
-  pumpi: ['outreach'],
-  busino: ['offer', 'analytics', 'finance'],
-  sentinel: [],
-  vaultor: [],
-}
-
 function relTime(ms: number): string {
   if (!ms) return 'No activity yet'
   const s = Math.max(0, (Date.now() - ms) / 1000)
@@ -266,7 +256,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     const err = useWork.getState().runError
     if (err) {
       const map: Record<string, string> = {
-        needs_key: 'Add your Claude key (Studio → Billing) for this piece of work.',
+        needs_key: 'Add your Claude key (the menu → My Credits) for this piece of work.',
         quota: 'Daily free quota reached · add your Claude key to continue.',
         not_configured: 'No AI is set up here yet · add your Claude key to get going.',
         network: 'Network error · please try again in a moment.',
@@ -325,7 +315,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
             <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>
           )}
           {noModel && (
-            <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (Studio → Billing) for the real thing.</p>
+            <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (the menu → My Credits) for the real thing.</p>
           )}
           <p className="muted small">Chief delegates brand, website, offer, ads and outreach to the specialists (within Sentinel's limits) · daily email report.</p>
         </>

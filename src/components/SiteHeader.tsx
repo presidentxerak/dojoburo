@@ -53,7 +53,7 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
           >
             <span /><span /><span />
           </button>
-          <button className="lp-cta sm lp-cta-create" onClick={create}>Create your company</button>
+          <button className="lp-cta sm lp-cta-create lp-nav-create" onClick={create}>Create your project</button>
           {account ? (
             <button className="lp-profile-btn lp-auth-btn" onClick={goDojo} title={account.name || 'Enter your dojo'}>
               <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />
@@ -76,7 +76,7 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
               <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
             ))}
             <a className="lp-menu-guide" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
-            <button className="lp-cta" onClick={() => { setMenuOpen(false); create() }}>Create your company</button>
+            <button className="lp-cta" onClick={() => { setMenuOpen(false); create() }}>Create your project</button>
             <div className="lp-menu-auth">
               {account ? (
                 <button className="lp-menu-profile" onClick={goDojo}>

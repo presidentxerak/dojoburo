@@ -12,6 +12,8 @@ import { DojosManager } from './components/DojosManager'
 import { CommandPalette } from './components/CommandPalette'
 import { OutboundConsentModal } from './components/OutboundConsentModal'
 import { ArrangeGrid } from './components/dashboard/ArrangeGrid'
+import { DojoGraph } from './components/dashboard/DojoGraph'
+import { DojoTabs } from './components/dashboard/DojoTabs'
 import { PipelineHome } from './components/home/PipelineHome'
 import { Defs } from './components/Defs'
 import { useDojo } from './store'
@@ -31,6 +33,7 @@ export default function App() {
   const selected = useDojo((s) => s.selectedAgent)
   const selectAgent = useDojo((s) => s.selectAgent)
   const account = useWorkshop((s) => s.account)
+  const activeDojoId = useWorkshop((s) => s.activeDojoId)
   const needsAuth = !account && privyConfigured()
 
   // 'home' = name your company and pick your teams (the landing surface);
@@ -42,13 +45,15 @@ export default function App() {
   // and "Choose your dojo teams" — are meant to be the only thing on screen,
   // so the bottom navigation (Dojo, Studio, Connect, City) is not shown: none
   // of it means anything before a company exists.
-  const [homeStep, setHomeStep] = useState<'create' | 'choose' | 'pipeline'>('pipeline')
+  const [homeStep, setHomeStep] = useState<'create' | 'choose' | 'project'>('create')
   // the dojo fills the window on arrival (centered), then reveals the agent's
   // dashboard when you pick an agent.
   const [dojoFull, setDojoFull] = useState(true)
   // arrange-the-team overlay · reachable straight from the dojo on desktop AND
   // mobile (tap an agent, tap a cell). The 3D scene reseats in grid order.
   const [arrangeOpen, setArrangeOpen] = useState(false)
+  // graph mode · the whole team and their apps as cards, full screen
+  const [graphOpen, setGraphOpen] = useState(false)
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
 
@@ -126,29 +131,38 @@ export default function App() {
         <SettingsModal />
         <DojosManager />
         <SupportBot />
-        {homeStep === 'pipeline' && (
-        <nav className="mbar mbar-5" aria-label="Navigation">
-          <button className="on"><span className="mbar-ic">▦</span>Home</button>
+        {homeStep === 'project' && (
+        <nav className="mbar mbar-3" aria-label="Navigation">
+          <button className="on"><span className="mbar-ic">▦</span>Project</button>
           <button onClick={() => { setView('dojo'); setDojoFull(true) }}><span className="mbar-ic">◳</span>Dojo</button>
-          <button onClick={() => useWork.getState().openStudio('studio')}><span className="mbar-ic">✎</span>Studio</button>
-          <button onClick={() => { location.hash = 'connect' }}><span className="mbar-ic">⊞</span>Connect</button>
-          <button onClick={() => { location.hash = 'city' }}><span className="mbar-ic">⌂</span>City</button>
+          <button onClick={() => useWork.getState().openStudio('studio')}><span className="mbar-ic">✎</span>Settings</button>
         </nav>
         )}
       </div>
     )
   }
 
+  // the dojo's controls live in the middle of the header, on a transparent bar
+  const dojoControls = (
+    <nav className="dojo-ctl" aria-label="Dojo">
+      <button onClick={() => { selectAgent(null); setView('home') }} title="Back to your project">Project</button>
+      <button onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Manage team</button>
+      <button onClick={() => useWork.getState().openStudio('studio')} title="Dojo settings">Dojo settings</button>
+      <button className="dojo-ctl-graph" onClick={() => setGraphOpen(true)} title="See the team and their apps as a graph">Graph mode</button>
+    </nav>
+  )
+
   return (
     <div className={`app dash-layout${dojoFull ? ' dojo-full' : ''}`}>
       <Defs />
-      <TopBar />
+      <TopBar center={dojoControls} />
+
+      {/* every other team in this project, one tap away */}
+      <DojoTabs onOpen={() => { selectAgent(null); setDojoFull(true) }} />
 
       <div className="dash-main">
         <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
           <div className="scene-bg"><Scene3D /></div>
-          <button className="dojo-home-btn" onClick={() => { selectAgent(null); setView('home') }} title="Back to your company">‹ My company</button>
-          <button className="dojo-arrange-btn" onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Arrange team</button>
         </div>
 
         {!dojoFull && (
@@ -171,6 +185,14 @@ export default function App() {
         </div>
       )}
 
+      {graphOpen && activeDojoId && (
+        <DojoGraph
+          dojoId={activeDojoId}
+          onClose={() => setGraphOpen(false)}
+          onOpenAgent={(id) => { selectAgent(id); setDojoFull(false) }}
+        />
+      )}
+
       <OutboundConsentModal />
       <CommandPalette openDojo={() => setDojoFull(true)} showDashboard={() => setDojoFull(false)} />
       <Toasts />
@@ -181,11 +203,11 @@ export default function App() {
       <DojosManager />
       <SupportBot />
 
-      {/* mobile bottom navigation bar · Dojo (the 3D office) · CEO (the company
-          dashboard that manages every agent) · Studio · Connect apps · City */}
-      <nav className="mbar mbar-5" aria-label="Navigation">
+      {/* mobile bottom bar · the same four things the header carries on desktop.
+          Connect apps, the Dojo Guide and the City live in the menu now. */}
+      <nav className="mbar mbar-4" aria-label="Navigation">
         <button onClick={() => { selectAgent(null); setView('home') }}>
-          <span className="mbar-ic">▦</span>Home
+          <span className="mbar-ic">▦</span>Project
         </button>
         <button className={dojoFull ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(true) }}>
           <span className="mbar-ic">◳</span>Dojo
@@ -193,11 +215,8 @@ export default function App() {
         <button className={!dojoFull && !selected ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(false); document.querySelector('.dash-side')?.scrollTo({ top: 0, behavior: 'smooth' }) }}>
           <span className="mbar-ic">▤</span>Team
         </button>
-        <button onClick={() => { location.hash = 'connect' }}>
-          <span className="mbar-ic">⊞</span>Connect
-        </button>
-        <button onClick={() => { location.hash = 'city' }}>
-          <span className="mbar-ic">⌂</span>City
+        <button onClick={() => setGraphOpen(true)}>
+          <span className="mbar-ic">◈</span>Graph
         </button>
       </nav>
 

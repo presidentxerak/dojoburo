@@ -813,8 +813,10 @@ a:hover { text-decoration: underline; }
   .mbar button.on { color: var(--ink); }
   .mbar-ic { font-size: 16px; line-height: 1; }
   /* five tabs (Dojo · CEO · Studio · Connect · City) · smaller labels so they fit */
-  .mbar-5 button { font-size: 11px; letter-spacing: -0.01em; }
-  .mbar-5 .mbar-ic { font-size: 17px; }
+  .mbar-5 button, .mbar-4 button { font-size: 11px; letter-spacing: -0.01em; }
+  .mbar-5 .mbar-ic, .mbar-4 .mbar-ic { font-size: 17px; }
+  .mbar-3 button { font-size: 12px; }
+  .mbar-3 .mbar-ic { font-size: 18px; }
   /* keep content + the help button clear of the bar */
   .dash-side { padding-bottom: 84px; }
   .dojo-agent-overlay, .dojo-hud { bottom: 74px; }
@@ -1242,7 +1244,9 @@ a:hover { text-decoration: underline; }
 .lp-two li, .lp-check li { font-size: 16px; line-height: 1.65; color: var(--ink); margin-bottom: 10px; }
 .lp-two li b { color: var(--violet); }
 
-.lp-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+/* wide tables scroll inside their own box · the page never does */
+.lp-tablewrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.lp-table { width: 100%; min-width: 460px; border-collapse: collapse; font-size: 16px; }
 .lp-table th, .lp-table td { text-align: left; padding: 13px 14px; border-bottom: 1px solid var(--border); }
 .lp-table th { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: var(--muted); }
 .lp-table tbody tr:hover { background: color-mix(in srgb, var(--pink) 6%, transparent); }
@@ -5612,6 +5616,12 @@ html { scroll-behavior: smooth; }
 }
 .cc-go:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.05); }
 .cc-go:disabled { animation: none; background: color-mix(in srgb, var(--ink) 12%, transparent); color: var(--muted); cursor: not-allowed; }
+.cc-back {
+  margin-top: 16px; padding: 10px 20px; border: 0; background: none; color: var(--muted);
+  font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; text-decoration: underline;
+  text-underline-offset: 3px; transition: color .14s ease;
+}
+.cc-back:hover { color: var(--ink); }
 .cc-art { width: min(640px, 100%); margin-top: -6px; pointer-events: none; }
 .cc-art > * { pointer-events: none; }
 
@@ -5824,3 +5834,129 @@ html { scroll-behavior: smooth; }
 .ws-coname:hover { border-color: var(--border); }
 .ws-coname:focus { outline: none; border-color: var(--ac); }
 .ws-corow em { font-style: normal; font-size: 12.5px; color: var(--muted); padding-left: 6px; }
+
+/* =====================================================================
+   The app header, after the move.
+   The brand belongs to the landing page; inside the app the header is a
+   transparent rail carrying the current surface's own controls in the
+   middle, with the menu on the right holding Connect apps, the Dojo
+   Guide, the City and Quick search.
+   ===================================================================== */
+.topbar-app {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  margin: 8px 10px 0;
+  padding: 6px 6px;
+}
+.tb-home {
+  display: grid; place-items: center; width: 40px; height: 40px; flex: none;
+  border: 1px solid var(--border); border-radius: 14px !important; background: color-mix(in srgb, var(--panel-solid, #fff) 80%, transparent);
+  backdrop-filter: blur(8px); cursor: pointer; transition: transform .14s ease, border-color .14s ease;
+}
+.tb-home:hover { transform: translateY(-1px); border-color: var(--ink); }
+.topbar-app .topbar-mid { flex: 1 1 auto; justify-content: center; min-width: 0; }
+.topbar-app .topbar-right { flex: 0 0 auto; }
+/* the burger is now the only door to Connect apps / Guide / City · always shown */
+.tb-burger-always { display: inline-flex !important; }
+
+/* ---- the dojo's own controls, centred in the header ------------------ */
+.dojo-ctl {
+  display: flex; align-items: center; gap: 4px; padding: 4px; max-width: 100%; overflow-x: auto;
+  border: 1px solid var(--border); border-radius: 999px !important;
+  background: color-mix(in srgb, var(--panel-solid, #fff) 82%, transparent); backdrop-filter: blur(10px);
+  scrollbar-width: none;
+}
+.dojo-ctl::-webkit-scrollbar { display: none; }
+.dojo-ctl button {
+  flex: none; padding: 9px 16px; border: 0; border-radius: 999px !important; background: none; color: var(--ink);
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  transition: background .14s ease, color .14s ease;
+}
+.dojo-ctl button:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.dojo-ctl-graph { background: var(--ink) !important; color: var(--panel-solid, #fff) !important; }
+.dojo-ctl-graph:hover { filter: brightness(1.2); }
+
+/* ---- the team tab bar · sticky under the header ---------------------- */
+.dtabs {
+  position: sticky; top: 0; z-index: 25; padding: 4px 10px 8px;
+  background: linear-gradient(color-mix(in srgb, var(--bg) 92%, transparent), transparent);
+}
+.dtabs-in { display: flex; gap: 8px; overflow-x: auto; padding: 2px; scrollbar-width: none; }
+.dtabs-in::-webkit-scrollbar { display: none; }
+.dtab {
+  flex: none; display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px;
+  border: 1px solid var(--border); border-radius: 999px !important;
+  background: color-mix(in srgb, var(--panel-solid, #fff) 85%, transparent); backdrop-filter: blur(8px);
+  color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; max-width: 260px;
+  transition: border-color .14s ease, transform .14s ease;
+}
+.dtab:hover { transform: translateY(-1px); border-color: var(--ac); }
+.dtab.on { border-color: var(--ac); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 30%, transparent); }
+.dtab-glyph { display: grid; place-items: center; width: 26px; height: 26px; flex: none; border-radius: 50%; color: #fff; font-size: 13px; }
+.dtab-txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dtab-n { flex: none; font-size: 11.5px; font-weight: 800; color: var(--muted); }
+
+/* =====================================================================
+   Graph mode · the team and their apps, as cards
+   ===================================================================== */
+.dg { position: fixed; inset: 0; z-index: 12000; display: flex; flex-direction: column; background: var(--bg); animation: sbpop .18s ease-out; }
+.dg-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--panel-solid, #fff); }
+.dg-head strong { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 20px; }
+.dg-head span { display: block; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+.dg-x { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50% !important; background: none; color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; }
+.dg-x:hover { border-color: var(--ink); }
+.dg-body { flex: 1; min-height: 0; overflow: auto; padding: 22px; }
+.dg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; align-items: start; max-width: 1400px; margin: 0 auto; }
+
+.dg-card { cursor: default; gap: 9px; }
+.dg-card:hover { transform: none; }
+.dg-card-h { display: flex; align-items: center; gap: 11px; width: 100%; }
+.dg-face { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; color: #fff; font-weight: 800; font-size: 17px; }
+.dg-id { flex: 1; min-width: 0; }
+.dg-id strong { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 17px; }
+.dg-id em { display: block; font-style: normal; font-size: 13px; color: var(--muted); }
+.dg-step { flex: none; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: var(--ac); padding: 3px 9px; border-radius: 999px; }
+.dg-blurb { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+
+.dg-stats { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; }
+.dg-stat { flex: 1 1 74px; display: flex; flex-direction: column; padding: 8px 10px; border-radius: 12px; background: color-mix(in srgb, var(--ac) 8%, transparent); }
+.dg-stat.wide { flex: 1 1 120px; }
+.dg-stat b { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; line-height: 1.1; }
+.dg-stat em { font-style: normal; font-size: 11.5px; color: var(--muted); }
+.dg-bar { width: 100%; height: 5px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 8%, transparent); overflow: hidden; }
+.dg-bar span { display: block; height: 100%; border-radius: 999px; transition: width .3s ease; }
+
+.dg-apps { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; padding-top: 4px; }
+.dg-noapps { font-size: 12.5px; color: var(--muted); font-style: italic; }
+.dg-app {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 6px 5px 8px; border-radius: 999px;
+  border: 1px dashed color-mix(in srgb, var(--ink) 22%, transparent); font-size: 12.5px; font-weight: 600; color: var(--muted);
+}
+.dg-app.on { border-style: solid; border-color: color-mix(in srgb, #1fa563 45%, transparent); background: color-mix(in srgb, #1fa563 9%, transparent); color: var(--ink); }
+.dg-app-x { width: 18px; height: 18px; display: grid; place-items: center; border: 0; border-radius: 50% !important; background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--muted); font-size: 12px; line-height: 1; cursor: pointer; }
+.dg-app-x:hover { background: #d1495b; color: #fff; }
+.dg-addapp { padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px !important; background: none; color: var(--ink); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.dg-addapp:hover { border-color: var(--ac); }
+.dg-picker { display: flex; flex-wrap: wrap; gap: 5px; width: 100%; max-height: 168px; overflow-y: auto; padding: 10px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.dg-pick { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px !important; background: var(--panel-solid, #fff); color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.dg-pick:hover { border-color: var(--ac); }
+.dg-open { width: 100%; margin-top: 4px; padding: 10px; border: 1px solid var(--border); border-radius: 14px !important; background: none; color: var(--ac); font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; }
+.dg-open:hover { background: color-mix(in srgb, var(--ac) 10%, transparent); }
+
+@media (max-width: 720px) {
+  /* one row of chrome, never three · the header must not wrap on a phone */
+  .topbar-app { margin: 6px 8px 0; padding: 4px; flex-wrap: nowrap; }
+  .topbar-app .topbar-mid { min-width: 0; }
+  .topbar-app .topbar-right { flex: none; flex-wrap: nowrap; }
+  /* the four dojo controls are exactly the four buttons in the bottom bar,
+     so the header does not repeat them on a phone */
+  .dojo-ctl { display: none; }
+  .dtabs { padding: 2px 8px 6px; }
+  .dtab { max-width: 62vw; }
+  .dg-body { padding: 14px; }
+  .dg-grid { grid-template-columns: 1fr; }
+  .dg-head { padding: 12px 14px; }
+  .dg-head strong { font-size: 17px; }
+}

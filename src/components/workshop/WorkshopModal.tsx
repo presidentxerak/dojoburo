@@ -27,13 +27,13 @@ import { StepBar } from '../../modules/StepBar'
 type Tab = 'studio' | 'account' | 'billing'
 
 // ---------------------------------------------------------------------------
-// Dojo Studio · a FULL PAGE (route #studio), not a modal. It carries the app
+// Dojo settings · a FULL PAGE (route #studio), not a modal. It carries the app
 // header + the mobile bottom bar, so on a phone you can jump back to the dojo,
 // the CEO dashboard or the city. The three tabs (Dojos & agents / Account /
 // Billing) reuse the exact same panels the modal used.
 // ---------------------------------------------------------------------------
 const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
-  studio: { title: 'Dojo Studio', sub: 'Build your dojos, place & tune each agent, then connect apps and save.' },
+  studio: { title: 'Dojo settings', sub: 'Build your teams, place and tune each teammate, connect their apps, and save.' },
   account: { title: 'Account', sub: 'Your profile, sign-in and identity across devices.' },
   billing: { title: 'Billing', sub: 'Credits, currency, your Claude key and plans.' },
 }
@@ -119,7 +119,7 @@ export function WorkshopModal({ onClose }: { onClose: () => void }) {
     <div className="ws-overlay" onClick={onClose}>
       <div className="ws-modal" onClick={(e) => e.stopPropagation()}>
         <header className="ws-head">
-          <strong>Dojo Studio</strong>
+          <strong>Dojo settings</strong>
           <nav className="ws-tabs">
             <button className={tab === 'studio' ? 'on' : ''} onClick={() => setTab('studio')}>Dojos & agents</button>
             <button className={tab === 'account' ? 'on' : ''} onClick={() => setTab('account')}>Account</button>
@@ -661,26 +661,26 @@ function AccountTab() {
   )
 }
 
-// The founder's company, as it looks from their profile: its name, and every
-// dojo team in it. Renaming the company here renames it everywhere; each team
+// The founder's project, as it looks from their profile: its name, and every
+// dojo team in it. Renaming the project here renames it everywhere; each team
 // can be renamed or removed without leaving the profile.
 function CompanyPanel() {
-  const companyName = useWorkshop((s) => s.companyName)
-  const setCompanyName = useWorkshop((s) => s.setCompanyName)
+  const projectName = useWorkshop((s) => s.projectName)
+  const setProjectName = useWorkshop((s) => s.setProjectName)
   const dojos = useWorkshop((s) => s.dojos)
   const renameDojo = useWorkshop((s) => s.renameDojo)
   const deleteDojo = useWorkshop((s) => s.deleteDojo)
 
   return (
     <div className="ws-company">
-      <h3>Your company</h3>
+      <h3>Your project</h3>
       <label className="ws-field">
-        <span>Company name</span>
+        <span>Project name</span>
         <input
-          value={companyName}
+          value={projectName}
           maxLength={40}
-          placeholder="Name your company"
-          onChange={(e) => setCompanyName(e.target.value)}
+          placeholder="Name your project"
+          onChange={(e) => setProjectName(e.target.value)}
         />
       </label>
 

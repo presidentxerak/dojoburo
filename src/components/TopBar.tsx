@@ -6,12 +6,19 @@ import { useWork } from '../agents/workStore'
 import { privyConfigured, privyControls } from '../auth/controls'
 import { skinById } from '../data/skins'
 import { Logo } from './Logo'
-import { Wordmark } from './Wordmark'
 import { Icon } from './Icon'
 import { SkinAvatar } from './workshop/SkinAvatar'
 import { NotificationBell } from './NotificationBell'
 
-export function TopBar() {
+/** The app's header.
+ *
+ *  The brand (logo + wordmark + Beta) belongs to the landing page and is not
+ *  repeated here: inside the app the header's job is the surface you are on,
+ *  not the product's name. Connect Apps, the Dojo Guide, the City and Quick
+ *  search moved into the menu, which leaves the centre free for whatever the
+ *  current surface needs (`center`) — the dojo puts its own controls there.
+ */
+export function TopBar({ center }: { center?: React.ReactNode } = {}) {
   const theme = useDojo((s) => s.theme)
   const setTheme = useDojo((s) => s.setTheme)
   const muted = useDojo((s) => s.muted)
@@ -59,25 +66,14 @@ export function TopBar() {
   )
 
   return (
-    <header className="topbar">
-      <div className="brand">
-        {/* The logo + wordmark link back to the landing page. */}
-        <button className="brand-home" aria-label="DojoBuro — landing page" onClick={goHome}><Logo size={38} /></button>
-        <div>
-          <h1><button className="brand-name" onClick={goHome} aria-label="DojoBuro — landing page"><Wordmark /></button> <span className="beta-badge">Beta</span></h1>
-        </div>
-      </div>
+    <header className="topbar topbar-app">
+      {/* left · a small way home, no brand lockup */}
+      <button className="tb-home" onClick={goHome} aria-label="DojoBuro — landing page" title="Landing page">
+        <Logo size={26} />
+      </button>
 
-      {/* centered middle group */}
-      <div className="topbar-mid tb-desktop">
-        <nav className="tb-nav">
-          <button className="tb-navlink" onClick={openConnect}>Connect Apps</button>
-        </nav>
-        <button className="btn tiny tb-search" onClick={() => window.dispatchEvent(new Event('open-cmdk'))} title="Quick search (Cmd/Ctrl + K)">Search <kbd className="tb-kbd">⌘K</kbd></button>
-        <button className="btn tiny tb-guide" onClick={() => { location.hash = 'guide' }}>Dojo Guide</button>
-        <button className="btn tiny tb-studio" onClick={openStudio}>Manage Studio</button>
-        <button className="btn tiny tb-studio tb-city" onClick={() => { location.hash = 'city' }}>City</button>
-      </div>
+      {/* centre · whatever the current surface needs */}
+      <div className="topbar-mid">{center}</div>
 
       <div className="topbar-right">
         <NotificationBell />
@@ -94,7 +90,7 @@ export function TopBar() {
         )}
 
         {/* mobile burger */}
-        <button className={`tb-burger ${menuOpen ? 'on' : ''}`} onClick={() => setMenuOpen((v) => !v)} aria-label="Menu" aria-expanded={menuOpen}>
+        <button className={`tb-burger tb-burger-always ${menuOpen ? 'on' : ''}`} onClick={() => setMenuOpen((v) => !v)} aria-label="Menu" aria-expanded={menuOpen}>
           <span /><span /><span />
         </button>
       </div>
@@ -103,14 +99,17 @@ export function TopBar() {
         <>
           <div className="tb-menu-scrim" onClick={() => setMenuOpen(false)} />
           <div className="tb-menu" role="menu">
-            {/* mobile-only entries · on desktop the dropdown only opens for a signed-in profile */}
-            <button className="tb-menu-item tb-only-mobile tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>Dojo Guide</button>
-            <button className="tb-menu-item" onClick={() => { setMenuOpen(false); window.dispatchEvent(new Event('open-cmdk')) }}>Quick search</button>
+            {/* everything that used to sit in the header lives here now */}
+            <button className="tb-menu-item tb-menu-link" onClick={openConnect}>Connect apps</button>
+            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>Dojo Guide</button>
+            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'city' }}>City</button>
+            <button className="tb-menu-item" onClick={() => { setMenuOpen(false); window.dispatchEvent(new Event('open-cmdk')) }}>Quick search <kbd className="tb-kbd">⌘K</kbd></button>
+            <div className="tb-menu-rule" />
+            <button className="tb-menu-item" onClick={openStudio}>Dojo settings</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setDojosOpen(true) }}>Dojos</button>
             <button className="tb-menu-item" onClick={openAccount}>Account</button>
             <button className="tb-menu-item" onClick={openCredits}>My Credits · Billing</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setSettingsOpen(true) }}>Settings</button>
-            <button className="tb-menu-item tb-only-mobile" onClick={openStudio}>Manage Studio</button>
 
             {account ? (
               <button className="tb-menu-profile" onClick={openAccount}>

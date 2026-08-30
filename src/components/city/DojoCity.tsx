@@ -1097,8 +1097,8 @@ function CityScene({ level, hqFloors, hqName, hqAccent, onEnter, onGuide, onTip,
 }
 
 const TIPS = [
-  'Tip: describe your company in one sentence · your CEO builds the website, the offer and the growth plan.',
-  'Tip: connect your agents (Email, Meta, SEO) in the Studio to delegate B2B growth.',
+  'Tip: give each team a one-line goal · that sentence is the brief every teammate works from.',
+  'Tip: connect your teammates\' apps (Email, Meta, SEO) so they can do the real work.',
   'Tip: each new Dojo adds a floor to your building in the city.',
   'Tip: buy credits in your own currency · no crypto to manage, everything settles behind the scenes.',
   'Tip: set a daily limit for your CEO so your credits last longer.',

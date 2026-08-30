@@ -75,7 +75,7 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
     const err = useWork.getState().runError
     if (err) {
       const map: Record<string, string> = {
-        needs_key: 'Add your Claude key (Studio → Billing) for this piece of work.',
+        needs_key: 'Add your Claude key (the menu → My Credits) for this piece of work.',
         quota: 'Daily free quota reached · add your Claude key to continue.',
         not_configured: 'No AI is set up here yet · add your Claude key to get going.',
         network: 'Network error · please try again in a moment.',

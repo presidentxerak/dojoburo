@@ -94,9 +94,9 @@ interface WorkshopState {
   account: Account | null
   dojos: Dojo[]
   activeDojoId: string | null
-  /** The name the founder gave their company on the home screen. It prefixes
-   *  every project they add, so the whole pipeline reads as one company. */
-  companyName: string
+  /** The name the founder gave their project on the home screen. It prefixes
+   *  every team they add, so the whole thing reads as one project. */
+  projectName: string
   /** true when there are dojo/agent edits not yet written to localStorage */
   dirty: boolean
 
@@ -106,7 +106,7 @@ interface WorkshopState {
   signOut: () => void
   updateAccount: (patch: Partial<Account>) => void
   setCurrency: (c: CurrencyCode) => void
-  setCompanyName: (name: string) => void
+  setProjectName: (name: string) => void
 
   createDojo: (name?: string, templateId?: string) => void
   createDojoForProfession: (professionId: string) => void
@@ -242,7 +242,7 @@ function ensureRoleCrew(d: Dojo): Dojo {
   return { ...d, agents: merged }
 }
 
-function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null; companyName: string } {
+function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null; projectName: string } {
   try {
     const raw = localStorage.getItem(KEY)
     if (raw) {
@@ -252,14 +252,15 @@ function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string 
         for (const d of p.dojos) if (!d.template) d.template = DEFAULT_TEMPLATE_ID
         // migrate pre-role-agent crews to the 10 canonical role agents
         p.dojos = p.dojos.map(ensureRoleCrew)
-        return { ...p, companyName: typeof p.companyName === 'string' ? p.companyName : '' }
+        // `companyName` was the field's first name · read it so nothing is lost
+        return { ...p, projectName: typeof p.projectName === 'string' ? p.projectName : (typeof p.companyName === 'string' ? p.companyName : '') }
       }
     }
   } catch {
     /* ignore */
   }
   const d = seedDojo()
-  return { account: null, dojos: [d], activeDojoId: d.id, companyName: '' }
+  return { account: null, dojos: [d], activeDojoId: d.id, projectName: '' }
 }
 
 function firstFreeCell(agents: WAgent[]): { gx: number; gy: number } {
@@ -273,9 +274,9 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
   // persist() is the single save point · it writes localStorage and clears the
   // dirty flag. Dojo/agent edits stay in memory (dirty) until save() is called.
   const persist = () => {
-    const { account, dojos, activeDojoId, companyName } = get()
+    const { account, dojos, activeDojoId, projectName } = get()
     try {
-      localStorage.setItem(KEY, JSON.stringify({ account, dojos, activeDojoId, companyName }))
+      localStorage.setItem(KEY, JSON.stringify({ account, dojos, activeDojoId, projectName }))
     } catch {
       /* ignore */
     }
@@ -335,8 +336,8 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
       persist()
     },
 
-    setCompanyName: (name) => {
-      set({ companyName: name.slice(0, 40) })
+    setProjectName: (name) => {
+      set({ projectName: name.slice(0, 40) })
       persist()
     },
 
