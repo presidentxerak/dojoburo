@@ -12,8 +12,8 @@
 // The estimates come from data/effort. The measurements come from the model's
 // own reported usage (agents/usageMeter) — so the panel shows our guess and the
 // truth side by side, and you can tell when we are wrong.
-import { useEffect, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useMemo, useState } from 'react'
+import { FullScreen } from './FullScreen'
 import { useWork } from '../agents/workStore'
 import { useUsage, readMeter, dailyBudget, setDailyBudget } from '../agents/usageMeter'
 import { useWorkshop } from '../workshop'
@@ -78,23 +78,16 @@ export function EffortPanel({ onClose }: { onClose: () => void }) {
   const [budget, setBudget] = useState(() => dailyBudget())
   const overBudget = budget > 0 && meter.today.total >= budget
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  const mode = EFFORT_BY_ID[effort]
 
-  return createPortal(
-    <div className="eff-scrim" onMouseDown={onClose}>
-      <div className="eff-modal" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-label="How hard your team works">
-        <header className="eff-head">
-          <div>
-            <strong>How hard your team works</strong>
-            <span>Three modes. Each one changes exactly three things, and you can see what they cost.</span>
-          </div>
-          <button className="eff-x" onClick={onClose} aria-label="Close">×</button>
-        </header>
-
+  return (
+    <FullScreen
+      title="How hard your team works"
+      sub="Three modes. Each one changes exactly three things, and you can see what they cost."
+      tint={mode?.tint}
+      bodyClass="eff-fs"
+      onClose={onClose}
+    >
         <div className="eff-body">
           {/* ---- the three modes ---- */}
           <div className="eff-modes">
@@ -221,9 +214,7 @@ export function EffortPanel({ onClose }: { onClose: () => void }) {
             still free; it is the running that costs.
           </p>
         </div>
-      </div>
-    </div>,
-    document.body,
+    </FullScreen>
   )
 }
 

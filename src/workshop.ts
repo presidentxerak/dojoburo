@@ -386,6 +386,15 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     createDojoFromArchetype: (archetypeId, name, goal) => {
       const a = ARCHETYPE_BY_ID[archetypeId]
       if (!a) return null
+      // One team of a given speciality per project. Two "Social media campaign"
+      // dojos meant two identical tabs, two identical crews and no way to tell
+      // which one you were in — so the second request opens the first instead
+      // of building a twin. The chooser greys these out; this is the backstop.
+      const already = get().dojos.find((d) => d.archetype === a.id)
+      if (already) {
+        set({ activeDojoId: already.id })
+        return already.id
+      }
       const tpl = templateById(a.template)
       const d: Dojo = {
         id: uid(),

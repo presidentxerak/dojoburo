@@ -11,7 +11,13 @@ import { ConnectorLogo } from '../ConnectorLogo'
 
 const APPS_SHOWN = 8
 
-export function TeamCard({ a, selected, onToggle }: { a: Archetype; selected?: boolean; onToggle: () => void }) {
+export function TeamCard({ a, selected, owned, onToggle }: {
+  a: Archetype
+  selected?: boolean
+  /** already in the project · shown, explained, and not selectable again */
+  owned?: boolean
+  onToggle: () => void
+}) {
   const crew = archetypeAgents(a)
   const apps = archetypeConnectors(a)
   const budget = teamBudget(a, apps.length)
@@ -19,15 +25,20 @@ export function TeamCard({ a, selected, onToggle }: { a: Archetype; selected?: b
   return (
     <button
       type="button"
-      className={`appcard tcard${selected ? ' on' : ''}`}
+      className={`appcard tcard${selected && !owned ? ' on' : ''}${owned ? ' owned' : ''}`}
       style={{ ['--ac' as string]: a.tint }}
-      aria-pressed={selected}
+      aria-pressed={owned ? undefined : selected}
+      aria-disabled={owned || undefined}
+      disabled={owned}
+      title={owned ? `${a.label} is already in your project` : undefined}
       onClick={onToggle}
     >
       <span className="tcard-top">
         <span className="tcard-glyph" style={{ background: a.tint }}>{a.glyph}</span>
         <span className="tcard-cat">{a.category}</span>
-        <span className="tcard-check" aria-hidden>{selected ? '✓' : ''}</span>
+        {owned
+          ? <span className="tcard-owned">Hired</span>
+          : <span className="tcard-check" aria-hidden>{selected ? '✓' : ''}</span>}
       </span>
 
       <strong className="tcard-title">{a.label}</strong>
@@ -66,7 +77,7 @@ export function TeamCard({ a, selected, onToggle }: { a: Archetype; selected?: b
       </span>
 
       <span className="tcard-cta">
-        {a.loop.length} steps · {selected ? 'Selected' : 'Choose this team'}
+        {a.loop.length} steps · {owned ? 'Already hired' : selected ? 'Selected' : 'Choose this team'}
       </span>
     </button>
   )

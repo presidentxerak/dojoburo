@@ -5,9 +5,13 @@
 //
 // Only teams picked from the catalogue appear here. The seeded "HQ Dojo" that
 // every install starts with was never chosen by anyone, so it is not offered as
-// a destination — it stays reachable from Dojo settings. And because you can
-// legitimately add the same team twice, repeated labels are numbered rather
-// than shown as identical twins.
+// a destination — it stays reachable from Dojo settings.
+//
+// A project hires a speciality once (the chooser greys out what you already
+// have, and the store refuses a twin), so the tab bar never carried the same
+// label twice on purpose. Copies made before that rule are still numbered here
+// rather than shown as identical strangers, and "My project" offers to remove
+// them.
 import { useWorkshop } from '../../workshop'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 

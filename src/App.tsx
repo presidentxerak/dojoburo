@@ -23,6 +23,7 @@ import { privyConfigured } from './auth/controls'
 import { AuthGate } from './auth/AuthGate'
 import { audio } from './audio'
 import { EffortControl } from './components/EffortControl'
+import { FullScreen } from './components/FullScreen'
 
 export default function App() {
   const refresh = useDojo((s) => s.refreshBalances)
@@ -193,16 +194,17 @@ export default function App() {
       <DojoTabs onOpen={() => { selectAgent(null); setDojoFull(true) }} />
 
       <div className="dash-main">
-        {graphOpen && activeDojoId ? (
+        {/* the dojo stays mounted underneath · Graph mode is a full-screen
+            surface over it, like every other panel of its weight */}
+        <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
+          <div className="scene-bg"><Scene3D /></div>
+        </div>
+        {graphOpen && activeDojoId && (
           <DojoGraph
             dojoId={activeDojoId}
             onClose={() => setGraphOpen(false)}
             onOpenAgent={(id) => { setGraphOpen(false); selectAgent(id); setDojoFull(false) }}
           />
-        ) : (
-          <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
-            <div className="scene-bg"><Scene3D /></div>
-          </div>
         )}
 
         {!dojoFull && (
@@ -214,15 +216,14 @@ export default function App() {
       </div>
 
       {arrangeOpen && (
-        <div className="arrange-overlay" onMouseDown={() => setArrangeOpen(false)}>
-          <div className="arrange-modal" onMouseDown={(e) => e.stopPropagation()}>
-            <div className="arrange-modal-h">
-              <h3>Arrange your team</h3>
-              <button className="btn tiny ghost" onClick={() => setArrangeOpen(false)}>Done</button>
-            </div>
-            <ArrangeGrid />
-          </div>
-        </div>
+        <FullScreen
+          title="Manage team"
+          sub="Drag a teammate to move them around the dojo floor. Everyone keeps their desk."
+          bodyClass="arrange-fs"
+          onClose={() => setArrangeOpen(false)}
+        >
+          <ArrangeGrid />
+        </FullScreen>
       )}
 
       <OutboundConsentModal />

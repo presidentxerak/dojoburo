@@ -23,6 +23,7 @@ import { ROLE_BY_ID } from '../../data/roleAgents'
 import { CONNECTOR_BY_ID, CONNECTORS } from '../../data/connectors'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { ConnectorLogo } from '../ConnectorLogo'
+import { FullScreen } from '../FullScreen'
 import { AGENT_TASKS } from './agentTasks'
 import type { WAgent } from '../../workshop'
 
@@ -233,23 +234,19 @@ export function DojoGraph({ dojoId, onClose, onOpenAgent }: {
   }
 
   return (
-    <section className="dg" aria-label="Team graph">
-      <header className="dg-head">
-        <div>
-          <strong>{dojo.name}</strong>
-          <span>
-            {rest.length + 1} teammate{rest.length ? 's' : ''}
-            {arch ? ` · ${arch.loop.length} steps` : ''} · {delivs.length} result{delivs.length === 1 ? '' : 's'} so far
-          </span>
-        </div>
+    <FullScreen
+      title={dojo.name}
+      sub={`${rest.length + 1} teammate${rest.length ? 's' : ''}${arch ? ` · ${arch.loop.length} steps` : ''} · ${delivs.length} result${delivs.length === 1 ? '' : 's'} so far`}
+      tint={arch?.tint}
+      bodyClass="dg-fs"
+      actions={(
         <div className="dg-legend" aria-hidden>
           <span className="dg-leg report">reports to</span>
           <span className="dg-leg flow">then</span>
         </div>
-        <button className="dg-x" onClick={onClose} aria-label="Back to the dojo" title="Back to the dojo">×</button>
-      </header>
-
-      <div className="dg-body">
+      )}
+      onClose={onClose}
+    >
         <div className="dg-canvas" ref={canvasRef}>
           <svg className="dg-links" aria-hidden>
             <defs>
@@ -268,7 +265,6 @@ export function DojoGraph({ dojoId, onClose, onOpenAgent }: {
             {rest.map((a) => <Node key={a.id} a={a} />)}
           </div>
         </div>
-      </div>
-    </section>
+    </FullScreen>
   )
 }

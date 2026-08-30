@@ -64,14 +64,18 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
     setGate(true)
   }
 
-  // add every ticked team at once, then drop into the first one
+  // add every ticked team at once, then drop into the first one. A team the
+  // project already has is skipped rather than duplicated — the chooser will
+  // not offer one, but a stale screen still can.
   const addTeams = (list: Archetype[]) => {
     const co = projectName.trim()
-    const ids = list.map((a) => create(a.id, co ? `${co} · ${a.label}` : undefined)).filter(Boolean) as string[]
-    if (!ids.length) return
-    const mates = list.reduce((n, a) => n + a.agents.length, 0)
+    const have = new Set(projects.map((d) => d.archetype))
+    const fresh = list.filter((a) => !have.has(a.id))
+    const ids = fresh.map((a) => create(a.id, co ? `${co} · ${a.label}` : undefined)).filter(Boolean) as string[]
+    if (!ids.length) { setView('project'); return }
+    const mates = fresh.reduce((n, a) => n + a.agents.length, 0)
     pushToast({
-      kind: 'event', badge: 'OK', color: list[0].tint,
+      kind: 'event', badge: 'OK', color: fresh[0].tint,
       title: co || 'Your project',
       text: `${ids.length} team${ids.length > 1 ? 's' : ''} · ${mates} teammates hired.`,
     })
@@ -103,6 +107,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
       <ChooseTeams
         projectName={projectName.trim()}
         onAdd={addTeams}
+        existing={projects.map((d) => d.archetype!).filter(Boolean)}
         onBack={projects.length ? () => setView('project') : () => setView('create')}
       />
     )
@@ -129,6 +134,10 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
             const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
             const crew = d.agents.filter((x) => !x.hidden)
             const tint = a?.tint ?? '#7b5cff'
+            // A project only hires a speciality once. Copies made before that
+            // rule existed are still here, so they are named as copies with
+            // their remove button right beside them.
+            const dup = !!d.archetype && projects.findIndex((x) => x.archetype === d.archetype) !== i
             return (
               <li key={d.id} className={`ph-proj${d.id === activeId ? ' on' : ''}`} style={{ ['--ac' as string]: tint }}>
                 <span className="ph-step-n">{i + 1}</span>
@@ -136,7 +145,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
                   onKeyDown={(e) => { if (e.key === 'Enter') open(d.id) }}>
                   <span className="ph-glyph sm" style={{ background: tint }}>{a?.glyph ?? '◆'}</span>
                   <div className="ph-proj-txt">
-                    <strong>{d.name}</strong>
+                    <strong>{d.name}{dup && <span className="ph-dup" title="You already have this team · remove one of them">Duplicate</span>}</strong>
                     <em>{a ? a.label : 'Full company'} · {crew.length} teammates{a ? ` · ${a.loop.length} steps` : ''}</em>
                   </div>
                   <span className="ph-proj-crew">

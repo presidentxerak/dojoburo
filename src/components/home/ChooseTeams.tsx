@@ -12,23 +12,41 @@ import { TeamCard } from './TeamCard'
 
 const CATS: ArchCategory[] = ['Marketing', 'Product', 'Content', 'Creative', 'Business', 'Operations']
 
-export function ChooseTeams({ projectName, onAdd, onBack }: {
+export function ChooseTeams({ projectName, onAdd, onBack, existing = [] }: {
   projectName: string
   onAdd: (list: Archetype[]) => void
   onBack?: () => void
+  /** archetype ids already in this project · a team is hired once, not twice */
+  existing?: string[]
 }) {
   const [cat, setCat] = useState<'all' | ArchCategory>('all')
   const [picked, setPicked] = useState<string[]>([])
   const [howTo, setHowTo] = useState(false)
 
+  const have = useMemo(() => new Set(existing), [existing])
   const shown = cat === 'all' ? ARCHETYPES : ARCHETYPES.filter((a) => a.category === cat)
-  const chosen = useMemo(() => picked.map((id) => ARCHETYPES.find((a) => a.id === id)!).filter(Boolean), [picked])
+  // what can still be hired in the current filter · "Select all" and the count
+  // both work off this, so neither ever offers a team you already have
+  const free = useMemo(() => shown.filter((a) => !have.has(a.id)), [shown, have])
+  const allPicked = free.length > 0 && free.every((a) => picked.includes(a.id))
+  const chosen = useMemo(
+    () => picked.map((id) => ARCHETYPES.find((a) => a.id === id)!).filter((a) => a && !have.has(a.id)),
+    [picked, have],
+  )
 
   const total = totalBudget(chosen.map((a) => teamBudget(a, archetypeConnectors(a).length)))
   const mates = chosen.reduce((n, a) => n + archetypeAgents(a).length, 0)
 
-  const toggle = (id: string) =>
+  const toggle = (id: string) => {
+    if (have.has(id)) return
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
+  }
+
+  // one tap for the whole catalogue · and the same tap clears it again
+  const toggleAll = () =>
+    setPicked((p) => (allPicked
+      ? p.filter((id) => !free.some((a) => a.id === id))
+      : [...new Set([...p, ...free.map((a) => a.id)])]))
 
   return (
     <div className="ct">
@@ -44,11 +62,29 @@ export function ChooseTeams({ projectName, onAdd, onBack }: {
       <div className="ct-filters">
         <button className={cat === 'all' ? 'on' : ''} onClick={() => setCat('all')}>All {ARCHETYPES.length}</button>
         {CATS.map((c) => <button key={c} className={cat === c ? 'on' : ''} onClick={() => setCat(c)}>{c}</button>)}
+        {free.length > 0 && (
+          <button className="ct-all" onClick={toggleAll}>
+            {allPicked ? 'Clear selection' : `Select all ${free.length}`}
+          </button>
+        )}
       </div>
+
+      {have.size > 0 && (
+        <p className="ct-have">
+          {have.size} team{have.size > 1 ? 's are' : ' is'} already in your project · a team is hired once,
+          so those cards are marked and cannot be picked again.
+        </p>
+      )}
 
       <div className="ct-grid">
         {shown.map((a) => (
-          <TeamCard key={a.id} a={a} selected={picked.includes(a.id)} onToggle={() => toggle(a.id)} />
+          <TeamCard
+            key={a.id}
+            a={a}
+            selected={picked.includes(a.id)}
+            owned={have.has(a.id)}
+            onToggle={() => toggle(a.id)}
+          />
         ))}
       </div>
 

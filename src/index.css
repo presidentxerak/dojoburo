@@ -3170,6 +3170,16 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .modhost-body { flex: 1; overflow-y: auto; padding: 28px 22px 80px; }
 .modhost-body > * { max-width: 1080px; margin-left: auto; margin-right: auto; }
 
+/* ---- the shared full-screen surface (components/FullScreen) ---------------
+   Manage team, the token dial and Graph mode render through the same shell as
+   a studio, so all four leave the same way: the round ✕ in the top right, or
+   Escape. .fs sits above the dojo chrome, which a studio does not have to. */
+.fs { z-index: 12000; animation: sbpop .16s ease-out; }
+/* The floor plan is a BOARD · left to fill the width, its cells stretch into
+   240px slabs. UI v2 forces studio bodies full-width with !important, so this
+   has to answer in kind. */
+.modhost-body.arrange-fs > .arrange { max-width: 760px !important; margin-left: auto !important; margin-right: auto !important; }
+
 /* Squarespace-style components, scoped to a studio */
 .modhost-fs .btn, .modhost-fs button.btn,
 .studio-page .btn, .studio-page button.btn { border-radius: 8px; font-family: var(--font-ui); font-weight: 700; }
@@ -5207,10 +5217,6 @@ html { scroll-behavior: smooth; }
 /* ============ Arrange team · dojo overlay ============ */
 .dojo-arrange-btn { position: absolute; top: 14px; right: 14px; z-index: 30; padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px; background: color-mix(in srgb, var(--panel-solid, #fff) 88%, transparent); backdrop-filter: blur(6px); color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 22px -12px rgba(0,0,0,.4); transition: transform .12s ease, box-shadow .12s ease; }
 .dojo-arrange-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 28px -12px rgba(0,0,0,.45); }
-.arrange-overlay { position: fixed; inset: 0; z-index: 3600; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(10, 12, 20, 0.5); backdrop-filter: blur(3px); animation: cmdkIn .12s ease; }
-.arrange-modal { width: min(680px, 96vw); max-height: 86vh; overflow-y: auto; background: var(--panel-solid, #fff); color: var(--ink); border: 1px solid var(--border); border-radius: 18px; padding: 18px 20px 22px; box-shadow: 0 30px 80px -30px rgba(0,0,0,.55); }
-.arrange-modal-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
-.arrange-modal-h h3 { margin: 0; font-size: 18px; }
 /* inline keyboard hint in landing + guide copy */
 .landing kbd, .lp-kbd { display: inline-block; font-family: var(--font-pixel, monospace); font-size: 0.82em; line-height: 1; padding: 3px 7px; border: 1px solid color-mix(in srgb, currentColor 28%, transparent); border-radius: 6px; background: color-mix(in srgb, currentColor 10%, transparent); white-space: nowrap; }
 
@@ -5280,6 +5286,8 @@ html { scroll-behavior: smooth; }
 .ph-proj-txt { min-width: 0; flex: 1; }
 .ph-proj-txt strong { display: block; font-size: 16.5px; letter-spacing: -0.01em; }
 .ph-proj-txt em { display: block; font-style: normal; font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+/* a copy of a team you already have · from before one-team-per-speciality */
+.ph-dup { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, #d9822b 16%, transparent); border: 1px solid color-mix(in srgb, #d9822b 45%, transparent); color: #a5601c; font-family: var(--font-ui); font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; vertical-align: middle; }
 .ph-proj-crew { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; }
 .ph-more { font-size: 11.5px; color: var(--muted); font-weight: 700; margin-left: 2px; }
 .ph-goal { grid-column: 2; width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 7px 11px; font: inherit; font-size: 13px; background: color-mix(in srgb, var(--border) 12%, transparent); }
@@ -5578,12 +5586,20 @@ html { scroll-behavior: smooth; }
   color: #fff; font-size: 22px; line-height: 1;
   box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--ac) 90%, transparent);
 }
-.tcard-cat { flex: 1; font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--ac); }
+/* the category gives way to the badge beside it rather than pushing it out */
+.tcard-cat { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--ac); }
 .tcard-check {
   width: 27px; height: 27px; flex: none; display: grid; place-items: center; border-radius: 50%;
   border: 1.5px solid var(--border); color: #fff; font-size: 15px; font-weight: 800; transition: background .16s ease, border-color .16s ease;
 }
 .tcard.on .tcard-check { background: var(--ac); border-color: var(--ac); }
+/* a team you already have · still fully readable, plainly not on offer */
+.tcard.owned { cursor: default; opacity: .62; filter: saturate(.55); }
+.tcard.owned:hover { transform: none; box-shadow: none; border-color: var(--border); }
+.tcard-owned {
+  flex: none; padding: 5px 11px; border-radius: 999px; background: var(--ac); color: #fff;
+  font-size: 11.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
+}
 .tcard-title { font-family: var(--font-pixel); font-weight: 800; font-size: 20px; line-height: 1.15; letter-spacing: -0.01em; }
 .tcard-tag { font-size: 15px; line-height: 1.45; color: var(--muted); }
 
@@ -5667,6 +5683,11 @@ html { scroll-behavior: smooth; }
 .ct-filters button { padding: 8px 16px; border: 1px solid var(--border); background: none; color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; transition: background .14s ease, color .14s ease; }
 .ct-filters button:hover { border-color: var(--ink); }
 .ct-filters button.on { background: var(--ink); color: var(--panel-solid, #fff); border-color: var(--ink); }
+/* take the lot · sits apart from the category filters, because it does
+   something to the SELECTION rather than to what is shown */
+.ct-filters .ct-all { margin-left: 6px; border-style: dashed; border-color: var(--violet, #7b5cff); color: var(--violet, #7b5cff); }
+.ct-filters .ct-all:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 10%, transparent); border-color: var(--violet, #7b5cff); }
+.ct-have { margin: 0 auto 16px; max-width: 62ch; text-align: center; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
 .ct-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 16px; align-items: start; }
 
 .ct-bar {
@@ -5925,27 +5946,17 @@ html { scroll-behavior: smooth; }
 /* =====================================================================
    Graph mode · the team and their apps, as cards
    ===================================================================== */
-/* graph mode lives INSIDE the dojo area · the header and the team tabs stay
-   on top of it, so the Graph button can turn it off again */
-.dg { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--bg); animation: sbpop .18s ease-out; }
-.dg-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--panel-solid, #fff); }
-.dg-head strong { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 20px; }
-.dg-head span { display: block; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
-.dg-x { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50% !important; background: none; color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; }
-.dg-x:hover { border-color: var(--ink); }
-.dg-body { flex: 1; min-height: 0; overflow: auto; padding: 22px; }
+/* Graph mode is a full-screen surface like Dojo settings, Manage team and the
+   token dial · everything below is only its BODY. The shell (bar, title, close
+   button) comes from .modhost-fs, shared by all four. */
+.dg-fs { --dg-report: #7b5cff; --dg-flow: #1fa563; }
 
-/* the two link kinds, named once so the legend and the SVG agree */
-.dg { --dg-report: #7b5cff; --dg-flow: #1fa563; }
-
-/* `.dg-head span` above turns every span in the header into a block · the
-   legend chips have to out-specify it, not just follow it. */
-.dg-head .dg-legend { display: flex; gap: 14px; flex: none; }
-.dg-head .dg-leg { display: inline-flex; align-items: center; gap: 7px; margin: 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
-.dg-head .dg-leg::before { content: ''; width: 26px; height: 0; border-top: 2px solid currentColor; }
-.dg-head .dg-leg.report { color: var(--dg-report); }
-.dg-head .dg-leg.report::before { border-top-style: dashed; }
-.dg-head .dg-leg.flow { color: var(--dg-flow); }
+.dg-legend { display: flex; gap: 14px; flex: none; }
+.dg-leg { display: inline-flex; align-items: center; gap: 7px; margin: 0; font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.dg-leg::before { content: ''; width: 26px; height: 0; border-top: 2px solid currentColor; }
+.dg-leg.report { color: var(--dg-report); }
+.dg-leg.report::before { border-top-style: dashed; }
+.dg-leg.flow { color: var(--dg-flow); }
 
 /* The canvas is the drawing surface: the nodes lay themselves out in normal
    flow, the SVG floats over them, and the links are measured from where the
@@ -6011,15 +6022,12 @@ html { scroll-behavior: smooth; }
   .dojo-ctl { display: none; }
   .dtabs { padding: 2px 8px 6px; }
   .dtab { max-width: 62vw; }
-  .dg-body { padding: 14px; }
   .dg-grid { grid-template-columns: 1fr; }
   /* one column · the links become a single spine down the page */
-  .dg-head .dg-legend { display: none; }
+  .dg-legend { display: none; }
   .dg-lead-row { margin-bottom: 52px; }
   .dg-crew-row { gap: 46px 0; }
   .dg-node, .dg-node.lead { width: 100%; }
-  .dg-head { padding: 12px 14px; }
-  .dg-head strong { font-size: 17px; }
 }
 
 /* =====================================================================
@@ -6407,25 +6415,9 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   font-variant-numeric: tabular-nums;
 }
 
-.eff-scrim {
-  position: fixed; inset: 0; z-index: 12000; display: grid; place-items: center;
-  padding: 22px; background: rgba(12, 10, 24, .5); backdrop-filter: blur(3px);
-  animation: sbpop .16s ease-out;
-}
-.eff-modal {
-  width: min(980px, 100%); max-height: 90vh; display: flex; flex-direction: column;
-  background: var(--bg); border: 1px solid var(--border); border-radius: 24px !important;
-  overflow: hidden; box-shadow: 0 28px 70px rgba(20, 16, 45, .3);
-}
-.eff-head {
-  flex: none; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
-  padding: 20px 24px; border-bottom: 1px solid var(--border); background: var(--panel-solid, #fff);
-}
-.eff-head strong { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 21px; }
-.eff-head span { display: block; margin-top: 4px; font-size: 14.5px; line-height: 1.5; color: var(--muted); max-width: 62ch; }
-.eff-x { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50% !important; background: none; color: var(--ink); font-size: 21px; line-height: 1; cursor: pointer; }
-.eff-x:hover { border-color: var(--ink); }
-.eff-body { flex: 1; min-height: 0; overflow-y: auto; padding: 22px 24px 26px; }
+/* The dial is a full-screen surface like the rest (see .modhost-fs) · this is
+   only its body, so it carries no chrome of its own. */
+.eff-body { display: flex; flex-direction: column; gap: 18px; }
 
 /* ---- the three mode cards ---- */
 .eff-modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); gap: 14px; }
@@ -6477,10 +6469,6 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 @media (max-width: 720px) {
   .eff-pill-n, .eff-pill-l { display: none; }
   .eff-pill { padding: 7px 10px; }
-  .eff-scrim { padding: 0; }
-  .eff-modal { width: 100%; max-height: 100vh; height: 100vh; border-radius: 0 !important; border: 0; }
-  .eff-head { padding: 16px 16px 14px; }
-  .eff-body { padding: 16px 16px 24px; }
   .eff-modes { grid-template-columns: 1fr; }
 }
 

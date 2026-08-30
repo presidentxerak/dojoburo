@@ -20,7 +20,6 @@ import { Agent3DPreview } from '../three/Agent3DPreview'
 import { ConnectorsPanel } from '../ConnectorsPanel'
 import { AgentContext } from '../agents/AgentContext'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
-import { TopBar } from '../TopBar'
 import { PageBar } from '../PageBar'
 import { StepBar } from '../../modules/StepBar'
 import { apiFetch } from '../../lib/apiFetch'
@@ -28,10 +27,12 @@ import { apiFetch } from '../../lib/apiFetch'
 type Tab = 'studio' | 'account' | 'billing'
 
 // ---------------------------------------------------------------------------
-// Dojo settings · a FULL PAGE (route #studio), not a modal. It carries the app
-// header + the mobile bottom bar, so on a phone you can jump back to the dojo,
-// the CEO dashboard or the city. The three tabs (Dojos & agents / Account /
-// Billing) reuse the exact same panels the modal used.
+// Dojo settings · a FULL PAGE (route #studio), not a modal. It wears the same
+// shell as every other full-screen surface — the studio bar at the very top of
+// the screen and the round ✕ in its right corner — plus the mobile bottom bar,
+// so on a phone you can still jump to the dojo, the CEO dashboard or the city.
+// The three tabs (Dojos & agents / Account / Billing) reuse the exact same
+// panels the modal used.
 // ---------------------------------------------------------------------------
 const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
   studio: { title: 'Dojo settings', sub: 'Build your teams, place and tune each teammate, connect their apps, and save.' },
@@ -49,10 +50,12 @@ export function StudioPage() {
   const backToDojo = () => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* */ } location.hash = 'app' }
   return (
     <div className="app studio-page" style={{ ['--dc' as string]: '#7b5cff' }}>
-      <TopBar />
       <div className="studio-page-body">
         {/* Same studio shell as the Website / Brand studios (modhost bar + body)
-            so the design constraints match exactly. */}
+            so the design constraints match exactly — including the top of the
+            screen. The app header used to sit above this bar, which pushed the
+            ✕ 60px lower than it is on every other full-screen surface; ✕ leads
+            back to the dojo, where the menu lives, exactly like a studio. */}
         <header className="modhost-bar studio-page-head">
           <div className="modhost-bar-l">
             <div>

@@ -18,6 +18,7 @@
     "check:content": "node scripts/check-content.mjs",
     "test:authz": "node scripts/test-authz.mjs",
     "test:bridge": "node scripts/test-llm-bridge.mjs",
+    "verify:surfaces": "node scripts/verify-surfaces.mjs",
     "check:connectors": "node scripts/check-connectors.mjs"
   },
   "dependencies": {
