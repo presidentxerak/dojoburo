@@ -4579,7 +4579,8 @@ select.cc-input { flex: 1; min-width: 0; }
 .crm-card, .tpl-card, .ws-tplcard, .connect-card, .connect-cat, .pgpick-card, .mission-card,
 .cred-pack, .djm-card, .dash-qlink, .ct-card, .cw-preset, .ty-font, .insp-theme, .shop-prod,
 .site-inspector, .sq-opt, .lp-team, .lp-node, .lp-card, .lp-plan, .lp-job, .lp-step, .sc-card,
-.lp-enterprise, .guide-card, .dg2-callout, .ceo-quick {
+.lp-enterprise, .guide-card, .dg2-callout, .ceo-quick, .appcard, .cc-card, .ph-proj, .sys-card,
+.sys-checks, .agx, .savegate-card, .ws-corow {
   border-radius: 24px !important;
   outline: none !important;
   transition: transform 0.2s ease, box-shadow 0.35s ease, border-color 0.2s ease !important;
@@ -4591,7 +4592,7 @@ select.cc-input { flex: 1; min-width: 0; }
 .dash-qlink:hover, .cw-preset:hover, .ty-font:hover, .insp-theme:hover, .shop-prod:hover,
 .sq-opt:hover, .lp-team:hover, .lp-node:hover, .lp-card:hover, .lp-plan:hover, .lp-job:hover,
 .lp-step:hover, .sc-card:hover, .lp-enterprise:hover, .guide-card:hover, .dg2-callout:hover,
-.biz-tile:hover, .fin-kpi:hover, .crm-card:hover, .ceo-quick:hover {
+.biz-tile:hover, .fin-kpi:hover, .crm-card:hover, .ceo-quick:hover, .appcard:hover, .ph-proj:hover {
   transform: translateY(-4px);
   border-color: transparent !important;
   animation: acidRing 3.2s ease-in-out infinite;
@@ -5449,7 +5450,7 @@ html { scroll-behavior: smooth; }
 
 /* ---- sign in to save ------------------------------------------------ */
 .savegate { position: fixed; inset: 0; z-index: 12000; display: grid; place-items: center; padding: 20px; background: color-mix(in srgb, var(--ink) 45%, transparent); backdrop-filter: blur(5px); }
-.savegate-card { width: min(420px, 100%); padding: 26px 24px; border: 1px solid var(--border); border-radius: 20px; background: var(--panel-solid, #fff); text-align: center; box-shadow: 0 30px 70px -30px rgba(0,0,0,.5); }
+.savegate-card { width: min(420px, 100%); padding: 28px 26px; border: 1px solid var(--border); background: var(--panel-solid, #fff); text-align: center; box-shadow: 0 30px 70px -30px rgba(0,0,0,.5); }
 .savegate-card h3 { margin: 0 0 6px; font-size: 20px; letter-spacing: -0.02em; }
 .savegate-card p { margin: 0 0 18px; font-size: 14px; line-height: 1.5; color: var(--muted); }
 .savegate-acts { display: flex; flex-direction: column; gap: 9px; }
@@ -5472,31 +5473,27 @@ html { scroll-behavior: smooth; }
    ===================================================================== */
 .appcard {
   position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-  width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
-  background: var(--panel-solid, #fff); border: 1px solid var(--border); border-top: 2px solid var(--ac, var(--border));
-  border-radius: var(--radius); padding: 16px 16px 18px;
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer; overflow: hidden;
+  background: var(--panel-solid, #fff); border: 1px solid var(--border);
+  padding: 18px 18px 20px; box-shadow: 0 6px 18px rgba(30, 25, 60, 0.07);
 }
-.appcard:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--ac) 50%, var(--border)); border-top-color: var(--ac); }
-.appcard:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
-.appcard.on { border-color: var(--ac); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 34%, transparent), var(--shadow); }
-/* the accent wipe along the bottom · the app's card signature */
-.appcard::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--ac);
-  transform: scaleX(0); transform-origin: left; transition: transform .32s ease;
+/* a thin accent cap along the top, inside the 24px corners */
+.appcard::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--ac); opacity: .9;
 }
-.appcard:hover::after, .appcard.on::after { transform: scaleX(1); }
+.appcard.on { border-color: color-mix(in srgb, var(--ac) 55%, var(--border)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 32%, transparent), 0 12px 26px rgba(30, 25, 60, 0.14); }
 
 /* ---- a dojo team card ----------------------------------------------- */
 .tcard { gap: 7px; }
 .tcard-top { display: flex; align-items: center; gap: 10px; width: 100%; }
 .tcard-glyph {
-  display: grid; place-items: center; width: 46px; height: 46px; flex: none; color: #fff; font-size: 22px; line-height: 1;
+  display: grid; place-items: center; width: 46px; height: 46px; flex: none; border-radius: 14px;
+  color: #fff; font-size: 22px; line-height: 1;
   box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--ac) 90%, transparent);
 }
 .tcard-cat { flex: 1; font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--ac); }
 .tcard-check {
-  width: 26px; height: 26px; flex: none; display: grid; place-items: center;
+  width: 27px; height: 27px; flex: none; display: grid; place-items: center; border-radius: 50%;
   border: 1.5px solid var(--border); color: #fff; font-size: 15px; font-weight: 800; transition: background .16s ease, border-color .16s ease;
 }
 .tcard.on .tcard-check { background: var(--ac); border-color: var(--ac); }
@@ -5516,9 +5513,9 @@ html { scroll-behavior: smooth; }
 
 .tcard-budget {
   width: 100%; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 9px; margin-top: 2px;
-  padding: 10px 12px; background: color-mix(in srgb, var(--ac) 8%, transparent);
+  padding: 11px 14px; border-radius: 14px; background: color-mix(in srgb, var(--ac) 8%, transparent);
 }
-.tcard-tier { font-size: 11.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; padding: 2px 8px; color: #fff; background: var(--ac); }
+.tcard-tier { font-size: 11.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; color: #fff; background: var(--ac); }
 .tcard-tier.t-light { background: #1fa563; }
 .tcard-tier.t-medium { background: #d9822b; }
 .tcard-tier.t-heavy { background: #d1495b; }
@@ -5532,14 +5529,17 @@ html { scroll-behavior: smooth; }
    ===================================================================== */
 .cc { min-height: 100%; display: flex; flex-direction: column; align-items: center; padding: 44px 18px 0; background: var(--panel-solid, #fff); }
 .cc-card {
-  width: min(520px, 100%); display: flex; flex-direction: column; align-items: stretch; gap: 12px;
-  padding: 34px 30px 28px; border: 1px solid var(--border); border-top: 2px solid var(--violet, #7b5cff);
-  background: var(--panel-solid, #fff); box-shadow: var(--shadow); text-align: center;
+  position: relative; overflow: hidden; width: min(520px, 100%);
+  display: flex; flex-direction: column; align-items: stretch; gap: 13px;
+  padding: 38px 32px 30px; border: 1px solid var(--border);
+  background: var(--panel-solid, #fff); box-shadow: 0 18px 44px -22px rgba(30, 25, 60, 0.34); text-align: center;
 }
+.cc-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #00d6ff, #12ffb0); }
 .cc-card h1 { margin: 0; font-size: clamp(30px, 5.4vw, 44px) !important; line-height: 1.05; letter-spacing: -0.02em; }
 .cc-sub { margin: -4px 0 4px; font-size: 16px; color: var(--muted); }
 .cc-input {
-  width: 100%; padding: 16px 18px; text-align: center; font: inherit; font-size: 20px; font-weight: 700;
+  width: 100%; padding: 17px 18px; text-align: center; font: inherit; font-size: 20px; font-weight: 700;
+  border-radius: 16px !important;
   color: var(--ink); background: var(--panel-solid, #fff); border: 1px solid var(--border);
   transition: border-color .14s ease, box-shadow .14s ease;
 }
@@ -5585,6 +5585,7 @@ html { scroll-behavior: smooth; }
 .ct-bar-in { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 14px 18px calc(14px + env(safe-area-inset-bottom)); }
 /* the help launcher is fixed bottom-left · lift it over the sticky bar */
 .app:has(.ct-bar.on) .sb-launch { bottom: 104px; }
+.home-choose .sb-launch { bottom: 104px; }
 .ct-bar-txt strong { display: block; font-size: 16px; }
 .ct-bar-txt span { display: block; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
 .ct-bar-acts { display: flex; align-items: center; gap: 8px; }
@@ -5618,38 +5619,41 @@ html { scroll-behavior: smooth; }
 .tut-bill-row em { font-style: normal; font-size: 14px; color: var(--muted); }
 .tut-bill-row b { font-size: 14px; font-weight: 800; color: var(--ink); }
 
+/* the first two steps own the whole screen · no bottom nav under them */
+.home-create .home-main, .home-choose .home-main { padding-bottom: 0; }
+.home-create .sb-launch, .home-choose .sb-launch { bottom: 20px; }
+
 @media (max-width: 720px) {
   .cc { padding-top: 26px; }
   .cc-card { padding: 26px 20px 22px; }
   .ct { padding-bottom: 260px; }
   .ct-grid { grid-template-columns: 1fr; }
   /* sit above the bottom nav bar, not under it */
-  .ct-bar { bottom: var(--mbar-h, 62px); }
-  .app:has(.ct-bar.on) .sb-launch { bottom: calc(var(--mbar-h, 0px) + 128px); }
+  .ct-bar { bottom: 0; }
+  /* the bar is two rows tall on a phone · keep the help launcher clear of it */
+  .home-choose .sb-launch { bottom: 168px; }
   .ct-bar-in { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px 16px 14px; }
   .ct-bar-acts { justify-content: stretch; }
   .ct-go { flex: 1; }
   .ph-top { flex-direction: column; align-items: flex-start; }
 }
 
+/* Controls on these surfaces follow the cards: the app forces every button
+   square by default, which looks wrong inside a 24px card. Only the new
+   surfaces are rounded here — the rest of the app keeps its square buttons. */
+.cc-go, .ct-go, .ct-back, .howto-btn, .ct-filters button,
+.agx-save, .agx-reset, .agx-h-cta, .ph-addbtn, .savegate-in, .tutfs-go,
+.ph-ic, .ph-goal, .cc-input, .ws-coname { border-radius: 14px !important; }
+.tutfs-x { border-radius: 50% !important; }
+.cc-input { border-radius: 16px !important; }
+.cc-go { border-radius: 16px !important; }
+
 /* ---- the rest of the app's cards, on the same model ------------------ */
-/* pipeline rows and the system-agent cards used to invent their own
-   chrome (rounded, accent stripe on the left). They now read as the same
-   card as everything else: sharp, accent hairline on top, lift on hover. */
-.ph-proj, .sys-card, .sys-checks {
-  border-radius: var(--radius) !important;
-  border-left: 1px solid var(--border);
-  border-top: 2px solid var(--ac, var(--border));
-}
-.ph-proj { padding: 15px 16px 15px 13px; transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
-.ph-proj:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--ac) 50%, var(--border)); border-top-color: var(--ac); }
-.ph-proj.on { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 34%, transparent); }
+.ph-proj { padding: 16px 18px 16px 14px; box-shadow: 0 6px 18px rgba(30, 25, 60, 0.07); }
+.ph-proj.on { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 32%, transparent), 0 12px 26px rgba(30, 25, 60, 0.14); }
 .ph-proj-txt strong { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; }
 .ph-proj-txt em { font-size: 13.5px; }
-.ph-step-n { border-radius: 0; }
-.sys-card { border-top-color: var(--ac); }
-.sys-checks { border-top: 1px solid var(--border); }
-.ph-glyph, .ph-dot.solo { border-radius: 0; }
+.sys-card, .sys-checks { box-shadow: 0 6px 18px rgba(30, 25, 60, 0.07); }
 
 /* =====================================================================
    "How this teammate works" · the plain-language brief editor.
@@ -5657,7 +5661,8 @@ html { scroll-behavior: smooth; }
    numbered rail, each showing a readable preview when closed. Text is
    sized to be read and written in, not skimmed.
    ===================================================================== */
-.agx { margin-top: 18px; border: 1px solid var(--border); border-top: 2px solid var(--violet, #7b5cff); background: var(--panel-solid, #fff); transition: box-shadow .18s ease; }
+.agx { position: relative; overflow: hidden; margin-top: 18px; border: 1px solid var(--border); background: var(--panel-solid, #fff); box-shadow: 0 6px 18px rgba(30, 25, 60, 0.07); transition: box-shadow .18s ease; }
+.agx::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--violet, #7b5cff); }
 .agx.open { box-shadow: var(--shadow); }
 
 .agx-h {
@@ -5687,7 +5692,7 @@ html { scroll-behavior: smooth; }
 }
 .agx-fh:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 6%, transparent); }
 .agx-num {
-  flex: none; display: grid; place-items: center; width: 30px; height: 30px;
+  flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 11px;
   background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--muted);
   font-family: var(--font-pixel); font-weight: 800; font-size: 15px;
   transition: background .16s ease, color .16s ease;
@@ -5697,7 +5702,7 @@ html { scroll-behavior: smooth; }
 .agx-fh-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .agx-label { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
 .agx-n {
-  display: inline-grid; place-items: center; min-width: 21px; height: 21px; padding: 0 6px;
+  display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px;
   background: color-mix(in srgb, var(--violet, #7b5cff) 14%, transparent);
   color: color-mix(in srgb, var(--violet, #7b5cff) 80%, var(--ink)); font-size: 12px; font-weight: 800;
 }
@@ -5713,7 +5718,7 @@ html { scroll-behavior: smooth; }
 @keyframes agxOpen { from { opacity: 0; transform: translateY(-4px) } to { opacity: 1; transform: none } }
 .agx-hint { margin: 0 0 10px; font-size: 14px; line-height: 1.5; color: var(--muted); }
 .agx-body textarea {
-  width: 100%; min-height: 96px; padding: 13px 15px; border: 1px solid var(--border);
+  width: 100%; min-height: 96px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 16px !important;
   font: inherit; font-size: 16px; line-height: 1.65; resize: vertical; overflow: hidden;
   background: var(--panel-solid, #fff); color: var(--ink);
   transition: border-color .14s ease, box-shadow .14s ease;
@@ -5746,10 +5751,11 @@ html { scroll-behavior: smooth; }
 .ws-field-lab b { color: var(--ink); }
 .ws-colist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .ws-corow {
-  display: flex; align-items: center; gap: 11px; padding: 10px 12px;
-  border: 1px solid var(--border); border-top: 2px solid var(--ac); background: var(--panel-solid, #fff);
+  position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; padding: 13px 15px;
+  border: 1px solid var(--border); background: var(--panel-solid, #fff);
 }
-.ws-coglyph { flex: none; display: grid; place-items: center; width: 34px; height: 34px; background: var(--ac); color: #fff; font-size: 17px; }
+.ws-corow::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--ac); }
+.ws-coglyph { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 12px; background: var(--ac); color: #fff; font-size: 17px; }
 .ws-cotxt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .ws-coname { width: 100%; padding: 3px 5px; border: 1px solid transparent; background: none; font: inherit; font-size: 15px; font-weight: 700; color: var(--ink); }
 .ws-coname:hover { border-color: var(--border); }

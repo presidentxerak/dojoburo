@@ -7,7 +7,7 @@
 //
 // Creating a company is the moment an account is needed, because it is the
 // moment something real is saved (see ./SaveGate).
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
 import { useLoop, runPipeline } from '../../agents/loop'
@@ -22,7 +22,7 @@ import { privyConfigured } from '../../auth/controls'
 
 type View = 'create' | 'choose' | 'pipeline'
 
-export function PipelineHome({ onOpenProject }: { onOpenProject: (dojoId: string) => void }) {
+export function PipelineHome({ onOpenProject, onView }: { onOpenProject: (dojoId: string) => void; onView?: (v: View) => void }) {
   const dojos = useWorkshop((s) => s.dojos)
   const activeId = useWorkshop((s) => s.activeDojoId)
   const account = useWorkshop((s) => s.account)
@@ -36,8 +36,12 @@ export function PipelineHome({ onOpenProject }: { onOpenProject: (dojoId: string
   const loopRunning = useLoop((s) => s.running)
 
   const projects = dojos.filter((d) => d.archetype)
-  // a founder who already has teams lands on their pipeline, not on step one
-  const [view, setView] = useState<View>(projects.length ? 'pipeline' : 'create')
+  // A company exists once it has a name AND at least one team. Anything less and
+  // you land on step one, which is the only thing on the screen.
+  const hasCompany = !!companyName.trim() && projects.length > 0
+  const [view, setView] = useState<View>(hasCompany ? 'pipeline' : 'create')
+  // the first two steps own the whole screen · App hides its chrome for them
+  useEffect(() => { onView?.(view) }, [view, onView])
   // true while we are waiting for the founder to sign in before creating
   const [gate, setGate] = useState(false)
 

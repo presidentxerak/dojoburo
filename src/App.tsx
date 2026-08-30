@@ -38,6 +38,11 @@ export default function App() {
   // everyone — browsing costs nothing — and signing in is asked for at the
   // moment a project is actually saved (see components/home/SaveGate).
   const [view, setView] = useState<'home' | 'dojo'>('home')
+  // Which surface the home is showing. The first two — "Create your company"
+  // and "Choose your dojo teams" — are meant to be the only thing on screen,
+  // so the bottom navigation (Dojo, Studio, Connect, City) is not shown: none
+  // of it means anything before a company exists.
+  const [homeStep, setHomeStep] = useState<'create' | 'choose' | 'pipeline'>('pipeline')
   // the dojo fills the window on arrival (centered), then reveals the agent's
   // dashboard when you pick an agent.
   const [dojoFull, setDojoFull] = useState(true)
@@ -109,11 +114,11 @@ export default function App() {
   // 3D office; "Home" in the bottom bar comes back here.
   if (view === 'home') {
     return (
-      <div className="app home-layout">
+      <div className={`app home-layout home-${homeStep}`}>
         <Defs />
         <TopBar />
         <div className="home-main">
-          <PipelineHome onOpenProject={() => { setView('dojo'); setDojoFull(true) }} />
+          <PipelineHome onOpenProject={() => { setView('dojo'); setDojoFull(true) }} onView={setHomeStep} />
         </div>
         <OutboundConsentModal />
         <CommandPalette openDojo={() => { setView('dojo'); setDojoFull(true) }} showDashboard={() => { setView('dojo'); setDojoFull(false) }} />
@@ -121,6 +126,7 @@ export default function App() {
         <SettingsModal />
         <DojosManager />
         <SupportBot />
+        {homeStep === 'pipeline' && (
         <nav className="mbar mbar-5" aria-label="Navigation">
           <button className="on"><span className="mbar-ic">▦</span>Home</button>
           <button onClick={() => { setView('dojo'); setDojoFull(true) }}><span className="mbar-ic">◳</span>Dojo</button>
@@ -128,6 +134,7 @@ export default function App() {
           <button onClick={() => { location.hash = 'connect' }}><span className="mbar-ic">⊞</span>Connect</button>
           <button onClick={() => { location.hash = 'city' }}><span className="mbar-ic">⌂</span>City</button>
         </nav>
+        )}
       </div>
     )
   }
