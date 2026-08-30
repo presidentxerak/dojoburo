@@ -147,7 +147,7 @@ export default function App() {
       <div className="dash-main">
         <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
           <div className="scene-bg"><Scene3D /></div>
-          <button className="dojo-home-btn" onClick={() => { selectAgent(null); setView('home') }} title="Back to your pipeline">‹ Pipeline</button>
+          <button className="dojo-home-btn" onClick={() => { selectAgent(null); setView('home') }} title="Back to your company">‹ My company</button>
           <button className="dojo-arrange-btn" onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Arrange team</button>
         </div>
 

@@ -34,7 +34,7 @@ export interface DeckSlide {
 const A = DECK_ACCENTS
 
 export const DECK_SLIDES: DeckSlide[] = [
-  { n: '', eyebrow: 'Investor deck', title: 'Found a company in one sentence.', line: 'Describe your company and a CEO agent leads a crew that builds and runs it · website, offers, growth and analytics · while you steer.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['A CEO agent + crew', 'Your everyday apps', 'Priced in credits'] },
+  { n: '', eyebrow: 'Investor deck', title: 'Your projects automator.', line: 'Name your company, tick the ready-made teams you need, and a crew of AI teammates builds and runs them · website, offers, growth and analytics · while you steer.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['Ready-made teams', 'Your everyday apps', 'Priced in credits'] },
   { n: '01', eyebrow: 'The problem', title: 'Too many apps.', line: 'Running a business means juggling a dozen tools and never mastering any of them.', obj: 'briefcase', accent: A.orange, layout: 'object', points: ['A dozen SaaS tabs', 'Constant context-switching', 'Nothing mastered'] },
   { n: '02', eyebrow: 'The solution', title: 'One 3D office.', line: 'AI agents each own a real function · product, growth, finance, ops · and act for you inside your apps.', obj: 'network', accent: A.blue, layout: 'dojo', points: ['An agent per function', 'Real actions, not chat', 'You stay the founder'] },
   {

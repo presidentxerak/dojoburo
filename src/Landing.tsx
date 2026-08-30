@@ -56,7 +56,7 @@ export function Landing({ enter }: { enter: () => void }) {
       {/* The hero is deliberately almost empty: a title, one big button, and a
           way to watch how it works. Everything else lives further down. */}
       <section className="lp-hero lp-hero-min">
-        <h1>The company <span className="hl-acid">automator</span></h1>
+        <h1>Your projects <span className="hl-acid">automator</span></h1>
         <div className="lp-hero-acts">
           <button className="lp-hero-go lp-cta-create" onClick={enter}>Create your dojo teams</button>
           <button className="lp-hero-how" onClick={() => setHowTo(true)}>How to?</button>
@@ -174,7 +174,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <div className="lp-step3"><span className="lp-step3-n" style={{ background: C.teal }}>2</span><div><b>Add the keys to env</b><span>Set <code>APP_CLIENT_ID</code> / <code>APP_CLIENT_SECRET</code> (Google apps share <code>GOOGLE_CLIENT_ID/SECRET</code>). PKCE apps (Airtable, X, Canva) are automatic.</span></div></div>
             <div className="lp-step3"><span className="lp-step3-n" style={{ background: C.orange }}>3</span><div><b>Point an MCP endpoint</b><span>Notion, GitHub, Linear &amp; Stripe work as-is. For Gmail, Drive, Calendar, Slack &amp; others, set <code>APP_MCP_URL</code> to a hub (Composio / Zapier / Pipedream).</span></div></div>
           </div>
-          <p className="lp-note">Then the user just clicks <b>Connect</b> on the agent card, approves the OAuth screen once, and the agent acts inside the app. Ask the assistant for the exact env var of any tool.</p>
+          <p className="lp-note">Then the user just clicks <b>Connect</b> on the agent card, approves the OAuth screen once, and the agent acts inside the app. Ask Dojobot for the exact env var of any app.</p>
         </div>
       </section>
 
@@ -228,7 +228,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-tier"><b>2</b><span className="lp-tier-main">Open models · DeepSeek · Llama</span><span className="lp-tier-cost">≈ $0.01</span></div>
           <div className="lp-tier"><b>3</b><span className="lp-tier-main">Frontier · Claude, only when needed</span><span className="lp-tier-cost">rare</span></div>
         </div>
-        <p className="lp-note">The built-in help assistant works the same way, with hard spending limits and keys kept safely on the server.</p>
+        <p className="lp-note">Dojobot, the built-in help assistant, works the same way · with hard spending limits and keys kept safely on the server.</p>
       </section>
 
       <section className="lp-sec alt" id="pricing">
@@ -430,8 +430,8 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec" id="assistant">
         <Object3D kind="eye" color={C.teal} side="left" parallax={0.13} />
         <span className="lp-ico" style={{ background: C.teal }}><AsciiIcon kind="cast" /></span>
-        <h2>Ask the assistant anything</h2>
-        <p className="lp-lead">Not sure where to start, how connectors work, or what a task costs? The DojoBuro assistant answers right here · it uses the free knowledge base first and only escalates to a model for the tricky questions.</p>
+        <h2>Ask Dojobot anything</h2>
+        <p className="lp-lead">Not sure where to start, how connecting an app works, or what a team costs to run? <b>Dojobot</b> answers right here · and it can play any of the walkthroughs full screen while you ask.</p>
         <div className="lp-assistant"><SupportBot embedded /></div>
       </section>
 

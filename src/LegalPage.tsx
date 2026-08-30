@@ -75,7 +75,7 @@ export function Terms() {
       <p>We may update these terms; material changes will be reflected by the date above. Continued use after changes means you accept them.</p>
 
       <h2>12. Contact</h2>
-      <p>Questions about these terms: reach us through the in-app assistant.</p>
+      <p>Questions about these terms: reach us through Dojobot, the in-app assistant.</p>
     </Shell>
   )
 }
@@ -113,7 +113,7 @@ export function Privacy() {
       <p>We may update this policy; the date above reflects the latest version.</p>
 
       <h2>10. Contact</h2>
-      <p>Privacy questions or requests: reach us through the in-app assistant.</p>
+      <p>Privacy questions or requests: reach us through Dojobot, the in-app assistant.</p>
     </Shell>
   )
 }

@@ -1,7 +1,7 @@
 {
-  "name": "DojoBuro · Studio entrepreneurial IA",
+  "name": "DojoBuro · Your projects automator",
   "short_name": "DojoBuro",
-  "description": "Crée, gère et développe ton activité avec des agents IA et des studios locaux (branding, site, campagnes, vidéo, finance).",
+  "description": "Name your company, pick ready-made teams of AI teammates, and they do the real work in the apps you already use.",
   "start_url": "/#app",
   "scope": "/",
   "display": "standalone",

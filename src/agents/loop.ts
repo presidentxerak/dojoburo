@@ -126,14 +126,14 @@ export async function runPipeline(): Promise<void> {
   const projects = ws.dojos.filter((d) => d.archetype && ARCHETYPE_BY_ID[d.archetype]?.loop.length)
   if (!projects.length || useLoop.getState().running) return
   const toast = useDojo.getState().pushToast
-  toast({ kind: 'event', badge: 'PILOT', color: '#6366f1', title: 'Pipeline started', text: `${projects.length} project(s) lined up, in order.` })
+  toast({ kind: 'event', badge: 'PILOT', color: '#6366f1', title: 'Your company is working', text: `${projects.length} team${projects.length > 1 ? 's' : ''} lined up, in order.` })
 
   for (const p of projects) {
     await runLoop(p.id)
     if (useLoop.getState().error) {
-      toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Pipeline stopped', text: `Stopped at "${p.name}".` })
+      toast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Stopped', text: `Stopped at "${p.name}".` })
       return
     }
   }
-  toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Pipeline complete', text: 'Every project ran start to finish.' })
+  toast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'All done', text: 'Every team ran start to finish.' })
 }

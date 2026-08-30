@@ -1156,7 +1156,7 @@ function CompanyFiche({ co, onClose }: { co: MockCo; onClose: () => void }) {
 
         <div className="cofiche-actions">
           <a className="cofiche-open" href={companyPath(co)} style={{ background: t.accent }}>Ouvrir le site ↗</a>
-          <a className="cofiche-open ghost" href="/#showcase">Toutes les entreprises</a>
+          <a className="cofiche-open ghost" href="/#showcase">All the companies</a>
         </div>
       </div>
     </div>

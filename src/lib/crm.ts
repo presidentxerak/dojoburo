@@ -51,14 +51,17 @@ export function stats(cs: Contact[]): CrmStats {
 // ---- outbound templates ----------------------------------------------------
 export interface Template { id: string; label: string; subject: string; body: string }
 export const TEMPLATES: Template[] = [
-  { id: 'intro', label: 'Introduction', subject: 'An idea for {{entreprise}}', body: `Hi {{prenom}},\n\nI'm reaching out because I help organizations like {{entreprise}} save time and win more clients.\n\nWould you be open to a quick 15-minute chat this week?\n\nBest regards,` },
-  { id: 'relance1', label: 'Follow-up 1', subject: 'Re: an idea for {{entreprise}}', body: `Hi {{prenom}},\n\nI'm following up on my previous message · I know days get busy.\n\nWould a short conversation make sense on your end?\n\nHave a great day,` },
-  { id: 'rdv', label: 'Meeting proposal', subject: 'A slot this week?', body: `Hi {{prenom}},\n\nGlad to hear you're interested! I'd like to suggest a 20-minute call.\n\nAre you available Thursday at 11am or Friday at 2pm? Happy to work around your schedule otherwise.\n\nTalk soon,` },
-  { id: 'value', label: 'Value add', subject: 'A concrete example for {{entreprise}}', body: `Hi {{prenom}},\n\nI've put together a concrete idea that applies to {{entreprise}} · sharing it with no strings attached.\n\nLet me know if you'd like me to send it over.\n\nBest,` },
+  { id: 'intro', label: 'Introduction', subject: 'An idea for {{company}}', body: `Hi {{firstname}},\n\nI'm reaching out because I help organizations like {{company}} save time and win more clients.\n\nWould you be open to a quick 15-minute chat this week?\n\nBest regards,` },
+  { id: 'relance1', label: 'Follow-up 1', subject: 'Re: an idea for {{company}}', body: `Hi {{firstname}},\n\nI'm following up on my previous message · I know days get busy.\n\nWould a short conversation make sense on your end?\n\nHave a great day,` },
+  { id: 'rdv', label: 'Meeting proposal', subject: 'A slot this week?', body: `Hi {{firstname}},\n\nGlad to hear you're interested! I'd like to suggest a 20-minute call.\n\nAre you available Thursday at 11am or Friday at 2pm? Happy to work around your schedule otherwise.\n\nTalk soon,` },
+  { id: 'value', label: 'Value add', subject: 'A concrete example for {{company}}', body: `Hi {{firstname}},\n\nI've put together a concrete idea that applies to {{company}} · sharing it with no strings attached.\n\nLet me know if you'd like me to send it over.\n\nBest,` },
 ]
 const firstName = (name: string) => (name.trim().split(/\s+/)[0] || 'there')
 export function merge(tpl: Template, c: Contact): { subject: string; body: string } {
-  const sub = (s: string) => s.replace(/\{\{prenom\}\}/g, firstName(c.name)).replace(/\{\{entreprise\}\}/g, c.company || 'your company')
+  // the French token names shipped first · still honoured so saved drafts keep working
+  const sub = (s: string) => s
+    .replace(/\{\{(firstname|prenom)\}\}/gi, firstName(c.name))
+    .replace(/\{\{(company|entreprise)\}\}/gi, c.company || 'your company')
   return { subject: sub(tpl.subject), body: sub(tpl.body) }
 }
 export function mailto(c: Contact, subject: string, body: string): string {

@@ -10,6 +10,7 @@ import { connectorById, userSteps, operatorSteps, REDIRECT_PATH } from './data/c
 import { StudioTeam } from './components/landing/TeamCards'
 import { Tutorial } from './components/guide/Tutorial'
 import { type WalkId } from './components/guide/tutorialBeats'
+import { TutorialOverlay } from './components/guide/TutorialOverlay'
 
 // The Dojo Guide · a full page (not a modal) in the landing page's visual
 // language: same title/subtitle/text sizes, same cards. It covers connectors
@@ -40,6 +41,20 @@ function GuideShell({ children, inApp }: { children: React.ReactNode; inApp?: bo
       </footer>
       <SupportBot />
     </div>
+  )
+}
+
+/** The guide's own "How to?" button · plays a walkthrough full screen in place,
+ *  exactly like the buttons on the app's own screens. */
+function HowTo({ walk, label }: { walk: WalkId; label?: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <button type="button" className="howto-btn dg2-howto" onClick={() => setOpen(true)}>
+        {label ?? 'How to?'}
+      </button>
+      {open && <TutorialOverlay walk={walk} onClose={() => setOpen(false)} />}
+    </>
   )
 }
 
@@ -92,9 +107,10 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec" id="how">
         <h2>How it works</h2>
+        <HowTo walk="company" />
         <p className="lp-lead">There is no prompt to write. You name your company, then pick the ready-made teams you need · each one arrives already staffed with the right teammates, wired to the right apps. Open any teammate to work with them, and connect your real apps to go live.</p>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your company</b><span>One field on the home page, then <b>Create your company</b>. That is the moment we ask you to sign in, so it is still there next time.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your company</b><span>One field on the home page, then hit <b>Create your company</b> · that is the moment we ask you to sign in, so it is still there next time.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Choose your dojo teams</b><span>Tick as many cards as you need — a social campaign, an app, a book, a shop. Each names its crew, its apps and what a run costs before you pick it.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts. Connecting is free; only the work costs credits.</span></div></div>
         </div>
@@ -106,6 +122,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec" id="team">
         <h2>Shape your team</h2>
+        <HowTo walk="teams" />
         <p className="lp-lead">Your dojo ships with twelve teammates, but nothing is locked. Hide what you don't need, build your own agents, and arrange the office exactly how you like.</p>
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Hide or show</b><span>Hide any preset you don't use from the CEO dashboard; restore it from the roster whenever you want.</span></div></div>
@@ -118,6 +135,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec alt" id="studios-how">
         <h2>Inside the studios · how each one works</h2>
+        <HowTo walk="overview" />
         <p className="lp-lead">Click a teammate to open its studio. The AI generates a first version instantly, then you keep full control · and everything below runs in your browser.</p>
 
         <div className="dg2-studio">
@@ -177,12 +195,14 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec alt" id="what">
         <h2>1 · What connecting an app means</h2>
+        <HowTo walk="apps" />
         <p className="lp-lead">Connecting an app is a secure bridge between DojoBuro and something you already use. You approve access once on the app's own screen, and from then on your teammate can work inside it for you. You never hand over a password, and you can disconnect at any time.</p>
         <p className="lp-note">Each agent ships with a small, curated set of the best apps for its job · Engineering gets GitHub and Linear, Growth gets Gmail and HubSpot, Finance gets Stripe and QuickBooks, and so on. It's fully modular: open any studio's <b>Connect apps</b> panel, hit <b>+ Add apps</b> to bring in any other app, or remove one you don't use · your choice is saved per company.</p>
       </section>
 
       <section className="lp-sec alt" id="connect">
         <h2>2 · How to connect an app (as a user)</h2>
+        <HowTo walk="apps" />
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Open the agent</b><span>Click an agent, open its <b>Connect apps</b> panel and you'll see its curated apps · use <b>+ Add apps</b> to bring in another app, or remove one you don't need.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve the provider's screen once. Tap the ⓘ on any app for a per-app explainer and a link to its full setup page.</span></div></div>
@@ -192,6 +212,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec" id="directory">
         <h2>3 · Set up each app · step by step</h2>
+        <HowTo walk="apps" />
         <p className="lp-lead">Every app has its own page with numbered, step-by-step setup instructions · what to allow, what to fill in, and the usual gotchas. Pick yours:</p>
         {CATEGORY_ORDER.map((cat) => {
           const list = CONNECTORS.filter((c) => c.category === cat)
@@ -217,6 +238,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec alt" id="use">
         <h2>4 · Use a connected app &amp; see the result</h2>
+        <HowTo walk="apps" />
         <div className="lp-two">
           <div>
             <h3>Run the work</h3>
@@ -325,6 +347,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec dg2-callout dg2-budget" id="budget">
         <h2>8 · Don't blow your budget</h2>
+        <HowTo walk="apps" />
         <div className="lp-two">
           <div>
             <ul>
@@ -349,7 +372,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <li><b>App shows "Set up" not "Connect"</b> · the operator hasn't added that app's OAuth keys yet (see its setup page).</li>
           <li><b>"needs a key" on a task</b> · add your Claude key in Studio → Billing.</li>
           <li><b>A task won't run</b> · check your credits balance isn't empty or capped by your daily limit.</li>
-          <li><b>Still stuck?</b> · ask the in-app assistant, it walks you through every step.</li>
+          <li><b>Still stuck?</b> · ask <b>Dojobot</b> (bottom right) · it answers in plain language and can play any walkthrough full screen.</li>
         </ul>
       </section>
     </GuideShell>

@@ -70,7 +70,7 @@ export function Pricing({
           <strong>Business / Enterprise</strong>
           <span>Self-hosted or local worker, SAML SSO &amp; security review, a dedicated MCP hub with an SLA, budgets &amp; spend controls, custom connectors and dedicated support. Keep everything on your own infrastructure.</span>
         </div>
-        <button className="lp-ghost" onClick={goAssistant}>Talk to us</button>
+        <button className="lp-ghost" onClick={goAssistant}>Ask Dojobot</button>
       </div>
     </>
   )

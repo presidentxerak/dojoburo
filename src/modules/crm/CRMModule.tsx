@@ -172,7 +172,7 @@ export default function CRMModule({ dojoId }: ModuleProps) {
               )}
             </div>
           )}
-          <p className="muted small">Pipeline + outreach, 100% local. Personalize with {'{{prenom}}'} / {'{{entreprise}}'}. Connect Gmail (Connect apps) for automated sending.</p>
+          <p className="muted small">Pipeline + outreach, 100% local. Personalize with {'{{firstname}}'} / {'{{company}}'}. Connect Gmail (Connect apps) for automated sending.</p>
           {saved && <StudioNext from="pumpi" done="Pipeline saved." />}
         </>
       )}

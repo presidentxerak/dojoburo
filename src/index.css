@@ -1256,71 +1256,119 @@ a:hover { text-decoration: underline; }
 .lp-final h2 { font-size: clamp(24px, 5vw, 34px); margin: 0 0 22px; }
 .lp-foot { font-size: 16px; color: var(--muted); margin-top: 18px; }
 
-/* ---- Support bot --------------------------------------------------------- */
-/* Chat launcher · a round floating bubble (icon only) */
+/* ---- Dojobot · the built-in help assistant ------------------------------- */
+/* Launcher · a round floating bubble, bottom RIGHT so it never fights the
+   back/pipeline controls that live bottom-left. */
 .sb-launch {
-  position: fixed; left: 20px; bottom: 20px; z-index: 70; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; width: 60px; height: 60px; padding: 0; box-sizing: border-box;
+  position: fixed; right: 20px; bottom: 20px; z-index: 70; display: flex; align-items: center; gap: 9px;
+  cursor: pointer; height: 60px; padding: 0 22px 0 17px; box-sizing: border-box;
   background: #ffffff; border: 1px solid var(--border);
-  border-radius: 50%; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s;
+  border-radius: 999px !important; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s;
 }
-.sb-launch:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 12px 28px rgba(30, 60, 140, 0.28); }
-.sb-launch-label { display: none; }
+.sb-launch:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 12px 28px rgba(30, 60, 140, 0.28); }
+.sb-launch-label { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; color: var(--ink); }
 .sb-face { font-size: 16px; letter-spacing: -1px; }
 /* the temple mascot must stay readable on the white button in both themes */
 .sb-launch .lg-temple { fill: #11151d !important; }
 .sb-launch .logo-badge { color: #ffffff !important; }
-/* Mobile: a compact round chat button, docked bottom-right and lifted clear of
-   the bottom nav bar. NB: this must set left:auto so it doesn't stretch full-width
-   (the base rule above sets left:16px, and with right:12px that would span the
-   whole screen and cover the nav bar). This block comes after it, so it wins. */
 @media (max-width: 720px) {
-  .sb-launch-label { display: none; }
-  /* Sticky bottom-right, hugging just above the mobile bottom bar. The offset
-     tracks the real bar height (var --mbar-h, set on .app below) instead of a
-     magic number · on pages with no bar (landing, guide) it falls back to a
-     normal corner. z-index keeps it above the bar so it's never covered. */
+  /* a compact round button, lifted clear of the bottom nav bar. The offset
+     tracks the real bar height (--mbar-h on .app), so on pages with no bar
+     (landing, guide) it falls back to a normal corner. */
   .sb-launch {
-    left: auto; right: 12px;
-    bottom: max(16px, calc(var(--mbar-h, 0px) + 10px));
-    padding: 12px; width: 48px; height: 48px; justify-content: center; box-sizing: border-box;
+    right: 12px; bottom: max(16px, calc(var(--mbar-h, 0px) + 10px));
+    width: 52px; height: 52px; padding: 0; justify-content: center;
   }
+  .sb-launch-label { display: none; }
 }
 
+/* ---- the panel · full screen from the launcher, in place when embedded --- */
 .sb-panel {
-  position: fixed; left: 16px; bottom: 16px; z-index: 71; width: 370px; max-width: calc(100vw - 32px);
-  height: 540px; max-height: calc(100dvh - 32px); display: flex; flex-direction: column; overflow: hidden;
-  background: var(--panel-solid); border: 1px solid var(--border-lit); border-radius: 18px;
-  box-shadow: 0 18px 50px rgba(60, 40, 110, 0.32); animation: sbpop 0.2s ease-out; font-family: var(--font-read);
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--panel-solid); font-family: var(--font-read);
 }
-@keyframes sbpop { from { transform: translateY(12px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
-@media (max-width: 480px) { .sb-panel { left: 0; right: 0; bottom: 0; width: 100%; max-width: 100%; height: 82dvh; border-radius: 18px 18px 0 0; } }
+.sb-full {
+  position: fixed; inset: 0; z-index: 12000; animation: sbpop 0.18s ease-out;
+}
+.sb-embed {
+  position: relative; height: 560px; max-height: 78dvh;
+  border: 1px solid var(--border-lit); border-radius: 24px !important; box-shadow: 0 18px 50px rgba(60, 40, 110, 0.18);
+}
+@keyframes sbpop { from { transform: scale(0.99); opacity: 0; } to { transform: none; opacity: 1; } }
 
-.sb-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: linear-gradient(140deg, var(--pink), var(--violet)); color: #fff; }
+.sb-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: linear-gradient(140deg, var(--pink), var(--violet)); color: #fff; }
 .sb-avatar { background: transparent; display: grid; place-items: center; }
-.sb-title { display: flex; flex-direction: column; line-height: 1.2; flex: 1; }
-.sb-title strong { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; }
-.sb-status { font-size: 14px; opacity: 0.9; display: flex; align-items: center; gap: 5px; }
+.sb-title { display: flex; flex-direction: column; line-height: 1.25; flex: 1; min-width: 0; }
+.sb-title strong { font-family: var(--font-pixel); font-weight: 800; font-size: 19px; }
+.sb-status { font-size: 13.5px; opacity: 0.92; display: flex; align-items: center; gap: 6px; }
 .sb-status i { width: 7px; height: 7px; border-radius: 50%; background: #7dffb0; box-shadow: 0 0 6px #7dffb0; }
-.sb-x { margin-left: auto; background: rgba(255,255,255,0.18); border: none; color: #fff; width: 28px; height: 28px; border-radius: 8px; font-size: 16px; cursor: pointer; }
-.sb-x:hover { background: rgba(255,255,255,0.32); }
+.sb-reset { background: rgba(255,255,255,0.2); border: none; color: #fff; font: inherit; font-size: 13.5px; font-weight: 700; padding: 8px 14px; border-radius: 999px !important; cursor: pointer; }
+.sb-reset:hover { background: rgba(255,255,255,0.34); }
+.sb-x { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50% !important; font-size: 20px; line-height: 1; cursor: pointer; }
+.sb-x:hover { background: rgba(255,255,255,0.34); }
 
-.sb-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; background: color-mix(in srgb, var(--violet) 5%, transparent); }
-.sb-row { display: flex; flex-direction: column; gap: 7px; max-width: 92%; }
+.sb-main { flex: 1; min-height: 0; display: flex; }
+
+/* the rail · every walkthrough and every topic, one tap away */
+.sb-rail {
+  width: 268px; flex: none; display: flex; flex-direction: column; gap: 7px; overflow-y: auto;
+  padding: 18px 16px; border-right: 1px solid var(--border);
+  background: color-mix(in srgb, var(--violet) 4%, var(--panel-solid));
+}
+.sb-rail-h { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+.sb-rail-h:first-child { margin-top: 0; }
+.sb-rail-walks { display: flex; flex-direction: column; gap: 7px; margin-bottom: 6px; }
+.sb-walk {
+  display: flex; align-items: center; gap: 10px; text-align: left; padding: 11px 13px;
+  border: 1px solid var(--border); border-radius: 14px !important; background: var(--panel-solid);
+  font: inherit; font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer;
+  transition: border-color .14s ease, transform .14s ease;
+}
+.sb-walk:hover { border-color: var(--violet); transform: translateX(2px); }
+.sb-walk-play { display: grid; place-items: center; width: 24px; height: 24px; flex: none; border-radius: 50%; background: var(--violet); color: #fff; font-size: 10px; }
+.sb-rail-topics { display: flex; flex-wrap: wrap; gap: 6px; }
+.sb-railtopic { font: inherit; font-size: 13.5px; cursor: pointer; color: var(--ink); background: var(--panel-solid); border: 1px solid var(--border); padding: 7px 12px; border-radius: 999px !important; transition: background .14s; }
+.sb-railtopic:hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 14%, transparent); }
+.sb-railtopic:disabled { opacity: .5; cursor: default; }
+
+.sb-convo { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sb-body { flex: 1; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 16px; background: color-mix(in srgb, var(--violet) 4%, transparent); }
+.sb-full .sb-body { align-items: center; }
+.sb-row { display: flex; flex-direction: column; gap: 8px; max-width: 92%; }
+.sb-full .sb-row { width: 100%; max-width: 720px; }
 .sb-row.user { align-self: flex-end; align-items: flex-end; }
+.sb-full .sb-row.user { align-items: flex-end; }
 .sb-row.bot { align-self: flex-start; }
-.sb-bubble { font-size: 16px; line-height: 1.5; padding: 10px 13px; border-radius: 14px; white-space: pre-wrap; word-break: break-word; }
-.sb-row.bot .sb-bubble { background: var(--panel-solid); border: 1px solid var(--border); color: var(--ink); border-bottom-left-radius: 5px; }
-.sb-row.user .sb-bubble { background: linear-gradient(140deg, var(--pink), var(--violet)); color: #fff; border-bottom-right-radius: 5px; }
+.sb-bubble { font-size: 16px; line-height: 1.6; padding: 13px 16px; border-radius: 18px; white-space: pre-wrap; word-break: break-word; }
+.sb-row.bot .sb-bubble { background: var(--panel-solid); border: 1px solid var(--border); color: var(--ink); border-bottom-left-radius: 6px; }
+.sb-row.user .sb-bubble { background: linear-gradient(140deg, var(--pink), var(--violet)); color: #fff; border-bottom-right-radius: 6px; max-width: 82%; }
 
-.sb-links { display: flex; flex-direction: column; gap: 6px; margin-top: 9px; }
-.sb-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; text-decoration: none; color: var(--violet); background: color-mix(in srgb, var(--violet) 12%, transparent); border: 1px solid var(--border-lit); padding: 8px 11px; border-radius: 10px; }
+.sb-watch {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 9px; padding: 11px 18px;
+  border: 0; border-radius: 999px !important; cursor: pointer; font: inherit; font-size: 14.5px; font-weight: 800; color: #04232b;
+  background: linear-gradient(120deg, #00d6ff, #12ffb0, #00d6ff); background-size: 220% 220%;
+  animation: acidFlow 4.2s linear infinite; transition: transform .14s ease;
+}
+.sb-watch:hover { transform: translateY(-1px); }
+
+.sb-links { display: flex; flex-direction: column; gap: 7px; margin-top: 11px; }
+.sb-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; font-family: var(--font-pixel); font-weight: 800; font-size: 15px; text-decoration: none; color: var(--violet); background: color-mix(in srgb, var(--violet) 12%, transparent); border: 1px solid var(--border-lit); padding: 10px 14px; border-radius: 12px; }
 .sb-link:hover { background: color-mix(in srgb, var(--violet) 20%, transparent); text-decoration: none; }
 
-.sb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.sb-chip { font-family: var(--font-read); font-size: 14px; cursor: pointer; color: var(--ink); background: var(--panel-solid); border: 1px solid var(--border-lit); padding: 6px 11px; border-radius: 20px; transition: background 0.15s; }
+.sb-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.sb-chip { font-family: var(--font-read); font-size: 14px; cursor: pointer; color: var(--ink); background: var(--panel-solid); border: 1px solid var(--border-lit); padding: 8px 14px; border-radius: 999px !important; transition: background 0.15s; }
 .sb-chip:hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 14%, transparent); }
 .sb-chip:disabled { opacity: 0.5; cursor: default; }
+
+/* suggested questions · one tap sends a real question */
+.sb-sugg { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 0 22px 4px; }
+.sb-suggq {
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--ink);
+  background: var(--panel-solid); border: 1px solid var(--border); padding: 9px 15px; border-radius: 999px !important;
+  transition: border-color .14s ease, transform .14s ease;
+}
+.sb-suggq:hover:not(:disabled) { border-color: var(--violet); transform: translateY(-1px); }
+.sb-suggq:disabled { opacity: .5; cursor: default; }
 
 .sb-typing { display: inline-flex; gap: 4px; align-items: center; }
 .sb-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: sbblink 1.2s infinite ease-in-out; }
@@ -1328,12 +1376,21 @@ a:hover { text-decoration: underline; }
 .sb-typing span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes sbblink { 0%, 80%, 100% { opacity: 0.3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
 
-.sb-input { display: flex; gap: 8px; padding: 10px 12px 4px; border-top: 1px solid var(--border); }
-.sb-input input { flex: 1; font-family: var(--font-read); font-size: 16px; color: var(--ink); background: color-mix(in srgb, var(--violet) 6%, transparent); border: 1px solid var(--border-lit); border-radius: 12px; padding: 10px 12px; outline: none; }
+.sb-input { display: flex; gap: 10px; padding: 14px 22px 6px; border-top: 1px solid var(--border); }
+.sb-full .sb-input { max-width: 764px; width: 100%; margin: 0 auto; }
+.sb-input input { flex: 1; font-family: var(--font-read); font-size: 16px; color: var(--ink); background: color-mix(in srgb, var(--violet) 6%, transparent); border: 1px solid var(--border-lit); border-radius: 999px !important; padding: 14px 20px; outline: none; }
 .sb-input input:focus { border-color: var(--violet); }
-.sb-input button { border: none; cursor: pointer; color: #fff; font-size: 16px; width: 42px; border-radius: 12px; background: linear-gradient(140deg, var(--pink), var(--violet)); }
+.sb-input button { border: none; cursor: pointer; color: #fff; font-size: 18px; width: 52px; border-radius: 999px !important; background: linear-gradient(140deg, var(--pink), var(--violet)); }
 .sb-input button:disabled { opacity: 0.5; cursor: default; }
-.sb-foot { font-size: 16px; color: var(--muted); text-align: center; padding: 4px 12px 10px; }
+.sb-foot { font-size: 13px; color: var(--muted); text-align: center; padding: 6px 12px 12px; }
+
+@media (max-width: 900px) {
+  .sb-rail { display: none; }
+  .sb-body { padding: 16px; }
+  .sb-input { padding: 12px 16px 4px; }
+  .sb-sugg { padding: 0 16px 4px; }
+  .sb-row { max-width: 100%; }
+}
 
 /* ---- Workshop: dock, dojo studio, skins, widget -------------------------- */
 .ws-dock { position: fixed; top: 70px; left: 12px; z-index: 40; display: flex; flex-direction: column; gap: 7px; align-items: flex-start; }
@@ -1531,8 +1588,8 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 /* neutralise coloured surfaces */
 .sb-head, .aw-head { background: var(--panel-2); color: var(--ink); }
 .sb-head .sb-avatar { background: transparent; }
-.sb-head .sb-x { background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
-.sb-head .sb-x:hover { background: color-mix(in srgb, var(--ink) 20%, transparent); }
+.sb-head .sb-x, .sb-head .sb-reset { background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); }
+.sb-head .sb-x:hover, .sb-head .sb-reset:hover { background: color-mix(in srgb, var(--ink) 20%, transparent); }
 .aw-head .aw-btn { background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
 .aw-dot { background: color-mix(in srgb, var(--ink) 25%, transparent); }
 .sb-body { background: var(--panel-solid); }
@@ -3535,13 +3592,16 @@ input, textarea, select, button { border-radius: 0 !important; }
 .tb-navlink { background: none; border: none; cursor: pointer; font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: #000; padding: 6px 9px; }
 .tb-navlink:hover { opacity: 0.6; }
 
-/* ===== Chat bubble · a clean dark speech bubble with the face icon ===== */
+/* ===== Dojobot launcher · a dark speech bubble with the face + the name ===== */
 .sb-launch { background: #000 !important; border: none !important; box-shadow: 0 8px 22px rgba(0,0,0,0.28) !important; overflow: visible; }
 .sb-launch .logo-badge { color: #fff !important; }
 .sb-launch .lg-icon { fill: #fff !important; }
+.sb-launch .lg-temple { fill: #fff !important; }
+.sb-launch-label { color: #fff !important; }
+/* the tail points down-right, since the bubble now lives on the right */
 .sb-launch::after {
-  content: ''; position: absolute; left: 10px; bottom: 3px; width: 16px; height: 16px; background: #000;
-  clip-path: polygon(100% 0, 100% 100%, 0 100%); border-radius: 0 0 0 4px;
+  content: ''; position: absolute; right: 12px; bottom: 3px; width: 16px; height: 16px; background: #000;
+  clip-path: polygon(0 0, 100% 100%, 0 100%); border-radius: 0 0 4px 0;
 }
 
 /* ===== Settings modal (Squarespace-style: nav sidebar + content) ===== */
@@ -5645,6 +5705,9 @@ html { scroll-behavior: smooth; }
 .agx-save, .agx-reset, .agx-h-cta, .ph-addbtn, .savegate-in, .tutfs-go,
 .ph-ic, .ph-goal, .cc-input, .ws-coname { border-radius: 14px !important; }
 .tutfs-x { border-radius: 50% !important; }
+/* the guide's How-to buttons sit under their heading, on their own line */
+.dg2-howto { display: inline-flex; margin: 0 0 14px; align-self: flex-start; }
+.lp-sec .dg2-howto { margin-top: -6px; }
 .cc-input { border-radius: 16px !important; }
 .cc-go { border-radius: 16px !important; }
 

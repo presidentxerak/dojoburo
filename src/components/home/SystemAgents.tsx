@@ -71,14 +71,14 @@ export function SystemAgents({ projectCount, onRunPipeline, running }: {
         <div className="sys-b">
           <strong>{pilot?.code ?? 'Pilot'} <em>{pilot?.title ?? 'Project Manager'}</em>
             <InfoDot title="Pilot" label="What Pilot does">
-              <p>Pilot runs your <b>entire pipeline</b>: it takes each project in order and runs its loop, so the whole plan executes end to end.</p>
+              <p>Pilot runs your <b>whole company</b>: it takes each team in order and runs its plan, so everything plan executes end to end.</p>
               <p>Each project also has its own team lead (Chief) who runs just that team. Pilot is the level above.</p>
             </InfoDot>
           </strong>
           <span className="sys-line">{projectCount ? `${projectCount} project${projectCount > 1 ? 's' : ''} ready to run in order.` : 'Add a team below and Pilot will run it.'}</span>
         </div>
         <button className="btn primary tiny" disabled={!projectCount || running} onClick={onRunPipeline}>
-          {running ? 'Running…' : 'Run pipeline'}
+          {running ? 'Running…' : 'Run everything'}
         </button>
       </div>
 

@@ -17,6 +17,9 @@ export interface KBTopic {
   links?: KBLink[]
   follow?: string[]
   keywords: string[]
+  /** the animated walkthrough that shows this, if there is one · Dojobot
+   *  offers it as a "Watch it" button and plays it full screen in place. */
+  walk?: 'overview' | 'company' | 'teams' | 'apps'
 }
 
 export const KB: KBTopic[] = [
@@ -34,6 +37,7 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'start',
+    walk: 'company',
     chip: 'Getting started',
     answer:
       'Two screens, no prompt to write. 1) You land on one card: type the name of your company and hit Create your company. That is the moment we ask you to sign in, so it is still there next time (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick as many as you need. Every card names the teammates inside it, the apps they use, and what one full run costs in credits, and a bar at the bottom keeps the running total in view. Hit Add teams and you land straight in the first dojo: click a teammate to open their studio, write the goal of the project in one line, and hit Run every step. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
@@ -46,6 +50,7 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'teams',
+    walk: 'teams',
     chip: 'Dojo team cards',
     answer:
       'A dojo team card is a whole project, ready made. Each card names every teammate inside it and how many there are (a researcher, a maker, an analyst, a team lead…), the apps they work in, how many steps their plan has, and what one full run costs: so many credits, marked Light, Medium or Heavy. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tick as many as you need — the bar at the bottom adds up the teams, the teammates, the credits and the app connections as you go. Each one becomes a dojo inside your company: a 3D office where you can rename teammates, add or remove them, change the apps they use, rewrite how any one of them works, and run the whole plan in one go. Nothing is locked and nothing needs configuring first.',
@@ -58,6 +63,7 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'budget',
+    walk: 'apps',
     chip: 'What a team costs',
     answer:
       'Every dojo team card shows its budget before you pick it. A team\'s plan is a fixed list of steps and one step is about one credit, so a 4-step team costs 4 credits for a full run — roughly $0.08 at Pro-pack rates, a bit more on Solo. Cards are marked Light (up to 3 credits), Medium (up to 5) or Heavy above that, and the bar at the bottom of the chooser adds up everything you have ticked. Two things cost nothing on top: connecting an app is free and stays free, and the apps you connect are billed by them, not by us. And if you add your own Claude key the work runs on it — unlimited tasks, no credits spent, Anthropic bills you directly.',
@@ -70,6 +76,7 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'signin',
+    walk: 'company',
     chip: 'Do I need an account?',
     answer:
       'Not to look around. You can open the app, type a name and read every team card without signing in. Signing in is asked for at one moment only: when you hit Create your company, because that saves something real. Sign in with your email or Google and your company, your teammates and everything they make are still there next time, on any device you sign in from. Prefer not to? "Continue as guest" keeps everything in this browser only — it works exactly the same, but clearing your browser data clears your company with it.',
@@ -106,6 +113,7 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'cost',
+    walk: 'apps',
     chip: 'Cost per task (credits)',
     answer:
       'Most tasks are free or about one credit; only heavier jobs (like a full campaign) cost a couple more. You buy credits in your own currency and they settle on a fast rail behind the scenes · no crypto, no network fees to think about. Your CEO dashboard shows live totals, and you can set a daily spending limit so nothing overspends.',
@@ -118,6 +126,7 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'pricing',
+    walk: 'apps',
     chip: 'Plans & pricing',
     answer:
       'You bring your own model key (or run on a free model), so intelligence is basically free; you pay only for the hub: connected apps, an always-on worker and team features. Plans: Free ($0, explore + build your first company, 2 apps, ~50 tasks/mo), Solo ($12/mo, 6 apps, 300 credits), Pro ($29/mo, every app, 1,500 credits, cloud worker), Team ($22/seat/mo, shared dojos, SSO, audit) and Business (custom, self-hosted, SLA). Your-own-key and free-model tasks are unlimited and never use a credit; managed credits (1 credit ≈ 1 hosted task) cover hosted-model runs, are bought in your own currency (USD, EUR, JPY…) and top up anytime · no crypto. Annual billing saves about two months.',
@@ -166,6 +175,7 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'tools',
+    walk: 'apps',
     chip: 'Connect real tools',
     answer:
       'Connect 40+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 and more. Connecting is one click on the app\'s own screen; access is sealed away server-side and kept fresh for you. While your teammate works, it reaches into the app directly, so the work really happens in your account · and each task is metered as about one credit, with a receipt in your dashboard. Each agent ships with a small, curated set of the best apps for its job (no duplicates), and it\'s fully modular: open its Connect apps panel, tap "+ Add apps" to bring in any other app, or remove one you don\'t use · saved per company.',
@@ -191,6 +201,7 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'setup',
+    walk: 'apps',
     chip: 'How to connect an app',
     answer:
       'Every agent card AND the Dojo Studio editor show a "Connect tools" panel with the agent\'s curated apps (and a "+ Add apps" button to bring in any other app, or remove one you don\'t use · fully modular, saved per company), plus a short setup guide. FOR YOU it is one click: open the teammate, find the app under its tasks, click Connect and approve once on the app\'s own screen · access is sealed away on the server and your teammate can work inside the app for real. IF YOU RUN THIS DEPLOYMENT (one-time, per app): 1) create an OAuth app in the provider console (Notion integrations, GitHub OAuth apps, Google Cloud credentials…) and set the redirect URI to https://YOUR-SITE/api/connect; 2) copy the client id + secret into env as <APP>_CLIENT_ID and <APP>_CLIENT_SECRET (Google apps share GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET); 3) apps WITH a first-party MCP server (Notion, GitHub, Linear, Stripe) work right away; apps WITHOUT one (Gmail, Drive, Calendar, Slack…) also need <APP>_MCP_URL pointed at a hosted MCP hub (Composio, Zapier, Pipedream). PKCE apps (Airtable, X, Canva) are automatic. Once the env is set the tool shows a Connect button instead of a "set up" link. Every app also has its own step-by-step page in the Dojo Guide (scopes, exact env vars, gotchas) · just name the app and I will link it.',
@@ -204,9 +215,10 @@ export const KB: KBTopic[] = [
   },
   {
     id: 'guide',
+    walk: 'overview',
     chip: 'Dojo Guide',
     answer:
-      'The Dojo Guide is the full walkthrough of your apps: how to connect an app, how to set up the account, how to use it and see the result of the work, how to stay safe (avoid getting hacked), and how to keep your budget under control. Open it from the "Dojo Guide" button in the header (app or landing).',
+      'The Dojo Guide is the full manual, and every section carries its own "How to?" button that plays the matching animated walkthrough full screen. It covers: how the whole thing works, how to create your company, how to shape your team, what each studio does, how to connect an app step by step (with a dedicated page per app), how to keep your budget under control, how to stay safe, and troubleshooting. Open it from the "Dojo Guide" button in the header, on the landing or inside the app.',
     links: [
       { label: 'Open the Dojo Guide', href: '/guide', external: true },
       { label: 'How to connect an app', href: '#stack' },
@@ -343,4 +355,4 @@ export function matchTopic(text: string): KBTopic | null {
 }
 
 export const GREETING =
-  "Hi! I'm the DojoBuro assistant. Here is the short version: name your company, pick the ready-made teams you need, and each teammate opens a pro studio (branding, website, campaigns, video, finance, CRM, analytics) that runs 100% in your browser. Ask me anything · or pick a topic below.";
+  "Hi, I'm Dojobot. Short version: you name your company, tick the ready-made teams you need, and each teammate opens a pro studio (branding, website, campaigns, video, finance, CRM, analytics) that runs in your browser. Ask me anything in your own words — or pick a topic below. When a question has a walkthrough, I can play it for you full screen.";
