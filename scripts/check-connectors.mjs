@@ -89,6 +89,15 @@ for (const c of CONNECTORS) {
   rows.push({ id: c.id, label: c.label, auth: c.auth, reach: reach.join('+') || '—', problems, notes })
 }
 
+// The app marks unwired connectors so the UI can be honest about them. That flag
+// and this list are two records of the same fact, so they are compared here.
+for (const c of CONNECTORS) {
+  const flagged = !!c.unwired
+  const known = KNOWN_UNWIRED.has(c.id)
+  if (flagged && !known) { console.log(`FAIL  "${c.id}" is flagged unwired in the app but not listed here`); bad++ }
+  if (known && !flagged) { console.log(`FAIL  "${c.id}" is unwired but the app does not say so · set unwired: true`); bad++ }
+}
+
 // A role must not point at an app that is not in the registry (already covered
 // by check-content, repeated here so this script stands alone).
 const ids = new Set(CONNECTORS.map((c) => c.id))

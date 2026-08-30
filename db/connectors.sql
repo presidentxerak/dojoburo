@@ -40,3 +40,32 @@ create table if not exists work_usage (
   free_runs  int  not null default 0,
   primary key (account_id, day)
 );
+
+-- ---------------------------------------------------------------------------
+-- Token metering + the run ledger.
+--
+-- work_usage counted RUNS, which made a Saver run and a Max run cost the same
+-- against the daily cap — so the cheapest mode bought you nothing. These columns
+-- meter the thing that actually varies.
+--
+-- work_runs is the ledger: one row per completed run, so a founder can see where
+-- their credits went instead of watching a balance drop. It is the server-side
+-- counterpart of the in-browser meter.
+-- ---------------------------------------------------------------------------
+alter table work_usage add column if not exists in_tokens  bigint not null default 0;
+alter table work_usage add column if not exists out_tokens bigint not null default 0;
+
+create table if not exists work_runs (
+  id          bigserial primary key,
+  account_id  uuid        not null references accounts(id) on delete cascade,
+  dojo_id     text,
+  task        text        not null,
+  agent       text,
+  mode        text        not null default 'balanced',
+  engine      text        not null default 'free',
+  in_tokens   int         not null default 0,
+  out_tokens  int         not null default 0,
+  apps        int         not null default 0,
+  created_at  timestamptz not null default now()
+);
+create index if not exists work_runs_acct_day on work_runs (account_id, created_at desc);

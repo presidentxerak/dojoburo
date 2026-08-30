@@ -25,7 +25,28 @@ export interface RunUsage {
 }
 
 const KEY = 'dojoburo.usage.v1'
+const BUDGET_KEY = 'dojoburo.budget.v1'
 const CAP = 400 // runs kept · a few weeks of real use
+
+/**
+ * A daily token ceiling you set for yourself.
+ *
+ * The meter observes; this stops. It is deliberately a self-imposed guard rather
+ * than a server rule — it works with no backend, it is yours to raise, and its
+ * job is to catch the run you did not mean to start, not to police you. 0 = off.
+ */
+export function dailyBudget(): number {
+  try { return Math.max(0, Number(localStorage.getItem(BUDGET_KEY)) || 0) } catch { return 0 }
+}
+export function setDailyBudget(n: number) {
+  try {
+    if (n > 0) localStorage.setItem(BUDGET_KEY, String(Math.round(n)))
+    else localStorage.removeItem(BUDGET_KEY)
+  } catch { /* private mode */ }
+  for (const l of budgetListeners) l()
+}
+const budgetListeners = new Set<() => void>()
+export function onBudgetChange(l: () => void) { budgetListeners.add(l); return () => { budgetListeners.delete(l) } }
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -68,6 +89,20 @@ const sum = (list: RunUsage[]): Totals => ({
   outTokens: list.reduce((n, r) => n + r.outTokens, 0),
   total: list.reduce((n, r) => n + r.inTokens + r.outTokens, 0),
 })
+
+/**
+ * Would this run take you past today's ceiling?
+ *
+ * Called before a step starts, with that step's estimate. Returns null when
+ * there is room (or no ceiling), otherwise the sentence to show the founder.
+ */
+export function budgetBlock(estimate: number): string | null {
+  const cap = dailyBudget()
+  if (!cap) return null
+  const spent = readMeter(useUsage.getState().runs).today.total
+  if (spent + estimate <= cap) return null
+  return `That would take today past your ${cap.toLocaleString()} token limit (${spent.toLocaleString()} used). Raise it, switch to Saver, or come back tomorrow.`
+}
 
 /** Everything the meter can say, derived from the same list. */
 export function readMeter(runs: RunUsage[], dojoId?: string) {

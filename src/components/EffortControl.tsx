@@ -15,7 +15,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useWork } from '../agents/workStore'
-import { useUsage, readMeter } from '../agents/usageMeter'
+import { useUsage, readMeter, dailyBudget, setDailyBudget } from '../agents/usageMeter'
 import { useWorkshop } from '../workshop'
 import { useAgentApps, effectiveApps } from '../agents/agentApps'
 import { ARCHETYPE_BY_ID } from '../data/archetypes'
@@ -75,6 +75,8 @@ export function EffortPanel({ onClose }: { onClose: () => void }) {
   const steps = dojo?.archetype ? (ARCHETYPE_BY_ID[dojo.archetype]?.loop.length ?? 4) : 4
   const meter = readMeter(runs)
   const peak = Math.max(1, ...meter.days.map((d) => d.total))
+  const [budget, setBudget] = useState(() => dailyBudget())
+  const overBudget = budget > 0 && meter.today.total >= budget
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -163,15 +165,53 @@ export function EffortPanel({ onClose }: { onClose: () => void }) {
                 </div>
                 <p className="eff-sparkcap">the last seven days</p>
 
-                {meter.last && (
-                  <p className="eff-last">
-                    <b>Last run:</b> {meter.last.agent} · {tokLabel(meter.last.inTokens + meter.last.outTokens)} tokens
-                    {' '}in <b>{EFFORT_BY_ID[meter.last.mode]?.label ?? meter.last.mode}</b>
-                    {meter.last.apps ? ` with ${meter.last.apps} app${meter.last.apps === 1 ? '' : 's'}` : ' with no apps attached'}
-                    {' · '}{meter.last.engine === 'byok' ? 'on your key' : meter.last.engine === 'operator' ? 'on our key' : 'on the free tier'}
-                  </p>
-                )}
+                {/* the ledger · where the tokens actually went */}
+                <ul className="eff-ledger">
+                  {runs.slice(0, 8).map((r) => (
+                    <li key={r.at + r.task}>
+                      <span className="eff-led-when">{new Date(r.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="eff-led-who"><b>{r.agent}</b><em>{r.task}</em></span>
+                      <span className="eff-led-mode">{EFFORT_BY_ID[r.mode]?.label ?? r.mode}</span>
+                      <span className="eff-led-apps">{r.apps ? `${r.apps} app${r.apps === 1 ? '' : 's'}` : 'no apps'}</span>
+                      <span className="eff-led-n">{tokLabel(r.inTokens + r.outTokens)}</span>
+                    </li>
+                  ))}
+                </ul>
+                {runs.length > 8 && <p className="eff-sparkcap">showing the last 8 of {runs.length} runs</p>}
               </>
+            )}
+          </section>
+
+          {/* your own ceiling · the meter observes, this one stops */}
+          <section className={`eff-budget${overBudget ? ' over' : ''}`}>
+            <div>
+              <strong>Stop me at</strong>
+              <span>
+                A daily token ceiling you set for yourself. A run that would cross it is refused
+                before it starts, with the reason. Leave it empty for no limit.
+              </span>
+            </div>
+            <div className="eff-budget-set">
+              <input
+                type="number" min={0} step={10000} inputMode="numeric"
+                value={budget || ''}
+                placeholder="no limit"
+                aria-label="Daily token limit"
+                onChange={(e) => { const n = Number(e.target.value) || 0; setBudget(n); setDailyBudget(n) }}
+              />
+              <span>tokens / day</span>
+            </div>
+            {budget > 0 && (
+              <div className="eff-budget-bar" aria-hidden>
+                <span style={{ width: `${Math.min(100, (meter.today.total / budget) * 100)}%` }} />
+              </div>
+            )}
+            {budget > 0 && (
+              <p className="eff-budget-cap">
+                {overBudget
+                  ? `Reached · ${tokLabel(meter.today.total)} of ${tokLabel(budget)} used today. Runs are refused until tomorrow.`
+                  : `${tokLabel(meter.today.total)} of ${tokLabel(budget)} used today.`}
+              </p>
             )}
           </section>
 

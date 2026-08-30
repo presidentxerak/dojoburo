@@ -12,21 +12,19 @@ import { vaultConfigured } from './_lib/vault.js'
 import { findAccountId } from './_lib/accounts.js'
 import { connectionToken } from './_lib/connections.js'
 import { callerRef } from './_lib/authz.js'
+import { allow as rateAllow } from './_lib/ratelimit.js'
 
 export const config = { maxDuration: 15 }
 
 const ENV = process.env as Record<string, string | undefined>
 
-// light per-account send throttle (in-memory · best-effort, per lambda instance)
-const HITS = new Map<string, number[]>()
+// Per-account throttle on OUTBOUND actions · this is the one that matters,
+// because it is the ceiling on how many emails or posts an account can push in a
+// minute. Shared across instances when a KV store is configured (see
+// _lib/ratelimit); otherwise it degrades to the previous in-memory behaviour.
 const WINDOW_MS = 60_000
 const MAX_PER_WINDOW = 20
-function allow(key: string): boolean {
-  const now = Date.now()
-  const arr = (HITS.get(key) || []).filter((t) => now - t < WINDOW_MS)
-  if (arr.length >= MAX_PER_WINDOW) { HITS.set(key, arr); return false }
-  arr.push(now); HITS.set(key, arr); return true
-}
+const allow = (key: string): Promise<boolean> => rateAllow(`act:${key}`, MAX_PER_WINDOW, WINDOW_MS)
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
@@ -71,7 +69,7 @@ async function gmailSend(res: ServerResponse, body: Record<string, unknown>): Pr
   const pool = getPool()
   const accountId = await findAccountId(pool, { privyDid: (body.privy as string) || null, clientRef: (body.client as string) || null })
   if (!accountId) return json(res, 200, { ok: false, error: 'no_account' })
-  if (!allow(accountId)) return json(res, 200, { ok: false, error: 'rate' })
+  if (!(await allow(accountId))) return json(res, 200, { ok: false, error: 'rate' })
 
   const conn = await connectionToken(pool, accountId, 'gmail')
   if (!conn) return json(res, 200, { ok: false, error: 'not_connected' })
@@ -111,7 +109,7 @@ async function slackPost(res: ServerResponse, body: Record<string, unknown>): Pr
   const pool = getPool()
   const accountId = await findAccountId(pool, { privyDid: (body.privy as string) || null, clientRef: (body.client as string) || null })
   if (!accountId) return json(res, 200, { ok: false, error: 'no_account' })
-  if (!allow(accountId)) return json(res, 200, { ok: false, error: 'rate' })
+  if (!(await allow(accountId))) return json(res, 200, { ok: false, error: 'rate' })
 
   const conn = await connectionToken(pool, accountId, 'slack')
   if (!conn) return json(res, 200, { ok: false, error: 'not_connected' })
@@ -137,7 +135,7 @@ async function actionToken(body: Record<string, unknown>, connectorId: string): 
   const pool = getPool()
   const accountId = await findAccountId(pool, { privyDid: (body.privy as string) || null, clientRef: (body.client as string) || null })
   if (!accountId) return { error: 'no_account' }
-  if (!allow(accountId)) return { error: 'rate' }
+  if (!(await allow(accountId))) return { error: 'rate' }
   const conn = await connectionToken(pool, accountId, connectorId)
   if (!conn) return { error: 'not_connected' }
   return { token: conn.token, accountId }

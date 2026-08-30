@@ -30,6 +30,13 @@ export type ConnectorCategory = 'Docs & Notes' | 'Dev' | 'Comms' | 'CRM & Sales'
 
 export interface Connector {
   id: string
+  /**
+   * No server path yet · no OAuth handshake, no vault row, nothing to call at
+   * run time. Shown honestly rather than as a Connect button that cannot work.
+   * scripts/check-connectors.mjs is the source of truth for which these are, and
+   * fails the build if this list and reality disagree.
+   */
+  unwired?: boolean
   label: string
   provider: string
   /** what an agent of this function actually does with the tool */
@@ -67,7 +74,7 @@ export const CONNECTORS: Connector[] = [
     env: oauthEnv('GITHUB', 'GitHub OAuth apps', 'https://github.com/settings/developers'),
   },
   {
-    id: 'claude-code', label: 'Claude Code', provider: 'Anthropic', category: 'Dev',
+    id: 'claude-code', unwired: true, label: 'Claude Code', provider: 'Anthropic', category: 'Dev',
     blurb: 'Delegate real coding to a headless Claude Code agent · edits your repo, runs commands, opens PRs.',
     functions: ['Engineering', 'Product'], auth: 'token',
     docsUrl: 'https://docs.claude.com/en/docs/claude-code',
@@ -133,7 +140,7 @@ export const CONNECTORS: Connector[] = [
     env: [...oauthEnv('JIRA', 'Atlassian developer console', 'https://developer.atlassian.com/console/myapps/'), hubEnv('JIRA')],
   },
   {
-    id: 'trello', label: 'Trello', provider: 'Atlassian', category: 'Dev',
+    id: 'trello', unwired: true, label: 'Trello', provider: 'Atlassian', category: 'Dev',
     blurb: 'Add cards, move lists and keep a lightweight board in sync.',
     functions: ['Product', 'Ops'], auth: 'token',
     docsUrl: 'https://trello.com/power-ups/admin',
@@ -241,7 +248,7 @@ export const CONNECTORS: Connector[] = [
     env: [...oauthEnv('CANVA', 'Canva developer apps', 'https://www.canva.com/developers/'), hubEnv('CANVA')],
   },
   {
-    id: 'ai-video', label: 'AI Video', provider: 'fal.ai', category: 'Design',
+    id: 'ai-video', unwired: true, label: 'AI Video', provider: 'fal.ai', category: 'Design',
     blurb: 'Generate AI video clips (Kling, Luma, Runway…) from a prompt or image, dropped straight into the Video Creator.',
     functions: ['Growth', 'Product'], auth: 'token',
     docsUrl: 'https://fal.ai/dashboard/keys',
@@ -251,35 +258,35 @@ export const CONNECTORS: Connector[] = [
     ],
   },
   {
-    id: 'elevenlabs', label: 'ElevenLabs', provider: 'ElevenLabs', category: 'Design',
+    id: 'elevenlabs', unwired: true, label: 'ElevenLabs', provider: 'ElevenLabs', category: 'Design',
     blurb: 'AI voiceover & narration for videos and ads · natural, multilingual text-to-speech.',
     functions: ['Growth', 'Product'], auth: 'token',
     docsUrl: 'https://elevenlabs.io/app/settings/api-keys',
     env: [{ name: 'ELEVENLABS_API_KEY', note: 'ElevenLabs API key (voiceover / TTS)', link: 'https://elevenlabs.io/app/settings/api-keys' }],
   },
   {
-    id: 'heygen', label: 'HeyGen', provider: 'HeyGen', category: 'Design',
+    id: 'heygen', unwired: true, label: 'HeyGen', provider: 'HeyGen', category: 'Design',
     blurb: 'AI avatar / spokesperson videos from a script · talking-head clips for marketing.',
     functions: ['Growth', 'Product'], auth: 'token',
     docsUrl: 'https://app.heygen.com/settings?nav=API',
     env: [{ name: 'HEYGEN_API_KEY', note: 'HeyGen API key (avatar video)', link: 'https://app.heygen.com/settings?nav=API' }],
   },
   {
-    id: 'apollo', label: 'Apollo', provider: 'Apollo.io', category: 'CRM & Sales',
+    id: 'apollo', unwired: true, label: 'Apollo', provider: 'Apollo.io', category: 'CRM & Sales',
     blurb: 'Lead database + verified emails · find prospects and enrich them for outbound.',
     functions: ['Growth'], auth: 'token',
     docsUrl: 'https://developer.apollo.io/keys/',
     env: [{ name: 'APOLLO_API_KEY', note: 'Apollo.io API key (people/company search + enrichment)', link: 'https://developer.apollo.io/keys/' }],
   },
   {
-    id: 'klaviyo', label: 'Klaviyo', provider: 'Klaviyo', category: 'Marketing & Social',
+    id: 'klaviyo', unwired: true, label: 'Klaviyo', provider: 'Klaviyo', category: 'Marketing & Social',
     blurb: 'Email + SMS flows and lists · ecommerce marketing automation and campaigns.',
     functions: ['Growth'], auth: 'token',
     docsUrl: 'https://www.klaviyo.com/settings/account/api-keys',
     env: [{ name: 'KLAVIYO_API_KEY', note: 'Klaviyo private API key', link: 'https://www.klaviyo.com/settings/account/api-keys' }],
   },
   {
-    id: 'ga4', label: 'Google Analytics', provider: 'Google', category: 'Marketing & Social',
+    id: 'ga4', unwired: true, label: 'Google Analytics', provider: 'Google', category: 'Marketing & Social',
     blurb: 'Read real site traffic, sources and conversions · the numbers the Data agent explains.',
     functions: ['Growth', 'Leadership'], auth: 'token',
     docsUrl: 'https://analytics.google.com/',
@@ -289,7 +296,7 @@ export const CONNECTORS: Connector[] = [
     ],
   },
   {
-    id: 'posthog', label: 'PostHog', provider: 'PostHog', category: 'Dev',
+    id: 'posthog', unwired: true, label: 'PostHog', provider: 'PostHog', category: 'Dev',
     blurb: 'Product analytics · funnels, retention and events the agent reads and explains.',
     functions: ['Product', 'Growth'], auth: 'token',
     docsUrl: 'https://app.posthog.com/settings/user-api-keys',
@@ -299,7 +306,7 @@ export const CONNECTORS: Connector[] = [
     ],
   },
   {
-    id: 'supabase', label: 'Supabase', provider: 'Supabase', category: 'Dev',
+    id: 'supabase', unwired: true, label: 'Supabase', provider: 'Supabase', category: 'Dev',
     blurb: 'Real backend for the apps you ship · Postgres, auth and storage the Web agent wires in.',
     functions: ['Engineering', 'Product'], auth: 'token',
     docsUrl: 'https://supabase.com/dashboard/project/_/settings/api',
@@ -309,21 +316,21 @@ export const CONNECTORS: Connector[] = [
     ],
   },
   {
-    id: 'cloudinary', label: 'Cloudinary', provider: 'Cloudinary', category: 'Storage & Legal',
+    id: 'cloudinary', unwired: true, label: 'Cloudinary', provider: 'Cloudinary', category: 'Storage & Legal',
     blurb: 'Image & video CDN with on-the-fly transforms · optimise and host the Asset Library.',
     functions: ['Ops', 'Product'], auth: 'token',
     docsUrl: 'https://console.cloudinary.com/settings/api-keys',
     env: [{ name: 'CLOUDINARY_URL', note: 'Environment URL cloudinary://key:secret@cloud', link: 'https://console.cloudinary.com/settings/api-keys' }],
   },
   {
-    id: 'wave', label: 'Wave', provider: 'Wave', category: 'Finance',
+    id: 'wave', unwired: true, label: 'Wave', provider: 'Wave', category: 'Finance',
     blurb: 'Free accounting · invoices, income and expenses the Revenue agent keeps in sync.',
     functions: ['Finance'], auth: 'token',
     docsUrl: 'https://developer.waveapps.com/hc/en-us/articles/360032818132-Full-Access-Tokens',
     env: [{ name: 'WAVE_FULL_ACCESS_TOKEN', note: 'Wave full-access token', link: 'https://developer.waveapps.com/hc/en-us/articles/360032818132-Full-Access-Tokens' }],
   },
   {
-    id: 'perplexity', label: 'Perplexity', provider: 'Perplexity', category: 'Docs & Notes',
+    id: 'perplexity', unwired: true, label: 'Perplexity', provider: 'Perplexity', category: 'Docs & Notes',
     blurb: 'Grounded web research with citations · the CEO checks facts before it delegates.',
     functions: ['Leadership', 'Growth', 'Product'], auth: 'token',
     docsUrl: 'https://www.perplexity.ai/settings/api',

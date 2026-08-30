@@ -90,23 +90,42 @@ export function ConnectorsPage() {
                   const st = tools[c.id]
                   const isOn = !!st?.connected
                   const available = !!st?.available
+                  // Three honest states, because "greyed out" tells nobody why.
+                  //   ready    · keys are in place, one click and it works
+                  //   setup    · this deployment has not added this app's keys
+                  //   unwired  · there is no path for this one yet, at all
+                  const state = isOn ? 'on' : c.unwired ? 'unwired' : available ? 'ready' : 'setup'
                   return (
-                    <div key={c.id} className={`connect-card${isOn ? ' on' : ''}`}>
+                    <div key={c.id} className={`connect-card s-${state}${isOn ? ' on' : ''}`}>
                       <div className="connect-card-top">
                         <ConnectorLogo id={c.id} label={c.label} size={34} />
                         <div className="connect-card-meta">
                           <strong>{c.label}</strong>
                           <em>{c.auth === 'oauth' ? 'OAuth' : 'API token'} · {c.category}{isOn && st?.account ? ` · ${st.account}` : ''}</em>
                         </div>
+                        <span className={`connect-state ${state}`}>
+                          {state === 'on' ? 'Connected' : state === 'ready' ? 'Ready' : state === 'setup' ? 'Needs setup' : 'Not built yet'}
+                        </span>
                       </div>
                       <p className="connect-card-blurb">{c.blurb}</p>
+                      <p className="connect-why">
+                        {state === 'on'
+                          ? 'Your team can act inside this app for real. It adds about 400 tokens to every step that uses it.'
+                          : state === 'ready'
+                            ? 'The keys are already in place here. One click, approve on their screen, done — nothing to paste.'
+                            : state === 'setup'
+                              ? 'This deployment has not added this app\'s keys yet. The full guide has the exact steps and env vars.'
+                              : 'This one has no connection path yet — no handshake and nothing to call. It is listed so you know it exists, not so you can switch it on.'}
+                      </p>
                       <div className="connect-card-actions">
                         {isOn ? (
                           <button className="btn tiny ghost" onClick={() => void disconnect(c.id)}>Disconnect</button>
-                        ) : available ? (
+                        ) : state === 'ready' ? (
                           <button className="btn tiny" onClick={() => startConnect(c.id)}>Connect</button>
-                        ) : (
+                        ) : state === 'setup' ? (
                           <a className="btn tiny ghost" href={c.docsUrl} target="_blank" rel="noreferrer">Set up ↗</a>
+                        ) : (
+                          <span className="connect-soon">Not available</span>
                         )}
                         <a className="connect-card-guide" href={`/guide/${c.id}`}>Full guide →</a>
                       </div>

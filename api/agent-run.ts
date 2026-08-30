@@ -27,6 +27,7 @@ import { cascadeComplete, freeCascadeConfigured } from './_lib/llm.js'
 import { originAllowed } from './_lib/origin.js'
 import { hardenSystem, sanitizeUntrusted } from './_lib/guard.js'
 import { callerRef } from './_lib/authz.js'
+import { allow as rateAllow } from './_lib/ratelimit.js'
 
 export const config = { maxDuration: 60 }
 
@@ -42,6 +43,10 @@ const THINKING = ENV.ANTHROPIC_WORK_THINKING || '' // 'adaptive' to enable exten
 // offer Claude on the operator's dime (e.g. a hackathon demo).
 const OPERATOR_CLAUDE = ENV.WORK_OPERATOR_CLAUDE === 'true'
 const FREE_DAILY = int(ENV.WORK_FREE_DAILY, 10) // free-cascade runs / account / day on operator keys
+// The free tier is metered in TOKENS as well as runs, because a Saver run and a
+// Max run are not the same thing to pay for — counting runs alone made the
+// cheapest mode buy you nothing. Whichever ceiling is hit first stops the day.
+const FREE_DAILY_TOKENS = int(ENV.WORK_FREE_DAILY_TOKENS, 120_000)
 // Admin / operator allowlist. These accounts test every tool for free with NO
 // daily cap, and may use the operator's Claude key even when WORK_OPERATOR_CLAUDE
 // is off. They only ever spend the OPERATOR's own configured keys / free tiers.
@@ -73,7 +78,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (!originAllowed(origin, host, ALLOWED_ORIGIN)) return send(res, 403, { ok: false, error: 'origin' })
   }
   const ip = (header(req, 'x-forwarded-for') || '').split(',')[0].trim() || 'anon'
-  if (!allow(ip)) return send(res, 429, { ok: false, error: 'rate' })
+  if (!(await rateAllow(`run:${ip}`, RATE_MAX, RATE_WINDOW_MS))) return send(res, 429, { ok: false, error: 'rate' })
 
   let body: any
   try {
@@ -167,10 +172,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       // free cascade on the operator's free tiers, metered per account (admins
       // bypass the daily cap and aren't metered)
       const gate = isAdmin ? { allowed: true } : await checkFreeTier(ref)
-      if (!gate.allowed) return send(res, 200, { ok: false, error: 'quota', remaining: 0 })
+      if (!gate.allowed) return send(res, 200, { ok: false, error: 'quota', remaining: 0, reason: gate.reason })
       if (freeCascadeConfigured()) {
         const out = await cascadeComplete(system, prompt, Math.min(effort.maxTokens, MAX_TOKENS))
-        if (out) { text = out.text; modelUsed = out.model; engine = 'free'; if (!isAdmin) await bumpFreeTier(ref) }
+        if (out) { text = out.text; modelUsed = out.model; engine = 'free'; if (!isAdmin) await bumpFreeTier(ref, { inTok: 0, outTok: 0 }) }
       }
       if (!text && operatorClaude && ENV.ANTHROPIC_API_KEY) {
         const out = await callClaude(ENV.ANTHROPIC_API_KEY, MODEL, system, prompt, [], effort)
@@ -195,6 +200,16 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       settlement = { ok: false, error: String(e?.message || e).slice(0, 120) }
     }
   }
+
+  // What this run really cost · the free tier is metered on it, and it becomes a
+  // line in the ledger. Both are best-effort and neither can fail the run.
+  const inTok = Number(usage?.input_tokens) || 0
+  const outTok = Number(usage?.output_tokens) || 0
+  if (engine !== 'free' && !isAdmin) await bumpFreeTier(ref, { inTok, outTok })
+  await recordRun(ref, {
+    dojoId, task: task.id, agent: agentName, mode: String(body?.effort || 'balanced'),
+    engine, inTok, outTok, apps: mcpServers.length,
+  })
 
   return send(res, 200, {
     ok: true,
@@ -278,6 +293,30 @@ async function accountIsAdmin(ref: { privy?: string; client?: string }): Promise
   }
 }
 
+// One row per completed run · where the credits went.
+//
+// A balance that drops tells a founder nothing. This is the line-item record
+// behind it, and the server-side counterpart of the in-browser meter. Best
+// effort: a ledger write must never be the reason a finished run reports a
+// failure, so every error here is swallowed.
+async function recordRun(
+  ref: { privy?: string; client?: string },
+  row: { dojoId: string; task: string; agent: string; mode: string; engine: string; inTok: number; outTok: number; apps: number },
+): Promise<void> {
+  if (!dbConfigured()) return
+  try {
+    const pool = getPool()
+    const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
+    if (!accountId) return
+    await pool.query(
+      `insert into work_runs (account_id, dojo_id, task, agent, mode, engine, in_tokens, out_tokens, apps)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [accountId, row.dojoId || null, row.task, row.agent, row.mode, row.engine,
+       Math.max(0, row.inTok | 0), Math.max(0, row.outTok | 0), Math.max(0, row.apps | 0)],
+    )
+  } catch { /* the ledger is a record, not a gate */ }
+}
+
 // ---- BYOK + free-tier metering -------------------------------------------
 async function resolveByokKey(ref: { privy?: string; client?: string }): Promise<string | undefined> {
   if (!dbConfigured() || !vaultConfigured()) return undefined
@@ -293,30 +332,39 @@ async function resolveByokKey(ref: { privy?: string; client?: string }): Promise
   }
 }
 
-async function checkFreeTier(ref: { privy?: string; client?: string }): Promise<{ allowed: boolean }> {
+async function checkFreeTier(ref: { privy?: string; client?: string }): Promise<{ allowed: boolean; reason?: 'runs' | 'tokens' }> {
   if (!dbConfigured()) return { allowed: true } // no DB → rely on the in-memory IP rate limit
   try {
     const pool = getPool()
     const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
     if (!accountId) return { allowed: true }
-    const r = await pool.query(`select free_runs from work_usage where account_id = $1 and day = current_date`, [accountId])
+    const r = await pool.query(
+      `select free_runs, in_tokens, out_tokens from work_usage where account_id = $1 and day = current_date`,
+      [accountId],
+    )
     const used = r.rows[0]?.free_runs ?? 0
-    return { allowed: used < FREE_DAILY }
+    const tokens = Number(r.rows[0]?.in_tokens ?? 0) + Number(r.rows[0]?.out_tokens ?? 0)
+    if (tokens >= FREE_DAILY_TOKENS) return { allowed: false, reason: 'tokens' }
+    return { allowed: used < FREE_DAILY, reason: 'runs' }
   } catch {
     return { allowed: true }
   }
 }
 
-async function bumpFreeTier(ref: { privy?: string; client?: string }): Promise<void> {
+async function bumpFreeTier(ref: { privy?: string; client?: string }, tokens: { inTok: number; outTok: number } = { inTok: 0, outTok: 0 }): Promise<void> {
   if (!dbConfigured()) return
   try {
     const pool = getPool()
     const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
     if (!accountId) return
     await pool.query(
-      `insert into work_usage (account_id, day, free_runs) values ($1, current_date, 1)
-       on conflict (account_id, day) do update set free_runs = work_usage.free_runs + 1`,
-      [accountId],
+      `insert into work_usage (account_id, day, free_runs, in_tokens, out_tokens)
+       values ($1, current_date, 1, $2, $3)
+       on conflict (account_id, day) do update set
+         free_runs  = work_usage.free_runs + 1,
+         in_tokens  = work_usage.in_tokens + excluded.in_tokens,
+         out_tokens = work_usage.out_tokens + excluded.out_tokens`,
+      [accountId, Math.max(0, tokens.inTok), Math.max(0, tokens.outTok)],
     )
   } catch {
     /* metering is best-effort */
