@@ -4,8 +4,11 @@
 # malicious bots are additionally handled at the edge (rate limits, bot/UA
 # filtering, SSRF guards) and at the CDN/WAF · robots.txt only guides the polite.
 
+Sitemap: https://www.dojoburo.com/sitemap.xml
+
 User-agent: *
 Allow: /
+Allow: /academy
 Disallow: /api/
 Disallow: /widget
 

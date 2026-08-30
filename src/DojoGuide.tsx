@@ -35,8 +35,8 @@ function GuideShell({ children, inApp }: { children: React.ReactNode; inApp?: bo
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
         <nav className="lp-foot-links">
           {inApp
-            ? <><button className="dg-foot-link" onClick={() => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }}>Back to dojo</button><button className="dg-foot-link" onClick={() => { location.hash = 'connect' }}>Connect</button></>
-            : <><a href="/">Home</a><a href="/guide">Guide</a><a href="/#stack">Connect</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a></>}
+            ? <><button className="dg-foot-link" onClick={() => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }}>Back to dojo</button><button className="dg-foot-link" onClick={() => { location.hash = 'academy' }}>Academy</button><button className="dg-foot-link" onClick={() => { location.hash = 'connect' }}>Connect</button></>
+            : <><a href="/">Home</a><a href="/academy">Academy</a><a href="/guide">App setup guide</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a></>}
         </nav>
       </footer>
       <SupportBot />
@@ -84,6 +84,9 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
   return (
     <GuideShell inApp={inApp}>
       <section className="lp-hero dg2-hero">
+        {/* Learning how any of this works belongs in the Academy · this page is
+            the reference: what each app does and exactly how to set it up. */}
+        <a className="ac-kicker dg2-toacademy" href="/academy">New here? Start at the Dojo Academy →</a>
         <h1>Your <span className="hl-mag">studios</span> + your tools, <span className="hl-acid">under control</span>.</h1>
         <p className="lp-sub">
           You name your project, pick the ready-made teams you need, and each teammate opens a pro studio

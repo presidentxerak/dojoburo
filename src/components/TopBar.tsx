@@ -114,7 +114,8 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
             {/* everything that used to sit in the header lives here now */}
             <button className="tb-menu-item tb-menu-link" onClick={openProjects}>My project</button>
             <button className="tb-menu-item tb-menu-link" onClick={openConnect}>Connect apps</button>
-            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>Dojo Guide</button>
+            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'academy' }}>Dojo Academy</button>
+            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>App setup guide</button>
             <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'city' }}>City</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); window.dispatchEvent(new Event('open-cmdk')) }}>Quick search <kbd className="tb-kbd">⌘K</kbd></button>
             <div className="tb-menu-rule" />

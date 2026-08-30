@@ -42,7 +42,9 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
         </a>
         <nav className="lp-nav-links">
           {NAV_LINKS.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-          <a href="/guide">Dojo Guide</a>
+          {/* the Academy is the front door for anyone learning this · the per-app
+              setup pages stay one level in, linked from the Academy itself */}
+          <a href="/academy">Academy</a>
         </nav>
         <div className="lp-nav-right">
           <button
@@ -75,7 +77,8 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
             {NAV_LINKS.map(([href, label]) => (
               <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
             ))}
-            <a className="lp-menu-guide" href="/guide" onClick={() => setMenuOpen(false)}>Dojo Guide</a>
+            <a className="lp-menu-guide" href="/academy" onClick={() => setMenuOpen(false)}>Dojo Academy</a>
+            <a href="/guide" onClick={() => setMenuOpen(false)}>App setup guide</a>
             <button className="lp-cta" onClick={() => { setMenuOpen(false); create() }}>Create your project</button>
             <div className="lp-menu-auth">
               {account ? (

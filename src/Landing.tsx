@@ -65,6 +65,11 @@ export function Landing({ enter }: { enter: () => void }) {
           <button className="lp-hero-go lp-cta-create" onClick={enter}>Create your dojo teams</button>
           <button className="lp-hero-how" onClick={() => setHowTo(true)}>How to?</button>
         </div>
+        {/* Never used an agent before? The whole course is free and starts from
+            zero · it is also how most people arrive here from search. */}
+        <a className="lp-hero-learn" href="/academy">
+          New to all this? <b>Learn it free at the Dojo Academy</b> · 20 lessons, no code →
+        </a>
         {/* the zen dojo · animated backdrop only (non-interactive) */}
         <div className="lp-hero-zen" aria-hidden>
           <DojoDiorama />

@@ -9,6 +9,8 @@ import { AuthProvider } from './auth/AuthProvider'
 import { WidgetApp } from './WidgetApp'
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
+import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
+import { usePath } from './lib/router'
 import { CityKitDemo } from './city-kit/demo'
 import { CompanySite } from './CompanySite'
 import { companyById } from './data/showcase'
@@ -31,10 +33,18 @@ function Root() {
     window.addEventListener('hashchange', on)
     return () => window.removeEventListener('hashchange', on)
   }, [])
-  // path-based legal pages (served via SPA fallback)
-  const path = location.pathname.replace(/\/+$/, '')
+  // path-based pages (served via the SPA fallback in vercel.json). These are
+  // real URLs because they are meant to be found, linked and shared — the
+  // Academy in particular is the front door for anyone searching how agents
+  // work, so every lesson has to be its own address.
+  const path = usePath()
   if (path === '/terms') return <Terms />
   if (path === '/privacy') return <Privacy />
+  if (path === '/academy') return <AcademyHome />
+  const am = path.match(/^\/academy\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?$/i)
+  if (am) return am[2]
+    ? <LessonPage trackSlug={am[1].toLowerCase()} lessonSlug={am[2].toLowerCase()} />
+    : <TrackPage slug={am[1].toLowerCase()} />
   if (path === '/guide') return <GuidePage />
   const gm = path.match(/^\/guide\/([a-z0-9-]+)$/i)
   if (gm) return <ConnectorGuidePage id={gm[1].toLowerCase()} />
@@ -44,8 +54,10 @@ function Root() {
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />
-  // Dojo Guide · opened from inside the dojo · stays in the dojo environment
-  // (compact bar + Back-to-dojo) instead of the landing page.
+  // Dojo Academy · opened from inside the app · stays in the dojo environment
+  // (dojo header + Back-to-dojo) instead of the landing page.
+  if (route === 'academy') return <AcademyHome inApp />
+  // Dojo Guide · the per-app setup pages, opened from inside the dojo.
   if (route === 'guide') return <GuidePage inApp />
   // Dojo Studio · full page (build dojos, tune agents, account & billing).
   if (route === 'studio') return <StudioPage />

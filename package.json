@@ -6,7 +6,8 @@
   "description": "DojoBuro — a 2D pixel-art startup office where AI agents work, orchestrated on the XRP Ledger.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/gen-seo.mjs",
+    "seo": "node scripts/gen-seo.mjs",
     "preview": "vite preview --host",
     "typecheck": "tsc -b --noEmit",
     "typecheck:api": "tsc -p tsconfig.api.json",

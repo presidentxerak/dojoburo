@@ -24,6 +24,18 @@ export interface KBTopic {
 
 export const KB: KBTopic[] = [
   {
+    id: 'academy',
+    chip: 'Dojo Academy',
+    answer:
+      'The Dojo Academy is our free course on how all of this actually works · 20 lessons across 5 tracks, about 2 hours in total, and it starts from absolutely zero. It assumes you have never heard the words "agent", "vibe coding", "IDE" or "coding agent", and explains each one in plain language the moment it comes up. Every lesson is short (5 to 8 minutes), has an animation beside it showing the thing being explained actually happening, and ends with a question to check you got it plus one thing to go and do. Nothing is gated and no account is needed · your progress is remembered in this browser. The five tracks: 1) START HERE · what an agent is, why a team beats one assistant, your first project, and reading the work it produced. 2) THE LANDSCAPE, PLAINLY · vibe coding, chatbots vs IDEs vs coding agents vs an agent workspace, how to write a brief instead of a wish, and what everything costs. 3) YOUR TEAMMATES · the eight plain-English fields that define a teammate, how to edit one so every future run improves, choosing their apps, and shaping the crew. 4) BUILD A SYSTEM · what a loop is, designing your own plan backwards from the artefact, chaining several teams together, and finding the step that broke. 5) GO LIVE · connecting a real app safely, the review checklist before you ship, the seven mistakes everyone makes, and a 30-day plan. If you are new, start at lesson one · it is the fastest way to stop guessing.',
+    links: [
+      { label: 'Open the Academy', href: '/academy' },
+      { label: 'Start lesson 1', href: '/academy/start-here/what-is-an-agent' },
+    ],
+    follow: ['start', 'tools', 'cost'],
+    keywords: ['academy', 'académie', 'course', 'cours', 'learn', 'apprendre', 'tutorial', 'tuto', 'lesson', 'leçon', 'beginner', 'débutant', 'guide', 'training', 'formation', 'vibe coding', 'ide', 'claude code', 'what is an agent', 'agent'],
+  },
+  {
     id: 'studios',
     chip: 'The studios',
     answer:
