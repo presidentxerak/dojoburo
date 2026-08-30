@@ -47,6 +47,18 @@ const FREE_DAILY = int(ENV.WORK_FREE_DAILY, 10) // free-cascade runs / account /
 // is off. They only ever spend the OPERATOR's own configured keys / free tiers.
 const ADMIN_EMAILS = (ENV.ADMIN_EMAILS || 'presidentxerak@gmail.com')
   .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean)
+// ---- effort modes · the token dial -----------------------------------------
+// The founder picks a mode in the app; the SERVER decides what it means. A
+// client could otherwise ask for an eight-thousand-token answer with every app
+// attached on every run, which is exactly the bill this feature exists to
+// control. Kept in step with src/data/effort.ts (check-content asserts it).
+const EFFORT: Record<string, { maxTokens: number; thinking: boolean; maxApps: number }> = {
+  saver: { maxTokens: 1500, thinking: false, maxApps: 0 },
+  balanced: { maxTokens: 4000, thinking: false, maxApps: 3 },
+  max: { maxTokens: 8000, thinking: true, maxApps: 8 },
+}
+const effortOf = (v: unknown) => EFFORT[String(v || '')] ?? EFFORT.balanced
+
 const RATE_MAX = int(ENV.WORK_RATE_MAX, 20)
 const RATE_WINDOW_MS = int(ENV.WORK_RATE_WINDOW_MS, 10 * 60 * 1000)
 const hits = new Map<string, number[]>()
@@ -93,7 +105,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   // admin can spend the operator's Claude key even if WORK_OPERATOR_CLAUDE is off
   const operatorClaude = OPERATOR_CLAUDE || isAdmin
   const dojoId = String(body?.dojo || '').slice(0, 80)
-  const requested: string[] = Array.isArray(body?.connectors) ? body.connectors.map((s: any) => String(s)).slice(0, 8) : []
+  // The founder's chosen effort mode · the server decides what it means.
+  const effort = effortOf(body?.effort)
+  // Each attached app ships its tool definitions with EVERY request, so the mode
+  // caps how many travel. Saver sends none, which is what makes it a draft mode.
+  const requested: string[] = Array.isArray(body?.connectors)
+    ? body.connectors.map((s: any) => String(s)).slice(0, effort.maxApps)
+    : []
 
   // The company's own env-var secrets: the NAMES are safe to tell the agent so it
   // knows which credentials exist; the sealed VALUES stay server-side and are
@@ -138,11 +156,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       const key = byokKey || (operatorClaude ? ENV.ANTHROPIC_API_KEY : undefined)
       if (!key) return send(res, 200, { ok: false, error: 'needs_key', reason: mcpServers.length ? 'tool' : 'design' })
       const model = task.format === 'design-system' ? DESIGN_MODEL : MODEL
-      const out = await callClaude(key, model, system, prompt, mcpServers)
+      const out = await callClaude(key, model, system, prompt, mcpServers, effort)
       text = out.text; modelUsed = out.model; usage = out.usage
       engine = byokKey ? 'byok' : 'operator'
     } else if (byokKey) {
-      const out = await callClaude(byokKey, MODEL, system, prompt, [])
+      const out = await callClaude(byokKey, MODEL, system, prompt, [], effort)
       text = out.text; modelUsed = out.model; usage = out.usage
       engine = 'byok'
     } else {
@@ -151,11 +169,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       const gate = isAdmin ? { allowed: true } : await checkFreeTier(ref)
       if (!gate.allowed) return send(res, 200, { ok: false, error: 'quota', remaining: 0 })
       if (freeCascadeConfigured()) {
-        const out = await cascadeComplete(system, prompt, MAX_TOKENS)
+        const out = await cascadeComplete(system, prompt, Math.min(effort.maxTokens, MAX_TOKENS))
         if (out) { text = out.text; modelUsed = out.model; engine = 'free'; if (!isAdmin) await bumpFreeTier(ref) }
       }
       if (!text && operatorClaude && ENV.ANTHROPIC_API_KEY) {
-        const out = await callClaude(ENV.ANTHROPIC_API_KEY, MODEL, system, prompt, [])
+        const out = await callClaude(ENV.ANTHROPIC_API_KEY, MODEL, system, prompt, [], effort)
         text = out.text; modelUsed = out.model; usage = out.usage; engine = 'operator'
       }
       if (!text) return send(res, 200, { ok: false, error: 'not_configured' })
@@ -184,24 +202,31 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     tools: mcpServers.map((m) => m.name),
     engine,
     usage,
+    // What the mode actually did · the app records this as measured truth
+    // rather than showing its own estimate after the fact.
+    appsSent: mcpServers.length,
+    effort: String(body?.effort || 'balanced'),
     settlement,
     priceXrp: task.priceXrp,
   })
 }
 
 // ---- Claude call ----------------------------------------------------------
-async function callClaude(apiKey: string, model: string, system: string, user: string, mcpServers: McpServer[]): Promise<{ text: string; model: string; usage: any }> {
+async function callClaude(apiKey: string, model: string, system: string, user: string, mcpServers: McpServer[], effort: { maxTokens: number; thinking: boolean } = { maxTokens: MAX_TOKENS, thinking: THINKING === 'adaptive' }): Promise<{ text: string; model: string; usage: any }> {
   const betas: string[] = []
   if (mcpServers.length) betas.push(MCP_BETA)
 
   const bodyObj: any = {
     model,
-    max_tokens: MAX_TOKENS,
+    // The mode's ceiling, never above the deployment's own limit · a client
+    // cannot ask for a bigger answer than the operator allows.
+    max_tokens: Math.min(effort.maxTokens, MAX_TOKENS),
     system,
     messages: [{ role: 'user', content: user }],
   }
   if (mcpServers.length) bodyObj.mcp_servers = mcpServers
-  if (THINKING === 'adaptive') bodyObj.thinking = { type: 'adaptive' }
+  // Thinking is on when the mode asks for it, or when the deployment forces it.
+  if (effort.thinking || THINKING === 'adaptive') bodyObj.thinking = { type: 'adaptive' }
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',

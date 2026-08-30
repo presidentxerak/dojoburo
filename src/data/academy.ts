@@ -540,6 +540,21 @@ const LANDSCAPE: Lesson[] = [
         body: 'Dojo settings has a daily spending limit and per-teammate budgets. Set them on day one. A cap you never hit costs nothing; a cap you did not set is how surprises happen.',
       },
       {
+        kind: 'idea',
+        title: 'Three modes, and what each one really changes',
+        body: 'The chip in the dojo header is the token dial. It is not a marketing tier — each mode changes exactly three things, and the chip shows what you have spent today so you never find out on a bill.',
+        points: [
+          'Saver · answers capped short, and no apps travel with the run. Your team writes instead of acting. The cheapest way to tune a brief.',
+          'Balanced · full answers, up to three connected apps. The everyday setting, and where you should start.',
+          'Max · long answers, the model thinks before writing, every app available. Three to five times the tokens — save it for the run you are going to ship.',
+        ],
+      },
+      {
+        kind: 'warn',
+        title: 'Every app you switch on rides along on every step',
+        body: 'Connecting an app is free. But once it is on, its tool definitions are sent with each step that teammate runs, so a teammate with eight apps costs more per step than the same teammate with two — in every mode. Give each one the two or three their job needs.',
+      },
+      {
         kind: 'warn',
         title: 'Your own app subscriptions are yours',
         body: 'If Notion, Slack or Stripe need a paid plan, you pay that to them, exactly as you do today. DojoBuro never bills you for someone else\'s software.',
@@ -551,8 +566,8 @@ const LANDSCAPE: Lesson[] = [
       answer: 0,
       why: 'One step is about one credit, so a five-step plan is about five — roughly ten cents at Pro rates, or nothing at all if you are running on your own Claude key.',
     },
-    takeaway: 'One step ≈ one credit. Set a daily limit on day one.',
-    next: 'Open Dojo settings and set a daily spending limit.',
+    takeaway: 'One step ≈ one credit. Start on Balanced, set a daily limit, watch the chip.',
+    next: 'Open the mode chip in the dojo header and read what each mode changes.',
   },
 ]
 

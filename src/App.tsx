@@ -22,6 +22,7 @@ import { useWorkshop } from './workshop'
 import { privyConfigured } from './auth/controls'
 import { AuthGate } from './auth/AuthGate'
 import { audio } from './audio'
+import { EffortControl } from './components/EffortControl'
 
 export default function App() {
   const refresh = useDojo((s) => s.refreshBalances)
@@ -170,6 +171,8 @@ export default function App() {
     <nav className="dojo-ctl" aria-label="Dojo">
       <button onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Manage team</button>
       <button onClick={() => useWork.getState().openStudio('studio')} title="Dojo settings">Dojo settings</button>
+      {/* the token dial · always visible, so consumption is never a surprise */}
+      <EffortControl />
       <button
         className={`dojo-ctl-graph${graphOpen ? ' on' : ''}`}
         aria-pressed={graphOpen}

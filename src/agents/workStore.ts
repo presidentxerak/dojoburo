@@ -8,6 +8,16 @@ import {
 import { useWorkshop, type ExtAgent } from '../workshop'
 import { useDeliverables } from './deliverables'
 import { localDraft } from './localDraft'
+import { useUsage } from './usageMeter'
+import { DEFAULT_EFFORT, type EffortId } from '../data/effort'
+
+const EFFORT_KEY = 'dojoburo.effort.v1'
+const loadEffort = (): EffortId => {
+  try {
+    const v = localStorage.getItem(EFFORT_KEY)
+    return v === 'saver' || v === 'balanced' || v === 'max' ? v : DEFAULT_EFFORT
+  } catch { return DEFAULT_EFFORT }
+}
 
 // errors that mean "no real model is available" → we produce a local draft so the
 // CEO is never dead; anything else is a genuine failure surfaced to the user.
@@ -34,6 +44,9 @@ interface WorkState {
   autopilot: { running: boolean; step: string | null }
   /** signal: open the "create a Dojo" flow (from the header/landing Create button) */
   createIntent: boolean
+  /** how hard the team works · the token dial (see data/effort) */
+  effort: EffortId
+  setEffort: (e: EffortId) => void
 
   loadTools: () => Promise<void>
   disconnect: (id: string) => Promise<void>
@@ -66,6 +79,11 @@ export const useWork = create<WorkState>((set, get) => ({
   moduleTab: null,
   autopilot: { running: false, step: null },
   createIntent: false,
+  effort: loadEffort(),
+  setEffort: (e) => {
+    set({ effort: e })
+    try { localStorage.setItem(EFFORT_KEY, e) } catch { /* private mode */ }
+  },
 
   loadTools: async () => {
     const { tools, backend, byok } = await listTools()
@@ -95,12 +113,26 @@ export const useWork = create<WorkState>((set, get) => ({
     // no-op used to be recorded as a finished step that never ran.
     if (get().runningTask) { set({ runError: { code: 'busy' } }); return }
     set({ runningTask: input.task, runError: null })
-    const r = await runWork(input)
+    const mode = get().effort
+    const r = await runWork({ ...input, effort: mode })
     // Which team owns this result. The caller says so, because the pipeline runs
     // every team in turn WITHOUT changing which dojo is on screen — attributing
     // by activeDojoId filed all of them under whichever team you happened to be
     // looking at. Manual runs from the open dojo pass nothing and still get it.
     const dojoId = input.dojoId ?? useWorkshop.getState().activeDojoId
+    // Measured, not estimated. The mode cards show a range; this is the number.
+    if (r.ok && r.usage) {
+      useUsage.getState().record({
+        task: input.task,
+        agent: input.agentName,
+        dojoId: dojoId ?? '',
+        mode,
+        inTokens: Number(r.usage.input_tokens) || 0,
+        outTokens: Number(r.usage.output_tokens) || 0,
+        engine: r.engine ?? 'free',
+        apps: Number(r.appsSent) || 0,
+      })
+    }
     if (r.ok && r.deliverable) {
       // persist the deliverable so it stays in its panel (nanocorp-style)
       if (dojoId) useDeliverables.getState().add(dojoId, r.deliverable, Date.now())

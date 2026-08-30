@@ -38,6 +38,18 @@ export const KB: KBTopic[] = [
     keywords: ['academy', 'académie', 'course', 'cours', 'learn', 'apprendre', 'tutorial', 'tuto', 'lesson', 'leçon', 'beginner', 'débutant', 'guide', 'training', 'formation', 'vibe coding', 'ide', 'claude code', 'what is an agent', 'agent'],
   },
   {
+    id: 'tokens',
+    chip: 'Control your consumption',
+    answer:
+      `The chip in the middle of the dojo header is your token dial. It shows which mode you are in and how many tokens you have spent today, and clicking it opens the full picker. There are three modes and each one changes exactly three things — how long an answer may be, whether the model thinks before writing, and how many of a teammate's connected apps travel with the run. SAVER: answers capped at 1,500 tokens, no apps attached, so the team drafts instead of acting · the cheapest way to tune a brief before you commit. BALANCED (the default): 4,000 tokens and up to 3 apps, with real actions in them · start here and only change it when you have a reason. MAX: 8,000 tokens, thinking switched on and up to 8 apps · three to five times the tokens of Saver, so save it for the run you are actually going to ship. The panel shows our estimate for your team's next full run in each mode, AND the real token counts of the runs you have already done, reported by the model itself, so you can check our estimates against reality. One more thing worth knowing: every app you switch on for a teammate ships that app's tool definitions with every single step they run, so a teammate with eight apps costs more per step than the same teammate with two, in every mode. Connecting is still free · it is the running that costs.`,
+    links: [
+      { label: 'Open my dojo', href: '#app' },
+      { label: 'The cost lesson', href: '/academy/the-landscape/what-it-costs' },
+    ],
+    follow: ['cost', 'budget', 'tools'],
+    keywords: ['token', 'tokens', 'consumption', 'consommation', 'cost', 'coût', 'mode', 'saver', 'balanced', 'max', 'economy', 'économie', 'spend', 'dépense', 'limit', 'limite', 'optimise', 'optimiser', 'usage', 'meter', 'compteur'],
+  },
+  {
     id: 'studios',
     chip: 'The studios',
     answer:

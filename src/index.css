@@ -6386,3 +6386,108 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .ac-track-hero { text-align: left; }
 .ac-track-hero .lp-badges { justify-content: flex-start; }
 .ac-track-hero .lp-lead { margin: 0 0 8px; }
+
+/* =====================================================================
+   THE TOKEN DIAL · how hard your team works
+   A chip in the dojo header (mode + tokens spent today) opening the full
+   picker. Consumption is a number the founder can always see, not a
+   surprise on a bill.
+   ===================================================================== */
+.eff-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 13px; border: 1px solid var(--border); border-radius: 999px !important;
+  background: var(--panel-solid, #fff); color: var(--ink); font: inherit;
+  font-size: 13.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.eff-pill:hover { border-color: var(--ac); }
+.eff-pill-g { color: var(--ac); font-size: 14px; line-height: 1; }
+.eff-pill-n {
+  font-family: var(--font-pixel); font-weight: 800; font-size: 12px;
+  color: var(--muted); padding-left: 8px; border-left: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+.eff-scrim {
+  position: fixed; inset: 0; z-index: 12000; display: grid; place-items: center;
+  padding: 22px; background: rgba(12, 10, 24, .5); backdrop-filter: blur(3px);
+  animation: sbpop .16s ease-out;
+}
+.eff-modal {
+  width: min(980px, 100%); max-height: 90vh; display: flex; flex-direction: column;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 24px !important;
+  overflow: hidden; box-shadow: 0 28px 70px rgba(20, 16, 45, .3);
+}
+.eff-head {
+  flex: none; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 20px 24px; border-bottom: 1px solid var(--border); background: var(--panel-solid, #fff);
+}
+.eff-head strong { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 21px; }
+.eff-head span { display: block; margin-top: 4px; font-size: 14.5px; line-height: 1.5; color: var(--muted); max-width: 62ch; }
+.eff-x { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50% !important; background: none; color: var(--ink); font-size: 21px; line-height: 1; cursor: pointer; }
+.eff-x:hover { border-color: var(--ink); }
+.eff-body { flex: 1; min-height: 0; overflow-y: auto; padding: 22px 24px 26px; }
+
+/* ---- the three mode cards ---- */
+.eff-modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); gap: 14px; }
+.eff-mode { cursor: pointer; gap: 9px; text-align: left; }
+.eff-mode.on { border-color: color-mix(in srgb, var(--ac) 55%, var(--border)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 30%, transparent), 0 12px 26px rgba(30, 25, 60, .12); }
+.eff-mode-h { display: flex; align-items: center; gap: 10px; width: 100%; }
+.eff-mode-g { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 11px; color: #fff; font-size: 16px; line-height: 1; }
+.eff-mode-h strong { flex: 1; font-family: var(--font-pixel); font-weight: 800; font-size: 19px; }
+.eff-on { flex: none; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--ac); padding: 3px 9px; border-radius: 999px; }
+.eff-tag { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.eff-points { margin: 2px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.eff-points li { font-size: 13px; line-height: 1.45; color: var(--muted); }
+.eff-est {
+  width: 100%; margin-top: 4px; padding: 11px 13px; border-radius: 14px;
+  background: color-mix(in srgb, var(--ac) 9%, transparent);
+}
+.eff-est b { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 22px; line-height: 1.1; color: var(--ac); font-variant-numeric: tabular-nums; }
+.eff-est em { display: block; font-style: normal; font-size: 12.5px; line-height: 1.4; color: var(--muted); margin-top: 2px; }
+.eff-est span { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 5px; }
+.eff-best, .eff-trade { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+.eff-best b, .eff-trade b { color: var(--ink); }
+
+.eff-note { margin: 18px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--muted); max-width: 78ch; }
+.eff-note.last { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.eff-note b { color: var(--ink); }
+
+/* ---- the meter · measured, not estimated ---- */
+.eff-meter { margin-top: 24px; padding: 18px 20px; border: 1px solid var(--border); border-radius: 20px; background: var(--panel-solid, #fff); }
+.eff-meter > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.eff-meter > header strong { font-family: var(--font-pixel); font-weight: 800; font-size: 17px; }
+.eff-clear { padding: 6px 13px; border: 1px solid var(--border); border-radius: 999px !important; background: none; color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.eff-clear:hover { border-color: #d1495b; color: #d1495b; }
+.eff-empty { margin: 0; font-size: 14px; line-height: 1.55; color: var(--muted); }
+
+.eff-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.eff-stat { flex: 1 1 116px; display: flex; flex-direction: column; padding: 11px 13px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.eff-stat b { font-family: var(--font-pixel); font-weight: 800; font-size: 20px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.eff-stat b i { font-style: normal; color: var(--muted); margin: 0 2px; }
+.eff-stat em { font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--muted); margin-top: 3px; }
+
+.eff-spark { display: flex; align-items: flex-end; gap: 5px; height: 54px; margin-top: 14px; }
+.eff-spark > span { flex: 1; height: 100%; display: flex; align-items: flex-end; }
+.eff-spark i { display: block; width: 100%; border-radius: 4px 4px 0 0; background: color-mix(in srgb, #2f6bff 55%, transparent); }
+.eff-spark > span:last-child i { background: #2f6bff; }
+.eff-sparkcap { margin: 6px 0 0; font-size: 11.5px; font-weight: 600; color: var(--muted); text-align: right; }
+.eff-last { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+.eff-last b { color: var(--ink); }
+
+@media (max-width: 720px) {
+  .eff-pill-n, .eff-pill-l { display: none; }
+  .eff-pill { padding: 7px 10px; }
+  .eff-scrim { padding: 0; }
+  .eff-modal { width: 100%; max-height: 100vh; height: 100vh; border-radius: 0 !important; border: 0; }
+  .eff-head { padding: 16px 16px 14px; }
+  .eff-body { padding: 16px 16px 24px; }
+  .eff-modes { grid-template-columns: 1fr; }
+}
+
+/* The four dojo controls collapse into the bottom bar on a phone, but the token
+   dial has no equivalent there — and it is the one control that must never be
+   hard to reach. Keep it, drop the rest. */
+@media (max-width: 720px) {
+  .dojo-ctl { display: flex; }
+  .dojo-ctl > button:not(.eff-pill) { display: none; }
+}

@@ -92,6 +92,21 @@ for (const r of RULES) {
   }
 }
 
+// --- the effort modes exist in two places on purpose ------------------------
+// The client shows them; the SERVER enforces them, because a browser cannot be
+// trusted with a token ceiling. That means two tables, which means they can
+// drift — so they are compared here on every build.
+const effort = await load('src/data/effort.ts')
+const runSrc = read('api/agent-run.ts')
+for (const m of effort.EFFORT_MODES) {
+  const row = new RegExp(`${m.id}:\\s*\\{\\s*maxTokens:\\s*(\\d+),\\s*thinking:\\s*(true|false),\\s*maxApps:\\s*(\\d+)`).exec(runSrc)
+  if (!row) { console.log(`FAIL  agent-run · effort mode "${m.id}" is missing server-side`); bad++; continue }
+  const [, mt, th, ma] = row
+  if (Number(mt) !== m.maxTokens) { console.log(`FAIL  effort "${m.id}" · maxTokens ${m.maxTokens} in the app, ${mt} on the server`); bad++ }
+  if ((th === 'true') !== m.thinking) { console.log(`FAIL  effort "${m.id}" · thinking disagrees between app and server`); bad++ }
+  if (Number(ma) !== m.maxApps) { console.log(`FAIL  effort "${m.id}" · maxApps ${m.maxApps} in the app, ${ma} on the server`); bad++ }
+}
+
 // --- internal consistency of the data itself -------------------------------
 // A team whose plan names an agent that is not on its crew can never run that
 // step. This has nothing to do with copy, but it is the same class of drift.

@@ -178,6 +178,10 @@ export interface Deliverable {
 }
 export interface RunResult {
   ok: boolean
+  /** what the model actually consumed · recorded by the usage meter */
+  usage?: { input_tokens?: number; output_tokens?: number } | null
+  /** how many connected apps really travelled with the request */
+  appsSent?: number
   error?: string
   detail?: string
   reason?: 'tool' | 'design'
@@ -188,7 +192,7 @@ export interface RunResult {
   priceXrp?: number
 }
 
-export async function runWork(input: { task: string; agentName: string; connectors: string[]; brief?: string; context?: string; extAgents?: ExtAgent[] }): Promise<RunResult> {
+export async function runWork(input: { task: string; agentName: string; connectors: string[]; brief?: string; context?: string; extAgents?: ExtAgent[]; effort?: string }): Promise<RunResult> {
   const activeDojoId = useWorkshop.getState().activeDojoId
   const startup = useWorkshop.getState().dojos.find((d) => d.id === activeDojoId)?.name || ''
   const net = useDojo.getState().net
@@ -201,7 +205,7 @@ export async function runWork(input: { task: string; agentName: string; connecto
     const res = await apiFetch('/api/agent-run', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...input, extAgents: undefined, extMcp, startup, net, dojo: activeDojoId || undefined, ...ref() }),
+      body: JSON.stringify({ ...input, extAgents: undefined, extMcp, startup, net, dojo: activeDojoId || undefined, effort: input.effort, ...ref() }),
     })
     return (await res.json()) as RunResult
   } catch (e: any) {
