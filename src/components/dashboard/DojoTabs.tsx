@@ -1,8 +1,13 @@
-// The dojo tab bar · every other team in the project, one tap away.
+// The dojo tab bar · the teams the founder actually chose, one tap away.
 //
 // Sticky under the header inside the dojo, so switching from the campaign team
-// to the app team is a tap rather than a trip back to the project screen. Only
-// shows when there is more than one team to switch between.
+// to the app team is a tap rather than a trip back to the project screen.
+//
+// Only teams picked from the catalogue appear here. The seeded "HQ Dojo" that
+// every install starts with was never chosen by anyone, so it is not offered as
+// a destination — it stays reachable from Dojo settings. And because you can
+// legitimately add the same team twice, repeated labels are numbered rather
+// than shown as identical twins.
 import { useWorkshop } from '../../workshop'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 
@@ -11,17 +16,24 @@ export function DojoTabs({ onOpen }: { onOpen?: () => void }) {
   const activeId = useWorkshop((s) => s.activeDojoId)
   const setActive = useWorkshop((s) => s.setActiveDojo)
 
-  if (dojos.length < 2) return null
+  // only the teams the founder picked
+  const teams = dojos.filter((d) => d.archetype && ARCHETYPE_BY_ID[d.archetype])
+  if (teams.length < 2) return null
+
+  // "Social media campaign" twice becomes "… 1" and "… 2"
+  const seen: Record<string, number> = {}
+  const total: Record<string, number> = {}
+  for (const d of teams) total[d.archetype!] = (total[d.archetype!] ?? 0) + 1
 
   return (
     <nav className="dtabs" aria-label="Your dojo teams">
       <div className="dtabs-in">
-        {dojos.map((d) => {
-          const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
-          const tint = a?.tint ?? '#7b5cff'
+        {teams.map((d) => {
+          const a = ARCHETYPE_BY_ID[d.archetype!]
+          const tint = a.tint
           const crew = d.agents.filter((x) => !x.hidden).length
-          // the project name prefixes every team · the team is what matters here
-          const label = a?.label ?? d.name
+          seen[d.archetype!] = (seen[d.archetype!] ?? 0) + 1
+          const label = total[d.archetype!] > 1 ? `${a.label} ${seen[d.archetype!]}` : a.label
           return (
             <button
               key={d.id}
@@ -31,7 +43,7 @@ export function DojoTabs({ onOpen }: { onOpen?: () => void }) {
               title={`${d.name} · ${crew} teammates`}
               onClick={() => { setActive(d.id); onOpen?.() }}
             >
-              <span className="dtab-glyph" style={{ background: tint }}>{a?.glyph ?? '◆'}</span>
+              <span className="dtab-glyph" style={{ background: tint }}>{a.glyph}</span>
               <span className="dtab-txt">{label}</span>
               <span className="dtab-n">{crew}</span>
             </button>

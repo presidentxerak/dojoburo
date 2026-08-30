@@ -25,7 +25,7 @@ export function StepBar({
   return (
     <div className="stepbar">
       <button className="stepbar-back" onClick={onBack} disabled={backDisabled}>
-        <span className="sb-full">{backLabel}</span><span className="sb-short" aria-hidden>←</span>
+        <span className="stepbar-lbl">{backLabel}</span><span className="stepbar-abbr" aria-hidden>←</span>
       </button>
       <nav className="stepbar-steps" aria-label="Steps">
         <span className="stepbar-track"><span className="stepbar-fill" style={{ width: `${pct}%` }} /></span>
@@ -41,7 +41,7 @@ export function StepBar({
         ))}
       </nav>
       <button className="stepbar-next" onClick={onNext} disabled={!canNext} title={nextLabel}>
-        <span className="sb-full">{nextText}</span><span className="sb-short">{isLast ? 'Validate' : 'Next →'}</span>
+        <span className="stepbar-lbl">{nextText}</span><span className="stepbar-abbr">{isLast ? 'Validate' : 'Next →'}</span>
       </button>
     </div>
   )

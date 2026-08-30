@@ -7,8 +7,11 @@
 //
 // It is deliberately a picture of what is TRUE: activity is counted from the
 // work that exists, not invented, and an app that is not connected says so.
+//
+// Graph is a MODE of the dojo, not an overlay on top of it: it renders inside
+// the dojo's own area so the header and the team tabs stay reachable, and the
+// Graph button that turned it on can turn it off again.
 import { useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
 import { useDeliverables } from '../../agents/deliverables'
@@ -52,8 +55,8 @@ export function DojoGraph({ dojoId, onClose, onOpenAgent }: {
   })
   const peak = Math.max(1, ...counts)
 
-  return createPortal(
-    <div className="dg" role="dialog" aria-modal="true" aria-label="Team graph">
+  return (
+    <section className="dg" aria-label="Team graph">
       <header className="dg-head">
         <div>
           <strong>{dojo?.name ?? 'Your team'}</strong>
@@ -62,7 +65,7 @@ export function DojoGraph({ dojoId, onClose, onOpenAgent }: {
             {arch ? ` · ${arch.loop.length} steps` : ''} · {delivs.length} result{delivs.length === 1 ? '' : 's'} so far
           </span>
         </div>
-        <button className="dg-x" onClick={onClose} aria-label="Close">×</button>
+        <button className="dg-x" onClick={onClose} aria-label="Back to the dojo" title="Back to the dojo">×</button>
       </header>
 
       <div className="dg-body">
@@ -151,7 +154,6 @@ export function DojoGraph({ dojoId, onClose, onOpenAgent }: {
           })}
         </div>
       </div>
-    </div>,
-    document.body,
+    </section>
   )
 }

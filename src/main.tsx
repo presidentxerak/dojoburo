@@ -53,7 +53,11 @@ function Root() {
   if (route === 'connect') return <ConnectorsPage />
   // Dojo City · the isometric map you visit from the dashboard (header · City).
   // Your building grows with the number of Dojos you run; click it to go back in.
-  if (route === 'city') return <DojoCity enterDojo={() => { location.hash = 'app' }} exit={() => { location.hash = 'app' }} />
+  if (route === 'city') {
+    // both doors out of the City land back INSIDE the dojo
+    const toDojo = () => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }
+    return <DojoCity enterDojo={toDojo} exit={toDojo} />
+  }
   // Standalone demo of the portable city-kit (self-contained, no app stores).
   if (route === 'city-kit') return <CityKitDemo />
   return <Landing enter={() => { location.hash = 'app' }} />

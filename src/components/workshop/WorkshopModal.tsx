@@ -194,7 +194,7 @@ function StudioTab() {
       {wizStep === 'dojo' && (
         <section className="sq-panel">
           <h3 className="sq-title">Your dojo</h3>
-          <p className="sq-lead">A dojo is one company workspace with its own world and crew. Pick one, re-theme its environment, rename it, or start another.</p>
+          <p className="sq-lead">A dojo is one team's workspace, with its own 3D world and its own crew. Pick one, re-theme it, rename it, or start another.</p>
           <div className="ws-dojobar">
             <select value={dojo?.id} onChange={(e) => { setActive(e.target.value); setSel(null) }}>
               {dojos.map((d) => (
@@ -223,7 +223,7 @@ function StudioTab() {
             <button className="ws-dojocard ws-dojocard-new" onClick={() => setTplPick('create')}>
               <span className="ws-dojocard-plus">＋</span>
               <strong className="ws-dojocard-name">New dojo</strong>
-              <span className="ws-dojocard-meta">Start another company</span>
+              <span className="ws-dojocard-meta">Start another team</span>
             </button>
           </div>
         </section>
@@ -231,8 +231,8 @@ function StudioTab() {
 
       {wizStep === 'agents' && (
         <section className="sq-panel">
-          <h3 className="sq-title">Place &amp; tune your agents</h3>
-          <p className="sq-lead">Tap an agent, then a cell to move it. Tap a name to edit. On the right, set each one's skin, function, tasks and budget.</p>
+          <h3 className="sq-title">Place &amp; tune your teammates</h3>
+          <p className="sq-lead">Tap a teammate, then a cell to move them. Tap a name to edit. On the right, set their look, their job, what they work on and their budget.</p>
           <div className="ws-cols">
             <div className="ws-gridwrap">
               <div className="ws-grid" style={{ gridTemplateColumns: `repeat(${GRID.cols}, minmax(0, 1fr))` }}>
@@ -278,7 +278,7 @@ function StudioTab() {
       {wizStep === 'save' && (
         <section className="sq-panel">
           <h3 className="sq-title">Review &amp; save</h3>
-          <p className="sq-lead">Your dojo &amp; agent edits are drafts until you validate them.</p>
+          <p className="sq-lead">Your changes are drafts until you validate them.</p>
           <div className="sq-cards3">
             <div className="sq-info"><span className="sq-info-k">Dojo</span><b>{dojo.name}</b></div>
             <div className="sq-info"><span className="sq-info-k">Environment</span><b>{tpl.label}</b></div>

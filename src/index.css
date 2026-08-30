@@ -3413,7 +3413,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 /* When a studio renders a step bar, drop the scroll container's top padding so
    the sticky bar sits flush under the header (top:0 pins to the padding edge). */
 .modhost-body:has(.stepbar) { padding-top: 0 !important; }
-.sb-short { display: none; }
+.stepbar-abbr { display: none; }
 .stepbar-back, .stepbar-next {
   font-family: var(--font-ui); font-weight: 800; font-size: 14px; letter-spacing: 0.06em;
   text-transform: uppercase; padding: 12px 22px; cursor: pointer; border-radius: 0;
@@ -3444,8 +3444,8 @@ input, textarea, select, button { border-radius: 0 !important; }
   .stepbar-step { font-size: 13px; }
   .stepbar-back, .stepbar-next { padding: 10px 12px; font-size: 12px; }
   /* compact buttons on mobile so the step names stay visible */
-  .stepbar .sb-full { display: none; }
-  .stepbar .sb-short { display: inline; }
+  .stepbar .stepbar-lbl { display: none; }
+  .stepbar .stepbar-abbr { display: inline; }
 }
 
 /* ===== Website creation wizard ===== */
@@ -5334,10 +5334,10 @@ html { scroll-behavior: smooth; }
 /* ============ Interactive walkthrough (Dojo Guide) ============ */
 .tut { border: 1px solid var(--border); border-radius: 20px; background: var(--panel-solid, #fff); overflow: hidden; }
 .tut-view { display: grid; grid-template-columns: 1.1fr 1fr; gap: 0; align-items: stretch; }
-.tut-stage { position: relative; display: grid; place-items: center; min-height: 260px; padding: 26px; background: linear-gradient(150deg, color-mix(in srgb, #2f6bff 7%, transparent), color-mix(in srgb, #12b981 7%, transparent)); overflow: hidden; }
+.tut-stage { position: relative; display: grid; place-items: center; min-height: 300px; padding: 30px; background: linear-gradient(150deg, color-mix(in srgb, #2f6bff 7%, transparent), color-mix(in srgb, #12b981 7%, transparent)); overflow: hidden; }
 .tut-txt { display: flex; flex-direction: column; justify-content: center; padding: 26px 28px; }
-.tut-txt h3 { margin: 0 0 8px; font-size: 20px; letter-spacing: -0.01em; }
-.tut-txt p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--muted); }
+.tut-txt h3 { margin: 0 0 10px; font-size: 23px; letter-spacing: -0.015em; line-height: 1.15; }
+.tut-txt p { margin: 0; font-size: 16px; line-height: 1.62; color: var(--muted); }
 
 @keyframes tutIn { from { opacity: 0; transform: translateY(14px) scale(.94) } to { opacity: 1; transform: none } }
 @keyframes tutSlide { 0% { opacity: 0; transform: translateX(-26px) } 55% { opacity: 1; transform: translateX(6px) } 100% { transform: none } }
@@ -5347,43 +5347,49 @@ html { scroll-behavior: smooth; }
 /* 1 · empty pipeline */
 .tut-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 260px; }
 .tut-empty-l { width: 100%; height: 34px; border-radius: 10px; border: 2px dashed color-mix(in srgb, var(--ink) 18%, transparent); }
-.tut-plus { margin-top: 4px; padding: 9px 16px; border: 0; border-radius: 999px; background: linear-gradient(120deg, #2f6bff, #12b981); color: #fff; font: inherit; font-weight: 800; font-size: 13px; animation: tutPulse 1.8s ease-in-out infinite; }
+.tut-plus { margin-top: 6px; padding: 13px 26px; border: 0; border-radius: 999px; background: linear-gradient(120deg, #2f6bff, #12b981); color: #fff; font: inherit; font-weight: 800; font-size: 15.5px; animation: tutPulse 1.8s ease-in-out infinite; }
 
 /* 2 · pick a card */
-.tut-cards { display: flex; gap: 10px; }
-.tut-card { width: 74px; padding: 10px; border-radius: 12px; background: var(--panel-solid, #fff); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; align-items: center; animation: tutIn .4s ease both; }
+.tut-cards { display: flex; gap: 14px; }
+.tut-card { width: 104px; padding: 14px; border-radius: 12px; background: var(--panel-solid, #fff); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; align-items: center; animation: tutIn .4s ease both; }
 .tut-card.pick { border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent); animation: tutSlide .7s ease both, tutPulse 1.6s ease-in-out .7s infinite; }
-.tut-g { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; color: #fff; font-size: 15px; }
-.tut-bar { width: 100%; height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
+.tut-g { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; color: #fff; font-size: 22px; }
+.tut-bar { width: 100%; height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
 .tut-bar.sm { width: 62%; }
 
 /* 3 · crew */
-.tut-crew { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; max-width: 300px; }
-.tut-agent { display: flex; flex-direction: column; align-items: center; gap: 5px; animation: tutPop .45s cubic-bezier(.2,1.3,.4,1) both; }
+.tut-crew { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 20px; justify-items: center; max-width: 340px; }
+.tut-agent { display: flex; flex-direction: column; align-items: center; gap: 2px; animation: tutPop .5s cubic-bezier(.2,1.3,.4,1) both; }
+.tut-3d { width: 132px; height: 132px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 50% 52%, color-mix(in srgb, var(--c) 26%, transparent), transparent 68%); }
+/* The preview brings its own grey plate · in a tutorial we want the character
+   floating on the stage. Note .a3d clips (overflow:hidden), so it must NOT be
+   rounded here or the character's head gets cut off by the mask. */
+.tut-3d .a3d { background: none !important; border-radius: 0 !important; overflow: visible !important; }
+.tut-agent b { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; }
 .tut-face { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 15px; box-shadow: 0 6px 16px -8px var(--c); }
-.tut-agent em { font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.tut-agent em { font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--muted); }
 
 /* 4 · apps */
-.tut-apps { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 230px; }
-.tut-app { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-radius: 10px; background: var(--panel-solid, #fff); border: 1px solid var(--border); font-size: 13px; font-weight: 600; animation: tutSlide .5s ease both; }
-.tut-app-dot { width: 9px; height: 9px; border-radius: 50%; background: #1fa563; box-shadow: 0 0 0 3px color-mix(in srgb, #1fa563 22%, transparent); }
-.tut-app b { margin-left: auto; font-size: 10.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #1fa563; }
+.tut-apps { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 330px; }
+.tut-app { display: flex; align-items: center; gap: 11px; padding: 13px 16px; border-radius: 14px; background: var(--panel-solid, #fff); border: 1px solid var(--border); font-size: 15.5px; font-weight: 700; animation: tutSlide .5s ease both; }
+.tut-app-dot { width: 11px; height: 11px; border-radius: 50%; background: #1fa563; box-shadow: 0 0 0 4px color-mix(in srgb, #1fa563 22%, transparent); }
+.tut-app b { margin-left: auto; font-size: 11.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #1fa563; }
 
 /* 5 · the loop */
-.tut-loop { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; width: 100%; max-width: 250px; }
-.tut-loop li { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-radius: 10px; background: color-mix(in srgb, var(--ink) 6%, transparent); font-size: 13px; font-weight: 600; color: var(--muted); transition: background .3s ease, color .3s ease; }
+.tut-loop { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; width: 100%; max-width: 340px; }
+.tut-loop li { display: flex; align-items: center; gap: 11px; padding: 13px 16px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 6%, transparent); font-size: 15.5px; font-weight: 700; color: var(--muted); transition: background .3s ease, color .3s ease; }
 .tut-loop li.run { background: color-mix(in srgb, #2f6bff 15%, transparent); color: var(--ink); }
 .tut-loop li.done { background: color-mix(in srgb, #1fa563 14%, transparent); color: var(--ink); }
-.tut-loop-i { display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; background: var(--panel-solid, #fff); font-size: 11px; font-weight: 800; }
+.tut-loop-i { display: grid; place-items: center; width: 27px; height: 27px; flex: none; border-radius: 50%; background: var(--panel-solid, #fff); font-size: 13px; font-weight: 800; }
 .tut-loop li.done .tut-loop-i { background: #1fa563; color: #fff; }
 .tut-loop li.run .tut-loop-i { background: #2f6bff; color: #fff; }
 
 /* 6 · deliverables */
-.tut-docs { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-.tut-doc { display: flex; flex-direction: column; gap: 4px; width: 62px; padding: 10px 9px; border-radius: 9px; background: var(--panel-solid, #fff); border: 1px solid var(--border); animation: tutPop .45s cubic-bezier(.2,1.3,.4,1) both; }
-.tut-doc-l { height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 14%, transparent); }
+.tut-docs { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; max-width: 420px; }
+.tut-doc { display: flex; flex-direction: column; gap: 6px; width: 88px; padding: 14px 12px; border-radius: 14px; background: var(--panel-solid, #fff); border: 1px solid var(--border); animation: tutPop .45s cubic-bezier(.2,1.3,.4,1) both; }
+.tut-doc-l { height: 7px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 14%, transparent); }
 .tut-doc-l.sm { width: 60%; }
-.tut-doc em { font-style: normal; font-size: 10px; font-weight: 700; color: var(--muted); margin-top: 3px; text-align: center; }
+.tut-doc em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 3px; text-align: center; }
 
 /* controls */
 .tut-bar-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
@@ -5475,16 +5481,17 @@ html { scroll-behavior: smooth; }
 /* full screen means the stage gets the room · bigger art, bigger words */
 .tutfs-body .tut-stage { min-height: min(58vh, 520px); padding: 34px; }
 .tutfs-body .tut-txt { padding: 34px 38px; }
-.tutfs-body .tut-txt h3 { font-size: clamp(22px, 2.4vw, 30px); margin-bottom: 12px; }
-.tutfs-body .tut-txt p { font-size: 16px; }
+.tutfs-body .tut-txt h3 { font-size: clamp(24px, 2.6vw, 34px); margin-bottom: 14px; }
+.tutfs-body .tut-txt p { font-size: 17.5px; line-height: 1.6; }
 .tutfs-body .tut-bar-row { padding: 14px 20px; }
-.tutfs-body .tut-crew, .tutfs-body .tut-apps, .tutfs-body .tut-loop { max-width: 360px; }
-.tutfs-body .tut-crew { max-width: 400px; gap: 20px; }
-.tutfs-body .tut-face { width: 52px; height: 52px; font-size: 19px; }
-.tutfs-body .tut-agent em { font-size: 13px; }
-.tutfs-body .tut-app, .tutfs-body .tut-loop li { font-size: 14.5px; padding: 12px 15px; }
-.tutfs-body .tut-card { width: 96px; }
-.tutfs-body .tut-doc { width: 82px; }
+.tutfs-body .tut-apps, .tutfs-body .tut-loop { max-width: 400px; }
+.tutfs-body .tut-crew { max-width: 430px; gap: 8px 30px; }
+.tutfs-body .tut-3d { width: 168px; height: 168px; }
+.tutfs-body .tut-agent b { font-size: 17px; }
+.tutfs-body .tut-agent em { font-size: 13.5px; }
+.tutfs-body .tut-app, .tutfs-body .tut-loop li { font-size: 17px; padding: 15px 19px; }
+.tutfs-body .tut-card { width: 128px; }
+.tutfs-body .tut-doc { width: 104px; }
 .tutfs-body .tut-name-lab { font-size: 26px; }
 .tutfs-body .tut-name-field { min-width: 280px; font-size: 19px; padding: 14px 22px; }
 @media (max-width: 860px) { .tutfs-body .tut-stage { min-height: 300px; padding: 22px; } .tutfs-body .tut-txt { padding: 22px; } }
@@ -5498,7 +5505,7 @@ html { scroll-behavior: smooth; }
 
 /* the walkthrough's first beat · the company-name field */
 .tut-name { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.tut-name-lab { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.tut-name-lab { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
 .tut-name-field {
   display: inline-flex; align-items: center; gap: 2px; min-width: 220px; justify-content: center;
   padding: 11px 18px; border: 1px solid var(--border); border-radius: 12px;
@@ -5689,10 +5696,10 @@ html { scroll-behavior: smooth; }
 .tut-budget-n { font-family: var(--font-pixel); font-weight: 800; font-size: 44px; line-height: 1; display: flex; align-items: baseline; gap: 8px; }
 .tut-budget-n em { font-family: var(--font-ui); font-style: normal; font-size: 14px; font-weight: 700; color: var(--muted); }
 .tut-budget-sub { font-size: 13px; color: var(--muted); }
-.tut-bill { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 300px; }
-.tut-bill-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; background: var(--panel-solid, #fff); border: 1px solid var(--border); animation: tutSlide .5s ease both; }
-.tut-bill-row em { font-style: normal; font-size: 14px; color: var(--muted); }
-.tut-bill-row b { font-size: 14px; font-weight: 800; color: var(--ink); }
+.tut-bill { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 380px; }
+.tut-bill-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-radius: 14px; background: var(--panel-solid, #fff); border: 1px solid var(--border); animation: tutSlide .5s ease both; }
+.tut-bill-row em { font-style: normal; font-size: 15.5px; color: var(--muted); }
+.tut-bill-row b { font-size: 15.5px; font-weight: 800; color: var(--ink); }
 
 /* the first two steps own the whole screen · no bottom nav under them */
 .home-create .home-main, .home-choose .home-main { padding-bottom: 0; }
@@ -5880,8 +5887,9 @@ html { scroll-behavior: smooth; }
   transition: background .14s ease, color .14s ease;
 }
 .dojo-ctl button:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
-.dojo-ctl-graph { background: var(--ink) !important; color: var(--panel-solid, #fff) !important; }
-.dojo-ctl-graph:hover { filter: brightness(1.2); }
+/* a mode, not an action · dark only while the graph is on screen */
+.dojo-ctl-graph.on { background: var(--ink); color: var(--panel-solid, #fff); }
+.dojo-ctl-graph.on:hover { background: var(--ink); filter: brightness(1.2); }
 
 /* ---- the team tab bar · sticky under the header ---------------------- */
 .dtabs {
@@ -5906,8 +5914,10 @@ html { scroll-behavior: smooth; }
 /* =====================================================================
    Graph mode · the team and their apps, as cards
    ===================================================================== */
-.dg { position: fixed; inset: 0; z-index: 12000; display: flex; flex-direction: column; background: var(--bg); animation: sbpop .18s ease-out; }
-.dg-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--panel-solid, #fff); }
+/* graph mode lives INSIDE the dojo area · the header and the team tabs stay
+   on top of it, so the Graph button can turn it off again */
+.dg { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--bg); animation: sbpop .18s ease-out; }
+.dg-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--panel-solid, #fff); }
 .dg-head strong { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 20px; }
 .dg-head span { display: block; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
 .dg-x { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50% !important; background: none; color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; }
@@ -5964,4 +5974,28 @@ html { scroll-behavior: smooth; }
   .dg-grid { grid-template-columns: 1fr; }
   .dg-head { padding: 12px 14px; }
   .dg-head strong { font-size: 17px; }
+}
+
+/* =====================================================================
+   Dojo settings · one readable column.
+   The heading, the dojo bar and the grid were each finding their own
+   width, so a 3-up grid sat centred inside a much wider page with a
+   ragged gutter on the left. They now share one measure.
+   ===================================================================== */
+.studio-page-scroll .ws-studio { max-width: 1040px; }
+.ws-studio .sq-panel { width: 100%; }
+.ws-dojogrid {
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  max-width: none; margin: 18px 0 0; align-items: start;
+}
+.ws-dojocard-name { font-size: 15.5px; line-height: 1.25; }
+.ws-dojocard-meta { font-size: 12.5px; color: var(--muted); }
+/* the step bar is a wizard, not a page header · keep it quiet */
+.stepbar { margin-inline: 0; border-radius: 0; }
+.stepbar-next { font-size: 13px; padding: 11px 20px; }
+.stepbar-back { font-size: 13px; padding: 11px 20px; }
+
+@media (max-width: 720px) {
+  .ws-dojogrid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px; }
+  .stepbar { gap: 8px; }
 }

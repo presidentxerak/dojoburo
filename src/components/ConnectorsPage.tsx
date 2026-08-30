@@ -41,6 +41,8 @@ export function ConnectorsPage() {
 
   // the "How to?" walkthrough · connecting apps, and what it costs on top
   const [howTo, setHowTo] = useState(false)
+  // leaving lands back INSIDE the dojo, not on the app's create card
+  const backToDojo = () => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }
 
   useEffect(() => { if (!loadedOnce) void loadTools() }, [loadedOnce, loadTools])
 
@@ -61,7 +63,7 @@ export function ConnectorsPage() {
             </p>
             <button type="button" className="howto-btn" onClick={() => setHowTo(true)}>How to? · and what it costs</button>
           </div>
-          <button className="ws-x" onClick={() => { location.hash = 'app' }} aria-label="Back to dojo">×</button>
+          <button className="ws-x" onClick={backToDojo} aria-label="Back to dojo">×</button>
         </header>
 
         {howTo && <TutorialOverlay walk="apps" onClose={() => setHowTo(false)} />}

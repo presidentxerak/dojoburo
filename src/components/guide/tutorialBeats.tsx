@@ -9,6 +9,8 @@
 //   teams    · what a dojo team is and how you choose them
 //   apps     · connecting your apps, and what it costs on top of your plan
 import { useEffect, useState } from 'react'
+import { Agent3DPreview } from '../three/Agent3DPreview'
+import { skinById } from '../../data/skins'
 
 export interface Beat { id: string; title: string; body: string }
 
@@ -73,9 +75,12 @@ export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }
 // ---------------------------------------------------------------------------
 // the animated stages · one per beat id
 // ---------------------------------------------------------------------------
+// the crew beat shows the real 3D teammates, not initials in circles
 const CREW = [
-  { n: 'Scout', t: '#0ea5e9' }, { n: 'Marketus', t: '#e0459b' },
-  { n: 'Busino', t: '#1fa563' }, { n: 'Deck', t: '#f59e0b' }, { n: 'Chief', t: '#7b5cff' },
+  { n: 'Scout', r: 'Research', t: '#0ea5e9', skin: 'forest-dragon' },
+  { n: 'Marketus', r: 'Marketer', t: '#e0459b', skin: 'space-ghost' },
+  { n: 'Busino', r: 'Analyst', t: '#1fa563', skin: 'retro-frog' },
+  { n: 'Chief', r: 'Team lead', t: '#7b5cff', skin: 'space-bibendum' },
 ]
 const APPS = ['Notion', 'Instagram', 'Gmail', 'Drive']
 const STEPS = ['Audience research', 'Content plan', 'Creatives', 'Campaign brief']
@@ -134,9 +139,10 @@ export function Stage({ beat }: { beat: string }) {
       <div className="tut-stage">
         <div className="tut-crew">
           {CREW.map((c, i) => (
-            <span key={c.n} className="tut-agent" style={{ ['--c' as string]: c.t, animationDelay: `${i * 130}ms` }}>
-              <span className="tut-face" style={{ background: c.t }}>{c.n[0]}</span>
-              <em>{c.n}</em>
+            <span key={c.n} className="tut-agent" style={{ ['--c' as string]: c.t, animationDelay: `${i * 160}ms` }}>
+              <span className="tut-3d"><Agent3DPreview id={c.skin} character={skinById(c.skin)} size={132} phase={i * 0.7} dist={3.4} lift={-1.5} /></span>
+              <b>{c.n}</b>
+              <em>{c.r}</em>
             </span>
           ))}
         </div>

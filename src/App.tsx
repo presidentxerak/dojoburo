@@ -91,8 +91,11 @@ export default function App() {
   useEffect(() => {
     let intent: string | null = null
     try { intent = sessionStorage.getItem('dojoburo.nav'); if (intent) sessionStorage.removeItem('dojoburo.nav') } catch { /* ignore */ }
-    if (intent === 'dashboard') { useDojo.getState().selectAgent(null); setDojoFull(false) }
-    else if (intent === 'dojo') { useDojo.getState().selectAgent(null); setDojoFull(true) }
+    // Coming back from a full-page surface (dojo settings, connect apps, the
+    // city…) must land back INSIDE the dojo, not on the create card, which is
+    // what the home shows by default.
+    if (intent === 'dashboard') { useDojo.getState().selectAgent(null); setView('dojo'); setDojoFull(false) }
+    else if (intent === 'dojo') { useDojo.getState().selectAgent(null); setView('dojo'); setDojoFull(true) }
     else if (intent === 'studio') useWork.getState().openStudio('studio')
   }, [])
 
@@ -142,13 +145,22 @@ export default function App() {
     )
   }
 
-  // the dojo's controls live in the middle of the header, on a transparent bar
+  // The dojo's controls, centred on the transparent header. Graph mode is a
+  // MODE, not an action, so it is only highlighted while the graph is actually
+  // open — the default is the dojo itself.
   const dojoControls = (
     <nav className="dojo-ctl" aria-label="Dojo">
       <button onClick={() => { selectAgent(null); setView('home') }} title="Back to your project">Project</button>
       <button onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Manage team</button>
       <button onClick={() => useWork.getState().openStudio('studio')} title="Dojo settings">Dojo settings</button>
-      <button className="dojo-ctl-graph" onClick={() => setGraphOpen(true)} title="See the team and their apps as a graph">Graph mode</button>
+      <button
+        className={`dojo-ctl-graph${graphOpen ? ' on' : ''}`}
+        aria-pressed={graphOpen}
+        onClick={() => setGraphOpen((v) => !v)}
+        title="See the team and their apps as a graph"
+      >
+        Graph mode
+      </button>
     </nav>
   )
 
@@ -161,9 +173,17 @@ export default function App() {
       <DojoTabs onOpen={() => { selectAgent(null); setDojoFull(true) }} />
 
       <div className="dash-main">
-        <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
-          <div className="scene-bg"><Scene3D /></div>
-        </div>
+        {graphOpen && activeDojoId ? (
+          <DojoGraph
+            dojoId={activeDojoId}
+            onClose={() => setGraphOpen(false)}
+            onOpenAgent={(id) => { setGraphOpen(false); selectAgent(id); setDojoFull(false) }}
+          />
+        ) : (
+          <div className={`dash-stage${dojoFull ? ' full' : ''}`}>
+            <div className="scene-bg"><Scene3D /></div>
+          </div>
+        )}
 
         {!dojoFull && (
           <div className="dash-side">
@@ -183,14 +203,6 @@ export default function App() {
             <ArrangeGrid />
           </div>
         </div>
-      )}
-
-      {graphOpen && activeDojoId && (
-        <DojoGraph
-          dojoId={activeDojoId}
-          onClose={() => setGraphOpen(false)}
-          onOpenAgent={(id) => { selectAgent(id); setDojoFull(false) }}
-        />
       )}
 
       <OutboundConsentModal />

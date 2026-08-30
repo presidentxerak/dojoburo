@@ -35,7 +35,7 @@ function GuideShell({ children, inApp }: { children: React.ReactNode; inApp?: bo
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
         <nav className="lp-foot-links">
           {inApp
-            ? <><button className="dg-foot-link" onClick={() => { location.hash = 'app' }}>Back to dojo</button><button className="dg-foot-link" onClick={() => { location.hash = 'connect' }}>Connect</button></>
+            ? <><button className="dg-foot-link" onClick={() => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }}>Back to dojo</button><button className="dg-foot-link" onClick={() => { location.hash = 'connect' }}>Connect</button></>
             : <><a href="/">Home</a><a href="/guide">Guide</a><a href="/#stack">Connect</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a></>}
         </nav>
       </footer>
