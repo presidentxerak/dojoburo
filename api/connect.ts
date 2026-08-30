@@ -11,13 +11,13 @@
 // applied, CONNECTOR_ENC_KEY set, and each tool's OAuth client id/secret set.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createHmac, createHash, randomBytes } from 'node:crypto'
-import { getPool, dbConfigured } from './_lib/db'
-import { resolveAccountId, findAccountId } from './_lib/accounts'
-import { seal, vaultConfigured } from './_lib/vault'
+import { getPool, dbConfigured } from './_lib/db.js'
+import { resolveAccountId, findAccountId } from './_lib/accounts.js'
+import { seal, vaultConfigured } from './_lib/vault.js'
 import {
   serverConnector, connectorAvailable, clientId, clientSecret, redirectUri, siteUrl,
   CONNECTOR_IDS, type ServerConnector,
-} from './_lib/connectors'
+} from './_lib/connectors.js'
 
 export const config = { maxDuration: 20 }
 

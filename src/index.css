@@ -5439,7 +5439,11 @@ html { scroll-behavior: smooth; }
    further down the page, so the first screen asks exactly one question.
    ===================================================================== */
 .lp-hero-min { padding-top: 64px; padding-bottom: 8px; }
-.lp-hero-min h1 { margin-bottom: 30px; }
+.lp-hero-min h1 { margin-bottom: 18px; }
+.lp-hero-sub {
+  max-width: 52ch; margin: 0 auto 30px; font-size: clamp(16px, 2vw, 20px); line-height: 1.5;
+  color: var(--muted); text-wrap: balance;
+}
 .lp-hero-acts { display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .lp-hero-go {
   padding: 20px 46px; border: 0; border-radius: 999px; font: inherit; font-weight: 900;
@@ -5525,6 +5529,7 @@ html { scroll-behavior: smooth; }
 
 @media (max-width: 720px) {
   .lp-hero-min { padding-top: 40px; }
+  .lp-hero-sub { font-size: 16px; margin-bottom: 24px; }
   .lp-hero-go { width: 100%; max-width: 340px; padding: 18px 24px; }
   .tutfs-body { padding: 12px; }
 }

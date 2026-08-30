@@ -10,9 +10,9 @@
 // sees the name and a short masked preview. Requires DATABASE_URL,
 // CONNECTOR_ENC_KEY, and db/secrets.sql applied.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { getPool, dbConfigured } from './_lib/db'
-import { resolveAccountId, findAccountId } from './_lib/accounts'
-import { seal, vaultConfigured } from './_lib/vault'
+import { getPool, dbConfigured } from './_lib/db.js'
+import { resolveAccountId, findAccountId } from './_lib/accounts.js'
+import { seal, vaultConfigured } from './_lib/vault.js'
 
 export const config = { maxDuration: 15 }
 

@@ -8,7 +8,7 @@
 // ELEVENLABS_API_KEY env var as a fallback. The target host is fixed, so there
 // is no SSRF surface — only origin-lock + rate-limit for abuse control.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { originAllowed } from './_lib/origin'
+import { originAllowed } from './_lib/origin.js'
 
 export const config = { maxDuration: 30 }
 

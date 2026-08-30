@@ -3,8 +3,8 @@
 // table; this returns the decrypted access token for making a provider API call
 // on the user's behalf (e.g. send a Gmail). Returns null when not connected.
 import type { Pool } from 'pg'
-import { open, seal } from './vault'
-import { serverConnector, refreshOAuthToken } from './connectors'
+import { open, seal } from './vault.js'
+import { serverConnector, refreshOAuthToken } from './connectors.js'
 
 export interface ConnToken { token: string; external: string | null }
 

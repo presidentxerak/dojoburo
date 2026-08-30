@@ -2,8 +2,12 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    // The API runs as real ESM on Vercel (package.json has "type":"module"),
+    // so type-check the way Node actually resolves: relative imports MUST carry
+    // a .js extension. `bundler` silently accepted extensionless ones and every
+    // route that imported _lib/ 500ed in production with ERR_MODULE_NOT_FOUND.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "types": ["node"],
     "skipLibCheck": true,
     "resolveJsonModule": true,

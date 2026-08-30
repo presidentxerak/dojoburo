@@ -13,10 +13,10 @@
 // everyone else just learns Stripe is connected.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createSign } from 'node:crypto'
-import { getPool, dbConfigured } from './_lib/db'
-import { vaultConfigured } from './_lib/vault'
-import { findAccountId } from './_lib/accounts'
-import { connectionToken } from './_lib/connections'
+import { getPool, dbConfigured } from './_lib/db.js'
+import { vaultConfigured } from './_lib/vault.js'
+import { findAccountId } from './_lib/accounts.js'
+import { connectionToken } from './_lib/connections.js'
 
 export const config = { maxDuration: 15 }
 

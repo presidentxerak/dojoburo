@@ -8,8 +8,8 @@
 // When SETTLEMENT_WALLET_SEED is unset it returns { ok:false, error:'not_configured' }
 // and the app falls back to its client-side (Testnet) path — nothing breaks.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle'
-import { originAllowed } from './_lib/origin'
+import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle.js'
+import { originAllowed } from './_lib/origin.js'
 
 export const config = { maxDuration: 30 }
 

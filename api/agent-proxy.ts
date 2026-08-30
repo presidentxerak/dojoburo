@@ -12,7 +12,7 @@
 // as tools inside agent-run instead; here `verify` just confirms MCP init.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { lookup } from 'node:dns/promises'
-import { originAllowed } from './_lib/origin'
+import { originAllowed } from './_lib/origin.js'
 
 export const config = { maxDuration: 30 }
 

@@ -15,10 +15,10 @@
 // pending on-ledger payout is re-attempted (also drainable by api/settle-pending).
 
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { verifyStripeEvent } from './_lib/stripe'
-import { getPool, dbConfigured } from './_lib/db'
-import { fiatToXrp } from './_lib/fx'
-import { settlementConfigured, settleX402 } from './_lib/settle'
+import { verifyStripeEvent } from './_lib/stripe.js'
+import { getPool, dbConfigured } from './_lib/db.js'
+import { fiatToXrp } from './_lib/fx.js'
+import { settlementConfigured, settleX402 } from './_lib/settle.js'
 
 export const config = { maxDuration: 30 }
 

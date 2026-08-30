@@ -5,7 +5,7 @@
 // available; a 200 means the domain is registered → taken. Runs server-side so
 // there is no CSP / redirect problem for the browser, and no key to manage.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { originAllowed } from './_lib/origin'
+import { originAllowed } from './_lib/origin.js'
 
 export const config = { maxDuration: 20 }
 

@@ -31,7 +31,11 @@ export function CreateCompany({ onCreate, onOpenExisting, existingCount }: {
     <div className="cc">
       <form className="cc-card" onSubmit={submit}>
         <h1>Create your project</h1>
-        <p className="cc-sub">Give it a name. That is the whole setup.</p>
+        <p className="cc-sub">
+          {existingCount
+            ? <>You are working on <b>{projectName.trim() || 'your project'}</b> · rename it here, or add more teams to it.</>
+            : <>Give it a name. That is the whole setup.</>}
+        </p>
 
         <input
           className="cc-input"

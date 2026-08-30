@@ -57,6 +57,10 @@ export function Landing({ enter }: { enter: () => void }) {
           way to watch how it works. Everything else lives further down. */}
       <section className="lp-hero lp-hero-min">
         <h1>Your projects <span className="hl-acid">automator</span></h1>
+        <p className="lp-hero-sub">
+          Forget complex software for creating your projects! Dojoburo makes agent creation simple,
+          so you can build and launch your projects from start to finish.
+        </p>
         <div className="lp-hero-acts">
           <button className="lp-hero-go lp-cta-create" onClick={enter}>Create your dojo teams</button>
           <button className="lp-hero-how" onClick={() => setHowTo(true)}>How to?</button>

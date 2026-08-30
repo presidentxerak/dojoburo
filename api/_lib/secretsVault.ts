@@ -3,8 +3,8 @@
 // so a task can use them; listSecretNames() returns only the NAMES, which are
 // safe to surface to the model so it knows which credentials exist.
 import type { Pool } from 'pg'
-import { open, vaultConfigured } from './vault'
-import { dbConfigured } from './db'
+import { open, vaultConfigured } from './vault.js'
+import { dbConfigured } from './db.js'
 
 /** Decrypt all of a company's secrets → { NAME: value }. Server-side only. */
 export async function loadSecretEnv(pool: Pool, accountId: string, dojoId: string): Promise<Record<string, string>> {

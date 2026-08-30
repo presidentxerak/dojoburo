@@ -16,16 +16,16 @@
 // Gated by ANTHROPIC_API_KEY → without it, returns { ok:false, error:'not_configured' }
 // and the app keeps working with its built-in (non-LLM) skill animations.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { serverWorkTask, type ServerWorkTask } from './_lib/worktasks'
-import { getPool, dbConfigured } from './_lib/db'
-import { findAccountId } from './_lib/accounts'
-import { listSecretNames } from './_lib/secretsVault'
-import { open, seal, vaultConfigured } from './_lib/vault'
-import { connectorAvailable, serverConnector, refreshOAuthToken } from './_lib/connectors'
-import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle'
-import { cascadeComplete, freeCascadeConfigured } from './_lib/llm'
-import { originAllowed } from './_lib/origin'
-import { hardenSystem, sanitizeUntrusted } from './_lib/guard'
+import { serverWorkTask, type ServerWorkTask } from './_lib/worktasks.js'
+import { getPool, dbConfigured } from './_lib/db.js'
+import { findAccountId } from './_lib/accounts.js'
+import { listSecretNames } from './_lib/secretsVault.js'
+import { open, seal, vaultConfigured } from './_lib/vault.js'
+import { connectorAvailable, serverConnector, refreshOAuthToken } from './_lib/connectors.js'
+import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle.js'
+import { cascadeComplete, freeCascadeConfigured } from './_lib/llm.js'
+import { originAllowed } from './_lib/origin.js'
+import { hardenSystem, sanitizeUntrusted } from './_lib/guard.js'
 
 export const config = { maxDuration: 60 }
 

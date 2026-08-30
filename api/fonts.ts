@@ -8,7 +8,7 @@
 // site CSP does not allow). If no key is configured the client keeps using its
 // built-in curated list, so the feature degrades gracefully.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { originAllowed } from './_lib/origin'
+import { originAllowed } from './_lib/origin.js'
 
 export const config = { maxDuration: 15 }
 

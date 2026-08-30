@@ -5,8 +5,8 @@
 // Wire as a Vercel Cron (see vercel.json). Protected by CRON_SECRET: Vercel
 // sends `Authorization: Bearer $CRON_SECRET` on scheduled invocations.
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { getPool, dbConfigured } from './_lib/db'
-import { settlementConfigured, settleX402 } from './_lib/settle'
+import { getPool, dbConfigured } from './_lib/db.js'
+import { settlementConfigured, settleX402 } from './_lib/settle.js'
 
 export const config = { maxDuration: 60 }
 
