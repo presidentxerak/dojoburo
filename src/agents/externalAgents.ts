@@ -4,6 +4,7 @@
 // keeps auth tokens off the wire · exactly like the connector vault.
 import { useWorkshop } from '../workshop'
 import type { ExtAgent } from '../workshop'
+import { apiFetch } from '../lib/apiFetch'
 
 function ref(): { privy?: string; client?: string } {
   const acc = useWorkshop.getState().account
@@ -30,7 +31,7 @@ export interface CallResult {
 /** Reachability + identity check for an external agent (A2A card or MCP init). */
 export async function verifyExternalAgent(a: Pick<ExtAgent, 'protocol' | 'url' | 'authToken'>): Promise<VerifyResult> {
   try {
-    const res = await fetch('/api/agent-proxy', {
+    const res = await apiFetch('/api/agent-proxy', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ action: 'verify', protocol: a.protocol, url: a.url, authToken: a.authToken, ...ref() }),
@@ -46,7 +47,7 @@ export async function verifyExternalAgent(a: Pick<ExtAgent, 'protocol' | 'url' |
 /** Delegate a task to an external A2A / webhook agent and return its reply text. */
 export async function delegateToAgent(a: Pick<ExtAgent, 'protocol' | 'url' | 'authToken'>, task: string): Promise<CallResult> {
   try {
-    const res = await fetch('/api/agent-proxy', {
+    const res = await apiFetch('/api/agent-proxy', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ action: 'call', protocol: a.protocol, url: a.url, authToken: a.authToken, task, ...ref() }),

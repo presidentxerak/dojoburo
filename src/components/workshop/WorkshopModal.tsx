@@ -23,6 +23,7 @@ import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { TopBar } from '../TopBar'
 import { PageBar } from '../PageBar'
 import { StepBar } from '../../modules/StepBar'
+import { apiFetch } from '../../lib/apiFetch'
 
 type Tab = 'studio' | 'account' | 'billing'
 
@@ -848,7 +849,7 @@ function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode
     try {
       // deliver the settled XRP to the user's own treasury wallet when they have one
       const treasury = getStoredWallet(loadNetworkId(), 'treasury')
-      const res = await fetch('/api/checkout', {
+      const res = await apiFetch('/api/checkout', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ amount, currency, email, kind: 'credits', privyDid, xrplAddress: treasury?.address }),

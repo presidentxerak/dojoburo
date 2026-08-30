@@ -4,6 +4,10 @@
 export const privyControls: {
   login?: () => void
   logout?: () => void
+  /** The signed-in user's Privy access token · this is what proves to the API
+   *  that a request really belongs to this account. Undefined until the Privy
+   *  bridge mounts, and it resolves to null when nobody is signed in. */
+  getAccessToken?: () => Promise<string | null>
   ready: boolean
 } = { ready: false }
 

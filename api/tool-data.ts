@@ -17,6 +17,7 @@ import { getPool, dbConfigured } from './_lib/db.js'
 import { vaultConfigured } from './_lib/vault.js'
 import { findAccountId } from './_lib/accounts.js'
 import { connectionToken } from './_lib/connections.js'
+import { callerRef } from './_lib/authz.js'
 
 export const config = { maxDuration: 15 }
 
@@ -31,6 +32,19 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const connector = (url.searchParams.get('connector') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40)
     const provider = PROVIDERS[connector]
     if (!provider) return json(res, 200, { ok: true, connected: false, error: 'unknown_connector' })
+
+    // WHO is asking · this endpoint hands back real data out of the caller's
+    // connected accounts, so the identity has to be proven, not claimed. The
+    // query string is rewritten with the VERIFIED identity before any provider
+    // sees it — every provider below reads ?privy/?client, and this is the only
+    // place those values can be set.
+    const who = await callerRef(req, { privy: url.searchParams.get('privy'), client: url.searchParams.get('client') })
+    if (!who) return json(res, 401, { ok: false, connected: false, error: 'auth' })
+    url.searchParams.delete('privy')
+    url.searchParams.delete('client')
+    if (who.privyDid) url.searchParams.set('privy', who.privyDid)
+    if (who.clientRef) url.searchParams.set('client', who.clientRef)
+
     const data = await provider(url.searchParams)
     return json(res, 200, { ok: true, ...data })
   } catch (e) {

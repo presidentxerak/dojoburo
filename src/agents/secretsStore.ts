@@ -22,6 +22,8 @@ interface SecretsState {
   byDojo: Record<string, Secret[]>
   add: (dojoId: string, key: string, value: string, desc: string) => void
   remove: (dojoId: string, id: string) => void
+  /** Wipe every locally-held value · called on sign-out. */
+  clearAll: () => void
 }
 
 function load(): Record<string, Secret[]> {
@@ -46,6 +48,14 @@ export const useSecrets = create<SecretsState>((set, get) => {
     remove: (dojoId, id) => {
       const byDojo = { ...get().byDojo, [dojoId]: (get().byDojo[dojoId] ?? []).filter((s) => s.id !== id) }
       set({ byDojo }); persist(byDojo)
+    },
+    // When there is no encrypted vault these values sit in localStorage in the
+    // clear (the panel says so). Signing out has to actually remove them —
+    // leaving a pasted key behind on a shared machine is exactly what someone
+    // signing out is trying to avoid.
+    clearAll: () => {
+      set({ byDojo: {} })
+      try { localStorage.removeItem(KEY) } catch { /* ignore */ }
     },
   }
 })

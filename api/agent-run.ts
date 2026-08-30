@@ -26,6 +26,7 @@ import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/sett
 import { cascadeComplete, freeCascadeConfigured } from './_lib/llm.js'
 import { originAllowed } from './_lib/origin.js'
 import { hardenSystem, sanitizeUntrusted } from './_lib/guard.js'
+import { callerRef } from './_lib/authz.js'
 
 export const config = { maxDuration: 60 }
 
@@ -78,9 +79,17 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const brief = sanitizeUntrusted(body?.brief || '', 800)
   const startup = sanitizeUntrusted(body?.startup || '', 200)
   const net = String(body?.net || 'testnet')
-  const ref = { privy: body?.privy as string | undefined, client: body?.client as string | undefined }
-  const email = String(body?.email || '').trim().toLowerCase()
-  const isAdmin = !!email && ADMIN_EMAILS.includes(email)
+  // WHO is running this · the run reads the caller's stored Claude key, their
+  // connected apps and their secret NAMES, so the identity is proven here once
+  // and every helper below is handed the verified ref. A request that claims a
+  // DID it cannot prove never gets past this line.
+  const who = await callerRef(req, { privy: body?.privy, client: body?.client })
+  if (!who) return send(res, 401, { ok: false, error: 'auth' })
+  const ref = { privy: who.privyDid || undefined, client: who.clientRef || undefined }
+  // Operator privileges are read from the ACCOUNT, never from the request. This
+  // used to trust body.email: posting the operator's own address unlocked their
+  // Claude key for anyone who sent it, and that address is in the source.
+  const isAdmin = await accountIsAdmin(ref)
   // admin can spend the operator's Claude key even if WORK_OPERATOR_CLAUDE is off
   const operatorClaude = OPERATOR_CLAUDE || isAdmin
   const dojoId = String(body?.dojo || '').slice(0, 80)
@@ -225,6 +234,22 @@ async function loadSecretNames(ref: { privy?: string; client?: string }, dojoId:
     return await listSecretNames(pool, accountId, dojoId)
   } catch {
     return []
+  }
+}
+
+// Is the VERIFIED caller an operator? The email is read from their stored
+// account row (written by the payment webhook), so it cannot be self-assigned.
+async function accountIsAdmin(ref: { privy?: string; client?: string }): Promise<boolean> {
+  if (!ADMIN_EMAILS.length || !dbConfigured()) return false
+  try {
+    const pool = getPool()
+    const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
+    if (!accountId) return false
+    const r = await pool.query('select email from accounts where id = $1', [accountId])
+    const email = String(r.rows[0]?.email || '').trim().toLowerCase()
+    return !!email && ADMIN_EMAILS.includes(email)
+  } catch {
+    return false
   }
 }
 

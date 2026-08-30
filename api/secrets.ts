@@ -13,6 +13,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { getPool, dbConfigured } from './_lib/db.js'
 import { resolveAccountId, findAccountId } from './_lib/accounts.js'
 import { seal, vaultConfigured } from './_lib/vault.js'
+import { callerRef } from './_lib/authz.js'
 
 export const config = { maxDuration: 15 }
 
@@ -40,11 +41,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   }
 }
 
-async function list(_req: IncomingMessage, res: ServerResponse, q: URLSearchParams): Promise<void> {
+async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParams): Promise<void> {
   const dojo = String(q.get('dojo') || '').slice(0, 80)
   try {
     const pool = getPool()
-    const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+    const who = await callerRef(req, { privy: q.get('privy'), client: q.get('client') })
+    if (!who) return json(res, 401, { ok: false, error: 'auth' })
+    const accountId = await findAccountId(pool, who)
     if (!accountId || !dojo) return json(res, 200, { ok: true, secrets: [] })
     const r = await pool.query(
       `select id, name, preview, description, updated_at
@@ -73,7 +76,9 @@ async function save(req: IncomingMessage, res: ServerResponse): Promise<void> {
 
   try {
     const pool = getPool()
-    const accountId = await resolveAccountId(pool, { privyDid: body?.privy || null, clientRef: body?.client || null })
+    const who = await callerRef(req, { privy: body?.privy, client: body?.client })
+    if (!who) return json(res, 401, { ok: false, error: 'auth' })
+    const accountId = await resolveAccountId(pool, who)
     if (!accountId) return json(res, 200, { ok: false, error: 'no_account' })
     const preview = previewOf(value)
     const r = await pool.query(
@@ -101,7 +106,9 @@ async function remove(req: IncomingMessage, res: ServerResponse): Promise<void> 
   if (!id) return json(res, 200, { ok: false, error: 'bad_input' })
   try {
     const pool = getPool()
-    const accountId = await findAccountId(pool, { privyDid: body?.privy, clientRef: body?.client })
+    const who = await callerRef(req, { privy: body?.privy, client: body?.client })
+    if (!who) return json(res, 401, { ok: false, error: 'auth' })
+    const accountId = await findAccountId(pool, who)
     if (accountId) await pool.query(`delete from company_secrets where id = $1 and account_id = $2 and dojo_id = $3`, [id, accountId, dojo])
     return json(res, 200, { ok: true })
   } catch {

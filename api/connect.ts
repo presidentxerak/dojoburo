@@ -14,6 +14,7 @@ import { createHmac, createHash, randomBytes } from 'node:crypto'
 import { getPool, dbConfigured } from './_lib/db.js'
 import { resolveAccountId, findAccountId } from './_lib/accounts.js'
 import { seal, vaultConfigured } from './_lib/vault.js'
+import { callerRef } from './_lib/authz.js'
 import {
   serverConnector, connectorAvailable, clientId, clientSecret, redirectUri, siteUrl,
   CONNECTOR_IDS, type ServerConnector,
@@ -44,7 +45,9 @@ async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParam
   if (dbConfigured() && vaultConfigured()) {
     try {
       const pool = getPool()
-      const accountId = await findAccountId(pool, { privyDid: q.get('privy'), clientRef: q.get('client') })
+      const who = await callerRef(req, { privy: q.get('privy'), client: q.get('client') })
+      if (!who) return json(res, 401, { ok: false, error: 'auth' })
+      const accountId = await findAccountId(pool, who)
       if (accountId) {
         const r = await pool.query(`select connector_id, external_account, status from connections where account_id = $1`, [accountId])
         for (const row of r.rows) connected[row.connector_id] = { external_account: row.external_account, status: row.status }
@@ -150,7 +153,9 @@ async function disconnect(req: IncomingMessage, res: ServerResponse): Promise<vo
   if (!serverConnector(id)) return json(res, 404, { ok: false, error: 'unknown_connector' })
   try {
     const pool = getPool()
-    const accountId = await findAccountId(pool, { privyDid: body?.privy, clientRef: body?.client })
+    const who = await callerRef(req, { privy: body?.privy, client: body?.client })
+    if (!who) return json(res, 401, { ok: false, error: 'auth' })
+    const accountId = await findAccountId(pool, who)
     if (accountId) await pool.query(`delete from connections where account_id = $1 and connector_id = $2`, [accountId, id])
     return json(res, 200, { ok: true })
   } catch {
@@ -172,7 +177,9 @@ async function setkey(req: IncomingMessage, res: ServerResponse): Promise<void> 
   if (!/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(raw)) return json(res, 200, { ok: false, error: 'bad_key' })
   try {
     const pool = getPool()
-    const accountId = await resolveAccountId(pool, { privyDid: body?.privy || null, clientRef: body?.client || null })
+    const who = await callerRef(req, { privy: body?.privy, client: body?.client })
+    if (!who) return json(res, 401, { ok: false, error: 'auth' })
+    const accountId = await resolveAccountId(pool, who)
     if (!accountId) return json(res, 200, { ok: false, error: 'no_account' })
     const hint = `sk-ant-…${raw.slice(-4)}`
     await pool.query(
@@ -199,7 +206,9 @@ async function removekey(req: IncomingMessage, res: ServerResponse): Promise<voi
   }
   try {
     const pool = getPool()
-    const accountId = await findAccountId(pool, { privyDid: body?.privy, clientRef: body?.client })
+    const who = await callerRef(req, { privy: body?.privy, client: body?.client })
+    if (!who) return json(res, 401, { ok: false, error: 'auth' })
+    const accountId = await findAccountId(pool, who)
     if (accountId) await pool.query(`delete from connections where account_id = $1 and connector_id = 'anthropic'`, [accountId])
     return json(res, 200, { ok: true })
   } catch {

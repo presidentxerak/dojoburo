@@ -5,6 +5,7 @@ import { useWorkshop, type ExtAgent } from '../workshop'
 import { useDojo } from '../store'
 import { ensureOutbound } from './outboundConsent'
 import { CONNECTOR_BY_ID } from '../data/connectors'
+import { apiFetch } from '../lib/apiFetch'
 
 // Action verbs that leave your org (send an email, post/broadcast, reply). These
 // are gated by a one-time user confirmation (see outboundConsent).
@@ -18,11 +19,13 @@ export interface ToolStatus {
   account: string | null
 }
 
-function ref(): { privy?: string; client?: string; email?: string } {
+function ref(): { privy?: string; client?: string } {
   const acc = useWorkshop.getState().account
-  // email lets the server recognise an admin/operator account (unlimited free
-  // testing). Only used in JSON bodies; never added to query strings.
-  return { privy: acc?.privyDid || undefined, client: acc?.id || undefined, email: acc?.email || undefined }
+  // Identity only. The email used to be sent so the server could recognise an
+  // operator account — but a client-supplied email is a claim, not a fact, and
+  // the server now reads it from the stored account instead. Sending it here
+  // would also put the address in every request body for no reason.
+  return { privy: acc?.privyDid || undefined, client: acc?.id || undefined }
 }
 
 function refParams(): string {
@@ -37,7 +40,7 @@ export interface ByokStatus { connected: boolean; hint: string | null }
 
 export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boolean; byok: ByokStatus }> {
   try {
-    const res = await fetch(`/api/connect?action=list&${refParams()}`, { headers: { accept: 'application/json' } })
+    const res = await apiFetch(`/api/connect?action=list&${refParams()}`, { headers: { accept: 'application/json' } })
     const j = await res.json()
     if (j?.ok) return { tools: j.tools, backend: !!j.backend, byok: j.byok ?? { connected: false, hint: null } }
   } catch {
@@ -52,7 +55,7 @@ export async function sendGmail(to: string, subject: string, body: string): Prom
   if (!(await ensureOutbound('Gmail', 'send an email'))) return { ok: false, error: 'cancelled' }
   try {
     const r = ref()
-    const res = await fetch('/api/tool-action', {
+    const res = await apiFetch('/api/tool-action', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ connector: 'gmail', action: 'send', to, subject, body, privy: r.privy, client: r.client }),
     })
@@ -70,7 +73,7 @@ export async function toolAction(connector: string, action: string, payload: Rec
   }
   try {
     const r = ref()
-    const res = await fetch('/api/tool-action', {
+    const res = await apiFetch('/api/tool-action', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ connector, action, ...payload, privy: r.privy, client: r.client }),
     })
@@ -86,7 +89,7 @@ export async function postSlack(text: string, channel?: string): Promise<{ ok: b
   if (!(await ensureOutbound('Slack', 'post'))) return { ok: false, error: 'cancelled' }
   try {
     const r = ref()
-    const res = await fetch('/api/tool-action', {
+    const res = await apiFetch('/api/tool-action', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ connector: 'slack', action: 'post', text, channel, privy: r.privy, client: r.client }),
     })
@@ -105,7 +108,7 @@ export async function toolData(connector: string, dojo?: string): Promise<ToolDa
     const p = new URLSearchParams(refParams())
     p.set('connector', connector)
     if (dojo) p.set('dojo', dojo)
-    const res = await fetch(`/api/tool-data?${p.toString()}`, { headers: { accept: 'application/json' } })
+    const res = await apiFetch(`/api/tool-data?${p.toString()}`, { headers: { accept: 'application/json' } })
     const j = await res.json()
     if (j?.ok) return { connected: !!j.connected, admin: j.admin, account: j.account ?? null, data: j.data }
   } catch {
@@ -117,7 +120,7 @@ export async function toolData(connector: string, dojo?: string): Promise<ToolDa
 /** Store the user's own Claude key (BYOK) · sealed server-side, billed to them. */
 export async function setClaudeKey(key: string): Promise<{ ok: boolean; hint?: string; error?: string }> {
   try {
-    const res = await fetch('/api/connect?action=setkey', {
+    const res = await apiFetch('/api/connect?action=setkey', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ key, ...ref() }),
@@ -130,7 +133,7 @@ export async function setClaudeKey(key: string): Promise<{ ok: boolean; hint?: s
 
 export async function removeClaudeKey(): Promise<boolean> {
   try {
-    const res = await fetch('/api/connect?action=removekey', {
+    const res = await apiFetch('/api/connect?action=removekey', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ ...ref() }),
@@ -153,7 +156,7 @@ export function startConnect(connectorId: string): void {
 
 export async function disconnectTool(connectorId: string): Promise<boolean> {
   try {
-    const res = await fetch('/api/connect?action=disconnect', {
+    const res = await apiFetch('/api/connect?action=disconnect', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ connector: connectorId, ...ref() }),
@@ -195,7 +198,7 @@ export async function runWork(input: { task: string; agentName: string; connecto
     .filter((a) => a.protocol === 'mcp' && a.url)
     .map((a) => ({ url: a.url, name: a.name, authToken: a.authToken }))
   try {
-    const res = await fetch('/api/agent-run', {
+    const res = await apiFetch('/api/agent-run', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ ...input, extAgents: undefined, extMcp, startup, net, dojo: activeDojoId || undefined, ...ref() }),
@@ -215,7 +218,7 @@ export async function listSecrets(dojo: string): Promise<{ backend: boolean; sec
   try {
     const p = new URLSearchParams({ action: 'list', dojo })
     const r = ref(); if (r.privy) p.set('privy', r.privy); if (r.client) p.set('client', r.client)
-    const res = await fetch(`/api/secrets?${p.toString()}`, { headers: { accept: 'application/json' } })
+    const res = await apiFetch(`/api/secrets?${p.toString()}`, { headers: { accept: 'application/json' } })
     const j = await res.json()
     // server mode ONLY when the endpoint fully works (vault + DB table present);
     // no_backend or a db error falls back to the local store with a warning.
@@ -228,7 +231,7 @@ export async function listSecrets(dojo: string): Promise<{ backend: boolean; sec
 
 export async function saveSecret(dojo: string, name: string, value: string, description: string): Promise<{ ok: boolean; secret?: ServerSecret; error?: string }> {
   try {
-    const res = await fetch('/api/secrets?action=save', {
+    const res = await apiFetch('/api/secrets?action=save', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ dojo, name, value, description, ...ref() }),
     })
@@ -238,7 +241,7 @@ export async function saveSecret(dojo: string, name: string, value: string, desc
 
 export async function removeSecret(dojo: string, id: string): Promise<boolean> {
   try {
-    const res = await fetch('/api/secrets?action=remove', {
+    const res = await apiFetch('/api/secrets?action=remove', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ dojo, id, ...ref() }),
     })

@@ -23,6 +23,7 @@ import { useInView } from '../landing/useInView'
 import type { RoleAgent } from '../../data/roleAgents'
 import { CustomAgentWorkspace } from '../../modules/custom/CustomAgentWorkspace'
 import { MAX_AGENTS } from '../../workshop'
+import { apiFetch } from '../../lib/apiFetch'
 
 // Build stamp (injected by Vite) so the running version is visible in-app.
 declare const __BUILD_ID__: string
@@ -230,7 +231,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     setBuying(true); setPayMsg('')
     try {
       const amount = credits * (CREDIT_UNIT[fiatCur] ?? 1)
-      const res = await fetch('/api/checkout', {
+      const res = await apiFetch('/api/checkout', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ amount, currency: fiatCur, email: '', kind: 'credits', privyDid: account?.privyDid || '' }),
       })

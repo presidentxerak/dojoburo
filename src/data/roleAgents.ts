@@ -96,7 +96,7 @@ const SPECS: Spec[] = [
   {
     id: 'busino', code: 'Busino', title: 'Business Analyst',
     desc: 'Tracks your finances and turns business data into actionable insights.',
-    tint: '#1fa563', dept: 'Finance', apps: ['stripe', 'ga4', 'gsc', 'quickbooks'],
+    tint: '#1fa563', dept: 'Finance', apps: ['stripe', 'ga4', 'quickbooks'],
   },
   {
     id: 'vaultor', code: 'Vaultor', title: 'Billing Manager',

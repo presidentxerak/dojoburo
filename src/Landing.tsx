@@ -17,6 +17,7 @@ import { ShowcaseGallery, PerformanceBoard, Testimonials } from './components/la
 import { Pricing } from './components/landing/Pricing'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
 import { SHOW_MOCK_COMPANIES } from './config/flags'
+import { CREW_COUNT, CREW_WORD } from './data/facts'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -82,7 +83,7 @@ export function Landing({ enter }: { enter: () => void }) {
       </div>
 
       <section className="lp-sec" id="studios">
-        <span className="lp-pill">12 studios · one agent each · 100% in your browser</span>
+        <span className="lp-pill">{CREW_COUNT} studios · one agent each · 100% in your browser</span>
         <h2>Meet the office</h2>
         <p className="lp-lead sm">
           Each agent in your office owns one studio. Click a teammate and their studio opens: it generates a first
@@ -190,7 +191,7 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec" id="studio">
         <span className="lp-ico" style={{ background: C.blue }}><AsciiIcon kind="build" /></span>
         <h2>Build your own team</h2>
-        <p className="lp-lead">Every company ships with twelve teammates · hide the ones you don't need and <b>create your own custom agents</b> (name, job title, colour, apps, a task list and a private notepad) right from the CEO dashboard. Pick from {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, set a per-agent budget, and rearrange the whole team on the dojo grid · tap an agent, tap a cell, and the 3D office reseats live. Press <kbd className="lp-kbd">Cmd/Ctrl&nbsp;K</kbd> anytime to jump to any agent, page or action.</p>
+        <p className="lp-lead">Every company ships with {CREW_WORD} teammates · hide the ones you don't need and <b>create your own custom agents</b> (name, job title, colour, apps, a task list and a private notepad) right from the CEO dashboard. Pick from {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, set a per-agent budget, and rearrange the whole team on the dojo grid · tap an agent, tap a cell, and the 3D office reseats live. Press <kbd className="lp-kbd">Cmd/Ctrl&nbsp;K</kbd> anytime to jump to any agent, page or action.</p>
         <div className="lp-schema">
           <div className="lp-node"><b>Create</b><span>12 presets + your own custom agents</span></div>
           <span className="lp-arrow">→</span>

@@ -132,7 +132,7 @@ export const ARCHETYPES: Archetype[] = [
     glyph: '≡',
     tint: '#0ea5e9',
     template: 'garden',
-    agents: ['chief', 'scout', 'scribe', 'marketus', 'busino'],
+    agents: ['chief', 'scout', 'scribe', 'marketus', 'pumpi', 'busino'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Topic research', detail: 'What your audience searches for.' },
       { agent: 'scribe', task: 'campaign', label: 'Editorial calendar', detail: 'Themes, formats and a publishing rhythm.' },
@@ -192,7 +192,7 @@ const MORE: Archetype[] = [
   {
     id: 'newsletter', label: 'Launch a newsletter', tagline: 'Find your angle, write the issues, grow the list.',
     category: 'Content', glyph: '✉', tint: '#8b5cf6', template: 'garden',
-    agents: ['chief', 'scout', 'scribe', 'marketus', 'busino'],
+    agents: ['chief', 'scout', 'scribe', 'marketus', 'pumpi', 'busino'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Angle & audience', detail: 'What you write about and who subscribes.' },
       { agent: 'scribe', task: 'campaign', label: 'Editorial plan', detail: 'Format, rhythm and the first issues.' },

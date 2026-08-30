@@ -9,6 +9,7 @@ import { useEngine } from '../../agents/engineStore'
 import { OfficeStats } from '../../components/OfficeStats'
 import { Accounting } from './Accounting'
 import { InfoDot } from '../../components/InfoDot'
+import { apiFetch } from '../../lib/apiFetch'
 
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
 const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
@@ -45,7 +46,7 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
     setBuying(true); setPayMsg('')
     try {
       const amount = credits * (CREDIT_UNIT[fiatCur] ?? 1)
-      const res = await fetch('/api/checkout', {
+      const res = await apiFetch('/api/checkout', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ amount, currency: fiatCur, email: '', kind: 'credits', privyDid: account?.privyDid || '' }),
       })

@@ -39,7 +39,7 @@ interface WorkState {
   disconnect: (id: string) => Promise<void>
   saveKey: (key: string) => Promise<{ ok: boolean; error?: string }>
   clearKey: () => Promise<void>
-  run: (input: { task: string; agentName: string; connectors: string[]; brief?: string; context?: string; extAgents?: ExtAgent[]; silent?: boolean }) => Promise<void>
+  run: (input: { task: string; agentName: string; connectors: string[]; brief?: string; context?: string; extAgents?: ExtAgent[]; silent?: boolean; dojoId?: string }) => Promise<void>
   setAutopilot: (a: { running: boolean; step: string | null }) => void
   showDeliverable: (d: Deliverable) => void
   closeDeliverable: () => void
@@ -90,10 +90,17 @@ export const useWork = create<WorkState>((set, get) => ({
   },
 
   run: async (input) => {
-    if (get().runningTask) return
+    // Something else is already running. Say so rather than returning silently:
+    // the loop reads runError to decide whether a step succeeded, and a quiet
+    // no-op used to be recorded as a finished step that never ran.
+    if (get().runningTask) { set({ runError: { code: 'busy' } }); return }
     set({ runningTask: input.task, runError: null })
     const r = await runWork(input)
-    const dojoId = useWorkshop.getState().activeDojoId
+    // Which team owns this result. The caller says so, because the pipeline runs
+    // every team in turn WITHOUT changing which dojo is on screen — attributing
+    // by activeDojoId filed all of them under whichever team you happened to be
+    // looking at. Manual runs from the open dojo pass nothing and still get it.
+    const dojoId = input.dojoId ?? useWorkshop.getState().activeDojoId
     if (r.ok && r.deliverable) {
       // persist the deliverable so it stays in its panel (nanocorp-style)
       if (dojoId) useDeliverables.getState().add(dojoId, r.deliverable, Date.now())

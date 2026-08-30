@@ -50,6 +50,7 @@ const ERR: Record<string, string> = {
   not_configured: 'No AI is set up here yet · add your Claude key to get going.',
   network: 'Could not reach the server · try again in a moment.',
   unknown_task: 'The server does not know that task.',
+  busy: 'Another task was already running · try again once it finishes.',
 }
 
 /** Is this dojo a project with a runnable loop? */
@@ -99,7 +100,7 @@ export async function runLoop(dojoId: string): Promise<void> {
     const connectors = effectiveApps(role?.apps ?? [], ov)
     const context = await loadContext(dojoId, step.agent)
 
-    await useWork.getState().run({ task: step.task, agentName: step.agentName, connectors, brief, context, silent: true })
+    await useWork.getState().run({ task: step.task, agentName: step.agentName, connectors, brief, context, silent: true, dojoId })
 
     const err = useWork.getState().runError
     if (err) {

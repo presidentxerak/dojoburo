@@ -11,6 +11,7 @@ import { getPool, dbConfigured } from './_lib/db.js'
 import { vaultConfigured } from './_lib/vault.js'
 import { findAccountId } from './_lib/accounts.js'
 import { connectionToken } from './_lib/connections.js'
+import { callerRef } from './_lib/authz.js'
 
 export const config = { maxDuration: 15 }
 
@@ -32,6 +33,16 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'method' })
     let body: Record<string, unknown>
     try { body = JSON.parse(await readBody(req)) } catch { return json(res, 400, { ok: false, error: 'bad_json' }) }
+    // WHO is acting · this endpoint sends mail and posts under the caller's own
+    // connected accounts, so the identity is proven before anything runs. The
+    // body's identity fields are replaced with the VERIFIED ones — the handlers
+    // below read body.privy / body.client, and this is the only place they can
+    // be set.
+    const who = await callerRef(req, { privy: body.privy as string, client: body.client as string })
+    if (!who) return json(res, 401, { ok: false, error: 'auth' })
+    body.privy = who.privyDid ?? undefined
+    body.client = who.clientRef ?? undefined
+
     const connector = String(body.connector || '')
     const action = String(body.action || '')
     if (connector === 'gmail' && action === 'send') return await gmailSend(res, body)

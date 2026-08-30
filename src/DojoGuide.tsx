@@ -11,6 +11,7 @@ import { StudioTeam } from './components/landing/TeamCards'
 import { Tutorial } from './components/guide/Tutorial'
 import { type WalkId } from './components/guide/tutorialBeats'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
+import { CREW_COUNT, CREW_WORD } from './data/facts'
 
 // The Dojo Guide · a full page (not a modal) in the landing page's visual
 // language: same title/subtitle/text sizes, same cards. It covers connectors
@@ -95,7 +96,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           and they work inside them for you. This guide covers the whole thing, step by step.
         </p>
         <div className="lp-badges">
-          <span>12 studios · 100% local</span><span>{CONNECTORS.length} apps</span><span>One-click connect · keys kept safe</span><span>Cloud or local</span>
+          <span>{CREW_COUNT} studios · 100% local</span><span>{CONNECTORS.length} apps</span><span>One-click connect · keys kept safe</span><span>Cloud or local</span>
         </div>
       </section>
 
@@ -118,9 +119,9 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts. Connecting is free; only the work costs credits.</span></div></div>
         </div>
         <p className="lp-note"><b>Do I have to sign in?</b> Only to keep things. Naming a project and reading every team card is free. The moment you add a team, we ask you to sign in so your company, your teammates and everything they make are still there next time · or you can carry on as a guest, saved in this browser only.</p>
-        <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your twelve teammates &amp; what each one does</h3>
+        <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your {CREW_WORD} teammates &amp; what each one does</h3>
         <StudioTeam enter={() => { window.location.href = '/#app' }} />
-        <p className="lp-note" style={{ marginTop: 14 }}>These twelve ship with every dojo — and the crew is yours to shape. See <a className="linklike" href="#team">Shape your team</a> just below.</p>
+        <p className="lp-note" style={{ marginTop: 14 }}>These {CREW_WORD} ship with every dojo — and the crew is yours to shape. See <a className="linklike" href="#team">Shape your team</a> just below.</p>
       </section>
 
       <section className="lp-sec alt" id="around">
@@ -137,7 +138,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
       <section className="lp-sec" id="team">
         <h2>Shape your team</h2>
         <HowTo walk="teams" />
-        <p className="lp-lead">Your dojo ships with twelve teammates, but nothing is locked. Hide what you don't need, build your own agents, and arrange the office exactly how you like.</p>
+        <p className="lp-lead">Your dojo ships with {CREW_WORD} teammates, but nothing is locked. Hide what you don't need, build your own agents, and arrange the office exactly how you like.</p>
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Hide or show</b><span>Hide any preset you don't use from the CEO dashboard; restore it from the roster whenever you want.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Create custom agents</b><span>Build your own teammate — name, job title, colour, the apps it works with, a task list you assign to it and a private notepad. All saved locally.</span></div></div>

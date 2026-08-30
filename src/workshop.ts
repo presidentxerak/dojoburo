@@ -139,7 +139,31 @@ interface WorkshopState {
 }
 
 const KEY = 'dojoburo.workshop.v1'
+/** Short id for things that only have to be unique inside this browser (dojos,
+ *  agents, seats). Never use it for anything the server trusts. */
 const uid = () => Math.random().toString(36).slice(2, 10)
+
+/**
+ * The GUEST account id.
+ *
+ * This one is different: the server accepts it as proof of who is calling, so
+ * it is a bearer credential and has to be unguessable. Math.random is a
+ * predictable PRNG and eight characters is far too short for something that
+ * unlocks a person's connected apps — this uses the platform CSPRNG and 32 hex
+ * characters (128 bits), with a last-resort fallback for ancient browsers.
+ */
+function accountId(): string {
+  try {
+    const c = globalThis.crypto
+    if (c?.randomUUID) return c.randomUUID().replace(/-/g, '')
+    if (c?.getRandomValues) {
+      const b = new Uint8Array(16)
+      c.getRandomValues(b)
+      return Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('')
+    }
+  } catch { /* fall through */ }
+  return `${Date.now().toString(36)}${uid()}${uid()}`
+}
 const DEPTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People', 'Ops']
 
 /** Build a crew from an explicit list of role ids · this is how a PROJECT dojo
@@ -296,7 +320,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     signInGuest: (name) => {
       set({
         account: {
-          id: uid(),
+          id: accountId(),
           name: name?.trim() || 'Founder',
           handle: '',
           email: '',
@@ -311,7 +335,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
       set((s) => ({
         account: {
           // keep currency/avatar if a guest account was already set up
-          id: s.account?.id ?? uid(),
+          id: s.account?.id ?? accountId(),
           name: p.name?.trim() || s.account?.name || 'Founder',
           handle: p.handle?.trim() || s.account?.handle || '',
           email: p.email?.trim() || s.account?.email || '',
@@ -326,6 +350,10 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     signOut: () => {
       set({ account: null })
       persist()
+      // Anything held in the clear in this browser goes with the session. The
+      // project and its teams stay (they are the user's work, and a guest would
+      // otherwise lose everything) — pasted keys do not.
+      void import('./agents/secretsStore').then((m) => m.useSecrets.getState().clearAll()).catch(() => { /* ignore */ })
     },
     updateAccount: (patch) => {
       set((s) => (s.account ? { account: { ...s.account, ...patch } } : {}))
