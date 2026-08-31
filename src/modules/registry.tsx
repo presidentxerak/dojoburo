@@ -5,15 +5,9 @@ import type { ComponentType } from 'react'
 // Modules are imported DIRECTLY (not lazy). They were lazy-loaded before, but a
 // stale/missing chunk after a deploy could 404 and leave the panel blank. Bundled
 // into the main chunk, a module always renders as long as the app shell loads.
-import BrandingModule from './branding/BrandingModule'
-import WebsiteModule from './website/WebsiteModule'
-import GrowthModule from './growth/GrowthModule'
-import MarketusModule from './marketing/MarketusModule'
-import BusinoModule from './business/BusinoModule'
 import ChiefModule from './chief/ChiefModule'
 import SentinelModule from './sentinel/SentinelModule'
 import VaultorModule from './vaultor/VaultorModule'
-import { DeviModule, HelpiModule, NexaModule, LegiModule } from './team/TeamStudio'
 
 export interface ModuleProps {
   onClose: () => void
@@ -48,31 +42,6 @@ export const MODULES: ModuleDef[] = [
     tint: '#7b5cff', agentRole: 'chief', status: 'live', comp: ChiefModule,
   },
   {
-    id: 'branding', label: 'Brand Studio',
-    blurb: 'Names, domains, .com availability and an auto brand kit · colours flow into your site.',
-    tint: '#a855f7', agentRole: 'brandi', status: 'live', comp: BrandingModule,
-  },
-  {
-    id: 'website', label: 'Website Studio',
-    blurb: 'Pro website builder: blocks, live editing, responsive, brand theme, local HTML export.',
-    tint: '#2f7fd6', agentRole: 'weblos', status: 'live', comp: WebsiteModule,
-  },
-  {
-    id: 'marketing', label: 'Marketing Studio',
-    blurb: 'One creative workflow: Meta campaigns, video editing and image optimisation.',
-    tint: '#e0459b', agentRole: 'marketus', status: 'live', comp: MarketusModule, needsApps: true,
-  },
-  {
-    id: 'crm', label: 'Growth Studio',
-    blurb: 'SEO suite for your site: keyword research, rank tracking, site audit, backlinks & leads.',
-    tint: '#d98c17', agentRole: 'pumpi', status: 'live', comp: GrowthModule, needsApps: true,
-  },
-  {
-    id: 'business', label: 'Business Studio',
-    blurb: 'Traffic analytics, competitors, AI visibility, plus finance (VAT, forecasts) and analytics.',
-    tint: '#1fa563', agentRole: 'busino', status: 'live', comp: BusinoModule,
-  },
-  {
     id: 'operations', label: 'Security Studio',
     blurb: 'How much your team does on its own, daily spending limits, saved keys and safety switches.',
     tint: '#5b6472', agentRole: 'sentinel', status: 'live', comp: SentinelModule,
@@ -83,26 +52,6 @@ export const MODULES: ModuleDef[] = [
     tint: '#0e9bb5', agentRole: 'vaultor', status: 'live', comp: VaultorModule,
   },
   // --- Optional group agents · added by the user from the dojo's empty cells ---
-  {
-    id: 'engineering', label: 'Engineering Studio',
-    blurb: 'Issues, pull requests and sprints across GitHub, Linear, Jira and your dev stack.',
-    tint: '#3b82f6', agentRole: 'devi', status: 'live', comp: DeviModule, needsApps: true,
-  },
-  {
-    id: 'support', label: 'Support Studio',
-    blurb: 'The support queue: tickets, conversations and quick replies from Zendesk and Intercom.',
-    tint: '#14b8a6', agentRole: 'helpi', status: 'live', comp: HelpiModule, needsApps: true,
-  },
-  {
-    id: 'comms', label: 'Comms Studio',
-    blurb: 'Broadcast to team and community across Slack, Discord, Zoom and WhatsApp.',
-    tint: '#f97316', agentRole: 'nexa', status: 'live', comp: NexaModule, needsApps: true,
-  },
-  {
-    id: 'legal', label: 'Legal & Docs Studio',
-    blurb: 'Send contracts for signature and keep documents in order with DocuSign and Drive.',
-    tint: '#8b5cf6', agentRole: 'legi', status: 'live', comp: LegiModule, needsApps: true,
-  },
 ]
 
 export const MODULE_BY_ID: Record<string, ModuleDef> = Object.fromEntries(MODULES.map((m) => [m.id, m]))

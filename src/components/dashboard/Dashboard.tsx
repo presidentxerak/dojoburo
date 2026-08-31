@@ -6,6 +6,7 @@ import { useDojo } from '../../store'
 import { ArrangeGrid } from './ArrangeGrid'
 import { LoopPanel } from './LoopPanel'
 import { AgentContext } from '../agents/AgentContext'
+import { AgentWork } from '../agents/AgentWork'
 import { AGENT_TASKS } from './agentTasks'
 import { CompanyReport } from './CompanyReport'
 import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../agents/engineStore'
@@ -444,24 +445,26 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
 
         <p className="ad-blurb">{selRole.desc}</p>
 
-        {/* the agent's studio(s) · each studio agent IS its tool. Utility agents
-            (Chief, Sentinel, Vaultor) show their control panel instead. */}
+        {/* What this teammate can DO · their deliverables, their apps and the
+            work they have already handed back. The utility agents (Sentinel's
+            limits, Vaultor's credits) keep their control panel, and any studio
+            still registered for the role is offered underneath. */}
+        {bodyFor(selRole.id) && <div className="ad-body">{bodyFor(selRole.id)}</div>}
+        {dojo && <AgentWork agent={selected} role={selRole} dojoId={dojo.id} />}
         {(() => {
           const roleModules = MODULES.filter((m) => m.agentRole === selRole.id)
-          if (roleModules.length) {
-            return (
-              <div className="lp-studioteam ad-studioteam">
-                {roleModules.map((m) => (
-                  <button key={m.id} className="lp-studiocard agent-card" style={{ ['--ac' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
-                    <strong className="agent-code">{m.label}</strong>
-                    <span className="agent-desc">{m.blurb}</span>
-                    <span className="agent-action">Open →</span>
-                  </button>
-                ))}
-              </div>
-            )
-          }
-          return <div className="ad-body">{bodyFor(selRole.id)}</div>
+          if (!roleModules.length) return null
+          return (
+            <div className="lp-studioteam ad-studioteam">
+              {roleModules.map((m) => (
+                <button key={m.id} className="lp-studiocard agent-card" style={{ ['--ac' as string]: m.tint }} onClick={() => setModuleId(m.id)}>
+                  <strong className="agent-code">{m.label}</strong>
+                  <span className="agent-desc">{m.blurb}</span>
+                  <span className="agent-action">Open →</span>
+                </button>
+              ))}
+            </div>
+          )
         })()}
 
         {/* the agent's context sheet · how this specialist works */}

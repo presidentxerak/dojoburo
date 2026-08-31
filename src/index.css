@@ -395,6 +395,56 @@ a:hover { text-decoration: underline; }
 .ad-studio-txt b { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: var(--ink); }
 .ad-studio-txt em { font-style: normal; font-size: 16px; color: var(--muted); line-height: 1.35; }
 .ad-studio-go { flex: none; font-weight: 800; font-size: 16px; color: var(--dc); }
+/* ---- a teammate's work · what they can do, and what they have done -------
+   This is what replaced the thirteen studios: the deliverables the teammate
+   produces, the apps they act in, and the results already in hand. */
+.agw { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.agw-head h3 { margin: 0; font-family: var(--font-pixel); font-weight: 800; font-size: 19px; letter-spacing: -0.01em; }
+.agw-sub { display: block; margin-top: 3px; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+.agw-sub b { color: var(--ink); }
+.agw-brief {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px;
+  background: var(--panel-2); color: var(--ink); font: inherit; font-size: 15px;
+}
+.agw-brief:focus { outline: none; border-color: var(--dc, var(--violet)); }
+.agw-tasks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.agw-task {
+  width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; cursor: pointer;
+  padding: 13px 15px; border: 1px solid var(--border); border-radius: 14px;
+  background: var(--panel-solid); color: var(--ink); font: inherit;
+  transition: border-color .14s ease, transform .12s ease, box-shadow .14s ease;
+}
+.agw-task:hover:not(:disabled) { border-color: var(--dc, var(--violet)); transform: translateY(-1px); box-shadow: 0 8px 20px -14px rgba(20,16,45,.5); }
+.agw-task:disabled { opacity: .55; cursor: default; }
+.agw-task-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.agw-task strong { font-size: 15.5px; font-weight: 700; }
+.agw-task em { font-style: normal; font-size: 14px; line-height: 1.45; color: var(--muted); }
+.agw-acts {
+  align-self: flex-start; margin-top: 4px; padding: 3px 9px; border-radius: 999px;
+  background: color-mix(in srgb, #1fa563 12%, transparent); color: #17794b;
+  font-size: 11.5px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+}
+.agw-spin { flex: none; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--dc, var(--violet)); animation: spin .8s linear infinite; }
+.agw-err { margin: 0; font-size: 14.5px; color: var(--muted); }
+.agw-apps { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.agw-apps-h { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.agw-app {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--panel-2); font-size: 13.5px; font-weight: 600; color: var(--muted);
+}
+.agw-app.on { color: var(--ink); border-color: color-mix(in srgb, #1fa563 45%, var(--border)); background: color-mix(in srgb, #1fa563 8%, var(--panel-solid)); }
+.agw-out { display: flex; flex-direction: column; gap: 8px; }
+.agw-empty { margin: 0; font-size: 14.5px; color: var(--muted); }
+.agw-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.agw-deliv {
+  width: 100%; display: flex; flex-direction: column; gap: 2px; text-align: left; cursor: pointer;
+  padding: 11px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel-2); color: var(--ink); font: inherit;
+}
+.agw-deliv:hover { border-color: var(--dc, var(--violet)); }
+.agw-deliv strong { font-size: 14.5px; font-weight: 700; }
+.agw-deliv em { font-style: normal; font-size: 12.5px; color: var(--muted); }
+@keyframes spin { to { transform: rotate(360deg) } }
+
 .ad-body { font-size: 16px; line-height: 1.55; color: var(--ink); background: var(--panel-solid); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-top: 6px; box-shadow: 0 6px 18px rgba(30, 25, 60, 0.06); }
 .ad-body .muted { color: var(--muted) !important; }
 
