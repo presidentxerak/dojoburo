@@ -62,8 +62,13 @@ ok(/credits a run/i.test(card) && /teammates/i.test(card), 'pick: the card carri
 
 await dotFor(CREW).click()
 await p.waitForTimeout(2500)
-ok(await p.locator('.tutfs-body .tut-spec-crew .agent-card').count() === 4, 'crew: four real teammate cards')
-ok(await p.locator('.tutfs-body .tut-spec-crew .agent-card .a3d canvas').count() === 4, 'crew: each one carries its 3D portrait')
+ok(await p.locator('.tutfs-body .tut-spec-crew .agent-card').count() === 2, 'crew: two real teammate cards')
+ok(await p.locator('.tutfs-body .tut-spec-crew .agent-card .a3d canvas').count() === 2, 'crew: each one carries its 3D portrait')
+ok(await p.locator('.tutfs-body .tut-spec-crew .agent-card').first().evaluate((c) => {
+  const box = c.querySelector('.a3d').getBoundingClientRect()
+  const cv = c.querySelector('canvas').getBoundingClientRect()
+  return Math.abs(cv.width - box.width) < 2 && Math.abs(cv.height - box.height) < 2
+}), 'crew: the 3D canvas fills its frame (no ancestor scale shrinking it)')
 const first = await p.locator('.tutfs-body .tut-spec-crew .agent-card').first().innerText()
 ok(/team lead/i.test(first), `crew: the lead is named as such · ${first.split('\n')[0]}`)
 

@@ -5366,19 +5366,39 @@ html { scroll-behavior: smooth; }
    change to either one changes the lesson too. The scale is a viewing distance,
    not a redesign — every proportion inside the card is untouched, and the cards
    are inert (the stage is aria-hidden; the text beside it carries the meaning). */
-/* The viewing distance is `zoom`, not `transform: scale`, on purpose: zoom
-   shrinks the LAYOUT box, so the stage can centre the specimen. A transform
-   leaves a full-size box behind, the grid refuses to centre something wider
-   than itself, and the cards drift off the right edge. (It also survives the
-   entrance animation, which animates `transform` and would cancel a scale.) */
-.tut-spec { display: flex; gap: 16px; align-items: stretch; pointer-events: none; animation: tutIn .45s ease both; }
+/* Viewing distance, in three parts, each one load-bearing:
+   · `transform: scale` and NOT `zoom` — zoom rescales the layout box, and a
+     WebGL canvas sized from that box comes out smaller than the box it sits
+     in, which shrank every 3D teammate inside its own portrait;
+   · absolutely centred — a transform leaves a full-size layout box behind, and
+     a grid will not centre an item wider than itself (it pins it to the start
+     and the cards drift off the right edge);
+   · the scale is carried in a variable so the entrance keyframes can restate
+     it — a keyframe ending in `transform: none` would cancel it. */
+@keyframes tutSpecIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(var(--s)) translateY(16px) }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(var(--s)) }
+}
+.tut-spec {
+  --s: 1; position: absolute; left: 50%; top: 50%;
+  display: flex; gap: 16px; align-items: stretch; pointer-events: none;
+  transform: translate(-50%, -50%) scale(var(--s));
+  animation: tutSpecIn .45s ease both;
+}
 .tut-spec .lp-studiocard:hover, .tut-spec .tcard:hover { transform: none; box-shadow: none; }
-.tut-spec-cards { zoom: .56; }
+.tut-spec-cards { --s: .56; }
 .tut-spec-cards .tcard { width: 268px; flex: none; }
 /* the ticked card is the one the lesson is pointing at */
 .tut-spec-cards .tcard.on { animation: tutPulse 1.8s ease-in-out .5s infinite; }
-.tut-spec-crew { zoom: .78; display: grid; grid-template-columns: repeat(2, 232px); gap: 14px; }
-.tut-spec-crew .agent-card { animation: tutPop .5s cubic-bezier(.2,1.3,.4,1) both; }
+/* NOT scaled · see the note in tutorialBeats: these cards carry a 3D canvas,
+   and a canvas measures its own box through getBoundingClientRect, so any
+   ancestor transform shrinks the render inside the frame. */
+.tut-spec-crew { --s: 1; display: grid; grid-template-columns: repeat(2, 232px); gap: 16px; }
+/* Entrance WITHOUT a scale · tutPop starts at scale(.5), and a 3D canvas
+   measures its box on mount: it would size itself to half the card and stay
+   there for the rest of the beat. Rise and fade only. */
+@keyframes tutRise { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+.tut-spec-crew .agent-card { animation: tutRise .45s cubic-bezier(.2,.9,.3,1) both; }
 .tut-spec-crew .agent-card:nth-child(2) { animation-delay: .1s; }
 .tut-spec-crew .agent-card:nth-child(3) { animation-delay: .2s; }
 .tut-spec-crew .agent-card:nth-child(4) { animation-delay: .3s; }
@@ -5431,10 +5451,11 @@ html { scroll-behavior: smooth; }
   .tut-txt { padding: 18px 20px 22px; }
   /* a phone cannot read three cards side by side · show one, full size, and
      two teammates rather than four. Fewer specimens beats illegible ones. */
-  .tut-spec-cards { zoom: .86; }
+  .tut-spec-cards { --s: .86; }
   .tut-spec-cards .tcard:nth-child(n+2) { display: none; }
-  .tut-spec-crew { zoom: .7; }
-  .tut-spec-crew .agent-card:nth-child(n+3) { display: none; }
+  /* one card, at its real size · scaling it would shrink the 3D inside it */
+  .tut-spec-crew { grid-template-columns: 232px; }
+  .tut-spec-crew .agent-card:nth-child(n+2) { display: none; }
   .tut-run .agent-card { width: 210px; }
 }
 

@@ -157,15 +157,18 @@ export function Stage({ beat }: { beat: string }) {
     // the crew of that same card, as the cards you meet in the office
     return (
       <div className="tut-stage">
+        {/* At natural size, never scaled: a WebGL canvas is sized from its
+            measured box, and any transform on an ancestor shrinks the canvas
+            inside its own frame — the teammate ends up a speck in the corner
+            of their portrait. Two cards fit the stage as they are. */}
         <div className="tut-spec tut-spec-crew" aria-hidden>
-          {CREW_ROLES.slice(0, 4).map((r, i) => (
+          {CREW_ROLES.slice(0, 2).map((r, i) => (
             <TeammateCard
               key={r.id}
               role={r}
               status={i === 0 ? 'Team lead' : 'Ready'}
               statusMod={i === 0 ? 'active' : 'ready'}
               phase={i * 0.6}
-              size={112}
             />
           ))}
         </div>

@@ -46,9 +46,9 @@ export function TeammateCard({
       )}
       {status && <span className={`agent-status s-${statusMod}`}><i />{status}</span>}
       <span className="lp-team-3d">
-        {/* framed tighter than the default · at 4.3 the teammate is a speck in
-            the middle of its own portrait */}
-        {inView ? <Agent3DPreview id={charKey} character={charForAgent(charKey)} size={size} phase={phase} dist={3.35} lift={-1.4} /> : null}
+        {/* fit = the camera is computed from the character's own size, so every
+            teammate fills its portrait and none of them is clipped */}
+        {inView ? <Agent3DPreview id={charKey} character={charForAgent(charKey)} size={size} phase={phase} fit /> : null}
       </span>
       <strong className="agent-code">{label}</strong>
       <span className="agent-title">{role.title}</span>
