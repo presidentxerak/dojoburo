@@ -16,7 +16,7 @@ export function ChooseTeams({ projectName, onAdd, onBack, existing = [] }: {
   projectName: string
   onAdd: (list: Archetype[]) => void
   onBack?: () => void
-  /** archetype ids already in this project · a team is hired once, not twice */
+  /** archetype ids already in this company · a team is hired once, not twice */
   existing?: string[]
 }) {
   const [cat, setCat] = useState<'all' | ArchCategory>('all')
@@ -71,7 +71,7 @@ export function ChooseTeams({ projectName, onAdd, onBack, existing = [] }: {
 
       {have.size > 0 && (
         <p className="ct-have">
-          {have.size} team{have.size > 1 ? 's are' : ' is'} already in your project · a team is hired once,
+          {have.size} team{have.size > 1 ? 's are' : ' is'} already in this company · a team is hired once,
           so those cards are marked and cannot be picked again.
         </p>
       )}

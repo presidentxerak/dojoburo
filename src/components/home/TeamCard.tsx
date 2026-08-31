@@ -14,7 +14,7 @@ const APPS_SHOWN = 8
 export function TeamCard({ a, selected, owned, onToggle }: {
   a: Archetype
   selected?: boolean
-  /** already in the project · shown, explained, and not selectable again */
+  /** already in the company · shown, explained, and not selectable again */
   owned?: boolean
   onToggle: () => void
 }) {
@@ -30,7 +30,7 @@ export function TeamCard({ a, selected, owned, onToggle }: {
       aria-pressed={owned ? undefined : selected}
       aria-disabled={owned || undefined}
       disabled={owned}
-      title={owned ? `${a.label} is already in your project` : undefined}
+      title={owned ? `${a.label} is already in this company` : undefined}
       onClick={onToggle}
     >
       <span className="tcard-top">

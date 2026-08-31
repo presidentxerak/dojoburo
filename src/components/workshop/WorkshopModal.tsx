@@ -88,7 +88,7 @@ function ProjectFileIO({ label }: { label: string }) {
     try {
       const blob = await exportDojoFile(label, Date.now())
       downloadDojo(blob, label)
-      pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Project saved', text: 'Your .dojo file downloaded · re-open it anytime, anywhere.' })
+      pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Company saved', text: 'Your .dojo file downloaded · re-open it anytime, anywhere.' })
     } catch { pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Save failed', text: 'Could not build the .dojo file.' }) }
     setBusy(false)
   }
@@ -98,15 +98,15 @@ function ProjectFileIO({ label }: { label: string }) {
     setBusy(true)
     const r = await importDojoFile(f)
     setBusy(false)
-    if (r.ok) { pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Project loaded', text: 'Restoring your workspace · reloading…' }); setTimeout(() => location.reload(), 900) }
+    if (r.ok) { pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'Company loaded', text: 'Restoring your workspace · reloading…' }); setTimeout(() => location.reload(), 900) }
     else pushToast({ kind: 'event', badge: '!', color: '#e0483f', title: 'Could not open', text: r.error || 'Invalid .dojo file.' })
   }
   return (
     <div className="proj-io">
-      <div className="sq-eyebrow" style={{ marginTop: 16 }}>Project file (.dojo)</div>
+      <div className="sq-eyebrow" style={{ marginTop: 16 }}>Company file (.dojo)</div>
       <p className="sq-lead">Save your entire workspace — every dojo and all your studios' assets (brand, website, videos, images, finished work) — to a single <b>.dojo</b> file on your disk, and re-open it anywhere. 100% local.</p>
       <div className="cc-clip-ops">
-        <button onClick={() => void save()} disabled={busy}>{busy ? '…' : '⤓ Save project (.dojo)'}</button>
+        <button onClick={() => void save()} disabled={busy}>{busy ? '…' : '⤓ Save company (.dojo)'}</button>
         <button onClick={() => fileRef.current?.click()} disabled={busy}>⤒ Open a .dojo file</button>
         <input ref={fileRef} type="file" accept=".dojo,application/octet-stream" hidden onChange={(e) => void open(e)} />
       </div>
@@ -663,8 +663,8 @@ function AccountTab() {
   )
 }
 
-// The founder's project, as it looks from their profile: its name, and every
-// dojo team in it. Renaming the project here renames it everywhere; each team
+// The founder's company, as it looks from their profile: its name, and every
+// dojo team in it. Renaming the company here renames it everywhere; each team
 // can be renamed or removed without leaving the profile.
 function CompanyPanel() {
   const projectName = useWorkshop((s) => s.projectName)
@@ -677,11 +677,11 @@ function CompanyPanel() {
     <div className="ws-company">
       <h3>Your company</h3>
       <label className="ws-field">
-        <span>Project name</span>
+        <span>Company name</span>
         <input
           value={projectName}
           maxLength={40}
-          placeholder="Name your project"
+          placeholder="Name your company"
           onChange={(e) => setProjectName(e.target.value)}
         />
       </label>

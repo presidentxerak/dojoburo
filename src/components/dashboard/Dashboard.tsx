@@ -22,27 +22,12 @@ import { TeammateCard } from '../TeammateCard'
 import { CustomAgentWorkspace } from '../../modules/custom/CustomAgentWorkspace'
 import { MAX_AGENTS } from '../../workshop'
 import { apiFetch } from '../../lib/apiFetch'
+import { BUILD_ID, forceFresh } from '../../lib/build'
 
 // Build stamp (injected by Vite) so the running version is visible in-app.
-declare const __BUILD_ID__: string
-const BUILD_ID = typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev'
 
 // Nuke every cache + service worker and reload from the network · a one-click
 // escape from a stale cached build.
-async function forceUpdate() {
-  try {
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations?.()
-      await Promise.all((regs ?? []).map((r) => r.unregister()))
-    }
-    if ('caches' in window) {
-      const keys = await caches.keys()
-      await Promise.all(keys.map((k) => caches.delete(k)))
-    }
-  } catch { /* best effort */ }
-  location.reload()
-}
-
 // fiat credit packs · ~1 credit per task, priced per currency.
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
 const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
@@ -497,7 +482,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         </div>
         <div className="dash-hero-actions">
           <button className="btn tiny" onClick={onOpenDojo} title="Open the dojo fullscreen">⤢ Dojo</button>
-          <button className="build-refresh" title={`Build ${BUILD_ID} · click to force the latest version`} onClick={forceUpdate}>
+          <button className="build-refresh" title={`Build ${BUILD_ID} · click to force the latest version`} onClick={() => void forceFresh()}>
             ⟳ v{BUILD_ID}
           </button>
         </div>

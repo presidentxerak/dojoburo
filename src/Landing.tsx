@@ -55,10 +55,10 @@ export function Landing({ enter }: { enter: () => void }) {
       {/* The hero is deliberately almost empty: a title, one big button, and a
           way to watch how it works. Everything else lives further down. */}
       <section className="lp-hero lp-hero-min">
-        <h1>Your projects <span className="hl-acid">automator</span></h1>
+        <h1>Your company <span className="hl-acid">automator</span></h1>
         <p className="lp-hero-sub">
-          Forget complex software for creating your projects! Dojoburo makes agent creation simple,
-          so you can build and launch your projects from start to finish.
+          Forget complex software for running your company! Dojoburo makes agent creation simple,
+          so you can build and launch your companies from start to finish.
         </p>
         <div className="lp-hero-acts">
           <button className="lp-hero-go lp-cta-create" onClick={enter}>Create your dojo teams</button>
@@ -188,7 +188,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-ico" style={{ background: C.yellow, color: '#1a1300' }}><AsciiIcon kind="bolt" /></span>
         <h2>How it works</h2>
         <div className="lp-steps">
-          <div className="lp-step"><span className="lp-n">1</span><h3>Name your project</h3><p>One field, no prompt to write. Everything you add afterwards belongs to it · and signing in keeps it all for next time.</p></div>
+          <div className="lp-step"><span className="lp-n">1</span><h3>Name your company</h3><p>One field, no prompt to write. Every dojo team you add afterwards belongs to that company · and signing in keeps it all for next time.</p></div>
           <div className="lp-step"><span className="lp-n">2</span><h3>Pick your dojo teams</h3><p>Tap a ready-made card — a social campaign, an app, a book, a shop. It arrives fully staffed with the teammates that job needs, already wired to the right apps, and they get to work: website, offers, outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · real work in your accounts.</p></div>
           <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, decide how much it does on its own and set a daily spending limit. A guard stops it from going in circles.</p></div>
           <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit. Your CEO dashboard tallies the numbers and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
@@ -372,7 +372,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>
         <h2>Ready to run your office?</h2>
-        <button className="lp-cta big lp-cta-create" onClick={enter}>Create your project →</button>
+        <button className="lp-cta big lp-cta-create" onClick={enter}>Create your company →</button>
         <p className="lp-foot">Credits · no crypto · powered by growth hacking · open in your browser</p>
       </section>
 
@@ -387,7 +387,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#prod">Production</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
-          <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Create your project</a>
+          <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Create your company</a>
         </nav>
       </footer>
       <SupportBot />

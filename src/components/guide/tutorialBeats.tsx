@@ -5,7 +5,7 @@
 // the same player can run any of them full screen:
 //
 //   overview · the whole thing, from an empty screen to finished work
-//   company  · A to Z, how you create your project
+//   company  · A to Z, how you create your company
 //   teams    · what a dojo team is and how you choose them
 //   apps     · connecting your apps, and what it costs on top of your plan
 import { useEffect, useState } from 'react'
@@ -23,24 +23,24 @@ export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }
     title: 'How it works',
     sub: 'Six steps, start to finish.',
     beats: [
-      { id: 'name', title: '1 · Name your project', body: 'You land on one screen. Type the name of your project — that is the whole setup. Everything you add afterwards belongs to it.' },
-      { id: 'pick', title: '2 · Choose your teams', body: 'Tick the ready-made teams that match what you want to do — a social campaign, an app, a book, a shop. They join your project together.' },
+      { id: 'name', title: '1 · Name your company', body: 'You land on one screen. Type the name of your company — that is the whole setup. Every dojo team you add afterwards belongs to it.' },
+      { id: 'pick', title: '2 · Choose your teams', body: 'Tick the ready-made teams that match what you want to do — a social campaign, an app, a book, a shop. They join your company together.' },
       { id: 'crew', title: '3 · Your team is hired', body: 'Each card arrives already staffed with exactly the teammates that job needs: a researcher, a maker, an analyst, a team lead…' },
       { id: 'apps', title: '4 · Their apps connect', body: 'Every teammate comes wired to the apps they work in. Connect one in a click and they work inside your real account.' },
-      { id: 'loop', title: '5 · Run every step', body: 'Give the project a goal and hit Run. The team lead hands each step to the right teammate, in order, and they work through it.' },
-      { id: 'ship', title: '6 · You get the work', body: 'Every step produces something real you can open, edit and export. Add another team and your project grows.' },
+      { id: 'loop', title: '5 · Run every step', body: 'Give the team a goal and hit Run. The team lead hands each step to the right teammate, in order, and they work through it.' },
+      { id: 'ship', title: '6 · You get the work', body: 'Every step produces something real you can open, edit and export. Add another team and your company grows.' },
     ],
   },
 
   company: {
-    title: 'How to create your project',
-    sub: 'From an empty screen to a working project.',
+    title: 'How to create your company',
+    sub: 'From an empty screen to a working company.',
     beats: [
       { id: 'name', title: '1 · Give it a name', body: 'One field, nothing else. It can be the real name of your business or a working title — you can change it any time from your profile.' },
-      { id: 'create', title: '2 · Hit Create your project', body: 'That is the project created. No forms, no plan to choose, no card to enter. It is saved the moment you sign in, and you find it again on any device you sign in from.' },
+      { id: 'create', title: '2 · Hit Create your company', body: 'That is the company created. No forms, no plan to choose, no card to enter. It is saved the moment you sign in, and you find it again on any device you sign in from.' },
       { id: 'pick', title: '3 · Choose your dojo teams', body: 'Next you see the whole catalogue. Tick as many teams as you need — one to start is plenty, and you can come back and add more whenever you want.' },
       { id: 'crew', title: '4 · Your teammates arrive', body: 'Each team you ticked becomes a dojo: a 3D office with its own crew, already named, already briefed, already wired to the right apps.' },
-      { id: 'brief', title: '5 · Tell them what you want', body: 'Write the goal of the project in one line. That single sentence is the brief every teammate works from, so make it the outcome you actually want.' },
+      { id: 'brief', title: '5 · Tell them what you want', body: 'Write the goal of the team in one line. That single sentence is the brief every teammate works from, so make it the outcome you actually want.' },
       { id: 'loop', title: '6 · Run every step', body: 'The team lead hands each step to the teammate who owns it, in order, and they work through the whole plan while you watch it tick.' },
       { id: 'ship', title: '7 · Everything is yours', body: 'Brand, site, posts, briefs, numbers — open them, edit them, export them. Your company lives in your profile — with every other company you build — and you can rename or remove any part of it.' },
     ],
@@ -50,7 +50,7 @@ export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }
     title: 'How dojo teams work',
     sub: 'What is inside a card, and how to choose.',
     beats: [
-      { id: 'pick', title: '1 · A card is a whole project', body: 'Not a template and not a prompt: a card is a project with a crew attached. Social campaign, mobile app, book, online shop, start-up — pick the one that matches your goal.' },
+      { id: 'pick', title: '1 · A card is a whole team', body: 'Not a template and not a prompt: a card is a team with a crew attached. Social campaign, mobile app, book, online shop, start-up — pick the one that matches your goal.' },
       { id: 'crew', title: '2 · The crew is listed up front', body: 'Every card names its teammates and what each one does before you pick it — a researcher, a maker, an analyst, a team lead. No surprises after the fact.' },
       { id: 'apps', title: '3 · Their apps come with them', body: 'The apps that job needs are already attached to the right teammate. Connecting one is a click; the card shows you which ones before you choose.' },
       { id: 'budget', title: '4 · You see the budget first', body: 'Each card shows what one full run costs in credits, so you know before you tick it. Light, Medium or Heavy tells you at a glance how much work it is.' },
@@ -121,7 +121,7 @@ export function Stage({ beat }: { beat: string }) {
     return (
       <div className="tut-stage">
         <div className="tut-name">
-          <span className="tut-name-lab">Create your project</span>
+          <span className="tut-name-lab">Create your company</span>
           <span className="tut-name-field"><b>Novaranly</b><i className="tut-caret" /></span>
         </div>
       </div>
@@ -133,7 +133,7 @@ export function Stage({ beat }: { beat: string }) {
       <div className="tut-stage">
         <div className="tut-name">
           <span className="tut-name-field done"><b>Novaranly</b></span>
-          <button className="tut-plus" type="button" tabIndex={-1}>Create your project</button>
+          <button className="tut-plus" type="button" tabIndex={-1}>Create your company</button>
         </div>
       </div>
     )
@@ -222,7 +222,7 @@ export function Stage({ beat }: { beat: string }) {
     return (
       <div className="tut-stage">
         <div className="tut-name">
-          <span className="tut-name-lab">The goal of this project</span>
+          <span className="tut-name-lab">The goal of this team</span>
           <span className="tut-name-field wide"><b>Grow our Instagram to 10k</b><i className="tut-caret" /></span>
         </div>
       </div>

@@ -83,7 +83,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
   const newCompany = () => { startNewCompany(); setView('create') }
 
   // add every ticked team at once, then drop into the first one. A team the
-  // project already has is skipped rather than duplicated — the chooser will
+  // company already has is skipped rather than duplicated — the chooser will
   // not offer one, but a stale screen still can.
   const addTeams = (list: Archetype[]) => {
     const co = projectName.trim()
@@ -144,7 +144,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
               <p>Open one to see its teams, or start another: the same speciality can work for two different companies, but never twice for the same one.</p>
             </InfoDot>
           </h1>
-          <button className="ph-addbtn" onClick={newCompany}>+ New company</button>
+          <button className="ph-addbtn ph-addco" onClick={newCompany}>+ New company</button>
         </header>
 
         {companies.length === 0 ? (
@@ -198,7 +198,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
             <p>A speciality is hired once per company. Rename the company, or remove a team, from your profile at any time.</p>
           </InfoDot>
         </h1>
-        <button className="ph-addbtn" onClick={() => setView('choose')}>+ Add dojo teams</button>
+        <button className="ph-addbtn ph-addteam" onClick={() => setView('choose')}>+ Add dojo teams</button>
       </header>
 
       {/* only the teams the founder actually picked · the seeded HQ dojo that
@@ -210,7 +210,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
             const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
             const crew = d.agents.filter((x) => !x.hidden)
             const tint = a?.tint ?? '#7b5cff'
-            // A project only hires a speciality once. Copies made before that
+            // A company only hires a speciality once. Copies made before that
             // rule existed are still here, so they are named as copies with
             // their remove button right beside them.
             const dup = !!d.archetype && projects.findIndex((x) => x.archetype === d.archetype) !== i
@@ -244,7 +244,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
                   <button className="btn primary tiny" onClick={() => open(d.id)}>Open dojo</button>
                   <button className="ph-ic" onClick={() => reorder(d.id, -1)} disabled={i === 0} aria-label="Move up" title="Move up">↑</button>
                   <button className="ph-ic" onClick={() => reorder(d.id, 1)} disabled={i === projects.length - 1} aria-label="Move down" title="Move down">↓</button>
-                  <button className="ph-ic danger" aria-label={`Delete ${d.name}`} title="Delete project"
+                  <button className="ph-ic danger" aria-label={`Delete ${d.name}`} title="Delete team"
                     onClick={() => { if (confirm(`Delete "${d.name}"? Its team and everything they made are removed.`)) del(d.id) }}>×</button>
                 </div>
               </li>
@@ -253,7 +253,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
         </ol>
       )}
 
-      {/* the two system agents · runs the whole project + looks after the app */}
+      {/* the two system agents · runs the whole company + looks after the app */}
       <SystemAgents projectCount={projects.length} onRunPipeline={() => void runPipeline()} running={loopRunning} />
     </div>
   )

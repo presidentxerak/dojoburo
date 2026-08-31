@@ -1,13 +1,13 @@
 // The dojo tab bar · the teams the founder actually chose, one tap away.
 //
 // Sticky under the header inside the dojo, so switching from the campaign team
-// to the app team is a tap rather than a trip back to the project screen.
+// to the app team is a tap rather than a trip back to the company screen.
 //
 // Only teams picked from the catalogue appear here. The seeded "HQ Dojo" that
 // every install starts with was never chosen by anyone, so it is not offered as
 // a destination — it stays reachable from Dojo settings.
 //
-// A project hires a speciality once (the chooser greys out what you already
+// A company hires a speciality once (the chooser greys out what you already
 // have, and the store refuses a twin), so the tab bar never carried the same
 // label twice on purpose. Copies made before that rule are still numbered here
 // rather than shown as identical strangers, and "My companies" offers to remove

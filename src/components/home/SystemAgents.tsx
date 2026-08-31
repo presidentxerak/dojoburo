@@ -1,6 +1,6 @@
-// The two SYSTEM agents that sit above every project.
+// The two SYSTEM agents that sit above every company.
 //
-//  · Pilot  — orchestrates the WHOLE pipeline: runs each project's loop in order.
+//  · Pilot  — orchestrates the WHOLE pipeline: runs each team's loop in order.
 //  · Kaizen — watches over the app itself: reports real health (build, storage,
 //    backend, model, safety switches) and flags what needs attention. It only
 //    ever reports what it can actually observe · never a fake "all good".
@@ -11,9 +11,8 @@ import { useEngine } from '../../agents/engineStore'
 import { useOutboundConsent } from '../../agents/outboundConsent'
 import { ROLE_BY_ID } from '../../data/roleAgents'
 import { InfoDot } from '../InfoDot'
+import { BUILD_ID } from '../../lib/build'
 
-declare const __BUILD_ID__: string
-const BUILD = typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev'
 
 type Level = 'ok' | 'warn' | 'info'
 interface Check { label: string; value: string; level: Level }
@@ -52,8 +51,8 @@ export function SystemAgents({ projectCount, onRunPipeline, running }: {
   const kb = storageKb()
 
   const checks: Check[] = [
-    { label: 'App version', value: `v${BUILD}`, level: 'info' },
-    { label: 'Projects · agents', value: `${dojos.length} · ${agents}`, level: 'info' },
+    { label: 'App version', value: `v${BUILD_ID}`, level: 'info' },
+    { label: 'Teams · agents', value: `${dojos.length} · ${agents}`, level: 'info' },
     { label: 'Local data', value: `${kb} KB in this browser`, level: kb > 4000 ? 'warn' : 'ok' },
     { label: 'App connections', value: backend ? 'live' : 'not set up yet', level: backend ? 'ok' : 'info' },
     { label: 'Connected apps', value: String(connected), level: connected > 0 ? 'ok' : 'info' },
@@ -72,10 +71,10 @@ export function SystemAgents({ projectCount, onRunPipeline, running }: {
           <strong>{pilot?.code ?? 'Pilot'} <em>{pilot?.title ?? 'Project Manager'}</em>
             <InfoDot title="Pilot" label="What Pilot does">
               <p>Pilot runs your <b>whole company</b>: it takes each team in order and runs its plan, so everything plan executes end to end.</p>
-              <p>Each project also has its own team lead (Chief) who runs just that team. Pilot is the level above.</p>
+              <p>Each team also has its own lead (Chief) who runs just that team. Pilot is the level above.</p>
             </InfoDot>
           </strong>
-          <span className="sys-line">{projectCount ? `${projectCount} project${projectCount > 1 ? 's' : ''} ready to run in order.` : 'Add a team below and Pilot will run it.'}</span>
+          <span className="sys-line">{projectCount ? `${projectCount} team${projectCount > 1 ? 's' : ''} ready to run in order.` : 'Add a team below and Pilot will run it.'}</span>
         </div>
         <button className="btn primary tiny" disabled={!projectCount || running} onClick={onRunPipeline}>
           {running ? 'Running…' : 'Run everything'}
@@ -93,7 +92,7 @@ export function SystemAgents({ projectCount, onRunPipeline, running }: {
             </InfoDot>
           </strong>
           <span className="sys-line">
-            {warnings ? `${warnings} thing${warnings > 1 ? 's' : ''} to look at` : 'System healthy'} · v{BUILD}
+            {warnings ? `${warnings} thing${warnings > 1 ? 's' : ''} to look at` : 'System healthy'} · v{BUILD_ID}
           </span>
         </div>
         <button className="btn tiny ghost" onClick={() => setOpen((v) => !v)}>{open ? 'Hide' : 'Check'}</button>

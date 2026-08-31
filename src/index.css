@@ -2946,18 +2946,19 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .tb-profile { border: 1px solid var(--border-lit); background: var(--panel-solid); border-radius: 50%; padding: 3px; cursor: pointer; line-height: 0; transition: border-color 0.14s, transform 0.14s; }
 .tb-profile:hover { border-color: var(--violet); transform: translateY(-1px); }
 
-/* The menu opens from ONE trigger: your face when you are signed in, the
-   hamburger when you are not. Both carry .tb-menu-btn. */
-.tb-profile.tb-menu-btn { display: inline-flex; }
-.tb-burger { display: none; flex-direction: column; justify-content: center; gap: 4.5px; width: 40px; height: 40px; padding: 11px; cursor: pointer; background: var(--panel-solid); border: 1px solid var(--border-lit); border-radius: 2px; }
-.tb-burger span { display: block; height: 2.4px; width: 100%; background: var(--ink); border-radius: 2px; transition: transform 0.2s, opacity 0.2s; }
-.tb-burger.on span:nth-child(1) { transform: translateY(6.9px) rotate(45deg); }
-.tb-burger.on span:nth-child(2) { opacity: 0; }
-.tb-burger.on span:nth-child(3) { transform: translateY(-6.9px) rotate(-45deg); }
+/* The menu opens from ONE trigger, always the profile button: your own face
+   when you are signed in, an empty seat when you are not. There is no second
+   hamburger anywhere in the app. */
+.tb-profile.tb-menu-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; }
+.tb-profile.on { border-color: var(--violet); }
+/* the empty seat · a head and shoulders drawn in CSS, no glyph, no emoji */
+.tb-noface { position: relative; display: block; width: 26px; height: 26px; border-radius: 50%; background: var(--panel); overflow: hidden; }
+.tb-noface::before { content: ''; position: absolute; left: 50%; top: 4px; width: 9px; height: 9px; border-radius: 50%; background: var(--muted); transform: translateX(-50%); }
+.tb-noface::after { content: ''; position: absolute; left: 50%; top: 15px; width: 17px; height: 14px; border-radius: 9px 9px 0 0; background: var(--muted); transform: translateX(-50%); }
 
 .tb-menu-scrim { position: fixed; inset: 0; z-index: 118; }
 .tb-menu {
-  position: fixed; top: 70px; right: 16px; z-index: 119; width: 300px; max-width: calc(100vw - 24px);
+  position: fixed; top: 70px; right: 16px; z-index: 119; width: 326px; max-width: calc(100vw - 24px);
   display: flex; flex-direction: column; gap: 4px; padding: 10px;
   background: var(--panel-solid); border: 1px solid var(--border-lit); border-radius: 14px; box-shadow: var(--shadow);
   animation: sbpop 0.16s ease-out;
@@ -2988,7 +2989,6 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 @media (max-width: 720px) {
   .tb-desktop { display: none !important; }
-  .tb-burger { display: flex; }
   .tb-only-mobile { display: flex; }
   .tb-menu { position: fixed; top: 66px; left: 10px; right: 10px; width: auto; max-width: none; }
 }
@@ -5358,7 +5358,18 @@ html { scroll-behavior: smooth; }
 .ph-co { grid-template-columns: 34px 1fr auto; align-items: center; }
 .ph-co .ph-proj-acts { grid-column: 3; margin: 0; }
 /* the menu's inline value · "How hard your team works · Balanced" */
-.tb-menu-val { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 800; color: var(--ac, var(--violet)); }
+.tb-menu-item:has(.tb-menu-val) { flex-wrap: wrap; row-gap: 2px; }
+.tb-menu-val { flex: 0 0 100%; display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-read); font-size: 12px; font-weight: 800; color: var(--ac, var(--violet)); }
+
+/* the build stamp · quiet footer of the menu, but always readable */
+.tb-menu-build {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;
+  margin-top: 6px; padding: 8px 10px; border: 0; border-top: 1px solid var(--border);
+  background: none; cursor: pointer; text-align: left;
+  font-family: var(--font-mono, monospace); font-size: 10.5px; color: var(--muted);
+}
+.tb-menu-build span { font-weight: 800; color: var(--violet); white-space: nowrap; }
+.tb-menu-build:hover { color: var(--ink); background: var(--panel); }
 .tb-menu-item { display: flex; align-items: center; gap: 8px; }
 .ph-step-n { grid-row: 1 / span 3; align-self: start; flex: none; display: grid; place-items: center; width: 30px; min-width: 30px; height: 30px; border-radius: 50%; background: color-mix(in srgb, var(--ac) 14%, transparent); color: var(--ac); font-family: var(--font-pixel); font-weight: 800; font-size: 14px; }
 .ph-proj-main { display: flex; align-items: center; gap: 12px; cursor: pointer; min-width: 0; }
@@ -6020,8 +6031,8 @@ html { scroll-behavior: smooth; }
 .tb-home:hover { transform: translateY(-1px); border-color: var(--ink); }
 .topbar-app .topbar-mid { flex: 1 1 auto; justify-content: center; min-width: 0; }
 .topbar-app .topbar-right { flex: 0 0 auto; }
-/* the burger is now the only door to Connect apps / Guide / City · always shown */
-.tb-menu-btn.tb-burger { display: inline-flex; }
+/* the profile button is the only door to the menu · always shown */
+.tb-menu-btn { display: inline-flex; }
 
 /* ---- the dojo's own controls, centred in the header ------------------ */
 .dojo-ctl {

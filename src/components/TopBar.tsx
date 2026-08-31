@@ -11,6 +11,7 @@ import { Logo } from './Logo'
 import { Icon } from './Icon'
 import { SkinAvatar } from './workshop/SkinAvatar'
 import { NotificationBell } from './NotificationBell'
+import { BUILD_ID, forceFresh } from '../lib/build'
 
 /** The app's header.
  *
@@ -77,26 +78,25 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
 
       <div className="topbar-right">
         <NotificationBell />
-        {account ? (
-          /* your face IS the menu · one trigger, not two */
-          <button
-            className={`tb-profile tb-menu-btn ${menuOpen ? 'on' : ''}`}
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Menu"
-            aria-expanded={menuOpen}
-            title={account.name || 'Founder'}
-          >
-            <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />
-          </button>
-        ) : (
+        {!account && (
           <>
             <button className="btn tiny ghost tb-desktop" onClick={doLogin}>Sign in</button>
             <button className="btn tiny tb-desktop" onClick={doLogin}>Sign up</button>
-            <button className={`tb-burger tb-menu-btn ${menuOpen ? 'on' : ''}`} onClick={() => setMenuOpen((v) => !v)} aria-label="Menu" aria-expanded={menuOpen}>
-              <span /><span /><span />
-            </button>
           </>
         )}
+        {/* ONE trigger, always the profile button · signed in it is your own
+            face, signed out it is an empty seat. Never a second burger. */}
+        <button
+          className={`tb-profile tb-menu-btn ${menuOpen ? 'on' : ''}`}
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+          title={account ? account.name || 'Founder' : 'Menu'}
+        >
+          {account
+            ? <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />
+            : <span className="tb-noface" aria-hidden />}
+        </button>
       </div>
 
       {menuOpen && createPortal(
@@ -147,6 +147,13 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
             </div>
 
             {account && <button className="tb-menu-item tb-signout" onClick={doSignOut}>Sign out</button>}
+
+            {/* Which files are actually running. Browsers and CDNs can serve an
+                old bundle after a deploy; this stamp says, in the UI itself,
+                which build you are looking at. Tap it to force fresh files. */}
+            <button className="tb-menu-build" onClick={() => void forceFresh()} title="Reload the app from the network">
+              build {BUILD_ID} <span>↻ get the latest</span>
+            </button>
           </div>
         </>,
         document.body,

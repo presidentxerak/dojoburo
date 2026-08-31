@@ -64,7 +64,7 @@ function Walkthroughs() {
   const [walk, setWalk] = useState<WalkId>('overview')
   const TABS: { id: WalkId; label: string }[] = [
     { id: 'overview', label: 'The whole thing' },
-    { id: 'company', label: 'Create your project' },
+    { id: 'company', label: 'Create your company' },
     { id: 'teams', label: 'Dojo teams' },
     { id: 'apps', label: 'Apps & what they cost' },
   ]
@@ -90,7 +90,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <a className="ac-kicker dg2-toacademy" href="/academy">New here? Start at the Dojo Academy →</a>
         <h1>Your <span className="hl-mag">studios</span> + your tools, <span className="hl-acid">under control</span>.</h1>
         <p className="lp-sub">
-          You name your project, pick the ready-made teams you need, and each teammate opens a pro studio
+          You name your company, pick the ready-made teams you need, and each teammate opens a pro studio
           (branding, website, Meta campaigns, video editing, finance, CRM, analytics) that runs
           <b> 100% in your browser</b> · your files never leave. Connect your real apps (Meta, Gmail, Stripe…)
           and they work inside them for you. This guide covers the whole thing, step by step.
@@ -112,13 +112,13 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
       <section className="lp-sec" id="how">
         <h2>How it works</h2>
         <HowTo walk="company" />
-        <p className="lp-lead">There is no prompt to write. You name your project, then pick the ready-made teams you need · each one arrives already staffed with the right teammates, wired to the right apps. Open any teammate to work with them, and connect your real apps to go live.</p>
+        <p className="lp-lead">There is no prompt to write. You name your company, then pick the ready-made teams you need · each one arrives already staffed with the right teammates, wired to the right apps. Open any teammate to work with them, and connect your real apps to go live.</p>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your project</b><span>One field on the home page, then hit <b>Create your project</b> · that is the moment we ask you to sign in, so it is still there next time.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your company</b><span>One field on the home page, then hit <b>Create your company</b> · that is the moment we ask you to sign in, so it is still there next time.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Choose your dojo teams</b><span>Tick as many cards as you need — a social campaign, an app, a book, a shop. Each names its crew, its apps and what a run costs before you pick it.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts. Connecting is free; only the work costs credits.</span></div></div>
         </div>
-        <p className="lp-note"><b>Do I have to sign in?</b> Only to keep things. Naming a project and reading every team card is free. The moment you add a team, we ask you to sign in so your company, your teammates and everything they make are still there next time · or you can carry on as a guest, saved in this browser only.</p>
+        <p className="lp-note"><b>Do I have to sign in?</b> Only to keep things. Naming a company and reading every team card is free. The moment you add a team, we ask you to sign in so your company, your teammates and everything they make are still there next time · or you can carry on as a guest, saved in this browser only.</p>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your {CREW_WORD} teammates &amp; what each one does</h3>
         <StudioTeam enter={() => { window.location.href = '/#app' }} />
         <p className="lp-note" style={{ marginTop: 14 }}>These {CREW_WORD} ship with every dojo — and the crew is yours to shape. See <a className="linklike" href="#team">Shape your team</a> just below.</p>
@@ -130,7 +130,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>The menu (top right)</b><span>Connect apps, the Dojo Guide, Quick search, Dojo settings, your Account, Credits and Settings · all in one place.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Inside a dojo</b><span>Three controls sit in the middle of the header: <b>Manage team</b>, <b>Dojo settings</b> and <b>Graph mode</b>. To leave the dojo, open the menu and pick <b>My companies</b> — on a phone it is the first button in the bottom bar.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>The team tabs</b><span>Right under the header, every other team in your project · switching from the campaign crew to the app crew is one tap.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>The team tabs</b><span>Right under the header, every other team in your company · switching from the campaign crew to the app crew is one tap.</span></div></div>
         </div>
         <p className="lp-note"><b>Graph mode</b> draws the team as a graph. The team lead sits at the top with a dashed line down to everyone who reports to it, and green arrows run left to right along the plan, from one step to the next. Each node is a card: what that teammate does, how much they have actually produced, when they last worked, and every app they can reach · add or remove an app right on the node.</p>
       </section>
@@ -311,7 +311,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <div>
             <h3>Live today, for real</h3>
             <ul>
-              <li>The 3D office, Dojo City and agents are real, and so are payments: you buy credits in your own currency and each task spends about one, settled on a fast rail behind the scenes · no crypto.</li>
+              <li>The 3D office and its agents are real, and so are payments: you buy credits in your own currency and each task spends about one.</li>
               <li>Connectors do real work: with the worker + OAuth configured, an agent really creates the Notion page, opens the GitHub PR, drafts the Gmail.</li>
               <li>Results are real Claude output (your own key, or a free model when the operator enables one), shown in the app and written to your connected tool.</li>
             </ul>
@@ -373,7 +373,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           </div>
           <div>
             <ul>
-              <li><b>Explore for free</b> · the free tier lets you build your project and run no-cost tasks first · add credits only when you go live.</li>
+              <li><b>Explore for free</b> · the free tier lets you build your company and run no-cost tasks first · add credits only when you go live.</li>
               <li><b>Disconnect unused apps</b> and watch your CEO dashboard for live totals (credits, tokens, tasks).</li>
               <li><b>Credits</b> (optional) cover runs on our AI · about 1 credit per task · top up only if you don't bring your own key.</li>
             </ul>

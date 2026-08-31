@@ -7,6 +7,7 @@ import { useEngine } from '../agents/engineStore'
 import { useOutboundConsent } from '../agents/outboundConsent'
 import { CURRENCY_LIST, type CurrencyCode } from '../data/currency'
 import { templateById } from '../data/templates'
+import { BUILD_ID } from '../lib/build'
 
 // Squarespace-style settings: a sidebar of sections + a content pane. Adapts to
 // the active company/site (name, region, appearance, billing, apps, autonomy).
@@ -21,8 +22,6 @@ const SECTIONS: { id: Section; label: string }[] = [
   { id: 'about', label: 'About' },
 ]
 
-declare const __BUILD_ID__: string
-const BUILD_ID = typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev'
 
 export function SettingsModal() {
   const open = useDojo((s) => s.settingsOpen)

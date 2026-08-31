@@ -55,9 +55,14 @@ await p.screenshot({ path: SHOT + '/u-dojo.png' })
 // ---- no duplicates ------------------------------------------------------------
 await p.locator('.tb-menu-btn').click()
 await p.waitForTimeout(300)
-await p.locator('.tb-menu-item', { hasText: 'My project' }).click()
+await p.locator('.tb-menu-item', { hasText: 'My companies' }).click()
 await p.waitForTimeout(1000)
-await p.locator('.ph-addbtn').click()
+// "My companies" opens the profile: one card per company. Open the one we just
+// built, THEN add a team to it — the button on the companies screen starts a
+// second company, which would legitimately own nothing.
+await p.locator('.ph-co .ph-proj-main').first().click()
+await p.waitForTimeout(700)
+await p.locator('.ph-addteam').click()
 await p.waitForTimeout(1000)
 await p.screenshot({ path: SHOT + '/u-chooser-owned.png' })
 ok(await p.locator('.tcard.owned').count() === 2, `the two teams already hired are marked · ${await p.locator('.tcard.owned').count()}`)
@@ -90,7 +95,12 @@ await p.waitForTimeout(2500)
 // ---- the four full-screen surfaces --------------------------------------------
 const surfaces = [
   ['Manage team', () => p.locator('.dojo-ctl button', { hasText: 'Manage team' }).click(), 'u-fs-manage.png'],
-  ['the token dial', () => p.locator('.eff-pill').click(), 'u-fs-dial.png'],
+  // the dial no longer sits in the header · it lives in the menu, under Credits
+  ['the token dial', async () => {
+    await p.locator('.tb-menu-btn').click()
+    await p.waitForTimeout(300)
+    await p.locator('.tb-menu-item', { hasText: 'How hard your team works' }).click()
+  }, 'u-fs-dial.png'],
   ['Graph mode', () => p.locator('.dojo-ctl-graph').click(), 'u-fs-graph.png'],
 ]
 for (const [name, open, shot] of surfaces) {
@@ -165,7 +175,9 @@ ok(await noSideScroll(), 'mobile graph does not overflow sideways')
 await m.locator('.modhost-fs.fs .modhost-close').click()
 await m.waitForTimeout(700)
 
-await m.locator('.eff-pill').click()
+await m.locator('.tb-menu-btn').click()
+await m.waitForTimeout(400)
+await m.locator('.tb-menu-item', { hasText: 'How hard your team works' }).click()
 await m.waitForTimeout(1200)
 await m.screenshot({ path: SHOT + '/u-m-dial.png' })
 ok(await m.locator('.modhost-fs.fs .modhost-close').isVisible(), 'mobile dial: the same close button')
