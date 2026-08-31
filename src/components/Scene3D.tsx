@@ -10,6 +10,7 @@ import { Decor3D } from './three/Decor3D'
 import { Character3D } from './three/Character3D'
 import { Lazy3D } from './three/Lazy3D'
 import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
+import { useOverlay } from '../lib/overlay'
 
 /** Camera rig: gentle default framing. On desktop it's biased LEFT so the room
  *  isn't hidden by the right-hand panel; on portrait/phone it's centred, widened
@@ -105,18 +106,82 @@ function Agents({ seated }: { seated: Array<{ agent: WAgent; x: number; z: numbe
   )
 }
 
+/** Shadows, drawn once instead of sixty times a second.
+ *
+ *  A 2048² shadow map re-rendered every frame is what the dojo was spending its
+ *  budget on, and it bought nothing: the room, the desks and the walls never
+ *  move, and the teammates' idle bob is millimetres from this camera. We draw
+ *  the shadow map when the scene's composition actually changes — a different
+ *  dojo, a teammate seated somewhere else — and leave it alone in between.
+ *
+ *  Before: ~500ms a frame, i.e. two frames a second, and every click in the
+ *  header queued behind it. */
+/** A hard ceiling on what the dojo may spend.
+ *
+ *  The scene used to draw as fast as the machine allowed and take the whole
+ *  frame budget with it, so everything else — a menu, a panel, a click — queued
+ *  behind it. On a slow GPU that meant seconds, which from the outside is
+ *  indistinguishable from a page that never loads.
+ *
+ *  So we drive it ourselves. Each frame is drawn, timed, and the next one is
+ *  scheduled no sooner than the last one cost: the dojo can never use more than
+ *  about half the main thread, whatever it is running on. A fast machine gets
+ *  its thirty frames a second; a slow one quietly gets fewer and stays
+ *  responsive instead of locking up. Covered by a surface, it draws nothing.
+ */
+function FrameDriver({ covered, fps = 30 }: { covered: boolean; fps?: number }) {
+  const advance = useThree((s) => s.advance)
+  useEffect(() => {
+    if (covered) return
+    const minGap = 1000 / fps
+    let timer = 0
+    let stop = false
+    const tick = () => {
+      if (stop) return
+      const t0 = performance.now()
+      advance(t0)
+      const cost = performance.now() - t0
+      timer = window.setTimeout(tick, Math.max(minGap, cost))
+    }
+    timer = window.setTimeout(tick, minGap)
+    return () => { stop = true; clearTimeout(timer) }
+  }, [advance, covered, fps])
+  return null
+}
+
+function ShadowBudget({ signature }: { signature: string }) {
+  const gl = useThree((s) => s.gl)
+  useEffect(() => {
+    gl.shadowMap.autoUpdate = false
+    gl.shadowMap.needsUpdate = true
+    // one more pass after the lazy pieces (the panda, the decor) have loaded
+    const t = setTimeout(() => { gl.shadowMap.needsUpdate = true }, 1200)
+    return () => clearTimeout(t)
+  }, [gl, signature])
+  return null
+}
+
 export function Scene3D() {
   const deselect = useDojo((s) => s.selectAgent)
+  const covered = useOverlay((s) => s.count > 0)
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
   const tpl = templateById(dojo?.template)
   const P = tpl.palette
   // one seating layout, shared by the desks (Decor3D) and the characters (Agents)
   const seated = useMemo(() => seatedAgents(dojo ?? null), [dojo])
   const stations = useMemo(() => seated.map(({ agent, x, z }) => ({ id: agent.id, fn: agent.fn, x, z })), [seated])
+  // what would actually change a shadow: which room, and who sits where
+  const signature = useMemo(
+    () => `${tpl.id}|${stations.map((s) => `${s.id}:${s.x},${s.z}`).join('|')}`,
+    [tpl.id, stations],
+  )
   return (
     <Canvas
       shadows
-      dpr={[1, 1.5]}
+      // Covered by a full-screen surface or the menu? Stop drawing. Nothing is
+      // visible, and the loop was starving every click in the header.
+      frameloop="never"
+      dpr={[1, 1.25]}
       camera={{ position: [2.2, 8.4, 14], fov: 42, near: 0.1, far: 100 }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       onPointerMissed={() => deselect(null)}
@@ -136,8 +201,8 @@ export function Scene3D() {
         position={[6, 12, 8]}
         intensity={1.15}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
         shadow-camera-left={-16}
         shadow-camera-right={16}
         shadow-camera-top={16}
@@ -154,6 +219,8 @@ export function Scene3D() {
         <Lazy3D />
       </Suspense>
       <CameraRig />
+      <FrameDriver covered={covered} />
+      <ShadowBudget signature={signature} />
     </Canvas>
   )
 }

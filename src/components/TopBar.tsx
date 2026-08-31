@@ -12,6 +12,7 @@ import { Icon } from './Icon'
 import { SkinAvatar } from './workshop/SkinAvatar'
 import { NotificationBell } from './NotificationBell'
 import { BUILD_ID, forceFresh } from '../lib/build'
+import { useOverlay } from '../lib/overlay'
 
 /** The app's header.
  *
@@ -43,9 +44,12 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
   // the thing the founder just opened.
   useEffect(() => {
     const el = document.documentElement
-    if (menuOpen) el.dataset.menu = 'open'
-    else delete el.dataset.menu
-    return () => { delete el.dataset.menu }
+    if (!menuOpen) { delete el.dataset.menu; return }
+    el.dataset.menu = 'open'
+    // the dojo keeps drawing behind the menu otherwise, and opening it took
+    // seconds because React was competing with a 60fps render loop
+    useOverlay.getState().push()
+    return () => { delete el.dataset.menu; useOverlay.getState().pop() }
   }, [menuOpen])
 
   // The brand (logo + name) links back to the landing page.

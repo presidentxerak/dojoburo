@@ -15,6 +15,8 @@ import { useWork } from '../../agents/workStore'
 import { SkinAvatar } from './SkinAvatar'
 import { TemplateThumb } from './TemplateThumb'
 import { Agent3DPreview } from '../three/Agent3DPreview'
+import { AGENT_CHAR, charForAgent } from '../landing/TeamCards'
+import { canonicalRole } from '../../data/roleAgents'
 import { ConnectorsPanel } from '../ConnectorsPanel'
 import { AgentContext } from '../agents/AgentContext'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
@@ -250,7 +252,18 @@ function StudioTab() {
                     >
                       {a && (
                         <>
-                          <SkinAvatar skin={skinById(a.skinId)} size={34} />
+                          {/* the teammate as they look in the dojo · the same
+                              animated 3D portrait as the roster and Manage
+                              team, not a flat badge in a box */}
+                          <span className="ws-cellface">
+                            <Agent3DPreview
+                              id={AGENT_CHAR[canonicalRole(a.role) ?? ''] ?? a.role ?? 'preview'}
+                              character={charForAgent(AGENT_CHAR[canonicalRole(a.role) ?? ''] ?? a.role ?? '')}
+                              size={64}
+                              fit
+                              phase={i * 0.4}
+                            />
+                          </span>
                           <span className="ws-cellname">{a.name}</span>
                         </>
                       )}

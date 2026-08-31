@@ -119,11 +119,18 @@ if ((await p.locator('.toast').count()) > 0) {
   await p.locator('.tb-menu-scrim').click({ force: true }).catch(() => {})
   await p.waitForTimeout(350)
 
+  // toasts expire on their own · wait for a fresh one rather than racing it
+  let w2 = 0
+  while ((await p.locator('.toast').count()) === 0 && w2 < 60000) { await p.waitForTimeout(1500); w2 += 1500 }
   const before = await p.locator('.toast').count()
-  await p.locator('.toast .toast-x').first().click()
-  await p.waitForTimeout(350)
-  ok('the close button dismisses it', (await p.locator('.toast').count()) === before - 1,
-    `${before} → ${await p.locator('.toast').count()}`)
+  if (before > 0) {
+    await p.locator('.toast .toast-x').first().click()
+    await p.waitForTimeout(350)
+    const after = await p.locator('.toast').count()
+    ok('the close button dismisses it', after < before, `${before} → ${after}`)
+  } else {
+    ok('a notification stayed up long enough to dismiss', false, 'none')
+  }
 } else {
   ok('a notification appeared to test', false, 'none fired in 60s')
 }

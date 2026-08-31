@@ -6850,3 +6850,63 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
    section headings up to landing-page size, so Connect apps read as a
    different product from every other surface. They are section headings. */
 .connect-cat .connect-cat-h { font-size: 17px !important; font-weight: 800 !important; }
+
+
+/* =====================================================================
+   One surface, one style.
+   Quick search and Settings each drew their own box INSIDE the full-screen
+   shell — a bordered, rounded card floating in a surface that is already a
+   card, a grey sidebar, a coloured hairline over the search field. Next to
+   Billing and Connect apps, which are plain white pages, they read as parts
+   of a different product. The shell is the panel; nothing inside it needs
+   its own frame.
+   ===================================================================== */
+.cmdk {
+  border: 0 !important; border-radius: 0 !important; background: #fff !important;
+  max-height: none; box-shadow: none;
+}
+.modhost-body.cmdk-fs { padding: 22px clamp(16px, 4vw, 36px) 40px; }
+.cmdk-fs > * { max-width: 760px; margin: 0 auto; }
+.cmdk-input {
+  border: 1px solid var(--border) !important; border-radius: 12px; padding: 14px 16px;
+  background: #fff !important;
+}
+.cmdk-input:focus { border-color: var(--ink) !important; box-shadow: none !important; outline: none; }
+.cmdk-list { padding: 10px 0 0; overflow: visible; }
+.cmdk-item { border-radius: 10px; }
+.cmdk-item.on { background: var(--panel-2); }
+.cmdk-foot { border-top: 1px solid var(--border); margin-top: 12px; }
+
+/* Settings · the sidebar is a list, not a grey slab in a rounded box */
+.modhost-body.set-fs { padding: 22px clamp(16px, 4vw, 36px) 40px; }
+.set-fs > * { max-width: 1080px; margin: 0 auto; }
+.set-modal { border: 0 !important; border-radius: 0 !important; background: #fff !important; box-shadow: none !important; }
+.set-nav {
+  background: #fff !important; border-right: 1px solid var(--border);
+  border-radius: 0 !important; padding: 0 14px 0 0;
+}
+.set-nav-item { border-radius: 10px; padding: 10px 12px; }
+.set-nav-item:hover { background: var(--panel-2); }
+.set-body { background: #fff !important; border-radius: 0 !important; padding: 4px 0 0 28px; }
+
+/* Every card in the app sits on pure white · no 92% panels, no grey slabs.
+   Requested, and it is what makes the surfaces read as one product. */
+.appcard, .cocard, .tmcard, .tcard, .cmdk, .set-modal, .set-nav, .set-body,
+.connect-card, .ws-plan, .ws-topup, .ws-billing, .lp-step3, .sys-card, .agent-card,
+.modhost-fs, .modhost-body { background-color: #fff; }
+:root[data-theme="dark"] .appcard, :root[data-theme="dark"] .cocard,
+:root[data-theme="dark"] .tmcard, :root[data-theme="dark"] .tcard,
+:root[data-theme="dark"] .connect-card, :root[data-theme="dark"] .agent-card {
+  background-color: var(--panel-solid);
+}
+
+/* the studio's seating grid · the same animated portrait as everywhere else.
+   No scaling on the cell: a WebGL canvas measures its own box, so any zoom or
+   transform on an ancestor makes the character permanently smaller than the
+   frame it lives in. */
+.ws-cellface { width: 64px; height: 64px; display: grid; place-items: center; }
+.ws-cellface .a3d { background: none !important; border-radius: 0 !important; overflow: visible !important; }
+.ws-cell { gap: 4px; padding: 6px; }
+.ws-cell.filled { background: #fff; }
+.ws-cellname { font-size: 13px !important; font-weight: 800; }
+@media (max-width: 720px) { .ws-cellface { width: 48px; height: 48px; } .ws-cellname { font-size: 11px !important; } }

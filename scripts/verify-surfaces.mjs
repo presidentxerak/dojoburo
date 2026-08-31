@@ -188,6 +188,38 @@ await m.locator('.modhost-fs.fs .modhost-close').click()
 await m.waitForTimeout(600)
 ok(await m.locator('.modhost-fs.fs').count() === 0, 'mobile: it closes')
 
+// --- the dojo must not starve the app ------------------------------------
+// The 3D room used to render every frame forever, so opening anything over it
+// queued behind a render loop: five seconds for the menu, thirteen for My
+// Credits. From the outside that is a page that never loads, and it was
+// reported as exactly that. Surfaces now pause the scene while they are up.
+await p.setViewportSize({ width: 1440, height: 950 })
+await p.goto(B + '#app', { waitUntil: 'networkidle' })
+await p.waitForTimeout(3000)
+// Click through the DOM and time the surface appearing. Playwright's own
+// actionability wants two identical animation frames, which this box (software
+// WebGL) cannot deliver quickly — that measures the renderer, not the app. What
+// the founder feels is: I clicked, and how long until it is there.
+for (const [label, item] of [['My Credits · Billing', 'My Credits'], ['Quick search', 'Quick search'], ['Dojo settings', 'Dojo settings']]) {
+  const ms = await p.evaluate((text) => new Promise((res) => {
+    const btn = document.querySelector('.tb-menu-btn')
+    btn.click()
+    requestAnimationFrame(() => {
+      const row = [...document.querySelectorAll('.tb-menu-item')].find((b) => b.textContent.includes(text))
+      const t0 = performance.now()
+      row.click()
+      const check = () => {
+        if (document.querySelector('.modhost-fs.fs')) res(performance.now() - t0)
+        else requestAnimationFrame(check)
+      }
+      requestAnimationFrame(check)
+    })
+  }), item)
+  ok(ms < 1500, `${label} appears promptly · ${Math.round(ms)}ms`)
+  await p.evaluate(() => document.querySelector('.modhost-close')?.click())
+  await p.waitForTimeout(400)
+}
+
 ok(errs.length === 0, errs.length ? 'page errors: ' + JSON.stringify(errs.slice(0, 4)) : 'no page errors')
 await br.close()
 console.log(fails ? `\n${fails} FAILED` : '\nALL GREEN')

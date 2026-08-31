@@ -11,6 +11,7 @@
 // full-screen surface should honour, and a body that cannot scroll behind it.
 import { useEffect, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { useOverlay } from '../lib/overlay'
 
 export function FullScreen({ title, sub, tint, actions, bodyClass, children, onClose }: {
   title: string
@@ -31,9 +32,13 @@ export function FullScreen({ title, sub, tint, actions, bodyClass, children, onC
     // the page underneath must not scroll while this is up
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    // and the dojo underneath must stop drawing · it is covered, and its render
+    // loop is what made these surfaces take seconds to appear
+    useOverlay.getState().push()
     return () => {
       window.removeEventListener('keydown', onKey)
       document.body.style.overflow = prev
+      useOverlay.getState().pop()
     }
   }, [onClose])
 
