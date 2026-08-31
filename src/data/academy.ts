@@ -504,19 +504,19 @@ const LANDSCAPE: Lesson[] = [
     slug: 'what-it-costs',
     title: 'What it costs, and why',
     minutes: 5,
-    summary: 'One task is about one credit. Here is what that means in real money, what is free, and how to never overspend.',
+    summary: 'You pay for the software, not for tokens. Here is what each plan buys, what is free, and how to never overspend.',
     keywords: ['ai agent pricing', 'ai automation cost', 'ai credits explained', 'byok claude api key'],
     stage: 'credits',
     blocks: [
       {
         kind: 'idea',
-        title: 'One task, about one credit',
-        body: 'That is the whole pricing model. A team\'s plan is a fixed list of steps, so one full run costs about one credit per step. A four-step team costs about four credits a run. There is no per-teammate fee and no per-app fee.',
+        title: 'You are paying for the teams, not for tokens',
+        body: 'That is the whole pricing model, and it is worth being blunt about it. What you buy from DojoBuro is the ready-made teams, their plans, the connectors and the orchestration. The model that writes the words is something you can bring yourself — and on the Founder plan you do, which is why nothing you run there is metered. About one credit per task applies only on Managed, where we are the ones paying the model.',
       },
       {
         kind: 'idea',
-        title: 'What that is in money',
-        body: 'Credits are bought in packs, and the rate depends on your plan — around $0.02 a credit on Pro. A four-credit run is roughly eight cents. Every team card shows its own number before you pick it, so you are never guessing.',
+        title: 'The three plans',
+        body: 'Free is $0: the whole catalogue, one company, and a daily allowance on free and open models. Founder is $29 a month and is the one most people want — you add your own Claude key, run as much as you like, and Anthropic bills you directly for exactly what you used. Managed is $49 a month for people who would rather not hold a key at all; it includes 2,000 tasks, and a task is one teammate doing one step, so a four-step team is four of them.',
       },
       {
         kind: 'idea',
@@ -526,7 +526,7 @@ const LANDSCAPE: Lesson[] = [
           'Browsing, naming a project and reading every team card.',
           'Connecting an app, and keeping it connected.',
           'This entire Academy.',
-          'Every task, if you bring your own Claude key — the work runs on your key and spends no credits.',
+          'Every task on the Founder plan — the work runs on your own key, and we never meter it.',
         ],
       },
       {
@@ -537,7 +537,7 @@ const LANDSCAPE: Lesson[] = [
       {
         kind: 'do',
         title: 'Set a limit before you need one',
-        body: 'Dojo settings has a daily spending limit and per-teammate budgets. Set them on day one. A cap you never hit costs nothing; a cap you did not set is how surprises happen.',
+        body: 'Dojo settings has a daily limit and per-teammate budgets. Set them on day one — they matter most on Founder, where the bill lands on your own Anthropic account rather than on an allowance that simply stops.',
       },
       {
         kind: 'idea',

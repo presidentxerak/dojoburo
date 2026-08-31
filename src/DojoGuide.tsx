@@ -116,7 +116,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your company</b><span>One field on the home page, then hit <b>Create your company</b> · that is the moment we ask you to sign in, so it is still there next time.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Choose your dojo teams</b><span>Tick as many cards as you need — a social campaign, an app, a book, a shop. Each names its crew, its apps and what a run costs before you pick it.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts. Connecting is free; only the work costs credits.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts. Connecting is free on every plan.</span></div></div>
         </div>
         <p className="lp-note"><b>Do I have to sign in?</b> Only to keep things. Naming a company and reading every team card is free. The moment you add a team, we ask you to sign in so your company, your teammates and everything they make are still there next time · or you can carry on as a guest, saved in this browser only.</p>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your {CREW_WORD} teammates &amp; what each one does</h3>
@@ -202,7 +202,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <ul>
             <li><b>Chief (CEO)</b>: tell it your goal in one sentence; it plans and delegates. "Launch Chief" chains brand → website → offer → ads → outreach on its own and emails a daily report.</li>
             <li><b>Sentinel (Security Guardian)</b>: choose how much your team does on its own each day, set a daily spending limit, save your keys safely, and flip a switch to pause outgoing email or stop everything at once.</li>
-            <li><b>Vaultor (Billing)</b>: buy credit packs in your own currency by card · about one credit per task, no crypto.</li>
+            <li><b>Vaultor (Billing)</b>: your plan, your currency, your own Claude key · paid by card, no crypto.</li>
             <li><b>Devi, Nexa, Helpi, Legi</b>: each shows <b>live data</b> from its connected apps (issues &amp; PRs, channels, tickets, documents) and fires one real action.</li>
           </ul>
         </div>
@@ -259,7 +259,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
             <h3>Run the work</h3>
             <ul>
               <li>Give the teammate a task from their card, or run the whole plan. When a task uses a connected app, the agent performs the real action · it creates the page, opens the PR, drafts the mail.</li>
-              <li>Priced tasks spend about one credit, settled on a fast rail behind the scenes, so each unit of work is metered and auditable · no crypto.</li>
+              <li>Every task leaves a receipt, so each unit of work is auditable whoever paid for the model · no crypto.</li>
             </ul>
           </div>
           <div>
@@ -275,7 +275,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec" id="runtime">
         <h2>5 · Run DojoBuro in the cloud or locally</h2>
-        <p className="lp-lead">The browser is always the cockpit · it shows the 3D office, triggers tasks and tracks your credits. The model and tool calls run in a small worker (serverless functions under <code>/api</code>), and you choose where that worker lives. Here is exactly how to run each way.</p>
+        <p className="lp-lead">The browser is always the cockpit · it shows the 3D office and triggers tasks. The model and tool calls run in a small worker (serverless functions under <code>/api</code>), and you choose where that worker lives. Here is exactly how to run each way.</p>
 
         <div className="dg2-run">
           <div className="dg2-runcol">
@@ -283,7 +283,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
             <ol className="dg2-osteps">
               <li><b>Deploy the repo</b><span>Import <code>presidentxerak/dojoburo</code> into Vercel (or any host that runs the <code>/api</code> functions). The static client builds with <code>npm run build</code>.</span></li>
               <li><b>Add a database + vault key</b><span>Set <code>DATABASE_URL</code> (any Postgres · Neon, Supabase, RDS) and a 32-byte <code>CONNECTOR_ENC_KEY</code> for the token vault. Apply the schema: <code>psql "$DATABASE_URL" -f db/connectors.sql</code>.</span></li>
-              <li><b>Add the keys you want live</b><span>Each connector's OAuth keys (see its page), plus a model path: users bring their own Claude key (BYOK) or you enable the free-model cascade. Optional: <code>STRIPE_SECRET_KEY</code> for card top-ups and credit settlement.</span></li>
+              <li><b>Add the keys you want live</b><span>Each connector's OAuth keys (see its page), plus a model path: users bring their own Claude key (BYOK) or you enable the free-model cascade. Optional: <code>STRIPE_SECRET_KEY</code> to take plan subscriptions by card.</span></li>
               <li><b>Redeploy</b><span>The worker keeps agents running when the tab is closed, every secret stays in the server-side vault, and Connect buttons go live.</span></li>
             </ol>
           </div>
@@ -311,7 +311,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <div>
             <h3>Live today, for real</h3>
             <ul>
-              <li>The 3D office and its agents are real, and so are payments: you buy credits in your own currency and each task spends about one.</li>
+              <li>The 3D office and its agents are real, and so are payments: you pay for a plan in your own currency.</li>
               <li>Connectors do real work: with the worker + OAuth configured, an agent really creates the Notion page, opens the GitHub PR, drafts the Gmail.</li>
               <li>Results are real Claude output (your own key, or a free model when the operator enables one), shown in the app and written to your connected tool.</li>
             </ul>

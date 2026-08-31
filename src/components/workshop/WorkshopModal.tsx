@@ -10,6 +10,7 @@ import { PROFESSIONS, professionColor } from '../../data/professions'
 import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
 import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/currency'
+import { PLANS, planPrice } from '../../data/plans'
 import { privyConfigured, privyControls } from '../../auth/controls'
 import { useWork } from '../../agents/workStore'
 import { useEngine } from '../../agents/engineStore'
@@ -754,13 +755,20 @@ function BillingTab() {
     <div className="ws-billing">
       {/* what you have actually spent · this used to live in Settings, behind a
           "Billing & credits" section whose only control opened this screen */}
-      <h3 style={{ marginTop: 0 }}>Today</h3>
-      <div className="set-stats">
-        <div><b>{creditsToday}</b><em>credits used today</em></div>
-        <div><b>{dailyCap || '—'}</b><em>daily cap</em></div>
-      </div>
-
+      {/* The key comes FIRST. It is the product's actual proposition — your
+          key, your bill, no meter — and it used to sit under a currency picker
+          as though it were a setting. */}
       <ClaudeKeyPanel hasAccount={hasAccount} />
+
+      <h3 style={{ marginTop: 18 }}>Today</h3>
+      <div className="set-stats">
+        <div><b>{creditsToday}</b><em>tasks run today</em></div>
+        <div><b>{dailyCap || '—'}</b><em>free daily allowance</em></div>
+      </div>
+      <p className="ws-blurb">
+        This counter only moves when a run is served on <em>our</em> side. With your own key above,
+        nothing here is metered at all.
+      </p>
 
       <h3>Currency</h3>
       <p className="ws-blurb">Prices show in your currency · you are charged by card, in that currency.</p>
@@ -777,16 +785,18 @@ function BillingTab() {
 
       <h3 style={{ marginTop: 18 }}>Plans</h3>
       <div className="ws-plans">
-        {[
-          { n: 'Free', p: '0', d: '30 tasks/mo · Testnet · free/open models' },
-          { n: 'Starter', p: formatFrom(5, currency as any), d: '300 tasks · Haiku fallback · Mainnet' },
-          { n: 'Pro', p: formatFrom(16, currency as any), d: '1,500 tasks · auto-escalation' },
-          { n: 'Team', p: formatFrom(60, currency as any), d: '8,000 tasks · Opus on hard tasks' },
-        ].map((pl) => (
-          <div key={pl.n} className="ws-plan"><strong>{pl.n}</strong><span className="ws-price">{pl.p}<i>/mo</i></span><span className="ws-blurb">{pl.d}</span></div>
+        {PLANS.map((pl) => (
+          <div key={pl.id} className={`ws-plan${pl.featured ? ' on' : ''}`}>
+            <strong>{pl.name}</strong>
+            <span className="ws-price">{planPrice(pl)}<i>{pl.usd === 0 ? '' : '/mo'}</i></span>
+            <span className="ws-blurb">{pl.tagline}</span>
+          </div>
         ))}
       </div>
-      <p className="ws-blurb">Pay in USD, EUR or JPY · by card, through Stripe.</p>
+      <p className="ws-blurb">
+        A task is one teammate doing one step · on <b>Founder</b> your tasks run on your own key and
+        Anthropic bills you directly. Pay in USD, EUR or JPY, by card, through Stripe.
+      </p>
     </div>
   )
 }
@@ -818,11 +828,17 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
 
   return (
     <div className="ws-keypanel">
-      <h3>Your Claude key <span className="ws-tag-byok">you pay only for what you use</span></h3>
+      <h3>Your Claude key <span className="ws-tag-byok">nothing here is metered</span></h3>
       <p className="ws-blurb">
-        Your teammates produce real work with Claude. Add <strong>your own</strong> Anthropic key and every run is billed to
-        <strong> your</strong> account · you pay only for your choices and connected tools. Without a key, written work still
-        run on a free tier; the <strong>Design system</strong> and acting inside your tools (Notion, GitHub…) need a key.
+        This is how DojoBuro is meant to be used. Add <strong>your own</strong> Anthropic key and your
+        teammates run on it: <strong>unlimited runs</strong>, any model you like, and Anthropic bills
+        you directly for exactly what you used. We never put a meter between you and your own work —
+        you are paying us for the teams, the plans and the connectors, not for tokens.
+      </p>
+      <p className="ws-blurb">
+        The key is sealed server-side with AES-256-GCM and never shown again. Without one, written
+        work still runs on a capped free allowance; a design system and acting inside your apps
+        (Notion, GitHub…) need either your key or the Managed plan.
       </p>
 
       {byok.connected ? (

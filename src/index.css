@@ -7145,3 +7145,27 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .cmdk-hint { font-family: var(--font-read); font-size: 12px !important; }
 .cmdk-item.on { background: var(--panel-2) !important; box-shadow: inset 2px 0 0 var(--violet); }
 .cmdk-foot { justify-content: center; font-size: 11px; }
+
+
+/* three plans, not two · the credit slider is gone with the credit tier */
+.lp-plans.plans3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); gap: 18px; align-items: start; }
+.lp-plan-note {
+  max-width: 74ch; margin: 20px auto 0; text-align: center;
+  font-family: var(--font-read); font-size: 13.5px; line-height: 1.6; color: var(--muted);
+}
+/* the plan the app recommends, in the Billing panel */
+.ws-plan.on { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--violet) 40%, transparent), 0 16px 34px -22px rgba(30,25,60,.5); }
+.ws-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.ws-plan { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; }
+.ws-plan strong { font-family: var(--font-pixel); font-size: 17px; }
+.ws-price { font-family: var(--font-pixel); font-size: 26px; line-height: 1; }
+.ws-price i { font-style: normal; font-size: 12px; color: var(--muted); }
+/* the key panel is the headline of Billing now, so it reads like one */
+.ws-keypanel { padding-bottom: 6px; }
+.ws-keypanel h3 { font-size: 21px !important; }
+.ws-tag-byok {
+  display: inline-block; margin-left: 8px; padding: 3px 9px; border-radius: 999px;
+  background: color-mix(in srgb, var(--violet) 12%, transparent); color: var(--violet);
+  font-family: var(--font-ui); font-size: 11px; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; vertical-align: middle;
+}

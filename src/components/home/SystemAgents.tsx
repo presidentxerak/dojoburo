@@ -58,7 +58,7 @@ export function SystemAgents({ projectCount, onRunPipeline, running }: {
     { label: 'Connected apps', value: String(connected), level: connected > 0 ? 'ok' : 'info' },
     { label: 'Outbound confirmation', value: consented ? 'confirmed once' : 'will ask once', level: 'ok' },
     { label: 'Company', value: engine.paused ? 'PAUSED' : 'running', level: engine.paused ? 'warn' : 'ok' },
-    { label: 'Daily spending limit', value: `${engine.creditsToday} / ${engine.dailyCreditCap}`, level: engine.creditsToday >= engine.dailyCreditCap ? 'warn' : 'ok' },
+    { label: 'Daily task limit', value: `${engine.creditsToday} / ${engine.dailyCreditCap}`, level: engine.creditsToday >= engine.dailyCreditCap ? 'warn' : 'ok' },
   ]
   const warnings = checks.filter((c) => c.level === 'warn').length
 

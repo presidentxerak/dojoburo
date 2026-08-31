@@ -66,7 +66,7 @@ export const KB: KBTopic[] = [
     walk: 'company',
     chip: 'Getting started',
     answer:
-      'Two screens, no prompt to write. 1) You land on one card: type the name of your project and hit Create your project. That is the moment we ask you to sign in, so it is still there next time (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick as many as you need. Every card names the teammates inside it, the apps they use, and what one full run costs in credits, and a bar at the bottom keeps the running total in view. Hit Add teams and you land straight in the first dojo: click a teammate to open their studio, write the goal of the project in one line, and hit Run every step. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
+      'Two screens, no prompt to write. 1) You land on one card: type the name of your company and hit Create your company. That is the moment we ask you to sign in, so it is still there next time (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick as many as you need. Every card names the teammates inside it, the apps they use, and how many tasks one full run takes, and a bar at the bottom keeps the running total in view. Hit Add teams and you land straight in the first dojo: click a teammate to open their studio, write the goal of the team in one line, and hit Run every step. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
     links: [
       { label: 'Open your cockpit', href: '#app' },
       { label: 'Watch the walkthrough', href: '/guide#walkthrough' },
@@ -79,7 +79,7 @@ export const KB: KBTopic[] = [
     walk: 'teams',
     chip: 'Dojo team cards',
     answer:
-      'A dojo team card is a whole project, ready made. Each card names every teammate inside it and how many there are (a researcher, a maker, an analyst, a team lead…), the apps they work in, how many steps their plan has, and what one full run costs: so many credits, marked Light, Medium or Heavy. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tick as many as you need — the bar at the bottom adds up the teams, the teammates, the credits and the app connections as you go. Each one becomes a dojo inside your company: a 3D office where you can rename teammates, add or remove them, change the apps they use, rewrite how any one of them works, and run the whole plan in one go. Nothing is locked and nothing needs configuring first.',
+      'A dojo team card is a whole team, ready made. Each card names every teammate inside it and how many there are (a researcher, a maker, an analyst, a team lead…), the apps they work in, how many steps their plan has, and how many tasks one full run takes, marked Light, Medium or Heavy. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tick as many as you need — the bar at the bottom adds up the teams, the teammates, the tasks and the app connections as you go. Each one becomes a dojo inside your company: a 3D office where you can rename teammates, add or remove them, change the apps they use, rewrite how any one of them works, and run the whole plan in one go. Nothing is locked and nothing needs configuring first.',
     links: [
       { label: 'Pick a team', href: '#app' },
       { label: 'Shape your team', href: '/guide#team' },
@@ -92,13 +92,13 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'What a team costs',
     answer:
-      'Every dojo team card shows its budget before you pick it. A team\'s plan is a fixed list of steps and one step is about one credit, so a 4-step team costs 4 credits for a full run — roughly $0.08 at Pro-pack rates, a bit more on Solo. Cards are marked Light (up to 3 credits), Medium (up to 5) or Heavy above that, and the bar at the bottom of the chooser adds up everything you have ticked. Two things cost nothing on top: connecting an app is free and stays free, and the apps you connect are billed by them, not by us. And if you add your own Claude key the work runs on it — unlimited tasks, no credits spent, Anthropic bills you directly.',
+      'Every dojo team card shows its size before you pick it. A team\'s plan is a fixed list of steps and one step is one task, so a 4-step team is 4 tasks for a full run. Cards are marked Light (up to 3 tasks), Medium (up to 5) or Heavy above that, and the bar at the bottom of the chooser adds up everything you have ticked. What that costs depends only on your plan: on Founder ($29/month) the work runs on your own Claude key — unlimited runs, nothing metered here, Anthropic bills you directly. On Managed ($49/month) it draws on the 2,000 tasks included. Connecting an app is free on every plan, and the apps you connect are billed by them, not by us.',
     links: [
       { label: 'Pick a team', href: '#app' },
       { label: 'Plans & pricing', href: '#pricing' },
     ],
     follow: ['pricing', 'tools', 'cost'],
-    keywords: ['budget', 'estimate', 'how much does a team cost', 'team cost', 'credits per run', 'per run', 'light medium heavy', 'expensive', 'what will it cost', 'cost of a dojo'],
+    keywords: ['budget', 'estimate', 'how much does a team cost', 'team cost', 'tasks per run', 'per run', 'light medium heavy', 'expensive', 'what will it cost', 'cost of a dojo'],
   },
   {
     id: 'signin',
@@ -129,69 +129,69 @@ export const KB: KBTopic[] = [
     id: 'wallet',
     chip: 'Credits & profile',
     answer:
-      'There is no wallet and no crypto to manage. Your profile is your account plus a simple credits balance in your own currency (USD, EUR, JPY…) and your preferences (theme, sound, notifications). You top up by card, spend about one credit per task, and everything settles on a fast rail behind the scenes · you never see a wallet, a seed or any coin.',
+      'There is no wallet and no crypto to manage. Your profile is your account, your plan and your preferences (theme, notifications). Plans are paid by card in your own currency (USD, EUR, JPY…): Free, Founder at $29 a month where your own Claude key runs the work, or Managed at $49 with 2,000 tasks included. You never see a wallet, a seed or any coin.',
     links: [
-      { label: 'Profile & credits', href: '#profile' },
+      { label: 'Profile & plan', href: '#profile' },
       { label: 'Plans & pricing', href: '#pricing' },
     ],
     follow: ['onramp', 'security', 'pricing'],
-    keywords: ['wallet', 'profile', 'account', 'seed', 'address', 'fund', 'faucet', 'balance', 'treasury', 'credits', 'no crypto'],
+    keywords: ['wallet', 'profile', 'account', 'seed', 'address', 'fund', 'faucet', 'balance', 'plan', 'no crypto'],
   },
   {
     id: 'cost',
     walk: 'apps',
-    chip: 'Cost per task (credits)',
+    chip: 'What a plan costs',
     answer:
-      'Most tasks are free or about one credit; only heavier jobs (like a full campaign) cost a couple more. You buy credits in your own currency and they settle on a fast rail behind the scenes · no crypto, no network fees to think about. Your CEO dashboard shows live totals, and you can set a daily spending limit so nothing overspends.',
+      'It depends on one thing only: who pays for the model. On Founder ($29/month) that is you — your own Claude key runs the work, Anthropic bills you directly for what you used, and we never meter it. On Managed ($49/month) it is us, and the month includes 2,000 tasks. On Free it is us too, on free and open models, with a daily allowance. A task is one teammate doing one step. Your CEO dashboard shows live totals and you can set a daily limit.',
     links: [
       { label: 'Cost breakdown', href: '#cost' },
       { label: 'Plans & pricing', href: '#pricing' },
     ],
     follow: ['onramp', 'pricing', 'wallet'],
-    keywords: ['cost', 'price', 'xrp', 'fee', 'how much', 'expensive', 'pay', 'per task', 'credit', 'credits'],
+    keywords: ['cost', 'price', 'fee', 'how much', 'expensive', 'pay', 'per task', 'plan', 'plans'],
   },
   {
     id: 'pricing',
     walk: 'apps',
     chip: 'Plans & pricing',
     answer:
-      'You bring your own model key (or run on a free model), so intelligence is basically free; you pay only for the hub: connected apps, an always-on worker and team features. Plans: Free ($0, explore + build your first company, 2 apps, ~50 tasks/mo), Solo ($12/mo, 6 apps, 300 credits), Pro ($29/mo, every app, 1,500 credits, cloud worker), Team ($22/seat/mo, shared dojos, SSO, audit) and Business (custom, self-hosted, SLA). Your-own-key and free-model tasks are unlimited and never use a credit; managed credits (1 credit ≈ 1 hosted task) cover hosted-model runs, are bought in your own currency (USD, EUR, JPY…) and top up anytime · no crypto. Annual billing saves about two months.',
+      'You are paying for the software, not for tokens: the ready-made teams, their plans, the app connectors and the orchestration. Three plans. Free ($0): the whole catalogue, one company, and a daily allowance on free and open models. Founder ($29/month) is the one most people want — you add your own Claude key, run as much as you like, and Anthropic bills you directly for exactly what you used; nothing on our side is metered. Managed ($49/month) is for people who would rather not hold a key at all, and includes 2,000 tasks a month. Business is custom: self-hosted, SSO, SLA. Paid by card in your own currency · no crypto.',
     links: [
       { label: 'See the plans', href: '#pricing' },
       { label: 'Cost per task', href: '#cost' },
     ],
     follow: ['cost', 'tools', 'onramp'],
-    keywords: ['plan', 'plans', 'pricing', 'price', 'cost', 'subscription', 'quota', 'credits', 'credit', 'tier', 'upgrade', 'billing', 'free', 'solo', 'pro', 'team', 'business', 'byok', 'how much'],
+    keywords: ['plan', 'plans', 'pricing', 'price', 'cost', 'subscription', 'quota', 'tier', 'upgrade', 'billing', 'free', 'founder', 'managed', 'business', 'byok', 'own key', 'how much'],
   },
   {
     id: 'onramp',
-    chip: 'Buy credits with a card',
+    chip: 'How you pay',
     answer:
-      'Top up with a card (€/$/¥) and you get credits in your own currency · a simple, transparent balance. Stripe takes the payment and your balance updates instantly; each task then spends about one credit, settled on a fast rail behind the scenes. No wallet, no coins, no crypto to manage. Just exploring? The free tier lets you build and run without spending anything.',
+      'A plan, by card, in your own currency (€/$/¥), through Stripe. That is the whole of it — there is no balance to top up and no meter to watch, because we do not sell you model tokens. On Founder your own Claude key runs the work and Anthropic bills you separately for it. No wallet, no coins, no crypto. Just exploring? The free tier lets you build and run without spending anything.',
     links: [
       { label: 'See the full flow', href: '#onramp' },
       { label: 'Cost per task', href: '#cost' },
     ],
     follow: ['wallet', 'pricing', 'security'],
-    keywords: ['buy credits', 'card', 'credit card', 'top up', 'topup', 'add credits', 'fiat', 'euro', 'dollar', 'stripe', 'on-ramp', 'onramp', 'deposit', 'purchase', 'currency'],
+    keywords: ['pay', 'card', 'credit card', 'subscribe', 'subscription', 'fiat', 'euro', 'dollar', 'stripe', 'checkout', 'purchase', 'currency'],
   },
   {
     id: 'payments',
     chip: 'How payments work',
     answer:
-      'Simple: you buy credits in your own currency with a card, and each task spends about one credit. There is no wallet, no coins and no crypto anywhere. Every task leaves a receipt in your dashboard, so you always see exactly what ran and what it cost.',
+      'Simple: you pay for a plan by card in your own currency. There is no wallet, no coins and no crypto anywhere. Every task leaves a receipt in your dashboard, so you always see exactly what ran — whoever paid for the model.',
     links: [
-      { label: 'From card to credits', href: '#onramp' },
+      { label: 'Bring your own key', href: '#pay' },
       { label: 'How it works', href: '#how' },
     ],
     follow: ['onramp', 'cost', 'tools'],
-    keywords: ['payment', 'payments', 'billing', 'receipt', 'charge', 'how do payments', 'credits'],
+    keywords: ['payment', 'payments', 'billing', 'receipt', 'charge', 'how do payments', 'subscription'],
   },
   {
     id: 'security',
     chip: 'Security & privacy',
     answer:
-      'There is no crypto for you to secure · no wallet, no seed, no coins. You just hold a credits balance, and payments settle on a fast rail behind the scenes. The app ships with a strict Content-Security-Policy, security headers and scraper protection. Your app access and the operator\'s model key are sealed away on the server, behind rate limits and spending caps. Keys you bring yourself (e.g. an ElevenLabs voice key) and any local wallet material stay in your browser, so treat this browser like your own device.',
+      'There is no crypto for you to secure · no wallet, no seed, no coins. You hold a plan, paid by card. The app ships with a strict Content-Security-Policy, security headers and scraper protection. Your app access and the operator\'s model key are sealed away on the server, behind rate limits and spending caps. Keys you bring yourself (e.g. an ElevenLabs voice key) and any local wallet material stay in your browser, so treat this browser like your own device.',
     links: [
       { label: 'Security details', href: '#prod' },
       { label: 'Credits & profile', href: '#profile' },
@@ -204,7 +204,7 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'Connect real tools',
     answer:
-      'Connect 40+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 and more. Connecting is one click on the app\'s own screen; access is sealed away server-side and kept fresh for you. While your teammate works, it reaches into the app directly, so the work really happens in your account · and each task is metered as about one credit, with a receipt in your dashboard. Each agent ships with a small, curated set of the best apps for its job (no duplicates), and it\'s fully modular: open its Connect apps panel, tap "+ Add apps" to bring in any other app, or remove one you don\'t use · saved per company.',
+      'Connect 40+ apps · Notion, GitHub, Gmail, Google Drive, Calendar & Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 and more. Connecting is one click on the app\'s own screen; access is sealed away server-side and kept fresh for you. While your teammate works, it reaches into the app directly, so the work really happens in your account · and each task leaves a receipt in your dashboard. Each agent ships with a small, curated set of the best apps for its job (no duplicates), and it\'s fully modular: open its Connect apps panel, tap "+ Add apps" to bring in any other app, or remove one you don\'t use · saved per company.',
     links: [
       { label: 'Set up each app · step by step', href: '/guide', external: true },
       { label: 'Connect your stack', href: '#stack' },
@@ -268,7 +268,7 @@ export const KB: KBTopic[] = [
     id: 'skins',
     chip: 'Skins & customization',
     answer:
-      'Every agent is fully customizable in the Dojo Studio: 180+ skins across 30 themes and many characters · robots, ninjas, aliens, cats, dragons, ghosts, pandas, a bibendum, a jellyfish, plus Zelda-style knights, mages and mad-scientist professors · each with a vivid face, legs and its own shoes, and sometimes a hat (bowler, top hat, beret, party or flower crown). Click an agent\'s avatar to open its editor, then change the skin, rename it, swap its function and tasks, set a credit budget, or move it on the grid. You can run several dojos (companies) in different worlds side by side.',
+      'Every agent is fully customizable in the Dojo Studio: 180+ skins across 30 themes and many characters · robots, ninjas, aliens, cats, dragons, ghosts, pandas, a bibendum, a jellyfish, plus Zelda-style knights, mages and mad-scientist professors · each with a vivid face, legs and its own shoes, and sometimes a hat (bowler, top hat, beret, party or flower crown). Click an agent\'s avatar to open its editor, then change the skin, rename it, swap its function and tasks, set a budget, or move it on the grid. You can run several dojos (companies) in different worlds side by side.',
     links: [
       { label: 'Build your own team', href: '#studio' },
       { label: 'Meet the office', href: '#cast' },
@@ -280,7 +280,7 @@ export const KB: KBTopic[] = [
     id: 'environment',
     chip: 'Cloud or local',
     answer:
-      'Run it two ways. Cloud: a managed worker runs the model + tool calls and keeps agents going when the tab is closed, with every key sealed away on the server. Local / self-hosted: run your own worker and point connectors at your own MCP endpoints · your keys, your machine, the same office. Either way the browser is just the cockpit: it shows the 3D office, triggers tasks and tracks your credits; the worker does the authenticated work.',
+      'Run it two ways. Cloud: a managed worker runs the model + tool calls and keeps agents going when the tab is closed, with every key sealed away on the server. Local / self-hosted: run your own worker and point connectors at your own MCP endpoints · your keys, your machine, the same office. Either way the browser is just the cockpit: it shows the 3D office and triggers tasks; the worker does the authenticated work.',
     links: [
       { label: 'Cloud or local', href: '#stack' },
       { label: 'Runtime & environment', href: '#env' },
@@ -292,7 +292,7 @@ export const KB: KBTopic[] = [
     id: 'networks',
     chip: 'Explore free vs go live',
     answer:
-      'Start on the free tier · build your project, meet the crew and run tasks that don\'t need credits, at no cost. When you\'re ready to go live, add credits in your own currency and the crew runs the priced work for real. Same office, same agents · you just switch from exploring to running. No crypto at any point.',
+      'Start on the free tier · build your company, meet the crew and run on free and open models, at no cost. When you are ready to go live, add your own Claude key on Founder and the same crew runs the real work on the model you choose. Same office, same agents · you just switch from exploring to running. No crypto at any point.',
     links: [
       { label: 'Open the app', href: '#app' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -304,9 +304,9 @@ export const KB: KBTopic[] = [
     id: 'xaman',
     chip: 'Do I need a wallet?',
     answer:
-      'No · there is no wallet, no seed and no coins anywhere in DojoBuro. You pay in your own currency (USD, EUR, JPY…) with a card, hold a simple credits balance, and each task spends about one credit. There is nothing crypto to set up, secure or understand.',
+      'No · there is no wallet, no seed and no coins anywhere in DojoBuro. You pay for a plan in your own currency (USD, EUR, JPY…) with a card. There is nothing crypto to set up, secure or understand.',
     links: [
-      { label: 'Buy credits with a card', href: '#onramp' },
+      { label: 'How you pay', href: '#pay' },
       { label: 'Credits & profile', href: '#profile' },
     ],
     follow: ['security', 'wallet'],
@@ -316,7 +316,7 @@ export const KB: KBTopic[] = [
     id: 'troubleshoot',
     chip: 'Troubleshooting',
     answer:
-      "If a task won't run, check your credits balance isn't empty or capped by your daily limit, and that the app it needs is connected. If totals look stale, reload to refresh. If the 3D office is blank, your browser may be blocking WebGL · try another browser or enable hardware acceleration.",
+      "If a task won't run, check you have not hit your daily limit (or add your own Claude key, which has none), and that the app it needs is connected. If totals look stale, reload to refresh. If the 3D office is blank, your browser may be blocking WebGL · try another browser or enable hardware acceleration.",
     links: [
       { label: 'Open the app', href: '#app' },
     ],

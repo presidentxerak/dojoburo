@@ -126,7 +126,7 @@ export function EffortPanel({ onClose }: { onClose: () => void }) {
           <p className="eff-note">
             Estimates, not promises — measured against this app's own prompts. The numbers below are the
             real ones, reported by the model itself.
-            {!byok.connected && ' Right now your runs are metered in credits; add your own Claude key and the tokens are billed to you directly by Anthropic instead.'}
+            {!byok.connected && ' Right now your runs are metered against a daily allowance; add your own Claude key and nothing here is metered at all — Anthropic bills you directly for what you used.'}
           </p>
 
           {/* ---- what you have really spent ---- */}

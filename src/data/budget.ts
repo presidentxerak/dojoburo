@@ -1,35 +1,32 @@
 // What a dojo team costs to run.
 //
-// The whole app prices work the same way: one task ≈ one credit. A team's plan
-// is a fixed list of steps, so a full run of that team costs one credit per
-// step. That is the only honest number we have, and it is the one shown on the
-// card — no invented "from $X/month".
+// A team's plan is a fixed list of steps, and one step is one task. That is the
+// only honest number on a team card — no invented "from $X/month".
 //
-// Money is a secondary hint: credits are bought in packs, and the rate depends
-// on the plan (Solo works out around $0.04 a credit, Pro around $0.02). We show
-// the Pro rate and say so, rather than pretending there is one price.
-//
-// And the important caveat, repeated wherever the number appears: with your own
-// Claude key the work runs on your key and costs no credits at all.
+// What a task costs depends on who is paying for the model, and the card says
+// which: on FOUNDER the run goes to the founder's own Claude key and costs
+// nothing here; on MANAGED it draws on the month's included tasks. The dollar
+// figure is the managed rate, shown as a hint rather than a bill.
 import type { Archetype } from './archetypes'
+import { TASK_USD } from './plans'
 
-/** $ per credit at Pro-pack rates ($29 for 1,500 credits). */
-export const CREDIT_USD = 29 / 1500
+/** $ per task on the managed tier · the single source is data/plans.ts. */
+export const CREDIT_USD = TASK_USD
 
 export type BudgetTier = 'Light' | 'Medium' | 'Heavy'
 
 export interface TeamBudget {
-  /** credits for one full run of the team's plan */
+  /** tasks in one full run of the team's plan · one per step */
   credits: number
-  /** the same run, in dollars, at Pro rates */
+  /** the same run in dollars, at the managed rate */
   usd: number
   tier: BudgetTier
   /** how many apps the crew can reach (each is free to connect) */
   apps: number
 }
 
-const tierFor = (credits: number): BudgetTier =>
-  credits <= 3 ? 'Light' : credits <= 5 ? 'Medium' : 'Heavy'
+const tierFor = (tasks: number): BudgetTier =>
+  tasks <= 3 ? 'Light' : tasks <= 5 ? 'Medium' : 'Heavy'
 
 /** Round to something a person reads without effort: $0.08, $0.15, $1.20. */
 export function usdLabel(usd: number): string {
@@ -39,8 +36,8 @@ export function usdLabel(usd: number): string {
 }
 
 export function teamBudget(a: Archetype, appCount: number): TeamBudget {
-  const credits = Math.max(1, a.loop.length)
-  return { credits, usd: credits * CREDIT_USD, tier: tierFor(credits), apps: appCount }
+  const tasks = Math.max(1, a.loop.length)
+  return { credits: tasks, usd: tasks * TASK_USD, tier: tierFor(tasks), apps: appCount }
 }
 
 /** The combined budget for a whole selection of teams. */

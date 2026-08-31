@@ -33,6 +33,7 @@ const arch = await load('src/data/archetypes.ts')
 const conns = await load('src/data/connectors.ts')
 const budget = await load('src/data/budget.ts')
 const academy = await load('src/data/academy.ts')
+const plans = await load('src/data/plans.ts')
 
 const F = {
   crew: roles.COMPANY_IDS.length,
@@ -40,6 +41,9 @@ const F = {
   teams: arch.ARCHETYPES.length,
   apps: conns.CONNECTORS.length,
   creditUsd: budget.CREDIT_USD,
+  founderUsd: plans.FOUNDER_USD,
+  managedUsd: plans.MANAGED_USD,
+  managedTasks: plans.MANAGED_TASKS,
   lessons: academy.LESSON_COUNT,
   tracks: academy.TRACKS.length,
   hours: Math.round((academy.TOTAL_MINUTES / 60) * 10) / 10,
@@ -47,6 +51,7 @@ const F = {
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
   'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty']
 const runUsd = (F.creditUsd * 4).toFixed(2)
+const managedTasksStr = F.managedTasks.toLocaleString('en-US')
 
 // --- the rules -------------------------------------------------------------
 // Each rule says: in this file, this claim must be present, and the stale
@@ -54,12 +59,23 @@ const runUsd = (F.creditUsd * 4).toFixed(2)
 const RULES = [
   // the support bot's server-side prompt · a separate bundle, cannot import facts
   { file: 'api/chat.ts', must: new RegExp(`${F.teams} ready-made teams`), why: `the catalogue has ${F.teams} ready-made teams` },
-  { file: 'api/chat.ts', must: /about one credit per task/i, why: 'the pricing model is one step ≈ one credit' },
-  { file: 'api/chat.ts', must: new RegExp(`\\$${runUsd.replace('.', '\\.')}`), why: `a 4-step run is $${runUsd} at Pro rates` },
+  // Pricing lives in src/data/plans.ts. It used to live in three places that
+  // disagreed — the landing sold credits at $1, the Billing panel sold four
+  // metered tiers, and budget.ts priced a credit at a fourth rate — so these
+  // rules exist to make that impossible to do again by accident.
+  { file: 'api/chat.ts', must: new RegExp(`Founder \\(\\$${F.founderUsd}/month\\)`), why: `Founder is $${F.founderUsd}/month` },
+  { file: 'api/chat.ts', must: new RegExp(`Managed \\(\\$${F.managedUsd}/month\\)`), why: `Managed is $${F.managedUsd}/month` },
+  { file: 'api/chat.ts', must: new RegExp(`${managedTasksStr} tasks a month`), why: `Managed includes ${managedTasksStr} tasks` },
+  { file: 'api/chat.ts', must: new RegExp(`\\$${runUsd.replace('.', '\\.')}`), why: `a 4-task run is $${runUsd} of the Managed allowance` },
+  { file: 'api/chat.ts', forbid: /\bStarter\b|1,500 credits|Pro-pack/, why: 'the metered plans are gone · we sell the software, not tokens' },
+
+  // and nothing may hardcode a plan price outside plans.ts
+  { file: 'src/components/landing/Pricing.tsx', forbid: /\$\d+ ?\/ ?month|PRICE_PER_CREDIT/, why: 'plan prices come from data/plans.ts' },
   { file: 'api/chat.ts', must: /Dojo Academy/, why: 'the bot must know the Academy exists' },
 
   // the Academy's own prose
-  { file: 'src/data/academy.ts', must: new RegExp(`about one credit`, 'i'), why: 'the pricing lesson must state the real model' },
+  { file: 'src/data/academy.ts', must: /paying for the teams, not for tokens/i, why: 'the pricing lesson must lead with what is actually sold' },
+  { file: 'src/data/academy.ts', must: new RegExp(`Founder is \\$${F.founderUsd} a month`), why: `the lesson must name the real Founder price` },
   { file: 'src/data/academy.ts', forbid: /(ships|comes) with (twelve|\d+) teammates/i, why: 'a crew-size claim belongs in facts.ts, not in a lesson' },
 
   // the landing page and the guide must not hardcode counts any more

@@ -42,7 +42,12 @@ const FREE_DAILY = int(ENV.WORK_FREE_DAILY, 10) // free-cascade runs / account /
 // The free tier is metered in TOKENS as well as runs, because a Saver run and a
 // Max run are not the same thing to pay for — counting runs alone made the
 // cheapest mode buy you nothing. Whichever ceiling is hit first stops the day.
-const FREE_DAILY_TOKENS = int(ENV.WORK_FREE_DAILY_TOKENS, 120_000)
+// 120,000 was the old default, and it was set against nothing: the free
+// providers behind it share about a million tokens a day between every account
+// on the platform, so eight busy founders could drain the pool for everyone.
+// 25,000 is roughly four Balanced runs — enough to see the product work, which
+// is what a free tier is for.
+const FREE_DAILY_TOKENS = int(ENV.WORK_FREE_DAILY_TOKENS, 25_000)
 // Admin / operator allowlist. These accounts test every tool for free with NO
 // daily cap, and may use the operator's Claude key even when WORK_OPERATOR_CLAUDE
 // is off. They only ever spend the OPERATOR's own configured keys / free tiers.

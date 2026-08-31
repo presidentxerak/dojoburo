@@ -72,8 +72,8 @@ export function TeamCard({ a, selected, owned, onToggle }: {
       {/* what a full run costs · the only number we can state honestly */}
       <span className="tcard-budget">
         <span className={`tcard-tier t-${budget.tier.toLowerCase()}`}>{budget.tier}</span>
-        <span className="tcard-bmain"><b>{budget.credits}</b> credits a run</span>
-        <span className="tcard-busd">≈ {usdLabel(budget.usd)} · free with your own key</span>
+        <span className="tcard-bmain"><b>{budget.credits}</b> tasks a run</span>
+        <span className="tcard-busd">≈ {usdLabel(budget.usd)} on Managed · free on your own key</span>
       </span>
 
       <span className="tcard-cta">

@@ -21,7 +21,7 @@ import { CREW_COUNT, CREW_WORD } from './data/facts'
 const C = { magenta: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
 
 /** A-to-Z landing page: what DojoBuro is, how the CEO + crew run your company,
- *  what a task costs in credits, how agents get wired to real tools, where they
+ *  what each plan buys, how agents get wired to real tools, where they
  *  run, and the path to a fully-functional production deployment. */
 export function Landing({ enter }: { enter: () => void }) {
   // paid plans drop the user on the Billing / plans view inside the dojo
@@ -191,7 +191,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-step"><span className="lp-n">1</span><h3>Name your company</h3><p>One field, no prompt to write. Every dojo team you add afterwards belongs to that company · and signing in keeps it all for next time.</p></div>
           <div className="lp-step"><span className="lp-n">2</span><h3>Pick your dojo teams</h3><p>Tap a ready-made card — a social campaign, an app, a book, a shop. It arrives fully staffed with the teammates that job needs, already wired to the right apps, and they get to work: website, offers, outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · real work in your accounts.</p></div>
           <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, decide how much it does on its own and set a daily spending limit. A guard stops it from going in circles.</p></div>
-          <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit. Your CEO dashboard tallies the numbers and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
+          <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Your CEO dashboard tallies what the team did and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
         </div>
       </section>
 
@@ -212,67 +212,51 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec alt" id="pricing">
         <Object3D kind="gem" color={C.orange} side="left" parallax={0.12} />
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="price" /></span>
-        <h2>Simple, credit-based pricing</h2>
+        <h2>You pay for the teams, not for tokens</h2>
         <p className="lp-lead">
-          Start free. Upgrade when you need more credits. <b>1 credit ≈ 1 agentic task</b> · pick how many you
-          need each month and the price scales with you. Bring your own model key and hosted-model credits become
-          optional; either way there's no crypto to manage.
+          Most tools in this space resell you model tokens with a margin on top. We do not.
+          What you buy is the ready-made teams, their plans, the app connectors and the
+          orchestration that runs them · the model is something you can bring yourself,
+          and on <b>Founder</b> you do. Your key, your bill, and no meter between you and
+          your own work.
         </p>
         <Pricing enter={enter} goBilling={goBilling} goAssistant={goAssistant} connectors={CONNECTORS.length} />
         <p className="lp-note">
-          Credits roll over month to month. Buy them in your own currency (USD, EUR, JPY…) and top up anytime ·
-          Exploring is always free.
+          Exploring is always free, and no card is asked for until you want one of the paid plans.
         </p>
       </section>
 
       <section className="lp-sec alt" id="pay">
-        <h2>Pay your way · in your own currency</h2>
-        <p className="lp-lead">Prices show in your currency. You buy credits in $, €, ¥ and more; each task spends about one credit. No crypto anywhere.</p>
-        <div className="lp-schema">
-          <div className="lp-node"><b>$ · € · ¥</b><span>Pick your currency</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Credits</b><span>~1 credit meters a task</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Fast rail</b><span>Settled behind the scenes + receipt</span></div>
-        </div>
-      </section>
-
-      <section className="lp-sec alt" id="onramp">
-        <Object3D kind="card" color={C.blue} side="right" parallax={0.13} />
-        <span className="lp-pill">Credits · your currency · no crypto</span>
-        <h2>From your card to a company that runs itself</h2>
+        <h2>Bring your own key, and nothing is metered</h2>
         <p className="lp-lead">
-          Top up with a card and get <b>credits in your own currency</b> · a simple, transparent balance.
-          Those credits fund your dojo, and the crew spends about one credit per task as it builds and runs
-          your company. You never touch a wallet or any
-          crypto.
+          On the Founder plan your teammates run on <b>your</b> Anthropic key. It is sealed
+          server-side and never shown again, and Anthropic bills you directly for exactly what you
+          used · we never see a token of it, and we never put a counter in front of your work.
         </p>
         <div className="lp-schema lp-flow">
-          <div className="lp-node"><span className="lp-nico">1</span><b>Pay by card</b><span>€ · $ · ¥ via Stripe</span></div>
+          <div className="lp-node"><span className="lp-nico">1</span><b>Add your key</b><span>Sealed with AES-256-GCM</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">2</span><b>Get credits</b><span>Priced in your currency</span></div>
+          <div className="lp-node"><span className="lp-nico">2</span><b>Run as much as you like</b><span>No cap, no counter</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">3</span><b>The crew works</b><span>~1 credit per task</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">4</span><b>Paid in credits</b><span>By card · no crypto</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">5</span><b>Clear receipt</b><span>Every task is metered</span></div>
+          <div className="lp-node"><span className="lp-nico">3</span><b>Anthropic bills you</b><span>For what you actually used</span></div>
         </div>
         <div className="lp-benefits">
-          <div className="lp-benefit"><b>No crypto to manage</b><span>Buy credits in your own currency and spend them like any balance · no wallet, no seed, nothing to hold.</span></div>
-          <div className="lp-benefit"><b>Real work, metered</b><span>Your agents don't just chat · they do real tasks, each metered as about one credit so your spend is always transparent.</span></div>
-          <div className="lp-benefit"><b>Auditable</b><span>Every task carries a receipt in your dashboard · you see exactly what ran and what it cost.</span></div>
+          <div className="lp-benefit"><b>No margin on your tokens</b><span>You buy the model at its real price, from the company that made it. We are not in the middle of that transaction.</span></div>
+          <div className="lp-benefit"><b>Any model you like</b><span>Your key, your choice · use the cheap fast one for drafts and the strong one for the run you are going to ship.</span></div>
+          <div className="lp-benefit"><b>Or don't hold a key at all</b><span>Managed includes 2,000 tasks a month and we pick the model per task. Same product, no key to rotate.</span></div>
         </div>
-        <p className="lp-note">Card top-ups add credits via a Stripe checkout. Just exploring? A free tier works the same, at no cost.</p>
+        <p className="lp-note">
+          No crypto, no wallet, nothing to hold. Plans are paid by card in your own currency through Stripe.
+        </p>
       </section>
 
       <section className="lp-sec" id="profile">
         <h2>How you manage your profile</h2>
         <div className="lp-two">
           <div>
-            <h3>Your account &amp; credits</h3>
+            <h3>Your account &amp; plan</h3>
             <ul>
-              <li><b>Credits balance:</b> you hold a simple balance in your own currency (USD, EUR, JPY…). Top up by card anytime · about one credit per task, and nothing to hold or manage.</li>
+              <li><b>Your plan:</b> Free, Founder or Managed, paid by card in your own currency (USD, EUR, JPY…). On Founder your own Claude key runs the work and nothing here is metered at all.</li>
               <li><b>No crypto:</b> there is no wallet, no seed and no token · just a clear, metered balance in your own currency.</li>
             </ul>
           </div>
@@ -288,32 +272,37 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <section className="lp-sec alt" id="cost">
-        <h2>What a task costs in credits</h2>
-        <p className="lp-lead">Most work is free or about one credit; only heavier jobs cost a little more. You buy credits in your own currency · no crypto, no fees to think about.</p>
+        <h2>What each plan actually buys</h2>
+        <p className="lp-lead">
+          A task is one teammate doing one step, so a four-step team is four tasks a run. What that
+          costs depends only on who is paying the model · and on Founder, that is you, directly.
+        </p>
         <div className="lp-tablewrap">
         <table className="lp-table">
-          <thead><tr><th>Task type</th><th>Credits</th><th>Settlement</th><th>Total / run</th></tr></thead>
+          <thead><tr><th>Plan</th><th>Per month</th><th>Runs</th><th>Who pays the model</th></tr></thead>
           <tbody>
-            <tr><td>Free tasks (standups, reports, tracking…)</td><td>0</td><td>included</td><td>free</td></tr>
-            <tr><td>Light agentic task</td><td>~1 credit</td><td>behind the scenes</td><td>≈ 1 credit</td></tr>
-            <tr><td>Standard agentic task</td><td>~1 credit</td><td>behind the scenes</td><td>≈ 1 credit</td></tr>
-            <tr><td>Premium agentic task (e.g. a full campaign)</td><td>2–3 credits</td><td>behind the scenes</td><td>≈ 2–3 credits</td></tr>
+            <tr><td>Free</td><td>$0</td><td>A daily allowance</td><td>Us · free and open models</td></tr>
+            <tr><td><b>Founder</b></td><td><b>$29</b></td><td><b>Unlimited</b></td><td><b>You, on your own Claude key</b></td></tr>
+            <tr><td>Managed</td><td>$49</td><td>2,000 tasks</td><td>Us · we pick the model per task</td></tr>
           </tbody>
         </table>
         </div>
-        <p className="lp-note">Exploring is free while you try things out. On a paid plan the same tasks spend real credits · your CEO dashboard shows your running totals live.</p>
+        <p className="lp-note">
+          Connecting an app is free on every plan, there is no per-teammate or per-app fee, and your
+          own Notion, Slack or Stripe subscriptions are always paid to those companies, never to us.
+        </p>
       </section>
 
       <section className="lp-sec" id="tools">
         <h2>Real tools, real work</h2>
-        <p className="lp-lead">The agents don't just animate · they produce real work with your connected apps, metered as credits.</p>
+        <p className="lp-lead">The agents don't just animate · they produce real work inside your connected apps.</p>
         <div className="lp-two">
           <div>
             <h3>The model + tool layer</h3>
             <ul>
               <li>Each task has a clear shape (what goes in, what comes out). Behind it sits a Claude call · your own key or a free model · with the tools that job needs.</li>
               <li>Your connected apps are exposed as <b>remote MCP servers</b> · Notion, GitHub, Gmail, Slack, Jira, Stripe and {CONNECTORS.length - 6}+ more · so an agent opens a PR, posts a message or drafts a doc for real.</li>
-              <li>Credits are the <b>metering</b>: a task runs its tool calls and spends about one credit, settled behind the scenes, so every unit of real work is auditable.</li>
+              <li>Every task is <b>recorded</b>: what ran, which apps it touched and what it produced, so the work is auditable whoever paid for the model.</li>
             </ul>
           </div>
           <div>
@@ -341,7 +330,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <h3>For real work · a cloud worker</h3>
             <ul>
               <li>Model + tool execution runs in the cloud (a serverless function or a container/worker), not on your machine · so it keeps running when the tab is closed and keeps keys safe.</li>
-              <li>The browser stays the cockpit: it shows the office, triggers tasks and tracks your credits; the worker does the heavy, authenticated work.</li>
+              <li>The browser stays the cockpit: it shows the office and triggers tasks; the worker does the heavy, authenticated work.</li>
             </ul>
           </div>
         </div>
@@ -352,8 +341,8 @@ export function Landing({ enter }: { enter: () => void }) {
         <ul className="lp-check">
           <li>Ship the static app behind a CDN with the strict CSP, security headers and bot/scraper protection already in the repo.</li>
           <li>Add a small backend for the model + MCP tool calls, with secrets in a vault and per-user rate limits &amp; budgets.</li>
-          <li>Accounts &amp; profiles: passkey/email auth, server-held preferences and a per-account credits balance.</li>
-          <li>Move priced tasks onto real credits with card top-ups; keep a free tier as a sandbox.</li>
+          <li>Accounts &amp; profiles: passkey/email auth, server-held preferences and your sealed model key.</li>
+          <li>Take subscriptions by card; keep the free tier as a sandbox on open models.</li>
           <li>Persist artifacts and the activity log; expose an audit view of every task and what it cost.</li>
           <li>Observability (logs, traces, spend dashboards), automated tests and CI, plus a staged free → paid rollout.</li>
         </ul>

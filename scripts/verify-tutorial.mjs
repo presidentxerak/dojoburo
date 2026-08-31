@@ -58,7 +58,7 @@ await p.waitForTimeout(1500)
 ok(await p.locator('.tutfs-body .tut-spec-cards .tcard').count() === 3, 'pick: three real team cards')
 ok(await p.locator('.tutfs-body .tut-spec-cards .tcard.on').count() === 1, 'pick: one of them is ticked')
 const card = await p.locator('.tutfs-body .tut-spec-cards .tcard').first().innerText()
-ok(/credits a run/i.test(card) && /teammates/i.test(card), 'pick: the card carries its real crew and budget')
+ok(/tasks a run/i.test(card) && /teammates/i.test(card), 'pick: the card carries its real crew and size')
 
 await dotFor(CREW).click()
 await p.waitForTimeout(2500)

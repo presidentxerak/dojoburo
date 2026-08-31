@@ -111,7 +111,7 @@ export function ChooseTeams({ projectName, onAdd, onBack, existing = [] }: {
               <>
                 <strong>{picked.length} team{picked.length > 1 ? 's' : ''} · {mates} teammates</strong>
                 <span>
-                  {total.credits} credits to run all of them once · ≈ {usdLabel(total.usd)}
+                  {total.credits} tasks to run all of them once · ≈ {usdLabel(total.usd)} on Managed
                   {' '}· {total.apps} app connection{total.apps > 1 ? 's' : ''} available
                 </span>
               </>

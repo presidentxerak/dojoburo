@@ -1,9 +1,14 @@
-import { useState } from 'react'
+import { PLANS, planPrice, type Plan } from '../../data/plans'
 
-// Credit-first pricing (nanocorp-style): a free tier + a Founder tier whose
-// price scales with a monthly-credit selector. 1 credit ≈ 1 agentic task.
-const CREDIT_OPTIONS = [30, 60, 120, 240, 480, 960, 1200, 1400, 1600, 1800, 2000]
-const PRICE_PER_CREDIT = 1 // $ / credit / month
+// Pricing, from the one place that defines it (data/plans.ts).
+//
+// This page used to sell credits on a slider — 30 to 2,000 a month at a dollar
+// each — while the Billing panel inside the app sold four different metered
+// tiers at different rates. Same product, two prices, and both of them priced
+// model tokens rather than the software.
+//
+// Now there are three plans and the middle one is the argument: bring your own
+// Claude key and nothing between you and your own work is metered.
 
 export function Pricing({
   enter,
@@ -16,54 +21,39 @@ export function Pricing({
   goAssistant: () => void
   connectors: number
 }) {
-  const [credits, setCredits] = useState(30)
-  const price = credits * PRICE_PER_CREDIT
+  const cta = (p: Plan) => (p.id === 'free' ? enter : goBilling)
 
   return (
     <>
-      <div className="lp-plans credits">
-        <div className="lp-plan">
-          <div className="lp-plan-name">Free</div>
-          <div className="lp-plan-price">$0<small> / forever</small></div>
-          <div className="lp-plan-sub">Start free. Explore the whole office and build your first company.</div>
-          <button className="lp-cta ghostcta" onClick={enter}>Get started</button>
-          <div className="lp-plan-incl">Includes</div>
-          <ul>
-            <li>3 lifetime credits</li>
-            <li>a dojoburo.app domain</li>
-            <li>1 active company</li>
-            <li>All worlds &amp; agent skins</li>
-            <li>Earn credits through referrals</li>
-            <li>"Built with dojoburo" badge</li>
-          </ul>
-        </div>
-
-        <div className="lp-plan feat">
-          <div className="lp-plan-badge">Most popular</div>
-          <div className="lp-plan-name">Founder</div>
-          <div className="lp-plan-price">${price}<small> / month</small></div>
-          <div className="lp-plan-sub">{credits} credits / month</div>
-          <button className="lp-cta" onClick={goBilling}>Get started</button>
-          <select
-            className="lp-credit-select"
-            value={credits}
-            onChange={(e) => setCredits(Number(e.target.value))}
-            aria-label="Monthly credits"
-          >
-            {CREDIT_OPTIONS.map((c) => <option key={c} value={c}>{c} credits / month</option>)}
-          </select>
-          <div className="lp-plan-incl">Everything in Free, plus</div>
-          <ul>
-            <li>{credits} monthly credits</li>
-            <li>Monthly credits that roll over</li>
-            <li>Unlimited companies</li>
-            <li>Custom domains</li>
-            <li>All {connectors} app connectors</li>
-            <li>Always-on cloud worker</li>
-            <li>Remove the dojoburo badge</li>
-          </ul>
-        </div>
+      <div className="lp-plans plans3">
+        {PLANS.map((p) => (
+          <div key={p.id} className={`lp-plan${p.featured ? ' feat' : ''}`}>
+            {p.featured && <div className="lp-plan-badge">Most popular</div>}
+            <div className="lp-plan-name">{p.name}</div>
+            <div className="lp-plan-price">
+              {planPrice(p)}
+              <small>{p.usd === 0 ? ' / forever' : ' / month'}</small>
+            </div>
+            <div className="lp-plan-sub">{p.tagline}</div>
+            <button className={`lp-cta${p.featured ? '' : ' ghostcta'}`} onClick={cta(p)}>
+              {p.id === 'free' ? 'Get started' : `Choose ${p.name}`}
+            </button>
+            <div className="lp-plan-incl">{p.inclHead}</div>
+            <ul>
+              {p.incl.map((line) => (
+                <li key={line}>{line === 'Every app connector' ? `All ${connectors} app connectors` : line}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
+
+      <p className="lp-plan-note">
+        A task is one teammate doing one step, so a four-step team is four tasks a run.
+        On <b>Founder</b> those tasks run on your own Claude key and Anthropic bills you directly ·
+        connecting an app is free on every plan, and your Notion, Slack or Stripe subscriptions are
+        always paid to those companies, never to us.
+      </p>
 
       <div className="lp-enterprise">
         <div>
