@@ -6,7 +6,7 @@ import type { Department } from './agents'
 export interface TaskDef {
   id: string
   name: string
-  /** indicative x402 price in XRP (0 = free) */
+  /** indicative cost in credits (0 = free) */
   price: number
 }
 
@@ -17,12 +17,6 @@ export interface FunctionDef {
   tasks: TaskDef[]
 }
 
-const XRPL_TASKS: TaskDef[] = [
-  { id: 'wallet', name: 'Manage XRPL wallet', price: 0 },
-  { id: 'pay', name: 'Agentic payment (x402)', price: 0 },
-  { id: 'track', name: 'Anchor behavior on-ledger', price: 0 },
-]
-
 export const FUNCTIONS: FunctionDef[] = [
   {
     id: 'Leadership',
@@ -31,8 +25,7 @@ export const FUNCTIONS: FunctionDef[] = [
     tasks: [
       { id: 'standup', name: 'Run daily standup', price: 0 },
       { id: 'okr', name: 'Set the OKRs', price: 0 },
-      { id: 'allocate', name: 'Allocate budget (on-ledger)', price: 0.5 },
-      ...XRPL_TASKS,
+      { id: 'allocate', name: 'Allocate the budget', price: 0.5 },
     ],
   },
   {
@@ -43,7 +36,6 @@ export const FUNCTIONS: FunctionDef[] = [
       { id: 'ship', name: 'Ship a feature', price: 0 },
       { id: 'review', name: 'Code review', price: 0.2 },
       { id: 'deploy', name: 'Deploy', price: 0 },
-      ...XRPL_TASKS,
     ],
   },
   {
@@ -52,9 +44,8 @@ export const FUNCTIONS: FunctionDef[] = [
     blurb: 'Treasury, runway and reconciliation.',
     tasks: [
       { id: 'reconcile', name: 'Reconcile treasury', price: 0 },
-      { id: 'invoice', name: 'Issue x402 invoice', price: 0.15 },
+      { id: 'invoice', name: 'Issue an invoice', price: 0.15 },
       { id: 'report', name: 'Financial report', price: 0 },
-      ...XRPL_TASKS,
     ],
   },
   {
@@ -63,9 +54,8 @@ export const FUNCTIONS: FunctionDef[] = [
     blurb: 'Leads, demos, campaigns and closing deals.',
     tasks: [
       { id: 'close', name: 'Close a deal', price: 0 },
-      { id: 'getpaid', name: 'Get paid (x402)', price: 0 },
+      { id: 'getpaid', name: 'Chase an unpaid invoice', price: 0 },
       { id: 'campaign', name: 'Launch a campaign', price: 0.15 },
-      ...XRPL_TASKS,
     ],
   },
   {
@@ -76,7 +66,6 @@ export const FUNCTIONS: FunctionDef[] = [
       { id: 'spec', name: 'Write a spec', price: 0 },
       { id: 'design', name: 'Design a screen', price: 0 },
       { id: 'kanban', name: 'Groom the backlog', price: 0 },
-      ...XRPL_TASKS,
     ],
   },
   {
@@ -86,7 +75,6 @@ export const FUNCTIONS: FunctionDef[] = [
     tasks: [
       { id: 'morale', name: 'Boost morale', price: 0 },
       { id: 'hire', name: 'Screen a candidate', price: 0 },
-      ...XRPL_TASKS,
     ],
   },
   {
@@ -97,7 +85,6 @@ export const FUNCTIONS: FunctionDef[] = [
       { id: 'deploy', name: 'Keep services up', price: 0 },
       { id: 'dashboard', name: 'Build a dashboard', price: 0 },
       { id: 'analysis', name: 'On-ledger analysis', price: 0 },
-      ...XRPL_TASKS,
     ],
   },
 ]

@@ -5,18 +5,21 @@ import { FullScreen } from './FullScreen'
 import { useWork } from '../agents/workStore'
 import { useEngine } from '../agents/engineStore'
 import { useOutboundConsent } from '../agents/outboundConsent'
-import { CURRENCY_LIST, type CurrencyCode } from '../data/currency'
 import { templateById } from '../data/templates'
-import { BUILD_ID } from '../lib/build'
+import { BUILD_ID, forceFresh } from '../lib/build'
 
 // Squarespace-style settings: a sidebar of sections + a content pane. Adapts to
-// the active company/site (name, region, appearance, billing, apps, autonomy).
-type Section = 'general' | 'region' | 'appearance' | 'billing' | 'apps' | 'automation' | 'about'
+// the active company/site (name, appearance, apps, autonomy).
+//
+// Billing and currency are NOT here. They were: a "Billing & credits" section
+// whose only real control was a button that opened the actual billing surface,
+// and a "Language & region" section whose only field was the currency those
+// prices are shown in. Two doors to one room, and a founder looking for their
+// credits had to guess which. Everything about money is in My Credits · Billing.
+type Section = 'general' | 'appearance' | 'apps' | 'automation' | 'about'
 const SECTIONS: { id: Section; label: string }[] = [
   { id: 'general', label: 'General' },
-  { id: 'region', label: 'Language & region' },
   { id: 'appearance', label: 'Appearance' },
-  { id: 'billing', label: 'Billing & credits' },
   { id: 'apps', label: 'Connected apps' },
   { id: 'automation', label: 'Automation & safety' },
   { id: 'about', label: 'About' },
@@ -29,7 +32,6 @@ export function SettingsModal() {
   const theme = useDojo((s) => s.theme)
   const setTheme = useDojo((s) => s.setTheme)
   const account = useWorkshop((s) => s.account)
-  const setCurrency = useWorkshop((s) => s.setCurrency)
   const updateAccount = useWorkshop((s) => s.updateAccount)
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
   const renameDojo = useWorkshop((s) => s.renameDojo)
@@ -67,18 +69,6 @@ export function SettingsModal() {
             </section>
           )}
 
-          {section === 'region' && (
-            <section className="set-sec">
-              <h3>Language &amp; region</h3>
-              <p className="set-lead">The app is English. Pick the currency used for credits and pricing.</p>
-              <label className="set-field"><span>Currency</span>
-                <select value={account?.currency ?? 'USD'} onChange={(e) => setCurrency(e.target.value as CurrencyCode)}>
-                  {CURRENCY_LIST.map((c) => <option key={c.code} value={c.code}>{c.label} ({c.symbol})</option>)}
-                </select>
-              </label>
-            </section>
-          )}
-
           {section === 'appearance' && (
             <section className="set-sec">
               <h3>Appearance</h3>
@@ -89,18 +79,6 @@ export function SettingsModal() {
                   <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')}>Dark</button>
                 </div>
               </div>
-            </section>
-          )}
-
-          {section === 'billing' && (
-            <section className="set-sec">
-              <h3>Billing &amp; credits</h3>
-              <p className="set-lead">Credits power hosted tasks (about one per task). Buy in your own currency · no crypto.</p>
-              <div className="set-stats">
-                <div><b>{engine.creditsToday}</b><em>credits used today</em></div>
-                <div><b>{engine.dailyCreditCap}</b><em>daily cap</em></div>
-              </div>
-              <button className="set-cta" onClick={() => go('billing')}>Top up credits →</button>
             </section>
           )}
 
@@ -138,7 +116,10 @@ export function SettingsModal() {
             <section className="set-sec">
               <h3>About</h3>
               <p className="set-lead">DojoBuro · found and run a company with a team of AI agents. Local-first; your data stays in your browser.</p>
-              <div className="set-field"><span>Build</span><b className="set-static">v{BUILD_ID}</b></div>
+              <div className="set-field"><span>Build</span><b className="set-static">{BUILD_ID}</b></div>
+              {/* the escape hatch from a browser or CDN holding an old bundle ·
+                  it moved here with the stamp when both left the menu */}
+              <button className="set-cta" onClick={() => void forceFresh()}>↻ Get the latest version</button>
               <a className="set-link" href="#guide" onClick={close}>Open the Dojo Guide →</a>
               <a className="set-link" href="/terms" onClick={close}>Terms</a>
               <a className="set-link" href="/privacy" onClick={close}>Privacy</a>

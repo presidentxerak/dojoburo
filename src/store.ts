@@ -18,7 +18,7 @@ export interface Activity {
   ts: number
   agentId: string
   skill: string
-  level: 'info' | 'xrpl' | 'success' | 'error'
+  level: 'info' | 'success' | 'error'
   message: string
   txHash?: string
 }
@@ -67,7 +67,7 @@ interface DojoState {
   heroTargetId: string
   banter: Banter | null
   sceneId: SceneId
-  usage: { xrp: number; tokens: number; tx: number }
+  usage: { credits: number; tokens: number; tx: number }
   showStats: boolean
   /** monotonic counter · bumped whenever any task/deliverable completes, so the
    *  panda mascot can dance and cheer the team on. */
@@ -153,7 +153,7 @@ export const useDojo = create<DojoState>((set, get) => ({
   heroTargetId: 'home',
   banter: null,
   sceneId: loadSceneId(),
-  usage: { xrp: 0, tokens: 0, tx: 0 },
+  usage: { credits: 0, tokens: 0, tx: 0 },
   showStats: false,
   cheerTick: 0,
 

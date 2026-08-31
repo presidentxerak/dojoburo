@@ -8,10 +8,8 @@ import { skinById } from '../data/skins'
 import { EFFORT_BY_ID } from '../data/effort'
 import { EffortPanel } from './EffortControl'
 import { Logo } from './Logo'
-import { Icon } from './Icon'
 import { SkinAvatar } from './workshop/SkinAvatar'
 import { NotificationBell } from './NotificationBell'
-import { BUILD_ID, forceFresh } from '../lib/build'
 import { useOverlay } from '../lib/overlay'
 
 /** The app's header.
@@ -28,8 +26,6 @@ import { useOverlay } from '../lib/overlay'
  *  your account — with each thing in exactly one place.
  */
 export function TopBar({ center }: { center?: React.ReactNode } = {}) {
-  const theme = useDojo((s) => s.theme)
-  const setTheme = useDojo((s) => s.setTheme)
   const account = useWorkshop((s) => s.account)
   const signInGuest = useWorkshop((s) => s.signInGuest)
   const signOut = useWorkshop((s) => s.signOut)
@@ -152,22 +148,12 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
 
             {/* the app itself */}
             <div className="tb-menu-rule" />
+            {/* Display mode and the build stamp are settings, and they are in
+                Settings · Appearance and Settings · About. The menu is for
+                going places, not for holding a copy of what is one row down. */}
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setSettingsOpen(true) }}>Settings</button>
-            <div className="tb-row">
-              <span>Display mode</span>
-              <button className="tb-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-                <Icon name={theme === 'light' ? 'moon' : 'sun'} /> {theme === 'light' ? 'Light' : 'Dark'}
-              </button>
-            </div>
 
             {account && <button className="tb-menu-item tb-signout" onClick={doSignOut}>Sign out</button>}
-
-            {/* Which files are actually running. Browsers and CDNs can serve an
-                old bundle after a deploy; this stamp says, in the UI itself,
-                which build you are looking at. Tap it to force fresh files. */}
-            <button className="tb-menu-build" onClick={() => void forceFresh()} title="Reload the app from the network">
-              build {BUILD_ID} <span>↻ get the latest</span>
-            </button>
           </div>
         </>,
         document.body,

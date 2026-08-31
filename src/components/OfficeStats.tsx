@@ -16,7 +16,7 @@ export function OfficeStats() {
 
   const tasks = AGENTS.reduce((n, a) => n + (stats[a.id]?.tasksDone ?? 0), 0)
   const xp = AGENTS.reduce((n, a) => n + (stats[a.id]?.xp ?? 0), 0)
-  const perTask = usage.tx > 0 ? usage.xrp / usage.tx : 0
+  const perTask = usage.tx > 0 ? usage.credits / usage.tx : 0
   const board = AGENTS.map((a) => ({ id: a.id, name: a.name, done: stats[a.id]?.tasksDone ?? 0 }))
     .sort((x, y) => y.done - x.done)
   const top = board[0]?.done || 1
@@ -27,7 +27,7 @@ export function OfficeStats() {
       <p className="sq-lead">Live compute, settlement and team output across every studio.</p>
       <div className="biz-overview stats-5">
         <div className="biz-tile"><span>{fmt(usage.tokens)}</span><em>compute tokens</em></div>
-        <div className="biz-tile"><span>{usage.xrp.toFixed(3)}</span><em>credits spent</em></div>
+        <div className="biz-tile"><span>{usage.credits.toFixed(3)}</span><em>credits spent</em></div>
         <div className="biz-tile"><span>{tasks}</span><em>tasks done</em></div>
         <div className="biz-tile"><span>{perTask.toFixed(3)}</span><em>credits / task</em></div>
         <div className="biz-tile"><span>{fmt(xp)}</span><em>total XP</em></div>

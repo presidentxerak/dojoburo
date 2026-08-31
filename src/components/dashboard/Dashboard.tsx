@@ -3,7 +3,6 @@ import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
 import { listSecrets, saveSecret as apiSaveSecret, removeSecret as apiRemoveSecret, type ServerSecret } from '../../agents/workApi'
 import { useDojo } from '../../store'
-import { ArrangeGrid } from './ArrangeGrid'
 import { LoopPanel } from './LoopPanel'
 import { AgentContext } from '../agents/AgentContext'
 import { AgentWork } from '../agents/AgentWork'
@@ -92,7 +91,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const engine = useEngine()
 
   const [msg, setMsg] = useState('')
-  const [showArrange, setShowArrange] = useState(false)
   const [buying, setBuying] = useState(false)
   const [payMsg, setPayMsg] = useState('')
   const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
@@ -525,9 +523,12 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       <div className="mission-head">
         <h3>Your team</h3>
         <span className="muted small">Your full crew · click one to open it. Hide the ones you don't need · restore them from the slots.</span>
-        <button className="btn tiny ghost arrange-toggle" onClick={() => setShowArrange((v) => !v)}>{showArrange ? 'Done arranging' : 'Arrange on grid'}</button>
+        {/* Moving teammates around the floor is one screen, not three. It was
+            here, in the dojo header as "Manage team", and in Dojo settings as
+            "Place & tune" — which is the only one that also lets you change who
+            a teammate is, so it is the one that stays. */}
+        <button className="btn tiny ghost arrange-toggle" onClick={() => useWork.getState().editAgent('*')}>Place &amp; tune →</button>
       </div>
-      {showArrange && <ArrangeGrid />}
       <div className="lp-studioteam agent-roster">
         {roster.map((a, i) => {
           const r = ROLE_BY_ID[canonicalRole(a.role)]

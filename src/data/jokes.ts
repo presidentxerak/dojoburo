@@ -18,7 +18,7 @@ const GENERIC: Line[][] = [
   ],
   [
     { who: 'hero', text: 'Coffee while it runs?' },
-    { who: 'agent', text: 'I already run on XRP.' },
+    { who: 'agent', text: 'I already run on credits.' },
   ],
   [
     { who: 'hero', text: 'How much longer?' },
@@ -65,7 +65,7 @@ const BY_DEPT: Record<string, Line[][]> = {
     ],
     [
       { who: 'hero', text: 'Are we rich?' },
-      { who: 'agent', text: "We're... liquid. In XRP." },
+      { who: 'agent', text: "We're... liquid. Mostly coffee." },
     ],
     [
       { who: 'hero', text: 'Runway?' },

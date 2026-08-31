@@ -12,6 +12,7 @@ import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
 import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/currency'
 import { privyConfigured, privyControls } from '../../auth/controls'
 import { useWork } from '../../agents/workStore'
+import { useEngine } from '../../agents/engineStore'
 import { SkinAvatar } from './SkinAvatar'
 import { TemplateThumb } from './TemplateThumb'
 import { Agent3DPreview } from '../three/Agent3DPreview'
@@ -37,7 +38,7 @@ type Tab = 'studio' | 'account' | 'billing'
 const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
   studio: { title: 'Dojo settings', sub: 'Build your teams, place and tune each teammate, connect their apps, and save.' },
   account: { title: 'Account', sub: 'Your profile, sign-in and identity across devices.' },
-  billing: { title: 'Billing', sub: 'Credits, currency, your Claude key and plans.' },
+  billing: { title: 'My Credits · Billing', sub: 'Everything about money: what you have spent, your currency, your Claude key and plans.' },
 }
 
 /** Dojo settings / Account / Billing, wearing the app's ONE full-screen shell.
@@ -166,6 +167,9 @@ function StudioTab() {
   const studioAgentId = useWork((s) => s.studioAgentId)
   useEffect(() => {
     if (!studioAgentId) return
+    // '*' means "open the seating step", with nobody in particular selected ·
+    // it is how the dojo's own "Place & tune" button gets here
+    if (studioAgentId === '*') { setWizStep('agents'); return }
     const d = dojos.find((dj) => dj.agents.some((a) => a.id === studioAgentId))
     if (d) { setActive(d.id); setSel(studioAgentId); setWizStep('agents') }
   }, [studioAgentId]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -233,7 +237,11 @@ function StudioTab() {
       {wizStep === 'agents' && (
         <section className="sq-panel">
           <h3 className="sq-title">Place &amp; tune your teammates</h3>
-          <p className="sq-lead">Tap a teammate, then a cell to move them. Tap a name to edit. On the right, set their look, their job, what they work on and their budget.</p>
+          <p className="sq-lead">
+            Tap a teammate to select them, then tap any cell to seat them there · the 3D dojo reseats
+            to match. With one selected, the panel on the right is where you change their look, their
+            job, the work they take on and what they may spend.
+          </p>
           <div className="ws-cols">
             <div className="ws-gridwrap">
               <div className="ws-grid" style={{ gridTemplateColumns: `repeat(${GRID.cols}, minmax(0, 1fr))` }}>
@@ -450,12 +458,12 @@ function AgentEditor({ agent, dojoId, currency, onPickSkin, onDeleted }: { agent
       </div>
 
       <label className="ws-field">
-        <span>Budget</span>
+        <span>Budget per run</span>
         <input
-          type="number" min={0} step={0.5} value={agent.budgetXrp}
-          onChange={(e) => update(agent.id, { budgetXrp: Math.max(0, Number(e.target.value) || 0) })}
+          type="number" min={0} step={0.5} value={agent.budget}
+          onChange={(e) => update(agent.id, { budget: Math.max(0, Number(e.target.value) || 0) })}
         />
-        <em className="ws-conv">≈ {formatFrom(agent.budgetXrp, currency as any)}</em>
+        <em className="ws-conv">≈ {formatFrom(agent.budget, currency as any)}</em>
       </label>
 
       {/* the plain-language brief · how this teammate works, editable as a form */}
@@ -739,9 +747,19 @@ function BillingTab() {
   const hasAccount = useWorkshop((s) => !!s.account)
   const email = useWorkshop((s) => s.account?.email ?? '')
   const privyDid = useWorkshop((s) => s.account?.privyDid ?? '')
+  const creditsToday = useEngine((s) => s.creditsToday)
+  const dailyCap = useEngine((s) => s.dailyCreditCap)
 
   return (
     <div className="ws-billing">
+      {/* what you have actually spent · this used to live in Settings, behind a
+          "Billing & credits" section whose only control opened this screen */}
+      <h3 style={{ marginTop: 0 }}>Today</h3>
+      <div className="set-stats">
+        <div><b>{creditsToday}</b><em>credits used today</em></div>
+        <div><b>{dailyCap || '—'}</b><em>daily cap</em></div>
+      </div>
+
       <ClaudeKeyPanel hasAccount={hasAccount} />
 
       <h3>Currency</h3>

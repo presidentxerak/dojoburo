@@ -110,6 +110,39 @@ const chrome = await p.evaluate(() => {
 })
 ok(chrome.length === 0, 'company and team cards carry no border and no colour cap', chrome.slice(0, 3).join(' | '))
 
+// --- no card paints itself, and none draws a coloured line ---------------
+// "Chosen" used to mix the accent into the paper, so company cards came out
+// pink and team cards mauve; and buttons sat over a cyan-green drop shadow that
+// reads, an inch away, as a blue line underneath them.
+const paint = await p.evaluate(() => {
+  const white = (c) => /^rgba?\(255,\s*255,\s*255/.test(c) || c === 'rgb(255, 255, 255)'
+  const bad = []
+  for (const el of document.querySelectorAll('.cocard, .tmcard, .tcard, .eff-mode, .appcard')) {
+    if (el.classList.contains('cocard-new')) continue
+    const cs = getComputedStyle(el)
+    if (!white(cs.backgroundColor)) bad.push('bg ' + el.className.split(' ')[1] + ' ' + cs.backgroundColor)
+    if (getComputedStyle(el, '::before').display !== 'none') bad.push('cap ' + el.className.split(' ')[1])
+    if (parseFloat(cs.borderTopWidth) > 0) bad.push('border ' + el.className.split(' ')[1])
+  }
+  return bad
+})
+ok(paint.length === 0, 'every card is white, capless and borderless', paint.slice(0, 3).join(' | '))
+
+const glow = await p.evaluate(() => {
+  const bad = []
+  for (const el of document.querySelectorAll('.btn.primary, .ct-go, .cc-go, .set-cta, .stepbar-next')) {
+    const sh = getComputedStyle(el).boxShadow
+    // a cyan/green halo · rgb around (0,214,255) or (24,255,176)
+    if (/rgba?\(\s*(0|24|18),\s*(214|255)/.test(sh)) bad.push(el.className + ' :: ' + sh.slice(0, 60))
+  }
+  return bad
+})
+ok(glow.length === 0, 'no button sits over a blue halo', glow.slice(0, 2).join(' | '))
+
+// --- and nothing anywhere still says XRP ---------------------------------
+const ledger = await p.evaluate(() => (document.body.innerText.match(/XRPL?|x402|on-ledger/gi) || []))
+ok(ledger.length === 0, 'the page carries no trace of the old payment rail', ledger.join(','))
+
 ok(errs.length === 0, errs.length ? JSON.stringify(errs.slice(0, 3)) : 'no page errors')
 await br.close()
 console.log(fails ? `\n${fails} FAILED` : '\nALL GREEN')

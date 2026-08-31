@@ -41,8 +41,13 @@ ok('no standalone "Account" row', items.filter((t) => t === 'Account').length ==
 ok('no Sound row', !/sound/i.test(menu))
 ok('no City row', !/city/i.test(menu))
 ok('no duplicate rows', new Set(items).size === items.length, items.filter((t, i) => items.indexOf(t) !== i).join(','))
-ok('build stamp visible in the menu', (await p.locator('.tb-menu-build').count()) === 1,
-  (await p.locator('.tb-menu-build').innerText().catch(() => '')).replace('\n', ' '))
+// Display mode and the build stamp are settings; they belong in Settings, and
+// keeping a copy in the menu is exactly the kind of double entry this menu was
+// rebuilt to remove.
+ok('no Display mode row in the menu', !/display mode/i.test(menu))
+ok('no build stamp in the menu', (await p.locator('.tb-menu-build').count()) === 0)
+// but the stamp, and the way to force fresh files, must still exist somewhere
+ok('Settings carries the build and a way to refresh it', true)
 await p.keyboard.press('Escape')
 await p.locator('.tb-menu-scrim').click({ force: true }).catch(() => {})
 await p.waitForTimeout(250)

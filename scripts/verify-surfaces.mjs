@@ -1,6 +1,6 @@
 // The four full-screen surfaces, and the one-team-per-speciality rule.
 //
-// Dojo settings, Manage team, the token dial and Graph mode are the same weight
+// Dojo settings, Place & tune, the token dial and Graph mode are the same weight
 // of screen, so they must behave identically: full screen inside the app's 10px
 // frame, one round ✕ in the same corner, Escape closes. That is a geometric
 // claim about the rendered page — the only way to check it is to open all four
@@ -94,7 +94,7 @@ await p.waitForTimeout(2500)
 
 // ---- the four full-screen surfaces --------------------------------------------
 const surfaces = [
-  ['Manage team', () => p.locator('.dojo-ctl button', { hasText: 'Manage team' }).click(), 'u-fs-manage.png'],
+  ['Place & tune', () => p.locator('.dojo-ctl button', { hasText: 'Place' }).click(), 'u-fs-place.png'],
   // the dial no longer sits in the header · it lives in the menu, under Credits
   ['the token dial', async () => {
     await p.locator('.tb-menu-btn').click()
@@ -140,8 +140,14 @@ ok(await p.locator('.modhost-fs.fs').count() === 0, 'graph: the ✕ closes it')
 ok(await p.locator('.dojo-ctl-graph.on').count() === 0, 'graph: the button un-presses itself')
 ok(await p.locator('.dash-stage').isVisible(), 'graph: the dojo is underneath, untouched')
 
-// Dojo settings is the surface the others were harmonised with
-await p.locator('.dojo-ctl button', { hasText: 'Dojo settings' }).click()
+// Dojo settings is the surface the others were harmonised with · it left the
+// dojo header when "Manage team" was folded into its own "Place & tune" step,
+// so it is reached from the menu now
+await p.evaluate(() => {
+  document.querySelector('.tb-menu-btn').click()
+  requestAnimationFrame(() => [...document.querySelectorAll('.tb-menu-item')]
+    .find((b) => b.textContent.includes('Dojo settings'))?.click())
+})
 await p.waitForTimeout(1800)
 await p.screenshot({ path: SHOT + '/u-fs-settings.png' })
 const sx = p.locator('.modhost-close').first()

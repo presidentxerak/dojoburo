@@ -1,7 +1,7 @@
 // The values that reach the display layer come off an account saved in this
 // browser, possibly by a build that no longer exists. One of them — a currency
 // code of "XRP", from when the app settled on a ledger — indexed a table that
-// no longer has that row, read .perXrp off undefined, and threw during render.
+// no longer has that row, read .perCredit off undefined, and threw during render.
 // React unmounts a tree that throws, so the page went white with no way back,
 // and reloading landed in the same place because the value was saved.
 //
@@ -35,7 +35,7 @@ for (const code of JUNK) {
   threw = null
   try { toXrp(12, code) } catch (e) { threw = e }
   ok(!threw, `toXrp survives a currency of ${label}` + (threw ? ` · ${threw.message}` : ''))
-  ok(!!currencyDef(code)?.perXrp, `and it still resolves to a real currency for ${label}`)
+  ok(!!currencyDef(code)?.perCredit, `and it still resolves to a real currency for ${label}`)
 }
 
 // junk amounts must not produce "NaN" on a price tag either

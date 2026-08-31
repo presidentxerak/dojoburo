@@ -52,7 +52,8 @@ export interface WAgent {
   role?: string
   skinId: string
   tasks: string[]
-  budgetXrp: number
+  /** what this teammate may spend per run, in credits */
+  budget: number
   gx: number
   gy: number
   /** the user hid this agent from the dojo (still restorable from the roster). */
@@ -209,7 +210,7 @@ function crewFromRoles(roleIds: string[], skinTheme: string): WAgent[] {
       role: r.id,
       skinId: skins[i % skins.length].id,
       tasks: defaultTasksFor(r.dept),
-      budgetXrp: 5,
+      budget: 5,
       gx: i % GRID.cols,
       gy: Math.floor(i / GRID.cols),
     }
@@ -311,6 +312,14 @@ function load(): Saved {
       if (p && Array.isArray(p.dojos) && p.dojos.length) {
         // backfill the template field for dojos saved before templates existed
         for (const d of p.dojos) if (!d.template) d.template = DEFAULT_TEMPLATE_ID
+        // `budgetXrp` was the field's name while work settled on a ledger · read
+        // the old name so a saved budget survives the rename
+        for (const d of p.dojos) {
+          for (const a of d.agents ?? []) {
+            if (a.budget === undefined && typeof a.budgetXrp === 'number') a.budget = a.budgetXrp
+            delete a.budgetXrp
+          }
+        }
         // migrate pre-role-agent crews to the 10 canonical role agents
         p.dojos = p.dojos.map(ensureRoleCrew)
         // `companyName` was the field's first name · read it so nothing is lost
@@ -572,7 +581,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
         fn,
         skinId: partial?.skinId || SKINS[Math.floor(Math.random() * SKINS.length)].id,
         tasks: partial?.tasks || defaultTasksFor(fn),
-        budgetXrp: partial?.budgetXrp ?? 5,
+        budget: partial?.budget ?? 5,
         gx: partial?.gx ?? cell.gx,
         gy: partial?.gy ?? cell.gy,
       }
@@ -595,7 +604,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
         fn,
         skinId: skin.id,
         tasks: defaultTasksFor(fn),
-        budgetXrp: 5,
+        budget: 5,
         gx: cell.gx,
         gy: cell.gy,
         custom: { title: meta.title.trim() || 'Specialist', desc: meta.desc.trim(), tint: meta.tint, apps: meta.apps },
@@ -628,7 +637,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
         role: role.id,
         skinId: skin.id,
         tasks: defaultTasksFor(role.dept),
-        budgetXrp: 5,
+        budget: 5,
         gx: cell.gx,
         gy: cell.gy,
       }

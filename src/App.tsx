@@ -11,7 +11,6 @@ import { SettingsModal } from './components/SettingsModal'
 import { DojosManager } from './components/DojosManager'
 import { CommandPalette } from './components/CommandPalette'
 import { OutboundConsentModal } from './components/OutboundConsentModal'
-import { ArrangeGrid } from './components/dashboard/ArrangeGrid'
 import { DojoGraph } from './components/dashboard/DojoGraph'
 import { DojoTabs } from './components/dashboard/DojoTabs'
 import { PipelineHome } from './components/home/PipelineHome'
@@ -21,7 +20,6 @@ import { useWork } from './agents/workStore'
 import { useWorkshop } from './workshop'
 import { privyConfigured } from './auth/controls'
 import { AuthGate } from './auth/AuthGate'
-import { FullScreen } from './components/FullScreen'
 import { StudioSurface } from './components/workshop/WorkshopModal'
 import { ConnectorsSurface } from './components/ConnectorsPage'
 
@@ -47,9 +45,6 @@ export default function App() {
   // the dojo fills the window on arrival (centered), then reveals the agent's
   // dashboard when you pick an agent.
   const [dojoFull, setDojoFull] = useState(true)
-  // arrange-the-team overlay · reachable straight from the dojo on desktop AND
-  // mobile (tap an agent, tap a cell). The 3D scene reseats in grid order.
-  const [arrangeOpen, setArrangeOpen] = useState(false)
   // graph mode · the whole team and their apps as cards, full screen
   const [graphOpen, setGraphOpen] = useState(false)
   // Where the home opens when we send someone back to it. Asking for "my
@@ -172,8 +167,10 @@ export default function App() {
   // bar on a phone — and both open the project itself.
   const dojoControls = (
     <nav className="dojo-ctl" aria-label="Dojo">
-      <button onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Manage team</button>
-      <button onClick={() => useWork.getState().openStudio('studio')} title="Dojo settings">Dojo settings</button>
+      {/* "Manage team" opened a grid for moving teammates around the dojo floor.
+          Dojo settings' "Place & tune" is the same grid, plus the editor for
+          who each teammate is. Two doors to one room; this one is closed. */}
+      <button onClick={() => useWork.getState().editAgent('*')} title="Place and tune your teammates">Place &amp; tune</button>
       <button
         className={`dojo-ctl-graph${graphOpen ? ' on' : ''}`}
         aria-pressed={graphOpen}
@@ -215,16 +212,6 @@ export default function App() {
 
       </div>
 
-      {arrangeOpen && (
-        <FullScreen
-          title="Manage team"
-          sub="Drag a teammate to move them around the dojo floor. Everyone keeps their desk."
-          bodyClass="arrange-fs"
-          onClose={() => setArrangeOpen(false)}
-        >
-          <ArrangeGrid />
-        </FullScreen>
-      )}
 
       <OutboundConsentModal />
       {/* Dojo settings · Account · Billing · Connect apps — the same shell as

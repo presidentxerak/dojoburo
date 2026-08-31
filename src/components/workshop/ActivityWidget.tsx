@@ -31,7 +31,7 @@ export function ActivityWidget({ onClose }: { onClose: () => void }) {
             <div><span>{dojo?.agents.length ?? 0}</span>agents</div>
             <div><span>{busy}</span>working</div>
             <div><span>{done}</span>tasks</div>
-            <div><span>{formatFrom(usage.xrp, currency as any)}</span>spent</div>
+            <div><span>{formatFrom(usage.credits, currency as any)}</span>spent</div>
           </div>
           <ul className="aw-feed">
             {activity.slice(0, 4).map((a) => (

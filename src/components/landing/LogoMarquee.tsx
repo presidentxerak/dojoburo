@@ -7,22 +7,15 @@ import { ConnectorLogo, connectorColor } from '../ConnectorLogo'
 
 interface Brand { id: string; label: string; color: string }
 
-// no payment-rail chips · the user never sees the settlement layer
-const RAILS: Brand[] = []
-
-const BRANDS: Brand[] = [
-  ...RAILS,
-  ...CONNECTORS.map((c) => ({ id: c.id, label: c.label, color: connectorColor(c.id) })),
-]
-
-const RAIL_IDS = new Set(RAILS.map((r) => r.id))
+// The apps you connect, and nothing else. There was a branch here that drew
+// an "XRPL" or "402" chip for payment rails; the rail list has been empty since
+// that layer was removed, so it drew nothing and only kept the name alive.
+const BRANDS: Brand[] = CONNECTORS.map((c) => ({ id: c.id, label: c.label, color: connectorColor(c.id) }))
 
 function Chip({ b }: { b: Brand }) {
   return (
     <span className="lm-chip" style={{ ['--bc' as any]: b.color }}>
-      {RAIL_IDS.has(b.id)
-        ? <span className="lm-mono" style={{ background: b.color }}>{b.id === 'x402' ? '402' : 'XRPL'}</span>
-        : <ConnectorLogo id={b.id} label={b.label} size={30} />}
+      <ConnectorLogo id={b.id} label={b.label} size={30} />
       <span className="lm-label">{b.label}</span>
     </span>
   )

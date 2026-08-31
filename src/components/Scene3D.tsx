@@ -116,39 +116,6 @@ function Agents({ seated }: { seated: Array<{ agent: WAgent; x: number; z: numbe
  *
  *  Before: ~500ms a frame, i.e. two frames a second, and every click in the
  *  header queued behind it. */
-/** A hard ceiling on what the dojo may spend.
- *
- *  The scene used to draw as fast as the machine allowed and take the whole
- *  frame budget with it, so everything else — a menu, a panel, a click — queued
- *  behind it. On a slow GPU that meant seconds, which from the outside is
- *  indistinguishable from a page that never loads.
- *
- *  So we drive it ourselves. Each frame is drawn, timed, and the next one is
- *  scheduled no sooner than the last one cost: the dojo can never use more than
- *  about half the main thread, whatever it is running on. A fast machine gets
- *  its thirty frames a second; a slow one quietly gets fewer and stays
- *  responsive instead of locking up. Covered by a surface, it draws nothing.
- */
-function FrameDriver({ covered, fps = 30 }: { covered: boolean; fps?: number }) {
-  const advance = useThree((s) => s.advance)
-  useEffect(() => {
-    if (covered) return
-    const minGap = 1000 / fps
-    let timer = 0
-    let stop = false
-    const tick = () => {
-      if (stop) return
-      const t0 = performance.now()
-      advance(t0)
-      const cost = performance.now() - t0
-      timer = window.setTimeout(tick, Math.max(minGap, cost))
-    }
-    timer = window.setTimeout(tick, minGap)
-    return () => { stop = true; clearTimeout(timer) }
-  }, [advance, covered, fps])
-  return null
-}
-
 function ShadowBudget({ signature }: { signature: string }) {
   const gl = useThree((s) => s.gl)
   useEffect(() => {
@@ -180,7 +147,11 @@ export function Scene3D() {
       shadows
       // Covered by a full-screen surface or the menu? Stop drawing. Nothing is
       // visible, and the loop was starving every click in the header.
-      frameloop="never"
+      // Visible? Draw on the browser's own rhythm — animation deltas have to
+      // come from requestAnimationFrame or the teammates stutter. Covered by a
+      // surface or the menu? Draw nothing at all: that is where the cost was,
+      // and it is what made panels take seconds to appear.
+      frameloop={covered ? 'never' : 'always'}
       dpr={[1, 1.25]}
       camera={{ position: [2.2, 8.4, 14], fov: 42, near: 0.1, far: 100 }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
@@ -219,7 +190,6 @@ export function Scene3D() {
         <Lazy3D />
       </Suspense>
       <CameraRig />
-      <FrameDriver covered={covered} />
       <ShadowBudget signature={signature} />
     </Canvas>
   )

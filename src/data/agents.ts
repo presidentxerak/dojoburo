@@ -1,11 +1,16 @@
 // ---------------------------------------------------------------------------
 // DojoBuro · Agent roster
 // Every agent has a real function inside a startup, a set of skills and a
-// department. Skills marked with a price are settled on the XRP Ledger
-// (x402-style agentic payments).
+// department. A skill's price is what one invocation costs in credits.
+//
+// Three "skills" used to be bolted onto every single agent — an XRPL wallet, an
+// x402 payment and an on-ledger fingerprint — from when the app settled work on
+// a ledger. That rail was removed, but the skills stayed, so the landing page
+// still advertised every teammate as able to manage a crypto wallet. They are
+// gone, along with the ledger wording everywhere else.
 // ---------------------------------------------------------------------------
 
-export type SkillKind = 'action' | 'xrpl' | 'analysis'
+export type SkillKind = 'action' | 'analysis'
 
 export type Department =
   | 'Leadership'
@@ -21,7 +26,7 @@ export interface AgentSkill {
   name: string
   description: string
   kind: SkillKind
-  /** Price in XRP for an x402-style agentic invocation. 0 = free. */
+  /** Price in credits for one invocation. 0 = free. */
   price: number
   /** Rough duration of the animated "working" state, in ms. */
   duration: number
@@ -37,36 +42,6 @@ export interface AgentDef {
   skills: AgentSkill[]
 }
 
-// Shared XRPL skills every agent can run (wallet, payments, tracking).
-const xrplSkills = (idp: string): AgentSkill[] => [
-  {
-    id: `${idp}.wallet`,
-    name: 'XRPL wallet',
-    description:
-      "Create / inspect the agent's XRPL wallet, show its balance and r-address. On Testnet, top it up from the faucet.",
-    kind: 'xrpl',
-    price: 0,
-    duration: 2600,
-  },
-  {
-    id: `${idp}.pay`,
-    name: 'Agentic payment (x402)',
-    description:
-      'Settle a service between agents on the XRP Ledger. The payment carries an x402 memo (skill, invoice) and is signed + submitted on-ledger.',
-    kind: 'xrpl',
-    price: 0,
-    duration: 3200,
-  },
-  {
-    id: `${idp}.track`,
-    name: 'Track behavior',
-    description:
-      "Anchor the agent's action fingerprint (memo hash) on-ledger, making its behavior auditable.",
-    kind: 'xrpl',
-    price: 0,
-    duration: 2400,
-  },
-]
 
 export const AGENTS: AgentDef[] = [
   {
@@ -96,12 +71,11 @@ export const AGENTS: AgentDef[] = [
       {
         id: 'ava.fund',
         name: 'Allocate budget',
-        description: 'Sends an XRP allocation from the treasury to a department (on-ledger payment).',
-        kind: 'xrpl',
+        description: 'Moves budget from the company pot to a department, and records where it went.',
+        kind: 'action',
         price: 0.5,
         duration: 3400,
       },
-      ...xrplSkills('ava'),
     ],
   },
   {
@@ -127,7 +101,6 @@ export const AGENTS: AgentDef[] = [
         price: 0.2,
         duration: 3200,
       },
-      ...xrplSkills('rex'),
     ],
   },
   {
@@ -153,7 +126,6 @@ export const AGENTS: AgentDef[] = [
         price: 0,
         duration: 3000,
       },
-      ...xrplSkills('otto'),
     ],
   },
   {
@@ -162,33 +134,32 @@ export const AGENTS: AgentDef[] = [
     role: 'CFO · Treasury',
     department: 'Finance',
     mission:
-      'Manages the XRPL treasury, tracks the burn rate, executes and reconciles agentic payments.',
+      'Manages the company purse, tracks the burn rate, and reconciles what has been spent.',
     skills: [
       {
         id: 'fin.treasury',
         name: 'Open the treasury',
         description: 'Creates / tops up the startup treasury wallet and shows the consolidated balance.',
-        kind: 'xrpl',
+        kind: 'action',
         price: 0,
         duration: 3000,
       },
       {
         id: 'fin.payroll',
         name: 'Pay the agents',
-        description: 'Distributes an XRP payroll to every agent from the treasury, in one on-ledger batch.',
-        kind: 'xrpl',
+        description: 'Works out what each teammate cost this month and reconciles it in one pass.',
+        kind: 'action',
         price: 0,
         duration: 4600,
       },
       {
         id: 'fin.audit',
-        name: 'On-ledger audit',
+        name: 'Spend audit',
         description: "Fetches a wallet's account_tx history and computes inbound/outbound flows.",
         kind: 'analysis',
         price: 0,
         duration: 3200,
       },
-      ...xrplSkills('fin'),
     ],
   },
   {
@@ -214,7 +185,6 @@ export const AGENTS: AgentDef[] = [
         price: 0.15,
         duration: 3000,
       },
-      ...xrplSkills('mia'),
     ],
   },
   {
@@ -222,7 +192,7 @@ export const AGENTS: AgentDef[] = [
     name: 'Sol',
     role: 'Head of Sales · Revenue',
     department: 'Growth',
-    mission: 'Qualifies leads, runs demos and closes contracts. Gets paid in XRP.',
+    mission: 'Qualifies leads, runs demos and closes contracts.',
     skills: [
       {
         id: 'sol.close',
@@ -234,13 +204,12 @@ export const AGENTS: AgentDef[] = [
       },
       {
         id: 'sol.invoice',
-        name: 'Get paid (x402)',
-        description: 'Issues an x402 invoice and receives a client settlement on the XRP Ledger.',
-        kind: 'xrpl',
+        name: 'Chase an invoice',
+        description: 'Issues the invoice and follows it up until the client has paid.',
+        kind: 'action',
         price: 0,
         duration: 3400,
       },
-      ...xrplSkills('sol'),
     ],
   },
   {
@@ -266,7 +235,6 @@ export const AGENTS: AgentDef[] = [
         price: 0,
         duration: 2800,
       },
-      ...xrplSkills('pia'),
     ],
   },
   {
@@ -292,7 +260,6 @@ export const AGENTS: AgentDef[] = [
         price: 0.15,
         duration: 3000,
       },
-      ...xrplSkills('dex'),
     ],
   },
   {
@@ -311,14 +278,13 @@ export const AGENTS: AgentDef[] = [
         duration: 3400,
       },
       {
-        id: 'ada.ledger',
-        name: 'On-ledger analysis',
-        description: "Aggregates the agents' XRPL transactions to measure internal economic activity.",
-        kind: 'xrpl',
+        id: 'ada.spend',
+        name: 'Spend analysis',
+        description: "Adds up what every teammate has spent, to show where the money actually goes.",
+        kind: 'action',
         price: 0,
         duration: 3200,
       },
-      ...xrplSkills('ada'),
     ],
   },
   {
@@ -344,7 +310,6 @@ export const AGENTS: AgentDef[] = [
         price: 0,
         duration: 3000,
       },
-      ...xrplSkills('hana'),
     ],
   },
   {
@@ -370,7 +335,6 @@ export const AGENTS: AgentDef[] = [
         price: 0,
         duration: 2600,
       },
-      ...xrplSkills('sam'),
     ],
   },
   {
@@ -391,12 +355,11 @@ export const AGENTS: AgentDef[] = [
       {
         id: 'lex.compliance',
         name: 'Compliance check',
-        description: 'Verifies that an action (including an XRPL payment) follows the internal rules.',
+        description: 'Verifies that an action follows the company\'s own rules before it runs.',
         kind: 'analysis',
         price: 0,
         duration: 3000,
       },
-      ...xrplSkills('lex'),
     ],
   },
 ]
