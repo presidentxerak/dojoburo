@@ -2,7 +2,6 @@ import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import { Landing } from './Landing'
-import { DojoCity } from './components/city/DojoCity'
 import { StudioPage } from './components/workshop/WorkshopModal'
 import { ConnectorsPage } from './components/ConnectorsPage'
 import { AuthProvider } from './auth/AuthProvider'
@@ -11,10 +10,6 @@ import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
 import { usePath } from './lib/router'
-import { CityKitDemo } from './city-kit/demo'
-import { CompanySite } from './CompanySite'
-import { companyById } from './data/showcase'
-import { SHOW_MOCK_COMPANIES } from './config/flags'
 import './index.css'
 
 // Route ephemeral Vercel preview URLs (which change every deploy and aren't in
@@ -48,9 +43,6 @@ function Root() {
   if (path === '/guide') return <GuidePage />
   const gm = path.match(/^\/guide\/([a-z0-9-]+)$/i)
   if (gm) return <ConnectorGuidePage id={gm[1].toLowerCase()} />
-  // per-company showcase sites · https://dojoburo.com/<company-id> (demo-only)
-  const cm = path.match(/^\/([a-z0-9-]+)$/i)
-  if (SHOW_MOCK_COMPANIES && cm && companyById(cm[1].toLowerCase())) return <CompanySite id={cm[1].toLowerCase()} />
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />
@@ -63,15 +55,6 @@ function Root() {
   if (route === 'studio') return <StudioPage />
   // Connect apps · full page, every connector grouped by functionality category.
   if (route === 'connect') return <ConnectorsPage />
-  // Dojo City · the isometric map you visit from the dashboard (header · City).
-  // Your building grows with the number of Dojos you run; click it to go back in.
-  if (route === 'city') {
-    // both doors out of the City land back INSIDE the dojo
-    const toDojo = () => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }
-    return <DojoCity enterDojo={toDojo} exit={toDojo} />
-  }
-  // Standalone demo of the portable city-kit (self-contained, no app stores).
-  if (route === 'city-kit') return <CityKitDemo />
   return <Landing enter={() => { location.hash = 'app' }} />
 }
 

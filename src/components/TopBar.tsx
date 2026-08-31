@@ -14,7 +14,7 @@ import { NotificationBell } from './NotificationBell'
  *
  *  The brand (logo + wordmark + Beta) belongs to the landing page and is not
  *  repeated here: inside the app the header's job is the surface you are on,
- *  not the product's name. Connect Apps, the Dojo Guide, the City and Quick
+ *  not the product's name. Connect Apps, the Dojo Guide and Quick
  *  search moved into the menu, which leaves the centre free for whatever the
  *  current surface needs (`center`) — the dojo puts its own controls there.
  */
@@ -116,7 +116,6 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
             <button className="tb-menu-item tb-menu-link" onClick={openConnect}>Connect apps</button>
             <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'academy' }}>Dojo Academy</button>
             <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>App setup guide</button>
-            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'city' }}>City</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); window.dispatchEvent(new Event('open-cmdk')) }}>Quick search <kbd className="tb-kbd">⌘K</kbd></button>
             <div className="tb-menu-rule" />
             <button className="tb-menu-item" onClick={openStudio}>Dojo settings</button>

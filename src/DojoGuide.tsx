@@ -128,7 +128,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <h2>Finding your way around</h2>
         <p className="lp-lead">The app's header is deliberately quiet · no logo, no brand, just the controls for whatever you are looking at. Everything else lives in the menu.</p>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>The menu (top right)</b><span>Connect apps, the Dojo Guide, the City, Quick search, Dojo settings, your Account, Credits and Settings · all in one place.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>The menu (top right)</b><span>Connect apps, the Dojo Guide, Quick search, Dojo settings, your Account, Credits and Settings · all in one place.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Inside a dojo</b><span>Three controls sit in the middle of the header: <b>Manage team</b>, <b>Dojo settings</b> and <b>Graph mode</b>. To leave the dojo, open the menu and pick <b>My project</b> — on a phone it is the first button in the bottom bar.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>The team tabs</b><span>Right under the header, every other team in your project · switching from the campaign crew to the app crew is one tap.</span></div></div>
         </div>
@@ -275,7 +275,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 
       <section className="lp-sec" id="runtime">
         <h2>5 · Run DojoBuro in the cloud or locally</h2>
-        <p className="lp-lead">The browser is always the cockpit · it shows the 3D office and Dojo City, triggers tasks and tracks your credits. The model and tool calls run in a small worker (serverless functions under <code>/api</code>), and you choose where that worker lives. Here is exactly how to run each way.</p>
+        <p className="lp-lead">The browser is always the cockpit · it shows the 3D office, triggers tasks and tracks your credits. The model and tool calls run in a small worker (serverless functions under <code>/api</code>), and you choose where that worker lives. Here is exactly how to run each way.</p>
 
         <div className="dg2-run">
           <div className="dg2-runcol">
@@ -301,7 +301,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <a className="lp-cta sm" href="https://github.com/presidentxerak/dojoburo/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noreferrer">Full deployment guide ↗</a>
           <a className="lp-ghost" href="https://github.com/presidentxerak/dojoburo/blob/main/.env.example" target="_blank" rel="noreferrer">All env vars (.env.example) ↗</a>
         </div>
-        <p className="lp-note">Either way the client is a static single-page app: the 3D office and the Dojo City you visit from the dashboard all run in your browser · no server needed for those.</p>
+        <p className="lp-note">Either way the client is a static single-page app: the 3D office runs in your browser · no server needed for it.</p>
       </section>
 
       <section className="lp-sec alt dg2-callout dg2-real" id="real">

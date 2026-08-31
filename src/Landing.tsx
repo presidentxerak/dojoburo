@@ -13,10 +13,8 @@ import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
 import { StudioTeam } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
-import { ShowcaseGallery, PerformanceBoard, Testimonials } from './components/landing/Showcase'
 import { Pricing } from './components/landing/Pricing'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
-import { SHOW_MOCK_COMPANIES } from './config/flags'
 import { CREW_COUNT, CREW_WORD } from './data/facts'
 
 // vivid complementary primaries used as per-section accent touches
@@ -95,29 +93,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lp-note">And front-and-centre in your 3D office: the team <b>panda</b> · your mascot. He cheers the crew on and breaks into a dance every time a task ships. Tap him to make him celebrate on cue.</p>
       </section>
 
-      {SHOW_MOCK_COMPANIES && (
-        <section className="lp-sec" id="board">
-          <span className="lp-pill">Live · updates every day</span>
-          <h2>Real companies. Real revenue.</h2>
-          <p className="lp-lead">
-            A snapshot of the fleet founded inside <Wordmark />: today's top earners and the numbers the crews are
-            putting up right now. The board re-ranks itself every day.
-          </p>
-          <PerformanceBoard />
-        </section>
-      )}
 
-      {SHOW_MOCK_COMPANIES && (
-        <section className="lp-sec alt" id="showcase">
-          <span className="lp-pill">Showcase · 15 companies, 15 identities</span>
-          <h2>Every company gets its own look</h2>
-          <p className="lp-lead">
-            Each dojo ships a real website and ad campaigns in its own voice · its own colours, typography and tone.
-            Here are fifteen it built, from AI headshots to same-day flowers. No two look alike.
-          </p>
-          <ShowcaseGallery />
-        </section>
-      )}
 
       <section className="lp-sec" id="jobs">
         <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
@@ -206,14 +182,6 @@ export function Landing({ enter }: { enter: () => void }) {
         </div>
       </section>
 
-      {SHOW_MOCK_COMPANIES && (
-        <section className="lp-sec" id="testimonials">
-          <span className="lp-pill">Founders, in their words</span>
-          <h2>What the founders say</h2>
-          <p className="lp-lead">Real talk from the people running these companies · each set in their own brand's typeface.</p>
-          <Testimonials />
-        </section>
-      )}
 
       <section className="lp-sec alt" id="how">
         <Object3D kind="gear" color={C.yellow} side="right" parallax={0.14} />
@@ -412,7 +380,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <div>
             <h3>Today · 100% in your browser</h3>
             <ul>
-              <li>DojoBuro is a static single-page app. The 3D office and the Dojo City you visit from the dashboard all run client-side, right in your browser.</li>
+              <li>DojoBuro is a static single-page app. The 3D office runs client-side, right in your browser.</li>
               <li>No server, no database · it deploys to any static host and there is nothing to operate.</li>
             </ul>
           </div>
@@ -458,8 +426,6 @@ export function Landing({ enter }: { enter: () => void }) {
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
         <nav className="lp-foot-links">
-          {SHOW_MOCK_COMPANIES && <a href="#board">Leaderboard</a>}
-          {SHOW_MOCK_COMPANIES && <a href="#showcase">Showcase</a>}
           <a href="#jobs">Your job</a>
           <a href="#stack">Connect apps</a>
           <a href="#studio">Dojo settings</a>

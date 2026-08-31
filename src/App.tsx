@@ -45,7 +45,7 @@ export default function App() {
   const [view, setView] = useState<'home' | 'dojo'>('home')
   // Which surface the home is showing. The first two — "Create your company"
   // and "Choose your dojo teams" — are meant to be the only thing on screen,
-  // so the bottom navigation (Dojo, Studio, Connect, City) is not shown: none
+  // so the bottom navigation (Dojo, Studio, Connect) is not shown: none
   // of it means anything before a company exists.
   const [homeStep, setHomeStep] = useState<'create' | 'choose' | 'project'>('create')
   // the dojo fills the window on arrival (centered), then reveals the agent's
@@ -92,9 +92,9 @@ export default function App() {
     }
   }, [])
 
-  // navigation intent handed over from the City page (which lives on its own
-  // route): the City bottom-bar sets this then routes to #app, and we act on it
-  // once App mounts · "CEO" opens the dashboard, "Studio" opens the studio.
+  // navigation intent handed over from a full-page surface (dojo settings,
+  // connect apps): it sets this then routes to #app, and we act on it once App
+  // mounts · "CEO" opens the dashboard, "Studio" opens the studio.
   useEffect(() => {
     let intent: string | null = null
     try { intent = sessionStorage.getItem('dojoburo.nav'); if (intent) sessionStorage.removeItem('dojoburo.nav') } catch { /* ignore */ }
@@ -237,7 +237,7 @@ export default function App() {
       <SupportBot />
 
       {/* mobile bottom bar · the same four things the header carries on desktop.
-          Connect apps, the Dojo Guide and the City live in the menu now. */}
+          Connect apps and the Dojo Guide live in the menu now. */}
       <nav className="mbar mbar-4" aria-label="Navigation">
         <button onClick={() => { selectAgent(null); setHomeStart('project'); setView('home') }}>
           <span className="mbar-ic">▦</span>Project

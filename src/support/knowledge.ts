@@ -280,7 +280,7 @@ export const KB: KBTopic[] = [
     id: 'environment',
     chip: 'Cloud or local',
     answer:
-      'Run it two ways. Cloud: a managed worker runs the model + tool calls and keeps agents going when the tab is closed, with every key sealed away on the server. Local / self-hosted: run your own worker and point connectors at your own MCP endpoints · your keys, your machine, the same office. Either way the browser is just the cockpit: it shows the 3D office and Dojo City, triggers tasks and tracks your credits; the worker does the authenticated work.',
+      'Run it two ways. Cloud: a managed worker runs the model + tool calls and keeps agents going when the tab is closed, with every key sealed away on the server. Local / self-hosted: run your own worker and point connectors at your own MCP endpoints · your keys, your machine, the same office. Either way the browser is just the cockpit: it shows the 3D office, triggers tasks and tracks your credits; the worker does the authenticated work.',
     links: [
       { label: 'Cloud or local', href: '#stack' },
       { label: 'Runtime & environment', href: '#env' },
