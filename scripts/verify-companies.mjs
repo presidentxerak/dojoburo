@@ -58,8 +58,8 @@ await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(300)
 await p.locator('.tb-menu-item', { hasText: 'My companies' }).click()
 await p.waitForTimeout(1200)
 await p.screenshot({ path: SHOT + '/companies.png' })
-ok(await p.locator('.cocard').count() === 1, 'the profile lists one company')
-ok((await p.locator('.cocard').first().innerText()).includes('dojo team'), 'the card carries its team count')
+ok(await p.locator('.cocard:not(.cocard-new)').count() === 1, 'the profile lists one company')
+ok((await p.locator('.cocard:not(.cocard-new)').first().innerText()).includes('dojo team'), 'the card carries its team count')
 await p.locator('.ph-addco').click(); await p.waitForTimeout(1000)
 await p.locator('.cc-card input').fill('Kassio')
 await p.locator('.cc-go').click(); await p.waitForTimeout(1200)
@@ -71,15 +71,44 @@ ok(await p.locator('.dtab').count() === 0 || await p.locator('.dtab').count() ==
 await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(300)
 await p.locator('.tb-menu-item', { hasText: 'My companies' }).click()
 await p.waitForTimeout(1200)
-ok(await p.locator('.cocard').count() === 2, 'two companies now')
+ok(await p.locator('.cocard:not(.cocard-new)').count() === 2, 'two companies now')
 await p.locator('.cocard-face').first().click()
 await p.waitForTimeout(1200)
-ok(await p.locator('.ph-proj').count() === 2, 'opening the first company shows its two teams')
+ok(await p.locator('.tmcard').count() === 2, 'opening the first company shows its two teams')
 ok((await p.locator('.ph-top h1').innerText()).includes('Novaranly'), 'and its name')
 
 // --- the same speciality twice in ONE company is still refused
 await p.locator('.ph-addteam').click(); await p.waitForTimeout(1000)
 ok(await p.locator('.tcard.owned').count() === 2, 'inside a company, the teams it has are marked')
+
+// --- the catalogue must never open on a wall of greyed-out cards
+const firstSix = await p.locator('.ct-grid .tcard').evaluateAll((els) => els.slice(0, 6).map((e) => e.classList.contains('owned')))
+ok(firstSix.every((owned) => !owned), 'what you can still hire comes first', JSON.stringify(firstSix))
+ok(/still to hire/.test(await p.locator('.ct-have').innerText()), 'and the page says how many are left')
+// leaving the catalogue must not require ticking something first
+ok(await p.locator('.ct-leave').isVisible(), 'the catalogue has a way out before you pick anything')
+await p.locator('.ct-leave').click()
+await p.waitForTimeout(900)
+
+// --- an empty card, with a +, makes the next one
+ok(await p.locator('.cocard-new').count() === 1, 'a company has one "add a dojo team" card')
+ok((await p.locator('.cocard-new').innerText()).includes('+'), 'and it carries the +')
+await p.locator('.ph-back').click(); await p.waitForTimeout(900)
+ok(await p.locator('.cocard-new').count() === 1, 'the companies grid has one "new company" card')
+await p.locator('.cocard-new').click(); await p.waitForTimeout(900)
+ok(await p.locator('.cc-card').count() === 1, 'and the + card opens the naming screen')
+
+// --- no borders, no coloured cap, on any card the founder named
+const chrome = await p.evaluate(() => {
+  const bad = []
+  for (const el of document.querySelectorAll('.cocard, .tmcard, .tcard')) {
+    const cs = getComputedStyle(el)
+    if (!el.classList.contains('cocard-new') && parseFloat(cs.borderTopWidth) > 0) bad.push('border:' + el.className)
+    if (getComputedStyle(el, '::before').display !== 'none') bad.push('cap:' + el.className)
+  }
+  return bad
+})
+ok(chrome.length === 0, 'company and team cards carry no border and no colour cap', chrome.slice(0, 3).join(' | '))
 
 ok(errs.length === 0, errs.length ? JSON.stringify(errs.slice(0, 3)) : 'no page errors')
 await br.close()

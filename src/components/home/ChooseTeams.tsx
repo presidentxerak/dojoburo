@@ -24,7 +24,15 @@ export function ChooseTeams({ projectName, onAdd, onBack, existing = [] }: {
   const [howTo, setHowTo] = useState(false)
 
   const have = useMemo(() => new Set(existing), [existing])
-  const shown = cat === 'all' ? ARCHETYPES : ARCHETYPES.filter((a) => a.category === cat)
+  // What you can still hire comes FIRST. The catalogue is in a fixed order, so
+  // a company that had taken the first few teams opened this screen on a row of
+  // greyed-out cards and read as "nothing can be added" — the teams that were
+  // available were below the fold. Hired ones keep their place in the grid, at
+  // the end, so you can still see what you have.
+  const shown = useMemo(() => {
+    const list = cat === 'all' ? ARCHETYPES : ARCHETYPES.filter((a) => a.category === cat)
+    return [...list].sort((x, y) => Number(have.has(x.id)) - Number(have.has(y.id)))
+  }, [cat, have])
   // what can still be hired in the current filter · "Select all" and the count
   // both work off this, so neither ever offers a team you already have
   const free = useMemo(() => shown.filter((a) => !have.has(a.id)), [shown, have])
@@ -51,6 +59,10 @@ export function ChooseTeams({ projectName, onAdd, onBack, existing = [] }: {
   return (
     <div className="ct">
       <header className="ct-hero">
+        {/* Back used to live ONLY in the sticky bar, and that bar only slides
+            up once you have ticked something — so opening the catalogue and
+            changing your mind left you with no way out. It is here, always. */}
+        {onBack && <button type="button" className="ct-leave" onClick={onBack}>‹ Back</button>}
         <h1>Choose your dojo teams</h1>
         <p className="ct-sub">
           {projectName ? <>Pick what <b>{projectName}</b> needs. </> : null}
@@ -71,8 +83,9 @@ export function ChooseTeams({ projectName, onAdd, onBack, existing = [] }: {
 
       {have.size > 0 && (
         <p className="ct-have">
-          {have.size} team{have.size > 1 ? 's are' : ' is'} already in this company · a team is hired once,
-          so those cards are marked and cannot be picked again.
+          <b>{free.length} team{free.length === 1 ? '' : 's'} still to hire</b>, shown first · the {have.size} this
+          company already has {have.size > 1 ? 'are' : 'is'} marked <b>Hired</b> at the end, because a team is hired
+          once per company.
         </p>
       )}
 

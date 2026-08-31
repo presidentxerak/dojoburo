@@ -209,6 +209,15 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
                 </article>
               )
             })}
+
+            {/* the last card in the grid IS the way to make another one ·
+                "+ New company" up in the header is one tap away from where the
+                eye already is, at the end of what you have */}
+            <button type="button" className="cocard cocard-new" onClick={newCompany}>
+              <span className="cocard-plus" aria-hidden>+</span>
+              <strong>New company</strong>
+              <em>Name it, pick its dojo teams.</em>
+            </button>
           </div>
         )}
       </div>
@@ -231,55 +240,92 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
 
       {/* only the teams the founder actually picked · the seeded HQ dojo that
           ships with every install was never chosen, so it is not part of the
-          project (it stays reachable from Dojo settings, like in the tab bar) */}
-      {projects.length > 0 && (
-        <ol className="ph-list">
-          {projects.map((d, i) => {
-            const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
-            const crew = d.agents.filter((x) => !x.hidden)
-            const tint = a?.tint ?? '#7b5cff'
-            // A company only hires a speciality once. Copies made before that
-            // rule existed are still here, so they are named as copies with
-            // their remove button right beside them.
-            const dup = !!d.archetype && projects.findIndex((x) => x.archetype === d.archetype) !== i
-            return (
-              <li key={d.id} className={`ph-proj${d.id === activeId ? ' on' : ''}`} style={{ ['--ac' as string]: tint }}>
-                <span className="ph-step-n">{i + 1}</span>
-                <div className="ph-proj-main" role="button" tabIndex={0} onClick={() => open(d.id)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') open(d.id) }}>
-                  <span className="ph-glyph sm" style={{ background: tint }}>{a?.glyph ?? '◆'}</span>
-                  <div className="ph-proj-txt">
-                    <strong>{d.name}{dup && <span className="ph-dup" title="You already have this team · remove one of them">Duplicate</span>}</strong>
-                    <em>{a ? a.label : 'Full company'} · {crew.length} teammates{a ? ` · ${a.loop.length} steps` : ''}</em>
-                  </div>
-                  <span className="ph-proj-crew">
-                    {crew.slice(0, 6).map((x) => {
-                      const r = x.role ? ROLE_BY_ID[x.role] : undefined
-                      const c = x.custom?.tint ?? r?.tint ?? '#8892a6'
-                      return <span key={x.id} className="ph-dot" style={{ background: c }} title={x.name}>{x.name[0]}</span>
-                    })}
-                    {crew.length > 6 && <span className="ph-more">+{crew.length - 6}</span>}
-                  </span>
-                </div>
-                <input
-                  className="ph-goal"
-                  value={d.goal ?? ''}
-                  placeholder="What do you want out of this? (one line)"
-                  maxLength={240}
-                  onChange={(e) => setGoal(d.id, e.target.value)}
-                />
-                <div className="ph-proj-acts">
-                  <button className="btn primary tiny" onClick={() => open(d.id)}>Open dojo</button>
-                  <button className="ph-ic" onClick={() => reorder(d.id, -1)} disabled={i === 0} aria-label="Move up" title="Move up">↑</button>
-                  <button className="ph-ic" onClick={() => reorder(d.id, 1)} disabled={i === projects.length - 1} aria-label="Move down" title="Move down">↓</button>
-                  <button className="ph-ic danger" aria-label={`Delete ${d.name}`} title="Delete team"
-                    onClick={() => { if (confirm(`Delete "${d.name}"? Its team and everything they made are removed.`)) del(d.id) }}>×</button>
-                </div>
-              </li>
-            )
-          })}
-        </ol>
-      )}
+          company (it stays reachable from Dojo settings, like in the tab bar).
+
+          These were wide numbered rows while everything else in the product was
+          a portrait card, so a team read as a step in a sequence rather than a
+          crew you own. Same card, same hover, same language as the catalogue. */}
+      <div className="ph-cogrid">
+        {projects.map((d, i) => {
+          const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
+          const crew = d.agents.filter((x) => !x.hidden)
+          const tint = a?.tint ?? '#7b5cff'
+          // A company only hires a speciality once. Copies made before that
+          // rule existed are still here, named as copies, with their remove
+          // button right beside them.
+          const dup = !!d.archetype && projects.findIndex((x) => x.archetype === d.archetype) !== i
+          return (
+            <article
+              key={d.id}
+              className={`appcard cocard tmcard${d.id === activeId ? ' on' : ''}`}
+              style={{ ['--ac' as string]: tint }}
+            >
+              <button type="button" className="cocard-face" onClick={() => open(d.id)} aria-label={`Open ${d.name}`}>
+                <span className="cocard-top">
+                  <span className="cocard-glyph" style={{ background: tint }}>{a?.glyph ?? '◆'}</span>
+                  {dup && <span className="tmcard-dup" title="You already have this team · remove one of them">Duplicate</span>}
+                  {d.id === activeId && !dup && <span className="cocard-here">Open now</span>}
+                </span>
+
+                <strong className="cocard-name">{a ? a.label : d.name}</strong>
+
+                <span className="cocard-count">
+                  <b>{crew.length}</b>
+                  <em>teammate{crew.length === 1 ? '' : 's'}</em>
+                </span>
+                <span className="cocard-mates">{a ? `${a.loop.length} steps in their plan` : 'Full company'}</span>
+
+                <span className="cocard-teams">
+                  {crew.slice(0, 5).map((x) => {
+                    const r = x.role ? ROLE_BY_ID[x.role] : undefined
+                    const c = x.custom?.tint ?? r?.tint ?? '#8892a6'
+                    return (
+                      <span key={x.id} className="cocard-team">
+                        <span className="cocard-tglyph" style={{ background: c }}>{x.name[0]}</span>
+                        <em>{x.name}{r ? ` · ${r.title}` : ''}</em>
+                      </span>
+                    )
+                  })}
+                  {crew.length > 5 && <span className="cocard-more">+{crew.length - 5} more</span>}
+                </span>
+              </button>
+
+              {/* the brief every teammate on this card works from */}
+              <input
+                className="ph-goal tmcard-goal"
+                value={d.goal ?? ''}
+                placeholder="What do you want out of this? (one line)"
+                maxLength={240}
+                onChange={(e) => setGoal(d.id, e.target.value)}
+              />
+
+              <div className="tmcard-acts">
+                <button className="btn primary tiny" onClick={() => open(d.id)}>Open dojo</button>
+                <span className="tmcard-order">
+                  <button className="ph-ic" onClick={() => reorder(d.id, -1)} disabled={i === 0} aria-label="Move earlier" title="Move earlier">↑</button>
+                  <button className="ph-ic" onClick={() => reorder(d.id, 1)} disabled={i === projects.length - 1} aria-label="Move later" title="Move later">↓</button>
+                </span>
+              </div>
+
+              <button
+                className="cocard-del"
+                aria-label={`Delete ${d.name}`}
+                title="Delete team"
+                onClick={() => { if (confirm(`Delete "${d.name}"? Its team and everything they made are removed.`)) del(d.id) }}
+              >
+                ✕
+              </button>
+            </article>
+          )
+        })}
+
+        {/* and the way to hire another one, at the end of the ones you have */}
+        <button type="button" className="cocard cocard-new" onClick={() => setView('choose')}>
+          <span className="cocard-plus" aria-hidden>+</span>
+          <strong>Add a dojo team</strong>
+          <em>Pick a ready-made crew for this company.</em>
+        </button>
+      </div>
 
       {/* the two system agents · runs the whole company + looks after the app */}
       <SystemAgents projectCount={projects.length} onRunPipeline={() => void runPipeline()} running={loopRunning} />

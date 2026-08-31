@@ -86,10 +86,10 @@ ok(await p.locator('.tcard.on').count() === (await p.locator('.ct-grid .tcard').
 // back to the project, into the dojo
 await p.locator('.ct-back').click()
 await p.waitForTimeout(900)
-const rows = await p.locator('.ph-proj').count()
+const rows = await p.locator('.tmcard').count()
 ok(rows === 2, `still two teams, no twin created (${rows})`)
 ok(await p.locator('.ph-dup').count() === 0, 'and nothing is flagged as a duplicate')
-await p.locator('.ph-proj .btn.primary').first().click()
+await p.locator('.tmcard .btn.primary').first().click()
 await p.waitForTimeout(2500)
 
 // ---- the four full-screen surfaces --------------------------------------------
