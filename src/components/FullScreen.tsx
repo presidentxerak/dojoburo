@@ -12,6 +12,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useOverlay } from '../lib/overlay'
+import { Boundary } from './Boundary'
 
 export function FullScreen({ title, sub, tint, actions, bodyClass, children, onClose }: {
   title: string
@@ -62,7 +63,9 @@ export function FullScreen({ title, sub, tint, actions, bodyClass, children, onC
           <button className="modhost-close" onClick={onClose} aria-label={`Close ${title}`} title="Close">✕</button>
         </div>
       </header>
-      <div className={`modhost-body${bodyClass ? ` ${bodyClass}` : ''}`}>{children}</div>
+      <div className={`modhost-body${bodyClass ? ` ${bodyClass}` : ''}`}>
+        <Boundary what={title} onClose={onClose}>{children}</Boundary>
+      </div>
     </div>,
     document.body,
   )

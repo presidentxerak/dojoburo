@@ -135,6 +135,57 @@ if ((await p.locator('.toast').count()) > 0) {
   ok('a notification appeared to test', false, 'none fired in 60s')
 }
 
+// ---- a bad saved value must not cost the app ---------------------------
+// A currency code saved by an older build ("XRP", from when the app settled on
+// a ledger) made a price label throw. React unmounts a tree that throws, so the
+// whole page went white with no header, no menu and no way back — and reloading
+// landed in the same state, because the bad value was saved. This walks that
+// exact path: corrupt the store, reload, open the surfaces that price things.
+// this needs a saved account, so make one the way a founder does
+if ((await p.locator('.cc-card').count()) > 0) {
+  await p.locator('.cc-card input').fill('Currency probe')
+  await p.locator('.cc-go').click()
+  await p.waitForTimeout(1400)
+  await p.locator('.ct-grid .tcard').nth(0).click()
+  await p.locator('.ct-go').click()
+  await p.waitForTimeout(3000)
+}
+const hit = await p.evaluate(() => {
+  const touched = []
+  for (const k of Object.keys(localStorage)) {
+    const raw = localStorage.getItem(k)
+    if (raw && raw.includes('"currency"')) {
+      localStorage.setItem(k, raw.replace(/"currency":"[A-Z]*"/g, '"currency":"XRP"'))
+      touched.push(k)
+    }
+  }
+  return touched
+})
+ok('the saved account carries a currency to corrupt', hit.length > 0, hit.join(','))
+await p.reload({ waitUntil: 'networkidle' })
+await p.waitForTimeout(2500)
+const crashes = []
+p.on('pageerror', (e) => crashes.push(e.message))
+for (const item of ['My Credits', 'Dojo settings', 'Connect apps']) {
+  await p.evaluate((t) => {
+    document.querySelector('.tb-menu-btn').click()
+    requestAnimationFrame(() => [...document.querySelectorAll('.tb-menu-item')].find((b) => b.textContent.includes(t))?.click())
+  }, item)
+  await p.waitForTimeout(1500)
+  const chars = (await p.locator('.modhost-fs.fs').count())
+    ? (await p.locator('.modhost-fs.fs').innerText()).trim().length : 0
+  // .crashed means the boundary caught a throw · the app survived, but the
+  // panel still did not draw. Both have to be true: nothing thrown AND the
+  // real content on screen.
+  const caught = await p.locator('.crashed').count()
+  ok(`${item} survives a currency this build has never heard of`, chars > 200 && caught === 0,
+    caught ? 'the error boundary had to catch it' : `${chars} chars`)
+  await p.evaluate(() => document.querySelector('.modhost-close')?.click())
+  await p.waitForTimeout(400)
+}
+ok('and the app is still standing', await p.locator('.tb-menu-btn').count() === 1)
+ok('with nothing thrown at the page', crashes.length === 0, crashes.slice(0, 2).join(' | '))
+
 // ---- hover never draws a selection ring --------------------------------
 ok('no pulsing hover ring is defined anywhere',
   await p.evaluate(() => ![...document.styleSheets].some((sh) => {

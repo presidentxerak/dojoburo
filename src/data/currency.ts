@@ -24,15 +24,27 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyDef> = {
 
 export const CURRENCY_LIST = Object.values(CURRENCIES)
 
-/** Format an XRP amount in the target currency. */
+/** The definition for a code, whatever the code turns out to be.
+ *
+ *  These lookups used to be `CURRENCIES[code]` straight into a `.perXrp`, and
+ *  the code comes off an account saved in this browser — possibly saved by an
+ *  older build, possibly with the field missing. Any value outside the three
+ *  here returned undefined, `.perXrp` threw, and because React unmounts a tree
+ *  that throws during render, the whole app went white with no way back. A
+ *  price label is not worth an app. Unknown codes read as dollars. */
+export function currencyDef(code: unknown): CurrencyDef {
+  return (typeof code === 'string' && CURRENCIES[code as CurrencyCode]) || CURRENCIES.USD
+}
+
+/** Format a credit amount in the target currency. */
 export function formatFrom(xrp: number, code: CurrencyCode): string {
-  const c = CURRENCIES[code]
-  const v = xrp * c.perXrp
+  const c = currencyDef(code)
+  const v = (Number.isFinite(xrp) ? xrp : 0) * c.perXrp
   const num = v.toLocaleString(undefined, { minimumFractionDigits: c.decimals, maximumFractionDigits: c.decimals })
   return `${c.symbol}${num}`
 }
 
-/** Convert a fiat amount back to XRP (the settlement amount). */
+/** Convert a fiat amount back to credits. */
 export function toXrp(amount: number, code: CurrencyCode): number {
-  return amount / CURRENCIES[code].perXrp
+  return (Number.isFinite(amount) ? amount : 0) / currencyDef(code).perXrp
 }

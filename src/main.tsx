@@ -10,6 +10,7 @@ import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
 import { usePath } from './lib/router'
+import { Boundary } from './components/Boundary'
 import './index.css'
 
 // Route ephemeral Vercel preview URLs (which change every deploy and aren't in
@@ -60,9 +61,11 @@ function Root() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthProvider>
-      <Root />
-    </AuthProvider>
+    <Boundary what="DojoBuro">
+      <AuthProvider>
+        <Root />
+      </AuthProvider>
+    </Boundary>
   </StrictMode>,
 )
 
