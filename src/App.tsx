@@ -22,6 +22,8 @@ import { useWorkshop } from './workshop'
 import { privyConfigured } from './auth/controls'
 import { AuthGate } from './auth/AuthGate'
 import { FullScreen } from './components/FullScreen'
+import { StudioSurface } from './components/workshop/WorkshopModal'
+import { ConnectorsSurface } from './components/ConnectorsPage'
 
 export default function App() {
   const fireEvent = useDojo((s) => s.fireEvent)
@@ -54,7 +56,17 @@ export default function App() {
   // project" must show the project — the naming card is step one of creating
   // something new, and landing on it after you already have a project reads as
   // having lost your work.
-  const [homeStart, setHomeStart] = useState<'create' | 'companies'>('create')
+  //
+  // A reload used to drop you on the naming card even with companies saved:
+  // "home" opened at step one, so the app read as having lost your work. If a
+  // company exists, the app opens on your companies instead.
+  const [homeStart, setHomeStart] = useState<'create' | 'companies'>(
+    () => (useWorkshop.getState().companies.length ? 'companies' : 'create'),
+  )
+  // Dojo settings / Account / Billing and Connect apps, as surfaces over the
+  // app rather than routes you have to come back from.
+  const studioOpen = useWork((s) => s.studioOpen)
+  const connectOpen = useWork((s) => s.connectOpen)
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
 
@@ -130,6 +142,10 @@ export default function App() {
           <PipelineHome key={homeStart} initialView={homeStart} onOpenProject={() => { setView('dojo'); setDojoFull(true) }} onView={setHomeStep} />
         </div>
         <OutboundConsentModal />
+        {/* Dojo settings · Account · Billing · Connect apps — the same shell as
+            every other full-screen surface, over the app instead of away from it */}
+        {studioOpen && <StudioSurface onClose={() => useWork.getState().closeStudio()} />}
+        {connectOpen && <ConnectorsSurface onClose={() => useWork.getState().closeConnect()} />}
         <CommandPalette openDojo={() => { setView('dojo'); setDojoFull(true) }} showDashboard={() => { setView('dojo'); setDojoFull(false) }} />
         <Toasts />
         <SettingsModal />
@@ -211,6 +227,10 @@ export default function App() {
       )}
 
       <OutboundConsentModal />
+      {/* Dojo settings · Account · Billing · Connect apps — the same shell as
+          every other full-screen surface, over the app instead of away from it */}
+      {studioOpen && <StudioSurface onClose={() => useWork.getState().closeStudio()} />}
+      {connectOpen && <ConnectorsSurface onClose={() => useWork.getState().closeConnect()} />}
       <CommandPalette openDojo={() => setDojoFull(true)} showDashboard={() => setDojoFull(false)} />
       <Toasts />
       <SnapshotFactory />

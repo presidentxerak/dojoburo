@@ -61,6 +61,15 @@ interface WorkState {
   /** open the Studio editor focused on a specific agent */
   editAgent: (agentId: string) => void
   clearStudioIntent: () => void
+  /** true while the app itself is on screen · a surface, not a route */
+  inApp: () => boolean
+  /** Dojo settings / Account / Billing, as a surface OVER the app */
+  studioOpen: boolean
+  closeStudio: () => void
+  /** Connect apps, as a surface OVER the app */
+  connectOpen: boolean
+  openConnect: () => void
+  closeConnect: () => void
   setModuleTab: (tab: string | null) => void
   openCreate: () => void
   clearCreate: () => void
@@ -154,11 +163,33 @@ export const useWork = create<WorkState>((set, get) => ({
 
   closeDeliverable: () => set({ deliverable: null }),
   clearError: () => set({ runError: null }),
-  // Dojo Studio is a full PAGE now (route #studio), not a modal · record which
-  // tab to open, then navigate there.
-  openStudio: (tab) => { set({ studioIntent: tab }); try { location.hash = 'studio' } catch { /* ignore */ } },
-  editAgent: (agentId) => { set({ studioIntent: 'studio', studioAgentId: agentId }); try { location.hash = 'studio' } catch { /* ignore */ } },
+  // Dojo settings, Account, Billing and Connect apps used to NAVIGATE to their
+  // own routes. Leaving the app to read your credit balance meant leaving your
+  // dojo — you came back to the naming card, as if the work had gone — and the
+  // pages wore chrome nobody else wore. From inside the app they now open as
+  // full-screen surfaces over it, exactly like Manage team and Graph mode. The
+  // routes still exist: they are real, linkable URLs, and they render the same
+  // surface when you arrive from outside.
+  inApp: () => { try { return location.hash.replace(/^#\/?/, '') === 'app' } catch { return false } },
+  openStudio: (tab) => {
+    set({ studioIntent: tab })
+    if (get().inApp()) { set({ studioOpen: true, connectOpen: false }); return }
+    try { location.hash = 'studio' } catch { /* ignore */ }
+  },
+  editAgent: (agentId) => {
+    set({ studioIntent: 'studio', studioAgentId: agentId })
+    if (get().inApp()) { set({ studioOpen: true, connectOpen: false }); return }
+    try { location.hash = 'studio' } catch { /* ignore */ }
+  },
   clearStudioIntent: () => set({ studioIntent: null, studioAgentId: null }),
+  studioOpen: false,
+  closeStudio: () => set({ studioOpen: false }),
+  connectOpen: false,
+  openConnect: () => {
+    if (get().inApp()) { set({ connectOpen: true, studioOpen: false }); return }
+    try { location.hash = 'connect' } catch { /* ignore */ }
+  },
+  closeConnect: () => set({ connectOpen: false }),
   setModuleTab: (tab) => set({ moduleTab: tab }),
   openCreate: () => set({ createIntent: true }),
   clearCreate: () => set({ createIntent: false }),

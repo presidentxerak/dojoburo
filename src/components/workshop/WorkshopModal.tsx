@@ -18,7 +18,7 @@ import { Agent3DPreview } from '../three/Agent3DPreview'
 import { ConnectorsPanel } from '../ConnectorsPanel'
 import { AgentContext } from '../agents/AgentContext'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
-import { PageBar } from '../PageBar'
+import { FullScreen } from '../FullScreen'
 import { StepBar } from '../../modules/StepBar'
 import { apiFetch } from '../../lib/apiFetch'
 
@@ -38,43 +38,40 @@ const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
   billing: { title: 'Billing', sub: 'Credits, currency, your Claude key and plans.' },
 }
 
-export function StudioPage() {
-  // Account & Billing were moved to the burger menu; the Studio page is now just
-  // "Dojos & agents". A deep-link (burger Account / My Credits) can still land on
-  // the account/billing section · the title reflects it, no tab switcher.
+/** Dojo settings / Account / Billing, wearing the app's ONE full-screen shell.
+ *
+ *  This used to be its own page. Opening your credit balance from the menu
+ *  therefore navigated out of the app, and coming back landed you on the
+ *  "Create your company" card — your dojo looked lost. It is a surface over the
+ *  app now, so closing it puts you back exactly where you were. */
+export function StudioSurface({ onClose }: { onClose: () => void }) {
+  // Account & Billing were moved to the menu; the Studio surface is "Dojos &
+  // agents". A deep link (menu → Account / My Credits) still lands on the
+  // account/billing section · the title reflects it, no tab switcher.
   const intent = useWork((s) => s.studioIntent)
+  const openConnect = useWork((s) => s.openConnect)
   const tab: Tab = intent && (intent === 'account' || intent === 'billing') ? intent : 'studio'
   const head = STUDIO_TITLES[tab]
-  const backToDojo = () => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* */ } location.hash = 'app' }
   return (
-    <div className="app studio-page" style={{ ['--dc' as string]: '#7b5cff' }}>
-      <div className="studio-page-body">
-        {/* Same studio shell as the Website / Brand studios (modhost bar + body)
-            so the design constraints match exactly — including the top of the
-            screen. The app header used to sit above this bar, which pushed the
-            ✕ 60px lower than it is on every other full-screen surface; ✕ leads
-            back to the dojo, where the menu lives, exactly like a studio. */}
-        <header className="modhost-bar studio-page-head">
-          <div className="modhost-bar-l">
-            <div>
-              <h2 className="modhost-name">{head.title}</h2>
-              <p className="modhost-blurb">{head.sub}</p>
-            </div>
-          </div>
-          <div className="modhost-bar-r">
-            <button className="modhost-connect" onClick={() => { location.hash = 'connect' }}>Connect apps</button>
-            <button className="modhost-close" onClick={backToDojo} aria-label="Back to dojo">✕</button>
-          </div>
-        </header>
-        <div className="modhost-body studio-page-scroll">
-          {tab === 'studio' && <StudioTab />}
-          {tab === 'account' && <AccountTab />}
-          {tab === 'billing' && <BillingTab />}
-        </div>
-      </div>
-      <PageBar current="studio" />
-    </div>
+    <FullScreen
+      title={head.title}
+      sub={head.sub}
+      tint="#7b5cff"
+      bodyClass="studio-fs"
+      actions={<button className="modhost-connect" onClick={openConnect}>Connect apps</button>}
+      onClose={onClose}
+    >
+      {tab === 'studio' && <StudioTab />}
+      {tab === 'account' && <AccountTab />}
+      {tab === 'billing' && <BillingTab />}
+    </FullScreen>
   )
+}
+
+/** The #studio route · the same surface, reached as its own URL. */
+export function StudioPage() {
+  const back = () => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* */ } location.hash = 'app' }
+  return <StudioSurface onClose={back} />
 }
 
 // A short "here's how the Studio works, A to Z" primer above the grid editor.

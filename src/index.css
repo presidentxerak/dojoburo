@@ -3556,8 +3556,29 @@ input, textarea, select, button { border-radius: 0 !important; }
 .toasts {
   top: auto !important; bottom: 88px !important; left: auto !important; right: 16px !important;
   transform: none !important; align-items: flex-end !important;
+  /* under the menu, not over it · a notification must never win against
+     something the founder deliberately opened */
+  z-index: 110 !important;
 }
 .toast { border-radius: 0 !important; max-width: 320px; box-shadow: 0 6px 20px rgba(0,0,0,0.14) !important; }
+
+/* The menu is a 326px column down the right edge, exactly where the toasts
+   stack. While it is open they step aside instead of piling up behind it. */
+html[data-menu='open'] .toasts { right: 358px !important; }
+@media (max-width: 1100px) { html[data-menu='open'] .toasts { opacity: 0; pointer-events: none; } }
+
+/* the card opens its link · the ✕ is how you dismiss it */
+.toast { padding-right: 6px !important; }
+.toast-main { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; min-width: 0; text-decoration: none; color: inherit; }
+a.toast-main { cursor: pointer; }
+a.toast-main:hover .toast-body strong { text-decoration: underline; }
+.toast-x {
+  flex: none; align-self: flex-start; width: 26px; height: 26px; display: inline-flex;
+  align-items: center; justify-content: center; padding: 0; margin-left: 4px;
+  border: 1px solid transparent; border-radius: 8px; background: none; cursor: pointer;
+  font-size: 13px; line-height: 1; color: var(--muted);
+}
+.toast-x:hover { color: var(--ink); border-color: var(--border-lit); background: var(--panel); }
 /* On mobile the floating toasts stack over the 3D dojo and hide the agents ·
    suppress them entirely; the bell opens the fullscreen notification center. */
 @media (max-width: 720px) { .toasts { display: none !important; } }
@@ -4692,19 +4713,17 @@ select.cc-input { flex: 1; min-width: 0; }
 
 /* =====================================================================
    Interaction design v4 · harmonised across landing, dojo guide & dojo.
-   Every card: 24px radius, no outline at rest; on hover an animated
-   blue→green gradient OUTLINE (acidRing) + a soft lift. All primary CTAs
-   share the animated blue→green gradient. Smooth page-in transitions on
+   Every card: 24px radius, no outline at rest; on hover a small lift and a
+   firmer edge — never a coloured ring, which reads as selection. All primary
+   CTAs share the animated blue→green gradient. Smooth page-in transitions on
    each top-level surface. Appended at EOF so it wins the cascade.
    ===================================================================== */
 
-/* animated blue↔green gradient outline ring · pure box-shadow (no pseudo-
-   element, no background override) so it never collides with a card's own
-   ::before/::after or fill, and never shifts layout. */
-@keyframes acidRing {
-  0%, 100% { box-shadow: 0 0 0 2px #00d6ff, 0 22px 50px -16px rgba(0,214,255,0.55), 0 8px 20px -10px rgba(24,255,176,0.34); }
-  50%      { box-shadow: 0 0 0 2px #12ffb0, 0 22px 50px -16px rgba(24,255,176,0.55), 0 8px 20px -10px rgba(0,214,255,0.34); }
-}
+/* Hover used to run an animated blue→green ring around every card. Pointing at
+   something is not choosing it, and a ring that pulses on whatever the cursor
+   crosses reads as a selection the founder never made — the "blue line" on
+   cards that are merely under the mouse. Hover is now what hover should be: a
+   small lift and a slightly firmer edge. Selection stays the job of .on. */
 
 /* the unified card set across the whole app (landing + guide + dojo UIs):
    24px radius, no rest outline, smooth transitions. */
@@ -4726,9 +4745,9 @@ select.cc-input { flex: 1; min-width: 0; }
 .sq-opt:hover, .lp-team:hover, .lp-node:hover, .lp-card:hover, .lp-plan:hover, .lp-job:hover,
 .lp-step:hover, .sc-card:hover, .lp-enterprise:hover, .guide-card:hover, .dg2-callout:hover,
 .biz-tile:hover, .fin-kpi:hover, .crm-card:hover, .ceo-quick:hover, .appcard:hover, .ph-proj:hover {
-  transform: translateY(-4px);
-  border-color: transparent !important;
-  animation: acidRing 3.2s ease-in-out infinite;
+  transform: translateY(-3px);
+  border-color: var(--border-lit);
+  box-shadow: 0 16px 34px -18px rgba(30, 25, 60, 0.34);
 }
 
 /* every primary CTA everywhere → the animated blue→green gradient. Small
@@ -4931,9 +4950,9 @@ select.cc-input { flex: 1; min-width: 0; }
   transition: transform 0.2s ease, box-shadow 0.35s ease, border-color 0.2s ease !important;
 }
 .se-card:hover, .se-kpi:hover {
-  transform: translateY(-4px);
-  border-color: transparent !important;
-  animation: acidRing 3.2s ease-in-out infinite;
+  transform: translateY(-3px);
+  border-color: var(--border-lit);
+  box-shadow: 0 16px 34px -18px rgba(30, 25, 60, 0.34);
 }
 .se-domain { border-radius: 999px !important; }
 
@@ -6683,3 +6702,82 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .connect-why { margin: 0 0 10px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
 .connect-card.s-unwired { opacity: .72; }
 .connect-soon { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+
+
+/* =====================================================================
+   Company cards · the profile.
+   A company used to be a wide row in a numbered list, which read as a step
+   in a sequence rather than a thing you own. It is a portrait card now, in
+   the same language as the team and teammate cards, and it leads with the
+   number it exists to carry: how many dojo teams are inside it.
+   ===================================================================== */
+.ph-cogrid {
+  display: grid; gap: 16px; width: 100%; margin-top: 4px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+.cocard { padding: 0; gap: 0; cursor: default; }
+.cocard-face {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 7px;
+  width: 100%; padding: 20px 18px 18px; border: 0; background: none;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+}
+.cocard-top { display: flex; align-items: center; gap: 8px; width: 100%; }
+.cocard-glyph {
+  display: grid; place-items: center; width: 46px; height: 46px; flex: none; border-radius: 14px;
+  color: #fff; font-size: 22px; line-height: 1;
+  box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--ac) 90%, transparent);
+}
+.cocard-here {
+  margin-left: auto; flex: none; padding: 3px 8px; border-radius: 999px;
+  background: color-mix(in srgb, var(--ac) 14%, transparent); color: var(--ac);
+  font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+}
+.cocard-name {
+  font-size: 20px; line-height: 1.15; width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* the one number a company card exists to carry */
+.cocard-count { display: flex; align-items: baseline; gap: 7px; margin-top: 2px; }
+.cocard-count b { font-size: 30px; line-height: 1; color: var(--ac); }
+.cocard-count em {
+  font-family: var(--font-read); font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--ink);
+}
+.cocard-mates { font-family: var(--font-read); font-size: 12px; color: var(--muted); }
+.cocard-teams {
+  display: flex; flex-direction: column; gap: 5px; width: 100%;
+  margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.cocard-team { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.cocard-tglyph {
+  display: grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: 6px;
+  color: #fff; font-size: 11px; line-height: 1;
+}
+.cocard-team em {
+  font-family: var(--font-read); font-style: normal; font-size: 12.5px; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cocard-more, .cocard-none { font-family: var(--font-read); font-size: 12px; color: var(--muted); }
+.cocard-cta {
+  margin-top: 12px; font-size: 13px; font-weight: 800; color: var(--ac);
+}
+.cocard-del {
+  position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; z-index: 2;
+  display: inline-flex; align-items: center; justify-content: center; padding: 0;
+  border: 1px solid transparent; border-radius: 8px; background: none; cursor: pointer;
+  font-size: 12px; line-height: 1; color: var(--muted); opacity: 0; transition: opacity .14s;
+}
+.cocard:hover .cocard-del, .cocard-del:focus-visible { opacity: 1; }
+.cocard-del:hover { color: #e0475f; border-color: #e0475f; }
+
+/* ---- Connect apps + Dojo settings, inside the shared full-screen shell --
+   Both bodies already centre themselves on a 1120px column with their own
+   gutters, so the shell must not add a second one. */
+.modhost-body.connect-fs { padding: 0 0 60px; }
+.modhost-body.studio-fs { padding: 18px clamp(16px, 4vw, 36px) 60px; }
+.connect-fs .connect-body { overflow: visible; }
+.connect-fs .connect-head { display: block; padding-top: 18px; }
+.connect-fs .connect-lead { max-width: 78ch; }
+/* A blanket `h2 { font-size: 32px !important }` was blowing the per-agent
+   section headings up to landing-page size, so Connect apps read as a
+   different product from every other surface. They are section headings. */
+.connect-cat .connect-cat-h { font-size: 17px !important; font-weight: 800 !important; }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useDojo } from '../store'
 import { useWorkshop } from '../workshop'
@@ -38,11 +38,21 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
   const [effortOpen, setEffortOpen] = useState(false)
   const mode = EFFORT_BY_ID[effort]
 
+  // The menu is a column down the right edge · exactly where the toasts stack.
+  // Flagging it on the document lets them step aside rather than pile up over
+  // the thing the founder just opened.
+  useEffect(() => {
+    const el = document.documentElement
+    if (menuOpen) el.dataset.menu = 'open'
+    else delete el.dataset.menu
+    return () => { delete el.dataset.menu }
+  }, [menuOpen])
+
   // The brand (logo + name) links back to the landing page.
   const goHome = () => { setMenuOpen(false); location.hash = '' }
   const openStudio = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
-  const openConnect = () => { setMenuOpen(false); location.hash = 'connect' }
+  const openConnect = () => { setMenuOpen(false); useWork.getState().openConnect() }
   // Your companies · the work you have built, not the card that creates one.
   // From another route we have to come back to #app first, and leave the
   // intent behind so App knows where to land.

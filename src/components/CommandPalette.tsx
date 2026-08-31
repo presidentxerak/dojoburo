@@ -65,7 +65,7 @@ export function CommandPalette({ openDojo, showDashboard }: { openDojo: () => vo
     list.push({ id: 'act-dojo', label: 'Open the dojo', hint: 'Fullscreen 3D office', group: 'Actions', keywords: 'dojo office 3d fullscreen', run: () => { selectAgent(null); openDojo(); setOpen(false) } })
     list.push({ id: 'act-ceo', label: 'CEO dashboard', hint: 'Company overview & roster', group: 'Actions', keywords: 'ceo dashboard company roster team', run: () => { selectAgent(null); showDashboard(); setOpen(false) } })
     list.push({ id: 'act-chief', label: 'Launch Chief', hint: 'Build everything automatically', group: 'Actions', keywords: 'chief launch autopilot build everything', run: () => { void launchCeo(dojo?.name || 'my company'); setOpen(false) } })
-    list.push({ id: 'act-connect', label: 'Connect apps', hint: 'Integrations gallery', group: 'Actions', keywords: 'connect apps integrations connectors', run: () => { location.hash = 'connect'; setOpen(false) } })
+    list.push({ id: 'act-connect', label: 'Connect apps', hint: 'Integrations gallery', group: 'Actions', keywords: 'connect apps integrations connectors', run: () => { useWork.getState().openConnect(); setOpen(false) } })
     list.push({ id: 'act-studio', label: 'Open Studio', hint: 'Manage the dojo & agents', group: 'Actions', keywords: 'studio manage settings', run: () => { useWork.getState().openStudio('studio'); setOpen(false) } })
     return list
   // eslint-disable-next-line react-hooks/exhaustive-deps

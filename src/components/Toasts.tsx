@@ -1,9 +1,17 @@
 import { useDojo } from '../store'
 
-/** Floating event / reward / level-up notifications. */
+/** Floating event / reward / level-up notifications.
+ *
+ *  Every toast carries its own ✕. Dismissing used to mean clicking the toast
+ *  itself, which is the same gesture as opening the thing it links to — so the
+ *  only way to get rid of one was to follow it, or wait. The card still opens
+ *  its link; the ✕ is how you say no.
+ */
 export function Toasts() {
   const toasts = useDojo((s) => s.toasts)
   const dismiss = useDojo((s) => s.dismissToast)
+
+  if (!toasts.length) return null
 
   return (
     <div className="toasts" role="status" aria-live="polite">
@@ -17,14 +25,24 @@ export function Toasts() {
             </span>
           </>
         )
-        return t.url ? (
-          <a key={t.id} className={`toast toast-${t.kind} toast-link`} href={t.url} target="_blank" rel="noreferrer" onClick={() => dismiss(t.id)} style={{ borderColor: t.color }}>
-            {inner}
-          </a>
-        ) : (
-          <button key={t.id} className={`toast toast-${t.kind}`} onClick={() => dismiss(t.id)} style={{ borderColor: t.color }}>
-            {inner}
-          </button>
+        return (
+          <div key={t.id} className={`toast toast-${t.kind}`} style={{ borderColor: t.color }}>
+            {t.url ? (
+              <a className="toast-main toast-link" href={t.url} target="_blank" rel="noreferrer" onClick={() => dismiss(t.id)}>
+                {inner}
+              </a>
+            ) : (
+              <span className="toast-main">{inner}</span>
+            )}
+            <button
+              className="toast-x"
+              onClick={() => dismiss(t.id)}
+              aria-label={`Dismiss · ${t.title}`}
+              title="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
         )
       })}
     </div>

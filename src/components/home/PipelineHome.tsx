@@ -150,38 +150,66 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
         {companies.length === 0 ? (
           <p className="ph-empty">No company yet. Create one and pick the teams it needs.</p>
         ) : (
-          <ol className="ph-list ph-cos">
-            {companies.map((c, i) => {
+          <div className="ph-cogrid">
+            {companies.map((c) => {
               const teams = teamsOf(c.id)
               const mates = teams.reduce((n, d) => n + d.agents.filter((x) => !x.hidden).length, 0)
               const tint = teams[0]?.archetype ? (ARCHETYPE_BY_ID[teams[0].archetype!]?.tint ?? '#7b5cff') : '#7b5cff'
               return (
-                <li key={c.id} className={`ph-proj ph-co${c.id === activeCompanyId ? ' on' : ''}`} style={{ ['--ac' as string]: tint }}>
-                  <span className="ph-step-n">{i + 1}</span>
-                  <div className="ph-proj-main" role="button" tabIndex={0} onClick={() => openCompany(c.id)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') openCompany(c.id) }}>
-                    <span className="ph-glyph sm" style={{ background: tint }}>◆</span>
-                    <div className="ph-proj-txt">
-                      <strong>{c.name}</strong>
-                      <em>{teams.length} dojo team{teams.length === 1 ? '' : 's'} · {mates} teammate{mates === 1 ? '' : 's'}</em>
-                    </div>
-                    <span className="ph-proj-crew">
-                      {teams.slice(0, 6).map((d) => {
-                        const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
-                        return <span key={d.id} className="ph-dot" style={{ background: a?.tint ?? '#8892a6' }} title={a?.label ?? d.name}>{a?.glyph ?? '◆'}</span>
-                      })}
-                      {teams.length > 6 && <span className="ph-more">+{teams.length - 6}</span>}
+                <article
+                  key={c.id}
+                  className={`appcard cocard${c.id === activeCompanyId ? ' on' : ''}`}
+                  style={{ ['--ac' as string]: tint }}
+                >
+                  <button
+                    type="button"
+                    className="cocard-face"
+                    onClick={() => openCompany(c.id)}
+                    aria-label={`Open ${c.name}`}
+                  >
+                    <span className="cocard-top">
+                      <span className="cocard-glyph" style={{ background: tint }}>◈</span>
+                      {c.id === activeCompanyId && <span className="cocard-here">Open now</span>}
                     </span>
-                  </div>
-                  <div className="ph-proj-acts">
-                    <button className="btn primary tiny" onClick={() => openCompany(c.id)}>Open company</button>
-                    <button className="ph-ic danger" aria-label={`Delete ${c.name}`} title="Delete company"
-                      onClick={() => { if (confirm(`Delete "${c.name}"? Its ${teams.length} team${teams.length === 1 ? '' : 's'} and everything they made are removed.`)) deleteCompany(c.id) }}>×</button>
-                  </div>
-                </li>
+
+                    <strong className="cocard-name">{c.name}</strong>
+
+                    {/* the one number a company card exists to carry */}
+                    <span className="cocard-count">
+                      <b>{teams.length}</b>
+                      <em>dojo team{teams.length === 1 ? '' : 's'}</em>
+                    </span>
+                    <span className="cocard-mates">{mates} teammate{mates === 1 ? '' : 's'} hired</span>
+
+                    <span className="cocard-teams">
+                      {teams.length === 0 ? (
+                        <span className="cocard-none">No team yet · open it and pick one</span>
+                      ) : teams.slice(0, 5).map((d) => {
+                        const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
+                        return (
+                          <span key={d.id} className="cocard-team">
+                            <span className="cocard-tglyph" style={{ background: a?.tint ?? '#8892a6' }}>{a?.glyph ?? '◆'}</span>
+                            <em>{a?.label ?? d.name}</em>
+                          </span>
+                        )
+                      })}
+                      {teams.length > 5 && <span className="cocard-more">+{teams.length - 5} more</span>}
+                    </span>
+
+                    <span className="cocard-cta">Open company →</span>
+                  </button>
+                  <button
+                    className="cocard-del"
+                    aria-label={`Delete ${c.name}`}
+                    title="Delete company"
+                    onClick={() => { if (confirm(`Delete "${c.name}"? Its ${teams.length} team${teams.length === 1 ? '' : 's'} and everything they made are removed.`)) deleteCompany(c.id) }}
+                  >
+                    ✕
+                  </button>
+                </article>
               )
             })}
-          </ol>
+          </div>
         )}
       </div>
     )

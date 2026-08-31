@@ -60,7 +60,7 @@ await p.waitForTimeout(1000)
 // "My companies" opens the profile: one card per company. Open the one we just
 // built, THEN add a team to it — the button on the companies screen starts a
 // second company, which would legitimately own nothing.
-await p.locator('.ph-co .ph-proj-main').first().click()
+await p.locator('.cocard-face').first().click()
 await p.waitForTimeout(700)
 await p.locator('.ph-addteam').click()
 await p.waitForTimeout(1000)

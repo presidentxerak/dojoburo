@@ -13,8 +13,7 @@ import { useWork } from '../agents/workStore'
 import { startConnect } from '../agents/workApi'
 import { ConnectorLogo } from './ConnectorLogo'
 import { TutorialOverlay } from './guide/TutorialOverlay'
-import { TopBar } from './TopBar'
-import { PageBar } from './PageBar'
+import { FullScreen } from './FullScreen'
 
 // Classify the connectors by the agents' JOB (métier): one section per
 // department, titled with the agent(s) whose job it is · so you see which apps
@@ -32,7 +31,13 @@ const METIER_GROUPS: { key: Department; label: string; connectors: Connector[] }
   return groups
 })()
 
-export function ConnectorsPage() {
+/** Connect apps, wearing the app's ONE full-screen shell.
+ *
+ *  It used to be a page with the app header on top and a lone "×" of its own
+ *  design floating in the corner — the only surface in the product that looked
+ *  like that. It is the same shell as Manage team, Settings and Graph mode now,
+ *  whether it opens over the app or as its own route. */
+export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
   const tools = useWork((s) => s.tools)
   const backend = useWork((s) => s.backend)
   const loadedOnce = useWork((s) => s.loadedOnce)
@@ -41,8 +46,6 @@ export function ConnectorsPage() {
 
   // the "How to?" walkthrough · connecting apps, and what it costs on top
   const [howTo, setHowTo] = useState(false)
-  // leaving lands back INSIDE the dojo, not on the app's create card
-  const backToDojo = () => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }
 
   useEffect(() => { if (!loadedOnce) void loadTools() }, [loadedOnce, loadTools])
 
@@ -50,12 +53,15 @@ export function ConnectorsPage() {
   const connected = CONNECTORS.filter((c) => tools[c.id]?.connected).length
 
   return (
-    <div className="app connect-page">
-      <TopBar />
+    <FullScreen
+      title="Connect apps"
+      sub={`${connected}/${total} linked · your teammates act inside your own accounts`}
+      bodyClass="connect-fs"
+      onClose={onClose}
+    >
       <div className="connect-body">
         <header className="connect-head">
           <div>
-            <h1 className="connect-title">Connect apps <span className="connect-count">{connected}/{total} linked</span></h1>
             <p className="connect-lead">
               Link the apps you already use so your teammates work inside your own accounts · draft the Gmail, open the GitHub
               PR, launch the Meta campaign, add to your CRM. Tap <b>Connect</b>, approve once on the app's own screen, and access
@@ -63,7 +69,6 @@ export function ConnectorsPage() {
             </p>
             <button type="button" className="howto-btn" onClick={() => setHowTo(true)}>How to? · and what it costs</button>
           </div>
-          <button className="ws-x" onClick={backToDojo} aria-label="Back to dojo">×</button>
         </header>
 
         {howTo && <TutorialOverlay walk="apps" onClose={() => setHowTo(false)} />}
@@ -139,7 +144,13 @@ export function ConnectorsPage() {
 
         <p className="connect-foot">Need external agents (MCP / A2A / webhook) instead? Open <a href="#studio">Dojo Studio</a> → pick an agent → <b>External agents</b>. Full reference in the <a href="#guide">Dojo Guide</a>.</p>
       </div>
-      <PageBar current="connect" />
-    </div>
+    </FullScreen>
   )
+}
+
+/** The #connect route · the same surface, reached as its own URL. Closing it
+ *  goes back INSIDE the dojo rather than to the app's naming card. */
+export function ConnectorsPage() {
+  const back = () => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }
+  return <ConnectorsSurface onClose={back} />
 }

@@ -64,6 +64,76 @@ await fullscreen('Quick search', async () => { await p.keyboard.press('Meta+k');
 await fullscreen('Settings', async () => { await p.evaluate(() => { const s = window; }); await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(300); await p.getByRole('button', { name: 'Settings', exact: true }).click() })
 await fullscreen('How hard your team works', async () => { await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(300); await p.locator('.tb-menu-item', { hasText: 'How hard your team works' }).click() })
 
+// ---- the surfaces the founder reported as blank / broken ---------------
+// Billing, Dojo settings and Connect apps used to NAVIGATE to their own routes:
+// you left the app to read a number, came back to the naming card, and the page
+// wore chrome nobody else wore. They are surfaces over the app now.
+async function overApp(name, open) {
+  await open()
+  await p.waitForTimeout(1600)
+  const fs = p.locator('.modhost-fs.fs')
+  const n = await fs.count()
+  const box = n ? await fs.first().boundingBox() : null
+  const body = n ? (await fs.first().innerText()).replace(/\s+/g, ' ').trim() : ''
+  const glyph = n ? (await p.locator('.modhost-close').first().innerText()).trim() : ''
+  ok(`${name} opens over the app, in the shared shell`, n === 1 && !!box && box.x === 10, box ? `x=${box.x}` : 'absent')
+  ok(`${name} is not blank`, body.length > 200, `${body.length} chars`)
+  ok(`${name} closes with the same ✕`, glyph === '✕', JSON.stringify(glyph))
+  const hash = await p.evaluate(() => location.hash)
+  ok(`${name} did not navigate away`, hash === '#app', hash)
+  await p.locator('.modhost-close').first().click()
+  await p.waitForTimeout(500)
+  ok(`${name} closes back into the app`, (await p.locator('.modhost-fs.fs').count()) === 0)
+}
+const fromMenu = (label) => async () => {
+  await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(350)
+  await p.locator('.tb-menu-item', { hasText: label }).click()
+}
+await overApp('My Credits · Billing', fromMenu('My Credits'))
+await overApp('Dojo settings', fromMenu('Dojo settings'))
+await overApp('Connect apps', fromMenu('Connect apps'))
+
+// ---- toasts: a way out, and out of the menu's way ----------------------
+// The app fires ambient events on its own timer; wait for one rather than
+// reaching into the store, so this tests what a founder actually sees.
+let waited = 0
+while ((await p.locator('.toast').count()) === 0 && waited < 60000) { await p.waitForTimeout(2000); waited += 2000 }
+if ((await p.locator('.toast').count()) > 0) {
+  ok('every notification carries its own close button',
+    (await p.locator('.toast .toast-x').count()) === (await p.locator('.toast').count()))
+
+  // the menu is a column down the right edge · exactly where toasts stack
+  const free = await p.locator('.toasts').boundingBox()
+  await p.locator('.tb-menu-btn').click()
+  await p.waitForTimeout(500)
+  const menu = await p.locator('.tb-menu').boundingBox()
+  const shifted = await p.locator('.toasts').boundingBox()
+  ok('notifications clear the open menu instead of covering it',
+    !!menu && !!shifted && shifted.x + shifted.width <= menu.x + 1,
+    `toasts end at ${Math.round((shifted?.x ?? 0) + (shifted?.width ?? 0))} · menu starts at ${Math.round(menu?.x ?? -1)}`)
+  ok('and the menu wins on depth anyway',
+    await p.evaluate(() => {
+      const z = (s) => Number(getComputedStyle(document.querySelector(s)).zIndex) || 0
+      return z('.tb-menu') > z('.toasts')
+    }))
+  await p.locator('.tb-menu-scrim').click({ force: true }).catch(() => {})
+  await p.waitForTimeout(350)
+
+  const before = await p.locator('.toast').count()
+  await p.locator('.toast .toast-x').first().click()
+  await p.waitForTimeout(350)
+  ok('the close button dismisses it', (await p.locator('.toast').count()) === before - 1,
+    `${before} → ${await p.locator('.toast').count()}`)
+} else {
+  ok('a notification appeared to test', false, 'none fired in 60s')
+}
+
+// ---- hover never draws a selection ring --------------------------------
+ok('no pulsing hover ring is defined anywhere',
+  await p.evaluate(() => ![...document.styleSheets].some((sh) => {
+    try { return [...sh.cssRules].some((r) => r.cssText.includes('acidRing')) } catch { return false }
+  })))
+
 // ---- no emoji anywhere ------------------------------------------------
 const body = await p.innerText('body')
 const emoji = body.match(/\p{Extended_Pictographic}/gu)
