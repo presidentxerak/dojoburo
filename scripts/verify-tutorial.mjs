@@ -98,6 +98,40 @@ const mfit = await m.locator('.tutfs-body .tut-stage').evaluate((st) => {
 })
 ok(mfit, 'mobile: the specimen fits the stage')
 
+// --- every beat, at every width, fits inside its stage --------------------
+// The specimen is absolutely positioned so it can be centred while scaled,
+// which means it contributes nothing to the stage's height. On a phone the
+// stage was 210px and the card 495px, so overflow:hidden cut the card in half.
+for (const [w, h, tag] of [[390, 780, 'phone'], [537, 741, 'narrow'], [1280, 900, 'desktop']]) {
+  await p.setViewportSize({ width: w, height: h })
+  await p.goto(B, { waitUntil: 'networkidle' })
+  await p.waitForTimeout(1600)
+  await p.locator('.lp-hero-how').click()
+  await p.waitForTimeout(1600)
+  const beats = await p.locator('.tutfs-body .tut-dot').count()
+  let spill = []
+  for (let i = 0; i < beats; i++) {
+    await p.locator('.tutfs-body .tut-dot').nth(i).click()
+    await p.waitForTimeout(1700)
+    const o = await p.evaluate(() => {
+      const st = document.querySelector('.tut-stage')
+      if (!st) return ['no stage']
+      const sb = st.getBoundingClientRect(); const out = []
+      for (const el of st.querySelectorAll('*')) {
+        const r = el.getBoundingClientRect()
+        if (r.width < 3 || r.height < 3) continue
+        if (r.top < sb.top - 2 || r.bottom > sb.bottom + 2 || r.left < sb.left - 2 || r.right > sb.right + 2)
+          out.push(`${(el.className + '').slice(0, 22)} h=${Math.round(r.height)} in ${Math.round(sb.height)}`)
+      }
+      return out
+    })
+    if (o.length) spill.push(`beat ${i + 1}: ${o[0]}`)
+  }
+  ok(spill.length === 0, `${tag}: all ${beats} beats fit inside the stage`, spill.slice(0, 2).join(' | '))
+  await p.evaluate(() => document.querySelector('.tutfs-x')?.click())
+}
+await p.setViewportSize({ width: 1280, height: 900 })
+
 ok(errs.length === 0, errs.length ? 'page errors: ' + JSON.stringify(errs.slice(0, 3)) : 'no page errors')
 await br.close()
 console.log(fails ? `\n${fails} FAILED` : '\nALL GREEN')
