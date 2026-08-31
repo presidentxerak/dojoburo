@@ -2,7 +2,6 @@
 // ref: the Privy DID when signed in, else the workshop account id (guest). No
 // token ever crosses this boundary · the browser only sees connector status.
 import { useWorkshop, type ExtAgent } from '../workshop'
-import { useDojo } from '../store'
 import { ensureOutbound } from './outboundConsent'
 import { CONNECTOR_BY_ID } from '../data/connectors'
 import { apiFetch } from '../lib/apiFetch'
@@ -188,14 +187,11 @@ export interface RunResult {
   engine?: 'byok' | 'operator' | 'free'
   deliverable?: Deliverable
   tools?: string[]
-  settlement?: { ok: boolean; hash?: string; explorerUrl?: string; amountXrp?: number; error?: string } | null
-  priceXrp?: number
 }
 
 export async function runWork(input: { task: string; agentName: string; connectors: string[]; brief?: string; context?: string; extAgents?: ExtAgent[]; effort?: string }): Promise<RunResult> {
   const activeDojoId = useWorkshop.getState().activeDojoId
   const startup = useWorkshop.getState().dojos.find((d) => d.id === activeDojoId)?.name || ''
-  const net = useDojo.getState().net
   // external MCP agents attach as tools during the run · A2A / webhook agents are
   // delegated to separately (see delegateToAgent), so only 'mcp' ones ride along
   const extMcp = (input.extAgents || [])
@@ -205,7 +201,7 @@ export async function runWork(input: { task: string; agentName: string; connecto
     const res = await apiFetch('/api/agent-run', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...input, extAgents: undefined, extMcp, startup, net, dojo: activeDojoId || undefined, effort: input.effort, ...ref() }),
+      body: JSON.stringify({ ...input, extAgents: undefined, extMcp, startup, dojo: activeDojoId || undefined, effort: input.effort, ...ref() }),
     })
     return (await res.json()) as RunResult
   } catch (e: any) {

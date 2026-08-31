@@ -78,7 +78,7 @@ export function SettingsModal() {
               <p className="set-lead">The app is English. Pick the currency used for credits and pricing.</p>
               <label className="set-field"><span>Currency</span>
                 <select value={account?.currency ?? 'USD'} onChange={(e) => setCurrency(e.target.value as CurrencyCode)}>
-                  {CURRENCY_LIST.filter((c) => c.code !== 'XRP').map((c) => <option key={c.code} value={c.code}>{c.label} ({c.symbol})</option>)}
+                  {CURRENCY_LIST.map((c) => <option key={c.code} value={c.code}>{c.label} ({c.symbol})</option>)}
                 </select>
               </label>
             </section>

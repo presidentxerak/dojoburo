@@ -39,7 +39,7 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
     return () => { live = false }
   }, [])
 
-  const fiatCur = account?.currency && account.currency !== 'XRP' ? account.currency : 'USD'
+  const fiatCur = account?.currency ?? 'USD'
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
 
   const buyCredits = async (credits: number) => {
@@ -73,7 +73,7 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
 
       {tab === 'billing' && (<>
       <div className="sq-eyebrow">Top up credits</div>
-      <p className="sq-lead">Buy credits in {fiatCur}. Each task spends about one credit; settlement happens behind the scenes · no crypto.</p>
+      <p className="sq-lead">Buy credits in {fiatCur}. Each task spends about one credit · no crypto anywhere.</p>
 
       {/* landing-style selection + payment · pick an amount, see the price, pay by card */}
       <div className="cred-buy">

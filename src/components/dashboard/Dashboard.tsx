@@ -42,8 +42,7 @@ async function forceUpdate() {
   location.reload()
 }
 
-// fiat credit packs · ~1 credit per task. Price per credit by currency (XRP
-// display falls back to USD · the user never sees the settlement rail).
+// fiat credit packs · ~1 credit per task, priced per currency.
 const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
 const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
 const CREDIT_PACKS = [30, 100, 500]
@@ -199,7 +198,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     else removeLocalSecret(dojoId, id)
   }
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
-  const fiatCur = account?.currency && account.currency !== 'XRP' ? account.currency : 'USD'
+  const fiatCur = account?.currency ?? 'USD'
 
   const buyCredits = async (credits: number) => {
     setBuying(true); setPayMsg('')

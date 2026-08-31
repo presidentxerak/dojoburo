@@ -176,16 +176,16 @@ export const KB: KBTopic[] = [
     keywords: ['buy credits', 'card', 'credit card', 'top up', 'topup', 'add credits', 'fiat', 'euro', 'dollar', 'stripe', 'on-ramp', 'onramp', 'deposit', 'purchase', 'currency'],
   },
   {
-    id: 'x402',
+    id: 'payments',
     chip: 'How payments work',
     answer:
-      'Simple: you buy credits in your own currency and each task spends about one credit. Behind the scenes those credits settle on a fast payment rail, but you never touch it · no wallet, no coins, no crypto. Every task leaves a receipt in your dashboard, so you always see exactly what ran and what it cost.',
+      'Simple: you buy credits in your own currency with a card, and each task spends about one credit. There is no wallet, no coins and no crypto anywhere. Every task leaves a receipt in your dashboard, so you always see exactly what ran and what it cost.',
     links: [
       { label: 'From card to credits', href: '#onramp' },
       { label: 'How it works', href: '#how' },
     ],
     follow: ['onramp', 'cost', 'tools'],
-    keywords: ['x402', '402', 'agentic', 'protocol', 'payment', 'payments', 'settlement', 'receipt', 'rail', 'behind the scenes', 'how do payments'],
+    keywords: ['payment', 'payments', 'billing', 'receipt', 'charge', 'how do payments', 'credits'],
   },
   {
     id: 'security',
@@ -304,7 +304,7 @@ export const KB: KBTopic[] = [
     id: 'xaman',
     chip: 'Do I need a wallet?',
     answer:
-      'No · there is no wallet, no seed and no coins to connect anywhere. You pay in your own currency (USD, EUR, JPY…) with a card, hold a simple credits balance, and each task spends about one credit. Payments settle on a fast rail behind the scenes, so there is nothing crypto for you to set up or secure.',
+      'No · there is no wallet, no seed and no coins anywhere in DojoBuro. You pay in your own currency (USD, EUR, JPY…) with a card, hold a simple credits balance, and each task spends about one credit. There is nothing crypto to set up, secure or understand.',
     links: [
       { label: 'Buy credits with a card', href: '#onramp' },
       { label: 'Credits & profile', href: '#profile' },

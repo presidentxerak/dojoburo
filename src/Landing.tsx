@@ -191,7 +191,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-step"><span className="lp-n">1</span><h3>Name your project</h3><p>One field, no prompt to write. Everything you add afterwards belongs to it · and signing in keeps it all for next time.</p></div>
           <div className="lp-step"><span className="lp-n">2</span><h3>Pick your dojo teams</h3><p>Tap a ready-made card — a social campaign, an app, a book, a shop. It arrives fully staffed with the teammates that job needs, already wired to the right apps, and they get to work: website, offers, outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · real work in your accounts.</p></div>
           <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, decide how much it does on its own and set a daily spending limit. A guard stops it from going in circles.</p></div>
-          <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit, settled behind the scenes. Your CEO dashboard tallies the numbers and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
+          <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Each task costs about one credit. Your CEO dashboard tallies the numbers and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
         </div>
       </section>
 
@@ -221,13 +221,13 @@ export function Landing({ enter }: { enter: () => void }) {
         <Pricing enter={enter} goBilling={goBilling} goAssistant={goAssistant} connectors={CONNECTORS.length} />
         <p className="lp-note">
           Credits roll over month to month. Buy them in your own currency (USD, EUR, JPY…) and top up anytime ·
-          settlement happens behind the scenes. Exploring is always free.
+          Exploring is always free.
         </p>
       </section>
 
       <section className="lp-sec alt" id="pay">
         <h2>Pay your way · in your own currency</h2>
-        <p className="lp-lead">Prices show in your currency. You buy credits in $, €, ¥ and more; each task spends about one credit, settled on a fast rail behind the scenes. No crypto to manage.</p>
+        <p className="lp-lead">Prices show in your currency. You buy credits in $, €, ¥ and more; each task spends about one credit. No crypto anywhere.</p>
         <div className="lp-schema">
           <div className="lp-node"><b>$ · € · ¥</b><span>Pick your currency</span></div>
           <span className="lp-arrow">→</span>
@@ -244,7 +244,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lp-lead">
           Top up with a card and get <b>credits in your own currency</b> · a simple, transparent balance.
           Those credits fund your dojo, and the crew spends about one credit per task as it builds and runs
-          your company. Payments settle on a fast rail behind the scenes · you never touch a wallet or any
+          your company. You never touch a wallet or any
           crypto.
         </p>
         <div className="lp-schema lp-flow">
@@ -254,7 +254,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <span className="lp-arrow">→</span>
           <div className="lp-node"><span className="lp-nico">3</span><b>The crew works</b><span>~1 credit per task</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">4</span><b>Settled behind the scenes</b><span>A fast rail · no crypto</span></div>
+          <div className="lp-node"><span className="lp-nico">4</span><b>Paid in credits</b><span>By card · no crypto</span></div>
           <span className="lp-arrow">→</span>
           <div className="lp-node"><span className="lp-nico">5</span><b>Clear receipt</b><span>Every task is metered</span></div>
         </div>
@@ -263,55 +263,8 @@ export function Landing({ enter }: { enter: () => void }) {
           <div className="lp-benefit"><b>Real work, metered</b><span>Your agents don't just chat · they do real tasks, each metered as about one credit so your spend is always transparent.</span></div>
           <div className="lp-benefit"><b>Auditable</b><span>Every task carries a receipt in your dashboard · you see exactly what ran and what it cost.</span></div>
         </div>
-        <p className="lp-note">Card top-ups add credits via a Stripe checkout and settle on a fast rail behind the scenes. Just exploring? A free tier works the same, at no cost.</p>
+        <p className="lp-note">Card top-ups add credits via a Stripe checkout. Just exploring? A free tier works the same, at no cost.</p>
       </section>
-
-      <section className="lp-sec" id="xrpl">
-        <Object3D kind="coins" color={C.blue} side="left" parallax={0.14} />
-        <span className="lp-pill">Under the hood · XRP Ledger + x402</span>
-        <h2>How settlement actually works</h2>
-        <p className="lp-lead">
-          That "fast rail behind the scenes" is the <b>XRP Ledger</b>. Every time an agent completes a task, the
-          run settles as an <b>x402 micropayment</b> · the on-ledger version of an HTTP <code>402 Payment
-          Required</code>. You never see it (you just spend credits), but here is exactly what happens.
-        </p>
-        <div className="lp-schema lp-flow">
-          <div className="lp-node"><span className="lp-nico">1</span><b>Agent finishes a task</b><span>e.g. a design system, a campaign</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">2</span><b>x402 invoice</b><span>skill id + amount + invoice ref</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">3</span><b>Signed XRPL Payment</b><span>hot wallet signs server-side</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">4</span><b>Validated in ~3–5s</b><span>fraction-of-a-cent fee</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">5</span><b>On-ledger receipt</b><span>memo: skill + invoice, auditable</span></div>
-        </div>
-        <div className="lp-two" style={{ marginTop: 26 }}>
-          <div>
-            <h3>Why x402</h3>
-            <ul>
-              <li><b>x402</b> mirrors the HTTP <code>402 Payment Required</code> status: each task is a metered, pay-as-you-go micropayment instead of a monthly bill.</li>
-              <li>Every payment carries a structured <b>memo</b> (the skill invoked + an invoice id), so the ledger itself is the audit trail · one verifiable receipt per unit of real work.</li>
-              <li>It's built for <b>autonomous agents</b>: an agent can pay for a tool call, or pay another agent, without a human or a credit card in the loop.</li>
-            </ul>
-          </div>
-          <div>
-            <h3>Why the XRP Ledger</h3>
-            <ul>
-              <li><b>Micropayments make sense</b>: fees are a tiny fraction of a cent, so metering a task at ~1 credit is actually economical · card rails can't do that.</li>
-              <li><b>Fast &amp; final</b>: transactions validate in about 3–5 seconds, with deterministic finality · no waiting, no reversals.</li>
-              <li><b>Purpose-built for payments</b> and energy-light, with a native DEX and payment channels for streaming micro-settlements.</li>
-            </ul>
-          </div>
-        </div>
-        <div className="lp-benefits">
-          <div className="lp-benefit"><b>Invisible to you</b><span>You pay in your own currency and hold plain credits · no wallet, no seed, no token to manage. The XRPL rail is the operator's plumbing, not your problem.</span></div>
-          <div className="lp-benefit"><b>Agent-to-agent ready</b><span>Because agents can hold and move value, they can settle between each other · a real internal economy, on the ledger.</span></div>
-          <div className="lp-benefit"><b>Fully auditable</b><span>Each task's payment is queryable on-ledger via <code>account_tx</code>, so what ran and what it cost can always be verified.</span></div>
-        </div>
-        <p className="lp-note">Live on XRPL Mainnet with x402 memos. Prefer no crypto at all? The same flow runs in pure credit-ledger mode · settlement is an operator choice, never a user requirement.</p>
-      </section>
-
 
       <section className="lp-sec" id="profile">
         <h2>How you manage your profile</h2>
@@ -320,7 +273,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <h3>Your account &amp; credits</h3>
             <ul>
               <li><b>Credits balance:</b> you hold a simple balance in your own currency (USD, EUR, JPY…). Top up by card anytime · about one credit per task, and nothing to hold or manage.</li>
-              <li><b>Behind the scenes:</b> spending settles on a fast rail so you never see a wallet, a seed or any crypto · just a clear, metered balance.</li>
+              <li><b>No crypto:</b> there is no wallet, no seed and no token · just a clear, metered balance in your own currency.</li>
             </ul>
           </div>
           <div>
@@ -336,7 +289,7 @@ export function Landing({ enter }: { enter: () => void }) {
 
       <section className="lp-sec alt" id="cost">
         <h2>What a task costs in credits</h2>
-        <p className="lp-lead">Most work is free or about one credit; only heavier jobs cost a little more. You buy credits in your own currency and they settle on a fast rail behind the scenes · no crypto, no fees to think about.</p>
+        <p className="lp-lead">Most work is free or about one credit; only heavier jobs cost a little more. You buy credits in your own currency · no crypto, no fees to think about.</p>
         <div className="lp-tablewrap">
         <table className="lp-table">
           <thead><tr><th>Task type</th><th>Credits</th><th>Settlement</th><th>Total / run</th></tr></thead>
@@ -431,7 +384,6 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#studio">Dojo settings</a>
           <a href="#pricing">Pricing</a>
           <a href="#onramp">Credits</a>
-          <a href="#xrpl">XRPL &amp; x402</a>
           <a href="#prod">Production</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>

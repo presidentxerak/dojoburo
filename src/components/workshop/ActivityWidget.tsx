@@ -12,7 +12,7 @@ export function ActivityWidget({ onClose }: { onClose: () => void }) {
   const stats = useDojo((s) => s.stats)
   const usage = useDojo((s) => s.usage)
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
-  const currency = useWorkshop((s) => s.account?.currency ?? 'XRP')
+  const currency = useWorkshop((s) => s.account?.currency ?? 'USD')
 
   const busy = Object.values(runtime).filter((r) => r.busy).length
   const done = Object.values(stats).reduce((n, s) => n + (s?.tasksDone ?? 0), 0)

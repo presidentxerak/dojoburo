@@ -404,8 +404,6 @@ export interface WorkTask {
   label: string
   /** short description of the deliverable */
   blurb: string
-  /** x402 price in XRP for a real run (settled on Mainnet) */
-  priceXrp: number
   /** rendered format of the deliverable */
   format: 'design-system' | 'markdown'
   /** connector ids that, if connected, let the agent also act in the tool */
@@ -415,31 +413,31 @@ export interface WorkTask {
 /** Real Claude-powered deliverables per function. Keyed by department. */
 export const WORK_TASKS: Record<Department, WorkTask[]> = {
   Product: [
-    { id: 'design-system', label: 'Claude Design · Design system', blurb: 'A real design system: tokens, palette, type scale, components & a11y rules.', priceXrp: 0.4, format: 'design-system', usesConnectors: ['figma'] },
-    { id: 'prd', label: 'Write a PRD', blurb: 'A product requirements doc with goals, scope and acceptance criteria.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['notion', 'linear'] },
+    { id: 'design-system', label: 'Claude Design · Design system', blurb: 'A real design system: tokens, palette, type scale, components & a11y rules.', format: 'design-system', usesConnectors: ['figma'] },
+    { id: 'prd', label: 'Write a PRD', blurb: 'A product requirements doc with goals, scope and acceptance criteria.', format: 'markdown', usesConnectors: ['notion', 'linear'] },
   ],
   Engineering: [
-    { id: 'tech-spec', label: 'Technical design doc', blurb: 'Architecture, data model, API surface and a delivery plan.', priceXrp: 0.3, format: 'markdown', usesConnectors: ['github', 'linear'] },
-    { id: 'code-review', label: 'Code review checklist', blurb: 'A concrete review of a described change: risks, bugs, simplifications.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['github'] },
+    { id: 'tech-spec', label: 'Technical design doc', blurb: 'Architecture, data model, API surface and a delivery plan.', format: 'markdown', usesConnectors: ['github', 'linear'] },
+    { id: 'code-review', label: 'Code review checklist', blurb: 'A concrete review of a described change: risks, bugs, simplifications.', format: 'markdown', usesConnectors: ['github'] },
   ],
   Growth: [
-    { id: 'campaign', label: 'Go-to-market campaign', blurb: 'Positioning, channels, a content calendar and email copy.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['gmail'] },
-    { id: 'website', label: 'Website plan & copy', blurb: 'A ready-to-build landing page: sections, copy, CTAs and SEO.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['figma'] },
-    { id: 'ads', label: 'Meta ad creatives', blurb: '5 Meta (Facebook/Instagram) ad variations with visuals, audiences and a test plan.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['meta'] },
-    { id: 'outreach', label: 'Prospect list & outreach', blurb: 'An ICP, target profiles and a 3-step email sequence.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['gmail'] },
+    { id: 'campaign', label: 'Go-to-market campaign', blurb: 'Positioning, channels, a content calendar and email copy.', format: 'markdown', usesConnectors: ['gmail'] },
+    { id: 'website', label: 'Website plan & copy', blurb: 'A ready-to-build landing page: sections, copy, CTAs and SEO.', format: 'markdown', usesConnectors: ['figma'] },
+    { id: 'ads', label: 'Meta ad creatives', blurb: '5 Meta (Facebook/Instagram) ad variations with visuals, audiences and a test plan.', format: 'markdown', usesConnectors: ['meta'] },
+    { id: 'outreach', label: 'Prospect list & outreach', blurb: 'An ICP, target profiles and a 3-step email sequence.', format: 'markdown', usesConnectors: ['gmail'] },
   ],
   Finance: [
-    { id: 'model', label: 'Financial model & runway', blurb: 'A simple revenue/cost model, runway and the key metrics to watch.', priceXrp: 0.25, format: 'markdown', usesConnectors: ['stripe'] },
-    { id: 'offer', label: 'Offer & pricing', blurb: 'A core offer, 3 pricing tiers and checkout page copy.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['stripe'] },
+    { id: 'model', label: 'Financial model & runway', blurb: 'A simple revenue/cost model, runway and the key metrics to watch.', format: 'markdown', usesConnectors: ['stripe'] },
+    { id: 'offer', label: 'Offer & pricing', blurb: 'A core offer, 3 pricing tiers and checkout page copy.', format: 'markdown', usesConnectors: ['stripe'] },
   ],
   Leadership: [
-    { id: 'strategy', label: 'Strategy & OKRs', blurb: 'Vision, quarterly OKRs and a prioritized roadmap.', priceXrp: 0.3, format: 'markdown', usesConnectors: ['notion'] },
+    { id: 'strategy', label: 'Strategy & OKRs', blurb: 'Vision, quarterly OKRs and a prioritized roadmap.', format: 'markdown', usesConnectors: ['notion'] },
   ],
   People: [
-    { id: 'jd', label: 'Job description & scorecard', blurb: 'A role JD, an interview scorecard and an onboarding plan.', priceXrp: 0.15, format: 'markdown', usesConnectors: ['slack'] },
+    { id: 'jd', label: 'Job description & scorecard', blurb: 'A role JD, an interview scorecard and an onboarding plan.', format: 'markdown', usesConnectors: ['slack'] },
   ],
   Ops: [
-    { id: 'runbook', label: 'Ops runbook', blurb: 'A runbook: monitoring, on-call, incident steps and SLOs.', priceXrp: 0.2, format: 'markdown', usesConnectors: ['slack', 'gdrive'] },
+    { id: 'runbook', label: 'Ops runbook', blurb: 'A runbook: monitoring, on-call, incident steps and SLOs.', format: 'markdown', usesConnectors: ['slack', 'gdrive'] },
   ],
 }
 

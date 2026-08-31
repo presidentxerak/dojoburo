@@ -26,11 +26,8 @@ import { EffortControl } from './components/EffortControl'
 import { FullScreen } from './components/FullScreen'
 
 export default function App() {
-  const refresh = useDojo((s) => s.refreshBalances)
   const fireEvent = useDojo((s) => s.fireEvent)
   const theme = useDojo((s) => s.theme)
-  const net = useDojo((s) => s.net)
-  const hasWallets = useDojo((s) => Object.keys(s.wallets).length > 0)
   const muted = useDojo((s) => s.muted)
   const selected = useDojo((s) => s.selectedAgent)
   const selectAgent = useDojo((s) => s.selectAgent)
@@ -119,8 +116,6 @@ export default function App() {
     window.addEventListener('pointerdown', unlock, { once: true })
     return () => window.removeEventListener('pointerdown', unlock)
   }, [muted])
-
-  useEffect(() => { if (hasWallets) void refresh() }, [net, hasWallets, refresh])
 
   useEffect(() => {
     let cancelled = false

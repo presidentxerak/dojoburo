@@ -1,24 +1,20 @@
-// DojoBuro fiat → XRP settlement webhook (Vercel Node.js serverless).
+// DojoBuro checkout webhook (Vercel Node.js serverless).
 //
 // Closes the loop opened by api/checkout.ts: when Stripe confirms a card
-// payment, we (1) verify the signature, (2) idempotently credit the user's XRP
-// balance in an auditable ledger, and (3) optionally deliver that XRP on-ledger
-// to the user's own wallet with an x402 memo — the settlement receipt.
+// payment, we verify the signature and idempotently credit the account in an
+// auditable ledger. That is the whole job — the card is the payment, and there
+// is no second rail behind it any more.
 //
-// Runs on the Node runtime (NOT Edge) because it needs `pg` (TCP) and xrpl.js
-// (WebSocket). Requires the db/schema.sql schema applied to DATABASE_URL.
+// Runs on the Node runtime (NOT Edge) because it needs `pg` (TCP). Requires the
+// db/schema.sql schema applied to DATABASE_URL.
 //
-// Idempotency:
-//   * webhook_events (unique id) guards the one-time ledger credit.
-//   * settlements (unique session_id) guards the one-time on-ledger payout.
-// Stripe retries safely: a replayed event is a no-op for the credit, and the
-// pending on-ledger payout is re-attempted (also drainable by api/settle-pending).
+// Idempotency: webhook_events (unique id) guards the one-time ledger credit, so
+// a Stripe retry of the same event is a no-op.
 
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { verifyStripeEvent } from './_lib/stripe.js'
 import { getPool, dbConfigured } from './_lib/db.js'
 import { fiatToXrp } from './_lib/fx.js'
-import { settlementConfigured, settleX402 } from './_lib/settle.js'
 
 export const config = { maxDuration: 30 }
 
@@ -124,58 +120,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     client.release()
   }
 
-  // ---- 2. real x402 settlement on-ledger (idempotent, best-effort) --------
-  // When a hot wallet is configured, every paid checkout emits a REAL x402
-  // Payment on SETTLEMENT_NETWORK: delivered to the user's own wallet when we
-  // know their address (Mode B on-ramp), otherwise self-anchored so the card
-  // payment still produces a verifiable Mainnet transaction for the demo.
-  const dest = xrplAddress || (await lookupAddress(pool, accountId!))
-  if (settlementConfigured()) {
-    try {
-      const reserve = await pool.query(
-        `insert into settlements (session_id, account_id, xrp_amount, destination, status)
-         values ($1, $2, $3, $4, 'pending')
-         on conflict (session_id) do nothing
-         returning id`,
-        [session.id, accountId, xrp, dest || 'self-anchor'],
-      )
-      const alreadyDone = reserve.rowCount === 0 &&
-        (await pool.query(`select status from settlements where session_id = $1`, [session.id])).rows[0]?.status === 'validated'
-
-      if (!alreadyDone) {
-        const r = await settleX402({ skill: 'fiat-topup', invoice: session.id, amountXrp: xrp, destination: dest || undefined })
-        const ok = r.result === 'tesSUCCESS' && r.validated
-        await pool.query(
-          `update settlements set tx_hash = $2, tx_result = $3, destination = $4, status = $5 where session_id = $1`,
-          [session.id, r.hash, r.result, r.to, ok ? 'validated' : 'failed'],
-        )
-        // only net the in-app credit when the XRP was DELIVERED to the user's own
-        // wallet; a self-anchored demo tx leaves the credit balance intact.
-        if (ok && dest) {
-          await pool.query(
-            `insert into credit_ledger (account_id, delta_xrp, reason, ref) values ($1, $2, 'settle:onledger', $3)`,
-            [accountId, -xrp, r.hash],
-          )
-        }
-        if (ok) await pool.query(`update checkout_sessions set status = 'settled' where id = $1`, [session.id])
-      }
-    } catch {
-      // leave the settlement row pending; api/settle-pending (cron) will retry.
-      // The card payment + in-app credit are already safe — ack the webhook.
-    }
-  }
-
   return send(res, 200, { ok: true })
-}
-
-// --------------------------------------------------------------------------
-async function lookupAddress(pool: ReturnType<typeof getPool>, accountId: string): Promise<string | null> {
-  try {
-    const r = await pool.query(`select xrpl_address from accounts where id = $1`, [accountId])
-    return r.rows[0]?.xrpl_address || null
-  } catch {
-    return null
-  }
 }
 
 function header(req: IncomingMessage, name: string): string | null {

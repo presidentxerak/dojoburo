@@ -2,7 +2,7 @@ import { Logo } from './components/Logo'
 import { Wordmark } from './components/Wordmark'
 
 // Terms of Service + Privacy Policy · served at /terms and /privacy. Plain,
-// original copy tailored to DojoBuro (non-custodial, client-side, on XRPL).
+// original copy tailored to DojoBuro (client-side, card payments only).
 
 const UPDATED = 'Last updated · July 2026'
 
@@ -42,13 +42,13 @@ export function Terms() {
       <p className="legal-lead">Welcome to DojoBuro. By using the app you agree to these terms. If you do not agree, please do not use the service.</p>
 
       <h2>1. What DojoBuro is</h2>
-      <p>DojoBuro is a 3D productivity hub where AI agents help run functions of your work and settle costs on the XRP Ledger (XRPL) using x402 micro-payments. The interface runs in your browser; an optional cloud worker performs model and connected-app actions. DojoBuro is a software tool, not a bank, broker, exchange, custodian or financial adviser.</p>
+      <p>DojoBuro is a 3D productivity hub where AI teammates carry out functions of your work. The interface runs in your browser; a cloud worker performs model and connected-app actions. DojoBuro is a software tool, not a bank, broker, exchange, custodian or financial adviser.</p>
 
       <h2>2. Non-custodial by design</h2>
-      <p>DojoBuro never takes custody of your funds. On Testnet and Devnet, wallets are generated locally and funded from public faucets; those seeds are stored only in your browser. On Mainnet you connect your own wallet (Xaman, GemWallet or Crossmark) and approve every transaction yourself. You are solely responsible for safeguarding your seeds, keys and devices. Blockchain transactions are irreversible; we cannot reverse, refund or recover them.</p>
+      <p>DojoBuro never takes custody of your funds. Payments are card payments, processed by Stripe; we hold a credits balance for your account and nothing else. There is no wallet, no seed and no token anywhere in the product.</p>
 
-      <h2>3. Payments, XRP and fees</h2>
-      <p>Priced actions settle as real signed XRPL payments. Every ledger transaction pays the network fee (a few drops). Optional card top-ups are processed by Stripe and deliver real XRP to your own wallet; they are not a deposit with DojoBuro. Testnet/Devnet XRP has no monetary value. You are responsible for any taxes arising from your use.</p>
+      <h2>3. Payments and fees</h2>
+      <p>Work is metered in credits. Card top-ups are processed by Stripe and add credits to your account; they are not a deposit with DojoBuro. You are responsible for any taxes arising from your use.</p>
 
       <h2>4. Connected apps</h2>
       <p>When you connect a third-party app, you authorize DojoBuro (and its agents) to act inside it on your behalf via OAuth. Tokens are held encrypted server-side and can be revoked at any time by disconnecting the tool or from the provider's own settings. You are responsible for actions you instruct agents to perform in your connected accounts and for complying with each provider's terms.</p>
@@ -63,7 +63,7 @@ export function Terms() {
       <p>Do not use DojoBuro to break the law, infringe others' rights, send spam or malware, attempt to disrupt or reverse-engineer the service, or misuse connected accounts. We may suspend access that threatens the service or other users.</p>
 
       <h2>8. Third-party services</h2>
-      <p>DojoBuro relies on independent services including the XRP Ledger, wallet apps (Xaman, GemWallet, Crossmark), Stripe and AI model providers. We do not control them and are not responsible for their availability, security or terms.</p>
+      <p>DojoBuro relies on independent services including Stripe, AI model providers and the apps you connect. We do not control them and are not responsible for their availability, security or terms.</p>
 
       <h2>9. No warranty</h2>
       <p>The service is provided "as is" and "as available", without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose and non-infringement. We do not warrant that the service will be uninterrupted, error-free or secure.</p>
@@ -86,33 +86,30 @@ export function Privacy() {
       <p className="legal-lead">DojoBuro is built privacy-first: most of your data stays in your own browser, and we collect as little as possible.</p>
 
       <h2>1. Data stored in your browser</h2>
-      <p>Preferences (network, theme, sound), your dojos and, on Testnet/Devnet, generated wallet seeds are stored locally in your browser's storage. This data is not transmitted to us and never leaves your device unless you export it. Clearing your browser storage deletes it.</p>
+      <p>Preferences (theme, sound) and your dojos are stored locally in your browser's storage. This data is not transmitted to us and never leaves your device unless you export it. Clearing your browser storage deletes it.</p>
 
       <h2>2. Data processed by the server</h2>
       <p>If you use the optional cloud worker, we process only what is needed to run your requests: OAuth tokens for the apps you connect (encrypted at rest with AES-256-GCM), an optional model API key you provide, and minimal request metadata. The browser never receives another user's secrets. We do not sell your data.</p>
 
-      <h2>3. On-chain data is public</h2>
-      <p>Transactions you make on the XRP Ledger are public by nature. Wallet addresses, amounts, memos and timestamps are visible to anyone on the ledger. Do not put anything private in a transaction memo.</p>
+      <h2>3. Third parties</h2>
+      <p>Some features involve independent providers who process data under their own policies: Stripe (card payments), AI model providers (task execution) and the apps you connect. We share with them only what a feature requires.</p>
 
-      <h2>4. Third parties</h2>
-      <p>Some features involve independent providers who process data under their own policies: Stripe (card payments), AI model providers (task execution), and wallet apps such as Xaman, GemWallet and Crossmark (signing). We share with them only what a feature requires.</p>
-
-      <h2>5. Cookies &amp; analytics</h2>
+      <h2>4. Cookies &amp; analytics</h2>
       <p>DojoBuro uses local storage for app state rather than tracking cookies, and does not run third-party advertising or cross-site tracking.</p>
 
-      <h2>6. Retention &amp; deletion</h2>
+      <h2>5. Retention &amp; deletion</h2>
       <p>Local data lives until you clear it. Server-side connector tokens live until you disconnect the tool or revoke access with the provider. To request deletion of any server-held data, contact us.</p>
 
-      <h2>7. Your choices</h2>
+      <h2>6. Your choices</h2>
       <p>You can disconnect any app, remove your model key, switch to Testnet, or clear your browser storage at any time. You may request access to or deletion of data we hold about you.</p>
 
-      <h2>8. Children</h2>
+      <h2>7. Children</h2>
       <p>DojoBuro is not directed to children under 13 (or the minimum age in your jurisdiction) and we do not knowingly collect their data.</p>
 
-      <h2>9. Changes</h2>
+      <h2>8. Changes</h2>
       <p>We may update this policy; the date above reflects the latest version.</p>
 
-      <h2>10. Contact</h2>
+      <h2>9. Contact</h2>
       <p>Privacy questions or requests: reach us through Dojobot, the in-app assistant.</p>
     </Shell>
   )

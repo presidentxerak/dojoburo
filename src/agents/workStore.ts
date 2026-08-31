@@ -1,5 +1,5 @@
 // UI state for tool connections, the user's Claude key (BYOK) and real-work
-// deliverables. Kept separate from the XRPL/game store (src/store.ts).
+// deliverables. Kept separate from the office/game store (src/store.ts).
 import { create } from 'zustand'
 import {
   listTools, disconnectTool, runWork, setClaudeKey, removeClaudeKey,
@@ -29,7 +29,7 @@ interface WorkState {
   byok: ByokStatus
   loadedOnce: boolean
   runningTask: string | null
-  deliverable: (Deliverable & { settlement?: RunResult['settlement']; tools?: string[]; priceXrp?: number; engine?: RunResult['engine'] }) | null
+  deliverable: (Deliverable & { tools?: string[]; engine?: RunResult['engine'] }) | null
   /** structured run failure: { code, reason? } */
   runError: { code: string; reason?: 'tool' | 'design'; detail?: string } | null
 
@@ -138,7 +138,7 @@ export const useWork = create<WorkState>((set, get) => ({
       if (dojoId) useDeliverables.getState().add(dojoId, r.deliverable, Date.now())
       set(input.silent
         ? { runningTask: null }
-        : { deliverable: { ...r.deliverable, settlement: r.settlement, tools: r.tools, priceXrp: r.priceXrp, engine: r.engine }, runningTask: null })
+        : { deliverable: { ...r.deliverable, tools: r.tools, engine: r.engine }, runningTask: null })
     } else if (NO_MODEL.has(r.error || 'failed')) {
       // no model / server unreachable → produce a useful local starter draft so
       // the CEO always delivers something (clearly labelled). No error surfaced.

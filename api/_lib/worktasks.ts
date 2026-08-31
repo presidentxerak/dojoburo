@@ -7,7 +7,6 @@ export interface ServerWorkTask {
   id: string
   title: string
   format: 'design-system' | 'markdown'
-  priceXrp: number
   /** connector ids that, if connected, are exposed to the agent as MCP tools */
   usesConnectors: string[]
   /** how the agent should behave */
@@ -22,7 +21,6 @@ const DESIGN_SYSTEM: ServerWorkTask = {
   id: 'design-system',
   title: 'Design system',
   format: 'design-system',
-  priceXrp: 0.4,
   usesConnectors: ['figma'],
   system:
     'You are Claude Design, a senior product designer. You produce real, usable design systems. ' +
@@ -40,7 +38,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'prd',
     title: 'Product requirements doc',
-    priceXrp: 0.25,
     usesConnectors: ['notion', 'linear'],
     system: 'You are a sharp product manager. Produce a crisp, skimmable PRD in Markdown.',
     user: ({ agentName, brief, startup }) =>
@@ -51,7 +48,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'tech-spec',
     title: 'Technical design doc',
-    priceXrp: 0.3,
     usesConnectors: ['github', 'linear'],
     system: 'You are a pragmatic staff engineer. Produce a clear technical design in Markdown.',
     user: ({ agentName, brief, startup }) =>
@@ -62,7 +58,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'code-review',
     title: 'Code review',
-    priceXrp: 0.2,
     usesConnectors: ['github'],
     system: 'You are a rigorous code reviewer. Be specific and actionable.',
     user: ({ agentName, brief, startup }) =>
@@ -73,7 +68,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'campaign',
     title: 'Go-to-market campaign',
-    priceXrp: 0.25,
     usesConnectors: ['gmail'],
     system: 'You are a growth marketer. Produce a launch-ready campaign in Markdown.',
     user: ({ agentName, brief, startup }) =>
@@ -84,7 +78,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'website',
     title: 'Website plan & copy',
-    priceXrp: 0.25,
     usesConnectors: ['figma'],
     system: 'You are a conversion-focused web designer + copywriter. Produce a ready-to-build landing page in Markdown.',
     user: ({ agentName, brief, startup }) =>
@@ -95,7 +88,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'ads',
     title: 'Meta ad creatives',
-    priceXrp: 0.2,
     usesConnectors: ['meta'],
     system: 'You are a Meta (Facebook/Instagram) paid-social performance marketer. We only run Meta ads — never Google/YouTube/other networks. Produce ready-to-run Meta ad creatives in Markdown.',
     user: ({ agentName, brief, startup }) =>
@@ -107,7 +99,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'outreach',
     title: 'Prospect list & outreach',
-    priceXrp: 0.2,
     usesConnectors: ['gmail'],
     system: 'You are a B2B SDR + researcher. Produce a concrete outreach plan in Markdown.',
     user: ({ agentName, brief, startup }) =>
@@ -118,7 +109,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'offer',
     title: 'Offer & pricing',
-    priceXrp: 0.2,
     usesConnectors: ['stripe'],
     system: 'You are a monetization strategist. Produce a concrete offer + pricing in Markdown.',
     user: ({ agentName, brief, startup }) =>
@@ -129,7 +119,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'model',
     title: 'Financial model',
-    priceXrp: 0.25,
     usesConnectors: ['stripe'],
     system: 'You are a startup CFO. Produce a simple, honest financial model in Markdown with tables.',
     user: ({ agentName, brief, startup }) =>
@@ -140,7 +129,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'strategy',
     title: 'Strategy & OKRs',
-    priceXrp: 0.3,
     usesConnectors: ['notion'],
     system: 'You are a seasoned founder/operator. Produce a focused strategy doc in Markdown.',
     user: ({ agentName, brief, startup }) =>
@@ -151,7 +139,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'jd',
     title: 'Job description & scorecard',
-    priceXrp: 0.15,
     usesConnectors: ['slack'],
     system: 'You are a thoughtful head of people. Produce hiring docs in Markdown.',
     user: ({ agentName, brief, startup }) =>
@@ -162,7 +149,6 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
   {
     id: 'runbook',
     title: 'Ops runbook',
-    priceXrp: 0.2,
     usesConnectors: ['slack', 'gdrive'],
     system: 'You are an SRE. Produce a practical ops runbook in Markdown.',
     user: ({ agentName, brief, startup }) =>

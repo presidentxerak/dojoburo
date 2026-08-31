@@ -1,6 +1,6 @@
 // Shows a real deliverable produced by an agent: the Claude Design token preview
 // for a design system, or rendered Markdown for the other functions. Includes
-// the model used, the tools the agent acted in, the on-ledger x402 receipt, and
+// the model used, the tools the agent acted in, and
 // download buttons so the output is genuinely usable.
 import { useWork } from '../../agents/workStore'
 import { Markdown } from './Markdown'
@@ -36,17 +36,6 @@ export function DeliverableModal() {
           </div>
           <button className="icon-btn" onClick={close} aria-label="Close"><Icon name="close" /></button>
         </header>
-
-        {d.settlement && (
-          <div className={`dlv-receipt ${d.settlement.ok ? 'ok' : 'warn'}`}>
-            {d.settlement.ok ? (
-              <>Settled {d.settlement.amountXrp} XRP via x402 on Mainnet ·{' '}
-                <a href={d.settlement.explorerUrl} target="_blank" rel="noreferrer">view on XRPL ↗</a></>
-            ) : (
-              <>Work ready · payment still settling{d.settlement.error ? ` (${d.settlement.error})` : ''}</>
-            )}
-          </div>
-        )}
 
         <div className="dlv-body">
           {d.format === 'design-system' && d.tokens && <TokenPreview tokens={d.tokens} />}

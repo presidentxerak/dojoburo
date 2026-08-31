@@ -11,8 +11,6 @@ import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
 import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/currency'
 import { privyConfigured, privyControls } from '../../auth/controls'
-import { getStoredWallet } from '../../xrpl/wallet'
-import { loadNetworkId } from '../../xrpl/network'
 import { useWork } from '../../agents/workStore'
 import { SkinAvatar } from './SkinAvatar'
 import { TemplateThumb } from './TemplateThumb'
@@ -152,7 +150,7 @@ function StudioTab() {
   const deleteDojo = useWorkshop((s) => s.deleteDojo)
   const addAgent = useWorkshop((s) => s.addAgent)
   const moveAgent = useWorkshop((s) => s.moveAgent)
-  const currency = useWorkshop((s) => s.account?.currency ?? 'XRP')
+  const currency = useWorkshop((s) => s.account?.currency ?? 'USD')
   const dirty = useWorkshop((s) => s.dirty)
   const save = useWorkshop((s) => s.save)
 
@@ -423,7 +421,7 @@ function AgentEditor({ agent, dojoId, currency, onPickSkin, onDeleted }: { agent
           <div className="ws-task-add">
             {(fn?.tasks ?? []).filter((t) => !agent.tasks.includes(t.id)).map((t) => (
               <button key={t.id} className="ws-task add" onClick={() => update(agent.id, { tasks: [...agent.tasks, t.id] })}>
-                + {t.name}{t.price > 0 ? ` · ${t.price} XRP` : ''}
+                + {t.name}
               </button>
             ))}
           </div>
@@ -442,7 +440,7 @@ function AgentEditor({ agent, dojoId, currency, onPickSkin, onDeleted }: { agent
       </div>
 
       <label className="ws-field">
-        <span>Budget (XRP)</span>
+        <span>Budget</span>
         <input
           type="number" min={0} step={0.5} value={agent.budgetXrp}
           onChange={(e) => update(agent.id, { budgetXrp: Math.max(0, Number(e.target.value) || 0) })}
@@ -726,7 +724,7 @@ function CompanyPanel() {
 }
 
 function BillingTab() {
-  const currency = useWorkshop((s) => s.account?.currency ?? 'XRP') as CurrencyCode
+  const currency = useWorkshop((s) => s.account?.currency ?? 'USD') as CurrencyCode
   const setCurrency = useWorkshop((s) => s.setCurrency)
   const hasAccount = useWorkshop((s) => !!s.account)
   const email = useWorkshop((s) => s.account?.email ?? '')
@@ -737,7 +735,7 @@ function BillingTab() {
       <ClaudeKeyPanel hasAccount={hasAccount} />
 
       <h3>Currency</h3>
-      <p className="ws-blurb">Prices show in your currency. XRP is the settlement rail via x402 · fiat is converted to XRP at checkout.</p>
+      <p className="ws-blurb">Prices show in your currency · you are charged by card, in that currency.</p>
       <div className="ws-currencies">
         {CURRENCY_LIST.map((c) => (
           <button key={c.code} className={`ws-cur ${currency === c.code ? 'on' : ''}`} disabled={!hasAccount} onClick={() => setCurrency(c.code)}>
@@ -760,7 +758,7 @@ function BillingTab() {
           <div key={pl.n} className="ws-plan"><strong>{pl.n}</strong><span className="ws-price">{pl.p}<i>/mo</i></span><span className="ws-blurb">{pl.d}</span></div>
         ))}
       </div>
-      <p className="ws-blurb">Pay with XRP, USD, EUR or JPY · fiat routes through a processor and settles in XRP via x402.</p>
+      <p className="ws-blurb">Pay in USD, EUR or JPY · by card, through Stripe.</p>
     </div>
   )
 }
@@ -829,18 +827,17 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
 
 // Fiat top-up: pick an amount in the chosen currency, "Pay with card" posts to
 // the /api/checkout Edge processor and redirects to the hosted checkout. The
-// charge settles in XRP via x402 (webhook) · see api/checkout.ts. When the
-// processor isn't configured the button explains the activation step instead
-// of failing silently.
+// the card charge is the payment · see api/checkout.ts. When the processor
+// isn't configured the button explains the activation step instead of failing
+// silently.
 const PRESETS: Record<CurrencyCode, number[]> = {
-  XRP: [10, 25, 50, 100],
   USD: [10, 25, 50, 100],
   EUR: [10, 25, 50, 100],
   JPY: [1500, 3500, 7000, 14000],
 }
 
 function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode; email: string; privyDid: string; disabled: boolean }) {
-  const presets = PRESETS[currency] ?? PRESETS.XRP
+  const presets = PRESETS[currency] ?? PRESETS.USD
   const [amount, setAmount] = useState<number>(presets[1])
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string>('')
@@ -850,12 +847,10 @@ function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode
     setBusy(true)
     setMsg('')
     try {
-      // deliver the settled XRP to the user's own treasury wallet when they have one
-      const treasury = getStoredWallet(loadNetworkId(), 'treasury')
       const res = await apiFetch('/api/checkout', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ amount, currency, email, kind: 'credits', privyDid, xrplAddress: treasury?.address }),
+        body: JSON.stringify({ amount, currency, email, kind: 'credits', privyDid }),
       })
       const j = await res.json().catch(() => ({}))
       if (j?.ok && j.url) {
@@ -863,7 +858,7 @@ function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode
         return
       }
       if (j?.error === 'not_configured') {
-        setMsg('Card payments aren’t live yet on this deployment. Set STRIPE_SECRET_KEY to enable · you can still fund agents directly in XRP.')
+        setMsg('Card payments aren’t live yet on this deployment. Set STRIPE_SECRET_KEY to enable.')
       } else {
         setMsg('Could not start checkout. Please try again in a moment.')
       }
@@ -874,18 +869,13 @@ function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode
     }
   }
 
-  // XRP is the settlement rail itself · a card processor can't charge in XRP, so
-  // for an XRP display currency we point users at direct on-ledger funding.
-  const isXrp = currency === 'XRP'
 
   return (
     <div className="ws-topup">
       <h3 style={{ marginTop: 18 }}>Add credits</h3>
-      {isXrp ? (
-        <p className="ws-blurb">You're in XRP · fund agents directly from their card in the office. Switch to USD, EUR or JPY above to top up by card (it settles back into XRP via x402).</p>
-      ) : (
+      {(
         <>
-          <p className="ws-blurb">Top up your balance with a card. The charge settles in XRP via x402.</p>
+          <p className="ws-blurb">Top up your balance with a card.</p>
           <div className="ws-amounts">
             {presets.map((v) => (
               <button key={v} className={`ws-cur ${amount === v ? 'on' : ''}`} disabled={disabled} onClick={() => setAmount(v)}>
@@ -894,7 +884,6 @@ function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode
             ))}
           </div>
           <div className="ws-payrow">
-            <span className="ws-blurb">≈ {xrp.toFixed(2)} XRP settled</span>
             <button className="ws-btn primary" disabled={disabled || busy} onClick={pay}>
               {busy ? 'Starting…' : `Pay ${formatFrom(xrp, currency)} with card`}
             </button>

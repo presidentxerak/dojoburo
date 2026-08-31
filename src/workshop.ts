@@ -325,7 +325,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
           handle: '',
           email: '',
           provider: 'guest',
-          currency: 'XRP',
+          currency: 'USD',
           avatarSkinId: SKINS[0].id,
         },
       })
@@ -340,7 +340,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
           handle: p.handle?.trim() || s.account?.handle || '',
           email: p.email?.trim() || s.account?.email || '',
           provider: 'privy',
-          currency: s.account?.currency ?? 'XRP',
+          currency: s.account?.currency ?? 'USD',
           avatarSkinId: s.account?.avatarSkinId ?? SKINS[0].id,
           privyDid: p.did || s.account?.privyDid,
         },

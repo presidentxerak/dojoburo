@@ -11,7 +11,6 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
   const rt = useDojo((s) => s.runtime[agent.id])
   const selected = useDojo((s) => s.selectedAgent === agent.id)
   const select = useDojo((s) => s.selectAgent)
-  const wallet = useDojo((s) => s.wallets[agent.id])
   const stats = useDojo((s) => s.stats[agent.id])
   const banter = useDojo((s) => s.banter)
 
@@ -40,9 +39,6 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
       <div className="agent-plate">
         <span className="agent-plate-name">{agent.name}</span>
         {stats && <span className="agent-lvl">Lv.{stats.level}</span>}
-        {wallet?.funded && wallet.balanceXrp != null && (
-          <span className="agent-bal">{wallet.balanceXrp.toFixed(1)} XRP</span>
-        )}
       </div>
       {busy && <span className="agent-progress" />}
 

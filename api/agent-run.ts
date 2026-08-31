@@ -10,9 +10,6 @@
 // "Claude Design" is the design-system task: Claude generates real tokens +
 // components, rendered as a live preview in the app.
 //
-// Real payment: on Mainnet, the run settles a REAL x402 XRP Payment server-side
-// (hot-wallet seed never touches the browser) and returns the explorer link.
-//
 // Gated by ANTHROPIC_API_KEY → without it, returns { ok:false, error:'not_configured' }
 // and the app keeps working with its built-in (non-LLM) skill animations.
 import type { IncomingMessage, ServerResponse } from 'node:http'
@@ -22,7 +19,6 @@ import { findAccountId } from './_lib/accounts.js'
 import { listSecretNames } from './_lib/secretsVault.js'
 import { open, seal, vaultConfigured } from './_lib/vault.js'
 import { connectorAvailable, serverConnector, refreshOAuthToken } from './_lib/connectors.js'
-import { settlementConfigured, settlementNetwork, settleX402 } from './_lib/settle.js'
 import { cascadeComplete, cascadeToolRun, freeCascadeConfigured } from './_lib/llm.js'
 import { originAllowed } from './_lib/origin.js'
 import { hardenSystem, sanitizeUntrusted } from './_lib/guard.js'
@@ -100,7 +96,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const agentName = sanitizeUntrusted(body?.agentName || 'the agent', 40) || 'the agent'
   const brief = sanitizeUntrusted(body?.brief || '', 800)
   const startup = sanitizeUntrusted(body?.startup || '', 200)
-  const net = String(body?.net || 'testnet')
   // WHO is running this · the run reads the caller's stored Claude key, their
   // connected apps and their secret NAMES, so the identity is proven here once
   // and every helper below is handed the verified ref. A request that claims a
@@ -208,17 +203,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   const deliverable = shape(task, text, modelUsed)
 
-  // ---- real x402 settlement on Mainnet ------------------------------------
-  let settlement: any = null
-  if (net === 'mainnet' && task.priceXrp > 0 && settlementConfigured() && settlementNetwork() === 'mainnet') {
-    try {
-      const r = await settleX402({ skill: `work.${task.id}`, invoice: `WRK-${Date.now().toString(36)}`, amountXrp: task.priceXrp, note: task.title })
-      settlement = { ok: r.result === 'tesSUCCESS' && r.validated, hash: r.hash, result: r.result, explorerUrl: r.explorerUrl, amountXrp: r.amountXrp }
-    } catch (e: any) {
-      settlement = { ok: false, error: String(e?.message || e).slice(0, 120) }
-    }
-  }
-
   // What this run really cost · the free tier is metered on it, and it becomes a
   // line in the ledger. Both are best-effort and neither can fail the run.
   const inTok = Number(usage?.input_tokens) || 0
@@ -242,8 +226,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // rather than showing its own estimate after the fact.
     appsSent: mcpServers.length,
     effort: String(body?.effort || 'balanced'),
-    settlement,
-    priceXrp: task.priceXrp,
   })
 }
 
