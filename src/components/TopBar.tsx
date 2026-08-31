@@ -5,6 +5,8 @@ import { useWorkshop } from '../workshop'
 import { useWork } from '../agents/workStore'
 import { privyConfigured, privyControls } from '../auth/controls'
 import { skinById } from '../data/skins'
+import { EFFORT_BY_ID } from '../data/effort'
+import { EffortPanel } from './EffortControl'
 import { Logo } from './Logo'
 import { Icon } from './Icon'
 import { SkinAvatar } from './workshop/SkinAvatar'
@@ -14,29 +16,33 @@ import { NotificationBell } from './NotificationBell'
  *
  *  The brand (logo + wordmark + Beta) belongs to the landing page and is not
  *  repeated here: inside the app the header's job is the surface you are on,
- *  not the product's name. Connect Apps, the Dojo Guide and Quick
- *  search moved into the menu, which leaves the centre free for whatever the
- *  current surface needs (`center`) — the dojo puts its own controls there.
+ *  not the product's name.
+ *
+ *  ONE menu, opened by your own face. There used to be two triggers (an avatar
+ *  and a burger) opening the same panel, a Credits button next to a menu that
+ *  already carried Credits, an "Account" row above a profile row that also
+ *  opened Account, and a "Settings" row above two settings rows. The menu is
+ *  now grouped by what you are doing — your work, what it costs, learning how,
+ *  your account — with each thing in exactly one place.
  */
 export function TopBar({ center }: { center?: React.ReactNode } = {}) {
   const theme = useDojo((s) => s.theme)
   const setTheme = useDojo((s) => s.setTheme)
-  const muted = useDojo((s) => s.muted)
-  const toggleSound = useDojo((s) => s.toggleSound)
   const account = useWorkshop((s) => s.account)
   const signInGuest = useWorkshop((s) => s.signInGuest)
   const signOut = useWorkshop((s) => s.signOut)
+  const effort = useWork((s) => s.effort)
 
   const [menuOpen, setMenuOpen] = useState(false)
-
-  const soundOn = !muted
+  const [effortOpen, setEffortOpen] = useState(false)
+  const mode = EFFORT_BY_ID[effort]
 
   // The brand (logo + name) links back to the landing page.
   const goHome = () => { setMenuOpen(false); location.hash = '' }
   const openStudio = () => { setMenuOpen(false); useWork.getState().openStudio('studio') }
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
   const openConnect = () => { setMenuOpen(false); location.hash = 'connect' }
-  // Your project · the teams you have built, not the card that creates one.
+  // Your companies · the work you have built, not the card that creates one.
   // From another route we have to come back to #app first, and leave the
   // intent behind so App knows where to land.
   const openProjects = () => {
@@ -59,24 +65,6 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
     else signOut()
   }
 
-  // shared settings + wallet rows (used in the desktop dropdown and mobile sheet)
-  const Settings = (
-    <>
-      <div className="tb-row">
-        <span>Sound</span>
-        <button className={`tb-toggle ${soundOn ? 'on' : ''}`} onClick={() => toggleSound()} aria-pressed={soundOn}>
-          <Icon name={soundOn ? 'sound' : 'mute'} /> {soundOn ? 'On' : 'Off'}
-        </button>
-      </div>
-      <div className="tb-row">
-        <span>Display mode</span>
-        <button className="tb-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-          <Icon name={theme === 'light' ? 'moon' : 'sun'} /> {theme === 'light' ? 'Light' : 'Dark'}
-        </button>
-      </div>
-    </>
-  )
-
   return (
     <header className="topbar topbar-app">
       {/* left · a small way home, no brand lockup */}
@@ -89,60 +77,82 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
 
       <div className="topbar-right">
         <NotificationBell />
-        <button className="btn tiny tb-create tb-desktop" onClick={openCredits}>Credits</button>
         {account ? (
-          <button className="tb-profile tb-desktop" onClick={() => setMenuOpen((v) => !v)} aria-label="Profile & settings" title={account.name || 'Founder'}>
+          /* your face IS the menu · one trigger, not two */
+          <button
+            className={`tb-profile tb-menu-btn ${menuOpen ? 'on' : ''}`}
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Menu"
+            aria-expanded={menuOpen}
+            title={account.name || 'Founder'}
+          >
             <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />
           </button>
         ) : (
           <>
             <button className="btn tiny ghost tb-desktop" onClick={doLogin}>Sign in</button>
             <button className="btn tiny tb-desktop" onClick={doLogin}>Sign up</button>
+            <button className={`tb-burger tb-menu-btn ${menuOpen ? 'on' : ''}`} onClick={() => setMenuOpen((v) => !v)} aria-label="Menu" aria-expanded={menuOpen}>
+              <span /><span /><span />
+            </button>
           </>
         )}
-
-        {/* mobile burger */}
-        <button className={`tb-burger tb-burger-always ${menuOpen ? 'on' : ''}`} onClick={() => setMenuOpen((v) => !v)} aria-label="Menu" aria-expanded={menuOpen}>
-          <span /><span /><span />
-        </button>
       </div>
 
       {menuOpen && createPortal(
         <>
           <div className="tb-menu-scrim" onClick={() => setMenuOpen(false)} />
           <div className="tb-menu" role="menu">
-            {/* everything that used to sit in the header lives here now */}
-            <button className="tb-menu-item tb-menu-link" onClick={openProjects}>My project</button>
-            <button className="tb-menu-item tb-menu-link" onClick={openConnect}>Connect apps</button>
-            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'academy' }}>Dojo Academy</button>
-            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>App setup guide</button>
-            <button className="tb-menu-item" onClick={() => { setMenuOpen(false); window.dispatchEvent(new Event('open-cmdk')) }}>Quick search <kbd className="tb-kbd">⌘K</kbd></button>
-            <div className="tb-menu-rule" />
-            <button className="tb-menu-item" onClick={openStudio}>Dojo settings</button>
-            <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setDojosOpen(true) }}>Dojos</button>
-            <button className="tb-menu-item" onClick={openAccount}>Account</button>
-            <button className="tb-menu-item" onClick={openCredits}>My Credits · Billing</button>
-            <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setSettingsOpen(true) }}>Settings</button>
-
+            {/* who you are · the only Account entry there is */}
             {account ? (
               <button className="tb-menu-profile" onClick={openAccount}>
                 <SkinAvatar skin={skinById(account.avatarSkinId)} size={30} />
                 <span className="tb-menu-name">{account.name || 'Founder'}<em>{account.provider === 'privy' ? 'Account · synced' : 'Account'}</em></span>
               </button>
             ) : (
-              <div className="tb-menu-auth tb-only-mobile">
+              <div className="tb-menu-auth">
                 <button className="btn tiny ghost" onClick={doLogin}>Sign in</button>
                 <button className="btn tiny" onClick={doLogin}>Sign up</button>
               </div>
             )}
 
-            <div className="tb-menu-sec">{Settings}</div>
+            {/* your work */}
+            <div className="tb-menu-rule" />
+            <button className="tb-menu-item tb-menu-link" onClick={openProjects}>My companies</button>
+            <button className="tb-menu-item" onClick={openStudio}>Dojo settings</button>
+            <button className="tb-menu-item tb-menu-link" onClick={openConnect}>Connect apps</button>
+
+            {/* what it costs */}
+            <div className="tb-menu-rule" />
+            <button className="tb-menu-item" onClick={openCredits}>My Credits · Billing</button>
+            <button className="tb-menu-item" onClick={() => { setMenuOpen(false); setEffortOpen(true) }}>
+              How hard your team works
+              <span className="tb-menu-val" style={{ ['--ac' as string]: mode?.tint }}>{mode?.glyph} {mode?.label}</span>
+            </button>
+
+            {/* how any of it works */}
+            <div className="tb-menu-rule" />
+            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'academy' }}>Dojo Academy</button>
+            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>App setup guide</button>
+            <button className="tb-menu-item" onClick={() => { setMenuOpen(false); window.dispatchEvent(new Event('open-cmdk')) }}>Quick search <kbd className="tb-kbd">⌘K</kbd></button>
+
+            {/* the app itself */}
+            <div className="tb-menu-rule" />
+            <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setSettingsOpen(true) }}>Settings</button>
+            <div className="tb-row">
+              <span>Display mode</span>
+              <button className="tb-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+                <Icon name={theme === 'light' ? 'moon' : 'sun'} /> {theme === 'light' ? 'Light' : 'Dark'}
+              </button>
+            </div>
 
             {account && <button className="tb-menu-item tb-signout" onClick={doSignOut}>Sign out</button>}
           </div>
         </>,
         document.body,
       )}
+
+      {effortOpen && <EffortPanel onClose={() => setEffortOpen(false)} />}
     </header>
   )
 }

@@ -5,6 +5,8 @@
 import { useState } from 'react'
 import { useWorkshop, GRID } from '../../workshop'
 import { ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
+import { Agent3DPreview } from '../three/Agent3DPreview'
+import { AGENT_CHAR, charForAgent } from '../landing/TeamCards'
 
 export function ArrangeGrid() {
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
@@ -43,7 +45,21 @@ export function ArrangeGrid() {
               title={a ? `${a.name} · ${role?.title ?? ''}` : 'Empty cell'}
               aria-label={a ? `${a.name}, tap to select or move` : 'Empty cell'}
             >
-              {a ? <span className="arrange-name">{a.name}</span> : <span className="arrange-empty">·</span>}
+              {a ? (
+                <>
+                  {/* the teammate as you know them · a face, not a labelled box */}
+                  <span className="arrange-face">
+                    <Agent3DPreview
+                      id={AGENT_CHAR[role?.id ?? ''] ?? role?.id ?? 'preview'}
+                      character={charForAgent(AGENT_CHAR[role?.id ?? ''] ?? role?.id ?? '')}
+                      size={74}
+                      fit
+                      phase={(a.gy * GRID.cols + a.gx) * 0.5}
+                    />
+                  </span>
+                  <span className="arrange-name">{a.name}</span>
+                </>
+              ) : <span className="arrange-empty">·</span>}
             </button>
           )
         })}

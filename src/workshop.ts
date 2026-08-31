@@ -63,9 +63,24 @@ export interface WAgent {
   custom?: CustomMeta
 }
 
+/** A COMPANY · the thing a founder is actually building.
+ *
+ *  A company holds several dojo teams (a campaign team, an app team, a book
+ *  team…) and a founder can run several companies side by side. The project
+ *  used to be a single name held in the store, which is why the same speciality
+ *  could not be hired twice and why the profile had nowhere to list more than
+ *  one piece of work. */
+export interface Company {
+  id: string
+  name: string
+  createdAt: number
+}
+
 export interface Dojo {
   id: string
   name: string
+  /** the company this team belongs to · undefined only for the seeded HQ dojo */
+  companyId?: string
   /** environment template id (see data/templates) · drives the 3D scene look */
   template: string
   agents: WAgent[]
@@ -92,10 +107,13 @@ export interface Account {
 
 interface WorkshopState {
   account: Account | null
+  companies: Company[]
+  activeCompanyId: string | null
   dojos: Dojo[]
   activeDojoId: string | null
-  /** The name the founder gave their project on the home screen. It prefixes
-   *  every team they add, so the whole thing reads as one project. */
+  /** The active company's name · every team added is prefixed with it, so a
+   *  company reads as one piece of work. Setting it before a company exists
+   *  holds the name for the one about to be created. */
   projectName: string
   /** true when there are dojo/agent edits not yet written to localStorage */
   dirty: boolean
@@ -107,6 +125,16 @@ interface WorkshopState {
   updateAccount: (patch: Partial<Account>) => void
   setCurrency: (c: CurrencyCode) => void
   setProjectName: (name: string) => void
+
+  /** Create a company and make it active · returns its id. */
+  createCompany: (name?: string) => string
+  /** Step aside from the company you are in, to name a NEW one. Without this,
+   *  typing in the naming card renames the company you already had. */
+  startNewCompany: () => void
+  renameCompany: (id: string, name: string) => void
+  /** Remove a company AND every dojo team inside it. */
+  deleteCompany: (id: string) => void
+  setActiveCompany: (id: string) => void
 
   createDojo: (name?: string, templateId?: string) => void
   createDojoForProfession: (professionId: string) => void
@@ -266,7 +294,16 @@ function ensureRoleCrew(d: Dojo): Dojo {
   return { ...d, agents: merged }
 }
 
-function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string | null; projectName: string } {
+interface Saved {
+  account: Account | null
+  companies: Company[]
+  activeCompanyId: string | null
+  dojos: Dojo[]
+  activeDojoId: string | null
+  projectName: string
+}
+
+function load(): Saved {
   try {
     const raw = localStorage.getItem(KEY)
     if (raw) {
@@ -277,14 +314,33 @@ function load(): { account: Account | null; dojos: Dojo[]; activeDojoId: string 
         // migrate pre-role-agent crews to the 10 canonical role agents
         p.dojos = p.dojos.map(ensureRoleCrew)
         // `companyName` was the field's first name · read it so nothing is lost
-        return { ...p, projectName: typeof p.projectName === 'string' ? p.projectName : (typeof p.companyName === 'string' ? p.companyName : '') }
+        const name = typeof p.projectName === 'string' ? p.projectName : (typeof p.companyName === 'string' ? p.companyName : '')
+        // Everything saved before companies existed belongs to ONE company,
+        // built here from the name that was held in the store. No work moves,
+        // nothing is lost: the teams simply gain a home.
+        let companies: Company[] = Array.isArray(p.companies) ? p.companies : []
+        let dojos: Dojo[] = p.dojos
+        if (!companies.length) {
+          const first: Company = { id: 'c_' + uid(), name: name.trim() || 'My company', createdAt: Date.now() }
+          companies = [first]
+          dojos = dojos.map((d) => (d.archetype ? { ...d, companyId: d.companyId ?? first.id } : d))
+        }
+        const activeCompanyId = companies.some((c) => c.id === p.activeCompanyId) ? p.activeCompanyId : companies[0].id
+        return {
+          account: p.account ?? null,
+          companies,
+          activeCompanyId,
+          dojos,
+          activeDojoId: p.activeDojoId ?? null,
+          projectName: companies.find((c) => c.id === activeCompanyId)?.name ?? name,
+        }
       }
     }
   } catch {
     /* ignore */
   }
   const d = seedDojo()
-  return { account: null, dojos: [d], activeDojoId: d.id, projectName: '' }
+  return { account: null, companies: [], activeCompanyId: null, dojos: [d], activeDojoId: d.id, projectName: '' }
 }
 
 function firstFreeCell(agents: WAgent[]): { gx: number; gy: number } {
@@ -298,9 +354,9 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
   // persist() is the single save point · it writes localStorage and clears the
   // dirty flag. Dojo/agent edits stay in memory (dirty) until save() is called.
   const persist = () => {
-    const { account, dojos, activeDojoId, projectName } = get()
+    const { account, companies, activeCompanyId, dojos, activeDojoId, projectName } = get()
     try {
-      localStorage.setItem(KEY, JSON.stringify({ account, dojos, activeDojoId, projectName }))
+      localStorage.setItem(KEY, JSON.stringify({ account, companies, activeCompanyId, dojos, activeDojoId, projectName }))
     } catch {
       /* ignore */
     }
@@ -365,7 +421,65 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     },
 
     setProjectName: (name) => {
-      set({ projectName: name.slice(0, 40) })
+      // Renaming while a company is open renames THAT company · before one
+      // exists it simply holds the name for the one about to be created.
+      const n = name.slice(0, 40)
+      set((s) => ({
+        projectName: n,
+        companies: s.activeCompanyId ? s.companies.map((c) => (c.id === s.activeCompanyId ? { ...c, name: n } : c)) : s.companies,
+      }))
+      persist()
+    },
+
+    startNewCompany: () => {
+      set({ activeCompanyId: null, projectName: '' })
+      persist()
+    },
+
+    createCompany: (name) => {
+      const c: Company = { id: 'c_' + uid(), name: name?.trim() || 'My company', createdAt: Date.now() }
+      set((s) => ({ companies: [...s.companies, c], activeCompanyId: c.id, projectName: c.name }))
+      persist()
+      return c.id
+    },
+
+    renameCompany: (id, name) => {
+      const n = name.trim().slice(0, 40)
+      if (!n) return
+      set((s) => ({
+        companies: s.companies.map((c) => (c.id === id ? { ...c, name: n } : c)),
+        projectName: s.activeCompanyId === id ? n : s.projectName,
+      }))
+      persist()
+    },
+
+    deleteCompany: (id) => {
+      set((s) => {
+        const companies = s.companies.filter((c) => c.id !== id)
+        const dojos = s.dojos.filter((d) => d.companyId !== id)
+        const safe = dojos.length ? dojos : [seedDojo()]
+        const activeCompanyId = s.activeCompanyId === id ? (companies[0]?.id ?? null) : s.activeCompanyId
+        return {
+          companies,
+          dojos: safe,
+          activeCompanyId,
+          activeDojoId: safe.some((d) => d.id === s.activeDojoId) ? s.activeDojoId : (safe[0]?.id ?? null),
+          projectName: companies.find((c) => c.id === activeCompanyId)?.name ?? '',
+          dirty: true,
+        }
+      })
+      persist()
+    },
+
+    setActiveCompany: (id) => {
+      set((s) => {
+        const c = s.companies.find((x) => x.id === id)
+        if (!c) return {}
+        // opening a company also opens its first team, so the dojo behind every
+        // other surface belongs to the company you just chose
+        const first = s.dojos.find((d) => d.companyId === id)
+        return { activeCompanyId: id, projectName: c.name, activeDojoId: first?.id ?? s.activeDojoId }
+      })
       persist()
     },
 
@@ -386,11 +500,13 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     createDojoFromArchetype: (archetypeId, name, goal) => {
       const a = ARCHETYPE_BY_ID[archetypeId]
       if (!a) return null
-      // One team of a given speciality per project. Two "Social media campaign"
-      // dojos meant two identical tabs, two identical crews and no way to tell
-      // which one you were in — so the second request opens the first instead
-      // of building a twin. The chooser greys these out; this is the backstop.
-      const already = get().dojos.find((d) => d.archetype === a.id)
+      // One team of a given speciality per COMPANY. Two "Social media campaign"
+      // dojos in the same company meant two identical tabs, two identical crews
+      // and no way to tell which one you were in — so the second request opens
+      // the first instead of building a twin. Another company can of course
+      // hire the same speciality: that is a different piece of work.
+      const companyId = get().activeCompanyId ?? get().createCompany(get().projectName)
+      const already = get().dojos.find((d) => d.archetype === a.id && d.companyId === companyId)
       if (already) {
         set({ activeDojoId: already.id })
         return already.id
@@ -402,6 +518,7 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
         template: tpl.id,
         agents: crewFromRoles(a.agents, tpl.skinTheme),
         archetype: a.id,
+        companyId,
         goal: goal?.trim() || '',
       }
       set((s) => ({ dojos: [...s.dojos, d], activeDojoId: d.id, dirty: true }))

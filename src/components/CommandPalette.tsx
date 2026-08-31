@@ -8,6 +8,7 @@ import { useDojo } from '../store'
 import { useWork } from '../agents/workStore'
 import { launchCeo } from '../agents/autopilot'
 import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
+import { FullScreen } from './FullScreen'
 
 interface Cmd {
   id: string
@@ -91,8 +92,13 @@ export function CommandPalette({ openDojo, showDashboard }: { openDojo: () => vo
   let idx = -1
 
   return (
-    <div className="cmdk-overlay" onMouseDown={() => setOpen(false)}>
-      <div className="cmdk" onMouseDown={(e) => e.stopPropagation()}>
+    <FullScreen
+      title="Quick search"
+      sub="Every agent, page and action · one shortcut away."
+      bodyClass="cmdk-fs"
+      onClose={() => setOpen(false)}
+    >
+      <div className="cmdk">
         <input
           ref={inputRef}
           className="cmdk-input"
@@ -130,6 +136,6 @@ export function CommandPalette({ openDojo, showDashboard }: { openDojo: () => vo
         </div>
         <div className="cmdk-foot"><kbd>↑</kbd><kbd>↓</kbd> navigate · <kbd>Enter</kbd> open · <kbd>Esc</kbd> close</div>
       </div>
-    </div>
+    </FullScreen>
   )
 }

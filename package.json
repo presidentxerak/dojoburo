@@ -20,6 +20,7 @@
     "test:bridge": "node scripts/test-llm-bridge.mjs",
     "verify:surfaces": "node scripts/verify-surfaces.mjs",
     "verify:tutorial": "node scripts/verify-tutorial.mjs",
+    "verify:companies": "node scripts/verify-companies.mjs",
     "check:connectors": "node scripts/check-connectors.mjs"
   },
   "dependencies": {

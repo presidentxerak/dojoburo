@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { createPortal } from 'react-dom'
 import { useDojo } from '../store'
 import { useWorkshop } from '../workshop'
+import { FullScreen } from './FullScreen'
 import { useWork } from '../agents/workStore'
 import { useEngine } from '../agents/engineStore'
 import { useOutboundConsent } from '../agents/outboundConsent'
@@ -29,8 +29,6 @@ export function SettingsModal() {
   const close = () => useDojo.getState().setSettingsOpen(false)
   const theme = useDojo((s) => s.theme)
   const setTheme = useDojo((s) => s.setTheme)
-  const muted = useDojo((s) => s.muted)
-  const toggleSound = useDojo((s) => s.toggleSound)
   const account = useWorkshop((s) => s.account)
   const setCurrency = useWorkshop((s) => s.setCurrency)
   const updateAccount = useWorkshop((s) => s.updateAccount)
@@ -46,17 +44,15 @@ export function SettingsModal() {
   const tpl = templateById(dojo?.template)
   const go = (t: 'billing' | 'studio') => { close(); openStudio(t) }
 
-  return createPortal(
-    <div className="set-overlay" onClick={close}>
-      <div className="set-modal" onClick={(e) => e.stopPropagation()}>
+  return (
+    <FullScreen title="Settings" sub="How the app behaves, looks and bills you." bodyClass="set-fs" onClose={close}>
+      <div className="set-modal">
         <aside className="set-nav">
-          <div className="set-nav-head">Settings</div>
           {SECTIONS.map((s) => (
             <button key={s.id} className={`set-nav-item${section === s.id ? ' on' : ''}`} onClick={() => setSection(s.id)}>{s.label}</button>
           ))}
         </aside>
         <div className="set-body">
-          <button className="set-close" onClick={close} aria-label="Close settings">✕</button>
 
           {section === 'general' && (
             <section className="set-sec">
@@ -87,15 +83,12 @@ export function SettingsModal() {
           {section === 'appearance' && (
             <section className="set-sec">
               <h3>Appearance</h3>
-              <p className="set-lead">How the app looks and sounds.</p>
+              <p className="set-lead">How the app looks.</p>
               <div className="set-field"><span>Display mode</span>
                 <div className="set-seg">
                   <button className={theme === 'light' ? 'on' : ''} onClick={() => setTheme('light')}>Light</button>
                   <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')}>Dark</button>
                 </div>
-              </div>
-              <div className="set-field"><span>Sound effects</span>
-                <button className={`set-toggle${!muted ? ' on' : ''}`} onClick={() => toggleSound()}>{!muted ? 'On' : 'Off'}</button>
               </div>
             </section>
           )}
@@ -154,7 +147,6 @@ export function SettingsModal() {
           )}
         </div>
       </div>
-    </div>,
-    document.body,
+    </FullScreen>
   )
 }

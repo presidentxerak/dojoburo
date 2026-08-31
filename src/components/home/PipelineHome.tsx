@@ -1,14 +1,17 @@
-// The HOME · three surfaces, in the order you meet them.
+// The HOME · four surfaces, in the order you meet them.
 //
-//   create   · one centred card: name your project, create it, or watch how.
-//              This is where you land every time · a project you already have
-//              is one quiet line away, never in the way.
-//   choose   · "Choose your dojo teams" · the whole catalogue, à la carte, with
-//              a sticky bar carrying the running budget.
-//   project  · what you have built so far, and the two system agents.
+//   create    · one centred card: name your company, create it, or watch how.
+//               This is where you land the first time.
+//   choose    · "Choose your dojo teams" · the whole catalogue, à la carte,
+//               with a sticky bar carrying the running budget.
+//   companies · every company you are building, as cards. This is what "My
+//               companies" opens, and where a second company starts.
+//   company   · one company's dojo teams, and the two system agents.
 //
-// Creating a project is the moment an account is needed, because it is the
-// moment something real is saved (see ./SaveGate).
+// A founder runs several companies, each with its own teams — which is why the
+// profile opens on the companies and not on one list of teams. Creating a
+// company is the moment an account is needed, because it is the moment
+// something real is saved (see ./SaveGate).
 import { useEffect, useState } from 'react'
 import { useWorkshop } from '../../workshop'
 import { useDojo } from '../../store'
@@ -22,15 +25,21 @@ import { CreateCompany } from './CreateCompany'
 import { ChooseTeams } from './ChooseTeams'
 import { privyConfigured } from '../../auth/controls'
 
-type View = 'create' | 'choose' | 'project'
+type View = 'create' | 'choose' | 'companies' | 'company'
 
 export function PipelineHome({ onOpenProject, onView, initialView }: {
   onOpenProject: (dojoId: string) => void
   onView?: (v: View) => void
-  /** where to open · 'project' when the app is sending you back to your work */
+  /** where to open · 'companies' when the app is sending you back to your work */
   initialView?: View
 }) {
   const dojos = useWorkshop((s) => s.dojos)
+  const companies = useWorkshop((s) => s.companies)
+  const activeCompanyId = useWorkshop((s) => s.activeCompanyId)
+  const setActiveCompany = useWorkshop((s) => s.setActiveCompany)
+  const createCompany = useWorkshop((s) => s.createCompany)
+  const startNewCompany = useWorkshop((s) => s.startNewCompany)
+  const deleteCompany = useWorkshop((s) => s.deleteCompany)
   const activeId = useWorkshop((s) => s.activeDojoId)
   const account = useWorkshop((s) => s.account)
   const projectName = useWorkshop((s) => s.projectName)
@@ -42,13 +51,15 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
   const pushToast = useDojo((s) => s.pushToast)
   const loopRunning = useLoop((s) => s.running)
 
-  const projects = dojos.filter((d) => d.archetype)
-  // A first visit lands on step one · "Create your project" is the whole
-  // screen, and what you already built is one line under the card. But when
-  // the app sends you back to YOUR PROJECT (the menu, the bottom bar), the
-  // project is what has to be there — and only if there is one to show.
+  /** the teams of ONE company · the list a company card opens */
+  const teamsOf = (companyId: string | null) =>
+    dojos.filter((d) => d.archetype && d.companyId === companyId)
+  const projects = teamsOf(activeCompanyId)
+  // A first visit lands on step one. When the app sends you back to your work
+  // (the menu, the bottom bar) it opens the COMPANIES — that is the profile:
+  // every company you are building, one card each.
   const [view, setView] = useState<View>(
-    initialView === 'project' && projects.length ? 'project' : (initialView ?? 'create'),
+    initialView === 'companies' && companies.length ? 'companies' : (initialView ?? 'create'),
   )
   // the first two steps own the whole screen · App hides its chrome for them
   useEffect(() => { onView?.(view) }, [view, onView])
@@ -57,29 +68,36 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
 
   const open = (id: string) => { setActive(id); onOpenProject(id) }
 
-  // "Create your project" · the save moment, so the account is asked for here
+  // "Create your company" · the save moment, so the account is asked for here
   const startCreate = () => {
-    if (account) { setView('choose'); return }
-    if (!privyConfigured()) { useWorkshop.getState().signInGuest(); setView('choose'); return }
+    const go = () => { createCompany(useWorkshop.getState().projectName); setView('choose') }
+    if (account) { go(); return }
+    if (!privyConfigured()) { useWorkshop.getState().signInGuest(); go(); return }
     setGate(true)
   }
+  /** open a company · its teams, and everything else follows it */
+  const openCompany = (id: string) => { setActiveCompany(id); setView('company') }
+  /** start a second company · the naming card again, then the catalogue. It
+   *  steps out of the current company first: otherwise typing the new name
+   *  renames the one you are standing in. */
+  const newCompany = () => { startNewCompany(); setView('create') }
 
   // add every ticked team at once, then drop into the first one. A team the
   // project already has is skipped rather than duplicated — the chooser will
   // not offer one, but a stale screen still can.
   const addTeams = (list: Archetype[]) => {
     const co = projectName.trim()
-    const have = new Set(projects.map((d) => d.archetype))
+    const have = new Set(teamsOf(useWorkshop.getState().activeCompanyId).map((d) => d.archetype))
     const fresh = list.filter((a) => !have.has(a.id))
     const ids = fresh.map((a) => create(a.id, co ? `${co} · ${a.label}` : undefined)).filter(Boolean) as string[]
-    if (!ids.length) { setView('project'); return }
+    if (!ids.length) { setView('company'); return }
     const mates = fresh.reduce((n, a) => n + a.agents.length, 0)
     pushToast({
       kind: 'event', badge: 'OK', color: fresh[0].tint,
-      title: co || 'Your project',
+      title: co || 'Your company',
       text: `${ids.length} team${ids.length > 1 ? 's' : ''} · ${mates} teammates hired.`,
     })
-    setView('project')
+    setView('company')
     open(ids[0])
   }
 
@@ -88,14 +106,14 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
       <>
         <CreateCompany
           onCreate={startCreate}
-          existingCount={projects.length}
-          onOpenExisting={projects.length ? () => setView('project') : undefined}
+          existingCount={companies.length}
+          onOpenExisting={companies.length ? () => setView('companies') : undefined}
         />
         {gate && (
           <SaveGate
-            what={`"${projectName.trim() || 'Your project'}" is ready to be created.`}
+            what={`"${projectName.trim() || 'Your company'}" is ready to be created.`}
             onClose={() => setGate(false)}
-            onSignedIn={() => { setGate(false); setView('choose') }}
+            onSignedIn={() => { setGate(false); createCompany(useWorkshop.getState().projectName); setView('choose') }}
           />
         )}
       </>
@@ -108,18 +126,76 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
         projectName={projectName.trim()}
         onAdd={addTeams}
         existing={projects.map((d) => d.archetype!).filter(Boolean)}
-        onBack={projects.length ? () => setView('project') : () => setView('create')}
+        onBack={projects.length ? () => setView('company') : () => setView('companies')}
       />
     )
   }
 
+  // ------------------------------------------------------------- COMPANIES --
+  // The profile: every company you are building, one card each. Opening one
+  // shows its dojo teams; a company is the unit of work, not the whole app.
+  if (view === 'companies') {
+    return (
+      <div className="ph">
+        <header className="ph-sec-h ph-top">
+          <h1>Your companies
+            <InfoDot title="Your companies" label="How this works">
+              <p>Each card is a <b>company</b> — a piece of work with its own dojo teams inside it.</p>
+              <p>Open one to see its teams, or start another: the same speciality can work for two different companies, but never twice for the same one.</p>
+            </InfoDot>
+          </h1>
+          <button className="ph-addbtn" onClick={newCompany}>+ New company</button>
+        </header>
+
+        {companies.length === 0 ? (
+          <p className="ph-empty">No company yet. Create one and pick the teams it needs.</p>
+        ) : (
+          <ol className="ph-list ph-cos">
+            {companies.map((c, i) => {
+              const teams = teamsOf(c.id)
+              const mates = teams.reduce((n, d) => n + d.agents.filter((x) => !x.hidden).length, 0)
+              const tint = teams[0]?.archetype ? (ARCHETYPE_BY_ID[teams[0].archetype!]?.tint ?? '#7b5cff') : '#7b5cff'
+              return (
+                <li key={c.id} className={`ph-proj ph-co${c.id === activeCompanyId ? ' on' : ''}`} style={{ ['--ac' as string]: tint }}>
+                  <span className="ph-step-n">{i + 1}</span>
+                  <div className="ph-proj-main" role="button" tabIndex={0} onClick={() => openCompany(c.id)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') openCompany(c.id) }}>
+                    <span className="ph-glyph sm" style={{ background: tint }}>◆</span>
+                    <div className="ph-proj-txt">
+                      <strong>{c.name}</strong>
+                      <em>{teams.length} dojo team{teams.length === 1 ? '' : 's'} · {mates} teammate{mates === 1 ? '' : 's'}</em>
+                    </div>
+                    <span className="ph-proj-crew">
+                      {teams.slice(0, 6).map((d) => {
+                        const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
+                        return <span key={d.id} className="ph-dot" style={{ background: a?.tint ?? '#8892a6' }} title={a?.label ?? d.name}>{a?.glyph ?? '◆'}</span>
+                      })}
+                      {teams.length > 6 && <span className="ph-more">+{teams.length - 6}</span>}
+                    </span>
+                  </div>
+                  <div className="ph-proj-acts">
+                    <button className="btn primary tiny" onClick={() => openCompany(c.id)}>Open company</button>
+                    <button className="ph-ic danger" aria-label={`Delete ${c.name}`} title="Delete company"
+                      onClick={() => { if (confirm(`Delete "${c.name}"? Its ${teams.length} team${teams.length === 1 ? '' : 's'} and everything they made are removed.`)) deleteCompany(c.id) }}>×</button>
+                  </div>
+                </li>
+              )
+            })}
+          </ol>
+        )}
+      </div>
+    )
+  }
+
+  // --------------------------------------------------------------- COMPANY --
   return (
     <div className="ph">
       <header className="ph-sec-h ph-top">
-        <h1>{projectName.trim() || 'Your project'}
-          <InfoDot title="Your project" label="How this works">
-            <p>Everything here belongs to <b>{projectName.trim() || 'your project'}</b>. Each entry is a <b>dojo</b>: a team with its own dedicated teammates.</p>
-            <p>Rename your project, or remove a team, from your profile at any time.</p>
+        <button className="ph-back" onClick={() => setView('companies')}>‹ All companies</button>
+        <h1>{projectName.trim() || 'Your company'}
+          <InfoDot title="This company" label="How this works">
+            <p>Everything here belongs to <b>{projectName.trim() || 'this company'}</b>. Each entry is a <b>dojo team</b>: a crew with its own teammates and its own plan.</p>
+            <p>A speciality is hired once per company. Rename the company, or remove a team, from your profile at any time.</p>
           </InfoDot>
         </h1>
         <button className="ph-addbtn" onClick={() => setView('choose')}>+ Add dojo teams</button>

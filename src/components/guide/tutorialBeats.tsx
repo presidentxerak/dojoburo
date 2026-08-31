@@ -42,7 +42,7 @@ export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }
       { id: 'crew', title: '4 · Your teammates arrive', body: 'Each team you ticked becomes a dojo: a 3D office with its own crew, already named, already briefed, already wired to the right apps.' },
       { id: 'brief', title: '5 · Tell them what you want', body: 'Write the goal of the project in one line. That single sentence is the brief every teammate works from, so make it the outcome you actually want.' },
       { id: 'loop', title: '6 · Run every step', body: 'The team lead hands each step to the teammate who owns it, in order, and they work through the whole plan while you watch it tick.' },
-      { id: 'ship', title: '7 · Everything is yours', body: 'Brand, site, posts, briefs, numbers — open them, edit them, export them. Your project lives in your profile, and you can rename or remove any part of it.' },
+      { id: 'ship', title: '7 · Everything is yours', body: 'Brand, site, posts, briefs, numbers — open them, edit them, export them. Your company lives in your profile — with every other company you build — and you can rename or remove any part of it.' },
     ],
   },
 

@@ -6,7 +6,6 @@ import { skinById } from '../data/skins'
 import { templateById } from '../data/templates'
 import { useWorkshop, seatedAgents, type WAgent } from '../workshop'
 import { useDojo } from '../store'
-import { audio } from '../audio'
 import { Decor3D } from './three/Decor3D'
 import { Character3D } from './three/Character3D'
 import { Lazy3D } from './three/Lazy3D'
@@ -97,7 +96,6 @@ function Agents({ seated }: { seated: Array<{ agent: WAgent; x: number; z: numbe
             title={ROLE_BY_ID[canonicalRole(wa.role)]?.title ?? ''}
             level={stats[wa.id]?.level ?? 1}
             onSelect={() => {
-              audio.sfx('click')
               select(wa.id)
             }}
           />

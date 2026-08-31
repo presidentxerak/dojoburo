@@ -53,7 +53,7 @@ await p.waitForTimeout(3500)
 await p.screenshot({ path: SHOT + '/u-dojo.png' })
 
 // ---- no duplicates ------------------------------------------------------------
-await p.locator('.tb-burger').click()
+await p.locator('.tb-menu-btn').click()
 await p.waitForTimeout(300)
 await p.locator('.tb-menu-item', { hasText: 'My project' }).click()
 await p.waitForTimeout(1000)

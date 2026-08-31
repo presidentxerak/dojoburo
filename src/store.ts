@@ -9,7 +9,6 @@ import { AGENTS, AGENT_BY_ID } from './data/agents'
 import { agentLabel } from './agentView'
 import { pickEvent, tierForLevel, xpForLevel } from './data/events'
 import { loadSceneId, saveSceneId, type SceneId } from './data/scenes'
-import { audio } from './audio'
 
 export type Mood = 'idle' | 'work' | 'happy' | 'think' | 'talk' | 'love' | 'error'
 export type Theme = 'light' | 'dark'
@@ -67,8 +66,6 @@ interface DojoState {
   selectedAgent: string | null
   heroTargetId: string
   banter: Banter | null
-  muted: boolean
-  musicOn: boolean
   sceneId: SceneId
   usage: { xrp: number; tokens: number; tx: number }
   showStats: boolean
@@ -78,9 +75,6 @@ interface DojoState {
 
   setTheme: (t: Theme) => void
   setScene: (id: SceneId) => void
-  toggleMute: () => void
-  toggleMusic: () => void
-  toggleSound: () => void
 
   selectAgent: (id: string | null) => void
   setMood: (id: string, mood: Mood, ms?: number) => void
@@ -158,22 +152,18 @@ export const useDojo = create<DojoState>((set, get) => ({
   selectedAgent: null,
   heroTargetId: 'home',
   banter: null,
-  muted: localStorage.getItem('dojoburo.muted') === '1',
-  musicOn: false,
   sceneId: loadSceneId(),
   usage: { xrp: 0, tokens: 0, tx: 0 },
   showStats: false,
   cheerTick: 0,
 
   openStats: () => {
-    audio.sfx('click')
     set({ showStats: true, selectedAgent: null })
   },
   closeStats: () => set({ showStats: false }),
 
   setScene: (id) => {
     saveSceneId(id)
-    audio.sfx('click')
     set({ sceneId: id })
   },
 
@@ -198,27 +188,7 @@ export const useDojo = create<DojoState>((set, get) => ({
     set({ theme: t })
   },
 
-  toggleMute: () => {
-    const muted = !get().muted
-    localStorage.setItem('dojoburo.muted', muted ? '1' : '0')
-    audio.setMuted(muted)
-    set({ muted })
-  },
-  toggleMusic: () => {
-    const on = !get().musicOn
-    if (on) audio.startMusic()
-    else audio.stopMusic()
-    set({ musicOn: on })
-  },
   // one merged sound control: flips music + sound-fx together
-  toggleSound: () => {
-    const nextOn = get().muted // currently muted → turning sound ON
-    audio.setMuted(!nextOn)
-    if (nextOn) audio.startMusic()
-    else audio.stopMusic()
-    localStorage.setItem('dojoburo.muted', nextOn ? '0' : '1')
-    set({ muted: !nextOn, musicOn: nextOn })
-  },
 
 
 
@@ -256,10 +226,8 @@ export const useDojo = create<DojoState>((set, get) => ({
     saveStats(stats)
     if (leveled) {
       s.setMood(agentId, 'love', 2600)
-      audio.sfx('level')
       s.pushToast({ kind: 'level', badge: 'LVL', color: '#7c5cdf', title: `${agentLabel(agentId)} reached level ${level}`, text: `New tier unlocked: ${tierForLevel(level)}.` })
     } else if (coins > 0) {
-      audio.sfx('coin')
     }
   },
 
@@ -272,7 +240,6 @@ export const useDojo = create<DojoState>((set, get) => ({
       s.setMood(id, ev.mood, 2400)
       s.grantXp(id, ev.xp, ev.coins)
     }
-    audio.sfx('event')
     s.pushToast({ kind: 'event', badge: ev.tag, color: ev.color, title: ev.title, text: ev.message(whoName) })
     s.log({ agentId: targets[0], skill: 'event', level: ev.good ? 'success' : 'info', message: `${ev.title}: ${ev.message(whoName)} (+${ev.xp} XP, +${ev.coins} coins)` })
   },

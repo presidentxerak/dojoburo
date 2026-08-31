@@ -675,7 +675,7 @@ function CompanyPanel() {
 
   return (
     <div className="ws-company">
-      <h3>Your project</h3>
+      <h3>Your company</h3>
       <label className="ws-field">
         <span>Project name</span>
         <input

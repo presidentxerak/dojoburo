@@ -1283,7 +1283,9 @@ a:hover { text-decoration: underline; }
 
 .lp-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
 .lp-step { background: var(--panel-solid); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
-.lp-n { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: #fff; background: linear-gradient(140deg, var(--pink), var(--violet)); margin-bottom: 14px; }
+/* flex: none · in a row beside a long label the circle was shrinking to an
+   ellipse. A round number must never be squashed by the text next to it. */
+.lp-n { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 36px; min-width: 36px; height: 36px; border-radius: 50%; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: #fff; background: linear-gradient(140deg, var(--pink), var(--violet)); margin-bottom: 14px; }
 .lp-step h3 { font-size: 16px; margin: 0 0 8px; }
 .lp-step p { font-size: 16px; color: var(--muted); line-height: 1.55; margin: 0; }
 
@@ -1841,7 +1843,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-steps3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 @media (max-width: 780px) { .lp-steps3 { grid-template-columns: 1fr; } }
 .lp-step3 { display: flex; gap: 12px; background: var(--panel-solid); border: 1px solid var(--border); border-radius: 14px; padding: 16px 16px; }
-.lp-step3-n { flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: #fff; }
+.lp-step3-n { flex: none; width: 30px; min-width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: #fff; }
 .lp-step3 b { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; margin-bottom: 5px; }
 .lp-step3 span { font-size: 16px; color: var(--muted); line-height: 1.5; }
 .lp-step3 code { background: color-mix(in srgb, var(--c-teal) 16%, transparent); padding: 1px 5px; border-radius: 5px; font-size: 16px; }
@@ -2944,6 +2946,9 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .tb-profile { border: 1px solid var(--border-lit); background: var(--panel-solid); border-radius: 50%; padding: 3px; cursor: pointer; line-height: 0; transition: border-color 0.14s, transform 0.14s; }
 .tb-profile:hover { border-color: var(--violet); transform: translateY(-1px); }
 
+/* The menu opens from ONE trigger: your face when you are signed in, the
+   hamburger when you are not. Both carry .tb-menu-btn. */
+.tb-profile.tb-menu-btn { display: inline-flex; }
 .tb-burger { display: none; flex-direction: column; justify-content: center; gap: 4.5px; width: 40px; height: 40px; padding: 11px; cursor: pointer; background: var(--panel-solid); border: 1px solid var(--border-lit); border-radius: 2px; }
 .tb-burger span { display: block; height: 2.4px; width: 100%; background: var(--ink); border-radius: 2px; transition: transform 0.2s, opacity 0.2s; }
 .tb-burger.on span:nth-child(1) { transform: translateY(6.9px) rotate(45deg); }
@@ -3673,15 +3678,15 @@ input, textarea, select, button { border-radius: 0 !important; }
 }
 
 /* ===== Settings modal (Squarespace-style: nav sidebar + content) ===== */
-.set-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.45); display: grid; place-items: center; padding: 16px; }
-.set-modal { display: grid; grid-template-columns: 220px 1fr; width: min(900px, 96vw); height: min(620px, 92vh); background: #fff; border: 1px solid #000; overflow: hidden; }
-.set-nav { border-right: 1px solid var(--border); padding: 10px; overflow-y: auto; background: #fafafa; }
-.set-nav-head { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; padding: 10px 10px 14px; color: #000; }
+/* Settings is a full-screen surface like every other panel of its weight · the
+   shell (bar, title, ✕) comes from .modhost-fs, this is only its body. */
+.set-fs > * { max-width: 1080px; }
+.set-modal { display: grid; grid-template-columns: 220px 1fr; min-height: min(620px, 74vh); background: var(--panel-solid); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+.set-nav { border-right: 1px solid var(--border); padding: 10px; overflow-y: auto; background: var(--panel-2); }
 .set-nav-item { display: block; width: 100%; text-align: left; background: none; border: none; cursor: pointer; padding: 10px 10px; font-size: 15px; font-weight: 600; color: #000; }
 .set-nav-item:hover { background: #efefef; }
 .set-nav-item.on { background: #000; color: #fff; }
 .set-body { position: relative; padding: 26px 28px; overflow-y: auto; }
-.set-close { position: absolute; top: 14px; right: 16px; width: 34px; height: 34px; background: #fff; border: 1px solid #000; cursor: pointer; font-size: 15px; }
 .set-sec h3 { font-family: var(--font-pixel); font-weight: 800; font-size: 26px; margin: 0 0 6px; color: #000; }
 .set-lead { font-size: 14px; color: #000; margin: 0 0 20px; max-width: 60ch; }
 .set-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; max-width: 460px; }
@@ -3701,7 +3706,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 .set-cta { display: inline-block; background: #000; color: #fff; border: 1px solid #000; padding: 12px 22px; cursor: pointer; font-weight: 800; font-size: 14px; }
 .set-cta:hover { background: #222; }
 .set-link { display: block; margin-top: 12px; color: #000; font-weight: 700; font-size: 14px; text-decoration: underline; }
-@media (max-width: 640px) { .set-modal { grid-template-columns: 1fr; height: 92vh; } .set-nav { display: flex; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); } .set-nav-head { display: none; } }
+@media (max-width: 640px) { .set-modal { grid-template-columns: 1fr; min-height: 0; } .set-nav { display: flex; gap: 4px; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); } }
 
 /* ===== Fullscreen notification center ===== */
 .notifc-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.4); display: grid; place-items: stretch; }
@@ -5050,16 +5055,20 @@ select.cc-input { flex: 1; min-width: 0; }
 .arrange-cell {
   aspect-ratio: 1 / 1; border: 2px dashed var(--border); border-radius: 14px;
   background: color-mix(in srgb, var(--muted) 4%, transparent);
-  display: flex; align-items: center; justify-content: center; padding: 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px;
   cursor: pointer; transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
 }
+/* a seat holds the teammate's own face · never scale this box: a WebGL canvas
+   measures its frame, and an ancestor transform shrinks the render inside it */
+.arrange-face { width: 74px; height: 74px; display: grid; place-items: center; margin-top: -2px; }
+.arrange-face .a3d { background: none !important; border-radius: 0 !important; overflow: visible !important; }
 .arrange-cell.filled {
   border-style: solid; border-color: color-mix(in srgb, var(--ac, #7b5cff) 55%, var(--border));
   background: color-mix(in srgb, var(--ac, #7b5cff) 10%, transparent);
 }
 .arrange-cell.filled:hover { transform: translateY(-2px); }
 .arrange-cell.sel { border-color: var(--ac, #7b5cff); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ac, #7b5cff) 30%, transparent); }
-.arrange-name { font-family: var(--font-pixel); font-size: 11px; line-height: 1.15; text-align: center; color: var(--ac, #333); font-weight: 700; word-break: break-word; }
+.arrange-name { font-family: var(--font-pixel); font-size: 12px; line-height: 1.15; text-align: center; color: var(--ac, #333); font-weight: 700; word-break: break-word; }
 .arrange-empty { color: var(--muted); opacity: .5; font-size: 20px; }
 @media (max-width: 560px) { .arrange-grid { gap: 5px; } .arrange-name { font-size: 9px; } }
 
@@ -5251,9 +5260,10 @@ html { scroll-behavior: smooth; }
 .custom-notes { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 13.5px; line-height: 1.5; resize: vertical; }
 
 /* ============ Command palette (Cmd/Ctrl+K) ============ */
-.cmdk-overlay { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: flex-start; justify-content: center; padding-top: 12vh; background: rgba(10, 12, 20, 0.44); backdrop-filter: blur(3px); animation: cmdkIn .12s ease; }
+/* Quick search is a full-screen surface · this is only its body. */
+.cmdk-fs > * { max-width: 620px; }
 @keyframes cmdkIn { from { opacity: 0 } to { opacity: 1 } }
-.cmdk { width: min(560px, 92vw); max-height: 66vh; display: flex; flex-direction: column; background: var(--panel-solid, #fff); color: var(--ink, #10151f); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 30px 80px -30px rgba(0,0,0,.55); overflow: hidden; }
+.cmdk { width: 100%; max-height: min(70vh, 620px); display: flex; flex-direction: column; background: var(--panel-solid, #fff); color: var(--ink, #10151f); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
 .cmdk-input { border: 0; border-bottom: 1px solid var(--border); padding: 16px 18px; font: inherit; font-size: 16px; background: transparent; color: inherit; outline: none; }
 .cmdk-list { overflow-y: auto; padding: 6px; }
 .cmdk-empty { padding: 22px; text-align: center; color: var(--muted); font-size: 13.5px; }
@@ -5335,7 +5345,22 @@ html { scroll-behavior: smooth; }
 .ph-proj { position: relative; display: grid; grid-template-columns: 34px 1fr; gap: 8px 12px; padding: 14px 16px 14px 12px; border: 1px solid var(--border); border-left: 4px solid var(--ac); border-radius: 16px; background: var(--panel-solid, #fff); transition: box-shadow .15s ease, transform .12s ease; }
 .ph-proj:hover { box-shadow: 0 14px 32px -20px rgba(0,0,0,.45); transform: translateY(-1px); }
 .ph-proj.on { box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 40%, transparent); }
-.ph-step-n { grid-row: 1 / span 3; align-self: start; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: color-mix(in srgb, var(--ac) 14%, transparent); color: var(--ac); font-family: var(--font-pixel); font-weight: 800; font-size: 14px; }
+/* ---- companies · the profile ---------------------------------------------
+   A company card is a project card with its teams counted instead of its
+   crew. Same shape on purpose: one card, one piece of work. */
+.ph-back { align-self: start; background: none; border: 0; padding: 0 0 4px; font: inherit; font-weight: 700; font-size: 14.5px; color: var(--muted); cursor: pointer; }
+.ph-back:hover { color: var(--ink); }
+.ph-empty { margin: 8px 2px; color: var(--muted); font-size: 15.5px; }
+.ph-cos .ph-proj-crew .ph-dot { font-size: 12px; }
+.ph-co .ph-glyph.sm { color: #fff; }
+/* a company row has no goal field, so its actions sit on the right of the
+   name instead of under it */
+.ph-co { grid-template-columns: 34px 1fr auto; align-items: center; }
+.ph-co .ph-proj-acts { grid-column: 3; margin: 0; }
+/* the menu's inline value · "How hard your team works · Balanced" */
+.tb-menu-val { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 800; color: var(--ac, var(--violet)); }
+.tb-menu-item { display: flex; align-items: center; gap: 8px; }
+.ph-step-n { grid-row: 1 / span 3; align-self: start; flex: none; display: grid; place-items: center; width: 30px; min-width: 30px; height: 30px; border-radius: 50%; background: color-mix(in srgb, var(--ac) 14%, transparent); color: var(--ac); font-family: var(--font-pixel); font-weight: 800; font-size: 14px; }
 .ph-proj-main { display: flex; align-items: center; gap: 12px; cursor: pointer; min-width: 0; }
 .ph-proj-txt { min-width: 0; flex: 1; }
 .ph-proj-txt strong { display: block; font-size: 16.5px; letter-spacing: -0.01em; }
@@ -5996,7 +6021,7 @@ html { scroll-behavior: smooth; }
 .topbar-app .topbar-mid { flex: 1 1 auto; justify-content: center; min-width: 0; }
 .topbar-app .topbar-right { flex: 0 0 auto; }
 /* the burger is now the only door to Connect apps / Guide / City · always shown */
-.tb-burger-always { display: inline-flex !important; }
+.tb-menu-btn.tb-burger { display: inline-flex; }
 
 /* ---- the dojo's own controls, centred in the header ------------------ */
 .dojo-ctl {

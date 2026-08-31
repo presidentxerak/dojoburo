@@ -10,18 +10,20 @@
 // A project hires a speciality once (the chooser greys out what you already
 // have, and the store refuses a twin), so the tab bar never carried the same
 // label twice on purpose. Copies made before that rule are still numbered here
-// rather than shown as identical strangers, and "My project" offers to remove
+// rather than shown as identical strangers, and "My companies" offers to remove
 // them.
 import { useWorkshop } from '../../workshop'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 
 export function DojoTabs({ onOpen }: { onOpen?: () => void }) {
   const dojos = useWorkshop((s) => s.dojos)
+  const activeCompanyId = useWorkshop((s) => s.activeCompanyId)
   const activeId = useWorkshop((s) => s.activeDojoId)
   const setActive = useWorkshop((s) => s.setActiveDojo)
 
-  // only the teams the founder picked
-  const teams = dojos.filter((d) => d.archetype && ARCHETYPE_BY_ID[d.archetype])
+  // only the teams of the company you are in · another company's teams are
+  // another piece of work, reachable from "My companies"
+  const teams = dojos.filter((d) => d.archetype && ARCHETYPE_BY_ID[d.archetype] && d.companyId === activeCompanyId)
   if (teams.length < 2) return null
 
   // "Social media campaign" twice becomes "… 1" and "… 2"

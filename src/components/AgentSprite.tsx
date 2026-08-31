@@ -2,7 +2,6 @@ import type { AgentDef } from '../data/agents'
 import { CHARACTERS } from '../data/looks'
 import { POSITIONS } from '../data/layout'
 import { useDojo } from '../store'
-import { audio } from '../audio'
 import { Character } from './Character'
 
 /** An agent standing at their desk. Shows the animated ASCII emote bubble,
@@ -25,7 +24,7 @@ export function AgentSprite({ agent }: { agent: AgentDef }) {
     <button
       className={`agent ${selected ? 'is-selected' : ''} ${busy ? 'is-busy' : ''}`}
       style={{ left: pos.x, top: pos.y, zIndex: 20 }}
-      onClick={() => { audio.sfx('click'); select(agent.id) }}
+      onClick={() => { select(agent.id) }}
       title={`${agent.name} · ${agent.role}`}
     >
       {showAgentBubble && (

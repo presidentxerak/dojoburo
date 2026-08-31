@@ -21,14 +21,11 @@ import { useWork } from './agents/workStore'
 import { useWorkshop } from './workshop'
 import { privyConfigured } from './auth/controls'
 import { AuthGate } from './auth/AuthGate'
-import { audio } from './audio'
-import { EffortControl } from './components/EffortControl'
 import { FullScreen } from './components/FullScreen'
 
 export default function App() {
   const fireEvent = useDojo((s) => s.fireEvent)
   const theme = useDojo((s) => s.theme)
-  const muted = useDojo((s) => s.muted)
   const selected = useDojo((s) => s.selectedAgent)
   const selectAgent = useDojo((s) => s.selectAgent)
   const account = useWorkshop((s) => s.account)
@@ -44,7 +41,7 @@ export default function App() {
   // and "Choose your dojo teams" — are meant to be the only thing on screen,
   // so the bottom navigation (Dojo, Studio, Connect) is not shown: none
   // of it means anything before a company exists.
-  const [homeStep, setHomeStep] = useState<'create' | 'choose' | 'project'>('create')
+  const [homeStep, setHomeStep] = useState<'create' | 'choose' | 'companies' | 'company'>('create')
   // the dojo fills the window on arrival (centered), then reveals the agent's
   // dashboard when you pick an agent.
   const [dojoFull, setDojoFull] = useState(true)
@@ -57,7 +54,7 @@ export default function App() {
   // project" must show the project — the naming card is step one of creating
   // something new, and landing on it after you already have a project reads as
   // having lost your work.
-  const [homeStart, setHomeStart] = useState<'create' | 'project'>('create')
+  const [homeStart, setHomeStart] = useState<'create' | 'companies'>('create')
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
 
@@ -101,21 +98,15 @@ export default function App() {
     if (intent === 'dashboard') { useDojo.getState().selectAgent(null); setView('dojo'); setDojoFull(false) }
     else if (intent === 'dojo') { useDojo.getState().selectAgent(null); setView('dojo'); setDojoFull(true) }
     else if (intent === 'studio') useWork.getState().openStudio('studio')
-    else if (intent === 'projects') { useDojo.getState().selectAgent(null); setHomeStart('project'); setView('home') }
+    else if (intent === 'projects') { useDojo.getState().selectAgent(null); setHomeStart('companies'); setView('home') }
   }, [])
 
-  // "My project" from the menu · the project list, never the naming card
+  // "My companies" from the menu · the company cards, never the naming card
   useEffect(() => {
-    const go = () => { useDojo.getState().selectAgent(null); setHomeStart('project'); setView('home') }
+    const go = () => { useDojo.getState().selectAgent(null); setHomeStart('companies'); setView('home') }
     window.addEventListener('open-projects', go)
     return () => window.removeEventListener('open-projects', go)
   }, [])
-
-  useEffect(() => {
-    const unlock = () => { audio.setMuted(muted); audio.resume() }
-    window.addEventListener('pointerdown', unlock, { once: true })
-    return () => window.removeEventListener('pointerdown', unlock)
-  }, [muted])
 
   useEffect(() => {
     let cancelled = false
@@ -144,9 +135,9 @@ export default function App() {
         <SettingsModal />
         <DojosManager />
         <SupportBot />
-        {homeStep === 'project' && (
+        {(homeStep === 'companies' || homeStep === 'company') && (
         <nav className="mbar mbar-3" aria-label="Navigation">
-          <button className="on"><span className="mbar-ic">▦</span>Project</button>
+          <button className="on"><span className="mbar-ic">▦</span>Company</button>
           <button onClick={() => { setView('dojo'); setDojoFull(true) }}><span className="mbar-ic">◳</span>Dojo</button>
           <button onClick={() => useWork.getState().openStudio('studio')}><span className="mbar-ic">✎</span>Settings</button>
         </nav>
@@ -161,14 +152,12 @@ export default function App() {
   //
   // There is no "Project" button here: it walked you out of the dojo and back
   // to the start of the create flow. Leaving the dojo is a navigation, so it
-  // lives with the other navigations — the menu ("My project") and the bottom
+  // lives with the other navigations — the menu ("My companies") and the bottom
   // bar on a phone — and both open the project itself.
   const dojoControls = (
     <nav className="dojo-ctl" aria-label="Dojo">
       <button onClick={() => setArrangeOpen(true)} title="Rearrange your team on the dojo grid">Manage team</button>
       <button onClick={() => useWork.getState().openStudio('studio')} title="Dojo settings">Dojo settings</button>
-      {/* the token dial · always visible, so consumption is never a surprise */}
-      <EffortControl />
       <button
         className={`dojo-ctl-graph${graphOpen ? ' on' : ''}`}
         aria-pressed={graphOpen}
@@ -234,8 +223,8 @@ export default function App() {
       {/* mobile bottom bar · the same four things the header carries on desktop.
           Connect apps and the Dojo Guide live in the menu now. */}
       <nav className="mbar mbar-4" aria-label="Navigation">
-        <button onClick={() => { selectAgent(null); setHomeStart('project'); setView('home') }}>
-          <span className="mbar-ic">▦</span>Project
+        <button onClick={() => { selectAgent(null); setHomeStart('companies'); setView('home') }}>
+          <span className="mbar-ic">▦</span>Company
         </button>
         <button className={dojoFull ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(true) }}>
           <span className="mbar-ic">◳</span>Dojo
