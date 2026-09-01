@@ -416,7 +416,14 @@ function CopyRedirect() {
           {done ? '✓ Copied' : 'Copy'}
         </button>
       </div>
-      <span className="dg2-redirect-n">Exactly this · https, no trailing slash. It is the same for every app.</span>
+      <span className="dg2-redirect-n">
+        Exactly this · https, no trailing slash. It is the same for every app.
+      </span>
+      <span className="dg2-redirect-w">
+        Not in “Authorized JavaScript origins” — that list rejects a path. This goes in
+        “Authorized redirect URIs”. The origins list can stay empty: nothing in the browser
+        talks to the provider, the handshake runs on the server.
+      </span>
     </div>
   )
 }

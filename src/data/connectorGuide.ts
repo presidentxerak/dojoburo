@@ -145,7 +145,7 @@ export function operatorSteps(c: Connector): GuideStep[] {
     steps.push({
       n: 2,
       title: 'Set the redirect URI',
-      body: `Add ${REDIRECT_URI} as an authorized redirect / callback URL — exactly that, with https and no trailing slash. If the console also asks for an allowed origin or homepage, use ${SITE_ORIGIN}.`,
+      body: `Add ${REDIRECT_URI} as an authorized REDIRECT / callback URL — exactly that, with https and no trailing slash. Careful: several consoles (Google's especially) show two lists on the same screen. "Authorized JavaScript origins" takes an origin with NO path and will reject this one; the whole flow is server-side, so you can leave that list empty, or put ${SITE_ORIGIN} in it. The full URL above belongs in "Authorized redirect URIs", further down the page.`,
     })
   }
   steps.push({
