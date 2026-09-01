@@ -18,7 +18,14 @@ export interface ConnectorNotes {
 }
 
 // The redirect URI every OAuth connector must whitelist in its console.
+//
+// It is the same string for all of them, and it has to match to the character —
+// a trailing slash or http instead of https is the single most common reason a
+// console accepts the app and the handshake then fails. So the guide prints the
+// real one rather than "your-site", which nobody can paste.
 export const REDIRECT_PATH = '/api/connect'
+export const SITE_ORIGIN = 'https://www.dojoburo.com'
+export const REDIRECT_URI = `${SITE_ORIGIN}${REDIRECT_PATH}`
 
 // Specifics for the connectors people set up most. Everything not listed here
 // still gets a precise generic guide built from its registry fields.
@@ -138,7 +145,7 @@ export function operatorSteps(c: Connector): GuideStep[] {
     steps.push({
       n: 2,
       title: 'Set the redirect URI',
-      body: `Add https://your-site${REDIRECT_PATH} as an authorized redirect / callback URL. It must match exactly, including https.`,
+      body: `Add ${REDIRECT_URI} as an authorized redirect / callback URL — exactly that, with https and no trailing slash. If the console also asks for an allowed origin or homepage, use ${SITE_ORIGIN}.`,
     })
   }
   steps.push({
@@ -150,7 +157,12 @@ export function operatorSteps(c: Connector): GuideStep[] {
   steps.push({
     n: steps.length + 1,
     title: 'Add the keys to your environment',
-    body: `Set these server-side env vars (never VITE_ / browser vars): ${envList}. Then redeploy.`,
+    body: `In Vercel: your project → Settings → Environment Variables → Add New, scope each one to Production and Preview, then Save. Set ${envList}. These are server-side only — never prefix them VITE_, which would compile them into the browser bundle where anyone can read them.`,
+  })
+  steps.push({
+    n: steps.length + 1,
+    title: 'Redeploy · environment changes do not apply to a running build',
+    body: 'Deployments → the latest one → ··· → Redeploy. Nothing you just saved takes effect until you do this, which is the usual reason a freshly-added key looks like it did not work.',
   })
   if (notes?.mcp) {
     steps.push({ n: steps.length + 1, title: 'Point the MCP endpoint', body: notes.mcp })

@@ -7169,3 +7169,21 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   font-family: var(--font-ui); font-size: 11px; font-weight: 800; letter-spacing: .04em;
   text-transform: uppercase; vertical-align: middle;
 }
+
+
+/* the redirect URI, on every connector guide · the one string you paste 27 times */
+.dg2-redirect { display: flex; flex-direction: column; gap: 7px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.dg2-redirect-k { font-family: var(--font-ui); font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.dg2-redirect-row { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+.dg2-redirect-row code {
+  flex: 1 1 300px; min-width: 0; padding: 11px 13px; border-radius: 10px;
+  background: var(--panel-2); font-family: var(--font-mono, monospace); font-size: 13.5px;
+  font-weight: 700; color: var(--ink); overflow-x: auto; white-space: nowrap;
+}
+.dg2-redirect-row button {
+  flex: none; padding: 11px 18px; border: 1px solid var(--border) !important; border-radius: 10px;
+  background: var(--panel-solid, #fff); font: inherit; font-size: 13px; font-weight: 800;
+  color: var(--ink); cursor: pointer;
+}
+.dg2-redirect-row button:hover { border-color: var(--ink) !important; }
+.dg2-redirect-n { font-family: var(--font-read); font-size: 12.5px; color: var(--muted); }

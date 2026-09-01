@@ -6,7 +6,7 @@ import { TopBar } from './components/TopBar'
 import { SupportBot } from './components/SupportBot'
 import { ConnectorLogo } from './components/ConnectorLogo'
 import { CONNECTORS, type ConnectorCategory } from './data/connectors'
-import { connectorById, userSteps, operatorSteps, REDIRECT_PATH } from './data/connectorGuide'
+import { connectorById, userSteps, operatorSteps, REDIRECT_URI } from './data/connectorGuide'
 import { StudioTeam } from './components/landing/TeamCards'
 import { Tutorial } from './components/guide/Tutorial'
 import { type WalkId } from './components/guide/tutorialBeats'
@@ -395,6 +395,32 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
 }
 
 /** Dedicated per-connector page at /guide/<id>. */
+/** The one string you paste into every console · so paste it, do not retype it.
+ *  A trailing slash or an http is the commonest reason a console accepts the
+ *  app and the handshake then fails, and both are typing mistakes. */
+function CopyRedirect() {
+  const [done, setDone] = useState(false)
+  return (
+    <div className="dg2-redirect">
+      <span className="dg2-redirect-k">Redirect / callback URL to whitelist</span>
+      <div className="dg2-redirect-row">
+        <code>{REDIRECT_URI}</code>
+        <button
+          onClick={() => {
+            navigator.clipboard?.writeText(REDIRECT_URI).then(() => {
+              setDone(true)
+              setTimeout(() => setDone(false), 1600)
+            }).catch(() => { /* clipboard blocked · the text is right there */ })
+          }}
+        >
+          {done ? '✓ Copied' : 'Copy'}
+        </button>
+      </div>
+      <span className="dg2-redirect-n">Exactly this · https, no trailing slash. It is the same for every app.</span>
+    </div>
+  )
+}
+
 export function ConnectorGuidePage({ id }: { id: string }) {
   const c = connectorById(id)
   if (!c) {
@@ -462,7 +488,7 @@ export function ConnectorGuidePage({ id }: { id: string }) {
               </li>
             ))}
           </ul>
-          <p className="lp-note">Redirect / callback URL to whitelist: <code>https://your-site{REDIRECT_PATH}</code></p>
+          {c.auth === 'oauth' && <CopyRedirect />}
         </div>
         <div className="dg2-links">
           <a className="lp-cta sm" href={c.docsUrl} target="_blank" rel="noreferrer">Open the {c.provider} console ↗</a>
