@@ -7193,3 +7193,31 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   padding: 10px 12px; border-radius: 10px;
   background: color-mix(in srgb, #d9822b 12%, transparent);
 }
+
+
+/* ---- the operator's readout on Connect apps -------------------------
+   Only an admin sees this. "0/44 linked" is what the founder has connected;
+   these are the numbers that answer "did the key I just added land?". */
+.connect-op {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  margin-top: 14px; padding: 12px 14px; border-radius: 12px;
+  background: var(--panel-2);
+}
+.connect-op-k {
+  font-family: var(--font-mono, monospace); font-size: 10px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--violet);
+  padding: 3px 8px; border-radius: 999px;
+  background: color-mix(in srgb, var(--violet) 12%, transparent);
+}
+.connect-op-n { font-family: var(--font-read); font-size: 13px; color: var(--ink); }
+.connect-op-n b { font-family: var(--font-pixel); font-size: 15px; }
+.connect-op-n.muted { color: var(--muted); }
+.connect-op-warn {
+  flex: 1 1 100%; font-family: var(--font-read); font-size: 12.5px; color: #a35f16;
+}
+.connect-op-env {
+  margin: 6px 0 0; padding: 8px 10px; border-radius: 9px;
+  background: color-mix(in srgb, #d9822b 10%, transparent);
+  font-family: var(--font-mono, monospace); font-size: 11px; line-height: 1.5; color: var(--ink);
+  word-break: break-word;
+}

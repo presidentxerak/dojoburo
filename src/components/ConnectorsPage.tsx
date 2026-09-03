@@ -10,6 +10,8 @@ import { CONNECTORS, connectorsForFunction, type Connector } from '../data/conne
 import { ROLE_AGENTS } from '../data/roleAgents'
 import type { Department } from '../data/agents'
 import { useWork } from '../agents/workStore'
+import { useWorkshop } from '../workshop'
+import { isAdmin } from '../config/admin'
 import { startConnect } from '../agents/workApi'
 import { ConnectorLogo } from './ConnectorLogo'
 import { TutorialOverlay } from './guide/TutorialOverlay'
@@ -43,6 +45,8 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
   const loadedOnce = useWork((s) => s.loadedOnce)
   const loadTools = useWork((s) => s.loadTools)
   const disconnect = useWork((s) => s.disconnect)
+  const account = useWorkshop((s) => s.account)
+  const admin = isAdmin(account ?? null)
 
   // the "How to?" walkthrough · connecting apps, and what it costs on top
   const [howTo, setHowTo] = useState(false)
@@ -51,6 +55,17 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
 
   const total = CONNECTORS.length
   const connected = CONNECTORS.filter((c) => tools[c.id]?.connected).length
+
+  // ---- the operator's own view -------------------------------------------
+  // "0/44 linked" counts what THIS founder has connected. Setting up the app is
+  // a different question — how many apps can be connected at all, which depends
+  // on OAuth keys only the operator can add. Those two numbers were conflated,
+  // so after adding a key there was no way to see whether it had landed short
+  // of trying to connect. Admins get the second number.
+  const wired = CONNECTORS.filter((c) => !c.unwired)
+  const ready = wired.filter((c) => tools[c.id]?.available).length
+  const needKeys = wired.length - ready
+  const noPath = CONNECTORS.filter((c) => c.unwired).length
 
   return (
     <FullScreen
@@ -68,6 +83,15 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
               is sealed away on the server · this browser never holds a secret.
             </p>
             <button type="button" className="howto-btn" onClick={() => setHowTo(true)}>How to? · and what it costs</button>
+            {admin && loadedOnce && (
+              <div className="connect-op">
+                <span className="connect-op-k">Operator</span>
+                <span className="connect-op-n"><b>{ready}</b> ready to connect</span>
+                <span className="connect-op-n"><b>{needKeys}</b> waiting on your OAuth keys</span>
+                <span className="connect-op-n muted"><b>{noPath}</b> with no integration yet</span>
+                {!backend && <span className="connect-op-warn">The worker is not configured · DATABASE_URL + CONNECTOR_ENC_KEY</span>}
+              </div>
+            )}
           </div>
         </header>
 
@@ -122,6 +146,11 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
                               ? 'This deployment has not added this app\'s keys yet. The full guide has the exact steps and env vars.'
                               : 'This one has no connection path yet — no handshake and nothing to call. It is listed so you know it exists, not so you can switch it on.'}
                       </p>
+                      {admin && state === 'setup' && (
+                        <p className="connect-op-env">
+                          Add {c.env.filter((e) => /_CLIENT_ID$|_CLIENT_SECRET$/.test(e.name)).map((e) => e.name).join(' and ')} in Vercel, then redeploy.
+                        </p>
+                      )}
                       <div className="connect-card-actions">
                         {isOn ? (
                           <button className="btn tiny ghost" onClick={() => void disconnect(c.id)}>Disconnect</button>
