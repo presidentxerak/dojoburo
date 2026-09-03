@@ -44,11 +44,11 @@ export function Terms() {
       <h2>1. What DojoBuro is</h2>
       <p>DojoBuro is a 3D productivity hub where AI teammates carry out functions of your work. The interface runs in your browser; a cloud worker performs model and connected-app actions. DojoBuro is a software tool, not a bank, broker, exchange, custodian or financial adviser.</p>
 
-      <h2>2. Non-custodial by design</h2>
-      <p>DojoBuro never takes custody of your funds. Payments are card payments, processed by Stripe; we hold a credits balance for your account and nothing else. There is no wallet, no seed and no token anywhere in the product.</p>
+      <h2>2. No custody of funds</h2>
+      <p>DojoBuro never takes custody of your funds. Plans are card payments, processed by Stripe; we hold no balance on your behalf. There is no wallet, no seed and no token anywhere in the product.</p>
 
       <h2>3. Payments and fees</h2>
-      <p>Work is metered in credits. Card top-ups are processed by Stripe and add credits to your account; they are not a deposit with DojoBuro. You are responsible for any taxes arising from your use.</p>
+      <p>You pay a monthly subscription for the software. On the Founder plan the AI model runs on your own Anthropic key and Anthropic bills you directly for that usage — those charges are between you and them, and we never see them. On the Managed plan the model usage is included in the price. You are responsible for any taxes arising from your use.</p>
 
       <h2>4. Connected apps</h2>
       <p>When you connect a third-party app, you authorize DojoBuro (and its agents) to act inside it on your behalf via OAuth. Tokens are held encrypted server-side and can be revoked at any time by disconnecting the tool or from the provider's own settings. You are responsible for actions you instruct agents to perform in your connected accounts and for complying with each provider's terms.</p>
@@ -86,7 +86,7 @@ export function Privacy() {
       <p className="legal-lead">DojoBuro is built privacy-first: most of your data stays in your own browser, and we collect as little as possible.</p>
 
       <h2>1. Data stored in your browser</h2>
-      <p>Preferences (theme, sound) and your dojos are stored locally in your browser's storage. This data is not transmitted to us and never leaves your device unless you export it. Clearing your browser storage deletes it.</p>
+      <p>Preferences (theme, display) and your dojos are stored locally in your browser's storage. This data is not transmitted to us and never leaves your device unless you export it. Clearing your browser storage deletes it.</p>
 
       <h2>2. Data processed by the server</h2>
       <p>If you use the optional cloud worker, we process only what is needed to run your requests: OAuth tokens for the apps you connect (encrypted at rest with AES-256-GCM), an optional model API key you provide, and minimal request metadata. The browser never receives another user's secrets. We do not sell your data.</p>
@@ -97,11 +97,13 @@ export function Privacy() {
       <h2>4. Cookies &amp; analytics</h2>
       <p>DojoBuro uses local storage for app state rather than tracking cookies, and does not run third-party advertising or cross-site tracking.</p>
 
-      <h2>5. Retention &amp; deletion</h2>
-      <p>Local data lives until you clear it. Server-side connector tokens live until you disconnect the tool or revoke access with the provider. To request deletion of any server-held data, contact us.</p>
+      <h2 id="deletion">5. Retention &amp; deletion</h2>
+      <p>Local data lives until you clear it, and clearing your browser storage removes it immediately and completely.</p>
+      <p><strong>To delete data we hold on a server:</strong> open the app, go to Connect apps and press Disconnect on each connected app — that erases its stored token straight away. Removing your model key in My Credits · Billing erases that too. To have the account itself and anything remaining deleted, email <a href="mailto:presidentxerak@gmail.com">presidentxerak@gmail.com</a> from the address on the account and we will delete it within 30 days.</p>
+      <p>Server-side connector tokens otherwise live until you disconnect the tool or revoke access from the provider's own settings.</p>
 
       <h2>6. Your choices</h2>
-      <p>You can disconnect any app, remove your model key, switch to Testnet, or clear your browser storage at any time. You may request access to or deletion of data we hold about you.</p>
+      <p>You can disconnect any app, remove your model key, or clear your browser storage at any time. You may request access to or deletion of data we hold about you.</p>
 
       <h2>7. Children</h2>
       <p>DojoBuro is not directed to children under 13 (or the minimum age in your jurisdiction) and we do not knowingly collect their data.</p>
