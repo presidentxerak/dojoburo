@@ -1,0 +1,8 @@
+{
+  "name": "DojoBuro design system",
+  "id": "dojoburo-design-system",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"],
+  "networkAccess": { "allowedDomains": ["none"] }
+}

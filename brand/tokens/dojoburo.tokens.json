@@ -1,0 +1,195 @@
+{
+  "$schema": "https://tr.designtokens.org/format/",
+  "$description": "DojoBuro design tokens. Read out of src/index.css, which stays the source of truth for the running app; this file is the portable copy for Figma (Tokens Studio), and the Figma plugin in brand/figma-plugin reads it to build styles and components in place.",
+  "color": {
+    "$type": "color",
+    "paper": {
+      "$value": "#ffffff",
+      "$description": "--bg · the page, and the fill of every card"
+    },
+    "ink": {
+      "$value": "#000000",
+      "$description": "--ink · body text. Pure black, no grey levels"
+    },
+    "muted": {
+      "$value": "#000000",
+      "$description": "--muted · secondary text. Deliberately the same black as --ink in light mode; only dark mode greys it down"
+    },
+    "surface": {
+      "$value": "#f5f6f8",
+      "$description": "--panel-2 · the recessed fill under code blocks, nav items and step tracks"
+    },
+    "hairline": {
+      "$value": "#e4e4e7",
+      "$description": "--border · every 1px rule and input outline"
+    },
+    "hairline-lit": {
+      "$value": "#c7c7cc",
+      "$description": "--border-lit · the same rule when the control is focused or raised"
+    },
+    "mark": {
+      "$value": "#14151a",
+      "$description": "--btn-bg · the logo's own black. Slightly warmer than text black so a solid mark does not vibrate against a white page"
+    },
+    "accent": {
+      "blue": { "$value": "#4f9df7", "$description": "--blue · links, the Action skill, the default lift" },
+      "violet": { "$value": "#a78bfa", "$description": "--violet · selection, the Analysis skill, the default card accent" },
+      "mint": { "$value": "#3fd0b0" },
+      "pink": { "$value": "#ff7eb6" },
+      "gold": { "$value": "#ffc24b" },
+      "peach": { "$value": "#ff9a76" },
+      "green": { "$value": "#45c46a" },
+      "red": { "$value": "#ff5d6c" }
+    },
+    "primary": {
+      "blue": { "$value": "#2f6bff", "$description": "--c-blue · the saturated blue on the landing" },
+      "teal": { "$value": "#08c2ac", "$description": "--c-teal" },
+      "yellow": { "$value": "#ffc61a", "$description": "--c-yellow" },
+      "orange": { "$value": "#ff7a1a", "$description": "--c-orange" }
+    },
+    "status": {
+      "ok": { "$value": "#37c46a" },
+      "warn": { "$value": "#ffab3d" },
+      "error": { "$value": "#ff5d6c" },
+      "danger": { "$value": "#e0475f", "$description": "the outline and label of a destructive button" }
+    },
+    "cta": {
+      "from": { "$value": "#00d6ff" },
+      "to": { "$value": "#12ffb0" },
+      "on": { "$value": "#04232b", "$description": "the only text colour that is legible on the CTA gradient" }
+    },
+    "dark": {
+      "$description": "the [data-theme=dark] overrides · nothing else changes",
+      "paper": { "$value": "#000000" },
+      "ink": { "$value": "#f2f3f7" },
+      "muted": { "$value": "#9aa0ad" },
+      "panel": { "$value": "#131317" },
+      "surface": { "$value": "#1c1c22" }
+    }
+  },
+  "gradient": {
+    "$type": "gradient",
+    "cta": {
+      "$value": [
+        { "color": "#00d6ff", "position": 0 },
+        { "color": "#12ffb0", "position": 0.5 },
+        { "color": "#00d6ff", "position": 1 }
+      ],
+      "$description": "120deg, 220% wide and animated · every primary call to action in the app"
+    },
+    "title": {
+      "$value": [
+        { "color": "#7c3aed", "position": 0 },
+        { "color": "#4f7cff", "position": 1 }
+      ],
+      "$description": "100deg · reserved for display headings on the landing"
+    }
+  },
+  "font": {
+    "$type": "fontFamily",
+    "display": { "$value": ["Outfit", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"] },
+    "body": { "$value": ["Outfit", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"] },
+    "mono": { "$value": ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"] }
+  },
+  "weight": {
+    "$type": "fontWeight",
+    "regular": { "$value": 400 },
+    "semibold": { "$value": 600, "$description": "strong, b, skill names" },
+    "bold": { "$value": 800, "$description": "card titles, section headings, button labels" },
+    "black": { "$value": 900, "$description": "h1-h6 and the wordmark" }
+  },
+  "text": {
+    "$type": "typography",
+    "wordmark": {
+      "$value": { "fontFamily": "Outfit", "fontWeight": 900, "fontSize": "27px", "lineHeight": "1", "letterSpacing": "-0.02em" },
+      "$description": "the app name set as type · the access gate and the top bar"
+    },
+    "title": {
+      "$value": { "fontFamily": "Outfit", "fontWeight": 800, "fontSize": "19px", "lineHeight": "1.2", "letterSpacing": "-0.015em" },
+      "$description": "one size for every card title and section heading, on every screen"
+    },
+    "subtitle": {
+      "$value": { "fontFamily": "Outfit", "fontWeight": 800, "fontSize": "17px", "lineHeight": "1.35", "letterSpacing": "-0.005em" }
+    },
+    "body": {
+      "$value": { "fontFamily": "Outfit", "fontWeight": 400, "fontSize": "16px", "lineHeight": "1.6" },
+      "$description": "the document default"
+    },
+    "lead": {
+      "$value": { "fontFamily": "Outfit", "fontWeight": 400, "fontSize": "13px", "lineHeight": "1.55" },
+      "$description": "the explanatory line under a title, and all secondary copy inside a card"
+    },
+    "label": {
+      "$value": { "fontFamily": "Outfit", "fontWeight": 800, "fontSize": "12.5px", "lineHeight": "1.4", "letterSpacing": "0.01em" },
+      "$description": "the caption above a field"
+    },
+    "action": {
+      "$value": { "fontFamily": "Outfit", "fontWeight": 800, "fontSize": "13px", "lineHeight": "1.2" },
+      "$description": "the link-like call to action at the foot of a card"
+    },
+    "code": {
+      "$value": { "fontFamily": "ui-monospace", "fontWeight": 400, "fontSize": "11.5px", "lineHeight": "1.5" }
+    }
+  },
+  "radius": {
+    "$type": "dimension",
+    "control": { "$value": "10px", "$description": "inputs, selects, nav items" },
+    "chip": { "$value": "9px" },
+    "card": { "$value": "16px" },
+    "dialog": { "$value": "20px" },
+    "pill": { "$value": "999px" }
+  },
+  "space": {
+    "$type": "dimension",
+    "1": { "$value": "4px" },
+    "2": { "$value": "8px" },
+    "3": { "$value": "12px" },
+    "4": { "$value": "16px" },
+    "5": { "$value": "20px" },
+    "6": { "$value": "26px" },
+    "7": { "$value": "32px" },
+    "8": { "$value": "40px" },
+    "9": { "$value": "48px" }
+  },
+  "shadow": {
+    "$type": "shadow",
+    "card": {
+      "$value": [
+        { "offsetX": "0", "offsetY": "2px", "blur": "10px", "spread": "0", "color": "rgba(30,25,60,0.06)" },
+        { "offsetX": "0", "offsetY": "12px", "blur": "30px", "spread": "-22px", "color": "rgba(30,25,60,0.5)" }
+      ],
+      "$description": "the one card shadow · no card in the app carries a border as well"
+    },
+    "card-hover": {
+      "$value": [
+        { "offsetX": "0", "offsetY": "4px", "blur": "14px", "spread": "0", "color": "rgba(30,25,60,0.08)" },
+        { "offsetX": "0", "offsetY": "20px", "blur": "40px", "spread": "-22px", "color": "rgba(30,25,60,0.55)" }
+      ],
+      "$description": "paired with translateY(-3px)"
+    },
+    "dialog": {
+      "$value": [
+        { "offsetX": "0", "offsetY": "2px", "blur": "10px", "spread": "0", "color": "rgba(30,25,60,0.07)" },
+        { "offsetX": "0", "offsetY": "30px", "blur": "60px", "spread": "-34px", "color": "rgba(30,25,60,0.6)" }
+      ]
+    },
+    "button": {
+      "$value": [{ "offsetX": "0", "offsetY": "2px", "blur": "8px", "spread": "-4px", "color": "rgba(30,25,60,0.35)" }]
+    }
+  },
+  "motion": {
+    "duration": {
+      "$type": "duration",
+      "instant": { "$value": "140ms", "$description": "a border or a colour changing" },
+      "quick": { "$value": "160ms", "$description": "a hover lift" },
+      "settle": { "$value": "220ms", "$description": "a shadow deepening" },
+      "panel": { "$value": "280ms", "$description": "a side panel sliding" },
+      "enter": { "$value": "500ms", "$description": "a full surface arriving" }
+    },
+    "easing": {
+      "$type": "cubicBezier",
+      "lift": { "$value": [0.2, 0.9, 0.3, 1] },
+      "enter": { "$value": [0.22, 0.61, 0.36, 1] }
+    }
+  }
+}

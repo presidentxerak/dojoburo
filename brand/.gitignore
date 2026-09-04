@@ -1,0 +1,4 @@
+# The HTML the PDF is printed from. It carries the four Outfit faces inline as
+# base64, so it is large, unreadable in a diff, and regenerated on every run —
+# the PDF beside it is the deliverable.
+dojoburo-brand-guidelines.html
