@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>DojoBuro · 3D capture sheet</title>
+    <!--
+      A capture sheet, not a page of the app. It exists so the brand guidelines
+      can show the real teammates and the real 3D icons rather than a drawing of
+      them: this mounts the app's own components, and brand/render-3d.mjs
+      screenshots each block.
+
+      Vite serves it in dev only. `vite build` has index.html as its single
+      entry, so nothing here reaches the production bundle.
+    -->
+    <style>
+      html, body { margin: 0; background: #fafafa; }
+      #root { padding: 40px; }
+      .shot { display: inline-block; background: #fafafa; padding: 24px; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./agents.tsx"></script>
+  </body>
+</html>

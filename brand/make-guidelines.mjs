@@ -12,7 +12,7 @@
 //
 // Run from the repo root:  node brand/make-guidelines.mjs
 import { chromium } from 'playwright'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -27,6 +27,19 @@ const face = (w) =>
 const FONTS = [400, 600, 800, 900].map(face).join('\n')
 
 const svg = (n) => readFileSync(join(HERE, 'logo', n), 'utf8')
+
+// The 3D captures from brand/render-3d.mjs. They are inlined rather than linked
+// because the document is handed to Chromium through setContent(), which has no
+// base URL — a relative src would resolve to nothing and fail silently, leaving
+// a page of empty boxes.
+const shot = (n) => {
+  const f = join(HERE, 'render', n)
+  if (!existsSync(f)) {
+    console.error(`FAIL  missing 3D capture: brand/render/${n}\n      Run: node brand/render-3d.mjs`)
+    process.exit(1)
+  }
+  return `data:image/png;base64,${readFileSync(f).toString('base64')}`
+}
 const ICON = readFileSync(join(ROOT, 'public', 'logo-icon-dojoburo.svg'), 'utf8')
 const TOKENS = JSON.parse(readFileSync(join(HERE, 'tokens', 'dojoburo.tokens.json'), 'utf8'))
 
@@ -202,7 +215,7 @@ code { font-family: ui-monospace, Menlo, monospace; font-size: 8.5pt; background
 .sw-t em { display: block; font-style: normal; font-size: 7.5pt; color: #8a8a94; margin-top: .6mm }
 
 /* ---- type ---- */
-table { width: 100%; border-collapse: collapse; font-size: 8.5pt }
+table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 3mm }
 th { text-align: left; font-weight: 800; font-size: 7.5pt; letter-spacing: .06em; text-transform: uppercase; color: #8a8a94; padding: 0 3mm 1.5mm 0; border-bottom: 1px solid ${C.hairline} }
 td { padding: 1.8mm 3mm 1.8mm 0; border-bottom: 1px solid ${C.hairline}; vertical-align: top }
 .spec { padding: 1.8mm 0; border-bottom: 1px solid ${C.hairline} }
@@ -293,6 +306,12 @@ td { padding: 1.8mm 3mm 1.8mm 0; border-bottom: 1px solid ${C.hairline}; vertica
 .glyphs span em { font-style: normal; font-size: 6pt; color: #8a8a94; margin-top: .5mm }
 .files { font-size: 9pt }
 .files tr td:first-child { font-family: ui-monospace, Menlo, monospace; font-size: 8pt; white-space: nowrap }
+
+/* ---- the crew page ---- */
+.crew { display: grid; grid-template-columns: 210px 1fr; gap: 7mm; align-items: start; margin-bottom: 2mm }
+.crew-t ul { margin: 0 }
+.crew-t li { font-size: 9.5pt; line-height: 1.5 }
+.demo img { display: block; border-radius: 3mm }
 
 /* a specimen block once it has been flattened for print · see the note in the
    build script. The block's own padding and ground are inside the image now. */
@@ -512,7 +531,50 @@ ${page('Components', 'Dialogs', `
 </ul>
 `)}
 
-<!-- ===================================================== 12 · voice ==== -->
+<!-- ===================================================== 12 · crew ===== -->
+${page('Components', 'The teammates', `
+<p class="lead">The one place the product shows a face. A teammate card is an ordinary card — white, 16px, one shadow — carrying a real 3D character, its codename, its job title and one line about what it does. These are captures of the running app, because a WebGL canvas cannot be printed.</p>
+<div class="crew">
+  <div class="demo" style="padding:0"><img src="${shot('teammate-single.png')}" alt="A teammate card" style="width:210px"></div>
+  <div class="crew-t">
+    <h3 style="margin-top:0">Anatomy</h3>
+    <ul>
+      <li><b>The portrait</b> — a 3D character, framed from its own bounding box so no teammate is ever clipped and every one fills its frame.</li>
+      <li><b>The codename</b> in Title, 19px. It is the identity; people say Chief, not "the CEO agent".</li>
+      <li><b>The job title</b> in Lead, directly under it.</li>
+      <li><b>One line</b> saying what it does. Never two.</li>
+      <li><b>The accent</b> is the teammate's own tint, and it colours the ring when selected — never the paper.</li>
+    </ul>
+  </div>
+</div>
+<h3>A roster</h3>
+<div class="demo" style="padding:0"><img src="${shot('teammate-row.png')}" alt="Four teammate cards" style="width:100%"></div>
+<h3>Rules</h3>
+<ul>
+  <li>Each teammate keeps its character. The face is how you recognise it across the landing, the roster and the walkthrough — swapping one is renaming a colleague.</li>
+  <li>The portrait idles: a soft look left and right, a small lean, a slow bob. It never spins on a turntable.</li>
+  <li>Every animation stops under <code>prefers-reduced-motion</code>, and the canvas pauses entirely whenever a surface covers it — a scene nobody can see costs the same to draw as one they can.</li>
+  <li>Never put a control inside the portrait. The canvas takes the click and the card stops working.</li>
+</ul>
+`)}
+
+<!-- ===================================================== 13 · 3d ======= -->
+${page('Components', '3D objects', `
+<p class="lead">Six solid objects stand in for the ideas the landing has to explain. They are modelled, lit and shaded rather than drawn — the same glossy material, the same key light from the upper left, one accent colour each, on nothing.</p>
+<div class="demo" style="padding:4mm 0"><img src="${shot('icons-3d.png')}" alt="Six 3D objects" style="width:100%"></div>
+<h3>How they are used</h3>
+<ul>
+  <li>One object per section, never two in view at once. They punctuate; they do not decorate.</li>
+  <li>The colour comes from the section, not from the object. The same gear is teal here and violet elsewhere.</li>
+  <li>They spin slowly and bob. They never carry a shadow on the page — they float over their own soft halo.</li>
+  <li>They are decoration and are marked as such: pointer-transparent, <code>aria-hidden</code>, and gone below the tablet breakpoint.</li>
+  <li>They never replace a glyph. A control is labelled with a word or one of the glyphs on the next page — never with a small 3D object.</li>
+</ul>
+<h3>Why objects and not illustrations</h3>
+<p>A flat illustration set has to be commissioned, and then extended by the same hand every time the product grows a section. These are geometry: a new one is a few primitives and the same material, so the set can grow without a style drifting away from itself. It is also the same renderer that draws the teammates, so the two read as one world rather than as artwork sitting next to software.</p>
+`)}
+
+<!-- ===================================================== 14 · voice ==== -->
 ${page('Voice', 'Glyphs, motion, words', `
 <h3>Glyphs, instead of emoji</h3>
 <p>The whole permitted set. Each is a real typographic character, so it inherits the text colour, the weight and the size around it.</p>
@@ -559,8 +621,10 @@ ${page('The pack', 'What is in the pack', `
 <tr><td>logo/*.png, *@2x.png, *@3x.png</td><td>The same eight, rasterised.</td></tr>
 <tr><td>tokens/dojoburo.tokens.json</td><td>Colour, type, space, radius, shadow and motion as W3C design tokens. Imports into Tokens Studio.</td></tr>
 <tr><td>figma-plugin/</td><td>A Figma plugin that builds the library — styles and components — inside a Figma file.</td></tr>
+<tr><td>render/</td><td>The capture sheet, and the 3D stills of the teammates and objects it produces.</td></tr>
 <tr><td>build-logos.py</td><td>Regenerates every SVG from public/logo-icon-dojoburo.svg and Outfit.</td></tr>
 <tr><td>rasterise.mjs</td><td>Regenerates every PNG.</td></tr>
+<tr><td>render-3d.mjs</td><td>Recaptures the 3D stills from the running app.</td></tr>
 <tr><td>make-guidelines.mjs</td><td>Regenerates this document.</td></tr>
 </tbody></table>
 <h3>Every export carries a 10px margin</h3>

@@ -6,10 +6,11 @@ with the product — rerun the scripts and the pack is current again.
 
 | | |
 |---|---|
-| `dojoburo-brand-guidelines.pdf` | 13 pages, A4 portrait. The whole system. |
+| `dojoburo-brand-guidelines.pdf` | 15 pages, A4 portrait. The whole system. |
 | `logo/` | 8 SVG + 24 PNG. Black on white and white on black, 10px margin on every export. |
 | `tokens/dojoburo.tokens.json` | The colour, type, space, radius, shadow and motion values as W3C design tokens. |
 | `figma-plugin/` | Builds the design system inside a Figma file. |
+| `render/` | The capture sheet, and the 3D stills of the teammates and objects it produces. |
 | `src/` | The Outfit faces the scripts use. |
 
 ## About the `.fig` file
@@ -74,10 +75,31 @@ From the repo root:
 ```
 python3 brand/build-logos.py        # the 8 SVGs, from the app's icon + Outfit
 node brand/rasterise.mjs            # the 24 PNGs, at 1x / 2x / 3x
+node brand/render-3d.mjs            # the 3D stills · starts a dev server, slow
 node brand/make-guidelines.mjs      # the PDF
 node brand/figma-plugin/build.mjs   # the plugin's code.js
 node brand/figma-plugin/test-plugin.mjs   # runs the plugin against a mock Figma
 ```
+
+### The 3D pages
+
+WebGL cannot be printed — the app's own stylesheet hides every canvas in print
+media for that reason — so the teammate and 3D-object pages carry stills. They
+are stills of the real thing: `brand/render/agents.tsx` mounts the app's own
+`TeammateCard` and `Object3DInline` against the app's own stylesheet, and
+`render-3d.mjs` starts the dev server and photographs each block at 3×. Change a
+teammate card in the app and the next capture shows the change.
+
+It runs on SwiftShader here (no GPU), so it is slow — allow fifteen to twenty
+minutes, and do not put a short `timeout` in front of it. Afterwards
+`check-captures.py` counts distinct colours in each PNG and fails the run if one
+came out blank — a canvas that mounts but never draws yields a page of empty
+white card frames, which is plausible enough at thumbnail size to ship by
+accident.
+
+The capture sheet lives under `brand/` and is served by `vite` in dev only;
+`vite build` has `index.html` as its single entry, so none of it reaches the
+production bundle.
 
 `make-guidelines.mjs` measures every page against its own box and exits non-zero
 if one would print clipped, so a document that overflows never gets written.
