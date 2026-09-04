@@ -19,6 +19,11 @@ process.on('unhandledRejection', (e) => { console.log('threw: ' + (e?.message ??
 
 const br = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {})
 const p = await br.newPage({ viewport: { width: 1440, height: 950 } })
+// The private beta gate stands in front of every route · let this browser in
+// before the suite starts, so it tests the app rather than the door.
+// verify-gate.mjs is what tests the door.
+await p.addInitScript(() => { try { localStorage.setItem('dojoburo.beta', '1974') } catch { /* private window */ } })
+
 const errs = []
 p.on('pageerror', (e) => errs.push('PAGEERROR ' + e.message))
 
@@ -82,6 +87,11 @@ ok(steps.some((s) => /audience research/i.test(s)), `run: the steps are the team
 
 // mobile
 const m = await br.newPage({ viewport: { width: 390, height: 844 } })
+// The private beta gate stands in front of every route · let this browser in
+// before the suite starts, so it tests the app rather than the door.
+// verify-gate.mjs is what tests the door.
+await m.addInitScript(() => { try { localStorage.setItem('dojoburo.beta', '1974') } catch { /* private window */ } })
+
 m.on('pageerror', (e) => errs.push('M PAGEERROR ' + e.message))
 await m.goto(B + '#guide', { waitUntil: 'networkidle' })
 await m.waitForTimeout(1400)

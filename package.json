@@ -21,6 +21,7 @@
     "verify:surfaces": "node scripts/verify-surfaces.mjs",
     "verify:tutorial": "node scripts/verify-tutorial.mjs",
     "verify:companies": "node scripts/verify-companies.mjs",
+    "verify:gate": "node scripts/verify-gate.mjs",
     "verify:menu": "node scripts/verify-menu.mjs",
     "check:connectors": "node scripts/check-connectors.mjs",
     "test:resilience": "node scripts/test-resilience.mjs"

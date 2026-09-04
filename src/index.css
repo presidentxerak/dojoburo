@@ -7221,3 +7221,86 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   font-family: var(--font-mono, monospace); font-size: 11px; line-height: 1.5; color: var(--ink);
   word-break: break-word;
 }
+
+
+/* =====================================================================
+   The private beta gate.
+   Full screen, nothing behind it reachable, one card in the middle. It
+   borrows the app's own card language — white, rounded, one soft shadow —
+   so the first thing a beta tester sees already looks like the product.
+   ===================================================================== */
+.gate {
+  position: fixed; inset: 0; z-index: 9999;
+  display: grid; place-items: center; padding: 24px;
+  background: var(--bg, #fff);
+  overflow: auto;
+}
+/* a quiet field of the brand's own colours, so the screen is not a blank slab */
+.gate::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 18% 12%, color-mix(in srgb, var(--violet) 13%, transparent), transparent 70%),
+    radial-gradient(55% 45% at 85% 85%, color-mix(in srgb, var(--c-teal, #08c2ac) 12%, transparent), transparent 70%);
+}
+.gate-card {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 400px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 40px 32px 32px; border-radius: 20px;
+  background: var(--panel-solid, #fff);
+  box-shadow: 0 2px 10px rgba(30, 25, 60, .07), 0 30px 60px -34px rgba(30, 25, 60, .6);
+  animation: gateIn .34s cubic-bezier(.2, .9, .3, 1) both;
+}
+@keyframes gateIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.gate-mark { display: block; color: var(--ink); line-height: 0; }
+.gate-name { display: block; margin-top: 10px; font-size: 27px; line-height: 1; color: var(--ink); }
+.gate-title {
+  margin: 20px 0 0; font-family: var(--font-pixel); font-weight: 800;
+  font-size: 17px !important; line-height: 1.35; letter-spacing: -.005em; color: var(--ink);
+  text-wrap: balance; max-width: 22ch;
+}
+.gate-lead {
+  margin: 8px 0 0; font-family: var(--font-read); font-size: 13.5px; color: var(--muted);
+}
+.gate-input {
+  width: 100%; margin-top: 22px; padding: 14px 16px;
+  border: 1px solid var(--border) !important; border-radius: 12px;
+  background: var(--panel-solid, #fff); color: var(--ink);
+  font: inherit; font-size: 17px; text-align: center; letter-spacing: .32em;
+  transition: border-color .14s, box-shadow .14s;
+}
+.gate-input::placeholder { letter-spacing: normal; font-size: 14px; color: var(--muted); }
+.gate-input:focus { outline: none; border-color: var(--ink) !important; }
+.gate-input.wrong {
+  border-color: #e0475f !important;
+  animation: gateShake .32s ease-in-out;
+}
+@keyframes gateShake {
+  0%, 100% { transform: translateX(0); }
+  22% { transform: translateX(-6px); }
+  55% { transform: translateX(5px); }
+  80% { transform: translateX(-2px); }
+}
+/* reserved space · an error must not make the card jump */
+.gate-msg {
+  display: block; min-height: 18px; margin-top: 9px;
+  font-family: var(--font-read); font-size: 12.5px; color: transparent;
+}
+.gate-msg.on { color: #e0475f; }
+.gate-go {
+  width: 100%; margin-top: 14px; padding: 14px 20px;
+  border: 0 !important; border-radius: 12px; cursor: pointer;
+  font: inherit; font-family: var(--font-pixel); font-weight: 800; font-size: 15px;
+}
+.gate-go:disabled { opacity: .45; cursor: not-allowed; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gate-card, .gate-input.wrong { animation: none !important; }
+}
+@media (max-width: 420px) {
+  .gate-card { padding: 32px 22px 26px; border-radius: 16px; }
+  .gate-title { font-size: 16px !important; }
+}

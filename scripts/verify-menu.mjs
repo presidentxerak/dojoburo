@@ -3,6 +3,11 @@ import { chromium } from 'playwright'
 const B = 'http://localhost:4173'
 const b = await chromium.launch({ executablePath: process.env.CHROMIUM || '/opt/pw-browsers/chromium' })
 const p = await b.newPage({ viewport: { width: 1360, height: 900 } })
+// The private beta gate stands in front of every route · let this browser in
+// before the suite starts, so it tests the app rather than the door.
+// verify-gate.mjs is what tests the door.
+await p.addInitScript(() => { try { localStorage.setItem('dojoburo.beta', '1974') } catch { /* private window */ } })
+
 const out = []
 const ok = (n, c, extra = '') => out.push(`${c ? 'PASS' : 'FAIL'}  ${n}${extra ? ' · ' + extra : ''}`)
 

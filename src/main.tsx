@@ -11,6 +11,7 @@ import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
 import { usePath } from './lib/router'
 import { Boundary } from './components/Boundary'
+import { AccessGate, betaUnlocked } from './components/AccessGate'
 import './index.css'
 
 // Route ephemeral Vercel preview URLs (which change every deploy and aren't in
@@ -23,6 +24,10 @@ if (location.hostname.endsWith('.vercel.app')) {
 }
 
 function Root() {
+  // The private beta gate sits over everything until the code is entered. It is
+  // checked once on mount: unlocking sets the flag and flips this, and a return
+  // visit never sees the door at all.
+  const [open, setOpen] = useState(() => betaUnlocked())
   const [route, setRoute] = useState(() => location.hash.replace(/^#\/?/, ''))
   useEffect(() => {
     const on = () => setRoute(location.hash.replace(/^#\/?/, ''))
@@ -34,6 +39,7 @@ function Root() {
   // Academy in particular is the front door for anyone searching how agents
   // work, so every lesson has to be its own address.
   const path = usePath()
+  if (!open) return <AccessGate onOpen={() => setOpen(true)} />
   if (path === '/terms') return <Terms />
   if (path === '/privacy') return <Privacy />
   if (path === '/academy') return <AcademyHome />
