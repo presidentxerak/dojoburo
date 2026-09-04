@@ -81,6 +81,17 @@ node brand/figma-plugin/test-plugin.mjs   # runs the plugin against a mock Figma
 
 `make-guidelines.mjs` measures every page against its own box and exits non-zero
 if one would print clipped, so a document that overflows never gets written.
+
+It also refuses to write a PDF containing a soft mask. Chromium prints a blurred
+`box-shadow` as an image plus a soft mask inside a transparency group; that is
+valid PDF, but several common viewers paint the mask's bounding box instead of
+applying it, and every shadow becomes an opaque grey slab lying across the page.
+The first build of this document shipped with seventeen of them. The fix is that
+each specimen block is rendered by the browser at 3× and placed as one opaque
+JPEG — no alpha, no mask, nothing left for a viewer to get wrong — while type,
+tables, colour swatches and the logo plates stay live vector. If you add a
+component demo, put it inside a `.demo` or `.elev` block so it is flattened too;
+the build will fail loudly if you don't.
 `test-plugin.mjs` runs the plugin body against a stand-in for the Figma API that
 rejects unknown node properties and text set before its font is loaded — it
 cannot tell you the layout looks right, but it catches the errors that would

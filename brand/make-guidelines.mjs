@@ -281,7 +281,7 @@ td { padding: 1.8mm 3mm 1.8mm 0; border-bottom: 1px solid ${C.hairline}; vertica
 .tile { border-radius: 3mm; padding: 4mm; box-shadow: inset 0 0 0 1px ${C.hairline} }
 .tile b { display: block; font-weight: 800; font-size: 9.5pt; margin-bottom: 1mm }
 .tile span { font-size: 8.5pt; color: #6b6b76; line-height: 1.5 }
-.elev { display: flex; gap: 6mm; margin: 3mm 0 }
+.elev { display: flex; gap: 6mm; margin: 3mm 0; background: #fafafa; border-radius: 4mm; padding: 7mm }
 .elev > div { flex: 1; height: 22mm; border-radius: 16px; background: #fff; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3mm; font-size: 7.5pt; font-weight: 800; color: #8a8a94 }
 .e1 { box-shadow: 0 2px 10px rgba(30,25,60,.06), 0 12px 30px -22px rgba(30,25,60,.5) }
 .e2 { box-shadow: 0 4px 14px rgba(30,25,60,.08), 0 20px 40px -22px rgba(30,25,60,.55) }
@@ -293,6 +293,11 @@ td { padding: 1.8mm 3mm 1.8mm 0; border-bottom: 1px solid ${C.hairline}; vertica
 .glyphs span em { font-style: normal; font-size: 6pt; color: #8a8a94; margin-top: .5mm }
 .files { font-size: 9pt }
 .files tr td:first-child { font-family: ui-monospace, Menlo, monospace; font-size: 8pt; white-space: nowrap }
+
+/* a specimen block once it has been flattened for print · see the note in the
+   build script. The block's own padding and ground are inside the image now. */
+.flat { padding: 0 !important; background: none !important; border-radius: 0 !important; display: block !important }
+.flat img { display: block }
 </style>
 
 <!-- ===================================================== 1 · cover ===== -->
@@ -445,7 +450,7 @@ ${page('Space', 'Space, radius, elevation', `
 
 <!-- ===================================================== 9 · comps 1 === -->
 ${page('Components', 'Cards, buttons, fields', `
-<p class="lead">These are not screenshots. They are built on this page from the values on the previous pages, at their real sizes.</p>
+<p class="lead">Nothing here was drawn to look like the product. Every specimen on this page and the next two is built from the values on the previous pages, at its real size, then flattened at 3&times; for print — a blurred shadow left live turns into an opaque slab in some PDF viewers, and these pages are partly about the shadow.</p>
 <h3>Card</h3>
 <div class="demo">
   <div class="card"><b>Acme Robotics</b><span>Four teammates · running since March</span><i>Open now</i></div>
@@ -570,7 +575,8 @@ const htmlPath = join(HERE, 'dojoburo-brand-guidelines.html')
 writeFileSync(htmlPath, HTML)
 
 const br = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
-const p = await br.newPage()
+// 3x, so the specimen blocks flattened below land at ~288 DPI in the PDF
+const p = await br.newPage({ viewport: { width: 794, height: 1123 }, deviceScaleFactor: 3 })
 await p.setContent(HTML, { waitUntil: 'load' })
 await p.evaluate(() => document.fonts.ready)
 // A page is overflow:hidden, so content that does not fit is silently cut off —
@@ -590,19 +596,63 @@ const over = await p.evaluate(() => {
 })
 
 const pages = await p.evaluate(() => document.querySelectorAll('.pg').length)
-await br.close()
 
 if (over.length) {
+  await br.close()
   for (const o of over) console.error(`FAIL  page ${o.page} overflows its box by ${o.over}px — it would print clipped`)
   process.exit(1)
 }
 
-const pdf = join(HERE, 'dojoburo-brand-guidelines.pdf')
-const br2 = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
-const p2 = await br2.newPage()
-await p2.setContent(HTML, { waitUntil: 'load' })
-await p2.evaluate(() => document.fonts.ready)
-await p2.pdf({ path: pdf, format: 'A4', printBackground: true, preferCSSPageSize: true })
-await br2.close()
+// ---------------------------------------------------------------------------
+// Flatten the specimen blocks.
+//
+// Chromium prints a blurred box-shadow as an image plus a soft mask inside a
+// transparency group. Correct PDF, but several common viewers — Preview and
+// anything else on Quartz among them — paint the mask's bounding box instead of
+// applying it, and the shadow turns into an opaque grey slab lying across the
+// page. That is the overlap that showed up in the delivered file: seventeen
+// shadows, seventeen slabs.
+//
+// The document is partly *about* those shadows, so faking them flat would be
+// worse than the bug. Instead each specimen block is rendered by the browser at
+// 3x and placed as one opaque JPEG — no alpha channel, so no soft mask, so
+// nothing left for a viewer to get wrong. Only the specimen blocks are treated
+// this way; type, tables, colour and the logo plates stay live vector text.
+const blocks = await p.$$('.demo, .elev')
+for (const b of blocks) {
+  const box = await b.boundingBox()
+  const shot = await b.screenshot({ type: 'jpeg', quality: 96 })
+  await b.evaluate((el, { src, w, h }) => {
+    el.classList.add('flat')
+    const img = document.createElement('img')
+    img.src = src
+    img.style.width = `${w}px`
+    img.style.height = `${h}px`
+    el.replaceChildren(img)
+  }, { src: `data:image/jpeg;base64,${shot.toString('base64')}`, w: box.width, h: box.height })
+}
+await p.evaluate(() => Promise.all([...document.images].map((i) => i.decode().catch(() => {}))))
 
-console.log(`${pdf}\n${pages} pages · A4 portrait · Outfit embedded · no page overflows`)
+const pdf = join(HERE, 'dojoburo-brand-guidelines.pdf')
+await p.pdf({ path: pdf, format: 'A4', printBackground: true, preferCSSPageSize: true })
+await br.close()
+
+// The whole point of the flattening pass is that nothing soft-masked survives.
+// Assert it against the bytes rather than trusting that it worked.
+const bytes = readFileSync(pdf)
+const count = (re) => (bytes.toString('latin1').match(re) || []).length
+const masks = count(/\/SMask/g)
+const groups = count(/\/S\s*\/Transparency/g)
+if (masks || groups) {
+  console.error(
+    `FAIL  the PDF still carries ${masks} soft mask(s) and ${groups} transparency group(s).\n` +
+    `      Viewers that mishandle those draw each one as an opaque slab. Every blurred\n` +
+    `      shadow must sit inside a flattened .demo or .elev block.`,
+  )
+  process.exit(1)
+}
+
+console.log(
+  `${pdf}\n${pages} pages · A4 portrait · Outfit embedded · ` +
+  `${blocks.length} specimen blocks flattened at 3x · no page overflows · no soft masks`,
+)
