@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { TeamTab } from './TeamTab'
 import { createPortal } from 'react-dom'
 import { useDojo } from '../../store'
 import { exportDojoFile, importDojoFile, downloadDojo } from '../../lib/dojoFile'
@@ -26,19 +27,20 @@ import { FullScreen } from '../FullScreen'
 import { StepBar } from '../../modules/StepBar'
 import { apiFetch } from '../../lib/apiFetch'
 
-type Tab = 'studio' | 'account' | 'billing'
+type Tab = 'studio' | 'account' | 'team' | 'billing'
 
 // ---------------------------------------------------------------------------
 // Dojo settings · a FULL PAGE (route #studio), not a modal. It wears the same
 // shell as every other full-screen surface — the studio bar at the very top of
 // the screen and the round ✕ in its right corner — plus the mobile bottom bar,
 // so on a phone you can still jump to the dojo, the CEO dashboard or the city.
-// The three tabs (Dojos & agents / Account / Billing) reuse the exact same
-// panels the modal used.
+// The four tabs (Dojos & agents / Account / Your company / Billing) reuse the
+// exact same panels the modal used.
 // ---------------------------------------------------------------------------
 const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
   studio: { title: 'Dojo settings', sub: 'Build your teams, place and tune each teammate, connect their apps, and save.' },
   account: { title: 'Account', sub: 'Your profile, sign-in and identity across devices.' },
+  team: { title: 'Your company', sub: 'Who you work with, what each of them may do, and whether your work has reached them.' },
   billing: { title: 'My Credits · Billing', sub: 'Everything about money: what you have spent, your currency, your Claude key and plans.' },
 }
 
@@ -54,7 +56,7 @@ export function StudioSurface({ onClose }: { onClose: () => void }) {
   // account/billing section · the title reflects it, no tab switcher.
   const intent = useWork((s) => s.studioIntent)
   const openConnect = useWork((s) => s.openConnect)
-  const tab: Tab = intent && (intent === 'account' || intent === 'billing') ? intent : 'studio'
+  const tab: Tab = intent && (intent === 'account' || intent === 'billing' || intent === 'team') ? intent : 'studio'
   const head = STUDIO_TITLES[tab]
   return (
     <FullScreen
@@ -67,6 +69,7 @@ export function StudioSurface({ onClose }: { onClose: () => void }) {
     >
       {tab === 'studio' && <StudioTab />}
       {tab === 'account' && <AccountTab />}
+      {tab === 'team' && <TeamTab />}
       {tab === 'billing' && <BillingTab />}
     </FullScreen>
   )
@@ -126,6 +129,7 @@ export function WorkshopModal({ onClose }: { onClose: () => void }) {
           <nav className="ws-tabs">
             <button className={tab === 'studio' ? 'on' : ''} onClick={() => setTab('studio')}>Dojos & agents</button>
             <button className={tab === 'account' ? 'on' : ''} onClick={() => setTab('account')}>Account</button>
+            <button className={tab === 'team' ? 'on' : ''} onClick={() => setTab('team')}>Your company</button>
             <button className={tab === 'billing' ? 'on' : ''} onClick={() => setTab('billing')}>Billing</button>
           </nav>
           <button className="ws-x" onClick={onClose} aria-label="Close">×</button>
@@ -133,6 +137,7 @@ export function WorkshopModal({ onClose }: { onClose: () => void }) {
         <div className="ws-body">
           {tab === 'studio' && <StudioTab />}
           {tab === 'account' && <AccountTab />}
+          {tab === 'team' && <TeamTab />}
           {tab === 'billing' && <BillingTab />}
         </div>
       </div>

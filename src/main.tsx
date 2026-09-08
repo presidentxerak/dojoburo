@@ -74,7 +74,11 @@ function Root() {
   if (!open) return <AccessGate onOpen={() => setOpen(true)} />
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
-  if (route === 'app') return <App />
+  // An invitation link is `#join=<token>`, and it arrives cold — the person
+  // clicking it has never opened this app. It has to land in the app, because
+  // that is where the token is redeemed; falling through to the landing page
+  // would drop the invitation on the floor and tell them nothing.
+  if (route === 'app' || route.startsWith('join=')) return <App />
   // Dojo Academy · opened from inside the app · stays in the dojo environment
   // (dojo header + Back-to-dojo) instead of the landing page.
   if (route === 'academy') return <AcademyHome inApp />

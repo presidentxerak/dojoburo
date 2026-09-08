@@ -13,3 +13,6 @@ npm-debug.log*
 !.env.example
 !.env.starter
 .vercel
+
+# scratch bundles from scripts/test-team-e2e.mjs (kept in-repo so `pg` resolves)
+node_modules/.dojo-e2e/

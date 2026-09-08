@@ -12,8 +12,10 @@ trailing slash).
 ## 0. Verified in code (no action needed)
 
 - **Code ↔ DB schema match**: every SQL statement in `api/` matches the tables and
-  columns created by `db/schema.sql` + `db/connectors.sql`. No column/table
-  mismatch → no DB runtime errors.
+  columns created by `db/schema.sql` + `db/connectors.sql` + `db/orgs.sql`. No
+  column/table mismatch → no DB runtime errors. `scripts/test-orgs.mjs` and
+  `scripts/test-sync.mjs` apply those files and exercise them against a real
+  Postgres; point `TEST_DATABASE_URL` at a throwaway database to run them.
 - **Runtime deps present**: `pg` (Postgres) and `xrpl` are installed. Stripe is
   called over raw HTTP with a Web-Crypto signature check — no `stripe` SDK
   needed, so nothing is missing.
@@ -27,6 +29,15 @@ trailing slash).
 |---|---|---|
 | Settlement schema | run `db/schema.sql` | ✅ applied (credit_ledger tested) |
 | Connectors schema | run `db/connectors.sql` | ⬜ apply this (adds `client_ref`, `connections`, `work_usage`) |
+| Organisations + sync | run `db/orgs.sql` | ⬜ apply this (adds `organisations`, `org_members`, `org_invites`, `org_docs`, `org_doc_revisions`, and `org_id` on `connections`) |
+
+Until `db/orgs.sql` is applied, `/api/org` and `/api/docs` answer
+`{ok:false,error:'no_backend'}` and the app stays exactly the single-player,
+browser-only product it was — nothing breaks, nothing syncs. Applying it is what
+turns a company into something two people can share. There is no backfill: every
+existing account becomes an organisation of one, created the first time it is
+needed, and the documents already in someone's browser are offered to it on
+their next visit.
 | Lock tables (Supabase) | `enable row level security` on all 7 tables + `alter view account_balances set (security_invoker = on)` | ⬜ recommended |
 
 The app connects as the `postgres` role via `DATABASE_URL`, which **bypasses RLS**,

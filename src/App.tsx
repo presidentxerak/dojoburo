@@ -22,6 +22,9 @@ import { privyConfigured } from './auth/controls'
 import { AuthGate } from './auth/AuthGate'
 import { StudioSurface } from './components/workshop/WorkshopModal'
 import { ConnectorsSurface } from './components/ConnectorsPage'
+import { startSync, stopSync, pullChanges, drain, resetSync } from './lib/sync'
+import { apiFetch } from './lib/apiFetch'
+import { refParams } from './agents/workApi'
 
 export default function App() {
   const fireEvent = useDojo((s) => s.fireEvent)
@@ -77,6 +80,71 @@ export default function App() {
     if (selected) setDojoFull(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected])
+
+  // Keep this company in step with the rest of the organisation.
+  //
+  // The browser's own copy stays the thing the app reads — this only adds a
+  // second copy on the server, so a company survives a cleared cache, a new
+  // laptop and a colleague. With no database configured it finds out on the
+  // first request and stops, and the app is exactly the single-player one it
+  // has always been.
+  useEffect(() => {
+    startSync()
+    return () => stopSync()
+  }, [])
+
+  // Signing in is the moment there is an account to sync UNDER. Before it, every
+  // request is refused for having no identity and the sync sits at "off" until
+  // the next poll — half a minute of a screen saying this company lives in this
+  // browser only, right after the person did the thing that made it untrue.
+  const syncAccount = useWorkshop((s) => s.account?.id)
+  useEffect(() => {
+    if (!syncAccount) return
+    void pullChanges().then(() => drain())
+  }, [syncAccount])
+
+  // An invitation is a link. Opening it joins the company it was issued for,
+  // then the token is scrubbed from the address bar so it is not left sitting
+  // in history, or in whatever the next page sends as a referrer.
+  useEffect(() => {
+    // On mount AND on every hash change. Someone who already has the app open
+    // and pastes an invitation into the address bar changes only the hash — the
+    // page does not reload and a mount-only effect would never see it, which
+    // looks exactly like an invitation that silently does nothing.
+    const claim = () => {
+      const m = window.location.hash.match(/[#&]join=([A-Za-z0-9_-]+)/)
+      if (!m) return
+      history.replaceState(null, '', window.location.pathname + window.location.search)
+      void redeem(m[1])
+    }
+    claim()
+    window.addEventListener('hashchange', claim)
+    return () => window.removeEventListener('hashchange', claim)
+
+    async function redeem(token: string) {
+      const r = await apiFetch(`/api/org?action=accept&${refParams()}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token }),
+      }).then((x) => x.json()).catch(() => ({ ok: false, error: 'offline' }))
+
+      const t = useDojo.getState().pushToast
+      if (r.ok) {
+        t({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'You joined ' + (r.org?.name || 'the company'), text: 'Their companies are on their way to this browser.' })
+        await resetSync()          // this browser's old bookmarks belong to a different company
+        void pullChanges()
+      } else {
+        const why: Record<string, string> = {
+          unknown: 'That invitation has already been used, or was revoked.',
+          expired: 'That invitation has expired. Ask for a new one.',
+          already_member: 'You are already in that company.',
+          has_work: 'You already have a company with work in it. Ask them to invite the account you want to use.',
+          offline: 'Could not reach the server. Try the link again.',
+        }
+        t({ kind: 'event', badge: '!', color: '#d9822b', title: 'Could not join', text: why[r.error] || 'That invitation did not work.' })
+      }
+    }
+  }, [])
 
   // OAuth return from a tool connect: surface a toast + refresh connections
   useEffect(() => {

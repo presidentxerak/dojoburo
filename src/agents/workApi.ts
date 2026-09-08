@@ -27,7 +27,7 @@ function ref(): { privy?: string; client?: string } {
   return { privy: acc?.privyDid || undefined, client: acc?.id || undefined }
 }
 
-function refParams(): string {
+export function refParams(): string {
   const r = ref()
   const p = new URLSearchParams()
   if (r.privy) p.set('privy', r.privy)

@@ -58,14 +58,52 @@ export async function idbGet<T = unknown>(store: StoreName, key: string): Promis
   try { return await tx<T>(store, 'readonly', (s) => s.get(key) as IDBRequest<T>) } catch { return undefined }
 }
 
+/* --------------------------------------------------------------- observers */
+// Company documents now also live on the server, so every write to `projects`
+// has to be offered to the organisation. The sync layer registers itself here
+// rather than being imported: idb is the lower layer and must keep working with
+// nothing above it — which is exactly what happens with no database configured,
+// or offline, or before anyone signs in.
+type Observer = (key: string, gone: boolean) => void
+let observer: Observer | null = null
+
+/** Watch writes to the `projects` store. One observer; the sync layer owns it. */
+export function observeProjects(fn: Observer | null): void { observer = fn }
+
+const notify = (store: StoreName, key: string, gone: boolean) => {
+  if (store !== 'projects' || !observer) return
+  // A failing observer must never turn a successful local write into an error —
+  // the local copy is the one the person is looking at.
+  try { observer(key, gone) } catch { /* the sync will catch up on its next pass */ }
+}
+
 /** Write one value under a key (overwrites). */
 export async function idbSet(store: StoreName, key: string, value: unknown): Promise<boolean> {
   if (!idbAvailable()) return false
-  try { await tx(store, 'readwrite', (s) => s.put(value as any, key)); return true } catch { return false }
+  try {
+    await tx(store, 'readwrite', (s) => s.put(value as any, key))
+    notify(store, key, false)
+    return true
+  } catch { return false }
 }
 
 /** Delete one value. */
 export async function idbDel(store: StoreName, key: string): Promise<void> {
+  if (!idbAvailable()) return
+  try {
+    await tx(store, 'readwrite', (s) => s.delete(key) as unknown as IDBRequest<void>)
+    notify(store, key, true)
+  } catch { /* ignore */ }
+}
+
+/** Write without telling the sync layer · for applying what the server just sent. */
+export async function idbSetQuiet(store: StoreName, key: string, value: unknown): Promise<boolean> {
+  if (!idbAvailable()) return false
+  try { await tx(store, 'readwrite', (s) => s.put(value as any, key)); return true } catch { return false }
+}
+
+/** Delete without telling the sync layer · same reason. */
+export async function idbDelQuiet(store: StoreName, key: string): Promise<void> {
   if (!idbAvailable()) return
   try { await tx(store, 'readwrite', (s) => s.delete(key) as unknown as IDBRequest<void>) } catch { /* ignore */ }
 }
