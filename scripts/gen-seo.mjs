@@ -36,6 +36,44 @@ const bundled = await build({
 const mod = await import('data:text/javascript;base64,' + Buffer.from(bundled.outputFiles[0].text).toString('base64'))
 const { TRACKS, ALL_LESSONS, LESSON_COUNT, TOTAL_MINUTES } = mod
 
+// The roster, the same way. roleAgents.ts pulls in a Department type from
+// agents.ts, which esbuild resolves; nothing here is duplicated from the app.
+const rolesBundle = await build({
+  entryPoints: [path.join(ROOT, 'src/data/roleAgents.ts')],
+  bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
+})
+const roleMod = await import('data:text/javascript;base64,' + Buffer.from(rolesBundle.outputFiles[0].text).toString('base64'))
+const { PUBLIC_AGENTS } = roleMod
+
+// Each agent's public profile comes from the context file it actually runs on,
+// so the crawled page and the running agent cannot describe different things.
+// This is the same parse as src/data/agentProfile.ts — kept here rather than
+// imported because that module reads the files through Vite's import.meta.glob,
+// which does not exist in node. The shape is asserted below, so a drift in
+// either direction fails the build instead of silently emptying a page.
+function ctxSections(md) {
+  const out = {}
+  const re = /^## +(.+?)[ \t]*$\n([\s\S]*?)(?=^## |(?![\s\S]))/gm
+  let m
+  while ((m = re.exec(md))) out[m[1].trim().toLowerCase()] = m[2].trim()
+  return out
+}
+const ctxBullets = (s) => s.split('\n').map((l) => l.trim()).filter((l) => l.startsWith('- ')).map((l) => l.slice(2).trim()).filter(Boolean)
+const ctxProse = (s) => s.split(/\n{2,}/)[0].replace(/\s*\n\s*/g, ' ').trim()
+
+function profileFor(roleId) {
+  const f = path.join(ROOT, 'src/data/contexts', `${roleId}.md`)
+  if (!fs.existsSync(f)) return null
+  const s = ctxSections(fs.readFileSync(f, 'utf8'))
+  return {
+    mission: ctxProse(s.mission || s.identity || ''),
+    expertise: ctxBullets(s.expertise || ''),
+    output: ctxProse(s.output || ''),
+    worksWith: ctxProse(s['works with'] || ''),
+    boundaries: ctxBullets(s.boundaries || ''),
+  }
+}
+
 const esc = (s) => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
@@ -47,6 +85,8 @@ const urls = [
   { loc: '/academy', pri: '0.9', freq: 'weekly' },
   ...TRACKS.map((t) => ({ loc: `/academy/${t.slug}`, pri: '0.8', freq: 'monthly' })),
   ...ALL_LESSONS.map(({ track, lesson }) => ({ loc: `/academy/${track.slug}/${lesson.slug}`, pri: '0.8', freq: 'monthly' })),
+  { loc: '/teammates', pri: '0.9', freq: 'weekly' },
+  ...PUBLIC_AGENTS.map((r) => ({ loc: `/${r.slug}`, pri: '0.8', freq: 'monthly' })),
   { loc: '/guide', pri: '0.6', freq: 'monthly' },
   { loc: '/terms', pri: '0.2', freq: 'yearly' },
   { loc: '/privacy', pri: '0.2', freq: 'yearly' },
@@ -178,4 +218,83 @@ ${TRACKS.map((t) => `<section><h2><a href="/academy/${t.slug}">${esc(t.label)}</
   pages++
 }
 
-console.log(`gen-seo · sitemap with ${urls.length} urls · ${pages} prerendered Academy pages`)
+// --- 3 · a prerendered page per job title -----------------------------------
+// A codename is unsearchable. These pages are addressed by the job a business
+// recruits for — /ai-marketing-manager — and carry the agent's real brief, so
+// what ranks and what runs are the same thing.
+let roles = 0
+for (const r of PUBLIC_AGENTS) {
+  const p = profileFor(r.id)
+  if (!p) {
+    console.error(`gen-seo: ${r.id} is public but ships no context file · src/data/contexts/${r.id}.md`)
+    process.exit(1)
+  }
+  if (!p.mission || !p.expertise.length || !p.output) {
+    console.error(`gen-seo: ${r.id}.md is missing Mission, Expertise or Output · its page would be empty`)
+    process.exit(1)
+  }
+
+  const canonical = `${SITE}/${r.slug}`
+  const description = `${r.public} for your business. ${r.desc} Works alongside the rest of your AI team inside DojoBuro.`
+  const body = `<article>
+<nav><a href="/">DojoBuro</a> › <a href="/teammates">Teammates</a> › ${esc(r.dept)}</nav>
+<h1>${esc(r.public)}</h1>
+<p>Its name is ${esc(r.code)}, and it is one of eighteen teammates you can put in a company.</p>
+<p>${esc(p.mission)}</p>
+<section><h2>What it knows</h2><ul>${p.expertise.map((e) => `<li>${esc(e)}</li>`).join('')}</ul></section>
+<section><h2>What you get back</h2><p>${esc(p.output)}</p></section>
+${r.apps.length ? `<section><h2>Apps it works in</h2><ul>${r.apps.map((a) => `<li>${esc(a)}</li>`).join('')}</ul></section>` : ''}
+<section><h2>Who it works with</h2><p>${esc(p.worksWith)}</p></section>
+${p.boundaries.length ? `<section><h2>What it will not do</h2><ul>${p.boundaries.map((b) => `<li>${esc(b)}</li>`).join('')}</ul></section>` : ''}
+<section><h2>The rest of the team</h2><ul>${PUBLIC_AGENTS.filter((o) => o.id !== r.id).map((o) => `<li><a href="/${o.slug}">${esc(o.public)}</a></li>`).join('')}</ul></section>
+</article>`
+
+  const html = head(shell, {
+    title: `${r.public} · DojoBuro`,
+    description,
+    canonical, type: 'website',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: `${r.public} · DojoBuro`,
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      description: p.mission,
+      url: canonical,
+      featureList: p.expertise,
+      inLanguage: 'en',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      provider: { '@type': 'Organization', name: 'DojoBuro', url: SITE },
+    },
+  }).replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+  write(r.slug, html)
+  roles++
+}
+
+{
+  const canonical = `${SITE}/teammates`
+  const byDept = [...new Set(PUBLIC_AGENTS.map((r) => r.dept))]
+  const body = `<article>
+<nav><a href="/">DojoBuro</a></nav>
+<h1>One teammate for every job</h1>
+<p>${PUBLIC_AGENTS.length} specialists, grouped the way a business is. Each has its own brief, its own apps and its own limits — and Chief coordinates them so you brief one teammate, not ${PUBLIC_AGENTS.length}.</p>
+${byDept.map((d) => `<section><h2>${esc(d)}</h2><ul>${PUBLIC_AGENTS.filter((r) => r.dept === d).map((r) => `<li><a href="/${r.slug}">${esc(r.public)}</a> — ${esc(r.desc)}</li>`).join('')}</ul></section>`).join('\n')}
+</article>`
+  const html = head(shell, {
+    title: `AI teammates for every department · DojoBuro`,
+    description: `${PUBLIC_AGENTS.length} AI teammates you can hire into a company: marketing, sales, support, engineering, finance, legal, brand and more. Each one runs real work in your own connected apps.`,
+    canonical, type: 'website',
+    jsonLd: {
+      '@context': 'https://schema.org', '@type': 'ItemList',
+      name: 'DojoBuro AI teammates', url: canonical,
+      numberOfItems: PUBLIC_AGENTS.length,
+      itemListElement: PUBLIC_AGENTS.map((r, i) => ({
+        '@type': 'ListItem', position: i + 1, name: r.public, url: `${SITE}/${r.slug}`,
+      })),
+    },
+  }).replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+  write('teammates', html)
+  roles++
+}
+
+console.log(`gen-seo · sitemap with ${urls.length} urls · ${pages} prerendered Academy pages · ${roles} teammate pages`)

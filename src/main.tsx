@@ -9,6 +9,7 @@ import { WidgetApp } from './WidgetApp'
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
+import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
 import { usePath } from './lib/router'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
@@ -24,9 +25,18 @@ if (location.hostname.endsWith('.vercel.app')) {
 }
 
 function Root() {
-  // The private beta gate sits over everything until the code is entered. It is
-  // checked once on mount: unlocking sets the flag and flips this, and a return
-  // visit never sees the door at all.
+  // The private beta gate. It closes the PRODUCT, not the website.
+  //
+  // It used to sit above every route, which quietly cost us the thing the
+  // Academy and the teammate pages exist for: a crawler that runs JavaScript —
+  // Googlebot does — saw a password prompt where the prerendered HTML had a
+  // page, so twenty-six lessons and seventeen job titles were published and
+  // unindexable at the same time. Worse, the two versions disagreed, which is
+  // the shape of cloaking whether or not you meant it.
+  //
+  // "Private beta" means nobody can USE it yet. It never meant nobody can read
+  // what it is. So the marketing surface below — landing, teammates, Academy,
+  // guide, terms, privacy — is open, and the door is in front of the app.
   const [open, setOpen] = useState(() => betaUnlocked())
   const [route, setRoute] = useState(() => location.hash.replace(/^#\/?/, ''))
   useEffect(() => {
@@ -39,7 +49,8 @@ function Root() {
   // Academy in particular is the front door for anyone searching how agents
   // work, so every lesson has to be its own address.
   const path = usePath()
-  if (!open) return <AccessGate onOpen={() => setOpen(true)} />
+
+  // ---- public · no gate ----------------------------------------------------
   if (path === '/terms') return <Terms />
   if (path === '/privacy') return <Privacy />
   if (path === '/academy') return <AcademyHome />
@@ -50,6 +61,17 @@ function Root() {
   if (path === '/guide') return <GuidePage />
   const gm = path.match(/^\/guide\/([a-z0-9-]+)$/i)
   if (gm) return <ConnectorGuidePage id={gm[1].toLowerCase()} />
+  // the job-title pages · /ai-marketing-manager and the rest, plus their hub
+  if (path === '/teammates') return <TeammatesPage />
+  const slug = path.replace(/^\//, '').toLowerCase()
+  if (isTeammateSlug(slug)) return <TeammatePage slug={slug} />
+  // The landing is a marketing page and is read without the code. Its call to
+  // action sets #app, which is where the door actually is — you can read what
+  // Dojoburo does, and you need the code to use it.
+  if (!route) return <Landing enter={() => { location.hash = 'app' }} />
+
+  // ---- the product · gated -------------------------------------------------
+  if (!open) return <AccessGate onOpen={() => setOpen(true)} />
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
   if (route === 'widget') return <WidgetApp />
   if (route === 'app') return <App />

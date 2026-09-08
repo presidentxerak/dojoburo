@@ -24,6 +24,12 @@ export interface RoleAgent {
   code: string
   /** Job title · the small subtitle under the codename. */
   title: string
+  /** The job title a business recruits for — "AI Marketing Manager". This is
+   *  what the public pages are named by. Absent for agents that are not a role
+   *  anyone hires (see PUBLIC_TITLES). */
+  public?: string
+  /** The public page's address, derived from `public`. */
+  slug?: string
   /** One-line description. */
   desc: string
   tint: string
@@ -150,10 +156,56 @@ const SPECS: Spec[] = [
   },
 ]
 
+// ---------------------------------------------------------------------------
+// The public job title.
+//
+// Inside the app an agent is its codename: people say "ask Chief", not "ask the
+// orchestration agent", and that is the identity worth keeping. Outside the app
+// a codename is unsearchable — nobody types "Marketus" into Google, and nobody
+// puts it on an org chart. So every agent also carries the job title a business
+// actually recruits for, and that title is what the public pages are named and
+// addressed by.
+//
+// Both are true and both are used: the marketing surface leads with the job
+// title, the product leads with the codename.
+//
+// Kaizen has no entry on purpose. It looks after THIS app's health, which is
+// not a role a business hires for; giving it a job-title page would advertise a
+// vacancy nobody has.
+const PUBLIC_TITLES: Record<string, string> = {
+  chief: 'AI Chief of Staff',
+  brandi: 'AI Brand Manager',
+  weblos: 'AI Web Designer',
+  devi: 'AI Engineering Manager',
+  marketus: 'AI Marketing Manager',
+  pumpi: 'AI Sales Manager',
+  nexa: 'AI Communications Manager',
+  helpi: 'AI Customer Support Manager',
+  busino: 'AI Business Analyst',
+  vaultor: 'AI Billing Manager',
+  legi: 'AI Legal Assistant',
+  sentinel: 'AI Security Analyst',
+  scout: 'AI Research Analyst',
+  scribe: 'AI Content Writer',
+  deck: 'AI Presentation Designer',
+  pixel: 'AI Graphic Designer',
+  pilot: 'AI Project Manager',
+}
+
+/** `AI Marketing Manager` → `ai-marketing-manager`, which is the page's address. */
+export const titleSlug = (t: string) =>
+  t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
 export const ROLE_AGENTS: RoleAgent[] = SPECS.map((s) => ({
   ...s, core: s.core !== false, apps: s.apps ?? [],
+  public: PUBLIC_TITLES[s.id], slug: PUBLIC_TITLES[s.id] ? titleSlug(PUBLIC_TITLES[s.id]) : undefined,
   name: s.code, role: s.id, cat: s.title, blurb: s.desc,
 }))
+
+/** The agents that have a public job-title page, in roster order. */
+export const PUBLIC_AGENTS: RoleAgent[] = ROLE_AGENTS.filter((r) => !!r.slug)
+export const ROLE_BY_SLUG: Record<string, RoleAgent> =
+  Object.fromEntries(PUBLIC_AGENTS.map((r) => [r.slug as string, r]))
 
 export const ROLE_BY_ID: Record<string, RoleAgent> = Object.fromEntries(ROLE_AGENTS.map((r) => [r.id, r]))
 export const ROLE_IDS: string[] = ROLE_AGENTS.map((r) => r.id)

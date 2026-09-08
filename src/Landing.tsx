@@ -168,6 +168,9 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-ico" style={{ background: C.blue }}><AsciiIcon kind="build" /></span>
         <h2>Build your own team</h2>
         <p className="lp-lead">Every company ships with {CREW_WORD} teammates · hide the ones you don't need and <b>create your own custom agents</b> (name, job title, colour, apps, a task list and a private notepad) right from the CEO dashboard. Pick from {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, set a per-agent budget, and rearrange the whole team on the dojo grid · tap an agent, tap a cell, and the 3D office reseats live. Press <kbd className="lp-kbd">Cmd/Ctrl&nbsp;K</kbd> anytime to jump to any agent, page or action.</p>
+        {/* The public roster. A real link, not a button: these pages are meant
+            to be found and shared, so they need to be crawlable from here. */}
+        <p className="lp-lead"><a href="/teammates">Meet every teammate by job title →</a></p>
         <div className="lp-schema">
           <div className="lp-node"><b>Create</b><span>12 presets + your own custom agents</span></div>
           <span className="lp-arrow">→</span>

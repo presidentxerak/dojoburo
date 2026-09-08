@@ -17,7 +17,7 @@ let fails = 0
 const ok = (c, m) => { console.log((c ? 'ok    ' : 'FAIL  ') + m); if (!c) fails++ }
 process.on('unhandledRejection', (e) => { console.log('threw: ' + (e?.message ?? e)); process.exit(1) })
 
-const br = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {})
+const br = await chromium.launch({ executablePath: process.env.CHROMIUM || '/opt/pw-browsers/chromium' })
 const p = await br.newPage({ viewport: { width: 1440, height: 950 } })
 // The private beta gate stands in front of every route · let this browser in
 // before the suite starts, so it tests the app rather than the door.

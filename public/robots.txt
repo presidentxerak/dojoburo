@@ -9,6 +9,7 @@ Sitemap: https://www.dojoburo.com/sitemap.xml
 User-agent: *
 Allow: /
 Allow: /academy
+Allow: /teammates
 Disallow: /api/
 Disallow: /widget
 
