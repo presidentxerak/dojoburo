@@ -36,7 +36,8 @@ const serverSrc = read('api/_lib/connectors.ts')
 const toolDataSrc = read('api/tool-data.ts')
 const toolActionSrc = read('api/tool-action.ts')
 
-// The server registry is one object literal · read its top-level keys.
+// The server registry is two object literals now — the OAuth apps and the
+// key-based connectors — so both are read.
 const regBody = serverSrc.slice(serverSrc.indexOf('const REGISTRY'))
 const serverIds = new Set([...regBody.matchAll(/^ {2}'?([a-z0-9-]+)'?:\s*\{/gm)].map((m) => m[1]))
 
@@ -46,17 +47,51 @@ const envRead = new Set([...serverSrc.matchAll(/'([A-Z][A-Z0-9_]{3,})'/g)].map((
 // Which connectors can do something at run time.
 const providers = new Set([...toolDataSrc.matchAll(/^ {2}([a-z0-9-]+):\s*\w+Data,/gm)].map((m) => m[1]))
 const actions = new Set([...toolActionSrc.matchAll(/connector === '([a-z0-9-]+)'/g)].map((m) => m[1]))
-const hasMcp = new Set([...regBody.matchAll(/mcp\('([a-z0-9-]+)'/g)].map((m) => m[1]))
+// A connector "has MCP" only when there is somewhere to SEND the request. Every
+// entry calls mcp(), and most of them pass null — an endpoint the operator may
+// point at a hub one day. Counting those as reach is how a catalogue starts
+// claiming forty-five working integrations while eleven of them have no URL.
+const hasMcp = new Set(
+  [...regBody.matchAll(/mcp\('([a-z0-9-]+)',\s*([^,]+),/g)]
+    .filter((m) => m[2].trim() !== 'null')
+    .map((m) => m[1]),
+)
 
-// Thirteen connectors are in the picker but have no server entry, so no OAuth
-// handshake, no vault row and nothing to call at run time. They are listed here
-// rather than quietly failing the build, so the gap is visible and shrinks on
-// purpose: remove an id the day it is wired, and the build starts guarding it.
-// A connector that breaks and is NOT on this list fails the build immediately.
-const KNOWN_UNWIRED = new Set([
+// A key-based connector the founder can actually fill in: it has a token config,
+// which means the key is validated, sealed and stored. That is real, and it is
+// not the same as having something to call — both are reported.
+const keyBased = new Set(
+  [...serverSrc.slice(serverSrc.indexOf('const TOKENS')).matchAll(/^ {2}'?([a-z0-9-]+)'?:\s*\{/gm)].map((m) => m[1]),
+)
+
+// Three states, because there are three.
+//
+// This script used to know two — "ready" and "not wired" — and counted a
+// connector as reachable the moment its registry entry called mcp(), including
+// the many that pass a null URL. So thirty-one connectors read as fully wired
+// while eleven of them had an OAuth handshake, a sealed token, and nowhere on
+// earth to send a request. A founder could connect Shopify and watch nothing
+// happen, and no gate said a word.
+//
+//   ready       · a credential can be obtained AND there is somewhere to send it
+//   credential  · the credential works, the endpoint does not exist yet
+//   unwired     · no server entry at all
+//
+// CREDENTIAL_ONLY is the honest middle, and it is a baseline rather than a
+// silence: remove an id the day its endpoint exists and the build starts
+// guarding it. Anything that regresses OUT of ready fails immediately.
+const CREDENTIAL_ONLY = new Set([
+  // key-based · the founder pastes their own key, then it needs an endpoint
   'claude-code', 'trello', 'ai-video', 'elevenlabs', 'heygen', 'apollo',
-  'klaviyo', 'ga4', 'posthog', 'supabase', 'cloudinary', 'wave', 'perplexity',
+  'klaviyo', 'posthog', 'cloudinary', 'wave', 'perplexity',
+  // OAuth · these have always been in this state; nothing here is a new gap,
+  // it is the same gap finally being counted
+  'zoom', 'jira', 'asana', 'airtable', 'shopify', 'figma', 'canva',
+  'gclassroom', 'salesforce', 'whatsapp', 'meta',
 ])
+
+/** Connectors with no server entry whatsoever. Empty, and it must stay empty. */
+const UNWIRED = new Set([])
 
 let bad = 0, warn = 0, baseline = 0
 const rows = []
@@ -65,7 +100,7 @@ for (const c of CONNECTORS) {
   const problems = []
   const notes = []
 
-  if (!serverIds.has(c.id)) { problems.push('no server entry (OAuth + vault cannot work)'); }
+  if (!serverIds.has(c.id)) problems.push('no server entry (no credential can be stored)')
 
   // the setup page promises these env vars · the server must read them
   for (const e of c.env ?? []) {
@@ -80,22 +115,25 @@ for (const c of CONNECTORS) {
     providers.has(c.id) && 'data',
     actions.has(c.id) && 'action',
   ].filter(Boolean)
-  if (!reach.length) problems.push('nothing to do at run time (no MCP, no data provider, no action)')
+  if (!reach.length) {
+    problems.push(`credential only · nothing to call yet (set ${c.id.toUpperCase().replace(/-/g, '_')}_MCP_URL, or add a data provider)`)
+  }
 
   if (problems.length) {
-    if (KNOWN_UNWIRED.has(c.id)) baseline++
+    if (CREDENTIAL_ONLY.has(c.id) || UNWIRED.has(c.id)) baseline++
     else bad++
   } else if (notes.length) warn++
   rows.push({ id: c.id, label: c.label, auth: c.auth, reach: reach.join('+') || '—', problems, notes })
 }
 
-// The app marks unwired connectors so the UI can be honest about them. That flag
-// and this list are two records of the same fact, so they are compared here.
+// The app marks connectors it cannot yet act through, so the picker can be
+// honest about them. That flag and the baseline above are two records of the
+// same fact, so they are compared here.
 for (const c of CONNECTORS) {
   const flagged = !!c.unwired
-  const known = KNOWN_UNWIRED.has(c.id)
-  if (flagged && !known) { console.log(`FAIL  "${c.id}" is flagged unwired in the app but not listed here`); bad++ }
-  if (known && !flagged) { console.log(`FAIL  "${c.id}" is unwired but the app does not say so · set unwired: true`); bad++ }
+  const known = CREDENTIAL_ONLY.has(c.id) || UNWIRED.has(c.id)
+  if (flagged && !known) { console.log(`FAIL  "${c.id}" is flagged unwired in the app but is wired here`); bad++ }
+  if (known && !flagged) { console.log(`FAIL  "${c.id}" cannot act yet but the app does not say so · set unwired: true`); bad++ }
 }
 
 // A role must not point at an app that is not in the registry (already covered
@@ -113,7 +151,7 @@ console.log(`\n${pad('CONNECTOR', 16)}${pad('AUTH', 7)}${pad('RUN-TIME', 14)}STA
 console.log('-'.repeat(72))
 for (const r of rows) {
   const status = r.problems.length
-    ? (KNOWN_UNWIRED.has(r.id) ? 'not wired yet (known) · ' + r.problems[0] : 'BROKEN · ' + r.problems[0])
+    ? ((CREDENTIAL_ONLY.has(r.id) || UNWIRED.has(r.id)) ? r.problems[0] : 'BROKEN · ' + r.problems[0])
     : r.notes.length ? 'check · ' + r.notes[0]
     : 'ready'
   console.log(`${pad(r.id, 16)}${pad(r.auth, 7)}${pad(r.reach, 14)}${status}`)
@@ -121,13 +159,17 @@ for (const r of rows) {
 
 const ready = rows.filter((r) => !r.problems.length && !r.notes.length).length
 console.log('-'.repeat(72))
-console.log(`${rows.length} connectors · ${ready} fully wired · ${baseline} not wired yet (known) · ${warn} to check · ${bad} newly broken`)
+console.log(`${rows.length} connectors · ${ready} ready · ${baseline} credential-only · ${warn} to check · ${bad} newly broken`)
 console.log(`run-time reach · ${[...hasMcp].length} MCP · ${[...providers].length} live-data · ${[...actions].length} write actions`)
+console.log(`${[...keyBased].length} connectors take a key the founder pastes · no operator setup needed`)
 
-for (const id of KNOWN_UNWIRED) {
+// A baseline that stops being true is a baseline that must shrink. The day a
+// connector gets an endpoint, this makes the build say so rather than letting
+// the list quietly overstate the gap for another year.
+for (const id of [...CREDENTIAL_ONLY, ...UNWIRED]) {
   const r = rows.find((x) => x.id === id)
   if (r && !r.problems.length) {
-    console.log(`FAIL  "${id}" is wired now · take it off KNOWN_UNWIRED so the build guards it`)
+    console.log(`FAIL  "${id}" can act now · take it off the baseline so the build guards it`)
     bad++
   }
 }

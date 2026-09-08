@@ -93,9 +93,14 @@ async function start(req: IncomingMessage, res: ServerResponse, q: URLSearchPara
 
   // PKCE (RFC 7636): generate a URL-safe code_verifier and carry it through the
   // signed (HMAC'd) state so callback can complete the exchange.
+  // A key-based connector has no authorize URL to send anyone to. Reaching
+  // this route for one is a bug in the caller, not something to redirect into.
+  if (!c.oauth) return backTo(res, `${siteUrl()}/#connect_error=${id}:needs_key`)
+  const oauth = c.oauth
+
   let verifier = ''
-  const auth = new URL(c.oauth.authorizeUrl)
-  if (c.oauth.pkce) {
+  const auth = new URL(oauth.authorizeUrl)
+  if (oauth.pkce) {
     verifier = b64u(randomBytes(32))
     const challenge = b64u(createHash('sha256').update(verifier).digest())
     auth.searchParams.set('code_challenge', challenge)
@@ -106,9 +111,9 @@ async function start(req: IncomingMessage, res: ServerResponse, q: URLSearchPara
   auth.searchParams.set('client_id', clientId(c)!)
   auth.searchParams.set('redirect_uri', redirectUri())
   auth.searchParams.set('response_type', 'code')
-  if (c.oauth.scope) auth.searchParams.set('scope', c.oauth.scope)
+  if (oauth.scope) auth.searchParams.set('scope', oauth.scope)
   auth.searchParams.set('state', state)
-  for (const [k, v] of Object.entries(c.oauth.extraAuthorize || {})) auth.searchParams.set(k, v)
+  for (const [k, v] of Object.entries(oauth.extraAuthorize || {})) auth.searchParams.set(k, v)
 
   res.statusCode = 302
   res.setHeader('location', auth.toString())
@@ -196,7 +201,20 @@ async function disconnect(req: IncomingMessage, res: ServerResponse): Promise<vo
   }
 }
 
-// ---- BYOK: the user's own Claude key --------------------------------------
+// ---- BYOK: a key the founder holds themselves ------------------------------
+//
+// This used to accept the Claude key and nothing else, which is why thirteen
+// connectors in the catalogue sat at "not wired yet": ElevenLabs, Perplexity,
+// PostHog and the rest are not OAuth apps waiting on an operator to register
+// them — they are keys the founder already has, with nowhere to put them.
+//
+// The connector's own entry decides what a valid key looks like and what the
+// app may show afterwards, so a typo is refused here rather than three days
+// later on a run. The key itself is sealed with AES-256-GCM and never returned
+// by any endpoint.
+//
+// The Claude key keeps its place as the default, so an older client that posts
+// no connector still reaches it.
 async function setkey(req: IncomingMessage, res: ServerResponse): Promise<void> {
   if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'method' })
   if (!dbConfigured() || !vaultConfigured()) return json(res, 200, { ok: false, error: 'no_backend' })
@@ -206,23 +224,29 @@ async function setkey(req: IncomingMessage, res: ServerResponse): Promise<void> 
   } catch {
     return json(res, 400, { ok: false, error: 'bad_json' })
   }
+  const id = String(body?.connector || 'anthropic')
+  const c = serverConnector(id)
+  if (!c?.token) return json(res, 200, { ok: false, error: 'not_a_key_connector' })
+
   const raw = String(body?.key || '').trim()
-  if (!/^sk-ant-[A-Za-z0-9_\-]{20,}$/.test(raw)) return json(res, 200, { ok: false, error: 'bad_key' })
+  if (!c.token.validate.test(raw)) return json(res, 200, { ok: false, error: 'bad_key' })
   try {
     const pool = getPool()
     const who = await callerRef(req, { privy: body?.privy, client: body?.client })
     if (!who) return json(res, 401, { ok: false, error: 'auth' })
     const accountId = await resolveAccountId(pool, who)
     if (!accountId) return json(res, 200, { ok: false, error: 'no_account' })
-    const hint = `sk-ant-…${raw.slice(-4)}`
+    const hint = c.token.hint(raw)
+    // A key belongs to the person who pasted it, never to the organisation —
+    // the same rule that keeps the Claude key personal (see _lib/connScope).
     await pool.query(
       `insert into connections (account_id, connector_id, status, external_account, access_token, updated_at)
-       values ($1, 'anthropic', 'connected', $2, $3, now())
+       values ($1, $4, 'connected', $2, $3, now())
        on conflict (account_id, connector_id) where org_id is null do update set
          status='connected', external_account=excluded.external_account, access_token=excluded.access_token, updated_at=now()`,
-      [accountId, hint, seal(raw)],
+      [accountId, hint, seal(raw), id],
     )
-    return json(res, 200, { ok: true, hint })
+    return json(res, 200, { ok: true, hint, connector: id })
   } catch {
     return json(res, 200, { ok: false, error: 'db' })
   }
@@ -242,8 +266,10 @@ async function removekey(req: IncomingMessage, res: ServerResponse): Promise<voi
     const who = await callerRef(req, { privy: body?.privy, client: body?.client })
     if (!who) return json(res, 401, { ok: false, error: 'auth' })
     const accountId = await findAccountId(pool, who)
-    if (accountId) await pool.query(`delete from connections where account_id = $1 and connector_id = 'anthropic'`, [accountId])
-    return json(res, 200, { ok: true })
+    const id = String(body?.connector || 'anthropic')
+    if (!serverConnector(id)?.token) return json(res, 200, { ok: false, error: 'not_a_key_connector' })
+    if (accountId) await pool.query(`delete from connections where account_id = $1 and connector_id = $2`, [accountId, id])
+    return json(res, 200, { ok: true, connector: id })
   } catch {
     return json(res, 200, { ok: false, error: 'db' })
   }
@@ -253,14 +279,16 @@ async function removekey(req: IncomingMessage, res: ServerResponse): Promise<voi
 interface Token { accessToken: string; refreshToken?: string; expiresIn?: number; scope: string | null; label: string | null }
 
 async function exchange(c: ServerConnector, code: string, verifier = ''): Promise<Token> {
+  if (!c.oauth) throw new Error('not_an_oauth_connector')
+  const oauth = c.oauth
   const headers: Record<string, string> = { accept: 'application/json' }
   const params: Record<string, string> = {
     grant_type: 'authorization_code',
     code,
     redirect_uri: redirectUri(),
   }
-  if (c.oauth.pkce && verifier) params.code_verifier = verifier
-  if (c.oauth.tokenAuth === 'basic') {
+  if (oauth.pkce && verifier) params.code_verifier = verifier
+  if (oauth.tokenAuth === 'basic') {
     headers.authorization = 'Basic ' + Buffer.from(`${clientId(c)}:${clientSecret(c)}`).toString('base64')
     headers['content-type'] = 'application/json'
   } else {
@@ -268,10 +296,10 @@ async function exchange(c: ServerConnector, code: string, verifier = ''): Promis
     params.client_secret = clientSecret(c)!
     headers['content-type'] = 'application/x-www-form-urlencoded'
   }
-  const res = await fetch(c.oauth.tokenUrl, {
+  const res = await fetch(oauth.tokenUrl, {
     method: 'POST',
     headers,
-    body: c.oauth.tokenAuth === 'basic' ? JSON.stringify(params) : new URLSearchParams(params).toString(),
+    body: oauth.tokenAuth === 'basic' ? JSON.stringify(params) : new URLSearchParams(params).toString(),
   })
   const text = await res.text()
   let j: any

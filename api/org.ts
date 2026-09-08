@@ -22,6 +22,8 @@ import {
   ensureOrg, membersOf, invitesOf, createInvite, revokeInvite, acceptInvite,
   removeMember, setRole, renameOrg, can, type Role,
 } from './_lib/orgs.js'
+import { standingOf, remaining } from './_lib/entitlements.js'
+import { canVerifyEmail, verifiedEmailOf } from './_lib/privyUser.js'
 
 export const config = { maxDuration: 15 }
 
@@ -52,7 +54,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // it decides where you end up, so it must not create an organisation first.
     if (action === 'accept') {
       if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'method' })
-      const r = await acceptInvite(pool, accountId, String(body?.token || ''))
+      // For a BOUND invitation the redeemer's address has to be one Privy will
+      // vouch for. It is looked up from the DID we already verified — never
+      // taken from the request, which is the whole point.
+      const proven = who.privyDid ? await verifiedEmailOf(who.privyDid) : null
+      const r = await acceptInvite(pool, accountId, String(body?.token || ''), proven)
       if (!r.ok) return json(res, 200, { ok: false, error: r.reason })
       return json(res, 200, { ok: true, org: r.membership })
     }
@@ -61,6 +67,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const need = (what: Parameters<typeof can>[1]) => can(me.role, what)
 
     if (action === 'me') {
+      // What the plan grants and what is left of it. Billing used to show the
+      // founder's OWN spending brake under the label "free daily allowance",
+      // which is not what that number is — the allowance is decided by the
+      // server, from the plan, and this is where it comes from.
+      const s = await standingOf(pool, accountId)
+      const left = remaining(s)
       return json(res, 200, {
         ok: true,
         org: { id: me.orgId, name: me.name, plan: me.plan, planStatus: me.planStatus },
@@ -69,8 +81,17 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         // not have to know it lives on the organisation
         plan: me.plan,
         planStatus: me.planStatus,
+        allowance: {
+          runs: s.grant.runs, tokens: s.grant.tokens, window: s.grant.window,
+          usedRuns: s.usedRuns, usedTokens: s.usedTokens,
+          leftRuns: left.runs, leftTokens: left.tokens,
+          // whose counters these are · a company shares one allowance
+          shared: s.grant.scope === 'org',
+        },
         members: await membersOf(pool, me.orgId, accountId),
         invites: need('invite') ? await invitesOf(pool, me.orgId) : [],
+        // so the roster can say whether typing an address restricts the link
+        canBindEmail: canVerifyEmail(),
       })
     }
 
@@ -84,10 +105,14 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (action === 'invite') {
       if (!need('invite')) return json(res, 403, { ok: false, error: 'forbidden' })
       const role = ASSIGNABLE.includes(body?.role) ? (body.role as Exclude<Role, 'owner'>) : 'member'
-      const inv = await createInvite(pool, me.orgId, accountId, role, body?.inviteEmail)
+      // An address the admin typed becomes a RULE only where it can be checked.
+      // Everywhere else it stays what it always was: a label on the roster.
+      const inv = await createInvite(
+        pool, me.orgId, accountId, role, body?.inviteEmail, canVerifyEmail(),
+      )
       // The token is returned exactly once. It is not stored in a readable form
       // and there is no endpoint that can produce it again.
-      return json(res, 200, { ok: true, id: inv.id, token: inv.token, role })
+      return json(res, 200, { ok: true, id: inv.id, token: inv.token, role, bound: inv.bound })
     }
 
     if (action === 'revoke') {

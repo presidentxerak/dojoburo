@@ -123,6 +123,44 @@ ok('a spent invitation is refused', !twice.ok && twice.reason === 'unknown')
 const wrong = await orgs.acceptInvite(pool, await account('nobody@evil.test'), 'not-a-real-token')
 ok('an unknown token is refused', !wrong.ok && wrong.reason === 'unknown')
 
+/* ---- and where an address CAN be checked, it may name the seat --------- */
+// Without a Privy app secret the server cannot tell whose address is whose, so
+// an invitation is a link and the email on it is a label. With one, an admin
+// who types an address means it — and the binding is recorded on the row, so an
+// invitation is always redeemed under the rule it was created under rather than
+// whatever the environment happens to say later.
+{
+  // its own organisation · these joins must not disturb the roster counted later
+  const host = await account('binder@acme.test')
+  const bOrg = (await orgs.ensureOrg(pool, host)).orgId
+
+  const open_ = await orgs.createInvite(pool, bOrg, host, 'member', 'someone@acme.test', false)
+  ok('an unbound invitation says so', open_.bound === false)
+  const anyone = await orgs.acceptInvite(pool, await account('other@acme.test'), open_.token, null)
+  ok('and anyone holding it may join', anyone.ok, anyone.ok ? '' : anyone.reason)
+
+  const bound = await orgs.createInvite(pool, bOrg, host, 'member', 'Frank@Acme.test', true)
+  ok('a bound invitation says so', bound.bound === true)
+
+  const stranger = await orgs.acceptInvite(pool, await account('stranger@evil.test'), bound.token, 'stranger@evil.test')
+  ok('someone else’s proven address cannot redeem it', !stranger.ok && stranger.reason === 'email_mismatch')
+
+  const unproven = await orgs.acceptInvite(pool, await account('frank@acme.test'), bound.token, null)
+  ok('and neither can an address we could not verify', !unproven.ok && unproven.reason === 'email_mismatch',
+    'letting an unverifiable caller through would make the binding decorative')
+
+  const frank = await account('frank2@acme.test')
+  const right = await orgs.acceptInvite(pool, frank, bound.token, 'FRANK@acme.TEST')
+  ok('the proven holder joins, whatever the casing', right.ok && right.membership.orgId === bOrg,
+    right.ok ? '' : right.reason)
+
+  const nobody = await orgs.createInvite(pool, bOrg, host, 'viewer', null, true)
+  ok('binding with no address binds nothing', nobody.bound === false,
+    'a lock nobody holds the key to is not a security feature')
+  const walkIn = await orgs.acceptInvite(pool, await account('walkin@acme.test'), nobody.token, null)
+  ok('so that link still works', walkIn.ok, walkIn.ok ? '' : walkIn.reason)
+}
+
 const expired = await orgs.createInvite(pool, m1.orgId, alice, 'viewer', null)
 await pool.query(`update org_invites set expires_at = now() - interval '1 day' where id = $1`, [expired.id])
 const late = await orgs.acceptInvite(pool, await account('late@acme.test'), expired.token)

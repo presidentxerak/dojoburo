@@ -2,7 +2,7 @@ import { useRef, type ReactNode } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Character3D } from '../three/Character3D'
-import { Shape, Spin } from './Object3D'
+import { Shape, Spin } from './Object3DScene'
 import type { Character } from '../../data/looks'
 
 // A pitch-deck hero: a kawaii character seen slightly three-quarter, hopping /

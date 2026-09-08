@@ -139,6 +139,9 @@ export default function App() {
           expired: 'That invitation has expired. Ask for a new one.',
           already_member: 'You are already in that company.',
           has_work: 'You already have a company with work in it. Ask them to invite the account you want to use.',
+          // A bound invitation names a seat. Say whose, without saying which
+          // address — the person holding the link may not be the invitee.
+          email_mismatch: 'That invitation is for a specific email address. Sign in with the address it was sent to, then open the link again.',
           offline: 'Could not reach the server. Try the link again.',
         }
         t({ kind: 'event', badge: '!', color: '#d9822b', title: 'Could not join', text: why[r.error] || 'That invitation did not work.' })

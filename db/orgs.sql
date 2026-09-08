@@ -97,6 +97,19 @@ create table if not exists org_invites (
 );
 create index if not exists idx_org_invites_org on org_invites(org_id) where accepted_at is null;
 
+-- Whether THIS invitation is bound to the address on it.
+--
+-- The paragraph above describes why an invitation is a link: without a Privy
+-- app secret the server cannot tell whose address is whose. With one it can,
+-- and then an admin who types a colleague's address means it — only the person
+-- who has proven that address may redeem the link.
+--
+-- The rule is recorded per invitation rather than read from the environment at
+-- redemption time, so switching the secret on cannot lock people out of links
+-- already in their inbox, and switching it off cannot unlock ones that were
+-- bound. An invitation is redeemed under the rule it was created under.
+alter table org_invites add column if not exists bind_email boolean not null default false;
+
 -- ---------------------------------------------------------------------------
 -- The company documents themselves.
 --

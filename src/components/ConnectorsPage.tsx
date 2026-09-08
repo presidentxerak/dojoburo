@@ -88,7 +88,7 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
                 <span className="connect-op-k">Operator</span>
                 <span className="connect-op-n"><b>{ready}</b> ready to connect</span>
                 <span className="connect-op-n"><b>{needKeys}</b> waiting on your OAuth keys</span>
-                <span className="connect-op-n muted"><b>{noPath}</b> with no integration yet</span>
+                <span className="connect-op-n muted"><b>{noPath}</b> take a credential but cannot act yet</span>
                 {!backend && <span className="connect-op-warn">The worker is not configured · DATABASE_URL + CONNECTOR_ENC_KEY</span>}
               </div>
             )}
@@ -122,7 +122,11 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
                   // Three honest states, because "greyed out" tells nobody why.
                   //   ready    · keys are in place, one click and it works
                   //   setup    · this deployment has not added this app's keys
-                  //   unwired  · there is no path for this one yet, at all
+                  //   unwired  · you can hand over the credential, and nothing
+                  //              can act through it yet — no endpoint to call.
+                  //              Twenty-two are in this state, and eleven of
+                  //              them used to read as "Ready" because the audit
+                  //              counted an MCP entry whose URL was null.
                   const state = isOn ? 'on' : c.unwired ? 'unwired' : available ? 'ready' : 'setup'
                   return (
                     <div key={c.id} className={`connect-card s-${state}${isOn ? ' on' : ''}`}>
@@ -133,7 +137,7 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
                           <em>{c.auth === 'oauth' ? 'OAuth' : 'API token'} · {c.category}{isOn && st?.account ? ` · ${st.account}` : ''}</em>
                         </div>
                         <span className={`connect-state ${state}`}>
-                          {state === 'on' ? 'Connected' : state === 'ready' ? 'Ready' : state === 'setup' ? 'Needs setup' : 'Not built yet'}
+                          {state === 'on' ? 'Connected' : state === 'ready' ? 'Ready' : state === 'setup' ? 'Needs setup' : 'Can’t act yet'}
                         </span>
                       </div>
                       <p className="connect-card-blurb">{c.blurb}</p>
@@ -144,7 +148,7 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
                             ? 'The keys are already in place here. One click, approve on their screen, done — nothing to paste.'
                             : state === 'setup'
                               ? 'This deployment has not added this app\'s keys yet. The full guide has the exact steps and env vars.'
-                              : 'This one has no connection path yet — no handshake and nothing to call. It is listed so you know it exists, not so you can switch it on.'}
+                              : 'You can hand over the credential for this one, but no teammate can act through it yet — there is no endpoint to call. It is listed so you know it exists.'}
                       </p>
                       {admin && state === 'setup' && (
                         <p className="connect-op-env">

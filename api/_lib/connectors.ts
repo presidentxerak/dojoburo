@@ -30,11 +30,43 @@ export interface McpConfig {
   url: string | null
 }
 
+/**
+ * A connector the USER holds a key for, rather than one they authorise.
+ *
+ * Thirteen connectors in the catalogue are of this kind — ElevenLabs, Perplexity,
+ * PostHog, Supabase and the rest — and every one of them was stuck at "no server
+ * entry", because the registry only knew how to describe OAuth. They do not need
+ * an OAuth app registered in a provider console at all: the founder pastes their
+ * own API key, exactly as they already do for Claude.
+ *
+ * `validate` is what stops a typo becoming a support ticket three days later —
+ * a pasted key that cannot possibly be right is refused at the door instead of
+ * failing on the first run. `hint` is what the app shows afterwards; the key
+ * itself is sealed and never returned.
+ */
+export interface TokenConfig {
+  /** where the founder gets the key · shown in the app, never fetched */
+  issueUrl: string
+  /** a key that cannot match this is refused before it is stored */
+  validate: RegExp
+  /** the safe label kept alongside the sealed key */
+  hint: (key: string) => string
+  /** how the key is presented to the provider at run time */
+  header: (key: string) => Record<string, string>
+}
+
 export interface ServerConnector {
   id: string
-  oauth: OAuthConfig
+  /** absent on key-based connectors */
+  oauth?: OAuthConfig
+  /** absent on OAuth connectors */
+  token?: TokenConfig
   mcp: McpConfig
 }
+
+/** Last four characters, with the provider's own prefix kept when it has one. */
+const tail = (prefix: string) => (key: string): string =>
+  `${prefix}…${key.slice(-4)}`
 
 const env = (k: string): string | undefined => process.env[k]
 
@@ -429,24 +461,199 @@ const REGISTRY: Record<string, ServerConnector> = {
   },
 }
 
+// ---------------------------------------------------------------------------
+// Key-based connectors.
+//
+// Nothing here needs an operator. There is no client id to register, no
+// redirect URI to whitelist and no consent screen to get approved — the founder
+// pastes the key they already have, it is sealed with AES-256-GCM in the same
+// vault as their Claude key, and it is decrypted only when a run needs it.
+//
+// The MCP url is null for most of them, and that is not an oversight: a key
+// that is stored but has nowhere to be sent still cannot do work. Where a
+// provider publishes a remote MCP endpoint, ${IDP}_MCP_URL points at it and the
+// key travels as the connector's own header.
+// ---------------------------------------------------------------------------
+const TOKENS: Record<string, ServerConnector> = {
+  anthropic: {
+    id: 'anthropic',
+    token: {
+      issueUrl: 'https://console.anthropic.com/settings/keys',
+      validate: /^sk-ant-[A-Za-z0-9_-]{20,}$/,
+      hint: tail('sk-ant-'),
+      header: (k) => ({ 'x-api-key': k, 'anthropic-version': '2023-06-01' }),
+    },
+    mcp: mcp('anthropic', null, 'ANTHROPIC_MCP_URL'),
+  },
+  perplexity: {
+    id: 'perplexity',
+    token: {
+      issueUrl: 'https://www.perplexity.ai/settings/api',
+      validate: /^pplx-[A-Za-z0-9]{20,}$/,
+      hint: tail('pplx-'),
+      header: (k) => ({ authorization: `Bearer ${k}` }),
+    },
+    mcp: mcp('perplexity', null, 'PERPLEXITY_MCP_URL'),
+  },
+  elevenlabs: {
+    id: 'elevenlabs',
+    token: {
+      issueUrl: 'https://elevenlabs.io/app/settings/api-keys',
+      validate: /^[A-Za-z0-9_-]{24,}$/,
+      hint: tail('key'),
+      // the same header api/tts.ts already speaks to this provider with
+      header: (k) => ({ 'xi-api-key': k }),
+    },
+    mcp: mcp('elevenlabs', null, 'ELEVENLABS_MCP_URL'),
+  },
+  posthog: {
+    id: 'posthog',
+    token: {
+      issueUrl: 'https://app.posthog.com/settings/user-api-keys',
+      validate: /^phx_[A-Za-z0-9_-]{20,}$/,
+      hint: tail('phx_'),
+      header: (k) => ({ authorization: `Bearer ${k}` }),
+    },
+    mcp: mcp('posthog', null, 'POSTHOG_MCP_URL'),
+  },
+  supabase: {
+    id: 'supabase',
+    token: {
+      issueUrl: 'https://supabase.com/dashboard/account/tokens',
+      validate: /^sbp_[A-Za-z0-9]{20,}$/,
+      hint: tail('sbp_'),
+      header: (k) => ({ authorization: `Bearer ${k}` }),
+    },
+    mcp: mcp('supabase', 'https://mcp.supabase.com/mcp', 'SUPABASE_MCP_URL'),
+  },
+  klaviyo: {
+    id: 'klaviyo',
+    token: {
+      issueUrl: 'https://www.klaviyo.com/settings/account/api-keys',
+      validate: /^pk_[A-Za-z0-9]{20,}$/,
+      hint: tail('pk_'),
+      header: (k) => ({ authorization: `Klaviyo-API-Key ${k}`, revision: '2024-10-15' }),
+    },
+    mcp: mcp('klaviyo', null, 'KLAVIYO_MCP_URL'),
+  },
+  apollo: {
+    id: 'apollo',
+    token: {
+      issueUrl: 'https://app.apollo.io/#/settings/integrations/api',
+      validate: /^[A-Za-z0-9_-]{20,}$/,
+      hint: tail('key'),
+      header: (k) => ({ 'x-api-key': k }),
+    },
+    mcp: mcp('apollo', null, 'APOLLO_MCP_URL'),
+  },
+  heygen: {
+    id: 'heygen',
+    token: {
+      issueUrl: 'https://app.heygen.com/settings?nav=API',
+      validate: /^[A-Za-z0-9+/=_-]{24,}$/,
+      hint: tail('key'),
+      header: (k) => ({ 'x-api-key': k }),
+    },
+    mcp: mcp('heygen', null, 'HEYGEN_MCP_URL'),
+  },
+  cloudinary: {
+    id: 'cloudinary',
+    token: {
+      issueUrl: 'https://console.cloudinary.com/settings/api-keys',
+      // Cloudinary hands out one URL that carries key, secret and cloud name
+      validate: /^cloudinary:\/\/\d+:[A-Za-z0-9_-]+@[A-Za-z0-9_-]+$/,
+      hint: (k) => `cloudinary://…@${k.split('@')[1] || '?'}`,
+      header: (k) => ({ authorization: `Basic ${Buffer.from(k.replace(/^cloudinary:\/\//, '').split('@')[0]).toString('base64')}` }),
+    },
+    mcp: mcp('cloudinary', null, 'CLOUDINARY_MCP_URL'),
+  },
+  trello: {
+    id: 'trello',
+    token: {
+      issueUrl: 'https://trello.com/power-ups/admin',
+      // Trello needs both halves · "<key>:<token>", which is how the app asks
+      validate: /^[a-f0-9]{32}:[a-zA-Z0-9]{64,}$/,
+      hint: (k) => `key ${k.slice(0, 6)}…`,
+      header: () => ({}), // Trello authenticates in the query string, not a header
+    },
+    mcp: mcp('trello', null, 'TRELLO_MCP_URL'),
+  },
+  ga4: {
+    id: 'ga4',
+    token: {
+      issueUrl: 'https://console.cloud.google.com/apis/credentials',
+      validate: /^[A-Za-z0-9._-]{20,}$/,
+      hint: tail('key'),
+      header: (k) => ({ authorization: `Bearer ${k}` }),
+    },
+    mcp: mcp('ga4', null, 'GA4_MCP_URL'),
+  },
+  wave: {
+    id: 'wave',
+    token: {
+      issueUrl: 'https://developer.waveapps.com/hc/en-us/articles/360019968212',
+      validate: /^[A-Za-z0-9._-]{20,}$/,
+      hint: tail('key'),
+      header: (k) => ({ authorization: `Bearer ${k}` }),
+    },
+    mcp: mcp('wave', null, 'WAVE_MCP_URL'),
+  },
+  'claude-code': {
+    id: 'claude-code',
+    token: {
+      issueUrl: 'https://console.anthropic.com/settings/keys',
+      validate: /^sk-ant-[A-Za-z0-9_-]{20,}$/,
+      hint: tail('sk-ant-'),
+      header: (k) => ({ 'x-api-key': k, 'anthropic-version': '2023-06-01' }),
+    },
+    mcp: mcp('claude-code', null, 'CLAUDE_CODE_MCP_URL'),
+  },
+  'ai-video': {
+    id: 'ai-video',
+    token: {
+      // one key for whichever generator the operator points AI_VIDEO_MCP_URL at
+      issueUrl: 'https://fal.ai/dashboard/keys',
+      validate: /^[A-Za-z0-9:_-]{20,}$/,
+      hint: tail('key'),
+      header: (k) => ({ authorization: `Key ${k}` }),
+    },
+    mcp: mcp('ai-video', null, 'AI_VIDEO_MCP_URL'),
+  },
+}
+
+for (const [id, c] of Object.entries(TOKENS)) REGISTRY[id] = c
+
 export const CONNECTOR_IDS: string[] = Object.keys(REGISTRY)
 
 export function serverConnector(id: string): ServerConnector | null {
   return REGISTRY[id] ?? null
 }
 
-/** A connector is available when its OAuth client id + secret are configured. */
+/**
+ * Can this connector be used on this deployment?
+ *
+ * OAuth needs the operator to have registered an app — client id and secret.
+ * A key-based connector needs nothing from the operator at all: the founder
+ * brings the key, so it is available the moment the vault is configured.
+ */
 export function connectorAvailable(id: string): boolean {
   const c = REGISTRY[id]
   if (!c) return false
+  if (c.token) return true
+  if (!c.oauth) return false
   return !!env(c.oauth.clientIdEnv) && !!env(c.oauth.clientSecretEnv)
 }
 
+/** True when the founder supplies the credential themselves. */
+export function isTokenConnector(id: string): boolean {
+  return !!REGISTRY[id]?.token
+}
+
 export function clientId(c: ServerConnector): string | undefined {
-  return env(c.oauth.clientIdEnv)
+  return c.oauth ? env(c.oauth.clientIdEnv) : undefined
 }
 export function clientSecret(c: ServerConnector): string | undefined {
-  return env(c.oauth.clientSecretEnv)
+  return c.oauth ? env(c.oauth.clientSecretEnv) : undefined
 }
 
 /** Public base URL of the deployment (for the OAuth redirect_uri). */
@@ -464,6 +671,9 @@ export interface RefreshedToken { accessToken: string; refreshToken?: string; ex
  *  the connector is misconfigured or the provider declines — the caller then
  *  falls back to the existing (possibly still valid) token. */
 export async function refreshOAuthToken(c: ServerConnector, refreshTok: string): Promise<RefreshedToken | null> {
+  // A key-based connector has no refresh flow · the key is the credential and
+  // it does not expire until the founder revokes it.
+  if (!c.oauth) return null
   const cid = clientId(c)
   const csec = clientSecret(c)
   if (!cid || !csec) return null

@@ -143,41 +143,65 @@ export async function membersOf(pool: Pool, orgId: string, me: string): Promise<
 }
 
 /* ------------------------------------------------------------- invitations */
-// An invitation is a link, not an email match. The access token proves a DID
-// and nothing else, so the only address available here is one the client typed;
-// deciding membership on that would let anyone claim a colleague's seat by
-// knowing their email. Holding the secret is the proof instead.
+// An invitation is a link. Holding the secret is the proof.
 //
-// Only the hash is stored. The plaintext is returned once, to the admin who
-// created it, and is not recoverable afterwards — a lost invitation is
-// reissued, not looked up.
+// It is a link because an access token proves a DID and nothing else: without
+// a way to check whose address is whose, deciding a seat on an email the client
+// typed would let anyone claim a colleague's by knowing it.
+//
+// Where the deployment CAN check — PRIVY_APP_SECRET is set, see
+// _lib/privyUser.ts — an invitation may additionally be BOUND to the address on
+// it, and then the link alone is not enough: the redeemer must have proven that
+// address. Which rule applies is written on the invitation when it is created,
+// never read from the environment when it is redeemed, so a link already in
+// someone's inbox cannot change meaning under them.
+//
+// Only the hash of the token is stored. The plaintext is returned once, to the
+// admin who created it, and is not recoverable afterwards — a lost invitation
+// is reissued, not looked up.
 
 const hash = (token: string) => createHash('sha256').update(token, 'utf8').digest('hex')
 
-/** A fresh invitation. Returns the token to show ONCE. */
+/**
+ * A fresh invitation. Returns the token to show ONCE.
+ *
+ * `bindEmail` records whether this particular invitation may only be redeemed
+ * by someone who has PROVEN the address on it. The caller decides that, because
+ * it depends on whether the deployment can check an address at all — see
+ * _lib/privyUser.ts. Storing it on the row means an invitation is always
+ * redeemed under the rule it was created under.
+ */
 export async function createInvite(
-  pool: Pool, orgId: string, invitedBy: string, role: Exclude<Role, 'owner'>, email?: string | null,
-): Promise<{ id: string; token: string }> {
+  pool: Pool, orgId: string, invitedBy: string, role: Exclude<Role, 'owner'>,
+  email?: string | null, bindEmail = false,
+): Promise<{ id: string; token: string; bound: boolean }> {
   const token = randomBytes(24).toString('base64url')
+  const address = (email || '').trim().slice(0, 200) || null
+  // Binding to no address is not a rule, it is a lock nobody holds the key to.
+  const bound = bindEmail && !!address
   const r = await pool.query(
-    `insert into org_invites (org_id, token_hash, email, role, invited_by)
-     values ($1, $2, $3, $4, $5) returning id`,
-    [orgId, hash(token), (email || '').trim().slice(0, 200) || null, role, invitedBy],
+    `insert into org_invites (org_id, token_hash, email, role, invited_by, bind_email)
+     values ($1, $2, $3, $4, $5, $6) returning id`,
+    [orgId, hash(token), address, role, invitedBy, bound],
   )
-  return { id: r.rows[0].id, token }
+  return { id: r.rows[0].id, token, bound }
 }
 
-export interface Invite { id: string; email: string | null; role: Role; createdAt: string; expiresAt: string }
+export interface Invite {
+  id: string; email: string | null; role: Role; createdAt: string; expiresAt: string
+  /** true when only the proven holder of `email` may redeem it */
+  bound: boolean
+}
 
 export async function invitesOf(pool: Pool, orgId: string): Promise<Invite[]> {
   const r = await pool.query(
-    `select id, email, role, created_at, expires_at from org_invites
+    `select id, email, role, created_at, expires_at, bind_email from org_invites
       where org_id = $1 and accepted_at is null and expires_at > now()
       order by created_at desc`,
     [orgId],
   )
   return r.rows.map((x) => ({
-    id: x.id, email: x.email, role: x.role as Role,
+    id: x.id, email: x.email, role: x.role as Role, bound: !!x.bind_email,
     createdAt: x.created_at.toISOString(), expiresAt: x.expires_at.toISOString(),
   }))
 }
@@ -189,7 +213,7 @@ export async function revokeInvite(pool: Pool, orgId: string, id: string): Promi
 
 export type AcceptResult =
   | { ok: true; membership: Membership }
-  | { ok: false; reason: 'unknown' | 'expired' | 'already_member' | 'has_work' }
+  | { ok: false; reason: 'unknown' | 'expired' | 'already_member' | 'has_work' | 'email_mismatch' }
 
 /**
  * Redeem an invitation.
@@ -200,13 +224,26 @@ export type AcceptResult =
  * a second organisation while holding work would be a merge, and a merge is not
  * something to do silently on someone's behalf.
  */
-export async function acceptInvite(pool: Pool, accountId: string, token: string): Promise<AcceptResult> {
+export async function acceptInvite(
+  pool: Pool, accountId: string, token: string, verifiedEmail: string | null = null,
+): Promise<AcceptResult> {
   const inv = await pool.query(
-    `select id, org_id, role, expires_at, accepted_at from org_invites where token_hash = $1`,
+    `select id, org_id, role, email, bind_email, expires_at, accepted_at
+       from org_invites where token_hash = $1`,
     [hash(String(token || ''))],
   )
   if (!inv.rows[0] || inv.rows[0].accepted_at) return { ok: false, reason: 'unknown' }
   if (new Date(inv.rows[0].expires_at) <= new Date()) return { ok: false, reason: 'expired' }
+
+  // A BOUND invitation names a seat, not a door. Only the person who has proven
+  // that address may take it — and if we cannot establish their address at all
+  // (Privy unreachable, or they signed in another way) the answer is no. Letting
+  // an unverifiable caller through would make the binding decorative.
+  if (inv.rows[0].bind_email) {
+    const want = String(inv.rows[0].email || '').trim().toLowerCase()
+    const got = String(verifiedEmail || '').trim().toLowerCase()
+    if (!want || !got || want !== got) return { ok: false, reason: 'email_mismatch' }
+  }
 
   const { id, org_id, role } = inv.rows[0]
   const existing = await membershipOf(pool, accountId)

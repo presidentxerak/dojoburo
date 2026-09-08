@@ -17,8 +17,14 @@ import { onSyncState, pendingConflicts, drain, pullChanges, type SyncState } fro
 type Role = 'owner' | 'admin' | 'member' | 'viewer'
 
 interface Member { accountId: string; email: string | null; role: Role; joinedAt: string; you: boolean }
-interface Invite { id: string; email: string | null; role: Role; createdAt: string; expiresAt: string }
-interface OrgView { ok: boolean; error?: string; org?: { id: string; name: string }; role?: Role; members?: Member[]; invites?: Invite[] }
+interface Invite { id: string; email: string | null; role: Role; createdAt: string; expiresAt: string; bound: boolean }
+interface OrgView {
+  ok: boolean; error?: string
+  org?: { id: string; name: string }
+  role?: Role; members?: Member[]; invites?: Invite[]
+  /** true when this deployment can check whose address is whose */
+  canBindEmail?: boolean
+}
 
 const ROLE_NOTE: Record<Role, string> = {
   owner: 'Owns the company. Billing, and the only one who can delete it.',
@@ -39,7 +45,7 @@ const SYNC_NOTE: Record<SyncState, string> = {
 export function TeamTab() {
   const [view, setView] = useState<OrgView | null>(null)
   const [busy, setBusy] = useState(false)
-  const [link, setLink] = useState<string | null>(null)
+  const [link, setLink] = useState<{ url: string; bound: boolean } | null>(null)
   const [inviteRole, setInviteRole] = useState<Exclude<Role, 'owner'>>('member')
   const [inviteEmail, setInviteEmail] = useState('')
   const [name, setName] = useState('')
@@ -98,6 +104,10 @@ export function TeamTab() {
 
   const role = view.role ?? 'viewer'
   const canInvite = role === 'owner' || role === 'admin'
+  // Whether an address typed below RESTRICTS the link or merely labels it. The
+  // difference is the whole security model, so the screen says which it is
+  // rather than leaving the admin to assume the safer one.
+  const binds = !!view.canBindEmail
   const members = view.members ?? []
   const invites = view.invites ?? []
 
@@ -192,7 +202,7 @@ export function TeamTab() {
           <h4 className="team-h">Invite someone</h4>
           <div className="team-invite">
             <input
-              placeholder="Their email (a label · we do not send it)"
+              placeholder={binds ? 'Their email · only they can use the link' : 'Their email (a label · we do not send it)'}
               value={inviteEmail}
               aria-label="Who this invitation is for"
               onChange={(e) => setInviteEmail(e.target.value)}
@@ -207,7 +217,7 @@ export function TeamTab() {
               disabled={busy}
               onClick={async () => {
                 const j = await post('invite', { role: inviteRole, inviteEmail })
-                if (j?.token) setLink(`${location.origin}/#join=${j.token}`)
+                if (j?.token) setLink({ url: `${location.origin}/#join=${j.token}`, bound: !!j.bound })
                 setInviteEmail('')
                 await load()
               }}
@@ -219,10 +229,14 @@ export function TeamTab() {
           {link && (
             <div className="team-link">
               <b>Send this link to them. It is shown once.</b>
-              <p>Anyone who opens it joins your company, so send it the way you would send a password.</p>
+              <p>
+                {link.bound
+                  ? 'Only someone signed in with that exact address can use it, so a forwarded link is harmless.'
+                  : 'Anyone who opens it joins your company, so send it the way you would send a password.'}
+              </p>
               <div className="team-row">
-                <input readOnly value={link} onFocus={(e) => e.currentTarget.select()} aria-label="Invitation link" />
-                <button className="btn tiny" onClick={() => { void navigator.clipboard?.writeText(link) }}>Copy</button>
+                <input readOnly value={link.url} onFocus={(e) => e.currentTarget.select()} aria-label="Invitation link" />
+                <button className="btn tiny" onClick={() => { void navigator.clipboard?.writeText(link.url) }}>Copy</button>
                 <button className="btn tiny ghost" onClick={() => setLink(null)}>Done</button>
               </div>
             </div>
@@ -234,7 +248,10 @@ export function TeamTab() {
                 <div className="team-member" key={i.id}>
                   <div className="team-who">
                     <strong>{i.email || 'Anyone with the link'}</strong>
-                    <span>Invited as {i.role} · expires {new Date(i.expiresAt).toLocaleDateString()}</span>
+                    <span>
+                      Invited as {i.role} · {i.bound ? 'only that address' : 'anyone with the link'} ·
+                      expires {new Date(i.expiresAt).toLocaleDateString()}
+                    </span>
                   </div>
                   <button
                     className="btn tiny ghost"

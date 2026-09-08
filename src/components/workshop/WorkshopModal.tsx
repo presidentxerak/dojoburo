@@ -30,6 +30,20 @@ import { StepBar } from '../../modules/StepBar'
 
 type Tab = 'studio' | 'account' | 'team' | 'billing'
 
+/** What /api/org?action=me returns, as far as the Billing screen cares. */
+interface OrgSnapshot {
+  role: 'owner' | 'admin' | 'member' | 'viewer'
+  plan: 'free' | 'founder' | 'managed'
+  planStatus: 'active' | 'past_due' | 'cancelled'
+  allowance?: {
+    runs: number; tokens: number; window: 'day' | 'month'
+    usedRuns: number; usedTokens: number
+    leftRuns: number; leftTokens: number
+    /** true when the allowance belongs to the company rather than to you */
+    shared: boolean
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Dojo settings · a FULL PAGE (route #studio), not a modal. It wears the same
 // shell as every other full-screen surface — the studio bar at the very top of
@@ -732,26 +746,54 @@ function BillingTab() {
   const currency = useWorkshop((s) => s.account?.currency ?? 'USD') as CurrencyCode
   const setCurrency = useWorkshop((s) => s.setCurrency)
   const hasAccount = useWorkshop((s) => !!s.account)
-  const creditsToday = useEngine((s) => s.creditsToday)
-  const dailyCap = useEngine((s) => s.dailyCreditCap)
+  const brake = useEngine((s) => s.dailyCreditCap)
+  const [org, setOrg] = useState<OrgSnapshot | null>(null)
+
+  // One request for the whole screen: the plan the company is on, and what its
+  // allowance has left. PlanCards is handed the same answer rather than asking
+  // for it again.
+  useEffect(() => {
+    let live = true
+    void (async () => {
+      try {
+        const r = await apiFetch(`/api/org?action=me&${refParams()}`)
+        const j = await r.json()
+        if (live && j?.ok) setOrg(j as OrgSnapshot)
+      } catch { /* offline · the screen still reads, it just cannot say which plan */ }
+    })()
+    return () => { live = false }
+  }, [hasAccount])
+
+  const a = org?.allowance
+  const period = a?.window === 'month' ? 'this month' : 'today'
 
   return (
     <div className="ws-billing">
-      {/* what you have actually spent · this used to live in Settings, behind a
-          "Billing & credits" section whose only control opened this screen */}
       {/* The key comes FIRST. It is the product's actual proposition — your
           key, your bill, no meter — and it used to sit under a currency picker
           as though it were a setting. */}
       <ClaudeKeyPanel hasAccount={hasAccount} />
 
-      <h3 style={{ marginTop: 18 }}>Today</h3>
+      <h3 style={{ marginTop: 18, textTransform: 'capitalize' }}>{period}</h3>
+      {/* These two numbers used to be the founder's OWN spending brake shown
+          under the label "free daily allowance". It is not that: the allowance
+          comes from the plan and is decided by the server. The brake is still
+          below, named as what it is. */}
       <div className="set-stats">
-        <div><b>{creditsToday}</b><em>tasks run today</em></div>
-        <div><b>{dailyCap || '—'}</b><em>free daily allowance</em></div>
+        <div><b>{a ? a.usedRuns : '—'}</b><em>tasks run {period}</em></div>
+        <div><b>{a ? a.leftRuns : '—'}</b><em>left on your plan</em></div>
       </div>
       <p className="ws-blurb">
-        This counter only moves when a run is served on <em>our</em> side. With your own key above,
-        nothing here is metered at all.
+        {a
+          ? <>Your plan allows <b>{a.runs.toLocaleString('en-US')}</b> tasks {period}
+            {a.shared ? ' across everyone in your company' : ''}. This counter only moves when a run is
+            served on <em>our</em> side — with your own key above, nothing is metered at all.</>
+          : <>This counter only moves when a run is served on <em>our</em> side. With your own key above,
+            nothing here is metered at all.</>}
+      </p>
+      <p className="ws-blurb">
+        Separately, you have asked us to stop after <b>{brake}</b> tasks a day as your own brake.
+        Change it in Settings — it never raises what your plan allows, only lowers it.
       </p>
 
       <h3>Currency</h3>
@@ -767,7 +809,7 @@ function BillingTab() {
 
 
       <h3 style={{ marginTop: 18 }}>Plans</h3>
-      <PlanCards hasAccount={hasAccount} />
+      <PlanCards hasAccount={hasAccount} org={org} />
       <p className="ws-blurb">
         A task is one teammate doing one step. On <b>Founder</b> your tasks run on your own Claude key
         and Anthropic bills you directly — that plan costs Dojoburo nothing to serve.
@@ -791,24 +833,12 @@ function BillingTab() {
  * deployment has no Stripe price for that plan" is not, and telling them to
  * check their card would waste their afternoon.
  */
-function PlanCards({ hasAccount }: { hasAccount: boolean }) {
+function PlanCards({ hasAccount, org }: { hasAccount: boolean; org: OrgSnapshot | null }) {
   const email = useWorkshop((s) => s.account?.email || '')
-  const [current, setCurrent] = useState<{ plan: string; status: string; role: string } | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
   const [msg, setMsg] = useState('')
 
-  useEffect(() => {
-    let live = true
-    void (async () => {
-      try {
-        const r = await apiFetch(`/api/org?action=me&${refParams()}`)
-        const j = await r.json()
-        if (live && j?.ok) setCurrent({ plan: j.plan || 'free', status: j.planStatus || 'active', role: j.role })
-      } catch { /* offline · the cards still read, they just cannot say which is yours */ }
-    })()
-    return () => { live = false }
-  }, [hasAccount])
-
+  const current = org ? { plan: org.plan || 'free', status: org.planStatus || 'active', role: org.role } : null
   // Only the owner is billed, so only the owner is offered the card.
   const mayBuy = !current || current.role === 'owner'
 

@@ -24,6 +24,7 @@ import { originAllowed } from './_lib/origin.js'
 import { hardenSystem, sanitizeUntrusted } from './_lib/guard.js'
 import { callerRef } from './_lib/authz.js'
 import { orgScope } from './_lib/connScope.js'
+import { standingOf, remaining } from './_lib/entitlements.js'
 import { allow as rateAllow } from './_lib/ratelimit.js'
 
 export const config = { maxDuration: 60 }
@@ -39,16 +40,10 @@ const THINKING = ENV.ANTHROPIC_WORK_THINKING || '' // 'adaptive' to enable exten
 // (BYOK model — the user brings their own key). Set WORK_OPERATOR_CLAUDE=true to
 // offer Claude on the operator's dime (e.g. a hackathon demo).
 const OPERATOR_CLAUDE = ENV.WORK_OPERATOR_CLAUDE === 'true'
-const FREE_DAILY = int(ENV.WORK_FREE_DAILY, 10) // free-cascade runs / account / day on operator keys
-// The free tier is metered in TOKENS as well as runs, because a Saver run and a
-// Max run are not the same thing to pay for — counting runs alone made the
-// cheapest mode buy you nothing. Whichever ceiling is hit first stops the day.
-// 120,000 was the old default, and it was set against nothing: the free
-// providers behind it share about a million tokens a day between every account
-// on the platform, so eight busy founders could drain the pool for everyone.
-// 25,000 is roughly four Balanced runs — enough to see the product work, which
-// is what a free tier is for.
-const FREE_DAILY_TOKENS = int(ENV.WORK_FREE_DAILY_TOKENS, 25_000)
+// What a run is allowed to cost is no longer a pair of constants here: it
+// depends on what the company pays for, so the table lives in
+// _lib/entitlements.ts and checkAllowance() below asks it.
+//
 // Admin / operator allowlist. These accounts test every tool for free with NO
 // daily cap, and may use the operator's Claude key even when WORK_OPERATOR_CLAUDE
 // is off. They only ever spend the OPERATOR's own configured keys / free tiers.
@@ -175,10 +170,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       engine = 'byok'
     } else {
       // The operator's side. Free providers first — including tool-acting runs,
-      // which the MCP bridge makes possible — metered per account (admins bypass
-      // the daily cap and aren't metered).
-      const gate = isAdmin ? { allowed: true } : await checkFreeTier(ref)
-      if (!gate.allowed) return send(res, 200, { ok: false, error: 'quota', remaining: 0, reason: gate.reason })
+      // which the MCP bridge makes possible — metered against whatever the
+      // company's PLAN grants (admins bypass it and aren't metered).
+      const gate = isAdmin ? { allowed: true } : await checkAllowance(ref)
+      if (!gate.allowed) {
+        // Say which plan the wall belongs to and when it lifts. "Quota reached"
+        // with no plan and no date is how someone concludes the product is
+        // broken rather than that they have used what they have.
+        return send(res, 200, {
+          ok: false, error: 'quota', remaining: 0, reason: gate.reason,
+          plan: gate.plan, window: gate.window,
+        })
+      }
       const budget = Math.min(effort.maxTokens, MAX_TOKENS)
       if (freeCascadeConfigured()) {
         const out = mcpServers.length
@@ -232,7 +235,33 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // rather than showing its own estimate after the fact.
     appsSent: mcpServers.length,
     effort: String(body?.effort || 'balanced'),
+    // What is actually left, measured after this run was counted. The app used
+    // to keep its own idea of a daily cap and show that; a number the browser
+    // invents is a number that disagrees with the server the moment a colleague
+    // runs something on the same company's allowance.
+    allowance: engine === 'byok' ? null : await allowanceLeft(ref),
   })
+}
+
+/**
+ * The company's remaining allowance, for display. Best-effort: a null here
+ * means "we could not read it", and the app shows nothing rather than a zero it
+ * would have to explain.
+ */
+async function allowanceLeft(
+  ref: { privy?: string; client?: string },
+): Promise<{ plan: string; runs: number; tokens: number; window: string } | null> {
+  if (!dbConfigured()) return null
+  try {
+    const pool = getPool()
+    const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
+    if (!accountId) return null
+    const s = await standingOf(pool, accountId)
+    const left = remaining(s)
+    return { plan: s.plan, runs: left.runs, tokens: left.tokens, window: left.window }
+  } catch {
+    return null
+  }
 }
 
 // ---- Claude call ----------------------------------------------------------
@@ -341,20 +370,28 @@ async function resolveByokKey(ref: { privy?: string; client?: string }): Promise
   }
 }
 
-async function checkFreeTier(ref: { privy?: string; client?: string }): Promise<{ allowed: boolean; reason?: 'runs' | 'tokens' }> {
+/**
+ * May this run go ahead on the operator's providers?
+ *
+ * The answer used to be "have you done ten today?" for everybody, which meant a
+ * company on Managed hit the same wall as a stranger who had never paid — the
+ * 2,000 tasks on the card were sold and never provisioned. What each plan
+ * grants now lives in _lib/entitlements.ts, and this asks it.
+ *
+ * Still never throws and still fails OPEN: the in-memory IP limit is in front
+ * of this, and refusing someone's work because a metering query timed out is a
+ * worse failure than an uncounted run.
+ */
+async function checkAllowance(
+  ref: { privy?: string; client?: string },
+): Promise<{ allowed: boolean; reason?: 'runs' | 'tokens'; plan?: string; window?: string }> {
   if (!dbConfigured()) return { allowed: true } // no DB → rely on the in-memory IP rate limit
   try {
     const pool = getPool()
     const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
     if (!accountId) return { allowed: true }
-    const r = await pool.query(
-      `select free_runs, in_tokens, out_tokens from work_usage where account_id = $1 and day = current_date`,
-      [accountId],
-    )
-    const used = r.rows[0]?.free_runs ?? 0
-    const tokens = Number(r.rows[0]?.in_tokens ?? 0) + Number(r.rows[0]?.out_tokens ?? 0)
-    if (tokens >= FREE_DAILY_TOKENS) return { allowed: false, reason: 'tokens' }
-    return { allowed: used < FREE_DAILY, reason: 'runs' }
+    const s = await standingOf(pool, accountId)
+    return { allowed: s.allowed, reason: s.reason, plan: s.plan, window: s.grant.window }
   } catch {
     return { allowed: true }
   }

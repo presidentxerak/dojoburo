@@ -30,7 +30,10 @@ await page.screenshot({ path: `${OUT}/full-landing.png` })
 
 // 2. ENTER APP
 await page.goto(`${BASE}/#app`, { waitUntil: 'load' })
-await page.waitForTimeout(1800)
+// The app is a lazy chunk now, so it arrives a round trip after `load` — and on
+// this box the 3D office then initialises in software. Wait for the canvas
+// rather than for a number of milliseconds that was only ever a guess.
+await page.locator('canvas').first().waitFor({ timeout: 30000 }).catch(() => {})
 pass('office canvas', await page.locator('canvas').count() >= 1)
 pass('topbar', await page.locator('.topbar').count() === 1)
 pass('network tabs', await page.locator('.net-tab').count())

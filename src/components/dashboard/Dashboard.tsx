@@ -265,7 +265,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
             ))}
           </div>
           <div className="eng-row">
-            <label>Daily spending limit
+            <label>Your own daily brake
               <input type="number" min="1" value={engine.dailyCreditCap} onChange={(e) => engine.setDailyCap(Number(e.target.value))} />
             </label>
             <div className="eng-stat">
@@ -321,11 +321,10 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       case 'vaultor': return (
         <>
           {/* No credit packs here any more. Buying credits wrote a number into a
-              ledger that nothing reads: a run is authorised by the free daily
-              quota in work_usage, never by a balance, and creditsToday is a
-              self-imposed budget held in this browser. Taking money for a unit
-              the runtime does not honour is the one thing a billing screen must
-              not do, so it is gone until a plan can actually be bought. */}
+              ledger that nothing reads: a run is authorised by the allowance
+              the company's PLAN grants (api/_lib/entitlements.ts), never by a
+              balance, and creditsToday is a self-imposed budget held in this
+              browser. Plans are what is sold, and Billing sells them. */}
           <p className="muted small">
             Tasks today: <b>{engine.tasksToday}</b> · connected apps: <b>{connectedCount}</b>.
           </p>

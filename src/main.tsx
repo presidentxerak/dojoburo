@@ -1,11 +1,19 @@
-import { StrictMode, useEffect, useState } from 'react'
+import { StrictMode, Suspense, lazy, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App'
 import { Landing } from './Landing'
-import { StudioPage } from './components/workshop/WorkshopModal'
-import { ConnectorsPage } from './components/ConnectorsPage'
 import { AuthProvider } from './auth/AuthProvider'
-import { WidgetApp } from './WidgetApp'
+
+// The product, behind the beta door.
+//
+// These four were eager, so every visitor to the marketing site — and every
+// crawler reading a job-title page — downloaded the whole dojo before any text
+// appeared, to reach a screen the door would not have let them through anyway.
+// They are the only routes below the gate, which makes them exactly the right
+// seam to split on.
+const App = lazy(() => import('./App'))
+const WidgetApp = lazy(() => import('./WidgetApp').then((m) => ({ default: m.WidgetApp })))
+const StudioPage = lazy(() => import('./components/workshop/WorkshopModal').then((m) => ({ default: m.StudioPage })))
+const ConnectorsPage = lazy(() => import('./components/ConnectorsPage').then((m) => ({ default: m.ConnectorsPage })))
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
@@ -72,22 +80,29 @@ function Root() {
 
   // ---- the product · gated -------------------------------------------------
   if (!open) return <AccessGate onOpen={() => setOpen(true)} />
+  // Everything past the door is a lazy chunk, so each of these is wrapped once
+  // here rather than four times below. The fallback is deliberately plain: the
+  // dojo takes a moment to arrive and a spinner that looks like the app would
+  // be a worse lie than a line of text.
+  const gated = (node: React.ReactNode) => (
+    <Suspense fallback={<div className="boot-wait">Opening your dojo…</div>}>{node}</Suspense>
+  )
   // standalone always-on-top widget window (Tauri desktop) · no auth chrome
-  if (route === 'widget') return <WidgetApp />
+  if (route === 'widget') return gated(<WidgetApp />)
   // An invitation link is `#join=<token>`, and it arrives cold — the person
   // clicking it has never opened this app. It has to land in the app, because
   // that is where the token is redeemed; falling through to the landing page
   // would drop the invitation on the floor and tell them nothing.
-  if (route === 'app' || route.startsWith('join=')) return <App />
+  if (route === 'app' || route.startsWith('join=')) return gated(<App />)
   // Dojo Academy · opened from inside the app · stays in the dojo environment
   // (dojo header + Back-to-dojo) instead of the landing page.
   if (route === 'academy') return <AcademyHome inApp />
   // Dojo Guide · the per-app setup pages, opened from inside the dojo.
   if (route === 'guide') return <GuidePage inApp />
   // Dojo Studio · full page (build dojos, tune agents, account & billing).
-  if (route === 'studio') return <StudioPage />
+  if (route === 'studio') return gated(<StudioPage />)
   // Connect apps · full page, every connector grouped by functionality category.
-  if (route === 'connect') return <ConnectorsPage />
+  if (route === 'connect') return gated(<ConnectorsPage />)
   return <Landing enter={() => { location.hash = 'app' }} />
 }
 
