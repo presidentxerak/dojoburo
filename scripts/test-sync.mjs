@@ -29,6 +29,17 @@ let fails = 0
 const ok = (n, c, extra = '') => { console.log((c ? 'ok    ' : 'FAIL  ') + n + (extra ? ' · ' + extra : '')); if (!c) fails++ }
 
 const pool = new Pool({ connectionString: URL_, max: 6 })
+// A database that is configured but unreachable should say so in one line, not
+// bury it in a pg stack trace — in CI that difference is ten minutes.
+async function reachable(pool) {
+  try { await pool.query('select 1'); return true }
+  catch (e) {
+    console.error(`FAIL  cannot reach TEST_DATABASE_URL · ${String(e?.message || e)}`)
+    return false
+  }
+}
+if (!(await reachable(pool))) process.exit(1)
+
 for (const f of ['db/schema.sql', 'db/connectors.sql', 'db/orgs.sql']) await pool.query(readFileSync(f, 'utf8'))
 await pool.query(`truncate org_doc_revisions, org_docs, org_invites, org_members, organisations,
                            connections, accounts restart identity cascade`)

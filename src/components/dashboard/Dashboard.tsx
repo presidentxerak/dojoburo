@@ -20,7 +20,6 @@ import { InfoDot } from '../InfoDot'
 import { TeammateCard } from '../TeammateCard'
 import { CustomAgentWorkspace } from '../../modules/custom/CustomAgentWorkspace'
 import { MAX_AGENTS } from '../../workshop'
-import { apiFetch } from '../../lib/apiFetch'
 import { BUILD_ID, forceFresh } from '../../lib/build'
 
 // Build stamp (injected by Vite) so the running version is visible in-app.
@@ -28,9 +27,6 @@ import { BUILD_ID, forceFresh } from '../../lib/build'
 // Nuke every cache + service worker and reload from the network · a one-click
 // escape from a stale cached build.
 // fiat credit packs · ~1 credit per task, priced per currency.
-const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
-const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
-const CREDIT_PACKS = [30, 100, 500]
 
 // Which deliverable task ids belong to each agent · used to compute a card's
 // status + last activity from the deliverables history.
@@ -91,8 +87,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const engine = useEngine()
 
   const [msg, setMsg] = useState('')
-  const [buying, setBuying] = useState(false)
-  const [payMsg, setPayMsg] = useState('')
   const [moduleId, setModuleId] = useState<string | null>(null) // open studio module
   const [creating, setCreating] = useState(false)   // custom-agent create form
   const [newName, setNewName] = useState('')
@@ -184,22 +178,6 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
   const fiatCur = account?.currency ?? 'USD'
 
-  const buyCredits = async (credits: number) => {
-    setBuying(true); setPayMsg('')
-    try {
-      const amount = credits * (CREDIT_UNIT[fiatCur] ?? 1)
-      const res = await apiFetch('/api/checkout', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ amount, currency: fiatCur, email: '', kind: 'credits', privyDid: account?.privyDid || '' }),
-      })
-      const j = await res.json().catch(() => ({}))
-      if (j?.ok && j.url) { window.open(j.url as string, '_blank', 'noopener,noreferrer'); return }
-      setPayMsg(j?.error === 'not_configured'
-        ? 'Card payments are not enabled yet on this deployment.'
-        : 'Could not start the payment. Please try again in a moment.')
-    } catch { setPayMsg('Network error while starting the payment.') }
-    finally { setBuying(false) }
-  }
   const tasksDone = Object.values(stats).reduce((n, s) => n + (s?.tasksDone ?? 0), 0)
 
   // Run a real Claude-powered deliverable. Explicit user action → only a hard
@@ -248,7 +226,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           <>Save the <b>keys</b> your team needs · they are locked away on the server, never in the browser.</>,
           <>Flip a <b>safety switch</b> · pause outgoing email, or stop the whole company at once.</>,
         ]} tip="These limits only apply to what the team does on its own · anything you launch yourself always goes through." />
-      case 'vaultor': return <Guide lead="Vaultor manages credits, subscriptions and payments. You top up in your own currency, with no crypto at all."
+      case 'vaultor': return <Guide lead="Vaultor keeps the plan, the usage and the books. Plans are paid by card in your own currency, with no crypto at all."
         steps={[
           <>Choose a <b>pack</b> (30 / 100 / 500 credits) shown in {fiatCur}.</>,
           <>The payment opens in a new window (card, secure).</>,
@@ -342,16 +320,19 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       )
       case 'vaultor': return (
         <>
-          <div className="cred-packs">
-            {CREDIT_PACKS.map((c) => (
-              <button key={c} className="cred-pack" disabled={buying} onClick={() => buyCredits(c)}>
-                <span>{c} credits</span>
-                <em>{CREDIT_SYM[fiatCur]}{c * (CREDIT_UNIT[fiatCur] ?? 1)}</em>
-              </button>
-            ))}
-          </div>
-          {payMsg && <p className="muted small">{payMsg}</p>}
-          <p className="muted small">Credits used today: <b>{engine.creditsToday}</b> · connected apps: <b>{connectedCount}</b>.</p>
+          {/* No credit packs here any more. Buying credits wrote a number into a
+              ledger that nothing reads: a run is authorised by the free daily
+              quota in work_usage, never by a balance, and creditsToday is a
+              self-imposed budget held in this browser. Taking money for a unit
+              the runtime does not honour is the one thing a billing screen must
+              not do, so it is gone until a plan can actually be bought. */}
+          <p className="muted small">
+            Tasks today: <b>{engine.tasksToday}</b> · connected apps: <b>{connectedCount}</b>.
+          </p>
+          <p className="muted small">
+            On <b>Founder</b> your own Claude key runs the work and nothing here is metered. Set a
+            daily ceiling for the team in <b>Sentinel</b>.
+          </p>
         </>
       )
       default: return null

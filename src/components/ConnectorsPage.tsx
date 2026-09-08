@@ -101,7 +101,7 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
         <div className="connect-how">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Find the app by agent</b><span>Apps are grouped by the agent whose job uses them · your Marketer's channels, your Business Analyst's finance tools, and so on.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve once on the app's own screen. No password ever leaves your hands · you authorise on their site, not ours.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>They work for real</b><span>Connecting is free and stays free · you only ever pay for the work itself, about one credit a task. Tap <b>Full guide</b> on any app for the exact steps, or <b>Disconnect</b> whenever you want.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>They work for real</b><span>Connecting is free and stays free · you only ever pay for your plan · on Founder your own key runs the work and nothing here is metered. Tap <b>Full guide</b> on any app for the exact steps, or <b>Disconnect</b> whenever you want.</span></div></div>
         </div>
 
         {loadedOnce && !backend && (

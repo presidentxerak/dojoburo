@@ -16,6 +16,7 @@ import { LogoMarquee } from './components/landing/LogoMarquee'
 import { Pricing } from './components/landing/Pricing'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
 import { CREW_COUNT, CREW_WORD } from './data/facts'
+import { LESSON_COUNT } from './data/academy'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -67,7 +68,7 @@ export function Landing({ enter }: { enter: () => void }) {
         {/* Never used an agent before? The whole course is free and starts from
             zero · it is also how most people arrive here from search. */}
         <a className="lp-hero-learn" href="/academy">
-          New to all this? <b>Learn it free at the Dojo Academy</b> · 20 lessons, no code →
+          New to all this? <b>Learn it free at the Dojo Academy</b> · {LESSON_COUNT} lessons, no code →
         </a>
         {/* the zen dojo · animated backdrop only (non-interactive) */}
         <div className="lp-hero-zen" aria-hidden>
@@ -81,12 +82,13 @@ export function Landing({ enter }: { enter: () => void }) {
       </div>
 
       <section className="lp-sec" id="studios">
-        <span className="lp-pill">{CREW_COUNT} studios · one agent each · 100% in your browser</span>
+        <span className="lp-pill">{CREW_COUNT} teammates · each with its own brief and its own apps</span>
         <h2>Meet the office</h2>
         <p className="lp-lead sm">
-          Each agent in your office owns one studio. Click a teammate and their studio opens: it generates a first
-          version with AI, then you keep full control. Video editing, image compression, design rendering and export
-          all run <b>locally</b> · your files never leave your machine.
+          Click a teammate and their page opens: what they have produced, the apps they work in, and the brief
+          that makes them a specialist. Chief, Sentinel and Vaultor also carry a control panel · the company
+          overview, the autonomy limits, and the plan. Video editing, image compression, design rendering and
+          export all run <b>on your own machine</b> · those files never leave it.
         </p>
         <StudioTeam enter={enter} />
         <p className="lp-note">Brand → website → ads → video → finance → clients → analytics: the brand you pick in Brandi sets one company name, domain and look that flows into every studio, so the whole team stays consistent and reuses each other's work.</p>
@@ -260,7 +262,7 @@ export function Landing({ enter }: { enter: () => void }) {
             <h3>Your account &amp; plan</h3>
             <ul>
               <li><b>Your plan:</b> Free, Founder or Managed, paid by card in your own currency (USD, EUR, JPY…). On Founder your own Claude key runs the work and nothing here is metered at all.</li>
-              <li><b>No crypto:</b> there is no wallet, no seed and no token · just a clear, metered balance in your own currency.</li>
+              <li><b>No crypto:</b> there is no wallet, no seed and no token · just a monthly plan on a card, in your own currency.</li>
             </ul>
           </div>
           <div>
@@ -323,10 +325,10 @@ export function Landing({ enter }: { enter: () => void }) {
         <h2>Where the agents actually run</h2>
         <div className="lp-two">
           <div>
-            <h3>Today · 100% in your browser</h3>
+            <h3>In your browser first</h3>
             <ul>
-              <li>DojoBuro is a static single-page app. The 3D office runs client-side, right in your browser.</li>
-              <li>No server, no database · it deploys to any static host and there is nothing to operate.</li>
+              <li>The 3D office, the editors and every export run client-side. Video, images and design files never leave your machine.</li>
+              <li>Your company's documents are also kept for your organisation, so a colleague can open the same work and a cleared cache cannot destroy it.</li>
             </ul>
           </div>
           <div>
@@ -365,7 +367,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>
         <h2>Ready to run your office?</h2>
         <button className="lp-cta big lp-cta-create" onClick={enter}>Create your company →</button>
-        <p className="lp-foot">Credits · no crypto · powered by growth hacking · open in your browser</p>
+        <p className="lp-foot">Sold as software · no crypto · open in your browser</p>
       </section>
 
       <footer className="lp-footer">
@@ -375,7 +377,7 @@ export function Landing({ enter }: { enter: () => void }) {
           <a href="#stack">Connect apps</a>
           <a href="#studio">Dojo settings</a>
           <a href="#pricing">Pricing</a>
-          <a href="#onramp">Credits</a>
+          <a href="#pricing">Pricing</a>
           <a href="#prod">Production</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>

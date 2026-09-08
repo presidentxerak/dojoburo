@@ -41,7 +41,7 @@ export function formatFrom(credits: number, code: CurrencyCode): string {
   return `${c.symbol}${num}`
 }
 
-/** Convert a fiat amount back to credits. */
-export function toXrp(amount: number, code: CurrencyCode): number {
-  return (Number.isFinite(amount) ? amount : 0) / currencyDef(code).perCredit
-}
+// `toXrp` used to live here — a fiat amount converted back into credits for the
+// top-up screen. Both the screen and the unit are gone: the app sells plans, and
+// a run is authorised by a quota rather than a balance. The name outlived the
+// XRP rail by a long way; it does not need to outlive the credits too.

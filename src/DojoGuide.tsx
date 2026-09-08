@@ -90,10 +90,10 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <a className="ac-kicker dg2-toacademy" href="/academy">New here? Start at the Dojo Academy →</a>
         <h1>Your <span className="hl-mag">studios</span> + your tools, <span className="hl-acid">under control</span>.</h1>
         <p className="lp-sub">
-          You name your company, pick the ready-made teams you need, and each teammate opens a pro studio
-          (branding, website, Meta campaigns, video editing, finance, CRM, analytics) that runs
-          <b> 100% in your browser</b> · your files never leave. Connect your real apps (Meta, Gmail, Stripe…)
-          and they work inside them for you. This guide covers the whole thing, step by step.
+          You name your company, pick the ready-made teams you need, and each teammate gets to work
+          (branding, website, Meta campaigns, video editing, finance, CRM, analytics). Editing and export run
+          <b>on your own machine</b> · those files never leave it. Connect your real apps (Meta, Gmail, Stripe…)
+          and the team works inside them for you. This guide covers the whole thing, step by step.
         </p>
         <div className="lp-badges">
           <span>{CREW_COUNT} studios · 100% local</span><span>{CONNECTORS.length} apps</span><span>One-click connect · keys kept safe</span><span>Cloud or local</span>
@@ -367,15 +367,15 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <div>
             <ul>
               <li><b>Intelligence is ~free</b> · bring your own Claude key, or use a free model when one is enabled. Most tasks cost nothing.</li>
-              <li><b>Priced tasks are tiny</b> · most cost about one credit; only heavier jobs cost a couple more, and you buy credits in your own currency.</li>
+              <li><b>Nothing is metered on Founder</b> · your own Claude key runs the work and Anthropic bills you for it directly. Managed includes a monthly allowance instead.</li>
               <li><b>Set a daily spending limit</b> and per-teammate budgets in the dojo settings so nothing can overspend · a guard also stops the CEO from looping.</li>
             </ul>
           </div>
           <div>
             <ul>
-              <li><b>Explore for free</b> · the free tier lets you build your company and run no-cost tasks first · add credits only when you go live.</li>
-              <li><b>Disconnect unused apps</b> and watch your CEO dashboard for live totals (credits, tokens, tasks).</li>
-              <li><b>Credits</b> (optional) cover runs on our AI · about 1 credit per task · top up only if you don't bring your own key.</li>
+              <li><b>Explore for free</b> · the free tier lets you build your company and run no-cost tasks first · pick a plan only when you go live.</li>
+              <li><b>Disconnect unused apps</b> and watch your CEO dashboard for live totals (tokens and tasks).</li>
+              <li><b>Managed</b> (optional) covers runs on our models · a monthly allowance of tasks · only worth it if you would rather not hold a key.</li>
             </ul>
           </div>
         </div>

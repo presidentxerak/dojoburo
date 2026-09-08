@@ -10,7 +10,7 @@ import { DOJO_TEMPLATES, templateById } from '../../data/templates'
 import { PROFESSIONS, professionColor } from '../../data/professions'
 import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { FUNCTIONS, FUNCTION_BY_ID } from '../../data/functions'
-import { CURRENCY_LIST, formatFrom, toXrp, type CurrencyCode } from '../../data/currency'
+import { CURRENCY_LIST, formatFrom, type CurrencyCode } from '../../data/currency'
 import { PLANS, planPrice } from '../../data/plans'
 import { privyConfigured, privyControls } from '../../auth/controls'
 import { useWork } from '../../agents/workStore'
@@ -25,7 +25,6 @@ import { AgentContext } from '../agents/AgentContext'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { FullScreen } from '../FullScreen'
 import { StepBar } from '../../modules/StepBar'
-import { apiFetch } from '../../lib/apiFetch'
 
 type Tab = 'studio' | 'account' | 'team' | 'billing'
 
@@ -751,8 +750,6 @@ function BillingTab() {
   const currency = useWorkshop((s) => s.account?.currency ?? 'USD') as CurrencyCode
   const setCurrency = useWorkshop((s) => s.setCurrency)
   const hasAccount = useWorkshop((s) => !!s.account)
-  const email = useWorkshop((s) => s.account?.email ?? '')
-  const privyDid = useWorkshop((s) => s.account?.privyDid ?? '')
   const creditsToday = useEngine((s) => s.creditsToday)
   const dailyCap = useEngine((s) => s.dailyCreditCap)
 
@@ -786,7 +783,6 @@ function BillingTab() {
       </div>
       {!hasAccount && <p className="ws-blurb">Sign in (Account tab) to set a currency.</p>}
 
-      <TopUp currency={currency} email={email} privyDid={privyDid} disabled={!hasAccount} />
 
       <h3 style={{ marginTop: 18 }}>Plans</h3>
       <div className="ws-plans">
@@ -799,8 +795,18 @@ function BillingTab() {
         ))}
       </div>
       <p className="ws-blurb">
-        A task is one teammate doing one step · on <b>Founder</b> your tasks run on your own key and
-        Anthropic bills you directly. Pay in USD, EUR or JPY, by card, through Stripe.
+        A task is one teammate doing one step. On <b>Founder</b> your tasks run on your own Claude key
+        and Anthropic bills you directly — that plan works today and costs Dojoburo nothing to serve.
+      </p>
+      {/* The credit top-up that used to sit above these cards is gone. It took a
+          card and wrote to a ledger nothing reads: a run is authorised by the
+          free daily quota in work_usage, never by a balance. Rather than leave a
+          working checkout for a unit the runtime ignores, the screen now says
+          what is true. */}
+      <p className="ws-blurb ws-paynote">
+        <b>Plans cannot be bought in the app yet.</b> Stripe here is wired for one-off payments, and a
+        monthly plan needs Subscriptions. Until that is done, <b>Free</b> and <b>Founder</b> are the two
+        that actually run — and nothing on this screen takes a card.
       </p>
     </div>
   )
@@ -874,73 +880,3 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
   )
 }
 
-// Fiat top-up: pick an amount in the chosen currency, "Pay with card" posts to
-// the /api/checkout Edge processor and redirects to the hosted checkout. The
-// the card charge is the payment · see api/checkout.ts. When the processor
-// isn't configured the button explains the activation step instead of failing
-// silently.
-const PRESETS: Record<CurrencyCode, number[]> = {
-  USD: [10, 25, 50, 100],
-  EUR: [10, 25, 50, 100],
-  JPY: [1500, 3500, 7000, 14000],
-}
-
-function TopUp({ currency, email, privyDid, disabled }: { currency: CurrencyCode; email: string; privyDid: string; disabled: boolean }) {
-  const presets = PRESETS[currency] ?? PRESETS.USD
-  const [amount, setAmount] = useState<number>(presets[1])
-  const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState<string>('')
-  const xrp = toXrp(amount, currency)
-
-  async function pay() {
-    setBusy(true)
-    setMsg('')
-    try {
-      const res = await apiFetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ amount, currency, email, kind: 'credits', privyDid }),
-      })
-      const j = await res.json().catch(() => ({}))
-      if (j?.ok && j.url) {
-        window.open(j.url as string, '_blank', 'noopener,noreferrer') // hosted checkout · new window
-        return
-      }
-      if (j?.error === 'not_configured') {
-        setMsg('Card payments aren’t live yet on this deployment. Set STRIPE_SECRET_KEY to enable.')
-      } else {
-        setMsg('Could not start checkout. Please try again in a moment.')
-      }
-    } catch {
-      setMsg('Network error starting checkout.')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-
-  return (
-    <div className="ws-topup">
-      <h3 style={{ marginTop: 18 }}>Add credits</h3>
-      {(
-        <>
-          <p className="ws-blurb">Top up your balance with a card.</p>
-          <div className="ws-amounts">
-            {presets.map((v) => (
-              <button key={v} className={`ws-cur ${amount === v ? 'on' : ''}`} disabled={disabled} onClick={() => setAmount(v)}>
-                {formatFrom(toXrp(v, currency), currency)}
-              </button>
-            ))}
-          </div>
-          <div className="ws-payrow">
-            <button className="ws-btn primary" disabled={disabled || busy} onClick={pay}>
-              {busy ? 'Starting…' : `Pay ${formatFrom(xrp, currency)} with card`}
-            </button>
-          </div>
-          {disabled && <p className="ws-blurb">Sign in (Account tab) to add credits.</p>}
-          {msg && <p className="ws-blurb ws-paynote">{msg}</p>}
-        </>
-      )}
-    </div>
-  )
-}

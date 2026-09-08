@@ -53,7 +53,7 @@ export const KB: KBTopic[] = [
     id: 'studios',
     chip: 'The studios',
     answer:
-      `Your office ships with ${CREW_WORD} AI teammates, each opening its own workspace when you click it: ${CREW_LIST.map((r) => `${r.name} (${r.title})`).join(', ')}. You can hide the ones you don't need and create your OWN custom agents too. The brand you choose in Brandi flows into every studio, so the whole team shares one company name, domain and look. Everything runs 100% in your browser · video editing, image compression and exports stay on your machine, nothing is sent to a server. The AI creates a first version and you keep full control. And front-and-centre in your 3D office stands the team panda · a mascot who cheers the crew on and breaks into a dance every time a task is completed (tap him to make him celebrate on cue).`,
+      `Your office ships with ${CREW_WORD} AI teammates, each opening its own workspace when you click it: ${CREW_LIST.map((r) => `${r.name} (${r.title})`).join(', ')}. You can hide the ones you don't need and create your OWN custom agents too. The brand you choose in Brandi flows into every studio, so the whole team shares one company name, domain and look. Editing and export run on your own machine · video, image compression and exports never leave it. The documents your company produces are also kept for your organisation, so a colleague sees the same work. The AI creates a first version and you keep full control. And front-and-centre in your 3D office stands the team panda · a mascot who cheers the crew on and breaks into a dance every time a task is completed (tap him to make him celebrate on cue).`,
     links: [
       { label: 'See the studios', href: '#studios' },
       { label: 'Open my office', href: '#app' },

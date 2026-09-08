@@ -56,6 +56,31 @@ const managedTasksStr = F.managedTasks.toLocaleString('en-US')
 // --- the rules -------------------------------------------------------------
 // Each rule says: in this file, this claim must be present, and the stale
 // variants must not be. `must` may be a string or a RegExp.
+// Claims that were true once and are not any more.
+//
+// Every one of these shipped: the app told people their company never left
+// their browser after wave two put a copy on the server, sold credits at a
+// pound each in one screen while another sold a $29 plan, and promised each of
+// eighteen teammates a studio when three have one. None of it was caught by a
+// type checker or a browser test, because all of it compiled and rendered
+// perfectly — it was just false.
+//
+// `never` is checked across the whole of src/, so a sentence cannot come back
+// in a file this list has never heard of.
+const NEVER = [
+  { re: /never leaves your device/i, why: 'a signed-in company is copied to the server · say what is actually true' },
+  { re: /100% in your browser/i, why: 'documents sync to the organisation · scope the claim to media and exports' },
+  { re: /nothing is sent to a server/i, why: 'the same' },
+  { re: /buy credits|Top up credits|credits in your own currency/i, why: 'the app sells plans, not credits · src/data/plans.ts is the only price' },
+  { re: /one credit per task|about one credit/i, why: 'nothing is priced per credit any more' },
+  { re: /metered balance/i, why: 'there is no balance to meter' },
+  // NB: not /xumm/ — the support index deliberately keeps wallet words as
+  // SEARCH KEYWORDS so that someone asking "do I need a wallet?" reaches the
+  // answer that says no. A keyword is not a claim.
+  { re: /settled on a fast rail|XRPL|VITE_XUMM/i, why: 'the settlement rail was removed' },
+  { re: /one agent each|owns one studio/i, why: 'three teammates have a control panel, not eighteen' },
+]
+
 const RULES = [
   // the support bot's server-side prompt · a separate bundle, cannot import facts
   { file: 'api/chat.ts', must: new RegExp(`${F.teams} ready-made teams`), why: `the catalogue has ${F.teams} ready-made teams` },
@@ -86,7 +111,11 @@ const RULES = [
   { file: 'src/support/knowledge.ts', forbid: /(ships|comes) with twelve/i, why: 'use CREW_WORD from data/facts' },
 
   // the Academy home + the landing invitation quote the lesson count
-  { file: 'src/Landing.tsx', must: new RegExp(`${F.lessons} lessons`), why: `the Academy has ${F.lessons} lessons` },
+  // The landing renders {LESSON_COUNT} rather than a number, so this asserts the
+  // WIRING, not the value. A literal here was correct the day it was typed and
+  // wrong the day a lesson was added — which is the whole failure mode this
+  // script exists to catch.
+  { file: 'src/Landing.tsx', must: /\{LESSON_COUNT\} lessons/, why: 'the landing must read the lesson count from the curriculum, not hardcode it' },
 
   // index.html · the one description a crawler reads before any JS runs
   { file: 'index.html', must: /<meta name="description"/, why: 'the site needs a description' },
@@ -165,6 +194,27 @@ for (const a of arch.ARCHETYPES) {
     }
   }
 }
+// ---- claims that must not come back ---------------------------------------
+{
+  const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const f = path.join(dir, e.name)
+    return e.isDirectory() ? walk(f) : /\.(ts|tsx)$/.test(e.name) ? [f] : []
+  })
+  for (const file of walk(path.join(ROOT, 'src'))) {
+    // the rules themselves quote the phrases · do not flag this script or a
+    // comment explaining why a phrase is banned
+    const text = fs.readFileSync(file, 'utf8')
+      .split('\n').filter((l) => !/^\s*(\/\/|\*)/.test(l)).join('\n')
+    for (const n of NEVER) {
+      const m = n.re.exec(text)
+      if (m) {
+        console.log(`FAIL  ${path.relative(ROOT, file)} · "${m[0]}" — ${n.why}`)
+        bad++
+      }
+    }
+  }
+}
+
 // every app a role reaches for must exist in the connector registry
 const APP_IDS = new Set(conns.CONNECTORS.map((c) => c.id))
 for (const r of roles.ROLE_AGENTS) {

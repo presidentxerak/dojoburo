@@ -32,9 +32,13 @@ export interface ModuleDef {
   planned?: string[]
 }
 
-// One studio module per studio-owning agent. Marketus and Busino are composite
-// workspaces that internally switch between the former standalone studios, so
-// every original tool is still reachable · just grouped under one teammate.
+// The studio modules.
+//
+// Three teammates own a control panel of their own: Chief (the company
+// overview), Sentinel (autonomy and limits) and Vaultor (plan, usage, books).
+// The other fifteen are not missing anything — a teammate's page already shows
+// what it has produced, the apps it works in, and its brief. A module exists
+// only where a teammate needs controls that do not fit that shape.
 export const MODULES: ModuleDef[] = [
   {
     id: 'chief', label: 'Command Center',
@@ -48,7 +52,7 @@ export const MODULES: ModuleDef[] = [
   },
   {
     id: 'billing', label: 'Billing',
-    blurb: 'Credits, top-ups and payments in your own currency · no crypto.',
+    blurb: 'Your plan, what the team has used, payments and the books.',
     tint: '#0e9bb5', agentRole: 'vaultor', status: 'live', comp: VaultorModule,
   },
   // --- Optional group agents · added by the user from the dojo's empty cells ---

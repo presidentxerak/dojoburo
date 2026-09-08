@@ -42,9 +42,9 @@ export const APP_COUNT = CONNECTORS.length
 export const SKIN_COUNT = SKINS.length
 export const WORLD_COUNT = DOJO_TEMPLATES.length
 
-/** Pricing · one step of a plan is about one credit. */
+/** Pricing · what one step of a plan draws from a Managed allowance. */
 export const CREDIT_PRICE_USD = CREDIT_USD
-/** "$0.02" · what one credit costs at Pro-pack rates. */
+/** "$0.02" · what one task is worth against the Managed allowance. */
 export const CREDIT_PRICE_LABEL = `$${CREDIT_USD.toFixed(2)}`
 /** A typical four-step team run, in dollars. */
 export const TYPICAL_RUN_STEPS = 4
@@ -75,10 +75,10 @@ export const crewSentence = (): string => {
  * Regenerated from the data on every render, so it is never stale.
  */
 export const elevator = (): string =>
-  `DojoBuro is an agent workspace: you name a project, pick from ${TEAM_COUNT} ready-made teams, ` +
+  `DojoBuro is an agent workspace: you name a company, pick from ${TEAM_COUNT} ready-made teams, ` +
   `and each team arrives staffed with teammates already briefed and wired to the apps they need ` +
-  `(${APP_COUNT} available). One step of a team's plan costs about one credit — a ${TYPICAL_RUN_STEPS}-step run is ` +
-  `roughly ${TYPICAL_RUN_USD_LABEL}, and nothing at all on your own Claude key. ` +
+  `(${APP_COUNT} available). On Managed a step draws about ${CREDIT_PRICE_LABEL} from the monthly ` +
+  `allowance — a ${TYPICAL_RUN_STEPS}-step run is roughly ${TYPICAL_RUN_USD_LABEL} — and nothing at all on your own Claude key. ` +
   `The Dojo Academy teaches the whole thing free in ${ACADEMY_LESSONS} lessons.`
 
 /** Everything the drift checker compares written copy against. */

@@ -1,35 +1,34 @@
-// Vaultor · Billing Manager · credits, top-ups, subscription and payment. You
-// buy credits in your own currency (no crypto), each task spends about one.
+// Vaultor · Billing Manager · what the plan is, what has been used, what Stripe
+// took, and the books.
+//
+// This tab used to be a SECOND shop: buy 30–2000 credits at a pound each, on
+// its own ladder, with its own checkout. That was the pricing the product moved
+// away from — the app sells the software now (Free, Founder at $29 with your own
+// key, Managed at $49) and src/data/plans.ts is the single place that says so.
+// Leaving a credit store here meant the same app quoted two different prices for
+// the same thing, which is exactly the failure plans.ts was written to end.
+//
+// So there is one shop, on the Billing surface, and this reads from plans.ts and
+// points at it.
 import { useEffect, useState } from 'react'
 import type { ModuleProps } from '../registry'
-import { useWorkshop } from '../../workshop'
 import { useWork } from '../../agents/workStore'
 import { toolData } from '../../agents/workApi'
 import { useEngine } from '../../agents/engineStore'
 import { OfficeStats } from '../../components/OfficeStats'
 import { Accounting } from './Accounting'
 import { InfoDot } from '../../components/InfoDot'
-import { apiFetch } from '../../lib/apiFetch'
-
-const CREDIT_UNIT: Record<string, number> = { USD: 1, EUR: 1, JPY: 150 }
-const CREDIT_SYM: Record<string, string> = { USD: '$', EUR: '€', JPY: '¥' }
-const CREDIT_PACKS = [30, 100, 500]
-// same selection ladder as the landing pricing, so the in-app top-up matches it
-const CREDIT_OPTIONS = [30, 60, 120, 240, 480, 960, 1200, 1600, 2000]
+import { PLANS, TASK_USD } from '../../data/plans'
 
 const TABS = [
-  { id: 'billing', label: 'Billing', sub: 'Credits, top-ups & payments' },
+  { id: 'billing', label: 'Plan & usage', sub: 'Your plan, what it has used, and payments' },
   { id: 'accounting', label: 'Accounting', sub: 'Sales, costs, profit, VAT · .xlsx export' },
 ] as const
 
 export default function VaultorModule({ dojoId }: ModuleProps) {
   const [tab, setTab] = useState<'billing' | 'accounting'>('billing')
-  const account = useWorkshop((s) => s.account)
   const tools = useWork((s) => s.tools)
   const engine = useEngine()
-  const [buying, setBuying] = useState(false)
-  const [payMsg, setPayMsg] = useState('')
-  const [sel, setSel] = useState(120)
   // live Stripe data (balance + recent payments) · only returns to an admin
   // account when STRIPE_SECRET_KEY is set; degrades to nothing otherwise.
   const [stripe, setStripe] = useState<{ available?: { amount: number; currency: string }[]; pending?: { amount: number; currency: string }[]; payments?: { amount: number; currency: string; created: number; status: string; label: string }[] } | null>(null)
@@ -39,23 +38,7 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
     return () => { live = false }
   }, [])
 
-  const fiatCur = account?.currency ?? 'USD'
   const connectedCount = Object.values(tools).filter((t) => (t as { connected?: boolean }).connected).length
-
-  const buyCredits = async (credits: number) => {
-    setBuying(true); setPayMsg('')
-    try {
-      const amount = credits * (CREDIT_UNIT[fiatCur] ?? 1)
-      const res = await apiFetch('/api/checkout', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ amount, currency: fiatCur, email: '', kind: 'credits', privyDid: account?.privyDid || '' }),
-      })
-      const j = await res.json().catch(() => ({}))
-      if (j?.ok && j.url) { window.open(j.url as string, '_blank', 'noopener,noreferrer'); return }
-      setPayMsg(j?.error === 'not_configured' ? 'Card payments are not enabled yet on this deployment.' : 'Could not start the payment. Please try again in a moment.')
-    } catch { setPayMsg('Network error while starting the payment.') }
-    finally { setBuying(false) }
-  }
 
   return (
     <div className="vaultor-mod sq">
@@ -64,45 +47,34 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
           <button key={t.id} className={`sq-step${tab === t.id ? ' on' : ''}`} onClick={() => setTab(t.id)} title={t.sub}>{t.label}</button>
         ))}
         <InfoDot title="Billing" label="How billing works">
-          <p>Manage <b>credits</b> that power your agents' real work, top up in your own currency (no crypto), and see recent payments.</p>
-          <p>Connect <b>Stripe</b> (operator) to show your live balance and charges here. Each agent task meters a small amount of credit; the Security Studio caps daily spend.</p>
+          <p>What your company is on, what it has used, and what Stripe has taken. Changing the plan happens on the Billing surface · there is only one of those.</p>
+          <p>Connect <b>Stripe</b> (operator) to show your live balance and charges here. Sentinel caps how much the team may spend in a day.</p>
         </InfoDot>
       </div>
 
       {tab === 'accounting' && <Accounting dojoId={dojoId} />}
 
       {tab === 'billing' && (<>
-      <div className="sq-eyebrow">Top up credits</div>
-      <p className="sq-lead">Buy credits in {fiatCur}. Each task spends about one credit · no crypto anywhere.</p>
-
-      {/* landing-style selection + payment · pick an amount, see the price, pay by card */}
-      <div className="cred-buy">
-        <div className="cred-buy-card">
-          <div className="cred-buy-head">
-            <span className="cred-buy-name">Credits</span>
-            <span className="cred-buy-price">{CREDIT_SYM[fiatCur]}{sel * (CREDIT_UNIT[fiatCur] ?? 1)}<small> one-off</small></span>
+      <div className="sq-eyebrow">Your plan</div>
+      <p className="sq-lead">
+        Dojoburo sells the software, not the tokens. There is one place to change this — the
+        Billing surface — so a price can never be two things at once.
+      </p>
+      <div className="biz-overview">
+        {PLANS.map((pl) => (
+          <div key={pl.id} className={`biz-tile${pl.featured ? ' on' : ''}`}>
+            <span>{pl.usd ? `$${pl.usd}` : 'Free'}</span>
+            <em>{pl.name}{pl.byok ? ' · your key' : pl.tasks ? ` · ${pl.tasks.toLocaleString('en-US')} tasks` : ''}</em>
           </div>
-          <div className="cred-buy-amt">
-            <span>{sel} credits</span>
-            <select className="lp-credit-select" value={sel} onChange={(e) => setSel(Number(e.target.value))} aria-label="Credits to buy">
-              {CREDIT_OPTIONS.map((c) => <option key={c} value={c}>{c} credits</option>)}
-            </select>
-          </div>
-          <input className="cred-buy-range" type="range" min={0} max={CREDIT_OPTIONS.length - 1} value={CREDIT_OPTIONS.indexOf(sel) < 0 ? 2 : CREDIT_OPTIONS.indexOf(sel)} onChange={(e) => setSel(CREDIT_OPTIONS[Number(e.target.value)])} />
-          <button className="cred-buy-cta" disabled={buying} onClick={() => void buyCredits(sel)}>{buying ? 'Starting payment…' : `Buy ${sel} credits · ${CREDIT_SYM[fiatCur]}${sel * (CREDIT_UNIT[fiatCur] ?? 1)}`}</button>
-          <span className="cred-buy-note">Secure card payment · powered by Stripe</span>
-        </div>
-        <div className="cred-buy-quick">
-          <span className="cred-buy-quick-h">Quick packs</span>
-          {CREDIT_PACKS.map((c) => (
-            <button key={c} className="cred-pack" disabled={buying} onClick={() => { setSel(c); void buyCredits(c) }}>
-              <span>{c} credits</span>
-              <em>{CREDIT_SYM[fiatCur]}{c * (CREDIT_UNIT[fiatCur] ?? 1)}</em>
-            </button>
-          ))}
-        </div>
+        ))}
       </div>
-      {payMsg && <p className="muted small">{payMsg}</p>}
+      <p className="muted small">
+        On Managed a task is worth about ${TASK_USD.toFixed(3)} of the monthly allowance. On Founder
+        you bring your own Claude key and there is no meter between you and your own work.
+      </p>
+      <button className="btn primary tiny" style={{ marginTop: 10 }} onClick={() => useWork.getState().openStudio('billing')}>
+        Open Billing
+      </button>
 
       {/* live Stripe data · appears only for an admin account with Stripe configured */}
       {stripe && (

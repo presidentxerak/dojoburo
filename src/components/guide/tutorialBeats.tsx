@@ -67,7 +67,7 @@ export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }
       { id: 'connect', title: '2 · Connecting is one click', body: 'Open a teammate, find the app under their tasks, hit Connect and approve once on the app\'s own screen. You never hand over a password, and you can disconnect any time.' },
       { id: 'apps', title: '3 · Access is sealed away', body: 'What comes back is stored on the server, encrypted, and unlocked only while your team is working. This browser never holds it.' },
       { id: 'free', title: '4 · Connecting costs nothing', body: 'There is no charge to connect an app, and no charge to keep it connected. Your plan sets how many apps you can have at once — Free 2, Solo 6, Pro every one of them.' },
-      { id: 'cost', title: '5 · What you pay on top', body: 'Only the work costs anything: about one credit per task, bought in your own currency. Nothing else is added — no per-app fee, no per-teammate fee, no setup fee.' },
+      { id: 'cost', title: '5 · What you pay on top', body: 'One monthly plan, paid by card in your own currency. Nothing else is added — no per-app fee, no per-teammate fee, no setup fee. On Founder your own Claude key runs the work, so nothing here is metered at all.' },
       { id: 'sub', title: '6 · Your own apps stay yours', body: 'We never bill you for Notion, Slack, Stripe or anything else you connect. If a plan is needed there, you pay it to them, exactly as you do today.' },
       { id: 'byok', title: '7 · Or bring your own key', body: 'Add your own Claude key and the work runs on it: unlimited tasks, no credits spent at all. Anthropic bills you directly and DojoBuro takes nothing per task.' },
     ],

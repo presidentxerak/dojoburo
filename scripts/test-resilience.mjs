@@ -20,7 +20,7 @@ await esbuild.build({
   entryPoints: [join(root, 'src/data/currency.ts')],
   bundle: true, format: 'esm', outfile: out, logLevel: 'silent',
 })
-const { formatFrom, toXrp, currencyDef, CURRENCIES } = await import(out)
+const { formatFrom, currencyDef, CURRENCIES } = await import(out)
 
 let fails = 0
 const ok = (c, m) => { console.log((c ? 'ok    ' : 'FAIL  ') + m); if (!c) fails++ }
@@ -32,9 +32,11 @@ for (const code of JUNK) {
   let text = ''
   try { text = formatFrom(12, code) } catch (e) { threw = e }
   ok(!threw, `formatFrom survives a currency of ${label}` + (threw ? ` · ${threw.message}` : ` · ${text}`))
-  threw = null
-  try { toXrp(12, code) } catch (e) { threw = e }
-  ok(!threw, `toXrp survives a currency of ${label}` + (threw ? ` · ${threw.message}` : ''))
+  // `toXrp` was checked here too — a fiat amount converted back into credits for
+  // the top-up screen. Both are gone: the app sells plans, and a run is
+  // authorised by a daily quota rather than a balance, so there is no credit to
+  // convert to. The check went with the function rather than being left to
+  // assert something no longer true.
   ok(!!currencyDef(code)?.perCredit, `and it still resolves to a real currency for ${label}`)
 }
 

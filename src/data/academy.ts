@@ -208,7 +208,7 @@ const BASICS: Lesson[] = [
     slug: 'your-first-project',
     title: 'Your first project, in five minutes',
     minutes: 6,
-    summary: 'Name a project, tick the teams you need, land in your dojo. No prompt to write, nothing to configure.',
+    summary: 'Name a company, tick the teams you need, land in your dojo. No prompt to write, nothing to configure.',
     keywords: ['create ai team', 'ai agents no code', 'ai automation for beginners', 'dojoburo getting started'],
     stage: 'create',
     blocks: [
@@ -219,7 +219,7 @@ const BASICS: Lesson[] = [
       },
       {
         kind: 'do',
-        title: 'Step 1 · Name your project',
+        title: 'Step 1 · Name your company',
         body: 'One field. It can be your real business name or a working title — you can rename it later from your profile. This is the container everything else belongs to.',
       },
       {
@@ -240,11 +240,11 @@ const BASICS: Lesson[] = [
       {
         kind: 'warn',
         title: 'Signing in, and why',
-        body: 'Browsing is free and needs no account. You are asked to sign in at the moment something real is saved — when you add your first team — so your project is still there on your next device. You can also carry on as a guest, saved in this browser only.',
+        body: 'Browsing is free and needs no account. You are asked to sign in at the moment something real is saved — when you add your first team — so your company is still there on your next device. You can also carry on as a guest, saved in this browser only.',
       },
     ],
     quiz: {
-      q: 'What do you have to write to create a project?',
+      q: 'What do you have to write to create a company?',
       options: [
         'A detailed prompt describing your business',
         'Just a name — then you tick the teams you want',
@@ -255,7 +255,7 @@ const BASICS: Lesson[] = [
       why: 'Naming the project and ticking teams is the whole setup. The briefs are already written; you edit them later if you want to.',
     },
     takeaway: 'Name it, tick a team, you are in. Setup is two decisions.',
-    next: 'Create a project with exactly one team and open it.',
+    next: 'Create a company with exactly one team and open it.',
   },
   {
     slug: 'reading-the-work',
@@ -268,7 +268,7 @@ const BASICS: Lesson[] = [
       {
         kind: 'idea',
         title: 'Everything produced is kept',
-        body: 'When a step finishes, it produces something real you can open, edit and export — a brief, a plan, a set of creatives, a page. It lands on the teammate who made it and in your project, and it stays there.',
+        body: 'When a step finishes, it produces something real you can open, edit and export — a brief, a plan, a set of creatives, a page. It lands on the teammate who made it and in your company, and it stays there.',
       },
       {
         kind: 'idea',
@@ -401,7 +401,7 @@ const LANDSCAPE: Lesson[] = [
           b: 'Use…',
           rows: [
             ['Think through an idea, get an answer', 'A chatbot'],
-            ['Change code in a project you already have', 'A coding agent or an AI IDE'],
+            ['Change code in a repository you already have', 'A coding agent or an AI IDE'],
             ['Get a business job done end to end, in your real apps', 'An agent workspace like this one'],
             ['Do all three', 'All three. They are not rivals.'],
           ],
@@ -498,7 +498,7 @@ const LANDSCAPE: Lesson[] = [
       why: 'It names what exists at the end, for whom, and with what constraints. The others could each mean fifty different things.',
     },
     takeaway: 'Outcome, audience, constraints, test. Four things, every time.',
-    next: 'Add an audience and a test to your project goal.',
+    next: 'Add an audience and a test to your company goal.',
   },
   {
     slug: 'what-it-costs',
@@ -511,7 +511,7 @@ const LANDSCAPE: Lesson[] = [
       {
         kind: 'idea',
         title: 'You are paying for the teams, not for tokens',
-        body: 'That is the whole pricing model, and it is worth being blunt about it. What you buy from DojoBuro is the ready-made teams, their plans, the connectors and the orchestration. The model that writes the words is something you can bring yourself — and on the Founder plan you do, which is why nothing you run there is metered. About one credit per task applies only on Managed, where we are the ones paying the model.',
+        body: 'That is the whole pricing model, and it is worth being blunt about it. What you buy from DojoBuro is the ready-made teams, their plans, the connectors and the orchestration. The model that writes the words is something you can bring yourself — and on the Founder plan you do, which is why nothing you run there is metered. The per-task figure applies only on Managed, where we are the ones paying the model.',
       },
       {
         kind: 'idea',
@@ -564,7 +564,7 @@ const LANDSCAPE: Lesson[] = [
       q: 'A team with a five-step plan runs once. Roughly what does it cost?',
       options: ['Five credits', 'One credit', 'Five dollars', 'Nothing, ever'],
       answer: 0,
-      why: 'One step is about one credit, so a five-step plan is about five — roughly ten cents at Pro rates, or nothing at all if you are running on your own Claude key.',
+      why: 'On Managed a step draws about two cents from the monthly allowance, so a five-step plan is about ten cents — and nothing at all if you are running on your own Claude key.',
     },
     takeaway: 'One step ≈ one credit. Start on Balanced, set a daily limit, watch the chip.',
     next: 'Open the mode chip in the dojo header and read what each mode changes.',

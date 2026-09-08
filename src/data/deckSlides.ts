@@ -1,6 +1,7 @@
 // Shared content for the investor pitch deck · used by both the on-screen deck
 // (PitchDeck.tsx) and the exported PDF (deckPdf.ts) so they never drift.
 
+import { FOUNDER_USD, MANAGED_USD, MANAGED_TASKS } from './plans'
 export const DECK_ACCENTS = {
   magenta: '#ff2d9b', blue: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', violet: '#a06bff',
 }
@@ -34,7 +35,7 @@ export interface DeckSlide {
 const A = DECK_ACCENTS
 
 export const DECK_SLIDES: DeckSlide[] = [
-  { n: '', eyebrow: 'Investor deck', title: 'Your projects automator.', line: 'Name your project, tick the ready-made teams you need, and a crew of AI teammates builds and runs them · website, offers, growth and analytics · while you steer.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['Ready-made teams', 'Your everyday apps', 'Priced in credits'] },
+  { n: '', eyebrow: 'Investor deck', title: 'Your company automator.', line: 'Name your company, tick the ready-made teams you need, and a crew of AI teammates builds and runs them · website, offers, growth and analytics · while you steer.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['Ready-made teams', 'Your everyday apps', 'Sold as software'] },
   { n: '01', eyebrow: 'The problem', title: 'Too many apps.', line: 'Running a business means juggling a dozen tools and never mastering any of them.', obj: 'briefcase', accent: A.orange, layout: 'object', points: ['A dozen SaaS tabs', 'Constant context-switching', 'Nothing mastered'] },
   { n: '02', eyebrow: 'The solution', title: 'One 3D office.', line: 'AI agents each own a real function · product, growth, finance, ops · and act for you inside your apps.', obj: 'network', accent: A.blue, layout: 'dojo', points: ['An agent per function', 'Real actions, not chat', 'You stay the founder'] },
   {
@@ -47,10 +48,10 @@ export const DECK_SLIDES: DeckSlide[] = [
   },
   { n: '04', eyebrow: 'The product', title: 'Real work.', line: 'Agents act for real inside your apps · they open the PR, draft the email, raise the invoice.', obj: 'gear', accent: A.violet, layout: 'object', points: ['Opens the PR', 'Drafts the email', 'Raises the invoice'] },
   {
-    n: '05', eyebrow: 'The rail', title: 'Paid in credits.', line: 'Users buy credits in their own currency; every task spends about one, settled on a fast rail behind the scenes · no crypto to manage.', obj: 'coins', accent: A.blue, layout: 'stats',
+    n: '05', eyebrow: 'The model', title: 'We sell the software.', line: `Not the tokens. Founder brings their own model key at $${FOUNDER_USD} a month — their key, their bill, no meter between them and their own work. Managed is $${MANAGED_USD} for people who would rather not hold a key.`, obj: 'gem', accent: A.blue, layout: 'stats',
     stats: [
-      { big: '~1', label: 'credit per task' },
-      { big: '≈ $0.01', label: 'cost per task' },
+      { big: `$${FOUNDER_USD}`, label: 'Founder · your own key' },
+      { big: `$${MANAGED_USD}`, label: `Managed · ${MANAGED_TASKS.toLocaleString('en-US')} tasks` },
       { big: '0 crypto', label: 'for the user' },
     ],
   },

@@ -115,7 +115,7 @@ export function SettingsModal() {
           {section === 'about' && (
             <section className="set-sec">
               <h3>About</h3>
-              <p className="set-lead">DojoBuro · found and run a company with a team of AI agents. Local-first; your data stays in your browser.</p>
+              <p className="set-lead">DojoBuro · found and run a company with a team of AI agents. Local-first: your browser holds the working copy, and your company keeps one too.</p>
               <div className="set-field"><span>Build</span><b className="set-static">{BUILD_ID}</b></div>
               {/* the escape hatch from a browser or CDN holding an old bundle ·
                   it moved here with the stamp when both left the menu */}

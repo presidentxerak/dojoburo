@@ -41,7 +41,7 @@ export function ConnectorsPanel({ dept }: { dept: Department }) {
         <button className="cx-how-t" onClick={() => setTut(true)}>How to?</button>
         <button className="cx-how-t" onClick={() => setShowHow((v) => !v)}>{showHow ? 'Hide setup' : 'Operator setup'}</button>
       </div>
-      <p className="cx-sub">These are the apps this teammate can work inside. Connect one and they do the real thing · create the page, open the PR, draft the mail. Connecting is free; only the work costs anything, about one credit a task.</p>
+      <p className="cx-sub">These are the apps this teammate can work inside. Connect one and they do the real thing · create the page, open the PR, draft the mail. Connecting is free; you pay for your plan, not per app.</p>
 
       {tut && <TutorialOverlay walk="apps" onClose={() => setTut(false)} />}
 
