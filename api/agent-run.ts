@@ -24,7 +24,7 @@ import { originAllowed } from './_lib/origin.js'
 import { hardenSystem, sanitizeUntrusted } from './_lib/guard.js'
 import { callerRef } from './_lib/authz.js'
 import { orgScope } from './_lib/connScope.js'
-import { standingOf, remaining } from './_lib/entitlements.js'
+import { standingOf, remaining, taskUnits } from './_lib/entitlements.js'
 import { allow as rateAllow } from './_lib/ratelimit.js'
 
 export const config = { maxDuration: 60 }
@@ -190,7 +190,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         if (out) {
           text = out.text; modelUsed = out.model; engine = 'free'
           toolCalls = (out as any).calls ?? []
-          if (!isAdmin) await bumpFreeTier(ref, { inTok: 0, outTok: 0 })
+          if (!isAdmin) await bumpFreeTier(ref, { inTok: 0, outTok: 0 }, taskUnits(body?.effort, modelUsed))
         }
       }
       if (!text && operatorClaude && ENV.ANTHROPIC_API_KEY) {
@@ -216,7 +216,14 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   // line in the ledger. Both are best-effort and neither can fail the run.
   const inTok = Number(usage?.input_tokens) || 0
   const outTok = Number(usage?.output_tokens) || 0
-  if (engine !== 'free' && !isAdmin) await bumpFreeTier(ref, { inTok, outTok })
+  // A run on the founder's OWN key is not metered. Billing has said so since the
+  // key panel was written — "with your own key above, nothing here is metered at
+  // all" — and this line was quietly counting it anyway, so a Founder who pasted
+  // a key still watched an allowance they were not spending go down.
+  // The free branch has already counted itself; this is the operator's Claude.
+  if (engine === 'operator' && !isAdmin) {
+    await bumpFreeTier(ref, { inTok, outTok }, taskUnits(body?.effort, modelUsed))
+  }
   await recordRun(ref, {
     dojoId, task: task.id, agent: agentName, mode: String(body?.effort || 'balanced'),
     engine, inTok, outTok, apps: mcpServers.length,
@@ -397,20 +404,35 @@ async function checkAllowance(
   }
 }
 
-async function bumpFreeTier(ref: { privy?: string; client?: string }, tokens: { inTok: number; outTok: number } = { inTok: 0, outTok: 0 }): Promise<void> {
+/**
+ * Record one run against the allowance.
+ *
+ * TWO counters, deliberately. `free_runs` is how many runs happened, which is
+ * what a founder reads as "tasks run today". `task_units` is what they were
+ * worth — a Saver draft on a free provider counts half, a Max run on the
+ * flagship counts fifteen — and the allowance is measured on that one. Selling
+ * "2,000 tasks" without weighting them was a blank cheque; see
+ * _lib/entitlements.ts for the arithmetic.
+ */
+async function bumpFreeTier(
+  ref: { privy?: string; client?: string },
+  tokens: { inTok: number; outTok: number } = { inTok: 0, outTok: 0 },
+  units = 1,
+): Promise<void> {
   if (!dbConfigured()) return
   try {
     const pool = getPool()
     const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
     if (!accountId) return
     await pool.query(
-      `insert into work_usage (account_id, day, free_runs, in_tokens, out_tokens)
-       values ($1, current_date, 1, $2, $3)
+      `insert into work_usage (account_id, day, free_runs, task_units, in_tokens, out_tokens)
+       values ($1, current_date, 1, $4, $2, $3)
        on conflict (account_id, day) do update set
          free_runs  = work_usage.free_runs + 1,
+         task_units = work_usage.task_units + excluded.task_units,
          in_tokens  = work_usage.in_tokens + excluded.in_tokens,
          out_tokens = work_usage.out_tokens + excluded.out_tokens`,
-      [accountId, Math.max(0, tokens.inTok), Math.max(0, tokens.outTok)],
+      [accountId, Math.max(0, tokens.inTok), Math.max(0, tokens.outTok), Math.max(0, units)],
     )
   } catch {
     /* metering is best-effort */

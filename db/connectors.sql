@@ -55,6 +55,28 @@ create table if not exists work_usage (
 alter table work_usage add column if not exists in_tokens  bigint not null default 0;
 alter table work_usage add column if not exists out_tokens bigint not null default 0;
 
+-- ---------------------------------------------------------------------------
+-- What the runs were WORTH, not just how many there were.
+--
+-- free_runs counts runs, and a plan that includes "2,000 tasks" was therefore
+-- promising two thousand of whatever the customer asked for — a Saver draft on
+-- a free provider and a Max run on the flagship, at the same price, differing by
+-- about fifty times in what they cost to serve.
+--
+-- task_units is the same counter weighted by mode and model
+-- (api/_lib/entitlements.ts holds the weights). free_runs stays exactly as it
+-- was, because "tasks run today" is still the number a founder wants to see;
+-- the allowance is measured on this one.
+--
+-- Backfilled from free_runs rather than started at zero, so applying this file
+-- does not hand every existing account a fresh month. The `is null` guard makes
+-- that safe to run again.
+-- ---------------------------------------------------------------------------
+alter table work_usage add column if not exists task_units numeric(12,2);
+update work_usage set task_units = free_runs where task_units is null;
+alter table work_usage alter column task_units set default 0;
+alter table work_usage alter column task_units set not null;
+
 create table if not exists work_runs (
   id          bigserial primary key,
   account_id  uuid        not null references accounts(id) on delete cascade,

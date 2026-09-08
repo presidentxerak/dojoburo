@@ -69,14 +69,15 @@ const orgFor = async (accountId, name, plan = 'free', status = 'active') => {
   return o.rows[0].id
 }
 
-/** n runs on a given day, the way bumpFreeTier writes them */
-const spend = (accountId, runs, tokens = 0, dayOffset = 0) => pool.query(
-  `insert into work_usage (account_id, day, free_runs, in_tokens, out_tokens)
-   values ($1, current_date - $4::int, $2, $3, 0)
+/** n task UNITS on a given day, the way bumpFreeTier writes them */
+const spend = (accountId, units, tokens = 0, dayOffset = 0) => pool.query(
+  `insert into work_usage (account_id, day, free_runs, task_units, in_tokens, out_tokens)
+   values ($1, current_date - $5::int, $2::int, $3::numeric, $4::bigint, 0)
    on conflict (account_id, day) do update
-     set free_runs = work_usage.free_runs + excluded.free_runs,
-         in_tokens = work_usage.in_tokens + excluded.in_tokens`,
-  [accountId, runs, tokens, dayOffset])
+     set free_runs  = work_usage.free_runs + excluded.free_runs,
+         task_units = work_usage.task_units + excluded.task_units,
+         in_tokens  = work_usage.in_tokens + excluded.in_tokens`,
+  [accountId, Math.ceil(units), units, tokens, dayOffset])
 
 /* ---- the table says what the cards say ---------------------------------- */
 {
@@ -157,8 +158,8 @@ const acme = await orgFor(boss, 'Acme', 'managed')
   const old = await account('old@last.test')
   const org = await orgFor(old, 'Lastmonth', 'managed')
   await pool.query(
-    `insert into work_usage (account_id, day, free_runs)
-     values ($1, (date_trunc('month', current_date) - interval '1 day')::date, 1999)`,
+    `insert into work_usage (account_id, day, free_runs, task_units)
+     values ($1, (date_trunc('month', current_date) - interval '1 day')::date, 1999, 1999)`,
     [old])
   const s = await ent.standingOf(pool, old)
   ok('last month’s spend does not eat this month', s.allowed && ent.remaining(s).runs === 2_000,
@@ -204,6 +205,71 @@ const acme = await orgFor(boss, 'Acme', 'managed')
   ok('a Founder is past the free wall', s.allowed && s.plan === 'founder')
   ok('on a DAILY window · Founder buys the software, not a token budget',
     s.grant.window === 'day')
+}
+
+/* ---- a task is counted by what it actually was -------------------------- */
+// The reason this exists: "2,000 tasks" priced a Saver draft on a free provider
+// and a Max run on the flagship identically, when they differ by about fifty
+// times in what they cost to serve. One was sold below cost; the other paid for
+// it.
+{
+  ok('an ordinary run is one task', ent.taskUnits('balanced', 'gemini-3.6-flash') === 1)
+  ok('a Saver draft is half', ent.taskUnits('saver', 'gemini-3.6-flash') === 0.5)
+  ok('a Max run is three', ent.taskUnits('max', 'gemini-3.6-flash') === 3)
+
+  ok('Haiku costs the same as a free provider', ent.taskUnits('balanced', 'claude-haiku-4-5') === 1)
+  ok('Sonnet is three times that', ent.taskUnits('balanced', 'claude-sonnet-5') === 3)
+  ok('and Opus five', ent.taskUnits('balanced', 'claude-opus-4-8') === 5)
+
+  ok('the two dials multiply', ent.taskUnits('max', 'claude-opus-4-8') === 15,
+    'the case that used to lose 424% of the price now draws 15 tasks')
+  ok('so does the cheap corner', ent.taskUnits('saver', 'claude-haiku-4-5') === 0.5)
+
+  ok('an unknown model is charged as the CHEAPEST', ent.taskUnits('balanced', 'some-new-free-model') === 1,
+    'a rotated free-tier id is likelier than a secret flagship · over-charging is the worse error')
+  ok('a missing model is too', ent.taskUnits('balanced', null) === 1)
+  ok('an unknown mode falls back to Balanced', ent.taskUnits('nonsense', 'claude-haiku-4-5') === 1)
+  ok('nothing is ever free to repeat', ent.taskUnits('saver', 'x') >= 0.1)
+
+  // the whole point, in one line: weighted, the loss cases pay for themselves
+  const PRICE = 49 / 2000
+  const COST = { 'claude-haiku-4-5': 0.0257, 'claude-sonnet-5': 0.0771, 'claude-opus-4-8': 0.1285 }
+  let worst = 1
+  for (const [model, cost] of Object.entries(COST)) {
+    const charged = ent.taskUnits('max', model) * PRICE
+    worst = Math.min(worst, (charged - cost) / charged)
+  }
+  ok('every Max combination is now profitable', worst > 0.5,
+    `worst gross margin ${(worst * 100).toFixed(0)}%`)
+}
+
+/* ---- the weighted counter is what the allowance reads ------------------- */
+{
+  const heavy = await account('heavy@managed.test')
+  await orgFor(heavy, 'Heavy', 'managed')
+  // 400 runs, all Max on the flagship · 400 x 15 = 6,000 units
+  await spend(heavy, 400 * ent.taskUnits('max', 'claude-opus-4-8'))
+  const s = await ent.standingOf(pool, heavy)
+  ok('400 flagship Max runs exhaust a 2,000-task month', !s.allowed && s.reason === 'runs',
+    `${s.usedRuns} units`)
+
+  const light = await account('light@managed.test')
+  await orgFor(light, 'Light', 'managed')
+  await spend(light, 400 * ent.taskUnits('saver', 'gemini-3.6-flash'))
+  const l = await ent.standingOf(pool, light)
+  ok('400 Saver drafts barely touch it', l.allowed && ent.remaining(l).runs === 1800,
+    'the founder working cheaply gets far more than 2,000 steps')
+}
+
+/* ---- Founder no longer undercuts Managed -------------------------------- */
+{
+  ok('the Founder courtesy allowance is 15 a day', ent.GRANTS.founder.runs === 15,
+    'at 50 it was 1,500 a month — 75% of Managed for 59% of the price')
+  const monthly = ent.GRANTS.founder.runs * 30
+  ok('and is well under what Managed includes', monthly < ent.GRANTS.managed.runs / 3,
+    `${monthly} a month vs ${ent.GRANTS.managed.runs}`)
+  ok('while still clearing the free tier', ent.GRANTS.founder.runs > ent.GRANTS.free.runs,
+    'paying $29 and hitting the free wall is the thing it exists to prevent')
 }
 
 /* ---- it fails open ------------------------------------------------------ */

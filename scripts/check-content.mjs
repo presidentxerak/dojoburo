@@ -34,6 +34,7 @@ const conns = await load('src/data/connectors.ts')
 const budget = await load('src/data/budget.ts')
 const academy = await load('src/data/academy.ts')
 const plans = await load('src/data/plans.ts')
+const effort = await load('src/data/effort.ts')
 
 const F = {
   crew: roles.COMPANY_IDS.length,
@@ -151,7 +152,6 @@ for (const r of RULES) {
 // The client shows them; the SERVER enforces them, because a browser cannot be
 // trusted with a token ceiling. That means two tables, which means they can
 // drift — so they are compared here on every build.
-const effort = await load('src/data/effort.ts')
 const runSrc = read('api/agent-run.ts')
 for (const m of effort.EFFORT_MODES) {
   const row = new RegExp(`${m.id}:\\s*\\{\\s*maxTokens:\\s*(\\d+),\\s*thinking:\\s*(true|false),\\s*maxApps:\\s*(\\d+)`).exec(runSrc)
@@ -160,6 +160,41 @@ for (const m of effort.EFFORT_MODES) {
   if (Number(mt) !== m.maxTokens) { console.log(`FAIL  effort "${m.id}" · maxTokens ${m.maxTokens} in the app, ${mt} on the server`); bad++ }
   if ((th === 'true') !== m.thinking) { console.log(`FAIL  effort "${m.id}" · thinking disagrees between app and server`); bad++ }
   if (Number(ma) !== m.maxApps) { console.log(`FAIL  effort "${m.id}" · maxApps ${m.maxApps} in the app, ${ma} on the server`); bad++ }
+}
+
+// --- the task weights are a PRICE, so they cannot drift ---------------------
+// A mode's weight decides how much of a paid allowance a run consumes. It is
+// declared server-side (api/_lib/entitlements.ts) and described to the customer
+// in src/data/effort.ts. Two places, one number: exactly the shape of drift this
+// script exists to catch, and this one is worth money.
+{
+  const ent = read('api/_lib/entitlements.ts')
+  const block = /export const MODE_WEIGHT[^=]*=\s*\{([\s\S]*?)\n\}/.exec(ent)
+  if (!block) { console.log('FAIL  entitlements · MODE_WEIGHT is not where check-content expects it'); bad++ }
+  else {
+    const w = Object.fromEntries([...block[1].matchAll(/(\w+):\s*([\d.]+)/g)].map((m) => [m[1], Number(m[2])]))
+    for (const m of effort.EFFORT_MODES) {
+      if (!(m.id in w)) { console.log(`FAIL  entitlements · effort mode "${m.id}" has no task weight`); bad++ }
+    }
+    for (const id of Object.keys(w)) {
+      if (!effort.EFFORT_MODES.some((m) => m.id === id)) {
+        console.log(`FAIL  entitlements · task weight for "${id}", which is not an effort mode`); bad++
+      }
+    }
+    // A dearer mode must never draw LESS from the allowance than a cheaper one.
+    const order = effort.EFFORT_MODES.map((m) => w[m.id])
+    for (let i = 1; i < order.length; i++) {
+      if (order[i] <= order[i - 1]) {
+        console.log(`FAIL  entitlements · "${effort.EFFORT_MODES[i].id}" costs no more than the mode below it`); bad++
+      }
+    }
+  }
+  // and the customer must be told, in the mode that costs three times as much
+  const maxMode = effort.EFFORT_MODES.find((m) => m.id === 'max')
+  const says = JSON.stringify(maxMode ?? {})
+  if (!/draws|counts|allowance/i.test(says)) {
+    console.log('FAIL  effort · Max does not tell the founder it draws more from the allowance'); bad++
+  }
 }
 
 // --- internal consistency of the data itself -------------------------------

@@ -45,11 +45,15 @@ export const FOUNDER_USD = 29
 
 /** What one task is worth on the managed tier · $0.0245.
  *
- *  The floor under this is what a task costs to serve: about $0.018 on Haiku
- *  with three apps attached, and $0 whenever a free provider answers. So the
- *  worst case — every task served by Haiku, every task used — still returns
- *  about a quarter of the price. The old plans priced a task at $0.019 against
- *  the same $0.018 cost, which is not a margin. */
+ *  This is the price of ONE unit of work, and units are not all the same size.
+ *  A Saver draft on a free provider counts half; a Max run on the flagship
+ *  counts fifteen. Without that weighting the figure was a fiction in both
+ *  directions — the cheap task subsidised the dear one, and the dear one was
+ *  sold below cost. api/_lib/entitlements.ts holds the weights and the
+ *  arithmetic; weighted, every combination returns 65–78% gross.
+ *
+ *  The old plans priced a task at $0.019 against an $0.018 cost, which is not a
+ *  margin. That is the mistake this number exists not to repeat. */
 export const TASK_USD = MANAGED_USD / MANAGED_TASKS
 
 export const PLANS: Plan[] = [
@@ -92,9 +96,10 @@ export const PLANS: Plan[] = [
     inclHead: 'Everything in Founder, plus',
     incl: [
       `${MANAGED_TASKS.toLocaleString('en-US')} tasks a month, included`,
+      'A light task counts less, a heavy one more',
       'No API key to find, hold or rotate',
       'We pick the model per task and absorb the cost',
-      'Escalation to a stronger model where it earns its keep',
+      'Escalation to a stronger model where it earns its keep — it just draws more',
     ],
   },
 ]

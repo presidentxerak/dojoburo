@@ -57,6 +57,7 @@ export const EFFORT_MODES: EffortMode[] = [
       'Answers capped at 1,500 tokens',
       'No connected apps sent with the run',
       'Nothing is written to your real accounts',
+      'Draws half a task from your monthly allowance',
     ],
   },
   {
@@ -75,6 +76,7 @@ export const EFFORT_MODES: EffortMode[] = [
       'Answers capped at 4,000 tokens',
       'Up to 3 connected apps per run',
       'Real actions in those apps',
+      'Draws 1 task from your monthly allowance',
     ],
   },
   {
@@ -87,12 +89,13 @@ export const EFFORT_MODES: EffortMode[] = [
     thinking: true,
     maxApps: 8,
     bestFor: 'The run you are going to ship: a launch plan, a real campaign, the final brief.',
-    tradeoff: 'Three to five times the tokens of Saver, and noticeably slower.',
+    tradeoff: 'Three to five times the tokens of Saver, noticeably slower, and it draws 3 tasks from your allowance instead of 1.',
     typical: [6000, 9000],
     points: [
       'Answers capped at 8,000 tokens',
       'The model thinks before it writes',
       'Every connected app available',
+      'Draws 3 tasks from your monthly allowance',
     ],
   },
 ]

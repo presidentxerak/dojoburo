@@ -516,7 +516,7 @@ const LANDSCAPE: Lesson[] = [
       {
         kind: 'idea',
         title: 'The three plans',
-        body: 'Free is $0: the whole catalogue, one company, and a daily allowance on free and open models. Founder is $29 a month and is the one most people want — you add your own Claude key, run as much as you like, and Anthropic bills you directly for exactly what you used. Managed is $49 a month for people who would rather not hold a key at all; it includes 2,000 tasks, and a task is one teammate doing one step, so a four-step team is four of them.',
+        body: 'Free is $0: the whole catalogue, one company, and a daily allowance on free and open models. Founder is $29 a month and is the one most people want — you add your own Claude key, run as much as you like, and Anthropic bills you directly for exactly what you used. Managed is $49 a month for people who would rather not hold a key at all; it includes 2,000 tasks, and a task is one teammate doing one step, so a four-step team is four of them. Tasks are counted by size: a Saver step draws half of one, a Max step on the strongest model draws several. Working the ordinary way, 2,000 means 2,000.',
       },
       {
         kind: 'idea',
