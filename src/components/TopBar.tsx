@@ -136,7 +136,7 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
 
             {/* what it costs */}
             <div className="tb-menu-rule" />
-            <button className="tb-menu-item" onClick={openCredits}>My Credits · Billing</button>
+            <button className="tb-menu-item" onClick={openCredits}>Billing · your key and plan</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); setEffortOpen(true) }}>
               How hard your team works
               <span className="tb-menu-val" style={{ ['--ac' as string]: mode?.tint }}>{mode?.glyph} {mode?.label}</span>

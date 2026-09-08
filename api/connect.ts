@@ -15,6 +15,7 @@ import { getPool, dbConfigured } from './_lib/db.js'
 import { resolveAccountId, findAccountId } from './_lib/accounts.js'
 import { seal, vaultConfigured } from './_lib/vault.js'
 import { callerRef } from './_lib/authz.js'
+import { orgScope } from './_lib/connScope.js'
 import {
   serverConnector, connectorAvailable, clientId, clientSecret, redirectUri, siteUrl,
   CONNECTOR_IDS, type ServerConnector,
@@ -49,7 +50,17 @@ async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParam
       if (!who) return json(res, 401, { ok: false, error: 'auth' })
       const accountId = await findAccountId(pool, who)
       if (accountId) {
-        const r = await pool.query(`select connector_id, external_account, status from connections where account_id = $1`, [accountId])
+        // The company's connections, plus anything this person still holds
+        // personally (the Claude key always, and any app a colleague already
+        // owned for the organisation so adoption left theirs alone).
+        const orgId = await orgScope(pool, accountId)
+        const r = await pool.query(
+          `select distinct on (connector_id) connector_id, external_account, status
+             from connections
+            where ($2::uuid is not null and org_id = $2) or account_id = $1
+            order by connector_id, (org_id is not null) desc`,
+          [accountId, orgId],
+        )
         for (const row of r.rows) connected[row.connector_id] = { external_account: row.external_account, status: row.status }
       }
     } catch {
@@ -124,14 +135,26 @@ async function callback(req: IncomingMessage, res: ServerResponse, q: URLSearchP
     if (!accountId) return backTo(res, `${siteUrl()}/#connect_error=${parsed.id}:no_account`)
 
     const expiresAt = tok.expiresIn ? new Date(Date.now() + tok.expiresIn * 1000).toISOString() : null
-    await pool.query(
-      `insert into connections (account_id, connector_id, status, scope, external_account, access_token, refresh_token, expires_at, mcp_url, updated_at)
-       values ($1,$2,'connected',$3,$4,$5,$6,$7,$8, now())
-       on conflict (account_id, connector_id) do update set
-         status='connected', scope=excluded.scope, external_account=excluded.external_account,
+    // An app connection is the COMPANY's access to its own account, so it is
+    // written against the organisation with `connected_by` kept for the record —
+    // whose authorisation a token came from is the first question asked when one
+    // stops working. The conflict target is the organisation's unique index.
+    const orgId = await orgScope(pool, accountId)
+    // Two conflict targets, because there are two uniqueness rules: the
+    // organisation's row when there is an organisation, the person's when there
+    // is not. Postgres infers a partial unique index only from an exactly
+    // matching predicate, so the branch is explicit rather than clever.
+    const cols = `(account_id, org_id, connected_by, connector_id, status, scope, external_account, access_token, refresh_token, expires_at, mcp_url, updated_at)`
+    const vals = `values ($1,$9,$1,$2,'connected',$3,$4,$5,$6,$7,$8, now())`
+    const set = `set status='connected', scope=excluded.scope, external_account=excluded.external_account,
          access_token=excluded.access_token, refresh_token=coalesce(excluded.refresh_token, connections.refresh_token),
-         expires_at=excluded.expires_at, mcp_url=excluded.mcp_url, updated_at=now()`,
-      [accountId, parsed.id, tok.scope, tok.label, seal(tok.accessToken), tok.refreshToken ? seal(tok.refreshToken) : null, expiresAt, c.mcp.url],
+         expires_at=excluded.expires_at, mcp_url=excluded.mcp_url, connected_by=excluded.connected_by, updated_at=now()`
+    const target = orgId
+      ? `(org_id, connector_id) where org_id is not null`
+      : `(account_id, connector_id) where org_id is null`
+    await pool.query(
+      `insert into connections ${cols} ${vals} on conflict ${target} do update ${set}`,
+      [accountId, parsed.id, tok.scope, tok.label, seal(tok.accessToken), tok.refreshToken ? seal(tok.refreshToken) : null, expiresAt, c.mcp.url, orgId],
     )
     return backTo(res, `${siteUrl()}/#connected=${parsed.id}`)
   } catch (e: any) {
@@ -156,7 +179,17 @@ async function disconnect(req: IncomingMessage, res: ServerResponse): Promise<vo
     const who = await callerRef(req, { privy: body?.privy, client: body?.client })
     if (!who) return json(res, 401, { ok: false, error: 'auth' })
     const accountId = await findAccountId(pool, who)
-    if (accountId) await pool.query(`delete from connections where account_id = $1 and connector_id = $2`, [accountId, id])
+    if (accountId) {
+      const orgId = await orgScope(pool, accountId)
+      // Disconnecting means the company loses the app · remove the shared row
+      // and this person's leftover one together, so it does not silently
+      // reappear from the fallback on the next request.
+      await pool.query(
+        `delete from connections
+          where connector_id = $2 and (account_id = $1 or ($3::uuid is not null and org_id = $3))`,
+        [accountId, id, orgId],
+      )
+    }
     return json(res, 200, { ok: true })
   } catch {
     return json(res, 200, { ok: false, error: 'db' })
@@ -185,7 +218,7 @@ async function setkey(req: IncomingMessage, res: ServerResponse): Promise<void> 
     await pool.query(
       `insert into connections (account_id, connector_id, status, external_account, access_token, updated_at)
        values ($1, 'anthropic', 'connected', $2, $3, now())
-       on conflict (account_id, connector_id) do update set
+       on conflict (account_id, connector_id) where org_id is null do update set
          status='connected', external_account=excluded.external_account, access_token=excluded.access_token, updated_at=now()`,
       [accountId, hint, seal(raw)],
     )

@@ -14,6 +14,8 @@ import { CURRENCY_LIST, formatFrom, type CurrencyCode } from '../../data/currenc
 import { PLANS, planPrice } from '../../data/plans'
 import { privyConfigured, privyControls } from '../../auth/controls'
 import { useWork } from '../../agents/workStore'
+import { refParams, refObject } from '../../agents/workApi'
+import { apiFetch } from '../../lib/apiFetch'
 import { useEngine } from '../../agents/engineStore'
 import { SkinAvatar } from './SkinAvatar'
 import { TemplateThumb } from './TemplateThumb'
@@ -33,14 +35,14 @@ type Tab = 'studio' | 'account' | 'team' | 'billing'
 // shell as every other full-screen surface — the studio bar at the very top of
 // the screen and the round ✕ in its right corner — plus the mobile bottom bar,
 // so on a phone you can still jump to the dojo, the CEO dashboard or the city.
-// The four tabs (Dojos & agents / Account / Your company / Billing) reuse the
-// exact same panels the modal used.
+// The four sections (Dojos & agents / Account / Your company / Billing) are
+// reached from the menu, which sets the intent this surface reads.
 // ---------------------------------------------------------------------------
 const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
   studio: { title: 'Dojo settings', sub: 'Build your teams, place and tune each teammate, connect their apps, and save.' },
   account: { title: 'Account', sub: 'Your profile, sign-in and identity across devices.' },
   team: { title: 'Your company', sub: 'Who you work with, what each of them may do, and whether your work has reached them.' },
-  billing: { title: 'My Credits · Billing', sub: 'Everything about money: what you have spent, your currency, your Claude key and plans.' },
+  billing: { title: 'Billing · your key and plan', sub: 'Everything about money: your Claude key, what your company is on, and the currency prices show in.' },
 }
 
 /** Dojo settings / Account / Billing, wearing the app's ONE full-screen shell.
@@ -51,7 +53,7 @@ const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
  *  app now, so closing it puts you back exactly where you were. */
 export function StudioSurface({ onClose }: { onClose: () => void }) {
   // Account & Billing were moved to the menu; the Studio surface is "Dojos &
-  // agents". A deep link (menu → Account / My Credits) still lands on the
+  // agents". A deep link (menu → Account / Billing) still lands on the
   // account/billing section · the title reflects it, no tab switcher.
   const intent = useWork((s) => s.studioIntent)
   const openConnect = useWork((s) => s.openConnect)
@@ -117,32 +119,12 @@ function ProjectFileIO({ label }: { label: string }) {
   )
 }
 
-export function WorkshopModal({ onClose }: { onClose: () => void }) {
-  const intent = useWork((s) => s.studioIntent)
-  const [tab, setTab] = useState<Tab>(intent ?? 'studio')
-  return (
-    <div className="ws-overlay" onClick={onClose}>
-      <div className="ws-modal" onClick={(e) => e.stopPropagation()}>
-        <header className="ws-head">
-          <strong>Dojo settings</strong>
-          <nav className="ws-tabs">
-            <button className={tab === 'studio' ? 'on' : ''} onClick={() => setTab('studio')}>Dojos & agents</button>
-            <button className={tab === 'account' ? 'on' : ''} onClick={() => setTab('account')}>Account</button>
-            <button className={tab === 'team' ? 'on' : ''} onClick={() => setTab('team')}>Your company</button>
-            <button className={tab === 'billing' ? 'on' : ''} onClick={() => setTab('billing')}>Billing</button>
-          </nav>
-          <button className="ws-x" onClick={onClose} aria-label="Close">×</button>
-        </header>
-        <div className="ws-body">
-          {tab === 'studio' && <StudioTab />}
-          {tab === 'account' && <AccountTab />}
-          {tab === 'team' && <TeamTab />}
-          {tab === 'billing' && <BillingTab />}
-        </div>
-      </div>
-    </div>
-  )
-}
+// A `WorkshopModal` used to live here: the same four sections, in a dialog with
+// its own tab bar. It has had no importer since the Studio became a full-screen
+// surface with the sections reached from the menu — so it rendered nowhere, and
+// two browser suites were still clicking for its `.ws-tabs` and finding nothing.
+// A second, unreachable copy of a screen is where a fix lands and does not
+// appear.
 
 // ---------------------------------------------------------------------------
 function StudioTab() {
@@ -785,30 +767,118 @@ function BillingTab() {
 
 
       <h3 style={{ marginTop: 18 }}>Plans</h3>
-      <div className="ws-plans">
-        {PLANS.map((pl) => (
-          <div key={pl.id} className={`ws-plan${pl.featured ? ' on' : ''}`}>
-            <strong>{pl.name}</strong>
-            <span className="ws-price">{planPrice(pl)}<i>{pl.usd === 0 ? '' : '/mo'}</i></span>
-            <span className="ws-blurb">{pl.tagline}</span>
-          </div>
-        ))}
-      </div>
+      <PlanCards hasAccount={hasAccount} />
       <p className="ws-blurb">
         A task is one teammate doing one step. On <b>Founder</b> your tasks run on your own Claude key
-        and Anthropic bills you directly — that plan works today and costs Dojoburo nothing to serve.
+        and Anthropic bills you directly — that plan costs Dojoburo nothing to serve.
       </p>
       {/* The credit top-up that used to sit above these cards is gone. It took a
           card and wrote to a ledger nothing reads: a run is authorised by the
-          free daily quota in work_usage, never by a balance. Rather than leave a
-          working checkout for a unit the runtime ignores, the screen now says
-          what is true. */}
-      <p className="ws-blurb ws-paynote">
-        <b>Plans cannot be bought in the app yet.</b> Stripe here is wired for one-off payments, and a
-        monthly plan needs Subscriptions. Until that is done, <b>Free</b> and <b>Founder</b> are the two
-        that actually run — and nothing on this screen takes a card.
-      </p>
+          free daily quota in work_usage, never by a balance. */}
     </div>
+  )
+}
+
+/**
+ * The plan cards, and the one button on this screen that takes a card.
+ *
+ * A plan belongs to the COMPANY, not to whoever is looking at it: one
+ * subscription covers everyone in the organisation, which is why the current
+ * plan is read from /api/org rather than from anything in this browser.
+ *
+ * Every way this can fail says something different, because they need different
+ * things from the person reading. "Sign in first" is fixable by them; "this
+ * deployment has no Stripe price for that plan" is not, and telling them to
+ * check their card would waste their afternoon.
+ */
+function PlanCards({ hasAccount }: { hasAccount: boolean }) {
+  const email = useWorkshop((s) => s.account?.email || '')
+  const [current, setCurrent] = useState<{ plan: string; status: string; role: string } | null>(null)
+  const [busy, setBusy] = useState<string | null>(null)
+  const [msg, setMsg] = useState('')
+
+  useEffect(() => {
+    let live = true
+    void (async () => {
+      try {
+        const r = await apiFetch(`/api/org?action=me&${refParams()}`)
+        const j = await r.json()
+        if (live && j?.ok) setCurrent({ plan: j.plan || 'free', status: j.planStatus || 'active', role: j.role })
+      } catch { /* offline · the cards still read, they just cannot say which is yours */ }
+    })()
+    return () => { live = false }
+  }, [hasAccount])
+
+  // Only the owner is billed, so only the owner is offered the card.
+  const mayBuy = !current || current.role === 'owner'
+
+  async function buy(plan: string) {
+    setBusy(plan); setMsg('')
+    try {
+      const r = await apiFetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ plan, email, ...refObject() }),
+      })
+      const j = await r.json()
+      if (j?.ok && j.url) { window.location.href = j.url; return }
+      setMsg(
+        j?.error === 'plan_not_configured'
+          ? 'This deployment has no price set for that plan yet. Nothing was charged.'
+          : j?.error === 'not_configured'
+            ? 'Payments are not switched on in this deployment. Nothing was charged.'
+            : j?.error === 'rate'
+              ? 'Too many attempts just now. Give it a minute.'
+              : 'Could not start checkout. Nothing was charged.',
+      )
+    } catch {
+      setMsg('Could not reach the checkout. Nothing was charged.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  return (
+    <>
+      <div className="ws-plans">
+        {PLANS.map((pl) => {
+          const mine = current?.plan === pl.id || (!current && pl.id === 'free')
+          return (
+            <div key={pl.id} className={`ws-plan${pl.featured ? ' on' : ''}${mine ? ' mine' : ''}`}>
+              <strong>{pl.name}</strong>
+              <span className="ws-price">{planPrice(pl)}<i>{pl.usd === 0 ? '' : '/mo'}</i></span>
+              <span className="ws-blurb">{pl.tagline}</span>
+              {mine ? (
+                <span className="ws-plan-now">
+                  {current?.status === 'past_due' ? '◦ your plan · payment failed' : '✓ your plan'}
+                </span>
+              ) : pl.usd === 0 ? (
+                <span className="ws-plan-now">◦ where everyone starts</span>
+              ) : (
+                <button
+                  className="ws-btn"
+                  disabled={!hasAccount || !mayBuy || busy !== null}
+                  onClick={() => void buy(pl.id)}
+                >
+                  {busy === pl.id ? 'Opening…' : `Choose ${pl.name}`}
+                </button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      {current?.status === 'past_due' && (
+        <p className="ws-blurb ws-paynote">
+          <b>A payment did not go through.</b> Your plan is still running — Stripe will try the card
+          again. Nothing stops until it gives up.
+        </p>
+      )}
+      {!hasAccount && <p className="ws-blurb">Sign in (Account tab) to choose a plan.</p>}
+      {hasAccount && !mayBuy && (
+        <p className="ws-blurb">The company owner holds the plan. Ask them to change it.</p>
+      )}
+      {msg && <p className="ws-blurb ws-paynote">{msg}</p>}
+    </>
   )
 }
 

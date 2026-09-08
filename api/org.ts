@@ -1,6 +1,6 @@
 // The organisation endpoint · who you are working with, and who may do what.
 //
-//   GET  ?action=me                          → { org, role, members, invites }
+//   GET  ?action=me                          → { org, role, plan, members, invites }
 //   POST ?action=rename   {name}             → admin
 //   POST ?action=invite   {role, email?}     → admin · returns the token ONCE
 //   POST ?action=revoke   {id}               → admin
@@ -63,8 +63,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (action === 'me') {
       return json(res, 200, {
         ok: true,
-        org: { id: me.orgId, name: me.name },
+        org: { id: me.orgId, name: me.name, plan: me.plan, planStatus: me.planStatus },
         role: me.role,
+        // repeated at the top level so a caller that only wants the plan does
+        // not have to know it lives on the organisation
+        plan: me.plan,
+        planStatus: me.planStatus,
         members: await membersOf(pool, me.orgId, accountId),
         invites: need('invite') ? await invitesOf(pool, me.orgId) : [],
       })

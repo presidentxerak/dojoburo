@@ -65,8 +65,10 @@ const managedTasksStr = F.managedTasks.toLocaleString('en-US')
 // type checker or a browser test, because all of it compiled and rendered
 // perfectly — it was just false.
 //
-// `never` is checked across the whole of src/, so a sentence cannot come back
-// in a file this list has never heard of.
+// `never` is checked across src/, api/ and db/, so a sentence cannot come back
+// in a file this list has never heard of. api/ was outside the sweep until the
+// audit found the checkout endpoint still describing credits settled in XRP —
+// server files carry copy too, and nobody reads them.
 const NEVER = [
   { re: /never leaves your device/i, why: 'a signed-in company is copied to the server · say what is actually true' },
   { re: /100% in your browser/i, why: 'documents sync to the organisation · scope the claim to media and exports' },
@@ -79,6 +81,14 @@ const NEVER = [
   // answer that says no. A keyword is not a claim.
   { re: /settled on a fast rail|XRPL|VITE_XUMM/i, why: 'the settlement rail was removed' },
   { re: /one agent each|owns one studio/i, why: 'three teammates have a control panel, not eighteen' },
+  // This one was true for a fortnight and is not any more. Billing sells the
+  // monthly plans through Stripe Subscriptions; a screen that still apologises
+  // for not being able to take a card is now its own kind of false claim.
+  { re: /[Pp]lans cannot be bought/, why: 'Billing sells plans · api/checkout.ts is subscription mode' },
+  // The screen was called "My Credits" long after there were any: the menu item,
+  // its title, and five places that told a founder to go there for their key.
+  // A name is a claim too — this one told people to look for a balance.
+  { re: /My Credits/, why: 'the screen is Billing · there is no credit balance to open' },
 ]
 
 const RULES = [
@@ -198,13 +208,20 @@ for (const a of arch.ARCHETYPES) {
 {
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const f = path.join(dir, e.name)
-    return e.isDirectory() ? walk(f) : /\.(ts|tsx)$/.test(e.name) ? [f] : []
+    return e.isDirectory() ? walk(f) : /\.(ts|tsx|sql)$/.test(e.name) ? [f] : []
   })
-  for (const file of walk(path.join(ROOT, 'src'))) {
-    // the rules themselves quote the phrases · do not flag this script or a
-    // comment explaining why a phrase is banned
+  const sweep = ['src', 'api', 'db'].flatMap((d) => walk(path.join(ROOT, d)))
+  // The retirement script has to NAME the objects it drops, and one of them is
+  // a column called xrpl_address. A `drop column` is the opposite of a claim —
+  // it is how the claim stops being true — so this one file is exempt.
+  const EXEMPT = new Set([path.join(ROOT, 'db', 'retire-settlement.sql')])
+  for (const file of sweep) {
+    if (EXEMPT.has(file)) continue
+    // the rules themselves quote the phrases · do not flag this script, or a
+    // comment explaining why a phrase is banned. `--` is here for the .sql
+    // files, whose entire history of a decision lives in their header.
     const text = fs.readFileSync(file, 'utf8')
-      .split('\n').filter((l) => !/^\s*(\/\/|\*)/.test(l)).join('\n')
+      .split('\n').filter((l) => !/^\s*(\/\/|\*|--)/.test(l)).join('\n')
     for (const n of NEVER) {
       const m = n.re.exec(text)
       if (m) {

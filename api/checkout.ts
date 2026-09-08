@@ -1,12 +1,19 @@
-// DojoBuro fiat processor — secure server-side Stripe Checkout proxy.
+// DojoBuro payments — a server-side Stripe Checkout proxy.
 //
-// Runs on Vercel Edge. The Stripe secret key lives ONLY here (never in the
-// browser). It creates a hosted Checkout Session for a fiat top-up and returns
-// its URL; the browser redirects there to pay by card. The charge is then
-// SETTLED IN XRP via x402: on `checkout.session.completed` a webhook submits
-// the equivalent XRP to the user's dojo wallet (see the NEXT STEP note at the
-// bottom). Until STRIPE_SECRET_KEY is set the endpoint returns
-// { ok:false, error:'not_configured' } and the UI degrades gracefully.
+// Runs on Vercel Edge. The Stripe secret key lives ONLY here, never in the
+// browser. It creates a hosted Checkout Session and returns its URL.
+//
+// What it sells is a MONTHLY PLAN, which means `mode: 'subscription'` and a
+// Stripe Price object — not a price built inline the way a one-off charge is.
+// That is the operator step nothing here can do for you: create a recurring
+// Price for Founder and one for Managed in your own Stripe dashboard, then set
+// STRIPE_PRICE_FOUNDER and STRIPE_PRICE_MANAGED. Until then this endpoint
+// answers { ok:false, error:'not_configured' } and the app says so plainly
+// instead of showing a button that cannot work.
+//
+// The old one-off path sold "credits settled in XRP via x402". Both halves of
+// that are gone: the settlement rail was removed months ago, and a run is
+// authorised by a quota rather than a balance, so a credit bought nothing.
 //
 // No Stripe SDK — the REST API is called with form-urlencoded fetch so this
 // stays a single dependency-free Edge function, mirroring api/chat.ts.
@@ -18,19 +25,15 @@ const ENV: Record<string, string | undefined> = ((globalThis as any).process?.en
 // ---- tunables (overridable via env) ---------------------------------------
 const RATE_MAX = int(ENV.CHECKOUT_RATE_MAX, 12) // sessions per IP …
 const RATE_WINDOW_MS = int(ENV.CHECKOUT_RATE_WINDOW_MS, 10 * 60 * 1000) // … per window
-const MIN_MAJOR = num(ENV.CHECKOUT_MIN_AMOUNT, 1) // min charge in currency major units
-const MAX_MAJOR = num(ENV.CHECKOUT_MAX_AMOUNT, 5000) // max charge in currency major units
+// The recurring Prices, created once by the operator in Stripe. A plan with no
+// Price cannot be sold, and saying so is better than a Checkout that 400s.
+const PRICE: Record<string, string | undefined> = {
+  founder: ENV.STRIPE_PRICE_FOUNDER,
+  managed: ENV.STRIPE_PRICE_MANAGED,
+}
 const UPSTREAM_TIMEOUT_MS = int(ENV.CHECKOUT_TIMEOUT_MS, 12000)
 const ALLOWED_ORIGIN = ENV.CHECKOUT_ALLOWED_ORIGIN || ENV.SUPPORT_ALLOWED_ORIGIN || ''
 const SITE_URL = ENV.CHECKOUT_SITE_URL || '' // e.g. https://dojoburo.app
-
-// Stripe expects amounts in the smallest unit. Zero-decimal currencies (JPY)
-// use the major amount directly; the rest are ×100.
-const SUPPORTED: Record<string, { zeroDecimal: boolean }> = {
-  USD: { zeroDecimal: false },
-  EUR: { zeroDecimal: false },
-  JPY: { zeroDecimal: true },
-}
 
 // in-memory rate limiter (per Edge instance; use Upstash/KV for a hard global cap)
 const hits = new Map<string, number[]>()
@@ -64,47 +67,51 @@ export default async function handler(req: Request): Promise<Response> {
     return json({ ok: false, error: 'bad_json' }, 400, req)
   }
 
-  const currency = String(body?.currency || '').toUpperCase()
-  const amount = Number(body?.amount)
+  const plan = String(body?.plan || '').toLowerCase()
   const email = typeof body?.email === 'string' ? body.email.slice(0, 200) : ''
-  const kind = typeof body?.kind === 'string' ? body.kind.slice(0, 40) : 'credits'
-  // optional account-mapping hints carried through to the settlement webhook
+  // carried through to the webhook so it can attribute the subscription
   const privyDid = typeof body?.privyDid === 'string' ? body.privyDid.slice(0, 120) : ''
-  const xrplAddress = typeof body?.xrplAddress === 'string' && /^r[1-9A-HJ-NP-Za-km-z]{24,35}$/.test(body.xrplAddress) ? body.xrplAddress : ''
+  const clientRef = typeof body?.client === 'string' ? body.client.slice(0, 120) : ''
 
-  // XRP is settled directly on-ledger, not through the card processor.
-  if (currency === 'XRP') return json({ ok: false, error: 'use_xrp_wallet' }, 200, req)
-  const meta = SUPPORTED[currency]
-  if (!meta) return json({ ok: false, error: 'currency' }, 400, req)
-  if (!Number.isFinite(amount) || amount < MIN_MAJOR || amount > MAX_MAJOR) {
-    return json({ ok: false, error: 'amount' }, 400, req)
+  if (!Object.prototype.hasOwnProperty.call(PRICE, plan)) {
+    return json({ ok: false, error: 'unknown_plan' }, 400, req)
+  }
+  const price = PRICE[plan]
+  if (!price) {
+    // The plan is real; the operator has not created its Price yet. A distinct
+    // error, because "we do not sell that" and "this deployment cannot sell it
+    // yet" are different things and the UI says different things about them.
+    return json({ ok: false, error: 'plan_not_configured', plan }, 200, req)
   }
 
   // graceful fallback when the processor isn't wired up yet
   const key = ENV.STRIPE_SECRET_KEY
   if (!key) return json({ ok: false, error: 'not_configured' }, 200, req)
 
-  const unit = meta.zeroDecimal ? Math.round(amount) : Math.round(amount * 100)
   const base = SITE_URL || (origin || `https://${host}`)
 
-  // Build a hosted Checkout Session via the Stripe REST API (form-urlencoded).
+  // A hosted Checkout Session in subscription mode. The Price carries the
+  // amount, the currency and the interval, so none of them are set here — which
+  // is the point: the price lives in Stripe, where it can be changed without a
+  // deploy, and cannot drift from what the app charges.
   const form = new URLSearchParams()
-  form.set('mode', 'payment')
-  form.set('success_url', `${base}/#app?topup=success`)
-  form.set('cancel_url', `${base}/#app?topup=cancel`)
+  form.set('mode', 'subscription')
+  form.set('success_url', `${base}/#app?plan=success`)
+  form.set('cancel_url', `${base}/#app?plan=cancel`)
+  form.set('line_items[0][price]', price)
   form.set('line_items[0][quantity]', '1')
-  form.set('line_items[0][price_data][currency]', currency.toLowerCase())
-  form.set('line_items[0][price_data][unit_amount]', String(unit))
-  form.set('line_items[0][price_data][product_data][name]', 'DojoBuro credits')
-  form.set('line_items[0][price_data][product_data][description]', 'Settled in XRP via x402')
+  form.set('allow_promotion_codes', 'true')
   if (email) form.set('customer_email', email)
-  // carried to the webhook so it can settle the right XRP amount to the user
-  form.set('metadata[kind]', kind)
-  form.set('metadata[settle_asset]', 'XRP')
-  form.set('metadata[fiat_amount]', String(amount))
-  form.set('metadata[fiat_currency]', currency)
-  if (privyDid) form.set('metadata[privy_did]', privyDid)
-  if (xrplAddress) form.set('metadata[xrpl_address]', xrplAddress)
+  form.set('metadata[plan]', plan)
+  form.set('subscription_data[metadata][plan]', plan)
+  if (privyDid) {
+    form.set('metadata[privy_did]', privyDid)
+    form.set('subscription_data[metadata][privy_did]', privyDid)
+  }
+  if (clientRef) {
+    form.set('metadata[client_ref]', clientRef)
+    form.set('subscription_data[metadata][client_ref]', clientRef)
+  }
 
   const ctrl = new AbortController()
   const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS)
@@ -131,13 +138,9 @@ export default async function handler(req: Request): Promise<Response> {
   }
 }
 
-// ---- NEXT STEP: settle in XRP via x402 ------------------------------------
-// Add api/checkout-webhook.ts subscribed to `checkout.session.completed`:
-//   1. Verify the Stripe-Signature header with STRIPE_WEBHOOK_SECRET.
-//   2. Read metadata.fiat_amount / fiat_currency, convert to XRP at a live FX
-//      rate, and submit an x402-authorized XRPL Payment to the user's dojo
-//      wallet (or credit their balance). This closes the fiat→XRP settlement.
-// The session already carries the metadata that step needs.
+// The other half is api/checkout-webhook.ts, which verifies the Stripe
+// signature and writes the plan onto the organisation. The session and the
+// subscription both carry the metadata it needs to find the right one.
 
 // ---- helpers --------------------------------------------------------------
 function allow(ip: string): boolean {
@@ -155,10 +158,6 @@ function allow(ip: string): boolean {
 
 function int(v: string | undefined, d: number): number {
   const n = v ? parseInt(v, 10) : NaN
-  return Number.isFinite(n) ? n : d
-}
-function num(v: string | undefined, d: number): number {
-  const n = v ? Number(v) : NaN
   return Number.isFinite(n) ? n : d
 }
 

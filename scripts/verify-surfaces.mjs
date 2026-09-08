@@ -216,7 +216,7 @@ await p.waitForTimeout(3000)
 // actionability wants two identical animation frames, which this box (software
 // WebGL) cannot deliver quickly — that measures the renderer, not the app. What
 // the founder feels is: I clicked, and how long until it is there.
-for (const [label, item] of [['My Credits · Billing', 'My Credits'], ['Quick search', 'Quick search'], ['Dojo settings', 'Dojo settings']]) {
+for (const [label, item] of [['Billing · your key and plan', 'Billing'], ['Quick search', 'Quick search'], ['Dojo settings', 'Dojo settings']]) {
   const ms = await p.evaluate((text) => new Promise((res) => {
     const btn = document.querySelector('.tb-menu-btn')
     btn.click()

@@ -150,6 +150,45 @@ create index if not exists idx_org_doc_rev on org_doc_revisions(org_id, key, ver
 -- ---------------------------------------------------------------------------
 alter table connections add column if not exists org_id       uuid references organisations(id) on delete cascade;
 alter table connections add column if not exists connected_by uuid references accounts(id) on delete set null;
+-- Two uniqueness rules, not one.
+--
+-- The table shipped with `unique (account_id, connector_id)`. That has to go:
+-- once a connection belongs to an organisation, the row that must be unique is
+-- (org_id, connector_id), and leaving the old constraint in place means an
+-- ordinary reconnect trips it before the new one is even consulted. It is
+-- replaced by the same rule scoped to rows that are still personal, so nothing
+-- becomes less safe — a person still cannot hold two Gmails.
+alter table connections drop constraint if exists connections_account_id_connector_id_key;
+
 create unique index if not exists idx_connections_org
   on connections(org_id, connector_id) where org_id is not null;
+create unique index if not exists idx_connections_personal
+  on connections(account_id, connector_id) where org_id is null;
 create index if not exists idx_connections_org_lookup on connections(org_id);
+
+-- ---------------------------------------------------------------------------
+-- What the company is paying for.
+--
+-- The plan cards were display-only: Stripe was wired for one-off payments, so
+-- an app that advertised three monthly plans could not take money for any of
+-- them. A monthly plan is a SUBSCRIPTION, and a subscription has a lifecycle —
+-- it renews, it fails, it is cancelled — so the answer to "what is this company
+-- on?" has to live somewhere the webhook can update and every request can read.
+--
+-- Defaulting to 'free' means every existing organisation is already correct
+-- before a single row is written, and an install with no Stripe at all simply
+-- stays there.
+-- ---------------------------------------------------------------------------
+alter table organisations add column if not exists plan          text not null default 'free'
+  check (plan in ('free', 'founder', 'managed'));
+alter table organisations add column if not exists plan_status   text not null default 'active'
+  check (plan_status in ('active', 'past_due', 'cancelled'));
+alter table organisations add column if not exists stripe_customer_id     text;
+alter table organisations add column if not exists stripe_subscription_id text;
+alter table organisations add column if not exists plan_since    timestamptz;
+alter table organisations add column if not exists plan_until    timestamptz;
+
+create index if not exists idx_org_stripe_sub on organisations(stripe_subscription_id)
+  where stripe_subscription_id is not null;
+create index if not exists idx_org_stripe_cust on organisations(stripe_customer_id)
+  where stripe_customer_id is not null;

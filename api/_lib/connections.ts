@@ -5,15 +5,20 @@
 import type { Pool } from 'pg'
 import { open, seal } from './vault.js'
 import { serverConnector, refreshOAuthToken } from './connectors.js'
+import { orgScope, scopeWhere, isPersonal } from './connScope.js'
 
 export interface ConnToken { token: string; external: string | null }
 
 export async function connectionToken(pool: Pool, accountId: string, connectorId: string): Promise<ConnToken | null> {
   try {
+    // An app connection belongs to the company; the Claude key belongs to the
+    // person. connScope decides which, and hands back the right `where`.
+    const orgId = isPersonal(connectorId) ? null : await orgScope(pool, accountId)
+    const w = scopeWhere(accountId, orgId, connectorId)
     const r = await pool.query(
-      `select access_token, refresh_token, expires_at, external_account
-         from connections where account_id = $1 and connector_id = $2 and status = 'connected'`,
-      [accountId, connectorId],
+      `select id, access_token, refresh_token, expires_at, external_account
+         from connections where ${w.sql} and status = 'connected' ${w.order} limit 1`,
+      w.args,
     )
     const row = r.rows[0]
     if (!row) return null
@@ -30,10 +35,10 @@ export async function connectionToken(pool: Pool, accountId: string, connectorId
         if (fresh?.accessToken) {
           token = fresh.accessToken
           const newExp = fresh.expiresIn ? new Date(Date.now() + fresh.expiresIn * 1000) : null
+          // by id · the row we actually read, whoever it belongs to
           await pool.query(
-            `update connections set access_token = $1, expires_at = $2, updated_at = now()
-               where account_id = $3 and connector_id = $4`,
-            [seal(fresh.accessToken), newExp, accountId, connectorId],
+            `update connections set access_token = $1, expires_at = $2, updated_at = now() where id = $3`,
+            [seal(fresh.accessToken), newExp, row.id],
           ).catch(() => { /* best-effort persist */ })
         }
       }

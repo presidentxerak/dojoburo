@@ -16,6 +16,10 @@ export interface Membership {
   orgId: string
   name: string
   role: Role
+  /** what the company pays for · 'free' until a subscription says otherwise */
+  plan: 'free' | 'founder' | 'managed'
+  /** 'active' · 'past_due' (a card failed, the plan still works) · 'cancelled' */
+  planStatus: 'active' | 'past_due' | 'cancelled'
 }
 
 /** Rank, so a check reads as "at least" rather than a list of roles. */
@@ -61,14 +65,14 @@ export async function ensureOrg(pool: Pool, accountId: string): Promise<Membersh
     await c.query('select id from accounts where id = $1 for update', [accountId])
 
     const again = await c.query(
-      `select o.id, o.name, m.role from org_members m
+      `select o.id, o.name, o.plan, o.plan_status, m.role from org_members m
          join organisations o on o.id = m.org_id
         where m.account_id = $1 limit 1`,
       [accountId],
     )
     if (again.rows[0]) {
       await c.query('commit')
-      return { orgId: again.rows[0].id, name: again.rows[0].name, role: again.rows[0].role }
+      return shape(again.rows[0])
     }
 
     const org = await c.query(
@@ -80,7 +84,7 @@ export async function ensureOrg(pool: Pool, accountId: string): Promise<Membersh
       [org.rows[0].id, accountId],
     )
     await c.query('commit')
-    return { orgId: org.rows[0].id, name: org.rows[0].name, role: 'owner' }
+    return { orgId: org.rows[0].id, name: org.rows[0].name, role: 'owner', plan: 'free', planStatus: 'active' }
   } catch (e) {
     try { await c.query('rollback') } catch { /* the connection is going away anyway */ }
     throw e
@@ -92,13 +96,24 @@ export async function ensureOrg(pool: Pool, accountId: string): Promise<Membersh
 /** The account's membership, or null when it has none yet. Never creates. */
 export async function membershipOf(pool: Pool, accountId: string): Promise<Membership | null> {
   const r = await pool.query(
-    `select o.id, o.name, m.role from org_members m
+    `select o.id, o.name, o.plan, o.plan_status, m.role from org_members m
        join organisations o on o.id = m.org_id
       where m.account_id = $1 limit 1`,
     [accountId],
   )
   if (!r.rows[0]) return null
-  return { orgId: r.rows[0].id, name: r.rows[0].name, role: r.rows[0].role as Role }
+  return shape(r.rows[0])
+}
+
+/** One place that turns a joined row into a Membership. */
+function shape(row: Record<string, unknown>): Membership {
+  return {
+    orgId: row.id as string,
+    name: row.name as string,
+    role: row.role as Role,
+    plan: (row.plan as Membership['plan']) ?? 'free',
+    planStatus: (row.plan_status as Membership['planStatus']) ?? 'active',
+  }
 }
 
 export interface Member {

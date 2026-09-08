@@ -15,7 +15,7 @@ import { BUILD_ID, forceFresh } from '../lib/build'
 // whose only real control was a button that opened the actual billing surface,
 // and a "Language & region" section whose only field was the currency those
 // prices are shown in. Two doors to one room, and a founder looking for their
-// credits had to guess which. Everything about money is in My Credits · Billing.
+// credits had to guess which. Everything about money is in Billing.
 type Section = 'general' | 'appearance' | 'apps' | 'automation' | 'about'
 const SECTIONS: { id: Section; label: string }[] = [
   { id: 'general', label: 'General' },

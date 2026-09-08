@@ -192,7 +192,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     const err = useWork.getState().runError
     if (err) {
       const map: Record<string, string> = {
-        needs_key: 'Add your Claude key (the menu → My Credits) for this piece of work.',
+        needs_key: 'Add your Claude key (the menu → Billing) for this piece of work.',
         quota: 'Daily free quota reached · add your Claude key to continue.',
         not_configured: 'No AI is set up here yet · add your Claude key to get going.',
         network: 'Network error · please try again in a moment.',
@@ -251,7 +251,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
             <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>
           )}
           {noModel && (
-            <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (the menu → My Credits) for the real thing.</p>
+            <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (the menu → Billing) for the real thing.</p>
           )}
           <p className="muted small">Chief delegates brand, website, offer, ads and outreach to the specialists (within Sentinel's limits) · daily email report.</p>
         </>

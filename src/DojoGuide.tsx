@@ -385,7 +385,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <h2>9 · Quick troubleshooting</h2>
         <ul className="lp-check">
           <li><b>App shows "Set up" not "Connect"</b> · the operator hasn't added that app's OAuth keys yet (see its setup page).</li>
-          <li><b>"needs a key" on a task</b> · add your Claude key in the menu → My Credits.</li>
+          <li><b>"needs a key" on a task</b> · add your Claude key in the menu → Billing.</li>
           <li><b>A task won't run</b> · check your credits balance isn't empty or capped by your daily limit.</li>
           <li><b>Still stuck?</b> · ask <b>Dojobot</b> (bottom right) · it answers in plain language and can play any walkthrough full screen.</li>
         </ul>

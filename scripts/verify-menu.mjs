@@ -40,8 +40,8 @@ await p.waitForTimeout(350)
 const menu = await p.innerText('.tb-menu')
 const items = (await p.locator('.tb-menu-item, .tb-menu-profile, .tb-row > span').allInnerTexts()).map((s) => s.split('\n')[0].trim())
 ok('menu carries "My companies"', /My companies/.test(menu))
-ok('the effort dial sits under My Credits · Billing',
-  items.findIndex((t) => /How hard your team works/.test(t)) === items.findIndex((t) => /My Credits/.test(t)) + 1)
+ok('the effort dial sits under Billing',
+  items.findIndex((t) => /How hard your team works/.test(t)) === items.findIndex((t) => /^Billing/.test(t)) + 1)
 ok('no standalone "Account" row', items.filter((t) => t === 'Account').length === 0)
 ok('no Sound row', !/sound/i.test(menu))
 ok('no City row', !/city/i.test(menu))
@@ -99,7 +99,7 @@ const fromMenu = (label) => async () => {
   await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(350)
   await p.locator('.tb-menu-item', { hasText: label }).click()
 }
-await overApp('My Credits · Billing', fromMenu('My Credits'))
+await overApp('Billing · your key and plan', fromMenu('Billing'))
 await overApp('Dojo settings', fromMenu('Dojo settings'))
 await overApp('Connect apps', fromMenu('Connect apps'))
 
@@ -176,7 +176,7 @@ await p.reload({ waitUntil: 'networkidle' })
 await p.waitForTimeout(2500)
 const crashes = []
 p.on('pageerror', (e) => crashes.push(e.message))
-for (const item of ['My Credits', 'Dojo settings', 'Connect apps']) {
+for (const item of ['Billing', 'Dojo settings', 'Connect apps']) {
   await p.evaluate((t) => {
     document.querySelector('.tb-menu-btn').click()
     requestAnimationFrame(() => [...document.querySelectorAll('.tb-menu-item')].find((b) => b.textContent.includes(t))?.click())

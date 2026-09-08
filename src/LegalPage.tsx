@@ -102,7 +102,7 @@ export function Privacy() {
 
       <h2 id="deletion">6. Retention &amp; deletion</h2>
       <p>The copy in your browser lives until you clear it. Clearing your browser storage removes that copy immediately — but if you are signed in, it does <strong>not</strong> remove your company's copy on the server, which is the point of having one: your work survives the browser.</p>
-      <p><strong>To delete data we hold on a server:</strong> open the app, go to Connect apps and press Disconnect on each connected app — that erases its stored token straight away. Removing your model key in My Credits · Billing erases that too. To have your company's documents, the account itself and anything remaining deleted, email <a href="mailto:presidentxerak@gmail.com">presidentxerak@gmail.com</a> from the address on the account and we will delete it within 30 days.</p>
+      <p><strong>To delete data we hold on a server:</strong> open the app, go to Connect apps and press Disconnect on each connected app — that erases its stored token straight away. Removing your model key in Billing erases that too. To have your company's documents, the account itself and anything remaining deleted, email <a href="mailto:presidentxerak@gmail.com">presidentxerak@gmail.com</a> from the address on the account and we will delete it within 30 days.</p>
       <p>Server-side connector tokens otherwise live until you disconnect the tool or revoke access from the provider's own settings.</p>
 
       <h2>6. Your choices</h2>

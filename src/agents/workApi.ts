@@ -27,6 +27,12 @@ function ref(): { privy?: string; client?: string } {
   return { privy: acc?.privyDid || undefined, client: acc?.id || undefined }
 }
 
+/** The same identity as refParams, shaped for a JSON body. */
+export function refObject(): { privyDid?: string; client?: string } {
+  const r = ref()
+  return { privyDid: r.privy, client: r.client }
+}
+
 export function refParams(): string {
   const r = ref()
   const p = new URLSearchParams()

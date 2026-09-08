@@ -1,8 +1,16 @@
-// Unit tests for the settlement webhook's pure logic: Stripe signature
-// verification (Web Crypto) and fiat→XRP conversion (fallback path).
+// Stripe signature verification (Web Crypto), on its own.
+//
+// This is the one thing standing between a public URL and somebody writing a
+// paid plan onto a company for free, so it is tested as pure logic: a real
+// HMAC, a tampered body, the wrong secret, a replayed timestamp.
+//
+// The fiat→XRP half of this file went with api/_lib/fx.ts. It converted a
+// charge into a settlement amount for a rail the app no longer uses, and no
+// handler had imported it for months — a passing test for a function nothing
+// calls is worse than none, because it reads as coverage.
+//
 // Run: node --experimental-strip-types scripts/test-webhook-lib.mjs
 import { verifyStripeEvent } from '../api/_lib/stripe.ts'
-import { fiatToXrp, pricePerXrp } from '../api/_lib/fx.ts'
 
 let pass = 0, fail = 0
 const ok = (c, m) => (c ? (pass++, console.log('✓', m)) : (fail++, console.log('✗', m)))
@@ -41,15 +49,6 @@ ok((await verifyStripeEvent(body, null, SECRET)) === null, 'missing header rejec
 
 // 6. malformed header rejected
 ok((await verifyStripeEvent(body, 'garbage', SECRET)) === null, 'malformed header rejected')
-
-// --- FX fallback path (no XRP_PRICE_URL) ---
-delete process.env.XRP_PRICE_URL
-ok((await pricePerXrp('USD')) === 2.5, 'USD fallback rate = 2.5/XRP')
-ok((await fiatToXrp(25, 'USD')) === 10, '$25 → 10 XRP')
-ok((await fiatToXrp(2300, 'JPY')) === Math.round((2300 / 380) * 1e6) / 1e6, '¥2300 → correct XRP (6dp)')
-let threw = false
-try { await pricePerXrp('GBP') } catch { threw = true }
-ok(threw, 'unsupported currency throws')
 
 console.log(`\n${pass} passed, ${fail} failed`)
 process.exit(fail ? 1 : 0)

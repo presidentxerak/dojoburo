@@ -23,6 +23,7 @@ import { cascadeComplete, cascadeToolRun, freeCascadeConfigured } from './_lib/l
 import { originAllowed } from './_lib/origin.js'
 import { hardenSystem, sanitizeUntrusted } from './_lib/guard.js'
 import { callerRef } from './_lib/authz.js'
+import { orgScope } from './_lib/connScope.js'
 import { allow as rateAllow } from './_lib/ratelimit.js'
 
 export const config = { maxDuration: 60 }
@@ -404,10 +405,18 @@ async function resolveMcpServers(connectorIds: string[], ref: { privy?: string; 
     const pool = getPool()
     const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
     if (!accountId) return []
+    // The apps a run may reach into are the COMPANY's, not the one person's who
+    // happened to click Connect. `distinct on` keeps the organisation's row when
+    // both exist, so an older personal connection never shadows the shared one.
+    const orgId = await orgScope(pool, accountId)
     const r = await pool.query(
-      `select connector_id, access_token, refresh_token, expires_at, mcp_url from connections
-       where account_id = $1 and status = 'connected' and connector_id = any($2)`,
-      [accountId, connectorIds],
+      `select distinct on (connector_id)
+              id, connector_id, access_token, refresh_token, expires_at, mcp_url
+         from connections
+        where status = 'connected' and connector_id = any($2)
+          and (($3::uuid is not null and org_id = $3) or (org_id is null and account_id = $1))
+        order by connector_id, (org_id is not null) desc`,
+      [accountId, connectorIds, orgId],
     )
     const servers: McpServer[] = []
     for (const row of r.rows) {
@@ -430,11 +439,11 @@ async function resolveMcpServers(connectorIds: string[], ref: { privy?: string; 
             const newExpiry = fresh.expiresIn ? new Date(Date.now() + fresh.expiresIn * 1000).toISOString() : null
             try {
               await pool.query(
-                `update connections set access_token = $3,
-                   refresh_token = coalesce($4, refresh_token),
-                   expires_at = $5, updated_at = now()
-                 where account_id = $1 and connector_id = $2`,
-                [accountId, row.connector_id, seal(token), fresh.refreshToken ? seal(fresh.refreshToken) : null, newExpiry],
+                `update connections set access_token = $2,
+                   refresh_token = coalesce($3, refresh_token),
+                   expires_at = $4, updated_at = now()
+                 where id = $1`,
+                [row.id, seal(token), fresh.refreshToken ? seal(fresh.refreshToken) : null, newExpiry],
               )
             } catch {
               /* the token still works this run even if persistence fails */
