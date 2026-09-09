@@ -70,6 +70,26 @@ export function Shape({ kind, color }: { kind: string; color: string }) {
           <mesh position={[0.22, 0.58, 0.19]} rotation={[0, 0, Math.PI / 2]}><boxGeometry args={[0.14, 0.4, 0.06]} />{M('#a06a00')}</mesh>
         </group>
       )
+    case 'crate': // ownership · a closed case with a handle · everything, in one file
+      return (
+        <group rotation={[0.1, 0, 0]}>
+          <mesh castShadow><boxGeometry args={[2.4, 1.7, 1.5]} />{M(color)}</mesh>
+          {/* the lid seam · the thing that makes it read as a container */}
+          <mesh position={[0, 0.42, 0]}><boxGeometry args={[2.44, 0.1, 1.54]} />{M(WHITE, WHITE, 0.06)}</mesh>
+          {/* handle */}
+          <mesh position={[0, 1.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.42, 0.09, 14, 30, Math.PI]} />{M(DARK)}
+          </mesh>
+          {/* two clasps */}
+          {[-0.68, 0.68].map((x) => (
+            <mesh key={x} position={[x, 0.42, 0.78]}><boxGeometry args={[0.3, 0.34, 0.1]} />{M('#ffc61a', '#ffb800', 0.34)}</mesh>
+          ))}
+          {/* a corner bumper on each visible edge · reads as "built to travel" */}
+          {[[-1.2, -0.85], [1.2, -0.85]].map(([x, y]) => (
+            <mesh key={`${x}`} position={[x, y, 0.76]}><boxGeometry args={[0.26, 0.26, 0.08]} />{M(WHITE, WHITE, 0.05)}</mesh>
+          ))}
+        </group>
+      )
     case 'gem': // pricing · a faceted crystal with sparkles
       return (
         <group>

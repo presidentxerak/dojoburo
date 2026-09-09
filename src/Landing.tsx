@@ -101,6 +101,29 @@ export function Landing({ enter }: { enter: () => void }) {
         <StudioTeam enter={enter} />
         <p className="lp-note">Brand → website → ads → video → finance → clients → analytics: the brand you pick in Brandi sets one company name, domain and look that flows into every studio, so the whole team stays consistent and reuses each other's work.</p>
         <p className="lp-note">And front-and-centre in your 3D office: the team <b>panda</b> · your mascot. He cheers the crew on and breaks into a dance every time a task ships. Tap him to make him celebrate on cue.</p>
+        {/* The office is argued here, not just shown. It reflects real runtime
+            state — Scene3D reads each teammate's mood and busy flag — so this
+            is a claim about what it DOES, not a compliment about how it looks.
+            Nobody else ships this, and nobody whose buyer is a procurement
+            committee ever will. */}
+        <div className="lp-benefits" style={{ marginTop: 22 }}>
+          <div className="lp-benefit">
+            <b>The room is the status display</b>
+            <span>
+              Each teammate sits at their desk and shows what they are actually doing — working, thinking,
+              stuck. You read the state of your whole company in one glance, without opening anything. A chat
+              log cannot tell you that, and a table of rows makes you count.
+            </span>
+          </div>
+          <div className="lp-benefit">
+            <b>Somewhere you want to be</b>
+            <span>
+              Every other tool for this is a settings page with a save button. Yours is a room with your crew
+              in it. That is not decoration — it is the difference between a tool you remember to open and one
+              you do not.
+            </span>
+          </div>
+        </div>
       </section>
 
 
@@ -130,6 +153,54 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lp-note">
           No crypto, no wallet, nothing to hold. Plans are paid by card in your own currency through Stripe.
         </p>
+      </section>
+
+      {/* Third, and the last of the three things that are actually ours. Every
+          agent platform on the market holds your work on its own servers; this
+          one hands it back as a file. Stated carefully: a signed-in company IS
+          copied to the server so colleagues can open it, so the claim here is
+          portability and an exit — not the stronger privacy claim check-content
+          bans, which stopped being true when documents started syncing.
+
+          It shares the tinted band with #pay deliberately. Inserting a section
+          breaks the plain/alt parity somewhere no matter what, and two
+          ownership arguments on one band reads as a group rather than as a
+          mistake. */}
+      <section className="lp-sec alt" id="yours">
+        <Object3D kind="crate" color={C.orange} side="right" parallax={0.13} />
+        <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="save" /></span>
+        <h2>Your work is yours to take</h2>
+        <p className="lp-lead">
+          Everything your company has made — every dojo, every brand kit, every site, every finished
+          deliverable — saves to a single <b>.dojo</b> file on your own disk, and opens again anywhere.
+          Not an export request, not a support ticket, not a CSV of half of it. One file, the whole company,
+          whenever you want it.
+        </p>
+        <div className="lp-benefits">
+          <div className="lp-benefit">
+            <b>It runs with no server at all</b>
+            <span>
+              The app works as a single-player tool with nothing configured behind it. Sign in and your work
+              also syncs so a colleague can open the same company — but that is a feature you switch on, not
+              the price of using it.
+            </span>
+          </div>
+          <div className="lp-benefit">
+            <b>Your key, your apps, your accounts</b>
+            <span>
+              The model runs on your key. The apps are connected to your accounts, and disconnecting one
+              erases its token here immediately. We hold as little of your company as the product allows.
+            </span>
+          </div>
+          <div className="lp-benefit">
+            <b>An exit that already works</b>
+            <span>
+              Every tool promises portability in its docs. This one is a button in Dojo settings, it produces
+              a file you can open today, and it is the same button we use to move a workspace between
+              machines.
+            </span>
+          </div>
+        </div>
       </section>
 
       <section className="lp-sec" id="jobs">

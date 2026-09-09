@@ -15,6 +15,7 @@ const SETS: Record<string, string[]> = {
   prod: ['[ v]', '[vv]', '[OK]', '[vv]'], // ship
   zen: ['-_-', '~_~', '^_^', '-_-'], // calm
   bolt: ['/z/', '/Z/', '/z/', '/./'], // energy
+  save: ['[  ]', '[= ]', '[==]', '[OK]'], // your work, written to a file you keep
 }
 
 /** An animated ASCII expression icon, cycling its frames. */
