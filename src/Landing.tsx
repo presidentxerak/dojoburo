@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PROFESSIONS, professionColor } from './data/professions'
-import { CONNECTORS, CONNECTOR_BY_ID } from './data/connectors'
-import { SKINS } from './data/skins'
-import { DOJO_TEMPLATES } from './data/templates'
+import { CONNECTORS } from './data/connectors'
 import { SupportBot } from './components/SupportBot'
 import { useWork } from './agents/workStore'
 import { Logo } from './components/Logo'
@@ -15,7 +13,7 @@ import { StudioTeam } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 import { Pricing } from './components/landing/Pricing'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
-import { CREW_COUNT, CREW_WORD, TEAM_COUNT, APP_LIVE_COUNT } from './data/facts'
+import { CREW_COUNT, TEAM_COUNT, APP_LIVE_COUNT } from './data/facts'
 import { LESSON_COUNT } from './data/academy'
 
 // vivid complementary primaries used as per-section accent touches
@@ -27,7 +25,9 @@ const C = { magenta: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff
 export function Landing({ enter }: { enter: () => void }) {
   // paid plans drop the user on the Billing / plans view inside the dojo
   const goBilling = () => { useWork.getState().openStudio('billing'); enter() }
-  const goAssistant = () => document.querySelector('#assistant')?.scrollIntoView({ behavior: 'smooth' })
+  // The Enterprise card used to scroll to an #assistant section. That section
+  // is gone; Dojobot is the launcher in the corner, so open it directly.
+  const goAssistant = () => document.querySelector<HTMLButtonElement>('.sb-launch')?.click()
   // the "How to?" walkthrough · full screen, plays on its own
   const [howTo, setHowTo] = useState(false)
 
@@ -93,50 +93,19 @@ export function Landing({ enter }: { enter: () => void }) {
         <span className="lp-pill">{CREW_COUNT} teammates · each with its own brief and its own apps</span>
         <h2>Meet the office</h2>
         <p className="lp-lead sm">
-          Click a teammate and their page opens: what they have produced, the apps they work in, and the brief
-          that makes them a specialist. Chief, Sentinel and Vaultor also carry a control panel · the company
-          overview, the autonomy limits, and the plan. Video editing, image compression, design rendering and
-          export all run <b>on your own machine</b> · those files never leave it.
+          Each one sits at their desk and shows what they are doing — working, thinking, stuck. Click any of
+          them to open what they have produced, the apps they work in, and the brief that makes them a
+          specialist.
         </p>
         <StudioTeam enter={enter} />
-        <p className="lp-note">Brand → website → ads → video → finance → clients → analytics: the brand you pick in Brandi sets one company name, domain and look that flows into every studio, so the whole team stays consistent and reuses each other's work.</p>
-        <p className="lp-note">And front-and-centre in your 3D office: the team <b>panda</b> · your mascot. He cheers the crew on and breaks into a dance every time a task ships. Tap him to make him celebrate on cue.</p>
-        {/* The office is argued here, not just shown. It reflects real runtime
-            state — Scene3D reads each teammate's mood and busy flag — so this
-            is a claim about what it DOES, not a compliment about how it looks.
-            Nobody else ships this, and nobody whose buyer is a procurement
-            committee ever will. */}
-        <div className="lp-benefits" style={{ marginTop: 22 }}>
-          <div className="lp-benefit">
-            <b>The room is the status display</b>
-            <span>
-              Each teammate sits at their desk and shows what they are actually doing — working, thinking,
-              stuck. You read the state of your whole company in one glance, without opening anything. A chat
-              log cannot tell you that, and a table of rows makes you count.
-            </span>
-          </div>
-          <div className="lp-benefit">
-            <b>Somewhere you want to be</b>
-            <span>
-              Every other tool for this is a settings page with a save button. Yours is a room with your crew
-              in it. That is not decoration — it is the difference between a tool you remember to open and one
-              you do not.
-            </span>
-          </div>
-        </div>
       </section>
 
-
-
-      {/* Second on the page, not eighth. This is the argument no competitor
-          who sells tokens is able to make, so it belongs directly under the
-          office rather than after four sections of how-it-works. */}
       <section className="lp-sec alt" id="pay">
-        <h2>Bring your own key, and nothing is metered</h2>
+        <h2>Your key. No meter.</h2>
         <p className="lp-lead">
-          On the Founder plan your teammates run on <b>your</b> Anthropic key. It is sealed
-          server-side and never shown again, and Anthropic bills you directly for exactly what you
-          used · we never see a token of it, and we never put a counter in front of your work.
+          Add your Anthropic key and your teammates run on it · sealed server-side, and Anthropic bills you
+          directly for exactly what you used. Everything the company makes also saves to a single
+          <b> .dojo</b> file on your own disk, and opens again anywhere.
         </p>
         <div className="lp-schema lp-flow">
           <div className="lp-node"><span className="lp-nico">1</span><b>Add your key</b><span>Sealed with AES-256-GCM</span></div>
@@ -145,308 +114,51 @@ export function Landing({ enter }: { enter: () => void }) {
           <span className="lp-arrow">→</span>
           <div className="lp-node"><span className="lp-nico">3</span><b>Anthropic bills you</b><span>For what you actually used</span></div>
         </div>
-        <div className="lp-benefits">
-          <div className="lp-benefit"><b>No margin on your tokens</b><span>You buy the model at its real price, from the company that made it. We are not in the middle of that transaction.</span></div>
-          <div className="lp-benefit"><b>Any model you like</b><span>Your key, your choice · use the cheap fast one for drafts and the strong one for the run you are going to ship.</span></div>
-          <div className="lp-benefit"><b>Or don't hold a key at all</b><span>Managed includes 2,000 tasks a month and we pick the model per task. Same product, no key to rotate.</span></div>
-        </div>
-        <p className="lp-note">
-          No crypto, no wallet, nothing to hold. Plans are paid by card in your own currency through Stripe.
-        </p>
-      </section>
-
-      {/* Third, and the last of the three things that are actually ours. Every
-          agent platform on the market holds your work on its own servers; this
-          one hands it back as a file. Stated carefully: a signed-in company IS
-          copied to the server so colleagues can open it, so the claim here is
-          portability and an exit — not the stronger privacy claim check-content
-          bans, which stopped being true when documents started syncing.
-
-          It shares the tinted band with #pay deliberately. Inserting a section
-          breaks the plain/alt parity somewhere no matter what, and two
-          ownership arguments on one band reads as a group rather than as a
-          mistake. */}
-      <section className="lp-sec alt" id="yours">
-        <Object3D kind="crate" color={C.orange} side="right" parallax={0.13} />
-        <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="save" /></span>
-        <h2>Your work is yours to take</h2>
-        <p className="lp-lead">
-          Everything your company has made — every dojo, every brand kit, every site, every finished
-          deliverable — saves to a single <b>.dojo</b> file on your own disk, and opens again anywhere.
-          Not an export request, not a support ticket, not a CSV of half of it. One file, the whole company,
-          whenever you want it.
-        </p>
-        <div className="lp-benefits">
-          <div className="lp-benefit">
-            <b>It runs with no server at all</b>
-            <span>
-              The app works as a single-player tool with nothing configured behind it. Sign in and your work
-              also syncs so a colleague can open the same company — but that is a feature you switch on, not
-              the price of using it.
-            </span>
-          </div>
-          <div className="lp-benefit">
-            <b>Your key, your apps, your accounts</b>
-            <span>
-              The model runs on your key. The apps are connected to your accounts, and disconnecting one
-              erases its token here immediately. We hold as little of your company as the product allows.
-            </span>
-          </div>
-          <div className="lp-benefit">
-            <b>An exit that already works</b>
-            <span>
-              Every tool promises portability in its docs. This one is a button in Dojo settings, it produces
-              a file you can open today, and it is the same button we use to move a workspace between
-              machines.
-            </span>
-          </div>
-        </div>
       </section>
 
       <section className="lp-sec" id="jobs">
         <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
-        <span className="lp-pill">New · adapts to your trade</span>
         <h2>Built around your business</h2>
-        <p className="lp-lead sm">
-          <Wordmark /> reshapes your company to your trade. Pick what you do and the office is tailored for
-          you · a matching crew of specialists led by your CEO, a fitting 3D environment, and the exact apps
-          your business needs, wired and ready to run the real work of that trade.
-        </p>
-        <div className="lp-jobs">
+        <p className="lp-lead sm">Pick your trade · the crew, their briefs and their apps arrive set up for it.</p>
+        {/* 23 trades as one scannable grid. This was 23 cards with a blurb and
+            five app chips each — nearly three screens of text nobody reads on
+            the way past. The visitor is looking for THEIR trade, not for a
+            description of the other twenty-two; the detail is one click away
+            inside the app, where they actually pick one. */}
+        <div className="lp-trades">
           {PROFESSIONS.map((p) => (
-            <div className="lp-job" key={p.id} style={{ ['--pc' as any]: professionColor(p.id) }}>
-              <span className="lp-job-cat">{p.category}</span>
-              <strong>{p.label}</strong>
-              <span className="lp-job-blurb">{p.blurb}</span>
-              <div className="lp-job-tools">
-                {p.connectors.slice(0, 5).map((id) => (
-                  <span className="lp-tool-chip" key={id}>{CONNECTOR_BY_ID[id]?.label ?? id}</span>
-                ))}
-              </div>
-            </div>
+            <button
+              type="button"
+              className="lp-trade"
+              key={p.id}
+              style={{ ['--pc' as any]: professionColor(p.id) }}
+              onClick={enter}
+            >
+              {p.label}
+            </button>
           ))}
         </div>
-        <p className="lp-note">Don't see yours exactly? Every dojo (company) is fully editable · mix any crew, any environment and any apps. These are just fast starting points.</p>
       </section>
 
       <section className="lp-sec alt" id="stack">
         <Object3D kind="network" color={C.teal} side="left" parallax={0.12} />
-        <span className="lp-ico" style={{ background: C.teal }}><AsciiIcon kind="stack" /></span>
-        <h2>The apps your team actually works in</h2>
-        <p className="lp-lead">
-          <b>{APP_LIVE_COUNT} apps your teammates can act inside today.</b> Connect one in a click · you
-          approve once on the app's own screen and access is sealed away on the server · then your team
-          works in it for real: create the Notion page, open the GitHub PR, draft the Gmail, post the
-          campaign, raise the Stripe invoice, move the Jira ticket.
+        <h2>{APP_LIVE_COUNT} apps your team acts inside</h2>
+        <p className="lp-lead sm">
+          Approve once on the app's own screen · then your team creates the Notion page, opens the GitHub PR,
+          drafts the Gmail, raises the Stripe invoice. The catalogue below lists {CONNECTORS.length} and each
+          card says whether it can act yet.
         </p>
-        <p className="lp-note">
-          The catalogue below lists {CONNECTORS.length}, and the picker tells you which is which — an app
-          that cannot act yet says so on its own card. We would rather show you the gap than count a logo
-          twice.
-        </p>
-        <p className="lp-note">Every agent ships with a small, curated set of the best apps for its job · no clutter, no duplicates. It's fully modular: open any studio's <b>Connect apps</b> panel to add another app, or remove one you don't need. Your choices are saved per company.</p>
         <div className="lp-toolwall">
           {CONNECTORS.map((c) => (
             <span className="lp-toolpill" key={c.id} title={c.blurb}>{c.label}</span>
           ))}
         </div>
-        <div className="lp-two" style={{ marginTop: 26 }}>
-          <div>
-            <h3>Run it in the cloud</h3>
-            <ul>
-              <li>A managed worker keeps your agents running when the tab is closed, with every key held in a server-side vault.</li>
-              <li>One-click OAuth for every app; the browser never sees a secret.</li>
-            </ul>
-          </div>
-          <div>
-            <h3>Or keep it local</h3>
-            <ul>
-              <li>Self-host the worker and point connectors at your own MCP endpoints · your keys, your machine, the same office.</li>
-              <li>Bring your own Claude key, or run on a free model · nothing leaves your control.</li>
-            </ul>
-          </div>
-        </div>
-        <div className="lp-connect-steps">
-          <h3>How to connect an app</h3>
-          <div className="lp-steps3">
-            <div className="lp-step3"><span className="lp-step3-n" style={{ background: C.magenta }}>1</span><div><b>Create the OAuth app</b><span>In the provider console (Notion, GitHub, Google Cloud…), create an app and set the redirect to <code>your-site/api/connect</code>. Copy the <b>client id</b> &amp; <b>secret</b>.</span></div></div>
-            <div className="lp-step3"><span className="lp-step3-n" style={{ background: C.teal }}>2</span><div><b>Add the keys to env</b><span>Set <code>APP_CLIENT_ID</code> / <code>APP_CLIENT_SECRET</code> (Google apps share <code>GOOGLE_CLIENT_ID/SECRET</code>). PKCE apps (Airtable, X, Canva) are automatic.</span></div></div>
-            <div className="lp-step3"><span className="lp-step3-n" style={{ background: C.orange }}>3</span><div><b>Point an MCP endpoint</b><span>Notion, GitHub, Linear &amp; Stripe work as-is. For Gmail, Drive, Calendar, Slack &amp; others, set <code>APP_MCP_URL</code> to a hub (Composio / Zapier / Pipedream).</span></div></div>
-          </div>
-          <p className="lp-note">Then the user just clicks <b>Connect</b> on the agent card, approves the OAuth screen once, and the agent acts inside the app. Ask Dojobot for the exact env var of any app.</p>
-        </div>
-      </section>
-
-      <section className="lp-sec" id="studio">
-        <span className="lp-ico" style={{ background: C.blue }}><AsciiIcon kind="build" /></span>
-        <h2>Build your own team</h2>
-        <p className="lp-lead">Every company ships with {CREW_WORD} teammates · hide the ones you don't need and <b>create your own custom agents</b> (name, job title, colour, apps, a task list and a private notepad) right from the CEO dashboard. Pick from {SKINS.length} skins across {DOJO_TEMPLATES.length} worlds, set a per-agent budget, and rearrange the whole team on the dojo grid · tap an agent, tap a cell, and the 3D office reseats live. Press <kbd className="lp-kbd">Cmd/Ctrl&nbsp;K</kbd> anytime to jump to any agent, page or action.</p>
-        {/* The public roster. A real link, not a button: these pages are meant
-            to be found and shared, so they need to be crawlable from here. */}
-        <p className="lp-lead"><a href="/teammates">Meet every teammate by job title →</a></p>
-        <div className="lp-schema">
-          <div className="lp-node"><b>Create</b><span>12 presets + your own custom agents</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Skin</b><span>{SKINS.length} skins · {DOJO_TEMPLATES.length} worlds, in 3D</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Function</b><span>Apps, tasks, notes &amp; a budget</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><b>Arrange</b><span>Tap to reseat · many dojos</span></div>
-        </div>
-        <div className="lp-actions" style={{ marginTop: 18 }}>
-          <button className="lp-cta" onClick={enter}>Open the dojo settings →</button>
-        </div>
-      </section>
-
-
-      <section className="lp-sec alt" id="how">
-        <Object3D kind="gear" color={C.yellow} side="right" parallax={0.14} />
-        <span className="lp-ico" style={{ background: C.yellow, color: '#1a1300' }}><AsciiIcon kind="bolt" /></span>
-        <h2>How it works</h2>
-        <div className="lp-steps">
-          <div className="lp-step"><span className="lp-n">1</span><h3>Name your company</h3><p>One field, no prompt to write. Every dojo team you add afterwards belongs to that company · and signing in keeps it all for next time.</p></div>
-          <div className="lp-step"><span className="lp-n">2</span><h3>Pick your dojo teams</h3><p>Tap a ready-made card — a social campaign, an app, a book, a shop. It arrives fully staffed with the teammates that job needs, already wired to the right apps, and they get to work: website, offers, outreach, email, Meta ads (Facebook &amp; Instagram) and SEO · real work in your accounts.</p></div>
-          <div className="lp-step"><span className="lp-n">3</span><h3>You steer</h3><p>Chat with your CEO to change course, decide how much it does on its own and set a daily spending limit. A guard stops it from going in circles.</p></div>
-          <div className="lp-step"><span className="lp-n">4</span><h3>Get your daily report</h3><p>Your CEO dashboard tallies what the team did and emails a daily report · WhatsApp &amp; Telegram coming soon.</p></div>
-        </div>
-      </section>
-
-      <section className="lp-sec" id="cascade">
-        <Object3D kind="coins" color={C.yellow} side="right" parallax={0.15} />
-        <span className="lp-ico" style={{ background: C.yellow, color: '#1a1300' }}><AsciiIcon kind="cost" /></span>
-        <h2>Smart, and genuinely cheap</h2>
-        <p className="lp-lead">Every task starts at the cheapest option that can do the job well and only moves up if it has to. Most work is free; the expensive models are a rare last resort, so a task costs about a cent.</p>
-        <div className="lp-cascade">
-          <div className="lp-tier"><b>0</b><span className="lp-tier-main">Templates &amp; cached data · no model</span><span className="lp-tier-cost">free</span></div>
-          <div className="lp-tier"><b>1</b><span className="lp-tier-main">Free tiers · Groq · Gemini · Cerebras</span><span className="lp-tier-cost">≈ free</span></div>
-          <div className="lp-tier"><b>2</b><span className="lp-tier-main">Open models · DeepSeek · Llama</span><span className="lp-tier-cost">≈ $0.01</span></div>
-          <div className="lp-tier"><b>3</b><span className="lp-tier-main">Frontier · Claude, only when needed</span><span className="lp-tier-cost">rare</span></div>
-        </div>
-        <p className="lp-note">Dojobot, the built-in help assistant, works the same way · with hard spending limits and keys kept safely on the server.</p>
       </section>
 
       <section className="lp-sec alt" id="pricing">
         <Object3D kind="gem" color={C.orange} side="left" parallax={0.12} />
-        <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="price" /></span>
         <h2>You pay for the teams, not for tokens</h2>
-        <p className="lp-lead">
-          Most tools in this space resell you model tokens with a margin on top. We do not.
-          What you buy is the ready-made teams, their plans, the app connectors and the
-          orchestration that runs them · the model is something you can bring yourself,
-          and on <b>Founder</b> you do. Your key, your bill, and no meter between you and
-          your own work.
-        </p>
-        <Pricing enter={enter} goBilling={goBilling} goAssistant={goAssistant} connectors={CONNECTORS.length} />
-        <p className="lp-note">
-          Exploring is always free, and no card is asked for until you want one of the paid plans.
-        </p>
-      </section>
-
-      <section className="lp-sec" id="profile">
-        <h2>How you manage your profile</h2>
-        <div className="lp-two">
-          <div>
-            <h3>Your account &amp; plan</h3>
-            <ul>
-              <li><b>Your plan:</b> Free, Founder or Managed, paid by card in your own currency (USD, EUR, JPY…). On Founder your own Claude key runs the work and nothing here is metered at all.</li>
-              <li><b>No crypto:</b> there is no wallet, no seed and no token · just a monthly plan on a card, in your own currency.</li>
-            </ul>
-          </div>
-          <div>
-            <h3>Your settings &amp; limits</h3>
-            <ul>
-              <li>Decide how much your CEO does on its own · from Very light to No limit · plus a daily spending limit so it can never overspend.</li>
-              <li>A built-in guard stops the CEO from looping, and preferences (theme, sound, notifications) are saved to your account.</li>
-              <li>Get a daily report by email today · WhatsApp &amp; Telegram coming soon · and your CEO stays reachable to steer any time.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="lp-sec alt" id="cost">
-        <h2>What each plan actually buys</h2>
-        <p className="lp-lead">
-          A task is one teammate doing one step, so a four-step team is four tasks a run. What that
-          costs depends only on who is paying the model · and on Founder, that is you, directly.
-        </p>
-        <div className="lp-tablewrap">
-        <table className="lp-table">
-          <thead><tr><th>Plan</th><th>Per month</th><th>Runs</th><th>Who pays the model</th></tr></thead>
-          <tbody>
-            <tr><td>Free</td><td>$0</td><td>A daily allowance</td><td>Us · free and open models</td></tr>
-            <tr><td><b>Founder</b></td><td><b>$29</b></td><td><b>Unlimited</b></td><td><b>You, on your own Claude key</b></td></tr>
-            <tr><td>Managed</td><td>$49</td><td>2,000 tasks</td><td>Us · we pick the model per task</td></tr>
-          </tbody>
-        </table>
-        </div>
-        <p className="lp-note">
-          Connecting an app is free on every plan, there is no per-teammate or per-app fee, and your
-          own Notion, Slack or Stripe subscriptions are always paid to those companies, never to us.
-        </p>
-      </section>
-
-      <section className="lp-sec" id="tools">
-        <h2>Real tools, real work</h2>
-        <p className="lp-lead">The agents don't just animate · they produce real work inside your connected apps.</p>
-        <div className="lp-two">
-          <div>
-            <h3>The model + tool layer</h3>
-            <ul>
-              <li>Each task has a clear shape (what goes in, what comes out). Behind it sits a Claude call · your own key or a free model · with the tools that job needs.</li>
-              <li>Your connected apps are exposed as <b>remote MCP servers</b> · Notion, GitHub, Gmail, Slack, Jira, Stripe and {CONNECTORS.length - 6}+ more · so an agent opens a PR, posts a message or drafts a doc for real.</li>
-              <li>Every task is <b>recorded</b>: what ran, which apps it touched and what it produced, so the work is auditable whoever paid for the model.</li>
-            </ul>
-          </div>
-          <div>
-            <h3>Real work, today</h3>
-            <ul>
-              <li>Brandi ships a real brand identity, Weblos builds your website, Devi opens a PR, Marketus drafts a campaign and Busino builds a financial model · each returns an artifact you can open.</li>
-              <li>Outputs render in the agent card and activity log, and land in your connected tool (the Notion page, the Drive doc, the Linear issue).</li>
-              <li>OAuth tokens are sealed with AES-256-GCM server-side and auto-refreshed; the browser never sees a secret.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="lp-sec alt" id="env">
-        <h2>Where the agents actually run</h2>
-        <div className="lp-two">
-          <div>
-            <h3>In your browser first</h3>
-            <ul>
-              <li>The 3D office, the editors and every export run client-side. Video, images and design files never leave your machine.</li>
-              <li>Your company's documents are also kept for your organisation, so a colleague can open the same work and a cleared cache cannot destroy it.</li>
-            </ul>
-          </div>
-          <div>
-            <h3>For real work · a cloud worker</h3>
-            <ul>
-              <li>Model + tool execution runs in the cloud (a serverless function or a container/worker), not on your machine · so it keeps running when the tab is closed and keeps keys safe.</li>
-              <li>The browser stays the cockpit: it shows the office and triggers tasks; the worker does the heavy, authenticated work.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="lp-sec" id="prod">
-        <h2>Making it 100% production-ready</h2>
-        <ul className="lp-check">
-          <li>Ship the static app behind a CDN with the strict CSP, security headers and bot/scraper protection already in the repo.</li>
-          <li>Add a small backend for the model + MCP tool calls, with secrets in a vault and per-user rate limits &amp; budgets.</li>
-          <li>Accounts &amp; profiles: passkey/email auth, server-held preferences and your sealed model key.</li>
-          <li>Take subscriptions by card; keep the free tier as a sandbox on open models.</li>
-          <li>Persist artifacts and the activity log; expose an audit view of every task and what it cost.</li>
-          <li>Observability (logs, traces, spend dashboards), automated tests and CI, plus a staged free → paid rollout.</li>
-        </ul>
-        <p className="lp-note">The client is already production-grade. "100% functional" is about adding the authenticated worker that turns each task into a real deliverable · everything else is live today.</p>
-      </section>
-
-      <section className="lp-sec" id="assistant">
-        <Object3D kind="eye" color={C.teal} side="left" parallax={0.13} />
-        <span className="lp-ico" style={{ background: C.teal }}><AsciiIcon kind="cast" /></span>
-        <h2>Ask Dojobot anything</h2>
-        <p className="lp-lead">Not sure where to start, how connecting an app works, or what a team costs to run? <b>Dojobot</b> answers right here · and it can play any of the walkthroughs full screen while you ask.</p>
-        <div className="lp-assistant"><SupportBot embedded /></div>
+        <Pricing enter={enter} goBilling={goBilling} goAssistant={goAssistant} connectors={APP_LIVE_COUNT} />
       </section>
 
       <section className="lp-final">
@@ -460,12 +172,15 @@ export function Landing({ enter }: { enter: () => void }) {
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
         <nav className="lp-foot-links">
+          {/* Only anchors that exist. Three of these pointed at sections the
+              page no longer has, and Pricing was listed twice — nobody clicks
+              a footer, which is exactly why it rots. */}
+          <a href="#studios">The office</a>
+          <a href="#pay">Your key</a>
           <a href="#jobs">Your job</a>
           <a href="#stack">Connect apps</a>
-          <a href="#studio">Dojo settings</a>
           <a href="#pricing">Pricing</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#prod">Production</a>
+          <a href="/academy">Academy</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
           <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Create your company</a>

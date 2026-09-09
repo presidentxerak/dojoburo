@@ -97,11 +97,14 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
 
         {howTo && <TutorialOverlay walk="apps" onClose={() => setHowTo(false)} />}
 
-        {/* how it works · A to Z */}
-        <div className="connect-how">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Find the app by agent</b><span>Apps are grouped by the agent whose job uses them · your Marketer's channels, your Business Analyst's finance tools, and so on.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Click Connect</b><span>Approve once on the app's own screen. No password ever leaves your hands · you authorise on their site, not ours.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>They work for real</b><span>Connecting is free and stays free · you only ever pay for your plan · on Founder your own key runs the work and nothing here is metered. Tap <b>Full guide</b> on any app for the exact steps, or <b>Disconnect</b> whenever you want.</span></div></div>
+        {/* What the four states mean · said once, not on all forty-four cards.
+            Connecting is free on every plan; the walkthrough above covers the
+            rest for anyone who wants it. */}
+        <div className="connect-legend">
+          <span><i className="cl on" />Connected · your team acts in it for real</span>
+          <span><i className="cl ready" />Ready · one click, approve on their screen</span>
+          <span><i className="cl setup" />Needs setup · this deployment has no keys for it yet</span>
+          <span><i className="cl unwired" />No actions · you can hand over the credential, nothing calls it yet</span>
         </div>
 
         {loadedOnce && !backend && (
@@ -137,19 +140,17 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
                           <em>{c.auth === 'oauth' ? 'OAuth' : 'API token'} · {c.category}{isOn && st?.account ? ` · ${st.account}` : ''}</em>
                         </div>
                         <span className={`connect-state ${state}`}>
-                          {state === 'on' ? 'Connected' : state === 'ready' ? 'Ready' : state === 'setup' ? 'Needs setup' : 'Can’t act yet'}
+                          {state === 'on' ? 'Connected' : state === 'ready' ? 'Ready' : state === 'setup' ? 'Needs setup' : 'No actions'}
                         </span>
                       </div>
                       <p className="connect-card-blurb">{c.blurb}</p>
-                      <p className="connect-why">
-                        {state === 'on'
-                          ? 'Your team can act inside this app for real. It adds about 400 tokens to every step that uses it.'
-                          : state === 'ready'
-                            ? 'The keys are already in place here. One click, approve on their screen, done — nothing to paste.'
-                            : state === 'setup'
-                              ? 'This deployment has not added this app\'s keys yet. The full guide has the exact steps and env vars.'
-                              : 'You can hand over the credential for this one, but no teammate can act through it yet — there is no endpoint to call. It is listed so you know it exists.'}
-                      </p>
+                      {/* The four-sentence explanation that used to sit on EVERY
+                          card is now a legend at the top of the page, once. Forty
+                          four cards each carrying the same paragraph was 1,300
+                          words of repetition, and it pushed the thing a founder
+                          came here to do — find an app and press Connect — ten
+                          screens down. The state chip above already says which
+                          of the four this is. */}
                       {admin && state === 'setup' && (
                         <p className="connect-op-env">
                           Add {c.env.filter((e) => /_CLIENT_ID$|_CLIENT_SECRET$/.test(e.name)).map((e) => e.name).join(' and ')} in Vercel, then redeploy.
