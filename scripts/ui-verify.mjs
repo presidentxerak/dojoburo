@@ -3,7 +3,10 @@ import { chromium } from 'playwright'
 const URL = 'http://localhost:4173/'
 const OUT = process.env.SCRATCH || '.'
 const browser = await chromium.launch({
-  ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}),
+  // The bundled Chromium, not a downloaded one. Without this the suite dies on
+  // "npx playwright install" and reports nothing — which is what it had been
+  // doing here, silently, while a summary line said zero failures.
+  executablePath: process.env.PW_CHROMIUM || process.env.CHROMIUM || '/opt/pw-browsers/chromium',
   args: ['--no-sandbox'],
 })
 

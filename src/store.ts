@@ -134,8 +134,29 @@ function saveStats(stats: Record<string, AgentStats>) {
   }
 }
 
+/**
+ * The theme to open in.
+ *
+ * A stored choice wins, always — someone who picked Light on a dark machine
+ * meant it. With nothing stored we follow the operating system, which is what
+ * every other app on their screen does.
+ *
+ * This used to return 'light' unconditionally, so the dark theme existed in the
+ * stylesheet and there was no way to arrive in it: a visitor whose whole machine
+ * is dark got a white page and had to find a control buried in Settings. The
+ * stylesheet has no `prefers-color-scheme` rules at all — the theme is a
+ * `data-theme` stamp — so honouring the preference has to happen here.
+ */
 function loadTheme(): Theme {
-  return localStorage.getItem('dojoburo.theme') === 'dark' ? 'dark' : 'light'
+  try {
+    const saved = localStorage.getItem('dojoburo.theme')
+    if (saved === 'dark' || saved === 'light') return saved
+  } catch { /* private window · fall through to the system preference */ }
+  try {
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  } catch {
+    return 'light'
+  }
 }
 
 
