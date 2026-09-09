@@ -37,6 +37,14 @@ export const TEAM_COUNT = ARCHETYPES.length
 
 /** Apps a teammate can be wired to. */
 export const APP_COUNT = CONNECTORS.length
+/** Apps a teammate can ACT inside today.
+ *
+ *  Not the same as APP_COUNT, and the difference is the point: the catalogue
+ *  lists every app we intend to reach, the picker says which of them can act
+ *  yet, and the landing page must quote this number rather than the bigger one.
+ *  "Connect your whole stack" over forty-four logos, twenty-two of which do
+ *  nothing, is the kind of claim this file exists to prevent. */
+export const APP_LIVE_COUNT = CONNECTORS.filter((c) => !c.unwired).length
 
 /** Looks and worlds a dojo can wear. */
 export const SKIN_COUNT = SKINS.length

@@ -15,7 +15,7 @@ import { StudioTeam } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 import { Pricing } from './components/landing/Pricing'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
-import { CREW_COUNT, CREW_WORD } from './data/facts'
+import { CREW_COUNT, CREW_WORD, TEAM_COUNT, APP_LIVE_COUNT } from './data/facts'
 import { LESSON_COUNT } from './data/academy'
 
 // vivid complementary primaries used as per-section accent touches
@@ -54,12 +54,20 @@ export function Landing({ enter }: { enter: () => void }) {
       <SiteHeader enter={enter} />
 
       {/* The hero is deliberately almost empty: a title, one big button, and a
-          way to watch how it works. Everything else lives further down. */}
+          way to watch how it works. Everything else lives further down.
+
+          It used to promise that building agents here was easy, which is the
+          sentence every agent product on earth is already using — and it sold
+          the one thing we are worst at (being a builder) instead of the two we
+          are alone in: the teams arrive already formed, and we are not in the
+          middle of your model bill. A company that sells tokens cannot write
+          the second sentence below. That is the whole position. */}
       <section className="lp-hero lp-hero-min">
-        <h1>Your company <span className="hl-acid">automator</span></h1>
+        <h1>Your company, already <span className="hl-acid">staffed</span></h1>
         <p className="lp-hero-sub">
-          Forget complex software for running your company! Dojoburo makes agent creation simple,
-          so you can build and launch your companies from start to finish.
+          {TEAM_COUNT} teams that arrive formed, briefed and wired to their apps — not a blank canvas
+          to configure. They run on <b>your own</b> Claude key, so nobody puts a meter between you and
+          your own work.
         </p>
         <div className="lp-hero-acts">
           <button className="lp-hero-go lp-cta-create" onClick={enter}>Create your dojo teams</button>
@@ -77,7 +85,7 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
       <div className="lm-band">
-        <p className="lm-cap">Built on open rails · connects your whole stack</p>
+        <p className="lm-cap">Open rails · your teammates act inside your own accounts</p>
         <LogoMarquee />
       </div>
 
@@ -96,6 +104,33 @@ export function Landing({ enter }: { enter: () => void }) {
       </section>
 
 
+
+      {/* Second on the page, not eighth. This is the argument no competitor
+          who sells tokens is able to make, so it belongs directly under the
+          office rather than after four sections of how-it-works. */}
+      <section className="lp-sec alt" id="pay">
+        <h2>Bring your own key, and nothing is metered</h2>
+        <p className="lp-lead">
+          On the Founder plan your teammates run on <b>your</b> Anthropic key. It is sealed
+          server-side and never shown again, and Anthropic bills you directly for exactly what you
+          used · we never see a token of it, and we never put a counter in front of your work.
+        </p>
+        <div className="lp-schema lp-flow">
+          <div className="lp-node"><span className="lp-nico">1</span><b>Add your key</b><span>Sealed with AES-256-GCM</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><span className="lp-nico">2</span><b>Run as much as you like</b><span>No cap, no counter</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><span className="lp-nico">3</span><b>Anthropic bills you</b><span>For what you actually used</span></div>
+        </div>
+        <div className="lp-benefits">
+          <div className="lp-benefit"><b>No margin on your tokens</b><span>You buy the model at its real price, from the company that made it. We are not in the middle of that transaction.</span></div>
+          <div className="lp-benefit"><b>Any model you like</b><span>Your key, your choice · use the cheap fast one for drafts and the strong one for the run you are going to ship.</span></div>
+          <div className="lp-benefit"><b>Or don't hold a key at all</b><span>Managed includes 2,000 tasks a month and we pick the model per task. Same product, no key to rotate.</span></div>
+        </div>
+        <p className="lp-note">
+          No crypto, no wallet, nothing to hold. Plans are paid by card in your own currency through Stripe.
+        </p>
+      </section>
 
       <section className="lp-sec" id="jobs">
         <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
@@ -126,12 +161,17 @@ export function Landing({ enter }: { enter: () => void }) {
       <section className="lp-sec alt" id="stack">
         <Object3D kind="network" color={C.teal} side="left" parallax={0.12} />
         <span className="lp-ico" style={{ background: C.teal }}><AsciiIcon kind="stack" /></span>
-        <h2>Connect your whole stack</h2>
+        <h2>The apps your team actually works in</h2>
         <p className="lp-lead">
-          {CONNECTORS.length} apps and counting. Connect one in a click · you approve once on the app's own
-          screen and access is sealed away on the server · then your team works inside it for real: create the
-          Notion page, open the GitHub PR, draft the Gmail, post the campaign, raise the Stripe invoice, move
-          the Jira ticket.
+          <b>{APP_LIVE_COUNT} apps your teammates can act inside today.</b> Connect one in a click · you
+          approve once on the app's own screen and access is sealed away on the server · then your team
+          works in it for real: create the Notion page, open the GitHub PR, draft the Gmail, post the
+          campaign, raise the Stripe invoice, move the Jira ticket.
+        </p>
+        <p className="lp-note">
+          The catalogue below lists {CONNECTORS.length}, and the picker tells you which is which — an app
+          that cannot act yet says so on its own card. We would rather show you the gap than count a logo
+          twice.
         </p>
         <p className="lp-note">Every agent ships with a small, curated set of the best apps for its job · no clutter, no duplicates. It's fully modular: open any studio's <b>Connect apps</b> panel to add another app, or remove one you don't need. Your choices are saved per company.</p>
         <div className="lp-toolwall">
@@ -228,30 +268,6 @@ export function Landing({ enter }: { enter: () => void }) {
         <Pricing enter={enter} goBilling={goBilling} goAssistant={goAssistant} connectors={CONNECTORS.length} />
         <p className="lp-note">
           Exploring is always free, and no card is asked for until you want one of the paid plans.
-        </p>
-      </section>
-
-      <section className="lp-sec alt" id="pay">
-        <h2>Bring your own key, and nothing is metered</h2>
-        <p className="lp-lead">
-          On the Founder plan your teammates run on <b>your</b> Anthropic key. It is sealed
-          server-side and never shown again, and Anthropic bills you directly for exactly what you
-          used · we never see a token of it, and we never put a counter in front of your work.
-        </p>
-        <div className="lp-schema lp-flow">
-          <div className="lp-node"><span className="lp-nico">1</span><b>Add your key</b><span>Sealed with AES-256-GCM</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">2</span><b>Run as much as you like</b><span>No cap, no counter</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">3</span><b>Anthropic bills you</b><span>For what you actually used</span></div>
-        </div>
-        <div className="lp-benefits">
-          <div className="lp-benefit"><b>No margin on your tokens</b><span>You buy the model at its real price, from the company that made it. We are not in the middle of that transaction.</span></div>
-          <div className="lp-benefit"><b>Any model you like</b><span>Your key, your choice · use the cheap fast one for drafts and the strong one for the run you are going to ship.</span></div>
-          <div className="lp-benefit"><b>Or don't hold a key at all</b><span>Managed includes 2,000 tasks a month and we pick the model per task. Same product, no key to rotate.</span></div>
-        </div>
-        <p className="lp-note">
-          No crypto, no wallet, nothing to hold. Plans are paid by card in your own currency through Stripe.
         </p>
       </section>
 

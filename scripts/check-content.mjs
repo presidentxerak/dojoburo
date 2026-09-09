@@ -90,6 +90,14 @@ const NEVER = [
   // its title, and five places that told a founder to go there for their key.
   // A name is a claim too — this one told people to look for a balance.
   { re: /My Credits/, why: 'the screen is Billing · there is no credit balance to open' },
+  // The old positioning. It sold the one thing we are worst at — being a
+  // generic agent builder — in the sentence every competitor already uses, and
+  // it disagreed with the h1 for months: the page said "company", the meta tag
+  // said "projects", and nothing compared them.
+  { re: /projects automator|agent creation simple/i, why: 'the position is "your company, already staffed" · teams that arrive formed, on your own key' },
+  // Twenty-two of the forty-four can act. "Your whole stack" over the full
+  // catalogue is the overclaim the connector audit exists to stop.
+  { re: /connects? your whole stack/i, why: 'quote APP_LIVE_COUNT · the catalogue is bigger than what can act' },
 ]
 
 const RULES = [
@@ -128,8 +136,15 @@ const RULES = [
   // script exists to catch.
   { file: 'src/Landing.tsx', must: /\{LESSON_COUNT\} lessons/, why: 'the landing must read the lesson count from the curriculum, not hardcode it' },
 
-  // index.html · the one description a crawler reads before any JS runs
+  // index.html · the one description a crawler reads before any JS runs. It must
+  // carry the SAME position as the h1: those two disagreed for months because
+  // nothing compared them, and the meta tag is what a shared link shows.
   { file: 'index.html', must: /<meta name="description"/, why: 'the site needs a description' },
+  { file: 'index.html', must: /already staffed/, why: 'the meta description must carry the same position as the hero' },
+  { file: 'src/Landing.tsx', must: /already <span className="hl-acid">staffed<\/span>/, why: 'the hero states the position' },
+  { file: 'src/Landing.tsx', must: /your own<\/b> Claude key/, why: 'the hero must carry the argument no token seller can make' },
+  // and the apps section must quote what can ACT, not the catalogue size
+  { file: 'src/Landing.tsx', must: /APP_LIVE_COUNT/, why: 'the landing quotes apps that can act, not the catalogue count' },
 ]
 
 let bad = 0
