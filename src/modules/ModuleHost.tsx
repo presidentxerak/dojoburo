@@ -13,6 +13,8 @@ import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
 import { CONNECTORS } from '../data/connectors'
 import { useWork } from '../agents/workStore'
 import { useAgentApps, effectiveApps } from '../agents/agentApps'
+import { AgentWork } from '../components/agents/AgentWork'
+import { useWorkshop } from '../workshop'
 
 export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; dojoId: string; onClose: () => void }) {
   const def = MODULE_BY_ID[moduleId]
@@ -34,6 +36,13 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
   const ov = useAgentApps((s) => s.byKey[ovKey])
   const setApp = useAgentApps((s) => s.setApp)
   const appIds = useMemo(() => effectiveApps(defaults, ov), [defaults, ov])
+  // le coéquipier de ce dojo qui porte ce rôle · c'est lui dont on affiche les
+  // livrables sous le panneau
+  const dojos = useWorkshop((s) => s.dojos)
+  const agent = useMemo(
+    () => dojos.find((d) => d.id === dojoId)?.agents.find((a) => canonicalRole(a.role ?? '') === roleId),
+    [dojos, dojoId, roleId],
+  )
   const anyConnected = appIds.some((id) => tools[id]?.connected)
   // blink when the agent genuinely needs an app for full function and none is
   // linked · only when the deployment actually has a connector backend, so we
@@ -121,6 +130,19 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
             <ul className="mod-planned">
               {(def.planned ?? []).map((p, i) => <li key={i}>{p}</li>)}
             </ul>
+          </div>
+        )}
+
+        {/* Les livrables de cet agent · ils vivent normalement sur sa page, mais
+            un agent qui possède un panneau n'ouvre jamais cette page : le
+            tableau de bord remplace tout l'écran par ce panneau. Vaultor
+            proposait ainsi « Modèle financier » et « Offre et tarifs », et
+            personne ne pouvait les atteindre.
+
+            Le panneau COMPLÈTE la page, il ne la remplace pas. */}
+        {agent && role && (
+          <div className="modhost-work">
+            <AgentWork agent={agent} role={role} dojoId={dojoId} />
           </div>
         )}
       </div>

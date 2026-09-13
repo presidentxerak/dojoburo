@@ -3,9 +3,19 @@ import { createPortal } from 'react-dom'
 
 /** A small "i" info dot that opens a readable, responsive modal explaining a
  *  piece of UI. Closes via the × or the Close button, or by clicking the
- *  backdrop / pressing Escape. */
+ *  backdrop / pressing Escape.
+ *
+ *  Rien à dire ⇒ pas de pastille. Elle était posée sur chaque page d'agent avec
+ *  un contenu calculé, et ce contenu valait null pour quinze rôles sur dix-huit :
+ *  on cliquait sur « i », une fenêtre s'ouvrait avec un titre, un bouton Fermer
+ *  et RIEN entre les deux. Une impasse pareille se lit comme une application
+ *  cassée, alors que l'absence de pastille ne se remarque même pas.
+ *
+ *  Le contrôle est ici plutôt que chez chaque appelant : il y en a une dizaine,
+ *  et il suffit qu'un seul l'oublie pour que l'impasse revienne. */
 export function InfoDot({ title, children, label }: { title: string; children: ReactNode; label?: string }) {
   const [open, setOpen] = useState(false)
+  if (isEmpty(children)) return null
   return (
     <>
       <button
@@ -32,4 +42,19 @@ export function InfoDot({ title, children, label }: { title: string; children: R
       )}
     </>
   )
+}
+
+/**
+ * Ce contenu est-il vide ?
+ *
+ * `null`, `undefined` et `false` sont les trois façons dont une expression JSX
+ * conditionnelle ne rend rien. Un tableau de ces trois-là aussi : `{[a, b]}` où
+ * les deux valent null. Une chaîne d'espaces est vide à l'écran même si elle ne
+ * l'est pas en mémoire.
+ */
+function isEmpty(node: ReactNode): boolean {
+  if (node === null || node === undefined || node === false || node === true) return true
+  if (typeof node === 'string') return !node.trim()
+  if (Array.isArray(node)) return node.every(isEmpty)
+  return false
 }

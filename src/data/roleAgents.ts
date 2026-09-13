@@ -1,20 +1,26 @@
 // ---------------------------------------------------------------------------
-// DojoBuro · The eight AI teammates.
+// DojoBuro · les coéquipiers, et lesquels arrivent par défaut.
 //
-// A company is run by eight unified agents, each with a memorable CODENAME
-// (the primary identity shown everywhere) and a plain JOB TITLE underneath.
-// Chief is the only orchestration entry point · you talk to Chief, and Chief
-// delegates to the seven specialists. Several agents merge what used to be
-// separate studios (see LEGACY_ROLE_MAP for the old → new mapping).
+// Chacun porte un NOM DE CODE (l'identité montrée partout) et un intitulé de
+// poste en dessous. Chief est le seul point d'entrée d'orchestration : on lui
+// parle, il délègue. Plusieurs agents fusionnent d'anciens « studios » séparés
+// (voir LEGACY_ROLE_MAP pour la correspondance).
 //
-//   Chief     · CEO                 · orchestrates everything
-//   Brandi    · Brand Architect     · names, domains, brand
-//   Weblos    · Website Designer     · websites
-//   Marketus  · Marketing Studio     · campaigns + video + assets
-//   Pumpi     · Growth Manager       · CRM + outreach
-//   Busino    · Business Analyst     · finance + analytics
-//   Sentinel  · Operations Guardian  · autonomy + security
-//   Vaultor   · Billing Manager      · credits + billing
+// DEUX groupes, et il faut les tenir distincts :
+//
+//   · L'ÉQUIPAGE (COMPANY_IDS, douze) est semé dans chaque dojo classique :
+//     Chief, Brandi, Weblos, Devi, Marketus, Pumpi, Nexa, Helpi, Busino,
+//     Vaultor, Legi, Sentinel.
+//
+//   · Les SPÉCIALISTES (six) ne sont pas semés · on les ajoute depuis les cases
+//     libres du dojo : Scout, Scribe, Deck, Pixel, Pilot, Kaizen.
+//
+// Cet en-tête annonçait un effectif plus petit, et en listait autant, pendant
+// que le code en semait douze — et que `core`, le drapeau censé dire lesquels,
+// donnait encore un troisième chiffre sans que personne ne le lise. Trois
+// nombres pour une seule question. `core` vaut maintenant exactement
+// l'appartenance à COMPANY_IDS, et scripts/audit-agents.mjs refuse qu'un
+// nombre écrit ici contredise celui du code.
 // ---------------------------------------------------------------------------
 import type { Department } from './agents'
 
@@ -34,8 +40,8 @@ export interface RoleAgent {
   desc: string
   tint: string
   dept: Department
-  /** true for the eight core agents seeded into every dojo. Optional agents are
-   *  NOT seeded · the user adds them from the empty grid cells on the dojo. */
+  /** true pour les douze agents de l'équipage, semés dans chaque dojo. Les
+   *  spécialistes ne le sont pas · on les ajoute depuis les cases libres. */
   core: boolean
   /** the connector ids this agent's studio works with (drives its workspace). */
   apps: string[]
@@ -74,7 +80,7 @@ const SPECS: Spec[] = [
   {
     id: 'devi', code: 'Devi', title: 'Engineering Lead',
     desc: 'Tracks issues, pull requests and sprints across your dev stack.',
-    tint: '#3b82f6', dept: 'Engineering', core: false,
+    tint: '#3b82f6', dept: 'Engineering', 
     apps: ['github', 'linear'],
   },
   {
@@ -90,13 +96,13 @@ const SPECS: Spec[] = [
   {
     id: 'nexa', code: 'Nexa', title: 'Comms Manager',
     desc: 'Broadcasts to your team and community across every channel.',
-    tint: '#f97316', dept: 'People', core: false,
+    tint: '#f97316', dept: 'People', 
     apps: ['slack', 'discord'],
   },
   {
     id: 'helpi', code: 'Helpi', title: 'Support Lead',
     desc: 'Runs the support queue: tickets, conversations and replies.',
-    tint: '#14b8a6', dept: 'People', core: false,
+    tint: '#14b8a6', dept: 'People', 
     apps: ['zendesk', 'intercom'],
   },
   {
@@ -112,7 +118,7 @@ const SPECS: Spec[] = [
   {
     id: 'legi', code: 'Legi', title: 'Legal & Docs',
     desc: 'Sends contracts for signature and keeps documents in order.',
-    tint: '#8b5cf6', dept: 'Ops', core: false,
+    tint: '#8b5cf6', dept: 'Ops', 
     apps: ['gdrive', 'docusign'],
   },
   {
@@ -220,7 +226,7 @@ export const COMPANY_IDS: string[] = [
 ]
 export const COMPANY_AGENTS: RoleAgent[] = COMPANY_IDS.map((id) => ROLE_BY_ID[id]).filter(Boolean)
 
-/** The eight agents seeded into every dojo. */
+/** L'équipage semé dans chaque dojo · identique à COMPANY_IDS par construction. */
 export const CORE_AGENTS: RoleAgent[] = ROLE_AGENTS.filter((r) => r.core)
 export const CORE_IDS: string[] = CORE_AGENTS.map((r) => r.id)
 /** Agents the user can add to a dojo from its empty grid cells. */

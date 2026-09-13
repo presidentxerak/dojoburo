@@ -7468,3 +7468,8 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   padding: 6px 8px; border: 1px solid var(--border); background: transparent; color: var(--muted);
 }
 .ph-merged-x:hover { border-color: var(--ink); color: var(--ink); }
+
+/* Les livrables d'un agent, sous son panneau de réglages · ils vivent d'ordinaire
+   sur sa page, qu'un agent à panneau n'ouvre jamais. Séparés par un filet, pour
+   qu'on lise deux choses distinctes et non la suite du panneau. */
+.modhost-work { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
