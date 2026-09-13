@@ -7,11 +7,13 @@
 // every install starts with was never chosen by anyone, so it is not offered as
 // a destination — it stays reachable from Dojo settings.
 //
-// A company hires a speciality once (the chooser greys out what you already
-// have, and the store refuses a twin), so the tab bar never carried the same
-// label twice on purpose. Copies made before that rule are still numbered here
-// rather than shown as identical strangers, and "My companies" offers to remove
-// them.
+// A company hires a speciality once: the chooser greys out what you already
+// have, the store refuses a twin, and anything saved before that rule is merged
+// on load (see lib/dedupeTeams). So this numbering should never appear.
+//
+// It stays as a NET, not as an expectation. If a path we have not thought of
+// ever produced a twin, two tabs reading exactly the same would be the worst
+// possible failure — you could not tell which one you were in.
 import { useWorkshop } from '../../workshop'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 

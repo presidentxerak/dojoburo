@@ -166,6 +166,20 @@ export default function App() {
     }
   }, [])
 
+  // Des équipes en double ont été fusionnées au chargement (lib/dedupeTeams).
+  // L'avis détaillé vit sur la vue entreprise, mais on n'y passe pas forcément :
+  // sans ce mot-ci, quelqu'un qui entre directement dans son dojo verrait
+  // simplement des cartes en moins, ce qui se lit comme une perte.
+  useEffect(() => {
+    const n = useWorkshop.getState().mergedTeams
+    if (!n) return
+    useDojo.getState().pushToast({
+      kind: 'event', badge: 'OK', color: '#2fae6a',
+      title: `${n} équipe${n > 1 ? 's' : ''} en double fusionnée${n > 1 ? 's' : ''}`,
+      text: 'Une spécialité par entreprise. Rien n’a été supprimé : briefs et coéquipiers créés ont été repris.',
+    })
+  }, [])
+
   // navigation intent handed over from a full-page surface (dojo settings,
   // connect apps): it sets this then routes to #app, and we act on it once App
   // mounts · "CEO" opens the dashboard, "Studio" opens the studio.

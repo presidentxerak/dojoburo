@@ -7418,3 +7418,21 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
    l'outil ne marche pas, donc c'est là qu'il faut dire ce qui manque. */
 .docs-hint { margin: 8px 0 0; font-size: 13px; line-height: 1.55; color: var(--muted); }
 .docs-hint code { font-family: var(--font-mono); font-size: 12px; padding: 1px 5px; background: var(--panel-2); }
+
+/* L'avis de fusion des équipes en double · il apparaît une fois, après le
+   nettoyage au chargement, et se ferme. Une fusion silencieuse se lirait comme
+   une suppression, ce qui est le contraire de ce qui se passe. */
+.ph-merged {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  margin: 0 0 18px; padding: 12px 14px;
+  border: 1px solid var(--border-lit); background: var(--panel-2);
+}
+.ph-merged strong { font-size: 14px; display: block; }
+.ph-merged p { margin: 4px 0 0; font-size: 13px; line-height: 1.55; color: var(--muted); max-width: 70ch; }
+.ph-merged ul { margin: 8px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--muted); }
+.ph-merged li { margin: 2px 0; }
+.ph-merged-x {
+  font: inherit; font-size: 14px; line-height: 1; flex: none; cursor: pointer;
+  padding: 6px 8px; border: 1px solid var(--border); background: transparent; color: var(--muted);
+}
+.ph-merged-x:hover { border-color: var(--ink); color: var(--ink); }

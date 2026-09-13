@@ -12,6 +12,7 @@ import type { CurrencyCode } from './data/currency'
 import { templateById, DEFAULT_TEMPLATE_ID, type DojoTemplate } from './data/templates'
 import { professionById, type Profession } from './data/professions'
 import { seatPositions } from './three/layout3d'
+import { dedupeTeams, existingTeam } from './lib/dedupeTeams'
 
 export const GRID = { cols: 6, rows: 4 } // 24 cells
 // Up to 24 agents per dojo · the 12 role presets plus room for custom agents the
@@ -118,6 +119,11 @@ interface WorkshopState {
   projectName: string
   /** true when there are dojo/agent edits not yet written to localStorage */
   dirty: boolean
+  /** copies d'équipe fusionnées au dernier chargement · alimente l'avis à l'écran */
+  mergedTeams: number
+  mergedNotes: string[]
+  /** l'utilisateur a lu l'avis · on ne le lui remontre pas */
+  clearMergedNotice: () => void
 
   save: () => void
   signInGuest: (name?: string) => void
@@ -296,6 +302,10 @@ function ensureRoleCrew(d: Dojo): Dojo {
 }
 
 interface Saved {
+  /** combien de copies d'équipe ont été fusionnées au chargement · 0 d'habitude */
+  mergedTeams: number
+  /** ce qui a été fusionné, en clair, pour pouvoir le dire plutôt que le taire */
+  mergedNotes: string[]
   account: Account | null
   companies: Company[]
   activeCompanyId: string | null
@@ -335,12 +345,28 @@ function load(): Saved {
           dojos = dojos.map((d) => (d.archetype ? { ...d, companyId: d.companyId ?? first.id } : d))
         }
         const activeCompanyId = companies.some((c) => c.id === p.activeCompanyId) ? p.activeCompanyId : companies[0].id
+
+        // Une spécialité, une équipe, par entreprise. La règle est appliquée à
+        // la création depuis longtemps, mais rien ne nettoyait ce qui avait été
+        // enregistré avant — d'où des piles de cartes identiques que le produit
+        // se contentait de NUMÉROTER. On fusionne ici, une fois, et jamais en
+        // supprimant : le brief écrit à la main et les coéquipiers créés sont
+        // repris sur celle qu'on garde (voir lib/dedupeTeams).
+        const cleaned = dedupeTeams(dojos)
+        dojos = cleaned.teams
+        // la copie active a pu être absorbée · on retombe sur celle qui reste
+        const activeDojoId = dojos.some((d) => d.id === p.activeDojoId)
+          ? p.activeDojoId
+          : (dojos.find((d) => d.companyId === activeCompanyId)?.id ?? dojos[0]?.id ?? null)
+
         return {
+          mergedTeams: cleaned.merged,
+          mergedNotes: cleaned.notes,
           account: p.account ?? null,
           companies,
           activeCompanyId,
           dojos,
-          activeDojoId: p.activeDojoId ?? null,
+          activeDojoId,
           projectName: companies.find((c) => c.id === activeCompanyId)?.name ?? name,
         }
       }
@@ -349,7 +375,7 @@ function load(): Saved {
     /* ignore */
   }
   const d = seedDojo()
-  return { account: null, companies: [], activeCompanyId: null, dojos: [d], activeDojoId: d.id, projectName: '' }
+  return { mergedTeams: 0, mergedNotes: [], account: null, companies: [], activeCompanyId: null, dojos: [d], activeDojoId: d.id, projectName: '' }
 }
 
 function firstFreeCell(agents: WAgent[]): { gx: number; gy: number } {
@@ -376,9 +402,23 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
     set((s) => ({ dojos: s.dojos.map((d) => (d.id === s.activeDojoId ? fn(d) : d)), dirty: true }))
   }
 
+  const loaded = load()
+  // Un nettoyage qui ne s'enregistre pas se rejoue à chaque ouverture. Il est
+  // idempotent, donc inoffensif — mais le fondateur qui a fermé l'onglet
+  // retrouverait ses doublons, ce qui ressemblerait à un produit qui ne tient
+  // pas ce qu'il vient d'annoncer.
+  if (loaded.mergedTeams) {
+    try {
+      const { account, companies, activeCompanyId, dojos, activeDojoId, projectName } = loaded
+      localStorage.setItem(KEY, JSON.stringify({ account, companies, activeCompanyId, dojos, activeDojoId, projectName }))
+    } catch { /* mode privé · le nettoyage se rejouera, sans dommage */ }
+  }
+
   return {
-    ...load(),
+    ...loaded,
     dirty: false,
+
+    clearMergedNotice: () => set({ mergedTeams: 0, mergedNotes: [] }),
 
     save: () => persist(),
 
@@ -515,7 +555,10 @@ export const useWorkshop = create<WorkshopState>((set, get) => {
       // the first instead of building a twin. Another company can of course
       // hire the same speciality: that is a different piece of work.
       const companyId = get().activeCompanyId ?? get().createCompany(get().projectName)
-      const already = get().dojos.find((d) => d.archetype === a.id && d.companyId === companyId)
+      // `existingTeam` vit dans lib/dedupeTeams, avec le nettoyage, pour qu'il
+      // n'existe qu'UNE définition de « c'est la même équipe ». Deux définitions
+      // qui divergent, c'est exactement par là que les doublons revenaient.
+      const already = existingTeam(get().dojos, companyId, a.id)
       if (already) {
         set({ activeDojoId: already.id })
         return already.id

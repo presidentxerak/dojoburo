@@ -48,6 +48,10 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
   const reorder = useWorkshop((s) => s.reorderDojo)
   const setActive = useWorkshop((s) => s.setActiveDojo)
   const setGoal = useWorkshop((s) => s.setDojoGoal)
+  // Ce que le nettoyage au chargement a absorbé · voir lib/dedupeTeams
+  const mergedTeams = useWorkshop((s) => s.mergedTeams)
+  const mergedNotes = useWorkshop((s) => s.mergedNotes)
+  const clearMerged = useWorkshop((s) => s.clearMergedNotice)
   const pushToast = useDojo((s) => s.pushToast)
   const loopRunning = useLoop((s) => s.running)
 
@@ -238,6 +242,24 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
         <button className="ph-addbtn ph-addteam" onClick={() => setView('choose')}>+ Add dojo teams</button>
       </header>
 
+      {/* Une fusion silencieuse se lirait comme « l'app a supprimé mes cartes ».
+          On dit ce qui a été absorbé, et ce qui a été gardé au passage. */}
+      {mergedTeams > 0 && (
+        <div className="ph-merged" role="status">
+          <div>
+            <strong>
+              {mergedTeams} équipe{mergedTeams > 1 ? 's' : ''} en double fusionnée{mergedTeams > 1 ? 's' : ''}
+            </strong>
+            <p>
+              Une spécialité n’est recrutée qu’une fois par entreprise. Rien n’a été supprimé :
+              les briefs écrits et les coéquipiers créés ont été repris sur l’équipe conservée.
+            </p>
+            <ul>{mergedNotes.map((n) => <li key={n}>{n}</li>)}</ul>
+          </div>
+          <button className="ph-merged-x" onClick={clearMerged} aria-label="Fermer">✕</button>
+        </div>
+      )}
+
       {/* only the teams the founder actually picked · the seeded HQ dojo that
           ships with every install was never chosen, so it is not part of the
           company (it stays reachable from Dojo settings, like in the tab bar).
@@ -250,9 +272,11 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
           const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
           const crew = d.agents.filter((x) => !x.hidden)
           const tint = a?.tint ?? '#7b5cff'
-          // A company only hires a speciality once. Copies made before that
-          // rule existed are still here, named as copies, with their remove
-          // button right beside them.
+          // Une spécialité n'est recrutée qu'une fois par entreprise, et ce qui
+          // avait été enregistré avant cette règle est fusionné au chargement
+          // (lib/dedupeTeams). Ce badge ne devrait donc jamais s'afficher : il
+          // reste comme filet, pour qu'un doublon arrivé par une porte qu'on
+          // n'a pas vue se signale au lieu de passer pour une carte de plus.
           const dup = !!d.archetype && projects.findIndex((x) => x.archetype === d.archetype) !== i
           return (
             <article
