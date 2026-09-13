@@ -260,6 +260,15 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
         </div>
       )}
 
+      {/* Pilot et Kaizen · ils commandent tout le reste, ils passent devant.
+
+          Ils étaient sous la grille, donc sous douze cartes et un défilement :
+          « Tout lancer » est LE geste de cette page, et il fallait le chercher
+          en bas. L'état de l'app aussi — on le lit avant de lancer quoi que ce
+          soit, pas après. */}
+      {/* the two system agents · runs the whole company + looks after the app */}
+      <SystemAgents projectCount={projects.length} onRunPipeline={() => void runPipeline()} running={loopRunning} />
+
       {/* only the teams the founder actually picked · the seeded HQ dojo that
           ships with every install was never chosen, so it is not part of the
           company (it stays reachable from Dojo settings, like in the tab bar).
@@ -351,8 +360,6 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
         </button>
       </div>
 
-      {/* the two system agents · runs the whole company + looks after the app */}
-      <SystemAgents projectCount={projects.length} onRunPipeline={() => void runPipeline()} running={loopRunning} />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { StrictMode, Suspense, lazy, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Landing } from './Landing'
 import { AuthProvider } from './auth/AuthProvider'
+import { handleConnectReturn, onConnectResult, takeConnectResult } from './lib/connectReturn'
 
 // The product, behind the beta door.
 //
@@ -109,6 +110,49 @@ function Root() {
   return <Landing enter={() => { location.hash = 'app' }} />
 }
 
+// Le retour d'une autorisation, AVANT tout rendu.
+//
+// Cette page est alors la fenêtre d'autorisation : elle prévient la fenêtre qui
+// l'a ouverte et se ferme. Rendre l'app entre-temps ferait clignoter la page
+// d'accueil dans une fenêtre sur le point de disparaître — et, dans le chemin
+// sans fenêtre fille, chargerait un écran qu'on quitte aussitôt.
+if (handleConnectReturn()) {
+  // rien à rendre · la fenêtre se ferme ou l'adresse vient de changer
+} else {
+  // Côté fenêtre MÈRE · le résultat de l'autorisation, d'où qu'il vienne.
+  //
+  // Ici plutôt que dans App : on connecte une application aussi bien depuis la
+  // page « Connect apps », qui est sa propre route et où App n'est pas monté.
+  // L'écouteur y serait absent, la carte resterait sur « Connect » et il aurait
+  // fallu recharger la page pour voir qu'elle avait marché.
+  //
+  // Ce qui compte est loadTools() : sans lui l'app propose encore de connecter
+  // une application qui vient de l'être, et on recommence en croyant avoir raté.
+  // Les magasins sont chargés À LA DEMANDE : les importer en tête de ce fichier
+  // les ferait descendre par chaque visiteur du site vitrine, qui n'a ni dojo ni
+  // application à connecter. C'est la séparation que ce fichier existe à tenir.
+  const announce = async (r: { ok: boolean; detail: string }) => {
+    const [{ useDojo }, { useWork }, { CONNECTOR_BY_ID }] = await Promise.all([
+      import('./store'), import('./agents/workStore'), import('./data/connectors'),
+    ])
+    if (r.ok) {
+      void useWork.getState().loadTools()
+      useDojo.getState().pushToast({
+        kind: 'event', badge: 'OK', color: '#2fae6a',
+        title: 'App connected',
+        text: `${CONNECTOR_BY_ID[r.detail]?.label ?? r.detail} is linked to your agents.`,
+      })
+    } else {
+      useDojo.getState().pushToast({
+        kind: 'event', badge: '!', color: '#d9822b',
+        title: 'Connection failed', text: r.detail,
+      })
+    }
+  }
+  const pending = takeConnectResult()
+  if (pending) void announce(pending)
+  onConnectResult((r) => void announce(r))
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Boundary what="DojoBuro">
@@ -118,6 +162,7 @@ createRoot(document.getElementById('root')!).render(
     </Boundary>
   </StrictMode>,
 )
+}
 
 // Self-healing after deploys. The old caching service worker could serve stale
 // module chunks, blanking panels. We (a) let the kill-switch sw.js remove any

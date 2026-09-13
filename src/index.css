@@ -426,13 +426,45 @@ a:hover { text-decoration: underline; }
 }
 .agw-spin { flex: none; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--dc, var(--violet)); animation: spin .8s linear infinite; }
 .agw-err { margin: 0; font-size: 14.5px; color: var(--muted); }
-.agw-apps { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.agw-apps-h { font-family: var(--font-pixel); font-weight: 800; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+/* Les applications d'un coéquipier · l'état se lit, il ne se devine pas.
+   Une application reliée porte une coche verte ; une qu'il reste à relier EST
+   un bouton, et ce bouton dit laquelle. L'ancienne rangée d'étiquettes grises
+   laissait l'état dans une nuance de fond et une infobulle : on ne pouvait pas
+   savoir d'un coup d'œil pourquoi l'agent écrivait au lieu d'agir. */
+.agw-apps { display: flex; flex-direction: column; gap: 8px; }
+.agw-apps-h {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-family: var(--font-pixel); font-weight: 800; font-size: 12px;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+}
+.agw-howto {
+  font-family: var(--font-read); font-weight: 600; font-size: 12px; letter-spacing: 0;
+  text-transform: none; cursor: pointer; padding: 3px 9px; border-radius: 999px;
+  border: 1px solid var(--border-lit); background: transparent; color: var(--muted);
+}
+.agw-howto:hover { border-color: var(--ink); color: var(--ink); }
+.agw-applist { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .agw-app {
   display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px;
-  border: 1px solid var(--border); background: var(--panel-2); font-size: 13.5px; font-weight: 600; color: var(--muted);
+  border: 1px solid var(--border); background: var(--panel-2); font-size: 13.5px;
+  font-weight: 600; color: var(--muted); text-decoration: none;
 }
-.agw-app.on { color: var(--ink); border-color: color-mix(in srgb, #1fa563 45%, var(--border)); background: color-mix(in srgb, #1fa563 8%, var(--panel-solid)); }
+.agw-app.on {
+  color: var(--ink);
+  border-color: color-mix(in srgb, #1fa563 45%, var(--border));
+  background: color-mix(in srgb, #1fa563 8%, var(--panel-solid));
+}
+.agw-tick { color: #1fa563; font-weight: 800; font-size: 14px; line-height: 1; }
+/* Celle-ci est un bouton, et elle en a l'air : c'est le geste que la page
+   demande, il ne doit pas se confondre avec une étiquette d'état. */
+.agw-app.connect {
+  cursor: pointer; color: var(--btn-fg); background: var(--btn-bg); border-color: var(--btn-bg);
+}
+.agw-app.connect:hover { opacity: .88; }
+.agw-app.off { cursor: pointer; opacity: .75; }
+.agw-soon { font-weight: 600; font-size: 11.5px; opacity: .8; }
+/* L'état n'est pas encore revenu du serveur · on n'affirme ni l'un ni l'autre */
+.agw-app.wait { opacity: .5; }
 .agw-out { display: flex; flex-direction: column; gap: 8px; }
 .agw-empty { margin: 0; font-size: 14.5px; color: var(--muted); }
 .agw-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }

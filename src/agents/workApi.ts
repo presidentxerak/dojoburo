@@ -151,12 +151,33 @@ export async function removeClaudeKey(): Promise<boolean> {
 }
 
 /** Top-level navigation to the provider's OAuth screen. */
+/**
+ * Ouvrir la page du fournisseur, dans SA propre fenêtre.
+ *
+ * L'autorisation se passait dans l'onglet de l'app : on quittait son dojo, on
+ * traversait l'écran de Notion ou de Google, et on revenait — quand on revenait
+ * — sur la carte de nommage, avec l'impression d'avoir perdu son travail. Le
+ * fournisseur a maintenant sa fenêtre, et l'app reste où elle était.
+ *
+ * Ce qui rend la chose utilisable est le retour, pas l'ouverture : la fenêtre
+ * fille revient sur l'app avec `#connected=…`, prévient celle qui l'a ouverte et
+ * se ferme (voir App.tsx). Sans ce chemin, la connexion réussirait dans un
+ * onglet que personne ne regarde et l'app afficherait toujours « non connecté ».
+ *
+ * Un bloqueur de fenêtres rend `null` : on retombe alors sur l'ancien
+ * comportement plutôt que de ne rien faire du tout, ce qui se lirait comme un
+ * bouton cassé.
+ */
 export function startConnect(connectorId: string): void {
   const p = new URLSearchParams({ action: 'start', connector: connectorId })
   const r = ref()
   if (r.privy) p.set('privy', r.privy)
   if (r.client) p.set('client', r.client)
-  window.location.href = `/api/connect?${p.toString()}`
+  const url = `/api/connect?${p.toString()}`
+
+  const w = window.open(url, `dojoburo-connect-${connectorId}`, 'noopener=no,width=980,height=800')
+  if (!w) { window.location.href = url; return }
+  try { w.focus() } catch { /* certains navigateurs refusent · sans conséquence */ }
 }
 
 export async function disconnectTool(connectorId: string): Promise<boolean> {

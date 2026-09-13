@@ -151,21 +151,6 @@ export default function App() {
     }
   }, [])
 
-  // OAuth return from a tool connect: surface a toast + refresh connections
-  useEffect(() => {
-    const h = window.location.hash
-    const okm = h.match(/#connected=([\w-]+)/)
-    const errm = h.match(/#connect_error=([^&]+)/)
-    if (okm) {
-      useDojo.getState().pushToast({ kind: 'event', badge: 'OK', color: '#2fae6a', title: 'App connected', text: `${okm[1]} is linked to your agents.` })
-      void useWork.getState().loadTools()
-      history.replaceState(null, '', window.location.pathname + window.location.search)
-    } else if (errm) {
-      useDojo.getState().pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Connection failed', text: decodeURIComponent(errm[1]) })
-      history.replaceState(null, '', window.location.pathname + window.location.search)
-    }
-  }, [])
-
   // Des équipes en double ont été fusionnées au chargement (lib/dedupeTeams).
   // L'avis détaillé vit sur la vue entreprise, mais on n'y passe pas forcément :
   // sans ce mot-ci, quelqu'un qui entre directement dans son dojo verrait

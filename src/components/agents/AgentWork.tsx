@@ -9,13 +9,14 @@
 // So a teammate's page is now the teammate: the deliverables they can produce,
 // one line saying what you want, the apps they will act in, and the work they
 // have already handed back — openable, exportable, re-runnable.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useWork } from '../../agents/workStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { useAgentApps, effectiveApps } from '../../agents/agentApps'
 import { tasksForFunction } from '../../data/connectors'
 import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { ConnectorLogo } from '../ConnectorLogo'
+import { startConnect } from '../../agents/workApi'
 import type { RoleAgent } from '../../data/roleAgents'
 import type { WAgent } from '../../workshop'
 
@@ -33,6 +34,8 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
   const runError = useWork((s) => s.runError)
   const tools = useWork((s) => s.tools)
   const openStudio = useWork((s) => s.openStudio)
+  const openConnect = useWork((s) => s.openConnect)
+  const loadedOnce = useWork((s) => s.loadedOnce)
   const showDeliverable = useWork((s) => s.showDeliverable)
   const byKey = useAgentApps((s) => s.byKey)
   const delivs = useDeliverables((s) => s.byDojo[dojoId] ?? [])
@@ -43,6 +46,10 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
   const live = apps.filter((id) => tools[id]?.connected)
   const taskIds = new Set(tasks.map((t) => t.id))
   const mine = delivs.filter((d) => taskIds.has(d.taskId)).slice(0, 6)
+
+  // Sans cet appel, `tools` est vide et TOUTES les applications se liraient
+  // « non disponible » — le contraire exact de ce que cet écran doit dire.
+  useEffect(() => { if (!loadedOnce) void useWork.getState().loadTools() }, [loadedOnce])
 
   if (!tasks.length) return null
 
@@ -98,19 +105,76 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
         </p>
       )}
 
+      {/* Les applications de ce coéquipier, et SURTOUT lesquelles sont reliées.
+          C'était une rangée d'étiquettes grises où l'état tenait dans une nuance
+          de fond et une infobulle : on ne pouvait pas savoir, d'un coup d'œil,
+          pourquoi l'agent écrivait au lieu d'agir. Une application reliée porte
+          une coche verte ; une autre est un bouton qui dit ce qu'il fait. */}
       {apps.length > 0 && (
         <div className="agw-apps">
-          <span className="agw-apps-h">Their apps</span>
-          {apps.map((id) => {
-            const c = CONNECTOR_BY_ID[id]
-            if (!c) return null
-            const on = !!tools[id]?.connected
-            return (
-              <span key={id} className={`agw-app${on ? ' on' : ''}`} title={on ? `${c.label} · connected` : `${c.label} · not connected`}>
-                <ConnectorLogo id={id} label={c.label} size={16} />{c.label}
-              </span>
-            )
-          })}
+          <span className="agw-apps-h">
+            Their apps
+            <button type="button" className="agw-howto" onClick={() => openConnect()}>
+              How to connect apps
+            </button>
+          </span>
+          <div className="agw-applist">
+            {apps.map((id) => {
+              const c = CONNECTOR_BY_ID[id]
+              if (!c) return null
+              const st = tools[id]
+              // Tant que l'état n'est pas revenu du serveur, on n'affirme rien :
+              // annoncer « non connecté » avant de savoir ferait recommencer une
+              // autorisation déjà faite.
+              if (!loadedOnce) {
+                return (
+                  <span key={id} className="agw-app wait">
+                    <ConnectorLogo id={id} label={c.label} size={16} />{c.label}
+                  </span>
+                )
+              }
+              if (st?.connected) {
+                return (
+                  <span key={id} className="agw-app on" title={st.account ? `${c.label} · ${st.account}` : `${c.label} · connected`}>
+                    <ConnectorLogo id={id} label={c.label} size={16} />
+                    {c.label}
+                    <span className="agw-tick" aria-label="connected">✓</span>
+                  </span>
+                )
+              }
+              // L'opérateur n'a pas posé les clés de ce fournisseur, ou il n'y a
+              // rien à appeler : proposer « Connecter » mènerait à une erreur.
+              // On dit ce qui manque plutôt que d'offrir un bouton qui échoue.
+              if (c.unwired || !st?.available) {
+                return (
+                  <a
+                    key={id}
+                    className="agw-app off"
+                    href={c.docsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={`${c.label} · not available on this deployment yet`}
+                  >
+                    <ConnectorLogo id={id} label={c.label} size={16} />
+                    {c.label}
+                    <span className="agw-soon">not available</span>
+                  </a>
+                )
+              }
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  className="agw-app connect"
+                  onClick={() => startConnect(id)}
+                  title={`Connect ${c.label} · opens in its own window`}
+                >
+                  <ConnectorLogo id={id} label={c.label} size={16} />
+                  Connect {c.label}
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 

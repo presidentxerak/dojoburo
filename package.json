@@ -36,7 +36,8 @@
     "test:dedupe": "node scripts/test-dedupe.mjs",
     "test:docs": "node scripts/test-documents-e2e.mjs",
     "verify:documents": "node scripts/verify-documents.mjs",
-    "verify:dedupe": "node scripts/verify-dedupe.mjs"
+    "verify:dedupe": "node scripts/verify-dedupe.mjs",
+    "verify:connect": "node scripts/verify-connect-ui.mjs"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.33.1",
