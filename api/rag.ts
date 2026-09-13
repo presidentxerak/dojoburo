@@ -72,7 +72,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (body === TOO_BIG) return json(res, 413, { ok: false, error: 'too_large' })
 
     const who = await callerRef(req, {
-      privy: url.searchParams.get('privy') || body?.privy,
+      // `privyDid` est l'autre orthographe que le client emploie sur les corps
+      // JSON · les deux sont acceptées, parce qu'une divergence ici se
+      // manifesterait par un 401 sans rien indiquer de la cause.
+      privy: url.searchParams.get('privy') || body?.privy || body?.privyDid,
       client: url.searchParams.get('client') || body?.client,
     })
     if (!who) return json(res, 401, { ok: false, error: 'auth' })

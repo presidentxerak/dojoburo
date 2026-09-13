@@ -70,6 +70,10 @@ interface WorkState {
   connectOpen: boolean
   openConnect: () => void
   closeConnect: () => void
+  /** Documents · la base documentaire de l'entreprise, en surface sur l'app */
+  docsOpen: boolean
+  openDocs: () => void
+  closeDocs: () => void
   setModuleTab: (tab: string | null) => void
   openCreate: () => void
   clearCreate: () => void
@@ -173,12 +177,12 @@ export const useWork = create<WorkState>((set, get) => ({
   inApp: () => { try { return location.hash.replace(/^#\/?/, '') === 'app' } catch { return false } },
   openStudio: (tab) => {
     set({ studioIntent: tab })
-    if (get().inApp()) { set({ studioOpen: true, connectOpen: false }); return }
+    if (get().inApp()) { set({ studioOpen: true, connectOpen: false, docsOpen: false }); return }
     try { location.hash = 'studio' } catch { /* ignore */ }
   },
   editAgent: (agentId) => {
     set({ studioIntent: 'studio', studioAgentId: agentId })
-    if (get().inApp()) { set({ studioOpen: true, connectOpen: false }); return }
+    if (get().inApp()) { set({ studioOpen: true, connectOpen: false, docsOpen: false }); return }
     try { location.hash = 'studio' } catch { /* ignore */ }
   },
   clearStudioIntent: () => set({ studioIntent: null, studioAgentId: null }),
@@ -186,10 +190,16 @@ export const useWork = create<WorkState>((set, get) => ({
   closeStudio: () => set({ studioOpen: false }),
   connectOpen: false,
   openConnect: () => {
-    if (get().inApp()) { set({ connectOpen: true, studioOpen: false }); return }
+    if (get().inApp()) { set({ connectOpen: true, studioOpen: false, docsOpen: false }); return }
     try { location.hash = 'connect' } catch { /* ignore */ }
   },
   closeConnect: () => set({ connectOpen: false }),
+  docsOpen: false,
+  openDocs: () => {
+    if (get().inApp()) { set({ docsOpen: true, studioOpen: false, connectOpen: false }); return }
+    try { location.hash = 'documents' } catch { /* ignore */ }
+  },
+  closeDocs: () => set({ docsOpen: false }),
   setModuleTab: (tab) => set({ moduleTab: tab }),
   openCreate: () => set({ createIntent: true }),
   clearCreate: () => set({ createIntent: false }),

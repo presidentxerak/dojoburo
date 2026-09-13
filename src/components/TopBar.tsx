@@ -54,6 +54,7 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
   const openAccount = () => { setMenuOpen(false); useWork.getState().openStudio('account') }
   const openTeam = () => { setMenuOpen(false); useWork.getState().openStudio('team') }
   const openConnect = () => { setMenuOpen(false); useWork.getState().openConnect() }
+  const openDocs = () => { setMenuOpen(false); useWork.getState().openDocs() }
   // Your companies · the work you have built, not the card that creates one.
   // From another route we have to come back to #app first, and leave the
   // intent behind so App knows where to land.
@@ -132,6 +133,7 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
             <button className="tb-menu-item tb-menu-link" onClick={openProjects}>My companies</button>
             <button className="tb-menu-item" onClick={openStudio}>Dojo settings</button>
             <button className="tb-menu-item tb-menu-link" onClick={openConnect}>Connect apps</button>
+            <button className="tb-menu-item tb-menu-link" onClick={openDocs}>Documents</button>
             <button className="tb-menu-item tb-menu-link" onClick={openTeam}>Your company</button>
 
             {/* what it costs */}

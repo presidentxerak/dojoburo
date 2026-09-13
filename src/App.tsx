@@ -22,6 +22,7 @@ import { privyConfigured } from './auth/controls'
 import { AuthGate } from './auth/AuthGate'
 import { StudioSurface } from './components/workshop/WorkshopModal'
 import { ConnectorsSurface } from './components/ConnectorsPage'
+import { DocumentsSurface } from './components/DocumentsPage'
 import { startSync, stopSync, pullChanges, drain, resetSync } from './lib/sync'
 import { apiFetch } from './lib/apiFetch'
 import { refParams } from './agents/workApi'
@@ -65,6 +66,7 @@ export default function App() {
   // app rather than routes you have to come back from.
   const studioOpen = useWork((s) => s.studioOpen)
   const connectOpen = useWork((s) => s.connectOpen)
+  const docsOpen = useWork((s) => s.docsOpen)
 
   useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
 
@@ -212,6 +214,7 @@ export default function App() {
             every other full-screen surface, over the app instead of away from it */}
         {studioOpen && <StudioSurface onClose={() => useWork.getState().closeStudio()} />}
         {connectOpen && <ConnectorsSurface onClose={() => useWork.getState().closeConnect()} />}
+        {docsOpen && <DocumentsSurface onClose={() => useWork.getState().closeDocs()} />}
         <CommandPalette openDojo={() => { setView('dojo'); setDojoFull(true) }} showDashboard={() => { setView('dojo'); setDojoFull(false) }} />
         <Toasts />
         <SettingsModal />
@@ -289,6 +292,7 @@ export default function App() {
           every other full-screen surface, over the app instead of away from it */}
       {studioOpen && <StudioSurface onClose={() => useWork.getState().closeStudio()} />}
       {connectOpen && <ConnectorsSurface onClose={() => useWork.getState().closeConnect()} />}
+      {docsOpen && <DocumentsSurface onClose={() => useWork.getState().closeDocs()} />}
       <CommandPalette openDojo={() => setDojoFull(true)} showDashboard={() => setDojoFull(false)} />
       <Toasts />
       <SnapshotFactory />

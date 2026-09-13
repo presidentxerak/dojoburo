@@ -32,7 +32,9 @@
     "test:subs": "node scripts/test-subscriptions.mjs",
     "test:ent": "node scripts/test-entitlements.mjs",
     "test:keys": "node scripts/test-keyconnectors.mjs",
-    "test:rag": "node scripts/test-rag.mjs"
+    "test:rag": "node scripts/test-rag.mjs",
+    "test:docs": "node scripts/test-documents-e2e.mjs",
+    "verify:documents": "node scripts/verify-documents.mjs"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.33.1",

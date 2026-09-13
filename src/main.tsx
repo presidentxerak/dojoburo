@@ -14,6 +14,7 @@ const App = lazy(() => import('./App'))
 const WidgetApp = lazy(() => import('./WidgetApp').then((m) => ({ default: m.WidgetApp })))
 const StudioPage = lazy(() => import('./components/workshop/WorkshopModal').then((m) => ({ default: m.StudioPage })))
 const ConnectorsPage = lazy(() => import('./components/ConnectorsPage').then((m) => ({ default: m.ConnectorsPage })))
+const DocumentsPage = lazy(() => import('./components/DocumentsPage').then((m) => ({ default: m.DocumentsPage })))
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
@@ -103,6 +104,8 @@ function Root() {
   if (route === 'studio') return gated(<StudioPage />)
   // Connect apps · full page, every connector grouped by functionality category.
   if (route === 'connect') return gated(<ConnectorsPage />)
+  // Documents · la base documentaire de l'entreprise, en pleine page.
+  if (route === 'documents') return gated(<DocumentsPage />)
   return <Landing enter={() => { location.hash = 'app' }} />
 }
 
