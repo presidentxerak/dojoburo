@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react'
 import { useWork } from '../../agents/workStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { useAgentApps, effectiveApps } from '../../agents/agentApps'
-import { tasksForFunction } from '../../data/connectors'
+import { tasksForRole } from '../../data/connectors'
 import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { ConnectorLogo } from '../ConnectorLogo'
 import { startConnect } from '../../agents/workApi'
@@ -41,7 +41,7 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
   const delivs = useDeliverables((s) => s.byDojo[dojoId] ?? [])
   const [brief, setBrief] = useState('')
 
-  const tasks = tasksForFunction(role.dept)
+  const tasks = tasksForRole(role.id, role.dept)
   const apps = effectiveApps(agent.custom?.apps ?? role.apps ?? [], byKey[`${dojoId}::${role.id}`])
   const live = apps.filter((id) => tools[id]?.connected)
   const taskIds = new Set(tasks.map((t) => t.id))

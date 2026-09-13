@@ -13,12 +13,11 @@ import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
 import { ROLE_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
 import { InfoDot } from '../../components/InfoDot'
+// La carte agent → livrables est dérivée de ROLE_TASKS · elle était recopiée ici
+// et dans dashboard/agentTasks.ts, et les deux copies avaient divergé.
+import { AGENT_TASKS } from '../../data/connectors'
 
-const AGENT_TASKS: Record<string, string[]> = {
-  chief: ['strategy'], brandi: ['brand'], weblos: ['website'],
-  marketus: ['ads', 'video', 'assets'], pumpi: ['outreach'],
-  busino: ['offer', 'analytics', 'finance'], sentinel: [], vaultor: [],
-}
+
 function relTime(ms: number): string {
   if (!ms) return 'No activity yet'
   const s = Math.max(0, (Date.now() - ms) / 1000)

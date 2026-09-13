@@ -445,6 +445,115 @@ export function tasksForFunction(fn: Department): WorkTask[] {
   return WORK_TASKS[fn] ?? []
 }
 
+/** Raccourci d'écriture · une ligne par livrable au lieu de cinq. */
+const T = (
+  id: string, label: string, blurb: string,
+  usesConnectors: string[] = [], format: WorkTask['format'] = 'markdown',
+): WorkTask => ({ id, label, blurb, format, usesConnectors })
+
+/**
+ * Les livrables de chaque MÉTIER.
+ *
+ * WORK_TASKS ci-dessus range par fonction, et une fonction porte jusqu'à six
+ * métiers : Brandi, Weblos, Scout, Scribe, Deck et Pixel sont tous « Product »,
+ * donc tous les six proposaient « design system » et « PRD » sous un titre
+ * annonçant « ce que Scout peut faire pour vous ». La page existait, son contenu
+ * appartenait à quelqu'un d'autre.
+ *
+ * Cette table est la source : `AGENT_TASKS` en découle, et l'audit vérifie que
+ * chaque identifiant a bien son prompt côté serveur. Une liste écrite à la main
+ * de part et d'autre est exactement ce qui avait laissé « brand », « video » et
+ * « assets » traîner dans le tableau de bord sans exister nulle part.
+ */
+export const ROLE_TASKS: Record<string, WorkTask[]> = {
+  chief: [
+    T('strategy', 'Strategy & OKRs', 'Vision, quarterly OKRs and a prioritized roadmap.', ['notion']),
+    T('review', 'Weekly company review', 'What moved, what did not, and the one decision you owe the company.', ['notion', 'slack']),
+    T('jd', 'Job description & scorecard', 'A role JD, an interview scorecard and a 30/60/90 plan.', ['slack']),
+  ],
+  brandi: [
+    T('brand-platform', 'Brand platform', 'Positioning, values, tone of voice and eight candidate names.', ['notion', 'figma']),
+    T('identity-brief', 'Visual identity brief', 'Logo direction, palette with a job per colour, type and imagery rules.', ['figma', 'canva']),
+  ],
+  weblos: [
+    T('website', 'Website plan & copy', 'A ready-to-build landing page: sections, copy, CTAs and SEO.', ['figma']),
+    T('page-critique', 'Page critique & rewrite', 'What costs you conversions on the page you have, and the rewrite.', ['figma']),
+  ],
+  devi: [
+    T('tech-spec', 'Technical design doc', 'Architecture, data model, API surface and a delivery plan.', ['github', 'linear']),
+    T('code-review', 'Code review', 'A concrete review of a change: risks, bugs, simplifications.', ['github']),
+  ],
+  marketus: [
+    T('campaign', 'Go-to-market campaign', 'Positioning, channels, a content calendar and email copy.', ['gmail']),
+    T('ads', 'Meta ad creatives', '5 Meta ad variations with visuals, audiences and a test plan.', ['meta']),
+    T('content-calendar', 'Content calendar', 'Four weeks, channel by channel, with five posts written in full.', ['notion', 'buffer', 'linkedin']),
+  ],
+  pumpi: [
+    T('outreach', 'Prospect list & outreach', 'An ICP, target profiles and a 3-step email sequence.', ['gmail']),
+    T('experiments', 'Growth experiment backlog', 'Ten falsifiable experiments, scored, with the one to run first.', ['posthog', 'ga4']),
+  ],
+  nexa: [
+    T('announcement', 'Announcement & press kit', 'The release, the boilerplate, the posts and the awkward questions.', ['gmail', 'linkedin', 'twitter']),
+    T('comms-plan', 'Internal comms plan', 'Who hears what, in what order, and the honest answers.', ['slack', 'gmail']),
+  ],
+  helpi: [
+    T('help-articles', 'Help centre articles', 'Six articles that answer in the first two lines.', ['notion', 'zendesk', 'intercom']),
+    T('support-playbook', 'Support playbook', 'Triage, reply times, eight canned replies and the escalation path.', ['zendesk', 'intercom', 'slack']),
+  ],
+  busino: [
+    T('model', 'Financial model & runway', 'Assumptions, revenue and cost build, cash and runway.', ['stripe']),
+    T('kpi-dashboard', 'KPI dashboard spec', 'Eight metrics, each with its definition and the decision it informs.', ['ga4', 'stripe', 'posthog']),
+  ],
+  vaultor: [
+    T('offer', 'Offer & pricing', 'A core offer, 3 tiers and checkout page copy.', ['stripe']),
+    T('billing-policy', 'Billing & dunning policy', 'Terms, the failed-payment ladder, refunds, VAT and exceptions.', ['stripe', 'quickbooks', 'xero']),
+  ],
+  legi: [
+    T('terms-draft', 'Terms & privacy draft', 'A draft for your lawyer, with every open decision marked.', ['notion', 'gdrive']),
+    T('contract-review', 'Contract review', 'Clause by clause, in plain language, with the redlines to propose.', ['gdrive', 'docusign']),
+  ],
+  sentinel: [
+    T('security-review', 'Security review', 'Findings ordered by what an attacker reaches first.', ['github']),
+    T('incident-plan', 'Incident response plan', 'Severities, the first 30 minutes, and the 72-hour clock.', ['slack']),
+  ],
+  scout: [
+    T('market-study', 'Market & competitor study', 'Buyers, five competitors, sizing — each figure sourced or marked unknown.', ['notion', 'gdrive', 'perplexity']),
+    T('interview-guide', 'Customer interview guide', 'Twelve questions about what they did, not what they would do.', ['notion', 'gdrive']),
+  ],
+  scribe: [
+    T('article', 'Article', 'A piece that earns each sentence, plus titles and meta description.', ['notion', 'gdrive']),
+    T('edit-pass', 'Editing pass', 'Your draft, edited, with the cuts shown and the weak arguments named.', ['gdrive', 'notion']),
+  ],
+  deck: [
+    T('pitch-deck', 'Pitch deck', 'Twelve slides whose headlines state the point, not the topic.', ['gdrive', 'canva']),
+    T('one-pager', 'One-pager', 'One page that works without you in the room.', ['gdrive', 'canva']),
+  ],
+  pixel: [
+    T('design-system', 'Claude Design · Design system', 'Tokens, palette, type scale, components and a11y rules.', ['figma'], 'design-system'),
+    T('asset-brief', 'Visual asset set', 'Every asset specified precisely enough to be produced once.', ['figma', 'canva', 'cloudinary']),
+  ],
+  pilot: [
+    T('project-plan', 'Project plan', 'Milestones, owners, the critical path and what you cut first.', ['linear', 'notion', 'asana']),
+    T('prd', 'Write a PRD', 'Goals, scope, user stories and acceptance criteria.', ['notion', 'linear']),
+  ],
+  kaizen: [
+    T('runbook', 'Ops runbook', 'Monitoring, on-call, the alert→action table and incident steps.', ['slack', 'gdrive']),
+    T('release-check', 'Release checklist', 'Before, during, after — and the rollback written as commands.', ['github', 'slack']),
+  ],
+}
+
+/** Les livrables de ce métier · la fonction ne sert plus que de secours. */
+export function tasksForRole(roleId: string, fn?: Department): WorkTask[] {
+  const own = ROLE_TASKS[roleId]
+  if (own?.length) return own
+  return fn ? tasksForFunction(fn) : []
+}
+
+/** Quels livrables appartiennent à quel agent · dérivé, jamais recopié. */
+export const AGENT_TASKS: Record<string, string[]> = Object.fromEntries(
+  Object.entries(ROLE_TASKS).map(([role, list]) => [role, list.map((t) => t.id)]),
+)
+
 export function workTaskById(id: string): WorkTask | undefined {
   for (const list of Object.values(WORK_TASKS)) {
     const t = list.find((x) => x.id === id)

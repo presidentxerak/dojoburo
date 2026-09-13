@@ -62,7 +62,7 @@ const hasBody = (id) => new RegExp(`case '${id}':`).test(SRC.dashboard.slice(SRC
 const hasModule = (id) => new RegExp(`agentRole: '${id}'`).test(SRC.registry)
 
 const rows = ROLES.map((r) => {
-  const tasks = C.tasksForFunction(r.dept)
+  const tasks = C.tasksForRole(r.id, r.dept)
   const apps = r.apps ?? []
   return {
     id: r.id,
@@ -104,6 +104,66 @@ console.log('--- ce qu’aucun agent ne peut ne pas avoir -------------------')
 const noTask = rows.filter((r) => r.tasks === 0)
 ok('chaque agent a des livrables à produire', noTask.length === 0,
   noTask.length ? noTask.map((r) => `${r.code} (${r.dept})`).join(', ') : `${rows.length} rôles, tous servis`)
+
+// Ce que la page annonce doit être CE métier. Six agents proposaient les deux
+// mêmes choses parce que les livrables étaient rangés par fonction et qu'une
+// fonction porte six métiers ; le titre disait pourtant « ce que Scout peut
+// faire pour vous ».
+const sig = new Map()
+for (const r of ROLES) {
+  const key = C.tasksForRole(r.id, r.dept).map((t) => t.id).sort().join('|')
+  if (!sig.has(key)) sig.set(key, [])
+  sig.get(key).push(r.code)
+}
+const sameOffer = [...sig.values()].filter((who) => who.length > 1)
+ok('deux métiers ne proposent pas exactement les mêmes livrables', sameOffer.length === 0,
+  sameOffer.map((w) => w.join('+')).join(' · ') || `${sig.size} offres distinctes pour ${ROLES.length} rôles`)
+
+// Un identifiant sans prompt serveur rend « unknown_task » au clic. C'est ainsi
+// que « brand », « video », « assets », « analytics » et « finance » ont vécu
+// dans le tableau de bord sans exister nulle part.
+//
+// On APPELLE le code serveur plutôt que de lire son fichier : une table qui
+// contient l'identifiant mais dont le constructeur de prompt lève, ou rend une
+// chaîne vide, passerait une inspection textuelle et échouerait au clic.
+const W = await load('api/_lib/worktasks.ts', 'worktasks.mjs')
+const clientIds = [...new Set(ROLES.flatMap((r) => C.tasksForRole(r.id, r.dept).map((t) => t.id)))]
+
+const orphans = clientIds.filter((id) => !W.serverWorkTask(id))
+ok('chaque livrable proposé a son prompt côté serveur', orphans.length === 0,
+  orphans.join(', ') || `${clientIds.length} livrables, tous servis`)
+
+const broken = []
+for (const id of clientIds) {
+  const t = W.serverWorkTask(id)
+  if (!t) continue
+  try {
+    // le cas réel le plus dur : aucun brief, aucun nom d'entreprise
+    const prompt = t.user({ agentName: 'Scout', brief: '', startup: '' })
+    if (!t.system?.trim() || !String(prompt || '').trim()) broken.push(id)
+  } catch { broken.push(id) }
+}
+ok('et ce prompt tient sans brief ni nom d’entreprise', broken.length === 0,
+  broken.join(', ') || 'le cas le plus fréquent · on clique sans rien écrire')
+
+const titleless = clientIds.filter((id) => !W.serverWorkTask(id)?.title?.trim())
+ok('chaque livrable rendu porte un titre', titleless.length === 0, titleless.join(', '))
+
+const allServer = [...readFileSync('api/_lib/worktasks.ts', 'utf8').matchAll(/^\s*id: '([\w-]+)'/gm)].map((m) => m[1])
+const unused = allServer.filter((id) => !clientIds.includes(id))
+ok('et aucun prompt serveur n’est devenu inatteignable', unused.length === 0,
+  unused.join(', ') || 'rien d’orphelin de l’autre côté')
+
+// La carte agent → livrables est dérivée, plus recopiée · elle l'était dans
+// deux fichiers, et les deux copies avaient divergé.
+const agentTasks = C.AGENT_TASKS
+const badMap = ROLES.filter((r) => {
+  const own = C.tasksForRole(r.id, r.dept).map((t) => t.id)
+  const mapped = agentTasks[r.id] ?? []
+  return own.length && JSON.stringify(own) !== JSON.stringify(mapped)
+})
+ok('la carte agent → livrables découle de la même table', badMap.length === 0,
+  badMap.map((r) => r.code).join(', ') || 'dérivée, jamais recopiée')
 
 // Sentinel est le seul à n'avoir aucune application, et c'est son métier : il
 // garde les limites, les clés et les interrupteurs de l'entreprise, il n'agit
