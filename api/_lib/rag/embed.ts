@@ -27,6 +27,7 @@
 //     fonctionner ne l'est pas, quel que soit le pays de l'appel.
 import type { Pool } from 'pg'
 import { chain, ORIGINS, type ProviderOrigin } from '../eu.js'
+import { toVector } from './search.js'
 
 const ENV = process.env as Record<string, string | undefined>
 
@@ -96,26 +97,82 @@ export function embedBackend(): EmbedBackend | null {
   return null
 }
 
+export interface EmbedStatus {
+  available: boolean
+  tag?: string
+  processor?: string
+  country?: string
+  /** ce qui manque, dit de façon actionnable */
+  why?: string
+  /** l'une de ces variables suffit */
+  setAnyOf?: string[]
+  /** la colonne vectorielle existe · pgvector est installé ET le schéma appliqué */
+  vectorColumn?: boolean
+  /** la dimension que la colonne accepte */
+  dim?: number
+}
+
 /**
- * De quoi l'afficher dans une interface sans révéler la clé.
+ * L'état réel de la moitié sémantique.
  *
- * Quand il n'y a pas de fournisseur, `why` dit ce qu'il faut poser pour en avoir
- * un. Les trois fournisseurs listés ici sont tous européens, donc la résidence
- * n'en refuse aucun : l'absence est toujours une absence de clé, et il n'y a
- * qu'un seul message parce qu'il n'y a qu'une seule cause.
+ * Deux conditions, indépendantes, et il faut dire LAQUELLE manque : une clé
+ * chez un fournisseur européen, et pgvector côté base. Un opérateur qui a posé
+ * sa clé et voit « recherche lexicale » sans explication conclut que la clé est
+ * mauvaise, et va la changer — alors qu'il lui manque un paquet Postgres.
+ *
+ * `pool` est facultatif parce que cette fonction sert aussi là où il n'y a pas
+ * de base sous la main ; sans lui, seule la moitié fournisseur est vérifiée.
  */
-export function embedStatus(): {
-  available: boolean; tag?: string; processor?: string; country?: string
-  why?: string; setAnyOf?: string[]
-} {
+export async function embedStatus(pool?: Pool): Promise<EmbedStatus> {
   const b = embedBackend()
-  if (b) {
-    return { available: true, tag: b.tag, processor: b.origin.processor, country: b.origin.country }
+  const col = pool ? await vectorColumn(pool) : null
+
+  if (!b) {
+    return {
+      available: false,
+      why: "aucun fournisseur d'embeddings européen n'est configuré · la recherche reste lexicale, ce qui reste utilisable",
+      setAnyOf: ['mistral', 'ovh', 'scaleway'].map((id) => ORIGINS[id].keyEnv),
+      vectorColumn: !!col,
+      dim: col?.dim,
+    }
+  }
+  if (pool && !col) {
+    return {
+      available: false,
+      tag: b.tag,
+      processor: b.origin.processor,
+      country: b.origin.country,
+      why: 'pgvector n’est pas installé sur cette base · la clé est bien posée, c’est le côté Postgres qui manque'
+        + ' (paquet postgresql-16-pgvector, puis rejouer db/rag.sql)',
+      vectorColumn: false,
+    }
   }
   return {
-    available: false,
-    why: "aucun fournisseur d'embeddings européen n'est configuré · la recherche reste lexicale, ce qui reste utilisable",
-    setAnyOf: ['mistral', 'ovh', 'scaleway'].map((id) => ORIGINS[id].keyEnv),
+    available: true,
+    tag: b.tag,
+    processor: b.origin.processor,
+    country: b.origin.country,
+    vectorColumn: true,
+    dim: col?.dim,
+  }
+}
+
+/** La colonne vectorielle et sa dimension, ou null quand elle n'existe pas. */
+export async function vectorColumn(pool: Pool): Promise<{ dim: number } | null> {
+  try {
+    const r = await pool.query(
+      `select a.atttypmod as dim
+         from pg_attribute a
+         join pg_class c on c.oid = a.attrelid
+         join pg_type t on t.oid = a.atttypid
+        where c.relname = 'rag_chunks' and a.attname = 'embedding'
+          and t.typname = 'vector' and a.attnum > 0 and not a.attisdropped`,
+    )
+    // pgvector range la dimension telle quelle dans atttypmod · -1 quand libre
+    const dim = Number(r.rows[0]?.dim ?? -1)
+    return r.rows[0] ? { dim: dim > 0 ? dim : 0 } : null
+  } catch {
+    return null
   }
 }
 
@@ -193,9 +250,19 @@ export async function embedQuery(q: string): Promise<{ vector: number[]; tag: st
  */
 export async function embedPending(
   pool: Pool, orgId: string, { spaceId = null, limit = 500 }: { spaceId?: string | null; limit?: number } = {},
-): Promise<{ embedded: number; tag: string | null; total: number }> {
+): Promise<{ embedded: number; tag: string | null; total: number; error?: string }> {
+  // Les deux manques sont énoncés ensemble. Les signaler l'un après l'autre
+  // ferait poser une clé, relancer, et découvrir seulement alors qu'il manque
+  // aussi un paquet Postgres — deux allers-retours pour une seule information.
   const b = embedBackend()
-  if (!b) return { embedded: 0, tag: null, total: 0 }
+  const col = await vectorColumn(pool)
+  if (!b || !col) {
+    const manque = [
+      !b ? `aucun fournisseur d'embeddings européen (${['mistral', 'ovh', 'scaleway'].map((id) => ORIGINS[id].keyEnv).join(' ou ')})` : '',
+      !col ? 'pgvector absent de cette base (paquet postgresql-16-pgvector, puis rejouer db/rag.sql)' : '',
+    ].filter(Boolean)
+    return { embedded: 0, tag: b?.tag ?? null, total: 0, error: `${manque.join(' · et ')} · la recherche reste lexicale` }
+  }
 
   const todo = await pool.query(
     `select c.id, c.text
@@ -215,13 +282,26 @@ export async function embedPending(
   const out = await embed(todo.rows.map((r) => r.text as string))
   if (!out) return { embedded: 0, tag: b.tag, total: todo.rows.length }
 
+  // La dimension du modèle doit être celle de la colonne. Postgres refuserait
+  // l'insertion de toute façon ; le dire ici nomme le geste à faire, au lieu de
+  // laisser lire « 0 vectorisé » sans raison à chaque tentative.
+  const dim = out.vectors[0]?.length ?? 0
+  if (col.dim > 0 && dim !== col.dim) {
+    return {
+      embedded: 0, tag: out.tag, total: todo.rows.length,
+      error: `le modèle ${out.tag} rend des vecteurs de ${dim} dimensions, la colonne en accepte ${col.dim}`
+        + ` · alter table rag_chunks alter column embedding type vector(${dim})`
+        + ' (les anciens vecteurs devront être recalculés)',
+    }
+  }
+
   let n = 0
   for (let i = 0; i < todo.rows.length; i++) {
     const v = out.vectors[i]
     if (!v?.length) continue
     await pool.query(
-      `update rag_chunks set embedding = $2::real[], embed_model = $3 where id = $1`,
-      [todo.rows[i].id, v, out.tag],
+      `update rag_chunks set embedding = $2::vector, embed_model = $3 where id = $1`,
+      [todo.rows[i].id, toVector(v), out.tag],
     )
     n++
   }

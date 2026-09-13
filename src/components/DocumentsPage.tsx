@@ -203,7 +203,31 @@ export function DocumentsSurface({ onClose }: { onClose: () => void }) {
 
             {passages && (
               passages.length === 0
-                ? <p className="docs-empty">Aucun passage des documents déposés ne correspond.</p>
+                ? (
+                  // Un résultat vide est le moment où quelqu'un décide que
+                  // l'outil ne marche pas. En recherche lexicale seule, « rompre
+                  // le contrat » ne trouve pas « résiliation » — c'est une
+                  // limite connue, et la taire ferait conclure à un mauvais
+                  // produit là où il manque une clé.
+                  <div className="docs-empty">
+                    <p>Aucun passage des documents déposés ne correspond.</p>
+                    {!embeddings.available && (
+                      <p className="docs-hint">
+                        La recherche est lexicale : elle trouve les mots du document, pas
+                        leurs synonymes. « rompre le contrat » ne retrouve pas « résiliation ».
+                        {' '}{embeddings.why}
+                        {embeddings.setAnyOf?.length ? (
+                          <>
+                            {' · '}
+                            {embeddings.setAnyOf.map((k, i) => (
+                              <span key={k}>{i > 0 ? ', ' : ''}<code>{k}</code></span>
+                            ))}
+                          </>
+                        ) : null}
+                      </p>
+                    )}
+                  </div>
+                )
                 : (
                   <ol className="docs-hits">
                     {passages.map((p, i) => (

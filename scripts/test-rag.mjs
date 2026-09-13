@@ -359,12 +359,20 @@ console.log('\n--- résidence des données ------------------------------------'
     uploadedBy: bob,
   })
 
-  // Un vecteur posé à la main, sous un modèle nommé.
-  const V1 = [1, 0, 0]
+  const E = await load('api/_lib/rag/embed.ts', 'embed.mjs')
+  const col = await E.vectorColumn(pool)
+  ok('la colonne vectorielle existe quand pgvector est là', !!col,
+    col ? `dimension ${col.dim}` : 'pgvector absent · la moitié sémantique est ignorée ici')
+
+  // Un vecteur posé à la main, sous un modèle nommé, à la dimension de la
+  // colonne · c'est la dimension réelle du déploiement qui commande.
+  const DIM = col?.dim || 1024
+  const V1 = Array.from({ length: DIM }, (_, i) => (i === 0 ? 1 : 0))
+  const vecLit = (v) => `[${v.join(',')}]`
   await pool.query(
-    `update rag_chunks set embedding = $1::real[], embed_model = 'essai:v1'
+    `update rag_chunks set embedding = $1::vector, embed_model = 'essai:v1'
       where space_id = $2`,
-    [V1, vspace],
+    [vecLit(V1), vspace],
   )
 
   // Une question qui ne partage AUCUN mot avec le document : le lexical ne peut
@@ -392,14 +400,59 @@ console.log('\n--- résidence des données ------------------------------------'
   ok('un vecteur sans modèle déclaré est ignoré', sansEtiquette.length === 0,
     'lexical seul est moins bon · mêler deux espaces vectoriels est faux')
 
-  const E = await load('api/_lib/rag/embed.ts', 'embed.mjs')
-  const st = E.embedStatus()
+  // L'index doit être RÉELLEMENT employé · une recherche vectorielle qui
+  // retombe en balayage séquentiel donne exactement les mêmes résultats, en
+  // cent fois plus de temps, et rien ne le signale.
+  if (col) {
+    const idx = await pool.query(
+      `select indexdef from pg_indexes where tablename = 'rag_chunks' and indexname = 'idx_rag_chunks_hnsw'`)
+    ok('un index HNSW est bâti sur les vecteurs', idx.rows.length === 1,
+      idx.rows[0]?.indexdef?.replace(/\s+/g, ' ').slice(0, 90))
+
+    // Sur deux lignes Postgres choisit légitimement le balayage, donc on le lui
+    // interdit : ce qu'on veut savoir n'est pas lequel il préfère ici, c'est si
+    // la requête a la FORME que l'index sait servir. Écrire « order by 1 -
+    // distance » au lieu de « order by distance » écarterait l'index en silence,
+    // et sur deux lignes de test tout continuerait de passer.
+    await pool.query(`set enable_seqscan = off`)
+    const plan = await pool.query(
+      `explain (costs off) select c.id from rag_chunks c
+        where c.embed_model = 'essai:v1'
+        order by c.embedding <=> $1::vector limit 8`,
+      [vecLit(V1)],
+    )
+    await pool.query(`set enable_seqscan = on`)
+    const txt = plan.rows.map((r) => r['QUERY PLAN']).join(' ')
+    ok('et la requête de recherche passe réellement par cet index',
+      /idx_rag_chunks_hnsw/.test(txt),
+      txt.replace(/\s+/g, ' ').slice(0, 80))
+  }
+
+  const st = await E.embedStatus(pool)
   ok('sans clé, l’état le dit franchement', st.available === false && !!st.why)
   ok('et nomme ce qu’il faut poser', Array.isArray(st.setAnyOf) && st.setAnyOf.includes('MISTRAL_API_KEY'),
     st.setAnyOf?.join(', '))
+  ok('et distingue les deux causes possibles', st.vectorColumn === !!col,
+    'une clé manquante et pgvector manquant ne se corrigent pas au même endroit')
   ok('rien n’a été vectorisé sans fournisseur',
     (await E.embedPending(pool, vorg, { spaceId: vspace })).embedded === 0,
     'l’absence de clé n’est pas une erreur')
+
+  // La dimension est le piège de cette architecture · un modèle qui rend 3584
+  // dimensions contre une colonne de 1024 doit refuser en nommant le geste.
+  if (col?.dim) {
+    let refus = null
+    try {
+      await pool.query(
+        `update rag_chunks set embedding = $1::vector where space_id = $2`,
+        [vecLit(new Array(col.dim + 7).fill(0.1)), vspace],
+      )
+    } catch (e) { refus = String(e?.message || e) }
+    ok('une dimension qui ne correspond pas est refusée par la base', !!refus,
+      'une panne bruyante vaut mieux qu’un vecteur tronqué en silence')
+    ok('et le refus nomme les deux dimensions', /\d+ and \d+|dimension/i.test(refus || ''),
+      (refus || '').slice(0, 70))
+  }
 }
 
 /* ---- une réponse sourcée, et sa vérification ---------------------------- */
@@ -489,6 +542,41 @@ console.log('\n--- résidence des données ------------------------------------'
   ok('une citation reformulée est remplacée par l’extrait réel',
     reformule.value === true && reformule.quote?.startsWith('Signe a Paris'),
     'un modèle qui reformule sa « citation exacte » fabrique')
+}
+
+/* ---- et sans pgvector ? -------------------------------------------------
+   La promesse est « dégradation visible, jamais lente ». Elle ne se relit pas :
+   il faut retirer la colonne et vérifier que le produit continue de chercher,
+   et qu'il dit lequel des deux morceaux lui manque. En dernier, parce que cela
+   modifie le schéma sous les autres épreuves. */
+{
+  console.log('\n--- sans pgvector --------------------------------------------')
+  const E = await load('api/_lib/rag/embed.ts', 'embed-nopgv.mjs')
+  const had = await E.vectorColumn(pool)
+  if (!had) {
+    ok('pgvector est absent de cette base · rien à retirer', true)
+  } else {
+    await pool.query(`alter table rag_chunks drop column embedding`)
+
+    const st = await E.embedStatus(pool)
+    ok('l’état signale la colonne manquante', st.vectorColumn === false)
+    ok('sans clé NI pgvector, c’est la clé qu’on réclame d’abord',
+      Array.isArray(st.setAnyOf) && st.setAnyOf.length > 0,
+      'poser une clé est le geste de l’exploitant · installer un paquet est celui de la DSI')
+
+    const rattrapage = await E.embedPending(pool, acme, {})
+    ok('le rattrapage nomme LES DEUX manques d’un coup',
+      /pgvector/.test(rattrapage.error || '') && /MISTRAL_API_KEY/.test(rattrapage.error || ''),
+      'les énoncer l’un après l’autre ferait poser une clé pour rien')
+    ok('et dit ce qui continue de fonctionner', /lexical/.test(rattrapage.error || ''),
+      (rattrapage.error || '').slice(0, 80))
+
+    // Et surtout : le produit CHERCHE toujours.
+    const hits = await R.search(pool, acme, 'teletravail', { topK: 5 })
+    ok('la recherche lexicale fonctionne toujours', hits.length > 0,
+      'c’est ce qui rend l’absence de clé supportable plutôt que bloquante')
+    ok('et elle est bien étiquetée lexicale', hits[0]?.via === 'lexical')
+  }
 }
 
 await pool.end()

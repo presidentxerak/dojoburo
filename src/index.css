@@ -7414,3 +7414,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   .docs-ask { flex-wrap: wrap; }
   .docs-q { flex: 1 1 100%; }
 }
+/* La raison d'un résultat vide · c'est le moment où quelqu'un décide que
+   l'outil ne marche pas, donc c'est là qu'il faut dire ce qui manque. */
+.docs-hint { margin: 8px 0 0; font-size: 13px; line-height: 1.55; color: var(--muted); }
+.docs-hint code { font-family: var(--font-mono); font-size: 12px; padding: 1px 5px; background: var(--panel-2); }

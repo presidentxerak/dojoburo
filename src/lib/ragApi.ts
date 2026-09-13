@@ -26,6 +26,9 @@ export interface RagAnswer {
 export interface EmbedStatus {
   available: boolean; tag?: string; processor?: string; country?: string
   why?: string; setAnyOf?: string[]
+  /** pgvector est installé et le schéma appliqué · l'autre moitié de la condition */
+  vectorColumn?: boolean
+  dim?: number
 }
 
 async function get(qs: string): Promise<any> {

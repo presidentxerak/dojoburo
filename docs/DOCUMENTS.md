@@ -45,18 +45,57 @@ psql "$DATABASE_URL" -f db/rag.sql       # les documents
 
 ### Ce qu'il faut dans Postgres
 
-Aucune extension particulière. L'index plein texte utilise la configuration
+**Le lexical ne demande rien.** L'index plein texte utilise la configuration
 `french` fournie en standard, ce qui donne la lemmatisation — « obligation
 contractuelle » retrouve « obligations contractuelles » — sans rien installer.
 
-`pgvector` n'est **pas** nécessaire. La similarité est calculée en SQL sur des
-tableaux `real[]`. C'est un balayage complet, assumé : jusqu'à quelques dizaines
-de milliers de passages — l'ordre de grandeur d'une base documentaire de PME —
-cela se compte en millisecondes. Au-delà, installez `pgvector` et remplacez la
-fonction `semantic()` de `api/_lib/rag/search.ts` ; rien d'autre ne bouge.
+**Le sémantique demande `pgvector`.** Il est présent sur tous les Postgres
+managés (Neon, Supabase, RDS, Cloud SQL, Azure) et tient dans un paquet sur une
+installation autonome :
 
-Cette absence de dépendance est ce qui rend l'auto-hébergement réaliste : un
-Postgres ordinaire, chez un hébergeur français, suffit.
+```bash
+apt-get install postgresql-16-pgvector   # puis rejouer db/rag.sql
+```
+
+Sans lui, `db/rag.sql` n'ajoute pas la colonne vectorielle, le dit à
+l'application, et la recherche reste lexicale.
+
+> Une version antérieure de ce document annonçait que `pgvector` n'était pas
+> nécessaire, la similarité étant calculée en SQL sur des tableaux `real[]`, et
+> chiffrait cela « de l'ordre de la dizaine de millisecondes ». **C'était faux.**
+> Mesuré, vecteurs de 1 024 dimensions, même machine :
+>
+> | passages | `real[]` en SQL | pgvector séquentiel | pgvector HNSW |
+> |---:|---:|---:|---:|
+> | 1 000 | 505 ms | 7 ms | **1,0 ms** |
+> | 10 000 | 5 006 ms | 65 ms | **1,6 ms** |
+> | 50 000 | 23 349 ms | 395 ms | **1,0 ms** |
+>
+> Mille passages, c'est une cinquantaine de documents. L'ancienne approche
+> perdait donc sur deux tableaux distincts : elle n'avait pas d'index, et sa
+> façon même de calculer une distance était soixante-quinze fois plus lente que
+> celle de pgvector. L'index HNSW, lui, ne bouge pas avec la taille du corpus —
+> il se construit en six secondes sur cinquante mille passages.
+>
+> Un balayage complet déguisé en index est la pire des deux options, parce qu'il
+> est lent sans le dire. Il a été retiré.
+
+### La dimension des vecteurs
+
+Elle est fixée dans le schéma, à **1024** (celle de `mistral-embed`). Pour un
+modèle d'une autre dimension, avant d'appliquer le fichier :
+
+```bash
+psql "$DATABASE_URL" -c "set rag.embed_dim = 3584" -f db/rag.sql
+```
+
+Pourquoi fixe plutôt que libre : une colonne `vector` sans dimension ne peut
+être indexée que par un index d'expression, et `ANALYZE` échoue alors dès qu'une
+ligne porte une autre dimension — ce qui gèle les statistiques de toute la
+table, **y compris pour la recherche lexicale**, sans que rien ne le signale.
+Vérifié. Une dimension fixe transforme cette panne silencieuse en refus
+d'insertion, qui se lit. Le code vérifie la dimension avant d'écrire et nomme
+l'`ALTER` à jouer si elle ne correspond pas.
 
 ---
 
@@ -197,7 +236,7 @@ construction — c'est précisément ce qu'on lui demande d'être.
 TEST_DATABASE_URL="postgres://…" npm run test:rag
 ```
 
-88 vérifications contre un vrai Postgres et de vrais fichiers : des PDF produits
+100 vérifications contre un vrai Postgres et de vrais fichiers : des PDF produits
 pour l'occasion, un `.docx` compressé, un scan sans texte. Sans
 `TEST_DATABASE_URL` la suite s'annonce ignorée et le build continue.
 
@@ -224,14 +263,41 @@ autre modèle ne remonte jamais dans un classement.
 
 ---
 
+## Ce que ça consomme de l'allocation
+
+Rien pour ce qui tourne sur la machine. Déposer, analyser, indexer et **chercher**
+ne retirent aucune unité : facturer une recherche lexicale qui ne sort de nulle
+part reviendrait à facturer l'électricité de l'opérateur.
+
+Une **réponse sourcée** ou une **extraction** appelle un modèle, et retire
+0,1 unité — un dixième de ce que vaut une tâche d'agent, et le plancher que le
+produit applique déjà partout pour qu'aucune opération ne soit gratuite à
+répéter en boucle.
+
+Le chiffre vient d'un calcul et non d'une intuition : huit extraits, une
+consigne et une question font environ 2 600 jetons d'entrée pour 200 de sortie ;
+sur un petit modèle européen à 0,10 $ et 0,30 $ le million, cela fait **0,0003 $**.
+Une tâche d'agent se vend 0,0245 $ sur le plan managé. Une question documentaire
+coûte donc environ un centième d'une tâche, et en retire un dixième : sept fois
+le coût, ce qui est une marge, et assez peu pour qu'une entreprise qui interroge
+ses contrats toute la journée n'ait pas à choisir entre chercher un document et
+faire travailler ses agents.
+
+Le poids du moteur s'applique quand même. Dirigez Documents vers un modèle de
+tête et l'unité suit, sans qu'on ait à y repenser — facturer un tarif fixe pour
+un coût variable est exactement l'erreur que l'ancienne grille avait commise.
+
+---
+
 ## Ce que ça ne fait pas
 
 À dire avant qu'on le découvre :
 
 - **Pas de reconnaissance optique.** Un PDF scanné est détecté et refusé
   proprement, avec sa raison. Il n'est pas lu.
-- **Pas d'index vectoriel approché.** Voir plus haut : au-delà de quelques
-  dizaines de milliers de passages, `pgvector` devient nécessaire.
+- **Pas de recherche par le sens sans `pgvector`.** La moitié lexicale, elle,
+  fonctionne sur un Postgres nu. Un résultat vide dit laquelle des deux
+  conditions manque — la clé, l'extension, ou les deux.
 - **Pas de tableaux structurés depuis un PDF.** Le texte d'un tableau est
   extrait, sa géométrie non. Un `.csv` ou un `.docx` conserve la sienne.
 - **Pas de rattachement automatique aux droits d'accès de votre SI.** Le

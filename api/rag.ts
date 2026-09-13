@@ -31,8 +31,8 @@ import { getPool, dbConfigured } from './_lib/db.js'
 import { resolveAccountId } from './_lib/accounts.js'
 import { callerRef } from './_lib/authz.js'
 import { ensureOrg, can } from './_lib/orgs.js'
-import { standingOf } from './_lib/entitlements.js'
-import { processingRecord, residency, hasEuProvider } from './_lib/eu.js'
+import { standingOf, engineClass, ENGINE_WEIGHT } from './_lib/entitlements.js'
+import { processingRecord, residency } from './_lib/eu.js'
 import {
   listSpaces, ensureSpace, ingest, listDocuments, eraseDocument, holdings, logQuery,
 } from './_lib/rag/store.js'
@@ -93,13 +93,15 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // ---- lecture ----------------------------------------------------------
 
     if (action === 'spaces') {
+      const sem = await embedStatus(pool)
       return json(res, 200, {
         ok: true,
         spaces: await listSpaces(pool, orgId),
         residency: residency(),
-        embeddings: embedStatus(),
-        // pour que l'interface puisse dire « lexical seul » sans le deviner
-        semantic: hasEuProvider(),
+        embeddings: sem,
+        // pour que l'interface puisse dire « lexical seul » sans le deviner ·
+        // il faut LES DEUX : une clé chez un fournisseur EU, et pgvector en base
+        semantic: sem.available,
       })
     }
 
@@ -153,7 +155,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         docIds: unique(passages.map((p) => p.docId)),
         answeredBy: answer.answeredBy, answeredRegion: answer.answeredRegion, ms: Date.now() - t0,
       })
-      if (answer.answeredBy) await meter(pool, accountId)
+      if (answer.answeredBy) await meter(pool, accountId, answer.answeredBy)
       return json(res, 200, { ok: true, answer, passages })
     }
 
@@ -217,7 +219,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       const r = await embedPending(pool, orgId, {
         spaceId: spaceParam(body?.space), limit: Number(body?.limit) || 500,
       })
-      return json(res, 200, { ok: true, ...r, status: embedStatus() })
+      return json(res, 200, { ok: true, ...r, status: await embedStatus(pool) })
     }
 
     if (action === 'extract') {
@@ -234,7 +236,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         docIds: r.docId ? [r.docId] : [],
         answeredBy: r.answeredBy, answeredRegion: r.answeredRegion, ms: Date.now() - t0,
       })
-      if (r.answeredBy) await meter(pool, accountId)
+      if (r.answeredBy) await meter(pool, accountId, r.answeredBy)
       return json(res, 200, r)
     }
 
@@ -266,20 +268,39 @@ async function allowed(
 }
 
 /**
- * Compte une interrogation qui a réellement appelé un modèle.
+ * Ce qu'une interrogation documentaire retire de l'allocation.
  *
- * Une question documentaire vaut moins qu'une tâche d'agent : elle n'écrit rien,
- * ne touche aucune application connectée et tient en un aller-retour. Un tiers
- * d'unité est le prix de ce qu'elle coûte, pas de ce qu'elle rapporte.
+ * Le chiffre vient d'un calcul, pas d'une intuition. Une réponse sourcée envoie
+ * huit extraits, une consigne et une question — de l'ordre de 2 600 jetons — et
+ * en rend deux cents. Sur un petit modèle européen, à 0,10 $ et 0,30 $ le
+ * million, cela fait 0,0003 $. Une tâche d'agent se vend 0,0245 $ sur le plan
+ * managé : la question documentaire coûte donc environ un centième d'une tâche.
+ *
+ * Elle en retire un dixième, le plancher que `taskUnits` applique déjà à tout,
+ * pour qu'aucune opération ne soit gratuite à répéter en boucle. Sept fois le
+ * coût, ce qui est une marge, et assez peu pour qu'une entreprise qui interroge
+ * ses contrats toute la journée ne se retrouve pas à choisir entre chercher un
+ * document et faire travailler ses agents.
+ *
+ * Le poids du moteur s'applique quand même : un opérateur qui dirige Documents
+ * vers un modèle de tête paie ce qu'il coûte, sans qu'on ait à y repenser.
+ * Facturer un tarif fixe pour un coût variable est exactement l'erreur que
+ * l'ancienne grille de prix avait commise.
  */
-async function meter(pool: ReturnType<typeof getPool>, accountId: string): Promise<void> {
+export function askUnits(model: string | null | undefined): number {
+  return Math.max(0.1, Math.round(ENGINE_WEIGHT[engineClass(model)] * 10) / 100)
+}
+
+async function meter(
+  pool: ReturnType<typeof getPool>, accountId: string, model: string | null,
+): Promise<void> {
   try {
     await pool.query(
       `insert into work_usage (account_id, day, free_runs, task_units)
-       values ($1, current_date, 0, 0.34)
+       values ($1, current_date, 0, $2::numeric)
        on conflict (account_id, day) do update set
-         task_units = work_usage.task_units + 0.34`,
-      [accountId],
+         task_units = work_usage.task_units + excluded.task_units`,
+      [accountId, askUnits(model)],
     )
   } catch { /* le comptage ne fait jamais échouer une réponse */ }
 }

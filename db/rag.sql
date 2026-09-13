@@ -13,14 +13,28 @@
 --
 -- Trois décisions structurent tout ce fichier.
 --
--- 1. Postgres nu, aucune extension exotique.
---    pgvector n'est pas installable partout, et surtout pas sur les Postgres
---    managés que choisit une DSI française qui veut héberger en France. La
---    recherche lexicale utilise la configuration `french` livrée avec Postgres ;
---    les embeddings, quand un fournisseur européen est configuré, tiennent dans
---    une colonne real[] et la similarité se calcule en SQL. C'est exact plutôt
---    qu'approché, et suffisant jusqu'à des dizaines de milliers de passages —
---    la taille réelle de la base documentaire d'une PME.
+-- 1. Le lexical sans rien, le sémantique avec pgvector.
+--    La recherche lexicale utilise la configuration `french` livrée en standard :
+--    elle fonctionne sur un Postgres nu, sans extension et sans appel sortant.
+--
+--    La moitié sémantique demande pgvector, et ce n'est pas un choix de confort.
+--    La version précédente de ce fichier calculait le cosinus en SQL sur une
+--    colonne real[], en annonçant « de l'ordre de la dizaine de millisecondes ».
+--    Mesuré, sur des vecteurs de 1024 dimensions et la même machine :
+--
+--      passages   real[] en SQL   pgvector seq   pgvector HNSW
+--         1 000          505 ms           7 ms          1,0 ms
+--        10 000        5 006 ms          65 ms          1,6 ms
+--        50 000       23 349 ms         395 ms          1,0 ms
+--
+--    Mille passages, c'est une cinquantaine de documents. L'ancienne approche
+--    perdait deux fois : pas d'index, et une façon de calculer la distance
+--    soixante-quinze fois plus lente. L'index HNSW ne bouge pas avec la taille.
+--
+--    pgvector est disponible sur tous les Postgres managés (Neon, Supabase, RDS,
+--    Cloud SQL, Azure) et tient dans un paquet sur une installation autonome
+--    (`postgresql-16-pgvector`). Quand il est absent, ce fichier n'ajoute pas la
+--    colonne et le produit reste lexical : dégradation visible, jamais lente.
 --
 -- 2. Tout est porté par l'organisation, jamais par la personne.
 --    Une entreprise dépose ses documents une fois ; le collègue qui arrive les
@@ -103,10 +117,11 @@ create unique index if not exists idx_rag_docs_dedup on rag_documents(space_id, 
 -- « obligation contractuelle » doivent tomber sur le même lemme, ce que la
 -- configuration anglaise par défaut ne fait pas.
 --
--- `embedding` est facultatif. Sans fournisseur d'embeddings européen configuré,
--- la recherche reste lexicale et fonctionne ; avec, les deux sont fusionnés.
--- Un produit qui ne marche pas du tout sans clé n'est pas souverain, il est
--- seulement dépendant d'autre chose.
+-- La colonne `embedding` n'est ajoutée QUE si pgvector est disponible, plus bas.
+-- Sans lui, la recherche reste lexicale et fonctionne : un produit qui ne
+-- démarre pas du tout sans clé n'est pas souverain, il est seulement dépendant
+-- d'autre chose. Mais la moitié sémantique, elle, ne se simule pas — voir la
+-- note en tête de fichier.
 -- ---------------------------------------------------------------------------
 create table if not exists rag_chunks (
   id          bigint generated always as identity primary key,
@@ -116,7 +131,6 @@ create table if not exists rag_chunks (
   page        int  not null default 1,
   text        text not null,
   tsv         tsvector generated always as (to_tsvector('french', coalesce(text, ''))) stored,
-  embedding   real[],
   -- de quel modèle vient ce vecteur · deux modèles différents ne se comparent
   -- pas, et une base à moitié réindexée donne des résultats silencieusement faux
   embed_model text,
@@ -125,6 +139,47 @@ create table if not exists rag_chunks (
 create index if not exists idx_rag_chunks_tsv on rag_chunks using gin(tsv);
 create index if not exists idx_rag_chunks_doc on rag_chunks(doc_id);
 create index if not exists idx_rag_chunks_space on rag_chunks(space_id);
+
+-- ---------------------------------------------------------------------------
+-- La moitié sémantique, si la machine sait la porter.
+--
+-- La DIMENSION est fixée ici, une fois. Elle vaut 1024, celle de mistral-embed,
+-- parce que Mistral est le fournisseur par défaut de ce déploiement. Un
+-- opérateur qui emploie un autre modèle la change avant d'appliquer ce fichier :
+--
+--     psql "$DATABASE_URL" -c "set rag.embed_dim = 3584" -f db/rag.sql
+--
+-- Pourquoi une dimension fixe plutôt qu'une colonne `vector` libre : une colonne
+-- sans dimension ne peut être indexée que par un index d'expression, et ANALYZE
+-- échoue alors dès qu'une ligne porte une autre dimension. Vérifié. Les
+-- statistiques cessent d'être mises à jour, y compris pour la recherche
+-- lexicale, et rien ne le signale. Une dimension fixe transforme cette panne
+-- silencieuse en refus d'insertion, qui se lit.
+--
+-- Le code vérifie la dimension avant d'écrire et nomme l'ALTER à jouer si elle
+-- ne correspond pas au modèle configuré.
+-- ---------------------------------------------------------------------------
+do $$
+declare d int := coalesce(nullif(current_setting('rag.embed_dim', true), '')::int, 1024);
+begin
+  if not exists (select 1 from pg_available_extensions where name = 'vector') then
+    raise notice 'pgvector absent · la recherche restera lexicale (voir docs/DOCUMENTS.md)';
+    return;
+  end if;
+  create extension if not exists vector;
+  if not exists (
+    select 1 from information_schema.columns
+     where table_name = 'rag_chunks' and column_name = 'embedding'
+  ) then
+    execute format('alter table rag_chunks add column embedding vector(%s)', d);
+  end if;
+  -- HNSW plutôt qu'IVFFlat : il n'a pas besoin d'être reconstruit quand le corpus
+  -- grandit, ce qui compte pour une base où l'on dépose des documents tous les
+  -- jours. Le cosinus, parce que c'est la mesure sur laquelle les fournisseurs
+  -- d'embeddings normalisent.
+  execute 'create index if not exists idx_rag_chunks_hnsw
+             on rag_chunks using hnsw (embedding vector_cosine_ops)';
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Le journal des interrogations.
