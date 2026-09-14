@@ -106,6 +106,33 @@ if (await connectBtn.count()) {
   ok('une application connectable était offerte sur la page', false, 'aucune carte « ready »')
 }
 
+/* ---- 2bis · ce qu'un AGENT a le droit d'y faire -------------------------- */
+// Relier n'est pas autoriser. Une application reliée était rattachée à chaque
+// run et le modèle appelait ses outils sans qu'aucun garde-fou ne la borne ;
+// la carte doit maintenant DIRE ce qu'un agent peut y faire.
+{
+  // Une application qui sert plusieurs fonctions a une carte par fonction ·
+  // c'est le classement métier du catalogue, pas un doublon.
+  const permits = await p.locator('.connect-permit').count()
+  ok('une application reliée annonce ce qu’un agent peut y faire', permits > 0,
+    `${permits} cartes portent le badge`)
+
+  // Le texte est mis en capitales par le CSS · on compare sans la casse.
+  const txt = (await p.locator('.connect-permit').first().innerText().catch(() => '')).toLowerCase()
+  ok('et le dit en toutes lettres, pas en nuance de couleur',
+    /read only|read \+ write/.test(txt),
+    txt.replace(/\n/g, ' ').slice(0, 70))
+  ok('le défaut est la lecture seule', /read only/.test(txt),
+    'une connexion n’accorde pas l’écriture · c’est un geste séparé')
+  ok('et il explique ce que cela interdit', /cannot create, send or change/.test(txt))
+
+  // Et seules les applications RELIÉES en portent un · une carte « Connect »
+  // n'a rien à annoncer sur ce qu'un agent y ferait.
+  const onCards = await p.locator('.connect-card.on').count()
+  ok('seules les applications reliées portent le badge', permits === onCards,
+    `${permits} badges pour ${onCards} cartes reliées`)
+}
+
 /* ---- 3 et 4 · l'état des applications sur la page d'un agent ------------ */
 await p.goto(`${B}/#app`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(2500)

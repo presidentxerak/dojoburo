@@ -7523,3 +7523,20 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 }
 .dlv-rule:hover { border-color: var(--ink); color: var(--ink); }
 .dlv-kept { font-style: normal; font-size: 12px; margin-left: 8px; color: #1fa563; }
+
+/* Ce qu'un AGENT a le droit de faire dans cette application.
+   Relier n'est pas autoriser : la lecture suit la connexion, l'écriture demande
+   un geste explicite. Le badge dit lequel des deux, en toutes lettres — pas en
+   nuance de couleur, parce que c'est une affirmation de sécurité. */
+.connect-permit {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  margin: 8px 0 0; padding: 8px 10px; font-size: 12.5px; line-height: 1.45;
+  border: 1px solid var(--border); background: var(--panel-2);
+}
+.connect-permit-b {
+  flex: none; font-weight: 700; font-size: 11px; letter-spacing: .05em;
+  text-transform: uppercase; padding: 3px 8px; border: 1px solid currentColor;
+}
+.connect-permit.p-read .connect-permit-b { color: #2f6bff; }
+.connect-permit.p-write .connect-permit-b { color: #d9822b; }
+.connect-permit-t { flex: 1; min-width: 160px; color: var(--muted); }

@@ -27,6 +27,8 @@ import { orgScope } from './_lib/connScope.js'
 import { standingOf, remaining, taskUnits } from './_lib/entitlements.js'
 import { allow as rateAllow } from './_lib/ratelimit.js'
 import { verify, repairPrompt, type Verdict } from './_lib/checks.js'
+import { writeGrants, splitTools } from './_lib/permits.js'
+import { listTools as listMcpTools } from './_lib/mcp.js'
 
 export const config = { maxDuration: 60 }
 
@@ -126,12 +128,46 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const secretNames = await loadSecretNames(ref, dojoId)
 
   // ---- resolve connected tools → MCP servers (best-effort) ----------------
-  const mcpServers = await resolveMcpServers(task.usesConnectors.filter((c) => requested.includes(c)), ref)
+  const resolved = await resolveMcpServers(task.usesConnectors.filter((c) => requested.includes(c)), ref)
+  const writeOk = resolved.grants
+  const mcpServers = resolved.servers
   // ---- external MCP agents the user attached to THIS agent ----------------
   // These are user-supplied remote MCP hosts (their own Notion/Slack agents, or
   // any MCP server). The URL + token live client-side; we validate + attach them
   // here so Claude can call their tools during the run, exactly like a connector.
   for (const s of externalMcpServers(body?.extMcp)) mcpServers.push(s)
+
+  // ---- ce que Claude a le droit de toucher --------------------------------
+  //
+  // Claude reçoit `mcp_servers` et appelle les applications DIRECTEMENT : ces
+  // appels ne passent jamais par notre pont, donc rien n'y est interceptable.
+  // La seule chose qu'on maîtrise est CE QU'ON LUI DONNE.
+  //
+  // On demande donc à chaque application la liste de ses outils, et une
+  // application qui en publie au moins un capable d'écrire n'est pas rattachée
+  // tant que l'entreprise n'a pas accordé l'écriture. L'agent travaille alors
+  // sans elle et le dit — ce qui est la dégradation que le produit annonce déjà
+  // ailleurs : « écrire à propos du travail plutôt que le faire ».
+  //
+  // La cascade, elle, garde toutes les applications : son pont refuse l'appel
+  // en écriture un par un (api/_lib/mcp.ts), ce qui est strictement mieux —
+  // la lecture continue de fonctionner.
+  const held: string[] = []
+  let claudeServers = mcpServers
+  if (mcpServers.length) {
+    const risky = await Promise.all(mcpServers.map(async (srv) => {
+      if (writeOk.has(srv.name)) return null
+      // Une application injoignable ne publie aucun outil · on ne la retient
+      // pas sur un échec réseau, elle ne pourra de toute façon rien faire.
+      const tools = await listMcpTools([srv]).catch(() => [])
+      return splitTools(tools).write.length ? srv.name : null
+    }))
+    const names = new Set(risky.filter(Boolean) as string[])
+    if (names.size) {
+      held.push(...names)
+      claudeServers = mcpServers.filter((srv) => !names.has(srv.name))
+    }
+  }
 
   // ---- billing policy: who pays for this run? -----------------------------
   // BYOK (the user's own Claude key) → billed to the user, operator pays $0.
@@ -166,7 +202,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   try {
     if (byokKey) {
       // The user's own key: their bill, their choice of engine, no daily cap.
-      const out = await callClaude(byokKey, claudeModel, system, prompt, mcpServers, effort)
+      const out = await callClaude(byokKey, claudeModel, system, prompt, claudeServers, effort)
       text = out.text; modelUsed = out.model; usage = out.usage
       engine = 'byok'
     } else {
@@ -186,7 +222,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       const budget = Math.min(effort.maxTokens, MAX_TOKENS)
       if (freeCascadeConfigured()) {
         const out = mcpServers.length
-          ? await cascadeToolRun(system, prompt, budget, mcpServers, toolRounds(effort))
+          ? await cascadeToolRun(system, prompt, budget, mcpServers, toolRounds(effort), writeOk)
           : await cascadeComplete(system, prompt, budget)
         if (out) {
           text = out.text; modelUsed = out.model; engine = 'free'
@@ -195,7 +231,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         }
       }
       if (!text && operatorClaude && ENV.ANTHROPIC_API_KEY) {
-        const out = await callClaude(ENV.ANTHROPIC_API_KEY, claudeModel, system, prompt, mcpServers, effort)
+        const out = await callClaude(ENV.ANTHROPIC_API_KEY, claudeModel, system, prompt, claudeServers, effort)
         text = out.text; modelUsed = out.model; usage = out.usage; engine = 'operator'
       }
       // Nothing is configured to answer · say which key would fix it rather than
@@ -273,6 +309,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // rather than showing its own estimate after the fact.
     appsSent: mcpServers.length,
     effort: String(body?.effort || 'balanced'),
+    // Les applications retenues faute d'autorisation d'écriture, et rien de
+    // plus : les taire ferait lire ce run comme une panne — « pourquoi n'a-t-il
+    // pas créé la page ? » — alors que c'est le garde-fou qui a fonctionné.
+    heldForWrite: held,
     // What is actually left, measured after this run was counted. The app used
     // to keep its own idea of a daily cap and show that; a number the browser
     // invents is a number that disagrees with the server the moment a colleague
@@ -489,12 +529,15 @@ function externalMcpServers(raw: unknown): McpServer[] {
   return out
 }
 
-async function resolveMcpServers(connectorIds: string[], ref: { privy?: string; client?: string }): Promise<McpServer[]> {
-  if (!connectorIds.length || !dbConfigured() || !vaultConfigured()) return []
+async function resolveMcpServers(
+  connectorIds: string[], ref: { privy?: string; client?: string },
+): Promise<{ servers: McpServer[]; grants: Set<string> }> {
+  const none = { servers: [] as McpServer[], grants: new Set<string>() }
+  if (!connectorIds.length || !dbConfigured() || !vaultConfigured()) return none
   try {
     const pool = getPool()
     const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
-    if (!accountId) return []
+    if (!accountId) return none
     // The apps a run may reach into are the COMPANY's, not the one person's who
     // happened to click Connect. `distinct on` keeps the organisation's row when
     // both exist, so an older personal connection never shadows the shared one.
@@ -543,9 +586,10 @@ async function resolveMcpServers(connectorIds: string[], ref: { privy?: string; 
       }
       servers.push({ type: 'url', url: row.mcp_url, name: row.connector_id, authorization_token: token })
     }
-    return servers
+    // Ce que l'entreprise a réellement accordé en écriture · voir _lib/permits.
+    return { servers, grants: await writeGrants(pool, orgId) }
   } catch {
-    return []
+    return none
   }
 }
 

@@ -26,6 +26,8 @@ const MAX_TOOLS_PER_SERVER = int(ENV.MCP_MAX_TOOLS_PER_SERVER, 12)
  *  be tens of thousands of tokens; the model needs the gist, not the archive. */
 const MAX_RESULT_CHARS = int(ENV.MCP_MAX_RESULT_CHARS, 6000)
 
+import { isWriteTool, refusal } from './permits.js'
+
 export interface McpServer {
   type: 'url'
   url: string
@@ -85,11 +87,29 @@ async function listOne(server: McpServer): Promise<McpTool[]> {
  * or explain to the founder what failed — which is far more useful than a run
  * that dies with a stack trace.
  */
-export async function callTool(servers: McpServer[], tools: McpTool[], name: string, args: unknown): Promise<string> {
+export async function callTool(
+  servers: McpServer[], tools: McpTool[], name: string, args: unknown,
+  /**
+   * Les applications où l'entreprise a accordé l'ÉCRITURE.
+   *
+   * Seconde barrière : la première est le rattachement (agent-run n'expose pas
+   * une application non accordée à Claude, dont les appels d'outils ne passent
+   * jamais par ici). Celle-ci couvre le chemin de la cascade, où chaque appel
+   * passe par cette fonction.
+   *
+   * `undefined` veut dire « aucune restriction demandée » — c'est le cas des
+   * appelants qui n'ont pas d'organisation sous la main. Un ensemble VIDE veut
+   * dire « rien n'est accordé », ce qui n'est pas la même chose.
+   */
+  writeGrants?: Set<string>,
+): Promise<string> {
   const t = tools.find((x) => x.name === name)
   if (!t) return `error: no tool named ${name}`
   const server = servers.find((s) => s.name === t.server)
   if (!server) return `error: ${t.server} is not connected`
+  if (writeGrants && isWriteTool(t) && !writeGrants.has(t.server)) {
+    return refusal(t.server, t.tool)
+  }
   try {
     const session = await handshake(server)
     const res = await rpc(server, session, 'tools/call', { name: t.tool, arguments: args && typeof args === 'object' ? args : {} })

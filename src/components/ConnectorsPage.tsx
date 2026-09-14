@@ -12,7 +12,7 @@ import type { Department } from '../data/agents'
 import { useWork } from '../agents/workStore'
 import { useWorkshop } from '../workshop'
 import { isAdmin } from '../config/admin'
-import { startConnect } from '../agents/workApi'
+import { startConnect, setWritePermit } from '../agents/workApi'
 import { ConnectorLogo } from './ConnectorLogo'
 import { TutorialOverlay } from './guide/TutorialOverlay'
 import { FullScreen } from './FullScreen'
@@ -50,6 +50,13 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
 
   // the "How to?" walkthrough · connecting apps, and what it costs on top
   const [howTo, setHowTo] = useState(false)
+
+  /** Accorder ou retirer l'écriture · on recharge pour lire l'état du serveur
+   *  plutôt que de le supposer, la permission appartient à l'organisation. */
+  const togglePermit = async (id: string, write: boolean) => {
+    const r = await setWritePermit(id, write)
+    if (r) await loadTools()
+  }
 
   useEffect(() => { if (!loadedOnce) void loadTools() }, [loadedOnce, loadTools])
 
@@ -155,6 +162,31 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
                         <p className="connect-op-env">
                           Add {c.env.filter((e) => /_CLIENT_ID$|_CLIENT_SECRET$/.test(e.name)).map((e) => e.name).join(' and ')} in Vercel, then redeploy.
                         </p>
+                      )}
+                      {/* Ce qu'un AGENT a le droit d'y faire.
+                          Relier n'est pas autoriser : une application connectée
+                          était rattachée à chaque run et le modèle appelait ses
+                          outils sans qu'aucun garde-fou ne la borne. La lecture
+                          suit la connexion ; l'écriture demande ce geste-ci. */}
+                      {isOn && (
+                        <div className={`connect-permit p-${st?.permit === 'write' ? 'write' : 'read'}`}>
+                          <span className="connect-permit-b">
+                            {st?.permit === 'write' ? 'Read + write' : 'Read only'}
+                          </span>
+                          <span className="connect-permit-t">
+                            {st?.permit === 'write'
+                              ? <>Agents may change data in {c.label} on their own.</>
+                              : <>Agents can read {c.label}. They cannot create, send or change anything.</>}
+                          </span>
+                          {admin && (
+                            <button
+                              className="btn tiny ghost"
+                              onClick={() => void togglePermit(c.id, st?.permit !== 'write')}
+                            >
+                              {st?.permit === 'write' ? 'Revoke write' : 'Allow write'}
+                            </button>
+                          )}
+                        </div>
                       )}
                       <div className="connect-card-actions">
                         {isOn ? (

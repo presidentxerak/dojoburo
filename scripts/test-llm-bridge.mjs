@@ -134,9 +134,16 @@ const B = `http://127.0.0.1:${PORT}`
 const out = mkdtempSync(join(tmpdir(), 'bridge-'))
 const { build } = await import('esbuild')
 // Transpiled, NOT bundled: llm.js keeps its `./mcp.js` import and resolves it
-// beside itself, exactly as it does on the server.
+// beside itself, exactly as it does on the server. Chaque module que le pont
+// importe doit donc être transpilé ici AUSSI — un import manquant ne se voit
+// pas au typecheck, il explose au chargement.
 await build({
-  entryPoints: [join(ROOT, 'api/_lib/llm.ts'), join(ROOT, 'api/_lib/mcp.ts')],
+  entryPoints: [
+    join(ROOT, 'api/_lib/llm.ts'),
+    join(ROOT, 'api/_lib/mcp.ts'),
+    // mcp.ts refuse les écritures non autorisées · voir _lib/permits
+    join(ROOT, 'api/_lib/permits.ts'),
+  ],
   outdir: out, format: 'esm', platform: 'node', bundle: false, logLevel: 'warning',
 })
 

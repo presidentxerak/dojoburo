@@ -16,6 +16,8 @@ import { resolveAccountId, findAccountId } from './_lib/accounts.js'
 import { seal, vaultConfigured } from './_lib/vault.js'
 import { callerRef } from './_lib/authz.js'
 import { orgScope } from './_lib/connScope.js'
+import { writeGrants, setWriteGrant } from './_lib/permits.js'
+import { ensureOrg, can } from './_lib/orgs.js'
 import {
   serverConnector, connectorAvailable, clientId, clientSecret, redirectUri, siteUrl,
   CONNECTOR_IDS, type ServerConnector,
@@ -36,6 +38,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   if (action === 'disconnect') return disconnect(req, res)
   if (action === 'setkey') return setkey(req, res)
   if (action === 'removekey') return removekey(req, res)
+  if (action === 'permit') return permit(req, res)
 
   return json(res, 400, { ok: false, error: 'bad_action' })
 }
@@ -43,6 +46,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 // ---- list -----------------------------------------------------------------
 async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParams): Promise<void> {
   const connected: Record<string, { external_account: string | null; status: string }> = {}
+  let grants = new Set<string>()
   if (dbConfigured() && vaultConfigured()) {
     try {
       const pool = getPool()
@@ -62,6 +66,7 @@ async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParam
           [accountId, orgId],
         )
         for (const row of r.rows) connected[row.connector_id] = { external_account: row.external_account, status: row.status }
+        grants = await writeGrants(pool, orgId)
       }
     } catch {
       /* fall through with empty connected map */
@@ -72,12 +77,48 @@ async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParam
     available: connectorAvailable(id) && dbConfigured() && vaultConfigured(),
     connected: !!connected[id] && connected[id].status === 'connected',
     account: connected[id]?.external_account ?? null,
+    // Ce qu'un AGENT a le droit d'y faire · une connexion dit « relié », pas
+    // « un agent peut y créer un produit et un lien de paiement tout seul ».
+    permit: (grants.has(id) ? 'write' : 'read') as 'read' | 'write',
   }))
   const byok = {
     connected: !!connected['anthropic'] && connected['anthropic'].status === 'connected',
     hint: connected['anthropic']?.external_account ?? null,
   }
   return json(res, 200, { ok: true, tools, byok, backend: dbConfigured() && vaultConfigured() })
+}
+
+// ---- permit ---------------------------------------------------------------
+/**
+ * Accorder — ou retirer — à un AGENT le droit d'écrire dans une application.
+ *
+ * Réservé aux administrateurs, et volontairement : décider qu'un agent peut
+ * créer un produit Stripe tout seul engage la société, pas la personne qui a
+ * relié le compte. C'est la même frontière que pour inviter ou renommer.
+ *
+ * Sans organisation résolue, on refuse plutôt que de rattacher la permission à
+ * un individu : une autorisation d'écrire dans le Stripe de l'entreprise
+ * n'appartient pas à celui qui a cliqué.
+ */
+async function permit(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'method' })
+  if (!dbConfigured()) return json(res, 200, { ok: false, error: 'no_backend' })
+  let body: any = {}
+  try { body = JSON.parse(await readBody(req)) } catch { return json(res, 400, { ok: false, error: 'bad_json' }) }
+  const id = String(body?.connector || '')
+  if (!CONNECTOR_IDS.includes(id)) return json(res, 400, { ok: false, error: 'unknown_connector' })
+
+  const pool = getPool()
+  const who = await callerRef(req, { privy: body?.privy, client: body?.client })
+  if (!who) return json(res, 401, { ok: false, error: 'auth' })
+  const accountId = await findAccountId(pool, who)
+  if (!accountId) return json(res, 401, { ok: false, error: 'auth' })
+
+  const me = await ensureOrg(pool, accountId)
+  if (!can(me.role, 'connectApps')) return json(res, 403, { ok: false, error: 'forbidden' })
+
+  const state = await setWriteGrant(pool, me.orgId, id, !!body?.write, accountId)
+  return json(res, 200, { ok: true, connector: id, permit: state })
 }
 
 // ---- start ----------------------------------------------------------------

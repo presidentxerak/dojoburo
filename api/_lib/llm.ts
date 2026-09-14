@@ -125,6 +125,8 @@ export async function cascadeToolRun(
   maxTokens: number,
   servers: McpServer[],
   maxRounds = MAX_ROUNDS,
+  /** les applications où l'écriture est accordée · voir _lib/permits */
+  writeGrants?: Set<string>,
 ): Promise<CascadeResult | null> {
   resetSessions()
   const tools = await listTools(servers)
@@ -139,7 +141,7 @@ export async function cascadeToolRun(
     user,
     maxTokens,
     tools: defs,
-    exec: (name, args) => callTool(servers, tools as McpTool[], name, args),
+    exec: (name, args) => callTool(servers, tools as McpTool[], name, args, writeGrants),
     maxRounds,
   })
 }

@@ -16,6 +16,14 @@ export interface ToolStatus {
   available: boolean
   connected: boolean
   account: string | null
+  /**
+   * Ce qu'un AGENT a le droit d'y faire.
+   *
+   * 'read'  — il peut lire, jamais écrire. C'est le défaut, y compris sur une
+   *           application reliée : relier n'est pas autoriser.
+   * 'write' — un administrateur a accordé l'écriture, explicitement.
+   */
+  permit?: 'read' | 'write'
 }
 
 function ref(): { privy?: string; client?: string } {
@@ -180,6 +188,27 @@ export function startConnect(connectorId: string): void {
   try { w.focus() } catch { /* certains navigateurs refusent · sans conséquence */ }
 }
 
+/**
+ * Accorder — ou retirer — à un agent le droit d'écrire dans cette application.
+ *
+ * C'est le geste que le produit demande de poser sur l'écran de l'application
+ * elle-même, plutôt qu'au milieu d'un run : on décide à froid, une fois, ce
+ * qu'un agent pourra faire à chaud, cent fois.
+ */
+export async function setWritePermit(connectorId: string, write: boolean): Promise<'read' | 'write' | null> {
+  try {
+    const res = await apiFetch('/api/connect?action=permit', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ connector: connectorId, write, ...ref() }),
+    })
+    const j = await res.json()
+    return j?.ok ? (j.permit as 'read' | 'write') : null
+  } catch {
+    return null
+  }
+}
+
 export async function disconnectTool(connectorId: string): Promise<boolean> {
   try {
     const res = await apiFetch('/api/connect?action=disconnect', {
@@ -215,6 +244,8 @@ export interface Deliverable {
 }
 export interface RunResult {
   ok: boolean
+  /** applications écartées de ce run faute d'autorisation d'écriture */
+  heldForWrite?: string[]
   /** what the model actually consumed · recorded by the usage meter */
   usage?: { input_tokens?: number; output_tokens?: number } | null
   /** how many connected apps really travelled with the request */

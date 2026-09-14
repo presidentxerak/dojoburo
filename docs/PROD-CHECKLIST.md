@@ -12,7 +12,8 @@ trailing slash).
 ## 0. Verified in code (no action needed)
 
 - **Code ↔ DB schema match**: every SQL statement in `api/` matches the tables and
-  columns created by `db/schema.sql` + `db/connectors.sql` + `db/orgs.sql`. No
+  columns created by `db/schema.sql` + `db/connectors.sql` + `db/orgs.sql` +
+  `db/permits.sql`. No
   column/table mismatch → no DB runtime errors. `scripts/test-orgs.mjs` and
   `scripts/test-sync.mjs` apply those files and exercise them against a real
   Postgres; point `TEST_DATABASE_URL` at a throwaway database to run them.
@@ -30,6 +31,7 @@ trailing slash).
 | Settlement schema | run `db/schema.sql` | ✅ applied (credit_ledger tested) |
 | Connectors schema | run `db/connectors.sql` | ⬜ apply this (adds `client_ref`, `connections`, `work_usage`) |
 | Organisations + sync | run `db/orgs.sql` | ⬜ apply this (adds `organisations`, `org_members`, `org_invites`, `org_docs`, `org_doc_revisions`, and `org_id` on `connections`) |
+| Permissions d'écriture | run `db/permits.sql` | ⬜ apply this (adds `connector_permits`) — **sans lui, aucun agent ne peut écrire dans une application connectée** : la table absente veut dire zéro autorisation, ce qui est le bon défaut mais bloque Stripe/Slack/Notion en écriture |
 
 Until `db/orgs.sql` is applied, `/api/org` and `/api/docs` answer
 `{ok:false,error:'no_backend'}` and the app stays exactly the single-player,
