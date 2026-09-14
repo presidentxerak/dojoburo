@@ -1,14 +1,27 @@
 import { chromium } from 'playwright'
 
-const BASE = 'http://localhost:4173'
+const BASE = process.env.BASE || 'http://localhost:4173'
 const OUT = process.env.SCRATCH || '.'
 const browser = await chromium.launch({
   executablePath: process.env.PW_CHROMIUM || process.env.CHROMIUM || '/opt/pw-browsers/chromium',
   args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
 })
 const noise = (e) => /fonts\.g|ERR_CONNECTION|xumm|Failed to load resource|api\/chat|api\/checkout|net::ERR|WebSocket|altnet|rippletest|xrplcluster/.test(e)
+// Trente-trois vérifications, et aucune ne pouvait échouer.
+//
+// `pass` enregistrait et imprimait ; le script sortait toujours en succès. C'est
+// le parcours le plus large de tout le dossier — landing, bureau, panneau d'un
+// agent, assistant, studio, modèles, nouveau dojo, connexion, compte,
+// facturation, paiement, thème, fenêtre flottante, mobile — et il ne gardait
+// rien. Une valeur qui n'est ni vraie ni fausse reste une observation ; seul un
+// `false` franc compte comme un échec.
 const R = {}
-function pass(k, v) { R[k] = v; console.log((v === true ? '✓' : v === false ? '✗' : '·'), k + ':', v) }
+let fails = 0
+function pass(k, v) {
+  R[k] = v
+  if (v === false) fails++
+  console.log((v === true ? 'ok    ' : v === false ? 'FAIL  ' : '·     ') + k + (v === true || v === false ? '' : ': ' + v))
+}
 
 const page = await browser.newPage({ viewport: { width: 1340, height: 880 } })
 // The private beta gate stands in front of every route. Without this the suite
@@ -188,8 +201,12 @@ const ov = await m.evaluate(() => document.body.scrollWidth > window.innerWidth 
 pass('mobile no h-overflow', ov === false)
 await m.screenshot({ path: `${OUT}/full-mobile.png` })
 
-console.log('\n=== console/page errors (filtered) ===')
-console.log(errs.filter((e) => !noise(e)))
-console.log('widget errors:', werr.filter((e) => !noise(e)))
+const realErrs = errs.filter((e) => !noise(e))
+const realWerr = werr.filter((e) => !noise(e))
+pass('aucune erreur JavaScript sur le parcours', realErrs.length === 0)
+if (realErrs.length) console.log('   ', realErrs.slice(0, 3).join(' | '))
+pass('aucune erreur dans la fenêtre flottante', realWerr.length === 0)
+if (realWerr.length) console.log('   ', realWerr.slice(0, 3).join(' | '))
 await browser.close()
-console.log('\nDONE')
+console.log(fails ? `\n${fails} FAILED` : '\nALL GREEN')
+process.exit(fails ? 1 : 0)

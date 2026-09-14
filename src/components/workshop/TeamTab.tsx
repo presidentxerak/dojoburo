@@ -12,7 +12,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { apiFetch } from '../../lib/apiFetch'
 import { refParams } from '../../agents/workApi'
-import { onSyncState, pendingConflicts, drain, pullChanges, type SyncState } from '../../lib/sync'
+import { onSyncState, pendingConflicts, pendingRejected, drain, pullChanges, type SyncState } from '../../lib/sync'
 
 type Role = 'owner' | 'admin' | 'member' | 'viewer'
 
@@ -40,6 +40,10 @@ const SYNC_NOTE: Record<SyncState, string> = {
   offline: 'Offline · your work is kept here and will send when you are back.',
   'read-only': 'You can read this company but not change it.',
   conflict: 'Someone changed the same thing you did.',
+  // « rejected » ne veut PAS dire « pas de synchronisation » · le reste part
+  // normalement. Un seul document refusé disait « cette entreprise ne vit que
+  // dans ce navigateur », ce qui envoyait chercher un problème de serveur.
+  rejected: 'Everything is saved except one item the server would not take.',
 }
 
 export function TeamTab() {
@@ -51,6 +55,7 @@ export function TeamTab() {
   const [name, setName] = useState('')
   const [sync, setSync] = useState<SyncState>('off')
   const [conflicts, setConflicts] = useState(pendingConflicts())
+  const [rejected, setRejected] = useState(pendingRejected())
 
   const load = useCallback(async () => {
     try {
@@ -68,6 +73,7 @@ export function TeamTab() {
   useEffect(() => {
     // the conflict list is not reactive · re-read it whenever the state moves
     setConflicts(pendingConflicts())
+    setRejected(pendingRejected())
   }, [sync])
 
   const post = async (action: string, body: Record<string, unknown> = {}) => {
@@ -157,6 +163,24 @@ export function TeamTab() {
           </p>
           <ul>
             {conflicts.map((c) => <li key={c.key}><code>{c.key}</code></li>)}
+          </ul>
+        </div>
+      )}
+
+      {rejected.length > 0 && (
+        <div className="team-conflicts">
+          <b>{rejected.length === 1 ? 'One item' : `${rejected.length} items`} could not be sent to your company</b>
+          <p>
+            Everything else is saved — {rejected.length === 1 ? 'this one is' : 'these are'} kept in this browser.
+            The usual cause is size: an item above the server’s limit is refused whole. Split it, or remove
+            what it carries that does not need to travel.
+          </p>
+          <ul>
+            {rejected.map((r) => (
+              <li key={r.key}>
+                <code>{r.key}</code> · {r.why === 'too_large' ? 'too big for the server' : r.why}
+              </li>
+            ))}
           </ul>
         </div>
       )}

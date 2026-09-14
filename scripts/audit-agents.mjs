@@ -257,6 +257,67 @@ ok('et l’en-tête du fichier ne contredit pas le code', wrongClaims.length ===
     ? `annonce « ${wrongClaims.join(', ')} », l’équipage en compte ${R.COMPANY_IDS.length}`
     : (claims.length ? `annonce « ${claims.join(', ')} » · juste` : 'aucune annonce chiffrée'))
 
+/* ---- le brouillon rendu quand aucun modèle ne répond ------------------- */
+//
+// Sans clé de modèle, l'app produit un brouillon LOCAL et l'affiche comme
+// livrable. C'est un choix défendable — un écran qui rend quelque chose
+// d'honnêtement étiqueté vaut mieux qu'un écran mort — mais il n'est tenable
+// que si l'étiquette est là ET si le document n'est pas une fuite de code :
+// trente-trois tâches sur trente-huit sortaient avec leur IDENTIFIANT en
+// titre, « jd », « brand-platform ».
+{
+  const L = await load('src/agents/localDraft.ts', 'localdraft.mjs')
+  const tasks = Object.values(C.ROLE_TASKS).flat()
+  const slug = []
+  const unlabelled = []
+  const thin = []
+  for (const t of tasks) {
+    const d = L.localDraft(t.id, 'une boulangerie bio à Lyon')
+    if (d.title.startsWith(t.id + ' ')) slug.push(t.id)
+    if (!/local draft/i.test(d.title) || !/local draft/i.test(d.markdown)) unlabelled.push(t.id)
+    if (d.markdown.length < 380) thin.push(t.id)
+  }
+  ok('aucun brouillon ne porte un identifiant technique en titre',
+    slug.length === 0, slug.slice(0, 5).join(', ') || 'un titre qui est un id se lit comme une fuite de code')
+  ok('et tous disent qu’ils ne viennent pas d’un modèle',
+    unlabelled.length === 0, unlabelled.slice(0, 5).join(', ') || 'sinon on croit avoir reçu du travail écrit')
+  ok('et aucun n’est un document vide',
+    thin.length === 0, thin.slice(0, 5).join(', ') || `${tasks.length} tâches ont de quoi partir`)
+}
+
+/* ---- tout code d'erreur du serveur a une phrase à l'écran ---------------- */
+//
+// Deux codes réalistes s'affichaient tels quels : « That didn't go through:
+// rate » quand on relance trop vite, et « auth » quand la session a expiré. Un
+// identifiant à l'écran ne dit ni ce qui s'est passé ni quoi faire — et ce sont
+// justement les deux qu'un utilisateur normal rencontre.
+//
+// Les codes qui mènent au brouillon local (NO_MODEL dans workStore) n'ont pas
+// besoin de phrase : ils ne produisent pas d'erreur du tout.
+{
+  const runSrc = readFileSync('api/agent-run.ts', 'utf8')
+  const uiSrc = readFileSync('src/components/agents/AgentWork.tsx', 'utf8')
+  const storeSrc = readFileSync('src/agents/workStore.ts', 'utf8')
+
+  const emitted = new Set([...runSrc.matchAll(/error: '([a-z_]+)'/g)].map((m) => m[1]))
+  const toDraft = new Set(
+    ((storeSrc.match(/const NO_MODEL = new Set\(\[([^\]]*)\]/) || [])[1] || '')
+      .split(',').map((x) => x.trim().replace(/'/g, '')).filter(Boolean),
+  )
+  const spoken = new Set([...uiSrc.matchAll(/runError\.code === '([a-z_]+)'/g)].map((m) => m[1]))
+
+  const raw = [...emitted].filter((c) => !toDraft.has(c) && !spoken.has(c))
+  // bad_json, method, origin ne viennent que d'un client cassé · la phrase de
+  // repli les couvre, à condition qu'elle ne récite pas le code.
+  const CLIENT_BUG = new Set(['bad_json', 'method', 'origin'])
+  const uncovered = raw.filter((c) => !CLIENT_BUG.has(c))
+  ok('tout code d’erreur qu’un utilisateur peut voir a une vraie phrase',
+    uncovered.length === 0, uncovered.join(', ') || `${spoken.size} codes expliqués`)
+  ok('et le repli ne récite pas l’identifiant technique',
+    !/go through[^<]*\{runError\.code\}/.test(uiSrc),
+    '« That didn’t go through: rate » ne dit ni ce qui s’est passé ni quoi faire')
+}
+
 rmSync(OUT, { recursive: true, force: true })
 console.log(fails ? `\n${fails} FAILED` : '\nALL GREEN')
 process.exit(fails ? 1 : 0)

@@ -122,12 +122,16 @@ globalThis.__api = async (input, init) => {
   }
   if (action === 'push') {
     if (readOnly) return reply({ ok: false, error: 'read_only' })
+    if (tooBig) return reply({ ok: false, error: 'too_large' })
     const b = JSON.parse(init.body)
     const r = await docsLib.push(pool, org.orgId, whoami, b.key, b.body, b.baseVersion, b.deleted)
     return r.ok ? reply({ ok: true, doc: r.doc }) : reply({ ok: false, conflict: true, server: r.server })
   }
   return reply({ ok: false, error: 'bad_action' })
 }
+
+// Le serveur refuse ce document-ci · voir l'épreuve « un document refusé ».
+let tooBig = false
 
 // The stubs have to exist on disk before sync.ts is bundled against them.
 writeFileSync(join(TMP, 'idb.mjs'), idbStub)
@@ -217,6 +221,41 @@ offline = false
 await S.drain()
 ok('coming back sends what was waiting', (await docsLib.getOne(pool, org.orgId, 'locked.d1'))?.body?.x === 1)
 ok('and the queue drains', (stores.kv.get('sync.queue') || []).length === 0)
+
+/* ------------------------------------------- un document que le serveur refuse */
+//
+// LE défaut que ceci garde. Un document au-dessus de la limite du serveur
+// restait en TÊTE de file : la boucle s'arrêtait dessus sans le retirer, il
+// repassait à chaque tour, et tout ce qui était derrière lui ne partait plus
+// jamais. L'écran annonçait « cette entreprise ne vit que dans ce navigateur »,
+// c'est-à-dire la phrase qu'on dit quand il n'y a pas de serveur du tout.
+//
+// Un document refusé ne doit donc coûter QUE lui-même.
+tooBig = true
+stores.projects.set('enorme.d1', { x: 'gros' })
+await S.noteWrite('enorme.d1')
+await S.drain()
+ok('un document refusé sort de la file',
+  !(stores.kv.get('sync.queue') || []).includes('enorme.d1'),
+  'en tête de file, il empêchait tous les suivants de partir')
+ok('et il est nommé, pas perdu de vue',
+  S.pendingRejected().some((r) => r.key === 'enorme.d1' && r.why === 'too_large'))
+// Ce qui compte n'est pas QUEL état exactement — un conflit resté en attente
+// depuis une épreuve précédente a le droit de primer, il est plus urgent — mais
+// que l'état ne soit plus « off », la valeur qui fait lire « cette entreprise ne
+// vit que dans ce navigateur » et envoie chercher un problème de serveur.
+ok('et l’état ne prétend plus qu’il n’y a pas de serveur',
+  S.syncState() !== 'off' && S.syncState() !== 'read-only', S.syncState())
+
+// et surtout : ce qui le suit part quand même
+tooBig = false
+stores.projects.set('apres.d1', { x: 2 })
+await S.noteWrite('apres.d1')
+await S.drain()
+ok('ce qui suivait dans la file part normalement',
+  (await docsLib.getOne(pool, org.orgId, 'apres.d1'))?.body?.x === 2,
+  'un seul document refusé arrêtait la synchronisation entière')
+ok('et la file se vide', (stores.kv.get('sync.queue') || []).length === 0)
 
 S.stopSync()
 await pool.end()

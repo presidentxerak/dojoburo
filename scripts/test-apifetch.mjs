@@ -115,6 +115,81 @@ console.log('\n--- et la requête elle-même a une échéance ------------------
     'il sait ce qu’il attend mieux que ce fichier')
 }
 {
+  // ---- L'ÉCHÉANCE DOIT LAISSER LE TRAVAIL FINIR -------------------------
+  //
+  // Le contrôle ci-dessus vérifiait qu'une échéance EXISTE. Il ne vérifiait pas
+  // qu'elle soit assez longue, et la valeur unique de 25 s posée ici était
+  // fausse pour la chose la plus importante de l'app : un run d'agent dispose
+  // de soixante secondes de budget serveur, quarante-cinq pour un seul
+  // fournisseur de modèle, et l'écran annonce « environ une minute ». Le
+  // navigateur coupait donc la plupart des runs à vingt-cinq secondes.
+  //
+  // Un garde-fou contre les blocages qui tue le travail légitime est pire que
+  // le blocage qu'il prévient. Cette épreuve lit les budgets déclarés dans
+  // api/*.ts et exige que le client laisse au moins autant de temps.
+  // On MESURE le délai demandé, on ne l'attend pas.
+  //
+  // Première version de ce contrôle : attendre l'abandon, avec un plafond de
+  // trois secondes. Une coupure à vingt-cinq secondes sur un budget de soixante
+  // était donc invisible — l'épreuve passait avec le défaut en place, ce qui en
+  // fait une épreuve qui ne peut pas échouer, c'est-à-dire pas une épreuve.
+  // En remplaçant AbortSignal.timeout par un mouchard, le délai se lit tout de
+  // suite et exactement.
+  const { readFileSync, readdirSync } = await import('node:fs')
+  const realTimeout = AbortSignal.timeout.bind(AbortSignal)
+  let askedMs = null
+  AbortSignal.timeout = (ms) => { askedMs = ms; return realTimeout(1e7) }
+
+  // Les endpoints que le NAVIGATEUR appelle, lus dans les sources du client.
+  // checkout-webhook a bien un budget de trente secondes, mais c'est Stripe qui
+  // l'appelle : lui imposer l'échéance du navigateur serait une règle sur du
+  // code qui n'existe pas. On dérive la liste plutôt que de la tenir à la main,
+  // pour qu'un endpoint ajouté demain entre tout seul dans le contrôle.
+  const called = new Set()
+  const walk = (dir) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const f = `${dir}/${e.name}`
+      if (e.isDirectory()) { walk(f); continue }
+      if (!/\.(ts|tsx)$/.test(e.name)) continue
+      for (const m of readFileSync(f, 'utf8').matchAll(/['\`](\/api\/[a-z-]+)/g)) called.add(m[1])
+    }
+  }
+  walk('src')
+
+  const budgets = {}
+  for (const f of readdirSync('api').filter((x) => x.endsWith('.ts'))) {
+    const path = '/api/' + f.replace(/\.ts$/, '')
+    if (!called.has(path)) continue
+    const m = readFileSync(`api/${f}`, 'utf8').match(/maxDuration:\s*(\d+)/)
+    if (m) budgets[path] = Number(m[1]) * 1000
+  }
+  M.privyControls.getAccessToken = async () => null
+  const short = []
+  for (const [path, budget] of Object.entries(budgets)) {
+    askedMs = null
+    await M.apiFetch(path)
+    if (askedMs === null) { short.push(`${path} n’a aucune échéance`); continue }
+    if (askedMs < budget) short.push(`${path} coupe à ${askedMs / 1000}s pour ${budget / 1000}s de budget`)
+  }
+  ok(`les ${Object.keys(budgets).length} endpoints ont le temps que le serveur leur accorde`,
+    short.length === 0, short.join(' | ') || 'le client ne coupe plus le travail qu’il a demandé')
+
+  // Et la plus longue de toutes, nommément · c'est le geste qui fait l'app.
+  askedMs = null
+  await M.apiFetch('/api/agent-run', { method: 'POST', body: '{}' })
+  ok('un run d’agent a au moins la minute que l’écran annonce', askedMs >= 60000,
+    `${askedMs / 1000}s · le couper plus tôt casse le geste central du produit`)
+
+  // Et une simple lecture ne traîne pas pour autant · l'échéance longue doit
+  // rester l'exception, sinon on retrouve l'écran qui tourne sans fin.
+  askedMs = null
+  await M.apiFetch('/api/org?action=me')
+  ok('mais une simple lecture garde une échéance courte', askedMs <= 30000,
+    `${askedMs / 1000}s · sinon un écran figé le reste une demi-minute de plus`)
+
+  AbortSignal.timeout = realTimeout
+}
+{
   // Et les en-têtes de l'appelant survivent · les écraser enverrait des
   // requêtes sans content-type, refusées par les endpoints en POST.
   M.privyControls.getAccessToken = async () => 'tok-1'

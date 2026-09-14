@@ -1,6 +1,6 @@
 import { chromium } from 'playwright'
 
-const BASE = 'http://localhost:4173'
+const BASE = process.env.BASE || 'http://localhost:4173'
 const OUT = process.env.SCRATCH || '.'
 const browser = await chromium.launch({
   // The bundled Chromium, not a downloaded one. Without this the suite dies on
@@ -17,7 +17,12 @@ const page = await browser.newPage({ viewport: { width: 1340, height: 880 } })
 await page.addInitScript(() => { try { localStorage.setItem('dojoburo.beta', '1974') } catch { /* private window */ } })
 page.on('console', (m) => { if (m.type() === 'error') errs.push('C:' + m.text()) })
 page.on('pageerror', (e) => errs.push('P:' + e.message))
-const ok = (c, m) => console.log(c ? '✓' : '✗', m)
+// Il comptait, mais ne CONCLUAIT pas : `ok` imprimait une coche ou une croix et
+// le script sortait toujours en succès. La barrière le voyait donc vert quoi
+// qu'il trouve — même chose qu'une épreuve sans assertion, avec l'apparence du
+// sérieux en plus.
+let fails = 0
+const ok = (c, m) => { console.log((c ? 'ok    ' : 'FAIL  ') + m); if (!c) fails++ }
 
 await page.goto(`${BASE}/#app`, { waitUntil: 'load' })
 // a fresh state, but keep the key that gets us through the door — a plain
@@ -71,7 +76,7 @@ for (const [fx, fy] of [[0.30, 0.56], [0.42, 0.52], [0.24, 0.62], [0.36, 0.6], [
 // the renderer, not the app, so this reports rather than fails.
 console.log(cardOpen ? '✓ agent card open' : '· agent card did not open (seat hit-test on software WebGL)')
 if (cardOpen) {
-  ok((await page.locator('.agent-head-avatar canvas').count()) === 1, '3D avatar canvas in agent card')
+  ok((await page.locator('.agent-head-avatar canvas').count()) === 1, 'la carte d’un coéquipier porte son portrait 3D')
 }
 await page.screenshot({ path: `${OUT}/vis-agentcard.png` })
 
@@ -80,12 +85,26 @@ await page.locator('.sb-launch').click()
 await page.waitForTimeout(300)
 const x = page.locator('.sb-x')
 const xb = await x.boundingBox()
-ok(!!xb && xb.width > 8 && xb.height > 8, 'support close button has size')
+ok(!!xb && xb.width > 8 && xb.height > 8, 'la croix de fermeture de l’assistant est cliquable')
 const contrast = await x.evaluate((el) => {
   const cs = getComputedStyle(el)
   return { color: cs.color, bg: cs.backgroundColor }
 })
-ok(true, `support × color=${contrast.color} bg=${contrast.bg}`)
+// `ok(true, …)` ne vérifiait rien : il imprimait deux couleurs et concluait
+// que tout allait bien. La question posée était la bonne — la croix de
+// fermeture est-elle LISIBLE — il manquait d'y répondre.
+{
+  const rgb = (c) => (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number)
+  const lum = (c) => {
+    const [r, g, b] = rgb(c)
+    const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+  }
+  const l1 = lum(contrast.color)
+  const l2 = /rgba\(.*,\s*0\)$/.test(contrast.bg) ? 1 : lum(contrast.bg)
+  const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)
+  ok(ratio > 2, `la croix de fermeture se voit sur son fond · contraste ${ratio.toFixed(1)} (${contrast.color} sur ${contrast.bg})`)
+}
 await page.screenshot({ path: `${OUT}/vis-supportclose.png` })
 await x.click()
 
@@ -118,6 +137,8 @@ await closeSurface()
 await page.waitForTimeout(800)
 await page.screenshot({ path: `${OUT}/vis-office-final.png` })
 
-console.log('\nerrors:', errs.filter((e) => !noise(e)))
+const real = errs.filter((e) => !noise(e))
+ok(real.length === 0, `aucune erreur JavaScript${real.length ? ' · ' + real.slice(0, 2).join(' | ') : ''}`)
 await browser.close()
-console.log('DONE')
+console.log(fails ? `\n${fails} FAILED` : '\nALL GREEN')
+process.exit(fails ? 1 : 0)

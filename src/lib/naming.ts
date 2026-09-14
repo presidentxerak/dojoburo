@@ -3,6 +3,7 @@
 // naming strategies (suffix, prefix, portmanteau, invented, compound). Domain
 // availability is checked for real via /api/domain (server-side RDAP).
 
+import { deadline } from './apiFetch'
 const STOP = new Set(['the', 'a', 'an', 'and', 'or', 'for', 'to', 'of', 'in', 'on', 'with', 'that', 'this', 'is', 'are', 'app', 'platform', 'tool', 'service', 'company', 'business', 'startup', 'my', 'our', 'your', 'we', 'help', 'helps', 'make', 'makes', 'build', 'builds', 'people', 'users', 'customers', 'their', 'them'])
 
 const SUFFIXES = ['ly', 'ify', 'io', 'hq', 'labs', 'flow', 'kit', 'hub', 'wave', 'base', 'stack', 'loop', 'yard', 'works', 'grid']
@@ -349,7 +350,7 @@ async function serverCheck(name: string, tlds: string[]): Promise<DomainResult[]
   const q = new URLSearchParams({ name })
   if (tlds?.length) q.set('tlds', tlds.join(','))
   try {
-    const res = await fetch(`/api/domain?${q.toString()}`, { headers: { accept: 'application/json' } })
+    const res = await fetch(`/api/domain?${q.toString()}`, { headers: { accept: 'application/json' }, signal: deadline() })
     const j = await res.json()
     return Array.isArray(j?.results) ? j.results : []
   } catch {

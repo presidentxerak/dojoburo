@@ -2,6 +2,7 @@
 // lives only in the user's browser (localStorage) and is sent per request to
 // our thin /api/tts proxy (ElevenLabs blocks direct browser calls). If the key
 // is left empty, the proxy falls back to the operator's key when configured.
+import { deadline } from './apiFetch'
 const KEY_STORE = 'dojoburo.elevenlabs.key.v1'
 
 export interface Voice { id: string; label: string }
@@ -32,6 +33,9 @@ export async function generateVoiceover(text: string, voiceId: string): Promise<
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ text, voiceId, key }),
+      // la synthèse est lente par nature · on lui laisse plus de temps qu'à une
+      // lecture, mais une fin quand même
+      signal: deadline(60000),
     })
     const ct = res.headers.get('content-type') || ''
     if (ct.includes('audio')) {

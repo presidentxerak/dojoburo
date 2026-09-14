@@ -3,6 +3,18 @@
 Operator guide to turn each feature from "coded" to "live". The code is complete;
 this is the configuration (env + external accounts + DB) that activates it.
 
+> **Avant de mettre en ligne : `npm run verify`.** Seize épreuves navigateur,
+> qui ne tournaient auparavant que si quelqu'un y pensait. Ce qui échoue là ne
+> doit pas partir. Ce que chaque variable d'environnement décide RÉELLEMENT est
+> dans `docs/PRODUCTION.md`, avec ce qui a été éprouvé et comment.
+>
+> **La variable qui décide de tout** : sans au moins une clé de modèle
+> (`GEMINI_API_KEY`, `GROQ_API_KEY`, `CEREBRAS_API_KEY` ou `OPENROUTER_API_KEY`
+> pour la cascade libre, ou `ANTHROPIC_API_KEY` avec `WORK_OPERATOR_CLAUDE`),
+> **aucun agent ne travaille** : chaque run répond `needs_key` et l'app rend un
+> brouillon local honnêtement étiqueté. C'est correct, et c'est l'état d'un
+> déploiement neuf.
+
 Legend: **R** = required for that feature · **O** = optional (sane default).
 Replace `<SITE>` with your exact origin, e.g. `https://www.dojoburo.com` (no
 trailing slash).

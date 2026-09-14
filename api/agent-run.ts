@@ -679,7 +679,20 @@ function readBody(req: IncomingMessage): Promise<string> {
     let d = ''
     req.on('data', (c: Buffer) => {
       d += c.toString('utf8')
-      if (d.length > 8000) { reject(new Error('too_large')); req.destroy() }
+      // 8 000 était trop juste pour ce que le client a le DROIT d'envoyer.
+      //
+      // Le pire cas légitime : dix-huit règles permanentes de 220 caractères
+      // (agents/skills), un brief de 300, et jusqu'à quatre agents MCP externes
+      // dont chacun porte une URL, un nom et un jeton — un JWT fait couramment
+      // 800 caractères à lui seul. Cela dépasse 8 000, et le run échouait alors
+      // en « too_large » pour quelqu'un qui n'avait fait qu'utiliser le produit
+      // comme il est prévu. Une limite de corps est un garde-fou contre l'abus,
+      // pas contre l'usage : 32 Ko reste minuscule pour une requête et laisse
+      // une marge de trois.
+      //
+      // scripts/test-endpoints.mjs recalcule ce pire cas depuis les constantes
+      // du client et échoue si cette valeur repasse en dessous.
+      if (d.length > 32000) { reject(new Error('too_large')); req.destroy() }
     })
     req.on('end', () => resolve(d))
     req.on('error', reject)

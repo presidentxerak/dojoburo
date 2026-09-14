@@ -33,8 +33,34 @@ import { privyControls } from '../auth/controls'
 
 /** L'identité doit arriver vite ou pas du tout · au-delà on est un invité. */
 const AUTH_TIMEOUT_MS = 4000
-/** Et une requête qui ne revient pas est un échec, pas une attente éternelle. */
-const REQUEST_TIMEOUT_MS = 25000
+
+/**
+ * L'échéance dépend de CE QU'ON DEMANDE, et c'est tout l'objet de ce bloc.
+ *
+ * Une seule valeur de 25 s a été posée ici hier, et elle était fausse pour la
+ * chose la plus importante de l'app : un run d'agent a soixante secondes de
+ * budget serveur — quarante-cinq pour un seul fournisseur de modèle — et
+ * l'écran annonce lui-même « environ une minute ». Le navigateur coupait donc
+ * tout travail dépassant vingt-cinq secondes, c'est-à-dire la plupart. Un
+ * garde-fou contre les blocages qui tue le travail légitime est pire que le
+ * blocage qu'il prévient.
+ *
+ * Les valeurs suivent `maxDuration` de chaque fonction, plus une marge pour le
+ * démarrage à froid et le transport. Elles ne sont pas des estimations de
+ * durée : ce sont les bornes au-delà desquelles plus rien ne peut arriver.
+ */
+const DEFAULT_TIMEOUT_MS = 25000
+const BY_ENDPOINT: [RegExp, number][] = [
+  [/\/api\/agent-run/, 90000],   // maxDuration 60 · cascade jusqu'à 45 s par fournisseur
+  [/\/api\/rag/, 90000],         // maxDuration 60 · découpe et vectorise un document
+  [/\/api\/agent-proxy/, 45000], // maxDuration 30
+  [/\/api\/tts/, 60000],         // maxDuration 30 · la synthèse est lente par nature
+]
+
+function timeoutFor(url: string): number {
+  for (const [rx, ms] of BY_ENDPOINT) if (rx.test(url)) return ms
+  return DEFAULT_TIMEOUT_MS
+}
 
 /**
  * Attendre une promesse, mais pas pour toujours.
@@ -65,15 +91,29 @@ export async function authHeaders(): Promise<Record<string, string>> {
   }
 }
 
+/**
+ * L'échéance, sans l'identité.
+ *
+ * Quatre appels de l'app parlaient à /api en `fetch` nu : l'assistant, la
+ * recherche de domaine, le catalogue de polices, la synthèse vocale. Tous
+ * attrapaient consciencieusement les erreurs — et un `catch` ne se déclenche
+ * JAMAIS sur une requête qui pend. Le repli soigneusement écrit juste en
+ * dessous n'avait alors aucune occasion de s'exécuter, et l'écran tournait.
+ *
+ * Ils n'ont pas besoin d'identité ; ils ont besoin d'une fin.
+ */
+export function deadline(ms = DEFAULT_TIMEOUT_MS): AbortSignal | undefined {
+  return typeof AbortSignal?.timeout === 'function' ? AbortSignal.timeout(ms) : undefined
+}
+
 /** fetch(), with the caller's identity proof attached — and a deadline. */
 export async function apiFetch(input: string, init: RequestInit = {}): Promise<Response> {
   const auth = await authHeaders()
   // Un `signal` fourni par l'appelant l'emporte · il sait ce qu'il attend.
-  // Sinon on en pose un : sans lui, une requête qui ne revient jamais laisse
-  // son écran sur « Loading… » pour toujours.
-  const signal = init.signal ?? (typeof AbortSignal?.timeout === 'function'
-    ? AbortSignal.timeout(REQUEST_TIMEOUT_MS)
-    : undefined)
+  // Sinon on en pose un, taillé sur l'endpoint : sans lui, une requête qui ne
+  // revient jamais laisse son écran sur « Loading… » pour toujours ; trop
+  // court, il coupe le travail que l'utilisateur attend.
+  const signal = init.signal ?? deadline(timeoutFor(input))
   return fetch(input, {
     ...init,
     signal,

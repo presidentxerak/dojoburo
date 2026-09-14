@@ -4,6 +4,7 @@
 // standalone .html file · so what you see is exactly what you export. No server.
 import { idbGet, idbSet } from './idb'
 import { type BrandKit, defaultKit, kitCss } from './brand'
+import { deadline } from './apiFetch'
 
 export type BlockType = 'hero' | 'features' | 'pricing' | 'cta' | 'form' | 'text' | 'gallery' | 'image' | 'video' | 'store' | 'footer'
 export interface Block { id: string; type: BlockType; props: Record<string, unknown> }
@@ -100,7 +101,7 @@ export function loadGoogleFonts(): Promise<GFont[]> {
   if (fontFetch) return fontFetch
   fontFetch = (async () => {
     try {
-      const res = await fetch('/api/fonts', { headers: { accept: 'application/json' } })
+      const res = await fetch('/api/fonts', { headers: { accept: 'application/json' }, signal: deadline() })
       const data = (await res.json()) as { ok?: boolean; fonts?: GFont[] }
       if (data?.ok && Array.isArray(data.fonts) && data.fonts.length > 20) {
         FONT_CATALOGUE = data.fonts

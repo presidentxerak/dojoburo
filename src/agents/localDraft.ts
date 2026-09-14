@@ -2,6 +2,7 @@
 // configured yet, or unreachable), the CEO still produces a useful STARTER DRAFT
 // from the company description · clearly labelled as a local template, so the app
 // is never "dead" while the operator wires a real model (free cascade / Claude).
+import { ROLE_TASKS, type WorkTask } from '../data/connectors'
 import type { Deliverable } from './workApi'
 
 const NOTE = '> **Local draft** · generated without an AI model (no key configured on this deployment). Add your Claude key (Studio → Billing) for the AI-written version.\n'
@@ -26,10 +27,33 @@ function body(taskId: string, brief: string): string {
       return `# Meta creatives (Facebook & Instagram) · ${co}\n\n${[1, 2, 3, 4, 5].map((i) => `### Variant ${i}\n- **Copy:** Discover ${co} · ${about}. ${['Try it for free.', 'Join us today.', 'Results guaranteed.', 'Simple and fast.', 'Launch offer.'][i - 1]}\n- **Hook:** ${['Finally simple', 'Save time', 'Made for you', 'Try it free', 'Limited offer'][i - 1]}\n- **Placement:** ${['Feed', 'Reels', 'Stories', 'Feed', 'Reels'][i - 1]}\n- **Visual:** ${['product photo', 'short demo video', 'customer testimonial', 'before/after', 'offer on screen'][i - 1]}\n- **Audience:** interests related to “${about}” + 1% lookalike of your customers.`).join('\n\n')}\n\n**Test plan:** launch all 5 at $5/day each, keep the top 2 after 3 days.`
     case 'outreach':
       return `# Outreach · ${co}\n\n**ICP.** Decision-makers (founder, growth, marketing) at companies relevant to “${about}”, 1–50 people.\n\n**Where to find them:** LinkedIn, industry communities, online events.\n\n**15 target profiles (types):** startup founder, growth lead, solo marketer, e-commerce seller, coach, agency, freelancer, consultant, SMB owner, product manager, community manager, early-stage SaaS, content creator, trainer, indie hacker.\n\n### Email sequence (3 steps)\n1. **Day 0 ·** *Subject: an idea for ${about}* · “Hi, I saw you're working on X. We help with … in 2 lines. Does that resonate?”\n2. **Day 3 ·** *Gentle follow-up* · “Quick bump: here's a concrete example of a result.”\n3. **Day 7 ·** *Final touch* · “Closing the loop · if the timing isn't right, let me know when to circle back.”`
-    default:
-      return `# ${taskId} · ${co}\n\nStarter draft for “${about}”. Edit it, then connect a model for the AI-written version.`
+    default: {
+      // Trente-trois tâches sur trente-huit tombaient ici, et sortaient avec
+      // l'IDENTIFIANT technique en titre : « jd », « brand-platform ». Le
+      // catalogue porte le vrai libellé et la vraie description de chacune
+      // depuis toujours — il suffisait de les lire. Un document dont le titre
+      // est un identifiant se lit comme une fuite de code, pas comme un
+      // brouillon.
+      const t = TASK_BY_ID[taskId]
+      const what = t?.blurb ? `\n\n${t.blurb}` : ''
+      return `# ${label(taskId)} · ${co}${what}\n\n`
+        + `### What this should contain\n`
+        + `Write it for “${about}”. A model would fill this in from your brief; `
+        + `here is the shape to start from.\n\n`
+        + `1. **The point** · one paragraph saying what this is for and who reads it.\n`
+        + `2. **The substance** · the three to five things that actually decide the outcome.\n`
+        + `3. **The next step** · what happens once this is agreed, and by when.\n\n`
+        + `Edit it here, or connect a model for the written version.`
+    }
   }
 }
+
+/** Le vrai nom d'une tâche · le catalogue est la seule table qui les déclare. */
+const TASK_BY_ID: Record<string, WorkTask> = Object.fromEntries(
+  Object.values(ROLE_TASKS).flat().map((t) => [t.id, t]),
+)
+
+const label = (taskId: string): string => TITLES[taskId] || TASK_BY_ID[taskId]?.label || taskId
 
 const TITLES: Record<string, string> = {
   strategy: 'Strategy & OKRs', website: 'Website', offer: 'Offer & pricing',
@@ -39,7 +63,7 @@ const TITLES: Record<string, string> = {
 export function localDraft(taskId: string, brief: string): Deliverable {
   return {
     taskId,
-    title: `${TITLES[taskId] || taskId} (local draft)`,
+    title: `${label(taskId)} (local draft)`,
     format: 'markdown',
     markdown: NOTE + '\n' + body(taskId, brief),
     model: 'local draft',

@@ -39,7 +39,7 @@ const saveQueue = async () => { await idbSet('kv', QUEUE_KEY, queue ?? []) }
 
 /* ------------------------------------------------------------------ state */
 
-export type SyncState = 'off' | 'idle' | 'syncing' | 'offline' | 'read-only' | 'conflict'
+export type SyncState = 'off' | 'idle' | 'syncing' | 'offline' | 'read-only' | 'conflict' | 'rejected'
 
 let state: SyncState = 'off'
 const listeners = new Set<(s: SyncState) => void>()
@@ -60,6 +60,23 @@ function setState(s: SyncState) {
 export interface Conflict { key: string; mine: unknown; theirs: unknown; theirVersion: number; at: number }
 let conflicts: Conflict[] = []
 export const pendingConflicts = (): Conflict[] => conflicts
+
+/**
+ * Ce que le serveur a REFUSÉ, et qui ne partira jamais tel quel.
+ *
+ * Un document au-dessus de la limite du serveur restait en tête de file. La
+ * boucle s'arrêtait dessus sans le retirer, donc il repassait à chaque tour, et
+ * tout ce qui était derrière lui ne partait plus jamais. L'écran annonçait
+ * « cette entreprise ne vit que dans ce navigateur » — la phrase qu'on dit
+ * quand il n'y a pas de serveur du tout. Un seul document trop gros arrêtait
+ * ainsi la synchronisation entière, en donnant la mauvaise raison.
+ *
+ * Il est maintenant sorti de la file et gardé ici : le reste continue de
+ * partir, et l'écran peut nommer le document en cause.
+ */
+export interface Rejected { key: string; why: string; at: number }
+let rejected: Rejected[] = []
+export const pendingRejected = (): Rejected[] => rejected
 
 /* ------------------------------------------------------------------ write */
 
@@ -142,12 +159,27 @@ async function run(): Promise<void> {
         continue
       }
 
+      // Deux familles de refus, et les confondre est ce qui a bloqué la file.
+      //
+      //   · ce DOCUMENT est refusé · trop gros, mal formé · réessayer ne
+      //     changera rien, et le garder en tête de file empêche tous les
+      //     suivants de partir. On le sort, on le note, on continue ;
+      //   · la CONNEXION est refusée · lecture seule, pas de serveur, pas
+      //     d'identité · là, s'arrêter est juste : rien ne passera.
+      if (j.error === 'too_large' || j.error === 'bad_json' || j.error === 'bad_key') {
+        rejected = [{ key, why: j.error, at: Date.now() }, ...rejected.filter((x) => x.key !== key)].slice(0, 20)
+        q.shift()
+        await saveQueue()
+        setState('rejected')
+        continue
+      }
+
       // read_only / forbidden / no_backend / auth: none of these get better by
       // retrying in a loop. Stop, keep the queue, and say why.
       setState(j.error === 'read_only' || j.error === 'forbidden' ? 'read-only' : 'off')
       return
     }
-    setState(conflicts.length ? 'conflict' : 'idle')
+    setState(conflicts.length ? 'conflict' : rejected.length ? 'rejected' : 'idle')
   }
 }
 

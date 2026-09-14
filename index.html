@@ -9,7 +9,25 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <!--
+      La police, sans bloquer le premier pixel · voir public/boot.js.
+
+      `media="print"` la retire du chemin critique ; boot.js la remet pour
+      l'écran dès qu'elle arrive. L'attribut `onload="…"` qu'on écrirait
+      naturellement ici est refusé par la politique de sécurité du site
+      (`script-src 'self'`, sans `'unsafe-inline'`) — et refusé en silence, ce
+      qui laisserait le site sans sa typographie. `<noscript>` garde le chemin
+      normal pour qui n'exécute pas de JavaScript.
+    -->
+    <link
+      data-font
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap"
+      media="print"
+    />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    </noscript>
     <link rel="canonical" href="https://www.dojoburo.com/" />
     <meta name="description" content="Your company, already staffed. Pick from ready-made teams of AI teammates that arrive briefed and wired to your apps — and run them on your own Claude key, with no meter between you and your own work." />
     <title>DojoBuro · Your company, already staffed</title>
@@ -27,36 +45,18 @@
     <meta name="twitter:description" content="Your company, already staffed. Pick from ready-made teams of AI teammates that arrive briefed and wired to your apps — and run them on your own Claude key, with no meter between you and your own work." />
     <meta name="twitter:image" content="https://www.dojoburo.com/og.png" />
     <!--
-      Le thème, posé AVANT le premier pixel.
+      Le thème et la police, posés AVANT le premier pixel · public/boot.js.
 
-      Il ne l'était que dans <App>, qui ne monte qu'une fois la landing passée :
-      quelqu'un dont le téléphone est en sombre arrivait sur une page blanche,
-      puis basculait en noir en entrant dans l'app. C'est exactement ce qui a été
-      signalé — « light mode pour la landing, dark mode pour l'app ».
+      Ce code était ÉCRIT ICI, en ligne. La politique de sécurité du site dit
+      `script-src 'self'` sans `'unsafe-inline'` : le navigateur refusait donc
+      de l'exécuter en production, sans que rien ne casse visiblement. Un
+      fichier servi depuis la même origine passe — c'est la seule différence, et
+      elle décide si ce code tourne.
 
-      Ici plutôt que dans un module : ce script est synchrone, dans le <head>,
-      donc il tourne avant que la feuille de style ne peigne quoi que ce soit.
-      Le faire depuis React garantirait le clignotement blanc à chaque
-      chargement, même une fois le reste réparé.
-
-      Un choix enregistré l'emporte toujours — quelqu'un qui a coché Clair sur
-      une machine sombre l'a voulu ; sinon on suit le système, comme toutes les
-      autres applications de son écran.
+      Synchrone, et dans le <head> : c'est ce qui le fait tourner avant que la
+      feuille de style ne peigne quoi que ce soit.
     -->
-    <script>
-      (function () {
-        var t = null
-        try { t = localStorage.getItem('dojoburo.theme') } catch (e) { /* navigation privée */ }
-        if (t !== 'dark' && t !== 'light') {
-          try { t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch (e) { t = 'light' }
-        }
-        document.documentElement.setAttribute('data-theme', t)
-        // La barre du navigateur suit aussi · une encoche noire au-dessus d'une
-        // page blanche se lit comme un défaut d'affichage.
-        var m = document.querySelector('meta[name="theme-color"]')
-        if (m) m.setAttribute('content', t === 'dark' ? '#000000' : '#ffffff')
-      })()
-    </script>
+    <script src="/boot.js"></script>
   </head>
   <body>
     <div id="root"></div>

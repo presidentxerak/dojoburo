@@ -16,3 +16,11 @@ npm-debug.log*
 
 # scratch bundles from scripts/test-team-e2e.mjs (kept in-repo so `pg` resolves)
 node_modules/.dojo-e2e/
+
+# Captures déposées par les épreuves navigateur · elles vivent hors du dépôt
+# (voir scripts/verify-all.mjs, qui leur donne un dossier temporaire), mais une
+# épreuve lancée seule sans SCRATCH retombe sur le dossier courant.
+/brick-*.png
+/mob-*.png
+/vis-*.png
+/shot-*.png

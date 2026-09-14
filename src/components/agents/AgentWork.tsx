@@ -134,13 +134,29 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
         })}
       </ul>
 
+      {/* Tout ce que le serveur peut répondre, dit en français d'humain.
+          Deux codes réalistes — « rate » quand on relance trop vite, « auth »
+          quand la session a expiré — s'affichaient TELS QUELS : « That didn't
+          go through: rate ». Un identifiant à l'écran ne dit ni ce qui s'est
+          passé, ni quoi faire ; et ce sont précisément les deux qu'un
+          utilisateur normal rencontre. Le reste ne vient que d'un client
+          cassé, mais un message poli coûte moins cher qu'un code brut.
+          scripts/audit-agents vérifie qu'aucun code ne reste sans phrase. */}
       {runError && (
         <p className="agw-err">
           {runError.code === 'quota'
             ? <>Today's free allowance is used up. <button className="linklike" onClick={() => openStudio('billing')}>Add credits or your own key</button>.</>
             : runError.code === 'needs_key'
               ? <>No model is set up on this deployment yet. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button>.</>
-              : <>That didn't go through: {runError.detail || runError.code}</>}
+              : runError.code === 'rate'
+                ? <>That was a lot of runs in a row. Give it a minute and ask again — nothing was lost.</>
+                : runError.code === 'auth'
+                  ? <>Your session has expired. Sign in again (Account tab) and this will work.</>
+                  : runError.code === 'busy'
+                    ? <>{agent.name} is already working on something. Let that one land first.</>
+                    : runError.code === 'unknown_task'
+                      ? <>This deployment doesn’t know that task yet — it may be running an older version.</>
+                      : <>That didn’t go through. {runError.detail || 'Try again; if it keeps happening, the deployment logs will say why.'}</>}
         </p>
       )}
 

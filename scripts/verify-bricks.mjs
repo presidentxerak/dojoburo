@@ -1,6 +1,18 @@
+// Les gestes de base, et le fait qu'ils PRODUISENT quelque chose.
+//
+// Ce fichier n'avait aucune assertion : il imprimait des chiffres et sortait
+// toujours en succès. La barrière le comptait donc en vert depuis toujours,
+// sans qu'il vérifie rien — la façon exacte dont un garde-fou meurt sans qu'on
+// s'en aperçoive. Chaque chiffre imprimé était déjà une chose qui DOIT être
+// vraie ; il suffisait de le dire.
+//
+// Il couvre deux chemins que personne d'autre ne couvre : se connecter depuis
+// le menu, et la fenêtre flottante (#widget).
 import { chromium } from 'playwright'
 
-const BASE = 'http://localhost:4173'
+const BASE = process.env.BASE || 'http://localhost:4173'
+let fails = 0
+const ok = (n, c, extra = '') => { console.log((c ? 'ok    ' : 'FAIL  ') + n + (extra !== '' ? ' · ' + extra : '')); if (!c) fails++ }
 const OUT = process.env.SCRATCH || '.'
 const browser = await chromium.launch({
   executablePath: process.env.PW_CHROMIUM || process.env.CHROMIUM || '/opt/pw-browsers/chromium',
@@ -28,7 +40,8 @@ const noise = (e) => /fonts\.g|ERR_CONNECTION|xumm|Failed to load resource|api\/
   collect(page, errs)
   await page.goto(`${BASE}/#app`, { waitUntil: 'load' })
   await page.waitForTimeout(1500)
-  console.log('#app canvas:', await page.locator('canvas').count())
+  const canvases = await page.locator('canvas').count()
+  ok('le dojo dessine sa scène', canvases > 0, `${canvases} canvas`)
 
   // Account and Billing are reached from the top-bar menu · the modal with a
   // tab bar this suite used to click is gone. With no Privy app configured,
@@ -52,30 +65,42 @@ const noise = (e) => /fonts\.g|ERR_CONNECTION|xumm|Failed to load resource|api\/
 
   await page.evaluate(() => document.querySelector('.tb-menu-btn')?.click())
   await page.waitForTimeout(300)
-  console.log('sign-in buttons:', await page.locator('.tb-menu-auth .btn').count())
+  const signin = await page.locator('.tb-menu-auth .btn').count()
+  ok('le menu propose de se connecter', signin > 0, `${signin} bouton(s)`)
   await page.evaluate(() => document.querySelector('.tb-menu-auth .btn')?.click())
   await page.waitForTimeout(700)
   await page.evaluate(() => document.querySelector('.tb-menu-btn')?.click())
   await page.waitForTimeout(300)
-  console.log('profile row after sign-in:', await page.locator('.tb-menu-profile').count())
+  const prof = await page.locator('.tb-menu-profile').count()
+  ok('et après connexion, le menu montre le compte', prof > 0,
+    prof ? '' : 'sans cette ligne, l’écran Compte n’a plus de porte')
   await page.evaluate(() => document.querySelector('.tb-menu-profile')?.click())
   await page.waitForTimeout(700)
-  console.log('privy btn:', await page.locator('.ws-btn', { hasText: /Privy/ }).count())
+  ok('l’écran Compte s’ouvre', (await page.locator('.ws-keypanel, .ws-btn').count()) > 0)
   await closeSurface()
 
   // Billing: your own key, currency, and the plans
   await openFromMenu('Billing')
   await page.evaluate(() => [...document.querySelectorAll('.ws-currencies .ws-cur')].find((b) => b.textContent.includes('USD'))?.click())
   await page.waitForTimeout(250)
-  console.log('key panel:', await page.locator('.ws-keypanel').count(), '| plans:', await page.locator('.ws-plan').count())
-  const payLabel = (await page.locator('.ws-plan .ws-btn').first().textContent().catch(() => '(none)'))?.trim()
-  console.log('plan button:', payLabel)
+  const keyPanel = await page.locator('.ws-keypanel').count()
+  const plans = await page.locator('.ws-plan').count()
+  ok('la facturation porte le panneau de la clé personnelle', keyPanel > 0)
+  ok('et les formules', plans > 0, `${plans} formules`)
+  const payLabel = (await page.locator('.ws-plan .ws-btn').first().textContent().catch(() => ''))?.trim() || ''
+  ok('chaque formule a un bouton qui la nomme', /\S/.test(payLabel), payLabel || 'aucun')
   // click it → api/checkout unreachable on preview → graceful note, no card taken
   await page.evaluate(() => document.querySelector('.ws-plan .ws-btn')?.click())
   await page.waitForTimeout(1400)
-  console.log('pay note after click:', (await page.locator('.ws-paynote').first().textContent().catch(() => '(none)'))?.trim()?.slice(0, 60))
+  // Sur cette prévisualisation /api/checkout n'existe pas · le clic doit donc
+  // produire une PHRASE, pas un silence. Un bouton de paiement qui ne répond
+  // rien laisse croire qu'une carte a été prise.
+  const note = ((await page.locator('.ws-paynote').first().textContent().catch(() => '')) || '').trim()
+  ok('un paiement qui ne peut pas aboutir le dit', /\S/.test(note), note.slice(0, 70) || 'aucun message')
+  ok('et précise que rien n’a été débité', /nothing was charged/i.test(note), note.slice(0, 70))
   await page.screenshot({ path: `${OUT}/brick-billing.png` })
-  console.log('#app errors:', errs.filter((e) => !noise(e)))
+  const real = errs.filter((e) => !noise(e))
+  ok('aucune erreur JavaScript sur ce parcours', real.length === 0, real.slice(0, 2).join(' | '))
   await page.close()
 }
 
@@ -87,12 +112,17 @@ const noise = (e) => /fonts\.g|ERR_CONNECTION|xumm|Failed to load resource|api\/
   collect(page, errs)
   await page.goto(`${BASE}/#widget`, { waitUntil: 'load' })
   await page.waitForTimeout(800)
-  console.log('#widget page:', await page.locator('.widget-page').count(), '| aw:', await page.locator('.aw').count())
-  console.log('#widget title:', (await page.locator('.aw-head strong').textContent().catch(() => '(none)'))?.trim())
+  const wp = await page.locator('.widget-page').count()
+  const aw = await page.locator('.aw').count()
+  ok('la fenêtre flottante existe et se dessine', wp > 0 && aw > 0, `page ${wp} · contenu ${aw}`)
+  const title = ((await page.locator('.aw-head strong').textContent().catch(() => '')) || '').trim()
+  ok('et elle porte un titre', /\S/.test(title), title || 'aucun')
   await page.screenshot({ path: `${OUT}/brick-widget.png` })
-  console.log('#widget errors:', errs.filter((e) => !noise(e)))
+  const wErr = errs.filter((e) => !noise(e))
+  ok('aucune erreur JavaScript dans la fenêtre flottante', wErr.length === 0, wErr.slice(0, 2).join(' | '))
   await page.close()
 }
 
 await browser.close()
-console.log('DONE')
+console.log(fails ? `\n${fails} FAILED` : '\nALL GREEN')
+process.exit(fails ? 1 : 0)
