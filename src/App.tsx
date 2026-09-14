@@ -15,7 +15,7 @@ import { DojoGraph } from './components/dashboard/DojoGraph'
 import { DojoTabs } from './components/dashboard/DojoTabs'
 import { PipelineHome } from './components/home/PipelineHome'
 import { Defs } from './components/Defs'
-import { useDojo } from './store'
+import { useDojo, applyTheme } from './store'
 import { useWork } from './agents/workStore'
 import { useWorkshop } from './workshop'
 import { privyConfigured } from './auth/controls'
@@ -68,7 +68,9 @@ export default function App() {
   const connectOpen = useWork((s) => s.connectOpen)
   const docsOpen = useWork((s) => s.docsOpen)
 
-  useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
+  // La marque est déjà posée par index.html avant le premier pixel · celle-ci
+  // ne fait que suivre un changement de réglage en cours de session.
+  useEffect(() => { applyTheme(theme) }, [theme])
 
   // clicking an agent (in the 3D dojo or its roster card) opens its dashboard on
   // the right panel · if the dojo is fullscreen, reveal the panel so it shows.

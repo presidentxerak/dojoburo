@@ -6,7 +6,7 @@
   "description": "DojoBuro — an AI company automator: name a company, pick dojo teams, and AI teammates do the work.",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/check-content.mjs && node scripts/check-connectors.mjs && node scripts/test-authz.mjs && node scripts/test-llm-bridge.mjs && node scripts/test-resilience.mjs && node scripts/test-orgs.mjs && node scripts/test-sync.mjs && node scripts/test-connscope.mjs && node scripts/test-subscriptions.mjs && node scripts/test-webhook-lib.mjs && node scripts/test-entitlements.mjs && node scripts/test-keyconnectors.mjs && node scripts/test-rag.mjs && node scripts/test-dedupe.mjs && node scripts/audit-agents.mjs && node scripts/test-checks.mjs && node scripts/test-skills.mjs && node scripts/test-permits.mjs && tsc -b && vite build && node scripts/gen-seo.mjs",
+    "build": "node scripts/check-content.mjs && node scripts/check-connectors.mjs && node scripts/test-authz.mjs && node scripts/test-llm-bridge.mjs && node scripts/test-resilience.mjs && node scripts/test-orgs.mjs && node scripts/test-sync.mjs && node scripts/test-connscope.mjs && node scripts/test-subscriptions.mjs && node scripts/test-webhook-lib.mjs && node scripts/test-entitlements.mjs && node scripts/test-keyconnectors.mjs && node scripts/test-rag.mjs && node scripts/test-dedupe.mjs && node scripts/audit-agents.mjs && node scripts/test-checks.mjs && node scripts/test-skills.mjs && node scripts/test-permits.mjs && node scripts/test-apifetch.mjs && tsc -b && vite build && node scripts/gen-seo.mjs",
     "seo": "node scripts/gen-seo.mjs",
     "preview": "vite preview --host",
     "typecheck": "tsc -b --noEmit",
@@ -38,12 +38,15 @@
     "test:checks": "node scripts/test-checks.mjs",
     "test:skills": "node scripts/test-skills.mjs",
     "test:permits": "node scripts/test-permits.mjs",
+    "test:apifetch": "node scripts/test-apifetch.mjs",
     "verify:agents": "node scripts/verify-agent-pages.mjs",
     "test:docs": "node scripts/test-documents-e2e.mjs",
     "verify:documents": "node scripts/verify-documents.mjs",
     "verify:dedupe": "node scripts/verify-dedupe.mjs",
     "verify:connect": "node scripts/verify-connect-ui.mjs",
-    "verify:waiting": "node scripts/verify-waiting.mjs"
+    "verify:waiting": "node scripts/verify-waiting.mjs",
+    "verify:mobile": "node scripts/audit-mobile.mjs",
+    "shots:mobile": "node scripts/shot-mobile.mjs"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.33.1",

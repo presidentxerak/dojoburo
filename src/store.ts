@@ -148,6 +148,14 @@ function saveStats(stats: Record<string, AgentStats>) {
  * `data-theme` stamp — so honouring the preference has to happen here.
  */
 function loadTheme(): Theme {
+  // Le script en tête de index.html a déjà posé la marque avant le premier
+  // pixel · la relire est la seule façon de ne pas répondre autre chose que ce
+  // qui est DÉJÀ à l'écran. Le calcul reste en secours, pour les rendus qui
+  // n'ont pas ce document (tests, prérendu).
+  try {
+    const stamped = document.documentElement.getAttribute('data-theme')
+    if (stamped === 'dark' || stamped === 'light') return stamped
+  } catch { /* pas de document */ }
   try {
     const saved = localStorage.getItem('dojoburo.theme')
     if (saved === 'dark' || saved === 'light') return saved
@@ -157,6 +165,21 @@ function loadTheme(): Theme {
   } catch {
     return 'light'
   }
+}
+
+/**
+ * Poser le thème sur le document · la marque ET la barre du navigateur.
+ *
+ * Les deux ensemble, parce que les oublier séparément est ce qui donne une
+ * encoche noire au-dessus d'une page blanche — lu comme un défaut d'affichage,
+ * pas comme un réglage.
+ */
+export function applyTheme(t: Theme): void {
+  try {
+    document.documentElement.dataset.theme = t
+    const m = document.querySelector('meta[name="theme-color"]')
+    if (m) m.setAttribute('content', t === 'dark' ? '#000000' : '#ffffff')
+  } catch { /* pas de document */ }
 }
 
 
@@ -205,7 +228,7 @@ export const useDojo = create<DojoState>((set, get) => ({
 
   setTheme: (t) => {
     localStorage.setItem('dojoburo.theme', t)
-    document.documentElement.dataset.theme = t
+    applyTheme(t)
     set({ theme: t })
   },
 

@@ -26,6 +26,37 @@
     <meta name="twitter:title" content="DojoBuro · Your company, already staffed" />
     <meta name="twitter:description" content="Your company, already staffed. Pick from ready-made teams of AI teammates that arrive briefed and wired to your apps — and run them on your own Claude key, with no meter between you and your own work." />
     <meta name="twitter:image" content="https://www.dojoburo.com/og.png" />
+    <!--
+      Le thème, posé AVANT le premier pixel.
+
+      Il ne l'était que dans <App>, qui ne monte qu'une fois la landing passée :
+      quelqu'un dont le téléphone est en sombre arrivait sur une page blanche,
+      puis basculait en noir en entrant dans l'app. C'est exactement ce qui a été
+      signalé — « light mode pour la landing, dark mode pour l'app ».
+
+      Ici plutôt que dans un module : ce script est synchrone, dans le <head>,
+      donc il tourne avant que la feuille de style ne peigne quoi que ce soit.
+      Le faire depuis React garantirait le clignotement blanc à chaque
+      chargement, même une fois le reste réparé.
+
+      Un choix enregistré l'emporte toujours — quelqu'un qui a coché Clair sur
+      une machine sombre l'a voulu ; sinon on suit le système, comme toutes les
+      autres applications de son écran.
+    -->
+    <script>
+      (function () {
+        var t = null
+        try { t = localStorage.getItem('dojoburo.theme') } catch (e) { /* navigation privée */ }
+        if (t !== 'dark' && t !== 'light') {
+          try { t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch (e) { t = 'light' }
+        }
+        document.documentElement.setAttribute('data-theme', t)
+        // La barre du navigateur suit aussi · une encoche noire au-dessus d'une
+        // page blanche se lit comme un défaut d'affichage.
+        var m = document.querySelector('meta[name="theme-color"]')
+        if (m) m.setAttribute('content', t === 'dark' ? '#000000' : '#ffffff')
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

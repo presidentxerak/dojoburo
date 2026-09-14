@@ -11,6 +11,13 @@
   --panel: rgba(255, 255, 255, 0.92);
   --panel-solid: #ffffff;
   --panel-2: #f5f6f8;
+  /* Le PAPIER · le fond de toute surface de l'app : une carte, le corps d'un
+     panneau, une liste. Il existe parce que ces fonds étaient écrits « #fff »
+     en dur à trente endroits, et que le thème sombre les rattrapait en
+     réénumérant les sélecteurs plus bas dans le fichier. Cette liste a divergé
+     — six sélecteurs repeints sur seize — et un écran sortait en deux moitiés :
+     en-tête sombre, corps blanc. Un jeton ne peut pas diverger. */
+  --paper: #ffffff;
   --border: #e4e4e7;       /* subtle 1px hairlines */
   --border-lit: #c7c7cc;
   --shadow: none;          /* flatter, fewer visual layers */
@@ -62,6 +69,7 @@
   --panel: rgba(18, 18, 22, 0.9);
   --panel-solid: #131317;
   --panel-2: #1c1c22;
+  --paper: #131317;
   --border: rgba(255, 255, 255, 0.12);
   --border-lit: rgba(255, 255, 255, 0.26);
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
@@ -1340,7 +1348,7 @@ a:hover { text-decoration: underline; }
 .sb-launch {
   position: fixed; right: 20px; bottom: 20px; z-index: 70; display: flex; align-items: center; gap: 9px;
   cursor: pointer; height: 60px; padding: 0 22px 0 17px; box-sizing: border-box;
-  background: #ffffff; border: 1px solid var(--border);
+  background: var(--paper); border: 1px solid var(--border);
   border-radius: 999px !important; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s;
 }
 .sb-launch:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 12px 28px rgba(30, 60, 140, 0.28); }
@@ -1802,7 +1810,7 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
   background: none !important; -webkit-text-fill-color: var(--ink); color: var(--ink) !important;
 }
 /* vivid primary touches replace the gradient on accents */
-.lp-pill { background: var(--ink) !important; color: #fff; }
+.lp-pill { background: var(--ink) !important; color: var(--bg); }
 .lp-plan-badge { background: var(--c-orange) !important; color: #1a1300; }
 .lp-node::before, .lp-plan::before { background: var(--c-blue) !important; }
 .lp-plan.feat { border-color: var(--c-orange); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-orange) 34%, transparent) inset; }
@@ -3312,9 +3320,9 @@ h4, h5, h6 { font-size: 20px !important; font-weight: 700 !important; }
 .lp-hero h1 {
   font-size: clamp(52px, 9.5vw, 100px) !important; font-weight: 900 !important;
   letter-spacing: -0.03em; line-height: 0.98;
-  background: none !important; -webkit-text-fill-color: #000 !important; color: #000 !important;
+  background: none !important; -webkit-text-fill-color: var(--ink) !important; color: var(--ink) !important;
 }
-.hl-mag, .hl-mag * { background: none !important; -webkit-text-fill-color: #000 !important; color: #000 !important; }
+.hl-mag, .hl-mag * { background: none !important; -webkit-text-fill-color: var(--ink) !important; color: var(--ink) !important; }
 
 /* map the app's title classes onto the scale */
 .sq-title { font-size: 32px !important; font-weight: 700 !important; }
@@ -3359,7 +3367,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 .sq-opt-radio, .ceo-spin, .tgl, .tgl span { border-radius: 999px !important; }
 
 /* --- Fewer colours: one discreet accent per agent ------------------ */
-.lp-studiocard, .agent-card { border: 1px solid var(--border) !important; border-top: 1px solid var(--border) !important; background: #fff; box-shadow: none !important; }
+.lp-studiocard, .agent-card { border: 1px solid var(--border) !important; border-top: 1px solid var(--border) !important; background: var(--paper); box-shadow: none !important; }
 .agent-card .agent-code { color: #000 !important; }
 .agent-card .agent-title { color: var(--ac); }              /* the single discreet colour */
 .agent-card .agent-desc, .agent-card .agent-last { color: #000 !important; }
@@ -3387,7 +3395,7 @@ input, textarea, select, button { border-radius: 0 !important; }
   text-transform: uppercase; padding: 12px 22px; cursor: pointer; border-radius: 0;
   white-space: nowrap; transition: background 0.14s, color 0.14s, border-color 0.14s;
 }
-.stepbar-back { background: #fff; border: 1px solid #000; color: #000; }
+.stepbar-back { background: var(--paper); border: 1px solid var(--ink); color: var(--ink); }
 .stepbar-back:hover:not(:disabled) { background: #f2f2f2; }
 .stepbar-next { background: #000; border: 1px solid #000; color: #fff; }
 .stepbar-next:hover:not(:disabled) { background: #222; }
@@ -3420,7 +3428,7 @@ input, textarea, select, button { border-radius: 0 !important; }
 .wiz-galtop { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
 .wiz-palettes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 @media (max-width: 640px) { .wiz-palettes { grid-template-columns: 1fr 1fr; } }
-.wiz-palette { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 12px; background: #fff; border: 1px solid var(--border); cursor: pointer; }
+.wiz-palette { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 12px; background: var(--paper); border: 1px solid var(--border); cursor: pointer; }
 .wiz-palette.on { border-color: #000; box-shadow: inset 0 0 0 1px #000; }
 .wiz-palette b { font-size: 14px; font-weight: 700; color: #000; }
 .wiz-swatches { display: flex; width: 100%; height: 44px; }
@@ -3496,7 +3504,7 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 /* Module header "Connect apps" button (replaces the connector strip) */
 .modhost-connect {
   font-family: var(--font-ui); font-weight: 700; font-size: 14px; color: #000;
-  background: #fff; border: 1px solid #000; border-radius: 0; padding: 8px 14px; cursor: pointer;
+  background: var(--paper); border: 1px solid var(--ink); color: var(--ink); border-radius: 0; padding: 8px 14px; cursor: pointer;
   white-space: nowrap;
 }
 .modhost-connect:hover { background: #f2f2f2; }
@@ -3505,7 +3513,7 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 .notif { position: relative; display: inline-flex; }
 .notif-btn {
   position: relative; width: 36px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
-  background: #fff; border: 1px solid #000; color: #000; cursor: pointer; border-radius: 0;
+  background: var(--paper); border: 1px solid var(--ink); color: var(--ink); cursor: pointer; border-radius: 0;
 }
 .notif-btn:hover { background: #f2f2f2; }
 .notif-count {
@@ -3516,9 +3524,9 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 .notif-scrim { position: fixed; inset: 0; z-index: 300; }
 .notif-panel {
   position: absolute; top: calc(100% + 8px); right: 0; z-index: 301; width: 340px; max-width: 92vw;
-  max-height: 440px; overflow-y: auto; background: #fff; border: 1px solid #000; box-shadow: 0 10px 34px rgba(0,0,0,0.18);
+  max-height: 440px; overflow-y: auto; background: var(--paper); border: 1px solid var(--ink); box-shadow: 0 10px 34px rgba(0,0,0,0.18);
 }
-.notif-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: #fff; }
+.notif-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--paper); }
 .notif-head b { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; color: #000; }
 .notif-clear { background: none; border: none; color: #000; font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: underline; }
 .notif-empty { padding: 18px 14px; color: #000; font-size: 14px; margin: 0; }
@@ -3528,7 +3536,7 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 .notif-dot { flex: none; width: 9px; height: 9px; border-radius: 999px; margin-top: 5px; }
 .notif-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .notif-txt strong { font-size: 14px; font-weight: 700; color: #000; }
-.notif-txt span { font-size: 13px; color: #000; }
+.notif-txt span { font-size: 13px; color: var(--ink); }
 
 /* ===== Website wizard · Squarespace split (big preview left, settings right) ===== */
 .wiz-split { display: grid; grid-template-columns: 1.55fr 1fr; gap: 0; min-height: 64vh; border: 1px solid var(--border); }
@@ -3536,7 +3544,7 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 .wiz-frame { width: 100%; min-height: 440px; border: none; background: #fff; box-shadow: 0 18px 46px rgba(0,0,0,0.20); }
 .wiz-settings { padding: 26px 24px; overflow-y: auto; max-height: 74vh; }
 .wiz-persona { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.wiz-persona-opt { padding: 16px; background: #fff; border: 1px solid var(--border); cursor: pointer; font-size: 15px; font-weight: 600; color: #000; text-align: left; }
+.wiz-persona-opt { padding: 16px; background: var(--paper); border: 1px solid var(--border); cursor: pointer; font-size: 15px; font-weight: 600; color: var(--ink); text-align: left; }
 .wiz-persona-opt.on { border-color: #000; box-shadow: inset 0 0 0 1px #000; }
 @media (max-width: 900px) {
   .wiz-split { grid-template-columns: 1fr; min-height: 0; }
@@ -3608,15 +3616,15 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 .set-nav-item.on { background: #000; color: #fff; }
 .set-body { position: relative; padding: 26px 28px; overflow-y: auto; }
 .set-sec h3 { font-family: var(--font-pixel); font-weight: 800; font-size: 26px; margin: 0 0 6px; color: #000; }
-.set-lead { font-size: 14px; color: #000; margin: 0 0 20px; max-width: 60ch; }
+.set-lead { font-size: 14px; color: var(--ink); margin: 0 0 20px; max-width: 60ch; }
 .set-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; max-width: 460px; }
 .set-field > span { font-size: 14px; font-weight: 700; color: #000; }
-.set-field input, .set-field select { padding: 11px 12px; border: 1px solid #000; background: #fff; font: inherit; font-size: 15px; color: #000; }
+.set-field input, .set-field select { padding: 11px 12px; border: 1px solid var(--ink); background: var(--paper); font: inherit; font-size: 15px; color: var(--ink); }
 .set-static { font-size: 15px; color: #000; }
 .set-seg { display: inline-flex; border: 1px solid #000; width: max-content; }
-.set-seg button { background: #fff; border: none; padding: 9px 18px; cursor: pointer; font-weight: 700; font-size: 14px; color: #000; }
+.set-seg button { background: var(--paper); border: none; padding: 9px 18px; cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink); }
 .set-seg button.on { background: #000; color: #fff; }
-.set-toggle { width: max-content; background: #fff; border: 1px solid #000; padding: 9px 18px; cursor: pointer; font-weight: 700; font-size: 14px; color: #000; }
+.set-toggle { width: max-content; background: var(--paper); border: 1px solid var(--ink); padding: 9px 18px; cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink); }
 .set-toggle.on { background: #000; color: #fff; }
 .set-toggle.on.danger { background: #e0483f; border-color: #e0483f; }
 .set-stats { display: flex; gap: 14px; margin-bottom: 18px; }
@@ -3663,7 +3671,14 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 /* surfaces that were forced white → dark panels */
 :root[data-theme="dark"] .agent-card,
 :root[data-theme="dark"] .lp-studiocard,
-:root[data-theme="dark"] .sq-panel,
+/* `.sq-panel` n'est PAS dans cette liste, et c'est le point.
+
+   C'est une section de mise en page — `display:flex; gap:16px` — sans fond ni
+   marge intérieure. En clair elle est invisible, et personne ne l'a jamais vue.
+   Le thème sombre lui peignait un fond : elle devenait une boîte dont le texte
+   touchait le bord arrondi, ce qui se lit comme un titre coupé — exactement ce
+   qui a été signalé sur « Your dojo ». Les deux thèmes doivent être d'accord
+   sur ce qui est une carte et ce qui n'en est pas une. */
 :root[data-theme="dark"] .sq-opt,
 :root[data-theme="dark"] .sq-info,
 :root[data-theme="dark"] .biz-tile,
@@ -3942,7 +3957,7 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 /* Billing / Studio · monochrome (no violet / green) + centred like other pages. */
 .ws-price { color: var(--ink) !important; }
 .ws-tag-byok { background: #111 !important; color: #fff !important; }
-.ws-cur.on { background: var(--ink) !important; color: #fff !important; border: 1px solid var(--ink) !important; }
+.ws-cur.on { background: var(--ink) !important; color: var(--bg) !important; border: 1px solid var(--ink) !important; }
 .studio-page-head strong,
 .studio-page .ws-account h3, .studio-page .ws-billing h3, .studio-page .ws-keypanel h3 { color: var(--ink) !important; }
 .studio-page-scroll .ws-account, .studio-page-scroll .ws-billing { max-width: 640px; margin-left: auto; margin-right: auto; width: 100%; }
@@ -4037,8 +4052,20 @@ select.cc-input { flex: 1; min-width: 0; }
 .lp-nav-right .lp-cta.lp-cta-ghost:hover, .lp-menu-auth .lp-cta.lp-cta-ghost:hover { box-shadow: inset 0 0 0 1px var(--ink); filter: none; }
 .lp-menu-auth { display: flex; gap: 8px; margin-top: 6px; }
 .lp-menu-auth .lp-cta { flex: 1; }
-/* on narrow screens the inline auth buttons collapse into the burger menu */
-@media (max-width: 960px) { .lp-auth-btn { display: none; } }
+/* on narrow screens the inline auth buttons collapse into the burger menu.
+ *
+ * Cette règle existait déjà et ne s'appliquait pas : `.lp-profile-btn` est
+ * déclaré plus bas dans le fichier avec `display: inline-flex`, à spécificité
+ * égale — donc il gagnait. Le bouton de compte dépassait de 39px sur un écran
+ * de 390, un `overflow:hidden` de la barre le coupait, et « Founder » se lisait
+ * « Found ». Le menu burger porte déjà le profil (.lp-menu-profile) : rien
+ * n'est perdu, c'est bien le repli prévu.
+ *
+ * Deux classes plutôt qu'un `!important` · la spécificité suffit à trancher, et
+ * un `!important` de plus dans ce fichier rendrait le suivant plus dur encore. */
+@media (max-width: 960px) {
+  .lp-nav-right .lp-auth-btn { display: none; }
+}
 /* the dojo brand links back to the landing page */
 .topbar .brand-home { cursor: pointer; }
 
@@ -4810,8 +4837,8 @@ select.cc-input { flex: 1; min-width: 0; }
   50%      { box-shadow: 0 0 0 1px rgba(24,255,176,0.65), 0 0 20px 3px rgba(0,214,255,0.5); }
 }
 .modhost-connect, .topbar .tb-navlink {
-  background: #ffffff !important; color: #0a1a2b !important;
-  border: 1.5px solid #ffffff !important; border-radius: 12px !important;
+  background: var(--paper) !important; color: var(--ink) !important;
+  border: 1.5px solid var(--border) !important; border-radius: 12px !important;
   font-weight: 800 !important; padding: 9px 16px !important; cursor: pointer;
   animation: connectHalo 1.9s ease-in-out infinite;
 }
@@ -6761,14 +6788,14 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
    its own frame.
    ===================================================================== */
 .cmdk {
-  border: 0 !important; border-radius: 0 !important; background: #fff !important;
+  border: 0 !important; border-radius: 0 !important; background: var(--paper) !important;
   max-height: none; box-shadow: none;
 }
 .modhost-body.cmdk-fs { padding: 22px clamp(16px, 4vw, 36px) 40px; }
 .cmdk-fs > * { max-width: 760px; margin: 0 auto; }
 .cmdk-input {
   border: 1px solid var(--border) !important; border-radius: 12px; padding: 14px 16px;
-  background: #fff !important;
+  background: var(--panel-2) !important; color: var(--ink);
 }
 .cmdk-input:focus { border-color: var(--ink) !important; box-shadow: none !important; outline: none; }
 .cmdk-list { padding: 10px 0 0; overflow: visible; }
@@ -6779,25 +6806,20 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 /* Settings · the sidebar is a list, not a grey slab in a rounded box */
 .modhost-body.set-fs { padding: 22px clamp(16px, 4vw, 36px) 40px; }
 .set-fs > * { max-width: 1080px; margin: 0 auto; }
-.set-modal { border: 0 !important; border-radius: 0 !important; background: #fff !important; box-shadow: none !important; }
+.set-modal { border: 0 !important; border-radius: 0 !important; background: var(--paper) !important; box-shadow: none !important; }
 .set-nav {
-  background: #fff !important; border-right: 1px solid var(--border);
+  background: var(--paper) !important; border-right: 1px solid var(--border);
   border-radius: 0 !important; padding: 0 14px 0 0;
 }
 .set-nav-item { border-radius: 10px; padding: 10px 12px; }
 .set-nav-item:hover { background: var(--panel-2); }
-.set-body { background: #fff !important; border-radius: 0 !important; padding: 4px 0 0 28px; }
+.set-body { background: var(--paper) !important; border-radius: 0 !important; padding: 4px 0 0 28px; }
 
 /* Every card in the app sits on pure white · no 92% panels, no grey slabs.
    Requested, and it is what makes the surfaces read as one product. */
 .appcard, .cocard, .tmcard, .tcard, .cmdk, .set-modal, .set-nav, .set-body,
 .connect-card, .ws-plan, .ws-topup, .ws-billing, .lp-step3, .sys-card, .agent-card,
-.modhost-fs, .modhost-body { background-color: #fff; }
-:root[data-theme="dark"] .appcard, :root[data-theme="dark"] .cocard,
-:root[data-theme="dark"] .tmcard, :root[data-theme="dark"] .tcard,
-:root[data-theme="dark"] .connect-card, :root[data-theme="dark"] .agent-card {
-  background-color: var(--panel-solid);
-}
+.modhost-fs, .modhost-body { background-color: var(--paper); }
 
 /* the studio's seating grid · the same animated portrait as everywhere else.
    No scaling on the cell: a WebGL canvas measures its own box, so any zoom or
@@ -6806,7 +6828,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .ws-cellface { width: 64px; height: 64px; display: grid; place-items: center; }
 .ws-cellface .a3d { background: none !important; border-radius: 0 !important; overflow: visible !important; }
 .ws-cell { gap: 4px; padding: 6px; }
-.ws-cell.filled { background: #fff; }
+.ws-cell.filled { background: var(--paper); }
 .ws-cellname { font-size: 13px !important; font-weight: 800; }
 @media (max-width: 720px) { .ws-cellface { width: 48px; height: 48px; } .ws-cellname { font-size: 11px !important; } }
 
@@ -6824,7 +6846,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .lp-step3, .sq-info, .ws-plan, .agx, .ws-corow, .guide-card, .djm-card,
 .cred-pack, .sys-card, .agent-card, .dash-qlink, .biz-tile, .fin-kpi,
 .crm-card, .se-card, .se-kpi, .mission-card, .pgpick-card {
-  background: #fff;
+  background: var(--paper);
   border: 0 !important;
   border-radius: 16px !important;
   box-shadow: 0 2px 10px rgba(30, 25, 60, 0.06), 0 12px 30px -22px rgba(30, 25, 60, 0.5);
@@ -6847,7 +6869,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 }
 /* chosen · a tint and a deeper lift, never another outline */
 .appcard.on, .cocard.on, .tmcard.on, .tcard.on, .eff-mode.on, .connect-card.on {
-  background: color-mix(in srgb, var(--ac, var(--violet)) 5%, #fff);
+  background: color-mix(in srgb, var(--ac, var(--violet)) 5%, var(--paper));
   box-shadow: 0 6px 16px rgba(30, 25, 60, 0.09),
               0 22px 44px -22px color-mix(in srgb, var(--ac, var(--violet)) 55%, transparent);
 }
@@ -6865,12 +6887,22 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   font-family: var(--font-ui); font-size: 13px !important; font-weight: 800;
 }
 
+/* L'ombre, elle, ne peut pas être un jeton : une ombre noire à 6 % est
+   invisible sur du noir. Le FOND vient de --paper ; seule l'ombre est reprise. */
 :root[data-theme="dark"] .appcard, :root[data-theme="dark"] .cocard,
 :root[data-theme="dark"] .tmcard, :root[data-theme="dark"] .tcard,
 :root[data-theme="dark"] .eff-mode, :root[data-theme="dark"] .cc-card,
 :root[data-theme="dark"] .connect-card, :root[data-theme="dark"] .agent-card,
-:root[data-theme="dark"] .sys-card, :root[data-theme="dark"] .guide-card {
-  background: var(--panel-solid);
+:root[data-theme="dark"] .sys-card, :root[data-theme="dark"] .guide-card,
+:root[data-theme="dark"] .lp-step3, :root[data-theme="dark"] .sq-info,
+:root[data-theme="dark"] .ws-plan, :root[data-theme="dark"] .agx,
+:root[data-theme="dark"] .ws-corow, :root[data-theme="dark"] .djm-card,
+:root[data-theme="dark"] .cred-pack, :root[data-theme="dark"] .dash-qlink,
+:root[data-theme="dark"] .biz-tile, :root[data-theme="dark"] .fin-kpi,
+:root[data-theme="dark"] .crm-card, :root[data-theme="dark"] .se-card,
+:root[data-theme="dark"] .se-kpi, :root[data-theme="dark"] .mission-card,
+:root[data-theme="dark"] .pgpick-card, :root[data-theme="dark"] .tmp-card,
+:root[data-theme="dark"] .team-member, :root[data-theme="dark"] .crashed {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 12px 30px -22px rgba(0, 0, 0, 0.8);
 }
 
@@ -6880,7 +6912,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .cocard-new:hover { box-shadow: none !important; border-color: var(--violet) !important; }
 
 /* ---- a panel that failed to draw, instead of a white page ------------- */
-.crashed { max-width: 62ch; margin: 40px auto; padding: 26px 24px; background: #fff; border-radius: 16px;
+.crashed { max-width: 62ch; margin: 40px auto; padding: 26px 24px; background: var(--paper); border-radius: 16px;
   box-shadow: 0 2px 10px rgba(30, 25, 60, .06), 0 12px 30px -22px rgba(30, 25, 60, .5); text-align: left; }
 .crashed h3 { margin: 0 0 8px; font-family: var(--font-pixel); font-size: 19px; }
 .crashed p { margin: 0 0 12px; font-family: var(--font-read); font-size: 13px; line-height: 1.6; color: var(--muted); }
@@ -6900,18 +6932,14 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
    as one set. The state lives in the ring of shadow and in the chip that says
    OPEN NOW — both of which say it without repainting the card. */
 .cocard.on, .tmcard.on, .tcard.on, .eff-mode.on, .connect-card.on, .appcard.on {
-  background: #fff !important;
+  background: var(--paper) !important;
   box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--ac, var(--violet)) 38%, transparent),
               0 18px 38px -22px color-mix(in srgb, var(--ac, var(--violet)) 60%, transparent) !important;
-}
-:root[data-theme="dark"] .cocard.on, :root[data-theme="dark"] .tmcard.on,
-:root[data-theme="dark"] .tcard.on, :root[data-theme="dark"] .eff-mode.on {
-  background: var(--panel-solid) !important;
 }
 
 /* the seating grid, now that it is the only place teammates are arranged */
 .ws-grid { gap: 8px; }
-.ws-cell { background: #fff; border: 1.5px dashed var(--border); }
+.ws-cell { background: var(--paper); border: 1.5px dashed var(--border); }
 .ws-cell.filled { border-style: solid; border-color: transparent; box-shadow: 0 2px 10px rgba(30,25,60,.06), 0 12px 30px -22px rgba(30,25,60,.5); }
 .ws-cell.filled:hover { transform: translateY(-2px); }
 .ws-cell.sel { border-color: transparent; box-shadow: 0 0 0 2px var(--violet), 0 14px 30px -18px color-mix(in srgb, var(--violet) 60%, transparent); }
@@ -7010,7 +7038,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .set-field > span { font-family: var(--font-ui); font-size: 12.5px !important; font-weight: 800 !important; color: var(--muted) !important; letter-spacing: .01em; }
 .set-field input, .set-field select {
   padding: 10px 12px !important; border: 1px solid var(--border) !important; border-radius: 10px !important;
-  background: #fff !important; font-size: 14px !important; color: var(--ink) !important;
+  background: var(--panel-2) !important; font-size: 14px !important; color: var(--ink) !important;
 }
 .set-field input:focus, .set-field select:focus { border-color: var(--ink) !important; outline: none; }
 .set-static { font-family: var(--font-read); font-size: 14px; font-weight: 700; color: var(--ink); }
@@ -7021,7 +7049,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .set-link { display: inline-block; margin-top: 10px; font-family: var(--font-ui); font-size: 13px; font-weight: 800; }
 .set-seg { display: inline-flex; gap: 4px; padding: 3px; border-radius: 12px; background: var(--panel-2); }
 .set-seg button { border: 0 !important; border-radius: 9px; padding: 7px 16px; background: none; font: inherit; font-size: 13px; font-weight: 800; color: var(--muted); cursor: pointer; }
-.set-seg button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(30,25,60,.12); }
+.set-seg button.on { background: var(--paper); color: var(--ink); box-shadow: 0 1px 4px rgba(30,25,60,.12); }
 @media (max-width: 720px) {
   .set-modal { grid-template-columns: 1fr; gap: 18px; }
   .set-nav { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--border); padding: 0 0 10px !important; }
@@ -7252,7 +7280,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 
 .tmp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
 .tmp-card { display: flex; flex-direction: column; gap: 5px; padding: 18px 20px; text-decoration: none;
-  color: inherit; background: #fff; border-radius: 16px;
+  color: inherit; background: var(--paper); border-radius: 16px;
   box-shadow: 0 2px 10px rgba(30, 25, 60, .06), 0 12px 30px -22px rgba(30, 25, 60, .5);
   transition: transform .16s ease, box-shadow .22s ease; }
 .tmp-card:hover { transform: translateY(-3px); text-decoration: none;
@@ -7319,7 +7347,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .team-list { display: flex; flex-direction: column; gap: 10px; }
 .team-member {
   display: flex; align-items: center; justify-content: space-between; gap: 14px;
-  padding: 14px 16px; background: #fff; border-radius: 16px;
+  padding: 14px 16px; background: var(--paper); border-radius: 16px;
   box-shadow: 0 2px 10px rgba(30, 25, 60, .06), 0 12px 30px -22px rgba(30, 25, 60, .5);
 }
 :root[data-theme="dark"] .team-member { background: var(--panel-solid);
