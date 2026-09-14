@@ -1,196 +1,97 @@
-# DojoBuro — Real agent work: Claude deliverables + tool connectors
+# Pourquoi tant de connecteurs disent « needs setup »
 
-This is the layer where an agent stops *animating* work and starts *doing* it.
-Two capabilities:
+Réponse courte : **rien n'est cassé**. Deux choses différentes se cachaient
+derrière le même mot à l'écran, et l'une des deux ne dépend que de vous.
 
-1. **Claude-powered deliverables** — each agent function runs a real Claude task
-   and returns a genuine artifact (a **design system** via *Claude Design*, a PRD,
-   a tech spec, a GTM campaign, a financial model…). Rendered in-app, downloadable.
-2. **Tool connectors** — a user "branches" real tools onto an agent, choosing
-   from **31 apps** across dev, comms, CRM & sales, marketing & social, finance,
-   scheduling, support, education, design and storage (Notion, GitHub, Gmail, Slack, Linear,
-   Stripe, Figma, Drive, Jira, HubSpot, Shopify, Salesforce, WhatsApp, Google Classroom,
-   Zendesk, …). The OAuth token is stored
-   **encrypted server-side** and exposed to Claude as a **remote MCP server** at
-   run time, so the agent *acts inside the tool* (creates the Notion page, opens
-   the PR, drafts the email).
+Ce document est écrit à partir de `npm run check:connectors`, qui lit les trois
+registres et dit la vérité du code. Relancez-le après chaque changement plutôt
+que de faire confiance à ce fichier : lui peut dater, pas le script.
 
-Everything is **config-gated**: with nothing set, the app keeps its built-in XRPL
-skills and animations — nothing breaks.
+## Les trois états, et ce qu'ils veulent dire
 
----
-
-## Architecture
-
-```
-Browser (cockpit)                     Vercel server (secrets live here)          External
-────────────────                      ─────────────────────────────────          ────────
-Agent card
-  "Deliver real work" ─POST /api/agent-run──► build task prompt
-                                              + attach connected tools ──MCP──►  Notion / GitHub /
-                                              call Claude (claude-opus-4-8) ──►  api.anthropic.com
-                                              ◄── deliverable (md / tokens)
-                                              meter x402 on Mainnet ──────────►  XRP Ledger
-  DeliverableModal ◄─── { deliverable, settlement, tools } ───
-
-  "Connect Notion"  ─GET /api/connect?start─► 302 to provider consent ────────►  provider OAuth
-  provider ─redirect─► /api/connect?code ───► exchange → SEAL (AES-256-GCM)
-                                              → store in `connections` (Postgres)
-  status only ◄─── { connected } ───          (token NEVER returned to browser)
-```
-
-- OAuth tokens are sealed with `CONNECTOR_ENC_KEY` (AES-256-GCM) in
-  `api/_lib/vault.ts` before touching Postgres. The browser only ever learns a
-  connector's **status**.
-- Tools reach Claude as `mcp_servers` on the Messages API (beta
-  `mcp-client-2025-04-04`, overridable via `ANTHROPIC_MCP_BETA`).
-
----
-
-## One-time setup
-
-```bash
-# 1. apply the DB schema (after the settlement schema)
-psql "$DATABASE_URL" -f db/schema.sql
-psql "$DATABASE_URL" -f db/connectors.sql
-
-# 2. generate the vault key (32 bytes) — keep it secret, store in Vercel
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-```
-
-For every tool you enable, register the OAuth **redirect URI**:
-
-```
-https://www.dojoburo.com/api/connect
-```
-
-(`CONNECT_SITE_URL` must match your deployed apex/www host exactly.)
-
----
-
-## Environment variables
-
-### Core (enables the whole layer)
-
-| Variable | Required | What / where to get it |
+| État | Ce que c'est | Qui peut y faire quelque chose |
 |---|---|---|
-| **Free providers** (Gemini/Groq/…) | for free tier | Reuses the support cascade keys (`GEMINI_API_KEY`, `GROQ_API_KEY`, …) — free text deliverables, operator cost ~$0 |
-| `ANTHROPIC_API_KEY` | optional | Operator Claude key. **Not** spent on user runs unless `WORK_OPERATOR_CLAUDE=true` — [console.anthropic.com](https://console.anthropic.com/settings/keys) |
-| `WORK_OPERATOR_CLAUDE` | optional | `true` to run Claude on the operator's dime (demo). Default `false` → users bring their own key (BYOK) |
-| `WORK_FREE_DAILY` | optional | Free-cascade runs / account / day on operator keys (default `10`) |
-| `ANTHROPIC_WORK_MODEL` | optional | Default text/tool model — `claude-sonnet-5` (default) · `claude-haiku-4-5` |
-| `ANTHROPIC_WORK_MODEL_DESIGN` | optional | Claude Design flagship — `claude-opus-4-8` (default) |
-| `ANTHROPIC_WORK_MAX_TOKENS` | optional | Output cap per deliverable (default `6000`) |
-| `DATABASE_URL` | ✅ connectors/BYOK | Pooled Postgres — [Neon](https://neon.tech) / [Supabase](https://supabase.com) / Vercel Postgres |
-| `CONNECTOR_ENC_KEY` | ✅ connectors/BYOK | 32-byte vault key (see generate command above) — encrypts tool tokens **and** BYOK keys |
-| `CONNECT_STATE_SECRET` | optional | Signs the OAuth `state` (falls back to `CONNECTOR_ENC_KEY`) |
-| `CONNECT_SITE_URL` | ✅ connectors | Public base URL, e.g. `https://www.dojoburo.com` (redirect = `<URL>/api/connect`) |
+| **ready** | Câblé de bout en bout. Une fois les identifiants d'application posés, un clic et ça marche. | Vous, en posant deux variables |
+| **needs setup** | Exactement le même que *ready* — mais ce déploiement n'a pas les identifiants OAuth du fournisseur. | Vous, en posant deux variables |
+| **no actions yet** | La clé se stocke et se scelle, mais il n'y a **rien à appeler** : ni point d'accès MCP, ni lecture de données, ni action d'écriture. | Personne, pour l'instant — c'est du développement |
 
-### Per-tool OAuth (enable only what you want)
+Sur l'écran d'un agent, les deux derniers s'affichaient sous un seul libellé,
+« not available ». C'est ce qui fait lire « produit cassé » là où il n'y a, pour
+la moitié d'entre eux, que deux variables à poser dans Vercel.
 
-Set **both** the client id and secret to turn a connector on. Missing → the tool
-shows as *"operator setup"* in the UI (never an error).
+## L'état au moment de l'écriture
 
-| Tool | Function(s) | Auth vars | Where to create the app | MCP endpoint (default / env) |
-|---|---|---|---|---|
-| 📓 **Notion** | Product, Leadership, Ops | `NOTION_CLIENT_ID`, `NOTION_CLIENT_SECRET` | [notion.so/my-integrations](https://www.notion.so/my-integrations) | `https://mcp.notion.com/mcp` · `NOTION_MCP_URL` |
-| 🐙 **GitHub** | Engineering, Product | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | [github.com/settings/developers](https://github.com/settings/developers) | `https://api.githubcopilot.com/mcp/` · `GITHUB_MCP_URL` |
-| ✉️ **Gmail** | Growth, People | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials) | `GMAIL_MCP_URL` (hub: [composio.dev](https://composio.dev)) |
-| 🗂️ **Google Drive** | Product, Ops, Leadership | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | same Google project | `GDRIVE_MCP_URL` |
-| 💬 **Slack** | People, Ops, Leadership | `SLACK_CLIENT_ID`, `SLACK_CLIENT_SECRET` | [api.slack.com/apps](https://api.slack.com/apps) | `SLACK_MCP_URL` |
-| 📐 **Linear** | Product, Engineering | `LINEAR_CLIENT_ID`, `LINEAR_CLIENT_SECRET` | [linear.app OAuth apps](https://linear.app/settings/api/applications/new) | `https://mcp.linear.app/mcp` · `LINEAR_MCP_URL` |
-| 💳 **Stripe** | Finance, Growth | `STRIPE_CONNECT_CLIENT_ID` (+ reuses `STRIPE_SECRET_KEY`) | [dashboard.stripe.com/settings/connect](https://dashboard.stripe.com/settings/connect) | `https://mcp.stripe.com` · `STRIPE_MCP_URL` |
-| 🎨 **Figma** | Product | `FIGMA_CLIENT_ID`, `FIGMA_CLIENT_SECRET` | [figma.com OAuth](https://www.figma.com/developers/api#oauth2) | `FIGMA_MCP_URL` |
-| **Google Calendar** | Ops, People, Leadership | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (shared with Gmail) | [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials) | `GCAL_MCP_URL` |
-| **Discord** | Growth, People | `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET` | [discord.com/developers/applications](https://discord.com/developers/applications) | `DISCORD_MCP_URL` |
-| **Zoom** | Ops, People, Leadership | `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET` | [marketplace.zoom.us/develop/create](https://marketplace.zoom.us/develop/create) | `ZOOM_MCP_URL` |
-| **Jira** | Engineering, Product, Ops | `JIRA_CLIENT_ID`, `JIRA_CLIENT_SECRET` | [developer.atlassian.com/console/myapps](https://developer.atlassian.com/console/myapps/) | `JIRA_MCP_URL` |
-| **Trello** | Product, Ops | `TRELLO_API_KEY` (token-based, no OAuth) | [trello.com/power-ups/admin](https://trello.com/power-ups/admin) | `TRELLO_MCP_URL` |
-| **Asana** | Ops, Product, Leadership | `ASANA_CLIENT_ID`, `ASANA_CLIENT_SECRET` | [app.asana.com/0/my-apps](https://app.asana.com/0/my-apps) | `ASANA_MCP_URL` |
-| **Airtable** | Ops, Growth, Product | `AIRTABLE_CLIENT_ID`, `AIRTABLE_CLIENT_SECRET` · PKCE | [airtable.com/create/oauth](https://airtable.com/create/oauth) | `AIRTABLE_MCP_URL` |
-| **QuickBooks** | Finance, Ops | `QUICKBOOKS_CLIENT_ID`, `QUICKBOOKS_CLIENT_SECRET` | [developer.intuit.com/app/developer/dashboard](https://developer.intuit.com/app/developer/dashboard) | `QUICKBOOKS_MCP_URL` |
-| **Xero** | Finance, Ops | `XERO_CLIENT_ID`, `XERO_CLIENT_SECRET` | [developer.xero.com/app/manage](https://developer.xero.com/app/manage) | `XERO_MCP_URL` |
-| **Shopify** | Growth, Finance, Product | `SHOPIFY_CLIENT_ID`, `SHOPIFY_CLIENT_SECRET` · set `SHOPIFY_AUTH_URL`/`_TOKEN_URL` (per-store) | [partners.shopify.com](https://partners.shopify.com/) | `SHOPIFY_MCP_URL` |
-| **HubSpot** | Growth, Finance, People | `HUBSPOT_CLIENT_ID`, `HUBSPOT_CLIENT_SECRET` | [developers.hubspot.com/get-started](https://developers.hubspot.com/get-started) | `HUBSPOT_MCP_URL` |
-| **Calendly** | Growth, People, Ops | `CALENDLY_CLIENT_ID`, `CALENDLY_CLIENT_SECRET` | [developer.calendly.com](https://developer.calendly.com/) | `CALENDLY_MCP_URL` |
-| **Mailchimp** | Growth | `MAILCHIMP_CLIENT_ID`, `MAILCHIMP_CLIENT_SECRET` | [mailchimp.com/developer](https://mailchimp.com/developer/) | `MAILCHIMP_MCP_URL` |
-| **X / Twitter** | Growth, People | `TWITTER_CLIENT_ID`, `TWITTER_CLIENT_SECRET` · PKCE | [developer.x.com/en/portal/dashboard](https://developer.x.com/en/portal/dashboard) | `TWITTER_MCP_URL` |
-| **LinkedIn** | Growth, People | `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET` | [linkedin.com/developers/apps](https://www.linkedin.com/developers/apps) | `LINKEDIN_MCP_URL` |
-| **Buffer** | Growth | `BUFFER_CLIENT_ID`, `BUFFER_CLIENT_SECRET` | [buffer.com/developers/apps](https://buffer.com/developers/apps) | `BUFFER_MCP_URL` |
-| **Canva** | Growth, Product | `CANVA_CLIENT_ID`, `CANVA_CLIENT_SECRET` · PKCE | [canva.com/developers](https://www.canva.com/developers/) | `CANVA_MCP_URL` |
-| **DocuSign** | Leadership, People, Ops | `DOCUSIGN_CLIENT_ID`, `DOCUSIGN_CLIENT_SECRET` | [developers.docusign.com](https://developers.docusign.com/) | `DOCUSIGN_MCP_URL` |
-| **Zendesk** | Ops, People | `ZENDESK_CLIENT_ID`, `ZENDESK_CLIENT_SECRET` · set `ZENDESK_AUTH_URL`/`_TOKEN_URL` (per-subdomain) | [developer.zendesk.com](https://developer.zendesk.com/) | `ZENDESK_MCP_URL` |
-| **Intercom** | Ops, People, Growth | `INTERCOM_CLIENT_ID`, `INTERCOM_CLIENT_SECRET` | [developers.intercom.com](https://developers.intercom.com/) | `INTERCOM_MCP_URL` |
-| **Google Classroom** | People, Ops, Product | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (shared with Gmail) | [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials) | `GCLASSROOM_MCP_URL` |
-| **Salesforce** | Growth, Finance, People | `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET` | [developer.salesforce.com](https://developer.salesforce.com/) | `SALESFORCE_MCP_URL` |
-| **WhatsApp Business** | Growth, People, Ops | `WHATSAPP_CLIENT_ID`, `WHATSAPP_CLIENT_SECRET` (Meta app) | [developers.facebook.com/apps](https://developers.facebook.com/apps) | `WHATSAPP_MCP_URL` |
+**44 connecteurs · 22 câblés · 22 sans point d'appel.**
 
-> **Override any connector** without a code change:
-> `<IDP>_AUTH_URL`, `<IDP>_TOKEN_URL`, `<IDP>_MCP_URL`, `<IDP>_SCOPE`.
-> Point `*_MCP_URL` at a hub (Composio / Zapier / Pipedream) to cover tools with
-> no first-party hosted MCP.
+Des 22 câblés, **20 sont en OAuth** : ils resteront « needs setup » tant que
+leurs identifiants d'application ne sont pas posés. Les 2 autres — Google
+Analytics et Supabase — prennent une clé que vous collez vous-même, sans rien
+demander à l'opérateur ; c'est pourquoi Google Analytics propose « Connect »
+alors que Stripe dit « needs setup » sur le même écran.
 
-> ⚠️ **MCP tokens ≠ REST API keys.** Hosted MCP servers expect the **OAuth
-> bearer token** issued by the connect flow, not a personal API key.
+## À poser, par nombre de métiers qui s'en servent
 
-> 🔄 **PKCE + auto-refresh.** The OAuth flow supports **PKCE** (RFC 7636) for
-> providers that require it (**Airtable**, **X/Twitter**, **Canva**). Stored
-> OAuth **access tokens are auto-refreshed** from the sealed refresh token before
-> each run, so short-lived tokens (Google / Gmail / Drive, ~1h) keep working
-> without a re-connect.
+Enregistrez l'application chez le fournisseur, puis posez les deux variables
+dans Vercel et redéployez. L'écran **Connect apps** les nomme aussi, carte par
+carte, quand vous êtes administrateur.
 
----
-
-## What each function delivers (Claude)
-
-| Function | Task | Deliverable | Acts in (if connected) | x402 |
-|---|---|---|---|---|
-| Product / Design | **Claude Design — Design system** | tokens + palette + type scale + components + a11y | Figma | 0.40 XRP |
-| Product | Write a PRD | goals, scope, acceptance criteria | Notion, Linear | 0.25 |
-| Engineering | Technical design doc | architecture, data model, API, rollout | GitHub, Linear | 0.30 |
-| Engineering | Code review | risks, bugs, simplifications, checklist | GitHub | 0.20 |
-| Growth | GTM campaign | positioning, channels, calendar, emails | Gmail | 0.25 |
-| Finance | Financial model | revenue/cost build, runway, metrics | Stripe | 0.25 |
-| Leadership | Strategy & OKRs | vision, 3 bets, OKRs, roadmap | Notion | 0.30 |
-| People | Job description & scorecard | JD, interview scorecard, 30/60/90 | Slack | 0.15 |
-| Ops | Ops runbook | monitoring, on-call, incidents, SLOs | Slack, Drive | 0.20 |
-
-On **Mainnet** with a settlement hot wallet configured (`SETTLEMENT_WALLET_SEED`,
-`SETTLEMENT_NETWORK=mainnet`), each run settles a **real x402 XRP Payment** and
-the deliverable shows the explorer link.
-
----
-
-## Who pays — BYOK + free tier
-
-The only variable cost is LLM tokens. DojoBuro routes it so the **operator pays
-~$0** and each **user pays for their own choices**:
-
-| Run type | Runs on | Billed to |
+| Agents | Connecteur | Variables |
 |---|---|---|
-| Text deliverables (PRD, campaign, strategy…) **without** a user key | operator's **free** providers (Gemini/Groq/…), capped `WORK_FREE_DAILY`/day | nobody (free tier) |
-| Any run **with** a user key (BYOK) | the user's own Claude key | **the user** |
-| Design system **or** acting in a connected tool, no key | — → returns `needs_key` | prompts the user to add their key |
-| Anything, if `WORK_OPERATOR_CLAUDE=true` | operator's Claude key | operator (demo mode) |
+| 5 | Notion | `NOTION_CLIENT_ID` + `NOTION_CLIENT_SECRET` |
+| 4 | Google Drive | `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` |
+| 3 | Slack | `SLACK_CLIENT_ID` + `SLACK_CLIENT_SECRET` |
+| 2 | GitHub | `GITHUB_CLIENT_ID` + `GITHUB_CLIENT_SECRET` |
+| 2 | Gmail | `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` *(le même couple que Drive)* |
+| 2 | Stripe | `STRIPE_CONNECT_CLIENT_ID` + `STRIPE_SECRET_KEY` |
+| 1 | Discord | `DISCORD_CLIENT_ID` + `DISCORD_CLIENT_SECRET` |
+| 1 | Linear | `LINEAR_CLIENT_ID` + `LINEAR_CLIENT_SECRET` |
+| 1 | QuickBooks | `QUICKBOOKS_CLIENT_ID` + `QUICKBOOKS_CLIENT_SECRET` |
+| 1 | HubSpot | `HUBSPOT_CLIENT_ID` + `HUBSPOT_CLIENT_SECRET` |
+| 1 | Calendly | `CALENDLY_CLIENT_ID` + `CALENDLY_CLIENT_SECRET` |
+| 1 | Mailchimp | `MAILCHIMP_CLIENT_ID` + `MAILCHIMP_CLIENT_SECRET` |
+| 1 | X / Twitter | `TWITTER_CLIENT_ID` + `TWITTER_CLIENT_SECRET` |
+| 1 | LinkedIn | `LINKEDIN_CLIENT_ID` + `LINKEDIN_CLIENT_SECRET` |
+| 1 | DocuSign | `DOCUSIGN_CLIENT_ID` + `DOCUSIGN_CLIENT_SECRET` |
+| 1 | Zendesk | `ZENDESK_CLIENT_ID` + `ZENDESK_CLIENT_SECRET` |
+| 1 | Intercom | `INTERCOM_CLIENT_ID` + `INTERCOM_CLIENT_SECRET` |
+| 0 | Google Calendar | `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` *(le même couple)* |
+| 0 | Xero | `XERO_CLIENT_ID` + `XERO_CLIENT_SECRET` |
+| 0 | Buffer | `BUFFER_CLIENT_ID` + `BUFFER_CLIENT_SECRET` |
 
-**BYOK flow (in the UI):** *Dojo Studio → Billing → “Your Claude key”* → paste
-`sk-ant-…` → it's sealed server-side (AES-256-GCM) and used only for that user's
-runs. The agent card shows *“🔑 runs on your key”*, and a run needing Claude that
-has no key shows an *“Add your Claude key”* link that deep-links to this panel.
+**Un seul couple Google** ouvre Drive, Gmail et Calendar d'un coup : c'est le
+meilleur rapport travail/résultat de la liste, juste après Notion.
 
-For the hackathon demo, set `WORK_OPERATOR_CLAUDE=true` so the design system works
-for everyone on your key; flip it to `false` in production so users self-fund.
+Les quatre premières lignes — Notion, Google, Slack, GitHub — couvrent à elles
+seules 14 des 18 métiers. Si vous ne faites qu'une chose, faites celles-là.
 
-## Cost per user (rule of thumb)
+## Les 22 sans point d'appel
 
-The only variable cost is Claude tokens (XRPL fees are ~$0.000005/tx).
+Zoom, Jira, Trello, Asana, Airtable, Shopify, Figma, Canva, Claude Code,
+AI Video, ElevenLabs, HeyGen, Apollo, Klaviyo, PostHog, Cloudinary, Wave,
+Perplexity, Google Classroom, Salesforce, WhatsApp Business, Meta Ads.
 
-| Task size | Model | ≈ cost / task |
-|---|---|---|
-| micro (tri/résumé) | haiku-4-5 | < $0.01 |
-| medium (PRD, spec) | sonnet-5 | ≈ $0.40 |
-| deliverable (design system, code) | opus-4-8 | ≈ $0.60 |
+Poser leurs variables n'y changerait **rien** : il manque le chemin d'exécution,
+pas la clé. Trois façons de les ouvrir, dans l'ordre de coût :
 
-Typical **active** user (5 heavy + 20 medium + 100 micro / month) ≈ **$13/mo** of
-Claude. Cover it with the x402 price per skill + fiat top-ups, and run the free
-LLM cascade (`api/chat.ts`) for anything that doesn't need Opus.
+1. **Un point d'accès MCP** · posez `<ID>_MCP_URL` si le fournisseur en publie un,
+   ou pointez-le vers un relais (Composio, Zapier, Pipedream). Aucun code.
+2. **Un lecteur de données** dans `api/tool-data.ts` · pour ce qu'un agent doit
+   seulement lire.
+3. **Une action d'écriture** dans `api/tool-action.ts` · pour ce qu'il doit faire.
+
+`scripts/check-connectors.mjs` tient la liste `CREDENTIAL_ONLY` comme référence :
+retirez-en un identifiant le jour où son chemin existe, et la compilation se
+mettra à le surveiller. Tout ce qui REGRESSE hors de *ready* échoue tout de suite.
+
+## Ce qui a changé avec ce document
+
+- L'écran d'un agent distingue enfin les deux « non » — « needs setup » mène à
+  l'écran qui nomme les variables, « no actions yet » à la documentation.
+- `SUPABASE_URL` et `SUPABASE_SERVICE_ROLE_KEY` ne sont plus demandées : rien ne
+  les lisait. Supabase prend le jeton que vous collez, et son point d'accès est
+  fixe. Faire poser des variables inutiles coûte une étape et fait douter des
+  autres.
+- Le contrôle lit maintenant les variables dans **tous** les fichiers serveur,
+  pas seulement le registre. `GA4_PROPERTY_ID` était signalée « jamais lue »
+  alors que `api/tool-data.ts` la lit — et une fausse alerte répétée finit par
+  masquer une vraie.

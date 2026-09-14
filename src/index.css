@@ -469,7 +469,18 @@ a:hover { text-decoration: underline; }
   cursor: pointer; color: var(--btn-fg); background: var(--btn-bg); border-color: var(--btn-bg);
 }
 .agw-app.connect:hover { opacity: .88; }
-.agw-app.off { cursor: pointer; opacity: .75; }
+/* Deux « non » qui n'appellent pas la même conduite, donc deux rendus.
+   « no actions yet » est un fait sur le produit et on n'y peut rien : gris,
+   effacé. « needs setup » est une étape d'installation qu'un administrateur
+   règle en deux variables : en pointillé, vers l'écran qui dit lesquelles —
+   une invitation, pas un mur. */
+.agw-app.off { cursor: pointer; opacity: .62; }
+.agw-app.setup {
+  cursor: pointer; color: var(--ink); background: none;
+  border-style: dashed; border-color: var(--border-lit);
+}
+.agw-app.setup:hover { border-color: var(--ink); background: var(--panel-2); }
+.agw-app.setup .agw-soon { opacity: 1; color: var(--muted); }
 .agw-soon { font-weight: 600; font-size: 11.5px; opacity: .8; }
 /* L'état n'est pas encore revenu du serveur · on n'affirme ni l'un ni l'autre */
 .agw-app.wait { opacity: .5; }

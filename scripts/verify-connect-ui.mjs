@@ -26,6 +26,9 @@ const SAVED = {
       // cela donne les TROIS rendus d'un coup : relié, à relier, indisponible.
       { id: 'g1', name: 'Chief', fn: 'Leadership', role: 'chief', skinId: 's1', tasks: [], budget: 1, gx: 0, gy: 0 },
       { id: 'g2', name: 'Scout', fn: 'Product', role: 'scout', skinId: 's2', tasks: [], budget: 1, gx: 1, gy: 0 },
+      // Brandi porte Figma, déclaré `unwired` · c'est le seul moyen de voir à
+      // l'écran le SECOND « non », celui qu'aucune variable ne répare.
+      { id: 'g3', name: 'Brandi', fn: 'Design', role: 'brandi', skinId: 's3', tasks: [], budget: 1, gx: 2, gy: 0 },
     ],
   }],
   activeDojoId: 'd_ui',
@@ -134,25 +137,38 @@ if (await connectBtn.count()) {
 }
 
 /* ---- 3 et 4 · l'état des applications sur la page d'un agent ------------ */
-await p.goto(`${B}/#app`, { waitUntil: 'networkidle' })
-await p.waitForTimeout(2500)
-// Ouvrir un coéquipier par la palette · cliquer dans la scène 3D dépend du
-// rendu logiciel et n'est pas un chemin fiable pour une épreuve.
-await p.evaluate(() => window.dispatchEvent(new Event('open-cmdk')))
-await p.waitForTimeout(600)
-const input = p.locator('.cmdk-input')
-if (await input.count()) {
-  await input.fill('Chief')
-  await p.waitForTimeout(600)
-  await p.keyboard.press('Enter')
-  await p.waitForTimeout(2000)
+//
+// Par le tableau de bord et ses cartes, PAS par la palette. Taper « Chief »
+// dans la palette correspond aussi à l'action « Launch Chief », et Chief possède
+// un panneau de commande : on ouvrait son module, pas sa page. L'épreuve
+// mesurait alors le classement des résultats de recherche. (C'est déjà la
+// conclusion de verify-agent-pages ; ce fichier ne l'avait pas reprise.)
+async function openAgent(code) {
+  // `goto` vers la même adresse ne fait que changer le fragment · sans un vrai
+  // rechargement, la flotte simulée reste celle de l'appel précédent et on
+  // éprouve un écran qu'on croit avoir changé.
+  await p.goto(`${B}/#app`, { waitUntil: 'networkidle' })
+  await p.reload({ waitUntil: 'networkidle' })
+  await p.waitForTimeout(2600)
+  await p.evaluate(() => window.dispatchEvent(new Event('open-cmdk')))
+  await p.waitForTimeout(400)
+  const i = p.locator('.cmdk-input')
+  if (await i.count()) {
+    await i.fill('CEO dashboard'); await p.waitForTimeout(400)
+    await p.keyboard.press('Enter'); await p.waitForTimeout(1200)
+  }
+  const card = p.locator('.agent-card').filter({ hasText: code }).first()
+  if (!(await card.count())) return false
+  await card.click().catch(() => {})
+  await p.waitForTimeout(1500)
+  return (await p.locator('.agw-applist').count()) > 0
 }
-let apps = await p.locator('.agw-applist').count()
-if (!apps) {
-  const card = p.locator('.agent-card').first()
-  if (await card.count()) { await card.click().catch(() => {}); await p.waitForTimeout(1500) }
-  apps = await p.locator('.agw-applist').count()
-}
+
+// Scout porte notion + gdrive · avec la flotte simulée cela donne « reliée » et
+// « à relier » sur le même écran, et Scout n'a pas de panneau de commande qui
+// viendrait s'ouvrir à la place de sa page. (Pilot et Kaizen sont des cartes
+// SYSTÈME, au-dessus des équipes : ils ne sont pas dans le roster.)
+const apps = await openAgent('Scout')
 
 if (apps) {
   const connected = await p.locator('.agw-app.on .agw-tick').count()
@@ -177,21 +193,44 @@ if (apps) {
   ok('et ce bouton ouvre la page du fournisseur ailleurs', !!popup2)
   if (popup2) await popup2.close().catch(() => {})
 
-  // Une application que ce déploiement ne sait pas joindre ne doit pas offrir
-  // un bouton qui mènerait à une erreur · elle dit ce qu'elle est.
+  // Une application qu'on ne peut pas relier ne doit pas offrir un bouton qui
+  // mènerait à une erreur. Mais il y a DEUX raisons de ne pas pouvoir, et les
+  // confondre est ce qui fait lire « produit cassé » :
+  //
+  //   · ce déploiement n'a pas enregistré l'application chez le fournisseur ·
+  //     réparable, par un administrateur, en deux variables ;
+  //   · rien ne peut encore agir à travers · aucune variable n'y changerait rien.
+  //
+  // La page des applications distinguait déjà les quatre états ; celle de
+  // l'agent écrasait les deux sous « not available », et un connecteur sur deux
+  // se lisait comme une promesse non tenue au lieu d'une étape d'installation.
   fleet = fleet.map((t) => (t.id === 'gdrive' ? { ...t, available: false } : t))
-  await p.reload({ waitUntil: 'networkidle' })
-  await p.waitForTimeout(2500)
-  await p.evaluate(() => window.dispatchEvent(new Event('open-cmdk')))
-  await p.waitForTimeout(500)
-  const i2 = p.locator('.cmdk-input')
-  if (await i2.count()) { await i2.fill('Scout'); await p.waitForTimeout(500); await p.keyboard.press('Enter'); await p.waitForTimeout(1800) }
+  await openAgent('Scout')
+
+  const setup = await p.locator('.agw-app.setup').allInnerTexts()
+  ok('une application que l’opérateur n’a pas enregistrée dit qu’il MANQUE une étape',
+    setup.some((t) => /needs setup/.test(t)),
+    setup.map((t) => t.replace(/\n/g, ' ').trim()).join(' | ') || 'aucune')
+  ok('et elle ne dit plus « not available »',
+    !setup.some((t) => /not available/i.test(t)),
+    'ce n’est pas indisponible · ce sont deux variables à poser')
+  ok('et elle mène à l’écran qui dit lesquelles poser',
+    (await p.locator('.agw-app.setup').count()) > 0
+    && (await p.locator('.agw-app.setup').first().evaluate((el) => el.tagName)) === 'BUTTON',
+    'un lien vers la doc du fournisseur ne dirait pas quoi poser dans Vercel')
+
+  // Et l'autre « non », sur un métier qui porte une application sans point
+  // d'appel · Brandi a Figma, qui est déclaré `unwired`.
+  await openAgent('Brandi')
   const off = await p.locator('.agw-app.off').allInnerTexts()
-  ok('une application injoignable le dit, au lieu d’offrir un bouton qui échoue',
-    off.some((t) => /not available/.test(t)),
+  ok('une application sans point d’appel le dit autrement',
+    off.some((t) => /no actions yet/.test(t)),
     off.map((t) => t.replace(/\n/g, ' ').trim()).join(' | ') || 'aucune')
   ok('et elle reste cliquable vers sa documentation',
     (await p.locator('.agw-app.off[href]').count()) > 0)
+  ok('les deux « non » ne se disent pas de la même façon',
+    !off.some((t) => /needs setup/.test(t)),
+    'sinon on n’a fait que renommer le mur')
 } else {
   ok('la page d’un coéquipier a été atteinte', false, 'impossible d’ouvrir un agent dans ce test')
 }

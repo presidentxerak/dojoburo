@@ -310,10 +310,13 @@ export const CONNECTORS: Connector[] = [
     blurb: 'Real backend for the apps you ship · Postgres, auth and storage the Web agent wires in.',
     functions: ['Engineering', 'Product'], auth: 'token',
     docsUrl: 'https://supabase.com/dashboard/project/_/settings/api',
-    env: [
-      { name: 'SUPABASE_URL', note: 'Project URL', link: 'https://supabase.com/dashboard/project/_/settings/api' },
-      { name: 'SUPABASE_SERVICE_ROLE_KEY', note: 'Service-role key (server-side only)', link: 'https://supabase.com/dashboard/project/_/settings/api' },
-    ],
+    // Supabase ne demande RIEN à l'opérateur · c'est un connecteur par clé :
+    // le fondateur colle son jeton personnel (sbp_…), il est scellé, et le
+    // point d'accès MCP est fixe. Les deux variables listées ici — l'URL du
+    // projet et la clé de service — n'étaient lues nulle part. Faire poser des
+    // variables que personne n'utilise coûte une étape à l'installation et fait
+    // douter de toutes les autres.
+    env: [],
   },
   {
     id: 'cloudinary', unwired: true, label: 'Cloudinary', provider: 'Cloudinary', category: 'Storage & Legal',

@@ -42,7 +42,21 @@ const regBody = serverSrc.slice(serverSrc.indexOf('const REGISTRY'))
 const serverIds = new Set([...regBody.matchAll(/^ {2}'?([a-z0-9-]+)'?:\s*\{/gm)].map((m) => m[1]))
 
 // Which env vars the server genuinely reads.
-const envRead = new Set([...serverSrc.matchAll(/'([A-Z][A-Z0-9_]{3,})'/g)].map((m) => m[1]))
+//
+// TOUS les fichiers serveur, pas seulement le registre. La poignée de main
+// OAuth lit ses identifiants dans _lib/connectors, mais un fournisseur de
+// données en direct lit les SIENS chez lui — GA4_PROPERTY_ID vit dans
+// api/tool-data.ts. Ne regarder que le registre faisait signaler « documentée
+// mais jamais lue » une variable parfaitement lue, et une fausse alerte répétée
+// finit par masquer la vraie.
+// Et les DEUX écritures : env('FOO') entre guillemets dans le registre,
+// ENV.FOO / process.env.FOO en accès de propriété ailleurs. N'en chercher
+// qu'une revient à déclarer non lue une variable qui l'est, ce qui est la
+// même erreur dans l'autre sens.
+const envRead = new Set([
+  ...[...(serverSrc + toolDataSrc + toolActionSrc).matchAll(/'([A-Z][A-Z0-9_]{3,})'/g)].map((m) => m[1]),
+  ...[...(serverSrc + toolDataSrc + toolActionSrc).matchAll(/\b(?:ENV|process\.env)\.([A-Z][A-Z0-9_]{3,})\b/g)].map((m) => m[1]),
+])
 
 // Which connectors can do something at run time.
 const providers = new Set([...toolDataSrc.matchAll(/^ {2}([a-z0-9-]+):\s*\w+Data,/gm)].map((m) => m[1]))

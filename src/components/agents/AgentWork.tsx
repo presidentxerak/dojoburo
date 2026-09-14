@@ -226,10 +226,21 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
                   </span>
                 )
               }
-              // L'opérateur n'a pas posé les clés de ce fournisseur, ou il n'y a
-              // rien à appeler : proposer « Connecter » mènerait à une erreur.
-              // On dit ce qui manque plutôt que d'offrir un bouton qui échoue.
-              if (c.unwired || !st?.available) {
+              // DEUX « non » différents, et les confondre est ce qui fait lire
+              // « produit cassé » là où il n'y a qu'une application à
+              // enregistrer.
+              //
+              //   · rien à appeler · le fournisseur n'a pas encore de point
+              //     d'accès de notre côté · poser des clés n'y changerait rien ;
+              //   · pas enregistré · ce déploiement n'a pas les identifiants
+              //     d'application du fournisseur · un administrateur pose deux
+              //     variables et c'est réglé.
+              //
+              // L'écran des applications distinguait déjà les quatre états et
+              // nomme même les variables à poser ; celui-ci écrasait les deux
+              // sous « not available ». Un connecteur sur deux se lisait alors
+              // comme une promesse non tenue au lieu d'une étape d'installation.
+              if (c.unwired) {
                 return (
                   <a
                     key={id}
@@ -237,12 +248,27 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
                     href={c.docsUrl}
                     target="_blank"
                     rel="noreferrer"
-                    title={`${c.label} · not available on this deployment yet`}
+                    title={`${c.label} · connected, but nothing can act through it yet`}
                   >
                     <ConnectorLogo id={id} label={c.label} size={16} />
                     {c.label}
-                    <span className="agw-soon">not available</span>
+                    <span className="agw-soon">no actions yet</span>
                   </a>
+                )
+              }
+              if (!st?.available) {
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    className="agw-app setup"
+                    onClick={() => openConnect()}
+                    title={`${c.label} · this deployment has not registered its app yet · see Connect apps`}
+                  >
+                    <ConnectorLogo id={id} label={c.label} size={16} />
+                    {c.label}
+                    <span className="agw-soon">needs setup</span>
+                  </button>
                 )
               }
               return (
