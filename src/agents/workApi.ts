@@ -130,8 +130,14 @@ export async function toolData(connector: string, dojo?: string): Promise<ToolDa
   return { connected: false }
 }
 
-/** Store the user's own Claude key (BYOK) · sealed server-side, billed to them. */
-export async function setClaudeKey(key: string): Promise<{ ok: boolean; hint?: string; error?: string }> {
+/**
+ * Store the user's own Claude key (BYOK) · sealed server-side, billed to them.
+ *
+ * `verified` dit que la clé a été présentée à Anthropic et acceptée. Le serveur
+ * garde aussi une clé qu'il n'a pas PU éprouver (panne, réseau) : l'écran le
+ * dit, plutôt que d'annoncer une vérification qui n'a pas eu lieu.
+ */
+export async function setClaudeKey(key: string): Promise<{ ok: boolean; hint?: string; error?: string; verified?: boolean }> {
   try {
     const res = await apiFetch('/api/connect?action=setkey', {
       method: 'POST',

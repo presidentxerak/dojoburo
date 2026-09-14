@@ -20,7 +20,7 @@ import { useWork } from '../../agents/workStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { useAgentApps, effectiveApps } from '../../agents/agentApps'
 import { ROLE_BY_ID } from '../../data/roleAgents'
-import { CONNECTOR_BY_ID, CONNECTORS } from '../../data/connectors'
+import { CONNECTOR_BY_ID, CONNECTORS, tasksForRole } from '../../data/connectors'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { ConnectorLogo } from '../ConnectorLogo'
 import { FullScreen } from '../FullScreen'
@@ -28,7 +28,10 @@ import { AGENT_TASKS } from './agentTasks'
 import type { WAgent } from '../../workshop'
 
 const relTime = (t: number) => {
-  if (!t) return 'nothing yet'
+  // Un coéquipier qui n'a jamais tourné n'a pas « rien » : il a quelque chose à
+  // faire. La carte le dit sous les compteurs, en nommant son premier livrable ;
+  // ici on se contente de ne pas annoncer un vide.
+  if (!t) return 'not yet'
   const m = Math.round((Date.now() - t) / 60000)
   if (m < 1) return 'just now'
   if (m < 60) return `${m} min ago`
@@ -158,6 +161,8 @@ export function DojoGraph({ dojoId, onClose, onOpenAgent }: {
     const apps = effectiveApps(defaults, byKey[`${dojoId}::${a.role}`])
     const live = apps.filter((id) => tools[id]?.connected)
     const done = counts[a.id] ?? 0
+    // Ce qu'il ferait en premier · sert l'état « jamais lancé » plus bas.
+    const first = a.role ? tasksForRole(a.role, r?.dept)[0] : undefined
     const tasks = AGENT_TASKS[a.role ?? ''] ?? []
     const times = delivs.filter((d) => tasks.includes(d.taskId)).map((d) => d.createdAt)
     const last = times.length ? Math.max(...times) : 0
@@ -192,9 +197,27 @@ export function DojoGraph({ dojoId, onClose, onOpenAgent }: {
           <span className="dg-stat"><b>{live.length}/{apps.length}</b><em>apps live</em></span>
           <span className="dg-stat wide"><b>{relTime(last)}</b><em>last worked</em></span>
         </div>
-        <div className="dg-bar" aria-hidden>
-          <span style={{ width: `${Math.round((done / peak) * 100)}%`, background: tint }} />
-        </div>
+        {/* Une barre à zéro et « 0 results » se lisent comme un reproche, et ne
+            disent pas quoi faire. Tant que ce coéquipier n'a rien produit, on
+            remplace la jauge vide par la première chose qu'il sait faire —
+            nommée, pas décrite — et par un chemin pour la lancer. */}
+        {done === 0 ? (
+          first ? (
+            <button
+              className="dg-first"
+              onClick={() => onOpenAgent?.(a.id)}
+              title={`Open ${a.name} and run it`}
+            >
+              <em>Ready · first job</em>
+              <strong>{first.label}</strong>
+              <span>▲ open {a.name}</span>
+            </button>
+          ) : null
+        ) : (
+          <div className="dg-bar" aria-hidden>
+            <span style={{ width: `${Math.round((done / peak) * 100)}%`, background: tint }} />
+          </div>
+        )}
 
         <div className="dg-apps">
           {apps.length === 0 && <span className="dg-noapps">No apps yet</span>}

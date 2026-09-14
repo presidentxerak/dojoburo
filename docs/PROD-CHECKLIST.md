@@ -92,7 +92,20 @@ curl -X POST "https://<SITE>/api/chat" -H 'content-type: application/json' \
 curl -X POST "https://<SITE>/api/checkout" -H 'content-type: application/json' \
   -H "origin: https://<SITE>" \
   -d '{"amount":10,"currency":"USD","email":"you@example.com","kind":"credits"}'
+
+# La clé personnelle est-elle vraiment ÉPROUVÉE ? Coller une clé bien formée
+# mais fausse doit répondre {"ok":false,"error":"key_rejected","status":401},
+# PAS {"ok":true}. Si elle répond ok:true avec "probe":"unreachable", la
+# fonction n'arrive pas à joindre api.anthropic.com en sortie — la clé est
+# quand même gardée (c'est voulu), mais plus personne n'est prévenu d'une
+# mauvaise clé avant son premier run.
+curl -X POST "https://<SITE>/api/connect?action=setkey" -H 'content-type: application/json' \
+  -d '{"connector":"anthropic","client":"diag","key":"sk-ant-api03-0000000000000000000000000000"}'
 ```
+
+**Sortie réseau requise :** `api.anthropic.com` doit être joignable depuis la
+fonction `api/connect` (`GET /v1/models`, lecture seule, gratuite). C'est le seul
+appel sortant ajouté par l'épreuve de la clé.
 
 ## 5. Value-level things to double-check (I can't see them)
 

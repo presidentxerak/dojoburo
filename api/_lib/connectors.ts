@@ -53,6 +53,42 @@ export interface TokenConfig {
   hint: (key: string) => string
   /** how the key is presented to the provider at run time */
   header: (key: string) => Record<string, string>
+  /** a read-only call that proves the key WORKS · see probeKey */
+  probe?: TokenProbe
+}
+
+/**
+ * L'appel qui prouve qu'une clé fonctionne vraiment.
+ *
+ * `validate` ne vérifie que la FORME. Une clé révoquée, une clé d'un autre
+ * compte, une clé recopiée à un caractère près : toutes passent le motif, sont
+ * scellées, et échouent trois jours plus tard sur un run — au moment le moins
+ * utile, dans un message que personne ne rattache au collage d'origine.
+ *
+ * Trois exigences sur l'appel choisi, et elles ne sont pas négociables :
+ *
+ *   · il LIT · aucune clé collée dans un formulaire ne doit créer quoi que ce
+ *     soit chez le fournisseur ;
+ *   · il est gratuit · on ne facture pas une vérification au fondateur ;
+ *   · il répond 401/403 sur une mauvaise clé, et 200 sur une bonne. Un endpoint
+ *     qui répond 200 à tout le monde ne prouve rien et vaut mieux absent.
+ *
+ * En l'absence d'un endpoint qui remplisse les trois, il n'y a pas de `probe` :
+ * une vérification approximative qui refuse une clé valide est pire que pas de
+ * vérification du tout.
+ *
+ * Et une quatrième, de méthode : le comportement de l'endpoint doit avoir été
+ * CONSTATÉ, pas supposé. Deux candidats ont été retirés d'ici pour cette
+ * raison — ElevenLabs, dont les clés peuvent être limitées à certains droits
+ * (une clé bonne pour la synthèse vocale se ferait refuser sur /v1/user), et
+ * Supabase, qu'on n'a pas pu joindre pour vérifier. Ajouter une épreuve sans
+ * l'avoir vue répondre, c'est décider à l'aveugle qu'une clé est mauvaise.
+ */
+export interface TokenProbe {
+  url: string
+  method?: 'GET' | 'POST'
+  /** what a rejection looks like · défaut : 401 et 403 */
+  rejects?: number[]
 }
 
 export interface ServerConnector {
@@ -482,6 +518,10 @@ const TOKENS: Record<string, ServerConnector> = {
       validate: /^sk-ant-[A-Za-z0-9_-]{20,}$/,
       hint: tail('sk-ant-'),
       header: (k) => ({ 'x-api-key': k, 'anthropic-version': '2023-06-01' }),
+      // Lister les modèles · lecture pure, gratuite, et 401 sur une clé refusée.
+      // Surtout pas /v1/messages : ce serait facturer au fondateur le fait de
+      // coller sa clé, et écrire une requête qu'il n'a pas demandée.
+      probe: { url: 'https://api.anthropic.com/v1/models?limit=1' },
     },
     mcp: mcp('anthropic', null, 'ANTHROPIC_MCP_URL'),
   },
@@ -605,6 +645,7 @@ const TOKENS: Record<string, ServerConnector> = {
       validate: /^sk-ant-[A-Za-z0-9_-]{20,}$/,
       hint: tail('sk-ant-'),
       header: (k) => ({ 'x-api-key': k, 'anthropic-version': '2023-06-01' }),
+      probe: { url: 'https://api.anthropic.com/v1/models?limit=1' },
     },
     mcp: mcp('claude-code', null, 'CLAUDE_CODE_MCP_URL'),
   },
@@ -647,6 +688,51 @@ export function connectorAvailable(id: string): boolean {
 /** True when the founder supplies the credential themselves. */
 export function isTokenConnector(id: string): boolean {
   return !!REGISTRY[id]?.token
+}
+
+/**
+ * Ce que le fournisseur répond quand on lui présente la clé.
+ *
+ * Quatre états, et les distinguer est tout l'intérêt : « refusée » et
+ * « injoignable » ressemblent à un échec mais n'appellent pas la même conduite.
+ * Une clé refusée ne doit pas être enregistrée. Une clé qu'on n'a pas PU
+ * éprouver — panne chez le fournisseur, réseau coupé, délai dépassé — doit
+ * l'être : refuser une clé valide parce que l'API du fournisseur avait le
+ * hoquet est un bug qu'on ne peut pas expliquer à la personne qui la colle.
+ */
+export type KeyProbe =
+  | { state: 'ok' }
+  | { state: 'rejected'; status: number }
+  | { state: 'unreachable'; why: string }
+  /** ce connecteur n'a pas d'endpoint qui remplisse les trois exigences */
+  | { state: 'unsupported' }
+
+const PROBE_TIMEOUT_MS = 7000
+
+/**
+ * Éprouver une clé auprès de son fournisseur, en lecture seule.
+ *
+ * La clé n'est jamais journalisée et ne quitte pas cette fonction. On envoie
+ * l'en-tête que le connecteur utiliserait de toute façon au moment d'un run,
+ * donc une clé qui passe ici passera là-bas : c'est le même chemin.
+ */
+export async function probeKey(c: ServerConnector, key: string): Promise<KeyProbe> {
+  const p = c.token?.probe
+  if (!c.token || !p) return { state: 'unsupported' }
+  try {
+    const res = await fetch(p.url, {
+      method: p.method || 'GET',
+      headers: { accept: 'application/json', ...c.token.header(key) },
+      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+    })
+    if (res.ok) return { state: 'ok' }
+    const rejects = p.rejects || [401, 403]
+    if (rejects.includes(res.status)) return { state: 'rejected', status: res.status }
+    // 429, 500, 502… ne disent rien de la clé · on ne la condamne pas pour ça.
+    return { state: 'unreachable', why: `http_${res.status}` }
+  } catch (e: any) {
+    return { state: 'unreachable', why: e?.name === 'TimeoutError' ? 'timeout' : 'network' }
+  }
 }
 
 export function clientId(c: ServerConnector): string | undefined {

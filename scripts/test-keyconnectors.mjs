@@ -124,6 +124,95 @@ for (const id of KEYED) {
     'the key IS the credential · it does not expire until it is revoked')
 }
 
+/* ---- éprouver la clé pour de vrai --------------------------------------- */
+//
+// `validate` ne dit que la FORME. Une clé révoquée, une clé d'un autre compte,
+// une clé recopiée à un caractère près : toutes passaient le motif, étaient
+// scellées, et échouaient trois jours plus tard sur un run — au moment le moins
+// utile, dans un message que personne ne rattache au collage d'origine.
+//
+// Trois propriétés, et la troisième est celle qui compte le plus :
+//
+//   · une clé acceptée par le fournisseur passe ;
+//   · une clé refusée (401/403) est refusée ICI, pas plus tard ;
+//   · une clé qu'on n'a pas PU éprouver est GARDÉE. Refuser une clé valide
+//     parce que l'API du fournisseur avait le hoquet est un bug qu'on ne peut
+//     pas expliquer à la personne qui vient de la coller.
+{
+  const real = globalThis.fetch
+  let seen = null
+  const stub = (answer) => {
+    globalThis.fetch = async (url, init) => {
+      seen = { url: String(url), method: init?.method || 'GET', headers: init?.headers || {} }
+      if (answer instanceof Error) throw answer
+      return { ok: answer.status >= 200 && answer.status < 300, status: answer.status }
+    }
+  }
+  const claude = C.serverConnector('anthropic')
+
+  stub({ status: 200 })
+  let r = await C.probeKey(claude, 'sk-ant-api03-' + 'k'.repeat(40))
+  ok('une clé acceptée par Anthropic passe', r.state === 'ok', JSON.stringify(r))
+  ok('et on a bien appelé Anthropic', /api\.anthropic\.com/.test(seen.url), seen.url)
+  ok('en LECTURE · une clé collée ne crée rien chez le fournisseur',
+    seen.method === 'GET' && !/messages/.test(seen.url),
+    `${seen.method} ${seen.url} · surtout pas /v1/messages, ce serait facturer le collage`)
+  ok('avec l’en-tête que le run utilisera de toute façon',
+    seen.headers['x-api-key'] && seen.headers['anthropic-version'],
+    'même chemin ici et là-bas · sinon l’épreuve ne prouve rien')
+
+  stub({ status: 401 })
+  r = await C.probeKey(claude, 'sk-ant-api03-' + 'k'.repeat(40))
+  ok('une clé refusée est refusée maintenant, pas dans trois jours',
+    r.state === 'rejected' && r.status === 401, JSON.stringify(r))
+
+  stub({ status: 403 })
+  r = await C.probeKey(claude, 'sk-ant-api03-' + 'k'.repeat(40))
+  ok('un 403 compte aussi comme un refus', r.state === 'rejected')
+
+  // LE point. Une panne chez le fournisseur ne condamne pas la clé.
+  stub({ status: 500 })
+  r = await C.probeKey(claude, 'sk-ant-api03-' + 'k'.repeat(40))
+  ok('une panne chez le fournisseur ne condamne pas la clé', r.state === 'unreachable',
+    'un 500 ne dit rien de la clé · la refuser serait un bug inexplicable')
+
+  stub({ status: 429 })
+  r = await C.probeKey(claude, 'sk-ant-api03-' + 'k'.repeat(40))
+  ok('un quota atteint non plus', r.state === 'unreachable',
+    '429 veut dire « trop d’appels », pas « mauvaise clé »')
+
+  stub(new Error('getaddrinfo ENOTFOUND'))
+  r = await C.probeKey(claude, 'sk-ant-api03-' + 'k'.repeat(40))
+  ok('le réseau coupé non plus', r.state === 'unreachable' && r.why === 'network', JSON.stringify(r))
+
+  const t = new Error('timed out'); t.name = 'TimeoutError'
+  stub(t)
+  r = await C.probeKey(claude, 'sk-ant-api03-' + 'k'.repeat(40))
+  ok('et un délai dépassé se distingue d’une coupure', r.why === 'timeout', JSON.stringify(r))
+
+  // Un connecteur sans endpoint qui remplisse les trois exigences le dit, au
+  // lieu d'inventer une vérification.
+  let called = false
+  globalThis.fetch = async () => { called = true; return { ok: true, status: 200 } }
+  r = await C.probeKey(C.serverConnector('trello'), 'x'.repeat(32) + ':' + 'y'.repeat(64))
+  ok('un connecteur sans épreuve le dit au lieu d’en inventer une',
+    r.state === 'unsupported' && !called,
+    'une vérification approximative qui refuse une clé valide est pire que pas de vérification')
+
+  // Et toute épreuve déclarée doit être une LECTURE sur l'hôte du fournisseur.
+  for (const id of KEYED) {
+    const p = C.serverConnector(id).token.probe
+    if (!p) continue
+    const bad = (p.method && p.method !== 'GET') || !/^https:\/\//.test(p.url)
+    if (bad) ok(`${id} éprouve en lecture, en https`, false, `${p.method || 'GET'} ${p.url}`)
+  }
+  ok('toute épreuve déclarée est une lecture en https', true)
+  ok('la clé personnelle en a une', !!C.serverConnector('anthropic').token.probe,
+    'c’est celle que tout le monde colle')
+
+  globalThis.fetch = real
+}
+
 /* ---- and the OAuth side still works ------------------------------------- */
 {
   ok('an OAuth connector still reports itself as one', !C.isTokenConnector('notion'))

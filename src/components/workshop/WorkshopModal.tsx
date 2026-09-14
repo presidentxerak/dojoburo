@@ -814,6 +814,9 @@ function BillingTab() {
         A task is one teammate doing one step. On <b>Founder</b> your tasks run on your own Claude key
         and Anthropic bills you directly — that plan costs Dojoburo nothing to serve.
       </p>
+      {/* Juste ici, parce que c'est ici qu'on hésite · au-dessus des cartes la
+          question ne s'est pas encore posée, plus bas elle a été tranchée. */}
+      <KeyOrManagedFaq />
       {/* The credit top-up that used to sit above these cards is gone. It took a
           card and wrote to a ledger nothing reads: a run is authorised by the
           free daily quota in work_usage, never by a balance. */}
@@ -925,16 +928,33 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
   const clearKey = useWork((s) => s.clearKey)
   const [key, setKey] = useState('')
   const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState('')
+  // Trois issues, pas deux · « refusée » et « pas pu être éprouvée » se
+  // ressemblent et n'appellent pas la même conduite de la part du lecteur.
+  const [msg, setMsg] = useState<{ tone: 'ok' | 'warn' | 'bad'; text: string } | null>(null)
 
   useEffect(() => { if (!loadedOnce) void loadTools() }, [loadedOnce, loadTools])
 
   async function save() {
-    setBusy(true); setMsg('')
+    setBusy(true); setMsg(null)
     const r = await saveKey(key.trim())
     setBusy(false)
-    if (r.ok) { setKey(''); setMsg('') }
-    else setMsg(r.error === 'bad_key' ? 'That doesn’t look like a Claude key (starts with sk-ant-…).' : r.error === 'no_backend' ? 'Connections backend not configured on this deployment.' : 'Could not save the key.')
+    if (r.ok) {
+      setKey('')
+      setMsg(r.verified
+        ? { tone: 'ok', text: '✓ Key saved and tested against Anthropic — it works. Your runs are billed to your own account from now on.' }
+        : { tone: 'warn', text: '◦ Key saved, but we could not reach Anthropic just now to test it. It is stored encrypted; if it turns out to be wrong, a run will say so.' })
+      return
+    }
+    setMsg({
+      tone: 'bad',
+      text: r.error === 'bad_key'
+        ? 'That doesn’t look like a Claude key (starts with sk-ant-…). Nothing was saved.'
+        : r.error === 'key_rejected'
+          ? '✕ Anthropic refused that key. It is well-formed but revoked, mistyped, or from another console. Nothing was saved — copy it again from console.anthropic.com.'
+          : r.error === 'no_backend'
+            ? 'Connections backend not configured on this deployment.'
+            : 'Could not save the key.',
+    })
   }
 
   return (
@@ -965,17 +985,63 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
               disabled={!hasAccount || !backend} onChange={(e) => setKey(e.target.value)}
             />
             <button className="ws-btn primary" disabled={!hasAccount || !backend || busy || key.trim().length < 20} onClick={save}>
-              {busy ? 'Saving…' : 'Save key'}
+              {/* On ne dit pas « Saving » quand on teste : l'attente dure le
+                  temps d'un aller-retour chez Anthropic, et dire ce qu'on fait
+                  vaut mieux que laisser croire que l'écran a calé. */}
+              {busy ? 'Testing with Anthropic…' : 'Save key'}
             </button>
           </div>
           <p className="ws-blurb ws-keynote">
             Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a>.
-            It’s stored encrypted server-side and never shown again. {!hasAccount && 'Sign in (Account tab) first.'}
+            We test it against Anthropic before storing it, so you find out now rather than
+            mid-run. It’s stored encrypted server-side and never shown again. {!hasAccount && 'Sign in (Account tab) first.'}
             {hasAccount && !backend && ' Connections aren’t enabled on this deployment yet.'}
           </p>
-          {msg && <p className="ws-blurb ws-paynote">{msg}</p>}
         </>
       )}
+      {/* Hors de la branche : une clé acceptée fait basculer le panneau sur
+          « connecté », et le message de confirmation disparaissait avec elle. */}
+      {msg && <p className={`ws-blurb ws-keymsg ${msg.tone}`}>{msg.text}</p>}
+    </div>
+  )
+}
+
+/**
+ * Clé personnelle ou Managed · la question que tout le monde se pose ici.
+ *
+ * Les deux colonnes de prix ne répondent pas à « laquelle pour MOI ». Une
+ * personne non technique n'a pas de console Anthropic et ne devrait pas en
+ * ouvrir une pour faire écrire une offre commerciale ; une personne technique a
+ * déjà sa clé et veut savoir ce qu'on en fait avant de la coller. Ce sont deux
+ * inquiétudes différentes, et quatre lignes suffisent à lever les deux.
+ */
+function KeyOrManagedFaq() {
+  const qa: [string, React.ReactNode][] = [
+    ['I don’t have an Anthropic key. Can I still use this?',
+      <>Yes — take <b>Managed</b>. We run your teammates on our own capacity, you pay one monthly
+        price and never touch an API console. This is the right answer for most people.</>],
+    ['I already have a key. What do I get for using it?',
+      <>Take <b>Founder</b>. Your runs are <b>not metered</b> — no task allowance, any model you like —
+        and Anthropic bills you directly for exactly what you used. You pay us for the teams, the
+        plans and the connectors, never for tokens.</>],
+    ['Where does my key actually go?',
+      <>Sealed with <b>AES-256-GCM</b> before it touches the database, decrypted only in memory for
+        the duration of one run, and never returned by any endpoint — the app can only ever show you
+        its last four characters. We test it once against Anthropic when you paste it, then never
+        read it again except to do your work.</>],
+    ['Can I switch later?',
+      <>Any time, both ways. Remove the key and your runs fall back to your plan’s allowance;
+        add one and the meter stops. Nothing is lost either way.</>],
+  ]
+  return (
+    <div className="ws-faq">
+      <h3>Your own key, or Managed?</h3>
+      {qa.map(([q, a]) => (
+        <details key={q} className="ws-faq-item">
+          <summary>{q}</summary>
+          <p className="ws-blurb">{a}</p>
+        </details>
+      ))}
     </div>
   )
 }

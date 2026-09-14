@@ -50,7 +50,9 @@ interface WorkState {
 
   loadTools: () => Promise<void>
   disconnect: (id: string) => Promise<void>
-  saveKey: (key: string) => Promise<{ ok: boolean; error?: string }>
+  /** `verified` : la clé a été présentée au fournisseur et acceptée · une clé
+   *  gardée sans avoir pu être éprouvée revient ok:true, verified:false */
+  saveKey: (key: string) => Promise<{ ok: boolean; error?: string; verified?: boolean }>
   clearKey: () => Promise<void>
   run: (input: { task: string; agentName: string; connectors: string[]; brief?: string; context?: string; extAgents?: ExtAgent[]; silent?: boolean; dojoId?: string }) => Promise<void>
   setAutopilot: (a: { running: boolean; step: string | null }) => void
@@ -113,7 +115,7 @@ export const useWork = create<WorkState>((set, get) => ({
   saveKey: async (key) => {
     const r = await setClaudeKey(key)
     if (r.ok) set({ byok: { connected: true, hint: r.hint ?? null } })
-    return { ok: !!r.ok, error: r.error }
+    return { ok: !!r.ok, error: r.error, verified: r.verified }
   },
   clearKey: async () => {
     const ok = await removeClaudeKey()

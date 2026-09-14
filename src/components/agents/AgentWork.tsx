@@ -29,6 +29,27 @@ const relTime = (t: number) => {
   return h < 24 ? `${h} h ago` : `${Math.round(h / 24)} d ago`
 }
 
+/**
+ * Les secondes écoulées depuis le lancement · rien de plus.
+ *
+ * Un compteur qui avance est la seule chose qu'on puisse affirmer d'un run en
+ * cours : le serveur ne rapporte aucune étape intermédiaire. Inventer
+ * « rédaction… » puis « vérification… » sur une minuterie, c'est raconter une
+ * progression qu'on n'observe pas — et le jour où le brouillon prend une minute,
+ * l'écran ment. Ce qu'il dit est vrai, et cela suffit à ne pas paraître figé.
+ */
+function useElapsed(active: boolean): number {
+  const [s, setS] = useState(0)
+  useEffect(() => {
+    if (!active) { setS(0); return }
+    const t0 = Date.now()
+    setS(0)
+    const id = window.setInterval(() => setS(Math.round((Date.now() - t0) / 1000)), 1000)
+    return () => window.clearInterval(id)
+  }, [active])
+  return s
+}
+
 export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAgent; dojoId: string }) {
   const run = useWork((s) => s.run)
   const running = useWork((s) => s.runningTask)
@@ -42,6 +63,7 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
   const delivs = useDeliverables((s) => s.byDojo[dojoId] ?? [])
   const [brief, setBrief] = useState('')
   const [rule, setRule] = useState('')
+  const elapsed = useElapsed(!!running)
   const skills = useSkills((st) => st.forAgent(dojoId, role.id))
   const addSkill = useSkills((st) => st.add)
   const dropSkill = useSkills((st) => st.remove)
@@ -94,9 +116,16 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
                 })}
               >
                 <span className="agw-task-main">
-                  <strong>{busy ? 'Working…' : t.label}</strong>
-                  <em>{t.blurb}</em>
-                  {usable.length > 0 && <span className="agw-acts">acts in {usable.map((id) => CONNECTOR_BY_ID[id]?.label ?? id).join(', ')}</span>}
+                  <strong>{busy ? `${t.label} · ${elapsed}s` : t.label}</strong>
+                  {/* Ce qui se passe pendant l'attente, dit une fois pour
+                      toutes : la séquence est vraie, la position dedans n'est
+                      pas observée, donc on ne la prétend pas. Passé 45 s on
+                      ajoute la seule chose qu'on sache de plus — que c'est plus
+                      long que d'habitude et que rien n'est perdu. */}
+                  <em>{busy
+                    ? <>{agent.name} is drafting, then checking their own work before handing it back{usable.length > 0 ? <>, acting in {usable.map((id) => CONNECTOR_BY_ID[id]?.label ?? id).join(', ')}</> : ''}.{elapsed > 45 ? ' Longer than usual — still running, nothing is lost.' : ' Usually under a minute.'}</>
+                    : t.blurb}</em>
+                  {!busy && usable.length > 0 && <span className="agw-acts">acts in {usable.map((id) => CONNECTOR_BY_ID[id]?.label ?? id).join(', ')}</span>}
                 </span>
                 {busy && <span className="agw-spin" />}
               </button>
@@ -236,7 +265,20 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
       <div className="agw-out">
         <span className="agw-apps-h">What they have produced</span>
         {mine.length === 0 ? (
-          <p className="agw-empty">Nothing yet. Run one of the tasks above and it lands here.</p>
+          // « Nothing yet » décrivait un vide sans dire ce qui le remplit.
+          // Ce qui manque à quelqu'un devant cet écran est la marche suivante :
+          // combien de temps cela prend, et ce qu'il en ressort.
+          <div className="agw-empty">
+            <p>
+              <b>{agent.name} hasn’t been asked for anything yet.</b> Pick a task above —
+              {tasks[0] ? <> <em>{tasks[0].label}</em> is where most people start.</> : ' any of them.'}
+            </p>
+            <p className="agw-empty-how">
+              A run takes about half a minute. {agent.name} drafts it, then checks their own work
+              against what that deliverable is supposed to contain and fixes it once before handing
+              it back. Everything they produce stays here — openable, exportable, re-runnable.
+            </p>
+          </div>
         ) : (
           <ul className="agw-list">
             {mine.map((d) => (

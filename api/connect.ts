@@ -20,7 +20,7 @@ import { writeGrants, setWriteGrant } from './_lib/permits.js'
 import { ensureOrg, can } from './_lib/orgs.js'
 import {
   serverConnector, connectorAvailable, clientId, clientSecret, redirectUri, siteUrl,
-  CONNECTOR_IDS, type ServerConnector,
+  probeKey, CONNECTOR_IDS, type ServerConnector,
 } from './_lib/connectors.js'
 
 export const config = { maxDuration: 20 }
@@ -271,6 +271,15 @@ async function setkey(req: IncomingMessage, res: ServerResponse): Promise<void> 
 
   const raw = String(body?.key || '').trim()
   if (!c.token.validate.test(raw)) return json(res, 200, { ok: false, error: 'bad_key' })
+
+  // Le motif ne dit que la FORME. Une clé révoquée, une clé d'un autre compte,
+  // une clé recopiée à un caractère près : toutes passaient, étaient scellées,
+  // et échouaient trois jours plus tard sur un run — au moment le moins utile.
+  // On la présente au fournisseur, en lecture seule, avant de la garder.
+  const probe = await probeKey(c, raw)
+  if (probe.state === 'rejected') {
+    return json(res, 200, { ok: false, error: 'key_rejected', status: probe.status })
+  }
   try {
     const pool = getPool()
     const who = await callerRef(req, { privy: body?.privy, client: body?.client })
@@ -287,7 +296,10 @@ async function setkey(req: IncomingMessage, res: ServerResponse): Promise<void> 
          status='connected', external_account=excluded.external_account, access_token=excluded.access_token, updated_at=now()`,
       [accountId, hint, seal(raw), id],
     )
-    return json(res, 200, { ok: true, hint, connector: id })
+    // `verified` dit si la clé a été ÉPROUVÉE, pas si elle a été acceptée : une
+    // clé qu'on n'a pas pu joindre est gardée, et l'écran le dit plutôt que de
+    // laisser croire à une vérification qui n'a pas eu lieu.
+    return json(res, 200, { ok: true, hint, connector: id, verified: probe.state === 'ok', probe: probe.state })
   } catch {
     return json(res, 200, { ok: false, error: 'db' })
   }
