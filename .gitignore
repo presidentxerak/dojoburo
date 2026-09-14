@@ -17,10 +17,14 @@ npm-debug.log*
 # scratch bundles from scripts/test-team-e2e.mjs (kept in-repo so `pg` resolves)
 node_modules/.dojo-e2e/
 
-# Captures déposées par les épreuves navigateur · elles vivent hors du dépôt
-# (voir scripts/verify-all.mjs, qui leur donne un dossier temporaire), mais une
-# épreuve lancée seule sans SCRATCH retombe sur le dossier courant.
-/brick-*.png
-/mob-*.png
-/vis-*.png
-/shot-*.png
+# Captures déposées par les épreuves navigateur.
+#
+# `npm run verify` leur donne un dossier temporaire (SCRATCH), mais une épreuve
+# lancée seule retombe sur le dossier courant et sème ses PNG à la racine.
+#
+# Une règle, pas une liste de préfixes : j'ai commencé par énumérer brick-,
+# mob-, vis-… et le lot suivant (full-) est passé au travers dès la première
+# exécution. C'est exactement la dérive corrigée ailleurs cette semaine. Aucune
+# image du projet ne vit à la racine — elles sont toutes dans brand/ et public/
+# — donc la racine peut être fermée d'un coup.
+/*.png
