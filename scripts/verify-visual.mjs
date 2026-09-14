@@ -93,17 +93,54 @@ const contrast = await x.evaluate((el) => {
 // `ok(true, …)` ne vérifiait rien : il imprimait deux couleurs et concluait
 // que tout allait bien. La question posée était la bonne — la croix de
 // fermeture est-elle LISIBLE — il manquait d'y répondre.
+//
+// Première tentative : comparer `color` à `backgroundColor` de l'élément. Elle
+// a signalé « contraste 1.0, noir sur color(srgb 0 0 0 / 0.1) », ce qui est
+// faux deux fois. Un fond à 10 % d'opacité n'est pas le fond : ce qu'on voit à
+// travers est celui de l'ancêtre. Et ma lecture des couleurs ne savait pas lire
+// la syntaxe `color(srgb …)`, si bien qu'un fond quasi transparent passait pour
+// du noir opaque. Un instrument qui se trompe accuse le produit à sa place.
 {
-  const rgb = (c) => (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number)
+  const mesure = await x.evaluate((el) => {
+    // toutes les écritures que le navigateur rend · rgb(), rgba(), color(srgb …)
+    const lire = (c) => {
+      const n = (c.match(/[\d.]+(?=%)?/g) || []).map(Number)
+      if (!n.length) return null
+      const srgb = /^color\(srgb/i.test(c)
+      const a = c.includes('/') || n.length > 3 ? n[3] ?? 1 : 1
+      const m = srgb ? 255 : 1
+      return { r: n[0] * m, g: n[1] * m, b: n[2] * m, a }
+    }
+    // le fond EFFECTIF · on compose les couches translucides sur l'ancêtre
+    // opaque, comme le navigateur le fait pour l'œil
+    const couches = []
+    let fond = { r: 255, g: 255, b: 255 }
+    for (let a = el; a; a = a.parentElement) {
+      const c = lire(getComputedStyle(a).backgroundColor)
+      if (!c || c.a === 0) continue
+      couches.push(c)
+      if (c.a >= 0.999) { fond = c; break }
+    }
+    for (let i = couches.length - 1; i >= 0; i--) {
+      const c = couches[i]
+      fond = {
+        r: c.r * c.a + fond.r * (1 - c.a),
+        g: c.g * c.a + fond.g * (1 - c.a),
+        b: c.b * c.a + fond.b * (1 - c.a),
+      }
+    }
+    const fg = lire(getComputedStyle(el).color) || { r: 0, g: 0, b: 0, a: 1 }
+    return { fg, fond }
+  })
   const lum = (c) => {
-    const [r, g, b] = rgb(c)
     const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }
-    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+    return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b)
   }
-  const l1 = lum(contrast.color)
-  const l2 = /rgba\(.*,\s*0\)$/.test(contrast.bg) ? 1 : lum(contrast.bg)
+  const l1 = lum(mesure.fg)
+  const l2 = lum(mesure.fond)
   const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)
-  ok(ratio > 2, `la croix de fermeture se voit sur son fond · contraste ${ratio.toFixed(1)} (${contrast.color} sur ${contrast.bg})`)
+  const rnd = (c) => `rgb(${Math.round(c.r)},${Math.round(c.g)},${Math.round(c.b)})`
+  ok(ratio > 2.5, `la croix de fermeture se voit sur son fond · contraste ${ratio.toFixed(1)} · ${rnd(mesure.fg)} sur ${rnd(mesure.fond)}`)
 }
 await page.screenshot({ path: `${OUT}/vis-supportclose.png` })
 await x.click()

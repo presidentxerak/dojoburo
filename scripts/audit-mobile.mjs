@@ -246,7 +246,13 @@ for (const [name, go] of SCREENS) {
       console.log(`    ${c.what} · ${c.fg} sur ${c.bg} · contraste ${c.ratio} · « ${c.text} »`)
     }
   }
-  if (!r.wide.length && !(r.light.length && scheme === 'dark') && !r.invisible.length) console.log('  rien à signaler')
+  // Imprimé dans la forme que la barrière sait compter · sans cela l'épreuve
+  // passait au vert en annonçant « 0 vérification », c'est-à-dire exactement
+  // l'apparence d'une épreuve creuse. Elle en faisait des centaines ; elle ne
+  // les disait pas.
+  if (!r.wide.length && !(r.light.length && scheme === 'dark') && !r.invisible.length) {
+    console.log(`ok    ${scheme} · ${name} · rien hors écran, rien d’illisible`)
+  }
 }
 }
 
