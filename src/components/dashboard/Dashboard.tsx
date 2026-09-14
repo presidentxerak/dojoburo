@@ -13,7 +13,6 @@ import { useSecrets } from '../../agents/secretsStore'
 import { useDeliverables } from '../../agents/deliverables'
 import { launchCeo } from '../../agents/autopilot'
 import { ROLE_AGENTS, ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
-import { isAdmin } from '../../config/admin'
 import { ModuleHost } from '../../modules/ModuleHost'
 import { MODULES } from '../../modules/registry'
 import { InfoDot } from '../InfoDot'
@@ -78,6 +77,10 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
   const running = useWork((s) => s.runningTask)
   const tools = useWork((s) => s.tools)
   const openStudio = useWork((s) => s.openStudio)
+  // Opérateur ou non · répondu par le serveur (api/_lib/admins). Le paquet
+  // client ne porte plus aucune adresse : il n'a jamais rien gardé, et une
+  // adresse personnelle publiée pour rien est offerte aux robots.
+  const isOperator = useWork((s) => s.admin)
   const editAgent = useWork((s) => s.editAgent)
   const autopilot = useWork((s) => s.autopilot)
   const delivs = useDeliverables((s) => s.byDojo[dojo?.id ?? ''] ?? [])
@@ -455,7 +458,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     <div className="dash-panels" style={{ ['--dc' as string]: ROLE_BY_ID.chief.tint }}>
       <div className="dash-hero">
         <div>
-          <h2>CEO · {dojo?.name || 'Dojo'} {isAdmin(account ?? null) && <span className="admin-badge" title="Admin account · unlimited free testing">ADMIN · unlimited</span>}</h2>
+          <h2>CEO · {dojo?.name || 'Dojo'} {isOperator && <span className="admin-badge" title="Admin account · unlimited free testing">ADMIN · unlimited</span>}</h2>
           <p>Click an agent to open its dashboard. Chief coordinates the whole team.</p>
         </div>
         <div className="dash-hero-actions">

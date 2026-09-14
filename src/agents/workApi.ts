@@ -51,15 +51,17 @@ export function refParams(): string {
 
 export interface ByokStatus { connected: boolean; hint: string | null }
 
-export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boolean; byok: ByokStatus }> {
+export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boolean; byok: ByokStatus; admin: boolean }> {
   try {
     const res = await apiFetch(`/api/connect?action=list&${refParams()}`, { headers: { accept: 'application/json' } })
     const j = await res.json()
-    if (j?.ok) return { tools: j.tools, backend: !!j.backend, byok: j.byok ?? { connected: false, hint: null } }
+    // `admin` vient du SERVEUR · le navigateur ne sait plus QUI est opérateur,
+    // seulement si ce compte-ci l'est. Voir api/_lib/admins.
+    if (j?.ok) return { tools: j.tools, backend: !!j.backend, byok: j.byok ?? { connected: false, hint: null }, admin: !!j.admin }
   } catch {
     /* offline / not deployed */
   }
-  return { tools: [], backend: false, byok: { connected: false, hint: null } }
+  return { tools: [], backend: false, byok: { connected: false, hint: null }, admin: false }
 }
 
 /** Send a real email from the user's connected Gmail. Degrades to a clear error

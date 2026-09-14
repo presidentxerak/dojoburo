@@ -17,6 +17,7 @@ import { seal, vaultConfigured } from './_lib/vault.js'
 import { callerRef } from './_lib/authz.js'
 import { orgScope } from './_lib/connScope.js'
 import { writeGrants, setWriteGrant } from './_lib/permits.js'
+import { accountIsAdmin } from './_lib/admins.js'
 import { ensureOrg, can } from './_lib/orgs.js'
 import {
   serverConnector, connectorAvailable, clientId, clientSecret, redirectUri, siteUrl,
@@ -47,6 +48,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParams): Promise<void> {
   const connected: Record<string, { external_account: string | null; status: string }> = {}
   let grants = new Set<string>()
+  // SI le compte courant est opérateur · jamais QUI l'est.
+  //
+  // Le navigateur portait la liste des adresses opérateur dans son paquet, pour
+  // décider d'afficher deux ou trois commandes. Elle n'y gardait rien — le
+  // serveur n'a jamais cru le client là-dessus — et une adresse personnelle
+  // publiée pour rien est une adresse offerte aux robots. Un booléen suffit.
+  let admin = false
   if (dbConfigured() && vaultConfigured()) {
     try {
       const pool = getPool()
@@ -67,6 +75,7 @@ async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParam
         )
         for (const row of r.rows) connected[row.connector_id] = { external_account: row.external_account, status: row.status }
         grants = await writeGrants(pool, orgId)
+        admin = await accountIsAdmin(pool, { privyDid: who.privyDid, clientRef: who.clientRef })
       }
     } catch {
       /* fall through with empty connected map */
@@ -85,7 +94,7 @@ async function list(req: IncomingMessage, res: ServerResponse, q: URLSearchParam
     connected: !!connected['anthropic'] && connected['anthropic'].status === 'connected',
     hint: connected['anthropic']?.external_account ?? null,
   }
-  return json(res, 200, { ok: true, tools, byok, backend: dbConfigured() && vaultConfigured() })
+  return json(res, 200, { ok: true, tools, byok, admin, backend: dbConfigured() && vaultConfigured() })
 }
 
 // ---- permit ---------------------------------------------------------------

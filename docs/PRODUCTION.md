@@ -154,24 +154,30 @@ soit**, qui est la façon dont une barrière meurt sans qu'on s'en aperçoive.
 
 ---
 
-## 5 · Deux choses trouvées, laissées en l'état, et pourquoi
+## 5 · Ce qui restait ouvert, et où cela en est
 
-**Votre adresse personnelle est dans le bundle public.**
-`src/config/admin.ts` contient `presidentxerak@gmail.com` en clair, et il part
-dans deux fichiers JavaScript servis à tout le monde.
+**L'adresse personnelle dans le paquet public · RÉGLÉ.**
+`src/config/admin.ts` portait `presidentxerak@gmail.com` en clair et partait
+dans deux fichiers JavaScript servis à tout le monde. Elle n'y gardait rien —
+vérifié : le client ne faisait qu'afficher deux commandes, le serveur décidait
+seul depuis sa propre variable `ADMIN_EMAILS` et l'e-mail vérifié en base, et
+l'autorisation d'écrire dans une application passe par le rôle d'organisation.
+Le coût était l'exposition de l'adresse aux robots.
 
-Ce n'est **pas** un contournement d'authentification, et c'est vérifié : le
-client ne s'en sert que pour afficher ou masquer des boutons. Le serveur décide
-seul, depuis sa propre variable `ADMIN_EMAILS` et l'e-mail vérifié en base
-(`accountIsAdmin`), et l'autorisation d'écriture passe par le rôle dans
-l'organisation, pas par cette liste. Le vrai coût est l'exposition de l'adresse
-aux robots.
+Le navigateur n'avait pas besoin de savoir QUI est opérateur, seulement SI le
+compte courant l'est : `/api/connect?action=list` rend maintenant un booléen,
+`api/_lib/admins.ts` tient la règle en un seul point pour le serveur, et
+`src/config/admin.ts` est supprimé. Deux écrans recâblés, compilation et
+épreuves vertes.
 
-Le retirer proprement demande que le client cesse de savoir QUI est
-administrateur pour ne savoir que SI le compte courant l'est — donc un drapeau
-rendu par le serveur, et deux écrans à recâbler. Je ne l'ai pas fait en fin
-d'audit : une erreur à cet endroit ferait disparaître vos propres commandes
-d'administration sans que rien ne le signale. À faire, mais posément.
+Reste dans le paquet, volontairement : le `mailto:` de la page légale, qui est
+le contact d'effacement RGPD et doit y être ; et le chemin du dépôt GitHub dans
+le guide de déploiement.
+
+`npm run test:endpoints` refuse désormais toute liste d'adresses réintroduite
+dans `src/`, et vérifie que le serveur répond « non » quand il ne peut pas
+savoir — un privilège dont le défaut est « oui quand on ne sait pas » n'en est
+pas un. Épreuve éprouvée : en réintroduisant le fichier, elle échoue.
 
 **Trente-et-une vulnérabilités dans les dépendances, dont trois en gravité
 haute** — `axios`, `ws`, `socket.io-parser`, toutes transitives via le SDK

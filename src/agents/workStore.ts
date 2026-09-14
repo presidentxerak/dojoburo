@@ -27,6 +27,9 @@ interface WorkState {
   tools: Record<string, ToolStatus>
   backend: boolean
   byok: ByokStatus
+  /** ce compte est-il opérateur du déploiement · répondu par le serveur, qui
+   *  seul lit la liste ; le paquet client ne porte plus aucune adresse */
+  admin: boolean
   loadedOnce: boolean
   runningTask: string | null
   deliverable: (Deliverable & { tools?: string[]; engine?: RunResult['engine'] }) | null
@@ -85,6 +88,7 @@ export const useWork = create<WorkState>((set, get) => ({
   tools: {},
   backend: false,
   byok: { connected: false, hint: null },
+  admin: false,
   loadedOnce: false,
   runningTask: null,
   deliverable: null,
@@ -101,10 +105,10 @@ export const useWork = create<WorkState>((set, get) => ({
   },
 
   loadTools: async () => {
-    const { tools, backend, byok } = await listTools()
+    const { tools, backend, byok, admin } = await listTools()
     const map: Record<string, ToolStatus> = {}
     for (const t of tools) map[t.id] = t
-    set({ tools: map, backend, byok, loadedOnce: true })
+    set({ tools: map, backend, byok, admin, loadedOnce: true })
   },
 
   disconnect: async (id) => {

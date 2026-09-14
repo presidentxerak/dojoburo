@@ -335,6 +335,56 @@ console.log('\n--- la limite de corps couvre l’usage légitime ---------------
     `${limit} caractères`)
 }
 
+/* ---- qui est opérateur · le serveur le dit, le client ne le sait pas ------ */
+//
+// `src/config/admin.ts` portait l'adresse de l'opérateur en clair, pour décider
+// d'afficher deux commandes. Elle partait donc dans le paquet JavaScript servi à
+// tout le monde, où elle ne gardait rien : le serveur n'a jamais cru le client
+// là-dessus, et l'autorisation d'écrire dans une application passe par le rôle
+// dans l'organisation. Une adresse personnelle publiée pour rien est une adresse
+// offerte aux robots.
+//
+// Le navigateur reçoit maintenant un booléen. Deux choses à tenir :
+console.log('\n--- opérateur · dit par le serveur, pas porté par le client ----')
+{
+  const { readFileSync, readdirSync } = await import('node:fs')
+
+  // 1 · le client ne porte plus de liste d'adresses.
+  const fuites = []
+  const walk = (dir) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const f = `${dir}/${e.name}`
+      if (e.isDirectory()) { walk(f); continue }
+      if (!/\.(ts|tsx)$/.test(e.name)) continue
+      const src = readFileSync(f, 'utf8')
+      // une adresse dans un `mailto:` est un contact volontaire (page légale,
+      // effacement RGPD) · une adresse dans une LISTE est un privilège
+      for (const m of src.matchAll(/[\w.+-]+@[\w.-]+\.\w+/g)) {
+        const autour = src.slice(Math.max(0, m.index - 60), m.index)
+        if (/mailto:|placeholder|example|@example|aria-|title=/i.test(autour)) continue
+        if (/ADMIN|OPERATOR|allowlist|BUILTIN/i.test(src.slice(Math.max(0, m.index - 300), m.index))) {
+          fuites.push(`${f} · ${m[0]}`)
+        }
+      }
+    }
+  }
+  walk('src')
+  ok('aucune liste d’adresses opérateur dans le paquet client',
+    fuites.length === 0, fuites.slice(0, 3).join(' | ') || 'le serveur seul lit ADMIN_EMAILS')
+
+  // 2 · et le serveur répond « non » quand il ne peut pas savoir.
+  const C = await load('api/connect.ts')
+  const { req, res, finished } = fake('GET', '/api/connect?action=list&client=diag')
+  await handlerSafe(C.default, req, res)
+  const r = await Promise.race([finished, new Promise((x) => setTimeout(() => x(null), 6000))])
+  let j = {}
+  try { j = JSON.parse(r?.body || '{}') } catch { /* signalé plus haut */ }
+  ok('la liste des applications porte le drapeau opérateur', 'admin' in j,
+    'sans lui, les deux écrans ne peuvent plus rien afficher de juste')
+  ok('et il vaut « non » quand la base est absente', j.admin === false,
+    'un privilège dont le défaut est « oui quand on ne sait pas » n’en est pas un')
+}
+
 rmSync(TMP, { recursive: true, force: true })
 console.log(fails ? `\n${fails} FAILED` : '\nALL GREEN')
 process.exit(fails ? 1 : 0)

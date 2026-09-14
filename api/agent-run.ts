@@ -29,6 +29,7 @@ import { allow as rateAllow } from './_lib/ratelimit.js'
 import { verify, repairPrompt, type Verdict } from './_lib/checks.js'
 import { writeGrants, splitTools } from './_lib/permits.js'
 import { listTools as listMcpTools } from './_lib/mcp.js'
+import { accountIsAdmin as isOperator } from './_lib/admins.js'
 
 export const config = { maxDuration: 60 }
 
@@ -50,8 +51,7 @@ const OPERATOR_CLAUDE = ENV.WORK_OPERATOR_CLAUDE === 'true'
 // Admin / operator allowlist. These accounts test every tool for free with NO
 // daily cap, and may use the operator's Claude key even when WORK_OPERATOR_CLAUDE
 // is off. They only ever spend the OPERATOR's own configured keys / free tiers.
-const ADMIN_EMAILS = (ENV.ADMIN_EMAILS || 'presidentxerak@gmail.com')
-  .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean)
+// La liste vit dans _lib/admins · côté SERVEUR uniquement.
 // ---- effort modes · the token dial -----------------------------------------
 // The founder picks a mode in the app; the SERVER decides what it means. A
 // client could otherwise ask for an eight-thousand-token answer with every app
@@ -395,19 +395,11 @@ async function loadSecretNames(ref: { privy?: string; client?: string }, dojoId:
 
 // Is the VERIFIED caller an operator? The email is read from their stored
 // account row (written by the payment webhook), so it cannot be self-assigned.
-async function accountIsAdmin(ref: { privy?: string; client?: string }): Promise<boolean> {
-  if (!ADMIN_EMAILS.length || !dbConfigured()) return false
-  try {
-    const pool = getPool()
-    const accountId = await findAccountId(pool, { privyDid: ref.privy, clientRef: ref.client })
-    if (!accountId) return false
-    const r = await pool.query('select email from accounts where id = $1', [accountId])
-    const email = String(r.rows[0]?.email || '').trim().toLowerCase()
-    return !!email && ADMIN_EMAILS.includes(email)
-  } catch {
-    return false
-  }
-}
+// La règle elle-même vit dans _lib/admins · elle sert aussi à /api/connect, qui
+// dit au navigateur SI le compte courant est opérateur, pour que le paquet
+// client n'ait plus à porter l'adresse de qui que ce soit.
+const accountIsAdmin = (ref: { privy?: string; client?: string }): Promise<boolean> =>
+  isOperator(getPool(), { privyDid: ref.privy, clientRef: ref.client })
 
 // One row per completed run · where the credits went.
 //

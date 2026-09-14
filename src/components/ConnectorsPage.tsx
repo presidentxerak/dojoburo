@@ -10,8 +10,6 @@ import { CONNECTORS, connectorsForFunction, type Connector } from '../data/conne
 import { ROLE_AGENTS } from '../data/roleAgents'
 import type { Department } from '../data/agents'
 import { useWork } from '../agents/workStore'
-import { useWorkshop } from '../workshop'
-import { isAdmin } from '../config/admin'
 import { startConnect, setWritePermit } from '../agents/workApi'
 import { ConnectorLogo } from './ConnectorLogo'
 import { TutorialOverlay } from './guide/TutorialOverlay'
@@ -45,8 +43,11 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
   const loadedOnce = useWork((s) => s.loadedOnce)
   const loadTools = useWork((s) => s.loadTools)
   const disconnect = useWork((s) => s.disconnect)
-  const account = useWorkshop((s) => s.account)
-  const admin = isAdmin(account ?? null)
+  // Répondu par le SERVEUR (voir api/_lib/admins) · le paquet client ne porte
+  // plus la liste des adresses opérateur. Il n'a jamais rien gardé : ce booléen
+  // ne fait qu'afficher, et le serveur refuse de toute façon ce qu'il doit
+  // refuser — l'écriture dans une application passe par le rôle d'organisation.
+  const admin = useWork((s) => s.admin)
 
   // the "How to?" walkthrough · connecting apps, and what it costs on top
   const [howTo, setHowTo] = useState(false)
