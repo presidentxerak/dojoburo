@@ -549,6 +549,20 @@ export function tasksForRole(roleId: string, fn?: Department): WorkTask[] {
   return fn ? tasksForFunction(fn) : []
 }
 
+/**
+ * À quel métier appartient ce livrable.
+ *
+ * L'inverse d'AGENT_TASKS, et il est sans ambiguïté : l'audit vérifie qu'aucun
+ * identifiant n'est partagé entre deux rôles. C'est ce qui permet, depuis un
+ * livrable seul, de savoir à qui rattacher une règle permanente.
+ */
+export function roleForTask(taskId: string): string | null {
+  for (const [role, list] of Object.entries(ROLE_TASKS)) {
+    if (list.some((t) => t.id === taskId)) return role
+  }
+  return null
+}
+
 /** Quels livrables appartiennent à quel agent · dérivé, jamais recopié. */
 export const AGENT_TASKS: Record<string, string[]> = Object.fromEntries(
   Object.entries(ROLE_TASKS).map(([role, list]) => [role, list.map((t) => t.id)]),

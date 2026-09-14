@@ -120,6 +120,10 @@ for (const role of ROLE_AGENTS) {
     tasks: await p.locator('.agw-task').count(),
     apps: await p.locator('.agw-applist .agw-app').count(),
     howto: await p.locator('.agw-howto').count(),
+    // Les règles permanentes · le bloc doit exister sur CHAQUE page, sinon
+    // l'agent qui ne l'a pas se fait recorriger à la main indéfiniment.
+    rules: await p.locator('.agw-rules').count(),
+    ruleAdd: await p.locator('.agw-ruleadd input').count(),
     blurb: (await p.locator('.ad-blurb').first().innerText().catch(() => '')).trim().length,
     // la pastille « i » · on l'ouvre et on regarde si elle dit quelque chose
     help: await (async () => {
@@ -212,6 +216,11 @@ const shared = [...byLabels.entries()].filter(([, who]) => who.length > 1)
 ok('deux agents différents ne proposent pas exactement la même chose',
   shared.length === 0,
   shared.map(([k, who]) => `${who.join('+')} → « ${k.split('|').join(' / ')} »`).join(' · ') || '')
+
+const noRules = reached.filter((r) => !r.rules || !r.ruleAdd)
+ok('chaque agent peut recevoir des règles permanentes', noRules.length === 0,
+  noRules.map((r) => r.role.code).join(', ')
+  || 'ce qu’on n’a plus à réexpliquer se pose agent par agent')
 
 ok('aucune erreur JavaScript sur les dix-huit pages', errs.length === 0, errs.slice(0, 2).join(' | '))
 

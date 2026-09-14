@@ -26,6 +26,7 @@ import { callerRef } from './_lib/authz.js'
 import { orgScope } from './_lib/connScope.js'
 import { standingOf, remaining, taskUnits } from './_lib/entitlements.js'
 import { allow as rateAllow } from './_lib/ratelimit.js'
+import { verify, repairPrompt, type Verdict } from './_lib/checks.js'
 
 export const config = { maxDuration: 60 }
 
@@ -210,7 +211,37 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   }
   if (!text.trim()) return send(res, 200, { ok: false, error: 'empty' })
 
-  const deliverable = shape(task, text, modelUsed)
+  // ---- vérification -------------------------------------------------------
+  //
+  // Jusqu'ici le seul contrôle était la ligne au-dessus : non vide. Tout le
+  // reste retombait sur la personne qui lisait — et tant que la vérification
+  // est humaine, ajouter des agents n'ajoute pas de capacité, ça ajoute de la
+  // lecture.
+  //
+  // Les contrôles testent ce que le prompt a exigé littéralement. Quand l'un
+  // d'eux échoue, on rend au modèle SON texte et la liste de ce qui manque : ce
+  // qui a échoué est presque toujours une consigne oubliée, pas un raisonnement
+  // à refaire. Une seule reprise — deux coûteraient plus que la relecture
+  // qu'elles font gagner.
+  let verdict = verify(task.id, text)
+  if (!verdict.ok) {
+    const fix = await repairOnce(
+      task, text, verdict, { byokKey, claudeModel, system, mcpServers, effort, operatorClaude, isAdmin },
+    )
+    if (fix) {
+      const after = verify(task.id, fix.text)
+      // On ne garde la reprise que si elle a VRAIMENT amélioré les choses. Un
+      // modèle qui rate autrement rendrait un second document tout aussi faux,
+      // et on aurait payé deux fois pour le remplacer par son égal.
+      if (after.passed.length > verdict.passed.length) {
+        text = fix.text
+        verdict = { ...after, repaired: true }
+        if (fix.model) modelUsed = fix.model
+      }
+    }
+  }
+
+  const deliverable = { ...shape(task, text, modelUsed), verified: verdict }
 
   // What this run really cost · the free tier is metered on it, and it becomes a
   // line in the ledger. Both are best-effort and neither can fail the run.
@@ -516,6 +547,49 @@ async function resolveMcpServers(connectorIds: string[], ref: { privy?: string; 
   } catch {
     return []
   }
+}
+
+/**
+ * Une seule reprise, par le même chemin que la génération.
+ *
+ * On repasse par le fournisseur qui a servi le premier jet — clé du fondateur,
+ * cascade gratuite, ou Claude de l'opérateur — parce qu'un document corrigé par
+ * un autre modèle que celui qui l'a écrit revient souvent réécrit de bout en
+ * bout, ce qui est exactement ce qu'on cherche à éviter.
+ *
+ * Les applications connectées ne sont PAS rattachées à la reprise : corriger la
+ * forme d'un document ne doit pas renvoyer un second courriel ni recréer une
+ * page Notion. C'est le genre d'effet de bord qu'on ne remarque qu'une fois
+ * qu'il a eu lieu.
+ */
+async function repairOnce(
+  task: ServerWorkTask,
+  text: string,
+  verdict: Verdict,
+  ctx: {
+    byokKey: string | null | undefined; claudeModel: string; system: string
+    mcpServers: McpServer[]; effort: any; operatorClaude: boolean; isAdmin: boolean
+  },
+): Promise<{ text: string; model?: string } | null> {
+  const prompt = repairPrompt(task, text, verdict.failed)
+  try {
+    if (ctx.byokKey) {
+      const out = await callClaude(ctx.byokKey, ctx.claudeModel, ctx.system, prompt, [], ctx.effort)
+      return out.text?.trim() ? { text: out.text, model: out.model } : null
+    }
+    if (freeCascadeConfigured()) {
+      const out = await cascadeComplete(ctx.system, prompt, Math.min(ctx.effort.maxTokens, MAX_TOKENS))
+      if (out?.text?.trim()) return { text: out.text, model: out.model }
+    }
+    if (ctx.operatorClaude && ENV.ANTHROPIC_API_KEY) {
+      const out = await callClaude(ENV.ANTHROPIC_API_KEY, ctx.claudeModel, ctx.system, prompt, [], ctx.effort)
+      return out.text?.trim() ? { text: out.text, model: out.model } : null
+    }
+  } catch {
+    // Une reprise qui échoue ne doit RIEN casser : on rend le premier jet, avec
+    // ses contrôles ratés affichés. Le texte est souvent utilisable tel quel.
+  }
+  return null
 }
 
 // ---- deliverable shaping --------------------------------------------------

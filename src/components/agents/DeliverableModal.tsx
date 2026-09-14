@@ -2,13 +2,21 @@
 // for a design system, or rendered Markdown for the other functions. Includes
 // the model used, the tools the agent acted in, and
 // download buttons so the output is genuinely usable.
+import { useState } from 'react'
 import { useWork } from '../../agents/workStore'
+import { useWorkshop } from '../../workshop'
+import { useSkills, ruleFromFailure } from '../../agents/skills'
+import { roleForTask } from '../../data/connectors'
 import { Markdown } from './Markdown'
 import { Icon } from '../Icon'
 
 export function DeliverableModal() {
   const d = useWork((s) => s.deliverable)
   const close = useWork((s) => s.closeDeliverable)
+  const dojoId = useWorkshop((s) => s.activeDojoId)
+  const addSkill = useSkills((s) => s.add)
+  // Une règle créée depuis ce livrable · on le dit et on ne le redemande pas.
+  const [kept, setKept] = useState<string[]>([])
   if (!d) return null
 
   const download = (name: string, content: string, type = 'text/markdown') => {
@@ -36,6 +44,56 @@ export function DeliverableModal() {
           </div>
           <button className="icon-btn" onClick={close} aria-label="Close"><Icon name="close" /></button>
         </header>
+
+        {/* Ce que les contrôles ont dit de ce document.
+            Sans cette ligne, la vérification ne sert à rien : elle tournerait
+            côté serveur et personne ne saurait qu'un livrable a été repris, ou
+            qu'il sort d'ici avec une consigne ignorée. On l'affiche avant le
+            texte, parce qu'elle change la façon de le lire. */}
+        {d.verified && (
+          d.verified.ok ? (
+            <p className={`dlv-checked ${d.verified.repaired ? 'is-repaired' : 'is-ok'}`}>
+              <span className="dlv-tick">✓</span>
+              {d.verified.repaired
+                ? <>Corrigé puis vérifié · {d.verified.passed.length} contrôles passés</>
+                : <>Vérifié · {d.verified.passed.length} contrôles passés</>}
+            </p>
+          ) : (
+            <div className="dlv-checked is-bad">
+              <p><span className="dlv-warn">!</span> À relire · ce document ne tient pas tout ce qui lui était demandé :</p>
+              <ul>
+                {d.verified.failed.map((f) => {
+                  // Le geste qui transforme une correction en acquis : plutôt
+                  // qu'un formulaire vide, on propose la règle qui aurait évité
+                  // cet échec, et elle s'appliquera à chaque lancement suivant.
+                  const rule = ruleFromFailure(f.id)
+                  const role = roleForTask(d.taskId)
+                  const done = kept.includes(f.id)
+                  return (
+                    <li key={f.id}>
+                      {f.why}
+                      {rule && role && dojoId && (
+                        done
+                          ? <em className="dlv-kept">règle ajoutée</em>
+                          : (
+                            <button
+                              className="dlv-rule"
+                              title={rule}
+                              onClick={() => {
+                                if (addSkill(dojoId, role, rule, `échec: ${f.id}`)) setKept((k) => [...k, f.id])
+                              }}
+                            >
+                              en faire une règle
+                            </button>
+                          )
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )
+        )}
 
         <div className="dlv-body">
           {d.format === 'design-system' && d.tokens && <TokenPreview tokens={d.tokens} />}

@@ -194,6 +194,15 @@ export async function disconnectTool(connectorId: string): Promise<boolean> {
   }
 }
 
+/** Le verdict des contrôles passés sur ce livrable · voir api/_lib/checks.ts */
+export interface Verified {
+  ok: boolean
+  passed: string[]
+  failed: Array<{ id: string; why: string }>
+  /** une reprise a eu lieu et a corrigé le tir */
+  repaired?: boolean
+}
+
 export interface Deliverable {
   taskId: string
   title: string
@@ -201,6 +210,8 @@ export interface Deliverable {
   markdown: string
   tokens?: any
   model: string
+  /** absent sur les livrables produits avant que la vérification existe */
+  verified?: Verified
 }
 export interface RunResult {
   ok: boolean

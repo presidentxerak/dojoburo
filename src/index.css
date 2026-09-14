@@ -7473,3 +7473,53 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
    sur sa page, qu'un agent à panneau n'ouvre jamais. Séparés par un filet, pour
    qu'on lise deux choses distinctes et non la suite du panneau. */
 .modhost-work { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+
+/* Le verdict des contrôles sur un livrable · avant le texte, parce qu'il change
+   la façon de le lire. Un document repris est signalé comme tel : la personne
+   qui relit doit savoir qu'un premier jet a raté quelque chose. */
+.dlv-checked {
+  margin: 0 0 12px; padding: 9px 12px; font-size: 13px; line-height: 1.55;
+  border-left: 3px solid var(--border-lit); background: var(--panel-2);
+}
+.dlv-checked p { margin: 0; }
+.dlv-checked.is-ok { border-left-color: #1fa563; color: var(--muted); }
+.dlv-checked.is-repaired { border-left-color: #1fa563; color: var(--muted); }
+.dlv-checked.is-bad { border-left-color: #d9822b; }
+.dlv-checked ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); }
+.dlv-checked li { margin: 2px 0; }
+.dlv-tick { color: #1fa563; font-weight: 800; margin-right: 6px; }
+.dlv-warn {
+  display: inline-grid; place-items: center; width: 16px; height: 16px; margin-right: 6px;
+  border-radius: 50%; background: #d9822b; color: #fff; font-weight: 800; font-size: 11px;
+}
+
+/* Les règles permanentes d'un agent · ce qu'on n'a plus à réexpliquer. */
+.agw-rules { display: flex; flex-direction: column; gap: 8px; }
+.agw-rules-n { font-style: normal; font-weight: 600; opacity: .7; }
+.agw-rulelist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.agw-rulelist li {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 6px 10px; font-size: 13.5px; line-height: 1.45;
+  border: 1px solid var(--border); background: var(--panel-2);
+}
+/* Une règle de maison vaut pour tous · elle ne se retire pas depuis un agent. */
+.agw-rulelist li.is-house { border-left: 3px solid var(--border-lit); }
+.agw-rulelist li em { font-style: normal; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); flex: none; }
+.agw-rulelist li button {
+  font: inherit; font-size: 13px; line-height: 1; cursor: pointer; flex: none;
+  padding: 4px 7px; border: 1px solid transparent; background: transparent; color: var(--muted);
+}
+.agw-rulelist li button:hover { border-color: #c0392b; color: #c0392b; }
+.agw-ruleadd { display: flex; gap: 8px; }
+.agw-ruleadd input {
+  flex: 1; min-width: 0; font: inherit; font-size: 13.5px; padding: 7px 10px;
+  border: 1px solid var(--border); background: var(--panel-solid); color: var(--ink);
+}
+
+/* Transformer un contrôle raté en règle · le geste qui évite de recorriger. */
+.dlv-rule {
+  font: inherit; font-size: 12px; margin-left: 8px; cursor: pointer;
+  padding: 2px 8px; border: 1px solid var(--border-lit); background: transparent; color: var(--muted);
+}
+.dlv-rule:hover { border-color: var(--ink); color: var(--ink); }
+.dlv-kept { font-style: normal; font-size: 12px; margin-left: 8px; color: #1fa563; }

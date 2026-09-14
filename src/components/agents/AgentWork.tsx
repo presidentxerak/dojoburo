@@ -17,6 +17,7 @@ import { tasksForRole } from '../../data/connectors'
 import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { ConnectorLogo } from '../ConnectorLogo'
 import { startConnect } from '../../agents/workApi'
+import { useSkills, skillsBlock, MAX_LEN, MAX_PER_ROLE } from '../../agents/skills'
 import type { RoleAgent } from '../../data/roleAgents'
 import type { WAgent } from '../../workshop'
 
@@ -40,6 +41,10 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
   const byKey = useAgentApps((s) => s.byKey)
   const delivs = useDeliverables((s) => s.byDojo[dojoId] ?? [])
   const [brief, setBrief] = useState('')
+  const [rule, setRule] = useState('')
+  const skills = useSkills((st) => st.forAgent(dojoId, role.id))
+  const addSkill = useSkills((st) => st.add)
+  const dropSkill = useSkills((st) => st.remove)
 
   const tasks = tasksForRole(role.id, role.dept)
   const apps = effectiveApps(agent.custom?.apps ?? role.apps ?? [], byKey[`${dojoId}::${role.id}`])
@@ -81,7 +86,12 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
               <button
                 className="agw-task"
                 disabled={!!running}
-                onClick={() => void run({ task: t.id, agentName: agent.name, connectors: live, brief, dojoId })}
+                onClick={() => void run({
+                  task: t.id, agentName: agent.name, connectors: live, brief, dojoId,
+                  // Les règles permanentes de cette entreprise · voir agents/skills.
+                  // Elles partent dans le prompt système, par le canal `context`.
+                  context: skillsBlock(dojoId, role.id),
+                })}
               >
                 <span className="agw-task-main">
                   <strong>{busy ? 'Working…' : t.label}</strong>
@@ -104,6 +114,51 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
               : <>That didn't go through: {runError.detail || runError.code}</>}
         </p>
       )}
+
+      {/* Les règles permanentes · ce qu'on n'a plus à réexpliquer.
+          Sans elles, la même correction est retapée à chaque lancement, et au
+          quatrième jour on corrige le texte à la main plutôt que la consigne —
+          c'est le moment où l'agent cesse de faire gagner du temps. */}
+      <div className="agw-rules">
+        <span className="agw-apps-h">
+          Standing rules
+          <em className="agw-rules-n">{skills.length}/{MAX_PER_ROLE}</em>
+        </span>
+        {skills.length > 0 && (
+          <ul className="agw-rulelist">
+            {skills.map((s) => (
+              <li key={s.id} className={s.role === '*' ? 'is-house' : ''}>
+                <span>{s.text}</span>
+                {s.role === '*'
+                  ? <em title="Applies to every teammate in this company">house</em>
+                  : (
+                    <button onClick={() => dropSkill(dojoId, s.id)} aria-label={`Remove rule: ${s.text}`}>✕</button>
+                  )}
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="agw-ruleadd">
+          <input
+            value={rule}
+            maxLength={MAX_LEN}
+            placeholder={`Something ${agent.name} should always do`}
+            onChange={(e) => setRule(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter') return
+              if (addSkill(dojoId, role.id, rule)) setRule('')
+            }}
+            aria-label="New standing rule"
+          />
+          <button
+            className="docs-btn"
+            disabled={rule.trim().length < 4}
+            onClick={() => { if (addSkill(dojoId, role.id, rule)) setRule('') }}
+          >
+            Add
+          </button>
+        </div>
+      </div>
 
       {/* Les applications de ce coéquipier, et SURTOUT lesquelles sont reliées.
           C'était une rangée d'étiquettes grises où l'état tenait dans une nuance
