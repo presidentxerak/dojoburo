@@ -9,6 +9,8 @@ import { useDojo } from '../store'
 import { Decor3D } from './three/Decor3D'
 import { Character3D } from './three/Character3D'
 import { StudioLight } from './three/StudioLight'
+import { ThemeProps } from './three/ThemeProps'
+import { Glass3D } from './three/Glass3D'
 import { Lazy3D } from './three/Lazy3D'
 import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
 import { useOverlay } from '../lib/overlay'
@@ -140,8 +142,8 @@ export function Scene3D() {
   const stations = useMemo(() => seated.map(({ agent, x, z }) => ({ id: agent.id, fn: agent.fn, x, z })), [seated])
   // what would actually change a shadow: which room, and who sits where
   const signature = useMemo(
-    () => `${tpl.id}|${stations.map((s) => `${s.id}:${s.x},${s.z}`).join('|')}`,
-    [tpl.id, stations],
+    () => `${tpl.id}|${dojo?.archetype ?? ''}|${stations.map((s) => `${s.id}:${s.x},${s.z}`).join('|')}`,
+    [tpl.id, dojo?.archetype, stations],
   )
   return (
     <Canvas
@@ -174,12 +176,20 @@ export function Scene3D() {
       <StudioLight />
       <hemisphereLight args={['#ffffff', P.ground, 0.55]} />
       <ambientLight intensity={0.22} />
+      {/* La clé, et la seule source qui porte une ombre. La carte passe de
+          1024 à 2048 : l'ombre est recalculée seulement quand la composition
+          de la scène change (voir ShadowBudget), donc le quadruplement de
+          résolution se paie une fois par changement de dojo, pas par image.
+          `normalBias` supprime le moiré d'auto-ombrage sur les sphères — les
+          personnages sont faits de sphères, c'est là qu'il se voyait. */}
       <directionalLight
         position={[6, 12, 8]}
         intensity={1.15}
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-bias={-0.0004}
+        shadow-normalBias={0.03}
         shadow-camera-left={-16}
         shadow-camera-right={16}
         shadow-camera-top={16}
@@ -191,6 +201,13 @@ export function Scene3D() {
       <pointLight position={[7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />
       <Suspense fallback={null}>
         <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
+        {/* le mobilier de MÉTIER · les bibliothèques d'un dojo « écrire un
+            livre », la baie de serveurs d'une application. Il s'ajoute au
+            monde choisi sans jamais le remplacer. */}
+        <ThemeProps archetype={dojo?.archetype} accent={P.accent} />
+        {/* la réfraction · deux pièces de verre, et deux seulement · voir
+            le commentaire en tête de Glass3D pour ce que ça coûte */}
+        <Glass3D accent={P.accent} />
         <Agents seated={seated} />
         {/* the panda mascot · front-and-centre, dances when a task completes */}
         <Lazy3D />

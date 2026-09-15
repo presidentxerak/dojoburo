@@ -35,6 +35,7 @@ const CHECKS = [
   // sécurité. Tout ce qu'elle refuse est refusé en silence, sans rien casser de
   // visible — deux corrections ont été prises comme ça le même jour. Il tourne
   // sans le serveur de prévisualisation, donc il coûte trente secondes.
+  ['check-theme-props.mjs', 1, true],
   ['audit-csp.mjs', 2, true],
   ['verify-gate.mjs', 2, true],
   ['verify-menu.mjs', 2, true],
@@ -45,6 +46,7 @@ const CHECKS = [
   ['verify-visual.mjs', 3, true],
   ['verify-mobile.mjs', 3, true],
   ['audit-hero.mjs', 3, true],
+  ['perf-scene.mjs', 3, true],
   ['verify-dedupe.mjs', 3, true],
   ['verify-documents.mjs', 3, true],
   ['verify-connect-ui.mjs', 4, true],

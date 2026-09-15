@@ -26,6 +26,44 @@ export const MATTE = { roughness: 0.68, metalness: 0.03, envMapIntensity: 0.6 }
 export const PAINTED_METAL = { roughness: 0.34, metalness: 0.35, envMapIntensity: 1.0 }
 
 /**
+ * La réfraction est-elle payable sur cette machine ?
+ *
+ * `transmission` oblige three.js à rendre une passe opaque supplémentaire
+ * hors écran à chaque image. Mesuré (scripts/perf-scene.mjs) : le dojo
+ * complet passe de 2 à 1 image par seconde sous SwiftShader — un facteur
+ * DEUX. Le chiffre absolu ne vaut rien (c'est un rasteriseur logiciel), le
+ * rapport si : la réfraction double le temps de rendu de la scène.
+ *
+ * Doubler le coût de la surface de travail principale sans le dire n'est pas
+ * une amélioration graphique, c'est une dette qu'on fait payer à
+ * l'utilisateur. On ne l'active donc que là où il y a de la marge, et on
+ * retombe ailleurs sur un verre honnête — translucide et brillant, il ne
+ * déforme simplement pas ce qu'il y a derrière.
+ *
+ * Trois refus, du plus sûr au plus prudent :
+ *   · rendu LOGICIEL (SwiftShader, llvmpipe, Mesa générique) · pas de GPU ;
+ *   · téléphone · l'écran est petit, le budget thermique aussi ;
+ *   · moins de quatre cœurs · une machine d'entrée de gamme.
+ */
+export function canAffordRefraction(gl: THREE.WebGLRenderer): boolean {
+  try {
+    const ctx = gl.getContext()
+    const dbg = ctx.getExtension('WEBGL_debug_renderer_info')
+    const name = String(
+      (dbg && ctx.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) || ctx.getParameter(ctx.RENDERER) || '',
+    ).toLowerCase()
+    if (/swiftshader|llvmpipe|software|basic render|microsoft basic/.test(name)) return false
+    if (typeof window !== 'undefined' && window.matchMedia?.('(max-width: 820px)').matches) return false
+    const cores = (navigator as { hardwareConcurrency?: number }).hardwareConcurrency
+    if (typeof cores === 'number' && cores > 0 && cores < 4) return false
+    return true
+  } catch {
+    // impossible de savoir → on ne prend pas le risque
+    return false
+  }
+}
+
+/**
  * Construit une carte d'environnement à partir de la pièce de démonstration
  * de three.js. Aucun fichier à télécharger : la géométrie est décrite en
  * JavaScript, filtrée une fois au montage (~10 ms) puis gardée.

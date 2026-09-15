@@ -1,10 +1,10 @@
 // The three.js half of the hero diorama · reached only through ./DojoDiorama.
-import { useRef, useEffect, useState, type ReactNode } from 'react'
+import { useRef, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Character3D } from '../three/Character3D'
 import { StudioLight } from '../three/StudioLight'
-import { MATTE } from '../three/toy'
+import { MATTE, canAffordRefraction } from '../three/toy'
 import { SKINS, skinById } from '../../data/skins'
 
 // A full-3D dojo diorama that slowly rotates as the landing hero, with a
@@ -86,6 +86,8 @@ function Desk({ x, z, skin, i }: { x: number; z: number; skin: string; i: number
  *  image : c'est le poste le plus cher du rendu. Un bassin, et un seul —
  *  la réfraction doit se voir, pas se payer douze fois. */
 function Pond() {
+  const gl = useThree((s) => s.gl)
+  const refract = useMemo(() => canAffordRefraction(gl), [gl])
   return (
     <group position={[0, 0.2, 2.0]}>
       {/* margelle de pierre */}
@@ -98,19 +100,15 @@ function Pond() {
         <cylinderGeometry args={[0.9, 0.9, 0.06, 36]} />
         <meshStandardMaterial color="#1b4c5a" roughness={0.9} />
       </mesh>
-      {/* l'eau · verre épais, très lisse, légèrement teinté */}
+      {/* l'eau · réfractante là où la machine peut se le permettre, sinon
+          translucide et brillante · même arbitrage que Glass3D, mesuré */}
       <mesh position={[0, 0.08, 0]}>
         <cylinderGeometry args={[0.9, 0.9, 0.16, 48]} />
-        <meshPhysicalMaterial
-          color="#bff0ff"
-          transmission={1}
-          thickness={0.55}
-          ior={1.33}
-          roughness={0.06}
-          metalness={0}
-          transparent
-          opacity={1}
-        />
+        {refract ? (
+          <meshPhysicalMaterial color="#bff0ff" transmission={1} thickness={0.55} ior={1.33} roughness={0.06} metalness={0} transparent />
+        ) : (
+          <meshStandardMaterial color="#8ed8ef" transparent opacity={0.72} roughness={0.08} metalness={0.04} envMapIntensity={1.5} />
+        )}
       </mesh>
       {/* nénuphar */}
       <mesh position={[0.34, 0.17, 0.18]} rotation={[-Math.PI / 2, 0, 0.4]} castShadow>
