@@ -1,4 +1,18 @@
-// Le visage Funko · deux grands ovales noirs, un museau, une petite bouche.
+// Le visage Funko · deux grands yeux noirs. Et, la plupart du temps, RIEN
+// d'autre.
+//
+// Première version ratée, et la leçon vaut d'être écrite : j'avais posé le
+// MÊME museau — truffe et petite bouche — sur les 38 espèces. Un chat, un
+// robot, un dragon et un fantôme recevaient tous le museau d'un chien.
+// Ajouté à une tête sphérique, ça ne donnait pas un Funko Pop : ça donnait
+// le chien d'Animal Crossing, trente-huit fois.
+//
+// Un vrai Funko Pop n'a NI NEZ NI BOUCHE. Deux ovales noirs sur une face
+// plate, et c'est tout — c'est précisément ce vide qui fait la signature.
+// Ce qui distingue les personnages entre eux n'est pas un visage plus
+// détaillé, c'est ce qui S'AJOUTE à ce vide : un museau pour les mammifères,
+// un bec pour les oiseaux, une visière pour les machines, des crocs pour les
+// monstres, des orbites creuses pour les squelettes.
 //
 // Ce qui remplace quoi · le visage était fait de glyphes ASCII (« o o » sur
 // « === »). C'était la signature du produit, et c'est aussi ce qui le faisait
@@ -24,6 +38,12 @@ import type { Mood } from '../../store'
 const W = 200
 const H = 150
 
+/** Ce qui s'ajoute aux deux yeux · rien, par défaut. */
+export type Snout = 'none' | 'muzzle' | 'beak' | 'visor' | 'fangs' | 'hollow'
+
+/** La forme des yeux · la deuxième moitié de la différenciation. */
+export type EyeKind = 'oval' | 'wide' | 'slit' | 'square' | 'dot'
+
 /** Un clignement, de temps en temps · c'est le détail qui fait qu'un visage
  *  fixe cesse d'avoir l'air mort. Les vraies figurines ne clignent pas ; les
  *  personnages qu'on regarde travailler, si. */
@@ -42,12 +62,21 @@ export function FunkoFace3D({
   color = '#1a1a22',
   /** couleur du museau · plus clair que la tête, comme sur les figurines */
   muzzle,
+  /** ce qui s'ajoute aux yeux · l'espèce le décide (voir SNOUT_BY_KIND) */
+  snout = 'none',
+  /** la forme des yeux · l'autre moitié de la différenciation */
+  eyes = 'oval',
+  /** couleur d'appoint · bec, visière, crocs */
+  tint = '#ffb400',
 }: {
   mood: Mood
   position: [number, number, number]
   scale?: number
   color?: string
   muzzle?: string
+  snout?: Snout
+  eyes?: EyeKind
+  tint?: string
 }) {
   const { texture, ctx } = useMemo(() => {
     const canvas = document.createElement('canvas')
@@ -65,16 +94,46 @@ export function FunkoFace3D({
   const draw = (m: Mood, blink: number) => {
     ctx.clearRect(0, 0, W, H)
     const cx = W / 2
-    const eyeY = 58
-    const dx = 40            // écartement des yeux
-    const rx = 17, ry = 23   // demi-axes de l'ovale
+    // Les yeux sont BAS sur le visage · sur une figurine Funko ils occupent
+    // le tiers inférieur de la face, ce qui laisse un grand front vide. Les
+    // remonter au centre, comme je l'avais fait, donne un visage de peluche.
+    const eyeY = 78
+    const dx = 40
+    // La forme de l'œil fait la moitié du travail de différenciation.
+    const EYE: Record<string, [number, number]> = {
+      oval: [17, 23], wide: [24, 26], slit: [19, 9], square: [18, 14], dot: [11, 11],
+    }
+    const [rx, ry] = EYE[eyes] ?? EYE.oval
 
-    // --- le museau, d'abord · il passe SOUS les yeux -------------------
-    if (muzzle) {
+    // --- ce qui s'ajoute aux yeux, sous eux ---------------------------
+    if (snout === 'muzzle' && muzzle) {
       ctx.fillStyle = muzzle
       ctx.beginPath()
-      ctx.ellipse(cx, 100, 34, 25, 0, 0, Math.PI * 2)
+      ctx.ellipse(cx, 116, 32, 20, 0, 0, Math.PI * 2)
       ctx.fill()
+    }
+    if (snout === 'beak') {
+      ctx.fillStyle = tint
+      ctx.beginPath()
+      ctx.moveTo(cx - 24, 108)
+      ctx.lineTo(cx + 24, 108)
+      ctx.lineTo(cx, 136)
+      ctx.closePath()
+      ctx.fill()
+    }
+    if (snout === 'visor') {
+      // une bande lumineuse à la place des yeux · les machines n'ont pas
+      // d'iris, elles ont un balayage
+      ctx.fillStyle = color
+      ctx.beginPath()
+      ctx.roundRect(cx - 66, eyeY - 20, 132, 40, 18)
+      ctx.fill()
+      ctx.fillStyle = tint
+      ctx.beginPath()
+      ctx.roundRect(cx - 56, eyeY - 11, 112, 22, 10)
+      ctx.fill()
+      texture.needsUpdate = true
+      return
     }
 
     ctx.fillStyle = color
@@ -147,53 +206,69 @@ export function FunkoFace3D({
       }
     }
 
-    // --- le nez et la bouche ------------------------------------------
+    // --- ce qui vient PAR-DESSUS ---------------------------------------
+    //
+    // Pas de truffe, pas de bouche. C'est le point de la première version
+    // ratée : les ajouter à tout le monde donnait un museau de chien sur un
+    // robot. Une figurine Funko au repos n'a que ses deux yeux.
     ctx.fillStyle = color
     ctx.strokeStyle = color
-    // truffe · un petit triangle arrondi, la marque de fabrique du museau
-    ctx.beginPath()
-    ctx.ellipse(cx, 90, 9, 7, 0, 0, Math.PI * 2)
-    ctx.fill()
 
-    ctx.lineWidth = 5
-    const mouthY = 108
-    switch (m) {
-      case 'happy':
-      case 'love':
+    if (snout === 'muzzle') {
+      // la truffe, uniquement pour ceux qui ont un museau
+      ctx.beginPath()
+      ctx.ellipse(cx, 106, 8, 6, 0, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    if (snout === 'fangs') {
+      // deux crocs qui dépassent · le monstre, sans bouche dessinée
+      for (const sx of [cx - 13, cx + 13]) {
+        ctx.fillStyle = '#f4f6fa'
         ctx.beginPath()
-        ctx.arc(cx, mouthY - 8, 15, 0.25 * Math.PI, 0.75 * Math.PI)
-        ctx.stroke()
-        break
-      case 'talk':
-        ctx.beginPath()
-        ctx.ellipse(cx, mouthY, 11, 9, 0, 0, Math.PI * 2)
+        ctx.moveTo(sx - 7, 106)
+        ctx.lineTo(sx + 7, 106)
+        ctx.lineTo(sx, 126)
+        ctx.closePath()
         ctx.fill()
-        break
-      case 'error':
-        // une bouche ondulée · l'ennui, dessiné
+      }
+    }
+    if (snout === 'hollow') {
+      // orbites creuses · un anneau sombre autour de chaque œil
+      ctx.strokeStyle = color
+      ctx.lineWidth = 7
+      for (const sx of [cx - dx, cx + dx]) {
         ctx.beginPath()
-        ctx.moveTo(cx - 15, mouthY)
-        ctx.quadraticCurveTo(cx - 7, mouthY - 7, cx, mouthY)
-        ctx.quadraticCurveTo(cx + 7, mouthY + 7, cx + 15, mouthY)
+        ctx.ellipse(sx, eyeY, rx + 9, ry + 9, 0, 0, Math.PI * 2)
         ctx.stroke()
-        break
-      case 'think':
-        ctx.beginPath()
-        ctx.ellipse(cx + 8, mouthY, 6, 5, 0, 0, Math.PI * 2)
-        ctx.stroke()
-        break
-      default:
-        // le trait minuscule · sur une vraie figurine, la bouche au repos
-        // tient en quelques millimètres
-        ctx.beginPath()
-        ctx.arc(cx, mouthY - 6, 11, 0.3 * Math.PI, 0.7 * Math.PI)
-        ctx.stroke()
+      }
+    }
+
+    // La BOUCHE n'apparaît que lorsqu'elle DIT quelque chose — parler, rire,
+    // échouer. Au repos et au travail, il n'y en a pas : c'est le silence du
+    // visage qui fait la figurine.
+    ctx.lineWidth = 5
+    ctx.strokeStyle = color
+    const mouthY = snout === 'muzzle' ? 124 : 118
+    if (m === 'happy' || m === 'love') {
+      ctx.beginPath()
+      ctx.arc(cx, mouthY - 10, 16, 0.22 * Math.PI, 0.78 * Math.PI)
+      ctx.stroke()
+    } else if (m === 'talk') {
+      ctx.beginPath()
+      ctx.ellipse(cx, mouthY, 11, 9, 0, 0, Math.PI * 2)
+      ctx.fill()
+    } else if (m === 'error') {
+      ctx.beginPath()
+      ctx.moveTo(cx - 15, mouthY)
+      ctx.quadraticCurveTo(cx - 7, mouthY - 7, cx, mouthY)
+      ctx.quadraticCurveTo(cx + 7, mouthY + 7, cx + 15, mouthY)
+      ctx.stroke()
     }
     texture.needsUpdate = true
   }
 
   // premier rendu, et redessin quand l'humeur change
-  useEffect(() => { drawn.current = ''; }, [mood, color, muzzle])
+  useEffect(() => { drawn.current = ''; }, [mood, color, muzzle, snout, eyes, tint])
 
   useFrame((s) => {
     const blink = blinkAt(s.clock.elapsedTime)

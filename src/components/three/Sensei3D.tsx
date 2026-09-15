@@ -157,34 +157,43 @@ export function Sensei3D({ bare = false, at = [0, 0, 6.2] as [number, number, nu
           <Sp p={[0.16, -0.5, 0.04]} r={0.13} c={SKIN} />
         </group>
 
-        {/* ---- la tête · moitié de la silhouette, comme l'équipe ------ */}
+        {/* ---- la tête · le même BLOC que l'équipe --------------------
+             Il avait une tête sphérique parce que l'équipe en avait une.
+             L'équipe a maintenant un bloc Funko : lui laisser la boule le
+             ferait lire comme une pièce venue d'un autre jeu. Tout ce qui
+             est posé dessus a suivi — la face avant est à 0,56, pas à 0,60
+             avec une courbure qui fuit. */}
         <group position={[0, 1.66, 0.04]}>
-          <Sp p={[0, 0, 0]} r={0.6} c={SKIN} />
+          <mesh geometry={roundedBox(1.2, 1.32, 1.12, 0.22, 8)} castShadow>
+            <meshStandardMaterial color={SKIN} {...VINYL} />
+          </mesh>
           {/* oreilles */}
-          <Sp p={[-0.56, -0.04, 0]} r={0.14} c={SKIN} s={[0.6, 1, 0.8]} />
-          <Sp p={[0.56, -0.04, 0]} r={0.14} c={SKIN} s={[0.6, 1, 0.8]} />
-          {/* couronne de cheveux + chignon · le crâne est dégarni sur le dessus */}
-          <mesh position={[0, 0.1, -0.04]} castShadow>
-            <torusGeometry args={[0.52, 0.11, 10, 26]} />
+          <Sp p={[-0.64, -0.04, 0]} r={0.14} c={SKIN} s={[0.6, 1, 0.8]} />
+          <Sp p={[0.64, -0.04, 0]} r={0.14} c={SKIN} s={[0.6, 1, 0.8]} />
+          {/* couronne de cheveux + chignon · le crâne est dégarni sur le
+              dessus. Le tore doit passer au-delà du COIN du bloc (≈ 0,72),
+              pas de son demi-côté. */}
+          <mesh position={[0, 0.16, -0.04]} castShadow>
+            <torusGeometry args={[0.7, 0.11, 10, 26]} />
             <meshStandardMaterial color={HAIR} {...MATTE} />
           </mesh>
-          <Sp p={[0, 0.5, -0.24]} r={0.19} c={HAIR} mat={MATTE} />
-          <Cap p={[0, 0.68, -0.26]} r={0.06} len={0.14} c={HAIR} mat={MATTE} />
+          <Sp p={[0, 0.58, -0.24]} r={0.19} c={HAIR} mat={MATTE} />
+          <Cap p={[0, 0.76, -0.26]} r={0.06} len={0.14} c={HAIR} mat={MATTE} />
           {/* sourcils épais et tombants */}
-          <Cap p={[-0.24, 0.16, 0.5]} r={0.055} len={0.2} c={HAIR} rot={[0, 0, 1.25]} mat={MATTE} />
-          <Cap p={[0.24, 0.16, 0.5]} r={0.055} len={0.2} c={HAIR} rot={[0, 0, -1.25]} mat={MATTE} />
+          <Cap p={[-0.24, 0.16, 0.6]} r={0.055} len={0.2} c={HAIR} rot={[0, 0, 1.25]} mat={MATTE} />
+          <Cap p={[0.24, 0.16, 0.6]} r={0.055} len={0.2} c={HAIR} rot={[0, 0, -1.25]} mat={MATTE} />
           {/* yeux calmes, mi-clos · deux traits, pas deux billes */}
-          <Bx p={[-0.22, 0.0, 0.56]} s={[0.17, 0.045, 0.03]} c="#22252d" />
-          <Bx p={[0.22, 0.0, 0.56]} s={[0.17, 0.045, 0.03]} c="#22252d" />
+          <Bx p={[-0.24, 0.0, 0.59]} s={[0.19, 0.05, 0.03]} c="#22252d" />
+          <Bx p={[0.24, 0.0, 0.59]} s={[0.19, 0.05, 0.03]} c="#22252d" />
           {/* joues */}
-          <Sp p={[-0.36, -0.14, 0.44]} r={0.11} c="#ff9fae" s={[1, 0.8, 0.6]} />
-          <Sp p={[0.36, -0.14, 0.44]} r={0.11} c="#ff9fae" s={[1, 0.8, 0.6]} />
+          <Sp p={[-0.4, -0.14, 0.55]} r={0.11} c="#ff9fae" s={[1, 0.8, 0.5]} />
+          <Sp p={[0.4, -0.14, 0.55]} r={0.11} c="#ff9fae" s={[1, 0.8, 0.5]} />
           {/* nez + moustache */}
-          <Sp p={[0, -0.12, 0.58]} r={0.08} c="#efbf95" />
-          <Cap p={[-0.13, -0.24, 0.52]} r={0.045} len={0.12} c={HAIR} rot={[0, 0, 1.4]} mat={MATTE} />
-          <Cap p={[0.13, -0.24, 0.52]} r={0.045} len={0.12} c={HAIR} rot={[0, 0, -1.4]} mat={MATTE} />
+          <Sp p={[0, -0.12, 0.6]} r={0.08} c="#efbf95" />
+          <Cap p={[-0.13, -0.24, 0.58]} r={0.045} len={0.12} c={HAIR} rot={[0, 0, 1.4]} mat={MATTE} />
+          <Cap p={[0.13, -0.24, 0.58]} r={0.045} len={0.12} c={HAIR} rot={[0, 0, -1.4]} mat={MATTE} />
           {/* la barbe · trois volumes qui s'affinent, suspendus au menton */}
-          <group ref={beard} position={[0, -0.34, 0.34]}>
+          <group ref={beard} position={[0, -0.44, 0.48]}>
             <Sp p={[0, -0.12, 0]} r={0.26} c={HAIR} s={[1, 1.1, 0.8]} mat={MATTE} />
             <Sp p={[0, -0.38, -0.02]} r={0.19} c={HAIR} s={[1, 1.2, 0.8]} mat={MATTE} />
             <Cap p={[0, -0.64, -0.03]} r={0.09} len={0.2} c={HAIR} mat={MATTE} />
