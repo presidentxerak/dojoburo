@@ -14,7 +14,14 @@ import { join } from 'node:path'
 const SHOT = process.env.SHOT_DIR || mkdtempSync(join(tmpdir(), 'tutorial-'))
 const B = process.env.BASE_URL || 'http://localhost:4173/'
 let fails = 0
-const ok = (c, m) => { console.log((c ? 'ok    ' : 'FAIL  ') + m); if (!c) fails++ }
+// Le détail compte AUTANT que le verdict. Les appels passaient déjà un
+// troisième argument — ce qui déborde, et de combien — et cette fonction
+// l'ignorait : un échec disait « ça ne tient pas » sans jamais dire quoi.
+// On a relancé l'épreuve trois fois pour apprendre ce qu'elle savait déjà.
+const ok = (c, m, detail) => {
+  console.log((c ? 'ok    ' : 'FAIL  ') + m + (!c && detail ? '\n      → ' + detail : ''))
+  if (!c) fails++
+}
 process.on('unhandledRejection', (e) => { console.log('threw: ' + (e?.message ?? e)); process.exit(1) })
 
 const br = await chromium.launch({ executablePath: process.env.CHROMIUM || '/opt/pw-browsers/chromium' })

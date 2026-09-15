@@ -1691,6 +1691,20 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 :root[data-theme='dark'] .logo-badge { color: #ffffff; }
 
 /* 3D agent previews · soft neutral backdrop so light + dark skins both read */
+/* Un <canvas> sans dimensions CSS mesure 300 × 150 · sa taille intrinsèque
+   HTML. React Three Fiber la corrige au montage, mais pendant ce laps il
+   DÉPASSE de son cadre : l'épreuve du tutoriel l'a attrapé à 1,7 s sur trois
+   passages sur trois, en 300 × 150 dans une scène de 510 px. On ne laisse
+   pas la correction arriver après coup — le canvas remplit son conteneur
+   depuis la première image. */
+.a3d > div, .a3d canvas,
+.lp-dojo3d > div, .lp-dojo3d canvas,
+.lp-dojo3d-inner > div, .lp-dojo3d-inner canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
 .a3d { border-radius: 12px; overflow: hidden; background: radial-gradient(120% 120% at 50% 22%, color-mix(in srgb, var(--ink) 5%, var(--panel-solid)), color-mix(in srgb, var(--ink) 18%, var(--panel-solid))); }
 .ws-preview3d { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
 .ws-pickbody { display: flex; gap: 14px; padding: 14px; flex: 1; min-height: 0; }

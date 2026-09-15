@@ -96,7 +96,7 @@ export default function Agent3DScene({
   padding?: number
 }) {
   const body = (
-    <Character3D bare id={id} character={character} x={0} z={0} mood={mood} selected={false} busy={false} name="" level={1} onSelect={() => {}} />
+    <Character3D bare grounded={false} id={id} character={character} x={0} z={0} mood={mood} selected={false} busy={false} name="" level={1} onSelect={() => {}} />
   )
   return (
     <div className="a3d" style={{ width: size, height: size }}>

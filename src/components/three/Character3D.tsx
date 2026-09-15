@@ -580,6 +580,7 @@ export function Character3D({
   onSelect,
   bare = false,
   walk = false,
+  grounded = true,
 }: {
   id: string
   character: Character
@@ -594,6 +595,9 @@ export function Character3D({
   onSelect: () => void
   bare?: boolean
   walk?: boolean
+  /** y a-t-il un sol sous lui ? · un aperçu d'avatar flotte, et une ombre
+   *  de contact y devient une tache sombre suspendue dans le vide */
+  grounded?: boolean
 }) {
   const g = useRef<THREE.Group>(null)
   const [hover, setHover] = useState(false)
@@ -665,7 +669,7 @@ export function Character3D({
 
   return (
     <group position={[x, 0, z]}>
-      <Contact r={0.95} />
+      {grounded && <Contact r={0.95} />}
       {!bare && selected && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
           <ringGeometry args={[0.95, 1.15, 40]} />
