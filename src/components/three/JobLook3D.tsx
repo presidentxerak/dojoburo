@@ -234,13 +234,16 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
       // les glyphes des yeux se dessineraient par-dessus les verres
       return (
         <group position={[0, hy + h.y * 0.2, h.z + 0.28]}>
+          {/* 0,19 de rayon sur une tête devenue petite couvrait les trois
+              quarts du visage : deux disques noirs à la place des yeux. Les
+              verres ENCADRENT les glyphes, ils ne les remplacent pas. */}
           {[-1, 1].map((sd) => (
-            <mesh key={sd} position={[sd * 0.42 * h.x, 0, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <torusGeometry args={[0.19, 0.035, 8, 20]} />
+            <mesh key={sd} position={[sd * 0.4 * h.x, 0, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <torusGeometry args={[0.125, 0.028, 8, 20]} />
               <meshStandardMaterial color="#2b2f3d" {...VINYL} />
             </mesh>
           ))}
-          <B p={[0, 0, 0]} s={[0.16, 0.035, 0.035]} c="#2b2f3d" />
+          <B p={[0, 0, 0]} s={[0.14, 0.03, 0.03]} c="#2b2f3d" />
           {[-1, 1].map((sd) => (
             <B key={sd} p={[sd * 0.78 * h.x, 0, -0.16]} s={[0.035, 0.035, 0.3]} c="#2b2f3d" rot={[0, sd * 0.4, 0]} />
           ))}
@@ -263,16 +266,17 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
       // casquette · visière tournée devant
       return (
         <group>
-          {/* APLATIE · une demi-sphère de rayon « tour de tête » posée sur une
-              tête devenue petite donnait un champignon deux fois plus haut
-              qu'elle. L'écrasement vertical est ce qui distingue une casquette
-              d'un dôme. */}
-          <mesh position={[0, top - 0.2, 0]} scale={[1, 0.55, 1]} castShadow>
-            <sphereGeometry args={[g * 0.86, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.2]} />
+          {/* Le rayon se prend sur la LARGEUR de la tête, pas sur son tour.
+              Pris sur le tour (≈ 0,76 pour un cube), il dépassait la tête de
+              douze pour cent et, écrasé, se lisait comme un pain à hamburger
+              posé dessus — visible sur les captures de la villa. Une
+              casquette est un peu plus étroite que le crâne, et bombée. */}
+          <mesh position={[0, top - 0.24, 0]} scale={[1, 0.82, 1]} castShadow>
+            <sphereGeometry args={[Math.max(h.x, h.z) + 0.03, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.2]} />
             <meshStandardMaterial color={accent} {...VINYL} side={THREE.DoubleSide} />
           </mesh>
-          <B p={[0, top - 0.2, h.z * 0.92]} s={[g * 0.95, 0.055, 0.34]} c={accent} rot={[0.14, 0, 0]} />
-          <Sp p={[0, top + 0.02, 0]} r={0.055} c="#f4f6fa" />
+          <B p={[0, top - 0.22, h.z * 0.9]} s={[h.x * 1.5, 0.05, 0.32]} c={accent} rot={[0.16, 0, 0]} />
+          <Sp p={[0, top + 0.12, 0]} r={0.05} c="#f4f6fa" />
         </group>
       )
     case 'People':
@@ -290,16 +294,16 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
       // casque de chantier · calotte et bord, avec sa crête
       return (
         <group>
-          {/* même écrasement que la casquette, et pour la même raison */}
-          <mesh position={[0, top - 0.18, 0]} scale={[1, 0.56, 1]} castShadow>
-            <sphereGeometry args={[g * 0.92, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.1]} />
+          {/* même correction que la casquette · un casque, pas une galette */}
+          <mesh position={[0, top - 0.2, 0]} scale={[1, 0.8, 1]} castShadow>
+            <sphereGeometry args={[Math.max(h.x, h.z) + 0.06, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.1]} />
             <meshStandardMaterial color="#ffb400" {...VINYL} side={THREE.DoubleSide} />
           </mesh>
-          <mesh position={[0, top - 0.17, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <torusGeometry args={[g * 0.92, 0.05, 8, 24]} />
+          <mesh position={[0, top - 0.19, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <torusGeometry args={[Math.max(h.x, h.z) + 0.08, 0.045, 8, 24]} />
             <meshStandardMaterial color="#e8a300" {...VINYL} />
           </mesh>
-          <B p={[0, top + 0.02, 0]} s={[0.08, 0.13, g * 1.4]} c="#e8a300" />
+          <B p={[0, top + 0.2, 0]} s={[0.075, 0.12, h.z * 1.9]} c="#e8a300" />
         </group>
       )
     default:

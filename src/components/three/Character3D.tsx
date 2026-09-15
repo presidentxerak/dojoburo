@@ -529,52 +529,58 @@ function accForId(id: string, kind: string): Acc | null {
 }
 // Les chapeaux · posés sur le SOMMET de la tête, quel qu'il soit.
 //
-// Mêmes deux règles que les coiffes : le bord se calcule sur le tour de tête
-// (`girth`) et non sur le demi-côté — sinon les quatre coins d'une boîte
-// ressortent au travers — et tout se pose par rapport à `crown`, le sommet du
-// crâne, au lieu d'être écrit en dur pour une seule forme.
+// Le rayon se prend sur la LARGEUR de la tête (`hw`), pas sur son tour. La
+// première version prenait le tour — la diagonale d'une boîte — et donnait des
+// chapeaux douze à trente pour cent plus larges que le crâne. Écrasés, ils se
+// lisaient comme des galettes ou des pains à hamburger posés sur la tête :
+// c'est le défaut qu'on voyait sur toutes les captures de l'application.
+//
+// Le tour ne sert plus qu'aux BORDS, qui doivent effectivement dépasser les
+// quatre coins d'une tête cubique, sinon ils les laissent ressortir au
+// travers. Bord large, calotte étroite : c'est ce qui fait un chapeau.
 function Accessory({ kind, id, h }: { kind: Acc; id: string; h: Head }) {
-  const t = crown(h)          // le sommet du crâne
-  const g = girth(h)          // le tour de tête
+  const t = crown(h)                      // le sommet du crâne
+  const g = girth(h)                      // le tour · pour les bords seulement
+  const hw = Math.max(h.x, h.z)           // la largeur · pour les calottes
   switch (kind) {
     case 'bowler': {
       const c = hatColor(id)
-      return <group><Cyl p={[0, t - 0.06, 0]} r={g + 0.12} h={0.06} c={c} /><Ball p={[0, t + 0.08, 0]} r={g * 0.58} c={c} s={[1, 0.8, 1]} /></group>
+      return <group><Cyl p={[0, t - 0.04, 0]} r={g + 0.14} h={0.055} c={c} /><Ball p={[0, t + 0.06, 0]} r={hw * 0.82} c={c} s={[1, 0.86, 1]} /></group>
     }
     case 'tophat': {
       const c = hatColor(id)
-      return <group><Cyl p={[0, t - 0.06, 0]} r={g + 0.16} h={0.05} c={c} /><Cyl p={[0, t + 0.48, 0]} r={g * 0.62} h={0.88} c={c} /><Cyl p={[0, t + 0.08, 0]} r={g * 0.64} h={0.1} c={hatColor(id, 'band')} /></group>
+      return <group><Cyl p={[0, t - 0.04, 0]} r={g + 0.18} h={0.05} c={c} /><Cyl p={[0, t + 0.4, 0]} r={hw * 0.8} h={0.82} c={c} /><Cyl p={[0, t + 0.06, 0]} r={hw * 0.83} h={0.1} c={hatColor(id, 'band')} /></group>
     }
     case 'cowboy':
-      return <group><Cyl p={[0, t - 0.1, 0]} r={g + 0.3} h={0.05} c="#b07a42" /><Cyl p={[0, t + 0.16, 0]} r={g * 0.58} h={0.5} c="#a9743f" /><Cyl p={[0, t - 0.03, 0]} r={g * 0.6} h={0.09} c={hatColor(id, 'band')} /></group>
+      return <group><Cyl p={[0, t - 0.06, 0]} r={g + 0.32} h={0.05} c="#b07a42" /><Cyl p={[0, t + 0.18, 0]} r={hw * 0.76} h={0.46} c="#a9743f" /><Cyl p={[0, t - 0.01, 0]} r={hw * 0.79} h={0.08} c={hatColor(id, 'band')} /></group>
     case 'wizardhat': {
       const c = hatColor(id)
-      return <group><Cyl p={[0, t - 0.06, 0]} r={g + 0.16} h={0.05} c={c} /><Cone p={[0, t + 0.66, 0]} r={g * 0.68} h={1.3} c={c} /><Ball p={[0.18, t + 0.56, 0.3]} r={0.075} c="#ffe066" /><Ball p={[-0.13, t + 1.0, 0.18]} r={0.055} c="#ffe066" /><Ball p={[0.05, t + 0.32, 0.4]} r={0.055} c="#fff" /></group>
+      return <group><Cyl p={[0, t - 0.04, 0]} r={g + 0.18} h={0.05} c={c} /><Cone p={[0, t + 0.56, 0]} r={hw * 0.88} h={1.15} c={c} /><Ball p={[0.16, t + 0.46, 0.26]} r={0.07} c="#ffe066" /><Ball p={[-0.12, t + 0.86, 0.16]} r={0.05} c="#ffe066" /><Ball p={[0.05, t + 0.24, 0.34]} r={0.05} c="#fff" /></group>
     }
     case 'cap': {
       const c = CAP_COLORS[Math.abs(hashCode(id)) % CAP_COLORS.length]
-      return <group><Ball p={[0, t - 0.14, 0]} r={g + 0.02} c={c} s={[1, 0.58, 0.98]} /><Box p={[0, t - 0.23, h.z * 0.86]} s={[g * 1.0, 0.06, 0.4]} c={c} /><Ball p={[0, t + 0.12, 0]} r={0.055} c="#ffcf3b" /></group>
+      return <group><Ball p={[0, t - 0.1, 0]} r={hw + 0.03} c={c} s={[1, 0.8, 0.98]} /><Box p={[0, t - 0.14, h.z * 0.9]} s={[hw * 1.5, 0.055, 0.36]} c={c} /><Ball p={[0, t + 0.3, 0]} r={0.05} c="#ffcf3b" /></group>
     }
     case 'beret': {
       const c = hatColor(id)
-      return <group><Ball p={[0, t - 0.14, 0]} r={g + 0.04} c={c} s={[1, 0.4, 0.98]} /><Ball p={[0, t + 0.02, 0]} r={0.055} c={c} /></group>
+      return <group><Ball p={[0, t - 0.02, 0]} r={hw + 0.1} c={c} s={[1, 0.52, 0.98]} /><Ball p={[0, t + 0.2, 0]} r={0.055} c={c} /></group>
     }
     case 'beanie': {
       const c = hatColor(id)
-      return <group><Ball p={[0, t - 0.14, 0]} r={g + 0.03} c={c} s={[1, 0.6, 0.98]} /><Cyl p={[0, t - 0.28, 0]} r={g + 0.05} h={0.15} c={hatColor(id, 'cuff')} /><Ball p={[0, t + 0.22, 0]} r={0.1} c="#ffffff" /></group>
+      return <group><Ball p={[0, t - 0.06, 0]} r={hw + 0.04} c={c} s={[1, 0.82, 0.98]} /><Cyl p={[0, t - 0.18, 0]} r={hw + 0.07} h={0.14} c={hatColor(id, 'cuff')} /><Ball p={[0, t + 0.42, 0]} r={0.095} c="#ffffff" /></group>
     }
     case 'party': {
       const c = hatColor(id)
-      return <group><Cone p={[0, t + 0.3, 0]} r={g * 0.56} h={0.95} c={c} /><Ball p={[0, t + 0.8, 0]} r={0.11} c={hatColor(id, 'pom')} /><Ball p={[0.2, t + 0.12, 0.24]} r={0.045} c="#fff" /></group>
+      return <group><Cone p={[0, t + 0.36, 0]} r={hw * 0.74} h={0.9} c={c} /><Ball p={[0, t + 0.84, 0]} r={0.1} c={hatColor(id, 'pom')} /><Ball p={[0.16, t + 0.2, 0.2]} r={0.045} c="#fff" /></group>
     }
     case 'flower': {
       const c = hatColor(id, 'petal')
-      return <group>{[0, 1, 2, 3, 4].map((k) => { const a = (k / 5) * Math.PI * 2; return <Ball key={k} p={[Math.cos(a) * 0.24, t + 0.06, Math.sin(a) * 0.24]} r={0.14} c={c} /> })}<Ball p={[0, t + 0.08, 0]} r={0.12} c="#ffe066" /></group>
+      return <group>{[0, 1, 2, 3, 4].map((k) => { const a = (k / 5) * Math.PI * 2; return <Ball key={k} p={[Math.cos(a) * hw * 0.42, t + 0.06, Math.sin(a) * hw * 0.42]} r={0.13} c={c} /> })}<Ball p={[0, t + 0.08, 0]} r={0.11} c="#ffe066" /></group>
     }
     case 'shades':
       // à hauteur d'YEUX, et DEVANT le panneau du visage · posées derrière,
       // les glyphes se dessineraient par-dessus les verres
-      return <group>{[-1, 1].map((sd) => <Box key={sd} p={[sd * 0.46 * h.x, HEAD_Y + h.y * 0.2, h.z + 0.26]} s={[0.32, 0.2, 0.05]} c="#15151a" />)}<Box p={[0, HEAD_Y + h.y * 0.2, h.z + 0.26]} s={[0.24, 0.05, 0.05]} c="#15151a" /></group>
+      return <group>{[-1, 1].map((sd) => <Box key={sd} p={[sd * 0.42 * h.x, HEAD_Y + h.y * 0.2, h.z + 0.26]} s={[0.26, 0.16, 0.05]} c="#15151a" />)}<Box p={[0, HEAD_Y + h.y * 0.2, h.z + 0.26]} s={[0.2, 0.045, 0.045]} c="#15151a" /></group>
   }
 }
 
@@ -952,8 +958,12 @@ export function Character3D({
         )}
       </group>
 
+      {/* L'étiquette se pose AU-DESSUS de ce que le personnage porte. À 2,95
+          elle était calée sur une tête nue ; un haut-de-forme ou un chapeau de
+          sorcier monte bien plus haut, et sur les captures de l'application les
+          noms se lisaient À TRAVERS les chapeaux. */}
       {!bare && (
-        <Html position={[0, isSlime ? 2.35 : 2.95, 0]} center distanceFactor={11} zIndexRange={[6, 0]} pointerEvents="none" occlude={false}>
+        <Html position={[0, isSlime ? 2.6 : 3.55, 0]} center distanceFactor={11} zIndexRange={[6, 0]} pointerEvents="none" occlude={false}>
           <div className={`tag3d ${selected ? 'sel' : ''}`}>
             {title}
           </div>
@@ -961,12 +971,12 @@ export function Character3D({
       )}
       {/* the agent's line of the conversation with the brain */}
       {!bare && speaking && (
-        <Html position={[0.7, isSlime ? 2.05 : 2.5, 0]} center distanceFactor={9} zIndexRange={[8, 0]} pointerEvents="none">
+        <Html position={[0.8, isSlime ? 2.2 : 2.75, 0]} center distanceFactor={9} zIndexRange={[8, 0]} pointerEvents="none">
           <div className="bubble3d">{banter.text}</div>
         </Html>
       )}
       {!bare && busy && (
-        <Html position={[0, isSlime ? 2.7 : 3.4, 0]} center distanceFactor={12} zIndexRange={[6, 0]} pointerEvents="none">
+        <Html position={[0, isSlime ? 3.05 : 4.0, 0]} center distanceFactor={12} zIndexRange={[6, 0]} pointerEvents="none">
           <div className="work3d" />
         </Html>
       )}

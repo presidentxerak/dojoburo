@@ -15,15 +15,23 @@
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 
-/** Corps, têtes, membres · la matière par défaut d'un personnage. */
-export const VINYL = { roughness: 0.42, metalness: 0.0, envMapIntensity: 0.85 }
+/** Corps, têtes, membres · la matière par défaut d'un personnage.
+ *
+ *  0,42 de rugosité donnait une surface propre mais SÈCHE : la lumière s'y
+ *  posait sans jamais s'y refléter, et une figurine sans reflet se lit comme
+ *  une forme colorée, pas comme du plastique. Le reflet spéculaire — la
+ *  tache claire qui glisse sur le crâne quand la caméra bouge — est ce qui
+ *  dit « vinyle ». On resserre à 0,3 et on ouvre l'intensité d'environnement,
+ *  qui est ce qui alimente ce reflet. */
+export const VINYL = { roughness: 0.3, metalness: 0.0, envMapIntensity: 1.15 }
 
-/** Bois, pierre, tissu · un décor absorbe plus qu'une figurine. */
-export const MATTE = { roughness: 0.68, metalness: 0.03, envMapIntensity: 0.6 }
+/** Bois, pierre, tissu · un décor absorbe plus qu'une figurine, mais pas au
+ *  point de ne rien renvoyer : à 0,68 les meubles étaient des aplats. */
+export const MATTE = { roughness: 0.56, metalness: 0.03, envMapIntensity: 0.85 }
 
 /** Métal peint · casques, machines, robots. Assez lisse pour accrocher la
  *  lumière, jamais assez pour devenir un miroir. */
-export const PAINTED_METAL = { roughness: 0.34, metalness: 0.35, envMapIntensity: 1.0 }
+export const PAINTED_METAL = { roughness: 0.26, metalness: 0.4, envMapIntensity: 1.3 }
 
 /**
  * La réfraction est-elle payable sur cette machine ?

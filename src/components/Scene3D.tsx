@@ -149,7 +149,7 @@ export function Scene3D() {
   )
   return (
     <Canvas
-      shadows
+      shadows="soft"
       // Covered by a full-screen surface or the menu? Stop drawing. Nothing is
       // visible, and the loop was starving every click in the header.
       // Visible? Draw on the browser's own rhythm — animation deltas have to
@@ -157,7 +157,7 @@ export function Scene3D() {
       // surface or the menu? Draw nothing at all: that is where the cost was,
       // and it is what made panels take seconds to appear.
       frameloop={covered ? 'never' : 'always'}
-      dpr={[1, 1.25]}
+      dpr={[1, 1.4]}
       camera={{ position: [2.2, 8.4, 14], fov: 42, near: 0.1, far: 100 }}
       gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.08 }}
       onPointerMissed={() => deselect(null)}
@@ -175,7 +175,7 @@ export function Scene3D() {
           point brillant et restent plats. Il remplace une partie de la
           lumière ambiante, qui écrasait le relief en éclairant tout
           également. */}
-      <StudioLight />
+      <StudioLight intensity={1.2} />
       {/* Une lumière CHAUDE qui vient d'un côté, une FROIDE qui vient de
           l'autre. Une scène éclairée par une seule source blanche et beaucoup
           d'ambiante est lisible mais plate : tout y est du même blanc, et

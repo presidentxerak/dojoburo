@@ -1526,6 +1526,139 @@ function ThemeDecor({ id, backZ, P }: { id: string; backZ: number; P: DojoPalett
   }
 }
 
+// L'ENVELOPPE DE DOJO · charpente de bois et panneaux de papier.
+//
+// Le reproche : « les fonds et arrière-plans sont pauvres et fades ». Il était
+// exact, et pour une raison structurelle : seuls DEUX mondes sur douze avaient
+// des murs. Les dix autres étaient une plateforme posée sur un dégradé, donc
+// tout le haut du cadre — la moitié de l'image — n'était qu'un aplat de
+// couleur. Aucun objet, aucune ombre, rien pour accrocher la lumière.
+//
+// Chaque dojo reçoit donc la même enveloppe : poteaux, linteau, plinthe et
+// panneaux translucides. Elle est CONSTRUITE, pas plaquée — un poteau tous les
+// cinq mètres, un quadrillage sur chaque panneau, une plinthe qui court au
+// sol. C'est cette répétition régulière qui donne l'échelle de la pièce et qui
+// fait qu'un mur se lit comme un mur.
+//
+// Les panneaux sont légèrement émissifs : sur une figurine de vinyle, la
+// lumière rasante d'un fond clair est ce qui creuse les volumes. Un mur sombre
+// aurait rendu les personnages plats.
+//
+// Les couleurs viennent de la palette du monde, jamais du bois « dojo » : un
+// dojo spatial garde des murs bleu nuit, le laboratoire des murs blancs. Seule
+// la CHARPENTE est commune, et c'est elle qui fait la famille.
+function Shoji({ w, h, paper, wood, glow }: { w: number; h: number; paper: string; wood: string; glow: number }) {
+  const tex = shojiTex(paper)
+  // Un meneau tous les ~1,6 · à 1,1 le quadrillage était deux fois plus
+  // dense, soit ~170 maillages rien que pour les murs. Chacun est un appel de
+  // dessin, et la mesure l'a vu : la scène est passée de trois images à deux
+  // par fenêtre de quatre secondes. À cette distance de caméra la maille fine
+  // ne se lit même pas — on paie un détail que personne ne voit.
+  const mull = Math.max(1, Math.round(w / 1.6))     // meneaux verticaux
+  const rails = Math.max(1, Math.round(h / 1.6))    // traverses
+  return (
+    <group>
+      <mesh receiveShadow>
+        <boxGeometry args={[w, h, 0.07]} />
+        <meshStandardMaterial
+          color={paper}
+          map={tex.map}
+          normalMap={tex.normalMap}
+          normalScale={NORMAL_WALL}
+          emissive={'#fff4dc'}
+          emissiveIntensity={glow}
+          roughness={0.86}
+        />
+      </mesh>
+      {Array.from({ length: mull - 1 }, (_, i) => (
+        <mesh key={'v' + i} position={[-w / 2 + (w * (i + 1)) / mull, 0, 0.05]}>
+          <boxGeometry args={[0.055, h, 0.04]} />
+          <meshStandardMaterial color={wood} roughness={0.8} />
+        </mesh>
+      ))}
+      {Array.from({ length: rails - 1 }, (_, i) => (
+        <mesh key={'h' + i} position={[0, -h / 2 + (h * (i + 1)) / rails, 0.05]}>
+          <boxGeometry args={[w, 0.055, 0.04]} />
+          <meshStandardMaterial color={wood} roughness={0.8} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+function DojoShell({ P, w, d, h }: { P: DojoPalette; w: number; d: number; h: number }) {
+  const hw = w / 2
+  const backZ = -d / 2
+  const wood = P.trim
+  const sill = 0.5                    // plinthe
+  const head = h - 0.7                // linteau
+  const bayH = head - sill
+  // un poteau tous les ~4,6 unités · assez serré pour donner l'échelle, assez
+  // lâche pour ne pas faire une palissade
+  const bays = Math.max(3, Math.round(w / 4.6))
+  const sideBays = Math.max(3, Math.round(d / 4.6))
+  const bayW = w / bays
+  const sideW = d / sideBays
+
+  const Frame = ({ len, rotY, at }: { len: number; rotY: number; at: [number, number, number] }) => (
+    <group position={at} rotation={[0, rotY, 0]}>
+      {/* plinthe et linteau · les deux lignes horizontales qui tiennent tout */}
+      <mesh position={[0, sill / 2, 0]} receiveShadow castShadow>
+        <boxGeometry args={[len, sill, 0.34]} />
+        <meshStandardMaterial color={wood} roughness={0.82} />
+      </mesh>
+      <mesh position={[0, head + 0.35, 0]} receiveShadow castShadow>
+        <boxGeometry args={[len, 0.7, 0.42]} />
+        <meshStandardMaterial color={wood} roughness={0.82} />
+      </mesh>
+    </group>
+  )
+
+  return (
+    <group>
+      {/* --- le fond --- */}
+      <mesh position={[0, h / 2, backZ - 0.2]} receiveShadow>
+        <boxGeometry args={[w + 0.8, h, 0.4]} />
+        <meshStandardMaterial color={P.wallBack} roughness={0.95} />
+      </mesh>
+      {Array.from({ length: bays }, (_, i) => (
+        <group key={'b' + i} position={[-hw + bayW * (i + 0.5), sill + bayH / 2, backZ]}>
+          <Shoji w={bayW - 0.34} h={bayH} paper={P.wallBack} wood={wood} glow={0.2} />
+        </group>
+      ))}
+      {Array.from({ length: bays + 1 }, (_, i) => (
+        <mesh key={'p' + i} position={[-hw + bayW * i, h / 2, backZ + 0.02]} castShadow receiveShadow>
+          <boxGeometry args={[0.3, h, 0.36]} />
+          <meshStandardMaterial color={wood} roughness={0.82} />
+        </mesh>
+      ))}
+      <Frame len={w} rotY={0} at={[0, 0, backZ + 0.02]} />
+
+      {/* --- les côtés --- */}
+      {[-1, 1].map((sd) => (
+        <group key={sd}>
+          <mesh position={[sd * (hw + 0.2), h / 2, 0]} receiveShadow>
+            <boxGeometry args={[0.4, h, d]} />
+            <meshStandardMaterial color={P.wallSide} roughness={0.95} />
+          </mesh>
+          {Array.from({ length: sideBays }, (_, i) => (
+            <group key={i} position={[sd * hw, sill + bayH / 2, -d / 2 + sideW * (i + 0.5)]} rotation={[0, Math.PI / 2, 0]}>
+              <Shoji w={sideW - 0.34} h={bayH} paper={P.wallSide} wood={wood} glow={0.14} />
+            </group>
+          ))}
+          {Array.from({ length: sideBays + 1 }, (_, i) => (
+            <mesh key={'sp' + i} position={[sd * hw, h / 2, -d / 2 + sideW * i]} castShadow receiveShadow>
+              <boxGeometry args={[0.36, h, 0.3]} />
+              <meshStandardMaterial color={wood} roughness={0.82} />
+            </mesh>
+          ))}
+          <Frame len={d} rotY={Math.PI / 2} at={[sd * hw, 0, 0]} />
+        </group>
+      ))}
+    </group>
+  )
+}
+
 export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoPalette; decor: string; enclosed?: boolean; stations: Array<{ id: string; fn: Department; x: number; z: number }> }) {
   const P = palette
   const backZ = -ROOM.d / 2
@@ -1545,7 +1678,8 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
               map={floorTexture(decor, P.ground)?.map}
               normalMap={floorTexture(decor, P.ground)?.normalMap}
               normalScale={NORMAL_FLOOR}
-              roughness={floorTexture(decor, P.ground)?.roughness ?? 0.92}
+              roughness={(floorTexture(decor, P.ground)?.roughness ?? 0.92) * 0.72}
+              envMapIntensity={0.9}
             />
           </mesh>
           {/* La grille disait l'échelle tant que le sol était un aplat. Maintenant
@@ -1554,34 +1688,26 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
           {decor !== 'backrooms' && !floorTexture(decor, P.ground) && <gridHelper args={[ROOM.w, 8, P.grid, P.grid]} position={[0, 0.02, 0]} />}
           {decor === 'backrooms' ? (
             <group>
-              {/* back wall split by a central doorway that opens onto the corridor */}
+              {/* les Backrooms gardent leur identité · papier jauni et une
+                  porte au fond. Leur y coller une charpente de dojo aurait
+                  effacé le seul monde dont le vide EST le sujet. */}
               {[-6.5, 6.5].map((x) => (
                 <mesh key={x} position={[x, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[7, ROOM.wallH, 0.4]} /><meshStandardMaterial color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
               ))}
               <mesh position={[0, ROOM.wallH - 1, backZ]} receiveShadow><boxGeometry args={[6.2, 2, 0.4]} /><meshStandardMaterial color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
+              {[-1, 1].map((sd) => (
+                <mesh key={sd} position={[sd * halfW, ROOM.wallH / 2, 0]} receiveShadow><boxGeometry args={[0.4, ROOM.wallH, ROOM.d]} /><meshStandardMaterial color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
+              ))}
             </group>
           ) : (
-            <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} /><meshStandardMaterial color={P.wallBack} map={decor === 'dojo' ? shojiTex('#f3ead6').map : undefined} normalMap={decor === 'dojo' ? shojiTex('#f3ead6').normalMap : undefined} normalScale={NORMAL_WALL} roughness={0.95} /></mesh>
+            <DojoShell P={P} w={ROOM.w} d={ROOM.d} h={ROOM.wallH} />
           )}
-          {decor !== 'backrooms' && <mesh position={[0, 0.2, backZ + 0.22]}><boxGeometry args={[ROOM.w, 0.4, 0.1]} /><meshStandardMaterial color={P.trim} /></mesh>}
-          {[-1, 1].map((s) => (
-            <mesh key={s} position={[s * halfW, ROOM.wallH / 2, 0]} receiveShadow><boxGeometry args={[0.4, ROOM.wallH, ROOM.d]} /><meshStandardMaterial color={decor === 'backrooms' ? '#e8dca0' : P.wallSide} map={decor === 'backrooms' ? backroomsWallpaper() : undefined} roughness={1} /></mesh>
-          ))}
-          {/* only the Zen Dojo gets shoji screens + a hanging scroll */}
           {decor === 'dojo' && (
-            <group>
-              {[-7.5, -3.5, 3.5, 7.5].map((x) => (
-                <group key={x} position={[x, 2.4, backZ + 0.25]}>
-                  <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} map={shojiTex().map} normalMap={shojiTex().normalMap} normalScale={NORMAL_WALL} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
-                  {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.06]}><boxGeometry args={[0.05, 2.6, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
-                  {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.06]}><boxGeometry args={[2.6, 0.05, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
-                </group>
-              ))}
-              <group position={[0, 2.1, backZ + 0.25]}>
-                <mesh><boxGeometry args={[2.4, 4.0, 0.14]} /><meshStandardMaterial color={WOOD_D} /></mesh>
-                <mesh position={[-0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={PAPER} /></mesh>
-                <mesh position={[0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={P.accent} emissive={P.accent} emissiveIntensity={0.15} /></mesh>
-              </group>
+            <group position={[0, 2.5, backZ + 0.3]}>
+              {/* le kakémono · seul le dojo zen le porte, c'est sa signature */}
+              <mesh><boxGeometry args={[2.4, 4.0, 0.14]} /><meshStandardMaterial color={WOOD_D} /></mesh>
+              <mesh position={[-0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={PAPER} /></mesh>
+              <mesh position={[0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><meshStandardMaterial color={P.accent} emissive={P.accent} emissiveIntensity={0.15} /></mesh>
             </group>
           )}
           {[-halfW + 0.6, halfW - 0.6].map((x) => (
@@ -1598,7 +1724,8 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
               map={floorTexture(decor, P.ground)?.map}
               normalMap={floorTexture(decor, P.ground)?.normalMap}
               normalScale={NORMAL_FLOOR}
-              roughness={floorTexture(decor, P.ground)?.roughness ?? 0.92}
+              roughness={(floorTexture(decor, P.ground)?.roughness ?? 0.92) * 0.72}
+              envMapIntensity={0.9}
             />
           </mesh>
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
@@ -1606,6 +1733,11 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
             <meshStandardMaterial color={P.grid} roughness={1} transparent opacity={0.5} />
           </mesh>
           {!floorTexture(decor, P.ground) && <gridHelper args={[26, 13, P.grid, P.grid]} position={[0, 0.02, 0]} />}
+          {/* La MÊME enveloppe, en plus large · elle se pose DERRIÈRE le décor
+              du thème (palmiers, étagères, machines), qui tient dans un rayon
+              d'une douzaine d'unités. Posée à la taille d'une salle fermée,
+              elle aurait traversé les palmiers de la villa. */}
+          <DojoShell P={P} w={30} d={23} h={7.5} />
         </group>
       )}
 
