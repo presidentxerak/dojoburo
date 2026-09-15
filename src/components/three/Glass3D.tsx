@@ -14,7 +14,7 @@
 // s'active que si la machine peut la payer (canAffordRefraction) : mesuré,
 // elle fait passer le dojo de 2 à 1 image par seconde sous rendu logiciel.
 // Ailleurs, le même objet est dessiné en verre translucide et brillant.
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, useContext, useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { useThree } from '@react-three/fiber'
 import { MATTE, PAINTED_METAL, canAffordRefraction } from './toy'
@@ -141,6 +141,11 @@ export function Glass3D({ accent }: { accent: string }) {
   // une fois, au montage · interroger le pilote à chaque image ne dirait rien
   // de plus et coûterait un aller-retour WebGL
   const on = useMemo(() => canAffordRefraction(gl), [gl])
+  // La décision, écrite sur le canvas. Sans elle, la seule façon de vérifier
+  // que la garde fait son travail serait de mesurer un nombre d'images — et
+  // ce nombre ne veut rien dire sur la machine d'intégration, qui rend en
+  // logiciel. Un attribut de données se lit sans rien deviner.
+  useEffect(() => { gl.domElement.dataset.refraction = on ? '1' : '0' }, [gl, on])
   const L: V3 = [-9.0, 0, -7.2]
   const R: V3 = [9.0, 0, -7.2]
   return (

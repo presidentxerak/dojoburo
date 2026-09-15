@@ -1,25 +1,27 @@
-// Ce que coûte la scène 3D du dojo, en images par seconde, mesuré.
+// La scène 3D du dojo s'ouvre-t-elle, et la garde de réfraction fait-elle
+// son travail ?
 //
-// Deux postes ont été ajoutés au rendu : une carte d'ombre de 2048 (elle ne
-// se recalcule que lorsque la composition change, voir ShadowBudget) et deux
-// objets réfractants, qui obligent three.js à rendre une passe opaque
-// supplémentaire hors écran À CHAQUE IMAGE.
+// Ce script a d'abord échoué sur SON PROPRE seuil : il exigeait 12 images
+// par seconde alors que le navigateur d'intégration rend en SwiftShader,
+// un rasteriseur LOGICIEL où la scène entière tourne à 2. Le défaut était
+// dans l'instrument, pas dans le produit — et un seuil absolu d'images par
+// seconde sur une machine inconnue ne pouvait de toute façon rien garder.
 //
-// Le second est le seul qui se paie image après image, et c'est exactement
-// le genre de dépense qui ne se voit pas tant qu'on ne la mesure pas. Ce
-// script compte les images réellement présentées pendant quatre secondes.
+// Ce qu'on vérifie maintenant est DÉTERMINISTE : la garde écrit sa décision
+// sur le canvas (`data-refraction`). Sous rendu logiciel elle doit refuser.
+// Si quelqu'un retire la garde, la réfraction s'allume ici et cette épreuve
+// le dit — c'est exactement le cas qui a fait tomber le rendu de 2 à 1
+// image par seconde pendant la mise au point.
 //
-// ATTENTION à ce que ce chiffre veut dire ici : le navigateur tourne en
-// SwiftShader, un rasteriseur logiciel. Les valeurs absolues n'ont rien à
-// voir avec celles d'une vraie carte graphique — elles sont bien plus
-// basses. Ce qui reste valable, c'est le RAPPORT entre deux mesures prises
-// dans les mêmes conditions.
+// Le nombre d'images reste mesuré et affiché, mais comme REPÈRE : il ne
+// fait échouer que sur un effondrement (moins d'une image par seconde),
+// c'est-à-dire une scène qui ne tourne plus du tout.
 //
 //   npm run preview   puis   node scripts/perf-scene.mjs
 import { chromium } from 'playwright'
 
 const B = process.env.BASE || 'http://localhost:4173'
-const MIN_FPS = Number(process.env.MIN_FPS || 12)
+const MIN_FPS = Number(process.env.MIN_FPS || 1)
 
 const SAVED = {
   account: { id: 'guest_p', name: 'Founder', handle: '', email: '', provider: 'guest', currency: 'USD', avatarSkinId: 's1' },
@@ -80,11 +82,31 @@ const fps = await p.evaluate(() => new Promise((resolve) => {
   requestAnimationFrame(tick)
 }))
 
-console.log(`ok  canvas ${canvas.w}x${canvas.h}`)
-console.log(`ok  ${fps} images/s sur SwiftShader (rasteriseur logiciel · valeur relative)`)
-if (errs.length) console.log(`KO  erreur JS · ${errs[0].slice(0, 140)}`)
+const flag = await p.evaluate(() => document.querySelector('canvas')?.dataset.refraction ?? null)
+const software = await p.evaluate(() => {
+  const c = document.createElement('canvas')
+  const g = c.getContext('webgl2') || c.getContext('webgl')
+  if (!g) return true
+  const d = g.getExtension('WEBGL_debug_renderer_info')
+  const n = String((d && g.getParameter(d.UNMASKED_RENDERER_WEBGL)) || g.getParameter(g.RENDERER) || '')
+  return /SwiftShader|llvmpipe|Software|Basic Render/i.test(n)
+})
+
+const fails = []
+const ok = (m) => console.log('ok  ' + m)
+const ko = (m) => { fails.push(m); console.log('KO  ' + m) }
+
+ok(`canvas ${canvas.w}x${canvas.h}`)
+if (errs.length) ko(`erreur JS · ${errs[0].slice(0, 140)}`)
+else ok('aucune erreur JS')
+
+if (flag === null) ko('la garde de réfraction n’a pas écrit sa décision sur le canvas')
+else if (software && flag === '1') ko('réfraction ACTIVE sous rendu logiciel · la garde ne garde plus rien')
+else ok(`réfraction ${flag === '1' ? 'active' : 'refusée'} · rendu ${software ? 'logiciel' : 'matériel'}`)
+
+if (fps < MIN_FPS) ko(`${fps} images/s · la scène ne tourne plus (seuil ${MIN_FPS})`)
+else ok(`${fps} images/s · repère, pas une note (${software ? 'rasteriseur logiciel' : 'GPU'})`)
 
 await b.close()
-const bad = errs.length > 0 || fps < MIN_FPS
-console.log(`\n${bad ? 'ÉCHEC' : 'OK'} · seuil ${MIN_FPS} images/s`)
-process.exit(bad ? 1 : 0)
+console.log(`\n4 vérifications · ${fails.length} échec(s)`)
+process.exit(fails.length ? 1 : 0)

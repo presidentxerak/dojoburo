@@ -7622,11 +7622,14 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
    en vignette sous les boutons ; il occupe maintenant tout l'écran, et le
    texte flotte au-dessus dans une carte de verre.
 
-   La carte reste CLAIRE dans les deux thèmes, avec du texte foncé. C'est
-   délibéré : elle est posée sur une scène 3D dont la couleur change avec
-   le thème et l'heure, et une carte qui suivrait le thème deviendrait
-   illisible sur la moitié des fonds. Le contraste est mesuré par
-   scripts/audit-mobile.mjs, qui refuse tout texte trop proche de son fond.
+   La carte SUIT le thème. Elle était claire dans les deux, et je l'avais
+   justifié : posée sur une scène dont la couleur change, une carte qui
+   suivrait le thème deviendrait illisible sur la moitié des fonds. C'était
+   faux — le ciel derrière est lui aussi peint par thème, donc le fond
+   sombre existe déjà. audit-mobile a refusé cette carte blanche dans le
+   noir, et il avait raison : c'est exactement le défaut qu'il garde, une
+   surface peinte en clair sans équivalent sombre, celle qui coupe l'écran
+   en deux. Le contraste de chaque texte est mesuré par audit-hero.
    ===================================================================== */
 /* Hauteur de la barre de navigation, qui est `position: sticky` et occupe
    donc sa place dans le flux. Sans la retrancher, une section de 100svh
@@ -7713,29 +7716,64 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   backdrop-filter: blur(14px) saturate(1.2);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
 }
-/* Le repli qui compte : sans `backdrop-filter`, une carte à 82 % d'opacité
+/* Le repli qui compte : sans `backdrop-filter`, une carte à 84 % d'opacité
    laisse passer la scène et le texte devient illisible. On la rend alors
    presque opaque plutôt que jolie. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .lp-hero-card { background: rgba(255, 255, 255, 0.96); }
 }
+
+/* --- la même carte, de nuit ------------------------------------------- */
+:root[data-theme='dark'] .lp-hero-card,
+:root:not([data-theme='light']) .lp-hero-card {
+  background: rgba(16, 18, 32, 0.76);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7), 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root[data-theme='dark'] .lp-hero-card,
+  :root:not([data-theme='light']) .lp-hero-card { background: rgba(16, 18, 32, 0.95); }
+}
+:root[data-theme='light'] .lp-hero-card {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 24px 60px -24px rgba(10, 12, 30, 0.45), 0 2px 10px rgba(10, 12, 30, 0.08);
+}
 /* `!important` à contrecœur, mais indispensable : `.lp-hero h1` impose plus
-   haut `-webkit-text-fill-color: var(--ink) !important`, et en thème sombre
-   --ink vaut blanc. Le titre sortait donc BLANC sur la carte blanche — un
-   titre invisible, vu sur la capture 390 px en sombre. La carte ne suit pas
-   le thème, son texte non plus. */
+   haut `-webkit-text-fill-color: var(--ink) !important`. Sans le reprendre
+   ici, le titre échappe à toute règle de couleur de la carte — il sortait
+   BLANC sur la carte blanche, vu sur la capture 390 px en sombre. On pose
+   donc l'encre de la carte dans une variable, et tout le texte la suit. */
+.lp-hero-card { --card-ink: #14121f; --card-dim: rgba(20, 18, 31, 0.06); --card-line: rgba(20, 18, 31, 0.1); }
+:root[data-theme='dark'] .lp-hero-card,
+:root:not([data-theme='light']) .lp-hero-card {
+  --card-ink: #f2f3f8; --card-dim: rgba(255, 255, 255, 0.08); --card-line: rgba(255, 255, 255, 0.16);
+}
+:root[data-theme='light'] .lp-hero-card {
+  --card-ink: #14121f; --card-dim: rgba(20, 18, 31, 0.06); --card-line: rgba(20, 18, 31, 0.1);
+}
 .lp-hero-stage .lp-hero-card h1,
 .lp-hero-stage .lp-hero-card h1 *,
 .lp-hero-stage .lp-hero-card .lp-hero-sub,
 .lp-hero-stage .lp-hero-card .lp-hero-sub b,
 .lp-hero-stage .lp-hero-card .lp-hero-learn,
 .lp-hero-stage .lp-hero-card .lp-hero-learn b {
-  color: #14121f !important;
-  -webkit-text-fill-color: #14121f !important;
+  color: var(--card-ink) !important;
+  -webkit-text-fill-color: var(--card-ink) !important;
   background: none !important;
 }
-/* sauf le mot mis en couleur, qui reste l'accent de la marque */
+/* sauf le mot mis en couleur, qui reste l'accent de la marque · plus clair
+   de nuit, sinon le vert profond disparaît dans la carte sombre */
 .lp-hero-stage .lp-hero-card h1 .hl-acid {
+  color: #0b8f7a !important;
+  -webkit-text-fill-color: #0b8f7a !important;
+}
+:root[data-theme='dark'] .lp-hero-stage .lp-hero-card h1 .hl-acid,
+:root:not([data-theme='light']) .lp-hero-stage .lp-hero-card h1 .hl-acid {
+  color: #3ee8c0 !important;
+  -webkit-text-fill-color: #3ee8c0 !important;
+}
+:root[data-theme='light'] .lp-hero-stage .lp-hero-card h1 .hl-acid {
   color: #0b8f7a !important;
   -webkit-text-fill-color: #0b8f7a !important;
 }
@@ -7759,13 +7797,13 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   margin-top: 12px;
   padding: 8px 16px;
   font-size: 13.5px;
-  background: rgba(20, 18, 31, 0.06) !important;
-  border: 1px solid rgba(20, 18, 31, 0.1);
+  background: var(--card-dim) !important;
+  border: 1px solid var(--card-line);
 }
 .lp-hero-stage .lp-hero-card .lp-hero-how {
-  color: #14121f;
+  color: var(--card-ink);
   padding: 8px 18px;
-  border-color: rgba(20, 18, 31, 0.28);
+  border-color: var(--card-line);
 }
 
 @media (max-width: 720px) {

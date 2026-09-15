@@ -216,20 +216,30 @@ await p.waitForTimeout(3000)
 // actionability wants two identical animation frames, which this box (software
 // WebGL) cannot deliver quickly — that measures the renderer, not the app. What
 // the founder feels is: I clicked, and how long until it is there.
+//
+// Et on ne sonde PAS avec requestAnimationFrame, qui était la moitié du
+// problème qu'on croyait éviter : sur cette machine la scène 3D rend à deux
+// images par seconde, donc un rappel d'animation arrive toutes les 500 ms et
+// la mesure se met à compter les images du rasteriseur. La même surface a
+// été chronométrée à 31 ms, 1435 ms et 1513 ms sur trois passages successifs
+// sans qu'une ligne de code change. setTimeout n'est pas lié aux images : il
+// mesure le délai réel entre le clic et l'apparition, et un blocage de cinq
+// secondes se lit toujours comme cinq secondes.
 for (const [label, item] of [['Billing · your key and plan', 'Billing'], ['Quick search', 'Quick search'], ['Dojo settings', 'Dojo settings']]) {
   const ms = await p.evaluate((text) => new Promise((res) => {
     const btn = document.querySelector('.tb-menu-btn')
     btn.click()
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       const row = [...document.querySelectorAll('.tb-menu-item')].find((b) => b.textContent.includes(text))
       const t0 = performance.now()
       row.click()
       const check = () => {
         if (document.querySelector('.modhost-fs.fs')) res(performance.now() - t0)
-        else requestAnimationFrame(check)
+        else if (performance.now() - t0 > 12000) res(performance.now() - t0)
+        else setTimeout(check, 4)
       }
-      requestAnimationFrame(check)
-    })
+      setTimeout(check, 4)
+    }, 60)
   }), item)
   ok(ms < 1500, `${label} appears promptly · ${Math.round(ms)}ms`)
   await p.evaluate(() => document.querySelector('.modhost-close')?.click())
