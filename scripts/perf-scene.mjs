@@ -17,6 +17,10 @@
 // fait échouer que sur un effondrement (moins d'une image par seconde),
 // c'est-à-dire une scène qui ne tourne plus du tout.
 //
+// Il est donné avec une décimale, et ce n'est pas de la coquetterie : en
+// nombre entier, « 2 » et « 1 » couvrent chacun presque un facteur deux, et
+// deux mesures qu'on croit différentes peuvent ne pas l'être.
+//
 //   npm run preview   puis   node scripts/perf-scene.mjs
 import { chromium } from 'playwright'
 
@@ -77,7 +81,7 @@ const fps = await p.evaluate(() => new Promise((resolve) => {
   const tick = () => {
     n++
     if (performance.now() - t0 < 4000) requestAnimationFrame(tick)
-    else resolve(Math.round((n * 1000) / (performance.now() - t0)))
+    else resolve(Math.round((n * 1000) / (performance.now() - t0) * 10) / 10)
   }
   requestAnimationFrame(tick)
 }))

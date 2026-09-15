@@ -11,7 +11,7 @@ import { Character3D } from './three/Character3D'
 import { StudioLight } from './three/StudioLight'
 import { ThemeProps } from './three/ThemeProps'
 import { Glass3D } from './three/Glass3D'
-import { Lazy3D } from './three/Lazy3D'
+import { Sensei3D } from './three/Sensei3D'
 import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
 import { useOverlay } from '../lib/overlay'
 
@@ -209,8 +209,8 @@ export function Scene3D() {
             le commentaire en tête de Glass3D pour ce que ça coûte */}
         <Glass3D accent={P.accent} />
         <Agents seated={seated} />
-        {/* the panda mascot · front-and-centre, dances when a task completes */}
-        <Lazy3D />
+        {/* le maître du dojo · devant l'équipe, il danse à chaque tâche terminée */}
+        <Sensei3D />
       </Suspense>
       <CameraRig />
       <ShadowBudget signature={signature} />

@@ -1,12 +1,128 @@
 import * as THREE from 'three'
 import type { Department } from '../../data/agents'
 import { ROOM, DESK_FWD } from '../../three/layout3d'
+import { floorTexture, shoji as shojiTex } from './textures'
 import type { DojoPalette } from '../../data/templates'
 
 const WOOD = '#b5793f'
 const WOOD_D = '#7a4a24'
 const PAPER = '#fff7e6'
 const M = { roughness: 0.75, metalness: 0.06 }
+
+/**
+ * Le garnissage de la salle · ce qui fait qu'une pièce n'a pas l'air vide.
+ *
+ * Les onze mondes posaient un sol, des murs et leur décor de thème, et
+ * c'était tout : entre les bureaux et les murs il restait dix mètres de
+ * plancher nu. Un lieu habité a un tapis sous la table, des plantes dans
+ * les angles, de la lumière suspendue et quelque chose accroché au mur.
+ *
+ * La PISCINE de la villa (18,4 × 10,4 centrée en z = 1) occupe presque tout
+ * le sol : tout ce qui se pose au sol la traverserait. La villa ne reçoit
+ * donc que ce qui vole ou se plaque au mur.
+ */
+function RoomDressing({ P, decor, enclosed }: { P: DojoPalette; decor: string; enclosed?: boolean }) {
+  const wet = decor === 'villa'
+  return (
+    <group>
+      {/* tapis · il rassemble les bureaux au lieu de les laisser flotter */}
+      {!wet && (
+        <group>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 1.1]} receiveShadow>
+            <planeGeometry args={[15, 9.4]} />
+            <meshStandardMaterial color={P.trim} roughness={0.98} transparent opacity={0.3} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 1.1]}>
+            <ringGeometry args={[0, 0.001, 4]} />
+            <meshBasicMaterial visible={false} />
+          </mesh>
+          {/* le galon du tapis, quatre bandes · un tapis sans bord se lit
+              comme une tache de lumière sur le sol */}
+          {[[0, -3.6, 15, 0.22], [0, 5.8, 15, 0.22], [-7.4, 1.1, 0.22, 9.4], [7.4, 1.1, 0.22, 9.4]].map(([x, z, w, d], i) => (
+            <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.025, z]}>
+              <planeGeometry args={[w, d]} />
+              <meshStandardMaterial color={P.accent} roughness={0.9} transparent opacity={0.4} />
+            </mesh>
+          ))}
+        </group>
+      )}
+
+      {/* plantes d'angle · hautes, pour occuper le volume et pas seulement
+          le sol */}
+      {!wet && [[-8.6, -2.4], [8.6, -2.4], [-8.6, 3.4], [8.6, 3.4]].map(([x, z], i) => (
+        <group key={i} position={[x, 0, z]}>
+          <mesh position={[0, 0.34, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.42, 0.34, 0.68, 18]} />
+            <meshStandardMaterial color="#e6e8ee" {...M} />
+          </mesh>
+          <mesh position={[0, 0.7, 0]}>
+            <cylinderGeometry args={[0.38, 0.38, 0.06, 18]} />
+            <meshStandardMaterial color="#5a4630" roughness={1} />
+          </mesh>
+          {/* neuf feuilles fines et retombantes · une capsule épaisse par
+              feuille donnait des bananes vertes plantées dans un pot */}
+          {Array.from({ length: 9 }, (_, k) => {
+            const a = (k / 9) * Math.PI * 2 + i * 0.7
+            const lean = 0.34 + (k % 3) * 0.16
+            const len = 1.15 - (k % 3) * 0.2
+            return (
+              <group key={k} rotation={[0, a, 0]}>
+                <group position={[0, 0.76, 0]} rotation={[0, 0, -lean]}>
+                  <mesh position={[0, len / 2, 0]} scale={[1, 1, 0.22]} castShadow>
+                    <capsuleGeometry args={[0.13, len, 4, 10]} />
+                    <meshStandardMaterial color={k % 2 ? '#3f8f4a' : '#57a85c'} roughness={0.68} />
+                  </mesh>
+                  {/* la nervure, qui sépare la feuille en deux valeurs */}
+                  <mesh position={[0, len / 2, 0.015]} scale={[0.1, 1, 0.1]}>
+                    <capsuleGeometry args={[0.13, len * 0.9, 3, 6]} />
+                    <meshStandardMaterial color="#2e6f38" roughness={0.8} />
+                  </mesh>
+                </group>
+              </group>
+            )
+          })}
+        </group>
+      ))}
+
+      {/* suspensions · uniquement là où il y a un plafond au-dessus */}
+      {enclosed && [-5.5, 0, 5.5].map((x) => (
+        <group key={x} position={[x, 0, -0.5]}>
+          <mesh position={[0, ROOM.wallH - 0.6, 0]}>
+            <cylinderGeometry args={[0.02, 0.02, 1.2, 6]} />
+            <meshStandardMaterial color="#3a4050" />
+          </mesh>
+          <mesh position={[0, ROOM.wallH - 1.3, 0]} castShadow>
+            <coneGeometry args={[0.52, 0.42, 20, 1, true]} />
+            <meshStandardMaterial color={P.trim} side={THREE.DoubleSide} {...M} />
+          </mesh>
+          <mesh position={[0, ROOM.wallH - 1.46, 0]}>
+            <sphereGeometry args={[0.15, 14, 12]} />
+            <meshStandardMaterial color="#fff3d0" emissive="#ffe7a8" emissiveIntensity={1.5} roughness={0.4} />
+          </mesh>
+        </group>
+      ))}
+      {/* UNE lumière pour les trois suspensions. Chaque lumière ponctuelle
+          se paie dans le nuanceur de CHAQUE matériau de la scène : en poser
+          une par lampe a fait tomber le rendu de deux à une image par
+          seconde (scripts/perf-scene.mjs). Les abat-jour restent émissifs,
+          donc ils brillent ; seule la lumière qu'ils versent est mutualisée. */}
+      {enclosed && <pointLight position={[0, ROOM.wallH - 1.6, -0.5]} color="#ffeec4" intensity={2.6} distance={26} />}
+
+      {/* panneaux muraux · trois cadres par mur latéral */}
+      {enclosed && [-1, 1].map((sd) => (
+        <group key={sd} position={[sd * (ROOM.w / 2 - 0.26), 3.1, 0]} rotation={[0, -sd * Math.PI / 2, 0]}>
+          {[-3.2, 0, 3.2].map((z, i) => (
+            <group key={z} position={[z, i === 1 ? 0.3 : 0, 0]}>
+              <mesh castShadow><boxGeometry args={[2.0, 1.5, 0.1]} /><meshStandardMaterial color={WOOD_D} {...M} /></mesh>
+              <mesh position={[0, 0, 0.07]}><boxGeometry args={[1.76, 1.26, 0.03]} /><meshStandardMaterial color={PAPER} roughness={0.95} /></mesh>
+              <mesh position={[(i - 1) * 0.3, 0.1, 0.1]}><boxGeometry args={[0.9, 0.5, 0.02]} /><meshStandardMaterial color={P.accent} roughness={0.8} transparent opacity={0.75} /></mesh>
+            </group>
+          ))}
+        </group>
+      ))}
+    </group>
+  )
+}
 
 // Procedural Backrooms wallpaper: mono-yellow with faint vertical pinstripes,
 // panel seams and damp mottling. Lazily built once and shared across walls.
@@ -1374,11 +1490,17 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
       {enclosed ? (
         // an enclosed room (walls) · the classic dojo, or the Backrooms
         <group>
+          {/* le sol PORTE une matière · un aplat de couleur se lit comme un
+              vide, la même surface avec sa trame donne l'échelle de la pièce
+              et accroche la lumière (voir ./textures) */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
             <planeGeometry args={[ROOM.w, ROOM.d]} />
-            <meshStandardMaterial color={P.ground} roughness={1} />
+            <meshStandardMaterial color={P.ground} map={floorTexture(decor, P.ground)} roughness={0.92} />
           </mesh>
-          {decor !== 'backrooms' && <gridHelper args={[ROOM.w, 8, P.grid, P.grid]} position={[0, 0.02, 0]} />}
+          {/* La grille disait l'échelle tant que le sol était un aplat. Maintenant
+              que le sol porte sa propre trame, elle ne fait que la rayer — on la
+              garde uniquement là où il n'y a pas de texture. */}
+          {decor !== 'backrooms' && !floorTexture(decor, P.ground) && <gridHelper args={[ROOM.w, 8, P.grid, P.grid]} position={[0, 0.02, 0]} />}
           {decor === 'backrooms' ? (
             <group>
               {/* back wall split by a central doorway that opens onto the corridor */}
@@ -1388,7 +1510,7 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
               <mesh position={[0, ROOM.wallH - 1, backZ]} receiveShadow><boxGeometry args={[6.2, 2, 0.4]} /><meshStandardMaterial color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
             </group>
           ) : (
-            <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} /><meshStandardMaterial color={P.wallBack} roughness={1} /></mesh>
+            <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} /><meshStandardMaterial color={P.wallBack} map={decor === 'dojo' ? shojiTex('#f3ead6') : undefined} roughness={0.95} /></mesh>
           )}
           {decor !== 'backrooms' && <mesh position={[0, 0.2, backZ + 0.22]}><boxGeometry args={[ROOM.w, 0.4, 0.1]} /><meshStandardMaterial color={P.trim} /></mesh>}
           {[-1, 1].map((s) => (
@@ -1399,7 +1521,7 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
             <group>
               {[-7.5, -3.5, 3.5, 7.5].map((x) => (
                 <group key={x} position={[x, 2.4, backZ + 0.25]}>
-                  <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
+                  <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} map={shojiTex()} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
                   {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.06]}><boxGeometry args={[0.05, 2.6, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
                   {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.06]}><boxGeometry args={[2.6, 0.05, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
                 </group>
@@ -1420,15 +1542,17 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
         <group>
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
             <circleGeometry args={[26, 64]} />
-            <meshStandardMaterial color={P.ground} roughness={1} />
+            <meshStandardMaterial color={P.ground} map={floorTexture(decor, P.ground)} roughness={0.92} />
           </mesh>
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
             <ringGeometry args={[13.4, 26, 64]} />
             <meshStandardMaterial color={P.grid} roughness={1} transparent opacity={0.5} />
           </mesh>
-          <gridHelper args={[26, 13, P.grid, P.grid]} position={[0, 0.02, 0]} />
+          {!floorTexture(decor, P.ground) && <gridHelper args={[26, 13, P.grid, P.grid]} position={[0, 0.02, 0]} />}
         </group>
       )}
+
+      <RoomDressing P={P} decor={decor} enclosed={enclosed} />
 
       <ThemeDecor id={decor} backZ={backZ} P={P} />
 

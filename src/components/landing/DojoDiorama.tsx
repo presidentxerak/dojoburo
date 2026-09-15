@@ -1,8 +1,13 @@
-// The rotating dojo at the top of the landing page.
+// Le dojo en tête de la page d'accueil.
+//
+// C'est le MÊME dojo que l'application (voir ./HeroDojoScene), plus la
+// petite île construite à part : une maquette qui ressemble au produit ne
+// montre pas le produit, et toute amélioration faite au dojo réel ne s'y
+// voyait jamais.
 //
 // The scene is a separate module so three.js is fetched when the hero is on
 // screen rather than before the words are. This file owns the BOX and the
-// observer; ./DojoDioramaScene owns the canvas.
+// observer; ./HeroDojoScene owns the canvas.
 //
 // They must not both own an element. A first attempt gave the wrapper its own
 // div and let the scene keep its old root: the observer's target vanished the
@@ -12,7 +17,7 @@
 import { Suspense, lazy } from 'react'
 import { useInView } from './useInView'
 
-const Scene = lazy(() => import('./DojoDioramaScene'))
+const Scene = lazy(() => import('./HeroDojoScene'))
 
 export function DojoDiorama() {
   const [ref, inView] = useInView<HTMLDivElement>('300px')

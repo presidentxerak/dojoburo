@@ -8,6 +8,7 @@ import { useDojo } from '../../store'
 import { AsciiFace3D } from './AsciiFace3D'
 
 import { VINYL } from './toy'
+import { Contact } from './Contact'
 
 // La matière de tous les personnages · une figurine de vinyle, définie une
 // seule fois dans ./toy et partagée par les 38 espèces.
@@ -664,6 +665,7 @@ export function Character3D({
 
   return (
     <group position={[x, 0, z]}>
+      <Contact r={0.95} />
       {!bare && selected && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
           <ringGeometry args={[0.95, 1.15, 40]} />
@@ -793,6 +795,33 @@ export function Character3D({
             {/* épaules, rentrées sous la tête */}
             <Ball p={[-0.42, 1.28, 0.02]} r={0.165} c={character.outfit} />
             <Ball p={[0.42, 1.28, 0.02]} r={0.165} c={character.outfit} />
+            {/* La TENUE · un col, une ceinture et un écusson. Le torse était
+                une sphère d'une seule couleur : à cette distance il se lisait
+                comme un ballon sous une tête, pas comme quelqu'un d'habillé.
+                Trois anneaux suffisent à donner un vêtement. */}
+            {/* Les rayons ne sont pas choisis à l'œil : le torse est un
+                ellipsoïde de demi-hauteur 0,52, donc son rayon à la hauteur y
+                vaut 0,5·√(1−(Δy/0,52)²). Un premier essai avec des valeurs
+                devinées a enterré col et ceinture À L'INTÉRIEUR de la sphère —
+                trois anneaux invisibles, rendus à chaque image pour rien. */}
+            <mesh position={[0, 1.45, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <torusGeometry args={[0.37, 0.075, 8, 22]} />
+              <meshStandardMaterial color={character.outfit2} {...MAT} />
+            </mesh>
+            <mesh position={[0, 0.9, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <torusGeometry args={[0.46, 0.055, 8, 24]} />
+              <meshStandardMaterial color={character.outfit2} {...MAT} />
+            </mesh>
+            {/* la boucle de ceinture */}
+            <mesh position={[0, 0.9, 0.46]}>
+              <boxGeometry args={[0.16, 0.13, 0.07]} />
+              <meshStandardMaterial color={character.extra} roughness={0.35} metalness={0.3} />
+            </mesh>
+            {/* l'écusson · la touche d'accent, à hauteur de cœur */}
+            <mesh position={[-0.19, 1.2, 0.44]} rotation={[0.1, 0.35, 0]}>
+              <circleGeometry args={[0.095, 16]} />
+              <meshStandardMaterial color={character.extra} roughness={0.4} side={THREE.DoubleSide} />
+            </mesh>
             {isMonitor ? (
               <MonitorHead c={character} mood={mood} />
             ) : (
