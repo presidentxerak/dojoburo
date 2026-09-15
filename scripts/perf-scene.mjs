@@ -13,9 +13,18 @@
 // le dit — c'est exactement le cas qui a fait tomber le rendu de 2 à 1
 // image par seconde pendant la mise au point.
 //
-// Le nombre d'images reste mesuré et affiché, mais comme REPÈRE : il ne
-// fait échouer que sur un effondrement (moins d'une image par seconde),
-// c'est-à-dire une scène qui ne tourne plus du tout.
+// Le nombre d'images reste mesuré et affiché, mais comme REPÈRE : ce qui
+// fait échouer est une scène FIGÉE — zéro image dessinée pendant toute la
+// fenêtre de mesure.
+//
+// Le seuil précédent (« moins d'une image par seconde ») était encore un
+// seuil de vitesse déguisé, et il est tombé : la barrière complète l'a
+// mesuré à 0,7 pendant qu'une autre épreuve occupait la machine, alors que
+// la même mesure isolée donne 1,0 — et que le code d'AVANT la modification
+// donne exactement la même chose. L'épreuve accusait donc le produit d'un
+// ralentissement qui n'existait pas, sur une machine partagée dont personne
+// ne connaît la charge. Une seule question est déterministe : la scène
+// dessine-t-elle, oui ou non.
 //
 // Il est donné avec une décimale, et ce n'est pas de la coquetterie : en
 // nombre entier, « 2 » et « 1 » couvrent chacun presque un facteur deux, et
@@ -25,7 +34,6 @@
 import { chromium } from 'playwright'
 
 const B = process.env.BASE || 'http://localhost:4173'
-const MIN_FPS = Number(process.env.MIN_FPS || 1)
 
 const SAVED = {
   account: { id: 'guest_p', name: 'Founder', handle: '', email: '', provider: 'guest', currency: 'USD', avatarSkinId: 's1' },
@@ -75,13 +83,14 @@ if (!canvas) { console.error('KO  pas de canvas · le dojo ne s’est pas ouvert
 // on laisse la scène finir de charger (décor paresseux, carte d'environnement)
 await p.waitForTimeout(3000)
 
-const fps = await p.evaluate(() => new Promise((resolve) => {
+const drawn = await p.evaluate(() => new Promise((resolve) => {
   let n = 0
   const t0 = performance.now()
   const tick = () => {
     n++
-    if (performance.now() - t0 < 4000) requestAnimationFrame(tick)
-    else resolve(Math.round((n * 1000) / (performance.now() - t0) * 10) / 10)
+    const dt = performance.now() - t0
+    if (dt < 4000) requestAnimationFrame(tick)
+    else resolve({ n, fps: Math.round((n * 1000) / dt * 10) / 10 })
   }
   requestAnimationFrame(tick)
 }))
@@ -108,8 +117,8 @@ if (flag === null) ko('la garde de réfraction n’a pas écrit sa décision sur
 else if (software && flag === '1') ko('réfraction ACTIVE sous rendu logiciel · la garde ne garde plus rien')
 else ok(`réfraction ${flag === '1' ? 'active' : 'refusée'} · rendu ${software ? 'logiciel' : 'matériel'}`)
 
-if (fps < MIN_FPS) ko(`${fps} images/s · la scène ne tourne plus (seuil ${MIN_FPS})`)
-else ok(`${fps} images/s · repère, pas une note (${software ? 'rasteriseur logiciel' : 'GPU'})`)
+if (drawn.n === 0) ko('aucune image dessinée en 4 s · la scène est figée')
+else ok(`${drawn.n} image(s) en 4 s, soit ${drawn.fps}/s · repère, pas une note (${software ? 'rasteriseur logiciel' : 'GPU'})`)
 
 await b.close()
 console.log(`\n4 vérifications · ${fails.length} échec(s)`)

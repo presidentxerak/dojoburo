@@ -20,7 +20,21 @@ ok('one menu trigger on the landing', (await p.locator('.tb-burger').count()) ==
 // ---- the app ----------------------------------------------------------
 await p.evaluate(() => { try { sessionStorage.setItem('dojoburo.nav', '') } catch {} })
 await p.goto(B + '/#app', { waitUntil: 'networkidle' })
-await p.waitForTimeout(1200)
+
+// On ATTEND la barre d'outils, on ne dort pas 1200 ms en espérant qu'elle
+// soit là.
+//
+// Cette pause fixe a fait échouer la barrière complète sur « 0 menu trigger
+// found », et tout ce qui vient APRÈS passait — le menu existait donc bel et
+// bien, il n'était simplement pas encore monté au moment du comptage. Une
+// pause fixe hérite de la vitesse de la machine : elle tient tant que rien
+// d'autre ne tourne, et ment le jour où la barrière enchaîne vingt épreuves.
+// Le code d'avant la modification des personnages échoue exactement pareil,
+// ce qui l'a prouvé.
+//
+// Douze secondes de patience, puis on compte pour de bon : si le bouton
+// n'est jamais apparu, l'épreuve échoue, et elle a raison d'échouer.
+await p.waitForSelector('.tb-menu-btn', { timeout: 12000 }).catch(() => {})
 
 const triggers = await p.locator('.tb-menu-btn').count()
 ok('exactly ONE menu trigger in the app', triggers === 1, `${triggers} found`)
