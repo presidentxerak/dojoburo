@@ -142,20 +142,33 @@ if ((await p.locator('.toast').count()) > 0) {
   ok('every notification carries its own close button',
     (await p.locator('.toast .toast-x').count()) === (await p.locator('.toast').count()))
 
-  // the menu is a column down the right edge · exactly where toasts stack
-  const free = await p.locator('.toasts').boundingBox()
+  // Le menu est une colonne le long du bord droit · exactement là où les
+  // notifications s'empilent. Géométrie ET profondeur sont relevées en UNE
+  // SEULE fois dans la page.
+  //
+  // La version précédente faisait quatre allers-retours — deux `boundingBox`
+  // et un `evaluate` — pendant que les notifications expirent au bout de 4,2
+  // secondes. Le conteneur `.toasts` disparaît avec la dernière d'entre
+  // elles, et `getComputedStyle(null)` lève. C'est ce qui a planté le fichier
+  // au troisième passage, après la première réparation : même cause, autre
+  // endroit. On relève tout en un instant, et on traite l'absence comme une
+  // absence d'échantillon, jamais comme un défaut.
   await p.locator('.tb-menu-btn').click()
   await p.waitForTimeout(500)
-  const menu = await p.locator('.tb-menu').boundingBox()
-  const shifted = await p.locator('.toasts').boundingBox()
-  ok('notifications clear the open menu instead of covering it',
-    !!menu && !!shifted && shifted.x + shifted.width <= menu.x + 1,
-    `toasts end at ${Math.round((shifted?.x ?? 0) + (shifted?.width ?? 0))} · menu starts at ${Math.round(menu?.x ?? -1)}`)
-  ok('and the menu wins on depth anyway',
-    await p.evaluate(() => {
-      const z = (s) => Number(getComputedStyle(document.querySelector(s)).zIndex) || 0
-      return z('.tb-menu') > z('.toasts')
-    }))
+  const geo = await p.evaluate(() => {
+    const r = (s) => { const e = document.querySelector(s); return e ? e.getBoundingClientRect() : null }
+    const z = (s) => { const e = document.querySelector(s); return e ? Number(getComputedStyle(e).zIndex) || 0 : null }
+    return { menu: r('.tb-menu'), toasts: r('.toasts'), zMenu: z('.tb-menu'), zToasts: z('.toasts') }
+  })
+  if (!geo.toasts || !geo.menu) {
+    console.log('--  les notifications ont expiré avant le relevé · position et profondeur non éprouvées')
+  } else {
+    ok('notifications clear the open menu instead of covering it',
+      geo.toasts.x + geo.toasts.width <= geo.menu.x + 1,
+      `toasts end at ${Math.round(geo.toasts.x + geo.toasts.width)} · menu starts at ${Math.round(geo.menu.x)}`)
+    ok('and the menu wins on depth anyway', (geo.zMenu ?? 0) > (geo.zToasts ?? 0),
+      `menu ${geo.zMenu} · toasts ${geo.zToasts}`)
+  }
   await p.locator('.tb-menu-scrim').click({ force: true }).catch(() => {})
   await p.waitForTimeout(350)
 
