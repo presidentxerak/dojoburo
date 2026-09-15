@@ -157,7 +157,7 @@ export function Scene3D() {
       frameloop={covered ? 'never' : 'always'}
       dpr={[1, 1.25]}
       camera={{ position: [2.2, 8.4, 14], fov: 42, near: 0.1, far: 100 }}
-      gl={{ antialias: true, powerPreference: 'high-performance' }}
+      gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.08 }}
       onPointerMissed={() => deselect(null)}
       onCreated={({ gl, invalidate }) => {
         // Recover gracefully from a lost WebGL context (common with DevTools
@@ -174,8 +174,14 @@ export function Scene3D() {
           lumière ambiante, qui écrasait le relief en éclairant tout
           également. */}
       <StudioLight />
-      <hemisphereLight args={['#ffffff', P.ground, 0.55]} />
-      <ambientLight intensity={0.22} />
+      {/* Une lumière CHAUDE qui vient d'un côté, une FROIDE qui vient de
+          l'autre. Une scène éclairée par une seule source blanche et beaucoup
+          d'ambiante est lisible mais plate : tout y est du même blanc, et
+          aucune surface ne dit d'où vient le jour. L'écart de température
+          entre les deux donne un côté ensoleillé et un côté à l'ombre, et
+          c'est cet écart — pas la quantité de lumière — qui fait le volume. */}
+      <hemisphereLight args={['#fff6e6', P.ground, 0.42]} />
+      <ambientLight intensity={0.16} />
       {/* La clé, et la seule source qui porte une ombre. La carte passe de
           1024 à 2048 : l'ombre est recalculée seulement quand la composition
           de la scène change (voir ShadowBudget), donc le quadruplement de
@@ -183,8 +189,9 @@ export function Scene3D() {
           `normalBias` supprime le moiré d'auto-ombrage sur les sphères — les
           personnages sont faits de sphères, c'est là qu'il se voyait. */}
       <directionalLight
-        position={[6, 12, 8]}
-        intensity={1.15}
+        position={[7, 12, 8]}
+        color="#fff1d8"
+        intensity={1.65}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -196,6 +203,7 @@ export function Scene3D() {
         shadow-camera-bottom={-16}
       />
       {/* per-theme accent glow · tints the back of the room for mood */}
+      <directionalLight position={[-8, 6, -5]} color="#bcd4ff" intensity={0.55} />
       <pointLight position={[0, 4.5, -4]} color={P.accent} intensity={0.7} distance={30} />
       <pointLight position={[-7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />
       <pointLight position={[7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />

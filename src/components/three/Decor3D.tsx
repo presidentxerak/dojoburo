@@ -1,13 +1,21 @@
 import * as THREE from 'three'
 import type { Department } from '../../data/agents'
 import { ROOM, DESK_FWD } from '../../three/layout3d'
-import { floorTexture, shoji as shojiTex } from './textures'
+import { floorTexture, shoji as shojiTex, cornerShade, skyGradient } from './textures'
+import { roundedBox } from './geometry'
 import type { DojoPalette } from '../../data/templates'
 
 const WOOD = '#b5793f'
 const WOOD_D = '#7a4a24'
 const PAPER = '#fff7e6'
 const M = { roughness: 0.75, metalness: 0.06 }
+
+// L'amplitude du relief. Une carte de normales à pleine échelle transforme
+// un carrelage en tôle ondulée ; ce qu'on veut est juste assez pour que la
+// lumière accroche le joint. Deux valeurs, une pour les sols (regardés de
+// biais, donc le relief s'y voit beaucoup) et une pour les murs.
+const NORMAL_FLOOR = new THREE.Vector2(0.55, 0.55)
+const NORMAL_WALL = new THREE.Vector2(0.3, 0.3)
 
 /**
  * Le garnissage de la salle · ce qui fait qu'une pièce n'a pas l'air vide.
@@ -108,6 +116,50 @@ function RoomDressing({ P, decor, enclosed }: { P: DojoPalette; decor: string; e
           donc ils brillent ; seule la lumière qu'ils versent est mutualisée. */}
       {enclosed && <pointLight position={[0, ROOM.wallH - 1.6, -0.5]} color="#ffeec4" intensity={2.6} distance={26} />}
 
+      {/* PLINTHE · une pièce dont le mur rencontre le sol à angle vif n'a
+          pas l'air construite. Le bandeau court tout autour, et il porte la
+          même couleur que les huisseries. */}
+      {enclosed && (
+        <group>
+          <mesh position={[0, 0.16, -ROOM.d / 2 + 0.22]} castShadow receiveShadow>
+            <boxGeometry args={[ROOM.w, 0.32, 0.14]} />
+            <meshStandardMaterial color={P.trim} roughness={0.8} />
+          </mesh>
+          {[-1, 1].map((sd) => (
+            <mesh key={sd} position={[sd * (ROOM.w / 2 - 0.22), 0.16, 0]} castShadow receiveShadow>
+              <boxGeometry args={[0.14, 0.32, ROOM.d]} />
+              <meshStandardMaterial color={P.trim} roughness={0.8} />
+            </mesh>
+          ))}
+        </group>
+      )}
+
+      {/* PAS DE PLAFOND, et c'est un choix. La caméra regarde la salle PAR
+          LE DESSUS, comme une maison de poupée : un plafond et ses poutres
+          se placent entre elle et l'équipe. Essayé, vu à la capture — deux
+          barres brunes en travers de l'image, pile à hauteur de tête. Une
+          pièce ouverte sur le dessus n'est pas un oubli, c'est la seule
+          forme qui se regarde depuis cet angle. */}
+
+      {/* OCCLUSION D'ANGLE · l'ombre douce qui s'accumule là où deux surfaces
+          se rejoignent. C'est ce que produirait une vraie occlusion ambiante,
+          qui demanderait une passe d'écran entière ; ici quatre plans en
+          dégradé donnent l'essentiel de la lecture pour rien du tout. */}
+      {enclosed && (
+        <group>
+          <mesh position={[0, 0.9, -ROOM.d / 2 + 0.24]}>
+            <planeGeometry args={[ROOM.w, 1.8]} />
+            <meshBasicMaterial map={cornerShade()} transparent opacity={0.5} depthWrite={false} />
+          </mesh>
+          {[-1, 1].map((sd) => (
+            <mesh key={sd} position={[sd * (ROOM.w / 2 - 0.24), 0.9, 0]} rotation={[0, -sd * Math.PI / 2, 0]}>
+              <planeGeometry args={[ROOM.d, 1.8]} />
+              <meshBasicMaterial map={cornerShade()} transparent opacity={0.5} depthWrite={false} />
+            </mesh>
+          ))}
+        </group>
+      )}
+
       {/* panneaux muraux · trois cadres par mur latéral */}
       {enclosed && [-1, 1].map((sd) => (
         <group key={sd} position={[sd * (ROOM.w / 2 - 0.26), 3.1, 0]} rotation={[0, -sd * Math.PI / 2, 0]}>
@@ -157,8 +209,9 @@ function backroomsWallpaper(): THREE.CanvasTexture | null {
 
 function B({ p, s, c, rot, emissive, ei }: { p: [number, number, number]; s: [number, number, number]; c: string; rot?: [number, number, number]; emissive?: string; ei?: number }) {
   return (
-    <mesh position={p} rotation={rot} castShadow receiveShadow>
-      <boxGeometry args={s} />
+    // arêtes adoucies · voir ./geometry, c'est le filet de lumière le long
+    // de chaque arête qui distingue un objet d'un polygone coloré
+    <mesh position={p} rotation={rot} geometry={roundedBox(s[0], s[1], s[2])} castShadow receiveShadow>
       <meshStandardMaterial color={c} emissive={emissive} emissiveIntensity={ei ?? 0} {...M} />
     </mesh>
   )
@@ -1495,7 +1548,13 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
               et accroche la lumière (voir ./textures) */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
             <planeGeometry args={[ROOM.w, ROOM.d]} />
-            <meshStandardMaterial color={P.ground} map={floorTexture(decor, P.ground)} roughness={0.92} />
+            <meshStandardMaterial
+              color={P.ground}
+              map={floorTexture(decor, P.ground)?.map}
+              normalMap={floorTexture(decor, P.ground)?.normalMap}
+              normalScale={NORMAL_FLOOR}
+              roughness={floorTexture(decor, P.ground)?.roughness ?? 0.92}
+            />
           </mesh>
           {/* La grille disait l'échelle tant que le sol était un aplat. Maintenant
               que le sol porte sa propre trame, elle ne fait que la rayer — on la
@@ -1510,7 +1569,7 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
               <mesh position={[0, ROOM.wallH - 1, backZ]} receiveShadow><boxGeometry args={[6.2, 2, 0.4]} /><meshStandardMaterial color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
             </group>
           ) : (
-            <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} /><meshStandardMaterial color={P.wallBack} map={decor === 'dojo' ? shojiTex('#f3ead6') : undefined} roughness={0.95} /></mesh>
+            <mesh position={[0, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[ROOM.w, ROOM.wallH, 0.4]} /><meshStandardMaterial color={P.wallBack} map={decor === 'dojo' ? shojiTex('#f3ead6').map : undefined} normalMap={decor === 'dojo' ? shojiTex('#f3ead6').normalMap : undefined} normalScale={NORMAL_WALL} roughness={0.95} /></mesh>
           )}
           {decor !== 'backrooms' && <mesh position={[0, 0.2, backZ + 0.22]}><boxGeometry args={[ROOM.w, 0.4, 0.1]} /><meshStandardMaterial color={P.trim} /></mesh>}
           {[-1, 1].map((s) => (
@@ -1521,7 +1580,7 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
             <group>
               {[-7.5, -3.5, 3.5, 7.5].map((x) => (
                 <group key={x} position={[x, 2.4, backZ + 0.25]}>
-                  <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} map={shojiTex()} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
+                  <mesh><boxGeometry args={[2.6, 2.6, 0.08]} /><meshStandardMaterial color={PAPER} map={shojiTex().map} normalMap={shojiTex().normalMap} normalScale={NORMAL_WALL} emissive={'#fff3d0'} emissiveIntensity={0.25} /></mesh>
                   {[-0.85, 0, 0.85].map((gx) => <mesh key={gx} position={[gx, 0, 0.06]}><boxGeometry args={[0.05, 2.6, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
                   {[-0.85, 0, 0.85].map((gy) => <mesh key={'h' + gy} position={[0, gy, 0.06]}><boxGeometry args={[2.6, 0.05, 0.03]} /><meshStandardMaterial color={WOOD_D} /></mesh>)}
                 </group>
@@ -1542,7 +1601,13 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
         <group>
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
             <circleGeometry args={[26, 64]} />
-            <meshStandardMaterial color={P.ground} map={floorTexture(decor, P.ground)} roughness={0.92} />
+            <meshStandardMaterial
+              color={P.ground}
+              map={floorTexture(decor, P.ground)?.map}
+              normalMap={floorTexture(decor, P.ground)?.normalMap}
+              normalScale={NORMAL_FLOOR}
+              roughness={floorTexture(decor, P.ground)?.roughness ?? 0.92}
+            />
           </mesh>
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
             <ringGeometry args={[13.4, 26, 64]} />
@@ -1550,6 +1615,18 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
           </mesh>
           {!floorTexture(decor, P.ground) && <gridHelper args={[26, 13, P.grid, P.grid]} position={[0, 0.02, 0]} />}
         </group>
+      )}
+
+      {/* L'HORIZON · un dôme en dégradé, uniquement pour les mondes ouverts.
+          Une salle fermée a des murs qui bornent le regard ; une plateforme
+          flottante n'avait qu'un aplat de fond, et rien ne disait où finissait
+          le sol. Le dôme est vu de l'intérieur (BackSide) et ne reçoit ni ne
+          projette d'ombre : il ne coûte qu'un maillage. */}
+      {!enclosed && (
+        <mesh scale={[-1, 1, 1]}>
+          <sphereGeometry args={[70, 24, 16]} />
+          <meshBasicMaterial map={skyGradient(P.fog, P.bg)} side={THREE.BackSide} depthWrite={false} fog={false} />
+        </mesh>
       )}
 
       <RoomDressing P={P} decor={decor} enclosed={enclosed} />

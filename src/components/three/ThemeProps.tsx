@@ -20,13 +20,14 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
 import { MATTE, VINYL, PAINTED_METAL } from './toy'
+import { roundedBox } from './geometry'
 
 type V3 = [number, number, number]
 
 // --- primitives, mêmes conventions que Decor3D ------------------------------
 const M = MATTE
 function B({ p, s, c, rot, mat = M }: { p: V3; s: V3; c: string; rot?: V3; mat?: object }) {
-  return <mesh position={p} rotation={rot} castShadow receiveShadow><boxGeometry args={s} /><meshStandardMaterial color={c} {...mat} /></mesh>
+  return <mesh position={p} rotation={rot} geometry={roundedBox(s[0], s[1], s[2])} castShadow receiveShadow><meshStandardMaterial color={c} {...mat} /></mesh>
 }
 function Cy({ p, r, h, c, rot, seg = 16, mat = M }: { p: V3; r: number; h: number; c: string; rot?: V3; seg?: number; mat?: object }) {
   return <mesh position={p} rotation={rot} castShadow><cylinderGeometry args={[r, r, h, seg]} /><meshStandardMaterial color={c} {...mat} /></mesh>

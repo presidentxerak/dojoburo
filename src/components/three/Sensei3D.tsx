@@ -17,6 +17,7 @@ import * as THREE from 'three'
 import { useDojo } from '../../store'
 import { VINYL, MATTE } from './toy'
 import { Contact } from './Contact'
+import { roundedBox } from './geometry'
 
 const SKIN = '#f6d3ae'   // teint
 const ROBE = '#2f3a63'   // indigo profond · le gi
@@ -35,8 +36,7 @@ function Sp({ p, r, c, s = [1, 1, 1] as [number, number, number], mat = VINYL }:
 }
 function Bx({ p, s, c, rot, mat = VINYL }: { p: [number, number, number]; s: [number, number, number]; c: string; rot?: [number, number, number]; mat?: object }) {
   return (
-    <mesh position={p} rotation={rot} castShadow>
-      <boxGeometry args={s} />
+    <mesh position={p} rotation={rot} geometry={roundedBox(s[0], s[1], s[2], 0.18)} castShadow>
       <meshStandardMaterial color={c} {...mat} />
     </mesh>
   )

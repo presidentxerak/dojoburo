@@ -124,7 +124,7 @@ export default function HeroDojoScene() {
         shadows="soft"
         dpr={[1, 1.6]}
         camera={{ position: [0, 6.6, 18.5], fov: 40, near: 0.1, far: 120 }}
-        gl={{ antialias: true, alpha: false }}
+        gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.08 }}
       >
         <color attach="background" args={[P.bg]} />
         <fog attach="fog" args={[P.fog, 34, 62]} />
@@ -134,8 +134,9 @@ export default function HeroDojoScene() {
         <hemisphereLight args={['#ffffff', P.ground, 0.55]} />
         <ambientLight intensity={0.22} />
         <directionalLight
-          position={[6, 12, 8]}
-          intensity={1.15}
+          position={[7, 12, 8]}
+          color="#fff1d8"
+          intensity={1.65}
           castShadow
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
@@ -146,7 +147,8 @@ export default function HeroDojoScene() {
           shadow-camera-top={16}
           shadow-camera-bottom={-16}
         />
-        <pointLight position={[0, 4.5, -4]} color={P.accent} intensity={0.7} distance={30} />
+        <directionalLight position={[-8, 6, -5]} color="#bcd4ff" intensity={0.55} />
+      <pointLight position={[0, 4.5, -4]} color={P.accent} intensity={0.7} distance={30} />
         <pointLight position={[-7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />
         <pointLight position={[7, 2.5, 3]} color={P.accent} intensity={0.32} distance={18} />
         <Suspense fallback={null}>

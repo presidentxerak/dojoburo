@@ -9,6 +9,7 @@ import { AsciiFace3D } from './AsciiFace3D'
 
 import { VINYL } from './toy'
 import { Contact } from './Contact'
+import { roundedBox } from './geometry'
 
 // La matière de tous les personnages · une figurine de vinyle, définie une
 // seule fois dans ./toy et partagée par les 38 espèces.
@@ -71,8 +72,7 @@ function Cone({ p, r, h, c, rot }: { p: [number, number, number]; r: number; h: 
 }
 function Box({ p, s, c, rot }: { p: [number, number, number]; s: [number, number, number]; c: string; rot?: [number, number, number] }) {
   return (
-    <mesh position={p} rotation={rot} castShadow>
-      <boxGeometry args={s} />
+    <mesh position={p} rotation={rot} geometry={roundedBox(s[0], s[1], s[2], 0.16)} castShadow>
       <meshStandardMaterial color={c} {...MAT} />
     </mesh>
   )

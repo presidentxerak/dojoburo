@@ -15,9 +15,65 @@
 // texture GPU à chaque fois, jusqu'à saturer la mémoire vidéo.
 import * as THREE from 'three'
 
-const cache = new Map<string, THREE.Texture>()
+/** Une surface complète · sa couleur, son relief et sa rugosité. */
+export interface Surface {
+  map: THREE.Texture
+  normalMap: THREE.Texture
+  /** 0 = miroir, 1 = craie. Un carrelage renvoie la lumière, un tatami
+   *  l'absorbe : leur donner la même valeur les fait lire comme la même
+   *  matière peinte de deux couleurs. */
+  roughness: number
+}
 
-function make(key: string, size: number, draw: (c: CanvasRenderingContext2D, s: number) => void, repeat: number): THREE.Texture {
+const cache = new Map<string, Surface>()
+
+/**
+ * Dérive une carte de NORMALES de l'image de couleur, par un filtre de Sobel
+ * sur la luminance.
+ *
+ * Sans elle, une texture n'est qu'un dessin collé sur un plan parfaitement
+ * lisse : la lumière glisse dessus sans rien accrocher, et le sol reste plat
+ * quoi qu'on y peigne. Avec elle, chaque joint de carrelage, chaque fil de
+ * bois et chaque tresse de tatami dévie la lumière — le relief EXISTE pour
+ * l'éclairage, sans un seul polygone de plus.
+ *
+ * L'approximation vaut ce qu'elle vaut : elle suppose que ce qui est sombre
+ * est creux. C'est faux pour une texture qui porte de la couleur pure (un
+ * liseré rouge n'est pas un sillon), et juste pour tout ce qu'on dessine
+ * ici, où le sombre EST le joint ou la rainure.
+ */
+function normalFrom(cv: HTMLCanvasElement, strength: number): THREE.Texture {
+  const s = cv.width
+  const src = cv.getContext('2d')?.getImageData(0, 0, s, s)
+  const out = document.createElement('canvas')
+  out.width = out.height = s
+  const octx = out.getContext('2d')
+  if (!src || !octx) return new THREE.Texture()
+  const img = octx.createImageData(s, s)
+  const lum = (x: number, y: number) => {
+    const i = (((y + s) % s) * s + ((x + s) % s)) * 4
+    return (src.data[i] * 0.299 + src.data[i + 1] * 0.587 + src.data[i + 2] * 0.114) / 255
+  }
+  for (let y = 0; y < s; y++) {
+    for (let x = 0; x < s; x++) {
+      const dx = (lum(x + 1, y) - lum(x - 1, y)) * strength
+      const dy = (lum(x, y + 1) - lum(x, y - 1)) * strength
+      // le vecteur (-dx, -dy, 1) normalisé, encodé dans [0,255]
+      const len = Math.hypot(dx, dy, 1)
+      const i = (y * s + x) * 4
+      img.data[i] = ((-dx / len) * 0.5 + 0.5) * 255
+      img.data[i + 1] = ((-dy / len) * 0.5 + 0.5) * 255
+      img.data[i + 2] = (1 / len) * 0.5 * 255 + 127.5
+      img.data[i + 3] = 255
+    }
+  }
+  octx.putImageData(img, 0, 0)
+  const t = new THREE.CanvasTexture(out)
+  t.wrapS = t.wrapT = THREE.RepeatWrapping
+  return t
+}
+
+function make(key: string, size: number, draw: (c: CanvasRenderingContext2D, s: number) => void, repeat: number, bump = 6, roughness = 0.9): Surface {
   const hit = cache.get(key)
   if (hit) return hit
   const cv = document.createElement('canvas')
@@ -26,7 +82,7 @@ function make(key: string, size: number, draw: (c: CanvasRenderingContext2D, s: 
   if (!ctx) {
     // pas de canvas 2D (contexte perdu, navigateur exotique) · une texture
     // blanche neutre vaut mieux qu'une exception dans le rendu
-    const t = new THREE.Texture()
+    const t = { map: new THREE.Texture(), normalMap: new THREE.Texture(), roughness }
     cache.set(key, t)
     return t
   }
@@ -36,8 +92,12 @@ function make(key: string, size: number, draw: (c: CanvasRenderingContext2D, s: 
   tex.repeat.set(repeat, repeat)
   tex.anisotropy = 4
   tex.colorSpace = THREE.SRGBColorSpace
-  cache.set(key, tex)
-  return tex
+  const nrm = normalFrom(cv, bump)
+  nrm.repeat.set(repeat, repeat)
+  nrm.anisotropy = 4
+  const surf = { map: tex, normalMap: nrm, roughness }
+  cache.set(key, surf)
+  return surf
 }
 
 /** Bruit fin, appliqué par-dessus un aplat · casse la planéité sans se voir. */
@@ -77,7 +137,7 @@ export function tatami(base = '#c9d98a', edge = '#8aa34e') {
     c.strokeRect(1, half + 1, half - 2, half - 2)
     c.strokeRect(half + 1, half + 1, half - 2, half - 2)
     grain(c, s, 9)
-  }, 6)
+  }, 6, 7, 0.94)
 }
 
 /** Lames de parquet · joints décalés d'une rangée à l'autre. */
@@ -104,7 +164,7 @@ export function planks(base = '#b98a52', line = '#8a5f36') {
       }
     }
     grain(c, s, 8)
-  }, 5)
+  }, 5, 6, 0.62)
 }
 
 /** Carrelage · dalles claires et joint creusé. */
@@ -128,7 +188,7 @@ export function tiles(base = '#e8ebf0', joint = '#c3c9d4') {
       c.fillRect(a * step + 2, b * step + 2, step - 4, step - 4)
     }
     grain(c, s, 5)
-  }, 7)
+  }, 7, 5, 0.34)
 }
 
 /** Moquette · un feutre dense, sans motif, qui absorbe la lumière. */
@@ -142,7 +202,7 @@ export function carpet(base = '#8f93a8') {
       c.fillStyle = `rgba(0,0,0,${Math.random() * 0.1})`
       c.fillRect(Math.random() * s, Math.random() * s, 1.5, 1.5)
     }
-  }, 9)
+  }, 9, 4, 0.98)
 }
 
 /** Béton lissé · taches larges et poussière fine. */
@@ -158,7 +218,7 @@ export function concrete(base = '#b9bec9') {
       c.fillRect(0, 0, s, s)
     }
     grain(c, s, 14)
-  }, 5)
+  }, 5, 5, 0.86)
 }
 
 /** Papier de riz · la trame fine d'un shoji, à contre-jour. */
@@ -173,7 +233,7 @@ export function shoji(base = '#f7f1e0') {
       c.beginPath(); c.moveTo(0, i); c.lineTo(s, i); c.stroke()
     }
     grain(c, s, 6)
-  }, 3)
+  }, 3, 3, 0.95)
 }
 
 /** Herbe · touffes courtes, deux verts. */
@@ -187,7 +247,7 @@ export function grass(base = '#93c74d', dark = '#6f9c33') {
       const x = Math.random() * s, y = Math.random() * s
       c.beginPath(); c.moveTo(x, y); c.lineTo(x + (Math.random() - 0.5) * 3, y - 2 - Math.random() * 3); c.stroke()
     }
-  }, 10)
+  }, 10, 5, 0.96)
 }
 
 /** Métal strié · le plancher d'atelier. */
@@ -207,12 +267,43 @@ export function treadplate(base = '#a4acbd') {
       c.restore()
     }
     grain(c, s, 10)
-  }, 8)
+    // Répétition de 4 et non de 8, relief de 5 et non de 9 : à 8 la dalle
+    // faisait 2,5 unités et le motif se lisait comme du bruit plutôt que
+    // comme de la tôle. Une texture trop répétée ne donne pas de la matière,
+    // elle donne du grain.
+  }, 4, 5, 0.42)
+}
+
+/**
+ * Le dégradé d'occlusion d'angle · sombre en bas, transparent en haut.
+ *
+ * Posé debout contre un mur, il imite l'ombre qui s'accumule dans l'angle.
+ * Ce n'est pas de l'occlusion ambiante calculée — celle-là demanderait une
+ * passe d'écran entière, et sur cette machine on a déjà mesuré ce que coûte
+ * une passe de plus. C'est un dégradé, et il donne l'essentiel de la lecture.
+ */
+const shadeCache = { t: null as THREE.Texture | null }
+export function cornerShade(): THREE.Texture {
+  if (shadeCache.t) return shadeCache.t
+  const c = document.createElement('canvas')
+  c.width = 4; c.height = 64
+  const g = c.getContext('2d')
+  if (g) {
+    const grad = g.createLinearGradient(0, 64, 0, 0)
+    grad.addColorStop(0, 'rgba(0,0,0,0.55)')
+    grad.addColorStop(0.45, 'rgba(0,0,0,0.16)')
+    grad.addColorStop(1, 'rgba(0,0,0,0)')
+    g.fillStyle = grad
+    g.fillRect(0, 0, 4, 64)
+  }
+  const t = new THREE.CanvasTexture(c)
+  shadeCache.t = t
+  return t
 }
 
 /** Le sol de chaque monde · une seule table, pour que personne n'ait à
  *  deviner quelle texture va où. */
-export function floorTexture(decor: string, ground: string): THREE.Texture | undefined {
+export function floorTexture(decor: string, ground: string): Surface | undefined {
   switch (decor) {
     case 'dojo': return tatami('#d8e3a0', '#8aa34e')
     case 'garden':
@@ -227,4 +318,24 @@ export function floorTexture(decor: string, ground: string): THREE.Texture | und
     case 'backrooms': return carpet('#9a8f5e')
     default: return concrete(ground)
   }
+}
+
+/**
+ * Le ciel · un dégradé vertical, du sol au zénith.
+ *
+ * `<color attach="background">` peint un aplat : le monde ouvert flottait
+ * donc dans un vide d'une seule teinte, sans horizon, et rien ne disait où
+ * finissait le sol. Un dégradé donne une profondeur immédiate pour un seul
+ * maillage — et il est peint aux couleurs du monde, donc chaque dojo garde
+ * son climat.
+ */
+export function skyGradient(horizon: string, zenith: string): THREE.Texture {
+  return make(`sky-${horizon}-${zenith}`, 64, (c, s) => {
+    const g = c.createLinearGradient(0, s, 0, 0)
+    g.addColorStop(0, horizon)
+    g.addColorStop(0.42, horizon)
+    g.addColorStop(1, zenith)
+    c.fillStyle = g
+    c.fillRect(0, 0, s, s)
+  }, 1, 0, 1).map
 }
