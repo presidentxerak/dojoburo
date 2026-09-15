@@ -43,4 +43,31 @@ if (missing.length) console.log(`--  sans mobilier de métier (le monde suffit) 
 // il ne s'affichera jamais, et rien ne le signalerait.
 if (orphan.length) { console.error(`KO  kit(s) sans spécialité correspondante · ${orphan.join(', ')}`); process.exit(1) }
 
-console.log(`\n${ids.length + kits.length} vérifications · 0 échec`)
+// --- chaque DÉPARTEMENT doit avoir une tenue ------------------------------
+//
+// Le défaut que ceci garde ne casse rien et ne se voit pas : un département
+// absent du `switch` de JobLook3D retombe sur `null`, le coéquipier s'affiche
+// sans tenue, et aucune erreur n'est levée. Il a fallu une capture d'écran et
+// une fausse piste sur le cadrage pour s'en apercevoir la première fois.
+const roles = readFileSync('src/data/roleAgents.ts', 'utf8')
+const look = readFileSync('src/components/three/JobLook3D.tsx', 'utf8')
+
+const depts = [...new Set([...roles.matchAll(/dept: '([A-Za-z]+)'/g)].map((m) => m[1]))]
+const body = look.slice(look.indexOf('export function JobBody'), look.indexOf('export function JobHead'))
+const head = look.slice(look.indexOf('export function JobHead'))
+const cased = (block) => new Set([...block.matchAll(/case '([A-Za-z]+)':/g)].map((m) => m[1]))
+const inBody = cased(body)
+const inHead = cased(head)
+
+if (depts.length < 4) { console.error(`KO  ${depts.length} département(s) trouvé(s) · la lecture de roleAgents.ts a échoué`); process.exit(1) }
+if (inBody.size < 4 || inHead.size < 4) { console.error('KO  lecture de JobLook3D.tsx échouée'); process.exit(1) }
+
+const nus = depts.filter((d) => !inBody.has(d) || !inHead.has(d))
+console.log(`ok  ${depts.length} départements, ${inBody.size} tenues de corps, ${inHead.size} accessoires de tête`)
+if (nus.length) {
+  console.error(`KO  département(s) sans tenue · ${nus.join(', ')}`)
+  process.exit(1)
+}
+console.log('ok  chaque département est habillé')
+
+console.log(`\n${ids.length + kits.length + depts.length} vérifications · 0 échec`)

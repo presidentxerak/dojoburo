@@ -10,7 +10,7 @@ import { FunkoFace3D } from './FunkoFace3D'
 import { VINYL } from './toy'
 import { Contact } from './Contact'
 import { roundedBox } from './geometry'
-import { JobBody, JobHead } from './JobLook3D'
+import { JobBody, JobHead, jobOf } from './JobLook3D'
 import type { Department } from '../../data/agents'
 
 // La matière de tous les personnages · une figurine de vinyle, définie une
@@ -598,6 +598,7 @@ export function Character3D({
   walk = false,
   grounded = true,
   fn,
+  role,
 }: {
   id: string
   character: Character
@@ -618,12 +619,17 @@ export function Character3D({
   /** le MÉTIER · il habille le personnage (voir ./JobLook3D). Le skin donne
    *  la couleur, que l'utilisateur choisit ; le métier donne le vêtement,
    *  qu'il ne choisit pas. Les deux se combinent sans se marcher dessus. */
-  fn?: Department
+  fn?: Department | string
+  /** le rôle · filet de sécurité quand `fn` porte une valeur d'un ancien
+   *  format sauvegardé dans le navigateur (voir jobOf) */
+  role?: string
 }) {
   const g = useRef<THREE.Group>(null)
   const [hover, setHover] = useState(false)
   const banter = useDojo((s) => s.banter)
   const heroTargetId = useDojo((s) => s.heroTargetId)
+  // le métier, résolu une fois · `fn` s'il est valide, le rôle sinon
+  const job = jobOf(fn, role)
   const faceDark = isDark(character.face)
   const faceColor = faceDark ? '#f4f4f4' : '#1c2029'
   const isSlime = character.kind === 'slime'
@@ -842,7 +848,7 @@ export function Character3D({
               <boxGeometry args={[0.16, 0.13, 0.07]} />
               <meshStandardMaterial color={character.extra} roughness={0.35} metalness={0.3} />
             </mesh>
-            {fn && <JobBody fn={fn} accent={character.extra} />}
+            {job && <JobBody fn={job} accent={character.extra} />}
             {/* l'écusson · la touche d'accent, à hauteur de cœur */}
             <mesh position={[-0.17, 1.14, 0.39]} rotation={[0.1, 0.35, 0]}>
               <circleGeometry args={[0.095, 16]} />
@@ -858,7 +864,7 @@ export function Character3D({
                 <Ball p={[0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
                 <Toppers c={character} />
                 <FunkoFace3D mood={mood} position={[0, 1.98, 0.72]} scale={0.78} color={faceColor} muzzle={lighten(character.face, 0.45)} />
-                {fn && <JobHead fn={fn} accent={character.extra} />}
+                {job && <JobHead fn={job} accent={character.extra} />}
                 {acc && <Accessory kind={acc} id={id} />}
               </AboutY>
             )}

@@ -19,10 +19,44 @@
 // figurine — c'est-à-dire ridiculement petite.
 import * as THREE from 'three'
 import type { Department } from '../../data/agents'
+import { ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
 import { VINYL, PAINTED_METAL } from './toy'
 import { roundedBox } from './geometry'
 
 type V3 = [number, number, number]
+
+const DEPARTMENTS: Department[] = ['Leadership', 'Engineering', 'Finance', 'Growth', 'Product', 'People', 'Ops']
+
+/**
+ * De quel métier relève ce coéquipier.
+ *
+ * On ne se fie PAS au seul champ `fn`. Les dojos vivent dans le navigateur
+ * de l'utilisateur, parfois depuis des mois : un dojo créé avant que la
+ * liste des départements ne se fixe porte des valeurs comme « Design » ou
+ * « Marketing », qui n'en font pas partie. Le `switch` retombait alors en
+ * silence sur `null` — aucune tenue, aucune erreur, rien à voir. Le défaut
+ * était sous mes yeux dans mon propre jeu d'essai, où deux agents sur
+ * quatre n'avaient rien : je l'avais mis sur le compte du cadrage.
+ *
+ * Le RÔLE, lui, porte toujours son département (data/roleAgents). On lit
+ * donc `fn` s'il est valide, et on retombe sur le rôle sinon.
+ */
+export function jobOf(fn?: string, role?: string): Department | null {
+  if (fn && (DEPARTMENTS as string[]).includes(fn)) return fn as Department
+  if (role) {
+    const r = ROLE_BY_ID[canonicalRole(role)]
+    if (r?.dept) return r.dept
+  }
+  return null
+}
+
+// Les couleurs des ACCESSOIRES ne viennent pas du skin. Une couronne teintée
+// de la couleur d'accent du personnage devenait vert pâle sur une tête vert
+// pâle : l'objet existait et ne se voyait pas. Un casque de chantier est
+// jaune, une couronne est dorée, un casque audio est noir — ce sont des
+// objets du monde réel, pas des variantes de la palette du joueur.
+const GOLD = '#f0b429'
+const DARK = '#23262e'
 
 function B({ p, s, c, rot, mat = VINYL }: { p: V3; s: V3; c: string; rot?: V3; mat?: object }) {
   return (
@@ -153,11 +187,11 @@ export function JobHead({ fn, accent }: { fn: Department; accent: string }) {
       // une couronne discrète · trois pointes, pas un chapeau de fête
       return (
         <group>
-          <Cy p={[0, hy + 0.56, 0]} r={0.44} h={0.14} c={accent} mat={PAINTED_METAL} />
+          <Cy p={[0, hy + 0.56, 0]} r={0.44} h={0.14} c={GOLD} mat={PAINTED_METAL} />
           {[-0.32, 0, 0.32].map((x, i) => (
             <mesh key={x} position={[x, hy + 0.78, 0]} castShadow>
               <coneGeometry args={[0.11, 0.32 + (i === 1 ? 0.12 : 0), 10]} />
-              <meshStandardMaterial color={accent} {...PAINTED_METAL} />
+              <meshStandardMaterial color={GOLD} {...PAINTED_METAL} />
             </mesh>
           ))}
         </group>
@@ -171,7 +205,7 @@ export function JobHead({ fn, accent }: { fn: Department; accent: string }) {
             <meshStandardMaterial color="#2b2f3d" {...VINYL} />
           </mesh>
           {[-1, 1].map((sd) => (
-            <Cy key={sd} p={[sd * 0.58, hy + 0.1, 0]} r={0.19} h={0.12} c="#2b2f3d" rot={[0, 0, Math.PI / 2]} />
+            <Cy key={sd} p={[sd * 0.58, hy + 0.1, 0]} r={0.19} h={0.12} c={DARK} rot={[0, 0, Math.PI / 2]} />
           ))}
           {[-1, 1].map((sd) => (
             <Cy key={'c' + sd} p={[sd * 0.65, hy + 0.1, 0]} r={0.13} h={0.03} c={accent} rot={[0, 0, Math.PI / 2]} />
