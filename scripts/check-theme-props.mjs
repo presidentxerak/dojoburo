@@ -70,31 +70,47 @@ if (nus.length) {
 }
 console.log('ok  chaque département est habillé')
 
-// --- chaque ESPÈCE nommée dans FACE_BY_KIND doit exister -------------------
+// --- chaque ESPÈCE nommée dans les tables doit exister --------------------
 //
-// La table est VOLONTAIREMENT partielle : une espèce absente retombe sur deux
-// yeux noirs et rien d'autre, ce qui est le visage Funko canonique. On ne peut
-// donc pas exiger qu'elles y soient toutes. Mais l'inverse est une faute de
-// frappe silencieuse : une clé qui ne correspond à aucune espèce ne s'applique
-// jamais, et rien ne le dirait — le museau qu'on croyait avoir donné au chat
-// n'existerait tout simplement pas.
+// Deux tables décident de l'allure d'une espèce : son VISAGE au repos
+// (data/faces.ts) et la FORME de sa tête (Character3D). Les deux sont
+// volontairement partielles — une espèce absente reçoit le visage commun et
+// une tête ronde, et c'est le comportement voulu. On ne peut donc pas exiger
+// qu'elles y soient toutes.
+//
+// L'inverse, lui, est une faute de frappe silencieuse : une clé qui ne
+// correspond à aucune espèce ne s'applique jamais, et rien ne le dirait — le
+// museau qu'on croit avoir donné au chat n'existerait tout simplement pas.
 const looks = readFileSync('src/data/looks.ts', 'utf8')
-const char = readFileSync('src/components/three/Character3D.tsx', 'utf8')
+const headSrc = readFileSync('src/components/three/head.ts', 'utf8')
+const facesSrc = readFileSync('src/data/faces.ts', 'utf8')
 
 const kindType = looks.slice(looks.indexOf('export type Kind'))
 const kinds = new Set([...kindType.slice(0, kindType.indexOf('\n\n')).matchAll(/'([a-z]+)'/g)].map((m) => m[1]))
-const fbk = char.indexOf('const FACE_BY_KIND')
-const fbkEnd = char.indexOf('\n}\n', fbk)
-if (!kinds.size || fbk < 0 || fbkEnd < 0) { console.error('KO  lecture de Kind ou de FACE_BY_KIND échouée'); process.exit(1) }
-const faced = [...char.slice(fbk, fbkEnd).matchAll(/^\s{2}([a-z]+):\s*\{/gm)].map((m) => m[1])
+if (kinds.size < 20) { console.error(`KO  ${kinds.size} espèces · lecture de Kind échouée`); process.exit(1) }
 
-if (kinds.size < 20 || faced.length < 10) { console.error(`KO  ${kinds.size} espèces / ${faced.length} visages · lecture douteuse`); process.exit(1) }
-const ghosts = faced.filter((k) => !kinds.has(k))
-console.log(`ok  ${kinds.size} espèces, ${faced.length} museaux/becs/visières attribués`)
-if (ghosts.length) {
-  console.error(`KO  FACE_BY_KIND nomme des espèces inexistantes · ${ghosts.join(', ')}`)
-  process.exit(1)
+/** les clés d'une table `const NAME ... = { … }`, à deux espaces d'indentation */
+function keysOf(src, decl, re) {
+  const from = src.indexOf(decl)
+  const end = src.indexOf('\n}\n', from)
+  if (from < 0 || end < 0) return null
+  return [...src.slice(from, end).matchAll(re)].map((m) => m[1])
 }
-console.log(`--  ${kinds.size - faced.length} espèces au visage Funko nu (deux yeux, rien d'autre) · voulu`)
+
+const tables = [
+  ['FACE_BY_KIND (data/faces.ts)', keysOf(facesSrc, 'export const FACE_BY_KIND', /^\s{2}([a-z]+):\s*S\(/gm), 10],
+  ['HEAD_BY_KIND (three/head.ts)', keysOf(headSrc, 'const HEAD_BY_KIND', /([a-z]+):\s*'(?:cube|block|wide|round|oval)'/g), 10],
+]
+
+let named = 0
+for (const [label, keys, floor] of tables) {
+  if (!keys || keys.length < floor) { console.error(`KO  lecture de ${label} échouée · ${keys ? keys.length : 0} clé(s)`); process.exit(1) }
+  const ghosts = keys.filter((k) => !kinds.has(k))
+  if (ghosts.length) { console.error(`KO  ${label} nomme des espèces inexistantes · ${ghosts.join(', ')}`); process.exit(1) }
+  console.log(`ok  ${label} · ${keys.length}/${kinds.size} espèces`)
+  named += keys.length
+}
+const faced = { length: named }
+console.log(`ok  ${kinds.size} espèces, aucune clé orpheline`)
 
 console.log(`\n${ids.length + kits.length + depts.length + faced.length} vérifications · 0 échec`)

@@ -92,28 +92,20 @@ function RoomDressing({ P, decor, enclosed }: { P: DojoPalette; decor: string; e
         </group>
       ))}
 
-      {/* suspensions · uniquement là où il y a un plafond au-dessus */}
-      {enclosed && [-5.5, 0, 5.5].map((x) => (
-        <group key={x} position={[x, 0, -0.5]}>
-          <mesh position={[0, ROOM.wallH - 0.6, 0]}>
-            <cylinderGeometry args={[0.02, 0.02, 1.2, 6]} />
-            <meshStandardMaterial color="#3a4050" />
-          </mesh>
-          <mesh position={[0, ROOM.wallH - 1.3, 0]} castShadow>
-            <coneGeometry args={[0.52, 0.42, 20, 1, true]} />
-            <meshStandardMaterial color={P.trim} side={THREE.DoubleSide} {...M} />
-          </mesh>
-          <mesh position={[0, ROOM.wallH - 1.46, 0]}>
-            <sphereGeometry args={[0.15, 14, 12]} />
-            <meshStandardMaterial color="#fff3d0" emissive="#ffe7a8" emissiveIntensity={1.5} roughness={0.4} />
-          </mesh>
-        </group>
-      ))}
-      {/* UNE lumière pour les trois suspensions. Chaque lumière ponctuelle
-          se paie dans le nuanceur de CHAQUE matériau de la scène : en poser
-          une par lampe a fait tomber le rendu de deux à une image par
-          seconde (scripts/perf-scene.mjs). Les abat-jour restent émissifs,
-          donc ils brillent ; seule la lumière qu'ils versent est mutualisée. */}
+      {/* PAS DE SUSPENSIONS.
+          Trois lampes pendaient au bout d'un câble de 1,2 unité, à hauteur
+          de mur — donc EN PLEIN DANS LE CADRE. La caméra plonge dans la
+          pièce depuis le haut : tout ce qui est accroché en hauteur passe
+          devant la scène au lieu de l'éclairer visuellement. Elles gênaient,
+          on les retire.
+
+          La lumière qu'elles versaient, elle, RESTE. C'est elle qui donne
+          son chaud à la pièce ; la retirer avec les abat-jour aurait éteint
+          le dojo pour une raison de cadrage. */}
+      {/* UNE seule lumière pour toute la pièce. Chaque lumière ponctuelle se
+          paie dans le nuanceur de CHAQUE matériau de la scène : en poser une
+          par lampe avait fait tomber le rendu de deux à une image par seconde
+          (scripts/perf-scene.mjs). */}
       {enclosed && <pointLight position={[0, ROOM.wallH - 1.6, -0.5]} color="#ffeec4" intensity={2.6} distance={26} />}
 
       {/* PLINTHE · une pièce dont le mur rencontre le sol à angle vif n'a

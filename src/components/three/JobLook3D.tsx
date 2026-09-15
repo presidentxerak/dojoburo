@@ -18,6 +18,8 @@
 // une casquette resterait de la taille d'une casquette sur une tête de
 // figurine — c'est-à-dire ridiculement petite.
 import * as THREE from 'three'
+import type { Head } from './head'
+import { HEAD_Y, girth } from './head'
 import type { Department } from '../../data/agents'
 import { ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
 import { VINYL, PAINTED_METAL } from './toy'
@@ -180,17 +182,32 @@ export function JobBody({ fn, accent }: { fn: Department; accent: string }) {
  *
  * La tête est une sphère de rayon 0,62 centrée en y = 1,95 dans ce repère.
  */
-export function JobHead({ fn, accent }: { fn: Department; accent: string }) {
-  const hy = 1.95
+/** Les métiers qui occupent le SOMMET du crâne.
+ *
+ *  Sans cette liste, un coéquipier reçoit son couvre-chef de métier ET le
+ *  chapeau tiré au sort par `accForId` : on l'a vu sur capture, un robot avec
+ *  une casquette sous un haut-de-forme, un vampire avec un casque de chantier
+ *  sous sa chevelure. Deux chapeaux empilés, et personne pour s'en plaindre
+ *  puisque rien n'est en erreur. Un casque audio, des lunettes ou une fleur à
+ *  l'oreille, eux, cohabitent très bien avec un chapeau. */
+export const CROWNED = new Set<Department>(['Leadership', 'Product', 'Ops'])
+
+// Comme les coiffes d'espèce, tout se réfère aux demi-dimensions de la tête :
+// ces objets étaient calés à la main sur une sphère de rayon 0,62, et cinq
+// formes de tête les auraient tous enterrés ou fait flotter.
+export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: Head }) {
+  const hy = HEAD_Y
+  const top = hy + h.y
+  const g = girth(h)
   switch (fn) {
     case 'Leadership':
       // une couronne discrète · trois pointes, pas un chapeau de fête
       return (
         <group>
-          <Cy p={[0, hy + 0.56, 0]} r={0.44} h={0.14} c={GOLD} mat={PAINTED_METAL} />
-          {[-0.32, 0, 0.32].map((x, i) => (
-            <mesh key={x} position={[x, hy + 0.78, 0]} castShadow>
-              <coneGeometry args={[0.11, 0.32 + (i === 1 ? 0.12 : 0), 10]} />
+          <Cy p={[0, top - 0.04, 0]} r={g * 0.82} h={0.13} c={GOLD} mat={PAINTED_METAL} />
+          {[-0.3, 0, 0.3].map((x, i) => (
+            <mesh key={x} position={[x * g * 1.2, top + 0.17, 0]} castShadow>
+              <coneGeometry args={[0.1, 0.28 + (i === 1 ? 0.1 : 0), 10]} />
               <meshStandardMaterial color={GOLD} {...PAINTED_METAL} />
             </mesh>
           ))}
@@ -200,33 +217,32 @@ export function JobHead({ fn, accent }: { fn: Department; accent: string }) {
       // casque audio · l'arceau passe au-dessus, les écouteurs sur les côtés
       return (
         <group>
-          <mesh position={[0, hy + 0.3, 0]} rotation={[0, 0, Math.PI]} castShadow>
-            <torusGeometry args={[0.55, 0.055, 10, 22, Math.PI]} />
+          <mesh position={[0, top - 0.1, 0]} rotation={[0, 0, Math.PI]} castShadow>
+            <torusGeometry args={[g + 0.02, 0.05, 10, 22, Math.PI]} />
             <meshStandardMaterial color="#2b2f3d" {...VINYL} />
           </mesh>
           {[-1, 1].map((sd) => (
-            <Cy key={sd} p={[sd * 0.58, hy + 0.1, 0]} r={0.19} h={0.12} c={DARK} rot={[0, 0, Math.PI / 2]} />
+            <Cy key={sd} p={[sd * (h.x + 0.04), hy + h.y * 0.12, 0]} r={0.17} h={0.11} c={DARK} rot={[0, 0, Math.PI / 2]} />
           ))}
           {[-1, 1].map((sd) => (
-            <Cy key={'c' + sd} p={[sd * 0.65, hy + 0.1, 0]} r={0.13} h={0.03} c={accent} rot={[0, 0, Math.PI / 2]} />
+            <Cy key={'c' + sd} p={[sd * (h.x + 0.1), hy + h.y * 0.12, 0]} r={0.115} h={0.03} c={accent} rot={[0, 0, Math.PI / 2]} />
           ))}
         </group>
       )
     case 'Finance':
-      // lunettes rondes · deux cercles et un pont
+      // lunettes rondes · DEVANT le panneau du visage (à h.z + 0,22), sinon
+      // les glyphes des yeux se dessineraient par-dessus les verres
       return (
-        <group position={[0, hy + 0.04, 0.6]}>
-          {[-0.26, 0.26].map((x) => (
-            <mesh key={x} position={[x, 0, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <torusGeometry args={[0.22, 0.04, 8, 20]} />
+        <group position={[0, hy + h.y * 0.2, h.z + 0.28]}>
+          {[-1, 1].map((sd) => (
+            <mesh key={sd} position={[sd * 0.42 * h.x, 0, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <torusGeometry args={[0.19, 0.035, 8, 20]} />
               <meshStandardMaterial color="#2b2f3d" {...VINYL} />
             </mesh>
           ))}
-          <B p={[0, 0, 0]} s={[0.18, 0.04, 0.04]} c="#2b2f3d" />
-          {/* les branches, qui partent vers les tempes · sans elles les
-              cercles flottent devant le visage */}
+          <B p={[0, 0, 0]} s={[0.16, 0.035, 0.035]} c="#2b2f3d" />
           {[-1, 1].map((sd) => (
-            <B key={sd} p={[sd * 0.46, 0, -0.16]} s={[0.04, 0.04, 0.34]} c="#2b2f3d" rot={[0, sd * 0.4, 0]} />
+            <B key={sd} p={[sd * 0.78 * h.x, 0, -0.16]} s={[0.035, 0.035, 0.3]} c="#2b2f3d" rot={[0, sd * 0.4, 0]} />
           ))}
         </group>
       )
@@ -234,51 +250,56 @@ export function JobHead({ fn, accent }: { fn: Department; accent: string }) {
       // micro-casque · l'arceau et la tige devant la bouche
       return (
         <group>
-          <mesh position={[0, hy + 0.3, 0]} rotation={[0, 0, Math.PI]} castShadow>
-            <torusGeometry args={[0.55, 0.045, 10, 22, Math.PI]} />
+          <mesh position={[0, top - 0.1, 0]} rotation={[0, 0, Math.PI]} castShadow>
+            <torusGeometry args={[g + 0.02, 0.042, 10, 22, Math.PI]} />
             <meshStandardMaterial color="#2b2f3d" {...VINYL} />
           </mesh>
-          <Cy p={[-0.58, hy + 0.1, 0]} r={0.15} h={0.1} c="#2b2f3d" rot={[0, 0, Math.PI / 2]} />
-          <Cy p={[-0.4, hy - 0.16, 0.34]} r={0.03} h={0.5} c="#2b2f3d" rot={[0.5, 0, -0.9]} />
-          <Sp p={[-0.1, hy - 0.3, 0.52]} r={0.075} c={accent} />
+          <Cy p={[-(h.x + 0.05), hy + h.y * 0.12, 0]} r={0.14} h={0.1} c="#2b2f3d" rot={[0, 0, Math.PI / 2]} />
+          <Cy p={[-h.x * 0.72, hy - h.y * 0.18, h.z * 0.6]} r={0.028} h={0.44} c="#2b2f3d" rot={[0.5, 0, -0.9]} />
+          <Sp p={[-h.x * 0.2, hy - h.y * 0.34, h.z + 0.26]} r={0.07} c={accent} />
         </group>
       )
     case 'Product':
       // casquette · visière tournée devant
       return (
         <group>
-          <mesh position={[0, hy + 0.42, 0]} castShadow>
-            <sphereGeometry args={[0.58, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.2]} />
+          {/* APLATIE · une demi-sphère de rayon « tour de tête » posée sur une
+              tête devenue petite donnait un champignon deux fois plus haut
+              qu'elle. L'écrasement vertical est ce qui distingue une casquette
+              d'un dôme. */}
+          <mesh position={[0, top - 0.2, 0]} scale={[1, 0.55, 1]} castShadow>
+            <sphereGeometry args={[g * 0.86, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.2]} />
             <meshStandardMaterial color={accent} {...VINYL} side={THREE.DoubleSide} />
           </mesh>
-          <B p={[0, hy + 0.4, 0.52]} s={[0.66, 0.06, 0.42]} c={accent} rot={[0.14, 0, 0]} />
-          <Sp p={[0, hy + 0.66, 0]} r={0.07} c="#f4f6fa" />
+          <B p={[0, top - 0.2, h.z * 0.92]} s={[g * 0.95, 0.055, 0.34]} c={accent} rot={[0.14, 0, 0]} />
+          <Sp p={[0, top + 0.02, 0]} r={0.055} c="#f4f6fa" />
         </group>
       )
     case 'People':
       // fleur à l'oreille · le métier qui accueille
       return (
-        <group position={[0.5, hy + 0.32, 0.2]}>
+        <group position={[h.x + 0.04, hy + h.y * 0.48, 0.16]}>
           {[0, 1, 2, 3, 4].map((i) => {
             const a = (i / 5) * Math.PI * 2
-            return <Sp key={i} p={[Math.cos(a) * 0.13, Math.sin(a) * 0.13, 0]} r={0.085} c="#ff9ec7" s={[1, 1, 0.5]} />
+            return <Sp key={i} p={[Math.cos(a) * 0.12, Math.sin(a) * 0.12, 0]} r={0.08} c="#ff9ec7" s={[1, 1, 0.5]} />
           })}
-          <Sp p={[0, 0, 0.04]} r={0.06} c="#ffd23f" />
+          <Sp p={[0, 0, 0.04]} r={0.055} c="#ffd23f" />
         </group>
       )
     case 'Ops':
       // casque de chantier · calotte et bord, avec sa crête
       return (
         <group>
-          <mesh position={[0, hy + 0.4, 0]} castShadow>
-            <sphereGeometry args={[0.6, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.1]} />
+          {/* même écrasement que la casquette, et pour la même raison */}
+          <mesh position={[0, top - 0.18, 0]} scale={[1, 0.56, 1]} castShadow>
+            <sphereGeometry args={[g * 0.92, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.1]} />
             <meshStandardMaterial color="#ffb400" {...VINYL} side={THREE.DoubleSide} />
           </mesh>
-          <mesh position={[0, hy + 0.4, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <torusGeometry args={[0.6, 0.06, 8, 24]} />
+          <mesh position={[0, top - 0.17, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <torusGeometry args={[g * 0.92, 0.05, 8, 24]} />
             <meshStandardMaterial color="#e8a300" {...VINYL} />
           </mesh>
-          <B p={[0, hy + 0.66, 0]} s={[0.1, 0.16, 0.9]} c="#e8a300" />
+          <B p={[0, top + 0.02, 0]} s={[0.08, 0.13, g * 1.4]} c="#e8a300" />
         </group>
       )
     default:

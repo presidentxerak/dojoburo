@@ -5,112 +5,23 @@ import * as THREE from 'three'
 import type { Character } from '../../data/looks'
 import type { Mood } from '../../store'
 import { useDojo } from '../../store'
-import { FunkoFace3D } from './FunkoFace3D'
-import type { EyeKind, Snout } from './FunkoFace3D'
+import { AsciiFace3D } from './AsciiFace3D'
 
 import { VINYL } from './toy'
 import { Contact } from './Contact'
 import { roundedBox } from './geometry'
-import { JobBody, JobHead, jobOf } from './JobLook3D'
+import { HEAD_Y, HEAD_S, HEAD_LIFT, crown, girth, headOf } from './head'
+import type { Head } from './head'
+import { CROWNED, JobBody, JobHead, jobOf } from './JobLook3D'
 import type { Department } from '../../data/agents'
 
 // La matière de tous les personnages · une figurine de vinyle, définie une
 // seule fois dans ./toy et partagée par les 38 espèces.
 const MAT = VINYL
 
-// Proportions de figurine · la tête compte pour la moitié de la silhouette.
-// On ne retouche pas les 38 espèces une par une : la tête, les oreilles, les
-// chapeaux et le visage sont mis à l'échelle AUTOUR du centre de la tête
-// (HEAD_Y), si bien que tout ce qui y est accroché suit sans bouger d'un
-// millimètre dans son repère. Un cône d'oreille écrit à `hy + 0.62` reste
-// posé sur le crâne, quelle que soit la valeur de HEAD_S.
-const HEAD_Y = 1.95
-// 1,38 et non 1,2 · sur une vraie figurine Funko la tête fait près de
-// soixante pour cent de la hauteur totale. À 1,2 on lisait « personnage à
-// grosse tête » ; à 1,38 on lit « figurine ». C'est la même mécanique
-// AboutY : une seule constante déplace les 38 espèces.
-const HEAD_S = 1.38
 
-// La tête est une BOÎTE ARRONDIE, pas une sphère.
-//
-// C'est la correction la plus importante de cette passe. Une figurine Funko
-// n'a pas une boule sur les épaules : elle a un bloc presque cubique, aux
-// arêtes très adoucies, avec une face AVANT PLATE sur laquelle les yeux sont
-// peints. La sphère précédente, avec un museau ajouté, donnait exactement le
-// chien d'Animal Crossing — et elle le donnait pour les 38 espèces.
-//
-// Les proportions : un peu plus haute que large, un peu moins profonde que
-// large. Le rayon de congé (0,22, exprimé en proportion, voir geometry.ts)
-// est presque le maximum utile — au-delà on retombe sur une boule.
-const HEAD_W = 1.2
-const HEAD_H = 1.32
-const HEAD_D = 1.12
-/** la face avant, en z · tout ce qui se peint dessus s'y accroche */
-const FACE_Z = HEAD_D / 2
-// La tête est REMONTÉE de 0,26.
-//
-// En grossissant (HEAD_S 1,38) elle est descendue jusqu'à y ≈ 1,04, soit la
-// hauteur du clapet de l'ordinateur portable (son bord haut est à ≈ 1,72).
-// Résultat mesuré sur capture : le museau (1,66) et la bouche (1,61) étaient
-// DERRIÈRE l'écran pour toute l'équipe assise — la moitié basse du travail de
-// différenciation ne se voyait donc jamais. Remontée, la tête garde son cou
-// dans le torse (bas de tête 1,28, haut de torse 1,51) et le museau passe à
-// 1,90, franchement au-dessus du clapet.
-const HEAD_LIFT = 0.26
-
-/** La deuxième moitié de la différenciation · ce qui s'ajoute aux deux yeux,
- *  et la forme de ces yeux. Sans cette table les 38 espèces reçoivent le même
- *  visage et ne se distinguent plus que par la couleur — c'est exactement ce
- *  qu'on reprochait à la version précédente.
- *
- *  Une espèce absente de la table tombe sur `none` + `oval` : deux yeux noirs
- *  et rien d'autre, le visage Funko canonique. C'est un défaut volontaire, pas
- *  un oubli — la plupart des espèces n'ont besoin de rien de plus, et leur
- *  silhouette (oreilles, casque, chapeau) fait déjà le travail. */
-const FACE_BY_KIND: Record<string, { snout?: Snout; eyes?: EyeKind; tint?: string }> = {
-  // mammifères · museau plus clair et truffe
-  cat: { snout: 'muzzle', eyes: 'slit' },
-  poodle: { snout: 'muzzle' },
-  bear: { snout: 'muzzle' },
-  panda: { snout: 'muzzle' },
-  rabbit: { snout: 'muzzle' },
-  // oiseaux · un bec, jamais un museau
-  duck: { snout: 'beak', eyes: 'dot', tint: '#ff9e2c' },
-  chicken: { snout: 'beak', eyes: 'dot', tint: '#ffb400' },
-  penguin: { snout: 'beak', eyes: 'dot', tint: '#ff9e2c' },
-  // machines · pas d'iris, un balayage lumineux
-  robot: { snout: 'visor', eyes: 'square', tint: '#5ad1ff' },
-  cyborg: { snout: 'visor', eyes: 'square', tint: '#ff5a5f' },
-  goldorak: { snout: 'visor', eyes: 'square', tint: '#ffd23b' },
-  geo: { eyes: 'square' },
-  knight: { eyes: 'square' },
-  // monstres · des crocs qui dépassent, sans bouche dessinée
-  vampire: { snout: 'fangs', eyes: 'slit' },
-  monster: { snout: 'fangs', eyes: 'wide' },
-  godzilla: { snout: 'fangs', eyes: 'dot' },
-  dragon: { snout: 'fangs', eyes: 'slit' },
-  // revenants · des orbites creuses
-  skeleton: { snout: 'hollow' },
-  ghost: { snout: 'hollow', eyes: 'wide' },
-  // les yeux immenses · ce qui n'a ni museau ni bec se distingue par l'œil
-  frog: { eyes: 'wide' },
-  alien: { eyes: 'wide' },
-  octopus: { eyes: 'wide' },
-  jellyfish: { eyes: 'wide' },
-  slime: { eyes: 'wide' },
-  mushroom: { eyes: 'wide' },
-  bibendum: { eyes: 'dot' },
-  ninja: { eyes: 'slit' },
-  madscientist: { eyes: 'dot' },
-}
-function faceOf(kind: string) {
-  return FACE_BY_KIND[kind] ?? {}
-}
-
-/** Met un sous-arbre à l'échelle autour d'un point, sans toucher aux
- *  coordonnées que ses enfants déclarent. */
-/** Éclaircit une couleur · le museau d'une figurine est toujours un ton
- *  plus clair que la tête, jamais une autre couleur. */
+/** Éclaircit une couleur · un museau ou un intérieur d'oreille est toujours
+ *  un ton plus clair que la tête, jamais une autre couleur. */
 function lighten(hex: string, amount: number): string {
   const n = hex.replace('#', '')
   const v = n.length === 3 ? n.split('').map((c) => c + c).join('') : n
@@ -171,14 +82,22 @@ function Box({ p, s, c, rot }: { p: [number, number, number]; s: [number, number
   )
 }
 
-/** La tête · le bloc Funko, posé au centre de HEAD_Y.
+/** La coquille de la tête · une boîte adoucie, ou une sphère étirée.
  *
- *  Un seul maillage : la géométrie est mise en cache par dimensions, donc les
- *  douze personnages d'un dojo partagent la même — la boîte arrondie ne coûte
- *  rien de plus que la sphère qu'elle remplace. */
-function FunkoHead({ c }: { c: string }) {
+ *  Les géométries sont mises en cache (par dimensions pour la boîte, par
+ *  l'unique sphère de rayon 0,6 mise à l'échelle pour les formes rondes) :
+ *  cinq formes ne coûtent pas plus cher qu'une seule. */
+function HeadShell({ h, c }: { h: Head; c: string }) {
+  if (h.round) {
+    return (
+      <mesh position={[0, HEAD_Y, 0]} scale={[h.x / 0.6, h.y / 0.6, h.z / 0.6]} castShadow>
+        <sphereGeometry args={[0.6, 24, 20]} />
+        <meshStandardMaterial color={c} {...MAT} />
+      </mesh>
+    )
+  }
   return (
-    <mesh position={[0, HEAD_Y, 0]} geometry={roundedBox(HEAD_W, HEAD_H, HEAD_D, 0.22, 8)} castShadow>
+    <mesh position={[0, HEAD_Y, 0]} geometry={roundedBox(h.x * 2, h.y * 2, h.z * 2, 0.2, 7)} castShadow>
       <meshStandardMaterial color={c} {...MAT} />
     </mesh>
   )
@@ -255,269 +174,274 @@ function MonitorHead({ c, mood }: { c: Character; mood: Mood }) {
         <meshStandardMaterial color={'#0a251d'} emissive={'#1f9e6a'} emissiveIntensity={0.55} {...MAT} />
       </mesh>
       <Ball p={[0.44, -0.34, 0.37]} r={0.04} c={'#37d67a'} />
-      <FunkoFace3D mood={mood} position={[0, 0.03, 0.44]} scale={0.62} color={'#8bffbf'} snout="visor" eyes="square" tint={'#37d67a'} />
+      <AsciiFace3D mood={mood} position={[0, 0.03, 0.44]} scale={0.46} color={'#8bffbf'} kind="monitor" halo={'#0a251d'} />
     </group>
   )
 }
 
-// Les coiffes, oreilles et cornes.
+// Les coiffes, oreilles et cornes · RELATIVES à la tête, jamais absolues.
 //
-// Elles étaient posées sur une SPHÈRE de rayon 0,62 : à mi-hauteur, la sphère
-// s'était déjà refermée à 0,37, si bien qu'une oreille placée à x = 0,42
-// dépassait toute seule. La tête est maintenant un bloc de demi-largeur 0,60
-// qui ne se referme qu'au tout dernier moment — la même oreille se retrouve
-// ENTERRÉE. Toutes les valeurs ci-dessous ont donc été reprises : ce qui doit
-// se voir est remonté au-dessus de 0,66 (le haut du bloc), écarté au-delà de
-// 0,60, ou avancé au-delà de 0,56 (la face avant).
-function Toppers({ c }: { c: Character }) {
-  const hy = 1.95
+// C'est ici qu'était la dette. Chaque oreille, chaque corne, chaque bord de
+// chapeau était un nombre écrit à la main pour UNE forme de tête. La sphère a
+// laissé place à un bloc : tout s'est retrouvé enterré. Donner cinq formes
+// différentes aurait multiplié le problème par cinq.
+//
+// Tout se réfère donc maintenant aux demi-dimensions `h` : `top` pour le
+// sommet, `h.x` pour le demi-côté, `fz` pour la face avant, `girth` pour ce
+// qui doit passer AUTOUR (un bord de chapeau doit dépasser le coin d'une
+// boîte, pas son demi-côté). Une oreille écrite « au sommet, aux deux tiers
+// de la largeur » reste juste sur les cinq formes.
+//
+// Deuxième règle, imposée par le retour aux visages ASCII : RIEN ne dépasse
+// de plus de 0,18 devant la face. Le panneau du visage est à fz + 0,22, et
+// tout ce qui passe devant lui masque les glyphes. Les museaux, becs et
+// mâchoires sont donc APLATIS contre la face, à hauteur de bouche — le « w »
+// ou le « > » se dessine dessus, ce qui est exactement l'effet recherché.
+
+/** Le museau · une tache plus claire à hauteur de bouche, aplatie contre la
+ *  face. La bouche ASCII se dessine par-dessus. */
+function Muzzle({ h, c }: { h: Head; c: string }) {
+  return <Ball p={[0, HEAD_Y - h.y * 0.2, h.z - 0.03]} r={0.22} c={c} s={[1.25, 0.8, 0.5]} />
+}
+
+function Toppers({ c, h }: { c: Character; h: Head }) {
+  const hy = HEAD_Y
+  const top = hy + h.y        // le sommet du crâne
+  const fz = h.z              // la face avant
+  const g = girth(h)          // le tour de tête
+  const pale = lighten(c.face, 0.45)
   switch (c.kind) {
     case 'cat':
       return (
         <group>
-          <Cone p={[-0.34, hy + 0.78, 0]} r={0.22} h={0.42} c={c.face} />
-          <Cone p={[0.34, hy + 0.78, 0]} r={0.22} h={0.42} c={c.face} />
-          <Cone p={[-0.34, hy + 0.76, 0.05]} r={0.11} h={0.24} c={c.extra} />
-          <Cone p={[0.34, hy + 0.76, 0.05]} r={0.11} h={0.24} c={c.extra} />
+          {[-1, 1].map((sd) => (
+            <group key={sd}>
+              <Cone p={[sd * 0.58 * h.x, top + 0.14, 0]} r={0.2} h={0.4} c={c.face} />
+              <Cone p={[sd * 0.58 * h.x, top + 0.12, 0.05]} r={0.1} h={0.22} c={lighten(c.face, 0.35)} />
+            </group>
+          ))}
+          <Muzzle h={h} c={pale} />
         </group>
       )
     case 'ninja':
       return (
         <group>
-          {/* le bandeau doit passer AUTOUR du bloc · son rayon intérieur doit
-              dépasser le coin de la tête (≈ 0,72), pas son demi-côté */}
-          <mesh position={[0, hy + 0.12, 0]} castShadow>
-            <torusGeometry args={[0.76, 0.11, 12, 28]} />
+          <mesh position={[0, hy + h.y * 0.25, 0]} castShadow>
+            <torusGeometry args={[g + 0.03, 0.1, 12, 28]} />
             <meshStandardMaterial color={c.outfit2} {...MAT} />
           </mesh>
-          <Box p={[0.7, hy + 0.12, 0.2]} s={[0.16, 0.16, 0.16]} c={c.outfit2} />
-          <Box p={[0.92, hy - 0.05, 0.2]} s={[0.1, 0.32, 0.06]} c={c.outfit2} rot={[0, 0, 0.4]} />
+          <Box p={[g * 0.92, hy + h.y * 0.25, 0.2]} s={[0.16, 0.16, 0.16]} c={c.outfit2} />
+          <Box p={[g * 1.24, hy + h.y * 0.05, 0.2]} s={[0.1, 0.32, 0.06]} c={c.outfit2} rot={[0, 0, 0.4]} />
         </group>
       )
     case 'wizard':
       return (
         <group>
-          <Cone p={[0, hy + 1.05, 0]} r={0.5} h={1.1} c={c.outfit2} />
-          <Cyl p={[0, hy + 0.6, 0]} r={0.8} h={0.12} c={c.outfit2} />
-          <Ball p={[0, hy + 0.85, 0.42]} r={0.09} c={'#ffe066'} />
+          <Cone p={[0, top + 0.5, 0]} r={0.46} h={1.0} c={c.outfit2} />
+          <Cyl p={[0, top - 0.02, 0]} r={g + 0.14} h={0.11} c={c.outfit2} />
+          <Ball p={[0, top + 0.26, 0.38]} r={0.08} c={'#ffe066'} />
         </group>
       )
     case 'alien':
       return (
         <group>
-          <Cyl p={[-0.26, hy + 0.7, 0]} r={0.05} h={0.5} c={c.face} />
-          <Cyl p={[0.26, hy + 0.7, 0]} r={0.05} h={0.5} c={c.face} />
-          <Ball p={[-0.26, hy + 1.0, 0]} r={0.13} c={c.extra} />
-          <Ball p={[0.26, hy + 1.0, 0]} r={0.13} c={c.extra} />
+          {[-1, 1].map((sd) => (
+            <group key={sd}>
+              <Cyl p={[sd * 0.44 * h.x, top + 0.08, 0]} r={0.045} h={0.44} c={c.face} />
+              <Ball p={[sd * 0.44 * h.x, top + 0.34, 0]} r={0.12} c={c.extra} />
+            </group>
+          ))}
         </group>
       )
     case 'goldorak':
       return (
         <group>
-          <Box p={[-0.76, hy + 0.15, 0]} s={[0.5, 0.16, 0.18]} c={c.extra} rot={[0, 0, 0.5]} />
-          <Box p={[0.76, hy + 0.15, 0]} s={[0.5, 0.16, 0.18]} c={c.extra} rot={[0, 0, -0.5]} />
-          <Cyl p={[0, hy + 0.8, 0]} r={0.05} h={0.4} c={'#8b93a1'} />
-          <Ball p={[0, hy + 1.05, 0]} r={0.11} c={c.extra} />
-          <Box p={[0, hy + 0.2, 0.6]} s={[0.16, 0.5, 0.1]} c={c.extra} />
+          {[-1, 1].map((sd) => (
+            <Box key={sd} p={[sd * (h.x + 0.2), hy + h.y * 0.24, 0]} s={[0.46, 0.15, 0.17]} c={c.extra} rot={[0, 0, sd * -0.5]} />
+          ))}
+          <Cyl p={[0, top + 0.16, 0]} r={0.045} h={0.36} c={'#8b93a1'} />
+          <Ball p={[0, top + 0.38, 0]} r={0.1} c={c.extra} />
+          <Box p={[0, hy + h.y * 0.34, fz + 0.04]} s={[0.15, 0.46, 0.09]} c={c.extra} />
         </group>
       )
     case 'robot':
       return (
         <group>
-          <Cyl p={[0, hy + 0.8, 0]} r={0.045} h={0.4} c={'#8b93a1'} />
-          <Ball p={[0, hy + 1.05, 0]} r={0.1} c={c.extra} />
-          {/* les écrous d'oreille · à 0,68 avec un rayon de 0,11 ils ne
-              mordaient sur le bloc (0,60) que de trois centièmes et se
-              lisaient comme deux billes flottantes */}
-          <Ball p={[-0.64, hy, 0]} r={0.15} c={'#8b93a1'} />
-          <Ball p={[0.64, hy, 0]} r={0.15} c={'#8b93a1'} />
+          <Cyl p={[0, top + 0.16, 0]} r={0.04} h={0.36} c={'#8b93a1'} />
+          <Ball p={[0, top + 0.38, 0]} r={0.095} c={c.extra} />
+          {[-1, 1].map((sd) => <Ball key={sd} p={[sd * (h.x + 0.03), hy, 0]} r={0.13} c={'#8b93a1'} />)}
         </group>
       )
     case 'monster':
       return (
         <group>
-          <Cone p={[-0.3, hy + 0.82, 0]} r={0.15} h={0.5} c={'#f4efe0'} rot={[0, 0, 0.25]} />
-          <Cone p={[0.3, hy + 0.82, 0]} r={0.15} h={0.5} c={'#f4efe0'} rot={[0, 0, -0.25]} />
+          {[-1, 1].map((sd) => (
+            <Cone key={sd} p={[sd * 0.52 * h.x, top + 0.2, 0]} r={0.14} h={0.48} c={'#f4efe0'} rot={[0, 0, sd * -0.25]} />
+          ))}
         </group>
       )
     case 'vampire':
       return (
         <group>
-          {/* la chevelure doit ENVELOPPER le bloc · un rayon de 0,62 laissait
-              les quatre coins de la tête ressortir à travers */}
-          <Ball p={[0, hy + 0.4, -0.05]} r={0.78} c={c.extra} s={[1, 0.52, 0.94]} />
-          {/* la pointe de veuve · un petit triangle au bord de la chevelure.
-              À r 0,12 et h 0,5 elle descendait jusqu'au milieu du visage et se
-              lisait comme un pic planté entre les deux yeux. */}
-          <Cone p={[0, hy + 0.36, 0.58]} r={0.1} h={0.28} c={c.extra} rot={[Math.PI, 0, 0]} />
+          {/* la chevelure ENVELOPPE la tête · son rayon se prend sur le tour,
+              pas sur le demi-côté, sinon les coins ressortent au travers */}
+          <Ball p={[0, hy + h.y * 0.58, -0.05]} r={g + 0.07} c={c.extra} s={[1, 0.5, 0.94]} />
+          <Cone p={[0, hy + h.y * 0.5, fz + 0.02]} r={0.09} h={0.24} c={c.extra} rot={[Math.PI, 0, 0]} />
         </group>
       )
     case 'cyborg':
       return (
         <group>
-          {/* la demi-plaque · elle était logée à z = 0,32, donc À L'INTÉRIEUR
-              du bloc (face avant à 0,56) : invisible et rendue pour rien */}
-          <Box p={[0.42, hy + 0.05, 0.46]} s={[0.52, 0.78, 0.4]} c={'#c3ccd8'} />
-          <Box p={[0.44, hy + 0.05, 0.68]} s={[0.44, 0.12, 0.06]} c={'#ff5a5f'} />
-          <Cyl p={[0.5, hy + 0.72, 0]} r={0.04} h={0.35} c={'#8b93a1'} />
+          <Box p={[0.72 * h.x, hy + h.y * 0.08, fz * 0.74]} s={[0.5, h.y * 1.2, 0.36]} c={'#c3ccd8'} />
+          <Box p={[0.74 * h.x, hy + h.y * 0.14, fz + 0.1]} s={[0.4, 0.11, 0.06]} c={'#ff5a5f'} />
+          <Cyl p={[0.8 * h.x, top + 0.14, 0]} r={0.035} h={0.32} c={'#8b93a1'} />
         </group>
       )
     case 'human':
-      return <Ball p={[0, hy + 0.38, -0.08]} r={0.78} c={c.extra} s={[1, 0.48, 0.94]} />
-    case 'poodle': // caniche · poofy fur, floppy ears, snout
+      return <Ball p={[0, hy + h.y * 0.56, -0.08]} r={g + 0.06} c={c.extra} s={[1, 0.46, 0.94]} />
+    case 'poodle': // caniche · toison bouffante, oreilles tombantes
       return (
         <group>
-          <Ball p={[0, hy + 0.68, 0]} r={0.36} c={c.face} />
-          <Ball p={[-0.28, hy + 0.6, 0.16]} r={0.2} c={c.face} />
-          <Ball p={[0.28, hy + 0.6, 0.16]} r={0.2} c={c.face} />
-          <Ball p={[-0.7, hy - 0.06, 0.06]} r={0.26} c={c.face} s={[0.82, 1.35, 0.82]} />
-          <Ball p={[0.7, hy - 0.06, 0.06]} r={0.26} c={c.face} s={[0.82, 1.35, 0.82]} />
-          <Ball p={[0, hy - 0.24, 0.56]} r={0.2} c={c.face} s={[1.1, 0.9, 1]} />
-          <Ball p={[0, hy - 0.2, 0.74]} r={0.07} c={'#2a2226'} />
-        </group>
-      )
-    case 'rabbit': // lapin · tall ears, buck teeth
-      return (
-        <group>
-          {[-0.24, 0.24].map((ex, i) => (
-            <group key={ex} rotation={[0, 0, (i ? -1 : 1) * 0.14]}>
-              <Box p={[ex, hy + 0.78, -0.04]} s={[0.22, 0.92, 0.14]} c={c.face} />
-              <Box p={[ex, hy + 0.82, 0.03]} s={[0.11, 0.62, 0.06]} c={'#ff9fb4'} />
+          <Ball p={[0, top + 0.04, 0]} r={0.34} c={c.face} />
+          {[-1, 1].map((sd) => (
+            <group key={sd}>
+              <Ball p={[sd * 0.48 * h.x, top - 0.04, 0.14]} r={0.19} c={c.face} />
+              <Ball p={[sd * (h.x + 0.09), hy - 0.06, 0.04]} r={0.24} c={c.face} s={[0.82, 1.35, 0.82]} />
             </group>
           ))}
-          <Box p={[0, hy - 0.36, 0.64]} s={[0.18, 0.16, 0.05]} c={'#fffdf6'} />
+          <Muzzle h={h} c={pale} />
         </group>
       )
-    case 'frog':
-      // Les yeux globuleux · deux dômes pâles POSÉS SOUS les yeux peints, et
-      // non une deuxième paire au-dessus. C'est ce que la capture a montré :
-      // un dôme blanc avec sa pupille noire sur le front, plus deux yeux
-      // peints en dessous, donnait à la grenouille QUATRE yeux. Le dôme est
-      // maintenant aplati en profondeur et centré sur l'œil peint (± 0,24,
-      // la demi-largeur du visage à cette échelle) : il devient le globe, et
-      // la peinture lui donne sa pupille et son humeur.
+    case 'rabbit': // lapin · longues oreilles
       return (
         <group>
-          {[-0.24, 0.24].map((ex) => (
-            <Ball key={ex} p={[ex, hy + 0.04, 0.5]} r={0.25} c={'#f3fff0'} s={[1, 1, 0.45]} />
+          {[-1, 1].map((sd) => (
+            <group key={sd} rotation={[0, 0, sd * -0.14]}>
+              <Box p={[sd * 0.42 * h.x, top + 0.44, -0.04]} s={[0.21, 0.88, 0.13]} c={c.face} />
+              <Box p={[sd * 0.42 * h.x, top + 0.48, 0.03]} s={[0.1, 0.58, 0.06]} c={'#ff9fb4'} />
+            </group>
+          ))}
+          <Muzzle h={h} c={pale} />
+        </group>
+      )
+    case 'frog': // pepe · deux globes sous les yeux ASCII
+      return (
+        <group>
+          {[-1, 1].map((sd) => (
+            <Ball key={sd} p={[sd * 0.44 * h.x, hy + h.y * 0.2, fz - 0.04]} r={0.23} c={'#f3fff0'} s={[1, 1, 0.4]} />
           ))}
         </group>
       )
-    case 'duck': // canard · flat bill + head feather
+    case 'duck': // canard · bec plat, à hauteur de bouche
       return (
         <group>
-          <Box p={[0, hy - 0.14, 0.62]} s={[0.46, 0.13, 0.36]} c={'#ff9e2c'} />
-          <Box p={[0, hy - 0.22, 0.66]} s={[0.4, 0.08, 0.3]} c={'#e07d16'} />
-          <Cone p={[0, hy + 0.62, -0.12]} r={0.09} h={0.42} c={c.face} rot={[-0.5, 0, 0]} />
+          <Box p={[0, hy - h.y * 0.24, fz + 0.02]} s={[0.44, 0.12, 0.3]} c={'#ff9e2c'} />
+          <Cone p={[0, top + 0.06, -0.12]} r={0.085} h={0.38} c={c.face} rot={[-0.5, 0, 0]} />
         </group>
       )
-    case 'godzilla': // dorsal spine plates + jaw
+    case 'godzilla': // plaques dorsales, derrière le crâne
       return (
         <group>
           {[0, 1, 2, 3].map((i) => (
-            <Cone key={i} p={[0, hy + 0.6 - i * 0.26, -0.32 - i * 0.42]} r={0.13 + i * 0.02} h={0.4 - i * 0.03} c={c.extra} rot={[-0.35, 0, 0]} />
+            <Cone key={i} p={[0, top - 0.04 - i * 0.24, -(h.z * 0.7) - i * 0.4]} r={0.12 + i * 0.02} h={0.38 - i * 0.03} c={c.extra} rot={[-0.35, 0, 0]} />
           ))}
-          <Box p={[0, hy - 0.26, 0.54]} s={[0.52, 0.3, 0.42]} c={c.face} />
-          {[-0.14, 0.14].map((tx) => <Box key={tx} p={[tx, hy - 0.38, 0.72]} s={[0.06, 0.1, 0.05]} c={'#fff'} />)}
         </group>
       )
-    case 'bear': // ours · round ears + snout
+    case 'bear': // ours · oreilles rondes + museau
       return (
         <group>
-          <Ball p={[-0.5, hy + 0.68, -0.04]} r={0.2} c={c.face} />
-          <Ball p={[0.5, hy + 0.68, -0.04]} r={0.2} c={c.face} />
-          <Ball p={[-0.5, hy + 0.68, 0.04]} r={0.1} c={c.extra} />
-          <Ball p={[0.5, hy + 0.68, 0.04]} r={0.1} c={c.extra} />
-          <Ball p={[0, hy - 0.24, 0.56]} r={0.24} c={c.extra} s={[1.2, 0.9, 1]} />
-          <Ball p={[0, hy - 0.16, 0.78]} r={0.09} c={'#2a2018'} />
+          {[-1, 1].map((sd) => (
+            <group key={sd}>
+              <Ball p={[sd * 0.82 * h.x, top + 0.02, -0.04]} r={0.19} c={c.face} />
+              <Ball p={[sd * 0.82 * h.x, top + 0.02, 0.05]} r={0.095} c={c.extra} />
+            </group>
+          ))}
+          <Muzzle h={h} c={lighten(c.extra, 0.3)} />
         </group>
       )
-    case 'chicken': // poulet · comb, beak, wattle
+    case 'chicken': // poulet · crête, bec, barbillons
       return (
         <group>
-          {[[-0.15, 0.12], [0, 0.16], [0.15, 0.12]].map(([cx, r], i) => <Ball key={i} p={[cx, hy + 0.76, 0]} r={r} c={'#e23b3b'} />)}
-          <Cone p={[0, hy - 0.12, 0.68]} r={0.14} h={0.32} c={'#ffb400'} rot={[Math.PI / 2, 0, 0]} />
-          {[-0.08, 0.08].map((wx) => <Ball key={wx} p={[wx, hy - 0.38, 0.58]} r={0.08} c={'#c0201d'} />)}
+          {[[-0.15, 0.11], [0, 0.15], [0.15, 0.11]].map(([cx, r], i) => <Ball key={i} p={[cx, top + 0.1, 0]} r={r} c={'#e23b3b'} />)}
+          <Cone p={[0, hy - h.y * 0.24, fz - 0.04]} r={0.13} h={0.26} c={'#ffb400'} rot={[Math.PI / 2, 0, 0]} />
+          {[-0.08, 0.08].map((wx) => <Ball key={wx} p={[wx, hy - h.y * 0.62, fz - 0.06]} r={0.075} c={'#c0201d'} />)}
         </group>
       )
-    case 'penguin': // beak + white belly
+    case 'penguin': // bec + ventre blanc
       return (
         <group>
-          <Cone p={[0, hy - 0.16, 0.64]} r={0.12} h={0.28} c={'#ff9e2c'} rot={[Math.PI / 2, 0, 0]} />
+          <Cone p={[0, hy - h.y * 0.26, fz - 0.04]} r={0.11} h={0.26} c={'#ff9e2c'} rot={[Math.PI / 2, 0, 0]} />
           <Ball p={[0, 1.12, 0.42]} r={0.38} c={'#f5f9ff'} s={[1, 1.25, 0.42]} />
         </group>
       )
-    case 'panda': // black ears + eye patches
+    case 'panda': // oreilles noires + taches sur les yeux
       return (
         <group>
-          <Ball p={[-0.5, hy + 0.66, -0.04]} r={0.19} c={'#1c1c1c'} />
-          <Ball p={[0.5, hy + 0.66, -0.04]} r={0.19} c={'#1c1c1c'} />
-          {/* les taches · aplaties CONTRE la face avant, juste en arrière du
-              visage peint (0,64), sinon les yeux passeraient dessous */}
-          <Ball p={[-0.34, 1.95, 0.54]} r={0.17} c={'#1c1c1c'} s={[1, 1.3, 0.4]} />
-          <Ball p={[0.34, 1.95, 0.54]} r={0.17} c={'#1c1c1c'} s={[1, 1.3, 0.4]} />
+          {[-1, 1].map((sd) => (
+            <group key={sd}>
+              <Ball p={[sd * 0.82 * h.x, top, -0.04]} r={0.18} c={'#1c1c1c'} />
+              {/* la tache · APLATIE contre la face et derrière les glyphes,
+                  sinon les yeux ASCII se dessineraient dessous */}
+              <Ball p={[sd * 0.44 * h.x, hy + h.y * 0.2, fz - 0.04]} r={0.17} c={'#1c1c1c'} s={[1, 1.2, 0.35]} />
+            </group>
+          ))}
+          <Muzzle h={h} c={'#fbfbf8'} />
         </group>
       )
-    case 'dragon': // swept horns + snout + back spikes
+    case 'dragon': // cornes en arrière + épines dorsales
       return (
         <group>
-          {[-0.28, 0.28].map((ex, i) => <Cone key={ex} p={[ex, hy + 0.7, -0.16]} r={0.1} h={0.5} c={c.extra} rot={[-0.5, 0, (i ? -1 : 1) * 0.2]} />)}
-          <Box p={[0, hy - 0.24, 0.56]} s={[0.42, 0.26, 0.42]} c={c.face} />
-          {[-0.1, 0.1].map((nx) => <Ball key={nx} p={[nx, hy - 0.18, 0.76]} r={0.05} c={'#2a1a1a'} />)}
-          {[0, 1, 2].map((i) => <Cone key={i} p={[0, hy + 0.1 - i * 0.32, -0.55 - i * 0.3]} r={0.08} h={0.28} c={c.extra} />)}
+          {[-1, 1].map((sd) => (
+            <Cone key={sd} p={[sd * 0.48 * h.x, top + 0.08, -0.16]} r={0.095} h={0.46} c={c.extra} rot={[-0.5, 0, sd * -0.2]} />
+          ))}
+          {[0, 1, 2].map((i) => <Cone key={i} p={[0, hy + h.y * 0.15 - i * 0.3, -(h.z + 0.02) - i * 0.3]} r={0.075} h={0.26} c={c.extra} />)}
         </group>
       )
-    case 'mushroom': // red cap with white dots over a pale stem head
+    case 'mushroom': // chapeau rouge à pois blancs
       return (
         <group>
-          <Ball p={[0, hy + 0.48, 0]} r={0.88} c={c.outfit} s={[1, 0.68, 1]} />
+          <Ball p={[0, top - 0.1, 0]} r={g + 0.26} c={c.outfit} s={[1, 0.66, 1]} />
           {[[-0.4, 0.24, 0.2], [0.36, 0.34, -0.1], [0.05, 0.5, 0.34], [-0.14, 0.42, -0.34], [0.5, 0.16, 0.28]].map(([dx, dy, dz], i) => (
-            <Ball key={i} p={[dx as number, hy + 0.5 + (dy as number) * 0.24, dz as number]} r={0.12} c={'#fdfcf6'} />
+            <Ball key={i} p={[dx as number, top - 0.08 + (dy as number) * 0.24, dz as number]} r={0.11} c={'#fdfcf6'} />
           ))}
         </group>
       )
-    case 'knight': // Zelda-style hero · steel helm, nose guard and a bright crest plume
+    case 'knight': // heaume d'acier · une CALOTTE, au-dessus des yeux
       return (
         <group>
-          {/* le heaume est une CALOTTE, pas une coque : une sphère assez large
-              pour couvrir le bloc engloutissait aussi le visage, qui n'est
-              qu'à 0,64 devant. Une boîte posée au-dessus des yeux couvre le
-              crâne et laisse la face libre. */}
-          <Box p={[0, hy + 0.54, 0.02]} s={[1.3, 0.7, 1.22]} c={'#c7cfda'} />
-          <Cyl p={[0, hy + 0.2, 0]} r={0.84} h={0.12} c={'#9aa4b4'} />
-          <Box p={[0, hy - 0.08, 0.74]} s={[0.14, 0.56, 0.12]} c={'#aeb7c6'} />
-          {/* crest plume, in the theme colour so it varies */}
-          <Box p={[0, hy + 0.86, -0.04]} s={[0.1, 0.16, 0.5]} c={'#8b93a1'} />
-          {[0, 1, 2, 3].map((k) => <Ball key={k} p={[0, hy + 1.0, -0.02 - k * 0.16]} r={0.16 - k * 0.02} c={c.outfit} />)}
+          <Box p={[0, hy + h.y * 0.82, 0.02]} s={[h.x * 2 + 0.1, h.y * 1.05, h.z * 2 + 0.1]} c={'#c7cfda'} />
+          <Cyl p={[0, hy + h.y * 0.4, 0]} r={g + 0.08} h={0.11} c={'#9aa4b4'} />
+          <Box p={[0, hy - h.y * 0.1, fz + 0.1]} s={[0.13, h.y * 0.9, 0.1]} c={'#aeb7c6'} />
+          <Box p={[0, top + 0.32, -0.04]} s={[0.1, 0.15, 0.46]} c={'#8b93a1'} />
+          {[0, 1, 2, 3].map((k) => <Ball key={k} p={[0, top + 0.44, -0.02 - k * 0.15]} r={0.15 - k * 0.02} c={c.outfit} />)}
         </group>
       )
-    case 'mage': // pointed starry hat with a droopy tip, brim and a moon
+    case 'mage': // chapeau pointu étoilé, à pointe tombante
       return (
         <group>
-          <Cyl p={[0, hy + 0.56, 0]} r={0.84} h={0.1} c={c.outfit2} />
-          <Cone p={[0.08, hy + 1.14, -0.05]} r={0.46} h={1.3} c={c.outfit} rot={[0.18, 0, -0.12]} />
-          <Ball p={[0.28, hy + 1.67, -0.16]} r={0.1} c={c.outfit2} />
-          <Ball p={[0.12, hy + 1.04, 0.4]} r={0.07} c={'#ffe066'} />
-          <Ball p={[-0.18, hy + 1.32, 0.24]} r={0.055} c={'#fff'} />
-          <Ball p={[0.02, hy + 0.84, 0.46]} r={0.05} c={'#ffe066'} />
+          <Cyl p={[0, top - 0.04, 0]} r={g + 0.16} h={0.09} c={c.outfit2} />
+          <Cone p={[0.08, top + 0.58, -0.05]} r={0.42} h={1.2} c={c.outfit} rot={[0.18, 0, -0.12]} />
+          <Ball p={[0.26, top + 1.06, -0.16]} r={0.09} c={c.outfit2} />
+          <Ball p={[0.11, top + 0.48, 0.38]} r={0.065} c={'#ffe066'} />
+          <Ball p={[-0.17, top + 0.74, 0.22]} r={0.05} c={'#fff'} />
         </group>
       )
-    case 'madscientist': // wild frizzy hair + goggles pushed up on the forehead
+    case 'madscientist': // tignasse + lunettes RELEVÉES sur le front
       return (
         <group>
           {[[-0.5, 0.2, 0.1], [-0.28, 0.5, -0.1], [0.0, 0.62, 0.15], [0.3, 0.5, -0.12], [0.52, 0.24, 0.08], [-0.12, 0.44, 0.4], [0.16, 0.4, -0.38]].map(([dx, dy, dz], i) => (
-            <Ball key={i} p={[dx as number, hy + 0.46 + (dy as number), dz as number]} r={0.21} c={c.extra} />
+            <Ball key={i} p={[(dx as number) * h.x * 1.6, top - 0.18 + (dy as number), (dz as number) * h.z * 1.6]} r={0.19} c={c.extra} />
           ))}
-          {/* les lunettes RELEVÉES · sur le grand front vide d'une figurine
-              Funko, pas à hauteur d'yeux où elles cachaient le visage */}
-          {[-0.3, 0.3].map((ex) => (
-            <mesh key={ex} position={[ex, hy + 0.34, 0.6]}>
-              <torusGeometry args={[0.17, 0.05, 10, 22]} />
-              <meshStandardMaterial color={'#2b2f3a'} {...MAT} />
-            </mesh>
+          {[-1, 1].map((sd) => (
+            <group key={sd}>
+              <mesh position={[sd * 0.5 * h.x, hy + h.y * 0.62, fz - 0.02]}>
+                <torusGeometry args={[0.15, 0.045, 10, 22]} />
+                <meshStandardMaterial color={'#2b2f3a'} {...MAT} />
+              </mesh>
+              <Ball p={[sd * 0.5 * h.x, hy + h.y * 0.62, fz]} r={0.115} c={'#8fe3ff'} />
+            </group>
           ))}
-          {[-0.3, 0.3].map((ex) => <Ball key={`g${ex}`} p={[ex, hy + 0.34, 0.63]} r={0.13} c={'#8fe3ff'} />)}
-          <Box p={[0, hy + 0.34, 0.58]} s={[0.26, 0.05, 0.05]} c={'#2b2f3a'} />
+          <Box p={[0, hy + h.y * 0.62, fz - 0.06]} s={[0.24, 0.05, 0.05]} c={'#2b2f3a'} />
         </group>
       )
     case 'skeleton':
@@ -568,7 +492,7 @@ function GeoBody({ c, mood }: { c: Character; mood: Mood }) {
         <icosahedronGeometry args={[0.72, 0]} />
         <meshStandardMaterial color={c.outfit} flatShading roughness={0.4} metalness={0.2} />
       </mesh>
-      <FunkoFace3D mood={mood} position={[0, 0.02, 0.74]} scale={0.6} color={'#ffffff'} eyes="square" />
+      <AsciiFace3D mood={mood} position={[0, 0.02, 0.74]} scale={0.46} color={'#ffffff'} kind="geo" halo={c.outfit} />
       <group ref={orbit}>
         <mesh position={[1.1, 0.2, 0]}><tetrahedronGeometry args={[0.24, 0]} /><meshStandardMaterial color={c.outfit2} flatShading /></mesh>
         <mesh position={[-1.0, -0.1, 0.3]}><octahedronGeometry args={[0.22, 0]} /><meshStandardMaterial color={c.extra} flatShading /></mesh>
@@ -603,51 +527,54 @@ function accForId(id: string, kind: string): Acc | null {
   if (h % 100 >= 40) return null // ~40% wear an accessory · most heads stay bare
   return ACCS[h % ACCS.length]
 }
-// Les chapeaux · eux aussi dimensionnés pour une sphère de rayon 0,62. Sur un
-// bloc, le coin de la tête se trouve à ≈ 0,72 du centre : un bord de chapeau
-// de rayon 0,66 laissait passer les quatre coins au travers. Les bords et les
-// calottes ont donc été élargis, et ce qui se posait à 2,42 (sous le sommet du
-// bloc, à 2,61) a été remonté.
-function Accessory({ kind, id }: { kind: Acc; id: string }) {
+// Les chapeaux · posés sur le SOMMET de la tête, quel qu'il soit.
+//
+// Mêmes deux règles que les coiffes : le bord se calcule sur le tour de tête
+// (`girth`) et non sur le demi-côté — sinon les quatre coins d'une boîte
+// ressortent au travers — et tout se pose par rapport à `crown`, le sommet du
+// crâne, au lieu d'être écrit en dur pour une seule forme.
+function Accessory({ kind, id, h }: { kind: Acc; id: string; h: Head }) {
+  const t = crown(h)          // le sommet du crâne
+  const g = girth(h)          // le tour de tête
   switch (kind) {
     case 'bowler': {
       const c = hatColor(id)
-      return <group><Cyl p={[0, 2.54, 0]} r={0.84} h={0.06} c={c} /><Ball p={[0, 2.68, 0]} r={0.46} c={c} s={[1, 0.8, 1]} /></group>
+      return <group><Cyl p={[0, t - 0.06, 0]} r={g + 0.12} h={0.06} c={c} /><Ball p={[0, t + 0.08, 0]} r={g * 0.58} c={c} s={[1, 0.8, 1]} /></group>
     }
     case 'tophat': {
       const c = hatColor(id)
-      return <group><Cyl p={[0, 2.54, 0]} r={0.88} h={0.05} c={c} /><Cyl p={[0, 3.1, 0]} r={0.5} h={0.92} c={c} /><Cyl p={[0, 2.7, 0]} r={0.51} h={0.1} c={hatColor(id, 'band')} /></group>
+      return <group><Cyl p={[0, t - 0.06, 0]} r={g + 0.16} h={0.05} c={c} /><Cyl p={[0, t + 0.48, 0]} r={g * 0.62} h={0.88} c={c} /><Cyl p={[0, t + 0.08, 0]} r={g * 0.64} h={0.1} c={hatColor(id, 'band')} /></group>
     }
     case 'cowboy':
-      return <group><Cyl p={[0, 2.5, 0]} r={1.02} h={0.05} c="#b07a42" /><Cyl p={[0, 2.78, 0]} r={0.48} h={0.52} c="#a9743f" /><Cyl p={[0, 2.58, 0]} r={0.5} h={0.09} c={hatColor(id, 'band')} /></group>
+      return <group><Cyl p={[0, t - 0.1, 0]} r={g + 0.3} h={0.05} c="#b07a42" /><Cyl p={[0, t + 0.16, 0]} r={g * 0.58} h={0.5} c="#a9743f" /><Cyl p={[0, t - 0.03, 0]} r={g * 0.6} h={0.09} c={hatColor(id, 'band')} /></group>
     case 'wizardhat': {
       const c = hatColor(id)
-      return <group><Cyl p={[0, 2.54, 0]} r={0.88} h={0.05} c={c} /><Cone p={[0, 3.3, 0]} r={0.54} h={1.35} c={c} /><Ball p={[0.2, 3.2, 0.32]} r={0.08} c="#ffe066" /><Ball p={[-0.14, 3.65, 0.2]} r={0.06} c="#ffe066" /><Ball p={[0.05, 2.97, 0.42]} r={0.06} c="#fff" /></group>
+      return <group><Cyl p={[0, t - 0.06, 0]} r={g + 0.16} h={0.05} c={c} /><Cone p={[0, t + 0.66, 0]} r={g * 0.68} h={1.3} c={c} /><Ball p={[0.18, t + 0.56, 0.3]} r={0.075} c="#ffe066" /><Ball p={[-0.13, t + 1.0, 0.18]} r={0.055} c="#ffe066" /><Ball p={[0.05, t + 0.32, 0.4]} r={0.055} c="#fff" /></group>
     }
     case 'cap': {
       const c = CAP_COLORS[Math.abs(hashCode(id)) % CAP_COLORS.length]
-      return <group><Ball p={[0, 2.46, 0]} r={0.76} c={c} s={[1, 0.6, 0.98]} /><Box p={[0, 2.36, 0.64]} s={[0.78, 0.06, 0.44]} c={c} /><Ball p={[0, 2.74, 0]} r={0.06} c="#ffcf3b" /></group>
+      return <group><Ball p={[0, t - 0.14, 0]} r={g + 0.02} c={c} s={[1, 0.58, 0.98]} /><Box p={[0, t - 0.23, h.z * 0.86]} s={[g * 1.0, 0.06, 0.4]} c={c} /><Ball p={[0, t + 0.12, 0]} r={0.055} c="#ffcf3b" /></group>
     }
     case 'beret': {
       const c = hatColor(id)
-      return <group><Ball p={[0, 2.44, 0]} r={0.76} c={c} s={[1, 0.4, 0.98]} /><Ball p={[0, 2.62, 0]} r={0.06} c={c} /></group>
+      return <group><Ball p={[0, t - 0.14, 0]} r={g + 0.04} c={c} s={[1, 0.4, 0.98]} /><Ball p={[0, t + 0.02, 0]} r={0.055} c={c} /></group>
     }
     case 'beanie': {
       const c = hatColor(id)
-      return <group><Ball p={[0, 2.44, 0]} r={0.76} c={c} s={[1, 0.62, 0.98]} /><Cyl p={[0, 2.3, 0]} r={0.78} h={0.16} c={hatColor(id, 'cuff')} /><Ball p={[0, 2.84, 0]} r={0.11} c="#ffffff" /></group>
+      return <group><Ball p={[0, t - 0.14, 0]} r={g + 0.03} c={c} s={[1, 0.6, 0.98]} /><Cyl p={[0, t - 0.28, 0]} r={g + 0.05} h={0.15} c={hatColor(id, 'cuff')} /><Ball p={[0, t + 0.22, 0]} r={0.1} c="#ffffff" /></group>
     }
     case 'party': {
       const c = hatColor(id)
-      return <group><Cone p={[0, 2.9, 0]} r={0.42} h={1.0} c={c} /><Ball p={[0, 3.42, 0]} r={0.12} c={hatColor(id, 'pom')} /><Ball p={[0.24, 2.7, 0.28]} r={0.05} c="#fff" /><Ball p={[-0.2, 2.5, 0.3]} r={0.05} c="#ffe066" /></group>
+      return <group><Cone p={[0, t + 0.3, 0]} r={g * 0.56} h={0.95} c={c} /><Ball p={[0, t + 0.8, 0]} r={0.11} c={hatColor(id, 'pom')} /><Ball p={[0.2, t + 0.12, 0.24]} r={0.045} c="#fff" /></group>
     }
     case 'flower': {
       const c = hatColor(id, 'petal')
-      return <group>{[0, 1, 2, 3, 4].map((k) => { const a = (k / 5) * Math.PI * 2; return <Ball key={k} p={[Math.cos(a) * 0.26, 2.66, Math.sin(a) * 0.26]} r={0.15} c={c} /> })}<Ball p={[0, 2.68, 0]} r={0.13} c="#ffe066" /></group>
+      return <group>{[0, 1, 2, 3, 4].map((k) => { const a = (k / 5) * Math.PI * 2; return <Ball key={k} p={[Math.cos(a) * 0.24, t + 0.06, Math.sin(a) * 0.24]} r={0.14} c={c} /> })}<Ball p={[0, t + 0.08, 0]} r={0.12} c="#ffe066" /></group>
     }
     case 'shades':
-      // devant le visage peint (0,64), pas derrière : posées à 0,60 elles
-      // étaient dans l'épaisseur du bloc et les yeux se dessinaient dessus
-      return <group><Box p={[-0.3, 1.97, 0.72]} s={[0.34, 0.22, 0.06]} c="#15151a" /><Box p={[0.3, 1.97, 0.72]} s={[0.34, 0.22, 0.06]} c="#15151a" /><Box p={[0, 1.99, 0.72]} s={[0.26, 0.05, 0.05]} c="#15151a" /></group>
+      // à hauteur d'YEUX, et DEVANT le panneau du visage · posées derrière,
+      // les glyphes se dessineraient par-dessus les verres
+      return <group>{[-1, 1].map((sd) => <Box key={sd} p={[sd * 0.46 * h.x, HEAD_Y + h.y * 0.2, h.z + 0.26]} s={[0.32, 0.2, 0.05]} c="#15151a" />)}<Box p={[0, HEAD_Y + h.y * 0.2, h.z + 0.26]} s={[0.24, 0.05, 0.05]} c="#15151a" /></group>
   }
 }
 
@@ -759,6 +686,8 @@ export function Character3D({
   const heroTargetId = useDojo((s) => s.heroTargetId)
   // le métier, résolu une fois · `fn` s'il est valide, le rôle sinon
   const job = jobOf(fn, role)
+  // la forme de la tête · une par espèce, et tout ce qui s'y pose s'y réfère
+  const head = headOf(character.kind)
   const faceDark = isDark(character.face)
   const faceColor = faceDark ? '#f4f4f4' : '#1c2029'
   const isSlime = character.kind === 'slime'
@@ -770,7 +699,11 @@ export function Character3D({
   const isGeo = character.kind === 'geo'
   // a skin can force a specific accessory (character.acc); otherwise auto-pick
   const forcedAcc = character.acc && (ACCS as string[]).includes(character.acc) ? character.acc as Acc : null
-  const acc = forcedAcc ?? accForId(id, character.kind)
+  // Un seul couvre-chef · si le MÉTIER en pose un sur le sommet du crâne, le
+  // chapeau tiré au sort passe son tour. Sans ce garde-fou on obtenait une
+  // casquette sous un haut-de-forme, et un casque de chantier sous une
+  // chevelure de vampire — visible sur capture, et signalé par personne.
+  const acc = CROWNED.has(job as never) ? null : (forcedAcc ?? accForId(id, character.kind))
   const speaking = banter && banter.who === 'agent' && banter.agentId === id
   const visited = heroTargetId === id // the Chief is hovering above this agent
 
@@ -848,7 +781,7 @@ export function Character3D({
             <Cyl p={[0, 1.5, 0]} r={0.05} h={0.4} c={character.face} />
             <Ball p={[0, 1.78, 0]} r={0.14} c={'#fff'} />
             <Ball p={[0, 1.8, 0.1]} r={0.06} c={'#333'} />
-            <FunkoFace3D mood={mood} position={[0, 0.92, 0.9]} scale={0.72} color={faceColor} {...faceOf(character.kind)} />
+            <AsciiFace3D mood={mood} position={[0, 0.92, 0.9]} scale={0.56} color={faceColor} kind={character.kind} halo={character.face} />
             <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
             <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} />
           </group>
@@ -864,7 +797,7 @@ export function Character3D({
             {/* rosy cheeks + big, high-contrast ASCII expression */}
             <Ball p={[-0.5, 1.58, 0.62]} r={0.12} c={'#ff8fa3'} />
             <Ball p={[0.5, 1.58, 0.62]} r={0.12} c={'#ff8fa3'} />
-            <FunkoFace3D mood={mood} position={[0, 1.76, 0.98]} scale={0.86} color={'#3a1526'} {...faceOf(character.kind)} />
+            <AsciiFace3D mood={mood} position={[0, 1.76, 0.98]} scale={0.64} color={'#3a1526'} kind={character.kind} halo={'#ffe6ef'} />
             {/* eight tentacles splaying out around the mantle */}
             {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
               const ang = (i / 8) * Math.PI * 2 + 0.4
@@ -904,7 +837,7 @@ export function Character3D({
             {/* little arm nubs */}
             <Ball p={[-0.78, 1.28, 0.1]} r={0.16} c={character.face} />
             <Ball p={[0.78, 1.28, 0.1]} r={0.16} c={character.face} />
-            <FunkoFace3D mood={mood} position={[0, 1.52, 0.72]} scale={0.74} color={faceColor} {...faceOf(character.kind)} />
+            <AsciiFace3D mood={mood} position={[0, 1.52, 0.72]} scale={0.56} color={faceColor} kind={character.kind} halo={character.face} />
           </group>
         ) : isJelly ? (
           <group position={[0, 0.15, 0]}>
@@ -917,7 +850,7 @@ export function Character3D({
               <torusGeometry args={[0.78, 0.1, 12, 28]} />
               <meshStandardMaterial color={character.outfit2} transparent opacity={0.75} {...MAT} />
             </mesh>
-            <FunkoFace3D mood={mood} position={[0, 1.9, 0.78]} scale={0.72} color={faceColor} {...faceOf(character.kind)} />
+            <AsciiFace3D mood={mood} position={[0, 1.9, 0.78]} scale={0.56} color={faceColor} kind={character.kind} halo={character.face} />
             {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
               const a = (i / 8) * Math.PI * 2
               return <JellyLeg key={i} base={[Math.cos(a) * 0.6, 1.45, Math.sin(a) * 0.6]} color={i % 2 ? character.face : character.outfit} phase={i * 0.8} busy={busy || visited} />
@@ -940,7 +873,7 @@ export function Character3D({
               </mesh>
             ))}
             <Ball p={[0, 2.12, 0]} r={0.5} c={character.face} />
-            <FunkoFace3D mood={mood} position={[0, 2.14, 0.5]} scale={0.62} color={faceColor} {...faceOf(character.kind)} />
+            <AsciiFace3D mood={mood} position={[0, 2.14, 0.5]} scale={0.48} color={faceColor} kind={character.kind} halo={character.face} />
             <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
             <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} />
           </group>
@@ -988,24 +921,27 @@ export function Character3D({
             ) : (
               <group position={[0, HEAD_LIFT, 0]}>
               <AboutY y={HEAD_Y} scale={HEAD_S}>
-                {/* le bloc Funko · voir HEAD_W/H/D */}
-                <FunkoHead c={character.face} />
-                {/* les joues · aplaties contre la face avant, sinon elles
-                    disparaissent dans le bloc (la sphère, elle, fuyait sur les
-                    côtés et les laissait dépasser toutes seules) */}
-                <Ball p={[-0.36, 1.78, FACE_Z - 0.04]} r={0.13} c={'#ff8fa3'} s={[1, 0.8, 0.35]} />
-                <Ball p={[0.36, 1.78, FACE_Z - 0.04]} r={0.13} c={'#ff8fa3'} s={[1, 0.8, 0.35]} />
-                <Toppers c={character} />
-                <FunkoFace3D
+                {/* la coquille · cube, rectangle, ronde ou ovale selon l'espèce */}
+                <HeadShell h={head} c={character.face} />
+                {/* les joues · aplaties CONTRE la face avant. Sur une boîte
+                    elles disparaissaient dedans ; sur une sphère elles
+                    dépassaient toutes seules. Les deux cas se règlent en les
+                    accrochant à la profondeur de la tête plutôt qu'à un
+                    nombre écrit à la main. */}
+                {[-1, 1].map((sd) => (
+                  <Ball key={sd} p={[sd * head.x * 0.62, HEAD_Y - head.y * 0.26, head.z * 0.9]} r={0.12} c={'#ff8fa3'} s={[1, 0.8, 0.4]} />
+                ))}
+                <Toppers c={character} h={head} />
+                <AsciiFace3D
                   mood={mood}
-                  position={[0, 1.99, FACE_Z + 0.14]}
-                  scale={0.8}
+                  position={[0, HEAD_Y + head.y * 0.04, head.z + 0.12]}
+                  scale={head.y * 0.98}
                   color={faceColor}
-                  muzzle={lighten(character.face, 0.45)}
-                  {...faceOf(character.kind)}
+                  kind={character.kind}
+                  halo={character.face}
                 />
-                {job && <JobHead fn={job} accent={character.extra} />}
-                {acc && <Accessory kind={acc} id={id} />}
+                {job && <JobHead fn={job} accent={character.extra} h={head} />}
+                {acc && <Accessory kind={acc} id={id} h={head} />}
               </AboutY>
               </group>
             )}
