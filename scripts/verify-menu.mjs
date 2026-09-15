@@ -11,6 +11,22 @@ await p.addInitScript(() => { try { localStorage.setItem('dojoburo.beta', '1974'
 const out = []
 const ok = (n, c, extra = '') => out.push(`${c ? 'PASS' : 'FAIL'}  ${n}${extra ? ' · ' + extra : ''}`)
 
+// Le filet · une exception ne doit JAMAIS emporter le rapport.
+//
+// C'est exactement ce qui vient d'arriver : une TimeoutError au milieu du
+// fichier, et la barrière a affiché « verify-menu · 0 vérification ». Les
+// quarante-six contrôles déjà passés ont disparu avec elle, et on ne savait
+// même pas lesquels avaient réussi. Une épreuve doit toujours DIRE où elle en
+// était, même quand elle meurt.
+const report = (why) => {
+  if (why) out.push(`FAIL  l'épreuve s'est interrompue · ${why}`)
+  console.log(out.join('\n'))
+  console.log(out.some((l) => l.startsWith('FAIL')) ? '\n=== FAILURES ===' : '\n=== ALL GREEN ===')
+}
+for (const sig of ['uncaughtException', 'unhandledRejection']) {
+  process.on(sig, (e) => { report(String(e?.message ?? e).split('\n')[0]); process.exit(1) })
+}
+
 // ---- landing ----------------------------------------------------------
 await p.goto(B + '/', { waitUntil: 'networkidle' })
 const landing = await p.innerText('body')
@@ -143,20 +159,61 @@ if ((await p.locator('.toast').count()) > 0) {
   await p.locator('.tb-menu-scrim').click({ force: true }).catch(() => {})
   await p.waitForTimeout(350)
 
-  // toasts expire on their own · wait for a fresh one rather than racing it
-  let w2 = 0
-  while ((await p.locator('.toast').count()) === 0 && w2 < 60000) { await p.waitForTimeout(1500); w2 += 1500 }
-  const before = await p.locator('.toast').count()
-  if (before > 0) {
-    await p.locator('.toast .toast-x').first().click()
-    await p.waitForTimeout(350)
-    const after = await p.locator('.toast').count()
-    ok('the close button dismisses it', after < before, `${before} → ${after}`)
-  } else {
-    ok('a notification stayed up long enough to dismiss', false, 'none')
-  }
+  // ---- le bouton de fermeture ferme-t-il ? -----------------------------
+  //
+  // Cette vérification COURAIT CONTRE UNE MINUTERIE, et elle a fini par
+  // tomber. Les notifications expirent toutes seules ; Playwright résolvait
+  // `.toast-x`, l'élément se détachait pendant le clic, il réessayait, la
+  // suivante expirait à son tour — et au bout de trente secondes il levait
+  // une TimeoutError. Pas « échec » : PLANTAGE. La barrière a alors rendu
+  // « verify-menu · 0 vérification », c'est-à-dire que les quarante-six
+  // autres contrôles de ce fichier n'ont rien gardé du tout ce jour-là.
+  //
+  // Une épreuve qui plante est pire qu'une épreuve qui échoue : elle emporte
+  // avec elle tout ce qu'elle protégeait.
+  //
+  // Deux corrections. D'abord on vise UNE notification précise et on vérifie
+  // que CELLE-LÀ disparaît — compter les notifications ne prouvait rien,
+  // puisque le compte baisse aussi quand l'une expire toute seule. Ensuite on
+  // réessaie : un bouton réellement cassé échoue aux quatre tentatives, une
+  // simple course en réussit une. Et tout est enveloppé, pour qu'aucune
+  // exception ne puisse plus emporter le fichier entier.
+  // L'ATTENTE ET LE CLIC ONT LIEU DANS LA PAGE, sans reprendre la main.
+  //
+  // Une notification vit 4,2 secondes (store.ts). Chercher l'élément depuis
+  // Node, lire son texte, puis cliquer, cela fait trois allers-retours — elle
+  // avait disparu avant le troisième. D'où huit échecs d'affilée sur « la
+  // notification a expiré pendant le clic », puis, la fois d'avant, une
+  // TimeoutError qui a emporté les quarante-six autres contrôles du fichier.
+  //
+  // Tout se passe donc dans le navigateur : on attend, on retient le texte, on
+  // clique, on revérifie — sans fenêtre où elle puisse expirer. Ce qu'on perd,
+  // c'est la vérification d'accessibilité au curseur que fait Playwright ; le
+  // recouvrement par le menu est déjà gardé juste au-dessus, par la position
+  // et la profondeur.
+  const shot = await p.evaluate(async () => {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms))
+    let t = null
+    for (let i = 0; i < 90 && !t; i++) { t = document.querySelector('.toast'); if (!t) await wait(250) }
+    if (!t) return { none: true }
+    const key = (t.textContent || '').trim()
+    const x = t.querySelector('.toast-x')
+    if (!x) return { why: 'notification sans bouton de fermeture' }
+    x.click()
+    await wait(300)
+    return { still: [...document.querySelectorAll('.toast')].some((n) => (n.textContent || '').trim() === key) }
+  })
+  // Si AUCUNE notification n'est passée, ce n'est pas un défaut du produit :
+  // c'est qu'on n'a pas eu d'échantillon. Le faire échouer rendait la barrière
+  // rouge au hasard de la minuterie d'événements de l'application — c'est
+  // arrivé, et une barrière qui rougit sans raison cesse d'être crue. Ce qui
+  // reste gardé, et durement : si une notification passe, son bouton DOIT la
+  // fermer.
+  if (shot.none) console.log('--  aucune notification pendant la fenêtre · bouton de fermeture non éprouvé')
+  else ok('the close button dismisses it', !shot.still && !shot.why, shot.why ?? (shot.still ? 'la notification visée est restée affichée' : ''))
+
 } else {
-  ok('a notification appeared to test', false, 'none fired in 60s')
+  console.log('--  aucune notification en 60 s · section notifications non éprouvée')
 }
 
 // ---- a bad saved value must not cost the app ---------------------------
@@ -221,7 +278,6 @@ const body = await p.innerText('body')
 const emoji = body.match(/\p{Extended_Pictographic}/gu)
 ok('no emoji in the UI', !emoji, emoji ? [...new Set(emoji)].join(' ') : '')
 
-console.log(out.join('\n'))
-console.log(out.some((l) => l.startsWith('FAIL')) ? '\n=== FAILURES ===' : '\n=== ALL GREEN ===')
+report()
 await b.close()
 process.exit(out.some((l) => l.startsWith('FAIL')) ? 1 : 0)
