@@ -3,13 +3,19 @@ import { useRef, useEffect, useState, type ReactNode } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Character3D } from '../three/Character3D'
+import { StudioLight } from '../three/StudioLight'
+import { MATTE } from '../three/toy'
 import { SKINS, skinById } from '../../data/skins'
 
 // A full-3D dojo diorama that slowly rotates as the landing hero, with a
 // vertical-scroll parallax. A little tatami island: torii gate, cherry tree,
 // desks and a seated kawaii crew · the office, in miniature.
 
-const MAT = { roughness: 0.6, metalness: 0.05 }
+// Bois, pierre, herbe · la matière de décor partagée par tout le jeu. Elle
+// porte son propre envMapIntensity : avec la valeur par défaut (1), la carte
+// d'environnement s'ajoutait à l'hémisphère ET à la clé, et la scène entière
+// virait au délavé — le torii sortait orange au lieu de rouge.
+const MAT = MATTE
 function Box({ p, s, c, r }: { p: [number, number, number]; s: [number, number, number]; c: string; r?: [number, number, number] }) {
   return <mesh position={p} scale={s} rotation={r} castShadow receiveShadow><boxGeometry args={[1, 1, 1]} /><meshStandardMaterial color={c} {...MAT} /></mesh>
 }
@@ -25,9 +31,13 @@ function Ball({ p, r, c }: { p: [number, number, number]; r: number; c: string }
 const CREW = ['cat', 'dragon', 'rabbit', 'panda']
   .map((k) => SKINS.find((s) => s.kind === k)?.id ?? SKINS[0].id)
 
+/** Un balancement, pas un tour complet. L'île tournait sur 360° : pendant la
+ *  moitié du cycle on ne voyait plus que le DOS de l'équipe, et un hero dont
+ *  les personnages tournent le dos la moitié du temps ne montre rien. Elle
+ *  oscille maintenant de ±24°, ce qui garde le mouvement et les visages. */
 function Spin({ children }: { children: ReactNode }) {
   const g = useRef<THREE.Group>(null)
-  useFrame((s) => { if (g.current) g.current.rotation.y = s.clock.elapsedTime * 0.22 })
+  useFrame((s) => { if (g.current) g.current.rotation.y = Math.sin(s.clock.elapsedTime * 0.26) * 0.42 })
   return <group ref={g}>{children}</group>
 }
 
@@ -45,10 +55,10 @@ function Frame() {
     const cam = camera as THREE.PerspectiveCamera
     const wide = a >= 1.5, mid = a >= 1
     cam.fov = wide ? 30 : mid ? 36 : 46
-    cam.position.set(0, wide ? 9.2 : mid ? 9.8 : 10.6, wide ? 19.5 : mid ? 19 : 18)
+    cam.position.set(0, wide ? 7.8 : mid ? 8.6 : 11.2, wide ? 15.4 : mid ? 16.5 : 20.5)
     // la cible sous le sol remonte la scène dans l'image · la carte en verre
     // occupe le bas, le dojo occupe le haut, et rien ne se cache derrière
-    cam.lookAt(0, wide ? -1.6 : mid ? -2.2 : -3.4, 0)
+    cam.lookAt(0, wide ? -2.1 : mid ? -2.6 : -3.4, 0)
     cam.updateProjectionMatrix()
   }, [camera, w, h])
   return null
@@ -117,27 +127,44 @@ function Scene() {
     <Spin>
       <group scale={0.86} position={[0, -0.7, 0]}>
         {/* tatami island */}
-        <mesh position={[0, -0.05, 0]} receiveShadow><cylinderGeometry args={[4.4, 4.6, 0.5, 56]} /><meshStandardMaterial color="#a6d15f" {...MAT} /></mesh>
-        <mesh position={[0, 0.22, 0]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[4.2, 4.4, 56]} /><meshBasicMaterial color="#7fae3f" side={THREE.DoubleSide} /></mesh>
+        <mesh position={[0, -0.05, 0]} receiveShadow><cylinderGeometry args={[4.4, 4.6, 0.5, 56]} /><meshStandardMaterial color="#93c74d" {...MAT} /></mesh>
+        <mesh position={[0, 0.22, 0]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[4.2, 4.4, 56]} /><meshBasicMaterial color="#5f8c2c" side={THREE.DoubleSide} /></mesh>
         {/* torii gate at the back */}
-        <group position={[0, 0, -2.9]}>
-          <Box p={[-1.4, 1.5, 0]} s={[0.26, 3.0, 0.26]} c="#e0432f" />
-          <Box p={[1.4, 1.5, 0]} s={[0.26, 3.0, 0.26]} c="#e0432f" />
-          <Box p={[0, 3.2, 0]} s={[3.9, 0.32, 0.38]} c="#e0432f" />
-          <Box p={[0, 2.75, 0]} s={[3.2, 0.22, 0.3]} c="#c9381f" />
+        <group position={[0, 0, -2.55]}>
+          <Box p={[-1.18, 1.35, 0]} s={[0.24, 2.7, 0.24]} c="#e0432f" />
+          <Box p={[1.18, 1.35, 0]} s={[0.24, 2.7, 0.24]} c="#e0432f" />
+          <Box p={[0, 2.88, 0]} s={[3.3, 0.28, 0.34]} c="#e0432f" />
+          <Box p={[0, 2.48, 0]} s={[2.7, 0.2, 0.26]} c="#c9381f" />
         </group>
         {/* cherry tree, tucked into a back corner so it never blocks the view */}
-        <group position={[-3.1, 0, -1.9]}>
-          <Box p={[0, 0.8, 0]} s={[0.26, 1.6, 0.26]} c="#8a5a34" />
-          <Ball p={[0, 1.85, 0]} r={0.78} c="#ff9ec7" />
-          <Ball p={[-0.5, 1.55, 0.15]} r={0.5} c="#ffb3d6" />
-          <Ball p={[0.45, 1.6, -0.15]} r={0.44} c="#ff8fc0" />
+        <group position={[-3.4, 0, -2.5]}>
+          <Box p={[0, 0.72, 0]} s={[0.22, 1.44, 0.22]} c="#8a5a34" />
+          <Ball p={[0, 1.6, 0]} r={0.6} c="#ff9ec7" />
+          <Ball p={[-0.38, 1.36, 0.12]} r={0.38} c="#ffb3d6" />
+          <Ball p={[0.34, 1.4, -0.12]} r={0.34} c="#ff8fc0" />
         </group>
-        {/* stone lantern */}
+        {/* lanterne de pierre · socle, fût, chambre de feu allumée, toit à
+            pans et bouton. La version précédente — un cube surmonté d'une
+            boule et d'une dalle — se lisait comme une cuvette de toilettes. */}
         <group position={[3.3, 0, -2.2]}>
-          <Box p={[0, 0.4, 0]} s={[0.44, 0.8, 0.44]} c="#9aa4ab" />
-          <Ball p={[0, 1.1, 0]} r={0.38} c="#b3bcc4" />
-          <Box p={[0, 1.5, 0]} s={[0.72, 0.14, 0.72]} c="#9aa4ab" />
+          <Box p={[0, 0.12, 0]} s={[0.78, 0.24, 0.78]} c="#8d979e" />
+          <Box p={[0, 0.62, 0]} s={[0.3, 0.8, 0.3]} c="#9aa4ab" />
+          <Box p={[0, 1.06, 0]} s={[0.62, 0.12, 0.62]} c="#8d979e" />
+          {/* chambre de feu · quatre montants et une lumière au milieu */}
+          {[[-0.2, -0.2], [0.2, -0.2], [-0.2, 0.2], [0.2, 0.2]].map(([px, pz], k) => (
+            <Box key={k} p={[px, 1.34, pz]} s={[0.08, 0.44, 0.08]} c="#9aa4ab" />
+          ))}
+          <mesh position={[0, 1.34, 0]}>
+            <sphereGeometry args={[0.17, 14, 12]} />
+            <meshStandardMaterial color="#ffd98a" emissive="#ffb43a" emissiveIntensity={1.6} roughness={0.5} />
+          </mesh>
+          <pointLight position={[0, 1.34, 0]} color="#ffb43a" intensity={2.2} distance={3.4} />
+          {/* toit pyramidal + bouton */}
+          <mesh position={[0, 1.72, 0]} castShadow>
+            <coneGeometry args={[0.58, 0.34, 4]} />
+            <meshStandardMaterial color="#7f8a92" {...MAT} />
+          </mesh>
+          <Ball p={[0, 1.96, 0]} r={0.1} c="#8d979e" />
         </group>
         <Pond />
         {/* seated crew, facing outward toward the camera */}
@@ -177,12 +204,13 @@ export default function DojoDioramaScene() {
         gl={{ alpha: true, antialias: true }}
       >
         <Frame />
-        <hemisphereLight args={['#ffffff', '#cfe0ff', 0.78]} />
+        <StudioLight />
+        <hemisphereLight args={['#ffffff', '#cfe0ff', 0.4]} />
         {/* clé · l'ombre est cadrée serré sur l'île, sinon 1024 px s'étalent
             sur toute la scène et le contour devient une bouillie d'escaliers */}
         <directionalLight
           position={[6, 10, 6]}
-          intensity={1.35}
+          intensity={1.15}
           castShadow
           shadow-mapSize={[2048, 2048]}
           shadow-bias={-0.0006}
@@ -195,7 +223,7 @@ export default function DojoDioramaScene() {
           shadow-camera-far={30}
         />
         {/* contre-jour froid, côté opposé · détache les silhouettes du fond */}
-        <directionalLight position={[-7, 5, -6]} intensity={0.42} color="#bcd6ff" />
+        <directionalLight position={[-7, 5, -6]} intensity={0.3} color="#bcd6ff" />
         <Scene />
       </Canvas>
     </div>

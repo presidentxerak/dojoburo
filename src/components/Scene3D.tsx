@@ -8,6 +8,7 @@ import { useWorkshop, seatedAgents, type WAgent } from '../workshop'
 import { useDojo } from '../store'
 import { Decor3D } from './three/Decor3D'
 import { Character3D } from './three/Character3D'
+import { StudioLight } from './three/StudioLight'
 import { Lazy3D } from './three/Lazy3D'
 import { ROLE_BY_ID, canonicalRole } from '../data/roleAgents'
 import { useOverlay } from '../lib/overlay'
@@ -166,8 +167,13 @@ export function Scene3D() {
     >
       <color attach="background" args={[P.bg]} />
       <fog attach="fog" args={[P.fog, 24, 44]} />
-      <hemisphereLight args={['#ffffff', P.ground, 0.7]} />
-      <ambientLight intensity={0.4} />
+      {/* éclairage d'environnement · sans lui les personnages n'ont qu'un
+          point brillant et restent plats. Il remplace une partie de la
+          lumière ambiante, qui écrasait le relief en éclairant tout
+          également. */}
+      <StudioLight />
+      <hemisphereLight args={['#ffffff', P.ground, 0.55]} />
+      <ambientLight intensity={0.22} />
       <directionalLight
         position={[6, 12, 8]}
         intensity={1.15}

@@ -7,7 +7,42 @@ import type { Mood } from '../../store'
 import { useDojo } from '../../store'
 import { AsciiFace3D } from './AsciiFace3D'
 
-const MAT = { roughness: 0.72, metalness: 0.05 }
+import { VINYL } from './toy'
+
+// La matière de tous les personnages · une figurine de vinyle, définie une
+// seule fois dans ./toy et partagée par les 38 espèces.
+const MAT = VINYL
+
+// Proportions de figurine · la tête compte pour la moitié de la silhouette.
+// On ne retouche pas les 38 espèces une par une : la tête, les oreilles, les
+// chapeaux et le visage sont mis à l'échelle AUTOUR du centre de la tête
+// (HEAD_Y), si bien que tout ce qui y est accroché suit sans bouger d'un
+// millimètre dans son repère. Un cône d'oreille écrit à `hy + 0.62` reste
+// posé sur le crâne, quelle que soit la valeur de HEAD_S.
+const HEAD_Y = 1.95
+const HEAD_S = 1.2
+
+/** Met un sous-arbre à l'échelle autour d'un point, sans toucher aux
+ *  coordonnées que ses enfants déclarent. */
+function AboutY({ y, scale, children }: { y: number; scale: number; children: React.ReactNode }) {
+  return (
+    <group position={[0, y, 0]} scale={scale}>
+      <group position={[0, -y, 0]}>{children}</group>
+    </group>
+  )
+}
+
+/** Un membre · une capsule, jamais une boîte. Le bras était un
+ *  parallélépipède aux arêtes vives : c'est le détail qui faisait lire les
+ *  personnages comme des assemblages de cubes plutôt que comme des jouets. */
+function Limb({ p, r, len, c, rot }: { p: [number, number, number]; r: number; len: number; c: string; rot?: [number, number, number] }) {
+  return (
+    <mesh position={p} rotation={rot} castShadow>
+      <capsuleGeometry args={[r, len, 6, 14]} />
+      <meshStandardMaterial color={c} {...MAT} />
+    </mesh>
+  )
+}
 
 function Ball({ p, r, c, s = [1, 1, 1] as [number, number, number] }: { p: [number, number, number]; r: number; c: string; s?: [number, number, number] }) {
   return (
@@ -61,12 +96,11 @@ function Arm({ side, color, hand, busy, wave }: { side: number; color: string; h
   })
   return (
     <group ref={g} position={[side * 0.42, 1.22, 0.06]} rotation={[-0.42, 0, 0]}>
-      <mesh position={[0, 0, 0.36]} castShadow>
-        <boxGeometry args={[0.16, 0.16, 0.72]} />
-        <meshStandardMaterial color={color} {...MAT} />
-      </mesh>
-      <mesh position={[0, 0, 0.74]} castShadow>
-        <sphereGeometry args={[0.14, 14, 12]} />
+      {/* bras en capsule, couché le long de l'axe Z · la capsule est
+          verticale par défaut, d'où le quart de tour */}
+      <Limb p={[0, 0, 0.34]} r={0.105} len={0.5} c={color} rot={[Math.PI / 2, 0, 0]} />
+      <mesh position={[0, 0, 0.72]} castShadow>
+        <sphereGeometry args={[0.155, 16, 14]} />
         <meshStandardMaterial color={hand} {...MAT} />
       </mesh>
     </group>
@@ -524,7 +558,7 @@ function Legs({ id, pants, walk }: { id: string; pants: string; walk?: boolean }
         // leg + shoe back down to the floor.
         <group key={x} ref={i === 0 ? left : right} position={[x, 0.62, 0.14]}>
           <group position={[0, -0.62, 0]}>
-            <Cyl p={[0, 0.36, 0]} r={0.13} h={0.5} c={pants} />
+            <Limb p={[0, 0.36, 0]} r={0.135} len={0.34} c={pants} />
             <Shoe kind={s.kind} color={s.color} sole={s.sole} />
           </group>
         </group>
@@ -754,15 +788,15 @@ export function Character3D({
           <group>
             {/* legs + shoes (mostly tucked under the desk in the office, shown in previews) */}
             <Legs id={id} pants={character.pants} walk={walk} />
-            {/* torso */}
-            <Ball p={[0, 1.12, 0]} r={0.56} c={character.outfit} s={[1, 1.02, 0.9]} />
-            {/* shoulders */}
-            <Ball p={[-0.46, 1.3, 0.02]} r={0.18} c={character.outfit} />
-            <Ball p={[0.46, 1.3, 0.02]} r={0.18} c={character.outfit} />
+            {/* torse · plus petit que la tête, comme sur une figurine */}
+            <Ball p={[0, 1.1, 0]} r={0.5} c={character.outfit} s={[1, 1.04, 0.9]} />
+            {/* épaules, rentrées sous la tête */}
+            <Ball p={[-0.42, 1.28, 0.02]} r={0.165} c={character.outfit} />
+            <Ball p={[0.42, 1.28, 0.02]} r={0.165} c={character.outfit} />
             {isMonitor ? (
               <MonitorHead c={character} mood={mood} />
             ) : (
-              <>
+              <AboutY y={HEAD_Y} scale={HEAD_S}>
                 {/* head */}
                 <Ball p={[0, 1.95, 0]} r={0.62} c={character.face} />
                 <Ball p={[-0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
@@ -770,7 +804,7 @@ export function Character3D({
                 <Toppers c={character} />
                 <AsciiFace3D mood={mood} position={[0, 1.98, 0.72]} scale={0.72} color={faceColor} />
                 {acc && <Accessory kind={acc} id={id} />}
-              </>
+              </AboutY>
             )}
             {/* typing arms · the right one waves hello when the Chief drops by */}
             <Arm side={-1} color={character.outfit} hand={character.face} busy={busy} />
