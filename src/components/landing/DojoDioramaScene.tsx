@@ -1,6 +1,6 @@
 // The three.js half of the hero diorama · reached only through ./DojoDiorama.
 import { useRef, useEffect, useState, type ReactNode } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Character3D } from '../three/Character3D'
 import { SKINS, skinById } from '../../data/skins'
@@ -17,14 +17,41 @@ function Ball({ p, r, c }: { p: [number, number, number]; r: number; c: string }
   return <mesh position={p} castShadow><sphereGeometry args={[r, 18, 16]} /><meshStandardMaterial color={c} {...MAT} /></mesh>
 }
 
-// pick four visually distinct skins for the mini crew
-const CREW = ['forest-dragon', 'space-ghost', 'retro-frog', 'space-bibendum']
-  .map((id) => SKINS.find((s) => s.id === id)?.id ?? SKINS[0].id)
+// Quatre silhouettes distinctes, choisies par ESPÈCE et non par identifiant :
+// les identifiants sont générés (`${thème}-${espèce}`) et toutes les paires
+// n'existent pas, si bien qu'un id écrit à la main retombait en silence sur
+// SKINS[0]. Le « Puffy » précédent était une boule rose plus haute que le
+// torii, qui masquait la moitié de l'île quand la scène tournait.
+const CREW = ['cat', 'dragon', 'rabbit', 'panda']
+  .map((k) => SKINS.find((s) => s.kind === k)?.id ?? SKINS[0].id)
 
 function Spin({ children }: { children: ReactNode }) {
   const g = useRef<THREE.Group>(null)
   useFrame((s) => { if (g.current) g.current.rotation.y = s.clock.elapsedTime * 0.22 })
   return <group ref={g}>{children}</group>
+}
+
+/** Cadrage responsive. Un objectif unique ne peut pas tenir dans un écran
+ *  16/9 ET dans un téléphone en 9/19,5 : à fov fixe, l'île débordait des
+ *  deux côtés sur mobile (capture 390 px : le torii sortait du cadre).
+ *  On élargit l'objectif et on recule à mesure que le cadre se resserre, et
+ *  on vise SOUS l'île pour la faire remonter au-dessus de la carte. */
+function Frame() {
+  const camera = useThree((s) => s.camera)
+  const w = useThree((s) => s.size.width)
+  const h = useThree((s) => s.size.height)
+  useEffect(() => {
+    const a = w / Math.max(1, h)
+    const cam = camera as THREE.PerspectiveCamera
+    const wide = a >= 1.5, mid = a >= 1
+    cam.fov = wide ? 30 : mid ? 36 : 46
+    cam.position.set(0, wide ? 9.2 : mid ? 9.8 : 10.6, wide ? 19.5 : mid ? 19 : 18)
+    // la cible sous le sol remonte la scène dans l'image · la carte en verre
+    // occupe le bas, le dojo occupe le haut, et rien ne se cache derrière
+    cam.lookAt(0, wide ? -1.6 : mid ? -2.2 : -3.4, 0)
+    cam.updateProjectionMatrix()
+  }, [camera, w, h])
+  return null
 }
 
 function Desk({ x, z, skin, i }: { x: number; z: number; skin: string; i: number }) {
@@ -37,9 +64,50 @@ function Desk({ x, z, skin, i }: { x: number; z: number; skin: string; i: number
       <Box p={[0, 0.78, 0.5]} s={[0.7, 0.05, 0.5]} c="#22242e" />
       <Box p={[0, 0.98, 0.72]} s={[0.7, 0.44, 0.05]} c="#22242e" r={[-0.3, 0, 0]} />
       {/* seated agent */}
-      <group scale={0.72} position={[0, 0, -0.15]}>
+      <group scale={0.62} position={[0, 0, -0.15]}>
         <Character3D bare id={`d${i}`} character={skinById(skin)} x={0} z={0} mood="work" selected={false} busy name="" level={1} onSelect={() => {}} />
       </group>
+    </group>
+  )
+}
+
+/** Le seul objet réfractant de la scène. `transmission` oblige three.js à
+ *  rendre la scène une seconde fois dans une cible hors écran à chaque
+ *  image : c'est le poste le plus cher du rendu. Un bassin, et un seul —
+ *  la réfraction doit se voir, pas se payer douze fois. */
+function Pond() {
+  return (
+    <group position={[0, 0.2, 2.0]}>
+      {/* margelle de pierre */}
+      <mesh position={[0, -0.03, 0]} receiveShadow>
+        <cylinderGeometry args={[1.02, 1.02, 0.14, 40]} />
+        <meshStandardMaterial color="#8f9aa2" roughness={0.85} metalness={0.04} />
+      </mesh>
+      {/* fond sombre, pour que l'eau ait quelque chose à déformer */}
+      <mesh position={[0, 0.0, 0]}>
+        <cylinderGeometry args={[0.9, 0.9, 0.06, 36]} />
+        <meshStandardMaterial color="#1b4c5a" roughness={0.9} />
+      </mesh>
+      {/* l'eau · verre épais, très lisse, légèrement teinté */}
+      <mesh position={[0, 0.08, 0]}>
+        <cylinderGeometry args={[0.9, 0.9, 0.16, 48]} />
+        <meshPhysicalMaterial
+          color="#bff0ff"
+          transmission={1}
+          thickness={0.55}
+          ior={1.33}
+          roughness={0.06}
+          metalness={0}
+          transparent
+          opacity={1}
+        />
+      </mesh>
+      {/* nénuphar */}
+      <mesh position={[0.34, 0.17, 0.18]} rotation={[-Math.PI / 2, 0, 0.4]} castShadow>
+        <circleGeometry args={[0.22, 20]} />
+        <meshStandardMaterial color="#4f9d4a" roughness={0.7} side={THREE.DoubleSide} />
+      </mesh>
+      <Ball p={[0.3, 0.24, 0.1]} r={0.07} c="#ff9ec7" />
     </group>
   )
 }
@@ -71,11 +139,12 @@ function Scene() {
           <Ball p={[0, 1.1, 0]} r={0.38} c="#b3bcc4" />
           <Box p={[0, 1.5, 0]} s={[0.72, 0.14, 0.72]} c="#9aa4ab" />
         </group>
+        <Pond />
         {/* seated crew, facing outward toward the camera */}
-        <Desk x={-1.6} z={0.9} skin={CREW[0]} i={0} />
-        <Desk x={1.6} z={0.9} skin={CREW[1]} i={1} />
-        <Desk x={-1.6} z={-0.9} skin={CREW[2]} i={2} />
-        <Desk x={1.6} z={-0.9} skin={CREW[3]} i={3} />
+        <Desk x={-2.0} z={1.25} skin={CREW[0]} i={0} />
+        <Desk x={2.0} z={1.25} skin={CREW[1]} i={1} />
+        <Desk x={-2.0} z={-1.05} skin={CREW[2]} i={2} />
+        <Desk x={2.0} z={-1.05} skin={CREW[3]} i={3} />
       </group>
     </Spin>
   )
@@ -101,9 +170,32 @@ export default function DojoDioramaScene() {
       className="lp-dojo3d-inner"
       style={{ transform: `translateY(${(t * -0.12).toFixed(1)}px) scale(${Math.max(0.86, 1 - t * 0.0004)})` }}
     >
-      <Canvas shadows camera={{ position: [0, 6.4, 15], fov: 30 }} dpr={[1, 1.7]} gl={{ alpha: true, antialias: true }}>
-        <hemisphereLight args={['#ffffff', '#cfe0ff', 0.95]} />
-        <directionalLight position={[6, 10, 6]} intensity={1.25} castShadow shadow-mapSize={[1024, 1024]} />
+      <Canvas
+        shadows="soft"
+        camera={{ position: [0, 6.6, 15.2], fov: 31 }}
+        dpr={[1, 1.7]}
+        gl={{ alpha: true, antialias: true }}
+      >
+        <Frame />
+        <hemisphereLight args={['#ffffff', '#cfe0ff', 0.78]} />
+        {/* clé · l'ombre est cadrée serré sur l'île, sinon 1024 px s'étalent
+            sur toute la scène et le contour devient une bouillie d'escaliers */}
+        <directionalLight
+          position={[6, 10, 6]}
+          intensity={1.35}
+          castShadow
+          shadow-mapSize={[2048, 2048]}
+          shadow-bias={-0.0006}
+          shadow-normalBias={0.02}
+          shadow-camera-left={-7}
+          shadow-camera-right={7}
+          shadow-camera-top={7}
+          shadow-camera-bottom={-7}
+          shadow-camera-near={1}
+          shadow-camera-far={30}
+        />
+        {/* contre-jour froid, côté opposé · détache les silhouettes du fond */}
+        <directionalLight position={[-7, 5, -6]} intensity={0.42} color="#bcd6ff" />
         <Scene />
       </Canvas>
     </div>

@@ -49,6 +49,7 @@
     "verify:mobile": "node scripts/audit-mobile.mjs",
     "verify:api": "node scripts/audit-surfaces.mjs",
     "verify:csp": "node scripts/audit-csp.mjs",
+    "verify:hero": "node scripts/audit-hero.mjs",
     "verify": "node scripts/verify-all.mjs",
     "shots:mobile": "node scripts/shot-mobile.mjs"
   },

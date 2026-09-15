@@ -44,6 +44,7 @@ const CHECKS = [
   ['verify-bricks.mjs', 3, true],
   ['verify-visual.mjs', 3, true],
   ['verify-mobile.mjs', 3, true],
+  ['audit-hero.mjs', 3, true],
   ['verify-dedupe.mjs', 3, true],
   ['verify-documents.mjs', 3, true],
   ['verify-connect-ui.mjs', 4, true],

@@ -62,25 +62,35 @@ export function Landing({ enter }: { enter: () => void }) {
           are alone in: the teams arrive already formed, and we are not in the
           middle of your model bill. A company that sells tokens cannot write
           the second sentence below. That is the whole position. */}
-      <section className="lp-hero lp-hero-min">
-        <h1>Your company, already <span className="hl-acid">staffed</span></h1>
-        <p className="lp-hero-sub">
-          {TEAM_COUNT} teams that arrive formed, briefed and wired to their apps — not a blank canvas
-          to configure. They run on <b>your own</b> Claude key, so nobody puts a meter between you and
-          your own work.
-        </p>
-        <div className="lp-hero-acts">
-          <button className="lp-hero-go lp-cta-create" onClick={enter}>Create your dojo teams</button>
-          <button className="lp-hero-how" onClick={() => setHowTo(true)}>How to?</button>
-        </div>
-        {/* Never used an agent before? The whole course is free and starts from
-            zero · it is also how most people arrive here from search. */}
-        <a className="lp-hero-learn" href="/academy">
-          New to all this? <b>Learn it free at the Dojo Academy</b> · {LESSON_COUNT} lessons, no code →
-        </a>
-        {/* the zen dojo · animated backdrop only (non-interactive) */}
-        <div className="lp-hero-zen" aria-hidden>
+      {/* LE HERO · un dojo 3D plein écran, et le texte posé dessus dans une
+          carte de verre.
+          Avant : un titre sur fond uni, avec la maquette 3D reléguée en petite
+          vignette sous les boutons — le produit se vend sur le fait que votre
+          entreprise est un LIEU, et ce lieu était en timbre-poste. Il occupe
+          maintenant tout l'écran, et le texte flotte au-dessus.
+          La carte reste claire dans les deux thèmes, avec du texte foncé : c'est
+          ce qui la laisse lisible par-dessus une scène qui change de couleur
+          selon l'heure et le thème choisi. */}
+      <section className="lp-hero lp-hero-stage">
+        <div className="lp-hero-scene" aria-hidden>
           <DojoDiorama />
+        </div>
+        <div className="lp-hero-card">
+          <h1>Your company, already <span className="hl-acid">staffed</span></h1>
+          <p className="lp-hero-sub">
+            {TEAM_COUNT} teams that arrive formed, briefed and wired to their apps — not a blank canvas
+            to configure. They run on <b>your own</b> Claude key, so nobody puts a meter between you and
+            your own work.
+          </p>
+          <div className="lp-hero-acts">
+            <button className="lp-hero-go lp-cta-create" onClick={enter}>Create your dojo teams</button>
+            <button className="lp-hero-how" onClick={() => setHowTo(true)}>How to?</button>
+          </div>
+          {/* Never used an agent before? The whole course is free and starts from
+              zero · it is also how most people arrive here from search. */}
+          <a className="lp-hero-learn" href="/academy">
+            New to all this? <b>Learn it free at the Dojo Academy</b> · {LESSON_COUNT} lessons, no code →
+          </a>
         </div>
       </section>
 
