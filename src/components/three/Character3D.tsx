@@ -5,11 +5,13 @@ import * as THREE from 'three'
 import type { Character } from '../../data/looks'
 import type { Mood } from '../../store'
 import { useDojo } from '../../store'
-import { AsciiFace3D } from './AsciiFace3D'
+import { FunkoFace3D } from './FunkoFace3D'
 
 import { VINYL } from './toy'
 import { Contact } from './Contact'
 import { roundedBox } from './geometry'
+import { JobBody, JobHead } from './JobLook3D'
+import type { Department } from '../../data/agents'
 
 // La matière de tous les personnages · une figurine de vinyle, définie une
 // seule fois dans ./toy et partagée par les 38 espèces.
@@ -22,10 +24,24 @@ const MAT = VINYL
 // millimètre dans son repère. Un cône d'oreille écrit à `hy + 0.62` reste
 // posé sur le crâne, quelle que soit la valeur de HEAD_S.
 const HEAD_Y = 1.95
-const HEAD_S = 1.2
+// 1,38 et non 1,2 · sur une vraie figurine Funko la tête fait près de
+// soixante pour cent de la hauteur totale. À 1,2 on lisait « personnage à
+// grosse tête » ; à 1,38 on lit « figurine ». C'est la même mécanique
+// AboutY : une seule constante déplace les 38 espèces.
+const HEAD_S = 1.38
 
 /** Met un sous-arbre à l'échelle autour d'un point, sans toucher aux
  *  coordonnées que ses enfants déclarent. */
+/** Éclaircit une couleur · le museau d'une figurine est toujours un ton
+ *  plus clair que la tête, jamais une autre couleur. */
+function lighten(hex: string, amount: number): string {
+  const n = hex.replace('#', '')
+  const v = n.length === 3 ? n.split('').map((c) => c + c).join('') : n
+  const num = parseInt(v, 16)
+  const mix = (c: number) => Math.round(c + (255 - c) * amount)
+  return `#${[(num >> 16) & 255, (num >> 8) & 255, num & 255].map((c) => mix(c).toString(16).padStart(2, '0')).join('')}`
+}
+
 function AboutY({ y, scale, children }: { y: number; scale: number; children: React.ReactNode }) {
   return (
     <group position={[0, y, 0]} scale={scale}>
@@ -149,7 +165,7 @@ function MonitorHead({ c, mood }: { c: Character; mood: Mood }) {
         <meshStandardMaterial color={'#0a251d'} emissive={'#1f9e6a'} emissiveIntensity={0.55} {...MAT} />
       </mesh>
       <Ball p={[0.44, -0.34, 0.37]} r={0.04} c={'#37d67a'} />
-      <AsciiFace3D mood={mood} position={[0, 0.03, 0.44]} scale={0.62} color={'#8bffbf'} />
+      <FunkoFace3D mood={mood} position={[0, 0.03, 0.44]} scale={0.62} color={'#8bffbf'} />
     </group>
   )
 }
@@ -430,7 +446,7 @@ function GeoBody({ c, mood }: { c: Character; mood: Mood }) {
         <icosahedronGeometry args={[0.72, 0]} />
         <meshStandardMaterial color={c.outfit} flatShading roughness={0.4} metalness={0.2} />
       </mesh>
-      <AsciiFace3D mood={mood} position={[0, 0.02, 0.74]} scale={0.6} color={'#ffffff'} />
+      <FunkoFace3D mood={mood} position={[0, 0.02, 0.74]} scale={0.6} color={'#ffffff'} />
       <group ref={orbit}>
         <mesh position={[1.1, 0.2, 0]}><tetrahedronGeometry args={[0.24, 0]} /><meshStandardMaterial color={c.outfit2} flatShading /></mesh>
         <mesh position={[-1.0, -0.1, 0.3]}><octahedronGeometry args={[0.22, 0]} /><meshStandardMaterial color={c.extra} flatShading /></mesh>
@@ -581,6 +597,7 @@ export function Character3D({
   bare = false,
   walk = false,
   grounded = true,
+  fn,
 }: {
   id: string
   character: Character
@@ -598,6 +615,10 @@ export function Character3D({
   /** y a-t-il un sol sous lui ? · un aperçu d'avatar flotte, et une ombre
    *  de contact y devient une tache sombre suspendue dans le vide */
   grounded?: boolean
+  /** le MÉTIER · il habille le personnage (voir ./JobLook3D). Le skin donne
+   *  la couleur, que l'utilisateur choisit ; le métier donne le vêtement,
+   *  qu'il ne choisit pas. Les deux se combinent sans se marcher dessus. */
+  fn?: Department
 }) {
   const g = useRef<THREE.Group>(null)
   const [hover, setHover] = useState(false)
@@ -692,7 +713,7 @@ export function Character3D({
             <Cyl p={[0, 1.5, 0]} r={0.05} h={0.4} c={character.face} />
             <Ball p={[0, 1.78, 0]} r={0.14} c={'#fff'} />
             <Ball p={[0, 1.8, 0.1]} r={0.06} c={'#333'} />
-            <AsciiFace3D mood={mood} position={[0, 0.92, 0.9]} scale={0.72} color={faceColor} />
+            <FunkoFace3D mood={mood} position={[0, 0.92, 0.9]} scale={0.72} color={faceColor} />
             <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
             <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} />
           </group>
@@ -708,7 +729,7 @@ export function Character3D({
             {/* rosy cheeks + big, high-contrast ASCII expression */}
             <Ball p={[-0.5, 1.58, 0.62]} r={0.12} c={'#ff8fa3'} />
             <Ball p={[0.5, 1.58, 0.62]} r={0.12} c={'#ff8fa3'} />
-            <AsciiFace3D mood={mood} position={[0, 1.76, 0.98]} scale={0.86} color={'#3a1526'} />
+            <FunkoFace3D mood={mood} position={[0, 1.76, 0.98]} scale={0.86} color={'#3a1526'} />
             {/* eight tentacles splaying out around the mantle */}
             {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
               const ang = (i / 8) * Math.PI * 2 + 0.4
@@ -748,7 +769,7 @@ export function Character3D({
             {/* little arm nubs */}
             <Ball p={[-0.78, 1.28, 0.1]} r={0.16} c={character.face} />
             <Ball p={[0.78, 1.28, 0.1]} r={0.16} c={character.face} />
-            <AsciiFace3D mood={mood} position={[0, 1.52, 0.72]} scale={0.74} color={faceColor} />
+            <FunkoFace3D mood={mood} position={[0, 1.52, 0.72]} scale={0.74} color={faceColor} />
           </group>
         ) : isJelly ? (
           <group position={[0, 0.15, 0]}>
@@ -761,7 +782,7 @@ export function Character3D({
               <torusGeometry args={[0.78, 0.1, 12, 28]} />
               <meshStandardMaterial color={character.outfit2} transparent opacity={0.75} {...MAT} />
             </mesh>
-            <AsciiFace3D mood={mood} position={[0, 1.9, 0.78]} scale={0.72} color={faceColor} />
+            <FunkoFace3D mood={mood} position={[0, 1.9, 0.78]} scale={0.72} color={faceColor} />
             {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
               const a = (i / 8) * Math.PI * 2
               return <JellyLeg key={i} base={[Math.cos(a) * 0.6, 1.45, Math.sin(a) * 0.6]} color={i % 2 ? character.face : character.outfit} phase={i * 0.8} busy={busy || visited} />
@@ -784,7 +805,7 @@ export function Character3D({
               </mesh>
             ))}
             <Ball p={[0, 2.12, 0]} r={0.5} c={character.face} />
-            <AsciiFace3D mood={mood} position={[0, 2.14, 0.5]} scale={0.62} color={faceColor} />
+            <FunkoFace3D mood={mood} position={[0, 2.14, 0.5]} scale={0.62} color={faceColor} />
             <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
             <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} />
           </group>
@@ -795,10 +816,10 @@ export function Character3D({
             {/* legs + shoes (mostly tucked under the desk in the office, shown in previews) */}
             <Legs id={id} pants={character.pants} walk={walk} />
             {/* torse · plus petit que la tête, comme sur une figurine */}
-            <Ball p={[0, 1.1, 0]} r={0.5} c={character.outfit} s={[1, 1.04, 0.9]} />
+            <Ball p={[0, 1.06, 0]} r={0.44} c={character.outfit} s={[1, 1.02, 0.9]} />
             {/* épaules, rentrées sous la tête */}
-            <Ball p={[-0.42, 1.28, 0.02]} r={0.165} c={character.outfit} />
-            <Ball p={[0.42, 1.28, 0.02]} r={0.165} c={character.outfit} />
+            <Ball p={[-0.37, 1.22, 0.02]} r={0.15} c={character.outfit} />
+            <Ball p={[0.37, 1.22, 0.02]} r={0.15} c={character.outfit} />
             {/* La TENUE · un col, une ceinture et un écusson. Le torse était
                 une sphère d'une seule couleur : à cette distance il se lisait
                 comme un ballon sous une tête, pas comme quelqu'un d'habillé.
@@ -808,21 +829,22 @@ export function Character3D({
                 vaut 0,5·√(1−(Δy/0,52)²). Un premier essai avec des valeurs
                 devinées a enterré col et ceinture À L'INTÉRIEUR de la sphère —
                 trois anneaux invisibles, rendus à chaque image pour rien. */}
-            <mesh position={[0, 1.45, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <torusGeometry args={[0.37, 0.075, 8, 22]} />
+            <mesh position={[0, 1.36, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <torusGeometry args={[0.32, 0.07, 8, 22]} />
               <meshStandardMaterial color={character.outfit2} {...MAT} />
             </mesh>
-            <mesh position={[0, 0.9, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <torusGeometry args={[0.46, 0.055, 8, 24]} />
+            <mesh position={[0, 0.88, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <torusGeometry args={[0.4, 0.05, 8, 24]} />
               <meshStandardMaterial color={character.outfit2} {...MAT} />
             </mesh>
             {/* la boucle de ceinture */}
-            <mesh position={[0, 0.9, 0.46]}>
+            <mesh position={[0, 0.88, 0.4]}>
               <boxGeometry args={[0.16, 0.13, 0.07]} />
               <meshStandardMaterial color={character.extra} roughness={0.35} metalness={0.3} />
             </mesh>
+            {fn && <JobBody fn={fn} accent={character.extra} />}
             {/* l'écusson · la touche d'accent, à hauteur de cœur */}
-            <mesh position={[-0.19, 1.2, 0.44]} rotation={[0.1, 0.35, 0]}>
+            <mesh position={[-0.17, 1.14, 0.39]} rotation={[0.1, 0.35, 0]}>
               <circleGeometry args={[0.095, 16]} />
               <meshStandardMaterial color={character.extra} roughness={0.4} side={THREE.DoubleSide} />
             </mesh>
@@ -835,7 +857,8 @@ export function Character3D({
                 <Ball p={[-0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
                 <Ball p={[0.32, 1.82, 0.46]} r={0.12} c={'#ff8fa3'} />
                 <Toppers c={character} />
-                <AsciiFace3D mood={mood} position={[0, 1.98, 0.72]} scale={0.72} color={faceColor} />
+                <FunkoFace3D mood={mood} position={[0, 1.98, 0.72]} scale={0.78} color={faceColor} muzzle={lighten(character.face, 0.45)} />
+                {fn && <JobHead fn={fn} accent={character.extra} />}
                 {acc && <Accessory kind={acc} id={id} />}
               </AboutY>
             )}

@@ -91,6 +91,7 @@ function Agents({ seated }: { seated: Array<{ agent: WAgent; x: number; z: numbe
             key={wa.id}
             id={wa.id}
             character={skinById(wa.skinId)}
+            fn={wa.fn}
             x={x}
             z={z}
             mood={rt?.mood ?? 'idle'}

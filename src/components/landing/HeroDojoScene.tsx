@@ -161,6 +161,7 @@ export default function HeroDojoScene() {
               bare
               id={s.id}
               character={skinById(s.skin)}
+              fn={s.fn}
               x={s.x}
               z={s.z}
               mood="work"
