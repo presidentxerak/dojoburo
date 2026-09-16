@@ -90,7 +90,23 @@ const ok = (n, c, extra = '') => { console.log((c ? 'ok    ' : 'FAIL  ') + n + (
   await ctx.close()
 }
 
-/* ---- 2 · le thème est posé AVANT le premier pixel --------------------- */
+/* ---- 2 · le thème est posé AVANT le premier pixel --------------------- *
+ *
+ * Ce que cette épreuve garde VRAIMENT, et qu'il ne faut pas perdre de vue :
+ * que `public/boot.js` s'exécute. Il est EXTERNE parce que la politique de
+ * sécurité du site refuse les scripts en ligne (`script-src 'self'`) ; si
+ * quelqu'un le réécrivait en ligne, il serait refusé EN SILENCE, la marque ne
+ * serait jamais posée et la page basculerait en blanc à chaque chargement.
+ *
+ * Elle exigeait que la marque vaille le réglage du SYSTÈME. C'était le
+ * comportement voulu, il ne l'est plus : l'application est claire par défaut
+ * partout. Exiger l'ancien comportement ne gardait plus rien — ça empêchait
+ * seulement de livrer le nouveau.
+ *
+ * Elle vérifie donc maintenant les deux choses qui comptent : la marque EST
+ * posée (donc le script tourne), elle vaut « light » quel que soit le
+ * système, ET un choix enregistré est respecté — sans quoi le thème sombre
+ * mourrait sans que personne ne s'en aperçoive.                             */
 for (const scheme of ['dark', 'light']) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: scheme })
   const p = await ctx.newPage()
@@ -98,10 +114,23 @@ for (const scheme of ['dark', 'light']) {
   // tout de suite · c'est le sens d'un script synchrone dans le <head>
   await p.waitForTimeout(300)
   const stamp = await p.evaluate(() => document.documentElement.getAttribute('data-theme'))
-  ok(`le thème ${scheme} est posé avant le rendu de React`, stamp === scheme,
-    `data-theme=${stamp} · un script EN LIGNE serait refusé, et la page basculerait en blanc`)
+  ok(`clair posé avant le rendu de React, téléphone en ${scheme}`, stamp === 'light',
+    `data-theme=${stamp} · un script EN LIGNE serait refusé, et la marque ne serait jamais posée`)
   const meta = await p.evaluate(() => document.querySelector('meta[name="theme-color"]')?.getAttribute('content'))
-  ok('et la barre du navigateur suit', scheme === 'dark' ? meta === '#000000' : meta === '#ffffff', String(meta))
+  ok('et la barre du navigateur suit', meta === '#ffffff', String(meta))
+  await ctx.close()
+}
+{
+  // un choix ENREGISTRÉ l'emporte · sinon le thème sombre est inatteignable
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'light' })
+  await ctx.addInitScript(() => { try { localStorage.setItem('dojoburo.theme', 'dark') } catch { /* privé */ } })
+  const p = await ctx.newPage()
+  await p.goto(B + '/', { waitUntil: 'commit' })
+  await p.waitForTimeout(300)
+  const stamp = await p.evaluate(() => document.documentElement.getAttribute('data-theme'))
+  ok('un choix enregistré de sombre est respecté avant le premier pixel', stamp === 'dark', `data-theme=${stamp}`)
+  const meta = await p.evaluate(() => document.querySelector('meta[name="theme-color"]')?.getAttribute('content'))
+  ok('et la barre du navigateur devient noire', meta === '#000000', String(meta))
   await ctx.close()
 }
 
