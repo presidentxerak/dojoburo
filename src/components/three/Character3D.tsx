@@ -15,6 +15,7 @@ import type { Head } from './head'
 import { CROWNED, JobBody, JobHead, jobOf } from './JobLook3D'
 import type { Department } from '../../data/agents'
 import { Mat } from './Mat'
+import { useGait, strideAmp } from './gait'
 
 // La matière de tous les personnages · une figurine de vinyle, définie une
 // seule fois dans ./toy et partagée par les 38 espèces.
@@ -108,13 +109,24 @@ function HeadShell({ h, c }: { h: Head; c: string }) {
 // laptop keyboard and taps; or raises up to wave hello at the Chief.
 function Arm({ side, color, hand, busy, wave }: { side: number; color: string; hand: string; busy: boolean; wave?: boolean }) {
   const g = useRef<THREE.Group>(null)
+  const gait = useGait()
   useFrame((state) => {
     if (!g.current) return
     const t = state.clock.elapsedTime
+    const { speed, phase } = gait.current
+    const amp = strideAmp(speed)
     if (wave) {
       // raise the forearm and swing it side to side
       g.current.rotation.x += (-1.4 - g.current.rotation.x) * 0.14
       g.current.rotation.z = side * (0.5 + Math.sin(t * 9) * 0.45)
+    } else if (amp > 0.01) {
+      // LE BALANCIER · le bras suit la jambe OPPOSÉE. C'est ce contre-temps
+      // qui fait lire une marche ; les deux bras en phase avec les jambes du
+      // même côté donnent une démarche de pantin, ce qu'on avait.
+      const swing = Math.sin(phase + (side > 0 ? Math.PI : 0)) * 0.62 * amp
+      g.current.rotation.x += (-0.3 + swing - g.current.rotation.x) * 0.3
+      // le coude s'écarte légèrement du corps quand le pas s'ouvre
+      g.current.rotation.z += (side * 0.12 * amp - g.current.rotation.z) * 0.2
     } else {
       const spd = busy ? 15 : 6
       g.current.rotation.x += (-0.42 + Math.sin(t * spd + (side > 0 ? 0 : 1.4)) * (busy ? 0.16 : 0.06) - g.current.rotation.x) * 0.4
@@ -628,11 +640,26 @@ function Legs({ id, pants, walk }: { id: string; pants: string; walk?: boolean }
   const s = shoeForId(id)
   const left = useRef<THREE.Group>(null)
   const right = useRef<THREE.Group>(null)
+  const lift = useRef<[THREE.Group | null, THREE.Group | null]>([null, null])
+  const gait = useGait()
   useFrame((st) => {
     if (!walk) return
-    const t = st.clock.elapsedTime * 7 + hashCode(id) * 0.3
-    if (left.current) left.current.rotation.x = Math.sin(t) * 0.7
-    if (right.current) right.current.rotation.x = Math.sin(t + Math.PI) * 0.7
+    const { speed, phase } = gait.current
+    const amp = strideAmp(speed)
+    // Sans cadence fournie (un personnage marqué `walk` mais que personne ne
+    // déplace), on retombe sur l'ancienne horloge : une vitesse de croisière
+    // décalée par l'identité, pour que deux voisins ne battent pas ensemble.
+    const p = amp > 0.01 ? phase : st.clock.elapsedTime * 7 + hashCode(id) * 0.3
+    const a = amp > 0.01 ? amp : 1
+    if (left.current) left.current.rotation.x = Math.sin(p) * 0.72 * a
+    if (right.current) right.current.rotation.x = Math.sin(p + Math.PI) * 0.72 * a
+    // LE PIED SE LÈVE. Une jambe qui ne fait que pivoter autour de la hanche
+    // traverse le sol à mi-course — le talon s'enfonçait dans le tatami à
+    // chaque pas, et c'est ce qui donnait la démarche glissée. On relève le
+    // pied pendant la phase AÉRIENNE seulement, celle où la jambe avance.
+    const up = (k: number) => Math.max(0, Math.sin(k)) * 0.14 * a
+    if (lift.current[0]) lift.current[0].position.y = up(p)
+    if (lift.current[1]) lift.current[1].position.y = up(p + Math.PI)
   })
   return (
     <group>
@@ -640,9 +667,11 @@ function Legs({ id, pants, walk }: { id: string; pants: string; walk?: boolean }
         // pivot at the hip (y≈0.62) so the whole leg swings, then offset the
         // leg + shoe back down to the floor.
         <group key={x} ref={i === 0 ? left : right} position={[x, 0.62, 0.14]}>
-          <group position={[0, -0.62, 0]}>
-            <Limb p={[0, 0.36, 0]} r={0.135} len={0.34} c={pants} />
-            <Shoe kind={s.kind} color={s.color} sole={s.sole} />
+          <group ref={(el) => { lift.current[i] = el }}>
+            <group position={[0, -0.62, 0]}>
+              <Limb p={[0, 0.36, 0]} r={0.135} len={0.34} c={pants} />
+              <Shoe kind={s.kind} color={s.color} sole={s.sole} />
+            </group>
           </group>
         </group>
       ))}
@@ -692,6 +721,8 @@ export function Character3D({
 }) {
   const g = useRef<THREE.Group>(null)
   const [hover, setHover] = useState(false)
+  // la cadence · fournie par celui qui le déplace, immobile par défaut
+  const gait = useGait()
   const banter = useDojo((s) => s.banter)
   const heroTargetId = useDojo((s) => s.heroTargetId)
   // le métier, résolu une fois · `fn` s'il est valide, le rôle sinon
@@ -722,12 +753,19 @@ export function Character3D({
     const think = mood === 'think'
     const error = mood === 'error'
 
+    // LA MARCHE · le buste, lui aussi. Des jambes qui battent sous un tronc
+    // parfaitement immobile, c'est une marionnette sur un rail ; le poids du
+    // corps monte et descend à CHAQUE appui, donc deux fois par cycle de pas.
+    const amp = strideAmp(gait.current.speed)
+    const gp = gait.current.phase
+
     // vertical: breathing, plus excited jumps when the Chief visits and
     // celebratory hops when a task lands well
     let y = Math.sin(t * 1.6 + x) * 0.03
     if (visited) y += Math.abs(Math.sin(t * 3.2)) * 0.13
     if (busy) y += Math.sin(t * 9 + x) * 0.015
     if (happy) y += Math.max(0, Math.sin(t * 4 + x)) * 0.16
+    if (amp > 0.01) y += Math.abs(Math.sin(gp)) * 0.055 * amp
     g.current.position.y = y
 
     // lean / tilt driven by activity + mood
@@ -735,10 +773,18 @@ export function Character3D({
     if (busy) rotX += 0.1 // hunch over the keyboard
     if (visited) rotX -= 0.2 // look up at the Chief
     if (error) rotX += 0.16 // slump
+    // on se penche dans le sens de la marche · un corps qui avance sans
+    // pencher se lit comme un corps qu'on POUSSE
+    rotX += 0.11 * amp
+    // LE SALUT · plié en deux vers l'avant, tout le buste. Il vaut par-dessus
+    // le reste : on ne respire pas en saluant son maître.
+    rotX += gait.current.bow * 0.62
     let rotZ = 0
     if (think) rotZ = Math.sin(t * 1.4) * 0.13 // pensive head tilt
     if (error) rotZ += Math.sin(t * 26) * 0.06 // frustrated shake
     if (visited) rotZ += Math.sin(t * 2.4) * 0.09 // happy sway toward the Chief
+    // le roulis d'épaules de la marche · un demi-cycle par pas
+    if (amp > 0.01) rotZ += Math.sin(gp) * 0.07 * amp
     g.current.rotation.x += (rotX - g.current.rotation.x) * 0.12
     g.current.rotation.z += (rotZ - g.current.rotation.z) * 0.3
 

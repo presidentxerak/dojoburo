@@ -22,6 +22,7 @@ import * as THREE from 'three'
 import { MATTE, VINYL, PAINTED_METAL } from './toy'
 import { roundedBox } from './geometry'
 import { Mat } from './Mat'
+import { PROP_SLOTS } from './stage'
 
 type V3 = [number, number, number]
 
@@ -777,31 +778,20 @@ export function PhoneBank({ accent = '#f59e0b' }: { accent?: string }) {
 // Les kits · quelle spécialité pose quoi, et où.
 // ============================================================================
 
-/** Six emplacements, tous dans la bande sèche du fond.
- *
- *  Ils ne touchent PAS le mur (z = -8) : chaque monde y pose déjà quelque
- *  chose — le trône et les bannières du château, les paravents du dojo, la
- *  ligne d'horizon de la villa — et un meuble collé au mur traversait ce
- *  décor. Un pas en avant (z ≈ -5,6) laisse le monde derrière et le
- *  mobilier de métier devant, tout en restant à plus de 1,4 unité du bord
- *  de la piscine de la villa. */
-const SLOTS: { p: V3; r: number }[] = [
-  { p: [-8.0, 0, -5.0], r: 0.62 },
-  { p: [-4.7, 0, -5.8], r: 0.2 },
-  { p: [-1.4, 0, -6.0], r: 0 },
-  { p: [2.1, 0, -6.0], r: 0 },
-  { p: [5.4, 0, -5.8], r: -0.2 },
-  { p: [8.0, 0, -5.0], r: -0.62 },
-]
+/** Les six emplacements vivent dans le plan de la salle · voir
+ *  ./stage.ts. Ils barraient tout le fond, d'un mur à l'autre : le maître y
+ *  a désormais son estrade, et la porte s'ouvre dans la même bande. Ils se
+ *  replient sur les deux flancs, en arc. */
+const SLOTS: { p: V3; r: number }[] = PROP_SLOTS
 
 type Piece = { slot: number; el: (accent: string) => React.ReactNode; scale?: number }
 
 /** La bibliothèque, déclinée · un seul meuble se lit comme un meuble, trois
  *  côte à côte se lisent comme une bibliothèque. */
 const BOOK_WALL: Piece[] = [
-  { slot: 1, el: () => <Bookcase seed={1} w={2.6} shelves={4} /> },
-  { slot: 2, el: () => <Bookcase seed={2} w={2.6} shelves={5} /> },
-  { slot: 3, el: () => <Bookcase seed={3} w={2.6} shelves={4} /> },
+  { slot: 0, el: () => <Bookcase seed={1} w={2.6} shelves={4} /> },
+  { slot: 1, el: () => <Bookcase seed={2} w={2.6} shelves={5} /> },
+  { slot: 2, el: () => <Bookcase seed={3} w={2.6} shelves={4} /> },
 ]
 
 const KITS: Record<string, Piece[]> = {

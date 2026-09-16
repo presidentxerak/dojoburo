@@ -2,7 +2,10 @@
 // hero roams in front. Coordinates are world units (X right, Z toward camera).
 import { AGENTS } from '../data/agents'
 
-export const CELL = { xs: [-4.2, -1.4, 1.4, 4.2], zs: [-2.8, 0.7, 4.2] }
+// Les rangées ont descendu de 1,2 avec seatPositions · le maître occupe
+// désormais le fond, et cette grille de secours doit rester d'accord avec la
+// vraie (voir SEAT_CENTRE_Z plus bas).
+export const CELL = { xs: [-4.2, -1.4, 1.4, 4.2], zs: [-1.5, 1.9, 5.3] }
 
 // deterministic grid position per agent (order of AGENTS)
 export const POS3D: Record<string, [number, number]> = {}
@@ -17,17 +20,26 @@ export const HERO_HOME3D: [number, number] = [0, 7.4]
 // the 12 desk slots in seating order (a dojo's agents are placed onto these)
 export const SEATS: [number, number][] = AGENTS.map((a) => POS3D[a.id])
 
+/** Le centre des rangées · elles tournaient autour de z ≈ 0,7, c'est-à-dire
+ *  au MILIEU de la salle, quand le maître se tenait devant elles. Il est
+ *  passé au fond, sur son estrade (voir components/three/stage.ts), et le
+ *  fond a besoin de sa place : les postes descendent donc vers la caméra, ce
+ *  qui dégage la bande du fond pour l'estrade et le couloir de la porte.
+ *
+ *  1,9 et pas davantage : au-delà, le bureau de la rangée de devant (qui se
+ *  pose à DESK_FWD en avant du siège) sortait de la pièce. */
+export const SEAT_CENTRE_Z = 1.9
+
 /** Positions for exactly `n` agents on a centred grid (≤4 per row), so a dojo
  *  only ever shows as many desks as it has agents · no empty slots, and each
- *  row is centred (a short final row too). Rows are centred around z≈0.7 to keep
- *  the crew framed with room for the Chief out front. */
+ *  row is centred (a short final row too). */
 export function seatPositions(n: number): [number, number][] {
   if (n <= 0) return []
   const cols = Math.min(4, n)
   const rows = Math.ceil(n / cols)
   const xStep = 2.8
   const zStep = 3.4
-  const zStart = -((rows - 1) / 2) * zStep + 0.7
+  const zStart = -((rows - 1) / 2) * zStep + SEAT_CENTRE_Z
   const out: [number, number][] = []
   for (let i = 0; i < n; i++) {
     const row = Math.floor(i / cols)

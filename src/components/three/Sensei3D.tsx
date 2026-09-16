@@ -19,6 +19,8 @@ import { VINYL, MATTE } from './toy'
 import { Contact } from './Contact'
 import { roundedBox } from './geometry'
 import { Mat } from './Mat'
+import { SENSEI_AT, AUDIENCE } from './stage'
+import { useNews } from './news'
 
 const SKIN = '#f6d3ae'   // teint
 const ROBE = '#2f3a63'   // indigo profond · le gi
@@ -59,12 +61,18 @@ const pick = (a: string[]) => a[Math.floor(Math.random() * a.length)]
 
 /** Le maître du dojo · il encourage l'équipe et danse à chaque tâche
  *  terminée. `bare` retire les bulles et le clic : le hero le montre, il ne
- *  le fait pas parler. `at` le déplace — au centre devant l'équipe dans
+ *  le fait pas parler. `at` le déplace — sur son estrade AU FOND dans
  *  l'application, sur le côté dans le hero, où le centre est occupé par la
- *  carte de verre. */
-export function Sensei3D({ bare = false, at = [0, 0, 6.2] as [number, number, number] }: { bare?: boolean; at?: [number, number, number] }) {
+ *  carte de verre.
+ *
+ *  Il se tenait DEVANT l'équipe, dos à la caméra, à l'endroit exact où l'on
+ *  regarde en premier. Un maître se tient au fond, face à la salle : on
+ *  entre, on traverse, on va le voir. C'est ce déplacement qui a donné au
+ *  coursier quelqu'un à qui parler (voir stage.ts et Courier3D). */
+export function Sensei3D({ bare = false, at = SENSEI_AT }: { bare?: boolean; at?: [number, number, number] }) {
   const cheer = useDojo((s) => s.cheer)
   const cheerTick = useDojo((s) => s.cheerTick)
+  const news = useNews()
   const g = useRef<THREE.Group>(null)
   const armL = useRef<THREE.Group>(null)
   const armR = useRef<THREE.Group>(null)
@@ -91,6 +99,11 @@ export function Sensei3D({ bare = false, at = [0, 0, 6.2] as [number, number, nu
     return () => window.clearTimeout(id)
   }, [cheerTick, bare])
 
+  // l'échange avec le coursier · il se tourne vers lui, lui rend son salut,
+  // puis hoche la tête pendant qu'on lui annonce la nouvelle
+  const visit = bare ? 'away' : news.phase
+  const facing = Math.atan2(AUDIENCE[0] - at[0], AUDIENCE[1] - at[2])
+
   useFrame((state) => {
     const t = state.clock.elapsedTime
     clockNow.current = t
@@ -102,11 +115,19 @@ export function Sensei3D({ bare = false, at = [0, 0, 6.2] as [number, number, nu
         g.current.position.y = Math.abs(Math.sin(t * 9)) * 0.5
         g.current.rotation.y = Math.sin(t * 7) * 0.5
         g.current.rotation.z = Math.sin(t * 12) * 0.1
+        g.current.rotation.x = THREE.MathUtils.lerp(g.current.rotation.x, 0, 0.2)
       } else {
         // respiration lente · un maître ne s'agite pas
         g.current.position.y = THREE.MathUtils.lerp(g.current.position.y, Math.sin(t * 1.4) * 0.05, 0.1)
-        g.current.rotation.y = THREE.MathUtils.lerp(g.current.rotation.y, 0, 0.1)
+        // il PIVOTE vers son visiteur · un maître qui reçoit une nouvelle en
+        // regardant droit devant lui ne la reçoit pas
+        const wantY = visit === 'away' ? 0 : facing
+        g.current.rotation.y = THREE.MathUtils.lerp(g.current.rotation.y, wantY, 0.06)
         g.current.rotation.z = Math.sin(t * 1.1) * 0.02
+        // SON SALUT · il rend celui du coursier, moins bas — c'est lui le
+        // maître. Puis il hoche la tête pendant l'annonce.
+        const bow = visit === 'greeting' ? 0.3 : visit === 'telling' ? Math.max(0, Math.sin(t * 1.7)) * 0.11 : 0
+        g.current.rotation.x = THREE.MathUtils.lerp(g.current.rotation.x, bow, 0.09)
       }
     }
     // la barbe suit le mouvement avec un temps de retard · c'est ce
@@ -220,9 +241,13 @@ export function Sensei3D({ bare = false, at = [0, 0, 6.2] as [number, number, nu
           <div className="panda-confetti" aria-hidden>{Array.from({ length: 10 }).map((_, i) => <span key={i} style={{ ['--i' as string]: i }} />)}</div>
         </Html>
       )}
+      {/* Ce qu'il dit · sa réponse au coursier prend le pas sur ses maximes.
+          Quelqu'un vient de lui annoncer quelque chose ; continuer à réciter
+          « Breathe. Then ship. » pendant qu'on lui parle est exactement ce
+          qui faisait que l'échange n'existait pas. */}
       {!bare && (
         <Html position={[0, 2.72, 0.2]} center distanceFactor={12} zIndexRange={[8, 0]} pointerEvents="none">
-          <div className={`panda-bubble${party ? ' hype' : ''}`}>{bubble}</div>
+          <div className={`panda-bubble${party ? ' hype' : ''}`}>{visit === 'telling' ? news.reply : bubble}</div>
         </Html>
       )}
       {!bare && (

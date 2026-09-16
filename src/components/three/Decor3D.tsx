@@ -5,6 +5,12 @@ import { floorTexture, shoji as shojiTex, cornerShade, skyGradient } from './tex
 import { roundedBox } from './geometry'
 import type { DojoPalette } from '../../data/templates'
 import { Mat } from './Mat'
+import { DAIS, LECTERN, PLANTS, baysOf, doorBayOf, doorAt } from './stage'
+
+// La géométrie de la salle vit dans ./stage · la porte y est calculée une
+// fois pour toutes, et le coursier la lit au même endroit que le mur qui la
+// perce. On la réexporte parce que la scène l'importait d'ici.
+export { doorAt }
 
 const WOOD = '#b5793f'
 const WOOD_D = '#7a4a24'
@@ -46,7 +52,10 @@ function RoomDressing({ P, decor, enclosed }: { P: DojoPalette; decor: string; e
           recouvrir quoi que ce soit. */}
       {!wet && (
         <group>
-          {[[0, -3.6, 15, 0.1], [0, 5.8, 15, 0.1], [-7.4, 1.1, 0.1, 9.4], [7.4, 1.1, 0.1, 9.4]].map(([x, z, w, d], i) => (
+          {/* le liseré descend avec les rangées · les postes sont passés de
+              z ≈ 0,7 à z ≈ 1,9 pour dégager le fond, et un cadre resté en
+              arrière aurait coupé la première rangée en deux */}
+          {[[0, -2.4, 15, 0.1], [0, 7.0, 15, 0.1], [-7.4, 2.3, 0.1, 9.4], [7.4, 2.3, 0.1, 9.4]].map(([x, z, w, d], i) => (
             <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.02, z]}>
               <planeGeometry args={[w, d]} />
               <Mat color={mute(P.accent, 0.62)} transparent opacity={0.22} flat />
@@ -57,7 +66,11 @@ function RoomDressing({ P, decor, enclosed }: { P: DojoPalette; decor: string; e
 
       {/* plantes d'angle · hautes, pour occuper le volume et pas seulement
           le sol */}
-      {!wet && [[-8.6, -2.4], [8.6, -2.4], [-8.6, 3.4], [8.6, 3.4]].map(([x, z], i) => (
+      {/* Les plantes d'angle ont avancé vers la caméra · elles bordaient les
+          murs latéraux à mi-profondeur, là où le mobilier de métier vient de
+          se replier (voir stage.PROP_SLOTS). Leurs positions vivent dans le
+          plan de la salle, avec leur empreinte : le coursier les contourne. */}
+      {!wet && PLANTS.map(([x, z], i) => (
         <group key={i} position={[x, 0, z]}>
           <mesh position={[0, 0.34, 0]} castShadow receiveShadow>
             <cylinderGeometry args={[0.42, 0.34, 0.68, 18]} />
@@ -589,13 +602,17 @@ function Planter({ x, z, c, accent }: { x: number; z: number; c: string; accent:
 function ZenGarden({ backZ, accent }: { backZ: number; accent: string }) {
   return (
     <group>
-      <Lantern x={-4} z={backZ + 1.5} c={accent} />
-      <Lantern x={4} z={backZ + 1.5} c={accent} />
+      {/* Les lanternes encadraient le fond à quatre unités de l'axe, c'est-à-dire
+          pile là où se tient le maître depuis qu'il a son estrade. Elles
+          filent dans les angles : le fond de la salle appartient désormais à
+          la porte (à gauche) et à l'estrade (à droite). */}
+      <Lantern x={-7.4} z={backZ + 1.5} c={accent} />
+      <Lantern x={6.6} z={backZ + 1.5} c={accent} />
       <CherryTree x={-8.6} z={2.6} blossom={accent} />
       <StoneLantern x={-8.7} z={-2.2} />
       <Bamboo x={8.7} z={-1.5} />
       <Bamboo x={8.9} z={backZ + 2.6} />
-      {[-6, -3.4, 3.4, 6].map((rx) => (
+      {[-8.4, -6.8, 6.3].map((rx) => (
         <group key={rx} position={[rx, 0, backZ + 1.3]}>
           <Sp p={[0, 0.14, 0]} r={0.3} c="#b7b2a6" />
           <Sp p={[0.42, 0.09, 0.22]} r={0.17} c="#c9c4b8" />
@@ -619,19 +636,22 @@ function PlainAccents({ backZ, P }: { backZ: number; P: DojoPalette }) {
     <group>
       <Beacon x={-8.6} z={2.6} c={P.accent} />
       <Beacon x={8.6} z={2.6} c={P.accent} />
-      <Beacon x={-8.7} z={backZ + 2.2} c={P.accent} />
-      <Beacon x={8.7} z={backZ + 2.2} c={P.accent} />
-      <Planter x={-8} z={backZ + 2} c={P.wallSide} accent={P.accent} />
-      <Planter x={8} z={backZ + 2} c={P.wallSide} accent={P.accent} />
+      {/* les deux bandes latérales portent maintenant le mobilier de métier
+          (voir stage.PROP_SLOTS) · les balises et les jardinières se collent
+          au mur du fond, dans les angles qui restent */}
+      <Beacon x={-9.5} z={backZ + 0.7} c={P.accent} />
+      <Beacon x={9.5} z={backZ + 0.7} c={P.accent} />
+      <Planter x={-6.2} z={backZ + 0.6} c={P.wallSide} accent={P.accent} />
+      <Planter x={6.2} z={backZ + 0.6} c={P.wallSide} accent={P.accent} />
       {/* extra furnishings · floor lanterns, a lounge corner, a rug, plants & art */}
       <Lantern x={-7.2} z={5.2} c={P.accent} />
       <Lantern x={7.2} z={5.2} c={P.accent} />
       <LoungeCorner x={7.4} z={-1.5} c={P.wallSide} accent={P.accent} />
-      <PottedPalm x={-8.6} z={-1} />
+      <PottedPalm x={-6.8} z={7.4} />
       <PottedPalm x={-6.5} z={5.6} />
       <FloorRug x={0} z={2.4} c={P.accent} />
       <Sculpture x={5.4} z={5.4} c={P.trim} accent={P.accent} />
-      <CrateStack x={-8.8} z={backZ + 5} c={P.wallSide} />
+      <CrateStack x={-9.2} z={backZ + 0.8} c={P.wallSide} />
       <WallArt x={-6.5} y={3} z={backZ + 0.28} c={P.accent} />
       <WallArt x={6.5} y={3} z={backZ + 0.28} c={P.trim} />
     </group>
@@ -830,8 +850,10 @@ function StartupDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
     <group>
       {/* city skyline behind the loft */}
       <Skyline z={backZ - 4} c="#c6cbe8" />
-      {/* big wall whiteboard with sticky notes */}
-      <group position={[0, 2.7, backZ + 0.3]}>
+      {/* Le tableau blanc était centré sur le mur du fond · il recouvrait la
+          moitié de l'ouverture de la porte, et il occupe maintenant le mur
+          DERRIÈRE le maître, ce qui lui donne un fond. */}
+      <group position={[3.2, 2.7, backZ + 0.3]}>
         <B p={[0, 0, 0]} s={[5, 2.6, 0.1]} c="#f7f9fc" />
         <B p={[0, 0, -0.03]} s={[5.2, 2.8, 0.06]} c="#c7ccd6" />
         {[['#ffe08a', -1.7, 0.6], ['#a7d8ff', -1.2, 0.2], ['#ffb3c7', -1.6, -0.3], ['#b9f0c0', 1.5, 0.5], ['#ffd0a0', 1.1, 0.0], ['#d9c2ff', 1.7, -0.4]].map(([c, x, y], i) => (
@@ -882,7 +904,7 @@ function StartupDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <Mat color={['#b07f86', '#c79a4a', '#7c8fa3', '#8aa172', '#7a6180'][i % 5]} {...M} />
         </mesh>
       ))}
-      <LoftPlant x={2.4} z={5.6} />
+      <LoftPlant x={6.6} z={7.2} />
     </group>
   )
 }
@@ -935,8 +957,9 @@ function SpaceDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <mesh key={i} position={[cx as number, cy as number, 1.2]}><circleGeometry args={[r as number, 16]} /><meshBasicMaterial color="#9aa0ad" /></mesh>
         ))}
       </group>
-      {/* porthole with a planet */}
-      <group position={[0, 3, backZ + 0.35]}>
+      {/* le hublot passe derrière le maître · centré, il mordait sur
+          l'ouverture de la porte */}
+      <group position={[3.2, 3, backZ + 0.35]}>
         <mesh><torusGeometry args={[1.7, 0.22, 16, 40]} /><Mat color="#3a4890" metalness={0.6} roughness={0.3} /></mesh>
         <mesh position={[0, 0, -0.05]}><circleGeometry args={[1.6, 40]} /><meshBasicMaterial color="#05070f" /></mesh>
         <Sp p={[0.4, -0.2, 0.1]} r={0.9} c="#3d7bd6" emissive="#1b3f7a" ei={0.4} />
@@ -948,7 +971,7 @@ function SpaceDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         <Glow key={i} p={[x as number, y as number, backZ + 0.5]} r={0.04 + (i % 3) * 0.015} c="#eaf6ff" i={0.9} />
       ))}
       {/* control consoles along the back */}
-      {[-6, 6].map((cx) => (
+      {[-7.3, 7.3].map((cx) => (
         <group key={cx} position={[cx, 0, backZ + 1.4]}>
           <B p={[0, 0.55, 0]} s={[2.4, 1.1, 0.5]} c="#141a30" />
           <B p={[0, 1.05, 0.2]} s={[2.2, 0.5, 0.15]} c="#0c1024" rot={[-0.5, 0, 0]} />
@@ -956,7 +979,10 @@ function SpaceDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         </group>
       ))}
       {/* floor light strips running forward */}
-      {[-2.4, 2.4].map((x) => <Strip key={x} p={[x, 0.03, backZ + 5]} s={[0.14, 8]} c={P.accent} rot={[-Math.PI / 2, 0, 0]} i={0.8} />)}
+      {/* les rubans lumineux s'arrêtent DEVANT l'estrade · ils la traversaient
+          de part en part, et un ruban qui passe sous un plancher surélevé
+          n'éclaire plus rien */}
+      {[-2.4, 2.4].map((x) => <Strip key={x} p={[x, 0.03, backZ + 7]} s={[0.14, 6]} c={P.accent} rot={[-Math.PI / 2, 0, 0]} i={0.8} />)}
       {/* antenna dish in a corner */}
       <group position={[-8.6, 0, backZ + 2.2]}>
         <Cy p={[0, 1.2, 0]} r={0.08} h={2.4} c="#3a3f52" />
@@ -984,19 +1010,21 @@ function LabDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         </group>
       )))}
       {/* bubbles rising above the back flasks */}
-      {[1.0, 1.7].map((x) => [0.7, 1.0, 1.3].map((y, k) => (
+      {[-7.05, -6.5].map((x) => [0.7, 1.0, 1.3].map((y, k) => (
         <Sp key={`${x}-${y}`} p={[x + (k % 2 ? 0.05 : -0.05), y, backZ + 1.5]} r={0.05 - k * 0.008} c="#bff0ff" emissive="#bff0ff" ei={0.5} />
       )))}
-      {/* glassware bench along back */}
-      <group position={[0, 0, backZ + 1.5]}>
-        <B p={[0, 0.95, 0]} s={[6, 0.12, 0.9]} c="#dfeaee" />
-        {[-2.2, -1.6, -1.0].map((x, i) => (
+      {/* La paillasse courait sur six unités au MILIEU du fond : la place du
+          maître, et le passage du coursier. Elle a filé dans l'angle gauche,
+          raccourcie à quatre — elle y tient sans mordre sur la porte. */}
+      <group position={[-7.6, 0, backZ + 1.5]}>
+        <B p={[0, 0.95, 0]} s={[4, 0.12, 0.9]} c="#dfeaee" />
+        {[-1.5, -1.05, -0.6].map((x, i) => (
           <group key={x} position={[x, 1.0, 0]}>
             <Cy p={[0, 0.28, 0]} r={0.14} h={0.56} c="#cfeef2" />
             <Cy p={[0, 0.18, 0]} r={0.13} h={0.3} c={[P.accent, '#37d67a', '#ffcf3b'][i]} emissive={[P.accent, '#37d67a', '#ffcf3b'][i]} ei={0.5} />
           </group>
         ))}
-        {[1.0, 1.7].map((x, i) => (
+        {[0.55, 1.1].map((x, i) => (
           <group key={x} position={[x, 1.0, 0]}>
             <Co p={[0, 0.34, 0]} r={0.24} h={0.5} c="#d3f0f4" />
             <Cy p={[0, 0.1, 0]} r={0.05} h={0.16} c="#d3f0f4" />
@@ -1004,14 +1032,15 @@ function LabDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           </group>
         ))}
         {/* microscope */}
-        <group position={[2.5, 1.0, 0]}>
+        <group position={[1.7, 1.0, 0]}>
           <B p={[0, 0.08, 0]} s={[0.3, 0.12, 0.4]} c="#2b3145" />
           <Cy p={[0, 0.4, -0.05]} r={0.05} h={0.6} c="#3a4058" rot={[0.3, 0, 0]} />
           <Cy p={[0.05, 0.66, 0.12]} r={0.04} h={0.2} c="#20242f" rot={[0.9, 0, 0]} />
         </group>
       </group>
-      {/* DNA double helix */}
-      <group position={[-8.3, 0, backZ + 2.4]}>
+      {/* l'hélice avance d'une paillasse · elles se traversaient depuis que
+          la paillasse a rejoint l'angle gauche */}
+      <group position={[-8.6, 0, backZ + 4.8]}>
         {Array.from({ length: 14 }).map((_, i) => {
           const y = 0.4 + i * 0.28
           const a = i * 0.6
@@ -1030,8 +1059,9 @@ function LabDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         <B p={[0, 1.35, 0.5]} s={[1.5, 1.2, 0.05]} c="#bfe4ea" emissive="#8fd6e0" ei={0.25} />
         <B p={[0, 0.4, 0.5]} s={[1.6, 0.5, 0.06]} c="#dfeaee" />
       </group>
-      {/* periodic-table panel */}
-      <group position={[0, 2.7, backZ + 0.3]}>
+      {/* le tableau périodique passe derrière le maître · centré, il mordait
+          sur l'ouverture de la porte */}
+      <group position={[3.2, 2.7, backZ + 0.3]}>
         <B p={[0, 0, 0]} s={[4.4, 2.2, 0.08]} c="#f4fbfd" />
         {Array.from({ length: 3 }).map((_, r) => Array.from({ length: 9 }).map((_, c) => (
           <B key={`${r}-${c}`} p={[-1.8 + c * 0.45, 0.6 - r * 0.5, 0.05]} s={[0.38, 0.42, 0.02]} c={['#bfe4ea', '#cfe9ef', '#d9f0e0'][(r + c) % 3]} />
@@ -1117,8 +1147,9 @@ function VillaDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
       {/* festoon party lights strung between the palms across the pool */}
       <Festoon x1={-8.8} x2={8.8} z={backZ + 2.2} y={4.4} sag={1.6} />
       <Festoon x1={-8.9} x2={9} z={6.4} y={4.2} sag={1.7} />
-      {/* diving board reaching out over the back of the pool */}
-      <group position={[-4.6, 0, backZ + 3]}>
+      {/* le plongeoir était planté dans le couloir de la porte · on entrait
+          dedans */}
+      <group position={[-7.8, 0, backZ + 3]}>
         <B p={[0, 0.6, 0]} s={[0.5, 0.1, 0.5]} c="#cfd6da" />
         <B p={[0, 0.72, 1.5]} s={[0.7, 0.1, 3]} c="#eef3f5" />
         <Cy p={[0, 0.36, 0.2]} r={0.05} h={0.72} c="#9aa4ab" />
@@ -1171,13 +1202,16 @@ function CastleDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <Co p={[0, 7, 0]} r={1.6} h={1.6} c={P.accent} />
         </group>
       ))}
-      {/* red carpet runner down the central aisle */}
-      <mesh position={[0, 0.03, 1.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[3, 12]} />
+      {/* Le tapis rouge descendait l'axe de la salle et ne menait nulle part.
+          Il s'aligne maintenant sur l'estrade : il part des pieds du maître
+          et court jusqu'au devant de la scène. Un tapis rouge est un
+          chemin — encore faut-il qu'il aille quelque part. */}
+      <mesh position={[DAIS.x, 0.03, 1.9]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[3, 11.6]} />
         <Mat color="#8e2436" roughness={0.9} />
       </mesh>
-      <mesh position={[0, 0.04, 1.5]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[2.4, 12]} />
+      <mesh position={[DAIS.x, 0.04, 1.9]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2.4, 11.6]} />
         <Mat color={P.accent} roughness={0.7} transparent opacity={0.4} />
       </mesh>
       {/* iron chandeliers extra + hanging shields on side walls */}
@@ -1195,8 +1229,9 @@ function CastleDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <mesh position={[0, 1.05, 0.06]}><cylinderGeometry args={[0.6, 0.6, 0.04, 20, 1, false, 0, Math.PI]} /><Mat color="#bfe0ff" emissive="#8fc4ff" emissiveIntensity={0.4} /></mesh>
         </group>
       ))}
-      {/* hanging banners */}
-      {[-2, 2].map((x, i) => (
+      {/* les bannières passent DERRIÈRE le maître · l'une d'elles pendait en
+          travers de l'ouverture de la porte */}
+      {[2.4, 4.8].map((x, i) => (
         <group key={x} position={[x, 2.9, backZ + 0.32]}>
           <B p={[0, 0, 0]} s={[1.1, 2.8, 0.06]} c={i ? '#7a1f4a' : '#26407a'} />
           <B p={[0, 1.5, 0]} s={[1.2, 0.14, 0.1]} c={P.accent} />
@@ -1211,8 +1246,11 @@ function CastleDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <Glow p={[0, 0.5, 0.2]} r={0.09} c="#ffd070" i={1} />
         </group>
       )))}
-      {/* throne on a dais */}
-      <group position={[0, 0, backZ + 2.2]}>
+      {/* Le trône occupait exactement la place du maître — c'était d'ailleurs
+          le seul monde qui avait déjà compris ce qu'il fallait mettre au
+          fond. Il cède l'axe à l'estrade et s'installe dans l'angle gauche,
+          où il reste ce qu'il est : un siège vide, et une histoire. */}
+      <group position={[-8.0, 0, backZ + 2.2]}>
         <B p={[0, 0.15, 0]} s={[2.4, 0.3, 2]} c={stone} />
         <B p={[0, 0.7, -0.5]} s={[1.4, 0.14, 1.2]} c="#5a4a2b" />
         <B p={[0, 1.6, -1]} s={[1.4, 1.8, 0.16]} c="#5a4a2b" />
@@ -1254,8 +1292,9 @@ function GardenDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <Sp p={[0.1, 0, 0]} r={0.09} c={i % 2 ? '#c98cff' : '#e0c2ff'} emissive="#c98cff" ei={0.4} />
         </group>
       ))}
-      {/* fountain centrepiece */}
-      <group position={[0, 0, backZ + 2.6]}>
+      {/* la fontaine tenait le centre du fond · elle rejoint l'angle gauche,
+          où elle répond au bassin aux nénuphars */}
+      <group position={[-8.0, 0, backZ + 2.6]}>
         <Cy p={[0, 0.2, 0]} r={1.3} h={0.4} c="#bfc9b0" />
         <Strip p={[0, 0.42, 0]} s={[2.2, 2.2]} c="#7fe0ff" rot={[-Math.PI / 2, 0, 0]} i={0.4} />
         <Cy p={[0, 0.7, 0]} r={0.7} h={0.5} c="#cdd7bd" />
@@ -1263,7 +1302,7 @@ function GardenDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         <Glow p={[0, 1.5, 0]} r={0.18} c="#aef0ff" i={0.8} />
       </group>
       {/* glowing mushroom clusters */}
-      {[[-6, 3], [6.4, 2.6], [-3.5, backZ + 1.4], [3.5, backZ + 1.4]].map(([x, z], i) => (
+      {[[-6, 3], [6.4, 2.6], [-8.6, backZ + 5.2], [7.2, backZ + 1.4]].map(([x, z], i) => (
         <group key={i} position={[x as number, 0, z as number]}>
           {[[0, 0, 0.5], [0.35, 0.1, 0.35], [-0.3, -0.05, 0.4]].map(([mx, mz, h], k) => (
             <group key={k} position={[mx as number, 0, mz as number]}>
@@ -1273,8 +1312,9 @@ function GardenDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           ))}
         </group>
       ))}
-      {/* flower arch over the centre-back */}
-      <group position={[0, 0, backZ + 4.4]}>
+      {/* l'arche de fleurs s'aligne sur l'estrade · elle encadre le maître au
+          lieu d'encadrer du vide */}
+      <group position={[DAIS.x, 0, backZ + 4.4]}>
         {[-2, 2].map((x) => <Cy key={x} p={[x, 1.4, 0]} r={0.1} h={2.8} c="#4f7d3a" />)}
         <mesh position={[0, 2.8, 0]} rotation={[0, 0, 0]}><torusGeometry args={[2, 0.12, 10, 24, Math.PI]} /><Mat color="#4f7d3a" {...M} /></mesh>
         {Array.from({ length: 9 }).map((_, i) => { const a = (i / 8) * Math.PI; return <Sp key={i} p={[Math.cos(a) * 2, 2.8 + Math.sin(a) * 2, 0]} r={0.28} c={i % 2 ? '#ff9ecb' : '#ffd0e6'} emissive="#ff9ecb" ei={0.25} /> })}
@@ -1348,12 +1388,15 @@ function FactoryDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
         <B p={[0, 0.4, -3]} s={[17, 0.24, 0.4]} c={steel} />
         {[-4, 0, 4].map((x) => <B key={x} p={[x, 0.4, -1.5]} s={[0.24, 0.2, 3]} c={steel} />)}
       </group>
-      {/* conveyor belt with crates */}
-      <group position={[0, 0, backZ + 3]}>
-        <B p={[0, 0.5, 0]} s={[7, 0.16, 1]} c={steelD} />
-        <B p={[0, 0.6, 0]} s={[6.8, 0.05, 0.9]} c="#2b2f3d" />
-        {[-2.6, -0.8, 1, 2.8].map((x) => <Cy key={x} p={[x, 0.44, 0]} r={0.1} h={1} c={steel} rot={[Math.PI / 2, 0, 0]} />)}
-        {[-2, 0.6, 2.4].map((x, i) => <B key={x} p={[x, 0.82, 0]} s={[0.6, 0.5, 0.6]} c={i % 2 ? '#c79a6a' : P.accent} />)}
+      {/* Le convoyeur barrait le fond sur sept unités, donc la porte ET la
+          place du maître. Raccourci et poussé dans l'angle gauche, il fait
+          exactement le même travail : montrer que quelque chose est
+          fabriqué ici. */}
+      <group position={[-7.4, 0, backZ + 3]}>
+        <B p={[0, 0.5, 0]} s={[4.6, 0.16, 1]} c={steelD} />
+        <B p={[0, 0.6, 0]} s={[4.4, 0.05, 0.9]} c="#2b2f3d" />
+        {[-1.7, -0.55, 0.6, 1.7].map((x) => <Cy key={x} p={[x, 0.44, 0]} r={0.1} h={1} c={steel} rot={[Math.PI / 2, 0, 0]} />)}
+        {[-1.4, 0.3, 1.5].map((x, i) => <B key={x} p={[x, 0.82, 0]} s={[0.6, 0.5, 0.6]} c={i % 2 ? '#c79a6a' : P.accent} />)}
       </group>
       {/* robot arm */}
       <group position={[8.2, 0, backZ + 2]}>
@@ -1373,8 +1416,9 @@ function FactoryDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <B p={[0, 0.02, 0]} s={[0.5, 0.04, 0.5]} c="#ff8a1e" />
         </group>
       ))}
-      {/* control panel with gauges + warning stripe */}
-      <group position={[0, 2.4, backZ + 0.3]}>
+      {/* le pupitre de contrôle passe derrière le maître · centré, il mordait
+          sur l'ouverture de la porte */}
+      <group position={[3.2, 2.4, backZ + 0.3]}>
         <B p={[0, 0, 0]} s={[4, 1.6, 0.16]} c={steelD} />
         <B p={[0, 0.9, 0]} s={[4.2, 0.24, 0.18]} c="#f2c200" />
         {Array.from({ length: 5 }).map((_, i) => <Glow key={i} p={[-1.4 + i * 0.7, 0.2, 0.1]} r={0.09} c={['#37d67a', '#ffcf3b', '#ff5a3a', '#37d67a', P.accent][i]} i={0.9} />)}
@@ -1403,8 +1447,11 @@ function ForestDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
       ))}
       {/* the lake */}
       <mesh position={[0, 0.05, backZ + 1.5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[24, 9]} /><Mat color="#4f8fb0" transparent opacity={0.9} roughness={0.15} emissive="#2f6f90" emissiveIntensity={0.18} /></mesh>
-      {/* a great red torii standing in the water */}
-      <group position={[0, 0, backZ + 2]}>
+      {/* Le torii se dresse DERRIÈRE le maître, sur son estrade. Il tenait le
+          centre du fond, c'est-à-dire sa place ; déplacé de trois unités, il
+          cesse de lui disputer le fond et devient ce qu'un torii est : le
+          seuil devant lequel on se tient. */}
+      <group position={[DAIS.x, 0, backZ + 0.8]}>
         {[-1.7, 1.7].map((x) => <Cy key={x} p={[x, 1.55, 0]} r={0.17} h={3.1} c="#c0392b" />)}
         <B p={[0, 3.2, 0]} s={[4.8, 0.32, 0.34]} c="#a02a1c" />
         <B p={[0, 3.4, 0]} s={[5.2, 0.18, 0.24]} c="#8f2418" />
@@ -1417,10 +1464,10 @@ function ForestDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
       <StoneLantern x={-6} z={5.4} />
       <StoneLantern x={6} z={5.4} />
       {/* lily pads + a couple of glowing floating lanterns on the lake */}
-      {[[-3.5, backZ + 1], [3.5, backZ + 2], [-1, backZ + 0.5], [1.5, backZ + 2.5]].map(([x, z], i) => (
+      {[[-8.5, backZ + 1], [7.5, backZ + 2], [-7.2, backZ + 0.5], [8.6, backZ + 2.5]].map(([x, z], i) => (
         <mesh key={i} position={[x as number, 0.1, z as number]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[0.42, 16]} /><Mat color="#3f9e6a" /></mesh>
       ))}
-      {[[-4.5, backZ + 2.5], [4.5, backZ + 1]].map(([x, z], i) => <Glow key={i} p={[x as number, 0.35, z as number]} r={0.16} c={P.accent} i={0.8} />)}
+      {[[-8.0, backZ + 2.5], [7.6, backZ + 1]].map(([x, z], i) => <Glow key={i} p={[x as number, 0.35, z as number]} r={0.16} c={P.accent} i={0.8} />)}
     </group>
   )
 }
@@ -1486,9 +1533,14 @@ function BackroomsDecor({ backZ }: { backZ: number }) {
   const halfW = ROOM.w / 2
   const tex = backroomsWallpaper()
   const doorH = ROOM.wallH - 2 // corridor height (matches the doorway lintel)
-  const CW = 3 // corridor half-width (doorway is 6 wide)
+  const CW = 2.5 // corridor half-width (the doorway is 5 wide)
   const LEN = 34 // how far the corridor recedes before the fog swallows it
   const start = backZ // corridor mouth = the room's back wall
+  // Le couloir était CENTRÉ, la porte de tous les autres mondes ne l'est pas.
+  // Le coursier entrait donc ici par le mur, à deux mètres et demi de la
+  // seule ouverture — visible, et vieux d'autant de versions que la porte.
+  // Les Backrooms s'alignent sur le même seuil que les onze autres.
+  const CX = doorAt(true).x
   // fluorescent fixtures receding down the hallway (some flicker-dead), the
   // fog (yellow) dissolves the far ones into an endless perspective
   const lights = Array.from({ length: 9 }).map((_, i) => start - 1.5 - i * 3.8)
@@ -1506,17 +1558,17 @@ function BackroomsDecor({ backZ }: { backZ: number }) {
       {/* ===== the infinite corridor beyond the doorway ===== */}
       <group>
         {/* corridor floor (damp carpet) */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, start - LEN / 2]} receiveShadow><planeGeometry args={[CW * 2, LEN]} /><Mat color="#9a8a3c" roughness={1} /></mesh>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[CX, 0.01, start - LEN / 2]} receiveShadow><planeGeometry args={[CW * 2, LEN]} /><Mat color="#9a8a3c" roughness={1} /></mesh>
         {/* corridor side walls (papered) */}
         {[-CW, CW].map((x) => (
-          <mesh key={x} position={[x, doorH / 2, start - LEN / 2]} receiveShadow><boxGeometry args={[0.3, doorH, LEN]} /><Mat color="#e8dca0" map={tex} roughness={1} /></mesh>
+          <mesh key={x} position={[CX + x, doorH / 2, start - LEN / 2]} receiveShadow><boxGeometry args={[0.3, doorH, LEN]} /><Mat color="#e8dca0" map={tex} roughness={1} /></mesh>
         ))}
         {/* no corridor ceiling · the receding fixtures hang in the open above */}
         {/* receding fluorescent panels */}
         {lights.map((z, i) => {
           const dead = i === 3 || i === 6
           return (
-            <group key={i} position={[0, doorH - 0.08, z]}>
+            <group key={i} position={[CX, doorH - 0.08, z]}>
               <B p={[0, 0.06, 0]} s={[2.2, 0.1, 1.1]} c="#b7ab5e" />
               <mesh position={[0, -0.02, 0]} rotation={[Math.PI / 2, 0, 0]}><planeGeometry args={[1.9, 0.9]} /><Mat color={dead ? '#7a7248' : '#fff8d8'} emissive={dead ? '#2f2c1a' : '#fff2b0'} emissiveIntensity={dead ? 0.04 : 1.2} side={2} /></mesh>
             </group>
@@ -1524,7 +1576,7 @@ function BackroomsDecor({ backZ }: { backZ: number }) {
         })}
         {/* doorways punched along the corridor walls into yet more yellow rooms */}
         {[start - 6, start - 15, start - 24].map((z, i) => (
-          <mesh key={i} position={[(i % 2 ? 1 : -1) * (CW - 0.02), doorH / 2 - 0.5, z]}><boxGeometry args={[0.06, doorH - 1, 2.2]} /><Mat color="#14120a" /></mesh>
+          <mesh key={i} position={[CX + (i % 2 ? 1 : -1) * (CW - 0.02), doorH / 2 - 0.5, z]}><boxGeometry args={[0.06, doorH - 1, 2.2]} /><Mat color="#14120a" /></mesh>
         ))}
       </group>
 
@@ -1641,22 +1693,67 @@ function Shoji({ w, h, paper, wood, glow }: { w: number; h: number; paper: strin
 // fait dériver à la première retouche du plan de salle — et un coursier qui
 // traverse le mur à côté de sa porte est exactement le genre de défaut que
 // personne ne signale et que tout le monde voit.
-const SHELL_OPEN = { w: 30, d: 23, h: 7.5 }
-const shellOf = (enclosed?: boolean) =>
-  enclosed ? { w: ROOM.w, d: ROOM.d, h: ROOM.wallH } : SHELL_OPEN
-const baysOf = (w: number) => Math.max(3, Math.round(w / 4.6))
-/** La travée percée · DÉCALÉE d'un cran vers la gauche, pas au centre. Au
- *  centre, tous les mondes y posent déjà quelque chose — tableau blanc,
- *  étagère, écran de contrôle — et la porte disparaissait derrière. */
-const doorBayOf = (bays: number) => Math.max(0, Math.floor(bays / 2) - 1)
-
-/** Où se trouve le seuil · la scène en a besoin pour y faire entrer le
- *  coursier. */
-export function doorAt(enclosed?: boolean): { x: number; z: number } {
-  const { w, d } = shellOf(enclosed)
-  const bays = baysOf(w)
-  const bayW = w / bays
-  return { x: -w / 2 + bayW * (doorBayOf(bays) + 0.5), z: -d / 2 }
+/** L'ESTRADE DU MAÎTRE · le fond de la salle, surélevé.
+ *
+ *  Le maître se tenait DEVANT l'équipe, dos à la caméra, au milieu du champ.
+ *  Il est au fond maintenant, et un maître au fond sans rien sous les pieds
+ *  n'est qu'un personnage garé contre un mur : il lui faut une PLACE. Trente
+ *  centimètres suffisent — c'est ce qui sépare celui qui reçoit de ceux qui
+ *  travaillent, et ce qui fait qu'on lève les yeux vers lui.
+ *
+ *  Elle est commune aux douze mondes, comme la charpente : seule la matière
+ *  suit la palette. Un monde qui n'aurait pas d'estrade n'aurait pas de
+ *  maître, et le coursier n'aurait personne à aller voir. */
+function Dais({ P }: { P: DojoPalette }) {
+  const wood = mute(P.trim, 0.42)
+  const hd = DAIS.d / 2
+  return (
+    <group position={[DAIS.x, 0, DAIS.z]}>
+      {/* le plateau · la même natte que le sol, un ton plus clair */}
+      <mesh position={[0, DAIS.h / 2, 0]} geometry={roundedBox(DAIS.w, DAIS.h, DAIS.d, 0.05)} castShadow receiveShadow>
+        <Mat color={P.ground} roughness={0.9} />
+      </mesh>
+      {/* la lisse de bord · c'est elle qui donne l'épaisseur. Un plateau posé
+          au sol sans bordure se lit comme un tapis, pas comme une estrade. */}
+      {[-1, 1].map((sd) => (
+        <mesh key={'z' + sd} position={[0, DAIS.h - 0.06, sd * hd]} castShadow receiveShadow>
+          <boxGeometry args={[DAIS.w + 0.12, 0.14, 0.12]} />
+          <Mat color={wood} roughness={0.8} />
+        </mesh>
+      ))}
+      {[-1, 1].map((sd) => (
+        <mesh key={'x' + sd} position={[sd * (DAIS.w / 2), DAIS.h - 0.06, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.12, 0.14, DAIS.d + 0.12]} />
+          <Mat color={wood} roughness={0.8} />
+        </mesh>
+      ))}
+      {/* la marche · on monte sur une estrade, on n'y saute pas */}
+      <mesh position={[0, DAIS.h / 4, hd + 0.3]} castShadow receiveShadow>
+        <boxGeometry args={[2.2, DAIS.h / 2, 0.6]} />
+        <Mat color={wood} roughness={0.85} />
+      </mesh>
+      {/* le pupitre bas · les dossiers remis par le coursier s'y posent */}
+      <group position={[LECTERN.dx, 0, LECTERN.dz]}>
+        <mesh position={[0, LECTERN.top - 0.04, 0]} geometry={roundedBox(LECTERN.w, 0.08, LECTERN.d, 0.03)} castShadow receiveShadow>
+          <Mat color={wood} roughness={0.72} />
+        </mesh>
+        {[-1, 1].map((sd) => (
+          <mesh key={sd} position={[sd * (LECTERN.w / 2 - 0.12), (LECTERN.top - 0.08) / 2 + DAIS.h / 2, 0]} castShadow>
+            <boxGeometry args={[0.1, LECTERN.top - 0.08 - DAIS.h, LECTERN.d - 0.16]} />
+            <Mat color={WOOD_D} roughness={0.8} />
+          </mesh>
+        ))}
+      </group>
+      {/* le coussin du maître · il se tient debout, mais un dojo sans zabuton
+          n'est pas un dojo */}
+      <mesh position={[0.95, DAIS.h + 0.06, 0.5]} rotation={[0, 0.3, 0]} geometry={roundedBox(0.74, 0.14, 0.74, 0.06)} castShadow>
+        <Mat color={mute(P.accent, 0.5)} roughness={0.95} />
+      </mesh>
+      {/* la lanterne de l'estrade · elle éclaire celui qui reçoit, et elle
+          signale de loin où il faut aller */}
+      <Lantern x={-DAIS.w / 2 - 0.35} z={-hd + 0.3} c={P.accent} />
+    </group>
+  )
 }
 
 function DojoShell({ P, w, d, h }: { P: DojoPalette; w: number; d: number; h: number }) {
@@ -1830,10 +1927,14 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
               {/* les Backrooms gardent leur identité · papier jauni et une
                   porte au fond. Leur y coller une charpente de dojo aurait
                   effacé le seul monde dont le vide EST le sujet. */}
-              {[-6.5, 6.5].map((x) => (
-                <mesh key={x} position={[x, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[7, ROOM.wallH, 0.4]} /><Mat color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
+              {/* L'ouverture est DÉCALÉE comme celle des onze autres mondes :
+                  le coursier entre par la même porte partout, et l'estrade du
+                  maître tient dans la moitié droite du fond. Les deux jambages
+                  n'ont donc pas la même largeur. */}
+              {([[-7.5, 5], [5, 10]] as Array<[number, number]>).map(([x, w]) => (
+                <mesh key={x} position={[x, ROOM.wallH / 2, backZ]} receiveShadow><boxGeometry args={[w, ROOM.wallH, 0.4]} /><Mat color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
               ))}
-              <mesh position={[0, ROOM.wallH - 1, backZ]} receiveShadow><boxGeometry args={[6.2, 2, 0.4]} /><Mat color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
+              <mesh position={[doorAt(true).x, ROOM.wallH - 1, backZ]} receiveShadow><boxGeometry args={[5.2, 2, 0.4]} /><Mat color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
               {[-1, 1].map((sd) => (
                 <mesh key={sd} position={[sd * halfW, ROOM.wallH / 2, 0]} receiveShadow><boxGeometry args={[0.4, ROOM.wallH, ROOM.d]} /><Mat color="#e8dca0" map={backroomsWallpaper()} roughness={1} /></mesh>
               ))}
@@ -1842,7 +1943,7 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
             <DojoShell P={P} w={ROOM.w} d={ROOM.d} h={ROOM.wallH} />
           )}
           {decor === 'dojo' && (
-            <group position={[0, 2.5, backZ + 0.3]}>
+            <group position={[3.2, 2.5, backZ + 0.3]}>
               {/* le kakémono · seul le dojo zen le porte, c'est sa signature */}
               <mesh><boxGeometry args={[2.4, 4.0, 0.14]} /><Mat color={WOOD_D} /></mesh>
               <mesh position={[-0.6, 0, 0.08]}><boxGeometry args={[1.0, 3.6, 0.04]} /><Mat color={PAPER} /></mesh>
@@ -1897,14 +1998,24 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
 
       <ThemeDecor id={decor} backZ={backZ} P={P} />
 
+      {/* L'ESTRADE · au fond, à droite de la porte. Elle est posée APRÈS le
+          décor du thème pour une raison simple : c'est elle qui commande, et
+          c'est autour d'elle que les objets du fond ont été écartés (voir
+          stage.KEEP_CLEAR). */}
+      <Dais P={P} />
+
       {/* Villa: a pool covering the seating area · agents lounge in the water */}
       {decor === 'villa' && (
         <group>
+          {/* La piscine suit les rangées · elle était centrée en z = 1 quand
+              les postes l'étaient en z = 0,7. Ils ont descendu de 1,2 pour
+              dégager le fond, et une piscine restée en arrière aurait noyé
+              l'estrade du maître tout en laissant l'équipe sur le carrelage. */}
           {/* pool coping / tiled edge */}
-          <mesh position={[0, 0.16, 1]} receiveShadow><boxGeometry args={[18.4, 0.32, 10.4]} /><Mat color="#eaf6f4" roughness={0.7} /></mesh>
+          <mesh position={[0, 0.16, 2.3]} receiveShadow><boxGeometry args={[15.4, 0.32, 10.4]} /><Mat color="#eaf6f4" roughness={0.7} /></mesh>
           {/* water surface */}
-          <mesh position={[0, 0.5, 1]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[17.6, 9.6]} />
+          <mesh position={[0, 0.5, 2.3]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[14.6, 9.6]} />
             <Mat color={P.accent} emissive={P.accent} emissiveIntensity={0.15} transparent opacity={0.78} roughness={0.25} />
           </mesh>
           {/* ripple rings on the surface */}

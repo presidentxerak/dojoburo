@@ -35,6 +35,10 @@ const CHECKS = [
   // sécurité. Tout ce qu'elle refuse est refusé en silence, sans rien casser de
   // visible — deux corrections ont été prises comme ça le même jour. Il tourne
   // sans le serveur de prévisualisation, donc il coûte trente secondes.
+  // Hors navigateur, et donc en une seconde : le plan de la salle. Le maître
+  // sur son estrade, la porte, les postes et le trajet du coursier partagent
+  // la même géométrie, et rien n'y occupe deux fois la même place.
+  ['test-stage.mjs', 1, true],
   ['check-theme-props.mjs', 1, true],
   ['audit-csp.mjs', 2, true],
   ['verify-gate.mjs', 2, true],

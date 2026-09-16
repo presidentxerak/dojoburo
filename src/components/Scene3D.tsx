@@ -6,7 +6,8 @@ import { skinById } from '../data/skins'
 import { templateById } from '../data/templates'
 import { useWorkshop, seatedAgents, type WAgent } from '../workshop'
 import { useDojo } from '../store'
-import { Decor3D, doorAt } from './three/Decor3D'
+import { Decor3D } from './three/Decor3D'
+import { setSolids } from './three/stage'
 import { Character3D } from './three/Character3D'
 import { Courier3D } from './three/Courier3D'
 import { ThemeProps } from './three/ThemeProps'
@@ -40,7 +41,10 @@ function CameraRig() {
     // Pulled in closer + a higher vantage so the characters read large and are
     // easy to tap, while still looking down ONTO the room (requested).
     let tx = 0
-    let tz = 1
+    // les rangées ont descendu vers la caméra pour libérer le fond (le maître
+    // y a pris place) · le regard les suit, sinon on cadre une estrade et des
+    // dos de bureaux
+    let tz = 2.1
     let px = 0
     let pz = 14
     let py = 12.4
@@ -80,6 +84,10 @@ function Agents({ seated }: { seated: Array<{ agent: WAgent; x: number; z: numbe
     const m: Record<string, [number, number]> = {}
     for (const { agent, x, z } of seated) m[agent.id] = [x, z]
     setAgentPositions(m)
+    // …et l'empreinte au sol de chaque poste, pour que le coursier contourne
+    // l'équipe au lieu de la traverser (voir three/stage.ts). La scène est la
+    // seule à savoir qui est assis où ; le coursier, lui, n'a pas à le savoir.
+    setSolids(seated.map(({ agent, x, z }) => ({ id: agent.id, x, z })))
   }, [seated])
 
   return (
@@ -201,11 +209,12 @@ export function Scene3D() {
       <directionalLight position={[-6, 4, 2]} color="#a263f0" intensity={0.2} />
       <Suspense fallback={null}>
         <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
-        {/* LE COURSIER · il entre par la porte du fond, dépose des dossiers
-            devant l'équipe et repart. C'est ce qui donne une raison d'être à
-            la porte, et le seul mouvement de la scène qui ne boucle pas sur
-            place. */}
-        <Courier3D door={doorAt(tpl.enclosed)} />
+        {/* LE COURSIER · il entre par la porte du fond, va trouver le maître
+            sur son estrade, lui annonce la nouvelle du jour et lui remet les
+            dossiers, puis repart. C'est ce qui donne une raison d'être à la
+            porte, et le seul mouvement de la scène qui ne boucle pas sur
+            place — il a un début, un milieu et une fin. */}
+        <Courier3D enclosed={tpl.enclosed} />
         {/* le mobilier de MÉTIER · les bibliothèques d'un dojo « écrire un
             livre », la baie de serveurs d'une application. Il s'ajoute au
             monde choisi sans jamais le remplacer. */}
