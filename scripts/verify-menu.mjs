@@ -157,11 +157,28 @@ const seen = await p.evaluate(async () => {
   const rect = (s) => { const e = document.querySelector(s); return e ? e.getBoundingClientRect().toJSON() : null }
   const depth = (s) => { const e = document.querySelector(s); return e ? Number(getComputedStyle(e).zIndex) || 0 : null }
 
-  // 1 · attendre qu'une notification passe (l'application les émet sur sa
-  //     propre minuterie · on ne touche pas au magasin, on regarde ce qu'un
-  //     fondateur voit)
+  // 1 · attendre une notification QUI VIENT D'ARRIVER.
+  //
+  // Attendre « qu'une notification existe » ne suffit pas : celle qu'on
+  // trouve peut avoir quatre secondes au compteur sur les 4,2 qu'elle vit, et
+  // elle expire alors pendant les 320 ms d'ouverture du menu. C'est
+  // exactement ce qui a fait échouer la barrière — « menu ou notifications
+  // absents au relevé » — sur un passage par ailleurs vert.
+  //
+  // On attend donc que le NOMBRE de notifications AUGMENTE : celle qui vient
+  // d'apparaître a sa durée de vie entière devant elle, et le relevé qui suit
+  // tient largement dedans.
+  const count = () => document.querySelectorAll('.toast').length
+  const before = count()
   let t = null
-  for (let i = 0; i < 240 && !t; i++) { t = document.querySelector('.toast'); if (!t) await wait(250) }
+  for (let i = 0; i < 240 && !t; i++) {
+    if (count() > before) { t = document.querySelector('.toast'); break }
+    await wait(250)
+  }
+  // si le nombre n'a jamais augmenté mais qu'il y en avait déjà une, on la
+  // prend quand même : mieux vaut un relevé sur une notification vieillissante
+  // qu'aucun relevé du tout
+  if (!t) t = document.querySelector('.toast')
   if (!t) return { none: true }
 
   const withX = document.querySelectorAll('.toast .toast-x').length
