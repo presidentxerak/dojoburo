@@ -16,6 +16,8 @@ import { CROWNED, JobBody, JobHead, jobOf } from './JobLook3D'
 import type { Department } from '../../data/agents'
 import { Mat } from './Mat'
 import { useGait, strideAmp } from './gait'
+import { peekNews } from './news'
+import { DAIS } from './stage'
 
 // La matière de tous les personnages · une figurine de vinyle, définie une
 // seule fois dans ./toy et partagée par les 38 espèces.
@@ -127,9 +129,18 @@ function Arm({ side, color, hand, busy, wave }: { side: number; color: string; h
       g.current.rotation.x += (-0.3 + swing - g.current.rotation.x) * 0.3
       // le coude s'écarte légèrement du corps quand le pas s'ouvre
       g.current.rotation.z += (side * 0.12 * amp - g.current.rotation.z) * 0.2
+    } else if (busy) {
+      // LES MAINS SUR LE CLAVIER · elles flottaient à hauteur de poitrine,
+      // cinquante centimètres au-dessus de l'ordinateur, en oscillant de
+      // huit degrés. On voyait quelqu'un mimer le travail au-dessus de son
+      // bureau. Le bras descend jusqu'au plan du clavier (l'épaule est à
+      // 1,22, l'ordinateur à 0,96 : il faut piquer d'un quart de radian), et
+      // les deux mains alternent au lieu de battre ensemble.
+      const tap = Math.sin(t * 13 + (side > 0 ? 0 : Math.PI)) * 0.07
+      g.current.rotation.x += (0.24 + tap - g.current.rotation.x) * 0.3
+      g.current.rotation.z += (side * 0.08 - g.current.rotation.z) * 0.2
     } else {
-      const spd = busy ? 15 : 6
-      g.current.rotation.x += (-0.42 + Math.sin(t * spd + (side > 0 ? 0 : 1.4)) * (busy ? 0.16 : 0.06) - g.current.rotation.x) * 0.4
+      g.current.rotation.x += (-0.42 + Math.sin(t * 6 + (side > 0 ? 0 : 1.4)) * 0.06 - g.current.rotation.x) * 0.4
       g.current.rotation.z += (0 - g.current.rotation.z) * 0.2
     }
   })
@@ -792,6 +803,29 @@ export function Character3D({
     const pulse = (visited ? 0.04 : 0) + (happy ? Math.max(0, Math.sin(t * 4)) * 0.05 : 0)
     const target = (hover ? 1.06 : 1) + pulse
     g.current.scale.lerp(new THREE.Vector3(target, target, target), 0.2)
+
+    // ON SE RETOURNE QUAND QUELQU'UN PARLE AU MAÎTRE.
+    //
+    // Le coursier traversait la pièce et douze personnes continuaient de
+    // taper sans lever les yeux. C'est ce qui faisait que la visite ne
+    // comptait pas : un événement que personne dans la salle ne remarque
+    // n'est pas un événement.
+    //
+    // Un coup d'œil PAR-DESSUS L'ÉPAULE, pas un demi-tour : l'estrade est
+    // derrière eux, et se retourner complètement pour écouter aurait donné
+    // douze dos à la caméra. Le signe de l'angle dit déjà de quel côté se
+    // trouve le maître, il suffit de le brider.
+    //
+    // La nouvelle est LUE, pas reçue par abonnement : douze abonnés auraient
+    // re-rendu douze arbres de personnage complets pour tourner douze têtes.
+    const heard = peekNews().phase
+    const listening = heard === 'greeting' || heard === 'telling'
+    let yaw = 0
+    if (listening && !bare) {
+      const full = Math.atan2(DAIS.x - x, DAIS.z - z)
+      yaw = Math.max(-0.68, Math.min(0.68, full))
+    }
+    g.current.rotation.y += (yaw - g.current.rotation.y) * 0.05
   })
 
   const events = {

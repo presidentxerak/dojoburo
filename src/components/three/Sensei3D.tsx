@@ -1,4 +1,4 @@
-// Le maître du dojo · la mascotte de l'entreprise, devant l'équipe.
+// Le maître du dojo · sur son estrade, au fond de la salle.
 //
 // C'était un panda. Un panda est mignon, mais il ne dit rien du produit :
 // ce lieu est un DOJO, et ce qu'on attend devant une équipe qu'on dirige,
@@ -149,6 +149,16 @@ export function Sensei3D({ bare = false, at = SENSEI_AT }: { bare?: boolean; at?
       {/* l'ombre de contact · sans elle il flotte un centimètre au-dessus
           du plancher, comme toute l'équipe avant lui */}
       <Contact r={1.15} />
+      {/* Une cible de clic généreuse · il est passé du milieu de la salle au
+          fond, donc plus loin de la caméra et plus petit à l'écran. Viser sa
+          barbe au doigt sur un téléphone n'est pas une interaction ; le
+          volume invisible couvre toute sa silhouette, comme pour l'équipe. */}
+      {!bare && (
+        <mesh position={[0, 1.2, 0]} raycast={undefined}>
+          <cylinderGeometry args={[1.05, 1.05, 2.9, 10]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      )}
       <group ref={g}>
         {/* ---- le gi · une robe qui s'évase vers le sol -------------- */}
         <mesh position={[0, 0.52, 0]} castShadow receiveShadow>

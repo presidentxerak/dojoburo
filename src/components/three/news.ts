@@ -84,3 +84,11 @@ const snapshot = () => state
 export function useNews(): News {
   return useSyncExternalStore(subscribe, snapshot, snapshot)
 }
+
+/** L'état courant, SANS s'abonner · pour les boucles de rendu.
+ *
+ *  Douze coéquipiers abonnés à `useNews` auraient re-rendu douze arbres de
+ *  personnage complets à chaque changement de phase, pour faire tourner
+ *  douze têtes de quarante degrés. Une boucle d'animation n'a pas besoin
+ *  d'un re-render : elle a besoin de la valeur, à l'image où elle la lit. */
+export const peekNews = (): News => state
