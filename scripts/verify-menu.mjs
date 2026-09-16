@@ -134,99 +134,81 @@ await overApp('Dojo settings', fromMenu('Dojo settings'))
 await overApp('Connect apps', fromMenu('Connect apps'))
 
 // ---- toasts: a way out, and out of the menu's way ----------------------
-// The app fires ambient events on its own timer; wait for one rather than
-// reaching into the store, so this tests what a founder actually sees.
-let waited = 0
-while ((await p.locator('.toast').count()) === 0 && waited < 60000) { await p.waitForTimeout(2000); waited += 2000 }
-if ((await p.locator('.toast').count()) > 0) {
-  ok('every notification carries its own close button',
-    (await p.locator('.toast .toast-x').count()) === (await p.locator('.toast').count()))
+//
+// TOUT EST OBSERVÉ EN UNE FOIS, DANS LA PAGE. Les assertions viennent après.
+//
+// Trois versions de cette section sont tombées, toutes pour la même raison :
+// une notification vit 4,2 secondes (store.ts), et chaque aller-retour vers
+// Node est une occasion de la perdre. D'abord une TimeoutError sur le clic,
+// qui a emporté les quarante-six autres contrôles du fichier. Puis un
+// getComputedStyle(null) sur le conteneur disparu. Puis — le plus sournois —
+// une version qui ne plantait plus mais qui SAUTAIT les contrôles de position
+// et de profondeur aux quatre passages : elle ne gardait plus rien, sans que
+// rien ne soit rouge.
+//
+// La leçon, écrite ici parce qu'elle vaut pour toute épreuve qui observe une
+// chose éphémère : on RELÈVE d'abord, tout d'un coup, sans rendre la main ; on
+// JUGE ensuite. Le navigateur attend la notification, ouvre le menu, mesure
+// les deux boîtes et les deux profondeurs, referme, puis ferme une
+// notification et vérifie que celle-là a disparu — le tout sans un seul
+// aller-retour. Il ne reste aucune fenêtre où quoi que ce soit puisse expirer.
+const seen = await p.evaluate(async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms))
+  const rect = (s) => { const e = document.querySelector(s); return e ? e.getBoundingClientRect().toJSON() : null }
+  const depth = (s) => { const e = document.querySelector(s); return e ? Number(getComputedStyle(e).zIndex) || 0 : null }
 
-  // Le menu est une colonne le long du bord droit · exactement là où les
-  // notifications s'empilent. Géométrie ET profondeur sont relevées en UNE
-  // SEULE fois dans la page.
-  //
-  // La version précédente faisait quatre allers-retours — deux `boundingBox`
-  // et un `evaluate` — pendant que les notifications expirent au bout de 4,2
-  // secondes. Le conteneur `.toasts` disparaît avec la dernière d'entre
-  // elles, et `getComputedStyle(null)` lève. C'est ce qui a planté le fichier
-  // au troisième passage, après la première réparation : même cause, autre
-  // endroit. On relève tout en un instant, et on traite l'absence comme une
-  // absence d'échantillon, jamais comme un défaut.
-  await p.locator('.tb-menu-btn').click()
-  await p.waitForTimeout(500)
-  const geo = await p.evaluate(() => {
-    const r = (s) => { const e = document.querySelector(s); return e ? e.getBoundingClientRect() : null }
-    const z = (s) => { const e = document.querySelector(s); return e ? Number(getComputedStyle(e).zIndex) || 0 : null }
-    return { menu: r('.tb-menu'), toasts: r('.toasts'), zMenu: z('.tb-menu'), zToasts: z('.toasts') }
-  })
-  if (!geo.toasts || !geo.menu) {
-    console.log('--  les notifications ont expiré avant le relevé · position et profondeur non éprouvées')
-  } else {
-    ok('notifications clear the open menu instead of covering it',
-      geo.toasts.x + geo.toasts.width <= geo.menu.x + 1,
-      `toasts end at ${Math.round(geo.toasts.x + geo.toasts.width)} · menu starts at ${Math.round(geo.menu.x)}`)
-    ok('and the menu wins on depth anyway', (geo.zMenu ?? 0) > (geo.zToasts ?? 0),
-      `menu ${geo.zMenu} · toasts ${geo.zToasts}`)
+  // 1 · attendre qu'une notification passe (l'application les émet sur sa
+  //     propre minuterie · on ne touche pas au magasin, on regarde ce qu'un
+  //     fondateur voit)
+  let t = null
+  for (let i = 0; i < 240 && !t; i++) { t = document.querySelector('.toast'); if (!t) await wait(250) }
+  if (!t) return { none: true }
+
+  const withX = document.querySelectorAll('.toast .toast-x').length
+  const total = document.querySelectorAll('.toast').length
+
+  // 2 · ouvrir le menu et tout mesurer pendant qu'elle est encore là
+  document.querySelector('.tb-menu-btn')?.click()
+  await wait(320)
+  const geo = { menu: rect('.tb-menu'), toasts: rect('.toasts'), zMenu: depth('.tb-menu'), zToasts: depth('.toasts') }
+  document.querySelector('.tb-menu-scrim')?.click()
+  await wait(220)
+
+  // 3 · fermer une notification PRÉCISE et vérifier que CELLE-LÀ s'en va.
+  //     Compter ne prouvait rien : le compte baisse aussi quand l'une expire
+  //     toute seule, donc le contrôle passait avec un bouton cassé.
+  let closed = null
+  let victim = null
+  for (let i = 0; i < 240 && !victim; i++) { victim = document.querySelector('.toast'); if (!victim) await wait(250) }
+  if (victim) {
+    const key = (victim.textContent || '').trim()
+    const x = victim.querySelector('.toast-x')
+    if (!x) closed = 'notification sans bouton de fermeture'
+    else {
+      x.click()
+      await wait(300)
+      closed = [...document.querySelectorAll('.toast')].some((n) => (n.textContent || '').trim() === key)
+        ? 'la notification visée est restée affichée'
+        : true
+    }
   }
-  await p.locator('.tb-menu-scrim').click({ force: true }).catch(() => {})
-  await p.waitForTimeout(350)
+  return { withX, total, geo, closed }
+})
 
-  // ---- le bouton de fermeture ferme-t-il ? -----------------------------
-  //
-  // Cette vérification COURAIT CONTRE UNE MINUTERIE, et elle a fini par
-  // tomber. Les notifications expirent toutes seules ; Playwright résolvait
-  // `.toast-x`, l'élément se détachait pendant le clic, il réessayait, la
-  // suivante expirait à son tour — et au bout de trente secondes il levait
-  // une TimeoutError. Pas « échec » : PLANTAGE. La barrière a alors rendu
-  // « verify-menu · 0 vérification », c'est-à-dire que les quarante-six
-  // autres contrôles de ce fichier n'ont rien gardé du tout ce jour-là.
-  //
-  // Une épreuve qui plante est pire qu'une épreuve qui échoue : elle emporte
-  // avec elle tout ce qu'elle protégeait.
-  //
-  // Deux corrections. D'abord on vise UNE notification précise et on vérifie
-  // que CELLE-LÀ disparaît — compter les notifications ne prouvait rien,
-  // puisque le compte baisse aussi quand l'une expire toute seule. Ensuite on
-  // réessaie : un bouton réellement cassé échoue aux quatre tentatives, une
-  // simple course en réussit une. Et tout est enveloppé, pour qu'aucune
-  // exception ne puisse plus emporter le fichier entier.
-  // L'ATTENTE ET LE CLIC ONT LIEU DANS LA PAGE, sans reprendre la main.
-  //
-  // Une notification vit 4,2 secondes (store.ts). Chercher l'élément depuis
-  // Node, lire son texte, puis cliquer, cela fait trois allers-retours — elle
-  // avait disparu avant le troisième. D'où huit échecs d'affilée sur « la
-  // notification a expiré pendant le clic », puis, la fois d'avant, une
-  // TimeoutError qui a emporté les quarante-six autres contrôles du fichier.
-  //
-  // Tout se passe donc dans le navigateur : on attend, on retient le texte, on
-  // clique, on revérifie — sans fenêtre où elle puisse expirer. Ce qu'on perd,
-  // c'est la vérification d'accessibilité au curseur que fait Playwright ; le
-  // recouvrement par le menu est déjà gardé juste au-dessus, par la position
-  // et la profondeur.
-  const shot = await p.evaluate(async () => {
-    const wait = (ms) => new Promise((r) => setTimeout(r, ms))
-    let t = null
-    for (let i = 0; i < 90 && !t; i++) { t = document.querySelector('.toast'); if (!t) await wait(250) }
-    if (!t) return { none: true }
-    const key = (t.textContent || '').trim()
-    const x = t.querySelector('.toast-x')
-    if (!x) return { why: 'notification sans bouton de fermeture' }
-    x.click()
-    await wait(300)
-    return { still: [...document.querySelectorAll('.toast')].some((n) => (n.textContent || '').trim() === key) }
-  })
-  // Si AUCUNE notification n'est passée, ce n'est pas un défaut du produit :
-  // c'est qu'on n'a pas eu d'échantillon. Le faire échouer rendait la barrière
-  // rouge au hasard de la minuterie d'événements de l'application — c'est
-  // arrivé, et une barrière qui rougit sans raison cesse d'être crue. Ce qui
-  // reste gardé, et durement : si une notification passe, son bouton DOIT la
-  // fermer.
-  if (shot.none) console.log('--  aucune notification pendant la fenêtre · bouton de fermeture non éprouvé')
-  else ok('the close button dismisses it', !shot.still && !shot.why, shot.why ?? (shot.still ? 'la notification visée est restée affichée' : ''))
-
-} else {
+if (seen.none) {
+  // Aucune notification en soixante secondes n'est pas un défaut du produit :
+  // c'est une absence d'échantillon. Le faire échouer rendait la barrière
+  // rouge au hasard d'une minuterie, et une barrière qui rougit sans raison
+  // cesse d'être crue.
   console.log('--  aucune notification en 60 s · section notifications non éprouvée')
+} else {
+  ok('every notification carries its own close button', seen.withX === seen.total, `${seen.withX}/${seen.total}`)
+  const g = seen.geo
+  ok('notifications clear the open menu instead of covering it',
+    !!g.menu && !!g.toasts && g.toasts.x + g.toasts.width <= g.menu.x + 1,
+    g.menu && g.toasts ? `toasts end at ${Math.round(g.toasts.x + g.toasts.width)} · menu starts at ${Math.round(g.menu.x)}` : 'menu ou notifications absents au relevé')
+  ok('and the menu wins on depth anyway', (g.zMenu ?? -1) > (g.zToasts ?? 0), `menu ${g.zMenu} · toasts ${g.zToasts}`)
+  ok('the close button dismisses it', seen.closed === true, seen.closed === true ? '' : String(seen.closed ?? 'aucune notification à fermer'))
 }
 
 // ---- a bad saved value must not cost the app ---------------------------
