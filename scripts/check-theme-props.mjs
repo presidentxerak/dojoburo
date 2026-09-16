@@ -113,4 +113,25 @@ for (const [label, keys, floor] of tables) {
 const faced = { length: named }
 console.log(`ok  ${kinds.size} espèces, aucune clé orpheline`)
 
-console.log(`\n${ids.length + kits.length + depts.length + faced.length} vérifications · 0 échec`)
+// --- aucun personnage ne doit en écraser un autre ---------------------------
+//
+// Les identifiants de personnages sont `theme-espece`, et ils sont SAUVEGARDÉS
+// dans le navigateur. Deux familles qui choisissent le même nom de thème
+// produisent donc les mêmes identifiants, et la seconde écrase silencieusement
+// la première dans la table de correspondance : le personnage qu'on croyait
+// avoir défini n'existe pas, et celui qui s'affiche vient d'ailleurs.
+//
+// C'est arrivé en ajoutant les écoles de dojo : « Sakura » existait déjà parmi
+// les anciens thèmes, et six personnages de dojo se seraient retrouvés en
+// fourrure fluorescente sans que rien ne le signale.
+const skinsSrc = readFileSync('src/data/skins.ts', 'utf8')
+const themeNames = [...skinsSrc.matchAll(/^\s*\['([A-Za-z]+)', '#/gm)].map((m) => m[1].toLowerCase())
+if (themeNames.length < 20) { console.error(`KO  ${themeNames.length} thème(s) lus · lecture de skins.ts échouée`); process.exit(1) }
+const dupes = themeNames.filter((n, i) => themeNames.indexOf(n) !== i)
+if (dupes.length) {
+  console.error(`KO  thème(s) en double · ${[...new Set(dupes)].join(', ')} · leurs personnages s'écrasent`)
+  process.exit(1)
+}
+console.log(`ok  ${themeNames.length} familles de personnages, aucun nom en double`)
+
+console.log(`\n${ids.length + kits.length + depts.length + faced.length + themeNames.length} vérifications · 0 échec`)

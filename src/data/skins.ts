@@ -106,8 +106,56 @@ const PANDA_SKINS: Skin[] = PANDA.map(([name, acc, outfit, outfit2, extra]) => (
   acc,
 }))
 
+// --- LES PERSONNAGES DU DOJO -----------------------------------------------
+//
+// Les trente thèmes historiques — Néon, Feu, Toxic, Bubblegum — donnent des
+// fourrures fluorescentes. Elles tenaient tant que la salle était elle-même
+// violette ou corail. Dans un dojo de tatami et de washi, elles hurlent.
+//
+// Dix écoles, chacune une famille de teintes, appliquées aux trente-deux
+// espèces : trois cent vingt personnages. La règle de composition est celle du
+// kit, et elle est la raison pour laquelle ça tient ensemble — les FOURRURES
+// sont sourdes, les VÊTEMENTS sont saturés. Le vêtement sert de ponctuation :
+// c'est lui qui distingue deux chats de la même école, et c'est pour cela
+// qu'il peut être vif sans que la scène devienne criarde. L'inverse — des
+// fourrures vives sous des vêtements ternes — donne exactement ce qu'on avait.
+//
+// [nom, fourrure, veste, ceinture/ombre, bas, accent]
+const SCHOOLS: [string, string, string, string, string, string][] = [
+  ['Sumi', '#e9e4da', '#2b3640', '#1b222a', '#3f4a55', '#c9a227'],      // encre
+  ['Cha', '#d9a877', '#6b4a2a', '#4a331c', '#5d4230', '#c4462f'],       // thé
+  ['Matcha', '#cfd8bc', '#46603a', '#31462a', '#5b7a3e', '#c9a227'],    // matcha
+  ['Ai', '#c4d2d8', '#1f3448', '#162534', '#2e4a6b', '#d8cfa4'],        // indigo
+  ['Kiri', '#cfc8ba', '#5b6470', '#414952', '#6d7783', '#a8b4a0'],      // brume
+  ['Hana', '#f0dcd8', '#8c4a55', '#6b353e', '#a86068', '#e7a0a8'],      // fleur de cerisier · PAS « Sakura », déjà pris par un ancien thème
+  ['Hinoki', '#e8d8bc', '#8c6644', '#5d4230', '#a8784f', '#6b7f4a'],    // cyprès
+  ['Kuro', '#7e7d75', '#23262e', '#14161c', '#2e3138', '#b07d2a'],      // noir
+  ['Shiro', '#f2ece0', '#a8a89c', '#7e7d75', '#cfc8ba', '#2e4a6b'],     // blanc
+  ['Beni', '#e0c4c0', '#8c3b2a', '#5e2419', '#a8503a', '#d6c48a'],      // vermillon
+]
+
+/** Trois cent vingt personnages · chaque école décline les trente-deux
+ *  espèces. Un identifiant stable (`ecole-espece`) parce qu'il est SAUVEGARDÉ
+ *  dans le navigateur : le changer casserait les dojos existants. */
+const DOJO_SKINS: Skin[] = SCHOOLS.flatMap(([school, fur, outfit, outfit2, pants, extra]) =>
+  KINDS.map((kind) => ({
+    id: `${school.toLowerCase()}-${kind}`,
+    name: `${school} ${KIND_LABEL[kind]}`,
+    theme: school,
+    kind,
+    face: fur,
+    outfit,
+    outfit2,
+    pants,
+    extra,
+  })),
+)
+
 export const SKINS: Skin[] = (() => {
-  const out: Skin[] = []
+  // Les écoles du dojo VIENNENT EN PREMIER · `skinById` retombe sur SKINS[0]
+  // quand un identifiant est inconnu, et ce repli doit être un personnage de
+  // dojo, pas un robot fluo.
+  const out: Skin[] = [...DOJO_SKINS]
   THEMES.forEach(([theme, , outfit, outfit2, pants, extra], ti) => {
     for (let k = 0; k < 6; k++) {
       const kind = KINDS[(ti * 6 + k) % KINDS.length]
@@ -130,7 +178,10 @@ export const SKINS: Skin[] = (() => {
 })()
 
 export const SKIN_BY_ID: Record<string, Skin> = Object.fromEntries(SKINS.map((s) => [s.id, s]))
-export const SKIN_THEMES: string[] = [...THEMES.map((t) => t[0]), 'Panda']
+// Les écoles d'abord · c'est ce que voit quelqu'un qui choisit un personnage.
+// Les trente thèmes historiques restent disponibles : des dojos sauvegardés y
+// font référence, et les supprimer effacerait les équipes déjà créées.
+export const SKIN_THEMES: string[] = [...SCHOOLS.map((s) => s[0]), ...THEMES.map((t) => t[0]), 'Panda']
 
 export function skinById(id: string): Skin {
   return SKIN_BY_ID[id] ?? SKINS[0]
