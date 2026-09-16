@@ -324,9 +324,17 @@ function JobProp({ fn, dz }: { fn: Department; dz: number }) {
   }
 }
 
-// A cheerful per-agent accent so a whole crew of saucers / mushrooms / clouds
-// reads as a colourful set rather than identical clones.
-const FUN_COLORS = ['#ff6b8a', '#ffd23f', '#4fc3f7', '#7bd88f', '#ff9a52', '#c98cff', '#2fe0c0', '#ff5db1']
+// Un accent par coéquipier · pour qu'une rangée de soucoupes ou de
+// champignons se lise comme un ensemble et non comme des clones.
+//
+// Les huit teintes étaient du fluo pur — fuchsia, cyan électrique, vert acide.
+// Sur une soucoupe ou un pouf, c'est-à-dire sur un volume de près d'un mètre,
+// une teinte pareille ne ponctue pas : elle devient le point le plus lumineux
+// de la pièce, et l'œil y va avant d'aller aux personnages. Ce sont les mêmes
+// familles de couleurs, rabattues dans les tons d'un dojo : terre cuite,
+// safran, ardoise, mousse, bois, prune, céladon, vieux rose. La variété est
+// intacte, le cri a disparu.
+const FUN_COLORS = ['#b5614f', '#c79a4a', '#5f7286', '#6f8a55', '#a8784f', '#7a6180', '#7fa198', '#b07f86']
 const funColor = (id: string) => FUN_COLORS[Math.abs(hashStr(id)) % FUN_COLORS.length]
 
 // chair seat/back colour per theme (chairs are skipped for saucers & pools)
@@ -485,7 +493,9 @@ function Laptop({ y, z }: { y: number; z: number }) {
   )
 }
 
-const FLOAT_COLORS = ['#ff6b8a', '#ffd23f', '#4fc3f7', '#7bd88f', '#ff9a52', '#c98cff']
+// Mêmes teintes de dojo pour les bouées de la villa · une bouée fait un mètre
+// de diamètre et il y en a une par coéquipier.
+const FLOAT_COLORS = ['#c08a72', '#cfae6a', '#7c8fa3', '#8aa172', '#c09a74', '#93809e']
 
 function Station({ id, fn, x, z, variant }: { id: string; fn: Department; x: number; z: number; variant: string }) {
   const dz = z + DESK_FWD // desk centre (toward camera)
@@ -835,7 +845,7 @@ function StartupDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
       {/* neon bar sign on a side wall */}
       <group position={[-9.2, 3.4, backZ + 4]} rotation={[0, Math.PI / 2, 0]}>
         {[[-0.5, 0.4], [-0.15, 0.7], [0.2, 1.0], [0.55, 0.55]].map(([x, h], i) => (
-          <B key={i} p={[x as number, (h as number) / 2, 0]} s={[0.16, h as number, 0.08]} c={P.accent} emissive={P.accent} ei={0.9} />
+          <B key={i} p={[x as number, (h as number) / 2, 0]} s={[0.16, h as number, 0.08]} c={P.accent} emissive={P.accent} ei={0.35} />
         ))}
       </group>
       <LoftPlant x={-8.4} z={backZ + 1.9} />
@@ -874,7 +884,7 @@ function StartupDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
       {[-4, -3.2, -2.4, -1.6, -0.8, 0, 0.8, 1.6, 2.4, 3.2, 4].map((x, i) => (
         <mesh key={x} position={[x, ROOM.wallH - 1.5 + Math.abs(x) * 0.02, 4.6]} rotation={[Math.PI, 0, 0]}>
           <coneGeometry args={[0.16, 0.3, 3]} />
-          <Mat color={['#ff7eb6', '#ffd23f', '#4fc3f7', '#7bd88f', '#c98cff'][i % 5]} {...M} />
+          <Mat color={['#b07f86', '#c79a4a', '#7c8fa3', '#8aa172', '#7a6180'][i % 5]} {...M} />
         </mesh>
       ))}
       <LoftPlant x={2.4} z={5.6} />
