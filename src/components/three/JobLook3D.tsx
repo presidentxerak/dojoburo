@@ -237,8 +237,16 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
           {/* 0,19 de rayon sur une tête devenue petite couvrait les trois
               quarts du visage : deux disques noirs à la place des yeux. Les
               verres ENCADRENT les glyphes, ils ne les remplacent pas. */}
+          {/* AUCUNE rotation · un tore de three.js naît DANS le plan XY, donc
+              face à la caméra — exactement l'orientation d'une paire de
+              lunettes. Le quart de tour qui traînait ici les couchait à plat
+              comme deux assiettes posées sur le visage : de face on ne voyait
+              que leur tranche. C'est le défaut signalé, et l'anneau du bord
+              d'un casque, lui, a bien besoin de ce quart de tour — d'où la
+              confusion. Un tore autour de la tête : couché. Un tore devant le
+              visage : debout. */}
           {[-1, 1].map((sd) => (
-            <mesh key={sd} position={[sd * 0.4 * h.x, 0, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <mesh key={sd} position={[sd * 0.4 * h.x, 0, 0]} castShadow>
               <torusGeometry args={[0.125, 0.028, 8, 20]} />
               <meshStandardMaterial color="#2b2f3d" {...VINYL} />
             </mesh>

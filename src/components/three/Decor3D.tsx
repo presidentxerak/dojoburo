@@ -407,12 +407,36 @@ function WorkstationBase({ variant, id }: { variant: string; id: string }) {
           {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <B key={i} p={[lx as number, 0.44, lz as number]} s={[0.12, 0.88, 0.12]} c="#565c68" />)}
         </group>
       )
-    case 'startup': // a sleek desk with a neon underglow
+    case 'startup':
+      // Un plateau noir sur deux joues noires, et c'était tout : l'objet le
+      // plus répété de la scène — six à douze fois — était une dalle. Ce qui
+      // fait un bureau, ce n'est pas sa forme générale, c'est ce qu'on lui
+      // ajoute : un chant plus clair sur le plateau, un caisson à tiroirs sous
+      // un des côtés, une traverse entre les pieds, un passe-câble. Chacun
+      // coûte un maillage et se lit à cette distance.
       return (
         <group>
-          <B p={[0, 0.9, 0]} s={[1.9, 0.1, 0.85]} c="#20242f" />
-          <B p={[0, 0.82, 0]} s={[1.96, 0.04, 0.9]} c={hue} emissive={hue} ei={0.8} />
-          {[-0.8, 0.8].map((lx) => <B key={lx} p={[lx, 0.44, 0]} s={[0.1, 0.86, 0.72]} c="#2b2f3d" />)}
+          <B p={[0, 0.9, 0]} s={[1.9, 0.09, 0.85]} c="#20242f" />
+          {/* le chant · une arête plus claire, c'est elle qui détache le
+              plateau du pied sur une photo comme dans une pièce */}
+          <B p={[0, 0.855, 0.44]} s={[1.9, 0.035, 0.05]} c="#4a5164" />
+          <B p={[0, 0.82, 0]} s={[1.96, 0.035, 0.9]} c={hue} emissive={hue} ei={0.5} />
+          {[-0.82, 0.82].map((lx) => <B key={lx} p={[lx, 0.44, 0]} s={[0.09, 0.86, 0.72]} c="#2b2f3d" />)}
+          {/* la traverse · deux joues sans rien entre elles donnent une table
+              qui ne tient pas debout */}
+          <B p={[0, 0.16, -0.24]} s={[1.62, 0.07, 0.07]} c="#2b2f3d" />
+          {/* le caisson à tiroirs, sous la moitié droite */}
+          <group position={[0.52, 0.42, -0.04]}>
+            <B p={[0, 0, 0]} s={[0.56, 0.82, 0.62]} c="#262b38" />
+            {[-0.24, 0, 0.24].map((dy) => (
+              <group key={dy}>
+                <B p={[0, dy, 0.32]} s={[0.5, 0.2, 0.03]} c="#333a4b" />
+                <B p={[0, dy, 0.35]} s={[0.18, 0.03, 0.03]} c="#6f7890" />
+              </group>
+            ))}
+          </group>
+          {/* le passe-câble */}
+          <Cy p={[-0.62, 0.95, -0.28]} r={0.07} h={0.03} c="#11141c" />
         </group>
       )
     case 'backrooms': // a grimy beige folding office table
@@ -1547,6 +1571,18 @@ function ThemeDecor({ id, backZ, P }: { id: string; backZ: number; P: DojoPalett
 // Les couleurs viennent de la palette du monde, jamais du bois « dojo » : un
 // dojo spatial garde des murs bleu nuit, le laboratoire des murs blancs. Seule
 // la CHARPENTE est commune, et c'est elle qui fait la famille.
+/** Rapproche une couleur du gris de même clarté · garde la teinte, calme le
+ *  cri. Sans cela, une palette saturée repeint toute la charpente. */
+function mute(hex: string, amount: number): string {
+  const n = hex.replace('#', '')
+  const v = n.length === 3 ? n.split('').map((c) => c + c).join('') : n
+  const num = parseInt(v, 16)
+  const r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255
+  const grey = r * 0.299 + g * 0.587 + b * 0.114
+  const mix = (c: number) => Math.round(c + (grey - c) * amount)
+  return `#${[mix(r), mix(g), mix(b)].map((c) => c.toString(16).padStart(2, '0')).join('')}`
+}
+
 function Shoji({ w, h, paper, wood, glow }: { w: number; h: number; paper: string; wood: string; glow: number }) {
   const tex = shojiTex(paper)
   // Un meneau tous les ~1,6 · à 1,1 le quadrillage était deux fois plus
@@ -1586,19 +1622,53 @@ function Shoji({ w, h, paper, wood, glow }: { w: number; h: number; paper: strin
   )
 }
 
+// Les dimensions de l'enveloppe · UNE seule définition.
+//
+// La porte doit être au même endroit pour celui qui la construit et pour celui
+// qui la franchit. Recopier le calcul des travées dans le coursier l'aurait
+// fait dériver à la première retouche du plan de salle — et un coursier qui
+// traverse le mur à côté de sa porte est exactement le genre de défaut que
+// personne ne signale et que tout le monde voit.
+const SHELL_OPEN = { w: 30, d: 23, h: 7.5 }
+const shellOf = (enclosed?: boolean) =>
+  enclosed ? { w: ROOM.w, d: ROOM.d, h: ROOM.wallH } : SHELL_OPEN
+const baysOf = (w: number) => Math.max(3, Math.round(w / 4.6))
+/** La travée percée · DÉCALÉE d'un cran vers la gauche, pas au centre. Au
+ *  centre, tous les mondes y posent déjà quelque chose — tableau blanc,
+ *  étagère, écran de contrôle — et la porte disparaissait derrière. */
+const doorBayOf = (bays: number) => Math.max(0, Math.floor(bays / 2) - 1)
+
+/** Où se trouve le seuil · la scène en a besoin pour y faire entrer le
+ *  coursier. */
+export function doorAt(enclosed?: boolean): { x: number; z: number } {
+  const { w, d } = shellOf(enclosed)
+  const bays = baysOf(w)
+  const bayW = w / bays
+  return { x: -w / 2 + bayW * (doorBayOf(bays) + 0.5), z: -d / 2 }
+}
+
 function DojoShell({ P, w, d, h }: { P: DojoPalette; w: number; d: number; h: number }) {
   const hw = w / 2
   const backZ = -d / 2
-  const wood = P.trim
+  // La charpente est DÉSATURÉE. Elle prenait `P.trim` pur : des poutres
+  // violet vif ou corail vif tout autour de la pièce, répétées vingt fois.
+  // Une charpente est en bois ; elle porte la teinte du monde, elle ne la
+  // hurle pas. On garde la couleur, on lui retire la moitié de sa saturation.
+  const wood = mute(P.trim, 0.42)
   const sill = 0.5                    // plinthe
   const head = h - 0.7                // linteau
   const bayH = head - sill
   // un poteau tous les ~4,6 unités · assez serré pour donner l'échelle, assez
   // lâche pour ne pas faire une palissade
-  const bays = Math.max(3, Math.round(w / 4.6))
+  const bays = baysOf(w)
   const sideBays = Math.max(3, Math.round(d / 4.6))
   const bayW = w / bays
   const sideW = d / sideBays
+  // LA PORTE · la travée centrale, du sol au linteau
+  const doorBay = doorBayOf(bays)
+  const doorX = -hw + bayW * (doorBay + 0.5)
+  const doorHalf = bayW * 0.5
+  const doorH = Math.min(h - 1.2, sill + bayH * 0.86)
 
   const Frame = ({ len, rotY, at }: { len: number; rotY: number; at: [number, number, number] }) => (
     <group position={at} rotation={[0, rotY, 0]}>
@@ -1616,23 +1686,79 @@ function DojoShell({ P, w, d, h }: { P: DojoPalette; w: number; d: number; h: nu
 
   return (
     <group>
-      {/* --- le fond --- */}
-      <mesh position={[0, h / 2, backZ - 0.2]} receiveShadow>
-        <boxGeometry args={[w + 0.8, h, 0.4]} />
+      {/* --- le fond, PERCÉ D'UNE PORTE ---------------------------------
+          Une pièce sans entrée n'est pas une pièce, c'est une boîte. La travée
+          centrale est donc une VRAIE ouverture : le mur est coupé en deux
+          jambages et un linteau, l'encadrement est plus épais que la charpente
+          courante, et deux vantaux coulissants restent entrouverts sur un
+          couloir sombre — une porte fermée ne raconte rien. C'est par là
+          qu'entre le coursier (voir Courier3D). */}
+      {/* Les deux jambages n'ont PAS la même longueur : la porte est décalée,
+          donc il reste plus de mur d'un côté que de l'autre. Les faire égaux
+          laissait un trou béant à droite. */}
+      {[-1, 1].map((sd) => {
+        const edge = sd < 0 ? -hw : hw
+        const near = doorX + sd * doorHalf
+        const len = Math.abs(edge - near)
+        return (
+          <mesh key={'w' + sd} position={[(edge + near) / 2, h / 2, backZ - 0.2]} receiveShadow>
+            <boxGeometry args={[Math.max(0.01, len), h, 0.4]} />
+            <meshStandardMaterial color={P.wallBack} roughness={0.95} />
+          </mesh>
+        )
+      })}
+      <mesh position={[doorX, doorH + (h - doorH) / 2, backZ - 0.2]} receiveShadow>
+        <boxGeometry args={[doorHalf * 2, h - doorH, 0.4]} />
         <meshStandardMaterial color={P.wallBack} roughness={0.95} />
       </mesh>
-      {Array.from({ length: bays }, (_, i) => (
-        <group key={'b' + i} position={[-hw + bayW * (i + 0.5), sill + bayH / 2, backZ]}>
-          <Shoji w={bayW - 0.34} h={bayH} paper={P.wallBack} wood={wood} glow={0.2} />
-        </group>
-      ))}
-      {Array.from({ length: bays + 1 }, (_, i) => (
-        <mesh key={'p' + i} position={[-hw + bayW * i, h / 2, backZ + 0.02]} castShadow receiveShadow>
-          <boxGeometry args={[0.3, h, 0.36]} />
-          <meshStandardMaterial color={wood} roughness={0.82} />
+      {/* le couloir derrière · sombre, pour que l'ouverture se lise comme une
+          PROFONDEUR et non comme un trou découpé dans un décor plat */}
+      <mesh position={[doorX, doorH / 2, backZ - 1.7]} receiveShadow>
+        <boxGeometry args={[doorHalf * 2 + 0.6, doorH, 0.3]} />
+        <meshStandardMaterial color={'#33384a'} roughness={1} />
+      </mesh>
+      {[-1, 1].map((sd) => (
+        <mesh key={'dj' + sd} position={[doorX + sd * doorHalf, doorH / 2, backZ]} castShadow receiveShadow>
+          <boxGeometry args={[0.34, doorH, 0.5]} />
+          <meshStandardMaterial color={wood} roughness={0.8} />
         </mesh>
       ))}
-      <Frame len={w} rotY={0} at={[0, 0, backZ + 0.02]} />
+      <mesh position={[doorX, doorH, backZ]} castShadow receiveShadow>
+        <boxGeometry args={[doorHalf * 2 + 0.34, 0.4, 0.5]} />
+        <meshStandardMaterial color={wood} roughness={0.8} />
+      </mesh>
+      {[-1, 1].map((sd) => (
+        <group key={'dv' + sd} position={[doorX + sd * doorHalf * 0.66, doorH / 2 - 0.05, backZ + 0.22]}>
+          <Shoji w={doorHalf * 0.62} h={doorH - 0.26} paper={P.wallBack} wood={wood} glow={0.07} />
+        </group>
+      ))}
+      <mesh position={[doorX, 0.06, backZ + 0.34]} receiveShadow>
+        <boxGeometry args={[doorHalf * 2 + 0.34, 0.12, 0.62]} />
+        <meshStandardMaterial color={wood} roughness={0.85} />
+      </mesh>
+      {Array.from({ length: bays }, (_, i) => (
+        i === doorBay ? null : (
+          <group key={'b' + i} position={[-hw + bayW * (i + 0.5), sill + bayH / 2, backZ]}>
+            <Shoji w={bayW - 0.34} h={bayH} paper={P.wallBack} wood={wood} glow={0.05} />
+          </group>
+        )
+      ))}
+      {/* les poteaux · ceux qui bordent l'ouverture sont remplacés par
+          l'encadrement, sinon ils la barreraient */}
+      {Array.from({ length: bays + 1 }, (_, i) => (
+        i === doorBay || i === doorBay + 1 ? null : (
+          <mesh key={'p' + i} position={[-hw + bayW * i, h / 2, backZ + 0.02]} castShadow receiveShadow>
+            <boxGeometry args={[0.3, h, 0.36]} />
+            <meshStandardMaterial color={wood} roughness={0.82} />
+          </mesh>
+        )
+      ))}
+      {/* la plinthe du fond est coupée par la porte · un seuil, pas une barre */}
+      {[-1, 1].map((sd) => {
+        const edge = sd < 0 ? -hw : hw
+        const near = doorX + sd * doorHalf
+        return <Frame key={'f' + sd} len={Math.max(0.01, Math.abs(edge - near))} rotY={0} at={[(edge + near) / 2, 0, backZ + 0.02]} />
+      })}
 
       {/* --- les côtés --- */}
       {[-1, 1].map((sd) => (
@@ -1643,7 +1769,7 @@ function DojoShell({ P, w, d, h }: { P: DojoPalette; w: number; d: number; h: nu
           </mesh>
           {Array.from({ length: sideBays }, (_, i) => (
             <group key={i} position={[sd * hw, sill + bayH / 2, -d / 2 + sideW * (i + 0.5)]} rotation={[0, Math.PI / 2, 0]}>
-              <Shoji w={sideW - 0.34} h={bayH} paper={P.wallSide} wood={wood} glow={0.14} />
+              <Shoji w={sideW - 0.34} h={bayH} paper={P.wallSide} wood={wood} glow={0.03} />
             </group>
           ))}
           {Array.from({ length: sideBays + 1 }, (_, i) => (

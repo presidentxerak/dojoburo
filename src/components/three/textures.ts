@@ -54,10 +54,28 @@ function normalFrom(cv: HTMLCanvasElement, strength: number): THREE.Texture {
     const i = (((y + s) % s) * s + ((x + s) % s)) * 4
     return (src.data[i] * 0.299 + src.data[i + 1] * 0.587 + src.data[i + 2] * 0.114) / 255
   }
+  // ON LISSE AVANT DE DÉRIVER, et c'est la correction qui change tout.
+  //
+  // Le Sobel était appliqué à la luminance BRUTE, grain compris. Or le grain
+  // est du bruit d'un pixel : dérivé, il produit une carte de normales qui
+  // part dans tous les sens d'un pixel à l'autre. La lumière s'y accroche
+  // partout et nulle part, et la surface scintille — c'est exactement ce qui
+  // faisait lire l'herbe et le béton comme de la neige de télévision, et
+  // c'est ce qu'on nous reproche.
+  //
+  // Une moyenne 3×3 avant la dérivée efface le grain et garde les ARÊTES :
+  // le joint de carrelage, le fil du bois, la tresse du tatami. Le relief
+  // porte alors la STRUCTURE de la matière, pas son bruit. Le grain reste
+  // dans la couleur, où il est à sa place.
+  const soft = (x: number, y: number) => {
+    let a = 0
+    for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) a += lum(x + i, y + j)
+    return a / 9
+  }
   for (let y = 0; y < s; y++) {
     for (let x = 0; x < s; x++) {
-      const dx = (lum(x + 1, y) - lum(x - 1, y)) * strength
-      const dy = (lum(x, y + 1) - lum(x, y - 1)) * strength
+      const dx = (soft(x + 1, y) - soft(x - 1, y)) * strength
+      const dy = (soft(x, y + 1) - soft(x, y - 1)) * strength
       // le vecteur (-dx, -dy, 1) normalisé, encodé dans [0,255]
       const len = Math.hypot(dx, dy, 1)
       const i = (y * s + x) * 4
@@ -90,11 +108,14 @@ function make(key: string, size: number, draw: (c: CanvasRenderingContext2D, s: 
   const tex = new THREE.CanvasTexture(cv)
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping
   tex.repeat.set(repeat, repeat)
-  tex.anisotropy = 4
+  // Un sol se regarde EN FUYANTE, et c'est là qu'une texture répétée
+  // s'effondre en moirage. L'anisotropie est ce qui la tient ; 4 était trop
+  // bas, three.js ramènera de toute façon au maximum de la machine.
+  tex.anisotropy = 16
   tex.colorSpace = THREE.SRGBColorSpace
   const nrm = normalFrom(cv, bump)
   nrm.repeat.set(repeat, repeat)
-  nrm.anisotropy = 4
+  nrm.anisotropy = 16
   const surf = { map: tex, normalMap: nrm, roughness }
   cache.set(key, surf)
   return surf
@@ -193,16 +214,35 @@ export function tiles(base = '#e8ebf0', joint = '#c3c9d4') {
 
 /** Moquette · un feutre dense, sans motif, qui absorbe la lumière. */
 export function carpet(base = '#8f93a8') {
-  return make(`carpet-${base}`, 128, (c, s) => {
+  // Trois mille cinq cents points d'un pixel et demi sur une toile de 128,
+  // répétée NEUF fois : la même faute que l'herbe, et le même résultat — de
+  // la neige de télévision, ici en blanc. C'est ce qu'on voyait sur le sol du
+  // monde « start-up » et de l'atelier.
+  //
+  // Une moquette ne se lit pas à la fibre : elle se lit à la TRAÎNÉE, ces
+  // bandes claires et sombres que laisse l'aspirateur, et à une granulation
+  // qu'on devine sans la résoudre. Toile quatre fois plus grande, répétition
+  // divisée par deux, traînées larges, et une fibre courte assez épaisse pour
+  // faire plus d'un pixel à l'écran.
+  return make(`carpet-${base}`, 512, (c, s) => {
     c.fillStyle = base
     c.fillRect(0, 0, s, s)
-    for (let i = 0; i < 3500; i++) {
-      c.fillStyle = `rgba(255,255,255,${Math.random() * 0.1})`
-      c.fillRect(Math.random() * s, Math.random() * s, 1.5, 1.5)
-      c.fillStyle = `rgba(0,0,0,${Math.random() * 0.1})`
-      c.fillRect(Math.random() * s, Math.random() * s, 1.5, 1.5)
+    // les traînées · larges bandes verticales à peine contrastées
+    for (let i = 0; i < 26; i++) {
+      const x = Math.random() * s
+      const w = 18 + Math.random() * 70
+      c.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'
+      c.fillRect(x, 0, w, s)
     }
-  }, 9, 4, 0.98)
+    // la granulation · courte, épaisse, peu nombreuse
+    c.lineCap = 'round'
+    for (let i = 0; i < 1400; i++) {
+      c.strokeStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'
+      c.lineWidth = 1.5 + Math.random()
+      const x = Math.random() * s, y = Math.random() * s
+      c.beginPath(); c.moveTo(x, y); c.lineTo(x + (Math.random() - 0.5) * 4, y + (Math.random() - 0.5) * 4); c.stroke()
+    }
+  }, 4, 2.5, 0.95)
 }
 
 /** Béton lissé · taches larges et poussière fine. */
@@ -217,8 +257,8 @@ export function concrete(base = '#b9bec9') {
       c.fillStyle = g
       c.fillRect(0, 0, s, s)
     }
-    grain(c, s, 14)
-  }, 5, 5, 0.86)
+    grain(c, s, 7)
+  }, 4, 4, 0.82)
 }
 
 /** Papier de riz · la trame fine d'un shoji, à contre-jour. */
@@ -238,16 +278,35 @@ export function shoji(base = '#f7f1e0') {
 
 /** Herbe · touffes courtes, deux verts. */
 export function grass(base = '#93c74d', dark = '#6f9c33') {
-  return make(`grass-${base}-${dark}`, 128, (c, s) => {
+  // Mille huit cents traits d'UN pixel sur une toile de 128, répétée DIX
+  // fois : à la distance de la caméra, chaque brin mesurait un dixième de
+  // pixel. On ne voyait donc pas de l'herbe, on voyait le moiré de mille huit
+  // cents traits qu'on ne peut pas résoudre — de la neige verte.
+  //
+  // Toile quatre fois plus grande, répétition divisée par deux, brins plus
+  // longs et moins nombreux : chaque brin fait maintenant plusieurs pixels à
+  // l'écran, donc il se lit. Et surtout des TACHES larges par-dessous : une
+  // pelouse n'est jamais d'un vert uniforme, c'est cette variation lente qui
+  // la fait lire comme une étendue plutôt que comme un aplat bruité.
+  return make(`grass-${base}-${dark}`, 512, (c, s) => {
     c.fillStyle = base
     c.fillRect(0, 0, s, s)
-    for (let i = 0; i < 1800; i++) {
-      c.strokeStyle = Math.random() > 0.5 ? dark : 'rgba(255,255,255,0.18)'
-      c.lineWidth = 1
-      const x = Math.random() * s, y = Math.random() * s
-      c.beginPath(); c.moveTo(x, y); c.lineTo(x + (Math.random() - 0.5) * 3, y - 2 - Math.random() * 3); c.stroke()
+    for (let i = 0; i < 22; i++) {
+      const g = c.createRadialGradient(Math.random() * s, Math.random() * s, 4, Math.random() * s, Math.random() * s, 60 + Math.random() * 120)
+      g.addColorStop(0, Math.random() > 0.5 ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)')
+      g.addColorStop(1, 'rgba(0,0,0,0)')
+      c.fillStyle = g
+      c.fillRect(0, 0, s, s)
     }
-  }, 10, 5, 0.96)
+    c.lineCap = 'round'
+    for (let i = 0; i < 900; i++) {
+      c.strokeStyle = Math.random() > 0.45 ? dark : 'rgba(255,255,255,0.22)'
+      c.lineWidth = 1.6 + Math.random() * 1.4
+      const x = Math.random() * s, y = Math.random() * s
+      const lean = (Math.random() - 0.5) * 7
+      c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + lean * 0.5, y - 5, x + lean, y - 8 - Math.random() * 7); c.stroke()
+    }
+  }, 5, 4, 0.94)
 }
 
 /** Métal strié · le plancher d'atelier. */

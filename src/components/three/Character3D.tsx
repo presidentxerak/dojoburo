@@ -226,7 +226,10 @@ function Toppers({ c, h }: { c: Character; h: Head }) {
     case 'ninja':
       return (
         <group>
-          <mesh position={[0, hy + h.y * 0.25, 0]} castShadow>
+          {/* le quart de tour · un bandeau CEINT la tête, il ne lui fait pas
+              face. Sans lui, le tore restait dans son plan XY d'origine et se
+              dressait comme une auréole au-dessus du crâne. */}
+          <mesh position={[0, hy + h.y * 0.25, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[g + 0.03, 0.1, 12, 28]} />
             <meshStandardMaterial color={c.outfit2} {...MAT} />
           </mesh>
