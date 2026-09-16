@@ -18,6 +18,7 @@ import { useDojo } from '../../store'
 import { VINYL, MATTE } from './toy'
 import { Contact } from './Contact'
 import { roundedBox } from './geometry'
+import { Mat } from './Mat'
 
 const SKIN = '#f6d3ae'   // teint
 const ROBE = '#2f3a63'   // indigo profond · le gi
@@ -30,14 +31,14 @@ function Sp({ p, r, c, s = [1, 1, 1] as [number, number, number], mat = VINYL }:
   return (
     <mesh position={p} scale={s} castShadow>
       <sphereGeometry args={[r, 20, 18]} />
-      <meshStandardMaterial color={c} {...mat} />
+      <Mat color={c} {...mat} />
     </mesh>
   )
 }
 function Bx({ p, s, c, rot, mat = VINYL }: { p: [number, number, number]; s: [number, number, number]; c: string; rot?: [number, number, number]; mat?: object }) {
   return (
     <mesh position={p} rotation={rot} geometry={roundedBox(s[0], s[1], s[2], 0.18)} castShadow>
-      <meshStandardMaterial color={c} {...mat} />
+      <Mat color={c} {...mat} />
     </mesh>
   )
 }
@@ -45,7 +46,7 @@ function Cap({ p, r, len, c, rot, mat = VINYL }: { p: [number, number, number]; 
   return (
     <mesh position={p} rotation={rot} castShadow>
       <capsuleGeometry args={[r, len, 6, 14]} />
-      <meshStandardMaterial color={c} {...mat} />
+      <Mat color={c} {...mat} />
     </mesh>
   )
 }
@@ -131,14 +132,14 @@ export function Sensei3D({ bare = false, at = [0, 0, 6.2] as [number, number, nu
         {/* ---- le gi · une robe qui s'évase vers le sol -------------- */}
         <mesh position={[0, 0.52, 0]} castShadow receiveShadow>
           <cylinderGeometry args={[0.46, 0.86, 1.04, 22]} />
-          <meshStandardMaterial color={ROBE} {...MATTE} />
+          <Mat color={ROBE} {...MATTE} />
         </mesh>
         {/* le pan croisé, en biais sur la poitrine */}
         <Bx p={[0.06, 0.86, 0.4]} s={[0.62, 0.5, 0.06]} c={ROBE2} rot={[0, 0, -0.5]} mat={MATTE} />
         {/* ceinture noire + son nœud */}
         <mesh position={[0, 0.72, 0]} castShadow>
           <cylinderGeometry args={[0.62, 0.66, 0.17, 22]} />
-          <meshStandardMaterial color={BELT} {...MATTE} />
+          <Mat color={BELT} {...MATTE} />
         </mesh>
         <Bx p={[0, 0.7, 0.6]} s={[0.26, 0.2, 0.12]} c={BELT} mat={MATTE} />
         <Cap p={[-0.12, 0.5, 0.62]} r={0.05} len={0.28} c={BELT} rot={[0.3, 0, 0.25]} mat={MATTE} />
@@ -166,7 +167,7 @@ export function Sensei3D({ bare = false, at = [0, 0, 6.2] as [number, number, nu
         <group position={[0, 1.56, 0.04]}>
           <mesh scale={[1, 1.14, 0.95]} castShadow>
             <sphereGeometry args={[0.47, 24, 20]} />
-            <meshStandardMaterial color={SKIN} {...VINYL} />
+            <Mat color={SKIN} {...VINYL} />
           </mesh>
           {/* oreilles */}
           <Sp p={[-0.47, -0.03, 0]} r={0.12} c={SKIN} s={[0.6, 1, 0.8]} />
@@ -174,7 +175,7 @@ export function Sensei3D({ bare = false, at = [0, 0, 6.2] as [number, number, nu
           {/* couronne de cheveux + chignon · le crâne est dégarni sur le dessus */}
           <mesh position={[0, 0.13, -0.03]} castShadow>
             <torusGeometry args={[0.53, 0.09, 10, 26]} />
-            <meshStandardMaterial color={HAIR} {...MATTE} />
+            <Mat color={HAIR} {...MATTE} />
           </mesh>
           <Sp p={[0, 0.48, -0.2]} r={0.16} c={HAIR} mat={MATTE} />
           <Cap p={[0, 0.63, -0.22]} r={0.05} len={0.12} c={HAIR} mat={MATTE} />
@@ -204,12 +205,12 @@ export function Sensei3D({ bare = false, at = [0, 0, 6.2] as [number, number, nu
       <group position={[0.95, 0, 0.1]} rotation={[0, 0, 0.06]}>
         <mesh position={[0, 1.12, 0]} castShadow>
           <cylinderGeometry args={[0.055, 0.06, 2.24, 12]} />
-          <meshStandardMaterial color="#8fae4a" {...MATTE} />
+          <Mat color="#8fae4a" {...MATTE} />
         </mesh>
         {[0.45, 1.0, 1.55, 2.05].map((y) => (
           <mesh key={y} position={[0, y, 0]} castShadow>
             <cylinderGeometry args={[0.07, 0.07, 0.06, 12]} />
-            <meshStandardMaterial color="#7a9a3a" {...MATTE} />
+            <Mat color="#7a9a3a" {...MATTE} />
           </mesh>
         ))}
       </group>

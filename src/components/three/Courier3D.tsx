@@ -22,6 +22,7 @@ import { Character3D } from './Character3D'
 import { skinById } from '../../data/skins'
 import { MATTE } from './toy'
 import { roundedBox } from './geometry'
+import { Mat } from './Mat'
 
 /** Les étapes du trajet, en secondes depuis le début du cycle. */
 const ENTER = 0
@@ -44,7 +45,7 @@ function Folders({ hold }: { hold: boolean }) {
           geometry={roundedBox(0.46, 0.05, 0.34, 0.06)}
           castShadow
         >
-          <meshStandardMaterial color={c} {...MATTE} />
+          <Mat color={c} {...MATTE} />
         </mesh>
       ))}
     </group>

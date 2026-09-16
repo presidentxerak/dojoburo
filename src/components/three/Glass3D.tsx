@@ -18,6 +18,7 @@ import { createContext, useContext, useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { useThree } from '@react-three/fiber'
 import { MATTE, PAINTED_METAL, canAffordRefraction } from './toy'
+import { Mat } from './Mat'
 
 type V3 = [number, number, number]
 
@@ -50,7 +51,7 @@ function Glass({ color, thickness }: { color: string; thickness: number }) {
     )
   }
   return (
-    <meshStandardMaterial
+    <Mat
       color={color}
       transparent
       opacity={0.34}
@@ -68,11 +69,11 @@ function WaterCooler({ accent }: { accent: string }) {
     <group>
       <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.66, 0.9, 0.56]} />
-        <meshStandardMaterial color="#e8ebf0" {...MATTE} />
+        <Mat color="#e8ebf0" {...MATTE} />
       </mesh>
       <mesh position={[0, 0.98, 0]} castShadow>
         <cylinderGeometry args={[0.34, 0.3, 0.16, 24]} />
-        <meshStandardMaterial color="#c8cfd8" {...PAINTED_METAL} />
+        <Mat color="#c8cfd8" {...PAINTED_METAL} />
       </mesh>
       {/* la bonbonne · le seul volume vraiment réfractant de la pièce */}
       <mesh position={[0, 1.44, 0]} castShadow>
@@ -86,12 +87,12 @@ function WaterCooler({ accent }: { accent: string }) {
       {/* robinet + gobelets */}
       <mesh position={[0, 0.66, 0.3]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.05, 0.05, 0.16, 12]} />
-        <meshStandardMaterial color={accent} {...PAINTED_METAL} />
+        <Mat color={accent} {...PAINTED_METAL} />
       </mesh>
       {[0, 1, 2].map((i) => (
         <mesh key={i} position={[0.42, 0.98 + i * 0.09, 0]}>
           <cylinderGeometry args={[0.075, 0.055, 0.12, 14]} />
-          <meshStandardMaterial color="#f6f7fb" roughness={0.6} />
+          <Mat color="#f6f7fb" roughness={0.6} />
         </mesh>
       ))}
     </group>
@@ -106,16 +107,16 @@ function Vitrine({ accent }: { accent: string }) {
     <group>
       <mesh position={[0, 0.34, 0]} castShadow receiveShadow>
         <boxGeometry args={[1.0, 0.68, 1.0]} />
-        <meshStandardMaterial color="#3a4050" {...MATTE} />
+        <Mat color="#3a4050" {...MATTE} />
       </mesh>
       <mesh position={[0, 0.7, 0]} castShadow>
         <boxGeometry args={[1.12, 0.08, 1.12]} />
-        <meshStandardMaterial color="#4a5262" {...MATTE} />
+        <Mat color="#4a5262" {...MATTE} />
       </mesh>
       {/* le cristal, dedans */}
       <mesh position={[0, 1.12, 0]} castShadow>
         <octahedronGeometry args={[0.3, 0]} />
-        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.5} roughness={0.25} metalness={0.1} />
+        <Mat color={accent} emissive={accent} emissiveIntensity={0.5} roughness={0.25} metalness={0.1} />
       </mesh>
       <pointLight position={[0, 1.12, 0]} color={accent} intensity={1.4} distance={3.2} />
       {/* la cloche */}

@@ -12,6 +12,7 @@
 import { useRef, type ReactNode } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { Mat } from '../three/Mat'
 
 // Vivid, polished full-3D objects standing in for each landing section's theme.
 // Each spins + bobs over a soft glowing halo, coloured from the section accent.
@@ -19,7 +20,7 @@ import * as THREE from 'three'
 
 const GLOSS = { roughness: 0.22, metalness: 0.18 }
 function M(color: string, emissive?: string, ei = 0.22) {
-  return <meshStandardMaterial color={color} emissive={emissive ?? color} emissiveIntensity={ei} {...GLOSS} />
+  return <Mat color={color} emissive={emissive ?? color} emissiveIntensity={ei} {...GLOSS} />
 }
 const DARK = '#232538'
 const WHITE = '#f6f8ff'
@@ -42,16 +43,16 @@ export function Shape({ kind, color }: { kind: string; color: string }) {
       return (
         <group>
           <mesh castShadow><boxGeometry args={[1.2, 1.2, 1.2]} />{M(color, color, 0.34)}</mesh>
-          <mesh scale={1.03}><boxGeometry args={[1.2, 1.2, 1.2]} /><meshStandardMaterial color={WHITE} wireframe transparent opacity={0.3} /></mesh>
+          <mesh scale={1.03}><boxGeometry args={[1.2, 1.2, 1.2]} /><Mat color={WHITE} wireframe transparent opacity={0.3} /></mesh>
           {[0, 1, 2, 3, 4].map((i) => {
             const a = (i / 5) * Math.PI * 2
             const p: [number, number, number] = [Math.cos(a) * 2.0, Math.sin(a) * 1.6, Math.sin(a * 1.3) * 0.5]
             const nc = ['#ffc61a', '#ff2d9b', '#2f6bff', '#08c2ac', '#ff7a1a'][i]
             return (
               <group key={i}>
-                <mesh position={p} castShadow><sphereGeometry args={[0.34, 24, 20]} /><meshStandardMaterial color={nc} emissive={nc} emissiveIntensity={0.5} {...GLOSS} /></mesh>
+                <mesh position={p} castShadow><sphereGeometry args={[0.34, 24, 20]} /><Mat color={nc} emissive={nc} emissiveIntensity={0.5} {...GLOSS} /></mesh>
                 <mesh position={[p[0] / 2, p[1] / 2, p[2] / 2]} rotation={[0, 0, Math.atan2(p[1], p[0]) - Math.PI / 2]}>
-                  <cylinderGeometry args={[0.045, 0.045, Math.hypot(p[0], p[1]), 8]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} />
+                  <cylinderGeometry args={[0.045, 0.045, Math.hypot(p[0], p[1]), 8]} /><Mat color={color} emissive={color} emissiveIntensity={0.3} />
                 </mesh>
               </group>
             )
@@ -63,7 +64,7 @@ export function Shape({ kind, color }: { kind: string; color: string }) {
         <group rotation={[0.28, 0, 0.06]}>
           {[-0.62, -0.02, 0.58].map((y, i) => (
             <mesh key={y} position={[i === 1 ? 0.22 : 0, y, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <cylinderGeometry args={[1.1, 1.1, 0.36, 44]} /><meshStandardMaterial color={color} emissive="#ffb800" emissiveIntensity={0.3} roughness={0.18} metalness={0.5} />
+              <cylinderGeometry args={[1.1, 1.1, 0.36, 44]} /><Mat color={color} emissive="#ffb800" emissiveIntensity={0.3} roughness={0.18} metalness={0.5} />
             </mesh>
           ))}
           <mesh position={[0.22, 0.58, 0.19]}><boxGeometry args={[0.14, 0.66, 0.06]} />{M('#a06a00')}</mesh>
@@ -93,8 +94,8 @@ export function Shape({ kind, color }: { kind: string; color: string }) {
     case 'gem': // pricing · a faceted crystal with sparkles
       return (
         <group>
-          <mesh castShadow><octahedronGeometry args={[1.55, 0]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.4} roughness={0.08} metalness={0.35} flatShading /></mesh>
-          <mesh scale={1.02}><octahedronGeometry args={[1.55, 0]} /><meshStandardMaterial color={WHITE} wireframe transparent opacity={0.35} /></mesh>
+          <mesh castShadow><octahedronGeometry args={[1.55, 0]} /><Mat color={color} emissive={color} emissiveIntensity={0.4} roughness={0.08} metalness={0.35} flatShading /></mesh>
+          <mesh scale={1.02}><octahedronGeometry args={[1.55, 0]} /><Mat color={WHITE} wireframe transparent opacity={0.35} /></mesh>
           {[[1.4, 1.0, 0.6], [-1.2, -0.8, 0.8], [0.6, 1.6, -0.4]].map((p, i) => (
             <mesh key={i} position={p as [number, number, number]}><sphereGeometry args={[0.1, 8, 8]} /><meshBasicMaterial color="#ffffff" /></mesh>
           ))}
@@ -103,7 +104,7 @@ export function Shape({ kind, color }: { kind: string; color: string }) {
     case 'card': // onramp · a glossy credit card with chip + stripe
       return (
         <group rotation={[0.34, -0.15, -0.1]}>
-          <mesh castShadow><boxGeometry args={[2.9, 1.8, 0.14]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.24} roughness={0.16} metalness={0.4} /></mesh>
+          <mesh castShadow><boxGeometry args={[2.9, 1.8, 0.14]} /><Mat color={color} emissive={color} emissiveIntensity={0.24} roughness={0.16} metalness={0.4} /></mesh>
           <mesh position={[0, 0.4, 0.09]}><boxGeometry args={[2.9, 0.44, 0.04]} />{M(DARK)}</mesh>
           <mesh position={[-0.9, -0.1, 0.09]}><boxGeometry args={[0.52, 0.42, 0.06]} />{M('#ffc61a', '#ffc61a', 0.4)}</mesh>
           {[0, 1].map((r) => [0, 1].map((c) => <mesh key={`${r}${c}`} position={[-1.02 + c * 0.24, -0.22 + r * 0.24, 0.11]}><boxGeometry args={[0.16, 0.16, 0.02]} />{M('#c99a10')}</mesh>))}
@@ -116,8 +117,8 @@ export function Shape({ kind, color }: { kind: string; color: string }) {
       return (
         <group>
           <mesh castShadow><boxGeometry args={[2.5, 1.8, 0.5]} />{M(color, color, 0.2)}</mesh>
-          <mesh position={[0, 0.08, 0.28]}><boxGeometry args={[2.0, 1.24, 0.05]} /><meshStandardMaterial color="#0e2438" emissive="#0e2438" emissiveIntensity={0.1} /></mesh>
-          <mesh position={[0, 0.08, 0.33]}><circleGeometry args={[0.46, 30]} /><meshStandardMaterial color={WHITE} emissive={WHITE} emissiveIntensity={0.4} /></mesh>
+          <mesh position={[0, 0.08, 0.28]}><boxGeometry args={[2.0, 1.24, 0.05]} /><Mat color="#0e2438" emissive="#0e2438" emissiveIntensity={0.1} /></mesh>
+          <mesh position={[0, 0.08, 0.33]}><circleGeometry args={[0.46, 30]} /><Mat color={WHITE} emissive={WHITE} emissiveIntensity={0.4} /></mesh>
           <mesh position={[0.08, 0.08, 0.37]}><circleGeometry args={[0.22, 26]} />{M('#2f6bff', '#2f6bff', 0.4)}</mesh>
           <mesh position={[0.14, 0.14, 0.4]}><circleGeometry args={[0.07, 16]} /><meshBasicMaterial color="#ffffff" /></mesh>
           <mesh position={[0, -1.15, 0]}><cylinderGeometry args={[0.5, 0.66, 0.18, 28]} />{M(color, color, 0.16)}</mesh>
@@ -132,21 +133,21 @@ export function Shape({ kind, color }: { kind: string; color: string }) {
             const a = (i / 9) * Math.PI * 2
             return <mesh key={i} position={[Math.cos(a) * 1.4, 0, Math.sin(a) * 1.4]} rotation={[0, -a, 0]} castShadow><boxGeometry args={[0.52, 0.55, 0.52]} />{M(color, color, 0.24)}</mesh>
           })}
-          <mesh position={[0, 0.02, 0]}><cylinderGeometry args={[0.55, 0.55, 0.62, 28]} /><meshStandardMaterial color={WHITE} emissive={WHITE} emissiveIntensity={0.12} {...GLOSS} /></mesh>
+          <mesh position={[0, 0.02, 0]}><cylinderGeometry args={[0.55, 0.55, 0.62, 28]} /><Mat color={WHITE} emissive={WHITE} emissiveIntensity={0.12} {...GLOSS} /></mesh>
           <mesh position={[0, 0.05, 0]}><cylinderGeometry args={[0.28, 0.28, 0.66, 20]} />{M('#2f6bff', '#2f6bff', 0.35)}</mesh>
         </group>
       )
     case 'rocket': // final · a launching rocket with window + flame
       return (
         <group rotation={[0, 0, -0.16]}>
-          <mesh position={[0, 0.6, 0]} castShadow><cylinderGeometry args={[0.58, 0.58, 1.9, 28]} /><meshStandardMaterial color={WHITE} emissive={WHITE} emissiveIntensity={0.08} {...GLOSS} /></mesh>
+          <mesh position={[0, 0.6, 0]} castShadow><cylinderGeometry args={[0.58, 0.58, 1.9, 28]} /><Mat color={WHITE} emissive={WHITE} emissiveIntensity={0.08} {...GLOSS} /></mesh>
           <mesh position={[0, 1.05, 0]}><cylinderGeometry args={[0.6, 0.58, 0.12, 28]} />{M(color, color, 0.3)}</mesh>
           <mesh position={[0, 1.85, 0]} castShadow><coneGeometry args={[0.58, 0.95, 28]} />{M(color, color, 0.32)}</mesh>
-          <mesh position={[0, 0.75, 0.55]}><sphereGeometry args={[0.26, 22, 18]} /><meshStandardMaterial color="#2aa8ff" emissive="#2aa8ff" emissiveIntensity={0.55} /></mesh>
+          <mesh position={[0, 0.75, 0.55]}><sphereGeometry args={[0.26, 22, 18]} /><Mat color="#2aa8ff" emissive="#2aa8ff" emissiveIntensity={0.55} /></mesh>
           <mesh position={[0, 0.75, 0.5]}><torusGeometry args={[0.28, 0.05, 12, 24]} />{M('#ffc61a', '#ffc61a', 0.3)}</mesh>
           {[-1, 1].map((s) => <mesh key={s} position={[s * 0.6, -0.2, 0]} rotation={[0, 0, s * -0.55]} castShadow><boxGeometry args={[0.14, 0.75, 0.55]} />{M(color, color, 0.3)}</mesh>)}
-          <mesh position={[0, -0.55, 0]}><coneGeometry args={[0.42, 0.7, 20]} /><meshStandardMaterial color="#ffc61a" emissive="#ff7a1a" emissiveIntensity={0.85} /></mesh>
-          <mesh position={[0, -0.95, 0]}><coneGeometry args={[0.26, 0.6, 16]} /><meshStandardMaterial color="#ffffff" emissive="#ffd23f" emissiveIntensity={0.9} /></mesh>
+          <mesh position={[0, -0.55, 0]}><coneGeometry args={[0.42, 0.7, 20]} /><Mat color="#ffc61a" emissive="#ff7a1a" emissiveIntensity={0.85} /></mesh>
+          <mesh position={[0, -0.95, 0]}><coneGeometry args={[0.26, 0.6, 16]} /><Mat color="#ffffff" emissive="#ffd23f" emissiveIntensity={0.9} /></mesh>
         </group>
       )
     default:

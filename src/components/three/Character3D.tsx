@@ -14,6 +14,7 @@ import { HEAD_Y, HEAD_S, HEAD_LIFT, crown, girth, headOf } from './head'
 import type { Head } from './head'
 import { CROWNED, JobBody, JobHead, jobOf } from './JobLook3D'
 import type { Department } from '../../data/agents'
+import { Mat } from './Mat'
 
 // La matière de tous les personnages · une figurine de vinyle, définie une
 // seule fois dans ./toy et partagée par les 38 espèces.
@@ -45,7 +46,7 @@ function Limb({ p, r, len, c, rot }: { p: [number, number, number]; r: number; l
   return (
     <mesh position={p} rotation={rot} castShadow>
       <capsuleGeometry args={[r, len, 6, 14]} />
-      <meshStandardMaterial color={c} {...MAT} />
+      <Mat color={c} {...MAT} />
     </mesh>
   )
 }
@@ -54,7 +55,7 @@ function Ball({ p, r, c, s = [1, 1, 1] as [number, number, number] }: { p: [numb
   return (
     <mesh position={p} scale={s} castShadow>
       <sphereGeometry args={[r, 22, 20]} />
-      <meshStandardMaterial color={c} {...MAT} />
+      <Mat color={c} {...MAT} />
     </mesh>
   )
 }
@@ -62,7 +63,7 @@ function Cyl({ p, r, h, c, rot }: { p: [number, number, number]; r: number; h: n
   return (
     <mesh position={p} rotation={rot} castShadow>
       <cylinderGeometry args={[r, r, h, 16]} />
-      <meshStandardMaterial color={c} {...MAT} />
+      <Mat color={c} {...MAT} />
     </mesh>
   )
 }
@@ -70,14 +71,14 @@ function Cone({ p, r, h, c, rot }: { p: [number, number, number]; r: number; h: 
   return (
     <mesh position={p} rotation={rot} castShadow>
       <coneGeometry args={[r, h, 16]} />
-      <meshStandardMaterial color={c} {...MAT} />
+      <Mat color={c} {...MAT} />
     </mesh>
   )
 }
 function Box({ p, s, c, rot }: { p: [number, number, number]; s: [number, number, number]; c: string; rot?: [number, number, number] }) {
   return (
     <mesh position={p} rotation={rot} geometry={roundedBox(s[0], s[1], s[2], 0.16)} castShadow>
-      <meshStandardMaterial color={c} {...MAT} />
+      <Mat color={c} {...MAT} />
     </mesh>
   )
 }
@@ -92,13 +93,13 @@ function HeadShell({ h, c }: { h: Head; c: string }) {
     return (
       <mesh position={[0, HEAD_Y, 0]} scale={[h.x / 0.6, h.y / 0.6, h.z / 0.6]} castShadow>
         <sphereGeometry args={[0.6, 24, 20]} />
-        <meshStandardMaterial color={c} {...MAT} />
+        <Mat color={c} {...MAT} />
       </mesh>
     )
   }
   return (
     <mesh position={[0, HEAD_Y, 0]} geometry={roundedBox(h.x * 2, h.y * 2, h.z * 2, 0.2, 7)} castShadow>
-      <meshStandardMaterial color={c} {...MAT} />
+      <Mat color={c} {...MAT} />
     </mesh>
   )
 }
@@ -127,7 +128,7 @@ function Arm({ side, color, hand, busy, wave }: { side: number; color: string; h
       <Limb p={[0, 0, 0.34]} r={0.105} len={0.5} c={color} rot={[Math.PI / 2, 0, 0]} />
       <mesh position={[0, 0, 0.72]} castShadow>
         <sphereGeometry args={[0.155, 16, 14]} />
-        <meshStandardMaterial color={hand} {...MAT} />
+        <Mat color={hand} {...MAT} />
       </mesh>
     </group>
   )
@@ -154,7 +155,7 @@ function Tentacle({ base, dir, color, phase, busy }: { base: [number, number, nu
       {[0, 1, 2, 3].map((i) => (
         <mesh key={i} position={[dir[0] * i * 0.19, -i * i * 0.05, dir[1] * i * 0.19]} castShadow>
           <sphereGeometry args={[0.19 - i * 0.035, 12, 10]} />
-          <meshStandardMaterial color={color} {...MAT} />
+          <Mat color={color} {...MAT} />
         </mesh>
       ))}
     </group>
@@ -171,7 +172,7 @@ function MonitorHead({ c, mood }: { c: Character; mood: Mood }) {
       <Box p={[0, 0.02, 0.37]} s={[0.9, 0.7, 0.04]} c={'#10222e'} />
       <mesh position={[0, 0.02, 0.395]}>
         <planeGeometry args={[0.82, 0.62]} />
-        <meshStandardMaterial color={'#0a251d'} emissive={'#1f9e6a'} emissiveIntensity={0.55} {...MAT} />
+        <Mat color={'#0a251d'} emissive={'#1f9e6a'} emissiveIntensity={0.55} {...MAT} />
       </mesh>
       <Ball p={[0.44, -0.34, 0.37]} r={0.04} c={'#37d67a'} />
       <AsciiFace3D mood={mood} position={[0, 0.03, 0.44]} scale={0.46} color={'#8bffbf'} kind="monitor" halo={'#0a251d'} />
@@ -231,7 +232,7 @@ function Toppers({ c, h }: { c: Character; h: Head }) {
               dressait comme une auréole au-dessus du crâne. */}
           <mesh position={[0, hy + h.y * 0.25, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[g + 0.03, 0.1, 12, 28]} />
-            <meshStandardMaterial color={c.outfit2} {...MAT} />
+            <Mat color={c.outfit2} {...MAT} />
           </mesh>
           <Box p={[g * 0.92, hy + h.y * 0.25, 0.2]} s={[0.16, 0.16, 0.16]} c={c.outfit2} />
           <Box p={[g * 1.24, hy + h.y * 0.05, 0.2]} s={[0.1, 0.32, 0.06]} c={c.outfit2} rot={[0, 0, 0.4]} />
@@ -439,7 +440,7 @@ function Toppers({ c, h }: { c: Character; h: Head }) {
             <group key={sd}>
               <mesh position={[sd * 0.5 * h.x, hy + h.y * 0.62, fz - 0.02]}>
                 <torusGeometry args={[0.15, 0.045, 10, 22]} />
-                <meshStandardMaterial color={'#2b2f3a'} {...MAT} />
+                <Mat color={'#2b2f3a'} {...MAT} />
               </mesh>
               <Ball p={[sd * 0.5 * h.x, hy + h.y * 0.62, fz]} r={0.115} c={'#8fe3ff'} />
             </group>
@@ -472,7 +473,7 @@ function JellyLeg({ base, color, phase, busy }: { base: [number, number, number]
       {[0, 1, 2, 3, 4].map((i) => (
         <mesh key={i} position={[0, -i * 0.24, 0]}>
           <sphereGeometry args={[0.1 - i * 0.012, 10, 8]} />
-          <meshStandardMaterial color={color} transparent opacity={0.72} {...MAT} />
+          <Mat color={color} transparent opacity={0.72} {...MAT} />
         </mesh>
       ))}
     </group>
@@ -493,13 +494,13 @@ function GeoBody({ c, mood }: { c: Character; mood: Mood }) {
     <group position={[0, 1.5, 0]}>
       <mesh ref={core} castShadow>
         <icosahedronGeometry args={[0.72, 0]} />
-        <meshStandardMaterial color={c.outfit} flatShading roughness={0.4} metalness={0.2} />
+        <Mat color={c.outfit} flatShading roughness={0.4} metalness={0.2} />
       </mesh>
       <AsciiFace3D mood={mood} position={[0, 0.02, 0.74]} scale={0.46} color={'#ffffff'} kind="geo" halo={c.outfit} />
       <group ref={orbit}>
-        <mesh position={[1.1, 0.2, 0]}><tetrahedronGeometry args={[0.24, 0]} /><meshStandardMaterial color={c.outfit2} flatShading /></mesh>
-        <mesh position={[-1.0, -0.1, 0.3]}><octahedronGeometry args={[0.22, 0]} /><meshStandardMaterial color={c.extra} flatShading /></mesh>
-        <mesh position={[0.2, 0.1, -1.1]} rotation={[0.5, 0.5, 0]}><boxGeometry args={[0.3, 0.3, 0.3]} /><meshStandardMaterial color={c.pants} flatShading /></mesh>
+        <mesh position={[1.1, 0.2, 0]}><tetrahedronGeometry args={[0.24, 0]} /><Mat color={c.outfit2} flatShading /></mesh>
+        <mesh position={[-1.0, -0.1, 0.3]}><octahedronGeometry args={[0.22, 0]} /><Mat color={c.extra} flatShading /></mesh>
+        <mesh position={[0.2, 0.1, -1.1]} rotation={[0.5, 0.5, 0]}><boxGeometry args={[0.3, 0.3, 0.3]} /><Mat color={c.pants} flatShading /></mesh>
       </group>
     </group>
   )
@@ -828,18 +829,18 @@ export function Character3D({
             {/* floaty sheet: rounded dome + wavy skirt, translucent */}
             <mesh position={[0, 1.5, 0]} castShadow>
               <sphereGeometry args={[0.72, 22, 20]} />
-              <meshStandardMaterial color={character.face} transparent opacity={0.9} {...MAT} />
+              <Mat color={character.face} transparent opacity={0.9} {...MAT} />
             </mesh>
             <mesh position={[0, 1.02, 0]}>
               <cylinderGeometry args={[0.72, 0.82, 0.9, 22]} />
-              <meshStandardMaterial color={character.face} transparent opacity={0.9} {...MAT} />
+              <Mat color={character.face} transparent opacity={0.9} {...MAT} />
             </mesh>
             {[0, 1, 2, 3, 4, 5].map((i) => {
               const a = (i / 6) * Math.PI * 2
               return (
                 <mesh key={i} position={[Math.cos(a) * 0.68, 0.52, Math.sin(a) * 0.68]}>
                   <coneGeometry args={[0.16, 0.4, 12]} />
-                  <meshStandardMaterial color={character.face} transparent opacity={0.85} {...MAT} />
+                  <Mat color={character.face} transparent opacity={0.85} {...MAT} />
                 </mesh>
               )
             })}
@@ -853,11 +854,11 @@ export function Character3D({
             {/* translucent bell */}
             <mesh position={[0, 1.95, 0]} scale={[1, 0.82, 1]} castShadow>
               <sphereGeometry args={[0.82, 24, 20]} />
-              <meshStandardMaterial color={character.face} emissive={character.outfit} emissiveIntensity={0.25} transparent opacity={0.7} roughness={0.3} />
+              <Mat color={character.face} emissive={character.outfit} emissiveIntensity={0.25} transparent opacity={0.7} roughness={0.3} />
             </mesh>
             <mesh position={[0, 1.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
               <torusGeometry args={[0.78, 0.1, 12, 28]} />
-              <meshStandardMaterial color={character.outfit2} transparent opacity={0.75} {...MAT} />
+              <Mat color={character.outfit2} transparent opacity={0.75} {...MAT} />
             </mesh>
             <AsciiFace3D mood={mood} position={[0, 1.9, 0.78]} scale={0.56} color={faceColor} kind={character.kind} halo={character.face} />
             {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
@@ -878,7 +879,7 @@ export function Character3D({
             {[0.92, 1.4].map((gy) => (
               <mesh key={gy} position={[0, gy, 0.02]} rotation={[Math.PI / 2, 0, 0]}>
                 <torusGeometry args={[0.55, 0.04, 8, 24]} />
-                <meshStandardMaterial color={character.outfit2} {...MAT} />
+                <Mat color={character.outfit2} {...MAT} />
               </mesh>
             ))}
             <Ball p={[0, 2.12, 0]} r={0.5} c={character.face} />
@@ -908,22 +909,22 @@ export function Character3D({
                 trois anneaux invisibles, rendus à chaque image pour rien. */}
             <mesh position={[0, 1.36, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
               <torusGeometry args={[0.32, 0.07, 8, 22]} />
-              <meshStandardMaterial color={character.outfit2} {...MAT} />
+              <Mat color={character.outfit2} {...MAT} />
             </mesh>
             <mesh position={[0, 0.88, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
               <torusGeometry args={[0.4, 0.05, 8, 24]} />
-              <meshStandardMaterial color={character.outfit2} {...MAT} />
+              <Mat color={character.outfit2} {...MAT} />
             </mesh>
             {/* la boucle de ceinture */}
             <mesh position={[0, 0.88, 0.4]}>
               <boxGeometry args={[0.16, 0.13, 0.07]} />
-              <meshStandardMaterial color={character.extra} roughness={0.35} metalness={0.3} />
+              <Mat color={character.extra} roughness={0.35} metalness={0.3} />
             </mesh>
             {job && <JobBody fn={job} accent={character.extra} />}
             {/* l'écusson · la touche d'accent, à hauteur de cœur */}
             <mesh position={[-0.17, 1.14, 0.39]} rotation={[0.1, 0.35, 0]}>
               <circleGeometry args={[0.095, 16]} />
-              <meshStandardMaterial color={character.extra} roughness={0.4} side={THREE.DoubleSide} />
+              <Mat color={character.extra} roughness={0.4} side={THREE.DoubleSide} />
             </mesh>
             {isMonitor ? (
               <group position={[0, HEAD_LIFT, 0]}><MonitorHead c={character} mood={mood} /></group>

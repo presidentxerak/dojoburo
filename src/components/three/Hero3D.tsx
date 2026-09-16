@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import { useDojo } from '../../store'
 import { heroPos3D } from '../../three/layout3d'
 import { AsciiFace3D } from './AsciiFace3D'
+import { Mat } from './Mat'
 
 const MAT = { roughness: 0.5, metalness: 0.1 }
 
@@ -105,7 +106,7 @@ export function Hero3D() {
       {NUCLEUS.map((n, i) => (
         <mesh key={i} position={n.p} castShadow>
           <sphereGeometry args={[n.r, 18, 16]} />
-          <meshStandardMaterial color={n.c} emissive={n.c} emissiveIntensity={0.25} {...MAT} />
+          <Mat color={n.c} emissive={n.c} emissiveIntensity={0.25} {...MAT} />
         </mesh>
       ))}
       {/* electron shells: faint orbit ring + a whirling electron */}
@@ -117,13 +118,13 @@ export function Hero3D() {
           </mesh>
           <mesh ref={(m) => { if (m) electrons.current[i] = m }}>
             <sphereGeometry args={[0.13, 14, 12]} />
-            <meshStandardMaterial color={o.c} emissive={o.c} emissiveIntensity={0.8} {...MAT} />
+            <Mat color={o.c} emissive={o.c} emissiveIntensity={0.8} {...MAT} />
           </mesh>
         </group>
       ))}
       {/* rosy cheeks + expressive ASCII face on the nucleus */}
-      <mesh position={[-0.32, -0.04, 0.42]}><sphereGeometry args={[0.09, 12, 12]} /><meshStandardMaterial color={'#ff8fa3'} {...MAT} /></mesh>
-      <mesh position={[0.32, -0.04, 0.42]}><sphereGeometry args={[0.09, 12, 12]} /><meshStandardMaterial color={'#ff8fa3'} {...MAT} /></mesh>
+      <mesh position={[-0.32, -0.04, 0.42]}><sphereGeometry args={[0.09, 12, 12]} /><Mat color={'#ff8fa3'} {...MAT} /></mesh>
+      <mesh position={[0.32, -0.04, 0.42]}><sphereGeometry args={[0.09, 12, 12]} /><Mat color={'#ff8fa3'} {...MAT} /></mesh>
       <AsciiFace3D mood={visiting ? 'talk' : 'happy'} position={[0, 0.05, 0.56]} scale={0.5} color="#3a2050" />
 
       {/* thought particles streaming down to the agent */}

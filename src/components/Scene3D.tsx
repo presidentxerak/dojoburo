@@ -8,7 +8,6 @@ import { useWorkshop, seatedAgents, type WAgent } from '../workshop'
 import { useDojo } from '../store'
 import { Decor3D, doorAt } from './three/Decor3D'
 import { Character3D } from './three/Character3D'
-import { StudioLight } from './three/StudioLight'
 import { Courier3D } from './three/Courier3D'
 import { ThemeProps } from './three/ThemeProps'
 import { Glass3D } from './three/Glass3D'
@@ -160,7 +159,7 @@ export function Scene3D() {
       frameloop={covered ? 'never' : 'always'}
       dpr={[1, 1.4]}
       camera={{ position: [2.2, 8.4, 14], fov: 42, near: 0.1, far: 100 }}
-      gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 0.92 }}
+      gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.0 }}
       onPointerMissed={() => deselect(null)}
       onCreated={({ gl, invalidate }) => {
         // Recover gracefully from a lost WebGL context (common with DevTools
@@ -176,25 +175,19 @@ export function Scene3D() {
           point brillant et restent plats. Il remplace une partie de la
           lumière ambiante, qui écrasait le relief en éclairant tout
           également. */}
-      <StudioLight intensity={0.85} />
-      {/* Une lumière CHAUDE qui vient d'un côté, une FROIDE qui vient de
-          l'autre. Une scène éclairée par une seule source blanche et beaucoup
-          d'ambiante est lisible mais plate : tout y est du même blanc, et
-          aucune surface ne dit d'où vient le jour. L'écart de température
-          entre les deux donne un côté ensoleillé et un côté à l'ombre, et
-          c'est cet écart — pas la quantité de lumière — qui fait le volume. */}
-      <hemisphereLight args={['#fff6e6', P.ground, 0.3]} />
-      <ambientLight intensity={0.1} />
-      {/* La clé, et la seule source qui porte une ombre. La carte passe de
-          1024 à 2048 : l'ombre est recalculée seulement quand la composition
-          de la scène change (voir ShadowBudget), donc le quadruplement de
-          résolution se paie une fois par changement de dojo, pas par image.
-          `normalBias` supprime le moiré d'auto-ombrage sur les sphères — les
-          personnages sont faits de sphères, c'est là qu'il se voyait. */}
+      {/* L'ÉCLAIRAGE DU KIT · trois sources, BLANCHES SANS EXCEPTION.
+          Il y en avait sept, dont trois teintées de la couleur du thème et une
+          hémisphérique crème. Une hémisphérique teintée rejoue exactement le
+          défaut que le shader corrige : tout redevient pastel et sale, et
+          aucune palette ne rattrape un mauvais rendu (piège n° 2 et n° 8 de la
+          spécification du kit).
+          La seule couleur admise est le violet très faible en contre-jour, qui
+          creuse les ombres sans les teinter visiblement. */}
+      <hemisphereLight args={['#ffffff', '#ffcf9a', 0.85]} />
       <directionalLight
-        position={[7, 12, 8]}
-        color="#fff1d8"
-        intensity={1.22}
+        position={[4, 9, 6]}
+        color="#ffffff"
+        intensity={1.15}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -205,17 +198,7 @@ export function Scene3D() {
         shadow-camera-top={16}
         shadow-camera-bottom={-16}
       />
-      {/* per-theme accent glow · tints the back of the room for mood */}
-      <directionalLight position={[-8, 6, -5]} color="#bcd4ff" intensity={0.4} />
-      {/* LES TROIS LUMIÈRES D'ACCENT SONT BAISSÉES DE MOITIÉ.
-          Additionnées à l'environnement, aux deux directionnelles, à
-          l'hémisphérique et à l'ambiante, elles saturaient toute la salle de
-          la couleur du thème : c'est ce qui rendait le violet violent et le
-          corail criard. Une touche d'accent doit se deviner dans les coins,
-          pas repeindre la pièce. */}
-      <pointLight position={[0, 4.5, -4]} color={P.accent} intensity={0.34} distance={30} />
-      <pointLight position={[-7, 2.5, 3]} color={P.accent} intensity={0.14} distance={18} />
-      <pointLight position={[7, 2.5, 3]} color={P.accent} intensity={0.14} distance={18} />
+      <directionalLight position={[-6, 4, 2]} color="#a263f0" intensity={0.2} />
       <Suspense fallback={null}>
         <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
         {/* LE COURSIER · il entre par la porte du fond, dépose des dossiers

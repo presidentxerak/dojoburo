@@ -24,6 +24,7 @@ import type { Department } from '../../data/agents'
 import { ROLE_BY_ID, canonicalRole } from '../../data/roleAgents'
 import { VINYL, PAINTED_METAL } from './toy'
 import { roundedBox } from './geometry'
+import { Mat } from './Mat'
 
 type V3 = [number, number, number]
 
@@ -63,7 +64,7 @@ const DARK = '#23262e'
 function B({ p, s, c, rot, mat = VINYL }: { p: V3; s: V3; c: string; rot?: V3; mat?: object }) {
   return (
     <mesh position={p} rotation={rot} geometry={roundedBox(s[0], s[1], s[2], 0.18)} castShadow>
-      <meshStandardMaterial color={c} {...mat} />
+      <Mat color={c} {...mat} />
     </mesh>
   )
 }
@@ -71,7 +72,7 @@ function Sp({ p, r, c, s = [1, 1, 1] as V3, mat = VINYL }: { p: V3; r: number; c
   return (
     <mesh position={p} scale={s} castShadow>
       <sphereGeometry args={[r, 16, 14]} />
-      <meshStandardMaterial color={c} {...mat} />
+      <Mat color={c} {...mat} />
     </mesh>
   )
 }
@@ -79,7 +80,7 @@ function Cy({ p, r, h, c, rot, mat = VINYL }: { p: V3; r: number; h: number; c: 
   return (
     <mesh position={p} rotation={rot} castShadow>
       <cylinderGeometry args={[r, r, h, 16]} />
-      <meshStandardMaterial color={c} {...mat} />
+      <Mat color={c} {...mat} />
     </mesh>
   )
 }
@@ -130,7 +131,7 @@ export function JobBody({ fn, accent }: { fn: Department; accent: string }) {
         <group>
           <mesh position={[0, 1.3, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[0.3, 0.075, 8, 20]} />
-            <meshStandardMaterial color={accent} {...VINYL} />
+            <Mat color={accent} {...VINYL} />
           </mesh>
           <B p={[0.16, 1.06, 0.34]} s={[0.15, 0.42, 0.09]} c={accent} rot={[0, 0, -0.14]} />
         </group>
@@ -163,11 +164,11 @@ export function JobBody({ fn, accent }: { fn: Department; accent: string }) {
           <B p={[0.2, 1.04, 0.33]} s={[0.22, 0.54, 0.1]} c="#ffb400" />
           <mesh position={[0, 1.12, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[0.42, 0.035, 6, 22]} />
-            <meshStandardMaterial color="#e8eef6" roughness={0.3} metalness={0.2} />
+            <Mat color="#e8eef6" roughness={0.3} metalness={0.2} />
           </mesh>
           <mesh position={[0, 0.96, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[0.43, 0.035, 6, 22]} />
-            <meshStandardMaterial color="#e8eef6" roughness={0.3} metalness={0.2} />
+            <Mat color="#e8eef6" roughness={0.3} metalness={0.2} />
           </mesh>
         </group>
       )
@@ -208,7 +209,7 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
           {[-0.3, 0, 0.3].map((x, i) => (
             <mesh key={x} position={[x * g * 1.2, top + 0.17, 0]} castShadow>
               <coneGeometry args={[0.1, 0.28 + (i === 1 ? 0.1 : 0), 10]} />
-              <meshStandardMaterial color={GOLD} {...PAINTED_METAL} />
+              <Mat color={GOLD} {...PAINTED_METAL} />
             </mesh>
           ))}
         </group>
@@ -219,7 +220,7 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
         <group>
           <mesh position={[0, top - 0.1, 0]} rotation={[0, 0, Math.PI]} castShadow>
             <torusGeometry args={[g + 0.02, 0.05, 10, 22, Math.PI]} />
-            <meshStandardMaterial color="#2b2f3d" {...VINYL} />
+            <Mat color="#2b2f3d" {...VINYL} />
           </mesh>
           {[-1, 1].map((sd) => (
             <Cy key={sd} p={[sd * (h.x + 0.04), hy + h.y * 0.12, 0]} r={0.17} h={0.11} c={DARK} rot={[0, 0, Math.PI / 2]} />
@@ -248,7 +249,7 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
           {[-1, 1].map((sd) => (
             <mesh key={sd} position={[sd * 0.4 * h.x, 0, 0]} castShadow>
               <torusGeometry args={[0.125, 0.028, 8, 20]} />
-              <meshStandardMaterial color="#2b2f3d" {...VINYL} />
+              <Mat color="#2b2f3d" {...VINYL} />
             </mesh>
           ))}
           <B p={[0, 0, 0]} s={[0.14, 0.03, 0.03]} c="#2b2f3d" />
@@ -263,7 +264,7 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
         <group>
           <mesh position={[0, top - 0.1, 0]} rotation={[0, 0, Math.PI]} castShadow>
             <torusGeometry args={[g + 0.02, 0.042, 10, 22, Math.PI]} />
-            <meshStandardMaterial color="#2b2f3d" {...VINYL} />
+            <Mat color="#2b2f3d" {...VINYL} />
           </mesh>
           <Cy p={[-(h.x + 0.05), hy + h.y * 0.12, 0]} r={0.14} h={0.1} c="#2b2f3d" rot={[0, 0, Math.PI / 2]} />
           <Cy p={[-h.x * 0.72, hy - h.y * 0.18, h.z * 0.6]} r={0.028} h={0.44} c="#2b2f3d" rot={[0.5, 0, -0.9]} />
@@ -281,7 +282,7 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
               casquette est un peu plus étroite que le crâne, et bombée. */}
           <mesh position={[0, top - 0.24, 0]} scale={[1, 0.82, 1]} castShadow>
             <sphereGeometry args={[Math.max(h.x, h.z) + 0.03, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.2]} />
-            <meshStandardMaterial color={accent} {...VINYL} side={THREE.DoubleSide} />
+            <Mat color={accent} {...VINYL} side={THREE.DoubleSide} />
           </mesh>
           <B p={[0, top - 0.22, h.z * 0.9]} s={[h.x * 1.5, 0.05, 0.32]} c={accent} rot={[0.16, 0, 0]} />
           <Sp p={[0, top + 0.12, 0]} r={0.05} c="#f4f6fa" />
@@ -305,11 +306,11 @@ export function JobHead({ fn, accent, h }: { fn: Department; accent: string; h: 
           {/* même correction que la casquette · un casque, pas une galette */}
           <mesh position={[0, top - 0.2, 0]} scale={[1, 0.8, 1]} castShadow>
             <sphereGeometry args={[Math.max(h.x, h.z) + 0.06, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2.1]} />
-            <meshStandardMaterial color="#ffb400" {...VINYL} side={THREE.DoubleSide} />
+            <Mat color="#ffb400" {...VINYL} side={THREE.DoubleSide} />
           </mesh>
           <mesh position={[0, top - 0.19, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[Math.max(h.x, h.z) + 0.08, 0.045, 8, 24]} />
-            <meshStandardMaterial color="#e8a300" {...VINYL} />
+            <Mat color="#e8a300" {...VINYL} />
           </mesh>
           <B p={[0, top + 0.2, 0]} s={[0.075, 0.12, h.z * 1.9]} c="#e8a300" />
         </group>

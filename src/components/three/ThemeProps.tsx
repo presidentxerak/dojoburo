@@ -21,29 +21,30 @@ import { useMemo } from 'react'
 import * as THREE from 'three'
 import { MATTE, VINYL, PAINTED_METAL } from './toy'
 import { roundedBox } from './geometry'
+import { Mat } from './Mat'
 
 type V3 = [number, number, number]
 
 // --- primitives, mêmes conventions que Decor3D ------------------------------
 const M = MATTE
 function B({ p, s, c, rot, mat = M }: { p: V3; s: V3; c: string; rot?: V3; mat?: object }) {
-  return <mesh position={p} rotation={rot} geometry={roundedBox(s[0], s[1], s[2])} castShadow receiveShadow><meshStandardMaterial color={c} {...mat} /></mesh>
+  return <mesh position={p} rotation={rot} geometry={roundedBox(s[0], s[1], s[2])} castShadow receiveShadow><Mat color={c} {...mat} /></mesh>
 }
 function Cy({ p, r, h, c, rot, seg = 16, mat = M }: { p: V3; r: number; h: number; c: string; rot?: V3; seg?: number; mat?: object }) {
-  return <mesh position={p} rotation={rot} castShadow><cylinderGeometry args={[r, r, h, seg]} /><meshStandardMaterial color={c} {...mat} /></mesh>
+  return <mesh position={p} rotation={rot} castShadow><cylinderGeometry args={[r, r, h, seg]} /><Mat color={c} {...mat} /></mesh>
 }
 function Sp({ p, r, c, mat = VINYL }: { p: V3; r: number; c: string; mat?: object }) {
-  return <mesh position={p} castShadow><sphereGeometry args={[r, 16, 14]} /><meshStandardMaterial color={c} {...mat} /></mesh>
+  return <mesh position={p} castShadow><sphereGeometry args={[r, 16, 14]} /><Mat color={c} {...mat} /></mesh>
 }
 function Co({ p, r, h, c, rot, seg = 16 }: { p: V3; r: number; h: number; c: string; rot?: V3; seg?: number }) {
-  return <mesh position={p} rotation={rot} castShadow><coneGeometry args={[r, h, seg]} /><meshStandardMaterial color={c} {...M} /></mesh>
+  return <mesh position={p} rotation={rot} castShadow><coneGeometry args={[r, h, seg]} /><Mat color={c} {...M} /></mesh>
 }
 /** Une surface qui s'allume · écran, néon, braise. */
 function Glow({ p, s, c, rot, i = 1 }: { p: V3; s: V3; c: string; rot?: V3; i?: number }) {
   return (
     <mesh position={p} rotation={rot}>
       <boxGeometry args={s} />
-      <meshStandardMaterial color={c} emissive={c} emissiveIntensity={i} roughness={0.4} />
+      <Mat color={c} emissive={c} emissiveIntensity={i} roughness={0.4} />
     </mesh>
   )
 }
@@ -155,7 +156,7 @@ export function ReadingNook() {
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow>
         <circleGeometry args={[1.5, 32]} />
-        <meshStandardMaterial color="#9c5f52" roughness={1} />
+        <Mat color="#9c5f52" roughness={1} />
       </mesh>
       {/* fauteuil */}
       <B p={[0, 0.34, 0]} s={[1.1, 0.34, 1.0]} c="#3f6da8" />
@@ -233,7 +234,7 @@ export function RingLight() {
       <Cy p={[0, 2.02, 0]} r={0.05} h={0.14} c="#3a4050" rot={[Math.PI / 2, 0, 0]} />
       <mesh position={[0, 2.02, 0.06]} rotation={[Math.PI / 2, 0, 0]} castShadow>
         <torusGeometry args={[0.58, 0.085, 12, 32]} />
-        <meshStandardMaterial color="#f6f7fb" emissive="#ffffff" emissiveIntensity={1.4} roughness={0.5} />
+        <Mat color="#f6f7fb" emissive="#ffffff" emissiveIntensity={1.4} roughness={0.5} />
       </mesh>
       <pointLight position={[0, 2.02, 0.5]} color="#ffffff" intensity={2.6} distance={7} />
       {/* téléphone tenu au centre de l'anneau */}
@@ -256,13 +257,13 @@ export function MicBoom() {
         {/* filtre anti-pop */}
         <mesh position={[0, 0.06, 0.28]} rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[0.2, 0.025, 10, 24]} />
-          <meshStandardMaterial color="#2b2f3d" {...M} />
+          <Mat color="#2b2f3d" {...M} />
         </mesh>
       </group>
       {/* casque posé sur le pied */}
       <mesh position={[0, 0.46, 0.16]} rotation={[0.5, 0, 0]} castShadow>
         <torusGeometry args={[0.22, 0.045, 10, 24, Math.PI]} />
-        <meshStandardMaterial color="#e0454f" {...VINYL} />
+        <Mat color="#e0454f" {...VINYL} />
       </mesh>
     </group>
   )
@@ -478,7 +479,7 @@ export function ClothingRack() {
         <group key={c} position={[-0.72 + i * 0.29, 0, 0]}>
           <mesh position={[0, 1.6, 0]} rotation={[0, 0, Math.PI]} castShadow>
             <torusGeometry args={[0.07, 0.012, 8, 16, Math.PI]} />
-            <meshStandardMaterial color="#b9c0c8" {...PAINTED_METAL} />
+            <Mat color="#b9c0c8" {...PAINTED_METAL} />
           </mesh>
           <B p={[0, 1.42, 0]} s={[0.26, 0.14, 0.1]} c={c} />
           <B p={[0, 1.05, 0]} s={[0.34, 0.66, 0.14]} c={c} />
@@ -507,7 +508,7 @@ export function Checkout({ accent = '#3ce08a' }: { accent?: string }) {
           <B p={[0, 0, 0]} s={[0.3, 0.32, 0.2]} c={i ? '#ffd23f' : '#ff8fc0'} />
           <mesh position={[0, 0.2, 0]} rotation={[Math.PI / 2, 0, 0]}>
             <torusGeometry args={[0.08, 0.015, 8, 16, Math.PI]} />
-            <meshStandardMaterial color="#8a5f36" {...M} />
+            <Mat color="#8a5f36" {...M} />
           </mesh>
         </group>
       ))}
@@ -574,12 +575,12 @@ export function Trophy({ c = '#e8c14a' }: { c?: string }) {
       <Cy p={[0, 0.94, 0]} r={0.05} h={0.22} c={c} mat={PAINTED_METAL} />
       <mesh position={[0, 1.2, 0]} castShadow>
         <sphereGeometry args={[0.28, 18, 16, 0, Math.PI * 2, 0, Math.PI / 1.7]} />
-        <meshStandardMaterial color={c} {...PAINTED_METAL} side={THREE.DoubleSide} />
+        <Mat color={c} {...PAINTED_METAL} side={THREE.DoubleSide} />
       </mesh>
       {[-1, 1].map((s) => (
         <mesh key={s} position={[s * 0.34, 1.18, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
           <torusGeometry args={[0.12, 0.035, 8, 16, Math.PI]} />
-          <meshStandardMaterial color={c} {...PAINTED_METAL} />
+          <Mat color={c} {...PAINTED_METAL} />
         </mesh>
       ))}
     </group>
@@ -635,7 +636,7 @@ export function SupportDesk({ accent = '#06b6d4' }: { accent?: string }) {
       <Cy p={[0.7, 1.16, -0.1]} r={0.03} h={0.42} c="#3a4050" />
       <mesh position={[0.7, 1.36, -0.1]} rotation={[0, 0, Math.PI]} castShadow>
         <torusGeometry args={[0.16, 0.04, 10, 20, Math.PI]} />
-        <meshStandardMaterial color="#2b2f3d" {...VINYL} />
+        <Mat color="#2b2f3d" {...VINYL} />
       </mesh>
       {[-1, 1].map((s) => <Sp key={s} p={[0.7 + s * 0.16, 1.26, -0.1]} r={0.07} c="#3a4050" />)}
       {/* afficheur de file */}
@@ -742,11 +743,11 @@ export function ChartTotem({ accent = '#4fc3f7' }: { accent?: string }) {
       ))}
       <mesh position={[0, 2.9, 0]} rotation={[0, 0, 0]} castShadow>
         <torusGeometry args={[0.44, 0.13, 12, 32, Math.PI * 1.45]} />
-        <meshStandardMaterial color={accent} {...VINYL} />
+        <Mat color={accent} {...VINYL} />
       </mesh>
       <mesh position={[0, 2.9, 0]} rotation={[0, 0, Math.PI * 1.45]} castShadow>
         <torusGeometry args={[0.44, 0.13, 12, 32, Math.PI * 0.55]} />
-        <meshStandardMaterial color="#5a6272" {...VINYL} />
+        <Mat color="#5a6272" {...VINYL} />
       </mesh>
     </group>
   )
@@ -763,7 +764,7 @@ export function PhoneBank({ accent = '#f59e0b' }: { accent?: string }) {
           <B p={[0, 0.78, 0.05]} s={[0.36, 0.1, 0.26]} c="#2b2f3d" />
           <mesh position={[0, 0.9, 0.05]} rotation={[0, 0, Math.PI / 2]} castShadow>
             <capsuleGeometry args={[0.05, 0.28, 4, 10]} />
-            <meshStandardMaterial color="#3a4050" {...VINYL} />
+            <Mat color="#3a4050" {...VINYL} />
           </mesh>
           <Glow p={[0, 0.95, -0.28]} s={[0.3, 0.06, 0.02]} c={i === 1 ? accent : '#3a4a5a'} i={i === 1 ? 1.4 : 0.3} />
         </group>

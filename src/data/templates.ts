@@ -146,6 +146,51 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   },
 ]
 
+// --- UN SEUL DOJO -----------------------------------------------------------
+//
+// Chaque monde avait sa propre palette de PIÈCE : sol lavande, murs corail,
+// poutres violet vif, brouillard turquoise. Douze salles qui criaient chacune
+// dans sa couleur. Sur les grandes surfaces — un sol, un mur de vingt mètres —
+// une teinte saturée ne décore pas, elle DEVIENT le sujet : c'est tout ce
+// qu'on voit, et les personnages passent devant comme des autocollants.
+//
+// La pièce est donc la même partout : un dojo japonais traditionnel. Tatami,
+// washi, bois et plâtre — quatre matières chaudes et sourdes, celles d'une
+// salle réelle. Ce qui change d'un monde à l'autre, ce sont les OBJETS et le
+// DÉCOR : les étagères d'un dojo « écrire un livre », la baie de serveurs
+// d'une application, le jardin sec du zen.
+//
+// Chaque monde garde UNE couleur d'accent, et elle ne sert que sur de petits
+// objets — un coussin, une lanterne, un liseré. C'est la règle de composition
+// du kit : une base chaude dominante, des accents en ponctuation. Multiplier
+// les teintes concurrentes donne du criard, pas du calme.
+const DOJO_ROOM = {
+  ground: '#d8cfa4',    // tatami
+  grid: '#b9ae84',
+  wallBack: '#f2ece0',  // washi
+  wallSide: '#e9e2d4',
+  trim: '#8c6644',      // bois
+  bg: '#e8e2d6',
+  fog: '#ece6da',
+}
+
+/** La pièce est commune, l'accent reste au monde. */
+function inDojo(p: DojoPalette): DojoPalette {
+  return { ...DOJO_ROOM, accent: p.accent }
+}
+
+// On n'unifie QUE les couleurs, pas les dimensions.
+//
+// Forcer tous les mondes en salle fermée aurait ramené la pièce de 30 × 23 à
+// 20 × 16 : les palmiers de la villa, les étagères de la bibliothèque et les
+// machines de l'atelier se seraient retrouvés DEHORS, derrière les murs.
+// L'enveloppe est déjà la même partout (même charpente, mêmes panneaux) ;
+// avec la même palette, une grande salle et une petite se lisent comme deux
+// pièces du même dojo, ce qui est exactement ce qu'on veut.
+for (const t of DOJO_TEMPLATES) {
+  t.palette = inDojo(t.palette)
+}
+
 export const TEMPLATE_BY_ID: Record<string, DojoTemplate> = Object.fromEntries(DOJO_TEMPLATES.map((t) => [t.id, t]))
 
 export const DEFAULT_TEMPLATE_ID = 'default'
