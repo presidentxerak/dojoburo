@@ -360,22 +360,25 @@ export function cornerShade(): THREE.Texture {
   return t
 }
 
-/** Le sol de chaque monde · une seule table, pour que personne n'ait à
- *  deviner quelle texture va où. */
+/**
+ * Le sol · DU TATAMI PARTOUT, sauf là où le monde est son propre sujet.
+ *
+ * La palette de la pièce a été unifiée, mais pas la texture : le monde
+ * « start-up » gardait sa moquette grise, l'atelier sa tôle, le laboratoire
+ * son carrelage. Une salle de dojo au sol de moquette n'est pas une salle de
+ * dojo — et c'est la plus grande surface de l'image, donc c'est elle qui
+ * décide de ce qu'on croit regarder.
+ *
+ * Deux exceptions, et elles se justifient chacune. Les Backrooms, dont la
+ * moquette jaunie EST le sujet. Et la villa, dont le sol est une piscine :
+ * poser du tatami sous l'eau n'aurait aucun sens.
+ */
 export function floorTexture(decor: string, ground: string): Surface | undefined {
+  void ground
   switch (decor) {
-    case 'dojo': return tatami('#d8e3a0', '#8aa34e')
-    case 'garden':
-    case 'forest': return grass(ground, '#5f8c2c')
-    case 'villa': return tiles('#ffe3c4', '#e0a878')
-    case 'castle': return planks('#a89a84', '#7a6a55')
-    case 'factory': return treadplate(ground)
-    case 'lab': return tiles('#e4f6fb', '#a8d2dd')
-    case 'startup': return carpet('#cfd0f0')
-    case 'space': return treadplate('#2a3168')
-    case 'wonderland': return tiles('#f6d9ff', '#d3a8e8')
     case 'backrooms': return carpet('#9a8f5e')
-    default: return concrete(ground)
+    case 'villa': return tiles('#e8dcc4', '#c9b894')
+    default: return tatami('#d8cfa4', '#8aa34e')
   }
 }
 

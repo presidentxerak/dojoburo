@@ -224,9 +224,11 @@ for (const [name, go] of SCREENS) {
   await go()
   const r = await probe()
   const over = r.scrollW > r.vw + 1
-  const wrongTheme = r.theme !== scheme
+  // Le thème attendu est CLAIR quoi qu'il arrive · l'application ne suit plus
+  // la préférence du système (voir store.ts · loadTheme).
+  const wrongTheme = r.theme !== 'light'
   if (wrongTheme) bad++
-  console.log(`\n=== ${name} · data-theme=${r.theme}${wrongTheme ? ` ← DEVRAIT ÊTRE ${scheme}` : ''} · ${r.vw}px de large, ${r.scrollW}px à faire défiler${over ? '  ← DÉBORDE' : ''}`)
+  console.log(`\n=== ${name} · data-theme=${r.theme}${wrongTheme ? ` ← DEVRAIT ÊTRE light` : ''} · ${r.vw}px de large, ${r.scrollW}px à faire défiler${over ? '  ← DÉBORDE' : ''}`)
   if (r.wide.length) {
     bad += r.wide.length
     console.log('  hors de l’écran :')

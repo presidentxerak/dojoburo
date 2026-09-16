@@ -34,25 +34,22 @@ function RoomDressing({ P, decor, enclosed }: { P: DojoPalette; decor: string; e
   const wet = decor === 'villa'
   return (
     <group>
-      {/* tapis · il rassemble les bureaux au lieu de les laisser flotter */}
+      {/* PAS DE TAPIS SUR LE TATAMI.
+          Il rassemblait les bureaux quand le sol était un aplat de couleur.
+          Maintenant que tous les mondes ont un sol de tatami, ses nattes font
+          déjà ce travail : elles donnent la trame et l'échelle. Un tapis
+          par-dessus, et de surcroît bordé de la couleur d'accent, traversait
+          les nattes de quatre bandes mauves — on le voyait sur téléphone, et
+          c'est le contraire d'une salle de dojo.
+
+          Reste un seul liseré, très pâle, qui marque l'aire de travail sans
+          recouvrir quoi que ce soit. */}
       {!wet && (
         <group>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 1.1]} receiveShadow>
-            <planeGeometry args={[15, 9.4]} />
-            <Mat color={P.trim} transparent opacity={0.22} flat />
-          </mesh>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 1.1]}>
-            <ringGeometry args={[0, 0.001, 4]} />
-            <meshBasicMaterial visible={false} />
-          </mesh>
-          {/* le galon du tapis, quatre bandes · un tapis sans bord se lit
-              comme une tache de lumière sur le sol */}
-          {[[0, -3.6, 15, 0.22], [0, 5.8, 15, 0.22], [-7.4, 1.1, 0.22, 9.4], [7.4, 1.1, 0.22, 9.4]].map(([x, z, w, d], i) => (
-            <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.025, z]}>
+          {[[0, -3.6, 15, 0.1], [0, 5.8, 15, 0.1], [-7.4, 1.1, 0.1, 9.4], [7.4, 1.1, 0.1, 9.4]].map(([x, z, w, d], i) => (
+            <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.02, z]}>
               <planeGeometry args={[w, d]} />
-              {/* l'accent DÉSATURÉ · pur, sur quinze unités de galon, il
-                  repeignait tout le sol de la couleur du thème */}
-              <Mat color={mute(P.accent, 0.5)} transparent opacity={0.3} flat />
+              <Mat color={mute(P.accent, 0.62)} transparent opacity={0.22} flat />
             </mesh>
           ))}
         </group>
@@ -864,10 +861,8 @@ function StartupDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           plus grande surface de la pièce après le sol, et elle criait. Teinte
           rabattue de moitié, et sans liseré — un Fresnel rasant sur un plan
           horizontal fait un halo à l'horizon (piège n° 4 du kit). */}
-      <mesh position={[0, 0.02, 1.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[13, 8]} />
-        <Mat color={mute(P.accent, 0.55)} transparent opacity={0.14} flat />
-      </mesh>
+      {/* le grand tapis d'accent est retiré · treize sur huit posés sur du
+          tatami, c'était la nappe qui cachait la natte */}
       {/* lounge couch + coffee table on the front-left */}
       <group position={[-8, 0, 5.4]} rotation={[0, 0.5, 0]}>
         <B p={[0, 0.32, 0]} s={[2.2, 0.4, 0.9]} c="#6b74a8" />

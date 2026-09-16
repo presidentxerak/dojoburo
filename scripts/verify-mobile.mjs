@@ -138,29 +138,44 @@ await sideways('app')
   ok((await page.locator('.modhost-fs.fs').count()) === 0, 'and closes back into the app')
 }
 
-/* ---- dark mode is a claim the CSS makes · check it on the real ground ---- */
+/* ---- le thème par défaut est CLAIR, quel que soit l'appareil ------------- *
+ *
+ * Cette épreuve exigeait l'inverse : elle vérifiait que l'application suivait
+ * la préférence du système. C'était le comportement voulu, il ne l'est plus —
+ * dojoburo est une salle de tatami et de papier de riz, et servie en coque
+ * noire à quelqu'un dont le téléphone est en sombre, elle arrivait à
+ * contre-emploi.
+ *
+ * Ce qui reste gardé, et c'est le plus important : le thème SOMBRE existe
+ * toujours et il fonctionne. Un choix explicite y bascule et y reste. Une
+ * épreuve qui ne vérifierait plus que le clair laisserait le sombre pourrir
+ * sans que personne ne s'en aperçoive.                                       */
 {
-  // the theme is read once at start-up, so the preference has to be in place
-  // BEFORE the page boots · emulate, then reload
+  // sans rien de sauvegardé, téléphone réglé en SOMBRE · on attend du CLAIR
   await page.evaluate(() => { try { localStorage.removeItem('dojoburo.theme') } catch { /* */ } })
   await page.emulateMedia({ colorScheme: 'dark' })
   await page.reload({ waitUntil: 'load' })
   await page.waitForTimeout(1200)
-  const lum = await page.evaluate(() => {
-    const bg = getComputedStyle(document.body).backgroundColor
-    const m = bg.match(/\d+/g)
+  const lumOf = () => page.evaluate(() => {
+    const m = getComputedStyle(document.body).backgroundColor.match(/\d+/g)
     return m ? (Number(m[0]) * 0.299 + Number(m[1]) * 0.587 + Number(m[2]) * 0.114) : -1
   })
-  ok(lum >= 0 && lum < 120, 'the app is actually dark in dark mode', `luminance ${Math.round(lum)}`)
+  const sys = await lumOf()
+  ok(sys > 150, 'clair par défaut même quand le téléphone est en sombre', `luminance ${Math.round(sys)}`)
+
+  // un choix EXPLICITE doit être respecté · sinon le thème sombre est mort
+  await page.evaluate(() => { try { localStorage.setItem('dojoburo.theme', 'dark') } catch { /* */ } })
+  await page.reload({ waitUntil: 'load' })
+  await page.waitForTimeout(1200)
+  const chosen = await lumOf()
+  ok(chosen >= 0 && chosen < 120, 'et vraiment sombre quand on le demande', `luminance ${Math.round(chosen)}`)
+
   await page.evaluate(() => { try { localStorage.removeItem('dojoburo.theme') } catch { /* */ } })
   await page.emulateMedia({ colorScheme: 'light' })
   await page.reload({ waitUntil: 'load' })
   await page.waitForTimeout(1200)
-  const lum2 = await page.evaluate(() => {
-    const m = getComputedStyle(document.body).backgroundColor.match(/\d+/g)
-    return m ? (Number(m[0]) * 0.299 + Number(m[1]) * 0.587 + Number(m[2]) * 0.114) : -1
-  })
-  ok(lum2 > 150, 'and light in light mode', `luminance ${Math.round(lum2)}`)
+  const light = await lumOf()
+  ok(light > 150, 'et clair quand le téléphone est en clair', `luminance ${Math.round(light)}`)
 }
 
 const real = errs.filter((e) => !/ResizeObserver|Failed to load resource/.test(e))

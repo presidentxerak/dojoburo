@@ -24,7 +24,16 @@ import { Character3D } from './Character3D'
  * a character that is deeper than it is wide would otherwise clip its own
  * shoulders halfway through the turn.
  */
-function Fit({ padding = 1.1, children }: { padding?: number; children: ReactNode }) {
+// `padding` à 1,1 laissait dix pour cent de vide TOUT AUTOUR, et la distance
+// était encore rallongée d'une demi-profondeur de modèle. Les deux cumulés
+// reculaient la caméra d'un bon quart, et le personnage occupait à peine la
+// moitié de sa vignette — c'est le « trop petits dans les cartes » signalé.
+//
+// 0,92 fait déborder très légèrement : ce qui sort du cadre, ce sont les
+// semelles et la pointe d'un chapeau, c'est-à-dire ce qui ne porte aucune
+// information. Ce qu'on veut voir dans une vignette de la taille d'un pouce,
+// c'est un visage.
+function Fit({ padding = 0.92, children }: { padding?: number; children: ReactNode }) {
   const inner = useRef<THREE.Group>(null)
   const { camera, size } = useThree()
   useLayoutEffect(() => {
@@ -43,7 +52,9 @@ function Fit({ padding = 1.1, children }: { padding?: number; children: ReactNod
     const width = Math.max(extent.x, extent.z) // it turns while it idles
     const forHeight = extent.y / 2 / Math.tan(vFov / 2)
     const forWidth = width / 2 / Math.tan(hFov / 2)
-    cam.position.set(0, 0, Math.max(forHeight, forWidth) * padding + extent.z / 2)
+    // la profondeur ne compte plus que pour un cinquième · à la moitié, un
+    // personnage un peu épais se retrouvait repoussé pour rien
+    cam.position.set(0, 0, Math.max(forHeight, forWidth) * padding + extent.z * 0.2)
     cam.lookAt(0, 0, 0)
     cam.updateProjectionMatrix()
     // re-frames when the canvas is resized or the character is swapped
@@ -77,7 +88,7 @@ export default function Agent3DScene({
   dist = 4.3,
   lift = -1.55,
   fit = false,
-  padding = 1.1,
+  padding = 0.92,
 }: {
   character: Character
   size?: number

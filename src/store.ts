@@ -135,23 +135,24 @@ function saveStats(stats: Record<string, AgentStats>) {
 }
 
 /**
- * The theme to open in.
+ * Le thème au démarrage · CLAIR, sur tous les appareils.
  *
- * A stored choice wins, always — someone who picked Light on a dark machine
- * meant it. With nothing stored we follow the operating system, which is what
- * every other app on their screen does.
+ * Il suivait la préférence du système, et c'est un choix qui se défend : on
+ * arrive dans le thème du reste de son écran. Mais dojoburo est une salle de
+ * dojo, du tatami, du papier de riz et du bois — un décor CLAIR. Servi dans
+ * une coque noire à quelqu'un dont le téléphone est en sombre, le produit
+ * arrivait à contre-emploi, et c'était le cas de la majorité des visiteurs
+ * mobiles.
  *
- * This used to return 'light' unconditionally, so the dark theme existed in the
- * stylesheet and there was no way to arrive in it: a visitor whose whole machine
- * is dark got a white page and had to find a control buried in Settings. The
- * stylesheet has no `prefers-color-scheme` rules at all — the theme is a
- * `data-theme` stamp — so honouring the preference has to happen here.
+ * Seul un choix EXPLICITE bascule maintenant en sombre, et il est retenu. Une
+ * préférence système n'est pas un choix explicite : c'est un réglage pris pour
+ * d'autres applications.
  */
 function loadTheme(): Theme {
-  // Le script en tête de index.html a déjà posé la marque avant le premier
-  // pixel · la relire est la seule façon de ne pas répondre autre chose que ce
-  // qui est DÉJÀ à l'écran. Le calcul reste en secours, pour les rendus qui
-  // n'ont pas ce document (tests, prérendu).
+  // Si une marque est DÉJÀ posée sur le document, elle fait foi : répondre
+  // autre chose que ce qui est à l'écran ferait clignoter la page. Au premier
+  // chargement il n'y en a pas — le stamp vient de `applyTheme`, appelé après
+  // le montage — et on tombe donc sur la suite.
   try {
     const stamped = document.documentElement.getAttribute('data-theme')
     if (stamped === 'dark' || stamped === 'light') return stamped
@@ -159,12 +160,8 @@ function loadTheme(): Theme {
   try {
     const saved = localStorage.getItem('dojoburo.theme')
     if (saved === 'dark' || saved === 'light') return saved
-  } catch { /* private window · fall through to the system preference */ }
-  try {
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  } catch {
-    return 'light'
-  }
+  } catch { /* fenêtre privée · on retombe sur le clair */ }
+  return 'light'
 }
 
 /**
