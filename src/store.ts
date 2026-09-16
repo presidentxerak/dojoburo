@@ -149,10 +149,10 @@ function saveStats(stats: Record<string, AgentStats>) {
  * d'autres applications.
  */
 function loadTheme(): Theme {
-  // Si une marque est DÉJÀ posée sur le document, elle fait foi : répondre
-  // autre chose que ce qui est à l'écran ferait clignoter la page. Au premier
-  // chargement il n'y en a pas — le stamp vient de `applyTheme`, appelé après
-  // le montage — et on tombe donc sur la suite.
+  // `public/boot.js` a DÉJÀ posé la marque avant le premier pixel : la relire
+  // est la seule façon de ne pas répondre autre chose que ce qui est à
+  // l'écran. C'est donc LÀ-BAS que se décide le défaut, pas ici — et ce
+  // fichier est dans `public/`, invisible à toute recherche dans `src/`.
   try {
     const stamped = document.documentElement.getAttribute('data-theme')
     if (stamped === 'dark' || stamped === 'light') return stamped

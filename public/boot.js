@@ -20,14 +20,25 @@
  */
 (function () {
   /* ---- 1 · le thème, avant le premier pixel --------------------------- */
-  // Un choix enregistré l'emporte toujours — quelqu'un qui a coché Clair sur
-  // une machine sombre l'a voulu ; sinon on suit le système, comme toutes les
-  // autres applications de son écran.
+  //
+  // CLAIR PAR DÉFAUT, sur tous les appareils. Un choix enregistré l'emporte
+  // toujours — quelqu'un qui a coché Sombre l'a voulu — mais la préférence du
+  // SYSTÈME n'est plus consultée.
+  //
+  // Elle l'était, et c'était défendable : on arrivait dans le thème du reste
+  // de son écran. Sauf que dojoburo est une salle de tatami, de papier de riz
+  // et de bois — un décor clair. Servi dans une coque noire, le produit
+  // arrivait à contre-emploi, et c'était le cas de la majorité des visiteurs
+  // sur téléphone.
+  //
+  // C'EST ICI que la décision se prend, et nulle part ailleurs. `loadTheme`
+  // dans store.ts relit la marque posée par ce fichier : la changer là-bas
+  // sans la changer ici ne produit rigoureusement aucun effet — j'ai perdu
+  // une demi-heure à le découvrir, parce que ce fichier est dans `public/` et
+  // qu'aucune recherche dans `src/` ne le trouve.
   var t = null
   try { t = localStorage.getItem('dojoburo.theme') } catch (e) { /* navigation privée */ }
-  if (t !== 'dark' && t !== 'light') {
-    try { t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch (e) { t = 'light' }
-  }
+  if (t !== 'dark' && t !== 'light') t = 'light'
   document.documentElement.setAttribute('data-theme', t)
   // La barre du navigateur suit aussi · une encoche noire au-dessus d'une page
   // blanche se lit comme un défaut d'affichage.

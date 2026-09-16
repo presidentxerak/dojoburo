@@ -53,27 +53,38 @@ export interface Character {
   acc?: string
 }
 
+// Les douze de l'équipe · REPEINTS DANS LES COULEURS DU DOJO.
+//
+// Ils portaient la palette d'avant : jaune signal, bleu roi, magenta, violet
+// électrique. Elle tenait quand la salle était elle-même colorée ; dans une
+// salle de tatami et de washi, ce sont douze taches qui se disputent l'œil.
+//
+// Chacun reçoit l'une des dix écoles (voir data/skins · SCHOOLS), et la règle
+// du kit s'applique ici comme ailleurs : fourrure sourde, vêtement saturé. Ce
+// qui les distingue reste ce qui les distinguait — l'espèce d'abord, le
+// vêtement ensuite — mais ils appartiennent enfin au même lieu.
 export const CHARACTERS: Record<string, Character> = {
-  ava: { kind: 'goldorak', face: '#c9d2de', outfit: '#f4b400', outfit2: '#b3141d', pants: '#8b93a1', extra: '#d8232a' },
-  rex: { kind: 'ninja', face: '#e7b184', outfit: '#2f80ed', outfit2: '#0b3b73', pants: '#14203a', extra: '#12203a' },
-  otto: { kind: 'robot', face: '#b7c0cc', outfit: '#22a35a', outfit2: '#0f5a2f', pants: '#5b6470', extra: '#4be08a' },
-  fin: { kind: 'alien', face: '#8fdc7a', outfit: '#7c5cdf', outfit2: '#efe6ff', pants: '#4a3a86', extra: '#d6ff8f' },
-  mia: { kind: 'cat', face: '#f3cbab', outfit: '#f2617a', outfit2: '#7a1730', pants: '#3a2a20', extra: '#3a2a20' },
-  sol: { kind: 'octopus', face: '#d65a86', outfit: '#b8446e', outfit2: '#7a2246', pants: '#8a2f57', extra: '#ffd0e0' },
-  pia: { kind: 'wizard', face: '#eec3a0', outfit: '#17b8a6', outfit2: '#0a4f48', pants: '#0d3b52', extra: '#123a63' },
-  dex: { kind: 'monster', face: '#b06cf0', outfit: '#8b2ff2', outfit2: '#3a1466', pants: '#2a0f4a', extra: '#ffe08a' },
-  ada: { kind: 'monitor', face: '#dfe6ee', outfit: '#1aa0e6', outfit2: '#0a5a86', pants: '#0d4a66', extra: '#9aa6b4' },
-  hana: { kind: 'alien', face: '#c79bf0', outfit: '#2fce88', outfit2: '#0f5a3a', pants: '#0f5a3a', extra: '#ffd23b' },
-  sam: { kind: 'slime', face: '#5ad1c0', outfit: '#5aa2f5', outfit2: '#14345f', pants: '#2fae9c', extra: '#c9fff5' },
-  lex: { kind: 'vampire', face: '#e6c6a0', outfit: '#3a3140', outfit2: '#8a1420', pants: '#22202a', extra: '#141118' },
+  ava: { kind: 'goldorak', face: '#cfc8ba', outfit: '#5b6470', outfit2: '#414952', pants: '#6d7783', extra: '#c4462f' },
+  rex: { kind: 'ninja', face: '#e9e4da', outfit: '#2b3640', outfit2: '#1b222a', pants: '#3f4a55', extra: '#c9a227' },
+  otto: { kind: 'robot', face: '#7e7d75', outfit: '#23262e', outfit2: '#14161c', pants: '#2e3138', extra: '#b07d2a' },
+  fin: { kind: 'alien', face: '#cfd8bc', outfit: '#46603a', outfit2: '#31462a', pants: '#5b7a3e', extra: '#c9a227' },
+  mia: { kind: 'cat', face: '#e8d8bc', outfit: '#8c6644', outfit2: '#5d4230', pants: '#a8784f', extra: '#6b7f4a' },
+  sol: { kind: 'octopus', face: '#e0c4c0', outfit: '#8c3b2a', outfit2: '#5e2419', pants: '#a8503a', extra: '#d6c48a' },
+  pia: { kind: 'wizard', face: '#c4d2d8', outfit: '#1f3448', outfit2: '#162534', pants: '#2e4a6b', extra: '#d8cfa4' },
+  dex: { kind: 'monster', face: '#f0dcd8', outfit: '#8c4a55', outfit2: '#6b353e', pants: '#a86068', extra: '#e7a0a8' },
+  ada: { kind: 'monitor', face: '#f2ece0', outfit: '#a8a89c', outfit2: '#7e7d75', pants: '#cfc8ba', extra: '#2e4a6b' },
+  hana: { kind: 'alien', face: '#d9a877', outfit: '#6b4a2a', outfit2: '#4a331c', pants: '#5d4230', extra: '#c4462f' },
+  sam: { kind: 'slime', face: '#bfd0c4', outfit: '#46603a', outfit2: '#2f4229', pants: '#5b7a3e', extra: '#d6d2a8' },
+  lex: { kind: 'vampire', face: '#cfc8ba', outfit: '#2b3640', outfit2: '#8c3b2a', pants: '#23262e', extra: '#5e2419' },
 }
 
-// The player-hero: a human founder in a red hoodie.
+// Le fondateur · un humain en veste indigo. Le sweat rouge vif et le jaune
+// d'or juraient avec le tatami, et c'est LE personnage qu'on voit le plus.
 export const HERO_CHARACTER: Character = {
   kind: 'human',
-  face: '#eab98c',
-  outfit: '#e23b57',
-  outfit2: '#ffd23b',
-  pants: '#2b3550',
-  extra: '#2a1d12',
+  face: '#e8d8bc',
+  outfit: '#1f3448',
+  outfit2: '#c4462f',
+  pants: '#2e4a6b',
+  extra: '#c9a227',
 }

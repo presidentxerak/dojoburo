@@ -234,9 +234,17 @@ for (const [name, go] of SCREENS) {
     console.log('  hors de l’écran :')
     for (const w of r.wide.slice(0, 8)) console.log(`    ${w.what} · ${w.w}px de large, de ${w.left}px à ${w.right}px`)
   }
-  // une surface claire n'est un défaut que dans le noir · en clair c'est
-  // l'écran normal
-  if (r.light.length && scheme === 'dark') {
+  // Une surface claire n'est un défaut que dans un thème SOMBRE.
+  //
+  // La condition regardait le réglage du TÉLÉPHONE, ce qui était juste tant
+  // que l'application le suivait. Elle ne le suit plus : elle est claire même
+  // sur un téléphone en sombre. La condition comptait donc six surfaces
+  // claires parfaitement normales comme autant de fuites.
+  //
+  // C'est le thème RÉELLEMENT servi qui décide. Le contrôle garde tout son
+  // mordant : quelqu'un qui choisit explicitement le sombre et tombe sur un
+  // panneau resté blanc le verra signalé.
+  if (r.light.length && r.theme === 'dark') {
     bad += r.light.length
     console.log('  surfaces claires dans le thème sombre :')
     for (const l of r.light.slice(0, 10)) console.log(`    ${l.what} · ${l.bg} · ${l.area}`)

@@ -360,6 +360,79 @@ export function cornerShade(): THREE.Texture {
   return t
 }
 
+/** Gravier ratissé · le karesansui, le jardin sec. Ce sont les SILLONS qui
+ *  font la lecture, pas les cailloux : un gravier sans sillons n'est qu'un
+ *  bruit gris. */
+export function gravel(base = '#d6d2c6', line = '#b8b3a4') {
+  return make(`gravel-${base}-${line}`, 512, (c, s) => {
+    c.fillStyle = base
+    c.fillRect(0, 0, s, s)
+    // les sillons du râteau · larges, réguliers, très peu contrastés
+    c.strokeStyle = line
+    c.lineWidth = 3
+    for (let y = 8; y < s; y += 26) {
+      c.beginPath()
+      for (let x = 0; x <= s; x += 16) c.lineTo(x, y + Math.sin(x / 34) * 2.2)
+      c.stroke()
+    }
+    // les cailloux · assez gros pour se lire, assez rares pour ne pas bruiter
+    for (let i = 0; i < 700; i++) {
+      c.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.08)'
+      c.beginPath()
+      c.ellipse(Math.random() * s, Math.random() * s, 1.8 + Math.random() * 2.2, 1.4 + Math.random() * 1.8, Math.random() * 3, 0, 7)
+      c.fill()
+    }
+  }, 4, 3, 0.95)
+}
+
+/** Eau calme · le bassin. Des anneaux larges et pâles, jamais des vaguelettes
+ *  serrées : une ride d'un pixel répétée dix fois redonne exactement le bruit
+ *  de télévision qu'on a mis si longtemps à retirer du reste. */
+export function water(base = '#9fc9c4', ring = '#c4e0dc') {
+  return make(`water-${base}-${ring}`, 512, (c, s) => {
+    c.fillStyle = base
+    c.fillRect(0, 0, s, s)
+    c.strokeStyle = ring
+    for (let i = 0; i < 16; i++) {
+      const cx = Math.random() * s, cy = Math.random() * s
+      const r = 26 + Math.random() * 110
+      c.globalAlpha = 0.1 + Math.random() * 0.12
+      c.lineWidth = 2 + Math.random() * 3
+      c.beginPath(); c.ellipse(cx, cy, r, r * (0.7 + Math.random() * 0.4), 0, 0, 7); c.stroke()
+    }
+    c.globalAlpha = 1
+    // un voile clair diagonal · le reflet du ciel sur la surface
+    const g = c.createLinearGradient(0, 0, s, s)
+    g.addColorStop(0, 'rgba(255,255,255,0.1)')
+    g.addColorStop(0.5, 'rgba(255,255,255,0)')
+    g.addColorStop(1, 'rgba(255,255,255,0.07)')
+    c.fillStyle = g
+    c.fillRect(0, 0, s, s)
+  }, 3, 2, 0.28)
+}
+
+/** Ardoise · les dalles sombres d'une allée. */
+export function slate(base = '#7f8188', joint = '#5e6068') {
+  return make(`slate-${base}`, 512, (c, s) => {
+    c.fillStyle = base
+    c.fillRect(0, 0, s, s)
+    const n = 3, step = s / n
+    c.strokeStyle = joint
+    c.lineWidth = 6
+    for (let i = 0; i <= n; i++) {
+      c.beginPath(); c.moveTo(i * step, 0); c.lineTo(i * step, s); c.stroke()
+      c.beginPath(); c.moveTo(0, i * step); c.lineTo(s, i * step); c.stroke()
+    }
+    for (let i = 0; i < 40; i++) {
+      const g = c.createRadialGradient(Math.random() * s, Math.random() * s, 3, Math.random() * s, Math.random() * s, 50 + Math.random() * 90)
+      g.addColorStop(0, `rgba(255,255,255,${0.02 + Math.random() * 0.05})`)
+      g.addColorStop(1, 'rgba(255,255,255,0)')
+      c.fillStyle = g
+      c.fillRect(0, 0, s, s)
+    }
+  }, 5, 4, 0.66)
+}
+
 /**
  * Le sol · DU TATAMI PARTOUT, sauf là où le monde est son propre sujet.
  *
@@ -376,8 +449,21 @@ export function cornerShade(): THREE.Texture {
 export function floorTexture(decor: string, ground: string): Surface | undefined {
   void ground
   switch (decor) {
+    // le bassin · c'est l'onsen, et il reste le sol le plus amusant du jeu
+    case 'villa': return water()
+    // le jardin sec · gravier ratissé, la contrepartie minérale du tatami
+    case 'garden':
+    case 'wonderland': return gravel()
+    // la mousse · un jardin de temple, vert sourd et non vert pomme
+    case 'forest': return grass('#8fa06a', '#6d7d4c')
+    // l'engawa · la galerie de bois qui borde une salle de tatami
+    case 'castle': return planks('#a08662', '#7a6446')
+    // l'allée de pierre · pour tout ce qui est machine ou laboratoire
+    case 'factory':
+    case 'space': return slate('#75777e', '#585a61')
+    case 'lab': return slate('#c9ccc8', '#a9ada8')
+    // les Backrooms gardent leur moquette jaunie · c'est leur sujet
     case 'backrooms': return carpet('#9a8f5e')
-    case 'villa': return tiles('#e8dcc4', '#c9b894')
     default: return tatami('#d8cfa4', '#8aa34e')
   }
 }

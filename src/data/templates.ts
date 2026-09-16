@@ -1,3 +1,12 @@
+// Les mondes · TOUS SONT LE MÊME DOJO, meublé autrement.
+//
+// Les descriptions promettaient autre chose : « pastels de coucher de soleil »,
+// « arcs-en-ciel et nuages de bonbon », « blancs de salle blanche ». C'était
+// vrai quand chaque monde avait sa propre palette de pièce ; ça ne l'est plus,
+// et une description qui promet ce qu'on ne verra pas est un défaut au même
+// titre qu'un objet mal placé. Chaque texte dit maintenant ce qu'on trouvera
+// VRAIMENT : la même salle de tatami, et les objets qui la distinguent.
+//
 // Dojo templates · each is a themed environment for a dojo: a 3D palette
 // (floor / walls / accent / background / fog), a decor style, a matching skin
 // theme used to seed a coherent starter crew, and copy for the create dialog.
@@ -37,7 +46,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'default',
     label: 'Default Dojo',
-    blurb: 'The classic DojoBuro office — clean, neutral and uncluttered.',
+    blurb: 'A bare dojo. Tatami, shoji and nothing in the way.',
     skinTheme: 'Sumi',
     style: 'plain',
     crew: CREW_DEFAULT,
@@ -46,7 +55,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'startup',
     label: 'Start-up HQ',
-    blurb: 'Bright, fast-moving founder loft.',
+    blurb: 'The dojo set up as a founder loft: whiteboards, servers, standing screens.',
     skinTheme: 'Cha',
     style: 'plain',
     crew: CREW_DEFAULT,
@@ -55,7 +64,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'dojo',
     label: 'Zen Dojo',
-    blurb: 'Tatami, shoji screens and a cherry tree.',
+    blurb: 'The dojo at its plainest — cherry tree, taiko drum, a hanging scroll.',
     skinTheme: 'Matcha',
     style: 'zen',
     crew: CREW_DEFAULT,
@@ -65,7 +74,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'space',
     label: 'Space Station',
-    blurb: 'Orbital deck under a starfield.',
+    blurb: 'The dojo rigged for orbit: control screens, a docking bay, stone underfoot.',
     skinTheme: 'Ai',
     style: 'plain',
     crew: ['Leadership', 'Engineering', 'Ops', 'Product', 'Finance', 'Growth'],
@@ -74,7 +83,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'lab',
     label: 'Science Lab',
-    blurb: 'Clean-room whites and neon glassware.',
+    blurb: 'The dojo turned clean room: glassware, benches, pale stone.',
     skinTheme: 'Kiri',
     style: 'plain',
     crew: ['Leadership', 'Engineering', 'Product', 'Ops', 'People', 'Finance'],
@@ -83,7 +92,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'villa',
     label: 'Miami Villa',
-    blurb: 'Sunset pastels, palms and teal water.',
+    blurb: 'The dojo built around an onsen pool. Palms, floats, warm water.',
     skinTheme: 'Hana',
     style: 'plain',
     crew: ['Leadership', 'Growth', 'Product', 'Finance', 'People', 'Engineering'],
@@ -92,7 +101,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'castle',
     label: 'Castle',
-    blurb: 'Stone halls, banners and torchlight.',
+    blurb: 'The dojo on a keep\u2019s engawa: banners, stone and wide planks.',
     skinTheme: 'Hinoki',
     style: 'plain',
     crew: ['Leadership', 'People', 'Finance', 'Ops', 'Growth', 'Engineering'],
@@ -101,7 +110,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'garden',
     label: 'Magical Garden',
-    blurb: 'Lush greenery and glowing blossoms.',
+    blurb: 'The dojo opening on a dry garden of raked gravel and blossom.',
     skinTheme: 'Kuro',
     style: 'zen',
     crew: ['Leadership', 'People', 'Product', 'Growth', 'Engineering', 'Finance'],
@@ -110,7 +119,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'factory',
     label: 'Factory',
-    blurb: 'Steel gantries and warning stripes.',
+    blurb: 'The dojo as a workshop: gantries, crates, slate underfoot.',
     skinTheme: 'Shiro',
     style: 'plain',
     crew: ['Leadership', 'Engineering', 'Ops', 'Finance', 'Product', 'Growth'],
@@ -119,7 +128,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'forest',
     label: 'Forest Lake',
-    blurb: 'A red torii on a still lake, pines and misty hills.',
+    blurb: 'The dojo by the water \u2014 a red torii, pines and moss.',
     skinTheme: 'Beni',
     style: 'zen',
     crew: CREW_DEFAULT,
@@ -128,7 +137,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'wonderland',
     label: 'Wonderland',
-    blurb: 'Rainbows, candy clouds and dreamy pastels.',
+    blurb: 'The dojo at its most playful: pastel props on raked gravel.',
     skinTheme: 'Sumi',
     style: 'plain',
     crew: CREW_DEFAULT,
@@ -137,7 +146,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'backrooms',
     label: 'The Backrooms',
-    blurb: 'Endless yellow rooms, damp carpet and buzzing fluorescent lights.',
+    blurb: 'The one room that is NOT a dojo. Yellow wallpaper, damp carpet, humming lights.',
     skinTheme: 'Cha',
     style: 'plain',
     crew: CREW_DEFAULT,

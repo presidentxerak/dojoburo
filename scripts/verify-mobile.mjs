@@ -156,9 +156,27 @@ await sideways('app')
   await page.emulateMedia({ colorScheme: 'dark' })
   await page.reload({ waitUntil: 'load' })
   await page.waitForTimeout(1200)
+  // On mesure le fond EFFECTIVEMENT peint.
+  //
+  // `body` peut être transparent — la couleur est alors posée sur `html`, ou
+  // sur un conteneur. Une couleur transparente s'écrit `rgba(0, 0, 0, 0)`, et
+  // la lecture naïve des chiffres en tire une luminance de ZÉRO, c'est-à-dire
+  // « tout noir ». L'épreuve annonçait donc une application sombre là où elle
+  // était blanche — c'est exactement l'échec qu'elle vient de produire.
+  //
+  // L'ancienne version passait par chance : elle attendait du sombre, et zéro
+  // est bien inférieur à son seuil. Un contrôle qui passe pour la mauvaise
+  // raison ne garde rien.
   const lumOf = () => page.evaluate(() => {
-    const m = getComputedStyle(document.body).backgroundColor.match(/\d+/g)
-    return m ? (Number(m[0]) * 0.299 + Number(m[1]) * 0.587 + Number(m[2]) * 0.114) : -1
+    const paint = (el) => {
+      const c = getComputedStyle(el).backgroundColor
+      const m = c.match(/[\d.]+/g)
+      if (!m) return null
+      // alpha nul · cet élément ne peint rien, on remonte
+      if (m.length > 3 && Number(m[3]) === 0) return null
+      return Number(m[0]) * 0.299 + Number(m[1]) * 0.587 + Number(m[2]) * 0.114
+    }
+    return paint(document.body) ?? paint(document.documentElement) ?? -1
   })
   const sys = await lumOf()
   ok(sys > 150, 'clair par défaut même quand le téléphone est en sombre', `luminance ${Math.round(sys)}`)
