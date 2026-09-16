@@ -19,6 +19,18 @@
 // réfèrent désormais aux demi-dimensions de la tête (`Head`), si bien qu'une
 // oreille posée « au sommet, aux deux tiers de la largeur » reste au sommet
 // aux deux tiers de la largeur, quelle que soit la forme reçue.
+// LA PROPORTION EST ARRÊTÉE, et elle ne se rediscute plus.
+//
+// La spécification du kit prescrit une tête à 55 % de la hauteur totale, et
+// prévient qu'en dessous les personnages se lisent comme des taches grises
+// quand la caméra recule — or la nôtre est loin. C'est un bon argument, il a
+// été soumis, et il a été tranché : 45 %. Le reproche d'origine était vécu,
+// pas théorique (« leurs têtes sont trop grosses et cubiques »), et une
+// spécification écrite pour un jeu où l'on voit trois personnages en gros
+// plan ne décide pas d'une pièce où l'on en regarde douze travailler.
+//
+// Ce commentaire existe pour qu'on ne refasse pas l'aller-retour une
+// quatrième fois.
 export const HEAD_Y = 1.95
 export const HEAD_S = 1.02
 // La tête reste légèrement remontée · le clapet de l'ordinateur monte à

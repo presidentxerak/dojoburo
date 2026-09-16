@@ -354,6 +354,230 @@ const CHAIR: Record<string, [string, string]> = {
   wonderland: ['#ff9ecb', '#c98cff'], dojo: ['#7a4a24', '#5a3a1c'],
 }
 
+// ============================================================================
+// LES SIÈGES
+//
+// Un tube, une croix, une planche et une plaque : quatre boîtes, répétées
+// douze fois par salle, dans neuf mondes sur onze. C'était, après les
+// personnages, l'objet le plus présent à l'écran — et le moins dessiné.
+//
+// Ce qui manquait n'est pas de la finesse, c'est de la STRUCTURE. Une chaise
+// de bureau se reconnaît à son piètement à cinq branches et à ses roulettes,
+// pas à son assise ; un tabouret à ses pieds écartés ; un banc à ses
+// traverses. Chacune de ces choses coûte un maillage et se lit à cette
+// distance, là où un galbe de deux millimètres ne se lit pas.
+//
+// Et un dojo zen n'a pas de chaise de bureau. Les quatre familles suivent le
+// monde : chaise à roulettes là où l'on travaille sur écran, tabouret là où
+// le sol compte, banc au château, souche en forêt.
+// ============================================================================
+
+type SeatKind = 'task' | 'stool' | 'bench' | 'stump'
+const SEAT_KIND: Record<string, SeatKind> = {
+  startup: 'task', lab: 'task', factory: 'task', backrooms: 'task',
+  dojo: 'stool', garden: 'stool', wonderland: 'stool',
+  castle: 'bench', forest: 'stump',
+}
+
+/** La chaise de travail · piètement cinq branches, vérin, assise galbée,
+ *  dossier lombaire, accoudoirs. */
+function TaskChair({ seat, back }: { seat: string; back: string }) {
+  const metal = { roughness: 0.55, metalness: 0.3 }
+  return (
+    <group>
+      {/* le piètement · CINQ branches, c'est la signature de l'objet */}
+      {Array.from({ length: 5 }).map((_, i) => {
+        const a = (i / 5) * Math.PI * 2 + 0.35
+        return (
+          <group key={i} rotation={[0, a, 0]}>
+            <mesh position={[0, 0.09, 0.17]} rotation={[0.07, 0, 0]} geometry={roundedBox(0.1, 0.06, 0.36, 0.025)} castShadow>
+              <Mat color="#2b2f3d" {...metal} />
+            </mesh>
+            {/* la roulette */}
+            <mesh position={[0, 0.045, 0.34]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <cylinderGeometry args={[0.045, 0.045, 0.055, 12]} />
+              <Mat color="#15171f" roughness={0.95} />
+            </mesh>
+          </group>
+        )
+      })}
+      {/* le vérin, en deux diamètres · un tube unique se lit comme un bâton */}
+      <Cy p={[0, 0.22, 0]} r={0.055} h={0.24} c="#7f8794" />
+      <Cy p={[0, 0.38, 0]} r={0.036} h={0.2} c="#c9cfd9" />
+      <mesh position={[0, 0.48, 0.02]} geometry={roundedBox(0.3, 0.08, 0.32, 0.03)}>
+        <Mat color="#20242f" {...metal} />
+      </mesh>
+      {/* l'assise · et son bourrelet avant, qui seul fait lire un coussin
+          plutôt qu'une planche */}
+      <mesh position={[0, 0.57, 0.02]} geometry={roundedBox(0.64, 0.11, 0.62, 0.08)} castShadow>
+        <Mat color={seat} roughness={0.88} />
+      </mesh>
+      <mesh position={[0, 0.555, 0.31]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <capsuleGeometry args={[0.055, 0.5, 4, 10]} />
+        <Mat color={seat} roughness={0.9} />
+      </mesh>
+      {/* la colonne du dossier, puis le dossier, incliné */}
+      <mesh position={[0, 0.74, -0.3]} rotation={[0.2, 0, 0]} geometry={roundedBox(0.11, 0.36, 0.09, 0.03)}>
+        <Mat color="#20242f" {...metal} />
+      </mesh>
+      <group position={[0, 1.06, -0.37]} rotation={[0.15, 0, 0]}>
+        <mesh geometry={roundedBox(0.58, 0.64, 0.1, 0.1)} castShadow>
+          <Mat color={back} roughness={0.88} />
+        </mesh>
+        <mesh position={[0, -0.21, 0.07]} rotation={[0, 0, Math.PI / 2]}>
+          <capsuleGeometry args={[0.05, 0.42, 4, 10]} />
+          <Mat color={back} roughness={0.9} />
+        </mesh>
+      </group>
+      {/* les accoudoirs */}
+      {[-1, 1].map((sd) => (
+        <group key={sd}>
+          <mesh position={[sd * 0.34, 0.68, -0.12]} geometry={roundedBox(0.06, 0.26, 0.07, 0.02)}>
+            <Mat color="#20242f" {...metal} />
+          </mesh>
+          <mesh position={[sd * 0.34, 0.82, -0.02]} geometry={roundedBox(0.1, 0.05, 0.36, 0.025)} castShadow>
+            <Mat color="#15171f" roughness={0.75} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  )
+}
+
+/** Le tabouret · pieds écartés, ceinture, coussin. Un dojo zen n'a pas de
+ *  chaise à roulettes. */
+function Stool({ seat, back }: { seat: string; back: string }) {
+  return (
+    <group>
+      {Array.from({ length: 4 }).map((_, i) => {
+        const a = (i / 4) * Math.PI * 2 + Math.PI / 4
+        return (
+          <group key={i} rotation={[0, a, 0]}>
+            {/* le pied s'ÉCARTE · quatre pieds verticaux donnent une caisse */}
+            <mesh position={[0, 0.27, 0.27]} rotation={[-0.16, 0, 0]} castShadow>
+              <cylinderGeometry args={[0.042, 0.055, 0.56, 10]} />
+              <Mat color={back} roughness={0.85} />
+            </mesh>
+            {/* la traverse basse, qui tient l'ensemble */}
+            <mesh position={[0, 0.17, 0.22]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.026, 0.026, 0.42, 8]} />
+              <Mat color={back} roughness={0.85} />
+            </mesh>
+          </group>
+        )
+      })}
+      <mesh position={[0, 0.58, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.36, 0.34, 0.08, 22]} />
+        <Mat color={back} roughness={0.8} />
+      </mesh>
+      {/* le zabuton · un tabouret nu est un billot */}
+      <mesh position={[0, 0.66, 0]} geometry={roundedBox(0.6, 0.1, 0.58, 0.07)} castShadow>
+        <Mat color={seat} roughness={0.95} />
+      </mesh>
+      {[-1, 1].map((sd) => (
+        <mesh key={sd} position={[sd * 0.26, 0.66, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.05, 0.016, 6, 12]} />
+          <Mat color={back} roughness={0.9} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+/** Le banc du château · deux tréteaux, une planche épaisse, une traverse
+ *  chevillée et un coussin. */
+function Bench({ seat, back }: { seat: string; back: string }) {
+  return (
+    <group>
+      {[-1, 1].map((sd) => (
+        <group key={sd} position={[sd * 0.42, 0, 0]}>
+          <mesh position={[0, 0.28, 0]} geometry={roundedBox(0.14, 0.56, 0.5, 0.04)} castShadow>
+            <Mat color={back} roughness={0.9} />
+          </mesh>
+          {/* le pied est ÉVIDÉ · c'est la découpe qui fait le meuble ancien */}
+          <mesh position={[0, 0.2, 0]}>
+            <boxGeometry args={[0.16, 0.22, 0.16]} />
+            <Mat color="#2a2118" roughness={1} />
+          </mesh>
+          <mesh position={[0, 0.06, 0]} geometry={roundedBox(0.2, 0.09, 0.62, 0.03)} castShadow>
+            <Mat color={back} roughness={0.9} />
+          </mesh>
+        </group>
+      ))}
+      <mesh position={[0, 0.16, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.045, 0.045, 0.98, 8]} />
+        <Mat color={back} roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 0.6, 0]} geometry={roundedBox(1.24, 0.11, 0.54, 0.035)} castShadow receiveShadow>
+        <Mat color={back} roughness={0.85} />
+      </mesh>
+      {/* les ferrures */}
+      {[-0.42, 0.42].map((mx) => (
+        <mesh key={mx} position={[mx, 0.545, 0]}>
+          <boxGeometry args={[0.2, 0.025, 0.56]} />
+          <Mat color="#4a4038" roughness={0.6} metalness={0.4} />
+        </mesh>
+      ))}
+      <mesh position={[0, 0.7, 0.02]} geometry={roundedBox(0.72, 0.13, 0.46, 0.08)} castShadow>
+        <Mat color={seat} roughness={0.95} />
+      </mesh>
+    </group>
+  )
+}
+
+/** La souche · cernes, écorce, mousse. Personne n'apporte une chaise dans
+ *  une forêt. */
+function Stump({ seat }: { seat: string }) {
+  return (
+    <group>
+      <mesh position={[0, 0.3, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.4, 0.46, 0.6, 16]} />
+        <Mat color="#6b4a2a" roughness={1} />
+      </mesh>
+      {/* l'écorce · six plaques verticales, sinon c'est un fût de bois tourné */}
+      {Array.from({ length: 7 }).map((_, i) => {
+        const a = (i / 7) * Math.PI * 2
+        return (
+          <mesh key={i} position={[Math.cos(a) * 0.43, 0.3, Math.sin(a) * 0.43]} rotation={[0, -a, 0]} castShadow>
+            <boxGeometry args={[0.07, 0.58, 0.16]} />
+            <Mat color="#54381f" roughness={1} />
+          </mesh>
+        )
+      })}
+      {/* le dessus · aubier clair et cernes concentriques */}
+      <mesh position={[0, 0.605, 0]} receiveShadow>
+        <cylinderGeometry args={[0.4, 0.4, 0.04, 16]} />
+        <Mat color="#c4a06a" roughness={0.9} />
+      </mesh>
+      {[0.3, 0.2, 0.1].map((r) => (
+        <mesh key={r} position={[0, 0.627, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[r - 0.018, r, 20]} />
+          <Mat color="#9d7c4c" flat roughness={1} />
+        </mesh>
+      ))}
+      {/* la mousse, d'un seul côté · elle pousse au nord */}
+      <mesh position={[-0.3, 0.26, 0.24]} scale={[1, 0.6, 0.5]} castShadow>
+        <sphereGeometry args={[0.2, 12, 10]} />
+        <Mat color={seat} roughness={1} />
+      </mesh>
+      <mesh position={[0.34, 0.12, -0.26]} scale={[1, 0.5, 0.6]}>
+        <sphereGeometry args={[0.14, 10, 8]} />
+        <Mat color="#4f7d3a" roughness={1} />
+      </mesh>
+    </group>
+  )
+}
+
+function Seat({ variant }: { variant: string }) {
+  const [seat, back] = CHAIR[variant] ?? ['#4a5270', '#3a4058']
+  switch (SEAT_KIND[variant] ?? 'task') {
+    case 'stool': return <Stool seat={seat} back={back} />
+    case 'bench': return <Bench seat={seat} back={back} />
+    case 'stump': return <Stump seat={seat} />
+    default: return <TaskChair seat={seat} back={back} />
+  }
+}
+
 // The distinctive, fun desk shape for each theme. The surface sits at y≈0.9 so
 // the shared Laptop lands on top. Rendered inside the desk group (at dz).
 function WorkstationBase({ variant, id }: { variant: string; id: string }) {
@@ -393,39 +617,161 @@ function WorkstationBase({ variant, id }: { variant: string; id: string }) {
           <Cy p={[0, 0.45, 0]} r={0.12} h={0.9} c={hue} emissive={hue} ei={0.35} />
         </group>
       )
-    case 'forest': // a log across two stumps
+    case 'forest': // un rondin fendu sur deux billots
       return (
         <group>
-          {[-0.72, 0.72].map((sx) => <Cy key={sx} p={[sx, 0.38, 0]} r={0.24} h={0.76} c="#6b4a2a" />)}
-          <Cy p={[0, 0.88, 0]} r={0.34} h={2.0} c="#8a5a34" rot={[Math.PI / 2, 0, Math.PI / 2]} />
-          <Sp p={[0.95, 1.06, 0.15]} r={0.13} c={hue} emissive={hue} ei={0.4} />
+          {[-0.72, 0.72].map((sx) => (
+            <group key={sx}>
+              <Cy p={[sx, 0.38, 0]} r={0.24} h={0.76} c="#6b4a2a" />
+              {/* l'écorce du billot */}
+              {Array.from({ length: 5 }).map((_, i) => {
+                const a = (i / 5) * Math.PI * 2 + sx
+                return <mesh key={i} position={[sx + Math.cos(a) * 0.23, 0.38, Math.sin(a) * 0.23]} rotation={[0, -a, 0]}><boxGeometry args={[0.05, 0.74, 0.12]} /><Mat color="#54381f" roughness={1} /></mesh>
+              })}
+            </group>
+          ))}
+          {/* LE RONDIN EST FENDU · une demi-lune posée à plat, pas un tronc
+              rond. Un tronc rond ne peut rien porter, et l'ordinateur y
+              glissait : c'est la face sciée qui fait la table. */}
+          <mesh position={[0, 0.78, 0]} rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.36, 0.36, 2.0, 18, 1, false, 0, Math.PI]} />
+            <Mat color="#8a5a34" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, 0.9, 0]} geometry={roundedBox(2.0, 0.06, 0.7, 0.02)} receiveShadow>
+            <Mat color="#c4a06a" roughness={0.9} />
+          </mesh>
+          {/* les cernes, aux deux bouts */}
+          {[-1, 1].map((sd) => (
+            <group key={sd} position={[sd * 1.0, 0.78, 0]} rotation={[0, sd * Math.PI / 2, 0]}>
+              {[0.3, 0.21, 0.12].map((r) => (
+                <mesh key={r} position={[0, 0, 0.01]}><ringGeometry args={[r - 0.02, r, 20, 1, 0, Math.PI]} /><Mat color="#9d7c4c" flat roughness={1} /></mesh>
+              ))}
+            </group>
+          ))}
+          <Sp p={[0.95, 1.0, 0.15]} r={0.13} c={hue} emissive={hue} ei={0.4} />
           <Sp p={[-0.9, 0.6, -0.2]} r={0.16} c="#6cbf6c" />
+          {/* une pousse de champignon sur le billot de gauche */}
+          <Cy p={[-0.76, 0.82, 0.16]} r={0.03} h={0.14} c="#f2ead8" />
+          <Co p={[-0.76, 0.93, 0.16]} r={0.1} h={0.1} c="#c0392b" />
         </group>
       )
-    case 'lab': // a clean pod bench with glowing edges
+    case 'lab': // une paillasse · dosseret, tablette basse, tiroir, vérins
       return (
         <group>
-          <B p={[0, 0.9, 0]} s={[1.9, 0.12, 0.86]} c="#eef5f7" />
+          <mesh position={[0, 0.9, 0]} geometry={roundedBox(1.92, 0.13, 0.88, 0.03)} castShadow receiveShadow>
+            <Mat color="#eef5f7" roughness={0.45} />
+          </mesh>
           <B p={[0, 0.9, 0.45]} s={[1.9, 0.05, 0.04]} c="#00e6ff" emissive="#00e6ff" ei={0.7} />
-          <B p={[0, 0.9, -0.45]} s={[1.9, 0.05, 0.04]} c={hue} emissive={hue} ei={0.5} />
-          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <Cy key={i} p={[lx as number, 0.44, lz as number]} r={0.06} h={0.88} c="#cbdde3" />)}
+          {/* le DOSSERET · une paillasse sans relevé au fond laisse tout
+              tomber derrière ; c'est aussi lui qui la distingue d'une table */}
+          <mesh position={[0, 1.02, -0.43]} geometry={roundedBox(1.9, 0.22, 0.05, 0.02)} castShadow>
+            <Mat color="#dfeaee" roughness={0.5} />
+          </mesh>
+          <B p={[0, 1.12, -0.43]} s={[1.9, 0.03, 0.06]} c={hue} emissive={hue} ei={0.5} />
+          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <Cy key={i} p={[lx as number, 0.46, lz as number]} r={0.055} h={0.84} c="#cbdde3" />)}
+          {/* les pieds réglables · le détail qui dit « laboratoire » */}
+          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <Cy key={'f' + i} p={[lx as number, 0.03, lz as number]} r={0.085} h={0.06} c="#9aa8ad" />)}
+          {/* la tablette inférieure, et son bac de flacons */}
+          <mesh position={[0, 0.26, -0.06]} geometry={roundedBox(1.62, 0.05, 0.62, 0.02)} receiveShadow>
+            <Mat color="#dfeaee" roughness={0.5} />
+          </mesh>
+          <mesh position={[0.5, 0.36, -0.06]} geometry={roundedBox(0.52, 0.16, 0.42, 0.03)} castShadow>
+            <Mat color="#c3d6dc" roughness={0.6} />
+          </mesh>
+          {[-0.14, 0, 0.14].map((bx) => <Cy key={bx} p={[0.5 + bx, 0.47, -0.06]} r={0.045} h={0.18} c="#e6f3f6" />)}
+          {/* le tiroir sous le plateau, côté coéquipier */}
+          <group position={[-0.52, 0.72, 0.16]}>
+            <mesh geometry={roundedBox(0.66, 0.16, 0.5, 0.02)} castShadow><Mat color="#dfeaee" roughness={0.5} /></mesh>
+            <B p={[0, 0, 0.26]} s={[0.3, 0.035, 0.035]} c="#8fa6ad" />
+          </group>
         </group>
       )
-    case 'castle': // a banquet table with a coloured runner
+    case 'castle': // une table de banquet sur tréteaux, chevillée et ferrée
       return (
         <group>
-          <B p={[0, 0.9, 0]} s={[2.0, 0.14, 0.95]} c="#6b4f2a" />
+          {/* le plateau · deux madriers jointés, pas une dalle */}
+          {[-0.24, 0.24].map((pz) => (
+            <mesh key={pz} position={[0, 0.9, pz]} geometry={roundedBox(2.0, 0.15, 0.46, 0.02)} castShadow receiveShadow>
+              <Mat color="#6b4f2a" roughness={0.92} />
+            </mesh>
+          ))}
           <B p={[0, 0.985, 0]} s={[0.66, 0.02, 0.97]} c={hue} />
-          {[[-0.9, -0.4], [0.9, -0.4], [-0.9, 0.4], [0.9, 0.4]].map(([lx, lz], i) => <B key={i} p={[lx as number, 0.44, lz as number]} s={[0.16, 0.88, 0.16]} c="#3f2e18" />)}
+          {/* LES TRÉTEAUX · une table de banquet se démonte, elle ne se visse
+              pas. Deux piètements en V, une traverse chevillée, des ferrures. */}
+          {[-0.78, 0.78].map((sx) => (
+            <group key={sx} position={[sx, 0, 0]}>
+              {[-1, 1].map((sd) => (
+                <mesh key={sd} position={[0, 0.42, sd * 0.2]} rotation={[sd * 0.26, 0, 0]} castShadow>
+                  <boxGeometry args={[0.17, 0.86, 0.15]} />
+                  <Mat color="#3f2e18" roughness={0.95} />
+                </mesh>
+              ))}
+              <mesh position={[0, 0.07, 0]} geometry={roundedBox(0.24, 0.1, 0.9, 0.03)} castShadow>
+                <Mat color="#3f2e18" roughness={0.95} />
+              </mesh>
+              <mesh position={[0, 0.78, 0]}>
+                <boxGeometry args={[0.26, 0.09, 0.62]} />
+                <Mat color="#4a3c22" roughness={0.9} />
+              </mesh>
+            </group>
+          ))}
+          <mesh position={[0, 0.3, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+            <cylinderGeometry args={[0.055, 0.055, 1.78, 8]} />
+            <Mat color="#3f2e18" roughness={0.95} />
+          </mesh>
+          {/* les ferrures forgées, aux angles */}
+          {[-0.92, 0.92].map((mx) => (
+            <mesh key={mx} position={[mx, 0.83, 0]}>
+              <boxGeometry args={[0.14, 0.05, 0.9]} />
+              <Mat color="#3a342c" roughness={0.55} metalness={0.45} />
+            </mesh>
+          ))}
         </group>
       )
-    case 'factory': // a steel machine bench with a control strip
+    case 'factory': // un établi d'atelier · panneau perforé, rail, servante
       return (
         <group>
-          <B p={[0, 0.9, 0]} s={[1.9, 0.14, 0.86]} c="#9aa0aa" />
+          <mesh position={[0, 0.9, 0]} geometry={roundedBox(1.92, 0.15, 0.88, 0.025)} castShadow receiveShadow>
+            <Mat color="#9aa0aa" roughness={0.5} metalness={0.35} />
+          </mesh>
           <B p={[0, 0.9, 0.45]} s={[1.9, 0.06, 0.05]} c="#f2c200" />
-          {[-0.5, -0.1, 0.3].map((bx, i) => <Glow key={bx} p={[bx, 0.98, -0.3]} r={0.05} c={['#37d67a', '#ff5a3a', hue][i]} i={0.9} />)}
-          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <B key={i} p={[lx as number, 0.44, lz as number]} s={[0.12, 0.88, 0.12]} c="#565c68" />)}
+          {[-0.5, -0.1, 0.3].map((bx, i) => <Glow key={bx} p={[bx, 0.985, -0.3]} r={0.05} c={['#37d67a', '#ff5a3a', hue][i]} i={0.9} />)}
+          {/* LE PANNEAU PERFORÉ et son rail · l'outillage se range à la
+              verticale dans un atelier, et c'est ce mur d'outils qui dit le
+              métier bien mieux que la table qui le porte */}
+          <mesh position={[0, 1.18, -0.44]} geometry={roundedBox(1.84, 0.5, 0.04, 0.015)} castShadow>
+            <Mat color="#6b7280" roughness={0.6} metalness={0.3} />
+          </mesh>
+          {/* PAS de perforations en maillages · vingt et un cylindres par
+              panneau, douze panneaux par salle, pour des trous de deux
+              pixels. Deux rainures horizontales donnent la même lecture de
+              tôle percée pour deux maillages. */}
+          {[1.06, 1.26].map((gy) => (
+            <B key={gy} p={[0, gy, -0.415]} s={[1.76, 0.02, 0.02]} c="#3f444e" />
+          ))}
+          {[[-0.5, '#f2c200'], [0.1, '#c0392b'], [0.62, '#5b606b']].map(([tx, tc], i) => (
+            <group key={i} position={[tx as number, 1.24, -0.38]}>
+              <Cy p={[0, -0.1, 0]} r={0.02} h={0.26} c="#8f949e" />
+              <mesh position={[0, -0.26, 0]} geometry={roundedBox(0.1, 0.12, 0.05, 0.02)}><Mat color={tc as string} roughness={0.7} /></mesh>
+            </group>
+          ))}
+          {/* le piètement · profilés, entretoise diagonale, et une servante */}
+          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <B key={i} p={[lx as number, 0.42, lz as number]} s={[0.12, 0.84, 0.12]} c="#565c68" />)}
+          {[-1, 1].map((sd) => (
+            <mesh key={sd} position={[sd * 0.85, 0.42, 0]} rotation={[0.72, 0, 0]}>
+              <boxGeometry args={[0.05, 0.9, 0.05]} />
+              <Mat color="#565c68" roughness={0.6} metalness={0.3} />
+            </mesh>
+          ))}
+          <group position={[0.48, 0.28, -0.04]}>
+            <mesh geometry={roundedBox(0.66, 0.54, 0.56, 0.03)} castShadow><Mat color="#c0392b" roughness={0.55} metalness={0.2} /></mesh>
+            {[-0.16, 0.02, 0.2].map((dy) => (
+              <B key={dy} p={[0, dy, 0.29]} s={[0.56, 0.13, 0.02]} c="#a32e20" />
+            ))}
+            {[-0.16, 0.02, 0.2].map((dy) => (
+              <B key={'h' + dy} p={[0, dy, 0.31]} s={[0.24, 0.025, 0.025]} c="#e6e9ee" />
+            ))}
+          </group>
         </group>
       )
     case 'startup':
@@ -460,20 +806,98 @@ function WorkstationBase({ variant, id }: { variant: string; id: string }) {
           <Cy p={[-0.62, 0.95, -0.28]} r={0.07} h={0.03} c="#11141c" />
         </group>
       )
-    case 'backrooms': // a grimy beige folding office table
+    case 'backrooms': // la table pliante · piètement en X, stratifié écaillé
       return (
         <group>
-          <B p={[0, 0.9, 0]} s={[1.9, 0.08, 0.85]} c="#d9cfa4" />
-          <B p={[0, 0.855, 0]} s={[1.94, 0.03, 0.89]} c="#a89e70" />
-          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <Cy key={i} p={[lx as number, 0.44, lz as number]} r={0.05} h={0.86} c="#8a8a92" />)}
+          <mesh position={[0, 0.9, 0]} geometry={roundedBox(1.9, 0.07, 0.85, 0.02)} castShadow receiveShadow>
+            <Mat color="#d9cfa4" roughness={0.75} />
+          </mesh>
+          <B p={[0, 0.858, 0]} s={[1.94, 0.03, 0.89]} c="#a89e70" />
+          {/* LE PIÈTEMENT EN X · c'est lui, et lui seul, qui fait qu'on
+              reconnaît une table pliante de salle des fêtes */}
+          {[-0.72, 0.72].map((sx) => (
+            <group key={sx} position={[sx, 0, 0]}>
+              {[-1, 1].map((sd) => (
+                <mesh key={sd} position={[0, 0.43, 0]} rotation={[sd * 0.42, 0, 0]}>
+                  <cylinderGeometry args={[0.032, 0.032, 0.92, 8]} />
+                  <Mat color="#8a8a92" roughness={0.5} metalness={0.35} />
+                </mesh>
+              ))}
+              <mesh position={[0, 0.43, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.026, 0.026, 0.5, 6]} />
+                <Mat color="#8a8a92" roughness={0.5} metalness={0.35} />
+              </mesh>
+              {[-1, 1].map((sd) => (
+                <mesh key={'f' + sd} position={[0, 0.02, sd * 0.38]} rotation={[0, 0, Math.PI / 2]}>
+                  <cylinderGeometry args={[0.03, 0.03, 0.4, 6]} />
+                  <Mat color="#6f6f78" roughness={0.6} metalness={0.3} />
+                </mesh>
+              ))}
+            </group>
+          ))}
+          {/* l'usure · deux auréoles de tasse et un coin écaillé. Une table
+              neuve dans les Backrooms est un contresens. */}
+          {[[-0.55, 0.2], [0.42, -0.24]].map(([cx, cz], i) => (
+            <mesh key={i} position={[cx as number, 0.937, cz as number]} rotation={[-Math.PI / 2, 0, 0]}>
+              <ringGeometry args={[0.055, 0.075, 18]} />
+              <Mat color="#8d7f4a" flat transparent opacity={0.6} />
+            </mesh>
+          ))}
+          <mesh position={[0.84, 0.937, 0.36]} rotation={[-Math.PI / 2, 0, 0.6]}>
+            <planeGeometry args={[0.16, 0.12]} />
+            <Mat color="#a89e70" flat />
+          </mesh>
         </group>
       )
     case 'dojo':
-    default: // warm wood desk
+    default:
+      // LE BUREAU PAR DÉFAUT, donc celui qu'on voit le plus : c'est lui que
+      // portent le dojo zen et tous les mondes sans table propre. Il était
+      // une planche sur quatre bâtons.
+      //
+      // Ce qui fait une table en bois, ce n'est pas le plateau : c'est la
+      // CEINTURE sous le plateau, qui l'épaissit et le sépare des pieds, et
+      // la traverse basse qui empêche l'ensemble de se déformer. Un menuisier
+      // les met parce qu'il le faut ; l'œil les cherche pour la même raison.
       return (
         <group>
-          <B p={[0, 0.9, 0]} s={[1.9, 0.1, 0.85]} c={WOOD} />
-          {[[-0.85, -0.35], [0.85, -0.35], [-0.85, 0.35], [0.85, 0.35]].map(([lx, lz], i) => <B key={i} p={[lx as number, 0.44, lz as number]} s={[0.1, 0.88, 0.1]} c={WOOD_D} />)}
+          {/* le plateau · chant chanfreiné, pour que la lumière accroche
+              l'arête au lieu de la manquer */}
+          <mesh position={[0, 0.9, 0]} geometry={roundedBox(1.92, 0.11, 0.86, 0.035)} castShadow receiveShadow>
+            <Mat color={WOOD} roughness={0.78} />
+          </mesh>
+          {/* la ceinture · trois côtés, jamais celui du coéquipier */}
+          <B p={[0, 0.78, -0.36]} s={[1.76, 0.14, 0.06]} c={WOOD_D} />
+          {[-0.88, 0.88].map((sx) => <B key={sx} p={[sx, 0.78, 0]} s={[0.06, 0.14, 0.76]} c={WOOD_D} />)}
+          {/* les pieds · légèrement fuselés, et rentrés sous le plateau */}
+          {[[-0.82, -0.32], [0.82, -0.32], [-0.82, 0.32], [0.82, 0.32]].map(([lx, lz], i) => (
+            <mesh key={i} position={[lx as number, 0.36, lz as number]} castShadow>
+              <cylinderGeometry args={[0.048, 0.068, 0.72, 8]} />
+              <Mat color={WOOD_D} roughness={0.82} />
+            </mesh>
+          ))}
+          {/* la traverse basse et son entretoise */}
+          {[-0.82, 0.82].map((sx) => (
+            <mesh key={sx} position={[sx, 0.16, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.032, 0.032, 0.6, 8]} />
+              <Mat color={WOOD_D} roughness={0.85} />
+            </mesh>
+          ))}
+          <mesh position={[0, 0.16, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.032, 0.032, 1.6, 8]} />
+            <Mat color={WOOD_D} roughness={0.85} />
+          </mesh>
+          {/* la tablette du dessous · un rouleau et une boîte y dorment */}
+          <mesh position={[-0.42, 0.3, -0.1]} geometry={roundedBox(0.84, 0.05, 0.56, 0.02)} receiveShadow>
+            <Mat color={WOOD_D} roughness={0.9} />
+          </mesh>
+          <mesh position={[-0.5, 0.37, -0.1]} rotation={[0, 0.2, Math.PI / 2]} castShadow>
+            <cylinderGeometry args={[0.055, 0.055, 0.5, 10]} />
+            <Mat color={PAPER} roughness={0.95} />
+          </mesh>
+          <mesh position={[-0.16, 0.4, -0.12]} geometry={roundedBox(0.28, 0.16, 0.34, 0.02)} castShadow>
+            <Mat color="#8e6a44" roughness={0.9} />
+          </mesh>
         </group>
       )
   }
@@ -531,17 +955,14 @@ function Station({ id, fn, x, z, variant }: { id: string; fn: Department; x: num
     )
   }
 
-  // saucers hover (no chair); every other theme keeps a themed chair
-  const chair = CHAIR[variant] ?? ['#4a5270', '#4a5270']
+  // les soucoupes flottent (pas de siège) · partout ailleurs, le siège du
+  // monde (voir Seat : chaise à roulettes, tabouret, banc ou souche)
   const noChair = variant === 'space'
   return (
     <group position={[x, 0, 0]}>
       {!noChair && (
-        <group position={[0, 0, z - 0.5]}>
-          <Cy p={[0, 0.28, 0]} r={0.05} h={0.56} c="#2b2f3d" />
-          <B p={[0, 0.06, 0]} s={[0.5, 0.06, 0.5]} c="#2b2f3d" />
-          <B p={[0, 0.6, 0]} s={[0.64, 0.12, 0.62]} c={chair[0]} />
-          <B p={[0, 1.05, -0.28]} s={[0.6, 0.85, 0.12]} c={chair[1]} />
+        <group position={[0, 0, z - 0.55]}>
+          <Seat variant={variant} />
         </group>
       )}
 
