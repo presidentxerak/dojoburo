@@ -5,7 +5,7 @@
 // the same player can run any of them full screen:
 //
 //   overview · the whole thing, from an empty screen to finished work
-//   company  · A to Z, how you create your company
+//   company  · A to Z, how the practice dojo works
 //   teams    · what a dojo team is and how you choose them
 //   apps     · connecting your apps, and what it costs on top of your plan
 import { useEffect, useState } from 'react'
@@ -23,26 +23,26 @@ export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }
     title: 'How it works',
     sub: 'Six steps, start to finish.',
     beats: [
-      { id: 'name', title: '1 · Name your company', body: 'You land on one screen. Type the name of your company — that is the whole setup. Every dojo team you add afterwards belongs to it.' },
-      { id: 'pick', title: '2 · Choose your teams', body: 'Tick the ready-made teams that match what you want to do — a social campaign, an app, a book, a shop. They join your company together.' },
-      { id: 'crew', title: '3 · Your team is hired', body: 'Each card arrives already staffed with exactly the teammates that job needs: a researcher, a maker, an analyst, a team lead…' },
-      { id: 'apps', title: '4 · Their apps connect', body: 'Every teammate comes wired to the apps they work in. Connect one in a click and they work inside your real account.' },
-      { id: 'loop', title: '5 · Run every step', body: 'Give the team a goal and hit Run. The team lead hands each step to the right teammate, in order, and they work through it.' },
-      { id: 'ship', title: '6 · You get the work', body: 'Every step produces something real you can open, edit and export. Add another team and your company grows.' },
+      { id: 'name', title: '1 · Start the course', body: 'Twenty lessons across five tracks, free and read in the browser. It starts at "what is a token" and assumes you have never heard the word agent. No account, nothing to install.' },
+      { id: 'pick', title: '2 · Watch it, do not just read it', body: 'Every lesson has an animation beside the text that shows the idea moving, a question that marks itself, one line to remember and one thing to go and do.' },
+      { id: 'crew', title: '3 · Take apart a worked example', body: 'The dojo is a sandbox. Open any teammate and you get the brief that makes it a specialist, the tools it would reach for, and what that way of writing costs.' },
+      { id: 'apps', title: '4 · Learn what a tool really costs', body: 'Every app switched on ships its tool definitions with every step. Seeing that number is how you learn to turn tools off — and it is the single easiest saving there is.' },
+      { id: 'loop', title: '5 · Measure before you cut', body: 'Tokens, euros and grams of CO₂e for the way you actually work. Then the levers, each with the saving it really buys rather than the one it is said to buy.' },
+      { id: 'ship', title: '6 · Take the files with you', body: 'Prompts, .md briefs and agent skills, filed by trade. Copy one, adapt it, run it on your own stack. Nothing here runs it for you — that is the point.' },
     ],
   },
 
   company: {
-    title: 'How to create your company',
-    sub: 'From an empty screen to a working company.',
+    title: 'The practice dojo',
+    sub: 'A room to take examples apart in.',
     beats: [
-      { id: 'name', title: '1 · Give it a name', body: 'One field, nothing else. It can be the real name of your business or a working title — you can change it any time from your profile.' },
-      { id: 'create', title: '2 · Hit Create your company', body: 'That is the company created. No forms, no plan to choose, no card to enter. It is saved the moment you sign in, and you find it again on any device you sign in from.' },
-      { id: 'pick', title: '3 · Choose your dojo teams', body: 'Next you see the whole catalogue. Tick as many teams as you need — one to start is plenty, and you can come back and add more whenever you want.' },
-      { id: 'crew', title: '4 · Your teammates arrive', body: 'Each team you ticked becomes a dojo: a 3D office with its own crew, already named, already briefed, already wired to the right apps.' },
-      { id: 'brief', title: '5 · Tell them what you want', body: 'Write the goal of the team in one line. That single sentence is the brief every teammate works from, so make it the outcome you actually want.' },
-      { id: 'loop', title: '6 · Run every step', body: 'The team lead hands each step to the teammate who owns it, in order, and they work through the whole plan while you watch it tick.' },
-      { id: 'ship', title: '7 · Everything is yours', body: 'Brand, site, posts, briefs, numbers — open them, edit them, export them. Your company lives in your profile — with every other company you build — and you can rename or remove any part of it.' },
+      { id: 'name', title: '1 · It is a sandbox', body: 'Nothing in the dojo calls a paid model or writes to your real accounts. You can change anything in it without consequence, which is exactly what makes it worth changing.' },
+      { id: 'create', title: '2 · Open a teammate', body: 'Each one is a worked example: a brief, a tool list and a budget, put together for a real trade. The brief is the interesting part — read it before you touch it.' },
+      { id: 'pick', title: '3 · Read the catalogue as examples', body: 'Every ready-made team shows a different shape of problem — a campaign, an app, a book, a shop. Compare two and you learn more than from either alone.' },
+      { id: 'crew', title: '4 · Change one thing', body: 'Drop a tool. Shorten the brief. Tighten the budget. Change one thing at a time and you can see what it did; change five and you have learnt nothing.' },
+      { id: 'brief', title: '5 · Write the brief yourself', body: 'One line, the outcome you actually want. Writing a brief badly is the most common reason an agent disappoints, and it is the cheapest mistake to fix.' },
+      { id: 'loop', title: '6 · Watch the cost move', body: 'The token dial in the header shows what each choice costs. Saver, Balanced and Max change three things: the length cap, whether the model thinks first, and how many tools travel with each step.' },
+      { id: 'ship', title: '7 · Rebuild it for real, elsewhere', body: 'When the example makes sense, take the file and wire it on your own stack. The per-app pages in the guide are the step-by-step for that part.' },
     ],
   },
 
@@ -121,7 +121,7 @@ export function Stage({ beat }: { beat: string }) {
     return (
       <div className="tut-stage">
         <div className="tut-name">
-          <span className="tut-name-lab">Create your company</span>
+          <span className="tut-name-lab">Open a lesson</span>
           <span className="tut-name-field"><b>Novaranly</b><i className="tut-caret" /></span>
         </div>
       </div>
@@ -133,7 +133,7 @@ export function Stage({ beat }: { beat: string }) {
       <div className="tut-stage">
         <div className="tut-name">
           <span className="tut-name-field done"><b>Novaranly</b></span>
-          <button className="tut-plus" type="button" tabIndex={-1}>Create your company</button>
+          <button className="tut-plus" type="button" tabIndex={-1}>Start the course</button>
         </div>
       </div>
     )

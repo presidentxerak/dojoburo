@@ -215,7 +215,7 @@ const BASICS: Lesson[] = [
       {
         kind: 'idea',
         title: 'There is no prompt to write',
-        body: 'This surprises people. You do not describe what you want in a text box and hope. You name the project, then pick ready-made teams from a catalogue. Each team arrives already staffed, already briefed, already wired to the right apps.',
+        body: 'This surprises people. You do not describe what you want in a text box and hope. You read a worked example: a team that already has a brief, a tool list and a budget, put together for a real trade — then you take it apart and see why each part is there.',
       },
       {
         kind: 'do',

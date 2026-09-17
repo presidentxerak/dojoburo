@@ -64,7 +64,7 @@ function Walkthroughs() {
   const [walk, setWalk] = useState<WalkId>('overview')
   const TABS: { id: WalkId; label: string }[] = [
     { id: 'overview', label: 'The whole thing' },
-    { id: 'company', label: 'Create your company' },
+    { id: 'company', label: 'The practice dojo' },
     { id: 'teams', label: 'Dojo teams' },
     { id: 'apps', label: 'Apps & what they cost' },
   ]
@@ -112,13 +112,13 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
       <section className="lp-sec" id="how">
         <h2>How it works</h2>
         <HowTo walk="company" />
-        <p className="lp-lead">There is no prompt to write. You name your company, then pick the ready-made teams you need · each one arrives already staffed with the right teammates, wired to the right apps. Open any teammate to work with them, and connect your real apps to go live.</p>
+        <p className="lp-lead">This guide is the reference, not the course · if you are new to any of this, start at the <a href="/academy">Academy</a>. What follows is how the practice dojo is laid out, and how a tool gets wired to an agent, one app at a time.</p>
         <div className="lp-steps3">
-          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Name your company</b><span>One field on the home page, then hit <b>Create your company</b> · that is the moment we ask you to sign in, so it is still there next time.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Choose your dojo teams</b><span>Tick as many cards as you need — a social campaign, an app, a book, a shop. Each names its crew, its apps and what a run costs before you pick it.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Open a studio &amp; connect apps</b><span>Click a teammate to build · brand, website, campaigns, leads, finances · and link Gmail, Stripe, Notion… so they act in your real accounts. Connecting is free on every plan.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Read a worked example</b><span>Every team in the dojo is one: a brief, a tool list and a budget, put together for a real trade. Open it and read why it is written that way.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Take it apart</b><span>Change the brief, drop a tool, tighten the budget. The dojo is a sandbox — nothing here calls a paid model or touches your accounts.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Rebuild it on your own stack</b><span>The per-app pages below are the step-by-step for wiring the real thing yourself, in your own account, outside this site.</span></div></div>
         </div>
-        <p className="lp-note"><b>Do I have to sign in?</b> Only to keep things. Naming a company and reading every team card is free. The moment you add a team, we ask you to sign in so your company, your teammates and everything they make are still there next time · or you can carry on as a guest, saved in this browser only.</p>
+        <p className="lp-note"><b>Do I have to sign in?</b> No. The whole course and every page of this guide are readable without an account. Signing in only keeps your progress and your own notes across devices · otherwise they stay in this browser.</p>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your {CREW_WORD} teammates &amp; what each one does</h3>
         <StudioTeam enter={() => { window.location.href = '/#app' }} />
         <p className="lp-note" style={{ marginTop: 14 }}>These {CREW_WORD} ship with every dojo — and the crew is yours to shape. See <a className="linklike" href="#team">Shape your team</a> just below.</p>

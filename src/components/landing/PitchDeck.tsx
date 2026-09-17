@@ -139,7 +139,7 @@ function Slide({ slide, idx, active }: { slide: DeckSlide; idx: number; active: 
         </>
       )}
       <span className="pd-foot">
-        <Wordmark /> · your company, already staffed
+        <Wordmark /> · learn to build agents, and to run them cheap
         {showContact ? <em className="pd-contact"> · {CONTACT_EMAIL}</em> : null}
       </span>
     </div>

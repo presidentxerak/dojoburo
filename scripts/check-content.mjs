@@ -35,6 +35,8 @@ const budget = await load('src/data/budget.ts')
 const academy = await load('src/data/academy.ts')
 const plans = await load('src/data/plans.ts')
 const effort = await load('src/data/effort.ts')
+// la promesse du produit · elle est DÉRIVÉE ici, jamais retapée (voir plus bas)
+const pos = await load('src/data/positioning.ts')
 
 const F = {
   crew: roles.COMPANY_IDS.length,
@@ -94,7 +96,16 @@ const NEVER = [
   // generic agent builder — in the sentence every competitor already uses, and
   // it disagreed with the h1 for months: the page said "company", the meta tag
   // said "projects", and nothing compared them.
-  { re: /projects automator|agent creation simple/i, why: 'the position is "your company, already staffed" · teams that arrive formed, on your own key' },
+  { re: /projects automator|agent creation simple/i, why: 'the product teaches · it does not build for you' },
+  // LE REPOSITIONNEMENT. L'app vendait une entreprise déjà dotée de son
+  // personnel ; elle enseigne maintenant. Ces phrases-là ont été vraies
+  // pendant des mois, elles sont partout dans les têtes, et elles
+  // reviendraient d'elles-mêmes à la première page recopiée d'une ancienne.
+  // Une promesse périmée sur une page d'accueil est le mensonge le moins cher
+  // à commettre et le plus cher à réparer.
+  { re: /already staffed/i, why: 'we no longer staff a company · we teach' },
+  { re: /teams that arrive (formed|briefed)/i, why: 'the same · nothing arrives ready to work for you' },
+  { re: /Create your (company|dojo teams)/i, why: 'the call to action is the course, not a creation flow' },
   // Twenty-two of the forty-four can act. "Your whole stack" over the full
   // catalogue is the overclaim the connector audit exists to stop.
   { re: /connects? your whole stack/i, why: 'quote APP_LIVE_COUNT · the catalogue is bigger than what can act' },
@@ -140,9 +151,20 @@ const RULES = [
   // carry the SAME position as the h1: those two disagreed for months because
   // nothing compared them, and the meta tag is what a shared link shows.
   { file: 'index.html', must: /<meta name="description"/, why: 'the site needs a description' },
-  { file: 'index.html', must: /already staffed/, why: 'the meta description must carry the same position as the hero' },
-  { file: 'src/Landing.tsx', must: /already <span className="hl-acid">staffed<\/span>/, why: 'the hero states the position' },
-  { file: 'src/Landing.tsx', must: /your own<\/b> Claude key/, why: 'the hero must carry the argument no token seller can make' },
+  // LA PROMESSE, comparée à la vraie · pas à une copie.
+  //
+  // Ces deux lignes disaient « already staffed » en dur, dans le script même
+  // qui existe pour empêcher une phrase écrite deux fois de diverger. Elles
+  // lisent maintenant src/data/positioning.ts : le jour où la promesse change,
+  // elle change à un seul endroit et la garde suit, au lieu d'échouer en
+  // exigeant l'ancienne.
+  { file: 'index.html', must: pos.PROMISE, why: `the meta description must carry the promise: "${pos.PROMISE}"` },
+  { file: 'src/Landing.tsx', must: /\{PROMISE_LEAD\} — <span className="hl-acid">\{PROMISE_HL\}<\/span>/, why: 'the hero must RENDER the promise, not retype it' },
+  { file: 'src/Landing.tsx', must: /\{SUBTITLE\}/, why: 'the hero subtitle comes from positioning.ts too' },
+  { file: 'src/Landing.tsx', must: /NOT_THIS/, why: 'the landing must say in plain words what the product no longer does' },
+  // les quatre piliers sont la carte du produit · l'en-tête et l'accueil les
+  // lisent au même endroit, sinon la navigation et la page se contredisent
+  { file: 'src/components/SiteHeader.tsx', must: /PILLARS/, why: 'the header navigation is the four pillars, read from positioning.ts' },
   // and the apps section must quote what can ACT, not the catalogue size
   { file: 'src/Landing.tsx', must: /APP_LIVE_COUNT/, why: 'the landing quotes apps that can act, not the catalogue count' },
 ]

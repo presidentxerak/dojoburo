@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PILLARS } from '../data/positioning'
 import { Logo } from './Logo'
 import { Wordmark } from './Wordmark'
 import { useWorkshop } from '../workshop'
@@ -11,12 +12,18 @@ import { SkinAvatar } from './workshop/SkinAvatar'
 // `enter` handler on the landing for a smooth in-page transition; elsewhere the
 // CTA navigates to /#app.
 
-// "How it works" is merged into the Dojo Guide · only the Dojo Guide button
-// remains for it.
+// La navigation suit les QUATRE PILIERS, et rien d'autre.
+//
+// Elle listait Build / Connect / Team / Pricing : les quatre verbes d'un
+// produit qui fabrique. Aucun d'eux ne décrit plus ce qu'on fait ici, et un
+// en-tête est ce qu'un visiteur lit en premier — le laisser en arrière aurait
+// suffi à contredire toute la page en dessous.
+//
+// Les libellés viennent de ./data/positioning, comme partout ailleurs : le
+// jour où un pilier change de nom, il change de nom aux six endroits à la
+// fois.
 const NAV_LINKS: [string, string][] = [
-  ['/#jobs', 'Build'],      // → "Built around your business"
-  ['/#stack', 'Connect'],
-  ['/#studios', 'Team'],    // → "Meet the office"
+  ...PILLARS.filter((p) => p.id !== 'dojo').map((p) => [p.path, p.nav] as [string, string]),
   ['/#pricing', 'Pricing'],
 ]
 
@@ -24,15 +31,13 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
   // When signed in we show the profile button + burger instead of Sign in/up.
   const account = useWorkshop((s) => s.account)
-  // "Create your company" → the app's home, where you name it and pick your
-  // teams. Nothing to fill in on the landing any more.
-  const create = () => {
-    setMenuOpen(false)
-    if (enter) enter()
-    else window.location.href = '/#app'
-  }
-  // Sign in / Sign up → enter the dojo. Browsing the home is open to everyone;
-  // Privy is asked for at the moment a project is saved.
+  // L'APPEL À L'ACTION EST LE COURS. Il ouvrait « Créez votre entreprise »,
+  // qui est exactement ce qu'on ne propose plus ; un bouton d'en-tête est la
+  // promesse la plus visible d'un site, et celle-là était devenue fausse.
+  const learn = () => { setMenuOpen(false); window.location.href = '/academy' }
+  // Sign in / Sign up → le dojo, qui est désormais le bac à sable. Le
+  // parcourir reste ouvert à tous ; Privy n'est demandé qu'au moment où l'on
+  // enregistre quelque chose.
   const goDojo = () => { setMenuOpen(false); if (enter) enter(); else window.location.href = '/#app' }
   return (
     <>
@@ -42,9 +47,6 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
         </a>
         <nav className="lp-nav-links">
           {NAV_LINKS.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-          {/* the Academy is the front door for anyone learning this · the per-app
-              setup pages stay one level in, linked from the Academy itself */}
-          <a href="/academy">Academy</a>
         </nav>
         <div className="lp-nav-right">
           <button
@@ -55,9 +57,9 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
           >
             <span /><span /><span />
           </button>
-          <button className="lp-cta sm lp-cta-create lp-nav-create" onClick={create}>Create your company</button>
+          <button className="lp-cta sm lp-cta-create lp-nav-create" onClick={learn}>Start the course</button>
           {account ? (
-            <button className="lp-profile-btn lp-auth-btn" onClick={goDojo} title={account.name || 'Enter your dojo'}>
+            <button className="lp-profile-btn lp-auth-btn" onClick={goDojo} title={account.name || 'Enter the dojo'}>
               <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />
               <span>{account.name || 'My dojo'}</span>
             </button>
@@ -79,12 +81,12 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
             ))}
             <a className="lp-menu-guide" href="/academy" onClick={() => setMenuOpen(false)}>Dojo Academy</a>
             <a href="/guide" onClick={() => setMenuOpen(false)}>App setup guide</a>
-            <button className="lp-cta" onClick={() => { setMenuOpen(false); create() }}>Create your company</button>
+            <button className="lp-cta" onClick={learn}>Start the course</button>
             <div className="lp-menu-auth">
               {account ? (
                 <button className="lp-menu-profile" onClick={goDojo}>
                   <SkinAvatar skin={skinById(account.avatarSkinId)} size={30} />
-                  <span>{account.name || 'My dojo'}<em>Enter your dojo →</em></span>
+                  <span>{account.name || 'My dojo'}<em>Enter the dojo →</em></span>
                 </button>
               ) : (
                 <>

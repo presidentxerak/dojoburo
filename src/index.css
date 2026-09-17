@@ -910,16 +910,19 @@ a:hover { text-decoration: underline; }
     background: color-mix(in srgb, var(--panel) 96%, transparent); backdrop-filter: blur(12px);
     border-top: 1px solid var(--border); padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
   }
-  .mbar button {
+  /* Un onglet peut être un LIEN · l'Académie est une vraie adresse, elle
+     doit s'ouvrir dans un onglet, se copier et s'indexer. La déguiser en
+     bouton aurait coûté ces trois choses pour rien. */
+  .mbar button, .mbar .mbar-link {
     flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    background: none; border: none; cursor: pointer; padding: 4px 2px;
+    background: none; border: none; cursor: pointer; padding: 4px 2px; text-decoration: none;
     font-family: var(--font-ui); font-weight: 700; font-size: 16px; color: var(--muted);
   }
-  .mbar button:active { color: var(--ink); }
-  .mbar button.on { color: var(--ink); }
+  .mbar button:active, .mbar .mbar-link:active { color: var(--ink); }
+  .mbar button.on, .mbar .mbar-link.on { color: var(--ink); }
   .mbar-ic { font-size: 16px; line-height: 1; }
   /* five tabs (Dojo · CEO · Studio · Connect · City) · smaller labels so they fit */
-  .mbar-5 button, .mbar-4 button { font-size: 11px; letter-spacing: -0.01em; }
+  .mbar-5 button, .mbar-4 button, .mbar-4 .mbar-link { font-size: 11px; letter-spacing: -0.01em; }
   .mbar-5 .mbar-ic, .mbar-4 .mbar-ic { font-size: 17px; }
   .mbar-3 button { font-size: 12px; }
   .mbar-3 .mbar-ic { font-size: 18px; }
@@ -7831,3 +7834,69 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 @media (max-height: 560px) {
   .lp-hero-stage { min-height: 620px; }
 }
+
+/* ===========================================================================
+   LE REPOSITIONNEMENT · les cartes de l'académie
+   ---------------------------------------------------------------------------
+   Trois grilles nouvelles sur la page d'accueil : les quatre piliers, les
+   pistes de cours, et ce que nous ne faisons pas. Elles réutilisent le même
+   idiome que toutes les autres cartes du produit — fond plein, bordure fine,
+   filet de couleur à gauche, lever de trois pixels au survol — parce que
+   c'est le style qu'on garde et que trois inventions de plus n'auraient rien
+   ajouté sinon du désaccord.
+   ======================================================================== */
+
+.lp-pillars {
+  display: grid; gap: 14px; max-width: 1040px; margin: 24px auto 0;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.lp-pillar {
+  display: flex; flex-direction: column; gap: 7px; text-align: left;
+  background: var(--panel-solid); border: 1px solid var(--border);
+  border-left: 3px solid var(--violet); border-radius: var(--radius);
+  padding: 18px; color: var(--ink); text-decoration: none;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.lp-pillar:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--border-lit); text-decoration: none; }
+.lp-pillar-g { font-family: var(--font-mono); font-size: 22px; line-height: 1; color: var(--violet); }
+.lp-pillar b { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; }
+.lp-pillar span { font-size: 15px; color: var(--muted); line-height: 1.5; }
+.lp-pillar em { font-family: var(--font-pixel); font-weight: 800; font-size: 14px; font-style: normal; color: var(--violet); margin-top: 2px; }
+
+.lp-tracks {
+  display: grid; gap: 14px; max-width: 1040px; margin: 24px auto 0;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.lp-track {
+  display: flex; flex-direction: column; gap: 6px; text-align: left;
+  background: var(--panel-solid); border: 1px solid var(--border);
+  border-left: 3px solid var(--pc, var(--violet)); border-radius: var(--radius);
+  padding: 18px; color: var(--ink); text-decoration: none;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.lp-track:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--border-lit); text-decoration: none; }
+.lp-track-g { font-family: var(--font-mono); font-size: 20px; line-height: 1; color: var(--pc, var(--violet)); }
+.lp-track b { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; }
+.lp-track-lvl { font-family: var(--font-pixel); font-weight: 700; font-size: 13px; color: var(--pc, var(--violet)); }
+.lp-track-blurb { font-size: 15px; color: var(--muted); line-height: 1.5; }
+
+/* Ce que nous ne faisons pas · une liste, pas des cartes. Mettre ces trois
+   phrases en cartes leur aurait donné le même poids visuel qu'une offre, et
+   ce sont des retraits. */
+.lp-nots { max-width: 720px; margin: 18px auto 20px; padding: 0; list-style: none; text-align: left; }
+.lp-nots li {
+  position: relative; padding: 11px 14px 11px 34px; font-size: 16px; line-height: 1.5;
+  color: var(--ink); border-bottom: 1px solid var(--border);
+}
+.lp-nots li:last-child { border-bottom: 0; }
+.lp-nots li::before {
+  content: '✕'; position: absolute; left: 12px; top: 11px;
+  font-family: var(--font-mono); color: var(--muted);
+}
+
+/* les métiers, en attendant leur catalogue · même pastille, sans le curseur
+   ni le survol, parce qu'elle ne mène nulle part pour l'instant */
+a.lp-trade { text-decoration: none; display: inline-block; }
+.lp-trade-soon { cursor: default; opacity: 0.86; }
+.lp-trade-soon:hover { transform: none; box-shadow: none; }
+.lp-soon { margin-top: 14px; font-style: italic; }

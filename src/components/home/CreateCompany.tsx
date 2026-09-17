@@ -1,12 +1,17 @@
-// Step one · "Create your company".
+// L'entrée du bac à sable · « ouvrez un dojo d'entraînement ».
 //
-// The whole screen is one centred card on a plain ground: the title, the field
-// where you name your company, the button that creates it, and a "How to?" that
-// plays the A-to-Z walkthrough full screen. Below the card, the dojo turns
-// slowly — the thing you are about to make, in miniature.
+// C'était « Créez votre entreprise », et c'est exactement ce que le produit ne
+// propose plus. La mécanique en dessous n'a pas changé — on nomme un espace,
+// on y range des équipes — mais ce qu'elle SIGNIFIE a changé du tout au tout :
+// ce n'est pas une entreprise qui va travailler pour vous, c'est un établi sur
+// lequel on démonte des exemples.
 //
-// This is where you land every time you open the app. If you already have a
-// company, one quiet line under the card takes you straight back to it.
+// Garder le mot « entreprise » ici aurait été la contradiction la plus chère
+// du repositionnement : la page d'accueil aurait promis un cours, et le
+// premier écran de l'app aurait redemandé de fonder une société.
+//
+// Le reste ne bouge pas : une carte centrée, un champ, un bouton, un « How
+// to? » qui joue la visite guidée, et le dojo qui tourne lentement dessous.
 import { useState } from 'react'
 import { useWorkshop } from '../../workshop'
 import { DojoDiorama } from '../landing/DojoDiorama'
@@ -30,35 +35,35 @@ export function CreateCompany({ onCreate, onOpenExisting, existingCount }: {
   return (
     <div className="cc">
       <form className="cc-card" onSubmit={submit}>
-        <h1>Create your company</h1>
+        <h1>Open a practice dojo</h1>
         <p className="cc-sub">
           {existingCount
-            ? <>Your {existingCount === 1 ? 'other company is' : `${existingCount} other companies are`} waiting under this card. Name the new one · that is the whole setup.</>
-            : <>Give it a name. That is the whole setup.</>}
+            ? <>Your {existingCount === 1 ? 'other dojo is' : `${existingCount} other dojos are`} waiting under this card. Name the new one · that is the whole setup.</>
+            : <>Give it a name, and you get a room to take worked examples apart in. Nothing here calls a paid model.</>}
         </p>
 
         <input
           className="cc-input"
           value={projectName}
-          placeholder="Name your company"
+          placeholder="Name this dojo"
           maxLength={40}
           autoFocus
-          aria-label="Your company name"
+          aria-label="Name for this practice dojo"
           onChange={(e) => setProjectName(e.target.value)}
         />
 
-        <button className="cc-go" type="submit" disabled={!ready}>Create your company</button>
+        <button className="cc-go" type="submit" disabled={!ready}>Open the dojo</button>
         <button type="button" className="howto-btn" onClick={() => setHowTo(true)}>How to?</button>
       </form>
 
       {/* already have something running · one quiet way back into it */}
       {onOpenExisting && !!existingCount && (
         <button type="button" className="cc-back" onClick={onOpenExisting}>
-          Or open what you already have · {existingCount} compan{existingCount > 1 ? 'ies' : 'y'} →
+          Or open one you already have · {existingCount} dojo{existingCount > 1 ? 's' : ''} →
         </button>
       )}
 
-      {/* the company you are about to make · slowly turning under the card */}
+      {/* la salle où l'on va s'entraîner · elle tourne lentement sous la carte */}
       <div className="cc-art" aria-hidden>
         <DojoDiorama />
       </div>
@@ -68,7 +73,7 @@ export function CreateCompany({ onCreate, onOpenExisting, existingCount }: {
           walk="company"
           onClose={() => setHowTo(false)}
           onStart={ready ? () => { setHowTo(false); onCreate() } : undefined}
-          startLabel="Create your company →"
+          startLabel="Open the dojo →"
         />
       )}
     </div>

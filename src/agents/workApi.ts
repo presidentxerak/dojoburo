@@ -5,6 +5,7 @@ import { useWorkshop, type ExtAgent } from '../workshop'
 import { ensureOutbound } from './outboundConsent'
 import { CONNECTOR_BY_ID } from '../data/connectors'
 import { apiFetch } from '../lib/apiFetch'
+import { isSandbox, sandboxRun, SANDBOX_REFUSAL } from './sandbox'
 
 // Action verbs that leave your org (send an email, post/broadcast, reply). These
 // are gated by a one-time user confirmation (see outboundConsent).
@@ -67,6 +68,7 @@ export async function listTools(): Promise<{ tools: ToolStatus[]; backend: boole
 /** Send a real email from the user's connected Gmail. Degrades to a clear error
  *  when Gmail/DB aren't configured. */
 export async function sendGmail(to: string, subject: string, body: string): Promise<{ ok: boolean; error?: string }> {
+  if (isSandbox()) return SANDBOX_REFUSAL
   if (!(await ensureOutbound('Gmail', 'send an email'))) return { ok: false, error: 'cancelled' }
   try {
     const r = ref()
@@ -83,6 +85,9 @@ export async function sendGmail(to: string, subject: string, body: string): Prom
 
 /** Generic connector action (post/create/…) via /api/tool-action. */
 export async function toolAction(connector: string, action: string, payload: Record<string, unknown>): Promise<{ ok: boolean; error?: string; [k: string]: unknown }> {
+  // toute écriture dans un compte réel s'arrête ici · un bac à sable qui
+  // envoie un vrai courriel n'est pas un bac à sable
+  if (isSandbox()) return SANDBOX_REFUSAL
   if (OUTBOUND_ACTIONS.has(action) && !(await ensureOutbound(appLabel(connector), action === 'send' ? 'send' : action === 'reply' ? 'reply' : 'post'))) {
     return { ok: false, error: 'cancelled' }
   }
@@ -101,6 +106,7 @@ export async function toolAction(connector: string, action: string, payload: Rec
 
 /** Post a message to the team's Slack from the user's connected Slack. */
 export async function postSlack(text: string, channel?: string): Promise<{ ok: boolean; error?: string }> {
+  if (isSandbox()) return SANDBOX_REFUSAL
   if (!(await ensureOutbound('Slack', 'post'))) return { ok: false, error: 'cancelled' }
   try {
     const r = ref()
@@ -204,6 +210,8 @@ export function startConnect(connectorId: string): void {
  * qu'un agent pourra faire à chaud, cent fois.
  */
 export async function setWritePermit(connectorId: string, write: boolean): Promise<'read' | 'write' | null> {
+  // on ne demande pas une permission d'écriture qu'on n'utilisera jamais
+  if (isSandbox()) return 'read'
   try {
     const res = await apiFetch('/api/connect?action=permit', {
       method: 'POST',
@@ -267,6 +275,16 @@ export interface RunResult {
 }
 
 export async function runWork(input: { task: string; agentName: string; connectors: string[]; brief?: string; context?: string; extAgents?: ExtAgent[]; effort?: string }): Promise<RunResult> {
+  // LE BAC À SABLE · c'est ici que l'exécution réelle s'arrête.
+  //
+  // Un seul point de passage, et c'est voulu : toute requête d'agent sort par
+  // cette fonction. Un garde posé sur les appelants aurait laissé le prochain
+  // appelant passer à travers, et c'est le genre d'oubli qui coûte de
+  // l'argent à quelqu'un sans que personne s'en aperçoive.
+  //
+  // Ce qui revient n'est pas une erreur mais une FICHE : ce que la requête
+  // aurait pesé, en quoi, et ce qu'il fallait couper. Voir ./sandbox.
+  if (isSandbox()) return sandboxRun(input)
   const activeDojoId = useWorkshop.getState().activeDojoId
   const startup = useWorkshop.getState().dojos.find((d) => d.id === activeDojoId)?.name || ''
   // external MCP agents attach as tools during the run · A2A / webhook agents are

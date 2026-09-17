@@ -221,10 +221,15 @@ export default function App() {
         <SettingsModal />
         <DojosManager />
         <SupportBot />
+        {/* La barre du bas · l'Académie y est, et en premier. Elle listait
+            Company / Dojo / Settings, c'est-à-dire trois manières de gérer une
+            entreprise ; le cours est désormais la raison d'être du produit et
+            il n'était atteignable que depuis le site, pas depuis l'app. */}
         {(homeStep === 'companies' || homeStep === 'company') && (
-        <nav className="mbar mbar-3" aria-label="Navigation">
-          <button className="on"><span className="mbar-ic">▦</span>Company</button>
-          <button onClick={() => { setView('dojo'); setDojoFull(true) }}><span className="mbar-ic">◳</span>Dojo</button>
+        <nav className="mbar mbar-4" aria-label="Navigation">
+          <a className="mbar-link" href="/academy"><span className="mbar-ic">◱</span>Academy</a>
+          <button className="on"><span className="mbar-ic">▦</span>Dojos</button>
+          <button onClick={() => { setView('dojo'); setDojoFull(true) }}><span className="mbar-ic">◳</span>Practise</button>
           <button onClick={() => useWork.getState().openStudio('studio')}><span className="mbar-ic">✎</span>Settings</button>
         </nav>
         )}

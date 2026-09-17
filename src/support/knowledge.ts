@@ -66,7 +66,7 @@ export const KB: KBTopic[] = [
     walk: 'company',
     chip: 'Getting started',
     answer:
-      'Two screens, no prompt to write. 1) You land on one card: type the name of your company and hit Create your company. That is the moment we ask you to sign in, so it is still there next time (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick as many as you need. Every card names the teammates inside it, the apps they use, and how many tasks one full run takes, and a bar at the bottom keeps the running total in view. Hit Add teams and you land straight in the first dojo: click a teammate to open their studio, write the goal of the team in one line, and hit Run every step. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
+      'Two screens, no prompt to write. 1) You land on one card: name a practice dojo and hit Open the dojo. Signing in only keeps it across devices (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick the ones you want to study. Every card names the teammates inside it, the apps they use, and how many tasks one full run would take, and a bar at the bottom keeps the running total in view. Hit Add teams and you land in the dojo: click a teammate to read the brief that makes it a specialist, change it, and see what changes. It is a sandbox — nothing there calls a paid model or writes to your real accounts. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
     links: [
       { label: 'Open your cockpit', href: '#app' },
       { label: 'Watch the walkthrough', href: '/guide#walkthrough' },
@@ -244,7 +244,7 @@ export const KB: KBTopic[] = [
     walk: 'overview',
     chip: 'Dojo Guide',
     answer:
-      'The Dojo Guide is the full manual, and every section carries its own "How to?" button that plays the matching animated walkthrough full screen. It covers: how the whole thing works, how to create your company, how to shape your team, what each studio does, how to connect an app step by step (with a dedicated page per app), how to keep your budget under control, how to stay safe, and troubleshooting. Open it from the "Dojo Guide" button in the header, on the landing or inside the app.',
+      'The Dojo Guide is the full manual, and every section carries its own "How to?" button that plays the matching animated walkthrough full screen. It covers: how the whole thing works, how the practice dojo is laid out, how to shape a team, what each studio does, how to connect an app step by step (with a dedicated page per app), how to keep your budget under control, how to stay safe, and troubleshooting. Open it from the "Dojo Guide" button in the header, on the landing or inside the app.',
     links: [
       { label: 'Open the Dojo Guide', href: '/guide', external: true },
       { label: 'How to connect an app', href: '#stack' },

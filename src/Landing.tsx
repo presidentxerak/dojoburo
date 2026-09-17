@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { PROFESSIONS, professionColor } from './data/professions'
-import { CONNECTORS } from './data/connectors'
 import { SupportBot } from './components/SupportBot'
 import { useWork } from './agents/workStore'
 import { Logo } from './components/Logo'
@@ -13,17 +12,32 @@ import { StudioTeam } from './components/landing/TeamCards'
 import { LogoMarquee } from './components/landing/LogoMarquee'
 import { Pricing } from './components/landing/Pricing'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
-import { CREW_COUNT, TEAM_COUNT, APP_LIVE_COUNT } from './data/facts'
-import { LESSON_COUNT } from './data/academy'
+import { APP_LIVE_COUNT } from './data/facts'
+import { TRACKS } from './data/academy'
+import { PILLARS, PROMISE_LEAD, PROMISE_HL, SUBTITLE, NOT_THIS, LESSON_COUNT, TRACK_COUNT, COURSE_HOURS } from './data/positioning'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
 
-/** A-to-Z landing page: what DojoBuro is, how the CEO + crew run your company,
- *  what each plan buys, how agents get wired to real tools, where they
- *  run, and the path to a fully-functional production deployment. */
+/**
+ * La page d'accueil · ce qu'on APPREND ici.
+ *
+ * Elle vendait une entreprise déjà dotée de son personnel : « vos coéquipiers
+ * arrivent formés et branchés ». Le produit ne fait plus ça. Il enseigne — les
+ * agents, les prompts, l'outillage, et la sobriété que les cours passent sous
+ * silence. Chaque section de cette page a donc changé de sujet, pas de ton.
+ *
+ * Ce qui RESTE, et c'est voulu : le dojo en 3D plein écran, les cartes, les
+ * objets qui flottent en marge. C'est l'identité visuelle, elle n'était pas en
+ * cause — seul le discours l'était. Le dojo, lui, a changé de rôle : ce n'est
+ * plus l'usine où le travail se fait, c'est la salle où l'on s'entraîne.
+ *
+ * Aucun chiffre n'est écrit ici : tout vient de ./data/positioning, qui les
+ * dérive du contenu réel. Une académie qui annonce vingt leçons et en sert
+ * dix-huit a menti à son premier visiteur.
+ */
 export function Landing({ enter }: { enter: () => void }) {
-  // paid plans drop the user on the Billing / plans view inside the dojo
+  // paid plans drop the user on the Billing / plans view inside the app
   const goBilling = () => { useWork.getState().openStudio('billing'); enter() }
   // The Enterprise card used to scroll to an #assistant section. That section
   // is gone; Dojobot is the launcher in the corner, so open it directly.
@@ -53,147 +67,181 @@ export function Landing({ enter }: { enter: () => void }) {
     <div className="landing">
       <SiteHeader enter={enter} />
 
-      {/* The hero is deliberately almost empty: a title, one big button, and a
-          way to watch how it works. Everything else lives further down.
-
-          It used to promise that building agents here was easy, which is the
-          sentence every agent product on earth is already using — and it sold
-          the one thing we are worst at (being a builder) instead of the two we
-          are alone in: the teams arrive already formed, and we are not in the
-          middle of your model bill. A company that sells tokens cannot write
-          the second sentence below. That is the whole position. */}
       {/* LE HERO · un dojo 3D plein écran, et le texte posé dessus dans une
-          carte de verre.
-          Avant : un titre sur fond uni, avec la maquette 3D reléguée en petite
-          vignette sous les boutons — le produit se vend sur le fait que votre
-          entreprise est un LIEU, et ce lieu était en timbre-poste. Il occupe
-          maintenant tout l'écran, et le texte flotte au-dessus.
-          La carte reste claire dans les deux thèmes, avec du texte foncé : c'est
-          ce qui la laisse lisible par-dessus une scène qui change de couleur
-          selon l'heure et le thème choisi. */}
+          carte de verre. Il reste tel quel : le lieu est l'identité du produit,
+          et il dit maintenant la bonne chose — une salle où l'on s'entraîne.
+          Seul le texte a changé de promesse.
+
+          Le bouton principal n'envoie plus créer une entreprise, il envoie au
+          premier cours. C'est la seule modification qui compte vraiment sur
+          cette page : ce qu'on propose de FAIRE en arrivant. */}
       <section className="lp-hero lp-hero-stage">
         <div className="lp-hero-scene" aria-hidden>
           <DojoDiorama />
         </div>
         <div className="lp-hero-card">
-          <h1>Your company, already <span className="hl-acid">staffed</span></h1>
-          <p className="lp-hero-sub">
-            {TEAM_COUNT} teams that arrive formed, briefed and wired to their apps — not a blank canvas
-            to configure. They run on <b>your own</b> Claude key, so nobody puts a meter between you and
-            your own work.
-          </p>
+          <h1>{PROMISE_LEAD} — <span className="hl-acid">{PROMISE_HL}</span></h1>
+          <p className="lp-hero-sub">{SUBTITLE}</p>
           <div className="lp-hero-acts">
-            <button className="lp-hero-go lp-cta-create" onClick={enter}>Create your dojo teams</button>
-            <button className="lp-hero-how" onClick={() => setHowTo(true)}>How to?</button>
+            <a className="lp-hero-go lp-cta-create" href="/academy">Start the course · free</a>
+            <button className="lp-hero-how" onClick={() => setHowTo(true)}>How it works</button>
           </div>
-          {/* Never used an agent before? The whole course is free and starts from
-              zero · it is also how most people arrive here from search. */}
           <a className="lp-hero-learn" href="/academy">
-            New to all this? <b>Learn it free at the Dojo Academy</b> · {LESSON_COUNT} lessons, no code →
+            {TRACK_COUNT} tracks · {LESSON_COUNT} lessons · {COURSE_HOURS} hours · no code, no account →
           </a>
         </div>
       </section>
 
       <div className="lm-band">
-        <p className="lm-cap">Open rails · your teammates act inside your own accounts</p>
+        <p className="lm-cap">The tools the course teaches you to wire, and what each one really costs</p>
         <LogoMarquee />
       </div>
 
-      <section className="lp-sec" id="studios">
-        <span className="lp-pill">{CREW_COUNT} teammates · each with its own brief and its own apps</span>
-        <h2>Meet the office</h2>
+      {/* LES QUATRE PILIERS · la carte du produit, en haut, avant tout le
+          reste. Un visiteur qui arrive avec l'ancienne page en tête doit voir
+          en trois secondes que la maison a changé de métier. */}
+      <section className="lp-sec" id="pillars">
+        <span className="lp-pill">Four things to do here · all of them teaching</span>
+        <h2>An academy, not a factory</h2>
+        <div className="lp-pillars">
+          {PILLARS.map((p) => (
+            <a className="lp-pillar" key={p.id} href={p.path}>
+              <span className="lp-pillar-g" aria-hidden>{p.glyph}</span>
+              <b>{p.title}</b>
+              <span>{p.blurb}</span>
+              <em>{p.nav} →</em>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* L'ACADÉMIE · les pistes telles qu'elles existent, avec leur vrai
+          nombre de leçons. Les cartes sont celles du produit, c'est le style
+          qu'on garde. */}
+      <section className="lp-sec alt" id="academy">
+        <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
+        <span className="lp-pill">Free · read in the browser · nothing to install</span>
+        <h2>Start from zero, finish with something that runs</h2>
         <p className="lp-lead sm">
-          Each one sits at their desk and shows what they are doing — working, thinking, stuck. Click any of
-          them to open what they have produced, the apps they work in, and the brief that makes them a
-          specialist.
+          Written for someone who has never heard the words agent, token or context window, and taken all the
+          way to a working system they understand line by line. One idea per block, a real example every time
+          an abstraction appears, and honest numbers throughout.
+        </p>
+        <div className="lp-tracks">
+          {TRACKS.map((t) => (
+            <a className="lp-track" key={t.slug} href={`/academy/${t.slug}`} style={{ ['--pc' as never]: t.tint }}>
+              <span className="lp-track-g" aria-hidden>{t.glyph}</span>
+              <b>{t.label}</b>
+              <span className="lp-track-lvl">{t.level} · {t.lessons.length} lessons</span>
+              <span className="lp-track-blurb">{t.blurb}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* LA SOBRIÉTÉ · le pilier qui nous distingue, donc il ne se cache pas
+          en bas de page. Les chiffres précis arrivent avec l'outil ; ici on
+          annonce la méthode, pas un résultat qu'on n'a pas encore mesuré. */}
+      <section className="lp-sec" id="frugality">
+        <Object3D kind="gem" color={C.teal} side="left" parallax={0.12} />
+        <span className="lp-pill">The part most courses skip</span>
+        <h2>Every run has a price. Most people never see it.</h2>
+        <p className="lp-lead">
+          A prompt that carries the whole conversation on every turn, an agent that re-reads a file it already
+          knows, a loop nobody stopped — none of it shows up until the invoice does. The course measures it in
+          three units at once: <b>tokens</b>, <b>euros</b> and <b>grams of CO₂e</b>. Then it gives you the
+          levers, each with the saving it actually buys rather than the one it is said to buy.
+        </p>
+        <div className="lp-schema lp-flow">
+          <div className="lp-node"><span className="lp-nico">1</span><b>Measure</b><span>What one run really costs</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><span className="lp-nico">2</span><b>Cut</b><span>Context, cache, model size</span></div>
+          <span className="lp-arrow">→</span>
+          <div className="lp-node"><span className="lp-nico">3</span><b>Check</b><span>Same answer, smaller bill</span></div>
+        </div>
+      </section>
+
+      {/* LA BIBLIOTHÈQUE · par métier, parce que c'est comme ça qu'on la
+          cherche. La grille des métiers existait déjà et servait à choisir une
+          équipe ; elle sert maintenant à filtrer un catalogue. */}
+      <section className="lp-sec alt" id="library">
+        <Object3D kind="network" color={C.yellow} side="right" parallax={0.12} />
+        <span className="lp-pill">Prompts · .md briefs · agent skills</span>
+        <h2>Filed by the job you actually do</h2>
+        <p className="lp-lead sm">
+          Not a wall of clever one-liners. Each entry says what it is for, why it is written that way, what it
+          costs to run, and what to change for your own case. Pick your trade and take what fits.
+        </p>
+        {/* Les métiers sont affichés, pas encore cliquables · le catalogue
+            ouvre au lot suivant, et un filtre qui ne filtre rien est pire
+            qu'un filtre absent. */}
+        <div className="lp-trades">
+          {PROFESSIONS.map((p) => (
+            <span className="lp-trade lp-trade-soon" key={p.id} style={{ ['--pc' as never]: professionColor(p.id) }}>
+              {p.label}
+            </span>
+          ))}
+        </div>
+        <p className="lp-lead sm lp-soon">The catalogue opens next · the trades above are the shelves it is filed on.</p>
+      </section>
+
+      {/* LE DOJO · il reste, et il garde ses cartes. Ce qui change est son
+          rôle : on n'y fait plus produire une équipe, on y ouvre un coéquipier
+          pour lire le prompt qui le rend ce qu'il est. */}
+      <section className="lp-sec" id="dojo">
+        <span className="lp-pill">A sandbox · nothing here calls a paid model</span>
+        <h2>A room to practise in</h2>
+        <p className="lp-lead sm">
+          Every teammate in the dojo is a worked example. Open one and you get the brief that makes it a
+          specialist, the tools it would reach for, and the cost of the way it is written. Change the prompt and
+          watch what changes — that is the exercise.
         </p>
         <StudioTeam enter={enter} />
       </section>
 
-      <section className="lp-sec alt" id="pay">
-        <h2>Your key. No meter.</h2>
-        <p className="lp-lead">
-          Add your Anthropic key and your teammates run on it · sealed server-side, and Anthropic bills you
-          directly for exactly what you used. Everything the company makes also saves to a single
-          <b> .dojo</b> file on your own disk, and opens again anywhere.
-        </p>
-        <div className="lp-schema lp-flow">
-          <div className="lp-node"><span className="lp-nico">1</span><b>Add your key</b><span>Sealed with AES-256-GCM</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">2</span><b>Run as much as you like</b><span>No cap, no counter</span></div>
-          <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">3</span><b>Anthropic bills you</b><span>For what you actually used</span></div>
-        </div>
-      </section>
-
-      <section className="lp-sec" id="jobs">
-        <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
-        <h2>Built around your business</h2>
-        <p className="lp-lead sm">Pick your trade · the crew, their briefs and their apps arrive set up for it.</p>
-        {/* 23 trades as one scannable grid. This was 23 cards with a blurb and
-            five app chips each — nearly three screens of text nobody reads on
-            the way past. The visitor is looking for THEIR trade, not for a
-            description of the other twenty-two; the detail is one click away
-            inside the app, where they actually pick one. */}
-        <div className="lp-trades">
-          {PROFESSIONS.map((p) => (
-            <button
-              type="button"
-              className="lp-trade"
-              key={p.id}
-              style={{ ['--pc' as any]: professionColor(p.id) }}
-              onClick={enter}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="lp-sec alt" id="stack">
-        <Object3D kind="network" color={C.teal} side="left" parallax={0.12} />
-        <h2>{APP_LIVE_COUNT} apps your team acts inside</h2>
+      {/* CE QUE NOUS NE FAISONS PLUS · en toutes lettres. Quelqu'un qui arrive
+          avec l'ancienne promesse en tête doit l'apprendre ici, pas après
+          avoir créé un compte. */}
+      <section className="lp-sec alt" id="not">
+        <h2>What this is not</h2>
+        <ul className="lp-nots">
+          {NOT_THIS.map((line) => <li key={line}>{line}</li>)}
+        </ul>
         <p className="lp-lead sm">
-          Approve once on the app's own screen · then your team creates the Notion page, opens the GitHub PR,
-          drafts the Gmail, raises the Stripe invoice. The catalogue below lists {CONNECTORS.length} and each
-          card says whether it can act yet.
+          If you came here to have the work done for you, this is the wrong shop, and we would rather you knew
+          now. If you came here to learn how it is done — and what it costs — start with lesson one.
         </p>
-        <div className="lp-toolwall">
-          {CONNECTORS.map((c) => (
-            <span className="lp-toolpill" key={c.id} title={c.blurb}>{c.label}</span>
-          ))}
-        </div>
       </section>
 
       <section className="lp-sec alt" id="pricing">
         <Object3D kind="gem" color={C.orange} side="left" parallax={0.12} />
-        <h2>You pay for the teams, not for tokens</h2>
+        <h2>The course is free. The library is the paid part.</h2>
         <Pricing enter={enter} goBilling={goBilling} goAssistant={goAssistant} connectors={APP_LIVE_COUNT} />
       </section>
 
       <section className="lp-final">
         <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
         <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>
-        <h2>Ready to run your office?</h2>
-        <button className="lp-cta big lp-cta-create" onClick={enter}>Create your company →</button>
-        <p className="lp-foot">Sold as software · no crypto · open in your browser</p>
+        <h2>Ready to start?</h2>
+        <a className="lp-cta big lp-cta-create" href="/academy">Open lesson one →</a>
+        <p className="lp-foot">Free · read in your browser · no account to begin</p>
       </section>
 
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
         <nav className="lp-foot-links">
-          {/* Only anchors that exist. Three of these pointed at sections the
-              page no longer has, and Pricing was listed twice — nobody clicks
-              a footer, which is exactly why it rots. */}
-          <a href="#studios">The office</a>
-          <a href="#pay">Your key</a>
-          <a href="#jobs">Your job</a>
-          <a href="#stack">Connect apps</a>
+          {/* Only anchors that exist · three of these once pointed at sections
+              the page no longer had, and nobody clicks a footer, which is
+              exactly why it rots. */}
+          <a href="#pillars">What this is</a>
+          <a href="#academy">Academy</a>
+          <a href="#frugality">Frugality</a>
+          <a href="#library">Library</a>
+          <a href="#dojo">The dojo</a>
           <a href="#pricing">Pricing</a>
-          <a href="/academy">Academy</a>
+          <a href="/guide">App setup guide</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
-          <a href="#app" onClick={(e) => { e.preventDefault(); enter() }}>Create your company</a>
         </nav>
       </footer>
       <SupportBot />

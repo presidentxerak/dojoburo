@@ -39,6 +39,10 @@ const CHECKS = [
   // sur son estrade, la porte, les postes et le trajet du coursier partagent
   // la même géométrie, et rien n'y occupe deux fois la même place.
   ['test-stage.mjs', 1, true],
+  // Le dojo n'appelle plus rien · la promesse est écrite sur la page d'accueil,
+  // et elle se casse sans bruit le jour où quelqu'un ajoute une action sans
+  // garde. Hors navigateur, en une seconde.
+  ['test-sandbox.mjs', 1, true],
   ['check-theme-props.mjs', 1, true],
   ['audit-csp.mjs', 2, true],
   ['verify-gate.mjs', 2, true],
