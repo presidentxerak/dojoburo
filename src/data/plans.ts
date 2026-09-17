@@ -121,7 +121,7 @@ export const PLANS: Plan[] = [
     inclHead: 'Everything in Founder, plus',
     incl: [
       'The library for everyone on the team, under one bill',
-      `${MANAGED_TASKS.toLocaleString('en-US')} tasks a month — only ever drawn on a deployment running live`,
+      `${MANAGED_TASKS.toLocaleString('en-US')} tasks a month: only ever drawn on a deployment running live`,
       'On the practice dojo nothing runs, so nothing is drawn',
       'No API key to find, hold or rotate',
       'We pick the model per task and absorb the cost',

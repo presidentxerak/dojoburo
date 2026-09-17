@@ -211,7 +211,7 @@ export default function App() {
           <PipelineHome key={homeStart} initialView={homeStart} onOpenProject={() => { setView('dojo'); setDojoFull(true) }} onView={setHomeStep} />
         </div>
         <OutboundConsentModal />
-        {/* Dojo settings · Account · Billing · Connect apps — the same shell as
+        {/* Dojo settings · Account · Billing · Connect apps: the same shell as
             every other full-screen surface, over the app instead of away from it */}
         {studioOpen && <StudioSurface onClose={() => useWork.getState().closeStudio()} />}
         {connectOpen && <ConnectorsSurface onClose={() => useWork.getState().closeConnect()} />}
@@ -294,7 +294,7 @@ export default function App() {
 
 
       <OutboundConsentModal />
-      {/* Dojo settings · Account · Billing · Connect apps — the same shell as
+      {/* Dojo settings · Account · Billing · Connect apps: the same shell as
           every other full-screen surface, over the app instead of away from it */}
       {studioOpen && <StudioSurface onClose={() => useWork.getState().closeStudio()} />}
       {connectOpen && <ConnectorsSurface onClose={() => useWork.getState().closeConnect()} />}

@@ -115,13 +115,13 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <p className="lp-lead">This guide is the reference, not the course · if you are new to any of this, start at the <a href="/academy">Academy</a>. What follows is how the practice dojo is laid out, and how a tool gets wired to an agent, one app at a time.</p>
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Read a worked example</b><span>Every team in the dojo is one: a brief, a tool list and a budget, put together for a real trade. Open it and read why it is written that way.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Take it apart</b><span>Change the brief, drop a tool, tighten the budget. The dojo is a sandbox — nothing here calls a paid model or touches your accounts.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Take it apart</b><span>Change the brief, drop a tool, tighten the budget. The dojo is a sandbox: nothing here calls a paid model or touches your accounts.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Rebuild it on your own stack</b><span>The per-app pages below are the step-by-step for wiring the real thing yourself, in your own account, outside this site.</span></div></div>
         </div>
         <p className="lp-note"><b>Do I have to sign in?</b> No. The whole course and every page of this guide are readable without an account. Signing in only keeps your progress and your own notes across devices · otherwise they stay in this browser.</p>
         <h3 className="dg2-cat" style={{ marginTop: 26 }}>Your {CREW_WORD} teammates &amp; what each one does</h3>
         <StudioTeam enter={() => { window.location.href = '/#app' }} />
-        <p className="lp-note" style={{ marginTop: 14 }}>These {CREW_WORD} ship with every dojo — and the crew is yours to shape. See <a className="linklike" href="#team">Shape your team</a> just below.</p>
+        <p className="lp-note" style={{ marginTop: 14 }}>These {CREW_WORD} ship with every dojo, and the crew is yours to shape. See <a className="linklike" href="#team">Shape your team</a> just below.</p>
       </section>
 
       <section className="lp-sec alt" id="around">
@@ -129,7 +129,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <p className="lp-lead">The app's header is deliberately quiet · no logo, no brand, just the controls for whatever you are looking at. Everything else lives in the menu.</p>
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>The menu (top right)</b><span>Connect apps, the Dojo Guide, Quick search, Dojo settings, your Account, Credits and Settings · all in one place.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Inside a dojo</b><span>Three controls sit in the middle of the header: <b>Manage team</b>, <b>Dojo settings</b> and <b>Graph mode</b>. To leave the dojo, open the menu and pick <b>My companies</b> — on a phone it is the first button in the bottom bar.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Inside a dojo</b><span>Three controls sit in the middle of the header: <b>Manage team</b>, <b>Dojo settings</b> and <b>Graph mode</b>. To leave the dojo, open the menu and pick <b>My companies</b>, on a phone it is the first button in the bottom bar.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>The team tabs</b><span>Right under the header, every other team in your company · switching from the campaign crew to the app crew is one tap.</span></div></div>
         </div>
         <p className="lp-note"><b>Graph mode</b> draws the team as a graph. The team lead sits at the top with a dashed line down to everyone who reports to it, and green arrows run left to right along the plan, from one step to the next. Each node is a card: what that teammate does, how much they have actually produced, when they last worked, and every app they can reach · add or remove an app right on the node.</p>
@@ -141,7 +141,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <p className="lp-lead">Your dojo ships with {CREW_WORD} teammates, but nothing is locked. Hide what you don't need, build your own agents, and arrange the office exactly how you like.</p>
         <div className="lp-steps3">
           <div className="lp-step3"><span className="lp-step3-n dg2-n1">1</span><div><b>Hide or show</b><span>Hide any preset you don't use from the CEO dashboard; restore it from the roster whenever you want.</span></div></div>
-          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Create custom agents</b><span>Build your own teammate — name, job title, colour, the apps it works with, a task list you assign to it and a private notepad. All saved locally.</span></div></div>
+          <div className="lp-step3"><span className="lp-step3-n dg2-n2">2</span><div><b>Create custom agents</b><span>Build your own teammate: name, job title, colour, the apps it works with, a task list you assign to it and a private notepad. All saved locally.</span></div></div>
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Arrange the office</b><span>Tap <b>Arrange team</b> on the dojo, tap an agent, then tap a cell. The 3D office reseats live · on desktop and mobile.</span></div></div>
         </div>
         <p className="lp-note">Press <kbd>Cmd/Ctrl&nbsp;+&nbsp;K</kbd> (or the <b>Search</b> button) any time for a quick launcher that jumps to any agent, page or action. And front-and-centre in the 3D office stands the team <b>panda</b> · your mascot, who cheers the crew on and dances every time a task ships (tap him for a celebration on cue).</p>
@@ -154,7 +154,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         <p className="lp-lead">Click a teammate to open its studio. The AI generates a first version instantly, then you keep full control · and everything below runs in your browser.</p>
 
         <div className="dg2-studio">
-          <h3 className="dg2-cat">Brandi · Brand Studio — find a name &amp; build your identity</h3>
+          <h3 className="dg2-cat">Brandi · Brand Studio: find a name &amp; build your identity</h3>
           <ul>
             <li>Describe your product, pick a few keywords, and it combines them into brandable names · reroll for more.</li>
             <li><b>Real .com availability</b>, checked live in your browser (DNS-over-HTTPS): a <b>green check</b> means the domain is verified free at the registries; taken names show alternatives and other TLDs.</li>
@@ -163,7 +163,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         </div>
 
         <div className="dg2-studio">
-          <h3 className="dg2-cat">Weblos · Website Studio — a pro, block-based builder</h3>
+          <h3 className="dg2-cat">Weblos · Website Studio: a pro, block-based builder</h3>
           <ul>
             <li>Left panel <b>Pages</b> + <b>Styles</b> (Squarespace-style). Click any section to edit its text, image or video in place.</li>
             <li>Global design: corner radius, border width &amp; colour, and an <b>interaction editor</b> for card &amp; button hover effects · all live.</li>
@@ -172,7 +172,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         </div>
 
         <div className="dg2-studio">
-          <h3 className="dg2-cat">Marketus · Marketing Studio — one creative flow</h3>
+          <h3 className="dg2-cat">Marketus · Marketing Studio: one creative flow</h3>
           <ul>
             <li>Brief → Audience → Creatives → Export. It builds the audience and <b>5 brand-styled ad variants</b> (Feed &amp; Story) you can edit and regenerate.</li>
             <li><b>Video editor</b>: import clips, trim, sequence on a timeline, add text overlays and an optional ElevenLabs voiceover (your key), export a real <code>.webm</code>.</li>
@@ -181,7 +181,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         </div>
 
         <div className="dg2-studio">
-          <h3 className="dg2-cat">Pumpi · Growth — SEO + leads together</h3>
+          <h3 className="dg2-cat">Pumpi · Growth: SEO + leads together</h3>
           <ul>
             <li>SEO suite: a live <b>site audit</b> and on-page analysis of your own website, keyword research, a rank-tracker watchlist and a competitor list · honest empty states until an external data source is connected.</li>
             <li><b>Leads (CRM)</b>: a pipeline board, CSV import, personalised outreach that merges each contact's details, and real <b>Gmail</b> sending or a live <b>HubSpot</b> pull.</li>
@@ -189,7 +189,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
         </div>
 
         <div className="dg2-studio">
-          <h3 className="dg2-cat">Busino · Business — finance &amp; analytics that explain themselves</h3>
+          <h3 className="dg2-cat">Busino · Business: finance &amp; analytics that explain themselves</h3>
           <ul>
             <li>Finance: import a CSV (or sync <b>QuickBooks</b>/<b>Xero</b>) and see revenue, expenses, cash, VAT and a 3-month forecast.</li>
             <li>Analytics: CAC, LTV, LTV:CAC, ROI, growth and conversion with plain-language insights. Traffic reads from GA4 / Search Console when connected.</li>
@@ -356,7 +356,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
             </ul>
           </div>
         </div>
-        <p className="lp-note">DojoBuro ships a strict Content-Security-Policy, security headers (HSTS, no-sniff, frame-deny), server-side rate limits and spending caps, bot/scraper filtering at the edge, and keeps OAuth connector tokens and the operator's model key in a server-side encrypted vault. Note: keys you bring yourself (e.g. an ElevenLabs voice key) and any local wallet material stay in your browser — treat this browser like your own device.</p>
+        <p className="lp-note">DojoBuro ships a strict Content-Security-Policy, security headers (HSTS, no-sniff, frame-deny), server-side rate limits and spending caps, bot/scraper filtering at the edge, and keeps OAuth connector tokens and the operator's model key in a server-side encrypted vault. Note: keys you bring yourself (e.g. an ElevenLabs voice key) and any local wallet material stay in your browser, treat this browser like your own device.</p>
         <p className="lp-note"><b>Prompt-injection defense.</b> When an agent reads content from a connected app (an email, an issue, a ticket, a document), that content is treated as <b>untrusted data, never as instructions</b>. Every agent run carries a security preamble: it won't obey commands hidden in tool output, won't reveal your secrets or env vars, and won't send or share data to anyone you didn't explicitly name · it prefers drafts and never deletes. Your free-text briefs are sanitized too, and deliverables render as plain text (no raw HTML/scripts). As a final safety net, the <b>first</b> outbound action (an email, a post, a broadcast) asks for your explicit confirmation · after you confirm once, it won't ask again (re-enable it anytime in Settings → Automation &amp; safety).</p>
       </section>
 
@@ -420,7 +420,7 @@ function CopyRedirect() {
         Exactly this · https, no trailing slash. It is the same for every app.
       </span>
       <span className="dg2-redirect-w">
-        Not in “Authorized JavaScript origins” — that list rejects a path. This goes in
+        Not in “Authorized JavaScript origins”, that list rejects a path. This goes in
         “Authorized redirect URIs”. The origins list can stay empty: nothing in the browser
         talks to the provider, the handshake runs on the server.
       </span>

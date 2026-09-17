@@ -199,8 +199,8 @@ export function DojoGraph({ dojoId, onClose, onOpenAgent }: {
         </div>
         {/* Une barre à zéro et « 0 results » se lisent comme un reproche, et ne
             disent pas quoi faire. Tant que ce coéquipier n'a rien produit, on
-            remplace la jauge vide par la première chose qu'il sait faire —
-            nommée, pas décrite — et par un chemin pour la lancer. */}
+            remplace la jauge vide par la première chose qu'il sait faire , 
+            nommée, pas décrite: et par un chemin pour la lancer. */}
         {done === 0 ? (
           first ? (
             <button

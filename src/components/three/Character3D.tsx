@@ -763,6 +763,12 @@ export function Character3D({
     const happy = mood === 'happy' || mood === 'love'
     const think = mood === 'think'
     const error = mood === 'error'
+    // ENDORMI · un agent qu'on n'a pas encore choisi n'existe pas, donc il ne
+    // travaille pas. Il respire plus lentement, s'affaisse un peu, et penche
+    // la tête. Rien d'autre : un dormeur qui bouge encore comme les autres ne
+    // se distingue pas, et c'est justement le contraste avec ceux qui sont
+    // éveillés qui donne envie d'en choisir un.
+    const asleep = mood === 'sleep'
 
     // LA MARCHE · le buste, lui aussi. Des jambes qui battent sous un tronc
     // parfaitement immobile, c'est une marionnette sur un rail ; le poids du
@@ -772,7 +778,7 @@ export function Character3D({
 
     // vertical: breathing, plus excited jumps when the Chief visits and
     // celebratory hops when a task lands well
-    let y = Math.sin(t * 1.6 + x) * 0.03
+    let y = Math.sin(t * (asleep ? 0.55 : 1.6) + x) * (asleep ? 0.05 : 0.03)
     if (visited) y += Math.abs(Math.sin(t * 3.2)) * 0.13
     if (busy) y += Math.sin(t * 9 + x) * 0.015
     if (happy) y += Math.max(0, Math.sin(t * 4 + x)) * 0.16
@@ -787,6 +793,8 @@ export function Character3D({
     // on se penche dans le sens de la marche · un corps qui avance sans
     // pencher se lit comme un corps qu'on POUSSE
     rotX += 0.11 * amp
+    // l'affaissement du sommeil · le buste part en avant et y reste
+    if (asleep) rotX += 0.22
     // LE SALUT · plié en deux vers l'avant, tout le buste. Il vaut par-dessus
     // le reste : on ne respire pas en saluant son maître.
     rotX += gait.current.bow * 0.62
@@ -796,6 +804,9 @@ export function Character3D({
     if (visited) rotZ += Math.sin(t * 2.4) * 0.09 // happy sway toward the Chief
     // le roulis d'épaules de la marche · un demi-cycle par pas
     if (amp > 0.01) rotZ += Math.sin(gp) * 0.07 * amp
+    // la tête penchée sur le côté · c'est ce détail, plus que la posture, qui
+    // fait lire « il dort » plutôt que « il regarde ses pieds »
+    if (asleep) rotZ += 0.15 + Math.sin(t * 0.5) * 0.02
     g.current.rotation.x += (rotX - g.current.rotation.x) * 0.12
     g.current.rotation.z += (rotZ - g.current.rotation.z) * 0.3
 
@@ -819,7 +830,7 @@ export function Character3D({
     // La nouvelle est LUE, pas reçue par abonnement : douze abonnés auraient
     // re-rendu douze arbres de personnage complets pour tourner douze têtes.
     const heard = peekNews().phase
-    const listening = heard === 'greeting' || heard === 'telling'
+    const listening = !asleep && (heard === 'greeting' || heard === 'telling')
     let yaw = 0
     if (listening && !bare) {
       const full = Math.atan2(DAIS.x - x, DAIS.z - z)
@@ -983,7 +994,7 @@ export function Character3D({
             {/* Les rayons ne sont pas choisis à l'œil : le torse est un
                 ellipsoïde de demi-hauteur 0,52, donc son rayon à la hauteur y
                 vaut 0,5·√(1−(Δy/0,52)²). Un premier essai avec des valeurs
-                devinées a enterré col et ceinture À L'INTÉRIEUR de la sphère —
+                devinées a enterré col et ceinture À L'INTÉRIEUR de la sphère , 
                 trois anneaux invisibles, rendus à chaque image pour rien. */}
             <mesh position={[0, 1.36, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
               <torusGeometry args={[0.32, 0.07, 8, 22]} />

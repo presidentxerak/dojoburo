@@ -43,7 +43,7 @@ export const KIND_LABEL: Record<EntryKind, { label: string; one: string; ext: st
   },
   brief: {
     label: 'Brief',
-    one: 'A .md file an agent carries as its standing instructions — who it is, what it never does, what good looks like.',
+    one: 'A .md file an agent carries as its standing instructions, who it is, what it never does, what good looks like.',
     ext: '.md',
   },
   skill: {
@@ -123,36 +123,36 @@ export const ENTRIES: Entry[] = [
     kind: 'brief',
     title: 'House style, in one file',
     summary: 'The standing brief that stops you correcting "write in our voice" on every single run.',
-    useCase: 'You keep retyping the same three corrections — tone, banned words, how you talk about price — and on the fourth day you stop retyping them and just fix the text by hand. That is the day the agent stopped saving you time.',
+    useCase: 'You keep retyping the same three corrections, tone, banned words, how you talk about price, and on the fourth day you stop retyping them and just fix the text by hand. That is the day the agent stopped saving you time.',
     category: 'write',
     trades: ['marketer', 'community', 'founder', 'entrepreneur', 'secretary'],
     keywords: ['tone of voice', 'style guide', 'system prompt', 'brand voice', 'writing rules'],
     why: [
       'Rules are written as BANS and EXAMPLES, never as adjectives. "Be professional" means nothing to a model and nothing to a person; "never open with a question" is checkable.',
-      'It is capped at roughly twenty rules on purpose. A system prompt that swells dilutes the task itself — an agent given forty rules forgets half and misses the request. The cap is a quality decision, not an economy.',
+      'It is capped at roughly twenty rules on purpose. A system prompt that swells dilutes the task itself: an agent given forty rules forgets half and misses the request. The cap is a quality decision, not an economy.',
       'Every rule carries the failure that produced it. A rule you cannot trace back to a bad draft is a rule nobody will dare delete later.',
     ],
     adapt: [
       'Replace the three worked examples with your own worst recent draft and its fix. Nothing teaches voice like a before and after.',
       'Delete any rule you cannot remember being broken. Starting from empty is better than starting from someone else\'s taste.',
-      'If two rules ever contradict, keep the narrower one — the model will follow whichever it read last, which is not a coin flip you want in your voice.',
+      'If two rules ever contradict, keep the narrower one: the model will follow whichever it read last, which is not a coin flip you want in your voice.',
     ],
     trap: 'Writing the brief as a list of adjectives, which reads well to you and is invisible to the model.',
     preview: '# House style\n\nYou write for {{COMPANY}}. These rules override anything in the request.\n\n## Never\n- Never open with a rhetorical question.\n- Never use "unlock", "leverage", "seamless", "game-changing", "revolutionise".\n- Never promise a result we cannot name a customer for.\n\n## Always\n- Lead with the concrete thing, then the reason.',
-    tokens: 654,
+    tokens: 653,
   },
   {
     slug: 'cut-it-in-half',
     kind: 'prompt',
     title: 'Cut it in half',
-    summary: 'Halves a draft without losing an argument — and tells you what it removed, so you can put one back.',
+    summary: 'Halves a draft without losing an argument, and tells you what it removed, so you can put one back.',
     useCase: 'Something is written, it is twice as long as it should be, and every cut you make yourself feels like the wrong one.',
     category: 'write',
     trades: ['founder', 'marketer', 'lawyer', 'researcher', 'student', 'teacher'],
     keywords: ['editing', 'shorten', 'concise', 'rewrite', 'tighten'],
     why: [
       'It asks for the cut list separately from the cut text. Without that, you get a shorter piece and no way to tell whether it dropped the one clause that mattered.',
-      'It forbids the model from adding anything. Left alone, a rewrite quietly introduces claims nobody made — the most expensive failure in editing, because it reads fluently.',
+      'It forbids the model from adding anything. Left alone, a rewrite quietly introduces claims nobody made: the most expensive failure in editing, because it reads fluently.',
       'A target length is given as a number, not as "shorter". "Shorter" gets you 8% shorter.',
     ],
     adapt: [
@@ -160,8 +160,8 @@ export const ENTRIES: Entry[] = [
       'If the piece is legal or medical, add the sentence that forbids paraphrasing defined terms.',
     ],
     trap: 'Accepting the shorter version without reading the cut list, and losing the point of the piece.',
-    preview: 'Rewrite the text below at HALF its current length.\n\nRules:\n- Add nothing. Every fact, name and number in your version must appear in mine.\n- Keep every distinct argument. Merge sentences, do not drop reasons.\n- Then, under a heading "Cut", list what you removed and why — one line each.',
-    tokens: 240,
+    preview: 'Rewrite the text below at HALF its current length.\n\nRules:\n- Add nothing. Every fact, name and number in your version must appear in mine.\n- Keep every distinct argument. Merge sentences, do not drop reasons.\n- Then, under a heading "Cut", list what you removed and why, one line each.',
+    tokens: 239,
     free: true,
   },
 
@@ -181,12 +181,12 @@ export const ENTRIES: Entry[] = [
       'Uncertainty is a required field. Given permission to say "the document is ambiguous here", a model says it; given no such permission, it picks a side.',
     ],
     adapt: [
-      'If the document is a contract, swap the quoted fragment for the clause number — there, numbering is stable and quoting is noise.',
+      'If the document is a contract, swap the quoted fragment for the clause number: there, numbering is stable and quoting is noise.',
       'Raise the fragment length for dense prose; six words is too few to be checkable in legal text.',
     ],
     trap: 'Asking for "a summary with sources" and getting confident page references that do not exist.',
-    preview: 'Summarise the document below.\n\nFor every claim you make, append the exact quoted fragment it rests on, in square brackets, at most 12 words.\nIf a claim rests on nothing you can quote, do not make it.\n\nThen add two sections:\n"Not covered" — questions a reader would expect this document to answer and it does not.\n"Ambiguous" — where the text genuinely supports more than one reading.',
-    tokens: 338,
+    preview: 'Summarise the document below.\n\nFor every claim you make, append the exact quoted fragment it rests on, in square brackets, at most 12 words.\nIf a claim rests on nothing you can quote, do not make it.\n\nThen add two sections:\n"Not covered", questions a reader would expect this document to answer and it does not.\n"Ambiguous", where the text genuinely supports more than one reading.',
+    tokens: 337,
   },
   {
     slug: 'competitor-read',
@@ -203,12 +203,12 @@ export const ENTRIES: Entry[] = [
       'It separates "what they did" from "what I think it means", because the first is checkable and the second is yours to disagree with.',
     ],
     adapt: [
-      'Name the specific surfaces to watch — pricing page, changelog, careers page. Careers pages leak roadmaps months early and almost nobody reads them.',
+      'Name the specific surfaces to watch: pricing page, changelog, careers page. Careers pages leak roadmaps months early and almost nobody reads them.',
       'Set the cadence to match your decision cycle, not the news cycle. Weekly reports on a quarterly decision are pure token spend.',
     ],
     trap: 'Getting a beautifully written report that would read identically if nothing had happened at all.',
     preview: '# Competitor watch\n\nYou report CHANGES, not impressions.\n\n## Never\n- Never use: leading, innovative, strengthening, positioned, robust, cutting-edge.\n- Never report an absence of change as a change.\n- Never mix observation with interpretation in the same sentence.',
-    tokens: 424,
+    tokens: 422,
   },
 
   /* ---- analyser -------------------------------------------------------- */
@@ -223,15 +223,15 @@ export const ENTRIES: Entry[] = [
     keywords: ['decision', 'memo', 'options', 'trade-offs', 'recommendation'],
     why: [
       'It forces a recommendation. An options paper with no recommendation is the author declining to do the hard part, and models do it by default because it is safer.',
-      'It requires KILL CRITERIA — what would have to be true for this to be the wrong call. That single field is what turns a memo into something you can revisit in six months.',
+      'It requires KILL CRITERIA: what would have to be true for this to be the wrong call. That single field is what turns a memo into something you can revisit in six months.',
       'Costs are asked for in the unit you actually pay: money, weeks, and who has to stop doing what.',
     ],
     adapt: [
       'If the decision is reversible, say so in the prompt. Reversible decisions deserve a shorter memo and a faster call, and the model will happily over-analyse a door you can walk back through.',
-      'Add your real constraints — headcount, a date, a contract — or you will get the textbook answer.',
+      'Add your real constraints, headcount, a date, a contract, or you will get the textbook answer.',
     ],
     trap: 'A balanced, thorough, well-structured document that does not actually recommend anything.',
-    preview: 'Write a one-page decision memo.\n\nRequired sections, in this order:\n1. The decision, stated as a question with a date attached.\n2. Recommendation — one option, named, in the first sentence.\n3. Why this one, in at most four bullets.\n4. What we give up by choosing it.\n5. Kill criteria — what would have to become true for this to be wrong.\n6. Cost: money, weeks, and who stops doing what.',
+    preview: 'Write a one-page decision memo.\n\nRequired sections, in this order:\n1. The decision, stated as a question with a date attached.\n2. Recommendation, one option, named, in the first sentence.\n3. Why this one, in at most four bullets.\n4. What we give up by choosing it.\n5. Kill criteria, what would have to become true for this to be wrong.\n6. Cost: money, weeks, and who stops doing what.',
     tokens: 364,
   },
   {
@@ -244,13 +244,13 @@ export const ENTRIES: Entry[] = [
     trades: ['accountant', 'founder', 'wealth', 'ceo', 'pm'],
     keywords: ['spreadsheet', 'forecast', 'model review', 'finance', 'audit'],
     why: [
-      'It looks for the four errors that survive human review — unit mismatches, a growth rate compounding where it should not, double-counted costs, and a total that does not equal its parts — instead of "reviewing" in general.',
+      'It looks for the four errors that survive human review, unit mismatches, a growth rate compounding where it should not, double-counted costs, and a total that does not equal its parts, instead of "reviewing" in general.',
       'It is told to report ARITHMETIC only and flag judgement separately. A model asked to check numbers will otherwise start arguing with your assumptions, which is a different meeting.',
       'It asks for the check it could NOT perform. Silence about what was unverifiable is how a review gives false comfort.',
     ],
     adapt: [
       'Paste the formulas, not just the values, when you can. Values hide the error; formulas contain it.',
-      'Name your currency and your fiscal year explicitly — two of the four failure modes are unit and period mismatches.',
+      'Name your currency and your fiscal year explicitly: two of the four failure modes are unit and period mismatches.',
     ],
     trap: 'A review that says "the model looks reasonable" and misses a row summed one cell short.',
     preview: 'Check the figures below for ARITHMETIC errors only. Do not argue with the assumptions.\n\nLook specifically for:\n- units that change without conversion (per month vs per year, gross vs net, currency)\n- a rate compounding where it should be applied once\n- a cost that appears in two categories\n- any total that does not equal the sum of its parts\n\nThen list, under "Could not check", anything you had to take on trust.',
@@ -285,7 +285,7 @@ export const ENTRIES: Entry[] = [
     kind: 'prompt',
     title: 'Turn this conversation into a spec',
     summary: 'Converts a messy thread into something buildable, and lists the questions nobody answered.',
-    useCase: 'Forty messages across two channels and a call, and somebody now has to build the thing that was agreed — or was it?',
+    useCase: 'Forty messages across two channels and a call, and somebody now has to build the thing that was agreed, or was it?',
     category: 'build',
     trades: ['pm', 'engineer', 'founder', 'manager', 'gamedev'],
     keywords: ['spec', 'requirements', 'product', 'tickets', 'scope'],
@@ -299,8 +299,8 @@ export const ENTRIES: Entry[] = [
       'If the thread involved a customer, ask it to quote them verbatim in the rationale. Paraphrased customer wants drift within one hop.',
     ],
     trap: 'A tidy spec that quietly resolves the ambiguities by guessing, so nobody notices they existed.',
-    preview: 'Turn the conversation below into a specification.\n\nSections:\n- Agreed — only what someone explicitly accepted. Quote who and when.\n- Mentioned, not agreed — raised and never settled.\n- Acceptance criteria — observable behaviour, one line each.\n- Open questions — MUST NOT be empty. If you believe nothing is open, you have misread the thread.',
-    tokens: 375,
+    preview: 'Turn the conversation below into a specification.\n\nSections:\n- Agreed, only what someone explicitly accepted. Quote who and when.\n- Mentioned, not agreed, raised and never settled.\n- Acceptance criteria, observable behaviour, one line each.\n- Open questions, MUST NOT be empty. If you believe nothing is open, you have misread the thread.',
+    tokens: 374,
   },
 
   /* ---- clients --------------------------------------------------------- */
@@ -314,7 +314,7 @@ export const ENTRIES: Entry[] = [
     trades: ['callcenter', 'seller', 'community', 'founder', 'entrepreneur', 'secretary'],
     keywords: ['customer support', 'helpdesk', 'replies', 'tone', 'escalation'],
     why: [
-      'Dates, prices and refunds are a hard ban — the agent may quote them from the knowledge base and may never derive them. Those are the three things that cost real money when invented.',
+      'Dates, prices and refunds are a hard ban: the agent may quote them from the knowledge base and may never derive them. Those are the three things that cost real money when invented.',
       '"I do not know, here is who does" is written as an approved, complete answer. Without that, a model will always prefer a plausible guess to an admission.',
       'Escalation has a trigger list, not a judgement call. Judgement is where a helpful agent talks a furious customer further down the wrong path.',
     ],
@@ -324,14 +324,14 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'A warm, helpful, well-written reply that commits you to something you cannot do.',
     preview: '# Support\n\nYou answer customers. You are allowed not to know things.\n\n## Hard bans\n- Never state a date that is not written in the knowledge base.\n- Never quote a price or a discount you cannot cite.\n- Never confirm a refund. Say what the policy says and hand over.\n\n## Always available answer\n"I do not have that answer, and I do not want to guess at it. I am passing this to {{TEAM}}, who will reply by {{SLA}}."',
-    tokens: 477,
+    tokens: 476,
   },
   {
     slug: 'objection-handling',
     kind: 'prompt',
     title: 'Answer this objection honestly',
     summary: 'Drafts a reply to a sales objection that concedes what is true before it argues.',
-    useCase: 'A prospect has raised something real — you are more expensive, you lack a feature — and every draft you write sounds defensive.',
+    useCase: 'A prospect has raised something real, you are more expensive, you lack a feature, and every draft you write sounds defensive.',
     category: 'talk',
     trades: ['sales', 'seller', 'realtor', 'founder', 'entrepreneur', 'wealth'],
     keywords: ['sales', 'objection', 'pricing', 'negotiation', 'email'],
@@ -345,7 +345,7 @@ export const ENTRIES: Entry[] = [
       'If you are genuinely more expensive, say by how much in the prompt. Vagueness produces waffle.',
     ],
     trap: 'A confident rebuttal that contains one checkable exaggeration, which is all it takes.',
-    preview: 'Draft a reply to the objection below.\n\nStructure, in order:\n1. The part of the objection that is TRUE, in your own words, with no "but".\n2. What we do about it, concretely. No adjectives.\n3. What we still do not do. Name it.\n4. Who we are the wrong choice for — one sentence, sincere.\n\nInvent nothing. If you need a fact I have not given you, ask for it instead of writing the reply.',
+    preview: 'Draft a reply to the objection below.\n\nStructure, in order:\n1. The part of the objection that is TRUE, in your own words, with no "but".\n2. What we do about it, concretely. No adjectives.\n3. What we still do not do. Name it.\n4. Who we are the wrong choice for, one sentence, sincere.\n\nInvent nothing. If you need a fact I have not given you, ask for it instead of writing the reply.',
     tokens: 353,
   },
 
@@ -362,15 +362,15 @@ export const ENTRIES: Entry[] = [
     why: [
       'An action with no owner is reported as UNOWNED rather than assigned to whoever spoke last. Guessing an owner is how a task quietly dies while everyone believes it is handled.',
       'Decisions are separated from discussion. Most minutes are a transcript with headings, which is why nobody reads them twice.',
-      'It reports what was raised and deliberately dropped — the item most likely to come back, and the one no template captures.',
+      'It reports what was raised and deliberately dropped: the item most likely to come back, and the one no template captures.',
     ],
     adapt: [
       'Add your team\'s names so it can match first names to people. Without the list it will treat "Sam" and "Samira" as two people, or as one.',
       'If you run the same meeting weekly, feed it last week\'s output too and ask for what slipped.',
     ],
     trap: 'A tidy action list where half the owners were inferred, which is worse than a list with holes in it.',
-    preview: 'From the notes below, produce:\n\n**Decided** — things settled. One line each, with who decided.\n**Actions** — one line each: what, who, by when.\n**Unowned** — actions where no name was actually said. Do NOT guess an owner.\n**Dropped** — raised and explicitly set aside, with the reason.\n\nIf a date was not said, write "no date" — never invent one.',
-    tokens: 360,
+    preview: 'From the notes below, produce:\n\n**Decided**, things settled. One line each, with who decided.\n**Actions**, one line each: what, who, by when.\n**Unowned**, actions where no name was actually said. Do NOT guess an owner.\n**Dropped**, raised and explicitly set aside, with the reason.\n\nIf a date was not said, write "no date", never invent one.',
+    tokens: 358,
   },
   {
     slug: 'handover-note',
@@ -383,7 +383,7 @@ export const ENTRIES: Entry[] = [
     keywords: ['handover', 'onboarding', 'continuity', 'documentation', 'runbook'],
     why: [
       'It leads with what BREAKS and who shouts, not with an org chart. The first question of anyone covering is "what blows up if I do nothing", and no template asks it.',
-      'It demands the undocumented things by name — the workaround, the person who actually approves, the thing that only works on Tuesdays. Those are the whole value of a handover and the first casualty of a template.',
+      'It demands the undocumented things by name: the workaround, the person who actually approves, the thing that only works on Tuesdays. Those are the whole value of a handover and the first casualty of a template.',
       'Access is listed as a request procedure, not as a set of credentials. Handover notes are the most-copied document in any company.',
     ],
     adapt: [
@@ -391,7 +391,7 @@ export const ENTRIES: Entry[] = [
       'Add the two things you would be embarrassed for a colleague to discover. Those are exactly the ones to write down.',
     ],
     trap: 'A complete, accurate handover of everything except the three unwritten rules that make the job work.',
-    preview: '# Handover\n\nYou write for someone who arrives on Monday knowing nothing.\n\n## Order, always\n1. What breaks if nobody does anything, and within how long.\n2. Who shouts, about what, and what they actually need.\n3. The recurring work, with its real cadence — not its intended one.\n4. The workarounds. Every job has them. Name them.',
+    preview: '# Handover\n\nYou write for someone who arrives on Monday knowing nothing.\n\n## Order, always\n1. What breaks if nobody does anything, and within how long.\n2. Who shouts, about what, and what they actually need.\n3. The recurring work, with its real cadence, not its intended one.\n4. The workarounds. Every job has them. Name them.',
     tokens: 468,
   },
 
@@ -412,11 +412,11 @@ export const ENTRIES: Entry[] = [
     ],
     adapt: [
       'Give it your real monthly call volume, or the monthly figures are decoration.',
-      'If you use prompt caching, say so — the advice for a cached prefix is nearly the opposite of the advice for an uncached one.',
+      'If you use prompt caching, say so: the advice for a cached prefix is nearly the opposite of the advice for an uncached one.',
     ],
     trap: 'Trimming words to feel frugal while a 30,000-token document is re-sent on every single turn.',
     preview: 'Audit the prompt below for token waste.\n\nReport, heaviest first:\n| What | Est. tokens | Per run | Per month at {{VOLUME}} calls | How to fix |\n\nRules:\n- Rank by WEIGHT, not by how obviously wasteful it looks.\n- Anything re-sent every turn goes at the top, whatever its size.\n- End with "Do not cut": the parts that look redundant and are load-bearing.',
-    tokens: 490,
+    tokens: 489,
     free: true,
   },
   {
@@ -424,7 +424,7 @@ export const ENTRIES: Entry[] = [
     kind: 'skill',
     title: 'The context diet',
     summary: 'A skill that decides what an agent carries between turns, and what it summarises away.',
-    useCase: 'Your agent works well for six turns and then gets slow, expensive and vague — because it is still carrying turn one.',
+    useCase: 'Your agent works well for six turns and then gets slow, expensive and vague, because it is still carrying turn one.',
     category: 'frugal',
     trades: ['engineer', 'pm', 'researcher', 'founder'],
     keywords: ['context window', 'memory', 'summarisation', 'agent loop', 'cost'],
@@ -435,11 +435,11 @@ export const ENTRIES: Entry[] = [
     ],
     adapt: [
       'Set the threshold well under your model\'s window. Compressing at 90% full means you compress in the middle of the hardest turn.',
-      'Never compress the system brief or the user\'s original request — pin both.',
+      'Never compress the system brief or the user\'s original request: pin both.',
     ],
     trap: 'Summarising the conversation so well that the agent forgets the constraint it was working around.',
-    preview: '# Context diet\n\nYou decide what the agent carries forward.\n\n## Two kinds of thing\n**Settled** — facts, decisions, results. Compress to one line each, keep a pointer to the original.\n**Live** — the reasoning currently in progress. Carry it whole. Never compress it.\n\n## Trigger\nAt {{THRESHOLD}} tokens, not at a turn count.\n\n## Never compress\n- the system brief\n- the user\'s original request\n- any constraint stated as "never" or "must"',
-    tokens: 496,
+    preview: '# Context diet\n\nYou decide what the agent carries forward.\n\n## Two kinds of thing\n**Settled**, facts, decisions, results. Compress to one line each, keep a pointer to the original.\n**Live**, the reasoning currently in progress. Carry it whole. Never compress it.\n\n## Trigger\nAt {{THRESHOLD}} tokens, not at a turn count.\n\n## Never compress\n- the system brief\n- the user\'s original request\n- any constraint stated as "never" or "must"',
+    tokens: 495,
   },
   {
     slug: 'model-picker',
@@ -451,7 +451,7 @@ export const ENTRIES: Entry[] = [
     trades: ['engineer', 'founder', 'pm', 'growth', 'researcher'],
     keywords: ['model routing', 'cost', 'latency', 'quality', 'fallback'],
     why: [
-      'It routes on the SHAPE of the step — extraction, drafting, judgement, final copy — rather than on importance. Importance is a feeling; shape is a property you can look up.',
+      'It routes on the SHAPE of the step, extraction, drafting, judgement, final copy, rather than on importance. Importance is a feeling; shape is a property you can look up.',
       'It names an escalation rule, so a cheap step that fails twice moves up instead of failing five times cheaply. Retries on the wrong model are the most common false economy in routing.',
       'It requires you to measure before you route. Half of routing decisions are made against an intuition about quality that a twenty-minute test disproves.',
     ],

@@ -150,7 +150,7 @@ export const LEVERS: Lever[] = [
     title: 'Detach the tools this step cannot use',
     how: 'Attach tools per step, not per agent. A drafting step needs none of them.',
     why:
-      'Every connected tool ships its full definition — name, description, parameter schema — with every single ' +
+      'Every connected tool ships its full definition, name, description, parameter schema, with every single ' +
       'request, whether it is called or not. Nothing about your prompt changes; you simply stop paying to describe ' +
       'a calendar to a model that is writing an email.',
     not:
@@ -164,7 +164,7 @@ export const LEVERS: Lever[] = [
     title: 'Cap the answer length',
     how: 'Set a maximum output length on the request, and say the target in the prompt as well.',
     why:
-      'Output tokens are the expensive half — typically three to five times the input price per token. A model ' +
+      'Output tokens are the expensive half: typically three to five times the input price per token. A model ' +
       'given no ceiling fills the space it is given, and most of what it adds is restatement.',
     not:
       'Do not cap a step whose whole job is to produce a long artefact. A truncated document that has to be ' +
@@ -178,7 +178,7 @@ export const LEVERS: Lever[] = [
     how: 'Close the thread and open another, carrying forward one line of what was settled.',
     why:
       'This is the big one, and it is invisible. The model has no memory: what it "remembers" is your history, ' +
-      're-sent in full on every turn. A conversation of N turns costs roughly N² — so the twentieth turn is not ' +
+      're-sent in full on every turn. A conversation of N turns costs roughly N², so the twentieth turn is not ' +
       'twenty times the first, it is far more. Nothing else on this page saves as much for as little effort.',
     not:
       'Do not reset in the middle of a reasoning chain. The model will redo the thinking you already paid for, ' +
@@ -192,7 +192,7 @@ export const LEVERS: Lever[] = [
     how: 'Mark the system brief and any fixed reference material as cacheable, if your provider supports it.',
     why:
       'The brief is identical on every request and is re-read every time. Where caching exists, a cached prefix ' +
-      'is billed at a fraction of the normal input rate — you are no longer paying full price to re-read your own ' +
+      'is billed at a fraction of the normal input rate: you are no longer paying full price to re-read your own ' +
       'instructions a thousand times a day.',
     not:
       'Caching has a minimum size and a lifetime. Below a few hundred tokens, or on a prefix you edit daily, it ' +
@@ -206,10 +206,10 @@ export const LEVERS: Lever[] = [
     how: 'Replace "be professional, be concise, be helpful" with the three things it must never do, and one worked example.',
     why:
       'Adjectives are invisible to a model and cost the same as instructions that work. A brief written as ' +
-      'checkable rules is both shorter and more obeyed — which is why this saves money twice: fewer tokens, and ' +
+      'checkable rules is both shorter and more obeyed, which is why this saves money twice: fewer tokens, and ' +
       'fewer retries because the output was wrong.',
     not:
-      'Do not cut a rule you cannot remember being broken — you may be deleting the one that is silently holding ' +
+      'Do not cut a rule you cannot remember being broken: you may be deleting the one that is silently holding ' +
       'the behaviour together. Cut what you cannot trace to a bad draft.',
     apply: (u) => ({ ...u, brief: Math.round(u.brief * 0.6) }),
   },
@@ -251,7 +251,7 @@ export const FAMILY_LABEL: Record<LeverFamily, { label: string; lead: string }> 
   writing: {
     label: 'How the prompt itself is written',
     lead:
-      'Reworked prompt by prompt. Smaller savings each, but they compound — and the same habits that make a ' +
+      'Reworked prompt by prompt. Smaller savings each, but they compound, and the same habits that make a ' +
       'prompt cheaper usually make it clearer.',
   },
 }

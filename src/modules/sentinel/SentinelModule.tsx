@@ -97,7 +97,7 @@ export default function SentinelModule({ dojoId }: ModuleProps) {
         <p className="sec-ok"><b>Locked away safely.</b> Values are sealed on the server, unlocked only while your team is working, and <b>never shown again</b> after you save them. Save the same name again to replace a value.</p>
       )}
       {secMode === 'local' && (
-        <p className="sec-warn"><b>Secure storage is not set up here yet.</b> Keys stay <b>in this browser only</b> — fine for trying things out, but don't paste a real production key.</p>
+        <p className="sec-warn"><b>Secure storage is not set up here yet.</b> Keys stay <b>in this browser only</b>: fine for trying things out, but don't paste a real production key.</p>
       )}
       <div className="sec-add">
         <div className="sec-keywrap">
@@ -125,7 +125,7 @@ export default function SentinelModule({ dojoId }: ModuleProps) {
           ))}
         </ul>
       ) : (
-        <p className="muted small">{secMode === 'loading' ? 'Loading…' : 'No environment variables yet. Add one — your agents read it at run time, exactly like a Vercel env var.'}</p>
+        <p className="muted small">{secMode === 'loading' ? 'Loading…' : 'No environment variables yet. Add one, your agents read it at run time, exactly like a Vercel env var.'}</p>
       )}
 
       <div className="sq-eyebrow" style={{ marginTop: 14 }}>Safety switches</div>

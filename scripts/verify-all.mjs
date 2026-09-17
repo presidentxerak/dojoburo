@@ -53,6 +53,14 @@ const CHECKS = [
   // réimplémentent aucune formule de coût. Deux vérités qui divergent, dans
   // une leçon dont le sujet est de compter juste, seraient un mensonge.
   ['test-labs.mjs', 1, true],
+  // LA SALLE DE CLASSE · douze cas d'usage, douze personnages, aucun orphelin,
+  // et cinq formats d'export qui ne nomment aucun fournisseur. Rien de tout ça
+  // ne se voit dans un typecheck : un parcours vidé de ses étapes compile, la
+  // carte s'ouvre, et le cours est une page blanche.
+  ['test-usecases.mjs', 1, true],
+  // AUCUN TIRET CADRATIN dans un texte de l'app · une purge faite à la main
+  // revient toujours, et celle-ci portait sur 328 occurrences.
+  ['check-dashes.mjs', 1, true],
   ['check-theme-props.mjs', 1, true],
   ['audit-csp.mjs', 2, true],
   ['verify-gate.mjs', 2, true],

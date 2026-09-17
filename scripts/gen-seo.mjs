@@ -48,6 +48,17 @@ const libBundle = await build({
 const libMod = await import('data:text/javascript;base64,' + Buffer.from(libBundle.outputFiles[0].text).toString('base64'))
 const { ENTRIES, CATEGORY_BY_ID, KIND_LABEL } = libMod
 
+// LES DOUZE CAS D'USAGE, de la même manière. Chacun est une page que
+// quelqu'un cherche en toutes lettres : « agent d'extraction de factures »,
+// « agent qui trie des tickets ». Sa difficulté propre et son parcours sont du
+// contenu gratuit, indexable, et c'est la meilleure porte d'entrée qu'on ait.
+const ucBundle = await build({
+  entryPoints: [path.join(ROOT, 'src/data/agentUseCases.ts')],
+  bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
+})
+const ucMod = await import('data:text/javascript;base64,' + Buffer.from(ucBundle.outputFiles[0].text).toString('base64'))
+const { USE_CASES } = ucMod
+
 // The roster, the same way. roleAgents.ts pulls in a Department type from
 // agents.ts, which esbuild resolves; nothing here is duplicated from the app.
 const rolesBundle = await build({
@@ -94,6 +105,8 @@ const esc = (s) => String(s)
 const today = new Date().toISOString().slice(0, 10)
 const urls = [
   { loc: '/', pri: '1.0', freq: 'weekly' },
+  { loc: '/build', pri: '0.9', freq: 'weekly' },
+  ...USE_CASES.map((u) => ({ loc: `/build/${u.id}`, pri: '0.8', freq: 'monthly' })),
   { loc: '/academy', pri: '0.9', freq: 'weekly' },
   ...TRACKS.map((t) => ({ loc: `/academy/${t.slug}`, pri: '0.8', freq: 'monthly' })),
   ...ALL_LESSONS.map(({ track, lesson }) => ({ loc: `/academy/${track.slug}/${lesson.slug}`, pri: '0.8', freq: 'monthly' })),
@@ -194,7 +207,7 @@ for (const track of TRACKS) {
   const canonical = `${SITE}/academy/${track.slug}`
   const body = `<article><nav><a href="/">DojoBuro</a> › <a href="/academy">Dojo Academy</a></nav>
 <h1>${esc(track.label)}</h1><p>${esc(track.blurb)}</p><p>${esc(track.who)}</p>
-<ol>${track.lessons.map((l) => `<li><a href="/academy/${track.slug}/${l.slug}">${esc(l.title)}</a> — ${esc(l.summary)} (${l.minutes} min)</li>`).join('')}</ol></article>`
+<ol>${track.lessons.map((l) => `<li><a href="/academy/${track.slug}/${l.slug}">${esc(l.title)}</a> · ${esc(l.summary)} (${l.minutes} min)</li>`).join('')}</ol></article>`
   const html = head(shell, {
     title: `${track.label} · Dojo Academy`,
     description: `${track.blurb} ${track.lessons.length} free interactive lessons.`,
@@ -214,7 +227,7 @@ for (const track of TRACKS) {
   const canonical = `${SITE}/academy`
   const hours = Math.round((TOTAL_MINUTES / 60) * 10) / 10
   const body = `<article><h1>Dojo Academy</h1>
-<p>Free, interactive courses on how AI agents actually work — from "what is an agent" to running a whole system of teams. ${LESSON_COUNT} lessons, about ${hours} hours, no code and no account needed.</p>
+<p>Free, interactive courses on how AI agents actually work, from "what is an agent" to running a whole system of teams. ${LESSON_COUNT} lessons, about ${hours} hours, no code and no account needed.</p>
 ${TRACKS.map((t) => `<section><h2><a href="/academy/${t.slug}">${esc(t.label)}</a></h2><p>${esc(t.blurb)}</p><ul>${t.lessons.map((l) => `<li><a href="/academy/${t.slug}/${l.slug}">${esc(l.title)}</a></li>`).join('')}</ul></section>`).join('\n')}
 </article>`
   const html = head(shell, {
@@ -292,8 +305,8 @@ ${p.boundaries.length ? `<section><h2>What it will not do</h2><ul>${p.boundaries
   const body = `<article>
 <nav><a href="/">DojoBuro</a></nav>
 <h1>One teammate for every job</h1>
-<p>${PUBLIC_AGENTS.length} specialists, grouped the way a business is. Each has its own brief, its own apps and its own limits — and Chief coordinates them so you brief one teammate, not ${PUBLIC_AGENTS.length}.</p>
-${byDept.map((d) => `<section><h2>${esc(d)}</h2><ul>${PUBLIC_AGENTS.filter((r) => r.dept === d).map((r) => `<li><a href="/${r.slug}">${esc(r.public)}</a> — ${esc(r.desc)}</li>`).join('')}</ul></section>`).join('\n')}
+<p>${PUBLIC_AGENTS.length} specialists, grouped the way a business is. Each has its own brief, its own apps and its own limits, and Chief coordinates them so you brief one teammate, not ${PUBLIC_AGENTS.length}.</p>
+${byDept.map((d) => `<section><h2>${esc(d)}</h2><ul>${PUBLIC_AGENTS.filter((r) => r.dept === d).map((r) => `<li><a href="/${r.slug}">${esc(r.public)}</a> · ${esc(r.desc)}</li>`).join('')}</ul></section>`).join('\n')}
 </article>`
   const html = head(shell, {
     title: `AI teammates for every department · DojoBuro`,
@@ -347,4 +360,62 @@ for (const e of ENTRIES) {
   files++
 }
 
-console.log(`gen-seo · sitemap with ${urls.length} urls · ${pages} prerendered Academy pages · ${roles} teammate pages · ${files} library pages`)
+// --- 5 · une page par cas d'usage d'agent -----------------------------------
+// Tout est gratuit ici, parcours compris : ce qui se vend dans ce produit est
+// le FICHIER de la bibliothèque, pas la leçon. Une leçon cachée n'attire
+// personne et n'enseigne à personne.
+let shapes = 0
+for (const u of USE_CASES) {
+  const canonical = `${SITE}/build/${u.id}`
+  const body = `<article>
+<nav><a href="/">DojoBuro</a> › <a href="/build">Build an agent</a></nav>
+<h1>${esc(u.name)} · ${esc(u.shape)}</h1>
+<p>${esc(u.does)}</p>
+<section><h2>Who needs it</h2><p>${esc(u.forWhom)}</p></section>
+<section><h2>What is hard about it</h2><p>${esc(u.hard)}</p></section>
+<section><h2>How it fails</h2><p>${esc(u.failure)}</p></section>
+<section><h2>The path</h2><ol>${u.steps.map((s) => `<li><b>${esc(s.title)}</b> · makes ${esc(s.makes)}. Before you move on: ${esc(s.check)}</li>`).join('')}</ol></section>
+<section><h2>What you leave with</h2><ul>${u.ships.map((s) => `<li>${esc(s)}</li>`).join('')}</ul></section>
+<section><h2>The other agents in the dojo</h2><ul>${USE_CASES.filter((o) => o.id !== u.id).map((o) => `<li><a href="/build/${o.id}">${esc(o.name)}</a> · ${esc(o.shape)}</li>`).join('')}</ul></section>
+</article>`
+  const html = head(shell, {
+    title: `${u.name} · build this agent · DojoBuro`,
+    description: `${u.does} What is hard about it: ${u.hard}`,
+    canonical, type: 'article',
+    jsonLd: {
+      '@context': 'https://schema.org', '@type': 'HowTo',
+      name: `Build ${u.name}`, description: u.does, url: canonical,
+      keywords: u.keywords.join(', '),
+      step: u.steps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.title, text: s.makes })),
+    },
+  }).replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+  write(`build/${u.id}`, html)
+  shapes++
+}
+
+{
+  const canonical = `${SITE}/build`
+  const body = `<article>
+<nav><a href="/">DojoBuro</a></nav>
+<h1>Which agent do you need?</h1>
+<p>${USE_CASES.length} agents sleep in the dojo, one per shape of problem. Pick the one you actually have and it wakes up. A research agent and a sorting agent do not fail the same way, so they are not taught the same way.</p>
+<ul>${USE_CASES.map((u) => `<li><a href="/build/${u.id}">${esc(u.name)}</a> · ${esc(u.shape)}. Hard part: ${esc(u.hard.split('.')[0])}.</li>`).join('')}</ul>
+</article>`
+  const html = head(shell, {
+    title: `Build an AI agent · ${USE_CASES.length} shapes, taught one at a time · DojoBuro`,
+    description: `Walk into the dojo, pick the shape of agent you actually need, and build it from a blank page to a file you can run in a real framework. ${USE_CASES.length} use cases, each with its own path.`,
+    canonical, type: 'website',
+    jsonLd: {
+      '@context': 'https://schema.org', '@type': 'ItemList',
+      name: 'Agent use cases taught at DojoBuro', url: canonical,
+      numberOfItems: USE_CASES.length,
+      itemListElement: USE_CASES.map((u, i) => ({
+        '@type': 'ListItem', position: i + 1, name: u.name, url: `${SITE}/build/${u.id}`,
+      })),
+    },
+  }).replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+  write('build', html)
+  shapes++
+}
+
+console.log(`gen-seo · sitemap with ${urls.length} urls · ${pages} prerendered Academy pages · ${roles} teammate pages · ${files} library pages · ${shapes} agent pages`)

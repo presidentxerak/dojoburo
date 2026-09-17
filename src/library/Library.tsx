@@ -27,6 +27,26 @@ import {
   type Entry,
 } from '../data/library'
 import { fetchBody, download, REFUSAL, type FetchState } from '../lib/libraryApi'
+import { FORMATS, render, fileNameFor, type BuiltAgent, type ExportFormat } from '../lib/agentExport'
+
+/** Le format natif d'une entrée · celui qu'on propose en premier.
+ *
+ *  Un prompt EST une consigne système, un brief EST un document, une skill EST
+ *  un dossier de compétence. Ouvrir la page sur un format qui n'est pas celui
+ *  de l'entrée obligerait à cliquer pour retrouver le fichier qu'on est venu
+ *  chercher, ce qui est une mauvaise façon d'annoncer qu'il y en a quatre
+ *  autres. */
+const NATIVE: Record<string, ExportFormat> = { prompt: 'system', brief: 'brief', skill: 'skill' }
+
+/** L'entrée, vue comme un agent · c'est ce qui rend l'export commun.
+ *
+ *  La bibliothèque et le dojo fabriquent la même chose : une consigne qu'un
+ *  modèle va lire. Les faire sortir par deux chemins différents aurait donné
+ *  deux jeux de formats qui divergent, et c'est le fichier téléchargé qui en
+ *  aurait porté la trace. */
+const asAgent = (e: Entry, body: string): BuiltAgent => ({
+  slug: e.slug, name: e.title, shape: e.summary, system: body, tools: [],
+})
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -162,7 +182,7 @@ export function LibraryHome() {
         {shown.length === 0 ? (
           // Un catalogue vide doit dire quoi faire, pas s'excuser.
           <p className="lp-lead sm">
-            Nothing matches all three filters at once. Drop one — the trade filter is usually the one to
+            Nothing matches all three filters at once. Drop one: the trade filter is usually the one to
             loosen, because a good brief for a lawyer is often a good brief for an accountant.
           </p>
         ) : (
@@ -182,6 +202,8 @@ export function EntryPage({ slug }: { slug: string }) {
   const [got, setGot] = useState<FetchState | null>(null)
   const [busy, setBusy] = useState(false)
   const [copied, setCopied] = useState(false)
+  // Le format d'export, ouvert sur celui de l'entrée · voir NATIVE plus haut.
+  const [fmt, setFmt] = useState<ExportFormat>(e ? NATIVE[e.kind] ?? 'brief' : 'brief')
 
   useHeadTags({
     title: e ? `${e.title} · ${KIND_LABEL[e.kind].label}` : 'Not found',
@@ -236,7 +258,7 @@ export function EntryPage({ slug }: { slug: string }) {
 
       {/* TOUT CE QUI SUIT EST GRATUIT, et c'est le cœur de l'affaire. On
           explique le raisonnement en entier ; quelqu'un d'attentif peut
-          réécrire le fichier à partir de là — tant mieux, c'est une académie.
+          réécrire le fichier à partir de là: tant mieux, c'est une académie.
           On vend le temps gagné, pas le secret. */}
       <section className="lp-sec alt lib-body">
         <h2>When to reach for it</h2>
@@ -274,13 +296,36 @@ export function EntryPage({ slug }: { slug: string }) {
 
         {got?.state === 'ok' && (
           <>
-            <pre className="lib-pre"><code>{got.body}</code></pre>
+            {/* EMPORTER LE FICHIER AILLEURS · les mêmes cinq formats que le
+                dojo, parce que c'est la même chose qu'on emporte. Un fichier
+                qui ne sort qu'en .md oblige à le retraduire à la main pour
+                chaque framework, et personne ne le fait deux fois. */}
+            <div className="cls-fmts">
+              {FORMATS.map((f) => (
+                <button key={f.id} className={fmt === f.id ? 'on' : ''} onClick={() => setFmt(f.id)} title={f.what}>
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            <p className="cls-fmt-what">{FORMATS.find((f) => f.id === fmt)?.what}</p>
+            <pre className="lib-pre"><code>{render(asAgent(e, got.body), fmt)}</code></pre>
             <div className="lib-acts">
-              <button className="lp-cta" onClick={() => void copy(got.body)}>{copied ? 'Copied' : 'Copy'}</button>
-              <button className="lp-cta lp-cta-ghost" onClick={() => download(e.slug, kind.ext, got.body)}>
-                Download {e.slug}{kind.ext}
+              <button className="lp-cta" onClick={() => void copy(render(asAgent(e, got.body), fmt))}>{copied ? 'Copied' : 'Copy'}</button>
+              <button
+                className="lp-cta lp-cta-ghost"
+                onClick={() => {
+                  const a = asAgent(e, got.body)
+                  const name = fileNameFor(a, fmt)
+                  const dot = name.lastIndexOf('.')
+                  download(name.slice(0, dot), name.slice(dot), render(a, fmt))
+                }}
+              >
+                Download {fileNameFor(asAgent(e, got.body), fmt)}
               </button>
             </div>
+            <p className="cls-note">
+              None of these five formats belongs to a provider. Take the one your framework reads.
+            </p>
           </>
         )}
 

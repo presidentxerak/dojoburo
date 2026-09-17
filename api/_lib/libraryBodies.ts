@@ -33,7 +33,7 @@ You write for {{COMPANY}}. These rules override anything in the request.
 - Never promise a result we cannot name a customer for.
 - Never write "we are excited to announce". Announce the thing.
 - Never use an exclamation mark outside a direct quote.
-- Never describe our own work as "simple", "easy" or "effortless" — the reader decides that.
+- Never describe our own work as "simple", "easy" or "effortless": the reader decides that.
 
 ## Always
 - Lead with the concrete thing, then the reason.
@@ -59,7 +59,7 @@ You write for {{COMPANY}}. These rules override anything in the request.
 manage your workflow!"
 **After.** "Invoices now import from Stripe. One click, no CSV."
 **Why.** The first says nothing a competitor could not also say. The second is
-checkable, and either interests the reader or does not — which is the point.
+checkable, and either interests the reader or does not, which is the point.
 
 **Before.** "Our pricing is designed to scale with your needs."
 **After.** "£29 a month, one price, up to ten seats. Above ten, talk to us."
@@ -83,7 +83,7 @@ more considered. Short and slightly blunt is our failure mode of choice.
 Rules:
 - Add nothing. Every fact, name and number in your version must appear in mine.
 - Keep every distinct argument. Merge sentences, do not drop reasons.
-- Then, under a heading "Cut", list what you removed and why — one line each.
+- Then, under a heading "Cut", list what you removed and why: one line each.
 
 Target: {{WORDS}} words. Count them and say the count at the end.
 
@@ -91,7 +91,7 @@ Do not:
 - Do not replace a specific noun with a general one to save a word.
 - Do not turn two sentences into one by dropping the second's claim.
 - Do not "improve" the tone. Length is the only thing you are changing.
-- Do not remove a hedge ("usually", "in most cases") — a hedge is a claim about
+- Do not remove a hedge ("usually", "in most cases"): a hedge is a claim about
   certainty, and removing it changes the meaning while looking like an edit.
 
 If you cannot reach the target without breaking a rule, get as close as you can
@@ -111,8 +111,8 @@ square brackets, at most 12 words.
 If a claim rests on nothing you can quote, do not make it.
 
 Then add two sections:
-"Not covered" — questions a reader would expect this document to answer and it does not.
-"Ambiguous" — where the text genuinely supports more than one reading.
+"Not covered": questions a reader would expect this document to answer and it does not.
+"Ambiguous": where the text genuinely supports more than one reading.
 
 Length: {{LENGTH}}.
 
@@ -123,7 +123,7 @@ Rules that matter more than the length:
 - Where the document contradicts itself, report BOTH statements with both
   quotes, under "Ambiguous". Do not pick the one that reads better.
 - Numbers keep their units and their period exactly as written.
-- If the document is dated or versioned, say so in the first line — a summary
+- If the document is dated or versioned, say so in the first line: a summary
   of a superseded document that does not say it is superseded is worse than no
   summary.
 
@@ -148,11 +148,11 @@ You report CHANGES, not impressions.
 - Never describe a competitor's intent. You cannot observe intent.
 
 ## What you watch, per company
-- Pricing page — the numbers, the tier names, what moved between tiers.
-- Changelog or release notes — shipped, with the date.
-- Careers page — open roles, and which team they sit in.
-- Docs — new pages, and removed ones. Removal is the loud signal nobody reads.
-- Status page — incidents and their duration.
+- Pricing page: the numbers, the tier names, what moved between tiers.
+- Changelog or release notes: shipped, with the date.
+- Careers page: open roles, and which team they sit in.
+- Docs: new pages, and removed ones. Removal is the loud signal nobody reads.
+- Status page: incidents and their duration.
 
 The careers page matters more than most people think: hiring leaks a roadmap
 three to six months before the roadmap ships, and almost nobody watches it.
@@ -162,7 +162,7 @@ three to six months before the roadmap ships, and almost nobody watches it.
 ### Changed since {{LAST_DATE}}
 | Company | What | Where seen | Date |
 
-One row per observed change. If a cell is unknown, write "unknown" — never
+One row per observed change. If a cell is unknown, write "unknown": never
 leave it blank and never guess.
 
 ### Unchanged
@@ -177,7 +177,7 @@ Anything you could not reach, and why. Silence here gives false comfort.
 
 ## Cadence
 Report on {{CADENCE}}. Match it to the decision this feeds, not to the news
-cycle — a weekly report feeding a quarterly decision is pure token spend.
+cycle: a weekly report feeding a quarterly decision is pure token spend.
 `,
 
   /* ------------------------------------------------------------------ */
@@ -185,10 +185,10 @@ cycle — a weekly report feeding a quarterly decision is pure token spend.
 
 Required sections, in this order:
 1. The decision, stated as a question with a date attached.
-2. Recommendation — one option, named, in the first sentence.
+2. Recommendation: one option, named, in the first sentence.
 3. Why this one, in at most four bullets.
 4. What we give up by choosing it.
-5. Kill criteria — what would have to become true for this to be wrong.
+5. Kill criteria: what would have to become true for this to be wrong.
 6. Cost: money, weeks, and who stops doing what.
 
 Rules:
@@ -278,7 +278,7 @@ If you cannot write those three lines, say nothing.
 ## Always look for, in this order
 1. Off-by-one and boundary conditions at the ends of ranges.
 2. A value that can be null or undefined on a path that does not check it.
-3. An error swallowed — caught and not rethrown, not logged, not handled.
+3. An error swallowed: caught and not rethrown, not logged, not handled.
 4. A resource opened on one path and not released on another.
 5. Concurrency: two paths that read then write the same state.
 6. A change in behaviour the caller cannot see from the signature.
@@ -287,7 +287,7 @@ If you cannot write those three lines, say nothing.
 At most {{MAX_FINDINGS}} findings, ranked by how bad the failure is, worst first.
 For each:
 
-**file:line — one-sentence claim**
+**file:line, one-sentence claim**
 Failing case: <inputs or state> → <what happens> (should be: <what should>)
 
 Nothing else. No preamble, no summary, no encouragement.
@@ -299,10 +299,10 @@ If you found nothing, say "No defects found" and stop. Do not fill the quota.
   'spec-from-a-conversation': `Turn the conversation below into a specification.
 
 Sections:
-- Agreed — only what someone explicitly accepted. Quote who and when.
-- Mentioned, not agreed — raised and never settled.
-- Acceptance criteria — observable behaviour, one line each.
-- Open questions — MUST NOT be empty. If you believe nothing is open, you have misread the thread.
+- Agreed: only what someone explicitly accepted. Quote who and when.
+- Mentioned, not agreed: raised and never settled.
+- Acceptance criteria: observable behaviour, one line each.
+- Open questions: MUST NOT be empty. If you believe nothing is open, you have misread the thread.
 
 Rules:
 - "Agreed" requires someone to have said yes. Silence is not agreement, and
@@ -367,7 +367,7 @@ Three short paragraphs at most. Nobody reads the fourth.
 
 ## Tone
 Plain and calm. Match their formality, never their temperature. If they are
-angry, be shorter than usual, not warmer — warmth reads as deflection to
+angry, be shorter than usual, not warmer: warmth reads as deflection to
 someone who is already annoyed.
 
 ## Knowledge
@@ -384,7 +384,7 @@ Structure, in order:
 1. The part of the objection that is TRUE, in your own words, with no "but".
 2. What we do about it, concretely. No adjectives.
 3. What we still do not do. Name it.
-4. Who we are the wrong choice for — one sentence, sincere.
+4. Who we are the wrong choice for: one sentence, sincere.
 
 Invent nothing. If you need a fact I have not given you, ask for it instead of
 writing the reply.
@@ -414,16 +414,16 @@ What I know:
   /* ------------------------------------------------------------------ */
   'meeting-to-actions': `From the notes below, produce:
 
-**Decided** — things settled. One line each, with who decided.
-**Actions** — one line each: what, who, by when.
-**Unowned** — actions where no name was actually said. Do NOT guess an owner.
-**Dropped** — raised and explicitly set aside, with the reason.
+**Decided**: things settled. One line each, with who decided.
+**Actions**, one line each: what, who, by when.
+**Unowned**: actions where no name was actually said. Do NOT guess an owner.
+**Dropped**: raised and explicitly set aside, with the reason.
 
-If a date was not said, write "no date" — never invent one.
+If a date was not said, write "no date": never invent one.
 
 Rules:
 - An action assigned to "the team" is unowned. Put it in Unowned.
-- "I'll look into it" is an action. "We should look into it" is not — it is
+- "I'll look into it" is an action. "We should look into it" is not: it is
   unowned, and that distinction is the single most useful thing this format does.
 - A decision needs a decider. If the notes show a discussion that stopped, it
   was not decided; it was dropped or it is still open.
@@ -433,7 +433,7 @@ Rules:
 
 Known people: {{PEOPLE}}
 Match first names against that list. If a first name matches two people, write
-both and flag it — a wrongly assigned action dies quietly while everyone
+both and flag it: a wrongly assigned action dies quietly while everyone
 believes it is handled.
 
 Previous meeting's actions, for comparison: {{LAST_ACTIONS}}
@@ -453,7 +453,7 @@ You write for someone who arrives on Monday knowing nothing.
 ## Order, always
 1. What breaks if nobody does anything, and within how long.
 2. Who shouts, about what, and what they actually need.
-3. The recurring work, with its real cadence — not its intended one.
+3. The recurring work, with its real cadence, not its intended one.
 4. The workarounds. Every job has them. Name them.
 5. In flight right now, with the state each thing is in.
 6. Access: what is needed, and who grants it. Never the credentials themselves.
@@ -477,7 +477,7 @@ doing the job long enough to hand it over, and say that instead.
 ## Never in this document
 - Passwords, keys, tokens. Handover notes are the most-copied document in any
   company. Write the request procedure instead.
-- "Ask me if you have questions" — the whole point is that you will not be there.
+- "Ask me if you have questions": the whole point is that you will not be there.
 - Anything you would only write because it looks thorough.
 
 ## Two things to be embarrassed about
@@ -504,15 +504,15 @@ measured when it was estimated is worse than no number.
 
 Look for, in this order:
 1. Anything re-sent unchanged on every call that could be cached instead.
-2. A document or transcript carried whole where a summary would do — and say
+2. A document or transcript carried whole where a summary would do, and say
    which parts of it must stay whole.
 3. Tool definitions attached to a step that cannot use them. Every connected
    tool ships its schema with every request, used or not. This is the easiest
    saving in the business and the least known.
 4. Examples. Three good ones usually beat nine; count them and say so.
 5. Instructions repeated in different words, which also confuse the model.
-6. An output format that invites length — "be thorough", "explain your
-   reasoning" — where the reasoning is never read.
+6. An output format that invites length: "be thorough", "explain your
+   reasoning", where the reasoning is never read.
 
 Then:
 
@@ -525,7 +525,7 @@ The parts that look redundant and are holding the behaviour together. An audit
 that only subtracts will eventually cut the instruction the whole thing rests on.
 
 Caching in use: {{CACHING}}. If yes, the advice for a cached prefix is nearly
-the opposite of the advice for an uncached one — say which applies.
+the opposite of the advice for an uncached one: say which applies.
 
 ---
 
@@ -539,8 +539,8 @@ PROMPT:
 You decide what the agent carries forward.
 
 ## Two kinds of thing
-**Settled** — facts, decisions, results. Compress to one line each, keep a pointer to the original.
-**Live** — the reasoning currently in progress. Carry it whole. Never compress it.
+**Settled**: facts, decisions, results. Compress to one line each, keep a pointer to the original.
+**Live**: the reasoning currently in progress. Carry it whole. Never compress it.
 
 ## Trigger
 At {{THRESHOLD}} tokens, not at a turn count.
@@ -554,7 +554,7 @@ At {{THRESHOLD}} tokens, not at a turn count.
 
 ## How to compress a settled item
 One line, in this shape:
-\`[id] <what was established> — <the one number or name that matters>\`
+\`[id] <what was established>: <the one number or name that matters>\`
 
 Keep the original addressable by its id. A diet you cannot undo is data loss
 with a friendly name, and the turn where the agent needs the detail back is
@@ -562,14 +562,14 @@ exactly the turn it will fail without it.
 
 ## What to drop entirely
 - Tool outputs that were superseded by a later call to the same tool.
-- Failed attempts, once the successful one exists — but keep ONE line saying
+- Failed attempts, once the successful one exists, but keep ONE line saying
   what failed and why, or the agent will try it again.
 - Pleasantries, acknowledgements, "got it".
 
 ## What this costs you
 Compression is itself a model call. At {{THRESHOLD}} tokens it pays for itself
 within two turns at any realistic price. Below about 8,000 tokens it does not
-pay for itself at all — do not run it early because it feels tidy.
+pay for itself at all: do not run it early because it feels tidy.
 
 ## Failure mode to watch
 The agent forgets the constraint it was working around and cheerfully redoes
@@ -615,7 +615,7 @@ up. Output tokens are the expensive half and people forget that.
 ## Measure before you route
 For each step type, run twenty real inputs through both tiers and count how
 many outputs you would have shipped. Half of routing decisions are made against
-an intuition that a twenty-minute test disproves — usually in the direction of
+an intuition that a twenty-minute test disproves: usually in the direction of
 "the small model was fine all along".
 
 Write the result here, with the date:

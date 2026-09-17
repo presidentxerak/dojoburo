@@ -64,7 +64,7 @@ export const DOJO_TEMPLATES: DojoTemplate[] = [
   {
     id: 'dojo',
     label: 'Zen Dojo',
-    blurb: 'The dojo at its plainest — cherry tree, taiko drum, a hanging scroll.',
+    blurb: 'The dojo at its plainest, cherry tree, taiko drum, a hanging scroll.',
     skinTheme: 'Matcha',
     style: 'zen',
     crew: CREW_DEFAULT,

@@ -235,16 +235,16 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
 // Per-template starting copy · so each template opens looking bespoke (distinct
 // hero + section wording), not the same placeholder everywhere.
 const TEMPLATE_COPY: Record<string, { hero: { title: string; subtitle: string; cta: string }; features?: string; cta?: { title: string; subtitle: string; cta: string } }> = {
-  lumen: { hero: { title: 'Ship faster with {n}', subtitle: 'The all-in-one platform your team will actually enjoy using.', cta: 'Start free' }, features: 'Everything you need', cta: { title: 'Ready to get started?', subtitle: 'Set up in minutes — no credit card required.', cta: 'Create your account' } },
-  ledger: { hero: { title: '{n} — clarity for your finances', subtitle: 'Trusted advisory for founders, teams and growing companies.', cta: 'Book a consultation' }, features: 'How we help' },
+  lumen: { hero: { title: 'Ship faster with {n}', subtitle: 'The all-in-one platform your team will actually enjoy using.', cta: 'Start free' }, features: 'Everything you need', cta: { title: 'Ready to get started?', subtitle: 'Set up in minutes, no credit card required.', cta: 'Create your account' } },
+  ledger: { hero: { title: '{n}, clarity for your finances', subtitle: 'Trusted advisory for founders, teams and growing companies.', cta: 'Book a consultation' }, features: 'How we help' },
   mercato: { hero: { title: '{n}', subtitle: 'Thoughtfully made goods, delivered to your door.', cta: 'Shop the collection' }, features: 'Why you’ll love it' },
   bloom: { hero: { title: '{n}', subtitle: 'A little boutique of beautiful, handpicked things.', cta: 'Browse the shop' } },
   atelier: { hero: { title: '{n}', subtitle: 'Objects made by hand, in small batches.', cta: 'View products' } },
-  aperture: { hero: { title: '{n}', subtitle: 'Selected work — photography, direction and design.', cta: 'See the work' } },
+  aperture: { hero: { title: '{n}', subtitle: 'Selected work, photography, direction and design.', cta: 'See the work' } },
   grid: { hero: { title: '{n}', subtitle: 'A minimal archive of images.', cta: 'View gallery' } },
   saveur: { hero: { title: '{n}', subtitle: 'Seasonal plates, natural wine and a warm room.', cta: 'Reserve a table' }, features: 'The experience' },
-  nord: { hero: { title: 'We build brands that move — {n}', subtitle: 'A design & technology studio for ambitious teams.', cta: 'Start a project' }, features: 'What we do' },
-  loft: { hero: { title: '{n} studio', subtitle: 'Design, build and grow — under one roof.', cta: 'Work with us' }, features: 'Our services' },
+  nord: { hero: { title: 'We build brands that move, {n}', subtitle: 'A design & technology studio for ambitious teams.', cta: 'Start a project' }, features: 'What we do' },
+  loft: { hero: { title: '{n} studio', subtitle: 'Design, build and grow, under one roof.', cta: 'Work with us' }, features: 'Our services' },
   persona: { hero: { title: 'Hi, I’m {n}', subtitle: 'Maker, writer and occasional traveller. Welcome to my corner of the web.', cta: 'Say hello' } },
   dispatch: { hero: { title: '{n}', subtitle: 'Essays and notes, delivered occasionally.', cta: 'Subscribe' } },
   assembly: { hero: { title: '{n}', subtitle: 'One day. Great talks. Limited seats.', cta: 'Get your ticket' }, features: 'The line-up' },

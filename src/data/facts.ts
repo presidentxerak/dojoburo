@@ -87,7 +87,7 @@ export const elevator = (): string =>
   `DojoBuro is an agent workspace: you name a company, pick from ${TEAM_COUNT} ready-made teams, ` +
   `and each team arrives staffed with teammates already briefed and wired to the apps they need ` +
   `(${APP_COUNT} available). On Managed a step draws about ${CREDIT_PRICE_LABEL} from the monthly ` +
-  `allowance — a ${TYPICAL_RUN_STEPS}-step run is roughly ${TYPICAL_RUN_USD_LABEL} — and nothing at all on your own Claude key. ` +
+  `allowance, a ${TYPICAL_RUN_STEPS}-step run is roughly ${TYPICAL_RUN_USD_LABEL}, and nothing at all on your own Claude key. ` +
   `The Dojo Academy teaches the whole thing free in ${ACADEMY_LESSONS} lessons.`
 
 /** Everything the drift checker compares written copy against. */

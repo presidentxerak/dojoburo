@@ -21,6 +21,7 @@ import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
 import { LibraryHome, EntryPage } from './library/Library'
 import { FrugalityPage } from './frugality/Frugality'
+import { BuildAgentPage } from './dojo/BuildAgent'
 import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
 import { usePath } from './lib/router'
 import { Boundary } from './components/Boundary'
@@ -75,6 +76,11 @@ function Root() {
   // public et indexable ; le fichier, lui, ne sort que de /api/library.
   // LA SOBRIÉTÉ · une page, pas une ancre. Elle porte un outil interactif et
   // l'encart entreprise ; les deux ont besoin d'une adresse à eux.
+  // LE DOJO COMME SALLE DE CLASSE · on y arrive, le maître accueille, et on
+  // choisit lequel des douze agents on veut apprendre à construire.
+  if (path === '/build') return <BuildAgentPage />
+  const bm = path.match(/^\/build\/([a-z0-9-]+)$/i)
+  if (bm) return <BuildAgentPage slug={bm[1].toLowerCase()} />
   if (path === '/frugality') return <FrugalityPage />
   if (path === '/library') return <LibraryHome />
   const lm = path.match(/^\/library\/([a-z0-9-]+)$/i)

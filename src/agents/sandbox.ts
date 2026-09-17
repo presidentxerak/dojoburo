@@ -89,7 +89,7 @@ function levers(i: SandboxInput, toolTokens: number, contextTokens: number, brie
   const out: string[] = []
   if (i.connectors.length > 0) {
     out.push(
-      `Turn off the ${i.connectors.length} connected app${i.connectors.length > 1 ? 's' : ''} you are not using on this step — ` +
+      `Turn off the ${i.connectors.length} connected app${i.connectors.length > 1 ? 's' : ''} you are not using on this step, ` +
       `their definitions travel with every request whether they are called or not. **≈ ${toolTokens.toLocaleString('en-US')} tokens**, every single run.`,
     )
   }
@@ -101,7 +101,7 @@ function levers(i: SandboxInput, toolTokens: number, contextTokens: number, brie
   }
   if (briefTokens > 600) {
     out.push(
-      `Shorten the brief. At **≈ ${briefTokens.toLocaleString('en-US')} tokens** it is long enough that the model starts losing the middle of it — ` +
+      `Shorten the brief. At **≈ ${briefTokens.toLocaleString('en-US')} tokens** it is long enough that the model starts losing the middle of it: ` +
       'a shorter brief is usually a better one, not just a cheaper one.',
     )
   }
@@ -129,7 +129,7 @@ export function sandboxDeliverable(i: SandboxInput): Deliverable {
     `# What this run would have sent`,
     '',
     `This is the practice dojo, so nothing was sent and nothing was charged. ` +
-    `Below is the request **${i.agentName}** would have made, taken apart — which is the part you never get to see in a real product.`,
+    `Below is the request **${i.agentName}** would have made, taken apart, which is the part you never get to see in a real product.`,
     '',
     '## The input, by weight',
     '',
@@ -143,9 +143,9 @@ export function sandboxDeliverable(i: SandboxInput): Deliverable {
     '',
     `> These are **estimates**, not measurements: roughly ${CHARS_PER_TOKEN} characters per token, and ` +
     `${TOKENS_PER_TOOL} tokens per tool definition. The real figure depends on the model's own tokeniser. ` +
-    'The shape is what matters here — and the shape is almost always the same surprise.',
+    'The shape is what matters here, and the shape is almost always the same surprise.',
     '',
-    i.task ? `## The step\n\n\`${i.task}\` — one of the jobs this teammate knows. The instruction behind it travels with the brief above.` : '',
+    i.task ? `## The step\n\n\`${i.task}\`, one of the jobs this teammate knows. The instruction behind it travels with the brief above.` : '',
     '',
     '## What to change first',
     '',
@@ -153,7 +153,7 @@ export function sandboxDeliverable(i: SandboxInput): Deliverable {
     '',
     '---',
     '',
-    'Want to run this for real? Take the brief with you and wire it on your own stack — ' +
+    'Want to run this for real? Take the brief with you and wire it on your own stack: ' +
     'the [app setup guide](/guide) is the step-by-step, one app at a time. ' +
     'This site teaches; it does not hold your keys.',
   ].filter((l) => l !== '').join('\n')

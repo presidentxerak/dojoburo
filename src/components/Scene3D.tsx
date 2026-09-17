@@ -213,7 +213,7 @@ export function Scene3D() {
             sur son estrade, lui annonce la nouvelle du jour et lui remet les
             dossiers, puis repart. C'est ce qui donne une raison d'être à la
             porte, et le seul mouvement de la scène qui ne boucle pas sur
-            place — il a un début, un milieu et une fin. */}
+            place: il a un début, un milieu et une fin. */}
         <Courier3D enclosed={tpl.enclosed} />
         {/* le mobilier de MÉTIER · les bibliothèques d'un dojo « écrire un
             livre », la baie de serveurs d'une application. Il s'ajoute au

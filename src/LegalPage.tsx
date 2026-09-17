@@ -48,7 +48,7 @@ export function Terms() {
       <p>DojoBuro never takes custody of your funds. Plans are card payments, processed by Stripe; we hold no balance on your behalf. There is no wallet, no seed and no token anywhere in the product.</p>
 
       <h2>3. Payments and fees</h2>
-      <p>You pay a monthly subscription for the software. On the Founder plan the AI model runs on your own Anthropic key and Anthropic bills you directly for that usage — those charges are between you and them, and we never see them. On the Managed plan the model usage is included in the price. You are responsible for any taxes arising from your use.</p>
+      <p>You pay a monthly subscription for the software. On the Founder plan the AI model runs on your own Anthropic key and Anthropic bills you directly for that usage: those charges are between you and them, and we never see them. On the Managed plan the model usage is included in the price. You are responsible for any taxes arising from your use.</p>
 
       <h2>4. Connected apps</h2>
       <p>When you connect a third-party app, you authorize DojoBuro (and its agents) to act inside it on your behalf via OAuth. Tokens are held encrypted server-side and can be revoked at any time by disconnecting the tool or from the provider's own settings. You are responsible for actions you instruct agents to perform in your connected accounts and for complying with each provider's terms.</p>
@@ -83,13 +83,13 @@ export function Terms() {
 export function Privacy() {
   return (
     <Shell title="Privacy Policy">
-      <p className="legal-lead">DojoBuro collects as little as possible. Your work lives in your own browser first, and — once you sign in — a copy is kept for your company so a colleague can open it and a cleared cache cannot destroy it.</p>
+      <p className="legal-lead">DojoBuro collects as little as possible. Your work lives in your own browser first, and, once you sign in, a copy is kept for your company so a colleague can open it and a cleared cache cannot destroy it.</p>
 
       <h2>1. Data stored in your browser</h2>
       <p>Preferences (theme, display) and everything your company produces are stored in your browser's storage. That copy is what the app reads, which is why it stays fast and keeps working offline.</p>
 
       <h2>2. Your company's work on the server</h2>
-      <p>When you are signed in, the documents your company produces — brand kits, websites, plans, finance models, each teammate's brief — are also stored on our server against your organisation, so that everyone you have invited sees the same work and losing a browser does not lose the company. Previous versions of a document are kept so that a colleague overwriting your work does not destroy it. If you are not signed in, or the hosted backend is not configured, nothing is sent and the browser copy is the only one.</p>
+      <p>When you are signed in, the documents your company produces, brand kits, websites, plans, finance models, each teammate's brief, are also stored on our server against your organisation, so that everyone you have invited sees the same work and losing a browser does not lose the company. Previous versions of a document are kept so that a colleague overwriting your work does not destroy it. If you are not signed in, or the hosted backend is not configured, nothing is sent and the browser copy is the only one.</p>
 
       <h2>3. Other data processed by the server</h2>
       <p>We process only what is needed to run your requests: OAuth tokens for the apps you connect (encrypted at rest with AES-256-GCM), an optional model API key you provide, and minimal request metadata. The browser never receives another user's secrets. We do not sell your data.</p>
@@ -101,8 +101,8 @@ export function Privacy() {
       <p>DojoBuro uses local storage for app state rather than tracking cookies, and does not run third-party advertising or cross-site tracking.</p>
 
       <h2 id="deletion">6. Retention &amp; deletion</h2>
-      <p>The copy in your browser lives until you clear it. Clearing your browser storage removes that copy immediately — but if you are signed in, it does <strong>not</strong> remove your company's copy on the server, which is the point of having one: your work survives the browser.</p>
-      <p><strong>To delete data we hold on a server:</strong> open the app, go to Connect apps and press Disconnect on each connected app — that erases its stored token straight away. Removing your model key in Billing erases that too. To have your company's documents, the account itself and anything remaining deleted, email <a href="mailto:presidentxerak@gmail.com">presidentxerak@gmail.com</a> from the address on the account and we will delete it within 30 days.</p>
+      <p>The copy in your browser lives until you clear it. Clearing your browser storage removes that copy immediately, but if you are signed in, it does <strong>not</strong> remove your company's copy on the server, which is the point of having one: your work survives the browser.</p>
+      <p><strong>To delete data we hold on a server:</strong> open the app, go to Connect apps and press Disconnect on each connected app, that erases its stored token straight away. Removing your model key in Billing erases that too. To have your company's documents, the account itself and anything remaining deleted, email <a href="mailto:presidentxerak@gmail.com">presidentxerak@gmail.com</a> from the address on the account and we will delete it within 30 days.</p>
       <p>Server-side connector tokens otherwise live until you disconnect the tool or revoke access from the provider's own settings.</p>
 
       <h2>6. Your choices</h2>

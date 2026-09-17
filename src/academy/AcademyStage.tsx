@@ -364,7 +364,7 @@ function Prompt() {
         <span className="ac-prompt-arrow">↓</span>
         <span className={`ac-prompt-card brief${t === 1 ? ' on' : ''}`}>
           <em>a brief</em>
-          <b>“1,000 followers who bake at home, in 8 weeks — 12 posts, my voice, no hashtags”</b>
+          <b>“1,000 followers who bake at home, in 8 weeks: 12 posts, my voice, no hashtags”</b>
         </span>
       </div>
     </Wrap>
@@ -380,7 +380,7 @@ function Credits() {
         <div className="ac-cred-bar"><span style={{ width: `${(t / 4) * 100}%` }} /></div>
         <ul className="ac-cred-rows">
           {PLAN.map((s, i) => (
-            <li key={s.s} className={i < t ? 'on' : ''}><span>{s.s}</span><b>{i < t ? '1 credit' : '—'}</b></li>
+            <li key={s.s} className={i < t ? 'on' : ''}><span>{s.s}</span><b>{i < t ? '1 credit' : ', '}</b></li>
           ))}
         </ul>
         <em className="ac-caption">four steps ≈ four credits ≈ $0.08 · free on your own key</em>

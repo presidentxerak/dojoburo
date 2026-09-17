@@ -112,7 +112,7 @@ export const ARCHETYPES: Archetype[] = [
   {
     id: 'brand',
     label: 'Create a brand',
-    tagline: 'Name, identity, colours, site — one coherent look.',
+    tagline: 'Name, identity, colours, site, one coherent look.',
     category: 'Business',
     glyph: '◐',
     tint: '#a855f7',

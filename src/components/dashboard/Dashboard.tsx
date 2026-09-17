@@ -508,7 +508,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         <span className="muted small">Your full crew · click one to open it. Hide the ones you don't need · restore them from the slots.</span>
         {/* Moving teammates around the floor is one screen, not three. It was
             here, in the dojo header as "Manage team", and in Dojo settings as
-            "Place & tune" — which is the only one that also lets you change who
+            "Place & tune", which is the only one that also lets you change who
             a teammate is, so it is the one that stays. */}
         <button className="btn tiny ghost arrange-toggle" onClick={() => useWork.getState().editAgent('*')}>Place &amp; tune →</button>
       </div>

@@ -50,7 +50,7 @@ export function LoopPanel({ dojoId }: { dojoId: string }) {
         <h3>The plan
           <InfoDot title="The plan" label="How this gets done">
             <p>Your team works through these steps <b>in order</b>. Each step goes to the teammate who owns it, with your goal as the brief and the apps they can reach.</p>
-            <p>Every step produces something real you can open. Rerun any single step on its own with the <b>↻</b> button — that is how you check whether a change to a teammate's brief actually helped, without paying for the whole plan again.</p>
+            <p>Every step produces something real you can open. Rerun any single step on its own with the <b>↻</b> button, that is how you check whether a change to a teammate's brief actually helped, without paying for the whole plan again.</p>
           </InfoDot>
         </h3>
         <span className="lp-count">{done}/{arch.loop.length}</span>

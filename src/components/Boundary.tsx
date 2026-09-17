@@ -41,7 +41,7 @@ export class Boundary extends Component<Props, State> {
       <div className="crashed" role="alert">
         <h3>{what} could not open</h3>
         <p>
-          Something in it broke while drawing. The rest of the app is fine — close this and carry on,
+          Something in it broke while drawing. The rest of the app is fine: close this and carry on,
           or fetch a fresh copy if it keeps happening.
         </p>
         <code className="crashed-why">{error.message}</code>

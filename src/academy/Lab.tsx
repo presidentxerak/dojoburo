@@ -67,7 +67,7 @@ function CountLab() {
       </div>
       {saved > 0 && (
         <p className="lab-note">
-          The same instruction, written as a rule instead of a wish — <code>{trimmed}</code> — is{' '}
+          The same instruction, written as a rule instead of a wish, <code>{trimmed}</code>, is{' '}
           <b>{n0(estimateTokens(trimmed))} tokens</b>. That is <b>{n0(saved)} fewer</b>, on every single
           request, for ever.
         </p>
@@ -148,7 +148,7 @@ function ToolsLab() {
   return (
     <div className="lab">
       <p className="lab-lead">
-        Switch them off. These are the tools attached to one step — not the ones you own.
+        Switch them off. These are the tools attached to one step, not the ones you own.
       </p>
       <div className="lab-chips">
         {TOOLKIT.map((t) => (
@@ -243,8 +243,8 @@ function RewriteLab() {
       </div>
       <p className="lab-note">
         {fixed.length === FIXES.length
-          ? 'Shorter, and more obeyed. That is the point: the habits that make a brief cheaper are the same ones that make it clearer, so this saves twice — fewer tokens, and fewer retries because the output was wrong.'
-          : 'Keep going. Notice that nothing was dropped — every instruction is still there, just written so a model can follow it.'}
+          ? 'Shorter, and more obeyed. That is the point: the habits that make a brief cheaper are the same ones that make it clearer, so this saves twice, fewer tokens, and fewer retries because the output was wrong.'
+          : 'Keep going. Notice that nothing was dropped, every instruction is still there, just written so a model can follow it.'}
       </p>
     </div>
   )

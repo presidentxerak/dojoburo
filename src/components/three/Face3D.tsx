@@ -76,7 +76,15 @@ function drawKawaii(x: CanvasRenderingContext2D, mood: Mood, blink: boolean) {
     x.fillStyle = INK
   }
 
-  if (blink) { arc(L); arc(R) }
+  // ENDORMI · les yeux fermés, dessinés comme le clignement mais plus bas et
+  // plus longs. C'est la même courbe : un dormeur n'a pas d'autres yeux qu'un
+  // personnage qui cligne, il les garde simplement fermés.
+  if (mood === 'sleep') {
+    x.lineWidth = 11
+    x.beginPath(); x.moveTo(L - 26, EY + 6); x.quadraticCurveTo(L, EY + 20, L + 26, EY + 6); x.stroke()
+    x.beginPath(); x.moveTo(R - 26, EY + 6); x.quadraticCurveTo(R, EY + 20, R + 26, EY + 6); x.stroke()
+  }
+  else if (blink) { arc(L); arc(R) }
   else if (mood === 'happy') { arc(L); arc(R) }
   else if (mood === 'love') { heart(L); heart(R) }
   else if (mood === 'error') {
@@ -91,7 +99,11 @@ function drawKawaii(x: CanvasRenderingContext2D, mood: Mood, blink: boolean) {
 
   // la bouche · courte, et elle DIT l'humeur
   x.strokeStyle = INK
-  if (mood === 'happy' || mood === 'love') {
+  if (mood === 'sleep') {
+    // un petit rond · la respiration, rien de plus
+    x.lineWidth = 9
+    x.beginPath(); x.arc(128, 182, 11, 0, Math.PI * 2); x.stroke()
+  } else if (mood === 'happy' || mood === 'love') {
     x.fillStyle = INK
     x.beginPath(); x.moveTo(102, 170); x.quadraticCurveTo(128, 206, 154, 170); x.closePath(); x.fill()
     x.fillStyle = '#ff5d8f'

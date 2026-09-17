@@ -51,7 +51,7 @@ export const EFFORT_MODES: EffortMode[] = [
     thinking: false,
     maxApps: 0,
     bestFor: 'Drafting, exploring an idea, tuning a brief before you commit.',
-    tradeoff: 'Answers stop earlier, and your team writes instead of acting — no app is touched.',
+    tradeoff: 'Answers stop earlier, and your team writes instead of acting, no app is touched.',
     typical: [900, 1200],
     points: [
       'Answers capped at 1,500 tokens',

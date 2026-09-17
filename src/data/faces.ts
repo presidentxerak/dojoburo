@@ -17,6 +17,10 @@ export const FACES: Record<Mood, Frame[]> = {
   talk: [F('o o', ' O '), F('o o', ' _ ')],
   love: [F('* *', '\\_/'), F('* *', ' u ')],
   error: [F('x x', ' ~ '), F('X X', ' ~ ')],
+  // Endormi · les yeux fermés, et la bouche qui respire. Pas de « z z z » :
+  // trois lettres au-dessus d'une tête se lisent comme une bulle de bande
+  // dessinée, et la bulle appartient au maître, pas aux dormeurs.
+  sleep: [F('- -', ' o '), F('- -', ' . ')],
 }
 
 /** Frame cycle speed per mood, in ms. */
@@ -28,6 +32,8 @@ export const FACE_SPEED: Record<Mood, number> = {
   talk: 240,
   love: 400,
   error: 300,
+  // très lent · une respiration, pas une animation
+  sleep: 2200,
 }
 
 // --- le visage PROPRE À CHAQUE ESPÈCE --------------------------------------

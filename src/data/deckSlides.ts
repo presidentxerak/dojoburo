@@ -35,7 +35,7 @@ export interface DeckSlide {
 const A = DECK_ACCENTS
 
 export const DECK_SLIDES: DeckSlide[] = [
-  { n: '', eyebrow: 'Investor deck', title: 'Learn to build AI agents — and to run them cheap.', line: 'A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where they go, and how to cut them. The course is free; the library of prompts, briefs and skills is the paid part.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['Free course, paid library', 'Frugality nobody else teaches', 'Sold as software, not tokens'] },
+  { n: '', eyebrow: 'Investor deck', title: 'Learn to build AI agents, and to run them cheap.', line: 'A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where they go, and how to cut them. The course is free; the library of prompts, briefs and skills is the paid part.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['Free course, paid library', 'Frugality nobody else teaches', 'Sold as software, not tokens'] },
   { n: '01', eyebrow: 'The problem', title: 'Too many apps.', line: 'Running a business means juggling a dozen tools and never mastering any of them.', obj: 'briefcase', accent: A.orange, layout: 'object', points: ['A dozen SaaS tabs', 'Constant context-switching', 'Nothing mastered'] },
   { n: '02', eyebrow: 'The solution', title: 'One 3D office.', line: 'AI agents each own a real function · product, growth, finance, ops · and act for you inside your apps.', obj: 'network', accent: A.blue, layout: 'dojo', points: ['An agent per function', 'Real actions, not chat', 'You stay the founder'] },
   {
@@ -48,7 +48,7 @@ export const DECK_SLIDES: DeckSlide[] = [
   },
   { n: '04', eyebrow: 'The product', title: 'Real work.', line: 'Agents act for real inside your apps · they open the PR, draft the email, raise the invoice.', obj: 'gear', accent: A.violet, layout: 'object', points: ['Opens the PR', 'Drafts the email', 'Raises the invoice'] },
   {
-    n: '05', eyebrow: 'The model', title: 'We sell the software.', line: `Not the tokens. Founder brings their own model key at $${FOUNDER_USD} a month — their key, their bill, no meter between them and their own work. Managed is $${MANAGED_USD} for people who would rather not hold a key.`, obj: 'gem', accent: A.blue, layout: 'stats',
+    n: '05', eyebrow: 'The model', title: 'We sell the software.', line: `Not the tokens. Founder brings their own model key at $${FOUNDER_USD} a month, their key, their bill, no meter between them and their own work. Managed is $${MANAGED_USD} for people who would rather not hold a key.`, obj: 'gem', accent: A.blue, layout: 'stats',
     stats: [
       { big: `$${FOUNDER_USD}`, label: 'Founder · your own key' },
       { big: `$${MANAGED_USD}`, label: `Managed · ${MANAGED_TASKS.toLocaleString('en-US')} tasks` },

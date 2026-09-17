@@ -41,7 +41,7 @@ export const KB: KBTopic[] = [
     id: 'library',
     chip: 'Prompt & skill library',
     answer:
-      `The Library (/library) is the catalogue of ready-made files: ${LIB_COUNT} of them, split into prompts (one instruction you paste into a chat), briefs (a .md file an agent carries as its standing instructions) and skills (a folder an agent loads on demand). It is filed three ways at once, because three people look for it three ways: by FORM, by WHAT YOU ARE DOING (writing, research, analysis, building, customers, operations, frugality), and by YOUR TRADE. Every entry shows — free, no account — when to reach for it, why it is written that way, what to change for your own case, the mistake it exists to avoid, a real excerpt of the file, and what the file weighs in tokens when it travels in a prompt. The FILE ITSELF is what a paid plan buys; ${LIB_FREE} entries are open to everyone so you can judge the goods before paying. Nothing here is a wall of clever one-liners: if an entry cannot explain why it is written the way it is, it does not go in.`,
+      `The Library (/library) is the catalogue of ready-made files: ${LIB_COUNT} of them, split into prompts (one instruction you paste into a chat), briefs (a .md file an agent carries as its standing instructions) and skills (a folder an agent loads on demand). It is filed three ways at once, because three people look for it three ways: by FORM, by WHAT YOU ARE DOING (writing, research, analysis, building, customers, operations, frugality), and by YOUR TRADE. Every entry shows, free, no account, when to reach for it, why it is written that way, what to change for your own case, the mistake it exists to avoid, a real excerpt of the file, and what the file weighs in tokens when it travels in a prompt. The FILE ITSELF is what a paid plan buys; ${LIB_FREE} entries are open to everyone so you can judge the goods before paying. Nothing here is a wall of clever one-liners: if an entry cannot explain why it is written the way it is, it does not go in.`,
     links: [
       { label: 'Open the library', href: '/library' },
       { label: 'See the plans', href: '#pricing' },
@@ -53,7 +53,7 @@ export const KB: KBTopic[] = [
     id: 'tokens',
     chip: 'Control your consumption',
     answer:
-      `The chip in the middle of the dojo header is your token dial. It shows which mode you are in and how many tokens you have spent today, and clicking it opens the full picker. There are three modes and each one changes exactly three things — how long an answer may be, whether the model thinks before writing, and how many of a teammate's connected apps travel with the run. SAVER: answers capped at 1,500 tokens, no apps attached, so the team drafts instead of acting · the cheapest way to tune a brief before you commit. BALANCED (the default): 4,000 tokens and up to 3 apps, with real actions in them · start here and only change it when you have a reason. MAX: 8,000 tokens, thinking switched on and up to 8 apps · three to five times the tokens of Saver, so save it for the run you are actually going to ship. The panel shows our estimate for your team's next full run in each mode, AND the real token counts of the runs you have already done, reported by the model itself, so you can check our estimates against reality. One more thing worth knowing: every app you switch on for a teammate ships that app's tool definitions with every single step they run, so a teammate with eight apps costs more per step than the same teammate with two, in every mode. Connecting is still free · it is the running that costs.`,
+      `The chip in the middle of the dojo header is your token dial. It shows which mode you are in and how many tokens you have spent today, and clicking it opens the full picker. There are three modes and each one changes exactly three things, how long an answer may be, whether the model thinks before writing, and how many of a teammate's connected apps travel with the run. SAVER: answers capped at 1,500 tokens, no apps attached, so the team drafts instead of acting · the cheapest way to tune a brief before you commit. BALANCED (the default): 4,000 tokens and up to 3 apps, with real actions in them · start here and only change it when you have a reason. MAX: 8,000 tokens, thinking switched on and up to 8 apps · three to five times the tokens of Saver, so save it for the run you are actually going to ship. The panel shows our estimate for your team's next full run in each mode, AND the real token counts of the runs you have already done, reported by the model itself, so you can check our estimates against reality. One more thing worth knowing: every app you switch on for a teammate ships that app's tool definitions with every single step they run, so a teammate with eight apps costs more per step than the same teammate with two, in every mode. Connecting is still free · it is the running that costs.`,
     links: [
       { label: 'Open my dojo', href: '#app' },
       { label: 'The cost lesson', href: '/academy/the-landscape/what-it-costs' },
@@ -78,7 +78,7 @@ export const KB: KBTopic[] = [
     walk: 'company',
     chip: 'Getting started',
     answer:
-      'Two screens, no prompt to write. 1) You land on one card: name a practice dojo and hit Open the dojo. Signing in only keeps it across devices (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick the ones you want to study. Every card names the teammates inside it, the apps they use, and how many tasks one full run would take, and a bar at the bottom keeps the running total in view. Hit Add teams and you land in the dojo: click a teammate to read the brief that makes it a specialist, change it, and see what changes. It is a sandbox — nothing there calls a paid model or writes to your real accounts. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
+      'Two screens, no prompt to write. 1) You land on one card: name a practice dojo and hit Open the dojo. Signing in only keeps it across devices (or continue as a guest, saved in this browser only). 2) Next comes "Choose your dojo teams": the whole catalogue, and you tick the ones you want to study. Every card names the teammates inside it, the apps they use, and how many tasks one full run would take, and a bar at the bottom keeps the running total in view. Hit Add teams and you land in the dojo: click a teammate to read the brief that makes it a specialist, change it, and see what changes. It is a sandbox, nothing there calls a paid model or writes to your real accounts. Every screen has a "How to?" button that plays an animated walkthrough full screen.',
     links: [
       { label: 'Open your cockpit', href: '#app' },
       { label: 'Watch the walkthrough', href: '/guide#walkthrough' },
@@ -91,7 +91,7 @@ export const KB: KBTopic[] = [
     walk: 'teams',
     chip: 'Dojo team cards',
     answer:
-      'A dojo team card is a whole team, ready made. Each card names every teammate inside it and how many there are (a researcher, a maker, an analyst, a team lead…), the apps they work in, how many steps their plan has, and how many tasks one full run takes, marked Light, Medium or Heavy. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tick as many as you need — the bar at the bottom adds up the teams, the teammates, the tasks and the app connections as you go. Each one becomes a dojo inside your company: a 3D office where you can rename teammates, add or remove them, change the apps they use, rewrite how any one of them works, and run the whole plan in one go. Nothing is locked and nothing needs configuring first.',
+      'A dojo team card is a whole team, ready made. Each card names every teammate inside it and how many there are (a researcher, a maker, an analyst, a team lead…), the apps they work in, how many steps their plan has, and how many tasks one full run takes, marked Light, Medium or Heavy. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tick as many as you need, the bar at the bottom adds up the teams, the teammates, the tasks and the app connections as you go. Each one becomes a dojo inside your company: a 3D office where you can rename teammates, add or remove them, change the apps they use, rewrite how any one of them works, and run the whole plan in one go. Nothing is locked and nothing needs configuring first.',
     links: [
       { label: 'Pick a team', href: '#app' },
       { label: 'Shape your team', href: '/guide#team' },
@@ -104,7 +104,7 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'What a team costs',
     answer:
-      'Every dojo team card shows its size before you pick it. A team\'s plan is a fixed list of steps and one step is one task, so a 4-step team is 4 tasks for a full run. Cards are marked Light (up to 3 tasks), Medium (up to 5) or Heavy above that, and the bar at the bottom of the chooser adds up everything you have ticked. What that costs depends only on your plan: on Founder ($29/month) the work runs on your own Claude key — unlimited runs, nothing metered here, Anthropic bills you directly. On Managed ($49/month) it draws on the 2,000 tasks included. Connecting an app is free on every plan, and the apps you connect are billed by them, not by us.',
+      'Every dojo team card shows its size before you pick it. A team\'s plan is a fixed list of steps and one step is one task, so a 4-step team is 4 tasks for a full run. Cards are marked Light (up to 3 tasks), Medium (up to 5) or Heavy above that, and the bar at the bottom of the chooser adds up everything you have ticked. What that costs depends only on your plan: on Founder ($29/month) the work runs on your own Claude key, unlimited runs, nothing metered here, Anthropic bills you directly. On Managed ($49/month) it draws on the 2,000 tasks included. Connecting an app is free on every plan, and the apps you connect are billed by them, not by us.',
     links: [
       { label: 'Pick a team', href: '#app' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -117,7 +117,7 @@ export const KB: KBTopic[] = [
     walk: 'company',
     chip: 'Do I need an account?',
     answer:
-      'Not to look around. You can open the app, type a name and read every team card without signing in. Signing in is asked for at one moment only: when you hit Create your project, because that saves something real. Sign in with your email or Google and your project, your teammates and everything they make are still there next time, on any device you sign in from. Prefer not to? "Continue as guest" keeps everything in this browser only — it works exactly the same, but clearing your browser data clears your project with it.',
+      'Not to look around. You can open the app, type a name and read every team card without signing in. Signing in is asked for at one moment only: when you hit Create your project, because that saves something real. Sign in with your email or Google and your project, your teammates and everything they make are still there next time, on any device you sign in from. Prefer not to? "Continue as guest" keeps everything in this browser only, it works exactly the same, but clearing your browser data clears your project with it.',
     links: [
       { label: 'Open the app', href: '#app' },
       { label: 'How it works', href: '/guide#how' },
@@ -154,7 +154,7 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'What a plan costs',
     answer:
-      'It depends on one thing only: who pays for the model. On Founder ($29/month) that is you — your own Claude key runs the work, Anthropic bills you directly for what you used, and we never meter it. On Managed ($49/month) it is us, and the month includes 2,000 tasks. On Free it is us too, on free and open models, with a daily allowance. A task is one teammate doing one step. Your CEO dashboard shows live totals and you can set a daily limit.',
+      'It depends on one thing only: who pays for the model. On Founder ($29/month) that is you, your own Claude key runs the work, Anthropic bills you directly for what you used, and we never meter it. On Managed ($49/month) it is us, and the month includes 2,000 tasks. On Free it is us too, on free and open models, with a daily allowance. A task is one teammate doing one step. Your CEO dashboard shows live totals and you can set a daily limit.',
     links: [
       { label: 'Cost breakdown', href: '#cost' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -167,7 +167,7 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'Plans & pricing',
     answer:
-      'You are paying for the software, not for tokens: the ready-made teams, their plans, the app connectors and the orchestration. Three plans. Free ($0): the whole catalogue, one company, and a daily allowance on free and open models. Founder ($29/month) is the one most people want — you add your own Claude key, run as much as you like, and Anthropic bills you directly for exactly what you used; nothing on our side is metered. Managed ($49/month) is for people who would rather not hold a key at all, and includes 2,000 tasks a month. Business is custom: self-hosted, SSO, SLA. Paid by card in your own currency · no crypto.',
+      'You are paying for the software, not for tokens: the ready-made teams, their plans, the app connectors and the orchestration. Three plans. Free ($0): the whole catalogue, one company, and a daily allowance on free and open models. Founder ($29/month) is the one most people want, you add your own Claude key, run as much as you like, and Anthropic bills you directly for exactly what you used; nothing on our side is metered. Managed ($49/month) is for people who would rather not hold a key at all, and includes 2,000 tasks a month. Business is custom: self-hosted, SSO, SLA. Paid by card in your own currency · no crypto.',
     links: [
       { label: 'See the plans', href: '#pricing' },
       { label: 'Cost per task', href: '#cost' },
@@ -179,7 +179,7 @@ export const KB: KBTopic[] = [
     id: 'onramp',
     chip: 'How you pay',
     answer:
-      'A plan, by card, in your own currency (€/$/¥), through Stripe. That is the whole of it — there is no balance to top up and no meter to watch, because we do not sell you model tokens. On Founder your own Claude key runs the work and Anthropic bills you separately for it. No wallet, no coins, no crypto. Just exploring? The free tier lets you build and run without spending anything.',
+      'A plan, by card, in your own currency (€/$/¥), through Stripe. That is the whole of it: there is no balance to top up and no meter to watch, because we do not sell you model tokens. On Founder your own Claude key runs the work and Anthropic bills you separately for it. No wallet, no coins, no crypto. Just exploring? The free tier lets you build and run without spending anything.',
     links: [
       { label: 'See the full flow', href: '#onramp' },
       { label: 'Cost per task', href: '#cost' },
@@ -191,7 +191,7 @@ export const KB: KBTopic[] = [
     id: 'payments',
     chip: 'How payments work',
     answer:
-      'Simple: you pay for a plan by card in your own currency. There is no wallet, no coins and no crypto anywhere. Every task leaves a receipt in your dashboard, so you always see exactly what ran — whoever paid for the model.',
+      'Simple: you pay for a plan by card in your own currency. There is no wallet, no coins and no crypto anywhere. Every task leaves a receipt in your dashboard, so you always see exactly what ran, whoever paid for the model.',
     links: [
       { label: 'Bring your own key', href: '#pay' },
       { label: 'How it works', href: '#how' },
@@ -228,7 +228,7 @@ export const KB: KBTopic[] = [
     id: 'linkagents',
     chip: 'Link your own agents',
     answer:
-      'Already run an AI agent at Notion, Slack, or anywhere else? Bring it in to help one of your teammates. Open the agent editor in the Dojo Studio, scroll to "Outside helpers" and click "+ Add a helper", then pick how it helps: it can lend its tools (they join everything this teammate does, exactly like a connected app · this is the MCP standard), take a whole task off their hands and send the answer back (the A2A standard), or be a plain web address we send the task to and read the reply from. Paste the https address and an optional access key, then hit Verify to check it answers and read back its name and what it can do. The key never touches this browser · the server holds it, just like your connected apps. Hand a whole task across from the teammate\'s card in the office; tool helpers ride along automatically whenever that teammate works — on the free built-in models as well as on your own Claude key.',
+      'Already run an AI agent at Notion, Slack, or anywhere else? Bring it in to help one of your teammates. Open the agent editor in the Dojo Studio, scroll to "Outside helpers" and click "+ Add a helper", then pick how it helps: it can lend its tools (they join everything this teammate does, exactly like a connected app · this is the MCP standard), take a whole task off their hands and send the answer back (the A2A standard), or be a plain web address we send the task to and read the reply from. Paste the https address and an optional access key, then hit Verify to check it answers and read back its name and what it can do. The key never touches this browser · the server holds it, just like your connected apps. Hand a whole task across from the teammate\'s card in the office; tool helpers ride along automatically whenever that teammate works, on the free built-in models as well as on your own Claude key.',
     links: [
       { label: 'Open the Dojo Studio', href: '#studio' },
       { label: 'What is A2A', href: 'https://a2a-protocol.org', external: true },
@@ -393,4 +393,4 @@ export function matchTopic(text: string): KBTopic | null {
 }
 
 export const GREETING =
-  "Hi, I'm Dojobot. Short version: you name your project, tick the ready-made teams you need, and each teammate opens a pro studio (branding, website, campaigns, video, finance, CRM, analytics) that runs in your browser. Ask me anything in your own words — or pick a topic below. When a question has a walkthrough, I can play it for you full screen.";
+  "Hi, I'm Dojobot. Short version: you name your project, tick the ready-made teams you need, and each teammate opens a pro studio (branding, website, campaigns, video, finance, CRM, analytics) that runs in your browser. Ask me anything in your own words, or pick a topic below. When a question has a walkthrough, I can play it for you full screen.";

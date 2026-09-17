@@ -178,7 +178,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   // when WORK_OPERATOR_CLAUDE is on (or the caller is an operator).
   const byokKey = await resolveByokKey(ref)
   let baseSystem = secretNames.length
-    ? `${task.system}\n\nThis company has these environment variables available to its tools (names only — never print the names or the values): ${secretNames.join(', ')}.`
+    ? `${task.system}\n\nThis company has these environment variables available to its tools (names only, never print the names or the values): ${secretNames.join(', ')}.`
     : task.system
   // The agent's own CONTEXT (its speciality sheet, editable by the user). It
   // shapes HOW the agent works · it can never relax the security preamble,

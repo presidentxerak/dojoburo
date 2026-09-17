@@ -520,7 +520,7 @@ export const ROLE_TASKS: Record<string, WorkTask[]> = {
     T('incident-plan', 'Incident response plan', 'Severities, the first 30 minutes, and the 72-hour clock.', ['slack']),
   ],
   scout: [
-    T('market-study', 'Market & competitor study', 'Buyers, five competitors, sizing — each figure sourced or marked unknown.', ['notion', 'gdrive', 'perplexity']),
+    T('market-study', 'Market & competitor study', 'Buyers, five competitors, sizing: each figure sourced or marked unknown.', ['notion', 'gdrive', 'perplexity']),
     T('interview-guide', 'Customer interview guide', 'Twelve questions about what they did, not what they would do.', ['notion', 'gdrive']),
   ],
   scribe: [
@@ -541,7 +541,7 @@ export const ROLE_TASKS: Record<string, WorkTask[]> = {
   ],
   kaizen: [
     T('runbook', 'Ops runbook', 'Monitoring, on-call, the alert→action table and incident steps.', ['slack', 'gdrive']),
-    T('release-check', 'Release checklist', 'Before, during, after — and the rollback written as commands.', ['github', 'slack']),
+    T('release-check', 'Release checklist', 'Before, during, after, and the rollback written as commands.', ['github', 'slack']),
   ],
 }
 

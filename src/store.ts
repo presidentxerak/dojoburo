@@ -10,7 +10,12 @@ import { agentLabel } from './agentView'
 import { pickEvent, tierForLevel, xpForLevel } from './data/events'
 import { loadSceneId, saveSceneId, type SceneId } from './data/scenes'
 
-export type Mood = 'idle' | 'work' | 'happy' | 'think' | 'talk' | 'love' | 'error'
+// « sleep » a rejoint la grammaire des humeurs pour une raison de fond, pas
+// de décoration : dans un dojo devenu salle de classe, un agent qu'on n'a pas
+// encore choisi N'EXISTE PAS. Le montrer en train de travailler donnerait une
+// salle où tout tourne déjà, donc aucune raison de choisir quoi que ce soit.
+// Il dort, et c'est le choix de l'élève qui le réveille.
+export type Mood = 'idle' | 'work' | 'happy' | 'think' | 'talk' | 'love' | 'error' | 'sleep'
 export type Theme = 'light' | 'dark'
 
 export interface Activity {

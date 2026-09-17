@@ -57,8 +57,8 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
       {tab === 'billing' && (<>
       <div className="sq-eyebrow">Your plan</div>
       <p className="sq-lead">
-        Dojoburo sells the software, not the tokens. There is one place to change this — the
-        Billing surface — so a price can never be two things at once.
+        Dojoburo sells the software, not the tokens. There is one place to change this: the
+        Billing surface, so a price can never be two things at once.
       </p>
       <div className="biz-overview">
         {PLANS.map((pl) => (

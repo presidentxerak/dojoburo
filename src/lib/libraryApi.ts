@@ -32,7 +32,7 @@ export type FetchState =
 export const REFUSAL: Record<Exclude<FetchState['state'], 'ok'>, { title: string; line: string; cta?: string }> = {
   plan: {
     title: 'This one is part of the library',
-    line: 'The course is free and stays free. The files — the prompts, the briefs, the skills — are what the paid plan buys.',
+    line: 'The course is free and stays free. The files, the prompts, the briefs, the skills, are what the paid plan buys.',
     cta: 'See the plans',
   },
   auth: {
@@ -50,7 +50,7 @@ export const REFUSAL: Record<Exclude<FetchState['state'], 'ok'>, { title: string
   },
   offline: {
     title: 'Could not reach the library',
-    line: 'The request did not go through. Nothing is wrong with your account — try again in a moment.',
+    line: 'The request did not go through. Nothing is wrong with your account, try again in a moment.',
   },
 }
 

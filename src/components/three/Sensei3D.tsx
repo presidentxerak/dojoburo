@@ -69,7 +69,16 @@ const pick = (a: string[]) => a[Math.floor(Math.random() * a.length)]
  *  regarde en premier. Un maître se tient au fond, face à la salle : on
  *  entre, on traverse, on va le voir. C'est ce déplacement qui a donné au
  *  coursier quelqu'un à qui parler (voir stage.ts et Courier3D). */
-export function Sensei3D({ bare = false, at = SENSEI_AT }: { bare?: boolean; at?: [number, number, number] }) {
+export function Sensei3D({ bare = false, at = SENSEI_AT, says }: {
+  bare?: boolean
+  at?: [number, number, number]
+  /** CE QU'IL DIT MAINTENANT, quand quelqu'un a quelque chose de précis à lui
+   *  faire dire. Le maître récitait ses maximes en boucle, ce qui convient à
+   *  une salle où il ne se passe rien ; dans le cours il accueille, il pose
+   *  une question, il félicite. Une maxime par-dessus une question serait un
+   *  professeur qui ne vous écoute pas. */
+  says?: string
+}) {
   const cheer = useDojo((s) => s.cheer)
   const cheerTick = useDojo((s) => s.cheerTick)
   const news = useNews()
@@ -257,7 +266,7 @@ export function Sensei3D({ bare = false, at = SENSEI_AT }: { bare?: boolean; at?
           qui faisait que l'échange n'existait pas. */}
       {!bare && (
         <Html position={[0, 2.72, 0.2]} center distanceFactor={12} zIndexRange={[8, 0]} pointerEvents="none">
-          <div className={`panda-bubble${party ? ' hype' : ''}`}>{visit === 'telling' ? news.reply : bubble}</div>
+          <div className={`panda-bubble${party ? ' hype' : ''}`}>{says || (visit === 'telling' ? news.reply : bubble)}</div>
         </Html>
       )}
       {!bare && (

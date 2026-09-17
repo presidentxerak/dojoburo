@@ -217,7 +217,7 @@ export async function runLoop(dojoId: string, opts: RunLoopOpts = {}): Promise<v
     toast({
       kind: 'event', badge: 'OK', color: '#2fae6a', title: `${dojo.name} · done`,
       text: reused
-        ? `${ran} step${ran === 1 ? '' : 's'} run, ${reused} kept unchanged — you paid for ${ran}.`
+        ? `${ran} step${ran === 1 ? '' : 's'} run, ${reused} kept unchanged, you paid for ${ran}.`
         : `${finished} results ready in this project.`,
     })
   }

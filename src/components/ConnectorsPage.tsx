@@ -156,7 +156,7 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
                           card is now a legend at the top of the page, once. Forty
                           four cards each carrying the same paragraph was 1,300
                           words of repetition, and it pushed the thing a founder
-                          came here to do — find an app and press Connect — ten
+                          came here to do, find an app and press Connect, ten
                           screens down. The state chip above already says which
                           of the four this is. */}
                       {admin && state === 'setup' && (

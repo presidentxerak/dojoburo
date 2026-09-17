@@ -16,6 +16,7 @@
 // académie qui annonce vingt leçons et en sert dix-huit a menti à son premier
 // visiteur, ce qui est le pire endroit où mentir quand on vend de la pédagogie.
 import { TRACKS, LESSON_COUNT, TOTAL_MINUTES } from './academy'
+import { USE_CASE_COUNT } from './agentUseCases'
 
 // LA PROMESSE, en deux moitiés · parce qu'elle est affichée deux fois et
 // qu'elle doit rester UNE seule phrase.
@@ -27,22 +28,39 @@ import { TRACKS, LESSON_COUNT, TOTAL_MINUTES } from './academy'
 // sans jamais voir le titre.
 export const PROMISE_LEAD = 'Learn to build AI agents'
 export const PROMISE_HL = 'and to run them cheap'
-export const PROMISE = `${PROMISE_LEAD} — ${PROMISE_HL}`
+/** Ce qui sépare les deux moitiés · une VIRGULE, plus un tiret cadratin. Le
+ *  tiret a été retiré de tous les textes de l'app, donc aussi de la phrase que
+ *  le titre, la description et la garde de contenu comparent entre eux.
+ *
+ *  Il est EXPORTÉ parce que la page d'accueil pose les deux moitiés côte à
+ *  côte avec la seconde en couleur : elle a besoin du séparateur seul. Il y
+ *  était écrit à la main, et le jour où la promesse est passée du tiret à la
+ *  virgule le titre affichait « Learn to build AI agents: and to run them
+ *  cheap » pendant que la description disait autre chose. */
+export const PROMISE_SEP = ', '
+export const PROMISE = `${PROMISE_LEAD}${PROMISE_SEP}${PROMISE_HL}`
+
+/** LES TROIS COURS, dans l'ordre où on les suit · déclarés ICI parce que le
+ *  sous-titre les compte, et qu'une constante lue avant sa déclaration fait
+ *  tomber le module entier au chargement. La liste complète, avec leurs
+ *  libellés, est dérivée des piliers plus bas. */
+export const COURSE_PILLARS: Array<'build' | 'academy' | 'eco'> = ['build', 'academy', 'eco']
+export const COURSE_COUNT = COURSE_PILLARS.length
 
 /** La promesse en deux phrases · ce qu'on est, et ce qu'on n'est pas. La
  *  deuxième compte autant : un visiteur arrivé pour faire travailler des
  *  agents à sa place doit comprendre en une phrase qu'il n'est pas au bon
  *  endroit, plutôt que de le découvrir après avoir créé un compte. */
 export const SUBTITLE =
-  'A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: ' +
-  'what a run actually costs in tokens and in euros, where those tokens go, and how to cut them. ' +
-  'Nothing here runs your business for you — everything here teaches you to build it.'
+  `A training centre with ${COURSE_COUNT} courses: build an agent, write the prompt that decides everything, ` +
+  `and cut what it costs to run. You walk into the dojo, pick one of ${USE_CASE_COUNT} shapes of agent, build it ` +
+  'from a blank page, and leave with a file you can run in a real framework. Nothing here works for you.'
 
-/** Les quatre piliers · ils structurent l'en-tête, la page d'accueil et le
+/** Les piliers · ils structurent l'en-tête, la page d'accueil et le
  *  plan du site. L'ordre est celui du parcours d'un visiteur : on apprend,
  *  on prend des outils, on les rend sobres, on s'entraîne. */
 export interface Pillar {
-  id: 'academy' | 'library' | 'eco' | 'dojo'
+  id: 'build' | 'academy' | 'library' | 'eco' | 'dojo'
   /** le libellé dans la navigation · court, un mot si possible */
   nav: string
   /** le titre de sa section */
@@ -57,14 +75,25 @@ export interface Pillar {
 
 export const PILLARS: Pillar[] = [
   {
-    id: 'academy',
-    nav: 'Academy',
-    title: 'Learn how agents actually work',
+    id: 'build',
+    nav: 'Build an agent',
+    title: `${USE_CASE_COUNT} agents, ${USE_CASE_COUNT} ways of failing`,
     blurb:
-      'From "what is a token" to a working agent you understand line by line. ' +
-      'Every lesson is read in the browser, animated beside the text, and ends with one thing to remember and one thing to do.',
+      `Walk into the dojo. ${USE_CASE_COUNT} agents are asleep, one per shape of problem, and the one you pick ` +
+      'wakes up. You take it from a blank page to a file that runs in a real framework, and the master keeps ' +
+      'your progress.',
+    path: '/build',
+    glyph: '◈',
+  },
+  {
+    id: 'academy',
+    nav: 'Prompt engineering',
+    title: 'The instruction that decides everything',
+    blurb:
+      'From "what is a token" to a brief a model actually follows. Every lesson is read in the browser, ' +
+      'has something you can take apart beside the text, and ends with one thing to remember and one thing to do.',
     path: '/academy',
-    glyph: '◱',
+    glyph: '✎',
   },
   {
     id: 'library',
@@ -78,27 +107,41 @@ export const PILLARS: Pillar[] = [
   },
   {
     id: 'eco',
-    nav: 'Frugality',
+    // Le nom du COURS, pas une abréviation. « Frugality » tout court était plus
+    // court dans l'en-tête et ne disait pas de quoi il s'agit ; les trois cours
+    // s'annoncent ici sous le nom que le centre de formation leur donne.
+    nav: 'Token frugality',
     title: 'What it costs, and how to cut it',
     blurb:
-      'Where your tokens actually go, counted rather than guessed — the settings you choose before writing a word, ' +
+      'Where your tokens actually go, counted rather than guessed: the settings you choose before writing a word, ' +
       'and the way the prompt itself is written. Then the levers, each one with the saving it really buys.',
     path: '/frugality',
     glyph: '▲',
   },
   {
     id: 'dojo',
-    nav: 'Dojo',
-    title: 'A room to practise in',
+    nav: 'Practice room',
+    title: 'A room to take things apart in',
     blurb:
-      'The dojo is a sandbox now, not a factory floor. Open a teammate, read the prompt that makes it what it is, ' +
+      'The dojo is a sandbox, not a factory floor. Open an agent, read the prompt that makes it what it is, ' +
       'change it, and watch what changes. Nothing here calls a paid model or touches your accounts.',
     path: '/#app',
-    glyph: '◈',
+    glyph: '◱',
   },
 ]
 
 export const PILLAR_BY_ID = Object.fromEntries(PILLARS.map((p) => [p.id, p])) as Record<Pillar['id'], Pillar>
+
+/** LES TROIS COURS, dans l'ordre où on les suit. Ce sont les piliers qui
+ *  ENSEIGNENT ; la bibliothèque est un catalogue et la salle d'entraînement un
+ *  lieu, ni l'un ni l'autre n'est un cours.
+ *
+ *  Ils sont DÉRIVÉS des piliers, pas recopiés à côté. Un centre de formation
+ *  dont les trois cours sont écrits à deux endroits finit par en annoncer
+ *  quatre à un endroit et deux à l'autre, et c'est arrivé dans ce fichier
+ *  même : une liste `COURSES` autonome vivait dans data/agentUseCases avec
+ *  ses propres libellés. */
+export const COURSES: Pillar[] = COURSE_PILLARS.map((id) => PILLAR_BY_ID[id])
 
 /* ------------------------------------------------------------------ */
 /* Les chiffres · dérivés, jamais tapés                                */
@@ -118,5 +161,5 @@ export const COURSE_HOURS = Math.round((TOTAL_MINUTES / 60) * 10) / 10
 export const NOT_THIS = [
   'We do not run your company for you.',
   'We do not resell model tokens, and there is no meter between you and your provider.',
-  'Nothing in the dojo calls a paid model or writes to your accounts — it is a sandbox.',
+  'Nothing in the dojo calls a paid model or writes to your accounts: it is a sandbox.',
 ]

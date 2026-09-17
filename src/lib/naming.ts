@@ -69,9 +69,9 @@ const GENERIC_FEATURES = ['Simple, intuitive interface', 'Personalised experienc
 
 const PERSONALITY_HINTS: [RegExp, string][] = [
   [/lux|premium|elegant|fine/i, 'refined and aspirational, like a trusted advisor with impeccable taste'],
-  [/fun|play|game|social|community/i, 'warm and welcoming, playful yet dependable — a friend who makes things easier'],
+  [/fun|play|game|social|community/i, 'warm and welcoming, playful yet dependable: a friend who makes things easier'],
   [/eco|green|nature|organic|sustain/i, 'calm, honest and grounded, with quiet confidence and care for the world'],
-  [/finance|bank|secur|invest/i, 'solid and reassuring, precise and transparent — a partner you can rely on'],
+  [/finance|bank|secur|invest/i, 'solid and reassuring, precise and transparent: a partner you can rely on'],
   [/home|house|space|care|wellness|health/i, 'warm and welcoming, offering a sense of safety and confidence, while being innovative and attentive to people’s needs'],
 ]
 
@@ -88,12 +88,12 @@ export function researchProfile(desc: string): BrandProfile {
   const marketCategory = CATEGORY_HINTS.find(([re]) => re.test(src))?.[1] ?? 'general > products & services'
   const feats = FEATURE_BANKS.find(([re]) => re.test(src))?.[1] ?? GENERIC_FEATURES
   const keyFeatures = feats.slice(0, 5)
-  const targetAudience = `People looking to improve their ${topic} — especially ${audience.toLowerCase()} who value a simpler, more personalised experience.`
+  const targetAudience = `People looking to improve their ${topic}: especially ${audience.toLowerCase()} who value a simpler, more personalised experience.`
   const competitiveLandscape = `The ${topic} market keeps evolving, with new apps and services appearing regularly, but few offer the holistic, customisable approach this product proposes.`
   const differentiation = `It stands out by adapting to each user’s specific needs, delivering a unique and efficient experience around ${keywords.slice(0, 2).join(' and ') || topic}.`
   const emotionalAppeal = `It answers the desire for comfort, simplicity and control people want over their ${topic}, helping them feel more secure and at ease.`
-  const growthPotential = `Growth potential is strong: more and more people are seeking solutions to improve their quality of life and manage their time — a tailwind for ${topic}.`
-  const personality = `The brand personality is ${PERSONALITY_HINTS.find(([re]) => re.test(src))?.[1] ?? 'confident and modern — approachable, clear and genuinely useful'}.`
+  const growthPotential = `Growth potential is strong: more and more people are seeking solutions to improve their quality of life and manage their time, a tailwind for ${topic}.`
+  const personality = `The brand personality is ${PERSONALITY_HINTS.find(([re]) => re.test(src))?.[1] ?? 'confident and modern: approachable, clear and genuinely useful'}.`
   return {
     keywords, tone, audience, angle,
     targetAudience, keyFeatures, marketCategory, competitiveLandscape,

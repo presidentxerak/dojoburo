@@ -58,7 +58,7 @@ export async function importDojoFile(file: File): Promise<{ ok: boolean; error?:
   let items: ZipEntry[]
   try { items = unzip(new Uint8Array(await file.arrayBuffer())) } catch { return { ok: false, error: 'This is not a valid .dojo file.' } }
   const mEntry = items.find((e) => e.name === 'manifest.json')
-  if (!mEntry) return { ok: false, error: 'Missing manifest — not a .dojo project.' }
+  if (!mEntry) return { ok: false, error: 'Missing manifest, not a .dojo project.' }
   let man: Manifest
   try { man = JSON.parse(dec.decode(mEntry.data)) } catch { return { ok: false, error: 'Corrupt manifest.' } }
   if (man.app !== 'dojoburo') return { ok: false, error: 'Not a DojoBuro project file.' }

@@ -81,7 +81,7 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
   return (
     <header className="topbar topbar-app">
       {/* left · a small way home, no brand lockup */}
-      <button className="tb-home" onClick={goHome} aria-label="DojoBuro — landing page" title="Landing page">
+      <button className="tb-home" onClick={goHome} aria-label="DojoBuro: landing page" title="Landing page">
         <Logo size={26} />
       </button>
 

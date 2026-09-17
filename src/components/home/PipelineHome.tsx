@@ -144,7 +144,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
         <header className="ph-sec-h ph-top">
           <h1>Your companies
             <InfoDot title="Your companies" label="How this works">
-              <p>Each card is a <b>company</b> — a piece of work with its own dojo teams inside it.</p>
+              <p>Each card is a <b>company</b>: a piece of work with its own dojo teams inside it.</p>
               <p>Open one to see its teams, or start another: the same speciality can work for two different companies, but never twice for the same one.</p>
             </InfoDot>
           </h1>
@@ -264,7 +264,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
 
           Ils étaient sous la grille, donc sous douze cartes et un défilement :
           « Tout lancer » est LE geste de cette page, et il fallait le chercher
-          en bas. L'état de l'app aussi — on le lit avant de lancer quoi que ce
+          en bas. L'état de l'app aussi: on le lit avant de lancer quoi que ce
           soit, pas après. */}
       {/* the two system agents · runs the whole company + looks after the app */}
       <SystemAgents projectCount={projects.length} onRunPipeline={() => void runPipeline()} running={loopRunning} />

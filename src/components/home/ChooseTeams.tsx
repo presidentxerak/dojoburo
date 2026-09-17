@@ -60,7 +60,7 @@ export function ChooseTeams({ projectName, onAdd, onBack, existing = [] }: {
     <div className="ct">
       <header className="ct-hero">
         {/* Back used to live ONLY in the sticky bar, and that bar only slides
-            up once you have ticked something — so opening the catalogue and
+            up once you have ticked something, so opening the catalogue and
             changing your mind left you with no way out. It is here, always. */}
         {onBack && <button type="button" className="ct-leave" onClick={onBack}>‹ Back</button>}
         <h1>Choose your dojo teams</h1>

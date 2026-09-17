@@ -37,7 +37,7 @@ export function SaveGate({ what, onClose, onSignedIn }: {
       <div className="savegate-card" onMouseDown={(e) => e.stopPropagation()}>
         <h3>Sign in to save your company</h3>
         <p>
-          {what} Signing in keeps it — along with your teammates and everything they make — so you find it
+          {what} Signing in keeps it, along with your teammates and everything they make, so you find it
           all again next time, on any device.
         </p>
         <div className="savegate-acts">

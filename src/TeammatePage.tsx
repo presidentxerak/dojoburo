@@ -203,7 +203,7 @@ export function TeammatesPage() {
         <h1 className="tmp-h1">One teammate for every job</h1>
         <p className="tmp-lede">
           Seventeen specialists, grouped the way a business is. Each has its own brief, its own apps and
-          its own limits — and Chief coordinates them so you brief one teammate, not seventeen.
+          its own limits, and Chief coordinates them so you brief one teammate, not seventeen.
         </p>
       </section>
 

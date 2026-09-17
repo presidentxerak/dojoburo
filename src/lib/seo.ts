@@ -78,7 +78,7 @@ export function siteAudit(site: SiteDoc): AuditReport {
   if (c.h2.length === 0) add('warning', 'Structure', 'no-h2', 'No subheadings (H2)', 'Break content into sections with H2 headings for readability and SEO.')
 
   if (c.words < 200) add('error', 'Content', 'thin', 'Thin content', `Only ~${c.words} words. Pages under 200 words rarely rank. Aim for 300+.`)
-  else if (c.words < 400) add('warning', 'Content', 'low-content', 'Low word count', `~${c.words} words. Add depth — 500+ words tends to rank better for competitive terms.`)
+  else if (c.words < 400) add('warning', 'Content', 'low-content', 'Low word count', `~${c.words} words. Add depth: 500+ words tends to rank better for competitive terms.`)
   const dupBtn = c.buttons.filter((b, i) => c.buttons.indexOf(b) !== i).length
   if (dupBtn > 0) add('notice', 'Content', 'dup-cta', 'Repeated button labels', 'Several buttons share the same text. Vary CTAs to guide different actions.', dupBtn)
 

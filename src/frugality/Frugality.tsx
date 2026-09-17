@@ -59,7 +59,7 @@ export function FrugalityPage() {
     title: 'Where your tokens actually go · token frugality, taught',
     description:
       'A model has no memory: your conversation history is re-sent in full on every turn, so an N-turn thread ' +
-      'costs roughly N². Count what a request really contains, then cut it — first with the settings you choose ' +
+      'costs roughly N². Count what a request really contains, then cut it: first with the settings you choose ' +
       'before writing a word, then with the way the prompt is written.',
     path: '/frugality',
     keywords: ['token cost', 'token optimisation', 'context window', 'prompt caching', 'llm cost', 'prompt engineering'],
@@ -77,7 +77,7 @@ export function FrugalityPage() {
     ['Conversation history, re-sent and re-sent', b.history,
       `${u.turns} turns means ${n0((u.turns * (u.turns - 1)) / 2)} replays of a question-and-answer pair`],
     ['What you actually typed', b.typed, `${n0(u.message)} × ${u.turns} turns`],
-    ['What the model wrote', b.written, `${n0(u.answer)} × ${u.turns} turns — and output usually costs more per token`],
+    ['What the model wrote', b.written, `${n0(u.answer)} × ${u.turns} turns, and output usually costs more per token`],
   ]
 
   return (
@@ -89,7 +89,7 @@ export function FrugalityPage() {
         <h1>A model has no memory. You are paying for the illusion.</h1>
         <p className="lp-lead">
           What a model "remembers" is your conversation, re-sent in full on every single turn. So a thread of
-          twenty turns is not twenty times the price of one — it is far more, because turn twenty carries turns
+          twenty turns is not twenty times the price of one: it is far more, because turn twenty carries turns
           one to nineteen with it. Nothing on this page matters as much as that sentence.
         </p>
       </section>
@@ -99,7 +99,7 @@ export function FrugalityPage() {
         <h2>What is actually in one request</h2>
         <div className="fr-parts">
           <div className="fr-part"><b>The brief</b><span>The standing instructions that make this agent what it is. Identical every time, and re-read every time.</span></div>
-          <div className="fr-part"><b>Tool definitions</b><span>Every connected tool ships its name, description and parameter schema — used or not. About {TOKENS_PER_TOOL} tokens each.</span></div>
+          <div className="fr-part"><b>Tool definitions</b><span>Every connected tool ships its name, description and parameter schema: used or not. About {TOKENS_PER_TOOL} tokens each.</span></div>
           <div className="fr-part"><b>The history</b><span>Everything said so far, both sides. This is the one that grows, and the one nobody watches.</span></div>
           <div className="fr-part"><b>Your message</b><span>The thing you actually asked. Almost always the smallest part of the bill.</span></div>
           <div className="fr-part"><b>The answer</b><span>Billed separately, and usually three to five times the input rate per token.</span></div>
@@ -110,7 +110,7 @@ export function FrugalityPage() {
       <section className="lp-sec fr-calc">
         <h2>Put your own numbers in</h2>
         <p className="lp-lead sm">
-          Rough figures are fine — the shape is what teaches, and the shape barely moves. Lengths are in tokens;
+          Rough figures are fine: the shape is what teaches, and the shape barely moves. Lengths are in tokens;
           if you think in characters, divide by about {CHARS_PER_TOKEN}.
         </p>
 
@@ -122,7 +122,7 @@ export function FrugalityPage() {
           <Field label="Turns per conversation" hint="this is the one that compounds" value={u.turns} onChange={set('turns')} min={1} />
           <Field label="Conversations a day" hint={`counted over ${DAYS} days`} value={u.perDay} onChange={set('perDay')} min={1} />
           <Field label="Input price" hint="per million tokens, in your currency" value={u.inPrice} onChange={set('inPrice')} step={0.5} suffix="/M" />
-          <Field label="Output price" hint="per million — look it up, it is the expensive half" value={u.outPrice} onChange={set('outPrice')} step={0.5} suffix="/M" />
+          <Field label="Output price" hint="per million: look it up, it is the expensive half" value={u.outPrice} onChange={set('outPrice')} step={0.5} suffix="/M" />
         </div>
 
         <div className="fr-out">
@@ -133,7 +133,7 @@ export function FrugalityPage() {
           <div className="fr-big">
             {b.costMonth === null ? (
               <>
-                <span className="fr-big-n fr-muted">—</span>
+                <span className="fr-big-n fr-muted">, </span>
                 <span className="fr-big-l">enter your prices above and this becomes money</span>
               </>
             ) : (
@@ -157,7 +157,7 @@ export function FrugalityPage() {
 
         <p className="fr-caveat">
           These are <b>estimates</b>, not measurements. Token counts depend on the model's own tokeniser, and a tool
-          definition is taken here at a deliberately cautious {TOKENS_PER_TOOL} tokens — real ones run from about two
+          definition is taken here at a deliberately cautious {TOKENS_PER_TOOL} tokens: real ones run from about two
           hundred to over a thousand. The prices are yours, not ours: we do not hardcode a supplier's tariff,
           because it would be wrong the day they change it.
         </p>
@@ -167,7 +167,7 @@ export function FrugalityPage() {
       <section className="lp-sec alt">
         <h2>What to change, in the order that pays</h2>
         <p className="lp-lead sm">
-          Ranked against the numbers you just entered — not against a general opinion. Change one thing, watch the
+          Ranked against the numbers you just entered, not against a general opinion. Change one thing, watch the
           figure above move, keep it if it holds.
         </p>
         {(['setup', 'writing'] as LeverFamily[]).map((fam) => (
@@ -205,7 +205,7 @@ export function FrugalityPage() {
         <h2>Counting it across a whole company is a different job</h2>
         <p className="lp-lead">
           Everything above is what one person can do with their own prompts. Measuring what an organisation
-          spends — across teams, tools and suppliers — and bringing down its token <i>and</i> carbon footprint is
+          spends, across teams, tools and suppliers, and bringing down its token <i>and</i> carbon footprint is
           a separate discipline, with its own instrumentation. That is what <b>Nekomai</b> does.
         </p>
         <p className="lp-lead sm">

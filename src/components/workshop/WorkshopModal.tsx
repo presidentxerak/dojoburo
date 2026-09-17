@@ -123,7 +123,7 @@ function ProjectFileIO({ label }: { label: string }) {
   return (
     <div className="proj-io">
       <div className="sq-eyebrow" style={{ marginTop: 16 }}>Company file (.dojo)</div>
-      <p className="sq-lead">Save your entire workspace — every dojo and all your studios' assets (brand, website, videos, images, finished work) — to a single <b>.dojo</b> file on your disk, and re-open it anywhere. 100% local.</p>
+      <p className="sq-lead">Save your entire workspace, every dojo and all your studios' assets (brand, website, videos, images, finished work), to a single <b>.dojo</b> file on your disk, and re-open it anywhere. 100% local.</p>
       <div className="cc-clip-ops">
         <button onClick={() => void save()} disabled={busy}>{busy ? '…' : '⤓ Save company (.dojo)'}</button>
         <button onClick={() => fileRef.current?.click()} disabled={busy}>⤒ Open a .dojo file</button>
@@ -769,8 +769,8 @@ function BillingTab() {
 
   return (
     <div className="ws-billing">
-      {/* The key comes FIRST. It is the product's actual proposition — your
-          key, your bill, no meter — and it used to sit under a currency picker
+      {/* The key comes FIRST. It is the product's actual proposition: your
+          key, your bill, no meter, and it used to sit under a currency picker
           as though it were a setting. */}
       <ClaudeKeyPanel hasAccount={hasAccount} />
 
@@ -780,20 +780,20 @@ function BillingTab() {
           comes from the plan and is decided by the server. The brake is still
           below, named as what it is. */}
       <div className="set-stats">
-        <div><b>{a ? a.usedRuns : '—'}</b><em>tasks run {period}</em></div>
-        <div><b>{a ? a.leftRuns : '—'}</b><em>left on your plan</em></div>
+        <div><b>{a ? a.usedRuns : ', '}</b><em>tasks run {period}</em></div>
+        <div><b>{a ? a.leftRuns : ', '}</b><em>left on your plan</em></div>
       </div>
       <p className="ws-blurb">
         {a
           ? <>Your plan allows <b>{a.runs.toLocaleString('en-US')}</b> tasks {period}
             {a.shared ? ' across everyone in your company' : ''}. This counter only moves when a run is
-            served on <em>our</em> side — with your own key above, nothing is metered at all.</>
+            served on <em>our</em> side, with your own key above, nothing is metered at all.</>
           : <>This counter only moves when a run is served on <em>our</em> side. With your own key above,
             nothing here is metered at all.</>}
       </p>
       <p className="ws-blurb">
         Separately, you have asked us to stop after <b>{brake}</b> tasks a day as your own brake.
-        Change it in Settings — it never raises what your plan allows, only lowers it.
+        Change it in Settings: it never raises what your plan allows, only lowers it.
       </p>
 
       <h3>Currency</h3>
@@ -812,7 +812,7 @@ function BillingTab() {
       <PlanCards hasAccount={hasAccount} org={org} />
       <p className="ws-blurb">
         A task is one teammate doing one step. On <b>Founder</b> your tasks run on your own Claude key
-        and Anthropic bills you directly — that plan costs Dojoburo nothing to serve.
+        and Anthropic bills you directly, that plan costs Dojoburo nothing to serve.
       </p>
       {/* Juste ici, parce que c'est ici qu'on hésite · au-dessus des cartes la
           question ne s'est pas encore posée, plus bas elle a été tranchée. */}
@@ -902,7 +902,7 @@ function PlanCards({ hasAccount, org }: { hasAccount: boolean; org: OrgSnapshot 
       </div>
       {current?.status === 'past_due' && (
         <p className="ws-blurb ws-paynote">
-          <b>A payment did not go through.</b> Your plan is still running — Stripe will try the card
+          <b>A payment did not go through.</b> Your plan is still running: Stripe will try the card
           again. Nothing stops until it gives up.
         </p>
       )}
@@ -941,7 +941,7 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
     if (r.ok) {
       setKey('')
       setMsg(r.verified
-        ? { tone: 'ok', text: '✓ Key saved and tested against Anthropic — it works. Your runs are billed to your own account from now on.' }
+        ? { tone: 'ok', text: '✓ Key saved and tested against Anthropic, it works. Your runs are billed to your own account from now on.' }
         : { tone: 'warn', text: '◦ Key saved, but we could not reach Anthropic just now to test it. It is stored encrypted; if it turns out to be wrong, a run will say so.' })
       return
     }
@@ -950,7 +950,7 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
       text: r.error === 'bad_key'
         ? 'That doesn’t look like a Claude key (starts with sk-ant-…). Nothing was saved.'
         : r.error === 'key_rejected'
-          ? '✕ Anthropic refused that key. It is well-formed but revoked, mistyped, or from another console. Nothing was saved — copy it again from console.anthropic.com.'
+          ? '✕ Anthropic refused that key. It is well-formed but revoked, mistyped, or from another console. Nothing was saved: copy it again from console.anthropic.com.'
           : r.error === 'no_backend'
             ? 'Connections backend not configured on this deployment.'
             : 'Could not save the key.',
@@ -963,7 +963,7 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
       <p className="ws-blurb">
         This is how DojoBuro is meant to be used. Add <strong>your own</strong> Anthropic key and your
         teammates run on it: <strong>unlimited runs</strong>, any model you like, and Anthropic bills
-        you directly for exactly what you used. We never put a meter between you and your own work —
+        you directly for exactly what you used. We never put a meter between you and your own work , 
         you are paying us for the teams, the plans and the connectors, not for tokens.
       </p>
       <p className="ws-blurb">
@@ -1018,15 +1018,15 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
 function KeyOrManagedFaq() {
   const qa: [string, React.ReactNode][] = [
     ['I don’t have an Anthropic key. Can I still use this?',
-      <>Yes — take <b>Managed</b>. We run your teammates on our own capacity, you pay one monthly
+      <>Yes: take <b>Managed</b>. We run your teammates on our own capacity, you pay one monthly
         price and never touch an API console. This is the right answer for most people.</>],
     ['I already have a key. What do I get for using it?',
-      <>Take <b>Founder</b>. Your runs are <b>not metered</b> — no task allowance, any model you like —
+      <>Take <b>Founder</b>. Your runs are <b>not metered</b>, no task allowance, any model you like , 
         and Anthropic bills you directly for exactly what you used. You pay us for the teams, the
         plans and the connectors, never for tokens.</>],
     ['Where does my key actually go?',
       <>Sealed with <b>AES-256-GCM</b> before it touches the database, decrypted only in memory for
-        the duration of one run, and never returned by any endpoint — the app can only ever show you
+        the duration of one run, and never returned by any endpoint: the app can only ever show you
         its last four characters. We test it once against Anthropic when you paste it, then never
         read it again except to do your work.</>],
     ['Can I switch later?',

@@ -298,6 +298,14 @@ const body = await p.innerText('body')
 const emoji = body.match(/\p{Extended_Pictographic}/gu)
 ok('no emoji in the UI', !emoji, emoji ? [...new Set(emoji)].join(' ') : '')
 
+// ---- ni un seul tiret cadratin -----------------------------------------
+// check-dashes lit la SOURCE ; ceci lit ce qui est réellement à l'écran, qui
+// est ce que la consigne visait. Les deux sont utiles : la source attrape un
+// texte qu'aucun test ne visite, l'écran attrape un tiret qu'un composant
+// fabrique à l'exécution, en concaténant deux morceaux propres.
+const dashes = body.match(/\u2014| \u2013 /g)
+ok('no em dash in the UI', !dashes, dashes ? `${dashes.length} on screen` : '')
+
 report()
 await b.close()
 process.exit(out.some((l) => l.startsWith('FAIL')) ? 1 : 0)

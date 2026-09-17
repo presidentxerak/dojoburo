@@ -145,7 +145,7 @@ export function operatorSteps(c: Connector): GuideStep[] {
     steps.push({
       n: 2,
       title: 'Set the redirect URI',
-      body: `Add ${REDIRECT_URI} as an authorized REDIRECT / callback URL — exactly that, with https and no trailing slash. Careful: several consoles (Google's especially) show two lists on the same screen. "Authorized JavaScript origins" takes an origin with NO path and will reject this one; the whole flow is server-side, so you can leave that list empty, or put ${SITE_ORIGIN} in it. The full URL above belongs in "Authorized redirect URIs", further down the page.`,
+      body: `Add ${REDIRECT_URI} as an authorized REDIRECT / callback URL, exactly that, with https and no trailing slash. Careful: several consoles (Google's especially) show two lists on the same screen. "Authorized JavaScript origins" takes an origin with NO path and will reject this one; the whole flow is server-side, so you can leave that list empty, or put ${SITE_ORIGIN} in it. The full URL above belongs in "Authorized redirect URIs", further down the page.`,
     })
   }
   steps.push({
@@ -157,7 +157,7 @@ export function operatorSteps(c: Connector): GuideStep[] {
   steps.push({
     n: steps.length + 1,
     title: 'Add the keys to your environment',
-    body: `In Vercel: your project → Settings → Environment Variables → Add New, scope each one to Production and Preview, then Save. Set ${envList}. These are server-side only — never prefix them VITE_, which would compile them into the browser bundle where anyone can read them.`,
+    body: `In Vercel: your project → Settings → Environment Variables → Add New, scope each one to Production and Preview, then Save. Set ${envList}. These are server-side only, never prefix them VITE_, which would compile them into the browser bundle where anyone can read them.`,
   })
   steps.push({
     n: steps.length + 1,

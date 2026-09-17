@@ -120,7 +120,7 @@ export function AgentContext({ dojoId, roleId, agentName }: { dojoId: string; ro
           <strong>How {agentName} works
             <InfoDot title={`How ${agentName} works`} label="What this changes">
               <p>This is the brief <b>{agentName}</b> follows on every task: what they are here to do, how they work step by step, and what they must never do.</p>
-              <p>Change anything here and it takes effect on their next piece of work. Nothing is permanent — you can always put them back to how they started.</p>
+              <p>Change anything here and it takes effect on their next piece of work. Nothing is permanent: you can always put them back to how they started.</p>
             </InfoDot>
           </strong>
           <span className="agx-h-sub">{filled} of {SHEET_FIELDS.length} parts written</span>

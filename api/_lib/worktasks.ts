@@ -89,9 +89,9 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
     id: 'ads',
     title: 'Meta ad creatives',
     usesConnectors: ['meta'],
-    system: 'You are a Meta (Facebook/Instagram) paid-social performance marketer. We only run Meta ads — never Google/YouTube/other networks. Produce ready-to-run Meta ad creatives in Markdown.',
+    system: 'You are a Meta (Facebook/Instagram) paid-social performance marketer. We only run Meta ads, never Google/YouTube/other networks. Produce ready-to-run Meta ad creatives in Markdown.',
     user: ({ agentName, brief, startup }) =>
-      `${startupLine(startup)} As ${agentName}, create a set of Meta (Facebook + Instagram) ad creatives for: ${brief || 'customer acquisition'}. Meta only — do not mention Google, YouTube or other ad networks. ` +
+      `${startupLine(startup)} As ${agentName}, create a set of Meta (Facebook + Instagram) ad creatives for: ${brief || 'customer acquisition'}. Meta only, do not mention Google, YouTube or other ad networks. ` +
       'Return 5 ad variations, each with: primary text, headline, description, placement (Feed / Reels / Stories), a visual concept (what the image or short video shows), and the target audience (interests + lookalikes). ' +
       'Add a testing plan (what to test first) and a suggested starting daily budget split across the variations. ' +
       'If a Meta Ads tool is connected, create the campaign/ad set/ads as PAUSED drafts in the ad account and report what you created.',
@@ -284,7 +284,7 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
     user: ({ agentName, brief, startup }) =>
       `${startupLine(startup)} As ${agentName}, write the help centre starter set for: ${brief || 'the product'}. ` +
       'Produce 6 articles, each with: the title as the user would search it, the answer in the first two lines, ' +
-      'the steps, and "if that did not work" — never end an article without a next move. ' +
+      'the steps, and "if that did not work", never end an article without a next move. ' +
       'Then list the 5 articles to write next, ordered by how often the question will be asked. ' +
       'If Zendesk or Intercom is connected, create them as drafts.',
   },
@@ -326,7 +326,7 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
       'Cover: invoice timing and terms, accepted methods, what happens on a failed payment day by day (the dunning ladder, with the email at each step), ' +
       'when access is suspended versus cancelled, the refund rule, proration on upgrade and downgrade, ' +
       'VAT/tax handling per region, and who may grant an exception. ' +
-      'Write the failed-payment emails in full — they are read by a customer who thinks they already paid.',
+      'Write the failed-payment emails in full: they are read by a customer who thinks they already paid.',
   },
 
   // Legi · Legal & Docs
@@ -355,7 +355,7 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
       `${startupLine(startup)} As ${agentName}, review: ${brief || 'the contract provided'}. ` +
       'Return a table: clause, what it means in plain language, risk (low/medium/high), and the redline to propose. ' +
       'Then: the 3 clauses to fight for, the ones to concede, and the questions to ask before signing. ' +
-      'If you were not given the contract text, say so and ask for it — do not review a contract you cannot read.',
+      'If you were not given the contract text, say so and ask for it: do not review a contract you cannot read.',
   },
 
   // Sentinel · Security Guardian
@@ -456,7 +456,7 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
       `${startupLine(startup)} As ${agentName}, build the deck for: ${brief || 'a seed fundraising pitch'}. ` +
       'For each of 12 slides: the headline as a full sentence stating the point, the supporting content, what is ON the slide visually, ' +
       'and what is said out loud but not written. ' +
-      'Then: the one slide the whole deck rests on, and the three questions it invites — with the answer to each. ' +
+      'Then: the one slide the whole deck rests on, and the three questions it invites, with the answer to each. ' +
       'Leave numbers you were not given as [FIGURE NEEDED]; a made-up metric in a fundraising deck is a serious problem.',
   },
   {
@@ -512,7 +512,7 @@ const MARKDOWN_TASKS: Omit<ServerWorkTask, 'format'>[] = [
       'Four blocks: before (tests, migrations, feature flags, rollback rehearsed), during (order of operations, who watches what), ' +
       'after (the 4 signals to check in the first 30 minutes and the threshold that means roll back), ' +
       'and the rollback procedure written as commands, not intentions. ' +
-      'Add the go/no-go criteria — the conditions under which this release does not ship today. ' +
+      'Add the go/no-go criteria: the conditions under which this release does not ship today. ' +
       'If GitHub is connected, check the open PRs and flag anything unmerged that the release assumes.',
   },
 ]

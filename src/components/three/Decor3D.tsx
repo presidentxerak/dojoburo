@@ -45,7 +45,7 @@ function RoomDressing({ P, decor, enclosed }: { P: DojoPalette; decor: string; e
           Maintenant que tous les mondes ont un sol de tatami, ses nattes font
           déjà ce travail : elles donnent la trame et l'échelle. Un tapis
           par-dessus, et de surcroît bordé de la couleur d'accent, traversait
-          les nattes de quatre bandes mauves — on le voyait sur téléphone, et
+          les nattes de quatre bandes mauves: on le voyait sur téléphone, et
           c'est le contraire d'une salle de dojo.
 
           Reste un seul liseré, très pâle, qui marque l'aire de travail sans
@@ -107,7 +107,7 @@ function RoomDressing({ P, decor, enclosed }: { P: DojoPalette; decor: string; e
 
       {/* PAS DE SUSPENSIONS.
           Trois lampes pendaient au bout d'un câble de 1,2 unité, à hauteur
-          de mur — donc EN PLEIN DANS LE CADRE. La caméra plonge dans la
+          de mur: donc EN PLEIN DANS LE CADRE. La caméra plonge dans la
           pièce depuis le haut : tout ce qui est accroché en hauteur passe
           devant la scène au lieu de l'éclairer visuellement. Elles gênaient,
           on les retire.
@@ -141,7 +141,7 @@ function RoomDressing({ P, decor, enclosed }: { P: DojoPalette; decor: string; e
 
       {/* PAS DE PLAFOND, et c'est un choix. La caméra regarde la salle PAR
           LE DESSUS, comme une maison de poupée : un plafond et ses poutres
-          se placent entre elle et l'équipe. Essayé, vu à la capture — deux
+          se placent entre elle et l'équipe. Essayé, vu à la capture: deux
           barres brunes en travers de l'image, pile à hauteur de tête. Une
           pièce ouverte sur le dessus n'est pas un oubli, c'est la seule
           forme qui se regarde depuis cet angle. */}
@@ -1302,7 +1302,7 @@ function StartupDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
       {/* accent area rug under the team */}
       {/* Un tapis de treize sur huit dans la couleur d'accent PURE : c'est la
           plus grande surface de la pièce après le sol, et elle criait. Teinte
-          rabattue de moitié, et sans liseré — un Fresnel rasant sur un plan
+          rabattue de moitié, et sans liseré: un Fresnel rasant sur un plan
           horizontal fait un halo à l'horizon (piège n° 4 du kit). */}
       {/* le grand tapis d'accent est retiré · treize sur huit posés sur du
           tatami, c'était la nappe qui cachait la natte */}
@@ -1436,7 +1436,7 @@ function LabDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
       )))}
       {/* La paillasse courait sur six unités au MILIEU du fond : la place du
           maître, et le passage du coursier. Elle a filé dans l'angle gauche,
-          raccourcie à quatre — elle y tient sans mordre sur la porte. */}
+          raccourcie à quatre: elle y tient sans mordre sur la porte. */}
       <group position={[-7.6, 0, backZ + 1.5]}>
         <B p={[0, 0.95, 0]} s={[4, 0.12, 0.9]} c="#dfeaee" />
         {[-1.5, -1.05, -0.6].map((x, i) => (
@@ -1626,7 +1626,7 @@ function CastleDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
       {/* Le tapis rouge descendait l'axe de la salle et ne menait nulle part.
           Il s'aligne maintenant sur l'estrade : il part des pieds du maître
           et court jusqu'au devant de la scène. Un tapis rouge est un
-          chemin — encore faut-il qu'il aille quelque part. */}
+          chemin: encore faut-il qu'il aille quelque part. */}
       <mesh position={[DAIS.x, 0.03, 1.9]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[3, 11.6]} />
         <Mat color="#8e2436" roughness={0.9} />
@@ -1667,7 +1667,7 @@ function CastleDecor({ backZ, P }: { backZ: number; P: DojoPalette }) {
           <Glow p={[0, 0.5, 0.2]} r={0.09} c="#ffd070" i={1} />
         </group>
       )))}
-      {/* Le trône occupait exactement la place du maître — c'était d'ailleurs
+      {/* Le trône occupait exactement la place du maître: c'était d'ailleurs
           le seul monde qui avait déjà compris ce qu'il fallait mettre au
           fond. Il cède l'axe à l'estrade et s'installe dans l'angle gauche,
           où il reste ce qu'il est : un siège vide, et une histoire. */}
@@ -2221,7 +2221,7 @@ function DojoShell({ P, w, d, h }: { P: DojoPalette; w: number; d: number; h: nu
           centrale est donc une VRAIE ouverture : le mur est coupé en deux
           jambages et un linteau, l'encadrement est plus épais que la charpente
           courante, et deux vantaux coulissants restent entrouverts sur un
-          couloir sombre — une porte fermée ne raconte rien. C'est par là
+          couloir sombre: une porte fermée ne raconte rien. C'est par là
           qu'entre le coursier (voir Courier3D). */}
       {/* Les deux jambages n'ont PAS la même longueur : la porte est décalée,
           donc il reste plus de mur d'un côté que de l'autre. Les faire égaux
@@ -2340,7 +2340,7 @@ export function Decor3D({ palette, decor, enclosed, stations }: { palette: DojoP
             />
           </mesh>
           {/* La grille disait l'échelle tant que le sol était un aplat. Maintenant
-              que le sol porte sa propre trame, elle ne fait que la rayer — on la
+              que le sol porte sa propre trame, elle ne fait que la rayer: on la
               garde uniquement là où il n'y a pas de texture. */}
           {decor !== 'backrooms' && !floorTexture(decor, P.ground) && <gridHelper args={[ROOM.w, 8, P.grid, P.grid]} position={[0, 0.02, 0]} />}
           {decor === 'backrooms' ? (

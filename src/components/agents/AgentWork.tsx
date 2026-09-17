@@ -120,10 +120,10 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
                   {/* Ce qui se passe pendant l'attente, dit une fois pour
                       toutes : la séquence est vraie, la position dedans n'est
                       pas observée, donc on ne la prétend pas. Passé 45 s on
-                      ajoute la seule chose qu'on sache de plus — que c'est plus
+                      ajoute la seule chose qu'on sache de plus: que c'est plus
                       long que d'habitude et que rien n'est perdu. */}
                   <em>{busy
-                    ? <>{agent.name} is drafting, then checking their own work before handing it back{usable.length > 0 ? <>, acting in {usable.map((id) => CONNECTOR_BY_ID[id]?.label ?? id).join(', ')}</> : ''}.{elapsed > 45 ? ' Longer than usual — still running, nothing is lost.' : ' Usually under a minute.'}</>
+                    ? <>{agent.name} is drafting, then checking their own work before handing it back{usable.length > 0 ? <>, acting in {usable.map((id) => CONNECTOR_BY_ID[id]?.label ?? id).join(', ')}</> : ''}.{elapsed > 45 ? ' Longer than usual, still running, nothing is lost.' : ' Usually under a minute.'}</>
                     : t.blurb}</em>
                   {!busy && usable.length > 0 && <span className="agw-acts">acts in {usable.map((id) => CONNECTOR_BY_ID[id]?.label ?? id).join(', ')}</span>}
                 </span>
@@ -135,8 +135,8 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
       </ul>
 
       {/* Tout ce que le serveur peut répondre, dit en français d'humain.
-          Deux codes réalistes — « rate » quand on relance trop vite, « auth »
-          quand la session a expiré — s'affichaient TELS QUELS : « That didn't
+          Deux codes réalistes: « rate » quand on relance trop vite, « auth »
+          quand la session a expiré, s'affichaient TELS QUELS : « That didn't
           go through: rate ». Un identifiant à l'écran ne dit ni ce qui s'est
           passé, ni quoi faire ; et ce sont précisément les deux qu'un
           utilisateur normal rencontre. Le reste ne vient que d'un client
@@ -149,20 +149,20 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
             : runError.code === 'needs_key'
               ? <>No model is set up on this deployment yet. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button>.</>
               : runError.code === 'rate'
-                ? <>That was a lot of runs in a row. Give it a minute and ask again — nothing was lost.</>
+                ? <>That was a lot of runs in a row. Give it a minute and ask again: nothing was lost.</>
                 : runError.code === 'auth'
                   ? <>Your session has expired. Sign in again (Account tab) and this will work.</>
                   : runError.code === 'busy'
                     ? <>{agent.name} is already working on something. Let that one land first.</>
                     : runError.code === 'unknown_task'
-                      ? <>This deployment doesn’t know that task yet — it may be running an older version.</>
+                      ? <>This deployment doesn’t know that task yet: it may be running an older version.</>
                       : <>That didn’t go through. {runError.detail || 'Try again; if it keeps happening, the deployment logs will say why.'}</>}
         </p>
       )}
 
       {/* Les règles permanentes · ce qu'on n'a plus à réexpliquer.
           Sans elles, la même correction est retapée à chaque lancement, et au
-          quatrième jour on corrige le texte à la main plutôt que la consigne —
+          quatrième jour on corrige le texte à la main plutôt que la consigne , 
           c'est le moment où l'agent cesse de faire gagner du temps. */}
       <div className="agw-rules">
         <span className="agw-apps-h">
@@ -312,13 +312,13 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
           // combien de temps cela prend, et ce qu'il en ressort.
           <div className="agw-empty">
             <p>
-              <b>{agent.name} hasn’t been asked for anything yet.</b> Pick a task above —
+              <b>{agent.name} hasn’t been asked for anything yet.</b> Pick a task above , 
               {tasks[0] ? <> <em>{tasks[0].label}</em> is where most people start.</> : ' any of them.'}
             </p>
             <p className="agw-empty-how">
               A run takes about half a minute. {agent.name} drafts it, then checks their own work
               against what that deliverable is supposed to contain and fixes it once before handing
-              it back. Everything they produce stays here — openable, exportable, re-runnable.
+              it back. Everything they produce stays here: openable, exportable, re-runnable.
             </p>
           </div>
         ) : (

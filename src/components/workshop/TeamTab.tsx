@@ -99,7 +99,7 @@ export function TeamTab() {
     const why = view.error === 'no_backend'
       ? 'This install keeps every company in your own browser. Sharing one with a colleague needs the hosted version.'
       : view.error === 'auth'
-        ? 'Sign in to share this company. Until you do, everything you build stays in this browser — which is fine on your own, and no use to a colleague.'
+        ? 'Sign in to share this company. Until you do, everything you build stays in this browser, which is fine on your own, and no use to a colleague.'
         : 'Could not reach your company just now. Your work is safe in this browser and will send when the connection is back.'
     return (
       <div className="team-wrap">
@@ -122,7 +122,7 @@ export function TeamTab() {
       {/* the surface's own header already says "Your company" · not twice */}
       <p className="team-lead">
         Everyone here shares the same companies, the same teammates and the same work. Your browser keeps
-        its own copy, so the app stays fast and keeps working offline — it is simply no longer the only one.
+        its own copy, so the app stays fast and keeps working offline: it is simply no longer the only one.
       </p>
 
       {/* ---- the name ---- */}
@@ -159,7 +159,7 @@ export function TeamTab() {
           <b>Changed by someone else while you were working</b>
           <p>
             Your company now shows their version, because that is what everyone else sees. Yours is kept
-            here so nothing is lost — open the item and put back anything you still want.
+            here so nothing is lost: open the item and put back anything you still want.
           </p>
           <ul>
             {conflicts.map((c) => <li key={c.key}><code>{c.key}</code></li>)}
@@ -171,7 +171,7 @@ export function TeamTab() {
         <div className="team-conflicts">
           <b>{rejected.length === 1 ? 'One item' : `${rejected.length} items`} could not be sent to your company</b>
           <p>
-            Everything else is saved — {rejected.length === 1 ? 'this one is' : 'these are'} kept in this browser.
+            Everything else is saved, {rejected.length === 1 ? 'this one is' : 'these are'} kept in this browser.
             The usual cause is size: an item above the server’s limit is refused whole. Split it, or remove
             what it carries that does not need to travel.
           </p>

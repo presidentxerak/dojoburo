@@ -39,6 +39,10 @@ const effort = await load('src/data/effort.ts')
 const pos = await load('src/data/positioning.ts')
 // le catalogue de la bibliothèque · pour que sa taille annoncée soit la vraie
 const lib = await load('src/data/library.ts')
+// LES DOUZE AGENTS de la salle de classe · le centre de formation les annonce
+// dans son sous-titre, dans son en-tête, sur la page /build et dans le prompt
+// du robot de support. Quatre copies d'un même nombre.
+const uc = await load('src/data/agentUseCases.ts')
 
 const F = {
   crew: roles.COMPANY_IDS.length,
@@ -52,6 +56,8 @@ const F = {
   lessons: academy.LESSON_COUNT,
   tracks: academy.TRACKS.length,
   hours: Math.round((academy.TOTAL_MINUTES / 60) * 10) / 10,
+  useCases: uc.USE_CASE_COUNT,
+  courses: pos.COURSE_COUNT,
 }
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
   'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty']
@@ -121,6 +127,16 @@ const NEVER = [
   // La règle vise la PROMESSE, pas le mot : la page de sobriété doit pouvoir
   // dire qu'elle ne mesure pas le carbone, et nommer qui le fait.
   { re: /in grams of CO₂e|in grams of CO2e/i, why: 'we count tokens · carbon is Nekomai’s job, and the page says so' },
+  // LE NOMBRE DE PILIERS, écrit en toutes lettres. Il a été « quatre » dans
+  // l'en-tête, dans la page d'accueil et dans le prompt du robot pendant que
+  // la liste en contenait cinq. Un compte écrit à la main est un compte qui
+  // se périme au premier ajout, et celui-ci se périme dans la phrase la plus
+  // lue du site.
+  { re: /(four|FOUR) pillars/i, why: 'the count comes from PILLARS.length · never typed' },
+  // LE DOJO COMME USINE. Il est devenu un centre de formation : on n'y fait
+  // plus produire une équipe, on y apprend à fabriquer un agent puis on
+  // l'emporte. Ces phrases ont été vraies et reviendraient d'elles-mêmes.
+  { re: /run your business for you|agents that work for you/i, why: 'the dojo teaches · nothing here works for anyone' },
 ]
 
 const RULES = [
@@ -178,12 +194,34 @@ const RULES = [
   // elle change à un seul endroit et la garde suit, au lieu d'échouer en
   // exigeant l'ancienne.
   { file: 'index.html', must: pos.PROMISE, why: `the meta description must carry the promise: "${pos.PROMISE}"` },
-  { file: 'src/Landing.tsx', must: /\{PROMISE_LEAD\} — <span className="hl-acid">\{PROMISE_HL\}<\/span>/, why: 'the hero must RENDER the promise, not retype it' },
+  // Le SÉPARATEUR est lu lui aussi · il était écrit « — » dans cette règle et
+  // dans le titre, et le jour où la promesse est passée à la virgule les deux
+  // ont menti ensemble sans que rien n'échoue. Le titre pose maintenant les
+  // deux moitiés ET le séparateur, tous les trois importés.
+  { file: 'src/Landing.tsx', must: /\{PROMISE_LEAD\}\{PROMISE_SEP\}<span className="hl-acid">\{PROMISE_HL\}<\/span>/, why: 'the hero must RENDER the promise, separator included, not retype it' },
   { file: 'src/Landing.tsx', must: /\{SUBTITLE\}/, why: 'the hero subtitle comes from positioning.ts too' },
   { file: 'src/Landing.tsx', must: /NOT_THIS/, why: 'the landing must say in plain words what the product no longer does' },
   // les quatre piliers sont la carte du produit · l'en-tête et l'accueil les
   // lisent au même endroit, sinon la navigation et la page se contredisent
-  { file: 'src/components/SiteHeader.tsx', must: /PILLARS/, why: 'the header navigation is the four pillars, read from positioning.ts' },
+  { file: 'src/components/SiteHeader.tsx', must: /PILLARS/, why: 'the header navigation is the pillars, read from positioning.ts' },
+  // LE CENTRE DE FORMATION · trois cours, douze agents, et un maître qui tient
+  // la progression. Chacun de ces trois faits est écrit sur plusieurs surfaces
+  // et n'est vérifié nulle part ailleurs.
+  { file: 'src/data/positioning.ts', must: "path: '/build'", why: 'the build pillar points at the real page' },
+  { file: 'src/data/positioning.ts', must: /COURSE_PILLARS/, why: 'the three courses are named once, as pillars' },
+  { file: 'src/data/positioning.ts', forbid: /twelve agents/i, why: 'the count is derived from USE_CASE_COUNT, never written' },
+  { file: 'src/main.tsx', must: /path === '\/build'/, why: 'the dojo classroom needs a route, or the pillar leads nowhere' },
+  { file: 'src/main.tsx', must: /\^\\\/build\\\//, why: 'each use case needs its own address, or none of the twelve is shareable' },
+  { file: 'scripts/gen-seo.mjs', must: /USE_CASES/, why: 'the sitemap must carry the agent pages, or nothing indexes them' },
+  { file: 'src/dojo/BuildAgent.tsx', must: /masterSays/, why: 'the master greets, and that is the first thing the page does' },
+  { file: 'src/dojo/BuildAgent.tsx', must: /DIPLOMAS/, why: 'the master hands out the diplomas, on the page he teaches on' },
+  { file: 'src/dojo/diplomas.ts', must: /USE_CASE_COUNT/, why: 'a diploma threshold above the number of agents can never be earned' },
+  { file: 'src/lib/agentExport.ts', must: /SKILL\.md/, why: 'prompts, briefs and skills must all leave the dojo as files' },
+  // En chiffres ou en toutes lettres · le prompt du robot est de la prose, et
+  // « twelve agents » y est plus juste que « 12 agents ». Ce qui compte est
+  // que ce soit LE nombre, pas celui d'il y a deux lots.
+  { file: 'api/chat.ts', must: new RegExp(`(${F.useCases}|${WORDS[F.useCases]}) agents`, 'i'), why: `the bot must know the room holds ${F.useCases} agents` },
+  { file: 'api/chat.ts', must: /THREE COURSES/, why: 'the bot must describe a training centre, not a platform' },
   // …et la bibliothèque a une vraie adresse maintenant qu'elle existe
   { file: 'src/data/positioning.ts', must: "path: '/library'", why: 'the library pillar points at the real page' },
   { file: 'src/Landing.tsx', must: /ENTRY_COUNT/, why: 'the landing reads the catalogue size from the catalogue, not from a number' },

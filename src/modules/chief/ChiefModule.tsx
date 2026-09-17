@@ -135,9 +135,9 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
         <div className="composer-lead">
           <span className="sq-eyebrow">Ask Chief
             <InfoDot title="Command Center" label="How Chief works">
-              <p>Chief is your CEO. Type a priority (e.g. “launch our first ad campaign”) and hit <b>Send</b> — Chief plans it and delegates to the right specialists.</p>
+              <p>Chief is your CEO. Type a priority (e.g. “launch our first ad campaign”) and hit <b>Send</b>: Chief plans it and delegates to the right specialists.</p>
               <p><b>Launch Chief</b> runs the whole company build end-to-end (brand → site → offer → ads → outreach). <b>Slack</b> posts your note to the team channel when Slack is connected.</p>
-              <p>The tiles above are live company KPIs; the grid below is your team — click any agent to open its studio.</p>
+              <p>The tiles above are live company KPIs; the grid below is your team: click any agent to open its studio.</p>
             </InfoDot>
           </span>
         </div>
@@ -178,7 +178,7 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
         <h3 className="sq-title">Your team
           <InfoDot title="Your team" label="How the team works">
             <p>Your company runs on 12 AI specialists. Click a card to open that agent's studio and do real work.</p>
-            <p>Hover a card and hit <b>×</b> to <b>hide</b> an agent you don't need — it leaves the dojo and reappears as a dotted <b>“Show agent”</b> slot you can restore anytime.</p>
+            <p>Hover a card and hit <b>×</b> to <b>hide</b> an agent you don't need: it leaves the dojo and reappears as a dotted <b>“Show agent”</b> slot you can restore anytime.</p>
             <p>Reorder them on the dojo grid from the CEO dashboard's <b>Arrange on grid</b>.</p>
           </InfoDot>
         </h3>

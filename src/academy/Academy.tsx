@@ -80,11 +80,11 @@ function Bar({ done, total }: { done: number; total: number }) {
 // ---------------------------------------------------------------------------
 
 const FAQ: [string, string][] = [
-  ['Is the Dojo Academy free?', 'Yes — every lesson, in full, with no account required. Progress is saved in your browser so you can pick up where you left off.'],
+  ['Is the Dojo Academy free?', 'Yes: every lesson, in full, with no account required. Progress is saved in your browser so you can pick up where you left off.'],
   ['Do I need to know how to code?', 'No. Nothing in the Academy or the app involves code, a terminal or an IDE. If those words mean nothing to you, lesson six explains them and then you can forget them.'],
-  ['What is an AI agent?', 'An AI given a job it is responsible for, a method it follows every time, and tools it can actually use — as opposed to a chat window that only answers questions.'],
+  ['What is an AI agent?', 'An AI given a job it is responsible for, a method it follows every time, and tools it can actually use, as opposed to a chat window that only answers questions.'],
   ['How long does the whole course take?', `About ${HOURS} hours across ${LESSON_COUNT} lessons, and it is built to be read a lesson at a time rather than in one sitting.`],
-  ['Do I need to pay to use what I learn?', 'No. Building a project, reading every team card and connecting apps are all free. Only running work costs credits — roughly one credit a step — and it costs nothing at all if you bring your own Claude key.'],
+  ['Do I need to pay to use what I learn?', 'No. Building a project, reading every team card and connecting apps are all free. Only running work costs credits, roughly one credit a step, and it costs nothing at all if you bring your own Claude key.'],
 ]
 
 export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
@@ -139,7 +139,7 @@ export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
     <Shell inApp={inApp}>
       <section className="lp-hero ac-hero">
         <span className="ac-kicker">Dojo Academy</span>
-        <h1>Learn how AI agents <span className="hl-acid">actually work</span> — from zero.</h1>
+        <h1>Learn how AI agents <span className="hl-acid">actually work</span>: from zero.</h1>
         <p className="lp-sub">
           Not documentation. A course. It starts at <b>“what is an agent”</b>, ends at <b>a system of teams
           running your work</b>, and assumes you have never heard of vibe coding, an IDE or a coding agent.
@@ -159,7 +159,7 @@ export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
       <section className="lp-sec" id="tracks">
         <h2>The curriculum</h2>
         <p className="lp-lead">
-          Five tracks, in order. Each one stands on its own, so you can jump to what you need —
+          Five tracks, in order. Each one stands on its own, so you can jump to what you need , 
           but if you are new, start at the top and work down.
         </p>
         <div className="ac-tracks">
@@ -218,7 +218,7 @@ export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
           ))}
         </div>
         <p className="lp-note" style={{ marginTop: 18 }}>
-          Looking for the step-by-step setup pages for a specific app — Gmail, Notion, Stripe? Those live in the{' '}
+          Looking for the step-by-step setup pages for a specific app: Gmail, Notion, Stripe? Those live in the{' '}
           <a className="linklike" href="/guide">app setup guide</a>.
         </p>
       </section>

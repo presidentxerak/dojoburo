@@ -18,7 +18,7 @@
       `media="print"` la retire du chemin critique ; boot.js la remet pour
       l'écran dès qu'elle arrive. L'attribut `onload="…"` qu'on écrirait
       naturellement ici est refusé par la politique de sécurité du site
-      (`script-src 'self'`, sans `'unsafe-inline'`) — et refusé en silence, ce
+      (`script-src 'self'`, sans `'unsafe-inline'`) et refusé en silence, ce
       qui laisserait le site sans sa typographie. `<noscript>` garde le chemin
       normal pour qui n'exécute pas de JavaScript.
     -->
@@ -32,20 +32,20 @@
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     </noscript>
     <link rel="canonical" href="https://www.dojoburo.com/" />
-    <meta name="description" content="Learn to build AI agents — and to run them cheap. A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where those tokens go, and how to cut them." />
-    <title>DojoBuro · Learn to build AI agents — and to run them cheap</title>
+    <meta name="description" content="Learn to build AI agents, and to run them cheap. A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where those tokens go, and how to cut them." />
+    <title>DojoBuro · Learn to build AI agents, and to run them cheap</title>
     <!-- Open Graph / social + search preview -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DojoBuro" />
-    <meta property="og:title" content="DojoBuro · Learn to build AI agents — and to run them cheap" />
-    <meta property="og:description" content="Learn to build AI agents — and to run them cheap. A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where those tokens go, and how to cut them." />
+    <meta property="og:title" content="DojoBuro · Learn to build AI agents, and to run them cheap" />
+    <meta property="og:description" content="Learn to build AI agents, and to run them cheap. A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where those tokens go, and how to cut them." />
     <meta property="og:url" content="https://www.dojoburo.com/" />
     <meta property="og:image" content="https://www.dojoburo.com/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="DojoBuro · Learn to build AI agents — and to run them cheap" />
-    <meta name="twitter:description" content="Learn to build AI agents — and to run them cheap. A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where those tokens go, and how to cut them." />
+    <meta name="twitter:title" content="DojoBuro · Learn to build AI agents, and to run them cheap" />
+    <meta name="twitter:description" content="Learn to build AI agents, and to run them cheap. A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where those tokens go, and how to cut them." />
     <meta name="twitter:image" content="https://www.dojoburo.com/og.png" />
     <!--
       Le thème et la police, posés AVANT le premier pixel · public/boot.js.
@@ -53,7 +53,7 @@
       Ce code était ÉCRIT ICI, en ligne. La politique de sécurité du site dit
       `script-src 'self'` sans `'unsafe-inline'` : le navigateur refusait donc
       de l'exécuter en production, sans que rien ne casse visiblement. Un
-      fichier servi depuis la même origine passe — c'est la seule différence, et
+      fichier servi depuis la même origine passe ; c'est la seule différence, et
       elle décide si ce code tourne.
 
       Synchrone, et dans le <head> : c'est ce qui le fait tourner avant que la
