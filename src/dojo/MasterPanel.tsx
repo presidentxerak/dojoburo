@@ -15,6 +15,9 @@ import { BauhausIcon } from '../components/BauhausIcon'
 import { useProgress } from '../academy/progress'
 import { masterAdvice } from './masterProgress'
 import { DIPLOMAS, diplomaFor } from './diplomas'
+import { GRADES, gradeFor, BADGES, AGENT_BADGES, badgesFor } from './grades'
+import { USE_CASES } from '../data/agentUseCases'
+import { AGENT_TRACK } from './masterProgress'
 
 export function MasterPanel({ here }: {
   /** le cours qu'on est en train de suivre · il est mis en avant, et son lien
@@ -25,6 +28,11 @@ export function MasterPanel({ here }: {
   const courses = p.courses
   const dip = diplomaFor(courses)
   const advice = masterAdvice(courses)
+  // Les agents TERMINÉS, par identifiant · les badges d'agent en ont besoin
+  // nommément, pas seulement d'un compte.
+  const built = USE_CASES.filter((u) => u.steps.every((_, i) => p.isDone(AGENT_TRACK, `${u.id}/${i}`))).map((u) => u.id)
+  const grade = gradeFor(built.length)
+  const badges = badgesFor(courses, built)
 
   return (
     <section className="lp-sec alt mp">
@@ -54,6 +62,50 @@ export function MasterPanel({ here }: {
         })}
       </div>
 
+      {/* LE GRADE · une ceinture, et ce qu'il reste pour la suivante. Elle ne
+          se donne pas au temps passé : chaque cran demande des parcours
+          ENTIERS, ce qui est beaucoup plus rare que des étapes. */}
+      <div className="mp-belt" style={{ ['--bt' as string]: grade.now.tint }}>
+        <span className="mp-belt-r" />
+        <div>
+          <b>{grade.now.title}</b>
+          <span>{grade.now.means}</span>
+          {grade.next && (
+            <em>{grade.toGo} more {grade.toGo === 1 ? 'agent' : 'agents'} for the {grade.next.title.toLowerCase()}.</em>
+          )}
+        </div>
+      </div>
+
+      {/* L'ÉCHELLE ENTIÈRE · on voit où l'on va, pas seulement où l'on est. Un
+          grade affiché seul ne dit pas s'il en reste un ou cinq. */}
+      <ol className="mp-ladder">
+        {GRADES.map((g) => (
+          <li key={g.id} className={g.id === grade.now.id ? 'on' : built.length >= g.agents ? 'past' : ''}>
+            <i style={{ ['--bt' as string]: g.tint }} />
+            <b>{g.title.replace(' belt', '')}</b>
+            <span>{g.agents === 0 ? 'to start' : `${g.agents} agents`}</span>
+          </li>
+        ))}
+      </ol>
+
+      {/* LES BADGES · un par chose fabriquée. Ceux des agents sont dérivés des
+          cas d'usage : écrire douze entrées à la main pour répéter un nom déjà
+          écrit ailleurs, c'est douze occasions de diverger. */}
+      <h3 className="mp-h3">Badges</h3>
+      <div className="mp-badges">
+        {[...BADGES, ...AGENT_BADGES].map((b) => {
+          const got = badges.earned.includes(b.id)
+          return (
+            <div className={`mp-badge${got ? ' on' : ''}`} key={b.id} title={b.how}>
+              <BauhausIcon name={b.icon} size={16} />
+              <b>{b.title}</b>
+              <span>{b.how}</span>
+            </div>
+          )
+        })}
+      </div>
+
+      <h3 className="mp-h3">Diplomas</h3>
       <div className="mp-dips">
         {DIPLOMAS.map((d) => {
           const got = dip.earned.includes(d.id)

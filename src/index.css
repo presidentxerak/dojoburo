@@ -144,6 +144,13 @@ a:hover { text-decoration: underline; }
 .tag3d span { font-size: 14px; color: #111; }
 .tag3d.sel { color: #000; font-weight: 800; }
 .tag3d.hero { color: #000; font-weight: 800; }
+/* DANS LA SALLE DE CLASSE, l'étiquette s'efface. Douze noms posés sur une
+   pièce vue de haut restent douze obstacles entre l'oeil et le décor, même
+   courts. Ils sont donc plus petits, plus clairs, et celui qu'on survole ou
+   qu'on a choisi reprend son plein contraste : on lit celui qui compte, et le
+   reste redevient du fond. */
+.cls-scene .tag3d { font-size: 12px; font-weight: 600; color: #4a4a52; text-shadow: 0 0 4px #fff, 0 0 8px #fff; }
+.cls-scene .tag3d.sel { color: #000; font-weight: 800; font-size: 13px; }
 .work3d { width: 15px; height: 15px; border: 1px solid var(--blue); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
 .bubble3d {
   font-family: var(--font-read); font-size: 16px; line-height: 1.3; max-width: 150px; text-align: center;
@@ -7965,6 +7972,263 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   padding: 0; border: 0; background: none; font: inherit; color: var(--violet);
   text-decoration: underline; cursor: pointer;
 }
+
+/* ==================================================================
+   LA SALLE PLEIN ÉCRAN, ET LA FICHE PAR-DESSUS
+   ================================================================== */
+
+/* Le dojo occupait un bandeau de 56 % de la hauteur avec de l'article en
+   dessous : on voyait une vignette de dojo, pas une salle. Il prend l'écran
+   maintenant, et tout le reste arrive par-dessus. `dvh` et non `vh` : sur un
+   téléphone, `vh` compte la barre d'adresse qui se rétracte, donc la scène
+   dépassait de soixante pixels et le bas était coupé. */
+.cls-full { position: relative; height: 100dvh; min-height: 460px; }
+.cls-full .cls-scene { height: 100%; min-height: 0; max-height: none; border-bottom: 0; }
+
+/* L'invite · posée en bas à gauche, sur la scène, dans une carte de verre.
+   Elle ne barre pas la salle : un bandeau plein cadre, c'est exactement ce
+   qu'on vient de retirer au-dessus des personnages. */
+.cls-hint {
+  position: absolute; left: 24px; bottom: 26px; max-width: 420px; text-align: left;
+  background: color-mix(in srgb, var(--panel-solid) 88%, transparent);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px 20px; backdrop-filter: blur(8px); box-shadow: var(--shadow);
+}
+.cls-hint h1 { font-size: 26px; margin: 10px 0 8px; }
+.cls-hint p { font-size: 15px; line-height: 1.55; color: var(--muted); margin: 0; }
+.cls-hint-go {
+  margin-top: 12px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  background: none; border: 0; color: var(--violet); text-decoration: underline; padding: 0;
+}
+@media (max-width: 720px) {
+  .cls-full { height: 78dvh; }
+  .cls-hint { left: 12px; right: 12px; bottom: 14px; max-width: none; padding: 14px 15px; }
+  .cls-hint h1 { font-size: 21px; }
+}
+
+/* LA FICHE · plein écran, par-dessus la salle. Elle tenait dans un encart sous
+   le dojo, ce qui donnait un cours lu par la fenêtre. */
+.ag {
+  position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column;
+  background: var(--bg); animation: agIn 0.2s ease-out;
+}
+@keyframes agIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.ag-bar {
+  display: flex; align-items: center; gap: 16px; flex: none;
+  padding: 11px 18px; border-bottom: 1px solid var(--border); background: var(--panel-solid);
+}
+.ag-close {
+  display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer; background: none; border: 1px solid var(--border); border-radius: 999px;
+  padding: 7px 14px; color: var(--ink);
+}
+.ag-close:hover { border-color: var(--border-lit); }
+.ag-prog { display: flex; align-items: center; gap: 10px; margin-left: auto; font-size: 13px; }
+.ag-prog-bar { display: block; width: 130px; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+.ag-prog-bar i { display: block; height: 100%; background: var(--violet); transition: width .25s ease; }
+/* La ceinture · un ruban de la couleur du grade, et son nom. */
+.ag-belt { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
+.ag-belt i { display: block; width: 26px; height: 9px; border-radius: 2px; background: var(--bt); border: 1px solid rgba(0,0,0,0.18); }
+
+.ag-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.ag-sec { max-width: 860px; margin: 0 auto; padding: 30px 20px; text-align: left; }
+.ag-sec + .ag-sec { border-top: 1px solid var(--border); }
+.ag-sec h2 { font-size: 22px; margin: 0 0 10px; }
+.ag-sec h3 { font-size: 16px; margin: 20px 0 7px; }
+.ag-sec h4 { font-size: 14px; margin: 18px 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.ag-lead { font-size: 15.5px; line-height: 1.6; color: var(--muted); max-width: 720px; }
+.ag-kick { font-size: 14px; color: var(--violet); font-weight: 700; }
+.ag-top h1 { font-size: 34px; margin: 6px 0 12px; }
+.ag-plain { font-size: 18px; line-height: 1.6; max-width: 720px; }
+.ag-like { font-size: 15.5px; line-height: 1.6; color: var(--muted); max-width: 720px; margin-top: 12px; }
+.ag-two { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top: 8px; }
+.ag-need ul { list-style: none; padding: 0; margin: 0; }
+.ag-need li { display: flex; gap: 9px; align-items: flex-start; font-size: 14.5px; line-height: 1.5; padding: 6px 0; }
+.ag-need li .bh-icon { margin-top: 3px; color: var(--muted); }
+.ag-words dl { margin: 0; }
+.ag-words div { padding: 7px 0; border-bottom: 1px solid var(--border); }
+.ag-words div:last-child { border-bottom: 0; }
+.ag-words dt { font-family: var(--font-pixel); font-weight: 800; font-size: 14px; }
+.ag-words dd { margin: 2px 0 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.ag-hardlong { font-size: 16.5px; line-height: 1.65; max-width: 760px; }
+.ag-fail, .ag-for { font-size: 15px; line-height: 1.6; color: var(--muted); max-width: 760px; }
+
+/* UNE ÉTAPE · elle porte sa scène, son explication, l'exemple raté et le
+   réussi. C'est long, et c'est voulu : la version courte n'apprenait rien. */
+.ag-step {
+  border: 1px solid var(--border); border-left: 3px solid var(--border);
+  border-radius: var(--radius); padding: 18px; margin-top: 16px; background: var(--panel-solid);
+}
+.ag-step.on { border-left-color: var(--violet); }
+.ag-step-h { display: flex; gap: 13px; align-items: flex-start; }
+.ag-step-h h3 { margin: 0; font-size: 17px; }
+.ag-step-n {
+  display: grid; place-items: center; width: 28px; height: 28px; flex: none;
+  border-radius: 50%; border: 1px solid var(--border); font-weight: 800; font-size: 14px;
+}
+.ag-step.on .ag-step-n { background: var(--violet); border-color: var(--violet); color: #fff; }
+.ag-makes { font-size: 14px; color: var(--muted); }
+.ag-why { font-size: 15px; line-height: 1.6; margin-top: 14px; }
+.ag-how { margin: 0; padding-left: 20px; }
+.ag-how li { font-size: 14.5px; line-height: 1.55; padding: 4px 0; }
+.ag-vs { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.ag-vs-bad, .ag-vs-good { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.ag-vs-bad { border-left: 3px solid #d1495b; }
+.ag-vs-good { border-left: 3px solid #2fa84f; }
+.ag-vs p { margin: 6px 0 0; font-size: 14.5px; line-height: 1.55; font-family: var(--font-read); }
+.ag-vs-tag { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; }
+.ag-note { font-size: 14.5px; line-height: 1.6; margin-top: 12px; }
+.ag-check { font-size: 14.5px; line-height: 1.6; font-style: italic; color: var(--muted); margin-top: 14px; }
+.ag-tick {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 12px;
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  background: none; border: 1px solid var(--border); border-radius: 999px; padding: 9px 16px; color: var(--ink);
+}
+.ag-tick[aria-pressed='true'] { border-color: var(--violet); color: var(--violet); }
+/* LA RÉCOMPENSE · elle nomme ce qu'on vient d'acquérir. `fresh` la fait
+   apparaître au moment du clic, une fois, sans boucler : une animation qui
+   tourne en permanence sous un paragraphe finit par se lire comme du bruit. */
+.ag-reward {
+  display: flex; gap: 10px; align-items: flex-start; margin-top: 13px;
+  padding: 12px 14px; border-radius: 10px; font-size: 14.5px; line-height: 1.55;
+  background: color-mix(in srgb, var(--violet) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--violet) 26%, transparent);
+}
+.ag-reward .bh-icon { color: var(--violet); margin-top: 2px; }
+.ag-reward.fresh { animation: agPop 0.45s ease-out; }
+@keyframes agPop { from { transform: scale(0.94); opacity: 0; } to { transform: none; opacity: 1; } }
+.ag-field { display: flex; flex-direction: column; gap: 5px; margin-top: 14px; }
+.ag-field span { font-size: 13px; font-weight: 700; color: var(--muted); }
+.ag-field input, .ag-field textarea {
+  font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: 10px; background: var(--bg); color: var(--ink); width: 100%;
+}
+.ag-field textarea { font-family: var(--font-mono); font-size: 13px; line-height: 1.55; resize: vertical; }
+.ag-done { text-align: center; }
+.ag-done .bh-icon { color: var(--violet); }
+.ag-done h2 { margin-top: 10px; }
+.ag-done .ag-lead { margin: 0 auto 16px; }
+
+/* ==================================================================
+   LES SCÈNES DU TUTORIEL · voir dojo/StepStage
+   ================================================================== */
+.sst { margin: 16px 0 4px; }
+.sst-box {
+  min-height: 150px; display: grid; place-items: center; padding: 16px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--bg);
+}
+.sst-cap { font-size: 13px; color: var(--muted); text-align: center; margin: 7px 0 0; font-style: italic; }
+.sst-swap { position: relative; width: 100%; max-width: 420px; min-height: 108px; }
+.sst-card {
+  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 5px; justify-content: center;
+  padding: 13px 15px; border-radius: 10px; border: 1px solid var(--border);
+  transition: opacity .45s ease, transform .45s ease; text-align: center;
+}
+.sst-card.off { opacity: 0; transform: translateY(6px); }
+.sst-card.on { opacity: 1; transform: none; }
+.sst-card.bad { border-left: 3px solid #d1495b; }
+.sst-card.good { border-left: 3px solid #2fa84f; }
+.sst-card b { font-family: var(--font-read); font-size: 15px; }
+.sst-card em { font-size: 12.5px; color: var(--muted); font-style: normal; }
+.sst-tagline { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; }
+.sst-gate { width: 100%; max-width: 400px; }
+.sst-rule {
+  display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700;
+  color: #d1495b; margin-bottom: 10px;
+}
+.sst-items { list-style: none; padding: 0; margin: 0; }
+.sst-items li {
+  display: flex; align-items: center; gap: 9px; padding: 7px 10px; margin-bottom: 5px;
+  border: 1px solid var(--border); border-radius: 8px; font-size: 13.5px;
+  opacity: 0.45; transition: opacity .3s ease, border-color .3s ease;
+}
+.sst-items li.pass { opacity: 1; border-color: #2fa84f; }
+.sst-items li.stop { opacity: 1; border-color: #d1495b; text-decoration: line-through; color: var(--muted); }
+.sst-doc { width: 100%; max-width: 400px; }
+.sst-line { display: block; height: 7px; border-radius: 4px; background: var(--border); margin-bottom: 7px; }
+.sst-line.w80 { width: 80%; } .sst-line.w95 { width: 95%; } .sst-line.w60 { width: 60%; }
+.sst-hole {
+  margin-top: 10px; padding: 10px 12px; border-radius: 8px; border: 1px dashed var(--border);
+  opacity: 0; transform: translateY(-4px); transition: opacity .4s ease, transform .4s ease;
+}
+.sst-hole.on { opacity: 1; transform: none; border-style: solid; border-color: #d1495b; }
+.sst-hole b { display: block; font-size: 13px; }
+.sst-hole span { font-size: 12.5px; color: var(--muted); }
+.sst-verdict { display: block; margin-top: 9px; font-size: 12.5px; font-style: normal; color: var(--muted); }
+.sst-verdict.bad { color: #d1495b; font-weight: 700; }
+.sst-rings { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 360px; }
+.sst-ring {
+  display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-radius: 8px;
+  border: 1px solid var(--border); font-size: 13px; opacity: 0.5; transition: opacity .3s ease;
+}
+.sst-ring.on { opacity: 1; }
+.sst-ring.never { border-color: #d1495b; }
+.sst-ring.write { border-color: #e0a800; }
+.sst-ring.read { border-color: #2fa84f; }
+.sst-ring span { color: var(--muted); }
+.sst-bars { position: relative; width: 100%; max-width: 380px; min-height: 108px; }
+.sst-avg, .sst-split { position: absolute; inset: 0; transition: opacity .45s ease; display: grid; place-content: center; }
+.sst-avg.off, .sst-split.off { opacity: 0; pointer-events: none; }
+.sst-avg b { font-size: 40px; font-family: var(--font-pixel); }
+.sst-avg span { font-size: 13px; color: var(--muted); }
+.sst-split { display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.sst-bar { display: grid; grid-template-columns: 66px 1fr 40px; align-items: center; gap: 9px; font-size: 12.5px; }
+.sst-bar-r { display: block; height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.sst-bar-r i { display: block; height: 100%; background: #2fa84f; }
+.sst-bar-r i.bad { background: #d1495b; }
+.sst-trap { position: relative; width: 100%; max-width: 400px; min-height: 112px; }
+.sst-in {
+  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 6px; justify-content: center;
+  padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
+  transition: opacity .45s ease; text-align: center;
+}
+.sst-in.off { opacity: 0; }
+.sst-in b { font-size: 14px; }
+.sst-out { display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 13px; }
+.sst-out.good { color: #2fa84f; }
+.sst-in em { font-size: 12.5px; color: var(--muted); font-style: normal; }
+
+/* LE GRADE, L'ÉCHELLE ET LES BADGES · dans le tableau du maître. */
+.mp-belt {
+  display: flex; gap: 14px; align-items: flex-start; max-width: 760px; margin: 20px auto 0;
+  padding: 15px 18px; text-align: left;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel-solid);
+}
+.mp-belt-r { flex: none; width: 46px; height: 15px; border-radius: 3px; background: var(--bt); border: 1px solid rgba(0,0,0,0.2); margin-top: 3px; }
+.mp-belt b { display: block; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; }
+.mp-belt span { display: block; font-size: 14px; line-height: 1.55; color: var(--muted); margin-top: 2px; }
+.mp-belt em { display: block; font-style: normal; font-size: 13.5px; font-weight: 700; color: var(--violet); margin-top: 6px; }
+
+/* L'échelle · elle montre ce qui reste, ce qui est pris, et où l'on est. Un
+   grade affiché seul ne dit pas s'il en reste un ou cinq. */
+.mp-ladder {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; list-style: none;
+  padding: 0; margin: 12px auto 0; max-width: 760px;
+}
+.mp-ladder li {
+  display: flex; align-items: center; gap: 7px; padding: 7px 11px; border-radius: 999px;
+  border: 1px solid var(--border); font-size: 12.5px; color: var(--muted); opacity: 0.6;
+}
+.mp-ladder li.past { opacity: 1; }
+.mp-ladder li.on { opacity: 1; border-color: var(--violet); color: var(--ink); font-weight: 700; }
+.mp-ladder i { display: block; width: 16px; height: 7px; border-radius: 2px; background: var(--bt); border: 1px solid rgba(0,0,0,0.2); }
+.mp-ladder b { font-family: var(--font-pixel); font-weight: 800; }
+
+.mp-h3 { font-size: 15px; margin: 26px 0 0; }
+.mp-badges {
+  display: grid; gap: 9px; max-width: 900px; margin: 12px auto 0;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+.mp-badge {
+  display: grid; grid-template-columns: auto 1fr; gap: 3px 8px; align-items: start;
+  padding: 11px 12px; border: 1px solid var(--border); border-radius: 10px;
+  text-align: left; opacity: 0.5;
+}
+.mp-badge.on { opacity: 1; border-color: var(--violet); }
+.mp-badge .bh-icon { grid-row: span 2; margin-top: 2px; color: var(--muted); }
+.mp-badge.on .bh-icon { color: var(--violet); }
+.mp-badge b { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; }
+.mp-badge span { font-size: 12px; line-height: 1.45; color: var(--muted); }
 
 .lp-courses {
   display: grid; gap: 14px; max-width: 1040px; margin: 24px auto 0;

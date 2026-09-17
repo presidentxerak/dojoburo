@@ -86,7 +86,20 @@ export function ClassScene({ chosen, onChoose, says }: {
               busy={chosen === u.id}
               selected={chosen === u.id}
               name={u.name}
-              title={u.shape}
+              // L'ÉTIQUETTE PORTE LE NOM, pas la forme.
+              //
+              // Elle portait `u.shape`, c'est à dire une phrase entière (« Read
+              // a lot, come back with the part that matters »). Douze phrases
+              // posées à plat au dessus de douze personnages, sur une salle
+              // large de dix mètres vue de haut, se chevauchaient et se
+              // coupaient les unes les autres : on ne lisait plus une seule
+              // étiquette, et on ne voyait plus la salle non plus.
+              //
+              // La forme du problème est écrite sur la carte, où il y a la
+              // place de la lire. Au dessus de la tête il ne reste que le nom,
+              // qui tient en deux mots et sert seulement à savoir sur qui on
+              // s'apprête à cliquer.
+              title={u.name}
               level={1}
               onSelect={() => onChoose(u.id)}
             />

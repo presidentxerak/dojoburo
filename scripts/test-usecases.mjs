@@ -217,7 +217,91 @@ ok('les cours sont des piliers', P.COURSES.every((c) => P.PILLARS.includes(c)))
 // que la page d'accueil contredira.
 ok('pas de seconde liste de cours', U.COURSES === undefined)
 
-/* --- 6 · la page dit ce que les données contiennent ----------------------- */
+/* --- 6 · le cours pour débutant est complet ------------------------------- */
+
+const LS = await load('src/data/agentLessons.ts', 'lessons.mjs')
+const { LESSONS, USE_CASES_WITHOUT_LESSON, LESSONS_WITHOUT_USE_CASE } = LS
+
+// LE TROU QUI NE SE VOIT PAS. La fiche s'affiche même sans leçon : le titre
+// d'étape est là, l'animation ne l'est pas, et le « A à Z » promis est une
+// case vide. Douze agents annoncés avec un cours dont l'un serait muet, c'est
+// exactement le genre de chose qu'on découvre par un visiteur.
+ok('chaque agent a son cours de débutant', USE_CASES_WITHOUT_LESSON.length === 0, USE_CASES_WITHOUT_LESSON.join(', '))
+ok('aucun cours orphelin', LESSONS_WITHOUT_USE_CASE.length === 0, LESSONS_WITHOUT_USE_CASE.join(', '))
+
+const STAGES = new Set(['define', 'constrain', 'expose', 'test', 'measure', 'bound'])
+for (const u of USE_CASES) {
+  const L = LESSONS[u.id]
+  if (!L) continue
+  const P = L.primer
+  // LE PRÉAMBULE · il existe pour quelqu'un qui n'a jamais rien construit.
+  // Sans jargon veut dire sans jargon : une phrase d'explication qui emploie
+  // le mot qu'elle devait expliquer n'explique rien.
+  ok(`${u.id} · une phrase sans jargon`, typeof P.plain === 'string' && P.plain.length > 60)
+  ok(`${u.id} · une comparaison connue`, typeof P.like === 'string' && P.like.length > 40)
+  ok(`${u.id} · ce qu'il faut avoir sous la main`, Array.isArray(P.need) && P.need.length >= 2)
+  ok(`${u.id} · les mots de métier sont traduits`, Array.isArray(P.words) && P.words.length >= 2)
+  ok(`${u.id} · autant de leçons que d'étapes`, L.steps.length === u.steps.length, `${L.steps.length}/${u.steps.length}`)
+
+  for (const [i, sl] of L.steps.entries()) {
+    const tag = `${u.id}/${i + 1}`
+    ok(`${tag} · pourquoi l'étape existe`, typeof sl.why === 'string' && sl.why.length > 60)
+    ok(`${tag} · des gestes concrets`, Array.isArray(sl.how) && sl.how.length >= 2)
+    // L'EXEMPLE RATÉ EST LA MOITIÉ QUI APPREND · montrer une bonne réponse
+    // enseigne à la reconnaître, la mettre à côté de la mauvaise enseigne à
+    // la produire. Une paire dont les deux moitiés sont identiques n'enseigne
+    // rien du tout, et c'est ce qui arrive quand on remplit vite.
+    ok(`${tag} · un exemple raté ET un réussi`, !!sl.bad && !!sl.good && sl.bad !== sl.good)
+    ok(`${tag} · la différence est nommée`, typeof sl.note === 'string' && sl.note.length > 30)
+    ok(`${tag} · une scène qui existe`, STAGES.has(sl.stage), sl.stage)
+    // LA RÉCOMPENSE NOMME CE QU'ON VIENT D'ACQUÉRIR · « bravo » ne récompense
+    // rien, et on cesse de le lire à la deuxième occurrence.
+    ok(`${tag} · le maître dit quelque chose`, typeof sl.reward === 'string' && sl.reward.length > 25)
+    ok(`${tag} · …et ce n'est pas une flatterie vide`, !/^(well done|great|nice|congratulations|bravo)\b/i.test(sl.reward))
+  }
+}
+
+// Les six scènes du tutoriel sont TOUTES employées · une scène dessinée que
+// rien n'utilise est du code mort avec une animation dedans.
+const used = new Set(Object.values(LESSONS).flatMap((L) => L.steps.map((x) => x.stage)))
+ok('chaque scène du tutoriel sert', [...STAGES].every((x) => used.has(x)), [...STAGES].filter((x) => !used.has(x)).join(', '))
+const stage = readFileSync('src/dojo/StepStage.tsx', 'utf8')
+ok('…et chacune est dessinée', [...STAGES].every((x) => new RegExp(`\\b${x}:`).test(stage)))
+
+/* --- 7 · les grades et les badges ---------------------------------------- */
+
+const G = await load('src/dojo/grades.ts', 'grades.mjs')
+const { GRADES, gradeFor, BADGES, AGENT_BADGES, badgesFor } = G
+
+ok('une échelle de grades', GRADES.length >= 4, `${GRADES.length}`)
+// Une ceinture s'obtient par des parcours ENTIERS. Un grade qu'on décroche en
+// cochant trois cases éparses est un grade que personne ne respecte.
+ok('le premier grade ne demande rien', GRADES[0].agents === 0)
+ok('les seuils montent', GRADES.every((g, i) => i === 0 || g.agents > GRADES[i - 1].agents))
+ok('le dernier grade demande toute la salle', GRADES[GRADES.length - 1].agents === USE_CASE_COUNT)
+ok('aucun grade hors d\'atteinte', GRADES.every((g) => g.agents <= USE_CASE_COUNT))
+ok('à zéro agent on porte la première ceinture', gradeFor(0).now.id === GRADES[0].id)
+ok('…et la suivante est nommée', gradeFor(0).next?.id === GRADES[1].id && gradeFor(0).toGo > 0)
+ok('tout terminé, plus de suivante', gradeFor(USE_CASE_COUNT).next === null)
+// Le piège du « premier trouvé » · une recherche naïve rendrait la ceinture
+// blanche à quelqu'un qui a fini la salle entière, puisque son seuil est
+// atteint lui aussi.
+ok('le grade est le PLUS HAUT atteint', gradeFor(USE_CASE_COUNT).now.id === GRADES[GRADES.length - 1].id)
+
+ok('des badges hors agents', BADGES.length >= 5, `${BADGES.length}`)
+ok('un badge par agent', AGENT_BADGES.length === USE_CASE_COUNT)
+ok('aucun identifiant de badge en double',
+  new Set([...BADGES, ...AGENT_BADGES].map((b) => b.id)).size === BADGES.length + AGENT_BADGES.length)
+ok('chaque badge dit comment on l\'obtient', [...BADGES, ...AGENT_BADGES].every((b) => b.how && b.how.length > 20))
+ok('rien n\'est acquis à vide', badgesFor(readProgress([]), []).earned.length === 0)
+ok('tout terminé décerne tout',
+  badgesFor(readProgress(everything), USE_CASES.map((u) => u.id)).earned.length === BADGES.length + AGENT_BADGES.length)
+// Un agent terminé donne SON badge, et pas celui d'un autre.
+const one = badgesFor(readProgress(agentKeys(USE_CASES[0])), [USE_CASES[0].id]).earned
+ok('un agent terminé donne son badge', one.includes(`agent-${USE_CASES[0].id}`))
+ok('…et pas celui du voisin', !one.includes(`agent-${USE_CASES[1].id}`))
+
+/* --- 8 · la page dit ce que les données contiennent ----------------------- */
 
 const page = readFileSync('src/dojo/BuildAgent.tsx', 'utf8')
 ok('la page ne code pas le nombre d\'agents en dur', !/\b(twelve|12)\s+agents/i.test(page.replace(/^\/\/.*$/gm, '')))

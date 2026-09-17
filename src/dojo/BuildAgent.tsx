@@ -13,18 +13,16 @@
 // Ce qu'on emporte à la fin n'est pas un score : c'est un fichier. Voir
 // lib/agentExport, qui rend cinq formats dont aucun n'appartient à un
 // fournisseur.
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { SiteHeader } from '../components/SiteHeader'
 import { SupportBot } from '../components/SupportBot'
 import { useHeadTags } from '../lib/headTags'
 import { ClassScene } from './ClassScene'
 import { USE_CASES, USE_CASE_BY_ID, USE_CASE_COUNT, type UseCase } from '../data/agentUseCases'
-import { markDone, clearDone, useProgress } from '../academy/progress'
-import { FORMATS, render, downloadAgent, copyAgent, type BuiltAgent, type ExportFormat } from '../lib/agentExport'
-import { estimateTokens } from '../agents/sandbox'
+import { useProgress } from '../academy/progress'
+import { AgentCard } from './AgentCard'
 import { MasterPanel } from './MasterPanel'
 import { AGENT_TRACK } from './masterProgress'
-import { BauhausIcon } from '../components/BauhausIcon'
 import { SiteFooter } from '../components/SiteFooter'
 
 /* ------------------------------------------------------------------ */
@@ -48,49 +46,14 @@ function masterSays(chosen: UseCase | null, done: number, total: number): string
 /* Le brouillon d'agent                                                */
 /* ------------------------------------------------------------------ */
 
-/** Le point de départ, écrit depuis le cas d'usage. Ce n'est pas un modèle
- *  vide : une page blanche est la raison numéro un pour laquelle personne ne
- *  finit un exercice. C'est un brouillon DÉJÀ FAUX par endroits, que le
- *  parcours apprend à corriger. */
-function scaffold(u: UseCase): BuiltAgent {
-  return {
-    slug: `${u.id}-agent`,
-    name: u.name,
-    shape: u.shape,
-    system: [
-      `You are ${u.name}.`,
-      '',
-      `Your job: ${u.does}`,
-      '',
-      '## Never',
-      '- Never state something you cannot point at.',
-      '- Never fill a gap with something plausible.',
-      '',
-      '## Always',
-      ...u.steps.map((s) => `- ${s.makes.charAt(0).toUpperCase()}${s.makes.slice(1)}.`),
-      '',
-      '## When you cannot',
-      'Say so, and say what you would need. Do not produce a best guess dressed as an answer.',
-    ].join('\n'),
-    tools: [],
-    notes: '',
-  }
-}
-
 /* ------------------------------------------------------------------ */
 
 export function BuildAgentPage({ slug }: { slug?: string }) {
   const [chosenId, setChosenId] = useState<string | null>(slug ?? null)
   const chosen = chosenId ? USE_CASE_BY_ID[chosenId] ?? null : null
   const progress = useProgress()
-  const [draft, setDraft] = useState<BuiltAgent | null>(null)
-  const [fmt, setFmt] = useState<ExportFormat>('brief')
-  const [copied, setCopied] = useState(false)
-
-  // Changer d'agent remet le brouillon à son point de départ. Garder le
-  // précédent donnerait la consigne d'un agent de recherche sous le nom d'un
-  // agent de tri, ce qui est la façon la plus discrète de tout casser.
-  useEffect(() => { setDraft(chosen ? scaffold(chosen) : null) }, [chosenId])
+  // La liste en repli · fermée par défaut, voir le commentaire à son rendu.
+  const [listOpen, setListOpen] = useState(false)
 
   // La progression passe par le MÊME magasin que l'académie · un second
   // magasin pour « les étapes d'agent » aurait donné deux barres de
@@ -119,25 +82,31 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
     <div className="landing dg2 ac cls">
       <SiteHeader />
 
-      {/* LA SALLE · elle est en haut, plein cadre, avant tout texte. On entre
-          dans un lieu, on n'ouvre pas un chapitre. */}
-      <ClassScene chosen={chosenId} onChoose={setChosenId} says={says} />
-
-      <section className="lp-sec ac-hero cls-head">
-        <span className="lp-pill">{USE_CASE_COUNT} agents · each one a different way of failing</span>
-        <h1>{chosen ? chosen.name : 'Which agent do you need?'}</h1>
-        <p className="lp-lead">
-          {chosen
-            ? chosen.does
-            : 'They are asleep because none of them exists yet. Pick the shape of problem you actually have, and that one wakes up. A research agent and a sorting agent do not fail the same way, so they are not taught the same way.'}
-        </p>
-        {chosen && (
-          <button className="cls-back" onClick={() => setChosenId(null)}>Back to all {USE_CASE_COUNT}</button>
+      {/* LA SALLE, PLEIN ÉCRAN. Elle occupait un bandeau de 56 % de la hauteur
+          avec du texte en dessous, donc on voyait une vignette de dojo et un
+          article. On entre dans un LIEU : il prend l'écran, et tout le reste
+          arrive par-dessus quand on a choisi quelqu'un. */}
+      <div className="cls-full">
+        <ClassScene chosen={chosenId} onChoose={setChosenId} says={says} />
+        {!chosen && (
+          <div className="cls-hint">
+            <span className="lp-pill">{USE_CASE_COUNT} agents · each one a different way of failing</span>
+            <h1>Which agent do you need?</h1>
+            <p>
+              They are asleep because none of them exists yet. Click one and it wakes up. A research agent and
+              a sorting agent do not fail the same way, so they are not taught the same way.
+            </p>
+            <button className="cls-hint-go" onClick={() => setListOpen((v) => !v)}>
+              {listOpen ? 'Hide the list' : 'Show them as a list'}
+            </button>
+          </div>
         )}
-      </section>
+      </div>
 
-      {/* LE CHOIX · douze cartes, une par personnage de la salle. */}
-      {!chosen && (
+      {/* LA LISTE · un repli pour qui préfère lire douze lignes plutôt que de
+          survoler douze silhouettes. Elle est FERMÉE par défaut : ouverte, elle
+          redevient le catalogue que la salle remplace. */}
+      {!chosen && listOpen && (
         <section className="lp-sec">
           <div className="cls-grid">
             {USE_CASES.map((u) => {
@@ -157,95 +126,11 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
         </section>
       )}
 
-      {/* LE PARCOURS · quatre étapes, chacune produisant quelque chose. */}
-      {chosen && draft && (
-        <>
-          <section className="lp-sec alt cls-body">
-            <h2>What is hard about it</h2>
-            <p className="cls-hardlong">{chosen.hard}</p>
-            <p className="cls-fail"><b>How it fails.</b> {chosen.failure}</p>
-            <p className="cls-for"><b>Who needs it.</b> {chosen.forWhom}</p>
+      {/* LA FICHE · plein écran par-dessus la salle, et rien d'autre à
+          l'écran. On y lit un cours, pas un encart. */}
+      {chosen && <AgentCard u={chosen} onClose={() => setChosenId(null)} />}
 
-            <h2>The path</h2>
-            <ol className="cls-steps">
-              {chosen.steps.map((s, i) => {
-                const on = stepDone(chosen, i)
-                return (
-                  <li key={s.title} className={on ? 'on' : ''}>
-                    <button
-                      className="cls-step-tick"
-                      aria-pressed={on}
-                      onClick={() => (on ? clearDone(AGENT_TRACK, `${chosen.id}/${i}`) : markDone(AGENT_TRACK, `${chosen.id}/${i}`))}
-                    >
-                      {on ? <BauhausIcon name="check" size={13} /> : String(i + 1)}
-                    </button>
-                    <div>
-                      <b>{s.title}</b>
-                      <span className="cls-makes">Makes: {s.makes}</span>
-                      <span className="cls-check">Before you move on: {s.check}</span>
-                    </div>
-                  </li>
-                )
-              })}
-            </ol>
-          </section>
-
-          {/* L'AGENT · éditable, et exportable à tout moment. On n'attend pas
-              la fin du parcours pour laisser partir le fichier : quelqu'un qui
-              sait déjà ce qu'il fait doit pouvoir prendre le brouillon et s'en
-              aller. */}
-          <section className="lp-sec cls-make">
-            <h2>Your agent</h2>
-            <p className="lp-lead sm">
-              This is a draft, and parts of it are deliberately wrong for your case. The path above is what
-              turns it into yours. It weighs about {estimateTokens(draft.system).toLocaleString('en-US')} tokens
-              as written.
-            </p>
-            <label className="cls-field">
-              <span>Name</span>
-              <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
-            </label>
-            <label className="cls-field">
-              <span>System prompt</span>
-              <textarea
-                rows={14}
-                value={draft.system}
-                onChange={(e) => setDraft({ ...draft, system: e.target.value })}
-              />
-            </label>
-
-            <h3>Take it with you</h3>
-            <div className="cls-fmts">
-              {FORMATS.map((f) => (
-                <button key={f.id} className={fmt === f.id ? 'on' : ''} onClick={() => setFmt(f.id)} title={f.what}>
-                  {f.label}
-                </button>
-              ))}
-            </div>
-            <p className="cls-fmt-what">{FORMATS.find((f) => f.id === fmt)?.what}</p>
-            <pre className="cls-pre"><code>{render(draft, fmt)}</code></pre>
-            <div className="cls-acts">
-              <button className="lp-cta" onClick={() => void copyAgent(draft, fmt).then((k) => { setCopied(k); setTimeout(() => setCopied(false), 1600) })}>
-                {copied ? 'Copied' : 'Copy'}
-              </button>
-              <button className="lp-cta lp-cta-ghost" onClick={() => downloadAgent(draft, fmt)}>Download</button>
-            </div>
-            <p className="cls-note">
-              None of these five formats belongs to a provider. We export the prompt and the schemas, never a
-              snippet of calling code: a code example goes stale with the library it was written against, and a
-              stale example in a course is worse than none at all.
-            </p>
-          </section>
-        </>
-      )}
-
-      {/* LE MAÎTRE TIENT VOTRE PROGRESSION · sur LES TROIS COURS, et pas
-          seulement sur celui-ci. Ce bloc était local à cette page et ne
-          comptait que les agents ; on pouvait finir les vingt leçons et les
-          sept leviers sans que le maître ait quoi que ce soit à dire. Il vit
-          maintenant dans dojo/MasterPanel, qui est le même sur /build,
-          /academy et /frugality. */}
-      <MasterPanel here="build" />
+      {!chosen && <MasterPanel here="build" />}
 
       <SiteFooter />
       <SupportBot />

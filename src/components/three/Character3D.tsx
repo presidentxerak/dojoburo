@@ -109,7 +109,7 @@ function HeadShell({ h, c }: { h: Head; c: string }) {
 
 // A typing arm: pivots at the shoulder, forearm reaches forward-down onto the
 // laptop keyboard and taps; or raises up to wave hello at the Chief.
-function Arm({ side, color, hand, busy, wave }: { side: number; color: string; hand: string; busy: boolean; wave?: boolean }) {
+function Arm({ side, color, hand, busy, wave, asleep }: { side: number; color: string; hand: string; busy: boolean; wave?: boolean; asleep?: boolean }) {
   const g = useRef<THREE.Group>(null)
   const gait = useGait()
   useFrame((state) => {
@@ -117,7 +117,20 @@ function Arm({ side, color, hand, busy, wave }: { side: number; color: string; h
     const t = state.clock.elapsedTime
     const { speed, phase } = gait.current
     const amp = strideAmp(speed)
-    if (wave) {
+    if (asleep) {
+      // LES BRAS PENDENT. Ils n'avaient pas de cas « endormi » : ils gardaient
+      // la pose de repos, qui tend l'avant-bras VERS L'AVANT à hauteur de
+      // poitrine, main à 0,72 sur l'axe Z. Le buste, lui, basculait en avant
+      // pour le sommeil, et ces deux choses ensemble enfonçaient les mains
+      // dans l'ordinateur posé devant.
+      //
+      // Un quart de tour de plus et le bras tombe le long du corps : à
+      // rotation.x = π/2 la main est sous l'épaule, donc à côté du bureau et
+      // non dedans. Le léger écart en Z décolle le coude du flanc, sinon les
+      // deux capsules se pénètrent.
+      g.current.rotation.x += (1.45 - g.current.rotation.x) * 0.08
+      g.current.rotation.z += (side * 0.07 - g.current.rotation.z) * 0.08
+    } else if (wave) {
       // raise the forearm and swing it side to side
       g.current.rotation.x += (-1.4 - g.current.rotation.x) * 0.14
       g.current.rotation.z = side * (0.5 + Math.sin(t * 9) * 0.45)
@@ -756,6 +769,11 @@ export function Character3D({
   const acc = CROWNED.has(job as never) ? null : (forcedAcc ?? accForId(id, character.kind))
   const speaking = banter && banter.who === 'agent' && banter.agentId === id
   const visited = heroTargetId === id // the Chief is hovering above this agent
+  // ENDORMI · lu ici et non seulement dans la boucle d'animation, parce que les
+  // BRAS en ont besoin au moment du rendu : ce sont des composants à part, avec
+  // leur propre boucle, et ils n'ont aucun moyen de connaître l'humeur du
+  // corps auquel ils appartiennent.
+  const asleep = mood === 'sleep'
 
   useFrame((state) => {
     if (!g.current) return
@@ -768,7 +786,6 @@ export function Character3D({
     // la tête. Rien d'autre : un dormeur qui bouge encore comme les autres ne
     // se distingue pas, et c'est justement le contraste avec ceux qui sont
     // éveillés qui donne envie d'en choisir un.
-    const asleep = mood === 'sleep'
 
     // LA MARCHE · le buste, lui aussi. Des jambes qui battent sous un tronc
     // parfaitement immobile, c'est une marionnette sur un rail ; le poids du
@@ -793,8 +810,13 @@ export function Character3D({
     // on se penche dans le sens de la marche · un corps qui avance sans
     // pencher se lit comme un corps qu'on POUSSE
     rotX += 0.11 * amp
-    // l'affaissement du sommeil · le buste part en avant et y reste
-    if (asleep) rotX += 0.22
+    // L'affaissement du sommeil · le buste part en avant et y reste. Il
+    // partait de 0,22, ce qui suffisait à faire traverser le bureau aux mains
+    // même une fois les bras rabattus : un personnage assis a son ordinateur
+    // à trente centimètres devant lui, et chaque radian de bascule s'y voit.
+    // Ce qui fait lire « il dort » n'est pas la bascule mais la tête penchée
+    // sur le côté, qui, elle, ne coûte rien en place.
+    if (asleep) rotX += 0.09
     // LE SALUT · plié en deux vers l'avant, tout le buste. Il vaut par-dessus
     // le reste : on ne respire pas en saluant son maître.
     rotX += gait.current.bow * 0.62
@@ -881,8 +903,8 @@ export function Character3D({
             <Ball p={[0, 1.78, 0]} r={0.14} c={'#fff'} />
             <Ball p={[0, 1.8, 0.1]} r={0.06} c={'#333'} />
             <group position={[0, 0.92, 0]}><Face3D mood={mood} kind={character.kind} z={0.9} size={1.06} halo={character.face} /></group>
-            <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
-            <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} />
+            <Arm side={-1} color={character.face} hand={character.face} busy={busy} asleep={asleep} />
+            <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} asleep={asleep} />
           </group>
         ) : isOcto ? (
           <group position={[0, 0.05, 0]}>
@@ -973,8 +995,8 @@ export function Character3D({
             ))}
             <Ball p={[0, 2.12, 0]} r={0.5} c={character.face} />
             <group position={[0, 2.14, 0]}><Face3D mood={mood} kind={character.kind} z={0.5} size={0.91} halo={character.face} /></group>
-            <Arm side={-1} color={character.face} hand={character.face} busy={busy} />
-            <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} />
+            <Arm side={-1} color={character.face} hand={character.face} busy={busy} asleep={asleep} />
+            <Arm side={1} color={character.face} hand={character.face} busy={busy} wave={visited} asleep={asleep} />
           </group>
         ) : isGeo ? (
           <GeoBody c={character} mood={mood} />
@@ -1045,8 +1067,8 @@ export function Character3D({
               </group>
             )}
             {/* typing arms · the right one waves hello when the Chief drops by */}
-            <Arm side={-1} color={character.outfit} hand={character.face} busy={busy} />
-            <Arm side={1} color={character.outfit} hand={character.face} busy={busy} wave={visited} />
+            <Arm side={-1} color={character.outfit} hand={character.face} busy={busy} asleep={asleep} />
+            <Arm side={1} color={character.outfit} hand={character.face} busy={busy} wave={visited} asleep={asleep} />
           </group>
         )}
       </group>
