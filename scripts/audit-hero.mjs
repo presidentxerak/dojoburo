@@ -19,6 +19,13 @@
 //   npm run preview   puis   node scripts/audit-hero.mjs
 import { chromium } from 'playwright'
 
+// La promesse du produit, LUE et non recopiée · voir le commentaire au point 7.
+const { build: esb } = await import('esbuild')
+const { PROMISE } = await (async () => {
+  const o = await esb({ entryPoints: ['src/data/positioning.ts'], bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent' })
+  return import('data:text/javascript;base64,' + Buffer.from(o.outputFiles[0].text).toString('base64'))
+})()
+
 const B = process.env.BASE || 'http://localhost:4173'
 const b = await chromium.launch({
   executablePath: process.env.CHROMIUM || '/opt/pw-browsers/chromium',
@@ -148,8 +155,16 @@ for (const v of VIEWS) {
     else ok(`${tag} · ${t.sel} contraste ${t.ratio}`)
   }
 
-  // 7 · la copie demandée est bien celle qui s'affiche
-  if (!/Your company, already\s+staffed/i.test(m.h1)) ko(`${tag} · titre inattendu · "${m.h1}"`)
+  // 7 · LA COPIE DEMANDÉE EST BIEN CELLE QUI S'AFFICHE.
+  //
+  // Cette ligne portait la promesse en dur. Le jour où la promesse a changé,
+  // c'est la garde qui a échoué en réclamant l'ancienne — un garde-fou qui
+  // impose une phrase périmée travaille contre le produit. Elle lit
+  // maintenant src/data/positioning.ts, comme check-content : la promesse
+  // vit à un endroit, et tout le monde va la chercher là.
+  const want = PROMISE.replace(/\s+/g, ' ').trim()
+  const got = m.h1.replace(/\s+/g, ' ').trim()
+  if (got !== want) ko(`${tag} · titre inattendu · "${m.h1}" (attendu « ${want} »)`)
   else ok(`${tag} · titre exact`)
 
   await ctx.close()

@@ -72,6 +72,9 @@ export const TOKENS_PER_TOOL = 420
 /* ------------------------------------------------------------------ */
 
 export interface SandboxInput {
+  /** l'IDENTIFIANT de l'étape demandée, pas sa prose · c'est ce que
+   *  `runWork` reçoit, et le confondre avec le texte de la tâche donnait une
+   *  fiche qui citait « market-study » comme si c'était une phrase */
   task: string
   agentName: string
   connectors: string[]
@@ -142,7 +145,7 @@ export function sandboxDeliverable(i: SandboxInput): Deliverable {
     `${TOKENS_PER_TOOL} tokens per tool definition. The real figure depends on the model's own tokeniser. ` +
     'The shape is what matters here — and the shape is almost always the same surprise.',
     '',
-    i.task ? `## The task as written\n\n> ${i.task.slice(0, 600)}${i.task.length > 600 ? '…' : ''}` : '',
+    i.task ? `## The step\n\n\`${i.task}\` — one of the jobs this teammate knows. The instruction behind it travels with the brief above.` : '',
     '',
     '## What to change first',
     '',
@@ -156,7 +159,16 @@ export function sandboxDeliverable(i: SandboxInput): Deliverable {
   ].filter((l) => l !== '').join('\n')
 
   return {
-    taskId: 'sandbox',
+    // L'IDENTIFIANT RÉEL DE L'ÉTAPE, pas la chaîne « sandbox ».
+    //
+    // Il était figé, et cela cassait quelque chose d'invisible depuis ici : le
+    // tableau de bord compte les livrables PAR ÉTAPE pour savoir si un
+    // coéquipier a déjà produit, et remplace sa jauge vide par « première
+    // chose à lui demander » tant qu'il n'a rien fait. Avec un identifiant
+    // constant, aucune carte n'enregistrait jamais rien — tout le dojo restait
+    // à zéro, pour toujours. Trouvé par la garde du navigateur, pas par le
+    // typage : les deux valeurs sont des chaînes.
+    taskId: i.task,
     title: `Cost breakdown · ${i.agentName}`,
     format: 'markdown',
     markdown: md,

@@ -39,7 +39,12 @@ export function Tutorial({ walk = 'overview', autoPlay = false }: { walk?: WalkI
       <div className="tut-bar-row">
         <div className="tut-dots">
           {beats.map((b, n) => (
-            <button key={b.id} className={`tut-dot${n === i ? ' on' : ''}${n < i ? ' past' : ''}`}
+            /* data-beat · l'IDENTITÉ de l'étape, pas son libellé.
+               Les gardes du navigateur désignaient ces points par leur titre,
+               et le repositionnement a réécrit les titres d'un coup : la garde
+               est morte en réclamant un vocabulaire que le produit ne dit plus.
+               L'identifiant, lui, ne change pas quand la prose change. */
+            <button key={b.id} data-beat={b.id} className={`tut-dot${n === i ? ' on' : ''}${n < i ? ' past' : ''}`}
               onClick={() => { setPlaying(false); setI(n) }} aria-label={b.title} title={b.title} />
           ))}
         </div>

@@ -60,9 +60,17 @@ ok('no hamburger anywhere', (await p.locator('.tb-burger').count()) === 0)
 const right = await p.locator('.topbar-right').innerText().catch(() => '')
 ok('no Credits button beside the profile', !/credit/i.test(right), JSON.stringify(right.slice(0, 60)))
 
-// name the company · the create card
+// L'ÉCRAN D'ENTRÉE · il ouvre un dojo d'entraînement, plus une entreprise.
+//
+// Cette ligne exigeait le mot « company » : elle est née d'un vrai défaut —
+// l'accueil disait « project » là où tout le reste du produit disait
+// « company ». Le produit n'offre plus de fonder quoi que ce soit, donc elle
+// réclamait désormais le mot qu'il faut justement éviter. Elle vérifie la
+// même propriété — l'accueil nomme UNE chose et c'est la bonne — avec le mot
+// qui est devenu vrai.
 const createTxt = await p.innerText('body')
-ok('home names a COMPANY, not a project', /company/i.test(createTxt) && !/Create your project/.test(createTxt))
+ok('home opens a practice DOJO, not a company', /dojo/i.test(createTxt) && !/Create your (project|company)/i.test(createTxt),
+  createTxt.slice(0, 60).replace(/\n/g, ' '))
 
 // ---- the menu ---------------------------------------------------------
 await p.locator('.tb-menu-btn').click()

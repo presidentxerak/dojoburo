@@ -42,7 +42,7 @@ ok('…et l’exécution réelle demande un drapeau explicite', S.isLive() === f
 
 console.log('\n--- ce que rend un run ------------------------------------')
 const run = S.sandboxRun({
-  task: 'Write next week’s launch announcement.',
+  task: 'market-study',
   agentName: 'Scribe',
   connectors: ['gmail', 'notion', 'slack'],
   brief: 'You are Scribe. '.repeat(60),
@@ -52,6 +52,10 @@ ok('il répond au lieu d’échouer', run.ok === true)
 ok('aucune application n’a voyagé', run.appsSent === 0)
 ok('aucune consommation n’est rapportée', run.usage === null)
 ok('le moteur dit qu’il n’a rien coûté', /sandbox/i.test(run.deliverable.model), run.deliverable.model)
+// Le livrable doit porter l'identifiant RÉEL de l'étape · le tableau de bord
+// compte par étape pour savoir si un coéquipier a déjà produit. Avec une
+// constante, aucune carte n'enregistrait jamais rien.
+ok('il est rattaché à l’étape demandée', run.deliverable.taskId === 'market-study', run.deliverable.taskId)
 
 const md = run.deliverable.markdown
 ok('la fiche dit que RIEN n’a été envoyé', /nothing was sent/i.test(md))

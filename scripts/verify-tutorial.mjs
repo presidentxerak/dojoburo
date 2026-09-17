@@ -40,13 +40,19 @@ await p.locator('.howto-btn').first().click()
 await p.waitForTimeout(1200)
 
 // the overlay plays whichever walk that button carries · find its beats by name
-const titles = await p.locator('.tutfs-body .tut-dot').evaluateAll((els) => els.map((e) => e.getAttribute('title') || ''))
-const dotFor = (re) => {
-  const i = titles.findIndex((t) => re.test(t))
-  if (i < 0) throw new Error(`no beat matching ${re} in ${JSON.stringify(titles)}`)
+// Les étapes sont désignées par leur IDENTIFIANT (data-beat), pas par leur
+// titre. Elles l'étaient par leur titre, et la réécriture des textes a tué la
+// garde d'un coup — alors que ce qu'elle protège n'a jamais été le
+// vocabulaire, mais le fait que chaque étape dessine sa scène sans déborder.
+const ids = await p.locator('.tutfs-body .tut-dot').evaluateAll((els) => els.map((e) => e.getAttribute('data-beat') || ''))
+const dotFor = (id) => {
+  const i = ids.indexOf(id)
+  if (i < 0) throw new Error(`no beat "${id}" in ${JSON.stringify(ids)}`)
   return p.locator('.tutfs-body .tut-dot').nth(i)
 }
-const PICK = /teams$/i, CREW = /hired|teammates arrive/i, RUN = /Run every step/i
+// Les trois étapes qui portent une SCÈNE · les seules où il y ait quelque
+// chose à mesurer.
+const PICK = 'pick', CREW = 'crew', RUN = 'loop'
 const beats = [PICK, CREW, RUN]
 const shots = ['t-pick.png', 't-crew.png', 't-run.png']
 for (let i = 0; i < beats.length; i++) {
@@ -104,8 +110,9 @@ await m.goto(B + '#guide', { waitUntil: 'networkidle' })
 await m.waitForTimeout(1400)
 await m.locator('.howto-btn').first().click()
 await m.waitForTimeout(1200)
-const mTitles = await m.locator('.tutfs-body .tut-dot').evaluateAll((els) => els.map((e) => e.getAttribute('title') || ''))
-await m.locator('.tutfs-body .tut-dot').nth(mTitles.findIndex((t) => /hired|teammates arrive/i.test(t))).click()
+// par identifiant, ici aussi · voir plus haut
+const mIds = await m.locator('.tutfs-body .tut-dot').evaluateAll((els) => els.map((e) => e.getAttribute('data-beat') || ''))
+await m.locator('.tutfs-body .tut-dot').nth(mIds.indexOf(CREW)).click()
 await m.waitForTimeout(2500)
 await m.screenshot({ path: SHOT + '/t-m-crew.png' })
 ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'mobile: the tutorial does not overflow')

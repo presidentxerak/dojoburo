@@ -112,34 +112,43 @@ if (await openAgent('Scout')) {
   ok('et ce que l’agent fait de son propre travail', /checks their own work/.test(empty),
     'la relecture est réelle · c’est ce que fait agent-run, pas une promesse')
 
-  /* ---- 2 · l'attente pendant un run ------------------------------------- */
+  /* ---- 2 · ce que rend un run, maintenant que le dojo n'exécute plus ----
+     L'ÉCRAN D'ATTENTE A DISPARU, et c'est une conséquence, pas un oubli.
+
+     Ces quatre vérifications exigeaient une horloge qui avance, une phrase
+     qui dit ce qui se passe pendant ce temps, et un compteur qui repart de
+     zéro. Toutes protégeaient la même chose : rassurer quelqu'un qui attend
+     trente secondes qu'un modèle réponde. Le dojo est devenu un bac à sable,
+     il ne demande plus rien à personne, et la réponse est immédiate — il n'y
+     a plus d'attente à rassurer.
+
+     Les remplacer par rien aurait laissé ce chemin sans garde du tout. Elles
+     affirment donc ce qui est vrai à leur place, et c'est une garantie plus
+     forte que l'ancienne : ce qui revient est la FICHE DE COÛT, elle arrive
+     tout de suite, et elle dit noir sur blanc que rien n'est parti. */
   const task = p.locator('.agw-task').first()
   const label = (await task.locator('strong').innerText()).trim()
   await task.click()
-  await p.waitForTimeout(1500)
+  await p.waitForTimeout(2500)
   const t1 = (await p.locator('.agw-task').first().locator('strong').innerText()).trim()
-  ok('un run en cours garde le nom de ce qu’on a demandé', t1.startsWith(label.slice(0, 12)),
+  ok('un run garde le nom de ce qu’on a demandé', t1.startsWith(label.slice(0, 12)),
     `« ${t1} » · « Working… » ne disait plus à quoi on attendait`)
-  ok('et affiche une horloge', /·\s*\d+s$/.test(t1), t1)
+  ok('et il n’affiche AUCUNE horloge', !/·\s*\d+s$/.test(t1),
+    `${t1} · plus rien ne s’exécute, donc il n’y a rien à attendre`)
 
-  const said = (await p.locator('.agw-task').first().locator('em').innerText()).replace(/\n/g, ' ')
-  ok('il dit ce qui se passe pendant ce temps', /drafting, then checking their own work/.test(said),
-    said.slice(0, 70))
-  ok('sans prétendre où il en est', !/(now|currently|step \d)/i.test(said),
-    'la séquence est vraie · la position dedans n’est pas observée, donc pas affirmée')
+  // Ce qui revient · la fiche, pas un faux livrable.
+  const body = await p.innerText('body')
+  ok('le bac à sable rend bien une fiche de coût', /What this run would have sent/i.test(body),
+    body.slice(0, 0) || 'le livrable ouvert après un run')
+  ok('elle dit que rien n’est parti et que rien n’est facturé',
+    /nothing was sent and nothing was charged/i.test(body))
+  ok('elle annonce ses chiffres comme des estimations', /estimates/i.test(body),
+    'un chiffre présenté comme mesuré alors qu’il est estimé est le pire des deux')
 
-  await p.waitForTimeout(3200)
-  const t2 = (await p.locator('.agw-task').first().locator('strong').innerText()).trim()
-  const s1 = Number((t1.match(/(\d+)s$/) || [])[1] ?? -1)
-  const s2 = Number((t2.match(/(\d+)s$/) || [])[1] ?? -1)
-  ok('et l’horloge avance vraiment', s2 > s1, `${s1}s → ${s2}s · un compteur figé ne rassure personne`)
-
-  // Et elle repart de zéro au run suivant · un compteur qui garde la durée du
-  // précédent annonce une attente déjà écoulée.
   hold = false
   await p.waitForTimeout(1500)
   const done = (await p.locator('.agw-task').first().locator('strong').innerText()).trim()
-  ok('une fois fini, l’horloge disparaît', !/\d+s$/.test(done), done)
+  ok('et le nom de l’étape reste propre après coup', !/\d+s$/.test(done), done)
 } else {
   ok('la page d’un coéquipier a été atteinte', false, 'impossible d’ouvrir un agent')
 }
