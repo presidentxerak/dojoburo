@@ -35,7 +35,7 @@ export const PROMISE = `${PROMISE_LEAD} — ${PROMISE_HL}`
  *  endroit, plutôt que de le découvrir après avoir créé un compte. */
 export const SUBTITLE =
   'A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: ' +
-  'what a run actually costs in tokens, in euros and in grams of CO₂e, and how to cut it. ' +
+  'what a run actually costs in tokens and in euros, where those tokens go, and how to cut them. ' +
   'Nothing here runs your business for you — everything here teaches you to build it.'
 
 /** Les quatre piliers · ils structurent l'en-tête, la page d'accueil et le
@@ -81,10 +81,9 @@ export const PILLARS: Pillar[] = [
     nav: 'Frugality',
     title: 'What it costs, and how to cut it',
     blurb:
-      'Tokens, euros and grams of CO₂e for the way you actually work — measured, not guessed. ' +
-      'Then the levers, each one with the saving it really buys: shorter context, caching, a smaller model, no runaway loop.',
-    // idem · la page dédiée arrive avec l'outil de mesure
-    path: '/#frugality',
+      'Where your tokens actually go, counted rather than guessed — the settings you choose before writing a word, ' +
+      'and the way the prompt itself is written. Then the levers, each one with the saving it really buys.',
+    path: '/frugality',
     glyph: '▲',
   },
   {

@@ -27,7 +27,7 @@ export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }
       { id: 'pick', title: '2 · Watch it, do not just read it', body: 'Every lesson has an animation beside the text that shows the idea moving, a question that marks itself, one line to remember and one thing to go and do.' },
       { id: 'crew', title: '3 · Take apart a worked example', body: 'The dojo is a sandbox. Open any teammate and you get the brief that makes it a specialist, the tools it would reach for, and what that way of writing costs.' },
       { id: 'apps', title: '4 · Learn what a tool really costs', body: 'Every app switched on ships its tool definitions with every step. Seeing that number is how you learn to turn tools off — and it is the single easiest saving there is.' },
-      { id: 'loop', title: '5 · Measure before you cut', body: 'Tokens, euros and grams of CO₂e for the way you actually work. Then the levers, each with the saving it really buys rather than the one it is said to buy.' },
+      { id: 'loop', title: '5 · Measure before you cut', body: 'Tokens and euros for the way you actually work, and where they go. Then the levers, each with the saving it really buys rather than the one it is said to buy.' },
       { id: 'ship', title: '6 · Take the files with you', body: 'Prompts, .md briefs and agent skills, filed by trade. Copy one, adapt it, run it on your own stack. Nothing here runs it for you — that is the point.' },
     ],
   },

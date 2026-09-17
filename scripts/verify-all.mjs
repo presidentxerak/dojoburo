@@ -46,6 +46,9 @@ const CHECKS = [
   // La bibliothèque est la partie payante · la garde vérifie surtout qu'aucun
   // corps de fichier n'a fui dans le paquet du navigateur. Hors navigateur.
   ['test-library.mjs', 1, true],
+  // Le calculateur de jetons · il enseigne aux gens ce qu'ils dépensent, et un
+  // outil de mesure qui se trompe est pire qu'une absence d'outil.
+  ['test-frugality.mjs', 1, true],
   ['check-theme-props.mjs', 1, true],
   ['audit-csp.mjs', 2, true],
   ['verify-gate.mjs', 2, true],

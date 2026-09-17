@@ -7999,3 +7999,92 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   .lib-row-lab { min-width: 0; width: 100%; margin-bottom: 2px; }
   .lib-pre { font-size: 12.5px; padding: 13px 14px; }
 }
+
+/* ===========================================================================
+   LA SOBRIÉTÉ · l'anatomie d'une requête, le calculateur, les leviers
+   ---------------------------------------------------------------------------
+   Une page qui enseigne un chiffre doit rendre ce chiffre gros et le reste
+   petit. D'où les deux compteurs en haut du résultat : le tableau explique,
+   les compteurs frappent.
+   ======================================================================== */
+
+.fr-parts {
+  display: grid; gap: 12px; max-width: 1040px; margin: 20px auto 0;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+.fr-part {
+  display: flex; flex-direction: column; gap: 6px; text-align: left;
+  background: var(--panel-solid); border: 1px solid var(--border);
+  border-left: 3px solid var(--violet); border-radius: var(--radius); padding: 14px 16px;
+}
+.fr-part b { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; }
+.fr-part span { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+.fr-grid {
+  display: grid; gap: 14px; max-width: 1040px; margin: 20px auto 0;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+.fr-field { display: flex; flex-direction: column; gap: 5px; text-align: left; }
+.fr-lab { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; }
+.fr-in { display: flex; align-items: center; gap: 6px; }
+.fr-in input {
+  flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 9px 11px;
+  background: var(--panel-solid); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 10px;
+}
+.fr-in input:focus { outline: 2px solid var(--violet); outline-offset: 1px; }
+.fr-in i { font-style: normal; font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.fr-hint { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+.fr-out {
+  display: flex; flex-wrap: wrap; gap: 14px; max-width: 1040px; margin: 26px auto 0;
+}
+.fr-big {
+  flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 4px;
+  background: var(--panel-solid); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px; text-align: left;
+}
+.fr-big-n { font-family: var(--font-pixel); font-weight: 800; font-size: 38px; line-height: 1.1; }
+.fr-big-n.fr-muted { color: var(--muted); }
+.fr-big-l { font-size: 14px; color: var(--muted); line-height: 1.45; }
+
+.fr-table {
+  width: 100%; max-width: 1040px; margin: 22px auto 0; border-collapse: collapse;
+  text-align: left; font-size: 15px;
+}
+.fr-table th, .fr-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.fr-table th { font-family: var(--font-pixel); font-weight: 800; font-size: 13px; color: var(--muted); }
+.fr-table .num { font-family: var(--font-mono); text-align: right; white-space: nowrap; }
+.fr-table .why { font-size: 13.5px; color: var(--muted); }
+.fr-table .fr-total td { border-bottom: 0; border-top: 2px solid var(--border-lit); }
+.fr-caveat {
+  max-width: 1040px; margin: 16px auto 0; font-size: 13.5px; color: var(--muted);
+  line-height: 1.6; text-align: left;
+}
+
+.fr-fam { max-width: 1040px; margin: 0 auto 26px; text-align: left; }
+.fr-fam h3 { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; margin: 18px 0 4px; }
+.fr-fam-lead { font-size: 15px; color: var(--muted); line-height: 1.55; margin-bottom: 12px; }
+.fr-levers { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.fr-lever {
+  background: var(--panel-solid); border: 1px solid var(--border);
+  border-left: 3px solid var(--violet); border-radius: var(--radius); padding: 15px 17px;
+}
+.fr-lever-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.fr-lever-head b { font-family: var(--font-pixel); font-weight: 800; font-size: 15.5px; }
+.fr-gain {
+  font-family: var(--font-mono); font-size: 13px; color: var(--violet); white-space: nowrap;
+}
+.fr-gain i { font-style: normal; opacity: .6; margin-left: 5px; }
+.fr-lever p { font-size: 14.5px; line-height: 1.55; margin: 8px 0 0; }
+.fr-lever .fr-why { color: var(--muted); }
+.fr-lever .fr-not { color: var(--muted); font-size: 13.5px; }
+
+/* l'encart entreprise · il se distingue sans crier */
+.fr-nekomai { border-top: 1px solid var(--border); }
+
+@media (max-width: 680px) {
+  .fr-big-n { font-size: 30px; }
+  .fr-table { font-size: 14px; }
+  .fr-table .why { display: none; }
+}

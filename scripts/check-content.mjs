@@ -111,6 +111,16 @@ const NEVER = [
   // Twenty-two of the forty-four can act. "Your whole stack" over the full
   // catalogue is the overclaim the connector audit exists to stop.
   { re: /connects? your whole stack/i, why: 'quote APP_LIVE_COUNT · the catalogue is bigger than what can act' },
+  // LE CARBONE. Il a été promis dans six endroits pendant deux lots, avant
+  // qu'on décide de ne mesurer que les jetons : mesurer une empreinte demande
+  // des facteurs d'énergie par jeton et une intensité réseau que nous n'avons
+  // pas, et c'est le métier de Nekomai. Une promesse d'empreinte qui revient
+  // dans une page produit est un chiffre inventé en puissance, dans un outil
+  // dont tout l'argument est la mesure honnête.
+  //
+  // La règle vise la PROMESSE, pas le mot : la page de sobriété doit pouvoir
+  // dire qu'elle ne mesure pas le carbone, et nommer qui le fait.
+  { re: /in grams of CO₂e|in grams of CO2e/i, why: 'we count tokens · carbon is Nekomai’s job, and the page says so' },
 ]
 
 const RULES = [
@@ -177,6 +187,12 @@ const RULES = [
   // …et la bibliothèque a une vraie adresse maintenant qu'elle existe
   { file: 'src/data/positioning.ts', must: "path: '/library'", why: 'the library pillar points at the real page' },
   { file: 'src/Landing.tsx', must: /ENTRY_COUNT/, why: 'the landing reads the catalogue size from the catalogue, not from a number' },
+  // LA SOBRIÉTÉ · une vraie page, un vrai renvoi, et aucun tarif écrit en dur
+  { file: 'src/data/positioning.ts', must: "path: '/frugality'", why: 'the frugality pillar points at the real page' },
+  { file: 'src/frugality/Frugality.tsx', must: /do not measure carbon/i, why: 'the page must say plainly what it does not do' },
+  { file: 'src/frugality/Frugality.tsx', must: /nekomai\.com/i, why: 'enterprises are pointed at Nekomai for carbon' },
+  { file: 'src/data/frugality.ts', must: /inPrice: 0/, why: 'no supplier tariff is hardcoded · the user enters their own' },
+  { file: 'api/chat.ts', must: /We do not measure carbon/i, why: 'the bot must not promise a footprint we do not compute' },
   { file: 'src/support/knowledge.ts', must: /\$\{LIB_COUNT\}/, why: 'the library size comes from facts.ts, never typed' },
   // LES ACCROCHES DES FORMULES · elles ont survécu au repositionnement entier
   // en promettant « construisez une entreprise » et « nous faisons tourner les

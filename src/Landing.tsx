@@ -150,16 +150,20 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lp-lead">
           A prompt that carries the whole conversation on every turn, an agent that re-reads a file it already
           knows, a loop nobody stopped — none of it shows up until the invoice does. The course measures it in
-          three units at once: <b>tokens</b>, <b>euros</b> and <b>grams of CO₂e</b>. Then it gives you the
-          levers, each with the saving it actually buys rather than the one it is said to buy.
+          two units at once: <b>tokens</b> and <b>euros</b>. Then it gives you the levers — the settings you choose
+          before writing a word, and the way the prompt itself is written — each with the saving it actually buys
+          rather than the one it is said to buy.
         </p>
         <div className="lp-schema lp-flow">
-          <div className="lp-node"><span className="lp-nico">1</span><b>Measure</b><span>What one run really costs</span></div>
+          <div className="lp-node"><span className="lp-nico">1</span><b>Measure</b><span>What one conversation really costs</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">2</span><b>Cut</b><span>Context, cache, model size</span></div>
+          <div className="lp-node"><span className="lp-nico">2</span><b>Set up</b><span>Tools, caps, cache, when to reset</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">3</span><b>Check</b><span>Same answer, smaller bill</span></div>
+          <div className="lp-node"><span className="lp-nico">3</span><b>Write</b><span>Bans not adjectives · ask once</span></div>
         </div>
+        <p className="lp-lead sm lp-soon">
+          <a href="/frugality">Open the calculator · put your own numbers in →</a>
+        </p>
       </section>
 
       {/* LA BIBLIOTHÈQUE · par métier, parce que c'est comme ça qu'on la
