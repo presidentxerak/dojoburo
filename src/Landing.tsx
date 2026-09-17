@@ -14,6 +14,7 @@ import { Pricing } from './components/landing/Pricing'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
 import { APP_LIVE_COUNT } from './data/facts'
 import { TRACKS } from './data/academy'
+import { ENTRY_COUNT, countByTrade } from './data/library'
 import { PILLARS, PROMISE_LEAD, PROMISE_HL, SUBTITLE, NOT_THIS, LESSON_COUNT, TRACK_COUNT, COURSE_HOURS } from './data/positioning'
 
 // vivid complementary primaries used as per-section accent touches
@@ -172,17 +173,22 @@ export function Landing({ enter }: { enter: () => void }) {
           Not a wall of clever one-liners. Each entry says what it is for, why it is written that way, what it
           costs to run, and what to change for your own case. Pick your trade and take what fits.
         </p>
-        {/* Les métiers sont affichés, pas encore cliquables · le catalogue
-            ouvre au lot suivant, et un filtre qui ne filtre rien est pire
-            qu'un filtre absent. */}
+        {/* Les métiers MÈNENT au catalogue, filtré · ils ont été de simples
+            pastilles le temps d'un lot, parce qu'un filtre qui ne filtre rien
+            est pire qu'un filtre absent. Ceux qui n'ont encore aucun fichier
+            restent inertes plutôt que d'ouvrir une page vide. */}
         <div className="lp-trades">
-          {PROFESSIONS.map((p) => (
-            <span className="lp-trade lp-trade-soon" key={p.id} style={{ ['--pc' as never]: professionColor(p.id) }}>
-              {p.label}
-            </span>
-          ))}
+          {PROFESSIONS.map((p) => {
+            const n = countByTrade(p.id)
+            const style = { ['--pc' as never]: professionColor(p.id) }
+            return n > 0
+              ? <a className="lp-trade" key={p.id} style={style} href={`/library?trade=${p.id}`}>{p.label} <i>{n}</i></a>
+              : <span className="lp-trade lp-trade-soon" key={p.id} style={style}>{p.label}</span>
+          })}
         </div>
-        <p className="lp-lead sm lp-soon">The catalogue opens next · the trades above are the shelves it is filed on.</p>
+        <p className="lp-lead sm lp-soon">
+          <a href="/library">Open the library · {ENTRY_COUNT} files →</a>
+        </p>
       </section>
 
       {/* LE DOJO · il reste, et il garde ses cartes. Ce qui change est son

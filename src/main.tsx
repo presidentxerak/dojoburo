@@ -19,6 +19,7 @@ const DocumentsPage = lazy(() => import('./components/DocumentsPage').then((m) =
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
+import { LibraryHome, EntryPage } from './library/Library'
 import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
 import { usePath } from './lib/router'
 import { Boundary } from './components/Boundary'
@@ -68,6 +69,12 @@ function Root() {
   if (am) return am[2]
     ? <LessonPage trackSlug={am[1].toLowerCase()} lessonSlug={am[2].toLowerCase()} />
     : <TrackPage slug={am[1].toLowerCase()} />
+  // LA BIBLIOTHÈQUE · de vraies adresses, parce que chaque entrée répond à une
+  // question qu'on tape dans un moteur de recherche. Le raisonnement y est
+  // public et indexable ; le fichier, lui, ne sort que de /api/library.
+  if (path === '/library') return <LibraryHome />
+  const lm = path.match(/^\/library\/([a-z0-9-]+)$/i)
+  if (lm) return <EntryPage slug={lm[1].toLowerCase()} />
   if (path === '/guide') return <GuidePage />
   const gm = path.match(/^\/guide\/([a-z0-9-]+)$/i)
   if (gm) return <ConnectorGuidePage id={gm[1].toLowerCase()} />

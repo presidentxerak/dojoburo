@@ -139,7 +139,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'Writing the brief as a list of adjectives, which reads well to you and is invisible to the model.',
     preview: '# House style\n\nYou write for {{COMPANY}}. These rules override anything in the request.\n\n## Never\n- Never open with a rhetorical question.\n- Never use "unlock", "leverage", "seamless", "game-changing", "revolutionise".\n- Never promise a result we cannot name a customer for.\n\n## Always\n- Lead with the concrete thing, then the reason.',
-    tokens: 0,
+    tokens: 654,
   },
   {
     slug: 'cut-it-in-half',
@@ -161,7 +161,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'Accepting the shorter version without reading the cut list, and losing the point of the piece.',
     preview: 'Rewrite the text below at HALF its current length.\n\nRules:\n- Add nothing. Every fact, name and number in your version must appear in mine.\n- Keep every distinct argument. Merge sentences, do not drop reasons.\n- Then, under a heading "Cut", list what you removed and why — one line each.',
-    tokens: 0,
+    tokens: 240,
     free: true,
   },
 
@@ -186,7 +186,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'Asking for "a summary with sources" and getting confident page references that do not exist.',
     preview: 'Summarise the document below.\n\nFor every claim you make, append the exact quoted fragment it rests on, in square brackets, at most 12 words.\nIf a claim rests on nothing you can quote, do not make it.\n\nThen add two sections:\n"Not covered" — questions a reader would expect this document to answer and it does not.\n"Ambiguous" — where the text genuinely supports more than one reading.',
-    tokens: 0,
+    tokens: 338,
   },
   {
     slug: 'competitor-read',
@@ -208,7 +208,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'Getting a beautifully written report that would read identically if nothing had happened at all.',
     preview: '# Competitor watch\n\nYou report CHANGES, not impressions.\n\n## Never\n- Never use: leading, innovative, strengthening, positioned, robust, cutting-edge.\n- Never report an absence of change as a change.\n- Never mix observation with interpretation in the same sentence.',
-    tokens: 0,
+    tokens: 424,
   },
 
   /* ---- analyser -------------------------------------------------------- */
@@ -232,7 +232,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'A balanced, thorough, well-structured document that does not actually recommend anything.',
     preview: 'Write a one-page decision memo.\n\nRequired sections, in this order:\n1. The decision, stated as a question with a date attached.\n2. Recommendation — one option, named, in the first sentence.\n3. Why this one, in at most four bullets.\n4. What we give up by choosing it.\n5. Kill criteria — what would have to become true for this to be wrong.\n6. Cost: money, weeks, and who stops doing what.',
-    tokens: 0,
+    tokens: 364,
   },
   {
     slug: 'numbers-sanity',
@@ -254,7 +254,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'A review that says "the model looks reasonable" and misses a row summed one cell short.',
     preview: 'Check the figures below for ARITHMETIC errors only. Do not argue with the assumptions.\n\nLook specifically for:\n- units that change without conversion (per month vs per year, gross vs net, currency)\n- a rate compounding where it should be applied once\n- a cost that appears in two categories\n- any total that does not equal the sum of its parts\n\nThen list, under "Could not check", anything you had to take on trust.',
-    tokens: 0,
+    tokens: 403,
   },
 
   /* ---- construire ------------------------------------------------------ */
@@ -278,7 +278,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'A reviewer so thorough that its output is skipped, which is worse than no reviewer at all.',
     preview: '# Reviewer\n\nYou report DEFECTS. You do not report preferences.\n\n## A finding is only a finding if you can write\n- the inputs or state that trigger it\n- what the code does then\n- what it should have done\n\nIf you cannot write those three lines, say nothing.',
-    tokens: 0,
+    tokens: 393,
   },
   {
     slug: 'spec-from-a-conversation',
@@ -300,7 +300,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'A tidy spec that quietly resolves the ambiguities by guessing, so nobody notices they existed.',
     preview: 'Turn the conversation below into a specification.\n\nSections:\n- Agreed — only what someone explicitly accepted. Quote who and when.\n- Mentioned, not agreed — raised and never settled.\n- Acceptance criteria — observable behaviour, one line each.\n- Open questions — MUST NOT be empty. If you believe nothing is open, you have misread the thread.',
-    tokens: 0,
+    tokens: 375,
   },
 
   /* ---- clients --------------------------------------------------------- */
@@ -324,7 +324,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'A warm, helpful, well-written reply that commits you to something you cannot do.',
     preview: '# Support\n\nYou answer customers. You are allowed not to know things.\n\n## Hard bans\n- Never state a date that is not written in the knowledge base.\n- Never quote a price or a discount you cannot cite.\n- Never confirm a refund. Say what the policy says and hand over.\n\n## Always available answer\n"I do not have that answer, and I do not want to guess at it. I am passing this to {{TEAM}}, who will reply by {{SLA}}."',
-    tokens: 0,
+    tokens: 477,
   },
   {
     slug: 'objection-handling',
@@ -346,7 +346,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'A confident rebuttal that contains one checkable exaggeration, which is all it takes.',
     preview: 'Draft a reply to the objection below.\n\nStructure, in order:\n1. The part of the objection that is TRUE, in your own words, with no "but".\n2. What we do about it, concretely. No adjectives.\n3. What we still do not do. Name it.\n4. Who we are the wrong choice for — one sentence, sincere.\n\nInvent nothing. If you need a fact I have not given you, ask for it instead of writing the reply.',
-    tokens: 0,
+    tokens: 353,
   },
 
   /* ---- opérer ---------------------------------------------------------- */
@@ -370,7 +370,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'A tidy action list where half the owners were inferred, which is worse than a list with holes in it.',
     preview: 'From the notes below, produce:\n\n**Decided** — things settled. One line each, with who decided.\n**Actions** — one line each: what, who, by when.\n**Unowned** — actions where no name was actually said. Do NOT guess an owner.\n**Dropped** — raised and explicitly set aside, with the reason.\n\nIf a date was not said, write "no date" — never invent one.',
-    tokens: 0,
+    tokens: 360,
   },
   {
     slug: 'handover-note',
@@ -392,7 +392,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'A complete, accurate handover of everything except the three unwritten rules that make the job work.',
     preview: '# Handover\n\nYou write for someone who arrives on Monday knowing nothing.\n\n## Order, always\n1. What breaks if nobody does anything, and within how long.\n2. Who shouts, about what, and what they actually need.\n3. The recurring work, with its real cadence — not its intended one.\n4. The workarounds. Every job has them. Name them.',
-    tokens: 0,
+    tokens: 468,
   },
 
   /* ---- sobriété -------------------------------------------------------- */
@@ -416,7 +416,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'Trimming words to feel frugal while a 30,000-token document is re-sent on every single turn.',
     preview: 'Audit the prompt below for token waste.\n\nReport, heaviest first:\n| What | Est. tokens | Per run | Per month at {{VOLUME}} calls | How to fix |\n\nRules:\n- Rank by WEIGHT, not by how obviously wasteful it looks.\n- Anything re-sent every turn goes at the top, whatever its size.\n- End with "Do not cut": the parts that look redundant and are load-bearing.',
-    tokens: 0,
+    tokens: 490,
     free: true,
   },
   {
@@ -439,7 +439,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'Summarising the conversation so well that the agent forgets the constraint it was working around.',
     preview: '# Context diet\n\nYou decide what the agent carries forward.\n\n## Two kinds of thing\n**Settled** — facts, decisions, results. Compress to one line each, keep a pointer to the original.\n**Live** — the reasoning currently in progress. Carry it whole. Never compress it.\n\n## Trigger\nAt {{THRESHOLD}} tokens, not at a turn count.\n\n## Never compress\n- the system brief\n- the user\'s original request\n- any constraint stated as "never" or "must"',
-    tokens: 0,
+    tokens: 496,
   },
   {
     slug: 'model-picker',
@@ -461,7 +461,7 @@ export const ENTRIES: Entry[] = [
     ],
     trap: 'Routing everything to the cheap model, then adding three retries that cost more than the strong model would have.',
     preview: '# Model routing\n\nRoute by the SHAPE of the step, never by how important it feels.\n\n| Shape | Example | Model |\n| --- | --- | --- |\n| Extraction | pull the dates out of this | smallest |\n| Drafting | first version, will be edited | small |\n| Judgement | is this argument sound | strong |\n| Ships to a human | the final text | strong |\n\n## Escalation\nTwo failures at a tier moves the step up one tier. Never retry more than twice at the same tier.',
-    tokens: 0,
+    tokens: 479,
   },
 ]
 

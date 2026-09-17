@@ -4,7 +4,7 @@
 // (via /api/chat) for questions it can't match.
 import { CONNECTORS, type Connector } from '../data/connectors'
 // Counts and rosters come from the data the app runs on · see data/facts.
-import { CREW_WORD, CREW_LIST, ACADEMY_LESSONS, ACADEMY_TRACKS, ACADEMY_HOURS } from '../data/facts'
+import { CREW_WORD, CREW_LIST, ACADEMY_LESSONS, ACADEMY_TRACKS, ACADEMY_HOURS, LIB_COUNT, LIB_FREE } from '../data/facts'
 
 export interface KBLink {
   label: string
@@ -36,6 +36,18 @@ export const KB: KBTopic[] = [
     ],
     follow: ['start', 'tools', 'cost'],
     keywords: ['academy', 'académie', 'course', 'cours', 'learn', 'apprendre', 'tutorial', 'tuto', 'lesson', 'leçon', 'beginner', 'débutant', 'guide', 'training', 'formation', 'vibe coding', 'ide', 'claude code', 'what is an agent', 'agent'],
+  },
+  {
+    id: 'library',
+    chip: 'Prompt & skill library',
+    answer:
+      `The Library (/library) is the catalogue of ready-made files: ${LIB_COUNT} of them, split into prompts (one instruction you paste into a chat), briefs (a .md file an agent carries as its standing instructions) and skills (a folder an agent loads on demand). It is filed three ways at once, because three people look for it three ways: by FORM, by WHAT YOU ARE DOING (writing, research, analysis, building, customers, operations, frugality), and by YOUR TRADE. Every entry shows — free, no account — when to reach for it, why it is written that way, what to change for your own case, the mistake it exists to avoid, a real excerpt of the file, and what the file weighs in tokens when it travels in a prompt. The FILE ITSELF is what a paid plan buys; ${LIB_FREE} entries are open to everyone so you can judge the goods before paying. Nothing here is a wall of clever one-liners: if an entry cannot explain why it is written the way it is, it does not go in.`,
+    links: [
+      { label: 'Open the library', href: '/library' },
+      { label: 'See the plans', href: '#pricing' },
+    ],
+    follow: ['academy', 'tokens', 'pricing'],
+    keywords: ['library', 'bibliothèque', 'prompt', 'prompts', 'brief', 'briefs', 'skill', 'skills', 'md', 'markdown', 'template', 'modèle', 'catalogue', 'file', 'fichier', 'download', 'télécharger', 'premium', 'payant'],
   },
   {
     id: 'tokens',

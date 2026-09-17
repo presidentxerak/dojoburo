@@ -37,6 +37,8 @@ const plans = await load('src/data/plans.ts')
 const effort = await load('src/data/effort.ts')
 // la promesse du produit · elle est DÉRIVÉE ici, jamais retapée (voir plus bas)
 const pos = await load('src/data/positioning.ts')
+// le catalogue de la bibliothèque · pour que sa taille annoncée soit la vraie
+const lib = await load('src/data/library.ts')
 
 const F = {
   crew: roles.COMPANY_IDS.length,
@@ -127,6 +129,13 @@ const RULES = [
   // and nothing may hardcode a plan price outside plans.ts
   { file: 'src/components/landing/Pricing.tsx', forbid: /\$\d+ ?\/ ?month|PRICE_PER_CREDIT/, why: 'plan prices come from data/plans.ts' },
   { file: 'api/chat.ts', must: /Dojo Academy/, why: 'the bot must know the Academy exists' },
+  // LA BIBLIOTHÈQUE · c'est la partie payante, donc celle qu'il ne faut pas
+  // décrire de travers. Le robot doit savoir qu'elle existe, où elle est, et
+  // surtout ce qui y est gratuit : quelqu'un à qui l'on refuse un fichier doit
+  // s'entendre dire pourquoi, pas découvrir un mur.
+  { file: 'api/chat.ts', must: 'LIBRARY (/library)', why: 'the bot must know the library and its address' },
+  { file: 'api/chat.ts', must: 'the FILE ITSELF is what a paid plan buys', why: 'it must say what is free and what is not' },
+  { file: 'src/support/knowledge.ts', must: "id: 'library'", why: 'the support index needs a library topic' },
 
   // the Academy's own prose
   { file: 'src/data/academy.ts', must: /paying for the teams, not for tokens/i, why: 'the pricing lesson must lead with what is actually sold' },
@@ -165,6 +174,10 @@ const RULES = [
   // les quatre piliers sont la carte du produit · l'en-tête et l'accueil les
   // lisent au même endroit, sinon la navigation et la page se contredisent
   { file: 'src/components/SiteHeader.tsx', must: /PILLARS/, why: 'the header navigation is the four pillars, read from positioning.ts' },
+  // …et la bibliothèque a une vraie adresse maintenant qu'elle existe
+  { file: 'src/data/positioning.ts', must: "path: '/library'", why: 'the library pillar points at the real page' },
+  { file: 'src/Landing.tsx', must: /ENTRY_COUNT/, why: 'the landing reads the catalogue size from the catalogue, not from a number' },
+  { file: 'src/support/knowledge.ts', must: /\$\{LIB_COUNT\}/, why: 'the library size comes from facts.ts, never typed' },
   // and the apps section must quote what can ACT, not the catalogue size
   { file: 'src/Landing.tsx', must: /APP_LIVE_COUNT/, why: 'the landing quotes apps that can act, not the catalogue count' },
 ]

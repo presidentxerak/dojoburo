@@ -43,6 +43,9 @@ const CHECKS = [
   // et elle se casse sans bruit le jour où quelqu'un ajoute une action sans
   // garde. Hors navigateur, en une seconde.
   ['test-sandbox.mjs', 1, true],
+  // La bibliothèque est la partie payante · la garde vérifie surtout qu'aucun
+  // corps de fichier n'a fui dans le paquet du navigateur. Hors navigateur.
+  ['test-library.mjs', 1, true],
   ['check-theme-props.mjs', 1, true],
   ['audit-csp.mjs', 2, true],
   ['verify-gate.mjs', 2, true],

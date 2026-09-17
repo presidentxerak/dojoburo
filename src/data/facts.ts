@@ -19,6 +19,7 @@ import { CREDIT_USD } from './budget'
 import { SKINS } from './skins'
 import { DOJO_TEMPLATES } from './templates'
 import { TRACKS, LESSON_COUNT, TOTAL_MINUTES } from './academy'
+import { ENTRY_COUNT, FREE_COUNT } from './library'
 
 /** Written-out numbers, so prose reads like prose. */
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
@@ -96,3 +97,12 @@ export const FACTS = {
   CREDIT_PRICE_LABEL, TYPICAL_RUN_STEPS, TYPICAL_RUN_USD_LABEL,
   ACADEMY_LESSONS, ACADEMY_TRACKS, ACADEMY_HOURS,
 } as const
+
+/** LA BIBLIOTHÈQUE · comptée depuis le catalogue réel, jamais tapée.
+ *
+ *  Un catalogue qui annonce vingt fichiers et en sert quinze est le genre de
+ *  mensonge qu'on ne commet jamais exprès : on écrit le chiffre le jour où il
+ *  est vrai, on ajoute un fichier six semaines plus tard, et personne ne
+ *  repasse par la phrase. */
+export const LIB_COUNT = ENTRY_COUNT
+export const LIB_FREE = FREE_COUNT

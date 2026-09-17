@@ -73,11 +73,7 @@ export const PILLARS: Pillar[] = [
     blurb:
       'A catalogue of prompts, .md briefs and agent skills, filed by category and by the job you actually do. ' +
       'Read the reasoning, copy the file, adapt it. Every entry carries what it costs to run.',
-    // Une ANCRE, pas encore une page. Le catalogue arrive au lot suivant ;
-    // d'ici là ce lien descend à la section qui l'annonce plutôt que de
-    // promettre une adresse qui rend 404. Un lien mort sur la page d'accueil
-    // coûte plus cher que l'absence du lien.
-    path: '/#library',
+    path: '/library',
     glyph: '❑',
   },
   {
