@@ -72,25 +72,60 @@ function speech(src, html) {
   return out
 }
 
-const targets = [...ROOTS.flatMap((d) => walk(join(ROOT, d))), ...FILES.map((f) => join(ROOT, f))]
+/** Les tirets fautifs d'un fichier · la ligne et lequel. */
+function dashesIn(src, html) {
+  const out = []
+  for (const [n, line] of speech(src, html)) {
+    if (line.includes(EM)) out.push([n, EM, line.trim().slice(0, 110)])
+    // Le demi-cadratin n'est fautif qu'employé comme ponctuation, entouré
+    // d'espaces. Entre deux nombres il est correct et doit le rester.
+    else if (new RegExp(` ${EN} `).test(line)) out.push([n, EN, line.trim().slice(0, 110)])
+  }
+  return out
+}
 
-const hits = []
+let fails = 0
+const ok = (n, c, extra = '') => {
+  console.log((c ? 'ok    ' : 'FAIL  ') + n + (extra ? ' · ' + extra : ''))
+  if (!c) fails++
+}
+
+/* --- le balayage tient debout -------------------------------------------- */
+// Une garde dont le balayage s'est vidé passe au vert sans rien lire. C'est la
+// façon dont une barrière meurt sans qu'on s'en aperçoive, et la porte du
+// verdict doit donc être le fait d'avoir REGARDÉ, pas le fait de n'avoir rien
+// trouvé.
+const byRoot = ROOTS.map((d) => [d, walk(join(ROOT, d))])
+for (const [d, list] of byRoot) ok(`${d}/ est balayé`, list.length > 0, `${list.length} fichiers`)
+const targets = [...byRoot.flatMap(([, l]) => l), ...FILES.map((f) => join(ROOT, f))]
+ok('les fichiers nommés un par un sont lus', FILES.length > 0, FILES.join(', '))
+
+// LA MORSURE · une ligne fabriquée ici, qui DOIT être refusée. Sans elle,
+// « aucun tiret trouvé » ne distingue pas une app propre d'un détecteur cassé,
+// et les deux se lisent pareil en vert.
+ok('le détecteur mord', dashesIn(`const s = 'a ${EM} b'`, false).length === 1)
+ok('…et le demi-cadratin employé comme ponctuation aussi', dashesIn(`const s = 'a ${EN} b'`, false).length === 1)
+// …sans mordre ce qui est légitime : un commentaire, et un intervalle.
+ok('…sans mordre un commentaire', dashesIn(`// a ${EM} b`, false).length === 0)
+ok('…ni un intervalle de nombres', dashesIn(`const s = '2020${EN}2024'`, false).length === 0)
+
+/* --- puis chaque fichier -------------------------------------------------- */
+// Un `ok` par fichier PORTEUR d'un tiret quelque part · ce sont ceux où la
+// garde a eu quelque chose à trancher. Les autres passent sans qu'on les
+// compte : les énumérer gonflerait le chiffre sans ajouter de vigilance.
+let scanned = 0
 for (const f of targets) {
   const rel = relative(ROOT, f)
   const src = readFileSync(f, 'utf8')
   if (!src.includes(EM) && !src.includes(EN)) continue
-  for (const [n, line] of speech(src, f.endsWith('.html'))) {
-    if (line.includes(EM)) hits.push([rel, n, EM, line.trim().slice(0, 110)])
-    // Le demi-cadratin n'est fautif qu'employé comme ponctuation, entouré
-    // d'espaces. Entre deux nombres il est correct et doit le rester.
-    else if (new RegExp(` ${EN} `).test(line)) hits.push([rel, n, EN, line.trim().slice(0, 110)])
-  }
+  scanned++
+  const hits = dashesIn(src, f.endsWith('.html'))
+  ok(rel, hits.length === 0, hits.map(([n, d, l]) => `:${n} ${d === EM ? 'cadratin' : 'demi-cadratin'} · ${l}`).join(' | '))
 }
 
-if (hits.length) {
-  for (const [f, n, d, line] of hits) console.log(`FAIL  ${f}:${n} · ${d === EM ? 'tiret cadratin' : 'tiret demi-cadratin'} · ${line}`)
-  console.log(`\ncheck-dashes · ${hits.length} dash${hits.length > 1 ? 'es' : ''} in app text · replace with a comma, a colon or a middot`)
-  process.exit(1)
-}
-
-console.log(`check-dashes · ok · ${targets.length} files, no dash in any text the app shows`)
+console.log(
+  fails
+    ? `\ncheck-dashes · ${fails} problème(s) · remplacer par une virgule, un deux-points ou un point médian`
+    : `\ncheck-dashes · ${targets.length} fichiers lus, ${scanned} à trancher, aucun tiret dans un texte de l'app`,
+)
+process.exit(fails ? 1 : 0)
