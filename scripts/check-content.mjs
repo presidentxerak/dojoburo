@@ -178,6 +178,14 @@ const RULES = [
   { file: 'src/data/positioning.ts', must: "path: '/library'", why: 'the library pillar points at the real page' },
   { file: 'src/Landing.tsx', must: /ENTRY_COUNT/, why: 'the landing reads the catalogue size from the catalogue, not from a number' },
   { file: 'src/support/knowledge.ts', must: /\$\{LIB_COUNT\}/, why: 'the library size comes from facts.ts, never typed' },
+  // LES ACCROCHES DES FORMULES · elles ont survécu au repositionnement entier
+  // en promettant « construisez une entreprise » et « nous faisons tourner les
+  // modèles pour vous », parce qu'aucune règle ne les regardait. Une accroche
+  // est la phrase qu'on lit juste avant de sortir sa carte.
+  { file: 'src/data/plans.ts', forbid: /Build a company and watch/i, why: 'nothing here builds a company for anyone' },
+  { file: 'src/data/plans.ts', forbid: /We run the models for you/i, why: 'the dojo is a sandbox · nothing runs by default' },
+  { file: 'src/data/plans.ts', must: /The whole course, free/i, why: 'Free is the course, and that must be the first thing it says' },
+  { file: 'src/data/plans.ts', must: /only ever drawn on a deployment running live/i, why: 'Managed must not sell an allowance that nothing can draw on' },
   // and the apps section must quote what can ACT, not the catalogue size
   { file: 'src/Landing.tsx', must: /APP_LIVE_COUNT/, why: 'the landing quotes apps that can act, not the catalogue count' },
 ]

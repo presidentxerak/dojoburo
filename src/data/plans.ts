@@ -56,33 +56,45 @@ export const FOUNDER_USD = 29
  *  margin. That is the mistake this number exists not to repeat. */
 export const TASK_USD = MANAGED_USD / MANAGED_TASKS
 
+// CE QUE CHAQUE FORMULE ACHÈTE, depuis que le produit enseigne.
+//
+// Les trois accroches décrivaient l'ancien métier : « construisez une
+// entreprise et regardez votre équipe travailler », « nous faisons tourner les
+// modèles pour vous ». Aucune n'est vraie — rien ici ne fait tourner un modèle
+// pour personne, et le dojo est un bac à sable. Elles ont survécu au
+// repositionnement parce qu'aucune règle ne les regardait ; il y en a une
+// maintenant (voir scripts/check-content.mjs).
+//
+// Les PRIX et la structure ne bougent pas : ce sont des décisions prises
+// ailleurs et elles ne m'appartiennent pas. Seul ce qu'on en dit est remis
+// d'aplomb, pour que trois écrans ne vendent pas trois produits différents.
 export const PLANS: Plan[] = [
   {
     id: 'free',
     name: 'Free',
     usd: 0,
-    tagline: 'Build a company and watch your team work. No card.',
+    tagline: 'The whole course, free. No card, no account to begin.',
     inclHead: 'Includes',
     incl: [
-      'Every team and every app to explore',
-      'One company, saved in this browser',
-      'Runs on free and open models',
-      'A daily allowance, then it waits for tomorrow',
+      'Every lesson, every track, nothing gated',
+      'The reasoning behind every file in the library',
+      'The practice dojo, and the cost breakdown of any run',
+      'Two library files, open, so you can judge the rest',
     ],
   },
   {
     id: 'founder',
     name: 'Founder',
     usd: FOUNDER_USD,
-    tagline: 'Bring your own Claude key. Your key, your bill, your model.',
+    tagline: 'The library. Every prompt, brief and skill, yours to take.',
     byok: true,
     featured: true,
     inclHead: 'Everything in Free, plus',
     incl: [
-      'Unlimited runs · we never meter your work',
-      'Your key, sealed server-side, billed by Anthropic to you',
-      'Unlimited companies and dojo teams',
-      'Every app connector',
+      'Every file in the library, in full',
+      'Download each one as a real .md or .txt, not a copy-paste',
+      'New files as they are written, at no extra cost',
+      'Your own Claude key, sealed server-side, if you switch the dojo live',
       'A custom domain',
       'No DojoBuro badge',
     ],
@@ -91,15 +103,28 @@ export const PLANS: Plan[] = [
     id: 'managed',
     name: 'Managed',
     usd: MANAGED_USD,
-    tagline: 'No key, nothing to set up. We run the models for you.',
+    // ATTENTION · cette formule est la seule dont la raison d'être a bougé.
+    //
+    // Elle existait pour les gens qui ne veulent pas détenir de clé : nous
+    // faisions tourner les modèles et absorbions le coût. Le dojo étant devenu
+    // un bac à sable, cette contrepartie n'est plus servie par défaut — elle
+    // ne revient qu'avec VITE_DOJO_LIVE. L'allocation existe toujours
+    // côté serveur (api/_lib/entitlements.ts), elle ne se consomme simplement
+    // plus tant que rien ne s'exécute.
+    //
+    // On le dit donc EN TOUTES LETTRES dans la liste plutôt que de vendre une
+    // contrepartie éteinte. Ce qui reste à décider — la supprimer, la
+    // repositionner, ou la garder pour les déploiements en mode vif — est une
+    // décision de prix, et elle ne se prend pas dans un commentaire.
+    tagline: 'For a team. One bill, and the hosted runs when the dojo is live.',
     tasks: MANAGED_TASKS,
     inclHead: 'Everything in Founder, plus',
     incl: [
-      `${MANAGED_TASKS.toLocaleString('en-US')} tasks a month, included`,
-      'A light task counts less, a heavy one more',
+      'The library for everyone on the team, under one bill',
+      `${MANAGED_TASKS.toLocaleString('en-US')} tasks a month — only ever drawn on a deployment running live`,
+      'On the practice dojo nothing runs, so nothing is drawn',
       'No API key to find, hold or rotate',
       'We pick the model per task and absorb the cost',
-      'Escalation to a stronger model where it earns its keep — it just draws more',
     ],
   },
 ]
