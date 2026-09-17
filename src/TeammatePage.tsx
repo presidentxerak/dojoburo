@@ -19,6 +19,8 @@ import { agentProfile } from './data/agentProfile'
 import { CONNECTORS } from './data/connectors'
 import { useHeadTags, breadcrumb, SITE } from './lib/headTags'
 import { DEPARTMENTS } from './data/agents'
+import { USE_CASE_BY_AGENT, USE_CASE_COUNT } from './data/agentUseCases'
+import { SiteFooter } from './components/SiteFooter'
 
 const appLabel = (id: string) => CONNECTORS.find((c) => c.id === id)?.label ?? id
 
@@ -36,16 +38,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         <a className="lp-cta sm" href="/" style={{ textDecoration: 'none' }}>Back to home</a>
       </header>
       <main className="tmp-body">{children}</main>
-      <footer className="lp-footer">
-        <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
-        <nav className="lp-foot-links">
-          <a href="/">Home</a>
-          <a href="/teammates">Teammates</a>
-          <a href="/academy">Academy</a>
-          <a href="/terms">Terms</a>
-          <a href="/privacy">Privacy</a>
-        </nav>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }
@@ -54,11 +47,15 @@ function Shell({ children }: { children: React.ReactNode }) {
 export function TeammatePage({ slug }: { slug: string }) {
   const role = ROLE_BY_SLUG[slug]
   const profile = role ? agentProfile(role.id) : null
+  // La forme d'agent que ce personnage enseigne, s'il en porte une · douze sur
+  // dix-sept en portent, et la page ne doit pas inventer de porte pour les cinq
+  // autres.
+  const useCase = role ? USE_CASE_BY_AGENT[role.id] ?? null : null
 
   useHeadTags({
     title: role ? `${role.public} · Dojoburo` : 'Teammate not found · Dojoburo',
     description: role
-      ? `${role.public} for your business. ${role.desc} Works alongside the rest of your AI team inside Dojoburo.`
+      ? `${role.public}. ${role.desc} One of the characters in the DojoBuro dojo, where you learn to build the kind of agent it stands for.`
       : 'This teammate does not exist.',
     path: `/${slug}`,
     keywords: role ? [role.public!, role.title, role.code, 'AI agent', 'AI teammate', role.dept] : undefined,
@@ -107,9 +104,38 @@ export function TeammatePage({ slug }: { slug: string }) {
         <div className="tmp-hero-t">
           <p className="tmp-kicker">{role.dept}</p>
           <h1 className="tmp-h1">{role.public}</h1>
-          <p className="tmp-code">Its name is <b>{role.code}</b>, and it is one of eighteen teammates you can put in a company.</p>
+          {/* CE QU'EST CE PERSONNAGE, aujourd'hui. Cette page disait « un des
+              dix-huit coéquipiers que vous pouvez mettre dans une entreprise »
+              et proposait d'en construire une, ce qui est exactement ce que le
+              produit ne fait plus. Elles sont dix-sept, pas dix-huit, et le
+              nombre est compté ici plutôt qu'écrit.
+              Douze d'entre eux portent une forme d'agent qu'on apprend à
+              construire dans le dojo ; les cinq autres sont dans la pièce mais
+              n'ont pas encore de parcours, et la page le dit au lieu de
+              promettre une porte qui n'existe pas. */}
+          <p className="tmp-code">
+            Its name is <b>{role.code}</b>, and it is one of the {PUBLIC_AGENTS.length} characters in the dojo.
+          </p>
           <p className="tmp-lede">{profile.mission}</p>
-          <a className="lp-cta" href="/" style={{ textDecoration: 'none' }}>Build a company with {role.code}</a>
+          {useCase ? (
+            <>
+              <p className="tmp-shape">
+                In the dojo it teaches one shape of agent: <b>{useCase.shape}</b>. The hard part is
+                {' '}{useCase.hard.charAt(0).toLowerCase()}{useCase.hard.slice(1).split('.')[0]}.
+              </p>
+              <a className="lp-cta" href={`/build/${useCase.id}`} style={{ textDecoration: 'none' }}>
+                Learn to build {useCase.name}
+              </a>
+            </>
+          ) : (
+            <>
+              <p className="tmp-shape">
+                This one sits in the room without a path of its own yet. The {USE_CASE_COUNT} that do have one
+                are where the course starts.
+              </p>
+              <a className="lp-cta" href="/build" style={{ textDecoration: 'none' }}>Enter the dojo</a>
+            </>
+          )}
         </div>
         <div className="tmp-hero-p">
           <Agent3DPreview id={charKey} character={charForAgent(charKey)} size={220} fit />
@@ -165,7 +191,7 @@ export function TeammatePage({ slug }: { slug: string }) {
             </a>
           ))}
         </div>
-        <p><a href="/teammates">See all eighteen teammates</a></p>
+        <p><a href="/teammates">See all {PUBLIC_AGENTS.length} characters</a></p>
       </section>
     </Shell>
   )
@@ -174,10 +200,10 @@ export function TeammatePage({ slug }: { slug: string }) {
 /* ------------------------------------------------------------------- the hub */
 export function TeammatesPage() {
   useHeadTags({
-    title: 'AI teammates for every department · Dojoburo',
+    title: 'The characters of the dojo · Dojoburo',
     description:
-      'Seventeen AI teammates you can hire into a company: marketing, sales, support, engineering, ' +
-      'finance, legal, brand and more. Each one runs real work in your own connected apps.',
+      `The ${PUBLIC_AGENTS.length} characters in the DojoBuro dojo. ${USE_CASE_COUNT} of them carry a shape of ` +
+      'agent you learn to build end to end, from a blank page to a file you can run in a real framework.',
     path: '/teammates',
     keywords: ['AI teammates', 'AI co-workers', 'AI agents for business', 'AI workforce'],
     jsonLd: [
@@ -185,7 +211,7 @@ export function TeammatesPage() {
       {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
-        name: 'Dojoburo AI teammates',
+        name: 'The characters of the DojoBuro dojo',
         numberOfItems: PUBLIC_AGENTS.length,
         itemListElement: PUBLIC_AGENTS.map((r, i) => ({
           '@type': 'ListItem', position: i + 1, name: r.public, url: `${SITE}/${r.slug}`,
@@ -200,11 +226,16 @@ export function TeammatesPage() {
   return (
     <Shell>
       <section className="tmp-hubhead">
-        <h1 className="tmp-h1">One teammate for every job</h1>
+        {/* CE QUE CETTE PAGE VEND, désormais. Elle vendait des recrues :
+            « dix-sept spécialistes que vous engagez dans une entreprise ».
+            C'est l'ancien produit, sur une page indexée, avec un nombre écrit
+            à la main qui ne collait déjà plus. */}
+        <h1 className="tmp-h1">The characters of the dojo</h1>
         <p className="tmp-lede">
-          Seventeen specialists, grouped the way a business is. Each has its own brief, its own apps and
-          its own limits, and Chief coordinates them so you brief one teammate, not seventeen.
+          {PUBLIC_AGENTS.length} of them live in the room. {USE_CASE_COUNT} carry a shape of agent you learn to
+          build end to end, and each one fails in its own way, which is why they are taught one at a time.
         </p>
+        <a className="lp-cta" href="/build" style={{ textDecoration: 'none' }}>Enter the dojo</a>
       </section>
 
       {order.map((dept) => (
@@ -223,12 +254,12 @@ export function TeammatesPage() {
       ))}
 
       <section className="tmp-next">
-        <h2>Put them to work</h2>
+        <h2>Where they are taught</h2>
         <p className="tmp-lede">
-          A company starts with eight of them seated and running. You add the rest when the work needs
-          them.
+          Walk into the dojo and they are asleep, one per shape of problem. The one you pick wakes up, and you
+          take it from a blank page to a file that runs in a real framework.
         </p>
-        <a className="lp-cta" href="/" style={{ textDecoration: 'none' }}>Build your company</a>
+        <a className="lp-cta" href="/build" style={{ textDecoration: 'none' }}>Pick your agent</a>
       </section>
     </Shell>
   )

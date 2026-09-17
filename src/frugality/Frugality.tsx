@@ -16,8 +16,6 @@
 // saisi, l'outil compte des jetons et refuse d'annoncer des euros.
 import { useMemo, useState } from 'react'
 import { SiteHeader } from '../components/SiteHeader'
-import { Logo } from '../components/Logo'
-import { Wordmark } from '../components/Wordmark'
 import { SupportBot } from '../components/SupportBot'
 import { useHeadTags } from '../lib/headTags'
 import { CHARS_PER_TOKEN } from '../agents/sandbox'
@@ -29,6 +27,7 @@ import {
   DEFAULT_USAGE, compute, ranked, FAMILY_LABEL, TOKENS_PER_TOOL, DAYS,
   type Usage, type LeverFamily,
 } from '../data/frugality'
+import { SiteFooter } from '../components/SiteFooter'
 
 const n0 = (n: number) => Math.round(n).toLocaleString('en-US')
 const short = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}k` : String(Math.round(n)))
@@ -245,14 +244,7 @@ export function FrugalityPage() {
         </a>
       </section>
 
-      <footer className="lp-footer">
-        <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
-        <nav className="lp-foot-links">
-          <a href="/">Home</a><a href="/academy">Academy</a><a href="/library">Library</a>
-          <a href="/frugality">Frugality</a><a href="/guide">App setup guide</a>
-          <a href="/terms">Terms</a><a href="/privacy">Privacy</a>
-        </nav>
-      </footer>
+      <SiteFooter />
       <SupportBot />
     </div>
   )

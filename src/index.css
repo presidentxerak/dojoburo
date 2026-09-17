@@ -7958,6 +7958,14 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .fr-lever-head b { margin-right: auto; }
 .fr-lever.on { border-color: var(--violet); }
 
+/* Un bouton qui doit se lire comme un lien · il ouvre le studio, qui s'ouvre
+   par une commande et non par une adresse. Écrit en `<a href="#studio">`, il
+   pointait vers une ancre inexistante et ne faisait rien du tout. */
+.connect-inline {
+  padding: 0; border: 0; background: none; font: inherit; color: var(--violet);
+  text-decoration: underline; cursor: pointer;
+}
+
 .lp-courses {
   display: grid; gap: 14px; max-width: 1040px; margin: 24px auto 0;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

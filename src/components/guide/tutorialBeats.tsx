@@ -14,6 +14,7 @@ import { TeammateCard } from '../TeammateCard'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { ROLE_BY_ID } from '../../data/roleAgents'
 import { BauhausIcon } from '../BauhausIcon'
+import { LESSON_COUNT, TRACK_COUNT } from '../../data/positioning'
 
 export interface Beat { id: string; title: string; body: string }
 
@@ -24,7 +25,7 @@ export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }
     title: 'How it works',
     sub: 'Six steps, start to finish.',
     beats: [
-      { id: 'name', title: '1 · Start the course', body: 'Twenty lessons across five tracks, free and read in the browser. It starts at "what is a token" and assumes you have never heard the word agent. No account, nothing to install.' },
+      { id: 'name', title: '1 · Start the course', body: `${LESSON_COUNT} lessons across ${TRACK_COUNT} tracks, free and read in the browser. It starts at "what is a token" and assumes you have never heard the word agent. No account, nothing to install.` },
       { id: 'pick', title: '2 · Watch it, do not just read it', body: 'Every lesson has an animation beside the text that shows the idea moving, a question that marks itself, one line to remember and one thing to go and do.' },
       { id: 'crew', title: '3 · Take apart a worked example', body: 'The dojo is a sandbox. Open any teammate and you get the brief that makes it a specialist, the tools it would reach for, and what that way of writing costs.' },
       { id: 'apps', title: '4 · Learn what a tool really costs', body: 'Every app switched on ships its tool definitions with every step. Seeing that number is how you learn to turn tools off, and it is the single easiest saving there is.' },

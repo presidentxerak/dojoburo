@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { Logo } from './components/Logo'
-import { Wordmark } from './components/Wordmark'
 import { SiteHeader } from './components/SiteHeader'
 import { TopBar } from './components/TopBar'
 import { SupportBot } from './components/SupportBot'
@@ -13,6 +11,7 @@ import { type WalkId } from './components/guide/tutorialBeats'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
 import { CREW_COUNT, CREW_WORD } from './data/facts'
 import { BauhausIcon } from './components/BauhausIcon'
+import { SiteFooter } from './components/SiteFooter'
 
 // The Dojo Guide · a full page (not a modal) in the landing page's visual
 // language: same title/subtitle/text sizes, same cards. It covers connectors
@@ -33,14 +32,7 @@ function GuideShell({ children, inApp }: { children: React.ReactNode; inApp?: bo
           keeps the landing header. */}
       {inApp ? <TopBar /> : <SiteHeader />}
       {children}
-      <footer className="lp-footer">
-        <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
-        <nav className="lp-foot-links">
-          {inApp
-            ? <><button className="dg-foot-link" onClick={() => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }}>Back to dojo</button><button className="dg-foot-link" onClick={() => { location.hash = 'academy' }}>Academy</button><button className="dg-foot-link" onClick={() => { location.hash = 'connect' }}>Connect</button></>
-            : <><a href="/">Home</a><a href="/academy">Academy</a><a href="/guide">App setup guide</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a></>}
-        </nav>
-      </footer>
+      <SiteFooter />
       <SupportBot />
     </div>
   )

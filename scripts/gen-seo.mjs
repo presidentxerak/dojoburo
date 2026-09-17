@@ -57,7 +57,7 @@ const ucBundle = await build({
   bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
 })
 const ucMod = await import('data:text/javascript;base64,' + Buffer.from(ucBundle.outputFiles[0].text).toString('base64'))
-const { USE_CASES } = ucMod
+const { USE_CASES, USE_CASE_BY_AGENT } = ucMod
 
 // The roster, the same way. roleAgents.ts pulls in a Department type from
 // agents.ts, which esbuild resolves; nothing here is duplicated from the app.
@@ -236,7 +236,7 @@ ${TRACKS.map((t) => `<section><h2><a href="/academy/${t.slug}">${esc(t.label)}</
     canonical, type: 'website',
     jsonLd: {
       '@context': 'https://schema.org', '@type': 'Course', name: 'Dojo Academy',
-      description: 'A free, interactive course taking a complete beginner from "what is an AI agent" to running a working system of AI teammates.',
+      description: 'A free, interactive course taking a complete beginner from "what is an AI agent" to writing the instruction an agent actually follows.',
       url: canonical, isAccessibleForFree: true, inLanguage: 'en', educationalLevel: 'Beginner',
       provider: { '@type': 'Organization', name: 'DojoBuro', url: SITE },
       hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online', courseWorkload: `PT${TOTAL_MINUTES}M` },
@@ -265,9 +265,10 @@ for (const r of PUBLIC_AGENTS) {
   const canonical = `${SITE}/${r.slug}`
   const description = `${r.public} for your business. ${r.desc} Works alongside the rest of your AI team inside DojoBuro.`
   const body = `<article>
-<nav><a href="/">DojoBuro</a> › <a href="/teammates">Teammates</a> › ${esc(r.dept)}</nav>
+<nav><a href="/">DojoBuro</a> › <a href="/teammates">The crew</a> › ${esc(r.dept)}</nav>
 <h1>${esc(r.public)}</h1>
-<p>Its name is ${esc(r.code)}, and it is one of eighteen teammates you can put in a company.</p>
+<p>Its name is ${esc(r.code)}, and it is one of the ${PUBLIC_AGENTS.length} characters in the dojo.</p>
+${USE_CASE_BY_AGENT[r.id] ? `<p>In the dojo it teaches one shape of agent: <a href="/build/${USE_CASE_BY_AGENT[r.id].id}">${esc(USE_CASE_BY_AGENT[r.id].shape)}</a>.</p>` : ''}
 <p>${esc(p.mission)}</p>
 <section><h2>What it knows</h2><ul>${p.expertise.map((e) => `<li>${esc(e)}</li>`).join('')}</ul></section>
 <section><h2>What you get back</h2><p>${esc(p.output)}</p></section>
@@ -304,17 +305,17 @@ ${p.boundaries.length ? `<section><h2>What it will not do</h2><ul>${p.boundaries
   const byDept = [...new Set(PUBLIC_AGENTS.map((r) => r.dept))]
   const body = `<article>
 <nav><a href="/">DojoBuro</a></nav>
-<h1>One teammate for every job</h1>
-<p>${PUBLIC_AGENTS.length} specialists, grouped the way a business is. Each has its own brief, its own apps and its own limits, and Chief coordinates them so you brief one teammate, not ${PUBLIC_AGENTS.length}.</p>
+<h1>The characters of the dojo</h1>
+<p>${PUBLIC_AGENTS.length} of them live in the room, and ${USE_CASES.length} carry a shape of agent you learn to build end to end. Each one fails in its own way, which is why they are taught one at a time.</p>
 ${byDept.map((d) => `<section><h2>${esc(d)}</h2><ul>${PUBLIC_AGENTS.filter((r) => r.dept === d).map((r) => `<li><a href="/${r.slug}">${esc(r.public)}</a> · ${esc(r.desc)}</li>`).join('')}</ul></section>`).join('\n')}
 </article>`
   const html = head(shell, {
-    title: `AI teammates for every department · DojoBuro`,
-    description: `${PUBLIC_AGENTS.length} AI teammates you can hire into a company: marketing, sales, support, engineering, finance, legal, brand and more. Each one runs real work in your own connected apps.`,
+    title: `The characters of the dojo · DojoBuro`,
+    description: `The ${PUBLIC_AGENTS.length} characters in the DojoBuro dojo. ${USE_CASES.length} of them carry a shape of agent you learn to build end to end, from a blank page to a file you can run in a real framework.`,
     canonical, type: 'website',
     jsonLd: {
       '@context': 'https://schema.org', '@type': 'ItemList',
-      name: 'DojoBuro AI teammates', url: canonical,
+      name: 'The characters of the DojoBuro dojo', url: canonical,
       numberOfItems: PUBLIC_AGENTS.length,
       itemListElement: PUBLIC_AGENTS.map((r, i) => ({
         '@type': 'ListItem', position: i + 1, name: r.public, url: `${SITE}/${r.slug}`,

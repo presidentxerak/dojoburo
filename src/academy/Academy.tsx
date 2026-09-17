@@ -16,8 +16,6 @@
 import { useState } from 'react'
 import { SiteHeader } from '../components/SiteHeader'
 import { TopBar } from '../components/TopBar'
-import { Logo } from '../components/Logo'
-import { Wordmark } from '../components/Wordmark'
 import { SupportBot } from '../components/SupportBot'
 import { Lnk, navigate } from '../lib/router'
 import { useHeadTags, breadcrumb, SITE } from '../lib/headTags'
@@ -25,12 +23,14 @@ import { AcademyStage } from './AcademyStage'
 import { Lab } from './Lab'
 import { markDone, clearDone, recordAnswer, useProgress } from './progress'
 import { MasterPanel } from '../dojo/MasterPanel'
+import { COURSE_COUNT, PILLAR_BY_ID } from '../data/positioning'
 import {
   TRACKS, TRACK_BY_SLUG, ALL_LESSONS, LESSON_COUNT, TOTAL_MINUTES,
   findLesson, neighbours, lessonPath, trackPath,
   type Block, type Lesson, type Track,
 } from '../data/academy'
 import { BauhausIcon } from '../components/BauhausIcon'
+import { SiteFooter } from '../components/SiteFooter'
 
 const HOURS = Math.round((TOTAL_MINUTES / 60) * 10) / 10
 
@@ -39,14 +39,7 @@ function Shell({ children, inApp }: { children: React.ReactNode; inApp?: boolean
     <div className={`landing dg2 ac${inApp ? ' dg-inapp' : ''}`}>
       {inApp ? <TopBar /> : <SiteHeader />}
       {children}
-      <footer className="lp-footer">
-        <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
-        <nav className="lp-foot-links">
-          {inApp
-            ? <button className="dg-foot-link" onClick={() => { try { sessionStorage.setItem('dojoburo.nav', 'dojo') } catch { /* ignore */ } location.hash = 'app' }}>Back to dojo</button>
-            : <><a href="/">Home</a><a href="/academy">Academy</a><a href="/guide">App setup guide</a><a href="/#pricing">Pricing</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a></>}
-        </nav>
-      </footer>
+      <SiteFooter />
       <SupportBot />
     </div>
   )
@@ -97,7 +90,7 @@ export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
 
   useHeadTags({
     title: `Dojo Academy · learn AI agents from zero · ${LESSON_COUNT} free lessons`,
-    description: `Free, interactive courses on how AI agents actually work: what an agent is, how to edit one, and how to build a whole system in a loop. ${LESSON_COUNT} lessons, about ${HOURS} hours, no code and no account needed.`,
+    description: `The prompt engineering course at DojoBuro: what a token is, how an instruction is read, and how to write a brief a model actually follows. ${LESSON_COUNT} lessons, about ${HOURS} hours, no code and no account needed.`,
     path: '/academy',
     keywords: ['ai agent course', 'learn ai agents', 'free ai automation course', 'ai agents for beginners', 'what is an ai agent'],
     jsonLd: [
@@ -105,7 +98,7 @@ export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
         '@context': 'https://schema.org',
         '@type': 'Course',
         name: 'Dojo Academy',
-        description: `A free, interactive course that takes a complete beginner from "what is an AI agent" to running a working system of AI teammates.`,
+        description: `A free, interactive course that takes a complete beginner from "what is a token" to writing the instruction an agent actually follows.`,
         url: SITE + '/academy',
         provider: { '@type': 'Organization', name: 'DojoBuro', url: SITE },
         isAccessibleForFree: true,
@@ -140,12 +133,21 @@ export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
   return (
     <Shell inApp={inApp}>
       <section className="lp-hero ac-hero">
-        <span className="ac-kicker">Dojo Academy</span>
-        <h1>Learn how AI agents <span className="hl-acid">actually work</span>: from zero.</h1>
+        {/* LE DEUXIÈME DES TROIS COURS · il se présentait comme « l'académie »
+            tout court, et promettait « un système d'équipes qui fait votre
+            travail », ce qui est exactement l'ancien produit. Un visiteur qui
+            arrive ici depuis l'en-tête a cliqué sur « Prompt engineering » et
+            doit retrouver ce nom. */}
+        <span className="ac-kicker">Course 2 of {COURSE_COUNT} · {PILLAR_BY_ID.academy.nav}</span>
+        <h1>The instruction <span className="hl-acid">decides everything</span>.</h1>
         <p className="lp-sub">
-          Not documentation. A course. It starts at <b>“what is an agent”</b>, ends at <b>a system of teams
-          running your work</b>, and assumes you have never heard of vibe coding, an IDE or a coding agent.
+          Not documentation. A course. It starts at <b>“what is a token”</b>, ends at <b>a brief a model
+          actually follows</b>, and assumes you have never heard of vibe coding, an IDE or a coding agent.
           Every lesson is free, interactive, and about five minutes long.
+        </p>
+        <p className="ac-sub-order">
+          It is the second course. The first is <a href="/build">building an agent</a>, and nothing here makes
+          much sense until you have taken one apart.
         </p>
         <div className="ac-hero-go">
           <button className="lp-cta" onClick={() => navigate(lessonPath(go.track.slug, go.lesson.slug))}>

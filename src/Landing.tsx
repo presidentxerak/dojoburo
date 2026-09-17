@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react'
 import { PROFESSIONS, professionColor } from './data/professions'
 import { SupportBot } from './components/SupportBot'
 import { useWork } from './agents/workStore'
-import { Logo } from './components/Logo'
-import { Wordmark } from './components/Wordmark'
 import { SiteHeader } from './components/SiteHeader'
 import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
@@ -16,6 +14,8 @@ import { TRACKS } from './data/academy'
 import { ENTRY_COUNT, countByTrade } from './data/library'
 import { PILLARS, COURSES, COURSE_COUNT, PROMISE_LEAD, PROMISE_HL, PROMISE_SEP, SUBTITLE, NOT_THIS, LESSON_COUNT, TRACK_COUNT, COURSE_HOURS } from './data/positioning'
 import { BauhausIcon } from './components/BauhausIcon'
+import { SiteFooter } from './components/SiteFooter'
+import { USE_CASE_COUNT } from './data/agentUseCases'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -224,12 +224,20 @@ export function Landing({ enter }: { enter: () => void }) {
           rôle : on n'y fait plus produire une équipe, on y ouvre un coéquipier
           pour lire le prompt qui le rend ce qu'il est. */}
       <section className="lp-sec alt" id="dojo">
+        {/* LA SALLE, telle qu'elle est · cette section décrivait encore des
+            « coéquipiers » qu'on ouvre un par un. Ce sont douze agents
+            endormis, un par forme de problème, et c'est la première chose que
+            voit quelqu'un qui entre. La page d'accueil doit décrire la pièce
+            qui existe, pas celle d'avant. */}
         <span className="lp-pill">A sandbox · nothing here calls a paid model</span>
-        <h2>A room to practise in</h2>
+        <h2>A room where {USE_CASE_COUNT} agents are asleep</h2>
         <p className="lp-lead sm">
-          Every teammate in the dojo is a worked example. Open one and you get the brief that makes it a
-          specialist, the tools it would reach for, and the cost of the way it is written. Change the prompt and
-          watch what changes, that is the exercise.
+          They are asleep because none of them exists yet. Pick the shape of problem you actually have and that
+          one wakes up, then you build it from a blank page. Below is the same room from the other side: open a
+          character, read the brief that makes it what it is, change it and watch what changes.
+        </p>
+        <p className="lp-lead sm lp-soon">
+          <a href="/build">Walk in and pick one →</a>
         </p>
         <StudioTeam enter={enter} />
       </section>
@@ -262,25 +270,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <p className="lp-foot">Free · read in your browser · no account to begin</p>
       </section>
 
-      <footer className="lp-footer">
-        <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
-        <nav className="lp-foot-links">
-          {/* Only anchors that exist · three of these once pointed at sections
-              the page no longer had, and nobody clicks a footer, which is
-              exactly why it rots. */}
-          <a href="#courses">The three courses</a>
-          <a href="#pillars">What this is</a>
-          <a href="/build">Build an agent</a>
-          <a href="#academy">Academy</a>
-          <a href="#frugality">Frugality</a>
-          <a href="#library">Library</a>
-          <a href="#dojo">The dojo</a>
-          <a href="#pricing">Pricing</a>
-          <a href="/guide">App setup guide</a>
-          <a href="/terms">Terms</a>
-          <a href="/privacy">Privacy</a>
-        </nav>
-      </footer>
+      <SiteFooter />
       <SupportBot />
       {howTo && <TutorialOverlay onClose={() => setHowTo(false)} onStart={() => { setHowTo(false); enter() }} />}
     </div>

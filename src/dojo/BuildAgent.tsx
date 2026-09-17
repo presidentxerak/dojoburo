@@ -15,8 +15,6 @@
 // fournisseur.
 import { useEffect, useState } from 'react'
 import { SiteHeader } from '../components/SiteHeader'
-import { Logo } from '../components/Logo'
-import { Wordmark } from '../components/Wordmark'
 import { SupportBot } from '../components/SupportBot'
 import { useHeadTags } from '../lib/headTags'
 import { ClassScene } from './ClassScene'
@@ -27,6 +25,7 @@ import { estimateTokens } from '../agents/sandbox'
 import { MasterPanel } from './MasterPanel'
 import { AGENT_TRACK } from './masterProgress'
 import { BauhausIcon } from '../components/BauhausIcon'
+import { SiteFooter } from '../components/SiteFooter'
 
 /* ------------------------------------------------------------------ */
 /* Ce que dit le maître                                                */
@@ -133,7 +132,7 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
             : 'They are asleep because none of them exists yet. Pick the shape of problem you actually have, and that one wakes up. A research agent and a sorting agent do not fail the same way, so they are not taught the same way.'}
         </p>
         {chosen && (
-          <button className="cls-back" onClick={() => setChosenId(null)}>Back to the twelve</button>
+          <button className="cls-back" onClick={() => setChosenId(null)}>Back to all {USE_CASE_COUNT}</button>
         )}
       </section>
 
@@ -248,14 +247,7 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
           /academy et /frugality. */}
       <MasterPanel here="build" />
 
-      <footer className="lp-footer">
-        <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
-        <nav className="lp-foot-links">
-          <a href="/">Home</a><a href="/build">Build an agent</a><a href="/academy">Prompt engineering</a>
-          <a href="/frugality">Token frugality</a><a href="/library">Library</a>
-          <a href="/terms">Terms</a><a href="/privacy">Privacy</a>
-        </nav>
-      </footer>
+      <SiteFooter />
       <SupportBot />
     </div>
   )

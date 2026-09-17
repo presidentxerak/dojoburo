@@ -1,5 +1,6 @@
 import { Logo } from './components/Logo'
 import { Wordmark } from './components/Wordmark'
+import { SiteFooter } from './components/SiteFooter'
 
 // Terms of Service + Privacy Policy · served at /terms and /privacy. Plain,
 // original copy tailored to DojoBuro (client-side, card payments only).
@@ -24,14 +25,7 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
         <p className="legal-updated">{UPDATED}</p>
         {children}
       </main>
-      <footer className="lp-footer">
-        <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
-        <nav className="lp-foot-links">
-          <a href="/">Home</a>
-          <a href="/terms">Terms</a>
-          <a href="/privacy">Privacy</a>
-        </nav>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

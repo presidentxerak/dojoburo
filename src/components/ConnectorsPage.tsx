@@ -209,7 +209,15 @@ export function ConnectorsSurface({ onClose }: { onClose: () => void }) {
           )
         })}
 
-        <p className="connect-foot">Need external agents (MCP / A2A / webhook) instead? Open <a href="#studio">Dojo Studio</a> → pick an agent → <b>External agents</b>. Full reference in the <a href="#guide">Dojo Guide</a>.</p>
+        {/* « Dojo Studio » pointait vers #studio, une ancre qui n'existe sur
+            aucune page du produit : le lien ne faisait rien du tout, et rien
+            ne le signalait. Le studio s'ouvre par une commande, pas par une
+            adresse, donc c'est un bouton. */}
+        <p className="connect-foot">
+          Need external agents (MCP / A2A / webhook) instead?{' '}
+          <button className="connect-inline" onClick={() => useWork.getState().openStudio('studio')}>Open Dojo Studio</button>
+          {' '}→ pick an agent → <b>External agents</b>. Full reference in the <a href="#guide">Dojo Guide</a>.
+        </p>
       </div>
     </FullScreen>
   )

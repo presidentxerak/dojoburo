@@ -61,6 +61,10 @@ const CHECKS = [
   // AUCUN TIRET CADRATIN dans un texte de l'app · une purge faite à la main
   // revient toujours, et celle-ci portait sur 328 occurrences.
   ['check-dashes.mjs', 1, true],
+  // LES CHEMINS DU SITE · qu'aucun lien ne mène nulle part, qu'aucune page ne
+  // soit un îlot, et que le pied de page ne redevienne pas six pieds de page
+  // qui se contredisent. Un lien mort ne lève aucune erreur.
+  ['test-flows.mjs', 1, true],
   // LE JEU D'ICÔNES · qu'aucune ne redevienne un caractère. L'app les a
   // dessinées avec des caractères Unicode pendant des mois : ça s'affiche, mais
   // pas pareil chez tout le monde, et pas du tout sur certains téléphones. Un

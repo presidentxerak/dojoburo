@@ -15,8 +15,6 @@
 // produit qui ne se ressemblent pas donnent l'impression de deux produits.
 import { useEffect, useMemo, useState } from 'react'
 import { SiteHeader } from '../components/SiteHeader'
-import { Logo } from '../components/Logo'
-import { Wordmark } from '../components/Wordmark'
 import { SupportBot } from '../components/SupportBot'
 import { navigate } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
@@ -29,6 +27,7 @@ import {
 import { fetchBody, download, REFUSAL, type FetchState } from '../lib/libraryApi'
 import { FORMATS, render, fileNameFor, type BuiltAgent, type ExportFormat } from '../lib/agentExport'
 import { BauhausIcon } from '../components/BauhausIcon'
+import { SiteFooter } from '../components/SiteFooter'
 
 /** Le format natif d'une entrée · celui qu'on propose en premier.
  *
@@ -54,13 +53,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="landing dg2 ac lib">
       <SiteHeader />
       {children}
-      <footer className="lp-footer">
-        <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>
-        <nav className="lp-foot-links">
-          <a href="/">Home</a><a href="/academy">Academy</a><a href="/library">Library</a>
-          <a href="/guide">App setup guide</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a>
-        </nav>
-      </footer>
+      <SiteFooter />
       <SupportBot />
     </div>
   )
