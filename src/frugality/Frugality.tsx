@@ -21,6 +21,10 @@ import { Wordmark } from '../components/Wordmark'
 import { SupportBot } from '../components/SupportBot'
 import { useHeadTags } from '../lib/headTags'
 import { CHARS_PER_TOKEN } from '../agents/sandbox'
+import { BauhausIcon } from '../components/BauhausIcon'
+import { markDone, clearDone, useProgress } from '../academy/progress'
+import { LEVER_TRACK } from '../dojo/masterProgress'
+import { MasterPanel } from '../dojo/MasterPanel'
 import {
   DEFAULT_USAGE, compute, ranked, FAMILY_LABEL, TOKENS_PER_TOOL, DAYS,
   type Usage, type LeverFamily,
@@ -67,6 +71,11 @@ export function FrugalityPage() {
 
   const b = useMemo(() => compute(u), [u])
   const rank = useMemo(() => ranked(u), [u])
+  // Les leviers appliqués · le même magasin que les leçons et les étapes
+  // d'agent, sous une piste à eux. Voir dojo/masterProgress, qui est le seul à
+  // savoir les additionner sans les mélanger.
+  const progress = useProgress()
+  const pulled = (id: string) => progress.isDone(LEVER_TRACK, id)
   const total = b.inTokens + b.outTokens
   const share = (x: number) => (total > 0 ? Math.round((x / total) * 100) : 0)
   const money = (x: number | null) => (x === null ? null : x.toLocaleString('en-US', { maximumFractionDigits: 0 }))
@@ -176,8 +185,24 @@ export function FrugalityPage() {
             <p className="fr-fam-lead">{FAMILY_LABEL[fam].lead}</p>
             <div className="fr-levers">
               {rank.filter((r) => r.lever.family === fam).map(({ lever, gain }) => (
-                <div className="fr-lever" key={lever.id}>
+                <div className={`fr-lever${pulled(lever.id) ? ' on' : ''}`} key={lever.id}>
                   <div className="fr-lever-head">
+                    {/* LE LEVIER SE COCHE · c'est ce qui fait de cette page un
+                        COURS et non un article. Le maître ne pouvait rien
+                        compter ici : on annonçait trois cours et on en suivait
+                        deux. Ce qu'on coche est « je l'ai appliqué chez moi »,
+                        pas « je l'ai lu » : lire un levier ne coûte rien et
+                        n'apprend rien. */}
+                    <button
+                      className="fr-lever-tick"
+                      aria-pressed={pulled(lever.id)}
+                      title={pulled(lever.id) ? 'Applied' : 'Mark as applied where you work'}
+                      onClick={() => (pulled(lever.id)
+                        ? clearDone(LEVER_TRACK, lever.id)
+                        : markDone(LEVER_TRACK, lever.id))}
+                    >
+                      <BauhausIcon name={pulled(lever.id) ? 'check' : 'box'} size={13} />
+                    </button>
                     <b>{lever.title}</b>
                     <span className="fr-gain">
                       −{short(gain.tokens)} tok/mo
@@ -194,6 +219,8 @@ export function FrugalityPage() {
           </div>
         ))}
       </section>
+
+      <MasterPanel here="eco" />
 
       {/* NEKOMAI · l'encart entreprise.
           Il ne décrit que ce que nous savons de source sûre, et il est marqué

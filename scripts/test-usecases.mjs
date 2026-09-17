@@ -117,19 +117,95 @@ const VENDORS = /\b(anthropic|claude-[a-z0-9-]+|openai|gpt-[0-9]|gemini|mistral|
 const leaky = X.FORMATS.filter((f) => VENDORS.test(X.render(sample, f.id))).map((f) => f.id)
 ok('aucun format ne nomme un fournisseur', leaky.length === 0, leaky.join(', '))
 
-/* --- 4 · le maître ne brade pas ses diplômes ------------------------------ */
+/* --- 4 · le maître compte les TROIS cours -------------------------------- */
+
+const M = await load('src/dojo/masterProgress.ts', 'master.mjs')
+const A = await load('src/data/academy.ts', 'academy.mjs')
+const F = await load('src/data/frugality.ts', 'frugality.mjs')
+const { readProgress, masterAdvice, AGENT_TRACK, LEVER_TRACK } = M
+
+/** Toutes les clés d'un parcours d'agent terminé. */
+const agentKeys = (u) => u.steps.map((_, i) => `${AGENT_TRACK}/${u.id}/${i}`)
+const allLessons = A.ALL_LESSONS.map((x) => `${x.track.slug}/${x.lesson.slug}`)
+const allLevers = F.LEVERS.map((l) => `${LEVER_TRACK}/${l.id}`)
+const by = (list) => Object.fromEntries(readProgress(list).map((c) => [c.id, c]))
+
+ok('trois cours comptés', readProgress([]).length === 3)
+ok('à vide, tout est à zéro', readProgress([]).every((c) => c.done === 0 && c.percent === 0))
+
+// LE DÉFAUT QUE CETTE GARDE EXISTE POUR TENIR FERMÉ.
+//
+// Les étapes d'agent, les leçons et les leviers partagent un seul magasin. Le
+// compteur de l'académie les additionnait TOUS contre un dénominateur de
+// vingt leçons : finir trois agents affichait « 34 sur 20 » et une barre à
+// 170 %. Rien ne le montrait, parce qu'il faut avoir suivi deux cours pour le
+// déclencher et que chaque page est testée seule.
+const everyAgentStep = USE_CASES.flatMap(agentKeys)
+ok('les étapes d\'agent ne comptent pas comme des leçons', by(everyAgentStep).academy.done === 0,
+  `${by(everyAgentStep).academy.done}`)
+ok('les leviers non plus', by(allLevers).academy.done === 0)
+ok('…et les leçons ne comptent pas comme des agents', by(allLessons).build.done === 0)
+ok('…ni comme des leviers', by(allLessons).eco.done === 0)
+
+// Aucun pourcentage ne peut dépasser cent, quoi qu'on lui donne · une barre
+// qui déborde de son rail ne se voit pas sur une page qu'on regarde à zéro.
+const everything = [...everyAgentStep, ...allLessons, ...allLevers, 'inventé/n-importe-quoi']
+ok('aucun pourcentage ne dépasse cent', readProgress(everything).every((c) => c.percent <= 100),
+  readProgress(everything).map((c) => `${c.id}:${c.percent}`).join(' '))
+ok('une clé inconnue ne compte nulle part', readProgress(['rien/du/tout']).every((c) => c.done === 0))
+
+// Un agent COMMENCÉ ne compte pas · c'est la même règle que pour les diplômes,
+// et elle doit tenir dans le compteur aussi, sinon les deux se contredisent.
+ok('un parcours entamé ne compte pas un agent', by([agentKeys(USE_CASES[0])[0]]).build.done === 0)
+ok('…un parcours fini, si', by(agentKeys(USE_CASES[0])).build.done === 1)
+
+// Les trois cours PLEINS valent cent pour cent chacun · si l'un d'eux ne
+// pouvait pas atteindre cent, son diplôme final serait inatteignable.
+const full = by(everything)
+ok('chaque cours peut atteindre cent', ['build', 'academy', 'eco'].every((k) => full[k].percent === 100),
+  ['build', 'academy', 'eco'].map((k) => `${k}:${full[k].percent}`).join(' '))
+
+// Le conseil du maître DIT QUOI FAIRE · il change avec l'avancement, sinon
+// c'est une phrase décorative posée au dessus d'un tableau.
+const advices = new Set([
+  masterAdvice(readProgress([])),
+  masterAdvice(readProgress(agentKeys(USE_CASES[0]))),
+  masterAdvice(readProgress(allLessons)),
+  masterAdvice(readProgress(everything)),
+])
+ok('le conseil change avec l\'avancement', advices.size === 4, `${advices.size} phrases distinctes`)
+ok('…et aucun n\'est vide', [...advices].every((a) => a.length > 30))
+
+/* --- 5 · le maître ne brade pas ses diplômes ------------------------------ */
 
 const { DIPLOMAS, diplomaFor } = D
-ok('quatre diplômes', DIPLOMAS.length === 4)
-ok('rien n\'est acquis à zéro agent', diplomaFor(0, 999).earned.length === 0)
+ok('au moins un diplôme par cours et un pour l\'ensemble', DIPLOMAS.length >= 4, `${DIPLOMAS.length}`)
+ok('rien n\'est acquis à vide', diplomaFor(readProgress([])).earned.length === 0)
 // Le piège exact que ce produit refuse : récompenser le fait de COMMENCER.
-// Mille étapes entamées sur douze parcours ne valent aucun diplôme.
-ok('les étapes éparses ne décernent rien', diplomaFor(0, 48).earned.length === 0)
-ok('un agent terminé vaut le premier', diplomaFor(1, 4).earned.includes('first'))
-ok('les douze valent tout', diplomaFor(USE_CASE_COUNT, 48).earned.length === DIPLOMAS.length)
-// Un seuil au dessus du nombre d'agents rendrait un diplôme inatteignable, et
-// une salle promet ce qu'elle contient.
-ok('aucun seuil hors d\'atteinte', DIPLOMAS.every((d) => d.needs <= USE_CASE_COUNT))
+// Une étape entamée sur chacun des douze parcours ne vaut aucun diplôme.
+const started = USE_CASES.map((u) => agentKeys(u)[0])
+ok('les étapes éparses ne décernent rien', diplomaFor(readProgress(started)).earned.length === 0)
+ok('un agent terminé vaut le premier', diplomaFor(readProgress(agentKeys(USE_CASES[0]))).earned.includes('first'))
+
+// CHAQUE COURS PÈSE · un diplôme au moins doit dépendre de chacun des trois,
+// sinon le centre annonce trois cours et n'en récompense qu'un, ce qui dit à
+// l'élève lequel compte vraiment.
+const allButBuild = [...allLessons, ...allLevers]
+const allButAcademy = [...everyAgentStep, ...allLevers]
+const allButEco = [...everyAgentStep, ...allLessons]
+const n = (list) => diplomaFor(readProgress(list)).earned.length
+const nAll = n(everything)
+ok('tout terminé décerne tout', nAll === DIPLOMAS.length, `${nAll}/${DIPLOMAS.length}`)
+ok('sans le cours de construction, il manque des diplômes', n(allButBuild) < nAll)
+ok('sans le prompt engineering aussi', n(allButAcademy) < nAll)
+ok('sans la sobriété aussi', n(allButEco) < nAll)
+
+// Le prochain diplôme dit ce qu'il RESTE · une case grisée sans reste est un
+// mur, pas un repère.
+const mid = diplomaFor(readProgress(agentKeys(USE_CASES[0])))
+ok('le prochain diplôme est nommé', !!mid.next)
+ok('…et ce qu\'il reste est écrit', mid.toGo.length > 3, mid.toGo)
+ok('plus rien à faire, plus de prochain', diplomaFor(readProgress(everything)).next === null)
 
 /* --- 5 · les trois cours, une seule fois ---------------------------------- */
 

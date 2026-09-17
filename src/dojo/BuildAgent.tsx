@@ -13,7 +13,7 @@
 // Ce qu'on emporte à la fin n'est pas un score : c'est un fichier. Voir
 // lib/agentExport, qui rend cinq formats dont aucun n'appartient à un
 // fournisseur.
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SiteHeader } from '../components/SiteHeader'
 import { Logo } from '../components/Logo'
 import { Wordmark } from '../components/Wordmark'
@@ -24,7 +24,8 @@ import { USE_CASES, USE_CASE_BY_ID, USE_CASE_COUNT, type UseCase } from '../data
 import { markDone, clearDone, useProgress } from '../academy/progress'
 import { FORMATS, render, downloadAgent, copyAgent, type BuiltAgent, type ExportFormat } from '../lib/agentExport'
 import { estimateTokens } from '../agents/sandbox'
-import { diplomaFor, DIPLOMAS } from './diplomas'
+import { MasterPanel } from './MasterPanel'
+import { AGENT_TRACK } from './masterProgress'
 import { BauhausIcon } from '../components/BauhausIcon'
 
 /* ------------------------------------------------------------------ */
@@ -96,13 +97,11 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
   // magasin pour « les étapes d'agent » aurait donné deux barres de
   // progression qui ne parlent pas de la même chose, et un maître qui en lit
   // une seule.
-  const stepDone = (u: UseCase, i: number) => progress.isDone('agent', `${u.id}/${i}`)
+  // Le nom de la piste vient de masterProgress · il était écrit 'agent' en dur
+  // à trois endroits ici, et c'est la chaîne sur laquelle le décompte des
+  // trois cours repose entièrement.
+  const stepDone = (u: UseCase, i: number) => progress.isDone(AGENT_TRACK, `${u.id}/${i}`)
   const doneSteps = chosen ? chosen.steps.filter((_, i) => stepDone(chosen, i)).length : 0
-  const built = useMemo(
-    () => USE_CASES.filter((u) => u.steps.every((_, i) => progress.isDone('agent', `${u.id}/${i}`))).length,
-    [progress],
-  )
-  const diploma = diplomaFor(built, progress.doneCount)
 
   useHeadTags({
     title: chosen
@@ -177,7 +176,7 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
                     <button
                       className="cls-step-tick"
                       aria-pressed={on}
-                      onClick={() => (on ? clearDone('agent', `${chosen.id}/${i}`) : markDone('agent', `${chosen.id}/${i}`))}
+                      onClick={() => (on ? clearDone(AGENT_TRACK, `${chosen.id}/${i}`) : markDone(AGENT_TRACK, `${chosen.id}/${i}`))}
                     >
                       {on ? <BauhausIcon name="check" size={13} /> : String(i + 1)}
                     </button>
@@ -241,27 +240,13 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
         </>
       )}
 
-      {/* LE MAÎTRE TIENT VOTRE PROGRESSION · et délivre les diplômes. */}
-      <section className="lp-sec alt cls-diploma">
-        <h2>What the master has seen you do</h2>
-        <p className="lp-lead sm">
-          {built === 0
-            ? 'Nothing yet. Build one agent all the way through and the first diploma is yours.'
-            : `${built} of ${USE_CASE_COUNT} agents built, end to end.`}
-        </p>
-        <div className="cls-dips">
-          {DIPLOMAS.map((d) => {
-            const earned = diploma.earned.includes(d.id)
-            return (
-              <div className={`cls-dip${earned ? ' on' : ''}`} key={d.id}>
-                <span className="cls-dip-g" aria-hidden><BauhausIcon name={earned ? 'check' : 'dot'} size={15} /></span>
-                <b>{d.title}</b>
-                <span>{earned ? d.awarded : d.how}</span>
-              </div>
-            )
-          })}
-        </div>
-      </section>
+      {/* LE MAÎTRE TIENT VOTRE PROGRESSION · sur LES TROIS COURS, et pas
+          seulement sur celui-ci. Ce bloc était local à cette page et ne
+          comptait que les agents ; on pouvait finir les vingt leçons et les
+          sept leviers sans que le maître ait quoi que ce soit à dire. Il vit
+          maintenant dans dojo/MasterPanel, qui est le même sur /build,
+          /academy et /frugality. */}
+      <MasterPanel here="build" />
 
       <footer className="lp-footer">
         <div className="lp-brand"><Logo size={26} /> <Wordmark /></div>

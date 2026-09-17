@@ -6,6 +6,7 @@
 // should never require signing in.
 import { useSyncExternalStore } from 'react'
 import { ALL_LESSONS, LESSON_COUNT } from '../data/academy'
+import { readProgress } from '../dojo/masterProgress'
 
 const KEY = 'dojoburo.academy.v1'
 
@@ -58,18 +59,31 @@ export function resetAll() { write(EMPTY) }
 
 function subscribe(l: () => void) { listeners.add(l); return () => { listeners.delete(l) } }
 
-/** Read the progress state · re-renders when it changes. */
+/** Read the progress state · re-renders when it changes.
+ *
+ *  `doneCount` ne compte QUE des leçons, et c'est une correction, pas un
+ *  détail. Ce magasin sert aussi aux étapes d'agent et aux leviers de
+ *  sobriété, rangés sous leurs propres pistes ; il additionnait tout contre un
+ *  dénominateur de vingt leçons, donc l'académie annonçait « 34 sur 20 » et
+ *  une barre à 170 % à qui avait fait les deux cours. Le décompte des trois
+ *  cours vit dans dojo/masterProgress, qui est le seul à savoir compter. */
 export function useProgress() {
   const s = useSyncExternalStore(subscribe, () => state, () => EMPTY)
   const doneSet = new Set(s.done)
+  const courses = readProgress(s.done)
+  const lessons = courses.find((c) => c.id === 'academy')!
   return {
     isDone: (t: string, l: string) => doneSet.has(key(t, l)),
     answerFor: (t: string, l: string) => s.answers[key(t, l)],
-    doneCount: s.done.length,
+    doneCount: lessons.done,
     total: LESSON_COUNT,
-    percent: Math.round((s.done.length / LESSON_COUNT) * 100),
+    percent: lessons.percent,
     doneInTrack: (t: string) => s.done.filter((x) => x.startsWith(`${t}/`)).length,
     /** the first lesson not yet finished · where "Continue" goes */
     nextUp: ALL_LESSONS.find((x) => !doneSet.has(key(x.track.slug, x.lesson.slug))) ?? ALL_LESSONS[0],
+    /** les trois cours, vus par le maître · une seule source */
+    courses,
+    /** toutes les clés terminées · pour qui doit recompter autrement */
+    doneKeys: s.done as readonly string[],
   }
 }

@@ -7893,6 +7893,71 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 .cocard-glyph .bh-icon, .cocard-tglyph .bh-icon, .ac-bot .bh-icon,
 .ac-shield .bh-icon { vertical-align: 0; }
 
+/* LE TABLEAU DU MAÎTRE · le même sur les trois pages de cours.
+   Il reprend les cartes du produit, volontairement : un bloc de progression
+   dessiné à part se lirait comme un widget importé, et il doit se lire comme
+   une partie du cours. */
+.mp-says {
+  max-width: 760px; margin: 14px auto 0; padding: 14px 18px;
+  border-left: 3px solid var(--violet); background: var(--panel-solid);
+  border-radius: var(--radius); font-size: 16px; line-height: 1.55; text-align: left;
+}
+.mp-courses {
+  display: grid; gap: 12px; max-width: 900px; margin: 20px auto 0;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.mp-c {
+  display: flex; flex-direction: column; gap: 9px; text-align: left; padding: 15px;
+  background: var(--panel-solid); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--ink); text-decoration: none;
+  transition: transform .16s ease, border-color .16s ease;
+}
+.mp-c:hover { transform: translateY(-2px); border-color: var(--border-lit); text-decoration: none; }
+.mp-c.on { border-color: var(--violet); }
+.mp-c-top { display: flex; align-items: center; gap: 8px; }
+.mp-c-top b { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; }
+.mp-c-top i { margin-left: auto; font-style: normal; font-size: 13px; color: var(--muted); }
+/* La barre · un rail et son remplissage. La largeur vient d'un pourcentage
+   déjà borné à cent dans masterProgress, pas d'un calcul fait ici : elle a
+   dépassé son rail pendant tout un lot parce que deux cours écrivaient dans le
+   même compteur, et un débordement de barre est invisible sur une page qu'on
+   ne regarde qu'à zéro pour cent. */
+.mp-bar { display: block; height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+.mp-bar i { display: block; height: 100%; background: var(--violet); }
+.mp-c em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--violet); }
+.mp-c.on em { color: var(--muted); }
+.mp-dips {
+  display: grid; gap: 10px; max-width: 900px; margin: 22px auto 0;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.mp-dip {
+  display: grid; grid-template-columns: auto 1fr; gap: 4px 9px; align-items: start;
+  padding: 13px; border: 1px solid var(--border); border-radius: var(--radius);
+  text-align: left; color: var(--muted);
+}
+.mp-dip.on { border-color: var(--violet); color: var(--ink); }
+.mp-dip .bh-icon { grid-row: span 2; margin-top: 2px; color: var(--muted); }
+.mp-dip.on .bh-icon { color: var(--violet); }
+.mp-dip b { font-family: var(--font-pixel); font-weight: 800; font-size: 14px; color: var(--ink); }
+.mp-dip span { font-size: 13px; line-height: 1.5; }
+.mp-next { max-width: 760px; margin: 16px auto 0; font-size: 15px; }
+.mp-small { max-width: 700px; margin: 10px auto 0; font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+/* Le levier appliqué · une case à cocher, pas une décoration. */
+.fr-lever-tick {
+  display: grid; place-items: center; width: 24px; height: 24px; flex: none;
+  padding: 0; border: 1px solid var(--border); border-radius: 6px;
+  background: none; color: var(--muted); cursor: pointer;
+}
+.fr-lever-tick[aria-pressed='true'] { border-color: var(--violet); color: var(--violet); }
+/* La tête du levier tenait deux enfants et les écartait aux deux bords. Avec
+   la case, elle en tient trois, et `space-between` poserait le titre au
+   milieu de nulle part. La case et le titre restent collés à gauche, le gain
+   part à droite. */
+.fr-lever-head { align-items: center; }
+.fr-lever-head b { margin-right: auto; }
+.fr-lever.on { border-color: var(--violet); }
+
 .lp-courses {
   display: grid; gap: 14px; max-width: 1040px; margin: 24px auto 0;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

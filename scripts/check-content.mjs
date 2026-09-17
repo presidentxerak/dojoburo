@@ -214,8 +214,27 @@ const RULES = [
   { file: 'src/main.tsx', must: /\^\\\/build\\\//, why: 'each use case needs its own address, or none of the twelve is shareable' },
   { file: 'scripts/gen-seo.mjs', must: /USE_CASES/, why: 'the sitemap must carry the agent pages, or nothing indexes them' },
   { file: 'src/dojo/BuildAgent.tsx', must: /masterSays/, why: 'the master greets, and that is the first thing the page does' },
-  { file: 'src/dojo/BuildAgent.tsx', must: /DIPLOMAS/, why: 'the master hands out the diplomas, on the page he teaches on' },
+  // Les diplômes ont DÉMÉNAGÉ · ils étaient rendus dans BuildAgent, où ils ne
+  // voyaient qu'un cours sur trois. Cette règle les suit dans MasterPanel
+  // plutôt que de continuer à exiger l'ancien emplacement : une garde dont la
+  // prémisse a bougé se répare, elle ne se supprime pas.
+  { file: 'src/dojo/MasterPanel.tsx', must: /DIPLOMAS/, why: 'the master hands out the diplomas, wherever he teaches' },
   { file: 'src/dojo/diplomas.ts', must: /USE_CASE_COUNT/, why: 'a diploma threshold above the number of agents can never be earned' },
+  // LE MAÎTRE TIENT LES TROIS COURS · il n'en tenait qu'un. On pouvait finir
+  // les vingt leçons et les sept leviers sans qu'il ait rien à dire, ce qui
+  // revient à annoncer trois cours et à n'en reconnaître qu'un.
+  { file: 'src/dojo/MasterPanel.tsx', must: /COURSES/, why: 'the master reads the three courses, not one' },
+  { file: 'src/dojo/MasterPanel.tsx', must: /masterAdvice/, why: 'a teacher says what to do next, not just what is done' },
+  { file: 'src/academy/Academy.tsx', must: /<MasterPanel/, why: 'the master must hold the count on the prompt engineering course too' },
+  { file: 'src/frugality/Frugality.tsx', must: /<MasterPanel/, why: '…and on the frugality course' },
+  { file: 'src/dojo/BuildAgent.tsx', must: /<MasterPanel/, why: '…and where he teaches' },
+  { file: 'src/frugality/Frugality.tsx', must: /markDone\(LEVER_TRACK/, why: 'the third course needs something to finish, or it is an article' },
+  // La correction qui a rendu tout ça possible · le compteur de l'académie
+  // additionnait les étapes d'agent et les leviers contre un dénominateur de
+  // vingt leçons, donc il affichait « 34 sur 20 ».
+  { file: 'src/academy/progress.ts', must: /readProgress/, why: 'one place counts the courses · doneCount must not add up three of them' },
+  { file: 'src/academy/progress.ts', forbid: /doneCount: s\.done\.length/, why: 'that counted agent steps and levers as lessons' },
+  { file: 'src/dojo/masterProgress.ts', must: /Math\.min\(100/, why: 'a progress bar above one hundred means the count is wrong' },
   { file: 'src/lib/agentExport.ts', must: /SKILL\.md/, why: 'prompts, briefs and skills must all leave the dojo as files' },
   // En chiffres ou en toutes lettres · le prompt du robot est de la prose, et
   // « twelve agents » y est plus juste que « 12 agents ». Ce qui compte est

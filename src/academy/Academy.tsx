@@ -24,6 +24,7 @@ import { useHeadTags, breadcrumb, SITE } from '../lib/headTags'
 import { AcademyStage } from './AcademyStage'
 import { Lab } from './Lab'
 import { markDone, clearDone, recordAnswer, useProgress } from './progress'
+import { MasterPanel } from '../dojo/MasterPanel'
 import {
   TRACKS, TRACK_BY_SLUG, ALL_LESSONS, LESSON_COUNT, TOTAL_MINUTES,
   findLesson, neighbours, lessonPath, trackPath,
@@ -207,6 +208,8 @@ export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
           <div className="lp-step3"><span className="lp-step3-n dg2-n3">3</span><div><b>Design your own system</b><span>Turn a goal into an ordered plan with one owner per step, chain teams together, and find the step that broke.</span></div></div>
         </div>
       </section>
+
+      <MasterPanel here="academy" />
 
       <section className="lp-sec" id="faq">
         <h2>Questions people ask first</h2>
