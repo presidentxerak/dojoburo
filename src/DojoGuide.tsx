@@ -12,6 +12,7 @@ import { Tutorial } from './components/guide/Tutorial'
 import { type WalkId } from './components/guide/tutorialBeats'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
 import { CREW_COUNT, CREW_WORD } from './data/facts'
+import { BauhausIcon } from './components/BauhausIcon'
 
 // The Dojo Guide · a full page (not a modal) in the landing page's visual
 // language: same title/subtitle/text sizes, same cards. It covers connectors
@@ -413,7 +414,7 @@ function CopyRedirect() {
             }).catch(() => { /* clipboard blocked · the text is right there */ })
           }}
         >
-          {done ? '✓ Copied' : 'Copy'}
+          {done ? <><BauhausIcon name="check" size={12} /> Copied</> : 'Copy'}
         </button>
       </div>
       <span className="dg2-redirect-n">

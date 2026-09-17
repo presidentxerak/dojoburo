@@ -8,6 +8,7 @@ import { useEngine, AUTONOMY_CAP, AUTONOMY_LABEL, type Autonomy } from '../../ag
 import { useSecrets } from '../../agents/secretsStore'
 import { listSecrets, saveSecret as apiSaveSecret, removeSecret as apiRemoveSecret, type ServerSecret } from '../../agents/workApi'
 import { InfoDot } from '../../components/InfoDot'
+import { BauhausIcon } from '../../components/BauhausIcon'
 
 export default function SentinelModule({ dojoId }: ModuleProps) {
   const pushToast = useDojo((s) => s.pushToast)
@@ -139,7 +140,7 @@ export default function SentinelModule({ dojoId }: ModuleProps) {
           <button role="switch" aria-checked={engine.paused} className={`tgl danger${engine.paused ? ' on' : ''}`} onClick={() => engine.setPaused(!engine.paused)}><span /></button>
         </label>
       </div>
-      {engine.paused && <p className="sec-paused">⏸ Company paused · tasks are blocked.</p>}
+      {engine.paused && <p className="sec-paused"><BauhausIcon name="pause" size={12} /> Company paused · tasks are blocked.</p>}
     </div>
   )
 }

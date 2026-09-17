@@ -26,6 +26,7 @@ import { DocumentsSurface } from './components/DocumentsPage'
 import { startSync, stopSync, pullChanges, drain, resetSync } from './lib/sync'
 import { apiFetch } from './lib/apiFetch'
 import { refParams } from './agents/workApi'
+import { BauhausIcon } from './components/BauhausIcon'
 
 export default function App() {
   const fireEvent = useDojo((s) => s.fireEvent)
@@ -227,10 +228,10 @@ export default function App() {
             il n'était atteignable que depuis le site, pas depuis l'app. */}
         {(homeStep === 'companies' || homeStep === 'company') && (
         <nav className="mbar mbar-4" aria-label="Navigation">
-          <a className="mbar-link" href="/academy"><span className="mbar-ic">◱</span>Academy</a>
-          <button className="on"><span className="mbar-ic">▦</span>Dojos</button>
-          <button onClick={() => { setView('dojo'); setDojoFull(true) }}><span className="mbar-ic">◳</span>Practise</button>
-          <button onClick={() => useWork.getState().openStudio('studio')}><span className="mbar-ic">✎</span>Settings</button>
+          <a className="mbar-link" href="/academy"><BauhausIcon className="mbar-ic" name="quadrant" size={18} />Academy</a>
+          <button className="on"><BauhausIcon className="mbar-ic" name="grid" size={18} />Dojos</button>
+          <button onClick={() => { setView('dojo'); setDojoFull(true) }}><BauhausIcon className="mbar-ic" name="frame" size={18} />Practise</button>
+          <button onClick={() => useWork.getState().openStudio('studio')}><BauhausIcon className="mbar-ic" name="pen" size={18} />Settings</button>
         </nav>
         )}
       </div>
@@ -312,16 +313,16 @@ export default function App() {
           Connect apps and the Dojo Guide live in the menu now. */}
       <nav className="mbar mbar-4" aria-label="Navigation">
         <button onClick={() => { selectAgent(null); setHomeStart('companies'); setView('home') }}>
-          <span className="mbar-ic">▦</span>Company
+          <BauhausIcon className="mbar-ic" name="grid" size={18} />Company
         </button>
         <button className={dojoFull ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(true) }}>
-          <span className="mbar-ic">◳</span>Dojo
+          <BauhausIcon className="mbar-ic" name="frame" size={18} />Dojo
         </button>
         <button className={!dojoFull && !selected ? 'on' : ''} onClick={() => { selectAgent(null); setDojoFull(false); document.querySelector('.dash-side')?.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-          <span className="mbar-ic">▤</span>Team
+          <BauhausIcon className="mbar-ic" name="rows" size={18} />Team
         </button>
         <button onClick={() => setGraphOpen(true)}>
-          <span className="mbar-ic">◈</span>Graph
+          <BauhausIcon className="mbar-ic" name="diamond" size={18} />Graph
         </button>
       </nav>
 

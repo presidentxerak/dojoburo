@@ -13,6 +13,7 @@ import { TeamCard } from '../home/TeamCard'
 import { TeammateCard } from '../TeammateCard'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { ROLE_BY_ID } from '../../data/roleAgents'
+import { BauhausIcon } from '../BauhausIcon'
 
 export interface Beat { id: string; title: string; body: string }
 
@@ -100,10 +101,10 @@ const STEPS = (TOUR?.loop ?? []).map((s) => ({
 const APPS = ['Notion', 'Instagram', 'Gmail', 'Drive']
 // what the team hands back · a glyph beats three grey bars
 const DOCS = [
-  { d: 'Research', g: '◈', c: '#0ea5e9' },
-  { d: 'Plan', g: '❑', c: '#7b5cff' },
-  { d: 'Creatives', g: '◱', c: '#e0459b' },
-  { d: 'Brief', g: '▤', c: '#1fa563' },
+  { d: 'Research', g: 'diamond', c: '#0ea5e9' },
+  { d: 'Plan', g: 'square', c: '#7b5cff' },
+  { d: 'Creatives', g: 'quadrant', c: '#e0459b' },
+  { d: 'Brief', g: 'rows', c: '#1fa563' },
 ]
 
 /** The animated stage for a beat. Keyed by beat id so animations replay. */
@@ -209,7 +210,7 @@ export function Stage({ beat }: { beat: string }) {
           <ol className="tut-loop">
             {STEPS.map((s, i) => (
               <li key={s.s} className={i < tick ? 'done' : i === tick ? 'run' : ''}>
-                <span className="tut-loop-i">{i < tick ? '✓' : i + 1}</span>{s.s}
+                <span className="tut-loop-i">{i < tick ? <BauhausIcon name="check" size={12} /> : i + 1}</span>{s.s}
               </li>
             ))}
           </ol>
@@ -281,7 +282,7 @@ export function Stage({ beat }: { beat: string }) {
       <div className="tut-docs">
         {DOCS.map((x, i) => (
           <span key={x.d} className="tut-doc" style={{ ['--c' as string]: x.c, animationDelay: `${i * 150}ms` }}>
-            <span className="tut-doc-g" style={{ background: x.c }}>{x.g}</span>
+            <span className="tut-doc-g" style={{ background: x.c }}><BauhausIcon name={x.g} size={16} /></span>
             <span className="tut-doc-l" /><span className="tut-doc-l sm" />
             <em>{x.d}</em>
           </span>

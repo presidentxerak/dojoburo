@@ -15,6 +15,8 @@
 // not a promise — the real number for every run is recorded as it happens (see
 // agents/usageMeter) so the founder always has the actual figure, not ours.
 
+import type { IconName } from './icons'
+
 export type EffortId = 'saver' | 'balanced' | 'max'
 
 export interface EffortMode {
@@ -22,7 +24,11 @@ export interface EffortMode {
   label: string
   /** the one line under the name */
   tagline: string
-  glyph: string
+  /** l'icône · un NOM de forme, pas un caractère. Les glyphes Unicode qui
+   *  vivaient ici se dessinaient différemment sur chaque système, et deux
+   *  d'entre eux ne s'affichaient pas du tout sur un téléphone. Voir
+   *  components/BauhausIcon pour le dessin, data/icons pour le vocabulaire. */
+  glyph: IconName
   tint: string
   /** hard ceiling on the answer, in tokens */
   maxTokens: number
@@ -45,7 +51,7 @@ export const EFFORT_MODES: EffortMode[] = [
     id: 'saver',
     label: 'Saver',
     tagline: 'Short answers, no apps attached. The cheapest way to work.',
-    glyph: '◦',
+    glyph: 'dot',
     tint: '#1fa563',
     maxTokens: 1500,
     thinking: false,
@@ -64,7 +70,7 @@ export const EFFORT_MODES: EffortMode[] = [
     id: 'balanced',
     label: 'Balanced',
     tagline: 'Full answers, the apps that matter. The everyday setting.',
-    glyph: '◈',
+    glyph: 'diamond',
     tint: '#2f6bff',
     maxTokens: 4000,
     thinking: false,
@@ -83,7 +89,7 @@ export const EFFORT_MODES: EffortMode[] = [
     id: 'max',
     label: 'Max',
     tagline: 'Long answers, thinking on, every app. For work that has to be right.',
-    glyph: '▲',
+    glyph: 'triangle',
     tint: '#7b5cff',
     maxTokens: 8000,
     thinking: true,

@@ -16,6 +16,7 @@
 // possible failure — you could not tell which one you were in.
 import { useWorkshop } from '../../workshop'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
+import { BauhausIcon } from '../BauhausIcon'
 
 export function DojoTabs({ onOpen }: { onOpen?: () => void }) {
   const dojos = useWorkshop((s) => s.dojos)
@@ -51,7 +52,7 @@ export function DojoTabs({ onOpen }: { onOpen?: () => void }) {
               title={`${d.name} · ${crew} teammates`}
               onClick={() => { setActive(d.id); onOpen?.() }}
             >
-              <span className="dtab-glyph" style={{ background: tint }}>{a.glyph}</span>
+              <span className="dtab-glyph" style={{ background: tint }}><BauhausIcon name={a.glyph} size={14} /></span>
               <span className="dtab-txt">{label}</span>
               <span className="dtab-n">{crew}</span>
             </button>

@@ -9,6 +9,7 @@ import { useSkills, ruleFromFailure } from '../../agents/skills'
 import { roleForTask } from '../../data/connectors'
 import { Markdown } from './Markdown'
 import { Icon } from '../Icon'
+import { BauhausIcon } from '../BauhausIcon'
 
 export function DeliverableModal() {
   const d = useWork((s) => s.deliverable)
@@ -53,7 +54,7 @@ export function DeliverableModal() {
         {d.verified && (
           d.verified.ok ? (
             <p className={`dlv-checked ${d.verified.repaired ? 'is-repaired' : 'is-ok'}`}>
-              <span className="dlv-tick">✓</span>
+              <span className="dlv-tick"><BauhausIcon name="check" size={13} /></span>
               {d.verified.repaired
                 ? <>Corrigé puis vérifié · {d.verified.passed.length} contrôles passés</>
                 : <>Vérifié · {d.verified.passed.length} contrôles passés</>}

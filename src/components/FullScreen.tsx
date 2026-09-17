@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useOverlay } from '../lib/overlay'
 import { Boundary } from './Boundary'
+import { BauhausIcon } from './BauhausIcon'
 
 export function FullScreen({ title, sub, tint, actions, bodyClass, children, onClose }: {
   title: string
@@ -60,7 +61,7 @@ export function FullScreen({ title, sub, tint, actions, bodyClass, children, onC
         </div>
         <div className="modhost-bar-r">
           {actions}
-          <button className="modhost-close" onClick={onClose} aria-label={`Close ${title}`} title="Close">✕</button>
+          <button className="modhost-close" onClick={onClose} aria-label={`Close ${title}`} title="Close"><BauhausIcon name="cross" size={14} /></button>
         </div>
       </header>
       <div className={`modhost-body${bodyClass ? ` ${bodyClass}` : ''}`}>

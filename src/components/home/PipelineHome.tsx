@@ -24,6 +24,7 @@ import { SaveGate } from './SaveGate'
 import { CreateCompany } from './CreateCompany'
 import { ChooseTeams } from './ChooseTeams'
 import { privyConfigured } from '../../auth/controls'
+import { BauhausIcon } from '../BauhausIcon'
 
 type View = 'create' | 'choose' | 'companies' | 'company'
 
@@ -172,7 +173,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
                     aria-label={`Open ${c.name}`}
                   >
                     <span className="cocard-top">
-                      <span className="cocard-glyph" style={{ background: tint }}>◈</span>
+                      <span className="cocard-glyph" style={{ background: tint }}><BauhausIcon name="diamond" size={17} /></span>
                       {c.id === activeCompanyId && <span className="cocard-here">Open now</span>}
                     </span>
 
@@ -192,7 +193,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
                         const a = d.archetype ? ARCHETYPE_BY_ID[d.archetype] : null
                         return (
                           <span key={d.id} className="cocard-team">
-                            <span className="cocard-tglyph" style={{ background: a?.tint ?? '#8892a6' }}>{a?.glyph ?? '◆'}</span>
+                            <span className="cocard-tglyph" style={{ background: a?.tint ?? '#8892a6' }}><BauhausIcon name={a?.glyph ?? 'diamondSolid'} size={14} /></span>
                             <em>{a?.label ?? d.name}</em>
                           </span>
                         )
@@ -208,7 +209,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
                     title="Delete company"
                     onClick={() => { if (confirm(`Delete "${c.name}"? Its ${teams.length} team${teams.length === 1 ? '' : 's'} and everything they made are removed.`)) deleteCompany(c.id) }}
                   >
-                    ✕
+                    <BauhausIcon name="cross" size={12} />
                   </button>
                 </article>
               )
@@ -256,7 +257,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
             </p>
             <ul>{mergedNotes.map((n) => <li key={n}>{n}</li>)}</ul>
           </div>
-          <button className="ph-merged-x" onClick={clearMerged} aria-label="Fermer">✕</button>
+          <button className="ph-merged-x" onClick={clearMerged} aria-label="Fermer"><BauhausIcon name="cross" size={12} /></button>
         </div>
       )}
 
@@ -295,7 +296,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
             >
               <button type="button" className="cocard-face" onClick={() => open(d.id)} aria-label={`Open ${d.name}`}>
                 <span className="cocard-top">
-                  <span className="cocard-glyph" style={{ background: tint }}>{a?.glyph ?? '◆'}</span>
+                  <span className="cocard-glyph" style={{ background: tint }}><BauhausIcon name={a?.glyph ?? 'diamondSolid'} size={17} /></span>
                   {dup && <span className="tmcard-dup" title="You already have this team · remove one of them">Duplicate</span>}
                   {d.id === activeId && !dup && <span className="cocard-here">Open now</span>}
                 </span>
@@ -346,7 +347,7 @@ export function PipelineHome({ onOpenProject, onView, initialView }: {
                 title="Delete team"
                 onClick={() => { if (confirm(`Delete "${d.name}"? Its team and everything they made are removed.`)) del(d.id) }}
               >
-                ✕
+                <BauhausIcon name="cross" size={12} />
               </button>
             </article>
           )

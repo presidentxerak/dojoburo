@@ -11,6 +11,7 @@ import { Logo } from './Logo'
 import { SkinAvatar } from './workshop/SkinAvatar'
 import { NotificationBell } from './NotificationBell'
 import { useOverlay } from '../lib/overlay'
+import { BauhausIcon } from './BauhausIcon'
 
 /** The app's header.
  *
@@ -141,7 +142,7 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
             <button className="tb-menu-item" onClick={openCredits}>Billing · your key and plan</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); setEffortOpen(true) }}>
               How hard your team works
-              <span className="tb-menu-val" style={{ ['--ac' as string]: mode?.tint }}>{mode?.glyph} {mode?.label}</span>
+              <span className="tb-menu-val" style={{ ['--ac' as string]: mode?.tint }}>{mode && <BauhausIcon name={mode.glyph} size={14} />} {mode?.label}</span>
             </button>
 
             {/* how any of it works */}

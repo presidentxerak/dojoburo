@@ -24,6 +24,7 @@ import {
   EFFORT_MODES, EFFORT_BY_ID, estimateRun, tokLabel, usdFor, usdLabel,
   type EffortId,
 } from '../data/effort'
+import { BauhausIcon } from './BauhausIcon'
 
 /** How many apps this dojo's crew actually has connected, at most, per step. */
 function useAppsPerStep(dojoId: string | null): number {
@@ -55,7 +56,7 @@ export function EffortPill({ onOpen }: { onOpen: () => void }) {
       onClick={onOpen}
       title={`${m.label} · ${m.tagline}\nSpent today: ${tokLabel(meter.today.total)} tokens across ${meter.today.runs} run${meter.today.runs === 1 ? '' : 's'}`}
     >
-      <span className="eff-pill-g">{m.glyph}</span>
+      <BauhausIcon className="eff-pill-g" name={m.glyph} size={14} />
       <span className="eff-pill-l">{m.label}</span>
       <span className="eff-pill-n">{meter.today.total ? tokLabel(meter.today.total) : ', '}</span>
     </button>
@@ -103,7 +104,7 @@ export function EffortPanel({ onClose }: { onClose: () => void }) {
                   onClick={() => setEffort(m.id as EffortId)}
                 >
                   <header className="eff-mode-h">
-                    <span className="eff-mode-g" style={{ background: m.tint }}>{m.glyph}</span>
+                    <span className="eff-mode-g" style={{ background: m.tint }}><BauhausIcon name={m.glyph} size={15} /></span>
                     <strong>{m.label}</strong>
                     {on && <span className="eff-on">In use</span>}
                   </header>

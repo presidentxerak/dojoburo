@@ -17,6 +17,7 @@ import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { ROLE_BY_ID } from '../../data/roleAgents'
 import { EFFORT_BY_ID, estimateRun, estimateStep, tokLabel } from '../../data/effort'
 import { InfoDot } from '../InfoDot'
+import { BauhausIcon } from '../BauhausIcon'
 
 export function LoopPanel({ dojoId }: { dojoId: string }) {
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === dojoId))
@@ -73,7 +74,7 @@ export function LoopPanel({ dojoId }: { dojoId: string }) {
           return (
             <li key={i} className={`lp-step s-${st}`}>
               <span className="lp-step-i" style={{ background: r?.tint ?? '#8892a6' }}>
-                {st === 'done' ? '✓' : st === 'reused' ? '=' : st === 'failed' ? '!' : i + 1}
+                {st === 'done' ? <BauhausIcon name="check" size={12} /> : st === 'reused' ? '=' : st === 'failed' ? <BauhausIcon name="cross" size={12} /> : i + 1}
               </span>
               <div className="lp-step-b">
                 <strong>{s.label}</strong>

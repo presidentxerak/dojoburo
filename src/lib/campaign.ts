@@ -35,7 +35,7 @@ function copyFor(angle: Angle, product: string, obj: Objective): { headline: str
   switch (angle) {
     case 'urgence': return {
       headline: `Limited-time offer on ${p}`,
-      primary: `⏳ Don't miss out. ${cap} is available for a limited time · grab it before it's gone.`,
+      primary: `Don't miss out. ${cap} is available for a limited time · grab it before it's gone.`,
       description: 'Limited spots / stock',
     }
     case 'preuve': return {

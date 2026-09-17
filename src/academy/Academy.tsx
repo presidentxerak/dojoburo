@@ -29,6 +29,7 @@ import {
   findLesson, neighbours, lessonPath, trackPath,
   type Block, type Lesson, type Track,
 } from '../data/academy'
+import { BauhausIcon } from '../components/BauhausIcon'
 
 const HOURS = Math.round((TOTAL_MINUTES / 60) * 10) / 10
 
@@ -169,7 +170,7 @@ export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
             return (
               <article key={t.slug} className="appcard ac-track" style={{ ['--ac' as string]: t.tint }}>
                 <header className="ac-track-h">
-                  <span className="ac-track-g" style={{ background: t.tint }}>{t.glyph}</span>
+                  <span className="ac-track-g" style={{ background: t.tint }}><BauhausIcon name={t.glyph} size={18} /></span>
                   <span className="ac-track-n">Track {i + 1}</span>
                   <span className="ac-level">{t.level}</span>
                 </header>
@@ -180,7 +181,7 @@ export function AcademyHome({ inApp }: { inApp?: boolean } = {}) {
                   {t.lessons.map((l) => (
                     <li key={l.slug} className={p.isDone(t.slug, l.slug) ? 'done' : ''}>
                       <Lnk href={lessonPath(t.slug, l.slug)}>
-                        <span className="ac-tick" aria-hidden>{p.isDone(t.slug, l.slug) ? '✓' : ''}</span>
+                        <span className="ac-tick" aria-hidden>{p.isDone(t.slug, l.slug) ? <BauhausIcon name="check" size={12} /> : null}</span>
                         {l.title}
                         <em>{l.minutes} min</em>
                       </Lnk>
@@ -267,7 +268,7 @@ export function TrackPage({ slug, inApp }: { slug: string; inApp?: boolean }) {
       <section className="lp-sec ac-track-hero" style={{ ['--ac' as string]: track.tint }}>
         <Crumbs items={[{ name: 'Academy', path: '/academy' }, { name: track.label, path: trackPath(track.slug) }]} />
         <div className="ac-track-head">
-          <span className="ac-track-g big" style={{ background: track.tint }}>{track.glyph}</span>
+          <span className="ac-track-g big" style={{ background: track.tint }}><BauhausIcon name={track.glyph} size={26} /></span>
           <div>
             <h1>{track.label}</h1>
             <p className="lp-lead">{track.blurb}</p>
@@ -286,7 +287,7 @@ export function TrackPage({ slug, inApp }: { slug: string; inApp?: boolean }) {
           {track.lessons.map((l, n) => (
             <li key={l.slug} className={`appcard ac-lesson${p.isDone(track.slug, l.slug) ? ' done' : ''}`} style={{ ['--ac' as string]: track.tint }}>
               <Lnk href={lessonPath(track.slug, l.slug)}>
-                <span className="ac-lesson-n">{p.isDone(track.slug, l.slug) ? '✓' : n + 1}</span>
+                <span className="ac-lesson-n">{p.isDone(track.slug, l.slug) ? <BauhausIcon name="check" size={13} /> : n + 1}</span>
                 <span className="ac-lesson-txt">
                   <strong>{l.title}</strong>
                   <em>{l.summary}</em>
@@ -360,7 +361,7 @@ function QuizView({ track, lesson }: { track: Track; lesson: Lesson }) {
               disabled={answered}
               onClick={() => { setPick(i); recordAnswer(track.slug, lesson.slug, i) }}
             >
-              <span className="ac-option-k" aria-hidden>{answered && i === lesson.quiz.answer ? '✓' : answered && i === pick ? '✕' : String.fromCharCode(65 + i)}</span>
+              <span className="ac-option-k" aria-hidden>{answered && i === lesson.quiz.answer ? <BauhausIcon name="check" size={12} /> : answered && i === pick ? <BauhausIcon name="cross" size={12} /> : String.fromCharCode(65 + i)}</span>
               {o}
             </button>
           )
@@ -435,7 +436,7 @@ export function LessonPage({ trackSlug, lessonSlug, inApp }: { trackSlug: string
             { name: track.label, path: trackPath(track.slug) },
             { name: lesson.title, path: lessonPath(track.slug, lesson.slug) },
           ]} />
-          <span className="ac-lesson-tag" style={{ background: track.tint }}>{track.glyph} {track.label}</span>
+          <span className="ac-lesson-tag" style={{ background: track.tint }}><BauhausIcon name={track.glyph} size={13} /> {track.label}</span>
           <h1>{lesson.title}</h1>
           <p className="lp-sub">{lesson.summary}</p>
           <div className="lp-badges">
@@ -471,7 +472,7 @@ export function LessonPage({ trackSlug, lessonSlug, inApp }: { trackSlug: string
                 className={`ac-done${isDone ? ' on' : ''}`}
                 onClick={() => (isDone ? clearDone(track.slug, lesson.slug) : markDone(track.slug, lesson.slug))}
               >
-                {isDone ? '✓ Finished' : 'Mark as finished'}
+                {isDone ? <><BauhausIcon name="check" size={13} /> Finished</> : 'Mark as finished'}
               </button>
               <button className="lp-ghost" onClick={() => { location.hash = 'app' }}>Open the app →</button>
             </div>

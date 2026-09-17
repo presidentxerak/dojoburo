@@ -18,6 +18,8 @@
 // an AI agent" should land on lesson one and be able to read the whole thing.
 
 /** Which animated stage plays beside a lesson. See academy/AcademyStage.tsx. */
+import type { IconName } from './icons'
+
 export type StageId =
   | 'anatomy' | 'versus' | 'create' | 'deliver'
   | 'brief' | 'apps' | 'crew'
@@ -79,7 +81,11 @@ export type LabId = 'count' | 'history' | 'tools' | 'rewrite'
 export interface Track {
   slug: string
   label: string
-  glyph: string
+  /** l'icône · un NOM de forme, pas un caractère. Les glyphes Unicode qui
+   *  vivaient ici se dessinaient différemment sur chaque système, et deux
+   *  d'entre eux ne s'affichaient pas du tout sur un téléphone. Voir
+   *  components/BauhausIcon pour le dessin, data/icons pour le vocabulaire. */
+  glyph: IconName
   tint: string
   level: 'Beginner' | 'Intermediate'
   /** one line under the track title */
@@ -1298,7 +1304,7 @@ export const TRACKS: Track[] = [
   {
     slug: 'start-here',
     label: 'Start here',
-    glyph: '◈',
+    glyph: 'diamond',
     tint: '#7b5cff',
     level: 'Beginner',
     blurb: 'What an agent is, why a team beats one assistant, and your first working project.',
@@ -1308,7 +1314,7 @@ export const TRACKS: Track[] = [
   {
     slug: 'the-landscape',
     label: 'The landscape, plainly',
-    glyph: '❑',
+    glyph: 'square',
     tint: '#0ea5e9',
     level: 'Beginner',
     blurb: 'Vibe coding, chatbots, IDEs, coding agents, what they are, and which one you need.',
@@ -1318,7 +1324,7 @@ export const TRACKS: Track[] = [
   {
     slug: 'your-teammates',
     label: 'Your teammates',
-    glyph: '▲',
+    glyph: 'triangle',
     tint: '#e0459b',
     level: 'Beginner',
     blurb: 'The eight fields that define a teammate, and how to change them so every run improves.',
@@ -1328,7 +1334,7 @@ export const TRACKS: Track[] = [
   {
     slug: 'build-a-system',
     label: 'Build a system',
-    glyph: '◱',
+    glyph: 'quadrant',
     tint: '#1fa563',
     level: 'Intermediate',
     blurb: 'Loops, hand-offs, chaining teams, and finding the step that broke.',
@@ -1338,7 +1344,7 @@ export const TRACKS: Track[] = [
   {
     slug: 'go-live',
     label: 'Go live',
-    glyph: '✓',
+    glyph: 'check',
     tint: '#f59e0b',
     level: 'Intermediate',
     blurb: 'Connecting real apps safely, shipping, the mistakes to skip, and a 30-day plan.',

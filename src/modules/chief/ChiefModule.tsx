@@ -16,6 +16,7 @@ import { InfoDot } from '../../components/InfoDot'
 // La carte agent → livrables est dérivée de ROLE_TASKS · elle était recopiée ici
 // et dans dashboard/agentTasks.ts, et les deux copies avaient divergé.
 import { AGENT_TASKS } from '../../data/connectors'
+import { BauhausIcon } from '../../components/BauhausIcon'
 
 
 function relTime(ms: number): string {
@@ -69,7 +70,7 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
     if (running) return
     if (engine.paused) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Company paused', text: 'Resume it in Sentinel (Operations Guardian).' }); return }
     engine.record(`${agentName}:${task}`)
-    pushToast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: agentName, text: 'Working…' })
+    pushToast({ kind: 'event', badge: 'RUN', color: '#2f7fd6', title: agentName, text: 'Working…' })
     await run({ task, agentName, connectors: [], brief })
     const err = useWork.getState().runError
     if (err) {
@@ -148,7 +149,7 @@ export default function ChiefModule({ dojoId }: ModuleProps) {
         </div>
         {autopilot.running
           ? <p className="ceo-autopilot"><span className="ceo-spin" /> Chief is working · <b>{autopilot.step}</b>…</p>
-          : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>}
+          : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}><BauhausIcon name="play" size={12} /> Launch Chief (build everything)</button>}
         {noModel && <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for real generation.</p>}
       </div>
 

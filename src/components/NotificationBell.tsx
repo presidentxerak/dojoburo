@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useDojo } from '../store'
 import { useWork } from '../agents/workStore'
+import { BauhausIcon } from './BauhausIcon'
 
 function rel(ms: number): string {
   const s = Math.max(0, (Date.now() - ms) / 1000)
@@ -43,7 +44,7 @@ export function NotificationBell() {
               <h2 className="notifc-title">Notification center</h2>
               <div className="notifc-bar-r">
                 {count > 0 && <button className="notifc-clear" onClick={clear}>Clear all</button>}
-                <button className="notifc-close" onClick={() => setOpen(false)} aria-label="Close">✕</button>
+                <button className="notifc-close" onClick={() => setOpen(false)} aria-label="Close"><BauhausIcon name="cross" size={13} /></button>
               </div>
             </header>
             <div className="notifc-body">

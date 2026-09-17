@@ -17,6 +17,7 @@
 // visiteur, ce qui est le pire endroit où mentir quand on vend de la pédagogie.
 import { TRACKS, LESSON_COUNT, TOTAL_MINUTES } from './academy'
 import { USE_CASE_COUNT } from './agentUseCases'
+import type { IconName } from './icons'
 
 // LA PROMESSE, en deux moitiés · parce qu'elle est affichée deux fois et
 // qu'elle doit rester UNE seule phrase.
@@ -70,7 +71,11 @@ export interface Pillar {
   /** son adresse */
   path: string
   /** le glyphe · ASCII et géométrique, jamais d'emoji */
-  glyph: string
+  /** l'icône · un NOM de forme, pas un caractère. Les glyphes Unicode qui
+   *  vivaient ici se dessinaient différemment sur chaque système, et deux
+   *  d'entre eux ne s'affichaient pas du tout sur un téléphone. Voir
+   *  components/BauhausIcon pour le dessin, data/icons pour le vocabulaire. */
+  glyph: IconName
 }
 
 export const PILLARS: Pillar[] = [
@@ -83,7 +88,7 @@ export const PILLARS: Pillar[] = [
       'wakes up. You take it from a blank page to a file that runs in a real framework, and the master keeps ' +
       'your progress.',
     path: '/build',
-    glyph: '◈',
+    glyph: 'diamond',
   },
   {
     id: 'academy',
@@ -93,7 +98,7 @@ export const PILLARS: Pillar[] = [
       'From "what is a token" to a brief a model actually follows. Every lesson is read in the browser, ' +
       'has something you can take apart beside the text, and ends with one thing to remember and one thing to do.',
     path: '/academy',
-    glyph: '✎',
+    glyph: 'pen',
   },
   {
     id: 'library',
@@ -103,7 +108,7 @@ export const PILLARS: Pillar[] = [
       'A catalogue of prompts, .md briefs and agent skills, filed by category and by the job you actually do. ' +
       'Read the reasoning, copy the file, adapt it. Every entry carries what it costs to run.',
     path: '/library',
-    glyph: '❑',
+    glyph: 'square',
   },
   {
     id: 'eco',
@@ -116,7 +121,7 @@ export const PILLARS: Pillar[] = [
       'Where your tokens actually go, counted rather than guessed: the settings you choose before writing a word, ' +
       'and the way the prompt itself is written. Then the levers, each one with the saving it really buys.',
     path: '/frugality',
-    glyph: '▲',
+    glyph: 'triangle',
   },
   {
     id: 'dojo',
@@ -126,7 +131,7 @@ export const PILLARS: Pillar[] = [
       'The dojo is a sandbox, not a factory floor. Open an agent, read the prompt that makes it what it is, ' +
       'change it, and watch what changes. Nothing here calls a paid model or touches your accounts.',
     path: '/#app',
-    glyph: '◱',
+    glyph: 'quadrant',
   },
 ]
 

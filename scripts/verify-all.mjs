@@ -61,6 +61,11 @@ const CHECKS = [
   // AUCUN TIRET CADRATIN dans un texte de l'app · une purge faite à la main
   // revient toujours, et celle-ci portait sur 328 occurrences.
   ['check-dashes.mjs', 1, true],
+  // LE JEU D'ICÔNES · qu'aucune ne redevienne un caractère. L'app les a
+  // dessinées avec des caractères Unicode pendant des mois : ça s'affiche, mais
+  // pas pareil chez tout le monde, et pas du tout sur certains téléphones. Un
+  // `{done ? '✓' : ''}` écrit un mardi ne fait rougir aucun typecheck.
+  ['test-icons.mjs', 1, true],
   ['check-theme-props.mjs', 1, true],
   ['audit-csp.mjs', 2, true],
   ['verify-gate.mjs', 2, true],

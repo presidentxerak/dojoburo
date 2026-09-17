@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useDojo } from '../../store'
 import { useWorkshop } from '../../workshop'
 import { formatFrom } from '../../data/currency'
+import { BauhausIcon } from '../BauhausIcon'
 
 /** Compact, always-visible monitor of the dojo's live activity · the same view
  *  a reduced desktop widget would show while you work on other things. */
@@ -22,7 +23,7 @@ export function ActivityWidget({ onClose }: { onClose: () => void }) {
       <header className="aw-head">
         <span className="aw-dot" data-live={busy > 0} />
         <strong>{dojo?.name ?? 'Dojo'}</strong>
-        <button className="aw-btn" onClick={() => setMin((m) => !m)} aria-label={min ? 'Expand' : 'Minimize'}>{min ? '▢' : '-'}</button>
+        <button className="aw-btn" onClick={() => setMin((m) => !m)} aria-label={min ? 'Expand' : 'Minimize'}>{min ? <BauhausIcon name="box" size={11} /> : '-'}</button>
         <button className="aw-btn" onClick={onClose} aria-label="Close widget">×</button>
       </header>
       {!min && (

@@ -3,6 +3,7 @@ import { useDojo } from '../store'
 import { useWorkshop } from '../workshop'
 import { useWork } from '../agents/workStore'
 import { templateById } from '../data/templates'
+import { BauhausIcon } from './BauhausIcon'
 
 /** Fullscreen "Dojos" manager (from the profile menu): every company you've
  *  created · select, rename, edit (Manage Studio) or delete. Replaces the old
@@ -34,7 +35,7 @@ export function DojosManager() {
           <h2 className="djm-title">Your dojos</h2>
           <div className="djm-bar-r">
             <button className="djm-new" onClick={() => createDojo()}>＋ New dojo</button>
-            <button className="djm-close" onClick={close} aria-label="Close">✕</button>
+            <button className="djm-close" onClick={close} aria-label="Close"><BauhausIcon name="cross" size={14} /></button>
           </div>
         </header>
         <div className="djm-body">

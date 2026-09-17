@@ -1790,7 +1790,6 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 
 /* ---- section ASCII-expression icon --------------------------------------- */
 .lp-ico { display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-weight: 700; font-size: 16px; letter-spacing: 1px; color: #fff; background: var(--title-grad); border-radius: 13px; padding: 9px 13px; margin-bottom: 18px; box-shadow: var(--shadow-sm); min-width: 56px; animation: icobob 3.4s ease-in-out infinite; }
-.ascii-icon { font-family: var(--font-mono); white-space: pre; }
 @keyframes icobob { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-4px) rotate(1deg); } }
 
 /* ---- parallax full-3D heroes --------------------------------------------- */
@@ -7868,6 +7867,32 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
    trois cartes côte à côte de taille égale ne disent aucun ordre. C'est le
    seul endroit du produit où la position dans la grille porte du sens, donc
    c'est le seul endroit où elle est écrite en chiffres. */
+/* LES ICÔNES · voir components/BauhausIcon pour la grammaire.
+   Deux règles, et pas une de plus.
+
+   `vertical-align` d'abord : un SVG en ligne s'aligne par défaut sur la ligne
+   de base, ce qui le fait flotter au dessus du texte qu'il accompagne. Le
+   décalage d'un huitième de cadratin est ce qui le recentre sur la hauteur
+   d'x, et c'est la différence entre une icône posée dans une phrase et une
+   icône qui a l'air d'être tombée dedans.
+
+   `flex: none` ensuite : la plupart des porte-icônes de ce produit sont des
+   conteneurs flex, et un enfant SVG y est écrasé dès que le texte à côté est
+   long. Il a une taille, elle est écrite dans l'attribut, elle ne se négocie
+   pas.
+
+   La COULEUR n'est pas ici : elle vient de `currentColor`, donc de la règle
+   du contexte. Une icône se repeint en changeant la couleur de son parent,
+   comme le ferait un caractère, ce qui est tout l'intérêt d'avoir remplacé
+   des caractères. */
+.bh-icon { display: inline-block; vertical-align: -0.125em; flex: none; }
+/* Les porte-icônes ronds ou carrés centrent déjà leur contenu en grille · le
+   SVG y devient un enfant de grille, où `vertical-align` ne s'applique plus. */
+.tut-doc-g .bh-icon, .tcard-glyph .bh-icon, .dtab-glyph .bh-icon,
+.ac-track-g .bh-icon, .eff-mode-g .bh-icon, .ws-coglyph .bh-icon,
+.cocard-glyph .bh-icon, .cocard-tglyph .bh-icon, .ac-bot .bh-icon,
+.ac-shield .bh-icon { vertical-align: 0; }
+
 .lp-courses {
   display: grid; gap: 14px; max-width: 1040px; margin: 24px auto 0;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

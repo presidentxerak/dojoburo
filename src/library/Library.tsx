@@ -28,6 +28,7 @@ import {
 } from '../data/library'
 import { fetchBody, download, REFUSAL, type FetchState } from '../lib/libraryApi'
 import { FORMATS, render, fileNameFor, type BuiltAgent, type ExportFormat } from '../lib/agentExport'
+import { BauhausIcon } from '../components/BauhausIcon'
 
 /** Le format natif d'une entrée · celui qu'on propose en premier.
  *
@@ -79,7 +80,7 @@ function Card({ e }: { e: Entry }) {
       <b>{e.title}</b>
       <span className="lib-sum">{e.summary}</span>
       <span className="lib-card-foot">
-        <span className="lib-cat">{cat?.glyph} {cat?.label}</span>
+        <span className="lib-cat">{cat && <BauhausIcon name={cat.glyph} size={14} />} {cat?.label}</span>
         {/* CE QUE LE FICHIER COÛTE, sur la carte · on ne peut pas vendre un
             cours sur le coût des requêtes et laisser le lecteur deviner le
             poids de ce qu'on lui donne. Le chiffre est calculé depuis le
@@ -159,7 +160,7 @@ export function LibraryHome() {
           {CATEGORIES.map((c) => (
             <button key={c.id} className={cat === c.id ? 'on' : ''} onClick={() => setCat(cat === c.id ? '' : c.id)}
               title={c.blurb}>
-              {c.glyph} {c.label} <i>{countByCategory(c.id)}</i>
+              <BauhausIcon name={c.glyph} size={15} /> {c.label} <i>{countByCategory(c.id)}</i>
             </button>
           ))}
         </div>
@@ -173,7 +174,7 @@ export function LibraryHome() {
         </div>
         {filtered && (
           <button className="lib-clear" onClick={clear}>
-            {shown.length} of {ENTRY_COUNT} · clear filters ✕
+            {shown.length} of {ENTRY_COUNT} · clear filters <BauhausIcon name="cross" size={11} />
           </button>
         )}
       </section>

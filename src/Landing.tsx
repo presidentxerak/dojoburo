@@ -5,7 +5,6 @@ import { useWork } from './agents/workStore'
 import { Logo } from './components/Logo'
 import { Wordmark } from './components/Wordmark'
 import { SiteHeader } from './components/SiteHeader'
-import { AsciiIcon } from './components/AsciiIcon'
 import { Object3D } from './components/landing/Object3D'
 import { DojoDiorama } from './components/landing/DojoDiorama'
 import { StudioTeam } from './components/landing/TeamCards'
@@ -16,6 +15,7 @@ import { APP_LIVE_COUNT } from './data/facts'
 import { TRACKS } from './data/academy'
 import { ENTRY_COUNT, countByTrade } from './data/library'
 import { PILLARS, COURSES, COURSE_COUNT, PROMISE_LEAD, PROMISE_HL, PROMISE_SEP, SUBTITLE, NOT_THIS, LESSON_COUNT, TRACK_COUNT, COURSE_HOURS } from './data/positioning'
+import { BauhausIcon } from './components/BauhausIcon'
 
 // vivid complementary primaries used as per-section accent touches
 const C = { magenta: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', blue: '#2f6bff' }
@@ -113,7 +113,7 @@ export function Landing({ enter }: { enter: () => void }) {
           {COURSES.map((c, i) => (
             <a className="lp-course" key={c.id} href={c.path}>
               <span className="lp-course-n" aria-hidden>{i + 1}</span>
-              <span className="lp-course-g" aria-hidden>{c.glyph}</span>
+              <BauhausIcon className="lp-course-g" name={c.glyph} size={24} />
               <b>{c.nav}</b>
               <span>{c.blurb}</span>
               <em>Open →</em>
@@ -132,7 +132,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <div className="lp-pillars">
           {PILLARS.map((p) => (
             <a className="lp-pillar" key={p.id} href={p.path}>
-              <span className="lp-pillar-g" aria-hidden>{p.glyph}</span>
+              <BauhausIcon className="lp-pillar-g" name={p.glyph} size={24} />
               <b>{p.title}</b>
               <span>{p.blurb}</span>
               <em>{p.nav} →</em>
@@ -156,7 +156,7 @@ export function Landing({ enter }: { enter: () => void }) {
         <div className="lp-tracks">
           {TRACKS.map((t) => (
             <a className="lp-track" key={t.slug} href={`/academy/${t.slug}`} style={{ ['--pc' as never]: t.tint }}>
-              <span className="lp-track-g" aria-hidden>{t.glyph}</span>
+              <BauhausIcon className="lp-track-g" name={t.glyph} size={22} />
               <b>{t.label}</b>
               <span className="lp-track-lvl">{t.level} · {t.lessons.length} lessons</span>
               <span className="lp-track-blurb">{t.blurb}</span>
@@ -256,7 +256,7 @@ export function Landing({ enter }: { enter: () => void }) {
 
       <section className="lp-final">
         <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
-        <span className="lp-ico" style={{ background: C.orange }}><AsciiIcon kind="run" /></span>
+        <span className="lp-ico" style={{ background: C.orange }}><BauhausIcon name="play" size={22} /></span>
         <h2>Ready to start?</h2>
         <a className="lp-cta big lp-cta-create" href="/build">Pick your agent →</a>
         <p className="lp-foot">Free · read in your browser · no account to begin</p>

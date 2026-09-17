@@ -25,6 +25,7 @@ import { markDone, clearDone, useProgress } from '../academy/progress'
 import { FORMATS, render, downloadAgent, copyAgent, type BuiltAgent, type ExportFormat } from '../lib/agentExport'
 import { estimateTokens } from '../agents/sandbox'
 import { diplomaFor, DIPLOMAS } from './diplomas'
+import { BauhausIcon } from '../components/BauhausIcon'
 
 /* ------------------------------------------------------------------ */
 /* Ce que dit le maître                                                */
@@ -178,7 +179,7 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
                       aria-pressed={on}
                       onClick={() => (on ? clearDone('agent', `${chosen.id}/${i}`) : markDone('agent', `${chosen.id}/${i}`))}
                     >
-                      {on ? '✓' : String(i + 1)}
+                      {on ? <BauhausIcon name="check" size={13} /> : String(i + 1)}
                     </button>
                     <div>
                       <b>{s.title}</b>
@@ -253,7 +254,7 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
             const earned = diploma.earned.includes(d.id)
             return (
               <div className={`cls-dip${earned ? ' on' : ''}`} key={d.id}>
-                <span className="cls-dip-g" aria-hidden>{earned ? '✓' : '◦'}</span>
+                <span className="cls-dip-g" aria-hidden><BauhausIcon name={earned ? 'check' : 'dot'} size={15} /></span>
                 <b>{d.title}</b>
                 <span>{earned ? d.awarded : d.how}</span>
               </div>

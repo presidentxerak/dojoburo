@@ -20,6 +20,7 @@ import { startConnect } from '../../agents/workApi'
 import { useSkills, skillsBlock, MAX_LEN, MAX_PER_ROLE } from '../../agents/skills'
 import type { RoleAgent } from '../../data/roleAgents'
 import type { WAgent } from '../../workshop'
+import { BauhausIcon } from '../BauhausIcon'
 
 const relTime = (t: number) => {
   const m = Math.round((Date.now() - t) / 60000)
@@ -177,7 +178,7 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
                 {s.role === '*'
                   ? <em title="Applies to every teammate in this company">house</em>
                   : (
-                    <button onClick={() => dropSkill(dojoId, s.id)} aria-label={`Remove rule: ${s.text}`}>✕</button>
+                    <button onClick={() => dropSkill(dojoId, s.id)} aria-label={`Remove rule: ${s.text}`}><BauhausIcon name="cross" size={11} /></button>
                   )}
               </li>
             ))}
@@ -238,7 +239,7 @@ export function AgentWork({ agent, role, dojoId }: { agent: WAgent; role: RoleAg
                   <span key={id} className="agw-app on" title={st.account ? `${c.label} · ${st.account}` : `${c.label} · connected`}>
                     <ConnectorLogo id={id} label={c.label} size={16} />
                     {c.label}
-                    <span className="agw-tick" aria-label="connected">✓</span>
+                    <span className="agw-tick" aria-label="connected"><BauhausIcon name="check" size={11} /></span>
                   </span>
                 )
               }

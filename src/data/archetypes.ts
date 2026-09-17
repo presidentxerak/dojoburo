@@ -11,6 +11,7 @@
 // rename agents, add or remove them, swap their connectors.
 // ---------------------------------------------------------------------------
 import { ROLE_BY_ID, COMPANY_IDS } from './roleAgents'
+import type { IconName } from './icons'
 
 /** One step of the loop: which agent acts, and what it produces. */
 export interface LoopStep {
@@ -33,7 +34,11 @@ export interface Archetype {
   tagline: string
   category: ArchCategory
   /** short non-emoji glyph for the card */
-  glyph: string
+  /** l'icône · un NOM de forme, pas un caractère. Les glyphes Unicode qui
+   *  vivaient ici se dessinaient différemment sur chaque système, et deux
+   *  d'entre eux ne s'affichaient pas du tout sur un téléphone. Voir
+   *  components/BauhausIcon pour le dessin, data/icons pour le vocabulaire. */
+  glyph: IconName
   tint: string
   /** 3D world (data/templates) */
   template: string
@@ -50,7 +55,7 @@ export const ARCHETYPES: Archetype[] = [
     label: 'Social media campaign',
     tagline: 'Research your audience, produce the posts, measure what lands.',
     category: 'Marketing',
-    glyph: '◈',
+    glyph: 'diamond',
     tint: '#e0459b',
     template: 'villa',
     agents: ['chief', 'scout', 'marketus', 'busino', 'deck'],
@@ -66,7 +71,7 @@ export const ARCHETYPES: Archetype[] = [
     label: 'Launch my start-up',
     tagline: 'The full company: brand, site, offer, growth, finance.',
     category: 'Business',
-    glyph: '▲',
+    glyph: 'triangle',
     tint: '#7b5cff',
     template: 'startup',
     agents: COMPANY_IDS,
@@ -83,7 +88,7 @@ export const ARCHETYPES: Archetype[] = [
     label: 'Build an app',
     tagline: 'From the idea to a spec, a backlog and a landing page.',
     category: 'Product',
-    glyph: '◱',
+    glyph: 'quadrant',
     tint: '#3b82f6',
     template: 'lab',
     agents: ['chief', 'scout', 'devi', 'weblos', 'busino'],
@@ -99,7 +104,7 @@ export const ARCHETYPES: Archetype[] = [
     label: 'Write a book',
     tagline: 'Research, outline, chapters, cover and a launch plan.',
     category: 'Content',
-    glyph: '❑',
+    glyph: 'square',
     tint: '#c026d3',
     template: 'castle',
     agents: ['chief', 'scout', 'scribe', 'pixel', 'marketus'],
@@ -114,7 +119,7 @@ export const ARCHETYPES: Archetype[] = [
     label: 'Create a brand',
     tagline: 'Name, identity, colours, site, one coherent look.',
     category: 'Business',
-    glyph: '◐',
+    glyph: 'halfLeft',
     tint: '#a855f7',
     template: 'dojo',
     agents: ['chief', 'brandi', 'pixel', 'weblos', 'marketus'],
@@ -129,7 +134,7 @@ export const ARCHETYPES: Archetype[] = [
     label: 'Content machine',
     tagline: 'A repeatable engine: research, write, publish, measure.',
     category: 'Content',
-    glyph: '≡',
+    glyph: 'bars',
     tint: '#0ea5e9',
     template: 'garden',
     agents: ['chief', 'scout', 'scribe', 'marketus', 'pumpi', 'busino'],
@@ -144,7 +149,7 @@ export const ARCHETYPES: Archetype[] = [
     label: 'Open an online shop',
     tagline: 'Products, storefront, payments and the first customers.',
     category: 'Business',
-    glyph: '⬡',
+    glyph: 'hex',
     tint: '#1fa563',
     template: 'factory',
     agents: ['chief', 'weblos', 'marketus', 'pumpi', 'busino', 'vaultor'],
@@ -159,7 +164,7 @@ export const ARCHETYPES: Archetype[] = [
     label: 'Fill my pipeline',
     tagline: 'Find the right prospects and write the outreach that converts.',
     category: 'Marketing',
-    glyph: '◤',
+    glyph: 'corner',
     tint: '#d98c17',
     template: 'default',
     agents: ['chief', 'scout', 'pumpi', 'nexa', 'busino'],
@@ -174,7 +179,7 @@ export const ARCHETYPES: Archetype[] = [
     label: 'Market study',
     tagline: 'Understand a market and turn it into a decision-ready deck.',
     category: 'Product',
-    glyph: '◍',
+    glyph: 'centre',
     tint: '#14b8a6',
     template: 'space',
     agents: ['chief', 'scout', 'busino', 'deck'],
@@ -191,7 +196,7 @@ export const ARCHETYPES: Archetype[] = [
 const MORE: Archetype[] = [
   {
     id: 'newsletter', label: 'Launch a newsletter', tagline: 'Find your angle, write the issues, grow the list.',
-    category: 'Content', glyph: '✉', tint: '#8b5cf6', template: 'garden',
+    category: 'Content', glyph: 'envelope', tint: '#8b5cf6', template: 'garden',
     agents: ['chief', 'scout', 'scribe', 'marketus', 'pumpi', 'busino'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Angle & audience', detail: 'What you write about and who subscribes.' },
@@ -201,7 +206,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'podcast', label: 'Start a podcast', tagline: 'Concept, guests, episode structure and promotion.',
-    category: 'Content', glyph: '◉', tint: '#f43f5e', template: 'villa',
+    category: 'Content', glyph: 'target', tint: '#f43f5e', template: 'villa',
     agents: ['chief', 'scout', 'scribe', 'pixel', 'marketus'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Concept & audience', detail: 'The show, its angle and who listens.' },
@@ -211,7 +216,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'rebrand', label: 'Rebrand my business', tagline: 'Audit what you have, redesign it, roll it out everywhere.',
-    category: 'Creative', glyph: '◑', tint: '#a855f7', template: 'dojo',
+    category: 'Creative', glyph: 'halfRight', tint: '#a855f7', template: 'dojo',
     agents: ['chief', 'scout', 'brandi', 'pixel', 'weblos'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Brand audit', detail: 'Where you stand and what needs to change.' },
@@ -221,7 +226,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'pitch', label: 'Raise funds', tagline: 'The story, the numbers and the deck investors read.',
-    category: 'Business', glyph: '◭', tint: '#f59e0b', template: 'castle',
+    category: 'Business', glyph: 'peak', tint: '#f59e0b', template: 'castle',
     agents: ['chief', 'scout', 'busino', 'deck', 'legi'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Market & story', detail: 'The opportunity, in investor language.' },
@@ -231,7 +236,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'hiring', label: 'Hire someone', tagline: 'Define the role, write the scorecard, run the process.',
-    category: 'Operations', glyph: '◎', tint: '#14b8a6', template: 'default',
+    category: 'Operations', glyph: 'ring', tint: '#14b8a6', template: 'default',
     agents: ['chief', 'scout', 'nexa', 'legi'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Role definition', detail: 'What this hire owns and why now.' },
@@ -241,7 +246,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'saas', label: 'Launch a SaaS', tagline: 'Spec it, price it, build the funnel and ship it.',
-    category: 'Product', glyph: '◰', tint: '#2563eb', template: 'lab',
+    category: 'Product', glyph: 'panel', tint: '#2563eb', template: 'lab',
     agents: ['chief', 'scout', 'devi', 'weblos', 'busino', 'vaultor'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Positioning', detail: 'The problem, the users, the wedge.' },
@@ -252,7 +257,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'localbiz', label: 'Grow a local business', tagline: 'Get found nearby, fill the calendar, keep clients coming back.',
-    category: 'Marketing', glyph: '⌂', tint: '#65a30d', template: 'villa',
+    category: 'Marketing', glyph: 'house', tint: '#65a30d', template: 'villa',
     agents: ['chief', 'scout', 'weblos', 'marketus', 'pumpi'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Local market', detail: 'Your area, your competitors, your customers.' },
@@ -262,7 +267,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'course', label: 'Create an online course', tagline: 'Curriculum, lessons, landing page and launch.',
-    category: 'Content', glyph: '❖', tint: '#0891b2', template: 'lab',
+    category: 'Content', glyph: 'star4', tint: '#0891b2', template: 'lab',
     agents: ['chief', 'scout', 'scribe', 'deck', 'weblos', 'vaultor'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Who it is for', detail: 'The learner, their goal and what exists.' },
@@ -272,7 +277,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'video', label: 'Produce a video', tagline: 'Script, storyboard, edit and publish.',
-    category: 'Creative', glyph: '▶', tint: '#e11d48', template: 'factory',
+    category: 'Creative', glyph: 'play', tint: '#e11d48', template: 'factory',
     agents: ['chief', 'scout', 'scribe', 'pixel', 'marketus'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Concept', detail: 'The idea, the audience and the hook.' },
@@ -282,7 +287,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'ops', label: 'Organise my operations', tagline: 'Document how you work so it runs without you.',
-    category: 'Operations', glyph: '⚙', tint: '#64748b', template: 'factory',
+    category: 'Operations', glyph: 'gear', tint: '#64748b', template: 'factory',
     agents: ['chief', 'scout', 'devi', 'helpi', 'legi'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Where it breaks', detail: 'The bottlenecks worth fixing first.' },
@@ -292,7 +297,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'support', label: 'Set up customer support', tagline: 'Channels, macros and a playbook your team follows.',
-    category: 'Operations', glyph: '◇', tint: '#06b6d4', template: 'default',
+    category: 'Operations', glyph: 'lozenge', tint: '#06b6d4', template: 'default',
     agents: ['chief', 'helpi', 'scribe', 'nexa', 'busino'],
     loop: [
       { agent: 'helpi', task: 'prd', label: 'Support model', detail: 'Channels, SLAs and escalation.' },
@@ -302,7 +307,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'partnership', label: 'Land partnerships', tagline: 'Target the right partners and pitch them properly.',
-    category: 'Business', glyph: '⧉', tint: '#7c3aed', template: 'castle',
+    category: 'Business', glyph: 'layers', tint: '#7c3aed', template: 'castle',
     agents: ['chief', 'scout', 'pumpi', 'deck', 'legi'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Partner map', detail: 'Who to approach and what they want.' },
@@ -312,7 +317,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'ecom-scale', label: 'Scale my e-commerce', tagline: 'More traffic, better conversion, healthier margin.',
-    category: 'Marketing', glyph: '◈', tint: '#16a34a', template: 'factory',
+    category: 'Marketing', glyph: 'diamond', tint: '#16a34a', template: 'factory',
     agents: ['chief', 'scout', 'marketus', 'weblos', 'busino'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Growth audit', detail: 'What is capping your growth today.' },
@@ -322,7 +327,7 @@ const MORE: Archetype[] = [
   },
   {
     id: 'personal-brand', label: 'Build my personal brand', tagline: 'A clear positioning and a content rhythm that compounds.',
-    category: 'Creative', glyph: '★', tint: '#d946ef', template: 'villa',
+    category: 'Creative', glyph: 'star', tint: '#d946ef', template: 'villa',
     agents: ['chief', 'scout', 'scribe', 'pixel', 'marketus'],
     loop: [
       { agent: 'scout', task: 'strategy', label: 'Positioning', detail: 'What you are known for, and to whom.' },

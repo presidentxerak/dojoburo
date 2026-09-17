@@ -1,4 +1,5 @@
 import { useDojo } from '../store'
+import { BauhausIcon } from './BauhausIcon'
 
 /** Floating event / reward / level-up notifications.
  *
@@ -40,7 +41,7 @@ export function Toasts() {
               aria-label={`Dismiss · ${t.title}`}
               title="Dismiss"
             >
-              ✕
+              <BauhausIcon name="cross" size={11} />
             </button>
           </div>
         )

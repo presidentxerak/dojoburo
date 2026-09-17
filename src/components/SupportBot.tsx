@@ -14,6 +14,7 @@ import { askCascade } from '../support/askCascade'
 import { TutorialOverlay } from './guide/TutorialOverlay'
 import { WALKS, type WalkId } from './guide/tutorialBeats'
 import { Logo } from './Logo'
+import { BauhausIcon } from './BauhausIcon'
 
 interface Msg {
   id: number
@@ -188,7 +189,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
                 <div className="sb-rail-walks">
                   {WALK_IDS.map((w) => (
                     <button key={w} className="sb-walk" onClick={() => setWalk(w)}>
-                      <span className="sb-walk-play" aria-hidden>▶</span>
+                      <BauhausIcon className="sb-walk-play" name="play" size={12} />
                       <span>{WALKS[w].title}</span>
                     </button>
                   ))}
@@ -218,7 +219,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
                     {/* the answer has a walkthrough · offer to play it here */}
                     {m.walk && (
                       <button className="sb-watch" onClick={() => setWalk(m.walk!)}>
-                        <span aria-hidden>▶</span> Watch it · {WALKS[m.walk].title}
+                        <BauhausIcon name="play" size={12} /> Watch it · {WALKS[m.walk].title}
                       </button>
                     )}
 

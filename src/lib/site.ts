@@ -6,6 +6,16 @@ import { idbGet, idbSet } from './idb'
 import { type BrandKit, defaultKit, kitCss } from './brand'
 import { deadline } from './apiFetch'
 
+/** Le triangle de lecture du site généré · la SEULE icône de ce produit
+ *  écrite hors de components/BauhausIcon, parce que ce fichier produit du
+ *  HTML en chaîne et ne peut rien rendre en React. Mêmes coordonnées, même
+ *  filet d'un pixel, même absence de couleur en dur. La garde des icônes
+ *  vérifie qu'elle ne dérive pas de sa jumelle. */
+const PLAY_SVG =
+  '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" ' +
+  'vector-effect="non-scaling-stroke" aria-hidden="true"><path d="M5 3 L21 12 L5 21 Z" fill="currentColor" stroke="none"/></svg>'
+
+
 export type BlockType = 'hero' | 'features' | 'pricing' | 'cta' | 'form' | 'text' | 'gallery' | 'image' | 'video' | 'store' | 'footer'
 export interface Block { id: string; type: BlockType; props: Record<string, unknown> }
 export type SiteFont = 'sans' | 'serif' | 'mono' | 'grotesk' | 'editorial' | 'rounded'
@@ -367,7 +377,7 @@ export function blockHtml(b: Block): string {
       const src = String(p.src || '')
       const inner = src
         ? `<video src="${escUrl(src)}" controls playsinline preload="metadata"></video>`
-        : `<div class="ph ph-big ph-video">▶</div>`
+        : `<div class="ph ph-big ph-video">${PLAY_SVG}</div>`
       return `<section class="b b-video">${inner}${p.caption ? `<p class="cap">${esc(p.caption)}</p>` : ''}</section>`
     }
     case 'store': {

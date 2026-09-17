@@ -15,6 +15,7 @@ import { useWork } from '../agents/workStore'
 import { useAgentApps, effectiveApps } from '../agents/agentApps'
 import { AgentWork } from '../components/agents/AgentWork'
 import { useWorkshop } from '../workshop'
+import { BauhausIcon } from '../components/BauhausIcon'
 
 export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; dojoId: string; onClose: () => void }) {
   const def = MODULE_BY_ID[moduleId]
@@ -84,7 +85,7 @@ export function ModuleHost({ moduleId, dojoId, onClose }: { moduleId: string; do
             )}
           </div>
           <span className="modhost-tag">{def.status === 'live' ? 'Local · serverless' : 'Coming soon'}</span>
-          <button className="modhost-close" onClick={onClose} aria-label="Close studio">✕</button>
+          <button className="modhost-close" onClick={onClose} aria-label="Close studio"><BauhausIcon name="cross" size={14} /></button>
         </div>
       </header>
 

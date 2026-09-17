@@ -27,6 +27,7 @@ import { AgentContext } from '../agents/AgentContext'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { FullScreen } from '../FullScreen'
 import { StepBar } from '../../modules/StepBar'
+import { BauhausIcon } from '../BauhausIcon'
 
 type Tab = 'studio' | 'account' | 'team' | 'billing'
 
@@ -306,7 +307,7 @@ function StudioTab() {
             <div className="sq-info"><span className="sq-info-k">Agents</span><b>{dojo.agents.length}/{MAX_AGENTS}</b></div>
           </div>
           <div className="ws-savebar">
-            <span className={`ws-saveflag ${dirty ? 'on' : ''}`}>{dirty ? '● Unsaved changes' : '✓ All changes saved'}</span>
+            <span className={`ws-saveflag ${dirty ? 'on' : ''}`}>{dirty ? <><BauhausIcon name="disc" size={10} /> Unsaved changes</> : <><BauhausIcon name="check" size={11} /> All changes saved</>}</span>
             <button className="ws-btn primary" disabled={!dirty} onClick={save}>Validate &amp; save dojo</button>
           </div>
           <ProjectFileIO label={dojo.name} />
@@ -715,7 +716,7 @@ function CompanyPanel() {
             const crew = d.agents.filter((x) => !x.hidden).length
             return (
               <li key={d.id} className="ws-corow" style={{ ['--ac' as string]: a?.tint ?? '#7b5cff' }}>
-                <span className="ws-coglyph">{a?.glyph ?? '◆'}</span>
+                <span className="ws-coglyph"><BauhausIcon name={a?.glyph ?? 'diamondSolid'} size={16} /></span>
                 <span className="ws-cotxt">
                   <input
                     className="ws-coname"
@@ -883,10 +884,12 @@ function PlanCards({ hasAccount, org }: { hasAccount: boolean; org: OrgSnapshot 
               <span className="ws-blurb">{pl.tagline}</span>
               {mine ? (
                 <span className="ws-plan-now">
-                  {current?.status === 'past_due' ? '◦ your plan · payment failed' : '✓ your plan'}
+                  {current?.status === 'past_due'
+                      ? <><BauhausIcon name="dot" size={10} /> your plan · payment failed</>
+                      : <><BauhausIcon name="check" size={11} /> your plan</>}
                 </span>
               ) : pl.usd === 0 ? (
-                <span className="ws-plan-now">◦ where everyone starts</span>
+                <span className="ws-plan-now"><BauhausIcon name="dot" size={10} /> where everyone starts</span>
               ) : (
                 <button
                   className="ws-btn"
@@ -941,8 +944,8 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
     if (r.ok) {
       setKey('')
       setMsg(r.verified
-        ? { tone: 'ok', text: '✓ Key saved and tested against Anthropic, it works. Your runs are billed to your own account from now on.' }
-        : { tone: 'warn', text: '◦ Key saved, but we could not reach Anthropic just now to test it. It is stored encrypted; if it turns out to be wrong, a run will say so.' })
+        ? { tone: 'ok', text: 'Key saved and tested against Anthropic, it works. Your runs are billed to your own account from now on.' }
+        : { tone: 'warn', text: 'Key saved, but we could not reach Anthropic just now to test it. It is stored encrypted; if it turns out to be wrong, a run will say so.' })
       return
     }
     setMsg({
@@ -950,7 +953,7 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
       text: r.error === 'bad_key'
         ? 'That doesn’t look like a Claude key (starts with sk-ant-…). Nothing was saved.'
         : r.error === 'key_rejected'
-          ? '✕ Anthropic refused that key. It is well-formed but revoked, mistyped, or from another console. Nothing was saved: copy it again from console.anthropic.com.'
+          ? 'Anthropic refused that key. It is well-formed but revoked, mistyped, or from another console. Nothing was saved: copy it again from console.anthropic.com.'
           : r.error === 'no_backend'
             ? 'Connections backend not configured on this deployment.'
             : 'Could not save the key.',

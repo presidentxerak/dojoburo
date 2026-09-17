@@ -148,7 +148,7 @@ export async function runLoop(dojoId: string, opts: RunLoopOpts = {}): Promise<v
 
   if (opts.only === undefined) {
     toast({
-      kind: 'event', badge: '▶', color: arch.tint, title: dojo.name,
+      kind: 'event', badge: 'RUN', color: arch.tint, title: dojo.name,
       text: first > 0
         ? `Resuming at step ${first + 1} of ${steps.length}.`
         : `${steps.length} steps · your team is starting.`,

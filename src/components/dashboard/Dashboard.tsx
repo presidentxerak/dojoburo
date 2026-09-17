@@ -20,6 +20,7 @@ import { TeammateCard } from '../TeammateCard'
 import { CustomAgentWorkspace } from '../../modules/custom/CustomAgentWorkspace'
 import { MAX_AGENTS } from '../../workshop'
 import { BUILD_ID, forceFresh } from '../../lib/build'
+import { BauhausIcon } from '../BauhausIcon'
 
 // Build stamp (injected by Vite) so the running version is visible in-app.
 
@@ -190,7 +191,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
     if (running) return
     if (engine.paused) { pushToast({ kind: 'event', badge: '!', color: '#d9822b', title: 'Company paused', text: 'Resume it in Sentinel (Operations Guardian).' }); return }
     engine.record(`${agentName}:${task}`)
-    pushToast({ kind: 'event', badge: '▶', color: '#2f7fd6', title: agentName, text: 'Working…' })
+    pushToast({ kind: 'event', badge: 'RUN', color: '#2f7fd6', title: agentName, text: 'Working…' })
     await run({ task, agentName, connectors: [], brief })
     const err = useWork.getState().runError
     if (err) {
@@ -251,7 +252,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
           {autopilot.running ? (
             <p className="ceo-autopilot"><span className="ceo-spin" /> Chief is working · <b>{autopilot.step}</b>…</p>
           ) : (
-            <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>
+            <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}><BauhausIcon name="play" size={12} /> Launch Chief (build everything)</button>
           )}
           {noModel && (
             <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> (the menu → Billing) for the real thing.</p>
@@ -318,7 +319,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
               <button role="switch" aria-checked={engine.paused} className={`tgl danger${engine.paused ? ' on' : ''}`} onClick={() => engine.setPaused(!engine.paused)}><span /></button>
             </label>
           </div>
-          {engine.paused && <p className="sec-paused">⏸ Company paused · tasks are blocked.</p>}
+          {engine.paused && <p className="sec-paused"><BauhausIcon name="pause" size={12} /> Company paused · tasks are blocked.</p>}
         </>
       )
       case 'vaultor': return (
@@ -390,7 +391,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
       <div className="agentdash" style={{ ['--dc' as string]: selRole.tint }}>
         <div className="ad-topbar">
           <button className="ad-back" onClick={() => { selectAgent(null); onOpenDojo() }}>‹ Dojo</button>
-          <button className="btn tiny ghost" onClick={() => editAgent(selected.id)} title="Advanced editing in the Studio">Studio ✎</button>
+          <button className="btn tiny ghost" onClick={() => editAgent(selected.id)} title="Advanced editing in the Studio">Studio <BauhausIcon name="pen" size={12} /></button>
         </div>
 
         <header className="ad-head">
@@ -496,7 +497,7 @@ export function Dashboard({ onOpenDojo }: { onOpenDojo: () => void }) {
         </div>
         {autopilot.running
           ? <p className="ceo-autopilot"><span className="ceo-spin" /> Chief is working · <b>{autopilot.step}</b>…</p>
-          : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}>▶ Launch Chief (build everything)</button>}
+          : <button className="btn tiny ceo-launch" disabled={!!running} onClick={() => void launchCeo(dojo?.name || 'my company')}><BauhausIcon name="play" size={12} /> Launch Chief (build everything)</button>}
         {noModel && <p className="ceo-nomodel"><b>No AI connected yet</b> · Chief can only write <b>drafts</b>. <button className="linklike" onClick={() => openStudio('billing')}>Add your Claude key</button> for the real thing.</p>}
       </div>
 

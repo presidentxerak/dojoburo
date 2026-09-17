@@ -306,6 +306,27 @@ ok('no emoji in the UI', !emoji, emoji ? [...new Set(emoji)].join(' ') : '')
 const dashes = body.match(/\u2014| \u2013 /g)
 ok('no em dash in the UI', !dashes, dashes ? `${dashes.length} on screen` : '')
 
+// ---- les icônes sont DESSINÉES, pas écrites ----------------------------
+// test-icons prouve qu'aucun caractère ne subsiste dans le code. Ceci prouve
+// l'autre moitié, qui ne se lit nulle part dans la source : que des icônes
+// arrivent bel et bien à l'écran. Une migration qui retire les caractères et
+// oublie de rendre les formes laisse une interface vide, et les deux passent
+// le typecheck.
+const icons = await p.evaluate(() => {
+  const all = [...document.querySelectorAll('svg.bh-icon')]
+  return {
+    n: all.length,
+    // le filet d'un pixel, tel que le navigateur le calcule vraiment
+    stroked: all.filter((s) => s.getAttribute('stroke-width') === '1'
+      && s.getAttribute('vector-effect') === 'non-scaling-stroke').length,
+    // une icône de taille nulle est une icône absente
+    sized: all.filter((s) => s.getBoundingClientRect().width > 0).length,
+  }
+})
+ok('the Bauhaus icons are drawn', icons.n > 0, `${icons.n} on screen`)
+ok('…every one with a one pixel stroke', icons.n > 0 && icons.stroked === icons.n, `${icons.stroked}/${icons.n}`)
+ok('…and every one actually takes up space', icons.n > 0 && icons.sized === icons.n, `${icons.sized}/${icons.n}`)
+
 report()
 await b.close()
 process.exit(out.some((l) => l.startsWith('FAIL')) ? 1 : 0)

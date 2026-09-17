@@ -8,6 +8,7 @@ import { archetypeAgents, archetypeConnectors, type Archetype } from '../../data
 import { CONNECTOR_BY_ID } from '../../data/connectors'
 import { teamBudget, usdLabel } from '../../data/budget'
 import { ConnectorLogo } from '../ConnectorLogo'
+import { BauhausIcon } from '../BauhausIcon'
 
 const APPS_SHOWN = 8
 
@@ -34,11 +35,11 @@ export function TeamCard({ a, selected, owned, onToggle }: {
       onClick={onToggle}
     >
       <span className="tcard-top">
-        <span className="tcard-glyph" style={{ background: a.tint }}>{a.glyph}</span>
+        <span className="tcard-glyph" style={{ background: a.tint }}><BauhausIcon name={a.glyph} size={18} /></span>
         <span className="tcard-cat">{a.category}</span>
         {owned
           ? <span className="tcard-owned">Hired</span>
-          : <span className="tcard-check" aria-hidden>{selected ? '✓' : ''}</span>}
+          : <span className="tcard-check" aria-hidden>{selected ? <BauhausIcon name="check" size={12} /> : null}</span>}
       </span>
 
       <strong className="tcard-title">{a.label}</strong>

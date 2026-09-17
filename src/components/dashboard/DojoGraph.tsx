@@ -26,6 +26,7 @@ import { ConnectorLogo } from '../ConnectorLogo'
 import { FullScreen } from '../FullScreen'
 import { AGENT_TASKS } from './agentTasks'
 import type { WAgent } from '../../workshop'
+import { BauhausIcon } from '../BauhausIcon'
 
 const relTime = (t: number) => {
   // Un coéquipier qui n'a jamais tourné n'a pas « rien » : il a quelque chose à
@@ -210,7 +211,7 @@ export function DojoGraph({ dojoId, onClose, onOpenAgent }: {
             >
               <em>Ready · first job</em>
               <strong>{first.label}</strong>
-              <span>▲ open {a.name}</span>
+              <span><BauhausIcon name="triangle" size={11} /> open {a.name}</span>
             </button>
           ) : null
         ) : (

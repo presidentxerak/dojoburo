@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { Agent3DPreview } from '../components/three/Agent3DPreview'
 import { skinById } from '../data/skins'
 import type { StageId } from '../data/academy'
+import { BauhausIcon } from '../components/BauhausIcon'
 
 /** A counter that advances every `ms` and wraps at `n`. The engine behind every
  *  stage: each one is just "which of these is lit right now". */
@@ -93,7 +94,7 @@ function Versus() {
       <div className="ac-versus">
         <div className="ac-vs-col">
           <span className="ac-vs-h">One assistant</span>
-          <div className="ac-bot">◍</div>
+          <div className="ac-bot"><BauhausIcon name="centre" size={26} /></div>
           <ul className="ac-jobs">
             {JOBS.map((j, i) => <li key={j} className={i === t ? 'on' : ''}>{j}</li>)}
           </ul>
@@ -126,7 +127,7 @@ function Create() {
         <ol className="tut-loop">
           {STEPS.map((s, i) => (
             <li key={s} className={i < t ? 'done' : i === t ? 'run' : ''}>
-              <span className="tut-loop-i">{i < t ? '✓' : i + 1}</span>{s}
+              <span className="tut-loop-i">{i < t ? <BauhausIcon name="check" size={12} /> : i + 1}</span>{s}
             </li>
           ))}
         </ol>
@@ -137,10 +138,10 @@ function Create() {
 
 function Deliver() {
   const DOCS = [
-    { d: 'Research', g: '◈', c: '#0ea5e9' },
-    { d: 'Plan', g: '❑', c: '#7b5cff' },
-    { d: 'Creatives', g: '◱', c: '#e0459b' },
-    { d: 'Brief', g: '▤', c: '#1fa563' },
+    { d: 'Research', g: 'diamond', c: '#0ea5e9' },
+    { d: 'Plan', g: 'square', c: '#7b5cff' },
+    { d: 'Creatives', g: 'quadrant', c: '#e0459b' },
+    { d: 'Brief', g: 'rows', c: '#1fa563' },
   ]
   const t = useTick(DOCS.length + 1, 900)
   return (
@@ -148,7 +149,7 @@ function Deliver() {
       <div className="tut-docs">
         {DOCS.map((x, i) => (
           <span key={x.d} className={`tut-doc ac-doc${i < t ? ' on' : ''}`} style={{ ['--c' as string]: x.c }}>
-            <span className="tut-doc-g" style={{ background: x.c }}>{x.g}</span>
+            <span className="tut-doc-g" style={{ background: x.c }}><BauhausIcon name={x.g} size={16} /></span>
             <span className="tut-doc-l" /><span className="tut-doc-l sm" />
             <em>{x.d}</em>
           </span>
@@ -226,7 +227,7 @@ function Loop() {
         <ol className="tut-loop">
           {PLAN.map((s, i) => (
             <li key={s.s} className={i < t ? 'done' : i === t ? 'run' : ''}>
-              <span className="tut-loop-i">{i < t ? '✓' : i + 1}</span>{s.s}
+              <span className="tut-loop-i">{i < t ? <BauhausIcon name="check" size={12} /> : i + 1}</span>{s.s}
             </li>
           ))}
         </ol>
@@ -297,7 +298,7 @@ function Watch() {
             const st = stateOf(i)
             return (
               <li key={s.s} className={st === 'done' ? 'done' : st === 'bad' ? 'ac-bad' : st === 'fix' ? 'ac-fix' : ''}>
-                <span className="tut-loop-i">{st === 'done' ? '✓' : st === 'bad' ? '!' : st === 'fix' ? '✎' : i + 1}</span>{s.s}
+                <span className="tut-loop-i">{st === 'done' ? <BauhausIcon name="check" size={12} /> : st === 'bad' ? <BauhausIcon name="cross" size={12} /> : st === 'fix' ? <BauhausIcon name="pen" size={12} /> : i + 1}</span>{s.s}
               </li>
             )
           })}
@@ -330,10 +331,10 @@ function Vibe() {
 
 function Landscape() {
   const TOOLS = [
-    { n: 'Chatbot', f: 'you ask, it answers', g: '◍', c: '#8892a6' },
-    { n: 'AI IDE', f: 'where code is written', g: '❑', c: '#0ea5e9' },
-    { n: 'Coding agent', f: 'changes your files', g: '▤', c: '#7b5cff' },
-    { n: 'Agent workspace', f: 'a crew in your real apps', g: '◈', c: '#1fa563' },
+    { n: 'Chatbot', f: 'you ask, it answers', g: 'centre', c: '#8892a6' },
+    { n: 'AI IDE', f: 'where code is written', g: 'square', c: '#0ea5e9' },
+    { n: 'Coding agent', f: 'changes your files', g: 'rows', c: '#7b5cff' },
+    { n: 'Agent workspace', f: 'a crew in your real apps', g: 'diamond', c: '#1fa563' },
   ]
   const t = useTick(TOOLS.length, 1300)
   return (
@@ -341,7 +342,7 @@ function Landscape() {
       <div className="ac-land">
         {TOOLS.map((x, i) => (
           <span key={x.n} className={`ac-land-col${i === t ? ' on' : ''}${i === 3 ? ' here' : ''}`} style={{ ['--c' as string]: x.c }}>
-            <i style={{ background: x.c }}>{x.g}</i>
+            <i style={{ background: x.c }}><BauhausIcon name={x.g} size={16} /></i>
             <b>{x.n}</b>
             <em>{x.f}</em>
             {i === 3 && <span className="ac-here">you are here</span>}
@@ -395,7 +396,7 @@ function Safety() {
   return (
     <Wrap>
       <div className="ac-safety">
-        <div className="ac-shield">{t === 0 ? '◈' : t === 1 ? '▲' : '✓'}</div>
+        <div className="ac-shield"><BauhausIcon name={t === 0 ? 'diamond' : t === 1 ? 'triangle' : 'check'} size={24} /></div>
         <ul className="ac-safe-rows">
           {ROWS.map((c, i) => <li key={c} className={i === t ? 'on' : i < t ? 'past' : ''}>{c}</li>)}
         </ul>
@@ -411,7 +412,7 @@ function Ship() {
   return (
     <Wrap>
       <ul className="ac-check">
-        {CHECK.map((c, i) => <li key={c} className={i < t ? 'on' : ''}><span>{i < t ? '✓' : ''}</span>{c}</li>)}
+        {CHECK.map((c, i) => <li key={c} className={i < t ? 'on' : ''}><span>{i < t ? <BauhausIcon name="check" size={12} /> : null}</span>{c}</li>)}
       </ul>
     </Wrap>
   )

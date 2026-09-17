@@ -29,6 +29,7 @@
 // changer. Quelqu'un d'attentif peut le réécrire lui-même à partir de ça — et
 // tant mieux, c'est une académie. On vend le temps gagné, pas le secret.
 import { PROFESSIONS } from './professions'
+import type { IconName } from './icons'
 
 export type EntryKind = 'prompt' | 'brief' | 'skill'
 
@@ -58,7 +59,11 @@ export interface Category {
   label: string
   /** ce qu'on y range · une phrase, pas une définition */
   blurb: string
-  glyph: string
+  /** l'icône · un NOM de forme, pas un caractère. Les glyphes Unicode qui
+   *  vivaient ici se dessinaient différemment sur chaque système, et deux
+   *  d'entre eux ne s'affichaient pas du tout sur un téléphone. Voir
+   *  components/BauhausIcon pour le dessin, data/icons pour le vocabulaire. */
+  glyph: IconName
 }
 
 /** Les catégories · ce qu'on FAIT, pas le métier qui le fait. Un avocat et un
@@ -66,13 +71,13 @@ export interface Category {
  *  analysent tous les deux. Ranger par verbe met les bons voisins ensemble, et
  *  le filtre par métier fait l'autre coupe. */
 export const CATEGORIES: Category[] = [
-  { id: 'write', label: 'Writing & editing', blurb: 'Drafting, rewriting, cutting. The work that starts from a blank page or a bad first version.', glyph: '✎' },
-  { id: 'research', label: 'Research & synthesis', blurb: 'Reading a lot and coming back with the part that matters, with its sources intact.', glyph: '◱' },
-  { id: 'analyse', label: 'Analysis & decisions', blurb: 'Turning numbers, options or evidence into a recommendation someone can act on.', glyph: '▲' },
-  { id: 'build', label: 'Building & code', blurb: 'Specs, reviews, refactors, tests. Agents that touch a codebase and must not break it.', glyph: '❑' },
-  { id: 'talk', label: 'Customers & support', blurb: 'Answering people, in your voice, without promising what you cannot deliver.', glyph: '◈' },
-  { id: 'run', label: 'Operations & admin', blurb: 'The recurring work: summaries, handovers, checklists, the meeting nobody wrote up.', glyph: '◳' },
-  { id: 'frugal', label: 'Frugality & review', blurb: 'Prompts that audit other prompts: what is wasted, what can be cached, what can be smaller.', glyph: '△' },
+  { id: 'write', label: 'Writing & editing', blurb: 'Drafting, rewriting, cutting. The work that starts from a blank page or a bad first version.', glyph: 'pen' },
+  { id: 'research', label: 'Research & synthesis', blurb: 'Reading a lot and coming back with the part that matters, with its sources intact.', glyph: 'quadrant' },
+  { id: 'analyse', label: 'Analysis & decisions', blurb: 'Turning numbers, options or evidence into a recommendation someone can act on.', glyph: 'triangle' },
+  { id: 'build', label: 'Building & code', blurb: 'Specs, reviews, refactors, tests. Agents that touch a codebase and must not break it.', glyph: 'square' },
+  { id: 'talk', label: 'Customers & support', blurb: 'Answering people, in your voice, without promising what you cannot deliver.', glyph: 'diamond' },
+  { id: 'run', label: 'Operations & admin', blurb: 'The recurring work: summaries, handovers, checklists, the meeting nobody wrote up.', glyph: 'frame' },
+  { id: 'frugal', label: 'Frugality & review', blurb: 'Prompts that audit other prompts: what is wasted, what can be cached, what can be smaller.', glyph: 'delta' },
 ]
 
 export const CATEGORY_BY_ID = Object.fromEntries(CATEGORIES.map((c) => [c.id, c])) as Record<string, Category>
