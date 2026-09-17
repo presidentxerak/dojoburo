@@ -49,6 +49,10 @@ const CHECKS = [
   // Le calculateur de jetons · il enseigne aux gens ce qu'ils dépensent, et un
   // outil de mesure qui se trompe est pire qu'une absence d'outil.
   ['test-frugality.mjs', 1, true],
+  // Les ateliers · qu'ils soient manipulables, et surtout qu'ils ne
+  // réimplémentent aucune formule de coût. Deux vérités qui divergent, dans
+  // une leçon dont le sujet est de compter juste, seraient un mensonge.
+  ['test-labs.mjs', 1, true],
   ['check-theme-props.mjs', 1, true],
   ['audit-csp.mjs', 2, true],
   ['verify-gate.mjs', 2, true],

@@ -58,7 +58,23 @@ export interface Lesson {
   takeaway: string
   /** the one thing to go and do */
   next?: string
+  /** L'ATELIER · la moitié de la leçon qu'on MANIPULE, quand il y en a un.
+   *
+   *  Les scènes animées existaient déjà, et leur sous-titre disait tout : « ça
+   *  tourne tout seul, vous pouvez regarder ou ignorer ». Le lecteur n'y
+   *  décide de rien, donc il ne peut pas s'y tromper, donc il n'apprend qu'en
+   *  croyant sur parole. Un atelier fait l'inverse : on change une valeur, le
+   *  chiffre bouge, et la surprise fait le travail que la phrase ne fait pas.
+   *
+   *  Toutes les leçons n'en ont pas, et c'est voulu : un atelier posé sur une
+   *  leçon qui n'a rien à manipuler est un jouet. Voir academy/Lab.tsx. */
+  lab?: LabId
 }
+
+/** Les ateliers disponibles · déclarés ICI plutôt que dans le composant, parce
+ *  que ce fichier est lu hors navigateur (gen-seo, check-content) et ne doit
+ *  jamais dépendre de React. */
+export type LabId = 'count' | 'history' | 'tools' | 'rewrite'
 
 export interface Track {
   slug: string
@@ -79,6 +95,7 @@ export interface Track {
 const BASICS: Lesson[] = [
   {
     slug: 'what-is-an-agent',
+    lab: 'count',
     title: 'What an AI agent actually is',
     minutes: 5,
     summary: 'An agent is an AI given a job, a method and tools — not a chat window. Here is the difference, in plain words.',
@@ -433,6 +450,7 @@ const LANDSCAPE: Lesson[] = [
   },
   {
     slug: 'briefs-not-wishes',
+    lab: 'rewrite',
     title: 'How to ask for what you actually want',
     minutes: 7,
     summary: 'The single skill that changes your results: writing a brief instead of a wish. With before and after.',
@@ -502,6 +520,7 @@ const LANDSCAPE: Lesson[] = [
   },
   {
     slug: 'what-it-costs',
+    lab: 'history',
     title: 'What it costs, and why',
     minutes: 5,
     summary: 'You pay for the software, not for tokens. Here is what each plan buys, what is free, and how to never overspend.',
@@ -700,6 +719,7 @@ const TEAMMATES: Lesson[] = [
   },
   {
     slug: 'giving-them-apps',
+    lab: 'tools',
     title: 'Giving a teammate the right apps',
     minutes: 6,
     summary: 'Apps turn drafts into real actions. How to choose them, how few you need, and what access actually means.',

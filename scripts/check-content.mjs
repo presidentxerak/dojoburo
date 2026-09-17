@@ -193,6 +193,12 @@ const RULES = [
   { file: 'src/frugality/Frugality.tsx', must: /nekomai\.com/i, why: 'enterprises are pointed at Nekomai for carbon' },
   { file: 'src/data/frugality.ts', must: /inPrice: 0/, why: 'no supplier tariff is hardcoded · the user enters their own' },
   { file: 'api/chat.ts', must: /We do not measure carbon/i, why: 'the bot must not promise a footprint we do not compute' },
+  // LES ATELIERS · la promesse « tutoriels interactifs » doit rester vraie.
+  // Une scène qui tourne toute seule est une illustration ; ce qui la rend
+  // interactive est le fait que le lecteur y décide de quelque chose.
+  { file: 'src/academy/Lab.tsx', must: /from '\.\.\/data\/frugality'/, why: 'the labs use the shared cost model, never their own' },
+  { file: 'src/data/academy.ts', must: /lab\?: LabId/, why: 'a lesson must be able to carry a lab' },
+  { file: 'src/academy/Academy.tsx', must: /<Lab id=\{lesson\.lab\}/, why: 'the lesson page must actually render it' },
   { file: 'src/support/knowledge.ts', must: /\$\{LIB_COUNT\}/, why: 'the library size comes from facts.ts, never typed' },
   // LES ACCROCHES DES FORMULES · elles ont survécu au repositionnement entier
   // en promettant « construisez une entreprise » et « nous faisons tourner les

@@ -22,6 +22,7 @@ import { SupportBot } from '../components/SupportBot'
 import { Lnk, navigate } from '../lib/router'
 import { useHeadTags, breadcrumb, SITE } from '../lib/headTags'
 import { AcademyStage } from './AcademyStage'
+import { Lab } from './Lab'
 import { markDone, clearDone, recordAnswer, useProgress } from './progress'
 import {
   TRACKS, TRACK_BY_SLUG, ALL_LESSONS, LESSON_COUNT, TOTAL_MINUTES,
@@ -450,6 +451,12 @@ export function LessonPage({ trackSlug, lessonSlug, inApp }: { trackSlug: string
 
           <div className="ac-lesson-text">
             {lesson.blocks.map((b) => <BlockView key={b.title} b={b} />)}
+
+            {/* L'ATELIER, avant la question · on manipule, puis on répond.
+                L'ordre inverse aurait demandé de répondre sur ce qu'on n'a pas
+                encore essayé, ce qui est exactement la façon dont on apprend à
+                réciter sans comprendre. */}
+            {lesson.lab && <Lab id={lesson.lab} />}
 
             <QuizView key={`${track.slug}/${lesson.slug}`} track={track} lesson={lesson} />
 

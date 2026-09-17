@@ -8088,3 +8088,91 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   .fr-table { font-size: 14px; }
   .fr-table .why { display: none; }
 }
+
+/* ===========================================================================
+   LES ATELIERS · la moitié de la leçon qu'on manipule
+   ---------------------------------------------------------------------------
+   Un atelier doit se distinguer d'un bloc de texte au premier coup d'œil,
+   sinon personne ne devine qu'on peut y toucher. D'où le liseré plein, le
+   fond légèrement teinté et le grand chiffre : le résultat est l'objet, le
+   reste l'explique.
+   ======================================================================== */
+
+.ac-lab {
+  margin: 26px 0; padding: 18px 20px; text-align: left;
+  background: color-mix(in srgb, var(--violet) 5%, var(--panel-solid));
+  border: 1px solid var(--border); border-left: 3px solid var(--violet);
+  border-radius: var(--radius);
+}
+.ac-lab h3 { font-family: var(--font-pixel); font-weight: 800; font-size: 18px; margin: 6px 0 4px; }
+.lab { display: flex; flex-direction: column; gap: 12px; }
+.lab-lead { font-size: 15px; color: var(--muted); line-height: 1.5; margin: 0; }
+
+.lab-ta {
+  font: inherit; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6;
+  padding: 12px 14px; border-radius: 10px; resize: vertical;
+  background: var(--panel-solid); color: var(--ink); border: 1px solid var(--border);
+}
+.lab-ta:focus { outline: 2px solid var(--violet); outline-offset: 1px; }
+
+.lab-out { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.lab-n { font-family: var(--font-pixel); font-weight: 800; font-size: 34px; line-height: 1; color: var(--violet); }
+.lab-l { font-size: 14px; color: var(--muted); }
+.lab-note { font-size: 14.5px; line-height: 1.6; margin: 0; }
+.lab-note code {
+  font-family: var(--font-mono); font-size: 12.5px; padding: 1px 5px; border-radius: 5px;
+  background: var(--panel-solid); border: 1px solid var(--border);
+}
+.lab-caveat { font-size: 13px; color: var(--muted); line-height: 1.55; margin: 0; }
+
+.lab-slider { display: flex; align-items: center; gap: 12px; }
+.lab-slider span {
+  font-family: var(--font-pixel); font-weight: 800; font-size: 14px; min-width: 76px; white-space: nowrap;
+}
+.lab-slider input { flex: 1; accent-color: var(--violet); }
+
+/* la courbe · des barres, pas un graphique. Ce qu'on veut montrer est une
+   FORME qui s'incurve, et une barre par tour la donne sans dépendance. */
+.lab-chart {
+  display: flex; align-items: flex-end; gap: 2px; height: 120px;
+  padding: 8px 10px; background: var(--panel-solid);
+  border: 1px solid var(--border); border-radius: 10px;
+}
+.lab-bar {
+  flex: 1; min-width: 3px; border-radius: 2px 2px 0 0;
+  background: linear-gradient(180deg, var(--violet), color-mix(in srgb, var(--violet) 45%, transparent));
+  transition: height .18s ease;
+}
+@media (prefers-reduced-motion: reduce) { .lab-bar { transition: none; } }
+
+.lab-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.lab-chips button {
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  padding: 7px 13px; border-radius: 999px; background: var(--panel-solid);
+  color: var(--muted); border: 1px solid var(--border);
+}
+.lab-chips button.on { color: var(--ink); border-color: var(--violet); box-shadow: inset 0 0 0 1px var(--violet); }
+
+.lab-fixes { display: flex; flex-direction: column; gap: 7px; }
+.lab-fix {
+  display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+  padding: 10px 12px; border-radius: 10px;
+  background: var(--panel-solid); border: 1px solid var(--border);
+}
+.lab-fix.on { border-color: var(--violet); }
+.lab-fix input { margin-top: 3px; accent-color: var(--violet); }
+.lab-fix span { display: flex; flex-direction: column; gap: 2px; }
+.lab-fix b { font-size: 14.5px; }
+.lab-fix em { font-style: normal; font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+.lab-pre {
+  margin: 0; padding: 13px 15px; overflow-x: auto; white-space: pre-wrap;
+  background: var(--panel-solid); border: 1px solid var(--border); border-radius: 10px;
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.65;
+}
+
+@media (max-width: 680px) {
+  .ac-lab { padding: 15px 16px; }
+  .lab-n { font-size: 28px; }
+  .lab-chart { height: 96px; }
+}
