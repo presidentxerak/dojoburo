@@ -97,6 +97,16 @@ ok(await p.locator('.ph-dup').count() === 0, 'and nothing is flagged as a duplic
 await p.locator('.tmcard .btn.primary').first().click()
 await p.waitForTimeout(2500)
 
+/** La signature du dessin de la croix de fermeture · prise dans la page.
+ *  La première rencontrée fait référence pour toutes les suivantes, donc
+ *  aucun chemin n'est recopié ici : une garde qui redécrit le dessin devient
+ *  une deuxième source de vérité, et elle dérive de la première. */
+let crossSig = null
+const closeSignature = () => p.evaluate(() => {
+  const svg = document.querySelector('.modhost-close svg.bh-icon')
+  return svg ? svg.innerHTML.replace(/\s+/g, ' ').trim() : ''
+})
+
 // ---- the four full-screen surfaces --------------------------------------------
 const surfaces = [
   ['Place & tune', () => p.locator('.dojo-ctl button', { hasText: 'Place' }).click(), 'u-fs-place.png'],
@@ -123,7 +133,14 @@ for (const [name, open, shot] of surfaces) {
   ok(await x.count() === 1, `${name} has exactly one close button`)
   const xb = await x.boundingBox()
   ok(xb && xb.x > vp.width - 120 && xb.y < 90, `${name} closes from the top right · ${JSON.stringify(xb)}`)
-  ok((await x.innerText()).trim() === '✕', `${name} uses the same glyph`)
+  // LA MÊME CROIX PARTOUT · elle était un caractère et cette garde comparait
+  // son texte. Elle est dessinée maintenant, donc le texte est vide et la
+  // garde échouait sur du code juste. Ce qu'elle voulait dire reste vrai et
+  // vaut d'être tenu : toutes les surfaces se ferment avec le MÊME contrôle.
+  const sig = await closeSignature()
+  ok(sig.length > 10, `${name} closes with a drawn cross, not a character`)
+  if (crossSig === null) crossSig = sig
+  ok(sig === crossSig, `${name} uses the same cross as the others`)
   ok(await fs.locator('.modhost-name').isVisible(), `${name} carries a title in the bar`)
   // escape closes it
   await p.keyboard.press('Escape')
@@ -159,7 +176,9 @@ const sx = p.locator('.modhost-close').first()
 const sb = await sx.boundingBox()
 const vp = p.viewportSize()
 ok(sb && sb.x > vp.width - 120 && sb.y < 30, `settings: the same close button, at the same height as the others · ${JSON.stringify(sb)}`)
-ok((await sx.innerText()).trim() === '✕', 'settings: the same glyph')
+const settingsSig = await closeSignature()
+ok(settingsSig.length > 10, 'settings: closes with a drawn cross, not a character')
+ok(settingsSig === crossSig, 'settings: the same cross as the others')
 ok(await p.locator('.studio-page .topbar-app').count() === 0, 'settings: no second header above the studio bar')
 
 // ---- mobile ------------------------------------------------------------------

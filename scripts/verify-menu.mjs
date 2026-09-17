@@ -116,6 +116,10 @@ await fullscreen('How hard your team works', async () => { await p.locator('.tb-
 // Billing, Dojo settings and Connect apps used to NAVIGATE to their own routes:
 // you left the app to read a number, came back to the naming card, and the page
 // wore chrome nobody else wore. They are surfaces over the app now.
+/** La signature du dessin de la première croix rencontrée · les suivantes
+ *  doivent lui être identiques. Elle est lue dans la page, jamais écrite ici. */
+let closeSig = null
+
 async function overApp(name, open) {
   await open()
   await p.waitForTimeout(1600)
@@ -123,10 +127,24 @@ async function overApp(name, open) {
   const n = await fs.count()
   const box = n ? await fs.first().boundingBox() : null
   const body = n ? (await fs.first().innerText()).replace(/\s+/g, ' ').trim() : ''
-  const glyph = n ? (await p.locator('.modhost-close').first().innerText()).trim() : ''
+  // LA MÊME CROIX PARTOUT · elle était un CARACTÈRE, et cette garde comparait
+  // son texte. Elle est dessinée maintenant (components/BauhausIcon), donc le
+  // texte est vide et la garde échouait sur du code juste.
+  //
+  // Ce qu'elle voulait dire reste vrai et vaut toujours d'être tenu : toutes
+  // les surfaces se ferment avec le MÊME contrôle. On compare donc la
+  // signature du dessin, prise dans la page, sans écrire de chemin ici : un
+  // chemin recopié dans une garde est une deuxième source de vérité qui
+  // dérive de la première.
+  const sig = n ? await p.evaluate(() => {
+    const svg = document.querySelector('.modhost-close svg.bh-icon')
+    return svg ? svg.innerHTML.replace(/\s+/g, ' ').trim() : ''
+  }) : ''
   ok(`${name} opens over the app, in the shared shell`, n === 1 && !!box && box.x === 10, box ? `x=${box.x}` : 'absent')
   ok(`${name} is not blank`, body.length > 200, `${body.length} chars`)
-  ok(`${name} closes with the same ✕`, glyph === '✕', JSON.stringify(glyph))
+  ok(`${name} closes with a drawn cross, not a character`, sig.length > 10, JSON.stringify(sig.slice(0, 40)))
+  if (closeSig === null) closeSig = sig
+  ok(`${name} closes with the same cross as the others`, sig === closeSig)
   const hash = await p.evaluate(() => location.hash)
   ok(`${name} did not navigate away`, hash === '#app', hash)
   await p.locator('.modhost-close').first().click()
@@ -319,13 +337,21 @@ const icons = await p.evaluate(() => {
     // le filet d'un pixel, tel que le navigateur le calcule vraiment
     stroked: all.filter((s) => s.getAttribute('stroke-width') === '1'
       && s.getAttribute('vector-effect') === 'non-scaling-stroke').length,
-    // une icône de taille nulle est une icône absente
-    sized: all.filter((s) => s.getBoundingClientRect().width > 0).length,
+    // LES ICÔNES VISIBLES seulement · la page porte aussi la barre du bas,
+    // masquée sur un écran large par une règle de média. Ses quatre icônes
+    // ont une largeur nulle et c'est NORMAL : elles sont dans un conteneur
+    // caché. La première version de cette garde les comptait, accusait du
+    // code juste, et m'aurait fait « corriger » une mise en page saine.
+    ...(() => {
+      const vis = all.filter((s) => (s.checkVisibility ? s.checkVisibility() : s.getClientRects().length > 0))
+      return { shown: vis.length, sized: vis.filter((s) => s.getBoundingClientRect().width > 0).length }
+    })(),
   }
 })
 ok('the Bauhaus icons are drawn', icons.n > 0, `${icons.n} on screen`)
 ok('…every one with a one pixel stroke', icons.n > 0 && icons.stroked === icons.n, `${icons.stroked}/${icons.n}`)
-ok('…and every one actually takes up space', icons.n > 0 && icons.sized === icons.n, `${icons.sized}/${icons.n}`)
+ok('…and some of them are actually visible', icons.shown > 0, `${icons.shown}/${icons.n} visible`)
+ok('…each visible one taking up space', icons.shown > 0 && icons.sized === icons.shown, `${icons.sized}/${icons.shown}`)
 
 report()
 await b.close()
