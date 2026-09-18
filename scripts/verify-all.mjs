@@ -65,6 +65,10 @@ const CHECKS = [
   // soit un îlot, et que le pied de page ne redevienne pas six pieds de page
   // qui se contredisent. Un lien mort ne lève aucune erreur.
   ['test-flows.mjs', 1, true],
+  // OÙ FAIRE TOURNER SON AGENT · et surtout : qu'aucun extrait de code
+  // d'appel ne s'y glisse. La tentation d'« ajouter juste un petit snippet »
+  // est permanente et arrive toujours par une bonne intention.
+  ['test-frameworks.mjs', 1, true],
   // LE JEU D'ICÔNES · qu'aucune ne redevienne un caractère. L'app les a
   // dessinées avec des caractères Unicode pendant des mois : ça s'affiche, mais
   // pas pareil chez tout le monde, et pas du tout sur certains téléphones. Un

@@ -110,6 +110,7 @@ const urls = [
   { loc: '/academy', pri: '0.9', freq: 'weekly' },
   ...TRACKS.map((t) => ({ loc: `/academy/${t.slug}`, pri: '0.8', freq: 'monthly' })),
   ...ALL_LESSONS.map(({ track, lesson }) => ({ loc: `/academy/${track.slug}/${lesson.slug}`, pri: '0.8', freq: 'monthly' })),
+  { loc: '/frameworks', pri: '0.9', freq: 'monthly' },
   { loc: '/frugality', pri: '0.9', freq: 'monthly' },
   { loc: '/library', pri: '0.9', freq: 'weekly' },
   ...ENTRIES.map((e) => ({ loc: `/library/${e.slug}`, pri: '0.7', freq: 'monthly' })),

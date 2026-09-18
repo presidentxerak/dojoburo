@@ -34,6 +34,7 @@ import { AGENT_TRACK } from './masterProgress'
 import { gradeFor } from './grades'
 import { FORMATS, render, downloadAgent, copyAgent, type BuiltAgent, type ExportFormat } from '../lib/agentExport'
 import { estimateTokens } from '../agents/sandbox'
+import { FRAMEWORKS, FRAMEWORK_COUNT } from '../data/frameworks'
 import { Agent3DPreview } from '../components/three/Agent3DPreview'
 import { AGENT_CHAR, charForAgent } from '../components/landing/TeamCards'
 
@@ -321,6 +322,30 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
             snippet of calling code: a code example goes stale with the library it was written against, and a
             stale example in a course is worse than none at all.
           </p>
+
+          {/* OÙ ÇA VA · la marche d'après, et la plus haute. On repartait avec
+              un fichier et aucune idée de quel framework prendre ni de quoi y
+              coller. Trois exemples ici, le reste sur sa page : la fiche
+              enseigne à construire, pas à comparer quinze projets. */}
+          <div className="ag-where">
+            <h3>Where this goes next</h3>
+            <p className="ag-lead">
+              A framework will not take your file as it is: each one models an agent with its own words, and the
+              work is knowing which piece becomes what. Three of them, to give you the idea.
+            </p>
+            <div className="ag-where-list">
+              {FRAMEWORKS.slice(0, 3).map((f) => (
+                <div className="ag-where-c" key={f.id}>
+                  <b>{f.name}</b>
+                  <span className="ag-where-l">{f.langs.join(' · ')} · {f.approach}</span>
+                  <span>{f.fit.system ?? f.shape}</span>
+                </div>
+              ))}
+            </div>
+            <a className="ag-where-go" href="/frameworks">
+              Compare all {FRAMEWORK_COUNT} frameworks <BauhausIcon name="play" size={11} />
+            </a>
+          </div>
         </section>
 
         {/* LA FIN · ce qu'on a gagné, et où aller ensuite. */}

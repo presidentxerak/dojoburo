@@ -9,6 +9,7 @@ import { CREW_WORD, CREW_LIST, ACADEMY_LESSONS, ACADEMY_TRACKS, ACADEMY_HOURS, L
 // phrase écrite à la main dans une réponse de robot.
 import { USE_CASE_COUNT } from '../data/agentUseCases'
 import { COURSE_COUNT } from '../data/positioning'
+import { FRAMEWORK_COUNT } from '../data/frameworks'
 import { GRADES } from '../dojo/grades'
 
 const GRADE_COUNT = GRADES.length
@@ -49,6 +50,22 @@ export const KB: KBTopic[] = [
     ],
     follow: ['certification', 'academy', 'tokens'],
     keywords: ['build', 'build an agent', 'create an agent', 'créer un agent', 'make an agent', 'first agent', 'use case', "cas d'usage", 'dojo', 'twelve agents', '12 agents', 'agent shapes', 'which agent', 'researcher', 'extractor', 'triage', 'sorter', 'export agent', 'framework'],
+  },
+  {
+    // OÙ FAIRE TOURNER L'AGENT · la question qui suit immédiatement l'export,
+    // et à laquelle rien ne répondait.
+    id: 'frameworks',
+    chip: 'Where to run it',
+    answer:
+      `You finish a path with a file: an instruction, tool schemas, a manifest. The question straight after is where to run it, and /frameworks answers it for ${FRAMEWORK_COUNT} of them: LangGraph, LangChain, CrewAI, LlamaIndex, the OpenAI Agents SDK, Google ADK, Pydantic AI, the Microsoft Agent Framework, AutoGen, Semantic Kernel, Mastra, Agno, Strands, smolagents and MetaGPT. ` +
+      'For each one: how it MODELS an agent (that is the sentence to understand first, because it decides whether yours fits), where every piece of your exported file goes, what catches people out, and when NOT to take it. ' +
+      'There is no code on that page, on purpose. These projects move fast and a snippet written today is wrong in a few months: someone copies it, it breaks, and they think they misunderstood. We teach the part that does not go stale, which is also the part that takes the time: what your agent BECOMES in each framework. A system prompt is an instruction here, a backstory there, a typed signature elsewhere. Once you know that, the current documentation is a five minute read. Every entry links to it.',
+    links: [
+      { label: 'Compare the frameworks', href: '/frameworks' },
+      { label: 'Build an agent first', href: '/build' },
+    ],
+    follow: ['build', 'certification'],
+    keywords: ['framework', 'frameworks', 'langgraph', 'langchain', 'crewai', 'llamaindex', 'openai agents', 'agents sdk', 'google adk', 'pydantic ai', 'autogen', 'ag2', 'semantic kernel', 'mastra', 'agno', 'strands', 'smolagents', 'metagpt', 'integrate', 'intégrer', 'deploy', 'run my agent', 'where to run'],
   },
   {
     // LA CERTIFICATION · le produit distribuait des badges, des ceintures et

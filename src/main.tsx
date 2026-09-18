@@ -22,6 +22,7 @@ import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
 import { LibraryHome, EntryPage } from './library/Library'
 import { FrugalityPage } from './frugality/Frugality'
 import { BuildAgentPage } from './dojo/BuildAgent'
+import { FrameworksPage } from './dojo/Frameworks'
 import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
 import { usePath } from './lib/router'
 import { Boundary } from './components/Boundary'
@@ -81,6 +82,10 @@ function Root() {
   if (path === '/build') return <BuildAgentPage />
   const bm = path.match(/^\/build\/([a-z0-9-]+)$/i)
   if (bm) return <BuildAgentPage slug={bm[1].toLowerCase()} />
+  // OÙ FAIRE TOURNER L'AGENT · la dernière marche du premier cours, et celle
+  // que personne n'enseigne. Le parcours se terminait sur un fichier et un
+  // silence.
+  if (path === '/frameworks') return <FrameworksPage />
   if (path === '/frugality') return <FrugalityPage />
   if (path === '/library') return <LibraryHome />
   const lm = path.match(/^\/library\/([a-z0-9-]+)$/i)
