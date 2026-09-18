@@ -59,6 +59,77 @@ export interface Framework {
   docs: string
 }
 
+/* ------------------------------------------------------------------ */
+/* CE QU'EST UN FRAMEWORK, pour quelqu'un qui n'en a jamais utilisé     */
+/* ------------------------------------------------------------------ */
+
+// La première version de cette page était un comparatif de quinze projets.
+// Utile pour qui sait déjà ce qu'est un framework, inutile pour tout le monde
+// d'autre, c'est à dire pour le public de ce cours. On ne commence pas par
+// « lequel prendre » quand la question réelle est « c'est quoi ».
+
+export const FRAMEWORK_PRIMER = {
+  /** en une phrase, sans un seul mot de métier */
+  plain:
+    'A framework is a ready-made box that runs your agent for you: it talks to the model, it calls the tools when the model asks for them, it remembers the conversation, and it handles the errors.',
+  /** la comparaison · un objet que tout le monde connaît */
+  like:
+    'It is the difference between building a kitchen and renting one. You still cook the meal, and the meal is your agent. The oven, the plumbing and the extractor fan are not the interesting part of dinner, and you would rather not install them yourself every time.',
+  /** ce qu'on ferait sans · l'argument le plus honnête */
+  without:
+    'You do not need one to start. An agent is a loop: you send the instruction and the question, you read the answer, and if the model asks for a tool you run it and send the result back. Fifty lines. Writing that loop once is the best way to understand what every framework on this page is doing for you.',
+  /** ce qu'il apporte VRAIMENT · quatre choses, pas une liste marketing */
+  gives: [
+    'The loop, written and tested by someone else, including the parts that only break in production.',
+    'Tool calling, so you declare a function and the framework handles the plumbing of asking, running and replying.',
+    'Memory and state, so the agent knows what happened three turns ago without you managing it.',
+    'A way to plug in the rest: retrieval, other models, logging, deployment, a second agent.',
+  ],
+  /** ce qu'il n'apporte pas · la phrase qui évite la déception */
+  doesNot:
+    'None of them makes your agent good. The instruction you wrote in the dojo is what decides the quality of the answers, and it is the same instruction in all fifteen. A framework changes how much plumbing you write, never how well your agent thinks.',
+  /** pourquoi il y en a autant */
+  whySoMany:
+    'Because they disagree about what an agent IS. Some think it is a graph of states, some a conversation between colleagues, some a typed function. Each answer makes a different framework, and none of them is wrong. That is also why your agent moves between them: what you built is the instruction and the tools, and every one of them has a place for both.',
+}
+
+/* ------------------------------------------------------------------ */
+/* COMMENT BRANCHER SON AGENT · la procédure, la même partout          */
+/* ------------------------------------------------------------------ */
+
+export interface ConnectStep {
+  title: string
+  /** ce qu'on fait, concrètement */
+  does: string
+  /** ce qui rate à cette étape */
+  watch: string
+}
+
+// Ces quatre gestes sont les mêmes dans les quinze projets, et c'est ce qui
+// rend la page enseignable : les noms changent, la procédure non.
+export const CONNECT_STEPS: ConnectStep[] = [
+  {
+    title: 'Export the instruction',
+    does: 'On your agent page, choose the System prompt format and copy it. That block of text is your agent: everything the model knows about its job is in there.',
+    watch: 'Copy it whole. People trim it to look tidy, and the lines they trim are usually the bans, which are the part doing the work.',
+  },
+  {
+    title: 'Export the tool schemas',
+    does: 'Choose the Tool schemas format. It is JSON Schema: a name, a description and the parameters, for each thing your agent may call. Every framework reads that shape, whatever it calls it.',
+    watch: 'The description of a tool is read by the model, not by you. A tool described as "gets data" will be called at the wrong moments, and no amount of prompt will fix it.',
+  },
+  {
+    title: 'Give it a model and run it read only',
+    does: 'Pick a framework, paste the instruction where it asks for one, declare your tools from the schemas, and run it once with tools that only READ. No sending, no writing, no deleting.',
+    watch: 'This is where most first runs go wrong in a way that costs something. Read only first is not caution, it is how you find out what your agent actually tries to do.',
+  },
+  {
+    title: 'Let it write, one action at a time',
+    does: 'Turn on one action that changes something. Watch it for a few real cases. Then the next one. Keep the approval step for anything you cannot undo.',
+    watch: 'Turning on every tool at once means you cannot tell which one misbehaved. The operator path in the dojo is this step, taught properly.',
+  },
+]
+
 export const FRAMEWORKS: Framework[] = [
   {
     id: 'langgraph',

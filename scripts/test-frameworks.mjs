@@ -78,13 +78,72 @@ for (const f of FRAMEWORKS) {
 ok('les cas de « ne pas le prendre » sont distincts',
   new Set(FRAMEWORKS.map((f) => f.notWhen.toLowerCase())).size === FRAMEWORK_COUNT)
 
-/* --- 3 · AUCUN CODE D'APPEL, et c'est la règle -------------------------- */
+/* --- 3 · LA PAGE ENSEIGNE AVANT DE COMPARER ------------------------------ */
+
+// Sa première version ouvrait sur un comparatif de quinze projets. Utile pour
+// qui sait déjà ce qu'est un framework, inutile pour tout le monde d'autre,
+// c'est à dire pour le public de ce cours. On ne commence pas par « lequel
+// prendre » quand la question réelle est « c'est quoi ».
+const { FRAMEWORK_PRIMER: P, CONNECT_STEPS } = F
+
+ok('la page dit ce qu\'est un framework', typeof P.plain === 'string' && P.plain.length > 80)
+ok('…sans jargon', !/\b(orchestrat|abstraction|runtime|middleware|SDK)\w*/i.test(P.plain), P.plain.slice(0, 60))
+ok('…avec une comparaison connue', typeof P.like === 'string' && P.like.length > 60)
+ok('…ce qu\'il apporte, en points', Array.isArray(P.gives) && P.gives.length >= 3)
+// CE QU'IL N'APPORTE PAS · la phrase qui évite la déception. Aucun framework
+// ne rend un agent meilleur, et une page qui laisse croire le contraire vend
+// une solution au mauvais problème.
+ok('…et ce qu\'il n\'apporte PAS', typeof P.doesNot === 'string' && P.doesNot.length > 60)
+// ON PEUT COMMENCER SANS · c'est l'argument le plus honnête de la page, et
+// celui qu'une page écrite par un framework n'écrirait jamais.
+ok('…qu\'on peut s\'en passer pour commencer', /do not need one/i.test(P.without))
+ok('…et pourquoi il y en a autant', typeof P.whySoMany === 'string' && P.whySoMany.length > 80)
+
+// LA PROCÉDURE · les quatre gestes sont les mêmes dans les quinze projets, et
+// c'est ce qui rend la page enseignable : les noms changent, la procédure non.
+ok('la procédure a quatre gestes', CONNECT_STEPS.length === 4, `${CONNECT_STEPS.length}`)
+for (const c of CONNECT_STEPS) {
+  ok(`« ${c.title} » · ce qu'on fait`, typeof c.does === 'string' && c.does.length > 60)
+  ok(`« ${c.title} » · ce qui rate`, typeof c.watch === 'string' && c.watch.length > 40)
+}
+// EN LECTURE SEULE D'ABORD · c'est la leçon du parcours « opérateur », et elle
+// doit être dans la procédure, pas seulement dans le dojo. C'est l'étape où un
+// premier branchement coûte quelque chose.
+ok('…et elle fait commencer en lecture seule',
+  CONNECT_STEPS.some((c) => /read only/i.test(c.does + c.watch)))
+
+// L'ORDRE DE LA PAGE · « c'est quoi » avant « lequel prendre ».
+const order = readFileSync('src/dojo/Frameworks.tsx', 'utf8')
+/** « a vient avant b » · et les DEUX doivent exister.
+ *
+ *  La première version comparait deux `indexOf` directement. Or `indexOf`
+ *  rend -1 quand le titre a disparu, et -1 est inférieur à tout : supprimer la
+ *  section qu'on voulait voir en premier faisait PASSER la règle. Vérifié en
+ *  renommant le titre, qui n'a rien fait rougir.
+ *
+ *  Une garde qu'on ne peut pas faire échouer en cassant ce qu'elle surveille
+ *  ne surveille rien. */
+const before = (a, b) => {
+  const i = order.indexOf(a), j = order.indexOf(b)
+  return i >= 0 && j >= 0 && i < j
+}
+ok('la page explique avant de comparer', before('What a framework actually is', 'and what each one is for'))
+ok('…et la procédure vient avant le catalogue', before('How to export your agent and connect it', 'and what each one is for'))
+
+/* --- 4 · AUCUN CODE D'APPEL, et c'est la règle -------------------------- */
 
 const src = readFileSync('src/data/frameworks.ts', 'utf8')
 const page = readFileSync('src/dojo/Frameworks.tsx', 'utf8')
 // On cherche dans les DONNÉES, pas dans le composant : le composant est du
 // TypeScript, il contient forcément des parenthèses et des imports.
-const prose = FRAMEWORKS.flatMap((f) => [f.shape, f.watch, f.when, f.notWhen, ...Object.values(f.fit)]).join('\n')
+const prose = [
+  ...FRAMEWORKS.flatMap((f) => [f.shape, f.watch, f.when, f.notWhen, ...Object.values(f.fit)]),
+  // …le préambule et la procédure aussi · c'est là que la tentation
+  // d'« ajouter juste un petit exemple » est la plus forte, puisqu'on y
+  // explique comment brancher.
+  P.plain, P.like, P.without, P.doesNot, P.whySoMany, ...P.gives,
+  ...CONNECT_STEPS.flatMap((c) => [c.does, c.watch]),
+].join('\n')
 const CODE = [
   [/\bimport\s+\w+\s+from\b|\bfrom\s+['"][a-z_]+['"]/, 'une ligne d\'import'],
   [/\b\w+\s*=\s*new\s+[A-Z]\w+\(/, 'une instanciation'],
@@ -102,7 +161,7 @@ ok('…et dit pourquoi', /goes stale|wrong in a few months/i.test(page))
 ok('…et reconnaît qu\'elle ne suit pas ces projets', /do not track these/i.test(page))
 ok('chaque entrée renvoie à sa propre documentation', /f\.docs/.test(page))
 
-/* --- 4 · la page est atteignable ---------------------------------------- */
+/* --- 5 · la page est atteignable ---------------------------------------- */
 
 ok('la route existe', /path === '\/frameworks'/.test(readFileSync('src/main.tsx', 'utf8')))
 ok('le pied de page y mène', /\/frameworks/.test(readFileSync('src/components/SiteFooter.tsx', 'utf8')))

@@ -22,7 +22,7 @@ import { SiteFooter } from '../components/SiteFooter'
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { useHeadTags } from '../lib/headTags'
-import { FRAMEWORKS, FRAMEWORK_COUNT, FRAMEWORK_LANGS, type Framework } from '../data/frameworks'
+import { FRAMEWORKS, FRAMEWORK_COUNT, FRAMEWORK_LANGS, FRAMEWORK_PRIMER, CONNECT_STEPS, type Framework } from '../data/frameworks'
 import { FORMATS, type ExportFormat } from '../lib/agentExport'
 import { USE_CASE_COUNT } from '../data/agentUseCases'
 
@@ -95,34 +95,76 @@ export function FrameworksPage() {
         <span className="lp-pill">The last step of the first course</span>
         <h1>You built an agent. Now put it somewhere.</h1>
         <p className="lp-lead">
-          The {USE_CASE_COUNT} paths in the dojo end with a file: an instruction, tool schemas, a manifest. This
-          page is the step after, and it is the one nobody teaches: which framework to take, and what your file
-          becomes once you are inside it.
+          The {USE_CASE_COUNT} paths in the dojo end with a file: an instruction and a set of tool schemas. This
+          page is the step after. There are a lot of frameworks that will run it for you, they all want the same
+          two things, and none of them is hard to start with.
         </p>
       </section>
 
-      {/* CE QU'ON N'ÉCRIT PAS, et pourquoi · dit AVANT le tableau, pas en
-          note de bas de page. Un lecteur qui cherche du code doit savoir tout
-          de suite qu'il n'y en aura pas et pourquoi, sinon il descend toute la
-          page avant de se sentir floué. */}
-      <section className="lp-sec alt fw-note">
-        <h2>There is no code on this page, on purpose</h2>
+      {/* 1 · CE QUE C'EST · la première version de cette page ouvrait sur un
+          comparatif de quinze projets. Utile pour qui sait déjà ce qu'est un
+          framework, inutile pour tout le monde d'autre, c'est à dire pour le
+          public de ce cours. On ne commence pas par « lequel prendre » quand
+          la question réelle est « c'est quoi ». */}
+      <section className="lp-sec alt fw-what">
+        <h2><span className="ag-h2-n">01</span> What a framework actually is</h2>
+        <p className="fw-plain">{FRAMEWORK_PRIMER.plain}</p>
+        <blockquote className="ag-like">
+          <span className="ag-like-k">Think of it as</span>
+          {FRAMEWORK_PRIMER.like}
+        </blockquote>
+
+        <div className="ag-two">
+          <div className="ag-panel">
+            <h3><BauhausIcon name="box" size={17} /> What it gives you</h3>
+            <ul className="ag-need">
+              {FRAMEWORK_PRIMER.gives.map((g, i) => (
+                <li key={g}><span className="ag-need-n">{i + 1}</span>{g}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="ag-panel">
+            <h3><BauhausIcon name="cross" size={17} /> What it does not give you</h3>
+            <p className="fw-not">{FRAMEWORK_PRIMER.doesNot}</p>
+            <h3 className="fw-h3b"><BauhausIcon name="play" size={17} /> You can start without one</h3>
+            <p className="fw-not">{FRAMEWORK_PRIMER.without}</p>
+          </div>
+        </div>
+
+        <p className="fw-why"><b>Why there are so many</b>{FRAMEWORK_PRIMER.whySoMany}</p>
+      </section>
+
+      {/* 2 · LA PROCÉDURE · quatre gestes, les mêmes dans les quinze projets.
+          C'est ce qui rend la page enseignable : les noms changent, la
+          procédure non. */}
+      <section className="lp-sec fw-connect">
+        <h2><span className="ag-h2-n">02</span> How to export your agent and connect it</h2>
         <p className="lp-lead">
-          These projects move fast, and a snippet written today is wrong in a few months: someone copies it, it
-          breaks, and they think they misunderstood. So we teach the part that does not go stale, which is also
-          the part that actually takes the time: <b>what your agent becomes in each framework</b>. A system
-          prompt is an instruction here, a backstory there, a typed signature elsewhere. Once you know that, the
-          current documentation is a five minute read instead of an afternoon.
+          Four moves, and they are the same wherever you take it. Only the names of the boxes change.
         </p>
-        <p className="lp-lead sm">
-          We do not track these {FRAMEWORK_COUNT} projects day to day, and they change without telling us. What
-          is written here is their shape, which is stable. Every entry links to its own documentation for
-          everything that is not.
-        </p>
+        <ol className="fw-steps">
+          {CONNECT_STEPS.map((c, i) => (
+            <li key={c.title}>
+              <span className="fw-step-n">{i + 1}</span>
+              <div>
+                <b>{c.title}</b>
+                <span className="fw-step-d">{c.does}</span>
+                <span className="fw-step-w"><b>Where it goes wrong</b>{c.watch}</span>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <a className="fw-go" href="/build">
+          <BauhausIcon name="play" size={12} /> Build an agent first, if you have not
+        </a>
       </section>
 
-      <section className="lp-sec">
-        <h2>{FRAMEWORK_COUNT} frameworks, and what each one is for</h2>
+      <section className="lp-sec alt">
+        <h2><span className="ag-h2-n">03</span> {FRAMEWORK_COUNT} of them, and what each one is for</h2>
+        <p className="lp-lead">
+          You do not have to choose well the first time. Your agent is an instruction and some schemas, so moving
+          it costs an afternoon, not a rewrite. Open the two or three that sound like your problem.
+        </p>
         <div className="fw-langs-filter">
           <button className={lang === null ? 'on' : ''} onClick={() => setLang(null)}>All languages</button>
           {FRAMEWORK_LANGS.map((l) => (
@@ -134,6 +176,26 @@ export function FrameworksPage() {
             <FrameworkCard key={f.id} f={f} open={open === f.id} onToggle={() => setOpen(open === f.id ? null : f.id)} />
           ))}
         </div>
+      </section>
+
+      {/* LA PRÉCISION, en bas · elle ouvrait la page, ce qui en faisait une
+          page de mise en garde plutôt qu'une page de cours. Elle reste, parce
+          qu'un lecteur qui cherche du code doit savoir pourquoi il n'y en a
+          pas, mais après avoir appris quelque chose. */}
+      <section className="lp-sec fw-note">
+        <h2>There is no code on this page, on purpose</h2>
+        <p className="lp-lead">
+          These projects move fast, and a snippet written today is wrong in a few months: someone copies it, it
+          breaks, and they think they misunderstood. So we teach the part that does not go stale, which is also
+          the part that takes the time: <b>what your agent becomes in each framework</b>. A system prompt is an
+          instruction here, a backstory there, a typed signature elsewhere. Once you know that, the current
+          documentation is a five minute read instead of an afternoon.
+        </p>
+        <p className="lp-lead sm">
+          We do not track these {FRAMEWORK_COUNT} projects day to day, and they change without telling us. What
+          is written here is their shape, which is stable. Every entry links to its own documentation for
+          everything that is not.
+        </p>
       </section>
 
       <SiteFooter />
