@@ -8052,6 +8052,15 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   /* la mesure du texte courant · bridée à part, et volontairement plus
      étroite que la colonne */
   --ag-read: 68ch;
+  /* LA COULEUR DE L'AGENT, EN VERSION LISIBLE.
+     --ac arrive du composant en hsl(teinte, 70%, 55%) : douze teintes réparties
+     sur le cercle, parfaites pour un aplat ou une barre de 3 pixels, et
+     illisibles en petit texte sur du papier dès qu'on tombe sur un jaune ou un
+     vert. On garde donc --ac pour les SURFACES et on lit --ac-ink pour tout ce
+     qui est un signe à déchiffrer · même teinte, assez sombre pour passer
+     partout. Sans ça, « améliorer le design » aurait voulu dire rendre une
+     page sur trois illisible. */
+  --ac-ink: color-mix(in srgb, var(--ac, var(--violet)) 68%, var(--ink));
 }
 @keyframes agIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
@@ -8081,7 +8090,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 }
 /* Le numéro de section · un repère de lecture, pas une décoration. Il donne
    au premier coup d'oeil la longueur de ce qui reste. */
-.ag-h2-n { font-size: 30px; font-weight: 900; color: var(--violet); font-variant-numeric: tabular-nums; }
+.ag-h2-n { font-size: 30px; font-weight: 900; color: var(--ac-ink, var(--violet)); font-variant-numeric: tabular-nums; }
 .ag-sec h3 { font-size: 20px; margin: 0 0 10px; display: flex; align-items: center; gap: 9px; }
 .ag-sec h4 {
   font-size: 13px; margin: 26px 0 9px; color: var(--ink); opacity: 0.55;
@@ -8101,15 +8110,25 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   max-width: var(--ag-w); margin: 0 auto; padding: 46px 22px 38px;
   display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: center;
 }
+/* LA VIGNETTE DU PERSONNAGE · un aplat de la couleur de l'agent.
+   Elle portait `background: var(--paper)`, ce qui n'a jamais rien donné :
+   .a3d peint son propre dégradé radial gris avec 12px de rayon, et c'est lui
+   qu'on voyait, par dessus le blanc posé ici. Résultat, douze agents de douze
+   couleurs posés sur exactement le même gris arrondi.
+   On neutralise donc le dégradé de .a3d À L'INTÉRIEUR de cette tuile plutôt
+   que de le changer partout : ailleurs (la modale d'équipe, l'atelier) il est
+   à sa place. */
 .ag-hero-p {
   width: 230px; height: 230px; flex: none; display: grid; place-items: center;
-  border: 1px solid var(--border); background: var(--paper);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--ac, var(--violet)) 22%, var(--paper));
 }
+.ag-hero-p .a3d { background: none !important; border-radius: 0 !important; overflow: visible !important; }
 @media (max-width: 900px) {
   .ag-hero-in { grid-template-columns: 1fr; }
   .ag-hero-p { width: 170px; height: 170px; order: -1; }
 }
-.ag-kick { font-size: 16px; font-weight: 800; color: var(--violet); letter-spacing: 0.01em; }
+.ag-kick { font-size: 16px; font-weight: 800; color: var(--ac-ink, var(--violet)); letter-spacing: 0.01em; }
 .ag-hero h1 { font-size: clamp(38px, 5.4vw, 60px); line-height: 1.02; margin: 10px 0 18px; }
 .ag-plain { font-size: 22px; line-height: 1.5; max-width: var(--ag-read); font-family: var(--font-read); }
 .ag-hero-meta { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 24px; font-size: 14px; }
@@ -8119,20 +8138,37 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 /* LA COMPARAISON · traitée comme une citation, parce qu'elle vaut trois
    paragraphes d'explication. */
 .ag-like {
-  margin: 0 0 26px; padding: 4px 0 4px 20px; border-left: 4px solid var(--violet);
+  margin: 0 0 26px; padding: 4px 0 4px 20px; border-left: 4px solid var(--ac, var(--violet));
   font-family: var(--font-read); font-size: 19px; line-height: 1.55; max-width: var(--ag-read);
 }
 .ag-like-k {
   display: block; font-family: var(--font-ui); font-size: 12px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 0.09em; color: var(--violet); margin-bottom: 6px;
+  text-transform: uppercase; letter-spacing: 0.09em; color: var(--ac-ink, var(--violet)); margin-bottom: 6px;
 }
 .ag-two { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+/* LES PANNEAUX · la même carte que sur l'accueil.
+   Ils étaient un rectangle à filet qui passait noir au survol, sans rien de
+   commun avec .lp-team : même produit, deux vocabulaires de carte, et la page
+   d'un agent ne ressemblait pas à la carte sur laquelle on venait de cliquer.
+   On reprend donc les trois gestes de .lp-team, à l'identique · le fond plein,
+   la barre d'accent qui se déroule par la gauche, et le léger soulèvement. */
 .ag-panel {
-  border: 1px solid var(--border); padding: 20px 22px; background: var(--paper);
-  transition: border-color .15s ease;
+  position: relative; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 2px; padding: 20px 22px;
+  background: var(--panel-solid);
+  transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s;
 }
-.ag-panel:hover { border-color: var(--ink); }
-.ag-panel h3 .bh-icon { color: var(--violet); }
+.ag-panel::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: var(--ac, var(--violet));
+  transform: scaleX(0); transform-origin: left; transition: transform 0.32s ease;
+}
+.ag-panel:hover {
+  transform: translateY(-3px); box-shadow: var(--shadow);
+  border-color: color-mix(in srgb, var(--ac, var(--violet)) 50%, var(--border));
+}
+.ag-panel:hover::before { transform: scaleX(1); }
+.ag-panel h3 .bh-icon { color: var(--ac, var(--violet)); }
 .ag-need { list-style: none; padding: 0; margin: 0; }
 .ag-need li {
   display: flex; gap: 12px; align-items: flex-start; font-size: 16px; line-height: 1.55;

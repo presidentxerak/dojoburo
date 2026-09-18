@@ -36,7 +36,8 @@ import { FORMATS, render, downloadAgent, copyAgent, type BuiltAgent, type Export
 import { estimateTokens } from '../agents/sandbox'
 import { FRAMEWORKS, FRAMEWORK_COUNT } from '../data/frameworks'
 import { Agent3DPreview } from '../components/three/Agent3DPreview'
-import { AGENT_CHAR, charForAgent } from '../components/landing/TeamCards'
+import { characterFor, faceIdForUseCase } from '../data/agentFaces'
+import { agentColor } from '../data/agents'
 
 /** Le brouillon de départ · écrit depuis le cas d'usage. Ce n'est pas un
  *  modèle vide : une page blanche est la raison numéro un pour laquelle
@@ -90,9 +91,17 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
     return () => window.removeEventListener('keydown', k)
   }, [onClose])
 
-  // Le personnage de la salle · la table AGENT_CHAR fait le lien entre le
-  // rôle porté par le cas d'usage et le look qui le dessine.
-  const charKey = AGENT_CHAR[u.agent] ?? u.agent
+  // LE PERSONNAGE DE LA SALLE · exactement celui qui dort à sa table, parce
+  // que les deux écrans lisent la même table (data/agentFaces). Cette ligne
+  // passait par AGENT_CHAR pendant que la salle distribuait les visages par
+  // position : les deux tombaient d'accord sur le premier agent et sur aucun
+  // autre.
+  const charKey = faceIdForUseCase(u.id)
+
+  // LA COULEUR DE L'AGENT · celle de son rôle, la même que sur les cartes de
+  // l'accueil. Elle habille le fond de la vignette et l'accent des panneaux,
+  // pour qu'une page d'agent soit reconnaissable à distance comme sa carte.
+  const accent = agentColor(u.agent)
 
   const stepDone = (i: number) => progress.isDone(AGENT_TRACK, `${u.id}/${i}`)
   const done = u.steps.filter((_, i) => stepDone(i)).length
@@ -107,7 +116,7 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
   }
 
   return (
-    <div className="ag" role="dialog" aria-label={`${u.name}, the whole path`}>
+    <div className="ag" role="dialog" aria-label={`${u.name}, the whole path`} style={{ ['--ac' as string]: accent }}>
       {/* LA BARRE · elle reste visible pendant qu'on descend. Une fiche plein
           écran sans sortie permanente est un piège, et la progression en haut
           répond à la seule question qu'on se pose en lisant : où j'en suis. */}
@@ -145,8 +154,13 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
                 silhouette qu'on vient de cliquer et la page où l'on atterrit.
                 Sans lui, on passe d'un dojo habité à un article, et rien ne dit
                 que c'est le même agent. */}
+            {/* LE FOND EST UN APLAT DE COULEUR · il était gris, et pas même un
+                gris choisi : .a3d peint un dégradé radial gris par défaut, et
+                il traversait le fond blanc posé ici. Un personnage coloré sur
+                un dégradé gris arrondi ressemble à une vignette d'application,
+                pas à un agent du dojo. */}
             <div className="ag-hero-p" aria-hidden>
-              <Agent3DPreview id={charKey} character={charForAgent(charKey)} size={230} fit />
+              <Agent3DPreview id={charKey} character={characterFor(charKey)} size={230} fit />
             </div>
           </div>
         </section>
