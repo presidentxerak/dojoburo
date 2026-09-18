@@ -74,6 +74,11 @@ const CHECKS = [
   // arrivées, aucune n'a fait rougir un typecheck, et les deux ont été trouvées
   // en lisant · ce qui veut dire qu'elles auraient pu ne pas l'être.
   ['test-pricing.mjs', 1, true],
+  // QUI PORTE QUEL VISAGE · que le dormeur de la salle et la fiche sur laquelle
+  // on atterrit soient le même agent. Les deux écrans calculaient la réponse
+  // chacun de leur côté, onze agents sur douze changeaient de tête, et le
+  // douzième tombait juste par hasard, ce qui suffisait à ne pas chercher.
+  ['test-faces.mjs', 1, true],
   // LE JEU D'ICÔNES · qu'aucune ne redevienne un caractère. L'app les a
   // dessinées avec des caractères Unicode pendant des mois : ça s'affiche, mais
   // pas pareil chez tout le monde, et pas du tout sur certains téléphones. Un

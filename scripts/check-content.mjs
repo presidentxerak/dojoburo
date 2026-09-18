@@ -34,6 +34,7 @@ const conns = await load('src/data/connectors.ts')
 const budget = await load('src/data/budget.ts')
 const academy = await load('src/data/academy.ts')
 const plans = await load('src/data/plans.ts')
+const faces = await load('src/data/agentFaces.ts')
 const effort = await load('src/data/effort.ts')
 // la promesse du produit · elle est DÉRIVÉE ici, jamais retapée (voir plus bas)
 const pos = await load('src/data/positioning.ts')
@@ -374,26 +375,27 @@ for (const a of arch.ARCHETYPES) {
   }
   if (a.agents[0] !== 'chief') { console.log(`FAIL  archetypes · "${a.label}" does not start with the team lead`); bad++ }
 }
-// Two teammates sitting in the same dojo must not wear the same 3D face · a
-// team of identical strangers with different names is a bug you only see in a
-// screenshot, never in a diff. The map is read as source (it lives in a .tsx
-// beside JSX we cannot import here) — the shape is a flat id: 'char' record.
+// Deux coéquipiers assis dans le même dojo ne doivent pas porter le même
+// visage · une équipe d'inconnus identiques aux noms différents est un défaut
+// qu'on ne voit jamais dans un diff, seulement sur une capture d'écran.
+//
+// CETTE GARDE LISAIT LE FICHIER SOURCE À L'EXPRESSION RÉGULIÈRE, parce que la
+// table vivait dans un .tsx à côté de JSX qu'on ne peut pas importer ici. Elle
+// l'IMPORTE maintenant : la table a déménagé dans data/agentFaces, qui est du
+// TypeScript ordinaire. Une garde qui relit du texte se casse au premier
+// reformatage et, surtout, elle ne voyait pas la vraie valeur · c'est ainsi
+// qu'elle a laissé passer une salle qui distribuait les visages par position.
 {
-  const src = read('src/components/landing/TeamCards.tsx')
-  const block = /export const AGENT_CHAR[^=]*=\s*\{([\s\S]*?)\n\}/.exec(src)
-  if (!block) { console.log('FAIL  TeamCards · AGENT_CHAR is not where check-content expects it'); bad++ }
-  else {
-    const face = Object.fromEntries([...block[1].matchAll(/(\w+):\s*'([^']+)'/g)].map((m) => [m[1], m[2]]))
-    for (const r of roles.ROLE_AGENTS) {
-      if (!face[r.id]) { console.log(`FAIL  AGENT_CHAR · "${r.id}" has no 3D character (it would fall back to somebody else's)`); bad++ }
-    }
-    for (const a of arch.ARCHETYPES) {
-      const used = {}
-      for (const id of a.agents) {
-        const f = face[id]
-        if (f && used[f]) { console.log(`FAIL  AGENT_CHAR · "${a.label}" gives "${id}" and "${used[f]}" the same face (${f})`); bad++ }
-        used[f] = id
-      }
+  const face = faces.ROLE_FACE
+  for (const r of roles.ROLE_AGENTS) {
+    if (!face[r.id]) { console.log(`FAIL  ROLE_FACE · "${r.id}" has no 3D character (it would fall back to somebody else's)`); bad++ }
+  }
+  for (const a of arch.ARCHETYPES) {
+    const used = {}
+    for (const id of a.agents) {
+      const f = face[id]
+      if (f && used[f]) { console.log(`FAIL  ROLE_FACE · "${a.label}" gives "${id}" and "${used[f]}" the same face (${f})`); bad++ }
+      used[f] = id
     }
   }
 }

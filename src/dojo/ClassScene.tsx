@@ -20,14 +20,17 @@ import { Sensei3D } from '../components/three/Sensei3D'
 import { StudioLight } from '../components/three/StudioLight'
 import { templateById } from '../data/templates'
 import { seatPositions } from '../three/layout3d'
-import { CHARACTERS } from '../data/looks'
+import { characterFor, faceIdForUseCase } from '../data/agentFaces'
 import { USE_CASES } from '../data/agentUseCases'
 import type { Department } from '../data/agents'
 
-/** Les douze visages, dans l'ordre du catalogue de looks. Ils sont pris par
- *  position et non par nom : les identifiants de looks et ceux des cas
- *  d'usage viennent de deux fichiers qui n'ont pas à se connaître. */
-const FACES = Object.values(CHARACTERS)
+// LES VISAGES viennent de data/agentFaces, qui est aussi ce que lit la fiche
+// d'un agent. Ils étaient pris ICI par position dans le catalogue de looks, au
+// motif que « les identifiants de looks et ceux des cas d'usage viennent de
+// deux fichiers qui n'ont pas à se connaître ». C'était vrai, et c'était quand
+// même faux : la question « quel visage porte cet agent » n'a qu'une réponse,
+// et deux écrans qui la calculent chacun de leur côté finissent par ne pas
+// montrer le même agent. C'est ce qui est arrivé.
 
 /** Le métier affiché sous chaque agent. Il habille la silhouette (voir
  *  JobLook3D) et n'a rien à voir avec le cas d'usage : un agent de recherche
@@ -76,7 +79,10 @@ export function ClassScene({ chosen, onChoose, says }: {
             <Character3D
               key={u.id}
               id={u.id}
-              character={FACES[i % FACES.length]}
+              // LE MÊME VISAGE QUE SUR SA FICHE · il était distribué par
+              // position dans le catalogue de looks, ce qui donnait au dormeur
+              // une tête et à sa page une autre. Voir data/agentFaces.
+              character={characterFor(faceIdForUseCase(u.id))}
               fn={DEPTS[i % DEPTS.length]}
               x={seats[i][0]}
               z={seats[i][1]}
