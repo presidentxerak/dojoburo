@@ -454,6 +454,18 @@ const tags = await p.evaluate(() => {
   const cs = getComputedStyle(all[0])
   const bg = cs.backgroundColor
   const clear = !bg || bg === 'transparent' || /rgba\(0, 0, 0, 0\)/.test(bg)
+  // LE CHEVAUCHEMENT, MESURÉ · agrandir une étiquette est la façon la plus
+  // simple de la rendre lisible et la façon la plus simple de la faire
+  // recouvrir sa voisine. Les deux défauts sont des défauts de lisibilité, et
+  // une garde qui ne surveille que la taille pousse tout droit dans le second.
+  const rects = all.map((t) => t.getBoundingClientRect()).filter((r) => r.width > 0)
+  let overlaps = 0
+  for (let i = 0; i < rects.length; i++) {
+    for (let j = i + 1; j < rects.length; j++) {
+      const a = rects[i], b = rects[j]
+      if (a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom) overlaps++
+    }
+  }
   return {
     n: all.length,
     size: parseFloat(cs.fontSize),
@@ -461,14 +473,71 @@ const tags = await p.evaluate(() => {
     // une pastille DÉCOUPE le nom du décor · sans fond, la lisibilité dépend
     // de ce qu'il y a derrière, donc de la position d'un personnage
     hasPlate: !clear,
+    // …et un liseré de papier détache ce cadre noir d'une cloison sombre
+    ring: cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0,
+    overlaps,
+    pairs: (rects.length * (rects.length - 1)) / 2,
     longest: Math.max(...all.map((t) => t.textContent.trim().length)),
   }
 })
+// ---- la question posée en haut, et rien posé sur la salle ---------------
+//
+// Le panneau qui portait cette question était posé en bas à gauche, sur la
+// scène, et il cachait deux agents. Une garde qui vérifie seulement que la
+// question est ÉCRITE serait verte aussi bien avec le panneau qu'avec le
+// titre : elle doit donc regarder OÙ elle est, et si quelque chose recouvre
+// encore la pièce.
+const ask = await p.evaluate(() => {
+  const el = document.querySelector('.cls-ask h1')
+  const scene = document.querySelector('.cls-full')
+  if (!el || !scene) return null
+  const r = el.getBoundingClientRect(), s = scene.getBoundingClientRect()
+  const mid = r.left + r.width / 2
+  return {
+    text: el.textContent.trim(),
+    // centré : le milieu du titre au milieu de la scène, à 4 % près
+    offCentre: Math.abs(mid - (s.left + s.width / 2)) / s.width,
+    // en haut : dans le premier cinquième de la hauteur
+    fromTop: (r.top - s.top) / s.height,
+    // et le panneau d'avant n'existe plus nulle part
+    oldPanel: !!document.querySelector('.cls-hint'),
+    size: parseFloat(getComputedStyle(el).fontSize),
+  }
+})
+ok('la question est posée au-dessus de la salle', !!ask, ask ? ask.text : 'introuvable')
+if (ask) {
+  ok('…centrée', ask.offCentre <= 0.04, `${Math.round(ask.offCentre * 100)}% hors centre`)
+  ok('…en haut', ask.fromTop <= 0.2, `${Math.round(ask.fromTop * 100)}% de la hauteur`)
+  ok('…et assez grande pour être le titre de la page', ask.size >= 26, `${ask.size}px`)
+  ok('…le panneau qui cachait les agents a disparu', !ask.oldPanel)
+}
+// LE MAÎTRE NE REDIT PAS LE TITRE · deux exemplaires de la même question à
+// trente centimètres l'un de l'autre, dont l'un dans une bulle qui sert
+// justement à dire ce que le titre ne dit pas.
+//
+// PREMIÈRE VERSION DE CETTE SONDE : elle lisait « .bubble3d », qui est la bulle
+// des AGENTS, pas celle du maître · elle ne trouvait donc rien, et une chaîne
+// vide ne contient évidemment pas la question. Elle passait au vert sans rien
+// regarder. Une sonde qui ne trouve pas sa cible doit ÉCHOUER, sinon elle
+// certifie exactement ce qu'elle n'a pas lu.
+const sensei = await p.evaluate(() => document.querySelector('.panda-bubble')?.textContent?.trim() ?? null)
+ok('la bulle du maître est lisible par la garde', typeof sensei === 'string' && sensei.length > 0,
+  sensei === null ? 'sélecteur introuvable' : `${sensei.length} signes`)
+ok('le maître ne repose pas la question du titre',
+  typeof sensei === 'string' && sensei.length > 0 && !/which\s+(one|agent)\s+do\s+you\s+need/i.test(sensei),
+  (sensei ?? 'aucune bulle').slice(0, 70))
+
 ok('the dojo labels are there', !!tags && tags.n > 0, tags ? `${tags.n}` : 'aucune')
 if (tags) {
-  ok('…large enough to read', tags.size >= 13, `${tags.size}px`)
+  // 13 pixels passait la garde et ne se lisait toujours pas : dans une pièce
+  // vue de haut, à côté de douze personnages colorés, un nom de cette taille
+  // est là sans être lu. Le seuil suit la correction.
+  ok('…large enough to read', tags.size >= 15, `${tags.size}px`)
   ok('…and heavy enough', tags.weight >= 700, `${tags.weight}`)
   ok('…on a plate, so the decor cannot swallow them', tags.hasPlate)
+  ok('…with a light ring, so the plate has an edge on a dark wall too', tags.ring)
+  ok('…and no two labels on top of each other', tags.overlaps === 0,
+    `${tags.overlaps} chevauchement(s) sur ${tags.pairs} paires`)
   // …mais toujours COURTES. C'est ce qui empêche la pastille de redevenir le
   // bandeau qu'on a retiré.
   ok('…while staying short enough not to be a banner', tags.longest <= 26, `${tags.longest} caractères`)

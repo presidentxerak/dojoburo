@@ -37,7 +37,12 @@ function masterSays(chosen: UseCase | null, done: number, total: number): string
   // Le nombre vient des données, jamais de la phrase. Écrit « twelve » à la
   // main, il survivrait au treizième cas d'usage et le maître mentirait dans
   // sa première phrase.
-  if (!chosen) return `${USE_CASE_COUNT} agents, ${USE_CASE_COUNT} shapes of problem. Which one do you need?`
+  // LA QUESTION EST ÉCRITE EN HAUT DE L'ÉCRAN, en grand. Le maître la posait
+  // aussi, mot pour mot : deux exemplaires de la même phrase à trente
+  // centimètres l'un de l'autre, dont l'un dans une bulle qui sert justement à
+  // dire ce que le titre ne dit pas. Il porte donc l'autre moitié, celle que
+  // le panneau supprimé emportait avec lui.
+  if (!chosen) return `${USE_CASE_COUNT} agents, all asleep, because none of them exists yet. Click one and it wakes up.`
   if (done === 0) return `${chosen.name} is awake. Start where it is hardest: ${chosen.hard.split('.')[0]}.`
   if (done < total) return `Step ${done} of ${total}. Keep the one you cannot explain for last.`
   return 'Finished. Take the file with you and run it somewhere real.'
@@ -89,14 +94,20 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
           arrive par-dessus quand on a choisi quelqu'un. */}
       <div className="cls-full">
         <ClassScene chosen={chosenId} onChoose={setChosenId} says={says} />
+        {/* LA QUESTION, EN HAUT ET AU CENTRE.
+            C'était un panneau posé en bas à gauche : un titre, une pastille,
+            trois lignes de prose et un bouton, sur fond flouté. Il cachait deux
+            agents et l'étiquette d'un troisième, dans une salle dont le seul
+            propos est de montrer douze agents. Un texte qui explique une scène
+            en la recouvrant se trompe de métier.
+            Il ne reste que la question, sur une bande où il n'y a que le mur.
+            Ce que le panneau disait n'est pas perdu : la phrase qui compte,
+            celle qui explique pourquoi ils dorment, est passée dans la bouche
+            du maître, et celle qui explique pourquoi ils sont douze ouvre la
+            liste. Chacune est allée là où elle est à sa place. */}
         {!chosen && (
-          <div className="cls-hint">
-            <span className="lp-pill">{USE_CASE_COUNT} agents · each one a different way of failing</span>
+          <div className="cls-ask">
             <h1>Which agent do you need?</h1>
-            <p>
-              They are asleep because none of them exists yet. Click one and it wakes up. A research agent and
-              a sorting agent do not fail the same way, so they are not taught the same way.
-            </p>
             <button className="cls-hint-go" onClick={() => setListOpen((v) => !v)}>
               {listOpen ? 'Hide the list' : 'Show them as a list'}
             </button>
@@ -109,6 +120,14 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
           redevient le catalogue que la salle remplace. */}
       {!chosen && listOpen && (
         <section className="lp-sec">
+          {/* POURQUOI ILS SONT DOUZE · cette phrase ouvrait le panneau posé sur
+              la salle. Elle répond à la question qu'on se pose en découvrant
+              une liste de douze, donc elle a sa place en tête de la liste, pas
+              par dessus la pièce. */}
+          <p className="lp-lead cls-why">
+            {USE_CASE_COUNT} agents, and each one a different way of failing. A research agent and a sorting
+            agent do not fail the same way, so they are not taught the same way.
+          </p>
           <div className="cls-grid">
             {USE_CASES.map((u) => {
               const finished = u.steps.every((_, i) => stepDone(u, i))

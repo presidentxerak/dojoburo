@@ -156,10 +156,22 @@ a:hover { text-decoration: underline; }
    qu'il soit, un filet d'un pixel comme partout dans l'app, du noir pur, et la
    police d'affichage. Elle reste courte, donc elle ne peut pas redevenir un
    bandeau. Celle qu'on survole ou qu'on a choisie s'inverse en noir plein. */
+/* TROISIÈME RÉGLAGE, et ce qui manquait aux deux premiers.
+   La pastille avait réglé le contraste : un fond plein qui découpe le nom du
+   tatami. Il restait la TAILLE. À treize pixels dans une pièce vue de haut,
+   sous un plafond, à côté de douze personnages colorés, le nom est là sans
+   être lu : l'oeil le prend pour un objet du décor. Quinze pixels et un peu
+   plus d'air suffisent, sans que la pastille redevienne le bandeau qu'on a
+   retiré, parce que le texte reste un nom de deux mots.
+   Le filet blanc autour du filet noir est la seule addition qui n'est pas une
+   affaire de taille : sur une cloison sombre ou un meuble, un cadre noir se
+   fond dans le fond et la pastille perd son bord. Deux pixels de papier le
+   détachent de tout. */
 .cls-scene .tag3d {
-  font-family: var(--font-pixel); font-weight: 800; font-size: 13px; letter-spacing: -0.01em;
+  font-family: var(--font-pixel); font-weight: 800; font-size: 15px; letter-spacing: -0.01em;
   color: var(--ink); background: var(--paper); border: 1px solid var(--ink);
-  padding: 4px 10px; text-shadow: none; white-space: nowrap;
+  outline: 2px solid var(--paper);
+  padding: 5px 12px; text-shadow: none; white-space: nowrap;
   transition: background .14s ease, color .14s ease;
 }
 .cls-scene .tag3d.sel { background: var(--ink); color: var(--bg); }
@@ -8004,22 +8016,36 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 /* L'invite · posée en bas à gauche, sur la scène, dans une carte de verre.
    Elle ne barre pas la salle : un bandeau plein cadre, c'est exactement ce
    qu'on vient de retirer au-dessus des personnages. */
-.cls-hint {
-  position: absolute; left: 24px; bottom: 26px; max-width: 420px; text-align: left;
-  background: color-mix(in srgb, var(--panel-solid) 88%, transparent);
-  border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 18px 20px; backdrop-filter: blur(8px); box-shadow: var(--shadow);
+/* LA QUESTION · en haut, au centre, et rien d'autre.
+   Elle vivait dans un panneau de 420 pixels posé en bas à gauche, avec une
+   pastille, trois lignes de prose, un flou de fond et une ombre. Sur une salle
+   de douze agents, ce panneau en cachait deux et mangeait l'étiquette d'un
+   troisième : on avait recouvert le sujet de la page avec son commentaire.
+   Ce qu'il reste tient sur une bande haute où il n'y a que le mur. Pas de
+   cadre, pas de fond, pas de flou · un halo de papier suffit à détacher le
+   titre des cloisons claires, et il ne masque rien. */
+.cls-ask {
+  position: absolute; top: 18px; left: 0; right: 0; text-align: center;
+  pointer-events: none; padding: 0 16px;
 }
-.cls-hint h1 { font-size: 26px; margin: 10px 0 8px; }
-.cls-hint p { font-size: 15px; line-height: 1.55; color: var(--muted); margin: 0; }
+.cls-ask h1 {
+  font-size: clamp(26px, 3.4vw, 40px); line-height: 1.05; margin: 0;
+  color: var(--ink);
+  /* un halo, pas une ombre portée · il ne pose rien sur la scène, il découpe
+     seulement les lettres du décor derrière elles */
+  text-shadow: 0 0 10px var(--paper), 0 0 22px var(--paper), 0 0 4px var(--paper);
+}
+/* le seul contrôle qui reste doit rester cliquable, le titre non */
+.cls-ask .cls-hint-go { pointer-events: auto; }
+.cls-why { max-width: 70ch; margin-bottom: 20px; }
 .cls-hint-go {
-  margin-top: 12px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  margin-top: 10px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
   background: none; border: 0; color: var(--violet); text-decoration: underline; padding: 0;
+  text-shadow: 0 0 8px var(--paper), 0 0 14px var(--paper);
 }
 @media (max-width: 720px) {
   .cls-full { height: 78dvh; }
-  .cls-hint { left: 12px; right: 12px; bottom: 14px; max-width: none; padding: 14px 15px; }
-  .cls-hint h1 { font-size: 21px; }
+  .cls-ask { top: 12px; }
 }
 
 /* ==================================================================
