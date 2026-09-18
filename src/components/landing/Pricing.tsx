@@ -1,14 +1,15 @@
-import { PLANS, planPrice, type Plan } from '../../data/plans'
+import { PLANS, planPrice, planUnit, planFloor, type Plan } from '../../data/plans'
 
 // Pricing, from the one place that defines it (data/plans.ts).
 //
-// This page used to sell credits on a slider — 30 to 2,000 a month at a dollar
-// each — while the Billing panel inside the app sold four different metered
+// This page used to sell credits on a slider, 30 to 2,000 a month at a dollar
+// each, while the Billing panel inside the app sold four different metered
 // tiers at different rates. Same product, two prices, and both of them priced
 // model tokens rather than the software.
 //
-// Now there are three plans and the middle one is the argument: bring your own
-// Claude key and nothing between you and your own work is metered.
+// Now there are three plans and the middle one is the argument: the files.
+// Voir l'en-tête de data/plans pour ce que chacune vend et pourquoi ce n'est
+// plus compté à la tâche.
 
 export function Pricing({
   enter,
@@ -32,8 +33,14 @@ export function Pricing({
             <div className="lp-plan-name">{p.name}</div>
             <div className="lp-plan-price">
               {planPrice(p)}
-              <small>{p.usd === 0 ? ' / forever' : ' / month'}</small>
+              <small> {planUnit(p)}</small>
             </div>
+            {/* LE PLANCHER · $15 le siège et $15 tout court ne sont pas la même
+                offre. Une carte qui affiche le prix unitaire sans dire combien
+                de sièges il faut prendre commet exactement la faute que ce
+                fichier existe pour empêcher : un prix qui veut dire deux
+                choses. */}
+            {planFloor(p) && <div className="lp-plan-floor">{planFloor(p)}</div>}
             <div className="lp-plan-sub">{p.tagline}</div>
             <button className={`lp-cta${p.featured ? '' : ' ghostcta'}`} onClick={cta(p)}>
               {p.id === 'free' ? 'Get started' : `Choose ${p.name}`}
@@ -48,11 +55,15 @@ export function Pricing({
         ))}
       </div>
 
+      {/* CE QUI N'EST PAS FACTURÉ · la vieille note expliquait comment une
+          tâche était comptée. Plus rien n'est compté à la tâche, et la question
+          que les gens se posent en lisant une grille de prix est celle-ci :
+          qu'est-ce qui va m'être facturé en plus ? Réponse : rien. */}
       <p className="lp-plan-note">
-        A task is one teammate doing one step, so a four-step team is four tasks a run.
-        On <b>Founder</b> those tasks run on your own Claude key and Anthropic bills you directly ·
-        connecting an app is free on every plan, and your Notion, Slack or Stripe subscriptions are
-        always paid to those companies, never to us.
+        <b>Nothing here is metered.</b> Learning is free and stays free, the diploma costs nothing,
+        and no plan counts your runs, because the dojo is a worked example and calls no paid model.
+        A paid plan buys the files and, on School, the seats · when you take an agent away and run it
+        for real, it runs on your own key and your provider bills you directly, never us.
       </p>
 
       <div className="lp-enterprise">

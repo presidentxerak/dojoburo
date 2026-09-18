@@ -1,24 +1,38 @@
 // What a dojo team costs to run.
 //
 // A team's plan is a fixed list of steps, and one step is one task. That is the
-// only honest number on a team card — no invented "from $X/month".
+// only honest number on a team card · no invented "from $X/month".
 //
-// What a task costs depends on who is paying for the model, and the card says
-// which: on FOUNDER the run goes to the founder's own Claude key and costs
-// nothing here; on MANAGED it draws on the month's included tasks. The dollar
-// figure is the managed rate, shown as a hint rather than a bill.
+// LE CHIFFRE EN DOLLARS A CHANGÉ DE SOURCE, et c'est le point de ce fichier.
+//
+// Il valait une part d'abonnement : le prix du forfait Managed divisé par les
+// tâches qu'il incluait. Ça tenait tant qu'on vendait des exécutions. Depuis
+// qu'on vend une formation et des fichiers, il n'y a plus d'abonnement qui
+// contienne des tâches, donc plus de part à découper · le chiffre n'aurait plus
+// rien mesuré du tout.
+//
+// Il vaut maintenant ce qu'une tâche coûte VRAIMENT, aux tarifs publiés du
+// modèle, calculé par effort.ts qui possède déjà cette arithmétique. C'est la
+// bonne source pour un cours : ce qu'on montre est ce que l'élève paiera à son
+// fournisseur quand il fera tourner ça chez lui, pas une tranche de ce qu'il
+// nous paie à nous.
 import type { Archetype } from './archetypes'
-import { TASK_USD } from './plans'
+import { EFFORT_BY_ID, DEFAULT_EFFORT, estimateStep, usdFor } from './effort'
 
-/** $ per task on the managed tier · the single source is data/plans.ts. */
-export const CREDIT_USD = TASK_USD
+/** Ce que coûte UNE tâche, en dollars, au tarif publié du modèle, en mode par
+ *  défaut et sans application attachée. C'est un ordre de grandeur et l'app le
+ *  dit · le vrai prix dépend du modèle choisi et de la longueur réelle. */
+export const CREDIT_USD = usdFor(
+  EFFORT_BY_ID[DEFAULT_EFFORT],
+  estimateStep(EFFORT_BY_ID[DEFAULT_EFFORT], 0),
+)
 
 export type BudgetTier = 'Light' | 'Medium' | 'Heavy'
 
 export interface TeamBudget {
   /** tasks in one full run of the team's plan · one per step */
   credits: number
-  /** the same run in dollars, at the managed rate */
+  /** the same run in dollars, at the model's own published rate */
   usd: number
   tier: BudgetTier
   /** how many apps the crew can reach (each is free to connect) */
@@ -37,7 +51,7 @@ export function usdLabel(usd: number): string {
 
 export function teamBudget(a: Archetype, appCount: number): TeamBudget {
   const tasks = Math.max(1, a.loop.length)
-  return { credits: tasks, usd: tasks * TASK_USD, tier: tierFor(tasks), apps: appCount }
+  return { credits: tasks, usd: tasks * CREDIT_USD, tier: tierFor(tasks), apps: appCount }
 }
 
 /** The combined budget for a whole selection of teams. */

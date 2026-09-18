@@ -887,7 +887,7 @@ function PlanCards({ hasAccount, org }: { hasAccount: boolean; org: OrgSnapshot 
           return (
             <div key={pl.id} className={`ws-plan${pl.featured ? ' on' : ''}${mine ? ' mine' : ''}`}>
               <strong>{pl.name}</strong>
-              <span className="ws-price">{planPrice(pl)}<i>{pl.usd === 0 ? '' : '/mo'}</i></span>
+              <span className="ws-price">{planPrice(pl)}<i>{pl.usd === 0 ? '' : pl.perSeat ? '/seat/mo' : '/mo'}</i></span>
               <span className="ws-blurb">{pl.tagline}</span>
               {mine ? (
                 <span className="ws-plan-now">
@@ -977,9 +977,10 @@ function ClaudeKeyPanel({ hasAccount }: { hasAccount: boolean }) {
         you are paying us for the teams, the plans and the connectors, not for tokens.
       </p>
       <p className="ws-blurb">
-        The key is sealed server-side with AES-256-GCM and never shown again. Without one, written
-        work still runs on a capped free allowance; a design system and acting inside your apps
-        (Notion, GitHub…) need either your key or the Managed plan.
+        The key is sealed server-side with AES-256-GCM and never shown again. You do not need one to
+        take the course: the dojo is a worked example and calls no paid model. A key is what you add
+        the day you switch a deployment live, and from then on your provider bills you directly, on
+        every plan.
       </p>
 
       {byok.connected ? (

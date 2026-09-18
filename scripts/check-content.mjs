@@ -50,9 +50,10 @@ const F = {
   teams: arch.ARCHETYPES.length,
   apps: conns.CONNECTORS.length,
   creditUsd: budget.CREDIT_USD,
-  founderUsd: plans.FOUNDER_USD,
-  managedUsd: plans.MANAGED_USD,
-  managedTasks: plans.MANAGED_TASKS,
+  libraryUsd: plans.LIBRARY_USD,
+  seatUsd: plans.SEAT_USD,
+  seatMin: plans.SEAT_MIN,
+  schoolFloorUsd: plans.SCHOOL_FLOOR_USD,
   lessons: academy.LESSON_COUNT,
   tracks: academy.TRACKS.length,
   hours: Math.round((academy.TOTAL_MINUTES / 60) * 10) / 10,
@@ -62,7 +63,6 @@ const F = {
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
   'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty']
 const runUsd = (F.creditUsd * 4).toFixed(2)
-const managedTasksStr = F.managedTasks.toLocaleString('en-US')
 
 // --- the rules -------------------------------------------------------------
 // Each rule says: in this file, this claim must be present, and the stale
@@ -142,18 +142,29 @@ const NEVER = [
 const RULES = [
   // the support bot's server-side prompt · a separate bundle, cannot import facts
   { file: 'api/chat.ts', must: new RegExp(`${F.teams} ready-made teams`), why: `the catalogue has ${F.teams} ready-made teams` },
-  // Pricing lives in src/data/plans.ts. It used to live in three places that
-  // disagreed — the landing sold credits at $1, the Billing panel sold four
-  // metered tiers, and budget.ts priced a credit at a fourth rate — so these
-  // rules exist to make that impossible to do again by accident.
-  { file: 'api/chat.ts', must: new RegExp(`Founder \\(\\$${F.founderUsd}/month\\)`), why: `Founder is $${F.founderUsd}/month` },
-  { file: 'api/chat.ts', must: new RegExp(`Managed \\(\\$${F.managedUsd}/month\\)`), why: `Managed is $${F.managedUsd}/month` },
-  { file: 'api/chat.ts', must: new RegExp(`${managedTasksStr} tasks a month`), why: `Managed includes ${managedTasksStr} tasks` },
-  { file: 'api/chat.ts', must: new RegExp(`\\$${runUsd.replace('.', '\\.')}`), why: `a 4-task run is $${runUsd} of the Managed allowance` },
-  { file: 'api/chat.ts', forbid: /\bStarter\b|1,500 credits|Pro-pack/, why: 'the metered plans are gone · we sell the software, not tokens' },
+  // LES PRIX vivent dans src/data/plans.ts. Ils ont vécu à trois endroits qui se
+  // contredisaient · la landing vendait des crédits à 1 $, le panneau Billing
+  // vendait quatre paliers comptés, et budget.ts facturait un crédit à un
+  // quatrième tarif · et ces règles existent pour empêcher de recommencer.
+  //
+  // ELLES ONT ÉTÉ RÉPARÉES, PAS SUPPRIMÉES. Elles affirmaient « Founder est à
+  // 29 $ » et « Managed inclut 2 000 tâches ». Ces deux phrases sont devenues
+  // fausses le jour où le produit a cessé d'exécuter du travail. Une garde dont
+  // la prémisse a bougé doit affirmer la NOUVELLE vérité, sinon elle certifie
+  // une erreur : ici, que le robot vend encore des exécutions.
+  { file: 'api/chat.ts', must: new RegExp(`LIBRARY \\(\\$${F.libraryUsd}/month\\)`), why: `Library is $${F.libraryUsd}/month` },
+  { file: 'api/chat.ts', must: new RegExp(`SCHOOL \\(\\$${F.seatUsd} per seat per month, ${F.seatMin} seats minimum`), why: `School is $${F.seatUsd} a seat, ${F.seatMin} minimum` },
+  { file: 'api/chat.ts', must: new RegExp(`\\$${F.schoolFloorUsd}/month and up`), why: `the School floor is $${F.schoolFloorUsd}/month` },
+  { file: 'api/chat.ts', must: /NOTHING IS METERED/, why: 'the one thing the bot must say first about price' },
+  // LE PLAN MORT · quelqu'un qui a lu l'ancienne grille va poser la question, et
+  // un robot qui revend 2 000 tâches vend une capacité éteinte. Il doit savoir
+  // que c'est fini, donc la chaîne doit apparaître dans une phrase qui l'enterre.
+  { file: 'api/chat.ts', must: /old "2,000 tasks a month" Managed plan, say plainly that it is gone/, why: 'the bot must bury the old Managed plan, not resell it' },
+  { file: 'api/chat.ts', forbid: /\bStarter\b|1,500 credits|Pro-pack/, why: 'the metered plans are gone · we sell the course, the files and the seats' },
 
   // and nothing may hardcode a plan price outside plans.ts
   { file: 'src/components/landing/Pricing.tsx', forbid: /\$\d+ ?\/ ?month|PRICE_PER_CREDIT/, why: 'plan prices come from data/plans.ts' },
+  { file: 'src/data/deckSlides.ts', forbid: /\$\d+\/mo\b|\$\d+\/seat/, why: 'the deck quoted its own prices on slide 07 · they come from data/plans.ts now' },
   { file: 'api/chat.ts', must: /Dojo Academy/, why: 'the bot must know the Academy exists' },
   // LA BIBLIOTHÈQUE · c'est la partie payante, donc celle qu'il ne faut pas
   // décrire de travers. Le robot doit savoir qu'elle existe, où elle est, et
@@ -165,7 +176,9 @@ const RULES = [
 
   // the Academy's own prose
   { file: 'src/data/academy.ts', must: /paying for the teams, not for tokens/i, why: 'the pricing lesson must lead with what is actually sold' },
-  { file: 'src/data/academy.ts', must: new RegExp(`Founder is \\$${F.founderUsd} a month`), why: `the lesson must name the real Founder price` },
+  { file: 'src/data/academy.ts', must: new RegExp(`Library is \\$${F.libraryUsd} a month`), why: `the lesson must name the real Library price` },
+  { file: 'src/data/academy.ts', must: new RegExp(`School is \\$${F.seatUsd} a seat a month from ${WORDS[F.seatMin]} seats up, so \\$${F.schoolFloorUsd} a month`), why: `the lesson must name the seat price and its floor` },
+  { file: 'src/data/academy.ts', forbid: /\$29 a month|\$49 a month|includes 2,000 tasks/, why: 'the lesson taught the metered plans · they are gone' },
   { file: 'src/data/academy.ts', forbid: /(ships|comes) with (twelve|\d+) teammates/i, why: 'a crew-size claim belongs in facts.ts, not in a lesson' },
 
   // the landing page and the guide must not hardcode counts any more
@@ -263,8 +276,16 @@ const RULES = [
   // est la phrase qu'on lit juste avant de sortir sa carte.
   { file: 'src/data/plans.ts', forbid: /Build a company and watch/i, why: 'nothing here builds a company for anyone' },
   { file: 'src/data/plans.ts', forbid: /We run the models for you/i, why: 'the dojo is a sandbox · nothing runs by default' },
-  { file: 'src/data/plans.ts', must: /The whole course, free/i, why: 'Free is the course, and that must be the first thing it says' },
-  { file: 'src/data/plans.ts', must: /only ever drawn on a deployment running live/i, why: 'Managed must not sell an allowance that nothing can draw on' },
+  { file: 'src/data/plans.ts', must: /The whole course, and the diploma/i, why: 'Free is the course AND the diploma, and that must be the first thing it says' },
+  // LA GARDE QUI A CHANGÉ DE CIBLE · elle exigeait que la carte Managed avoue
+  // que son allocation ne se consommait jamais. C'était le meilleur qu'on
+  // pouvait faire tant qu'on vendait une capacité éteinte. On ne la vend plus,
+  // donc la phrase à exiger n'est plus un aveu mais le nouveau produit : des
+  // sièges. Ce que la garde continue d'interdire, c'est le retour de la vente
+  // au forfait de tâches, sous n'importe quel nom.
+  { file: 'src/data/plans.ts', must: /perSeat/, why: 'the third plan sells seats now, not an allowance' },
+  { file: 'src/data/plans.ts', forbid: /tasks a month|tasks included|MANAGED_TASKS/, why: 'no plan sells tasks any more · nothing here runs to draw on them' },
+  { file: 'src/data/plans.ts', must: /Nothing here is metered|never the id/, why: 'plans.ts must keep saying why the ids and the names differ' },
   // and the apps section must quote what can ACT, not the catalogue size
   { file: 'src/Landing.tsx', must: /APP_LIVE_COUNT/, why: 'the landing quotes apps that can act, not the catalogue count' },
 ]

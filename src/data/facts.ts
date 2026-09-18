@@ -51,9 +51,10 @@ export const APP_LIVE_COUNT = CONNECTORS.filter((c) => !c.unwired).length
 export const SKIN_COUNT = SKINS.length
 export const WORLD_COUNT = DOJO_TEMPLATES.length
 
-/** Pricing · what one step of a plan draws from a Managed allowance. */
+/** Ce qu'une tâche coûte AU TARIF PUBLIÉ DU MODÈLE · plus une part d'abonnement,
+ *  puisque aucun abonnement ne contient plus de tâches · voir data/budget.ts. */
 export const CREDIT_PRICE_USD = CREDIT_USD
-/** "$0.02" · what one task is worth against the Managed allowance. */
+/** "$0.02" · the same figure as a label. */
 export const CREDIT_PRICE_LABEL = `$${CREDIT_USD.toFixed(2)}`
 /** A typical four-step team run, in dollars. */
 export const TYPICAL_RUN_STEPS = 4
