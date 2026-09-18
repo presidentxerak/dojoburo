@@ -353,6 +353,64 @@ ok('…every one with a one pixel stroke', icons.n > 0 && icons.stroked === icon
 ok('…and some of them are actually visible', icons.shown > 0, `${icons.shown}/${icons.n} visible`)
 ok('…each visible one taking up space', icons.shown > 0 && icons.sized === icons.shown, `${icons.sized}/${icons.shown}`)
 
+// ---- la fiche d'un agent · la mise en page, mesurée ---------------------
+//
+// Deux demandes CHIFFRÉES : diviser par deux la largeur des marges latérales,
+// et grossir les textes. Ce sont les seules choses de ce lot qu'on peut
+// prouver plutôt que croire, donc on les mesure dans la page rendue au lieu
+// de relire une feuille de style.
+//
+// La fiche faisait 860 pixels de colonne dans une fenêtre de 1400, soit 270
+// de marge de chaque côté. La moitié, c'est 135, donc une colonne d'environ
+// 1130. On vérifie la MARGE, pas la largeur : la largeur dépend de la fenêtre
+// du test, la marge est ce qui a été demandé.
+await p.goto(B + '/build/research', { waitUntil: 'networkidle' })
+await p.waitForTimeout(1200)
+
+const card = await p.evaluate(() => {
+  const sec = document.querySelector('.ag-sec')
+  if (!sec) return null
+  const vw = document.documentElement.clientWidth
+  const r = sec.getBoundingClientRect()
+  const px = (el, prop) => (el ? parseFloat(getComputedStyle(el)[prop]) : 0)
+  return {
+    vw,
+    margin: Math.round((vw - r.width) / 2),
+    plain: px(document.querySelector('.ag-plain'), 'fontSize'),
+    why: px(document.querySelector('.ag-why'), 'fontSize'),
+    how: px(document.querySelector('.ag-how li'), 'fontSize'),
+    h1: px(document.querySelector('.ag-hero h1'), 'fontSize'),
+    steps: document.querySelectorAll('.ag-step').length,
+    rail: document.querySelectorAll('.ag-rail-b').length,
+    stages: document.querySelectorAll('.sst-box').length,
+    pairs: document.querySelectorAll('.ag-vs-bad').length,
+    // la mesure du texte courant reste bridée · une ligne de 1130 pixels est
+    // illisible quelle que soit la taille des caractères
+    read: Math.round(document.querySelector('.ag-why')?.getBoundingClientRect().width ?? 0),
+  }
+})
+
+ok('the agent card renders at all', !!card)
+if (card) {
+  // Les marges DIVISÉES PAR DEUX · 270 à l'origine sur cette largeur de
+  // fenêtre, donc on exige nettement moins de 200 tout en gardant une gouttière.
+  ok('the side margins are halved', card.margin < 200 && card.margin > 20, `${card.margin}px de marge, fenêtre ${card.vw}`)
+  // LA LISIBILITÉ · des planchers, pas des valeurs exactes : une garde qui
+  // fixe 17 pixels au pixel près interdit d'ajuster de un.
+  ok('the plain-language sentence is large', card.plain >= 20, `${card.plain}px`)
+  ok('the body of a step is readable', card.why >= 16.5, `${card.why}px`)
+  ok('…and so are the instructions', card.how >= 16, `${card.how}px`)
+  ok('the title carries the page', card.h1 >= 36, `${card.h1}px`)
+  // …mais la LIGNE reste courte. Élargir la page n'autorise pas à élargir le
+  // paragraphe, et c'est le piège d'une demande « moins de marges ».
+  ok('the reading measure stays short', card.read <= 780, `${card.read}px de ligne`)
+  // Ce qui fait de cette page un cours plutôt qu'un article.
+  ok('every step is on the page', card.steps === 4, `${card.steps}`)
+  ok('the sticky rail lists them', card.rail === 4, `${card.rail}`)
+  ok('each step carries its animated scene', card.stages === 4, `${card.stages}`)
+  ok('…and its badly-written example', card.pairs === 4, `${card.pairs}`)
+}
+
 report()
 await b.close()
 process.exit(out.some((l) => l.startsWith('FAIL')) ? 1 : 0)

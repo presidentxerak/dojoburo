@@ -118,58 +118,101 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
       </header>
 
       <div className="ag-scroll">
-        {/* 1 · CE QUE C'EST -------------------------------------------- */}
-        <section className="ag-sec ag-top">
-          <span className="ag-kick">{u.shape}</span>
-          <h1>{u.name}</h1>
-          {lesson && <p className="ag-plain">{lesson.primer.plain}</p>}
-          {lesson && (
-            <>
-              <p className="ag-like"><b>Think of it as.</b> {lesson.primer.like}</p>
-              <div className="ag-two">
-                <div className="ag-need">
-                  <h3>Before you start, have these ready</h3>
-                  <ul>{lesson.primer.need.map((n) => <li key={n}><BauhausIcon name="box" size={11} />{n}</li>)}</ul>
-                </div>
-                <div className="ag-words">
-                  <h3>Words we are going to use</h3>
-                  <dl>
-                    {lesson.primer.words.map((w) => (
-                      <div key={w.term}><dt>{w.term}</dt><dd>{w.says}</dd></div>
-                    ))}
-                  </dl>
-                </div>
-              </div>
-            </>
-          )}
+        {/* 1 · L'OUVERTURE · un aplat, un très grand titre, et la phrase sans
+            jargon en grand. C'était un titre et deux paragraphes de la même
+            taille que le reste : rien ne disait par où commencer. */}
+        <section className="ag-hero">
+          <div className="ag-hero-in">
+            <span className="ag-kick">{u.shape}</span>
+            <h1>{u.name}</h1>
+            {lesson && <p className="ag-plain">{lesson.primer.plain}</p>}
+            <div className="ag-hero-meta">
+              <span><b>{total}</b> steps</span>
+              <span><b>{u.ships.length}</b> things you leave with</span>
+              <span><b>{lesson?.primer.words.length ?? 0}</b> words explained</span>
+            </div>
+          </div>
         </section>
 
-        {/* 2 · POURQUOI C'EST DUR -------------------------------------- */}
+        {lesson && (
+          <section className="ag-sec ag-prime">
+            {/* LA COMPARAISON · elle vaut trois paragraphes d'explication, donc
+                elle est traitée comme une citation et non comme une note. */}
+            <blockquote className="ag-like">
+              <span className="ag-like-k">Think of it as</span>
+              {lesson.primer.like}
+            </blockquote>
+
+            <div className="ag-two">
+              <div className="ag-panel">
+                <h3><BauhausIcon name="box" size={17} /> Before you start, have these ready</h3>
+                <ul className="ag-need">
+                  {lesson.primer.need.map((n, i) => (
+                    <li key={n}><span className="ag-need-n">{i + 1}</span>{n}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="ag-panel">
+                <h3><BauhausIcon name="pen" size={17} /> Words we are going to use</h3>
+                <dl className="ag-words">
+                  {lesson.primer.words.map((w) => (
+                    <div key={w.term}><dt>{w.term}</dt><dd>{w.says}</dd></div>
+                  ))}
+                </dl>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* 2 · POURQUOI C'EST DUR · c'est la raison d'avoir douze parcours au
+            lieu d'un cours général, donc ça ne se lit pas comme une note. */}
         <section className="ag-sec ag-hard">
-          <h2>Why this one is hard</h2>
+          <h2><span className="ag-h2-n">01</span> Why this one is hard</h2>
           <p className="ag-hardlong">{u.hard}</p>
-          <p className="ag-fail"><b>How it goes wrong.</b> {u.failure}</p>
-          <p className="ag-for"><b>Who needs it.</b> {u.forWhom}</p>
+          <div className="ag-two">
+            <p className="ag-fail"><b>How it goes wrong</b>{u.failure}</p>
+            <p className="ag-for"><b>Who needs it</b>{u.forWhom}</p>
+          </div>
         </section>
 
         {/* 3 · LES ÉTAPES ---------------------------------------------- */}
         <section className="ag-sec">
-          <h2>The path, one step at a time</h2>
+          <h2><span className="ag-h2-n">02</span> The path, one step at a time</h2>
           <p className="ag-lead">
-            Four steps. Each one makes something that did not exist before, and you cannot do the next one
+            {total} steps. Each one makes something that did not exist before, and you cannot do the next one
             without it. Tick a step when you have actually made the thing, not when you have read about it.
           </p>
+
+          {/* LE RAIL · il colle en haut pendant qu'on descend. Une fiche de
+              cette longueur sans repère permanent laisse perdu au troisième
+              écran, et chaque pastille mène à son étape. */}
+          <nav className="ag-rail" aria-label="The steps">
+            {u.steps.map((s, i) => (
+              <button
+                key={s.title}
+                className={`ag-rail-b${stepDone(i) ? ' on' : ''}`}
+                onClick={() => document.getElementById(`step-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              >
+                <span className="ag-rail-n">{stepDone(i) ? <BauhausIcon name="check" size={11} /> : i + 1}</span>
+                <span className="ag-rail-t">{s.title}</span>
+              </button>
+            ))}
+          </nav>
 
           {u.steps.map((s, i) => {
             const L = lesson?.steps[i]
             const on = stepDone(i)
             return (
-              <article className={`ag-step${on ? ' on' : ''}`} key={s.title}>
+              <article className={`ag-step${on ? ' on' : ''}`} key={s.title} id={`step-${i}`}>
                 <header className="ag-step-h">
-                  <span className="ag-step-n">{on ? <BauhausIcon name="check" size={14} /> : i + 1}</span>
-                  <div>
+                  {/* LE NUMÉRO EN GRAND · c'est ce qui donne un rythme à une
+                      page longue. Une pastille de vingt-huit pixels se lit
+                      comme une puce de liste, pas comme un chapitre. */}
+                  <span className="ag-step-n" aria-hidden>{on ? <BauhausIcon name="check" size={30} /> : i + 1}</span>
+                  <div className="ag-step-t">
+                    <span className="ag-step-of">Step {i + 1} of {total}</span>
                     <h3>{s.title}</h3>
-                    <span className="ag-makes">Makes: {s.makes}</span>
+                    <span className="ag-makes"><b>Makes</b> {s.makes}</span>
                   </div>
                 </header>
 
@@ -183,25 +226,30 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
 
                     {/* L'EXEMPLE RATÉ, à gauche du réussi. C'est la moitié qui
                         apprend, et c'est celle que les cours omettent. */}
+                    {/* LE DIPTYQUE · les deux moitiés ont le même poids
+                        visuel, exprès. Montrer la bonne réponse enseigne à la
+                        reconnaître ; la mettre à côté de la mauvaise enseigne à
+                        la produire, et la mauvaise doit donc se lire aussi
+                        bien que l'autre. */}
                     <h4>The same thing, written badly and written well</h4>
                     <div className="ag-vs">
                       <div className="ag-vs-bad">
-                        <span className="ag-vs-tag">what people write</span>
+                        <span className="ag-vs-tag"><BauhausIcon name="cross" size={12} /> what people write</span>
                         <p>{L.bad}</p>
                       </div>
                       <div className="ag-vs-good">
-                        <span className="ag-vs-tag">what works</span>
+                        <span className="ag-vs-tag"><BauhausIcon name="check" size={12} /> what works</span>
                         <p>{L.good}</p>
                       </div>
                     </div>
-                    <p className="ag-note"><b>The difference.</b> {L.note}</p>
+                    <p className="ag-note"><b>The difference</b>{L.note}</p>
                   </>
                 )}
 
-                <p className="ag-check"><b>Before you move on.</b> {s.check}</p>
+                <p className="ag-check"><b>Before you move on</b>{s.check}</p>
 
                 <button className="ag-tick" aria-pressed={on} onClick={() => toggle(i)}>
-                  <BauhausIcon name={on ? 'check' : 'box'} size={13} />
+                  <span className="ag-tick-box"><BauhausIcon name={on ? 'check' : 'box'} size={15} /></span>
                   {on ? 'Made it' : 'I have made this'}
                 </button>
 
@@ -221,7 +269,7 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
 
         {/* 4 · L'AGENT -------------------------------------------------- */}
         <section className="ag-sec ag-make">
-          <h2>Your agent</h2>
+          <h2><span className="ag-h2-n">03</span> Your agent</h2>
           <p className="ag-lead">
             This is a draft, and parts of it are deliberately wrong for your case. The path above is what turns
             it into yours. It weighs about {estimateTokens(draft.system).toLocaleString('en-US')} tokens as
