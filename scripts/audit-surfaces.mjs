@@ -30,6 +30,7 @@
 //
 //   npm run preview   puis   node scripts/audit-surfaces.mjs
 import { chromium } from 'playwright'
+import { MENU_PROJECTS } from './lib/menuLabels.mjs'
 
 const B = process.env.BASE || 'http://localhost:4173'
 const b = await chromium.launch({
@@ -141,7 +142,7 @@ async function sweep(mode) {
   await visit('academy', async () => { await p.goto(`${B}/academy`, { waitUntil: 'domcontentloaded' }) })
   await visit('guide', async () => { await p.goto(`${B}/guide`, { waitUntil: 'domcontentloaded' }) })
   await visit('app', home)
-  await visit('mes entreprises', () => viaMenu(/My companies/))
+  await visit('mes entreprises', () => viaMenu(new RegExp(MENU_PROJECTS)))
   await visit('réglages du dojo', () => viaMenu(/Dojo settings/))
   await visit('facturation', () => viaMenu(/^Billing/))
   await visit('connecter les apps', () => viaMenu(/Connect apps/))
@@ -171,7 +172,7 @@ async function sweep(mode) {
   // de suite et attendre trente secondes ne prouve rien de plus.
   const stuckOn = []
   for (const [name, go] of mode !== 'muet' ? [] : [
-    ['mes entreprises', () => viaMenu(/My companies/)],
+    ['mes entreprises', () => viaMenu(new RegExp(MENU_PROJECTS))],
     ['facturation', () => viaMenu(/^Billing/)],
     ['connecter les apps', () => viaMenu(/Connect apps/)],
     ['module Sentinel', () => viaCard('Sentinel')],

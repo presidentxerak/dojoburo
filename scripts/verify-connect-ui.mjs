@@ -7,6 +7,7 @@
 //
 //   npm run preview   puis   node scripts/verify-connect-ui.mjs
 import { chromium } from 'playwright'
+import { MENU_PROJECTS, MENU_EFFORT, MENU_CREW, MENU_PROGRESS } from './lib/menuLabels.mjs'
 
 const B = process.env.BASE || 'http://localhost:4173'
 const b = await chromium.launch({
@@ -71,7 +72,7 @@ await p.waitForTimeout(2500)
 const menu = p.locator('.tb-menu-btn')
 if (await menu.count()) {
   await menu.click(); await p.waitForTimeout(400)
-  const my = p.locator('.tb-menu-item', { hasText: /My companies/ })
+  const my = p.locator('.tb-menu-item', { hasText: MENU_PROJECTS })
   if (await my.count()) { await my.first().click(); await p.waitForTimeout(1500) }
 }
 const co = p.locator('.cocard-face, .cocard').first()

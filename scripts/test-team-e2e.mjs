@@ -17,6 +17,7 @@ import { join, extname } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { chromium } from 'playwright'
 import { Pool } from 'pg'
+import { MENU_PROJECTS, MENU_EFFORT, MENU_CREW, MENU_PROGRESS } from './lib/menuLabels.mjs'
 
 const DB = process.env.TEST_DATABASE_URL
 if (!DB) { console.log('test-team-e2e · skipped (set TEST_DATABASE_URL to run)'); process.exit(0) }
@@ -117,7 +118,7 @@ const openTeam = async (p) => {
   await p.waitForTimeout(2500)
   await p.locator('.tb-profile').first().click({ timeout: 20_000 })
   await p.waitForTimeout(500)
-  await p.locator('button', { hasText: /^Your company$/ }).first().click({ timeout: 20_000 })
+  await p.locator('button', { hasText: new RegExp(`^${MENU_CREW}$`) }).first().click({ timeout: 20_000 })
   await p.waitForTimeout(2500)
 }
 

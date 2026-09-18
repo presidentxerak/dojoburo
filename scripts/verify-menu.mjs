@@ -1,5 +1,6 @@
 // Audits, in a real browser, every item on the founder's list.
 import { chromium } from 'playwright'
+import { MENU_PROJECTS, MENU_EFFORT, MENU_CREW, MENU_PROGRESS } from './lib/menuLabels.mjs'
 const B = 'http://localhost:4173'
 const b = await chromium.launch({ executablePath: process.env.CHROMIUM || '/opt/pw-browsers/chromium' })
 const p = await b.newPage({ viewport: { width: 1360, height: 900 } })
@@ -77,9 +78,15 @@ await p.locator('.tb-menu-btn').click()
 await p.waitForTimeout(350)
 const menu = await p.innerText('.tb-menu')
 const items = (await p.locator('.tb-menu-item, .tb-menu-profile, .tb-row > span').allInnerTexts()).map((s) => s.split('\n')[0].trim())
-ok('menu carries "My companies"', /My companies/.test(menu))
+// LES LIBELLÉS VIENNENT DE L'APP · ils étaient recopiés ici, donc renommer
+// une entrée du menu faisait échouer quatre épreuves avec des délais
+// dépassés au lieu d'un message clair.
+ok(`menu carries "${MENU_PROJECTS}"`, menu.includes(MENU_PROJECTS))
+// …et il mène AU PRODUIT · les trois cours et la progression sont ce que le
+// menu doit porter maintenant, pas seulement ce qu'il ne doit plus porter.
+ok('menu carries your progress', menu.includes(MENU_PROGRESS))
 ok('the effort dial sits under Billing',
-  items.findIndex((t) => /How hard your team works/.test(t)) === items.findIndex((t) => /^Billing/.test(t)) + 1)
+  items.findIndex((t) => t.includes(MENU_EFFORT)) === items.findIndex((t) => /^Billing/.test(t)) + 1)
 ok('no standalone "Account" row', items.filter((t) => t === 'Account').length === 0)
 ok('no Sound row', !/sound/i.test(menu))
 ok('no City row', !/city/i.test(menu))
@@ -110,7 +117,7 @@ async function fullscreen(name, open) {
 }
 await fullscreen('Quick search', async () => { await p.keyboard.press('Meta+k'); await p.waitForTimeout(200); if (!(await p.locator('.modhost-fs').count())) await p.evaluate(() => window.dispatchEvent(new Event('open-cmdk'))) })
 await fullscreen('Settings', async () => { await p.evaluate(() => { const s = window; }); await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(300); await p.getByRole('button', { name: 'Settings', exact: true }).click() })
-await fullscreen('How hard your team works', async () => { await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(300); await p.locator('.tb-menu-item', { hasText: 'How hard your team works' }).click() })
+await fullscreen(MENU_EFFORT, async () => { await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(300); await p.locator('.tb-menu-item', { hasText: MENU_EFFORT }).click() })
 
 // ---- the surfaces the founder reported as blank / broken ---------------
 // Billing, Dojo settings and Connect apps used to NAVIGATE to their own routes:

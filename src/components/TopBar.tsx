@@ -16,6 +16,7 @@ import { readLearning } from '../dojo/learning'
 import { useProgress } from '../academy/progress'
 import { USE_CASE_COUNT } from '../data/agentUseCases'
 import { COURSES } from '../data/positioning'
+import { MENU_PROJECTS, MENU_EFFORT, MENU_CREW, MENU_PROGRESS } from '../data/menuLabels'
 
 /** The app's header.
  *
@@ -159,7 +160,7 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
                 l'en-tête du site. */}
             <div className="tb-menu-rule" />
             <button className="tb-menu-item tb-menu-strong" onClick={openLearning}>
-              Your progress
+              {MENU_PROGRESS}
               {L.built.length > 0 && (
                 <span className="tb-menu-val" style={{ ['--ac' as string]: L.grade.tint }}>{L.grade.title}</span>
               )}
@@ -176,9 +177,9 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
                 avec. Ce sont les mêmes écrans qu'avant : ce qui change est ce
                 qu'ils sont, un bac à sable et non une entreprise. */}
             <div className="tb-menu-rule" />
-            <button className="tb-menu-item tb-menu-link" onClick={openProjects}>Practice dojos</button>
+            <button className="tb-menu-item tb-menu-link" onClick={openProjects}>{MENU_PROJECTS}</button>
             <button className="tb-menu-item" onClick={openStudio}>Dojo settings</button>
-            <button className="tb-menu-item tb-menu-link" onClick={openTeam}>The crew</button>
+            <button className="tb-menu-item tb-menu-link" onClick={openTeam}>{MENU_CREW}</button>
             <button className="tb-menu-item tb-menu-link" onClick={openConnect}>Connect apps</button>
             <button className="tb-menu-item tb-menu-link" onClick={openDocs}>Documents</button>
 
@@ -186,7 +187,7 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
             <div className="tb-menu-rule" />
             <button className="tb-menu-item" onClick={openCredits}>Billing · your key and plan</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); setEffortOpen(true) }}>
-              Effort and token budget
+              {MENU_EFFORT}
               <span className="tb-menu-val" style={{ ['--ac' as string]: mode?.tint }}>{mode && <BauhausIcon name={mode.glyph} size={14} />} {mode?.label}</span>
             </button>
 

@@ -14,6 +14,7 @@ import { chromium } from 'playwright'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { MENU_PROJECTS, MENU_EFFORT, MENU_CREW, MENU_PROGRESS } from './lib/menuLabels.mjs'
 const SHOT = process.env.SHOT_DIR || mkdtempSync(join(tmpdir(), 'companies-'))
 let fails = 0
 const ok = (c, m) => { console.log((c ? 'ok    ' : 'FAIL  ') + m); if (!c) fails++ }
@@ -46,21 +47,21 @@ await p.screenshot({ path: SHOT + '/menu.png' })
 const items = await p.locator('.tb-menu-item').allInnerTexts()
 ok(!items.some((t) => /^Account$/i.test(t.trim())), 'no bare Account row · the profile row is the only one')
 ok(!items.some((t) => /^Dojos$/i.test(t.trim())), 'no "Dojos" row beside "Dojo settings"')
-ok(items.some((t) => /How hard your team works/i.test(t)), 'the token dial lives in the menu')
-ok(items.some((t) => /My companies/i.test(t)), 'My companies')
+ok(items.some((t) => t.includes(MENU_EFFORT)), 'the token dial lives in the menu')
+ok(items.some((t) => t.includes(MENU_PROJECTS)), MENU_PROJECTS)
 ok(await p.locator('.topbar-right .tb-create').count() === 0, 'no Credits button beside the avatar')
 ok(await p.locator('.topbar-right button').count() === 2, `two buttons in the header · ${await p.locator('.topbar-right button').count()}`)
 ok(!(await p.locator('.tb-menu').innerText()).match(/Sound/i), 'no sound row')
 
 // the dial opens full screen from the menu
-await p.locator('.tb-menu-item', { hasText: 'How hard your team works' }).click()
+await p.locator('.tb-menu-item', { hasText: MENU_EFFORT }).click()
 await p.waitForTimeout(900)
 ok(await p.locator('.modhost-fs.fs .modhost-close').isVisible(), 'the dial is a full-screen surface')
 await p.locator('.modhost-fs.fs .modhost-close').click(); await p.waitForTimeout(500)
 
 // --- a SECOND company
 await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(300)
-await p.locator('.tb-menu-item', { hasText: 'My companies' }).click()
+await p.locator('.tb-menu-item', { hasText: MENU_PROJECTS }).click()
 await p.waitForTimeout(1200)
 await p.screenshot({ path: SHOT + '/companies.png' })
 ok(await p.locator('.cocard:not(.cocard-new)').count() === 1, 'the profile lists one company')
@@ -74,7 +75,7 @@ await p.locator('.ct-go').click(); await p.waitForTimeout(3500)
 ok(await p.locator('.dtab').count() === 0 || await p.locator('.dtab').count() === 1, `the tab bar shows only this company's team(s)`)
 
 await p.locator('.tb-menu-btn').click(); await p.waitForTimeout(300)
-await p.locator('.tb-menu-item', { hasText: 'My companies' }).click()
+await p.locator('.tb-menu-item', { hasText: MENU_PROJECTS }).click()
 await p.waitForTimeout(1200)
 ok(await p.locator('.cocard:not(.cocard-new)').count() === 2, 'two companies now')
 await p.locator('.cocard-face').first().click()

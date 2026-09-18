@@ -15,6 +15,7 @@ import { chromium } from 'playwright'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { MENU_PROJECTS, MENU_EFFORT, MENU_CREW, MENU_PROGRESS } from './lib/menuLabels.mjs'
 const SHOT = process.env.SHOT_DIR || mkdtempSync(join(tmpdir(), 'surfaces-'))
 const B = process.env.BASE_URL || 'http://localhost:4173/'
 let fails = 0
@@ -60,11 +61,11 @@ await p.screenshot({ path: SHOT + '/u-dojo.png' })
 // ---- no duplicates ------------------------------------------------------------
 await p.locator('.tb-menu-btn').click()
 await p.waitForTimeout(300)
-await p.locator('.tb-menu-item', { hasText: 'My companies' }).click()
+await p.locator('.tb-menu-item', { hasText: MENU_PROJECTS }).click()
 await p.waitForTimeout(1000)
-// "My companies" opens the profile: one card per company. Open the one we just
-// built, THEN add a team to it — the button on the companies screen starts a
-// second company, which would legitimately own nothing.
+// L'entrée « dojos » ouvre le profil : une carte par entreprise. On ouvre celle
+// qu'on vient de construire, PUIS on y ajoute une équipe · le bouton de l'écran
+// des entreprises en démarre une seconde, qui ne posséderait rien.
 await p.locator('.cocard-face').first().click()
 await p.waitForTimeout(700)
 await p.locator('.ph-addteam').click()
@@ -114,7 +115,7 @@ const surfaces = [
   ['the token dial', async () => {
     await p.locator('.tb-menu-btn').click()
     await p.waitForTimeout(300)
-    await p.locator('.tb-menu-item', { hasText: 'How hard your team works' }).click()
+    await p.locator('.tb-menu-item', { hasText: MENU_EFFORT }).click()
   }, 'u-fs-dial.png'],
   ['Graph mode', () => p.locator('.dojo-ctl-graph').click(), 'u-fs-graph.png'],
 ]
@@ -212,7 +213,7 @@ await m.waitForTimeout(700)
 
 await m.locator('.tb-menu-btn').click()
 await m.waitForTimeout(400)
-await m.locator('.tb-menu-item', { hasText: 'How hard your team works' }).click()
+await m.locator('.tb-menu-item', { hasText: MENU_EFFORT }).click()
 await m.waitForTimeout(1200)
 await m.screenshot({ path: SHOT + '/u-m-dial.png' })
 ok(await m.locator('.modhost-fs.fs .modhost-close').isVisible(), 'mobile dial: the same close button')
