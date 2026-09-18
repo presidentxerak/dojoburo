@@ -6,130 +6,157 @@
 // visitor could read two different prices for the same thing without leaving
 // the product.
 //
-// The deeper problem was what those numbers were pricing. Metering tasks means
-// reselling model tokens — a margin on somebody else's commodity, repriced
-// whenever they choose, where the heaviest users cost the most and every plan
-// is a bet that people do not use what they bought. At the quota those plans
-// lost money: 8,000 tasks on the cheapest usable model costs $147 against a
-// $150 price.
+// That was fixed by selling the software rather than the tokens. This revision
+// fixes the next fault, which is bigger: we were still pricing a product that
+// no longer exists.
 //
-// So we sell the software instead. The teams, the orchestration, the
-// deliverables, the connectors — the part that costs nothing to serve — and
-// the founder brings the model. That is FOUNDER, and it is the headline: their
-// key, their bill, their choice of model, and no meter between them and their
-// own work. MANAGED exists for people who do not want to hold a key, and it is
-// priced so that a founder who consumes the whole allowance is still
-// profitable, which is the test the old plans failed.
+// ---------------------------------------------------------------------------
+// CE QUE COÛTE RÉELLEMENT CE PRODUIT, aujourd'hui
+//
+// L'ancienne grille facturait des exécutions de modèle. Elle avait donc un coût
+// marginal à couvrir, et toute la mécanique de pondération des tâches existe
+// pour ça. Depuis que le dojo est un bac à sable, ce coût a disparu :
+//
+//   la formation        des pages statiques · coût marginal nul
+//   la bibliothèque     des fichiers servis par le CDN · coût marginal nul
+//   les grades, badges, le diplôme   du localStorage · coût marginal nul
+//   Dojobot             cascade gratuite d'abord, repli payant plafonné à
+//                       SUPPORT_PAID_DAILY_CAP appels par jour POUR TOUTE
+//                       L'INSTANCE · quelques dizaines de dollars par mois au
+//                       pire absolu, quel que soit le nombre d'élèves
+//   le dojo             rien ne s'exécute tant que VITE_DOJO_LIVE est éteint
+//
+// Autrement dit : le coût ne suit pas le nombre d'apprenants. Facturer à la
+// tâche revenait donc à faire payer un coût que nous n'avons pas, et à le faire
+// payer d'autant plus cher que la personne apprend davantage. C'est l'inverse
+// de ce qu'un centre de formation doit encourager.
+//
+// ---------------------------------------------------------------------------
+// CE QUE LES TROIS FORMULES VENDENT MAINTENANT
+//
+//   FREE      la formation entière, et le diplôme.
+//             Gratuit parce que ça ne coûte rien à servir, et parce que le
+//             diplôme est la preuve publique que le cours fonctionne. Le faire
+//             payer taxerait exactement les gens qui en parlent autour d'eux.
+//
+//   LIBRARY   les fichiers. Ce qui a demandé du travail à écrire et qui
+//             continue d'en demander : chaque prompt, chaque brief .md, chaque
+//             skill, en vrai fichier, plus ceux qui arrivent. C'est la seule
+//             chose ici dont le stock grossit tous les mois, donc la seule qui
+//             justifie un abonnement plutôt qu'un achat.
+//
+//   SCHOOL    des sièges. Une boîte ou une école qui forme ses gens veut une
+//             seule facture et voir qui avance. Ça ne nous coûte rien de plus à
+//             servir, et c'est le seul acheteur au ticket élevé de ce produit.
+//
+// ---------------------------------------------------------------------------
+// LES IDENTIFIANTS NE BOUGENT PAS, LES NOMS OUI.
+//
+// 'founder' et 'managed' sont des clés de stockage : elles sont écrites dans la
+// colonne organisations.plan, dans les métadonnées Stripe et dans les variables
+// STRIPE_PRICE_FOUNDER / STRIPE_PRICE_MANAGED. Les renommer orphelinerait tout
+// abonnement déjà vendu. Ce qui change est ce qu'on vend et comment ça s'appelle
+// à l'écran · voir api/_lib/entitlements.ts, qui lit les mêmes clés.
 
 export interface Plan {
   id: 'free' | 'founder' | 'managed'
+  /** what the plan is called on screen · never the id */
   name: string
   usd: number
+  /** true when `usd` is the price of ONE seat rather than of the account */
+  perSeat?: boolean
+  /** the smallest number of seats that can be bought, on a per-seat plan */
+  minSeats?: number
   /** the one line under the price */
   tagline: string
-  /** true when the founder supplies their own model key */
-  byok?: boolean
-  /** tasks included per month · undefined means "not metered" */
-  tasks?: number
   /** shown above the list */
   inclHead: string
   incl: string[]
   featured?: boolean
 }
 
-/** Tasks a month on the managed tier. Chosen so that a founder who uses every
- *  one of them still leaves a margin — see TASK_USD below. */
-export const MANAGED_TASKS = 2000
-export const MANAGED_USD = 49
-export const FOUNDER_USD = 29
-
-/** What one task is worth on the managed tier · $0.0245.
+/** L'abonnement bibliothèque, par personne et par mois.
  *
- *  This is the price of ONE unit of work, and units are not all the same size.
- *  A Saver draft on a free provider counts half; a Max run on the flagship
- *  counts fifteen. Without that weighting the figure was a fiction in both
- *  directions — the cheap task subsidised the dear one, and the dear one was
- *  sold below cost. api/_lib/entitlements.ts holds the weights and the
- *  arithmetic; weighted, every combination returns 65–78% gross.
- *
- *  The old plans priced a task at $0.019 against an $0.018 cost, which is not a
- *  margin. That is the mistake this number exists not to repeat. */
-export const TASK_USD = MANAGED_USD / MANAGED_TASKS
+ *  Il était à 29 $, fixé quand la formule incluait de faire tourner du travail.
+ *  Un cours en ligne se compare à Frontend Masters ou à O'Reilly, pas à un SaaS
+ *  d'entreprise, et 19 $ est le haut de cette fourchette. Le stock de fichiers
+ *  qui grossit chaque mois est ce qui tient l'abonnement debout. */
+export const LIBRARY_USD = 19
 
-// CE QUE CHAQUE FORMULE ACHÈTE, depuis que le produit enseigne.
-//
-// Les trois accroches décrivaient l'ancien métier : « construisez une
-// entreprise et regardez votre équipe travailler », « nous faisons tourner les
-// modèles pour vous ». Aucune n'est vraie — rien ici ne fait tourner un modèle
-// pour personne, et le dojo est un bac à sable. Elles ont survécu au
-// repositionnement parce qu'aucune règle ne les regardait ; il y en a une
-// maintenant (voir scripts/check-content.mjs).
-//
-// Les PRIX et la structure ne bougent pas : ce sont des décisions prises
-// ailleurs et elles ne m'appartiennent pas. Seul ce qu'on en dit est remis
-// d'aplomb, pour que trois écrans ne vendent pas trois produits différents.
+/** Un siège d'école, par personne et par mois · remise de volume sur les 19 $. */
+export const SEAT_USD = 15
+
+/** Le plancher. En dessous de cinq personnes, l'abonnement individuel est moins
+ *  cher et c'est celui qu'il faut prendre · on le dit sur la carte plutôt que de
+ *  laisser quelqu'un acheter la mauvaise formule. */
+export const SEAT_MIN = 5
+
+/** Ce que coûte l'école au plancher · $75. Jamais recopié à la main. */
+export const SCHOOL_FLOOR_USD = SEAT_USD * SEAT_MIN
+
+/** "$19" · plan prices are whole dollars, so no cents. Declared before PLANS
+ *  because the School card quotes the Library price rather than retyping it. */
+const priceTag = (usd: number): string => (usd === 0 ? '$0' : `$${usd}`)
+
 export const PLANS: Plan[] = [
   {
     id: 'free',
     name: 'Free',
     usd: 0,
-    tagline: 'The whole course, free. No card, no account to begin.',
+    tagline: 'The whole course, and the diploma. No card, no account to begin.',
     inclHead: 'Includes',
     incl: [
-      'Every lesson, every track, nothing gated',
-      'The reasoning behind every file in the library',
+      'The three courses in full, every lesson, nothing gated',
       'The practice dojo, and the cost breakdown of any run',
+      'Every belt, every badge, and the certified diploma at the end',
+      'The reasoning behind every file in the library',
       'Two library files, open, so you can judge the rest',
     ],
   },
   {
     id: 'founder',
-    name: 'Founder',
-    usd: FOUNDER_USD,
-    tagline: 'The library. Every prompt, brief and skill, yours to take.',
-    byok: true,
+    name: 'Library',
+    usd: LIBRARY_USD,
     featured: true,
+    tagline: 'Every prompt, brief and skill as a real file, yours to take.',
     inclHead: 'Everything in Free, plus',
     incl: [
       'Every file in the library, in full',
       'Download each one as a real .md or .txt, not a copy-paste',
       'New files as they are written, at no extra cost',
-      'Your own Claude key, sealed server-side, if you switch the dojo live',
-      'A custom domain',
-      'No DojoBuro badge',
+      'A custom domain, and no DojoBuro badge',
+      'Your own model key, sealed server-side, if you ever switch the dojo live',
     ],
   },
   {
     id: 'managed',
-    name: 'Managed',
-    usd: MANAGED_USD,
-    // ATTENTION · cette formule est la seule dont la raison d'être a bougé.
-    //
-    // Elle existait pour les gens qui ne veulent pas détenir de clé : nous
-    // faisions tourner les modèles et absorbions le coût. Le dojo étant devenu
-    // un bac à sable, cette contrepartie n'est plus servie par défaut — elle
-    // ne revient qu'avec VITE_DOJO_LIVE. L'allocation existe toujours
-    // côté serveur (api/_lib/entitlements.ts), elle ne se consomme simplement
-    // plus tant que rien ne s'exécute.
-    //
-    // On le dit donc EN TOUTES LETTRES dans la liste plutôt que de vendre une
-    // contrepartie éteinte. Ce qui reste à décider — la supprimer, la
-    // repositionner, ou la garder pour les déploiements en mode vif — est une
-    // décision de prix, et elle ne se prend pas dans un commentaire.
-    tagline: 'For a team. One bill, and the hosted runs when the dojo is live.',
-    tasks: MANAGED_TASKS,
-    inclHead: 'Everything in Founder, plus',
+    name: 'School',
+    usd: SEAT_USD,
+    perSeat: true,
+    minSeats: SEAT_MIN,
+    tagline: `For a group you are training. One bill, from ${SEAT_MIN} seats up.`,
+    inclHead: 'Everything in Library, for each seat, plus',
     incl: [
-      'The library for everyone on the team, under one bill',
-      `${MANAGED_TASKS.toLocaleString('en-US')} tasks a month: only ever drawn on a deployment running live`,
-      'On the practice dojo nothing runs, so nothing is drawn',
-      'No API key to find, hold or rotate',
-      'We pick the model per task and absorb the cost',
+      'One bill for the whole group, seats added or removed any month',
+      'Who has finished what: belts, badges and diplomas across the group',
+      'Invite by email, no licence key to hand around',
+      `Cheaper per person than ${priceTag(LIBRARY_USD)} each, from ${SEAT_MIN} seats`,
+      'Below that, take the Library plan, it costs you less',
     ],
   },
 ]
 
 export const PLAN_BY_ID = Object.fromEntries(PLANS.map((p) => [p.id, p])) as Record<Plan['id'], Plan>
 
-/** "$29" · plan prices are whole dollars, so no cents. */
-export const planPrice = (p: Plan): string => (p.usd === 0 ? '$0' : `$${p.usd}`)
+/** "$19" · the headline figure, without the per-seat qualifier. */
+export const planPrice = (p: Plan): string => priceTag(p.usd)
+
+/** "/ month" or "/ seat / month" · the unit belongs next to the number, because
+ *  $15 and $15 a seat are not the same offer and a card that hides the
+ *  difference is the same fault as two prices for one product. */
+export const planUnit = (p: Plan): string =>
+  p.usd === 0 ? '/ forever' : p.perSeat ? '/ seat / month' : '/ month'
+
+/** "from $75 a month" · what a per-seat plan actually costs at its floor. */
+export const planFloor = (p: Plan): string | null =>
+  p.perSeat && p.minSeats ? `from $${p.usd * p.minSeats} a month` : null

@@ -1,12 +1,12 @@
 // Vaultor · Billing Manager · what the plan is, what has been used, what Stripe
 // took, and the books.
 //
-// This tab used to be a SECOND shop: buy 30–2000 credits at a pound each, on
+// This tab used to be a SECOND shop: buy 30 to 2000 credits at a pound each, on
 // its own ladder, with its own checkout. That was the pricing the product moved
-// away from — the app sells the software now (Free, Founder at $29 with your own
-// key, Managed at $49) and src/data/plans.ts is the single place that says so.
-// Leaving a credit store here meant the same app quoted two different prices for
-// the same thing, which is exactly the failure plans.ts was written to end.
+// away from · the app sells a course, then the files, then seats, and
+// src/data/plans.ts is the single place that says so, prices included. Leaving a
+// credit store here meant the same app quoted two different prices for the same
+// thing, which is exactly the failure plans.ts was written to end.
 //
 // So there is one shop, on the Billing surface, and this reads from plans.ts and
 // points at it.
@@ -18,7 +18,8 @@ import { useEngine } from '../../agents/engineStore'
 import { OfficeStats } from '../../components/OfficeStats'
 import { Accounting } from './Accounting'
 import { InfoDot } from '../../components/InfoDot'
-import { PLANS, TASK_USD } from '../../data/plans'
+import { PLANS } from '../../data/plans'
+import { CREDIT_USD } from '../../data/budget'
 
 const TABS = [
   { id: 'billing', label: 'Plan & usage', sub: 'Your plan, what it has used, and payments' },
@@ -57,20 +58,21 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
       {tab === 'billing' && (<>
       <div className="sq-eyebrow">Your plan</div>
       <p className="sq-lead">
-        Dojoburo sells the software, not the tokens. There is one place to change this: the
-        Billing surface, so a price can never be two things at once.
+        Dojoburo sells the course, the files and the seats, never the tokens. There is one place to
+        change this: the Billing surface, so a price can never be two things at once.
       </p>
       <div className="biz-overview">
         {PLANS.map((pl) => (
           <div key={pl.id} className={`biz-tile${pl.featured ? ' on' : ''}`}>
             <span>{pl.usd ? `$${pl.usd}` : 'Free'}</span>
-            <em>{pl.name}{pl.byok ? ' · your key' : pl.tasks ? ` · ${pl.tasks.toLocaleString('en-US')} tasks` : ''}</em>
+            <em>{pl.name}{pl.perSeat ? ` · a seat, ${pl.minSeats} minimum` : ''}</em>
           </div>
         ))}
       </div>
       <p className="muted small">
-        On Managed a task is worth about ${TASK_USD.toFixed(3)} of the monthly allowance. On Founder
-        you bring your own Claude key and there is no meter between you and your own work.
+        No plan meters anything: the dojo is a worked example and calls no paid model, so there is
+        nothing to count. A run shown at about ${CREDIT_USD.toFixed(3)} a task is what it would cost
+        you at the model's published rate, on your own key, the day you take it out of here.
       </p>
       <button className="btn primary tiny" style={{ marginTop: 10 }} onClick={() => useWork.getState().openStudio('billing')}>
         Open Billing

@@ -13,10 +13,18 @@
 //      share. Metering them per member would mean a team of four silently got
 //      four times what they paid for, and a solo founder a quarter of it.
 //
-//   2. Managed is metered in TASKS, because tasks are what was sold — but a
-//      task is WEIGHTED by what it actually cost to serve (see below). The
-//      token ceiling on a paid plan is a runaway guard set well above the task
-//      budget, not the product limit.
+//   2. PLUS AUCUN FORFAIT NE VEND DE TÂCHES · et c'est le changement de ce
+//      module. Les plans vendent la formation (gratuite), les fichiers, puis
+//      des sièges · voir src/data/plans.ts. Les nombres ci-dessous ne sont donc
+//      plus une quantité vendue que le client peut réclamer, ce sont des
+//      GARDE-FOUS : ils existent pour qu'une boucle ne parte pas toute seule le
+//      jour où VITE_DOJO_LIVE est allumé, et ils ne se consomment pas tant que
+//      rien ne s'exécute.
+//
+//      La pondération d'une tâche (plus bas) reste, et elle reste juste : si un
+//      jour on sert des exécutions, un appel au vaisseau amiral en mode Max
+//      coûte toujours quinze fois un brouillon en Saver, et un garde-fou qui
+//      compte les deux pareil ne garde rien.
 //
 //   3. past_due keeps its allowance.
 //      The webhook deliberately does not take the plan away on a failed
@@ -32,6 +40,11 @@ export type Plan = 'free' | 'founder' | 'managed'
 
 // ---------------------------------------------------------------------------
 // What one task costs, in tasks.
+//
+// Historique · quand la formule Managed vendait encore 2 000 tâches par mois,
+// ce nombre était un chèque en blanc, et la pondération ci-dessous est ce qui l'a
+// refermé. Les tâches ne sont plus vendues, mais le raisonnement vaut toujours
+// pour le garde-fou, alors il reste écrit.
 //
 // "2,000 tasks a month" was a blank cheque. A task in Saver on a free provider
 // and a task in Max on the flagship differ by about fifty times in what they
@@ -126,19 +139,20 @@ const ENV = process.env as Record<string, string | undefined>
  * which is roughly four Balanced runs. Enough to see the product work, which is
  * what a free tier is for.
  *
- * FOUNDER's proposition is "your key, your bill" — with a key attached nothing
- * here applies at all. The daily allowance below is what a Founder gets on the
- * operator's free providers BEFORE they paste a key, and it is a courtesy, not
- * a product.
+ * FOUNDER is the plan the app now calls LIBRARY. It buys files, not runs, so
+ * with a key attached nothing here applies at all and without one the daily
+ * allowance below is a courtesy on the operator's free providers.
  *
- * It was 50 a day, which was a mistake: 1,500 tasks a month is three quarters of
- * what Managed includes, for 59% of the price, so the cheaper plan quietly
- * undercut the dearer one. 15 a day is enough that paying $29 and hitting the
- * free tier's wall never happens, and small enough that nobody buys Founder
- * INSTEAD of Managed.
+ * It was 50 a day, which was a mistake back when the dearer plan sold capacity:
+ * 1,500 tasks a month was three quarters of what Managed included, for a
+ * fraction of the price, so the cheaper plan quietly undercut the dearer one.
+ * 15 a day survives that fix and is simply a sane courtesy ceiling.
  *
- * MANAGED is the plan that genuinely buys capacity: 2,000 tasks a month, the
- * number printed on the card, held against the whole company.
+ * MANAGED is the plan the app now calls SCHOOL. It buys seats, so the monthly
+ * figure here is NOT a promise printed on a card any more · it is the ceiling
+ * that stops one organisation running away with the operator's free providers
+ * in live mode. Nothing on the pricing page quotes it, which is the point:
+ * a number a customer can read is a number a customer can be owed.
  */
 export const GRANTS: Record<Plan, Grant> = {
   free: {

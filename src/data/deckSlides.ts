@@ -1,7 +1,7 @@
 // Shared content for the investor pitch deck · used by both the on-screen deck
 // (PitchDeck.tsx) and the exported PDF (deckPdf.ts) so they never drift.
 
-import { FOUNDER_USD, MANAGED_USD, MANAGED_TASKS } from './plans'
+import { LIBRARY_USD, SEAT_USD, SEAT_MIN } from './plans'
 export const DECK_ACCENTS = {
   magenta: '#ff2d9b', blue: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', violet: '#a06bff',
 }
@@ -37,7 +37,10 @@ const A = DECK_ACCENTS
 export const DECK_SLIDES: DeckSlide[] = [
   { n: '', eyebrow: 'Investor deck', title: 'Learn to build AI agents, and to run them cheap.', line: 'A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where they go, and how to cut them. The course is free; the library of prompts, briefs and skills is the paid part.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['Free course, paid library', 'Frugality nobody else teaches', 'Sold as software, not tokens'] },
   { n: '01', eyebrow: 'The problem', title: 'Too many apps.', line: 'Running a business means juggling a dozen tools and never mastering any of them.', obj: 'briefcase', accent: A.orange, layout: 'object', points: ['A dozen SaaS tabs', 'Constant context-switching', 'Nothing mastered'] },
-  { n: '02', eyebrow: 'The solution', title: 'One 3D office.', line: 'AI agents each own a real function · product, growth, finance, ops · and act for you inside your apps.', obj: 'network', accent: A.blue, layout: 'dojo', points: ['An agent per function', 'Real actions, not chat', 'You stay the founder'] },
+  // 02 · « ils agissent pour vous dans vos applications » décrivait l'ancien
+  // produit et promettait à l'investisseur une chose que la 04 et la 05 ne
+  // vendent plus. Une salle où l'on s'entraîne, c'est ce que c'est.
+  { n: '02', eyebrow: 'The solution', title: 'A room to practise in.', line: 'A 3D dojo where twelve agents sleep, one per shape of problem. Wake one and it teaches you how it is built, how it fails, and how to write the one you need.', obj: 'network', accent: A.blue, layout: 'dojo', points: ['Twelve shapes of agent', 'Taken apart, not watched', 'Nothing runs for you'] },
   {
     n: '03', eyebrow: 'How it adapts', title: 'Fits your trade.', line: 'Pick your profession and the office tailors itself: the right crew, the right apps, wired and ready.', obj: 'network', accent: A.teal, layout: 'cards',
     cards: [
@@ -46,33 +49,62 @@ export const DECK_SLIDES: DeckSlide[] = [
       { label: 'Teacher', sub: 'Classroom · Drive · Calendar' },
     ],
   },
-  { n: '04', eyebrow: 'The product', title: 'Real work.', line: 'Agents act for real inside your apps · they open the PR, draft the email, raise the invoice.', obj: 'gear', accent: A.violet, layout: 'object', points: ['Opens the PR', 'Drafts the email', 'Raises the invoice'] },
+  // 04 · CE QUE FAIT LE PRODUIT. Cette planche disait « les agents agissent pour
+  // de vrai dans vos applications, ils ouvrent la pull request ». C'était vrai
+  // de l'ancien produit et ça contredit frontalement la planche suivante : on ne
+  // peut pas vendre une formation sur la 05 et promettre du travail exécuté sur
+  // la 04. Un investisseur qui lit les deux ne sait pas ce qu'il achète.
+  { n: '04', eyebrow: 'The product', title: 'You leave with a file.', line: 'Twelve shapes of agent, four steps each, and every step makes something. At the end it is yours: an instruction, tool schemas, a skill, owned by no provider.', obj: 'gear', accent: A.violet, layout: 'object', points: ['Pick the shape', 'Build it in four steps', 'Take the file away'] },
   {
-    n: '05', eyebrow: 'The model', title: 'We sell the software.', line: `Not the tokens. Founder brings their own model key at $${FOUNDER_USD} a month, their key, their bill, no meter between them and their own work. Managed is $${MANAGED_USD} for people who would rather not hold a key.`, obj: 'gem', accent: A.blue, layout: 'stats',
+    // 05 · LE MODÈLE. Il facturait des exécutions. Le coût marginal d'un élève
+    // est maintenant proche de zéro et plafonné par construction, donc compter
+    // les tâches faisait payer un coût que nous n'avons pas. On vend ce dont le
+    // stock grossit (les fichiers) et ce qui a un acheteur au ticket élevé (les
+    // sièges).
+    n: '05', eyebrow: 'The model', title: 'We sell the files and the seats.', line: `The course is free and costs nothing to serve, so it stays free, diploma included. $${LIBRARY_USD} a month buys the library, which grows every month. $${SEAT_USD} a seat buys a group, from ${SEAT_MIN} up. Nothing is metered, because nothing runs here.`, obj: 'gem', accent: A.blue, layout: 'stats',
     stats: [
-      { big: `$${FOUNDER_USD}`, label: 'Founder · your own key' },
-      { big: `$${MANAGED_USD}`, label: `Managed · ${MANAGED_TASKS.toLocaleString('en-US')} tasks` },
-      { big: '0 crypto', label: 'for the user' },
+      { big: '$0', label: 'The course, and the diploma' },
+      { big: `$${LIBRARY_USD}`, label: 'Library · every file, monthly' },
+      { big: `$${SEAT_USD}`, label: `School · a seat, ${SEAT_MIN} minimum` },
     ],
   },
   {
-    n: '06', eyebrow: 'The market', title: 'A huge market.', line: 'Every solo founder, freelancer and small team drowning in SaaS is a DojoBuro seat.', obj: 'eye', accent: A.magenta, layout: 'stats',
+    // 06 · LE MARCHÉ · il comptait les gens noyés sous leurs SaaS, ce qui était
+    // le marché du produit qui travaillait à leur place. Le marché d'un centre
+    // de formation, ce sont les gens qui doivent apprendre, et les employeurs
+    // qui doivent les former · c'est aussi ce qui justifie le plan School.
+    n: '06', eyebrow: 'The market', title: 'Everyone has to learn this.', line: 'Agents went from a curiosity to a line in the job description in about two years, and almost nobody was taught. The individual pays to learn; the employer pays to have a team taught.', obj: 'eye', accent: A.magenta, layout: 'stats',
     stats: [
-      { big: '400M+', label: 'SMBs & freelancers' },
-      { big: '$300B+', label: 'annual SaaS spend' },
-      { big: '1 seat', label: 'replaces a whole stack' },
+      { big: 'Every trade', label: 'now has an agent to write' },
+      { big: '2 buyers', label: 'the learner, and their employer' },
+      { big: `${SEAT_MIN} seats`, label: 'where a team becomes a School' },
     ],
   },
+  // 07 · POURQUOI LA MARGE EST STRUCTURELLE.
+  //
+  // Cette planche était une QUATRIÈME grille de prix, écrite en dur : « Pro
+  // 29 $/mois, Team 22 $/siège ». Trois chiffres qu'aucun fichier ne
+  // produisait, donc trois chiffres qui ne pouvaient que diverger de la 05, et
+  // qui divergeaient. C'est exactement la faute que data/plans.ts existe pour
+  // empêcher, commise dans le document qu'on montre aux investisseurs.
+  //
+  // Elle ne redit donc plus le prix : la 05 le fait, et une seule planche doit
+  // le faire. Elle dit ce que la 05 laisse sans réponse et ce dont la 08 a
+  // besoin pour tenir · d'où vient la marge.
   {
-    n: '07', eyebrow: 'The model', title: 'One SaaS seat.', line: 'You bring the model key, we run the hub · a whole automated team for less than a single SaaS seat.', obj: 'gem', accent: A.yellow, layout: 'cards',
-    cards: [
-      { label: 'Free', sub: 'Explore & build free' },
-      { label: 'Pro · $29/mo', sub: 'Full team, all apps' },
-      { label: 'Team · $22/seat', sub: 'Shared automation' },
+    n: '07', eyebrow: 'The cost', title: 'Nothing to serve.', line: 'The course is static pages, the library is files, the belts and the diploma live in the browser. The only variable cost is the support bot, and its paid fallback is capped per day for the whole instance, not per learner.', obj: 'coins', accent: A.yellow, layout: 'stats',
+    stats: [
+      { big: '~$0', label: 'marginal cost per learner' },
+      { big: 'Capped', label: 'support spend, instance-wide' },
+      { big: 'Nothing', label: 'runs on our account' },
     ],
   },
-  { n: '08', eyebrow: 'The forecast', title: 'Scale = margin.', line: 'Near-zero model cost and sublinear infra turn scale straight into margin.', obj: 'coins', accent: A.teal, layout: 'table', table: 'forecast' },
-  { n: '09', eyebrow: 'The business plan', title: 'Path to $3.9M.', line: 'Cash-flow positive from Year 2, on a path to $3.9M ARR by Year 5.', obj: 'gem', accent: A.blue, layout: 'table', table: 'plan' },
+  { n: '08', eyebrow: 'The forecast', title: 'Scale is margin.', line: 'Two sales at one cost: a learner who buys the library, and an employer who buys seats for a group. Neither one costs more to serve than the free reader beside them.', obj: 'coins', accent: A.teal, layout: 'table', table: 'forecast' },
+  // 09 · disait « rentable dès l'année 2, 3,9 M$ en année 5 ». Les deux chiffres
+  // venaient d'une conversion de 9 % à 240 $, hypothèses d'un outil quotidien.
+  // Un cours gratuit avec une bibliothèque payante ne convertit pas comme ça,
+  // donc l'équilibre recule d'un an et le sommet baisse. On le dit.
+  { n: '09', eyebrow: 'The business plan', title: 'Break-even in Year 3.', line: 'A free course converts like a course, not like a tool, so the third year is where it turns rather than the second. What it buys is a cost base that barely moves as the audience grows.', obj: 'gem', accent: A.blue, layout: 'table', table: 'plan' },
   { n: '10', eyebrow: 'Why now', title: 'The moment is now.', line: 'Agentic payments and MCP just made autonomous, tool-using AI teams finally possible.', obj: 'gear', accent: A.orange, layout: 'object', points: ['Instant agentic payments', 'MCP tool-use', 'Autonomous AI teams'] },
   { n: '11', eyebrow: 'The ask', title: 'Build it with us.', line: 'Join us in building the office where your AI team works while you watch.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['Join the build', 'Own the category', 'Ship the future of work'] },
 ]

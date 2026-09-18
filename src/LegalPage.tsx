@@ -42,7 +42,7 @@ export function Terms() {
       <p>DojoBuro never takes custody of your funds. Plans are card payments, processed by Stripe; we hold no balance on your behalf. There is no wallet, no seed and no token anywhere in the product.</p>
 
       <h2>3. Payments and fees</h2>
-      <p>You pay a monthly subscription for the software. On the Founder plan the AI model runs on your own Anthropic key and Anthropic bills you directly for that usage: those charges are between you and them, and we never see them. On the Managed plan the model usage is included in the price. You are responsible for any taxes arising from your use.</p>
+      <p>A paid plan is a monthly subscription to the library of files, or to a number of seats, and it includes no model usage of any kind: we do not sell, meter or resell runs, tasks, credits or tokens. If you run an agent you built here, you do so on your own provider account under your own agreement with that provider, they bill you directly, and we never see those charges. The School plan is billed per seat with a minimum number of seats, and seats may be added or removed for the following month. You are responsible for any taxes arising from your use.</p>
 
       <h2>4. Connected apps</h2>
       <p>When you connect a third-party app, you authorize DojoBuro (and its agents) to act inside it on your behalf via OAuth. Tokens are held encrypted server-side and can be revoked at any time by disconnecting the tool or from the provider's own settings. You are responsible for actions you instruct agents to perform in your connected accounts and for complying with each provider's terms.</p>

@@ -69,6 +69,11 @@ const CHECKS = [
   // d'appel ne s'y glisse. La tentation d'« ajouter juste un petit snippet »
   // est permanente et arrive toujours par une bonne intention.
   ['test-frameworks.mjs', 1, true],
+  // LA GRILLE DE PRIX · qu'un prix n'existe qu'à un seul endroit, et qu'aucun
+  // forfait ne se remette à vendre des exécutions. Les deux fautes sont déjà
+  // arrivées, aucune n'a fait rougir un typecheck, et les deux ont été trouvées
+  // en lisant · ce qui veut dire qu'elles auraient pu ne pas l'être.
+  ['test-pricing.mjs', 1, true],
   // LE JEU D'ICÔNES · qu'aucune ne redevienne un caractère. L'app les a
   // dessinées avec des caractères Unicode pendant des mois : ça s'affiche, mais
   // pas pareil chez tout le monde, et pas du tout sur certains téléphones. Un

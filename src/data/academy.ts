@@ -536,22 +536,23 @@ const LANDSCAPE: Lesson[] = [
       {
         kind: 'idea',
         title: 'You are paying for the teams, not for tokens',
-        body: 'That is the whole pricing model, and it is worth being blunt about it. What you buy from DojoBuro is the ready-made teams, their plans, the connectors and the orchestration. The model that writes the words is something you can bring yourself, and on the Founder plan you do, which is why nothing you run there is metered. The per-task figure applies only on Managed, where we are the ones paying the model.',
+        body: 'That is the whole pricing model, and it is worth being blunt about it. Nothing here is metered. We do not sell runs, tasks or credits, and no plan counts them, because nothing in the dojo calls a paid model. What you can buy is the library of files and, if you are training a group, the seats. The learning itself, including the diploma at the end, is free and stays free, because a page costs us nothing to serve and a course nobody finishes is worth nothing to anyone.',
       },
       {
         kind: 'idea',
         title: 'The three plans',
-        body: 'Free is $0: the whole catalogue, one company, and a daily allowance on free and open models. Founder is $29 a month and is the one most people want, you add your own Claude key, run as much as you like, and Anthropic bills you directly for exactly what you used. Managed is $49 a month for people who would rather not hold a key at all; it includes 2,000 tasks, and a task is one teammate doing one step, so a four-step team is four of them. Tasks are counted by size: a Saver step draws half of one, a Max step on the strongest model draws several. Working the ordinary way, 2,000 means 2,000.',
+        body: 'Free is $0 and it is the whole thing: the three courses, the practice dojo, every belt and badge, and the certified diploma. Library is $19 a month and buys the files, every prompt, brief and skill as a real download rather than a copy-paste, plus the new ones as they are written. School is $15 a seat a month from five seats up, so $75 a month and up, for someone training a group: one bill, and a view of who has earned what. Under five people the Library plan costs you less and you should take that one.',
       },
       {
         kind: 'idea',
         title: 'What costs nothing at all',
         body: 'A lot more than people expect.',
         points: [
-          'Browsing, naming a project and reading every team card.',
-          'Connecting an app, and keeping it connected.',
-          'This entire Academy.',
-          'Every task on the Founder plan: the work runs on your own key, and we never meter it.',
+          'All three courses, every lesson, start to finish.',
+          'Every belt, every badge, and the certified diploma at the end.',
+          'The practice dojo, and the cost breakdown of anything you run in it.',
+          'The reasoning behind every library file, and two of the files themselves.',
+          'Anything you take away and run on your own key: your provider bills you, we never meter it.',
         ],
       },
       {
@@ -562,7 +563,7 @@ const LANDSCAPE: Lesson[] = [
       {
         kind: 'do',
         title: 'Set a limit before you need one',
-        body: 'Dojo settings has a daily limit and per-teammate budgets. Set them on day one, they matter most on Founder, where the bill lands on your own Anthropic account rather than on an allowance that simply stops.',
+        body: 'Dojo settings has a daily limit and per-teammate budgets. Set them on day one. They cost you nothing here, where nothing runs, and they are the habit that matters the day you take an agent out and the bill lands on your own provider account rather than on an allowance that simply stops.',
       },
       {
         kind: 'idea',

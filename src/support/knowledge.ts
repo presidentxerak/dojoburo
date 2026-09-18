@@ -11,6 +11,11 @@ import { USE_CASE_COUNT } from '../data/agentUseCases'
 import { COURSE_COUNT } from '../data/positioning'
 import { FRAMEWORK_COUNT } from '../data/frameworks'
 import { GRADES } from '../dojo/grades'
+// LES PRIX · quatre réponses de cette base les recopiaient à la main, ce qui en
+// faisait une cinquième grille de prix capable de contredire les quatre autres.
+// Elle l'a fait : elle vendait encore Founder à 29 $ et 2 000 tâches longtemps
+// après que le produit ait cessé d'exécuter quoi que ce soit.
+import { LIBRARY_USD, SEAT_USD, SEAT_MIN, SCHOOL_FLOOR_USD } from '../data/plans'
 
 const GRADE_COUNT = GRADES.length
 
@@ -164,7 +169,7 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'What a team costs',
     answer:
-      'Every dojo team card shows its size before you pick it. A team\'s plan is a fixed list of steps and one step is one task, so a 4-step team is 4 tasks for a full run. Cards are marked Light (up to 3 tasks), Medium (up to 5) or Heavy above that, and the bar at the bottom of the chooser adds up everything you have ticked. What that costs depends only on your plan: on Founder ($29/month) the work runs on your own Claude key, unlimited runs, nothing metered here, Anthropic bills you directly. On Managed ($49/month) it draws on the 2,000 tasks included. Connecting an app is free on every plan, and the apps you connect are billed by them, not by us.',
+      'Every dojo team card shows its size before you pick it. A team\'s plan is a fixed list of steps and one step is one task, so a 4-step team is 4 tasks for a full run. Cards are marked Light (up to 3 tasks), Medium (up to 5) or Heavy above that, and the bar at the bottom of the chooser adds up everything you have ticked. It costs you nothing here: nothing in the dojo calls a paid model, so no plan draws on anything. The dollar figure beside a card is what those tasks would cost at the model\'s published rate the day you run them yourself, on your own key, which is the number worth learning to read.',
     links: [
       { label: 'Pick a team', href: '#app' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -201,7 +206,7 @@ export const KB: KBTopic[] = [
     id: 'wallet',
     chip: 'Credits & profile',
     answer:
-      'There is no wallet and no crypto to manage. Your profile is your account, your plan and your preferences (theme, notifications). Plans are paid by card in your own currency (USD, EUR, JPY…): Free, Founder at $29 a month where your own Claude key runs the work, or Managed at $49 with 2,000 tasks included. You never see a wallet, a seed or any coin.',
+      `There is no wallet and no crypto to manage. Your profile is your account, your plan and your preferences (theme, notifications). Plans are paid by card in your own currency (USD, EUR, JPY…): Free, Library at $${LIBRARY_USD} a month for every file, or School at $${SEAT_USD} a seat a month from ${SEAT_MIN} seats up. You never see a wallet, a seed or any coin.`,
     links: [
       { label: 'Profile & plan', href: '#profile' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -214,7 +219,7 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'What a plan costs',
     answer:
-      'It depends on one thing only: who pays for the model. On Founder ($29/month) that is you, your own Claude key runs the work, Anthropic bills you directly for what you used, and we never meter it. On Managed ($49/month) it is us, and the month includes 2,000 tasks. On Free it is us too, on free and open models, with a daily allowance. A task is one teammate doing one step. Your CEO dashboard shows live totals and you can set a daily limit.',
+      `Nothing you do here costs you anything per run, because nothing here calls a paid model. No plan counts tasks, credits or tokens. What a plan buys is the library of files at $${LIBRARY_USD} a month, or seats at $${SEAT_USD} each from ${SEAT_MIN} up if you are training a group. The cost that does exist starts the day you take an agent out of the dojo and run it: then it is your own provider key and your own bill, which is exactly what the frugality course teaches you to keep small.`,
     links: [
       { label: 'Cost breakdown', href: '#cost' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -227,7 +232,7 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'Plans & pricing',
     answer:
-      'You are paying for the software, not for tokens: the ready-made teams, their plans, the app connectors and the orchestration. Three plans. Free ($0): the whole catalogue, one company, and a daily allowance on free and open models. Founder ($29/month) is the one most people want, you add your own Claude key, run as much as you like, and Anthropic bills you directly for exactly what you used; nothing on our side is metered. Managed ($49/month) is for people who would rather not hold a key at all, and includes 2,000 tasks a month. Business is custom: self-hosted, SSO, SLA. Paid by card in your own currency · no crypto.',
+      `Nothing is metered, and that is the first thing to know: we sell no runs, tasks, credits or tokens. Three plans. Free ($0) is the whole thing to learn with: all ${COURSE_COUNT} courses, the practice dojo, every belt and badge, and the certified diploma at the end. Library ($${LIBRARY_USD}/month) buys the files, every prompt, brief and skill as a real download, plus the new ones as they are written, plus a custom domain and no DojoBuro badge. School ($${SEAT_USD} a seat a month, ${SEAT_MIN} seats minimum, so $${SCHOOL_FLOOR_USD}/month and up) is for training a group under one bill, with a view of who has earned what. Under ${SEAT_MIN} people, Library costs you less and you should take it. Business is custom: self-hosted, SSO, SLA. Paid by card in your own currency · no crypto.`,
     links: [
       { label: 'See the plans', href: '#pricing' },
       { label: 'Cost per task', href: '#cost' },
@@ -364,7 +369,7 @@ export const KB: KBTopic[] = [
     id: 'networks',
     chip: 'Explore free vs go live',
     answer:
-      'Start on the free tier · take the courses, meet the crew and try the sandbox on free and open models, at no cost. When you are ready to go live, add your own Claude key on Founder and the same crew runs the real work on the model you choose. Same office, same agents · you just switch from exploring to running. No crypto at any point.',
+      'Start on the free tier · take the courses, meet the crew and take the worked examples apart in the sandbox, at no cost, and finish with the diploma. When you are ready to go live, you leave with a file rather than a subscription: the instruction and the tool schemas you built, which you point at a framework and run on your own provider key, on the model you choose. We never sit between you and that bill. No crypto at any point.',
     links: [
       { label: 'Open the app', href: '#app' },
       { label: 'Plans & pricing', href: '#pricing' },

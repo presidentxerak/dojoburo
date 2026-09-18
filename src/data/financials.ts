@@ -1,34 +1,83 @@
 // Investor financials for the pitch deck. One source of truth for the on-screen
-// tables and the exported PDF. Model: blended paying ARPU ~$240/yr, ~9% of
-// users convert to paid, model cost near-zero (BYOK / free cascade), costs
-// scale sublinearly with users. Figures are illustrative projections.
+// tables and the exported PDF.
+//
+// ---------------------------------------------------------------------------
+// POURQUOI CES CHIFFRES ONT TOUS CHANGÉ
+//
+// Le modèle précédent posait 9 % de conversion à 240 $ par an, et en face une
+// ligne « Infra + model cost » qui montait à 860 k$ pour 100 000 utilisateurs.
+// Ces deux hypothèses appartenaient au produit qui faisait tourner du travail :
+//
+//   1. LE COÛT N'EXISTE PLUS. 860 k$ de modèles suppose qu'on exécute des runs.
+//      Le dojo n'en exécute aucun, le repli payant de Dojobot est plafonné pour
+//      toute l'instance, et la formation comme la bibliothèque sont des fichiers
+//      statiques. Le coût marginal d'un apprenant est proche de zéro, et surtout
+//      il ne suit pas la courbe des utilisateurs. Porter ce coût au bilan, c'est
+//      se rendre le business plus dur qu'il n'est.
+//
+//   2. LA CONVERSION ÉTAIT CELLE D'UN OUTIL, PAS D'UN COURS. 9 % est un taux de
+//      produit dont on a besoin tous les jours pour travailler. Un cours gratuit
+//      avec une bibliothèque payante convertit autour de 2 à 5 %. On pose 3 %, et
+//      la ligne est nommée pour qu'on la discute au lieu de la subir.
+//
+// CE QUE ÇA COÛTE DE DIRE LA VÉRITÉ : avec 3 % à 228 $ au lieu de 9 % à 240 $, le
+// revenu par apprenant est divisé par trois, et l'équilibre passe de l'année 2 à
+// l'année 3. On l'écrit tel quel plutôt que de remonter la conversion jusqu'à ce
+// que le tableau redevienne joli.
+//
+// CE QUI RATTRAPE : les sièges. Un particulier vaut 228 $ par an, une école de
+// douze sièges en vaut 2 160 $, et c'est le même produit servi au même coût. Les
+// deux lignes sont donc séparées dans le tableau, parce que ce sont deux ventes
+// différentes, à deux acheteurs différents, et les agréger en un seul ARPU
+// cachait exactement ce qui fait la différence.
+//
+// Les chiffres restent des projections. Ce sont des hypothèses nommées, pas des
+// mesures : rien ici n'est encore vendu.
+import { LIBRARY_USD, SEAT_USD } from './plans'
 
 export const CONTACT_EMAIL = ''
 
-/** Unit economics by scale · how the business looks at each user tier (steady state, per year). */
+/** Hypothèses, écrites une fois. Le tableau ci-dessous en découle et la note du
+ *  tableau les répète à l'écran, pour qu'un lecteur voie ce qu'il doit croire. */
+export const LIBRARY_YEAR_USD = LIBRARY_USD * 12
+export const SEAT_YEAR_USD = SEAT_USD * 12
+export const AVG_SCHOOL_SEATS = 12
+export const SCHOOL_YEAR_USD = SEAT_YEAR_USD * AVG_SCHOOL_SEATS
+export const CONVERSION_PCT = 3
+
+/** Unit economics by scale · how the business looks at each size (steady state, per year). */
 export const FORECAST = {
   title: 'Unit economics by scale',
-  note: 'Blended paying ARPU ~$240/yr · ~9% convert to paid · model cost is near-zero because users bring their own key or run the free cascade.',
-  head: ['Per year', '100 users', '1,000 users', '10,000 users', '100,000+ users'],
+  note:
+    `Two sales, not one: ${CONVERSION_PCT}% of learners take the library at $${LIBRARY_YEAR_USD} a year, ` +
+    `and a school of about ${AVG_SCHOOL_SEATS} seats is worth $${SCHOOL_YEAR_USD.toLocaleString('en-US')}. ` +
+    'Cost is near-zero per learner and does not follow the curve, because nothing runs on our account.',
+  head: ['Per year', '1,000 learners', '10,000', '50,000', '150,000'],
   rows: [
-    ['Paying users (~9%)', '9', '90', '900', '9,000'],
-    ['Revenue (ARR)', '$2.2k', '$21.6k', '$216k', '$2.16M'],
-    ['Infra + model cost', '$8k', '$18k', '$120k', '$0.86M'],
-    ['Gross margin', 'seed', '+17%', '+44%', '+60%'],
-    ['Net / year', '-$5.8k', '+$3.6k', '+$96k', '+$1.3M'],
+    [`Library subscribers (${CONVERSION_PCT}%)`, '30', '300', '1,500', '4,500'],
+    ['Library revenue', '$6.8k', '$68k', '$342k', '$1.03M'],
+    [`Schools (~${AVG_SCHOOL_SEATS} seats)`, '2', '20', '90', '260'],
+    ['School revenue', '$4.3k', '$43k', '$194k', '$562k'],
+    ['Revenue (ARR)', '$11k', '$112k', '$536k', '$1.59M'],
+    ['Infra + support', '$3k', '$14k', '$45k', '$110k'],
+    ['Gross margin', '+73%', '+87%', '+92%', '+93%'],
   ],
 }
 
 /** 5-year business plan · the growth trajectory and P&L. */
 export const BUSINESS_PLAN = {
   title: '5-year business plan',
-  note: 'Bottom-up: users grow 1k → 180k, ~9% paying at $240/yr, costs scale sublinearly. Cash-flow positive from Year 2.',
+  note:
+    `Bottom-up: 1k to 150k learners, ${CONVERSION_PCT}% on the library, schools sold alongside. ` +
+    'Break-even is Year 3, a year later than the previous plan, because the course is free and the ' +
+    'library is priced as a course rather than as a tool.',
   head: ['Metric', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
   rows: [
-    ['Users (end of year)', '1,000', '8,000', '30,000', '80,000', '180,000'],
-    ['Paying users', '90', '720', '2,700', '7,200', '16,200'],
-    ['Revenue (ARR)', '$22k', '$173k', '$648k', '$1.73M', '$3.89M'],
-    ['Total costs', '$80k', '$160k', '$360k', '$760k', '$1.5M'],
-    ['Net result', '-$58k', '+$13k', '+$288k', '+$0.97M', '+$2.39M'],
+    ['Learners (end of year)', '1,000', '10,000', '50,000', '100,000', '150,000'],
+    ['Library subscribers', '30', '300', '1,500', '3,000', '4,500'],
+    ['Schools', '2', '20', '90', '180', '260'],
+    ['Revenue (ARR)', '$11k', '$112k', '$536k', '$1.07M', '$1.59M'],
+    ['Total costs', '$60k', '$120k', '$300k', '$600k', '$900k'],
+    ['Net result', '-$49k', '-$8k', '+$236k', '+$470k', '+$690k'],
   ],
 }

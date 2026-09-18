@@ -1913,6 +1913,10 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .lp-plan-name { font-family: var(--font-pixel); font-weight: 800; font-size: 16px; }
 .lp-plan-price { font-family: var(--font-pixel); font-weight: 900; font-size: 16px; margin: 6px 0 2px; line-height: 1; }
 .lp-plan-price small { font-family: var(--font-ui); font-weight: 600; font-size: 16px; color: var(--muted); }
+/* LE PLANCHER D'UN PLAN AU SIÈGE · « from $75 a month » sous le prix unitaire.
+   Assez discret pour ne pas concurrencer le grand chiffre, assez lisible pour
+   qu'on ne puisse pas acheter cinq sièges sans l'avoir vu. */
+.lp-plan-floor { font-family: var(--font-ui); font-weight: 700; font-size: 13px; letter-spacing: .01em; color: var(--ink); margin: 0 0 2px; }
 .lp-plan-sub { font-size: 16px; color: var(--muted); line-height: 1.45; margin-bottom: 10px; min-height: 40px; }
 .lp-plan ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .lp-plan li { font-size: 16px; line-height: 1.4; padding-left: 22px; position: relative; color: var(--ink); }
