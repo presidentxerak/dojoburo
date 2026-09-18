@@ -8546,6 +8546,82 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   letter-spacing: 0.09em; opacity: 0.6;
 }
 
+/* ==================================================================
+   LE PROFIL D'APPRENTISSAGE · voir dojo/LearningPanel
+   ==================================================================
+   Il n'existait pas. Le menu du compte proposait « My companies » et « Your
+   company », c'est a dire l'ancien produit, et rien ne repondait a la seule
+   question qu'on se pose en rouvrant une app de cours : ou j'en suis. */
+.lrn { max-width: 820px; margin: 0 auto; padding: 8px 0 30px; text-align: left; }
+/* LA SUITE en premier, et en aplat · c'est la seule chose actionnable de la
+   page. Un tableau de bord qui commence par un bilan demande de lire avant de
+   pouvoir agir, et la plupart des gens referment avant. */
+.lrn-next { border: 1px solid var(--ink); padding: 24px 26px; background: var(--panel-2); }
+.lrn-k { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; opacity: 0.6; }
+.lrn-next h3 { font-size: 26px; margin: 8px 0 6px; line-height: 1.15; }
+.lrn-next p { font-size: 15.5px; margin: 0; }
+.lrn-go {
+  display: inline-flex; align-items: center; gap: 9px; margin-top: 16px;
+  font-size: 15px; font-weight: 800; text-decoration: none;
+  background: var(--ink); color: var(--bg); border: 1px solid var(--ink); padding: 11px 18px;
+  transition: background .14s ease, border-color .14s ease;
+}
+.lrn-go:hover { background: var(--violet); border-color: var(--violet); text-decoration: none; }
+.lrn-says {
+  margin: 18px 0 0; padding-left: 15px; border-left: 3px solid var(--violet);
+  font-size: 15px; line-height: 1.6;
+}
+.lrn-says b { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.09em; opacity: 0.6; }
+.lrn-sec { margin-top: 30px; }
+.lrn-sec h4 {
+  font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.09em; font-weight: 800;
+  opacity: 0.6; margin: 0 0 12px;
+}
+.lrn-belt { display: flex; gap: 15px; align-items: flex-start; border: 1px solid var(--border); padding: 17px 19px; }
+.lrn-belt-r { flex: none; width: 48px; height: 15px; background: var(--bt); border: 1px solid rgba(0,0,0,0.2); margin-top: 4px; }
+.lrn-belt b { display: block; font-family: var(--font-pixel); font-weight: 900; font-size: 18px; }
+.lrn-belt span { display: block; font-size: 15px; line-height: 1.55; margin-top: 3px; }
+.lrn-belt em { display: block; font-style: normal; font-size: 14px; font-weight: 700; color: var(--violet); margin-top: 8px; }
+.lrn-courses { display: grid; gap: 10px; }
+.lrn-course {
+  display: block; border: 1px solid var(--border); padding: 14px 16px; color: var(--ink);
+  text-decoration: none; transition: border-color .14s ease;
+}
+.lrn-course:hover { border-color: var(--ink); text-decoration: none; }
+.lrn-course-h { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+.lrn-course-h b { font-family: var(--font-pixel); font-weight: 900; font-size: 15px; }
+.lrn-course-h i { margin-left: auto; font-style: normal; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.lrn-bar { display: block; height: 8px; background: var(--border); overflow: hidden; }
+.lrn-bar i { display: block; height: 100%; background: var(--ink); }
+.lrn-earned { display: grid; gap: 9px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.lrn-e {
+  display: grid; grid-template-columns: auto 1fr; gap: 3px 9px; align-items: start;
+  border: 1px solid var(--border); padding: 12px 13px;
+}
+.lrn-e .bh-icon { grid-row: span 2; margin-top: 2px; color: var(--violet); }
+.lrn-e b { font-family: var(--font-pixel); font-weight: 900; font-size: 14px; }
+.lrn-e span { font-size: 13px; line-height: 1.5; }
+.lrn-e-belt { border-left: 3px solid var(--violet); }
+.lrn-e-diploma { border-color: var(--ink); }
+.lrn-empty, .lrn-togo { font-size: 15px; line-height: 1.6; }
+.lrn-togo { margin-top: 14px; padding-left: 15px; border-left: 3px solid var(--border); }
+.lrn-small { font-size: 13px; line-height: 1.6; margin-top: 26px; opacity: 0.6; }
+
+/* LE CENTRE DE NOTIFICATIONS · la suite, en aplat cliquable. */
+.notifc-next {
+  display: flex; gap: 12px; align-items: flex-start; padding: 15px 17px;
+  border: 1px solid var(--ink); background: var(--panel-2); color: var(--ink); text-decoration: none;
+  transition: background .14s ease;
+}
+.notifc-next:hover { background: var(--paper); text-decoration: none; }
+.notif-kind {
+  margin-left: auto; font-style: normal; font-size: 10.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.5;
+}
+/* Le libellé du menu qui porte une valeur · la ceinture, ou 3/12. */
+.tb-menu-val.sm { font-size: 12px; opacity: 0.6; }
+.tb-menu-strong { font-weight: 800; }
+
 .lp-courses {
   display: grid; gap: 14px; max-width: 1040px; margin: 24px auto 0;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

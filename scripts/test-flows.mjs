@@ -57,6 +57,31 @@ function walk(dir, out = []) {
 const FILES = walk('src')
 const read = (f) => readFileSync(f, 'utf8')
 
+/** Un fichier SANS SES COMMENTAIRES.
+ *
+ *  Les règles « cette phrase ne doit plus apparaître » ont besoin de ça, et
+ *  les premières ne l'avaient pas : elles ont échoué sur MES PROPRES
+ *  commentaires, ceux qui expliquent ce que le menu disait avant de changer.
+ *  Une garde qui interdit de documenter ce qu'on vient de corriger pousse à
+ *  effacer l'explication, ce qui est exactement le contraire du but. */
+function speech(src) {
+  const out = []
+  let block = false
+  for (const line of src.split('\n')) {
+    const t = line.trim()
+    // `{/*` OUVRE un bloc, comme `/*` · il était traité comme une ligne
+    // isolée, donc un commentaire JSX sur cinq lignes laissait passer les
+    // quatre suivantes. C'est ce qui a fait échouer les deux premières règles
+    // du menu sur le commentaire qui explique justement leur correction.
+    if (t.startsWith('/*') || t.startsWith('{/*')) block = true
+    if (block) { if (t.includes('*/')) block = false; continue }
+    if (t.startsWith('//') || t.startsWith('*')) continue
+    out.push(line)
+  }
+  return out.join('\n')
+}
+const readCode = (f) => speech(read(f))
+
 /* --- 1 · toute adresse écrite mène quelque part --------------------------- */
 
 // Les routes que main.tsx sait servir · lues dans le routeur, jamais recopiées.
@@ -187,7 +212,66 @@ ok('…sans attraper une phrase de calcul',
   !WORDS.test('twenty turns is not twenty times the price of one') &&
   !BARE.test('turn twenty carries turns one to nineteen with it'))
 
-/* --- 6 · les listes que les pages parcourent ne sont pas vides ------------ */
+/* --- 6 · les surfaces du compte parlent du PRODUIT ACTUEL ---------------- */
+
+// LE MENU EST LA SURFACE LA PLUS OUVERTE DE L'APP, et c'est celle qui avait le
+// moins bougé : « My companies », « Your company », « How hard your team
+// works ». L'ancien produit mot pour mot, six mois après le repositionnement,
+// parce qu'un menu ne se relit jamais et qu'aucune garde ne le regardait.
+const menu = readCode('src/components/TopBar.tsx')
+const STALE_MENU = [
+  [/My companies/, 'on ne fabrique plus d\'entreprise'],
+  [/Your company/, 'la même chose'],
+  [/How hard your team works/, 'il n\'y a plus d\'équipe qui travaille pour vous'],
+]
+for (const [re, why] of STALE_MENU) ok(`le menu ne dit plus « ${re.source} » · ${why}`, !re.test(menu))
+// …et il mène AU PRODUIT : les trois cours viennent des piliers, donc ils ne
+// peuvent pas diverger de l'en-tête du site.
+ok('le menu lit les trois cours', /COURSES/.test(menu))
+ok('le menu ouvre le profil d\'apprentissage', /openStudio\('learning'\)/.test(menu))
+
+// LE PROFIL D'APPRENTISSAGE · il n'existait pas. Rien ne répondait à la seule
+// question qu'on se pose en rouvrant une application de cours.
+const lrn = read('src/dojo/LearningPanel.tsx')
+ok('le profil existe', lrn.length > 500)
+ok('…et il dit quoi faire ensuite', /nextStep/.test(lrn))
+ok('…avant de faire le bilan', lrn.indexOf('nextStep') < lrn.indexOf('What you have earned'))
+
+// LE CENTRE DE NOTIFICATIONS annonçait « Building your company » et « Agent
+// working », un produit qui n'existe plus : le bac à sable rend sa réponse
+// instantanément. Ouvert un jour normal, il montrait deux listes vides sous
+// deux titres qui promettaient du travail en cours.
+const notif = readCode('src/components/NotificationBell.tsx')
+ok('les notifications ne promettent plus de bâtir une entreprise', !/Building your company/.test(notif))
+ok('…et elles portent la progression', /readLearning/.test(notif))
+
+/* --- 7 · le robot connaît le produit qu'il décrit ------------------------ */
+
+// Il savait parler de l'académie, de la bibliothèque et des jetons, mais pas
+// de la PORTE D'ENTRÉE : quelqu'un qui demandait « comment je crée un agent ? »
+// tombait sur la cascade LLM ou sur rien.
+const kb = read('src/support/knowledge.ts')
+for (const id of ['build', 'certification']) {
+  ok(`le robot a un sujet « ${id} »`, new RegExp(`id: '${id}'`).test(kb))
+}
+// Ses chiffres viennent des données · un effectif écrit dans une réponse de
+// robot se périme en silence, et personne ne relit un fichier de mille lignes.
+ok('…et ses chiffres sont dérivés', /USE_CASE_COUNT/.test(kb) && /COURSE_COUNT/.test(kb))
+// Le prompt serveur aussi · il vit dans son propre paquet et ne peut rien
+// importer, donc c'est check-content qui le compare aux vraies données.
+const chat = readFileSync('api/chat.ts', 'utf8')
+ok('le prompt du robot décrit un centre de formation', /TRAINING CENTRE/i.test(chat))
+// LA PREMIÈRE VERSION DE CETTE RÈGLE ÉTAIT FAUSSE. Elle interdisait « run a
+// company for people », qui apparaît dans la phrase « DojoBuro USED TO run a
+// company for people… It does not any more » : une mise au point explicite, et
+// l'une des plus utiles du prompt. Une garde qui fait supprimer un démenti
+// laisse le malentendu qu'il corrigeait.
+//
+// Ce qu'il faut vérifier est le DÉMENTI, pas l'absence du mot.
+ok('…et il dément explicitement l\'ancien produit', /It does not any more/.test(chat))
+ok('…et ne promet pas de faire le travail', /it does not do the work for you/i.test(chat))
+
+/* --- 8 · les listes que les pages parcourent ne sont pas vides ------------ */
 
 // Une page qui itère sur une liste vide s'affiche : elle est simplement nue,
 // et c'est le genre de page qu'on découvre en production.

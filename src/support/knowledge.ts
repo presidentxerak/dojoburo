@@ -5,6 +5,13 @@
 import { CONNECTORS, type Connector } from '../data/connectors'
 // Counts and rosters come from the data the app runs on · see data/facts.
 import { CREW_WORD, CREW_LIST, ACADEMY_LESSONS, ACADEMY_TRACKS, ACADEMY_HOURS, LIB_COUNT, LIB_FREE } from '../data/facts'
+// Le centre de formation · ses chiffres viennent des données, jamais d'une
+// phrase écrite à la main dans une réponse de robot.
+import { USE_CASE_COUNT } from '../data/agentUseCases'
+import { COURSE_COUNT } from '../data/positioning'
+import { GRADES } from '../dojo/grades'
+
+const GRADE_COUNT = GRADES.length
 
 export interface KBLink {
   label: string
@@ -25,6 +32,42 @@ export interface KBTopic {
 }
 
 export const KB: KBTopic[] = [
+  {
+    // LE COURS PRINCIPAL · il n'avait AUCUN sujet. Le robot savait parler de
+    // l'académie, de la bibliothèque et des jetons, mais pas de la porte
+    // d'entrée du produit : quelqu'un qui demandait « comment je crée un
+    // agent ? » tombait sur la cascade LLM ou sur rien.
+    id: 'build',
+    chip: 'Build an agent',
+    answer:
+      `Building an agent is the first of the ${COURSE_COUNT} courses, and it is where to start. You walk into the dojo at /build and ${USE_CASE_COUNT} agents are asleep around the room, one per SHAPE of problem: a researcher, a writer, a responder, an engineer, an analyst, a sorter, an extractor, a watcher, a planner, an operator, a campaigner, a conductor. They are asleep because none of them exists yet. You click the one whose problem you actually have, it wakes up, and its page opens full screen with the whole course for it. ` +
+      'Each one is taught separately because each one FAILS differently: a research agent invents sources, a sorting agent confuses two neighbouring categories, an extractor returns a plausible value for a field that was simply missing. A general "write a good prompt" course prepares you for none of them. ' +
+      'Every path is four steps, and each step MAKES something that did not exist before: a rule, an instruction, a test set. The page explains, for each step, why it exists, the concrete moves, and the same thing written badly next to the same thing written well. At the end you take the agent away as a file in five formats (system prompt, markdown brief, tool schemas, skill folder, neutral manifest), none of which belongs to a provider.',
+    links: [
+      { label: 'Walk into the dojo', href: '/build' },
+      { label: 'How the certification works', href: '/build#certification' },
+    ],
+    follow: ['certification', 'academy', 'tokens'],
+    keywords: ['build', 'build an agent', 'create an agent', 'créer un agent', 'make an agent', 'first agent', 'use case', "cas d'usage", 'dojo', 'twelve agents', '12 agents', 'agent shapes', 'which agent', 'researcher', 'extractor', 'triage', 'sorter', 'export agent', 'framework'],
+  },
+  {
+    // LA CERTIFICATION · le produit distribuait des badges, des ceintures et
+    // des diplômes sans avoir jamais dit comment ils s'obtiennent.
+    id: 'certification',
+    chip: 'Badges and belts',
+    answer:
+      `Steps make badges, badges and finished agents move your belt, and the ${COURSE_COUNT} courses together make the diploma. The rules are the same for everyone and nothing is given for showing up. ` +
+      'A STEP is ticked when you have MADE the thing it produces, not when you have read about it. Nothing checks up on you, and that is the point: a progress bar you can cheat tells you nothing. ' +
+      'A BADGE is never given for a step. It is given for a path taken end to end, which means you have one shape of problem you can actually handle. ' +
+      `A BELT counts FINISHED agents, never steps: starting four paths and finishing none moves nothing at all. There are ${GRADE_COUNT} of them, from white to black, and the black one asks for all ${USE_CASE_COUNT}. ` +
+      'The DIPLOMA asks for all three courses in full. It reads "certified DojoBuro", which means certified by us and by nobody else: it is not an industry qualification, no employer has heard of it, and we would rather say that here than let you find out later. Everything is kept in your browser, nobody sells it and nobody verifies it.',
+    links: [
+      { label: 'See how it works', href: '/build#certification' },
+      { label: 'Your progress', href: '/build' },
+    ],
+    follow: ['build', 'academy'],
+    keywords: ['badge', 'badges', 'belt', 'belts', 'ceinture', 'grade', 'diploma', 'diplôme', 'certification', 'certified', 'certifié', 'progress', 'progression', 'reward', 'récompense', 'level', 'niveau'],
+  },
   {
     id: 'academy',
     chip: 'Dojo Academy',
@@ -65,7 +108,7 @@ export const KB: KBTopic[] = [
     id: 'studios',
     chip: 'The studios',
     answer:
-      `Your office ships with ${CREW_WORD} AI teammates, each opening its own workspace when you click it: ${CREW_LIST.map((r) => `${r.name} (${r.title})`).join(', ')}. You can hide the ones you don't need and create your OWN custom agents too. The brand you choose in Brandi flows into every studio, so the whole team shares one company name, domain and look. Editing and export run on your own machine · video, image compression and exports never leave it. The documents your company produces are also kept for your organisation, so a colleague sees the same work. The AI creates a first version and you keep full control. And front-and-centre in your 3D office stands the team panda · a mascot who cheers the crew on and breaks into a dance every time a task is completed (tap him to make him celebrate on cue).`,
+      `The practice dojo is populated by ${CREW_WORD} characters, each opening its own workspace when you click it: ${CREW_LIST.map((r) => `${r.name} (${r.title})`).join(', ')}. You can hide the ones you don't need and create your OWN custom agents too. The brand you choose in Brandi flows into every studio, so the whole team shares one company name, domain and look. Editing and export run on your own machine · video, image compression and exports never leave it. The documents your company produces are also kept for your organisation, so a colleague sees the same work. The AI creates a first version and you keep full control. And front-and-centre in your 3D office stands the team panda · a mascot who cheers the crew on and breaks into a dance every time a task is completed (tap him to make him celebrate on cue).`,
     links: [
       { label: 'See the studios', href: '#studios' },
       { label: 'Open my office', href: '#app' },
@@ -91,7 +134,7 @@ export const KB: KBTopic[] = [
     walk: 'teams',
     chip: 'Dojo team cards',
     answer:
-      'A dojo team card is a whole team, ready made. Each card names every teammate inside it and how many there are (a researcher, a maker, an analyst, a team lead…), the apps they work in, how many steps their plan has, and how many tasks one full run takes, marked Light, Medium or Heavy. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tick as many as you need, the bar at the bottom adds up the teams, the teammates, the tasks and the app connections as you go. Each one becomes a dojo inside your company: a 3D office where you can rename teammates, add or remove them, change the apps they use, rewrite how any one of them works, and run the whole plan in one go. Nothing is locked and nothing needs configuring first.',
+      'A dojo team card is a worked example of a whole team, ready made. Each card names every teammate inside it and how many there are (a researcher, a maker, an analyst, a team lead…), the apps they work in, how many steps their plan has, and how many tasks one full run takes, marked Light, Medium or Heavy. They are grouped by speciality: Marketing, Product, Content, Creative, Business and Operations. Tick as many as you need, the bar at the bottom adds up the teams, the teammates, the tasks and the app connections as you go. Each one becomes a dojo inside your company: a 3D office where you can rename teammates, add or remove them, change the apps they use, rewrite how any one of them works, and run the whole plan in one go. Nothing is locked and nothing needs configuring first.',
     links: [
       { label: 'Pick a team', href: '#app' },
       { label: 'Shape your team', href: '/guide#team' },
@@ -304,7 +347,7 @@ export const KB: KBTopic[] = [
     id: 'networks',
     chip: 'Explore free vs go live',
     answer:
-      'Start on the free tier · build your company, meet the crew and run on free and open models, at no cost. When you are ready to go live, add your own Claude key on Founder and the same crew runs the real work on the model you choose. Same office, same agents · you just switch from exploring to running. No crypto at any point.',
+      'Start on the free tier · take the courses, meet the crew and try the sandbox on free and open models, at no cost. When you are ready to go live, add your own Claude key on Founder and the same crew runs the real work on the model you choose. Same office, same agents · you just switch from exploring to running. No crypto at any point.',
     links: [
       { label: 'Open the app', href: '#app' },
       { label: 'Plans & pricing', href: '#pricing' },
