@@ -28,6 +28,7 @@ import {
   type Usage, type LeverFamily,
 } from '../data/frugality'
 import { SiteFooter } from '../components/SiteFooter'
+import { TokenIceberg } from './TokenIceberg'
 
 const n0 = (n: number) => Math.round(n).toLocaleString('en-US')
 const short = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}k` : String(Math.round(n)))
@@ -170,6 +171,16 @@ export function FrugalityPage() {
           because it would be wrong the day they change it.
         </p>
       </section>
+
+      {/* L'ICEBERG · la carte complète, placée ENTRE le calculateur et les
+          leviers, et pas ailleurs.
+          Avant le calculateur, ce serait une affiche : vingt-et-un gestes que
+          rien ne classe et dont aucun n'est chiffré pour le lecteur. Après les
+          leviers, personne ne descendrait jusque là. Ici, le lecteur vient de
+          voir sa propre facture, il découvre tout ce qui existe, et les sept
+          items qui portent un levier renvoient à la liste juste en dessous, où
+          le gain est calculé sur ses chiffres à lui. */}
+      <TokenIceberg usage={u} />
 
       {/* LES LEVIERS · classés par ce qu'ils rapportent sur CES chiffres. */}
       <section className="lp-sec alt">

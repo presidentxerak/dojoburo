@@ -9237,3 +9237,107 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   .cls-scene { height: 44vh; min-height: 260px; }
   .cls-pre { font-size: 12.5px; }
 }
+
+/* ===========================================================================
+   L'ICEBERG DES JETONS · le schéma de la page de sobriété.
+
+   CE QUI DÉCIDE DE LA MISE EN PAGE : le fond dessiné ne doit jamais gêner la
+   lecture. Une affiche peut se permettre de poser un texte sur un dessin ;
+   une page qu'on lit vraiment, non. Le tracé est donc DERRIÈRE, très pâle, il
+   ne réclame rien, et il disparaît complètement sous 900 pixels où il n'aurait
+   plus de sens : trois bandes empilées sur un iceberg étiré ne ressemblent
+   plus à un iceberg.
+
+   LES TROIS BANDES SE LISENT SANS LE DESSIN. C'est la règle qui les tient :
+   chaque bande porte son titre, sa profondeur et sa phrase. Le dessin ajoute
+   l'argument (ce qui dépasse est minuscule), il ne le porte pas tout seul.
+   =========================================================================== */
+.ice { position: relative; }
+.ice-scene { position: relative; margin-top: 26px; }
+
+.ice-art {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  color: var(--ink); opacity: 0.09; pointer-events: none;
+}
+.ice-art .ice-rule2 { opacity: 0.55; }
+@media (max-width: 900px) { .ice-art { display: none; } }
+
+.ice-bands { position: relative; display: flex; flex-direction: column; gap: 34px; }
+
+/* LA BANDE · son en-tête est étroit exprès. Une phrase d'introduction lue en
+   pleine largeur sur un écran de portable se lit deux fois plus mal qu'à
+   68 caractères, et c'est elle qui explique pourquoi la bande existe. */
+.ice-band-h { max-width: 62ch; margin-bottom: 16px; }
+.ice-band-k {
+  display: block; font-family: var(--font-ui); font-size: 12px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--violet); margin-bottom: 6px;
+}
+.ice-band-h h3 { font-family: var(--font-pixel); font-weight: 900; font-size: 26px; margin: 0 0 8px; }
+.ice-band-h p { font-size: 16px; line-height: 1.55; color: var(--muted); margin: 0; }
+
+/* LA BANDE DE SURFACE est traitée autrement : ce ne sont pas des conseils, ce
+   sont les idées reçues qu'on vient corriger. Les donner à voir exactement
+   comme les dix-neuf autres, c'est les recommander. */
+.d-surface .ice-band-k { color: var(--muted); }
+.d-surface .ice-chip { border-style: dashed; }
+.d-surface .ice-chip b { color: var(--muted); }
+
+.ice-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); }
+
+/* LE PAVÉ · la carte de l'app, en plus petit. Même fond plein, même filet,
+   même barre d'accent qui se déroule par la gauche : un schéma qui invente son
+   propre vocabulaire de carte donne l'impression d'une page collée là. */
+.ice-chip {
+  position: relative; overflow: hidden; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 13px 14px 14px; border: 1px solid var(--border); border-radius: 2px;
+  background: var(--panel-solid); font-family: var(--font-read);
+  transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s;
+}
+.ice-chip::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: var(--violet); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.32s ease;
+}
+.ice-chip:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--violet) 50%, var(--border)); }
+.ice-chip:hover::before, .ice-chip.on::before { transform: scaleX(1); }
+.ice-chip.on { border-color: var(--ink); }
+.ice-chip b { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; line-height: 1.25; color: var(--ink); }
+.ice-chip-s { font-size: 14px; line-height: 1.4; color: var(--muted); }
+.ice-chip .bh-icon { position: absolute; top: 13px; right: 12px; color: var(--muted); }
+
+/* LE DÉTAIL · pleine largeur sous la bande, jamais dans la grille. Un panneau
+   qui s'ouvre DANS une grille pousse les pavés voisins et fait sauter la ligne
+   qu'on était en train de lire. */
+.ice-detail { margin-top: 14px; border: 1px solid var(--ink); background: var(--paper); }
+.ice-detail-in { padding: 22px 24px 24px; }
+.ice-detail h4 { font-family: var(--font-pixel); font-weight: 900; font-size: 21px; margin: 0 0 8px; }
+.ice-what { font-family: var(--font-read); font-size: 18px; line-height: 1.5; margin: 0 0 18px; max-width: 68ch; }
+.ice-two { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.ice-k {
+  display: block; font-family: var(--font-ui); font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--violet); margin-bottom: 6px;
+}
+.ice-col p { font-size: 16px; line-height: 1.6; margin: 0; }
+.ice-called { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.ice-called ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ice-called li {
+  font-family: var(--font-ui); font-size: 13px; font-weight: 600;
+  padding: 5px 10px; border: 1px solid var(--border); color: var(--muted);
+}
+/* LE GAIN CALCULÉ · le seul endroit du schéma qui porte un chiffre, et il
+   vient des nombres saisis plus haut. Il est encadré pour qu'on voie que ce
+   n'est pas de la prose. */
+.ice-gain {
+  display: flex; align-items: flex-start; gap: 10px; margin: 20px 0 0;
+  padding: 12px 14px; border: 1px solid var(--violet);
+  font-size: 15px; line-height: 1.55;
+}
+.ice-gain .bh-icon { color: var(--violet); flex: none; margin-top: 3px; }
+.ice-gain b { font-family: var(--font-pixel); font-weight: 900; }
+
+@media (max-width: 680px) {
+  .ice-grid { grid-template-columns: 1fr; }
+  .ice-band-h h3 { font-size: 22px; }
+  .ice-detail-in { padding: 18px 16px 20px; }
+}
