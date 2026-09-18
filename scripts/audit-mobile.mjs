@@ -10,6 +10,7 @@
 //
 //   npm run preview   puis   node scripts/audit-mobile.mjs
 import { chromium } from 'playwright'
+import { MENU_PROJECTS } from './lib/menuLabels.mjs'
 
 const B = process.env.BASE || 'http://localhost:4173'
 const b = await chromium.launch({
@@ -65,7 +66,7 @@ const SCREENS = [
   ['landing', async () => { await p.goto(`${B}/`, { waitUntil: 'networkidle' }); await p.waitForTimeout(2500) }],
   ['app', async () => { await p.goto(`${B}/#app`, { waitUntil: 'networkidle' }); await p.waitForTimeout(3000) }],
   ['dojo settings', () => viaMenu(/Dojo settings/)],
-  ['my companies', () => viaMenu(/My companies/)],
+  ['my companies', () => viaMenu(new RegExp(MENU_PROJECTS))],
   ['billing', () => viaMenu(/^Billing/)],
   ['connect apps', () => viaMenu(/Connect apps/)],
 ]

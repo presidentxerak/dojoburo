@@ -21,6 +21,10 @@ import { Wordmark } from './Wordmark'
 
 /** Les liens hors piliers · ils ne changent pas avec le produit. */
 const FIXED: Array<[string, string]> = [
+  // « Où faire tourner votre agent » · ce n'est pas un pilier, c'est la
+  // dernière marche du premier cours. Elle a sa page parce que comparer
+  // quinze projets ne tient pas dans une fiche d'agent.
+  ['/frameworks', 'Frameworks'],
   ['/guide', 'App setup guide'],
   ['/teammates', 'The crew'],
   ['/terms', 'Terms'],

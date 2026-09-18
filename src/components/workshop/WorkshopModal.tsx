@@ -28,8 +28,9 @@ import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { FullScreen } from '../FullScreen'
 import { StepBar } from '../../modules/StepBar'
 import { BauhausIcon } from '../BauhausIcon'
+import { LearningPanel } from '../../dojo/LearningPanel'
 
-type Tab = 'studio' | 'account' | 'team' | 'billing'
+type Tab = 'studio' | 'account' | 'team' | 'billing' | 'learning'
 
 /** What /api/org?action=me returns, as far as the Billing screen cares. */
 interface OrgSnapshot {
@@ -58,6 +59,7 @@ const STUDIO_TITLES: Record<Tab, { title: string; sub: string }> = {
   account: { title: 'Account', sub: 'Your profile, sign-in and identity across devices.' },
   team: { title: 'Your company', sub: 'Who you work with, what each of them may do, and whether your work has reached them.' },
   billing: { title: 'Billing · your key and plan', sub: 'Everything about money: your Claude key, what your company is on, and the currency prices show in.' },
+  learning: { title: 'Your progress', sub: 'Where you are across the three courses, what you have earned, and the next step waiting for you.' },
 }
 
 /** Dojo settings / Account / Billing, wearing the app's ONE full-screen shell.
@@ -72,7 +74,7 @@ export function StudioSurface({ onClose }: { onClose: () => void }) {
   // account/billing section · the title reflects it, no tab switcher.
   const intent = useWork((s) => s.studioIntent)
   const openConnect = useWork((s) => s.openConnect)
-  const tab: Tab = intent && (intent === 'account' || intent === 'billing' || intent === 'team') ? intent : 'studio'
+  const tab: Tab = intent && (intent === 'account' || intent === 'billing' || intent === 'team' || intent === 'learning') ? intent : 'studio'
   const head = STUDIO_TITLES[tab]
   return (
     <FullScreen
@@ -87,6 +89,11 @@ export function StudioSurface({ onClose }: { onClose: () => void }) {
       {tab === 'account' && <AccountTab />}
       {tab === 'team' && <TeamTab />}
       {tab === 'billing' && <BillingTab />}
+      {/* LE PROFIL D'APPRENTISSAGE · il n'existait pas. Le menu du compte
+          proposait « My companies » et « Your company », c'est à dire
+          l'ancien produit, et rien ne répondait à la seule question qu'on se
+          pose en rouvrant une app de cours : où j'en suis. */}
+      {tab === 'learning' && <LearningPanel />}
     </FullScreen>
   )
 }

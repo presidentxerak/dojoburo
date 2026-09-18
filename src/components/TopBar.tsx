@@ -12,6 +12,11 @@ import { SkinAvatar } from './workshop/SkinAvatar'
 import { NotificationBell } from './NotificationBell'
 import { useOverlay } from '../lib/overlay'
 import { BauhausIcon } from './BauhausIcon'
+import { readLearning } from '../dojo/learning'
+import { useProgress } from '../academy/progress'
+import { USE_CASE_COUNT } from '../data/agentUseCases'
+import { COURSES } from '../data/positioning'
+import { MENU_PROJECTS, MENU_EFFORT, MENU_CREW, MENU_PROGRESS } from '../data/menuLabels'
 
 /** The app's header.
  *
@@ -69,6 +74,18 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
     window.dispatchEvent(new Event('open-projects'))
   }
   const openCredits = () => { setMenuOpen(false); useWork.getState().openStudio('billing') }
+  const openLearning = () => { setMenuOpen(false); useWork.getState().openStudio('learning') }
+  /** quitter l'app vers une page du site · le menu en a cinq maintenant */
+  const go = (href: string) => { setMenuOpen(false); window.location.href = href }
+  // LE PROFIL D'APPRENTISSAGE · lu ici pour que le menu porte la ceinture et
+  // l'avancement de chaque cours. Un menu qui ne dit rien de vous est un menu
+  // qu'on n'ouvre que pour se déconnecter.
+  const progress = useProgress()
+  const L = readLearning(progress.doneKeys)
+  const courseDone = (id: string) => {
+    const c = L.courses.find((x) => x.id === id)
+    return c ? `${c.done}/${c.total}` : ''
+  }
   const doLogin = () => { setMenuOpen(false); if (privyConfigured()) privyControls.login?.(); else signInGuest() }
   // Sign out → go back to the landing FIRST so the auth gate (which re-opens the
   // Privy modal) never remounts and traps the user on the Privy screen.
@@ -120,7 +137,13 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
             {account ? (
               <button className="tb-menu-profile" onClick={openAccount}>
                 <SkinAvatar skin={skinById(account.avatarSkinId)} size={30} />
-                <span className="tb-menu-name">{account.name || 'Founder'}<em>{account.provider === 'privy' ? 'Account · synced' : 'Account'}</em></span>
+                {/* Sous le nom, la CEINTURE · « Account · synced » est une
+                    information d'infrastructure, et c'est la seule chose que
+                    ce menu disait de vous. */}
+                <span className="tb-menu-name">
+                  {account.name || 'Learner'}
+                  <em>{L.built.length > 0 ? `${L.grade.title} · ${L.built.length} of ${USE_CASE_COUNT} agents` : 'No agent built yet'}</em>
+                </span>
               </button>
             ) : (
               <div className="tb-menu-auth">
@@ -129,25 +152,48 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
               </div>
             )}
 
-            {/* your work */}
+            {/* CE QU'ON APPREND · en premier, parce que c'est le produit.
+                Le menu ouvrait sur « My companies », « Your company » et « How
+                hard your team works » : l'ancien produit mot pour mot, dans la
+                surface qu'un utilisateur ouvre le plus souvent. Les trois cours
+                viennent des piliers, donc ils ne peuvent pas diverger de
+                l'en-tête du site. */}
             <div className="tb-menu-rule" />
-            <button className="tb-menu-item tb-menu-link" onClick={openProjects}>My companies</button>
+            <button className="tb-menu-item tb-menu-strong" onClick={openLearning}>
+              {MENU_PROGRESS}
+              {L.built.length > 0 && (
+                <span className="tb-menu-val" style={{ ['--ac' as string]: L.grade.tint }}>{L.grade.title}</span>
+              )}
+            </button>
+            {COURSES.map((c) => (
+              <button key={c.id} className="tb-menu-item tb-menu-link" onClick={() => go(c.path)}>
+                {c.nav}
+                <span className="tb-menu-val sm">{courseDone(c.id)}</span>
+              </button>
+            ))}
+            <button className="tb-menu-item tb-menu-link" onClick={() => go('/library')}>Library</button>
+
+            {/* LA SALLE D'ENTRAÎNEMENT · les dojos de pratique et ce qui va
+                avec. Ce sont les mêmes écrans qu'avant : ce qui change est ce
+                qu'ils sont, un bac à sable et non une entreprise. */}
+            <div className="tb-menu-rule" />
+            <button className="tb-menu-item tb-menu-link" onClick={openProjects}>{MENU_PROJECTS}</button>
             <button className="tb-menu-item" onClick={openStudio}>Dojo settings</button>
+            <button className="tb-menu-item tb-menu-link" onClick={openTeam}>{MENU_CREW}</button>
             <button className="tb-menu-item tb-menu-link" onClick={openConnect}>Connect apps</button>
             <button className="tb-menu-item tb-menu-link" onClick={openDocs}>Documents</button>
-            <button className="tb-menu-item tb-menu-link" onClick={openTeam}>Your company</button>
 
             {/* what it costs */}
             <div className="tb-menu-rule" />
             <button className="tb-menu-item" onClick={openCredits}>Billing · your key and plan</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); setEffortOpen(true) }}>
-              How hard your team works
+              {MENU_EFFORT}
               <span className="tb-menu-val" style={{ ['--ac' as string]: mode?.tint }}>{mode && <BauhausIcon name={mode.glyph} size={14} />} {mode?.label}</span>
             </button>
 
             {/* how any of it works */}
             <div className="tb-menu-rule" />
-            <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'academy' }}>Dojo Academy</button>
+            <button className="tb-menu-item tb-menu-link" onClick={() => go('/build#certification')}>How the certification works</button>
             <button className="tb-menu-item tb-menu-link" onClick={() => { setMenuOpen(false); location.hash = 'guide' }}>App setup guide</button>
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); window.dispatchEvent(new Event('open-cmdk')) }}>Quick search <kbd className="tb-kbd">⌘K</kbd></button>
 

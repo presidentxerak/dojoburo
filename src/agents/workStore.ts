@@ -37,7 +37,7 @@ interface WorkState {
   runError: { code: string; reason?: 'tool' | 'design'; detail?: string } | null
 
   /** deep-link signal: open Dojo Studio on a tab (e.g. from a "add your key" hint) */
-  studioIntent: null | 'billing' | 'account' | 'team' | 'studio'
+  studioIntent: null | 'billing' | 'account' | 'team' | 'studio' | 'learning'
   /** when set, the Studio opens with this agent pre-selected for editing */
   studioAgentId: string | null
   /** deep-link: open a composite studio (Business / Growth) on a specific sub-tab
@@ -62,7 +62,7 @@ interface WorkState {
   showDeliverable: (d: Deliverable) => void
   closeDeliverable: () => void
   clearError: () => void
-  openStudio: (tab: 'billing' | 'account' | 'team' | 'studio') => void
+  openStudio: (tab: 'billing' | 'account' | 'team' | 'studio' | 'learning') => void
   /** open the Studio editor focused on a specific agent */
   editAgent: (agentId: string) => void
   clearStudioIntent: () => void
