@@ -411,6 +411,76 @@ if (card) {
   ok('…and its badly-written example', card.pairs === 4, `${card.pairs}`)
 }
 
+// ---- ce que le lot de design a ajouté, mesuré -------------------------
+const extra = await p.evaluate(() => {
+  const px = (sel, prop) => {
+    const el = document.querySelector(sel)
+    return el ? parseFloat(getComputedStyle(el)[prop]) : 0
+  }
+  const hero = document.querySelector('.ag-hero-p')
+  return {
+    // LE PERSONNAGE · une toile 3D, pas une image de repli. Sans lui on passe
+    // d'un dojo habité à un article, et rien ne dit que c'est le même agent
+    // que la silhouette qu'on vient de cliquer.
+    charW: hero ? Math.round(hero.getBoundingClientRect().width) : 0,
+    charCanvas: !!document.querySelector('.ag-hero-p canvas'),
+    quoteSize: px('.ag-like', 'fontSize'),
+  }
+})
+ok('the agent card shows its 3D character', extra.charW > 120, `${extra.charW}px`)
+ok('…and it is a real 3D canvas', extra.charCanvas)
+ok('the analogy is set as a quote', extra.quoteSize >= 18, `${extra.quoteSize}px`)
+
+// ---- les étiquettes du dojo, lues comme le navigateur les rend ---------
+//
+// Elles ont raté DEUX fois. D'abord des phrases entières qui se chevauchaient
+// et cachaient la salle. Puis des noms courts mais gris, à douze pixels, avec
+// une ombre blanche pour tout contraste : sur un tatami clair ça ne se lit pas
+// davantage. On avait échangé un problème de chevauchement contre un problème
+// de contraste, et une garde qui ne mesure que la longueur du texte aurait
+// validé les deux.
+await p.goto(B + '/build', { waitUntil: 'networkidle' })
+await p.waitForTimeout(2600)
+const tags = await p.evaluate(() => {
+  const all = [...document.querySelectorAll('.cls-scene .tag3d')]
+  if (!all.length) return null
+  const cs = getComputedStyle(all[0])
+  const bg = cs.backgroundColor
+  const clear = !bg || bg === 'transparent' || /rgba\(0, 0, 0, 0\)/.test(bg)
+  return {
+    n: all.length,
+    size: parseFloat(cs.fontSize),
+    weight: Number(cs.fontWeight),
+    // une pastille DÉCOUPE le nom du décor · sans fond, la lisibilité dépend
+    // de ce qu'il y a derrière, donc de la position d'un personnage
+    hasPlate: !clear,
+    longest: Math.max(...all.map((t) => t.textContent.trim().length)),
+  }
+})
+ok('the dojo labels are there', !!tags && tags.n > 0, tags ? `${tags.n}` : 'aucune')
+if (tags) {
+  ok('…large enough to read', tags.size >= 13, `${tags.size}px`)
+  ok('…and heavy enough', tags.weight >= 700, `${tags.weight}`)
+  ok('…on a plate, so the decor cannot swallow them', tags.hasPlate)
+  // …mais toujours COURTES. C'est ce qui empêche la pastille de redevenir le
+  // bandeau qu'on a retiré.
+  ok('…while staying short enough not to be a banner', tags.longest <= 26, `${tags.longest} caractères`)
+}
+
+// ---- le parcours de certification est expliqué, et pilotable -----------
+const cert = await p.evaluate(() => ({
+  box: !!document.querySelector('.cp-box'),
+  beats: document.querySelectorAll('.cp-nav-b').length,
+  // il est INTERACTIF et pas seulement animé · une explication qu'on ne peut
+  // pas parcourir se regarde une fois et ne s'apprend pas
+  next: !!document.querySelector('.cp-next'),
+  tick: !!document.querySelector('.cp-step-tick'),
+}))
+ok('the certification path is explained', cert.box)
+ok('…in several steps you can walk', cert.beats >= 4, `${cert.beats}`)
+ok('…forward and backward', cert.next)
+ok('…and the first one is actually interactive', cert.tick)
+
 report()
 await b.close()
 process.exit(out.some((l) => l.startsWith('FAIL')) ? 1 : 0)

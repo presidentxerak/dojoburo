@@ -34,6 +34,8 @@ import { AGENT_TRACK } from './masterProgress'
 import { gradeFor } from './grades'
 import { FORMATS, render, downloadAgent, copyAgent, type BuiltAgent, type ExportFormat } from '../lib/agentExport'
 import { estimateTokens } from '../agents/sandbox'
+import { Agent3DPreview } from '../components/three/Agent3DPreview'
+import { AGENT_CHAR, charForAgent } from '../components/landing/TeamCards'
 
 /** Le brouillon de départ · écrit depuis le cas d'usage. Ce n'est pas un
  *  modèle vide : une page blanche est la raison numéro un pour laquelle
@@ -87,6 +89,10 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
     return () => window.removeEventListener('keydown', k)
   }, [onClose])
 
+  // Le personnage de la salle · la table AGENT_CHAR fait le lien entre le
+  // rôle porté par le cas d'usage et le look qui le dessine.
+  const charKey = AGENT_CHAR[u.agent] ?? u.agent
+
   const stepDone = (i: number) => progress.isDone(AGENT_TRACK, `${u.id}/${i}`)
   const done = u.steps.filter((_, i) => stepDone(i)).length
   const total = u.steps.length
@@ -123,13 +129,23 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
             taille que le reste : rien ne disait par où commencer. */}
         <section className="ag-hero">
           <div className="ag-hero-in">
-            <span className="ag-kick">{u.shape}</span>
-            <h1>{u.name}</h1>
-            {lesson && <p className="ag-plain">{lesson.primer.plain}</p>}
-            <div className="ag-hero-meta">
-              <span><b>{total}</b> steps</span>
-              <span><b>{u.ships.length}</b> things you leave with</span>
-              <span><b>{lesson?.primer.words.length ?? 0}</b> words explained</span>
+            <div className="ag-hero-t">
+              <span className="ag-kick">{u.shape}</span>
+              <h1>{u.name}</h1>
+              {lesson && <p className="ag-plain">{lesson.primer.plain}</p>}
+              <div className="ag-hero-meta">
+                <span><b>{total}</b> steps</span>
+                <span><b>{u.ships.length}</b> things you leave with</span>
+                <span><b>{lesson?.primer.words.length ?? 0}</b> words explained</span>
+              </div>
+            </div>
+            {/* LE PERSONNAGE · le même qui dort dans la salle, en trois
+                dimensions. Il n'est pas décoratif : c'est le lien entre la
+                silhouette qu'on vient de cliquer et la page où l'on atterrit.
+                Sans lui, on passe d'un dojo habité à un article, et rien ne dit
+                que c'est le même agent. */}
+            <div className="ag-hero-p" aria-hidden>
+              <Agent3DPreview id={charKey} character={charForAgent(charKey)} size={230} fit />
             </div>
           </div>
         </section>

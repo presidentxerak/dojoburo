@@ -21,6 +21,7 @@ import { ClassScene } from './ClassScene'
 import { USE_CASES, USE_CASE_BY_ID, USE_CASE_COUNT, type UseCase } from '../data/agentUseCases'
 import { useProgress } from '../academy/progress'
 import { AgentCard } from './AgentCard'
+import { CertPath } from './CertPath'
 import { MasterPanel } from './MasterPanel'
 import { AGENT_TRACK } from './masterProgress'
 import { SiteFooter } from '../components/SiteFooter'
@@ -129,6 +130,12 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
       {/* LA FICHE · plein écran par-dessus la salle, et rien d'autre à
           l'écran. On y lit un cours, pas un encart. */}
       {chosen && <AgentCard u={chosen} onClose={() => setChosenId(null)} />}
+
+      {/* LE PARCOURS DE CERTIFICATION · expliqué AVANT le tableau qui le
+          décompte. On voyait une grille de badges grisés sans avoir jamais lu
+          ce qu'ils demandent, et un système de progression que personne ne
+          comprend est un système de progression qui n'existe pas. */}
+      {!chosen && <CertPath />}
 
       {!chosen && <MasterPanel here="build" />}
 
