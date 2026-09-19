@@ -76,6 +76,17 @@ export interface Pillar {
    *  d'entre eux ne s'affichaient pas du tout sur un téléphone. Voir
    *  components/BauhausIcon pour le dessin, data/icons pour le vocabulaire. */
   glyph: IconName
+  /** LE FRANÇAIS, à côté de l'anglais et non dans un fichier séparé.
+   *
+   *  Un pilier est lu par six surfaces (en-tête, pied de page, accueil, plan
+   *  du site, robot, académie) et sa source unique est ici. Mettre sa
+   *  traduction ailleurs recréerait exactement la divergence que ce fichier
+   *  existe pour empêcher, dans la langue que le moins de gens relisent.
+   *
+   *  Il est OPTIONNEL, et c'est volontaire : un pilier pas encore traduit sert
+   *  l'anglais, ce qui est une lacune visible et comptée par
+   *  scripts/test-i18n.mjs, plutôt qu'un libellé vide dans la navigation. */
+  fr?: { nav: string; title: string; blurb: string }
 }
 
 export const PILLARS: Pillar[] = [
@@ -89,6 +100,12 @@ export const PILLARS: Pillar[] = [
       'your progress.',
     path: '/build',
     glyph: 'diamond',
+    fr: {
+      nav: "Construire un agent",
+      title: "Douze agents, douze façons d'échouer",
+      blurb:
+        "Entrez dans le dojo. Douze agents y dorment, un par forme de problème, et celui que vous choisissez se réveille. Vous le menez de la page blanche à un fichier qui tourne dans un vrai framework, et le maître tient votre progression.",
+    },
   },
   {
     id: 'academy',
@@ -99,6 +116,12 @@ export const PILLARS: Pillar[] = [
       'has something you can take apart beside the text, and ends with one thing to remember and one thing to do.',
     path: '/academy',
     glyph: 'pen',
+    fr: {
+      nav: "Ingénierie de prompt",
+      title: "L'instruction qui décide de tout",
+      blurb:
+        "De « c'est quoi un jeton » à un brief qu'un modèle suit vraiment. Chaque leçon se lit dans le navigateur, a quelque chose à démonter à côté du texte, et finit par une chose à retenir et une chose à faire.",
+    },
   },
   {
     id: 'library',
@@ -109,6 +132,12 @@ export const PILLARS: Pillar[] = [
       'Read the reasoning, copy the file, adapt it. Every entry carries what it costs to run.',
     path: '/library',
     glyph: 'square',
+    fr: {
+      nav: "Bibliothèque",
+      title: "Prompts, briefs et skills, prêts pour votre métier",
+      blurb:
+        "Un catalogue de prompts, de briefs .md et de skills d'agents, classés par catégorie et par le métier que vous exercez vraiment. Lisez le raisonnement, prenez le fichier, adaptez-le. Chaque entrée porte ce qu'elle coûte à faire tourner.",
+    },
   },
   {
     id: 'eco',
@@ -122,6 +151,12 @@ export const PILLARS: Pillar[] = [
       'and the way the prompt itself is written. Then the levers, each one with the saving it really buys.',
     path: '/frugality',
     glyph: 'triangle',
+    fr: {
+      nav: "Sobriété en jetons",
+      title: "Ce que ça coûte, et comment le réduire",
+      blurb:
+        "Où passent vos jetons, comptés plutôt que devinés : les réglages choisis avant d'écrire un mot, et la façon dont le prompt lui-même est écrit. Puis les leviers, chacun avec ce qu'il rapporte vraiment.",
+    },
   },
   {
     id: 'dojo',
@@ -132,6 +167,12 @@ export const PILLARS: Pillar[] = [
       'change it, and watch what changes. Nothing here calls a paid model or touches your accounts.',
     path: '/#app',
     glyph: 'quadrant',
+    fr: {
+      nav: "Salle d'entraînement",
+      title: "Une salle où démonter les choses",
+      blurb:
+        "Le dojo est un bac à sable, pas un atelier de production. Ouvrez un agent, lisez le prompt qui le rend ce qu'il est, changez-le, et regardez ce qui change. Rien ici n'appelle de modèle payant ni ne touche à vos comptes.",
+    },
   },
 ]
 

@@ -84,6 +84,12 @@ const CHECKS = [
   // lecteur qui arbitre), que le nombre annoncé soit le vrai, et qu'aucun nom
   // de commande n'y soit écrit en dur.
   ['test-iceberg.mjs', 1, true],
+  // LE FRANÇAIS · que les deux langues soient côte à côte et qu'aucune ne soit
+  // la copie de l'autre, que les piliers portent leur traduction à leur
+  // source, et surtout que la COUVERTURE soit comptée à chaque passage. Le
+  // risque d'un site à moitié traduit n'est pas la faute de traduction, c'est
+  // de le croire terminé.
+  ['test-i18n.mjs', 1, true],
   // LE JEU D'ICÔNES · qu'aucune ne redevienne un caractère. L'app les a
   // dessinées avec des caractères Unicode pendant des mois : ça s'affiche, mais
   // pas pareil chez tout le monde, et pas du tout sur certains téléphones. Un

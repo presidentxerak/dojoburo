@@ -9367,3 +9367,23 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   .ice-band-h h3 { font-size: 22px; }
   .ice-detail-in { padding: 18px 16px 20px; }
 }
+
+/* LE SÉLECTEUR DE LANGUE · deux boutons accolés, dans le vocabulaire de l'app.
+   Filet d'un pixel, aucun arrondi, aucune ombre. L'actif s'inverse en noir
+   plein, comme l'étiquette choisie dans le dojo : c'est le même geste, donc
+   c'est la même forme. */
+.lsw { display: inline-flex; border: 1px solid var(--border); }
+.lsw-b {
+  font-family: var(--font-ui); font-weight: 700; font-size: 13px; cursor: pointer;
+  padding: 6px 12px; background: var(--panel-solid); color: var(--muted);
+  border: 0; border-right: 1px solid var(--border);
+  transition: background .14s ease, color .14s ease;
+}
+.lsw-b:last-child { border-right: 0; }
+.lsw-b:hover { color: var(--ink); }
+.lsw-b.on { background: var(--ink); color: var(--bg); }
+.lsw.sm .lsw-b { padding: 4px 8px; font-size: 12px; }
+.lp-footer .lsw { margin-top: 14px; }
+/* L'avertissement de traduction partielle · discret mais lisible : il informe,
+   il ne s'excuse pas. */
+.lp-foot-note { font-size: 13px; color: var(--muted); margin: 10px 0 0; max-width: 60ch; }

@@ -5,6 +5,7 @@ import { Wordmark } from './Wordmark'
 import { useWorkshop } from '../workshop'
 import { skinById } from '../data/skins'
 import { SkinAvatar } from './workshop/SkinAvatar'
+import { useLang, useT } from '../i18n'
 
 // The one site header, shared by the landing page, the Dojo Guide and every
 // connector page · identical markup so they always match. Section links point at
@@ -26,13 +27,16 @@ import { SkinAvatar } from './workshop/SkinAvatar'
 // Les libellés viennent de ./data/positioning, comme partout ailleurs : le
 // jour où un pilier change de nom, il change de nom aux six endroits à la
 // fois.
-const NAV_LINKS: [string, string][] = [
-  ...PILLARS.filter((p) => p.id !== 'dojo').map((p) => [p.path, p.nav] as [string, string]),
-  ['/#pricing', 'Pricing'],
-]
+// La navigation porte des PILIERS, plus un lien fixe. Le libellé n'est plus
+// figé à la construction du tableau : il dépend de la langue, donc il se
+// calcule au rendu · un tableau constant évalué à l'import garderait l'anglais
+// pour toujours, quelle que soit la langue choisie ensuite.
+const NAV_PILLARS = PILLARS.filter((p) => p.id !== 'dojo')
 
 export function SiteHeader({ enter }: { enter?: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const t = useT()
+  const lang = useLang()
   // When signed in we show the profile button + burger instead of Sign in/up.
   const account = useWorkshop((s) => s.account)
   // L'APPEL À L'ACTION EST LE DOJO. Il ouvrait « Créez votre entreprise »,
@@ -52,7 +56,10 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
           <Logo size={38} /> <span className="lp-brand-wm"><Wordmark /> <span className="beta-badge">Beta</span></span>
         </a>
         <nav className="lp-nav-links">
-          {NAV_LINKS.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
+          {NAV_PILLARS.map((p) => (
+            <a key={p.id} href={p.path}>{(lang === 'fr' && p.fr?.nav) || p.nav}</a>
+          ))}
+          <a href="/#pricing">{t('nav.pricing')}</a>
         </nav>
         <div className="lp-nav-right">
           <button
@@ -63,7 +70,7 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
           >
             <span /><span /><span />
           </button>
-          <button className="lp-cta sm lp-cta-create lp-nav-create" onClick={learn}>Enter the dojo</button>
+          <button className="lp-cta sm lp-cta-create lp-nav-create" onClick={learn}>{t('header.enter')}</button>
           {account ? (
             <button className="lp-profile-btn lp-auth-btn" onClick={goDojo} title={account.name || 'Enter the dojo'}>
               <SkinAvatar skin={skinById(account.avatarSkinId)} size={26} />
@@ -71,8 +78,8 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
             </button>
           ) : (
             <>
-              <button className="lp-cta sm lp-cta-ghost lp-auth-btn" onClick={goDojo}>Sign in</button>
-              <button className="lp-cta sm lp-auth-btn" onClick={goDojo}>Sign up</button>
+              <button className="lp-cta sm lp-cta-ghost lp-auth-btn" onClick={goDojo}>{t('header.signin')}</button>
+              <button className="lp-cta sm lp-auth-btn" onClick={goDojo}>{t('header.signup')}</button>
             </>
           )}
         </div>
@@ -82,22 +89,24 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
         <>
           <div className="lp-menu-scrim" onClick={() => setMenuOpen(false)} />
           <nav className="lp-mobile-menu">
-            {NAV_LINKS.map(([href, label]) => (
-              <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
+            {NAV_PILLARS.map((p) => (
+              <a key={p.id} href={p.path} onClick={() => setMenuOpen(false)}>
+                {(lang === 'fr' && p.fr?.nav) || p.nav}
+              </a>
             ))}
-            <a className="lp-menu-guide" href="/academy" onClick={() => setMenuOpen(false)}>Dojo Academy</a>
-            <a href="/guide" onClick={() => setMenuOpen(false)}>App setup guide</a>
-            <button className="lp-cta" onClick={learn}>Enter the dojo</button>
+            <a href="/#pricing" onClick={() => setMenuOpen(false)}>{t('nav.pricing')}</a>
+            <a href="/guide" onClick={() => setMenuOpen(false)}>{t('nav.guide')}</a>
+            <button className="lp-cta" onClick={learn}>{t('header.enter')}</button>
             <div className="lp-menu-auth">
               {account ? (
                 <button className="lp-menu-profile" onClick={goDojo}>
                   <SkinAvatar skin={skinById(account.avatarSkinId)} size={30} />
-                  <span>{account.name || 'My dojo'}<em>Enter the dojo →</em></span>
+                  <span>{account.name || t('header.mydojo')}<em>{t('header.enterArrow')} →</em></span>
                 </button>
               ) : (
                 <>
-                  <button className="lp-cta lp-cta-ghost" onClick={goDojo}>Sign in</button>
-                  <button className="lp-cta" onClick={goDojo}>Sign up</button>
+                  <button className="lp-cta lp-cta-ghost" onClick={goDojo}>{t('header.signin')}</button>
+                  <button className="lp-cta" onClick={goDojo}>{t('header.signup')}</button>
                 </>
               )}
             </div>
