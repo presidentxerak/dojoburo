@@ -42,7 +42,7 @@ async function load(entry, name) {
 }
 
 const P = await load('src/data/plans.ts', 'plans.mjs')
-const { PLANS, PLAN_BY_ID, LIBRARY_USD, SEAT_USD, SEAT_MIN, SCHOOL_FLOOR_USD, planPrice, planUnit, planFloor } = P
+const { PLANS, PLAN_BY_ID, LIBRARY_USD, SEAT_USD, SEAT_MIN, SCHOOL_FLOOR_USD, planPrice } = P
 
 /* --- 1 · la grille tient debout ------------------------------------------ */
 
@@ -75,8 +75,17 @@ const seated = PLANS.filter((p) => p.perSeat)
 ok('une formule au siège existe', seated.length === 1)
 for (const p of seated) {
   ok(`« ${p.name} » annonce un minimum de sièges`, typeof p.minSeats === 'number' && p.minSeats >= 2, `${p.minSeats}`)
-  ok(`« ${p.name} » affiche l'unité au siège`, planUnit(p).includes('seat'), planUnit(p))
-  ok(`« ${p.name} » affiche son plancher`, (planFloor(p) ?? '').includes(String(p.usd * p.minSeats)), planFloor(p) ?? 'aucun')
+  // L'UNITÉ ET LE PLANCHER SONT DES MOTS, donc ils ont quitté data/plans pour
+  // la carte, où ils se composent depuis le dictionnaire dans les deux langues.
+  //
+  // CETTE GARDE A DONC CHANGÉ DE CIBLE. Elle vérifiait que planUnit rendait une
+  // chaîne contenant « seat » · elle vérifierait aujourd'hui qu'une phrase
+  // anglaise est bien toujours écrite en dur dans un fichier de données, ce qui
+  // est exactement le défaut qu'on vient de retirer. Elle exige maintenant que
+  // la carte construise les deux, ce qui est la nouvelle vérité, et que
+  // data/plans n'émette plus de prose.
+  ok(`« ${p.name} » a de quoi composer son plancher`, p.usd * p.minSeats === SCHOOL_FLOOR_USD,
+    `${p.usd} × ${p.minSeats} = ${SCHOOL_FLOOR_USD}`)
 }
 ok('le plancher exporté est le vrai produit', SCHOOL_FLOOR_USD === SEAT_USD * SEAT_MIN, `${SCHOOL_FLOOR_USD}`)
 
@@ -91,6 +100,18 @@ ok('le plancher dépasse l\'abonnement individuel', SCHOOL_FLOOR_USD > LIBRARY_U
 ok('une seule formule à zéro', PLANS.filter((p) => p.usd === 0).length === 1)
 ok('la formule gratuite n\'est pas au siège', !PLAN_BY_ID.free.perSeat)
 ok('la formule gratuite s\'affiche $0', planPrice(PLAN_BY_ID.free) === '$0', planPrice(PLAN_BY_ID.free))
+
+// LA CARTE compose l'unité et le plancher, et data/plans n'émet plus de prose.
+{
+  const card = readFileSync('src/components/landing/Pricing.tsx', 'utf8')
+  ok('la carte compose l\'unité depuis le dictionnaire', /t\('price\.seatMonth'\)/.test(card))
+  ok('la carte compose le plancher depuis le dictionnaire', /t\('price\.from'\)/.test(card))
+  const src = readFileSync('src/data/plans.ts', 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1')
+  ok('data/plans n\'écrit plus « / seat / month »', !/\/ seat \/ month/.test(src))
+  ok('data/plans n\'écrit plus « a month »', !/a month/.test(src))
+}
 
 /* --- 3 · aucun forfait ne revend d'exécutions ---------------------------- */
 

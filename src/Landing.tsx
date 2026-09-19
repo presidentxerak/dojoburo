@@ -12,7 +12,8 @@ import { TutorialOverlay } from './components/guide/TutorialOverlay'
 import { APP_LIVE_COUNT } from './data/facts'
 import { TRACKS } from './data/academy'
 import { ENTRY_COUNT, countByTrade } from './data/library'
-import { PILLARS, COURSES, COURSE_COUNT, PROMISE_LEAD, PROMISE_HL, PROMISE_SEP, SUBTITLE, NOT_THIS, LESSON_COUNT, TRACK_COUNT, COURSE_HOURS } from './data/positioning'
+import { PILLARS, COURSES, COURSE_COUNT, PROMISE_SEP, LESSON_COUNT, TRACK_COUNT, COURSE_HOURS, positioningFor } from './data/positioning'
+import { useLang, useT } from './i18n'
 import { BauhausIcon } from './components/BauhausIcon'
 import { SiteFooter } from './components/SiteFooter'
 import { USE_CASE_COUNT } from './data/agentUseCases'
@@ -64,6 +65,17 @@ export function Landing({ enter }: { enter: () => void }) {
     return () => { io.disconnect(); clearTimeout(safety) }
   }, [])
 
+  const t = useT()
+  const lang = useLang()
+  // LE POSITIONNEMENT dans la langue lue · un seul point d'entrée, parce que
+  // trois tests de langue disséminés dans cette page seraient trois endroits
+  // où les versions commenceraient à diverger.
+  const pos = positioningFor(lang)
+  // LE LIBELLÉ D'UN PILIER · l'anglais sert de secours plutôt qu'un vide.
+  const nav = (p: { nav: string; fr?: { nav: string } }) => (lang === 'fr' && p.fr?.nav) || p.nav
+  const title = (p: { title: string; fr?: { title: string } }) => (lang === 'fr' && p.fr?.title) || p.title
+  const blurb = (p: { blurb: string; fr?: { blurb: string } }) => (lang === 'fr' && p.fr?.blurb) || p.blurb
+
   return (
     <div className="landing">
       <SiteHeader enter={enter} />
@@ -82,20 +94,20 @@ export function Landing({ enter }: { enter: () => void }) {
           <DojoDiorama />
         </div>
         <div className="lp-hero-card">
-          <h1>{PROMISE_LEAD}{PROMISE_SEP}<span className="hl-acid">{PROMISE_HL}</span></h1>
-          <p className="lp-hero-sub">{SUBTITLE}</p>
+          <h1>{pos.promiseLead}{PROMISE_SEP}<span className="hl-acid">{pos.promiseHl}</span></h1>
+          <p className="lp-hero-sub">{pos.subtitle}</p>
           <div className="lp-hero-acts">
-            <a className="lp-hero-go lp-cta-create" href="/build">Enter the dojo · free</a>
-            <button className="lp-hero-how" onClick={() => setHowTo(true)}>How it works</button>
+            <a className="lp-hero-go lp-cta-create" href="/build">{t('lp.heroGo')}</a>
+            <button className="lp-hero-how" onClick={() => setHowTo(true)}>{t('lp.heroHow')}</button>
           </div>
           <a className="lp-hero-learn" href="/academy">
-            {TRACK_COUNT} tracks · {LESSON_COUNT} lessons · {COURSE_HOURS} hours · no code, no account →
+            {TRACK_COUNT} {t('lp.heroLearn')} · {LESSON_COUNT} {t('lp.lessons')} · {COURSE_HOURS} {t('lp.hours')} · {t('lp.noCode')} →
           </a>
         </div>
       </section>
 
       <div className="lm-band">
-        <p className="lm-cap">The tools the course teaches you to wire, and what each one really costs</p>
+        <p className="lm-cap">{t('lp.marquee')}</p>
         <LogoMarquee />
       </div>
 
@@ -103,20 +115,17 @@ export function Landing({ enter }: { enter: () => void }) {
           du produit. Un centre de formation annonce ses cours ; une plateforme
           annonce ses fonctionnalités. On n'est plus une plateforme. */}
       <section className="lp-sec" id="courses">
-        <span className="lp-pill">{COURSE_COUNT} courses · free · nothing to install</span>
-        <h2>A training centre, and {COURSE_COUNT} courses in it</h2>
-        <p className="lp-lead">
-          They are taken in this order, and each one is useless without the one before it. You cannot make an
-          agent cheap before it works, and you cannot make it work before you can write the instruction it runs on.
-        </p>
+        <span className="lp-pill">{COURSE_COUNT} {t('lp.coursesPill')}</span>
+        <h2>{t('lp.coursesH2a')} {COURSE_COUNT} {t('lp.coursesH2b')}</h2>
+        <p className="lp-lead">{t('lp.coursesLead')}</p>
         <div className="lp-courses">
           {COURSES.map((c, i) => (
             <a className="lp-course" key={c.id} href={c.path}>
               <span className="lp-course-n" aria-hidden>{i + 1}</span>
               <BauhausIcon className="lp-course-g" name={c.glyph} size={24} />
-              <b>{c.nav}</b>
-              <span>{c.blurb}</span>
-              <em>Open →</em>
+              <b>{nav(c)}</b>
+              <span>{blurb(c)}</span>
+              <em>{t('lp.open')} →</em>
             </a>
           ))}
         </div>
@@ -127,15 +136,15 @@ export function Landing({ enter }: { enter: () => void }) {
           la maison a changé de métier. Le compte vient de la liste elle même :
           il annonçait quatre choses alors qu'il y en avait cinq. */}
       <section className="lp-sec alt" id="pillars">
-        <span className="lp-pill">{PILLARS.length} things to do here · all of them teaching</span>
-        <h2>A dojo, not a factory</h2>
+        <span className="lp-pill">{PILLARS.length} {t('lp.pillarsPill')}</span>
+        <h2>{t('lp.pillarsH2')}</h2>
         <div className="lp-pillars">
           {PILLARS.map((p) => (
             <a className="lp-pillar" key={p.id} href={p.path}>
               <BauhausIcon className="lp-pillar-g" name={p.glyph} size={24} />
-              <b>{p.title}</b>
-              <span>{p.blurb}</span>
-              <em>{p.nav} →</em>
+              <b>{title(p)}</b>
+              <span>{blurb(p)}</span>
+              <em>{nav(p)} →</em>
             </a>
           ))}
         </div>
@@ -146,20 +155,23 @@ export function Landing({ enter }: { enter: () => void }) {
           qu'on garde. */}
       <section className="lp-sec" id="academy">
         <Object3D kind="briefcase" color={C.magenta} side="right" parallax={0.16} />
-        <span className="lp-pill">Free · read in the browser · nothing to install</span>
-        <h2>Start from zero, finish with something that runs</h2>
+        <span className="lp-pill">{t('lp.acPill')}</span>
+        <h2>{t('lp.acH2')}</h2>
         <p className="lp-lead sm">
           Written for someone who has never heard the words agent, token or context window, and taken all the
           way to a working system they understand line by line. One idea per block, a real example every time
           an abstraction appears, and honest numbers throughout.
         </p>
         <div className="lp-tracks">
-          {TRACKS.map((t) => (
-            <a className="lp-track" key={t.slug} href={`/academy/${t.slug}`} style={{ ['--pc' as never]: t.tint }}>
-              <BauhausIcon className="lp-track-g" name={t.glyph} size={22} />
-              <b>{t.label}</b>
-              <span className="lp-track-lvl">{t.level} · {t.lessons.length} lessons</span>
-              <span className="lp-track-blurb">{t.blurb}</span>
+          {/* la variable s'appelait `t`, comme le traducteur · deux choses
+              différentes sous le même nom dans la même portée est la façon la
+              plus discrète de casser une page */}
+          {TRACKS.map((tr) => (
+            <a className="lp-track" key={tr.slug} href={`/academy/${tr.slug}`} style={{ ['--pc' as never]: tr.tint }}>
+              <BauhausIcon className="lp-track-g" name={tr.glyph} size={22} />
+              <b>{tr.label}</b>
+              <span className="lp-track-lvl">{tr.level} · {tr.lessons.length} {t('lp.lessons')}</span>
+              <span className="lp-track-blurb">{tr.blurb}</span>
             </a>
           ))}
         </div>
@@ -170,8 +182,8 @@ export function Landing({ enter }: { enter: () => void }) {
           annonce la méthode, pas un résultat qu'on n'a pas encore mesuré. */}
       <section className="lp-sec alt" id="frugality">
         <Object3D kind="gem" color={C.teal} side="left" parallax={0.12} />
-        <span className="lp-pill">The part most courses skip</span>
-        <h2>Every run has a price. Most people never see it.</h2>
+        <span className="lp-pill">{t('lp.frPill')}</span>
+        <h2>{t('lp.frH2')}</h2>
         <p className="lp-lead">
           A prompt that carries the whole conversation on every turn, an agent that re-reads a file it already
           knows, a loop nobody stopped: none of it shows up until the invoice does. The course measures it in
@@ -180,14 +192,14 @@ export function Landing({ enter }: { enter: () => void }) {
           rather than the one it is said to buy.
         </p>
         <div className="lp-schema lp-flow">
-          <div className="lp-node"><span className="lp-nico">1</span><b>Measure</b><span>What one conversation really costs</span></div>
+          <div className="lp-node"><span className="lp-nico">1</span><b>{t('lp.frN1')}</b><span>{t('lp.frN1s')}</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">2</span><b>Set up</b><span>Tools, caps, cache, when to reset</span></div>
+          <div className="lp-node"><span className="lp-nico">2</span><b>{t('lp.frN2')}</b><span>{t('lp.frN2s')}</span></div>
           <span className="lp-arrow">→</span>
-          <div className="lp-node"><span className="lp-nico">3</span><b>Write</b><span>Bans not adjectives · ask once</span></div>
+          <div className="lp-node"><span className="lp-nico">3</span><b>{t('lp.frN3')}</b><span>{t('lp.frN3s')}</span></div>
         </div>
         <p className="lp-lead sm lp-soon">
-          <a href="/frugality">Open the calculator · put your own numbers in →</a>
+          <a href="/frugality">{t('lp.frGo')} →</a>
         </p>
       </section>
 
@@ -196,8 +208,8 @@ export function Landing({ enter }: { enter: () => void }) {
           équipe ; elle sert maintenant à filtrer un catalogue. */}
       <section className="lp-sec" id="library">
         <Object3D kind="network" color={C.yellow} side="right" parallax={0.12} />
-        <span className="lp-pill">Prompts · .md briefs · agent skills</span>
-        <h2>Filed by the job you actually do</h2>
+        <span className="lp-pill">{t('lp.libPill')}</span>
+        <h2>{t('lp.libH2')}</h2>
         <p className="lp-lead sm">
           Not a wall of clever one-liners. Each entry says what it is for, why it is written that way, what it
           costs to run, and what to change for your own case. Pick your trade and take what fits.
@@ -216,7 +228,7 @@ export function Landing({ enter }: { enter: () => void }) {
           })}
         </div>
         <p className="lp-lead sm lp-soon">
-          <a href="/library">Open the library · {ENTRY_COUNT} files →</a>
+          <a href="/library">{t('lp.libGo')} · {ENTRY_COUNT} {t('lp.libFiles')} →</a>
         </p>
       </section>
 
@@ -229,15 +241,15 @@ export function Landing({ enter }: { enter: () => void }) {
             endormis, un par forme de problème, et c'est la première chose que
             voit quelqu'un qui entre. La page d'accueil doit décrire la pièce
             qui existe, pas celle d'avant. */}
-        <span className="lp-pill">A sandbox · nothing here calls a paid model</span>
-        <h2>A room where {USE_CASE_COUNT} agents are asleep</h2>
+        <span className="lp-pill">{t('lp.dojoPill')}</span>
+        <h2>{t('lp.dojoH2a')} {USE_CASE_COUNT} {t('lp.dojoH2b')}</h2>
         <p className="lp-lead sm">
           They are asleep because none of them exists yet. Pick the shape of problem you actually have and that
           one wakes up, then you build it from a blank page. Below is the same room from the other side: open a
           character, read the brief that makes it what it is, change it and watch what changes.
         </p>
         <p className="lp-lead sm lp-soon">
-          <a href="/build">Walk in and pick one →</a>
+          <a href="/build">{t('lp.dojoGo')} →</a>
         </p>
         <StudioTeam enter={enter} />
       </section>
@@ -246,9 +258,9 @@ export function Landing({ enter }: { enter: () => void }) {
           avec l'ancienne promesse en tête doit l'apprendre ici, pas après
           avoir créé un compte. */}
       <section className="lp-sec" id="not">
-        <h2>What this is not</h2>
+        <h2>{t('lp.notH2')}</h2>
         <ul className="lp-nots">
-          {NOT_THIS.map((line) => <li key={line}>{line}</li>)}
+          {pos.notThis.map((line) => <li key={line}>{line}</li>)}
         </ul>
         <p className="lp-lead sm">
           If you came here to have the work done for you, this is the wrong shop, and we would rather you knew
@@ -258,16 +270,16 @@ export function Landing({ enter }: { enter: () => void }) {
 
       <section className="lp-sec alt" id="pricing">
         <Object3D kind="gem" color={C.orange} side="left" parallax={0.12} />
-        <h2>The course is free. The library is the paid part.</h2>
+        <h2>{t('lp.priceH2')}</h2>
         <Pricing enter={enter} goBilling={goBilling} goAssistant={goAssistant} connectors={APP_LIVE_COUNT} />
       </section>
 
       <section className="lp-final">
         <Object3D kind="rocket" color={C.orange} side="right" parallax={0.1} />
         <span className="lp-ico" style={{ background: C.orange }}><BauhausIcon name="play" size={22} /></span>
-        <h2>Ready to start?</h2>
-        <a className="lp-cta big lp-cta-create" href="/build">Pick your agent →</a>
-        <p className="lp-foot">Free · read in your browser · no account to begin</p>
+        <h2>{t('lp.finalH2')}</h2>
+        <a className="lp-cta big lp-cta-create" href="/build">{t('lp.finalGo')} →</a>
+        <p className="lp-foot">{t('lp.finalFoot')}</p>
       </section>
 
       <SiteFooter />

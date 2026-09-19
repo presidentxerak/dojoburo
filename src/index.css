@@ -156,10 +156,22 @@ a:hover { text-decoration: underline; }
    qu'il soit, un filet d'un pixel comme partout dans l'app, du noir pur, et la
    police d'affichage. Elle reste courte, donc elle ne peut pas redevenir un
    bandeau. Celle qu'on survole ou qu'on a choisie s'inverse en noir plein. */
+/* TROISIÈME RÉGLAGE, et ce qui manquait aux deux premiers.
+   La pastille avait réglé le contraste : un fond plein qui découpe le nom du
+   tatami. Il restait la TAILLE. À treize pixels dans une pièce vue de haut,
+   sous un plafond, à côté de douze personnages colorés, le nom est là sans
+   être lu : l'oeil le prend pour un objet du décor. Quinze pixels et un peu
+   plus d'air suffisent, sans que la pastille redevienne le bandeau qu'on a
+   retiré, parce que le texte reste un nom de deux mots.
+   Le filet blanc autour du filet noir est la seule addition qui n'est pas une
+   affaire de taille : sur une cloison sombre ou un meuble, un cadre noir se
+   fond dans le fond et la pastille perd son bord. Deux pixels de papier le
+   détachent de tout. */
 .cls-scene .tag3d {
-  font-family: var(--font-pixel); font-weight: 800; font-size: 13px; letter-spacing: -0.01em;
+  font-family: var(--font-pixel); font-weight: 800; font-size: 15px; letter-spacing: -0.01em;
   color: var(--ink); background: var(--paper); border: 1px solid var(--ink);
-  padding: 4px 10px; text-shadow: none; white-space: nowrap;
+  outline: 2px solid var(--paper);
+  padding: 5px 12px; text-shadow: none; white-space: nowrap;
   transition: background .14s ease, color .14s ease;
 }
 .cls-scene .tag3d.sel { background: var(--ink); color: var(--bg); }
@@ -2947,12 +2959,24 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .tb-noface::after { content: ''; position: absolute; left: 50%; top: 15px; width: 17px; height: 14px; border-radius: 9px 9px 0 0; background: var(--muted); transform: translateX(-50%); }
 
 .tb-menu-scrim { position: fixed; inset: 0; z-index: 118; }
+/* LE MENU DÉFILE, et ce n'est pas une précaution théorique.
+   Il liste les cours. Ils étaient trois, ils sont cinq, et deux lignes de plus
+   ont suffi à pousser « Settings » hors de l'écran sur une fenêtre de 900
+   pixels de haut : le réglage était devenu inatteignable, sans qu'aucune
+   erreur ne soit levée nulle part. Le portail l'a vu parce qu'un clic a
+   expiré, ce qui est exactement ce qui serait arrivé à quelqu'un.
+   Une hauteur maximale et un défilement règlent le cas pour tous les cours à
+   venir, plutôt que de repousser le problème d'un cours à chaque fois. */
 .tb-menu {
   position: fixed; top: 70px; right: 16px; z-index: 119; width: 326px; max-width: calc(100vw - 24px);
   display: flex; flex-direction: column; gap: 4px; padding: 10px;
+  max-height: calc(100dvh - 86px); overflow-y: auto; overscroll-behavior: contain;
   background: var(--panel-solid); border: 1px solid var(--border-lit); border-radius: 14px; box-shadow: var(--shadow);
   animation: sbpop 0.16s ease-out;
 }
+/* les entrées ne doivent pas se tasser quand la liste défile · une ligne
+   écrasée est illisible et se clique de travers */
+.tb-menu > * { flex: none; }
 .tb-menu-profile { display: flex; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 8px; border-radius: 9px; text-align: left; }
 .tb-menu-profile:hover { background: color-mix(in srgb, var(--violet) 8%, transparent); }
 .tb-menu-name { display: flex; flex-direction: column; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: var(--ink); }
@@ -8004,22 +8028,36 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
 /* L'invite · posée en bas à gauche, sur la scène, dans une carte de verre.
    Elle ne barre pas la salle : un bandeau plein cadre, c'est exactement ce
    qu'on vient de retirer au-dessus des personnages. */
-.cls-hint {
-  position: absolute; left: 24px; bottom: 26px; max-width: 420px; text-align: left;
-  background: color-mix(in srgb, var(--panel-solid) 88%, transparent);
-  border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 18px 20px; backdrop-filter: blur(8px); box-shadow: var(--shadow);
+/* LA QUESTION · en haut, au centre, et rien d'autre.
+   Elle vivait dans un panneau de 420 pixels posé en bas à gauche, avec une
+   pastille, trois lignes de prose, un flou de fond et une ombre. Sur une salle
+   de douze agents, ce panneau en cachait deux et mangeait l'étiquette d'un
+   troisième : on avait recouvert le sujet de la page avec son commentaire.
+   Ce qu'il reste tient sur une bande haute où il n'y a que le mur. Pas de
+   cadre, pas de fond, pas de flou · un halo de papier suffit à détacher le
+   titre des cloisons claires, et il ne masque rien. */
+.cls-ask {
+  position: absolute; top: 18px; left: 0; right: 0; text-align: center;
+  pointer-events: none; padding: 0 16px;
 }
-.cls-hint h1 { font-size: 26px; margin: 10px 0 8px; }
-.cls-hint p { font-size: 15px; line-height: 1.55; color: var(--muted); margin: 0; }
+.cls-ask h1 {
+  font-size: clamp(26px, 3.4vw, 40px); line-height: 1.05; margin: 0;
+  color: var(--ink);
+  /* un halo, pas une ombre portée · il ne pose rien sur la scène, il découpe
+     seulement les lettres du décor derrière elles */
+  text-shadow: 0 0 10px var(--paper), 0 0 22px var(--paper), 0 0 4px var(--paper);
+}
+/* le seul contrôle qui reste doit rester cliquable, le titre non */
+.cls-ask .cls-hint-go { pointer-events: auto; }
+.cls-why { max-width: 70ch; margin-bottom: 20px; }
 .cls-hint-go {
-  margin-top: 12px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  margin-top: 10px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
   background: none; border: 0; color: var(--violet); text-decoration: underline; padding: 0;
+  text-shadow: 0 0 8px var(--paper), 0 0 14px var(--paper);
 }
 @media (max-width: 720px) {
   .cls-full { height: 78dvh; }
-  .cls-hint { left: 12px; right: 12px; bottom: 14px; max-width: none; padding: 14px 15px; }
-  .cls-hint h1 { font-size: 21px; }
+  .cls-ask { top: 12px; }
 }
 
 /* ==================================================================
@@ -9236,4 +9274,149 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 @media (max-width: 680px) {
   .cls-scene { height: 44vh; min-height: 260px; }
   .cls-pre { font-size: 12.5px; }
+}
+
+/* ===========================================================================
+   L'ICEBERG DES JETONS · le schéma de la page de sobriété.
+
+   CE QUI DÉCIDE DE LA MISE EN PAGE : le fond dessiné ne doit jamais gêner la
+   lecture. Une affiche peut se permettre de poser un texte sur un dessin ;
+   une page qu'on lit vraiment, non. Le tracé est donc DERRIÈRE, très pâle, il
+   ne réclame rien, et il disparaît complètement sous 900 pixels où il n'aurait
+   plus de sens : trois bandes empilées sur un iceberg étiré ne ressemblent
+   plus à un iceberg.
+
+   LES TROIS BANDES SE LISENT SANS LE DESSIN. C'est la règle qui les tient :
+   chaque bande porte son titre, sa profondeur et sa phrase. Le dessin ajoute
+   l'argument (ce qui dépasse est minuscule), il ne le porte pas tout seul.
+   =========================================================================== */
+.ice { position: relative; }
+.ice-scene { position: relative; margin-top: 26px; }
+
+.ice-art {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  color: var(--ink); opacity: 0.09; pointer-events: none;
+}
+.ice-art .ice-rule2 { opacity: 0.55; }
+@media (max-width: 900px) { .ice-art { display: none; } }
+
+.ice-bands { position: relative; display: flex; flex-direction: column; gap: 34px; }
+
+/* LA BANDE · son en-tête est étroit exprès. Une phrase d'introduction lue en
+   pleine largeur sur un écran de portable se lit deux fois plus mal qu'à
+   68 caractères, et c'est elle qui explique pourquoi la bande existe. */
+.ice-band-h { max-width: 62ch; margin-bottom: 16px; }
+.ice-band-k {
+  display: block; font-family: var(--font-ui); font-size: 12px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--violet); margin-bottom: 6px;
+}
+.ice-band-h h3 { font-family: var(--font-pixel); font-weight: 900; font-size: 26px; margin: 0 0 8px; }
+.ice-band-h p { font-size: 16px; line-height: 1.55; color: var(--muted); margin: 0; }
+
+/* LA BANDE DE SURFACE est traitée autrement : ce ne sont pas des conseils, ce
+   sont les idées reçues qu'on vient corriger. Les donner à voir exactement
+   comme les dix-neuf autres, c'est les recommander. */
+.d-surface .ice-band-k { color: var(--muted); }
+.d-surface .ice-chip { border-style: dashed; }
+.d-surface .ice-chip b { color: var(--muted); }
+
+.ice-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); }
+
+/* LE PAVÉ · la carte de l'app, en plus petit. Même fond plein, même filet,
+   même barre d'accent qui se déroule par la gauche : un schéma qui invente son
+   propre vocabulaire de carte donne l'impression d'une page collée là. */
+.ice-chip {
+  position: relative; overflow: hidden; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 13px 14px 14px; border: 1px solid var(--border); border-radius: 2px;
+  background: var(--panel-solid); font-family: var(--font-read);
+  transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s;
+}
+.ice-chip::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: var(--violet); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.32s ease;
+}
+.ice-chip:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--violet) 50%, var(--border)); }
+.ice-chip:hover::before, .ice-chip.on::before { transform: scaleX(1); }
+.ice-chip.on { border-color: var(--ink); }
+.ice-chip b { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; line-height: 1.25; color: var(--ink); }
+.ice-chip-s { font-size: 14px; line-height: 1.4; color: var(--muted); }
+.ice-chip .bh-icon { position: absolute; top: 13px; right: 12px; color: var(--muted); }
+
+/* LE DÉTAIL · pleine largeur sous la bande, jamais dans la grille. Un panneau
+   qui s'ouvre DANS une grille pousse les pavés voisins et fait sauter la ligne
+   qu'on était en train de lire. */
+.ice-detail { margin-top: 14px; border: 1px solid var(--ink); background: var(--paper); }
+.ice-detail-in { padding: 22px 24px 24px; }
+.ice-detail h4 { font-family: var(--font-pixel); font-weight: 900; font-size: 21px; margin: 0 0 8px; }
+.ice-what { font-family: var(--font-read); font-size: 18px; line-height: 1.5; margin: 0 0 18px; max-width: 68ch; }
+.ice-two { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.ice-k {
+  display: block; font-family: var(--font-ui); font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--violet); margin-bottom: 6px;
+}
+.ice-col p { font-size: 16px; line-height: 1.6; margin: 0; }
+.ice-called { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.ice-called ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ice-called li {
+  font-family: var(--font-ui); font-size: 13px; font-weight: 600;
+  padding: 5px 10px; border: 1px solid var(--border); color: var(--muted);
+}
+/* LE GAIN CALCULÉ · le seul endroit du schéma qui porte un chiffre, et il
+   vient des nombres saisis plus haut. Il est encadré pour qu'on voie que ce
+   n'est pas de la prose. */
+.ice-gain {
+  display: flex; align-items: flex-start; gap: 10px; margin: 20px 0 0;
+  padding: 12px 14px; border: 1px solid var(--violet);
+  font-size: 15px; line-height: 1.55;
+}
+.ice-gain .bh-icon { color: var(--violet); flex: none; margin-top: 3px; }
+.ice-gain b { font-family: var(--font-pixel); font-weight: 900; }
+
+@media (max-width: 680px) {
+  .ice-grid { grid-template-columns: 1fr; }
+  .ice-band-h h3 { font-size: 22px; }
+  .ice-detail-in { padding: 18px 16px 20px; }
+}
+
+/* LE SÉLECTEUR DE LANGUE · deux boutons accolés, dans le vocabulaire de l'app.
+   Filet d'un pixel, aucun arrondi, aucune ombre. L'actif s'inverse en noir
+   plein, comme l'étiquette choisie dans le dojo : c'est le même geste, donc
+   c'est la même forme. */
+.lsw { display: inline-flex; border: 1px solid var(--border); }
+.lsw-b {
+  font-family: var(--font-ui); font-weight: 700; font-size: 13px; cursor: pointer;
+  padding: 6px 12px; background: var(--panel-solid); color: var(--muted);
+  border: 0; border-right: 1px solid var(--border);
+  transition: background .14s ease, color .14s ease;
+}
+.lsw-b:last-child { border-right: 0; }
+.lsw-b:hover { color: var(--ink); }
+.lsw-b.on { background: var(--ink); color: var(--bg); }
+.lsw.sm .lsw-b { padding: 4px 8px; font-size: 12px; }
+.lp-footer .lsw { margin-top: 14px; }
+/* L'avertissement de traduction partielle · discret mais lisible : il informe,
+   il ne s'excuse pas. */
+.lp-foot-note { font-size: 13px; color: var(--muted); margin: 10px 0 0; max-width: 60ch; }
+
+/* L'ESPACE RESSOURCES · une ligne par cours, dans le vocabulaire des cartes.
+   Un bouton plein, un filet, aucun arrondi, et le format en bout de ligne
+   pour qu'on sache ce qu'on télécharge avant de cliquer. */
+.lrn-res-lead { font-size: 14px; line-height: 1.55; color: var(--muted); margin: 0 0 12px; max-width: 62ch; }
+.lrn-res-list { display: flex; flex-direction: column; gap: 8px; }
+.lrn-res-b {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; cursor: pointer;
+  padding: 11px 13px; border: 1px solid var(--border); border-radius: 2px;
+  background: var(--panel-solid); font-family: var(--font-read);
+  transition: border-color .14s ease, transform .14s ease;
+}
+.lrn-res-b:hover { border-color: var(--ink); transform: translateY(-2px); }
+.lrn-res-b .bh-icon { color: var(--violet); flex: none; }
+.lrn-res-b span { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.lrn-res-b b { font-family: var(--font-pixel); font-weight: 800; font-size: 14px; color: var(--ink); }
+.lrn-res-b em { font-style: normal; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.lrn-res-b i {
+  font-style: normal; font-family: var(--font-ui); font-weight: 800; font-size: 11px;
+  letter-spacing: 0.08em; color: var(--muted); border: 1px solid var(--border); padding: 3px 7px; flex: none;
 }

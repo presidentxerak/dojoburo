@@ -79,6 +79,28 @@ const CHECKS = [
   // chacun de leur côté, onze agents sur douze changeaient de tête, et le
   // douzième tombait juste par hasard, ce qui suffisait à ne pas chercher.
   ['test-faces.mjs', 1, true],
+  // L'ICEBERG DES JETONS · que le schéma ne recopie aucun levier (deux textes
+  // qui disent la même chose divergent à la première correction, et c'est le
+  // lecteur qui arbitre), que le nombre annoncé soit le vrai, et qu'aucun nom
+  // de commande n'y soit écrit en dur.
+  ['test-iceberg.mjs', 1, true],
+  // LE FRANÇAIS · que les deux langues soient côte à côte et qu'aucune ne soit
+  // la copie de l'autre, que les piliers portent leur traduction à leur
+  // source, et surtout que la COUVERTURE soit comptée à chaque passage. Le
+  // risque d'un site à moitié traduit n'est pas la faute de traduction, c'est
+  // de le croire terminé.
+  ['test-i18n.mjs', 1, true],
+  // LES DEUX COURS DE DESIGN · qu'ils n'enseignent AUCUN chemin de menu, parce
+  // qu'un chemin de menu est faux à la prochaine version et que le lecteur en
+  // conclut qu'il a mal compris. Et que la forme pédagogique tienne : les mots
+  // définis avant emploi, le piège nommé, un test vérifiable seul.
+  ['test-design.mjs', 1, true],
+  // L'ESPACE RESSOURCES · que les mémos restent GÉNÉRÉS et ne deviennent
+  // jamais des fichiers téléversés. Un PDF stocké garde l'ancienne version
+  // d'une leçon corrigée, et l'élève travaille alors sur un document faux que
+  // nous lui avons donné · une divergence qui se produit hors de l'écran, là
+  // où aucune autre garde ne regarde.
+  ['test-resources.mjs', 1, true],
   // LE JEU D'ICÔNES · qu'aucune ne redevienne un caractère. L'app les a
   // dessinées avec des caractères Unicode pendant des mois : ça s'affiche, mais
   // pas pareil chez tout le monde, et pas du tout sur certains téléphones. Un
