@@ -61,11 +61,21 @@ export const COURSE_COUNT = COURSE_PILLARS.length
 // COURSE_COUNT dérivé est exactement la faute que ce fichier existe pour
 // empêcher : le chiffre suit, la liste non, et personne ne relit un
 // sous-titre. Il dit maintenant ce qu'on apprend, et les cours se comptent.
+//
+// SECONDE CORRECTION, LE MÊME JOUR. La première version de ce commentaire
+// annonçait qu'on n'énumérait plus, et la phrase en dessous énumérait quand
+// même les quatre premiers cours. Le portail l'a attrapée par un chemin
+// inattendu : le sous-titre allongé a fait grandir la carte du hero, et il ne
+// restait plus que 193 pixels de dojo visible au-dessus. Une promesse qui
+// grandit mange le lieu qui la rend crédible.
+//
+// Il nomme donc l'ÉTENDUE du programme au lieu de la dérouler. « De la
+// construction d'un agent au design avec un modèle » couvre les cinq sans en
+// citer un seul, donc sans redevenir faux au sixième.
 export const SUBTITLE =
-  `A training centre with ${COURSE_COUNT} courses: how to build an AI agent, how to write the instruction that ` +
-  `decides everything, what it costs to run, and how to design with a model when you have never designed. ` +
-  `You walk into the dojo, pick one of ${USE_CASE_COUNT} shapes of agent, build it from a blank page, and leave ` +
-  'with a file you can run in a real framework. Nothing here works for you.'
+  `A training centre with ${COURSE_COUNT} courses, from building an AI agent to designing with one when you ` +
+  `have never designed. You walk into the dojo, pick one of ${USE_CASE_COUNT} shapes of agent, build it from a ` +
+  'blank page, and leave with a file that runs in a real framework. Nothing here works for you.'
 
 /** Les piliers · ils structurent l'en-tête, la page d'accueil et le
  *  plan du site. L'ordre est celui du parcours d'un visiteur : on apprend,
@@ -284,11 +294,10 @@ export const PROMISE_HL_FR = 'et à les faire tourner pour trois fois rien'
 export const PROMISE_FR = `${PROMISE_LEAD_FR}${PROMISE_SEP}${PROMISE_HL_FR}`
 
 export const SUBTITLE_FR =
-  `Un centre de formation avec ${COURSE_COUNT} cours : construire un agent IA, écrire l'instruction qui décide ` +
-  `de tout, savoir ce que ça coûte à faire tourner, et designer avec un modèle quand on n'a jamais designé. ` +
-  `Vous entrez dans le dojo, vous choisissez l'une des ${USE_CASE_COUNT} formes d'agent, vous la construisez ` +
-  "depuis la page blanche, et vous repartez avec un fichier qui tourne dans un vrai framework. Rien ici ne " +
-  'travaille à votre place.'
+  `Un centre de formation avec ${COURSE_COUNT} cours, de la construction d'un agent IA au design avec un modèle ` +
+  `quand on n'a jamais designé. Vous entrez dans le dojo, vous choisissez l'une des ${USE_CASE_COUNT} formes ` +
+  "d'agent, vous la construisez depuis la page blanche, et vous repartez avec un fichier qui tourne dans un " +
+  'vrai framework. Rien ici ne travaille à votre place.'
 
 export const NOT_THIS_FR = [
   'Nous ne faisons pas tourner votre entreprise à votre place.',

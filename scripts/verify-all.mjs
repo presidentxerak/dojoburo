@@ -95,6 +95,12 @@ const CHECKS = [
   // conclut qu'il a mal compris. Et que la forme pédagogique tienne : les mots
   // définis avant emploi, le piège nommé, un test vérifiable seul.
   ['test-design.mjs', 1, true],
+  // L'ESPACE RESSOURCES · que les mémos restent GÉNÉRÉS et ne deviennent
+  // jamais des fichiers téléversés. Un PDF stocké garde l'ancienne version
+  // d'une leçon corrigée, et l'élève travaille alors sur un document faux que
+  // nous lui avons donné · une divergence qui se produit hors de l'écran, là
+  // où aucune autre garde ne regarde.
+  ['test-resources.mjs', 1, true],
   // LE JEU D'ICÔNES · qu'aucune ne redevienne un caractère. L'app les a
   // dessinées avec des caractères Unicode pendant des mois : ça s'affiche, mais
   // pas pareil chez tout le monde, et pas du tout sur certains téléphones. Un

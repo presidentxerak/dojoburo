@@ -2959,12 +2959,24 @@ select, .ws-field input, .ws-field select, .ws-account input { font-family: var(
 .tb-noface::after { content: ''; position: absolute; left: 50%; top: 15px; width: 17px; height: 14px; border-radius: 9px 9px 0 0; background: var(--muted); transform: translateX(-50%); }
 
 .tb-menu-scrim { position: fixed; inset: 0; z-index: 118; }
+/* LE MENU DÉFILE, et ce n'est pas une précaution théorique.
+   Il liste les cours. Ils étaient trois, ils sont cinq, et deux lignes de plus
+   ont suffi à pousser « Settings » hors de l'écran sur une fenêtre de 900
+   pixels de haut : le réglage était devenu inatteignable, sans qu'aucune
+   erreur ne soit levée nulle part. Le portail l'a vu parce qu'un clic a
+   expiré, ce qui est exactement ce qui serait arrivé à quelqu'un.
+   Une hauteur maximale et un défilement règlent le cas pour tous les cours à
+   venir, plutôt que de repousser le problème d'un cours à chaque fois. */
 .tb-menu {
   position: fixed; top: 70px; right: 16px; z-index: 119; width: 326px; max-width: calc(100vw - 24px);
   display: flex; flex-direction: column; gap: 4px; padding: 10px;
+  max-height: calc(100dvh - 86px); overflow-y: auto; overscroll-behavior: contain;
   background: var(--panel-solid); border: 1px solid var(--border-lit); border-radius: 14px; box-shadow: var(--shadow);
   animation: sbpop 0.16s ease-out;
 }
+/* les entrées ne doivent pas se tasser quand la liste défile · une ligne
+   écrasée est illisible et se clique de travers */
+.tb-menu > * { flex: none; }
 .tb-menu-profile { display: flex; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; padding: 8px; border-radius: 9px; text-align: left; }
 .tb-menu-profile:hover { background: color-mix(in srgb, var(--violet) 8%, transparent); }
 .tb-menu-name { display: flex; flex-direction: column; font-family: var(--font-pixel); font-weight: 800; font-size: 16px; color: var(--ink); }
@@ -9387,3 +9399,24 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 /* L'avertissement de traduction partielle · discret mais lisible : il informe,
    il ne s'excuse pas. */
 .lp-foot-note { font-size: 13px; color: var(--muted); margin: 10px 0 0; max-width: 60ch; }
+
+/* L'ESPACE RESSOURCES · une ligne par cours, dans le vocabulaire des cartes.
+   Un bouton plein, un filet, aucun arrondi, et le format en bout de ligne
+   pour qu'on sache ce qu'on télécharge avant de cliquer. */
+.lrn-res-lead { font-size: 14px; line-height: 1.55; color: var(--muted); margin: 0 0 12px; max-width: 62ch; }
+.lrn-res-list { display: flex; flex-direction: column; gap: 8px; }
+.lrn-res-b {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; cursor: pointer;
+  padding: 11px 13px; border: 1px solid var(--border); border-radius: 2px;
+  background: var(--panel-solid); font-family: var(--font-read);
+  transition: border-color .14s ease, transform .14s ease;
+}
+.lrn-res-b:hover { border-color: var(--ink); transform: translateY(-2px); }
+.lrn-res-b .bh-icon { color: var(--violet); flex: none; }
+.lrn-res-b span { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.lrn-res-b b { font-family: var(--font-pixel); font-weight: 800; font-size: 14px; color: var(--ink); }
+.lrn-res-b em { font-style: normal; font-size: 13px; line-height: 1.45; color: var(--muted); }
+.lrn-res-b i {
+  font-style: normal; font-family: var(--font-ui); font-weight: 800; font-size: 11px;
+  letter-spacing: 0.08em; color: var(--muted); border: 1px solid var(--border); padding: 3px 7px; flex: none;
+}

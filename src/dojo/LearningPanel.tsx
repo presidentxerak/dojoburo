@@ -12,6 +12,7 @@
 //   2 · LA CEINTURE · et ce qu'il reste pour la suivante
 //   3 · LES TROIS COURS · avec leur barre
 //   4 · CE QUI EST GAGNÉ · badges, ceinture, diplômes
+//   5 · LES RESSOURCES · un mémo par cours, à emporter
 //
 // « La suite » est en premier parce que c'est la seule chose actionnable. Un
 // tableau de bord qui commence par un bilan demande de lire avant de pouvoir
@@ -21,10 +22,15 @@ import { useProgress } from '../academy/progress'
 import { readLearning } from './learning'
 import { PILLAR_BY_ID } from '../data/positioning'
 import { USE_CASE_COUNT } from '../data/agentUseCases'
+import { RESOURCES, resourceTitle } from '../data/resources'
+import { downloadCoursePdf } from '../lib/coursePdf'
+import { useLang, useT } from '../i18n'
 
 export function LearningPanel() {
   const p = useProgress()
   const L = readLearning(p.doneKeys)
+  const lang = useLang()
+  const t = useT()
 
   return (
     <div className="lrn">
@@ -87,6 +93,31 @@ export function LearningPanel() {
               </a>
             )
           })}
+        </div>
+      </section>
+
+      {/* 5 · LES RESSOURCES · placées APRÈS ce qui est gagné, et c'est
+          délibéré. Quelqu'un qui ouvre son profil vient voir où il en est,
+          pas télécharger. Les mettre plus haut ferait passer un cours pour une
+          bibliothèque de fichiers, ce qu'il n'est pas.
+
+          ILS SONT GÉNÉRÉS À LA DEMANDE · rien n'est stocké, donc un mémo ne
+          peut pas garder l'ancienne version d'une leçon corrigée. Voir
+          data/resources pour le raisonnement complet. */}
+      <section className="lrn-sec lrn-res">
+        <h4>{t('res.h')}</h4>
+        <p className="lrn-res-lead">{t('res.lead')}</p>
+        <div className="lrn-res-list">
+          {RESOURCES.map((r) => (
+            <button key={r.courseId} className="lrn-res-b" onClick={() => downloadCoursePdf(r, lang)}>
+              <BauhausIcon name={PILLAR_BY_ID[r.courseId].glyph} size={16} />
+              <span>
+                <b>{resourceTitle(r, lang)}</b>
+                <em>{lang === 'fr' ? r.about.fr : r.about.en}</em>
+              </span>
+              <i>PDF</i>
+            </button>
+          ))}
         </div>
       </section>
 

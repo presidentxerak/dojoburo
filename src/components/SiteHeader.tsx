@@ -27,11 +27,24 @@ import { useLang, useT } from '../i18n'
 // Les libellés viennent de ./data/positioning, comme partout ailleurs : le
 // jour où un pilier change de nom, il change de nom aux six endroits à la
 // fois.
-// La navigation porte des PILIERS, plus un lien fixe. Le libellé n'est plus
-// figé à la construction du tableau : il dépend de la langue, donc il se
-// calcule au rendu · un tableau constant évalué à l'import garderait l'anglais
-// pour toujours, quelle que soit la langue choisie ensuite.
-const NAV_PILLARS = PILLARS.filter((p) => p.id !== 'dojo')
+// LA BARRE NE LISTE PLUS CHAQUE PILIER, et c'est le portail qui l'a exigé.
+//
+// Elle les listait tous sauf la salle d'entraînement. À quatre piliers plus
+// les tarifs, cinq liens tenaient sur une ligne. Deux cours de design sont
+// arrivés, ça a fait SEPT, la barre est passée à deux lignes et mesurait 102
+// pixels pour une variable qui en annonce 71 · toutes les pages posées sous
+// une barre fixe se sont décalées d'un coup.
+//
+// La correction n'est pas d'agrandir la variable. Une barre de navigation qui
+// grandit à chaque cours ajouté est une barre qui finira par prendre le tiers
+// de l'écran, et personne ne lit sept liens de toute façon. Elle porte
+// maintenant TROIS entrées : les cours (qui mènent à la section qui les liste
+// tous, chiffre compris), la bibliothèque, et les tarifs. Le bouton d'appel à
+// l'action, lui, ouvre déjà le dojo, donc la porte d'entrée n'est pas perdue.
+//
+// LE PIED DE PAGE, LUI, GARDE TOUT. C'est son métier : il est le plan du site,
+// et il a la place. Voir components/SiteFooter, qui lit les piliers entiers.
+const NAV_LIBRARY = PILLARS.find((p) => p.id === 'library')!
 
 export function SiteHeader({ enter }: { enter?: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -56,9 +69,8 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
           <Logo size={38} /> <span className="lp-brand-wm"><Wordmark /> <span className="beta-badge">Beta</span></span>
         </a>
         <nav className="lp-nav-links">
-          {NAV_PILLARS.map((p) => (
-            <a key={p.id} href={p.path}>{(lang === 'fr' && p.fr?.nav) || p.nav}</a>
-          ))}
+          <a href="/#courses">{t('nav.courses')}</a>
+          <a href={NAV_LIBRARY.path}>{(lang === 'fr' && NAV_LIBRARY.fr?.nav) || NAV_LIBRARY.nav}</a>
           <a href="/#pricing">{t('nav.pricing')}</a>
         </nav>
         <div className="lp-nav-right">
@@ -89,7 +101,10 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
         <>
           <div className="lp-menu-scrim" onClick={() => setMenuOpen(false)} />
           <nav className="lp-mobile-menu">
-            {NAV_PILLARS.map((p) => (
+            {/* LE MENU DÉROULANT GARDE TOUT · il défile, donc la contrainte
+                qui a vidé la barre du haut ne s'y applique pas, et quelqu'un
+                qui ouvre un menu cherche une liste complète. */}
+            {PILLARS.filter((p) => p.id !== 'dojo').map((p) => (
               <a key={p.id} href={p.path} onClick={() => setMenuOpen(false)}>
                 {(lang === 'fr' && p.fr?.nav) || p.nav}
               </a>

@@ -35,6 +35,7 @@ export const DICT = {
   // les affichent. Les traduire demande d'ajouter le français DANS le pilier,
   // pas d'en faire une copie ici qui divergerait au premier renommage.
   'nav.pricing': { en: 'Pricing', fr: 'Tarifs' },
+  'nav.courses': { en: 'Courses', fr: 'Les cours' },
   'nav.home': { en: 'Home', fr: 'Accueil' },
   'nav.frameworks': { en: 'Frameworks', fr: 'Frameworks' },
   'nav.guide': { en: 'App setup guide', fr: 'Guide de branchement' },
@@ -183,6 +184,13 @@ export const DICT = {
   'dc.noClicksBody': {
     en: 'Interfaces move several times a year. A course built on where the buttons are today sends someone clicking at a menu that has been renamed, it does not work, and they conclude they misunderstood. What does not move is the model: what a frame is, what a constraint does, why a component exists. Hold that, and finding the current button takes ten minutes instead of a course.',
     fr: "Les interfaces bougent plusieurs fois par an. Un cours bâti sur l'emplacement des boutons du jour envoie quelqu'un cliquer sur un menu qui a été renommé, ça ne marche pas, et il en conclut qu'il a mal compris. Ce qui ne bouge pas, c'est le modèle : ce qu'est un cadre, ce que fait une contrainte, pourquoi un composant existe. Tenez ça, et trouver le bouton du moment prend dix minutes au lieu d'un cours.",
+  },
+
+  // ---- l'espace ressources -----------------------------------------------
+  'res.h': { en: 'Take a course with you', fr: 'Emportez un cours' },
+  'res.lead': {
+    en: 'One memo per course, built from the lessons themselves at the moment you ask for it. Nothing is stored, so a memo can never hold an older version of a lesson than the one on the page.',
+    fr: "Un mémo par cours, construit depuis les leçons elles-mêmes au moment où vous le demandez. Rien n'est stocké, donc un mémo ne peut jamais porter une version plus ancienne qu'une leçon de la page.",
   },
 
   // ---- le pied de page ---------------------------------------------------
