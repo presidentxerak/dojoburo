@@ -25,6 +25,7 @@ import {
   type IcebergItem, type Depth,
 } from '../data/tokenIceberg'
 import { saving, type Usage } from '../data/frugality'
+import { useLang, useT } from '../i18n'
 
 /** Le tracé du fond · décoratif, donc masqué aux lecteurs d'écran : tout ce
  *  qu'il raconte est écrit en toutes lettres dans les bandes au dessus. */
@@ -53,15 +54,22 @@ function IcebergArt() {
   )
 }
 
+/** LE TEXTE D'UN PAVÉ dans la langue lue · l'anglais sert de secours plutôt
+ *  qu'un vide, comme partout ailleurs. Un schéma dont la moitié des pavés sont
+ *  blancs est pire qu'un schéma en anglais. */
+const co = (i: IcebergItem, fr: boolean) => (fr && i.fr) || i
+
 function Chip({ item, open, onToggle }: { item: IcebergItem; open: boolean; onToggle: () => void }) {
+  const fr = useLang() === 'fr'
+  const c = co(item, fr)
   return (
     <button
       className={`ice-chip${open ? ' on' : ''}`}
       aria-expanded={open}
       onClick={onToggle}
     >
-      <b>{item.title}</b>
-      <span className="ice-chip-s">{item.short}</span>
+      <b>{c.title}</b>
+      <span className="ice-chip-s">{c.short}</span>
       <BauhausIcon name={open ? 'cross' : 'play'} size={11} />
     </button>
   )
@@ -70,7 +78,15 @@ function Chip({ item, open, onToggle }: { item: IcebergItem; open: boolean; onTo
 /** Le détail d'un item · ouvert sous sa bande, en pleine largeur, parce qu'un
  *  panneau qui pousse une grille de pavés fait sauter tout ce qu'on lisait. */
 function Detail({ item, usage }: { item: IcebergItem; usage: Usage }) {
+  const lang = useLang()
+  const t = useT()
+  const fr = lang === 'fr'
+  const c = co(item, fr)
   const lever = leverOf(item)
+  // LE LEVIER DÉSIGNÉ porte lui aussi ses deux langues · on va chercher son
+  // titre français là où il vit, dans data/frugality, plutôt que d'en garder
+  // une copie ici. C'est la règle de tout ce fichier : l'item DÉSIGNE.
+  const leverTitle = lever ? ((fr && lever.fr?.title) || lever.title) : ''
   // LE GAIN N'EST PAS AFFIRMÉ, il est calculé sur les chiffres du lecteur. Un
   // item sans levier n'en affiche aucun plutôt que d'en inventer un.
   const gain = lever ? saving(usage, lever) : null
@@ -78,17 +94,17 @@ function Detail({ item, usage }: { item: IcebergItem; usage: Usage }) {
   return (
     <div className="ice-detail">
       <div className="ice-detail-in">
-        <h4>{item.title}</h4>
-        <p className="ice-what">{item.what}</p>
+        <h4>{c.title}</h4>
+        <p className="ice-what">{c.what}</p>
 
         <div className="ice-two">
           <div className="ice-col">
-            <span className="ice-k">Why it works</span>
-            <p>{item.why}</p>
+            <span className="ice-k">{t('ice.why')}</span>
+            <p>{c.why}</p>
           </div>
           <div className="ice-col">
-            <span className="ice-k">When not to</span>
-            <p>{item.not}</p>
+            <span className="ice-k">{t('ice.not')}</span>
+            <p>{c.not}</p>
           </div>
         </div>
 
@@ -96,7 +112,7 @@ function Detail({ item, usage }: { item: IcebergItem; usage: Usage }) {
           <div className="ice-called">
             {/* LES NOMS BOUGENT, LA MÉCANIQUE NON · on le dit, plutôt que de
                 laisser croire que cette liste est à jour pour toujours. */}
-            <span className="ice-k">What it tends to be called</span>
+            <span className="ice-k">{t('ice.called')}</span>
             <ul>{item.called.map((c) => <li key={c}>{c}</li>)}</ul>
           </div>
         )}
@@ -105,9 +121,8 @@ function Detail({ item, usage }: { item: IcebergItem; usage: Usage }) {
           <p className="ice-gain">
             <BauhausIcon name="bars" size={13} />
             <span>
-              On the numbers you put in above, this one is worth about{' '}
-              <b>{Math.round(gain.pct)}%</b> of your monthly tokens. It is lever
-              {' '}<b>{lever.title.toLowerCase()}</b> in the list below, where the calculation is shown.
+              {t('ice.gainA')} <b>{Math.round(gain.pct)}%</b> {t('ice.gainB')}{' '}
+              <b>{leverTitle.toLowerCase()}</b> {t('ice.gainC')}
             </span>
           </p>
         )}
@@ -121,7 +136,9 @@ function Band({ depth, items, open, setOpen, usage }: {
   open: string | null; setOpen: (v: string | null) => void
   usage: Usage
 }) {
-  const L = DEPTH_LABEL[depth]
+  const fr = useLang() === 'fr'
+  const L0 = DEPTH_LABEL[depth]
+  const L = fr ? L0.fr : L0
   const shown = items.find((i) => i.id === open)
   return (
     <div className={`ice-band d-${depth}`}>
@@ -142,16 +159,12 @@ function Band({ depth, items, open, setOpen, usage }: {
 
 export function TokenIceberg({ usage }: { usage: Usage }) {
   const [open, setOpen] = useState<string | null>(null)
+  const t = useT()
 
   return (
     <section className="lp-sec ice">
-      <h2>{WAY_COUNT} ways to spend fewer tokens, and the four everyone tries first</h2>
-      <p className="lp-lead">
-        This is not about one assistant. Every item here comes from how the billing works, which is the same
-        wherever you are: the input is re-sent in full on every turn, the output costs more per token than the
-        input, and anything that enters the context stays there. The names below move between products. The
-        mechanics do not.
-      </p>
+      <h2>{WAY_COUNT} {t('ice.h2')}</h2>
+      <p className="lp-lead">{t('ice.lead')}</p>
 
       <div className="ice-scene">
         <IcebergArt />

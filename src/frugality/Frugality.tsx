@@ -29,6 +29,7 @@ import {
 } from '../data/frugality'
 import { SiteFooter } from '../components/SiteFooter'
 import { TokenIceberg } from './TokenIceberg'
+import { useLang, useT } from '../i18n'
 
 const n0 = (n: number) => Math.round(n).toLocaleString('en-US')
 const short = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}k` : String(Math.round(n)))
@@ -57,6 +58,13 @@ function Field({ label, hint, value, onChange, min = 0, step = 1, suffix }: {
 
 export function FrugalityPage() {
   const [u, setU] = useState<Usage>(DEFAULT_USAGE)
+  const t = useT()
+  const fr = useLang() === 'fr'
+  /** Le texte d'un levier dans la langue lue · l'anglais en secours, comme
+   *  partout. Un levier à moitié blanc serait pire qu'un levier en anglais. */
+  const lv = (l: { title: string; how: string; why: string; not: string; fr?: { title: string; how: string; why: string; not: string } }) =>
+    (fr && l.fr) || l
+  const fam = (f: { label: string; lead: string; fr?: { label: string; lead: string } }) => (fr && f.fr) || f
   const set = (k: keyof Usage) => (v: number) => setU((p) => ({ ...p, [k]: v }))
 
   useHeadTags({
@@ -189,12 +197,15 @@ export function FrugalityPage() {
           Ranked against the numbers you just entered, not against a general opinion. Change one thing, watch the
           figure above move, keep it if it holds.
         </p>
-        {(['setup', 'writing'] as LeverFamily[]).map((fam) => (
-          <div className="fr-fam" key={fam}>
-            <h3>{FAMILY_LABEL[fam].label}</h3>
-            <p className="fr-fam-lead">{FAMILY_LABEL[fam].lead}</p>
+        {/* la variable de boucle s'appelait `fam`, comme le sélecteur de
+            langue défini plus haut · deux choses différentes sous le même nom
+            dans la même portée */}
+        {(['setup', 'writing'] as LeverFamily[]).map((f) => (
+          <div className="fr-fam" key={f}>
+            <h3>{fam(FAMILY_LABEL[f]).label}</h3>
+            <p className="fr-fam-lead">{fam(FAMILY_LABEL[f]).lead}</p>
             <div className="fr-levers">
-              {rank.filter((r) => r.lever.family === fam).map(({ lever, gain }) => (
+              {rank.filter((r) => r.lever.family === f).map(({ lever, gain }) => (
                 <div className={`fr-lever${pulled(lever.id) ? ' on' : ''}`} key={lever.id}>
                   <div className="fr-lever-head">
                     {/* LE LEVIER SE COCHE · c'est ce qui fait de cette page un
@@ -213,16 +224,16 @@ export function FrugalityPage() {
                     >
                       <BauhausIcon name={pulled(lever.id) ? 'check' : 'box'} size={13} />
                     </button>
-                    <b>{lever.title}</b>
+                    <b>{lv(lever).title}</b>
                     <span className="fr-gain">
                       −{short(gain.tokens)} tok/mo
                       {gain.cost !== null && gain.cost > 0 && <> · −{money(gain.cost)}</>}
                       <i>{gain.pct.toFixed(0)}%</i>
                     </span>
                   </div>
-                  <p className="fr-how"><b>How.</b> {lever.how}</p>
-                  <p className="fr-why">{lever.why}</p>
-                  <p className="fr-not"><b>When not to.</b> {lever.not}</p>
+                  <p className="fr-how"><b>{t('fg.how')}</b> {lv(lever).how}</p>
+                  <p className="fr-why">{lv(lever).why}</p>
+                  <p className="fr-not"><b>{t('fg.not')}</b> {lv(lever).not}</p>
                 </div>
               ))}
             </div>

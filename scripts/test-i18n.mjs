@@ -135,6 +135,54 @@ for (const pl of PLANS) {
   }
 }
 
+/* --- 3 ter · la prose du cours de sobriété -------------------------------- */
+//
+// UN COURS SE TRADUIT EN ENTIER OU PAS DU TOUT. Une page dont l'en-tête est
+// français et le corps anglais est pire qu'une page anglaise : elle a l'air
+// cassée, et le lecteur ne sait pas si le reste viendra. On vérifie donc les
+// deux fichiers de prose du cours ENSEMBLE, item par item.
+const FG = await load('src/data/frugality.ts', 'frug.mjs')
+const IC = await load('src/data/tokenIceberg.ts', 'ice.mjs')
+
+for (const l of FG.LEVERS) {
+  ok(`le levier « ${l.id} » a son français`, !!l.fr?.title && !!l.fr?.how && !!l.fr?.why && !!l.fr?.not,
+    l.fr?.title ?? 'absent')
+  if (l.fr) {
+    // LA CONTRE-INDICATION est la phrase qu'on traduit le plus volontiers à la
+    // va-vite parce qu'elle est en dernier. Approximative, elle transforme un
+    // conseil de sobriété en conseil de coupe, et quelqu'un retire ce qui
+    // tenait le reste debout.
+    ok(`« ${l.id} » a traduit sa contre-indication`, l.fr.not !== l.not && l.fr.not.length > 40,
+      `${l.fr.not.length} signes`)
+    ok(`« ${l.id} » n'a rien recopié`, l.fr.title !== l.title && l.fr.why !== l.why)
+  }
+}
+for (const f of Object.keys(FG.FAMILY_LABEL)) {
+  ok(`la famille « ${f} » a son français`, !!FG.FAMILY_LABEL[f].fr?.label)
+}
+
+for (const i of IC.ICEBERG) {
+  ok(`le pavé « ${i.id} » a son français`, !!i.fr?.title && !!i.fr?.what && !!i.fr?.why && !!i.fr?.not,
+    i.fr?.title ?? 'absent')
+  if (i.fr) {
+    // LA LIGNE DU SCHÉMA était le seul champ que cette règle ne regardait pas,
+    // et c'est le plus visible de tous : c'est lui qui s'affiche sous le titre
+    // dans la grille, sans qu'on ait à ouvrir le pavé. Une morsure l'a montré
+    // · remplacer un `short` français par l'anglais ne faisait rougir personne.
+    ok(`« ${i.id} » n'a rien recopié`,
+      i.fr.title !== i.title && i.fr.short !== i.short && i.fr.why !== i.why && i.fr.not !== i.not)
+    // LA LIGNE DU SCHÉMA doit rester courte dans les DEUX langues · le
+    // français est en moyenne quinze pour cent plus long que l'anglais, donc
+    // une ligne qui tenait juste en anglais déborde en français, et le pavé
+    // se met à faire deux hauteurs au milieu d'une grille.
+    ok(`« ${i.id} » tient sur une ligne en français`, i.fr.short.length <= 60, `${i.fr.short.length} signes`)
+  }
+}
+for (const d of ['surface', 'real', 'deeper']) {
+  ok(`la profondeur « ${d} » a son français`, !!IC.DEPTH_LABEL[d].fr?.label)
+  ok(`« ${d} » n'a pas recopié son intitulé`, IC.DEPTH_LABEL[d].fr.label !== IC.DEPTH_LABEL[d].label)
+}
+
 /* --- 4 · les surfaces annoncées traduites le sont vraiment --------------- */
 
 // On relit le JSX et on cherche du texte anglais écrit en dur entre deux
@@ -142,7 +190,8 @@ for (const pl of PLANS) {
 // propres et des chiffres. On cherche une SUITE DE MOTS anglais, c'est à dire
 // ce qui ressemble à une phrase d'interface.
 const TRANSLATED = ['src/components/SiteFooter.tsx', 'src/components/SiteHeader.tsx',
-  'src/components/LangSwitch.tsx', 'src/components/landing/Pricing.tsx', 'src/Landing.tsx']
+  'src/components/LangSwitch.tsx', 'src/components/landing/Pricing.tsx', 'src/Landing.tsx',
+  'src/frugality/TokenIceberg.tsx']
 const HARDCODED = />\s*[A-Z][a-z]+(?:\s+[a-z]+){1,}\s*</
 for (const f of TRANSLATED) {
   const src = readFileSync(f, 'utf8')
@@ -191,7 +240,17 @@ const proseFiles = ['src/data/academy.ts', 'src/data/agentLessons.ts', 'src/data
 // qualité d'une traduction ne se mesure pas par une expression régulière, et
 // prétendre le contraire serait le même mensonge de couverture que cette
 // épreuve existe pour empêcher.
-const BILINGUAL = [/\bfr:\s*['"`]/, /\bBi\b/]
+// TROIS FORMES, parce que la base en emploie trois : `fr: '...'` pour une
+// chaîne (positioning), `fr: { ... }` pour un groupe (plans, leviers, pavés),
+// et le type `Bi` pour une prose faite de centaines de paires (designCourses).
+//
+// C'EST LA DEUXIÈME FOIS QUE CE COMPTEUR RATE UNE FORME, et ça dit quelque
+// chose sur ce qu'il vaut. Il indique, il ne prouve pas. Ce qui PROUVE qu'un
+// fichier est traduit, ce sont les vérifications nommées plus haut, une par
+// levier, une par pavé, une par pilier, une par formule · elles échouent sur
+// un texte manquant ou recopié. Ce compteur sert à voir le reste à faire d'un
+// coup d'oeil, et il faut le lire comme ça.
+const BILINGUAL = [/\bfr:\s*['"`{]/, /\bBi\b/]
 let proseWithFr = 0
 for (const f of proseFiles) {
   const src = readFileSync(f, 'utf8')

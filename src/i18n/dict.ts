@@ -193,6 +193,29 @@ export const DICT = {
     fr: "Un mémo par cours, construit depuis les leçons elles-mêmes au moment où vous le demandez. Rien n'est stocké, donc un mémo ne peut jamais porter une version plus ancienne qu'une leçon de la page.",
   },
 
+  // ---- l'iceberg des jetons ----------------------------------------------
+  // Les VINGT-CINQ PAVÉS ne sont pas ici : ils portent leurs deux langues dans
+  // data/tokenIceberg, avec leur contre-indication. Ici il n'y a que les mots
+  // qui entourent le schéma.
+  'ice.h2': {
+    en: 'ways to spend fewer tokens, and the four everyone tries first',
+    fr: "façons de dépenser moins de jetons, et les quatre que tout le monde essaie d'abord",
+  },
+  'ice.lead': {
+    en: 'This is not about one assistant. Every item here comes from how the billing works, which is the same wherever you are: the input is re-sent in full on every turn, the output costs more per token than the input, and anything that enters the context stays there. The names below move between products. The mechanics do not.',
+    fr: "Ceci ne parle pas d'un assistant en particulier. Chaque item vient de la façon dont la facturation fonctionne, et elle est la même partout : l'entrée est renvoyée en entier à chaque tour, la sortie coûte plus cher par jeton que l'entrée, et ce qui entre dans le contexte y reste. Les noms ci-dessous changent d'un produit à l'autre. La mécanique, non.",
+  },
+  'ice.why': { en: 'Why it works', fr: 'Pourquoi ça marche' },
+  'ice.not': { en: 'When not to', fr: 'Quand ne pas le faire' },
+  'ice.called': { en: 'What it tends to be called', fr: "Comment ça s'appelle en général" },
+  'ice.gainA': { en: 'On the numbers you put in above, this one is worth about', fr: 'Sur les chiffres saisis plus haut, celui-ci vaut environ' },
+  'ice.gainB': { en: 'of your monthly tokens. It is lever', fr: 'de vos jetons mensuels. C\'est le levier' },
+  'ice.gainC': { en: 'in the list below, where the calculation is shown.', fr: 'dans la liste ci-dessous, où le calcul est montré.' },
+
+  // ---- le cours de sobriété ----------------------------------------------
+  'fg.how': { en: 'How.', fr: 'Comment.' },
+  'fg.not': { en: 'When not to.', fr: 'Quand ne pas le faire.' },
+
   // ---- le pied de page ---------------------------------------------------
   'footer.built': { en: 'A training centre for AI agents', fr: "Un centre de formation aux agents IA" },
 } as const satisfies Record<string, Entry>
