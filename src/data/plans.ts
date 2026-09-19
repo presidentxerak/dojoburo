@@ -73,6 +73,16 @@ export interface Plan {
   inclHead: string
   incl: string[]
   featured?: boolean
+  /** LE FRANÇAIS, dans la même entrée que l'anglais.
+   *
+   *  Une carte de prix est l'endroit du site où une divergence coûte le plus
+   *  cher : on ne se trompe pas sur un libellé de navigation, on se trompe sur
+   *  ce que quelqu'un croit acheter. Les deux versions se lisent donc ensemble,
+   *  et scripts/test-i18n.mjs refuse une traduction qui recopie l'anglais.
+   *
+   *  Le PRIX, lui, n'est pas traduit · c'est un nombre, et il n'existe qu'une
+   *  fois dans ce fichier. Seul ce qu'on en dit a deux langues. */
+  fr?: { tagline: string; inclHead: string; incl: string[] }
 }
 
 /** L'abonnement bibliothèque, par personne et par mois.
@@ -112,6 +122,17 @@ export const PLANS: Plan[] = [
       'The reasoning behind every file in the library',
       'Two library files, open, so you can judge the rest',
     ],
+    fr: {
+      tagline: "La formation entière, et le diplôme. Sans carte, sans compte pour commencer.",
+      inclHead: "Comprend",
+      incl: [
+        "Les trois cours en entier, chaque leçon, rien sous clé",
+        "Le dojo d'entraînement, et le détail du coût de n'importe quelle exécution",
+        "Chaque ceinture, chaque badge, et le diplôme certifié à la fin",
+        "Le raisonnement derrière chaque fichier de la bibliothèque",
+        "Deux fichiers de la bibliothèque, ouverts, pour juger du reste",
+      ],
+    },
   },
   {
     id: 'founder',
@@ -127,6 +148,17 @@ export const PLANS: Plan[] = [
       'A custom domain, and no DojoBuro badge',
       'Your own model key, sealed server-side, if you ever switch the dojo live',
     ],
+    fr: {
+      tagline: "Chaque prompt, brief et skill en vrai fichier, à emporter.",
+      inclHead: "Tout ce qui est gratuit, plus",
+      incl: [
+        "Chaque fichier de la bibliothèque, en entier",
+        "Le téléchargement en vrai .md ou .txt, pas un copier-coller",
+        "Les nouveaux fichiers au fur et à mesure, sans supplément",
+        "Un domaine à vous, et aucun badge DojoBuro",
+        "Votre propre clé de modèle, scellée côté serveur, si un jour vous passez le dojo en mode vif",
+      ],
+    },
   },
   {
     id: 'managed',
@@ -143,6 +175,17 @@ export const PLANS: Plan[] = [
       `Cheaper per person than ${priceTag(LIBRARY_USD)} each, from ${SEAT_MIN} seats`,
       'Below that, take the Library plan, it costs you less',
     ],
+    fr: {
+      tagline: "Pour un groupe que vous formez. Une seule facture, à partir de cinq sièges.",
+      inclHead: "Tout ce que contient Library, pour chaque siège, plus",
+      incl: [
+        "Une seule facture pour tout le groupe, sièges ajoutés ou retirés chaque mois",
+        "Qui a terminé quoi : ceintures, badges et diplômes à l'échelle du groupe",
+        "Invitation par courriel, aucune clé de licence à faire circuler",
+        "Moins cher par personne que l'abonnement individuel, dès cinq sièges",
+        "En dessous, prenez la formule Library : elle vous coûte moins",
+      ],
+    },
   },
 ]
 
@@ -151,12 +194,16 @@ export const PLAN_BY_ID = Object.fromEntries(PLANS.map((p) => [p.id, p])) as Rec
 /** "$19" · the headline figure, without the per-seat qualifier. */
 export const planPrice = (p: Plan): string => priceTag(p.usd)
 
-/** "/ month" or "/ seat / month" · the unit belongs next to the number, because
- *  $15 and $15 a seat are not the same offer and a card that hides the
- *  difference is the same fault as two prices for one product. */
-export const planUnit = (p: Plan): string =>
-  p.usd === 0 ? '/ forever' : p.perSeat ? '/ seat / month' : '/ month'
-
-/** "from $75 a month" · what a per-seat plan actually costs at its floor. */
-export const planFloor = (p: Plan): string | null =>
-  p.perSeat && p.minSeats ? `from $${p.usd * p.minSeats} a month` : null
+/* L'UNITÉ ET LE PLANCHER ONT QUITTÉ CE FICHIER.
+ *
+ * `planUnit` rendait « / seat / month » et `planFloor` « from $75 a month » :
+ * deux phrases anglaises écrites en dur dans un fichier de données. Tant que
+ * le site n'avait qu'une langue, c'était seulement un mauvais rangement. Au
+ * moment de traduire, c'est devenu un trou · du texte à traduire qui ne
+ * ressemble pas à du texte, planqué derrière une fonction, dans le fichier que
+ * la traduction n'a aucune raison d'aller lire.
+ *
+ * Les DONNÉES restent ici : `perSeat`, `minSeats`, et le prix. Les MOTS qui
+ * les habillent se composent dans la carte, à partir du dictionnaire, où ils
+ * ont deux langues. Le plancher reste un calcul, jamais un nombre recopié :
+ * voir SCHOOL_FLOOR_USD. */

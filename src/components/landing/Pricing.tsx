@@ -1,4 +1,5 @@
-import { PLANS, planPrice, planUnit, planFloor, type Plan } from '../../data/plans'
+import { PLANS, planPrice, type Plan } from '../../data/plans'
+import { useLang, useT } from '../../i18n'
 
 // Pricing, from the one place that defines it (data/plans.ts).
 //
@@ -23,31 +24,44 @@ export function Pricing({
   connectors: number
 }) {
   const cta = (p: Plan) => (p.id === 'free' ? enter : goBilling)
+  const t = useT()
+  const lang = useLang()
+  // LE TEXTE DE LA FORMULE dans la langue lue · l'anglais sert de secours
+  // plutôt qu'un vide, comme partout ailleurs : une carte de prix à moitié
+  // blanche est pire qu'une carte de prix en anglais.
+  const copy = (p: Plan) => (lang === 'fr' && p.fr) || p
+  // L'UNITÉ ET LE PLANCHER se construisent ICI et non dans data/plans, parce
+  // qu'ils sont faits de mots. planUnit et planFloor rendaient « / seat /
+  // month » et « from $75 a month » en dur : deux phrases anglaises sorties
+  // d'un fichier de données, invisibles pour la traduction.
+  const unit = (p: Plan) => (p.usd === 0 ? t('price.forever') : p.perSeat ? t('price.seatMonth') : t('price.month'))
+  const floor = (p: Plan) =>
+    p.perSeat && p.minSeats ? `${t('price.from')} $${p.usd * p.minSeats} ${t('price.aMonth')}` : null
 
   return (
     <>
       <div className="lp-plans plans3">
         {PLANS.map((p) => (
           <div key={p.id} className={`lp-plan${p.featured ? ' feat' : ''}`}>
-            {p.featured && <div className="lp-plan-badge">Most popular</div>}
+            {p.featured && <div className="lp-plan-badge">{t('price.popular')}</div>}
             <div className="lp-plan-name">{p.name}</div>
             <div className="lp-plan-price">
               {planPrice(p)}
-              <small> {planUnit(p)}</small>
+              <small> {unit(p)}</small>
             </div>
             {/* LE PLANCHER · $15 le siège et $15 tout court ne sont pas la même
                 offre. Une carte qui affiche le prix unitaire sans dire combien
                 de sièges il faut prendre commet exactement la faute que ce
                 fichier existe pour empêcher : un prix qui veut dire deux
                 choses. */}
-            {planFloor(p) && <div className="lp-plan-floor">{planFloor(p)}</div>}
-            <div className="lp-plan-sub">{p.tagline}</div>
+            {floor(p) && <div className="lp-plan-floor">{floor(p)}</div>}
+            <div className="lp-plan-sub">{copy(p).tagline}</div>
             <button className={`lp-cta${p.featured ? '' : ' ghostcta'}`} onClick={cta(p)}>
-              {p.id === 'free' ? 'Get started' : `Choose ${p.name}`}
+              {p.id === 'free' ? t('price.start') : `${t('price.choose')} ${p.name}`}
             </button>
-            <div className="lp-plan-incl">{p.inclHead}</div>
+            <div className="lp-plan-incl">{copy(p).inclHead}</div>
             <ul>
-              {p.incl.map((line) => (
+              {copy(p).incl.map((line) => (
                 <li key={line}>{line === 'Every app connector' ? `All ${connectors} app connectors` : line}</li>
               ))}
             </ul>
@@ -60,18 +74,15 @@ export function Pricing({
           que les gens se posent en lisant une grille de prix est celle-ci :
           qu'est-ce qui va m'être facturé en plus ? Réponse : rien. */}
       <p className="lp-plan-note">
-        <b>Nothing here is metered.</b> Learning is free and stays free, the diploma costs nothing,
-        and no plan counts your runs, because the dojo is a worked example and calls no paid model.
-        A paid plan buys the files and, on School, the seats · when you take an agent away and run it
-        for real, it runs on your own key and your provider bills you directly, never us.
+        <b>{t('price.notMetered')}</b> {t('price.noMeterBody')}
       </p>
 
       <div className="lp-enterprise">
         <div>
-          <strong>Business / Enterprise</strong>
-          <span>Self-hosted or local worker, SAML SSO &amp; security review, a dedicated MCP hub with an SLA, budgets &amp; spend controls, custom connectors and dedicated support. Keep everything on your own infrastructure.</span>
+          <strong>{t('price.entTitle')}</strong>
+          <span>{t('price.entBody')}</span>
         </div>
-        <button className="lp-ghost" onClick={goAssistant}>Ask Dojobot</button>
+        <button className="lp-ghost" onClick={goAssistant}>{t('price.askBot')}</button>
       </div>
     </>
   )

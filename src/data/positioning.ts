@@ -209,3 +209,57 @@ export const NOT_THIS = [
   'We do not resell model tokens, and there is no meter between you and your provider.',
   'Nothing in the dojo calls a paid model or writes to your accounts: it is a sandbox.',
 ]
+
+/* ------------------------------------------------------------------ */
+/* LE FRANÇAIS des phrases qui n'appartiennent à aucun pilier          */
+/* ------------------------------------------------------------------ */
+//
+// Les piliers portent leur traduction dans leur propre entrée (voir le champ
+// `fr` plus haut). Restent la promesse, le sous-titre et ce que nous ne
+// faisons pas : trois textes lus par la page d'accueil, les métadonnées et le
+// robot, donc trois textes qui doivent rester UNE seule version chacun.
+//
+// POURQUOI ICI ET PAS DANS LE DICTIONNAIRE. Le dictionnaire porte les phrases
+// d'interface : des libellés courts, répétés, qui n'appartiennent à personne.
+// Ces trois là sont le POSITIONNEMENT, et leur source unique est ce fichier.
+// Les déplacer ailleurs rouvrirait précisément la faille que l'en-tête de ce
+// module décrit : une promesse écrite à deux endroits finit par dire deux
+// choses, et c'est la version que personne ne relit qui part en production.
+//
+// LA PROMESSE FRANÇAISE N'EST PAS UNE TRADUCTION MOT À MOT. « Learn to build
+// AI agents, and to run them cheap » traduit littéralement donne « et à les
+// faire tourner bon marché », qui est correct et sonne comme une brochure.
+// Une promesse se réécrit dans la langue d'arrivée, sinon elle se lit comme
+// une traduction, et une promesse qui se lit comme une traduction n'engage
+// personne.
+export const PROMISE_LEAD_FR = 'Apprenez à construire des agents IA'
+export const PROMISE_HL_FR = 'et à les faire tourner pour trois fois rien'
+export const PROMISE_FR = `${PROMISE_LEAD_FR}${PROMISE_SEP}${PROMISE_HL_FR}`
+
+export const SUBTITLE_FR =
+  `Un centre de formation avec ${COURSE_COUNT} cours : construire un agent, écrire l'instruction qui décide de ` +
+  `tout, et réduire ce qu'il coûte à faire tourner. Vous entrez dans le dojo, vous choisissez l'une des ` +
+  `${USE_CASE_COUNT} formes d'agent, vous la construisez depuis la page blanche, et vous repartez avec un ` +
+  'fichier qui tourne dans un vrai framework. Rien ici ne travaille à votre place.'
+
+export const NOT_THIS_FR = [
+  'Nous ne faisons pas tourner votre entreprise à votre place.',
+  "Nous ne revendons pas de jetons, et il n'y a aucun compteur entre vous et votre fournisseur.",
+  "Rien dans le dojo n'appelle de modèle payant ni n'écrit dans vos comptes : c'est un bac à sable.",
+]
+
+/** La promesse, le sous-titre et les démentis dans la langue demandée.
+ *
+ *  Un seul point d'entrée plutôt que trois tests de langue disséminés dans la
+ *  page d'accueil, les métadonnées et le robot · c'est là que les versions
+ *  commencent à diverger. */
+export function positioningFor(lang: 'en' | 'fr') {
+  const fr = lang === 'fr'
+  return {
+    promiseLead: fr ? PROMISE_LEAD_FR : PROMISE_LEAD,
+    promiseHl: fr ? PROMISE_HL_FR : PROMISE_HL,
+    promise: fr ? PROMISE_FR : PROMISE,
+    subtitle: fr ? SUBTITLE_FR : SUBTITLE,
+    notThis: fr ? NOT_THIS_FR : NOT_THIS,
+  }
+}

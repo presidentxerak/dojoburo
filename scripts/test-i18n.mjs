@@ -45,8 +45,10 @@ async function load(entry, name) {
 
 const D = await load('src/i18n/dict.ts', 'dict.mjs')
 const P = await load('src/data/positioning.ts', 'pos.mjs')
+const PL = await load('src/data/plans.ts', 'plans.mjs')
 const { DICT, KEY_COUNT, translate } = D
-const { PILLARS } = P
+const { PILLARS, positioningFor, PROMISE, PROMISE_FR, SUBTITLE, SUBTITLE_FR, NOT_THIS, NOT_THIS_FR } = P
+const { PLANS } = PL
 
 /* --- 1 · le dictionnaire tient debout ------------------------------------ */
 
@@ -93,13 +95,44 @@ for (const p of PILLARS) {
   }
 }
 
+/* --- 3 bis · le positionnement et les formules --------------------------- */
+
+// LE POSITIONNEMENT · une promesse écrite à deux endroits finit par dire deux
+// choses, et c'est la version que personne ne relit qui part en production.
+// Un seul point d'entrée, donc, et on vérifie qu'il rend bien deux langues.
+ok('la promesse existe dans les deux langues', PROMISE.length > 10 && PROMISE_FR.length > 10)
+ok('la promesse française n\'est pas la copie de l\'anglaise', PROMISE !== PROMISE_FR)
+ok('le sous-titre existe dans les deux langues', SUBTITLE !== SUBTITLE_FR && SUBTITLE_FR.length > 40)
+ok('les démentis existent dans les deux langues', NOT_THIS.length === NOT_THIS_FR.length,
+  `${NOT_THIS.length} / ${NOT_THIS_FR.length}`)
+ok('aucun démenti n\'est resté en anglais', NOT_THIS_FR.every((l, i) => l !== NOT_THIS[i]))
+ok('positioningFor rend le français', positioningFor('fr').promise === PROMISE_FR)
+ok('positioningFor rend l\'anglais', positioningFor('en').promise === PROMISE)
+
+// LES FORMULES · c'est l'endroit du site où une divergence coûte le plus cher,
+// parce qu'on ne se trompe pas sur un libellé de navigation, on se trompe sur
+// ce que quelqu'un croit acheter.
+for (const pl of PLANS) {
+  ok(`la formule « ${pl.name} » a son français`, !!pl.fr?.tagline && !!pl.fr?.inclHead && !!pl.fr?.incl?.length,
+    pl.fr?.tagline?.slice(0, 40) ?? 'absent')
+  if (pl.fr) {
+    ok(`« ${pl.name} » n'a pas recopié l'anglais`, pl.fr.tagline !== pl.tagline && pl.fr.inclHead !== pl.inclHead)
+    // LE NOMBRE DE LIGNES DOIT CORRESPONDRE · une liste française plus courte
+    // que l'anglaise est la façon silencieuse de retirer une promesse à une
+    // moitié des clients.
+    ok(`« ${pl.name} » promet autant de choses dans les deux langues`, pl.fr.incl.length === pl.incl.length,
+      `${pl.incl.length} / ${pl.fr.incl.length}`)
+  }
+}
+
 /* --- 4 · les surfaces annoncées traduites le sont vraiment --------------- */
 
 // On relit le JSX et on cherche du texte anglais écrit en dur entre deux
 // balises. La règle ne peut pas être « aucune majuscule » : il reste des noms
 // propres et des chiffres. On cherche une SUITE DE MOTS anglais, c'est à dire
 // ce qui ressemble à une phrase d'interface.
-const TRANSLATED = ['src/components/SiteFooter.tsx', 'src/components/SiteHeader.tsx', 'src/components/LangSwitch.tsx']
+const TRANSLATED = ['src/components/SiteFooter.tsx', 'src/components/SiteHeader.tsx',
+  'src/components/LangSwitch.tsx', 'src/components/landing/Pricing.tsx', 'src/Landing.tsx']
 const HARDCODED = />\s*[A-Z][a-z]+(?:\s+[a-z]+){1,}\s*</
 for (const f of TRANSLATED) {
   const src = readFileSync(f, 'utf8')

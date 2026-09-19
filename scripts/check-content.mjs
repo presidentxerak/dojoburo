@@ -194,7 +194,13 @@ const RULES = [
   // WIRING, not the value. A literal here was correct the day it was typed and
   // wrong the day a lesson was added — which is the whole failure mode this
   // script exists to catch.
-  { file: 'src/Landing.tsx', must: /\{LESSON_COUNT\} lessons/, why: 'the landing must read the lesson count from the curriculum, not hardcode it' },
+  // LE NOMBRE DE LEÇONS · la règle exigeait « {LESSON_COUNT} lessons », c'est à
+  // dire le compte ET le mot anglais collés. Le mot est traduit maintenant, le
+  // compte non · c'est exactement le bon partage. La garde ne doit donc plus
+  // réclamer le mot anglais, qui serait une façon d'interdire la traduction au
+  // nom de la justesse du chiffre, mais bien que le CHIFFRE soit lu et non
+  // écrit, ce qui est ce qu'elle a toujours voulu dire.
+  { file: 'src/Landing.tsx', must: /\{LESSON_COUNT\} \{t\('lp\.lessons'\)\}/, why: 'the landing must read the lesson count from the curriculum, not hardcode it' },
 
   // index.html · the one description a crawler reads before any JS runs. It must
   // carry the SAME position as the h1: those two disagreed for months because
@@ -212,9 +218,23 @@ const RULES = [
   // dans le titre, et le jour où la promesse est passée à la virgule les deux
   // ont menti ensemble sans que rien n'échoue. Le titre pose maintenant les
   // deux moitiés ET le séparateur, tous les trois importés.
-  { file: 'src/Landing.tsx', must: /\{PROMISE_LEAD\}\{PROMISE_SEP\}<span className="hl-acid">\{PROMISE_HL\}<\/span>/, why: 'the hero must RENDER the promise, separator included, not retype it' },
-  { file: 'src/Landing.tsx', must: /\{SUBTITLE\}/, why: 'the hero subtitle comes from positioning.ts too' },
-  { file: 'src/Landing.tsx', must: /NOT_THIS/, why: 'the landing must say in plain words what the product no longer does' },
+  // LA PROMESSE, LE SOUS-TITRE ET LES DÉMENTIS · ils étaient lus directement
+  // depuis positioning (PROMISE_LEAD, SUBTITLE, NOT_THIS). Ils passent
+  // maintenant par positioningFor(lang), qui rend la bonne langue.
+  //
+  // CETTE GARDE A ÉTÉ RÉPARÉE, PAS ASSOUPLIE. Ce qu'elle protège n'a pas
+  // changé d'un mot : le hero RENDU la promesse, séparateur compris, au lieu
+  // de la retaper. Seul le chemin par lequel elle arrive a changé. Une garde
+  // qu'on relâche parce qu'elle vient de rougir cesse de garder quoi que ce
+  // soit · c'est le moment exact où elle était le plus utile.
+  { file: 'src/Landing.tsx', must: /\{pos\.promiseLead\}\{PROMISE_SEP\}<span className="hl-acid">\{pos\.promiseHl\}<\/span>/, why: 'the hero must RENDER the promise, separator included, not retype it' },
+  { file: 'src/Landing.tsx', must: /\{pos\.subtitle\}/, why: 'the hero subtitle comes from positioning.ts too' },
+  { file: 'src/Landing.tsx', must: /pos\.notThis/, why: 'the landing must say in plain words what the product no longer does' },
+  // … et la source reste UNE, dans les deux langues : positioningFor est le
+  // seul chemin, donc il n'existe pas de version française qui vive ailleurs.
+  { file: 'src/Landing.tsx', must: /positioningFor\(lang\)/, why: 'one entry point for the positioning, in either language' },
+  { file: 'src/data/positioning.ts', must: /PROMISE_LEAD_FR/, why: 'the French promise lives with the English one, never in a parallel file' },
+  { file: 'src/data/positioning.ts', must: /NOT_THIS_FR/, why: 'the same for the disclaimers' },
   // les quatre piliers sont la carte du produit · l'en-tête et l'accueil les
   // lisent au même endroit, sinon la navigation et la page se contredisent
   { file: 'src/components/SiteHeader.tsx', must: /PILLARS/, why: 'the header navigation is the pillars, read from positioning.ts' },
