@@ -21,6 +21,10 @@ import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
 import { LibraryHome, EntryPage } from './library/Library'
 import { FrugalityPage } from './frugality/Frugality'
+// LES DEUX COURS DE DESIGN · une seule page, deux contenus. Voir l'en-tête de
+// design/DesignCoursePage pour la raison : deux composants jumeaux divergent.
+import { DesignCoursePage } from './design/DesignCoursePage'
+import { DESIGN_COURSE, FIGMA_COURSE } from './data/designCourses'
 import { BuildAgentPage } from './dojo/BuildAgent'
 import { FrameworksPage } from './dojo/Frameworks'
 import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
@@ -87,6 +91,8 @@ function Root() {
   // silence.
   if (path === '/frameworks') return <FrameworksPage />
   if (path === '/frugality') return <FrugalityPage />
+  if (path === '/design') return <DesignCoursePage course={DESIGN_COURSE} />
+  if (path === '/figma') return <DesignCoursePage course={FIGMA_COURSE} />
   if (path === '/library') return <LibraryHome />
   const lm = path.match(/^\/library\/([a-z0-9-]+)$/i)
   if (lm) return <EntryPage slug={lm[1].toLowerCase()} />

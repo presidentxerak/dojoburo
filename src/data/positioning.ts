@@ -45,23 +45,33 @@ export const PROMISE = `${PROMISE_LEAD}${PROMISE_SEP}${PROMISE_HL}`
  *  sous-titre les compte, et qu'une constante lue avant sa déclaration fait
  *  tomber le module entier au chargement. La liste complète, avec leurs
  *  libellés, est dérivée des piliers plus bas. */
-export const COURSE_PILLARS: Array<'build' | 'academy' | 'eco'> = ['build', 'academy', 'eco']
+export const COURSE_PILLARS: Array<'build' | 'academy' | 'eco' | 'design' | 'figma'> =
+  ['build', 'academy', 'eco', 'design', 'figma']
 export const COURSE_COUNT = COURSE_PILLARS.length
 
 /** La promesse en deux phrases · ce qu'on est, et ce qu'on n'est pas. La
  *  deuxième compte autant : un visiteur arrivé pour faire travailler des
  *  agents à sa place doit comprendre en une phrase qu'il n'est pas au bon
  *  endroit, plutôt que de le découvrir après avoir créé un compte. */
+// LE SOUS-TITRE N'ÉNUMÈRE PLUS LES COURS.
+//
+// Il les listait : « build an agent, write the prompt that decides everything,
+// and cut what it costs to run ». Trois cours tenaient dans une phrase. Cinq
+// n'y tiennent pas, et une énumération écrite à la main à côté d'un
+// COURSE_COUNT dérivé est exactement la faute que ce fichier existe pour
+// empêcher : le chiffre suit, la liste non, et personne ne relit un
+// sous-titre. Il dit maintenant ce qu'on apprend, et les cours se comptent.
 export const SUBTITLE =
-  `A training centre with ${COURSE_COUNT} courses: build an agent, write the prompt that decides everything, ` +
-  `and cut what it costs to run. You walk into the dojo, pick one of ${USE_CASE_COUNT} shapes of agent, build it ` +
-  'from a blank page, and leave with a file you can run in a real framework. Nothing here works for you.'
+  `A training centre with ${COURSE_COUNT} courses: how to build an AI agent, how to write the instruction that ` +
+  `decides everything, what it costs to run, and how to design with a model when you have never designed. ` +
+  `You walk into the dojo, pick one of ${USE_CASE_COUNT} shapes of agent, build it from a blank page, and leave ` +
+  'with a file you can run in a real framework. Nothing here works for you.'
 
 /** Les piliers · ils structurent l'en-tête, la page d'accueil et le
  *  plan du site. L'ordre est celui du parcours d'un visiteur : on apprend,
  *  on prend des outils, on les rend sobres, on s'entraîne. */
 export interface Pillar {
-  id: 'build' | 'academy' | 'library' | 'eco' | 'dojo'
+  id: 'build' | 'academy' | 'library' | 'eco' | 'dojo' | 'design' | 'figma'
   /** le libellé dans la navigation · court, un mot si possible */
   nav: string
   /** le titre de sa section */
@@ -159,6 +169,43 @@ export const PILLARS: Pillar[] = [
     },
   },
   {
+    // LES DEUX COURS DE DESIGN · ils arrivent après la sobriété parce que
+    // c'est l'ordre du parcours, et avant la salle d'entraînement qui n'est
+    // pas un cours. Leur public n'est pas celui des trois premiers : ce sont
+    // des gens du growth et de la communication qui n'ont jamais designé, et
+    // les accroches le disent plutôt que de le laisser deviner.
+    id: 'design',
+    nav: 'Design with a model',
+    title: 'Judging a screen, without ever having designed one',
+    blurb:
+      'A model produces design that is plausible, and plausible is the trap. This course does not teach you to ' +
+      'draw: it teaches you to say what is wrong with a screen, in words a model can act on.',
+    path: '/design',
+    glyph: 'layers',
+    fr: {
+      nav: 'Design avec un modèle',
+      title: "Juger un écran sans avoir jamais designé",
+      blurb:
+        "Un modèle produit du design plausible, et le plausible est le piège. Ce cours n'apprend pas à dessiner : il apprend à dire ce qui ne va pas dans un écran, avec des mots sur lesquels un modèle peut agir.",
+    },
+  },
+  {
+    id: 'figma',
+    nav: 'Figma',
+    title: 'Five ideas, and the buttons stop mattering',
+    blurb:
+      'Interfaces move several times a year; the model behind them has not moved in years. Learn what a frame ' +
+      'is, what auto layout does and why a component exists, and the current interface is a ten minute discovery.',
+    path: '/figma',
+    glyph: 'grid',
+    fr: {
+      nav: 'Figma',
+      title: "Cinq idées, et les boutons cessent d'avoir de l'importance",
+      blurb:
+        "Les interfaces bougent plusieurs fois par an ; le modèle derrière elles n'a pas bougé depuis des années. Apprenez ce qu'est un cadre, ce que fait l'auto layout et pourquoi un composant existe, et l'interface du moment se découvre en dix minutes.",
+    },
+  },
+  {
     id: 'dojo',
     nav: 'Practice room',
     title: 'A room to take things apart in',
@@ -237,10 +284,11 @@ export const PROMISE_HL_FR = 'et à les faire tourner pour trois fois rien'
 export const PROMISE_FR = `${PROMISE_LEAD_FR}${PROMISE_SEP}${PROMISE_HL_FR}`
 
 export const SUBTITLE_FR =
-  `Un centre de formation avec ${COURSE_COUNT} cours : construire un agent, écrire l'instruction qui décide de ` +
-  `tout, et réduire ce qu'il coûte à faire tourner. Vous entrez dans le dojo, vous choisissez l'une des ` +
-  `${USE_CASE_COUNT} formes d'agent, vous la construisez depuis la page blanche, et vous repartez avec un ` +
-  'fichier qui tourne dans un vrai framework. Rien ici ne travaille à votre place.'
+  `Un centre de formation avec ${COURSE_COUNT} cours : construire un agent IA, écrire l'instruction qui décide ` +
+  `de tout, savoir ce que ça coûte à faire tourner, et designer avec un modèle quand on n'a jamais designé. ` +
+  `Vous entrez dans le dojo, vous choisissez l'une des ${USE_CASE_COUNT} formes d'agent, vous la construisez ` +
+  "depuis la page blanche, et vous repartez avec un fichier qui tourne dans un vrai framework. Rien ici ne " +
+  'travaille à votre place.'
 
 export const NOT_THIS_FR = [
   'Nous ne faisons pas tourner votre entreprise à votre place.',

@@ -90,6 +90,11 @@ const CHECKS = [
   // risque d'un site à moitié traduit n'est pas la faute de traduction, c'est
   // de le croire terminé.
   ['test-i18n.mjs', 1, true],
+  // LES DEUX COURS DE DESIGN · qu'ils n'enseignent AUCUN chemin de menu, parce
+  // qu'un chemin de menu est faux à la prochaine version et que le lecteur en
+  // conclut qu'il a mal compris. Et que la forme pédagogique tienne : les mots
+  // définis avant emploi, le piège nommé, un test vérifiable seul.
+  ['test-design.mjs', 1, true],
   // LE JEU D'ICÔNES · qu'aucune ne redevienne un caractère. L'app les a
   // dessinées avec des caractères Unicode pendant des mois : ça s'affiche, mais
   // pas pareil chez tout le monde, et pas du tout sur certains téléphones. Un

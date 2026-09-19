@@ -166,6 +166,25 @@ export const DICT = {
   },
   'price.askBot': { en: 'Ask Dojobot', fr: 'Demander à Dojobot' },
 
+  // ---- les cours de design -----------------------------------------------
+  // Les libellés de la page. Le CONTENU des leçons vit dans
+  // data/designCourses, avec ses deux langues dans la même entrée · ces cours
+  // sont nés bilingues, et c'est la raison pour laquelle le lot de traduction
+  // est passé avant eux.
+  'dc.like': { en: 'Think of it as', fr: 'Voyez ça comme' },
+  'dc.words': { en: 'The words we are going to use', fr: 'Les mots que nous allons employer' },
+  'dc.steps': { en: 'What you actually do', fr: 'Ce que vous faites, concrètement' },
+  'dc.trap': { en: 'The beginner trap', fr: 'Le piège du débutant' },
+  'dc.check': { en: 'How to know it is right', fr: 'Comment savoir que c\'est juste' },
+  'dc.applied': { en: 'Applied', fr: 'Appliqué' },
+  'dc.markApplied': { en: 'I have applied this', fr: "Je l'ai appliqué" },
+  'dc.of': { en: 'of', fr: 'sur' },
+  'dc.noClicksH2': { en: 'There are no menu paths here, on purpose', fr: "Aucun chemin de menu ici, et c'est voulu" },
+  'dc.noClicksBody': {
+    en: 'Interfaces move several times a year. A course built on where the buttons are today sends someone clicking at a menu that has been renamed, it does not work, and they conclude they misunderstood. What does not move is the model: what a frame is, what a constraint does, why a component exists. Hold that, and finding the current button takes ten minutes instead of a course.',
+    fr: "Les interfaces bougent plusieurs fois par an. Un cours bâti sur l'emplacement des boutons du jour envoie quelqu'un cliquer sur un menu qui a été renommé, ça ne marche pas, et il en conclut qu'il a mal compris. Ce qui ne bouge pas, c'est le modèle : ce qu'est un cadre, ce que fait une contrainte, pourquoi un composant existe. Tenez ça, et trouver le bouton du moment prend dix minutes au lieu d'un cours.",
+  },
+
   // ---- le pied de page ---------------------------------------------------
   'footer.built': { en: 'A training centre for AI agents', fr: "Un centre de formation aux agents IA" },
 } as const satisfies Record<string, Entry>

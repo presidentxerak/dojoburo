@@ -87,11 +87,21 @@ ok('la liste des mots identiques reste courte', SAME_IN_BOTH.size <= keys.length
 // Un pilier est lu par six surfaces et sa source est unique. Sa traduction doit
 // vivre AVEC lui, sinon on recrée la divergence que positioning existe pour
 // empêcher, dans la langue que le moins de gens relisent.
+// UN NOM PROPRE NE SE TRADUIT PAS. « Figma » est « Figma » dans les deux
+// langues, et une garde qui exige que tout diffère accuse le seul libellé
+// qu'il serait absurde de changer. On la rend PRÉCISE plutôt que tolérante :
+// le libellé de navigation peut être identique quand c'est un nom propre
+// listé ici, mais la PROSE (titre et accroche) doit différer dans tous les
+// cas, parce qu'aucune prose n'est un nom propre.
+const PROPER_NOUN_NAV = new Set(['figma', 'library'])
 for (const p of PILLARS) {
   ok(`le pilier « ${p.id} » a son français`, !!p.fr?.nav && !!p.fr?.title && !!p.fr?.blurb,
     p.fr?.nav ?? 'absent')
   if (p.fr) {
-    ok(`« ${p.id} » n'a pas recopié l'anglais`, p.fr.nav !== p.nav && p.fr.blurb !== p.blurb)
+    ok(`« ${p.id} » n'a pas recopié sa prose`, p.fr.title !== p.title && p.fr.blurb !== p.blurb)
+    if (!PROPER_NOUN_NAV.has(p.id)) {
+      ok(`« ${p.id} » a traduit son libellé`, p.fr.nav !== p.nav, p.fr.nav)
+    }
   }
 }
 
@@ -156,11 +166,36 @@ ok('une clé inconnue rend la clé', translate('clé.inconnue', 'fr') === 'clé.
 // Ce bloc ne fait échouer personne, il RAPPORTE. C'est ce qui empêche de
 // croire le lot terminé : tant que la prose des cours n'est pas traduite, le
 // chiffre le dit à chaque exécution du portail.
+// LES FICHIERS DE PROSE · designCourses y entre, et il compte comme les
+// autres. Il est né bilingue, donc il part à 1 plutôt qu'à 0 · c'est
+// exactement ce que le lot de traduction avant les nouveaux cours achetait,
+// et le compteur le montre au lieu qu'on l'affirme.
 const proseFiles = ['src/data/academy.ts', 'src/data/agentLessons.ts', 'src/data/agentUseCases.ts',
-  'src/data/frameworks.ts', 'src/data/tokenIceberg.ts', 'src/data/frugality.ts', 'src/support/knowledge.ts']
+  'src/data/frameworks.ts', 'src/data/tokenIceberg.ts', 'src/data/frugality.ts', 'src/support/knowledge.ts',
+  'src/data/designCourses.ts']
+// COMMENT ON DÉTECTE QU'UN FICHIER PORTE DEUX LANGUES, et la limite de cette
+// mesure, dite franchement.
+//
+// La première version cherchait `fr: '...'`. C'est la forme qu'emploient
+// positioning et plans, et elle a donné 0 sur 8 alors que designCourses est
+// intégralement bilingue · celui-ci porte ses deux langues par une fonction
+// B(en, fr) et un type Bi, parce que sa prose est faite de centaines de
+// paires. La sonde mesurait donc une SYNTAXE qui se trouvait corréler avec la
+// traduction, pas la traduction. Un fichier traduit autrement se lisait comme
+// un fichier non traduit, ce qui est la pire erreur pour un compteur : il
+// donnait le chiffre le plus pessimiste possible en ayant l'air rigoureux.
+//
+// On accepte donc les deux formes que la base emploie réellement. Ce que ce
+// compteur dit reste modeste et il faut le dire : un fichier compte quand il
+// PORTE une seconde langue, pas quand chacune de ses phrases est traduite. La
+// qualité d'une traduction ne se mesure pas par une expression régulière, et
+// prétendre le contraire serait le même mensonge de couverture que cette
+// épreuve existe pour empêcher.
+const BILINGUAL = [/\bfr:\s*['"`]/, /\bBi\b/]
 let proseWithFr = 0
 for (const f of proseFiles) {
-  if (/\bfr:\s*['"`]/.test(readFileSync(f, 'utf8'))) proseWithFr++
+  const src = readFileSync(f, 'utf8')
+  if (BILINGUAL.some((re) => re.test(src))) proseWithFr++
 }
 console.log('')
 console.log(`      couverture · interface : ${keys.length} clés, les deux langues`)

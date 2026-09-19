@@ -1,4 +1,9 @@
-// CE QUE LE MAÎTRE VOIT · les trois cours, comptés à un seul endroit.
+// CE QUE LE MAÎTRE VOIT · les cours, comptés à un seul endroit.
+//
+// Ils étaient trois, ils sont cinq. Ce fichier n'a pas eu à être réécrit pour
+// autant : il lit COURSE_PILLARS, et le typecheck a désigné tout seul le seul
+// endroit qui listait les cours à la main (la table des libellés plus bas).
+// C'est ce que la source unique achète, et c'est visible exactement ce jour là.
 //
 // Le centre de formation annonce trois cours. Il n'en comptait qu'un et demi :
 // les agents construits étaient suivis sur /build, les leçons sur /academy, et
@@ -18,6 +23,7 @@
 import { LESSON_COUNT, TRACKS } from '../data/academy'
 import { USE_CASES, USE_CASE_COUNT } from '../data/agentUseCases'
 import { LEVERS } from '../data/frugality'
+import { DESIGN_COURSE_BY_ID, DESIGN_TRACK } from '../data/designCourses'
 import { COURSE_PILLARS } from '../data/positioning'
 
 /** La piste sous laquelle les étapes d'agent sont rangées · elle n'est PAS une
@@ -26,6 +32,10 @@ export const AGENT_TRACK = 'agent'
 
 /** …et celle des leviers de sobriété, pour la même raison. */
 export const LEVER_TRACK = 'lever'
+
+/** …et celle des deux cours de design · même piste pour les deux, les clés
+ *  étant préfixées par le cours, donc aucun mélange possible. */
+export { DESIGN_TRACK }
 
 /** Les vraies pistes de l'académie · lues depuis le programme, jamais listées
  *  à la main. Une piste ajoutée un jour se compterait toute seule. */
@@ -63,11 +73,31 @@ export function readProgress(done: readonly string[]): CourseProgress[] {
   // cours : le calculateur ne se « termine » pas, on y entre ses chiffres.
   const levers = LEVERS.filter((l) => has(LEVER_TRACK, l.id)).length
 
+  // DESIGN ET FIGMA · une leçon compte quand elle a été APPLIQUÉE, jamais
+  // quand elle a été lue. C'est la règle déjà retenue pour les leviers : lire
+  // une leçon de design ne coûte rien et n'apprend rien.
+  const designDone = (id: 'design' | 'figma') =>
+    DESIGN_COURSE_BY_ID[id].lessons.filter((l) => has(DESIGN_TRACK, `${id}/${l.id}`)).length
+
   const pc = (d: number, t: number) => (t > 0 ? Math.min(100, Math.round((d / t) * 100)) : 0)
   return [
     { id: 'build', done: agents, total: USE_CASE_COUNT, percent: pc(agents, USE_CASE_COUNT), unit: ['agent', 'agents'] },
     { id: 'academy', done: lessons, total: LESSON_COUNT, percent: pc(lessons, LESSON_COUNT), unit: ['lesson', 'lessons'] },
     { id: 'eco', done: levers, total: LEVERS.length, percent: pc(levers, LEVERS.length), unit: ['lever', 'levers'] },
+    {
+      id: 'design',
+      done: designDone('design'),
+      total: DESIGN_COURSE_BY_ID.design.lessons.length,
+      percent: pc(designDone('design'), DESIGN_COURSE_BY_ID.design.lessons.length),
+      unit: ['lesson', 'lessons'],
+    },
+    {
+      id: 'figma',
+      done: designDone('figma'),
+      total: DESIGN_COURSE_BY_ID.figma.lessons.length,
+      percent: pc(designDone('figma'), DESIGN_COURSE_BY_ID.figma.lessons.length),
+      unit: ['lesson', 'lessons'],
+    },
   ]
 }
 
@@ -103,4 +133,6 @@ const LABEL: Record<CourseProgress['id'], string> = {
   build: 'building an agent',
   academy: 'prompt engineering',
   eco: 'token frugality',
+  design: 'design with a model',
+  figma: 'Figma',
 }

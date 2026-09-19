@@ -117,20 +117,37 @@ const VENDORS = /\b(anthropic|claude-[a-z0-9-]+|openai|gpt-[0-9]|gemini|mistral|
 const leaky = X.FORMATS.filter((f) => VENDORS.test(X.render(sample, f.id))).map((f) => f.id)
 ok('aucun format ne nomme un fournisseur', leaky.length === 0, leaky.join(', '))
 
-/* --- 4 · le maître compte les TROIS cours -------------------------------- */
+/* --- 4 · le maître compte TOUS les cours --------------------------------- */
+//
+// CETTE SECTION DISAIT « LES TROIS COURS », et elle écrivait le chiffre 3 en
+// dur à côté d'une liste ['build', 'academy', 'eco'] écrite à la main. Le jour
+// où deux cours de design sont arrivés, elle est devenue rouge · ce qui est le
+// bon comportement, mais pour la mauvaise raison : elle ne vérifiait pas que
+// le maître compte tous les cours, elle vérifiait qu'il en compte trois.
+//
+// La différence n'est pas théorique. Une garde qui écrit le nombre attendu
+// passe au vert si un cours DISPARAÎT en même temps qu'un autre est ajouté, et
+// elle rougit quand le produit grandit légitimement, ce qui apprend à la
+// modifier sans réfléchir. Elle est dérivée de COURSE_PILLARS maintenant : le
+// maître doit rendre exactement les cours déclarés, ni plus, ni moins, ni dans
+// un autre ordre.
 
 const M = await load('src/dojo/masterProgress.ts', 'master.mjs')
 const A = await load('src/data/academy.ts', 'academy.mjs')
 const F = await load('src/data/frugality.ts', 'frugality.mjs')
-const { readProgress, masterAdvice, AGENT_TRACK, LEVER_TRACK } = M
+const DC = await load('src/data/designCourses.ts', 'design.mjs')
+const { readProgress, masterAdvice, AGENT_TRACK, LEVER_TRACK, DESIGN_TRACK } = M
 
 /** Toutes les clés d'un parcours d'agent terminé. */
 const agentKeys = (u) => u.steps.map((_, i) => `${AGENT_TRACK}/${u.id}/${i}`)
 const allLessons = A.ALL_LESSONS.map((x) => `${x.track.slug}/${x.lesson.slug}`)
 const allLevers = F.LEVERS.map((l) => `${LEVER_TRACK}/${l.id}`)
+const allDesign = DC.DESIGN_COURSES.flatMap((c) => c.lessons.map((l) => `${DESIGN_TRACK}/${c.id}/${l.id}`))
 const by = (list) => Object.fromEntries(readProgress(list).map((c) => [c.id, c]))
 
-ok('trois cours comptés', readProgress([]).length === 3)
+ok('le maître rend exactement les cours déclarés',
+  readProgress([]).map((c) => c.id).join(',') === P.COURSE_PILLARS.join(','),
+  readProgress([]).map((c) => c.id).join(', '))
 ok('à vide, tout est à zéro', readProgress([]).every((c) => c.done === 0 && c.percent === 0))
 
 // LE DÉFAUT QUE CETTE GARDE EXISTE POUR TENIR FERMÉ.
@@ -149,7 +166,7 @@ ok('…ni comme des leviers', by(allLessons).eco.done === 0)
 
 // Aucun pourcentage ne peut dépasser cent, quoi qu'on lui donne · une barre
 // qui déborde de son rail ne se voit pas sur une page qu'on regarde à zéro.
-const everything = [...everyAgentStep, ...allLessons, ...allLevers, 'inventé/n-importe-quoi']
+const everything = [...everyAgentStep, ...allLessons, ...allLevers, ...allDesign, 'inventé/n-importe-quoi']
 ok('aucun pourcentage ne dépasse cent', readProgress(everything).every((c) => c.percent <= 100),
   readProgress(everything).map((c) => `${c.id}:${c.percent}`).join(' '))
 ok('une clé inconnue ne compte nulle part', readProgress(['rien/du/tout']).every((c) => c.done === 0))
@@ -159,11 +176,13 @@ ok('une clé inconnue ne compte nulle part', readProgress(['rien/du/tout']).ever
 ok('un parcours entamé ne compte pas un agent', by([agentKeys(USE_CASES[0])[0]]).build.done === 0)
 ok('…un parcours fini, si', by(agentKeys(USE_CASES[0])).build.done === 1)
 
-// Les trois cours PLEINS valent cent pour cent chacun · si l'un d'eux ne
-// pouvait pas atteindre cent, son diplôme final serait inatteignable.
+// TOUS les cours pleins valent cent pour cent chacun · si l'un d'eux ne
+// pouvait pas atteindre cent, son diplôme final serait inatteignable, et rien
+// d'autre ne le dirait. La liste est DÉRIVÉE : un cours ajouté demain est
+// vérifié sans que personne y pense, ce qui est tout l'intérêt.
 const full = by(everything)
-ok('chaque cours peut atteindre cent', ['build', 'academy', 'eco'].every((k) => full[k].percent === 100),
-  ['build', 'academy', 'eco'].map((k) => `${k}:${full[k].percent}`).join(' '))
+ok('chaque cours peut atteindre cent', P.COURSE_PILLARS.every((k) => full[k].percent === 100),
+  P.COURSE_PILLARS.map((k) => `${k}:${full[k].percent}`).join(' '))
 
 // Le conseil du maître DIT QUOI FAIRE · il change avec l'avancement, sinon
 // c'est une phrase décorative posée au dessus d'un tableau.
@@ -209,7 +228,14 @@ ok('plus rien à faire, plus de prochain', diplomaFor(readProgress(everything)).
 
 /* --- 5 · les trois cours, une seule fois ---------------------------------- */
 
-ok('trois cours', P.COURSE_COUNT === 3, P.COURSES.map((c) => c.nav).join(', '))
+// LE NOMBRE DE COURS · dérivé de la liste, pas écrit. Il valait 3 en dur ici,
+// ce qui faisait de cette ligne une garde qui interdisait au produit de
+// grandir plutôt qu'une garde qui vérifie sa cohérence.
+ok('chaque cours déclaré a son pilier', P.COURSE_COUNT === P.COURSES.length && P.COURSES.every(Boolean),
+  P.COURSES.map((c) => c.nav).join(', '))
+ok('chaque cours a une adresse à lui',
+  new Set(P.COURSES.map((c) => c.path)).size === P.COURSE_COUNT,
+  P.COURSES.map((c) => c.path).join(' '))
 ok('chaque cours mène quelque part', P.COURSES.every((c) => typeof c.path === 'string' && c.path.startsWith('/')))
 ok('les cours sont des piliers', P.COURSES.every((c) => P.PILLARS.includes(c)))
 // La liste autonome qui vivait dans agentUseCases a été supprimée · si elle
