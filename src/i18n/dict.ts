@@ -237,6 +237,86 @@ export const DICT = {
   'ag.makes': { en: 'Makes', fr: 'Fabrique' },
   'ag.isBuilt': { en: 'is built', fr: 'est construit' },
 
+  // ---- l'académie ---------------------------------------------------------
+  // Le CONTENU des leçons ne passe pas par ici · il vit dans data/academy, à
+  // côté de son anglais, parce qu'une leçon est de la prose et qu'une prose
+  // découpée en cent clés de dictionnaire ne se relit plus. Ce qui est ici est
+  // le CADRE : ce que l'écran dit autour de la leçon, et qui se répète.
+  'ac.course': { en: 'Course', fr: 'Cours' },
+  'ac.of': { en: 'of', fr: 'sur' },
+  'ac.heroA': { en: 'The instruction', fr: "L'instruction" },
+  'ac.heroB': { en: 'decides everything', fr: 'décide de tout' },
+  'ac.sub': {
+    en: 'Not documentation. A course. It starts at “what is a token”, ends at a brief a model actually follows, and assumes you have never heard of vibe coding, an IDE or a coding agent. Every lesson is free, interactive, and about five minutes long.',
+    fr: "Pas de la documentation. Un cours. Il commence à « qu'est-ce qu'un jeton », finit à une consigne qu'un modèle suit vraiment, et suppose que vous n'avez jamais entendu parler de vibe coding, d'éditeur de code ni d'agent développeur. Chaque leçon est gratuite, interactive, et dure environ cinq minutes.",
+  },
+  'ac.order': {
+    en: 'It is the second course. The first is building an agent, and nothing here makes much sense until you have taken one apart.',
+    fr: "C'est le deuxième cours. Le premier est la construction d'un agent, et rien ici n'a beaucoup de sens tant que vous n'en avez pas démonté un.",
+  },
+  'ac.orderLink': { en: 'building an agent', fr: "la construction d'un agent" },
+  'ac.continue': { en: 'Continue', fr: 'Reprendre' },
+  'ac.start': { en: 'Start lesson 1', fr: 'Commencer la leçon 1' },
+  'ac.finished': { en: 'finished', fr: 'terminées' },
+  'ac.freeNoAccount': { en: 'Free, no account', fr: 'Gratuit, sans compte' },
+  'ac.curriculum': { en: 'The curriculum', fr: 'Le programme' },
+  'ac.curriculumLead': {
+    en: 'Five tracks, in order. Each one stands on its own, so you can jump to what you need, but if you are new, start at the top and work down.',
+    fr: "Cinq pistes, dans l'ordre. Chacune tient debout toute seule, donc vous pouvez sauter à ce qu'il vous faut, mais si vous débutez, commencez en haut et descendez.",
+  },
+  'ac.track': { en: 'Track', fr: 'Piste' },
+  'ac.forYouIf': { en: 'For you if:', fr: 'Pour vous si :' },
+  'ac.done': { en: 'done', fr: 'faites' },
+  'ac.openTrack': { en: 'Open track', fr: 'Ouvrir la piste' },
+  'ac.min': { en: 'min', fr: 'min' },
+  'ac.outcomesH2': { en: 'What you will be able to do', fr: 'Ce que vous saurez faire' },
+  'ac.out1': { en: 'Explain it to someone else', fr: "L'expliquer à quelqu'un d'autre" },
+  'ac.out1s': {
+    en: 'What an agent is, why a team beats one assistant, and where every tool people keep naming at you actually fits.',
+    fr: "Ce qu'est un agent, pourquoi une équipe vaut mieux qu'un assistant seul, et où se range vraiment chaque outil qu'on vous cite.",
+  },
+  'ac.out2': { en: 'Fix a teammate in one edit', fr: 'Réparer un coéquipier en une correction' },
+  'ac.out2s': {
+    en: 'Read the symptom, know which of the eight fields to change, and make every future run better instead of rerolling.',
+    fr: "Lire le symptôme, savoir lequel des huit champs changer, et améliorer tous les passages à venir au lieu de relancer les dés.",
+  },
+  'ac.out3': { en: 'Design your own system', fr: 'Dessiner votre propre système' },
+  'ac.out3s': {
+    en: 'Turn a goal into an ordered plan with one owner per step, chain teams together, and find the step that broke.',
+    fr: "Transformer un objectif en plan ordonné avec un responsable par étape, mettre des équipes en chaîne, et trouver l'étape qui a cassé.",
+  },
+  'ac.faqH2': { en: 'Questions people ask first', fr: "Les questions qu'on pose en premier" },
+  'ac.guideNote': {
+    en: 'Looking for the step-by-step setup pages for a specific app: Gmail, Notion, Stripe? Those live in the',
+    fr: "Vous cherchez les pages de réglage pas à pas d'une application précise, Gmail, Notion, Stripe ? Elles sont dans le",
+  },
+  'ac.guideLink': { en: 'app setup guide', fr: 'guide de branchement des applications' },
+  'ac.noTrack': { en: 'Track not found', fr: 'Piste introuvable' },
+  'ac.noTrackBody': { en: 'There is no track called', fr: "Il n'existe aucune piste appelée" },
+  'ac.noLesson': { en: 'Lesson not found', fr: 'Leçon introuvable' },
+  'ac.noLessonBody': { en: 'There is no lesson at that address.', fr: "Il n'y a aucune leçon à cette adresse." },
+  'ac.back': { en: 'Back to the Academy', fr: "Retour à l'académie" },
+  'ac.lesson': { en: 'Lesson', fr: 'Leçon' },
+  'ac.lessonsWord': { en: 'lessons', fr: 'leçons' },
+  'ac.free': { en: 'Free', fr: 'Gratuit' },
+  'ac.watch': { en: 'Watch it happen · this loops on its own', fr: 'Regardez faire · cela tourne en boucle tout seul' },
+  'ac.check': { en: 'Check yourself', fr: 'Vérifiez-vous' },
+  'ac.right': { en: 'That’s it.', fr: "C'est cela." },
+  'ac.wrong': { en: 'Not quite.', fr: 'Pas tout à fait.' },
+  'ac.remember': { en: 'Remember this', fr: 'À retenir' },
+  'ac.nowDo': { en: 'Now go and do it:', fr: 'Maintenant, allez le faire :' },
+  'ac.markDone': { en: 'Mark as finished', fr: 'Marquer comme terminée' },
+  'ac.isDone': { en: 'Finished', fr: 'Terminée' },
+  'ac.openApp': { en: 'Open the app', fr: "Ouvrir l'application" },
+  'ac.prev': { en: 'Previous', fr: 'Précédente' },
+  'ac.next': { en: 'Next', fr: 'Suivante' },
+  'ac.doneNav': { en: 'Done', fr: 'Fini' },
+  'ac.kindIdea': { en: 'The idea', fr: "L'idée" },
+  'ac.kindExample': { en: 'Example', fr: 'Exemple' },
+  'ac.kindDo': { en: 'Do this', fr: 'À faire' },
+  'ac.kindWarn': { en: 'Watch out', fr: 'Attention' },
+  'ac.kindCompare': { en: 'Compare', fr: 'Comparez' },
+
   // ---- le pied de page ---------------------------------------------------
   'footer.built': { en: 'A training centre for AI agents', fr: "Un centre de formation aux agents IA" },
 } as const satisfies Record<string, Entry>

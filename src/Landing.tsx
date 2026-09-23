@@ -12,7 +12,7 @@ import { TutorialOverlay } from './components/guide/TutorialOverlay'
 import { APP_LIVE_COUNT } from './data/facts'
 import { TRACKS } from './data/academy'
 import { ENTRY_COUNT, countByTrade } from './data/library'
-import { PILLARS, COURSES, COURSE_COUNT, PROMISE_SEP, LESSON_COUNT, TRACK_COUNT, COURSE_HOURS, positioningFor } from './data/positioning'
+import { PILLARS, COURSES, COURSE_COUNT, PROMISE_SEP, LESSON_COUNT, TRACK_COUNT, COURSE_HOURS, positioningFor, pillarIn } from './data/positioning'
 import { useLang, useT } from './i18n'
 import { BauhausIcon } from './components/BauhausIcon'
 import { SiteFooter } from './components/SiteFooter'
@@ -71,10 +71,9 @@ export function Landing({ enter }: { enter: () => void }) {
   // trois tests de langue disséminés dans cette page seraient trois endroits
   // où les versions commenceraient à diverger.
   const pos = positioningFor(lang)
-  // LE LIBELLÉ D'UN PILIER · l'anglais sert de secours plutôt qu'un vide.
-  const nav = (p: { nav: string; fr?: { nav: string } }) => (lang === 'fr' && p.fr?.nav) || p.nav
-  const title = (p: { title: string; fr?: { title: string } }) => (lang === 'fr' && p.fr?.title) || p.title
-  const blurb = (p: { blurb: string; fr?: { blurb: string } }) => (lang === 'fr' && p.fr?.blurb) || p.blurb
+  // LE LIBELLÉ D'UN PILIER · une seule fonction, partagée avec les panneaux du
+  // maître et l'académie. Elles étaient trois ici et zéro là-bas.
+  const inLang = (p: Parameters<typeof pillarIn>[0]) => pillarIn(p, lang)
 
   return (
     <div className="landing">
@@ -123,8 +122,8 @@ export function Landing({ enter }: { enter: () => void }) {
             <a className="lp-course" key={c.id} href={c.path}>
               <span className="lp-course-n" aria-hidden>{i + 1}</span>
               <BauhausIcon className="lp-course-g" name={c.glyph} size={24} />
-              <b>{nav(c)}</b>
-              <span>{blurb(c)}</span>
+              <b>{inLang(c).nav}</b>
+              <span>{inLang(c).blurb}</span>
               <em>{t('lp.open')} →</em>
             </a>
           ))}
@@ -142,9 +141,9 @@ export function Landing({ enter }: { enter: () => void }) {
           {PILLARS.map((p) => (
             <a className="lp-pillar" key={p.id} href={p.path}>
               <BauhausIcon className="lp-pillar-g" name={p.glyph} size={24} />
-              <b>{title(p)}</b>
-              <span>{blurb(p)}</span>
-              <em>{nav(p)} →</em>
+              <b>{inLang(p).title}</b>
+              <span>{inLang(p).blurb}</span>
+              <em>{inLang(p).nav} →</em>
             </a>
           ))}
         </div>

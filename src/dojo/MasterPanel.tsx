@@ -10,7 +10,7 @@
 // /frugality : les trois cours, ce qu'il reste, et UNE phrase qui dit où aller
 // ensuite. Pas de félicitations, pas de score : un tableau qui commente ce qui
 // est fait est un tableau de bord, et on cherche un professeur.
-import { COURSES, PILLAR_BY_ID } from '../data/positioning'
+import { COURSES, PILLAR_BY_ID, pillarIn } from '../data/positioning'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { useProgress } from '../academy/progress'
 import { masterAdvice } from './masterProgress'
@@ -18,6 +18,7 @@ import { DIPLOMAS, diplomaFor } from './diplomas'
 import { GRADES, gradeFor, BADGES, AGENT_BADGES, badgesFor } from './grades'
 import { USE_CASES } from '../data/agentUseCases'
 import { AGENT_TRACK } from './masterProgress'
+import { useLang } from '../i18n'
 
 export function MasterPanel({ here }: {
   /** le cours qu'on est en train de suivre · il est mis en avant, et son lien
@@ -25,6 +26,7 @@ export function MasterPanel({ here }: {
   here?: 'build' | 'academy' | 'eco'
 }) {
   const p = useProgress()
+  const lang = useLang()
   const courses = p.courses
   const dip = diplomaFor(courses)
   const advice = masterAdvice(courses)
@@ -42,7 +44,7 @@ export function MasterPanel({ here }: {
 
       <div className="mp-courses">
         {courses.map((c) => {
-          const pillar = PILLAR_BY_ID[c.id]
+          const pillar = pillarIn(PILLAR_BY_ID[c.id], lang)
           const Body = (
             <>
               <span className="mp-c-top">

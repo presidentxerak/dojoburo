@@ -132,6 +132,70 @@ const freeText = [PLAN_BY_ID.free.tagline, ...PLAN_BY_ID.free.incl].join(' · ')
 ok('la formule gratuite promet le diplôme', freeText.includes('diploma'), freeText.includes('diploma') ? 'oui' : 'absent')
 ok('la formule gratuite promet le cours entier', /whole course|every lesson|three courses/.test(freeText))
 
+/* --- 3 bis · le cours n'enseigne pas l'ancien modèle --------------------- */
+
+// CE QUE CETTE SECTION A TROUVÉ · la leçon « what it costs » expliquait sur
+// quatre blocs que rien n'est compté ici, puis son questionnaire demandait ce
+// que coûte un passage de cinq étapes et donnait « cinq crédits » comme BONNE
+// réponse, avec une explication qui décrivait un décompte mensuel sur un
+// forfait qui n'existe plus. La leçon se contredisait à deux blocs d'écart.
+//
+// La section 3 ne pouvait pas le voir : elle relit les forfaits, pas les
+// cours. La section 4 non plus : les bons prix étaient bien écrits, c'est un
+// ancien modèle de facturation qui traînait à côté.
+//
+// LA RÈGLE EST PRÉCISE PAR SA PORTÉE, PAS PAR SON MOTIF. C'est la deuxième
+// écriture de cette garde, et la première était trop étroite : elle cherchait
+// des formes (« cinq crédits », « du forfait mensuel ») et a laissé passer
+// « only running work costs credits », qui est la même faute dite autrement.
+// Chercher toutes les formes d'une affirmation est perdu d'avance.
+//
+// Donc le motif est le mot, et c'est la PORTÉE qui rend la règle juste : on ne
+// lit que ce que la leçon affirme être VRAI, c'est à dire la bonne réponse,
+// l'explication qui la justifie et la phrase à retenir. Les distracteurs sont
+// exclus, et « cinq crédits » reste une excellente mauvaise réponse. Une garde
+// qui bannirait le mot partout accuserait exactement le travail correct.
+//
+// LE CORPS DES BLOCS EST HORS PORTÉE, et pour la même raison : la leçon sur les
+// prix dit « nous ne vendons ni passages, ni tâches, ni crédits », ce qui est
+// la phrase la plus juste du fichier et contient le mot interdit. Ce qui a été
+// trouvé dans un corps (« spends credits on steps that were already fine ») a
+// donc été corrigé à la lecture, pas par une règle qui aurait accusé la bonne
+// phrase pour attraper la mauvaise.
+const METERED = /\bcredits?\b|\bcrédits?\b|\bmonthly allowance\b/i
+
+const A = await load('src/data/academy.ts', 'academy.mjs')
+// LES DEUX LANGUES · une traduction fidèle d'une phrase périmée est une phrase
+// périmée. On relit donc la leçon française avec la même règle.
+const claimsOf = (l) => [l.quiz.options[l.quiz.answer], l.quiz.why, l.takeaway].join(' · ')
+for (const { lesson } of A.ALL_LESSONS) {
+  for (const lang of ['en', 'fr']) {
+    const l = A.academyLessonIn(lesson, lang)
+    const m = claimsOf(l).match(METERED)
+    ok(`« ${lesson.slug} » n'affirme pas être compté (${lang})`, !m, m ? m[0] : 'rien de compté')
+  }
+}
+
+// … et les morsures, dans les deux sens.
+ok('morsure · une bonne réponse qui vend des crédits est vue',
+  METERED.test('Five credits'))
+ok('morsure · une bonne réponse qui les vend autrement est vue',
+  METERED.test('Nothing: only running work costs credits'))
+ok('morsure · une explication qui décompte un forfait est vue',
+  METERED.test('a step draws about two cents from the monthly allowance'))
+ok('morsure · la même faute en français est vue',
+  METERED.test('Seul le travail qui tourne consomme des crédits'))
+ok('morsure · une bonne réponse légitime n\'est pas accusée',
+  !METERED.test('Nothing, because nothing in the dojo calls a paid model'))
+ok('morsure · un plafond quotidien reste permis',
+  !METERED.test('an allowance that simply stops'))
+// La PORTÉE fait partie de la règle · un distracteur a le droit de mentir,
+// c'est son métier. On vérifie que ce qu'on relit ne le contient pas.
+{
+  const faux = { quiz: { options: ['Five credits', 'Nothing at all'], answer: 1, why: 'Rien n\'est compté.' }, takeaway: 'Rien n\'est compté.' }
+  ok('morsure · un distracteur n\'est pas relu', !METERED.test(claimsOf(faux)))
+}
+
 /* --- 4 · un prix n'est écrit qu'une fois --------------------------------- */
 
 // On relit les sources et on cherche un prix en dur ailleurs que dans plans.ts.

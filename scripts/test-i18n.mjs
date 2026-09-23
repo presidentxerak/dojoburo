@@ -119,7 +119,11 @@ const looksFrench = (t) => {
   return FR_ACCENT.test(t) || FR_ELISION.test(t) || FR_WORDS.test(t)
 }
 
-const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu'])
+// `ac.min` est le SYMBOLE de la minute, pas un mot : il s'écrit « min » dans
+// les deux langues parce que c'est le symbole international. L'écrire « mn »
+// en français pour faire passer la règle serait corriger la page pour plaire
+// à la garde.
+const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac.min'])
 const copied = keys.filter((k) => DICT[k].en === DICT[k].fr && !SAME_IN_BOTH.has(k))
 ok('aucune traduction n\'est la copie de l\'anglais', copied.length === 0,
   copied.join(', ') || `${keys.length - SAME_IN_BOTH.size} comparées`)
@@ -323,6 +327,90 @@ ok('lessonIn garde le stage de chaque étape',
 ok('lessonIn rend le français', AL.lessonIn(AL.LESSONS[ids[0]], 'fr').primer.plain === AL.LESSONS[ids[0]].fr.primer.plain)
 ok('lessonIn rend l\'anglais', AL.lessonIn(AL.LESSONS[ids[0]], 'en').primer.plain === AL.LESSONS[ids[0]].primer.plain)
 ok('la fiche passe par lessonIn', /lessonIn\(/.test(readFileSync('src/dojo/AgentCard.tsx', 'utf8')))
+
+/* --- 3 sexies · les vingt leçons de l'académie --------------------------- */
+//
+// Le plus gros fichier de prose du site, et celui où une traduction partielle
+// se voit le moins : une piste peut avoir son titre français et ses quatre
+// leçons en anglais sans que rien ne casse.
+//
+// CE QUI EST VÉRIFIÉ NOMMÉMENT, leçon par leçon, plutôt qu'en comptant des
+// fichiers : le compte de blocs, le compte de points DANS chaque bloc, le
+// compte d'options du questionnaire, et que tout cela est du français. Les
+// trois comptes existent parce qu'une traduction qui perd un bloc, une puce ou
+// une option donne un lecteur français à qui il manque quelque chose que le
+// lecteur anglais a, et rien dans l'écran ne le dit.
+const AC = await load('src/data/academy.ts', 'ac.mjs')
+
+for (const tr of AC.TRACKS) {
+  ok(`la piste « ${tr.slug} » a son français`, !!tr.fr, tr.fr ? 'oui' : 'absente')
+  if (!tr.fr) continue
+  ok(`« ${tr.slug} » est écrite en français`,
+    looksFrench(tr.fr.label) && looksFrench(tr.fr.blurb) && looksFrench(tr.fr.who))
+  ok(`« ${tr.slug} » n'a pas recopié l'anglais`,
+    tr.fr.blurb !== tr.blurb && tr.fr.who !== tr.who)
+}
+
+for (const { lesson: l } of AC.ALL_LESSONS) {
+  ok(`la leçon « ${l.slug} » a son français`, !!l.fr, l.fr ? 'oui' : 'absente')
+  if (!l.fr) continue
+  ok(`« ${l.slug} » a tous ses blocs`, l.fr.blocks.length === l.blocks.length,
+    `${l.blocks.length} / ${l.fr.blocks.length}`)
+  // LES PUCES, BLOC PAR BLOC · un bloc anglais à cinq points dont le français
+  // n'en a que trois perd deux idées, et le compte global de blocs ne le voit
+  // pas.
+  ok(`« ${l.slug} » garde ses puces`,
+    l.blocks.every((b, i) => (b.points?.length ?? 0) === (l.fr.blocks[i]?.points?.length ?? 0)))
+  ok(`« ${l.slug} » garde ses tableaux`,
+    l.blocks.every((b, i) => (b.compare?.rows.length ?? 0) === (l.fr.blocks[i]?.compare?.rows.length ?? 0)))
+  ok(`« ${l.slug} » a ses ${l.quiz.options.length} options`,
+    l.fr.quiz.options.length === l.quiz.options.length,
+    `${l.quiz.options.length} / ${l.fr.quiz.options.length}`)
+  ok(`« ${l.slug} » n'a pas recopié l'anglais`,
+    l.fr.title !== l.title && l.fr.summary !== l.summary && l.fr.takeaway !== l.takeaway
+      && l.fr.quiz.why !== l.quiz.why)
+  ok(`« ${l.slug} » est écrite en français`,
+    looksFrench(l.fr.title) && looksFrench(l.fr.summary) && looksFrench(l.fr.takeaway)
+      && looksFrench(l.fr.quiz.q) && looksFrench(l.fr.quiz.why)
+      && l.fr.quiz.options.every(looksFrench)
+      && l.fr.blocks.every((b) => looksFrench(b.title) && looksFrench(b.body)
+        && (b.points ?? []).every(looksFrench)
+        && (b.compare ? b.compare.rows.every(([x, y]) => looksFrench(x) && looksFrench(y)) : true)))
+  // LA LEÇON QUI A UNE SUITE EN ANGLAIS EN A UNE EN FRANÇAIS · `next` est
+  // facultatif, donc une traduction peut le perdre sans que rien ne casse, et
+  // le lecteur français repart sans la seule chose à aller faire.
+  ok(`« ${l.slug} » garde sa suite`, !l.next || !!l.fr.next, l.next ? 'oui' : 'pas de suite')
+}
+
+// LA BONNE RÉPONSE RESTE À LA MÊME PLACE · `answer` est un INDICE, pas une
+// phrase. S'il était traduit, ou si les options françaises changeaient
+// d'ordre, le questionnaire validerait la mauvaise réponse en français tout en
+// restant juste en anglais, ce qu'aucun typecheck ne voit.
+{
+  const l0 = AC.ALL_LESSONS[0].lesson
+  const fr = AC.academyLessonIn(l0, 'fr')
+  ok('academyLessonIn garde l\'indice de la bonne réponse', fr.quiz.answer === l0.quiz.answer)
+  ok('academyLessonIn garde le genre des blocs',
+    fr.blocks.every((b, i) => b.kind === l0.blocks[i].kind))
+  ok('academyLessonIn garde le slug et la scène', fr.slug === l0.slug && fr.stage === l0.stage)
+  ok('academyLessonIn rend le français', fr.title === l0.fr.title)
+  ok('academyLessonIn rend l\'anglais', AC.academyLessonIn(l0, 'en').title === l0.title)
+  ok('trackIn rend le français', AC.trackIn(AC.TRACKS[0], 'fr').label === AC.TRACKS[0].fr.label)
+}
+{
+  const src = readFileSync('src/academy/Academy.tsx', 'utf8')
+  ok('l\'académie passe par academyLessonIn', /academyLessonIn\(/.test(src))
+  ok('l\'académie passe par trackIn', /trackIn\(/.test(src))
+  // LA LANGUE DÉCLARÉE AUX MOTEURS DE RECHERCHE · elle était écrite 'en' en
+  // dur dans deux blocs de données structurées.
+  ok('l\'académie déclare la langue lue', !/inLanguage: 'en'/.test(src))
+}
+// LE LIBELLÉ D'UN PILIER N'A QU'UN SEUL CHEMIN · il y avait trois fonctions
+// locales dans la page d'accueil et aucune dans les deux panneaux du maître,
+// qui affichaient donc « Prompt engineering » au milieu d'une page française.
+for (const f of ['src/Landing.tsx', 'src/academy/Academy.tsx', 'src/dojo/MasterPanel.tsx', 'src/dojo/LearningPanel.tsx']) {
+  ok(`${f.split('/').pop()} traduit ses piliers par pillarIn`, /pillarIn\(/.test(readFileSync(f, 'utf8')))
+}
 
 /* --- 4 · les surfaces annoncées traduites le sont vraiment --------------- */
 

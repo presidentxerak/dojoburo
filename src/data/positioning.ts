@@ -310,6 +310,18 @@ export const NOT_THIS_FR = [
  *  Un seul point d'entrée plutôt que trois tests de langue disséminés dans la
  *  page d'accueil, les métadonnées et le robot · c'est là que les versions
  *  commencent à diverger. */
+/** Un pilier dans la langue demandée.
+ *
+ *  Il y avait TROIS petites fonctions dans la page d'accueil qui faisaient
+ *  chacune un tiers de ce travail (`nav`, `title`, `blurb`), et zéro dans les
+ *  deux panneaux du maître, qui affichaient donc les libellés anglais au
+ *  milieu d'une page française. Un libellé n'a qu'une bonne valeur par langue,
+ *  et un seul endroit doit savoir laquelle. */
+export function pillarIn(p: Pillar, lang: 'en' | 'fr'): Pillar {
+  if (lang !== 'fr' || !p.fr) return p
+  return { ...p, nav: p.fr.nav, title: p.fr.title, blurb: p.fr.blurb }
+}
+
 export function positioningFor(lang: 'en' | 'fr') {
   const fr = lang === 'fr'
   return {

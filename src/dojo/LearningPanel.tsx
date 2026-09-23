@@ -20,7 +20,7 @@
 import { BauhausIcon } from '../components/BauhausIcon'
 import { useProgress } from '../academy/progress'
 import { readLearning } from './learning'
-import { PILLAR_BY_ID } from '../data/positioning'
+import { PILLAR_BY_ID, pillarIn } from '../data/positioning'
 import { USE_CASE_COUNT } from '../data/agentUseCases'
 import { RESOURCES, resourceTitle } from '../data/resources'
 import { downloadCoursePdf } from '../lib/coursePdf'
@@ -81,7 +81,7 @@ export function LearningPanel() {
         <h4>Your {L.courses.length} courses</h4>
         <div className="lrn-courses">
           {L.courses.map((c) => {
-            const pill = PILLAR_BY_ID[c.id]
+            const pill = pillarIn(PILLAR_BY_ID[c.id], lang)
             return (
               <a className="lrn-course" key={c.id} href={pill.path}>
                 <span className="lrn-course-h">

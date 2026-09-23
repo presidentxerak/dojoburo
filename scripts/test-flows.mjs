@@ -176,8 +176,14 @@ for (const [what, tmpl] of [
 // engineering » dans l'en-tête. Un visiteur ne sait pas que c'est le même.
 const ACADEMY = POS.PILLAR_BY_ID.academy.nav
 ok('le cours de prompt engineering porte un seul nom', ACADEMY.length > 0, ACADEMY)
+// LA RÈGLE CHERCHAIT `PILLAR_BY_ID.academy.nav`, MOT POUR MOT. La page lit
+// maintenant le même pilier à travers `pillarIn`, qui rend le libellé dans la
+// langue affichée : le nom vient toujours d'un seul endroit, et il est en plus
+// dans la bonne langue. La règle n'est donc pas assouplie, elle est resserrée
+// sur ce qui est vrai maintenant · le pilier ET la traduction.
 const page = read('src/academy/Academy.tsx')
-ok('…et sa page le porte aussi', page.includes('PILLAR_BY_ID.academy.nav'))
+ok('…et sa page le porte aussi', page.includes('PILLAR_BY_ID.academy'))
+ok('…et dans la langue lue', /pillarIn\(PILLAR_BY_ID\.academy/.test(page))
 
 // LES EFFECTIFS NE S'ÉCRIVENT PAS. « eighteen teammates » est resté affiché
 // sur dix-sept pages, et « Seventeen specialists » juste à côté d'une liste
