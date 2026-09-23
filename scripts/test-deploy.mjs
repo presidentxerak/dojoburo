@@ -40,7 +40,7 @@
 // et c'est exactement ce qui a été écrit. La règle vise donc ce motif.
 //
 //   node scripts/test-deploy.mjs
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 
 let fails = 0
 const ok = (n, c, extra = '') => {
@@ -121,7 +121,61 @@ ok('chaque redirection mène à une adresse servie', lost.length === 0, lost.joi
 ok('le plan de site ne cite plus la bibliothèque',
   !/'\/library/.test(readFileSync('scripts/gen-seo.mjs', 'utf8')))
 
-/* --- 5 · les morsures ------------------------------------------------------ */
+/* --- 5 · le schéma de la base est documenté ------------------------------- */
+//
+// POURQUOI C'EST ICI. Ce fichier garde ce qui fait qu'un déploiement marche ou
+// non, et une base dont on ne sait plus dans quel ordre l'appliquer appartient
+// à cette famille : ça ne se voit sur aucun écran, ça ne fait rougir aucun
+// typecheck, et ça se paie un jour où l'on a autre chose à faire.
+//
+// L'ORDRE VIVAIT DANS LES EN-TÊTES, et seulement dans les fichiers qui en
+// avaient besoin : trois des sept n'en disaient rien. Il est maintenant dans
+// db/README.md, et cette règle vérifie que le runbook et le dossier ne peuvent
+// pas se contredire.
+const DB = readdirSync('db').filter((f) => f.endsWith('.sql')).sort()
+const BOOK = readFileSync('db/README.md', 'utf8')
+
+const undocumented = DB.filter((f) => !BOOK.includes(f))
+ok('chaque fichier de schéma est dans le runbook', undocumented.length === 0,
+  undocumented.join(', ') || `${DB.length} fichiers`)
+
+// … ET L'INVERSE · un fichier cité dans le runbook mais absent du dossier
+// enverrait quelqu'un lancer une commande qui échoue, au pire moment.
+const cited = [...BOOK.matchAll(/db\/([a-z-]+\.sql)/g)].map((m) => m[1])
+const ghosts = [...new Set(cited)].filter((f) => !DB.includes(f))
+ok('le runbook ne cite aucun fichier absent', ghosts.length === 0,
+  ghosts.join(', ') || `${new Set(cited).size} cités`)
+
+// LES SEIZE TABLES · le tableau du runbook doit nommer ce que les fichiers
+// créent vraiment. Il se périmerait sinon à la première table ajoutée, et
+// c'est justement à lui qu'on se fie pour reconnaître une table étrangère.
+const declared = new Set()
+for (const f of DB) {
+  const sql = readFileSync(`db/${f}`, 'utf8')
+  for (const m of sql.matchAll(/create table\s+(?:if not exists\s+)?([a-z_]+)/gi)) {
+    declared.add(m[1].toLowerCase())
+  }
+}
+const missingFromBook = [...declared].filter((t) => !BOOK.includes(`\`${t}\``))
+ok('chaque table créée est nommée dans le runbook', missingFromBook.length === 0,
+  missingFromBook.join(', ') || `${declared.size} tables`)
+
+// AUCUNE INSTRUCTION DESTRUCTIVE HORS MIGRATION · un « drop table » glissé dans
+// un fichier de schéma détruirait des données à la prochaine réapplication,
+// alors que tout ce dossier repose sur le fait qu'on peut les relancer.
+const destructive = []
+for (const f of DB) {
+  if (f === 'retire-settlement.sql') continue // migration d'un seul jour, assumée
+  const sql = readFileSync(`db/${f}`, 'utf8')
+  for (const line of sql.split('\n')) {
+    const l = line.trim().toLowerCase()
+    if (/^(drop (table|schema|database)|truncate)\b/.test(l)) destructive.push(`${f} · ${l.slice(0, 40)}`)
+  }
+}
+ok('aucun fichier de schéma ne détruit de table', destructive.length === 0,
+  destructive.slice(0, 3).join(', ') || `${DB.length - 1} fichiers`)
+
+/* --- 6 · les morsures ------------------------------------------------------ */
 
 // Une garde qu'on ne peut pas faire rougir ne garde rien. On refait ici la
 // faute exacte qui a bloqué quatre déploiements.
@@ -129,6 +183,18 @@ ok('morsure · la clé qui a cassé le déploiement serait vue',
   looksLikeProse('_comment_redirects'))
 ok('morsure · une note en anglais aussi', looksLikeProse('noteAboutRedirects'))
 ok('morsure · un « why » aussi', looksLikeProse('whyThisExists'))
+ok('morsure · un fichier de schéma absent du runbook serait vu',
+  !BOOK.includes('un-schema-que-personne-na-documente.sql'))
+ok('morsure · une table absente du runbook serait vue',
+  !BOOK.includes('`une_table_qui_nexiste_pas`'))
+ok('morsure · un drop dans un schéma serait vu',
+  /^(drop (table|schema|database)|truncate)\b/.test('drop table accounts'))
+// LA MIGRATION EST BIEN EXCLUE, ET ELLE CONTIENT BIEN UN DROP · sans les deux
+// moitiés, l'exclusion pourrait être devenue inutile sans qu'on le voie.
+ok('morsure · la migration assumée contient bien un drop',
+  /drop table if exists/i.test(readFileSync('db/retire-settlement.sql', 'utf8')))
+ok('morsure · et elle n\'est pas accusée par la règle',
+  !destructive.some((d) => d.startsWith('retire-settlement.sql')))
 // … et les vraies clés passent, sinon la garde accuse du travail juste.
 for (const k of ['redirects', 'rewrites', 'headers', 'crons', 'functions', 'images', 'regions']) {
   ok(`morsure · « ${k} » n'est pas accusée`, !looksLikeProse(k))
@@ -136,5 +202,5 @@ for (const k of ['redirects', 'rewrites', 'headers', 'crons', 'functions', 'imag
 
 console.log(fails
   ? `\ntest-deploy · ${fails} problème(s)`
-  : `\ntest-deploy · ${Object.keys(CFG).length} clés, ${R.length} redirections`)
+  : `\ntest-deploy · ${Object.keys(CFG).length} clés, ${R.length} redirections, ${DB.length} fichiers de schéma, ${declared.size} tables`)
 process.exit(fails ? 1 : 0)
