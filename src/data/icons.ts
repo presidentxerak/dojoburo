@@ -53,6 +53,7 @@ export const ICON_NAMES = [
   'disc',       // le cercle plein
   'box',        // le carré nu
   'diamondSolid', // le losange plein
+  'smile',      // le cercle, deux points et un arc · la seule figure du jeu
 ] as const
 
 export type IconName = (typeof ICON_NAMES)[number]

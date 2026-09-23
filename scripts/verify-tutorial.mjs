@@ -128,7 +128,19 @@ ok(mfit, 'mobile: the specimen fits the stage')
 // stage was 210px and the card 495px, so overflow:hidden cut the card in half.
 for (const [w, h, tag] of [[390, 780, 'phone'], [537, 741, 'narrow'], [1280, 900, 'desktop']]) {
   await p.setViewportSize({ width: w, height: h })
-  await p.goto(B, { waitUntil: 'networkidle' })
+  // LE TUTORIEL S'OUVRE DEPUIS LE HERO DE LA BROCHURE, qui a quitté la racine
+  // pour /decouvrir · la racine sert le jeu. Sur la racine, « .lp-hero-how »
+  // n'existe plus et le clic attendait indéfiniment un bouton absent.
+  //
+  // SANS BARRE OBLIQUE EN TÊTE · B en porte déjà une (voir sa déclaration), et
+  // « B + '/decouvrir' » donne « //decouvrir ». Le serveur de secours d'une
+  // application à page unique rend index.html pour n'importe quel chemin, donc
+  // la page se charge, ne lève rien, et le routeur ne reconnaît pas « // » :
+  // on retombait sur le jeu. Le symptôme était donc identique à celui qu'on
+  // venait de corriger · un bouton de hero introuvable · pour une cause qui
+  // n'avait plus rien à voir. Une barre oblique de trop ne casse rien
+  // visiblement, et c'est exactement ce qui la rend coûteuse à trouver.
+  await p.goto(B + 'decouvrir', { waitUntil: 'networkidle' })
   await p.waitForTimeout(1600)
   await p.locator('.lp-hero-how').click()
   await p.waitForTimeout(1600)

@@ -28,11 +28,17 @@ import { BuildAgentPage } from './dojo/BuildAgent'
 import { FrameworksPage } from './dojo/Frameworks'
 import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
 import { usePath, useHashAnchor } from './lib/router'
-import { FormationPage, CityPage } from './game/Formation'
-import { LevelPage } from './game/LevelPage'
-import { DiscoveryPage } from './game/Discovery'
-import { TradeHomePage, TradePage } from './game/Trade'
-import { ProfilePage } from './game/Profile'
+// LE JEU · c'est lui qui répond à « / » désormais. Voir game/Dojos.
+import { DojosPage } from './game/Dojos'
+import { PackPage } from './game/PackPage'
+// NOMMÉE AUTREMENT ICI · « LessonPage » est déjà le nom de la leçon de
+// l'académie, importée plus haut. Deux choses différentes sous le même nom
+// dans la même portée est la façon la plus discrète de casser une page.
+import { LessonPage as DojoLesson } from './game/Lesson'
+import { ClanPage } from './game/Clan'
+import { PACK_OF_MODULE, packPath, lessonPath, FREE_PACK } from './data/packs'
+import { ProfilPage } from './game/Profil'
+import { CartePage } from './game/Carte'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
 import './index.css'
@@ -70,6 +76,30 @@ const APP_ROUTES = new Set(['app', 'widget', 'academy', 'guide', 'studio', 'conn
  *  l'application, où le jeton se consomme. */
 export const isAppRoute = (r: string) => APP_ROUTES.has(r) || r.startsWith('join=')
 
+/** L'ancienne adresse vers la nouvelle, ou rien · calculée depuis les données,
+ *  donc une cité ajoutée demain se redirige toute seule. */
+function legacyTarget(path: string): string | null {
+  if (path === '/7-jours') return packPath(FREE_PACK.id)
+  if (path === '/formation' || path === '/metier') return '/'
+  const tm = path.match(/^\/metier\/([a-z0-9-]+)$/i)
+  if (tm) return `/dojo/metier-${tm[1].toLowerCase()}`
+  const fm = path.match(/^\/formation\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?$/i)
+  if (fm) {
+    const packId = PACK_OF_MODULE[fm[1].toLowerCase()]
+    if (!packId) return '/'
+    return fm[2] ? lessonPath(packId, fm[2].toLowerCase()) : packPath(packId)
+  }
+  return null
+}
+
+/** Elle REMPLACE l'entrée dans l'historique · sans cela, le bouton retour
+ *  renverrait sur l'ancienne adresse, qui redirigerait à nouveau, et on ne
+ *  pourrait plus jamais revenir en arrière. */
+function Redirect({ to }: { to: string }) {
+  useEffect(() => { history.replaceState(null, '', to); window.dispatchEvent(new PopStateEvent('popstate')) }, [to])
+  return null
+}
+
 function Root() {
   // The private beta gate. It closes the PRODUCT, not the website.
   //
@@ -98,6 +128,51 @@ function Root() {
   // L'ANCRE, une fois la page rendue · voir useHashAnchor.
   useHashAnchor()
 
+  // ---- LE JEU · c'est la racine du produit ---------------------------------
+  //
+  // ON ARRIVE DANS LE JEU, PAS DEVANT UNE BROCHURE. La page de vente existe
+  // toujours, sur /decouvrir, pour qui veut lire avant d'essayer ; elle n'est
+  // simplement plus le péage. C'est le changement le plus important de ce lot :
+  // il fallait traverser neuf sections pour atteindre sept minutes de cours.
+  //
+  // ---------------------------------------------------------------------------
+  // MAIS « / » NE MANGE PAS LES FRAGMENTS DE L'APPLICATION, et c'est ce que
+  // cette condition rattrape.
+  //
+  // Sans elle, la ligne était `if (path === '/') return <DojosPage />`, posée
+  // AVANT tout le routage par fragment · or l'application entière vit sur des
+  // fragments de la racine : #app, #studio, #connect, #documents, #academy,
+  // #guide, #widget. Le chemin valant « / » dans tous ces cas, la ligne partait
+  // la première et rendait le jeu. Le studio, les agents, les coéquipiers, les
+  // connecteurs et la base documentaire étaient devenus INATTEIGNABLES · pas
+  // cassés, pas lents : absents, sans une erreur nulle part.
+  //
+  // LE CAS LE PLUS COÛTEUX EST L'INVITATION. Un lien `#join=<jeton>` arrive
+  // froid, par courriel, chez quelqu'un qui n'a jamais ouvert ce produit. Il
+  // atterrissait sur l'écran des formations, le jeton n'était jamais consommé,
+  // et rien ne disait qu'une invitation venait d'être perdue.
+  //
+  // COMMENT ÇA A TENU DEUX COMMITS · la construction réussit, le typecheck est
+  // vert, la page s'affiche, et l'écran qui s'affiche est un écran qui marche.
+  // Aucune des trente-huit épreuves du portail n'avait été relancée depuis, et
+  // c'est le portail qui l'a trouvé dès qu'il l'a été · huit suites d'un coup.
+  //
+  // La liste des fragments d'application est fermée et vit à un seul endroit
+  // (APP_ROUTES, plus haut), donc cette condition ne peut pas diverger d'elle :
+  // ajouter une vue demande une ligne là-haut, et elle est protégée ici sans
+  // que personne ait à y penser.
+  if (path === '/' && !isAppRoute(route)) return <DojosPage />
+  if (path === '/clan') return <ClanPage />
+  if (path === '/profil') return <ProfilPage />
+  // LA CARTE · plein écran, sans coquille ni barre du bas. Voir game/Carte.
+  if (path === '/carte') return <CartePage />
+  const pk = path.match(/^\/dojo\/([a-z0-9-]+)$/i)
+  if (pk) return <PackPage packId={pk[1].toLowerCase()} />
+  const ls = path.match(/^\/dojo\/([a-z0-9-]+)\/([a-z0-9-]+)$/i)
+  if (ls) return <DojoLesson packId={ls[1].toLowerCase()} levelId={ls[2].toLowerCase()} />
+  // LA BROCHURE · elle garde toutes ses ancres, elle change juste d'adresse.
+  if (path === '/decouvrir') return <Landing enter={() => { location.hash = 'app' }} />
+
   // ---- public · no gate ----------------------------------------------------
   if (path === '/terms') return <Terms />
   if (path === '/privacy') return <Privacy />
@@ -115,27 +190,18 @@ function Root() {
   // l'encart entreprise ; les deux ont besoin d'une adresse à eux.
   // LE DOJO COMME SALLE DE CLASSE · on y arrive, le maître accueille, et on
   // choisit lequel des douze agents on veut apprendre à construire.
-  // LE PARCOURS · la carte des cités, une cité, un dojo. Ce sont de vraies
-  // adresses parce qu'on les partage et qu'on y revient : « reprends au dojo
-  // trois de la cité des agents » doit être un lien, pas une explication.
-  if (path === '/formation') return <FormationPage />
-  const cm = path.match(/^\/formation\/([a-z0-9-]+)$/i)
-  if (cm) return <CityPage moduleId={cm[1].toLowerCase()} />
-  const dm = path.match(/^\/formation\/([a-z0-9-]+)\/([a-z0-9-]+)$/i)
-  if (dm) return <LevelPage moduleId={dm[1].toLowerCase()} levelId={dm[2].toLowerCase()} />
-  // LA SEMAINE GRATUITE · une porte d'entrée à elle, parce que c'est l'adresse
-  // qu'on partage et celle qui se retient. Les sept jours eux-mêmes sont des
-  // dojos comme les autres et vivent sous /formation/discovery : deux adresses
-  // pour la même leçon auraient partagé son audience en deux.
-  if (path === '/7-jours') return <DiscoveryPage />
-  // LES MÉTIERS · le choix, puis la carte d'un métier. Ses cités sont des
-  // cités, donc elles restent sous /formation.
-  if (path === '/metier') return <TradeHomePage />
-  const tm = path.match(/^\/metier\/([a-z0-9-]+)$/i)
-  if (tm) return <TradePage tradeId={tm[1].toLowerCase()} />
-  // LE PROFIL · ce qui a été gagné, et où reprendre. Public comme le reste du
-  // parcours : la progression vit dans le navigateur, pas dans un compte.
-  if (path === '/profil') return <ProfilePage />
+  // LES ANCIENNES ADRESSES DU JEU · elles menaient à une seconde navigation
+  // vers exactement le même contenu (carte de la vallée → cité → dojo). Deux
+  // chemins vers une même leçon, c'est la complexité qu'on vient de retirer, et
+  // c'est aussi deux endroits où l'accès pouvait diverger.
+  //
+  // Elles sont REDIRIGÉES et non supprimées : elles étaient dans le plan du
+  // site et partagées. La correspondance se calcule depuis les données plutôt
+  // que d'être écrite dans vercel.json, parce qu'une cité ne sait pas à quelle
+  // formation elle appartient sans les lire.
+  const legacy = legacyTarget(path)
+  if (legacy) return <Redirect to={legacy} />
+
   if (path === '/build') return <BuildAgentPage />
   const bm = path.match(/^\/build\/([a-z0-9-]+)$/i)
   if (bm) return <BuildAgentPage slug={bm[1].toLowerCase()} />
@@ -159,7 +225,9 @@ function Root() {
   // UN FRAGMENT QUI N'EST PAS UNE ROUTE EST UNE ANCRE · la page d'accueil est
   // rendue, et c'est elle qui fait défiler jusqu'à la section. Le test était
   // `!route`, donc n'importe quelle ancre passait pour une vue.
-  if (!isAppRoute(route)) return <Landing enter={() => { location.hash = 'app' }} />
+  // UNE ANCRE QUI N'EST PAS UNE VUE RENVOIE AU JEU · la brochure a son
+  // adresse à elle maintenant, donc « / » ne lui appartient plus.
+  if (!isAppRoute(route)) return <DojosPage />
 
   // ---- the product · gated -------------------------------------------------
   if (!open) return <AccessGate onOpen={() => setOpen(true)} />
@@ -188,7 +256,7 @@ function Root() {
   if (route === 'connect') return gated(<ConnectorsPage />)
   // Documents · la base documentaire de l'entreprise, en pleine page.
   if (route === 'documents') return gated(<DocumentsPage />)
-  return <Landing enter={() => { location.hash = 'app' }} />
+  return <DojosPage />
 }
 
 // Le retour d'une autorisation, AVANT tout rendu.

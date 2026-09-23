@@ -66,24 +66,31 @@ ok('la vue de progression lit le magasin de l\'académie',
 
 // Les écrans du jeu affichent des comptes et un prix. Aucun des deux ne
 // s'écrit : ils viennent de data/curriculum et de data/plans.
-const COUNTS = [
-  [String(PATH_MODULES.length), 'le nombre de cités'],
-  [String(ALL_LEVELS.length), 'le nombre de dojos'],
-  [String(DISCOVERY_MODULE.levels.length), 'le nombre de jours'],
-]
-const hardCounts = []
-for (const f of SCREENS) {
-  // on ne regarde que ce qui est AFFICHÉ · le texte entre accolades JSX et les
-  // chaînes, jamais une taille de police ni une coordonnée
-  const shown = SRC(f).match(/>[^<>{}]*\b\d{1,3}\b[^<>{}]*</g) || []
-  for (const [n, what] of COUNTS) {
-    if (shown.some((s) => new RegExp(`(^|[^\\d])${n}([^\\d]|$)`).test(s))) {
-      hardCounts.push(`${f} → ${what}`)
-    }
-  }
-}
+// LA PREMIÈRE VERSION DE CETTE RÈGLE ACCUSAIT DU TRAVAIL JUSTE, et c'est le
+// pire défaut qu'une garde puisse avoir : elle apprend à la contourner.
+//
+// Elle cherchait « un nombre entre un chevron ouvrant et un chevron fermant »,
+// en pensant lire du texte JSX. Mais « > » est aussi l'opérateur de
+// comparaison et la fin d'une flèche : la règle avalait donc des pans entiers
+// de code et trouvait le « 100 » d'un pourcentage borné et le « 0 » d'un test.
+// Trois accusations, zéro faute.
+//
+// LA PRÉCISION VIENT DE LA PORTÉE, PAS D'UN MOTIF PLUS MALIN. On ne peut pas
+// distinguer une balise d'une comparaison sans analyser la syntaxe, et écrire
+// un analyseur pour ça serait démesuré. On vise donc la FORME EXACTE de la
+// faute : un nombre écrit à la main, suivi d'une unité traduite. C'est
+// précisément ce qu'on redoute · « 13 {t('g.cities')} » au lieu de
+// « {PATH_MODULE_COUNT} {t('g.cities')} », parce que le jour où une
+// quatorzième cité arrive, l'écran ment.
+const HARD_COUNT = /(^|[^\w.$])\d{1,3}\s+\{t\(/
+const hardCounts = SCREENS.filter((f) => HARD_COUNT.test(SRC(f)))
 ok('aucun écran du jeu n\'écrit un compte à la main', hardCounts.length === 0,
   hardCounts.slice(0, 3).join(', ') || `${SCREENS.length} écrans`)
+
+// … ET LES ÉCRANS LISENT VRAIMENT LEURS COMPTES. Une règle qui n'interdit que
+// la faute laisse passer un écran qui n'affiche plus rien du tout.
+ok('l\'écran des formations lit ses comptes',
+  /levelsOf\(/.test(SRC('src/game/Dojos.tsx')) && /modulesOf\(/.test(SRC('src/game/Dojos.tsx')))
 
 const priced = SCREENS.filter((f) => /\d+\s*€|€\s*\d+|EUR\s*\d/.test(SRC(f)))
 ok('aucun écran du jeu n\'écrit un prix', priced.length === 0, priced.join(', ') || 'aucun')
@@ -132,17 +139,24 @@ ok('les droits se lisent dans un seul fichier',
 /* --- 5 · les adresses sont publiques -------------------------------------- */
 
 const routes = SRC('src/main.tsx')
-for (const p of ['/formation', '/7-jours', '/profil']) {
+for (const p of ['/clan', '/profil', '/carte', '/decouvrir']) {
   ok(`l'adresse ${p} est branchée`, routes.includes(`'${p}'`))
 }
+ok('la racine sert le jeu', /path === '\/'\) return <DojosPage/.test(routes))
+// LES ANCIENNES ADRESSES NE RENDENT PAS 404 · elles étaient partagées et dans
+// le plan du site. Elles sont redirigées depuis les données.
+ok('les anciennes adresses du jeu sont redirigées', /legacyTarget/.test(routes))
 
 const sitemap = SRC('scripts/gen-seo.mjs')
-ok('le plan de site connaît le parcours', /\/formation/.test(sitemap))
-ok('le plan de site connaît la semaine gratuite', /7-jours/.test(sitemap))
-ok('le plan de site connaît les métiers', /\/metier/.test(sitemap))
+// LES ADRESSES ONT CHANGÉ, LA RÈGLE RESTE · le jeu s'adresse par formation
+// (/dojo/<formation>) et la brochure a quitté la racine. Ce que cette règle a
+// toujours voulu dire est qu'une page de cours publique se trouve, et c'est ce
+// qu'elle vérifie sur les nouvelles adresses.
+ok('le plan de site connaît les formations', /\/dojo\//.test(sitemap))
+ok('le plan de site connaît la brochure', /decouvrir/.test(sitemap))
 // … ET IL LES LIT PLUTÔT QUE DE LES RECOPIER · une liste d'adresses écrite à
-// la main aurait oublié la treizième cité le jour où elle est arrivée.
-ok('le plan de site lit le programme', /PATH_MODULES/.test(sitemap))
+// la main aurait oublié la huitième formation le jour où elle est arrivée.
+ok('le plan de site lit les formations', /PACKS\.map/.test(sitemap))
 
 // LA BIBLIOTHÈQUE EST PARTIE · et elle ne doit pas revenir par une ancre
 // oubliée dans un écran du jeu.
@@ -164,10 +178,16 @@ ok('la carte ne tient aucune liste de positions',
 // Une garde qu'on ne peut pas faire rougir ne garde rien.
 ok('morsure · un prix en dur serait vu', /\d+\s*€/.test('le parcours à 99 € une fois'))
 ok('morsure · une phrase sans prix ne l\'est pas', !/\d+\s*€|€\s*\d+/.test('le parcours entier, une fois'))
-ok('morsure · un compte en dur serait vu',
-  (['<span>13 cités</span>'].join('').match(/>[^<>{}]*\b\d{1,3}\b[^<>{}]*</g) || []).length > 0)
-ok('morsure · une taille de police ne l\'est pas',
-  (['style={{ fontSize: 13 }}'].join('').match(/>[^<>{}]*\b\d{1,3}\b[^<>{}]*</g) || []).length === 0)
+// LES MORSURES DE LA RÈGLE DE COMPTE · dans les deux sens, parce que c'est
+// justement le sens « ne pas accuser » qu'elle ratait.
+ok('morsure · un compte écrit à la main serait vu',
+  HARD_COUNT.test("<span>13 {t('g.cities')}</span>"))
+ok('morsure · un compte lu ne l\'est pas',
+  !HARD_COUNT.test("<span>{PATH_MODULE_COUNT} {t('g.cities')}</span>"))
+ok('morsure · une comparaison ne l\'est pas',
+  !HARD_COUNT.test('const percent = n > 0 ? Math.round(x * 100) : 0'))
+ok('morsure · une flèche ne l\'est pas',
+  !HARD_COUNT.test('levels.filter((l) => l.done).length'))
 ok('morsure · une fiche qui recopierait la réponse serait vue',
   `${sample}\n${PATH_MODULES[0].levels[0].quiz.options[PATH_MODULES[0].levels[0].quiz.answer].fr}`
     .includes(PATH_MODULES[0].levels[0].quiz.options[PATH_MODULES[0].levels[0].quiz.answer].fr))

@@ -43,10 +43,30 @@
 //   le jardin       gravier ratissé, mousse, pierres, arbres, une lanterne
 //   le temple       pierre, bois, deux toitures, une bannière de couleur
 //   le maître       devant son temple, et c'est lui qu'on vient voir
+//   l'outillage     mannequin, tonneaux, cloche · on travaille ici
+//   la campagne     prairies, bosquets et pierres entre les enceintes
+//   les promeneurs  des élèves qui vont d'une cité à l'autre
 //
-// Rien d'autre. Une carte de jeu se lit en une seconde ou ne se lit pas, et
-// chaque objet ajouté coûte cette seconde. Pas de nuages, pas d'animation
-// d'ambiance, pas de végétation de remplissage.
+// ---------------------------------------------------------------------------
+// CE QUE CETTE LISTE DISAIT AVANT, ET POURQUOI ELLE A CHANGÉ
+//
+// Elle s'arrêtait au maître et finissait par : « Rien d'autre. Une carte de jeu
+// se lit en une seconde ou ne se lit pas, et chaque objet ajouté coûte cette
+// seconde. Pas de nuages, pas d'animation d'ambiance, pas de végétation de
+// remplissage. »
+//
+// La règle reste vraie et c'est sa CONCLUSION qui était fausse. Le coût d'un
+// objet ne se paie pas en nombre mais en CONCURRENCE : un objet qui se dispute
+// l'attention avec les temples coûte la seconde, un objet qui remplit le vide
+// entre eux la rend. Ce qui a été ajouté ne fait rien d'autre que remplir ce
+// vide · rien n'est cliquable, rien ne porte d'étiquette, rien n'est coloré
+// plus vivement qu'une bannière de cité, et tout se tient à plus de six unités
+// d'une enceinte.
+//
+// Les nuages, eux, sont restés dehors, et cette fois pour la raison qui était
+// écrite : essayés, ils passaient entre l'oeil et le sol sur une caméra qui
+// regarde d'en haut, donc ils se lisaient comme des taches grises sur l'herbe.
+// Voir le commentaire à leur place dans le rendu.
 //
 // ---------------------------------------------------------------------------
 // LE HASARD EST SEMÉ, JAMAIS TIRÉ
@@ -55,16 +75,23 @@
 // Math.random() dans un rendu redessine un autre jardin à chaque image : les
 // arbres sautillent. Chaque jardin est donc tiré d'un GÉNÉRATEUR SEMÉ par
 // l'identifiant de sa cité · même cité, même jardin, à jamais.
-import { Suspense, useMemo, useRef, useEffect } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Suspense, useMemo, useEffect, useRef, useState } from 'react'
+import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { StudioLight } from '../components/three/StudioLight'
 import { Character3D } from '../components/three/Character3D'
+import { GaitProvider, advance, type Gait } from '../components/three/gait'
 import { characterFor, faceIdForUseCase } from '../data/agentFaces'
 import { PATH_MODULES, say, type Module } from '../data/curriculum'
 import { useLang } from '../i18n'
 import { useGame } from './progress'
+// LE DÉCOR VIT DANS UN SEUL FICHIER · la vallée et les vignettes des cartes de
+// l'écran d'accueil sont bâties des mêmes pièces. Voir game/scenery.
+import {
+  M, seeded, Rock, Tree, Torii, Steps, Lantern, Temple,
+  Dummy, Barrels, Bell, Banner, Koi,
+} from './scenery'
 
 /** Une case de la grille vaut cette distance en unités du monde.
  *
@@ -75,72 +102,70 @@ import { useGame } from './progress'
 const CELL = 4.6
 
 /* ================================================================== */
-/* LES MATIÈRES · toutes les cités les partagent                       */
-/* ================================================================== */
-//
-// UNE SEULE PALETTE POUR LES TREIZE TEMPLES. C'est la demande, et c'est aussi
-// ce qui fait qu'une vallée ressemble à une vallée : les temples d'un même
-// pays sont bâtis des mêmes matériaux. Ce qui distingue une cité est sa
-// BANNIÈRE, exactement comme un mon distingue deux temples identiques.
-const M = {
-  stone: '#cfcabd',       // la pierre des socles et des dalles
-  stoneDark: '#b3ad9e',   // ses arêtes
-  plaster: '#f6f3ec',     // les murs
-  wood: '#8a5636',        // les poteaux, les poutres, les rampes
-  woodDark: '#6d4229',    // les ombres du bois
-  tile: '#3c4350',        // les tuiles · le même gris ardoise partout
-  tileEdge: '#2b313c',    // l'arête des avant-toits
-  brass: '#c8a02e',       // le fleuron
-  gravel: '#e9e5db',      // le gravier ratissé
-  moss: '#8fbf8a',        // la mousse
-  mossDark: '#6fa471',
-  water: '#6db4d8',
-  bridge: '#c4503f',      // le vermillon des ponts
-  trunk: '#7b5b43',
-  pine: '#4f8a5e',
-  maple: '#cc6a42',
-}
-
-/* ================================================================== */
-/* LE HASARD SEMÉ                                                      */
-/* ================================================================== */
-
-/** Un générateur déterministe à partir d'un texte · même cité, même jardin.
- *  Voir l'en-tête : un tirage dans le rendu fait sautiller les arbres. */
-function seeded(text: string) {
-  let h = 2166136261
-  for (let i = 0; i < text.length; i++) {
-    h ^= text.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return () => {
-    h ^= h << 13; h >>>= 0
-    h ^= h >> 17
-    h ^= h << 5; h >>>= 0
-    return h / 4294967296
-  }
-}
-
-/* ================================================================== */
 /* LA GÉOMÉTRIE DU MONDE                                               */
 /* ================================================================== */
 
 /** La grille du programme vers le monde 3D · le centre est calculé depuis les
  *  cités elles mêmes, donc ajouter une cité en bord de carte recentre
  *  l'ensemble au lieu de la pousser hors champ. */
-function useWorld(modules: Module[]) {
+function useWorld(modules: Module[], portrait: boolean) {
   return useMemo(() => {
-    const xs = modules.map((m) => m.at[0])
-    const ys = modules.map((m) => m.at[1])
+    // LA VALLÉE PIVOTE D'UN QUART DE TOUR SUR UN ÉCRAN DEBOUT.
+    //
+    // Elle est large et peu profonde · treize cités sur cinq colonnes et trois
+    // rangs. Ce format est celui d'un écran couché, et c'est pour un écran
+    // couché qu'il a été dessiné. Sur un téléphone tenu droit, la caméra doit
+    // reculer jusqu'à faire tenir la LARGEUR dans le champ le plus étroit, et
+    // la vallée finit en timbre-poste au milieu d'un ciel vide · c'est
+    // exactement ce qu'on voyait.
+    //
+    // Échanger les deux axes donne cinq rangs sur trois colonnes, ce qui est
+    // le format de l'écran. Rien d'autre ne change : les voisines restent
+    // voisines, l'ordre conseillé reste le même, les chemins relient les mêmes
+    // cités. On lit alors le parcours de haut en bas, ce qui est de toute
+    // façon le sens de lecture d'un téléphone.
+    //
+    // POURQUOI PAS UNE AUTRE DISPOSITION. Parce que la grille du programme
+    // porte du sens · les cités d'un même thème sont voisines, et c'est écrit
+    // dans data/curriculum. Un nouveau rangement calculé ici jetterait ce
+    // sens pour un gain de place, et personne ne saurait plus pourquoi deux
+    // cités sont côte à côte.
+    const at = (m: Module): [number, number] =>
+      portrait ? [m.at[1], m.at[0]] : [m.at[0], m.at[1]]
+
+    const xs = modules.map((m) => at(m)[0])
+    const ys = modules.map((m) => at(m)[1])
     const cx = (Math.min(...xs) + Math.max(...xs)) / 2
     const cy = (Math.min(...ys) + Math.max(...ys)) / 2
-    const pos = (m: Module): [number, number] => [(m.at[0] - cx) * CELL, (m.at[1] - cy) * CELL]
+    const pos = (m: Module): [number, number] => {
+      const [x, y] = at(m)
+      return [(x - cx) * CELL, (y - cy) * CELL]
+    }
     const span = {
       w: (Math.max(...xs) - Math.min(...xs) + 2.4) * CELL,
       d: (Math.max(...ys) - Math.min(...ys) + 2.4) * CELL,
     }
     return { pos, span }
-  }, [modules])
+  }, [modules, portrait])
+}
+
+/** L'ÉCRAN EST-IL DEBOUT ? · le seuil est le rapport, pas une largeur.
+ *
+ *  Une largeur en pixels se trompe dans les deux sens · une tablette de neuf
+ *  cents pixels tenue droite est un écran debout, et un téléphone tourné de
+ *  huit cents ne l'est pas. Ce qui décide du cadrage est la forme du cadre. */
+function usePortrait(): boolean {
+  const [p, setP] = useState(() =>
+    typeof matchMedia === 'function' ? matchMedia('(max-aspect-ratio: 1/1)').matches : false)
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return
+    const mq = matchMedia('(max-aspect-ratio: 1/1)')
+    const read = () => setP(mq.matches)
+    read()
+    mq.addEventListener('change', read)
+    return () => mq.removeEventListener('change', read)
+  }, [])
+  return p
 }
 
 /* ================================================================== */
@@ -236,285 +261,11 @@ function ribbon(points: [number, number][], width: number, y: number, steps = 90
 }
 
 /* ================================================================== */
-/* LE JARDIN                                                           */
-/* ================================================================== */
-
-/** Une pierre · aplatie, jamais une bille. Une sphère posée sur l'herbe se lit
- *  comme un ballon ; c'est l'aplatissement qui en fait un rocher. */
-function Rock({ p, r, seed }: { p: [number, number, number]; r: number; seed: number }) {
-  return (
-    <mesh position={p} rotation={[seed * 0.6, seed * 3.1, seed * 0.4]} castShadow receiveShadow>
-      <dodecahedronGeometry args={[r, 0]} />
-      <meshStandardMaterial color={M.stoneDark} roughness={1} flatShading />
-    </mesh>
-  )
-}
-
-/** Un arbre · un pin en étages, ou un érable en boule.
- *
- *  DEUX ESPÈCES SUFFISENT. Une seule donne une plantation ; trois commencent à
- *  faire du bruit sur une carte qu'on lit en une seconde. Le pin structure, et
- *  l'érable met la seule tache chaude du jardin. */
-function Tree({ p, kind, s }: { p: [number, number, number]; kind: 'pine' | 'maple'; s: number }) {
-  return (
-    <group position={p} scale={s}>
-      <mesh position={[0, 0.45, 0]} castShadow>
-        <cylinderGeometry args={[0.09, 0.13, 0.9, 6]} />
-        <meshStandardMaterial color={M.trunk} roughness={1} />
-      </mesh>
-      {kind === 'pine' ? (
-        <>
-          <mesh position={[0, 1.15, 0]} castShadow>
-            <coneGeometry args={[0.62, 0.9, 7]} />
-            <meshStandardMaterial color={M.pine} roughness={1} flatShading />
-          </mesh>
-          <mesh position={[0, 1.7, 0]} castShadow>
-            <coneGeometry args={[0.44, 0.75, 7]} />
-            <meshStandardMaterial color={M.pine} roughness={1} flatShading />
-          </mesh>
-          <mesh position={[0, 2.16, 0]} castShadow>
-            <coneGeometry args={[0.27, 0.6, 7]} />
-            <meshStandardMaterial color={M.pine} roughness={1} flatShading />
-          </mesh>
-        </>
-      ) : (
-        <mesh position={[0, 1.35, 0]} scale={[1, 0.82, 1]} castShadow>
-          <icosahedronGeometry args={[0.72, 0]} />
-          <meshStandardMaterial color={M.maple} roughness={1} flatShading />
-        </mesh>
-      )}
-    </group>
-  )
-}
-
-/** Le torii · le portique rouge qui marque l'entrée de l'enceinte.
- *
- *  C'EST LE SIGNE LE PLUS RECONNAISSABLE DE TOUS, et il rend un service que
- *  le décor ne rend pas : il dit par OÙ l'on entre. Sans lui, une enceinte
- *  ronde n'a pas de devant, et le maître se tient au hasard sur un disque. */
-function Torii({ p, s = 1 }: { p: [number, number, number]; s?: number }) {
-  return (
-    <group position={p} scale={s}>
-      {[-0.85, 0.85].map((x) => (
-        <mesh key={x} position={[x, 1.05, 0]} rotation={[0, 0, x > 0 ? -0.035 : 0.035]} castShadow>
-          <cylinderGeometry args={[0.1, 0.13, 2.1, 8]} />
-          <meshStandardMaterial color={M.bridge} roughness={0.95} />
-        </mesh>
-      ))}
-      {/* le linteau supérieur déborde et retombe · c'est lui qu'on reconnaît */}
-      <mesh position={[0, 2.16, 0]} castShadow>
-        <boxGeometry args={[2.5, 0.16, 0.3]} />
-        <meshStandardMaterial color={M.bridge} roughness={0.95} />
-      </mesh>
-      <mesh position={[0, 1.74, 0]} castShadow>
-        <boxGeometry args={[1.95, 0.12, 0.2]} />
-        <meshStandardMaterial color={M.bridge} roughness={0.95} />
-      </mesh>
-      <mesh position={[0, 1.95, 0]} castShadow>
-        <boxGeometry args={[0.18, 0.3, 0.18]} />
-        <meshStandardMaterial color={M.woodDark} roughness={1} />
-      </mesh>
-    </group>
-  )
-}
-
-/** Le pas japonais · les dalles posées dans le gravier, du torii à la porte.
- *
- *  Elles ne sont pas de la décoration : ce sont elles qui relient le portique
- *  au bâtiment, et sans ce trait le temple flotte au milieu de son enceinte. */
-function Steps({ from, to, n = 6 }: { from: number; to: number; n?: number }) {
-  return (
-    <group>
-      {Array.from({ length: n }, (_, i) => {
-        const t = i / (n - 1)
-        const z = from + (to - from) * t
-        const x = (i % 2 === 0 ? 1 : -1) * 0.16
-        return (
-          <mesh key={i} position={[x, 0.05, z]} rotation={[-Math.PI / 2, 0, i * 0.5]} receiveShadow>
-            <circleGeometry args={[0.32, 6]} />
-            <meshStandardMaterial color={M.stoneDark} roughness={1} />
-          </mesh>
-        )
-      })}
-    </group>
-  )
-}
-
-/** Une lanterne de pierre · le tōrō.
- *
- *  C'EST L'OBJET QUI DIT « JARDIN JAPONAIS » à lui tout seul, plus sûrement
- *  qu'un arbre, qui pourrait être de n'importe où. Socle, fût, chapiteau,
- *  toit, fleuron : cinq pièces, et on la reconnaît de loin. */
-function Lantern({ p, s = 1 }: { p: [number, number, number]; s?: number }) {
-  return (
-    <group position={p} scale={s}>
-      <mesh position={[0, 0.09, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.26, 0.3, 0.18, 8]} />
-        <meshStandardMaterial color={M.stoneDark} roughness={1} />
-      </mesh>
-      <mesh position={[0, 0.45, 0]} castShadow>
-        <cylinderGeometry args={[0.1, 0.12, 0.55, 8]} />
-        <meshStandardMaterial color={M.stone} roughness={1} />
-      </mesh>
-      <mesh position={[0, 0.83, 0]} castShadow>
-        <boxGeometry args={[0.3, 0.26, 0.3]} />
-        <meshStandardMaterial color={M.plaster} roughness={1} />
-      </mesh>
-      <mesh position={[0, 1.02, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
-        <coneGeometry args={[0.32, 0.2, 4]} />
-        <meshStandardMaterial color={M.stoneDark} roughness={1} flatShading />
-      </mesh>
-      <mesh position={[0, 1.16, 0]}>
-        <sphereGeometry args={[0.06, 8, 8]} />
-        <meshStandardMaterial color={M.stone} roughness={1} />
-      </mesh>
-    </group>
-  )
-}
-
-/* ================================================================== */
-/* LE TEMPLE                                                           */
-/* ================================================================== */
-
-/** LE TOIT EST LA PIÈCE MAÎTRESSE, et il est fait de DEUX cônes empilés.
- *
- *  Un seul cône à quatre pans donne une pyramide, ce qui n'est pas un toit
- *  japonais : ce qui l'est, c'est l'AVANT-TOIT, la partie basse très débordante
- *  et presque plate sous une pente plus raide. Deux cônes, l'un large et plat,
- *  l'autre étroit et pentu, donnent cette silhouette avec deux formes au lieu
- *  d'une géométrie sur mesure. */
-function Roof({ r, h, y, flare = 1.5 }: { r: number; h: number; y: number; flare?: number }) {
-  return (
-    <group position={[0, y, 0]}>
-      {/* L'AVANT-TOIT EN PREMIER, ET POSÉ PLUS HAUT QUE SON CENTRE. Une
-          première version le centrait sur zéro : la moitié de sa hauteur
-          passait sous le mur, il n'en dépassait qu'un liseré, et le toit se
-          lisait comme une pyramide nue. C'est pourtant lui qu'on reconnaît
-          d'un toit japonais, donc c'est lui qui doit se voir. */}
-      <mesh rotation={[0, Math.PI / 4, 0]} position={[0, h * 0.2, 0]} castShadow>
-        <coneGeometry args={[r * flare, h * 0.44, 4]} />
-        <meshStandardMaterial color={M.tileEdge} roughness={0.9} flatShading />
-      </mesh>
-      {/* la pente · raide, elle tient le volume, et elle démarre au dessus de
-          l'avant-toit pour que la cassure entre les deux se voie */}
-      <mesh rotation={[0, Math.PI / 4, 0]} position={[0, h * 0.62, 0]} castShadow>
-        <coneGeometry args={[r * 0.94, h, 4]} />
-        <meshStandardMaterial color={M.tile} roughness={0.9} flatShading />
-      </mesh>
-    </group>
-  )
-}
-
-/** Un temple · pierre, bois, deux toitures, une bannière.
- *
- *  LA BANNIÈRE PORTE LA COULEUR DE LA CITÉ, et elle est la SEULE chose colorée
- *  du bâtiment. C'est ce qui permet d'avoir treize temples du même pays qu'on
- *  distingue quand même d'un coup d'oeil. */
-function Temple({ tint, finished }: { tint: string; finished: boolean }) {
-  const flag = useRef<THREE.Mesh>(null)
-  // LA BANNIÈRE D'UNE CITÉ FINIE ONDULE · un mouvement lent, et rien d'autre
-  // ne bouge sur cette carte. Sur treize cités, une animation permanente
-  // rendrait la carte illisible ; sur les cités finies, elle DIT quelque chose.
-  useFrame(({ clock }) => {
-    if (!flag.current || !finished) return
-    flag.current.rotation.y = Math.sin(clock.elapsedTime * 1.6) * 0.18
-  })
-
-  return (
-    <group>
-      {/* LE SOCLE · deux marches, parce qu'un temple ne pose jamais ses
-          poteaux sur la terre. */}
-      <mesh position={[0, 0.17, 0]} castShadow receiveShadow>
-        <boxGeometry args={[4.4, 0.34, 4] } />
-        <meshStandardMaterial color={M.stone} roughness={1} />
-      </mesh>
-
-      {/* L'ENGAWA · la galerie de bois qui fait le tour et déborde du mur.
-          C'est elle qui donne au bâtiment une assise lisible de haut : sans
-          elle, le toit touchait la pierre et il ne restait qu'une pyramide. */}
-      <mesh position={[0, 0.46, 0]} castShadow receiveShadow>
-        <boxGeometry args={[3.9, 0.22, 3.5]} />
-        <meshStandardMaterial color={M.wood} roughness={1} />
-      </mesh>
-
-      {/* LES MURS · plus hauts qu'avant, et c'est le point. Un mur d'une unité
-          sous un toit de deux et demie se voit comme un toit posé par terre. */}
-      <mesh position={[0, 1.42, 0]} castShadow receiveShadow>
-        <boxGeometry args={[3.1, 1.7, 2.7]} />
-        <meshStandardMaterial color={M.plaster} roughness={1} />
-      </mesh>
-      {[-1.48, 1.48].map((x) => (
-        <mesh key={x} position={[x, 1.42, 0]} castShadow>
-          <boxGeometry args={[0.22, 1.76, 2.82]} />
-          <meshStandardMaterial color={M.wood} roughness={1} />
-        </mesh>
-      ))}
-      {/* les quatre piliers d'angle de la galerie · ils portent l'avant-toit */}
-      {[[-1.85, 1.66], [1.85, 1.66], [-1.85, -1.66], [1.85, -1.66]].map(([px, pz]) => (
-        <mesh key={`${px}/${pz}`} position={[px, 1.32, pz]} castShadow>
-          <cylinderGeometry args={[0.11, 0.11, 1.72, 6]} />
-          <meshStandardMaterial color={M.woodDark} roughness={1} />
-        </mesh>
-      ))}
-      <mesh position={[0, 2.34, 0]} castShadow>
-        <boxGeometry args={[4, 0.18, 3.6]} />
-        <meshStandardMaterial color={M.woodDark} roughness={1} />
-      </mesh>
-
-      {/* LA PORTE · sombre, au sud, elle dit de quel côté on entre et donne
-          l'échelle du bâtiment. */}
-      <mesh position={[0, 1.25, 1.37]}>
-        <planeGeometry args={[1.2, 1.35]} />
-        <meshStandardMaterial color={M.woodDark} roughness={1} />
-      </mesh>
-      <mesh position={[0, 0.64, 2.05]} castShadow receiveShadow>
-        <boxGeometry args={[1.6, 0.14, 0.8]} />
-        <meshStandardMaterial color={M.stone} roughness={1} />
-      </mesh>
-
-      {/* LES DEUX TOITURES · resserrées sur le bâtiment plutôt que débordant
-          jusqu'au jardin, pour qu'on voie ce qu'elles couvrent. */}
-      <Roof r={2.25} h={1.1} y={2.4} flare={1.3} />
-      <mesh position={[0, 3.6, 0]} castShadow>
-        <boxGeometry args={[1.8, 0.75, 1.6]} />
-        <meshStandardMaterial color={M.plaster} roughness={1} />
-      </mesh>
-      {[-0.82, 0.82].map((x) => (
-        <mesh key={x} position={[x, 3.6, 0]} castShadow>
-          <boxGeometry args={[0.14, 0.8, 1.68]} />
-          <meshStandardMaterial color={M.wood} roughness={1} />
-        </mesh>
-      ))}
-      <Roof r={1.45} h={0.9} y={3.98} flare={1.32} />
-      {/* LE FLEURON · la pointe de laiton, et le seul éclat de la vallée. */}
-      <mesh position={[0, 5.15, 0]} castShadow>
-        <cylinderGeometry args={[0.05, 0.05, 0.55, 6]} />
-        <meshStandardMaterial color={M.brass} roughness={0.5} metalness={0.3} />
-      </mesh>
-      <mesh position={[0, 5.5, 0]}>
-        <sphereGeometry args={[0.13, 10, 10]} />
-        <meshStandardMaterial color={M.brass} roughness={0.45} metalness={0.35} />
-      </mesh>
-
-      {/* LA BANNIÈRE · le mon de la cité, et sa seule couleur. */}
-      <mesh position={[2.75, 1.75, 1.3]} castShadow>
-        <cylinderGeometry args={[0.055, 0.055, 3.5, 6]} />
-        <meshStandardMaterial color={M.woodDark} roughness={1} />
-      </mesh>
-      <mesh ref={flag} position={[2.75, 2.65, 1.3]} castShadow>
-        <boxGeometry args={[0.08, 1.7, 0.7]} />
-        <meshStandardMaterial color={tint} roughness={0.95} />
-      </mesh>
-    </group>
-  )
-}
-
-/* ================================================================== */
 /* UNE CITÉ                                                            */
 /* ================================================================== */
 
 function City3D({
-  module, x, z, percent, finished, onOpen, label, doneLabel, number, master,
+  module, x, z, percent, finished, onOpen, label, doneLabel, number, master, tall,
 }: {
   module: Module
   x: number
@@ -528,12 +279,14 @@ function City3D({
   doneLabel: string
   number: number
   master: string
+  /** l'écran est-il debout · il décide du décalage des étiquettes, voir plus bas */
+  tall: boolean
 }) {
   // LE JARDIN EST TIRÉ UNE FOIS · voir l'en-tête, un tirage par image ferait
   // sautiller les arbres.
   const garden = useMemo(() => {
     const rnd = seeded(module.id)
-    const trees: { p: [number, number, number]; kind: 'pine' | 'maple'; s: number }[] = []
+    const trees: { p: [number, number, number]; kind: 'pine' | 'maple' | 'sakura'; s: number }[] = []
     const rocks: { p: [number, number, number]; r: number; seed: number }[] = []
     // les arbres se posent en couronne DERRIÈRE et sur les côtés du temple ·
     // jamais devant, où ils cacheraient le maître et la porte
@@ -542,7 +295,10 @@ function City3D({
       const d = 2.9 + rnd() * 0.7
       trees.push({
         p: [Math.cos(a) * d * 1.25, 0, -Math.sin(a) * d * 0.9 - 0.4],
-        kind: rnd() > 0.68 ? 'maple' : 'pine',
+        // TROIS ESPÈCES, DANS CES PROPORTIONS · le pin domine parce qu'il
+        // structure, l'érable et le cerisier ponctuent. Une couronne où les
+        // trois seraient à égalité ferait un bouquet, pas un bosquet.
+        kind: rnd() > 0.78 ? 'sakura' : rnd() > 0.62 ? 'maple' : 'pine',
         s: 0.85 + rnd() * 0.45,
       })
     }
@@ -591,6 +347,20 @@ function City3D({
       <Lantern p={[-1.55, 0, 3.7]} s={0.85} />
       <Lantern p={[1.55, 0, 3.7]} s={0.85} />
 
+      {/* CE QUI DIT QU'ON TRAVAILLE ICI · une enceinte n'était faite que de
+          végétal et de pierre, donc de choses qui poussent ou qui restent.
+          Un mannequin usé, des tonneaux rangés, une cloche à frapper et deux
+          bannières sont des choses qu'on POSE, et c'est la seule différence
+          entre un site qu'on visite et une école où l'on vient.
+
+          ELLES SONT SUR LES CÔTÉS, jamais devant · le devant appartient au
+          maître, à la porte et à la jauge, qui sont ce qu'on vient lire. */}
+      <Dummy p={[-3.1, 0, 0.6]} s={0.8} />
+      <Barrels p={[2.9, 0, 1.1]} s={0.75} />
+      <Bell p={[3.2, 0, -0.9]} s={0.7} />
+      <Banner p={[-2.2, 0, 3.4]} tint={module.tint} s={0.85} />
+      <Banner p={[2.2, 0, 3.4]} tint={module.tint} s={0.85} />
+
       <Temple tint={module.tint} finished={finished} />
 
       {/* LE MAÎTRE ATTEND DEVANT SON TEMPLE · c'est lui qu'on vient voir, et
@@ -637,7 +407,50 @@ function City3D({
           hauteur, elles se touchent, et deux titres qui se touchent sont deux
           titres qu'on ne lit pas. Les décaler coûte une ligne et règle la
           collision pour toutes les largeurs d'écran à la fois. */}
-      <Html position={[0, number % 2 ? 6.6 : 7.9, 0]} center distanceFactor={26} zIndexRange={[20, 0]}>
+      {/* LA PLAGE DE PROFONDEUR DESCEND À DOUZE, et ce n'est pas cosmétique.
+          Elle montait à vingt, ce qui plaçait les étiquettes AU DESSUS de la
+          fiche d'une cité (couche 7) : on ouvrait une cité et « Le coût réel »
+          se dessinait par dessus le panneau, par dessus le voile, lisible et
+          cliquable alors que tout devait être derrière. Une étiquette projetée
+          dans la scène appartient à la scène ; elle ne peut pas passer devant
+          l'interface qui la recouvre. La fiche et le chrome de la carte sont
+          remontés au dessus de cette plage dans index.css · les deux moitiés
+          sont nécessaires, et aucune des deux ne suffit seule. */}
+      {/* L'ÉTIQUETTE NE RÉTRÉCIT PLUS AVEC LA DISTANCE, et c'est le correctif
+          qui compte le plus ici.
+          Elle avait un `distanceFactor` de vingt-six, qui la fait grandir et
+          rapetisser comme un objet de la scène. Ce réglage a été trouvé sur un
+          écran large, où la caméra se tient à une certaine distance, et il est
+          faux partout ailleurs : sur un téléphone, la caméra recule pour faire
+          tenir la vallée, et les treize titres tombaient à six pixels de haut.
+          Illisibles · c'est à dire exactement le défaut qu'on avait déjà
+          corrigé une fois en montant les étiquettes au dessus des toits.
+          Un nom de lieu sur une carte n'est pas un objet du décor : c'est de
+          l'interface posée par dessus, et l'interface garde sa taille. */}
+      {/* LE DÉCALAGE DES ÉTIQUETTES DÉPEND DU SENS DE L'ÉCRAN, et il a fallu
+          se tromper deux fois pour voir pourquoi.
+
+          Une étiquette décalée VERS LE HAUT s'éloigne de ses voisines de RANG
+          et se rapproche de celles du rang AU DESSUS. Le décalage sépare donc
+          les voisines horizontales et rapproche les verticales · c'est une
+          seule et même règle, et son effet s'inverse avec la disposition.
+
+            COUCHÉ · la vallée est large et peu profonde, cinq cités par rang.
+            Les voisines dangereuses sont à côté, donc on décale en hauteur, et
+            sur trois paliers plutôt que deux · à taille constante les
+            étiquettes sont assez larges pour que la une touche la trois.
+
+            DEBOUT · la vallée a pivoté (voir useWorld), trois cités par rang et
+            cinq rangs. Les voisines dangereuses sont maintenant AU DESSUS et EN
+            DESSOUS. Décaler en hauteur les pousse les unes dans les autres :
+            mesuré, six chevauchements avec le décalage de l'écran couché, zéro
+            sans. Elles tiennent donc toutes la même hauteur, et c'est
+            l'écartement des trois colonnes qui les sépare.
+
+          MESURÉ, PAS SUPPOSÉ · zéro chevauchement de 360 à 1920 pixels, dans
+          les deux sens. Un décalage réglé à l'oeil sur un seul écran est
+          exactement ce qui a produit les deux versions précédentes. */}
+      <Html position={[0, tall ? 6.6 : [6.4, 9.0, 11.6][number % 3], 0]} center zIndexRange={[12, 0]}>
         <button
           className={`wm-tag${finished ? ' on' : ''}`}
           style={{ ['--wt' as string]: module.tint }}
@@ -704,7 +517,11 @@ function Valley({ points, span }: { points: [number, number][]; span: { w: numbe
       [w * 0.42, d * 0.05],
       [w * 1.1, d * 0.5],
     ]
-    const river = ribbon(riverPts, 3.1, 0.012, 80)
+    // ELLE FAISAIT TROIS UNITÉS DE LARGE sur une vallée de quarante, vue
+    // d'une centaine de haut : un fil, pas un cours d'eau. Cinq et demie est
+    // la largeur à laquelle elle porte ses ponts sans couper la vallée en
+    // deux, et à laquelle les carpes se voient.
+    const river = ribbon(riverPts, 5.4, 0.012, 80)
 
     // LES CHEMINS relient chaque cité à la suivante dans l'ordre conseillé.
     const trails = points.slice(0, -1).map((p, i) => ribbon([p, points[i + 1]], 1.1, 0.014, 12))
@@ -769,7 +586,285 @@ function Valley({ points, span }: { points: [number, number][]; span: { w: numbe
         <meshStandardMaterial color={M.water} roughness={0.28} metalness={0.08} />
       </mesh>
       {bridges.map((b, i) => <Bridge key={i} {...b} />)}
+
+      {/* LA VIE SUR LES CHEMINS · voir Walkers. C'est ici plutôt que dans la
+          carte parce que les marcheurs suivent les COURBES des chemins, qui
+          n'existent nulle part ailleurs. */}
+      <Walkers trails={trails.map((t) => t.curve)} />
+
+      {/* LES CARPES DE LA RIVIÈRE · elles tournent dans le coude du milieu,
+          là où l'eau s'élargit et où la caméra les voit. */}
+      <Koi c={[0, 0]} r={1.7} y={0.1} speed={0.3} phase={0} />
+      <Koi c={[0, 0]} r={1.1} y={0.08} speed={0.44} phase={3.1} tint="#ffd166" />
     </group>
+  )
+}
+
+/* ================================================================== */
+/* LA CAMPAGNE                                                         */
+/* ================================================================== */
+//
+// LE SOL ÉTAIT UN RECTANGLE DE FEUTRE, ET MONTER LA SATURATION L'A EMPIRÉ.
+//
+// C'est l'enseignement de cette passe, et il vaut plus que le correctif :
+// rendre une couleur plus vive ne rend pas une surface plus vivante. Un aplat
+// de vert pâle se lit comme un fond, on ne le regarde pas ; le même aplat en
+// vert franc se lit comme du feutre de table de jeu, et il attire l'oeil
+// précisément là où il n'y a rien à voir. Ce qui manque n'est pas de la
+// couleur, c'est de la VARIATION.
+//
+// TROIS COUCHES, ET AUCUNE N'EST UNE TEXTURE. Une image de sol coûterait un
+// téléchargement, une résolution à choisir et un raccord à cacher ; ici ce
+// sont des disques posés à plat, qui coûtent une douzaine de triangles :
+//
+//   LES PRAIRIES · de larges taches d'un vert voisin, à peine plus clair ou
+//   plus sombre. Elles ne dessinent rien, elles cassent l'uniformité, et
+//   c'est tout ce qu'on leur demande.
+//
+//   LES BOSQUETS · des arbres hors des enceintes. Ils font la chose qu'aucune
+//   tache ne fait : ils portent une OMBRE, donc ils donnent au sol un relief
+//   que la couleur ne peut pas lui donner.
+//
+//   LES PIERRES · semées, rares, pour que le regard trouve où se poser entre
+//   deux cités.
+//
+// TOUT EST TIRÉ D'UNE GRAINE FIXE, comme les jardins · une campagne qui se
+// redessine quand on tourne son téléphone est pire qu'une campagne vide.
+//
+// ET RIEN NE SE POSE SUR UNE CITÉ. Chaque candidat est écarté s'il tombe à
+// moins de six unités d'une enceinte : un arbre planté au milieu d'un jardin
+// sec, ou pire à travers un temple, est exactement le genre de défaut qui fait
+// dire qu'une carte est buggée.
+function Countryside({ span, points }: {
+  span: { w: number; d: number }
+  points: [number, number][]
+}) {
+  const bits = useMemo(() => {
+    const rnd = seeded('campagne')
+    const W = span.w * 1.05
+    const D = span.d * 1.25
+    /** LOIN DE TOUTE CITÉ · la seule règle de placement, et elle est dure. */
+    const free = (x: number, z: number, margin: number) =>
+      points.every(([px, pz]) => (px - x) ** 2 + (pz - z) ** 2 > margin * margin)
+
+    const meadows: { p: [number, number, number]; r: number; c: string }[] = []
+    for (let i = 0; i < 16; i++) {
+      const x = (rnd() - 0.5) * W * 2
+      const z = (rnd() - 0.5) * D * 2
+      // LES PRAIRIES PASSENT SOUS LES ENCEINTES sans dommage · le gravier est
+      // posé plus haut qu'elles et les couvre. Elles n'ont donc pas à éviter
+      // les cités, contrairement à tout ce qui a du volume.
+      meadows.push({
+        p: [x, 0.006, z],
+        r: 4 + rnd() * 9,
+        c: rnd() > 0.5 ? M.mossDark : '#63d47d',
+      })
+    }
+
+    const trees: { p: [number, number, number]; kind: 'pine' | 'maple' | 'sakura'; s: number }[] = []
+    for (let i = 0; i < 90 && trees.length < 34; i++) {
+      const x = (rnd() - 0.5) * W * 2
+      const z = (rnd() - 0.5) * D * 2
+      if (!free(x, z, 6.2)) continue
+      trees.push({
+        p: [x, 0, z],
+        kind: rnd() > 0.82 ? 'sakura' : rnd() > 0.68 ? 'maple' : 'pine',
+        s: 0.9 + rnd() * 0.8,
+      })
+    }
+
+    const rocks: { p: [number, number, number]; r: number; seed: number }[] = []
+    for (let i = 0; i < 40 && rocks.length < 14; i++) {
+      const x = (rnd() - 0.5) * W * 2
+      const z = (rnd() - 0.5) * D * 2
+      if (!free(x, z, 6.2)) continue
+      rocks.push({ p: [x, 0.12, z], r: 0.3 + rnd() * 0.5, seed: rnd() * 6 })
+    }
+
+    return { meadows, trees, rocks }
+  }, [span.w, span.d, points])
+
+  return (
+    <group>
+      {bits.meadows.map((m, i) => (
+        <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={m.p} receiveShadow>
+          <circleGeometry args={[m.r, 18]} />
+          <meshStandardMaterial color={m.c} roughness={1} />
+        </mesh>
+      ))}
+      {bits.rocks.map((r, i) => <Rock key={i} {...r} />)}
+      {bits.trees.map((t, i) => <Tree key={i} {...t} />)}
+    </group>
+  )
+}
+
+/* ================================================================== */
+/* LES PROMENEURS                                                      */
+/* ================================================================== */
+//
+// CE QUI MANQUAIT À CETTE VALLÉE, EN UNE PHRASE : PERSONNE N'Y ALLAIT.
+//
+// Il y avait treize temples, des jardins, une rivière, des ponts, et devant
+// chaque porte un maître planté qui ne bougeait pas. C'est un site
+// archéologique, pas une école · on regardait des bâtiments, on ne voyait
+// nulle part que quelqu'un s'y rendait. Les chemins, en particulier, ne
+// servaient à rien visuellement : des rubans de pierre que rien ne foulait.
+//
+// LES PROMENEURS SUIVENT LES CHEMINS EXISTANTS, et c'est tout le principe.
+// On n'invente pas des trajectoires : on emprunte les courbes déjà calculées
+// pour dessiner les sentiers. Un personnage qui marcherait à côté du chemin se
+// remarquerait tout de suite, et un personnage qui marche DESSUS explique le
+// chemin · c'est lui qui dit à quoi il sert.
+//
+// TROIS PRÉCAUTIONS, ET CHACUNE CORRIGE UNE FAÇON DE RATER LA CHOSE :
+//
+//   LA CADENCE VIENT DU DÉPLACEMENT. C'est ce que fait GaitProvider : celui
+//   qui bouge le personnage tient l'horloge du pas, donc la jambe recule
+//   exactement à la vitesse du sol. Sans ça le personnage PATINE, ce qui se
+//   voit immédiatement même à cette échelle et rend la scène bon marché.
+//
+//   ILS FONT DEMI-TOUR PLUTÔT QUE DE SE TÉLÉPORTER. Arrivé au bout, un
+//   marcheur repart en sens inverse. Un rebouclage de 1 à 0 fait disparaître
+//   quelqu'un d'un bout de la carte pour le faire réapparaître à l'autre, et
+//   l'oeil attrape ça instantanément.
+//
+//   ILS S'ARRÊTENT. Un promeneur qui marche sans jamais s'interrompre est un
+//   automate sur rail. Celui-ci fait des pauses, à des intervalles qui ne sont
+//   les mêmes pour personne, et pendant qu'il est arrêté sa cadence tombe à
+//   zéro · donc ses jambes s'arrêtent aussi, ce qui est le détail qui fait
+//   qu'on y croit.
+
+/** COMBIEN · un par chemin, au plus, et jamais plus de six.
+ *
+ *  Le nombre n'est pas une préférence. Chaque personnage est un rig complet
+ *  (tête, corps, membres, chaussures, métier), et la vallée en porte déjà
+ *  treize immobiles devant les temples. Six de plus qui marchent est le point
+ *  où la carte reste fluide sur un téléphone de milieu de gamme ; au delà, ce
+ *  qu'on gagne en vie on le perd en images par seconde, et une carte qui
+ *  saccade ne donne envie d'aller nulle part. */
+const MAX_WALKERS = 6
+
+/** Les visages des promeneurs · pris dans le catalogue, pas inventés.
+ *  Ce sont des élèves, pas des maîtres : ils n'ont pas de titre, pas
+ *  d'étiquette, et on ne peut pas cliquer dessus. */
+const WALKER_FACES = ['research', 'support', 'ops', 'sales', 'design', 'data']
+
+/** UN PROMENEUR · il va d'un bout à l'autre d'un chemin, s'arrête, repart.
+ *
+ *  LA PHASE EST UNE POSITION SUR LA COURBE, entre 0 et 1, pas un angle. Le
+ *  chemin n'est pas de longueur constante d'une paire de cités à l'autre, donc
+ *  la vitesse est divisée par la longueur : sans ça, deux promeneurs partis en
+ *  même temps sur un chemin court et un chemin long marchent à deux vitesses
+ *  différentes, et celui du chemin court court. */
+function Walker({ curve, faceId, t0, speed, restEvery, restFor }: {
+  curve: THREE.CatmullRomCurve3
+  faceId: string
+  t0: number
+  speed: number
+  restEvery: number
+  restFor: number
+}) {
+  const g = useRef<THREE.Group>(null)
+  // LA CADENCE EST UN OBJET MUTABLE, jamais un état · elle change soixante
+  // fois par seconde, et un rendu par image remonterait tout l'arbre du
+  // personnage pour une rotation d'épaule. Voir three/gait.
+  const gait = useRef<Gait>({ speed: 0, phase: 0, bow: 0 })
+  const st = useRef({ t: t0, dir: 1, clock: 0, resting: false })
+  const len = useMemo(() => Math.max(1, curve.getLength()), [curve])
+  const here = useMemo(() => new THREE.Vector3(), [])
+  const ahead = useMemo(() => new THREE.Vector3(), [])
+
+  useFrame((_, raw) => {
+    if (!g.current) return
+    // LE PAS DE TEMPS EST PLAFONNÉ · un onglet qu'on réveille après une minute
+    // rend un delta d'une minute, et le promeneur ferait le tour de la vallée
+    // en une image. Cinquante millisecondes est le plafond utilisé partout
+    // ailleurs dans ce produit, on ne s'en écarte pas ici.
+    const dt = Math.min(raw, 0.05)
+    const s = st.current
+    s.clock += dt
+
+    if (s.resting) {
+      if (s.clock > restFor) { s.resting = false; s.clock = 0 }
+      gait.current.speed = 0
+    } else {
+      if (s.clock > restEvery) { s.resting = true; s.clock = 0 }
+      // la vitesse en unités du monde, ramenée en fraction de courbe
+      s.t += (speed / len) * s.dir * dt
+      // LE DEMI-TOUR AU BOUT · voir l'en-tête. On n'enroule pas.
+      if (s.t > 0.97) { s.t = 0.97; s.dir = -1 }
+      if (s.t < 0.03) { s.t = 0.03; s.dir = 1 }
+      gait.current.speed = speed
+      advance(gait.current, dt)
+    }
+
+    curve.getPoint(s.t, here)
+    g.current.position.set(here.x, 0, here.z)
+    // IL REGARDE OÙ IL VA · on vise un point un peu plus loin sur la courbe
+    // plutôt que d'utiliser la tangente, parce qu'un point devant reste juste
+    // au demi-tour alors que la tangente, elle, s'inverse d'un coup et fait
+    // pivoter le personnage sur lui même en une image.
+    curve.getPoint(Math.min(0.999, Math.max(0.001, s.t + 0.02 * s.dir)), ahead)
+    g.current.rotation.y = Math.atan2(ahead.x - here.x, ahead.z - here.z)
+  })
+
+  return (
+    <GaitProvider value={gait}>
+      <group ref={g} scale={0.62}>
+        <Character3D
+          id={`walker-${faceId}-${t0.toFixed(3)}`}
+          character={characterFor(faceIdForUseCase(faceId))}
+          fn="Product"
+          x={0}
+          z={0}
+          mood="idle"
+          selected={false}
+          busy={false}
+          walk
+          bare
+          onSelect={() => {}}
+        />
+      </group>
+    </GaitProvider>
+  )
+}
+
+/** LES PROMENEURS · un par chemin, répartis, et aucun réglage tiré au hasard.
+ *
+ *  Tout ce qui les distingue · vitesse, point de départ, rythme des pauses ·
+ *  vient d'un générateur semé par l'indice du chemin. Un tirage libre ferait
+ *  repartir toute la population d'ailleurs à chaque redessin de la carte, et
+ *  une vallée dont les habitants sautent d'un endroit à l'autre quand on
+ *  tourne son téléphone est pire qu'une vallée vide. */
+function Walkers({ trails }: { trails: THREE.CatmullRomCurve3[] }) {
+  const cast = useMemo(() => {
+    const rnd = seeded('promeneurs')
+    // ON PREND UN CHEMIN SUR N, pas les N premiers · les premiers chemins sont
+    // tous dans le même coin de la vallée, et six marcheurs groupés à un bout
+    // d'une carte se lisent comme une file d'attente.
+    const step = Math.max(1, Math.ceil(trails.length / MAX_WALKERS))
+    const picked: number[] = []
+    for (let i = 0; i < trails.length && picked.length < MAX_WALKERS; i += step) picked.push(i)
+    return picked.map((i, k) => ({
+      i,
+      faceId: WALKER_FACES[k % WALKER_FACES.length],
+      t0: 0.15 + rnd() * 0.7,
+      // LA VITESSE EST UNE VITESSE DE MARCHE, pas de course · autour de 1,2
+      // unité par seconde, ce qui est la vitesse pour laquelle l'amplitude du
+      // pas a été réglée dans three/gait. Plus vite, le personnage fait le
+      // grand écart ; plus lentement, il rampe.
+      speed: 1.0 + rnd() * 0.5,
+      restEvery: 4 + rnd() * 6,
+      restFor: 1.5 + rnd() * 2.5,
+    }))
+  }, [trails])
+
+  return (
+    <>
+      {cast.map((w) => (
+        <Walker key={`${w.i}-${w.faceId}`} curve={trails[w.i]} {...w} />
+      ))}
+    </>
   )
 }
 
@@ -785,7 +880,9 @@ export function WorldMap({ modules = PATH_MODULES, onOpen }: {
 }) {
   const lang = useLang()
   const g = useGame()
-  const { pos, span } = useWorld(modules)
+  // LE CADRAGE SUIT LA FORME DE L'ÉCRAN · voir useWorld.
+  const portrait = usePortrait()
+  const { pos, span } = useWorld(modules, portrait)
   const points = useMemo(() => modules.map((m) => pos(m)), [modules, pos])
 
   return (
@@ -796,7 +893,14 @@ export function WorldMap({ modules = PATH_MODULES, onOpen }: {
         camera={{ fov: 34, near: 1, far: 400 }}
         gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: THREE.ACESFilmicToneMapping }}
       >
-        <color attach="background" args={['#e7ecef']} />
+        {/* LE CIEL · un bleu franc, et non le gris perle d'avant.
+            Il était #e7ecef, c'est à dire la couleur d'un mur de bureau, et
+            c'est ce gris qui faisait que la vallée entière paraissait éteinte
+            quels que soient ses verts : une scène est jugée par rapport à son
+            fond, et un fond neutre tire tout vers le neutre. Un ciel qui est
+            un ciel remet chaque couleur à sa place sans qu'on touche à aucune
+            autre. */}
+        <color attach="background" args={['#a8ddf5']} />
         {/* PAS DE BRUME · une première version en posait une, réglée sur
             l'étendue de la vallée (43 unités) alors que la caméra se tient à
             plus de cent : tout le monde tombait dans la brume, et la carte
@@ -824,6 +928,20 @@ export function WorldMap({ modules = PATH_MODULES, onOpen }: {
             <meshStandardMaterial color={M.moss} roughness={1} />
           </mesh>
 
+          {/* LA CAMPAGNE AUTOUR DES CITÉS · voir Countryside. Sans elle, le
+              sol était un rectangle de feutre vert, et la saturation n'y
+              changeait rien : un aplat reste un aplat. */}
+          <Countryside span={span} points={points} />
+
+          {/* PAS DE NUAGES ICI, ET C'EST UN ESSAI QU'ON A FAIT PUIS DÉFAIT.
+              On en avait posé trois, pour donner une échelle de hauteur à une
+              vallée qui se lit sinon comme une maquette sur une table. Le
+              raisonnement est juste et il ne vaut que pour une caméra à
+              hauteur d'homme. Celle-ci regarde d'en haut : un nuage y passe
+              ENTRE l'oeil et le sol, donc il ne se lit pas comme un nuage dans
+              le ciel mais comme une tache grise posée sur l'herbe. Ils sont
+              restés dans les vignettes des cartes, où la caméra est de plain
+              pied et où ils font exactement ce qu'on leur demandait. */}
           <Valley points={points} span={span} />
 
           {modules.map((m, i) => {
@@ -842,6 +960,7 @@ export function WorldMap({ modules = PATH_MODULES, onOpen }: {
                 label={say(m.title, lang)}
                 doneLabel={`${c.done}/${c.total}`}
                 master={m.levels[0]?.master ?? 'research'}
+                tall={portrait}
               />
             )
           })}

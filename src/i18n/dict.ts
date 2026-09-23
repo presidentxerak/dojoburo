@@ -496,6 +496,65 @@ export const DICT = {
   'g.noLevelBody': { en: 'There is no dojo at that address.', fr: "Il n'y a aucun dojo à cette adresse." },
   'g.buyH2': { en: 'What the whole path opens', fr: 'Ce que le parcours entier ouvre' },
   'g.seePrices': { en: 'See the prices', fr: 'Voir les tarifs' },
+
+  /* --- le jeu · la coquille et les onglets -------------------------------- */
+  'nav.dojos': { en: 'Dojos', fr: 'Dojos' },
+  'nav.clan': { en: 'Clan', fr: 'Clan' },
+  'nav.profile': { en: 'Profile', fr: 'Profil' },
+  'gm.tabs': { en: 'Main navigation', fr: 'Navigation principale' },
+  'gm.xpTitle': { en: 'Experience earned across every dojo you finished', fr: 'Expérience gagnée sur tous les dojos terminés' },
+  'gm.dojosTitle': { en: 'Your dojos', fr: 'Vos dojos' },
+  'gm.dojosLead': {
+    en: 'Pick a training. Each one is a set of dojo cities you cross in any order.',
+    fr: "Choisissez une formation. Chacune est un ensemble de cités dojo que l'on traverse dans l'ordre qu'on veut.",
+  },
+  'gm.modules': { en: 'modules', fr: 'modules' },
+  'gm.module1': { en: 'module', fr: 'module' },
+  'gm.module': { en: 'Module', fr: 'Module' },
+  'gm.dojo1': { en: 'dojo', fr: 'dojo' },
+  'gm.needEmail': { en: 'Email asked', fr: 'Adresse demandée' },
+  'gm.free': { en: 'Free', fr: 'Gratuit' },
+  'gm.locked': { en: 'Locked', fr: 'Fermé' },
+  'gm.finished': { en: 'Done', fr: 'Terminé' },
+  'gm.start': { en: 'Start', fr: 'Commencer' },
+  'gm.see': { en: 'See what is inside', fr: 'Voir ce qu\'il y a dedans' },
+  'gm.backDojos': { en: 'Your dojos', fr: 'Vos dojos' },
+  'gm.noPack': { en: 'Training not found', fr: 'Formation introuvable' },
+  'gm.noPackBody': { en: 'There is no training at that address.', fr: "Il n'y a aucune formation à cette adresse." },
+  'gm.lockTitle': { en: 'This training is not open yet', fr: "Cette formation n'est pas encore ouverte" },
+  'gm.lockBody': {
+    en: 'The first dojo is open so you can judge for yourself. The rest comes with the training, bought once.',
+    fr: "Le premier dojo est ouvert pour que vous jugiez par vous-même. Le reste vient avec la formation, achetée une fois.",
+  },
+
+  /* --- le clan ------------------------------------------------------------ */
+  'cl.title': { en: 'The clan', fr: 'Le clan' },
+  'cl.lead': { en: 'Where disciples compare what they built.', fr: 'Là où les disciples comparent ce qu\'ils ont construit.' },
+  'cl.soonTitle': { en: 'No feed yet, and we will not fake one', fr: "Pas encore de fil, et nous n'en simulerons pas" },
+  'cl.soonBody': {
+    en: 'A feed needs a server to receive what people post. There is none yet, so writing three invented messages here would only mean your own message goes nowhere. This page becomes the feed the day it can carry one.',
+    fr: "Un fil demande un serveur pour recevoir ce qu'on y écrit. Il n'y en a pas encore, donc afficher trois messages inventés ne ferait que garantir que le vôtre ne partirait nulle part. Cette page devient le fil le jour où elle peut en porter un.",
+  },
+  'cl.seeProfile': { en: 'Your progress', fr: 'Votre progression' },
+
+  /* --- le profil et la carte --------------------------------------------- */
+  'pr.mapTitle': { en: 'The valley map', fr: 'La carte de la vallée' },
+  'pr.mapBody': { en: 'See every dojo city, and enter one.', fr: 'Voir toutes les cités dojo, et entrer dans une.' },
+  'pr.ownedH2': { en: 'What is open', fr: 'Ce qui est ouvert' },
+  'pr.tester': {
+    en: 'This address opens every training so you can read them. It is a test pass, not a purchase.',
+    fr: "Cette adresse ouvre toutes les formations pour que vous puissiez les lire. C'est un passe d'essai, pas un achat.",
+  },
+  'pr.dataH2': { en: 'Where your progress lives', fr: 'Où vit votre progression' },
+  'pr.dataBody': {
+    en: 'In this browser, and nowhere else. No account, nothing sent. Clearing it loses what you finished here.',
+    fr: "Dans ce navigateur, et nulle part ailleurs. Aucun compte, rien d'envoyé. L'effacer perd ce que vous avez terminé ici.",
+  },
+  'pr.forget': { en: 'Erase everything', fr: 'Tout effacer' },
+  'pr.opened': { en: 'Open', fr: 'Ouverte' },
+  'cm.title': { en: 'The valley', fr: 'La vallée' },
+  'cm.lead': { en: 'Every dojo city, and where you stand.', fr: 'Toutes les cités dojo, et où vous en êtes.' },
+  'cm.close': { en: 'Close the map', fr: 'Fermer la carte' },
   /* --- la semaine gratuite ---------------------------------------------- */
   'd.title': { en: 'Seven days to understand AI', fr: "Sept jours pour comprendre l'IA" },
   'd.lead': {

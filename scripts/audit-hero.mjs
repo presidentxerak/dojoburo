@@ -49,7 +49,18 @@ for (const v of VIEWS) {
   const p = await ctx.newPage()
   const errs = []
   p.on('pageerror', (e) => errs.push(String(e)))
-  await p.goto(B, { waitUntil: 'networkidle' })
+  // LA BROCHURE A DÉMÉNAGÉ, ET CETTE ÉPREUVE LA SUIT.
+  //
+  // Elle visait la racine, parce que la racine SERVAIT la page de vente. Elle
+  // sert maintenant le jeu, et la brochure vit sur /decouvrir. Pointée sur la
+  // racine, l'épreuve mesurait le hero d'une page qui n'en a pas : canvas 0x0,
+  // titre vide, barre introuvable · seize constats faux, tous exacts.
+  //
+  // ON LA REPOINTE PLUTÔT QUE DE LA RETIRER. Ce qu'elle garde reste vrai et
+  // reste utile · la scène remplit son cadre, le dojo se voit au dessus de la
+  // ligne de flottaison, le titre est celui qu'on a écrit. Une garde dont la
+  // cible a bougé se repointe ; supprimée, elle emporte ce qu'elle tenait.
+  await p.goto(B + '/decouvrir', { waitUntil: 'networkidle' })
   await p.waitForTimeout(2500)
 
   const m = await p.evaluate(() => {
