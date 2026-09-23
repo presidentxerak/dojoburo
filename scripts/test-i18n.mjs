@@ -123,7 +123,7 @@ const looksFrench = (t) => {
 // les deux langues parce que c'est le symbole international. L'écrire « mn »
 // en français pour faire passer la règle serait corriger la page pour plaire
 // à la garde.
-const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac.min'])
+const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac.min', 'tut.pause'])
 const copied = keys.filter((k) => DICT[k].en === DICT[k].fr && !SAME_IN_BOTH.has(k))
 ok('aucune traduction n\'est la copie de l\'anglais', copied.length === 0,
   copied.join(', ') || `${keys.length - SAME_IN_BOTH.size} comparées`)
@@ -462,6 +462,95 @@ for (const c of FW.CONNECT_STEPS) {
   // LE FILTRE DE LANGAGE S'APPELAIT `lang` · le même nom que la langue lue, au
   // même endroit. L'un aurait masqué l'autre en silence.
   ok('… et ne confond pas le langage avec la langue', !/\[lang, setLang\]/.test(src))
+}
+
+/* --- 3 octies · les sujets du robot de support --------------------------- */
+//
+// Le robot répond AVANT la cascade payante, et c'est sa raison d'être : une
+// question qui trouve son sujet ici ne coûte rien. Un sujet sans français
+// répondait donc en anglais à quelqu'un qui lit la page en français, et
+// gratuitement, ce qui est la pire combinaison : ça marche, donc personne ne
+// le signale.
+const KB = await load('src/support/knowledge.ts', 'kb.mjs')
+for (const t of KB.KB) {
+  ok(`le sujet « ${t.id} » a son français`, !!t.fr, t.fr ? 'oui' : 'absent')
+  if (!t.fr) continue
+  ok(`« ${t.id} » est écrit en français`, looksFrench(t.fr.chip) && looksFrench(t.fr.answer))
+  ok(`« ${t.id} » n'a pas recopié l'anglais`, t.fr.answer !== t.answer && t.fr.chip !== t.chip)
+  // LES LIBELLÉS DE LIENS · autant qu'en anglais, sinon un bouton reste dans
+  // l'autre langue au milieu d'une réponse française.
+  ok(`« ${t.id} » a traduit ses boutons`,
+    (t.links?.length ?? 0) === (t.fr.links?.length ?? 0),
+    `${t.links?.length ?? 0} liens`)
+}
+{
+  const t0 = KB.KB[0]
+  const fr = KB.topicIn(t0, 'fr')
+  // LES ADRESSES NE SE TRADUISENT PAS · seuls les libellés changent.
+  ok('topicIn garde les adresses', (fr.links ?? []).every((l, i) => l.href === t0.links[i].href))
+  ok('topicIn garde les mots-clés et le sujet', fr.keywords === t0.keywords && fr.id === t0.id)
+  ok('topicIn rend l\'anglais', KB.topicIn(t0, 'en').answer === t0.answer)
+}
+ok('l\'accueil du robot a ses deux langues',
+  typeof KB.GREETING.en === 'string' && looksFrench(KB.GREETING.fr))
+// LA PREMIÈRE PHRASE DU ROBOT EST UN ARGUMENTAIRE · elle promettait « un
+// atelier professionnel par coéquipier », c'est à dire le produit d'avant le
+// repositionnement, dans la toute première bulle que lit un visiteur.
+for (const l of ['en', 'fr']) {
+  ok(`l'accueil ne vend pas l'ancien produit (${l})`,
+    !/pro studio|atelier professionnel/i.test(KB.GREETING[l]), KB.GREETING[l].slice(0, 40))
+}
+ok('le robot répond dans la langue lue', /topicIn\(/.test(readFileSync('src/components/SupportBot.tsx', 'utf8')))
+// LA RECONNAISSANCE MARCHE DANS LES DEUX LANGUES · sinon une question posée
+// avec le libellé français qu'on a sous les yeux tombe dans la cascade payante.
+{
+  const fr = KB.KB.find((t) => t.fr && t.fr.chip.length > 8)
+  ok('une question posée en français trouve son sujet',
+    KB.matchTopic(fr.fr.chip.toLowerCase())?.id === fr.id, fr.fr.chip)
+  const en = KB.KB.find((t) => t.chip.length > 8)
+  ok('… et une question posée en anglais aussi',
+    KB.matchTopic(en.chip.toLowerCase())?.id === en.id, en.chip)
+}
+
+/* --- 3 nonies · les quatre visites animées ------------------------------- */
+//
+// Les visites sont le premier contact de beaucoup de gens avec le produit :
+// le bouton « Comment faire ? » se presse avant d'avoir rien engagé. Une
+// visite restée anglaise sur une page française accueille donc le visiteur
+// dans la mauvaise langue au pire moment.
+// ON LIT LE FICHIER DE DONNÉES, pas le composant · le .tsx monte de vraies
+// cartes du produit, donc le charger ici entraînait react-dom et arrêtait
+// l'épreuve sur une erreur. Les textes vivent maintenant dans walks.ts, qui
+// ne dépend de rien ayant besoin d'un navigateur.
+const TB = await load('src/components/guide/walks.ts', 'walks.mjs')
+for (const [id, w] of Object.entries(TB.WALKS)) {
+  ok(`la visite « ${id} » a son français`, !!w.fr && looksFrench(w.fr.title) && looksFrench(w.fr.sub),
+    w.fr ? 'oui' : 'absente')
+  for (const b of w.beats) {
+    ok(`« ${id}/${b.id} » a son français`, !!b.fr, b.fr ? 'oui' : 'absent')
+    if (!b.fr) continue
+    ok(`« ${id}/${b.id} » est écrit en français`, looksFrench(b.fr.title) && looksFrench(b.fr.body))
+    ok(`« ${id}/${b.id} » n'a pas recopié l'anglais`, b.fr.body !== b.body)
+  }
+}
+{
+  const w = TB.WALKS.overview
+  const fr = TB.walkIn(w, 'fr')
+  // L'IDENTIFIANT CHOISIT LA SCÈNE ANIMÉE · le traduire montrerait la
+  // mauvaise scène à côté du texte, ou aucune.
+  ok('walkIn garde l\'identifiant de chaque temps',
+    fr.beats.every((b, i) => b.id === w.beats[i].id))
+  ok('walkIn garde le nombre de temps', fr.beats.length === w.beats.length)
+  ok('walkIn rend l\'anglais', TB.walkIn(w, 'en').title === w.title)
+  // LE COMPTE VIENT DES DONNÉES DANS LES DEUX LANGUES · la version française
+  // du premier temps a d'abord été écrite entre guillemets droits, donc elle
+  // aurait affiché « ${LESSON_COUNT} leçons » au lecteur, mot pour mot.
+  ok('aucun compte n\'est resté littéral en français',
+    fr.beats.every((b) => !/\$\{/.test(b.title + b.body)),
+    fr.beats.find((b) => /\$\{/.test(b.body))?.body.slice(0, 40) ?? 'tous interpolés')
+}
+for (const f of ['src/components/guide/Tutorial.tsx', 'src/components/guide/TutorialOverlay.tsx', 'src/components/SupportBot.tsx']) {
+  ok(`${f.split('/').pop()} joue la visite dans la langue lue`, /walkIn\(/.test(readFileSync(f, 'utf8')))
 }
 
 /* --- 4 · les surfaces annoncées traduites le sont vraiment --------------- */

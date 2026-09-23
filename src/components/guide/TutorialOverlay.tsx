@@ -7,7 +7,8 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Tutorial } from './Tutorial'
-import { WALKS, type WalkId } from './tutorialBeats'
+import { WALKS, walkIn, type WalkId } from './tutorialBeats'
+import { useLang, useT } from '../../i18n'
 
 export function TutorialOverlay({ walk = 'overview', onClose, onStart, startLabel }: {
   walk?: WalkId
@@ -15,6 +16,8 @@ export function TutorialOverlay({ walk = 'overview', onClose, onStart, startLabe
   onStart?: () => void
   startLabel?: string
 }) {
+  const lang = useLang()
+  const t = useT()
   // Escape closes, and the page behind must not scroll while we are over it
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -24,7 +27,7 @@ export function TutorialOverlay({ walk = 'overview', onClose, onStart, startLabe
     return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey) }
   }, [onClose])
 
-  const meta = WALKS[walk]
+  const meta = walkIn(WALKS[walk], lang)
   return createPortal(
     <div className="tutfs" role="dialog" aria-modal="true" aria-label={meta.title}>
       <header className="tutfs-h">
@@ -32,7 +35,7 @@ export function TutorialOverlay({ walk = 'overview', onClose, onStart, startLabe
           <strong>{meta.title}</strong>
           <span>{meta.sub}</span>
         </div>
-        <button className="tutfs-x" onClick={onClose} aria-label="Close">×</button>
+        <button className="tutfs-x" onClick={onClose} aria-label={t('header.close')}>×</button>
       </header>
 
       <div className="tutfs-body">
@@ -41,8 +44,8 @@ export function TutorialOverlay({ walk = 'overview', onClose, onStart, startLabe
 
       <footer className="tutfs-f">
         {onStart
-          ? <button className="tutfs-go" onClick={onStart}>{startLabel ?? 'Get started →'}</button>
-          : <button className="tutfs-go ghost" onClick={onClose}>Got it</button>}
+          ? <button className="tutfs-go" onClick={onStart}>{startLabel ?? `${t('tut.getStarted')} →`}</button>
+          : <button className="tutfs-go ghost" onClick={onClose}>{t('tut.gotIt')}</button>}
       </footer>
     </div>,
     document.body,
@@ -50,6 +53,7 @@ export function TutorialOverlay({ walk = 'overview', onClose, onStart, startLabe
 }
 
 /** The small "How to?" button that opens one of the walkthroughs. */
-export function HowToButton({ onClick, label = 'How to?' }: { onClick: () => void; label?: string }) {
-  return <button type="button" className="howto-btn" onClick={onClick}>{label}</button>
+export function HowToButton({ onClick, label }: { onClick: () => void; label?: string }) {
+  const t = useT()
+  return <button type="button" className="howto-btn" onClick={onClick}>{label ?? t('tut.howTo')}</button>
 }

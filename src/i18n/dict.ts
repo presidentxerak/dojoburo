@@ -371,6 +371,37 @@ export const DICT = {
   },
   'fw.weDoNotTrack': { en: 'We do not track these', fr: 'Nous ne suivons pas ces' },
 
+  // ---- le robot de support ------------------------------------------------
+  // Les RÉPONSES ne sont pas ici · elles vivent dans support/knowledge, à côté
+  // de leur anglais, pour la même raison que les leçons.
+  'sb.ask': { en: 'Ask Dojobot', fr: 'Demander à Dojobot' },
+  'sb.online': { en: 'online · ask me anything about DojoBuro', fr: 'en ligne · posez-moi toute question sur DojoBuro' },
+  'sb.newChat': { en: 'New chat', fr: 'Nouvelle discussion' },
+  'sb.watchIt': { en: 'Watch it', fr: 'Voir la visite' },
+  'sb.topics': { en: 'Topics', fr: 'Sujets' },
+  'sb.placeholder': { en: 'Ask me anything · in your own words', fr: 'Posez votre question · dans vos propres mots' },
+  'sb.send': { en: 'Send', fr: 'Envoyer' },
+  'sb.foot': {
+    en: 'Answers may use AI. Never share keys or passwords here.',
+    fr: "Les réponses peuvent venir d'une IA. Ne partagez jamais de clés ni de mots de passe ici.",
+  },
+  'sb.noReach': {
+    en: "I couldn't reach my brain just now, but these topics cover most questions. Pick one, or watch a walkthrough on the left.",
+    fr: "Je n'ai pas pu joindre mon cerveau à l'instant, mais ces sujets couvrent la plupart des questions. Choisissez-en un, ou regardez une visite guidée à gauche.",
+  },
+
+  // ---- les visites animées ------------------------------------------------
+  'tut.howTo': { en: 'How to?', fr: 'Comment faire ?' },
+  'tut.getStarted': { en: 'Get started', fr: 'Commencer' },
+  'tut.gotIt': { en: 'Got it', fr: "J'ai compris" },
+  'tut.prev': { en: 'Back', fr: 'Retour' },
+  'tut.next': { en: 'Next', fr: 'Suivant' },
+  'tut.play': { en: 'Play', fr: 'Lancer' },
+  // « Pause » s'écrit pareil dans les deux langues · voir SAME_IN_BOTH dans
+  // le portail, qui liste les mots identiques plutôt que de tolérer l'égalité
+  // en général.
+  'tut.pause': { en: 'Pause', fr: 'Pause' },
+
   // ---- le pied de page ---------------------------------------------------
   'footer.built': { en: 'A training centre for AI agents', fr: "Un centre de formation aux agents IA" },
 } as const satisfies Record<string, Entry>

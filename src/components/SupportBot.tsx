@@ -9,10 +9,11 @@
 // walkthrough takes over the screen in place — the same one behind every
 // "How to?" button in the app.
 import { useEffect, useRef, useState } from 'react'
-import { TOPIC_BY_ID, KB, matchTopic, matchConnector, connectorReply, GREETING, type KBLink } from '../support/knowledge'
+import { TOPIC_BY_ID, KB, matchTopic, matchConnector, connectorReply, topicIn, GREETING, type KBLink } from '../support/knowledge'
+import { useLang, useT, pick } from '../i18n'
 import { askCascade } from '../support/askCascade'
 import { TutorialOverlay } from './guide/TutorialOverlay'
-import { WALKS, type WalkId } from './guide/tutorialBeats'
+import { WALKS, walkIn, type WalkId } from './guide/tutorialBeats'
 import { Logo } from './Logo'
 import { BauhausIcon } from './BauhausIcon'
 
@@ -70,11 +71,14 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const greeted = useRef(false)
+  const lang = useLang()
+  const t = useT()
+  const hello = pick(GREETING, lang)
 
   useEffect(() => {
     if (open && !greeted.current) {
       greeted.current = true
-      setMsgs([{ id: nid(), who: 'bot', text: GREETING, chips: START_CHIPS }])
+      setMsgs([{ id: nid(), who: 'bot', text: hello, chips: START_CHIPS }])
     }
   }, [open])
 
@@ -100,16 +104,21 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
 
   const pushBot = (m: Omit<Msg, 'id' | 'who'>) => setMsgs((s) => [...s, { id: nid(), who: 'bot', ...m }])
 
+  // LA RÉPONSE PASSE PAR topicIn · le robot répondait en anglais sur une page
+  // française, parce que ces deux fonctions lisaient le sujet brut. C'est le
+  // seul endroit où la réponse est choisie, donc c'est le seul endroit à
+  // corriger.
   const answerTopic = (id: string) => {
-    const t = TOPIC_BY_ID[id]
-    if (!t) return
-    pushBot({ text: t.answer, links: t.links, chips: t.follow, walk: t.walk })
+    const k = TOPIC_BY_ID[id]
+    if (!k) return
+    const x = topicIn(k, lang)
+    pushBot({ text: x.answer, links: x.links, chips: x.follow, walk: x.walk })
   }
 
   const onChip = (id: string) => {
-    const t = TOPIC_BY_ID[id]
-    if (!t || busy) return
-    setMsgs((s) => [...s, { id: nid(), who: 'user', text: t.chip }])
+    const k = TOPIC_BY_ID[id]
+    if (!k || busy) return
+    setMsgs((s) => [...s, { id: nid(), who: 'user', text: topicIn(k, lang).chip }])
     setTimeout(() => answerTopic(id), 120)
   }
 
@@ -125,7 +134,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
     // prefer the connector reply when the app name is the clear subject (no
     // stronger generic topic like pricing/security also matched)
     if (conn && (!topic || ['tools', 'setup', 'start', 'jobs', 'guide'].includes(topic.id))) {
-      const r = connectorReply(conn)
+      const r = connectorReply(conn, lang)
       setTimeout(() => pushBot({ text: r.text, links: r.links, chips: ['setup', 'tools', 'security'], walk: 'apps' }), 150)
       return
     }
@@ -149,21 +158,21 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
       pushBot({ text: reply.text, chips: ['start', 'budget', 'security'] })
     } else {
       pushBot({
-        text: "I couldn't reach my brain just now, but these topics cover most questions. Pick one, or watch a walkthrough on the left.",
+        text: t('sb.noReach'),
         chips: START_CHIPS,
       })
     }
   }
 
   const reset = () => {
-    setMsgs([{ id: nid(), who: 'bot', text: GREETING, chips: START_CHIPS }])
+    setMsgs([{ id: nid(), who: 'bot', text: hello, chips: START_CHIPS }])
     setInput('')
   }
 
   return (
     <>
       {!embedded && !open && (
-        <button className="sb-launch" onClick={() => setOpen(true)} aria-label="Ask Dojobot">
+        <button className="sb-launch" onClick={() => setOpen(true)} aria-label={t('sb.ask')}>
           <Logo size={26} className="sb-face" />
           <span className="sb-launch-label">Dojobot</span>
         </button>
@@ -175,29 +184,29 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
             <Logo size={32} className="sb-avatar" />
             <div className="sb-title">
               <strong>Dojobot</strong>
-              <span className="sb-status"><i /> online · ask me anything about DojoBuro</span>
+              <span className="sb-status"><i /> {t('sb.online')}</span>
             </div>
-            {msgs.length > 1 && <button className="sb-reset" onClick={reset}>New chat</button>}
-            {!embedded && <button className="sb-x" onClick={() => setOpen(false)} aria-label="Close">×</button>}
+            {msgs.length > 1 && <button className="sb-reset" onClick={reset}>{t('sb.newChat')}</button>}
+            {!embedded && <button className="sb-x" onClick={() => setOpen(false)} aria-label={t('header.close')}>×</button>}
           </header>
 
           <div className="sb-main">
             {/* the rail · every topic and every walkthrough, one tap away */}
             {!embedded && (
               <aside className="sb-rail">
-                <span className="sb-rail-h">Watch it</span>
+                <span className="sb-rail-h">{t('sb.watchIt')}</span>
                 <div className="sb-rail-walks">
                   {WALK_IDS.map((w) => (
                     <button key={w} className="sb-walk" onClick={() => setWalk(w)}>
                       <BauhausIcon className="sb-walk-play" name="play" size={12} />
-                      <span>{WALKS[w].title}</span>
+                      <span>{walkIn(WALKS[w], lang).title}</span>
                     </button>
                   ))}
                 </div>
-                <span className="sb-rail-h">Topics</span>
+                <span className="sb-rail-h">{t('sb.topics')}</span>
                 <div className="sb-rail-topics">
-                  {KB.map((t) => (
-                    <button key={t.id} className="sb-railtopic" disabled={busy} onClick={() => onChip(t.id)}>{t.chip}</button>
+                  {KB.map((k) => (
+                    <button key={k.id} className="sb-railtopic" disabled={busy} onClick={() => onChip(k.id)}>{topicIn(k, lang).chip}</button>
                   ))}
                 </div>
               </aside>
@@ -219,7 +228,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
                     {/* the answer has a walkthrough · offer to play it here */}
                     {m.walk && (
                       <button className="sb-watch" onClick={() => setWalk(m.walk!)}>
-                        <BauhausIcon name="play" size={12} /> Watch it · {WALKS[m.walk].title}
+                        <BauhausIcon name="play" size={12} /> {t('sb.watchIt')} · {walkIn(WALKS[m.walk], lang).title}
                       </button>
                     )}
 
@@ -227,7 +236,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
                       <div className="sb-chips">
                         {m.chips.map((id) => (
                           <button key={id} className="sb-chip" onClick={() => onChip(id)} disabled={busy}>
-                            {TOPIC_BY_ID[id]?.chip ?? id}
+                            {TOPIC_BY_ID[id] ? topicIn(TOPIC_BY_ID[id], lang).chip : id}
                           </button>
                         ))}
                       </div>
@@ -256,12 +265,12 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
                   value={input}
                   maxLength={MAX_LEN}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask me anything · in your own words"
-                  aria-label="Ask Dojobot"
+                  placeholder={t('sb.placeholder')}
+                  aria-label={t('sb.ask')}
                 />
-                <button type="submit" disabled={busy || !input.trim()} aria-label="Send">→</button>
+                <button type="submit" disabled={busy || !input.trim()} aria-label={t('sb.send')}>→</button>
               </form>
-              <div className="sb-foot">Answers may use AI. Never share keys or passwords here.</div>
+              <div className="sb-foot">{t('sb.foot')}</div>
             </div>
           </div>
         </section>
