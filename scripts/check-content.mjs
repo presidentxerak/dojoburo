@@ -203,7 +203,13 @@ const RULES = [
   // réclamer le mot anglais, qui serait une façon d'interdire la traduction au
   // nom de la justesse du chiffre, mais bien que le CHIFFRE soit lu et non
   // écrit, ce qui est ce qu'elle a toujours voulu dire.
-  { file: 'src/Landing.tsx', must: /\{LESSON_COUNT\} \{t\('lp\.lessons'\)\}/, why: 'the landing must read the lesson count from the curriculum, not hardcode it' },
+  // LA PRÉMISSE A BOUGÉ, LA RÈGLE RESTE · la page d'accueil ne vend plus des
+  // « leçons » mais des cités et des dojos. Ce que cette règle a toujours voulu
+  // dire est que le CHIFFRE soit lu et non écrit, et c'est ce qu'elle exige
+  // maintenant, sur les trois comptes que la page affiche.
+  { file: 'src/Landing.tsx', must: /\{PATH_MODULE_COUNT\}/, why: 'the landing must read the number of cities from the curriculum, not hardcode it' },
+  { file: 'src/Landing.tsx', must: /\{PATH_LEVEL_COUNT\}/, why: 'the landing must read the number of dojos from the curriculum, not hardcode it' },
+  { file: 'src/Landing.tsx', must: /\{DISCOVERY_LEVEL_COUNT\}/, why: 'the landing must read the length of the free week from the curriculum' },
 
   // index.html · the one description a crawler reads before any JS runs. It must
   // carry the SAME position as the h1: those two disagreed for months because
@@ -279,7 +285,15 @@ const RULES = [
   { file: 'api/chat.ts', must: new RegExp(`(${F.useCases}|${WORDS[F.useCases]}) agents`, 'i'), why: `the bot must know the room holds ${F.useCases} agents` },
   { file: 'api/chat.ts', must: /THREE COURSES/, why: 'the bot must describe a training centre, not a platform' },
   // …et la bibliothèque a une vraie adresse maintenant qu'elle existe
-  { file: 'src/Landing.tsx', must: /COURSE_COUNT/, why: 'the landing reads how many courses there are from the courses, not from a number' },
+  // … ET LES PRIX AUSSI SONT LUS · trois formules affichées sur la page
+  // d'accueil, et un prix écrit à la main sur l'une des trois contredirait la
+  // grille de tarifs deux sections plus bas, dans la page où c'est le plus
+  // cher à faire.
+  { file: 'src/Landing.tsx', must: /priceTag\(PATH_EUR\)/, why: 'the landing reads the path price from the plans, not from a number' },
+  { file: 'src/Landing.tsx', must: /priceTag\(TRADE_EUR\)/, why: 'the landing reads the trade price from the plans, not from a number' },
+  // LES MÉTIERS SONT LUS DE LEUR SOURCE · six cartes écrites à la main
+  // auraient survécu au septième métier sans le montrer.
+  { file: 'src/Landing.tsx', must: /TRADES\.map/, why: 'the landing lists the trades from the trades, not from a copy' },
   // LA SOBRIÉTÉ · une vraie page, un vrai renvoi, et aucun tarif écrit en dur
   { file: 'src/data/positioning.ts', must: "path: '/frugality'", why: 'the frugality pillar points at the real page' },
   { file: 'src/frugality/Frugality.tsx', must: /do not measure carbon/i, why: 'the page must say plainly what it does not do' },

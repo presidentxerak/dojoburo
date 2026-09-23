@@ -36,6 +36,8 @@ export const DICT = {
   // pas d'en faire une copie ici qui divergerait au premier renommage.
   'nav.pricing': { en: 'Pricing', fr: 'Tarifs' },
   'nav.courses': { en: 'Courses', fr: 'Les cours' },
+  'nav.path': { en: 'The path', fr: 'Le parcours' },
+  'nav.trades': { en: 'Trades', fr: 'Les métiers' },
   'nav.home': { en: 'Home', fr: 'Accueil' },
   'nav.frameworks': { en: 'Frameworks', fr: 'Frameworks' },
   'nav.guide': { en: 'App setup guide', fr: 'Guide de branchement' },
@@ -455,6 +457,168 @@ export const DICT = {
     en: 'agents live in the dojo. Belts, badges and diplomas are progress markers kept in this browser. Nobody sells them, nobody verifies them, and no employer has heard of them: they exist so you can tell a course you finished from one you started.',
     fr: "agents vivent dans le dojo. Les ceintures, les insignes et les diplômes sont des repères de progression gardés dans ce navigateur. Personne ne les vend, personne ne les vérifie, et aucun employeur n'en a entendu parler : ils existent pour que vous puissiez distinguer un cours terminé d'un cours commencé.",
   },
+
+  // ---- le jeu · la carte, les cités, les dojos -----------------------------
+  // Le CONTENU des dojos vit dans data/curriculum, à côté de son anglais. Ce
+  // qui est ici est ce que dit l'écran autour, et qui se répète de cité en
+  // cité.
+  'g.mapTitle': { en: 'The map', fr: 'La carte' },
+  'g.mapLead': {
+    en: 'Thirteen dojo cities. Visit them in any order, and a master waits in each one.',
+    fr: "Treize cités dojo. Visitez-les dans l'ordre que vous voulez, un maître attend dans chacune.",
+  },
+  'g.map': { en: 'Map', fr: 'Carte' },
+  'g.backMap': { en: 'Back to the map', fr: 'Retour à la carte' },
+  'g.allCities': { en: 'Every city', fr: 'Toutes les cités' },
+  'g.city': { en: 'City', fr: 'Cité' },
+  'g.cities': { en: 'cities', fr: 'cités' },
+  'g.dojo': { en: 'Dojo', fr: 'Dojo' },
+  'g.dojos': { en: 'dojos', fr: 'dojos' },
+  'g.master': { en: 'Master:', fr: 'Maître :' },
+  'g.enter': { en: 'Enter', fr: 'Entrer' },
+  'g.free': { en: 'Free', fr: 'Gratuit' },
+  'g.youDo': { en: 'What you do', fr: 'Ce que vous faites' },
+  'g.trap': { en: 'The trap', fr: 'Le piège' },
+  'g.claim': { en: 'Claim the badge', fr: 'Prendre le badge' },
+  'g.badgeGot': { en: 'Badge earned', fr: 'Badge obtenu' },
+  'g.cityDone': { en: 'Back to the city', fr: 'Retour à la cité' },
+  'g.cityDoneBody': {
+    en: 'Every dojo in this city is finished. The map shows it, and you can replay any of them.',
+    fr: "Tous les dojos de cette cité sont finis. La carte le montre, et vous pouvez les refaire.",
+  },
+  'g.replay': {
+    en: 'You can replay any dojo, any time',
+    fr: "Vous pouvez refaire n'importe quel dojo, quand vous voulez",
+  },
+  'g.noCity': { en: 'City not found', fr: 'Cité introuvable' },
+  'g.noCityBody': { en: 'There is no city at that address.', fr: "Il n'y a aucune cité à cette adresse." },
+  'g.noLevel': { en: 'Dojo not found', fr: 'Dojo introuvable' },
+  'g.noLevelBody': { en: 'There is no dojo at that address.', fr: "Il n'y a aucun dojo à cette adresse." },
+  'g.buyH2': { en: 'What the whole path opens', fr: 'Ce que le parcours entier ouvre' },
+  'g.seePrices': { en: 'See the prices', fr: 'Voir les tarifs' },
+  /* --- la semaine gratuite ---------------------------------------------- */
+  'd.title': { en: 'Seven days to understand AI', fr: "Sept jours pour comprendre l'IA" },
+  'd.lead': {
+    en: 'One lesson a day, seven minutes each. You leave knowing the words, the tools, and what it costs.',
+    fr: "Une leçon par jour, sept minutes chacune. Vous repartez en connaissant les mots, les outils, et ce que ça coûte.",
+  },
+  'd.days': { en: 'days', fr: 'jours' },
+  'd.start': { en: 'Start', fr: 'Commencer' },
+  'd.openedFor': { en: 'Opened for', fr: 'Ouvert pour' },
+  'd.whatH2': { en: 'The seven days', fr: 'Les sept jours' },
+  'd.afterH2': { en: 'And after the week', fr: 'Et après la semaine' },
+  'd.seePath': { en: 'See the full path', fr: 'Voir le parcours complet' },
+  'd.ask': { en: 'Your email opens the week', fr: 'Votre adresse ouvre la semaine' },
+  'd.place': { en: 'you@example.com', fr: 'vous@exemple.com' },
+  'd.open': { en: 'Open the week', fr: 'Ouvrir la semaine' },
+  'd.fine': {
+    en: 'Kept in this browser. Nothing is sent anywhere, and the seven days open straight away.',
+    fr: "Gardée dans ce navigateur. Rien n'est envoyé nulle part, et les sept jours s'ouvrent tout de suite.",
+  },
+
+  /* --- le profil ---------------------------------------------------------- */
+  'pr.title': { en: 'Your progress', fr: 'Votre progression' },
+  'pr.lead': { en: 'What you earned, and where to pick it back up.', fr: 'Ce que vous avez gagné, et où reprendre.' },
+  'pr.badges': { en: 'badges', fr: 'badges' },
+  'pr.ofPath': { en: 'of the path', fr: 'du parcours' },
+  'pr.caseH2': { en: 'The badge case', fr: 'La vitrine' },
+  'pr.citiesH2': { en: 'Your cities', fr: 'Vos cités' },
+  'pr.replay': { en: 'Redo', fr: 'Refaire' },
+  'pr.sheet': { en: 'Take-away sheet', fr: 'Fiche à emporter' },
+
+  /* --- ce qui est fermé --------------------------------------------------- */
+  'g.lockWeek': { en: 'Give your email to open this', fr: 'Donnez votre adresse pour ouvrir ceci' },
+  'g.lockWeekBody': {
+    en: 'The seven discovery days are free. One address, and they open.',
+    fr: "Les sept jours de découverte sont gratuits. Une adresse, et ils s'ouvrent.",
+  },
+  'g.lockPath': { en: 'This dojo is part of the full path', fr: 'Ce dojo fait partie du parcours complet' },
+  'g.lockPathBody': {
+    en: 'The first dojo of every city is open. The rest comes with the path, bought once.',
+    fr: "Le premier dojo de chaque cité est ouvert. Le reste vient avec le parcours, acheté une fois.",
+  },
+  'g.freeFirst': { en: 'First dojo, free', fr: 'Premier dojo, gratuit' },
+  'g.toWeek': { en: 'The free week', fr: 'La semaine gratuite' },
+  'g.profile': { en: 'Your progress', fr: 'Votre progression' },
+
+  /* --- les formations métier ---------------------------------------------- */
+  'tr.title': { en: 'Pick your trade', fr: 'Choisissez votre métier' },
+  'tr.lead': {
+    en: 'The same dojo cities, filled with the objects of your job and the mistakes that go with it.',
+    fr: "Les mêmes cités dojo, remplies des objets de votre métier et des erreurs qui vont avec.",
+  },
+  'tr.needH2': { en: 'It builds on the path', fr: 'Elle prolonge le parcours' },
+  'tr.needBody': {
+    en: 'A trade course assumes the path is done. It does not explain context or roles again, which is why it is shorter and cheaper.',
+    fr: "Une formation métier suppose le parcours connu. Elle ne réexplique ni le contexte ni les rôles, et c'est pour cela qu'elle est plus courte et moins chère.",
+  },
+  'tr.pick': { en: 'Work on this trade', fr: 'Travailler ce métier' },
+  'tr.picked': { en: 'This is your trade', fr: 'C\'est votre métier' },
+  'tr.toTrade': { en: 'Your trade', fr: 'Votre métier' },
+  'tr.backTrades': { en: 'Back to the trades', fr: 'Retour aux métiers' },
+  'tr.noTrade': { en: 'Trade not found', fr: 'Métier introuvable' },
+  'tr.noTradeBody': { en: 'There is no trade at that address.', fr: "Il n'y a aucun métier à cette adresse." },
+  'tr.lock': { en: 'This city belongs to a trade course', fr: 'Cette cité appartient à une formation métier' },
+  'tr.lockBody': {
+    en: 'The first dojo of every city is open. The rest comes with the trade, bought once.',
+    fr: "Le premier dojo de chaque cité est ouvert. Le reste vient avec le métier, acheté une fois.",
+  },
+  'tr.yours': { en: 'Your trade', fr: 'Votre métier' },
+  'tr.none': { en: 'No trade picked yet', fr: 'Aucun métier choisi' },
+
+  /* --- le site promo ------------------------------------------------------- */
+  'lp2.heroGo': { en: 'Start the free week', fr: 'Commencer la semaine gratuite' },
+  'lp2.whoPill': { en: 'Who it is for', fr: 'À qui c\'est destiné' },
+  'lp2.whoH2': { en: 'Three ways of being stuck', fr: 'Trois façons d\'être bloqué' },
+  'lp2.insidePill': { en: 'What is inside', fr: 'Ce qu\'il y a dedans' },
+  'lp2.insideH2': { en: 'One free week, one path, one trade', fr: 'Une semaine gratuite, un parcours, un métier' },
+  'lp2.o1': { en: 'The discovery week', fr: 'La semaine de découverte' },
+  'lp2.o1b': {
+    en: 'The words, the limits, the tools, and what it really costs. Seven real lessons, not a sample.',
+    fr: "Les mots, les limites, les outils, et ce que cela coûte vraiment. Sept vraies leçons, pas un échantillon.",
+  },
+  'lp2.o1go': { en: 'Start now', fr: 'Commencer maintenant' },
+  'lp2.o2': { en: 'The full path', fr: 'Le parcours complet' },
+  'lp2.o2b': {
+    en: 'Prompting, the models, the five assistants, agents, design and cost. Yours for good, updates included.',
+    fr: "Le prompt, les modèles, les cinq assistants, les agents, le design et le coût. À vous pour de bon, mises à jour comprises.",
+  },
+  'lp2.o2go': { en: 'See the map', fr: 'Voir la carte' },
+  'lp2.o3': { en: 'Your trade', fr: 'Votre métier' },
+  'lp2.o3b': {
+    en: 'The objects of your job and the mistakes that go with it. Added to the path, never instead of it.',
+    fr: "Les objets de votre métier et les erreurs qui vont avec. En plus du parcours, jamais à sa place.",
+  },
+  'lp2.o3go': { en: 'See the trades', fr: 'Voir les métiers' },
+  'lp2.trades': { en: 'trades', fr: 'métiers' },
+  'lp2.citiesH2': { en: 'The whole programme, in the open', fr: 'Le programme entier, à découvert' },
+  'lp2.citiesLead': {
+    en: 'Every city, every dojo, readable before you pay. The first dojo of each one is open.',
+    fr: "Chaque cité, chaque dojo, lisibles avant de payer. Le premier dojo de chacune est ouvert.",
+  },
+  'lp2.howPill': { en: 'How it goes', fr: 'Comment ça se passe' },
+  'lp2.howH2': { en: 'A game, and it is on purpose', fr: 'Un jeu, et c\'est voulu' },
+  'lp2.badges': { en: 'badges in the path, one per dojo, and every dojo can be redone.', fr: 'badges dans le parcours, un par dojo, et chaque dojo peut être refait.' },
+  'lp2.tradesH2': { en: 'And then your own trade', fr: 'Et ensuite votre métier' },
+  'lp2.tradesLead': {
+    en: 'Same cities, same dojos, same masters. What changes is the matter: your objects, your mistakes.',
+    fr: "Mêmes cités, mêmes dojos, mêmes maîtres. Ce qui change est la matière : vos objets, vos erreurs.",
+  },
+  'lp2.saidPill': { en: 'What students say', fr: 'Ce que disent les élèves' },
+  'lp2.saidH2': { en: 'Nothing yet, and we will not invent it', fr: 'Rien encore, et nous n\'inventerons rien' },
+  'lp2.saidBody': {
+    en: 'This course is new. Rather than write three testimonials nobody gave, this section stays empty until real students have finished. Judge it on the free week instead.',
+    fr: "Ce cours est neuf. Plutôt que d'écrire trois témoignages que personne n'a donnés, cette section reste vide jusqu'à ce que de vrais élèves aient fini. Jugez-le sur la semaine gratuite.",
+  },
+  'lp2.saidGo': { en: 'Judge for yourself', fr: 'Jugez par vous-même' },
+  'lp2.faqH2': { en: 'The questions people actually ask', fr: 'Les questions qu\'on pose vraiment' },
+  'lp2.finalH2': { en: 'Seven days, seven minutes a day', fr: 'Sept jours, sept minutes par jour' },
+  'lp2.finalFoot': {
+    en: 'No card, no trial that turns into a charge. An email, and the week opens.',
+    fr: "Pas de carte, aucun essai qui se transforme en prélèvement. Une adresse, et la semaine s'ouvre.",
+  },
+  'g.shut': { en: 'Closed', fr: 'Fermé' },
+  'pr.change': { en: 'Change', fr: 'Changer' },
 
   // ---- le pied de page ---------------------------------------------------
   'footer.built': { en: 'A training centre for AI agents', fr: "Un centre de formation aux agents IA" },

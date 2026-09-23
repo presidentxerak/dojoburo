@@ -69,8 +69,13 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
         <a className="lp-brand" href="/" style={{ textDecoration: 'none' }}>
           <Logo size={38} /> <span className="lp-brand-wm"><Wordmark /> <span className="beta-badge">Beta</span></span>
         </a>
+        {/* LA BARRE DU HAUT MÈNE AU PARCOURS · elle pointait vers une ancre de
+            l'ancienne page d'accueil, qui n'existe plus. Une vraie adresse
+            vaut mieux qu'une ancre : elle se partage, elle s'indexe, et elle
+            ne casse pas le jour où une section change de nom. */}
         <nav className="lp-nav-links">
-          <a href="/#courses">{t('nav.courses')}</a>
+          <a href="/formation">{t('nav.path')}</a>
+          <a href="/metier">{t('nav.trades')}</a>
           <a href="/#pricing">{t('nav.pricing')}</a>
         </nav>
         <div className="lp-nav-right">
@@ -109,6 +114,10 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
                 {(lang === 'fr' && p.fr?.nav) || p.nav}
               </a>
             ))}
+            <a href="/7-jours" onClick={() => setMenuOpen(false)}>{t('g.toWeek')}</a>
+            <a href="/formation" onClick={() => setMenuOpen(false)}>{t('nav.path')}</a>
+            <a href="/metier" onClick={() => setMenuOpen(false)}>{t('nav.trades')}</a>
+            <a href="/profil" onClick={() => setMenuOpen(false)}>{t('g.profile')}</a>
             <a href="/#pricing" onClick={() => setMenuOpen(false)}>{t('nav.pricing')}</a>
             <a href="/guide" onClick={() => setMenuOpen(false)}>{t('nav.guide')}</a>
             <button className="lp-cta" onClick={learn}>{t('header.enter')}</button>

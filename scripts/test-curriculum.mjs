@@ -166,6 +166,34 @@ ok('la bonne réponse n\'est pas systématiquement la plus longue',
   tooLongAnswers.length <= Math.ceil(ALL_LEVELS.length / 3),
   `${tooLongAnswers.length} sur ${ALL_LEVELS.length}`)
 
+// … ET ELLE N'EST PAS TOUJOURS AU MÊME RANG.
+//
+// CETTE RÈGLE A TROUVÉ LE MÊME DÉFAUT EN PIRE. La règle de longueur ci-dessus
+// regardait le TEXTE des réponses et a été satisfaite ; pendant ce temps, les
+// cent questions du programme avaient toutes leur bonne réponse en deuxième
+// position. On pouvait donc finir le cours entier en cliquant toujours au
+// milieu, sans en lire une ligne, et aucune garde ne le voyait parce qu'aucune
+// ne regardait le RANG.
+//
+// C'est la leçon qu'on réapprend à chaque fois : une garde vérifie ce qu'elle
+// regarde, et rien d'autre. Celle-ci regarde la répartition.
+const ranks = new Map()
+for (const { level } of ALL_LEVELS) {
+  ranks.set(level.quiz.answer, (ranks.get(level.quiz.answer) ?? 0) + 1)
+}
+const spread = [...ranks.entries()].sort((a, b) => a[0] - b[0])
+const worst = Math.max(...spread.map(([, n]) => n))
+// LA MOITIÉ, et pas le tiers exact : un tiers strict interdirait la répartition
+// que donne un vrai tirage, et on se retrouverait à déplacer des réponses pour
+// plaire à la garde plutôt que pour corriger quelque chose.
+ok('la bonne réponse n\'est pas toujours au même rang',
+  worst <= Math.ceil(ALL_LEVELS.length / 2),
+  spread.map(([r, n]) => `${r}:${n}`).join(' '))
+// … ET CHAQUE RANG SERT. Un rang jamais employé sur cent questions est un rang
+// qu'on peut éliminer d'avance.
+ok('chaque rang porte des bonnes réponses', spread.length >= 3,
+  `${spread.length} rangs employés`)
+
 /* --- 4 · aucun chemin de menu, aucun clic -------------------------------- */
 
 // Cinq cités portent le nom d'un produit qui bouge tous les trimestres. Une
@@ -265,6 +293,14 @@ ok('morsure · de l\'anglais reformulé serait vu',
 ok('morsure · du vrai français passe',
   looksFrench('Demandez le plan avant le texte, et corrigez le plan.'))
 ok('morsure · un libellé court n\'est pas accusé', looksFrench('PDF'))
+// LA MORSURE DE LA RÈGLE DE RANG · celle qui a manqué cent fois. On refait ici
+// le défaut exact qu'elle existe pour attraper : toutes les réponses au même
+// rang, et la garde doit rougir.
+const allSame = new Map([[1, ALL_LEVELS.length]])
+ok('morsure · toutes les réponses au même rang seraient vues',
+  Math.max(...allSame.values()) > Math.ceil(ALL_LEVELS.length / 2))
+ok('morsure · une répartition réelle ne l\'est pas', worst <= Math.ceil(ALL_LEVELS.length / 2))
+ok('morsure · un seul rang employé serait vu', allSame.size < 3)
 
 console.log(fails
   ? `\ntest-curriculum · ${fails} problème(s)`

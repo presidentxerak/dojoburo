@@ -126,7 +126,12 @@ const looksFrench = (t) => {
 const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac.min', 'tut.pause',
   // « agent » s'écrit pareil dans les deux langues, au singulier comme au
   // pluriel : c'est le même mot, emprunté au latin par les deux.
-  'mp.agent', 'mp.agents'])
+  'mp.agent', 'mp.agents',
+  // « dojo » et « badge » non plus ne se traduisent pas : le premier est un
+  // emprunt au japonais dans les deux langues, le second un emprunt du
+  // français vers l'anglais qui est revenu identique. Les traduire serait
+  // inventer un mot que personne n'emploie.
+  'g.dojo', 'g.dojos', 'pr.badges'])
 const copied = keys.filter((k) => DICT[k].en === DICT[k].fr && !SAME_IN_BOTH.has(k))
 ok('aucune traduction n\'est la copie de l\'anglais', copied.length === 0,
   copied.join(', ') || `${keys.length - SAME_IN_BOTH.size} comparées`)
@@ -411,8 +416,27 @@ for (const { lesson: l } of AC.ALL_LESSONS) {
 // LE LIBELLÉ D'UN PILIER N'A QU'UN SEUL CHEMIN · il y avait trois fonctions
 // locales dans la page d'accueil et aucune dans les deux panneaux du maître,
 // qui affichaient donc « Prompt engineering » au milieu d'une page française.
-for (const f of ['src/Landing.tsx', 'src/academy/Academy.tsx', 'src/dojo/MasterPanel.tsx', 'src/dojo/LearningPanel.tsx']) {
+//
+// LA PAGE D'ACCUEIL N'AFFICHE PLUS DE PILIERS · elle vend un parcours. La
+// règle ne peut donc plus lui réclamer pillarIn, mais elle NE DISPARAÎT PAS :
+// ce qu'elle protégeait était qu'aucune prose ne soit écrite en dur dans cette
+// page, et c'est précisément la faute qui y vivait encore (quatre blocs
+// anglais au milieu d'un site traduit). Elle exige donc maintenant que la
+// page passe par les deux seuls chemins autorisés · le dictionnaire et say().
+for (const f of ['src/academy/Academy.tsx', 'src/dojo/MasterPanel.tsx', 'src/dojo/LearningPanel.tsx']) {
   ok(`${f.split('/').pop()} traduit ses piliers par pillarIn`, /pillarIn\(/.test(readFileSync(f, 'utf8')))
+}
+{
+  const lp = readFileSync('src/Landing.tsx', 'utf8')
+  ok('la page d\'accueil traduit sa prose par say', /say\(/.test(lp))
+  ok('la page d\'accueil lit son positionnement dans la langue lue', /positioningFor\(lang\)/.test(lp))
+  // AUCUNE PHRASE ÉCRITE DANS LE JSX · on repère une phrase à ce qu'elle
+  // contient plusieurs mots et un point. Un libellé court passe, un paragraphe
+  // non, et c'est exactement le partage voulu.
+  const prose = (lp.match(/>\s*[A-Z][^<>{}]{60,}</g) || [])
+    .filter((x) => !/^\s*>\s*\{/.test(x))
+  ok('aucun paragraphe n\'est écrit dans la page d\'accueil', prose.length === 0,
+    prose.slice(0, 2).map((x) => x.slice(0, 50)).join(' | ') || 'aucun')
 }
 
 /* --- 3 septies · les quinze frameworks ----------------------------------- */

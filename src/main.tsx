@@ -28,6 +28,11 @@ import { BuildAgentPage } from './dojo/BuildAgent'
 import { FrameworksPage } from './dojo/Frameworks'
 import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
 import { usePath, useHashAnchor } from './lib/router'
+import { FormationPage, CityPage } from './game/Formation'
+import { LevelPage } from './game/LevelPage'
+import { DiscoveryPage } from './game/Discovery'
+import { TradeHomePage, TradePage } from './game/Trade'
+import { ProfilePage } from './game/Profile'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
 import './index.css'
@@ -110,6 +115,27 @@ function Root() {
   // l'encart entreprise ; les deux ont besoin d'une adresse à eux.
   // LE DOJO COMME SALLE DE CLASSE · on y arrive, le maître accueille, et on
   // choisit lequel des douze agents on veut apprendre à construire.
+  // LE PARCOURS · la carte des cités, une cité, un dojo. Ce sont de vraies
+  // adresses parce qu'on les partage et qu'on y revient : « reprends au dojo
+  // trois de la cité des agents » doit être un lien, pas une explication.
+  if (path === '/formation') return <FormationPage />
+  const cm = path.match(/^\/formation\/([a-z0-9-]+)$/i)
+  if (cm) return <CityPage moduleId={cm[1].toLowerCase()} />
+  const dm = path.match(/^\/formation\/([a-z0-9-]+)\/([a-z0-9-]+)$/i)
+  if (dm) return <LevelPage moduleId={dm[1].toLowerCase()} levelId={dm[2].toLowerCase()} />
+  // LA SEMAINE GRATUITE · une porte d'entrée à elle, parce que c'est l'adresse
+  // qu'on partage et celle qui se retient. Les sept jours eux-mêmes sont des
+  // dojos comme les autres et vivent sous /formation/discovery : deux adresses
+  // pour la même leçon auraient partagé son audience en deux.
+  if (path === '/7-jours') return <DiscoveryPage />
+  // LES MÉTIERS · le choix, puis la carte d'un métier. Ses cités sont des
+  // cités, donc elles restent sous /formation.
+  if (path === '/metier') return <TradeHomePage />
+  const tm = path.match(/^\/metier\/([a-z0-9-]+)$/i)
+  if (tm) return <TradePage tradeId={tm[1].toLowerCase()} />
+  // LE PROFIL · ce qui a été gagné, et où reprendre. Public comme le reste du
+  // parcours : la progression vit dans le navigateur, pas dans un compte.
+  if (path === '/profil') return <ProfilePage />
   if (path === '/build') return <BuildAgentPage />
   const bm = path.match(/^\/build\/([a-z0-9-]+)$/i)
   if (bm) return <BuildAgentPage slug={bm[1].toLowerCase()} />

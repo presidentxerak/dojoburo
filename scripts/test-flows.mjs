@@ -205,9 +205,28 @@ ok('chaque pilier mène à une page qui existe', badPillars.length === 0, badPil
 // reçoit des visiteurs par un moteur de recherche et ne les mène nulle part.
 // Les dix-sept pages de personnages l'ont été pendant des mois.
 const allSrc = FILES.map(read).join('\n') + read('src/components/SiteFooter.tsx')
-const HUBS = ['/build', '/academy', '/frugality', '/guide', '/teammates', '/terms', '/privacy']
-const orphans = HUBS.filter((h) => !allSrc.includes(`href="${h}"`))
+// UNE PAGE EST ATTEINTE DE DEUX FAÇONS · par un lien écrit, ou parce qu'elle
+// est un PILIER et que le pied de page les rend tous en boucle. La règle ne
+// regardait que la première, et elle a accusé /frugality le jour où la page
+// d'accueil a cessé de l'écrire en toutes lettres, alors que le pied de page
+// continuait de la servir. Une garde qui accuse du travail juste apprend à la
+// contourner : elle vérifie donc les deux chemins.
+const footerLoopsPillars = /PILLARS\.map/.test(read('src/components/SiteFooter.tsx'))
+const pillarPaths = new Set(POS.PILLARS.map((p) => p.path))
+const reached = (h) => allSrc.includes(`href="${h}"`) || (footerLoopsPillars && pillarPaths.has(h))
+const HUBS = [
+  '/build', '/academy', '/frugality', '/guide', '/teammates', '/terms', '/privacy',
+  // LE PARCOURS · les quatre adresses du jeu. Elles sont dans le plan de site
+  // et dans l'en-tête ; une seule qui sortirait des deux serait une page de
+  // cours que personne n'atteint.
+  '/7-jours', '/formation', '/metier', '/profil',
+]
+const orphans = HUBS.filter((h) => !reached(h))
 ok('aucune page principale n\'est orpheline', orphans.length === 0, orphans.join(', '))
+
+// … ET LA MORSURE · une adresse que personne n'écrit et qui n'est pas un
+// pilier doit être vue, sinon cette règle ne garde rien.
+ok('morsure · une page que rien n\'atteint serait vue', !reached('/une-page-que-personne-ne-lie'))
 
 // …et les familles de pages profondes sont atteintes par un gabarit.
 for (const [what, tmpl] of [

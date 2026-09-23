@@ -48,6 +48,25 @@ const ucBundle = await build({
 const ucMod = await import('data:text/javascript;base64,' + Buffer.from(ucBundle.outputFiles[0].text).toString('base64'))
 const { USE_CASES, USE_CASE_BY_AGENT } = ucMod
 
+
+// LE PARCOURS · la semaine gratuite et les cités dojo, lues au même endroit
+// que le jeu. Une liste d'adresses tenue ici aurait oublié la treizième cité
+// le jour où elle est arrivée, et une page de cours qu'aucun plan de site ne
+// cite n'est pas trouvée, ce qui est la seule chose qu'on lui demande.
+const curBundle = await build({
+  entryPoints: [path.join(ROOT, 'src/data/curriculum.ts')],
+  bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
+})
+const curMod = await import('data:text/javascript;base64,' + Buffer.from(curBundle.outputFiles[0].text).toString('base64'))
+const { PATH_MODULES, DISCOVERY_MODULE } = curMod
+
+const tradeBundle = await build({
+  entryPoints: [path.join(ROOT, 'src/data/trades.ts')],
+  bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
+})
+const tradeMod = await import('data:text/javascript;base64,' + Buffer.from(tradeBundle.outputFiles[0].text).toString('base64'))
+const { TRADES, TRADE_MODULES } = tradeMod
+
 // The roster, the same way. roleAgents.ts pulls in a Department type from
 // agents.ts, which esbuild resolves; nothing here is duplicated from the app.
 const rolesBundle = await build({
@@ -104,6 +123,18 @@ const urls = [
   { loc: '/teammates', pri: '0.9', freq: 'weekly' },
   ...PUBLIC_AGENTS.map((r) => ({ loc: `/${r.slug}`, pri: '0.8', freq: 'monthly' })),
   { loc: '/guide', pri: '0.6', freq: 'monthly' },
+  // LE PARCOURS · la porte gratuite en tête, puis la carte, puis chaque cité.
+  // LES DOJOS PAYANTS NE SONT PAS LISTÉS · seuls les sept jours gratuits le
+  // sont. Annoncer à un moteur trois cents pages dont il ne verra que le
+  // premier paragraphe est la meilleure façon de se faire juger sur des pages
+  // vides.
+  { loc: '/7-jours', pri: '1.0', freq: 'weekly' },
+  ...DISCOVERY_MODULE.levels.map((l) => ({ loc: `/formation/${DISCOVERY_MODULE.id}/${l.id}`, pri: '0.8', freq: 'monthly' })),
+  { loc: '/formation', pri: '0.9', freq: 'weekly' },
+  ...PATH_MODULES.map((m) => ({ loc: `/formation/${m.id}`, pri: '0.8', freq: 'monthly' })),
+  { loc: '/metier', pri: '0.9', freq: 'monthly' },
+  ...TRADES.map((t) => ({ loc: `/metier/${t.id}`, pri: '0.8', freq: 'monthly' })),
+  ...TRADE_MODULES.map((m) => ({ loc: `/formation/${m.id}`, pri: '0.7', freq: 'monthly' })),
   { loc: '/terms', pri: '0.2', freq: 'yearly' },
   { loc: '/privacy', pri: '0.2', freq: 'yearly' },
 ]

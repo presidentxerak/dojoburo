@@ -39,17 +39,16 @@
 // bien plus coûteux de traduire soixante niveaux après coup que de les écrire
 // une fois pour deux.
 import type { IconName } from './icons'
-import type { Lang } from '../i18n/lang'
+import { B, say, type Bi } from './bilingual'
+import { TRADE_MODULES } from './trades'
 
-/** Les deux langues, dans la même valeur. Même forme que data/designCourses,
- *  qui l'emploie déjà pour la même raison. */
-export interface Bi { en: string; fr: string }
-
-/** Le raccourci d'écriture · `B('Run it', 'Lancez-le')`. */
-export const B = (en: string, fr: string): Bi => ({ en, fr })
-
-/** La valeur dans la langue lue · le seul chemin, comme partout ailleurs. */
-export const say = (b: Bi, lang: Lang): string => (lang === 'fr' ? b.fr : b.en)
+// LE PRIMITIF BILINGUE VIT AILLEURS · dans data/bilingual, et il est réexporté
+// ici pour que tout ce qui lisait `B` et `say` depuis ce fichier continue de
+// marcher. Il a dû sortir le jour où les formations métier sont arrivées : ce
+// fichier les importe, elles ont besoin de `B`, et un import circulaire aurait
+// donné un `B` non encore défini au chargement, c'est-à-dire une page blanche.
+export { B, say }
+export type { Bi }
 
 /* ------------------------------------------------------------------ */
 /* LES TROIS PARCOURS                                                  */
@@ -163,11 +162,11 @@ const DISCOVERY: Level[] = [
       q: B('You are billed by the token. What is a token?',
         'On vous facture au jeton. Qu\'est-ce qu\'un jeton ?'),
       options: [
-        B('One complete question you ask', 'Une question entière que vous posez'),
         B('A piece of a word, in and out', "Un morceau de mot, en entrée comme en sortie"),
+        B('One complete question you ask', 'Une question entière que vous posez'),
         B('One minute of use', "Une minute d'utilisation"),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'Everything you send and everything that comes back is cut into pieces and counted. That is why a long conversation costs more than a short one about the same thing.',
         "Tout ce que vous envoyez et tout ce qui revient est découpé en morceaux et compté. C'est pour cela qu'une longue conversation coûte plus qu'une courte sur le même sujet.",
@@ -245,11 +244,11 @@ const DISCOVERY: Level[] = [
       q: B('You need last quarter figures with their sources. Which tool?',
         'Il vous faut les chiffres du dernier trimestre avec leurs sources. Quel outil ?'),
       options: [
-        B('A chat assistant, which has read a great deal', 'Un agent conversationnel, qui a énormément lu'),
         B('A search assistant that cites what it reads', "Un assistant de recherche qui cite ce qu'il lit"),
+        B('A chat assistant, which has read a great deal', 'Un agent conversationnel, qui a énormément lu'),
         B('Any of them, they are equivalent', "N'importe lequel, ils se valent"),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'A chat assistant answers from what it absorbed in training, which stops at a date and carries no sources. Recent figures need a tool that goes and reads, and says where.',
         "Un agent conversationnel répond avec ce qu'il a absorbé à l'entraînement, ce qui s'arrête à une date et ne porte aucune source. Des chiffres récents demandent un outil qui va lire, et qui dit où.",
@@ -370,12 +369,12 @@ const DISCOVERY: Level[] = [
       q: B('When is an agent worth building?',
         'Quand vaut-il la peine de construire un agent ?'),
       options: [
-        B('When the task is difficult enough to justify the time', 'Quand la tâche est assez difficile pour justifier le temps'),
         B('When the task comes back, and always the same way',
           'Quand la tâche revient, et toujours de la même façon'),
+        B('When the task is difficult enough to justify the time', 'Quand la tâche est assez difficile pour justifier le temps'),
         B('When you have the budget', 'Quand on a le budget'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'An agent is a written method. Writing it down pays off the second time and every time after. A difficult task done once is a job for a good prompt.',
         "Un agent est une méthode écrite. L'écrire paie à la deuxième fois et à toutes les suivantes. Une tâche difficile faite une fois relève d'une bonne consigne.",
@@ -413,11 +412,11 @@ const DISCOVERY: Level[] = [
         'Lequel réduit le plus la facture ?'),
       options: [
         B('Writing shorter instructions on every single request you make', 'Écrire des instructions plus courtes sur chacune de vos demandes'),
+        B('Asking politely', 'Demander poliment'),
         B('Starting a fresh conversation instead of a fiftieth turn',
           'Repartir sur une conversation neuve au lieu d\'un cinquantième tour'),
-        B('Asking politely', 'Demander poliment'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'A fiftieth turn resends forty-nine turns of history. Your instruction is a few lines; the history is everything else.',
         "Un cinquantième tour renvoie quarante-neuf tours d'historique. Votre instruction fait quelques lignes ; l'historique, c'est tout le reste.",
@@ -525,12 +524,12 @@ const M_START: Level[] = [
       q: B('Why keep instructions outside the chat?',
         'Pourquoi garder ses instructions hors de la discussion ?'),
       options: [
-        B('Because chat histories are eventually deleted and you lose all your work', "Parce que les historiques finissent par être effacés et vous perdez tout"),
         B('So you can improve the same one instead of writing a new one each time',
           "Pour améliorer la même au lieu d'en réécrire une à chaque fois"),
+        B('Because chat histories are eventually deleted and you lose all your work', "Parce que les historiques finissent par être effacés et vous perdez tout"),
         B('Because chats are deleted', 'Parce que les discussions sont effacées'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'The whole skill is improving one instruction over ten runs. A history you cannot search means you start from memory every time, which is starting from worse.',
         "Tout le savoir-faire consiste à améliorer une instruction sur dix passages. Un historique qu'on ne peut pas chercher, c'est repartir de mémoire à chaque fois, donc repartir de moins bien.",
@@ -608,10 +607,10 @@ const M_BASICS: Level[] = [
         'Votre instruction demande d\'étudier, de résumer et de rédiger une publication. Que faites-vous ?'),
       options: [
         B('Add more detail to each of the three parts', 'Détailler davantage chacune des trois parties'),
-        B('Run three short instructions in order', 'Lancer trois instructions courtes dans l\'ordre'),
         B('Ask a bigger model', 'Demander à un plus gros modèle'),
+        B('Run three short instructions in order', 'Lancer trois instructions courtes dans l\'ordre'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'Three jobs in one instruction get a third of the attention each. Three in a row each get all of it, and you can fix the one that went wrong.',
         "Trois métiers dans une instruction reçoivent chacun un tiers de l'attention. Trois à la suite la reçoivent entière, et vous pouvez corriger celui qui a raté.",
@@ -647,10 +646,10 @@ const M_BASICS: Level[] = [
         'Un contrat de quarante pages, une question sur le préavis. Qu\'envoyez-vous ?'),
       options: [
         B('The whole contract, so that nothing is missing', "Le contrat entier, pour que rien ne manque"),
-        B('The clause and the two around it', 'La clause et les deux qui l\'entourent'),
         B('A summary you wrote yourself', 'Un résumé que vous avez écrit'),
+        B('The clause and the two around it', 'La clause et les deux qui l\'entourent'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'The neighbouring clauses carry the exceptions. The other thirty-nine pages add cost and noise, and push the answer towards whatever else they contain.',
         "Les clauses voisines portent les exceptions. Les trente-neuf autres pages ajoutent du coût et du bruit, et tirent la réponse vers ce qu'elles contiennent par ailleurs.",
@@ -726,12 +725,12 @@ const M_ELEMENTS: Level[] = [
     quiz: {
       q: B('Which role is usable?', 'Quel rôle est exploitable ?'),
       options: [
-        B('An award-winning marketing genius with twenty years behind him', "Un génie du marketing primé, avec vingt ans de métier derrière lui"),
         B('A copywriter who writes for people who have already bought once',
           "Un rédacteur qui écrit pour des gens qui ont déjà acheté une fois"),
+        B('An award-winning marketing genius with twenty years behind him', "Un génie du marketing primé, avec vingt ans de métier derrière lui"),
         B('A creative professional', 'Un professionnel créatif'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'It names a job and a reader. The other two are compliments, and a model cannot act on a compliment.',
         "Il nomme un métier et un lecteur. Les deux autres sont des compliments, et un modèle ne peut rien faire d'un compliment.",
@@ -845,12 +844,12 @@ const M_TECHNIQUES: Level[] = [
     quiz: {
       q: B('Why ask for the plan first?', 'Pourquoi demander le plan d\'abord ?'),
       options: [
-        B('An outline is much faster to generate than a full text', "Un plan se produit bien plus vite qu'un texte entier"),
         B('A wrong plan is cheap to fix, a wrong draft is not',
           'Un plan faux se corrige pour rien, un brouillon faux non'),
+        B('An outline is much faster to generate than a full text', "Un plan se produit bien plus vite qu'un texte entier"),
         B('It uses fewer tokens', 'Cela consomme moins de jetons'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'Every mistake in the plan is multiplied by the length of the text written from it. Catching it at five lines is the whole point.',
         "Chaque erreur du plan est multipliée par la longueur du texte qui en sort. L'attraper à cinq lignes est tout l'intérêt.",
@@ -886,10 +885,10 @@ const M_TECHNIQUES: Level[] = [
         'Comment trouver la partie fragile d\'une réponse ?'),
       options: [
         B('Ask whether it is certain about the answer it gave', "Demander s'il est certain de la réponse qu'il a donnée"),
-        B('Ask it to rank its claims by confidence', 'Lui demander de classer ses affirmations par confiance'),
         B('Run it twice and compare', 'Le relancer deux fois et comparer'),
+        B('Ask it to rank its claims by confidence', 'Lui demander de classer ses affirmations par confiance'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'A yes or no question gets agreement. A ranking forces a comparison, and the bottom of the ranking is a genuinely useful signal.',
         "Une question fermée obtient un acquiescement. Un classement force une comparaison, et le bas du classement est un signal réellement utile.",
@@ -924,11 +923,11 @@ const M_TECHNIQUES: Level[] = [
       q: B('Three corrections have failed. What now?',
         'Trois corrections ont échoué. Et maintenant ?'),
       options: [
-        B('A fourth correction, more precise than the last one', 'Une quatrième correction, plus précise que la dernière'),
         B('A new conversation with a better instruction', 'Une conversation neuve avec une meilleure instruction'),
+        B('A fourth correction, more precise than the last one', 'Une quatrième correction, plus précise que la dernière'),
         B('A bigger model', 'Un modèle plus gros'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'Each correction is added to a history the model keeps rereading, including the three wrong answers. The new instruction you would write now is better than the one you started with.',
         "Chaque correction s'ajoute à un historique que le modèle relit, y compris les trois mauvaises réponses. L'instruction que vous écririez maintenant est meilleure que celle de départ.",
@@ -966,11 +965,11 @@ const M_MODELS: Level[] = [
       q: B('Sorting three hundred short messages into four categories. Which model?',
         'Trier trois cents messages courts en quatre catégories. Quel modèle ?'),
       options: [
-        B('The biggest one available, for the best accuracy', 'Le plus gros disponible, pour la meilleure précision'),
         B('A small fast one, with a clear instruction', 'Un petit rapide, avec une instruction claire'),
+        B('The biggest one available, for the best accuracy', 'Le plus gros disponible, pour la meilleure précision'),
         B('It makes no difference', 'Cela ne change rien'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'Sorting into four named categories is an easy task done three hundred times. The instruction decides the accuracy; the model size decides the bill.',
         "Trier en quatre catégories nommées est une tâche facile faite trois cents fois. L'instruction décide de la justesse ; la taille du modèle décide de la facture.",
@@ -1043,11 +1042,11 @@ const M_MODELS: Level[] = [
     quiz: {
       q: B('What makes your work portable?', 'Qu\'est-ce qui rend votre travail portable ?'),
       options: [
-        B('Staying with the provider that has the largest share', 'Rester chez le fournisseur qui a la plus grosse part'),
         B('Keeping the instruction as text, outside the tool', "Garder l'instruction en texte, hors de l'outil"),
+        B('Staying with the provider that has the largest share', 'Rester chez le fournisseur qui a la plus grosse part'),
         B('Exporting your conversations', 'Exporter ses conversations'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'The instruction is the work. Conversations are the residue of it, and a provider-specific setup is a cage you built yourself.',
         "L'instruction est le travail. Les conversations n'en sont que le résidu, et un réglage propre à un fournisseur est une cage qu'on s'est construite.",
@@ -1102,11 +1101,11 @@ const M_CHATGPT: Level[] = [
       q: B('Answers have been slightly off for weeks. Where do you look first?',
         'Les réponses sont légèrement à côté depuis des semaines. Où regardez-vous en premier ?'),
       options: [
-        B('The wording of your last question', 'La formulation de votre dernière question'),
         B('What it has stored about you', "Ce qu'il a retenu de vous"),
+        B('The wording of your last question', 'La formulation de votre dernière question'),
         B('The model version', 'La version du modèle'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'Something that has been wrong for weeks, across different questions, is something that travels with every question. That is the stored notes.',
         "Ce qui est faux depuis des semaines, sur des questions différentes, est ce qui voyage avec chaque question. Ce sont les notes retenues.",
@@ -1141,11 +1140,11 @@ const M_CHATGPT: Level[] = [
       q: B('What belongs on a project space rather than in a message?',
         'Qu\'est-ce qui va sur un espace de projet plutôt que dans un message ?'),
       options: [
-        B('The particular question you are asking today', "La question particulière que vous posez aujourd'hui"),
         B('The context that is true every time', 'Le contexte vrai à chaque fois'),
+        B('The particular question you are asking today', "La question particulière que vous posez aujourd'hui"),
         B('The answer you liked', 'La réponse qui vous a plu'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'Anything true every time is repetition if you type it each time, and drift if you type it slightly differently. That is exactly what a space is for.',
         "Ce qui est vrai à chaque fois est une répétition si on le retape, et une dérive si on le retape autrement. C'est exactement à cela que sert un espace.",
@@ -1181,10 +1180,10 @@ const M_CHATGPT: Level[] = [
         'Une contradiction entre la page 3 et la page 80. La trouvera-t-il ?'),
       options: [
         B('Yes, the whole file was given to it', "Oui, le fichier entier lui a été donné"),
-        B('Often not, if it only searched pieces', "Souvent non, s'il n'a fouillé que des morceaux"),
         B('Only with deep thinking on', 'Seulement avec la réflexion profonde'),
+        B('Often not, if it only searched pieces', "Souvent non, s'il n'a fouillé que des morceaux"),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'Finding a contradiction requires holding both passages at once. A piecewise search brings back the passage matching your words, not the pair that disagree.',
         "Trouver une contradiction demande de tenir les deux passages ensemble. Une fouille par morceaux ramène le passage qui ressemble à vos mots, pas la paire qui se contredit.",
@@ -1223,11 +1222,11 @@ const M_CLAUDE: Level[] = [
         'Trois devis de fournisseurs. Que demandez-vous ?'),
       options: [
         B('A clear summary of each one of them', 'Un résumé clair de chacun des trois'),
+        B('The cheapest', 'Le moins cher'),
         B('Where they differ and what each one leaves out',
           "Où ils diffèrent et ce que chacun omet"),
-        B('The cheapest', 'Le moins cher'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'Three summaries are three things you already had. The value of holding them together is seeing what only appears when they are side by side.',
         "Trois résumés sont trois choses que vous aviez déjà. L'intérêt de les tenir ensemble est de voir ce qui n'apparaît qu'en les mettant côte à côte.",
@@ -1464,11 +1463,11 @@ const M_PERPLEXITY: Level[] = [
       q: B('Five sources, all quoting the same company announcement. How many facts?',
         'Cinq sources, toutes citant la même annonce d\'entreprise. Combien de faits ?'),
       options: [
-        B('Five, it is well documented', 'Cinq, c\'est bien documenté'),
         B('One, repeated', 'Un, répété'),
+        B('Five, it is well documented', 'Cinq, c\'est bien documenté'),
         B('It depends on the sources', 'Cela dépend des sources'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'Independence is what makes sources add up. Five outlets relaying one press release give you the press release five times, with no extra verification.',
         "C'est l'indépendance qui fait qu'on additionne des sources. Cinq organes qui relaient un communiqué vous donnent le communiqué cinq fois, sans vérification supplémentaire.",
@@ -1504,11 +1503,11 @@ const M_PERPLEXITY: Level[] = [
         'Quelle question peut être répondue et vérifiée ?'),
       options: [
         B('Is this market growing, and is it growing fast enough for us?', 'Ce marché croît-il, et assez vite pour nous ?'),
+        B('What is the future of this market?', "Quel est l'avenir de ce marché ?"),
         B('What did this market weigh in 2024, and per which published source?',
           'Combien pesait ce marché en 2024, et selon quelle source publiée ?'),
-        B('What is the future of this market?', "Quel est l'avenir de ce marché ?"),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'It names a year, a quantity and the kind of proof. The other two can be answered agreeably and never be wrong, which is the same as never being right.',
         "Elle nomme une année, une quantité et le type de preuve. Aux deux autres on peut répondre aimablement sans jamais avoir tort, ce qui revient à ne jamais avoir raison.",
@@ -1625,10 +1624,10 @@ const M_COPILOT: Level[] = [
         'Quelle sortie fait vraiment avancer le travail ?'),
       options: [
         B('A clear, well written summary of the meeting', 'Un résumé clair et bien écrit de la réunion'),
-        B('Decisions with a name and a date on each', 'Des décisions avec un nom et une date sur chacune'),
         B('The full transcript', 'La transcription complète'),
+        B('Decisions with a name and a date on each', 'Des décisions avec un nom et une date sur chacune'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'A decision without an owner is a wish, and a wish with a good paragraph around it is a wish that nobody notices died.',
         "Une décision sans responsable est un souhait, et un souhait bien rédigé est un souhait dont personne ne remarque la mort.",
@@ -1664,10 +1663,10 @@ const M_COPILOT: Level[] = [
         'L\'assistant fait remonter un document que vous ne devriez pas voir. Qu\'est-ce qui est cassé ?'),
       options: [
         B('The assistant, which looked too far', "L'assistant, qui est allé chercher trop loin"),
-        B('The sharing on that document', 'Le partage de ce document'),
         B('Nothing, it is normal', "Rien, c'est normal"),
+        B('The sharing on that document', 'Le partage de ce document'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'It only reads what your account already had the right to open. It did not grant access, it made existing access easy to use.',
         "Il ne lit que ce que votre compte avait déjà le droit d'ouvrir. Il n'a pas donné l'accès, il a rendu un accès existant facile à exercer.",
@@ -1708,10 +1707,10 @@ const M_AGENTS: Level[] = [
         'Un agent lit des factures et remplit un tableau. Quelle forme ?'),
       options: [
         B('A researcher, it reads', 'Un chercheur, il lit'),
-        B('An extractor', 'Un extracteur'),
         B('A writer', 'Un rédacteur'),
+        B('An extractor', 'Un extracteur'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'It pulls named fields out of documents. Knowing that tells you its failure mode straight away: a plausible value in a field that was simply absent.',
         "Il sort des champs nommés de documents. Le savoir vous donne tout de suite sa façon de rater : une valeur plausible dans un champ simplement absent.",
@@ -1749,11 +1748,11 @@ const M_AGENTS: Level[] = [
         'Laquelle est une vraie étape ?'),
       options: [
         B('Understand the customer and their situation', 'Comprendre le client et sa situation'),
+        B('Think about the positioning', 'Réfléchir au positionnement'),
         B('List the five objections found, with a quote for each',
           'Lister les cinq objections trouvées, avec une citation pour chacune'),
-        B('Think about the positioning', 'Réfléchir au positionnement'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'It names what comes out and how much of it. The other two produce nothing the next step can start from, so they are decoration.',
         "Elle nomme ce qui sort et en quelle quantité. Les deux autres ne produisent rien dont l'étape suivante puisse partir : ce sont des ornements.",
@@ -1834,11 +1833,11 @@ const M_DESIGN: Level[] = [
       q: B('Two buttons of equal weight side by side. What is wrong?',
         'Deux boutons de poids égal côte à côte. Où est le défaut ?'),
       options: [
-        B('The colour of one of the two', "La couleur de l'un des deux"),
         B('Nothing decides which one to press', 'Rien ne dit lequel presser'),
+        B('The colour of one of the two', "La couleur de l'un des deux"),
         B('The spacing', "L'espacement"),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'A screen makes a reader choose. Two equal buttons hand that decision back, and the reader picks neither and leaves.',
         "Un écran fait choisir. Deux boutons égaux rendent la décision au lecteur, qui n'en prend aucun et s'en va.",
@@ -1876,10 +1875,10 @@ const M_DESIGN: Level[] = [
         'Que manque-t-il le plus souvent dans une commande de design à un modèle ?'),
       options: [
         B('The colours and the brand', 'Les couleurs et la marque'),
-        B('The empty and error states', 'Les états vides et en erreur'),
         B('The font', 'La police'),
+        B('The empty and error states', 'Les états vides et en erreur'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'A model designs the happy case by default. The empty screen is the one a real user sees first, and nobody ever asks for it.',
         "Un modèle dessine le cas heureux par défaut. L'écran vide est celui qu'un vrai utilisateur voit en premier, et personne ne le demande jamais.",
@@ -1916,11 +1915,11 @@ const M_DESIGN: Level[] = [
       q: B('Which artefact is worth keeping?',
         'Quel artefact vaut la peine d\'être gardé ?'),
       options: [
-        B('The generated code, it runs', 'Le code engendré, il fonctionne'),
         B('The structure and the decisions behind it', 'La structure et les décisions qui la soutiennent'),
+        B('The generated code, it runs', 'Le code engendré, il fonctionne'),
         B('The conversation', 'La conversation'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'Code can be regenerated in a minute from good decisions. Decisions cannot be recovered from code, and that is the asymmetry that decides what you keep.',
         "Du code se régénère en une minute à partir de bonnes décisions. Les décisions ne se retrouvent pas dans le code, et c'est cette asymétrie qui décide de ce qu'on garde.",
@@ -1958,11 +1957,11 @@ const M_COST: Level[] = [
       q: B('Which part of a long conversation costs the most?',
         'Quelle partie d\'une longue conversation coûte le plus ?'),
       options: [
-        B('Your instruction, sent each turn', 'Votre instruction, envoyée à chaque tour'),
         B('The history resent at every turn', "L'historique renvoyé à chaque tour"),
+        B('Your instruction, sent each turn', 'Votre instruction, envoyée à chaque tour'),
         B('The final answer', 'La réponse finale'),
       ],
-      answer: 1,
+      answer: 0,
       why: B(
         'Your instruction is sent once per turn and is a few lines. The history is sent once per turn too, and it grows with every turn that went before.',
         "Votre instruction est envoyée une fois par tour et fait quelques lignes. L'historique est envoyé une fois par tour lui aussi, et il grossit de tous les tours précédents.",
@@ -1998,10 +1997,10 @@ const M_COST: Level[] = [
         'Quelle tâche mérite d\'être optimisée ?'),
       options: [
         B('The single run that costs the most money', "Le passage qui coûte le plus d'argent à lui seul"),
-        B('The cheap one that runs a thousand times', 'La peu chère qui tourne mille fois'),
         B('The newest one', 'La plus récente'),
+        B('The cheap one that runs a thousand times', 'La peu chère qui tourne mille fois'),
       ],
-      answer: 1,
+      answer: 2,
       why: B(
         'Cost is price multiplied by frequency. A cheap task run a thousand times beats an expensive one run twice, and only one of the two is worth an hour of your time.',
         "Le coût est le prix multiplié par la fréquence. Une tâche peu chère mille fois bat une tâche chère deux fois, et une seule des deux mérite une heure de votre temps.",
@@ -2023,8 +2022,8 @@ const M_COST: Level[] = [
     steps: [
       B('Your instruction and your tool schemas are the whole of it. Both are text.',
         "Votre instruction et vos schémas d'outils sont tout. Les deux sont du texte."),
-      B('Set a spending cap on the provider before the first real run.',
-        "Posez un plafond de dépense chez le fournisseur avant le premier vrai passage."),
+      B('Put a ceiling on what the provider may bill you, before the first run.',
+        "Posez un plafond sur ce que le fournisseur peut vous facturer, avant le premier passage."),
       B('Run it read-only once more, on your key, before letting it write.',
         "Relancez-le en lecture seule une fois de plus, sur votre clé, avant de le laisser écrire."),
     ],
@@ -2153,7 +2152,11 @@ export const PATH_MODULES: Module[] = [
 // mentir quand on vend de la pédagogie. Aucun de ces nombres ne s'écrit à la
 // main, ni ici ni dans une page.
 
-export const ALL_MODULES: Module[] = [DISCOVERY_MODULE, ...PATH_MODULES]
+// LES CITÉS MÉTIER ENTRENT ICI · et c'est tout ce qu'il a fallu pour qu'elles
+// héritent de l'index, des adresses, du compteur de badges et des trente
+// règles de scripts/test-curriculum. Une deuxième structure pour les métiers
+// aurait demandé une deuxième copie de tout cela.
+export const ALL_MODULES: Module[] = [DISCOVERY_MODULE, ...PATH_MODULES, ...TRADE_MODULES]
 
 export const MODULE_BY_ID: Record<string, Module> =
   Object.fromEntries(ALL_MODULES.map((m) => [m.id, m]))
