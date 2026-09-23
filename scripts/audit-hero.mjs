@@ -183,4 +183,19 @@ for (const v of VIEWS) {
 
 await b.close()
 console.log(`\n${checks} vérifications · ${fails.length} échec(s)`)
-if (fails.length) { for (const f of fails) console.log('  · ' + f); process.exit(1) }
+// LE PIRE CAS DE LA SORTIE JETÉE, ET IL ÉTAIT ICI.
+//
+// Cette ligne imprimait la liste des échecs PUIS partait par process.exit(1).
+// Vers un tuyau, écrire est asynchrone : les lignes qu'on vient d'imprimer
+// étaient encore en file, et la sortie immédiate les jetait. On obtenait un
+// échec sans un mot pour dire lequel · exactement ce qu'on ne veut pas d'une
+// épreuve, et exactement les récapitulatifs muets vus dans ce lot.
+//
+// On pose donc le code et on laisse Node sortir seul, ce qui vide la file. La
+// minuterie déréférencée force la sortie si un navigateur retient encore
+// quelque chose ; elle n'empêche pas la sortie naturelle.
+if (fails.length) {
+  for (const f of fails) console.log('  · ' + f)
+  process.exitCode = 1
+  setTimeout(() => process.exit(1), 500).unref()
+}

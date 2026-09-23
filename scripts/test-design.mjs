@@ -184,4 +184,20 @@ ok('morsure · une phrase trop courte est vue', !sentence('Do it.'))
 console.log(fails
   ? `\ntest-design · ${fails} problème(s)`
   : `\ntest-design · ${DESIGN_COURSES.length} cours, ${DESIGN_LESSON_COUNT} leçons, aucun chemin de menu`)
-process.exit(fails ? 1 : 0)
+// LA SORTIE EST VIDÉE AVANT DE PARTIR · « process.exitCode » et non
+// « process.exit() ».
+//
+// POURQUOI CE N'EST PAS UN DÉTAIL DE STYLE. Vers un terminal, l'écriture est
+// synchrone et tout s'affiche. Vers un TUYAU · c'est à dire dès que le portail
+// lance cette épreuve · elle est asynchrone, et « process.exit() » part sans
+// attendre : ce qui n'est pas encore parti est JETÉ.
+//
+// Mesuré ici même : la même épreuve sur les mêmes données rendait 30 690
+// caractères une fois sur deux et 9 326 l'autre, soit 179 lignes sur 528. Le
+// code de sortie, lui, restait juste · une épreuve en échec était bien
+// déclarée en échec. Ce qui disparaissait, c'était le DÉTAIL, c'est à dire la
+// seule chose qu'on lit pour corriger.
+//
+// Poser le code et laisser Node sortir tout seul vide la file d'abord. Ces
+// épreuves ne tiennent aucune ressource ouverte, donc il n'y a rien à forcer.
+process.exitCode = fails ? 1 : 0

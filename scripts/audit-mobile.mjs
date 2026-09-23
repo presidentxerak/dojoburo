@@ -269,4 +269,22 @@ for (const [name, go] of SCREENS) {
 
 await b.close()
 console.log(bad ? `\n${bad} défaut(s)` : '\nRIEN À SIGNALER')
-process.exit(bad ? 1 : 0)
+// LA SORTIE EST VIDÉE AVANT DE PARTIR, SANS RENONCER À PARTIR.
+//
+// Vers un terminal, écrire est synchrone. Vers un TUYAU · c'est-à-dire dès que
+// le portail lance cette épreuve · c'est asynchrone, et « process.exit() » s'en
+// va sans attendre : ce qui n'est pas encore sorti est jeté. Mesuré sur une
+// épreuve de données : 528 lignes une fois, 179 la suivante, code de sortie 0
+// dans les deux cas. Ce qui disparaît en premier, c'est le DÉTAIL d'un échec,
+// donc la seule chose qu'on lit pour le corriger.
+//
+// UNE ÉPREUVE NAVIGATEUR NE PEUT PAS SE CONTENTER DE POSER SON CODE, parce
+// qu'un navigateur laisse parfois une poignée ouverte et que le processus
+// resterait pendu jusqu'au budget du portail · un faux échec de cinq minutes.
+// D'où les deux temps : on pose le code et on laisse Node sortir seul, ce qui
+// vide la file ; et une minuterie DÉRÉFÉRENCÉE force la sortie une demi-seconde
+// plus tard si quelque chose retient encore. Déréférencée, elle n'empêche pas
+// la sortie naturelle · elle ne se déclenche que s'il y a effectivement de quoi
+// la retenir.
+process.exitCode = bad ? 1 : 0
+setTimeout(() => process.exit(process.exitCode ?? 0), 500).unref()

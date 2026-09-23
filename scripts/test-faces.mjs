@@ -147,4 +147,20 @@ ok('morsure · la comparaison porte sur des identifiants',
   asItIs.every((f) => typeof f === 'string') && typeof byPosition(0) === 'string')
 
 console.log(fails ? `\ntest-faces · ${fails} problème(s)` : '\ntest-faces · la salle et les fiches montrent le même agent')
-process.exit(fails ? 1 : 0)
+// LA SORTIE EST VIDÉE AVANT DE PARTIR · « process.exitCode » et non
+// « process.exit() ».
+//
+// POURQUOI CE N'EST PAS UN DÉTAIL DE STYLE. Vers un terminal, l'écriture est
+// synchrone et tout s'affiche. Vers un TUYAU · c'est à dire dès que le portail
+// lance cette épreuve · elle est asynchrone, et « process.exit() » part sans
+// attendre : ce qui n'est pas encore parti est JETÉ.
+//
+// Mesuré ici même : la même épreuve sur les mêmes données rendait 30 690
+// caractères une fois sur deux et 9 326 l'autre, soit 179 lignes sur 528. Le
+// code de sortie, lui, restait juste · une épreuve en échec était bien
+// déclarée en échec. Ce qui disparaissait, c'était le DÉTAIL, c'est à dire la
+// seule chose qu'on lit pour corriger.
+//
+// Poser le code et laisser Node sortir tout seul vide la file d'abord. Ces
+// épreuves ne tiennent aucune ressource ouverte, donc il n'y a rien à forcer.
+process.exitCode = fails ? 1 : 0

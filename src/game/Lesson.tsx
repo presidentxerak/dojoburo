@@ -74,7 +74,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
 
   return (
     <Shell>
-      <DojoRoom master={level.master} tint={module.tint} says={say(level.act, lang)} />
+      <DojoRoom master={level.master} tint={module.tint} />
 
       <article className="ln" style={{ ['--ac' as string]: module.tint }}>
         <Lnk className="gm-back" href={packPath(pack.id)}>← {say(pack.title, lang)}</Lnk>

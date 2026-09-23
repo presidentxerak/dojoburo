@@ -3527,12 +3527,29 @@ h4, h5, h6 { font-size: 20px !important; font-weight: 700 !important; }
 .lp-team-role, .lp-studiocard-blurb, .lp-studiocard-cat, .modhost-blurb { font-size: 14px !important; }
 .sq-lead, .agent-desc { font-weight: 400; }
 
-/* --- Pure-black text (light theme). Driven mostly by --ink/--muted = #000;
-   here we force the common secondary-text classes black WITHOUT touching
-   deliberate accents (agent title, status dot, semantic finance colours). --- */
-:root:not([data-theme="dark"]) {
-  --ink: #000; --muted: #000;
-}
+/* --- Texte noir pur (thème clair) · CE QUI RESTE, ET CE QUI A ÉTÉ RETIRÉ.
+   ---------------------------------------------------------------------------
+   Ce bloc redéfinissait les JETONS · « --ink: #000; --muted: #000 » · en plus
+   de forcer une liste de classes. Les deux moitiés faisaient la même chose à
+   l'époque où le parti pris était « tout en noir pur, aucun niveau de gris ».
+
+   LA MOITIÉ DES JETONS EST PARTIE, parce qu'elle annulait en silence la charte
+   Hyperobust adoptée en tête de fichier. Le système dit que l'encre est
+   #0B0C0E et que le texte second est #62666D · un gris, délibérément, pour
+   qu'une hiérarchie existe. Ce bloc, posé trois mille lignes plus bas,
+   ramenait les deux à #000 et personne ne le voyait : les jetons étaient bien
+   écrits en haut, le fichier se lisait comme si la charte s'appliquait, et à
+   l'écran le texte second restait noir pur.
+
+   C'EST UNE PANNE DE LA MÊME FAMILLE QUE LES AUTRES DE CE LOT · rien n'échoue,
+   rien ne s'affiche de travers, et ce qu'on voit n'est pas ce qu'on a décidé.
+   Une garde qui se contente de chercher « #62666d » dans le fichier passe au
+   vert sans rien garder du tout ; celle de scripts/test-charte vérifie donc
+   maintenant qu'aucune règle de racine ne redéfinit ces deux jetons.
+
+   LA LISTE DE CLASSES RESTE, elle, intacte. Elle vise des écrans de
+   l'application · fiches d'agent, panneaux du studio · dont le noir pur est un
+   choix qui tient toujours, et qui ne passe par aucun jeton. --- */
 :root:not([data-theme="dark"]) .muted,
 :root:not([data-theme="dark"]) .small,
 :root:not([data-theme="dark"]) .sq-lead,
@@ -3853,11 +3870,22 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 :root[data-theme="dark"] .studio-next .studio-next-cta { background: #fff; color: #000; border-color: #fff; }
 
 /* ===================================================================
-   DARK MODE corrections · the pure-black-on-white overrides above force
-   light colours; flip the key surfaces so dark mode is clean.
+   CORRECTIONS DU MODE SOMBRE · les forçages de noir pur écrits plus haut
+   imposent des couleurs claires ; on bascule ici les surfaces qui comptent
+   pour que le mode sombre reste propre.
+
+   « --border » A ÉTÉ RETIRÉ DE CETTE LISTE, et c'est une garde qui l'a
+   trouvé. Ce bloc posait #2a2e38 alors que la charte Hyperobust déclare
+   #212427 en tête de fichier : les deux visaient la racine en mode sombre,
+   donc le dernier écrit gagnait, et la bordure du système n'était appliquée
+   nulle part. Personne ne pouvait le voir · deux gris sombres à un cheveu
+   l'un de l'autre, et le jeton correct bien présent dans le fichier.
+
+   Les trois autres restent : Hyperobust ne définit ni les panneaux ni la
+   bordure accentuée, donc ils ne se disputent avec rien.
    =================================================================== */
 :root[data-theme="dark"] {
-  --border: #2a2e38; --border-lit: #3a3f4c; --panel-2: #14161c; --panel-solid: #12141a;
+  --border-lit: #3a3f4c; --panel-2: #14161c; --panel-solid: #12141a;
 }
 /* surfaces that were forced white → dark panels */
 :root[data-theme="dark"] .agent-card,
@@ -10374,9 +10402,56 @@ a.lp-trade { text-decoration: none; display: inline-block; }
    du HTML projeté par la caméra : elle ne connaît pas la largeur de l'écran,
    donc sur un téléphone elle sortait par la droite et faisait défiler la page
    de côté. */
-.ln .dr { height: min(28vh, 240px); border: 1px solid var(--border); margin-bottom: var(--sp-4); overflow: hidden;
+/* LA SALLE DE LA LEÇON · et pourquoi ces deux règles ne servaient à rien.
+   ---------------------------------------------------------------------------
+   Elles étaient écrites « .ln .dr », c'est à dire « la salle DANS l'article de
+   la leçon ». Or la salle n'y est pas : game/Lesson la pose en SOEUR de
+   l'article, juste avant lui, parce qu'elle occupe toute la largeur alors que
+   le texte tient dans une colonne. Le sélecteur ne désignait donc rien, et
+   trois décisions qu'on croyait prises ne l'étaient pas :
+
+     · la salle devait être bornée à 28vh · elle faisait 34vh, soit 287 pixels
+       sur un téléphone, et on ouvrait un cours pour voir un décor,
+     · elle devait ROGNER ce qui dépasse · elle ne rognait rien,
+     · la bulle du maître devait tenir dans 70 % de la largeur · elle faisait
+       433 pixels sur un écran de 390, donc son texte sortait par la droite.
+
+   RIEN NE LE SIGNALAIT. Une règle CSS qui ne s'applique pas ne lève aucune
+   erreur, ne casse aucune construction, et laisse la page s'afficher · avec
+   les valeurs d'AVANT, qui sont des valeurs plausibles. C'est la même famille
+   de panne que la racine qui mangeait les fragments : ce qu'on voit marche,
+   et ce n'est pas ce qu'on avait décidé.
+
+   ELLES VISENT MAINTENANT « .gm .dr » · la coquille du jeu, qui contient bien
+   la salle. Deux classes contre une suffisent à l'emporter sur la règle
+   générique et sur celle du téléphone, sans toucher ni à l'une ni à l'autre. */
+.gm .dr { height: min(28vh, 240px); border: 1px solid var(--border); margin-bottom: var(--sp-4); overflow: hidden;
   border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
-.ln .dr .panda-bubble { max-width: 70vw; white-space: normal; text-align: center; font-size: 13px; }
+/* LA BULLE EST DU HTML PROJETÉ PAR LA CAMÉRA · elle ne connaît pas la largeur
+   de l'écran, donc c'est ici qu'on la lui donne. « nowrap » lui vient de la
+   mascotte du grand dojo, où elle a sa place ; dans une bande de deux cent
+   quarante pixels, elle la sort du cadre. */
+.gm .dr .panda-bubble { max-width: 70vw; white-space: normal; text-align: center; font-size: 13px; }
+/* L'ÉTIQUETTE DU MAÎTRE, LISIBLE · elle ne l'était pas, et la cause est un
+   conflit que rien ne signale.
+   « .tag3d.panda » se peint en blanc sur un dégradé bleu-vert. Mais une règle
+   générique posée bien plus haut dans ce fichier impose à TOUT « .tag3d » un
+   fond blanc à cinquante pour cent, en !important · elle tient les étiquettes
+   de nom du grand dojo, qui sont en encre sombre et lui vont très bien. Le
+   dégradé tombait donc, le blanc du texte restait, et on obtenait du blanc sur
+   du blanc translucide au-dessus d'une salle claire.
+   On ne retire pas la règle générique, qui tient un écran qui marche · on lui
+   répond avec la même force, et seulement ici. Le fond prend l'encre du thème,
+   donc l'étiquette reste lisible en clair comme en sombre, où l'encre et le
+   papier s'échangent. */
+.gm .dr .tag3d.panda {
+  background: var(--ink) !important;
+  color: var(--paper);
+  padding: 3px 10px !important;
+  border-radius: var(--radius-card) !important;
+  text-shadow: none !important;
+  font-size: 12px; font-weight: 800;
+}
 .ln-n { font-family: var(--font-ui); font-size: 11px; font-weight: 800; color: var(--ac); letter-spacing: 0.06em; text-transform: uppercase; }
 .ln-free { color: var(--ink); }
 .ln-head h1 { margin: 5px 0 7px; font-size: 24px !important; font-weight: 800 !important; letter-spacing: -0.025em; line-height: 1.2; }
