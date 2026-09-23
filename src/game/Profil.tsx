@@ -19,6 +19,7 @@
 // récompense qu'on va voir, où l'on reconnaît les cités qu'on a finies.
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
+import { BauhausBand } from '../components/BauhausBand'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
@@ -56,7 +57,7 @@ export function ProfilPage() {
         </div>
 
         {g.nextUp && (
-          <Lnk className="gm-cta" href={packPath(packOfNext(g.nextUp.module.id))}>
+          <Lnk className="gm-cta gm-pump" href={packPath(packOfNext(g.nextUp.module.id))}>
             {g.started ? t('ac.continue') : t('gm.start')} · {say(g.nextUp.level.title, lang)} →
           </Lnk>
         )}
@@ -77,6 +78,7 @@ export function ProfilPage() {
       {/* CE QUI EST OUVERT · dit une fois, à l'endroit où l'on se demande ce
           qu'on possède. */}
       <section className="gm-sec">
+        <BauhausBand seed="profil-ouvert" />
         <h2 className="pf-h2">{t('pr.ownedH2')}</h2>
         <div className="pf-owned">
           {PACKS.map((p) => <OwnedRow key={p.id} pack={p} />)}
@@ -87,6 +89,7 @@ export function ProfilPage() {
       {/* LA VITRINE · tous les badges de la portée, gagnés ou non. Une vitrine
           qui ne montre que les trophées obtenus ne dit pas ce qu'il reste. */}
       <section className="gm-sec">
+        <BauhausBand seed="profil-vitrine" />
         <h2 className="pf-h2">{t('pr.caseH2')} <span className="pf-of">{earned} / {g.badgeTotal}</span></h2>
         <div className="pf-case">
           {g.scopeLevels.map(({ module, level }) => {
@@ -107,6 +110,7 @@ export function ProfilPage() {
           compte. Une vitrine dont la taille change sans qu'on sache pourquoi
           est une vitrine à laquelle on cesse de croire. */}
       <section className="gm-sec">
+        <BauhausBand seed="profil-metier" />
         <h2 className="pf-h2">{t('tr.yours')}</h2>
         <p className="gm-lead">
           {a.pick && TRADE_BY_ID[a.pick]
@@ -118,6 +122,7 @@ export function ProfilPage() {
       {/* CE QUI EST GARDÉ, ET COMMENT L'EFFACER · une page de profil qui ne
           dit pas où vit la progression laisse croire à un compte. */}
       <section className="gm-sec pf-end">
+        <BauhausBand seed="profil-donnees" />
         <h2 className="pf-h2">{t('pr.dataH2')}</h2>
         <p className="gm-lead">{t('pr.dataBody')}</p>
         <button className="pf-forget" onClick={() => { forgetAccess(); location.reload() }}>

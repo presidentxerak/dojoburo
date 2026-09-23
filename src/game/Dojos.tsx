@@ -26,6 +26,7 @@
 //   laisse partir quelqu'un qui aurait payé ; celle-ci affiche ce qu'il faut.
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
+import { BauhausBand } from '../components/BauhausBand'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
@@ -52,6 +53,10 @@ export function DojosPage() {
   return (
     <Shell>
       <section className="gm-sec">
+        {/* LA FRISE OUVRE L'ÉCRAN · elle ne dit rien, elle donne le ton, et
+            c'est la première chose qu'on voit sous la barre du haut. Voir
+            components/BauhausBand pour pourquoi une frise et pas une icône. */}
+        <BauhausBand seed="accueil-dojos" n={14} height={16} />
         <h1 className="gm-h1">{t('gm.dojosTitle')}</h1>
         <p className="gm-lead">{t('gm.dojosLead')}</p>
       </section>

@@ -21,6 +21,7 @@
 // écrit ici ne sera à défaire : il n'y a pas de faux fil à démonter.
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
+import { BauhausBand } from '../components/BauhausBand'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useT } from '../i18n'
@@ -41,6 +42,7 @@ export function ClanPage() {
   return (
     <Shell>
       <section className="gm-sec">
+        <BauhausBand seed="clan-accueil" n={14} height={16} />
         <h1 className="gm-h1">{t('cl.title')}</h1>
         <p className="gm-lead">{t('cl.lead')}</p>
       </section>

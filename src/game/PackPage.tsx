@@ -20,6 +20,7 @@
 // se voit.
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
+import { BauhausBand } from '../components/BauhausBand'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
@@ -83,6 +84,7 @@ export function PackPage({ packId }: { packId: string }) {
             <PackArt scene={pack.scene} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
           </div>
           <div className="pkh-txt">
+            <BauhausBand seed={`pack-${pack.id}`} n={9} height={12} />
             <h1 className="gm-h1">{say(pack.title, lang)}</h1>
             <p className="gm-lead">{say(pack.blurb, lang)}</p>
             <div className="pkh-meta">
@@ -97,7 +99,10 @@ export function PackPage({ packId }: { packId: string }) {
         <p className="pkh-count">{done} / {levels.length} {t('g.dojos')}</p>
 
         {open && next && (
-          <Lnk className="gm-cta" href={lessonPath(pack.id, next.level.id)}>
+          /* ELLE RESPIRE · c'est la seule chose qui bouge en permanence sur
+             cet écran, et c'est voulu : elle dit où reprendre. Deux éléments
+             qui pulsent sur la même page ne désignent plus rien. */
+          <Lnk className="gm-cta gm-pump" href={lessonPath(pack.id, next.level.id)}>
             {done > 0 ? t('ac.continue') : t('gm.start')} · {say(next.level.title, lang)} →
           </Lnk>
         )}

@@ -200,6 +200,59 @@ await sideways('app')
   ok(light > 150, 'et clair quand le téléphone est en clair', `luminance ${Math.round(light)}`)
 }
 
+/* ---- la carte de la vallée · les noms de cité, et leurs chevauchements ---- */
+//
+// POURQUOI CETTE MESURE EXISTE, ET POURQUOI ELLE EST ICI
+//
+// Le nom d'une cité a été masqué sur téléphone pendant deux versions, avec une
+// raison écrite et juste : « treize titres sur trois cent quatre-vingt-dix
+// pixels se recouvrent, neuf chevauchements mesurés ». Puis la vallée s'est
+// mise à pivoter sur un écran debout, et les étiquettes ont cessé de rétrécir
+// avec la caméra. Les deux prémisses de la règle avaient bougé, mais la règle,
+// elle, ne bouge pas toute seule : on masquait toujours un nom pour un
+// chevauchement qui n'existait plus.
+//
+// D'où cette épreuve. Elle ne vérifie pas un réglage, elle MESURE ce que le
+// réglage produit · le nom est lisible, et aucune paire ne se recouvre. Le jour
+// où une cité s'ajoute, où une traduction s'allonge ou où un décalage change,
+// c'est elle qui le dira, et personne n'aura à se souvenir de recompter.
+//
+// ELLE A DÉJÀ SERVI TROIS FOIS EN UNE HEURE · un décalage réglé à l'oeil sur un
+// écran large en produisait six sur un téléphone, parce que décaler une
+// étiquette vers le haut la rapproche de la rangée du dessus, et que ce qui
+// sépare sur un écran couché rapproche sur un écran debout.
+{
+  await page.goto(`${BASE}/carte`, { waitUntil: 'load' })
+  await page.waitForTimeout(3500)
+
+  const tags = await page.evaluate(() => {
+    const t = [...document.querySelectorAll('.wm-tag')]
+    const box = t.map((e) => e.getBoundingClientRect())
+    const pairs = []
+    for (let i = 0; i < box.length; i++) {
+      for (let j = i + 1; j < box.length; j++) {
+        const A = box[i], B = box[j]
+        if (A.left < B.right && B.left < A.right && A.top < B.bottom && B.top < A.bottom) {
+          pairs.push(`${t[i].textContent.trim().slice(0, 14)} / ${t[j].textContent.trim().slice(0, 14)}`)
+        }
+      }
+    }
+    // UN NOM VISIBLE, pas seulement présent · « display: none » laisse le
+    // noeud dans l'arbre, donc on mesure sa largeur rendue.
+    const named = t.filter((e) => {
+      const b = e.querySelector('b')
+      return b && b.getBoundingClientRect().width > 8
+    }).length
+    return { n: t.length, named, pairs }
+  })
+
+  ok(tags.n > 0, 'la carte affiche ses cités', `${tags.n} étiquettes`)
+  ok(tags.named === tags.n, 'chaque cité affiche son nom sur un téléphone',
+    `${tags.named} / ${tags.n}`)
+  ok(tags.pairs.length === 0, 'et aucun nom n\'en recouvre un autre',
+    tags.pairs.slice(0, 3).join(' | ') || `${tags.n} étiquettes, 0 chevauchement`)
+}
+
 const real = errs.filter((e) => !/ResizeObserver|Failed to load resource/.test(e))
 ok(real.length === 0, 'no page errors', real.slice(0, 2).join(' | '))
 

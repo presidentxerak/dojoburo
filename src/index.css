@@ -9566,18 +9566,47 @@ a.lp-trade { text-decoration: none; display: inline-block; }
    rien ne reliait la carte à la liste en dessous. Les trois sont corrigées :
    elle monte au dessus du fleuron (voir game/WorldMap), elle porte un fond
    plein avec une ombre portée, et elle commence par le numéro de la cité. */
+/* L'ÉTIQUETTE D'UNE CITÉ · elle garde sa taille quelle que soit la distance de
+   la caméra (voir WorldMap, où le distanceFactor a été retiré), donc c'est
+   ICI et seulement ici qu'on décide de combien elle pèse à l'écran.
+   ELLE PORTE LE RAYON ET L'OMBRE DES CARTES · c'est un objet qu'on touche
+   dans un jeu, au même titre qu'une carte de formation. */
 .wm-tag {
   display: flex; align-items: center; gap: 0; white-space: nowrap;
-  background: var(--paper); border: 1px solid var(--ink); border-radius: 0;
+  background: var(--paper); border: 1px solid var(--border);
+  border-radius: var(--radius-card); overflow: hidden;
   padding: 0; cursor: pointer; font-family: var(--font-ui);
-  box-shadow: 0 2px 0 0 var(--ink); transform: translateZ(0);
+  box-shadow: var(--shadow-card); transform: translateZ(0);
+  transition: transform 180ms cubic-bezier(.34,1.56,.64,1), box-shadow 180ms ease;
+}
+.wm-tag:hover { transform: scale(1.07); box-shadow: var(--shadow-card-lift); }
+.wm-tag:active { transform: scale(.94); transition-duration: 90ms; }
+/* SUR UN TÉLÉPHONE ELLE MAIGRIT · treize étiquettes à taille constante sur
+   trois cent quatre-vingt-dix pixels de large se marchent dessus. Ce n'est pas
+   la taille de la police qui pose problème mais la largeur totale, donc on
+   resserre les marges avant de toucher au texte. */
+@media (max-width: 720px) {
+  .wm-tag b { font-size: 12px; padding: 3px 6px; }
+  .wm-tag em { font-size: 10px; padding: 3px 6px 3px 5px; }
+  .wm-n { font-size: 10px; padding: 3px 5px; min-width: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wm-tag, .wm-tag:hover, .wm-tag:active { transition: none; transform: none; }
 }
 .wm-n {
   font-style: normal; font-size: 12px; font-weight: 800; color: #fff;
   background: var(--wt); padding: 5px 8px; align-self: stretch;
   display: flex; align-items: center; min-width: 22px; justify-content: center;
 }
-.wm-tag b { font-size: 14px; font-weight: 800; color: var(--ink); padding: 5px 9px; }
+/* LE NOM EST PLAFONNÉ EN LARGEUR, et c'est la contrepartie d'une étiquette qui
+   garde sa taille. Tant qu'elle rétrécissait avec la caméra, sa largeur se
+   réglait toute seule ; à taille constante, « Ce que ça coûte vraiment » fait
+   trois cent trente pixels et vient toucher sa voisine. Mesuré : trois
+   chevauchements sur un écran de 1440 avant ce plafond, zéro après. */
+.wm-tag b {
+  font-size: 13px; font-weight: 800; color: var(--ink); padding: 5px 9px;
+  max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .wm-tag em {
   font-style: normal; font-size: 11px; font-weight: 800; color: var(--muted);
   border-left: 1px solid var(--border); padding: 5px 9px 5px 8px;
@@ -9588,17 +9617,40 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 .wm-tag.on b, .wm-tag.on em { color: #fff; border-color: rgba(255,255,255,0.45); }
 .wm-tag.on .wm-n { background: rgba(0,0,0,0.25); }
 
-/* SUR UN TÉLÉPHONE, L'ÉTIQUETTE PERD SON NOM.
-   Treize titres de cité sur trois cent quatre-vingt-dix pixels se recouvrent
-   les uns les autres : neuf chevauchements mesurés, donc neuf noms illisibles
-   et une carte plus encombrée qu'informative. Il reste le NUMÉRO et le
-   compte, qui suffisent à situer et à viser, et la liste juste en dessous de
-   la carte porte les noms en entier · c'est elle qui est faite pour ça, et
-   elle se lit au clavier et au lecteur d'écran. */
+/* L'ÉTIQUETTE RETROUVE SON NOM SUR UN TÉLÉPHONE, et il faut dire pourquoi elle
+   l'avait perdu, parce que la règle d'avant était juste.
+
+   ELLE DISAIT : « treize titres de cité sur trois cent quatre-vingt-dix pixels
+   se recouvrent les uns les autres · neuf chevauchements mesurés, donc neuf
+   noms illisibles et une carte plus encombrée qu'informative. Il reste le
+   numéro et le compte, et la liste juste en dessous de la carte porte les noms
+   en entier. »
+
+   DEUX DE SES TROIS PRÉMISSES ONT BOUGÉ, et la troisième était déjà fausse :
+
+     · la vallée PIVOTE maintenant sur un écran debout (voir WorldMap) · trois
+       cités par rangée au lieu de cinq, donc trois étiquettes à se partager la
+       largeur et non cinq,
+     · les étiquettes ne RÉTRÉCISSENT plus avec la caméra, donc leur largeur ne
+       dépend plus de la distance et se règle ici, une fois,
+     · et « la liste juste en dessous de la carte » n'existe pas · cette carte
+       est un plein écran qu'on quitte par une croix. Le nom n'était donc
+       disponible nulle part ailleurs, et masquer un titre en renvoyant vers un
+       endroit qui ne le porte pas est la pire forme de compromis.
+
+   Le nom revient donc, à une taille resserrée, et le chevauchement est MESURÉ
+   plutôt que supposé · voir scripts/verify-mobile. Une prémisse qui a bougé se
+   remesure ; elle ne se reconduit pas parce que la règle avait raison hier. */
 @media (max-width: 720px) {
-  .wm-tag b { display: none; }
-  .wm-tag em { border-left: 0; padding: 4px 7px; }
-  .wm-n { padding: 4px 7px; font-size: 11px; }
+  /* ELLE PÈSE LE MOINS POSSIBLE · treize étiquettes lisibles sur un téléphone,
+     c'est treize bandeaux blancs posés sur les temples qu'on est venu voir.
+     Mesuré : à 30vw de nom, une étiquette prenait 45 % de la largeur de
+     l'écran ; à 20vw elle en prend 31, et les toits réapparaissent entre
+     elles. Le nom se coupe alors plus tôt · c'est le compromis, et il va dans
+     le bon sens : un nom tronqué se lit encore, un temple couvert non. */
+  .wm-tag b { font-size: 11px; padding: 3px 5px; max-width: 20vw; }
+  .wm-tag em { border-left: 0; padding: 3px 5px; font-size: 9px; }
+  .wm-n { padding: 3px 5px; font-size: 10px; min-width: 16px; }
   /* et l'affichage de tête cesse de couvrir la dernière rangée */
   /* la carte d'en-tête est réglée plus bas, avec le reste du téléphone ·
      deux blocs qui se disputent le même sélecteur sont la raison pour
@@ -10165,6 +10217,25 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   .gm-tab .gm-tab-g, .gm-tab.on .gm-tab-g, .gm-tab:active .gm-tab-g { transition: none; transform: none; }
 }
 
+/* --- les frises Bauhaus --------------------------------------------------- */
+/* DEUX ENCRES, ET DEUX SEULEMENT · le noir et le violet de marque. Voir
+   components/BauhausBand pour pourquoi une frise plutôt qu'une icône, et
+   pourquoi le violet ne tombe jamais deux fois d'affilée.
+
+   ELLES SONT ICI ET NON DANS LE COMPOSANT parce que ce sont des couleurs de
+   THÈME : le noir de la frise est l'encre de la page, donc il devient blanc en
+   mode sombre sans qu'on ait à écrire une deuxième frise. Une couleur posée
+   dans le SVG aurait figé le mode clair dans un fichier que personne ne
+   penserait à relire en changeant de thème. */
+.bh-band { display: block; margin: 0 0 var(--sp-3); }
+.bh-k { fill: var(--ink); }
+.bh-v { fill: var(--violet); }
+/* LA FRISE EST RETENUE · elle annonce une rubrique, elle ne la remplace pas.
+   À pleine opacité, douze formes noires au dessus d'un titre pèsent plus lourd
+   que le titre, et on lit la décoration avant le mot. */
+.bh-band { opacity: 0.85; }
+.bh-titled { display: grid; gap: var(--sp-1); }
+
 /* --- les cartes de formation --------------------------------------------- */
 /* LA GRILLE EST FLUIDE, ET C'EST LA GRILLE QUI DÉCIDE.
    ---------------------------------------------------------------------------
@@ -10461,25 +10532,42 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 .cm { position: fixed; inset: 0; background: var(--bg); }
 .cm .wm { position: absolute; inset: 0; }
 .cm-close {
-  position: absolute; top: 14px; right: 14px; z-index: 5;
+  position: absolute; top: 14px; right: 14px; z-index: 42;
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card);
   width: 40px; height: 40px; display: grid; place-items: center;
   background: var(--paper); border: 1px solid var(--ink); color: var(--ink); text-decoration: none;
 }
 .cm-hud {
-  position: absolute; top: 14px; left: 14px; z-index: 5;
+  position: absolute; top: 14px; left: 14px; z-index: 42;
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card);
   background: var(--paper); border: 1px solid var(--ink); padding: 9px 12px;
 }
 .cm-hud b { display: block; font-family: var(--font-ui); font-size: 15px; }
 .cm-hud em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--muted); }
 
-.cm-scrim { position: absolute; inset: 0; z-index: 6; background: rgba(20, 24, 32, 0.32); }
+/* LE CHROME DE LA CARTE PASSE AU DESSUS DES ÉTIQUETTES DE LA SCÈNE.
+   ---------------------------------------------------------------------------
+   Les titres de cités sont du HTML projeté par la caméra, rendus par drei dans
+   un calque à part dont on fixe la profondeur (voir WorldMap, zIndexRange). Ce
+   calque montait à vingt et la fiche d'une cité vivait à sept : on ouvrait une
+   cité et son titre, plus ceux des voisines, se dessinaient PAR DESSUS le
+   panneau et par dessus le voile · lisibles, cliquables, et parfaitement
+   incompréhensibles pour qui regardait l'écran.
+
+   Les étiquettes sont redescendues à douze là-bas, et tout ce qui est de
+   l'interface passe ici au dessus de cette plage. Les deux moitiés sont
+   nécessaires : baisser les étiquettes sans remonter la fiche laisserait la
+   prochaine étiquette ajoutée refaire la panne, et remonter la fiche sans
+   baisser les étiquettes laisserait un futur panneau la refaire aussi. */
+.cm-scrim { position: absolute; inset: 0; z-index: 40; background: rgba(11, 12, 14, 0.42); }
 /* LA FICHE MONTE PAR LE BAS · c'est le geste attendu sur un téléphone, et elle
    ne dépasse jamais les trois quarts de l'écran pour qu'on voie toujours d'où
    elle sort. */
 .cm-sheet {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 7;
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 41;
   max-height: 74dvh; overflow: auto;
-  background: var(--paper); border-top: 1px solid var(--ink);
+  background: var(--paper); border-top: 1px solid var(--border);
+  border-radius: var(--radius-card) var(--radius-card) 0 0; box-shadow: var(--shadow-card-lift);
   padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
 }
 .cm-sheet-top { display: grid; grid-template-columns: auto 1fr auto; gap: 11px; align-items: center; }
@@ -10497,7 +10585,7 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 .cm-sheet-list li.done .cm-mark { background: var(--ac); border-color: var(--ac); color: #fff; }
 
 @media (min-width: 760px) {
-  .cm-sheet { left: auto; right: 16px; bottom: 16px; width: 380px; border: 1px solid var(--ink); max-height: 76dvh; }
+  .cm-sheet { left: auto; right: 16px; bottom: 16px; width: 380px; border: 1px solid var(--border); border-radius: var(--radius-card); max-height: 76dvh; }
 }
 
 /* --- ouvrir le week-end --------------------------------------------------- */

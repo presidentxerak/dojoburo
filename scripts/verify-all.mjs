@@ -53,6 +53,16 @@ const CHECKS = [
   ['test-curriculum.mjs', 1, true],
   ['test-trades.mjs', 1, true],
   ['test-game.mjs', 1, true],
+  // LA CHARTE, LE DÉFILEMENT ET LA MISE EN PAGE. Une seule règle de style ·
+  // « overflow: hidden » sur le corps de page · a rendu six des huit formations
+  // inatteignables, et les trente-huit épreuves d'alors l'ont laissée passer :
+  // le typecheck ne lit pas le CSS, la construction réussissait, et aucune
+  // épreuve n'allait chercher la hauteur du document. Celle-ci garde aussi les
+  // jetons du système, la dérogation du rayon de carte, l'échappatoire de
+  // chaque animation, et l'ordre de profondeur entre les étiquettes de la
+  // vallée et la fiche qui les recouvre · une panne répartie sur deux fichiers,
+  // qu'aucune lecture d'un seul ne pouvait voir.
+  ['test-charte.mjs', 1, true],
   ['test-frugality.mjs', 1, true],
   // Les ateliers · qu'ils soient manipulables, et surtout qu'ils ne
   // réimplémentent aucune formule de coût. Deux vérités qui divergent, dans

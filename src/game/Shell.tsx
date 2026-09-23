@@ -33,7 +33,7 @@
 // calculé depuis les dojos réellement finis · un compteur décoratif qui ne
 // bouge pas quand on travaille est pire qu'un compteur absent, parce qu'il
 // apprend à ne plus regarder l'écran.
-import { type ReactNode } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { Lnk, usePath } from '../lib/router'
 import { useT } from '../i18n'
 import { Logo } from '../components/Logo'
@@ -75,10 +75,40 @@ const TABS: { to: string; key: string; glyph: IconName | null }[] = [
 const isOn = (path: string, to: string) =>
   to === '/' ? path === '/' || path.startsWith('/dojo') : path.startsWith(to)
 
+/** LE COUP QUAND UN NOMBRE MONTE · vrai pendant le temps de l'animation, puis
+ *  faux. C'est ce qui donne à un compteur le poids d'une récompense : un
+ *  chiffre qui change sans bouger se remarque à peine, et on finit par ne plus
+ *  le regarder · ce qui est exactement ce qu'on reproche à un compteur
+ *  décoratif.
+ *
+ *  IL NE SAUTE PAS AU PREMIER RENDU. Sans la référence initialisée à la valeur
+ *  d'arrivée, chaque changement de page ferait sauter l'expérience alors que
+ *  rien n'a été gagné, et le geste perdrait tout son sens.
+ *
+ *  IL NE SAUTE QUE VERS LE HAUT. L'expérience ne redescend pas dans ce produit,
+ *  mais la portée d'une page, elle, peut changer · et fêter une baisse serait
+ *  la pire lecture possible du même mouvement.
+ *
+ *  LA MINUTERIE EST ANNULÉE AU DÉMONTAGE · sinon un changement d'écran pendant
+ *  l'animation laisse une écriture d'état sur un composant parti. */
+function useBump(value: number): boolean {
+  const seen = useRef(value)
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    if (value <= seen.current) { seen.current = value; return }
+    seen.current = value
+    setOn(true)
+    const id = setTimeout(() => setOn(false), 460)
+    return () => clearTimeout(id)
+  }, [value])
+  return on
+}
+
 export function Shell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   const t = useT()
   const path = usePath()
   const g = useGame()
+  const bump = useBump(g.xp)
 
   return (
     <div className="gm">
@@ -88,8 +118,9 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
           <span className="gm-brand-wm"><Wordmark /></span>
         </Lnk>
         <div className="gm-top-right">
-          {/* L'EXPÉRIENCE · dérivée des dojos finis, jamais écrite. */}
-          <span className="gm-xp" title={t('gm.xpTitle')}>
+          {/* L'EXPÉRIENCE · dérivée des dojos finis, jamais écrite. Elle SAUTE
+              quand elle monte · voir useBump. */}
+          <span className={`gm-xp${bump ? ' gm-bumped' : ''}`} title={t('gm.xpTitle')}>
             <b>{g.xp}</b> <i>XP</i>
           </span>
           <LangSwitch compact />

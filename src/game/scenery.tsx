@@ -248,14 +248,21 @@ export function Bell({ p, s = 1 }: { p: [number, number, number]; s?: number }) 
         <boxGeometry args={[1.3, 0.14, 0.24]} />
         <meshStandardMaterial color={M.woodDark} roughness={1} />
       </mesh>
+      {/* LE BRONZE N'EST PAS MÉTALLIQUE, ET C'EST VOLONTAIRE.
+          Il l'était · metalness 0,55 · et la cloche sortait NOIRE sur la
+          carte. Un matériau métallique ne tient sa couleur que d'un
+          environnement qu'il reflète ; cette scène n'en a pas, donc il
+          reflète le vide, donc il est noir. Une teinte mate dans le même ton
+          rend exactement ce qu'on attend d'un bronze vu de cinquante unités
+          de haut, et ne dépend de rien. */}
       <group ref={b} position={[0, 1.19, 0]}>
         <mesh position={[0, -0.34, 0]} castShadow>
           <cylinderGeometry args={[0.26, 0.31, 0.6, 12]} />
-          <meshStandardMaterial color={M.brass} roughness={0.35} metalness={0.55} />
+          <meshStandardMaterial color={M.brass} roughness={0.75} metalness={0.1} />
         </mesh>
         <mesh position={[0, -0.04, 0]}>
           <sphereGeometry args={[0.1, 10, 8]} />
-          <meshStandardMaterial color={M.brass} roughness={0.35} metalness={0.55} />
+          <meshStandardMaterial color={M.brass} roughness={0.75} metalness={0.1} />
         </mesh>
       </group>
     </group>
