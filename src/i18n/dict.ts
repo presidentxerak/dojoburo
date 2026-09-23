@@ -67,11 +67,16 @@ export const DICT = {
   // d'un cours en anglais. Le pire serait de ne rien dire : la personne croit
   // à un défaut, ne sait pas si le reste viendra, et repart. On le dit donc à
   // l'endroit exact où ça se produit, avec le chiffre réel, calculé.
+  // LA PHRASE DOIT SUIVRE CE QUI EST VRAI. Elle disait « le contenu des cours
+  // est en cours de traduction » alors que les trois cours, les douze agents,
+  // les quinze frameworks et le robot le sont désormais. Une réserve qui
+  // reste après avoir cessé d'être vraie use la confiance exactement comme
+  // une promesse en trop : elle nomme donc ce qui manque encore.
   'i18n.partial': {
-    en: 'The interface is in French. The course content is still being translated.',
-    fr: "L'interface est en français. Le contenu des cours est encore en cours de traduction.",
+    en: 'The courses are in French. The library, the team cards and the belts are still in English.',
+    fr: "Les cours sont en français. La bibliothèque, les cartes d'équipe et les ceintures sont encore en anglais.",
   },
-  'i18n.partialShort': { en: 'Course text still in English', fr: 'Cours encore en anglais' },
+  'i18n.partialShort': { en: 'Library still in English', fr: 'Bibliothèque encore en anglais' },
 
   // ---- la page d'accueil -------------------------------------------------
   // LA PROMESSE ET LE SOUS-TITRE NE SONT PAS ICI · ils vivent dans

@@ -589,9 +589,30 @@ ok('une clé inconnue rend la clé', translate('clé.inconnue', 'fr') === 'clé.
 // autres. Il est né bilingue, donc il part à 1 plutôt qu'à 0 · c'est
 // exactement ce que le lot de traduction avant les nouveaux cours achetait,
 // et le compteur le montre au lieu qu'on l'affirme.
-const proseFiles = ['src/data/academy.ts', 'src/data/agentLessons.ts', 'src/data/agentUseCases.ts',
-  'src/data/frameworks.ts', 'src/data/tokenIceberg.ts', 'src/data/frugality.ts', 'src/support/knowledge.ts',
-  'src/data/designCourses.ts']
+// LA LISTE NE CONTENAIT QUE CE QUI ÉTAIT EN COURS DE TRADUCTION, et c'est
+// exactement le mensonge de couverture que cette épreuve existe pour
+// empêcher : le jour où ces huit fichiers ont été finis, le compteur a
+// affiché « 8 sur 8 », ce qui se lit « tout est traduit », alors que sept
+// autres fichiers de prose n'avaient pas un mot de français.
+//
+// Un dénominateur qui ne compte que le travail commencé atteint toujours
+// cent pour cent. La liste nomme donc TOUTE la prose du produit, y compris
+// celle que personne n'a encore ouverte, et le chiffre dit le reste à faire
+// au lieu de le cacher.
+const proseFiles = [
+  // traduits
+  'src/data/academy.ts', 'src/data/agentLessons.ts', 'src/data/agentUseCases.ts',
+  'src/data/frameworks.ts', 'src/data/tokenIceberg.ts', 'src/data/frugality.ts',
+  'src/support/knowledge.ts', 'src/data/designCourses.ts', 'src/components/guide/walks.ts',
+  // pas encore · ils s'affichent tous les quatre dans des pages que le
+  // sélecteur de langue met en français
+  'src/data/library.ts',        // les fiches de la bibliothèque
+  'src/data/archetypes.ts',     // les cartes d'équipe
+  'src/data/roleAgents.ts',     // les rôles des coéquipiers
+  'src/dojo/grades.ts',         // les ceintures et les insignes
+  'src/dojo/diplomas.ts',       // les diplômes
+  'src/dojo/masterProgress.ts', // ce que le maître dit de votre progression
+]
 // COMMENT ON DÉTECTE QU'UN FICHIER PORTE DEUX LANGUES, et la limite de cette
 // mesure, dite franchement.
 //
