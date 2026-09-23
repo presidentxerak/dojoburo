@@ -31,6 +31,13 @@ mkdirSync(SHOTS, { recursive: true })
 
 // (fichier, minutes attendues, court ?)
 const CHECKS = [
+  // LE FICHIER DE DÉPLOIEMENT, AVANT TOUT LE RESTE. Quatre déploiements de
+  // suite ont échoué sur une ligne de commentaire glissée dans vercel.json,
+  // que l'hébergeur refuse avant même de lancer la construction. Le portail
+  // entier était vert pendant ce temps, et la production figée depuis six
+  // heures. Une construction qui réussit partout sauf là où elle compte n'est
+  // pas une construction qui réussit. Deux secondes, hors navigateur.
+  ['test-deploy.mjs', 1, true],
   // En premier, et c'est voulu : il sert le site avec sa VRAIE politique de
   // sécurité. Tout ce qu'elle refuse est refusé en silence, sans rien casser de
   // visible — deux corrections ont été prises comme ça le même jour. Il tourne
@@ -43,10 +50,6 @@ const CHECKS = [
   // et elle se casse sans bruit le jour où quelqu'un ajoute une action sans
   // garde. Hors navigateur, en une seconde.
   ['test-sandbox.mjs', 1, true],
-  // La bibliothèque est la partie payante · la garde vérifie surtout qu'aucun
-  // corps de fichier n'a fui dans le paquet du navigateur. Hors navigateur.
-  // Le calculateur de jetons · il enseigne aux gens ce qu'ils dépensent, et un
-  // outil de mesure qui se trompe est pire qu'une absence d'outil.
   ['test-curriculum.mjs', 1, true],
   ['test-trades.mjs', 1, true],
   ['test-game.mjs', 1, true],

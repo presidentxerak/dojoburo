@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "_comment_redirects": "LA BIBLIOTHÈQUE A ÉTÉ RETIRÉE. Ses adresses étaient indexées et partagées : les laisser rendre 404 perdrait ce qu'elles avaient gagné, et un visiteur qui suit un lien depuis un moteur de recherche mérite une page plutôt qu'une erreur. Elles pointent donc vers l'accueil, en 301, parce que le déplacement est définitif.",
   "redirects": [
     { "source": "/library", "destination": "/", "permanent": true },
     { "source": "/library/:slug", "destination": "/", "permanent": true }
