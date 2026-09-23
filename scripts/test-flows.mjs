@@ -167,6 +167,60 @@ ok('chaque lien « /#ancre » désigne une section de l\'accueil ou une vue',
 // …ET LE ROUTEUR NE PREND PLUS UNE ANCRE POUR UNE VUE. Le test était
 // `if (!route)`, qui envoie tout fragment inconnu vers la porte du beta.
 ok('le routeur distingue une ancre d\'une vue', /isAppRoute\(route\)/.test(shell))
+
+// … ET « / » NE MANGE PAS LES FRAGMENTS DE L'APPLICATION.
+//
+// LA PANNE, parce qu'elle mérite d'être écrite en entier. Le jour où le jeu est
+// devenu la racine du produit, une ligne est arrivée en tête du routeur :
+//
+//     if (path === '/') return <DojosPage />
+//
+// Elle est juste, et elle est posée AVANT tout le routage par fragment. Or
+// l'application entière vit sur des fragments de la racine · #app, #studio,
+// #connect, #documents, #academy, #guide, #widget. Le chemin vaut « / » dans
+// tous ces cas, donc cette ligne partait la première et rendait le jeu : le
+// studio, les agents, les coéquipiers, les connecteurs et la base documentaire
+// sont devenus INATTEIGNABLES. Pas cassés, pas lents · absents.
+//
+// LE PIRE CAS EST L'INVITATION. Un lien `#join=<jeton>` arrive froid, par
+// courriel, chez quelqu'un qui n'a jamais ouvert ce produit. Il atterrissait
+// sur l'écran des formations, le jeton n'était jamais consommé, et rien ne
+// disait qu'une invitation venait d'être perdue.
+//
+// POURQUOI ÇA A TENU DEUX COMMITS · la construction réussit, le typecheck est
+// vert, la page s'affiche, et l'écran qui s'affiche est un écran qui MARCHE.
+// Il n'y a pas d'erreur à voir. Seul un parcours qui demande une vue précise et
+// regarde ce qu'il obtient peut le dire, et c'est ce que huit suites du portail
+// ont fait dès qu'elles ont été relancées.
+//
+// LA RÈGLE VISE LA FORME DE LA FAUTE · une route de chemin qui rend la racine
+// sans consulter le fragment. Elle ne vérifie pas un texte exact, qui se
+// reformule ; elle vérifie que la décision est PRISE.
+// ELLE LIT LE CODE, PAS LES COMMENTAIRES · et cette précaution a été ajoutée
+// parce que la garde s'est trompée au premier essai. Le correctif est expliqué
+// dans main.tsx, et cette explication CITE la ligne fautive pour qu'on
+// comprenne ce qui a été réparé. La règle tombait dessus et rougissait sur du
+// code juste, en montrant fièrement la ligne d'un commentaire.
+//
+// C'est la même leçon que partout ailleurs ici : une garde qui accuse du
+// travail juste apprend à la contourner. Et c'est aussi un rappel utile · dans
+// un dépôt qui explique ses décisions là où elles vivent, toute règle qui lit
+// du source doit distinguer ce qui s'exécute de ce qui se raconte.
+const code = (src) => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1')
+const SHELL_CODE = code(shell)
+const rootLine = SHELL_CODE.match(/if \(path === '\/'[^\n]*?return <DojosPage \/>/)?.[0] ?? ''
+ok('la racine consulte le fragment avant de rendre le jeu',
+  /!isAppRoute\(route\)/.test(rootLine), rootLine.trim() || 'ligne introuvable')
+// LA MORSURE, dans les deux sens · sans elle on ne saurait pas si la règle
+// regarde la bonne ligne ni si elle sait encore la refuser.
+ok('morsure · la racine sans garde serait vue',
+  !/!isAppRoute\(route\)/.test(
+    "if (path === '/') return <DojosPage />"))
+ok('morsure · et la racine gardée ne l\'est pas',
+  /!isAppRoute\(route\)/.test(
+    "if (path === '/' && !isAppRoute(route)) return <DojosPage />"))
+ok('morsure · un commentaire qui cite la faute n\'accuse pas',
+  !code("  // Sans elle : if (path === '/') return <DojosPage />\n").includes('DojosPage'))
 ok('…et il ne retombe plus sur « aucun fragment »', !/if \(!route\) return <Landing/.test(shell))
 // L'ancre a besoin que la section soit rendue avant d'y aller · un navigateur
 // abandonne en silence quand elle n'existe pas encore.

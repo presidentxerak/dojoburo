@@ -134,7 +134,34 @@ function Root() {
   // toujours, sur /decouvrir, pour qui veut lire avant d'essayer ; elle n'est
   // simplement plus le péage. C'est le changement le plus important de ce lot :
   // il fallait traverser neuf sections pour atteindre sept minutes de cours.
-  if (path === '/') return <DojosPage />
+  //
+  // ---------------------------------------------------------------------------
+  // MAIS « / » NE MANGE PAS LES FRAGMENTS DE L'APPLICATION, et c'est ce que
+  // cette condition rattrape.
+  //
+  // Sans elle, la ligne était `if (path === '/') return <DojosPage />`, posée
+  // AVANT tout le routage par fragment · or l'application entière vit sur des
+  // fragments de la racine : #app, #studio, #connect, #documents, #academy,
+  // #guide, #widget. Le chemin valant « / » dans tous ces cas, la ligne partait
+  // la première et rendait le jeu. Le studio, les agents, les coéquipiers, les
+  // connecteurs et la base documentaire étaient devenus INATTEIGNABLES · pas
+  // cassés, pas lents : absents, sans une erreur nulle part.
+  //
+  // LE CAS LE PLUS COÛTEUX EST L'INVITATION. Un lien `#join=<jeton>` arrive
+  // froid, par courriel, chez quelqu'un qui n'a jamais ouvert ce produit. Il
+  // atterrissait sur l'écran des formations, le jeton n'était jamais consommé,
+  // et rien ne disait qu'une invitation venait d'être perdue.
+  //
+  // COMMENT ÇA A TENU DEUX COMMITS · la construction réussit, le typecheck est
+  // vert, la page s'affiche, et l'écran qui s'affiche est un écran qui marche.
+  // Aucune des trente-huit épreuves du portail n'avait été relancée depuis, et
+  // c'est le portail qui l'a trouvé dès qu'il l'a été · huit suites d'un coup.
+  //
+  // La liste des fragments d'application est fermée et vit à un seul endroit
+  // (APP_ROUTES, plus haut), donc cette condition ne peut pas diverger d'elle :
+  // ajouter une vue demande une ligne là-haut, et elle est protégée ici sans
+  // que personne ait à y penser.
+  if (path === '/' && !isAppRoute(route)) return <DojosPage />
   if (path === '/clan') return <ClanPage />
   if (path === '/profil') return <ProfilPage />
   // LA CARTE · plein écran, sans coquille ni barre du bas. Voir game/Carte.
