@@ -4,10 +4,38 @@
    pastel-but-vibrant accents, gentle shadows. ASCII faces kept on the heads.
    =========================================================================== */
 
+/* ===========================================================================
+   LA CHARTE HYPEROBUST · les jetons viennent du système, pas du jugé.
+   ---------------------------------------------------------------------------
+   Ce qui suit est repris de « Hyperobust · Design system », section Couleurs,
+   Typographie et Grille. Les valeurs sont copiées telles quelles : un jeton
+   arrondi « à peu près » cesse d'être un jeton.
+
+   TROIS FAMILLES ÉTANCHES, et c'est la règle qui compte le plus ici :
+
+     LA RAMPE D'INTERFACE   états, pastilles, accents de chrome
+     LA PALETTE DE DONNÉES  barres, jauges, séries · JAMAIS un libellé
+     LA SÉMANTIQUE          hausse, baisse, destructif · avec un mot, toujours
+
+   Aucun emprunt entre elles. Une couleur de données posée sur une bordure est
+   la faute que ce système existe pour empêcher.
+
+   CE QU'ON N'A PAS REPRIS, ET POURQUOI C'EST ASSUMÉ. Hyperobust dit « rayon
+   zéro sur tous les composants, sans exception » et range l'ombre parmi les
+   interdits. Sa raison est écrite noir sur blanc : « l'angle vif donne à
+   l'interface son air d'outil, et non d'application grand public ». Ce produit
+   EST une application grand public, et un jeu. Les cartes de formation
+   prennent donc seize pixels de rayon et une ombre large, demandés
+   explicitement · le reste de l'app garde le rayon zéro du système. La
+   dérogation est nommée, bornée à --radius-card, et ne s'étend pas.
+   =========================================================================== */
+
 :root {
-  --bg: #ffffff;
-  --ink: #000000;          /* pure black text · no grey levels */
-  --muted: #000000;        /* secondary text is pure black too */
+  /* --- la rampe d'interface, mode clair --------------------------------- */
+  --bg: #ffffff;           /* --background */
+  --ink: #0b0c0e;          /* --foreground · un noir légèrement bleuté */
+  --muted: #62666d;        /* --muted-foreground · le texte second EST gris */
+  --surface: #f4f5f6;      /* --muted · la surface atténuée */
   --panel: rgba(255, 255, 255, 0.92);
   --panel-solid: #ffffff;
   --panel-2: #f5f6f8;
@@ -17,13 +45,60 @@
      réénumérant les sélecteurs plus bas dans le fichier. Cette liste a divergé
      — six sélecteurs repeints sur seize — et un écran sortait en deux moitiés :
      en-tête sombre, corps blanc. Un jeton ne peut pas diverger. */
-  --paper: #ffffff;
-  --border: #e4e4e7;       /* subtle 1px hairlines */
+  --paper: #ffffff;        /* --card */
+  --border: #e3e4e6;       /* --border · un pixel, partout, icônes comprises */
   --border-lit: #c7c7cc;
   --shadow: none;          /* flatter, fewer visual layers */
   --shadow-sm: none;
-  --radius: 0px;           /* sharp corners app-wide */
+  --radius: 0px;           /* rayon zéro · la règle du système */
   --radius-sm: 0px;
+  /* LA SEULE DÉROGATION, et elle est nommée · voir l'en-tête. Les cartes de
+     formation sont les objets qu'on touche dans un jeu ; elles portent seize
+     pixels et une ombre large. Rien d'autre ne lit ce jeton. */
+  --radius-card: 16px;
+  --shadow-card: 0 2px 6px rgba(11, 12, 14, 0.04), 0 12px 32px -8px rgba(11, 12, 14, 0.10);
+  --shadow-card-lift: 0 4px 10px rgba(11, 12, 14, 0.06), 0 22px 48px -10px rgba(124, 58, 237, 0.22);
+
+  /* --- l'échelle typographique · Outfit, deux graisses ------------------- */
+  /* Bold pour les titres, Regular pour le texte. Aucune autre graisse. */
+  --t-display: 64px;   --t-display-lh: 68px;   --t-display-ls: -0.02em;
+  --t-h1: 40px;        --t-h1-lh: 46px;        --t-h1-ls: -0.015em;
+  --t-h2: 28px;        --t-h2-lh: 34px;        --t-h2-ls: -0.01em;
+  --t-h3: 20px;        --t-h3-lh: 26px;
+  --t-body: 16px;      --t-body-lh: 24px;
+  --t-small: 14px;     --t-small-lh: 20px;
+  --t-caption: 12px;   --t-caption-lh: 16px;   --t-caption-ls: 0.04em;
+
+  /* --- la grille · tout est un multiple de quatre ------------------------ */
+  /* « Une valeur hors de cette échelle est une valeur choisie au jugé. » */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-6: 24px; --sp-8: 32px; --sp-12: 48px; --sp-16: 64px;
+
+  /* --- la palette de données · cinq emplacements ------------------------- */
+  /* Identiques dans les deux modes, réservés aux ENCODAGES. L'ordre n'est pas
+     arbitraire : rangés spontanément, le vert et le bleu ciel se suivaient et
+     ne se distinguaient pas (ΔE 1,6 en tritanopie). Le rose et le jaune
+     intercalés portent la pire paire voisine à ΔE 19,1.
+     LA CONTREPARTIE EST UNE OBLIGATION · quatre de ces cinq teintes passent
+     sous 3:1 sur fond blanc. Aucune barre ne porte son sens par la couleur
+     seule : toute série vient avec son libellé et sa valeur. */
+  --chart-1: #5c72e8;  /* --data-blue   */
+  --chart-2: #70e8bd;  /* --data-green  */
+  --chart-3: #e56fd2;  /* --data-pink   */
+  --chart-4: #f1e376;  /* --data-yellow */
+  --chart-5: #4ce0e9;  /* --data-sky    */
+
+  /* --- la rampe d'interface · états et accents de chrome ----------------- */
+  --ramp-teal: #0d9488;
+  --ramp-blue: #2563eb;
+  --ramp-violet: #7c3aed;
+  --ramp-amber: #b45309;
+  --ramp-orange: #c2410c;
+
+  /* --- la sémantique · un sens, jamais une couleur de série ------------- */
+  --sem-up: #047857;
+  --sem-down: #b91c1c;
+  --destructive: #dc2626;
 
   /* mono emphasis: black in light, white in dark */
   --btn-bg: #14151a;
@@ -40,7 +115,11 @@
 
   --pink: #ff7eb6;
   --blue: #4f9df7;
-  --violet: #a78bfa;
+  /* LE VIOLET DE MARQUE · #7C3AED en clair, #A78BFA en sombre. Il était à la
+     valeur sombre dans les deux modes, donc délavé sur blanc là où il porte
+     précisément l'action unique de l'écran. « Un seul plein par écran » ne
+     veut rien dire si ce plein ne se voit pas. */
+  --violet: #7c3aed;
   --mint: #3fd0b0;
   --gold: #ffc24b;
   --peach: #ff9a76;
@@ -62,33 +141,71 @@
   --font-read: var(--font-ui);
   color-scheme: light;
 }
+/* LE MODE SOMBRE EST LE MODE DE RÉFÉRENCE du système, et son fond n'est pas
+   un noir pur : « un noir neutre légèrement bleuté tient mieux sur les grandes
+   surfaces de tableau et évite le halo des bordures claires sur écran OLED ».
+   On suit, y compris sur le point qui semble anodin · le #000 d'avant faisait
+   exactement ce halo. */
 :root[data-theme='dark'] {
-  --bg: #000000;
-  --ink: #f2f3f7;
-  --muted: #9aa0ad;
-  --panel: rgba(18, 18, 22, 0.9);
-  --panel-solid: #131317;
-  --panel-2: #1c1c22;
-  --paper: #131317;
-  --border: rgba(255, 255, 255, 0.12);
+  --bg: #08090a;           /* --background */
+  --ink: #ffffff;          /* --foreground */
+  --muted: #8a8f98;        /* --muted-foreground */
+  --surface: #141618;      /* --muted */
+  --panel: rgba(14, 16, 17, 0.9);
+  --panel-solid: #0e1011;
+  --panel-2: #141618;
+  --paper: #0e1011;        /* --card */
+  --border: #212427;       /* --border */
   --border-lit: rgba(255, 255, 255, 0.26);
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
   --shadow-sm: 0 3px 12px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.5), 0 12px 32px -8px rgba(0, 0, 0, 0.6);
+  --shadow-card-lift: 0 4px 10px rgba(0, 0, 0, 0.55), 0 22px 48px -10px rgba(167, 139, 250, 0.30);
   --btn-bg: #ffffff;
-  --btn-fg: #131317;
+  --btn-fg: #0e1011;
+  /* le violet de marque, version sombre */
+  --violet: #a78bfa;
+  --ramp-violet: #a78bfa;
+  /* la sémantique remonte en clarté sur fond sombre · même sens, même rôle */
+  --sem-up: #2ebd85;
+  --sem-down: #e5484d;
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-html, body, #root { height: 100%; margin: 0; }
+/* LE DÉFILEMENT VERTICAL · pourquoi il n'y en avait plus, et ce qui le rend.
+   ---------------------------------------------------------------------------
+   Ce bloc portait « height: 100% » sur html, body et #root, et « overflow:
+   hidden » sur body. Les deux ensemble découpent le document à la hauteur de
+   la fenêtre et jettent le reste : sur l'écran Dojos, six des huit formations
+   étaient sous la ligne de coupe et AUCUN geste ne pouvait les atteindre.
+
+   La règle avait une raison, et elle était bonne à l'époque : la page d'accueil
+   était une scène en trois dimensions plein écran, et une barre de défilement
+   sur une scène qui ne défile pas est un bug. Mais l'app n'est plus cette page.
+   Elle est une pile de cartes dans une colonne, et une colonne défile.
+
+   CE QU'ON MET À LA PLACE, et pourquoi ce n'est pas « overflow: auto » tout
+   court. La hauteur devient un MINIMUM · le document fait au moins l'écran,
+   et davantage si son contenu le demande. Horizontalement on garde la coupe,
+   parce qu'un débordement latéral n'est jamais voulu et se paie en zoom sur un
+   téléphone. Les écrans qui ont vraiment besoin d'être figés le demandent
+   eux-mêmes, par .is-fixed, plutôt que de l'imposer à tout le produit. */
+html, body, #root { min-height: 100%; margin: 0; }
 body {
   color: var(--ink);
   font-family: var(--font-ui);
   font-size: 16px; font-weight: 400; line-height: 1.6;
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
   background: var(--bg);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* l'élan du doigt, sur les moteurs qui le demandent encore */
+  -webkit-overflow-scrolling: touch;
 }
+/* UN ÉCRAN QUI SE FIGE LE DEMANDE · la carte plein écran, une scène qui prend
+   la fenêtre. Posé sur <html> par le composant concerné, pas ici. */
+html.is-fixed, html.is-fixed body { height: 100%; overflow: hidden; }
 /* Display titles use Outfit Black (900); body copy uses Outfit for legibility. */
 h1, h2, h3, h4, h5, h6, .brand-title, .lp-logo, .tag3d { font-family: var(--font-pixel); font-weight: 900; letter-spacing: -0.015em; }
 strong, b, .skill-name { font-weight: 600; }
@@ -9918,13 +10035,102 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   text-decoration: none; margin-bottom: 10px;
 }
 .gm-back:hover { color: var(--ink); }
+/* LE BOUTON D'ACTION · un seul plein par écran, c'est la règle du système.
+   Il porte le violet de marque, et tout ce qui l'accompagne sur le même écran
+   est en contour. Deux boutons pleins l'un au-dessus de l'autre ne se lisent
+   pas comme un choix mais comme une répétition. */
 .gm-cta {
-  display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+  display: inline-flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-3);
   background: var(--ink); color: var(--paper); text-decoration: none;
-  font-weight: 800; font-size: 14px; padding: 12px 18px; border: 1px solid var(--ink);
+  font-weight: 800; font-size: var(--t-small); padding: var(--sp-3) var(--sp-4) var(--sp-3) var(--sp-4);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-card);
   cursor: pointer;
+  /* LE RESSORT, la même courbe que les cartes · un produit dont deux objets
+     rebondissent différemment se lit comme deux produits. */
+  transform: translateZ(0);
+  transition:
+    transform 180ms cubic-bezier(.34, 1.56, .64, 1),
+    box-shadow 180ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease;
+  will-change: transform;
 }
-.gm-cta:hover { background: var(--ac, var(--ink)); border-color: var(--ac, var(--ink)); }
+.gm-cta:hover {
+  background: var(--ac, var(--violet)); border-color: var(--ac, var(--violet));
+  transform: translateY(-2px) scale(1.035);
+  box-shadow: var(--shadow-card-lift);
+}
+.gm-cta:active { transform: translateY(0) scale(.955); transition-duration: 90ms; box-shadow: none; }
+.gm-cta:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+.gm-cta:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* --- le ressort du jeu ---------------------------------------------------- */
+/* POURQUOI UNE COURBE ÉLASTIQUE PLUTÔT QU'UN FONDU.
+   ---------------------------------------------------------------------------
+   Un « ease » va d'un état à l'autre et s'arrête. Une courbe qui DÉPASSE puis
+   revient (le quatrième nombre de cubic-bezier est au dessus de 1) donne à
+   l'objet une masse : il a été poussé, il a résisté, il est revenu. C'est
+   toute la différence entre une case qu'on coche et un objet qu'on prend, et
+   c'est ce qu'un jeu fait partout où un formulaire ne fait rien.
+
+   TROIS RÈGLES POUR QUE ÇA RESTE UN PRODUIT ET NON UNE FÊTE FORAINE :
+     · on n'anime QUE transform et opacity, jamais une géométrie · animer une
+       largeur refait la mise en page à chaque image et fait tomber le
+       téléphone à quinze images par seconde,
+     · l'enfoncement est plus court que le retour (90 ms contre 180) · un appui
+       est instantané, un relâchement respire,
+     · une seule chose bouge à la fois sur un écran donné.
+
+   ET ELLE S'ARRÊTE SI ON LE DEMANDE · voir la règle de mouvement réduit tout
+   en bas de cette section. Ce n'est pas une politesse, c'est la différence
+   entre une animation et un malaise pour qui y est sensible. */
+
+/* LA PULSATION DE CE QUI ATTEND · la carte suivante à faire respire, une fois
+   toutes les deux secondes et demie, de deux pour cent. Assez pour attirer
+   l'oeil au bon endroit, assez peu pour qu'on ne la remarque pas quand on
+   regarde ailleurs. */
+@keyframes gm-pump {
+  0%, 72%, 100% { transform: scale(1); }
+  80% { transform: scale(1.028); }
+  88% { transform: scale(.992); }
+}
+.gm-pump { animation: gm-pump 2.6s ease-in-out infinite; }
+
+/* LE COUP · ce qui vient d'être gagné. Une seule fois, à l'arrivée. */
+@keyframes gm-bump {
+  0% { transform: scale(.82); opacity: 0; }
+  55% { transform: scale(1.08); opacity: 1; }
+  78% { transform: scale(.97); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.gm-bumped { animation: gm-bump 420ms cubic-bezier(.34, 1.56, .64, 1) both; }
+
+/* L'ARRIVÉE D'UNE LISTE · chaque carte monte d'un cran, décalée de quarante
+   millisecondes sur sa voisine. Le décalage est porté par --i, posé par le
+   composant, parce qu'un « nth-child » ici casserait au premier filtre. */
+@keyframes gm-rise {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+/* « BACKWARDS » ET NON « BOTH », ET CE N'EST PAS UN DÉTAIL.
+   Avec « both », la dernière image clé reste appliquée après la fin, et une
+   animation l'emporte sur une transition : la carte montait bien, puis ne
+   bougeait plus jamais au survol, parce que son « transform: translateY(0) »
+   d'arrivée écrasait silencieusement le ressort. Avec « backwards », seule
+   l'image de DÉPART est tenue pendant le délai · ce qui évite le clignotement
+   avant le tour de la carte · et la fin rend la main au style de l'élément. */
+.gm-rise { animation: gm-rise 380ms cubic-bezier(.22, 1, .36, 1) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+
+/* MOUVEMENT RÉDUIT · tout s'arrête, et rien ne disparaît. Une animation
+   d'arrivée coupée sans « opacity: 1 » laisserait la moitié de l'écran
+   invisible, ce qui est bien pire que l'animation. */
+@media (prefers-reduced-motion: reduce) {
+  .gm-pump, .gm-bumped, .gm-rise { animation: none; }
+  .gm-rise, .gm-bumped { opacity: 1; transform: none; }
+  .pk, .gm-cta { transition-duration: 1ms; }
+  .pk:hover, .pk:active, .gm-cta:hover, .gm-cta:active { transform: none; }
+}
 
 /* --- la barre du bas ----------------------------------------------------- */
 /* Elle ne défile pas, elle reste à hauteur de pouce, et elle porte trois
@@ -9937,21 +10143,76 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .gm-tab {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-1);
   padding: 9px 4px 8px; text-decoration: none; color: var(--muted);
   font-size: 10px; font-weight: 800; letter-spacing: 0.02em;
   border-top: 2px solid transparent; margin-top: -1px;
 }
-.gm-tab.on { color: var(--ink); border-top-color: var(--ink); }
+/* LA BOÎTE DU SIGNE · une taille fixe, que ce soit la marque ou une icône.
+   Sans elle, le logo et les primitives Bauhaus ne s'alignent pas : le logo a
+   un dessin plein bord, les icônes respirent dans leur grille de 24, et les
+   trois libellés partaient en escalier de deux pixels. */
+.gm-tab-g { width: 22px; height: 22px; display: grid; place-items: center; }
+.gm-tab-g .logo-badge { display: grid; place-items: center; }
+/* LE RESSORT DE LA BARRE · l'onglet qu'on touche s'enfonce, celui qui est
+   actif a son signe légèrement agrandi. C'est la seule animation permanente
+   de l'écran, et elle ne tourne pas en boucle. */
+.gm-tab .gm-tab-g { transition: transform 180ms cubic-bezier(.34, 1.56, .64, 1); }
+.gm-tab:active .gm-tab-g { transform: scale(.86); transition-duration: 90ms; }
+.gm-tab.on { color: var(--ink); border-top-color: var(--violet); }
+.gm-tab.on .gm-tab-g { transform: scale(1.12); }
+@media (prefers-reduced-motion: reduce) {
+  .gm-tab .gm-tab-g, .gm-tab.on .gm-tab-g, .gm-tab:active .gm-tab-g { transition: none; transform: none; }
+}
 
 /* --- les cartes de formation --------------------------------------------- */
+/* LA GRILLE EST FLUIDE, ET C'EST LA GRILLE QUI DÉCIDE.
+   ---------------------------------------------------------------------------
+   Elle était « 1fr » puis « 1fr 1fr » à 760 pixels, donc deux colonnes du
+   téléphone jusqu'au vingt-sept pouces : sur un écran large, huit formations
+   en deux colonnes font quatre rangs et un demi écran de blanc à droite.
 
-.pk-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
-.pk {
-  display: grid; border: 1px solid var(--border); background: var(--card);
-  text-decoration: none; color: inherit; overflow: hidden;
+   auto-fit + minmax laisse la GRILLE compter les colonnes, au lieu de les
+   énumérer par paliers. Une carte ne descend jamais sous 260 pixels, et tant
+   qu'il y a la place pour une de plus, il y en a une de plus : une colonne sur
+   un téléphone, deux sur une tablette, trois sur un portable, et davantage
+   au-delà sans qu'on ait à écrire le palier. Le plafond de trois rangs
+   d'écran est posé par --pk-cols, que la règle large fixe à 3 · c'est ce que
+   demande « trois formations sur la même ligne », et une quatrième colonne
+   ferait des vignettes trop petites pour qu'on y reconnaisse un temple. */
+.pk-grid {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
 }
-.pk:hover { border-color: var(--ac); }
+.pk {
+  display: grid;
+  /* LE CONTENU S'ALIGNE D'UNE CARTE À L'AUTRE · la vignette, puis le corps
+     qui s'étire. Sans cette ligne, une formation au libellé court laisse son
+     bouton remonter et le rang entier part en escalier. */
+  grid-template-rows: auto 1fr;
+  border: 1px solid var(--border); background: var(--card);
+  text-decoration: none; color: inherit; overflow: hidden;
+  /* LES SEIZE PIXELS ET L'OMBRE LARGE · la dérogation nommée en tête de
+     fichier. Elle s'arrête ici et aux surfaces de jeu qui lisent le même
+     jeton ; le reste du produit garde l'angle vif du système. */
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  /* LE RESSORT · voir la section « le ressort du jeu » plus bas. C'est ce qui
+     fait qu'une carte se prend en main au lieu de se cliquer. */
+  transform: translateZ(0);
+  transition:
+    transform 180ms cubic-bezier(.34, 1.56, .64, 1),
+    box-shadow 180ms ease,
+    border-color 140ms ease;
+  will-change: transform;
+}
+.pk:hover { border-color: var(--ac); box-shadow: var(--shadow-card-lift); transform: translateY(-4px) scale(1.012); }
+/* L'ENFONCEMENT · le doigt appuie, la carte cède, puis elle rebondit au
+   relâchement par la courbe élastique ci-dessus. Une carte qui ne bouge pas
+   sous le doigt laisse croire que le geste n'a pas pris. */
+.pk:active { transform: translateY(-1px) scale(.978); transition-duration: 90ms; box-shadow: var(--shadow-card); }
+.pk:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
 .pk.done { border-color: var(--ac); }
 
 /* LA VIGNETTE · un rapport fixe, sinon la carte saute pendant que la scène
@@ -9990,18 +10251,19 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 /* --- l'en-tête d'une formation ------------------------------------------- */
 
 .pkh-top { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.pkh-art { border: 1px solid var(--border); overflow: hidden; }
+.pkh-art { border: 1px solid var(--border); overflow: hidden; border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
 .pkh-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; font-weight: 800; color: var(--muted); margin-top: 8px; }
 .pkh-count { margin: 6px 0 0; font-size: 11px; font-weight: 800; color: var(--muted); }
 
-.pkl { border: 1px solid var(--ink); padding: 16px 18px; display: grid; gap: 8px; margin-top: 14px; }
+.pkl { border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); background: var(--card); padding: var(--sp-4) var(--sp-4); display: grid; gap: var(--sp-2); margin-top: var(--sp-4); }
 .pkl b { display: flex; align-items: center; gap: 7px; font-size: 15px; }
 .pkl p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.55; }
 .pkl .gm-cta { justify-self: start; }
 
 /* --- un module et ses dojos ---------------------------------------------- */
 
-.md { border: 1px solid var(--border); background: var(--card); padding: 14px 16px 16px; display: grid; gap: 10px; }
+.md { border: 1px solid var(--border); background: var(--card); padding: var(--sp-4); display: grid; gap: var(--sp-3);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
 .md-head { display: flex; justify-content: space-between; align-items: center; }
 .md-n { font-family: var(--font-ui); font-size: 11px; font-weight: 800; color: var(--ac); letter-spacing: 0.06em; text-transform: uppercase; }
 .md-count { font-size: 11px; font-weight: 800; color: var(--muted); border: 1px solid var(--border); padding: 2px 7px; }
@@ -10041,7 +10303,8 @@ a.lp-trade { text-decoration: none; display: inline-block; }
    du HTML projeté par la caméra : elle ne connaît pas la largeur de l'écran,
    donc sur un téléphone elle sortait par la droite et faisait défiler la page
    de côté. */
-.ln .dr { height: min(28vh, 240px); border: 1px solid var(--border); margin-bottom: 14px; overflow: hidden; }
+.ln .dr { height: min(28vh, 240px); border: 1px solid var(--border); margin-bottom: var(--sp-4); overflow: hidden;
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
 .ln .dr .panda-bubble { max-width: 70vw; white-space: normal; text-align: center; font-size: 13px; }
 .ln-n { font-family: var(--font-ui); font-size: 11px; font-weight: 800; color: var(--ac); letter-spacing: 0.06em; text-transform: uppercase; }
 .ln-free { color: var(--ink); }
@@ -10050,7 +10313,7 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 .ln-meta { margin: 0; font-size: 11px; font-weight: 800; color: var(--muted); }
 .ln-ok { color: var(--ac); display: inline-flex; align-items: center; gap: 4px; }
 .ln-k { font-family: var(--font-ui); font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.ln-act { margin: 20px 0 0; padding: 13px 15px; border: 1px solid var(--ac); }
+.ln-act { margin: var(--sp-6) 0 0; padding: var(--sp-3) var(--sp-4); border: 1px solid var(--ac); border-radius: var(--radius-card); }
 .ln-act p { margin: 5px 0 0; font-size: 15px; font-weight: 700; line-height: 1.45; }
 .ln-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
 .ln-steps li { display: grid; grid-template-columns: auto 1fr; gap: 11px; font-size: 14px; line-height: 1.5; }
@@ -10061,15 +10324,19 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 .ln-trap { margin: 16px 0 0; padding: 12px 14px; background: var(--bg); border-left: 3px solid var(--ink); }
 .ln-trap p { margin: 4px 0 0; font-size: 13px; line-height: 1.5; }
 
-.ln-quiz { margin: 24px 0 0; padding: 15px 16px; border: 1px solid var(--ink); }
+.ln-quiz { margin: var(--sp-6) 0 0; padding: var(--sp-4); border: 1px solid var(--border); background: var(--card);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
 .ln-quiz h3 { margin: 6px 0 12px; font-size: 16px; line-height: 1.35; }
 .ln-opts { display: grid; gap: 7px; }
 .ln-opt {
   display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;
   text-align: left; font: inherit; font-size: 14px; padding: 11px 13px;
   background: var(--card); border: 1px solid var(--border); cursor: pointer; color: inherit;
+  border-radius: var(--radius-card);
+  transition: transform 160ms cubic-bezier(.34,1.56,.64,1), border-color 140ms ease, box-shadow 160ms ease;
 }
-.ln-opt:hover:not(:disabled) { border-color: var(--ink); }
+.ln-opt:hover:not(:disabled) { border-color: var(--ink); transform: translateX(3px); box-shadow: var(--shadow-card); }
+.ln-opt:active:not(:disabled) { transform: scale(.985); transition-duration: 90ms; }
 .ln-opt-k {
   width: 20px; height: 20px; display: grid; place-items: center;
   border: 1px solid var(--border); font-size: 11px; font-weight: 800;
@@ -10085,19 +10352,24 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 
 .ln-end { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 22px; }
 .ln-claim {
-  display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 800;
-  font-size: 14px; padding: 12px 18px; background: var(--card);
+  display: inline-flex; align-items: center; gap: var(--sp-2); font: inherit; font-weight: 800;
+  font-size: var(--t-small); padding: var(--sp-3) var(--sp-4); background: var(--card);
   border: 1px solid var(--ink); cursor: pointer; color: inherit;
+  border-radius: var(--radius-card);
+  transition: transform 180ms cubic-bezier(.34,1.56,.64,1), box-shadow 180ms ease, background-color 140ms ease;
 }
+.ln-claim:hover { transform: translateY(-2px) scale(1.03); box-shadow: var(--shadow-card-lift); }
+.ln-claim:active { transform: scale(.955); transition-duration: 90ms; }
 .ln-claim.on { background: var(--ac); border-color: var(--ac); color: #fff; }
 .ln-end .gm-cta { margin-top: 0; }
 
 /* --- le clan ------------------------------------------------------------- */
 
-.cl-note { border: 1px dashed var(--border); padding: 16px 18px; display: grid; gap: 7px; }
+.cl-note { border: 1px dashed var(--border); border-radius: var(--radius-card); padding: var(--sp-4); display: grid; gap: var(--sp-2); }
 .cl-note b { font-size: 15px; }
 .cl-note p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
-.cl-me { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; border: 1px solid var(--border); background: var(--card); padding: 14px 16px; }
+.cl-me { display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3); align-items: center; border: 1px solid var(--border); background: var(--card); padding: var(--sp-4);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
 .cl-me-g { width: 38px; height: 38px; display: grid; place-items: center; background: var(--ink); color: var(--paper); }
 .cl-me b { display: block; font-family: var(--font-ui); font-size: 20px; }
 .cl-me em { font-style: normal; font-size: 12px; color: var(--muted); font-weight: 700; }
@@ -10108,14 +10380,27 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 .gm .sb-launch { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
 
 /* --- au-delà du téléphone ------------------------------------------------ */
-/* La disposition est pensée pour un pouce. Sur un écran large, on élargit la
-   colonne et on met les cartes sur deux rangs · on ne redessine rien. */
+/* La disposition est pensée pour un pouce. Sur un écran large, la colonne
+   s'élargit et les cartes se rangent · on ne redessine rien.
+   LA GRILLE COMPTE SEULE jusqu'ici (auto-fit, voir .pk-grid) ; ces règles ne
+   font que lui donner la place de compter jusqu'à trois. */
 
 @media (min-width: 760px) {
-  .pk-grid { grid-template-columns: 1fr 1fr; }
   .pkh-top { grid-template-columns: 260px 1fr; align-items: center; }
-  .gm-h1 { font-size: 30px !important; }
-  .gm-tabs { grid-template-columns: repeat(3, 120px); justify-content: center; }
+  .gm-h1 { font-size: var(--t-h2) !important; line-height: var(--t-h2-lh); }
+  .gm-tabs { grid-template-columns: repeat(3, 130px); justify-content: center; }
+}
+
+/* TROIS FORMATIONS SUR LA MÊME LIGNE · à partir d'ici la colonne s'ouvre à
+   1180 pixels, ce qui donne exactement trois cartes de 370 avec leurs seize
+   pixels de gouttière. Le plafond est volontaire : une quatrième colonne
+   rendrait les vignettes trop petites pour qu'on y reconnaisse un temple, et
+   c'est la vignette qui fait qu'on distingue une formation d'une autre. */
+@media (min-width: 1100px) {
+  .gm-main { max-width: 1180px; }
+  .pk-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gm-h1 { font-size: var(--t-h1) !important; line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); }
+  .gm-sec { padding-left: var(--sp-6); padding-right: var(--sp-6); }
 }
 
 /* --- le profil ------------------------------------------------------------ */
@@ -10128,10 +10413,14 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 .pf-of { font-size: 12px; font-weight: 800; color: var(--muted); }
 
 .pf-map {
-  display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
-  border: 1px solid var(--ink); background: var(--card); padding: 13px 15px;
+  display: grid; grid-template-columns: auto 1fr auto; gap: var(--sp-3); align-items: center;
+  border: 1px solid var(--border); background: var(--card); padding: var(--sp-3) var(--sp-4);
   text-decoration: none; color: inherit;
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card);
+  transition: transform 180ms cubic-bezier(.34,1.56,.64,1), box-shadow 180ms ease, border-color 140ms ease;
 }
+.pf-map:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-lift); border-color: var(--violet); }
+.pf-map:active { transform: scale(.982); transition-duration: 90ms; }
 .pf-map-g { width: 36px; height: 36px; display: grid; place-items: center; background: var(--ink); color: var(--paper); }
 .pf-map-t b { display: block; font-size: 15px; }
 .pf-map-t em { font-style: normal; font-size: 12px; color: var(--muted); }
@@ -10139,8 +10428,10 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 
 .pf-owned { display: grid; gap: 6px; }
 .pf-own {
-  display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: center;
-  border: 1px solid var(--border); padding: 10px 13px; text-decoration: none; color: inherit;
+  display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3); align-items: center;
+  border: 1px solid var(--border); padding: var(--sp-3); text-decoration: none; color: inherit;
+  border-radius: var(--radius-card); background: var(--card);
+  transition: transform 160ms cubic-bezier(.34,1.56,.64,1), box-shadow 160ms ease;
 }
 .pf-own-m { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--border); color: var(--muted); }
 .pf-own.on .pf-own-m { background: var(--ac); border-color: var(--ac); color: #fff; }

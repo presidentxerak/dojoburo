@@ -39,14 +39,35 @@ import { useT } from '../i18n'
 import { Logo } from '../components/Logo'
 import { Wordmark } from '../components/Wordmark'
 import { BauhausIcon } from '../components/BauhausIcon'
+import type { IconName } from '../data/icons'
 import { LangSwitch } from '../components/LangSwitch'
 import { useGame } from './progress'
 
-/** Les trois portes · l'ordre est celui de la barre, de gauche à droite. */
-const TABS: { to: string; key: string; glyph: 'house' | 'ring' | 'star' }[] = [
-  { to: '/', key: 'nav.dojos', glyph: 'house' },
+/** Les trois portes · l'ordre est celui de la barre, de gauche à droite.
+ *
+ *  ---------------------------------------------------------------------------
+ *  DEUX DES TROIS SIGNES ONT CHANGÉ, ET LES DEUX POUR LA MÊME RAISON
+ *
+ *  La barre portait une maison, un anneau et une étoile · trois formes du jeu
+ *  Bauhaus, correctes et interchangeables. Correctes, et c'est le problème :
+ *  aucune des trois n'était de NOUS. Une maison désigne un accueil dans
+ *  n'importe quelle application au monde, une étoile désigne des favoris
+ *  partout ailleurs, et un profil n'est pas une liste de favoris.
+ *
+ *    DOJOS porte la MARQUE · c'est l'accueil, c'est là qu'on revient, et la
+ *    marque est précisément le signe qui dit « vous êtes chez vous ». Le logo
+ *    a en plus l'avantage d'être déjà connu de qui a vu le site.
+ *
+ *    PROFIL porte un SOURIRE · c'est une personne. Un visage le dit d'un coup,
+ *    à douze pixels, dans toutes les langues, et sans qu'on ait à l'apprendre.
+ *
+ *  `glyph: null` marque la porte qui porte la marque plutôt qu'une icône. Le
+ *  nom du logo n'est pas dans le jeu Bauhaus, et il n'a rien à y faire : une
+ *  marque a ses proportions et son histoire, une icône a une grille. */
+const TABS: { to: string; key: string; glyph: IconName | null }[] = [
+  { to: '/', key: 'nav.dojos', glyph: null },
   { to: '/clan', key: 'nav.clan', glyph: 'ring' },
-  { to: '/profil', key: 'nav.profile', glyph: 'star' },
+  { to: '/profil', key: 'nav.profile', glyph: 'smile' },
 ]
 
 /** L'onglet actif · « / » ne vaut que pour lui même, sinon il resterait
@@ -87,7 +108,15 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
             className={`gm-tab${isOn(path, tab.to) ? ' on' : ''}`}
             aria-current={isOn(path, tab.to) ? 'page' : undefined}
           >
-            <BauhausIcon name={tab.glyph} size={19} />
+            {/* LA MARQUE OU L'ICÔNE, jamais les deux · voir TABS. Elles sont
+                posées à la même taille de boîte pour que les trois signes
+                s'alignent, le logo ayant un dessin plus dense que les
+                primitives Bauhaus et paraissant plus gros à taille égale. */}
+            <span className="gm-tab-g">
+              {tab.glyph === null
+                ? <Logo size={20} />
+                : <BauhausIcon name={tab.glyph} size={20} />}
+            </span>
             <span>{t(tab.key)}</span>
           </Lnk>
         ))}

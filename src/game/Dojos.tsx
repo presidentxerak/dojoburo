@@ -57,8 +57,13 @@ export function DojosPage() {
       </section>
 
       <section className="gm-sec">
+        {/* LES CARTES ARRIVENT EN CASCADE · quarante-cinq millisecondes de
+            décalage d'une voisine à l'autre, porté par --i. L'indice est posé
+            ici plutôt que par un « nth-child » parce qu'il compte la POSITION
+            dans la liste rendue, qui est ce qu'on veut, et non la position
+            dans le DOM, qui cesserait d'être la même au premier filtre. */}
         <div className="pk-grid">
-          {PACKS.map((p) => <PackCard key={p.id} pack={p} />)}
+          {PACKS.map((p, i) => <PackCard key={p.id} pack={p} i={i} />)}
         </div>
       </section>
 
@@ -69,7 +74,7 @@ export function DojosPage() {
 
 /* ------------------------------------------------------------------ */
 
-function PackCard({ pack }: { pack: Pack }) {
+function PackCard({ pack, i }: { pack: Pack; i: number }) {
   const lang = useLang()
   const t = useT()
   const g = useGame()
@@ -82,9 +87,14 @@ function PackCard({ pack }: { pack: Pack }) {
   const eur = eurOf(pack)
 
   return (
-    <Lnk className={`pk${open ? '' : ' shut'}${done && done === levels.length ? ' done' : ''}`}
-      href={packPath(pack.id)} style={{ ['--ac' as string]: pack.tint }}>
-      <PackArt scene={pack.scene} tint={pack.tint} locked={!open} />
+    <Lnk className={`pk gm-rise${open ? '' : ' shut'}${done && done === levels.length ? ' done' : ''}`}
+      href={packPath(pack.id)}
+      style={{ ['--ac' as string]: pack.tint, ['--i' as string]: i }}>
+      {/* LE MAÎTRE DU PREMIER DOJO attend sur la vignette · c'est celui qu'on
+          rencontrera en entrant, donc la carte montre qui enseigne avant
+          d'avoir été ouverte. Un visage pris ailleurs aurait été plus joli et
+          aurait menti. */}
+      <PackArt scene={pack.scene} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
 
       <div className="pk-body">
         <div className="pk-tags">

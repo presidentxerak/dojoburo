@@ -13,23 +13,52 @@ import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
+/* LA PALETTE · vive, et pourquoi elle l'est devenue.
+ * ---------------------------------------------------------------------------
+ * Elle était juste et elle était fade. Juste, parce qu'un temple japonais EST
+ * de pierre grise sous des tuiles ardoise, et qu'on avait choisi les tons d'une
+ * photographie. Fade, parce qu'une vallée entière peinte en gris cassé, vue de
+ * haut sur un écran de téléphone en plein jour, donne une maquette d'architecte
+ * et non un monde où l'on a envie d'entrer.
+ *
+ * CE QUI TRANCHE N'EST PAS L'EXACTITUDE, C'EST LA SATURATION. Les tons restent
+ * ceux d'un temple · vermillon, laque, mousse, ardoise · mais pris à leur
+ * pleine valeur plutôt qu'à la valeur délavée d'une photo par temps couvert.
+ * C'est exactement ce que fait un jeu : il ne change pas les couleurs du monde,
+ * il monte le volume.
+ *
+ * L'ARDOISE VIRE À L'INDIGO, et c'est le seul écart volontaire. Un gris neutre
+ * sur un toit, à cette taille, ne se distingue pas de l'ombre qu'il porte. Un
+ * indigo profond garde la lecture d'une tuile sombre, se détache du vert, et
+ * amène le violet de la marque dans le décor sans qu'on ait à peindre un mur
+ * en violet, ce qui aurait été un logo posé sur un temple. */
 export const M = {
-  stone: '#cfcabd',       // la pierre des socles et des dalles
-  stoneDark: '#b3ad9e',   // ses arêtes
-  plaster: '#f6f3ec',     // les murs
-  wood: '#8a5636',        // les poteaux, les poutres, les rampes
-  woodDark: '#6d4229',    // les ombres du bois
-  tile: '#3c4350',        // les tuiles · le même gris ardoise partout
-  tileEdge: '#2b313c',    // l'arête des avant-toits
-  brass: '#c8a02e',       // le fleuron
-  gravel: '#e9e5db',      // le gravier ratissé
-  moss: '#8fbf8a',        // la mousse
-  mossDark: '#6fa471',
-  water: '#6db4d8',
-  bridge: '#c4503f',      // le vermillon des ponts
-  trunk: '#7b5b43',
-  pine: '#4f8a5e',
-  maple: '#cc6a42',
+  stone: '#e7dfcd',       // la pierre des socles et des dalles
+  stoneDark: '#c2b6a0',   // ses arêtes
+  plaster: '#fffaf0',     // les murs · un blanc chaud, jamais un blanc d'écran
+  // LE BOIS · chaud, et RETENU. Une première passe l'avait poussé à #c2601c,
+  // c'est à dire à la pleine saturation de l'orange : sur la terrasse, qui est
+  // une planche de quatre unités sur deux, ça donnait un aplat fluorescent qui
+  // prenait toute la vignette et écrasait le personnage posé dessus. Monter le
+  // volume ne veut pas dire le monter partout · les grandes surfaces se
+  // tiennent un cran sous les petites, sinon elles gagnent par la taille.
+  wood: '#a85a26',        // les poteaux, les poutres, les rampes
+  woodDark: '#7d3d15',    // les ombres du bois
+  tile: '#4a3f9e',        // les tuiles · l'indigo, voir l'en-tête
+  tileEdge: '#342c78',    // l'arête des avant-toits
+  brass: '#ffc61a',       // le fleuron
+  gravel: '#f7f1e1',      // le gravier ratissé
+  moss: '#4cc46a',        // la mousse
+  mossDark: '#2fa552',
+  water: '#22b8e8',
+  bridge: '#f0402c',      // le vermillon des ponts et des torii
+  trunk: '#8a5a33',
+  pine: '#1f9e5a',
+  maple: '#ff6a2b',
+  sakura: '#ff9ec7',      // le cerisier · la seule tache rose de la vallée
+  lacquer: '#7c3aed',     // la laque violette · bannières et pièces de marque
+  paperLamp: '#fff0c2',   // le papier d'une lanterne allumée
+  koi: '#ff7a1a',         // la carpe
 }
 
 /** Un générateur déterministe à partir d'un texte · même cité, même jardin.
@@ -59,12 +88,20 @@ export function Rock({ p, r, seed }: { p: [number, number, number]; r: number; s
   )
 }
 
-/** Un arbre · un pin en étages, ou un érable en boule.
+/** Un arbre · un pin en étages, un érable en boule, ou un cerisier en nuage.
  *
- *  DEUX ESPÈCES SUFFISENT. Une seule donne une plantation ; trois commencent à
- *  faire du bruit sur une carte qu'on lit en une seconde. Le pin structure, et
- *  l'érable met la seule tache chaude du jardin. */
-export function Tree({ p, kind, s }: { p: [number, number, number]; kind: 'pine' | 'maple'; s: number }) {
+ *  TROIS ESPÈCES, ET LA TROISIÈME EST ARRIVÉE AVEC LES COULEURS VIVES. Deux
+ *  suffisaient tant que la vallée était en demi-teintes : le pin structurait,
+ *  l'érable mettait l'unique tache chaude. Une fois les verts remontés à leur
+ *  pleine valeur, l'érable orange ne tranchait plus assez pour porter seul le
+ *  contraste, et la vallée redevenait un tapis. Le cerisier est la réponse ·
+ *  c'est la seule tache FROIDE et claire du décor, donc la seule qui se
+ *  détache aussi bien du vert que de l'indigo des toits.
+ *
+ *  ELLE S'ARRÊTE À TROIS. Une quatrième espèce commencerait à faire du bruit
+ *  sur une carte qu'on lit en une seconde, et ce qu'on veut lire d'abord est
+ *  où sont les temples. */
+export function Tree({ p, kind, s }: { p: [number, number, number]; kind: 'pine' | 'maple' | 'sakura'; s: number }) {
   return (
     <group position={p} scale={s}>
       <mesh position={[0, 0.45, 0]} castShadow>
@@ -86,12 +123,230 @@ export function Tree({ p, kind, s }: { p: [number, number, number]; kind: 'pine'
             <meshStandardMaterial color={M.pine} roughness={1} flatShading />
           </mesh>
         </>
-      ) : (
+      ) : kind === 'maple' ? (
         <mesh position={[0, 1.35, 0]} scale={[1, 0.82, 1]} castShadow>
           <icosahedronGeometry args={[0.72, 0]} />
           <meshStandardMaterial color={M.maple} roughness={1} flatShading />
         </mesh>
+      ) : (
+        // LE CERISIER · trois boules qui se chevauchent, et non une. Une
+        // sphère unique se lit comme une sucette ; c'est le débordement d'une
+        // masse sur l'autre qui fait une floraison.
+        <>
+          <mesh position={[0, 1.32, 0]} scale={[1, 0.78, 1]} castShadow>
+            <icosahedronGeometry args={[0.6, 0]} />
+            <meshStandardMaterial color={M.sakura} roughness={1} flatShading />
+          </mesh>
+          <mesh position={[0.38, 1.12, 0.16]} scale={[1, 0.8, 1]} castShadow>
+            <icosahedronGeometry args={[0.42, 0]} />
+            <meshStandardMaterial color={M.sakura} roughness={1} flatShading />
+          </mesh>
+          <mesh position={[-0.36, 1.16, -0.12]} scale={[1, 0.8, 1]} castShadow>
+            <icosahedronGeometry args={[0.38, 0]} />
+            <meshStandardMaterial color={M.sakura} roughness={1} flatShading />
+          </mesh>
+        </>
       )}
+    </group>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* CE QUI HABITE LE DÉCOR                                              */
+/* ------------------------------------------------------------------ */
+//
+// POURQUOI CES PIÈCES-LÀ ET PAS D'AUTRES. La vallée avait des temples, des
+// arbres, des pierres et des lanternes · c'est à dire un PAYSAGE. Ce qui lui
+// manquait pour être un lieu est ce qui montre qu'on y travaille : un mannequin
+// d'entraînement usé, des tonneaux rangés, une cloche qu'on frappe, des
+// bannières qui claquent. On lit alors une école, et non un site touristique.
+//
+// AUCUNE N'EST UN DÉCOR MUET. Chacune dit la même chose sous un angle
+// différent : quelqu'un vient ici tous les jours.
+
+/** Le mannequin d'entraînement · un poteau, deux bras, un bandeau.
+ *  Il OSCILLE, doucement et sans fin, comme s'il venait d'être frappé. */
+export function Dummy({ p, s = 1 }: { p: [number, number, number]; s?: number }) {
+  const g = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (!g.current) return
+    // l'amortissement d'un coup reçu · une oscillation qui décroît dans le
+    // cycle puis repart, plutôt qu'un balancement de métronome
+    const t = clock.elapsedTime
+    g.current.rotation.z = Math.sin(t * 2.2) * 0.055 * (0.5 + 0.5 * Math.cos(t * 0.35))
+  })
+  return (
+    <group position={p} scale={s} ref={g}>
+      <mesh position={[0, 0.07, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.26, 0.3, 0.14, 8]} />
+        <meshStandardMaterial color={M.stoneDark} roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.66, 0]} castShadow>
+        <cylinderGeometry args={[0.11, 0.13, 1.1, 8]} />
+        <meshStandardMaterial color={M.wood} roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.98, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[0.07, 0.07, 0.78, 6]} />
+        <meshStandardMaterial color={M.woodDark} roughness={1} />
+      </mesh>
+      {/* LE BANDEAU · la seule couleur de la pièce, et elle est vermillon.
+          C'est ce qui fait qu'on le repère à trente unités de la caméra. */}
+      <mesh position={[0, 1.16, 0]} castShadow>
+        <cylinderGeometry args={[0.145, 0.145, 0.18, 8]} />
+        <meshStandardMaterial color={M.bridge} roughness={0.9} />
+      </mesh>
+    </group>
+  )
+}
+
+/** Des tonneaux de saké · empilés contre un mur, comme dans toute enceinte.
+ *  Ils sont trois et jamais deux : deux objets identiques se lisent comme une
+ *  paire, donc comme une décoration ; trois se lisent comme un stock. */
+export function Barrels({ p, s = 1 }: { p: [number, number, number]; s?: number }) {
+  const at: [number, number, number][] = [[0, 0.22, 0], [0.48, 0.22, 0.1], [0.24, 0.63, 0.05]]
+  return (
+    <group position={p} scale={s}>
+      {at.map(([x, y, z], i) => (
+        <group key={i} position={[x, y, z]}>
+          <mesh castShadow receiveShadow>
+            <cylinderGeometry args={[0.22, 0.22, 0.42, 12]} />
+            <meshStandardMaterial color={M.plaster} roughness={1} />
+          </mesh>
+          {/* les deux cercles de bois · sans eux c'est une boîte de conserve */}
+          {[-0.13, 0.13].map((yy) => (
+            <mesh key={yy} position={[0, yy, 0]}>
+              <cylinderGeometry args={[0.228, 0.228, 0.06, 12]} />
+              <meshStandardMaterial color={M.woodDark} roughness={1} />
+            </mesh>
+          ))}
+          <mesh position={[0, 0.215, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.2, 12]} />
+            <meshStandardMaterial color={M.lacquer} roughness={0.9} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  )
+}
+
+/** La cloche · un portique de bois et un bronze suspendu.
+ *  Elle SONNE, visuellement : elle se balance d'un rien, en continu. */
+export function Bell({ p, s = 1 }: { p: [number, number, number]; s?: number }) {
+  const b = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (b.current) b.current.rotation.x = Math.sin(clock.elapsedTime * 1.1) * 0.05
+  })
+  return (
+    <group position={p} scale={s}>
+      {[-0.5, 0.5].map((x) => (
+        <mesh key={x} position={[x, 0.62, 0]} castShadow>
+          <cylinderGeometry args={[0.08, 0.1, 1.24, 6]} />
+          <meshStandardMaterial color={M.wood} roughness={1} />
+        </mesh>
+      ))}
+      <mesh position={[0, 1.26, 0]} castShadow>
+        <boxGeometry args={[1.3, 0.14, 0.24]} />
+        <meshStandardMaterial color={M.woodDark} roughness={1} />
+      </mesh>
+      <group ref={b} position={[0, 1.19, 0]}>
+        <mesh position={[0, -0.34, 0]} castShadow>
+          <cylinderGeometry args={[0.26, 0.31, 0.6, 12]} />
+          <meshStandardMaterial color={M.brass} roughness={0.35} metalness={0.55} />
+        </mesh>
+        <mesh position={[0, -0.04, 0]}>
+          <sphereGeometry args={[0.1, 10, 8]} />
+          <meshStandardMaterial color={M.brass} roughness={0.35} metalness={0.55} />
+        </mesh>
+      </group>
+    </group>
+  )
+}
+
+/** Une bannière verticale · le nobori, la pièce la plus japonaise du lot après
+ *  le torii, et celle qui coûte le moins cher à lire de loin : c'est une barre
+ *  de couleur DEBOUT, dans un décor où tout le reste est couché. */
+export function Banner({ p, tint, s = 1 }: { p: [number, number, number]; tint: string; s?: number }) {
+  const f = useRef<THREE.Mesh>(null)
+  useFrame(({ clock }) => {
+    if (!f.current) return
+    const t = clock.elapsedTime
+    // LE VENT N'EST PAS UN MÉTRONOME · deux fréquences irrationnelles l'une
+    // envers l'autre ne repassent jamais par le même état, donc l'oeil n'y
+    // trouve pas de boucle. Un seul sinus se fait repérer en trois secondes.
+    f.current.rotation.y = Math.sin(t * 1.7) * 0.2 + Math.sin(t * 0.61) * 0.1
+  })
+  return (
+    <group position={p} scale={s}>
+      <mesh position={[0, 1.1, 0]} castShadow>
+        <cylinderGeometry args={[0.045, 0.045, 2.2, 6]} />
+        <meshStandardMaterial color={M.woodDark} roughness={1} />
+      </mesh>
+      <mesh position={[0, 2.16, 0.18]} castShadow>
+        <boxGeometry args={[0.05, 0.05, 0.42]} />
+        <meshStandardMaterial color={M.woodDark} roughness={1} />
+      </mesh>
+      <mesh ref={f} position={[0, 1.5, 0.2]} castShadow>
+        <boxGeometry args={[0.04, 1.35, 0.34]} />
+        <meshStandardMaterial color={tint} roughness={0.95} />
+      </mesh>
+    </group>
+  )
+}
+
+/** Une carpe · elle tourne dans un bassin, sous la surface.
+ *
+ *  ELLE EST LA SEULE CHOSE VIVANTE DU DÉCOR QUI NE SOIT PAS UN PERSONNAGE, et
+ *  c'est ce qui rend un bassin différent d'une flaque bleue. Elle nage sur un
+ *  cercle, à une vitesse qui n'est pas la même que celle de sa voisine : deux
+ *  carpes synchrones se lisent comme un mécanisme. */
+export function Koi({ c, r, y, speed, phase, tint = M.koi }: {
+  c: [number, number]; r: number; y: number; speed: number; phase: number; tint?: string
+}) {
+  const g = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (!g.current) return
+    const a = phase + clock.elapsedTime * speed
+    g.current.position.set(c[0] + Math.cos(a) * r, y, c[1] + Math.sin(a) * r)
+    // elle regarde où elle va · sans ça elle glisse de côté comme un jeton
+    g.current.rotation.y = -a + Math.PI / 2
+    // et la queue bat
+    g.current.rotation.z = Math.sin(clock.elapsedTime * speed * 6) * 0.14
+  })
+  return (
+    <group ref={g}>
+      <mesh scale={[0.5, 0.26, 1]} castShadow={false}>
+        <sphereGeometry args={[0.22, 10, 8]} />
+        <meshStandardMaterial color={tint} roughness={0.7} />
+      </mesh>
+      <mesh position={[0, 0, -0.24]} rotation={[0, 0, Math.PI / 4]}>
+        <coneGeometry args={[0.12, 0.2, 4]} />
+        <meshStandardMaterial color={tint} roughness={0.7} />
+      </mesh>
+    </group>
+  )
+}
+
+/** Un nuage · trois boules aplaties qui dérivent.
+ *
+ *  IL EXISTE POUR DONNER UNE ÉCHELLE. Une vallée sans rien au dessus de la
+ *  ligne des toits laisse la caméra sans repère de hauteur, et les temples y
+ *  paraissent des maquettes posées sur une table. Trois nuages suffisent.
+ *  Ils ne portent pas d'ombre : une ombre de nuage mobile sur une vallée
+ *  entière coûte une passe de rendu pour un détail qu'on ne regarde pas. */
+export function Cloud({ p, s = 1, drift = 0.08 }: { p: [number, number, number]; s?: number; drift?: number }) {
+  const g = useRef<THREE.Group>(null)
+  const x0 = p[0]
+  useFrame(({ clock }) => {
+    if (g.current) g.current.position.x = x0 + Math.sin(clock.elapsedTime * drift + x0) * 2.4
+  })
+  return (
+    <group ref={g} position={p} scale={s}>
+      {([[0, 0, 0, 1], [1.1, -0.18, 0.2, 0.74], [-1, -0.14, -0.15, 0.66]] as const).map(([x, y, z, r], i) => (
+        <mesh key={i} position={[x, y, z]} scale={[1, 0.62, 1]}>
+          <sphereGeometry args={[r, 12, 10]} />
+          <meshStandardMaterial color="#ffffff" roughness={1} transparent opacity={0.9} />
+        </mesh>
+      ))}
     </group>
   )
 }
@@ -165,9 +420,18 @@ export function Lantern({ p, s = 1 }: { p: [number, number, number]; s?: number 
         <cylinderGeometry args={[0.1, 0.12, 0.55, 8]} />
         <meshStandardMaterial color={M.stone} roughness={1} />
       </mesh>
+      {/* LE FOYER EST ALLUMÉ · un papier émissif, pas un bloc blanc. Une
+          lanterne éteinte est un poteau avec une boîte dessus ; c'est la lueur
+          qui en fait une lanterne, et elle ne coûte rien puisqu'elle est une
+          propriété de matière et non une source de lumière. */}
       <mesh position={[0, 0.83, 0]} castShadow>
         <boxGeometry args={[0.3, 0.26, 0.3]} />
-        <meshStandardMaterial color={M.plaster} roughness={1} />
+        <meshStandardMaterial
+          color={M.paperLamp}
+          emissive={M.paperLamp}
+          emissiveIntensity={0.55}
+          roughness={1}
+        />
       </mesh>
       <mesh position={[0, 1.02, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
         <coneGeometry args={[0.32, 0.2, 4]} />

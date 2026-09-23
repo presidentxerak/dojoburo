@@ -19,7 +19,7 @@
 // Cliquer une cité ouvre son panneau : ses dojos, leurs maîtres, et le lien
 // vers la formation qui la contient. C'est la seule chose qu'une liste ne sait
 // pas faire · dire où une cité se trouve par rapport aux autres.
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { Lnk, navigate } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
@@ -38,6 +38,18 @@ export function CartePage() {
   const g = useGame()
   const a = useAccess()
   const [openId, setOpenId] = useState<string | null>(null)
+
+  // CET ÉCRAN EST LE SEUL QUI SE FIGE · le document défile partout ailleurs
+  // depuis qu'on a retiré le « overflow: hidden » global (voir index.css). Une
+  // carte plein écran, elle, ne défile pas : elle se déplace au doigt, et une
+  // barre de défilement à côté d'une scène qu'on fait glisser est un piège.
+  // Le drapeau est POSÉ ET REPRIS par le même effet · une classe laissée sur
+  // <html> en quittant figerait tout le produit depuis un écran qu'on a fermé,
+  // et c'est la forme de panne qu'on ne retrouve jamais.
+  useEffect(() => {
+    document.documentElement.classList.add('is-fixed')
+    return () => document.documentElement.classList.remove('is-fixed')
+  }, [])
 
   useHeadTags({
     title: `${t('cm.title')} · DojoBuro`,

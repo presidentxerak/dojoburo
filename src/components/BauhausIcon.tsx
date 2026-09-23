@@ -191,6 +191,28 @@ const SHAPES: Record<IconName, JSX.Element> = {
   box: <rect x="2.5" y="2.5" width="19" height="19" />,
   // le losange plein
   diamondSolid: <path d="M12 2.5 L21.5 12 L12 21.5 L2.5 12 Z" fill="currentColor" stroke="none" />,
+  // LE SOURIRE · le cercle, deux points, et un arc.
+  //
+  // C'est la seule figure de ce jeu, et elle y a sa place sans le trahir : un
+  // cercle et deux disques sont les primitives mêmes du Bauhaus, et l'arc est
+  // un segment de cercle, pas un dessin. Ce qu'on s'interdit ailleurs · la
+  // perspective, le dégradé, le trait qui varie · on se l'interdit ici aussi.
+  //
+  // LES YEUX SONT DES DISQUES ET NON DES CERCLES, et c'est ce qui la fait
+  // lire. Deux anneaux à cette taille se referment en deux taches grises ;
+  // deux pleins tiennent jusqu'à douze pixels, ce qui est la taille où cette
+  // icône vit vraiment, dans la barre du bas.
+  //
+  // L'ARC NE FERME PAS. Une bouche dessinée comme un demi-cercle complet fait
+  // une lune, pas un sourire : ce sont les deux extrémités relevées qui
+  // portent l'expression, et elles ne relèvent que si la courbe s'arrête
+  // avant l'horizontale.
+  smile: <>
+    <circle cx="12" cy="12" r="9.5" />
+    <circle cx="8.8" cy="9.8" r="1.35" fill="currentColor" stroke="none" />
+    <circle cx="15.2" cy="9.8" r="1.35" fill="currentColor" stroke="none" />
+    <path d="M7.4 14.2 A5.2 5.2 0 0 0 16.6 14.2" />
+  </>,
 }
 
 /**

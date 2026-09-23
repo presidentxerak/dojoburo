@@ -79,7 +79,9 @@ export function PackPage({ packId }: { packId: string }) {
       <section className="gm-sec pkh" style={{ ['--ac' as string]: pack.tint }}>
         <Lnk className="gm-back" href="/">← {t('gm.backDojos')}</Lnk>
         <div className="pkh-top">
-          <div className="pkh-art"><PackArt scene={pack.scene} tint={pack.tint} locked={!open} /></div>
+          <div className="pkh-art">
+            <PackArt scene={pack.scene} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
+          </div>
           <div className="pkh-txt">
             <h1 className="gm-h1">{say(pack.title, lang)}</h1>
             <p className="gm-lead">{say(pack.blurb, lang)}</p>
