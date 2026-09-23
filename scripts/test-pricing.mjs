@@ -42,7 +42,7 @@ async function load(entry, name) {
 }
 
 const P = await load('src/data/plans.ts', 'plans.mjs')
-const { PLANS, PLAN_BY_ID, LIBRARY_USD, SEAT_USD, SEAT_MIN, SCHOOL_FLOOR_USD, planPrice } = P
+const { PLANS, PLAN_BY_ID, PATH_EUR, TRADE_EUR, BUNDLE_EUR, DISCOVERY_DAYS, planPrice, priceTag } = P
 
 /* --- 1 · la grille tient debout ------------------------------------------ */
 
@@ -67,50 +67,63 @@ for (const id of ['free', 'founder', 'managed']) {
 ok('« founder » n\'affiche plus Founder', PLAN_BY_ID.founder.name !== 'Founder', PLAN_BY_ID.founder.name)
 ok('« managed » n\'affiche plus Managed', PLAN_BY_ID.managed.name !== 'Managed', PLAN_BY_ID.managed.name)
 
-/* --- 2 · le prix au siège dit combien de sièges --------------------------- */
+/* --- 2 · un supplément dit de quoi il est le supplément -------------------- */
 
-// $15 et $15 le siège ne sont pas la même offre. Une carte qui affiche le prix
-// unitaire sans le plancher laisse quelqu'un acheter en croyant payer $15.
-const seated = PLANS.filter((p) => p.perSeat)
-ok('une formule au siège existe', seated.length === 1)
-for (const p of seated) {
-  ok(`« ${p.name} » annonce un minimum de sièges`, typeof p.minSeats === 'number' && p.minSeats >= 2, `${p.minSeats}`)
-  // L'UNITÉ ET LE PLANCHER SONT DES MOTS, donc ils ont quitté data/plans pour
-  // la carte, où ils se composent depuis le dictionnaire dans les deux langues.
-  //
-  // CETTE GARDE A DONC CHANGÉ DE CIBLE. Elle vérifiait que planUnit rendait une
-  // chaîne contenant « seat » · elle vérifierait aujourd'hui qu'une phrase
-  // anglaise est bien toujours écrite en dur dans un fichier de données, ce qui
-  // est exactement le défaut qu'on vient de retirer. Elle exige maintenant que
-  // la carte construise les deux, ce qui est la nouvelle vérité, et que
-  // data/plans n'émette plus de prose.
-  ok(`« ${p.name} » a de quoi composer son plancher`, p.usd * p.minSeats === SCHOOL_FLOOR_USD,
-    `${p.usd} × ${p.minSeats} = ${SCHOOL_FLOOR_USD}`)
+// LE MODÈLE A CHANGÉ DE FORME. Cette section vérifiait un prix au siège et son
+// plancher : elle gardait une offre d'abonnement qui n'existe plus. Elle n'est
+// pas retirée pour autant · le danger qu'elle surveillait est le même, il a
+// seulement changé de nom.
+//
+// Le danger : UN PRIX QUI VEUT DIRE DEUX CHOSES. Hier, « 15 $ » pouvait être le
+// prix du compte ou celui d'un siège. Aujourd'hui, « 49 € » peut être le prix
+// d'entrée ou un supplément. Dans les deux cas quelqu'un achète en croyant
+// payer autre chose, et il le découvre au paiement.
+const addOns = PLANS.filter((p) => p.addOn)
+ok('une formule en supplément existe', addOns.length === 1, `${addOns.length}`)
+for (const p of addOns) {
+  ok(`« ${p.name} » dit de quoi elle est le supplément`, !!p.requires && !!PLAN_BY_ID[p.requires],
+    p.requires ?? 'rien')
+  ok(`« ${p.name} » coûte moins que ce qu'elle complète`, p.eur < PLAN_BY_ID[p.requires].eur,
+    `${priceTag(p.eur)} < ${priceTag(PLAN_BY_ID[p.requires].eur)}`)
+  // UN SUPPLÉMENT NE SE VEND PAS SEUL · s'il pouvait, ce ne serait pas un
+  // supplément mais une deuxième offre d'entrée, moins chère que la première.
+  ok(`« ${p.name} » n'est pas une porte d'entrée`, p.requires !== 'free')
 }
-ok('le plancher exporté est le vrai produit', SCHOOL_FLOOR_USD === SEAT_USD * SEAT_MIN, `${SCHOOL_FLOOR_USD}`)
+ok('le total des deux est calculé, jamais recopié', BUNDLE_EUR === PATH_EUR + TRADE_EUR, `${BUNDLE_EUR}`)
 
-// Un siège doit coûter MOINS qu'un abonnement individuel, sinon l'acheteur
-// groupé paie plus cher que ses gens pris un par un, et le plan ne sert à rien.
-ok('un siège est moins cher que l\'abonnement individuel', SEAT_USD < LIBRARY_USD, `$${SEAT_USD} < $${LIBRARY_USD}`)
-// … mais le plancher doit dépasser l'abonnement individuel, sinon la formule
-// groupée est la moins chère pour une personne seule et personne ne comprend.
-ok('le plancher dépasse l\'abonnement individuel', SCHOOL_FLOOR_USD > LIBRARY_USD, `$${SCHOOL_FLOOR_USD} > $${LIBRARY_USD}`)
+// RIEN NE SE RENOUVELLE · c'est la promesse centrale du nouveau modèle, et
+// c'est une propriété des données, pas une phrase. Une formule payante qui
+// perdrait `once` redeviendrait un abonnement sans qu'aucun texte ne change.
+for (const p of PLANS.filter((x) => x.eur > 0)) {
+  ok(`« ${p.name} » se paie une fois`, p.once === true, p.once ? 'oui' : 'abonnement')
+}
 
 // La formule gratuite reste gratuite, et une seule l'est.
-ok('une seule formule à zéro', PLANS.filter((p) => p.usd === 0).length === 1)
-ok('la formule gratuite n\'est pas au siège', !PLAN_BY_ID.free.perSeat)
-ok('la formule gratuite s\'affiche $0', planPrice(PLAN_BY_ID.free) === '$0', planPrice(PLAN_BY_ID.free))
+ok('une seule formule à zéro', PLANS.filter((p) => p.eur === 0).length === 1)
+ok('la formule gratuite n\'est pas un supplément', !PLAN_BY_ID.free.addOn)
+ok('la formule gratuite s\'affiche 0 €', planPrice(PLAN_BY_ID.free) === priceTag(0), planPrice(PLAN_BY_ID.free))
+ok('le parcours découverte dure une semaine', DISCOVERY_DAYS === 7, `${DISCOVERY_DAYS}`)
 
-// LA CARTE compose l'unité et le plancher, et data/plans n'émet plus de prose.
+// LA CARTE compose l'unité, et data/plans n'émet plus de prose.
 {
   const card = readFileSync('src/components/landing/Pricing.tsx', 'utf8')
-  ok('la carte compose l\'unité depuis le dictionnaire', /t\('price\.seatMonth'\)/.test(card))
-  ok('la carte compose le plancher depuis le dictionnaire', /t\('price\.from'\)/.test(card))
+  ok('la carte compose l\'unité depuis le dictionnaire', /t\('price\.once'\)/.test(card))
+  ok('la carte dit le préalable depuis le dictionnaire', /t\('price\.after'\)/.test(card))
   const src = readFileSync('src/data/plans.ts', 'utf8')
     .replace(/\/\*[\s\S]*?\*\//g, ' ')
     .replace(/(^|[^:])\/\/[^\n]*/g, '$1')
-  ok('data/plans n\'écrit plus « / seat / month »', !/\/ seat \/ month/.test(src))
   ok('data/plans n\'écrit plus « a month »', !/a month/.test(src))
+  ok('data/plans n\'écrit plus « / seat »', !/\/ seat/.test(src))
+  // J'AI ÉCRIT ICI UNE RÈGLE QUI ACCUSAIT LA BONNE COPIE. Elle interdisait le
+  // mot « abonnement » dans les données, en le prenant pour le symptôme d'un
+  // retour à l'ancien modèle. Or la formule gratuite dit, à juste titre :
+  // « aucun essai qui se transforme en abonnement ». C'est exactement la
+  // phrase qu'on veut y lire, et la garde la refusait.
+  //
+  // Le mot n'est pas le défaut. Le défaut serait qu'une formule payante SOIT
+  // un abonnement, et cela se vérifie sur `once`, juste au-dessus, où c'est une
+  // propriété et non une tournure. Une garde qui bannit un vocabulaire finit
+  // par faire écrire moins clairement pour lui plaire.
 }
 
 /* --- 3 · aucun forfait ne revend d'exécutions ---------------------------- */
@@ -125,12 +138,28 @@ for (const p of PLANS) {
   ok(`« ${p.name} » dit ce qu'elle contient`, p.incl.length >= 3, `${p.incl.length} lignes`)
 }
 
-// LE DIPLÔME EST GRATUIT · c'est une décision, pas un détail de formulation :
-// il ne coûte rien à délivrer et c'est la preuve publique que le cours marche.
-// Le faire payer taxerait exactement les gens qui en parlent autour d'eux.
+// CE QUE LA FORMULE GRATUITE PROMET A CHANGÉ, et la garde suit.
+//
+// Elle promettait le cours entier et le diplôme, parce que tout était gratuit.
+// Le gratuit est maintenant une SEMAINE, et c'est un changement d'offre, pas
+// de formulation. Garder l'ancienne règle aurait forcé à promettre un cours
+// entier qu'on ne donne plus ; la supprimer aurait laissé la formule gratuite
+// se vider sans que rien ne rougisse.
+//
+// Ce qu'elle doit promettre maintenant, et qui est ce qui la rend honnête :
+// les sept jours EN ENTIER, et aucune carte bancaire. Une découverte tronquée
+// ou un essai qui se transforme en prélèvement sont les deux façons connues de
+// transformer un cadeau en piège.
 const freeText = [PLAN_BY_ID.free.tagline, ...PLAN_BY_ID.free.incl].join(' · ').toLowerCase()
-ok('la formule gratuite promet le diplôme', freeText.includes('diploma'), freeText.includes('diploma') ? 'oui' : 'absent')
-ok('la formule gratuite promet le cours entier', /whole course|every lesson|three courses/.test(freeText))
+const freeTextFr = [PLAN_BY_ID.free.fr.tagline, ...PLAN_BY_ID.free.fr.incl].join(' · ').toLowerCase()
+ok('la formule gratuite promet les sept jours entiers',
+  /in full/.test(freeText) && /en entier/.test(freeTextFr), freeText.slice(0, 60))
+ok('la formule gratuite promet de ne pas prendre de carte',
+  /no card/.test(freeText) && /aucune carte/.test(freeTextFr))
+// … ET ELLE NE SE TRANSFORME PAS EN PRÉLÈVEMENT. C'est la promesse que le mot
+// « gratuit » ne suffit pas à tenir, et celle qu'on vérifie donc à part.
+ok('la formule gratuite dit qu\'elle ne devient pas un abonnement',
+  /subscription/.test(freeText) && /abonnement/.test(freeTextFr))
 
 /* --- 3 bis · le cours n'enseigne pas l'ancien modèle --------------------- */
 
@@ -199,11 +228,19 @@ ok('morsure · un plafond quotidien reste permis',
 /* --- 4 · un prix n'est écrit qu'une fois --------------------------------- */
 
 // On relit les sources et on cherche un prix en dur ailleurs que dans plans.ts.
-// La règle ne peut pas être « aucun chiffre précédé d'un dollar » : le cours de
-// frugalité parle de tarifs de modèles, et il a raison de le faire. On cherche
-// donc la forme d'un PRIX D'ABONNEMENT, c'est à dire un montant collé à une
-// périodicité ou à un siège.
-const PRICE_SHAPE = /\$\d+\s*(\/\s*(mo|month|seat)|a month\b|per month\b|per seat\b|\/mois)/i
+//
+// LA RÈGLE A CHANGÉ DE MONNAIE ET DE FORME. Elle cherchait un montant en
+// dollars collé à une périodicité, parce que le produit se vendait par mois.
+// Il se vend maintenant une fois, en euros, donc la forme dangereuse n'est
+// plus « 19 $/mois » mais « 99 € » tout court, écrit ailleurs qu'ici.
+//
+// Elle ne peut toujours pas être « aucun chiffre suivi d'un euro » : le cours
+// de sobriété parle de tarifs de modèles et a raison de le faire. On cherche
+// donc EXACTEMENT NOS DEUX PRIX, ce qui est plus précis que la forme générale
+// et attrape la seule faute qui compte : une copie qui survit à un changement.
+const PRICE_SHAPE = new RegExp(
+  `\\b(?:${PATH_EUR}|${TRADE_EUR}|${BUNDLE_EUR})\\s?(?:€|EUR\\b)` +
+  `|\\$\\d+\\s*(?:/\\s*(?:mo|month|seat)|a month\\b|per month\\b|per seat\\b|/mois)`, 'i')
 const SKIP = new Set(['src/data/plans.ts'])
 // Ces fichiers PRODUISENT du contenu d'exemple pour un site fictif fabriqué
 // dans le dojo · leurs prix sont de la matière pédagogique, pas notre grille.
@@ -217,8 +254,8 @@ const FICTION = new Set(['src/agents/localDraft.ts', 'src/lib/site.ts'])
 // écrivent est bien ce que plans.ts dit. C'est exactement la copie qui avait
 // gardé « Founder à 29 $ » vivante des semaines après le repositionnement.
 const ALLOWED = {
-  'src/data/academy.ts': [`$${LIBRARY_USD} a month`, `$${SEAT_USD} a seat a month`, `$${SCHOOL_FLOOR_USD} a month`],
-  'api/chat.ts': [`$${LIBRARY_USD}/month`, `$${SEAT_USD} per seat per month`, `$${SCHOOL_FLOOR_USD}/month and up`],
+  'src/data/academy.ts': [`${PATH_EUR} €`, `${TRADE_EUR} €`, `${BUNDLE_EUR} €`],
+  'api/chat.ts': [`${PATH_EUR} €`, `${TRADE_EUR} €`, `${BUNDLE_EUR} €`],
 }
 for (const [rel, needles] of Object.entries(ALLOWED)) {
   const body = readFileSync(rel, 'utf8')

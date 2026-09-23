@@ -975,22 +975,21 @@ const LANDSCAPE: Lesson[] = [
       {
         kind: 'idea',
         title: 'You are paying for the teams, not for tokens',
-        body: 'That is the whole pricing model, and it is worth being blunt about it. Nothing here is metered. We do not sell runs, tasks or credits, and no plan counts them, because nothing in the dojo calls a paid model. What you can buy is the library of files and, if you are training a group, the seats. The learning itself, including the diploma at the end, is free and stays free, because a page costs us nothing to serve and a course nobody finishes is worth nothing to anyone.',
+        body: 'That is the whole pricing model, and it is worth being blunt about it. Nothing here is metered and nothing recurs. We do not sell runs, tasks or credits, because nothing in the dojo calls a paid model, and we do not sell a subscription, because a course is finished rather than rented. What you buy is the course itself, once. The first week is free so you can find out whether this way of teaching suits you before paying anything.',
       },
       {
         kind: 'idea',
         title: 'The three plans',
-        body: 'Free is $0 and it is the whole thing: the three courses, the practice dojo, every belt and badge, and the certified diploma. Library is $19 a month and buys the files, every prompt, brief and skill as a real download rather than a copy-paste, plus the new ones as they are written. School is $15 a seat a month from five seats up, so $75 a month and up, for someone training a group: one bill, and a view of who has earned what. Under five people the Library plan costs you less and you should take that one.',
+        body: 'Discovery is 0 € and it is seven days, one lesson a day, complete, with no card and no trial that turns into anything. Formation is 99 € paid once: every dojo city opens, in any order, with the files, the resources, the updates and the right to replay any level for good. Métier is 49 € added on top, one more city written for the job you actually do, and it is sold after the Formation because it makes no sense before. Both together come to 148 €, and nothing renews.',
       },
       {
         kind: 'idea',
         title: 'What costs nothing at all',
         body: 'A lot more than people expect.',
         points: [
-          'All three courses, every lesson, start to finish.',
-          'Every belt, every badge, and the certified diploma at the end.',
+          'The seven discovery days, in full, for an email and nothing else.',
           'The practice dojo, and the cost breakdown of anything you run in it.',
-          'The reasoning behind every library file, and two of the files themselves.',
+          'Every badge you earn in that week, and the map that shows where you are.',
           'Anything you take away and run on your own key: your provider bills you, we never meter it.',
         ],
       },
@@ -1050,20 +1049,19 @@ const LANDSCAPE: Lesson[] = [
       blocks: [
         {
           title: "Vous payez les équipes, pas les jetons",
-          body: "C'est tout le modèle de prix, et il vaut mieux le dire sans détour. Rien ici n'est compté. Nous ne vendons ni passages, ni tâches, ni crédits, et aucune formule n'en décompte, parce que rien dans le dojo n'appelle un modèle payant. Ce que vous pouvez acheter, c'est la bibliothèque de fichiers et, si vous formez un groupe, les sièges. L'apprentissage lui-même, diplôme final compris, est gratuit et le restera, parce qu'une page ne nous coûte rien à servir et qu'un cours que personne ne termine ne vaut rien pour personne.",
+          body: "C'est tout le modèle de prix, et il vaut mieux le dire sans détour. Rien ici n'est compté et rien ne se renouvelle. Nous ne vendons ni passages, ni tâches, ni crédits, parce que rien dans le dojo n'appelle un modèle payant, et nous ne vendons pas d'abonnement, parce qu'un cours se termine au lieu de se louer. Ce que vous achetez, c'est le cours lui-même, une fois. La première semaine est gratuite pour que vous sachiez si cette façon d'enseigner vous convient avant de payer quoi que ce soit.",
         },
         {
           title: "Les trois formules",
-          body: "Gratuit, c'est 0 $ et c'est l'ensemble : les trois cours, le dojo d'entraînement, toutes les ceintures et tous les insignes, et le diplôme certifié. Bibliothèque, c'est 19 $ par mois et cela achète les fichiers, chaque consigne, chaque commande et chaque compétence en vrai téléchargement plutôt qu'en copier-coller, plus les nouveaux à mesure qu'ils s'écrivent. École, c'est 15 $ par siège et par mois à partir de cinq sièges, donc 75 $ par mois et au-delà, pour qui forme un groupe : une seule facture, et une vue de qui a obtenu quoi. En dessous de cinq personnes, la formule Bibliothèque vous coûte moins cher et c'est celle qu'il faut prendre.",
+          body: "Découverte, c'est 0 € et c'est sept jours, une leçon par jour, en entier, sans carte bancaire et sans essai qui se transforme en quoi que ce soit. Formation, c'est 99 € payés une fois : toutes les cités dojo s'ouvrent, dans l'ordre que vous voulez, avec les fichiers, les ressources, les mises à jour et le droit de refaire n'importe quel niveau pour de bon. Métier, c'est 49 € en supplément, une cité de plus écrite pour le travail que vous faites vraiment, et elle se vend après la Formation parce qu'elle n'a aucun sens avant. Les deux ensemble font 148 €, et rien ne se renouvelle.",
         },
         {
           title: "Ce qui ne coûte rien du tout",
           body: "Beaucoup plus de choses qu'on ne le suppose.",
           points: [
-            "Les trois cours entiers, chaque leçon, du début à la fin.",
-            "Chaque ceinture, chaque insigne, et le diplôme certifié à la fin.",
+            "Les sept jours de découverte, en entier, contre une adresse et rien d'autre.",
             "Le dojo d'entraînement, et le détail du coût de tout ce que vous y lancez.",
-            "Le raisonnement derrière chaque fichier de la bibliothèque, et deux des fichiers eux-mêmes.",
+            "Chaque insigne gagné dans la semaine, et la carte qui montre où vous en êtes.",
             "Tout ce que vous emportez pour le faire tourner sur votre propre clé : votre fournisseur vous facture, nous ne comptons jamais rien.",
           ],
         },

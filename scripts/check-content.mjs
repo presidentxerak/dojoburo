@@ -51,10 +51,10 @@ const F = {
   teams: arch.ARCHETYPES.length,
   apps: conns.CONNECTORS.length,
   creditUsd: budget.CREDIT_USD,
-  libraryUsd: plans.LIBRARY_USD,
-  seatUsd: plans.SEAT_USD,
-  seatMin: plans.SEAT_MIN,
-  schoolFloorUsd: plans.SCHOOL_FLOOR_USD,
+  pathEur: plans.PATH_EUR,
+  tradeEur: plans.TRADE_EUR,
+  bundleEur: plans.BUNDLE_EUR,
+  discoveryDays: plans.DISCOVERY_DAYS,
   lessons: academy.LESSON_COUNT,
   tracks: academy.TRACKS.length,
   hours: Math.round((academy.TOTAL_MINUTES / 60) * 10) / 10,
@@ -153,14 +153,19 @@ const RULES = [
   // fausses le jour où le produit a cessé d'exécuter du travail. Une garde dont
   // la prémisse a bougé doit affirmer la NOUVELLE vérité, sinon elle certifie
   // une erreur : ici, que le robot vend encore des exécutions.
-  { file: 'api/chat.ts', must: new RegExp(`LIBRARY \\(\\$${F.libraryUsd}/month\\)`), why: `Library is $${F.libraryUsd}/month` },
-  { file: 'api/chat.ts', must: new RegExp(`SCHOOL \\(\\$${F.seatUsd} per seat per month, ${F.seatMin} seats minimum`), why: `School is $${F.seatUsd} a seat, ${F.seatMin} minimum` },
-  { file: 'api/chat.ts', must: new RegExp(`\\$${F.schoolFloorUsd}/month and up`), why: `the School floor is $${F.schoolFloorUsd}/month` },
-  { file: 'api/chat.ts', must: /NOTHING IS METERED/, why: 'the one thing the bot must say first about price' },
-  // LE PLAN MORT · quelqu'un qui a lu l'ancienne grille va poser la question, et
-  // un robot qui revend 2 000 tâches vend une capacité éteinte. Il doit savoir
-  // que c'est fini, donc la chaîne doit apparaître dans une phrase qui l'enterre.
-  { file: 'api/chat.ts', must: /old "2,000 tasks a month" Managed plan, say plainly that it is gone/, why: 'the bot must bury the old Managed plan, not resell it' },
+  // TROISIÈME RÉPARATION DE CES LIGNES, et la raison est la même que les deux
+  // premières : le modèle de vente a changé, donc ce que le robot doit dire a
+  // changé avec lui. Ce n'est pas un assouplissement · c'est la nouvelle
+  // vérité, affirmée aussi précisément que l'ancienne l'était.
+  { file: 'api/chat.ts', must: new RegExp(`FORMATION \\(${F.pathEur} €, paid once\\)`), why: `the path is ${F.pathEur} €, paid once` },
+  { file: 'api/chat.ts', must: new RegExp(`MÉTIER \\(${F.tradeEur} €, added after`), why: `the trade module is ${F.tradeEur} €, added after` },
+  { file: 'api/chat.ts', must: new RegExp(`DISCOVERY \\(0 €\\) is ${F.discoveryDays} days`), why: `the free week is ${F.discoveryDays} days` },
+  { file: 'api/chat.ts', must: /NOTHING RECURS/, why: 'the one thing the bot must say first about price' },
+  // LES PLANS MORTS · quelqu'un qui a lu une ancienne grille va poser la
+  // question, et un robot qui revend une capacité éteinte fait une promesse que
+  // personne ne tiendra. Il doit savoir que c'est fini, donc la phrase qui les
+  // enterre doit exister.
+  { file: 'api/chat.ts', must: /say plainly that it is gone and what replaced it/, why: 'the bot must bury the old plans, not resell them' },
   { file: 'api/chat.ts', forbid: /\bStarter\b|1,500 credits|Pro-pack/, why: 'the metered plans are gone · we sell the course, the files and the seats' },
 
   // and nothing may hardcode a plan price outside plans.ts
@@ -177,8 +182,9 @@ const RULES = [
 
   // the Academy's own prose
   { file: 'src/data/academy.ts', must: /paying for the teams, not for tokens/i, why: 'the pricing lesson must lead with what is actually sold' },
-  { file: 'src/data/academy.ts', must: new RegExp(`Library is \\$${F.libraryUsd} a month`), why: `the lesson must name the real Library price` },
-  { file: 'src/data/academy.ts', must: new RegExp(`School is \\$${F.seatUsd} a seat a month from ${WORDS[F.seatMin]} seats up, so \\$${F.schoolFloorUsd} a month`), why: `the lesson must name the seat price and its floor` },
+  { file: 'src/data/academy.ts', must: new RegExp(`Formation is ${F.pathEur} € paid once`), why: `the lesson must name the real price of the path` },
+  { file: 'src/data/academy.ts', must: new RegExp(`Métier is ${F.tradeEur} € added on top`), why: `the lesson must say the trade module is an add-on, and what it costs` },
+  { file: 'src/data/academy.ts', must: new RegExp(`come to ${F.bundleEur} €`), why: `the lesson must give the total of both, calculated` },
   { file: 'src/data/academy.ts', forbid: /\$29 a month|\$49 a month|includes 2,000 tasks/, why: 'the lesson taught the metered plans · they are gone' },
   { file: 'src/data/academy.ts', forbid: /(ships|comes) with (twelve|\d+) teammates/i, why: 'a crew-size claim belongs in facts.ts, not in a lesson' },
 
@@ -297,16 +303,22 @@ const RULES = [
   // est la phrase qu'on lit juste avant de sortir sa carte.
   { file: 'src/data/plans.ts', forbid: /Build a company and watch/i, why: 'nothing here builds a company for anyone' },
   { file: 'src/data/plans.ts', forbid: /We run the models for you/i, why: 'the dojo is a sandbox · nothing runs by default' },
-  { file: 'src/data/plans.ts', must: /The whole course, and the diploma/i, why: 'Free is the course AND the diploma, and that must be the first thing it says' },
+  // CE QUE LA FORMULE GRATUITE PROMET A CHANGÉ · elle donnait le cours entier
+  // et le diplôme quand tout était gratuit. Elle donne une semaine, et ce qui
+  // la rend honnête est qu'elle soit ENTIÈRE et sans carte. Voir test-pricing,
+  // qui vérifie la même promesse sur les données plutôt que sur le fichier.
+  { file: 'src/data/plans.ts', must: /one lesson a day/i, why: 'the free week must say its rhythm, because that is what it is' },
+  { file: 'src/data/plans.ts', must: /no card/i, why: 'the free week must promise it takes no card' },
   // LA GARDE QUI A CHANGÉ DE CIBLE · elle exigeait que la carte Managed avoue
   // que son allocation ne se consommait jamais. C'était le meilleur qu'on
   // pouvait faire tant qu'on vendait une capacité éteinte. On ne la vend plus,
   // donc la phrase à exiger n'est plus un aveu mais le nouveau produit : des
   // sièges. Ce que la garde continue d'interdire, c'est le retour de la vente
   // au forfait de tâches, sous n'importe quel nom.
-  { file: 'src/data/plans.ts', must: /perSeat/, why: 'the third plan sells seats now, not an allowance' },
+  { file: 'src/data/plans.ts', must: /addOn/, why: 'the third plan is an add-on now, not a seat price' },
+  { file: 'src/data/plans.ts', must: /once\?: boolean/, why: 'a paid plan must be able to say it does not recur' },
   { file: 'src/data/plans.ts', forbid: /tasks a month|tasks included|MANAGED_TASKS/, why: 'no plan sells tasks any more · nothing here runs to draw on them' },
-  { file: 'src/data/plans.ts', must: /Nothing here is metered|never the id/, why: 'plans.ts must keep saying why the ids and the names differ' },
+  { file: 'src/data/plans.ts', must: /jamais l'identifiant|never the id/, why: 'plans.ts must keep saying why the ids and the names differ' },
   // and the apps section must quote what can ACT, not the catalogue size
   { file: 'src/Landing.tsx', must: /APP_LIVE_COUNT/, why: 'the landing quotes apps that can act, not the catalogue count' },
 ]

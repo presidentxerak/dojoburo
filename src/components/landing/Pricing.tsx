@@ -1,4 +1,4 @@
-import { PLANS, planPrice, type Plan } from '../../data/plans'
+import { PLANS, PLAN_BY_ID, planPrice, type Plan } from '../../data/plans'
 import { useLang, useT } from '../../i18n'
 
 // Pricing, from the one place that defines it (data/plans.ts).
@@ -30,13 +30,19 @@ export function Pricing({
   // plutôt qu'un vide, comme partout ailleurs : une carte de prix à moitié
   // blanche est pire qu'une carte de prix en anglais.
   const copy = (p: Plan) => (lang === 'fr' && p.fr) || p
-  // L'UNITÉ ET LE PLANCHER se construisent ICI et non dans data/plans, parce
-  // qu'ils sont faits de mots. planUnit et planFloor rendaient « / seat /
-  // month » et « from $75 a month » en dur : deux phrases anglaises sorties
-  // d'un fichier de données, invisibles pour la traduction.
-  const unit = (p: Plan) => (p.usd === 0 ? t('price.forever') : p.perSeat ? t('price.seatMonth') : t('price.month'))
-  const floor = (p: Plan) =>
-    p.perSeat && p.minSeats ? `${t('price.from')} $${p.usd * p.minSeats} ${t('price.aMonth')}` : null
+  // L'UNITÉ se construit ICI et non dans data/plans, parce qu'elle est faite de
+  // MOTS. Une version antérieure les rendait depuis le fichier de données, en
+  // anglais seulement : du texte à traduire invisible pour la traduction.
+  //
+  // TROIS FORMES, et chacune dit une chose différente à l'acheteur : gratuit
+  // pour toujours, payé une fois, ou ajouté à une autre formule. Les confondre
+  // est la faute qui coûte le plus cher sur une carte de prix.
+  const unit = (p: Plan) =>
+    p.eur === 0 ? t('price.forever') : p.addOn ? t('price.addOn') : t('price.once')
+  // CE QU'IL FAUT AVOIR ACHETÉ D'ABORD · un supplément affiché seul se lit
+  // comme une offre à 49 €, et c'est un malentendu qui se découvre au paiement.
+  const needs = (p: Plan) =>
+    p.addOn && p.requires ? `${t('price.after')} ${PLAN_BY_ID[p.requires].name}` : null
 
   return (
     <>
@@ -49,12 +55,11 @@ export function Pricing({
               {planPrice(p)}
               <small> {unit(p)}</small>
             </div>
-            {/* LE PLANCHER · $15 le siège et $15 tout court ne sont pas la même
-                offre. Une carte qui affiche le prix unitaire sans dire combien
-                de sièges il faut prendre commet exactement la faute que ce
-                fichier existe pour empêcher : un prix qui veut dire deux
-                choses. */}
-            {floor(p) && <div className="lp-plan-floor">{floor(p)}</div>}
+            {/* LE PRÉALABLE · 49 € affiché seul se lit comme le prix d'entrée,
+                alors que c'est un supplément. Une carte qui laisse croire ça
+                commet la faute que ce fichier existe pour empêcher : un prix
+                qui veut dire deux choses. */}
+            {needs(p) && <div className="lp-plan-floor">{needs(p)}</div>}
             <div className="lp-plan-sub">{copy(p).tagline}</div>
             <button className={`lp-cta${p.featured ? '' : ' ghostcta'}`} onClick={cta(p)}>
               {p.id === 'free' ? t('price.start') : `${t('price.choose')} ${p.name}`}

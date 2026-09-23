@@ -155,11 +155,14 @@ export const DICT = {
   'price.popular': { en: 'Most popular', fr: 'La plus prise' },
   'price.start': { en: 'Get started', fr: 'Commencer' },
   'price.choose': { en: 'Choose', fr: 'Choisir' },
-  'price.forever': { en: '/ forever', fr: '/ pour toujours' },
-  'price.month': { en: '/ month', fr: '/ mois' },
-  'price.seatMonth': { en: '/ seat / month', fr: '/ siège / mois' },
-  'price.from': { en: 'from', fr: 'à partir de' },
-  'price.aMonth': { en: 'a month', fr: 'par mois' },
+  // L'UNITÉ D'UN PRIX · elle disait « par mois » et « par siège » du temps de
+  // l'abonnement. Le produit se vend maintenant une fois, et un libellé
+  // périmé sur une carte de prix est la pire chose à laisser traîner : on ne
+  // se trompe pas sur un lien, on se trompe sur ce qu'on croit acheter.
+  'price.forever': { en: 'free, for good', fr: 'gratuit, pour de bon' },
+  'price.once': { en: 'once, yours for good', fr: 'une fois, acquis pour de bon' },
+  'price.addOn': { en: 'added on', fr: 'en supplément' },
+  'price.after': { en: 'after', fr: 'après' },
   'price.notMetered': { en: 'Nothing here is metered.', fr: "Rien ici n'est compté." },
   'price.noMeterBody': {
     en: 'Learning is free and stays free, the diploma costs nothing, and no plan counts your runs, because the dojo is a worked example and calls no paid model. A paid plan buys the files and, on School, the seats · when you take an agent away and run it for real, it runs on your own key and your provider bills you directly, never us.',

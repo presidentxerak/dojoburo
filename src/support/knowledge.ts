@@ -16,7 +16,7 @@ import { GRADES } from '../dojo/grades'
 // faisait une cinquième grille de prix capable de contredire les quatre autres.
 // Elle l'a fait : elle vendait encore Founder à 29 $ et 2 000 tâches longtemps
 // après que le produit ait cessé d'exécuter quoi que ce soit.
-import { LIBRARY_USD, SEAT_USD, SEAT_MIN, SCHOOL_FLOOR_USD } from '../data/plans'
+import { PATH_EUR, TRADE_EUR, BUNDLE_EUR, DISCOVERY_DAYS, priceTag } from '../data/plans'
 
 const GRADE_COUNT = GRADES.length
 
@@ -329,7 +329,7 @@ export const KB: KBTopic[] = [
     id: 'wallet',
     chip: 'Credits & profile',
     answer:
-      `There is no wallet and no crypto to manage. Your profile is your account, your plan and your preferences (theme, notifications). Plans are paid by card in your own currency (USD, EUR, JPY…): Free, Library at $${LIBRARY_USD} a month for every file, or School at $${SEAT_USD} a seat a month from ${SEAT_MIN} seats up. You never see a wallet, a seed or any coin.`,
+      `There is no wallet and no crypto to manage. Your profile is your account, what you have bought, and your preferences. It is paid by card, once: the ${DISCOVERY_DAYS} discovery days are free, the whole path is ${priceTag(PATH_EUR)}, and your trade module is ${priceTag(TRADE_EUR)} on top. Nothing renews, so there is nothing to cancel. You never see a wallet, a seed or any coin.`,
     links: [
       { label: 'Profile & plan', href: '#profile' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -339,7 +339,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Profil et formule",
       answer:
-        `Il n'y a aucun portefeuille et aucune cryptomonnaie à gérer. Votre profil est votre compte, votre formule et vos préférences (thème, notifications). Les formules se paient par carte dans votre propre monnaie (euro, dollar, yen…) : Gratuit, Bibliothèque à ${LIBRARY_USD} $ par mois pour tous les fichiers, ou École à ${SEAT_USD} $ par siège et par mois à partir de ${SEAT_MIN} sièges. Vous ne voyez jamais de portefeuille, de phrase secrète ni de jeton de cryptomonnaie.`,
+        `Il n'y a aucun portefeuille et aucune cryptomonnaie à gérer. Votre profil est votre compte, ce que vous avez acheté, et vos préférences. Cela se paie par carte, une fois : les ${DISCOVERY_DAYS} jours de découverte sont gratuits, le parcours entier coûte ${priceTag(PATH_EUR)}, et votre module métier ${priceTag(TRADE_EUR)} en plus. Rien ne se renouvelle, donc il n'y a rien à résilier. Vous ne voyez jamais de portefeuille, de phrase secrète ni de jeton de cryptomonnaie.`,
       links: [
         "Profil et formule",
         "Formules et tarifs",
@@ -351,7 +351,7 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'What a plan costs',
     answer:
-      `Nothing you do here costs you anything per run, because nothing here calls a paid model. No plan counts tasks, credits or tokens. What a plan buys is the library of files at $${LIBRARY_USD} a month, or seats at $${SEAT_USD} each from ${SEAT_MIN} up if you are training a group. The cost that does exist starts the day you take an agent out of the dojo and run it: then it is your own provider key and your own bill, which is exactly what the frugality course teaches you to keep small.`,
+      `Nothing you do here costs you anything per run, because nothing here calls a paid model. No plan counts tasks, credits or tokens. You pay once for the course itself: ${priceTag(PATH_EUR)} for the whole path, ${priceTag(TRADE_EUR)} more for your trade. The cost that does exist starts the day you take an agent out of the dojo and run it: then it is your own provider key and your own bill, which is exactly what the frugality module teaches you to keep small.`,
     links: [
       { label: 'Cost breakdown', href: '#cost' },
       { label: 'Plans & pricing', href: '#pricing' },
@@ -361,7 +361,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Ce que coûte une formule",
       answer:
-        `Rien de ce que vous faites ici ne vous coûte quoi que ce soit au passage, parce que rien ici n'appelle un modèle payant. Aucune formule ne décompte de tâches, de crédits ni de jetons. Ce qu'une formule achète, c'est la bibliothèque de fichiers à ${LIBRARY_USD} $ par mois, ou des sièges à ${SEAT_USD} $ chacun à partir de ${SEAT_MIN} si vous formez un groupe. Le coût qui existe vraiment commence le jour où vous sortez un agent du dojo et le faites tourner : c'est alors votre propre clé de fournisseur et votre propre facture, ce que le cours de sobriété vous apprend justement à garder petite.`,
+        `Rien de ce que vous faites ici ne vous coûte quoi que ce soit au passage, parce que rien ici n'appelle un modèle payant. Aucune formule ne décompte de tâches, de crédits ni de jetons. Vous payez une fois le cours lui-même : ${priceTag(PATH_EUR)} le parcours entier, ${priceTag(TRADE_EUR)} de plus pour votre métier. Le coût qui existe vraiment commence le jour où vous sortez un agent du dojo et le faites tourner : c'est alors votre propre clé de fournisseur et votre propre facture, ce que le module de sobriété vous apprend justement à garder petite.`,
       links: [
         "Détail du coût",
         "Formules et tarifs",
@@ -373,7 +373,7 @@ export const KB: KBTopic[] = [
     walk: 'apps',
     chip: 'Plans & pricing',
     answer:
-      `Nothing is metered, and that is the first thing to know: we sell no runs, tasks, credits or tokens. Three plans. Free ($0) is the whole thing to learn with: all ${COURSE_COUNT} courses, the practice dojo, every belt and badge, and the certified diploma at the end. Library ($${LIBRARY_USD}/month) buys the files, every prompt, brief and skill as a real download, plus the new ones as they are written, plus a custom domain and no DojoBuro badge. School ($${SEAT_USD} a seat a month, ${SEAT_MIN} seats minimum, so $${SCHOOL_FLOOR_USD}/month and up) is for training a group under one bill, with a view of who has earned what. Under ${SEAT_MIN} people, Library costs you less and you should take it. Business is custom: self-hosted, SSO, SLA. Paid by card in your own currency · no crypto.`,
+      `Nothing recurs, and that is the first thing to know: no subscription, no meter, nothing to cancel. Découverte (${priceTag(0)}) is ${DISCOVERY_DAYS} days, one lesson a day, and it asks for your email and nothing else. Formation (${priceTag(PATH_EUR)}, paid once) opens every dojo city, in any order, with the files and the updates. Métier (${priceTag(TRADE_EUR)}, added after) is one more city written for the job you actually do. Both together come to ${priceTag(BUNDLE_EUR)}. Paid by card · no crypto.`,
     links: [
       { label: 'See the plans', href: '#pricing' },
       { label: 'Cost per task', href: '#cost' },
@@ -383,7 +383,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Formules et tarifs",
       answer:
-        `Rien n'est compté, et c'est la première chose à savoir : nous ne vendons ni passages, ni tâches, ni crédits, ni jetons. Trois formules. Gratuit (0 $) est l'ensemble pour apprendre : les ${COURSE_COUNT} cours, le dojo d'entraînement, toutes les ceintures et tous les insignes, et le diplôme certifié à la fin. Bibliothèque (${LIBRARY_USD} $ par mois) achète les fichiers : chaque consigne, chaque dossier et chaque compétence en vrai téléchargement, plus les nouveaux à mesure qu'ils s'écrivent, plus un domaine à vous et aucun badge DojoBuro. École (${SEAT_USD} $ par siège et par mois, ${SEAT_MIN} sièges au minimum, donc ${SCHOOL_FLOOR_USD} $ par mois et au-delà) sert à former un groupe sous une seule facture, avec une vue de qui a obtenu quoi. En dessous de ${SEAT_MIN} personnes, Bibliothèque vous coûte moins cher et c'est celle qu'il faut prendre. Entreprise est sur mesure : hébergement chez vous, authentification unique, engagement de service. Payable par carte dans votre propre monnaie · aucune cryptomonnaie.`,
+        `Rien ne se renouvelle, et c'est la première chose à savoir : aucun abonnement, aucun compteur, rien à résilier. Découverte (${priceTag(0)}), c'est ${DISCOVERY_DAYS} jours, une leçon par jour, et cela demande votre adresse et rien d'autre. Formation (${priceTag(PATH_EUR)}, payée une fois) ouvre toutes les cités dojo, dans l'ordre que vous voulez, avec les fichiers et les mises à jour. Métier (${priceTag(TRADE_EUR)}, en supplément) ajoute une cité écrite pour le travail que vous faites vraiment. Les deux ensemble font ${priceTag(BUNDLE_EUR)}. Payable par carte · aucune cryptomonnaie.`,
       links: [
         "Voir les formules",
         "Le coût par tâche",

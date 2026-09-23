@@ -1,83 +1,126 @@
-// Investor financials for the pitch deck. One source of truth for the on-screen
-// tables and the exported PDF.
+// Les chiffres du dossier investisseurs. Une seule source pour les tableaux à
+// l'écran et pour le PDF exporté.
 //
 // ---------------------------------------------------------------------------
-// POURQUOI CES CHIFFRES ONT TOUS CHANGÉ
+// POURQUOI TOUT A CHANGÉ, UNE DEUXIÈME FOIS
 //
-// Le modèle précédent posait 9 % de conversion à 240 $ par an, et en face une
-// ligne « Infra + model cost » qui montait à 860 k$ pour 100 000 utilisateurs.
-// Ces deux hypothèses appartenaient au produit qui faisait tourner du travail :
+// La version précédente modélisait un ABONNEMENT : 3 % des apprenants à 228 $
+// par an, plus des sièges d'école. Le produit se vend maintenant UNE FOIS,
+// 99 € la formation et 49 € le module métier. Ce n'est pas un ajustement de
+// prix, c'est un changement de forme, et il casse trois choses à la fois :
 //
-//   1. LE COÛT N'EXISTE PLUS. 860 k$ de modèles suppose qu'on exécute des runs.
-//      Le dojo n'en exécute aucun, le repli payant de Dojobot est plafonné pour
-//      toute l'instance, et la formation comme la bibliothèque sont des fichiers
-//      statiques. Le coût marginal d'un apprenant est proche de zéro, et surtout
-//      il ne suit pas la courbe des utilisateurs. Porter ce coût au bilan, c'est
-//      se rendre le business plus dur qu'il n'est.
+//   1. IL N'Y A PLUS D'ARR. Un achat unique ne se renouvelle pas. La ligne
+//      « Revenue (ARR) » de l'ancien tableau additionnait des abonnements qui
+//      n'existent plus ; la laisser aurait présenté un revenu récurrent là où
+//      il n'y a que des ventes.
 //
-//   2. LA CONVERSION ÉTAIT CELLE D'UN OUTIL, PAS D'UN COURS. 9 % est un taux de
-//      produit dont on a besoin tous les jours pour travailler. Un cours gratuit
-//      avec une bibliothèque payante convertit autour de 2 à 5 %. On pose 3 %, et
-//      la ligne est nommée pour qu'on la discute au lieu de la subir.
+//   2. LE REVENU SUIT LES NOUVEAUX, PAS LE CUMUL. Un abonné payait chaque
+//      année ; un acheteur paie une fois. Le revenu d'une année est donc
+//      fonction des apprenants ARRIVÉS cette année-là, et une base qui grossit
+//      ne rapporte rien de plus par elle-même. C'est la faiblesse de ce modèle,
+//      et elle doit se voir dans le tableau plutôt que dans une note.
 //
-// CE QUE ÇA COÛTE DE DIRE LA VÉRITÉ : avec 3 % à 228 $ au lieu de 9 % à 240 $, le
-// revenu par apprenant est divisé par trois, et l'équilibre passe de l'année 2 à
-// l'année 3. On l'écrit tel quel plutôt que de remonter la conversion jusqu'à ce
-// que le tableau redevienne joli.
+//   3. CHAQUE NOMBRE ÉTAIT TAPÉ À LA MAIN. « $6.8k », « +73 % », « -$49k » :
+//      douze lignes de chiffres qu'aucun calcul ne produisait, donc douze
+//      lignes qui ne pouvaient que devenir fausses au premier changement de
+//      prix. Elles l'étaient. Tout ce qui suit est maintenant CALCULÉ à partir
+//      des hypothèses nommées juste au-dessus, et le tableau bouge tout seul le
+//      jour où un prix change dans data/plans.
 //
-// CE QUI RATTRAPE : les sièges. Un particulier vaut 228 $ par an, une école de
-// douze sièges en vaut 2 160 $, et c'est le même produit servi au même coût. Les
-// deux lignes sont donc séparées dans le tableau, parce que ce sont deux ventes
-// différentes, à deux acheteurs différents, et les agréger en un seul ARPU
-// cachait exactement ce qui fait la différence.
-//
-// Les chiffres restent des projections. Ce sont des hypothèses nommées, pas des
-// mesures : rien ici n'est encore vendu.
-import { LIBRARY_USD, SEAT_USD } from './plans'
+// CE QUE CES CHIFFRES SONT, ET NE SONT PAS. Des hypothèses nommées, pas des
+// mesures. Rien n'est encore vendu. Le taux de conversion et le taux
+// d'attachement du module métier sont des paris, écrits ici pour être discutés
+// et non pour être crus.
+import { PATH_EUR, TRADE_EUR } from './plans'
 
 export const CONTACT_EMAIL = ''
 
-/** Hypothèses, écrites une fois. Le tableau ci-dessous en découle et la note du
- *  tableau les répète à l'écran, pour qu'un lecteur voie ce qu'il doit croire. */
-export const LIBRARY_YEAR_USD = LIBRARY_USD * 12
-export const SEAT_YEAR_USD = SEAT_USD * 12
-export const AVG_SCHOOL_SEATS = 12
-export const SCHOOL_YEAR_USD = SEAT_YEAR_USD * AVG_SCHOOL_SEATS
+/* ------------------------------------------------------------------ */
+/* LES HYPOTHÈSES · écrites une fois, et tout le reste en découle      */
+/* ------------------------------------------------------------------ */
+
+/** Part des gens qui finissent la découverte et achètent la formation.
+ *
+ *  3 % est le bas de la fourchette d'un cours en ligne vendu à la suite d'un
+ *  contenu gratuit. On le pose bas plutôt que de remonter le chiffre jusqu'à ce
+ *  que le tableau devienne joli. */
 export const CONVERSION_PCT = 3
 
-/** Unit economics by scale · how the business looks at each size (steady state, per year). */
+/** Part des acheteurs de la formation qui prennent aussi leur module métier.
+ *
+ *  C'est un supplément à 49 € proposé à quelqu'un qui vient de payer 99 € et
+ *  qui est content : le taux est haut, mais il ne s'applique qu'aux acheteurs,
+ *  donc son effet sur le total reste modeste. */
+export const TRADE_ATTACH_PCT = 35
+
+/** Ce que rapporte UN acheteur, module métier compris en espérance. */
+export const PER_BUYER_EUR = PATH_EUR + (TRADE_EUR * TRADE_ATTACH_PCT) / 100
+
+/** Les paliers du tableau · des apprenants NOUVEAUX dans l'année. */
+export const SCALE = [1_000, 10_000, 50_000, 150_000]
+
+/** Le coût annuel, par palier · il ne suit pas la courbe des apprenants.
+ *
+ *  Servir une page de plus ne coûte rien de mesurable ; ce qui coûte, c'est
+ *  d'écrire le cours, de le tenir à jour et de répondre aux gens. Ces trois
+ *  postes grandissent par paliers, pas par apprenant, et c'est la propriété la
+ *  plus importante de ce modèle. */
+export const COSTS_EUR = [60_000, 120_000, 300_000, 600_000]
+
+/* ------------------------------------------------------------------ */
+/* CE QUI SE CALCULE                                                   */
+/* ------------------------------------------------------------------ */
+
+const buyers = (learners: number) => Math.round((learners * CONVERSION_PCT) / 100)
+const revenue = (learners: number) => Math.round(buyers(learners) * PER_BUYER_EUR)
+
+/** « 1,03 M € », « 342 k € », « 6,8 k € » · un seul formateur, jamais recopié. */
+export const eur = (n: number): string => {
+  const a = Math.abs(n)
+  const sign = n < 0 ? '-' : ''
+  if (a >= 1_000_000) return `${sign}${(a / 1_000_000).toFixed(2)} M €`
+  if (a >= 1_000) return `${sign}${Math.round(a / 1_000)} k €`
+  return `${sign}${a} €`
+}
+
+const num = (n: number) => n.toLocaleString('fr-FR')
+
+/** L'économie unitaire par palier · à quoi ressemble l'affaire à chaque taille. */
 export const FORECAST = {
-  title: 'Unit economics by scale',
+  title: 'Economics by scale',
   note:
-    `Two sales, not one: ${CONVERSION_PCT}% of learners take the library at $${LIBRARY_YEAR_USD} a year, ` +
-    `and a school of about ${AVG_SCHOOL_SEATS} seats is worth $${SCHOOL_YEAR_USD.toLocaleString('en-US')}. ` +
-    'Cost is near-zero per learner and does not follow the curve, because nothing runs on our account.',
-  head: ['Per year', '1,000 learners', '10,000', '50,000', '150,000'],
+    `One sale, not a subscription: ${CONVERSION_PCT}% of the people who finish the free week buy the path at ` +
+    `${PATH_EUR} €, and ${TRADE_ATTACH_PCT}% of those add their trade module at ${TRADE_EUR} €. ` +
+    'Revenue follows new learners each year, never the installed base. Cost does not follow the curve at all.',
+  head: ['Per year', ...SCALE.map((n) => `${num(n)} learners`)],
   rows: [
-    [`Library subscribers (${CONVERSION_PCT}%)`, '30', '300', '1,500', '4,500'],
-    ['Library revenue', '$6.8k', '$68k', '$342k', '$1.03M'],
-    [`Schools (~${AVG_SCHOOL_SEATS} seats)`, '2', '20', '90', '260'],
-    ['School revenue', '$4.3k', '$43k', '$194k', '$562k'],
-    ['Revenue (ARR)', '$11k', '$112k', '$536k', '$1.59M'],
-    ['Infra + support', '$3k', '$14k', '$45k', '$110k'],
-    ['Gross margin', '+73%', '+87%', '+92%', '+93%'],
+    [`Buyers (${CONVERSION_PCT}%)`, ...SCALE.map((n) => num(buyers(n)))],
+    ['Revenue', ...SCALE.map((n) => eur(revenue(n)))],
+    ['Costs', ...COSTS_EUR.map((c) => eur(c))],
+    ['Result', ...SCALE.map((n, i) => eur(revenue(n) - COSTS_EUR[i]))],
   ],
 }
 
-/** 5-year business plan · the growth trajectory and P&L. */
+/** Le plan à cinq ans · la trajectoire, et ce qu'elle donne.
+ *
+ *  LES APPRENANTS SONT DES NOUVEAUX DE L'ANNÉE, jamais un cumul. Dans un modèle
+ *  d'achat unique, présenter une base cumulée à côté d'un revenu donnerait
+ *  l'impression que la base paie chaque année. Elle ne paie qu'une fois. */
+const YEARS = [1_000, 10_000, 50_000, 100_000, 150_000]
+const YEAR_COSTS = [60_000, 120_000, 300_000, 600_000, 900_000]
+
 export const BUSINESS_PLAN = {
-  title: '5-year business plan',
+  title: '5-year plan',
   note:
-    `Bottom-up: 1k to 150k learners, ${CONVERSION_PCT}% on the library, schools sold alongside. ` +
-    'Break-even is Year 3, a year later than the previous plan, because the course is free and the ' +
-    'library is priced as a course rather than as a tool.',
-  head: ['Metric', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+    `New learners each year, ${CONVERSION_PCT}% of them buying once at ${PATH_EUR} €. ` +
+    'Nothing recurs, so a year that brings fewer newcomers earns less, however large the community is. ' +
+    'That is the real risk of this model and it is written here rather than in a footnote.',
+  head: ['Metric', ...YEARS.map((_, i) => `Year ${i + 1}`)],
   rows: [
-    ['Learners (end of year)', '1,000', '10,000', '50,000', '100,000', '150,000'],
-    ['Library subscribers', '30', '300', '1,500', '3,000', '4,500'],
-    ['Schools', '2', '20', '90', '180', '260'],
-    ['Revenue (ARR)', '$11k', '$112k', '$536k', '$1.07M', '$1.59M'],
-    ['Total costs', '$60k', '$120k', '$300k', '$600k', '$900k'],
-    ['Net result', '-$49k', '-$8k', '+$236k', '+$470k', '+$690k'],
+    ['New learners', ...YEARS.map(num)],
+    [`Buyers (${CONVERSION_PCT}%)`, ...YEARS.map((n) => num(buyers(n)))],
+    ['Revenue', ...YEARS.map((n) => eur(revenue(n)))],
+    ['Costs', ...YEAR_COSTS.map(eur)],
+    ['Net result', ...YEARS.map((n, i) => eur(revenue(n) - YEAR_COSTS[i]))],
   ],
 }
