@@ -25,6 +25,7 @@ import { USE_CASES, USE_CASE_COUNT } from '../data/agentUseCases'
 import { LEVERS } from '../data/frugality'
 import { DESIGN_COURSE_BY_ID, DESIGN_TRACK } from '../data/designCourses'
 import { COURSE_PILLARS } from '../data/positioning'
+import type { Lang } from '../i18n/lang'
 
 /** La piste sous laquelle les étapes d'agent sont rangées · elle n'est PAS une
  *  piste de l'académie, et c'est de là que venait la confusion. */
@@ -51,6 +52,10 @@ export interface CourseProgress {
   percent: number
   /** l'unité, au singulier et au pluriel · « 3 agents sur 12 » */
   unit: [string, string]
+  /** la même unité en français · elle est PORTÉE PAR LE COURS plutôt que
+   *  déduite ailleurs, parce que trois écrans la lisent et qu'un accord de
+   *  nombre traduit après coup se perd. */
+  unitFr?: [string, string]
 }
 
 /** La lecture du maître · elle prend la liste brute des clés terminées, et
@@ -81,15 +86,16 @@ export function readProgress(done: readonly string[]): CourseProgress[] {
 
   const pc = (d: number, t: number) => (t > 0 ? Math.min(100, Math.round((d / t) * 100)) : 0)
   return [
-    { id: 'build', done: agents, total: USE_CASE_COUNT, percent: pc(agents, USE_CASE_COUNT), unit: ['agent', 'agents'] },
-    { id: 'academy', done: lessons, total: LESSON_COUNT, percent: pc(lessons, LESSON_COUNT), unit: ['lesson', 'lessons'] },
-    { id: 'eco', done: levers, total: LEVERS.length, percent: pc(levers, LEVERS.length), unit: ['lever', 'levers'] },
+    { id: 'build', done: agents, total: USE_CASE_COUNT, percent: pc(agents, USE_CASE_COUNT), unit: ['agent', 'agents'], unitFr: ['agent', 'agents'] },
+    { id: 'academy', done: lessons, total: LESSON_COUNT, percent: pc(lessons, LESSON_COUNT), unit: ['lesson', 'lessons'], unitFr: ['leçon', 'leçons'] },
+    { id: 'eco', done: levers, total: LEVERS.length, percent: pc(levers, LEVERS.length), unit: ['lever', 'levers'], unitFr: ['levier', 'leviers'] },
     {
       id: 'design',
       done: designDone('design'),
       total: DESIGN_COURSE_BY_ID.design.lessons.length,
       percent: pc(designDone('design'), DESIGN_COURSE_BY_ID.design.lessons.length),
       unit: ['lesson', 'lessons'],
+      unitFr: ['leçon', 'leçons'],
     },
     {
       id: 'figma',
@@ -97,6 +103,7 @@ export function readProgress(done: readonly string[]): CourseProgress[] {
       total: DESIGN_COURSE_BY_ID.figma.lessons.length,
       percent: pc(designDone('figma'), DESIGN_COURSE_BY_ID.figma.lessons.length),
       unit: ['lesson', 'lessons'],
+      unitFr: ['leçon', 'leçons'],
     },
   ]
 }
@@ -106,27 +113,48 @@ export function readProgress(done: readonly string[]): CourseProgress[] {
  *  Elle ne félicite pas et ne compte pas les points : elle dit ce qui vient
  *  ensuite. Un professeur qui commente ce qui est fait est un tableau de bord ;
  *  celui-ci sert à savoir où aller. */
-export function masterAdvice(courses: CourseProgress[]): string {
+export function masterAdvice(courses: CourseProgress[], lang: Lang = 'en'): string {
+  const fr = lang === 'fr'
   const [build, academy, eco] = courses
   if (build.done === 0 && academy.done === 0) {
-    return 'Start in the dojo. Pick one agent and take it all the way through, then the rest will make sense.'
+    return fr
+      ? "Commencez par le dojo. Prenez un agent et menez-le jusqu'au bout : le reste prendra sens ensuite."
+      : 'Start in the dojo. Pick one agent and take it all the way through, then the rest will make sense.'
   }
   if (build.done === 0) {
-    return 'You have read, and that is the easy half. Pick an agent in the dojo and build one end to end.'
+    return fr
+      ? "Vous avez lu, et c'est la moitié facile. Choisissez un agent dans le dojo et construisez-en un d'un bout à l'autre."
+      : 'You have read, and that is the easy half. Pick an agent in the dojo and build one end to end.'
   }
   if (academy.done === 0) {
-    return 'You have built one. Now learn why the instruction inside it works, or the next one will be luck.'
+    return fr
+      ? "Vous en avez construit un. Apprenez maintenant pourquoi l'instruction qu'il contient fonctionne, sinon le suivant devra tout à la chance."
+      : 'You have built one. Now learn why the instruction inside it works, or the next one will be luck.'
   }
   if (eco.done === 0) {
-    return 'Your agents work. Nobody has asked yet what they cost to run, which is the third course.'
+    return fr
+      ? "Vos agents fonctionnent. Personne n'a encore demandé ce qu'ils coûtent à faire tourner, et c'est le troisième cours."
+      : 'Your agents work. Nobody has asked yet what they cost to run, which is the third course.'
   }
   if (courses.every((c) => c.percent === 100)) {
-    return 'There is nothing left here that you have not done. Go and build the one this room did not cover.'
+    return fr
+      ? "Il ne reste ici rien que vous n'ayez fait. Allez construire celui que cette salle ne couvrait pas."
+      : 'There is nothing left here that you have not done. Go and build the one this room did not cover.'
   }
   // Le cours le plus en retard, nommé · c'est plus utile qu'une moyenne, qui
   // ne dit jamais quoi faire.
   const behind = [...courses].sort((a, b) => a.percent - b.percent)[0]
-  return `Your weakest course is ${LABEL[behind.id]}, at ${behind.percent} per cent. That is where the next hour pays.`
+  return fr
+    ? `Votre cours le plus faible est ${LABEL_FR[behind.id]}, à ${behind.percent} pour cent. C'est là que la prochaine heure rapporte.`
+    : `Your weakest course is ${LABEL[behind.id]}, at ${behind.percent} per cent. That is where the next hour pays.`
+}
+
+const LABEL_FR: Record<CourseProgress['id'], string> = {
+  build: "la construction d'un agent",
+  academy: 'le prompt engineering',
+  eco: 'la sobriété en jetons',
+  design: 'le design avec un modèle',
+  figma: 'Figma',
 }
 
 const LABEL: Record<CourseProgress['id'], string> = {

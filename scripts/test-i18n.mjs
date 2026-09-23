@@ -123,7 +123,10 @@ const looksFrench = (t) => {
 // les deux langues parce que c'est le symbole international. L'écrire « mn »
 // en français pour faire passer la règle serait corriger la page pour plaire
 // à la garde.
-const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac.min', 'tut.pause'])
+const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac.min', 'tut.pause',
+  // « agent » s'écrit pareil dans les deux langues, au singulier comme au
+  // pluriel : c'est le même mot, emprunté au latin par les deux.
+  'mp.agent', 'mp.agents'])
 const copied = keys.filter((k) => DICT[k].en === DICT[k].fr && !SAME_IN_BOTH.has(k))
 ok('aucune traduction n\'est la copie de l\'anglais', copied.length === 0,
   copied.join(', ') || `${keys.length - SAME_IN_BOTH.size} comparées`)
@@ -551,6 +554,83 @@ for (const [id, w] of Object.entries(TB.WALKS)) {
 }
 for (const f of ['src/components/guide/Tutorial.tsx', 'src/components/guide/TutorialOverlay.tsx', 'src/components/SupportBot.tsx']) {
   ok(`${f.split('/').pop()} joue la visite dans la langue lue`, /walkIn\(/.test(readFileSync(f, 'utf8')))
+}
+
+/* --- 3 decies · les ceintures, les insignes et les diplômes -------------- */
+//
+// C'est le panneau que signale une capture d'écran : sur une page française,
+// « Your teacher keeps the count », « White belt », « Badges », « 1 more agent
+// for the yellow belt ». Il s'affiche sur les cinq pages de cours, donc c'est
+// l'anglais le plus visible du site.
+const GR = await load('src/dojo/grades.ts', 'grades.mjs')
+const DI = await load('src/dojo/diplomas.ts', 'dip.mjs')
+const MP = await load('src/dojo/masterProgress.ts', 'mp.mjs')
+
+for (const g of GR.GRADES) {
+  ok(`la ceinture « ${g.id} » a son français`, !!g.fr, g.fr ? 'oui' : 'absente')
+  if (!g.fr) continue
+  ok(`« ${g.id} » est écrite en français`, looksFrench(g.fr.title) && looksFrench(g.fr.means))
+  ok(`« ${g.id} » n'a pas recopié l'anglais`, g.fr.means !== g.means && g.fr.title !== g.title)
+}
+for (const b of GR.BADGES) {
+  ok(`l'insigne « ${b.id} » a son français`, !!b.fr, b.fr ? 'oui' : 'absent')
+  if (b.fr) ok(`« ${b.id} » est écrit en français`, looksFrench(b.fr.title) && looksFrench(b.fr.how))
+}
+// LES INSIGNES D'AGENT SONT DÉRIVÉS DU CAS D'USAGE · ils ne doivent donc PAS
+// porter une traduction à eux, qui serait un deuxième exemplaire des douze
+// noms. On vérifie qu'ils lisent bien la traduction du cas d'usage.
+ok('les insignes d\'agent portent le nom français du cas d\'usage',
+  GR.AGENT_BADGES.every((b) => b.fr && looksFrench(b.fr.how) && b.fr.title !== b.title),
+  `${GR.AGENT_BADGES.length} insignes`)
+for (const d of DI.DIPLOMAS) {
+  ok(`le diplôme « ${d.id} » a son français`, !!d.fr, d.fr ? 'oui' : 'absent')
+  if (!d.fr) continue
+  ok(`« ${d.id} » est écrit en français`,
+    looksFrench(d.fr.title) && looksFrench(d.fr.how) && looksFrench(d.fr.awarded))
+  ok(`« ${d.id} » n'a pas recopié l'anglais`, d.fr.awarded !== d.awarded && d.fr.how !== d.how)
+}
+
+// CE QU'IL RESTE À FAIRE COMPTE DES CHOSES · une phrase traduite après coup
+// perd son accord de nombre, donc `remaining` prend la langue. On la lit dans
+// les deux, sur une progression vide et sur une progression entamée.
+{
+  const empty = MP.readProgress([])
+  const by = Object.fromEntries(empty.map((c) => [c.id, c]))
+  for (const d of DI.DIPLOMAS) {
+    const fr = d.remaining(by, 'fr')
+    const en = d.remaining(by, 'en')
+    ok(`« ${d.id} » dit le reste à faire en français`, looksFrench(fr) && fr !== en, fr)
+  }
+  // L'UNITÉ VIENT DU COURS · « 12 agents, 20 leçons, 7 leviers » et non
+  // « 12 agents, 20 lessons, 7 levers » au milieu d'une phrase française.
+  ok('chaque cours porte son unité française',
+    empty.every((c) => Array.isArray(c.unitFr) && c.unitFr.length === 2),
+    empty.map((c) => c.unitFr?.join('/')).join(', '))
+}
+
+// CE QUE DIT LE MAÎTRE · cinq branches, et chacune doit exister en français.
+for (const [nom, done] of [
+  ['rien de commencé', []],
+  ['tout terminé', ['x']],
+]) {
+  const courses = MP.readProgress(done)
+  const fr = MP.masterAdvice(courses, 'fr')
+  const en = MP.masterAdvice(courses, 'en')
+  ok(`le maître parle français · ${nom}`, looksFrench(fr) && fr !== en, fr.slice(0, 45))
+}
+
+{
+  const mp = readFileSync('src/dojo/MasterPanel.tsx', 'utf8')
+  const lp = readFileSync('src/dojo/LearningPanel.tsx', 'utf8')
+  ok('le panneau du maître traduit ses ceintures', /gradeIn\(/.test(mp))
+  ok('… ses insignes', /badgeIn\(/.test(mp))
+  ok('… ses diplômes', /diplomaIn\(/.test(mp))
+  ok('… et lit la progression dans la langue lue', /masterAdvice\(courses, lang\)/.test(mp))
+  ok('le panneau du profil lit son profil dans la langue lue', /readLearning\(p\.doneKeys, lang\)/.test(lp))
+  // LE TITRE D'UN DIPLÔME OBTENU · le profil affichait son IDENTIFIANT, donc
+  // « literate » au lieu de « Bâtisseur qui lit », dans les deux langues.
+  ok('un diplôme obtenu montre son titre, pas sa clé',
+    !/title: id,/.test(readFileSync('src/dojo/learning.ts', 'utf8')))
 }
 
 /* --- 4 · les surfaces annoncées traduites le sont vraiment --------------- */

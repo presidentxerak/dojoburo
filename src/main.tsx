@@ -28,7 +28,7 @@ import { DESIGN_COURSE, FIGMA_COURSE } from './data/designCourses'
 import { BuildAgentPage } from './dojo/BuildAgent'
 import { FrameworksPage } from './dojo/Frameworks'
 import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
-import { usePath } from './lib/router'
+import { usePath, useHashAnchor } from './lib/router'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
 import './index.css'
@@ -41,6 +41,30 @@ const CANONICAL_HOST = 'www.dojoburo.com'
 if (location.hostname.endsWith('.vercel.app')) {
   location.replace(`https://${CANONICAL_HOST}${location.pathname}${location.search}${location.hash}`)
 }
+
+/* ------------------------------------------------------------------ */
+/* CE QUI EST UNE ROUTE, ET CE QUI EST UNE ANCRE                       */
+/*                                                                      */
+/* Le fragment servait à DEUX choses à la fois : il nommait une vue de  */
+/* l'application (#app, #studio) et il servait d'ancre dans la page     */
+/* d'accueil (#pricing, #cost, #courses). Rien ne distinguait les deux, */
+/* donc `route` valait « pricing » et la page tombait dans la branche   */
+/* de l'application : un visiteur qui cliquait « Tarifs » arrivait sur  */
+/* la porte du beta privé, sur la page publique, depuis la navigation   */
+/* principale.                                                          */
+/*                                                                      */
+/* LA LISTE EST FERMÉE, et c'est le point. Un fragment inconnu est une  */
+/* ancre : ajouter une ancre à la page d'accueil ne peut donc plus      */
+/* avaler la page, et ajouter une vue d'application demande une ligne   */
+/* ici, ce qui est une décision et se relit.                            */
+/* ------------------------------------------------------------------ */
+
+const APP_ROUTES = new Set(['app', 'widget', 'academy', 'guide', 'studio', 'connect', 'documents'])
+
+/** Ce fragment désigne-t-il une vue de l'application ? Une invitation
+ *  `#join=<jeton>` en est une : elle arrive froide et doit atterrir dans
+ *  l'application, où le jeton se consomme. */
+export const isAppRoute = (r: string) => APP_ROUTES.has(r) || r.startsWith('join=')
 
 function Root() {
   // The private beta gate. It closes the PRODUCT, not the website.
@@ -67,6 +91,8 @@ function Root() {
   // Academy in particular is the front door for anyone searching how agents
   // work, so every lesson has to be its own address.
   const path = usePath()
+  // L'ANCRE, une fois la page rendue · voir useHashAnchor.
+  useHashAnchor()
 
   // ---- public · no gate ----------------------------------------------------
   if (path === '/terms') return <Terms />
@@ -106,7 +132,10 @@ function Root() {
   // The landing is a marketing page and is read without the code. Its call to
   // action sets #app, which is where the door actually is — you can read what
   // Dojoburo does, and you need the code to use it.
-  if (!route) return <Landing enter={() => { location.hash = 'app' }} />
+  // UN FRAGMENT QUI N'EST PAS UNE ROUTE EST UNE ANCRE · la page d'accueil est
+  // rendue, et c'est elle qui fait défiler jusqu'à la section. Le test était
+  // `!route`, donc n'importe quelle ancre passait pour une vue.
+  if (!isAppRoute(route)) return <Landing enter={() => { location.hash = 'app' }} />
 
   // ---- the product · gated -------------------------------------------------
   if (!open) return <AccessGate onOpen={() => setOpen(true)} />

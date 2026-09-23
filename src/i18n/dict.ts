@@ -407,6 +407,60 @@ export const DICT = {
   // en général.
   'tut.pause': { en: 'Pause', fr: 'Pause' },
 
+  // ---- le panneau du maître ------------------------------------------------
+  // Le CONTENU (ceintures, insignes, diplômes, ce que le maître dit) vit dans
+  // dojo/grades, dojo/diplomas et dojo/masterProgress, à côté de son anglais.
+  // Ce qui est ici est le cadre du panneau.
+  'mp.pill': { en: 'Your teacher keeps the count', fr: 'Votre professeur tient le compte' },
+  'mp.h2a': { en: 'Where you are, across the', fr: 'Où vous en êtes, sur les' },
+  'mp.h2b': { en: 'courses', fr: 'cours' },
+  'mp.here': { en: 'you are here', fr: 'vous êtes ici' },
+  'mp.open': { en: 'Open', fr: 'Ouvrir' },
+  'mp.more': { en: 'more', fr: 'de plus' },
+  'mp.forThe': { en: 'for the', fr: 'pour la' },
+  'mp.agent': { en: 'agent', fr: 'agent' },
+  'mp.agents': { en: 'agents', fr: 'agents' },
+  'mp.toStart': { en: 'to start', fr: 'pour commencer' },
+  'mp.badges': { en: 'Badges', fr: 'Insignes' },
+  'mp.diplomas': { en: 'Diplomas', fr: 'Diplômes' },
+  'mp.next': { en: 'Next:', fr: 'Ensuite :' },
+  'mp.small': {
+    en: 'These are progress markers, not certificates. Nobody sells them, nobody verifies them, and no employer has heard of them. They exist so you can tell a course you finished from one you started.',
+    fr: "Ce sont des repères de progression, pas des certificats. Personne ne les vend, personne ne les vérifie, et aucun employeur n'en a entendu parler. Ils existent pour que vous puissiez distinguer un cours terminé d'un cours commencé.",
+  },
+
+  // ---- le panneau d'apprentissage du profil --------------------------------
+  'lrn.pickUp': { en: 'Pick up where you stopped', fr: 'Reprenez où vous vous êtes arrêté' },
+  'lrn.step': { en: 'Step', fr: 'Étape' },
+  'lrn.of': { en: 'of', fr: 'de' },
+  'lrn.continue': { en: 'Continue', fr: 'Continuer' },
+  'lrn.nothingLeft': { en: 'Nothing left in this room', fr: 'Il ne reste rien dans cette salle' },
+  'lrn.allBuilt': { en: 'Every agent here is built', fr: 'Chaque agent d\'ici est construit' },
+  'lrn.goBuild': { en: 'Go and build the one this dojo did not cover.', fr: "Allez construire celui que ce dojo ne couvrait pas." },
+  'lrn.master': { en: 'The master.', fr: 'Le maître.' },
+  'lrn.yourBelt': { en: 'Your belt', fr: 'Votre ceinture' },
+  'lrn.beltRule': {
+    en: 'finished end to end for the',
+    fr: "terminés d'un bout à l'autre pour la",
+  },
+  'lrn.beltCount': {
+    en: 'Belts count finished agents, never steps.',
+    fr: 'Les ceintures comptent les agents terminés, jamais les étapes.',
+  },
+  'lrn.yourCourses': { en: 'Your', fr: 'Vos' },
+  'lrn.coursesWord': { en: 'courses', fr: 'cours' },
+  'lrn.earnedH': { en: 'What you have earned', fr: 'Ce que vous avez obtenu' },
+  'lrn.earnedNone': {
+    en: 'Nothing yet, and nothing is given for showing up. Finish one step and the first badge is yours.',
+    fr: "Rien pour l'instant, et rien ne se donne pour avoir été présent. Terminez une étape et le premier insigne est à vous.",
+  },
+  'lrn.howCert': { en: 'How the certification works', fr: 'Comment marche la certification' },
+  'lrn.nextDiploma': { en: 'Next diploma:', fr: 'Prochain diplôme :' },
+  'lrn.small': {
+    en: 'agents live in the dojo. Belts, badges and diplomas are progress markers kept in this browser. Nobody sells them, nobody verifies them, and no employer has heard of them: they exist so you can tell a course you finished from one you started.',
+    fr: "agents vivent dans le dojo. Les ceintures, les insignes et les diplômes sont des repères de progression gardés dans ce navigateur. Personne ne les vend, personne ne les vérifie, et aucun employeur n'en a entendu parler : ils existent pour que vous puissiez distinguer un cours terminé d'un cours commencé.",
+  },
+
   // ---- le pied de page ---------------------------------------------------
   'footer.built': { en: 'A training centre for AI agents', fr: "Un centre de formation aux agents IA" },
 } as const satisfies Record<string, Entry>
