@@ -151,18 +151,49 @@ if (!existsSync('dist/index.html')) {
 // Avec une ÉCHÉANCE · c'est le défaut que toute cette session traque, et une
 // barrière qui reste bloquée sur une épreuve muette ne garde plus rien : elle
 // ne dit ni vert ni rouge, et on finit par la contourner.
+/** Lance une épreuve et rend sa sortie.
+ *
+ *  LES DEUX FLUX SONT TENUS SÉPARÉMENT, et c'est un correctif, pas un détail
+ *  de style.
+ *
+ *  Ils étaient concaténés dans la même chaîne, au fil de l'eau. Or un morceau
+ *  de stderr n'arrive pas entre deux lignes de stdout : il arrive quand il
+ *  arrive, donc AU MILIEU d'une ligne. La ligne « ok    … » se retrouvait
+ *  coupée en deux par un avertissement, et son « ok » cessait d'être en début
+ *  de ligne · c'est à dire cessait d'être compté.
+ *
+ *  CE QUE ÇA COÛTAIT. Le compte d'assertions existe pour repérer une épreuve
+ *  qui ne vérifie plus rien · c'est écrit à côté. Il ne pouvait pas le faire :
+ *  la même épreuve sur les mêmes données a rendu 525, puis 441, puis 281, au
+ *  gré de l'ordonnancement. Un indicateur qui varie de moitié au hasard ne dit
+ *  rien, et il a fait chercher une régression qui n'existait pas.
+ *
+ *  PLUS GRAVE, la même mécanique comptait les ÉCHECS. Une ligne « FAIL »
+ *  éclatée par un avertissement n'était pas comptée non plus. L'épreuve était
+ *  bien déclarée en échec · ça, c'est le code de sortie qui le dit, et il est
+ *  fiable · mais le compte affiché à côté pouvait annoncer zéro.
+ *
+ *  Les deux flux restent réunis POUR L'AFFICHAGE, parce qu'une trace d'erreur
+ *  se lit à côté de ce qui l'a produite ; ils sont séparés pour le COMPTAGE,
+ *  qui est la seule chose que l'entrelacement casse. */
 const run = (cmd, args, opts = {}, limitMs = 15 * 60_000) => new Promise((resolve) => {
   const c = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'], ...opts })
-  let out = ''
+  let stdout = ''
+  let stderr = ''
   let done = false
-  const finish = (code) => { if (!done) { done = true; clearTimeout(t); resolve({ code, out }) } }
+  const finish = (code) => {
+    if (done) return
+    done = true
+    clearTimeout(t)
+    resolve({ code, out: stdout + stderr, stdout })
+  }
   const t = setTimeout(() => {
-    out += `\n[verify-all] dépassé ${Math.round(limitMs / 60000)} min · épreuve interrompue\n`
+    stderr += `\n[verify-all] dépassé ${Math.round(limitMs / 60000)} min · épreuve interrompue\n`
     try { c.kill('SIGKILL') } catch { /* déjà mort */ }
     finish(124)
   }, limitMs)
-  c.stdout.on('data', (d) => { out += d })
-  c.stderr.on('data', (d) => { out += d })
+  c.stdout.on('data', (d) => { stdout += d })
+  c.stderr.on('data', (d) => { stderr += d })
   c.on('close', finish)
 })
 
@@ -197,9 +228,13 @@ for (const [file, mins] of list) {
     Math.max(5, mins * 3) * 60_000)
   const took = Math.round((Date.now() - t0) / 1000)
   const passed = r.code === 0
-  // combien d'assertions · utile pour repérer une épreuve qui ne vérifie plus rien
-  const n = (r.out.match(/^(ok|PASS)\b/gm) || []).length
-  const bad = (r.out.match(/^(FAIL)/gm) || []).length
+  // COMBIEN D'ASSERTIONS · utile pour repérer une épreuve qui ne vérifie plus
+  // rien, et seulement si le compte est juste. On compte donc sur la sortie
+  // STANDARD seule : c'est elle qui porte les lignes de résultat, et c'est
+  // l'entrelacement avec la sortie d'erreur qui cassait les débuts de ligne.
+  // Voir l'en-tête de `run`.
+  const n = (r.stdout.match(/^(ok|PASS)\b/gm) || []).length
+  const bad = (r.stdout.match(/^(FAIL)/gm) || []).length
   console.log(`${passed ? 'VERT' : 'ÉCHEC'}  ${n} vérifs${bad ? `, ${bad} en échec` : ''} · ${took}s`)
   rows.push({ file, passed, n, bad, took, out: r.out })
 }
