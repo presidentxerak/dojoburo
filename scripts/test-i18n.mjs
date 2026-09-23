@@ -73,6 +73,52 @@ ok('chaque clé nomme un endroit', looksLikeText.length === 0, looksLikeText.joi
 // explicitement est la seule façon honnête de le dire : une règle qui tolère
 // « en === fr » en général ne détecte plus rien, et une règle qui l'interdit
 // toujours accuse « Menu ».
+// ---- EST-CE VRAIMENT DU FRANÇAIS ? --------------------------------------
+//
+// TOUTES MES RÈGLES DE TRADUCTION COMPARAIENT `fr !== en`, ce qui ne détecte
+// qu'une COPIE EXACTE. De l'anglais reformulé passait sans rien faire rougir.
+// Une morsure l'a montré : remplacer une phrase française par un anglais
+// légèrement différent ne déclenchait aucune garde, et c'est très exactement
+// ce qui arrive quand quelqu'un « traduit » en réécrivant l'anglais.
+//
+// LA PREMIÈRE VERSION DE CETTE RÈGLE ACCUSAIT DU BON FRANÇAIS, et c'est le
+// pire défaut qu'une garde puisse avoir : elle apprend à la contourner. Elle
+// cherchait une quinzaine de mots outils et les lettres accentuées, et rejetait
+// quatre phrases parfaitement françaises · « Quelle part du travail se fait en
+// lecture seule ? » n'a ni accent ni aucun de ces quinze mots.
+//
+// Elle regarde donc trois signes, dont un seul suffit :
+//   · une lettre accentuée ou un guillemet français,
+//   · une élision (d', l', n', qu'…), qui n'existe pas en anglais,
+//   · un mot outil français, dans une liste large.
+//
+// ET ELLE NE JUGE QUE DE LA PROSE. Un exemple de schéma comme
+// « total_ttc : 1240,50, lu depuis "TOTAL TTC 1 240,50 EUR" » est un
+// échantillon de données, pas une phrase : il n'a pas de langue, et exiger
+// qu'il en ait une reviendrait à interdire de montrer des données. On saute
+// donc ce qui compte moins de six mots alphabétiques.
+const FR_ACCENT = /[àâäçéèêëîïôöùûüœÀÂÇÉÈÊËÎÏÔÖÙÛÜŒ«»]/
+const FR_ELISION = /\b[cdjlmnst]'|\bqu'/i
+const FR_WORDS = new RegExp('\\b(?:' + [
+  'le', 'la', 'les', 'un', 'une', 'des', 'du', 'de', 'au', 'aux',
+  'et', 'ou', 'ne', 'pas', 'plus', 'sans', 'sous', 'hors', 'vers', 'chez',
+  'qui', 'que', 'quoi', 'dont', 'quand', 'quelle', 'quel', 'quelles', 'quels',
+  'pour', 'par', 'dans', 'avec', 'sur', 'entre', 'depuis', 'avant', 'apres',
+  'vous', 'nous', 'il', 'elle', 'ils', 'elles', 'se', 'son', 'sa', 'ses',
+  'notre', 'votre', 'leur', 'ce', 'cet', 'cette', 'ces', 'tout', 'toute',
+  'est', 'sont', 'etre', 'fait', 'faire', 'peut', 'doit', 'sera',
+].join('|') + ')\\b', 'i')
+
+/** Combien de mots alphabétiques · en dessous de six, ce n'est pas de la
+ *  prose et la question de la langue ne se pose pas. */
+const wordCount = (t) => (String(t).match(/[A-Za-zÀ-ÿ]{2,}/g) || []).length
+
+const looksFrench = (t) => {
+  if (typeof t !== 'string') return false
+  if (wordCount(t) < 6) return true
+  return FR_ACCENT.test(t) || FR_ELISION.test(t) || FR_WORDS.test(t)
+}
+
 const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu'])
 const copied = keys.filter((k) => DICT[k].en === DICT[k].fr && !SAME_IN_BOTH.has(k))
 ok('aucune traduction n\'est la copie de l\'anglais', copied.length === 0,
@@ -155,6 +201,8 @@ for (const l of FG.LEVERS) {
     ok(`« ${l.id} » a traduit sa contre-indication`, l.fr.not !== l.not && l.fr.not.length > 40,
       `${l.fr.not.length} signes`)
     ok(`« ${l.id} » n'a rien recopié`, l.fr.title !== l.title && l.fr.why !== l.why)
+    ok(`« ${l.id} » est écrit en français`,
+      looksFrench(l.fr.how) && looksFrench(l.fr.why) && looksFrench(l.fr.not))
   }
 }
 for (const f of Object.keys(FG.FAMILY_LABEL)) {
@@ -176,6 +224,8 @@ for (const i of IC.ICEBERG) {
     // une ligne qui tenait juste en anglais déborde en français, et le pavé
     // se met à faire deux hauteurs au milieu d'une grille.
     ok(`« ${i.id} » tient sur une ligne en français`, i.fr.short.length <= 60, `${i.fr.short.length} signes`)
+    ok(`« ${i.id} » est écrit en français`,
+      looksFrench(i.fr.what) && looksFrench(i.fr.why) && looksFrench(i.fr.not))
   }
 }
 for (const d of ['surface', 'real', 'deeper']) {
@@ -206,6 +256,10 @@ for (const u of UC.USE_CASES) {
       `${u.steps.length} / ${u.fr.steps.length}`)
     ok(`« ${u.id} » a traduit chaque étape`,
       u.fr.steps.every((st, i) => st.title !== u.steps[i].title && st.makes.length > 10 && st.check.length > 10))
+    ok(`« ${u.id} » est écrit en français`,
+      looksFrench(u.fr.does) && looksFrench(u.fr.hard) && looksFrench(u.fr.failure)
+        && u.fr.steps.every((st) => looksFrench(st.makes) && looksFrench(st.check))
+        && u.fr.ships.every(looksFrench))
     // CE QU'ON EMPORTE · une liste plus courte en français retirerait
     // silencieusement une promesse à la moitié des élèves.
     ok(`« ${u.id} » emporte autant de choses dans les deux langues`, u.fr.ships.length === u.ships.length,
@@ -221,6 +275,54 @@ ok('useCaseIn garde l\'identifiant', UC.useCaseIn(UC.USE_CASES[0], 'fr').id === 
 for (const f of ['src/dojo/ClassScene.tsx', 'src/dojo/BuildAgent.tsx', 'src/dojo/AgentCard.tsx']) {
   ok(`${f.split('/').pop()} passe par useCaseIn`, /useCaseIn\(/.test(readFileSync(f, 'utf8')))
 }
+
+/* --- 3 quinquies · les douze leçons du dojo ------------------------------ */
+//
+// UNE LEÇON SE TRADUIT ENTIÈRE OU PAS DU TOUT. Une fiche qui porte un nom
+// français au-dessus d'un primer anglais se lit comme une page cassée, et
+// c'est l'état dans lequel elle a été livrée un lot durant · à dessein, comme
+// point de sauvegarde, mais il ne devait pas durer.
+const AL = await load('src/data/agentLessons.ts', 'al.mjs')
+const ids = Object.keys(AL.LESSONS)
+for (const id of ids) {
+  const l = AL.LESSONS[id]
+  ok(`la leçon « ${id} » a son français`, !!l.fr?.primer && Array.isArray(l.fr?.steps), l.fr ? 'oui' : 'absente')
+  if (!l.fr) continue
+  ok(`« ${id} » a traduit son primer`,
+    l.fr.primer.plain !== l.primer.plain && l.fr.primer.like !== l.primer.like)
+  // LES MOTS DÉFINIS · autant de mots dans les deux langues, sinon un lecteur
+  // français perd une définition que le lecteur anglais a.
+  ok(`« ${id} » définit autant de mots`, l.fr.primer.words.length === l.primer.words.length,
+    `${l.primer.words.length} / ${l.fr.primer.words.length}`)
+  ok(`« ${id} » demande autant de choses`, l.fr.primer.need.length === l.primer.need.length)
+  ok(`« ${id} » a ses quatre étapes`, l.fr.steps.length === l.steps.length,
+    `${l.steps.length} / ${l.fr.steps.length}`)
+  // L'EXEMPLE RATÉ À CÔTÉ DU RÉUSSI est la partie qui apprend · une étape dont
+  // le mauvais exemple est resté anglais et le bon français ne compare plus
+  // rien du tout.
+  ok(`« ${id} » a traduit ses exemples`,
+    l.fr.steps.every((st, i) => st.bad !== l.steps[i].bad && st.good !== l.steps[i].good))
+  // … ET C'EST BIEN DU FRANÇAIS, pas de l'anglais reformulé. Voir le
+  // commentaire de FRENCH plus haut : la comparaison `!==` seule laisse
+  // passer une réécriture, qui est la forme la plus courante du défaut.
+  ok(`« ${id} » est écrite en français`,
+    looksFrench(l.fr.primer.plain) && looksFrench(l.fr.primer.like)
+      && l.fr.steps.every((st) => looksFrench(st.why) && looksFrench(st.good) && looksFrench(st.bad)
+        && looksFrench(st.note) && looksFrench(st.reward) && st.how.every(looksFrench))
+      && l.fr.primer.words.every((w) => looksFrench(w.says))
+      && l.fr.primer.need.every(looksFrench))
+  ok(`« ${id} » a traduit ses récompenses`,
+    l.fr.steps.every((st, i) => st.reward !== l.steps[i].reward && st.reward.length > 20))
+  ok(`« ${id} » garde ses gestes`,
+    l.fr.steps.every((st, i) => st.how.length === l.steps[i].how.length))
+}
+// LE STAGE N'EST PAS UN TEXTE · c'est l'identifiant d'une famille d'animation.
+// Le traduire casserait le dessin sans rien traduire.
+ok('lessonIn garde le stage de chaque étape',
+  AL.lessonIn(AL.LESSONS[ids[0]], 'fr').steps.every((st, i) => st.stage === AL.LESSONS[ids[0]].steps[i].stage))
+ok('lessonIn rend le français', AL.lessonIn(AL.LESSONS[ids[0]], 'fr').primer.plain === AL.LESSONS[ids[0]].fr.primer.plain)
+ok('lessonIn rend l\'anglais', AL.lessonIn(AL.LESSONS[ids[0]], 'en').primer.plain === AL.LESSONS[ids[0]].primer.plain)
+ok('la fiche passe par lessonIn', /lessonIn\(/.test(readFileSync('src/dojo/AgentCard.tsx', 'utf8')))
 
 /* --- 4 · les surfaces annoncées traduites le sont vraiment --------------- */
 
@@ -313,6 +415,27 @@ ok(proseDone
 
 /* --- 7 · les morsures ---------------------------------------------------- */
 
+// LA MORSURE QUI A RÉVÉLÉ LE TROU · elle est gardée telle quelle.
+ok('morsure · de l\'anglais reformulé est vu',
+  !looksFrench('A source is a document I can open at a URL or a file path, that carries a date.'))
+ok('morsure · du vrai français passe',
+  looksFrench('Une source est un document que je peux ouvrir à une adresse ou à un chemin de fichier.'))
+ok('morsure · du français sans accent passe quand même',
+  looksFrench('Un document que vous pouvez ouvrir, avec une date dessus, et que vous montreriez.'))
+// LES QUATRE PHRASES QUE LA PREMIÈRE VERSION ACCUSAIT À TORT · elles restent
+// ici, parce qu'une garde qui a déjà accusé du bon texte doit porter la preuve
+// qu'elle ne le fait plus.
+ok('morsure · « Quelle part du travail se fait en lecture seule ? »',
+  looksFrench('Quelle part du travail se fait en lecture seule ?'))
+ok('morsure · une politique sans accent',
+  looksFrench('Tu connais notre politique de remboursement : 30 jours, hors frais de port, sous conditions.'))
+ok('morsure · une consigne avec élisions',
+  looksFrench("S'il n'y en a aucune : interdisez-lui d'en inventer."))
+ok('morsure · un échantillon de données n\'a pas de langue',
+  looksFrench('total_ttc : 1240,50, page 2, ligne 14.'))
+ok('morsure · un libellé court n\'est pas accusé', looksFrench('PDF'))
+ok('morsure · une phrase anglaise longue est vue',
+  !looksFrench('Report a problem only if you can write a concrete input and what the code does with it.'))
 ok('morsure · une phrase en dur est vue', HARDCODED.test('<a href="/">App setup guide</a>'))
 ok('morsure · une expression JSX ne l\'est pas', !HARDCODED.test("<a href='/'>{t('nav.home')}</a>"))
 ok('morsure · un mot seul ne l\'est pas', !HARDCODED.test('<span>Beta</span>'))

@@ -27,7 +27,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { StepStage } from './StepStage'
-import { lessonFor } from '../data/agentLessons'
+import { lessonFor, lessonIn } from '../data/agentLessons'
 import { useCaseIn, type UseCase } from '../data/agentUseCases'
 import { useLang, useT } from '../i18n'
 import { markDone, clearDone, useProgress } from '../academy/progress'
@@ -84,7 +84,11 @@ export function AgentCard({ u: u0, onClose }: { u: UseCase; onClose: () => void 
   // testeraient la langue chacune de leur côté finiraient par donner à un
   // agent un nom dans la salle et un autre sur sa page.
   const u = useCaseIn(u0, lang)
-  const lesson = lessonFor(u.id)
+  // LA LEÇON DANS LA LANGUE LUE · même chemin unique que pour le cas d'usage.
+  // Sans ça, la fiche affiche un nom français au-dessus d'un primer anglais,
+  // ce qui est exactement la page à moitié traduite qu'on refuse de livrer.
+  const lesson0 = lessonFor(u.id)
+  const lesson = lesson0 ? lessonIn(lesson0, lang) : null
   const progress = useProgress()
   const [draft, setDraft] = useState<BuiltAgent>(() => scaffold(u, lang === 'fr'))
   const [fmt, setFmt] = useState<ExportFormat>('brief')

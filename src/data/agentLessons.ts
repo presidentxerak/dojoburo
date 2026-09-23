@@ -67,9 +67,33 @@ export interface StepLesson {
   reward: string
 }
 
+/** LE FRANÇAIS D'UNE LEÇON, dans la même entrée que l'anglais.
+ *
+ *  Il porte la leçon ENTIÈRE, pas champ par champ : un primer à moitié
+ *  traduit et quatre étapes anglaises donneraient une fiche bilingue, ce qui
+ *  se lit comme une page cassée. La garde vérifie donc la leçon entière ou
+ *  rien · voir scripts/test-i18n. */
+export interface LessonFr {
+  primer: Primer
+  steps: Array<Omit<StepLesson, 'stage'>>
+}
+
 export interface Lesson {
   primer: Primer
   steps: StepLesson[]
+  fr?: LessonFr
+}
+
+/** UNE LEÇON DANS LA LANGUE LUE · le seul chemin, comme useCaseIn pour les
+ *  cas d'usage. Le `stage` n'est pas traduit : c'est l'identifiant d'une
+ *  famille d'animation, pas un texte. */
+export function lessonIn(l: Lesson, lang: 'en' | 'fr'): Lesson {
+  if (lang !== 'fr' || !l.fr) return l
+  return {
+    ...l,
+    primer: l.fr.primer,
+    steps: l.steps.map((s, i) => ({ ...(l.fr!.steps[i] ?? s), stage: s.stage })),
+  }
 }
 
 export const LESSONS: Record<string, Lesson> = {
@@ -143,6 +167,72 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'It said it did not know. You have built the rarest thing in this field.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il lit une pile de documents pour vous et répond à une question, et pour chaque phrase qu'il écrit, il peut vous montrer où il l'a lue.",
+        like: "Un assistant de recherche consciencieux qui surligne la page avant de vous dire ce qu'elle raconte. Le surlignage est tout le métier. Sans lui, vous avez un assistant qui a l'air sûr de lui.",
+        need: [
+          "Une question à laquelle vous voulez vraiment une réponse, écrite en une phrase.",
+          "Trois ou quatre vrais documents. Les vôtres, pas des échantillons.",
+          "Un document qui NE répond PAS à la question, mis de côté pour la dernière étape.",
+        ],
+        words: [
+          { term: "Source", says: "Un document que vous accepteriez de montrer à quelqu'un qui doute de vous." },
+          { term: "Hallucination", says: "Quand le modèle écrit quelque chose de plausible qu'il n'a lu nulle part. Ça ressemble exactement aux parties vraies." },
+          { term: "Mot à mot", says: "Recopié tel quel, pas résumé." },
+        ],
+      },
+      steps: [
+        {
+          why: "À un modèle à qui l'on demande d'« utiliser des sources », tout fera office de source : un billet de blog, sa propre mémoire, une phrase qu'il vient d'écrire. Si vous n'avez pas dit ce qui compte, il décide pour vous, et il décide généreusement.",
+          how: [
+            "Écrivez les types de document que vous ACCEPTERIEZ : un contrat signé, un article publié, une page de votre propre documentation.",
+            "Écrivez ceux que vous n'accepteriez pas : une réponse de forum, une page sans date, tout ce que vous ne pouvez pas ouvrir.",
+            "Lisez les deux listes à un collègue. S'il peut les appliquer sans vous poser de question, elles sont finies.",
+          ],
+          bad: "Utilise des sources fiables.",
+          good: "Une source est un document que je peux ouvrir à une adresse ou à un chemin de fichier, qui porte une date, et que je pourrais envoyer à un client. Les messages de forum, les pages marketing et les PDF sans date ne sont pas des sources.",
+          note: "La première est un adjectif et vous coûte des jetons pour rien : « fiable » ne veut rien dire pour un modèle. La seconde est un test que n'importe qui peut appliquer, le modèle compris.",
+          reward: "Vous avez écrit une règle qu'un inconnu pourrait appliquer. C'est plus rare qu'il n'y paraît.",
+        },
+        {
+          why: "Laissé seul, un modèle résume. C'est dans le résumé que les inventions se glissent, parce qu'un résumé qui comble un petit trou se lit mieux qu'un résumé qui s'arrête. Imposer la citation supprime le trou qu'il pourrait combler.",
+          how: [
+            "Ajoutez à la consigne : chaque affirmation doit être suivie d'un fragment recopié mot à mot depuis la matière.",
+            "Dites quoi faire quand aucun fragment n'existe : écrire « introuvable dans la matière » et passer.",
+            "Interdisez la paraphrase à l'intérieur des guillemets. Une « citation » reformulée est exactement l'échec que vous essayez d'arrêter.",
+          ],
+          bad: "Résume les documents et cite tes sources.",
+          good: "Pour chaque affirmation, écris l'affirmation, puis à la ligne suivante la phrase exacte du document qui l'appuie, entre guillemets, avec le nom du fichier. Si tu ne trouves pas une telle phrase, écris INTROUVABLE et ne fais pas l'affirmation.",
+          note: "La seconde rend l'échec visible. INTROUVABLE est un résultat sur lequel on peut agir ; un paragraphe assuré, non.",
+          reward: "Votre agent sait maintenant échouer à voix haute. La plupart ne le savent pas, et c'est pourquoi personne ne leur fait confiance.",
+        },
+        {
+          why: "La réponse dangereuse n'est pas la fausse, c'est celle qui a l'air complète. Si la matière n'abordait jamais la moitié de votre question, une bonne réponse le dit ; une mauvaise couvre discrètement la moitié qu'elle a trouvée et se lit comme si elle avait tout couvert.",
+          how: [
+            "Exigez une section intitulée « Non couvert » dans chaque réponse.",
+            "Dites qu'elle ne doit pas rester vide, sauf si chaque partie de la question a été répondue par une citation.",
+            "Lisez cette section en premier, avant la réponse, à chaque fois.",
+          ],
+          bad: "Signale ce qui n'est pas clair.",
+          good: "Termine par une section « Non couvert ». Liste chaque partie de ma question à laquelle aucun document n'a répondu. Si cette section est vide, dis explicitement quel document a répondu à quelle partie.",
+          note: "Un « Non couvert » vide est un avertissement, pas une bonne note. Ça veut en général dire que l'agent n'a pas cherché, et la seconde version l'oblige à prouver le contraire.",
+          reward: "Vous avez rendu le silence impossible. Un agent qui ne peut pas se taire sur les trous est un agent qu'on lit vite.",
+        },
+        {
+          why: "Tout ce qui précède est de la théorie jusqu'à ce que l'agent rencontre une question à laquelle il ne peut pas répondre. C'est le seul moment qui vous dit si vous avez construit un chercheur ou un devineur très éloquent.",
+          how: [
+            "Prenez le document que vous aviez mis de côté, celui qui ne répond pas à votre question.",
+            "Donnez-le seul à l'agent, avec la même question.",
+            "Lisez ce qui revient avant de lire quoi que ce soit d'autre.",
+          ],
+          bad: "Fais-le tourner sur tes vrais documents et regarde si la réponse a l'air bonne.",
+          good: "Fais-le tourner sur le document qui ne peut pas répondre, et vérifie qu'il le dit. Ensuite seulement, sur les vrais.",
+          note: "Un agent qui a l'air bon sur de la matière qui marche ne vous apprend rien. Le piège est le test.",
+          reward: "Il a dit qu'il ne savait pas. Vous avez construit la chose la plus rare de ce domaine.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -214,6 +304,71 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'You deleted rules on purpose. That is the step everyone skips and the reason most briefs stop working.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il écrit des brouillons qui vous ressemblent au lieu de ressembler à un robot de conversation, à partir d'une description de votre voix que vous écrivez une seule fois.",
+        like: "Un nègre littéraire qui a lu tout ce que vous avez publié. Vous ne lui expliquez pas votre style chaque matin ; il l'a déjà, et vous corrigez les bords.",
+        need: [
+          "Trois brouillons qu'un modèle a écrits pour vous et que vous n'avez pas aimés. Gardez-les, c'est la matière première.",
+          "Deux textes de vous dont vous êtes content.",
+          "Un quart d'heure pour dire à voix haute ce qui n'allait pas dans les trois mauvais.",
+        ],
+        words: [
+          { term: "Ton", says: "Votre façon de sonner. En pratique : les choses que vous ne faites jamais, plus que celles que vous faites." },
+          { term: "Brief", says: "Une consigne permanente que l'agent emporte dans chaque travail, par opposition à ce que vous tapez à chaque fois." },
+        ],
+      },
+      steps: [
+        {
+          why: "Vous ne pouvez pas décrire votre voix de mémoire. Tous ceux qui essaient écrivent les quatre mêmes adjectifs, et les adjectifs ne changent rien. Vos trois mauvais brouillons, eux, contiennent exactement ce que vous détestez, par écrit.",
+          how: [
+            "Ouvrez les trois brouillons que vous n'avez pas aimés.",
+            "Pour chacun, soulignez les phrases qui vous ont fait grincer. Pas les faibles : celles qui sonnaient faux.",
+            "À côté de chacune, écrivez en mots simples ce qui n'allait pas. « Trop empressé. » « On dirait une publicité. » « Explique ce que je viens de dire. »",
+          ],
+          bad: "Mon ton est professionnel mais amical, clair et engageant.",
+          good: "Brouillon 2, ligne 3 : « Nous sommes ravis d'annoncer » · je ne dis jamais ravis. Brouillon 1, dernière ligne : un appel à l'action que je n'ai pas demandé. Brouillon 3 : trois adjectifs dans une phrase.",
+          note: "La première phrase irait à n'importe quelle entreprise du monde. La seconde est indiscutablement la vôtre, et chacune de ses lignes devient une règle à l'étape suivante.",
+          reward: "Vous avez maintenant des preuves au lieu d'adjectifs. Chaque règle que vous écrirez sera traçable jusqu'à quelque chose de réel.",
+        },
+        {
+          why: "Un modèle ne peut pas agir sur « sois chaleureux mais pas bavard ». Il peut agir sur « ne commence jamais par une question ». Les consignes de style positives sont de la décoration ; les interdits se vérifient, et une règle que personne ne peut vérifier est une règle que personne n'applique.",
+          how: [
+            "Transformez chaque grincement souligné en une phrase commençant par « Ne jamais ».",
+            "Rendez chacune vérifiable : quelqu'un d'autre doit pouvoir dire si elle a été enfreinte, sans vous demander.",
+            "Jetez celles que vous ne pouvez pas relier à un brouillon précis.",
+          ],
+          bad: "Évite le langage promotionnel.",
+          good: "Ne jamais ouvrir par une question. Ne jamais employer ravis, passionnés, incontournable. Ne jamais finir par un appel à l'action sauf demande explicite. Ne jamais mettre plus d'un adjectif par phrase.",
+          note: "« Promotionnel » est une appréciation. Les quatre interdits sont des tests, et un relecteur qui ne vous connaît pas peut les appliquer.",
+          reward: "Votre goût est devenu vérifiable. C'est la seule forme de goût qu'une machine sait suivre.",
+        },
+        {
+          why: "Les interdits disent ce qu'il ne faut pas faire et ne montrent jamais ce qu'il faut faire. Un seul exemple travaillé porte ce que dix règles n'arrivent pas à dire, parce que la voix est dans le rythme et pas dans le vocabulaire.",
+          how: [
+            "Prenez un passage de votre propre écriture dont vous êtes content.",
+            "Mettez à côté la version qu'un modèle en aurait faite, ou la vôtre avant correction.",
+            "Ne commentez pas la paire. L'écart parle mieux que votre commentaire.",
+          ],
+          bad: "Écris dans un style clair et direct.",
+          good: "Voici un avant et un après. Avant : « Nous sommes ravis de vous présenter notre nouvelle fonctionnalité, conçue pour transformer votre quotidien. » Après : « La recherche accepte maintenant les guillemets. Ça marche dans les commentaires aussi. » Écris comme l'après.",
+          note: "La paire enseigne le rythme, la longueur de phrase et le refus d'annoncer. Aucun adjectif n'aurait transmis ça.",
+          reward: "Vous avez donné un modèle à imiter plutôt qu'une consigne à suivre. C'est ce qui distingue un brief qui marche.",
+        },
+        {
+          why: "Un brief qui grossit cesse d'être suivi. Au-delà d'une vingtaine de règles, le modèle en applique certaines et en oublie d'autres, et vous ne saurez jamais lesquelles. Couper est donc une étape, pas un nettoyage.",
+          how: [
+            "Comptez vos règles. Si vous dépassez vingt, vous allez en supprimer.",
+            "Supprimez d'abord celles que vous ne pouvez relier à aucun brouillon raté.",
+            "Notez ce que vous avez supprimé, et à quelle condition vous le remettriez.",
+          ],
+          bad: "Garde toutes les règles, on ne sait jamais.",
+          good: "Vingt règles au plus, chacune traçable jusqu'à un brouillon précis. Une règle supprimée revient seulement si un nouveau brouillon la redemande.",
+          note: "La seconde version fait du brief une chose vivante avec une règle d'entrée. La première en fait une décharge où rien ne se vérifie plus.",
+          reward: "Votre brief tient sur un écran. C'est la seule longueur qu'un modèle suit jusqu'au bout.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -285,6 +440,71 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'It quotes instead of remembering. That is the difference between a support agent and a liability.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il répond aux clients dans votre voix, à l'intérieur de limites que vous posez, et passe la conversation à un humain dès qu'il le doit.",
+        like: "Une recrue à sa première semaine. Douée pour être aimable, pas encore autorisée à promettre quoi que ce soit. La formation porte entièrement sur ce qu'elle ne doit pas dire.",
+        need: [
+          "Dix vrais messages de clients. Des ennuyeux, pas les dramatiques.",
+          "Votre véritable politique de remboursement et de livraison, par écrit.",
+          "Une décision sur qui prend le relais quand l'agent s'arrête.",
+        ],
+        words: [
+          { term: "Transfert", says: "Passer la conversation à une personne. La chose la plus importante que fait l'agent." },
+          { term: "Garde-fou", says: "Une chose que l'agent ne peut jamais faire, écrite comme une règle plutôt qu'espérée." },
+        ],
+      },
+      steps: [
+        {
+          why: "Un modèle préfère être utile qu'exact. À qui lui demande quand une commande arrive, il produira une date, parce qu'une date est ce que le lecteur voulait. Personne n'a prévu cette date. C'est désormais une promesse que vous avez faite.",
+          how: [
+            "Nommez les trois choses qu'il ne peut jamais énoncer : une date de livraison, un prix, une décision de remboursement.",
+            "Pour chacune, écrivez la phrase exacte qu'il dit à la place, mot pour mot.",
+            "Lisez ces trois phrases comme si vous les receviez. Si l'une vous agace, réécrivez-la maintenant.",
+          ],
+          bad: "Ne fais pas de promesses que tu ne peux pas tenir.",
+          good: "N'énonce jamais une date de livraison, un prix, ni si un remboursement sera accordé. Dis à la place, mot pour mot : « J'ai transmis à l'équipe, qui confirmera dans la journée. »",
+          note: "La version de gauche demande au modèle de juger ce qu'est une promesse. Celle de droite retire le jugement et lui tend un script.",
+          reward: "Trois phrases que votre agent ne peut plus dire. C'est trois façons de moins de devoir quelque chose à un client.",
+        },
+        {
+          why: "Si vous ne lui dites que ce qu'il ne faut pas dire, il improvisera le vide, et c'est dans l'improvisation qu'est le dégât. « Je ne sais pas » doit être une vraie réponse, approuvée et bien écrite, sinon elle ne sera jamais choisie.",
+          how: [
+            "Écrivez la réponse qu'il envoie quand il ne peut vraiment pas répondre.",
+            "Faites-en une bonne réponse : ce qu'il ignore, ce qui se passe ensuite, et quand.",
+            "Lisez-la à voix haute en vous mettant à la place du client. Si vous seriez agacé, elle n'est pas finie.",
+          ],
+          bad: "Je suis désolé, je ne suis pas en mesure de vous aider sur cette demande.",
+          good: "Je n'ai pas la réponse à celle-là. Je l'ai transmise à l'équipe et quelqu'un vous répondra dans la journée. Si c'est urgent, répondez URGENT et ça passe en tête.",
+          note: "Celle de gauche met fin à la conversation. Celle de droite dit ce qu'elle ignore, ce qui se passe ensuite et quand. C'est une vraie réponse.",
+          reward: "Votre agent a maintenant une façon digne de s'arrêter. La plupart ne savent que continuer à parler.",
+        },
+        {
+          why: "Demander à un modèle de « transférer quand c'est approprié » lui confie précisément le jugement que vous voulez le moins lui laisser. Une liste de conditions n'est pas une version dégradée du jugement : c'est ce que vous vouliez dire.",
+          how: [
+            "Listez les conditions qui déclenchent le transfert, comme des faits et non des impressions : de l'argent mentionné, des mots juridiques, un deuxième message sur le même sujet, de la colère.",
+            "Pour chacune, dites qui reçoit.",
+            "Ajoutez le filet : dans le doute, transférer.",
+          ],
+          bad: "Transfère à un humain quand la situation l'exige.",
+          good: "Transfère immédiatement si : le message mentionne un remboursement, une opposition bancaire, un avocat ou la presse ; s'il s'agit du deuxième message sur le même sujet ; ou si le client dit qu'il est en colère. Dans le doute, transfère.",
+          note: "Chaque condition de droite est un fait que l'agent peut vérifier. « L'exige » est une appréciation qu'il rendra différemment à chaque fois.",
+          reward: "Le transfert est devenu une règle, plus une impression. Votre agent sait quand il est dépassé.",
+        },
+        {
+          why: "Un agent qui résume votre politique la rendra presque juste, et presque juste sur un remboursement, c'est faux. Il doit citer la politique comme le chercheur cite un document.",
+          how: [
+            "Mettez la politique en entier dans les consignes permanentes de l'agent.",
+            "Dites-lui de citer la ligne qui s'applique plutôt que de l'expliquer.",
+            "Éprouvez-le avec une question que la politique ne couvre pas, et vérifiez qu'il n'invente pas la réponse.",
+          ],
+          bad: "Tu connais notre politique de remboursement : 30 jours, hors frais de port, sous conditions.",
+          good: "Voici la politique en entier. Quand elle s'applique, cite la ligne exacte. Quand le client demande quelque chose qu'elle ne couvre pas, dis-le et transfère.",
+          note: "Une politique résumée est une politique dont on a retiré les exceptions, et les exceptions sont la seule partie au sujet de laquelle on vous écrit.",
+          reward: "Il cite au lieu de se souvenir. C'est la différence entre un agent de support et un engagement juridique.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -356,6 +576,71 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'It stayed quiet when there was nothing to say. That is the whole game.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il lit un changement dans votre code et vous dit ce qui est cassé, et seulement ce qui est cassé.",
+        like: "Un bon relecteur qui laisse quatre commentaires au lieu de quarante. Les quatre sont corrigés. Les quarante reçoivent un pouce levé et une fusion.",
+        need: [
+          "Un vrai changement de votre code, idéalement un qui contenait un défaut.",
+          "Vos conventions, si vous en avez d'écrites. Sinon, c'est la réponse à une question posée plus bas.",
+          "La volonté de le laisser ne rien signaler du tout.",
+        ],
+        words: [
+          { term: "Constat", says: "Un défaut que le relecteur peut démontrer, par opposition à quelque chose qu'il aurait écrit autrement." },
+          { term: "Faux positif", says: "Un problème signalé qui n'en est pas un. Deux de ceux-là et les gens cessent de lire le reste." },
+        ],
+      },
+      steps: [
+        {
+          why: "Demandez une relecture et vous obtenez des avis : le nommage, la structure, ce que l'auteur aurait dû faire. Les avis enterrent le seul vrai défaut. Définir ce QU'EST un constat est ce qui sépare les deux.",
+          how: [
+            "Exigez trois lignes pour tout constat : l'entrée, ce que le code en fait, ce qu'il devrait faire à la place.",
+            "Si l'une des trois ne peut pas être écrite, ce n'est pas un constat.",
+            "Dites-le explicitement : « si tu ne peux pas écrire les trois, ne le signale pas ».",
+          ],
+          bad: "Relis ce code et signale les problèmes.",
+          good: "Ne signale un problème que si tu peux écrire : (1) une entrée concrète, (2) ce que le code en fait, (3) ce qu'il devrait faire à la place. Si tu ne peux pas écrire les trois, tais-toi.",
+          note: "Les trois lignes ne sont pas de la paperasse. C'est un test que le modèle doit passer avant de parler, et la plupart des avis y échouent.",
+          reward: "Vous avez défini ce qui compte comme problème. Chaque commentaire devra désormais gagner sa place.",
+        },
+        {
+          why: "Le goût est ce qui rend un relecteur illisible. Il arrive de la même voix assurée que les vrais défauts, en bien plus grand nombre, et c'est la raison pour laquelle plus personne ne lit l'outil après deux semaines.",
+          how: [
+            "Écrivez la liste de ce qu'il ne peut jamais signaler : le nommage, la mise en forme, l'organisation des fichiers, les « pense à utiliser », tout ce dont un formateur automatique s'occupe.",
+            "Dites où vivent vos conventions, ou dites franchement qu'il n'y en a aucune.",
+            "S'il n'y en a aucune : interdisez-lui d'en inventer.",
+          ],
+          bad: "Respecte les bonnes pratiques et les conventions de l'équipe.",
+          good: "Ne commente jamais le nommage, la mise en forme, la structure des fichiers, ni une préférence entre deux approches qui marchent. Nous n'avons aucune convention écrite, donc n'en déduis aucune.",
+          note: "« Bonnes pratiques » est une invitation à tout signaler. La version de droite ferme la porte sur la catégorie entière.",
+          reward: "Le goût est banni. Ce qui reste est la partie qui mérite d'être lue.",
+        },
+        {
+          why: "Quarante constats et quatre constats portent la même information si les quarante ne sont pas classés, parce que personne ne lit jusqu'en bas. Un plafond force le modèle à choisir, et choisir est le travail.",
+          how: [
+            "Plafonnez le nombre de constats. Cinq est un bon départ.",
+            "Exigez-les classés du pire au moins grave, le pire en tête de page.",
+            "Interdisez de remplir le quota : s'il y en a deux, il en signale deux.",
+          ],
+          bad: "Liste tous les problèmes que tu trouves, classés par gravité.",
+          good: "Signale au plus cinq constats, le pire d'abord. S'il y en a moins de cinq de réels, signales-en moins. Ne rembourre jamais la liste pour atteindre cinq.",
+          note: "« Ne rembourre jamais » est la phrase porteuse. Sans elle, un plafond devient un quota, et un quota fabrique des constats.",
+          reward: "Votre relecteur peut maintenant signaler deux choses et s'arrêter. Cette retenue est ce qui le rend lisible.",
+        },
+        {
+          why: "La seule question qui compte est de savoir s'il se tait sur du code propre. Un relecteur qui trouve toujours quelque chose est un relecteur qui se trompe toujours un peu.",
+          how: [
+            "Lancez-le sur un changement dont vous savez qu'il contenait un vrai défaut. Vérifiez qu'il l'a trouvé.",
+            "Lancez-le sur un changement dont vous savez qu'il était propre. Regardez ce qu'il dit.",
+            "S'il a trouvé quelque chose sur le propre, lisez ce constat de près : soit il a raison et vous aviez tort, soit vos interdits ont un trou.",
+          ],
+          bad: "Lance-le sur quelques changements et regarde si les commentaires semblent raisonnables.",
+          good: "Lance-le sur un changement au défaut connu et sur un changement connu comme propre. Il doit trouver le premier et ne rien dire sur le second.",
+          note: "L'éprouver seulement sur du code cassé vous dit qu'il sait parler. L'éprouver sur du code propre vous dit s'il sait s'arrêter.",
+          reward: "Il s'est tu quand il n'y avait rien à dire. C'est tout le jeu.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -427,6 +712,71 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'It commits to an answer and tells you how it could be wrong. That is what an analyst is for.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il vérifie vos chiffres, puis vous dit ce qu'il ferait et ce qui rendrait ce conseil faux.",
+        like: "Un collègue de la finance qui lit votre tableur avant la réunion : d'abord l'arithmétique, ensuite l'opinion, et jamais les deux mêlées.",
+        need: [
+          "Un vrai tableur ou tableau, avec des chiffres qui comptent pour vous.",
+          "La décision que ces chiffres sont censés alimenter.",
+          "Une hypothèse là-dedans dont vous n'êtes pas sûr.",
+        ],
+        words: [
+          { term: "Hypothèse", says: "Un chiffre que quelqu'un a choisi plutôt que mesuré. En général celui qui décide du résultat." },
+          { term: "Critères d'abandon", says: "Ce qui devrait devenir vrai pour que la recommandation soit fausse." },
+        ],
+      },
+      steps: [
+        {
+          why: "À qui lui demande de « vérifier ça », un modèle se met à discuter vos hypothèses et saute la somme qui ne tombe pas juste. L'arithmétique et le jugement sont deux métiers, et c'est l'arithmétique que les humains ratent vraiment.",
+          how: [
+            "Écrivez les quatre erreurs que vous voulez attraper : un total qui n'égale pas ses parties, un taux appliqué à la mauvaise base, un changement d'unité que personne n'a signalé, une ligne exclue d'une plage.",
+            "Demandez-vous lesquelles des quatre vous avez personnellement laissé passer. Soyez honnête, ça change vos priorités.",
+            "Mettez ces quatre en tête de la consigne, avant tout ce qui touche aux opinions.",
+          ],
+          bad: "Vérifie ce modèle et cherche les erreurs.",
+          good: "Vérifie ces quatre choses d'abord : les totaux égalent la somme de leurs parties ; chaque pourcentage est appliqué à la base nommée à côté de lui ; les unités sont cohérentes dans toute la feuille ; aucune plage n'exclut une ligne en silence. Rends chacune en réussite ou échec.",
+          note: "La version de gauche invite au commentaire. Celle de droite est une liste de contrôle qui passe ou ne passe pas, et elle attrape les erreurs qui arrivent vraiment jusqu'aux conseils d'administration.",
+          reward: "Quatre erreurs que votre feuille ne peut plus cacher. Presque personne n'écrit cette liste.",
+        },
+        {
+          why: "Dès que l'arithmétique et l'opinion sont dans le même paragraphe, vous ne pouvez agir sur ni l'une ni l'autre. Vous ne savez pas si « ça paraît optimiste » veut dire une formule cassée ou un désaccord sur le marché.",
+          how: [
+            "Exigez deux sections qui ne se mélangent jamais : ARITHMÉTIQUE et JUGEMENT.",
+            "L'arithmétique ne contient que des choses vraies ou fausses.",
+            "Le jugement ne contient que des choses dont une personne raisonnable pourrait débattre.",
+          ],
+          bad: "Relis le modèle et donne ton avis.",
+          good: "Réponds en deux sections. ARITHMÉTIQUE : seulement des affirmations vraies ou fausses, chacune avec sa cellule. JUGEMENT : seulement des affirmations dont on peut raisonnablement débattre. Rien n'appartient aux deux.",
+          note: "Demandez-vous ce qui n'appartient à aucune des deux. En général : une inquiétude vague. La séparation a l'effet secondaire utile de la supprimer.",
+          reward: "Votre analyste ne peut plus cacher une opinion dans un calcul.",
+        },
+        {
+          why: "La ligne la plus dangereuse d'une revue est celle qui n'a jamais été vérifiée et jamais mentionnée. Le silence se lit comme une approbation, et personne ne revient demander quelles cellules ont été sautées.",
+          how: [
+            "Exigez une section : « Pris pour argent comptant ».",
+            "Chaque entrée qu'il n'a pas pu vérifier y va, avec la raison.",
+            "Lisez cette section avant la conclusion, à chaque fois.",
+          ],
+          bad: "Signale tout ce dont tu n'étais pas sûr.",
+          good: "Termine par « Pris pour argent comptant » : chaque chiffre que tu n'as pas pu vérifier depuis la feuille elle-même, et pourquoi. Si c'est vide, nomme la source de chaque entrée.",
+          note: "« Signale tout » ne produit rien, parce que rien ne semble digne d'être signalé sur le moment. Une section obligatoire, elle, produit la liste.",
+          reward: "Vous voyez maintenant ce qui n'a pas été vérifié. Cette liste est en général plus intéressante que la revue.",
+        },
+        {
+          why: "Une analyse qui finit par « ça dépend » vous a renvoyé le travail. La recommandation est le livrable, et elle n'est utile que si elle dit aussi ce qui la rendrait fausse.",
+          how: [
+            "Exigez une recommandation nommée dans la première phrase.",
+            "Interdisez les précautions : pas de « il pourrait être intéressant d'envisager ».",
+            "Exigez des critères d'abandon : ce qui devrait être vrai pour que ce soit le mauvais choix.",
+          ],
+          bad: "Résume les options et leurs compromis.",
+          good: "Ouvre par une recommandation, nommée, dans la première phrase. Puis les deux raisons les plus fortes, puis les critères d'abandon : ce qui devrait devenir vrai pour que ce soit faux. Si les preuves sont équilibrées, recommande quand même, et dis qu'elles le sont.",
+          note: "Les critères d'abandon sont ce qui rend une recommandation sûre à suivre. Ils disent quoi surveiller une fois la décision prise.",
+          reward: "Il s'engage sur une réponse et vous dit comment elle pourrait être fausse. C'est à ça que sert un analyste.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -498,6 +848,71 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'You found the category that fails. An average would have told you everything was fine.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il lit chaque chose qui arrive et la met dans la bonne pile.",
+        like: "La personne qui trie le courrier du matin. Le travail est facile une fois les piles bien choisies, et impossible quand deux piles se chevauchent.",
+        need: [
+          "Vingt vrais éléments : courriels, tickets, prospects. Des vrais, y compris les gênants.",
+          "Votre liste actuelle de catégories.",
+          "Un collègue prêt à trier les mêmes vingt de son côté.",
+        ],
+        words: [
+          { term: "Nomenclature", says: "Votre liste de piles. Presque tout problème de tri est un problème de cette liste, pas du modèle." },
+          { term: "Justesse par classe", says: "À quelle fréquence chaque pile est juste, par opposition à la fréquence où le tri est juste dans l'ensemble." },
+        ],
+      },
+      steps: [
+        {
+          why: "Si deux de vos catégories se chevauchent, aucune consigne n'y changera rien : un humain ne sait pas les trier de façon fiable non plus. Écrire chaque catégorie comme un test est la façon de trouver le chevauchement, et la plupart des gens en trouvent un tout de suite.",
+          how: [
+            "Écrivez chaque catégorie comme une question à laquelle on répond par oui ou non.",
+            "Prenez les deux qui vous semblent les plus proches. Trouvez la question unique qui les sépare.",
+            "Si vous n'en trouvez aucune, fusionnez-les. C'est un résultat, pas un échec.",
+          ],
+          bad: "Catégories : Bogue, Problème, Retour, Demande de fonctionnalité.",
+          good: "Bogue : le produit a fait quelque chose dont sa documentation dit qu'il ne le fait pas. Demande de fonctionnalité : le produit ne fait pas quelque chose qu'il n'a jamais prétendu faire. (Problème et Retour fusionnés : aucune question ne les séparait.)",
+          note: "La fusion est la partie précieuse. Deux catégories qu'un humain confond seront confondues par un agent aussi, et aucun prompt n'a jamais réparé une nomenclature.",
+          reward: "Vous venez de trouver un chevauchement dans vos propres catégories. C'était ça le défaut, et il n'a jamais été dans le modèle.",
+        },
+        {
+          why: "Avec vos seules catégories, un modèle en choisira toujours une, y compris pour ce qui n'appartient à aucune. Ces rangements forcés sont invisibles : ils ressemblent exactement à des réponses justes jusqu'à ce que quelqu'un agisse dessus.",
+          how: [
+            "Ajoutez une catégorie « Aucune de celles-ci ».",
+            "Dites quand s'en servir : quand le test d'aucune catégorie ne répond oui.",
+            "Décidez maintenant ce qu'on fait de ces éléments, et qui les regarde.",
+          ],
+          bad: "Choisis la catégorie la plus appropriée.",
+          good: "Ne choisis une catégorie que si son test répond oui. Si aucun ne répond, réponds « Aucune de celles-ci ». Celles-là vont dans la boîte partagée et sont lues chaque lundi.",
+          note: "Sans l'issue de secours, votre taux d'erreur reste caché dans vos catégories. Avec elle, il devient une pile qu'on peut regarder.",
+          reward: "Votre trieur peut maintenant refuser de trier. C'est dans les refus que vous apprendrez le plus.",
+        },
+        {
+          why: "Vous ne pouvez pas savoir si un classeur marche en lisant ses réponses. Il a l'air certain de tout. Vingt éléments que vous avez étiquetés vous-même sont la seule mesure honnête, et ça prend vingt minutes.",
+          how: [
+            "Prenez vingt vrais éléments, couvrant chaque catégorie et quelques cas gênants.",
+            "Étiquetez-les vous-même, avant de lancer quoi que ce soit.",
+            "Faites étiqueter les mêmes vingt par un collègue. Là où vous divergez, ce sont vos catégories qui sont floues, pas son jugement.",
+          ],
+          bad: "Fais-le tourner une semaine et vois ce que ça donne.",
+          good: "Vingt éléments, étiquetés par moi et par un collègue avant que l'agent ne les voie. Les quatre sur lesquels nous divergeons retournent à la première étape.",
+          note: "Un désaccord entre deux humains est une mesure de votre nomenclature, et elle est gratuite. Faites-la avant d'accuser le modèle.",
+          reward: "Vous avez un jeu de test. À partir de là, vous pouvez vraiment dire si un changement a aidé.",
+        },
+        {
+          why: "Quatre-vingt-dix pour cent de justesse cachent une catégorie fausse à chaque fois. Si cette catégorie est « urgent », votre moyenne est excellente et votre produit brûle.",
+          how: [
+            "Notez chaque catégorie séparément : justes sur total, pile par pile.",
+            "Trouvez la pire.",
+            "Demandez-vous si ça compte. Une mauvaise note sur une pile rare et inoffensive, ça va ; sur « urgent », non.",
+          ],
+          bad: "Justesse : 91 %.",
+          good: "Bogue 95 % (19/20). Demande de fonctionnalité 88 % (7/8). Urgent 40 % (2/5). La moyenne va bien. Urgent, non, et c'est la seule qui réveille quelqu'un.",
+          note: "Une moyenne est faite pour cacher exactement ça. Par catégorie, c'est quatre minutes de plus et c'est le seul chiffre qui dit quoi faire.",
+          reward: "Vous avez trouvé la catégorie qui rate. Une moyenne vous aurait dit que tout allait bien.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -570,6 +985,72 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'It failed honestly on the hard ones. You now know exactly where your agent stops.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il lit des factures, des contrats ou des formulaires et les transforme en colonnes propres qu'on peut mettre dans un tableur.",
+        like: "Quelqu'un qui retape des formulaires papier dans une base, sauf qu'il ne fatigue jamais et ne laisse jamais une case vide parce qu'il a deviné.",
+        need: [
+          "Dix vrais documents du même genre. Dont deux mal numérisés ou bizarrement mis en page.",
+          "La liste des champs dont vous avez vraiment besoin. Pas tous les champs de la page.",
+          "Une décision, par champ, sur ce qu'on fait quand il est absent.",
+        ],
+        words: [
+          { term: "Schéma", says: "La liste des champs, leurs types, et ce que chacun veut dire. Écrite avant tout le reste." },
+          { term: "Vide", says: "La valeur qui veut dire « absent ». Différente de zéro, et différente de la chaîne vide." },
+          { term: "Emplacement", says: "L'endroit du document d'où vient une valeur. L'équivalent de la citation, pour l'extraction." },
+        ],
+      },
+      steps: [
+        {
+          why: "Tout le monde commence par lancer le modèle et regarder ce qui sort. Ce qui sort est une forme qui change d'un document à l'autre, et qu'on passe ensuite une semaine à normaliser. Le schéma d'abord est plus rapide, et il force les questions qu'on évitait.",
+          how: [
+            "Ne listez que les champs dont vous vous servirez en aval.",
+            "Donnez un type à chacun : texte, nombre, date, oui ou non.",
+            "Pour chacun, écrivez à quoi ressemble l'absence, et si elle est permise.",
+          ],
+          bad: "Extrais toutes les informations pertinentes de la facture.",
+          good: "numero_facture : texte, obligatoire. total_ttc : nombre, obligatoire. date_echeance : date, peut être vide si la facture indique « à réception ». numero_tva : texte, peut être vide.",
+          note: "« Pertinent » est décidé par le modèle, différemment à chaque fois. La version de droite est un contrat, et tout l'aval peut s'y fier.",
+          reward: "Vous avez un schéma. Chaque débat que vous auriez eu dans trois semaines vient d'avoir lieu en dix minutes.",
+        },
+        {
+          why: "Un champ absent et un champ vide ne veulent pas dire la même chose, et un modèle rendra allègrement quelque chose de plausible pour les deux. Un numéro de TVA plausible dans un tableau propre se découvre lors d'un audit, trois mois plus tard.",
+          how: [
+            "Dites-le explicitement : rendre un vide plutôt qu'une supposition.",
+            "Interdisez de déduire une valeur depuis d'autres champs.",
+            "Ajoutez : si le document est illisible, rendre un vide partout et le dire.",
+          ],
+          bad: "Remplis chaque champ le plus précisément possible.",
+          good: "Si une valeur n'est pas imprimée dans le document, rends un vide. Ne déduis jamais une valeur depuis un autre champ ni depuis ce qui est habituel. Si la page est illisible, rends un vide pour chaque champ et mets illisible à vrai.",
+          note: "« Le plus précisément possible » est lu par le modèle comme « produis toujours quelque chose ». La version de droite fait d'une case vide la bonne réponse.",
+          reward: "Votre extracteur peut maintenant ne rien rendre. Une case vide à laquelle on se fie vaut mieux qu'une pleine à laquelle on ne se fie pas.",
+        },
+        {
+          why: "Une valeur sans emplacement ne peut pas être vérifiée. Avec un emplacement, n'importe qui vérifie un lot entier en quelques minutes en regardant les endroits pointés au lieu de relire les documents.",
+          how: [
+            "Exigez, à côté de chaque valeur, le texte exact d'où elle a été lue.",
+            "Exigez le numéro de page ou de ligne où il apparaissait.",
+            "Contrôlez dix valeurs au hasard en ne regardant que les emplacements.",
+          ],
+          bad: "total_ttc : 1240,50",
+          good: "total_ttc : 1240,50, lu depuis « TOTAL TTC 1 240,50 EUR », page 2, ligne 14.",
+          note: "Quand un emplacement est faux alors que la valeur a l'air juste, vous avez trouvé une mise en page qui cassera en silence au prochain lot.",
+          reward: "Chaque nombre pointe désormais vers son origine. Vérifier cent documents vient de devenir un travail de dix minutes.",
+        },
+        {
+          why: "L'extraction marche à merveille sur les documents bien rangés, et les documents bien rangés ne sont pas ceux qui vous coûtent de l'argent. Les deux documents laids que vous avez mis de côté sont tout le test.",
+          how: [
+            "Lancez-le sur les deux documents mal numérisés ou bizarrement mis en page.",
+            "Vérifiez qu'il a rendu des vides plutôt que des inventions.",
+            "Si vous avez dû exclure un document pour que ça marche, écrivez pourquoi. C'est une vraie limite de votre agent.",
+          ],
+          bad: "Ça a marché sur neuf sur dix, c'est assez bien.",
+          good: "Il a rendu des vides sur le scan pivoté au lieu de deviner. Le manuscrit, nous l'avons exclu : l'écriture à la main est hors périmètre, et nous le disons.",
+          note: "Une limite nommée est une caractéristique. Une limite tue est un défaut qui arrive un vendredi.",
+          reward: "Il a échoué honnêtement sur les cas durs. Vous savez maintenant exactement où votre agent s'arrête.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -641,6 +1122,71 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'The rhythm now comes from a decision instead of a habit. Your watcher will still be read in six months.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Elle regarde une page, un prix ou un concurrent à un rythme donné, et ne vous dit que ce qui a vraiment changé.",
+        like: "Un veilleur de nuit. S'il appelle chaque heure pour dire que tout va bien, vous cessez d'écouter, et vous ratez le seul appel qui comptait.",
+        need: [
+          "Une source que vous vérifiez réellement à la main aujourd'hui.",
+          "La décision que ça alimente. S'il n'y en a aucune, ne construisez pas cet agent.",
+          "Un endroit où garder ce que la source disait la fois d'avant.",
+        ],
+        words: [
+          { term: "Différence", says: "L'écart entre maintenant et la fois d'avant. La seule chose qu'une sentinelle devrait jamais signaler." },
+          { term: "Bruit", says: "Un changement réel qui ne veut rien dire. Une date en pied de page, une phrase reformulée." },
+        ],
+      },
+      steps: [
+        {
+          why: "Toute page change sans arrêt : horodatages, identifiants de session, phrases reformulées. Sans définition de « changé », votre sentinelle parle à chaque passage, et parler à chaque passage revient à ne rien dire.",
+          how: [
+            "Écrivez ce qui compte comme changement pour CETTE source : un prix qui bouge, une formule qui apparaît ou disparaît, une fonctionnalité nommée.",
+            "Écrivez ce qui n'en est pas : la formulation, la mise en page, les dates en pied de page, tout ce qui est sous un seuil.",
+            "Décidez si un paragraphe reformulé est un changement. La plupart du temps non, et le dire à voix haute vous épargne des semaines.",
+          ],
+          bad: "Préviens-moi quand le concurrent met à jour sa page de tarifs.",
+          good: "Un changement est : un nombre du tableau de prix qui bouge, un nom de formule qui apparaît ou disparaît, ou une fonctionnalité ajoutée ou retirée d'une formule. La reformulation, la mise en page et les dates de pied de page ne sont pas des changements.",
+          note: "La version de droite est un filtre que l'agent peut appliquer. Celle de gauche lui demande de deviner ce qui vous importe, et il devinera différemment chaque semaine.",
+          reward: "Vous avez défini ce que « changé » veut dire. Neuf dixièmes d'une sentinelle tiennent dans cette phrase.",
+        },
+        {
+          why: "Une semaine calme, un modèle à qui l'on demande un rapport en écrira un. Il attrape des adjectifs, et vous finissez par lire « dynamique toujours soutenue » au sujet d'une page qui n'a pas bougé d'un pixel.",
+          how: [
+            "Interdisez franchement les mots de remplissage : significatif, notable, continu, dynamique, solide.",
+            "Écrivez le message exact d'une semaine sans changement.",
+            "Faites ce message assez court pour qu'on le voie d'un coup d'oeil.",
+          ],
+          bad: "Résume les évolutions notables de la semaine.",
+          good: "Ne signale que les changements qui correspondent à la définition ci-dessus. S'il n'y en a aucun, réponds exactement : « Aucun changement. » N'emploie jamais : significatif, notable, continu, dynamique.",
+          note: "« Aucun changement. » est un bon rapport. Il se lit en une seconde et il est vrai, ce dont peu de rapports hebdomadaires peuvent se vanter.",
+          reward: "Votre sentinelle peut maintenant dire qu'il ne s'est rien passé. Elle gagnera sa place la semaine où elle dira le contraire.",
+        },
+        {
+          why: "On ne peut pas signaler une différence sans garder l'état précédent. C'est l'étape que les gens sautent, et c'est pourquoi leur sentinelle signale la page entière à chaque fois comme si tout était nouveau.",
+          how: [
+            "Enregistrez ce que disait la source à chaque passage.",
+            "Comparez à la dernière version enregistrée, pas à la mémoire du modèle.",
+            "Décidez qui est responsable de ce stock et combien de temps on le garde.",
+          ],
+          bad: "Vérifie la page chaque semaine et dis-moi ce qui est nouveau.",
+          good: "Lis la page. Compare à la copie enregistrée du passage précédent. Ne signale que les différences, puis enregistre la nouvelle copie.",
+          note: "Un modèle n'a aucune mémoire entre deux passages. « Ce qui est nouveau » ne veut rien dire pour lui si vous ne lui tendez pas l'ancienne version.",
+          reward: "Votre sentinelle a maintenant un hier. Sans lui, chaque jour ressemble au premier.",
+        },
+        {
+          why: "La cadence doit venir de la décision, pas du calendrier. Un rapport hebdomadaire qui alimente une décision trimestrielle, ce sont onze rapports que personne ne lit et l'habitude d'ignorer le douzième.",
+          how: [
+            "Nommez la décision que ça alimente.",
+            "Demandez-vous à quelle fréquence cette décision est vraiment prise.",
+            "Réglez le rythme là-dessus, puis divisez la fréquence par deux et regardez si quelque chose casse.",
+          ],
+          bad: "Lance-le chaque matin pour qu'on reste au courant.",
+          good: "Ceci alimente la revue trimestrielle des prix. Ça tourne une fois par mois, et ça nous alerte immédiatement seulement si un prix bouge de plus de dix pour cent.",
+          note: "Deux rythmes, pas un : un lent pour le rapport, un immédiat pour ce qui ne peut pas attendre. La plupart des sentinelles n'ont que le premier et vous alertent avec.",
+          reward: "Le rythme vient maintenant d'une décision au lieu d'une habitude. Votre sentinelle sera encore lue dans six mois.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -712,6 +1258,71 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'Every step now ends in something you can point at. Nobody will have to ask whether it is done.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il transforme un objectif écrit en une ligne en une liste ordonnée d'étapes, chacune avec un responsable et un résultat qu'on peut voir.",
+        like: "Un chef de projet à son premier jour : les bons posent cinq questions gênantes avant d'écrire quoi que ce soit. Les autres vous tendent un beau plan pour la mauvaise chose.",
+        need: [
+          "Un vrai objectif que vous avez écrit. Une ligne suffit, c'est justement le sujet.",
+          "Les noms des gens qui feraient le travail.",
+          "Une tolérance à ce qu'on vous demande ce que vous vouliez dire.",
+        ],
+        words: [
+          { term: "Critères d'acceptation", says: "Comment vous saurez qu'une étape est finie, écrit de façon que deux personnes ne puissent pas diverger." },
+          { term: "Remonter depuis la fin", says: "Partir de la chose finie et demander ce qui devait arriver juste avant." },
+        ],
+      },
+      steps: [
+        {
+          why: "Un objectif comme « améliorer l'accueil des nouveaux » ne se planifie pas, il ne fait que s'interpréter, et cinq personnes l'interpréteront de cinq façons. Un objectif qu'on pourrait photographier se planifie, et le fait de l'écrire règle la plupart des disputes avant qu'elles commencent.",
+          how: [
+            "Réécrivez l'objectif comme une chose qui existe à la fin.",
+            "Demandez-vous : comment saurais-je que c'est fini sans demander à personne ?",
+            "Si la réponse est une impression, continuez à réécrire.",
+          ],
+          bad: "Améliorer notre accueil des nouveaux.",
+          good: "Un nouvel utilisateur atteint son premier projet enregistré sans aide, et nous le voyons dans les chiffres quatre semaines d'affilée.",
+          note: "Celui de droite peut être vrai ou faux un mardi donné. Celui de gauche peut se discuter éternellement, et il le sera.",
+          reward: "Votre objectif est devenu une chose qui existe ou n'existe pas. La moitié des désaccords viennent de disparaître.",
+        },
+        {
+          why: "Les plans écrits vers l'avant se remplissent d'étapes qui semblaient être une bonne idée. Les plans écrits depuis la fin ne contiennent que des étapes dont quelque chose d'autre a vraiment besoin, et il y en a d'ordinaire deux fois moins.",
+          how: [
+            "Partez de la chose finie et demandez ce qui devait être vrai juste avant.",
+            "Recommencez jusqu'à tomber sur quelque chose de faisable lundi.",
+            "Cherchez ensuite les étapes dont rien en aval ne dépend. Supprimez-les.",
+          ],
+          bad: "Étape 1 : recherche. Étape 2 : conception. Étape 3 : développement. Étape 4 : lancement.",
+          good: "Pour qu'un utilisateur atteigne un projet enregistré, l'enregistrement doit marcher. Pour qu'il marche, les comptes doivent exister. Pour que les comptes existent, il faut choisir un fournisseur. C'est ça, lundi.",
+          note: "Le plan de gauche convient à n'importe quel projet, ce qui veut dire qu'il n'en décrit aucun. Celui de droite est assez précis pour être faux, et c'est ce qui le rend utile.",
+          reward: "Votre plan ne contient plus que des étapes dont quelque chose a besoin. C'est en général la moitié de la liste de départ.",
+        },
+        {
+          why: "Un planificateur à qui l'on donne un objectif flou tranchera chaque ambiguïté en devinant, en silence, et vous tendra un plan bien rangé. Les suppositions sont invisibles, et vous les découvrez pendant le travail.",
+          how: [
+            "Exigez une section « Questions ouvertes ». Elle ne doit pas rester vide.",
+            "Exigez qu'elle liste ce qu'il a voulu supposer et ce qu'il a supposé à la place.",
+            "Répondez-y vous-même avant que le travail commence.",
+          ],
+          bad: "Demande-moi si quelque chose n'est pas clair.",
+          good: "Termine par « Questions ouvertes », qui ne doit pas être vide. Pour chacune : ce qu'il te fallait savoir, ce que tu as supposé à la place, et ce qui change dans le plan si la supposition est fausse.",
+          note: "« Demande si ce n'est pas clair » n'est jamais suivi d'effet, parce que produire un plan donne le sentiment d'avoir fait le travail. Une section obligatoire, elle, rend les suppositions visibles.",
+          reward: "Les suppositions sont sur la page au lieu d'être dans le travail. Cette liste est la partie la plus précieuse du plan.",
+        },
+        {
+          why: "Une étape sans résultat observable est une étape que deux personnes déclareront finie à des moments différents. C'est là que les projets glissent en silence, sans que personne sache dire quand.",
+          how: [
+            "Pour chaque étape, écrivez ce qui existe à la fin.",
+            "Vérifiez que deux personnes pourraient le regarder et tomber d'accord.",
+            "Si elles pourraient diverger, l'étape n'est pas encore définie.",
+          ],
+          bad: "Étape 3 : améliorer le parcours d'inscription.",
+          good: "Étape 3 : un formulaire d'inscription qui accepte un courriel et crée un compte, en ligne derrière un drapeau. Fini veut dire : un collègue peut s'inscrire sur la préproduction sans vous.",
+          note: "Le test n'est pas de savoir si ça sonne clair. C'est de savoir si deux personnes qui vérifient chacune de leur côté rendraient le même verdict.",
+          reward: "Chaque étape finit maintenant par quelque chose qu'on peut montrer du doigt. Personne n'aura à demander si c'est fini.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -784,6 +1395,72 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'Every action it may take can be taken back, or it is not allowed to take it. You can sleep now.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il fait des choses dans vos vrais systèmes : il envoie le courriel, met à jour la fiche, ouvre le ticket.",
+        like: "Donner les clés à un nouveau collègue. La question n'est jamais de savoir s'il est compétent ; c'est de savoir quelles portes les clés ouvrent, et si ce qu'il fait peut être défait.",
+        need: [
+          "Un système auquel vous le laisseriez toucher, et une liste de ce qu'il peut y faire.",
+          "La réponse à : quelle est la pire action unique qu'il pourrait faire aujourd'hui ?",
+          "Un compte de test. Pas le vrai, pas pour le premier essai.",
+        ],
+        words: [
+          { term: "Rayon d'action", says: "Tout ce qui pourrait être touché si ça tourne mal. Presque toujours plus grand qu'on ne le croit d'abord." },
+          { term: "Lecture seule", says: "Il peut regarder mais ne peut rien changer. Là où tout agent à outils devrait commencer." },
+          { term: "Humain dans la boucle", says: "Une personne dit oui avant que l'action ait lieu." },
+        ],
+      },
+      steps: [
+        {
+          why: "Le prompt est la partie facile d'un agent à outils. Le travail est de décider ce qu'il ne doit jamais toucher, et de prouver qu'il ne le peut pas, avant que quoi que ce soit ne tourne. Les gens font ça après le premier incident.",
+          how: [
+            "Écrivez trois listes : ce qu'il peut lire, ce qu'il peut modifier, ce qu'il ne doit jamais toucher.",
+            "Répondez à voix haute : quelle est la pire action unique qu'il pourrait faire aujourd'hui ?",
+            "Si cette réponse vous fait peur, la troisième liste est trop courte.",
+          ],
+          bad: "Il a accès à notre CRM.",
+          good: "Peut lire : contacts, affaires. Peut modifier : les notes d'affaire, l'étape d'affaire. Ne doit jamais toucher : la suppression de contacts, la facturation, tout ce qui est dans le tunnel Gagné. Pire cas aujourd'hui : il fait reculer une affaire en cours, ce qu'on peut défaire depuis le journal d'audit.",
+          note: "La phrase du pire cas est celle qui compte. Si vous ne pouvez pas l'écrire, vous ne savez pas encore ce que vous avez confié.",
+          reward: "Vous savez nommer la pire chose qu'il pourrait faire. La plupart de ceux qui construisent ça ne le savent pas.",
+        },
+        {
+          why: "Une part surprenante de tout travail consiste à lire, et lire ne casse rien. Séparer les deux vous donne quelque chose d'utile dès le premier jour pendant que la moitié risquée est encore en réflexion.",
+          how: [
+            "Construisez d'abord la version en lecture seule et servez-vous-en une semaine.",
+            "Notez la part du travail qu'elle faisait déjà.",
+            "Ajoutez l'écriture une action à la fois, pas en bloc.",
+          ],
+          bad: "Donne-lui tous les accès pour qu'il puisse faire tout le travail.",
+          good: "Semaine un : lecture seule. Il rédige la mise à jour et je la colle. Semaine deux : il écrit les notes d'affaire, rien d'autre. L'étape d'affaire viendra plus tard, si jamais.",
+          note: "La plupart des gens découvrent que la version en lecture seule couvre l'essentiel de la valeur. La moitié risquée n'était pas le sujet.",
+          reward: "Vous avez une version qui ne peut rien casser. Mettez celle-là en service d'abord.",
+        },
+        {
+          why: "Une étape d'approbation qui montre trop peu est pire que pas d'approbation du tout : les gens cliquent oui sans lire, et l'erreur porte maintenant une signature. Ce que voit celui qui approuve est le problème de conception.",
+          how: [
+            "Décidez exactement ce que voit celui qui approuve : l'action, la cible, l'avant et l'après.",
+            "Rendez-le décidable en cinq secondes.",
+            "Éprouvez-le sur vous-même quand vous êtes pressé et légèrement agacé. C'est la vraie condition.",
+          ],
+          bad: "L'agent veut mettre à jour une fiche. Approuver ? [Oui] [Non]",
+          good: "Déplacer l'affaire « Acme, 12 k » de Négociation à Gagné. Responsable : Sam. Parce que : le client a répondu « nous signons ». [Approuver] [Refuser]",
+          note: "Celle de gauche sera approuvée sans être lue avant une semaine. Celle de droite se juge sans rien ouvrir d'autre.",
+          reward: "Votre étape d'approbation se lit en cinq secondes. C'est la seule sorte que les gens lisent vraiment.",
+        },
+        {
+          why: "Le retour en arrière est ce qui rend le reste survivable. Sans lui, chaque erreur est définitive et chaque approbation porte tout le poids de la décision.",
+          how: [
+            "Pour chaque action permise, écrivez comment on la défait.",
+            "Là où rien ne se défait, interdisez l'action ou exigez qu'une personne l'exécute.",
+            "Gardez un journal de ce qui a été fait, assez détaillé pour le défaire à la main.",
+          ],
+          bad: "Fais attention avec les actions destructrices.",
+          good: "Étape d'affaire : réversible depuis le journal d'audit. Note ajoutée : réversible en la supprimant. Courriel envoyé : NON réversible, donc c'est une personne qui l'envoie. Contact supprimé : purement interdit.",
+          note: "« Fais attention » n'est pas un contrôle. La version de droite range chaque action dans l'un de trois cas, et un seul demande un humain.",
+          reward: "Chaque action qu'il peut faire peut être défaite, ou il n'a pas le droit de la faire. Vous pouvez dormir.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -856,6 +1533,72 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'It told you a result was noise. That honesty is worth more than any winner it could have named.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il écrit plusieurs versions vraiment différentes d'une même chose, puis lit les résultats et vous dit laquelle garder.",
+        like: "Un concepteur-rédacteur qui apporte cinq idées plutôt qu'une idée en cinq tenues. La seconde est ce qu'on obtient par défaut.",
+        need: [
+          "Quelque chose dont vous voulez des variantes : un objet de courriel, une publicité, un titre de page.",
+          "Un moyen de mesurer le résultat. Même approximatif.",
+          "Le chiffre qui vous ferait arrêter le test. Décidé avant de commencer.",
+        ],
+        words: [
+          { term: "Variante", says: "Une version testée. Utile seulement si elle diffère des autres d'une façon que vous avez choisie." },
+          { term: "Hypothèse", says: "Ce que vous pensez que cette variante prouvera. Sans elle, une variante est de la décoration." },
+          { term: "Règle d'arrêt", says: "Le résultat qui met fin au test, écrit avant qu'il commence pour ne pas pouvoir le déplacer." },
+        ],
+      },
+      steps: [
+        {
+          why: "Demandez vingt variantes et vous obtenez une idée en vingt tenues : les mots changent, l'argument non. Vous lancez ensuite un test qui ne peut rien vous apprendre, parce que rien ne différait vraiment.",
+          how: [
+            "Nommez l'axe : ce qui DOIT différer entre les variantes.",
+            "Vérifiez-le : deux variantes pourraient-elles différer sur votre axe et se lire pareil ? Alors ce n'est pas un axe.",
+            "Trois variantes sur un vrai axe valent mieux que vingt sur aucun.",
+          ],
+          bad: "Écris vingt objets de courriel pour cette campagne.",
+          good: "Écris trois objets, chacun sur un axe différent : un qui ouvre sur le prix, un sur le temps gagné, un sur le nom d'un client. La formulation est à toi ; l'angle est fixé.",
+          note: "Vingt reformulations testent la même idée vingt fois, à vingt fois le prix, et ne répondent à rien.",
+          reward: "Vos variantes diffèrent maintenant à dessein. Un test sur elles peut vraiment vous apprendre quelque chose.",
+        },
+        {
+          why: "Une variante sans hypothèse ne peut rien vous apprendre, qu'elle gagne ou qu'elle perde. Vous apprenez qu'une suite de mots a battu une autre, ce qui ne se transporte pas à la campagne suivante.",
+          how: [
+            "Écrivez, à côté de chaque variante, ce qu'elle teste.",
+            "Cherchez la variante sans hypothèse. Demandez pourquoi elle est là.",
+            "En général elle est là pour allonger la liste. Supprimez-la.",
+          ],
+          bad: "Variante A, variante B, variante C.",
+          good: "A, ouvre sur le prix : teste si ce public est sensible au prix. B, ouvre sur le temps gagné : teste s'il manque de temps. C, ouvre sur le nom d'un client : teste si la preuve sociale pèse plus que les deux.",
+          note: "Quand B gagne, la version de gauche vous dit d'utiliser B. Celle de droite vous dit que ce public manque de temps, ce qui vaut bien davantage.",
+          reward: "Chaque variante porte maintenant une question. Quoi qu'il gagne, vous apprenez quelque chose de transposable.",
+        },
+        {
+          why: "Une règle d'arrêt écrite après les résultats n'est pas une règle, c'est une justification. Tout le monde le sait et tout le monde le fait quand même, parce que les chiffres arrivent et que l'un d'eux est devant.",
+          how: [
+            "Avant de lancer, écrivez le chiffre qui met fin au test.",
+            "Écrivez ce que vous faites si l'écart est trop petit pour compter.",
+            "Mettez les deux par écrit là où quelqu'un d'autre peut les voir.",
+          ],
+          bad: "On verra laquelle marche le mieux.",
+          good: "Arrêt à 2 000 affichages par variante. Garder la gagnante seulement si elle bat la version actuelle de plus de 15 %. Si l'écart est sous 15 %, garder la version actuelle et noter que l'axe ne comptait pas.",
+          note: "« Garder la version actuelle » doit être une issue possible. Si le test ne peut que remplacer, ce n'est pas un test.",
+          reward: "La ligne d'arrivée est écrite avant la course. Vous ne pouvez plus la déplacer.",
+        },
+        {
+          why: "Le dernier échec est de lire le résultat comme on l'espérait. Un petit écart sur un petit échantillon est du bruit, et un modèle à qui l'on demande « laquelle a gagné » en nommera une, parce que c'est ce qu'on lui a demandé.",
+          how: [
+            "Faites-lui rendre les chiffres, l'écart, et si l'écart passe votre règle.",
+            "Exigez les mots « c'est du bruit » quand il ne la passe pas.",
+            "Vérifiez qu'il sait dire qu'un test n'a rien conclu, avant de lui faire confiance sur un test qui a conclu.",
+          ],
+          bad: "La variante B a le mieux marché.",
+          good: "B : 4,1 %. A : 3,9 %. Écart : 0,2 point sur 2 000 affichages. C'est du bruit et ça ne passe pas la règle des 15 %. Recommandation : garder la version actuelle ; l'axe ne comptait pas.",
+          note: "Un agent qui sait dire « c'est du bruit » est un agent à qui l'on peut se fier quand il dit que ça n'en est pas.",
+          reward: "Il vous a dit qu'un résultat était du bruit. Cette honnêteté vaut plus que n'importe quel gagnant qu'il aurait pu nommer.",
+        },
+      ],
+    },
   },
 
   /* ---------------------------------------------------------------- */
@@ -928,6 +1671,72 @@ export const LESSONS: Record<string, Lesson> = {
         reward: 'Every step knows what to do when it fails. Nothing will be sent twice at three in the morning.',
       },
     ],
+    fr: {
+      primer: {
+        plain: "Il fait tourner plusieurs agents l'un après l'autre, passe chaque résultat au suivant, et vous dit lequel a cassé quand la fin est fausse.",
+        like: "Une chaîne de production. Le difficile n'est jamais les machines, c'est de savoir quel poste a produit la pièce défectueuse.",
+        need: [
+          "Deux agents que vous avez déjà, qui marchent chacun de leur côté.",
+          "Une idée claire de ce que le premier passe au second.",
+          "Un endroit où noter ce qui est entré et sorti de chaque étape.",
+        ],
+        words: [
+          { term: "Contrat", says: "La forme convenue de ce qu'une étape passe à la suivante. Écrite, pas supposée." },
+          { term: "Trace", says: "Le relevé de ce que chaque étape a reçu et produit. Sans elle, une chaîne est une boîte noire." },
+          { term: "Idempotent", says: "Sans danger si on le relance. Envoyer un courriel ne l'est pas ; écrire un fichier l'est en général." },
+        ],
+      },
+      steps: [
+        {
+          why: "Les chaînes cassent aux jointures. L'étape deux reçoit quelque chose de légèrement différent de ce qu'elle attendait, fait de son mieux, et produit quelque chose de légèrement faux. Trois étapes plus loin la sortie est absurde et chaque étape a l'air innocente.",
+          how: [
+            "Pour chaque jointure, écrivez la forme exacte qui y passe.",
+            "Dites ce que l'étape réceptrice fait quand la forme est mauvaise : s'arrêter, jamais improviser.",
+            "Éprouvez chaque jointure en lui tendant exprès quelque chose de mal formé.",
+          ],
+          bad: "L'agent de recherche passe ses trouvailles au rédacteur.",
+          good: "La recherche passe : une liste d'objets {affirmation, citation, source}, éventuellement vide. Si le rédacteur reçoit autre chose, ou une citation manquante, il s'arrête et dit quel champ était mauvais.",
+          note: "« Ses trouvailles » n'est pas une forme. La version de droite est vérifiable, et c'est la vérification qui transforme une corruption silencieuse en message d'erreur.",
+          reward: "Vos étapes ont maintenant un contrat. La casse se produit à la jointure au lieu de trois étapes plus loin.",
+        },
+        {
+          why: "Si reproduire l'étape trois demande de lancer la une et la deux, chaque session de débogage vous coûte la chaîne entière, et vous cesserez de déboguer. Chaque étape doit tourner seule sur une entrée fixe.",
+          how: [
+            "Enregistrez une vraie entrée pour chaque étape.",
+            "Assurez-vous que chaque étape peut tourner sur cette entrée enregistrée, seule.",
+            "Essayez : reproduisez l'étape trois sans lancer la une et la deux.",
+          ],
+          bad: "Lance toute la chaîne et regarde où ça dérape.",
+          good: "Chaque étape a un exemple d'entrée enregistré sur disque. Déboguer l'étape trois, c'est : charger entree-etape-3.json, lancer l'étape trois, regarder.",
+          note: "C'est la différence entre une boucle de débogage de cinq secondes et une de cinq minutes, ce qui en pratique est la différence entre déboguer et deviner.",
+          reward: "N'importe quelle étape peut maintenant tourner seule. Votre débogage vient d'être cent fois plus rapide.",
+        },
+        {
+          why: "Quand la sortie est fausse à la fin, chaque étape en amont est suspecte. Une trace transforme ça en une lecture de deux minutes. Sans elle, vous relancez la chaîne en changeant des prompts au hasard.",
+          how: [
+            "Enregistrez ce qui est entré et sorti de chaque étape.",
+            "Gardez de quoi reproduire, pas plus : une trace est aussi un tas de vos données.",
+            "Décidez combien de temps elle est gardée et qui peut la lire.",
+          ],
+          bad: "Journalise les erreurs.",
+          good: "Enregistrer par étape : l'entrée, la sortie, l'heure, le modèle. Gardé 30 jours, lisible par l'équipe, et les noms de clients sont retirés avant l'écriture.",
+          note: "Les erreurs sont le cas facile ; elles s'annoncent. Les échecs coûteux sont ceux où chaque étape a réussi et où la réponse est fausse quand même.",
+          reward: "Vous voyez maintenant dans votre chaîne. Elle a cessé d'être une boîte noire avec un surcoût.",
+        },
+        {
+          why: "Reprendre est le réflexe, et il est faux pour toute étape qui agit dans le monde. Reprendre un courriel en envoie deux. La politique d'échec doit se décider par étape, avant que quelque chose échoue à trois heures du matin.",
+          how: [
+            "Pour chaque étape, choisissez-en une : reprendre, sauter, arrêter, ou demander à un humain.",
+            "Nommez les étapes qui ne doivent JAMAIS être reprises, et pourquoi.",
+            "Décidez ce que voit l'utilisateur quand la chaîne s'arrête à mi-chemin.",
+          ],
+          bad: "Reprendre en cas d'échec, jusqu'à trois fois.",
+          good: "Recherche : reprendre deux fois, c'est de la lecture seule. Rédaction : reprendre une fois. Envoi de courriel : ne jamais reprendre, s'arrêter et demander à un humain, parce qu'une reprise envoie un second courriel. Les chaînes à moitié faites montrent à l'utilisateur ce qui a abouti.",
+          note: "Une politique de reprise uniforme est sans danger pour la lecture et dangereuse pour l'action. La distinction se fait par étape, et c'est toute cette leçon.",
+          reward: "Chaque étape sait quoi faire quand elle échoue. Rien ne sera envoyé deux fois à trois heures du matin.",
+        },
+      ],
+    },
   },
 }
 
