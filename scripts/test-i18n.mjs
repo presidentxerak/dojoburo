@@ -183,6 +183,45 @@ for (const d of ['surface', 'real', 'deeper']) {
   ok(`« ${d} » n'a pas recopié son intitulé`, IC.DEPTH_LABEL[d].fr.label !== IC.DEPTH_LABEL[d].label)
 }
 
+/* --- 3 quater · les douze agents du dojo ---------------------------------- */
+//
+// LE NOM D'UN AGENT EST AFFICHÉ À TROIS ENDROITS : au-dessus de sa silhouette
+// dans la salle, sur sa carte dans la liste, et en titre de sa fiche. C'est
+// exactement la configuration qui a produit le défaut des visages, où onze
+// agents sur douze changeaient de tête entre le clic et la page. On vérifie
+// donc qu'il n'existe qu'UN chemin (useCaseIn) et que les trois surfaces le
+// prennent.
+const UC = await load('src/data/agentUseCases.ts', 'uc.mjs')
+
+for (const u of UC.USE_CASES) {
+  ok(`l'agent « ${u.id} » a son français`, !!u.fr?.name && !!u.fr?.does && !!u.fr?.hard,
+    u.fr?.name ?? 'absent')
+  if (u.fr) {
+    ok(`« ${u.id} » n'a rien recopié`, u.fr.name !== u.name && u.fr.does !== u.does && u.fr.hard !== u.hard)
+    // LE NOM TIENT SUR L'ÉTIQUETTE · la garde du navigateur impose 26 signes,
+    // et le français est plus long que l'anglais. « Le chef d'orchestre »
+    // passe, une traduction bavarde déborderait sur la salle.
+    ok(`« ${u.id} » tient sur son étiquette en français`, u.fr.name.length <= 26, `${u.fr.name.length} signes`)
+    ok(`« ${u.id} » a ses quatre étapes en français`, u.fr.steps.length === u.steps.length,
+      `${u.steps.length} / ${u.fr.steps.length}`)
+    ok(`« ${u.id} » a traduit chaque étape`,
+      u.fr.steps.every((st, i) => st.title !== u.steps[i].title && st.makes.length > 10 && st.check.length > 10))
+    // CE QU'ON EMPORTE · une liste plus courte en français retirerait
+    // silencieusement une promesse à la moitié des élèves.
+    ok(`« ${u.id} » emporte autant de choses dans les deux langues`, u.fr.ships.length === u.ships.length,
+      `${u.ships.length} / ${u.fr.ships.length}`)
+  }
+}
+ok('useCaseIn rend le français', UC.useCaseIn(UC.USE_CASES[0], 'fr').name === UC.USE_CASES[0].fr.name)
+ok('useCaseIn rend l\'anglais', UC.useCaseIn(UC.USE_CASES[0], 'en').name === UC.USE_CASES[0].name)
+ok('useCaseIn garde l\'identifiant', UC.useCaseIn(UC.USE_CASES[0], 'fr').id === UC.USE_CASES[0].id)
+
+// LES TROIS SURFACES PASSENT PAR LE MÊME CHEMIN · c'est ce qui empêche le
+// défaut des visages de se reproduire avec les noms.
+for (const f of ['src/dojo/ClassScene.tsx', 'src/dojo/BuildAgent.tsx', 'src/dojo/AgentCard.tsx']) {
+  ok(`${f.split('/').pop()} passe par useCaseIn`, /useCaseIn\(/.test(readFileSync(f, 'utf8')))
+}
+
 /* --- 4 · les surfaces annoncées traduites le sont vraiment --------------- */
 
 // On relit le JSX et on cherche du texte anglais écrit en dur entre deux

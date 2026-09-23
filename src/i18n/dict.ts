@@ -216,6 +216,27 @@ export const DICT = {
   'fg.how': { en: 'How.', fr: 'Comment.' },
   'fg.not': { en: 'When not to.', fr: 'Quand ne pas le faire.' },
 
+  // ---- le dojo -----------------------------------------------------------
+  'bd.which': { en: 'Which agent do you need?', fr: "De quel agent avez-vous besoin ?" },
+  'bd.showList': { en: 'Show them as a list', fr: 'Les voir en liste' },
+  'bd.hideList': { en: 'Hide the list', fr: 'Masquer la liste' },
+  'bd.built': { en: 'built', fr: 'construit' },
+  'bd.asleep': { en: 'asleep', fr: 'endormi' },
+  'bd.hard': { en: 'Hard part.', fr: 'Le plus dur.' },
+  'bd.why': {
+    en: 'agents, and each one a different way of failing. A research agent and a sorting agent do not fail the same way, so they are not taught the same way.',
+    fr: "agents, et chacun une façon différente d'échouer. Un agent de recherche et un agent de tri ne ratent pas de la même manière, donc ils ne s'enseignent pas de la même manière.",
+  },
+
+  // ---- la fiche d'un agent -----------------------------------------------
+  'ag.back': { en: 'Back to the room', fr: 'Retour à la salle' },
+  'ag.steps': { en: 'steps', fr: 'étapes' },
+  'ag.ships': { en: 'things you leave with', fr: 'choses que vous emportez' },
+  'ag.words': { en: 'words explained', fr: 'mots expliqués' },
+  'ag.fail': { en: 'How it goes wrong', fr: 'Comment ça rate' },
+  'ag.makes': { en: 'Makes', fr: 'Fabrique' },
+  'ag.isBuilt': { en: 'is built', fr: 'est construit' },
+
   // ---- le pied de page ---------------------------------------------------
   'footer.built': { en: 'A training centre for AI agents', fr: "Un centre de formation aux agents IA" },
 } as const satisfies Record<string, Entry>

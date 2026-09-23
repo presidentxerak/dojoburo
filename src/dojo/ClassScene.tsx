@@ -21,7 +21,8 @@ import { StudioLight } from '../components/three/StudioLight'
 import { templateById } from '../data/templates'
 import { seatPositions } from '../three/layout3d'
 import { characterFor, faceIdForUseCase } from '../data/agentFaces'
-import { USE_CASES } from '../data/agentUseCases'
+import { USE_CASES, useCaseIn } from '../data/agentUseCases'
+import { useLang } from '../i18n'
 import type { Department } from '../data/agents'
 
 // LES VISAGES viennent de data/agentFaces, qui est aussi ce que lit la fiche
@@ -45,6 +46,7 @@ export function ClassScene({ chosen, onChoose, says }: {
   /** ce que le maître dit en ce moment */
   says: string
 }) {
+  const lang = useLang()
   const tpl = templateById('dojo')
   const P = tpl.palette
   const seats = useMemo(() => seatPositions(USE_CASES.length), [])
@@ -91,7 +93,7 @@ export function ClassScene({ chosen, onChoose, says }: {
               mood={chosen === u.id ? 'work' : 'sleep'}
               busy={chosen === u.id}
               selected={chosen === u.id}
-              name={u.name}
+              name={useCaseIn(u, lang).name}
               // L'ÉTIQUETTE PORTE LE NOM, pas la forme.
               //
               // Elle portait `u.shape`, c'est à dire une phrase entière (« Read
@@ -105,7 +107,7 @@ export function ClassScene({ chosen, onChoose, says }: {
               // place de la lire. Au dessus de la tête il ne reste que le nom,
               // qui tient en deux mots et sert seulement à savoir sur qui on
               // s'apprête à cliquer.
-              title={u.name}
+              title={useCaseIn(u, lang).name}
               level={1}
               onSelect={() => onChoose(u.id)}
             />

@@ -28,7 +28,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { StepStage } from './StepStage'
 import { lessonFor } from '../data/agentLessons'
-import { type UseCase } from '../data/agentUseCases'
+import { useCaseIn, type UseCase } from '../data/agentUseCases'
+import { useLang, useT } from '../i18n'
 import { markDone, clearDone, useProgress } from '../academy/progress'
 import { AGENT_TRACK } from './masterProgress'
 import { gradeFor } from './grades'
@@ -43,35 +44,49 @@ import { agentColor } from '../data/agents'
  *  modèle vide : une page blanche est la raison numéro un pour laquelle
  *  personne ne finit un exercice. C'est un brouillon DÉJÀ FAUX par endroits,
  *  que le parcours apprend à corriger. */
-function scaffold(u: UseCase): BuiltAgent {
+function scaffold(u: UseCase, fr: boolean): BuiltAgent {
   return {
     slug: `${u.id}-agent`,
     name: u.name,
     shape: u.shape,
     system: [
-      `You are ${u.name}.`,
+      // LE BROUILLON SUIT LA LANGUE LUE · c'est un objet qu'on emporte et
+      // qu'on fait tourner, et un prompt rend dans la langue où il est écrit.
+      // Le livrer en anglais à quelqu'un qui lit le cours en français lui
+      // ferait le traduire avant de pouvoir s'en servir, ce qui est le
+      // contraire de « repartir avec un fichier ».
+      fr ? `Tu es ${u.name}.` : `You are ${u.name}.`,
       '',
-      `Your job: ${u.does}`,
+      fr ? `Ton travail : ${u.does}` : `Your job: ${u.does}`,
       '',
-      '## Never',
-      '- Never state something you cannot point at.',
-      '- Never fill a gap with something plausible.',
+      fr ? '## Jamais' : '## Never',
+      fr ? '- Ne jamais affirmer ce que tu ne peux pas montrer.' : '- Never state something you cannot point at.',
+      fr ? '- Ne jamais combler un trou avec quelque chose de plausible.' : '- Never fill a gap with something plausible.',
       '',
-      '## Always',
+      fr ? '## Toujours' : '## Always',
       ...u.steps.map((s) => `- ${s.makes.charAt(0).toUpperCase()}${s.makes.slice(1)}.`),
       '',
-      '## When you cannot',
-      'Say so, and say what you would need. Do not produce a best guess dressed as an answer.',
+      fr ? '## Quand tu ne peux pas' : '## When you cannot',
+      fr
+        ? 'Dis-le, et dis ce qu\'il te faudrait. Ne rends pas une supposition déguisée en réponse.'
+        : 'Say so, and say what you would need. Do not produce a best guess dressed as an answer.',
     ].join('\n'),
     tools: [],
     notes: '',
   }
 }
 
-export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
+export function AgentCard({ u: u0, onClose }: { u: UseCase; onClose: () => void }) {
+  const lang = useLang()
+  const t = useT()
+  // LE CAS D'USAGE DANS LA LANGUE LUE · un seul chemin, partagé avec la salle
+  // et la liste. Voir useCaseIn dans data/agentUseCases : trois surfaces qui
+  // testeraient la langue chacune de leur côté finiraient par donner à un
+  // agent un nom dans la salle et un autre sur sa page.
+  const u = useCaseIn(u0, lang)
   const lesson = lessonFor(u.id)
   const progress = useProgress()
-  const [draft, setDraft] = useState<BuiltAgent>(() => scaffold(u))
+  const [draft, setDraft] = useState<BuiltAgent>(() => scaffold(u, lang === 'fr'))
   const [fmt, setFmt] = useState<ExportFormat>('brief')
   const [copied, setCopied] = useState(false)
   /** l'étape qu'on vient de valider · elle fait apparaître la récompense */
@@ -80,7 +95,8 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
   // Changer d'agent remet le brouillon à son point de départ. Garder le
   // précédent donnerait la consigne d'un agent de recherche sous le nom d'un
   // agent de tri, ce qui est la façon la plus discrète de tout casser.
-  useEffect(() => { setDraft(scaffold(u)); setJustDone(null) }, [u.id])
+  // Changer d'agent OU DE LANGUE remet le brouillon à son point de départ.
+  useEffect(() => { setDraft(scaffold(u, lang === 'fr')); setJustDone(null) }, [u.id, lang])
 
   // Échap ferme la fiche · c'est le geste que tout le monde essaie en premier
   // devant une surface plein écran, et ne pas le servir donne l'impression
@@ -116,13 +132,13 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
   }
 
   return (
-    <div className="ag" role="dialog" aria-label={`${u.name}, the whole path`} style={{ ['--ac' as string]: accent }}>
+    <div className="ag" role="dialog" aria-label={u.name} style={{ ['--ac' as string]: accent }}>
       {/* LA BARRE · elle reste visible pendant qu'on descend. Une fiche plein
           écran sans sortie permanente est un piège, et la progression en haut
           répond à la seule question qu'on se pose en lisant : où j'en suis. */}
       <header className="ag-bar">
         <button className="ag-close" onClick={onClose}>
-          <BauhausIcon name="cross" size={13} /> Back to the room
+          <BauhausIcon name="cross" size={13} /> {t('ag.back')}
         </button>
         <div className="ag-prog">
           <span className="ag-prog-bar"><i style={{ width: `${(done / total) * 100}%` }} /></span>
@@ -144,9 +160,9 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
               <h1>{u.name}</h1>
               {lesson && <p className="ag-plain">{lesson.primer.plain}</p>}
               <div className="ag-hero-meta">
-                <span><b>{total}</b> steps</span>
-                <span><b>{u.ships.length}</b> things you leave with</span>
-                <span><b>{lesson?.primer.words.length ?? 0}</b> words explained</span>
+                <span><b>{total}</b> {t('ag.steps')}</span>
+                <span><b>{u.ships.length}</b> {t('ag.ships')}</span>
+                <span><b>{lesson?.primer.words.length ?? 0}</b> {t('ag.words')}</span>
               </div>
             </div>
             {/* LE PERSONNAGE · le même qui dort dans la salle, en trois
@@ -201,7 +217,7 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
           <h2><span className="ag-h2-n">01</span> Why this one is hard</h2>
           <p className="ag-hardlong">{u.hard}</p>
           <div className="ag-two">
-            <p className="ag-fail"><b>How it goes wrong</b>{u.failure}</p>
+            <p className="ag-fail"><b>{t('ag.fail')}</b>{u.failure}</p>
             <p className="ag-for"><b>Who needs it</b>{u.forWhom}</p>
           </div>
         </section>
@@ -243,7 +259,7 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
                   <div className="ag-step-t">
                     <span className="ag-step-of">Step {i + 1} of {total}</span>
                     <h3>{s.title}</h3>
-                    <span className="ag-makes"><b>Makes</b> {s.makes}</span>
+                    <span className="ag-makes"><b>{t('ag.makes')}</b> {s.makes}</span>
                   </div>
                 </header>
 
@@ -366,7 +382,7 @@ export function AgentCard({ u, onClose }: { u: UseCase; onClose: () => void }) {
         {finished && (
           <section className="ag-sec ag-done">
             <BauhausIcon name="star" size={34} />
-            <h2>{u.name} is built</h2>
+            <h2>{u.name} {t('ag.isBuilt')}</h2>
             <p className="ag-lead">
               You took one shape of problem from a blank page to a file that runs somewhere else. That is one
               agent, and one badge. {grade.next
