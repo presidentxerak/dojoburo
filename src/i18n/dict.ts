@@ -236,6 +236,12 @@ export const DICT = {
   'ag.fail': { en: 'How it goes wrong', fr: 'Comment ça rate' },
   'ag.makes': { en: 'Makes', fr: 'Fabrique' },
   'ag.isBuilt': { en: 'is built', fr: 'est construit' },
+  'ag.whereNext': { en: 'Where this goes next', fr: 'Où cela va ensuite' },
+  'ag.whereLead': {
+    en: 'A framework will not take your file as it is: each one models an agent with its own words, and the work is knowing which piece becomes what. Three of them, to give you the idea.',
+    fr: "Un framework ne prendra pas votre fichier tel quel : chacun modélise un agent avec ses propres mots, et le travail consiste à savoir quel morceau devient quoi. En voici trois, pour l'idée.",
+  },
+  'ag.compareAll': { en: 'Compare all', fr: 'Comparer les' },
 
   // ---- l'académie ---------------------------------------------------------
   // Le CONTENU des leçons ne passe pas par ici · il vit dans data/academy, à
@@ -316,6 +322,54 @@ export const DICT = {
   'ac.kindDo': { en: 'Do this', fr: 'À faire' },
   'ac.kindWarn': { en: 'Watch out', fr: 'Attention' },
   'ac.kindCompare': { en: 'Compare', fr: 'Comparez' },
+
+  // ---- où faire tourner l'agent · la page des frameworks ------------------
+  'fw.pill': { en: 'The last step of the first course', fr: 'La dernière marche du premier cours' },
+  'fw.h1': { en: 'You built an agent. Now put it somewhere.', fr: "Vous avez construit un agent. Posez-le quelque part." },
+  'fw.lead': {
+    en: 'paths in the dojo end with a file: an instruction and a set of tool schemas. This page is the step after. There are a lot of frameworks that will run it for you, they all want the same two things, and none of them is hard to start with.',
+    fr: "parcours du dojo se terminent par un fichier : une instruction et un jeu de schémas d'outils. Cette page est l'étape d'après. Beaucoup de frameworks le feront tourner pour vous, ils veulent tous les deux mêmes choses, et aucun n'est difficile à démarrer.",
+  },
+  'fw.h2what': { en: 'What a framework actually is', fr: "Ce qu'est vraiment un framework" },
+  'fw.thinkOf': { en: 'Think of it as', fr: 'Voyez-le comme' },
+  'fw.gives': { en: 'What it gives you', fr: "Ce qu'il vous apporte" },
+  'fw.givesNot': { en: 'What it does not give you', fr: "Ce qu'il ne vous apporte pas" },
+  'fw.without': { en: 'You can start without one', fr: "Vous pouvez commencer sans" },
+  'fw.whySoMany': { en: 'Why there are so many', fr: "Pourquoi il y en a autant" },
+  'fw.h2connect': { en: 'How to export your agent and connect it', fr: "Comment exporter votre agent et le brancher" },
+  'fw.connectLead': {
+    en: 'Four moves, and they are the same wherever you take it. Only the names of the boxes change.',
+    fr: "Quatre gestes, et ce sont les mêmes où que vous l'emmeniez. Seuls les noms des cases changent.",
+  },
+  'fw.stepWrong': { en: 'Where it goes wrong', fr: 'Où ça rate' },
+  'fw.buildFirst': { en: 'Build an agent first, if you have not', fr: "Construisez d'abord un agent, si ce n'est pas fait" },
+  'fw.h2list': { en: 'of them, and what each one is for', fr: "au total, et à quoi sert chacun" },
+  'fw.listLead': {
+    en: 'You do not have to choose well the first time. Your agent is an instruction and some schemas, so moving it costs an afternoon, not a rewrite. Open the two or three that sound like your problem.',
+    fr: "Vous n'avez pas à bien choisir du premier coup. Votre agent est une instruction et des schémas : le déplacer coûte une après-midi, pas une réécriture. Ouvrez les deux ou trois qui ressemblent à votre problème.",
+  },
+  'fw.allLangs': { en: 'All languages', fr: 'Tous les langages' },
+  'fw.models': { en: 'How it models an agent', fr: 'Comment il modélise un agent' },
+  'fw.where': { en: 'Where each piece of your agent goes', fr: 'Où va chaque morceau de votre agent' },
+  'fw.catches': { en: 'What catches people out', fr: 'Ce qui surprend' },
+  'fw.takeWhen': { en: 'Take it when', fr: 'Prenez-le quand' },
+  'fw.notWhen': { en: 'Do not, when', fr: 'Ne le prenez pas quand' },
+  'fw.readDocs': { en: 'Read its own documentation', fr: 'Lire sa documentation' },
+  'fw.noCodeH2': { en: 'There is no code on this page, on purpose', fr: "Il n'y a aucun code sur cette page, et c'est voulu" },
+  'fw.noCodeA': {
+    en: 'These projects move fast, and a snippet written today is wrong in a few months: someone copies it, it breaks, and they think they misunderstood. So we teach the part that does not go stale, which is also the part that takes the time:',
+    fr: "Ces projets bougent vite, et un extrait écrit aujourd'hui a tort dans quelques mois : quelqu'un le copie, ça casse, et il croit avoir mal compris. Nous enseignons donc la partie qui ne se périme pas, qui est aussi celle qui prend du temps :",
+  },
+  'fw.noCodeB': { en: 'what your agent becomes in each framework', fr: 'ce que votre agent devient dans chaque framework' },
+  'fw.noCodeC': {
+    en: 'A system prompt is an instruction here, a backstory there, a typed signature elsewhere. Once you know that, the current documentation is a five minute read instead of an afternoon.',
+    fr: "Une consigne système est une instruction ici, une histoire là, une signature typée ailleurs. Une fois que vous savez cela, la documentation du jour se lit en cinq minutes au lieu d'une après-midi.",
+  },
+  'fw.noCodeD': {
+    en: 'projects day to day, and they change without telling us. What is written here is their shape, which is stable. Every entry links to its own documentation for everything that is not.',
+    fr: "projets au jour le jour, et ils changent sans nous prévenir. Ce qui est écrit ici est leur forme, qui est stable. Chaque entrée renvoie à sa propre documentation pour tout ce qui ne l'est pas.",
+  },
+  'fw.weDoNotTrack': { en: 'We do not track these', fr: 'Nous ne suivons pas ces' },
 
   // ---- le pied de page ---------------------------------------------------
   'footer.built': { en: 'A training centre for AI agents', fr: "Un centre de formation aux agents IA" },

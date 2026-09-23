@@ -412,6 +412,58 @@ for (const f of ['src/Landing.tsx', 'src/academy/Academy.tsx', 'src/dojo/MasterP
   ok(`${f.split('/').pop()} traduit ses piliers par pillarIn`, /pillarIn\(/.test(readFileSync(f, 'utf8')))
 }
 
+/* --- 3 septies · les quinze frameworks ----------------------------------- */
+//
+// CE QUI EST TRADUIT ET CE QUI NE L'EST PAS est ici un vrai choix, pas un
+// oubli : un nom de projet est un nom propre, un langage se nomme pareil
+// partout, une adresse traduite n'existe pas, et les CLÉS de `fit` sont les
+// identifiants des formats d'export. Traduire ces clés casserait le lien qui
+// fait qu'un format supprimé ne compile plus. La garde vérifie donc les deux
+// sens : que la prose est traduite, et que le reste ne l'est PAS.
+const FW = await load('src/data/frameworks.ts', 'fw.mjs')
+for (const f of FW.FRAMEWORKS) {
+  ok(`le framework « ${f.id} » a son français`, !!f.fr, f.fr ? 'oui' : 'absent')
+  if (!f.fr) continue
+  ok(`« ${f.id} » a traduit sa forme`, f.fr.shape !== f.shape && looksFrench(f.fr.shape))
+  ok(`« ${f.id} » dit quand ne pas le prendre, en français`,
+    looksFrench(f.fr.when) && looksFrench(f.fr.notWhen) && looksFrench(f.fr.watch)
+      && looksFrench(f.fr.approach) && looksFrench(f.fr.bestFor))
+  // LA CORRESPONDANCE EST LE COEUR DE LA PAGE · c'est ce qu'elle enseigne à la
+  // place du code. Une entrée dont `fit` reste anglais garde sa seule partie
+  // utile dans l'autre langue.
+  ok(`« ${f.id} » a traduit sa correspondance`,
+    Object.keys(f.fit).length === Object.keys(f.fr.fit).length
+      && Object.keys(f.fit).every((k) => f.fr.fit[k] && f.fr.fit[k] !== f.fit[k] && looksFrench(f.fr.fit[k])),
+    `${Object.keys(f.fit).length} formats`)
+}
+{
+  const f0 = FW.FRAMEWORKS[0]
+  const fr = FW.frameworkIn(f0, 'fr')
+  ok('frameworkIn garde le nom, les langages et l\'adresse',
+    fr.name === f0.name && fr.docs === f0.docs && fr.langs.join() === f0.langs.join())
+  ok('frameworkIn garde les clés de fit', Object.keys(fr.fit).join() === Object.keys(f0.fit).join())
+  ok('frameworkIn rend l\'anglais', FW.frameworkIn(f0, 'en').shape === f0.shape)
+}
+ok('l\'introduction des frameworks a son français',
+  !!FW.FRAMEWORK_PRIMER.fr && looksFrench(FW.FRAMEWORK_PRIMER.fr.plain) && looksFrench(FW.FRAMEWORK_PRIMER.fr.like))
+ok('elle garde ses quatre apports',
+  FW.FRAMEWORK_PRIMER.fr.gives.length === FW.FRAMEWORK_PRIMER.gives.length
+    && FW.FRAMEWORK_PRIMER.fr.gives.every(looksFrench),
+  `${FW.FRAMEWORK_PRIMER.gives.length}`)
+for (const c of FW.CONNECT_STEPS) {
+  ok(`le geste « ${c.title} » a son français`,
+    !!c.fr && looksFrench(c.fr.title) && looksFrench(c.fr.does) && looksFrench(c.fr.watch),
+    c.fr ? 'oui' : 'absent')
+}
+{
+  const src = readFileSync('src/dojo/Frameworks.tsx', 'utf8')
+  ok('la page des frameworks passe par frameworkIn', /frameworkIn\(/.test(src))
+  ok('… et par primerIn et connectStepIn', /primerIn\(/.test(src) && /connectStepIn\(/.test(src))
+  // LE FILTRE DE LANGAGE S'APPELAIT `lang` · le même nom que la langue lue, au
+  // même endroit. L'un aurait masqué l'autre en silence.
+  ok('… et ne confond pas le langage avec la langue', !/\[lang, setLang\]/.test(src))
+}
+
 /* --- 4 · les surfaces annoncées traduites le sont vraiment --------------- */
 
 // On relit le JSX et on cherche du texte anglais écrit en dur entre deux

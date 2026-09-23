@@ -35,7 +35,7 @@ import { AGENT_TRACK } from './masterProgress'
 import { gradeFor } from './grades'
 import { FORMATS, render, downloadAgent, copyAgent, type BuiltAgent, type ExportFormat } from '../lib/agentExport'
 import { estimateTokens } from '../agents/sandbox'
-import { FRAMEWORKS, FRAMEWORK_COUNT } from '../data/frameworks'
+import { FRAMEWORKS, FRAMEWORK_COUNT, frameworkIn } from '../data/frameworks'
 import { Agent3DPreview } from '../components/three/Agent3DPreview'
 import { characterFor, faceIdForUseCase } from '../data/agentFaces'
 import { agentColor } from '../data/agents'
@@ -362,22 +362,22 @@ export function AgentCard({ u: u0, onClose }: { u: UseCase; onClose: () => void 
               coller. Trois exemples ici, le reste sur sa page : la fiche
               enseigne à construire, pas à comparer quinze projets. */}
           <div className="ag-where">
-            <h3>Where this goes next</h3>
-            <p className="ag-lead">
-              A framework will not take your file as it is: each one models an agent with its own words, and the
-              work is knowing which piece becomes what. Three of them, to give you the idea.
-            </p>
+            <h3>{t('ag.whereNext')}</h3>
+            <p className="ag-lead">{t('ag.whereLead')}</p>
             <div className="ag-where-list">
-              {FRAMEWORKS.slice(0, 3).map((f) => (
-                <div className="ag-where-c" key={f.id}>
-                  <b>{f.name}</b>
-                  <span className="ag-where-l">{f.langs.join(' · ')} · {f.approach}</span>
-                  <span>{f.fit.system ?? f.shape}</span>
-                </div>
-              ))}
+              {FRAMEWORKS.slice(0, 3).map((f0) => {
+                const f = frameworkIn(f0, lang)
+                return (
+                  <div className="ag-where-c" key={f.id}>
+                    <b>{f.name}</b>
+                    <span className="ag-where-l">{f.langs.join(' · ')} · {f.approach}</span>
+                    <span>{f.fit.system ?? f.shape}</span>
+                  </div>
+                )
+              })}
             </div>
             <a className="ag-where-go" href="/frameworks">
-              Compare all {FRAMEWORK_COUNT} frameworks <BauhausIcon name="play" size={11} />
+              {t('ag.compareAll')} {FRAMEWORK_COUNT} frameworks <BauhausIcon name="play" size={11} />
             </a>
           </div>
         </section>
