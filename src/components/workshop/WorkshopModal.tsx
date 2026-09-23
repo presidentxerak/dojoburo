@@ -887,7 +887,7 @@ function PlanCards({ hasAccount, org }: { hasAccount: boolean; org: OrgSnapshot 
           return (
             <div key={pl.id} className={`ws-plan${pl.featured ? ' on' : ''}${mine ? ' mine' : ''}`}>
               <strong>{pl.name}</strong>
-              <span className="ws-price">{planPrice(pl)}<i>{pl.usd === 0 ? '' : pl.perSeat ? '/seat/mo' : '/mo'}</i></span>
+              <span className="ws-price">{planPrice(pl)}<i>{pl.eur === 0 ? '' : pl.addOn ? ' +' : ''}</i></span>
               <span className="ws-blurb">{pl.tagline}</span>
               {mine ? (
                 <span className="ws-plan-now">
@@ -895,7 +895,7 @@ function PlanCards({ hasAccount, org }: { hasAccount: boolean; org: OrgSnapshot 
                       ? <><BauhausIcon name="dot" size={10} /> your plan · payment failed</>
                       : <><BauhausIcon name="check" size={11} /> your plan</>}
                 </span>
-              ) : pl.usd === 0 ? (
+              ) : pl.eur === 0 ? (
                 <span className="ws-plan-now"><BauhausIcon name="dot" size={10} /> where everyone starts</span>
               ) : (
                 <button

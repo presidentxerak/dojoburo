@@ -67,12 +67,16 @@ await sideways('landing')
   ok(!!cta && cta.y < VH, 'and it is on the first screen', cta ? `y=${Math.round(cta.y)}` : 'absent')
 }
 
-// The trades grid replaced 23 description cards. On a phone that change is the
-// difference between one screen and six.
-{
-  const n = await page.locator('.lp-trade').count()
-  const box = await page.locator('.lp-trades').boundingBox()
-  ok(n > 0 && !!box && box.height < VH * 2.5, `the ${n} trades stay under two and a half screens`,
+// LA PRÉMISSE A BOUGÉ, LA RÈGLE RESTE. La grille qu'elle mesurait était celle
+// des fiches de métiers, qui a quitté la page d'accueil quand celle-ci s'est
+// mise à vendre un parcours. Ce qu'elle protégeait n'a pas changé : une grille
+// dense sur un téléphone est la différence entre un écran et six. Les deux
+// grilles denses de la nouvelle page sont donc mesurées, et une grille absente
+// FAIT ROUGIR au lieu de faire tomber l'épreuve sur un délai d'attente.
+for (const [sel, what] of [['.lp2-cities', 'cities'], ['.lp2-trades', 'trades'], ['.lp2-offers', 'offers']]) {
+  const box = await page.locator(sel).boundingBox().catch(() => null)
+  const n = await page.locator(`${sel} > *`).count()
+  ok(n > 0 && !!box && box.height < VH * 2.5, `the ${n} ${what} stay under two and a half screens`,
     box ? `${Math.round(box.height)}px` : 'absent')
 }
 await page.screenshot({ path: `${OUT}/mob-landing.png`, fullPage: false })

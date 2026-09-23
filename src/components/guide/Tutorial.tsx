@@ -4,10 +4,13 @@
 // a small stage that mimics the real UI while its text explains what you are
 // looking at. Step through it yourself, or let it play.
 import { useEffect, useRef, useState } from 'react'
-import { WALKS, Stage, type WalkId } from './tutorialBeats'
+import { WALKS, Stage, walkIn, type WalkId } from './tutorialBeats'
+import { useLang, useT } from '../../i18n'
 
 export function Tutorial({ walk = 'overview', autoPlay = false }: { walk?: WalkId; autoPlay?: boolean }) {
-  const beats = WALKS[walk].beats
+  const lang = useLang()
+  const t = useT()
+  const beats = walkIn(WALKS[walk], lang).beats
   const [i, setI] = useState(0)
   const [playing, setPlaying] = useState(autoPlay)
   const timer = useRef<number | undefined>(undefined)
@@ -49,9 +52,9 @@ export function Tutorial({ walk = 'overview', autoPlay = false }: { walk?: WalkI
           ))}
         </div>
         <div className="tut-nav">
-          <button className="btn tiny ghost" onClick={() => { setPlaying(false); setI((n) => Math.max(0, n - 1)) }} disabled={i === 0}>Back</button>
-          <button className="btn tiny ghost" onClick={() => setPlaying((p) => !p)}>{playing ? 'Pause' : 'Play all'}</button>
-          <button className="btn primary tiny" onClick={() => { setPlaying(false); setI((n) => Math.min(beats.length - 1, n + 1)) }} disabled={i === beats.length - 1}>Next</button>
+          <button className="btn tiny ghost" onClick={() => { setPlaying(false); setI((n) => Math.max(0, n - 1)) }} disabled={i === 0}>{t('tut.prev')}</button>
+          <button className="btn tiny ghost" onClick={() => setPlaying((p) => !p)}>{playing ? t('tut.pause') : t('tut.play')}</button>
+          <button className="btn primary tiny" onClick={() => { setPlaying(false); setI((n) => Math.min(beats.length - 1, n + 1)) }} disabled={i === beats.length - 1}>{t('tut.next')}</button>
         </div>
       </div>
     </div>

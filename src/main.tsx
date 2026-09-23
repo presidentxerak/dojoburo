@@ -19,7 +19,6 @@ const DocumentsPage = lazy(() => import('./components/DocumentsPage').then((m) =
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
-import { LibraryHome, EntryPage } from './library/Library'
 import { FrugalityPage } from './frugality/Frugality'
 // LES DEUX COURS DE DESIGN · une seule page, deux contenus. Voir l'en-tête de
 // design/DesignCoursePage pour la raison : deux composants jumeaux divergent.
@@ -28,7 +27,12 @@ import { DESIGN_COURSE, FIGMA_COURSE } from './data/designCourses'
 import { BuildAgentPage } from './dojo/BuildAgent'
 import { FrameworksPage } from './dojo/Frameworks'
 import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
-import { usePath } from './lib/router'
+import { usePath, useHashAnchor } from './lib/router'
+import { FormationPage, CityPage } from './game/Formation'
+import { LevelPage } from './game/LevelPage'
+import { DiscoveryPage } from './game/Discovery'
+import { TradeHomePage, TradePage } from './game/Trade'
+import { ProfilePage } from './game/Profile'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
 import './index.css'
@@ -41,6 +45,30 @@ const CANONICAL_HOST = 'www.dojoburo.com'
 if (location.hostname.endsWith('.vercel.app')) {
   location.replace(`https://${CANONICAL_HOST}${location.pathname}${location.search}${location.hash}`)
 }
+
+/* ------------------------------------------------------------------ */
+/* CE QUI EST UNE ROUTE, ET CE QUI EST UNE ANCRE                       */
+/*                                                                      */
+/* Le fragment servait à DEUX choses à la fois : il nommait une vue de  */
+/* l'application (#app, #studio) et il servait d'ancre dans la page     */
+/* d'accueil (#pricing, #cost, #courses). Rien ne distinguait les deux, */
+/* donc `route` valait « pricing » et la page tombait dans la branche   */
+/* de l'application : un visiteur qui cliquait « Tarifs » arrivait sur  */
+/* la porte du beta privé, sur la page publique, depuis la navigation   */
+/* principale.                                                          */
+/*                                                                      */
+/* LA LISTE EST FERMÉE, et c'est le point. Un fragment inconnu est une  */
+/* ancre : ajouter une ancre à la page d'accueil ne peut donc plus      */
+/* avaler la page, et ajouter une vue d'application demande une ligne   */
+/* ici, ce qui est une décision et se relit.                            */
+/* ------------------------------------------------------------------ */
+
+const APP_ROUTES = new Set(['app', 'widget', 'academy', 'guide', 'studio', 'connect', 'documents'])
+
+/** Ce fragment désigne-t-il une vue de l'application ? Une invitation
+ *  `#join=<jeton>` en est une : elle arrive froide et doit atterrir dans
+ *  l'application, où le jeton se consomme. */
+export const isAppRoute = (r: string) => APP_ROUTES.has(r) || r.startsWith('join=')
 
 function Root() {
   // The private beta gate. It closes the PRODUCT, not the website.
@@ -67,6 +95,8 @@ function Root() {
   // Academy in particular is the front door for anyone searching how agents
   // work, so every lesson has to be its own address.
   const path = usePath()
+  // L'ANCRE, une fois la page rendue · voir useHashAnchor.
+  useHashAnchor()
 
   // ---- public · no gate ----------------------------------------------------
   if (path === '/terms') return <Terms />
@@ -76,13 +106,36 @@ function Root() {
   if (am) return am[2]
     ? <LessonPage trackSlug={am[1].toLowerCase()} lessonSlug={am[2].toLowerCase()} />
     : <TrackPage slug={am[1].toLowerCase()} />
-  // LA BIBLIOTHÈQUE · de vraies adresses, parce que chaque entrée répond à une
-  // question qu'on tape dans un moteur de recherche. Le raisonnement y est
-  // public et indexable ; le fichier, lui, ne sort que de /api/library.
+  // LA BIBLIOTHÈQUE A ÉTÉ RETIRÉE · elle vendait des fichiers à l'unité, ce
+  // qui était l'ancien modèle. Les fichiers sont maintenant les ressources des
+  // modules, et ils se téléchargent depuis le module qui les enseigne, là où
+  // ils ont un sens. Les anciennes adresses sont redirigées dans vercel.json
+  // plutôt que de rendre 404 : elles sont indexées.
   // LA SOBRIÉTÉ · une page, pas une ancre. Elle porte un outil interactif et
   // l'encart entreprise ; les deux ont besoin d'une adresse à eux.
   // LE DOJO COMME SALLE DE CLASSE · on y arrive, le maître accueille, et on
   // choisit lequel des douze agents on veut apprendre à construire.
+  // LE PARCOURS · la carte des cités, une cité, un dojo. Ce sont de vraies
+  // adresses parce qu'on les partage et qu'on y revient : « reprends au dojo
+  // trois de la cité des agents » doit être un lien, pas une explication.
+  if (path === '/formation') return <FormationPage />
+  const cm = path.match(/^\/formation\/([a-z0-9-]+)$/i)
+  if (cm) return <CityPage moduleId={cm[1].toLowerCase()} />
+  const dm = path.match(/^\/formation\/([a-z0-9-]+)\/([a-z0-9-]+)$/i)
+  if (dm) return <LevelPage moduleId={dm[1].toLowerCase()} levelId={dm[2].toLowerCase()} />
+  // LA SEMAINE GRATUITE · une porte d'entrée à elle, parce que c'est l'adresse
+  // qu'on partage et celle qui se retient. Les sept jours eux-mêmes sont des
+  // dojos comme les autres et vivent sous /formation/discovery : deux adresses
+  // pour la même leçon auraient partagé son audience en deux.
+  if (path === '/7-jours') return <DiscoveryPage />
+  // LES MÉTIERS · le choix, puis la carte d'un métier. Ses cités sont des
+  // cités, donc elles restent sous /formation.
+  if (path === '/metier') return <TradeHomePage />
+  const tm = path.match(/^\/metier\/([a-z0-9-]+)$/i)
+  if (tm) return <TradePage tradeId={tm[1].toLowerCase()} />
+  // LE PROFIL · ce qui a été gagné, et où reprendre. Public comme le reste du
+  // parcours : la progression vit dans le navigateur, pas dans un compte.
+  if (path === '/profil') return <ProfilePage />
   if (path === '/build') return <BuildAgentPage />
   const bm = path.match(/^\/build\/([a-z0-9-]+)$/i)
   if (bm) return <BuildAgentPage slug={bm[1].toLowerCase()} />
@@ -93,9 +146,6 @@ function Root() {
   if (path === '/frugality') return <FrugalityPage />
   if (path === '/design') return <DesignCoursePage course={DESIGN_COURSE} />
   if (path === '/figma') return <DesignCoursePage course={FIGMA_COURSE} />
-  if (path === '/library') return <LibraryHome />
-  const lm = path.match(/^\/library\/([a-z0-9-]+)$/i)
-  if (lm) return <EntryPage slug={lm[1].toLowerCase()} />
   if (path === '/guide') return <GuidePage />
   const gm = path.match(/^\/guide\/([a-z0-9-]+)$/i)
   if (gm) return <ConnectorGuidePage id={gm[1].toLowerCase()} />
@@ -106,7 +156,10 @@ function Root() {
   // The landing is a marketing page and is read without the code. Its call to
   // action sets #app, which is where the door actually is — you can read what
   // Dojoburo does, and you need the code to use it.
-  if (!route) return <Landing enter={() => { location.hash = 'app' }} />
+  // UN FRAGMENT QUI N'EST PAS UNE ROUTE EST UNE ANCRE · la page d'accueil est
+  // rendue, et c'est elle qui fait défiler jusqu'à la section. Le test était
+  // `!route`, donc n'importe quelle ancre passait pour une vue.
+  if (!isAppRoute(route)) return <Landing enter={() => { location.hash = 'app' }} />
 
   // ---- the product · gated -------------------------------------------------
   if (!open) return <AccessGate onOpen={() => setOpen(true)} />

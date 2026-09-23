@@ -1,7 +1,7 @@
 // Shared content for the investor pitch deck · used by both the on-screen deck
 // (PitchDeck.tsx) and the exported PDF (deckPdf.ts) so they never drift.
 
-import { LIBRARY_USD, SEAT_USD, SEAT_MIN } from './plans'
+import { PATH_EUR, TRADE_EUR, DISCOVERY_DAYS, priceTag } from './plans'
 export const DECK_ACCENTS = {
   magenta: '#ff2d9b', blue: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', violet: '#a06bff',
 }
@@ -35,7 +35,7 @@ export interface DeckSlide {
 const A = DECK_ACCENTS
 
 export const DECK_SLIDES: DeckSlide[] = [
-  { n: '', eyebrow: 'Investor deck', title: 'Learn to build AI agents, and to run them cheap.', line: 'A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where they go, and how to cut them. The course is free; the library of prompts, briefs and skills is the paid part.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['Free course, paid library', 'Frugality nobody else teaches', 'Sold as software, not tokens'] },
+  { n: '', eyebrow: 'Investor deck', title: 'Learn to build AI agents, and to run them cheap.', line: 'A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where they go, and how to cut them. A free week to find out if it suits you, then one purchase for the whole path.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['A free week, then one purchase', 'Frugality nobody else teaches', 'Taught as a game, not a video list'] },
   { n: '01', eyebrow: 'The problem', title: 'Too many apps.', line: 'Running a business means juggling a dozen tools and never mastering any of them.', obj: 'briefcase', accent: A.orange, layout: 'object', points: ['A dozen SaaS tabs', 'Constant context-switching', 'Nothing mastered'] },
   // 02 · « ils agissent pour vous dans vos applications » décrivait l'ancien
   // produit et promettait à l'investisseur une chose que la 04 et la 05 ne
@@ -61,11 +61,15 @@ export const DECK_SLIDES: DeckSlide[] = [
     // les tâches faisait payer un coût que nous n'avons pas. On vend ce dont le
     // stock grossit (les fichiers) et ce qui a un acheteur au ticket élevé (les
     // sièges).
-    n: '05', eyebrow: 'The model', title: 'We sell the files and the seats.', line: `The course is free and costs nothing to serve, so it stays free, diploma included. $${LIBRARY_USD} a month buys the library, which grows every month. $${SEAT_USD} a seat buys a group, from ${SEAT_MIN} up. Nothing is metered, because nothing runs here.`, obj: 'gem', accent: A.blue, layout: 'stats',
+    // LE MODÈLE A CHANGÉ DE FORME · on vendait un abonnement à une
+    // bibliothèque de fichiers. On vend maintenant la formation elle-même, une
+    // fois. Cette planche disait encore l'ancien modèle, avec ses prix, dans
+    // le document qu'on montre aux investisseurs.
+    n: '05', eyebrow: 'The model', title: 'One week free, then one purchase.', line: `${DISCOVERY_DAYS} days free to find out whether this way of teaching suits you. Then ${priceTag(PATH_EUR)} buys the whole path, once, updates included, and ${priceTag(TRADE_EUR)} adds the city built for your trade. Nothing recurs, nothing is metered, and nobody pays for forgetting to cancel.`, obj: 'gem', accent: A.blue, layout: 'stats',
     stats: [
-      { big: '$0', label: 'The course, and the diploma' },
-      { big: `$${LIBRARY_USD}`, label: 'Library · every file, monthly' },
-      { big: `$${SEAT_USD}`, label: `School · a seat, ${SEAT_MIN} minimum` },
+      { big: priceTag(0), label: `The ${DISCOVERY_DAYS} discovery days` },
+      { big: priceTag(PATH_EUR), label: 'The whole path, paid once' },
+      { big: `+${priceTag(TRADE_EUR)}`, label: 'Your trade, added after' },
     ],
   },
   {
@@ -73,11 +77,11 @@ export const DECK_SLIDES: DeckSlide[] = [
     // le marché du produit qui travaillait à leur place. Le marché d'un centre
     // de formation, ce sont les gens qui doivent apprendre, et les employeurs
     // qui doivent les former · c'est aussi ce qui justifie le plan School.
-    n: '06', eyebrow: 'The market', title: 'Everyone has to learn this.', line: 'Agents went from a curiosity to a line in the job description in about two years, and almost nobody was taught. The individual pays to learn; the employer pays to have a team taught.', obj: 'eye', accent: A.magenta, layout: 'stats',
+    n: '06', eyebrow: 'The market', title: 'Everyone has to learn this.', line: 'Agents went from a curiosity to a line in the job description in about two years, and almost nobody was taught. Everyone needs the general skill, and everyone needs it bent to their own trade.', obj: 'eye', accent: A.magenta, layout: 'stats',
     stats: [
       { big: 'Every trade', label: 'now has an agent to write' },
-      { big: '2 buyers', label: 'the learner, and their employer' },
-      { big: `${SEAT_MIN} seats`, label: 'where a team becomes a School' },
+      { big: '2 needs', label: 'the general skill, then the trade' },
+      { big: '2 prices', label: 'the path, then the trade' },
     ],
   },
   // 07 · POURQUOI LA MARGE EST STRUCTURELLE.
@@ -92,14 +96,14 @@ export const DECK_SLIDES: DeckSlide[] = [
   // le faire. Elle dit ce que la 05 laisse sans réponse et ce dont la 08 a
   // besoin pour tenir · d'où vient la marge.
   {
-    n: '07', eyebrow: 'The cost', title: 'Nothing to serve.', line: 'The course is static pages, the library is files, the belts and the diploma live in the browser. The only variable cost is the support bot, and its paid fallback is capped per day for the whole instance, not per learner.', obj: 'coins', accent: A.yellow, layout: 'stats',
+    n: '07', eyebrow: 'The cost', title: 'Nothing to serve.', line: 'The course is static pages, the resources are files, the badges and the map live in the browser. The only variable cost is the support bot, and its paid fallback is capped per day for the whole instance, not per learner.', obj: 'coins', accent: A.yellow, layout: 'stats',
     stats: [
       { big: '~$0', label: 'marginal cost per learner' },
       { big: 'Capped', label: 'support spend, instance-wide' },
       { big: 'Nothing', label: 'runs on our account' },
     ],
   },
-  { n: '08', eyebrow: 'The forecast', title: 'Scale is margin.', line: 'Two sales at one cost: a learner who buys the library, and an employer who buys seats for a group. Neither one costs more to serve than the free reader beside them.', obj: 'coins', accent: A.teal, layout: 'table', table: 'forecast' },
+  { n: '08', eyebrow: 'The forecast', title: 'Scale is margin.', line: 'Two sales at one cost: the path, then the trade module bought on top of it. Neither one costs more to serve than the free reader beside them.', obj: 'coins', accent: A.teal, layout: 'table', table: 'forecast' },
   // 09 · disait « rentable dès l'année 2, 3,9 M$ en année 5 ». Les deux chiffres
   // venaient d'une conversion de 9 % à 240 $, hypothèses d'un outil quotidien.
   // Un cours gratuit avec une bibliothèque payante ne convertit pas comme ça,

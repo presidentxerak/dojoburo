@@ -39,7 +39,6 @@ const effort = await load('src/data/effort.ts')
 // la promesse du produit · elle est DÉRIVÉE ici, jamais retapée (voir plus bas)
 const pos = await load('src/data/positioning.ts')
 // le catalogue de la bibliothèque · pour que sa taille annoncée soit la vraie
-const lib = await load('src/data/library.ts')
 // LES DOUZE AGENTS de la salle de classe · le centre de formation les annonce
 // dans son sous-titre, dans son en-tête, sur la page /build et dans le prompt
 // du robot de support. Quatre copies d'un même nombre.
@@ -51,10 +50,10 @@ const F = {
   teams: arch.ARCHETYPES.length,
   apps: conns.CONNECTORS.length,
   creditUsd: budget.CREDIT_USD,
-  libraryUsd: plans.LIBRARY_USD,
-  seatUsd: plans.SEAT_USD,
-  seatMin: plans.SEAT_MIN,
-  schoolFloorUsd: plans.SCHOOL_FLOOR_USD,
+  pathEur: plans.PATH_EUR,
+  tradeEur: plans.TRADE_EUR,
+  bundleEur: plans.BUNDLE_EUR,
+  discoveryDays: plans.DISCOVERY_DAYS,
   lessons: academy.LESSON_COUNT,
   tracks: academy.TRACKS.length,
   hours: Math.round((academy.TOTAL_MINUTES / 60) * 10) / 10,
@@ -153,14 +152,19 @@ const RULES = [
   // fausses le jour où le produit a cessé d'exécuter du travail. Une garde dont
   // la prémisse a bougé doit affirmer la NOUVELLE vérité, sinon elle certifie
   // une erreur : ici, que le robot vend encore des exécutions.
-  { file: 'api/chat.ts', must: new RegExp(`LIBRARY \\(\\$${F.libraryUsd}/month\\)`), why: `Library is $${F.libraryUsd}/month` },
-  { file: 'api/chat.ts', must: new RegExp(`SCHOOL \\(\\$${F.seatUsd} per seat per month, ${F.seatMin} seats minimum`), why: `School is $${F.seatUsd} a seat, ${F.seatMin} minimum` },
-  { file: 'api/chat.ts', must: new RegExp(`\\$${F.schoolFloorUsd}/month and up`), why: `the School floor is $${F.schoolFloorUsd}/month` },
-  { file: 'api/chat.ts', must: /NOTHING IS METERED/, why: 'the one thing the bot must say first about price' },
-  // LE PLAN MORT · quelqu'un qui a lu l'ancienne grille va poser la question, et
-  // un robot qui revend 2 000 tâches vend une capacité éteinte. Il doit savoir
-  // que c'est fini, donc la chaîne doit apparaître dans une phrase qui l'enterre.
-  { file: 'api/chat.ts', must: /old "2,000 tasks a month" Managed plan, say plainly that it is gone/, why: 'the bot must bury the old Managed plan, not resell it' },
+  // TROISIÈME RÉPARATION DE CES LIGNES, et la raison est la même que les deux
+  // premières : le modèle de vente a changé, donc ce que le robot doit dire a
+  // changé avec lui. Ce n'est pas un assouplissement · c'est la nouvelle
+  // vérité, affirmée aussi précisément que l'ancienne l'était.
+  { file: 'api/chat.ts', must: new RegExp(`FORMATION \\(${F.pathEur} €, paid once\\)`), why: `the path is ${F.pathEur} €, paid once` },
+  { file: 'api/chat.ts', must: new RegExp(`MÉTIER \\(${F.tradeEur} €, added after`), why: `the trade module is ${F.tradeEur} €, added after` },
+  { file: 'api/chat.ts', must: new RegExp(`DISCOVERY \\(0 €\\) is ${F.discoveryDays} days`), why: `the free week is ${F.discoveryDays} days` },
+  { file: 'api/chat.ts', must: /NOTHING RECURS/, why: 'the one thing the bot must say first about price' },
+  // LES PLANS MORTS · quelqu'un qui a lu une ancienne grille va poser la
+  // question, et un robot qui revend une capacité éteinte fait une promesse que
+  // personne ne tiendra. Il doit savoir que c'est fini, donc la phrase qui les
+  // enterre doit exister.
+  { file: 'api/chat.ts', must: /say plainly that it is gone and what replaced it/, why: 'the bot must bury the old plans, not resell them' },
   { file: 'api/chat.ts', forbid: /\bStarter\b|1,500 credits|Pro-pack/, why: 'the metered plans are gone · we sell the course, the files and the seats' },
 
   // and nothing may hardcode a plan price outside plans.ts
@@ -171,14 +175,13 @@ const RULES = [
   // décrire de travers. Le robot doit savoir qu'elle existe, où elle est, et
   // surtout ce qui y est gratuit : quelqu'un à qui l'on refuse un fichier doit
   // s'entendre dire pourquoi, pas découvrir un mur.
-  { file: 'api/chat.ts', must: 'LIBRARY (/library)', why: 'the bot must know the library and its address' },
-  { file: 'api/chat.ts', must: 'the FILE ITSELF is what a paid plan buys', why: 'it must say what is free and what is not' },
-  { file: 'src/support/knowledge.ts', must: "id: 'library'", why: 'the support index needs a library topic' },
+  { file: 'api/chat.ts', must: 'it asks for an email and nothing else', why: 'it must say what the free week costs, which is an address' },
 
   // the Academy's own prose
   { file: 'src/data/academy.ts', must: /paying for the teams, not for tokens/i, why: 'the pricing lesson must lead with what is actually sold' },
-  { file: 'src/data/academy.ts', must: new RegExp(`Library is \\$${F.libraryUsd} a month`), why: `the lesson must name the real Library price` },
-  { file: 'src/data/academy.ts', must: new RegExp(`School is \\$${F.seatUsd} a seat a month from ${WORDS[F.seatMin]} seats up, so \\$${F.schoolFloorUsd} a month`), why: `the lesson must name the seat price and its floor` },
+  { file: 'src/data/academy.ts', must: new RegExp(`Formation is ${F.pathEur} € paid once`), why: `the lesson must name the real price of the path` },
+  { file: 'src/data/academy.ts', must: new RegExp(`Métier is ${F.tradeEur} € added on top`), why: `the lesson must say the trade module is an add-on, and what it costs` },
+  { file: 'src/data/academy.ts', must: new RegExp(`come to ${F.bundleEur} €`), why: `the lesson must give the total of both, calculated` },
   { file: 'src/data/academy.ts', forbid: /\$29 a month|\$49 a month|includes 2,000 tasks/, why: 'the lesson taught the metered plans · they are gone' },
   { file: 'src/data/academy.ts', forbid: /(ships|comes) with (twelve|\d+) teammates/i, why: 'a crew-size claim belongs in facts.ts, not in a lesson' },
 
@@ -200,7 +203,13 @@ const RULES = [
   // réclamer le mot anglais, qui serait une façon d'interdire la traduction au
   // nom de la justesse du chiffre, mais bien que le CHIFFRE soit lu et non
   // écrit, ce qui est ce qu'elle a toujours voulu dire.
-  { file: 'src/Landing.tsx', must: /\{LESSON_COUNT\} \{t\('lp\.lessons'\)\}/, why: 'the landing must read the lesson count from the curriculum, not hardcode it' },
+  // LA PRÉMISSE A BOUGÉ, LA RÈGLE RESTE · la page d'accueil ne vend plus des
+  // « leçons » mais des cités et des dojos. Ce que cette règle a toujours voulu
+  // dire est que le CHIFFRE soit lu et non écrit, et c'est ce qu'elle exige
+  // maintenant, sur les trois comptes que la page affiche.
+  { file: 'src/Landing.tsx', must: /\{PATH_MODULE_COUNT\}/, why: 'the landing must read the number of cities from the curriculum, not hardcode it' },
+  { file: 'src/Landing.tsx', must: /\{PATH_LEVEL_COUNT\}/, why: 'the landing must read the number of dojos from the curriculum, not hardcode it' },
+  { file: 'src/Landing.tsx', must: /\{DISCOVERY_LEVEL_COUNT\}/, why: 'the landing must read the length of the free week from the curriculum' },
 
   // index.html · the one description a crawler reads before any JS runs. It must
   // carry the SAME position as the h1: those two disagreed for months because
@@ -276,8 +285,15 @@ const RULES = [
   { file: 'api/chat.ts', must: new RegExp(`(${F.useCases}|${WORDS[F.useCases]}) agents`, 'i'), why: `the bot must know the room holds ${F.useCases} agents` },
   { file: 'api/chat.ts', must: /THREE COURSES/, why: 'the bot must describe a training centre, not a platform' },
   // …et la bibliothèque a une vraie adresse maintenant qu'elle existe
-  { file: 'src/data/positioning.ts', must: "path: '/library'", why: 'the library pillar points at the real page' },
-  { file: 'src/Landing.tsx', must: /ENTRY_COUNT/, why: 'the landing reads the catalogue size from the catalogue, not from a number' },
+  // … ET LES PRIX AUSSI SONT LUS · trois formules affichées sur la page
+  // d'accueil, et un prix écrit à la main sur l'une des trois contredirait la
+  // grille de tarifs deux sections plus bas, dans la page où c'est le plus
+  // cher à faire.
+  { file: 'src/Landing.tsx', must: /priceTag\(PATH_EUR\)/, why: 'the landing reads the path price from the plans, not from a number' },
+  { file: 'src/Landing.tsx', must: /priceTag\(TRADE_EUR\)/, why: 'the landing reads the trade price from the plans, not from a number' },
+  // LES MÉTIERS SONT LUS DE LEUR SOURCE · six cartes écrites à la main
+  // auraient survécu au septième métier sans le montrer.
+  { file: 'src/Landing.tsx', must: /TRADES\.map/, why: 'the landing lists the trades from the trades, not from a copy' },
   // LA SOBRIÉTÉ · une vraie page, un vrai renvoi, et aucun tarif écrit en dur
   { file: 'src/data/positioning.ts', must: "path: '/frugality'", why: 'the frugality pillar points at the real page' },
   { file: 'src/frugality/Frugality.tsx', must: /do not measure carbon/i, why: 'the page must say plainly what it does not do' },
@@ -290,23 +306,28 @@ const RULES = [
   { file: 'src/academy/Lab.tsx', must: /from '\.\.\/data\/frugality'/, why: 'the labs use the shared cost model, never their own' },
   { file: 'src/data/academy.ts', must: /lab\?: LabId/, why: 'a lesson must be able to carry a lab' },
   { file: 'src/academy/Academy.tsx', must: /<Lab id=\{lesson\.lab\}/, why: 'the lesson page must actually render it' },
-  { file: 'src/support/knowledge.ts', must: /\$\{LIB_COUNT\}/, why: 'the library size comes from facts.ts, never typed' },
   // LES ACCROCHES DES FORMULES · elles ont survécu au repositionnement entier
   // en promettant « construisez une entreprise » et « nous faisons tourner les
   // modèles pour vous », parce qu'aucune règle ne les regardait. Une accroche
   // est la phrase qu'on lit juste avant de sortir sa carte.
   { file: 'src/data/plans.ts', forbid: /Build a company and watch/i, why: 'nothing here builds a company for anyone' },
   { file: 'src/data/plans.ts', forbid: /We run the models for you/i, why: 'the dojo is a sandbox · nothing runs by default' },
-  { file: 'src/data/plans.ts', must: /The whole course, and the diploma/i, why: 'Free is the course AND the diploma, and that must be the first thing it says' },
+  // CE QUE LA FORMULE GRATUITE PROMET A CHANGÉ · elle donnait le cours entier
+  // et le diplôme quand tout était gratuit. Elle donne une semaine, et ce qui
+  // la rend honnête est qu'elle soit ENTIÈRE et sans carte. Voir test-pricing,
+  // qui vérifie la même promesse sur les données plutôt que sur le fichier.
+  { file: 'src/data/plans.ts', must: /one lesson a day/i, why: 'the free week must say its rhythm, because that is what it is' },
+  { file: 'src/data/plans.ts', must: /no card/i, why: 'the free week must promise it takes no card' },
   // LA GARDE QUI A CHANGÉ DE CIBLE · elle exigeait que la carte Managed avoue
   // que son allocation ne se consommait jamais. C'était le meilleur qu'on
   // pouvait faire tant qu'on vendait une capacité éteinte. On ne la vend plus,
   // donc la phrase à exiger n'est plus un aveu mais le nouveau produit : des
   // sièges. Ce que la garde continue d'interdire, c'est le retour de la vente
   // au forfait de tâches, sous n'importe quel nom.
-  { file: 'src/data/plans.ts', must: /perSeat/, why: 'the third plan sells seats now, not an allowance' },
+  { file: 'src/data/plans.ts', must: /addOn/, why: 'the third plan is an add-on now, not a seat price' },
+  { file: 'src/data/plans.ts', must: /once\?: boolean/, why: 'a paid plan must be able to say it does not recur' },
   { file: 'src/data/plans.ts', forbid: /tasks a month|tasks included|MANAGED_TASKS/, why: 'no plan sells tasks any more · nothing here runs to draw on them' },
-  { file: 'src/data/plans.ts', must: /Nothing here is metered|never the id/, why: 'plans.ts must keep saying why the ids and the names differ' },
+  { file: 'src/data/plans.ts', must: /jamais l'identifiant|never the id/, why: 'plans.ts must keep saying why the ids and the names differ' },
   // and the apps section must quote what can ACT, not the catalogue size
   { file: 'src/Landing.tsx', must: /APP_LIVE_COUNT/, why: 'the landing quotes apps that can act, not the catalogue count' },
 ]

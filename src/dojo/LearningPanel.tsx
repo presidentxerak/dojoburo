@@ -20,7 +20,7 @@
 import { BauhausIcon } from '../components/BauhausIcon'
 import { useProgress } from '../academy/progress'
 import { readLearning } from './learning'
-import { PILLAR_BY_ID } from '../data/positioning'
+import { PILLAR_BY_ID, pillarIn } from '../data/positioning'
 import { USE_CASE_COUNT } from '../data/agentUseCases'
 import { RESOURCES, resourceTitle } from '../data/resources'
 import { downloadCoursePdf } from '../lib/coursePdf'
@@ -28,9 +28,10 @@ import { useLang, useT } from '../i18n'
 
 export function LearningPanel() {
   const p = useProgress()
-  const L = readLearning(p.doneKeys)
   const lang = useLang()
   const t = useT()
+  // LA LANGUE ENTRE DANS LA LECTURE, pas après · le profil porte des phrases.
+  const L = readLearning(p.doneKeys, lang)
 
   return (
     <div className="lrn">
@@ -38,28 +39,28 @@ export function LearningPanel() {
       <section className="lrn-next">
         {L.nextStep ? (
           <>
-            <span className="lrn-k">Pick up where you stopped</span>
+            <span className="lrn-k">{t('lrn.pickUp')}</span>
             <h3>{L.nextStep.title}</h3>
-            <p>Step {L.nextStep.index + 1} of {L.nextStep.name}.</p>
+            <p>{t('lrn.step')} {L.nextStep.index + 1} {t('lrn.of')} {L.nextStep.name}.</p>
             <a className="lrn-go" href={`/build/${L.nextStep.useCase}`}>
-              <BauhausIcon name="play" size={13} /> Continue
+              <BauhausIcon name="play" size={13} /> {t('lrn.continue')}
             </a>
           </>
         ) : (
           <>
-            <span className="lrn-k">Nothing left in this room</span>
-            <h3>Every agent here is built</h3>
-            <p>Go and build the one this dojo did not cover.</p>
+            <span className="lrn-k">{t('lrn.nothingLeft')}</span>
+            <h3>{t('lrn.allBuilt')}</h3>
+            <p>{t('lrn.goBuild')}</p>
           </>
         )}
-        <p className="lrn-says"><b>The master.</b> {L.advice}</p>
+        <p className="lrn-says"><b>{t('lrn.master')}</b> {L.advice}</p>
       </section>
 
       {/* 2 · LA CEINTURE · elle compte des parcours entiers, jamais des
           étapes. Le panneau le dit, parce qu'une barre qui ne bouge pas après
           une étape cochée ressemble sinon à un bug. */}
       <section className="lrn-sec">
-        <h4>Your belt</h4>
+        <h4>{t('lrn.yourBelt')}</h4>
         <div className="lrn-belt" style={{ ['--bt' as string]: L.grade.tint }}>
           <span className="lrn-belt-r" />
           <div>
@@ -67,8 +68,8 @@ export function LearningPanel() {
             <span>{L.grade.means}</span>
             {L.nextGrade && (
               <em>
-                {L.toNextGrade} more {L.toNextGrade === 1 ? 'agent' : 'agents'} finished end to end
-                for the {L.nextGrade.title.toLowerCase()}. Belts count finished agents, never steps.
+                {L.toNextGrade} {t('mp.agent' + (L.toNextGrade === 1 ? '' : 's'))} {t('mp.more')} {t('lrn.beltRule')}{' '}
+                {L.nextGrade.title.toLowerCase()}. {t('lrn.beltCount')}
               </em>
             )}
           </div>
@@ -78,10 +79,10 @@ export function LearningPanel() {
       {/* 3 · LES TROIS COURS · un seul compteur les sépare, voir
           masterProgress. */}
       <section className="lrn-sec">
-        <h4>Your {L.courses.length} courses</h4>
+        <h4>{t('lrn.yourCourses')} {L.courses.length} {t('lrn.coursesWord')}</h4>
         <div className="lrn-courses">
           {L.courses.map((c) => {
-            const pill = PILLAR_BY_ID[c.id]
+            const pill = pillarIn(PILLAR_BY_ID[c.id], lang)
             return (
               <a className="lrn-course" key={c.id} href={pill.path}>
                 <span className="lrn-course-h">
@@ -123,11 +124,11 @@ export function LearningPanel() {
 
       {/* 4 · CE QUI EST GAGNÉ. */}
       <section className="lrn-sec">
-        <h4>What you have earned</h4>
+        <h4>{t('lrn.earnedH')}</h4>
         {L.earned.length === 0 ? (
           <p className="lrn-empty">
-            Nothing yet, and nothing is given for showing up. Finish one step and the first badge is yours.
-            {' '}<a href="/build#certification">How the certification works</a>.
+            {t('lrn.earnedNone')}
+            {' '}<a href="/build#certification">{t('lrn.howCert')}</a>.
           </p>
         ) : (
           <div className="lrn-earned">
@@ -142,16 +143,12 @@ export function LearningPanel() {
         )}
         {L.nextDiploma && (
           <p className="lrn-togo">
-            <b>Next diploma: {L.nextDiploma.title}.</b> {L.toGo}
+            <b>{t('lrn.nextDiploma')} {L.nextDiploma.title}.</b> {L.toGo}
           </p>
         )}
       </section>
 
-      <p className="lrn-small">
-        {USE_CASE_COUNT} agents live in the dojo. Belts, badges and diplomas are progress markers kept in this
-        browser. Nobody sells them, nobody verifies them, and no employer has heard of them: they exist so you
-        can tell a course you finished from one you started.
-      </p>
+      <p className="lrn-small">{USE_CASE_COUNT} {t('lrn.small')}</p>
     </div>
   )
 }

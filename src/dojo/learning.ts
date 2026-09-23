@@ -16,10 +16,11 @@
 // gagné, dans l'ordre, pour que le centre de notifications ait quelque chose
 // de vrai à montrer. Un centre de notifications qui annonce du travail
 // imaginaire vaut moins qu'un centre vide.
-import { USE_CASES, USE_CASE_COUNT } from '../data/agentUseCases'
+import { USE_CASES, USE_CASE_COUNT, useCaseIn } from '../data/agentUseCases'
 import { readProgress, masterAdvice, AGENT_TRACK, type CourseProgress } from './masterProgress'
-import { gradeFor, badgesFor, BADGES, AGENT_BADGES, type Grade } from './grades'
-import { diplomaFor, type Diploma } from './diplomas'
+import { gradeFor, gradeIn, badgeIn, badgesFor, BADGES, AGENT_BADGES, type Grade } from './grades'
+import type { Lang } from '../i18n/lang'
+import { DIPLOMAS, diplomaFor, diplomaIn, type Diploma } from './diplomas'
 import type { IconName } from '../data/icons'
 
 /** Une chose gagnée · ce que le journal montre. */
@@ -51,14 +52,18 @@ export interface LearningProfile {
   started: boolean
 }
 
-export function readLearning(done: readonly string[]): LearningProfile {
+// LA LANGUE TRAVERSE TOUTE LA LECTURE · le profil porte des phrases (le
+// nom d'une ceinture, ce qu'un insigne dit, le conseil du maître), donc
+// les traduire après coup demanderait de les retrouver une par une dans
+// l'objet rendu. On les lit dans la bonne langue dès la source.
+export function readLearning(done: readonly string[], lang: Lang = 'en'): LearningProfile {
   const set = new Set(done)
   const has = (t: string, l: string) => set.has(`${t}/${l}`)
   const courses = readProgress(done)
   const built = USE_CASES.filter((u) => u.steps.every((_, i) => has(AGENT_TRACK, `${u.id}/${i}`))).map((u) => u.id)
   const g = gradeFor(built.length)
   const badges = badgesFor(courses, built)
-  const dip = diplomaFor(courses)
+  const dip = diplomaFor(courses, lang)
 
   // LE JOURNAL · on ne stocke aucune date. Le magasin de progression ne garde
   // qu'un ensemble de clés terminées, et inventer un horodatage pour faire
@@ -69,14 +74,28 @@ export function readLearning(done: readonly string[]): LearningProfile {
     ...badges.earned
       .map((id) => byId[id])
       .filter(Boolean)
+      .map((b0) => badgeIn(b0, lang))
       .map((b) => ({ id: b.id, kind: 'badge' as const, title: b.title, says: b.how, icon: b.icon })),
     ...(built.length > 0
-      ? [{ id: `belt-${g.now.id}`, kind: 'belt' as const, title: g.now.title, says: g.now.means, icon: 'target' as IconName }]
+      ? [{
+          id: `belt-${g.now.id}`, kind: 'belt' as const,
+          title: gradeIn(g.now, lang).title, says: gradeIn(g.now, lang).means, icon: 'target' as IconName,
+        }]
       : []),
-    ...dip.earned.map((id) => ({
-      id: `dip-${id}`, kind: 'diploma' as const,
-      title: id, says: 'Awarded by the master.', icon: 'star' as IconName,
-    })),
+    // LE TITRE DU DIPLÔME, PAS SON IDENTIFIANT · la ligne posait `title: id`,
+    // donc le profil affichait « first » et « literate » à la place de
+    // « Premier agent » et « Bâtisseur qui lit ». L'identifiant est une clé de
+    // progression, jamais un libellé.
+    ...dip.earned.map((id) => {
+      const d = DIPLOMAS.find((x) => x.id === id)
+      return {
+        id: `dip-${id}`, kind: 'diploma' as const,
+        title: d ? diplomaIn(d, lang).title : id,
+        says: d ? diplomaIn(d, lang).awarded
+          : lang === 'fr' ? 'Décerné par le maître.' : 'Awarded by the master.',
+        icon: 'star' as IconName,
+      }
+    }),
   ]
 
   // LA PROCHAINE ÉTAPE · la première non cochée du premier agent commencé,
@@ -87,19 +106,22 @@ export function readLearning(done: readonly string[]): LearningProfile {
   const target = started ?? USE_CASES.find((u) => !built.includes(u.id))
   if (target) {
     const i = target.steps.findIndex((_, n) => !has(AGENT_TRACK, `${target.id}/${n}`))
-    if (i >= 0) nextStep = { useCase: target.id, name: target.name, index: i, title: target.steps[i].title }
+    // LE NOM ET LE TITRE D'ÉTAPE VIENNENT DU CAS D'USAGE dans la langue lue ·
+    // « Étape 2 de Le chercheur » et non « Étape 2 de The researcher ».
+    const u = useCaseIn(target, lang)
+    if (i >= 0) nextStep = { useCase: target.id, name: u.name, index: i, title: u.steps[i].title }
   }
 
   return {
     courses,
     built,
-    grade: g.now,
-    nextGrade: g.next,
+    grade: gradeIn(g.now, lang),
+    nextGrade: g.next ? gradeIn(g.next, lang) : null,
     toNextGrade: g.toGo,
     earned,
     nextDiploma: dip.next,
     toGo: dip.toGo,
-    advice: masterAdvice(courses),
+    advice: masterAdvice(courses, lang),
     nextStep,
     started: done.length > 0,
   }

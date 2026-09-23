@@ -18,6 +18,7 @@
 import { TRACKS, LESSON_COUNT, TOTAL_MINUTES } from './academy'
 import { USE_CASE_COUNT } from './agentUseCases'
 import type { IconName } from './icons'
+import { DISCOVERY_LEVEL_COUNT, PATH_MODULE_COUNT } from './curriculum'
 
 // LA PROMESSE, en deux moitiés · parce qu'elle est affichée deux fois et
 // qu'elle doit rester UNE seule phrase.
@@ -27,8 +28,12 @@ import type { IconName } from './icons'
 // c'est se réveiller un matin avec un titre et une description qui ne disent
 // plus la même chose — et c'est la description que les gens voient en premier,
 // sans jamais voir le titre.
-export const PROMISE_LEAD = 'Learn to build AI agents'
-export const PROMISE_HL = 'and to run them cheap'
+// LA PROMESSE SUIT L'OFFRE · elle annonçait un cours pour construire des
+// agents, ce qui était vrai quand le produit vendait trois cours. Il vend
+// maintenant un parcours qu'on traverse sept minutes à la fois, et la moitié
+// de ceux qui arrivent n'ont jamais eu l'intention de construire un agent.
+export const PROMISE_LEAD = 'Learn to actually use AI'
+export const PROMISE_HL = 'seven minutes at a time'
 /** Ce qui sépare les deux moitiés · une VIRGULE, plus un tiret cadratin. Le
  *  tiret a été retiré de tous les textes de l'app, donc aussi de la phrase que
  *  le titre, la description et la garde de contenu comparent entre eux.
@@ -72,16 +77,21 @@ export const COURSE_COUNT = COURSE_PILLARS.length
 // Il nomme donc l'ÉTENDUE du programme au lieu de la dérouler. « De la
 // construction d'un agent au design avec un modèle » couvre les cinq sans en
 // citer un seul, donc sans redevenir faux au sixième.
+//
+// TROISIÈME CORRECTION · il décrivait « un centre de formation avec cinq
+// cours » et la construction d'un agent. Ce n'est plus la porte d'entrée : on
+// entre par une semaine gratuite et on avance de dojo en dojo. Les deux
+// chiffres sont dérivés du programme, comme tous les autres.
 export const SUBTITLE =
-  `A training centre with ${COURSE_COUNT} courses, from building an AI agent to designing with one when you ` +
-  `have never designed. You walk into the dojo, pick one of ${USE_CASE_COUNT} shapes of agent, build it from a ` +
-  'blank page, and leave with a file that runs in a real framework. Nothing here works for you.'
+  `A free week of ${DISCOVERY_LEVEL_COUNT} lessons, then ${PATH_MODULE_COUNT} dojo cities you cross in whatever ` +
+  'order suits you. One thing to learn and one thing to do per dojo, a question that closes it, and a badge ' +
+  'you keep. Nothing here works for you.'
 
 /** Les piliers · ils structurent l'en-tête, la page d'accueil et le
  *  plan du site. L'ordre est celui du parcours d'un visiteur : on apprend,
  *  on prend des outils, on les rend sobres, on s'entraîne. */
 export interface Pillar {
-  id: 'build' | 'academy' | 'library' | 'eco' | 'dojo' | 'design' | 'figma'
+  id: 'build' | 'academy' | 'eco' | 'dojo' | 'design' | 'figma'
   /** le libellé dans la navigation · court, un mot si possible */
   nav: string
   /** le titre de sa section */
@@ -141,22 +151,6 @@ export const PILLARS: Pillar[] = [
       title: "L'instruction qui décide de tout",
       blurb:
         "De « c'est quoi un jeton » à un brief qu'un modèle suit vraiment. Chaque leçon se lit dans le navigateur, a quelque chose à démonter à côté du texte, et finit par une chose à retenir et une chose à faire.",
-    },
-  },
-  {
-    id: 'library',
-    nav: 'Library',
-    title: 'Prompts, briefs and skills, ready for your trade',
-    blurb:
-      'A catalogue of prompts, .md briefs and agent skills, filed by category and by the job you actually do. ' +
-      'Read the reasoning, copy the file, adapt it. Every entry carries what it costs to run.',
-    path: '/library',
-    glyph: 'square',
-    fr: {
-      nav: "Bibliothèque",
-      title: "Prompts, briefs et skills, prêts pour votre métier",
-      blurb:
-        "Un catalogue de prompts, de briefs .md et de skills d'agents, classés par catégorie et par le métier que vous exercez vraiment. Lisez le raisonnement, prenez le fichier, adaptez-le. Chaque entrée porte ce qu'elle coûte à faire tourner.",
     },
   },
   {
@@ -289,15 +283,14 @@ export const NOT_THIS = [
 // Une promesse se réécrit dans la langue d'arrivée, sinon elle se lit comme
 // une traduction, et une promesse qui se lit comme une traduction n'engage
 // personne.
-export const PROMISE_LEAD_FR = 'Apprenez à construire des agents IA'
-export const PROMISE_HL_FR = 'et à les faire tourner pour trois fois rien'
+export const PROMISE_LEAD_FR = "Apprenez vraiment à vous servir de l'IA"
+export const PROMISE_HL_FR = 'sept minutes à la fois'
 export const PROMISE_FR = `${PROMISE_LEAD_FR}${PROMISE_SEP}${PROMISE_HL_FR}`
 
 export const SUBTITLE_FR =
-  `Un centre de formation avec ${COURSE_COUNT} cours, de la construction d'un agent IA au design avec un modèle ` +
-  `quand on n'a jamais designé. Vous entrez dans le dojo, vous choisissez l'une des ${USE_CASE_COUNT} formes ` +
-  "d'agent, vous la construisez depuis la page blanche, et vous repartez avec un fichier qui tourne dans un " +
-  'vrai framework. Rien ici ne travaille à votre place.'
+  `Une semaine gratuite de ${DISCOVERY_LEVEL_COUNT} leçons, puis ${PATH_MODULE_COUNT} cités dojo que l'on ` +
+  "traverse dans l'ordre qui convient. Une chose à apprendre et une chose à faire par dojo, une question qui " +
+  'ferme, et un badge qui reste. Rien ici ne travaille à votre place.'
 
 export const NOT_THIS_FR = [
   'Nous ne faisons pas tourner votre entreprise à votre place.',
@@ -310,6 +303,18 @@ export const NOT_THIS_FR = [
  *  Un seul point d'entrée plutôt que trois tests de langue disséminés dans la
  *  page d'accueil, les métadonnées et le robot · c'est là que les versions
  *  commencent à diverger. */
+/** Un pilier dans la langue demandée.
+ *
+ *  Il y avait TROIS petites fonctions dans la page d'accueil qui faisaient
+ *  chacune un tiers de ce travail (`nav`, `title`, `blurb`), et zéro dans les
+ *  deux panneaux du maître, qui affichaient donc les libellés anglais au
+ *  milieu d'une page française. Un libellé n'a qu'une bonne valeur par langue,
+ *  et un seul endroit doit savoir laquelle. */
+export function pillarIn(p: Pillar, lang: 'en' | 'fr'): Pillar {
+  if (lang !== 'fr' || !p.fr) return p
+  return { ...p, nav: p.fr.nav, title: p.fr.title, blurb: p.fr.blurb }
+}
+
 export function positioningFor(lang: 'en' | 'fr') {
   const fr = lang === 'fr'
   return {

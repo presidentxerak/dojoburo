@@ -18,7 +18,8 @@ import { SiteHeader } from '../components/SiteHeader'
 import { SupportBot } from '../components/SupportBot'
 import { useHeadTags } from '../lib/headTags'
 import { ClassScene } from './ClassScene'
-import { USE_CASES, USE_CASE_BY_ID, USE_CASE_COUNT, type UseCase } from '../data/agentUseCases'
+import { USE_CASES, USE_CASE_BY_ID, USE_CASE_COUNT, useCaseIn, type UseCase } from '../data/agentUseCases'
+import { useLang, useT } from '../i18n'
 import { useProgress } from '../academy/progress'
 import { AgentCard } from './AgentCard'
 import { CertPath } from './CertPath'
@@ -33,7 +34,8 @@ import { SiteFooter } from '../components/SiteFooter'
 /** Le maître parle peu et dit une chose à la fois. Une bulle qui contient
  *  deux idées n'en transmet aucune, surtout au dessus d'une salle en trois
  *  dimensions où l'oeil a déjà de quoi faire. */
-function masterSays(chosen: UseCase | null, done: number, total: number): string {
+function masterSays(chosen: UseCase | null, done: number, total: number, lang: 'en' | 'fr'): string {
+  const fr = lang === 'fr'
   // Le nombre vient des données, jamais de la phrase. Écrit « twelve » à la
   // main, il survivrait au treizième cas d'usage et le maître mentirait dans
   // sa première phrase.
@@ -42,10 +44,25 @@ function masterSays(chosen: UseCase | null, done: number, total: number): string
   // centimètres l'un de l'autre, dont l'un dans une bulle qui sert justement à
   // dire ce que le titre ne dit pas. Il porte donc l'autre moitié, celle que
   // le panneau supprimé emportait avec lui.
-  if (!chosen) return `${USE_CASE_COUNT} agents, all asleep, because none of them exists yet. Click one and it wakes up.`
-  if (done === 0) return `${chosen.name} is awake. Start where it is hardest: ${chosen.hard.split('.')[0]}.`
-  if (done < total) return `Step ${done} of ${total}. Keep the one you cannot explain for last.`
-  return 'Finished. Take the file with you and run it somewhere real.'
+  if (!chosen) {
+    return fr
+      ? `${USE_CASE_COUNT} agents, tous endormis, parce qu'aucun n'existe encore. Cliquez-en un et il se réveille.`
+      : `${USE_CASE_COUNT} agents, all asleep, because none of them exists yet. Click one and it wakes up.`
+  }
+  const c = useCaseIn(chosen, lang)
+  if (done === 0) {
+    return fr
+      ? `${c.name} est réveillé. Commencez par le plus dur : ${c.hard.split('.')[0]}.`
+      : `${c.name} is awake. Start where it is hardest: ${c.hard.split('.')[0]}.`
+  }
+  if (done < total) {
+    return fr
+      ? `Étape ${done} sur ${total}. Gardez pour la fin celle que vous ne savez pas expliquer.`
+      : `Step ${done} of ${total}. Keep the one you cannot explain for last.`
+  }
+  return fr
+    ? 'Terminé. Emportez le fichier et faites-le tourner pour de vrai.'
+    : 'Finished. Take the file with you and run it somewhere real.'
 }
 
 /* ------------------------------------------------------------------ */
@@ -56,6 +73,8 @@ function masterSays(chosen: UseCase | null, done: number, total: number): string
 
 export function BuildAgentPage({ slug }: { slug?: string }) {
   const [chosenId, setChosenId] = useState<string | null>(slug ?? null)
+  const lang = useLang()
+  const t = useT()
   const chosen = chosenId ? USE_CASE_BY_ID[chosenId] ?? null : null
   const progress = useProgress()
   // La liste en repli · fermée par défaut, voir le commentaire à son rendu.
@@ -82,7 +101,7 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
     keywords: chosen ? chosen.keywords : ['build an ai agent', 'agent tutorial', 'agent use cases'],
   })
 
-  const says = masterSays(chosen, doneSteps, chosen?.steps.length ?? 0)
+  const says = masterSays(chosen, doneSteps, chosen?.steps.length ?? 0, lang)
 
   return (
     <div className="landing dg2 ac cls">
@@ -107,9 +126,9 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
             liste. Chacune est allée là où elle est à sa place. */}
         {!chosen && (
           <div className="cls-ask">
-            <h1>Which agent do you need?</h1>
+            <h1>{t('bd.which')}</h1>
             <button className="cls-hint-go" onClick={() => setListOpen((v) => !v)}>
-              {listOpen ? 'Hide the list' : 'Show them as a list'}
+              {listOpen ? t('bd.hideList') : t('bd.showList')}
             </button>
           </div>
         )}
@@ -124,21 +143,19 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
               la salle. Elle répond à la question qu'on se pose en découvrant
               une liste de douze, donc elle a sa place en tête de la liste, pas
               par dessus la pièce. */}
-          <p className="lp-lead cls-why">
-            {USE_CASE_COUNT} agents, and each one a different way of failing. A research agent and a sorting
-            agent do not fail the same way, so they are not taught the same way.
-          </p>
+          <p className="lp-lead cls-why">{USE_CASE_COUNT} {t('bd.why')}</p>
           <div className="cls-grid">
-            {USE_CASES.map((u) => {
-              const finished = u.steps.every((_, i) => stepDone(u, i))
+            {USE_CASES.map((u0) => {
+              const u = useCaseIn(u0, lang)
+              const finished = u0.steps.every((_, i) => stepDone(u0, i))
               return (
                 <button className={`cls-card${finished ? ' done' : ''}`} key={u.id} onClick={() => setChosenId(u.id)}>
                   <span className="cls-card-top">
                     <b>{u.name}</b>
-                    {finished ? <i className="cls-tag">built</i> : <i className="cls-tag sleep">asleep</i>}
+                    {finished ? <i className="cls-tag">{t('bd.built')}</i> : <i className="cls-tag sleep">{t('bd.asleep')}</i>}
                   </span>
                   <span className="cls-shape">{u.shape}</span>
-                  <span className="cls-hard"><b>Hard part.</b> {u.hard.split('.')[0]}.</span>
+                  <span className="cls-hard"><b>{t('bd.hard')}</b> {u.hard.split('.')[0]}.</span>
                 </button>
               )
             })}

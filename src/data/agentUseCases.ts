@@ -19,6 +19,7 @@
 // DORT, parce qu'un agent qui n'existe pas ne travaille pas, et qu'une salle
 // où tout le monde s'agite déjà ne donne aucune raison de choisir.
 import { COMPANY_IDS } from './roleAgents'
+import type { Lang } from '../i18n/lang'
 
 // LES TROIS COURS ne sont PAS déclarés ici. Ils vivent dans data/positioning,
 // dérivés des piliers, et ce fichier n'en porte aucune copie : une seconde
@@ -27,6 +28,10 @@ import { COMPANY_IDS } from './roleAgents'
 
 /** Une étape du parcours. Elle DIT ce qu'on produit, pas ce qu'on lit : un
  *  parcours dont les étapes sont des chapitres est un sommaire déguisé. */
+/** LE FRANÇAIS D'UNE ÉTAPE, dans la même entrée que l'anglais · voir
+ *  data/plans pour le raisonnement général. */
+export interface StepFr { title: string; makes: string; check: string }
+
 export interface Step {
   title: string
   /** ce qu'on fabrique à cette étape, et qui n'existait pas avant */
@@ -58,11 +63,40 @@ export interface UseCase {
   ships: string[]
   /** les mots qu'on taperait dans un moteur de recherche pour le trouver */
   keywords: string[]
+  /** LE FRANÇAIS · `keywords` n'y est pas : ce sont des requêtes de moteur de
+   *  recherche, elles appartiennent aux métadonnées anglaises de la page et
+   *  les traduire ne servirait personne tant qu'il n'y a pas d'adresses
+   *  françaises distinctes. Voir scripts/test-i18n. */
+  fr?: {
+    name: string; shape: string; does: string; forWhom: string
+    hard: string; failure: string; steps: StepFr[]; ships: string[]
+  }
 }
 
 export const USE_CASES: UseCase[] = [
   {
     id: 'research',
+    fr: {
+      name: "Le chercheur",
+      shape: "Lire beaucoup, revenir avec ce qui compte",
+      does: "Rassemble de la matière sur une question et rend une réponse dont chaque affirmation pointe vers une source.",
+      forWhom: "Quiconque doit pouvoir répondre « ça vient d'où ? » sur une phrase de son résumé.",
+      hard:
+        "Tenir la réponse attachée à ce qui a vraiment été lu. Un modèle à qui l'on demande de résumer comblera volontiers un trou avec quelque chose de plausible, et le résultat se lit exactement comme les parties vraies.",
+      failure:
+        "Des références de pages assurées qui n'existent pas, et un résumé qui couvre une question que le document n'abordait jamais.",
+      steps: [
+        { title: "Dire ce qu'est une source", makes: "une règle de ce qui compte comme preuve dans votre domaine", check: "Pouvez-vous dire à un collègue, en une phrase, ce que vous n'accepterez pas comme source ?" },
+        { title: "Imposer la citation", makes: "la consigne qui fait porter à chaque affirmation un fragment mot à mot", check: "Que se passe-t-il quand l'agent ne trouve aucun fragment à citer ?" },
+        { title: "Demander les trous", makes: "une section obligatoire listant ce que la matière ne couvre pas", check: "Pourquoi une section « non couvert » vide est-elle un avertissement plutôt qu'un bon résultat ?" },
+        { title: "L'éprouver sur un piège", makes: "un document avec un trou plausible, et l'agent qui n'invente pas", check: "A-t-il dit qu'il ne savait pas, ou a-t-il deviné ?" },
+      ],
+      ships: [
+        "Une consigne système",
+        "Une règle de contrôle applicable à toute réponse",
+        "Un document pour l'éprouver",
+      ],
+    },
     agent: 'legi',
     name: 'The researcher',
     shape: 'Read a lot, come back with the part that matters',
@@ -81,6 +115,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'writing',
+    fr: {
+      name: "Le rédacteur",
+      shape: "Écrire dans une voix qui n'est pas celle du modèle",
+      does: "Produit un texte qui vous ressemble plutôt qu'à un assistant, à partir d'un brief écrit une seule fois.",
+      forWhom: "Quiconque corrige les trois mêmes choses sur chaque brouillon et s'apprête à tout réécrire soi-même.",
+      hard:
+        "La voix est invisible pour un modèle quand on la décrit. Les adjectifs coûtent des jetons et ne changent rien, donc la plupart des briefs de style sont de la décoration.",
+      failure:
+        "Un texte fluide et bien structuré qui pourrait venir de n'importe qui, avec vos trois tics détestés revenus dedans.",
+      steps: [
+        { title: "Réunir trois mauvais brouillons", makes: "la matière première de chaque règle que vous écrirez", check: "Qu'y avait-il exactement de faux dans chacun, en mots qu'un inconnu comprendrait ?" },
+        { title: "Transformer le goût en interdits", makes: "une liste de choses à ne jamais faire, chacune traçable jusqu'à un brouillon", check: "Quelqu'un d'autre pourrait-il vérifier qu'une règle a été enfreinte, sans vous demander ?" },
+        { title: "Ajouter un exemple travaillé", makes: "une paire avant et après qui porte la voix", check: "L'exemple apprend-il quelque chose que les interdits ne disent pas déjà ?" },
+        { title: "Le réduire à vingt règles", makes: "un brief assez court pour être suivi", check: "Quelle règle avez-vous supprimée, et que faudrait-il pour que vous la remettiez ?" },
+      ],
+      ships: [
+        "Un brief de style maison",
+        "Une paire avant et après",
+        "Une règle pour ajouter des règles",
+      ],
+    },
     agent: 'brandi',
     name: 'The writer',
     shape: 'Draft in a voice that is not the model default',
@@ -99,6 +154,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'support',
+    fr: {
+      name: "Le répondant",
+      shape: "Répondre aux gens sans promettre ce qu'on ne peut pas",
+      does: "Répond aux clients dans votre voix, dans des limites que vous posez, et passe la main quand il le doit.",
+      forWhom: "Quiconque a un agent de support poli, rapide, et qui a deux fois promis un correctif que personne n'avait prévu.",
+      hard:
+        "Un modèle préfère être utile qu'exact. Laissé seul, il invente une date, parce qu'une date est ce que le lecteur voulait.",
+      failure:
+        "Une réponse chaleureuse et bien écrite qui vous engage sur ce que vous ne pouvez pas livrer, envoyée avant que personne ne l'ait lue.",
+      steps: [
+        { title: "Écrire les interdits durs", makes: "les trois choses qu'il ne peut jamais énoncer : une date, un prix, un remboursement", check: "Que dit-il à la place, mot pour mot ?" },
+        { title: "Faire de « je ne sais pas » une vraie réponse", makes: "une réponse approuvée pour le cas où il ne doit pas deviner", check: "Seriez-vous content de recevoir cette réponse vous-même ?" },
+        { title: "Lister les déclencheurs de transfert", makes: "un jeu de conditions, pas une appréciation", check: "Pourquoi une liste de déclencheurs est-elle plus sûre que de lui demander de juger ?" },
+        { title: "Lui donner la vraie politique", makes: "une section de connaissance qu'il cite au lieu de la résumer", check: "Qu'est-ce qui se casse quand une politique est résumée ?" },
+      ],
+      ships: [
+        "Un brief de support",
+        "Une liste de déclencheurs de transfert",
+        "Un refus qui se lit bien",
+      ],
+    },
     agent: 'helpi',
     name: 'The responder',
     shape: 'Answer people without promising what you cannot do',
@@ -117,6 +193,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'coding',
+    fr: {
+      name: "L'ingénieur",
+      shape: "Toucher à du code sans le casser",
+      does: "Lit du code, propose des changements, et signale des défauts qu'il peut démontrer plutôt que des préférences qu'il a.",
+      forWhom: "Quiconque a un outil de revue qui commente quarante fois par changement et que plus personne ne lit.",
+      hard:
+        "Distinguer un défaut d'une préférence. Les deux arrivent de la même voix assurée, et c'est la seconde qui rend la première illisible.",
+      failure:
+        "Un relecteur minutieux que personne ne lit, ce qui est pire que pas de relecteur du tout.",
+      steps: [
+        { title: "Définir ce qu'est un constat", makes: "les trois lignes qu'un constat doit porter pour exister : entrées, comportement, attente", check: "Que fait-il quand il ne peut pas écrire ces trois lignes ?" },
+        { title: "Interdire le goût", makes: "une liste explicite de ce qu'il n'a pas le droit de signaler", check: "Où va-t-il chercher vos conventions, et s'il n'y en a aucune ?" },
+        { title: "Plafonner et classer", makes: "un plafond de constats, les pires d'abord", check: "Pourquoi une liste non classée de quarante équivaut-elle à aucune liste ?" },
+        { title: "Le lancer sur un vrai changement", makes: "la preuve qu'il a trouvé quelque chose de vrai et s'est tu sinon", check: "A-t-il rempli le quota, ou s'est-il arrêté ?" },
+      ],
+      ships: [
+        "Un brief de relecteur",
+        "Une définition du constat",
+        "Une règle de classement",
+      ],
+    },
     agent: 'devi',
     name: 'The engineer',
     shape: 'Touch a codebase without breaking it',
@@ -135,6 +232,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'analysis',
+    fr: {
+      name: "L'analyste",
+      shape: "Transformer des chiffres en recommandation",
+      does: "Vérifie des chiffres, puis dit ce qu'il ferait et ce qui rendrait cela faux.",
+      forWhom: "Quiconque s'apprête à envoyer une prévision à un conseil avec une ligne dont la somme oublie une cellule.",
+      hard:
+        "Séparer l'arithmétique du jugement. À qui on demande de vérifier des chiffres, un modèle se met à discuter vos hypothèses, ce qui est une autre réunion.",
+      failure:
+        "Une revue qui dit que le modèle semble raisonnable, et un total qui n'égale pas la somme de ses parties.",
+      steps: [
+        { title: "Nommer les quatre erreurs", makes: "une liste de contrôle de ce qui survit à une relecture humaine", check: "Lesquelles des quatre avez-vous personnellement laissé passer ?" },
+        { title: "Séparer arithmétique et opinion", makes: "deux sections de sortie qui ne se mélangent jamais", check: "Qu'est-ce qui n'appartient ni à l'une ni à l'autre ?" },
+        { title: "Exiger la liste du non vérifié", makes: "une section pour ce qu'il a dû prendre pour argent comptant", check: "Pourquoi le silence ici donne-t-il une fausse assurance ?" },
+        { title: "Forcer une recommandation", makes: "une consigne qui interdit de rester entre deux chaises", check: "Que recommande-t-il quand les preuves sont réellement équilibrées ?" },
+      ],
+      ships: [
+        "Un prompt d'audit",
+        "Une liste de contrôle en quatre points",
+        "Un format de note de décision",
+      ],
+    },
     agent: 'busino',
     name: 'The analyst',
     shape: 'Turn numbers into a recommendation',
@@ -153,6 +271,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'triage',
+    fr: {
+      name: "Le trieur",
+      shape: "Mettre la bonne chose au bon endroit",
+      does: "Lit ce qui arrive et décide de quelle catégorie, file ou personne cela relève.",
+      forWhom: "Quiconque a une boîte de réception, une file de tickets ou une liste de prospects que deux personnes trient différemment.",
+      hard:
+        "Ce sont les catégories, pas le modèle. Deux catégories voisines qu'un humain confond seront confondues par un agent aussi, et aucun prompt ne répare une nomenclature qui ne découpe pas net.",
+      failure:
+        "Quatre-vingt-dix pour cent de justesse qui cachent une catégorie fausse à chaque fois, et c'était celle qui comptait.",
+      steps: [
+        { title: "Écrire les catégories comme des tests", makes: "une définition par catégorie qu'on pourrait appliquer à l'aveugle", check: "Prenez-en deux voisines : quelle question unique les sépare ?" },
+        { title: "Ajouter le « aucune de celles-ci »", makes: "une issue de secours pour qu'il cesse de forcer un rangement", check: "Que devient ce qui atterrit là, en aval ?" },
+        { title: "Construire vingt exemples étiquetés", makes: "la seule façon honnête de savoir si ça marche", check: "Sur lesquels vous êtes-vous contredit vous-même ?" },
+        { title: "Mesurer catégorie par catégorie", makes: "un score qui ne peut pas cacher une classe ratée dans une moyenne", check: "Quelle catégorie est la pire, et est-ce que ça compte ?" },
+      ],
+      ships: [
+        "Un prompt de classement",
+        "Un jeu de test étiqueté",
+        "Un tableau de score par classe",
+      ],
+    },
     agent: 'nexa',
     name: 'The sorter',
     shape: 'Put the right thing in the right place',
@@ -171,6 +310,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'extraction',
+    fr: {
+      name: "L'extracteur",
+      shape: "Tirer de la structure d'un fouillis",
+      does: "Transforme des factures, des contrats, des courriels ou des formulaires en champs qu'on peut mettre en base.",
+      forWhom: "Quiconque retape les mêmes champs depuis des documents presque, mais jamais tout à fait, identiques.",
+      hard:
+        "L'absence. Un champ manquant et un champ vide ne veulent pas dire la même chose, et un modèle rendra allègrement une valeur plausible pour les deux.",
+      failure:
+        "Un tableau propre dont une colonne est discrètement inventée, découverte trois mois plus tard lors d'un audit.",
+      steps: [
+        { title: "Écrire le schéma d'abord", makes: "une liste de champs avec leurs types, et ce que chacun veut dire", check: "Pour chaque champ : à quoi ressemble l'absence, et est-elle permise ?" },
+        { title: "Interdire la supposition", makes: "la consigne qui rend un vide plutôt qu'une valeur plausible", check: "Comment remarqueriez-vous qu'il a deviné quand même ?" },
+        { title: "Demander l'emplacement", makes: "chaque valeur accompagnée de l'endroit du document d'où elle vient", check: "Que faites-vous d'une valeur dont l'emplacement est faux ?" },
+        { title: "Essayer les documents laids", makes: "un jeu de test de ceux qui cassent tout", check: "Quel document avez-vous dû exclure, et pourquoi ?" },
+      ],
+      ships: [
+        "Un schéma",
+        "Un prompt d'extraction",
+        "Un jeu de documents qui cassent tout",
+      ],
+    },
     agent: 'vaultor',
     name: 'The extractor',
     shape: 'Get structure out of a mess',
@@ -189,6 +349,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'watch',
+    fr: {
+      name: "La sentinelle",
+      shape: "Remarquer que quelque chose a changé",
+      does: "Regarde une source à un rythme et signale ce qui diffère, pas ce qu'elle en pense.",
+      forWhom: "Quiconque doit savoir quand un concurrent, un prix, une page ou un service a bougé.",
+      hard:
+        "Ne rien dire. Une sentinelle qui parle à chaque passage vous apprend à l'ignorer en quinze jours.",
+      failure:
+        "Un rapport hebdomadaire magnifiquement écrit qui se lirait à l'identique si rien ne s'était passé.",
+      steps: [
+        { title: "Définir ce que « changé » veut dire", makes: "une règle qui sépare un vrai changement du bruit", check: "Un paragraphe reformulé est-il un changement ?" },
+        { title: "Interdire les adjectifs", makes: "une liste de mots qu'elle ne peut jamais employer pour remplir une semaine calme", check: "Qu'envoie-t-elle quand il ne s'est rien passé ?" },
+        { title: "Garder l'état précédent", makes: "la comparaison qui rend un rapport digne d'être écrit", check: "Où vit l'état précédent, et qui en est responsable ?" },
+        { title: "Régler le rythme sur la décision", makes: "une cadence calée sur ce que vous en ferez", check: "Quelle décision cela alimente-t-il, et à quelle fréquence est-elle vraiment prise ?" },
+      ],
+      ships: [
+        "Un brief de sentinelle",
+        "Une définition du changement",
+        "Un gabarit de semaine calme",
+      ],
+    },
     agent: 'sentinel',
     name: 'The watcher',
     shape: 'Notice that something changed',
@@ -207,6 +388,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'planning',
+    fr: {
+      name: "Le planificateur",
+      shape: "Découper un souhait en étapes faisables",
+      does: "Prend un objectif et produit un plan ordonné où chaque étape a un responsable et un résultat observable.",
+      forWhom: "Quiconque a écrit un objectif en une ligne et vu cinq personnes l'interpréter de cinq façons.",
+      hard:
+        "S'arrêter. Un planificateur à qui l'on donne un objectif flou produira un beau plan pour la mauvaise chose plutôt que de demander.",
+      failure:
+        "Un plan bien rangé qui a discrètement tranché chaque ambiguïté en devinant, si bien que personne n'a vu qu'elles existaient.",
+      steps: [
+        { title: "Écrire l'objectif comme un objet", makes: "une ligne d'arrivée que vous pourriez photographier", check: "Comment saurez-vous que c'est fini sans demander à personne ?" },
+        { title: "Remonter depuis la fin", makes: "un plan bâti depuis l'arrivée, pas depuis le départ", check: "Quelle étape n'existe que parce qu'elle semblait être une bonne idée ?" },
+        { title: "Forcer les questions ouvertes", makes: "une section qui ne doit pas rester vide", check: "Qu'a-t-il voulu supposer, et qu'avez-vous décidé à la place ?" },
+        { title: "Donner à chaque étape un résultat observable", makes: "des critères d'acceptation dont on peut débattre avant le travail", check: "Deux personnes pourraient-elles vérifier la même étape et ne pas être d'accord ?" },
+      ],
+      ships: [
+        "Un prompt de planification",
+        "Un objectif écrit comme un objet",
+        "Une section de questions ouvertes",
+      ],
+    },
     agent: 'chief',
     name: 'The planner',
     shape: 'Break a wish into steps someone can do',
@@ -225,6 +427,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'tools',
+    fr: {
+      name: "L'opérateur",
+      shape: "Agir dans un vrai système, à dessein",
+      does: "Appelle des outils et des interfaces, avec une limite de ce qu'il peut faire et une étape où un humain dit oui.",
+      forWhom: "Quiconque s'apprête à donner à un agent un accès en écriture à quelque chose qui coûte de l'argent ou ne s'annule pas.",
+      hard:
+        "Le rayon d'action. Le prompt est la partie facile ; décider ce qu'il ne doit jamais toucher, et prouver qu'il ne le peut pas, c'est le travail.",
+      failure:
+        "Il a fait exactement ce que vous demandiez, sur la mauvaise fiche, et il n'y a pas de retour en arrière.",
+      steps: [
+        { title: "Tracer le rayon d'action", makes: "une liste écrite de ce qu'il peut lire, écrire, et ne jamais toucher", check: "Quelle est la pire action unique qu'il pourrait faire aujourd'hui ?" },
+        { title: "Séparer la lecture de l'écriture", makes: "deux configurations, dont une qui ne peut rien changer", check: "Quelle part du travail se fait en lecture seule ?" },
+        { title: "Mettre l'humain dans la boucle", makes: "une étape d'approbation avec assez de contexte pour décider en cinq secondes", check: "Que voit celui qui approuve, et est-ce suffisant ?" },
+        { title: "Donner à chaque action un retour en arrière", makes: "un chemin de réversion, ou un refus de faire l'irréversible", check: "Quelles actions n'ont pas de retour en arrière, et sont-elles quand même permises ?" },
+      ],
+      ships: [
+        "Un manifeste d'outils",
+        "Une configuration en lecture seule",
+        "Un prompt d'approbation",
+      ],
+    },
     agent: 'weblos',
     name: 'The operator',
     shape: 'Act in a real system, on purpose',
@@ -243,6 +466,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'growth',
+    fr: {
+      name: "L'expérimentateur",
+      shape: "Produire des variantes et dire laquelle a marché",
+      does: "Produit des alternatives contre un brief, puis lit les résultats et dit quoi garder.",
+      forWhom: "Quiconque génère vingt versions de quelque chose et choisit au feeling.",
+      hard:
+        "Une variété qui veut dire quelque chose. À qui l'on demande des variantes, un modèle change les mots et garde l'idée, donc vous testez la même chose vingt fois.",
+      failure:
+        "Vingt options, une seule idée, et un test qui ne peut rien vous apprendre parce que rien ne différait vraiment.",
+      steps: [
+        { title: "Nommer l'axe de différence", makes: "un énoncé de ce qui doit varier entre les variantes", check: "Deux variantes pourraient-elles différer sur votre axe et se lire à l'identique ?" },
+        { title: "Demander l'hypothèse", makes: "chaque variante accompagnée de ce qu'elle teste", check: "Quelle variante n'a aucune hypothèse, et pourquoi est-elle là ?" },
+        { title: "Décider la règle d'arrêt d'abord", makes: "le chiffre qui met fin au test, écrit avant de commencer", check: "Quel résultat vous ferait garder la version actuelle ?" },
+        { title: "Lire le résultat honnêtement", makes: "un prompt qui rend ce qui s'est passé, pas ce que vous espériez", check: "Que dit-il quand l'écart est du bruit ?" },
+      ],
+      ships: [
+        "Un prompt de variantes",
+        "Une hypothèse par variante",
+        "Une règle d'arrêt",
+      ],
+    },
     agent: 'marketus',
     name: 'The campaigner',
     shape: 'Make many variants and tell which one worked',
@@ -261,6 +505,27 @@ export const USE_CASES: UseCase[] = [
   },
   {
     id: 'orchestration',
+    fr: {
+      name: "Le chef d'orchestre",
+      shape: "Faire travailler plusieurs agents sans qu'ils se marchent dessus",
+      does: "Fait tourner une chaîne d'agents, passe les résultats de l'un à l'autre, et trouve celui qui a cassé.",
+      forWhom: "Quiconque a un système à deux agents qui marche jusqu'à ce qu'il ne marche plus, sans moyen de dire quelle moitié a lâché.",
+      hard:
+        "Trouver l'étape cassée. Quand la sortie est fausse à la fin, chaque étape en amont est suspecte, et une chaîne sans trace est une boîte noire avec un surcoût.",
+      failure:
+        "Un système qui produit quelque chose de faux et ne vous donne aucun moyen de savoir où ça a dérapé.",
+      steps: [
+        { title: "Écrire le contrat entre les étapes", makes: "une forme définie pour ce que chaque étape passe à la suivante", check: "Que fait une étape quand elle reçoit quelque chose de mal formé ?" },
+        { title: "Rendre chaque étape vérifiable seule", makes: "un moyen de faire tourner n'importe quelle étape sur une entrée fixe", check: "Pouvez-vous reproduire l'étape trois sans lancer la une et la deux ?" },
+        { title: "Garder la trace", makes: "un relevé de ce qui est entré et sorti de chaque étape", check: "Combien de temps la gardez-vous, et que contient-elle qu'elle ne devrait pas ?" },
+        { title: "Décider ce qui se passe en cas d'échec", makes: "une règle par étape : reprendre, sauter, arrêter, demander", check: "Quelle étape ne doit jamais être reprise, et pourquoi ?" },
+      ],
+      ships: [
+        "Un contrat d'étape",
+        "Un format de trace",
+        "Une politique d'échec",
+      ],
+    },
     agent: 'pumpi',
     name: 'The conductor',
     shape: 'Make several agents work without stepping on each other',
@@ -288,3 +553,16 @@ export const USE_CASE_BY_AGENT = Object.fromEntries(USE_CASES.map((u) => [u.agen
 /** Les personnages de l'équipage qui ne portent pas encore de cas d'usage.
  *  Lu par la garde : douze personnages, douze cas, et aucun orphelin. */
 export const AGENTS_WITHOUT_USE_CASE = COMPANY_IDS.filter((id: string) => !USE_CASE_BY_AGENT[id])
+
+/** UN CAS D'USAGE DANS LA LANGUE LUE · le seul chemin.
+ *
+ *  Trois surfaces affichent ces textes : la salle en trois dimensions, la
+ *  liste dépliable, et la fiche plein écran. Si chacune testait la langue de
+ *  son côté, il suffirait qu'une seule oublie pour qu'un agent porte un nom
+ *  français dans la salle et anglais sur sa page · c'est exactement le défaut
+ *  des visages, qui a coûté un lot entier.
+ *
+ *  L'anglais sert de secours plutôt qu'un vide : un agent sans nom est pire
+ *  qu'un agent au nom anglais. */
+export const useCaseIn = (u: UseCase, lang: Lang): UseCase =>
+  (lang === 'fr' && u.fr ? { ...u, ...u.fr } : u)

@@ -10,14 +10,15 @@
 // /frugality : les trois cours, ce qu'il reste, et UNE phrase qui dit où aller
 // ensuite. Pas de félicitations, pas de score : un tableau qui commente ce qui
 // est fait est un tableau de bord, et on cherche un professeur.
-import { COURSES, PILLAR_BY_ID } from '../data/positioning'
+import { COURSES, PILLAR_BY_ID, pillarIn } from '../data/positioning'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { useProgress } from '../academy/progress'
 import { masterAdvice } from './masterProgress'
-import { DIPLOMAS, diplomaFor } from './diplomas'
-import { GRADES, gradeFor, BADGES, AGENT_BADGES, badgesFor } from './grades'
+import { DIPLOMAS, diplomaFor, diplomaIn } from './diplomas'
+import { GRADES, gradeFor, gradeIn, badgeIn, BADGES, AGENT_BADGES, badgesFor } from './grades'
 import { USE_CASES } from '../data/agentUseCases'
 import { AGENT_TRACK } from './masterProgress'
+import { useLang, useT } from '../i18n'
 
 export function MasterPanel({ here }: {
   /** le cours qu'on est en train de suivre · il est mis en avant, et son lien
@@ -25,30 +26,35 @@ export function MasterPanel({ here }: {
   here?: 'build' | 'academy' | 'eco'
 }) {
   const p = useProgress()
+  const lang = useLang()
+  const t = useT()
   const courses = p.courses
-  const dip = diplomaFor(courses)
-  const advice = masterAdvice(courses)
+  const dip = diplomaFor(courses, lang)
+  const advice = masterAdvice(courses, lang)
   // Les agents TERMINÉS, par identifiant · les badges d'agent en ont besoin
   // nommément, pas seulement d'un compte.
   const built = USE_CASES.filter((u) => u.steps.every((_, i) => p.isDone(AGENT_TRACK, `${u.id}/${i}`))).map((u) => u.id)
-  const grade = gradeFor(built.length)
+  const grade0 = gradeFor(built.length)
+  const grade = { ...grade0, now: gradeIn(grade0.now, lang), next: grade0.next ? gradeIn(grade0.next, lang) : null }
   const badges = badgesFor(courses, built)
 
   return (
     <section className="lp-sec alt mp">
-      <span className="lp-pill">Your teacher keeps the count</span>
-      <h2>Where you are, across the {COURSES.length} courses</h2>
+      <span className="lp-pill">{t('mp.pill')}</span>
+      <h2>{t('mp.h2a')} {COURSES.length} {t('mp.h2b')}</h2>
       <p className="mp-says">{advice}</p>
 
       <div className="mp-courses">
         {courses.map((c) => {
-          const pillar = PILLAR_BY_ID[c.id]
+          const pillar = pillarIn(PILLAR_BY_ID[c.id], lang)
           const Body = (
             <>
               <span className="mp-c-top">
                 <BauhausIcon name={pillar.glyph} size={18} />
                 <b>{pillar.nav}</b>
-                <i>{c.done} / {c.total} {c.unit[c.done === 1 ? 0 : 1]}</i>
+                {/* L'UNITÉ SUIT LA LANGUE · elle est portée par le cours, pas
+                    déduite ici. Voir masterProgress. */}
+                <i>{c.done} / {c.total} {(lang === 'fr' && c.unitFr ? c.unitFr : c.unit)[c.done === 1 ? 0 : 1]}</i>
               </span>
               {/* La barre est en pourcentage BORNÉ · elle a dépassé cent
                   pendant tout un lot, parce que deux cours écrivaient dans le
@@ -57,8 +63,8 @@ export function MasterPanel({ here }: {
             </>
           )
           return c.id === here
-            ? <div className="mp-c on" key={c.id}>{Body}<em>you are here</em></div>
-            : <a className="mp-c" key={c.id} href={pillar.path}>{Body}<em>Open {pillar.nav} →</em></a>
+            ? <div className="mp-c on" key={c.id}>{Body}<em>{t('mp.here')}</em></div>
+            : <a className="mp-c" key={c.id} href={pillar.path}>{Body}<em>{t('mp.open')} {pillar.nav} →</em></a>
         })}
       </div>
 
@@ -71,7 +77,7 @@ export function MasterPanel({ here }: {
           <b>{grade.now.title}</b>
           <span>{grade.now.means}</span>
           {grade.next && (
-            <em>{grade.toGo} more {grade.toGo === 1 ? 'agent' : 'agents'} for the {grade.next.title.toLowerCase()}.</em>
+            <em>{grade.toGo} {t('mp.agent' + (grade.toGo === 1 ? '' : 's'))} {t('mp.more')} {t('mp.forThe')} {grade.next.title.toLowerCase()}.</em>
           )}
         </div>
       </div>
@@ -79,21 +85,29 @@ export function MasterPanel({ here }: {
       {/* L'ÉCHELLE ENTIÈRE · on voit où l'on va, pas seulement où l'on est. Un
           grade affiché seul ne dit pas s'il en reste un ou cinq. */}
       <ol className="mp-ladder">
-        {GRADES.map((g) => (
-          <li key={g.id} className={g.id === grade.now.id ? 'on' : built.length >= g.agents ? 'past' : ''}>
-            <i style={{ ['--bt' as string]: g.tint }} />
-            <b>{g.title.replace(' belt', '')}</b>
-            <span>{g.agents === 0 ? 'to start' : `${g.agents} agents`}</span>
-          </li>
-        ))}
+        {GRADES.map((g0) => {
+          const g = gradeIn(g0, lang)
+          return (
+            <li key={g.id} className={g.id === grade.now.id ? 'on' : built.length >= g.agents ? 'past' : ''}>
+              <i style={{ ['--bt' as string]: g.tint }} />
+              {/* LA COULEUR SEULE · « White belt » devient « White », et
+                  « Ceinture blanche » devient « blanche ». Le mot retiré n'est
+                  pas le même dans les deux langues, donc il vient du
+                  dictionnaire plutôt que d'un .replace(' belt', ''). */}
+              <b>{g.title.replace(/^Ceinture /, '').replace(/ belt$/, '')}</b>
+              <span>{g.agents === 0 ? t('mp.toStart') : `${g.agents} ${t('mp.agent' + (g.agents === 1 ? '' : 's'))}`}</span>
+            </li>
+          )
+        })}
       </ol>
 
       {/* LES BADGES · un par chose fabriquée. Ceux des agents sont dérivés des
           cas d'usage : écrire douze entrées à la main pour répéter un nom déjà
           écrit ailleurs, c'est douze occasions de diverger. */}
-      <h3 className="mp-h3">Badges</h3>
+      <h3 className="mp-h3">{t('mp.badges')}</h3>
       <div className="mp-badges">
-        {[...BADGES, ...AGENT_BADGES].map((b) => {
+        {[...BADGES, ...AGENT_BADGES].map((b0) => {
+          const b = badgeIn(b0, lang)
           const got = badges.earned.includes(b.id)
           return (
             <div className={`mp-badge${got ? ' on' : ''}`} key={b.id} title={b.how}>
@@ -105,9 +119,10 @@ export function MasterPanel({ here }: {
         })}
       </div>
 
-      <h3 className="mp-h3">Diplomas</h3>
+      <h3 className="mp-h3">{t('mp.diplomas')}</h3>
       <div className="mp-dips">
-        {DIPLOMAS.map((d) => {
+        {DIPLOMAS.map((d0) => {
+          const d = diplomaIn(d0, lang)
           const got = dip.earned.includes(d.id)
           return (
             <div className={`mp-dip${got ? ' on' : ''}`} key={d.id}>
@@ -118,11 +133,8 @@ export function MasterPanel({ here }: {
           )
         })}
       </div>
-      {dip.next && <p className="mp-next"><b>Next: {dip.next.title}.</b> {dip.toGo}</p>}
-      <p className="mp-small">
-        These are progress markers, not certificates. Nobody sells them, nobody verifies them, and no employer
-        has heard of them. They exist so you can tell a course you finished from one you started.
-      </p>
+      {dip.next && <p className="mp-next"><b>{t('mp.next')} {dip.next.title}.</b> {dip.toGo}</p>}
+      <p className="mp-small">{t('mp.small')}</p>
     </section>
   )
 }

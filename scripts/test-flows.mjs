@@ -42,7 +42,6 @@ async function load(entry, name) {
 const POS = await load('src/data/positioning.ts', 'pos.mjs')
 const ROLES = await load('src/data/roleAgents.ts', 'roles.mjs')
 const UC = await load('src/data/agentUseCases.ts', 'uc.mjs')
-const LIB = await load('src/data/library.ts', 'lib.mjs')
 const ACA = await load('src/data/academy.ts', 'aca.mjs')
 
 function walk(dir, out = []) {
@@ -132,6 +131,53 @@ for (const f of FILES) {
 }
 ok('chaque ancre pointe vers une section de sa page', badAnchors.length === 0, badAnchors.join(', '))
 
+/* --- 2 bis · UN FRAGMENT EST UNE ANCRE OU UNE ROUTE, JAMAIS LES DEUX ----- */
+
+// CE QUE CETTE SECTION A TROUVÉ · cliquer « Tarifs » dans la navigation
+// principale menait à la porte du beta privé. Le fragment servait à deux
+// choses à la fois : il nommait une vue de l'application (#app, #studio) et il
+// servait d'ancre dans la page d'accueil (#pricing, #courses). Rien ne les
+// distinguait, donc `route` valait « pricing », la page tombait dans la
+// branche de l'application, et un visiteur arrivait sur un mot de passe depuis
+// un lien public.
+//
+// Aucune garde ne pouvait le voir : la section 2 ne relit que les ancres de la
+// MÊME page, et celle-ci traverse une page. Elle le vérifie maintenant.
+const shell = read('src/main.tsx')
+const landing = read('src/Landing.tsx')
+const landingIds = new Set([...landing.matchAll(/ id="([a-z0-9-]+)"/g)].map((m) => m[1]))
+// La liste fermée des vues d'application, lue dans le code plutôt que recopiée.
+const routeDecl = shell.match(/const APP_ROUTES = new Set\(\[([^\]]*)\]\)/)
+ok('les vues de l\'application sont une liste fermée', !!routeDecl)
+const appRoutes = new Set((routeDecl?.[1] ?? '').match(/'([a-z]+)'/g)?.map((x) => x.slice(1, -1)) ?? [])
+ok('…et elle porte au moins la vue principale', appRoutes.has('app'), [...appRoutes].join(', '))
+
+// Un lien « /#x » depuis n'importe quelle page : x doit être une SECTION de la
+// page d'accueil, ou une vue déclarée. Sinon le visiteur atterrit sur une page
+// qui ne l'attend pas.
+const crossed = []
+for (const f of FILES) {
+  for (const m of read(f).matchAll(/href="\/#([a-z0-9-]+)"/g)) {
+    if (!landingIds.has(m[1]) && !appRoutes.has(m[1])) crossed.push(`${f} → /#${m[1]}`)
+  }
+}
+ok('chaque lien « /#ancre » désigne une section de l\'accueil ou une vue',
+  crossed.length === 0, crossed.join(', ') || 'tous résolus')
+
+// …ET LE ROUTEUR NE PREND PLUS UNE ANCRE POUR UNE VUE. Le test était
+// `if (!route)`, qui envoie tout fragment inconnu vers la porte du beta.
+ok('le routeur distingue une ancre d\'une vue', /isAppRoute\(route\)/.test(shell))
+ok('…et il ne retombe plus sur « aucun fragment »', !/if \(!route\) return <Landing/.test(shell))
+// L'ancre a besoin que la section soit rendue avant d'y aller · un navigateur
+// abandonne en silence quand elle n'existe pas encore.
+ok('la page fait défiler jusqu\'à l\'ancre une fois rendue', /useHashAnchor\(\)/.test(shell))
+
+// LES MORSURES · la règle doit rougir sur la faute qu'elle vient de corriger.
+ok('morsure · une ancre inconnue serait vue',
+  !landingIds.has('tarifs-qui-nexiste-pas') && !appRoutes.has('tarifs-qui-nexiste-pas'))
+ok('morsure · « pricing » est bien une section de l\'accueil', landingIds.has('pricing'))
+ok('morsure · « app » est bien une vue', appRoutes.has('app'))
+
 /* --- 3 · les piliers sont atteignables des deux côtés --------------------- */
 
 const header = read('src/components/SiteHeader.tsx')
@@ -159,14 +205,32 @@ ok('chaque pilier mène à une page qui existe', badPillars.length === 0, badPil
 // reçoit des visiteurs par un moteur de recherche et ne les mène nulle part.
 // Les dix-sept pages de personnages l'ont été pendant des mois.
 const allSrc = FILES.map(read).join('\n') + read('src/components/SiteFooter.tsx')
-const HUBS = ['/build', '/academy', '/library', '/frugality', '/guide', '/teammates', '/terms', '/privacy']
-const orphans = HUBS.filter((h) => !allSrc.includes(`href="${h}"`))
+// UNE PAGE EST ATTEINTE DE DEUX FAÇONS · par un lien écrit, ou parce qu'elle
+// est un PILIER et que le pied de page les rend tous en boucle. La règle ne
+// regardait que la première, et elle a accusé /frugality le jour où la page
+// d'accueil a cessé de l'écrire en toutes lettres, alors que le pied de page
+// continuait de la servir. Une garde qui accuse du travail juste apprend à la
+// contourner : elle vérifie donc les deux chemins.
+const footerLoopsPillars = /PILLARS\.map/.test(read('src/components/SiteFooter.tsx'))
+const pillarPaths = new Set(POS.PILLARS.map((p) => p.path))
+const reached = (h) => allSrc.includes(`href="${h}"`) || (footerLoopsPillars && pillarPaths.has(h))
+const HUBS = [
+  '/build', '/academy', '/frugality', '/guide', '/teammates', '/terms', '/privacy',
+  // LE PARCOURS · les quatre adresses du jeu. Elles sont dans le plan de site
+  // et dans l'en-tête ; une seule qui sortirait des deux serait une page de
+  // cours que personne n'atteint.
+  '/7-jours', '/formation', '/metier', '/profil',
+]
+const orphans = HUBS.filter((h) => !reached(h))
 ok('aucune page principale n\'est orpheline', orphans.length === 0, orphans.join(', '))
+
+// … ET LA MORSURE · une adresse que personne n'écrit et qui n'est pas un
+// pilier doit être vue, sinon cette règle ne garde rien.
+ok('morsure · une page que rien n\'atteint serait vue', !reached('/une-page-que-personne-ne-lie'))
 
 // …et les familles de pages profondes sont atteintes par un gabarit.
 for (const [what, tmpl] of [
   ['les cas d\'usage', '/build/${'],
-  ['les entrées de bibliothèque', '/library/${'],
   ['les personnages', '/${'],
 ]) ok(`${what} sont atteints depuis une liste`, allSrc.includes(tmpl))
 
@@ -176,8 +240,14 @@ for (const [what, tmpl] of [
 // engineering » dans l'en-tête. Un visiteur ne sait pas que c'est le même.
 const ACADEMY = POS.PILLAR_BY_ID.academy.nav
 ok('le cours de prompt engineering porte un seul nom', ACADEMY.length > 0, ACADEMY)
+// LA RÈGLE CHERCHAIT `PILLAR_BY_ID.academy.nav`, MOT POUR MOT. La page lit
+// maintenant le même pilier à travers `pillarIn`, qui rend le libellé dans la
+// langue affichée : le nom vient toujours d'un seul endroit, et il est en plus
+// dans la bonne langue. La règle n'est donc pas assouplie, elle est resserrée
+// sur ce qui est vrai maintenant · le pilier ET la traduction.
 const page = read('src/academy/Academy.tsx')
-ok('…et sa page le porte aussi', page.includes('PILLAR_BY_ID.academy.nav'))
+ok('…et sa page le porte aussi', page.includes('PILLAR_BY_ID.academy'))
+ok('…et dans la langue lue', /pillarIn\(PILLAR_BY_ID\.academy/.test(page))
 
 // LES EFFECTIFS NE S'ÉCRIVENT PAS. « eighteen teammates » est resté affiché
 // sur dix-sept pages, et « Seventeen specialists » juste à côté d'une liste
@@ -235,7 +305,13 @@ ok('le menu ouvre le profil d\'apprentissage', /openStudio\('learning'\)/.test(m
 const lrn = read('src/dojo/LearningPanel.tsx')
 ok('le profil existe', lrn.length > 500)
 ok('…et il dit quoi faire ensuite', /nextStep/.test(lrn))
-ok('…avant de faire le bilan', lrn.indexOf('nextStep') < lrn.indexOf('What you have earned'))
+// L'ORDRE DU PANNEAU · la suite avant le bilan. La règle cherchait le titre
+// anglais « What you have earned », qui est maintenant une clé du
+// dictionnaire, parce que le panneau est bilingue. Elle cherche la clé, ce qui
+// vérifie la même chose et résiste à une reformulation du titre.
+const bilan = lrn.indexOf("t('lrn.earnedH')")
+ok('…avant de faire le bilan', bilan > 0 && lrn.indexOf('nextStep') < bilan)
+ok('morsure · un bilan disparu serait vu', lrn.indexOf("t('lrn.bilanQuiNexistePas')") === -1)
 
 // LE CENTRE DE NOTIFICATIONS annonçait « Building your company » et « Agent
 // working », un produit qui n'existe plus : le bac à sable rend sa réponse
@@ -280,7 +356,6 @@ for (const [what, n] of [
   ['les cours', POS.COURSES.length],
   ['les cas d\'usage', UC.USE_CASES.length],
   ['les personnages publics', ROLES.PUBLIC_AGENTS.length],
-  ['les entrées de bibliothèque', LIB.ENTRIES.length],
   ['les pistes de l\'académie', ACA.TRACKS.length],
 ]) ok(`${what} ne sont pas une liste vide`, n > 0, `${n}`)
 

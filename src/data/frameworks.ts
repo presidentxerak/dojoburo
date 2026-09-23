@@ -30,6 +30,7 @@
 // qui est stable, et renvoie à leur documentation pour tout ce qui ne l'est
 // pas. La page le dit au lecteur en toutes lettres.
 import type { ExportFormat } from '../lib/agentExport'
+import type { Lang } from '../i18n/lang'
 
 /** Ce qu'un framework fait des morceaux qu'on a fabriqués. Les clés sont
  *  celles des formats d'export : si un format disparaît, ce fichier ne
@@ -57,6 +58,30 @@ export interface Framework {
   notWhen: string
   /** l'adresse du projet · la seule chose qui ne se périme pas */
   docs: string
+  /** le même framework en français · voir frameworkIn plus bas.
+   *
+   *  Ce qui n'est PAS traduit : `name`, `langs` et `docs`. Un nom de projet
+   *  est un nom propre, un langage se nomme pareil partout, et une adresse
+   *  traduite n'existe pas. Les CLÉS de `fit` non plus : ce sont les
+   *  identifiants des formats d'export, et les traduire briserait le lien qui
+   *  fait justement qu'un format supprimé ne compile plus. */
+  fr?: FrameworkFr
+}
+
+export interface FrameworkFr {
+  approach: string
+  bestFor: string
+  shape: string
+  fit: Fit
+  watch: string
+  when: string
+  notWhen: string
+}
+
+/** Le framework dans la langue demandée · un seul chemin, comme ailleurs. */
+export function frameworkIn(f: Framework, lang: Lang): Framework {
+  if (lang !== 'fr' || !f.fr) return f
+  return { ...f, ...f.fr }
 }
 
 /* ------------------------------------------------------------------ */
@@ -91,7 +116,29 @@ export const FRAMEWORK_PRIMER = {
   /** pourquoi il y en a autant */
   whySoMany:
     'Because they disagree about what an agent IS. Some think it is a graph of states, some a conversation between colleagues, some a typed function. Each answer makes a different framework, and none of them is wrong. That is also why your agent moves between them: what you built is the instruction and the tools, and every one of them has a place for both.',
+  fr: {
+    plain:
+      "Un framework est une boîte toute faite qui fait tourner votre agent à votre place : il parle au modèle, il appelle les outils quand le modèle les demande, il se souvient de la conversation, et il gère les erreurs.",
+    like:
+      "C'est la différence entre construire une cuisine et en louer une. Vous cuisinez toujours le repas, et le repas est votre agent. Le four, la plomberie et la hotte ne sont pas la partie intéressante du dîner, et vous préféreriez ne pas les installer vous-même à chaque fois.",
+    without:
+      "Vous n'en avez pas besoin pour commencer. Un agent est une boucle : vous envoyez l'instruction et la question, vous lisez la réponse, et si le modèle demande un outil vous l'exécutez et vous renvoyez le résultat. Cinquante lignes. Écrire cette boucle une fois est la meilleure façon de comprendre ce que chacun des frameworks de cette page fait pour vous.",
+    gives: [
+      "La boucle, écrite et éprouvée par quelqu'un d'autre, y compris les parties qui ne cassent qu'en production.",
+      "L'appel d'outils : vous déclarez une fonction et le framework se charge de la plomberie qui demande, exécute et répond.",
+      "La mémoire et l'état, pour que l'agent sache ce qui s'est passé il y a trois tours sans que vous le gériez.",
+      "De quoi brancher le reste : la recherche documentaire, d'autres modèles, les journaux, le déploiement, un deuxième agent.",
+    ],
+    doesNot:
+      "Aucun ne rend votre agent bon. L'instruction que vous avez écrite dans le dojo est ce qui décide de la qualité des réponses, et c'est la même instruction dans les quinze. Un framework change la quantité de plomberie que vous écrivez, jamais la qualité de la pensée de votre agent.",
+    whySoMany:
+      "Parce qu'ils ne sont pas d'accord sur ce qu'EST un agent. Pour les uns c'est un graphe d'états, pour d'autres une conversation entre collègues, pour d'autres encore une fonction typée. Chaque réponse fabrique un framework différent, et aucune n'a tort. C'est aussi pourquoi votre agent passe de l'un à l'autre : ce que vous avez construit, c'est l'instruction et les outils, et chacun d'eux a une place pour les deux.",
+  },
 }
+
+/** L'introduction dans la langue demandée · un seul chemin, comme partout. */
+export const primerIn = (lang: Lang) =>
+  (lang === 'fr' ? { ...FRAMEWORK_PRIMER, ...FRAMEWORK_PRIMER.fr } : FRAMEWORK_PRIMER)
 
 /* ------------------------------------------------------------------ */
 /* COMMENT BRANCHER SON AGENT · la procédure, la même partout          */
@@ -103,7 +150,13 @@ export interface ConnectStep {
   does: string
   /** ce qui rate à cette étape */
   watch: string
+  /** le même geste en français */
+  fr?: { title: string; does: string; watch: string }
 }
+
+/** Le geste dans la langue demandée. */
+export const connectStepIn = (c: ConnectStep, lang: Lang): ConnectStep =>
+  (lang === 'fr' && c.fr ? { ...c, ...c.fr } : c)
 
 // Ces quatre gestes sont les mêmes dans les quinze projets, et c'est ce qui
 // rend la page enseignable : les noms changent, la procédure non.
@@ -112,21 +165,41 @@ export const CONNECT_STEPS: ConnectStep[] = [
     title: 'Export the instruction',
     does: 'On your agent page, choose the System prompt format and copy it. That block of text is your agent: everything the model knows about its job is in there.',
     watch: 'Copy it whole. People trim it to look tidy, and the lines they trim are usually the bans, which are the part doing the work.',
+    fr: {
+      title: "Exportez l'instruction",
+      does: "Sur la page de votre agent, choisissez le format Consigne système et copiez-le. Ce bloc de texte EST votre agent : tout ce que le modèle sait de son métier est là-dedans.",
+      watch: "Copiez-le en entier. On le taille pour faire propre, et les lignes taillées sont en général les interdictions, c'est à dire la partie qui travaille.",
+    },
   },
   {
     title: 'Export the tool schemas',
     does: 'Choose the Tool schemas format. It is JSON Schema: a name, a description and the parameters, for each thing your agent may call. Every framework reads that shape, whatever it calls it.',
     watch: 'The description of a tool is read by the model, not by you. A tool described as "gets data" will be called at the wrong moments, and no amount of prompt will fix it.',
+    fr: {
+      title: "Exportez les schémas d'outils",
+      does: "Choisissez le format Schémas d'outils. C'est du JSON Schema : un nom, une description et les paramètres, pour chaque chose que votre agent peut appeler. Tous les frameworks lisent cette forme, quel que soit le nom qu'ils lui donnent.",
+      watch: "La description d'un outil est lue par le modèle, pas par vous. Un outil décrit comme « récupère des données » sera appelé aux mauvais moments, et aucune consigne n'y changera rien.",
+    },
   },
   {
     title: 'Give it a model and run it read only',
     does: 'Pick a framework, paste the instruction where it asks for one, declare your tools from the schemas, and run it once with tools that only READ. No sending, no writing, no deleting.',
     watch: 'This is where most first runs go wrong in a way that costs something. Read only first is not caution, it is how you find out what your agent actually tries to do.',
+    fr: {
+      title: "Donnez-lui un modèle et faites-le tourner en lecture seule",
+      does: "Choisissez un framework, collez l'instruction là où il en demande une, déclarez vos outils depuis les schémas, et lancez-le une fois avec des outils qui LISENT seulement. Aucun envoi, aucune écriture, aucune suppression.",
+      watch: "C'est là que la plupart des premiers passages dérapent d'une façon qui coûte quelque chose. La lecture seule d'abord n'est pas de la prudence, c'est la façon de découvrir ce que votre agent essaie vraiment de faire.",
+    },
   },
   {
     title: 'Let it write, one action at a time',
     does: 'Turn on one action that changes something. Watch it for a few real cases. Then the next one. Keep the approval step for anything you cannot undo.',
     watch: 'Turning on every tool at once means you cannot tell which one misbehaved. The operator path in the dojo is this step, taught properly.',
+    fr: {
+      title: "Laissez-le écrire, une action à la fois",
+      does: "Allumez une action qui change quelque chose. Regardez-la sur quelques cas réels. Puis la suivante. Gardez l'étape d'approbation pour tout ce qui ne se défait pas.",
+      watch: "Allumer tous les outils d'un coup, c'est ne plus pouvoir dire lequel s'est mal conduit. Le parcours de l'opérateur dans le dojo est cette étape, enseignée comme il faut.",
+    },
   },
 ]
 
@@ -147,6 +220,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'Your agent has branches, loops, or needs to stop and resume where it left off.',
     notWhen: 'A single call with a couple of tools. You would draw a graph with one node in it.',
     docs: 'https://langchain-ai.github.io/langgraph/',
+    fr: {
+      approach: "Un graphe d'états",
+      bestFor: "Les agents complexes qu'il faut contrôler et reprendre",
+      shape: "Vous ne décrivez pas un agent, vous dessinez un graphe : des noeuds qui font quelque chose, des arêtes qui décident où aller ensuite, et un objet d'état qui le traverse. L'agent est le graphe, pas une consigne.",
+      fit: {
+        system: "Devient l'instruction du noeud qui appelle le modèle. Un noeud, un métier : découper votre agent en plusieurs noeuds est en général la raison de venir ici.",
+        tools: "Chaque outil est un noeud ou se rattache à un noeud de modèle. Les schémas se transportent tels quels.",
+        manifest: "Rien ne correspond directement. Le manifeste décrit un agent ; le graphe est ce que vous dessinez autour.",
+      },
+      watch: "L'objet d'état est le vrai travail de conception, et c'est la partie dont vos fichiers exportés ne disent rien. Décidez ce qui voyage entre les noeuds avant d'en écrire un seul.",
+      when: "Votre agent a des embranchements, des boucles, ou doit s'arrêter et repartir là où il en était.",
+      notWhen: "Un seul appel avec deux ou trois outils. Vous dessineriez un graphe à un noeud.",
+    },
   },
   {
     id: 'langchain',
@@ -164,6 +250,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'You need retrieval, several model providers, or a lot of ready-made connectors.',
     notWhen: 'You want one small agent and nothing else. The library will be most of your dependency tree.',
     docs: 'https://python.langchain.com/',
+    fr: {
+      approach: "Une boîte à outils généraliste",
+      bestFor: "Câbler ensemble des modèles, des outils et de la recherche documentaire",
+      shape: "Une grande bibliothèque de pièces qui s'emboîtent : enveloppes de modèles, définitions d'outils, moteurs de recherche, mémoire. Vous assemblez plutôt que vous ne déclarez, et il y a en général plus d'une façon de faire la même chose.",
+      fit: {
+        system: "Va dans le gabarit de consigne de la chaîne ou de l'agent.",
+        tools: "Des objets Tool, construits depuis vos schémas.",
+        brief: "Utile comme document gardé à côté du code, parce que l'assemblage lui-même n'expliquera pas pourquoi l'instruction est écrite ainsi.",
+      },
+      watch: "La surface est large et elle a beaucoup bougé. Suivez la documentation du jour plutôt qu'un article, aussi récent que l'article paraisse.",
+      when: "Il vous faut de la recherche documentaire, plusieurs fournisseurs de modèles, ou beaucoup de connecteurs tout faits.",
+      notWhen: "Vous voulez un petit agent et rien d'autre. La bibliothèque sera l'essentiel de votre arbre de dépendances.",
+    },
   },
   {
     id: 'crewai',
@@ -181,6 +280,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'The work genuinely splits between distinct jobs, and each one is worth writing separately.',
     notWhen: 'One agent would do. Most of the time, one agent would do.',
     docs: 'https://docs.crewai.com/',
+    fr: {
+      approach: "Plusieurs agents avec des rôles",
+      bestFor: "Une petite équipe d'agents qui collaborent",
+      shape: "Vous décrivez des personnes, pas des programmes : chaque agent a un rôle, un objectif et une histoire, et les tâches se passent de l'un à l'autre. Le framework fait tourner la conversation.",
+      fit: {
+        system: "Se découpe en trois : le rôle et l'objectif viennent de votre forme, l'histoire de votre instruction. Votre consigne unique devient trois champs, et c'est là l'essentiel du travail de traduction.",
+        tools: "Des outils rattachés à chaque agent, depuis vos schémas.",
+        brief: "Vos notes de parcours deviennent les descriptions de tâches, qui est l'endroit où CrewAI veut le détail.",
+      },
+      watch: "Le jeu de rôle est l'interface, et il fait passer une conception faible pour une organisation. Si un seul agent fait le travail, une équipe de quatre le fera plus lentement et de façon moins prévisible.",
+      when: "Le travail se découpe vraiment entre des métiers distincts, et chacun mérite d'être écrit à part.",
+      notWhen: "Un agent suffirait. La plupart du temps, un agent suffirait.",
+    },
   },
   {
     id: 'llamaindex',
@@ -198,6 +310,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'The job is reading your material and answering from it. Our researcher and extractor agents land here naturally.',
     notWhen: 'There are no documents. You would be carrying a retrieval stack to make a model call.',
     docs: 'https://docs.llamaindex.ai/',
+    fr: {
+      approach: "La donnée et la recherche, avec des agents par-dessus",
+      bestFor: "Les agents qui travaillent sur vos documents",
+      shape: "Tout part de la donnée : vous indexez des documents, puis vous les interrogez, et un agent est une couche qui décide quoi chercher et quand.",
+      fit: {
+        system: "L'instruction de l'agent, une fois que votre recherche documentaire fonctionne déjà.",
+        tools: "Les moteurs de requête deviennent des outils. Vos propres schémas se placent à côté.",
+        brief: "Ses règles sur les sources et les citations comptent plus ici que partout ailleurs, parce que la recherche documentaire est ce qui rend un agent capable de citer.",
+      },
+      watch: "La qualité de la réponse est décidée par l'indexation, pas par l'agent. Qui arrive pour ajuster la consigne répare en général la mauvaise moitié.",
+      when: "Le travail consiste à lire votre matière et à répondre à partir d'elle. Nos agents chercheur et extracteur atterrissent ici naturellement.",
+      notWhen: "Il n'y a aucun document. Vous porteriez une pile de recherche documentaire pour faire un appel de modèle.",
+    },
   },
   {
     id: 'openai-agents',
@@ -215,6 +340,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'You want to run something today and you are on that provider.',
     notWhen: 'You need to stay portable across providers. The concepts are simple but the SDK is not neutral.',
     docs: 'https://openai.github.io/openai-agents-python/',
+    fr: {
+      approach: "Des agents, des outils et des passages de relais",
+      bestFor: "Un petit système d'agents sans cérémonie",
+      shape: "Un agent, ce sont des instructions plus des outils, et il peut passer la conversation à un autre agent. Volontairement peu de notions.",
+      fit: {
+        system: "Les instructions, presque mot pour mot. C'est la correspondance la plus directe des quinze.",
+        tools: "Des fonctions avec schémas, proches de ce que vous avez exporté.",
+        manifest: "Se lit tel quel comme la définition de l'agent.",
+      },
+      watch: "Les passages de relais vont dans un seul sens par défaut, ce qui surprend ceux qui attendent qu'une conversation revienne. Décidez qui tient le fil avant de câbler deux agents.",
+      when: "Vous voulez faire tourner quelque chose aujourd'hui et vous êtes chez ce fournisseur.",
+      notWhen: "Vous devez rester portable d'un fournisseur à l'autre. Les notions sont simples mais la bibliothèque n'est pas neutre.",
+    },
   },
   {
     id: 'google-adk',
@@ -232,6 +370,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'Your data, your models or your deployment are already there.',
     notWhen: 'You are elsewhere. There is little reason to come to it for the agent loop alone.',
     docs: 'https://google.github.io/adk-docs/',
+    fr: {
+      approach: "Des agents dans l'écosystème Google",
+      bestFor: "Le travail qui vit déjà sur l'infrastructure Google",
+      shape: "Un agent avec des instructions et des outils, conçu pour se tenir près des modèles et des services Google, avec le déploiement comme partie du framework plutôt que comme après-coup.",
+      fit: {
+        system: "L'instruction de l'agent.",
+        tools: "Les définitions d'outils, plus celles de la plateforme que vous obtenez sans rien écrire.",
+        manifest: "Une bonne source pour la configuration que vous allez écrire.",
+      },
+      watch: "Ce que vous gagnez en déploiement, vous le payez en portabilité. Lisez ce qui relève du framework et ce qui relève de la plateforme avant de vous appuyer sur l'un ou l'autre.",
+      when: "Vos données, vos modèles ou votre déploiement y sont déjà.",
+      notWhen: "Vous êtes ailleurs. Il y a peu de raisons d'y venir pour la seule boucle d'agent.",
+    },
   },
   {
     id: 'pydantic-ai',
@@ -249,6 +400,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'Your agent must return a precise shape and you are in a typed Python codebase.',
     notWhen: 'The output is free prose. You would be declaring a type for a paragraph.',
     docs: 'https://ai.pydantic.dev/',
+    fr: {
+      approach: "Des agents typés",
+      bestFor: "Les applications Python structurées où la forme compte",
+      shape: "Le type du résultat se déclare en premier, et le framework fait en sorte que le modèle le produise. L'agent est une fonction avec une signature, pas une conversation.",
+      fit: {
+        system: "La consigne système, les types faisant une partie du travail que votre instruction faisait.",
+        tools: "Des fonctions typées. Les schémas que vous avez exportés deviennent les types.",
+        manifest: "La moitié devient des déclarations de types, ce qui est tout l'intérêt de venir ici.",
+      },
+      watch: "La moitié de votre instruction soigneuse devient inutile, parce que le type l'impose. Supprimez cette moitié plutôt que de garder les deux : deux endroits qui disent la même règle finiront par se contredire.",
+      when: "Votre agent doit rendre une forme précise et vous êtes dans du Python typé.",
+      notWhen: "La sortie est de la prose libre. Vous déclareriez un type pour un paragraphe.",
+    },
   },
   {
     id: 'ms-agent-framework',
@@ -266,6 +430,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'You are on .NET or on Azure, and governance is part of the requirement.',
     notWhen: 'A single Python script would do the job.',
     docs: 'https://learn.microsoft.com/en-us/agent-framework/',
+    fr: {
+      approach: "Des flux de travail à plusieurs agents",
+      bestFor: "L'écosystème Microsoft, à la suite d'AutoGen et de Semantic Kernel",
+      shape: "Des agents et des flux de travail au même endroit, rassemblés depuis deux projets antérieurs, avec les préoccupations d'entreprise (identité, hébergement, gouvernance) traitées comme premières.",
+      fit: {
+        system: "Les instructions de l'agent.",
+        tools: "Des définitions d'outils ou de fonctions, selon le langage choisi.",
+        manifest: "Proche de la forme de configuration qu'il attend.",
+      },
+      watch: "Il succède à deux projets qui gardent leur propre documentation et leurs propres articles. Vérifiez de quel projet parle une page avant de la suivre.",
+      when: "Vous êtes sur .NET ou sur Azure, et la gouvernance fait partie du besoin.",
+      notWhen: "Un seul script Python ferait l'affaire.",
+    },
   },
   {
     id: 'autogen',
@@ -283,6 +460,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'The problem genuinely benefits from argument between agents, or from a human in the loop mid-conversation.',
     notWhen: 'The steps are known in advance. Then you want a pipeline, not a discussion.',
     docs: 'https://microsoft.github.io/autogen/',
+    fr: {
+      approach: "Des conversations entre agents",
+      bestFor: "Des agents qui collaborent en se parlant",
+      shape: "Les agents tiennent une conversation entre eux, et le travail émerge de l'échange. Un humain peut être l'un des participants.",
+      fit: {
+        system: "Le message système d'un participant.",
+        tools: "Des fonctions enregistrées pour qu'un agent les appelle.",
+        brief: "À garder hors du code : les conceptions conversationnelles dérivent, et la commande est ce à quoi vous comparez.",
+      },
+      watch: "Les conversations peuvent être longues et coûter très cher, parce que chaque tour transporte tout l'historique. C'est la leçon de sobriété qui rencontre un framework où il est facile de l'oublier.",
+      when: "Le problème gagne vraiment à ce que des agents argumentent, ou à ce qu'un humain entre en cours de conversation.",
+      notWhen: "Les étapes sont connues d'avance. Vous voulez alors une chaîne, pas une discussion.",
+    },
   },
   {
     id: 'semantic-kernel',
@@ -300,6 +490,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'You are embedding model calls inside a large existing application, in C# or Java.',
     notWhen: 'You are prototyping. There is more structure than a prototype needs.',
     docs: 'https://learn.microsoft.com/en-us/semantic-kernel/',
+    fr: {
+      approach: "Une bibliothèque d'agents",
+      bestFor: "Les applications d'entreprise, surtout sur .NET",
+      shape: "Les appels de modèle sont traités comme des fonctions que votre application peut appeler, à côté de votre code ordinaire. Le noyau est ce qui les tient ensemble.",
+      fit: {
+        system: "La consigne d'une fonction sémantique, ou l'instruction de l'agent.",
+        tools: "Des fonctions natives, depuis vos schémas.",
+        skill: "Correspond bien : l'idée d'une capacité empaquetée est proche de ce que ce framework appelle un greffon.",
+      },
+      watch: "C'est le framework qui a la plus longue histoire ici, et le Microsoft Agent Framework se tient désormais à côté. Vérifiez lequel votre équipe devrait commencer.",
+      when: "Vous encastrez des appels de modèle dans une grande application existante, en C# ou en Java.",
+      notWhen: "Vous faites un prototype. Il y a plus de structure qu'un prototype n'en demande.",
+    },
   },
   {
     id: 'mastra',
@@ -317,6 +520,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'Your product is TypeScript and you want the agent to ship with it, not beside it.',
     notWhen: 'Your team works in Python. Do not change language for the framework.',
     docs: 'https://mastra.ai/docs',
+    fr: {
+      approach: "Des agents et des flux en TypeScript",
+      bestFor: "Des fonctions agentiques à l'intérieur d'une application TypeScript",
+      shape: "Des agents, des outils, des flux et de la mémoire, écrits comme s'écrit une application TypeScript, pour que l'agent vive dans le même code que le produit.",
+      fit: {
+        system: "Les instructions de l'agent.",
+        tools: "Des outils typés, depuis vos schémas.",
+        manifest: "Se lit comme la configuration de l'agent.",
+      },
+      watch: "Être dans le code de votre application rend facile de laisser l'agent sans tests au milieu de tout le reste. Donnez-lui ses propres tests le jour où vous l'ajoutez.",
+      when: "Votre produit est en TypeScript et vous voulez que l'agent parte avec lui, pas à côté.",
+      notWhen: "Votre équipe travaille en Python. Ne changez pas de langage pour un framework.",
+    },
   },
   {
     id: 'agno',
@@ -334,6 +550,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'You want something running quickly without adopting a large stack.',
     notWhen: 'You need orchestration, resumption or governance. That is not what it is for.',
     docs: 'https://docs.agno.com/',
+    fr: {
+      approach: "Des agents légers",
+      bestFor: "Des agents avec outils, mémoire et connaissances, sans beaucoup de poids",
+      shape: "Un agent est un petit objet avec un modèle, quelques outils, et éventuellement de la mémoire et une base de connaissances. Volontairement peu de choses entre vous et le modèle.",
+      fit: {
+        system: "Les instructions, à peu près mot pour mot.",
+        tools: "Des outils rattachés à l'agent.",
+        manifest: "Un point de départ net pour l'objet que vous allez écrire.",
+      },
+      watch: "Les frameworks légers vous donnent moins de structure, ce qui est le but, et cela veut dire que la discipline doit venir de vous. Votre commande écrite est cette discipline.",
+      when: "Vous voulez quelque chose qui tourne vite sans adopter une grosse pile.",
+      notWhen: "Il vous faut de l'orchestration, de la reprise ou de la gouvernance. Ce n'est pas son métier.",
+    },
   },
   {
     id: 'strands',
@@ -351,6 +580,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'You are on AWS and want the identity and hosting questions answered for you.',
     notWhen: 'You are not on AWS.',
     docs: 'https://strandsagents.com/',
+    fr: {
+      approach: "Des agents sur AWS",
+      bestFor: "Le travail qui tourne sur AWS et Bedrock",
+      shape: "Une boucle pilotée par le modèle, avec des outils, faite pour se poser naturellement sur AWS, l'hébergement, l'identité et l'accès aux modèles venant de la plateforme.",
+      fit: {
+        system: "La consigne système.",
+        tools: "Des outils, y compris ceux d'AWS que vous n'avez pas eu à écrire.",
+        manifest: "Utile comme définition gardée sous gestion de versions.",
+      },
+      watch: "Les outils de la plateforme sont la raison d'être ici, et ce sont aussi eux qui vous y attachent. Sachez lesquels de vos outils sont portables.",
+      when: "Vous êtes sur AWS et vous voulez que les questions d'identité et d'hébergement soient réglées pour vous.",
+      notWhen: "Vous n'êtes pas sur AWS.",
+    },
   },
   {
     id: 'smolagents',
@@ -368,6 +610,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'You are learning, or the job is genuinely small.',
     notWhen: 'You need state, resumption or a team of agents.',
     docs: 'https://huggingface.co/docs/smolagents/',
+    fr: {
+      approach: "Des agents minimaux",
+      bestFor: "Débuter, et comprendre ce qu'est vraiment une boucle",
+      shape: "Une très petite bibliothèque : un agent est une boucle qui appelle un modèle, exécute ce qu'il demande, et recommence. Il y a peu à apprendre avant de pouvoir la lire en entier.",
+      fit: {
+        system: "L'instruction de l'agent.",
+        tools: "De simples fonctions outils.",
+        brief: "L'endroit où vit votre raisonnement, puisque le code n'en portera pas grand-chose.",
+      },
+      watch: "Certains agents minimaux exécutent du code engendré. Lisez ce qui s'exécute et où avant de le pointer sur quoi que ce soit de réel, et commencez en lecture seule, exactement comme l'enseigne le parcours de l'opérateur.",
+      when: "Vous apprenez, ou le travail est vraiment petit.",
+      notWhen: "Il vous faut de l'état, de la reprise ou une équipe d'agents.",
+    },
   },
   {
     id: 'metagpt',
@@ -385,6 +640,19 @@ export const FRAMEWORKS: Framework[] = [
     when: 'You want to see a whole software process played out from one brief.',
     notWhen: 'You want one agent doing one job. This is the opposite end of the scale.',
     docs: 'https://docs.deepwisdom.ai/',
+    fr: {
+      approach: "Plusieurs agents, comme une équipe logicielle",
+      bestFor: "Simuler une équipe de développement à partir d'une commande",
+      shape: "Des agents prennent les rôles d'une entreprise logicielle (produit, architecte, ingénieur) et produisent les documents que ce rôle produirait, puis les passent plus loin.",
+      fit: {
+        system: "L'instruction d'un rôle.",
+        brief: "La correspondance la plus proche : ce framework pense en documents, et une commande écrite en est un.",
+        tools: "Moins central ici que les rôles et ce qu'ils produisent.",
+      },
+      watch: "Il produit beaucoup de matière qui ressemble à du progrès. Jugez-le sur le résultat qui fonctionne, pas sur le volume de documents.",
+      when: "Vous voulez voir tout un processus logiciel se dérouler à partir d'une seule commande.",
+      notWhen: "Vous voulez un agent qui fait un travail. C'est l'autre bout de l'échelle.",
+    },
   },
 ]
 

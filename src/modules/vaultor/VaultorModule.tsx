@@ -18,7 +18,7 @@ import { useEngine } from '../../agents/engineStore'
 import { OfficeStats } from '../../components/OfficeStats'
 import { Accounting } from './Accounting'
 import { InfoDot } from '../../components/InfoDot'
-import { PLANS } from '../../data/plans'
+import { PLANS, priceTag } from '../../data/plans'
 import { CREDIT_USD } from '../../data/budget'
 
 const TABS = [
@@ -64,8 +64,8 @@ export default function VaultorModule({ dojoId }: ModuleProps) {
       <div className="biz-overview">
         {PLANS.map((pl) => (
           <div key={pl.id} className={`biz-tile${pl.featured ? ' on' : ''}`}>
-            <span>{pl.usd ? `$${pl.usd}` : 'Free'}</span>
-            <em>{pl.name}{pl.perSeat ? ` · a seat, ${pl.minSeats} minimum` : ''}</em>
+            <span>{priceTag(pl.eur)}</span>
+            <em>{pl.name}{pl.addOn ? ' · en supplément' : ''}</em>
           </div>
         ))}
       </div>

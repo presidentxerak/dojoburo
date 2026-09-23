@@ -38,13 +38,14 @@ import { useLang, useT } from '../i18n'
 // La correction n'est pas d'agrandir la variable. Une barre de navigation qui
 // grandit à chaque cours ajouté est une barre qui finira par prendre le tiers
 // de l'écran, et personne ne lit sept liens de toute façon. Elle porte
-// maintenant TROIS entrées : les cours (qui mènent à la section qui les liste
-// tous, chiffre compris), la bibliothèque, et les tarifs. Le bouton d'appel à
-// l'action, lui, ouvre déjà le dojo, donc la porte d'entrée n'est pas perdue.
+// maintenant DEUX entrées : les cours (qui mènent à la section qui les liste
+// tous, chiffre compris) et les tarifs. Elle en portait trois : la
+// bibliothèque occupait la deuxième, et elle a été retirée du produit, parce
+// qu'elle vendait des fichiers à l'unité alors qu'on vend une formation. Les
+// fichiers sont devenus les ressources des modules, là où ils ont un sens.
 //
 // LE PIED DE PAGE, LUI, GARDE TOUT. C'est son métier : il est le plan du site,
 // et il a la place. Voir components/SiteFooter, qui lit les piliers entiers.
-const NAV_LIBRARY = PILLARS.find((p) => p.id === 'library')!
 
 export function SiteHeader({ enter }: { enter?: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -68,9 +69,13 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
         <a className="lp-brand" href="/" style={{ textDecoration: 'none' }}>
           <Logo size={38} /> <span className="lp-brand-wm"><Wordmark /> <span className="beta-badge">Beta</span></span>
         </a>
+        {/* LA BARRE DU HAUT MÈNE AU PARCOURS · elle pointait vers une ancre de
+            l'ancienne page d'accueil, qui n'existe plus. Une vraie adresse
+            vaut mieux qu'une ancre : elle se partage, elle s'indexe, et elle
+            ne casse pas le jour où une section change de nom. */}
         <nav className="lp-nav-links">
-          <a href="/#courses">{t('nav.courses')}</a>
-          <a href={NAV_LIBRARY.path}>{(lang === 'fr' && NAV_LIBRARY.fr?.nav) || NAV_LIBRARY.nav}</a>
+          <a href="/formation">{t('nav.path')}</a>
+          <a href="/metier">{t('nav.trades')}</a>
           <a href="/#pricing">{t('nav.pricing')}</a>
         </nav>
         <div className="lp-nav-right">
@@ -109,6 +114,10 @@ export function SiteHeader({ enter }: { enter?: () => void }) {
                 {(lang === 'fr' && p.fr?.nav) || p.nav}
               </a>
             ))}
+            <a href="/7-jours" onClick={() => setMenuOpen(false)}>{t('g.toWeek')}</a>
+            <a href="/formation" onClick={() => setMenuOpen(false)}>{t('nav.path')}</a>
+            <a href="/metier" onClick={() => setMenuOpen(false)}>{t('nav.trades')}</a>
+            <a href="/profil" onClick={() => setMenuOpen(false)}>{t('g.profile')}</a>
             <a href="/#pricing" onClick={() => setMenuOpen(false)}>{t('nav.pricing')}</a>
             <a href="/guide" onClick={() => setMenuOpen(false)}>{t('nav.guide')}</a>
             <button className="lp-cta" onClick={learn}>{t('header.enter')}</button>

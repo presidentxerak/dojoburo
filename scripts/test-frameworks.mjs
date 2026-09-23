@@ -109,10 +109,22 @@ for (const c of CONNECT_STEPS) {
 // EN LECTURE SEULE D'ABORD · c'est la leçon du parcours « opérateur », et elle
 // doit être dans la procédure, pas seulement dans le dojo. C'est l'étape où un
 // premier branchement coûte quelque chose.
+// … DANS LES DEUX LANGUES. La sonde ne lisait que l'anglais, donc une
+// procédure française qui aurait perdu cette phrase serait passée : le lecteur
+// à qui il manque l'avertissement est justement celui qui branche son premier
+// agent sur un vrai compte.
 ok('…et elle fait commencer en lecture seule',
   CONNECT_STEPS.some((c) => /read only/i.test(c.does + c.watch)))
+ok('…et le dit aussi en français',
+  CONNECT_STEPS.some((c) => c.fr && /lecture seule/i.test(c.fr.does + c.fr.watch)))
 
 // L'ORDRE DE LA PAGE · « c'est quoi » avant « lequel prendre ».
+//
+// LA RÈGLE CHERCHAIT LES TITRES ANGLAIS, mot pour mot, dans le JSX. Ils sont
+// maintenant des clés de dictionnaire, parce que la page est bilingue. On
+// cherche donc les clés, ce qui vérifie exactement la même propriété et
+// résiste en plus à une reformulation du titre : une clé est un identifiant,
+// une phrase ne l'est pas.
 const order = readFileSync('src/dojo/Frameworks.tsx', 'utf8')
 /** « a vient avant b » · et les DEUX doivent exister.
  *
@@ -127,8 +139,11 @@ const before = (a, b) => {
   const i = order.indexOf(a), j = order.indexOf(b)
   return i >= 0 && j >= 0 && i < j
 }
-ok('la page explique avant de comparer', before('What a framework actually is', 'and what each one is for'))
-ok('…et la procédure vient avant le catalogue', before('How to export your agent and connect it', 'and what each one is for'))
+ok('la page explique avant de comparer', before("t('fw.h2what')", "t('fw.h2list')"))
+ok('…et la procédure vient avant le catalogue', before("t('fw.h2connect')", "t('fw.h2list')"))
+// … et la garde reste capable de rougir : un titre supprimé doit la faire
+// échouer, pas la faire passer par un -1 plus petit que tout.
+ok('morsure · une section disparue est vue', !before("t('fw.h2disparue')", "t('fw.h2list')"))
 
 /* --- 4 · AUCUN CODE D'APPEL, et c'est la règle -------------------------- */
 
@@ -154,11 +169,25 @@ const CODE = [
 for (const [re, what] of CODE) ok(`aucune trace de ${what} dans les données`, !re.test(prose))
 // …et la page le DIT au lecteur, avant le tableau et non en note de bas de
 // page : quelqu'un qui cherche du code doit le savoir tout de suite.
-ok('la page annonce qu\'elle ne contient pas de code', /no code on this page, on purpose/i.test(page))
-ok('…et dit pourquoi', /goes stale|wrong in a few months/i.test(page))
+//
+// CES TROIS RÈGLES CHERCHAIENT LA PHRASE ANGLAISE DANS LE JSX. La page est
+// bilingue, et ces phrases sont maintenant dans le dictionnaire. On les y lit,
+// DANS LES DEUX LANGUES : un lecteur français a droit au même avertissement,
+// et une règle qui ne relit que l'anglais laisserait la moitié française le
+// perdre sans rien dire.
+const D = (await load('src/i18n/dict.ts', 'dict.mjs')).DICT
+const says = (key, en, fr) => {
+  ok(`« ${key} » le dit en anglais`, en.test(D[key].en), D[key].en.slice(0, 50))
+  ok(`« ${key} » le dit en français`, fr.test(D[key].fr), D[key].fr.slice(0, 50))
+}
+ok('la page annonce qu\'elle ne contient pas de code', /t\('fw\.noCodeH2'\)/.test(page))
+says('fw.noCodeH2', /no code on this page, on purpose/i, /aucun code sur cette page/i)
+ok('…et dit pourquoi', /t\('fw\.noCodeA'\)/.test(page))
+says('fw.noCodeA', /wrong in a few months/i, /a tort dans quelques mois/i)
 // LA LIMITE ASSUMÉE · nous ne suivons pas ces projets au jour le jour, et ils
 // changent sans prévenir. Le taire serait une promesse qu'on ne tient pas.
-ok('…et reconnaît qu\'elle ne suit pas ces projets', /do not track these/i.test(page))
+ok('…et reconnaît qu\'elle ne suit pas ces projets', /t\('fw\.weDoNotTrack'\)/.test(page))
+says('fw.weDoNotTrack', /do not track these/i, /ne suivons pas ces/i)
 ok('chaque entrée renvoie à sa propre documentation', /f\.docs/.test(page))
 
 /* --- 5 · la page est atteignable ---------------------------------------- */

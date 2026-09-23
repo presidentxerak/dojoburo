@@ -14,67 +14,8 @@ import { TeammateCard } from '../TeammateCard'
 import { ARCHETYPE_BY_ID } from '../../data/archetypes'
 import { ROLE_BY_ID } from '../../data/roleAgents'
 import { BauhausIcon } from '../BauhausIcon'
-import { LESSON_COUNT, TRACK_COUNT } from '../../data/positioning'
 
-export interface Beat { id: string; title: string; body: string }
-
-export type WalkId = 'overview' | 'company' | 'teams' | 'apps'
-
-export const WALKS: Record<WalkId, { title: string; sub: string; beats: Beat[] }> = {
-  overview: {
-    title: 'How it works',
-    sub: 'Six steps, start to finish.',
-    beats: [
-      { id: 'name', title: '1 · Start the course', body: `${LESSON_COUNT} lessons across ${TRACK_COUNT} tracks, free and read in the browser. It starts at "what is a token" and assumes you have never heard the word agent. No account, nothing to install.` },
-      { id: 'pick', title: '2 · Watch it, do not just read it', body: 'Every lesson has an animation beside the text that shows the idea moving, a question that marks itself, one line to remember and one thing to go and do.' },
-      { id: 'crew', title: '3 · Take apart a worked example', body: 'The dojo is a sandbox. Open any teammate and you get the brief that makes it a specialist, the tools it would reach for, and what that way of writing costs.' },
-      { id: 'apps', title: '4 · Learn what a tool really costs', body: 'Every app switched on ships its tool definitions with every step. Seeing that number is how you learn to turn tools off, and it is the single easiest saving there is.' },
-      { id: 'loop', title: '5 · Measure before you cut', body: 'Tokens and euros for the way you actually work, and where they go. Then the levers, each with the saving it really buys rather than the one it is said to buy.' },
-      { id: 'ship', title: '6 · Take the files with you', body: 'Prompts, .md briefs and agent skills, filed by trade. Copy one, adapt it, run it on your own stack. Nothing here runs it for you, that is the point.' },
-    ],
-  },
-
-  company: {
-    title: 'The practice dojo',
-    sub: 'A room to take examples apart in.',
-    beats: [
-      { id: 'name', title: '1 · It is a sandbox', body: 'Nothing in the dojo calls a paid model or writes to your real accounts. You can change anything in it without consequence, which is exactly what makes it worth changing.' },
-      { id: 'create', title: '2 · Open a teammate', body: 'Each one is a worked example: a brief, a tool list and a budget, put together for a real trade. The brief is the interesting part, read it before you touch it.' },
-      { id: 'pick', title: '3 · Read the catalogue as examples', body: 'Every ready-made team shows a different shape of problem, a campaign, an app, a book, a shop. Compare two and you learn more than from either alone.' },
-      { id: 'crew', title: '4 · Change one thing', body: 'Drop a tool. Shorten the brief. Tighten the budget. Change one thing at a time and you can see what it did; change five and you have learnt nothing.' },
-      { id: 'brief', title: '5 · Write the brief yourself', body: 'One line, the outcome you actually want. Writing a brief badly is the most common reason an agent disappoints, and it is the cheapest mistake to fix.' },
-      { id: 'loop', title: '6 · Watch the cost move', body: 'The token dial in the header shows what each choice costs. Saver, Balanced and Max change three things: the length cap, whether the model thinks first, and how many tools travel with each step.' },
-      { id: 'ship', title: '7 · Rebuild it for real, elsewhere', body: 'When the example makes sense, take the file and wire it on your own stack. The per-app pages in the guide are the step-by-step for that part.' },
-    ],
-  },
-
-  teams: {
-    title: 'How dojo teams work',
-    sub: 'What is inside a card, and how to choose.',
-    beats: [
-      { id: 'pick', title: '1 · A card is a whole team', body: 'Not a template and not a prompt: a card is a team with a crew attached. Social campaign, mobile app, book, online shop, start-up, pick the one that matches your goal.' },
-      { id: 'crew', title: '2 · The crew is listed up front', body: 'Every card names its teammates and what each one does before you pick it, a researcher, a maker, an analyst, a team lead. No surprises after the fact.' },
-      { id: 'apps', title: '3 · Their apps come with them', body: 'The apps that job needs are already attached to the right teammate. Connecting one is a click; the card shows you which ones before you choose.' },
-      { id: 'budget', title: '4 · You see the budget first', body: 'Each card shows what one full run costs in credits, so you know before you tick it. Light, Medium or Heavy tells you at a glance how much work it is.' },
-      { id: 'loop', title: '5 · The plan runs in order', body: 'Every card has a fixed plan of steps. Hit Run every step and the team lead walks it top to bottom, handing each step to the teammate who owns it.' },
-      { id: 'edit', title: '6 · Nothing is locked', body: 'Rename teammates, add or remove them, change the apps they reach, rewrite how any one of them works. The card is a starting point, not a cage.' },
-    ],
-  },
-
-  apps: {
-    title: 'Connecting your apps',
-    sub: 'How it works, and what it costs on top of your plan.',
-    beats: [
-      { id: 'why', title: '1 · Why connect anything', body: 'Without apps your team writes drafts. Connected, they do the real thing: create the Notion page, draft the Gmail, open the GitHub issue, raise the Stripe invoice.' },
-      { id: 'connect', title: '2 · Connecting is one click', body: 'Open a teammate, find the app under their tasks, hit Connect and approve once on the app\'s own screen. You never hand over a password, and you can disconnect any time.' },
-      { id: 'apps', title: '3 · Access is sealed away', body: 'What comes back is stored on the server, encrypted, and unlocked only while your team is working. This browser never holds it.' },
-      { id: 'free', title: '4 · Connecting costs nothing', body: 'There is no charge to connect an app, and no charge to keep it connected. Your plan sets how many apps you can have at once, Free 2, Solo 6, Pro every one of them.' },
-      { id: 'cost', title: '5 · What you pay on top', body: 'One monthly plan, paid by card in your own currency. Nothing else is added, no per-app fee, no per-teammate fee, no setup fee. On Founder your own Claude key runs the work, so nothing here is metered at all.' },
-      { id: 'sub', title: '6 · Your own apps stay yours', body: 'We never bill you for Notion, Slack, Stripe or anything else you connect. If a plan is needed there, you pay it to them, exactly as you do today.' },
-      { id: 'byok', title: '7 · Or bring your own key', body: 'Add your own Claude key and the work runs on it: unlimited tasks, no credits spent at all. Anthropic bills you directly and DojoBuro takes nothing per task.' },
-    ],
-  },
-}
+export { WALKS, walkIn, type Beat, type Walk, type WalkId } from './walks'
 
 // ---------------------------------------------------------------------------
 // the animated stages · one per beat id
