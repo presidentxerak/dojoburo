@@ -597,6 +597,11 @@ export const DICT = {
     fr: "Le premier dojo de chaque cité est ouvert. Le reste vient avec le parcours, acheté une fois.",
   },
   'g.freeFirst': { en: 'First dojo, free', fr: 'Premier dojo, gratuit' },
+  // L'ÉTIQUETTE DU MAÎTRE · elle était écrite en dur, en anglais, dans le
+  // composant 3D. Sur un écran français elle donnait « Sensei · dojo master »
+  // au milieu d'une leçon en français · exactement le mélange de langues déjà
+  // signalé une fois. Un texte visible n'a rien à faire ailleurs qu'ici.
+  'g.senseiTag': { en: 'Sensei · dojo master', fr: 'Sensei · maître du dojo' },
   'g.toWeek': { en: 'The free week', fr: 'La semaine gratuite' },
   'g.profile': { en: 'Your progress', fr: 'Votre progression' },
 

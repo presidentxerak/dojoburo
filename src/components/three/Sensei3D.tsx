@@ -15,6 +15,7 @@ import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { useDojo } from '../../store'
+import { useT } from '../../i18n'
 import { VINYL, MATTE } from './toy'
 import { Contact } from './Contact'
 import { roundedBox } from './geometry'
@@ -69,8 +70,19 @@ const pick = (a: string[]) => a[Math.floor(Math.random() * a.length)]
  *  regarde en premier. Un maître se tient au fond, face à la salle : on
  *  entre, on traverse, on va le voir. C'est ce déplacement qui a donné au
  *  coursier quelqu'un à qui parler (voir stage.ts et Courier3D). */
-export function Sensei3D({ bare = false, at = SENSEI_AT, says }: {
+export function Sensei3D({ bare = false, quiet = false, at = SENSEI_AT, says }: {
   bare?: boolean
+  /** IL SE TAIT · l'étiquette reste, la bulle disparaît.
+   *
+   *  POURQUOI CE N'EST PAS `bare`. `bare` retire tout le hors-scène, étiquette
+   *  comprise, et convient au hero où le maître n'est qu'une silhouette. Dans
+   *  la salle d'une leçon on veut le contraire : savoir QUI est là, sans qu'il
+   *  répète à voix haute ce que la page dit déjà juste en dessous.
+   *
+   *  CE QUE ÇA ÉVITE AUSSI · sans texte à dire, il retombait sur ses maximes,
+   *  qui sont écrites en dur en anglais. Une leçon en français affichait alors
+   *  « Breathe. Then ship. » au-dessus du maître. */
+  quiet?: boolean
   at?: [number, number, number]
   /** CE QU'IL DIT MAINTENANT, quand quelqu'un a quelque chose de précis à lui
    *  faire dire. Le maître récitait ses maximes en boucle, ce qui convient à
@@ -79,6 +91,7 @@ export function Sensei3D({ bare = false, at = SENSEI_AT, says }: {
    *  professeur qui ne vous écoute pas. */
   says?: string
 }) {
+  const t = useT()
   const cheer = useDojo((s) => s.cheer)
   const cheerTick = useDojo((s) => s.cheerTick)
   const news = useNews()
@@ -264,14 +277,14 @@ export function Sensei3D({ bare = false, at = SENSEI_AT, says }: {
           Quelqu'un vient de lui annoncer quelque chose ; continuer à réciter
           « Breathe. Then ship. » pendant qu'on lui parle est exactement ce
           qui faisait que l'échange n'existait pas. */}
-      {!bare && (
+      {!bare && !quiet && (
         <Html position={[0, 2.72, 0.2]} center distanceFactor={12} zIndexRange={[8, 0]} pointerEvents="none">
           <div className={`panda-bubble${party ? ' hype' : ''}`}>{says || (visit === 'telling' ? news.reply : bubble)}</div>
         </Html>
       )}
       {!bare && (
         <Html position={[0, 2.12, 0]} center distanceFactor={12} zIndexRange={[6, 0]} pointerEvents="none">
-          <div className="tag3d panda">Sensei · dojo master</div>
+          <div className="tag3d panda">{t('g.senseiTag')}</div>
         </Html>
       )}
     </group>

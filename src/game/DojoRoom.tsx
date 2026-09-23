@@ -9,9 +9,35 @@
 // sa teinte, chaque niveau son maître, et c'est assez pour que treize cités ne
 // se ressemblent pas sans redessiner treize salles.
 //
-// LE MAÎTRE PARLE UNE FOIS, et il dit ce qu'on vient FAIRE, pas ce qu'on vient
-// lire. Une bulle qui récite une maxime au-dessus d'un cours est un professeur
-// qui ne vous écoute pas.
+// LE MAÎTRE NE PARLE PAS ICI, ET C'EST UN RENVERSEMENT ASSUMÉ.
+//
+// Ce fichier disait, et le faisait : « LE MAÎTRE PARLE UNE FOIS, et il dit ce
+// qu'on vient FAIRE, pas ce qu'on vient lire. Une bulle qui récite une maxime
+// au-dessus d'un cours est un professeur qui ne vous écoute pas. »
+//
+// La deuxième phrase reste vraie · c'est la première qui ne tenait pas, et il a
+// fallu le voir à l'écran pour s'en apercevoir. Le maître recevait la consigne
+// du dojo, c'est à dire la phrase EXACTE que la page affiche trente pixels plus
+// bas, dans un encadré qui porte en plus son titre. Trois défauts d'un coup,
+// sur un téléphone :
+//
+//   ELLE ÉTAIT DITE DEUX FOIS · une fois dans une bulle, une fois dans le
+//   panneau. Rien ne justifie de lire la même phrase deux fois de suite.
+//
+//   ELLE ÉTAIT COUPÉE. La bulle est du HTML projeté par la caméra dans une
+//   bande de deux cent quarante pixels de haut : son premier mot passait
+//   au-dessus du cadre, qui le rogne. On lisait « les huit mots et redites
+//   chacun… », sans le verbe.
+//
+//   ELLE TOMBAIT EN COLONNE, un ou deux mots par ligne.
+//
+// Et sans texte à dire, il serait retombé sur ses maximes, qui sont écrites en
+// dur en anglais dans le composant · une leçon en français aurait affiché
+// « Breathe. Then ship. » au-dessus du maître.
+//
+// Il garde donc son étiquette, qui dit qui il est et qui se traduit maintenant,
+// et il se tait. La consigne est dans le panneau, en entier, avec son titre.
+// La salle garde sa vie de son animation, pas d'une bulle.
 import { Suspense, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -23,13 +49,12 @@ import { templateById } from '../data/templates'
 import { characterFor, faceIdForUseCase } from '../data/agentFaces'
 import type { Department } from '../data/agents'
 
-export function DojoRoom({ master, tint, says }: {
+export function DojoRoom({ master, tint }: {
   /** l'identifiant du cas d'usage qui tient ce dojo */
   master: string
   /** la couleur de la cité · elle teinte la lumière, pas les murs, parce que
    *  des murs colorés écraseraient le personnage */
   tint: string
-  says: string
 }) {
   const tpl = templateById('dojo')
   const P = tpl.palette
@@ -74,7 +99,8 @@ export function DojoRoom({ master, tint, says }: {
             selected
             onSelect={() => {}}
           />
-          <Sensei3D says={says} />
+          {/* IL SE TAIT · voir l'en-tête. L'étiquette reste, la bulle non. */}
+          <Sensei3D quiet />
         </Suspense>
       </Canvas>
     </div>

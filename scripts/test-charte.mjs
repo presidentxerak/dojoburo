@@ -108,6 +108,39 @@ for (const [nom, hex] of TOKENS) {
   ok(`jeton · ${nom}`, CSS.toLowerCase().includes(hex), hex)
 }
 
+// … ET AUCUNE RÈGLE DE RACINE NE LES REPREND PLUS BAS.
+//
+// C'EST LA MOITIÉ QUI MANQUAIT, ET SANS ELLE LA SECTION AU DESSUS NE GARDAIT
+// RIEN. Les jetons étaient bien écrits en tête de la feuille, la garde les y
+// trouvait, elle passait au vert · et trois mille lignes plus bas un bloc
+// « :root:not([data-theme="dark"]) { --ink: #000; --muted: #000 } », écrit à
+// l'époque où le parti pris était le noir pur sans niveau de gris, les
+// ramenait tous les deux à zéro. La charte était dans le fichier et pas à
+// l'écran : le texte second restait noir, donc sans hiérarchie, ce qui est
+// exactement ce que le système interdit.
+//
+// CHERCHER UNE CHAÎNE NE PROUVE RIEN. Un jeton ne vaut que s'il GAGNE, et en
+// CSS c'est la dernière déclaration de même portée qui gagne. La règle compte
+// donc les déclarations de racine pour chacun de ces jetons : il doit y en
+// avoir exactement deux, le mode clair et le mode sombre. Une troisième est
+// une reprise, quelle que soit sa bonne raison, et elle doit se déclarer.
+//
+// CE QU'ELLE NE VOIT PAS, ET QU'IL FAUT DIRE · elle lit du texte, pas un
+// navigateur. Une redéfinition portée par une classe plutôt que par la racine
+// lui échappe. C'est assumé : la faute réelle était au niveau de la racine, et
+// une règle qui tenterait de simuler la cascade se tromperait plus souvent
+// qu'elle n'aurait raison.
+for (const jeton of ['--ink', '--muted', '--border']) {
+  // une DÉCLARATION DE RACINE · « :root », avec ou sans attribut de thème.
+  // Les blocs de composants qui se donnent leurs propres variables locales
+  // (« .cs { --ink: #111 } ») sont hors sujet : ils ne touchent pas le thème.
+  const roots = [...CSS.matchAll(/(:root[^{]*)\{([^}]*)\}/g)]
+    .filter(([, , body]) => new RegExp(`${jeton}\\s*:`).test(body))
+    .map(([, sel]) => sel.trim())
+  ok(`le jeton ${jeton} n'est défini que par les deux thèmes`,
+    roots.length === 2, roots.join(' | ') || 'aucune')
+}
+
 // LE FOND SOMBRE N'EST PAS UN NOIR PUR · le système l'écrit noir sur blanc, et
 // la raison est le halo des bordures claires sur écran OLED. C'était #000000.
 const DARK = CSS.match(/:root\[data-theme='dark'\]\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
