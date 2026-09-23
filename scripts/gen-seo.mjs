@@ -67,6 +67,14 @@ const tradeBundle = await build({
 const tradeMod = await import('data:text/javascript;base64,' + Buffer.from(tradeBundle.outputFiles[0].text).toString('base64'))
 const { TRADES, TRADE_MODULES } = tradeMod
 
+// LES FORMATIONS · l'étage au-dessus des modules, et ce que le jeu adresse.
+const packBundle = await build({
+  entryPoints: [path.join(ROOT, 'src/data/packs.ts')],
+  bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
+})
+const packMod = await import('data:text/javascript;base64,' + Buffer.from(packBundle.outputFiles[0].text).toString('base64'))
+const { PACKS, FREE_PACK } = packMod
+
 // The roster, the same way. roleAgents.ts pulls in a Department type from
 // agents.ts, which esbuild resolves; nothing here is duplicated from the app.
 const rolesBundle = await build({
@@ -128,13 +136,15 @@ const urls = [
   // sont. Annoncer à un moteur trois cents pages dont il ne verra que le
   // premier paragraphe est la meilleure façon de se faire juger sur des pages
   // vides.
-  { loc: '/7-jours', pri: '1.0', freq: 'weekly' },
-  ...DISCOVERY_MODULE.levels.map((l) => ({ loc: `/formation/${DISCOVERY_MODULE.id}/${l.id}`, pri: '0.8', freq: 'monthly' })),
-  { loc: '/formation', pri: '0.9', freq: 'weekly' },
-  ...PATH_MODULES.map((m) => ({ loc: `/formation/${m.id}`, pri: '0.8', freq: 'monthly' })),
-  { loc: '/metier', pri: '0.9', freq: 'monthly' },
-  ...TRADES.map((t) => ({ loc: `/metier/${t.id}`, pri: '0.8', freq: 'monthly' })),
-  ...TRADE_MODULES.map((m) => ({ loc: `/formation/${m.id}`, pri: '0.7', freq: 'monthly' })),
+  // LE JEU · la racine est l'écran des formations, chaque formation a son
+  // adresse, et les sept dojos gratuits sont indexés parce qu'ils sont lisibles
+  // par tout le monde. LES DOJOS PAYANTS NE LE SONT PAS · annoncer à un moteur
+  // trois cents pages dont il ne verra que le premier paragraphe est la
+  // meilleure façon de se faire juger sur des pages vides.
+  ...PACKS.map((p) => ({ loc: `/dojo/${p.id}`, pri: p.door === 'free' ? '0.9' : '0.8', freq: 'monthly' })),
+  ...DISCOVERY_MODULE.levels.map((l) => ({ loc: `/dojo/${FREE_PACK.id}/${l.id}`, pri: '0.8', freq: 'monthly' })),
+  // LA BROCHURE · elle a quitté la racine et garde une adresse à elle.
+  { loc: '/decouvrir', pri: '0.9', freq: 'weekly' },
   { loc: '/terms', pri: '0.2', freq: 'yearly' },
   { loc: '/privacy', pri: '0.2', freq: 'yearly' },
 ]

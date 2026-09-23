@@ -9861,3 +9861,363 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   .lp2-o-price { font-size: 26px; }
   .lp2-offers, .lp2-who { grid-template-columns: 1fr; }
 }
+
+/* ========================================================================== */
+/* LE JEU · la coquille, la barre du bas, les cartes                          */
+/* ========================================================================== */
+/*
+   LA CHARTE NE BOUGE PAS. Les maquettes sont sombres, violettes et arrondies ;
+   ce produit est clair, plat, à angles droits, en Outfit. Ce qu'on leur prend
+   est la DISPOSITION · une colonne, des cartes, une barre du bas, un état par
+   ligne. Reprendre aussi leur peinture aurait donné un produit qui ne
+   ressemble plus à rien de ce qu'on a construit, et la charte n'était pas en
+   cause : c'est l'ergonomie qui l'était.
+*/
+
+.gm {
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  /* LA PLACE DE LA BARRE DU BAS · réservée ici plutôt qu'écran par écran. Une
+     marge oubliée sur un seul écran cache son dernier bouton sous la barre, et
+     c'est toujours le bouton qui compte. */
+  padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+}
+
+/* --- l'en-tête ----------------------------------------------------------- */
+
+.gm-top {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 16px;
+  background: var(--paper); border-bottom: 1px solid var(--border);
+}
+.gm-brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: inherit; }
+.gm-brand-wm { display: flex; align-items: center; }
+.gm-top-right { display: flex; align-items: center; gap: 10px; }
+.gm-xp {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  border: 1px solid var(--ink); padding: 4px 9px; background: var(--card);
+}
+.gm-xp b { font-family: var(--font-ui); font-size: 14px; font-weight: 800; }
+.gm-xp i { font-style: normal; font-size: 10px; font-weight: 800; color: var(--muted); }
+
+.gm-main { flex: 1; width: 100%; max-width: 760px; margin: 0 auto; }
+.gm-main.wide { max-width: none; }
+
+.gm-sec { padding: 18px 16px 0; }
+/* LA TAILLE EST IMPOSÉE · un « h1 { font-size: 60px !important } » global
+   vit plus haut dans ce fichier, écrit pour le hero de la page de vente. Sans
+   la même force ici, « Vos dojos » s'affichait en soixante pixels sur un
+   téléphone de trois cent quatre-vingt-dix. On ne retire pas la règle globale,
+   qui tient une page qui marche ; on lui répond. */
+.gm-h1 { font-size: 26px !important; font-weight: 800 !important; letter-spacing: -0.025em; margin: 0 0 6px; line-height: 1.15; }
+.gm-lead { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0 0 4px; }
+.gm-back {
+  display: inline-block; font-size: 12px; font-weight: 800; color: var(--muted);
+  text-decoration: none; margin-bottom: 10px;
+}
+.gm-back:hover { color: var(--ink); }
+.gm-cta {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+  background: var(--ink); color: var(--paper); text-decoration: none;
+  font-weight: 800; font-size: 14px; padding: 12px 18px; border: 1px solid var(--ink);
+  cursor: pointer;
+}
+.gm-cta:hover { background: var(--ac, var(--ink)); border-color: var(--ac, var(--ink)); }
+
+/* --- la barre du bas ----------------------------------------------------- */
+/* Elle ne défile pas, elle reste à hauteur de pouce, et elle porte trois
+   portes. Voir game/Shell pour pourquoi trois et non cinq. */
+
+.gm-tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  background: var(--paper); border-top: 1px solid var(--ink);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.gm-tab {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 9px 4px 8px; text-decoration: none; color: var(--muted);
+  font-size: 10px; font-weight: 800; letter-spacing: 0.02em;
+  border-top: 2px solid transparent; margin-top: -1px;
+}
+.gm-tab.on { color: var(--ink); border-top-color: var(--ink); }
+
+/* --- les cartes de formation --------------------------------------------- */
+
+.pk-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+.pk {
+  display: grid; border: 1px solid var(--border); background: var(--card);
+  text-decoration: none; color: inherit; overflow: hidden;
+}
+.pk:hover { border-color: var(--ac); }
+.pk.done { border-color: var(--ac); }
+
+/* LA VIGNETTE · un rapport fixe, sinon la carte saute pendant que la scène
+   se monte et la liste danse au chargement. */
+.pa { position: relative; width: 100%; aspect-ratio: 16 / 9; background: var(--bg); }
+.pa canvas { display: block; }
+/* UNE FORMATION FERMÉE N'EST PAS GRISÉE.
+   Une première version désaturait sa vignette. Sur un écran d'accueil où les
+   huit formations sont fermées tant qu'on n'a rien donné, ça faisait huit
+   images grises : la seule chose qui donne envie d'ouvrir une formation,
+   éteinte précisément quand elle doit convaincre. Le cadenas dit ce qu'il y a
+   à dire ; la scène, elle, travaille. */
+.pa.off { filter: none; }
+
+.pk-body { display: grid; gap: 7px; padding: 14px 16px 16px; }
+.pk-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pk-price {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 800;
+  background: var(--ac); color: #fff; padding: 3px 8px;
+}
+.pk-lock, .pk-ok {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 800; padding: 3px 8px; border: 1px solid var(--border);
+  color: var(--muted);
+}
+.pk-ok { border-color: var(--ac); color: var(--ac); }
+.pk-title { font-size: 18px; letter-spacing: -0.02em; }
+.pk-blurb { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.pk-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; font-weight: 800; color: var(--muted); }
+.pk-bar { display: block; height: 3px; background: var(--border); }
+.pk-bar i { display: block; height: 100%; background: var(--ac); }
+.pk-bar.big { height: 5px; margin-top: 14px; }
+.pk-go { font-size: 13px; font-weight: 800; color: var(--ac); }
+.pk.shut .pk-title, .pk.shut .pk-go { color: var(--muted); }
+
+/* --- l'en-tête d'une formation ------------------------------------------- */
+
+.pkh-top { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.pkh-art { border: 1px solid var(--border); overflow: hidden; }
+.pkh-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; font-weight: 800; color: var(--muted); margin-top: 8px; }
+.pkh-count { margin: 6px 0 0; font-size: 11px; font-weight: 800; color: var(--muted); }
+
+.pkl { border: 1px solid var(--ink); padding: 16px 18px; display: grid; gap: 8px; margin-top: 14px; }
+.pkl b { display: flex; align-items: center; gap: 7px; font-size: 15px; }
+.pkl p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.55; }
+.pkl .gm-cta { justify-self: start; }
+
+/* --- un module et ses dojos ---------------------------------------------- */
+
+.md { border: 1px solid var(--border); background: var(--card); padding: 14px 16px 16px; display: grid; gap: 10px; }
+.md-head { display: flex; justify-content: space-between; align-items: center; }
+.md-n { font-family: var(--font-ui); font-size: 11px; font-weight: 800; color: var(--ac); letter-spacing: 0.06em; text-transform: uppercase; }
+.md-count { font-size: 11px; font-weight: 800; color: var(--muted); border: 1px solid var(--border); padding: 2px 7px; }
+.md-top { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+.md-glyph { width: 38px; height: 38px; display: grid; place-items: center; background: var(--ac); color: #fff; }
+.md-title { margin: 0 0 3px; font-size: 17px; letter-spacing: -0.02em; }
+.md-blurb { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.md-xp { margin: 0; font-size: 11px; font-weight: 800; color: var(--muted); text-align: right; }
+
+.md-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.ls a {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 11px; align-items: center;
+  border: 1px solid var(--border); padding: 11px 13px; text-decoration: none; color: inherit;
+}
+.ls a:hover { border-color: var(--ac); }
+.ls-mark {
+  width: 22px; height: 22px; display: grid; place-items: center; flex: none;
+  border: 1px solid var(--border); color: var(--muted);
+}
+.ls-mark i { display: block; width: 7px; height: 7px; background: var(--border); }
+.ls.done .ls-mark { background: var(--ac); border-color: var(--ac); color: #fff; }
+.ls-txt { display: grid; gap: 2px; min-width: 0; }
+.ls-txt strong { font-size: 14px; }
+.ls-txt em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--muted); }
+.ls-go { font-size: 11px; font-weight: 800; color: var(--ac); white-space: nowrap; }
+.ls.done .ls-go { color: var(--muted); }
+.ls.shut { opacity: 0.62; }
+.ls.shut .ls-go { color: var(--muted); }
+
+/* --- un dojo ------------------------------------------------------------- */
+/* LA SALLE A MAIGRI · elle prenait 46 % de la hauteur, donc on ouvrait un
+   cours et on voyait un décor. Elle occupe une bande : assez pour voir qui
+   attend, assez peu pour que la première phrase soit au-dessus du pli. */
+
+.ln { max-width: 680px; margin: 0 auto; padding: 16px 16px 40px; }
+/* LA SALLE · une bande, et elle ROGNE ce qui dépasse. La bulle du maître est
+   du HTML projeté par la caméra : elle ne connaît pas la largeur de l'écran,
+   donc sur un téléphone elle sortait par la droite et faisait défiler la page
+   de côté. */
+.ln .dr { height: min(28vh, 240px); border: 1px solid var(--border); margin-bottom: 14px; overflow: hidden; }
+.ln .dr .panda-bubble { max-width: 70vw; white-space: normal; text-align: center; font-size: 13px; }
+.ln-n { font-family: var(--font-ui); font-size: 11px; font-weight: 800; color: var(--ac); letter-spacing: 0.06em; text-transform: uppercase; }
+.ln-free { color: var(--ink); }
+.ln-head h1 { margin: 5px 0 7px; font-size: 24px !important; font-weight: 800 !important; letter-spacing: -0.025em; line-height: 1.2; }
+.ln-learn { margin: 0 0 7px; font-size: 15px; color: var(--muted); line-height: 1.5; }
+.ln-meta { margin: 0; font-size: 11px; font-weight: 800; color: var(--muted); }
+.ln-ok { color: var(--ac); display: inline-flex; align-items: center; gap: 4px; }
+.ln-k { font-family: var(--font-ui); font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.ln-act { margin: 20px 0 0; padding: 13px 15px; border: 1px solid var(--ac); }
+.ln-act p { margin: 5px 0 0; font-size: 15px; font-weight: 700; line-height: 1.45; }
+.ln-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+.ln-steps li { display: grid; grid-template-columns: auto 1fr; gap: 11px; font-size: 14px; line-height: 1.5; }
+.ln-steps li span {
+  width: 20px; height: 20px; display: grid; place-items: center;
+  border: 1px solid var(--border); font-size: 11px; font-weight: 800;
+}
+.ln-trap { margin: 16px 0 0; padding: 12px 14px; background: var(--bg); border-left: 3px solid var(--ink); }
+.ln-trap p { margin: 4px 0 0; font-size: 13px; line-height: 1.5; }
+
+.ln-quiz { margin: 24px 0 0; padding: 15px 16px; border: 1px solid var(--ink); }
+.ln-quiz h3 { margin: 6px 0 12px; font-size: 16px; line-height: 1.35; }
+.ln-opts { display: grid; gap: 7px; }
+.ln-opt {
+  display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;
+  text-align: left; font: inherit; font-size: 14px; padding: 11px 13px;
+  background: var(--card); border: 1px solid var(--border); cursor: pointer; color: inherit;
+}
+.ln-opt:hover:not(:disabled) { border-color: var(--ink); }
+.ln-opt-k {
+  width: 20px; height: 20px; display: grid; place-items: center;
+  border: 1px solid var(--border); font-size: 11px; font-weight: 800;
+}
+.ln-opt.right { border-color: #1fa563; }
+.ln-opt.right .ln-opt-k { background: #1fa563; border-color: #1fa563; color: #fff; }
+.ln-opt.wrong { border-color: #e0483f; }
+.ln-opt.wrong .ln-opt-k { background: #e0483f; border-color: #e0483f; color: #fff; }
+.ln-opt.dim { opacity: 0.5; }
+.ln-why { margin: 12px 0 0; font-size: 13px; line-height: 1.55; color: var(--muted); }
+.ln-why b { color: #e0483f; }
+.ln-why.right b { color: #1fa563; }
+
+.ln-end { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 22px; }
+.ln-claim {
+  display: inline-flex; align-items: center; gap: 7px; font: inherit; font-weight: 800;
+  font-size: 14px; padding: 12px 18px; background: var(--card);
+  border: 1px solid var(--ink); cursor: pointer; color: inherit;
+}
+.ln-claim.on { background: var(--ac); border-color: var(--ac); color: #fff; }
+.ln-end .gm-cta { margin-top: 0; }
+
+/* --- le clan ------------------------------------------------------------- */
+
+.cl-note { border: 1px dashed var(--border); padding: 16px 18px; display: grid; gap: 7px; }
+.cl-note b { font-size: 15px; }
+.cl-note p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
+.cl-me { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; border: 1px solid var(--border); background: var(--card); padding: 14px 16px; }
+.cl-me-g { width: 38px; height: 38px; display: grid; place-items: center; background: var(--ink); color: var(--paper); }
+.cl-me b { display: block; font-family: var(--font-ui); font-size: 20px; }
+.cl-me em { font-style: normal; font-size: 12px; color: var(--muted); font-weight: 700; }
+
+/* LE ROBOT REMONTE AU DESSUS DE LA BARRE · il se posait dessus, et cachait
+   l'onglet Profil. Un bouton flottant qui recouvre une navigation est pire
+   qu'un bouton absent : on ne peut plus aller là où il empêche d'aller. */
+.gm .sb-launch { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+
+/* --- au-delà du téléphone ------------------------------------------------ */
+/* La disposition est pensée pour un pouce. Sur un écran large, on élargit la
+   colonne et on met les cartes sur deux rangs · on ne redessine rien. */
+
+@media (min-width: 760px) {
+  .pk-grid { grid-template-columns: 1fr 1fr; }
+  .pkh-top { grid-template-columns: 260px 1fr; align-items: center; }
+  .gm-h1 { font-size: 30px !important; }
+  .gm-tabs { grid-template-columns: repeat(3, 120px); justify-content: center; }
+}
+
+/* --- le profil ------------------------------------------------------------ */
+
+.pf-nums { display: flex; flex-wrap: wrap; gap: 22px; margin: 16px 0 4px; }
+.pf-nums span { display: grid; gap: 1px; }
+.pf-nums b { font-family: var(--font-ui); font-size: 28px; line-height: 1; letter-spacing: -0.03em; }
+.pf-nums i { font-style: normal; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.pf-h2 { font-size: 15px !important; font-weight: 800 !important; margin: 0 0 9px; letter-spacing: 0; }
+.pf-of { font-size: 12px; font-weight: 800; color: var(--muted); }
+
+.pf-map {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+  border: 1px solid var(--ink); background: var(--card); padding: 13px 15px;
+  text-decoration: none; color: inherit;
+}
+.pf-map-g { width: 36px; height: 36px; display: grid; place-items: center; background: var(--ink); color: var(--paper); }
+.pf-map-t b { display: block; font-size: 15px; }
+.pf-map-t em { font-style: normal; font-size: 12px; color: var(--muted); }
+.pf-map-go { font-size: 17px; font-weight: 800; }
+
+.pf-owned { display: grid; gap: 6px; }
+.pf-own {
+  display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: center;
+  border: 1px solid var(--border); padding: 10px 13px; text-decoration: none; color: inherit;
+}
+.pf-own-m { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--border); color: var(--muted); }
+.pf-own.on .pf-own-m { background: var(--ac); border-color: var(--ac); color: #fff; }
+.pf-own-t b { display: block; font-size: 13px; }
+.pf-own-t em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--muted); }
+.pf-tester { margin: 10px 0 0; font-size: 12px; color: var(--muted); line-height: 1.55; border-left: 3px solid var(--ink); padding-left: 10px; }
+
+.pf-case { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.pf-badge {
+  display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center;
+  border: 1px solid var(--border); padding: 8px 10px; color: var(--muted);
+}
+.pf-badge i { width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--border); }
+.pf-badge b { font-size: 11px; font-weight: 800; }
+.pf-badge.on { color: var(--ink); border-color: var(--ac); }
+.pf-badge.on i { background: var(--ac); border-color: var(--ac); color: #fff; }
+
+.pf-end { padding-bottom: 30px; }
+.pf-forget {
+  font: inherit; font-size: 12px; font-weight: 800; margin-top: 10px;
+  background: none; border: 1px solid var(--border); padding: 8px 13px; cursor: pointer; color: var(--muted);
+}
+.pf-forget:hover { border-color: #e0483f; color: #e0483f; }
+
+/* --- la carte en plein écran --------------------------------------------- */
+
+.cm { position: fixed; inset: 0; background: var(--bg); }
+.cm .wm { position: absolute; inset: 0; }
+.cm-close {
+  position: absolute; top: 14px; right: 14px; z-index: 5;
+  width: 40px; height: 40px; display: grid; place-items: center;
+  background: var(--paper); border: 1px solid var(--ink); color: var(--ink); text-decoration: none;
+}
+.cm-hud {
+  position: absolute; top: 14px; left: 14px; z-index: 5;
+  background: var(--paper); border: 1px solid var(--ink); padding: 9px 12px;
+}
+.cm-hud b { display: block; font-family: var(--font-ui); font-size: 15px; }
+.cm-hud em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--muted); }
+
+.cm-scrim { position: absolute; inset: 0; z-index: 6; background: rgba(20, 24, 32, 0.32); }
+/* LA FICHE MONTE PAR LE BAS · c'est le geste attendu sur un téléphone, et elle
+   ne dépasse jamais les trois quarts de l'écran pour qu'on voie toujours d'où
+   elle sort. */
+.cm-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 7;
+  max-height: 74dvh; overflow: auto;
+  background: var(--paper); border-top: 1px solid var(--ink);
+  padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+}
+.cm-sheet-top { display: grid; grid-template-columns: auto 1fr auto; gap: 11px; align-items: center; }
+.cm-sheet-g { width: 34px; height: 34px; display: grid; place-items: center; background: var(--ac); color: #fff; }
+.cm-sheet-top b { display: block; font-size: 16px; }
+.cm-sheet-top em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--ac); }
+.cm-sheet-x { width: 30px; height: 30px; display: grid; place-items: center; background: none; border: 1px solid var(--border); cursor: pointer; color: var(--muted); }
+.cm-sheet-blurb { margin: 10px 0 12px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.cm-sheet-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cm-sheet-list li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; border: 1px solid var(--border); padding: 9px 11px; }
+.cm-sheet-list strong { display: block; font-size: 13px; }
+.cm-sheet-list em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--muted); }
+.cm-mark { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--border); color: var(--muted); }
+.cm-mark i { display: block; width: 6px; height: 6px; background: var(--border); }
+.cm-sheet-list li.done .cm-mark { background: var(--ac); border-color: var(--ac); color: #fff; }
+
+@media (min-width: 760px) {
+  .cm-sheet { left: auto; right: 16px; bottom: 16px; width: 380px; border: 1px solid var(--ink); max-height: 76dvh; }
+}
+
+/* --- ouvrir le week-end --------------------------------------------------- */
+
+.ae { margin-top: 14px; border: 1px solid var(--ink); padding: 14px 16px; }
+.ae-lab { display: block; font-size: 13px; font-weight: 800; margin-bottom: 9px; }
+.ae-row { display: flex; gap: 9px; flex-wrap: wrap; }
+.ae-inp {
+  flex: 1 1 200px; min-width: 0; padding: 12px 13px; font: inherit; font-size: 15px;
+  border: 1px solid var(--ink); background: var(--card); color: var(--ink);
+}
+.ae-inp:focus { outline: 2px solid var(--ac); outline-offset: 1px; }
+.ae .gm-cta { margin-top: 0; }
+.ae-fine { margin: 9px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5; }

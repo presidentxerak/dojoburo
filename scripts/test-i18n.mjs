@@ -131,7 +131,12 @@ const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac
   // emprunt au japonais dans les deux langues, le second un emprunt du
   // français vers l'anglais qui est revenu identique. Les traduire serait
   // inventer un mot que personne n'emploie.
-  'g.dojo', 'g.dojos', 'pr.badges'])
+  'g.dojo', 'g.dojos', 'pr.badges',
+  // « dojo » et « module » s'écrivent pareil des deux côtés · le premier est
+  // un emprunt au japonais, le second au latin. Les traduire serait inventer
+  // un mot que personne n'emploie. « Clan » aussi, passé du gaélique à
+  // l'anglais puis au français sans changer une lettre.
+  'nav.dojos', 'nav.clan', 'gm.modules', 'gm.module', 'gm.module1', 'gm.dojo1'])
 const copied = keys.filter((k) => DICT[k].en === DICT[k].fr && !SAME_IN_BOTH.has(k))
 ok('aucune traduction n\'est la copie de l\'anglais', copied.length === 0,
   copied.join(', ') || `${keys.length - SAME_IN_BOTH.size} comparées`)

@@ -15,10 +15,11 @@
 // employée. Aucune migration : ce qui a été fait reste fait.
 import { useProgress, markDone, clearDone, recordAnswer, key } from '../academy/progress'
 import {
-  PATH_MODULES, DISCOVERY_MODULE, MODULE_BY_ID,
+  ALL_MODULES, PATH_MODULES, DISCOVERY_MODULE, MODULE_BY_ID,
   type Module, type Level,
 } from '../data/curriculum'
 import { citiesOfTrade } from '../data/trades'
+import { xpOf } from '../data/packs'
 import { useAccess } from './access'
 
 export { markDone, clearDone, recordAnswer, key }
@@ -59,6 +60,12 @@ export function useGame() {
     }
   }
 
+  // TOUT CE QUI EST FINI, dans le programme entier · c'est ce que compte
+  // l'expérience, qui ne doit jamais reculer. Voir plus bas.
+  const ALL_DONE = ALL_MODULES.flatMap((module) => module.levels
+    .filter((level) => p.isDone(module.id, level.id))
+    .map((level) => ({ module, level })))
+
   const cities = PATH_MODULES.map(cityOf)
   const discovery = cityOf(DISCOVERY_MODULE)
   const tradeCities = a.pick ? citiesOfTrade(a.pick) : []
@@ -90,6 +97,11 @@ export function useGame() {
     /** combien de badges ce joueur peut gagner · pas combien le programme en
      *  contient, ce qui n'est pas la même chose et ne veut rien dire pour lui */
     badgeTotal: scopeLevels.length,
+    /** L'EXPÉRIENCE GAGNÉE · la somme des dojos finis, dans TOUT le programme
+     *  et non dans la seule portée. Un compteur d'XP qui baisse parce qu'on a
+     *  changé de métier serait la chose la plus décourageante que cet écran
+     *  puisse faire : ce qui est gagné est gagné. */
+    xp: ALL_DONE.reduce((n, { level }) => n + xpOf(level), 0),
     badges,
     /** le dojo où reprendre · le premier non fait, cité par cité */
     nextUp: scopeLevels.find(({ module, level }) => !p.isDone(module.id, level.id)) ?? scopeLevels[0],

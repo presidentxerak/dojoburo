@@ -26,8 +26,35 @@
 import { useSyncExternalStore } from 'react'
 import { TRACK_ACCESS, type Module, type TrackId } from '../data/curriculum'
 import { TRADE_OF_CITY } from '../data/trades'
+import type { Pack } from '../data/packs'
 
 const KEY = 'dojo.access'
+
+/* ------------------------------------------------------------------ */
+/* LES DEUX ADRESSES QUI OUVRENT TOUT                                  */
+/* ------------------------------------------------------------------ */
+//
+// CE N'EST PAS UN RÔLE D'ADMINISTRATEUR, ET IL FAUT LE DIRE PRÉCISÉMENT.
+// C'est un PASSE-DROIT D'ESSAI : deux adresses qui, entrées dans le champ de
+// la formation gratuite, ouvrent les huit formations sur CE navigateur. Ça
+// sert à relire les cours en entier sans passer par un paiement.
+//
+// Ce que ça n'est pas : une serrure, ni une identité. Personne ne prouve rien
+// en tapant une adresse, et les cours voyagent de toute façon dans le fichier
+// que le navigateur télécharge · voir game/Gate. Une vraie séparation entre
+// qui paie et qui ne paie pas demande de servir les niveaux payants depuis le
+// serveur, après vérification du droit.
+//
+// Écrire ces deux adresses en clair est donc SANS RISQUE, et c'est voulu :
+// une liste secrète dans un fichier public est une liste publique qui se croit
+// secrète, ce qui est la pire des deux situations.
+const TESTERS = ['atomxnft@gmail.com', 'xguiter@gmail.com']
+
+/** Cette adresse est-elle un passe-droit d'essai ? · comparée en minuscules et
+ *  sans espaces, parce qu'une adresse se tape à la main et qu'un T majuscule
+ *  ne doit pas décider d'un accès. */
+export const isTester = (email?: string): boolean =>
+  Boolean(email) && TESTERS.includes(String(email).trim().toLowerCase())
 
 export interface Access {
   /** l'adresse donnée pour la semaine gratuite · rien d'autre n'est demandé */
@@ -100,9 +127,12 @@ export function useAccess() {
     () => EMPTY,
   )
 
+  const tester = isTester(a.email)
+
   /** Ce parcours est-il ouvert ? · la seule question, et elle lit la règle du
    *  programme plutôt que de la recopier. */
   const opens = (track: TrackId): boolean => {
+    if (tester) return true
     const needs = TRACK_ACCESS[track]
     if (needs === 'email') return Boolean(a.email)
     if (needs === 'path') return Boolean(a.path)
@@ -114,9 +144,10 @@ export function useAccess() {
    *  ce qui est la même faute que la serrure posée sur le parcours plutôt que
    *  sur la cité. */
   const canOpen = (m: Module) =>
-    m.track === 'trade'
-      ? Boolean(a.trade) && TRADE_OF_CITY[m.id] === a.trade
-      : opens(m.track)
+    tester ? true
+      : m.track === 'trade'
+        ? Boolean(a.trade) && TRADE_OF_CITY[m.id] === a.trade
+        : opens(m.track)
 
   /** LE PREMIER DOJO D'UNE CITÉ EST OUVERT · à qui a donné son adresse.
    *
@@ -132,6 +163,20 @@ export function useAccess() {
   const canOpenLevel = (m: Module, levelId: string) =>
     canOpen(m) || (Boolean(a.email) && m.levels[0]?.id === levelId)
 
+  /** UNE FORMATION EST-ELLE OUVERTE ? · c'est la question que pose l'écran
+   *  d'accueil, et c'est celle qui décide du cadenas sur une carte.
+   *
+   *  Elle est posée au niveau de la FORMATION et non du module, parce que
+   *  c'est la formation qu'on achète. Poser la question module par module
+   *  aurait donné une carte où six cités d'un même achat s'ouvrent et trois
+   *  restent fermées, ce qui ne correspond à rien qu'on vende. */
+  const opensPack = (p: Pack): boolean => {
+    if (tester) return true
+    if (p.door === 'free') return Boolean(a.email)
+    if (p.door === 'path') return Boolean(a.path)
+    return Boolean(a.trade) && p.trade === a.trade
+  }
+
   return {
     email: a.email,
     /** le métier acheté */
@@ -140,10 +185,13 @@ export function useAccess() {
      *  qu'on a acheté, sinon aucun */
     pick: a.pick ?? a.trade,
     hasEmail: Boolean(a.email),
-    hasPath: Boolean(a.path),
+    hasPath: Boolean(a.path) || tester,
+    /** cette adresse ouvre tout pour essayer · voir TESTERS plus haut */
+    tester,
     opens,
     /** une cité s'ouvre par son parcours · jamais par son identifiant */
     canOpen,
     canOpenLevel,
+    opensPack,
   }
 }

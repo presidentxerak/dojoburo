@@ -112,7 +112,17 @@ for (const src of ['/library', '/library/:slug']) {
 
 // … ET ELLES NE MÈNENT PAS DANS LE VIDE. Une redirection vers une adresse
 // supprimée est un 404 avec une étape de plus.
-const SERVED = new Set(['/', '/formation', '/7-jours', '/metier', '/profil', '/academy', '/build'])
+// LA LISTE DES ADRESSES SERVIES EST DÉRIVÉE, PAS ÉCRITE.
+// Elle l'était, et elle a rougi le jour où le jeu a changé d'adressage : une
+// redirection parfaitement valide vers /dojo/weekend passait pour une
+// redirection vers le vide. Une garde qui accuse du travail juste apprend à la
+// contourner, donc elle lit les formations comme le reste du produit.
+const PACKS_SRC = readFileSync('src/data/packs.ts', 'utf8')
+const PACK_IDS = [...PACKS_SRC.matchAll(/id: '([a-z0-9-]+)',\s*\n\s*door:/g)].map((m) => m[1])
+const SERVED = new Set([
+  '/', '/clan', '/profil', '/carte', '/decouvrir', '/academy', '/build',
+  ...PACK_IDS.map((id) => `/dojo/${id}`),
+])
 const lost = R.filter((r) => !SERVED.has(r.destination)).map((r) => `${r.source} → ${r.destination}`)
 ok('chaque redirection mène à une adresse servie', lost.length === 0, lost.join(', ') || `${R.length} redirections`)
 
