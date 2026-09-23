@@ -19,7 +19,6 @@ const DocumentsPage = lazy(() => import('./components/DocumentsPage').then((m) =
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
-import { LibraryHome, EntryPage } from './library/Library'
 import { FrugalityPage } from './frugality/Frugality'
 // LES DEUX COURS DE DESIGN · une seule page, deux contenus. Voir l'en-tête de
 // design/DesignCoursePage pour la raison : deux composants jumeaux divergent.
@@ -102,9 +101,11 @@ function Root() {
   if (am) return am[2]
     ? <LessonPage trackSlug={am[1].toLowerCase()} lessonSlug={am[2].toLowerCase()} />
     : <TrackPage slug={am[1].toLowerCase()} />
-  // LA BIBLIOTHÈQUE · de vraies adresses, parce que chaque entrée répond à une
-  // question qu'on tape dans un moteur de recherche. Le raisonnement y est
-  // public et indexable ; le fichier, lui, ne sort que de /api/library.
+  // LA BIBLIOTHÈQUE A ÉTÉ RETIRÉE · elle vendait des fichiers à l'unité, ce
+  // qui était l'ancien modèle. Les fichiers sont maintenant les ressources des
+  // modules, et ils se téléchargent depuis le module qui les enseigne, là où
+  // ils ont un sens. Les anciennes adresses sont redirigées dans vercel.json
+  // plutôt que de rendre 404 : elles sont indexées.
   // LA SOBRIÉTÉ · une page, pas une ancre. Elle porte un outil interactif et
   // l'encart entreprise ; les deux ont besoin d'une adresse à eux.
   // LE DOJO COMME SALLE DE CLASSE · on y arrive, le maître accueille, et on
@@ -119,9 +120,6 @@ function Root() {
   if (path === '/frugality') return <FrugalityPage />
   if (path === '/design') return <DesignCoursePage course={DESIGN_COURSE} />
   if (path === '/figma') return <DesignCoursePage course={FIGMA_COURSE} />
-  if (path === '/library') return <LibraryHome />
-  const lm = path.match(/^\/library\/([a-z0-9-]+)$/i)
-  if (lm) return <EntryPage slug={lm[1].toLowerCase()} />
   if (path === '/guide') return <GuidePage />
   const gm = path.match(/^\/guide\/([a-z0-9-]+)$/i)
   if (gm) return <ConnectorGuidePage id={gm[1].toLowerCase()} />

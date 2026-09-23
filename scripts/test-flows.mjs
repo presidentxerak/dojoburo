@@ -42,7 +42,6 @@ async function load(entry, name) {
 const POS = await load('src/data/positioning.ts', 'pos.mjs')
 const ROLES = await load('src/data/roleAgents.ts', 'roles.mjs')
 const UC = await load('src/data/agentUseCases.ts', 'uc.mjs')
-const LIB = await load('src/data/library.ts', 'lib.mjs')
 const ACA = await load('src/data/academy.ts', 'aca.mjs')
 
 function walk(dir, out = []) {
@@ -206,14 +205,13 @@ ok('chaque pilier mène à une page qui existe', badPillars.length === 0, badPil
 // reçoit des visiteurs par un moteur de recherche et ne les mène nulle part.
 // Les dix-sept pages de personnages l'ont été pendant des mois.
 const allSrc = FILES.map(read).join('\n') + read('src/components/SiteFooter.tsx')
-const HUBS = ['/build', '/academy', '/library', '/frugality', '/guide', '/teammates', '/terms', '/privacy']
+const HUBS = ['/build', '/academy', '/frugality', '/guide', '/teammates', '/terms', '/privacy']
 const orphans = HUBS.filter((h) => !allSrc.includes(`href="${h}"`))
 ok('aucune page principale n\'est orpheline', orphans.length === 0, orphans.join(', '))
 
 // …et les familles de pages profondes sont atteintes par un gabarit.
 for (const [what, tmpl] of [
   ['les cas d\'usage', '/build/${'],
-  ['les entrées de bibliothèque', '/library/${'],
   ['les personnages', '/${'],
 ]) ok(`${what} sont atteints depuis une liste`, allSrc.includes(tmpl))
 
@@ -339,7 +337,6 @@ for (const [what, n] of [
   ['les cours', POS.COURSES.length],
   ['les cas d\'usage', UC.USE_CASES.length],
   ['les personnages publics', ROLES.PUBLIC_AGENTS.length],
-  ['les entrées de bibliothèque', LIB.ENTRIES.length],
   ['les pistes de l\'académie', ACA.TRACKS.length],
 ]) ok(`${what} ne sont pas une liste vide`, n > 0, `${n}`)
 

@@ -45,7 +45,6 @@ const CHECKS = [
   ['test-sandbox.mjs', 1, true],
   // La bibliothèque est la partie payante · la garde vérifie surtout qu'aucun
   // corps de fichier n'a fui dans le paquet du navigateur. Hors navigateur.
-  ['test-library.mjs', 1, true],
   // Le calculateur de jetons · il enseigne aux gens ce qu'ils dépensent, et un
   // outil de mesure qui se trompe est pire qu'une absence d'outil.
   ['test-frugality.mjs', 1, true],

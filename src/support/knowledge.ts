@@ -5,7 +5,7 @@
 import { CONNECTORS, type Connector } from '../data/connectors'
 import type { Lang } from '../i18n/lang'
 // Counts and rosters come from the data the app runs on · see data/facts.
-import { CREW_WORD, CREW_LIST, ACADEMY_LESSONS, ACADEMY_TRACKS, ACADEMY_HOURS, LIB_COUNT, LIB_FREE } from '../data/facts'
+import { CREW_WORD, CREW_LIST, ACADEMY_LESSONS, ACADEMY_TRACKS, ACADEMY_HOURS } from '../data/facts'
 // Le centre de formation · ses chiffres viennent des données, jamais d'une
 // phrase écrite à la main dans une réponse de robot.
 import { USE_CASE_COUNT } from '../data/agentUseCases'
@@ -150,27 +150,6 @@ export const KB: KBTopic[] = [
       links: [
         "Ouvrir l'académie",
         "Commencer la leçon 1",
-      ],
-    },
-  },
-  {
-    id: 'library',
-    chip: 'Prompt & skill library',
-    answer:
-      `The Library (/library) is the catalogue of ready-made files: ${LIB_COUNT} of them, split into prompts (one instruction you paste into a chat), briefs (a .md file an agent carries as its standing instructions) and skills (a folder an agent loads on demand). It is filed three ways at once, because three people look for it three ways: by FORM, by WHAT YOU ARE DOING (writing, research, analysis, building, customers, operations, frugality), and by YOUR TRADE. Every entry shows, free, no account, when to reach for it, why it is written that way, what to change for your own case, the mistake it exists to avoid, a real excerpt of the file, and what the file weighs in tokens when it travels in a prompt. The FILE ITSELF is what a paid plan buys; ${LIB_FREE} entries are open to everyone so you can judge the goods before paying. Nothing here is a wall of clever one-liners: if an entry cannot explain why it is written the way it is, it does not go in.`,
-    links: [
-      { label: 'Open the library', href: '/library' },
-      { label: 'See the plans', href: '#pricing' },
-    ],
-    follow: ['academy', 'tokens', 'pricing'],
-    keywords: ['library', 'bibliothèque', 'prompt', 'prompts', 'brief', 'briefs', 'skill', 'skills', 'md', 'markdown', 'template', 'modèle', 'catalogue', 'file', 'fichier', 'download', 'télécharger', 'premium', 'payant'],
-    fr: {
-      chip: "Bibliothèque de consignes",
-      answer:
-        `La bibliothèque (/library) est le catalogue des fichiers tout faits : ${LIB_COUNT} au total, répartis en consignes (une instruction que vous collez dans une discussion), dossiers (un fichier .md qu'un agent porte comme instructions permanentes) et compétences (un dossier qu'un agent charge à la demande). Elle est classée de trois façons à la fois, parce que trois personnes la cherchent de trois façons : par FORME, par CE QUE VOUS FAITES (écrire, chercher, analyser, construire, les clients, les opérations, la sobriété), et par VOTRE MÉTIER. Chaque entrée montre, gratuitement et sans compte, quand y recourir, pourquoi elle est écrite ainsi, ce qu'il faut changer pour votre cas, l'erreur qu'elle existe pour éviter, un extrait réel du fichier, et ce que ce fichier pèse en jetons quand il voyage dans une consigne. Le FICHIER LUI-MÊME est ce qu'achète une formule payante ; ${LIB_FREE} entrées sont ouvertes à tous pour que vous puissiez juger la marchandise avant de payer. Rien ici n'est un mur de formules astucieuses : si une entrée n'arrive pas à expliquer pourquoi elle est écrite comme elle l'est, elle n'entre pas.`,
-      links: [
-        "Ouvrir la bibliothèque",
-        "Voir les formules",
       ],
     },
   },

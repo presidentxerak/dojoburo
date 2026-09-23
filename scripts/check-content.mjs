@@ -39,7 +39,6 @@ const effort = await load('src/data/effort.ts')
 // la promesse du produit · elle est DÉRIVÉE ici, jamais retapée (voir plus bas)
 const pos = await load('src/data/positioning.ts')
 // le catalogue de la bibliothèque · pour que sa taille annoncée soit la vraie
-const lib = await load('src/data/library.ts')
 // LES DOUZE AGENTS de la salle de classe · le centre de formation les annonce
 // dans son sous-titre, dans son en-tête, sur la page /build et dans le prompt
 // du robot de support. Quatre copies d'un même nombre.
@@ -176,9 +175,7 @@ const RULES = [
   // décrire de travers. Le robot doit savoir qu'elle existe, où elle est, et
   // surtout ce qui y est gratuit : quelqu'un à qui l'on refuse un fichier doit
   // s'entendre dire pourquoi, pas découvrir un mur.
-  { file: 'api/chat.ts', must: 'LIBRARY (/library)', why: 'the bot must know the library and its address' },
-  { file: 'api/chat.ts', must: 'the FILE ITSELF is what a paid plan buys', why: 'it must say what is free and what is not' },
-  { file: 'src/support/knowledge.ts', must: "id: 'library'", why: 'the support index needs a library topic' },
+  { file: 'api/chat.ts', must: 'it asks for an email and nothing else', why: 'it must say what the free week costs, which is an address' },
 
   // the Academy's own prose
   { file: 'src/data/academy.ts', must: /paying for the teams, not for tokens/i, why: 'the pricing lesson must lead with what is actually sold' },
@@ -282,8 +279,7 @@ const RULES = [
   { file: 'api/chat.ts', must: new RegExp(`(${F.useCases}|${WORDS[F.useCases]}) agents`, 'i'), why: `the bot must know the room holds ${F.useCases} agents` },
   { file: 'api/chat.ts', must: /THREE COURSES/, why: 'the bot must describe a training centre, not a platform' },
   // …et la bibliothèque a une vraie adresse maintenant qu'elle existe
-  { file: 'src/data/positioning.ts', must: "path: '/library'", why: 'the library pillar points at the real page' },
-  { file: 'src/Landing.tsx', must: /ENTRY_COUNT/, why: 'the landing reads the catalogue size from the catalogue, not from a number' },
+  { file: 'src/Landing.tsx', must: /COURSE_COUNT/, why: 'the landing reads how many courses there are from the courses, not from a number' },
   // LA SOBRIÉTÉ · une vraie page, un vrai renvoi, et aucun tarif écrit en dur
   { file: 'src/data/positioning.ts', must: "path: '/frugality'", why: 'the frugality pillar points at the real page' },
   { file: 'src/frugality/Frugality.tsx', must: /do not measure carbon/i, why: 'the page must say plainly what it does not do' },
@@ -296,7 +292,6 @@ const RULES = [
   { file: 'src/academy/Lab.tsx', must: /from '\.\.\/data\/frugality'/, why: 'the labs use the shared cost model, never their own' },
   { file: 'src/data/academy.ts', must: /lab\?: LabId/, why: 'a lesson must be able to carry a lab' },
   { file: 'src/academy/Academy.tsx', must: /<Lab id=\{lesson\.lab\}/, why: 'the lesson page must actually render it' },
-  { file: 'src/support/knowledge.ts', must: /\$\{LIB_COUNT\}/, why: 'the library size comes from facts.ts, never typed' },
   // LES ACCROCHES DES FORMULES · elles ont survécu au repositionnement entier
   // en promettant « construisez une entreprise » et « nous faisons tourner les
   // modèles pour vous », parce qu'aucune règle ne les regardait. Une accroche

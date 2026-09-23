@@ -81,7 +81,7 @@ export const SUBTITLE =
  *  plan du site. L'ordre est celui du parcours d'un visiteur : on apprend,
  *  on prend des outils, on les rend sobres, on s'entraîne. */
 export interface Pillar {
-  id: 'build' | 'academy' | 'library' | 'eco' | 'dojo' | 'design' | 'figma'
+  id: 'build' | 'academy' | 'eco' | 'dojo' | 'design' | 'figma'
   /** le libellé dans la navigation · court, un mot si possible */
   nav: string
   /** le titre de sa section */
@@ -141,22 +141,6 @@ export const PILLARS: Pillar[] = [
       title: "L'instruction qui décide de tout",
       blurb:
         "De « c'est quoi un jeton » à un brief qu'un modèle suit vraiment. Chaque leçon se lit dans le navigateur, a quelque chose à démonter à côté du texte, et finit par une chose à retenir et une chose à faire.",
-    },
-  },
-  {
-    id: 'library',
-    nav: 'Library',
-    title: 'Prompts, briefs and skills, ready for your trade',
-    blurb:
-      'A catalogue of prompts, .md briefs and agent skills, filed by category and by the job you actually do. ' +
-      'Read the reasoning, copy the file, adapt it. Every entry carries what it costs to run.',
-    path: '/library',
-    glyph: 'square',
-    fr: {
-      nav: "Bibliothèque",
-      title: "Prompts, briefs et skills, prêts pour votre métier",
-      blurb:
-        "Un catalogue de prompts, de briefs .md et de skills d'agents, classés par catégorie et par le métier que vous exercez vraiment. Lisez le raisonnement, prenez le fichier, adaptez-le. Chaque entrée porte ce qu'elle coûte à faire tourner.",
     },
   },
   {

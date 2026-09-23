@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { PROFESSIONS, professionColor } from './data/professions'
 import { SupportBot } from './components/SupportBot'
 import { useWork } from './agents/workStore'
 import { SiteHeader } from './components/SiteHeader'
@@ -11,7 +10,6 @@ import { Pricing } from './components/landing/Pricing'
 import { TutorialOverlay } from './components/guide/TutorialOverlay'
 import { APP_LIVE_COUNT } from './data/facts'
 import { TRACKS } from './data/academy'
-import { ENTRY_COUNT, countByTrade } from './data/library'
 import { PILLARS, COURSES, COURSE_COUNT, PROMISE_SEP, LESSON_COUNT, TRACK_COUNT, COURSE_HOURS, positioningFor, pillarIn } from './data/positioning'
 import { useLang, useT } from './i18n'
 import { BauhausIcon } from './components/BauhausIcon'
@@ -199,35 +197,6 @@ export function Landing({ enter }: { enter: () => void }) {
         </div>
         <p className="lp-lead sm lp-soon">
           <a href="/frugality">{t('lp.frGo')} →</a>
-        </p>
-      </section>
-
-      {/* LA BIBLIOTHÈQUE · par métier, parce que c'est comme ça qu'on la
-          cherche. La grille des métiers existait déjà et servait à choisir une
-          équipe ; elle sert maintenant à filtrer un catalogue. */}
-      <section className="lp-sec" id="library">
-        <Object3D kind="network" color={C.yellow} side="right" parallax={0.12} />
-        <span className="lp-pill">{t('lp.libPill')}</span>
-        <h2>{t('lp.libH2')}</h2>
-        <p className="lp-lead sm">
-          Not a wall of clever one-liners. Each entry says what it is for, why it is written that way, what it
-          costs to run, and what to change for your own case. Pick your trade and take what fits.
-        </p>
-        {/* Les métiers MÈNENT au catalogue, filtré · ils ont été de simples
-            pastilles le temps d'un lot, parce qu'un filtre qui ne filtre rien
-            est pire qu'un filtre absent. Ceux qui n'ont encore aucun fichier
-            restent inertes plutôt que d'ouvrir une page vide. */}
-        <div className="lp-trades">
-          {PROFESSIONS.map((p) => {
-            const n = countByTrade(p.id)
-            const style = { ['--pc' as never]: professionColor(p.id) }
-            return n > 0
-              ? <a className="lp-trade" key={p.id} style={style} href={`/library?trade=${p.id}`}>{p.label} <i>{n}</i></a>
-              : <span className="lp-trade lp-trade-soon" key={p.id} style={style}>{p.label}</span>
-          })}
-        </div>
-        <p className="lp-lead sm lp-soon">
-          <a href="/library">{t('lp.libGo')} · {ENTRY_COUNT} {t('lp.libFiles')} →</a>
         </p>
       </section>
 

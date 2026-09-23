@@ -36,17 +36,6 @@ const bundled = await build({
 const mod = await import('data:text/javascript;base64,' + Buffer.from(bundled.outputFiles[0].text).toString('base64'))
 const { TRACKS, ALL_LESSONS, LESSON_COUNT, TOTAL_MINUTES } = mod
 
-// LA BIBLIOTHÈQUE, de la même manière. Le raisonnement de chaque entrée est
-// gratuit et répond à une question qu'on tape dans un moteur de recherche —
-// « prompt pour résumer avec les sources », « brief de relecture de code ». Le
-// FICHIER, lui, ne sort que de /api/library : on pré-rend donc tout sauf lui,
-// ce qui est exactement la bonne coupe entre ce qui attire et ce qui se vend.
-const libBundle = await build({
-  entryPoints: [path.join(ROOT, 'src/data/library.ts')],
-  bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
-})
-const libMod = await import('data:text/javascript;base64,' + Buffer.from(libBundle.outputFiles[0].text).toString('base64'))
-const { ENTRIES, CATEGORY_BY_ID, KIND_LABEL } = libMod
 
 // LES DOUZE CAS D'USAGE, de la même manière. Chacun est une page que
 // quelqu'un cherche en toutes lettres : « agent d'extraction de factures »,
@@ -112,8 +101,6 @@ const urls = [
   ...ALL_LESSONS.map(({ track, lesson }) => ({ loc: `/academy/${track.slug}/${lesson.slug}`, pri: '0.8', freq: 'monthly' })),
   { loc: '/frameworks', pri: '0.9', freq: 'monthly' },
   { loc: '/frugality', pri: '0.9', freq: 'monthly' },
-  { loc: '/library', pri: '0.9', freq: 'weekly' },
-  ...ENTRIES.map((e) => ({ loc: `/library/${e.slug}`, pri: '0.7', freq: 'monthly' })),
   { loc: '/teammates', pri: '0.9', freq: 'weekly' },
   ...PUBLIC_AGENTS.map((r) => ({ loc: `/${r.slug}`, pri: '0.8', freq: 'monthly' })),
   { loc: '/guide', pri: '0.6', freq: 'monthly' },
@@ -327,41 +314,6 @@ ${byDept.map((d) => `<section><h2>${esc(d)}</h2><ul>${PUBLIC_AGENTS.filter((r) =
   roles++
 }
 
-// --- 4 · une page par entrée de bibliothèque --------------------------------
-// Tout le gratuit, et RIEN du fichier. Pré-rendre le corps ici le publierait
-// en clair sur une adresse indexable, ce qui reviendrait à mettre la porte
-// blindée à côté du mur.
-let files = 0
-for (const e of ENTRIES) {
-  const canonical = `${SITE}/library/${e.slug}`
-  const cat = CATEGORY_BY_ID[e.category]
-  const kind = KIND_LABEL[e.kind]
-  const body = `<article>
-<nav><a href="/">DojoBuro</a> › <a href="/library">Library</a></nav>
-<h1>${esc(e.title)}</h1>
-<p>${esc(e.summary)}</p>
-<p><b>${esc(kind.label)}</b> · ${esc(cat?.label || '')} · about ${e.tokens} tokens</p>
-<section><h2>When to reach for it</h2><p>${esc(e.useCase)}</p></section>
-<section><h2>Why it is written this way</h2><ul>${e.why.map((w) => `<li>${esc(w)}</li>`).join('')}</ul></section>
-<section><h2>What to change for your case</h2><ul>${e.adapt.map((a) => `<li>${esc(a)}</li>`).join('')}</ul></section>
-<section><h2>The mistake it exists to avoid</h2><p>${esc(e.trap)}</p></section>
-<section><h2>Excerpt</h2><pre>${esc(e.preview)}</pre></section>
-</article>`
-  const html = head(shell, {
-    title: `${e.title} · ${kind.label} · DojoBuro library`,
-    description: e.summary,
-    canonical, type: 'article',
-    jsonLd: {
-      '@context': 'https://schema.org', '@type': 'HowTo',
-      name: e.title, description: e.summary, url: canonical,
-      keywords: e.keywords.join(', '),
-      step: e.adapt.map((a, i) => ({ '@type': 'HowToStep', position: i + 1, text: a })),
-    },
-  }).replace('<div id="root"></div>', `<div id="root">${body}</div>`)
-  write(`library/${e.slug}`, html)
-  files++
-}
-
 // --- 5 · une page par cas d'usage d'agent -----------------------------------
 // Tout est gratuit ici, parcours compris : ce qui se vend dans ce produit est
 // le FICHIER de la bibliothèque, pas la leçon. Une leçon cachée n'attire
@@ -420,4 +372,4 @@ for (const u of USE_CASES) {
   shapes++
 }
 
-console.log(`gen-seo · sitemap with ${urls.length} urls · ${pages} prerendered Academy pages · ${roles} teammate pages · ${files} library pages · ${shapes} agent pages`)
+console.log(`gen-seo · sitemap with ${urls.length} urls · ${pages} prerendered Academy pages · ${roles} teammate pages · ${shapes} agent pages`)

@@ -360,7 +360,7 @@ export function GuidePage({ inApp }: { inApp?: boolean } = {}) {
           <div>
             <ul>
               <li><b>Intelligence is ~free</b> · bring your own Claude key, or use a free model when one is enabled. Most tasks cost nothing.</li>
-              <li><b>Nothing is metered on any plan</b> · the dojo calls no paid model, so there is nothing to count. A paid plan buys the library of files, or seats for a group you are training, never runs.</li>
+              <li><b>Nothing is metered and nothing recurs</b> · the dojo calls no paid model, so there is nothing to count. You buy the course once, and the trade module on top of it if you want it. Never runs, never a subscription.</li>
               <li><b>Set a daily spending limit</b> and per-teammate budgets in the dojo settings so nothing can overspend · a guard also stops the CEO from looping.</li>
             </ul>
           </div>

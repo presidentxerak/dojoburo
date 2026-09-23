@@ -35,7 +35,7 @@ export interface DeckSlide {
 const A = DECK_ACCENTS
 
 export const DECK_SLIDES: DeckSlide[] = [
-  { n: '', eyebrow: 'Investor deck', title: 'Learn to build AI agents, and to run them cheap.', line: 'A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where they go, and how to cut them. The course is free; the library of prompts, briefs and skills is the paid part.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['Free course, paid library', 'Frugality nobody else teaches', 'Sold as software, not tokens'] },
+  { n: '', eyebrow: 'Investor deck', title: 'Learn to build AI agents, and to run them cheap.', line: 'A hands-on academy for agents, prompts and AI tooling, with the frugality practices most courses skip: what a run really costs in tokens and in euros, where they go, and how to cut them. A free week to find out if it suits you, then one purchase for the whole path.', obj: 'rocket', accent: A.magenta, layout: 'brand', points: ['A free week, then one purchase', 'Frugality nobody else teaches', 'Taught as a game, not a video list'] },
   { n: '01', eyebrow: 'The problem', title: 'Too many apps.', line: 'Running a business means juggling a dozen tools and never mastering any of them.', obj: 'briefcase', accent: A.orange, layout: 'object', points: ['A dozen SaaS tabs', 'Constant context-switching', 'Nothing mastered'] },
   // 02 · « ils agissent pour vous dans vos applications » décrivait l'ancien
   // produit et promettait à l'investisseur une chose que la 04 et la 05 ne
@@ -96,14 +96,14 @@ export const DECK_SLIDES: DeckSlide[] = [
   // le faire. Elle dit ce que la 05 laisse sans réponse et ce dont la 08 a
   // besoin pour tenir · d'où vient la marge.
   {
-    n: '07', eyebrow: 'The cost', title: 'Nothing to serve.', line: 'The course is static pages, the library is files, the belts and the diploma live in the browser. The only variable cost is the support bot, and its paid fallback is capped per day for the whole instance, not per learner.', obj: 'coins', accent: A.yellow, layout: 'stats',
+    n: '07', eyebrow: 'The cost', title: 'Nothing to serve.', line: 'The course is static pages, the resources are files, the badges and the map live in the browser. The only variable cost is the support bot, and its paid fallback is capped per day for the whole instance, not per learner.', obj: 'coins', accent: A.yellow, layout: 'stats',
     stats: [
       { big: '~$0', label: 'marginal cost per learner' },
       { big: 'Capped', label: 'support spend, instance-wide' },
       { big: 'Nothing', label: 'runs on our account' },
     ],
   },
-  { n: '08', eyebrow: 'The forecast', title: 'Scale is margin.', line: 'Two sales at one cost: a learner who buys the library, and an employer who buys seats for a group. Neither one costs more to serve than the free reader beside them.', obj: 'coins', accent: A.teal, layout: 'table', table: 'forecast' },
+  { n: '08', eyebrow: 'The forecast', title: 'Scale is margin.', line: 'Two sales at one cost: the path, then the trade module bought on top of it. Neither one costs more to serve than the free reader beside them.', obj: 'coins', accent: A.teal, layout: 'table', table: 'forecast' },
   // 09 · disait « rentable dès l'année 2, 3,9 M$ en année 5 ». Les deux chiffres
   // venaient d'une conversion de 9 % à 240 $, hypothèses d'un outil quotidien.
   // Un cours gratuit avec une bibliothèque payante ne convertit pas comme ça,

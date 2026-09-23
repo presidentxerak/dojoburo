@@ -146,7 +146,7 @@ ok('la liste des mots identiques reste courte', SAME_IN_BOTH.size <= keys.length
 // le libellé de navigation peut être identique quand c'est un nom propre
 // listé ici, mais la PROSE (titre et accroche) doit différer dans tous les
 // cas, parce qu'aucune prose n'est un nom propre.
-const PROPER_NOUN_NAV = new Set(['figma', 'library'])
+const PROPER_NOUN_NAV = new Set(['figma'])
 for (const p of PILLARS) {
   ok(`le pilier « ${p.id} » a son français`, !!p.fr?.nav && !!p.fr?.title && !!p.fr?.blurb,
     p.fr?.nav ?? 'absent')
@@ -686,7 +686,6 @@ const proseFiles = [
   'src/support/knowledge.ts', 'src/data/designCourses.ts', 'src/components/guide/walks.ts',
   // pas encore · ils s'affichent tous les quatre dans des pages que le
   // sélecteur de langue met en français
-  'src/data/library.ts',        // les fiches de la bibliothèque
   'src/data/archetypes.ts',     // les cartes d'équipe
   'src/data/roleAgents.ts',     // les rôles des coéquipiers
   'src/dojo/grades.ts',         // les ceintures et les insignes
