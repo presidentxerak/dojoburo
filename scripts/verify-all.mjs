@@ -47,6 +47,7 @@ const CHECKS = [
   // corps de fichier n'a fui dans le paquet du navigateur. Hors navigateur.
   // Le calculateur de jetons · il enseigne aux gens ce qu'ils dépensent, et un
   // outil de mesure qui se trompe est pire qu'une absence d'outil.
+  ['test-curriculum.mjs', 1, true],
   ['test-frugality.mjs', 1, true],
   // Les ateliers · qu'ils soient manipulables, et surtout qu'ils ne
   // réimplémentent aucune formule de coût. Deux vérités qui divergent, dans
