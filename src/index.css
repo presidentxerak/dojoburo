@@ -9443,21 +9443,50 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 /* L'ÉTIQUETTE D'UNE CITÉ · projetée par la caméra (voir game/WorldMap), donc
    elle ne peut pas dériver du bâtiment. Elle reste du texte : nette à toute
    taille, sélectionnable, lue par un lecteur d'écran. */
+/* L'ÉTIQUETTE D'UNE CITÉ · on ne lisait pas les titres, et il y avait trois
+   raisons, pas une seule. Elle était posée trop bas, donc elle croisait le
+   toit ; elle était grise sur un fond clair ; et son numéro manquait, donc
+   rien ne reliait la carte à la liste en dessous. Les trois sont corrigées :
+   elle monte au dessus du fleuron (voir game/WorldMap), elle porte un fond
+   plein avec une ombre portée, et elle commence par le numéro de la cité. */
 .wm-tag {
-  display: flex; align-items: center; gap: 8px; white-space: nowrap;
-  background: var(--paper); border: 1px solid var(--border); border-radius: 0;
-  padding: 5px 9px; cursor: pointer; font-family: var(--font-ui);
-  box-shadow: none; transform: translateZ(0);
+  display: flex; align-items: center; gap: 0; white-space: nowrap;
+  background: var(--paper); border: 1px solid var(--ink); border-radius: 0;
+  padding: 0; cursor: pointer; font-family: var(--font-ui);
+  box-shadow: 0 2px 0 0 var(--ink); transform: translateZ(0);
 }
-.wm-tag b { font-size: 13px; font-weight: 800; color: var(--ink); }
-.wm-tag i {
+.wm-n {
+  font-style: normal; font-size: 12px; font-weight: 800; color: #fff;
+  background: var(--wt); padding: 5px 8px; align-self: stretch;
+  display: flex; align-items: center; min-width: 22px; justify-content: center;
+}
+.wm-tag b { font-size: 14px; font-weight: 800; color: var(--ink); padding: 5px 9px; }
+.wm-tag em {
   font-style: normal; font-size: 11px; font-weight: 800; color: var(--muted);
-  border-left: 1px solid var(--border); padding-left: 8px;
+  border-left: 1px solid var(--border); padding: 5px 9px 5px 8px;
 }
-.wm-tag:hover { border-color: var(--wt); }
-.wm-tag.on { background: var(--wt); border-color: var(--wt); }
-.wm-tag.on b, .wm-tag.on i { color: #fff; border-color: rgba(255,255,255,0.45); }
-.wm-tag.off { opacity: 0.55; cursor: default; }
+.wm-tag:hover { background: var(--wt); }
+.wm-tag:hover b, .wm-tag:hover em { color: #fff; }
+.wm-tag.on { background: var(--wt); border-color: var(--ink); }
+.wm-tag.on b, .wm-tag.on em { color: #fff; border-color: rgba(255,255,255,0.45); }
+.wm-tag.on .wm-n { background: rgba(0,0,0,0.25); }
+
+/* SUR UN TÉLÉPHONE, L'ÉTIQUETTE PERD SON NOM.
+   Treize titres de cité sur trois cent quatre-vingt-dix pixels se recouvrent
+   les uns les autres : neuf chevauchements mesurés, donc neuf noms illisibles
+   et une carte plus encombrée qu'informative. Il reste le NUMÉRO et le
+   compte, qui suffisent à situer et à viser, et la liste juste en dessous de
+   la carte porte les noms en entier · c'est elle qui est faite pour ça, et
+   elle se lit au clavier et au lecteur d'écran. */
+@media (max-width: 720px) {
+  .wm-tag b { display: none; }
+  .wm-tag em { border-left: 0; padding: 4px 7px; }
+  .wm-n { padding: 4px 7px; font-size: 11px; }
+  /* et l'affichage de tête cesse de couvrir la dernière rangée */
+  /* la carte d'en-tête est réglée plus bas, avec le reste du téléphone ·
+     deux blocs qui se disputent le même sélecteur sont la raison pour
+     laquelle elle recouvrait la vallée. */
+}
 
 /* --- la page de la carte ------------------------------------------------ */
 
@@ -9471,10 +9500,18 @@ a.lp-trade { text-decoration: none; display: inline-block; }
    de /build, qui cachait deux agents dans une salle dont le seul propos est de
    montrer des agents. */
 .fm-hud {
-  position: absolute; left: 20px; top: 18px; z-index: 3; max-width: min(340px, 72vw);
-  background: var(--paper); border: 1px solid var(--border); padding: 14px 16px;
+  position: absolute; left: 18px; bottom: 18px; top: auto; z-index: 3;
+  max-width: min(320px, 76vw);
+  background: var(--paper); border: 1px solid var(--ink); padding: 12px 14px;
+  box-shadow: 0 2px 0 0 var(--ink);
 }
-.fm-hud h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.02em; }
+/* LE TITRE DÉBORDAIT DE SA CARTE · il héritait de la taille des titres de
+   section, qui est faite pour une pleine largeur. Il est fixé ici, et bridé,
+   pour qu'un nom de métier long ne rouvre pas la même faute. */
+.fm-hud h1 {
+  font-size: 20px !important; line-height: 1.15; margin: 0 0 4px;
+  letter-spacing: -0.02em; overflow-wrap: anywhere;
+}
 .fm-hud p { margin: 0 0 10px; font-size: 12px; color: var(--muted); font-weight: 700; }
 .fm-hud em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--muted); }
 .fm-bar { display: block; height: 4px; background: var(--border); margin-bottom: 6px; }
@@ -9591,8 +9628,20 @@ a.lp-trade { text-decoration: none; display: inline-block; }
      toit de trois unités dans une scène en perspective ne marche pas. La carte
      reste, parce qu'elle situe ; la liste, juste en dessous, fait le travail. */
   .fm-full { height: 52dvh; min-height: 300px; }
-  .fm-hud { left: 12px; right: 12px; top: 12px; max-width: none; padding: 11px 13px; }
-  .fm-hud h1 { font-size: 18px; }
+  /* ELLE POSAIT « top » ALORS QUE LA RÈGLE DE BASE POSE « bottom ».
+     Un bloc positionné qui reçoit les deux ne se place pas : il S'ÉTIRE de
+     l'un à l'autre. La carte d'en-tête faisait donc quatre cent huit pixels de
+     haut et recouvrait la vallée entière ; on ne voyait plus que les
+     étiquettes, flottant sur du blanc. Elle reste en bas, comme sur grand
+     écran, et « top » est explicitement relâché pour que la règle de base ne
+     puisse pas la rétablir. */
+  .fm-hud {
+    left: 10px; right: 10px; bottom: 10px; top: auto;
+    max-width: none; padding: 9px 12px;
+  }
+  .fm-hud h1 { font-size: 16px !important; margin: 0 0 2px; }
+  .fm-hud p { margin: 0 0 6px; font-size: 11px; }
+  .fm-bar { margin-bottom: 4px; }
   .fm-cities { grid-template-columns: 1fr; }
   .dr { height: 34vh; min-height: 220px; }
   .lv-body { padding: 18px 16px 44px; }
@@ -9600,7 +9649,8 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   .cy-head h1 { font-size: 24px; }
   .cy-level a { grid-template-columns: auto 1fr; }
   .cy-level-min { grid-column: 2; justify-self: start; }
-  .wm-tag b { font-size: 12px; }
+  /* le nom reste caché · voir le bloc des étiquettes. Cette ligne le
+     rétablissait en taille douze, ce qui remettait les neuf chevauchements. */
 }
 
 /* ========================================================================== */
