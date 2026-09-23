@@ -22,8 +22,17 @@ p.on('pageerror', (e) => errs.push(e.message))
 /* ---- the website is readable by anyone ---------------------------------- */
 // A first visit has never entered a code. Every one of these has to render its
 // own content, with no gate anywhere near it.
+// LA RACINE N'EST PLUS LA BROCHURE, ET LES DEUX SONT PUBLIQUES.
+//
+// Cette liste portait `['', '.landing']` · la racine servait la page de vente.
+// Elle sert maintenant le jeu, et la brochure a son adresse à elle. La règle ne
+// s'affaiblit pas pour autant : ce qu'elle garde est que RIEN de public ne
+// tombe sur la porte du beta privé, donc les deux adresses sont vérifiées, pas
+// une seule. Retirer la racine de la liste aurait laissé sans surveillance
+// l'écran que tout le monde voit en premier.
 const PUBLIC = [
-  ['', '.landing', 'the landing'],
+  ['', '.gm', 'the game, which is now the front door'],
+  ['decouvrir', '.landing', 'the landing, which moved here'],
   ['teammates', '.tmp-body', 'the teammates hub'],
   ['ai-marketing-manager', '.tmp-body', 'a job-title page'],
   ['academy', '.landing', 'the Academy'],

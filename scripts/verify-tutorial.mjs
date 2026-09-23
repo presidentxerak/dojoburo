@@ -128,7 +128,10 @@ ok(mfit, 'mobile: the specimen fits the stage')
 // stage was 210px and the card 495px, so overflow:hidden cut the card in half.
 for (const [w, h, tag] of [[390, 780, 'phone'], [537, 741, 'narrow'], [1280, 900, 'desktop']]) {
   await p.setViewportSize({ width: w, height: h })
-  await p.goto(B, { waitUntil: 'networkidle' })
+  // LE TUTORIEL S'OUVRE DEPUIS LE HERO DE LA BROCHURE, qui a quitté la racine
+  // pour /decouvrir · la racine sert le jeu. Sur la racine, « .lp-hero-how »
+  // n'existe plus et le clic attendait indéfiniment un bouton absent.
+  await p.goto(B + '/decouvrir', { waitUntil: 'networkidle' })
   await p.waitForTimeout(1600)
   await p.locator('.lp-hero-how').click()
   await p.waitForTimeout(1600)

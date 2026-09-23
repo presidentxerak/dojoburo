@@ -33,8 +33,14 @@ await page.addInitScript(() => { try { localStorage.setItem('dojoburo.beta', '19
 const errs = []
 page.on('pageerror', (e) => errs.push(e.message))
 
-/* ---- the landing, which is what a phone meets first --------------------- */
-await page.goto(`${BASE}/`, { waitUntil: 'load' })
+/* ---- la brochure, sur un téléphone -------------------------------------- */
+// ELLE N'EST PLUS CE QU'UN TÉLÉPHONE RENCONTRE EN PREMIER · c'est le jeu, sur
+// la racine. La brochure garde son adresse et garde cette mesure, parce que ce
+// qu'elle vérifie · rien ne déborde de côté, ce qu'on touche est assez gros,
+// le robot ne s'assoit pas sur le bouton · vaut pour elle autant qu'avant.
+// L'écran que le téléphone rencontre vraiment est mesuré plus bas, à /carte et
+// dans audit-mobile.
+await page.goto(`${BASE}/decouvrir`, { waitUntil: 'load' })
 await page.waitForTimeout(2000)
 
 const sideways = async (where) => {
