@@ -134,7 +134,7 @@ export const PILLARS: Pillar[] = [
       nav: "Construire un agent",
       title: "Douze agents, douze façons d'échouer",
       blurb:
-        "Entrez dans le dojo. Douze agents y dorment, un par forme de problème, et celui que vous choisissez se réveille. Vous le menez de la page blanche à un fichier qui tourne dans un vrai framework, et le maître tient votre progression.",
+        "Entre dans le dojo. Douze agents y dorment, un par forme de problème, et celui que tu choisis se réveille. Tu le mènes de la page blanche à un fichier qui tourne dans un vrai framework, et le maître garde ta progression.",
     },
   },
   {
@@ -169,7 +169,7 @@ export const PILLARS: Pillar[] = [
       nav: "Sobriété en jetons",
       title: "Ce que ça coûte, et comment le réduire",
       blurb:
-        "Où passent vos jetons, comptés plutôt que devinés : les réglages choisis avant d'écrire un mot, et la façon dont le prompt lui-même est écrit. Puis les leviers, chacun avec ce qu'il rapporte vraiment.",
+        "Où partent tes jetons, comptés plutôt que devinés : les réglages choisis avant d'écrire un mot, et la façon dont le prompt lui-même est écrit. Puis les leviers, chacun avec ce qu'il rapporte vraiment.",
     },
   },
   {
@@ -190,7 +190,7 @@ export const PILLARS: Pillar[] = [
       nav: 'Design avec un modèle',
       title: "Juger un écran sans avoir jamais designé",
       blurb:
-        "Un modèle produit du design plausible, et le plausible est le piège. Ce cours n'apprend pas à dessiner : il apprend à dire ce qui ne va pas dans un écran, avec des mots sur lesquels un modèle peut agir.",
+        "Un modèle produit du design plausible, et le plausible est le piège. Ce cours ne t'apprend pas à dessiner : il t'apprend à dire ce qui cloche dans un écran, avec des mots sur lesquels un modèle peut agir.",
     },
   },
   {
@@ -206,7 +206,7 @@ export const PILLARS: Pillar[] = [
       nav: 'Figma',
       title: "Cinq idées, et les boutons cessent d'avoir de l'importance",
       blurb:
-        "Les interfaces bougent plusieurs fois par an ; le modèle derrière elles n'a pas bougé depuis des années. Apprenez ce qu'est un cadre, ce que fait l'auto layout et pourquoi un composant existe, et l'interface du moment se découvre en dix minutes.",
+        "Les interfaces bougent plusieurs fois par an ; le modèle derrière elles n'a pas bougé depuis des années. Apprends ce qu'est un cadre, ce que fait l'auto layout et pourquoi un composant existe, et l'interface du moment se découvre en dix minutes.",
     },
   },
   {
@@ -222,7 +222,7 @@ export const PILLARS: Pillar[] = [
       nav: "Salle d'entraînement",
       title: "Une salle où démonter les choses",
       blurb:
-        "Le dojo est un bac à sable, pas un atelier de production. Ouvrez un agent, lisez le prompt qui le rend ce qu'il est, changez-le, et regardez ce qui change. Rien ici n'appelle de modèle payant ni ne touche à vos comptes.",
+        "Le dojo est un bac à sable, pas un atelier de production. Ouvre un agent, lis le prompt qui le rend ce qu'il est, change-le, et regarde ce qui change. Rien ici n'appelle de modèle payant ni ne touche à tes comptes.",
     },
   },
 ]
@@ -256,8 +256,8 @@ export const COURSE_HOURS = Math.round((TOTAL_MINUTES / 60) * 10) / 10
  *  laisser croire le contraire à quelqu'un qui arrive avec l'ancienne page en
  *  tête. On le dit donc en toutes lettres, sur la page d'accueil. */
 export const NOT_THIS = [
-  'We do not run your company for you.',
-  'We do not resell model tokens, and there is no meter between you and your provider.',
+  'I do not run your company for you.',
+  'I do not resell model tokens, and there is no meter between you and your provider.',
   'Nothing in the dojo calls a paid model or writes to your accounts: it is a sandbox.',
 ]
 
@@ -283,19 +283,19 @@ export const NOT_THIS = [
 // Une promesse se réécrit dans la langue d'arrivée, sinon elle se lit comme
 // une traduction, et une promesse qui se lit comme une traduction n'engage
 // personne.
-export const PROMISE_LEAD_FR = "Apprenez vraiment à vous servir de l'IA"
+export const PROMISE_LEAD_FR = "Apprends enfin à te servir de l'IA"
 export const PROMISE_HL_FR = 'sept minutes à la fois'
 export const PROMISE_FR = `${PROMISE_LEAD_FR}${PROMISE_SEP}${PROMISE_HL_FR}`
 
 export const SUBTITLE_FR =
-  `Une semaine gratuite de ${DISCOVERY_LEVEL_COUNT} leçons, puis ${PATH_MODULE_COUNT} cités dojo que l'on ` +
-  "traverse dans l'ordre qui convient. Une chose à apprendre et une chose à faire par dojo, une question qui " +
-  'ferme, et un badge qui reste. Rien ici ne travaille à votre place.'
+  `Une semaine gratuite de ${DISCOVERY_LEVEL_COUNT} leçons, puis ${PATH_MODULE_COUNT} cités dojo que tu ` +
+  "traverses dans l'ordre qui te va. Une chose à apprendre et une chose à faire par dojo, une question qui " +
+  'ferme, et un badge qui reste. Rien ici ne travaille à ta place.'
 
 export const NOT_THIS_FR = [
-  'Nous ne faisons pas tourner votre entreprise à votre place.',
-  "Nous ne revendons pas de jetons, et il n'y a aucun compteur entre vous et votre fournisseur.",
-  "Rien dans le dojo n'appelle de modèle payant ni n'écrit dans vos comptes : c'est un bac à sable.",
+  'Je ne fais pas tourner ton entreprise à ta place.',
+  "Je ne revends pas de jetons, et il n'y a aucun compteur entre toi et ton fournisseur.",
+  "Rien dans le dojo n'appelle de modèle payant ni n'écrit dans tes comptes : c'est un bac à sable.",
 ]
 
 /** La promesse, le sous-titre et les démentis dans la langue demandée.

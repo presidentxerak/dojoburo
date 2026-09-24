@@ -10194,10 +10194,21 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   box-shadow: 0 4px 0 rgba(0,0,0,.25);
   color: #fff;
 }
-.gm-brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: #fff; }
+.gm-brand { display: flex; align-items: center; gap: 9px; min-width: 0; text-decoration: none; color: #fff; }
 .gm-brand .logo-badge { filter: drop-shadow(0 2px 0 var(--g-ink)); }
-.gm-brand-wm { display: flex; align-items: center; }
-.gm-top-right { display: flex; align-items: center; gap: 12px; }
+/* LA BARRE DU JEU EST SOMBRE DANS LES DEUX THÈMES · le logo et le nom suivent
+   l'encre du thème ailleurs, ce qui les rendait noirs sur la barre de nuit dès
+   qu'on choisissait le clair. Ici ils sont blancs, toujours. */
+.gm-brand .logo-badge { color: #fff; }
+.gm-brand .wordmark { color: #fff; -webkit-text-fill-color: #fff; }
+.gm-brand-wm { display: flex; align-items: center; min-width: 0; }
+.gm-top-right { display: flex; align-items: center; gap: clamp(8px, 2.4vw, 12px); flex: 0 0 auto; }
+/* LE PLUS PETIT TÉLÉPHONE · à 320 px, logo, nom, jauge et langue dépassaient
+   de sept pixels et toute la page glissait de côté. Le nom s'efface À L'ŒIL
+   seulement : le lien garde son nom pour qui l'écoute au lecteur d'écran. */
+@media (max-width: 359px) {
+  .gm-brand-wm { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
 
 /* L'EXPÉRIENCE EST UNE JAUGE DE RESSOURCE · la pilule à contour, le nombre
    cerné, et le jeton violet qui déborde à droite. Elle n'a pas de maximum, donc

@@ -225,6 +225,7 @@ const FR_WORDS = new RegExp('\\b(?:' + [
   'le', 'la', 'les', 'un', 'une', 'des', 'du', 'de', 'au', 'aux', 'et', 'ou', 'ne', 'pas',
   'plus', 'sans', 'sous', 'vers', 'chez', 'qui', 'que', 'quoi', 'dont', 'quand', 'quelle',
   'pour', 'par', 'dans', 'avec', 'sur', 'entre', 'depuis', 'avant', 'vous', 'nous', 'il',
+  'tu', 'te', 'toi', 'ton', 'ta', 'tes',
   'elle', 'ils', 'se', 'son', 'sa', 'ses', 'votre', 'leur', 'ce', 'cet', 'cette', 'ces',
   'est', 'sont', 'fait', 'faire', 'peut', 'doit', 'sera', 'tout', 'toute',
 ].join('|') + ')\\b', 'i')

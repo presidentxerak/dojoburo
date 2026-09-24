@@ -104,7 +104,7 @@ const FR_WORDS = new RegExp('\\b(?:' + [
   'et', 'ou', 'ne', 'pas', 'plus', 'sans', 'sous', 'hors', 'vers', 'chez',
   'qui', 'que', 'quoi', 'dont', 'quand', 'quelle', 'quel', 'quelles', 'quels',
   'pour', 'par', 'dans', 'avec', 'sur', 'entre', 'depuis', 'avant', 'apres',
-  'vous', 'nous', 'il', 'elle', 'ils', 'elles', 'se', 'son', 'sa', 'ses',
+  'vous', 'nous', 'tu', 'te', 'toi', 'ton', 'ta', 'tes', 'il', 'elle', 'ils', 'elles', 'se', 'son', 'sa', 'ses',
   'notre', 'votre', 'leur', 'ce', 'cet', 'cette', 'ces', 'tout', 'toute',
   'est', 'sont', 'etre', 'fait', 'faire', 'peut', 'doit', 'sera',
 ].join('|') + ')\\b', 'i')
@@ -771,9 +771,22 @@ ok(proseDone
   proseDone || (!!DICT['i18n.partial'] && DICT['i18n.partial'].fr.length > 20),
   `${proseWithFr}/${proseFiles.length} fichiers de prose`)
 
+/* --- 6b · l'app tutoie ------------------------------------------------- */
+//
+// LE TON EST CELUI D'UN FORMATEUR QUI TE PARLE, pas celui d'une notice. Il a
+// été demandé explicitement : le tutoiement, l'impératif direct, « enfin ».
+// Une app qui dit « tu » sur une carte et « vous » sur le bouton d'à côté se
+// lit comme deux produits recollés, et c'est exactement ce qui arrive quand
+// un texte est ajouté un mardi sans relire les autres.
+const VOUS = /\b(vous|votre|vos)\b/i
+const formal = keys.filter((k) => VOUS.test(DICT[k].fr))
+ok('l\'interface tutoie, partout', formal.length === 0, formal.slice(0, 4).join(', ') || `${keys.length} clés`)
+
 /* --- 7 · les morsures ---------------------------------------------------- */
 
 // LA MORSURE QUI A RÉVÉLÉ LE TROU · elle est gardée telle quelle.
+ok('morsure · un « vous » dans l\'interface serait vu', VOUS.test('Choisissez votre formation'))
+ok('morsure · « vos » aussi, et pas « avos »', VOUS.test('Vos dojos') && !VOUS.test('bravos'))
 ok('morsure · de l\'anglais reformulé est vu',
   !looksFrench('A source is a document I can open at a URL or a file path, that carries a date.'))
 ok('morsure · du vrai français passe',

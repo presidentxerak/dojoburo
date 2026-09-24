@@ -167,12 +167,12 @@ export const LEVERS: Lever[] = [
       'you saved, and it costs you the latency too.',
     apply: (u) => ({ ...u, tools: Math.max(0, Math.floor(u.tools / 4)) }),
     fr: {
-      title: "Détachez les outils que cette étape ne peut pas utiliser",
-      how: "Attachez les outils par étape, pas par agent. Une étape de rédaction n'en a besoin d'aucun.",
+      title: "Détache les outils que cette étape ne peut pas utiliser",
+      how: "Attache les outils par étape, pas par agent. Une étape de rédaction n'en a besoin d'aucun.",
       why:
-        "Chaque outil branché expédie sa définition complète, son nom, sa description et le schéma de ses paramètres, avec chaque requête, qu'il soit appelé ou non. Rien de votre prompt ne change ; vous cessez simplement de payer pour décrire un agenda à un modèle qui rédige un courriel.",
+        "Chaque outil branché expédie sa définition complète, son nom, sa description et le schéma de ses paramètres, avec chaque requête, qu'il soit appelé ou non. Rien ne change dans ton prompt ; tu arrêtes simplement de payer pour décrire un agenda à un modèle qui rédige un courriel.",
       not:
-        "Ne détachez pas un outil dont l'étape pourrait avoir besoin en cas de reprise. Un second aller-retour coûte plus que la définition économisée, et il vous coûte l'attente en plus.",
+        "Ne détache pas un outil dont l'étape pourrait avoir besoin en cas de reprise. Un second aller-retour coûte plus que la définition économisée, et il te coûte l'attente en plus.",
     },
   },
   {
@@ -188,12 +188,12 @@ export const LEVERS: Lever[] = [
       'regenerated costs twice, and the second attempt starts from nothing.',
     apply: (u) => ({ ...u, answer: Math.round(u.answer * 0.55) }),
     fr: {
-      title: "Plafonnez la longueur de la réponse",
-      how: "Fixez une longueur maximale de sortie sur la requête, et dites aussi la cible dans le prompt.",
+      title: "Plafonne la longueur de la réponse",
+      how: "Fixe une longueur maximale de sortie sur la requête, et donne aussi la cible dans le prompt.",
       why:
         "Les jetons de sortie sont la moitié chère : typiquement trois à cinq fois le prix d'entrée par jeton. Un modèle sans plafond remplit la place qu'on lui donne, et l'essentiel de ce qu'il ajoute est une reformulation.",
       not:
-        "Ne plafonnez pas une étape dont le travail est de produire un document long. Un document tronqué qu'il faut régénérer coûte deux fois, et la seconde tentative repart de zéro.",
+        "Ne plafonne pas une étape dont le travail est de produire un document long. Un document tronqué qu'il faut régénérer coûte deux fois, et la seconde tentative repart de zéro.",
     },
   },
   {
@@ -210,12 +210,12 @@ export const LEVERS: Lever[] = [
       'and it may not reach the same place.',
     apply: (u) => ({ ...u, turns: Math.max(2, Math.round(u.turns / 3)) }),
     fr: {
-      title: "Ouvrez une conversation quand le sujet change",
-      how: "Fermez le fil et ouvrez-en un autre, en emportant une ligne de ce qui a été décidé.",
+      title: "Ouvre une nouvelle conversation quand le sujet change",
+      how: "Ferme le fil et ouvres-en un autre, en emportant une ligne de ce qui a été décidé.",
       why:
-        "C'est le gros levier, et il est invisible. Le modèle n'a pas de mémoire : ce qu'il « se rappelle » est votre historique, renvoyé en entier à chaque tour. Une conversation de N tours coûte environ N au carré, donc le vingtième tour n'est pas vingt fois le premier, il est bien davantage. Rien d'autre sur cette page ne rapporte autant pour aussi peu d'effort.",
+        "C'est le gros levier, et il est invisible. Le modèle n'a pas de mémoire : ce qu'il « se rappelle », c'est ton historique, renvoyé en entier à chaque tour. Une conversation de N tours coûte environ N au carré, donc le vingtième tour n'est pas vingt fois le premier, il est bien davantage. Rien d'autre sur cette page ne rapporte autant pour aussi peu d'effort.",
       not:
-        "Ne repartez pas de zéro au milieu d'une chaîne de raisonnement. Le modèle refera le travail que vous avez déjà payé, et il n'arrivera pas forcément au même endroit.",
+        "Ne repars pas de zéro au milieu d'une chaîne de raisonnement. Le modèle refera le travail que tu as déjà payé, et il n'arrivera pas forcément au même endroit.",
     },
   },
   {
@@ -232,12 +232,12 @@ export const LEVERS: Lever[] = [
       'buys nothing and adds a moving part.',
     apply: (u) => ({ ...u, brief: Math.round(u.brief * 0.25) }),
     fr: {
-      title: "Mettez en cache le préfixe qui ne change jamais",
-      how: "Marquez le brief système et toute matière de référence fixe comme cachables, si votre fournisseur le permet.",
+      title: "Mets en cache le préfixe qui ne change jamais",
+      how: "Marque le brief système et toute matière de référence fixe comme cachables, si ton fournisseur le permet.",
       why:
-        "Le brief est identique à chaque requête et relu à chaque fois. Là où le cache existe, un préfixe caché est facturé à une fraction du tarif d'entrée : vous cessez de payer plein prix pour relire vos propres consignes mille fois par jour.",
+        "Le brief est identique à chaque requête et relu à chaque fois. Là où le cache existe, un préfixe caché est facturé à une fraction du tarif d'entrée : tu arrêtes de payer plein pot pour relire tes propres consignes mille fois par jour.",
       not:
-        "Le cache a une taille minimale et une durée de vie. En dessous de quelques centaines de jetons, ou sur un préfixe que vous modifiez chaque jour, il n'achète rien et ajoute une pièce mobile.",
+        "Le cache a une taille minimale et une durée de vie. En dessous de quelques centaines de jetons, ou sur un préfixe que tu modifies chaque jour, il n'achète rien et ajoute une pièce mobile.",
     },
   },
   {
@@ -254,12 +254,12 @@ export const LEVERS: Lever[] = [
       'the behaviour together. Cut what you cannot trace to a bad draft.',
     apply: (u) => ({ ...u, brief: Math.round(u.brief * 0.6) }),
     fr: {
-      title: "Écrivez le brief en interdits et en exemples, pas en adjectifs",
-      how: "Remplacez « sois professionnel, sois concis, sois utile » par les trois choses qu'il ne doit jamais faire, et un exemple travaillé.",
+      title: "Écris le brief en interdits et en exemples, pas en adjectifs",
+      how: "Remplace « sois professionnel, sois concis, sois utile » par les trois choses qu'il ne doit jamais faire, et un exemple travaillé.",
       why:
         "Les adjectifs sont invisibles pour un modèle et coûtent autant que des consignes qui fonctionnent. Un brief écrit en règles vérifiables est à la fois plus court et mieux suivi, ce qui économise deux fois : moins de jetons, et moins de reprises parce que la sortie était fausse.",
       not:
-        "Ne coupez pas une règle dont vous ne vous souvenez pas l'avoir vue enfreinte : vous supprimez peut-être celle qui tient le comportement en silence. Coupez ce que vous pouvez relier à un mauvais brouillon.",
+        "Ne coupe pas une règle dont tu ne te souviens pas l'avoir vue enfreinte : tu supprimes peut-être celle qui tient le comportement en silence. Coupe ce que tu peux relier à un mauvais brouillon.",
     },
   },
   {
@@ -275,12 +275,12 @@ export const LEVERS: Lever[] = [
       'back is exactly the turn it will fail without it.',
     apply: (u) => ({ ...u, message: Math.round(u.message * 0.8), answer: Math.round(u.answer * 0.85) }),
     fr: {
-      title: "Résumez ce qui est acquis au lieu de le rejouer",
-      how: "Quand une décision est prise, écrivez-la en une ligne et jetez la discussion qui l'a produite.",
+      title: "Résume ce qui est acquis au lieu de le rejouer",
+      how: "Quand une décision est prise, écris-la en une ligne et jette la discussion qui l'a produite.",
       why:
         "Les faits acquis se compressent à presque rien ; un raisonnement en cours, non. Traiter les deux pareil est la raison pour laquelle un résumé naïf rend les agents bêtes, et ne jamais résumer les rend chers.",
       not:
-        "Ne compressez jamais la demande d'origine ni une contrainte énoncée comme un « jamais ». Le tour où l'agent en a besoin est exactement celui où il échouera sans elle.",
+        "Ne compresse jamais la demande d'origine ni une contrainte énoncée comme un « jamais ». Le tour où l'agent en a besoin est exactement celui où il échouera sans elle.",
     },
   },
   {
@@ -296,12 +296,12 @@ export const LEVERS: Lever[] = [
       'than a short one you refine once.',
     apply: (u) => ({ ...u, turns: Math.max(2, u.turns - 3) }),
     fr: {
-      title: "Demandez le tout en une fois, pas en cinq relances",
-      how: "Mettez le format, la longueur et les contraintes dans le premier message au lieu de les corriger après.",
+      title: "Demande tout en une fois, pas en cinq relances",
+      how: "Mets le format, la longueur et les contraintes dans le premier message au lieu de les corriger après.",
       why:
         "Chaque correction est un tour entier de plus, et chaque tour supplémentaire renvoie tout ce qui précède. Trois « plus court, s'il te plaît » coûtent plus que la demande d'origine.",
       not:
-        "Ne chargez pas un prompt d'exigences que vous n'avez pas réfléchies. Un long brief faux est pire qu'un court que vous affinez une fois.",
+        "Ne charge pas un prompt d'exigences que tu n'as pas réfléchies. Un long brief faux est pire qu'un court que tu affines une fois.",
     },
   },
 ]
@@ -313,9 +313,9 @@ export const FAMILY_LABEL: Record<LeverFamily, { label: string; lead: string; fr
       'Decided once, applied to every request afterwards. This is where the money is, and it is the half most ' +
       'courses skip because it is less fun to teach than prompt wording.',
     fr: {
-      label: "Vos réglages, avant d'écrire un mot",
+      label: "Tes réglages, avant d'écrire un mot",
       lead:
-        "Décidés une fois, appliqués à chaque requête ensuite. C'est là qu'est l'argent, et c'est la moitié que la plupart des cours sautent parce qu'elle est moins amusante à enseigner que la formulation d'un prompt.",
+        "Décidés une fois, appliqués à chaque requête ensuite. C'est là que se trouve l'argent, et c'est la moitié que la plupart des cours sautent parce qu'elle est moins amusante à enseigner que la formulation d'un prompt.",
     },
   },
   writing: {

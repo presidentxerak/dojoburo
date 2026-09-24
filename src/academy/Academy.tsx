@@ -96,14 +96,14 @@ const FAQ: Faq[] = [
     q: { en: 'Is the Dojo Academy free?', fr: "L'académie du dojo est-elle gratuite ?" },
     a: {
       en: 'Yes: every lesson, in full, with no account required. Progress is saved in your browser so you can pick up where you left off.',
-      fr: "Oui : chaque leçon, en entier, sans compte. Votre progression est enregistrée dans votre navigateur pour que vous repreniez là où vous vous êtes arrêté.",
+      fr: "Oui : chaque leçon, en entier, sans compte. Ta progression est enregistrée dans ton navigateur pour que tu reprennes là où tu t'es arrêté.",
     },
   },
   {
     q: { en: 'Do I need to know how to code?', fr: 'Faut-il savoir coder ?' },
     a: {
       en: 'No. Nothing in the Academy or the app involves code, a terminal or an IDE. If those words mean nothing to you, lesson six explains them and then you can forget them.',
-      fr: "Non. Rien dans l'académie ni dans l'application ne demande de code, de terminal ou d'éditeur de code. Si ces mots ne vous disent rien, la leçon six les explique et vous pourrez ensuite les oublier.",
+      fr: "Non. Rien dans l'académie ni dans l'application ne demande de code, de terminal ou d'éditeur de code. Si ces mots ne te disent rien, la leçon six les explique et tu pourras ensuite les oublier.",
     },
   },
   {
@@ -124,7 +124,7 @@ const FAQ: Faq[] = [
     q: { en: 'Do I need to pay to use what I learn?', fr: "Faut-il payer pour se servir de ce que j'apprends ?" },
     a: {
       en: 'No. Nothing in the dojo is metered, because nothing in it calls a paid model: reading the course, building a project and connecting apps are all free. The day you take an agent out and run it for real, your own provider bills you, and the dojo has already shown you what that run would cost.',
-      fr: "Non. Rien n'est compté dans le dojo, parce que rien dedans n'appelle un modèle payant : lire le cours, bâtir un projet et brancher des applications sont gratuits. Le jour où vous sortez un agent pour le faire tourner en vrai, votre propre fournisseur vous facture, et le dojo vous a déjà montré ce que ce passage coûterait.",
+      fr: "Non. Rien n'est compté dans le dojo, parce que rien dedans n'appelle un modèle payant : lire le cours, bâtir un projet et brancher des applications sont gratuits. Le jour où tu sors un agent pour le faire tourner en vrai, ton propre fournisseur te facture, et le dojo t'a déjà montré ce que ce passage coûterait.",
     },
   },
 ]

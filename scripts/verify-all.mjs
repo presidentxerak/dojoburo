@@ -131,6 +131,9 @@ const CHECKS = [
   ['verify-bricks.mjs', 3, true],
   ['verify-visual.mjs', 3, true],
   ['verify-mobile.mjs', 3, true],
+  // LA MISE EN PAGE FLUIDE · toutes les pages publiques, de 320 à 1920 px.
+  // L'en-tête du jeu dépassait à 320 px et aucune épreuve ne mesurait si étroit.
+  ['audit-fluid.mjs', 3, true],
   ['audit-hero.mjs', 3, true],
   ['perf-scene.mjs', 3, true],
   ['verify-dedupe.mjs', 3, true],
