@@ -192,13 +192,13 @@ export const LESSONS: Record<string, Lesson> = {
           ],
           bad: "Utilise des sources fiables.",
           good: "Une source est un document que je peux ouvrir à une adresse ou à un chemin de fichier, qui porte une date, et que je pourrais envoyer à un client. Les messages de forum, les pages marketing et les PDF sans date ne sont pas des sources.",
-          note: "La première est un adjectif et te coûte des jetons pour rien : « fiable » ne veut rien dire pour un modèle. La seconde est un test que n'importe qui peut appliquer, le modèle compris.",
+          note: "La première est un adjectif et te coûte des tokens pour rien : « fiable » ne veut rien dire pour un modèle. La seconde est un test que n'importe qui peut appliquer, le modèle compris.",
           reward: "Tu as écrit une règle qu'un inconnu pourrait appliquer. C'est bien plus rare qu'il n'y paraît !",
         },
         {
           why: "Laissé seul, un modèle résume. C'est dans le résumé que les inventions se glissent, parce qu'un résumé qui comble un petit trou se lit mieux qu'un résumé qui s'arrête. Imposer la citation supprime le trou qu'il pourrait combler.",
           how: [
-            "Ajoute à la consigne : chaque affirmation doit être suivie d'un fragment recopié mot à mot depuis la matière.",
+            "Ajoute au prompt : chaque affirmation doit être suivie d'un fragment recopié mot à mot depuis la matière.",
             "Dis quoi faire quand aucun fragment n'existe : écrire « introuvable dans la matière » et passer.",
             "Interdis la paraphrase à l'intérieur des guillemets. Une « citation » reformulée est exactement l'échec que tu essaies d'arrêter.",
           ],
@@ -315,7 +315,7 @@ export const LESSONS: Record<string, Lesson> = {
         ],
         words: [
           { term: "Ton", says: "Ta façon de sonner. En pratique : les choses que tu ne fais jamais, plus que celles que tu fais." },
-          { term: "Brief", says: "Une consigne permanente que l'agent emporte dans chaque travail, par opposition à ce que tu tapes à chaque fois." },
+          { term: "Brief", says: "Le system prompt que l'agent emporte dans chaque travail, par opposition à ce que tu tapes à chaque fois." },
         ],
       },
       steps: [
@@ -332,7 +332,7 @@ export const LESSONS: Record<string, Lesson> = {
           reward: "Tu as maintenant des preuves au lieu d'adjectifs. Chaque règle que tu écriras sera traçable jusqu'à quelque chose de réel.",
         },
         {
-          why: "Un modèle ne peut pas agir sur « sois chaleureux mais pas bavard ». Il peut agir sur « ne commence jamais par une question ». Les consignes de style positives sont de la décoration ; les interdits se vérifient, et une règle que personne ne peut vérifier est une règle que personne n'applique.",
+          why: "Un modèle ne peut pas agir sur « sois chaleureux mais pas bavard ». Il peut agir sur « ne commence jamais par une question ». Les instructions de style positives sont de la décoration ; les interdits se vérifient, et une règle que personne ne peut vérifier est une règle que personne n'applique.",
           how: [
             "Transforme chaque grincement souligné en une phrase commençant par « Ne jamais ».",
             "Rends chacune vérifiable : quelqu'un d'autre doit pouvoir dire si elle a été enfreinte, sans te demander.",
@@ -353,7 +353,7 @@ export const LESSONS: Record<string, Lesson> = {
           bad: "Écris dans un style clair et direct.",
           good: "Voici un avant et un après. Avant : « Nous sommes ravis de vous présenter notre nouvelle fonctionnalité, conçue pour transformer votre quotidien. » Après : « La recherche accepte maintenant les guillemets. Ça marche dans les commentaires aussi. » Écris comme l'après.",
           note: "La paire enseigne le rythme, la longueur de phrase et le refus d'annoncer. Aucun adjectif n'aurait transmis ça.",
-          reward: "Tu as donné un modèle à imiter plutôt qu'une consigne à suivre. C'est ce qui distingue un brief qui marche.",
+          reward: "Tu as donné un modèle à imiter plutôt qu'une instruction à suivre. C'est ce qui distingue un brief qui marche.",
         },
         {
           why: "Un brief qui grossit cesse d'être suivi. Au-delà d'une vingtaine de règles, le modèle en applique certaines et en oublie d'autres, et tu ne sauras jamais lesquelles. Couper est donc une étape, pas un nettoyage.",
@@ -451,7 +451,7 @@ export const LESSONS: Record<string, Lesson> = {
         ],
         words: [
           { term: "Transfert", says: "Passer la conversation à une personne. La chose la plus importante que fait l'agent." },
-          { term: "Garde-fou", says: "Une chose que l'agent ne peut jamais faire, écrite comme une règle plutôt qu'espérée." },
+          { term: "Guardrail", says: "Une chose que l'agent ne peut jamais faire, écrite comme une règle plutôt qu'espérée." },
         ],
       },
       steps: [
@@ -494,7 +494,7 @@ export const LESSONS: Record<string, Lesson> = {
         {
           why: "Un agent qui résume ta politique la rendra presque juste, et presque juste sur un remboursement, c'est faux. Il doit citer la politique comme le chercheur cite un document.",
           how: [
-            "Mets la politique en entier dans les consignes permanentes de l'agent.",
+            "Mets la politique en entier dans le system prompt de l'agent.",
             "Dis-lui de citer la ligne qui s'applique plutôt que de l'expliquer.",
             "Éprouve-le avec une question que la politique ne couvre pas, et vérifie qu'il n'invente pas la réponse.",
           ],
@@ -732,7 +732,7 @@ export const LESSONS: Record<string, Lesson> = {
           how: [
             "Écris les quatre erreurs que tu veux attraper : un total qui n'égale pas ses parties, un taux appliqué à la mauvaise base, un changement d'unité que personne n'a signalé, une ligne exclue d'une plage.",
             "Demande-toi lesquelles des quatre tu as personnellement laissé passer. Sois honnête, ça change tes priorités.",
-            "Mets ces quatre en tête de la consigne, avant tout ce qui touche aux opinions.",
+            "Mets ces quatre en tête du prompt, avant tout ce qui touche aux opinions.",
           ],
           bad: "Vérifie ce modèle et cherche les erreurs.",
           good: "Vérifie ces quatre choses d'abord : les totaux égalent la somme de leurs parties ; chaque pourcentage est appliqué à la base nommée à côté de lui ; les unités sont cohérentes dans toute la feuille ; aucune plage n'exclut une ligne en silence. Rends chacune en réussite ou échec.",
@@ -864,7 +864,7 @@ export const LESSONS: Record<string, Lesson> = {
       },
       steps: [
         {
-          why: "Si deux de tes catégories se chevauchent, aucune consigne n'y changera rien : un humain ne sait pas les trier de façon fiable non plus. Écrire chaque catégorie comme un test est la façon de trouver le chevauchement, et la plupart des gens en trouvent un tout de suite.",
+          why: "Si deux de tes catégories se chevauchent, aucun prompt n'y changera rien : un humain ne sait pas les trier de façon fiable non plus. Écrire chaque catégorie comme un test est la façon de trouver le chevauchement, et la plupart des gens en trouvent un tout de suite.",
           how: [
             "Écris chaque catégorie comme une question à laquelle on répond par oui ou non.",
             "Prends les deux qui te semblent les plus proches. Trouve la question unique qui les sépare.",
@@ -1293,7 +1293,7 @@ export const LESSONS: Record<string, Lesson> = {
             "Cherche ensuite les étapes dont rien en aval ne dépend. Supprime-les.",
           ],
           bad: "Étape 1 : recherche. Étape 2 : conception. Étape 3 : développement. Étape 4 : lancement.",
-          good: "Pour qu'un utilisateur atteigne un projet enregistré, l'enregistrement doit marcher. Pour qu'il marche, les comptes doivent exister. Pour que les comptes existent, il faut choisir un fournisseur. C'est ça, lundi.",
+          good: "Pour qu'un utilisateur atteigne un projet enregistré, l'enregistrement doit marcher. Pour qu'il marche, les comptes doivent exister. Pour que les comptes existent, il faut choisir un provider. C'est ça, lundi.",
           note: "Le plan de gauche convient à n'importe quel projet, ce qui veut dire qu'il n'en décrit aucun. Celui de droite est assez précis pour être faux, et c'est ce qui le rend utile.",
           reward: "Ton plan ne contient plus que des étapes dont quelque chose a besoin. C'est en général la moitié de la liste de départ.",
         },

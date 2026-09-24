@@ -91,7 +91,7 @@ export const DIPLOMAS: Diploma[] = [
         : [a && `${a} more agents`, l && `${l} more lessons`]
       return parts.filter(Boolean).join(lang === 'fr' ? ' et ' : ' and ') + '.'
     },
-    fr: { title: "Bâtisseur qui lit", how: `Termine deux agents et la moitié des ${LESSON_COUNT} leçons de prompt engineering.`, awarded: "Tu sais en construire un et dire pourquoi l'instruction qu'il contient fonctionne. Le deuxième ne devra rien à la chance." },
+    fr: { title: "Bâtisseur qui lit", how: `Termine deux agents et la moitié des ${LESSON_COUNT} leçons de prompt engineering.`, awarded: "Tu sais en construire un et dire pourquoi le prompt qu'il contient fonctionne. Le deuxième ne devra rien à la chance." },
   },
   {
     id: 'frugal',

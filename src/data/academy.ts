@@ -288,7 +288,7 @@ const BASICS: Lesson[] = [
         },
         {
           title: "Le piège dans lequel presque tout le monde tombe",
-          body: "On croit qu'un meilleur agent veut dire une meilleure consigne. Cela veut presque toujours dire une méthode plus claire. Un agent qui part dans tous les sens n'est pas sous-motorisé : on lui a dit quoi produire sans lui dire comment y arriver.",
+          body: "On croit qu'un meilleur agent veut dire un meilleur prompt. Cela veut presque toujours dire une méthode plus claire. Un agent qui part dans tous les sens n'est pas sous-motorisé : on lui a dit quoi produire sans lui dire comment y arriver.",
         },
         {
           title: "Essaie tout de suite !",
@@ -378,7 +378,7 @@ const BASICS: Lesson[] = [
       blocks: [
         {
           title: "Le problème du généraliste",
-          body: "Demande à un seul assistant d'étudier ton marché, de bâtir la campagne, d'écrire les publications et de vérifier les chiffres : chacun de ces métiers reçoit une fraction de l'attention. Ce n'est pas une limite du modèle. C'est une limite de la consigne : on n'écrit pas un seul texte qui soit excellent sur quatre métiers différents.",
+          body: "Demande à un seul assistant d'étudier ton marché, de bâtir la campagne, d'écrire les publications et de vérifier les chiffres : chacun de ces métiers reçoit une fraction de l'attention. Ce n'est pas une limite du modèle. C'est une limite du prompt : on n'écrit pas un seul texte qui soit excellent sur quatre métiers différents.",
         },
         {
           title: "À quoi ressemble une vraie équipe",
@@ -397,7 +397,7 @@ const BASICS: Lesson[] = [
             a: "Un assistant seul",
             b: "Une équipe avec un plan",
             rows: [
-              ["Une longue consigne qui couvre quatre métiers", "Quatre consignes courtes, chacune excellente sur un métier"],
+              ["Un long prompt qui couvre quatre métiers", "Quatre prompts courts, chacun excellent sur un métier"],
               ["C'est toi, la mémoire entre les étapes", "Le plan est la mémoire"],
               ["Tout refaire quand une partie est fausse", "Rejouer la seule étape qui était fausse"],
               ["Impossible de dire quelle partie a échoué", "L'étape qui a échoué est nommée"],
@@ -406,7 +406,7 @@ const BASICS: Lesson[] = [
         },
         {
           title: "Le vrai gain, c'est la réparation",
-          body: "Si les professionnels découpent le travail en rôles, ce n'est pas pour la vitesse, c'est pour la réparation. Quand quelque chose revient faux, une équipe te dit exactement quelle étape l'a produit, donc tu corriges une consigne au lieu de tout reprendre.",
+          body: "Si les professionnels découpent le travail en rôles, ce n'est pas pour la vitesse, c'est pour la réparation. Quand quelque chose revient faux, une équipe te dit exactement quelle étape l'a produit, donc tu corriges un prompt au lieu de tout reprendre.",
         },
         {
           title: "Plus de coéquipiers n'est pas mieux",
@@ -421,9 +421,9 @@ const BASICS: Lesson[] = [
           "Cela fait plus professionnel",
           "C'est toujours moins cher",
         ],
-        why: "La spécialisation t'achète de la précision et de la réparation. Quand une étape est fausse, tu réécris une consigne et tu rejoues une étape, au lieu de relancer tout le travail en espérant mieux.",
+        why: "La spécialisation t'achète de la précision et de la réparation. Quand une étape est fausse, tu réécris un prompt et tu rejoues une étape, au lieu de relancer tout le travail en espérant mieux.",
       },
-      takeaway: "Découpe le travail pour que, le jour où ça casse, tu saches quelle consigne corriger.",
+      takeaway: "Découpe le travail pour que, le jour où ça casse, tu saches quel prompt corriger.",
       next: "Regarde une carte d'équipe et lis sa liste de coéquipiers avant de la choisir.",
     },
   },
@@ -481,11 +481,11 @@ const BASICS: Lesson[] = [
     next: 'Create a company with exactly one team and open it.',
     fr: {
       title: "Ton premier projet en cinq minutes !",
-      summary: "Nomme ta société, coche les équipes dont tu as besoin, atterris dans ton dojo. Aucune consigne à écrire, rien à configurer.",
+      summary: "Nomme ta société, coche les équipes dont tu as besoin, atterris dans ton dojo. Aucun prompt à écrire, rien à configurer.",
       blocks: [
         {
-          title: "Il n'y a aucune consigne à écrire",
-          body: "Ça surprend. Tu ne décris pas ce que tu veux dans une zone de texte en croisant les doigts. Tu lis un exemple déjà travaillé : une équipe qui a déjà une consigne, une liste d'outils et un budget, assemblée pour un vrai métier, puis tu la démontes et tu vois pourquoi chaque pièce est là.",
+          title: "Il n'y a aucun prompt à écrire",
+          body: "Ça surprend. Tu ne décris pas ce que tu veux dans une zone de texte en croisant les doigts. Tu lis un exemple déjà travaillé : une équipe qui a déjà un prompt, une liste d'outils et un budget, assemblée pour un vrai métier, puis tu la démontes et tu vois pourquoi chaque pièce est là.",
         },
         {
           title: "Étape 1 · Nomme ta société",
@@ -512,12 +512,12 @@ const BASICS: Lesson[] = [
       quiz: {
         q: "Que faut-il écrire pour créer une société ?",
         options: [
-          "Une consigne détaillée décrivant ton activité",
+          "Un prompt détaillé décrivant ton activité",
           "Juste un nom, puis tu coches les équipes voulues",
           "Un fichier de configuration",
           "Rien, tout est engendré pour toi",
         ],
-        why: "Nommer le projet et cocher des équipes, c'est toute l'installation. Les consignes sont déjà écrites ; tu les modifieras plus tard si tu le souhaites.",
+        why: "Nommer le projet et cocher des équipes, c'est toute l'installation. Les prompts sont déjà écrits ; tu les modifieras plus tard si tu le souhaites.",
       },
       takeaway: "Nomme, coche une équipe, tu y es. L'installation tient en deux décisions.",
       next: "Crée une société avec exactement une équipe et ouvre-la.",
@@ -602,7 +602,7 @@ const BASICS: Lesson[] = [
         },
         {
           title: "Lis vraiment la première sortie",
-          body: "La première chose que produit un coéquipier te dit si sa consigne est juste. La survoler et relancer, c'est comme ça qu'on se retrouve avec vingt sorties médiocres au lieu d'une bonne consigne.",
+          body: "La première chose que produit un coéquipier te dit si son prompt est juste. La survoler et relancer, c'est comme ça qu'on se retrouve avec vingt sorties médiocres au lieu d'un bon prompt.",
         },
       ],
       quiz: {
@@ -1045,10 +1045,10 @@ const LANDSCAPE: Lesson[] = [
     next: 'Open the mode chip in the dojo header and read what each mode changes.',
     fr: {
       title: "Ce que ça coûte, et pourquoi",
-      summary: "Tu paies le logiciel, pas les jetons. Voici ce qu'achète chaque formule, ce qui est gratuit, et comment ne jamais dépenser de trop.",
+      summary: "Tu paies le logiciel, pas les tokens. Voici ce qu'achète chaque formule, ce qui est gratuit, et comment ne jamais dépenser de trop.",
       blocks: [
         {
-          title: "Tu paies les équipes, pas les jetons",
+          title: "Tu paies les équipes, pas les tokens",
           body: "C'est tout le modèle de prix, et il vaut mieux le dire sans détour. Rien ici n'est compté et rien ne se renouvelle. Nous ne vendons ni passages, ni tâches, ni crédits, parce que rien dans le dojo n'appelle un modèle payant, et nous ne vendons pas d'abonnement, parce qu'un cours se termine au lieu de se louer. Ce que tu achètes, c'est le cours lui-même, une fois. La première semaine est gratuite pour que tu saches si cette façon d'enseigner te convient avant de payer quoi que ce soit.",
         },
         {
@@ -1062,7 +1062,7 @@ const LANDSCAPE: Lesson[] = [
             "Les sept jours de découverte, en entier, contre une adresse et rien d'autre.",
             "Le dojo d'entraînement, et le détail du coût de tout ce que tu y lances.",
             "Chaque insigne gagné dans la semaine, et la carte qui montre où tu en es.",
-            "Tout ce que tu emportes pour le faire tourner sur ta propre clé : ton fournisseur te facture, nous ne comptons jamais rien.",
+            "Tout ce que tu emportes pour le faire tourner sur ta propre clé : ton provider te facture, nous ne comptons jamais rien.",
           ],
         },
         {
@@ -1071,15 +1071,15 @@ const LANDSCAPE: Lesson[] = [
         },
         {
           title: "Pose une limite avant d'en avoir besoin",
-          body: "Les réglages du dojo ont un plafond quotidien et des budgets par coéquipier. Pose-les dès le premier jour. Ils ne te coûtent rien ici, où rien ne tourne, et ce sont eux qui comptent le jour où tu sors un agent et où la facture atterrit sur ton propre compte de fournisseur, et non sur une réserve qui s'arrête simplement.",
+          body: "Les réglages du dojo ont un plafond quotidien et des budgets par coéquipier. Pose-les dès le premier jour. Ils ne te coûtent rien ici, où rien ne tourne, et ce sont eux qui comptent le jour où tu sors un agent et où la facture atterrit sur ton propre compte chez ton provider, et non sur une réserve qui s'arrête simplement.",
         },
         {
           title: "Trois modes, et ce que chacun change vraiment",
-          body: "La pastille en tête du dojo est le bouton des jetons. Ce n'est pas un palier commercial : chaque mode change exactement trois choses, et la pastille affiche ce que le travail de la journée aurait coûté sur une vraie clé, pour que le chiffre te soit familier bien avant d'être ta propre facture.",
+          body: "La pastille en tête du dojo est le bouton des tokens. Ce n'est pas un palier commercial : chaque mode change exactement trois choses, et la pastille affiche ce que le travail de la journée aurait coûté sur une vraie clé, pour que le chiffre te soit familier bien avant d'être ta propre facture.",
           points: [
-            "Économe · réponses plafonnées court, et aucune application n'accompagne le passage. Ton équipe écrit au lieu d'agir. La façon la moins chère d'ajuster une consigne.",
+            "Économe · réponses plafonnées court, et aucune application n'accompagne le passage. Ton équipe écrit au lieu d'agir. La façon la moins chère d'ajuster un prompt.",
             "Équilibré · réponses entières, jusqu'à trois applications branchées. Le réglage de tous les jours, et celui par lequel commencer.",
-            "Maximum · réponses longues, le modèle réfléchit avant d'écrire, toutes les applications disponibles. Trois à cinq fois plus de jetons : garde-le pour le passage que tu vas livrer.",
+            "Maximum · réponses longues, le modèle réfléchit avant d'écrire, toutes les applications disponibles. Trois à cinq fois plus de tokens : garde-le pour le passage que tu vas livrer.",
           ],
         },
         {
@@ -1175,8 +1175,8 @@ const TEAMMATES: Lesson[] = [
       summary: "Ouvre un coéquipier et tu obtiens huit champs en français courant. Voici ce que chacun commande.",
       blocks: [
         {
-          title: "Pas de code, pas d'ingénierie de consigne",
-          body: "Un coéquipier est une fiche de huit champs écrits en français ordinaire. Il n'y a aucune consigne système cachée que tu ne verrais pas, et aucune syntaxe à apprendre. Ce qui est sur la fiche est ce que le coéquipier fait.",
+          title: "Pas de code, pas de prompt engineering",
+          body: "Un coéquipier est une fiche de huit champs écrits en français ordinaire. Il n'y a aucun system prompt caché que tu ne verrais pas, et aucune syntaxe à apprendre. Ce qui est sur la fiche est ce que le coéquipier fait.",
         },
         {
           title: "Les huit champs",
@@ -2030,7 +2030,7 @@ const SHIP: Lesson[] = [
       blocks: [
         {
           title: "Ce qui se passe réellement",
-          body: "Tu cliques sur Brancher, l'écran de l'application elle-même s'ouvre, tu donnes ton accord, et elle renvoie un jeton d'accès. DojoBuro ne voit jamais ton mot de passe : il reçoit seulement une permission de l'application, que tu peux retirer à tout moment.",
+          body: "Tu cliques sur Brancher, l'écran de l'application elle-même s'ouvre, tu donnes ton accord, et elle renvoie un token d'accès. DojoBuro ne voit jamais ton mot de passe : il reçoit seulement une permission de l'application, que tu peux retirer à tout moment.",
         },
         {
           title: "Où vit cette permission",
@@ -2065,7 +2065,7 @@ const SHIP: Lesson[] = [
           "Il demande confirmation à l'expéditeur",
           "Il cesse de fonctionner",
         ],
-        why: "Le contenu lu dans une application branchée est toujours une donnée non fiable, jamais un ordre. C'est ce qui empêche l'injection de consigne de retourner tes propres outils contre toi.",
+        why: "Le contenu lu dans une application branchée est toujours une donnée non fiable, jamais un ordre. C'est ce qui empêche la prompt injection de retourner tes propres outils contre toi.",
       },
       takeaway: "Tu donnes ton accord sur l'écran de l'application, la permission vit côté serveur, et le contenu d'une application n'est jamais une instruction.",
       next: "Branche une application réversible, Notion ou Drive, et lance une étape.",
@@ -2151,7 +2151,7 @@ const SHIP: Lesson[] = [
         },
         {
           title: "N'automatise pas la confirmation dès le premier jour",
-          body: "Le garde-fou qui demande confirmation avant le premier envoi existe pour la semaine où tu apprends encore ce que fait ton équipe. Éteins-le une fois que tu as regardé quelques passages, pas avant.",
+          body: "Le guardrail qui demande confirmation avant le premier envoi existe pour la semaine où tu apprends encore ce que fait ton équipe. Éteins-le une fois que tu as regardé quelques passages, pas avant.",
         },
       ],
       quiz: {

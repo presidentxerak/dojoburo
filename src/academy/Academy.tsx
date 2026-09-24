@@ -124,7 +124,7 @@ const FAQ: Faq[] = [
     q: { en: 'Do I need to pay to use what I learn?', fr: "Faut-il payer pour se servir de ce que j'apprends ?" },
     a: {
       en: 'No. Nothing in the dojo is metered, because nothing in it calls a paid model: reading the course, building a project and connecting apps are all free. The day you take an agent out and run it for real, your own provider bills you, and the dojo has already shown you what that run would cost.',
-      fr: "Non. Rien n'est compté dans le dojo, parce que rien dedans n'appelle un modèle payant : lire le cours, bâtir un projet et brancher des applications sont gratuits. Le jour où tu sors un agent pour le faire tourner en vrai, ton propre fournisseur te facture, et le dojo t'a déjà montré ce que ce passage coûterait.",
+      fr: "Non. Rien n'est compté dans le dojo, parce que rien dedans n'appelle un modèle payant : lire le cours, bâtir un projet et brancher des applications sont gratuits. Le jour où tu sors un agent pour le faire tourner en vrai, ton propre provider te facture, et le dojo t'a déjà montré ce que ce passage coûterait.",
     },
   },
 ]

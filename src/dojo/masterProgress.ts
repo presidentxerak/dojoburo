@@ -128,7 +128,7 @@ export function masterAdvice(courses: CourseProgress[], lang: Lang = 'en'): stri
   }
   if (academy.done === 0) {
     return fr
-      ? "Tu en as construit un. Apprends maintenant pourquoi l'instruction qu'il contient fonctionne, sinon le suivant devra tout à la chance."
+      ? "Tu en as construit un. Apprends maintenant pourquoi le prompt qu'il contient fonctionne, sinon le suivant devra tout à la chance."
       : 'You have built one. Now learn why the instruction inside it works, or the next one will be luck.'
   }
   if (eco.done === 0) {
@@ -152,7 +152,7 @@ export function masterAdvice(courses: CourseProgress[], lang: Lang = 'en'): stri
 const LABEL_FR: Record<CourseProgress['id'], string> = {
   build: "la construction d'un agent",
   academy: 'le prompt engineering',
-  eco: 'la sobriété en jetons',
+  eco: 'la sobriété en tokens',
   design: 'le design avec un modèle',
   figma: 'Figma',
 }

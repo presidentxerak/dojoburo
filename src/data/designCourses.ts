@@ -239,7 +239,7 @@ export const DESIGN_COURSE: DesignCourse = {
       ),
       words: [
         { term: B('Design system', 'Système de design'), means: B('The written set of decisions: the scales, the colours, the spacings, and what each is for. Boring on purpose.', "L'ensemble écrit des décisions : les échelles, les couleurs, les espacements, et à quoi sert chacun. Ennuyeux volontairement.") },
-        { term: B('Token', 'Jeton de design'), means: B('A named value rather than a number in a file. "Space M" instead of 16, so it can change in one place.', "Une valeur nommée plutôt qu'un nombre dans un fichier. « Espace M » au lieu de 16, pour que ça change à un seul endroit.") },
+        { term: B('Token', 'Design token'), means: B('A named value rather than a number in a file. "Space M" instead of 16, so it can change in one place.', "Une valeur nommée plutôt qu'un nombre dans un fichier. « Espace M » au lieu de 16, pour que ça change à un seul endroit.") },
       ],
       steps: [
         B('At the end of any screen you are happy with, write down the sizes, spacings and colours it actually used. Name them.',
@@ -384,7 +384,7 @@ export const FIGMA_COURSE: DesignCourse = {
       title: B('Variables: the system before the screens', 'Variables : le système avant les écrans'),
       plain: B(
         'A variable is a named value: a colour, a spacing, a size, used by name instead of by number. It is the design token from the other course, made real in the tool.',
-        "Une variable est une valeur nommée : une couleur, un espacement, une taille, utilisée par son nom plutôt que par son nombre. C'est le jeton de design de l'autre cours, rendu réel dans l'outil.",
+        "Une variable est une valeur nommée : une couleur, un espacement, une taille, utilisée par son nom plutôt que par son nombre. C'est le design token de l'autre cours, rendu réel dans l'outil.",
       ),
       like: B(
         'Writing "the house colour" on four hundred tins instead of writing the exact mix on each one. When the house colour changes, you change it once.',

@@ -191,7 +191,7 @@ export const LEVERS: Lever[] = [
       title: "Plafonne la longueur de la réponse",
       how: "Fixe une longueur maximale de sortie sur la requête, et donne aussi la cible dans le prompt.",
       why:
-        "Les jetons de sortie sont la moitié chère : typiquement trois à cinq fois le prix d'entrée par jeton. Un modèle sans plafond remplit la place qu'on lui donne, et l'essentiel de ce qu'il ajoute est une reformulation.",
+        "Les tokens de sortie sont la moitié chère : typiquement trois à cinq fois le prix d'entrée par token. Un modèle sans plafond remplit la place qu'on lui donne, et l'essentiel de ce qu'il ajoute est une reformulation.",
       not:
         "Ne plafonne pas une étape dont le travail est de produire un document long. Un document tronqué qu'il faut régénérer coûte deux fois, et la seconde tentative repart de zéro.",
     },
@@ -233,11 +233,11 @@ export const LEVERS: Lever[] = [
     apply: (u) => ({ ...u, brief: Math.round(u.brief * 0.25) }),
     fr: {
       title: "Mets en cache le préfixe qui ne change jamais",
-      how: "Marque le brief système et toute matière de référence fixe comme cachables, si ton fournisseur le permet.",
+      how: "Marque le brief système et toute matière de référence fixe comme cachables, si ton provider le permet.",
       why:
-        "Le brief est identique à chaque requête et relu à chaque fois. Là où le cache existe, un préfixe caché est facturé à une fraction du tarif d'entrée : tu arrêtes de payer plein pot pour relire tes propres consignes mille fois par jour.",
+        "Le brief est identique à chaque requête et relu à chaque fois. Là où le cache existe, un préfixe caché est facturé à une fraction du tarif d'entrée : tu arrêtes de payer plein pot pour relire ton propre system prompt mille fois par jour.",
       not:
-        "Le cache a une taille minimale et une durée de vie. En dessous de quelques centaines de jetons, ou sur un préfixe que tu modifies chaque jour, il n'achète rien et ajoute une pièce mobile.",
+        "Le cache a une taille minimale et une durée de vie. En dessous de quelques centaines de tokens, ou sur un préfixe que tu modifies chaque jour, il n'achète rien et ajoute une pièce mobile.",
     },
   },
   {
@@ -257,7 +257,7 @@ export const LEVERS: Lever[] = [
       title: "Écris le brief en interdits et en exemples, pas en adjectifs",
       how: "Remplace « sois professionnel, sois concis, sois utile » par les trois choses qu'il ne doit jamais faire, et un exemple travaillé.",
       why:
-        "Les adjectifs sont invisibles pour un modèle et coûtent autant que des consignes qui fonctionnent. Un brief écrit en règles vérifiables est à la fois plus court et mieux suivi, ce qui économise deux fois : moins de jetons, et moins de reprises parce que la sortie était fausse.",
+        "Les adjectifs sont invisibles pour un modèle et coûtent autant que des instructions qui fonctionnent. Un brief écrit en règles vérifiables est à la fois plus court et mieux suivi, ce qui économise deux fois : moins de tokens, et moins de reprises parce que la sortie était fausse.",
       not:
         "Ne coupe pas une règle dont tu ne te souviens pas l'avoir vue enfreinte : tu supprimes peut-être celle qui tient le comportement en silence. Coupe ce que tu peux relier à un mauvais brouillon.",
     },
