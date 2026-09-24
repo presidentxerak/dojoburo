@@ -38,7 +38,12 @@ page.on('pageerror', (e) => errs.push('PAGEERR: ' + e.message))
 await page.goto(`${BASE}/`, { waitUntil: 'load' })
 await page.waitForTimeout(1200)
 pass('landing loaded', (await page.locator('body').textContent()).length > 200)
-pass('landing has enter CTA', await page.locator('button', { hasText: /Enter|Entrer|dojo|Start|Launch/i }).count() > 0)
+// The home page is the Dojos screen: its way in is a training card, which is a
+// link with its call to action inside. This check used to look for a <button>
+// matching /dojo/ and passed only thanks to the help launcher's "Dojobot"
+// label; the launcher is now an icon bubble, and the check looks at the thing
+// that actually lets someone in.
+pass('landing has enter CTA', await page.locator('a.pk .pk-go', { hasText: /See|Voir|Start|Commencer|Continue|Reprendre/i }).count() > 0)
 await page.screenshot({ path: `${OUT}/full-landing.png` })
 
 // 2. ENTER APP
