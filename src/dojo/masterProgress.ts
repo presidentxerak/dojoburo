@@ -118,34 +118,34 @@ export function masterAdvice(courses: CourseProgress[], lang: Lang = 'en'): stri
   const [build, academy, eco] = courses
   if (build.done === 0 && academy.done === 0) {
     return fr
-      ? "Commence par le dojo. Prends un agent et mène-le jusqu'au bout : le reste prendra tout son sens ensuite."
+      ? "Commencez par le dojo. Choisissez un agent et menez-le jusqu'au bout : le reste du parcours prendra ensuite tout son sens."
       : 'Start in the dojo. Pick one agent and take it all the way through, then the rest will make sense.'
   }
   if (build.done === 0) {
     return fr
-      ? "Tu as lu, et c'est la moitié facile. Choisis un agent dans le dojo et construis-le d'un bout à l'autre."
+      ? "Vous avez lu, ce qui constitue la moitié la plus simple. Choisissez à présent un agent dans le dojo et construisez-le entièrement."
       : 'You have read, and that is the easy half. Pick an agent in the dojo and build one end to end.'
   }
   if (academy.done === 0) {
     return fr
-      ? "Tu en as construit un. Apprends maintenant pourquoi le prompt qu'il contient fonctionne, sinon le suivant devra tout à la chance."
+      ? "Vous avez construit un agent. Apprenez maintenant pourquoi son prompt fonctionne ; sans cela, le suivant devra tout au hasard."
       : 'You have built one. Now learn why the instruction inside it works, or the next one will be luck.'
   }
   if (eco.done === 0) {
     return fr
-      ? "Tes agents fonctionnent. Personne n'a encore demandé ce qu'ils coûtent à faire tourner, et c'est le troisième cours."
+      ? "Vos agents fonctionnent. Reste à établir ce que coûte leur exécution : c'est l'objet du troisième cours."
       : 'Your agents work. Nobody has asked yet what they cost to run, which is the third course.'
   }
   if (courses.every((c) => c.percent === 100)) {
     return fr
-      ? "Il ne reste ici rien que tu n'aies fait. Va construire celui que cette salle ne couvrait pas !"
+      ? "Vous avez terminé l'ensemble des parcours. Construisez à présent l'agent que cette salle ne couvrait pas."
       : 'There is nothing left here that you have not done. Now go build the one this room did not cover.'
   }
   // Le cours le plus en retard, nommé · c'est plus utile qu'une moyenne, qui
   // ne dit jamais quoi faire.
   const behind = [...courses].sort((a, b) => a.percent - b.percent)[0]
   return fr
-    ? `Ton cours le plus faible, c'est ${LABEL_FR[behind.id]}, à ${behind.percent} pour cent. C'est là que ta prochaine heure rapporte.`
+    ? `Votre cours le moins avancé est ${LABEL_FR[behind.id]}, à ${behind.percent} pour cent. C'est là que votre prochaine heure sera la plus utile.`
     : `Your weakest course is ${LABEL[behind.id]}, at ${behind.percent} per cent. That is where the next hour pays.`
 }
 

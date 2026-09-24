@@ -39,10 +39,10 @@ const START_CHIPS = ['start', 'studios', 'teams', 'budget', 'training', 'lessons
  *  Each one is written to land on its topic in the local answers, so a tap
  *  answers at once, without a model. */
 const SUGGESTIONS = [
-  { en: 'How do I play Dojoburo?', fr: 'Comment on joue à Dojoburo ?' },
+  { en: 'How do I play Dojoburo?', fr: 'Comment joue-t-on à Dojoburo ?' },
   { en: 'What are tokens for in the game?', fr: 'À quoi servent les tokens dans le jeu ?' },
   { en: 'Where do I start the training?', fr: 'Par où commencer la formation ?' },
-  { en: 'How much does it cost?', fr: 'Combien ça coûte ?' },
+  { en: 'How much does it cost?', fr: 'Combien cela coûte-t-il ?' },
   { en: 'How does buying work?', fr: "Comment se passe l'achat ?" },
   { en: 'Where is my progress saved?', fr: 'Où est gardée ma progression ?' },
 ]
