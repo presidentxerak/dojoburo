@@ -51,6 +51,8 @@ const CHECKS = [
   // garde. Hors navigateur, en une seconde.
   ['test-sandbox.mjs', 1, true],
   ['test-curriculum.mjs', 1, true],
+  // CHAQUE DOJO EST UN VRAI COURS · pourquoi, avant/après, exercice, questions.
+  ['test-enrich.mjs', 1, true],
   ['test-trades.mjs', 1, true],
   ['test-game.mjs', 1, true],
   // LA CHARTE, LE DÉFILEMENT ET LA MISE EN PAGE. Une seule règle de style ·
