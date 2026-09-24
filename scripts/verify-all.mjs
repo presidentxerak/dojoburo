@@ -105,6 +105,8 @@ const CHECKS = [
   // risque d'un site à moitié traduit n'est pas la faute de traduction, c'est
   // de le croire terminé.
   ['test-i18n.mjs', 1, true],
+  // LE JARGON IA ANGLOPHONE EN FRANÇAIS · token, prompt, system prompt.
+  ['check-jargon.mjs', 1, true],
   // LES DEUX COURS DE DESIGN · qu'ils n'enseignent AUCUN chemin de menu, parce
   // qu'un chemin de menu est faux à la prochaine version et que le lecteur en
   // conclut qu'il a mal compris. Et que la forme pédagogique tienne : les mots
