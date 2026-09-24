@@ -3802,11 +3802,24 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
    with a black tail drawn by ::after. The bubble became violet and its shape
    already carries the tail (the square corner), so the black triangle stuck
    out of it. The tail is gone; the bubble is one flat shape. */
-.sb-launch { background: #7c3aed !important; border: none !important; box-shadow: none !important; }
-.sb-launch:hover { background: #8b5cf6 !important; box-shadow: none !important; transform: translateY(-2px); }
-.sb-launch .logo-badge { color: #fff !important; }
-.sb-launch .lg-icon { fill: #fff !important; }
-.sb-launch .lg-temple { fill: #fff !important; }
+/* UNE VRAIE BULLE DE CHAT · la forme est dessinée (le SVG du bouton), plus
+   devinée à partir d'un coin carré. Le bouton lui-même n'a plus ni fond, ni
+   bord, ni arrondi : c'est la bulle qui se voit, et elle reste à plat. */
+.sb-launch {
+  width: 62px !important; height: 60px !important;
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  border-radius: 0 !important;
+  transition: transform 160ms var(--g-ease, ease);
+}
+.sb-launch:hover { background: transparent !important; box-shadow: none !important; transform: translateY(-2px); }
+.sb-launch:active { transform: scale(.95); }
+.sb-launch:focus-visible { outline: 3px solid #fff; outline-offset: 2px; border-radius: 16px !important; }
+.sb-bubble-ico { width: 100%; height: 100%; display: block; overflow: visible; }
+.sb-bubble-ico .sb-bubble-body { fill: #7c3aed; transition: fill 160ms ease; }
+.sb-launch:hover .sb-bubble-ico .sb-bubble-body { fill: #8b5cf6; }
+.sb-launch:active .sb-bubble-ico .sb-bubble-body { fill: #6d28d9; }
+.sb-bubble-ico circle { fill: #fff; }
+@media (max-width: 720px) { .sb-launch { width: 56px !important; height: 54px !important; } }
 
 /* ===== Settings modal (Squarespace-style: nav sidebar + content) ===== */
 /* Settings is a full-screen surface like every other panel of its weight · the
@@ -10738,6 +10751,120 @@ button.wm-tag { border-radius: 999px !important; }
 }
 .cl-me b { display: block; font-family: var(--font-game); font-weight: 800; font-size: 26px; color: #fff; }
 .cl-me em { font-style: normal; font-size: 13px; color: var(--g-sub); font-weight: 700; }
+
+/* ========================================================================== */
+/* LE CLAN · LE FIL DE LA COMMUNAUTÉ (préfixe .cf-)                            */
+/* ========================================================================== */
+/* Le formulaire, les cartes du fil et les états (chargement, vide, erreur,
+   serveur non configuré). La même matière que les autres surfaces du jeu :
+   dégradé, arête claire, aucune bordure. Les boutons restent ceux du jeu
+   (gm-cta pour publier, cc-btn cc-slate pour le reste), donc flat.
+   TIENT JUSQU'À 320 PIXELS · tout ce qui est long (un pseudonyme, une adresse,
+   un mot sans espace) se coupe au lieu de pousser la page de côté. */
+.cf-form, .cf-card, .cf-note {
+  background: linear-gradient(180deg, var(--g-card-top), var(--g-card) 40%, var(--g-card-bot));
+  border: 0;
+  border-radius: 22px;
+  box-shadow: var(--g-edge), var(--g-lift);
+  color: var(--g-text);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* la taille est imposée · un « h2 { font-size: 32px !important } » global
+   vit plus haut, comme pour .gm-h1 */
+.cf-h2 {
+  font-family: var(--font-game) !important; font-weight: 800 !important;
+  font-size: clamp(19px, .6vw + 16px, 22px) !important;
+  color: #fff; margin: 0 0 10px; line-height: 1.2;
+}
+.cf-note { padding: 20px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.cf-note b { font-family: var(--font-game); font-weight: 800; font-size: 19px; color: #fff; line-height: 1.25; }
+.cf-note p { margin: 0; font-size: 14.5px; color: var(--g-sub); line-height: 1.6; }
+.cf-note .cc-btn { margin-top: 6px; }
+.cf-state { margin: 8px 0 0; font-size: 14px; color: var(--g-sub); }
+
+/* --- le formulaire --- */
+.cf-form { padding: clamp(16px, 3vw, 22px); display: flex; flex-direction: column; }
+.cf-form .cf-h2 { margin-bottom: 4px; }
+.cf-lab {
+  display: block; margin: 14px 0 6px; padding: 0;
+  font-family: var(--font-game); font-weight: 800; font-size: 15px; color: #fff;
+}
+.cf-inp {
+  display: block; width: 100%; min-width: 0; box-sizing: border-box;
+  min-height: 48px; padding: 12px 14px;
+  font: inherit; font-size: 16px; font-weight: 600; line-height: 1.45;
+  border: 0; border-radius: 14px;
+  background: var(--g-slot); color: var(--g-text); box-shadow: var(--g-sunk);
+}
+.cf-area { min-height: 132px; resize: vertical; }
+.cf-inp::placeholder { color: var(--g-sub); opacity: .8; }
+.cf-inp:focus { outline: 2px solid #a78bfa; outline-offset: 2px; }
+.cf-inp[aria-invalid='true'] { outline: 2px solid #fda4af; outline-offset: 2px; }
+.cf-count { align-self: flex-end; margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--g-sub); }
+.cf-tagset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.cf-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.cf-tag {
+  min-height: 38px; padding: 7px 14px;
+  font: inherit; font-size: 14px; font-weight: 700; color: var(--g-sub);
+  background: #2c1d52; border: 0; border-radius: 999px; box-shadow: none;
+  cursor: pointer; transition: background-color 160ms ease, color 160ms ease;
+}
+.cf-tag:hover { background: #3a2868; color: #fff; }
+.cf-tag.on { background: #7c3aed; color: #fff; }
+.cf-tag:disabled { opacity: .45; cursor: not-allowed; }
+.cf-tag:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.cf-fine { margin: 6px 0 0; font-size: 13.5px; color: var(--g-sub); line-height: 1.55; }
+.cf-send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 4px; }
+.cf-err { margin: 6px 0 0; font-size: 13.5px; font-weight: 700; color: #fda4af; line-height: 1.45; }
+.cf-ok { margin: 6px 0 0; font-size: 13.5px; font-weight: 700; color: #bef264; line-height: 1.45; }
+.cf-send .cf-err, .cf-send .cf-ok { margin-top: 14px; }
+
+/* --- le fil --- */
+.cf-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.cf-list > li { min-width: 0; }
+.cf-card { padding: clamp(16px, 3vw, 20px); display: flex; flex-direction: column; gap: 8px; }
+.cf-card.mine { box-shadow: var(--g-edge), var(--g-lift), inset 0 0 0 2px rgba(167, 139, 250, .35); }
+.cf-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 13px; color: var(--g-sub); }
+.cf-who { font-family: var(--font-game); font-weight: 800; font-size: 15px; color: #fff; }
+.cf-mine {
+  font-size: 12px; font-weight: 800; color: #fff;
+  background: #5b21b6; padding: 2px 9px; border-radius: 999px;
+}
+.cf-title {
+  margin: 0; font-family: var(--font-game) !important; font-weight: 800 !important;
+  font-size: clamp(18px, .5vw + 15px, 21px) !important; line-height: 1.25; color: #fff;
+}
+.cf-body { margin: 0; font-size: 15px; line-height: 1.6; color: var(--g-text); white-space: pre-line; }
+.cf-link {
+  align-self: flex-start; max-width: 100%;
+  font-weight: 700; font-size: 14.5px; color: #c4b5fd; text-decoration: underline; text-underline-offset: 3px;
+}
+.cf-link:hover { color: #fff; }
+.cf-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.cf-chips li {
+  font-size: 12.5px; font-weight: 700; color: var(--g-sub);
+  background: var(--g-slot); padding: 4px 10px; border-radius: 999px;
+}
+.cf-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.cf-act.cc-btn {
+  margin-top: 0; min-height: 40px; padding: 8px 16px;
+  font-size: 15px;
+}
+.cf-act.on { --b: #7c3aed; --b-hi: #8b5cf6; --b-lo: #6d28d9; }
+.cf-del { --b: #7f1d1d; --b-hi: #991b1b; --b-lo: #641515; }
+.cf-n { font-variant-numeric: tabular-nums; opacity: .9; }
+.cf-more { display: flex; flex-direction: column; align-items: flex-start; margin-top: 4px; }
+
+/* LES VRAIS <button> ET CHAMPS GARDENT LEUR ARRONDI · même réponse que plus
+   bas, à la règle générale qui les aplatit en !important. */
+.gm .cf-inp { border-radius: 14px !important; }
+.gm button.cf-tag { border-radius: 999px !important; }
+
+@media (max-width: 380px) {
+  .cf-acts .cf-act { flex: 1 1 auto; }
+  .cf-form .gm-cta { width: 100%; }
+}
 
 /* LE ROBOT D'AIDE · une bulle violette flat, l'icône seule, au-dessus de la
    barre du bas. Le nom reste dit au lecteur d'écran par l'étiquette. */
