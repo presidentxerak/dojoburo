@@ -15,7 +15,7 @@ import { DojoGraph } from './components/dashboard/DojoGraph'
 import { DojoTabs } from './components/dashboard/DojoTabs'
 import { PipelineHome } from './components/home/PipelineHome'
 import { Defs } from './components/Defs'
-import { useDojo, applyTheme } from './store'
+import { useDojo } from './store'
 import { useWork } from './agents/workStore'
 import { useWorkshop } from './workshop'
 import { privyConfigured } from './auth/controls'
@@ -30,7 +30,6 @@ import { BauhausIcon } from './components/BauhausIcon'
 
 export default function App() {
   const fireEvent = useDojo((s) => s.fireEvent)
-  const theme = useDojo((s) => s.theme)
   const selected = useDojo((s) => s.selectedAgent)
   const selectAgent = useDojo((s) => s.selectAgent)
   const account = useWorkshop((s) => s.account)
@@ -68,10 +67,6 @@ export default function App() {
   const studioOpen = useWork((s) => s.studioOpen)
   const connectOpen = useWork((s) => s.connectOpen)
   const docsOpen = useWork((s) => s.docsOpen)
-
-  // La marque est déjà posée par index.html avant le premier pixel · celle-ci
-  // ne fait que suivre un changement de réglage en cours de session.
-  useEffect(() => { applyTheme(theme) }, [theme])
 
   // clicking an agent (in the 3D dojo or its roster card) opens its dashboard on
   // the right panel · if the dojo is fullscreen, reveal the panel so it shows.

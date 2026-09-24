@@ -20,14 +20,13 @@
 // LE JOUR OÙ UN SERVEUR EXISTE, cette page devient le fil. Rien de ce qui est
 // écrit ici ne sera à défaire : il n'y a pas de faux fil à démonter.
 import { SupportBot } from '../components/SupportBot'
-import { BauhausIcon } from '../components/BauhausIcon'
-import { BauhausBand } from '../components/BauhausBand'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useT } from '../i18n'
 import { BADGE_COUNT } from '../data/curriculum'
 import { useGame } from './progress'
 import { Shell } from './Shell'
+import { levelOf } from './Gauge'
 
 export function ClanPage() {
   const t = useT()
@@ -42,7 +41,6 @@ export function ClanPage() {
   return (
     <Shell>
       <section className="gm-sec">
-        <BauhausBand seed="clan-accueil" n={14} height={16} />
         <h1 className="gm-h1">{t('cl.title')}</h1>
         <p className="gm-lead">{t('cl.lead')}</p>
       </section>
@@ -58,7 +56,8 @@ export function ClanPage() {
       {/* CE QUI MARCHE DÉJÀ · votre progression, et de quoi la montrer. */}
       <section className="gm-sec">
         <div className="cl-me">
-          <span className="cl-me-g"><BauhausIcon name="star" size={20} /></span>
+          {/* LE NIVEAU EN JETON · dérivé de l'expérience, voir Gauge. */}
+          <span className="cl-me-g" aria-label={`${t('gm.lv')} ${levelOf(g.xp).level}`}>{levelOf(g.xp).level}</span>
           <div>
             <b>{g.xp} XP</b>
             <em>{g.badges.length} / {BADGE_COUNT} {t('pr.badges')}</em>

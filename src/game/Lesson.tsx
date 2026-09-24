@@ -130,7 +130,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
           </>
         ) : (
           <div className="pkl">
-            <b><BauhausIcon name="box" size={13} /> {t('gm.lockTitle')}</b>
+            <b><BauhausIcon name="lock" size={16} /> {t('gm.lockTitle')}</b>
             <p>{t('gm.lockBody')}</p>
             <Lnk className="gm-cta" href="/decouvrir#pricing">
               {priceTag(eurOf(pack))} · {t('g.seePrices')} →

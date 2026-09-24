@@ -19,7 +19,6 @@
 // récompense qu'on va voir, où l'on reconnaît les cités qu'on a finies.
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
-import { BauhausBand } from '../components/BauhausBand'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
@@ -29,6 +28,7 @@ import { TRADE_BY_ID } from '../data/trades'
 import { useGame } from './progress'
 import { useAccess, forgetAccess } from './access'
 import { Shell } from './Shell'
+import { Gauge, levelOf } from './Gauge'
 
 export function ProfilPage() {
   const lang = useLang()
@@ -43,6 +43,7 @@ export function ProfilPage() {
   })
 
   const earned = g.badges.length
+  const lv = levelOf(g.xp)
 
   return (
     <Shell>
@@ -50,10 +51,16 @@ export function ProfilPage() {
         <h1 className="gm-h1">{t('pr.title')}</h1>
         <p className="gm-lead">{t('pr.lead')}</p>
 
+        {/* LES COMPTEURS, PUIS LES JAUGES · le niveau et l'expérience en
+            chiffres, le chemin vers le niveau suivant et la vitrine en barres. */}
         <div className="pf-nums">
+          <span className="lv"><b>{lv.level}</b><i>{t('gm.lv')}</i></span>
           <span><b>{g.xp}</b><i>XP</i></span>
-          <span><b>{earned}</b><i>{t('pr.badges')}</i></span>
           <span><b>{g.pathPercent}%</b><i>{t('pr.ofPath')}</i></span>
+        </div>
+        <div className="pf-gauges">
+          <Gauge value={lv.into} total={lv.need} label={t('gm.toNext')} />
+          <Gauge value={earned} total={g.badgeTotal} label={t('pr.badges')} />
         </div>
 
         {g.nextUp && (
@@ -66,7 +73,6 @@ export function ProfilPage() {
       {/* LA CARTE · une porte, pas un passage obligé. */}
       <section className="gm-sec">
         <Lnk className="pf-map" href="/carte">
-          <span className="pf-map-g"><BauhausIcon name="grid" size={20} /></span>
           <span className="pf-map-t">
             <b>{t('pr.mapTitle')}</b>
             <em>{t('pr.mapBody')}</em>
@@ -78,7 +84,6 @@ export function ProfilPage() {
       {/* CE QUI EST OUVERT · dit une fois, à l'endroit où l'on se demande ce
           qu'on possède. */}
       <section className="gm-sec">
-        <BauhausBand seed="profil-ouvert" />
         <h2 className="pf-h2">{t('pr.ownedH2')}</h2>
         <div className="pf-owned">
           {PACKS.map((p) => <OwnedRow key={p.id} pack={p} />)}
@@ -89,7 +94,6 @@ export function ProfilPage() {
       {/* LA VITRINE · tous les badges de la portée, gagnés ou non. Une vitrine
           qui ne montre que les trophées obtenus ne dit pas ce qu'il reste. */}
       <section className="gm-sec">
-        <BauhausBand seed="profil-vitrine" />
         <h2 className="pf-h2">{t('pr.caseH2')} <span className="pf-of">{earned} / {g.badgeTotal}</span></h2>
         <div className="pf-case">
           {g.scopeLevels.map(({ module, level }) => {
@@ -98,7 +102,7 @@ export function ProfilPage() {
               <span key={`${module.id}/${level.id}`}
                 className={`pf-badge${done ? ' on' : ''}`}
                 style={{ ['--ac' as string]: module.tint }}>
-                <i><BauhausIcon name={done ? 'check' : module.glyph} size={13} /></i>
+                <i>{done && <BauhausIcon name="check" size={14} />}</i>
                 <b>{say(level.badge, lang)}</b>
               </span>
             )
@@ -110,7 +114,6 @@ export function ProfilPage() {
           compte. Une vitrine dont la taille change sans qu'on sache pourquoi
           est une vitrine à laquelle on cesse de croire. */}
       <section className="gm-sec">
-        <BauhausBand seed="profil-metier" />
         <h2 className="pf-h2">{t('tr.yours')}</h2>
         <p className="gm-lead">
           {a.pick && TRADE_BY_ID[a.pick]
@@ -122,7 +125,6 @@ export function ProfilPage() {
       {/* CE QUI EST GARDÉ, ET COMMENT L'EFFACER · une page de profil qui ne
           dit pas où vit la progression laisse croire à un compte. */}
       <section className="gm-sec pf-end">
-        <BauhausBand seed="profil-donnees" />
         <h2 className="pf-h2">{t('pr.dataH2')}</h2>
         <p className="gm-lead">{t('pr.dataBody')}</p>
         <button className="cc-btn pf-forget" onClick={() => { forgetAccess(); location.reload() }}>
@@ -157,7 +159,7 @@ function OwnedRow({ pack }: { pack: Pack }) {
     <Lnk className={`pf-own${open ? ' on' : ''}`} href={packPath(pack.id)}
       style={{ ['--ac' as string]: pack.tint }}>
       <span className="pf-own-m">
-        {open ? <BauhausIcon name="check" size={12} /> : <BauhausIcon name="box" size={12} />}
+        {open ? <BauhausIcon name="check" size={12} /> : <BauhausIcon name="lock" size={12} />}
       </span>
       <span className="pf-own-t">
         <b>{say(pack.title, lang)}</b>

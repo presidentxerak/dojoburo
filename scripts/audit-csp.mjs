@@ -98,14 +98,13 @@ const ok = (n, c, extra = '') => { console.log((c ? 'ok    ' : 'FAIL  ') + n + (
  * quelqu'un le réécrivait en ligne, il serait refusé EN SILENCE, la marque ne
  * serait jamais posée et la page basculerait en blanc à chaque chargement.
  *
- * Elle a exigé le réglage du SYSTÈME, puis le clair partout. L'application
- * est maintenant SOMBRE par défaut partout (un jeu, sa barre de nuit), et la
- * barre du navigateur prend la teinte de l'en-tête du jeu, pas un noir pur.
+ * Elle a exigé le réglage du SYSTÈME, puis le clair partout, puis le sombre
+ * par défaut avec un clair au choix. L'application n'a plus qu'un thème, le
+ * violet de nuit, et la barre du navigateur en prend la teinte.
  *
- * Elle vérifie donc les deux choses qui comptent : la marque EST posée (donc
- * le script tourne), elle vaut « dark » quel que soit le système, ET un choix
- * enregistré est respecté · sans quoi le thème clair mourrait sans que
- * personne ne s'en aperçoive.                                               */
+ * Elle vérifie donc : la marque EST posée (donc le script tourne), elle vaut
+ * « dark » quel que soit le système, ET un ancien choix de clair enregistré
+ * ne la fait pas repasser au clair.                                         */
 for (const scheme of ['dark', 'light']) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: scheme })
   const p = await ctx.newPage()
@@ -113,23 +112,21 @@ for (const scheme of ['dark', 'light']) {
   // tout de suite · c'est le sens d'un script synchrone dans le <head>
   await p.waitForTimeout(300)
   const stamp = await p.evaluate(() => document.documentElement.getAttribute('data-theme'))
-  ok(`sombre posé avant le rendu de React, téléphone en ${scheme}`, stamp === 'dark',
+  ok(`violet posé avant le rendu de React, téléphone en ${scheme}`, stamp === 'dark',
     `data-theme=${stamp} · un script EN LIGNE serait refusé, et la marque ne serait jamais posée`)
   const meta = await p.evaluate(() => document.querySelector('meta[name="theme-color"]')?.getAttribute('content'))
-  ok('et la barre du navigateur suit', meta === '#0f1120', String(meta))
+  ok('et la barre du navigateur suit', meta === '#120a24', String(meta))
   await ctx.close()
 }
 {
-  // un choix ENREGISTRÉ l'emporte · sinon le thème clair est inatteignable
-  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark' })
+  // un ANCIEN choix de clair ne ressuscite pas le thème clair
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'light' })
   await ctx.addInitScript(() => { try { localStorage.setItem('dojoburo.theme', 'light') } catch { /* privé */ } })
   const p = await ctx.newPage()
   await p.goto(B + '/', { waitUntil: 'commit' })
   await p.waitForTimeout(300)
   const stamp = await p.evaluate(() => document.documentElement.getAttribute('data-theme'))
-  ok('un choix enregistré de clair est respecté avant le premier pixel', stamp === 'light', `data-theme=${stamp}`)
-  const meta = await p.evaluate(() => document.querySelector('meta[name="theme-color"]')?.getAttribute('content'))
-  ok('et la barre du navigateur prend la teinte du jeu clair', meta === '#7fbf3a', String(meta))
+  ok('un ancien choix de clair n\'est plus appliqué', stamp === 'dark', `data-theme=${stamp}`)
   await ctx.close()
 }
 

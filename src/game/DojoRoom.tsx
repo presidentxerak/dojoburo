@@ -46,7 +46,7 @@ import { Character3D } from '../components/three/Character3D'
 import { Sensei3D } from '../components/three/Sensei3D'
 import { StudioLight } from '../components/three/StudioLight'
 import { templateById } from '../data/templates'
-import { characterFor, faceIdForUseCase } from '../data/agentFaces'
+import { masterCharacter } from '../data/cast'
 import type { Department } from '../data/agents'
 
 export function DojoRoom({ master, tint }: {
@@ -90,7 +90,7 @@ export function DojoRoom({ master, tint }: {
           <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
           <Character3D
             id={master}
-            character={characterFor(faceIdForUseCase(master))}
+            character={masterCharacter(master)}
             fn="Product"
             x={0}
             z={2.4}

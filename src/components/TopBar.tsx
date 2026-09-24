@@ -199,9 +199,9 @@ export function TopBar({ center }: { center?: React.ReactNode } = {}) {
 
             {/* the app itself */}
             <div className="tb-menu-rule" />
-            {/* Display mode and the build stamp are settings, and they are in
-                Settings · Appearance and Settings · About. The menu is for
-                going places, not for holding a copy of what is one row down. */}
+            {/* The build stamp is a setting, in Settings · About. The menu is
+                for going places, not for holding a copy of what is one row
+                down. There is no display mode any more: one dark violet theme. */}
             <button className="tb-menu-item" onClick={() => { setMenuOpen(false); useDojo.getState().setSettingsOpen(true) }}>Settings</button>
 
             {account && <button className="tb-menu-item tb-signout" onClick={doSignOut}>Sign out</button>}

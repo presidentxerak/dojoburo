@@ -84,7 +84,6 @@ export function CartePage() {
           <div className="cm-scrim" onClick={() => setOpenId(null)} />
           <aside className="cm-sheet" style={{ ['--ac' as string]: module.tint }}>
             <header className="cm-sheet-top">
-              <span className="cm-sheet-g"><BauhausIcon name={module.glyph} size={18} /></span>
               <div>
                 <b>{say(module.title, lang)}</b>
                 <em>{pack ? say(pack.title, lang) : ''}</em>

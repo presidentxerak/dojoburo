@@ -207,6 +207,22 @@ const SHAPES: Record<IconName, JSX.Element> = {
   // une lune, pas un sourire : ce sont les deux extrémités relevées qui
   // portent l'expression, et elles ne relèvent que si la courbe s'arrête
   // avant l'horizontale.
+  // LE CLAN · deux personnes, une devant l'autre. Il remplace les deux cercles
+  // concentriques de l'onglet Clan, qui étaient une forme, pas un groupe.
+  clan: <>
+    <circle cx="9" cy="8" r="3.2" />
+    <path d="M3 20.5 A6 6 0 0 1 15 20.5" />
+    <circle cx="16.5" cy="9.5" r="2.6" fill="currentColor" stroke="none" />
+    <path d="M15.2 14.6 A5 5 0 0 1 21.5 19.5" />
+  </>,
+  // LE CADENAS · un rectangle, l'arc de l'anse, le point de la serrure. Il
+  // remplace le carré nu qui disait « fermé » sur les cartes : un carré seul
+  // se lisait comme une forme décorative, pas comme une serrure.
+  lock: <>
+    <rect x="4.5" y="10.5" width="15" height="11" />
+    <path d="M8 10.5 V7.5 A4 4 0 0 1 16 7.5 V10.5" />
+    <circle cx="12" cy="16" r="1.6" fill="currentColor" stroke="none" />
+  </>,
   smile: <>
     <circle cx="12" cy="12" r="9.5" />
     <circle cx="8.8" cy="9.8" r="1.35" fill="currentColor" stroke="none" />
