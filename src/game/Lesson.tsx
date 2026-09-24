@@ -34,6 +34,8 @@ import { priceTag } from '../data/plans'
 import { useGame, markDone, clearDone, recordAnswer } from './progress'
 import { useAccess } from './access'
 import { DojoRoom } from './DojoRoom'
+import { enrichmentOf, type Enrichment } from '../data/enrich'
+import type { Quiz as QuizData } from '../data/curriculum'
 import { Shell } from './Shell'
 
 export function LessonPage({ packId, levelId }: { packId: string; levelId: string }) {
@@ -71,6 +73,10 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
   // LE PREMIER DOJO DE LA FORMATION EST OFFERT · même règle que la liste, et
   // elle est calculée au même endroit pour ne pas pouvoir la contredire.
   const open = a.opensPack(pack) || i === 0
+  // L'APPROFONDISSEMENT · voir data/enrich. Un dojo qui n'a pas encore le
+  // sien s'affiche avec son squelette ; scripts/test-enrich empêche qu'il y en
+  // ait un en production.
+  const deep = enrichmentOf(module.id, level.id)
 
   return (
     <Shell>
@@ -99,18 +105,33 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
               <p>{say(level.act, lang)}</p>
             </section>
 
-            <ol className="ln-steps">
-              {level.steps.map((s, n) => (
-                <li key={s.en}><span>{n + 1}</span>{say(s, lang)}</li>
-              ))}
-            </ol>
+            {deep && <Why e={deep} />}
+
+            <section className="ln-block">
+              <h2 className="ln-h2">{t('ln.steps')}</h2>
+              <ol className="ln-steps">
+                {level.steps.map((s, n) => (
+                  <li key={s.en}><span>{n + 1}</span>{say(s, lang)}</li>
+                ))}
+              </ol>
+            </section>
+
+            {deep && <Example e={deep} />}
 
             <section className="ln-trap">
               <span className="ln-k">{t('g.trap')}</span>
               <p>{say(level.trap, lang)}</p>
             </section>
 
-            <Quiz key={`${pack.id}/${level.id}`} packId={pack.id} levelId={level.id} />
+            {deep && <Exercise key={`ex-${pack.id}/${level.id}`} e={deep} />}
+
+            <section className="ln-block">
+              <h2 className="ln-h2">{t('ac.check')}</h2>
+              <Quiz key={`${pack.id}/${level.id}`} packId={pack.id} levelId={level.id} n={1} of={1 + (deep?.more.length ?? 0)} />
+              {deep?.more.map((q, k) => (
+                <QuizCard key={`${pack.id}/${level.id}#${k}`} q={q} n={k + 2} of={1 + deep.more.length} />
+              ))}
+            </section>
 
             <section className="ln-end">
               <button
@@ -132,7 +153,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
           <div className="pkl">
             <b><BauhausIcon name="lock" size={16} /> {t('gm.lockTitle')}</b>
             <p>{t('gm.lockBody')}</p>
-            <Lnk className="gm-cta" href="/decouvrir#pricing">
+            <Lnk className="gm-cta" href="/tarifs">
               {priceTag(eurOf(pack))} · {t('g.seePrices')} →
             </Lnk>
           </div>
@@ -144,40 +165,54 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
 
 /* ------------------------------------------------------------------ */
 
-/** La question · elle se corrige seule et ne se rejoue pas dans la foulée.
+/** La question du dojo · elle se corrige seule et ne se rejoue pas dans la
+ *  foulée, et sa réponse est enregistrée avec la progression.
  *
  *  POURQUOI ELLE NE SE REJOUE PAS : une question qu'on peut retenter jusqu'à
  *  tomber juste ne vérifie rien, elle mesure la patience. La réponse est
  *  enregistrée, l'explication s'affiche, et on passe. */
-function Quiz({ packId, levelId }: { packId: string; levelId: string }) {
+function Quiz({ packId, levelId, n, of }: { packId: string; levelId: string; n: number; of: number }) {
+  const found = findLesson(packId, levelId)!
+  const saved = useGame().answerFor(found.module.id, levelId)
+  return (
+    <QuizCard q={found.level.quiz} n={n} of={of} saved={saved}
+      onPick={(k) => recordAnswer(found.module.id, levelId, k)} />
+  )
+}
+
+/** Une question · la carte elle-même. Les questions d'approfondissement ne
+ *  sont pas enregistrées : elles vérifient, elles ne comptent pas. */
+function QuizCard({ q, n, of, saved, onPick }: {
+  q: QuizData
+  n: number
+  of: number
+  saved?: number
+  onPick?: (k: number) => void
+}) {
   const lang = useLang()
   const t = useT()
-  const g = useGame()
-  const found = findLesson(packId, levelId)!
-  const q = found.level.quiz
-  const saved = g.answerFor(found.module.id, levelId)
   const [pick, setPick] = useState<number | undefined>(saved)
   const answered = pick !== undefined
   const right = pick === q.answer
 
   return (
-    <section className="ln-quiz">
-      <span className="ln-k">{t('ac.check')}</span>
+    <div className="ln-quiz">
+      <span className="ln-k">{t('ln.q')} {n} / {of}</span>
       <h3>{say(q.q, lang)}</h3>
       <div className="ln-opts">
-        {q.options.map((o, n) => {
-          const state = !answered ? '' : n === q.answer ? ' right' : n === pick ? ' wrong' : ' dim'
+        {q.options.map((o, k) => {
+          const state = !answered ? '' : k === q.answer ? ' right' : k === pick ? ' wrong' : ' dim'
           return (
             <button
               key={o.en}
               className={`ln-opt${state}`}
               disabled={answered}
-              onClick={() => { setPick(n); recordAnswer(found.module.id, levelId, n) }}
+              onClick={() => { setPick(k); onPick?.(k) }}
             >
               <span className="ln-opt-k" aria-hidden>
-                {answered && n === q.answer ? <BauhausIcon name="check" size={12} />
-                  : answered && n === pick ? <BauhausIcon name="cross" size={12} />
-                  : String.fromCharCode(65 + n)}
+                {answered && k === q.answer ? <BauhausIcon name="check" size={12} />
+                  : answered && k === pick ? <BauhausIcon name="cross" size={12} />
+                  : String.fromCharCode(65 + k)}
               </span>
               {say(o, lang)}
             </button>
@@ -189,6 +224,86 @@ function Quiz({ packId, levelId }: { packId: string; levelId: string }) {
           <b>{right ? t('ac.right') : t('ac.wrong')}</b> {say(q.why, lang)}
         </p>
       )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+
+/** POURQUOI ÇA MARCHE · le mécanisme, avant les gestes. Savoir pourquoi un
+ *  geste marche, c'est savoir quand il ne marchera pas. */
+function Why({ e }: { e: Enrichment }) {
+  const lang = useLang()
+  const t = useT()
+  return (
+    <section className="ln-block ln-whyb">
+      <h2 className="ln-h2">{t('ln.why')}</h2>
+      {e.why.map((p) => <p key={p.en}>{say(p, lang)}</p>)}
+    </section>
+  )
+}
+
+/** L'AVANT / APRÈS · la même demande, ratée puis réparée. C'est là qu'on voit
+ *  la technique, plus que dans n'importe quelle explication. */
+function Example({ e }: { e: Enrichment }) {
+  const lang = useLang()
+  const t = useT()
+  const x = e.example
+  return (
+    <section className="ln-block">
+      <h2 className="ln-h2">{t('ln.example')}</h2>
+      <p className="ln-ctx">{say(x.context, lang)}</p>
+      <div className="ln-ba">
+        <figure className="ln-pr before">
+          <figcaption>{t('ln.before')}</figcaption>
+          <pre>{say(x.before, lang)}</pre>
+        </figure>
+        <figure className="ln-pr after">
+          <figcaption>{t('ln.after')}</figcaption>
+          <pre>{say(x.after, lang)}</pre>
+        </figure>
+      </div>
+      <p className="ln-take">{say(x.takeaway, lang)}</p>
+    </section>
+  )
+}
+
+/** À TOI DE JOUER · l'exercice se fait dans son propre outil, sur son propre
+ *  travail. Le prompt se copie d'un geste, les [CHAMPS] sont à remplacer, et
+ *  la liste sert à se corriger soi-même. Les cases cochées ne sont pas
+ *  enregistrées : c'est un brouillon de relecture, pas un examen. */
+function Exercise({ e }: { e: Enrichment }) {
+  const lang = useLang()
+  const t = useT()
+  const x = e.exercise
+  const [copied, setCopied] = useState(false)
+  const [ticks, setTicks] = useState<boolean[]>(() => x.check.map(() => false))
+  const text = say(x.prompt, lang)
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch { /* presse-papiers refusé · le texte reste sélectionnable */ }
+  }
+  return (
+    <section className="ln-ex">
+      <span className="ln-k">{t('ln.exercise')}</span>
+      <p className="ln-goal"><b>{t('ln.goal')}</b> {say(x.goal, lang)}</p>
+      <div className="ln-code">
+        <pre>{text}</pre>
+        <button className="cc-btn cc-violet ln-copy" onClick={copy}>
+          {copied ? <><BauhausIcon name="check" size={13} /> {t('ln.copied')}</> : t('ln.copy')}
+        </button>
+      </div>
+      <h3 className="ln-h3">{t('ln.checkH')}</h3>
+      <ul className="ln-checks">
+        {x.check.map((c, k) => (
+          <li key={c.en}>
+            <label>
+              <input type="checkbox" checked={ticks[k]} onChange={() => setTicks((v) => v.map((b, j) => (j === k ? !b : b)))} />
+              <span>{say(c, lang)}</span>
+            </label>
+          </li>
+        ))}
+      </ul>
+      <p className="ln-bonus"><b>{t('ln.bonus')}</b> {say(x.bonus, lang)}</p>
     </section>
   )
 }

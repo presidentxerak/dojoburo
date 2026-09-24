@@ -10,62 +10,82 @@ import type { Character } from './looks'
 import type { DojoKit } from './packs'
 import { characterFor, faceIdForUseCase } from './agentFaces'
 
-/** UN CASTING PAR FORMATION · le maître et son disciple, choisis pour elle.
+/** CE QUE FAIT LE PERSONNAGE PRINCIPAL D'UNE SALLE · une action par salle.
  *
- *  POURQUOI CE N'EST PLUS TIRÉ DU CATALOGUE. Le disciple était pris dans une
- *  liste de noms de services (« support », « research »…) passés à une
- *  fonction qui attend un identifiant de cas d'usage. Aucun ne correspondait,
- *  la fonction retombait sur le premier personnage du catalogue, et les huit
- *  cartes montraient le même élève. Le maître, lui, venait du premier dojo, et
- *  plusieurs formations commencent par le même.
- *
- *  Ici chaque salle a ses deux habitants, d'espèces différentes et dans des
- *  tenues qui répondent à la couleur de la formation : on reconnaît une carte
- *  à qui l'habite autant qu'à ses meubles. La règle du kit tient toujours ·
- *  fourrure sourde, vêtement saturé. */
-export const DOJO_CAST: Record<DojoKit, { master: Character; disciple: Character }> = {
-  // le week-end IA · la mage qui accueille, le pingouin qui découvre
+ *  Demandé : « ils font tous la même action, diversifie ». Tous tapaient sur
+ *  un clavier derrière un bureau. Chaque salle a maintenant son geste, choisi
+ *  pour dire le métier : le fondateur fait les cent pas en répétant son pitch,
+ *  la communicante parle au micro, le chef de produit fête une mise en ligne,
+ *  la growth fait le tour de ses tableaux, le commercial marche au téléphone,
+ *  l'assistante tape au clavier. Les deux salles de classe ont un maître qui
+ *  enseigne, face à ses élèves. */
+export type RoomAction = 'teach' | 'pace' | 'broadcast' | 'celebrate' | 'tour' | 'call' | 'type'
+
+export interface RoomCast {
+  /** le maître d'une classe, ou le seul spécialiste d'un métier */
+  lead: Character
+  action: RoomAction
+  /** LES ÉLÈVES · seulement dans les salles de classe. Demandé : « dans la
+   *  formation complète un maître et plusieurs élèves, pour chaque dojo de
+   *  spécialité juste un seul spécialiste ». */
+  students: Character[]
+}
+
+export const DOJO_CAST: Record<DojoKit, RoomCast> = {
+  // le week-end IA · une petite classe : la mage et deux élèves
   course: {
-    master: { kind: 'mage', face: '#e9d6c4', outfit: '#6d3fd6', outfit2: '#4a279c', pants: '#3b2a6b', extra: '#f2c14e' },
-    disciple: { kind: 'penguin', face: '#f4f1ea', outfit: '#f59e0b', outfit2: '#c2410c', pants: '#2b2f3a', extra: '#fb923c' },
+    lead: { kind: 'mage', face: '#e9d6c4', outfit: '#6d3fd6', outfit2: '#4a279c', pants: '#3b2a6b', extra: '#f2c14e' },
+    action: 'teach',
+    students: [
+      { kind: 'duck', face: '#fde68a', outfit: '#ef4444', outfit2: '#b91c1c', pants: '#334155', extra: '#fb923c' },
+      { kind: 'bear', face: '#a47551', outfit: '#0ea5e9', outfit2: '#0c4a6e', pants: '#3f3f46', extra: '#fde68a' },
+    ],
   },
-  // la formation complète · le sorcier et le lapin
+  // la formation complète · la vraie classe : le sorcier et quatre élèves
   study: {
-    master: { kind: 'wizard', face: '#c4d2d8', outfit: '#0e6ba8', outfit2: '#0a4a75', pants: '#16324f', extra: '#e8d9a0' },
-    disciple: { kind: 'rabbit', face: '#efe6dc', outfit: '#22c55e', outfit2: '#15803d', pants: '#475569', extra: '#f9a8d4' },
+    lead: { kind: 'wizard', face: '#c4d2d8', outfit: '#0e6ba8', outfit2: '#0a4a75', pants: '#16324f', extra: '#e8d9a0' },
+    action: 'teach',
+    students: [
+      { kind: 'rabbit', face: '#efe6dc', outfit: '#22c55e', outfit2: '#15803d', pants: '#475569', extra: '#f9a8d4' },
+      { kind: 'penguin', face: '#f4f1ea', outfit: '#f59e0b', outfit2: '#c2410c', pants: '#2b2f3a', extra: '#fb923c' },
+      { kind: 'frog', face: '#8cc56a', outfit: '#db2777', outfit2: '#9d174d', pants: '#1f2937', extra: '#facc15' },
+      { kind: 'chicken', face: '#fafaf9', outfit: '#8b5cf6', outfit2: '#6d28d9', pants: '#44403c', extra: '#ef4444' },
+    ],
   },
-  // growth · la savante folle et sa grenouille
+  // growth · la savante fait le tour de ses tableaux
   saas: {
-    master: { kind: 'madscientist', face: '#ecd9c6', outfit: '#f4f4f5', outfit2: '#db2777', pants: '#334155', extra: '#a3e635' },
-    disciple: { kind: 'frog', face: '#8cc56a', outfit: '#db2777', outfit2: '#9d174d', pants: '#1f2937', extra: '#facc15' },
+    lead: { kind: 'madscientist', face: '#ecd9c6', outfit: '#f4f4f5', outfit2: '#db2777', pants: '#334155', extra: '#a3e635' },
+    action: 'tour', students: [],
   },
-  // communication · le chat et le canard
+  // communication · la chatte parle au micro
   podcast: {
-    master: { kind: 'cat', face: '#e8d8bc', outfit: '#0ea5e9', outfit2: '#0369a1', pants: '#1e293b', extra: '#f472b6' },
-    disciple: { kind: 'duck', face: '#fde68a', outfit: '#ef4444', outfit2: '#b91c1c', pants: '#334155', extra: '#fb923c' },
+    lead: { kind: 'cat', face: '#e8d8bc', outfit: '#0ea5e9', outfit2: '#0369a1', pants: '#1e293b', extra: '#f472b6' },
+    action: 'broadcast', students: [],
   },
-  // fondateur · le chevalier et l'ours
+  // fondateur · le chevalier fait les cent pas en répétant son pitch
   pitch: {
-    master: { kind: 'knight', face: '#cbd5e1', outfit: '#8b5cf6', outfit2: '#5b21b6', pants: '#374151', extra: '#fbbf24' },
-    disciple: { kind: 'bear', face: '#a47551', outfit: '#0ea5e9', outfit2: '#0c4a6e', pants: '#3f3f46', extra: '#fde68a' },
+    lead: { kind: 'knight', face: '#cbd5e1', outfit: '#8b5cf6', outfit2: '#5b21b6', pants: '#374151', extra: '#fbbf24' },
+    action: 'pace', students: [],
   },
-  // produit · le robot et le panda
+  // produit · le robot fête la mise en ligne
   app: {
-    master: { kind: 'robot', face: '#9ca3af', outfit: '#10b981', outfit2: '#047857', pants: '#1f2937', extra: '#f59e0b' },
-    disciple: { kind: 'panda', face: '#f5f5f4', outfit: '#8b5cf6', outfit2: '#6d28d9', pants: '#27272a', extra: '#22d3ee' },
+    lead: { kind: 'robot', face: '#9ca3af', outfit: '#10b981', outfit2: '#047857', pants: '#1f2937', extra: '#f59e0b' },
+    action: 'celebrate', students: [],
   },
-  // vente · le dragon et la poule
+  // vente · le dragon marche au téléphone
   sales: {
-    master: { kind: 'dragon', face: '#e0785a', outfit: '#f97316', outfit2: '#c2410c', pants: '#292524', extra: '#fde047' },
-    disciple: { kind: 'chicken', face: '#fafaf9', outfit: '#14b8a6', outfit2: '#0f766e', pants: '#44403c', extra: '#ef4444' },
+    lead: { kind: 'dragon', face: '#e0785a', outfit: '#f97316', outfit2: '#c2410c', pants: '#292524', extra: '#fde047' },
+    action: 'call', students: [],
   },
-  // assistant · l'écran et le fantôme
+  // assistant · le fantôme tape à son bureau
   ops: {
-    master: { kind: 'monitor', face: '#f2ece0', outfit: '#64748b', outfit2: '#334155', pants: '#1e293b', extra: '#22d3ee' },
-    disciple: { kind: 'ghost', face: '#eef2ff', outfit: '#a855f7', outfit2: '#7e22ce', pants: '#312e81', extra: '#fda4af' },
+    lead: { kind: 'ghost', face: '#eef2ff', outfit: '#a855f7', outfit2: '#7e22ce', pants: '#312e81', extra: '#fda4af' },
+    action: 'type', students: [],
   },
 }
 
+/** LES PROMENEURS DE LA CARTE · les élèves des classes. */
+export const WALKERS: Character[] = [...DOJO_CAST.study.students, ...DOJO_CAST.course.students]
 
 /** UN MAÎTRE PAR SPÉCIALITÉ · les douze cas d'usage qui enseignent les dojos,
  *  chacun d'une espèce qu'aucun autre maître ne porte, pour qu'on reconnaisse

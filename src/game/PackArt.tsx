@@ -14,6 +14,22 @@
 // trophée). La salle se lit avant le titre, et c'est exactement ce qu'on
 // demande à une image posée en tête de carte.
 //
+// ---------------------------------------------------------------------------
+// CHAQUE SALLE A SA COULEUR, SON STYLE, SA DISPOSITION, SES HABITANTS
+//
+// Demandé : « pour chaque dojo de spécialité mets juste un seul spécialiste et
+// change pour chacun la couleur, le style et la disposition du dojo », et
+// « dans l'illustration de la formation complète mets un maître et plusieurs
+// élèves ». Les huit salles avaient la même pièce, le même sol de tatami, les
+// meubles au même endroit, et le même geste. Chacune a maintenant :
+//   · SES MURS ET SON SOL · washi et tatami pour le week-end, parquet de salle
+//     de classe pour la formation complète, carrelage clair de laboratoire
+//     pour la growth, studio sombre pour la communication, etc. (ROOMS),
+//   · SA DISPOSITION · les meubles du métier en fer à cheval, le long des
+//     murs, dans les coins, en arc, d'un seul côté (LAYOUTS),
+//   · SES HABITANTS ET LEUR GESTE · une classe (un maître, des élèves) ou un
+//     seul spécialiste qui fait ce que fait son métier (data/cast).
+//
 // RIEN N'EST DESSINÉ À PART. La pièce est Decor3D, les meubles de métier sont
 // les kits de three/ThemeProps, les personnages sont Character3D · les mêmes
 // pièces que la salle de classe, la page d'accueil et l'application. Une
@@ -60,106 +76,255 @@ import { Decor3D } from '../components/three/Decor3D'
 import { ThemeProps } from '../components/three/ThemeProps'
 import { Character3D } from '../components/three/Character3D'
 import { GaitProvider, advance, type Gait } from '../components/three/gait'
-import { templateById } from '../data/templates'
+import { templateById, type DojoPalette } from '../data/templates'
 import type { Character } from '../data/looks'
-import { DOJO_CAST } from '../data/cast'
+import type { Mood } from '../store'
+import { DOJO_CAST, type RoomAction } from '../data/cast'
 import type { Department } from '../data/agents'
 import type { DojoKit } from '../data/packs'
 
 /* ------------------------------------------------------------------ */
+/* LES SALLES                                                          */
+/* ------------------------------------------------------------------ */
 
-/** LE MAÎTRE À SON POSTE · il travaille, et il respire.
- *
- *  Character3D en humeur « work » tape déjà sur son clavier : c'est ce qui
- *  dit qu'on entre dans un atelier et non dans une salle d'attente. On ajoute
- *  un balancement très lent autour de lui · sans lui, un personnage parfaitement
- *  aligné face caméra se lit comme une figurine posée, pas comme quelqu'un. */
-function Master({ who, character, phase }: { who: string; character: Character; phase: number }) {
-  const g = useRef<THREE.Group>(null)
-  useFrame(({ clock }) => {
-    if (!g.current) return
-    const t = clock.elapsedTime + phase
-    g.current.rotation.y = Math.sin(t * 0.35) * 0.12
-  })
-  return (
-    <group ref={g}>
-      <Character3D
-        id={`card-master-${who}`}
-        character={character}
-        fn="Product"
-        x={0}
-        z={1.2}
-        mood="work"
-        selected={false}
-        busy
-        bare
-        onSelect={() => {}}
-      />
-    </group>
-  )
+type Slot = { p: [number, number, number]; r: number }
+
+/** LES DISPOSITIONS · où se posent les meubles du métier. Les indices sont
+ *  ceux des kits (three/ThemeProps), donc le premier meuble de chaque kit
+ *  reste le plus en vue quelle que soit la disposition. Le centre de la pièce
+ *  reste libre dans toutes : c'est là que les personnages agissent. */
+const LAYOUTS: Record<string, Slot[]> = {
+  // en fer à cheval autour du centre
+  horseshoe: [
+    { p: [-5.4, 0, -0.6], r: 0.75 }, { p: [5.4, 0, -0.6], r: -0.75 },
+    { p: [-3.4, 0, -4.4], r: 0.3 }, { p: [3.4, 0, -4.4], r: -0.3 },
+    { p: [-6.2, 0, 2.4], r: 1.1 }, { p: [6.2, 0, 2.4], r: -1.1 },
+  ],
+  // le long des deux murs, comme une salle de classe
+  sides: [
+    { p: [-6.6, 0, -3.2], r: 1.57 }, { p: [6.6, 0, -3.2], r: -1.57 },
+    { p: [-6.6, 0, 0.2], r: 1.57 }, { p: [6.6, 0, 0.2], r: -1.57 },
+    { p: [-6.6, 0, 3.4], r: 1.57 }, { p: [6.6, 0, 3.4], r: -1.57 },
+  ],
+  // dans les quatre coins
+  corners: [
+    { p: [-6.2, 0, -4.4], r: 0.7 }, { p: [6.2, 0, -4.4], r: -0.7 },
+    { p: [-6.6, 0, 3.2], r: 1.9 }, { p: [6.6, 0, 3.2], r: -1.9 },
+    { p: [-2.6, 0, -5.2], r: 0.1 }, { p: [2.6, 0, -5.2], r: -0.1 },
+  ],
+  // contre le mur du fond, en rang
+  backwall: [
+    { p: [-5.6, 0, -5.0], r: 0 }, { p: [5.6, 0, -5.0], r: 0 },
+    { p: [-2.0, 0, -5.3], r: 0 }, { p: [2.0, 0, -5.3], r: 0 },
+    { p: [-7.0, 0, 1.6], r: 1.3 }, { p: [7.0, 0, 1.6], r: -1.3 },
+  ],
+  // en arc de cercle, comme une scène
+  arc: [
+    { p: [-4.6, 0, -3.8], r: 0.55 }, { p: [4.6, 0, -3.8], r: -0.55 },
+    { p: [-1.6, 0, -5.0], r: 0.15 }, { p: [1.6, 0, -5.0], r: -0.15 },
+    { p: [-6.6, 0, -0.8], r: 1.2 }, { p: [6.6, 0, -0.8], r: -1.2 },
+  ],
+  // tout d'un côté, l'autre moitié libre pour marcher
+  left: [
+    { p: [-6.0, 0, -4.4], r: 0.5 }, { p: [-6.6, 0, -0.8], r: 1.2 },
+    { p: [-6.6, 0, 2.8], r: 1.4 }, { p: [4.0, 0, -5.0], r: -0.2 },
+    { p: [6.6, 0, -2.2], r: -1.0 }, { p: [6.6, 0, 3.0], r: -1.3 },
+  ],
+  right: [
+    { p: [6.0, 0, -4.4], r: -0.5 }, { p: [6.6, 0, -0.8], r: -1.2 },
+    { p: [6.6, 0, 2.8], r: -1.4 }, { p: [-4.0, 0, -5.0], r: 0.2 },
+    { p: [-6.6, 0, -2.2], r: 1.0 }, { p: [-6.6, 0, 3.0], r: 1.3 },
+  ],
+  // un fer à cheval plus ouvert, au fond
+  wide: [
+    { p: [-6.4, 0, -2.2], r: 0.9 }, { p: [6.4, 0, -2.2], r: -0.9 },
+    { p: [-4.2, 0, -5.0], r: 0.35 }, { p: [4.2, 0, -5.0], r: -0.35 },
+    { p: [-6.8, 0, 2.8], r: 1.3 }, { p: [6.8, 0, 2.8], r: -1.3 },
+  ],
 }
 
-/** UN DISCIPLE QUI TRAVERSE LA SALLE · d'un mur à l'autre, devant le maître.
+/** LE STYLE DE CHAQUE SALLE · le sol (par le nom de décor, voir
+ *  three/textures · floorTexture), les murs, les poutres et le ciel. L'accent
+ *  reste la teinte de la formation. */
+const ROOMS: Record<DojoKit, { decor: string; layout: string; walls: [string, string]; trim: string; sky: string }> = {
+  course: { decor: 'dojo', layout: 'horseshoe', walls: ['#f2ece0', '#e9e2d4'], trim: '#8c6644', sky: '#e8e2d6' },
+  study: { decor: 'castle', layout: 'sides', walls: ['#e6eefb', '#d9e4f6'], trim: '#2f4a7a', sky: '#cfe0ff' },
+  saas: { decor: 'lab', layout: 'corners', walls: ['#e2f6ee', '#d3eee2'], trim: '#0f766e', sky: '#d2f4e6' },
+  podcast: { decor: 'factory', layout: 'backwall', walls: ['#3d2650', '#331f44'], trim: '#db2777', sky: '#2a1936' },
+  pitch: { decor: 'castle', layout: 'arc', walls: ['#f6e6cc', '#eedbbd'], trim: '#9a3412', sky: '#ffe8c8' },
+  app: { decor: 'space', layout: 'left', walls: ['#e7e9f8', '#dcdff3'], trim: '#4338ca', sky: '#dbe0ff' },
+  sales: { decor: 'garden', layout: 'right', walls: ['#ffe6d0', '#fad9bd'], trim: '#c2410c', sky: '#ffe0c2' },
+  ops: { decor: 'forest', layout: 'wide', walls: ['#f3eee0', '#ebe4d0'], trim: '#065f46', sky: '#e3f1e5' },
+}
+
+/* ------------------------------------------------------------------ */
+/* LES HABITANTS                                                       */
+/* ------------------------------------------------------------------ */
+
+/** Le cap qui regarde de (x, z) vers (tx, tz) · Character3D regarde +z à zéro. */
+const faceTo = (x: number, z: number, tx: number, tz: number) => Math.atan2(tx - x, tz - z)
+
+/** CE QUE FAIT CHAQUE ACTION · l'humeur (qui règle le visage et les bras) et
+ *  si le personnage marche. Le mouvement lui-même est dans Actor. */
+const ACTIONS: Record<RoomAction | 'study', { mood: Mood; walks: boolean; busy: boolean }> = {
+  teach: { mood: 'talk', walks: false, busy: false },
+  study: { mood: 'think', walks: false, busy: false },
+  pace: { mood: 'talk', walks: true, busy: false },
+  broadcast: { mood: 'talk', walks: false, busy: false },
+  celebrate: { mood: 'happy', walks: false, busy: false },
+  tour: { mood: 'think', walks: true, busy: false },
+  call: { mood: 'talk', walks: true, busy: false },
+  type: { mood: 'work', walks: false, busy: true },
+}
+
+/** UN HABITANT ET SON GESTE · un seul composant pour toutes les actions, pour
+ *  que la marche, la cadence et le regard soient réglés une fois.
  *
- *  C'est lui qui fait la différence entre un décor et un lieu : quelqu'un
- *  ARRIVE. Il marche sur une ligne droite, fait demi-tour au bout au lieu de
- *  se téléporter, et s'arrête un instant de temps en temps. Sa cadence vient de
- *  son déplacement (three/gait), donc ses pieds ne patinent pas.
- *
- *  SA LIGNE EST DEVANT LE BUREAU, pas derrière · derrière, il passerait à
- *  travers les meubles adossés au mur du fond, et un personnage qui traverse
- *  un meuble se lit comme un bug. */
-function Disciple({ who, character, phase }: { who: string; character: Character; phase: number }) {
+ *  LES TRAJETS RESTENT AU CENTRE · les meubles sont contre les murs dans
+ *  toutes les dispositions, donc un trajet entre x = -3 et 3 et z = -2 et 3
+ *  ne traverse jamais un meuble. Un personnage qui passe à travers une table
+ *  se lit comme un bug. */
+function Actor({ who, character, action, at, look, phase }: {
+  who: string
+  character: Character
+  action: RoomAction | 'study'
+  /** où il se tient, ou le centre de son trajet */
+  at: [number, number]
+  /** vers où il regarde quand il ne marche pas */
+  look: [number, number]
+  phase: number
+}) {
   const g = useRef<THREE.Group>(null)
   const gait = useRef<Gait>({ speed: 0, phase: 0, bow: 0 })
-  // IL ARPENTE LA MOITIÉ GAUCHE DE LA SALLE, pas toute la largeur. Sur toute
-  // la largeur il passait exactement devant le maître à chaque aller-retour, et
-  // la caméra, en surplomb, les superposait : deux personnages fondus en une
-  // silhouette à deux têtes. Entre -5 et -1,6, il ne croise jamais le bureau.
-  const st = useRef({ x: -3.4 + phase * 0.3, dir: 1, clock: phase, resting: false })
-  const SPEED = 1.2
-  const LEFT = -5.0
-  const RIGHT = -1.6
-  useFrame((_, raw) => {
-    if (!g.current) return
+  const st = useRef({ s: phase, dir: 1, rest: 0 })
+  const A = ACTIONS[action]
+  const [x0, z0] = at
+
+  useFrame(({ clock }, raw) => {
+    const o = g.current
+    if (!o) return
     const dt = Math.min(raw, 0.05)
-    const s = st.current
-    s.clock += dt
-    if (s.resting) {
-      gait.current.speed = 0
-      if (s.clock > 1.6) { s.resting = false; s.clock = 0 }
-    } else {
-      s.x += SPEED * s.dir * dt
-      if (s.x > RIGHT) { s.x = RIGHT; s.dir = -1; s.resting = true; s.clock = 0 }
-      if (s.x < LEFT) { s.x = LEFT; s.dir = 1; s.resting = true; s.clock = 0 }
-      gait.current.speed = SPEED
-      advance(gait.current, dt)
+    const t = clock.elapsedTime + phase
+    const S = st.current
+    const rest = faceTo(x0, z0, look[0], look[1])
+    let x = x0, z = z0, y = 0, ry = rest, speed = 0
+
+    if (action === 'pace') {
+      // LES CENT PAS · d'un bout à l'autre de la scène, une pause au bout pour
+      // se tourner vers la salle, comme on répète un pitch.
+      if (S.rest > 0) { S.rest -= dt; ry = rest }
+      else {
+        S.s += 1.1 * S.dir * dt
+        if (S.s > 2.4) { S.s = 2.4; S.dir = -1; S.rest = 1.4 }
+        if (S.s < -2.4) { S.s = -2.4; S.dir = 1; S.rest = 1.4 }
+        speed = 1.1
+        ry = S.dir > 0 ? Math.PI / 2 : -Math.PI / 2
+      }
+      x = x0 + S.s
+    } else if (action === 'tour') {
+      // LE TOUR DES TABLEAUX · une boucle lente, un arrêt à chaque coin, le
+      // temps de lire le chiffre.
+      if (S.rest > 0) { S.rest -= dt }
+      else {
+        const before = Math.floor(S.s)
+        S.s += 0.28 * dt
+        if (Math.floor(S.s) !== before) S.rest = 1.2
+        speed = 1.0
+      }
+      const k = ((S.s % 4) + 4) % 4
+      const leg = Math.floor(k), f = k - leg
+      const C: [number, number][] = [[-2.6, -1.6], [2.6, -1.6], [2.6, 2.2], [-2.6, 2.2]]
+      const [ax, az] = C[leg], [bx, bz] = C[(leg + 1) % 4]
+      x = x0 + ax + (bx - ax) * f
+      z = z0 + az + (bz - az) * f
+      ry = S.rest > 0 ? faceTo(x, z, 0, 8) : Math.atan2(bx - ax, bz - az)
+      if (S.rest > 0) speed = 0
+    } else if (action === 'call') {
+      // AU TÉLÉPHONE · on tourne en rond en parlant.
+      S.s += 0.55 * dt
+      const r = 1.5
+      x = x0 + Math.cos(S.s) * r
+      z = z0 + Math.sin(S.s) * r
+      ry = Math.atan2(-Math.sin(S.s), Math.cos(S.s))
+      speed = 0.85
+    } else if (action === 'celebrate') {
+      // LA MISE EN LIGNE · des bonds de joie, un tour sur soi-même, puis une
+      // pause, et ça recommence.
+      const c = t % 3.2
+      if (c < 1.3) {
+        y = Math.abs(Math.sin(c * Math.PI * 2.3)) * 0.7
+        ry = rest + (c / 1.3) * Math.PI * 2
+      }
+    } else if (action === 'broadcast') {
+      // AU MICRO · le buste se balance, la tête accompagne la parole.
+      ry = rest + Math.sin(t * 1.3) * 0.35
+      y = Math.abs(Math.sin(t * 2.6)) * 0.05
+    } else if (action === 'teach') {
+      // LE MAÎTRE ENSEIGNE · il regarde ses élèves l'un après l'autre.
+      ry = rest + Math.sin(t * 0.55) * 0.55
+    } else if (action === 'study') {
+      // L'ÉLÈVE ÉCOUTE · de petits hochements de tête, chacun à son rythme.
+      y = Math.max(0, Math.sin(t * 1.7)) * 0.04
+      ry = rest + Math.sin(t * 0.4) * 0.12
+    } else if (action === 'type') {
+      // AU CLAVIER · il tape, et lève la tête de temps en temps.
+      ry = rest + (Math.sin(t * 0.3) > 0.85 ? 0.5 : 0)
     }
-    g.current.position.x = s.x
-    // IL REGARDE OÙ IL VA · et face caméra quand il s'arrête, ce qui est le
-    // geste qu'on attend d'un personnage de jeu qui vous remarque.
-    const target = s.resting ? 0 : (s.dir > 0 ? Math.PI / 2 : -Math.PI / 2)
-    g.current.rotation.y += (target - g.current.rotation.y) * Math.min(1, dt * 8)
+
+    gait.current.speed = speed
+    if (speed > 0) advance(gait.current, dt)
+    o.position.set(x, y, z)
+    o.rotation.y += (ry - o.rotation.y) * Math.min(1, dt * (action === 'celebrate' ? 30 : 8))
   })
+
   return (
     <GaitProvider value={gait}>
-      <group ref={g} position={[0, 0, 3.2]} scale={0.9}>
+      <group ref={g}>
         <Character3D
-          id={`card-disciple-${who}`}
+          id={`card-${who}`}
           character={character}
           fn="Product"
           x={0}
           z={0}
-          mood="idle"
+          mood={A.mood}
           selected={false}
-          busy={false}
-          walk
+          busy={A.busy}
+          walk={A.walks}
           bare
           onSelect={() => {}}
         />
       </group>
     </GaitProvider>
   )
+}
+
+/** LA DISPOSITION DES HABITANTS · selon l'action du personnage principal.
+ *  Une classe : le maître au fond, les élèves devant lui, tournés vers lui.
+ *  Un métier : le spécialiste seul, au centre de sa salle. */
+function Cast({ kit, phase }: { kit: DojoKit; phase: number }) {
+  const cast = DOJO_CAST[kit]
+  if (cast.action === 'teach') {
+    const master: [number, number] = [0, -2.6]
+    const n = cast.students.length
+    // LE MAÎTRE RESTE VISIBLE · vu d'en haut, un élève placé devant lui sur
+    // l'axe du regard le masquait. Les élèves s'écartent donc de l'axe, et
+    // l'allée centrale laisse voir le maître.
+    const spots: [number, number][] = n <= 2
+      ? [[-2.0, 1.8], [2.0, 2.0]]
+      : [[-3.6, 1.2], [-1.6, 2.2], [1.6, 2.2], [3.6, 1.2]]
+    return (
+      <>
+        <Actor who={`${kit}-lead`} character={cast.lead} action="teach" at={master} look={[0, 4]} phase={phase} />
+        {cast.students.map((c, k) => (
+          <Actor key={k} who={`${kit}-s${k}`} character={c} action="study"
+            at={spots[k % spots.length]} look={master} phase={phase + k * 0.9} />
+        ))}
+      </>
+    )
+  }
+  // LE SPÉCIALISTE · au centre, sauf celui qui tape, qui est à son bureau.
+  const at: [number, number] = cast.action === 'type' ? [0, 1.2] : cast.action === 'broadcast' ? [0, 0.4] : [0, 0.8]
+  return <Actor who={`${kit}-lead`} character={cast.lead} action={cast.action} at={at} look={[0, 8]} phase={phase} />
 }
 
 /* ------------------------------------------------------------------ */
@@ -202,31 +367,10 @@ function useCalm(): boolean {
   return calm
 }
 
-/** LES EMPLACEMENTS DE LA VIGNETTE · le kit du métier, rapproché du centre.
- *
- *  Dans la salle entière, les meubles de métier sont contre les murs, à neuf
- *  unités du centre. Vus dans une carte de trois cents pixels, ils tombaient
- *  hors cadre ou se réduisaient à quelques taches · et la salle de podcast
- *  ressemblait à la salle des marchés, ce qui était tout le reproche fait aux
- *  temples. Ici ils forment un fer à cheval autour du maître : deux de chaque
- *  côté, légèrement tournés vers lui, deux au fond. Les indices sont ceux des
- *  kits, donc le premier meuble de chaque kit reste le plus en vue. */
-const CARD_SLOTS: { p: [number, number, number]; r: number }[] = [
-  { p: [-5.4, 0, -0.6], r: 0.75 },
-  { p: [5.4, 0, -0.6], r: -0.75 },
-  { p: [-3.4, 0, -4.4], r: 0.3 },
-  { p: [3.4, 0, -4.4], r: -0.3 },
-  { p: [-6.2, 0, 2.4], r: 1.1 },
-  { p: [6.2, 0, 2.4], r: -1.1 },
-]
-
-export function PackArt({ kit, tint, master, locked = false }: {
+export function PackArt({ kit, tint, locked = false }: {
   /** la salle de la spécialité · voir data/packs */
   kit: DojoKit
   tint: string
-  /** LE MAÎTRE DU PREMIER DOJO · celui qu'on rencontrera en entrant. Absent,
-   *  on ne pose personne plutôt que d'inventer un visage. */
-  master?: string
   /** UNE FORMATION FERMÉE GARDE SA SALLE INTACTE · la ternir supprimerait la
    *  seule chose qui donne envie de l'ouvrir. Le cadenas est dans la carte. */
   locked?: boolean
@@ -236,30 +380,34 @@ export function PackArt({ kit, tint, master, locked = false }: {
   const calm = useCalm()
   const live = onScreen && !calm
 
-  // LA PALETTE DU DOJO, À L'ACCENT DE LA FORMATION · le sol et les murs
-  // restent ceux de toutes les salles du produit ; seule la couleur d'accent
-  // change, et elle teinte les meubles du kit. C'est ce qui fait qu'on
-  // reconnaît la même école d'une carte à l'autre.
+  // LA PALETTE DE LA SALLE · la pièce du dojo, repeinte aux couleurs de la
+  // formation : murs, poutres et ciel viennent de ROOMS, l'accent de la teinte.
   const tpl = templateById('dojo')
-  const P = useMemo(() => ({ ...tpl.palette, accent: tint }), [tpl.palette, tint])
-  const stations = useMemo(
-    () => (master ? [{ id: master, fn: 'Product' as Department, x: 0, z: 1.2 }] : []),
-    [master],
-  )
-  const phase = phaseOf(kit + (master ?? ''))
+  const R = ROOMS[kit]
+  const P = useMemo<DojoPalette>(() => ({
+    ...tpl.palette,
+    wallBack: R.walls[0], wallSide: R.walls[1], trim: R.trim, bg: R.sky, fog: R.sky, accent: tint,
+  }), [tpl.palette, R, tint])
+  // UN BUREAU SEULEMENT POUR CELUI QUI S'Y ASSOIT · l'assistant qui tape et
+  // la communicante à son micro. Les autres agissent debout, au centre.
   const cast = DOJO_CAST[kit]
+  const stations = useMemo(
+    () => (cast.action === 'type' ? [{ id: `${kit}-desk`, fn: 'Product' as Department, x: 0, z: 1.2 }]
+      : cast.action === 'broadcast' ? [{ id: `${kit}-desk`, fn: 'Product' as Department, x: 0, z: 0.4 }]
+        : []),
+    [cast.action, kit],
+  )
+  const phase = phaseOf(kit)
 
   return (
     <div className={`pa${locked ? ' off' : ''}`} ref={box} aria-hidden>
       <Canvas
         frameloop={live ? 'always' : 'demand'}
-        // LA TAILLE SANS LES TRANSFORMATIONS · la carte arrive avec une mise à
-        // l'échelle (94 % au départ de son animation) et se soulève au survol.
-        // La mesure par défaut lit le rectangle À L'ÉCRAN, transformations
-        // comprises : la salle se dimensionnait à 94 % de son cadre et
-        // laissait une bande de ciel à droite de chaque carte. Mesuré : un
-        // canvas de 308 pixels dans un cadre de 322. La largeur de mise en
-        // page, elle, ignore les transformations.
+        // LA TAILLE SANS LES TRANSFORMATIONS · la carte arrive avec une
+        // translation et se soulève au survol. La mesure par défaut lit le
+        // rectangle À L'ÉCRAN, transformations comprises, et la salle se
+        // dimensionnait à la taille réduite en laissant une bande de ciel. La
+        // largeur de mise en page, elle, ignore les transformations.
         resize={{ offsetSize: true }}
         dpr={[1, 1.5]}
         camera={{ position: [0, 7.6, 12.4], fov: 40, near: 0.1, far: 80 }}
@@ -267,19 +415,16 @@ export function PackArt({ kit, tint, master, locked = false }: {
         onCreated={({ camera }) => camera.lookAt(0, 1.4, -0.9)}
       >
         <color attach="background" args={[P.bg]} />
-        {/* LE SOLEIL D'APRÈS-MIDI · voir l'en-tête. Le ciel bleu tombe dans
-            l'hémisphère, le sol renvoie son vert, et la lumière clé vient d'en
-            haut à droite comme dans tout jeu vu de trois quarts. */}
+        {/* LE SOLEIL D'APRÈS-MIDI · voir l'en-tête. */}
         <hemisphereLight args={['#dff1ff', P.ground, 1.05]} />
         <ambientLight intensity={0.28} />
         <directionalLight position={[7, 13, 9]} color="#fff0d4" intensity={1.75} />
         <directionalLight position={[-8, 6, -4]} color="#c8dcff" intensity={0.5} />
         <pointLight position={[0, 4.2, -3.5]} color={tint} intensity={0.9} distance={22} />
         <Suspense fallback={null}>
-          <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
-          <ThemeProps archetype={kit} accent={tint} slots={CARD_SLOTS} />
-          <Master who={kit} character={cast.master} phase={phase} />
-          <Disciple who={kit} character={cast.disciple} phase={phase} />
+          <Decor3D palette={P} decor={R.decor} enclosed={tpl.enclosed} stations={stations} />
+          <ThemeProps archetype={kit} accent={tint} slots={LAYOUTS[R.layout]} />
+          <Cast kit={kit} phase={phase} />
         </Suspense>
       </Canvas>
     </div>

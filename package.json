@@ -65,7 +65,7 @@
     "shots:mobile": "node scripts/shot-mobile.mjs"
   },
   "dependencies": {
-    "@fontsource/lilita-one": "^5.3.0",
+    "@fontsource-variable/outfit": "^5.3.0",
     "@privy-io/react-auth": "^3.42.0",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",

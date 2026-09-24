@@ -133,7 +133,7 @@
   --err: #ff5d6c;
 
   --font-pixel: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; /* display titles (Outfit Black) */
-  --font-ui: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; /* body text */
+  --font-ui: 'Outfit Variable', 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; /* body text */
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, var(--font-ui);  /* addresses/hashes */
   --font-read: var(--font-ui);
   color-scheme: light;
@@ -148,15 +148,15 @@
    clarté dans la même teinte plutôt que vers le gris, sinon une carte posée
    sur la page se lit comme un trou gris dans un tapis violet. */
 :root[data-theme='dark'] {
-  --bg: #120a24;           /* --background · violet de nuit */
+  --bg: #0a0514;           /* --background · violet de nuit, très foncé */
   --ink: #ffffff;          /* --foreground */
   --muted: #a99fc6;        /* --muted-foreground */
-  --surface: #1c1236;      /* --muted */
-  --panel: rgba(28, 18, 54, 0.92);
-  --panel-solid: #1a1132;
-  --panel-2: #22173f;
-  --paper: #1a1132;        /* --card */
-  --border: #2e2250;       /* --border */
+  --surface: #150c28;      /* --muted */
+  --panel: rgba(22, 13, 42, 0.94);
+  --panel-solid: #140b26;
+  --panel-2: #1b1133;
+  --paper: #140b26;        /* --card */
+  --border: #271c45;       /* --border */
   --border-lit: rgba(255, 255, 255, 0.26);
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
   --shadow-sm: 0 3px 12px rgba(0, 0, 0, 0.5);
@@ -1504,16 +1504,16 @@ a:hover { text-decoration: underline; }
 .lp-foot { font-size: 16px; color: var(--muted); margin-top: 18px; }
 
 /* ---- Dojobot · the built-in help assistant ------------------------------- */
-/* Launcher · a round floating bubble, bottom RIGHT so it never fights the
-   back/pipeline controls that live bottom-left. */
+/* Launcher · a speech bubble with the icon and nothing else, bottom RIGHT so
+   it never fights the back/pipeline controls that live bottom-left. The
+   square lower-left corner is the tail of the bubble. */
 .sb-launch {
-  position: fixed; right: 20px; bottom: 20px; z-index: 70; display: flex; align-items: center; gap: 9px;
-  cursor: pointer; height: 60px; padding: 0 22px 0 17px; box-sizing: border-box;
+  position: fixed; right: 20px; bottom: 20px; z-index: 70; display: grid; place-items: center;
+  cursor: pointer; width: 58px; height: 58px; padding: 0; box-sizing: border-box;
   background: var(--paper); border: 1px solid var(--border);
-  border-radius: 999px !important; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s;
+  border-radius: 50% 50% 50% 14px !important; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s;
 }
-.sb-launch:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 12px 28px rgba(30, 60, 140, 0.28); }
-.sb-launch-label { font-family: var(--font-pixel); font-weight: 800; font-size: 15px; color: var(--ink); }
+.sb-launch:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 12px 28px rgba(30, 60, 140, 0.28); }
 .sb-face { font-size: 16px; letter-spacing: -1px; }
 /* the temple mascot must stay readable on the white button in both themes */
 .sb-launch .lg-temple { fill: #11151d !important; }
@@ -1524,9 +1524,8 @@ a:hover { text-decoration: underline; }
      (landing, guide) it falls back to a normal corner. */
   .sb-launch {
     right: 12px; bottom: max(16px, calc(var(--mbar-h, 0px) + 10px));
-    width: 52px; height: 52px; padding: 0; justify-content: center;
+    width: 52px; height: 52px;
   }
-  .sb-launch-label { display: none; }
 }
 
 /* ---- the panel · full screen from the launcher, in place when embedded --- */
@@ -3805,7 +3804,6 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 .sb-launch .logo-badge { color: #fff !important; }
 .sb-launch .lg-icon { fill: #fff !important; }
 .sb-launch .lg-temple { fill: #fff !important; }
-.sb-launch-label { color: #fff !important; }
 /* the tail points down-right, since the bubble now lives on the right */
 .sb-launch::after {
   content: ''; position: absolute; right: 12px; bottom: 3px; width: 16px; height: 16px; background: #000;
@@ -7891,7 +7889,7 @@ a.ac-kicker:hover { background: color-mix(in srgb, var(--violet, #7b5cff) 22%, t
   background:
     radial-gradient(120% 78% at 50% 108%, rgba(24, 160, 130, 0.26), transparent 62%),
     radial-gradient(90% 60% at 50% -6%, rgba(92, 84, 220, 0.34), transparent 66%),
-    linear-gradient(180deg, #170d30 0%, #120a24 52%, #160c2c 100%);
+    linear-gradient(180deg, #120a26 0%, #0a0514 52%, #0f0820 100%);
 }
 .lp-hero-scene > *,
 .lp-hero-scene .lp-dojo3d,
@@ -9605,7 +9603,7 @@ a.lp-trade { text-decoration: none; display: inline-block; }
 .wm-tag {
   display: flex; align-items: center; gap: 0; white-space: nowrap;
   padding: 0; cursor: pointer; border: 0;
-  font-family: var(--font-game, var(--font-ui)); font-weight: 400;
+  font-family: var(--font-game, var(--font-ui)); font-weight: 800;
   color: #fff;
   border-radius: 999px; overflow: hidden;
   /* LA MATIÈRE DU JEU · dégradé violet de nuit, arête claire, ombre douce.
@@ -9633,7 +9631,7 @@ button.wm-tag { border-radius: 999px !important; }
   display: flex; align-items: center; justify-content: center;
 }
 .wm-tag b {
-  font-weight: 400; font-size: 15px; letter-spacing: .02em; color: #fff; padding: 4px 10px 5px;
+  font-weight: 800; font-size: 14px; letter-spacing: 0; color: #fff; padding: 4px 10px 5px;
   max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .wm-tag em {
@@ -10072,12 +10070,14 @@ button.wm-tag { border-radius: 999px !important; }
 
 /* --- les jetons du jeu ---------------------------------------------------- */
 :root {
-  --font-game: 'Lilita One', 'Outfit', system-ui, sans-serif;
+  /* LA MÊME FAMILLE QUE LE TEXTE, EN GRAS · Outfit partout, la graisse fait
+     la hiérarchie. Voir main.tsx. */
+  --font-game: 'Outfit Variable', 'Outfit', system-ui, sans-serif;
   /* la nuit, et les matières qui s'y posent, dans la même teinte */
   --g-page: var(--bg);
-  --g-card-top: #2c1d52;
-  --g-card: #231744;
-  --g-card-bot: #1c1238;
+  --g-card-top: #251848;
+  --g-card: #1c1238;
+  --g-card-bot: #150d2b;
   --g-raise: #34255f;
   --g-slot: rgba(6, 2, 18, 0.42);
   --g-text: #f5f1ff;
@@ -10158,7 +10158,7 @@ button.wm-tag { border-radius: 999px !important; }
 .gm-lv {
   flex: none; display: grid; place-items: center;
   min-width: 34px; height: 34px; padding: 0 7px; border-radius: 999px;
-  font-family: var(--font-game); font-size: 13px; letter-spacing: .02em; line-height: 1;
+  font-family: var(--font-game); font-weight: 800; font-size: 13px; letter-spacing: .02em; line-height: 1;
   color: #fff;
   background:
     radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.55), transparent 42%),
@@ -10166,8 +10166,8 @@ button.wm-tag { border-radius: 999px !important; }
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -2px 4px rgba(0, 0, 0, 0.3), 0 3px 10px rgba(109, 40, 217, 0.6);
 }
 .gm-xp-body { display: flex; flex-direction: column; gap: 4px; min-width: 76px; }
-.gm-xp-n { font-family: var(--font-game); font-size: 13px; line-height: 1; letter-spacing: .02em; color: var(--g-sub); }
-.gm-xp-n b { font-weight: 400; font-size: 15px; color: #fff; }
+.gm-xp-n { font-family: var(--font-game); font-weight: 800; font-size: 13px; line-height: 1; letter-spacing: .02em; color: var(--g-sub); }
+.gm-xp-n b { font-weight: 800; font-size: 15px; color: #fff; }
 .gm-xp-bar {
   position: relative; display: block; height: 7px; border-radius: 999px; overflow: hidden;
   background: var(--g-slot); box-shadow: var(--g-sunk);
@@ -10187,13 +10187,13 @@ button.wm-tag { border-radius: 999px !important; }
   background: var(--g-slot); box-shadow: var(--g-sunk);
 }
 .gm-top .lsw-b {
-  font-family: var(--font-game); font-weight: 400; color: var(--g-sub);
+  font-family: var(--font-game); font-weight: 800; color: var(--g-sub);
   background: transparent; border: 0; border-radius: 9px !important;
 }
 .gm-top .lsw-b.on {
   color: #fff;
-  background: linear-gradient(180deg, #ffb45c, #f97316 60%, #ea580c);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 3px 10px -2px rgba(249, 115, 22, 0.7);
+  background: linear-gradient(180deg, #b794ff, #7c3aed 60%, #5b21b6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 3px 10px -2px rgba(124, 58, 237, 0.8);
 }
 
 .gm-main { flex: 1; width: 100%; max-width: 780px; margin: 0 auto; }
@@ -10204,7 +10204,7 @@ button.wm-tag { border-radius: 999px !important; }
 /* LES TITRES · police épaisse, blanc, ombre douce. La taille est imposée
    parce qu'un « h1 { font-size: 60px !important } » global vit plus haut. */
 .gm-h1 {
-  font-family: var(--font-game) !important; font-weight: 400 !important;
+  font-family: var(--font-game) !important; font-weight: 800 !important; letter-spacing: -0.01em;
   font-size: clamp(30px, 3.2vw + 18px, 50px) !important;
   line-height: 1.04; letter-spacing: .01em;
   color: #fff; text-shadow: var(--g-soft);
@@ -10213,7 +10213,7 @@ button.wm-tag { border-radius: 999px !important; }
 .gm-lead { font-size: clamp(14px, .4vw + 13px, 16px); color: var(--g-sub); line-height: 1.55; margin: 0 0 4px; max-width: 64ch; }
 .gm-back {
   display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--font-game); font-size: 15px; color: var(--g-sub);
+  font-family: var(--font-game); font-weight: 800; font-size: 15px; color: var(--g-sub);
   margin-bottom: 12px;
   transition: transform 200ms var(--g-ease), color 200ms ease;
 }
@@ -10225,15 +10225,16 @@ button.wm-tag { border-radius: 999px !important; }
    contour. Appuyé, il descend d'un pixel, son ombre se resserre et son
    intérieur s'assombrit · il s'enfonce dans la surface.
 
-   LE VERT EST L'ACTION QUI AVANCE, l'orange l'action secondaire, le violet
-   la marque, le rouge ce qui efface. */
+   LE VIOLET EST LE BOUTON · demandé : « violet pour les boutons ». Il est la
+   couleur de la marque et de toute action. Le rouge reste réservé à ce qui
+   efface, et l'or à ce qui est gagné. */
 .gm-cta, .cc-btn {
-  --b-top: #a3e635; --b-mid: #65a30d; --b-bot: #4d7c0f; --b-glow: rgba(132, 204, 22, 0.55);
+  --b-top: #b794ff; --b-mid: #7c3aed; --b-bot: #5b21b6; --b-glow: rgba(124, 58, 237, 0.65);
   position: relative; isolation: isolate; overflow: hidden;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   margin-top: 14px;
   min-height: 48px; padding: 11px 24px;
-  font-family: var(--font-game); font-weight: 400;
+  font-family: var(--font-game); font-weight: 800;
   font-size: clamp(16px, .6vw + 13px, 19px); letter-spacing: .02em; line-height: 1.1;
   color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   cursor: pointer;
@@ -10276,6 +10277,7 @@ button.wm-tag { border-radius: 999px !important; }
 .gm-cta:disabled, .cc-btn:disabled { filter: grayscale(.8) brightness(.8); cursor: not-allowed; transform: none; }
 .cc-orange { --b-top: #ffb45c; --b-mid: #f97316; --b-bot: #c2410c; --b-glow: rgba(249, 115, 22, 0.55); }
 .cc-violet { --b-top: #c49bff; --b-mid: #8b5cf6; --b-bot: #6d28d9; --b-glow: rgba(139, 92, 246, 0.6); }
+.cc-green { --b-top: #a3e635; --b-mid: #65a30d; --b-bot: #4d7c0f; --b-glow: rgba(132, 204, 22, 0.55); }
 .cc-slate  { --b-top: #4a3a7a; --b-mid: #34255f; --b-bot: #261a48; --b-glow: rgba(0, 0, 0, 0.6); }
 
 /* --- le mouvement ---------------------------------------------------------- */
@@ -10338,7 +10340,7 @@ button.wm-tag { border-radius: 999px !important; }
   position: relative; isolation: isolate; overflow: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   min-height: 58px; padding: 6px 4px 7px;
-  font-family: var(--font-game); font-size: 13px; letter-spacing: .02em;
+  font-family: var(--font-game); font-weight: 800; font-size: 13px; letter-spacing: .02em;
   color: var(--g-sub);
   border-radius: 18px;
   background: linear-gradient(180deg, rgba(52, 37, 95, 0.92), rgba(28, 18, 56, 0.94));
@@ -10350,11 +10352,11 @@ button.wm-tag { border-radius: 999px !important; }
 .gm-tab:active { transform: translateY(1px); transition-duration: 80ms; }
 .gm-tab.on {
   color: #fff;
-  background: linear-gradient(180deg, #ffb45c, #f97316 60%, #ea580c);
+  background: linear-gradient(180deg, #b794ff, #7c3aed 60%, #5b21b6);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -3px 6px rgba(0, 0, 0, 0.2),
-    0 12px 28px -8px rgba(249, 115, 22, 0.65);
+    0 12px 28px -8px rgba(124, 58, 237, 0.75);
   transform: translateY(-3px);
 }
 .gm-tab.on::before {
@@ -10390,6 +10392,10 @@ button.wm-tag { border-radius: 999px !important; }
   padding-bottom: 14px;
 }
 .pk {
+  /* CHAQUE CARTE BRILLE DE SA FORMATION · la lueur prend la teinte de la
+     formation au lieu du violet commun : huit cartes, huit couleurs. */
+  --g-glow: color-mix(in srgb, var(--ac, #8b5cf6) 50%, transparent);
+  --g-glow-hi: color-mix(in srgb, var(--ac, #8b5cf6) 70%, transparent);
   display: flex; flex-direction: column;
   overflow: hidden;
   padding: 10px;
@@ -10423,7 +10429,7 @@ button.wm-tag { border-radius: 999px !important; }
 /* LE PRIX · une pastille en relief de la couleur de la formation. */
 .pk-price {
   display: inline-flex; align-items: center;
-  font-family: var(--font-game); font-size: 16px; letter-spacing: .02em;
+  font-family: var(--font-game); font-weight: 800; font-size: 16px; letter-spacing: .02em;
   color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   padding: 4px 13px 5px;
   border-radius: 999px;
@@ -10435,14 +10441,14 @@ button.wm-tag { border-radius: 999px !important; }
 /* L'ÉTAT · une pastille en creux, avec son cadenas. */
 .pk-lock, .pk-ok {
   display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--font-game); font-size: 13px; letter-spacing: .02em;
+  font-family: var(--font-game); font-weight: 800; font-size: 13px; letter-spacing: .02em;
   padding: 5px 11px 6px; border-radius: 999px;
   color: var(--g-sub);
   background: var(--g-slot); box-shadow: var(--g-sunk);
 }
 .pk-ok { color: #bef264; }
 .pk-title {
-  font-family: var(--font-game); font-weight: 400;
+  font-family: var(--font-game); font-weight: 800;
   font-size: clamp(21px, .8vw + 17px, 26px); line-height: 1.1; letter-spacing: .01em;
   color: #fff; text-shadow: var(--g-soft);
 }
@@ -10450,18 +10456,19 @@ button.wm-tag { border-radius: 999px !important; }
 .pk-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
 /* LES CHIFFRES EN PASTILLES CREUSES · modules, dojos, minutes, expérience. */
 .pk-meta span {
-  font-family: var(--font-game); font-size: 12.5px; letter-spacing: .02em;
+  font-family: var(--font-game); font-weight: 800; font-size: 12.5px; letter-spacing: .02em;
   padding: 4px 10px 5px; border-radius: 10px;
   background: var(--g-slot); color: var(--g-sub); box-shadow: var(--g-sunk);
 }
 
-/* L'APPEL DE LA CARTE · un bouton en relief dans la carte, qui s'enfonce avec
-   elle. La carte entière reste le lien (un bouton dans un lien serait
-   invalide). */
+/* L'APPEL DE LA CARTE · un bouton violet en relief dans la carte, qui
+   s'enfonce avec elle. La carte entière reste le lien (un bouton dans un lien
+   serait invalide). Violet pour toutes les cartes, ouvertes ou fermées : c'est
+   la couleur des boutons, demandée comme telle. */
 .pk-go {
-  --b-top: #a3e635; --b-mid: #65a30d; --b-bot: #4d7c0f; --b-glow: rgba(132, 204, 22, 0.5);
+  --b-top: #b794ff; --b-mid: #7c3aed; --b-bot: #5b21b6; --b-glow: rgba(124, 58, 237, 0.6);
   position: relative; isolation: isolate; overflow: hidden;
-  font-family: var(--font-game); font-size: 16px; letter-spacing: .02em;
+  font-family: var(--font-game); font-weight: 800; font-size: 16px; letter-spacing: .02em;
   color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   align-self: stretch; text-align: center;
   margin-top: 6px; padding: 11px 16px 12px;
@@ -10475,9 +10482,6 @@ button.wm-tag { border-radius: 999px !important; }
   border-radius: 10px 10px 40% 40%; background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
 }
 .pk:hover .pk-go { filter: brightness(1.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -3px 6px rgba(0, 0, 0, 0.2), 0 16px 32px -10px var(--b-glow); }
-/* UNE FORMATION FERMÉE APPELLE EN ORANGE · « Voir ce qu'il y a dedans » n'est
-   pas « Commencer », et la couleur qui avance est réservée à ce qui s'ouvre. */
-.pk.shut .pk-go { --b-top: #ffb45c; --b-mid: #f97316; --b-bot: #c2410c; --b-glow: rgba(249, 115, 22, 0.5); }
 .pk:active .pk-go { box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.4); }
 
 /* --- les jauges ------------------------------------------------------------ */
@@ -10508,8 +10512,8 @@ button.wm-tag { border-radius: 999px !important; }
 .gg-fill[style*="width: 0%"] { min-width: 0; box-shadow: none; }
 .gg-fill[style*="width: 0%"]::after { display: none; }
 .gg-read { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 12.5px; color: var(--g-sub); }
-.gg-read b { font-family: var(--font-game); font-weight: 400; font-size: 14px; color: #fff; }
-.gg-pct { font-family: var(--font-game); font-size: 14px; color: #fff; }
+.gg-read b { font-family: var(--font-game); font-weight: 800; font-size: 14px; color: #fff; }
+.gg-pct { font-family: var(--font-game); font-weight: 800; font-size: 14px; color: #fff; }
 .gg.big .gg-track { height: 18px; }
 .gg.big .gg-fill::after { width: 12px; }
 .gg.big .gg-read { font-size: 14px; }
@@ -10523,13 +10527,13 @@ button.wm-tag { border-radius: 999px !important; }
 .pkh-txt { flex: 1 1 280px; min-width: 0; }
 .pkh-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .pkh-meta span {
-  font-family: var(--font-game); font-size: 13px; padding: 4px 11px 5px; border-radius: 10px;
+  font-family: var(--font-game); font-weight: 800; font-size: 13px; padding: 4px 11px 5px; border-radius: 10px;
   background: var(--g-slot); color: var(--g-sub); box-shadow: var(--g-sunk);
 }
 .pkh .gg { margin-top: 20px; }
 
 .pkl { padding: 20px; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-.pkl b { display: flex; align-items: center; gap: 8px; font-family: var(--font-game); font-weight: 400; font-size: 20px; color: #fff; }
+.pkl b { display: flex; align-items: center; gap: 8px; font-family: var(--font-game); font-weight: 800; font-size: 20px; color: #fff; }
 .pkl b svg { color: #fbbf24; }
 .pkl p { margin: 0; font-size: 14px; color: var(--g-sub); line-height: 1.55; }
 .pkl .gm-cta { align-self: flex-start; }
@@ -10539,17 +10543,17 @@ button.wm-tag { border-radius: 999px !important; }
 .md { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
 .md-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .md-n {
-  font-family: var(--font-game); font-size: 14px; letter-spacing: .04em;
+  font-family: var(--font-game); font-weight: 800; font-size: 14px; letter-spacing: .04em;
   padding: 4px 13px 5px; border-radius: 999px;
   color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 55%), var(--ac);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 6px 16px -6px var(--ac);
 }
-.md-count { font-family: var(--font-game); font-size: 15px; color: var(--g-sub); }
+.md-count { font-family: var(--font-game); font-weight: 800; font-size: 15px; color: var(--g-sub); }
 .md-top { display: flex; gap: 14px; align-items: flex-start; }
-.md-title { margin: 0 0 4px; font-family: var(--font-game); font-weight: 400; font-size: clamp(20px, .6vw + 17px, 24px); line-height: 1.12; color: #fff; text-shadow: var(--g-soft); }
+.md-title { margin: 0 0 4px; font-family: var(--font-game); font-weight: 800; font-size: clamp(20px, .6vw + 17px, 24px); line-height: 1.12; color: #fff; text-shadow: var(--g-soft); }
 .md-blurb { margin: 0; font-size: 14px; color: var(--g-sub); line-height: 1.5; }
-.md-xp { margin: 0; align-self: flex-end; font-family: var(--font-game); font-size: 15px; color: var(--g-sub); }
+.md-xp { margin: 0; align-self: flex-end; font-family: var(--font-game); font-weight: 800; font-size: 15px; color: var(--g-sub); }
 
 /* LES DOJOS EN RANGÉES CREUSES · des emplacements dans la matière. Une ligne
    survolée s'éclaire et glisse ; une ligne fermée reste en retrait. */
@@ -10580,7 +10584,7 @@ button.wm-tag { border-radius: 999px !important; }
 .ls-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .ls-txt strong { font-size: 15px; font-weight: 800; }
 .ls-txt em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--g-sub); }
-.ls-go { flex: none; font-family: var(--font-game); font-size: 14px; white-space: nowrap; color: #bef264; }
+.ls-go { flex: none; font-family: var(--font-game); font-weight: 800; font-size: 14px; white-space: nowrap; color: #bef264; }
 .ls.done .ls-go { color: #facc15; }
 .ls.shut a { opacity: .72; }
 .ls.shut .ls-go { color: var(--g-sub); }
@@ -10606,18 +10610,18 @@ button.wm-tag { border-radius: 999px !important; }
 .gm .dr .tag3d.panda {
   background: linear-gradient(180deg, #ffb45c, #f97316 60%, #ea580c) !important;
   color: #fff;
-  font-family: var(--font-game); font-weight: 400; font-size: 13px;
+  font-family: var(--font-game); font-weight: 800; font-size: 13px;
   padding: 4px 12px 5px !important;
   border: 0 !important;
   border-radius: 999px !important;
   text-shadow: none !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 6px 16px -6px rgba(249, 115, 22, 0.7);
 }
-.ln-n { display: inline-block; font-family: var(--font-game); font-size: 14px; letter-spacing: .04em; color: var(--g-sub); }
+.ln-n { display: inline-block; font-family: var(--font-game); font-weight: 800; font-size: 14px; letter-spacing: .04em; color: var(--g-sub); }
 .ln-free { color: #facc15; }
 .ln-head h1 {
   margin: 6px 0 8px;
-  font-family: var(--font-game) !important; font-weight: 400 !important;
+  font-family: var(--font-game) !important; font-weight: 800 !important; letter-spacing: -0.01em;
   font-size: clamp(28px, 2.4vw + 18px, 42px) !important; line-height: 1.06;
   color: #fff; text-shadow: var(--g-soft);
 }
@@ -10626,7 +10630,7 @@ button.wm-tag { border-radius: 999px !important; }
 .ln-ok { color: #facc15; display: inline-flex; align-items: center; gap: 4px; }
 /* L'ÉTIQUETTE D'UN BLOC · une petite pastille en relief. */
 .ln-k {
-  display: inline-block; font-family: var(--font-game); font-size: 13px; letter-spacing: .05em;
+  display: inline-block; font-family: var(--font-game); font-weight: 800; font-size: 13px; letter-spacing: .05em;
   padding: 3px 11px 4px; border-radius: 999px;
   color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   background: linear-gradient(180deg, #ffb45c, #f97316 60%, #ea580c);
@@ -10646,7 +10650,7 @@ button.wm-tag { border-radius: 999px !important; }
 .ln-steps li { display: flex; gap: 12px; font-size: 15px; line-height: 1.55; color: var(--g-text); }
 .ln-steps li span {
   flex: none; width: 30px; height: 30px; display: grid; place-items: center;
-  font-family: var(--font-game); font-size: 15px; color: #fff;
+  font-family: var(--font-game); font-weight: 800; font-size: 15px; color: #fff;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #93c5fd, #3b82f6 55%, #1d4ed8);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 4px 12px -2px rgba(59, 130, 246, 0.6);
@@ -10661,8 +10665,78 @@ button.wm-tag { border-radius: 999px !important; }
 .ln-trap .ln-k { background: rgba(0, 0, 0, 0.25); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35); }
 .ln-trap p { margin: 8px 0 0; font-size: 14.5px; font-weight: 700; line-height: 1.5; }
 
-.ln-quiz { margin: 24px 0 0; padding: 20px; }
-.ln-quiz h3 { margin: 10px 0 14px; font-family: var(--font-game); font-weight: 400; font-size: clamp(19px, .6vw + 16px, 23px); line-height: 1.22; color: #fff; }
+.ln-quiz { margin: 14px 0 0; padding: 20px; }
+
+/* --- l'approfondissement d'un dojo --------------------------------------- */
+/* UNE COULEUR PAR BLOC · on sait où l'on est dans la leçon avant de lire un
+   mot : le bleu explique, le rose montre ce qui rate, le vert ce qui marche,
+   le violet fait faire, l'orange vérifie. */
+.ln-block { margin: 30px 0 0; }
+.ln-h2 {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 12px; font-family: var(--font-game); font-weight: 800;
+  font-size: clamp(19px, .6vw + 16px, 22px); letter-spacing: -0.01em; color: #fff;
+}
+.ln-h2::before {
+  content: ''; flex: none; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--h-c, #8b5cf6); box-shadow: 0 0 12px var(--h-c, #8b5cf6);
+}
+.ln-whyb { --h-c: #60a5fa; }
+.ln-whyb p {
+  margin: 0 0 10px; padding: 14px 16px; border-radius: 16px;
+  font-size: 15.5px; line-height: 1.65; color: var(--g-text);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.16), rgba(59, 130, 246, 0.06));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.ln-ctx { margin: 0 0 12px; font-size: 15px; color: var(--g-sub); line-height: 1.55; }
+.ln-ba { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+.ln-pr { margin: 0; padding: 14px 16px 16px; border-radius: 16px; min-width: 0; }
+.ln-pr figcaption {
+  display: inline-block; margin-bottom: 8px; padding: 3px 11px 4px; border-radius: 999px;
+  font-family: var(--font-game); font-weight: 800; font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase; color: #fff;
+}
+.ln-pr pre {
+  margin: 0; white-space: pre-wrap; word-break: break-word;
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; color: var(--g-text);
+}
+.ln-pr.before { background: linear-gradient(180deg, rgba(244, 63, 94, 0.16), rgba(244, 63, 94, 0.05)); }
+.ln-pr.before figcaption { background: linear-gradient(180deg, #fb7185, #e11d48); }
+.ln-pr.after { background: linear-gradient(180deg, rgba(132, 204, 22, 0.16), rgba(132, 204, 22, 0.05)); }
+.ln-pr.after figcaption { background: linear-gradient(180deg, #a3e635, #4d7c0f); }
+.ln-take { margin: 12px 0 0; font-size: 15px; font-weight: 700; line-height: 1.55; color: #d9f99d; }
+
+/* L'EXERCICE · le bloc le plus important de la leçon, donc le plus visible :
+   une surface violette, le prompt dans un encart creusé qu'on copie d'un
+   geste, la liste pour se corriger. */
+.ln-ex {
+  margin: 30px 0 0; padding: 20px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #3b2178, #2a1760 45%, #1e104a);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 30px 80px -26px rgba(139, 92, 246, 0.6);
+}
+.ln-ex .ln-k { background: linear-gradient(180deg, #c49bff, #7c3aed); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 4px 12px -4px rgba(124, 58, 237, 0.8); }
+.ln-goal { margin: 12px 0 14px; font-size: 16px; line-height: 1.55; color: #fff; }
+.ln-goal b { color: #e9d5ff; }
+.ln-code { position: relative; border-radius: 16px; background: rgba(6, 2, 18, 0.55); box-shadow: var(--g-sunk); }
+.ln-code pre {
+  margin: 0; padding: 16px 16px 64px; white-space: pre-wrap; word-break: break-word;
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65; color: #f5f3ff;
+}
+.gm .ln-copy { position: absolute; right: 10px; bottom: 10px; margin: 0; min-height: 40px; padding: 8px 16px; font-size: 15px; }
+.ln-h3 { margin: 18px 0 10px; font-family: var(--font-game); font-weight: 800; font-size: 16px; color: #fff; }
+.ln-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ln-checks label {
+  display: flex; gap: 12px; align-items: flex-start; cursor: pointer;
+  padding: 10px 12px; border-radius: 12px; background: rgba(6, 2, 18, 0.35);
+  font-size: 14.5px; line-height: 1.5; color: var(--g-text);
+}
+.ln-checks input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: #a3e635; }
+.ln-checks input:checked + span { color: #d9f99d; text-decoration: line-through; text-decoration-color: rgba(217, 249, 157, 0.5); }
+.ln-bonus { margin: 16px 0 0; font-size: 14.5px; line-height: 1.55; color: var(--g-text); }
+.ln-bonus b { color: #fbbf24; }
+.ln-block .ln-quiz .ln-k { background: linear-gradient(180deg, #ffb45c, #ea580c); }
+
+.ln-quiz h3 { margin: 10px 0 14px; font-family: var(--font-game); font-weight: 800; font-size: clamp(19px, .6vw + 16px, 23px); line-height: 1.22; color: #fff; }
 .ln-opts { display: flex; flex-direction: column; gap: 10px; }
 /* LES RÉPONSES SONT DES TOUCHES EN RELIEF · violettes au repos, vertes quand
    c'est juste, rouges quand c'est faux. */
@@ -10680,7 +10754,7 @@ button.wm-tag { border-radius: 999px !important; }
 .ln-opt:disabled { cursor: default; }
 .ln-opt-k {
   flex: none; width: 30px; height: 30px; display: grid; place-items: center;
-  font-family: var(--font-game); font-size: 15px; border-radius: 50%;
+  font-family: var(--font-game); font-weight: 800; font-size: 15px; border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #fed7aa, #f97316 55%, #c2410c);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 3px 8px rgba(0, 0, 0, 0.4);
 }
@@ -10693,35 +10767,36 @@ button.wm-tag { border-radius: 999px !important; }
 .ln-why.right b { color: #bef264; }
 
 .ln-end { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 26px; }
-.ln-claim { --b-top: #ffb45c; --b-mid: #f97316; --b-bot: #c2410c; --b-glow: rgba(249, 115, 22, 0.55); }
 .ln-claim.on { --b-top: #fde68a; --b-mid: #eab308; --b-bot: #a16207; --b-glow: rgba(234, 179, 8, 0.55); }
 .ln-end .gm-cta { margin-top: 0; }
 
 /* --- le clan ------------------------------------------------------------- */
 
 .cl-note { padding: 20px; display: flex; flex-direction: column; gap: 8px; }
-.cl-note b { font-family: var(--font-game); font-weight: 400; font-size: 20px; color: #fff; }
+.cl-note b { font-family: var(--font-game); font-weight: 800; font-size: 20px; color: #fff; }
 .cl-note p { margin: 0; font-size: 14px; color: var(--g-sub); line-height: 1.6; }
 .cl-me { display: flex; gap: 14px; align-items: center; padding: 18px 20px; }
 /* LE NIVEAU EN MÉDAILLON · le même que dans la jauge du haut, en plus grand. */
 .cl-me-g {
   flex: none; width: 56px; height: 56px; display: grid; place-items: center; border-radius: 50%;
-  font-family: var(--font-game); font-size: 24px; color: #fff;
+  font-family: var(--font-game); font-weight: 800; font-size: 24px; color: #fff;
   background:
     radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.55), transparent 42%),
     linear-gradient(180deg, #c49bff, #8b5cf6 55%, #6d28d9);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -3px 6px rgba(0, 0, 0, 0.3), 0 10px 26px -6px rgba(109, 40, 217, 0.7);
 }
-.cl-me b { display: block; font-family: var(--font-game); font-weight: 400; font-size: 26px; color: #fff; }
+.cl-me b { display: block; font-family: var(--font-game); font-weight: 800; font-size: 26px; color: #fff; }
 .cl-me em { font-style: normal; font-size: 13px; color: var(--g-sub); font-weight: 700; }
 
-/* LE ROBOT D'AIDE · une touche violette en relief, au-dessus de la barre. */
+/* LE ROBOT D'AIDE · une bulle, et seulement une bulle : l'icône, sans son
+   nom. Demandé ainsi · la pilule « Dojobot » couvrait le bord des cartes. Le
+   nom reste dit au lecteur d'écran par l'étiquette du bouton. */
 .gm .sb-launch {
   bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, #c49bff, #8b5cf6 55%, #6d28d9) !important;
   border: 0 !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -3px 6px rgba(0, 0, 0, 0.25), 0 14px 34px -10px rgba(139, 92, 246, 0.75) !important;
-  font-family: var(--font-game); font-weight: 400; text-shadow: none;
+  font-family: var(--font-game); font-weight: 800; text-shadow: none;
   transition: transform 220ms var(--g-ease);
 }
 .gm .sb-launch:hover { transform: translateY(-3px); }
@@ -10749,16 +10824,16 @@ button.wm-tag { border-radius: 999px !important; }
   box-shadow: var(--g-edge), var(--g-lift);
 }
 .pf-nums span.lv { background: linear-gradient(180deg, #8b5cf6, #6d28d9); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 18px 40px -14px rgba(139, 92, 246, 0.7); }
-.pf-nums b { font-family: var(--font-game); font-weight: 400; font-size: 32px; line-height: 1; color: #fff; }
+.pf-nums b { font-family: var(--font-game); font-weight: 800; font-size: 32px; line-height: 1; color: #fff; }
 .pf-nums i { font-style: normal; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--g-sub); }
 .pf-nums span.lv i { color: #ede9fe; }
 .pf-gauges { display: grid; gap: 14px; margin: 4px 0 8px; max-width: 520px; }
 .pf-h2 {
-  font-family: var(--font-game) !important; font-weight: 400 !important;
+  font-family: var(--font-game) !important; font-weight: 800 !important; letter-spacing: -0.01em;
   font-size: clamp(21px, .6vw + 18px, 26px) !important;
   color: #fff; text-shadow: var(--g-soft); margin: 0 0 12px; letter-spacing: .01em;
 }
-.pf-of { font-family: var(--font-game); font-size: 16px; color: #facc15; }
+.pf-of { font-family: var(--font-game); font-weight: 800; font-size: 16px; color: #facc15; }
 
 .pf-map {
   display: flex; gap: 14px; align-items: center; padding: 16px 20px;
@@ -10767,9 +10842,9 @@ button.wm-tag { border-radius: 999px !important; }
 .pf-map:hover { transform: translateY(-4px); box-shadow: var(--g-edge), var(--g-lift-hi); }
 .pf-map:active { transform: translateY(-1px); transition-duration: 100ms; }
 .pf-map-t { flex: 1; min-width: 0; }
-.pf-map-t b { display: block; font-family: var(--font-game); font-weight: 400; font-size: 21px; color: #fff; }
+.pf-map-t b { display: block; font-family: var(--font-game); font-weight: 800; font-size: 21px; color: #fff; }
 .pf-map-t em { font-style: normal; font-size: 13px; color: var(--g-sub); }
-.pf-map-go { font-family: var(--font-game); font-size: 26px; color: #bef264; }
+.pf-map-go { font-family: var(--font-game); font-weight: 800; font-size: 26px; color: #bef264; }
 
 .pf-owned { display: flex; flex-direction: column; gap: 8px; }
 .pf-own {
@@ -10836,8 +10911,8 @@ button.wm-tag { border-radius: 999px !important; }
   box-shadow: var(--g-edge), var(--g-lift);
   color: #fff;
 }
-.cm-hud b { display: block; font-family: var(--font-game); font-weight: 400; font-size: 20px; }
-.cm-hud em { font-style: normal; font-family: var(--font-game); font-size: 14px; color: #facc15; }
+.cm-hud b { display: block; font-family: var(--font-game); font-weight: 800; font-size: 20px; }
+.cm-hud em { font-style: normal; font-family: var(--font-game); font-weight: 800; font-size: 14px; color: #facc15; }
 
 /* LE CHROME DE LA CARTE PASSE AU-DESSUS DES ÉTIQUETTES DE LA SCÈNE · les
    titres de cités sont du HTML projeté dans un calque plafonné à douze
@@ -10854,7 +10929,7 @@ button.wm-tag { border-radius: 999px !important; }
 }
 .cm-sheet-top { display: flex; gap: 12px; align-items: center; }
 .cm-sheet-top > div { flex: 1; min-width: 0; }
-.cm-sheet-top b { display: block; font-family: var(--font-game); font-weight: 400; font-size: 22px; line-height: 1.12; color: #fff; }
+.cm-sheet-top b { display: block; font-family: var(--font-game); font-weight: 800; font-size: 22px; line-height: 1.12; color: #fff; }
 .cm-sheet-top em { font-style: normal; font-size: 13px; font-weight: 800; color: #facc15; }
 .cm-sheet-x {
   flex: none; width: 40px; height: 40px; display: grid; place-items: center; cursor: pointer; color: #fff;
@@ -10881,10 +10956,53 @@ button.wm-tag { border-radius: 999px !important; }
   .cm-sheet { left: auto; right: 18px; bottom: 18px; width: 400px; max-height: 76dvh; }
 }
 
+/* --- les tarifs ---------------------------------------------------------- */
+/* TROIS OFFRES, UNE MISE EN AVANT · la formation complète est l'offre
+   principale, elle est un cran plus haute et porte sa lueur. Chaque carte
+   prend la teinte de sa formation. */
+.tf-grid { display: grid; gap: clamp(18px, 2.4vw, 28px); grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); align-items: start; }
+.tf-card {
+  --g-glow: color-mix(in srgb, var(--ac, #8b5cf6) 45%, transparent);
+  position: relative; display: flex; flex-direction: column; gap: 10px;
+  padding: 22px 20px 20px; border-radius: 22px;
+  background: linear-gradient(180deg, var(--g-card-top), var(--g-card) 40%, var(--g-card-bot));
+  box-shadow: var(--g-edge), var(--g-lift);
+}
+.tf-card.main {
+  --g-glow: rgba(139, 92, 246, 0.6);
+  background: linear-gradient(180deg, #33206a, #251650 45%, #1b0f3c);
+}
+@media (min-width: 900px) { .tf-card.main { transform: translateY(-10px); } }
+.tf-flag {
+  align-self: flex-start; padding: 4px 12px 5px; border-radius: 999px;
+  font-family: var(--font-game); font-weight: 800; font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase; color: #fff;
+  background: linear-gradient(180deg, #b794ff, #7c3aed); box-shadow: 0 6px 16px -6px rgba(124, 58, 237, 0.8);
+}
+.tf-name { font-family: var(--font-game); font-weight: 800; font-size: 21px; color: #fff; }
+.tf-price { font-family: var(--font-game); font-weight: 900; font-size: 38px; line-height: 1; color: #fff; }
+.tf-price i { font-style: normal; font-weight: 700; font-size: 14px; color: var(--g-sub); }
+.tf-tag { margin: 0; font-size: 14.5px; color: var(--g-sub); line-height: 1.5; }
+.tf-incl { list-style: none; margin: 6px 0 4px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.tf-incl li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.5; color: var(--g-text); }
+.tf-incl li svg { flex: none; margin-top: 3px; color: #a3e635; }
+.gm .tf-go { align-self: stretch; margin-top: 8px; }
+.tf-trades { display: flex; flex-wrap: wrap; gap: 8px; }
+.gm .tf-chip {
+  padding: 7px 12px; border: 0; border-radius: 999px !important; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 700; color: var(--g-sub);
+  background: var(--g-slot); box-shadow: var(--g-sunk);
+  transition: color 180ms ease, background 180ms ease;
+}
+.gm .tf-chip.on { color: #fff; background: linear-gradient(180deg, color-mix(in srgb, var(--ac) 80%, #fff), var(--ac)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 6px 16px -6px var(--ac); }
+.tf-fine { margin: 2px 0 0; font-size: 12.5px; color: var(--g-sub); line-height: 1.5; }
+.tf-note { margin: 12px 0 0; padding: 10px 14px; border-radius: 14px; font-size: 14px; font-weight: 700; color: #d9f99d; background: rgba(132, 204, 22, 0.12); }
+.tf-note.err { color: #fecdd3; background: rgba(244, 63, 94, 0.14); }
+.tf-facts ul { margin: 4px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; color: var(--g-text); font-size: 14.5px; line-height: 1.55; }
+
 /* --- ouvrir le week-end --------------------------------------------------- */
 
 .ae { margin-top: 16px; padding: 18px 20px; }
-.ae-lab { display: block; font-family: var(--font-game); font-weight: 400; font-size: 18px; color: #fff; margin-bottom: 10px; }
+.ae-lab { display: block; font-family: var(--font-game); font-weight: 800; font-size: 18px; color: #fff; margin-bottom: 10px; }
 .ae-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 /* LE CHAMP EST CREUSÉ · le contraire du bouton, qui est en relief. */
 .ae-inp {

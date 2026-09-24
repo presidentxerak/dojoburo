@@ -39,7 +39,7 @@
   // La barre du navigateur prend le violet de la page · une encoche d'une
   // autre couleur au-dessus de l'app se lit comme un défaut d'affichage.
   var m = document.querySelector('meta[name="theme-color"]')
-  if (m) m.setAttribute('content', '#120a24')
+  if (m) m.setAttribute('content', '#0a0514')
 
   /* ---- 2 · la police, sans bloquer le premier pixel -------------------- */
   // Une feuille de style distante est BLOQUANTE au rendu : tant qu'elle n'est
