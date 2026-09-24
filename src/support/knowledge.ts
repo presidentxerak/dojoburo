@@ -323,7 +323,7 @@ export const KB: KBTopic[] = [
       { label: 'The valley map', href: '/carte' },
     ],
     follow: ['signin', 'training', 'certification'],
-    keywords: ['profile', 'profil', 'progress', 'progression', 'xp', 'experience', 'expérience', 'level', 'niveau', 'my badges', 'mes badges', 'trophy', 'vitrine', 'map', 'valley', 'vallée', 'erase', 'effacer', 'reset', 'unlocked', 'débloqué'],
+    keywords: ['profile', 'profil', 'progress', 'progression', 'my progress', 'ma progression', 'saved', 'sauvegard', 'gardée', 'xp', 'experience', 'expérience', 'level', 'niveau', 'my badges', 'mes badges', 'trophy', 'vitrine', 'map', 'valley', 'vallée', 'erase', 'effacer', 'reset', 'unlocked', 'débloqué'],
     fr: {
       chip: 'Ton profil',
       answer:
@@ -626,6 +626,11 @@ export function matchTopic(text: string): KBTopic | null {
   for (const t of KB) {
     let score = 0
     for (const k of t.keywords) if (q.includes(k)) score += k.length >= 5 ? 2 : 1
+    // UN SEUL MOT, ET C'EST LE BON · « prix » tapé seul valait un point (mot
+    // court) et tombait sous le seuil : la question la plus directe du robot
+    // partait dans la cascade payante. Une question qui EST un mot-clé compte.
+    const bare = q.trim().replace(/[?!.\s]+$/, '')
+    if (t.keywords.includes(bare)) score += 2
     // LES DEUX PASTILLES · quelqu'un qui lit la page en français tape le
     // libellé français qu'il a sous les yeux. Ne comparer que l'anglais
     // aurait fait tomber cette question dans la cascade payante.

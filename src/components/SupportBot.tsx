@@ -31,17 +31,20 @@ let uid = 0
 const nid = () => ++uid
 const MAX_LEN = 1500
 
-/** The topics offered up front, in the order a founder meets them. */
-const START_CHIPS = ['start', 'teams', 'budget', 'signin', 'tools', 'studios', 'guide', 'pricing', 'security']
+/** The topics offered up front, in the order someone meets them · the game
+ *  first (it is the first button of the bar), then the training, then paying. */
+const START_CHIPS = ['start', 'studios', 'teams', 'budget', 'training', 'lessons', 'pricing', 'buy', 'signin']
 
-/** Questions people actually ask, in their own words · one tap fills them in. */
+/** Questions people actually ask, in their own words · one tap fills them in.
+ *  Each one is written to land on its topic in the local answers, so a tap
+ *  answers at once, without a model. */
 const SUGGESTIONS = [
-  'How do I create my company?',
-  'What is inside a dojo team?',
-  'How much will this cost me?',
-  'How do I connect Gmail?',
-  'Do I need to sign in?',
-  'Is my data safe?',
+  { en: 'How do I play Dojoburo?', fr: 'Comment on joue à Dojoburo ?' },
+  { en: 'What are tokens for in the game?', fr: 'À quoi servent les tokens dans le jeu ?' },
+  { en: 'Where do I start the training?', fr: 'Par où commencer la formation ?' },
+  { en: 'How much does it cost?', fr: 'Combien ça coûte ?' },
+  { en: 'How does buying work?', fr: "Comment se passe l'achat ?" },
+  { en: 'Where is my progress saved?', fr: 'Où est gardée ma progression ?' },
 ]
 
 /** Every walkthrough, offered as a shortcut in the rail. */
@@ -155,7 +158,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
     setBusy(false)
 
     if (reply) {
-      pushBot({ text: reply.text, chips: ['start', 'budget', 'security'] })
+      pushBot({ text: reply.text, chips: ['start', 'studios', 'pricing'] })
     } else {
       pushBot({
         text: t('sb.noReach'),
@@ -255,9 +258,10 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
               {/* one tap fills the box with a real question */}
               {msgs.length <= 1 && (
                 <div className="sb-sugg">
-                  {SUGGESTIONS.map((q) => (
-                    <button key={q} className="sb-suggq" onClick={() => void send(q)} disabled={busy}>{q}</button>
-                  ))}
+                  {SUGGESTIONS.map((sq) => {
+                    const q = pick(sq, lang)
+                    return <button key={q} className="sb-suggq" onClick={() => void send(q)} disabled={busy}>{q}</button>
+                  })}
                 </div>
               )}
 
