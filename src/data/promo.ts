@@ -40,26 +40,26 @@ export interface Qa { q: Bi; a: Bi }
 export const FOR_WHOM: { glyph: string; title: Bi; body: Bi }[] = [
   {
     glyph: 'peak',
-    title: B('You have never really started', "Tu n'as jamais vraiment commencé"),
+    title: B('You have never really started', "Vous n'avez jamais vraiment commencé"),
     body: B(
       'You opened a chat window, were impressed for ten minutes, then went back to working as before.',
-      "Tu as ouvert une fenêtre de discussion, tu as été bluffé dix minutes, puis tu as repris ton travail comme avant.",
+      "Vous avez ouvert une fenêtre de discussion, vous avez été impressionné dix minutes, puis vous avez repris votre travail comme auparavant.",
     ),
   },
   {
     glyph: 'gear',
-    title: B('You use it, badly', "Tu t'en sers, mal"),
+    title: B('You use it, badly', "Vous l'utilisez, mais mal"),
     body: B(
       'It works one time in three and you have no idea why, so you cannot trust it with anything that matters.',
-      "Ça marche une fois sur trois sans que tu saches pourquoi, alors tu ne peux rien lui confier d'important.",
+      "Cela fonctionne une fois sur trois sans que vous sachiez pourquoi ; vous ne pouvez donc rien lui confier d'important.",
     ),
   },
   {
     glyph: 'target',
-    title: B('You want it for your job', 'Tu le veux pour ton métier'),
+    title: B('You want it for your job', 'Vous en avez besoin pour votre métier'),
     body: B(
       'General advice does not survive contact with your week. You want the objects and the mistakes of your trade.',
-      "Les conseils généraux ne tiennent pas face à ta semaine. Tu veux les objets et les erreurs de ton métier.",
+      "Les conseils généraux résistent mal à la réalité de votre semaine. Vous cherchez les objets et les erreurs propres à votre métier.",
     ),
   },
 ]
@@ -70,25 +70,25 @@ export const HOW: { glyph: string; title: Bi; body: Bi }[] = [
     glyph: 'grid',
     title: B('A map of cities', 'Une carte de cités'),
     body: B('Each city is a module. You go where you want, in any order.',
-      "Chaque cité est un module. Tu vas où tu veux, dans l'ordre que tu veux."),
+      "Chaque cité correspond à un module. Vous les parcourez dans l'ordre de votre choix."),
   },
   {
     glyph: 'house',
     title: B('A master in each dojo', 'Un maître dans chaque dojo'),
     body: B('One thing to learn, one thing to do, three or four moves. Seven minutes.',
-      "Une chose à apprendre, une chose à faire, trois ou quatre gestes. Sept minutes."),
+      "Une notion à apprendre, un exercice à réaliser, trois ou quatre étapes. Sept minutes."),
   },
   {
     glyph: 'check',
-    title: B('A question that closes it', 'Une question qui ferme'),
+    title: B('A question that closes it', 'Une question de validation'),
     body: B('You answer once, you see why, and you move on. No retry loop.',
-      "Tu réponds une fois, tu vois pourquoi, et tu avances. Pas de seconde chance."),
+      "Vous répondez une seule fois, vous découvrez l'explication, puis vous poursuivez. Il n'y a pas de seconde tentative."),
   },
   {
     glyph: 'star4',
-    title: B('A badge, and it stays', 'Un badge, et il reste'),
+    title: B('A badge, and it stays', 'Un badge, acquis durablement'),
     body: B('Every dojo gives one. You can redo any of them, any time.',
-      "Chaque dojo en donne un. Tu peux tous les refaire, quand tu veux."),
+      "Chaque dojo en délivre un. Vous pouvez refaire chacun d'eux à tout moment."),
   },
 ]
 
@@ -97,45 +97,45 @@ export const HOW: { glyph: string; title: Bi; body: Bi }[] = [
  *  une page de vente déguisée, et ça se voit. */
 export const FAQ: Qa[] = [
   {
-    q: B('Do I need to know how to code?', 'Est-ce que je dois savoir coder ?'),
+    q: B('Do I need to know how to code?', 'Faut-il savoir programmer ?'),
     a: B(
       'No. Nothing in the path asks you to write a line of code. The one module about building things uses tools that do not require it.',
-      "Non. Rien dans le parcours ne te demande d'écrire une ligne de code. Le module où tu construis quelque chose utilise des outils qui n'en réclament pas.",
+      "Non. Aucune étape du parcours ne vous demande d'écrire une ligne de code. Le module consacré à la construction utilise des outils qui n'en exigent pas.",
     ),
   },
   {
-    q: B('How long does it take?', 'Combien de temps cela prend ?'),
+    q: B('How long does it take?', 'Combien de temps cela demande-t-il ?'),
     a: B(
       'The free week is seven lessons of about seven minutes. The full path is a little over four hours, and it is built to be taken one dojo at a time.',
-      "La semaine gratuite, c'est sept leçons d'environ sept minutes. Le parcours complet dépasse un peu quatre heures, et il est pensé pour avancer un dojo à la fois.",
+      "La semaine gratuite comprend sept leçons d'environ sept minutes. Le parcours complet dure un peu plus de quatre heures et se suit un dojo à la fois.",
     ),
   },
   {
     q: B('Is it a subscription?', 'Est-ce un abonnement ?'),
     a: B(
       'No. You pay once and it is yours, including what is added later. There is no trial that turns into a charge.',
-      "Non. Tu paies une fois et c'est à toi, y compris ce qui sera ajouté ensuite. Aucun essai ne se transforme en prélèvement.",
+      "Non. Vous payez une seule fois et le contenu vous est acquis, y compris ce qui sera ajouté ensuite. Aucun essai ne se transforme en prélèvement.",
     ),
   },
   {
     q: B('Will it still be true in six months?', 'Sera-ce encore vrai dans six mois ?'),
     a: B(
       'The lessons teach what corresponds to what, never menu paths or buttons. That is a deliberate choice: the products change every quarter and a course made of clicks is wrong before it is read.',
-      "Les leçons enseignent des correspondances, jamais des chemins de menu ni des boutons. C'est un choix : les produits changent chaque trimestre et un cours fait de clics est faux avant d'être lu.",
+      "Les leçons enseignent des principes et leurs correspondances, jamais des chemins de menu ni des boutons. C'est un choix délibéré : les produits changent chaque trimestre, et un cours fondé sur des clics est déjà obsolète avant d'être lu.",
     ),
   },
   {
-    q: B('Which tools do I need?', 'Quels outils faut-il ?'),
+    q: B('Which tools do I need?', 'De quels outils avez-vous besoin ?'),
     a: B(
       'The free versions of the main assistants are enough for the whole path. Where a paid feature changes the answer, the lesson says so and says what it costs.',
-      "Les versions gratuites des principaux assistants suffisent pour tout le parcours. Là où une fonction payante change la donne, la leçon te le dit, avec son prix.",
+      "Les versions gratuites des principaux assistants suffisent pour l'ensemble du parcours. Lorsqu'une fonction payante modifie la réponse, la leçon le signale et en indique le prix.",
     ),
   },
   {
     q: B('What if it is not for me?', "Et si cela ne me convient pas ?"),
     a: B(
       'Start with the free week. It is seven real lessons, not a sample, and it is the honest way to find out before paying anything.',
-      "Commence par la semaine gratuite. Ce sont sept vraies leçons, pas un échantillon, et c'est la façon honnête de le savoir avant de payer quoi que ce soit.",
+      "Commencez par la semaine gratuite. Elle comprend sept leçons complètes, non un simple échantillon, et constitue le moyen le plus honnête d'en juger avant tout paiement.",
     ),
   },
 ]

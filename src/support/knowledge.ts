@@ -106,11 +106,11 @@ export const KB: KBTopic[] = [
       { label: 'See the trainings', href: '/' },
     ],
     follow: ['teams', 'budget', 'training'],
-    keywords: ['dojoburo', 'game', 'jeu', 'jouer', 'play', 'simulation', 'startup', 'studio', 'brief', 'briefs', 'client', 'objective', 'objectif', 'revenue', "chiffre d'affaires", 'reputation', 'réputation', 'event', 'événement', 'shop', 'boutique', 'upgrade', 'amélioration', 'journée', 'game over', 'sensei'],
+    keywords: ['dojoburo', 'game', 'jeu', 'jouer', 'play', 'simulation', 'startup', 'studio', 'brief', 'briefs', 'client', 'objective', 'objectif', 'revenue', "chiffre d'affaires", 'reputation', 'réputation', 'event', 'événement', 'shop', 'boutique', 'upgrade', 'amélioration', 'journée', 'game over', 'sensei', 'comment jouer', 'votre studio'],
     fr: {
       chip: 'Le jeu Dojoburo',
       answer:
-        `Dojoburo, c'est le jeu, le premier bouton de la barre du bas. Tu diriges un studio d'IA dans un dojo, avec ${USE_CASE_COUNT} agents spécialisés, et le maître qui te regarde depuis le fond de la salle. Des clients entrent l'un après l'autre et te confient un brief. Pour jouer, ouvre un brief en attente, choisis un à quatre spécialistes libres, et donne des tokens à chacun. Pendant que tu choisis, un aperçu de la qualité te montre comment le travail risque de tourner, pour que tu puisses changer d'avis avant de lancer. Les tokens quittent ton budget au moment où tu lances, et ce budget est limité pour la journée. Chaque journée va de 9 h à 18 h sur l'horloge, et tu peux mettre en pause. La journée a un objectif de chiffre d'affaires : atteins-le et tu passes au jour suivant, rate-le et tu rejoues la même journée, sans game over. Un client qui attend trop longtemps repart mécontent, et ta réputation baisse. Quand tu atteins l'objectif, les tokens que tu n'as pas dépensés te rapportent un bonus de frugalité en fin de journée. À partir du jour 2, un événement par jour change la donne : une affluence de clients, une flambée du prix des tokens, un jour viral, un spécialiste absent, ou le conseil du maître. Entre deux journées, la boutique transforme ton chiffre d'affaires en améliorations, comme un budget de tokens plus gros ou un niveau de plus pour un de tes spécialistes. Ta progression est enregistrée dans ce navigateur. Le jeu t'apprend la même chose que la formation : mettre le bon spécialiste sur le bon travail, et lui donner les tokens dont le travail a besoin, pas plus.`,
+        `Dojoburo est le jeu, accessible par le premier bouton de la barre du bas. Vous y dirigez un studio d'IA installé dans un dojo, avec ${USE_CASE_COUNT} agents spécialisés, sous le regard du maître placé au fond de la salle. Des clients se présentent l'un après l'autre et vous confient un brief. Pour jouer, ouvrez un brief en attente, choisissez de un à quatre spécialistes disponibles et attribuez des tokens à chacun. Pendant votre choix, un aperçu de la qualité indique les chances de réussite du travail, ce qui vous permet de modifier votre sélection avant de lancer. Les tokens sont prélevés sur votre budget au moment du lancement, et ce budget est limité pour la journée. Chaque journée s'étend de 9 h à 18 h sur l'horloge, et vous pouvez la mettre en pause. Elle comporte un objectif de chiffre d'affaires : si vous l'atteignez, vous passez au jour suivant ; sinon, vous rejouez la même journée, sans fin de partie. Un client qui attend trop longtemps repart mécontent, et votre réputation diminue. Lorsque vous atteignez l'objectif, les tokens non dépensés vous rapportent un bonus de frugalité en fin de journée. À partir du deuxième jour, un événement quotidien modifie les conditions : une affluence de clients, une flambée du prix des tokens, une journée virale, un spécialiste absent, ou le conseil du maître. Entre deux journées, la boutique convertit votre chiffre d'affaires en améliorations, comme un budget de tokens plus important ou un niveau supplémentaire pour l'un de vos spécialistes. Votre progression est enregistrée dans ce navigateur. Le jeu enseigne la même chose que la formation : affecter le bon spécialiste au bon travail, et lui attribuer les tokens dont ce travail a besoin, sans excès.`,
       links: [
         'Jouer à Dojoburo',
         'Voir les formations',
@@ -132,11 +132,11 @@ export const KB: KBTopic[] = [
       { label: 'Build an agent', href: '/build' },
     ],
     follow: ['studios', 'budget', 'build'],
-    keywords: ['specialist', 'specialists', 'spécialiste', 'spécialistes', 'which specialist', 'quel spécialiste', 'orchestrator', 'orchestrateur', 'conductor', "chef d'orchestre", 'fatigue', 'tired', 'fatigué', 'level up', 'quality', 'qualité', 'preview', 'aperçu', 'employee', 'employé', 'my team', 'mon équipe', 'right agent', 'bon agent'],
+    keywords: ['specialist', 'specialists', 'spécialiste', 'spécialistes', 'which specialist', 'quel spécialiste', 'orchestrator', 'orchestrateur', 'conductor', "chef d'orchestre", 'fatigue', 'tired', 'fatigué', 'level up', 'quality', 'qualité', 'preview', 'aperçu', 'employee', 'employé', 'my team', 'mon équipe', 'right agent', 'bon agent', 'votre équipe'],
     fr: {
       chip: 'Choisir les bons spécialistes',
       answer:
-        `Ton studio compte ${USE_CASE_COUNT} spécialistes, un par forme de problème enseignée dans le cours : le chercheur, le rédacteur, le répondant, le codeur, l'analyste, le trieur, l'extracteur, la vigie, le planificateur, l'outilleur, l'expérimentateur et le chef d'orchestre. Chaque brief dit de quelles compétences il a besoin, et à quel niveau. Mets le bon spécialiste sur chaque besoin et la qualité grimpe. Mets le mauvais et le besoin n'est tout simplement pas couvert, peu importe les tokens que tu donnes. Le chef d'orchestre peut remplacer une compétence absente, mais mal : sa vraie force, c'est de coordonner deux collègues ou plus, ce qui rapporte un bonus. Les spécialistes gagnent de l'expérience à chaque travail et montent de niveau, ce qui les rend meilleurs et plus rapides. Ils se fatiguent aussi, et un spécialiste très fatigué fait un travail moins bon, alors laisse-les souffler. L'aperçu de la qualité se met à jour pendant que tu choisis : essaie une équipe, lis l'aperçu, change, puis lance. Après chaque travail, une courte astuce t'explique pourquoi ces spécialistes étaient les bons. C'est la première leçon du cours, en version jeu : chaque agent échoue à sa manière, alors tu prends celui qui est fait pour le problème que tu as devant toi.`,
+        `Votre studio compte ${USE_CASE_COUNT} spécialistes, chacun associé à un type de problème enseigné dans le cours : le chercheur, le rédacteur, le répondant, le codeur, l'analyste, le trieur, l'extracteur, la vigie, le planificateur, l'outilleur, l'expérimentateur et le chef d'orchestre. Chaque brief précise les compétences requises et leur niveau. Si vous affectez le bon spécialiste à chaque besoin, la qualité augmente. Si vous affectez le mauvais, le besoin n'est tout simplement pas couvert, quel que soit le nombre de tokens attribués. Le chef d'orchestre peut suppléer une compétence manquante, mais imparfaitement : sa véritable force consiste à coordonner deux collègues ou davantage, ce qui rapporte un bonus. Les spécialistes gagnent de l'expérience à chaque travail et progressent en niveau, ce qui les rend plus compétents et plus rapides. Ils se fatiguent également, et un spécialiste très fatigué produit un travail de moindre qualité : accordez-leur donc du repos. L'aperçu de la qualité se met à jour pendant votre choix : essayez une composition, lisez l'aperçu, ajustez-la, puis lancez. Après chaque travail, une courte explication indique pourquoi ces spécialistes étaient les plus adaptés. C'est la première leçon du cours sous forme de jeu : chaque agent échoue à sa manière, c'est pourquoi vous choisissez celui qui est conçu pour le problème à traiter.`,
       links: [
         'Jouer à Dojoburo',
         'Construire un agent',
@@ -159,14 +159,14 @@ export const KB: KBTopic[] = [
       { label: 'Where your tokens go', href: '/frugality' },
     ],
     follow: ['studios', 'teams', 'lessons'],
-    keywords: ['token', 'tokens', 'jeton', 'jetons', 'budget', 'frugality', 'frugalité', 'sobriété', 'frugal', 'bonus', 'consumption', 'consommation', 'price spike', 'flambée', 'waste', 'gaspill', 'cache', 'prompt library', 'bibliothèque de prompts'],
+    keywords: ['token', 'tokens', 'jeton', 'jetons', 'budget', 'frugality', 'frugalité', 'sobriété', 'frugal', 'bonus', 'consumption', 'consommation', 'price spike', 'flambée', 'waste', 'gaspill', 'cache', 'prompt library', 'bibliothèque de prompts', 'vos tokens'],
     fr: {
       chip: 'Tokens et budget',
       answer:
-        `Un token, c'est l'unité qu'un modèle lit, écrit et facture : un petit morceau de mot. Chaque prompt que tu envoies et chaque réponse que tu reçois coûtent des tokens, et c'est pour ça que les tokens sont le vrai coût d'un travail d'IA. Dans Dojoburo, les tokens sont ton budget du jour. Chaque brief a besoin d'une certaine quantité de tokens pour être bien fait, et tu les distribues à tes spécialistes avant de lancer. Donnes-en trop peu et la qualité chute vite. Donnes-en bien plus que le travail n'en demande et elle ne s'améliore presque pas. Les tokens donnés à un spécialiste dont le brief n'a pas besoin sont en grande partie gaspillés. Si tu atteins l'objectif, ce qui te reste en fin de journée te revient en bonus de frugalité, en euros. Un jour de flambée des prix, chaque token que tu donnes coûte plus cher à ton budget. Dans la boutique, un budget plus gros, une bibliothèque de prompts et un cache font tous durer tes tokens plus longtemps. La formation t'apprend la même habitude avec de vrais modèles, et la page /frugality te montre où passent vraiment tes tokens dans une conversation.`,
+        `Un token est l'unité qu'un modèle lit, écrit et facture : un petit fragment de mot. Chaque prompt que vous envoyez et chaque réponse que vous recevez consomment des tokens ; c'est pourquoi les tokens représentent le coût réel d'un travail d'IA. Dans Dojoburo, les tokens constituent votre budget quotidien. Chaque brief exige une certaine quantité de tokens pour être correctement traité, et vous les répartissez entre vos spécialistes avant le lancement. Si vous en attribuez trop peu, la qualité diminue rapidement. Si vous en attribuez beaucoup plus que nécessaire, elle ne s'améliore presque pas. Les tokens attribués à un spécialiste dont le brief n'a pas besoin sont en grande partie gaspillés. Si vous atteignez l'objectif, le solde restant en fin de journée vous revient sous forme de bonus de frugalité, en euros. Lors d'une journée de flambée des prix, chaque token attribué pèse davantage sur votre budget. Dans la boutique, un budget plus important, une bibliothèque de prompts et un cache permettent tous de mieux exploiter vos tokens. La formation enseigne la même habitude avec de vrais modèles, et la page /frugality montre où vont réellement vos tokens au cours d'une conversation.`,
       links: [
         'Jouer à Dojoburo',
-        'Où passent tes tokens',
+        'Où vont vos tokens',
       ],
     },
   },
@@ -181,11 +181,11 @@ export const KB: KBTopic[] = [
       { label: 'Start the free weekend', href: FREE_HREF },
     ],
     follow: ['studios', 'training', 'signin'],
-    keywords: ['start', 'begin', 'get started', 'commencer', 'démarrer', 'débuter', 'how does it work', 'comment ça marche', 'navigation', 'menu', 'bottom bar', 'barre du bas', 'onglet', 'tabs', 'dojos tab', 'onglet dojos', 'clan', 'where is', 'où est', 'dark mode', 'mode sombre', 'light mode', 'mode clair', 'theme', 'thème'],
+    keywords: ['start', 'begin', 'get started', 'commencer', 'démarrer', 'débuter', 'how does it work', 'comment ça marche', 'navigation', 'menu', 'bottom bar', 'barre du bas', 'onglet', 'tabs', 'dojos tab', 'onglet dojos', 'clan', 'where is', 'où est', 'dark mode', 'mode sombre', 'light mode', 'mode clair', 'theme', 'thème', 'comment cela fonctionne', 'par où commencer'],
     fr: {
       chip: 'Pour commencer',
       answer:
-        `Tout part de la barre du bas, qui a quatre boutons. DOJOBURO, c'est le jeu : tu diriges un studio d'IA, des clients t'apportent des briefs, et tu dépenses un budget de tokens limité sur les bons spécialistes. TRAINING, ce sont les formations (l'onglet s'appelait Dojos avant) : le week-end de l'IA gratuit, la formation complète et les formations métier. CLAN, c'est là où les disciples montreront ce qu'ils ont construit avec l'IA. Il n'y a pas encore de fil, et la page le dit plutôt que d'en inventer un ; pour l'instant, elle montre ton niveau, ton XP et tes badges. PROFIL, c'est ta progression : ton niveau, tes badges, ce que tu as débloqué, la carte de la vallée, et l'endroit où vivent tes données. Deux bonnes façons d'entrer : joue une première journée de Dojoburo, ou ouvre Training et commence le week-end de l'IA gratuit. Aucun compte n'est nécessaire, tout est gardé dans ce navigateur. L'XP en haut de l'écran vient des dojos que tu as vraiment terminés. L'application a un seul thème, sombre et violet, donc il n'y a pas de bouton de mode clair à chercher.`,
+        `Tout commence par la barre du bas, qui comporte quatre boutons. DOJOBURO est le jeu : vous dirigez un studio d'IA, des clients vous apportent des briefs, et vous répartissez un budget de tokens limité entre les spécialistes appropriés. TRAINING regroupe les formations (l'onglet s'appelait auparavant Dojos) : le week-end de l'IA gratuit, la formation complète et les formations métier. CLAN est l'espace où les disciples présenteront ce qu'ils ont construit avec l'IA. Aucun fil n'existe encore, et la page l'indique plutôt que d'en simuler un ; elle affiche pour l'instant votre niveau, votre XP et vos badges. PROFIL présente votre progression : votre niveau, vos badges, ce que vous avez débloqué, la carte de la vallée, et l'emplacement de vos données. Deux points d'entrée sont recommandés : jouer une première journée de Dojoburo, ou ouvrir Training et commencer le week-end de l'IA gratuit. Aucun compte n'est nécessaire, tout est conservé dans ce navigateur. L'XP affichée en haut de l'écran provient des dojos que vous avez effectivement terminés. L'application ne comporte qu'un seul thème, sombre et violet ; il n'existe donc pas de bouton de mode clair.`,
       links: [
         'Jouer à Dojoburo',
         'Commencer le week-end gratuit',
@@ -206,11 +206,11 @@ export const KB: KBTopic[] = [
       { label: 'Start the free weekend', href: FREE_HREF },
     ],
     follow: ['lessons', 'pricing', 'profile'],
-    keywords: ['training', 'trainings', 'formation', 'formations', 'course', 'courses', 'cours', 'parcours', 'dojo', 'dojos', 'city', 'cities', 'cité', 'cités', 'weekend', 'week-end', 'trade', 'métier', 'métiers', 'master', 'maître', 'curriculum', 'programme', 'un dojo', 'a dojo', 'dojo city', 'cité dojo', 'what can i learn', "qu'est-ce que j'apprends"],
+    keywords: ['training', 'trainings', 'formation', 'formations', 'course', 'courses', 'cours', 'parcours', 'dojo', 'dojos', 'city', 'cities', 'cité', 'cités', 'weekend', 'week-end', 'trade', 'métier', 'métiers', 'master', 'maître', 'curriculum', 'programme', 'un dojo', 'a dojo', 'dojo city', 'cité dojo', 'what can i learn', "qu'est-ce que j'apprends", 'que vais-je apprendre'],
     fr: {
       chip: 'Les formations',
       answer:
-        `Training, c'est le deuxième bouton de la barre du bas (il s'appelait Dojos avant), et il réunit ${PACK_COUNT} formations. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, environ ${FREE_MINUTES} minutes en tout, et on te demande ton adresse e-mail, rien d'autre. La formation complète, c'est ${PATH_CITIES} cités dojo et ${PATH_DOJOS} dojos : le prompt, les modèles, les assistants, les agents, le design et le coût. Puis ${TRADE_COUNT} formations métier, chacune avec ${TRADE_CITIES} cités de plus, écrites pour un métier : ${tradeNames('fr')}. Tu traverses les cités à ton rythme et dans l'ordre que tu veux, et un maître t'attend dans chacune. Chaque dojo est une leçon courte qui se termine par un badge et de l'XP, et tu peux refaire n'importe quel dojo quand tu veux. Le premier dojo de chaque cité s'ouvre dès que tu as donné ton adresse, pour que tu voies comment ça enseigne avant de payer.`,
+        `Training est le deuxième bouton de la barre du bas (il s'appelait auparavant Dojos), et il réunit ${PACK_COUNT} formations. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, environ ${FREE_MINUTES} minutes au total, pour lesquelles seule votre adresse e-mail est demandée. La formation complète comprend ${PATH_CITIES} cités dojo et ${PATH_DOJOS} dojos : le prompt, les modèles, les assistants, les agents, le design et le coût. S'y ajoutent ${TRADE_COUNT} formations métier, comportant chacune ${TRADE_CITIES} cités supplémentaires, conçues pour un métier : ${tradeNames('fr')}. Vous parcourez les cités à votre rythme et dans l'ordre de votre choix, et un maître vous attend dans chacune. Chaque dojo est une leçon courte qui se conclut par un badge et de l'XP, et vous pouvez refaire n'importe quel dojo à tout moment. Le premier dojo de chaque cité s'ouvre dès que vous avez communiqué votre adresse, afin que vous puissiez apprécier la pédagogie avant de payer.`,
       links: [
         'Ouvrir Training',
         'Commencer le week-end gratuit',
@@ -231,11 +231,11 @@ export const KB: KBTopic[] = [
       { label: 'Open Training', href: '/' },
     ],
     follow: ['training', 'pricing', 'profile'],
-    keywords: ['lesson', 'lessons', 'leçon', 'leçons', 'exercise', 'exercice', 'exercices', 'why it works', 'pourquoi ça marche', 'before and after', 'avant / après', 'avant/après', 'copy the prompt', 'copier le prompt', 'prompt to copy', 'prompt à copier', 'checklist', 'quiz', 'three questions', 'trois questions', 'lesson format', 'format'],
+    keywords: ['lesson', 'lessons', 'leçon', 'leçons', 'exercise', 'exercice', 'exercices', 'why it works', 'pourquoi ça marche', 'before and after', 'avant / après', 'avant/après', 'copy the prompt', 'copier le prompt', 'prompt to copy', 'prompt à copier', 'checklist', 'quiz', 'three questions', 'trois questions', 'lesson format', 'format', 'pourquoi cela fonctionne', 'à vous de jouer', "déroulement d'une leçon"],
     fr: {
-      chip: 'Comment marche une leçon',
+      chip: "Le déroulement d'une leçon",
       answer:
-        `Chaque dojo est une leçon courte de quelques minutes, menée par son maître, et elle est faite pour te faire agir, pas seulement lire. Elle s'ouvre sur ce que tu vas apprendre et sur ta mission. Vient ensuite POURQUOI ÇA MARCHE : le mécanisme en deux ou trois paragraphes courts, pour que tu comprennes au lieu d'apprendre une recette par cœur. LES GESTES : quelques étapes concrètes. AVANT / APRÈS : un vrai prompt qui a raté, le même prompt réparé, et ce qui a changé. LE PIÈGE à éviter. À TOI DE JOUER : un exercice à faire dans ton propre outil d'IA, avec ce que tu vas obtenir, un prompt à copier (remplace les parties entre [CROCHETS] par ton cas), une checklist pour vérifier toi-même ton résultat, et un bonus pour aller plus loin. Puis trois questions pour vérifier que c'est vraiment acquis. Quand tu as fini, tu prends le badge du dojo et son XP, et tu peux revenir sur n'importe quel dojo quand tu veux.`,
+        `Chaque dojo est une leçon courte de quelques minutes, conduite par son maître, et conçue pour vous faire agir plutôt que simplement lire. Elle s'ouvre sur les objectifs d'apprentissage et votre mission. Vient ensuite POURQUOI CELA FONCTIONNE : le mécanisme exposé en deux ou trois courts paragraphes, afin que vous compreniez plutôt que de mémoriser une recette. LES ÉTAPES : quelques gestes concrets. AVANT / APRÈS : un prompt réel qui a échoué, le même prompt corrigé, et l'analyse de ce qui a changé. LE PIÈGE à éviter. À VOUS DE JOUER : un exercice à réaliser dans votre propre outil d'IA, avec le résultat attendu, un prompt à copier (remplacez les parties entre [CROCHETS] par votre propre cas), une checklist pour vérifier vous-même votre résultat, et un bonus pour approfondir. Enfin, trois questions permettent de vérifier que la notion est acquise. Une fois la leçon terminée, vous obtenez le badge du dojo et son XP, et vous pouvez revenir sur n'importe quel dojo à tout moment.`,
       links: [
         'Essayer une leçon gratuite',
         'Ouvrir Training',
@@ -255,11 +255,11 @@ export const KB: KBTopic[] = [
       { label: 'Start the free weekend', href: FREE_HREF },
     ],
     follow: ['buy', 'training', 'signin'],
-    keywords: ['pricing', 'price', 'prices', 'tarif', 'tarifs', 'prix', 'cost', 'coût', 'how much', 'combien', 'expensive', 'cher', 'free', 'gratuit', 'subscription', 'abonnement', 'monthly', 'mensuel', 'per month', 'par mois', 'plans', 'formule', 'paid once', 'une fois', 'bundle', 'how much is', 'how much does', 'combien coûte', 'le prix', 'les prix', 'quel prix', 'formation complète', 'full training'],
+    keywords: ['pricing', 'price', 'prices', 'tarif', 'tarifs', 'prix', 'cost', 'coût', 'how much', 'combien', 'expensive', 'cher', 'free', 'gratuit', 'subscription', 'abonnement', 'monthly', 'mensuel', 'per month', 'par mois', 'plans', 'formule', 'paid once', 'une fois', 'bundle', 'how much is', 'how much does', 'combien coûte', 'le prix', 'les prix', 'quel prix', 'formation complète', 'full training', 'combien cela coûte'],
     fr: {
       chip: 'Les tarifs',
       answer:
-        `Pas d'abonnement : tu paies une fois, et rien ne se renouvelle. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, et on te demande ton adresse e-mail, pas de carte bancaire. La formation complète coûte ${priceTag(PATH_EUR)}, payée une fois : chacune des ${PATH_CITIES} cités dojo, dans l'ordre que tu veux, avec les fichiers et les mises à jour. Une formation métier coûte ${priceTag(TRADE_EUR)} par métier, payée une fois elle aussi : ${TRADE_CITIES} cités de plus, écrites pour un métier. Elle se prend plutôt après la formation complète, parce qu'elle ne réexplique pas les bases. Les deux ensemble font ${priceTag(BUNDLE_EUR)}. Tu hésites encore ? Dès que tu as donné ton adresse, le premier dojo de chaque cité est gratuit, pour que tu juges avant de payer. Tout est sur la page /tarifs, et la formation s'ouvre dans ce navigateur dès que le paiement est confirmé.`,
+        `Aucun abonnement : vous payez une seule fois, et rien n'est reconduit. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, pour lesquelles seule votre adresse e-mail est demandée, sans carte bancaire. La formation complète coûte ${priceTag(PATH_EUR)}, en un paiement unique : chacune des ${PATH_CITIES} cités dojo, dans l'ordre de votre choix, avec les fichiers et les mises à jour. Une formation métier coûte ${priceTag(TRADE_EUR)} par métier, également en un paiement unique : ${TRADE_CITIES} cités supplémentaires, conçues pour un métier. Il est préférable de la suivre après la formation complète, car elle ne reprend pas les bases. Les deux réunies coûtent ${priceTag(BUNDLE_EUR)}. Vous hésitez encore ? Dès que vous avez communiqué votre adresse, le premier dojo de chaque cité est gratuit, afin que vous puissiez juger avant de payer. Toutes les informations figurent sur la page /tarifs, et la formation s'ouvre dans ce navigateur dès que le paiement est confirmé.`,
       links: [
         'Voir les tarifs',
         'Commencer le week-end gratuit',
@@ -280,14 +280,14 @@ export const KB: KBTopic[] = [
       { label: 'Your progress', href: '/profil' },
     ],
     follow: ['pricing', 'signin', 'troubleshoot'],
-    keywords: ['buy', 'buying', 'acheter', 'achat', 'purchase', 'payment', 'paiement', 'pay', 'payer', 'stripe', 'card', 'carte bancaire', 'checkout', 'unlock', 'débloquer', 'merci', 'thank you page', 'after paying', 'après le paiement', 'cancel', 'annuler', 'charged', 'débité', 'acheter la formation', 'acheter une formation', 'buy the training', 'buy a training'],
+    keywords: ['buy', 'buying', 'acheter', 'achat', 'purchase', 'payment', 'paiement', 'pay', 'payer', 'stripe', 'card', 'carte bancaire', 'checkout', 'unlock', 'débloquer', 'merci', 'thank you page', 'after paying', 'après le paiement', 'cancel', 'annuler', 'charged', 'débité', 'acheter la formation', 'acheter une formation', 'buy the training', 'buy a training', "déroulement de l'achat", 'se déroule l\'achat'],
     fr: {
-      chip: "Comment se passe l'achat",
+      chip: "Comment se déroule l'achat",
       answer:
-        `L'achat se fait sur la page /tarifs, sans quitter l'application. Choisis la formation complète, ou choisis ton métier puis la formation métier, et appuie sur Acheter : tu passes sur une page de paiement Stripe et tu paies une fois. Quand le paiement est fait, tu reviens sur une page de remerciement, qui demande à notre serveur si le paiement est vraiment passé. C'est seulement à ce moment-là que la formation s'ouvre, dans ce navigateur, avec un bouton qui t'emmène à son premier dojo. Si tu annules, tu reviens sur les tarifs et rien n'a été débité. Il n'y a pas de compte : ton accès et ta progression sont gardés dans ce navigateur, alors reviens avec le même. Si la page de remerciement dit qu'elle n'a trouvé aucune commande payée alors que tu viens de payer, rouvre le lien de ta confirmation de paiement. Si elle n'a pas pu vérifier, réessaie dans une minute : rien n'est perdu.`,
+        `L'achat s'effectue sur la page /tarifs, sans quitter l'application. Choisissez la formation complète, ou sélectionnez votre métier puis la formation métier correspondante, et appuyez sur Acheter : vous êtes dirigé vers une page de paiement Stripe où vous réglez en une seule fois. Une fois le paiement effectué, vous revenez sur une page de remerciement, qui vérifie auprès de notre serveur que le paiement a bien abouti. C'est seulement alors que la formation s'ouvre, dans ce navigateur, avec un bouton menant à son premier dojo. Si vous annulez, vous revenez aux tarifs et aucun montant n'est débité. Il n'existe pas de compte : votre accès et votre progression sont conservés dans ce navigateur ; revenez donc avec le même. Si la page de remerciement n'a trouvé aucune commande payée alors que vous venez de régler, rouvrez le lien de votre confirmation de paiement. Si elle n'a pas pu effectuer la vérification, réessayez dans une minute : rien n'est perdu.`,
       links: [
         'Voir les tarifs',
-        'Ta progression',
+        'Votre progression',
       ],
     },
   },
@@ -302,13 +302,13 @@ export const KB: KBTopic[] = [
       { label: 'Start the free weekend', href: FREE_HREF },
     ],
     follow: ['profile', 'buy', 'security'],
-    keywords: ['sign in', 'signin', 'log in', 'login', 'account', 'compte', 'register', 'sign up', 'signup', 'inscription', "s'inscrire", 'password', 'mot de passe', 'guest', 'invité', 'another device', 'autre appareil', 'another browser', 'autre navigateur', 'sync', 'synchro', 'save my progress', 'sauvegarde', 'do i need an account'],
+    keywords: ['sign in', 'signin', 'log in', 'login', 'account', 'compte', 'register', 'sign up', 'signup', 'inscription', "s'inscrire", 'password', 'mot de passe', 'guest', 'invité', 'another device', 'autre appareil', 'another browser', 'autre navigateur', 'sync', 'synchro', 'save my progress', 'sauvegarde', 'do i need an account', 'faut-il un compte', 'votre compte'],
     fr: {
       chip: 'Faut-il un compte ?',
       answer:
-        `Non. Il n'y a ni compte ni mot de passe. Le week-end de l'IA gratuit te demande ton adresse e-mail, rien d'autre. Tout le reste, ta progression, tes badges, ce que tu as débloqué et ta partie de Dojoburo, est gardé dans ce navigateur. Ça a une conséquence à connaître : un autre navigateur, un autre appareil ou une fenêtre privée repart de zéro, et effacer les données de ce navigateur efface ce que tu as terminé ici. La page Profil te dit où vit ta progression, et elle a un bouton pour tout effacer si tu partages ce navigateur.`,
+        `Non. Il n'existe ni compte ni mot de passe. Le week-end de l'IA gratuit demande uniquement votre adresse e-mail. Tout le reste (votre progression, vos badges, ce que vous avez débloqué et votre partie de Dojoburo) est conservé dans ce navigateur. Il en découle une conséquence importante : un autre navigateur, un autre appareil ou une fenêtre de navigation privée repart de zéro, et l'effacement des données de ce navigateur supprime ce que vous y avez terminé. La page Profil indique où votre progression est enregistrée et propose un bouton pour tout effacer si vous partagez ce navigateur.`,
       links: [
-        'Ta progression',
+        'Votre progression',
         'Commencer le week-end gratuit',
       ],
     },
@@ -323,13 +323,13 @@ export const KB: KBTopic[] = [
       { label: 'The valley map', href: '/carte' },
     ],
     follow: ['signin', 'training', 'certification'],
-    keywords: ['profile', 'profil', 'progress', 'progression', 'my progress', 'ma progression', 'saved', 'sauvegard', 'gardée', 'xp', 'experience', 'expérience', 'level', 'niveau', 'my badges', 'mes badges', 'trophy', 'vitrine', 'map', 'valley', 'vallée', 'erase', 'effacer', 'reset', 'unlocked', 'débloqué'],
+    keywords: ['profile', 'profil', 'progress', 'progression', 'my progress', 'ma progression', 'saved', 'sauvegard', 'gardée', 'xp', 'experience', 'expérience', 'level', 'niveau', 'my badges', 'mes badges', 'trophy', 'vitrine', 'map', 'valley', 'vallée', 'erase', 'effacer', 'reset', 'unlocked', 'débloqué', 'votre progression', 'votre profil', 'enregistrée'],
     fr: {
-      chip: 'Ton profil',
+      chip: 'Votre profil',
       answer:
-        `Profil, c'est le quatrième bouton de la barre du bas, et il répond à une seule question : où j'en suis ? Il te montre ton niveau, ton XP et la part du parcours que tu as faite, une jauge vers le niveau suivant, et un bouton pour reprendre là où tu t'étais arrêté. De là, tu ouvres la carte de la vallée, en plein écran, pour voir toutes les cités dojo. Tu y vois aussi les formations que tu as débloquées, ta vitrine avec tous les badges (gagnés ou non), le métier sur lequel tu travailles, et l'endroit où vit ta progression : dans ce navigateur et nulle part ailleurs, avec un bouton pour tout effacer.`,
+        `Profil est le quatrième bouton de la barre du bas, et il répond à une seule question : où en suis-je ? Il affiche votre niveau, votre XP et la part du parcours accomplie, une jauge vers le niveau suivant, ainsi qu'un bouton pour reprendre là où vous vous étiez arrêté. De là, vous ouvrez la carte de la vallée en plein écran pour voir toutes les cités dojo. Vous y trouvez également les formations débloquées, votre vitrine de badges (obtenus ou non), le métier sur lequel vous travaillez, et l'emplacement de votre progression : dans ce navigateur exclusivement, avec un bouton pour tout effacer.`,
       links: [
-        'Ouvrir ton profil',
+        'Ouvrir votre profil',
         'La carte de la vallée',
       ],
     },
@@ -354,10 +354,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Construire un agent",
       answer:
-        `Construire un agent, c'est le premier des ${COURSE_COUNT} cours, et c'est par là que tu commences. Tu entres dans le dojo, à /build, et ${USE_CASE_COUNT} agents dorment autour de la salle, un par FORME de problème : un chercheur, un rédacteur, un répondant, un ingénieur, un analyste, un trieur, un extracteur, une sentinelle, un planificateur, un opérateur, un expérimentateur, un chef d'orchestre. Ils dorment parce qu'aucun n'existe encore. Tu cliques sur celui dont tu as vraiment le problème, il se réveille, et sa page s'ouvre en plein écran avec tout le cours qui lui correspond. Chacun s'enseigne à part parce que chacun ÉCHOUE à sa manière : un agent de recherche invente des sources, un agent de tri confond deux catégories voisines, un extracteur te rend une valeur plausible pour un champ qui était tout simplement absent. Un cours général du genre « écris un bon prompt » ne te prépare à aucun des trois. Chaque parcours fait quatre étapes, et chaque étape FABRIQUE quelque chose qui n'existait pas : une règle, une instruction, un jeu d'épreuves. Pour chaque étape, la page t'explique pourquoi elle existe, les gestes concrets, et la même chose mal écrite à côté de la même chose bien écrite. À la fin, tu repars avec ton agent sous forme de fichier, dans cinq formats (system prompt, dossier markdown, schémas d'outils, dossier de skill, manifeste neutre), dont aucun n'appartient à un provider.`,
+        `Construire un agent est le premier des ${COURSE_COUNT} cours, et c'est par là que vous commencez. Vous entrez dans le dojo, à l'adresse /build, où ${USE_CASE_COUNT} agents sommeillent autour de la salle, chacun associé à un TYPE de problème : un chercheur, un rédacteur, un répondant, un ingénieur, un analyste, un trieur, un extracteur, une sentinelle, un planificateur, un opérateur, un expérimentateur, un chef d'orchestre. Ils sommeillent parce qu'aucun d'eux n'existe encore. Vous cliquez sur celui qui correspond au problème que vous rencontrez réellement ; il s'éveille, et sa page s'ouvre en plein écran avec l'intégralité du cours qui lui est consacré. Chacun fait l'objet d'un enseignement distinct parce que chacun ÉCHOUE à sa manière : un agent de recherche invente des sources, un agent de tri confond deux catégories voisines, un extracteur renvoie une valeur plausible pour un champ qui était simplement absent. Un cours général du type « écrivez un bon prompt » ne prépare à aucun de ces cas. Chaque parcours compte quatre étapes, et chaque étape PRODUIT un élément qui n'existait pas auparavant : une règle, une instruction, un jeu de tests. Pour chaque étape, la page explique sa raison d'être, les gestes concrets, et présente la même chose mal rédigée à côté de sa version correcte. À la fin, vous repartez avec votre agent sous forme de fichier, dans cinq formats (system prompt, brief markdown, schémas d'outils, dossier de skill, manifeste neutre), dont aucun n'est propre à un provider.`,
       links: [
         "Entrer dans le dojo",
-        "Comment marche la certification",
+        "Le fonctionnement de la certification",
       ],
     },
   },
@@ -377,9 +377,9 @@ export const KB: KBTopic[] = [
     follow: ['build', 'certification'],
     keywords: ['framework', 'frameworks', 'langgraph', 'langchain', 'crewai', 'llamaindex', 'openai agents', 'agents sdk', 'google adk', 'pydantic ai', 'autogen', 'ag2', 'semantic kernel', 'mastra', 'agno', 'strands', 'smolagents', 'metagpt', 'integrate', 'intégrer', 'deploy', 'run my agent', 'where to run'],
     fr: {
-      chip: "Où le faire tourner",
+      chip: "Où l'exécuter",
       answer:
-        `Tu termines un parcours avec un fichier : un system prompt, des schémas d'outils, un manifeste. La question qui suit tout de suite, c'est où le faire tourner, et /frameworks y répond pour ${FRAMEWORK_COUNT} d'entre eux : LangGraph, LangChain, CrewAI, LlamaIndex, l'OpenAI Agents SDK, Google ADK, Pydantic AI, le Microsoft Agent Framework, AutoGen, Semantic Kernel, Mastra, Agno, Strands, smolagents et MetaGPT. Pour chacun : comment il MODÉLISE un agent (c'est la phrase à comprendre en premier, parce que c'est elle qui décide si le tien y rentre), où va chaque morceau de ton fichier exporté, ce qui piège les gens, et quand NE PAS le prendre. Il n'y a aucun code sur cette page, et c'est voulu. Ces projets bougent vite, et un extrait écrit aujourd'hui sera faux dans quelques mois : quelqu'un le copie, ça casse, et il croit avoir mal compris. On t'enseigne la partie qui ne se périme pas, et c'est aussi celle qui prend du temps : ce que ton agent DEVIENT dans chaque framework. Un system prompt est une instruction ici, une histoire là, une signature typée ailleurs. Une fois que tu sais ça, la documentation du jour se lit en cinq minutes. Chaque entrée y renvoie.`,
+        `Vous terminez un parcours avec un fichier : un system prompt, des schémas d'outils, un manifeste. La question qui suit immédiatement est celle de son exécution, et la page /frameworks y répond pour ${FRAMEWORK_COUNT} d'entre eux : LangGraph, LangChain, CrewAI, LlamaIndex, l'OpenAI Agents SDK, Google ADK, Pydantic AI, le Microsoft Agent Framework, AutoGen, Semantic Kernel, Mastra, Agno, Strands, smolagents et MetaGPT. Pour chacun, elle indique comment il MODÉLISE un agent (c'est la notion à comprendre en premier, car elle détermine si le vôtre s'y adapte), où se place chaque élément de votre fichier exporté, les pièges courants, et les cas où il ne faut PAS le choisir. Cette page ne contient volontairement aucun code. Ces projets évoluent rapidement, et un extrait écrit aujourd'hui sera erroné dans quelques mois : quelqu'un le copie, il ne fonctionne plus, et cette personne croit avoir mal compris. Nous enseignons la partie qui ne se périme pas, qui est aussi celle qui demande le plus de temps : ce que votre agent DEVIENT dans chaque framework. Un system prompt est une instruction ici, une backstory là, une signature typée ailleurs. Une fois cela compris, la documentation à jour se lit en cinq minutes. Chaque entrée y renvoie.`,
       links: [
         "Comparer les frameworks",
         "Construire un agent d'abord",
@@ -406,10 +406,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Insignes et ceintures",
       answer:
-        `Les étapes font les insignes, les insignes et les agents terminés font avancer ta ceinture, et les ${COURSE_COUNT} cours ensemble font le diplôme. Les règles sont les mêmes pour tout le monde, et rien ne se gagne juste en étant présent. Une ÉTAPE se coche quand tu as FABRIQUÉ ce qu'elle produit, pas quand tu as lu à son sujet. Personne ne te surveille, et c'est tout l'intérêt : une barre de progression qu'on peut tricher ne t'apprend rien. Un INSIGNE ne se donne jamais pour une étape. Il se gagne sur un parcours mené d'un bout à l'autre, ce qui veut dire que tu sais traiter une forme de problème. Une CEINTURE compte les agents TERMINÉS, jamais les étapes : commencer quatre parcours sans en finir aucun ne fait rien avancer du tout. Il y en a ${GRADE_COUNT}, de la blanche à la noire, et la noire demande les ${USE_CASE_COUNT}. Le DIPLÔME demande les trois cours en entier. Il porte la mention « certifié DojoBuro », ce qui veut dire certifié par nous et par personne d'autre : ce n'est pas une qualification reconnue par une branche, aucun employeur n'en a entendu parler, et je préfère te le dire ici plutôt que tu le découvres plus tard. Tout est gardé dans ton navigateur, personne ne le vend et personne ne le vérifie.`,
+        `Les étapes donnent les insignes, les insignes et les agents terminés font progresser votre ceinture, et les ${COURSE_COUNT} cours réunis donnent le diplôme. Les règles sont identiques pour tous, et rien ne s'obtient par la seule présence. Une ÉTAPE est validée lorsque vous avez PRODUIT ce qu'elle demande, et non lorsque vous avez lu à son sujet. Aucun contrôle n'est exercé, et c'est précisément l'intérêt : une barre de progression que l'on peut falsifier n'enseigne rien. Un INSIGNE n'est jamais attribué pour une étape. Il récompense un parcours mené de bout en bout, ce qui signifie que vous savez traiter un type de problème. Une CEINTURE compte les agents TERMINÉS, jamais les étapes : commencer quatre parcours sans en achever aucun ne fait rien progresser. Il en existe ${GRADE_COUNT}, de la blanche à la noire, et la noire exige les ${USE_CASE_COUNT}. Le DIPLÔME exige l'intégralité des trois cours. Il porte la mention « certifié DojoBuro », ce qui signifie certifié par nous et par personne d'autre : il ne s'agit pas d'une qualification reconnue par une branche professionnelle, aucun employeur n'en a connaissance, et nous préférons vous le dire ici plutôt que vous le laisser découvrir plus tard. Tout est conservé dans votre navigateur ; personne ne le vend et personne ne le vérifie.`,
       links: [
-        "Voir comment ça marche",
-        "Ta progression",
+        "Voir le fonctionnement",
+        "Votre progression",
       ],
     },
   },
@@ -427,7 +427,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "L'académie du dojo",
       answer:
-        `L'académie du dojo, c'est notre cours gratuit pour comprendre comment tout ça marche vraiment · ${ACADEMY_LESSONS} leçons réparties sur ${ACADEMY_TRACKS} pistes, environ ${ACADEMY_HOURS} heures en tout, et on part vraiment de zéro. Le cours suppose que tu n'as jamais entendu les mots « agent », « vibe coding », « éditeur de code » ou « agent développeur », et il explique chacun en mots simples au moment où il apparaît. Chaque leçon est courte (5 à 8 minutes), a une animation à côté qui montre la chose expliquée en train de se produire, et se termine par une question pour vérifier que tu as compris, plus une chose à aller faire. Rien n'est verrouillé et aucun compte n'est nécessaire · ta progression est retenue dans ce navigateur. Les cinq pistes : 1) COMMENCE ICI · ce qu'est un agent, pourquoi une équipe vaut mieux qu'un assistant seul, ton premier projet, et comment lire le travail produit. 2) LE PAYSAGE, SANS JARGON · le vibe coding, les agents conversationnels contre les éditeurs de code contre les agents développeurs contre un atelier d'agents, comment écrire une commande plutôt qu'un souhait, et ce que tout ça coûte. 3) TES COÉQUIPIERS · les huit champs en clair qui définissent un coéquipier, comment en modifier un pour que tous les passages à venir s'améliorent, choisir ses applications, et façonner l'équipe. 4) CONSTRUIRE UN SYSTÈME · ce qu'est une boucle, comment dessiner ton plan à l'envers depuis l'objet produit, mettre plusieurs équipes en chaîne, et trouver l'étape qui a cassé. 5) PASSER EN VRAI · brancher une vraie application sans danger, la liste à relire avant de livrer, les sept erreurs que tout le monde commet, et un plan sur trente jours. Si tu débutes, commence à la leçon une · c'est le moyen le plus rapide d'arrêter de deviner.`,
+        `L'académie du dojo est notre cours gratuit consacré au fonctionnement réel de tout cela · ${ACADEMY_LESSONS} leçons réparties sur ${ACADEMY_TRACKS} pistes, environ ${ACADEMY_HOURS} heures au total, et le cours part véritablement de zéro. Il ne suppose aucune connaissance préalable des termes « agent », « vibe coding », « éditeur de code » ou « agent développeur », et explique chacun en langage clair dès qu'il apparaît. Chaque leçon est courte (5 à 8 minutes), s'accompagne d'une animation qui illustre la notion expliquée, et se conclut par une question de vérification ainsi qu'un exercice à réaliser. Aucun contenu n'est verrouillé et aucun compte n'est nécessaire · votre progression est enregistrée dans ce navigateur. Les cinq pistes : 1) COMMENCER ICI · ce qu'est un agent, pourquoi une équipe surpasse un assistant isolé, votre premier projet, et la lecture du travail produit. 2) LE PAYSAGE, SANS JARGON · le vibe coding, la comparaison entre agents conversationnels, éditeurs de code, agents développeurs et atelier d'agents, la rédaction d'un brief plutôt que d'un souhait, et le coût de chaque option. 3) VOS COÉQUIPIERS · les huit champs rédigés en langage clair qui définissent un coéquipier, la manière d'en modifier un pour améliorer toutes les exécutions futures, le choix de ses applications, et la composition de l'équipe. 4) CONSTRUIRE UN SYSTÈME · ce qu'est une boucle, la conception d'un plan à rebours à partir de l'objet produit, l'enchaînement de plusieurs équipes, et l'identification de l'étape défaillante. 5) PASSER EN PRODUCTION · connecter une application réelle en toute sécurité, la liste de vérification avant livraison, les sept erreurs les plus courantes, et un plan sur trente jours. Si vous débutez, commencez par la leçon une · c'est le moyen le plus rapide de cesser de deviner.`,
       links: [
         "Ouvrir l'académie",
         "Commencer la leçon 1",
@@ -450,11 +450,11 @@ export const KB: KBTopic[] = [
     follow: ['setup', 'guide', 'frameworks'],
     keywords: ['tool', 'tools', 'connect', 'integration', 'mcp', 'oauth', 'github', 'slack', 'notion', 'gmail', 'jira', 'hubspot', 'figma', 'api', 'apps', 'connecteur', 'connector', 'brancher'],
     fr: {
-      chip: 'Brancher de vrais outils',
+      chip: 'Connecter de vrais outils',
       answer:
-        `Le guide de branchement, sur /guide, couvre plus de 40 applications · Notion, GitHub, Gmail, Google Drive, Agenda et Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 et d'autres. Pour chacune, il t'explique comment un agent atteint l'application : tu donnes ton accord une fois sur l'écran de l'application elle-même (OAuth), l'accès est gardé sur le serveur plutôt que dans le navigateur, et l'agent travaille dans l'application grâce à MCP, le standard qui permet à un agent de se servir d'un outil. Chaque application a sa propre page pas à pas · donne-moi son nom et je t'y emmène.`,
+        `Le guide de branchement, à l'adresse /guide, couvre plus de 40 applications · Notion, GitHub, Gmail, Google Drive, Agenda et Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 et d'autres. Pour chacune, il explique comment un agent accède à l'application : vous donnez votre accord une fois sur l'écran de l'application elle-même (OAuth), l'accès est conservé sur le serveur plutôt que dans le navigateur, et l'agent travaille dans l'application grâce à MCP, le standard qui permet à un agent d'utiliser un outil. Chaque application dispose de sa propre page détaillée · indiquez son nom et je vous y dirigerai.`,
       links: [
-        'Régler chaque application, pas à pas',
+        'Configurer chaque application, étape par étape',
         "Ce qu'est MCP",
       ],
     },
@@ -473,11 +473,11 @@ export const KB: KBTopic[] = [
     follow: ['tools', 'guide', 'security'],
     keywords: ['setup', 'set up', 'client id', 'client secret', 'oauth app', 'redirect', 'env', 'configure', 'composio', 'zapier', 'pipedream', 'mcp url', 'mcp_url', 'hub', 'how to connect', 'create app', 'pkce', 'credentials'],
     fr: {
-      chip: 'Comment brancher une application',
+      chip: 'Connecter une application',
       answer:
-        `Brancher une application se règle une seule fois par application, par la personne qui exploite le déploiement : 1) crée une application OAuth dans la console du fournisseur (intégrations Notion, applications OAuth GitHub, identifiants Google Cloud…) et règle l'adresse de redirection sur https://TON-SITE/api/connect ; 2) recopie l'identifiant et le secret client dans l'environnement, sous <APP>_CLIENT_ID et <APP>_CLIENT_SECRET (les applications Google partagent GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET) ; 3) les applications qui ont leur propre serveur MCP (Notion, GitHub, Linear, Stripe) marchent tout de suite ; celles qui n'en ont pas (Gmail, Drive, Agenda, Slack…) demandent en plus <APP>_MCP_URL pointé sur un hub MCP hébergé (Composio, Zapier, Pipedream). Les applications en PKCE (Airtable, X, Canva) sont automatiques. Une fois l'environnement réglé, l'outil affiche un bouton Brancher au lieu d'un lien « à régler », et brancher tient en un clic. Chaque application a aussi sa page pas à pas dans le guide de branchement (permissions, variables exactes, pièges) · donne-moi le nom de l'application et je t'y emmène.`,
+        `Le branchement d'une application se configure une seule fois par application, par la personne qui gère le déploiement : 1) créez une application OAuth dans la console du fournisseur (intégrations Notion, applications OAuth GitHub, identifiants Google Cloud…) et définissez l'adresse de redirection sur https://VOTRE-SITE/api/connect ; 2) copiez l'identifiant et le secret client dans l'environnement, sous <APP>_CLIENT_ID et <APP>_CLIENT_SECRET (les applications Google partagent GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET) ; 3) les applications dotées de leur propre serveur MCP (Notion, GitHub, Linear, Stripe) fonctionnent immédiatement ; celles qui n'en ont pas (Gmail, Drive, Agenda, Slack…) nécessitent en outre une variable <APP>_MCP_URL pointant vers un hub MCP hébergé (Composio, Zapier, Pipedream). Les applications en PKCE (Airtable, X, Canva) sont configurées automatiquement. Une fois l'environnement configuré, l'outil affiche un bouton Brancher au lieu d'un lien « à régler », et le branchement ne demande qu'un clic. Chaque application dispose aussi de sa page détaillée dans le guide de branchement (permissions, variables exactes, pièges) · indiquez le nom de l'application et je vous y dirigerai.`,
       links: [
-        'Réglage pas à pas de chaque application',
+        'Configuration détaillée de chaque application',
         'Hub MCP (Composio)',
         "Ce qu'est MCP",
       ],
@@ -498,10 +498,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Le guide de branchement',
       answer:
-        `Le guide de branchement, sur /guide, c'est le manuel pour brancher des agents sur de vraies applications. Il couvre comment le branchement marche d'un bout à l'autre, comment le régler, comment s'en servir et voir les résultats, comment rester en sécurité et garder un budget sous contrôle, faire tourner les choses chez toi ou dans le nuage, relier tes propres agents extérieurs, et un annuaire avec une page pas à pas pour chaque application. Ses sections ont un bouton « Comment faire ? » qui lance une visite animée en plein écran.`,
+        `Le guide de branchement, à l'adresse /guide, est le manuel de connexion des agents à des applications réelles. Il présente le fonctionnement complet du branchement, sa configuration, son utilisation et la consultation des résultats, les règles de sécurité et la maîtrise du budget, l'exécution en local ou dans le cloud, la liaison de vos propres agents externes, ainsi qu'un annuaire proposant une page détaillée pour chaque application. Ses sections comportent un bouton « Comment faire ? » qui lance une visite animée en plein écran.`,
       links: [
         'Ouvrir le guide de branchement',
-        'Où faire tourner un agent',
+        'Où exécuter un agent',
       ],
     },
   },
@@ -519,9 +519,9 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Sécurité et vie privée',
       answer:
-        `Il n'y a aucune cryptomonnaie ici : pas de portefeuille, pas de phrase secrète, pas de pièces. Le paiement se fait sur une page de paiement Stripe, donc ta carte bancaire se tape là-bas, pas sur nos pages. Il n'y a ni compte ni mot de passe : ta progression, tes badges, ce que tu as débloqué et ta partie de Dojoburo vivent dans ce navigateur, et la page Profil le dit clairement. Le site est livré avec une politique de sécurité du contenu stricte et des en-têtes de sécurité. Traite ce navigateur comme ton propre appareil, et si tu le partages, la page Profil a un bouton pour tout effacer.`,
+        `Aucune cryptomonnaie n'est utilisée ici : ni portefeuille, ni phrase secrète, ni cryptoactifs. Le paiement s'effectue sur une page de paiement Stripe ; vos coordonnées bancaires y sont donc saisies, et non sur nos pages. Il n'existe ni compte ni mot de passe : votre progression, vos badges, ce que vous avez débloqué et votre partie de Dojoburo sont conservés dans ce navigateur, comme l'indique clairement la page Profil. Le site applique une politique de sécurité du contenu stricte et des en-têtes de sécurité. Considérez ce navigateur comme votre propre appareil ; si vous le partagez, la page Profil propose un bouton pour tout effacer.`,
       links: [
-        'Où vit ta progression',
+        'Où votre progression est enregistrée',
         'Voir les tarifs',
       ],
     },
@@ -540,10 +540,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Dépannage',
       answer:
-        `Quelques causes expliquent presque tout. UN DOJO EST FERMÉ : le week-end de l'IA s'ouvre avec ton adresse e-mail, le premier dojo de chaque cité s'ouvre dès que tu l'as donnée, et le reste vient avec la formation à laquelle il appartient, sur /tarifs. TU AS PAYÉ MAIS RIEN NE S'EST OUVERT : la formation s'ouvre sur la page de remerciement, une fois que notre serveur a confirmé le paiement. Si cette page n'a trouvé aucune commande payée, rouvre le lien de ta confirmation de paiement ; si elle n'a pas pu vérifier, réessaie dans une minute, rien n'est perdu. TA PROGRESSION OU TA PARTIE A DISPARU : les deux vivent seulement dans ce navigateur, donc un autre navigateur, un autre appareil, une fenêtre privée ou des données effacées repartent de zéro. LE DOJO EN TROIS DIMENSIONS RESTE VIDE : ton navigateur bloque peut-être WebGL, alors essaie un autre navigateur ou active l'accélération matérielle.`,
+        `Quelques causes expliquent la plupart des situations. UN DOJO EST FERMÉ : le week-end de l'IA s'ouvre avec votre adresse e-mail, le premier dojo de chaque cité s'ouvre dès que vous l'avez communiquée, et le reste est inclus dans la formation correspondante, sur /tarifs. VOUS AVEZ PAYÉ MAIS RIEN NE S'EST OUVERT : la formation s'ouvre sur la page de remerciement, une fois que notre serveur a confirmé le paiement. Si cette page n'a trouvé aucune commande payée, rouvrez le lien de votre confirmation de paiement ; si elle n'a pas pu effectuer la vérification, réessayez dans une minute, rien n'est perdu. VOTRE PROGRESSION OU VOTRE PARTIE A DISPARU : toutes deux sont conservées uniquement dans ce navigateur ; un autre navigateur, un autre appareil, une fenêtre de navigation privée ou des données effacées repartent donc de zéro. LE DOJO EN TROIS DIMENSIONS RESTE VIDE : votre navigateur bloque peut-être WebGL ; essayez un autre navigateur ou activez l'accélération matérielle.`,
       links: [
         'Voir les tarifs',
-        'Ta progression',
+        'Votre progression',
       ],
     },
   },
@@ -600,9 +600,9 @@ export function matchConnector(text: string): Connector | null {
 export function connectorReply(c: Connector, lang: Lang = 'en'): { text: string; links: KBLink[] } {
   if (lang === 'fr') {
     return {
-      text: `${c.label} : ${c.blurb} Brancher tient en un clic une fois que l'exploitant a fait le réglage. Voici la page de réglage complète, pas à pas, pour ${c.label}.`,
+      text: `${c.label} : ${c.blurb} Le branchement ne demande qu'un clic une fois la configuration effectuée par l'exploitant. Voici la page de configuration complète, étape par étape, pour ${c.label}.`,
       links: [
-        { label: `Régler ${c.label}, pas à pas`, href: `/guide/${c.id}`, external: true },
+        { label: `Configurer ${c.label}, étape par étape`, href: `/guide/${c.id}`, external: true },
         { label: `Ouvrir la console ${c.provider}`, href: c.docsUrl, external: true },
         { label: 'Tous les connecteurs (guide du dojo)', href: '/guide', external: true },
       ],
@@ -658,5 +658,5 @@ export const GREETING = {
   en:
     "Hi, I'm Dojobot. Short version: the bottom bar has four buttons. Dojoburo is the game, where you run an AI studio with a limited token budget. Training is the courses, starting with a free AI weekend. Clan is the community page, and Profile is where your progress lives. No account is needed, everything is kept in this browser. Ask me anything in your own words, or pick a topic below.",
   fr:
-    "Salut, moi c'est Dojobot. En bref : la barre du bas a quatre boutons. Dojoburo, c'est le jeu, où tu diriges un studio d'IA avec un budget de tokens limité. Training, ce sont les formations, à commencer par un week-end de l'IA gratuit. Clan, c'est la page de la communauté, et Profil, c'est là que vit ta progression. Aucun compte n'est nécessaire, tout est gardé dans ce navigateur. Pose-moi ta question avec tes propres mots, ou choisis un sujet ci-dessous.",
+    "Bonjour, je suis Dojobot. En résumé, la barre du bas comporte quatre boutons. Dojoburo est le jeu, dans lequel vous dirigez un studio d'IA avec un budget de tokens limité. Training regroupe les formations, à commencer par un week-end de l'IA gratuit. Clan est la page de la communauté, et Profil présente votre progression. Aucun compte n'est nécessaire, tout est conservé dans ce navigateur. Posez votre question dans vos propres termes, ou choisissez un sujet ci-dessous.",
 }

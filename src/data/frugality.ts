@@ -167,12 +167,12 @@ export const LEVERS: Lever[] = [
       'you saved, and it costs you the latency too.',
     apply: (u) => ({ ...u, tools: Math.max(0, Math.floor(u.tools / 4)) }),
     fr: {
-      title: "Détache les outils que cette étape ne peut pas utiliser",
-      how: "Attache les outils par étape, pas par agent. Une étape de rédaction n'en a besoin d'aucun.",
+      title: "Détachez les outils que cette étape ne peut pas utiliser",
+      how: "Associez les outils à chaque étape, et non à l'agent entier. Une étape de rédaction n'en requiert aucun.",
       why:
-        "Chaque outil branché expédie sa définition complète, son nom, sa description et le schéma de ses paramètres, avec chaque requête, qu'il soit appelé ou non. Rien ne change dans ton prompt ; tu arrêtes simplement de payer pour décrire un agenda à un modèle qui rédige un courriel.",
+        "Chaque outil connecté transmet sa définition complète (son nom, sa description et le schéma de ses paramètres) avec chaque requête, qu'il soit appelé ou non. Votre prompt reste inchangé ; vous cessez simplement de payer pour décrire un agenda à un modèle qui rédige un courriel.",
       not:
-        "Ne détache pas un outil dont l'étape pourrait avoir besoin en cas de reprise. Un second aller-retour coûte plus que la définition économisée, et il te coûte l'attente en plus.",
+        "Ne détachez pas un outil dont l'étape pourrait avoir besoin lors d'une nouvelle tentative. Un second aller-retour coûte davantage que la définition économisée, et il allonge en outre le temps d'attente.",
     },
   },
   {
@@ -188,12 +188,12 @@ export const LEVERS: Lever[] = [
       'regenerated costs twice, and the second attempt starts from nothing.',
     apply: (u) => ({ ...u, answer: Math.round(u.answer * 0.55) }),
     fr: {
-      title: "Plafonne la longueur de la réponse",
-      how: "Fixe une longueur maximale de sortie sur la requête, et donne aussi la cible dans le prompt.",
+      title: "Plafonnez la longueur de la réponse",
+      how: "Fixez une longueur maximale de sortie dans la requête, et indiquez également la cible dans le prompt.",
       why:
-        "Les tokens de sortie sont la moitié chère : typiquement trois à cinq fois le prix d'entrée par token. Un modèle sans plafond remplit la place qu'on lui donne, et l'essentiel de ce qu'il ajoute est une reformulation.",
+        "Les tokens de sortie constituent la part la plus coûteuse : en général trois à cinq fois le prix d'entrée par token. Un modèle sans plafond occupe tout l'espace disponible, et l'essentiel de ce qu'il ajoute relève de la reformulation.",
       not:
-        "Ne plafonne pas une étape dont le travail est de produire un document long. Un document tronqué qu'il faut régénérer coûte deux fois, et la seconde tentative repart de zéro.",
+        "Ne plafonnez pas une étape dont la fonction est de produire un document long. Un document tronqué qu'il faut régénérer coûte deux fois, et la seconde tentative repart de zéro.",
     },
   },
   {
@@ -210,12 +210,12 @@ export const LEVERS: Lever[] = [
       'and it may not reach the same place.',
     apply: (u) => ({ ...u, turns: Math.max(2, Math.round(u.turns / 3)) }),
     fr: {
-      title: "Ouvre une nouvelle conversation quand le sujet change",
-      how: "Ferme le fil et ouvres-en un autre, en emportant une ligne de ce qui a été décidé.",
+      title: "Ouvrez une nouvelle conversation lorsque le sujet change",
+      how: "Fermez le fil et ouvrez-en un autre, en reportant une ligne résumant ce qui a été décidé.",
       why:
-        "C'est le gros levier, et il est invisible. Le modèle n'a pas de mémoire : ce qu'il « se rappelle », c'est ton historique, renvoyé en entier à chaque tour. Une conversation de N tours coûte environ N au carré, donc le vingtième tour n'est pas vingt fois le premier, il est bien davantage. Rien d'autre sur cette page ne rapporte autant pour aussi peu d'effort.",
+        "C'est le levier le plus important, et il est invisible. Le modèle n'a pas de mémoire : ce dont il « se souvient » est votre historique, renvoyé intégralement à chaque tour. Une conversation de N tours coûte environ N au carré ; autrement dit, le vingtième tour coûte bien plus que vingt fois le premier. Aucun autre levier de cette page ne rapporte autant pour un effort aussi faible.",
       not:
-        "Ne repars pas de zéro au milieu d'une chaîne de raisonnement. Le modèle refera le travail que tu as déjà payé, et il n'arrivera pas forcément au même endroit.",
+        "Ne repartez pas de zéro au milieu d'une chaîne de raisonnement. Le modèle refera un travail que vous avez déjà payé, sans nécessairement aboutir à la même conclusion.",
     },
   },
   {
@@ -232,12 +232,12 @@ export const LEVERS: Lever[] = [
       'buys nothing and adds a moving part.',
     apply: (u) => ({ ...u, brief: Math.round(u.brief * 0.25) }),
     fr: {
-      title: "Mets en cache le préfixe qui ne change jamais",
-      how: "Marque le brief système et toute matière de référence fixe comme cachables, si ton provider le permet.",
+      title: "Mettez en cache le préfixe invariable",
+      how: "Marquez le system prompt et tout contenu de référence fixe comme pouvant être mis en cache, si votre provider le permet.",
       why:
-        "Le brief est identique à chaque requête et relu à chaque fois. Là où le cache existe, un préfixe caché est facturé à une fraction du tarif d'entrée : tu arrêtes de payer plein pot pour relire ton propre system prompt mille fois par jour.",
+        "Le brief est identique à chaque requête et relu à chaque fois. Lorsque le cache est disponible, un préfixe mis en cache est facturé à une fraction du tarif d'entrée : vous cessez de payer le plein tarif pour faire relire votre propre system prompt mille fois par jour.",
       not:
-        "Le cache a une taille minimale et une durée de vie. En dessous de quelques centaines de tokens, ou sur un préfixe que tu modifies chaque jour, il n'achète rien et ajoute une pièce mobile.",
+        "Le cache impose une taille minimale et une durée de vie. En dessous de quelques centaines de tokens, ou sur un préfixe que vous modifiez chaque jour, il n'apporte rien et ajoute un élément de complexité.",
     },
   },
   {
@@ -254,12 +254,12 @@ export const LEVERS: Lever[] = [
       'the behaviour together. Cut what you cannot trace to a bad draft.',
     apply: (u) => ({ ...u, brief: Math.round(u.brief * 0.6) }),
     fr: {
-      title: "Écris le brief en interdits et en exemples, pas en adjectifs",
-      how: "Remplace « sois professionnel, sois concis, sois utile » par les trois choses qu'il ne doit jamais faire, et un exemple travaillé.",
+      title: "Rédigez le brief en interdits et en exemples, non en adjectifs",
+      how: "Remplacez « sois professionnel, sois concis, sois utile » par les trois choses que le modèle ne doit jamais faire, et par un exemple commenté.",
       why:
-        "Les adjectifs sont invisibles pour un modèle et coûtent autant que des instructions qui fonctionnent. Un brief écrit en règles vérifiables est à la fois plus court et mieux suivi, ce qui économise deux fois : moins de tokens, et moins de reprises parce que la sortie était fausse.",
+        "Les adjectifs n'ont presque aucun effet sur un modèle et coûtent autant que des instructions efficaces. Un brief rédigé sous forme de règles vérifiables est à la fois plus court et mieux suivi, ce qui produit une double économie : moins de tokens, et moins de reprises dues à une sortie erronée.",
       not:
-        "Ne coupe pas une règle dont tu ne te souviens pas l'avoir vue enfreinte : tu supprimes peut-être celle qui tient le comportement en silence. Coupe ce que tu peux relier à un mauvais brouillon.",
+        "Ne supprimez pas une règle simplement parce que vous ne l'avez jamais vue enfreinte : c'est peut-être elle qui maintient discrètement le comportement. Supprimez plutôt ce que vous ne pouvez relier à aucun mauvais brouillon.",
     },
   },
   {
@@ -275,12 +275,12 @@ export const LEVERS: Lever[] = [
       'back is exactly the turn it will fail without it.',
     apply: (u) => ({ ...u, message: Math.round(u.message * 0.8), answer: Math.round(u.answer * 0.85) }),
     fr: {
-      title: "Résume ce qui est acquis au lieu de le rejouer",
-      how: "Quand une décision est prise, écris-la en une ligne et jette la discussion qui l'a produite.",
+      title: "Résumez ce qui est acquis au lieu de le rejouer",
+      how: "Lorsqu'une décision est prise, consignez-la en une ligne et écartez la discussion qui l'a produite.",
       why:
-        "Les faits acquis se compressent à presque rien ; un raisonnement en cours, non. Traiter les deux pareil est la raison pour laquelle un résumé naïf rend les agents bêtes, et ne jamais résumer les rend chers.",
+        "Les faits acquis se compressent presque entièrement ; un raisonnement en cours, non. C'est pourquoi un résumé naïf, qui traite les deux de la même manière, dégrade les agents, tandis que l'absence de tout résumé les rend coûteux.",
       not:
-        "Ne compresse jamais la demande d'origine ni une contrainte énoncée comme un « jamais ». Le tour où l'agent en a besoin est exactement celui où il échouera sans elle.",
+        "Ne compressez jamais la demande d'origine ni une contrainte formulée par un « jamais ». Le tour où l'agent en aura besoin sera précisément celui où il échouera sans elle.",
     },
   },
   {
@@ -296,12 +296,12 @@ export const LEVERS: Lever[] = [
       'than a short one you refine once.',
     apply: (u) => ({ ...u, turns: Math.max(2, u.turns - 3) }),
     fr: {
-      title: "Demande tout en une fois, pas en cinq relances",
-      how: "Mets le format, la longueur et les contraintes dans le premier message au lieu de les corriger après.",
+      title: "Formulez toute la demande en une fois, non en cinq relances",
+      how: "Précisez le format, la longueur et les contraintes dès le premier message au lieu de les corriger ensuite.",
       why:
-        "Chaque correction est un tour entier de plus, et chaque tour supplémentaire renvoie tout ce qui précède. Trois « plus court, s'il te plaît » coûtent plus que la demande d'origine.",
+        "Chaque correction ajoute un tour complet, et chaque tour supplémentaire renvoie tout ce qui précède. Trois demandes « plus court, s'il te plaît » coûtent davantage que la demande d'origine.",
       not:
-        "Ne charge pas un prompt d'exigences que tu n'as pas réfléchies. Un long brief faux est pire qu'un court que tu affines une fois.",
+        "Ne surchargez pas un prompt d'exigences que vous n'avez pas encore mûries. Un long brief erroné est moins utile qu'un brief court que vous affinez une fois.",
     },
   },
 ]
@@ -313,9 +313,9 @@ export const FAMILY_LABEL: Record<LeverFamily, { label: string; lead: string; fr
       'Decided once, applied to every request afterwards. This is where the money is, and it is the half most ' +
       'courses skip because it is less fun to teach than prompt wording.',
     fr: {
-      label: "Tes réglages, avant d'écrire un mot",
+      label: "Vos réglages, avant d'écrire un mot",
       lead:
-        "Décidés une fois, appliqués à chaque requête ensuite. C'est là que se trouve l'argent, et c'est la moitié que la plupart des cours sautent parce qu'elle est moins amusante à enseigner que la formulation d'un prompt.",
+        "Décidés une fois, puis appliqués à chaque requête. C'est là que se situent les économies les plus importantes, et c'est pourtant la partie que la plupart des cours omettent, car elle est moins attrayante à enseigner que la formulation d'un prompt.",
     },
   },
   writing: {
@@ -324,9 +324,9 @@ export const FAMILY_LABEL: Record<LeverFamily, { label: string; lead: string; fr
       'Reworked prompt by prompt. Smaller savings each, but they compound, and the same habits that make a ' +
       'prompt cheaper usually make it clearer.',
     fr: {
-      label: 'La façon dont le prompt lui-même est écrit',
+      label: 'La rédaction du prompt lui-même',
       lead:
-        "Retravaillée prompt par prompt. Des gains plus petits chacun, mais ils se cumulent, et les habitudes qui rendent un prompt moins cher le rendent en général plus clair.",
+        "Elle se retravaille prompt par prompt. Chaque gain est plus modeste, mais ils se cumulent, et les habitudes qui rendent un prompt moins coûteux le rendent généralement plus clair.",
     },
   },
 }

@@ -57,6 +57,9 @@ const CHECKS = [
   ['test-game.mjs', 1, true],
   // LE JEU DOJOBURO · son moteur, ses règles, son équilibre (voir src/sim).
   ['test-sim.mjs', 1, true],
+  // LE CLAN · la logique du fil de la communauté (validation, nettoyage, liens,
+  // spam, curseur), et la réponse honnête de l'endpoint sans base.
+  ['test-clan.mjs', 1, true],
   // LA CHARTE, LE DÉFILEMENT ET LA MISE EN PAGE. Une seule règle de style ·
   // « overflow: hidden » sur le corps de page · a rendu six des huit formations
   // inatteignables, et les trente-huit épreuves d'alors l'ont laissée passer :
