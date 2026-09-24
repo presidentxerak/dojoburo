@@ -67,7 +67,7 @@ const ERR: Record<LaunchError, Bi> = {
 }
 
 /** Les pictogrammes du jeu · traits simples, couleur du texte. */
-function Ico({ name, size = 20 }: { name: 'back' | 'pause' | 'play' | 'sound' | 'mute' | 'full' | 'exit' | 'minus' | 'plus' | 'close'; size?: number }) {
+function Ico({ name, size = 20 }: { name: 'back' | 'pause' | 'play' | 'sound' | 'mute' | 'full' | 'exit' | 'minus' | 'plus' | 'close' | 'star'; size?: number }) {
   const p = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2.4, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true }
   switch (name) {
     case 'back': return <svg {...p}><path d="M15 5l-7 7 7 7" /></svg>
@@ -79,6 +79,7 @@ function Ico({ name, size = 20 }: { name: 'back' | 'pause' | 'play' | 'sound' | 
     case 'exit': return <svg {...p}><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" /></svg>
     case 'minus': return <svg {...p}><path d="M5 12h14" /></svg>
     case 'plus': return <svg {...p}><path d="M12 5v14M5 12h14" /></svg>
+    case 'star': return <svg {...p} strokeWidth={1.6}><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" fill="currentColor" /></svg>
     default: return <svg {...p}><path d="M6 6l12 12M18 6L6 18" /></svg>
   }
 }
@@ -456,7 +457,7 @@ export function SimPage() {
               <span className="sim-gl">{t(T.revenue)} <b>{euros(day.revenue, lang)}</b> <em>/ {euros(day.objective, lang)}</em></span>
               <Bar value={day.revenue / day.objective} tone={day.revenue >= day.objective ? 'win' : 'rev'} />
             </div>
-            <div className="sim-pill sim-rep" title={t(T.reputation)}><span aria-hidden>{'★'}</span> {day.reputation}</div>
+            <div className="sim-pill sim-rep" title={t(T.reputation)}><Ico name="star" size={16} /> {day.reputation}</div>
           </>
         ) : (
           <div className="sim-pill sim-brand"><b>{t(T.title)}</b></div>

@@ -11023,7 +11023,7 @@ button.wm-tag { border-radius: 999px !important; }
 }
 .sim-day span { font-variant-numeric: tabular-nums; color: var(--s-sub); font-weight: 700; }
 .sim-day span.late { color: var(--s-meh); }
-.sim-rep span { color: #fbbf24; }
+.sim-rep svg { color: #fbbf24; }
 .sim-brand { font-size: 17px; letter-spacing: .02em; }
 .sim-cash { color: #fde68a; }
 .sim-gauge {
