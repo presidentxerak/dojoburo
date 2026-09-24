@@ -1513,11 +1513,7 @@ a:hover { text-decoration: underline; }
   background: var(--paper); border: 1px solid var(--border);
   border-radius: 50% 50% 50% 14px !important; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s;
 }
-.sb-launch:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 12px 28px rgba(30, 60, 140, 0.28); }
 .sb-face { font-size: 16px; letter-spacing: -1px; }
-/* the temple mascot must stay readable on the white button in both themes */
-.sb-launch .lg-temple { fill: #11151d !important; }
-.sb-launch .logo-badge { color: #ffffff !important; }
 @media (max-width: 720px) {
   /* a compact round button, lifted clear of the bottom nav bar. The offset
      tracks the real bar height (--mbar-h on .app), so on pages with no bar
@@ -3568,7 +3564,9 @@ h4, h5, h6 { font-size: 20px !important; font-weight: 700 !important; }
 input, textarea, select, button { border-radius: 0 !important; }
 
 /* keep genuinely-round chrome round */
-.sb-launch, .agent-status i, .agent-status.s-working i, .agent-status.s-active i,
+/* (the help launcher is not in this list: it is a speech bubble, see
+   « Dojobot launcher » below, and its square corner is its tail) */
+.agent-status i, .agent-status.s-working i, .agent-status.s-active i,
 .agent-status.s-ready i, .agent-status.s-paused i, .fin-catname i, .fin-legend i,
 .sq-opt-radio, .ceo-spin, .tgl, .tgl span { border-radius: 999px !important; }
 
@@ -3799,16 +3797,16 @@ a.toast-main:hover .toast-body strong { text-decoration: underline; }
 .tb-navlink { background: none; border: none; cursor: pointer; font-family: var(--font-ui); font-weight: 600; font-size: 15px; color: #000; padding: 6px 9px; }
 .tb-navlink:hover { opacity: 0.6; }
 
-/* ===== Dojobot launcher · a dark speech bubble with the face + the name ===== */
-.sb-launch { background: #000 !important; border: none !important; box-shadow: 0 8px 22px rgba(0,0,0,0.28) !important; overflow: visible; }
+/* ===== Dojobot launcher · a flat violet speech bubble with the face ===== */
+/* THE BLACK TRIANGLE WAS A LEFTOVER TAIL. The launcher used to be a black pill
+   with a black tail drawn by ::after. The bubble became violet and its shape
+   already carries the tail (the square corner), so the black triangle stuck
+   out of it. The tail is gone; the bubble is one flat shape. */
+.sb-launch { background: #7c3aed !important; border: none !important; box-shadow: none !important; }
+.sb-launch:hover { background: #8b5cf6 !important; box-shadow: none !important; transform: translateY(-2px); }
 .sb-launch .logo-badge { color: #fff !important; }
 .sb-launch .lg-icon { fill: #fff !important; }
 .sb-launch .lg-temple { fill: #fff !important; }
-/* the tail points down-right, since the bubble now lives on the right */
-.sb-launch::after {
-  content: ''; position: absolute; right: 12px; bottom: 3px; width: 16px; height: 16px; background: #000;
-  clip-path: polygon(0 0, 100% 100%, 0 100%); border-radius: 0 0 4px 0;
-}
 
 /* ===== Settings modal (Squarespace-style: nav sidebar + content) ===== */
 /* Settings is a full-screen surface like every other panel of its weight · the
@@ -10220,65 +10218,36 @@ button.wm-tag { border-radius: 999px !important; }
 .gm-back:hover { color: #fff; transform: translateX(-3px); }
 
 /* --- les boutons ------------------------------------------------------------ */
-/* LE BOUTON EN RELIEF · un dégradé du clair au foncé, une arête claire en
-   haut, un reflet doux dans sa moitié haute, une ombre colorée dessous. Pas de
-   contour. Appuyé, il descend d'un pixel, son ombre se resserre et son
-   intérieur s'assombrit · il s'enfonce dans la surface.
+/* LE BOUTON FLAT · une couleur pleine, un arrondi, et c'est tout. Demandé :
+   « change les CTA de l'app et les boutons de la bottom bar avec un style
+   flat design ». Plus de dégradé, de reflet ni d'ombre portée. Le survol
+   éclaircit la couleur, l'appui l'assombrit et réduit le bouton d'un souffle :
+   le retour au toucher reste net sans relief.
 
-   LE VIOLET EST LE BOUTON · demandé : « violet pour les boutons ». Il est la
-   couleur de la marque et de toute action. Le rouge reste réservé à ce qui
-   efface, et l'or à ce qui est gagné. */
+   LE VIOLET EST LE BOUTON · la couleur de la marque et de toute action. Le
+   rouge reste réservé à ce qui efface, l'or à ce qui est gagné. */
 .gm-cta, .cc-btn {
-  --b-top: #b794ff; --b-mid: #7c3aed; --b-bot: #5b21b6; --b-glow: rgba(124, 58, 237, 0.65);
-  position: relative; isolation: isolate; overflow: hidden;
+  --b: #7c3aed; --b-hi: #8b5cf6; --b-lo: #6d28d9;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   margin-top: 14px;
   min-height: 48px; padding: 11px 24px;
   font-family: var(--font-game); font-weight: 800;
-  font-size: clamp(16px, .6vw + 13px, 19px); letter-spacing: .02em; line-height: 1.1;
-  color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-size: clamp(16px, .6vw + 13px, 18px); letter-spacing: 0; line-height: 1.1;
+  color: #fff;
   cursor: pointer;
-  background: linear-gradient(180deg, var(--b-top), var(--b-mid) 60%, var(--b-bot));
-  border: 0; border-radius: 16px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.22),
-    0 2px 3px rgba(0, 0, 0, 0.35),
-    0 12px 28px -10px var(--b-glow);
-  transition: transform 220ms var(--g-ease), box-shadow 220ms var(--g-ease), filter 220ms ease;
+  background: var(--b);
+  border: 0; border-radius: 14px;
+  box-shadow: none;
+  transition: background-color 160ms ease, transform 160ms var(--g-ease);
 }
-/* le reflet · sous le texte grâce à isolation et z-index -1 */
-.gm-cta::before, .cc-btn::before {
-  content: ''; position: absolute; z-index: -1;
-  left: 8%; right: 8%; top: 2px; height: 48%;
-  border-radius: 12px 12px 40% 40%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0));
-  pointer-events: none;
-}
-.gm-cta:hover, .cc-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.06) saturate(1.05);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.2),
-    0 4px 6px rgba(0, 0, 0, 0.3),
-    0 20px 40px -12px var(--b-glow);
-}
-.gm-cta:active, .cc-btn:active {
-  transform: translateY(1px);
-  filter: brightness(.96);
-  box-shadow:
-    inset 0 2px 6px rgba(0, 0, 0, 0.35),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.15),
-    0 1px 2px rgba(0, 0, 0, 0.4);
-  transition-duration: 80ms;
-}
-.gm-cta:focus-visible, .cc-btn:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
-.gm-cta:disabled, .cc-btn:disabled { filter: grayscale(.8) brightness(.8); cursor: not-allowed; transform: none; }
-.cc-orange { --b-top: #ffb45c; --b-mid: #f97316; --b-bot: #c2410c; --b-glow: rgba(249, 115, 22, 0.55); }
-.cc-violet { --b-top: #c49bff; --b-mid: #8b5cf6; --b-bot: #6d28d9; --b-glow: rgba(139, 92, 246, 0.6); }
-.cc-green { --b-top: #a3e635; --b-mid: #65a30d; --b-bot: #4d7c0f; --b-glow: rgba(132, 204, 22, 0.55); }
-.cc-slate  { --b-top: #4a3a7a; --b-mid: #34255f; --b-bot: #261a48; --b-glow: rgba(0, 0, 0, 0.6); }
+.gm-cta:hover, .cc-btn:hover { background: var(--b-hi); }
+.gm-cta:active, .cc-btn:active { background: var(--b-lo); transform: scale(.98); transition-duration: 60ms; }
+.gm-cta:focus-visible, .cc-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.gm-cta:disabled, .cc-btn:disabled { background: #3b2d63; color: rgba(255, 255, 255, .55); cursor: not-allowed; transform: none; }
+.cc-orange { --b: #f97316; --b-hi: #fb923c; --b-lo: #ea580c; }
+.cc-violet { --b: #8b5cf6; --b-hi: #a78bfa; --b-lo: #7c3aed; }
+.cc-slate  { --b: #2c1d52; --b-hi: #3a2868; --b-lo: #231744; }
+.cc-green { --b: #65a30d; --b-hi: #84cc16; --b-lo: #4d7c0f; }
 
 /* --- le mouvement ---------------------------------------------------------- */
 /* DOUX ET DÉCIDÉ · une courbe qui arrive vite et se pose, sans rebond. Le
@@ -10336,34 +10305,22 @@ button.wm-tag { border-radius: 999px !important; }
 }
 .gm-tab {
   pointer-events: auto;
-  flex: 1 1 0; max-width: 118px;
-  position: relative; isolation: isolate; overflow: hidden;
+  flex: 1 1 0; max-width: 104px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-  min-height: 58px; padding: 6px 4px 7px;
-  font-family: var(--font-game); font-weight: 800; font-size: 13px; letter-spacing: .02em;
+  min-height: 56px; padding: 6px 4px 7px;
+  font-family: var(--font-game); font-weight: 800; font-size: 12.5px; letter-spacing: 0;
   color: var(--g-sub);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(52, 37, 95, 0.92), rgba(28, 18, 56, 0.94));
-  backdrop-filter: blur(10px);
-  box-shadow: var(--g-edge), 0 10px 26px -8px rgba(0, 0, 0, 0.8), 0 12px 34px -14px var(--g-glow);
-  transition: transform 220ms var(--g-ease), box-shadow 220ms var(--g-ease), color 200ms ease;
+  /* FLAT · une tuile pleine, sans relief ni ombre. Le fond reste opaque parce
+     que la barre, elle, n'en a pas : sans lui, le libellé se lirait sur le
+     contenu qui défile dessous. */
+  border-radius: 16px;
+  background: #1a1133;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms var(--g-ease);
 }
-.gm-tab:hover { color: #fff; transform: translateY(-2px); }
-.gm-tab:active { transform: translateY(1px); transition-duration: 80ms; }
-.gm-tab.on {
-  color: #fff;
-  background: linear-gradient(180deg, #b794ff, #7c3aed 60%, #5b21b6);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.2),
-    0 12px 28px -8px rgba(124, 58, 237, 0.75);
-  transform: translateY(-3px);
-}
-.gm-tab.on::before {
-  content: ''; position: absolute; z-index: -1; left: 10%; right: 10%; top: 2px; height: 45%;
-  border-radius: 14px 14px 40% 40%; background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
-}
-/* LA BOÎTE DU SIGNE · une taille fixe, sinon les trois libellés partent en
+.gm-tab:hover { color: #fff; background: #241845; }
+.gm-tab:active { transform: scale(.97); transition-duration: 60ms; }
+.gm-tab.on { color: #fff; background: #7c3aed; }
+/* LA BOÎTE DU SIGNE · une taille fixe, sinon les libellés partent en
    escalier. */
 .gm-tab-g { width: 26px; height: 26px; display: grid; place-items: center; color: currentColor; }
 .gm-tab-g .logo-badge { display: grid; place-items: center; color: currentColor; }
@@ -10461,28 +10418,20 @@ button.wm-tag { border-radius: 999px !important; }
   background: var(--g-slot); color: var(--g-sub); box-shadow: var(--g-sunk);
 }
 
-/* L'APPEL DE LA CARTE · un bouton violet en relief dans la carte, qui
-   s'enfonce avec elle. La carte entière reste le lien (un bouton dans un lien
-   serait invalide). Violet pour toutes les cartes, ouvertes ou fermées : c'est
-   la couleur des boutons, demandée comme telle. */
+/* L'APPEL DE LA CARTE · un bouton violet FLAT dans la carte, qui s'éclaircit
+   quand on survole la carte. La carte entière reste le lien (un bouton dans un
+   lien serait invalide). */
 .pk-go {
-  --b-top: #b794ff; --b-mid: #7c3aed; --b-bot: #5b21b6; --b-glow: rgba(124, 58, 237, 0.6);
-  position: relative; isolation: isolate; overflow: hidden;
-  font-family: var(--font-game); font-weight: 800; font-size: 16px; letter-spacing: .02em;
-  color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-game); font-weight: 800; font-size: 16px;
+  color: #fff;
   align-self: stretch; text-align: center;
-  margin-top: 6px; padding: 11px 16px 12px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, var(--b-top), var(--b-mid) 60%, var(--b-bot));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -3px 6px rgba(0, 0, 0, 0.22), 0 10px 24px -10px var(--b-glow);
-  transition: box-shadow 320ms var(--g-ease), filter 320ms ease;
+  margin-top: 6px; padding: 12px 16px;
+  border-radius: 12px;
+  background: #7c3aed;
+  transition: background-color 200ms ease;
 }
-.pk-go::before {
-  content: ''; position: absolute; z-index: -1; left: 6%; right: 6%; top: 2px; height: 48%;
-  border-radius: 10px 10px 40% 40%; background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
-}
-.pk:hover .pk-go { filter: brightness(1.06); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -3px 6px rgba(0, 0, 0, 0.2), 0 16px 32px -10px var(--b-glow); }
-.pk:active .pk-go { box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.4); }
+.pk:hover .pk-go { background: #8b5cf6; }
+.pk:active .pk-go { background: #6d28d9; }
 
 /* --- les jauges ------------------------------------------------------------ */
 /* LA RIGOLE ET LE REMPLISSAGE · voir game/Gauge. La rigole est creusée dans la
@@ -10769,7 +10718,7 @@ button.wm-tag { border-radius: 999px !important; }
 .ln-why.right b { color: #bef264; }
 
 .ln-end { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 26px; }
-.ln-claim.on { --b-top: #fde68a; --b-mid: #eab308; --b-bot: #a16207; --b-glow: rgba(234, 179, 8, 0.55); }
+.ln-claim.on { --b: #ca8a04; --b-hi: #eab308; --b-lo: #a16207; }
 .ln-end .gm-cta { margin-top: 0; }
 
 /* --- le clan ------------------------------------------------------------- */
@@ -10790,19 +10739,9 @@ button.wm-tag { border-radius: 999px !important; }
 .cl-me b { display: block; font-family: var(--font-game); font-weight: 800; font-size: 26px; color: #fff; }
 .cl-me em { font-style: normal; font-size: 13px; color: var(--g-sub); font-weight: 700; }
 
-/* LE ROBOT D'AIDE · une bulle, et seulement une bulle : l'icône, sans son
-   nom. Demandé ainsi · la pilule « Dojobot » couvrait le bord des cartes. Le
-   nom reste dit au lecteur d'écran par l'étiquette du bouton. */
-.gm .sb-launch {
-  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(180deg, #c49bff, #8b5cf6 55%, #6d28d9) !important;
-  border: 0 !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -3px 6px rgba(0, 0, 0, 0.25), 0 14px 34px -10px rgba(139, 92, 246, 0.75) !important;
-  font-family: var(--font-game); font-weight: 800; text-shadow: none;
-  transition: transform 220ms var(--g-ease);
-}
-.gm .sb-launch:hover { transform: translateY(-3px); }
-.gm .sb-launch:active { transform: translateY(1px); }
+/* LE ROBOT D'AIDE · une bulle violette flat, l'icône seule, au-dessus de la
+   barre du bas. Le nom reste dit au lecteur d'écran par l'étiquette. */
+.gm .sb-launch { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 
 /* --- au-delà du téléphone ------------------------------------------------ */
 /* TROIS FORMATIONS SUR LA MÊME LIGNE · à partir de 1100 pixels. Une quatrième
@@ -10888,7 +10827,7 @@ button.wm-tag { border-radius: 999px !important; }
 }
 
 .pf-end { padding-bottom: 30px; }
-.pf-forget { --b-top: #fb7185; --b-mid: #e11d48; --b-bot: #9f1239; --b-glow: rgba(225, 29, 72, 0.55); }
+.pf-forget { --b: #e11d48; --b-hi: #f43f5e; --b-lo: #be123c; }
 
 /* --- la carte en plein écran --------------------------------------------- */
 

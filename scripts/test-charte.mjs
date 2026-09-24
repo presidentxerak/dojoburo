@@ -256,13 +256,19 @@ ok('… et monte en élargissant sa lueur', /translateY\(-\d+px\)/.test(rule('.p
 ok('aucun texte ne se souligne au survol dans le jeu',
   /\n\.gm a, \.gm a:hover, \.cm a, \.cm a:hover \{ text-decoration: none; \}/.test(CSS))
 
-// LE BOUTON S'ENFONCE DANS LA MATIÈRE · appuyé, il descend et son ombre passe
-// à l'intérieur. Le reflet reste sous le texte.
+// LES BOUTONS SONT FLAT · « change les CTA de l'app et les boutons de la bottom
+// bar avec un style flat design ». Une couleur pleine : pas de dégradé, pas de
+// reflet, pas d'ombre. L'appui se lit par la couleur qui fonce et un léger
+// rétrécissement.
 const CTA = GAME_CSS.match(/\n\.gm-cta, \.cc-btn \{([\s\S]*?)\n\}/)?.[1] ?? ''
-const CTA_DOWN = GAME_CSS.match(/\n\.gm-cta:active, \.cc-btn:active \{([\s\S]*?)\n\}/)?.[1] ?? ''
+const CTA_DOWN = GAME_CSS.match(/\n\.gm-cta:active, \.cc-btn:active \{([^}]*)\}/)?.[1] ?? ''
+const flat = (body) => !/gradient\(/.test(body) && !/box-shadow:\s*(?!none)[^;]*\d/.test(body)
 ok('le bouton n\'a pas de bordure', /border:\s*0;/.test(CTA))
-ok('appuyé, il s\'enfonce', /translateY\(1px\)/.test(CTA_DOWN) && /inset 0 2px/.test(CTA_DOWN))
-ok('le reflet ne recouvre pas le texte', /isolation:\s*isolate/.test(CTA) && /z-index:\s*-1/.test(GAME_CSS))
+ok('le bouton est flat', CTA.length > 0 && flat(CTA), CTA.match(/background:[^;]*/)?.[0] ?? 'introuvable')
+ok('… sans reflet', !/\.gm-cta::before|\.cc-btn::before|\.pk-go::before|\.gm-tab\.on::before/.test(GAME_CODE))
+ok('appuyé, il fonce et se resserre', /background:\s*var\(--b-lo\)/.test(CTA_DOWN) && /scale\(/.test(CTA_DOWN))
+ok('l\'appel des cartes est flat', flat(rule('.pk-go')))
+ok('les touches de la barre du bas sont flat', rulesFor('.gm-tab').every(flat) && rulesFor('.gm-tab.on').every(flat))
 
 // LES VRAIS <button> GARDENT LEUR ARRONDI · une règle générale les aplatit en
 // !important ; le jeu, et les étiquettes de la carte, leur répondent.
@@ -298,7 +304,14 @@ ok('aucun palier ne la rabat à deux colonnes',
 
 /* --- 5 · la barre du bas porte nos signes --------------------------------- */
 
-ok('l\'onglet Dojos porte la marque', /glyph:\s*null/.test(SHELL) && /<Logo size=/.test(SHELL))
+// L'ORDRE DE LA BARRE · « ajoute un bouton [Dojoburo] dans la bottom bar,
+// déplace en 2e position le bouton dojo et renomme-le Training et change son
+// icône ».
+const TAB_KEYS = [...SHELL.matchAll(/key:\s*'(nav\.[a-z]+)'/g)].map((m) => m[1])
+ok('la barre : Dojoburo, Training, Clan, Profil', TAB_KEYS.join(',') === 'nav.game,nav.training,nav.clan,nav.profile', TAB_KEYS.join(','))
+ok('Dojoburo porte la marque, Training la toque',
+  /\{ to: '\/dojoburo', key: 'nav\.game', glyph: null \}/.test(SHELL) && /\{ to: '\/', key: 'nav\.training', glyph: 'training' \}/.test(SHELL))
+ok('Training ne s\'allume pas sur le jeu', /path\.startsWith\('\/dojo\/'\)/.test(SHELL))
 ok('l\'onglet Profil porte un sourire', /glyph:\s*'smile'/.test(SHELL))
 ok('le sourire existe dans le jeu d\'icônes', /'smile'/.test(ICONS))
 // LE CLAN EST UN GROUPE, PAS UNE FORME · deux cercles concentriques ne disaient

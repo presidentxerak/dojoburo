@@ -129,6 +129,9 @@ const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac
   'mp.agent', 'mp.agents',
   // « question » aussi : même mot, même sens, dans les deux langues.
   'ln.q',
+  // « Dojoburo » est un nom propre, et « Training » a été demandé tel quel
+  // dans les deux langues.
+  'nav.game', 'nav.training',
   // « dojo » et « badge » non plus ne se traduisent pas : le premier est un
   // emprunt au japonais dans les deux langues, le second un emprunt du
   // français vers l'anglais qui est revenu identique. Les traduire serait
@@ -138,7 +141,7 @@ const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac
   // un emprunt au japonais, le second au latin. Les traduire serait inventer
   // un mot que personne n'emploie. « Clan » aussi, passé du gaélique à
   // l'anglais puis au français sans changer une lettre.
-  'nav.dojos', 'nav.clan', 'gm.modules', 'gm.module', 'gm.module1', 'gm.dojo1'])
+  'nav.clan', 'gm.modules', 'gm.module', 'gm.module1', 'gm.dojo1'])
 const copied = keys.filter((k) => DICT[k].en === DICT[k].fr && !SAME_IN_BOTH.has(k))
 ok('aucune traduction n\'est la copie de l\'anglais', copied.length === 0,
   copied.join(', ') || `${keys.length - SAME_IN_BOTH.size} comparées`)

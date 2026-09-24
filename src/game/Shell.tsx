@@ -55,9 +55,8 @@ import { useGame } from './progress'
  *  n'importe quelle application au monde, une étoile désigne des favoris
  *  partout ailleurs, et un profil n'est pas une liste de favoris.
  *
- *    DOJOS porte la MARQUE · c'est l'accueil, c'est là qu'on revient, et la
- *    marque est précisément le signe qui dit « vous êtes chez vous ». Le logo
- *    a en plus l'avantage d'être déjà connu de qui a vu le site.
+ *    DOJOBURO porte la MARQUE · le jeu porte le nom du produit, et le logo
+ *    est déjà connu de qui a vu le site. TRAINING porte une toque d'école.
  *
  *    PROFIL porte un SOURIRE · c'est une personne. Un visage le dit d'un coup,
  *    à douze pixels, dans toutes les langues, et sans qu'on ait à l'apprendre.
@@ -66,7 +65,11 @@ import { useGame } from './progress'
  *  nom du logo n'est pas dans le jeu Bauhaus, et il n'a rien à y faire : une
  *  marque a ses proportions et son histoire, une icône a une grille. */
 const TABS: { to: string; key: string; glyph: IconName | null }[] = [
-  { to: '/', key: 'nav.dojos', glyph: null },
+  // LE JEU EN PREMIER · Dojoburo porte la marque : c'est le jeu qui porte le
+  // nom du produit. La formation passe en deuxième, sous le nom « Training »,
+  // avec une toque d'école (demandé ainsi).
+  { to: '/dojoburo', key: 'nav.game', glyph: null },
+  { to: '/', key: 'nav.training', glyph: 'training' },
   { to: '/clan', key: 'nav.clan', glyph: 'clan' },
   { to: '/profil', key: 'nav.profile', glyph: 'smile' },
 ]
@@ -74,7 +77,8 @@ const TABS: { to: string; key: string; glyph: IconName | null }[] = [
 /** L'onglet actif · « / » ne vaut que pour lui même, sinon il resterait
  *  allumé sur toutes les pages, ce qui ne dit plus où l'on est. */
 const isOn = (path: string, to: string) =>
-  to === '/' ? path === '/' || path.startsWith('/dojo') : path.startsWith(to)
+  // « /dojo/ » AVEC sa barre · sans elle, « /dojoburo » allumait Training.
+  to === '/' ? path === '/' || path.startsWith('/dojo/') : path.startsWith(to)
 
 /** LE COUP QUAND UN NOMBRE MONTE · vrai pendant le temps de l'animation, puis
  *  faux. C'est ce qui donne à un compteur le poids d'une récompense : un
