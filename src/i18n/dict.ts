@@ -556,11 +556,6 @@ export const DICT = {
   'gm.lockBody': { en: "The first dojo is open so you can judge for yourself. The rest comes with the training, bought once, yours for good.", fr: "Le premier dojo est ouvert pour que vous puissiez juger par vous-même. Le reste est inclus dans la formation, achetée une fois et acquise définitivement." },
 
   /* --- le clan ------------------------------------------------------------ */
-  'cl.title': { en: "The clan", fr: "Le clan" },
-  'cl.lead': { en: "Where disciples show what they built with AI.", fr: "Là où les disciples montrent ce qu'ils ont construit avec l'IA." },
-  'cl.soonTitle': { en: "No feed yet, and I will not fake one", fr: "Pas encore de fil, et je ne vais pas en inventer un" },
-  'cl.soonBody': { en: "A feed needs a server to receive what you post. There is none yet, so three invented messages here would only mean yours goes nowhere. This page becomes the feed the day it can carry one.", fr: "Un fil a besoin d'un serveur pour recevoir ce que tu y écris. Il n'y en a pas encore, donc trois messages inventés ici garantiraient seulement que le tien ne parte nulle part. Cette page devient le fil le jour où elle peut en porter un." },
-  'cl.seeProfile': { en: "Your progress", fr: "Ta progression" },
 
   /* --- le profil et la carte --------------------------------------------- */
   'pr.mapTitle': { en: "The valley map", fr: "La carte de la vallée" },
