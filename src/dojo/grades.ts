@@ -57,7 +57,7 @@ export const GRADES: Grade[] = [
     tint: '#c8ccd4',
     agents: 0,
     means: 'You walked in. Nothing is expected of you yet, and nothing is claimed about you.',
-    fr: { title: "Ceinture blanche", means: "Tu as franchi la porte. On n'attend encore rien de toi, et on n'affirme rien à ton sujet." }
+    fr: { title: "Ceinture blanche", means: "Vous avez franchi le seuil. Rien n'est encore attendu de vous, et rien n'est affirmé à votre sujet." }
   },
   {
     id: 'yellow',
@@ -65,7 +65,7 @@ export const GRADES: Grade[] = [
     tint: '#f5c518',
     agents: 1,
     means: 'You have taken one shape of problem from a blank page to a file. You know what the work is.',
-    fr: { title: "Ceinture jaune", means: "Tu as mené une forme de problème de la page blanche jusqu'à un fichier. Tu sais en quoi consiste le travail." }
+    fr: { title: "Ceinture jaune", means: "Vous avez conduit un type de problème de la page blanche jusqu'à un fichier. Vous savez en quoi consiste le travail." }
   },
   {
     id: 'green',
@@ -73,7 +73,7 @@ export const GRADES: Grade[] = [
     tint: '#2fa84f',
     agents: 3,
     means: 'Three different shapes. You have seen three ways an agent fails, which is three more than most.',
-    fr: { title: "Ceinture verte", means: "Trois formes différentes. Tu as vu trois façons dont un agent échoue, soit trois de plus que la plupart des gens." }
+    fr: { title: "Ceinture verte", means: "Trois types de problème différents. Vous avez observé trois façons dont un agent échoue, soit trois de plus que la plupart des gens." }
   },
   {
     id: 'blue',
@@ -81,7 +81,7 @@ export const GRADES: Grade[] = [
     tint: '#2f6bff',
     agents: 6,
     means: 'Half the room. Handed a new problem, you can say which shape it is before writing anything.',
-    fr: { title: "Ceinture bleue", means: "La moitié de la salle. Face à un problème nouveau, tu sais dire de quelle forme il est avant d'écrire quoi que ce soit." }
+    fr: { title: "Ceinture bleue", means: "La moitié de la salle. Face à un problème nouveau, vous savez en identifier le type avant d'écrire quoi que ce soit." }
   },
   {
     id: 'brown',
@@ -89,7 +89,7 @@ export const GRADES: Grade[] = [
     tint: '#8a5a2b',
     agents: 9,
     means: 'Nine. You are past the easy ones, and the three you have left are the three that are genuinely hard.',
-    fr: { title: "Ceinture marron", means: "Neuf. Tu as passé les faciles, et les trois qui restent sont les trois vraiment difficiles." }
+    fr: { title: "Ceinture marron", means: "Neuf agents. Vous avez franchi les plus accessibles ; les trois restants sont les plus exigeants." }
   },
   {
     id: 'black',
@@ -97,7 +97,7 @@ export const GRADES: Grade[] = [
     tint: '#1c1c22',
     agents: USE_CASE_COUNT,
     means: 'Every agent in this room is awake because of you. There is nothing left here you have not built.',
-    fr: { title: "Ceinture noire", means: "Chaque agent de cette salle est réveillé grâce à toi. Il ne reste ici rien que tu n'aies construit." }
+    fr: { title: "Ceinture noire", means: "Chaque agent de cette salle a été éveillé grâce à vous. Il ne reste ici rien que vous n'ayez construit." }
   },
 ]
 
@@ -134,7 +134,7 @@ export const BADGES: Badge[] = [
     how: 'You finished the first step of any path. The blank page is behind you.',
     icon: 'play',
     earned: (c) => c.build.done > 0 || c.academy.done > 0 || c.eco.done > 0,
-    fr: { title: "Premier geste", how: "Tu as terminé la première étape d'un parcours. La page blanche est derrière toi." }
+    fr: { title: "Premier geste", how: "Vous avez terminé la première étape d'un parcours. La page blanche est désormais derrière vous." }
   },
   {
     id: 'one-agent',
@@ -142,7 +142,7 @@ export const BADGES: Badge[] = [
     how: 'You took one agent from a blank page to a file, without skipping a step.',
     icon: 'diamond',
     earned: (_, built) => built.length >= 1,
-    fr: { title: "Un agent, entier", how: "Tu as mené un agent de la page blanche jusqu'à un fichier, sans sauter d'étape." }
+    fr: { title: "Un agent, entier", how: "Vous avez conduit un agent de la page blanche jusqu'à un fichier, sans omettre d'étape." }
   },
   {
     id: 'three-shapes',
@@ -150,7 +150,7 @@ export const BADGES: Badge[] = [
     how: 'Three different agents, finished. Different shapes, not three attempts at one.',
     icon: 'triangle',
     earned: (_, built) => built.length >= 3,
-    fr: { title: "Trois formes", how: "Trois agents différents, terminés. Des formes différentes, pas trois tentatives sur une seule." }
+    fr: { title: "Trois formes", how: "Trois agents différents, terminés. Trois types de problème distincts, et non trois tentatives sur le même." }
   },
   {
     id: 'reader',
@@ -158,7 +158,7 @@ export const BADGES: Badge[] = [
     how: `Half the ${LESSON_COUNT} prompt engineering lessons, finished.`,
     icon: 'pen',
     earned: (c) => c.academy.done >= Math.ceil(LESSON_COUNT / 2),
-    fr: { title: "Lit avant d'écrire", how: `La moitié des ${LESSON_COUNT} leçons de prompt engineering, terminées.` }
+    fr: { title: "Lire avant d'écrire", how: `La moitié des ${LESSON_COUNT} leçons de prompt engineering, terminées.` }
   },
   {
     id: 'counter',
@@ -166,7 +166,7 @@ export const BADGES: Badge[] = [
     how: `All ${LEVERS.length} frugality levers, applied where you work.`,
     icon: 'delta',
     earned: (c) => c.eco.done >= LEVERS.length,
-    fr: { title: "Compte le coût", how: `Les ${LEVERS.length} leviers de sobriété, appliqués là où tu travailles.` }
+    fr: { title: "Mesurer le coût", how: `Les ${LEVERS.length} leviers de sobriété, appliqués à votre contexte de travail.` }
   },
   {
     id: 'half-room',
@@ -174,7 +174,7 @@ export const BADGES: Badge[] = [
     how: `${Math.ceil(USE_CASE_COUNT / 2)} of the ${USE_CASE_COUNT} agents, finished end to end.`,
     icon: 'halfRight',
     earned: (_, built) => built.length >= Math.ceil(USE_CASE_COUNT / 2),
-    fr: { title: "La moitié de la salle réveillée", how: `${Math.ceil(USE_CASE_COUNT / 2)} des ${USE_CASE_COUNT} agents, terminés d'un bout à l'autre.` }
+    fr: { title: "La moitié de la salle éveillée", how: `${Math.ceil(USE_CASE_COUNT / 2)} des ${USE_CASE_COUNT} agents, terminés d'un bout à l'autre.` }
   },
   {
     id: 'whole-dojo',
@@ -182,7 +182,7 @@ export const BADGES: Badge[] = [
     how: 'Every agent in the room, every lesson, every lever. Nothing left.',
     icon: 'star',
     earned: (c, built) => built.length >= USE_CASE_COUNT && c.academy.percent === 100 && c.eco.percent === 100,
-    fr: { title: "Le dojo entier", how: "Chaque agent de la salle, chaque leçon, chaque levier. Il ne reste rien." }
+    fr: { title: "Le dojo entier", how: "Chaque agent de la salle, chaque leçon, chaque levier. Le parcours est achevé." }
   },
 ]
 
@@ -198,7 +198,7 @@ export const AGENT_BADGES = USE_CASES.map((u) => ({
   // les réécrire ici aurait donné douze noms à tenir à jour deux fois.
   fr: {
     title: useCaseIn(u, 'fr').name,
-    how: `Tu l'as construit : ${useCaseIn(u, 'fr').shape.toLowerCase()}.`,
+    how: `Vous l'avez construit : ${useCaseIn(u, 'fr').shape.toLowerCase()}.`,
   },
 }))
 

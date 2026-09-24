@@ -43,7 +43,8 @@ pass('landing loaded', (await page.locator('body').textContent()).length > 200)
 // matching /dojo/ and passed only thanks to the help launcher's "Dojobot"
 // label; the launcher is now an icon bubble, and the check looks at the thing
 // that actually lets someone in.
-pass('landing has enter CTA', await page.locator('a.pk .pk-go', { hasText: /See|Voir|Start|Commencer|Continue|Reprendre/i }).count() > 0)
+// The card CTA now reads « Découvrez » / « Discover » (asked by the owner).
+pass('landing has enter CTA', await page.locator('a.pk .pk-go', { hasText: /Discover|Découvrez|Start|Commencer|Continue|Reprendre/i }).count() > 0)
 await page.screenshot({ path: `${OUT}/full-landing.png` })
 
 // 2. ENTER APP

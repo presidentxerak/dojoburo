@@ -20,34 +20,39 @@ psql "$DATABASE_URL" -f db/orgs.sql        # les organisations, leurs membres, l
 psql "$DATABASE_URL" -f db/permits.sql     # ce qu'un agent a le droit d'écrire, et où
 psql "$DATABASE_URL" -f db/secrets.sql     # le coffre chiffré côté serveur
 psql "$DATABASE_URL" -f db/rag.sql         # les espaces documentaires, les documents, la recherche
+psql "$DATABASE_URL" -f db/clan.sql        # le fil de la communauté (auteurs anonymes, bravos, signalements)
 ```
+
+`db/clan.sql` ne dépend d'aucun autre fichier : il peut être appliqué seul,
+sur une base qui ne sert qu'au fil du clan. Tant qu'il ne l'est pas, la page
+`/clan` dit que le serveur de la communauté n'est pas encore configuré.
 
 `db/retire-settlement.sql` n'est PAS dans cette liste, et c'est voulu : ce n'est
 pas du schéma, c'est une migration d'un seul jour. Elle retire les tables d'un
 produit précédent qui vendait des crédits et les réglait sur un registre
 (`credit_ledger`, `settlements`, `checkout_sessions`, et une colonne d'adresse
 sur `accounts`). Sur une base neuve elle n'a rien à faire ; sur une base
-ancienne, on l'applique une fois, après les six autres.
+ancienne, on l'applique une fois, après les autres.
 
 ## Tout est réexécutable
 
-Les six fichiers de schéma peuvent être relancés sur une base déjà à jour sans
+Les sept fichiers de schéma peuvent être relancés sur une base déjà à jour sans
 rien casser : chaque création porte `if not exists`, la seule colonne ajoutée
 conditionnellement est gardée par une vérification, et les deux fonctions sont
 en `create or replace`.
 
 C'est une propriété utile, et pas seulement par élégance : elle veut dire que
 **la réparation est toujours la même commande**. Si un doute existe sur l'état
-de la base, on relance les six dans l'ordre et on repart d'un schéma connu.
+de la base, on relance les sept dans l'ordre et on repart d'un schéma connu.
 
 ## Si un schéma étranger a été appliqué par erreur
 
 Ça arrive : deux projets ouverts, deux consoles, et on colle dans la mauvaise.
 Ce qu'il faut savoir avant de paniquer :
 
-- **Des tables en trop ne cassent rien.** Ce produit ne lit que les seize
+- **Des tables en trop ne cassent rien.** Ce produit ne lit que les dix-neuf
   tables listées plus bas ; il ignore tout le reste, et une table inconnue
-  n'entre en conflit avec rien tant qu'elle ne porte pas un de ces seize noms.
+  n'entre en conflit avec rien tant qu'elle ne porte pas un de ces dix-neuf noms.
 - **Le risque réel est un nom qui se recouvre.** Si le schéma étranger crée ou
   modifie une table portant l'un de ces noms, les colonnes peuvent ne plus
   correspondre à ce que le code attend.
@@ -73,6 +78,7 @@ fichier qui la crée, après avoir sauvegardé ce qu'elle contient.
 | `permits.sql` | `connector_permits` |
 | `secrets.sql` | `company_secrets` |
 | `rag.sql` | `rag_spaces`, `rag_documents`, `rag_chunks`, `rag_queries` |
+| `clan.sql` | `clan_posts`, `clan_bravos`, `clan_reports` |
 
 Cette liste est vérifiée par `scripts/test-deploy.mjs` : un fichier de schéma
 ajouté sans être écrit ici fait rougir la construction, pour que ce tableau ne

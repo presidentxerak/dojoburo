@@ -70,7 +70,7 @@ const designDoc = (id: 'design' | 'figma'): ResourceDoc => {
     file: `dojoburo-${id}`,
     about: bi(
       `Every lesson of the ${course.title.en} course: the words, the moves, the trap and the test.`,
-      `Chaque leçon du cours ${course.title.fr} : les mots, les gestes, le piège et le test.`,
+      `Chaque leçon du cours ${course.title.fr} : le vocabulaire, les gestes, le piège à éviter et le test.`,
     ),
     build: (lang) => {
       const out: ResBlock[] = [{ kind: 'p', text: pickBi(course.promise, lang) }]
@@ -79,7 +79,7 @@ const designDoc = (id: 'design' | 'figma'): ResourceDoc => {
         out.push({ kind: 'p', text: pickBi(l.plain, lang) })
         for (const w of l.words) out.push({ kind: 'kv', k: pickBi(w.term, lang), v: pickBi(w.means, lang) })
         for (const s of l.steps) out.push({ kind: 'li', text: pickBi(s, lang) })
-        out.push({ kind: 'kv', k: lang === 'fr' ? 'Le piège' : 'The trap', v: pickBi(l.trap, lang) })
+        out.push({ kind: 'kv', k: lang === 'fr' ? 'Le piège à éviter' : 'The trap', v: pickBi(l.trap, lang) })
         out.push({ kind: 'kv', k: lang === 'fr' ? 'Le test' : 'The test', v: pickBi(l.check, lang) })
       })
       return out
@@ -98,14 +98,14 @@ export const RESOURCES: ResourceDoc[] = [
     file: 'dojoburo-agents',
     about: bi(
       'The twelve shapes of agent, what each one is for, and what is hard about it.',
-      "Les douze formes d'agent, à quoi sert chacune, et ce qui est dur dedans.",
+      "Les douze types d'agent, la fonction de chacun et ses principales difficultés.",
     ),
     build: (lang) => {
       const out: ResBlock[] = []
       for (const u of USE_CASES) {
         out.push({ kind: 'h', text: u.name })
         out.push({ kind: 'p', text: u.does })
-        out.push({ kind: 'kv', k: lang === 'fr' ? 'Ce qui est dur' : 'What is hard', v: u.hard })
+        out.push({ kind: 'kv', k: lang === 'fr' ? 'La difficulté' : 'What is hard', v: u.hard })
         u.steps.forEach((s, i) => out.push({ kind: 'li', text: `${i + 1}. ${s.title} · ${s.makes}` }))
       }
       return out
@@ -119,7 +119,7 @@ export const RESOURCES: ResourceDoc[] = [
     file: 'dojoburo-prompt-engineering',
     about: bi(
       'The one line to remember from each of the lessons, in the order they are taken.',
-      "La ligne à retenir de chaque leçon, dans l'ordre où on les suit.",
+      "La phrase à retenir de chaque leçon, dans l'ordre du parcours.",
     ),
     build: () => {
       const out: ResBlock[] = []
@@ -138,7 +138,7 @@ export const RESOURCES: ResourceDoc[] = [
     file: 'dojoburo-token-frugality',
     about: bi(
       'Every lever, what it does, why it works, and when not to use it.',
-      'Chaque levier, ce quil fait, pourquoi ça marche, et quand ne pas le faire.',
+      "Chaque levier : son effet, la raison de son efficacité et les cas où il ne faut pas l'employer.",
     ),
     build: (lang) => {
       const out: ResBlock[] = []

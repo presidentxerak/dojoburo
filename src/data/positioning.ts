@@ -134,7 +134,7 @@ export const PILLARS: Pillar[] = [
       nav: "Construire un agent",
       title: "Douze agents, douze façons d'échouer",
       blurb:
-        "Entre dans le dojo. Douze agents y dorment, un par forme de problème, et celui que tu choisis se réveille. Tu le mènes de la page blanche à un fichier qui tourne dans un vrai framework, et le maître garde ta progression.",
+        "Entrez dans le dojo. Douze agents y sommeillent, chacun associé à un type de problème, et celui que vous choisissez s'éveille. Vous le conduisez de la page blanche à un fichier qui s'exécute dans un véritable framework, et le maître conserve votre progression.",
     },
   },
   {
@@ -150,7 +150,7 @@ export const PILLARS: Pillar[] = [
       nav: "Le prompt engineering",
       title: "Le prompt qui décide de tout",
       blurb:
-        "De « c'est quoi un token » à un brief qu'un modèle suit vraiment. Chaque leçon se lit dans le navigateur, a quelque chose à démonter à côté du texte, et finit par une chose à retenir et une chose à faire.",
+        "De la définition d'un token à la rédaction d'un brief qu'un modèle suit réellement. Chaque leçon se lit dans le navigateur, propose un exemple à analyser à côté du texte, et se conclut par une notion à retenir et un exercice à faire.",
     },
   },
   {
@@ -167,9 +167,9 @@ export const PILLARS: Pillar[] = [
     glyph: 'triangle',
     fr: {
       nav: "Sobriété en tokens",
-      title: "Ce que ça coûte, et comment le réduire",
+      title: "Ce que cela coûte, et comment le réduire",
       blurb:
-        "Où partent tes tokens, comptés plutôt que devinés : les réglages choisis avant d'écrire un mot, et la façon dont le prompt lui-même est écrit. Puis les leviers, chacun avec ce qu'il rapporte vraiment.",
+        "Où vont vos tokens, comptés plutôt qu'estimés : d'abord les réglages choisis avant d'écrire un mot, ensuite la rédaction du prompt lui-même. Enfin les leviers, chacun avec l'économie qu'il permet réellement.",
     },
   },
   {
@@ -190,7 +190,7 @@ export const PILLARS: Pillar[] = [
       nav: 'Design avec un modèle',
       title: "Juger un écran sans avoir jamais designé",
       blurb:
-        "Un modèle produit du design plausible, et le plausible est le piège. Ce cours ne t'apprend pas à dessiner : il t'apprend à dire ce qui cloche dans un écran, avec des mots sur lesquels un modèle peut agir.",
+        "Un modèle produit un design plausible, et c'est précisément là que réside le piège. Ce cours ne vous apprend pas à dessiner : il vous apprend à formuler les défauts d'un écran en des termes sur lesquels un modèle peut agir.",
     },
   },
   {
@@ -206,7 +206,7 @@ export const PILLARS: Pillar[] = [
       nav: 'Figma',
       title: "Cinq idées, et les boutons cessent d'avoir de l'importance",
       blurb:
-        "Les interfaces bougent plusieurs fois par an ; le modèle derrière elles n'a pas bougé depuis des années. Apprends ce qu'est un cadre, ce que fait l'auto layout et pourquoi un composant existe, et l'interface du moment se découvre en dix minutes.",
+        "Les interfaces évoluent plusieurs fois par an ; le modèle qui les sous-tend est stable depuis des années. Comprenez ce qu'est un cadre, ce que fait l'auto layout et à quoi sert un composant : l'interface du moment se découvre alors en dix minutes.",
     },
   },
   {
@@ -222,7 +222,7 @@ export const PILLARS: Pillar[] = [
       nav: "Salle d'entraînement",
       title: "Une salle où démonter les choses",
       blurb:
-        "Le dojo est un bac à sable, pas un atelier de production. Ouvre un agent, lis le prompt qui le rend ce qu'il est, change-le, et regarde ce qui change. Rien ici n'appelle de modèle payant ni ne touche à tes comptes.",
+        "Le dojo est un bac à sable, non un atelier de production. Ouvrez un agent, lisez le prompt qui le définit, modifiez-le et observez l'effet de vos changements. Rien ici n'appelle de modèle payant ni n'accède à vos comptes.",
     },
   },
 ]
@@ -283,19 +283,19 @@ export const NOT_THIS = [
 // Une promesse se réécrit dans la langue d'arrivée, sinon elle se lit comme
 // une traduction, et une promesse qui se lit comme une traduction n'engage
 // personne.
-export const PROMISE_LEAD_FR = "Apprends enfin à te servir de l'IA"
+export const PROMISE_LEAD_FR = "Apprenez à vous servir réellement de l'IA"
 export const PROMISE_HL_FR = 'sept minutes à la fois'
 export const PROMISE_FR = `${PROMISE_LEAD_FR}${PROMISE_SEP}${PROMISE_HL_FR}`
 
 export const SUBTITLE_FR =
-  `Une semaine gratuite de ${DISCOVERY_LEVEL_COUNT} leçons, puis ${PATH_MODULE_COUNT} cités dojo que tu ` +
-  "traverses dans l'ordre qui te va. Une chose à apprendre et une chose à faire par dojo, une question qui " +
-  'ferme, et un badge qui reste. Rien ici ne travaille à ta place.'
+  `Une semaine gratuite de ${DISCOVERY_LEVEL_COUNT} leçons, puis ${PATH_MODULE_COUNT} cités dojo que vous ` +
+  "parcourez dans l'ordre de votre choix. Chaque dojo comporte une notion à apprendre, un exercice, une question " +
+  'de validation et un badge acquis. Rien ici ne travaille à votre place.'
 
 export const NOT_THIS_FR = [
-  'Je ne fais pas tourner ton entreprise à ta place.',
-  "Je ne revends pas de tokens, et il n'y a aucun compteur entre toi et ton provider.",
-  "Rien dans le dojo n'appelle de modèle payant ni n'écrit dans tes comptes : c'est un bac à sable.",
+  'Nous ne faisons pas fonctionner votre entreprise à votre place.',
+  "Nous ne revendons pas de tokens, et aucun compteur ne s'interpose entre vous et votre provider.",
+  "Rien dans le dojo n'appelle de modèle payant ni n'écrit dans vos comptes : il s'agit d'un bac à sable.",
 ]
 
 /** La promesse, le sous-titre et les démentis dans la langue demandée.

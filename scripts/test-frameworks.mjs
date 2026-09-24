@@ -183,14 +183,16 @@ const says = (key, en, fr) => {
 ok('la page annonce qu\'elle ne contient pas de code', /t\('fw\.noCodeH2'\)/.test(page))
 says('fw.noCodeH2', /no code on this page, on purpose/i, /aucun code sur cette page/i)
 ok('…et dit pourquoi', /t\('fw\.noCodeA'\)/.test(page))
-says('fw.noCodeA', /wrong in a few months/i, /a tort dans quelques mois/i)
+// LE FRANÇAIS EST PASSÉ AU REGISTRE ACADÉMIQUE (« faux dans quelques mois ») ·
+// la garde lit le SENS, pas une tournure, dans les deux registres.
+says('fw.noCodeA', /wrong in a few months/i, /(à tort|faux) dans quelques mois/i)
 // LA LIMITE ASSUMÉE · nous ne suivons pas ces projets au jour le jour, et ils
 // changent sans prévenir. Le taire serait une promesse qu'on ne tient pas.
 ok('…et reconnaît qu\'elle ne suit pas ces projets', /t\('fw\.weDoNotTrack'\)/.test(page))
-// Le texte est passé à la première personne (le formateur parle en « je ») :
-// la garde suit la phrase nouvelle, et « je ne suis pas ces projets » a été
-// écarté parce qu'il se lit aussi « je ne suis pas ces projets ».
-says('fw.weDoNotTrack', /do not track these/i, /ne surveille pas ces/i)
+// Le texte parle maintenant au « nous » institutionnel (registre académique,
+// demandé) : la garde accepte « nous ne suivons pas ces » comme l'ancien « je
+// ne surveille pas ces ». Ce qu'elle protège ne change pas : la limite est dite.
+says('fw.weDoNotTrack', /do not track these/i, /ne (surveille|suivons|surveillons) pas ces/i)
 ok('chaque entrée renvoie à sa propre documentation', /f\.docs/.test(page))
 
 /* --- 5 · la page est atteignable ---------------------------------------- */

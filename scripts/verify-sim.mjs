@@ -56,8 +56,13 @@ for (const [name, viewport, mobile] of [
 
   // LA FEUILLE ET LE PANNEAU RESTENT DANS L'ÉCRAN · le bouton Lancer est au
   // bout d'un panneau qui défile ; il doit être atteignable, pas coupé.
-  // mesuré une fois l'entrée finie · la feuille monte de 40 px en arrivant
-  await p.waitForTimeout(500)
+  // MESURÉ UNE FOIS L'ENTRÉE FINIE · le panneau glisse de 24 px, la feuille
+  // monte de 40 px. Une attente fixe ne suffisait pas sous rendu logiciel :
+  // on attend que l'animation soit réellement terminée.
+  await p.waitForFunction(() => {
+    const el = document.querySelector('.sim-panel')
+    return !!el && el.getAnimations().every((a) => a.playState === 'finished')
+  }, null, { timeout: 5000 }).catch(() => {})
   const box = await p.locator('.sim-panel').boundingBox()
   ok(`${name} · le brief tient dans l'écran`, !!box && box.x >= 0 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1, JSON.stringify(box))
   if (mobile) ok(`${name} · le brief est une feuille du bas`, !!box && Math.abs(box.y + box.height - viewport.height) < 2 && box.width >= viewport.width - 1)

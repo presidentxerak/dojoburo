@@ -39,10 +39,10 @@ const START_CHIPS = ['start', 'studios', 'teams', 'budget', 'training', 'lessons
  *  Each one is written to land on its topic in the local answers, so a tap
  *  answers at once, without a model. */
 const SUGGESTIONS = [
-  { en: 'How do I play Dojoburo?', fr: 'Comment on joue à Dojoburo ?' },
+  { en: 'How do I play Dojoburo?', fr: 'Comment joue-t-on à Dojoburo ?' },
   { en: 'What are tokens for in the game?', fr: 'À quoi servent les tokens dans le jeu ?' },
   { en: 'Where do I start the training?', fr: 'Par où commencer la formation ?' },
-  { en: 'How much does it cost?', fr: 'Combien ça coûte ?' },
+  { en: 'How much does it cost?', fr: 'Combien cela coûte-t-il ?' },
   { en: 'How does buying work?', fr: "Comment se passe l'achat ?" },
   { en: 'Where is my progress saved?', fr: 'Où est gardée ma progression ?' },
 ]
@@ -175,11 +175,17 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
   return (
     <>
       {!embedded && !open && (
-        // UNE BULLE ET SON ICÔNE, SANS NOM · demandé ainsi. La pilule
-        // « Dojobot » couvrait le bord des cartes ; le nom reste annoncé au
-        // lecteur d'écran par l'étiquette du bouton.
+        // UNE VRAIE BULLE DE CHAT · demandé : « fais une vraie bulle de chat ».
+        // Le bouton était un disque dont un coin carré devait figurer la queue,
+        // ce qui se lisait comme une tache. C'est maintenant la forme que tout
+        // le monde reconnaît : une bulle arrondie, sa queue en bas à droite, et
+        // trois points de conversation. Le nom reste annoncé au lecteur
+        // d'écran par l'étiquette du bouton.
         <button className="sb-launch" onClick={() => setOpen(true)} aria-label={`Dojobot · ${t('sb.ask')}`}>
-          <Logo size={28} className="sb-face" />
+          <svg className="sb-bubble-ico" viewBox="0 0 60 58" aria-hidden="true">
+            <path className="sb-bubble-body" d="M22 4H38A18 18 0 0 1 56 22V26A18 18 0 0 1 46 42.2L51 54L35 44H22A18 18 0 0 1 4 26V22A18 18 0 0 1 22 4Z" />
+            <circle cx="20" cy="24" r="3.6" /><circle cx="30" cy="24" r="3.6" /><circle cx="40" cy="24" r="3.6" />
+          </svg>
         </button>
       )}
 

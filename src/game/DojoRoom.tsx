@@ -48,6 +48,8 @@ import { StudioLight } from '../components/three/StudioLight'
 import { templateById } from '../data/templates'
 import { masterCharacter } from '../data/cast'
 import type { Department } from '../data/agents'
+import { Frozen } from '../components/three/Frozen'
+import { Heartbeat } from '../components/three/Heartbeat'
 
 export function DojoRoom({ master, tint }: {
   /** l'identifiant du cas d'usage qui tient ce dojo */
@@ -70,7 +72,10 @@ export function DojoRoom({ master, tint }: {
     <div className="dr">
       <Canvas
         shadows="soft"
-        dpr={[1, 1.4]}
+        // LA SALLE DE LA LEÇON EST UN DÉCOR · 30 images par seconde suffisent à
+        // son maître, et la page qu'on lit à côté garde le fil principal.
+        frameloop="demand"
+        dpr={[1, 1.25]}
         camera={{ position: [0, 6.4, 12.5], fov: 42, near: 0.1, far: 100 }}
         gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: THREE.ACESFilmicToneMapping }}
         onCreated={({ camera }) => camera.lookAt(0, 1.7, 0)}
@@ -81,13 +86,16 @@ export function DojoRoom({ master, tint }: {
         <hemisphereLight args={['#ffffff', tint, 0.8]} />
         <directionalLight
           position={[4, 9, 6]} color="#ffffff" intensity={1.15} castShadow
-          shadow-mapSize-width={2048} shadow-mapSize-height={2048}
+          shadow-mapSize-width={1024} shadow-mapSize-height={1024}
           shadow-bias={-0.0004} shadow-normalBias={0.03}
           shadow-camera-left={-14} shadow-camera-right={14}
           shadow-camera-top={14} shadow-camera-bottom={-14}
         />
+        <Heartbeat live />
         <Suspense fallback={null}>
-          <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
+          <Frozen>
+            <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
+          </Frozen>
           <Character3D
             id={master}
             character={masterCharacter(master)}

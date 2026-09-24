@@ -67,12 +67,12 @@ export const SURFACE: IcebergItem[] = [
     id: 'cheaper-model', depth: 'surface',
     fr: {
       title: "Prendre un modèle moins cher",
-      short: "Le premier réflexe, et il a un piège",
-      what: "Déplacer le travail vers un modèle plus petit, à un tarif plus bas au million de tokens.",
+      short: "Le premier réflexe, qui comporte un piège",
+      what: "Confier le travail à un modèle plus petit, facturé à un tarif plus bas par million de tokens.",
       why:
-        "Ça réduit bien le tarif, parfois d'un facteur dix. Ce que ça ne réduit pas, c'est le NOMBRE de tokens, et ce nombre est décidé par tes habitudes. Un petit modèle sur une conversation mal tenue coûte plus qu'un grand sur un fil propre.",
+        "Cela réduit effectivement le tarif, parfois d'un facteur dix. En revanche, cela ne réduit pas le NOMBRE de tokens, qui dépend de vos habitudes. Un petit modèle utilisé dans une conversation mal conduite coûte davantage qu'un grand modèle dans un fil bien tenu.",
       not:
-        "Ne déplace pas une tâche qui demandera ensuite deux tentatives. Une reprise repaie toute la conversation, donc un modèle cinq fois moins cher et faux une fois sur trois ne t'a rien économisé.",
+        "Ne confiez pas à un modèle moins cher une tâche qui exigera ensuite deux tentatives. Une reprise repaie toute la conversation : un modèle cinq fois moins cher mais erroné une fois sur trois ne vous fait rien économiser.",
     },
     title: 'Take a cheaper model',
     short: 'The first reflex, and the one with a catch',
@@ -91,11 +91,11 @@ export const SURFACE: IcebergItem[] = [
     fr: {
       title: "Écrire des prompts plus courts",
       short: "La plus petite ligne de la facture",
-      what: "Raccourcir ce que tu tapes avant de l'envoyer.",
+      what: "Raccourcir ce que vous saisissez avant de l'envoyer.",
       why:
-        "Regarde n'importe quel décompte réel : ce que tu as tapé en est presque toujours la plus petite part, derrière le system prompt, les définitions d'outils et l'historique. Le diviser par deux économise une erreur d'arrondi, et c'est pourquoi ceux qui s'y tiennent ne voient rien changer et en concluent que rien ne marche.",
+        "Examinez n'importe quel décompte réel : ce que vous avez saisi en constitue presque toujours la plus petite part, derrière le system prompt, les définitions d'outils et l'historique. Le diviser par deux revient à économiser une erreur d'arrondi ; c'est pourquoi ceux qui s'en tiennent là ne constatent aucun changement et en concluent que rien ne fonctionne.",
       not:
-        "Ne raccourcis pas un prompt jusqu'à l'ambiguïté pour gagner quarante tokens. L'aller-retour de clarification coûte deux fois le prompt entier.",
+        "Ne raccourcissez pas un prompt au point de le rendre ambigu pour gagner quarante tokens. L'aller-retour de clarification coûte deux fois le prompt entier.",
     },
     title: 'Write shorter prompts',
     short: 'The smallest line on the bill',
@@ -113,12 +113,12 @@ export const SURFACE: IcebergItem[] = [
     id: 'clear-sometimes', depth: 'surface',
     fr: {
       title: "Vider la conversation de temps en temps",
-      short: "La bonne idée, le mauvais déclencheur",
-      what: "Repartir de zéro quand le fil commence à sembler long.",
+      short: "La bonne idée, mais le mauvais déclencheur",
+      what: "Repartir de zéro lorsque le fil commence à paraître long.",
       why:
-        "L'intuition est juste et c'est la plus grosse économie qui existe. Ce qui en fait une habitude de surface, c'est « de temps en temps » : quand un fil SEMBLE long, tu l'as déjà payé, parce que le coût grandissait comme le carré des tours pendant que tu ne regardais pas.",
+        "L'intuition est juste, et il s'agit de la plus grande économie possible. Ce qui en fait une habitude de surface, c'est le « de temps en temps » : lorsqu'un fil PARAÎT long, vous l'avez déjà payé, car son coût augmentait comme le carré du nombre de tours sans que vous y prêtiez attention.",
       not:
-        "Ne vide pas au milieu d'un raisonnement. Tu repaieras une réflexion déjà achetée, et elle n'atterrira pas forcément au même endroit.",
+        "Ne videz pas la conversation au milieu d'un raisonnement. Vous paieriez une seconde fois une réflexion déjà acquise, qui n'aboutirait pas nécessairement à la même conclusion.",
     },
     title: 'Clear the chat sometimes',
     short: 'Right idea, wrong trigger',
@@ -136,13 +136,13 @@ export const SURFACE: IcebergItem[] = [
   {
     id: 'thinking-off', depth: 'surface',
     fr: {
-      title: "Couper la réflexion",
-      short: "Un réglage, pas une pratique",
+      title: "Désactiver la réflexion",
+      short: "Un réglage, non une pratique",
       what: "Empêcher le modèle de raisonner avant de répondre.",
       why:
-        "Les tokens de raisonnement sont facturés comme de la sortie, c'est à dire la moitié chère, donc les couper est une vraie réduction sur les requêtes qui n'en avaient pas besoin. C'est en surface parce que c'est un interrupteur, basculé une fois, sur un type de requête, alors que tout ce qui est en dessous s'applique à chaque requête que tu enverras.",
+        "Les tokens de raisonnement sont facturés comme de la sortie, c'est-à-dire la part la plus coûteuse ; les désactiver réduit donc réellement le coût des requêtes qui n'en avaient pas besoin. Ce geste reste en surface, car il s'agit d'un interrupteur actionné une fois, pour un type de requête, alors que tout ce qui figure en dessous s'applique à chacune de vos requêtes.",
       not:
-        "Ne le coupe pas sur du travail réellement difficile. Une réponse fausse produite à bas prix est la chose la plus chère de cette page, parce que tu la repaies et que tu risques de ne pas voir qu'elle était fausse.",
+        "Ne la désactivez pas pour un travail réellement difficile. Une réponse erronée obtenue à bas prix est l'élément le plus coûteux de cette page, car vous la payez une seconde fois et risquez de ne pas remarquer qu'elle était fausse.",
     },
     title: 'Turn the thinking off',
     short: 'A setting, not a practice',
@@ -167,13 +167,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'new-thread', depth: 'real',
     fr: {
-      title: "Ouvre un nouveau fil dès que le sujet change !",
-      short: "La plus grosse économie qui existe",
-      what: "Fermer la conversation et en ouvrir une autre, en emportant une ligne de ce qui a été décidé.",
+      title: "Ouvrez un nouveau fil dès que le sujet change",
+      short: "La plus grande économie possible",
+      what: "Fermer la conversation et en ouvrir une autre, en reportant une ligne résumant ce qui a été décidé.",
       why:
-        "Le modèle n'a pas de mémoire. Ce qu'il semble se rappeler est ton historique, renvoyé en entier à chaque tour : un fil de vingt tours n'est pas vingt fois le premier, il traîne dix-neuf tours avec lui. Changer de sujet sans changer de fil, c'est payer l'ancien sujet sur chaque message du nouveau.",
+        "Le modèle n'a pas de mémoire. Ce dont il semble se souvenir est votre historique, renvoyé intégralement à chaque tour : le vingtième tour d'un fil n'équivaut pas à vingt fois le premier, il entraîne avec lui les dix-neuf précédents. Changer de sujet sans changer de fil revient à payer l'ancien sujet à chaque message du nouveau.",
       not:
-        "Ne repars pas de zéro au milieu d'un raisonnement, et pas sans emporter la contrainte qui avait été convenue. Un fil neuf qui a oublié la seule règle est pire qu'un fil cher.",
+        "Ne repartez pas de zéro au milieu d'un raisonnement, ni sans reporter la contrainte qui avait été convenue. Un nouveau fil qui a oublié la seule règle essentielle est pire qu'un fil coûteux.",
     },
     title: 'Open a new thread when the subject changes',
     short: 'The biggest saving there is',
@@ -191,13 +191,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'compact', depth: 'real',
     fr: {
-      title: "Compacte le fil au lieu de le vider",
-      short: "Garder les conclusions, jeter le chemin",
+      title: "Compactez le fil au lieu de le vider",
+      short: "Conserver les conclusions, écarter le cheminement",
       what: "Remplacer la conversation par un résumé de ce qui a été décidé, puis continuer.",
       why:
-        "Les faits acquis se compressent à presque rien ; un raisonnement en cours, non. Compacter paie un résumé une fois, puis cesse de renvoyer la discussion qui l'a produit à chaque tour, pour tout le reste du fil.",
+        "Les faits acquis se compressent presque entièrement ; un raisonnement en cours, non. Compacter revient à payer un résumé une seule fois, puis à cesser de renvoyer, à chaque tour et jusqu'à la fin du fil, la discussion qui l'a produit.",
       not:
-        "Ne laisse jamais un compactage manger la demande d'origine ni une contrainte énoncée comme un « jamais ». Le tour qui en a besoin est exactement celui qui échouera sans elle.",
+        "Ne laissez jamais un compactage supprimer la demande d'origine ni une contrainte formulée par un « jamais ». Le tour qui en aura besoin sera précisément celui qui échouera sans elle.",
     },
     title: 'Compact the thread instead of clearing it',
     short: 'Keep the conclusions, drop the road',
@@ -214,13 +214,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'rewind', depth: 'real',
     fr: {
-      title: "Reviens avant l'erreur au lieu de corriger en avançant",
-      short: "Une correction est un tour entier de plus",
-      what: "Ramener la conversation au point d'avant le mauvais tour et redemander depuis là.",
+      title: "Revenez avant l'erreur au lieu de corriger en cours de route",
+      short: "Une correction ajoute un tour complet",
+      what: "Ramener la conversation au point qui précède le tour erroné et reformuler la demande à partir de là.",
       why:
-        "Corriger en avançant garde la mauvaise réponse dans l'historique et la fait renvoyer à chaque tour suivant, plus la correction, plus la nouvelle réponse. Revenir en arrière supprime la branche dont tu ne veux pas au lieu de la porter jusqu'à la fin du fil.",
+        "Corriger en cours de route conserve la mauvaise réponse dans l'historique et la renvoie à chaque tour suivant, accompagnée de la correction et de la nouvelle réponse. Revenir en arrière supprime la branche indésirable au lieu de la transporter jusqu'à la fin du fil.",
       not:
-        "Ne remonte pas au-delà de ce que tu voulais garder. Là où l'outil ne le propose pas, ça revient à ouvrir un fil et à réénoncer la demande, ce qui ne vaut le coup que si la branche était longue.",
+        "Ne remontez pas au-delà de ce que vous souhaitiez conserver. Lorsque l'outil ne le permet pas, cela revient à ouvrir un nouveau fil et à reformuler la demande, ce qui n'est rentable que si la branche était longue.",
     },
     title: 'Go back to before the mistake, do not correct forwards',
     short: 'A correction is a whole extra turn',
@@ -237,13 +237,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'name-the-file', depth: 'real',
     fr: {
-      title: "Désigne la chose au lieu de le laisser chercher",
+      title: "Désignez l'élément au lieu de le laisser chercher",
       short: "Une recherche lit tout ce qu'elle ouvre",
-      what: "Nommer le fichier, la page ou la fiche dont tu parles, au lieu de le décrire et de laisser l'agent fouiller.",
+      what: "Nommer le fichier, la page ou la fiche dont vous parlez, au lieu de le décrire et de laisser l'agent le chercher.",
       why:
-        "Chaque fichier qu'un agent ouvre en cherchant entre dans le contexte et est ensuite renvoyé à chaque tour. Une fouille qui a ouvert quatre mauvais fichiers avant le bon en a mis cinq dans ton historique, et tu les paies jusqu'à la fin du fil.",
+        "Chaque fichier qu'un agent ouvre au cours d'une recherche entre dans le contexte, puis est renvoyé à chaque tour. Une recherche qui a ouvert quatre mauvais fichiers avant le bon en a placé cinq dans votre historique, et vous les payez jusqu'à la fin du fil.",
       not:
-        "Ne devine pas un chemin dont tu n'es pas sûr. Un mauvais nom coûte une lecture ratée plus la recherche que tu voulais éviter, et l'agent risque de chercher plus fort qu'il ne l'aurait fait.",
+        "N'indiquez pas un chemin dont vous n'êtes pas certain. Un nom erroné coûte une lecture inutile, puis la recherche que vous vouliez éviter, et l'agent risque de chercher plus largement qu'il ne l'aurait fait.",
     },
     title: 'Point at the thing instead of letting it look',
     short: 'A search reads everything it opens',
@@ -260,13 +260,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'detach-tools', depth: 'real',
     fr: {
-      title: "Détache les outils que cette tâche ne peut pas utiliser",
-      short: "Chaque outil expédie son schéma, appelé ou non",
-      what: "Attacher les outils par tâche plutôt que de tout laisser branché en permanence.",
+      title: "Détachez les outils que cette tâche ne peut pas utiliser",
+      short: "Chaque outil transmet son schéma, appelé ou non",
+      what: "Associer les outils à chaque tâche plutôt que de les laisser tous connectés en permanence.",
       why:
-        "Une définition d'outil voyage avec chaque requête, qu'elle soit appelée ou non : son nom, sa description et le schéma complet de ses paramètres. Une étape de rédaction qui traîne un agenda, une interface de paiement et un outil de déploiement paie pour décrire les trois, à chaque tour, pour n'en faire aucun.",
+        "Une définition d'outil accompagne chaque requête, que l'outil soit appelé ou non : son nom, sa description et le schéma complet de ses paramètres. Une étape de rédaction qui transporte un agenda, une interface de paiement et un outil de déploiement paie pour décrire les trois, à chaque tour, sans en utiliser aucun.",
       not:
-        "Ne détache pas un outil dont la tâche pourrait avoir besoin en cas de reprise. Un second aller-retour coûte plus que la définition économisée, et il coûte l'attente en plus.",
+        "Ne détachez pas un outil dont la tâche pourrait avoir besoin lors d'une nouvelle tentative. Un second aller-retour coûte davantage que la définition économisée, et il allonge en outre l'attente.",
     },
     title: 'Detach the tools this task cannot use',
     short: 'Every tool ships its schema, used or not',
@@ -284,13 +284,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'model-per-task', depth: 'real',
     fr: {
-      title: "Choisis le modèle par tâche, pas par session",
+      title: "Choisissez le modèle par tâche, non par session",
       short: "La plupart des étapes ne sont pas l'étape difficile",
-      what: "Envoyer le raisonnement au modèle capable et les étapes mécaniques au petit.",
+      what: "Confier le raisonnement au modèle performant et les étapes mécaniques au petit modèle.",
       why:
-        "Un enchaînement a d'ordinaire une seule étape vraiment difficile et plusieurs qui reformatent. Le faire tourner entièrement au niveau qu'exige la plus dure paie le tarif du vaisseau amiral pour un travail qu'un petit modèle fait à l'identique.",
+        "Un enchaînement comporte généralement une seule étape réellement difficile et plusieurs étapes de reformatage. L'exécuter entièrement au niveau qu'exige la plus difficile revient à payer le tarif du modèle le plus puissant pour un travail qu'un petit modèle accomplit à l'identique.",
       not:
-        "Ne découpe pas si finement que tu y passes ton propre temps. Et n'oriente pas au seul prix : le modèle bon marché qu'il faut vérifier a déplacé le coût sur toi.",
+        "Ne découpez pas si finement que vous y consacriez votre propre temps. Ne choisissez pas non plus sur le seul critère du prix : un modèle bon marché qu'il faut vérifier a simplement reporté le coût sur vous.",
     },
     title: 'Choose the model per task, not per session',
     short: 'Most steps are not the hard step',
@@ -306,13 +306,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'effort-per-task', depth: 'real',
     fr: {
-      title: "Règle l'effort de réflexion par tâche",
+      title: "Réglez l'effort de réflexion par tâche",
       short: "Le raisonnement est facturé comme de la sortie",
-      what: "Demander plus de raisonnement sur la requête difficile, et aucun sur l'évidente.",
+      what: "Demander davantage de raisonnement pour la requête difficile, et aucun pour la requête évidente.",
       why:
-        "Les tokens de raisonnement sont des tokens de sortie, et la sortie coûte typiquement trois à cinq fois le tarif d'entrée. Laisser un raisonnement profond actif sur chaque requête revient à payer le prix de la question la plus dure de la journée sur toutes les plus faciles.",
+        "Les tokens de raisonnement sont des tokens de sortie, et la sortie coûte généralement trois à cinq fois le tarif d'entrée. Laisser un raisonnement approfondi actif sur chaque requête revient à payer le prix de la question la plus difficile de la journée pour toutes les questions simples.",
       not:
-        "N'en fais pas une molette d'économie. Sur du travail réellement difficile, moins de réflexion produit une réponse fausse d'une façon qu'il faut aller trouver, ce qui est le résultat le plus cher disponible.",
+        "N'en faites pas un simple moyen d'économie. Pour un travail réellement difficile, réduire la réflexion produit une réponse erronée d'une manière difficile à détecter, ce qui est le résultat le plus coûteux qui soit.",
     },
     title: 'Set how hard it should think, per task',
     short: 'Reasoning is billed as output',
@@ -329,13 +329,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'say-it-once', depth: 'real',
     fr: {
-      title: "Dis-le une fois en haut, pas à chaque tour",
+      title: "Formulez-le une fois en tête, non à chaque tour",
       short: "Une instruction répétée est payée à chaque fois",
-      what: "Mettre la règle permanente là où elle est lue une fois par requête, au lieu de la taper dans chaque message.",
+      what: "Placer la règle permanente là où elle est lue une fois par requête, au lieu de la saisir dans chaque message.",
       why:
-        "Répéter « réponds en français, sois bref, emploie nos termes » dans dix messages l'envoie dix fois ET en laisse dix copies dans l'historique, qui sont ensuite renvoyées à chaque tour suivant. La même phrase dans le system prompt est lue une fois par requête et ne s'accumule jamais.",
+        "Répéter « réponds en français, sois bref, emploie nos termes » dans dix messages l'envoie dix fois ET en laisse dix copies dans l'historique, qui sont ensuite renvoyées à chaque tour suivant. La même phrase placée dans le system prompt est lue une fois par requête et ne s'accumule jamais.",
       not:
-        "Ne déplace pas vers le system prompt ce qui ne valait que pour une tâche. Une règle permanente écrite pour un cas unique est payée sur chaque requête pour toujours, et elle infléchit discrètement du travail auquel elle n'était pas destinée.",
+        "Ne déplacez pas vers le system prompt ce qui ne valait que pour une tâche. Une règle permanente écrite pour un cas unique est payée à chaque requête, indéfiniment, et elle influence discrètement un travail auquel elle n'était pas destinée.",
     },
     title: 'Say it once at the top, not every turn',
     short: 'A repeated instruction is paid every time',
@@ -352,13 +352,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'look-at-context', depth: 'real',
     fr: {
-      title: "Regarde ce qu'il y a dans le contexte avant d'en rajouter",
-      short: "On ne gère pas ce qu'on ne voit jamais",
-      what: "Vérifier ce qui est chargé en ce moment : le system prompt, les outils, les fichiers, l'historique.",
+      title: "Examinez le contexte avant d'y ajouter quoi que ce soit",
+      short: "On ne gère pas ce que l'on ne voit jamais",
+      what: "Vérifier ce qui est actuellement chargé : le system prompt, les outils, les fichiers, l'historique.",
       why:
-        "Presque tout fil coûteux l'est pour une raison que son propriétaire aurait retirée en la voyant : un document collé il y a une heure, un outil que personne n'utilise, un résumé jamais appliqué. L'habitude ne coûte rien et c'est elle qui transforme tout le reste de cette page en décisions plutôt qu'en conseils.",
+        "Presque tout fil coûteux l'est pour une raison que son propriétaire aurait supprimée s'il l'avait vue : un document collé une heure plus tôt, un outil que personne n'utilise, un résumé jamais appliqué. Cette habitude ne coûte rien, et c'est elle qui transforme le reste de cette page en décisions plutôt qu'en conseils.",
       not:
-        "Il n'y a aucune raison de s'en priver. Le seul piège est de regarder une fois et de croire que ça reste vrai : ça grandit à chaque tour, et c'est tout le sujet.",
+        "Aucune raison ne justifie de s'en priver. Le seul piège consiste à regarder une fois et à croire que le constat reste valable : le contexte grandit à chaque tour, et c'est précisément le sujet.",
     },
     title: 'Look at what is in the context before adding to it',
     short: 'You cannot manage what you never see',
@@ -375,13 +375,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'ask-once', depth: 'real',
     fr: {
-      title: "Demande tout en un seul message !",
-      short: "Cinq relances, c'est cinq fils entiers",
-      what: "Énoncer le format, la longueur et les contraintes d'emblée au lieu de les corriger après.",
+      title: "Formulez toute la demande en un seul message",
+      short: "Cinq relances équivalent à cinq fils entiers",
+      what: "Énoncer d'emblée le format, la longueur et les contraintes au lieu de les corriger ensuite.",
       why:
-        "C'est celui que les gens ne croient pas avant de l'avoir compté. Une relance a l'air d'un petit message parce que le petit message est tout ce que tu as tapé, mais elle traîne le fil entier derrière elle : le brief, les outils, les deux côtés de chaque tour déjà passé. Quatre tours de retouches sur un long fil peuvent coûter plus que le travail lui-même.",
+        "C'est le conseil auquel on ne croit qu'après avoir fait le calcul. Une relance paraît modeste, car ce court message est tout ce que vous avez saisi ; pourtant, elle entraîne le fil entier avec elle : le brief, les outils, les deux côtés de chaque tour précédent. Quatre tours de retouches sur un long fil peuvent coûter davantage que le travail lui-même.",
       not:
-        "N'en fais pas un rituel de rédaction de cahier des charges. S'il te faut une conversation pour découvrir ce que tu veux, aie-la à bas prix, sur un fil court, et commence la vraie en connaissant la réponse.",
+        "N'en faites pas un rituel de rédaction de cahier des charges. Si une conversation vous est nécessaire pour découvrir ce que vous voulez, menez-la à moindre coût, dans un fil court, puis commencez la véritable conversation en connaissant la réponse.",
     },
     title: 'Ask for the whole thing in one message',
     short: 'Five follow-ups is five whole threads',
@@ -399,13 +399,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'shape-the-answer', depth: 'real',
     fr: {
-      title: "Demande la forme de la réponse, pas seulement son contenu",
+      title: "Précisez la forme de la réponse, pas seulement son contenu",
       short: "Un plafond choisi vaut mieux qu'un plafond regretté",
-      what: "Dire quelle longueur, sous quelle forme, et avec quoi en moins, dans la requête elle-même.",
+      what: "Indiquer la longueur, la forme et ce qu'il faut omettre, dans la requête elle-même.",
       why:
-        "Un modèle sans plafond énoncé remplit la place qu'on lui donne, et l'essentiel de ce qu'il ajoute reformule ta propre question. La sortie étant la moitié chère de la facture, une phrase qui décrit la forme est l'instruction la moins chère que tu écriras jamais.",
+        "Un modèle sans plafond explicite occupe tout l'espace disponible, et l'essentiel de ce qu'il ajoute reformule votre propre question. La sortie étant la part la plus coûteuse de la facture, une phrase qui décrit la forme attendue est l'instruction la moins chère que vous puissiez écrire.",
       not:
-        "Ne plafonne pas une requête dont le travail est de produire quelque chose de long. Un document tronqué doit être régénéré, et la seconde tentative repart de zéro.",
+        "Ne plafonnez pas une requête dont la fonction est de produire un contenu long. Un document tronqué doit être régénéré, et la seconde tentative repart de zéro.",
     },
     title: 'Ask for the shape of the answer, not just its content',
     short: 'A ceiling you set beats one you regret',
@@ -423,13 +423,13 @@ export const REAL: IcebergItem[] = [
   {
     id: 'read-the-counts', depth: 'real',
     fr: {
-      title: "Lis les décomptes que ton provider renvoie déjà",
-      short: "Ils sont dans la réponse, non lus",
-      what: "Regarder les décomptes d'entrée et de sortie rendus avec chaque réponse, et suivre la montée de l'entrée au fil des tours.",
+      title: "Lisez les décomptes que votre provider renvoie déjà",
+      short: "Ils figurent dans la réponse, sans être lus",
+      what: "Consulter les décomptes d'entrée et de sortie fournis avec chaque réponse, et suivre la hausse de l'entrée au fil des tours.",
       why:
-        "Tous les providers les renvoient et presque personne ne les lit. C'est le seul chiffre de cette page qui ne soit pas une estimation : il transforme « ça me semble cher » en une courbe qu'on peut montrer, et c'est lui qui dit lesquelles de ces habitudes ont vraiment servi.",
+        "Tous les providers les renvoient, et presque personne ne les lit. C'est le seul chiffre de cette page qui ne soit pas une estimation : il transforme une impression de cherté en une courbe que l'on peut montrer, et il indique lesquelles de ces habitudes ont réellement été utiles.",
       not:
-        "Ne compare pas des décomptes entre providers comme s'ils étaient la même unité. Les tokeniseurs diffèrent, donc le même texte ne fait pas le même nombre de tokens selon qui compte.",
+        "Ne comparez pas les décomptes de différents providers comme s'ils utilisaient la même unité. Les tokeniseurs diffèrent : un même texte ne produit pas le même nombre de tokens selon l'outil qui compte.",
     },
     title: 'Read the token counts your provider already returns',
     short: 'They are in the response, unread',
@@ -457,11 +457,11 @@ export const DEEPER: IcebergItem[] = [
     fr: {
       title: "Un fichier d'instructions permanentes",
       short: "Écrit une fois, lu à chaque requête",
-      what: "Garder les règles du projet dans un fichier que l'assistant lit automatiquement, au lieu de les mettre dans tes messages.",
+      what: "Conserver les règles du projet dans un fichier que l'assistant lit automatiquement, au lieu de les inclure dans vos messages.",
       why:
-        "Ça retire la répétition de l'historique, qui est l'endroit où la répétition devient chère : une instruction tapée dans un message est renvoyée à chaque tour suivant, alors que la même instruction dans le fichier est lue une fois par requête et ne s'empile jamais.",
+        "Cela supprime la répétition dans l'historique, là où elle devient coûteuse : une instruction saisie dans un message est renvoyée à chaque tour suivant, alors que la même instruction placée dans le fichier est lue une fois par requête et ne s'accumule jamais.",
       not:
-        "N'en fais pas un manuel. Il est lu à chaque requête, donc chaque ligne ajoutée est facturée à chaque requête, pour toujours. Les règles qui valent toujours ; les procédures appartiennent à un endroit que l'agent charge à la demande.",
+        "N'en faites pas un manuel. Ce fichier est lu à chaque requête : chaque ligne ajoutée est donc facturée à chaque requête, indéfiniment. Réservez-le aux règles toujours valables ; les procédures relèvent d'un emplacement que l'agent charge à la demande.",
     },
     title: 'A standing instructions file',
     short: 'Written once, read on every request',
@@ -478,13 +478,13 @@ export const DEEPER: IcebergItem[] = [
   {
     id: 'compact-rules', depth: 'deeper',
     fr: {
-      title: "Dis-lui quoi garder quand il compacte",
-      short: "Sinon il garde la mauvaise moitié",
-      what: "Écrire, dans le fichier permanent, ce qui doit survivre à un résumé : la demande, les contraintes, les décisions.",
+      title: "Indiquez-lui ce qu'il doit conserver lors du compactage",
+      short: "Sinon, il conserve la mauvaise moitié",
+      what: "Préciser, dans le fichier permanent, ce qui doit survivre à un résumé : la demande, les contraintes, les décisions.",
       why:
-        "Un compactage automatique est une supposition sur ce qui comptait. Laissé à lui-même, il tend à garder le récent et à jeter ce qui engage, et c'est ainsi qu'un agent oublie la seule règle et produit du travail à refaire. Nommer ce qui survit rend cette habitude bon marché assez sûre pour l'employer souvent.",
+        "Un compactage automatique repose sur une hypothèse concernant ce qui importait. Livré à lui-même, il tend à conserver le plus récent et à écarter ce qui engage ; c'est ainsi qu'un agent oublie la seule règle essentielle et produit un travail à refaire. Nommer ce qui doit survivre rend cette habitude économique suffisamment sûre pour être employée souvent.",
       not:
-        "N'en liste pas tant que rien ne soit jeté. Une instruction de compactage qui préserve tout est un compactage qui n'économise rien, avec des étapes en plus.",
+        "N'en énumérez pas au point que plus rien ne soit écarté. Une instruction de compactage qui préserve tout produit un compactage qui n'économise rien, avec des étapes supplémentaires.",
     },
     title: 'Tell it what to keep when it compacts',
     short: 'Otherwise it keeps the wrong half',
@@ -501,13 +501,13 @@ export const DEEPER: IcebergItem[] = [
   {
     id: 'cache-prefix', depth: 'deeper',
     fr: {
-      title: "Mets en cache le préfixe qui ne change jamais",
-      short: "Cesser de payer plein tarif pour se relire",
-      what: "Marquer le system prompt et toute référence fixe comme cachables.",
+      title: "Mettez en cache le préfixe invariable",
+      short: "Cesser de payer le plein tarif pour se relire",
+      what: "Marquer le system prompt et toute référence fixe comme pouvant être mis en cache.",
       why:
-        "Ce préfixe est identique à chaque requête et relu à chaque fois. Là où le cache existe, un préfixe caché est facturé à une fraction du tarif d'entrée : la part de ta facture qui n'est que répétition en devient la moins chère.",
+        "Ce préfixe est identique à chaque requête et relu à chaque fois. Lorsque le cache est disponible, un préfixe mis en cache est facturé à une fraction du tarif d'entrée : la part de votre facture qui relève de la simple répétition devient la moins coûteuse.",
       not:
-        "Le cache a une taille minimale, une durée de vie, et le préfixe doit être identique à l'octet près. En dessous de quelques centaines de tokens, ou sur un fichier modifié chaque jour, il n'achète rien et ajoute une pièce mobile qui échoue en silence.",
+        "Le cache impose une taille minimale, une durée de vie, et un préfixe identique à l'octet près. En dessous de quelques centaines de tokens, ou sur un fichier modifié chaque jour, il n'apporte rien et ajoute un élément de complexité qui échoue silencieusement.",
     },
     title: 'Cache the prefix that never changes',
     short: 'Stop paying full price to re-read yourself',
@@ -525,13 +525,13 @@ export const DEEPER: IcebergItem[] = [
   {
     id: 'subagent', depth: 'deeper',
     fr: {
-      title: "Confie le travail bruyant à un sous-agent",
+      title: "Confiez le travail volumineux à un sous-agent",
       short: "Seule la réponse revient",
-      what: "Donner la recherche, la lecture et les essais à un agent séparé, et ne garder que sa conclusion.",
+      what: "Confier la recherche, la lecture et les essais à un agent distinct, et ne conserver que sa conclusion.",
       why:
-        "Une recherche qui ouvre douze fichiers met douze fichiers dans le contexte, et ils sont renvoyés à chaque tour jusqu'à la fin du fil. Menée dans son propre contexte, elle les paie une fois puis les jette ; ce qui revient est un paragraphe.",
+        "Une recherche qui ouvre douze fichiers place douze fichiers dans le contexte, renvoyés à chaque tour jusqu'à la fin du fil. Menée dans son propre contexte, elle ne les paie qu'une fois avant de les écarter ; seul un paragraphe revient.",
       not:
-        "Ne délègue pas un travail dont tu as besoin de voir ou de poursuivre le raisonnement. Tu reçois la conclusion, pas le fil qui l'a produite, donc une conclusion fausse est à refaire depuis le début.",
+        "Ne déléguez pas un travail dont vous devez examiner ou poursuivre le raisonnement. Vous recevez la conclusion, et non le cheminement qui l'a produite : une conclusion erronée doit donc être refaite depuis le début.",
     },
     title: 'Run the noisy job in a subagent',
     short: 'Only the answer comes back',
@@ -549,12 +549,12 @@ export const DEEPER: IcebergItem[] = [
     id: 'small-subagent', depth: 'deeper',
     fr: {
       title: "Un petit modèle pour le sous-agent",
-      short: "Aller chercher n'est pas réfléchir",
-      what: "Épingler le travail délégué au modèle le moins cher qui puisse le faire, indépendamment du principal.",
+      short: "Rechercher n'est pas réfléchir",
+      what: "Attribuer au travail délégué le modèle le moins coûteux capable de l'accomplir, indépendamment du modèle principal.",
       why:
-        "Le travail délégué est en général le mécanique : trouver, lire, extraire, lister. C'est aussi celui qui brûle le plus de tokens, parce qu'il ouvre des choses. Faire tourner la moitié lourde en tokens sur le modèle bon marché et le jugement sur le modèle capable est le meilleur rapport de cette page.",
+        "Le travail délégué est généralement mécanique : trouver, lire, extraire, lister. C'est aussi celui qui consomme le plus de tokens, car il ouvre des contenus. Exécuter la partie la plus gourmande en tokens sur le modèle bon marché et réserver le jugement au modèle performant offre le meilleur rapport de cette page.",
       not:
-        "N'envoie pas le jugement au petit modèle sous prétexte que c'est lui qui lit. Si le sous-agent doit décider de ce qui compte, il fait la partie difficile.",
+        "Ne confiez pas le jugement au petit modèle au motif qu'il effectue la lecture. Si le sous-agent doit décider de ce qui importe, c'est lui qui accomplit la partie difficile.",
     },
     title: 'A small model for the subagent',
     short: 'Fetching is not thinking',
@@ -571,13 +571,13 @@ export const DEEPER: IcebergItem[] = [
   {
     id: 'no-thinking-default', depth: 'deeper',
     fr: {
-      title: "Par défaut aucun raisonnement, et monte-le exprès",
-      short: "Un défaut est une décision que tu n'as pas prise",
-      what: "Régler bas le niveau de raisonnement permanent et le monter pour les requêtes qui le méritent.",
+      title: "Par défaut aucun raisonnement, puis augmentez-le délibérément",
+      short: "Un défaut est une décision que vous n'avez pas prise",
+      what: "Régler bas le niveau de raisonnement permanent et l'augmenter pour les requêtes qui le justifient.",
       why:
-        "Les défauts s'appliquent à chaque requête que tu enverras, ce qui en fait le réglage au levier le plus long que tu possèdes. Le raisonnement étant facturé comme de la sortie, laisser un défaut généreux revient à payer le prix de ta question la plus dure sur toutes les plus faciles.",
+        "Les valeurs par défaut s'appliquent à chacune de vos requêtes, ce qui en fait le réglage au plus fort effet de levier dont vous disposiez. Le raisonnement étant facturé comme de la sortie, conserver un défaut généreux revient à payer le prix de votre question la plus difficile pour toutes les questions simples.",
       not:
-        "Ne le laisse pas bas pour l'oublier ensuite. Celui-ci n'est sûr que si le monter est une habitude que tu as vraiment, sinon tu as simplement rendu chaque tâche difficile plus mauvaise pour économiser un peu sur les faciles.",
+        "Ne le laissez pas bas pour ensuite l'oublier. Ce réglage n'est sûr que si vous avez réellement l'habitude de l'augmenter ; à défaut, vous avez simplement dégradé chaque tâche difficile pour économiser un peu sur les tâches simples.",
     },
     title: 'Default to no reasoning, and raise it on purpose',
     short: 'The default is a decision you did not make',
@@ -594,13 +594,13 @@ export const DEEPER: IcebergItem[] = [
   {
     id: 'quiet-flags', depth: 'deeper',
     fr: {
-      title: "Fais taire les commandes qui répondent en pages",
-      short: "La sortie d'un outil est du contexte aussi",
-      what: "Demander leur forme courte aux commandes bavardes, et mettre cette forme dans le system prompt.",
+      title: "Réduisez les commandes qui répondent en plusieurs pages",
+      short: "La sortie d'un outil fait aussi partie du contexte",
+      what: "Demander aux commandes verbeuses leur forme abrégée, et inscrire cette forme dans le system prompt.",
       why:
-        "Tout ce qu'un outil affiche entre dans le contexte et est renvoyé à chaque tour suivant. Une commande d'état qui répond en deux cents lignes coûte ces lignes pour le reste de la session, et deux d'entre elles sont la réponse.",
+        "Tout ce qu'un outil affiche entre dans le contexte et est renvoyé à chaque tour suivant. Une commande d'état qui répond en deux cents lignes coûte ces lignes pour le reste de la session, alors que deux d'entre elles seulement constituent la réponse.",
       not:
-        "Ne fais pas taire la sortie dont tu vas avoir besoin. Un échec résumé qui cache l'erreur oblige à tout relancer en entier, ce qui coûte les deux formes.",
+        "Ne réduisez pas une sortie dont vous aurez besoin. Un échec résumé qui masque l'erreur oblige à tout relancer intégralement, ce qui coûte les deux formes.",
     },
     title: 'Quiet the commands that answer in pages',
     short: 'The output of a tool is context too',
@@ -617,13 +617,13 @@ export const DEEPER: IcebergItem[] = [
   {
     id: 'launch-prefix', depth: 'deeper',
     fr: {
-      title: "Mets tes options habituelles dans le lancement",
+      title: "Intégrez vos options habituelles au lancement",
       short: "Une habitude qu'il faut se rappeler n'est pas un réglage",
-      what: "Emballer les deux ou trois options que tu emploies chaque jour dans un alias, un fichier de configuration ou un script de lancement.",
+      what: "Regrouper les deux ou trois options que vous employez chaque jour dans un alias, un fichier de configuration ou un script de lancement.",
       why:
-        "Rien sur cette page ne vaut quoi que ce soit les jours où tu l'oublies. Déplacer une habitude dans le lancement transforme une décision à prendre chaque matin en une décision prise une fois, et c'est la seule forme d'économie qui survit à une semaine chargée.",
+        "Aucun conseil de cette page n'a de valeur les jours où vous l'oubliez. Intégrer une habitude au lancement transforme une décision à prendre chaque matin en une décision prise une fois pour toutes, et c'est la seule forme d'économie qui résiste à une semaine chargée.",
       not:
-        "N'enterre pas un réglage qu'il faudra changer par projet. Un défaut invisible est exactement aussi difficile à diagnostiquer qu'un défaut invisible, et tu auras oublié qu'il est là.",
+        "N'intégrez pas un réglage qu'il faudra modifier selon le projet. Un réglage par défaut invisible est particulièrement difficile à diagnostiquer, d'autant que vous aurez oublié son existence.",
     },
     title: 'Put the flags you always pass in the launch itself',
     short: 'A habit you have to remember is not a setting',
@@ -640,13 +640,13 @@ export const DEEPER: IcebergItem[] = [
   {
     id: 'structured-output', depth: 'deeper',
     fr: {
-      title: "Exige un structured output là où du code le lit",
-      short: "De la prose qu'il faut redemander est payée deux fois",
-      what: "Quand la réponse alimente du code plutôt qu'une personne, exiger un schéma plutôt que de la prose.",
+      title: "Exigez un structured output lorsque du code lit la réponse",
+      short: "Une prose qu'il faut redemander est payée deux fois",
+      what: "Lorsque la réponse alimente du code plutôt qu'une personne, exiger un schéma plutôt que de la prose.",
       why:
-        "La prose invite au préambule, à la reformulation et aux précautions, le tout facturé au tarif de sortie, puis elle invite à une seconde requête pour obtenir la valeur que tu voulais. Un schéma retire l'emballage et retire la seconde requête.",
+        "La prose invite au préambule, à la reformulation et aux précautions, le tout facturé au tarif de sortie, puis elle appelle une seconde requête pour obtenir la valeur recherchée. Un schéma supprime cet habillage ainsi que la seconde requête.",
       not:
-        "N'impose pas un schéma à du travail qui est vraiment de l'écriture, ni à un raisonnement que tu veux lire. Un modèle tenu à une forme rigide sur une question ouverte te rend une réponse bien formée à une question qu'il n'a pas comprise.",
+        "N'imposez pas de schéma à un travail qui relève véritablement de l'écriture, ni à un raisonnement que vous souhaitez lire. Un modèle contraint à une forme rigide sur une question ouverte vous rend une réponse bien formée à une question qu'il n'a pas comprise.",
     },
     title: 'Ask for structured output where something reads it',
     short: 'Prose you have to re-ask about is paid twice',
@@ -684,10 +684,10 @@ export const DEPTH_LABEL: Record<Depth, {
       'Four things everyone reaches for. None of them is wrong, and that is the problem: doing them feels like ' +
       'having dealt with the subject, so nobody looks lower.',
     fr: {
-      label: 'Ce que les gens croient que c\'est',
+      label: "Ce que l'on croit généralement",
       kicker: 'Au-dessus de la ligne de flottaison',
       lead:
-        "Quatre réflexes que tout le monde a. Aucun n'est faux, et c'est bien le problème : les avoir eus donne le sentiment d'avoir traité le sujet, donc personne ne regarde plus bas.",
+        "Quatre réflexes largement partagés. Aucun n'est faux, et c'est précisément le problème : les avoir adoptés donne le sentiment d'avoir traité le sujet, si bien que personne ne regarde plus en profondeur.",
     },
   },
   real: {
@@ -697,10 +697,10 @@ export const DEPTH_LABEL: Record<Depth, {
       'Available right now, nothing to install. They are down here because you have to know they exist, not ' +
       'because they are hard.',
     fr: {
-      label: "Ce que c'est vraiment",
+      label: "Ce qu'il en est réellement",
       kicker: 'Sous la ligne de flottaison',
       lead:
-        "Disponibles tout de suite, rien à installer. Ils sont ici-bas parce qu'il faut savoir qu'ils existent, pas parce qu'ils sont difficiles.",
+        "Disponibles immédiatement, sans installation. Ils figurent ici parce qu'il faut connaître leur existence, non parce qu'ils sont difficiles.",
     },
   },
   deeper: {
@@ -710,10 +710,10 @@ export const DEPTH_LABEL: Record<Depth, {
       'A file, a flag, a launch line. Five minutes each, and then they work every day without you thinking about ' +
       'them, which is the only kind of saving that survives a busy week.',
     fr: {
-      label: 'Ce qui s\'installe une fois',
+      label: "Ce qui se configure une fois",
       kicker: 'Plus profond',
       lead:
-        "Un fichier, une option, une ligne de lancement. Cinq minutes chacun, puis ils travaillent tous les jours sans que tu y penses, ce qui est la seule forme d'économie qui survit à une semaine chargée.",
+        "Un fichier, une option, une ligne de lancement. Cinq minutes chacun, puis ils agissent chaque jour sans que vous y pensiez : c'est la seule forme d'économie qui résiste à une semaine chargée.",
     },
   },
 }

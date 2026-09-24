@@ -232,6 +232,19 @@ const ENDPOINTS = [
     ['GET', '/api/buy?session_id=pas-une-session'],
     ['GET', '/api/buy?session_id=cs_test_abc123'],
   ]],
+  // LE CLAN · le fil de la communauté. Une fonction Node (elle parle à
+  // Postgres), donc pas dans EDGE. Sans base, chaque méthode répond
+  // « not_configured » en 503, et la page le dit au lieu d'inventer un fil.
+  ['clan', 'api/clan.ts', [
+    ['GET', '/api/clan'],
+    ['GET', '/api/clan?cursor=pas-un-curseur'],
+    ['POST', '/api/clan?action=create', '{'],
+    ['POST', '/api/clan?action=create', JSON.stringify({ key: 'k'.repeat(43), pseudo: 'Nora', title: 'Un agent', body: 'Il trie mes e-mails chaque matin.' })],
+    ['POST', '/api/clan?action=bravo', JSON.stringify({ key: 'k'.repeat(43), id: 'pas-un-id' })],
+    ['POST', '/api/clan?action=inventée', '{}'],
+    ['DELETE', '/api/clan?id=00000000-0000-4000-8000-000000000001'],
+    ['PUT', '/api/clan', '{}'],
+  ]],
   ['agent-run', 'api/agent-run.ts', [
     ['POST', '/api/agent-run', '{'],
     ['POST', '/api/agent-run', JSON.stringify({ task: 'positioning', agentName: 'Scout' })],
@@ -283,6 +296,9 @@ console.log('\n--- sans base, personne ne prétend avoir réussi ---------------
     ['docs', 'api/docs.ts', 'POST', '/api/docs?action=push&client=d', { docs: [] }],
     ['rag', 'api/rag.ts', 'POST', '/api/rag?action=parse&client=d', { text: 'bonjour', title: 't' }],
     ['tool-action', 'api/tool-action.ts', 'POST', '/api/tool-action', { connector: 'slack', action: 'post', text: 'hi', client: 'd' }],
+    ['clan', 'api/clan.ts', 'POST', '/api/clan?action=create', { key: 'k'.repeat(43), pseudo: 'Nora', title: 'Un agent', body: 'Il trie mes e-mails chaque matin.' }],
+    ['clan', 'api/clan.ts', 'POST', '/api/clan?action=bravo', { key: 'k'.repeat(43), id: '00000000-0000-4000-8000-000000000001' }],
+    ['clan', 'api/clan.ts', 'POST', '/api/clan?action=report', { key: 'k'.repeat(43), id: '00000000-0000-4000-8000-000000000001' }],
   ]
   const bad = []
   for (const [name, entry, m, u, payload] of WRITES) {

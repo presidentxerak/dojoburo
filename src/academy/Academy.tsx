@@ -96,35 +96,35 @@ const FAQ: Faq[] = [
     q: { en: 'Is the Dojo Academy free?', fr: "L'académie du dojo est-elle gratuite ?" },
     a: {
       en: 'Yes: every lesson, in full, with no account required. Progress is saved in your browser so you can pick up where you left off.',
-      fr: "Oui : chaque leçon, en entier, sans compte. Ta progression est enregistrée dans ton navigateur pour que tu reprennes là où tu t'es arrêté.",
+      fr: "Oui : chaque leçon est accessible en intégralité, sans compte. Votre progression est enregistrée dans votre navigateur afin que vous puissiez reprendre là où vous vous étiez arrêté.",
     },
   },
   {
     q: { en: 'Do I need to know how to code?', fr: 'Faut-il savoir coder ?' },
     a: {
       en: 'No. Nothing in the Academy or the app involves code, a terminal or an IDE. If those words mean nothing to you, lesson six explains them and then you can forget them.',
-      fr: "Non. Rien dans l'académie ni dans l'application ne demande de code, de terminal ou d'éditeur de code. Si ces mots ne te disent rien, la leçon six les explique et tu pourras ensuite les oublier.",
+      fr: "Non. Ni l'académie ni l'application ne demandent de code, de terminal ou d'éditeur de code. Si ces termes vous sont inconnus, la leçon six les explique ; vous pourrez ensuite les laisser de côté.",
     },
   },
   {
     q: { en: 'What is an AI agent?', fr: "Qu'est-ce qu'un agent IA ?" },
     a: {
       en: 'An AI given a job it is responsible for, a method it follows every time, and tools it can actually use, as opposed to a chat window that only answers questions.',
-      fr: "Une IA à qui l'on confie un métier dont elle est responsable, une méthode qu'elle suit à chaque fois, et des outils qu'elle peut réellement manipuler, par opposition à une fenêtre de discussion qui se contente de répondre.",
+      fr: "Une IA à laquelle on confie un métier dont elle a la responsabilité, une méthode qu'elle applique systématiquement et des outils qu'elle peut réellement manipuler, par opposition à une fenêtre de discussion qui se contente de répondre.",
     },
   },
   {
-    q: { en: 'How long does the whole course take?', fr: 'Combien de temps prend le cours entier ?' },
+    q: { en: 'How long does the whole course take?', fr: 'Quelle est la durée totale du cours ?' },
     a: {
       en: `About ${HOURS} hours across ${LESSON_COUNT} lessons, and it is built to be read a lesson at a time rather than in one sitting.`,
-      fr: `Environ ${HOURS} heures sur ${LESSON_COUNT} leçons, et il est fait pour être lu une leçon à la fois plutôt que d'une traite.`,
+      fr: `Environ ${HOURS} heures réparties sur ${LESSON_COUNT} leçons. Il est conçu pour être suivi une leçon à la fois plutôt que d'une seule traite.`,
     },
   },
   {
-    q: { en: 'Do I need to pay to use what I learn?', fr: "Faut-il payer pour se servir de ce que j'apprends ?" },
+    q: { en: 'Do I need to pay to use what I learn?', fr: "Faut-il payer pour appliquer ce que j'apprends ?" },
     a: {
       en: 'No. Nothing in the dojo is metered, because nothing in it calls a paid model: reading the course, building a project and connecting apps are all free. The day you take an agent out and run it for real, your own provider bills you, and the dojo has already shown you what that run would cost.',
-      fr: "Non. Rien n'est compté dans le dojo, parce que rien dedans n'appelle un modèle payant : lire le cours, bâtir un projet et brancher des applications sont gratuits. Le jour où tu sors un agent pour le faire tourner en vrai, ton propre provider te facture, et le dojo t'a déjà montré ce que ce passage coûterait.",
+      fr: "Non. Rien n'est facturé dans le dojo, car rien n'y appelle un modèle payant : lire le cours, construire un projet et connecter des applications sont gratuits. Lorsque vous sortez un agent pour l'exécuter en conditions réelles, votre propre provider vous facture, et le dojo vous a déjà indiqué le coût de cette exécution.",
     },
   },
 ]

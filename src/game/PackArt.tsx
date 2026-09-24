@@ -27,8 +27,13 @@
 //     pour la growth, studio sombre pour la communication, etc. (ROOMS),
 //   · SA DISPOSITION · les meubles du métier en fer à cheval, le long des
 //     murs, dans les coins, en arc, d'un seul côté (LAYOUTS),
-//   · SES HABITANTS ET LEUR GESTE · une classe (un maître, des élèves) ou un
-//     seul spécialiste qui fait ce que fait son métier (data/cast).
+//   · SA SCÈNE DE TRAVAIL · une classe (un maître, des élèves) pour les deux
+//     formations générales ; pour chaque métier, une situation qui le dit
+//     d'un coup d'oeil, avec ses interlocuteurs et son objet (demandé : « un
+//     commercial vend des produits à quelqu'un, un growth marketer montre des
+//     courbes d'acquisition client à son boss, un fondateur parle devant ses
+//     équipes, un chef de produit construit des produits »). Voir data/cast
+//     et Cast, plus bas.
 //
 // RIEN N'EST DESSINÉ À PART. La pièce est Decor3D, les meubles de métier sont
 // les kits de three/ThemeProps, les personnages sont Character3D · les mêmes
@@ -69,17 +74,38 @@
 //   gagner au-delà.
 //
 //   MOUVEMENT RÉDUIT · la salle est dessinée une fois et s'arrête.
+//
+// ---------------------------------------------------------------------------
+// « ÇA LAG BEAUCOUP » · CE QUI A ÉTÉ CHANGÉ POUR TENIR
+//
+// Les huit salles tournaient en « always », chacune à la fréquence de l'écran,
+// toutes dans la même image : sur un ordinateur ordinaire, la page tombait à
+// moins d'une image par seconde en rendu logiciel, et le défilement ramait.
+// Trois changements, qui gardent la même image :
+//
+//   UNE HORLOGE PARTAGÉE (three/cardClock) · les salles passent en « demand »
+//   et c'est l'horloge qui les réveille, à 30 images par seconde au plus (24
+//   sur un téléphone), et jamais toutes dans la même image.
+//
+//   LE DÉCOR FIGÉ (three/Frozen) · murs, sol et meubles ne bougent jamais ; leur
+//   place est calculée une fois au lieu de l'être à chaque image. Il ne reste à
+//   recalculer que les personnages.
+//
+//   UNE RÉSOLUTION PLAFONNÉE À 1,25 · une vignette de trois cents pixels n'a
+//   rien à gagner à 1,5, et coûte 44 % de pixels en plus.
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Decor3D } from '../components/three/Decor3D'
 import { ThemeProps } from '../components/three/ThemeProps'
 import { Character3D } from '../components/three/Character3D'
+import { Frozen } from '../components/three/Frozen'
+import { Heartbeat } from '../components/three/Heartbeat'
 import { GaitProvider, advance, type Gait } from '../components/three/gait'
 import { templateById, type DojoPalette } from '../data/templates'
 import type { Character } from '../data/looks'
 import type { Mood } from '../store'
-import { DOJO_CAST, type RoomAction } from '../data/cast'
+import { DOJO_CAST } from '../data/cast'
 import type { Department } from '../data/agents'
 import type { DojoKit } from '../data/packs'
 
@@ -164,40 +190,51 @@ const ROOMS: Record<DojoKit, { decor: string; layout: string; walls: [string, st
 /** Le cap qui regarde de (x, z) vers (tx, tz) · Character3D regarde +z à zéro. */
 const faceTo = (x: number, z: number, tx: number, tz: number) => Math.atan2(tx - x, tz - z)
 
-/** CE QUE FAIT CHAQUE ACTION · l'humeur (qui règle le visage et les bras) et
- *  si le personnage marche. Le mouvement lui-même est dans Actor. */
-const ACTIONS: Record<RoomAction | 'study', { mood: Mood; walks: boolean; busy: boolean }> = {
+/** CE QUE FAIT CHAQUE PERSONNAGE · l'humeur (qui règle le visage et les
+ *  bras), et s'il marche. Le mouvement lui-même est dans Actor. */
+type Gesture = 'teach' | 'study' | 'talk' | 'listen' | 'address' | 'build' | 'organize'
+const GESTURES: Record<Gesture, { mood: Mood; walks: boolean; busy: boolean }> = {
   teach: { mood: 'talk', walks: false, busy: false },
   study: { mood: 'think', walks: false, busy: false },
-  pace: { mood: 'talk', walks: true, busy: false },
-  broadcast: { mood: 'talk', walks: false, busy: false },
-  celebrate: { mood: 'happy', walks: false, busy: false },
-  tour: { mood: 'think', walks: true, busy: false },
-  call: { mood: 'talk', walks: true, busy: false },
-  type: { mood: 'work', walks: false, busy: true },
+  // parle à quelqu'un, en se tournant de temps en temps vers ce qu'il montre
+  talk: { mood: 'talk', walks: false, busy: false },
+  // écoute, hoche la tête, regarde celui qui parle
+  listen: { mood: 'think', walks: false, busy: false },
+  address: { mood: 'talk', walks: false, busy: false },
+  build: { mood: 'work', walks: false, busy: true },
+  organize: { mood: 'work', walks: true, busy: false },
 }
 
-/** UN HABITANT ET SON GESTE · un seul composant pour toutes les actions, pour
+/** LE CYCLE DE L'ATELIER PRODUIT · partagé par le chef de produit et son
+ *  établi, pour que le saut de joie tombe au moment où le produit est fini. */
+const BUILD_CYCLE = 6.4
+const BUILD_BLOCKS = 4
+
+/** UN PERSONNAGE ET SON GESTE · un seul composant pour tous les gestes, pour
  *  que la marche, la cadence et le regard soient réglés une fois.
  *
- *  LES TRAJETS RESTENT AU CENTRE · les meubles sont contre les murs dans
- *  toutes les dispositions, donc un trajet entre x = -3 et 3 et z = -2 et 3
- *  ne traverse jamais un meuble. Un personnage qui passe à travers une table
- *  se lit comme un bug. */
-function Actor({ who, character, action, at, look, phase }: {
+ *  LES TRAJETS RESTENT AU CENTRE · les meubles du métier sont contre les
+ *  murs dans toutes les dispositions ; un personnage qui passe à travers une
+ *  table se lit comme un bug. */
+function Actor({ who, character, gesture, at, look, look2, lift = 0, phase }: {
   who: string
   character: Character
-  action: RoomAction | 'study'
-  /** où il se tient, ou le centre de son trajet */
+  gesture: Gesture
+  /** où il se tient, ou le point de départ de son trajet */
   at: [number, number]
-  /** vers où il regarde quand il ne marche pas */
+  /** vers où il regarde */
   look: [number, number]
+  /** ce qu'il montre, vers quoi il se tourne par moments (« talk »), ou le
+   *  second point de son trajet (« organize ») */
+  look2?: [number, number]
+  /** la hauteur du sol sous ses pieds · une estrade */
+  lift?: number
   phase: number
 }) {
   const g = useRef<THREE.Group>(null)
   const gait = useRef<Gait>({ speed: 0, phase: 0, bow: 0 })
-  const st = useRef({ s: phase, dir: 1, rest: 0 })
-  const A = ACTIONS[action]
+  const st = useRef({ s: 0, dir: 1, rest: 0 })
+  const G = GESTURES[gesture]
   const [x0, z0] = at
 
   useFrame(({ clock }, raw) => {
@@ -206,75 +243,58 @@ function Actor({ who, character, action, at, look, phase }: {
     const dt = Math.min(raw, 0.05)
     const t = clock.elapsedTime + phase
     const S = st.current
-    const rest = faceTo(x0, z0, look[0], look[1])
-    let x = x0, z = z0, y = 0, ry = rest, speed = 0
+    let x = x0, z = z0, y = lift
+    let ry = faceTo(x0, z0, look[0], look[1])
+    let speed = 0
 
-    if (action === 'pace') {
-      // LES CENT PAS · d'un bout à l'autre de la scène, une pause au bout pour
-      // se tourner vers la salle, comme on répète un pitch.
-      if (S.rest > 0) { S.rest -= dt; ry = rest }
+    if (gesture === 'teach') {
+      // LE MAÎTRE ENSEIGNE · il regarde ses élèves l'un après l'autre.
+      ry += Math.sin(t * 0.55) * 0.55
+    } else if (gesture === 'study' || gesture === 'listen') {
+      // ÉCOUTER · de petits hochements de tête, chacun à son rythme.
+      y += Math.max(0, Math.sin(t * 1.7)) * 0.04
+      ry += Math.sin(t * 0.4) * 0.1
+    } else if (gesture === 'talk') {
+      // PARLER EN MONTRANT · il s'adresse à son interlocuteur, se tourne vers
+      // l'objet (le produit, la courbe) le temps d'une phrase, puis revient.
+      const showing = look2 && Math.sin(t * 0.9) > 0.35
+      ry = showing ? faceTo(x0, z0, look2[0], look2[1]) : ry
+      ry += Math.sin(t * 2.2) * 0.08
+      y += Math.abs(Math.sin(t * 2.6)) * 0.03
+    } else if (gesture === 'address') {
+      // DEVANT L'ÉQUIPE · il avance et recule sur l'estrade, balaie la salle
+      // du regard, ponctue ses phrases.
+      x = x0 + Math.sin(t * 0.45) * 0.9
+      ry += Math.sin(t * 0.7) * 0.45
+      y += Math.abs(Math.sin(t * 2.4)) * 0.04
+      speed = Math.abs(Math.cos(t * 0.45)) > 0.35 ? 0.5 : 0
+    } else if (gesture === 'build') {
+      // À L'ÉTABLI · il assemble ; le produit fini, il saute de joie.
+      const c = clock.elapsedTime % BUILD_CYCLE
+      const done = c > BUILD_CYCLE - 1.2
+      if (done) y += Math.abs(Math.sin((c - (BUILD_CYCLE - 1.2)) * Math.PI * 2.5)) * 0.5
+      else ry += Math.sin(t * 5) * 0.04
+    } else if (gesture === 'organize' && look2) {
+      // LE PLANNING · du bureau au tableau et retour, une pause à chaque bout
+      // pour poser une carte ou noter un rendez-vous.
+      if (S.rest > 0) S.rest -= dt
       else {
-        S.s += 1.1 * S.dir * dt
-        if (S.s > 2.4) { S.s = 2.4; S.dir = -1; S.rest = 1.4 }
-        if (S.s < -2.4) { S.s = -2.4; S.dir = 1; S.rest = 1.4 }
-        speed = 1.1
-        ry = S.dir > 0 ? Math.PI / 2 : -Math.PI / 2
-      }
-      x = x0 + S.s
-    } else if (action === 'tour') {
-      // LE TOUR DES TABLEAUX · une boucle lente, un arrêt à chaque coin, le
-      // temps de lire le chiffre.
-      if (S.rest > 0) { S.rest -= dt }
-      else {
-        const before = Math.floor(S.s)
-        S.s += 0.28 * dt
-        if (Math.floor(S.s) !== before) S.rest = 1.2
+        S.s += 0.32 * S.dir * dt
+        if (S.s >= 1) { S.s = 1; S.dir = -1; S.rest = 1.8 }
+        if (S.s <= 0) { S.s = 0; S.dir = 1; S.rest = 1.8 }
         speed = 1.0
       }
-      const k = ((S.s % 4) + 4) % 4
-      const leg = Math.floor(k), f = k - leg
-      const C: [number, number][] = [[-2.6, -1.6], [2.6, -1.6], [2.6, 2.2], [-2.6, 2.2]]
-      const [ax, az] = C[leg], [bx, bz] = C[(leg + 1) % 4]
-      x = x0 + ax + (bx - ax) * f
-      z = z0 + az + (bz - az) * f
-      ry = S.rest > 0 ? faceTo(x, z, 0, 8) : Math.atan2(bx - ax, bz - az)
-      if (S.rest > 0) speed = 0
-    } else if (action === 'call') {
-      // AU TÉLÉPHONE · on tourne en rond en parlant.
-      S.s += 0.55 * dt
-      const r = 1.5
-      x = x0 + Math.cos(S.s) * r
-      z = z0 + Math.sin(S.s) * r
-      ry = Math.atan2(-Math.sin(S.s), Math.cos(S.s))
-      speed = 0.85
-    } else if (action === 'celebrate') {
-      // LA MISE EN LIGNE · des bonds de joie, un tour sur soi-même, puis une
-      // pause, et ça recommence.
-      const c = t % 3.2
-      if (c < 1.3) {
-        y = Math.abs(Math.sin(c * Math.PI * 2.3)) * 0.7
-        ry = rest + (c / 1.3) * Math.PI * 2
-      }
-    } else if (action === 'broadcast') {
-      // AU MICRO · le buste se balance, la tête accompagne la parole.
-      ry = rest + Math.sin(t * 1.3) * 0.35
-      y = Math.abs(Math.sin(t * 2.6)) * 0.05
-    } else if (action === 'teach') {
-      // LE MAÎTRE ENSEIGNE · il regarde ses élèves l'un après l'autre.
-      ry = rest + Math.sin(t * 0.55) * 0.55
-    } else if (action === 'study') {
-      // L'ÉLÈVE ÉCOUTE · de petits hochements de tête, chacun à son rythme.
-      y = Math.max(0, Math.sin(t * 1.7)) * 0.04
-      ry = rest + Math.sin(t * 0.4) * 0.12
-    } else if (action === 'type') {
-      // AU CLAVIER · il tape, et lève la tête de temps en temps.
-      ry = rest + (Math.sin(t * 0.3) > 0.85 ? 0.5 : 0)
+      x = x0 + (look2[0] - x0) * S.s
+      z = z0 + (look2[1] - z0) * S.s
+      ry = S.rest > 0
+        ? (S.s > 0.5 ? faceTo(x, z, look2[0], look2[1] - 3) : faceTo(x, z, look[0], look[1]))
+        : Math.atan2((look2[0] - x0) * S.dir, (look2[1] - z0) * S.dir)
     }
 
     gait.current.speed = speed
     if (speed > 0) advance(gait.current, dt)
     o.position.set(x, y, z)
-    o.rotation.y += (ry - o.rotation.y) * Math.min(1, dt * (action === 'celebrate' ? 30 : 8))
+    o.rotation.y += (ry - o.rotation.y) * Math.min(1, dt * 8)
   })
 
   return (
@@ -286,10 +306,10 @@ function Actor({ who, character, action, at, look, phase }: {
           fn="Product"
           x={0}
           z={0}
-          mood={A.mood}
+          mood={G.mood}
           selected={false}
-          busy={A.busy}
-          walk={A.walks}
+          busy={G.busy}
+          walk={G.walks || gesture === 'address'}
           bare
           onSelect={() => {}}
         />
@@ -298,33 +318,298 @@ function Actor({ who, character, action, at, look, phase }: {
   )
 }
 
-/** LA DISPOSITION DES HABITANTS · selon l'action du personnage principal.
- *  Une classe : le maître au fond, les élèves devant lui, tournés vers lui.
- *  Un métier : le spécialiste seul, au centre de sa salle. */
-function Cast({ kit, phase }: { kit: DojoKit; phase: number }) {
-  const cast = DOJO_CAST[kit]
-  if (cast.action === 'teach') {
-    const master: [number, number] = [0, -2.6]
-    const n = cast.students.length
-    // LE MAÎTRE RESTE VISIBLE · vu d'en haut, un élève placé devant lui sur
-    // l'axe du regard le masquait. Les élèves s'écartent donc de l'axe, et
-    // l'allée centrale laisse voir le maître.
-    const spots: [number, number][] = n <= 2
-      ? [[-2.0, 1.8], [2.0, 2.0]]
-      : [[-3.6, 1.2], [-1.6, 2.2], [1.6, 2.2], [3.6, 1.2]]
-    return (
-      <>
-        <Actor who={`${kit}-lead`} character={cast.lead} action="teach" at={master} look={[0, 4]} phase={phase} />
-        {cast.students.map((c, k) => (
-          <Actor key={k} who={`${kit}-s${k}`} character={c} action="study"
-            at={spots[k % spots.length]} look={master} phase={phase + k * 0.9} />
+/* ------------------------------------------------------------------ */
+/* LES OBJETS DU MÉTIER                                                */
+/* ------------------------------------------------------------------ */
+/* Ce qui fait comprendre la scène d'un coup d'oeil : le produit qu'on vend,
+   la courbe qu'on montre, l'estrade d'où l'on parle. Des formes simples, en
+   matière mate, à la teinte de la formation. */
+
+/** LE PRODUIT À VENDRE · un coffret sur son présentoir, qui tourne lentement,
+ *  avec son étiquette de prix. */
+function ProductStand({ at, tint }: { at: [number, number]; tint: string }) {
+  const box = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (box.current) {
+      box.current.rotation.y = clock.elapsedTime * 0.8
+      box.current.position.y = 1.55 + Math.sin(clock.elapsedTime * 1.6) * 0.05
+    }
+  })
+  return (
+    <group position={[at[0], 0, at[1]]}>
+      <mesh position={[0, 0.5, 0]}><cylinderGeometry args={[0.42, 0.5, 1, 24]} /><meshStandardMaterial color="#f8fafc" roughness={0.6} /></mesh>
+      <mesh position={[0, 1.02, 0]}><cylinderGeometry args={[0.5, 0.5, 0.06, 24]} /><meshStandardMaterial color={tint} roughness={0.5} /></mesh>
+      <group ref={box} position={[0, 1.55, 0]}>
+        <mesh><boxGeometry args={[0.62, 0.62, 0.62]} /><meshStandardMaterial color={tint} roughness={0.45} /></mesh>
+        <mesh><boxGeometry args={[0.64, 0.64, 0.14]} /><meshStandardMaterial color="#fde047" roughness={0.4} /></mesh>
+        <mesh><boxGeometry args={[0.14, 0.64, 0.64]} /><meshStandardMaterial color="#fde047" roughness={0.4} /></mesh>
+        <mesh position={[0, 0.38, 0]}><torusGeometry args={[0.13, 0.05, 8, 16]} /><meshStandardMaterial color="#fde047" roughness={0.4} /></mesh>
+      </group>
+      {/* l'étiquette de prix, penchée vers la salle */}
+      <group position={[0.55, 1.1, 0.35]} rotation={[-0.3, -0.4, 0.25]}>
+        <mesh><boxGeometry args={[0.46, 0.28, 0.03]} /><meshStandardMaterial color="#ffffff" roughness={0.7} /></mesh>
+        <mesh position={[0, 0, 0.02]}><boxGeometry args={[0.3, 0.07, 0.01]} /><meshStandardMaterial color="#16a34a" /></mesh>
+      </group>
+    </group>
+  )
+}
+
+/** LES COURBES D'ACQUISITION · un tableau sur chevalet : des barres qui
+ *  montent l'une après l'autre, une flèche verte qui pointe vers le haut. */
+function ChartBoard({ at, face, tint }: { at: [number, number]; face: number; tint: string }) {
+  const bars = useRef<(THREE.Mesh | null)[]>([])
+  const arrow = useRef<THREE.Group>(null)
+  const H = [0.35, 0.55, 0.8, 1.05, 1.4]
+  useFrame(({ clock }) => {
+    const c = clock.elapsedTime % 7
+    H.forEach((h, i) => {
+      const m = bars.current[i]
+      if (!m) return
+      const k = Math.max(0.05, Math.min(1, (c - i * 0.7) / 0.6))
+      m.scale.y = k
+      m.position.y = -0.85 + (h * k) / 2
+    })
+    if (arrow.current) arrow.current.position.y = 0.72 + Math.sin(clock.elapsedTime * 2.2) * 0.06
+  })
+  return (
+    <group position={[at[0], 0, at[1]]} rotation={[0, face, 0]}>
+      {/* le chevalet */}
+      <mesh position={[-1.3, 1.1, -0.1]} rotation={[0.08, 0, 0]}><boxGeometry args={[0.08, 2.2, 0.08]} /><meshStandardMaterial color="#6b4f35" /></mesh>
+      <mesh position={[1.3, 1.1, -0.1]} rotation={[0.08, 0, 0]}><boxGeometry args={[0.08, 2.2, 0.08]} /><meshStandardMaterial color="#6b4f35" /></mesh>
+      <group position={[0, 1.95, 0]}>
+        {/* le tableau blanc, et son cadre à la teinte de la formation */}
+        <mesh position={[0, 0, -0.04]}><boxGeometry args={[3.1, 2.1, 0.06]} /><meshStandardMaterial color={tint} roughness={0.6} /></mesh>
+        <mesh><boxGeometry args={[2.9, 1.9, 0.04]} /><meshStandardMaterial color="#ffffff" roughness={0.8} /></mesh>
+        {/* les axes */}
+        <mesh position={[-1.25, -0.05, 0.03]}><boxGeometry args={[0.04, 1.6, 0.02]} /><meshStandardMaterial color="#334155" /></mesh>
+        <mesh position={[0, -0.85, 0.03]}><boxGeometry args={[2.5, 0.04, 0.02]} /><meshStandardMaterial color="#334155" /></mesh>
+        {/* les barres, qui poussent l'une après l'autre */}
+        {H.map((h, i) => (
+          <mesh key={i} ref={(m) => { bars.current[i] = m }} position={[-0.95 + i * 0.48, -0.85 + h / 2, 0.04]}>
+            <boxGeometry args={[0.3, h, 0.03]} />
+            <meshStandardMaterial color={i === H.length - 1 ? '#16a34a' : '#60a5fa'} roughness={0.5} />
+          </mesh>
         ))}
-      </>
-    )
+        {/* la flèche de croissance */}
+        <group ref={arrow} position={[1.15, 0.72, 0.06]}>
+          <mesh rotation={[0, 0, -0.6]}><coneGeometry args={[0.14, 0.3, 12]} /><meshStandardMaterial color="#16a34a" /></mesh>
+        </group>
+      </group>
+    </group>
+  )
+}
+
+/** L'ESTRADE DU FONDATEUR · une scène basse, un pupitre, une bannière. */
+function Stage({ at, tint }: { at: [number, number]; tint: string }) {
+  return (
+    <group position={[at[0], 0, at[1]]}>
+      <mesh position={[0, 0.15, 0]}><boxGeometry args={[4.2, 0.3, 1.8]} /><meshStandardMaterial color="#3f2d20" roughness={0.8} /></mesh>
+      <mesh position={[0, 0.305, 0.86]}><boxGeometry args={[4.2, 0.02, 0.08]} /><meshStandardMaterial color={tint} /></mesh>
+      <mesh position={[1.5, 0.85, 0.35]}><boxGeometry args={[0.6, 1.1, 0.45]} /><meshStandardMaterial color="#1f2937" roughness={0.7} /></mesh>
+      <mesh position={[1.5, 1.45, 0.3]} rotation={[-0.35, 0, 0]}><boxGeometry args={[0.7, 0.05, 0.5]} /><meshStandardMaterial color={tint} /></mesh>
+      <mesh position={[0, 2.6, -0.85]}><boxGeometry args={[3.2, 1.0, 0.05]} /><meshStandardMaterial color={tint} roughness={0.7} /></mesh>
+      <mesh position={[0, 2.6, -0.82]}><boxGeometry args={[2.4, 0.16, 0.02]} /><meshStandardMaterial color="#ffffff" /></mesh>
+    </group>
+  )
+}
+
+/** L'ÉTABLI DU CHEF DE PRODUIT · le produit s'y assemble bloc par bloc, et
+ *  s'illumine une fois fini, avant de recommencer. */
+function Workbench({ at, tint }: { at: [number, number]; tint: string }) {
+  const blocks = useRef<(THREE.Mesh | null)[]>([])
+  const glow = useRef<THREE.MeshStandardMaterial>(null)
+  const COLORS = [tint, '#38bdf8', '#f59e0b', '#22c55e']
+  useFrame(({ clock }) => {
+    const c = clock.elapsedTime % BUILD_CYCLE
+    const step = (BUILD_CYCLE - 1.2) / BUILD_BLOCKS
+    blocks.current.forEach((m, i) => {
+      if (!m) return
+      const k = Math.max(0, Math.min(1, (c - i * step) / (step * 0.6)))
+      m.visible = k > 0
+      m.position.y = 1.12 + i * 0.36 + (1 - k) * 0.9
+      m.rotation.y = (1 - k) * 1.2
+    })
+    if (glow.current) glow.current.emissiveIntensity = c > BUILD_CYCLE - 1.2 ? 0.9 : 0.05
+  })
+  return (
+    <group position={[at[0], 0, at[1]]}>
+      <mesh position={[0, 0.45, 0]}><boxGeometry args={[2.6, 0.9, 1.1]} /><meshStandardMaterial color="#d6a46b" roughness={0.8} /></mesh>
+      <mesh position={[0, 0.92, 0]}><boxGeometry args={[2.7, 0.06, 1.2]} /><meshStandardMaterial color="#b7844d" roughness={0.8} /></mesh>
+      {COLORS.map((col, i) => (
+        <mesh key={i} ref={(m) => { blocks.current[i] = m }} position={[-0.7, 1.12 + i * 0.36, 0.1]}>
+          <boxGeometry args={[0.8 - i * 0.1, 0.34, 0.8 - i * 0.1]} />
+          <meshStandardMaterial color={col} roughness={0.45} />
+        </mesh>
+      ))}
+      {/* l'écran du produit, qui s'allume quand il est prêt */}
+      <group position={[0.85, 1.35, 0.35]} rotation={[-0.15, -0.35, 0]}>
+        <mesh><boxGeometry args={[0.8, 0.55, 0.05]} /><meshStandardMaterial color="#111827" /></mesh>
+        <mesh position={[0, 0, 0.03]}><boxGeometry args={[0.7, 0.45, 0.01]} /><meshStandardMaterial ref={glow} color="#86efac" emissive="#22c55e" emissiveIntensity={0.05} /></mesh>
+      </group>
+    </group>
+  )
+}
+
+/** LE STUDIO D'INTERVIEW · une table, deux micros, et le voyant « à
+ *  l'antenne » qui clignote au mur. */
+function PodcastTable({ at, tint }: { at: [number, number]; tint: string }) {
+  const onAir = useRef<THREE.MeshStandardMaterial>(null)
+  useFrame(({ clock }) => {
+    if (onAir.current) onAir.current.emissiveIntensity = 0.6 + Math.sin(clock.elapsedTime * 3) * 0.35
+  })
+  return (
+    <group position={[at[0], 0, at[1]]}>
+      <mesh position={[0, 0.72, 0]}><cylinderGeometry args={[1.25, 1.25, 0.08, 32]} /><meshStandardMaterial color="#1f2937" roughness={0.6} /></mesh>
+      <mesh position={[0, 0.36, 0]}><cylinderGeometry args={[0.12, 0.3, 0.72, 16]} /><meshStandardMaterial color="#111827" /></mesh>
+      {[-0.6, 0.6].map((x) => (
+        <group key={x} position={[x, 0.76, -0.15]} rotation={[0, 0, x < 0 ? 0.35 : -0.35]}>
+          <mesh position={[0, 0.25, 0]}><cylinderGeometry args={[0.025, 0.025, 0.5, 8]} /><meshStandardMaterial color="#9ca3af" /></mesh>
+          <mesh position={[0, 0.55, 0]}><capsuleGeometry args={[0.09, 0.16, 6, 12]} /><meshStandardMaterial color="#374151" roughness={0.4} /></mesh>
+        </group>
+      ))}
+      <group position={[0, 3.3, -3.4]}>
+        <mesh><boxGeometry args={[1.5, 0.5, 0.08]} /><meshStandardMaterial color="#111827" /></mesh>
+        <mesh position={[0, 0, 0.05]}><boxGeometry args={[1.3, 0.34, 0.02]} /><meshStandardMaterial ref={onAir} color="#ef4444" emissive="#ef4444" emissiveIntensity={0.6} /></mesh>
+      </group>
+      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}><circleGeometry args={[2.2, 40]} /><meshStandardMaterial color={tint} roughness={0.9} /></mesh>
+    </group>
+  )
+}
+
+/** LE PLANNING DE L'ASSISTANT · un tableau de semaine dont les créneaux se
+ *  remplissent l'un après l'autre. */
+function PlannerBoard({ at, face, tint }: { at: [number, number]; face: number; tint: string }) {
+  const cells = useRef<(THREE.MeshStandardMaterial | null)[]>([])
+  const COLS = 5, ROWS = 3
+  useFrame(({ clock }) => {
+    const n = Math.floor((clock.elapsedTime % 9) / 0.55)
+    cells.current.forEach((m, i) => {
+      if (!m) return
+      const on = i < n
+      m.color.set(on ? (i % 3 === 0 ? tint : i % 3 === 1 ? '#fbbf24' : '#34d399') : '#e5e7eb')
+    })
+  })
+  return (
+    <group position={[at[0], 0, at[1]]} rotation={[0, face, 0]}>
+      <mesh position={[0, 1.95, 0]}><boxGeometry args={[3.0, 1.9, 0.08]} /><meshStandardMaterial color="#1e293b" roughness={0.7} /></mesh>
+      <mesh position={[0, 1.95, 0.05]}><boxGeometry args={[2.8, 1.7, 0.02]} /><meshStandardMaterial color="#ffffff" roughness={0.8} /></mesh>
+      {Array.from({ length: COLS * ROWS }, (_, i) => {
+        const cx = i % COLS, cy = Math.floor(i / COLS)
+        return (
+          <mesh key={i} position={[-1.1 + cx * 0.55, 2.4 - cy * 0.48, 0.07]}>
+            <boxGeometry args={[0.46, 0.36, 0.02]} />
+            <meshStandardMaterial ref={(m) => { cells.current[i] = m }} color="#e5e7eb" roughness={0.6} />
+          </mesh>
+        )
+      })}
+      <mesh position={[-1.3, 0.5, 0]}><boxGeometry args={[0.08, 1.0, 0.08]} /><meshStandardMaterial color="#475569" /></mesh>
+      <mesh position={[1.3, 0.5, 0]}><boxGeometry args={[0.08, 1.0, 0.08]} /><meshStandardMaterial color="#475569" /></mesh>
+    </group>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* LES SCÈNES                                                          */
+/* ------------------------------------------------------------------ */
+
+/** OÙ SE TIENT CHACUN, ET CE QU'IL FAIT · une situation par salle, voir
+ *  data/cast. Le centre de la pièce est libre dans toutes les dispositions ;
+ *  c'est là que la scène se joue. */
+function Cast({ kit, tint, phase }: { kit: DojoKit; tint: string; phase: number }) {
+  const cast = DOJO_CAST[kit]
+  const o = cast.others
+  switch (cast.action) {
+    case 'teach': {
+      const master: [number, number] = [0, -2.6]
+      // LE MAÎTRE RESTE VISIBLE · les élèves s'écartent de l'axe du regard.
+      const spots: [number, number][] = cast.students.length <= 2
+        ? [[-2.0, 1.8], [2.0, 2.0]]
+        : [[-3.6, 1.2], [-1.6, 2.2], [1.6, 2.2], [3.6, 1.2]]
+      return (
+        <>
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="teach" at={master} look={[0, 4]} phase={phase} />
+          {cast.students.map((c, k) => (
+            <Actor key={k} who={`${kit}-s${k}`} character={c} gesture="study"
+              at={spots[k % spots.length]} look={master} phase={phase + k * 0.9} />
+          ))}
+        </>
+      )
+    }
+    case 'sell': {
+      // LA VENTE · le produit entre eux deux, la cliente écoute, le commercial
+      // lui parle et se tourne vers le produit pour le montrer.
+      const seller: [number, number] = [-1.7, 0.9], buyer: [number, number] = [1.7, 1.1], product: [number, number] = [0, 0.5]
+      return (
+        <>
+          <ProductStand at={product} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="talk" at={seller} look={[buyer[0], buyer[1] + 1.5]} look2={[product[0], product[1] + 1]} phase={phase} />
+          {o[0] && <Actor who={`${kit}-o0`} character={o[0]} gesture="listen" at={buyer} look={[seller[0], seller[1] + 1.5]} phase={phase + 0.7} />}
+        </>
+      )
+    }
+    case 'present': {
+      // LES COURBES AU BOSS · le tableau d'un côté, le boss de l'autre ; elle
+      // se tourne vers la courbe, puis vers lui.
+      const board: [number, number] = [-1.6, -2.4], who: [number, number] = [0.6, -1.0], boss: [number, number] = [2.3, 1.2]
+      return (
+        <>
+          <ChartBoard at={board} face={0.35} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="talk" at={who} look={boss} look2={board} phase={phase} />
+          {o[0] && <Actor who={`${kit}-o0`} character={o[0]} gesture="listen" at={boss} look={[-0.6, -2.0]} phase={phase + 0.4} />}
+        </>
+      )
+    }
+    case 'address': {
+      // DEVANT L'ÉQUIPE · le fondateur sur l'estrade, l'équipe en arc devant.
+      const stage: [number, number] = [0, -2.6]
+      // L'ÉQUIPE SUR LES CÔTÉS · placée devant, elle cachait le fondateur à la
+      // caméra ; en arc sur les côtés, l'allée du milieu le laisse voir.
+      const team: [number, number][] = [[-3.4, -0.4], [-2.5, 1.3], [2.5, 1.3], [3.4, -0.4]]
+      return (
+        <>
+          <Stage at={stage} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="address" at={[stage[0] - 0.3, stage[1] + 0.2]} look={[0, 4]} lift={0.3} phase={phase} />
+          {o.map((c, k) => (
+            <Actor key={k} who={`${kit}-o${k}`} character={c} gesture="listen" at={team[k % team.length]} look={stage} phase={phase + k * 0.8} />
+          ))}
+        </>
+      )
+    }
+    case 'build':
+      // L'ATELIER · le chef de produit derrière son établi, face à la salle.
+      return (
+        <>
+          <Workbench at={[0, 1.2]} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="build" at={[0.55, 0.1]} look={[0.2, 4]} phase={phase} />
+        </>
+      )
+    case 'interview': {
+      // L'INTERVIEW · deux micros, deux fauteuils, l'hôte qui parle à son
+      // invité et se tourne vers le public.
+      const table: [number, number] = [0, 0.9]
+      const host: [number, number] = [-1.35, 0.3], guest: [number, number] = [1.35, 0.3]
+      return (
+        <>
+          <PodcastTable at={table} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="talk" at={host} look={[guest[0], guest[1] + 1.2]} look2={[0, 8]} phase={phase} />
+          {o[0] && <Actor who={`${kit}-o0`} character={o[0]} gesture="listen" at={guest} look={[host[0], host[1] + 1.2]} phase={phase + 0.5} />}
+        </>
+      )
+    }
+    case 'organize': {
+      // LE PLANNING · du bureau au tableau ; la manager suit l'agenda.
+      const desk: [number, number] = [1.4, 1.2], board: [number, number] = [-1.8, -2.4]
+      return (
+        <>
+          <PlannerBoard at={board} face={0.3} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="organize" at={[desk[0] - 0.2, desk[1] - 0.8]} look={[desk[0], desk[1] + 3]} look2={[board[0] + 0.6, board[1] + 1.3]} phase={phase} />
+          {o[0] && <Actor who={`${kit}-o0`} character={o[0]} gesture="listen" at={[2.9, -0.8]} look={board} phase={phase + 0.6} />}
+        </>
+      )
+    }
+    default:
+      return null
   }
-  // LE SPÉCIALISTE · au centre, sauf celui qui tape, qui est à son bureau.
-  const at: [number, number] = cast.action === 'type' ? [0, 1.2] : cast.action === 'broadcast' ? [0, 0.4] : [0, 0.8]
-  return <Actor who={`${kit}-lead`} character={cast.lead} action={cast.action} at={at} look={[0, 8]} phase={phase} />
 }
 
 /* ------------------------------------------------------------------ */
@@ -388,13 +673,11 @@ export function PackArt({ kit, tint, locked = false }: {
     ...tpl.palette,
     wallBack: R.walls[0], wallSide: R.walls[1], trim: R.trim, bg: R.sky, fog: R.sky, accent: tint,
   }), [tpl.palette, R, tint])
-  // UN BUREAU SEULEMENT POUR CELUI QUI S'Y ASSOIT · l'assistant qui tape et
-  // la communicante à son micro. Les autres agissent debout, au centre.
+  // UN BUREAU SEULEMENT POUR L'ASSISTANT · les autres métiers ont leur propre
+  // objet de scène (présentoir, tableau, estrade, établi, table de studio).
   const cast = DOJO_CAST[kit]
   const stations = useMemo(
-    () => (cast.action === 'type' ? [{ id: `${kit}-desk`, fn: 'Product' as Department, x: 0, z: 1.2 }]
-      : cast.action === 'broadcast' ? [{ id: `${kit}-desk`, fn: 'Product' as Department, x: 0, z: 0.4 }]
-        : []),
+    () => (cast.action === 'organize' ? [{ id: `${kit}-desk`, fn: 'Product' as Department, x: 1.4, z: 1.2 }] : []),
     [cast.action, kit],
   )
   const phase = phaseOf(kit)
@@ -402,15 +685,15 @@ export function PackArt({ kit, tint, locked = false }: {
   return (
     <div className={`pa${locked ? ' off' : ''}`} ref={box} aria-hidden>
       <Canvas
-        frameloop={live ? 'always' : 'demand'}
+        frameloop="demand"
         // LA TAILLE SANS LES TRANSFORMATIONS · la carte arrive avec une
         // translation et se soulève au survol. La mesure par défaut lit le
         // rectangle À L'ÉCRAN, transformations comprises, et la salle se
         // dimensionnait à la taille réduite en laissant une bande de ciel. La
         // largeur de mise en page, elle, ignore les transformations.
         resize={{ offsetSize: true }}
-        dpr={[1, 1.5]}
-        camera={{ position: [0, 7.6, 12.4], fov: 40, near: 0.1, far: 80 }}
+        dpr={[1, 1.25]}
+        camera={{ position: [0, 6.9, 11.0], fov: 40, near: 0.1, far: 80 }}
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.18 }}
         onCreated={({ camera }) => camera.lookAt(0, 1.4, -0.9)}
       >
@@ -422,10 +705,13 @@ export function PackArt({ kit, tint, locked = false }: {
         <directionalLight position={[-8, 6, -4]} color="#c8dcff" intensity={0.5} />
         <pointLight position={[0, 4.2, -3.5]} color={tint} intensity={0.9} distance={22} />
         <Suspense fallback={null}>
-          <Decor3D palette={P} decor={R.decor} enclosed={tpl.enclosed} stations={stations} />
-          <ThemeProps archetype={kit} accent={tint} slots={LAYOUTS[R.layout]} />
-          <Cast kit={kit} phase={phase} />
+          <Frozen>
+            <Decor3D palette={P} decor={R.decor} enclosed={tpl.enclosed} stations={stations} />
+            <ThemeProps archetype={kit} accent={tint} slots={LAYOUTS[R.layout]} />
+          </Frozen>
+          <Cast kit={kit} tint={tint} phase={phase} />
         </Suspense>
+        <Heartbeat live={live} />
       </Canvas>
     </div>
   )
