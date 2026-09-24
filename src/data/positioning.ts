@@ -147,10 +147,10 @@ export const PILLARS: Pillar[] = [
     path: '/academy',
     glyph: 'pen',
     fr: {
-      nav: "Ingénierie de prompt",
-      title: "L'instruction qui décide de tout",
+      nav: "Le prompt engineering",
+      title: "Le prompt qui décide de tout",
       blurb:
-        "De « c'est quoi un jeton » à un brief qu'un modèle suit vraiment. Chaque leçon se lit dans le navigateur, a quelque chose à démonter à côté du texte, et finit par une chose à retenir et une chose à faire.",
+        "De « c'est quoi un token » à un brief qu'un modèle suit vraiment. Chaque leçon se lit dans le navigateur, a quelque chose à démonter à côté du texte, et finit par une chose à retenir et une chose à faire.",
     },
   },
   {
@@ -166,10 +166,10 @@ export const PILLARS: Pillar[] = [
     path: '/frugality',
     glyph: 'triangle',
     fr: {
-      nav: "Sobriété en jetons",
+      nav: "Sobriété en tokens",
       title: "Ce que ça coûte, et comment le réduire",
       blurb:
-        "Où partent tes jetons, comptés plutôt que devinés : les réglages choisis avant d'écrire un mot, et la façon dont le prompt lui-même est écrit. Puis les leviers, chacun avec ce qu'il rapporte vraiment.",
+        "Où partent tes tokens, comptés plutôt que devinés : les réglages choisis avant d'écrire un mot, et la façon dont le prompt lui-même est écrit. Puis les leviers, chacun avec ce qu'il rapporte vraiment.",
     },
   },
   {
@@ -294,7 +294,7 @@ export const SUBTITLE_FR =
 
 export const NOT_THIS_FR = [
   'Je ne fais pas tourner ton entreprise à ta place.',
-  "Je ne revends pas de jetons, et il n'y a aucun compteur entre toi et ton fournisseur.",
+  "Je ne revends pas de tokens, et il n'y a aucun compteur entre toi et ton provider.",
   "Rien dans le dojo n'appelle de modèle payant ni n'écrit dans tes comptes : c'est un bac à sable.",
 ]
 

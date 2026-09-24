@@ -100,7 +100,7 @@ export const DICT = {
   'lp.coursesH2b': { en: 'courses in it', fr: 'cours dedans' },
   'lp.coursesLead': {
     en: 'They are taken in this order, and each one is useless without the one before it. You cannot make an agent cheap before it works, and you cannot make it work before you can write the instruction it runs on.',
-    fr: "Ils se suivent dans cet ordre, et chacun ne sert à rien sans le précédent. On ne rend pas un agent sobre avant qu'il fonctionne, et on ne le fait pas fonctionner avant de savoir écrire l'instruction sur laquelle il tourne.",
+    fr: "Ils se suivent dans cet ordre, et chacun ne sert à rien sans le précédent. On ne rend pas un agent sobre avant qu'il fonctionne, et on ne le fait pas fonctionner avant de savoir écrire le prompt sur lequel il tourne.",
   },
   'lp.open': { en: 'Open', fr: 'Ouvrir' },
   'lp.pillarsPill': { en: 'things to do here · all of them teaching', fr: "choses à faire ici · toutes pédagogiques" },
@@ -109,13 +109,13 @@ export const DICT = {
   'lp.acH2': { en: 'Start from zero, finish with something that runs!', fr: 'Pars de zéro, finis avec quelque chose qui tourne !' },
   'lp.acLead': {
     en: 'Written for someone who has never heard the words agent, token or context window, and taken all the way to a working system they understand line by line. One idea per block, a real example every time an abstraction appears, and honest numbers throughout.',
-    fr: "Écrit pour quelqu'un qui n'a jamais entendu les mots agent, jeton ou fenêtre de contexte, et mené jusqu'à un système qui marche et qu'il comprend ligne à ligne. Une idée par bloc, un exemple concret dès qu'une abstraction apparaît, et des chiffres honnêtes du début à la fin.",
+    fr: "Écrit pour quelqu'un qui n'a jamais entendu les mots agent, token ou context window, et mené jusqu'à un système qui marche et qu'il comprend ligne à ligne. Une idée par bloc, un exemple concret dès qu'une abstraction apparaît, et des chiffres honnêtes du début à la fin.",
   },
   'lp.frPill': { en: 'The part most courses skip', fr: 'La partie que la plupart des cours sautent' },
   'lp.frH2': { en: 'Every run has a price. Most people never see it.', fr: "Chaque exécution a un prix. Presque personne ne le voit." },
   'lp.frLead': {
     en: 'A prompt that carries the whole conversation on every turn, an agent that re-reads a file it already knows, a loop nobody stopped: none of it shows up until the invoice does. The course measures it in two units at once: tokens and euros. Then it gives you the levers, the settings you choose before writing a word, and the way the prompt itself is written: each with the saving it actually buys rather than the one it is said to buy.',
-    fr: "Un prompt qui traîne toute la conversation à chaque tour, un agent qui relit un fichier qu'il connaît déjà, une boucle que personne n'a arrêtée : rien de tout ça ne se voit avant la facture. Le cours le mesure dans deux unités à la fois : les jetons et les euros. Puis il donne les leviers, les réglages choisis avant d'écrire un mot et la façon dont le prompt lui-même est écrit, chacun avec ce qu'il rapporte vraiment plutôt qu'avec ce qu'on lui prête.",
+    fr: "Un prompt qui traîne toute la conversation à chaque tour, un agent qui relit un fichier qu'il connaît déjà, une boucle que personne n'a arrêtée : rien de tout ça ne se voit avant la facture. Le cours le mesure dans deux unités à la fois : les tokens et les euros. Puis il donne les leviers, les réglages choisis avant d'écrire un mot et la façon dont le prompt lui-même est écrit, chacun avec ce qu'il rapporte vraiment plutôt qu'avec ce qu'on lui prête.",
   },
   'lp.frN1': { en: 'Measure', fr: 'Mesurer' },
   'lp.frN1s': { en: 'What one conversation really costs', fr: "Ce qu'une conversation coûte vraiment" },
@@ -160,7 +160,7 @@ export const DICT = {
   'price.notMetered': { en: 'Nothing here is metered.', fr: "Rien ici n'est compté." },
   'price.noMeterBody': {
     en: 'Learning is free and stays free, the diploma costs nothing, and no plan counts your runs, because the dojo is a worked example and calls no paid model. A paid plan buys the files and, on School, the seats · when you take an agent away and run it for real, it runs on your own key and your provider bills you directly, never the dojo.',
-    fr: "Apprendre est gratuit et le reste, le diplôme ne coûte rien, et aucune formule ne compte tes exécutions, parce que le dojo est un exemple travaillé qui n'appelle aucun modèle payant. Une formule payante achète les fichiers et, pour School, les sièges · le jour où tu emportes un agent et le fais tourner pour de vrai, il tourne sur ta propre clé et c'est ton fournisseur qui te facture, jamais le dojo.",
+    fr: "Apprendre est gratuit et le reste, le diplôme ne coûte rien, et aucune formule ne compte tes exécutions, parce que le dojo est un exemple travaillé qui n'appelle aucun modèle payant. Une formule payante achète les fichiers et, pour School, les sièges · le jour où tu emportes un agent et le fais tourner pour de vrai, il tourne sur ta propre clé et c'est ton provider qui te facture, jamais le dojo.",
   },
   'price.entTitle': { en: 'Business / Enterprise', fr: 'Entreprise' },
   'price.entBody': {
@@ -201,17 +201,17 @@ export const DICT = {
   // qui entourent le schéma.
   'ice.h2': {
     en: 'ways to spend fewer tokens, and the four everyone tries first',
-    fr: "façons de dépenser moins de jetons, et les quatre que tout le monde essaie d'abord",
+    fr: "façons de dépenser moins de tokens, et les quatre que tout le monde essaie d'abord",
   },
   'ice.lead': {
     en: 'This is not about one assistant. Every item here comes from how the billing works, which is the same wherever you are: the input is re-sent in full on every turn, the output costs more per token than the input, and anything that enters the context stays there. The names below move between products. The mechanics do not.',
-    fr: "Ceci ne parle pas d'un assistant en particulier. Chaque item vient de la façon dont la facturation fonctionne, et elle est la même partout : l'entrée est renvoyée en entier à chaque tour, la sortie coûte plus cher par jeton que l'entrée, et ce qui entre dans le contexte y reste. Les noms ci-dessous changent d'un produit à l'autre. La mécanique, non.",
+    fr: "Ceci ne parle pas d'un assistant en particulier. Chaque item vient de la façon dont la facturation fonctionne, et elle est la même partout : l'entrée est renvoyée en entier à chaque tour, la sortie coûte plus cher par token que l'entrée, et ce qui entre dans le contexte y reste. Les noms ci-dessous changent d'un produit à l'autre. La mécanique, non.",
   },
   'ice.why': { en: 'Why it works', fr: 'Pourquoi ça marche' },
   'ice.not': { en: 'When not to', fr: 'Quand ne pas le faire' },
   'ice.called': { en: 'What it tends to be called', fr: "Comment ça s'appelle en général" },
   'ice.gainA': { en: 'On the numbers you put in above, this one is worth about', fr: 'Sur les chiffres saisis plus haut, celui-ci vaut environ' },
-  'ice.gainB': { en: 'of your monthly tokens. It is lever', fr: 'de tes jetons mensuels. C\'est le levier' },
+  'ice.gainB': { en: 'of your monthly tokens. It is lever', fr: 'de tes tokens mensuels. C\'est le levier' },
   'ice.gainC': { en: 'in the list below, where the calculation is shown.', fr: 'dans la liste ci-dessous, où le calcul est montré.' },
 
   // ---- le cours de sobriété ----------------------------------------------
@@ -252,11 +252,11 @@ export const DICT = {
   // le CADRE : ce que l'écran dit autour de la leçon, et qui se répète.
   'ac.course': { en: 'Course', fr: 'Cours' },
   'ac.of': { en: 'of', fr: 'sur' },
-  'ac.heroA': { en: 'The instruction', fr: "L'instruction" },
+  'ac.heroA': { en: 'The instruction', fr: 'Le prompt' },
   'ac.heroB': { en: 'decides everything', fr: 'décide de tout' },
   'ac.sub': {
     en: 'Not documentation. A course. It starts at “what is a token”, ends at a brief a model actually follows, and assumes you have never heard of vibe coding, an IDE or a coding agent. Every lesson is free, interactive, and about five minutes long.',
-    fr: "Pas de la documentation. Un cours. Il commence à « qu'est-ce qu'un jeton », finit à une consigne qu'un modèle suit vraiment, et suppose que tu n'as jamais entendu parler de vibe coding, d'éditeur de code ni d'agent développeur. Chaque leçon est gratuite, interactive, et dure environ cinq minutes.",
+    fr: "Pas de la documentation. Un cours. Il commence à « qu'est-ce qu'un token », finit à un prompt qu'un modèle suit vraiment, et suppose que tu n'as jamais entendu parler de vibe coding, d'éditeur de code ni d'agent développeur. Chaque leçon est gratuite, interactive, et dure environ cinq minutes.",
   },
   'ac.order': {
     en: 'It is the second course. The first is building an agent, and nothing here makes much sense until you have taken one apart.',
@@ -330,7 +330,7 @@ export const DICT = {
   'fw.h1': { en: 'You built an agent. Now put it somewhere!', fr: "Tu as construit un agent. Pose-le enfin quelque part !" },
   'fw.lead': {
     en: 'paths in the dojo end with a file: an instruction and a set of tool schemas. This page is the step after. There are a lot of frameworks that will run it for you, they all want the same two things, and none of them is hard to start with.',
-    fr: "parcours du dojo se terminent par un fichier : une instruction et un jeu de schémas d'outils. Cette page est l'étape d'après. Beaucoup de frameworks le feront tourner pour toi, ils veulent tous les deux mêmes choses, et aucun n'est difficile à démarrer.",
+    fr: "parcours du dojo se terminent par un fichier : un system prompt et un jeu de schémas d'outils. Cette page est l'étape d'après. Beaucoup de frameworks le feront tourner pour toi, ils veulent tous les deux mêmes choses, et aucun n'est difficile à démarrer.",
   },
   'fw.h2what': { en: 'What a framework actually is', fr: "Ce qu'est vraiment un framework" },
   'fw.thinkOf': { en: 'Think of it as', fr: 'Vois-le comme' },
@@ -348,7 +348,7 @@ export const DICT = {
   'fw.h2list': { en: 'of them, and what each one is for', fr: "au total, et à quoi sert chacun" },
   'fw.listLead': {
     en: 'You do not have to choose well the first time. Your agent is an instruction and some schemas, so moving it costs an afternoon, not a rewrite. Open the two or three that sound like your problem.',
-    fr: "Tu n'as pas à bien choisir du premier coup. Ton agent est une instruction et des schémas : le déplacer coûte une après-midi, pas une réécriture. Ouvre les deux ou trois qui ressemblent à ton problème.",
+    fr: "Tu n'as pas à bien choisir du premier coup. Ton agent est un system prompt et des schémas : le déplacer coûte une après-midi, pas une réécriture. Ouvre les deux ou trois qui ressemblent à ton problème.",
   },
   'fw.allLangs': { en: 'All languages', fr: 'Tous les langages' },
   'fw.models': { en: 'How it models an agent', fr: 'Comment il modélise un agent' },
@@ -365,7 +365,7 @@ export const DICT = {
   'fw.noCodeB': { en: 'what your agent becomes in each framework', fr: 'ce que ton agent devient dans chaque framework' },
   'fw.noCodeC': {
     en: 'A system prompt is an instruction here, a backstory there, a typed signature elsewhere. Once you know that, the current documentation is a five minute read instead of an afternoon.',
-    fr: "Une consigne système est une instruction ici, une histoire là, une signature typée ailleurs. Une fois que tu sais ça, la documentation du jour se lit en cinq minutes au lieu d'une après-midi.",
+    fr: "Un system prompt est une instruction ici, une histoire là, une signature typée ailleurs. Une fois que tu sais ça, la documentation du jour se lit en cinq minutes au lieu d'une après-midi.",
   },
   'fw.noCodeD': {
     en: 'projects day to day, and they change without telling me. What is written here is their shape, which is stable. Every entry links to its own documentation for everything that is not.',

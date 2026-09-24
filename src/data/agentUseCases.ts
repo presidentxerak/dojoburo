@@ -87,12 +87,12 @@ export const USE_CASES: UseCase[] = [
         "Des références de pages assurées qui n'existent pas, et un résumé qui couvre une question que le document n'abordait jamais.",
       steps: [
         { title: "Dire ce qu'est une source", makes: "une règle de ce qui compte comme preuve dans ton domaine", check: "Peux-tu dire à un collègue, en une phrase, ce que tu n'accepteras pas comme source ?" },
-        { title: "Imposer la citation", makes: "la consigne qui fait porter à chaque affirmation un fragment mot à mot", check: "Que se passe-t-il quand l'agent ne trouve aucun fragment à citer ?" },
+        { title: "Imposer la citation", makes: "l'instruction qui fait porter à chaque affirmation un fragment mot à mot", check: "Que se passe-t-il quand l'agent ne trouve aucun fragment à citer ?" },
         { title: "Demander les trous", makes: "une section obligatoire listant ce que la matière ne couvre pas", check: "Pourquoi une section « non couvert » vide est-elle un avertissement plutôt qu'un bon résultat ?" },
         { title: "L'éprouver sur un piège", makes: "un document avec un trou plausible, et l'agent qui n'invente pas", check: "A-t-il dit qu'il ne savait pas, ou a-t-il deviné ?" },
       ],
       ships: [
-        "Une consigne système",
+        "Un system prompt",
         "Une règle de contrôle applicable à toute réponse",
         "Un document pour l'éprouver",
       ],
@@ -121,7 +121,7 @@ export const USE_CASES: UseCase[] = [
       does: "Produit un texte qui te ressemble à toi plutôt qu'à un assistant, à partir d'un brief écrit une seule fois.",
       forWhom: "Quiconque corrige les trois mêmes choses sur chaque brouillon et s'apprête à tout réécrire soi-même.",
       hard:
-        "La voix est invisible pour un modèle quand on la décrit. Les adjectifs coûtent des jetons et ne changent rien, donc la plupart des briefs de style sont de la décoration.",
+        "La voix est invisible pour un modèle quand on la décrit. Les adjectifs coûtent des tokens et ne changent rien, donc la plupart des briefs de style sont de la décoration.",
       failure:
         "Un texte fluide et bien structuré qui pourrait venir de n'importe qui, avec tes trois tics détestés revenus dedans.",
       steps: [
@@ -245,7 +245,7 @@ export const USE_CASES: UseCase[] = [
         { title: "Nommer les quatre erreurs", makes: "une liste de contrôle de ce qui survit à une relecture humaine", check: "Lesquelles des quatre as-tu toi-même laissé passer ?" },
         { title: "Séparer arithmétique et opinion", makes: "deux sections de sortie qui ne se mélangent jamais", check: "Qu'est-ce qui n'appartient ni à l'une ni à l'autre ?" },
         { title: "Exiger la liste du non vérifié", makes: "une section pour ce qu'il a dû prendre pour argent comptant", check: "Pourquoi le silence ici donne-t-il une fausse assurance ?" },
-        { title: "Forcer une recommandation", makes: "une consigne qui interdit de rester entre deux chaises", check: "Que recommande-t-il quand les preuves sont réellement équilibrées ?" },
+        { title: "Forcer une recommandation", makes: "une instruction qui interdit de rester entre deux chaises", check: "Que recommande-t-il quand les preuves sont réellement équilibrées ?" },
       ],
       ships: [
         "Un prompt d'audit",
@@ -321,7 +321,7 @@ export const USE_CASES: UseCase[] = [
         "Un tableau propre dont une colonne est discrètement inventée, découverte trois mois plus tard lors d'un audit.",
       steps: [
         { title: "Écrire le schéma d'abord", makes: "une liste de champs avec leurs types, et ce que chacun veut dire", check: "Pour chaque champ : à quoi ressemble l'absence, et est-elle permise ?" },
-        { title: "Interdire la supposition", makes: "la consigne qui rend un vide plutôt qu'une valeur plausible", check: "Comment remarquerais-tu qu'il a deviné quand même ?" },
+        { title: "Interdire la supposition", makes: "l'instruction qui rend un vide plutôt qu'une valeur plausible", check: "Comment remarquerais-tu qu'il a deviné quand même ?" },
         { title: "Demander l'emplacement", makes: "chaque valeur accompagnée de l'endroit du document d'où elle vient", check: "Que fais-tu d'une valeur dont l'emplacement est faux ?" },
         { title: "Essayer les documents laids", makes: "un jeu de test de ceux qui cassent tout", check: "Quel document as-tu dû exclure, et pourquoi ?" },
       ],

@@ -73,7 +73,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Construire un agent",
       answer:
-        `Construire un agent, c'est le premier des ${COURSE_COUNT} cours, et c'est par là que tu commences. Tu entres dans le dojo, à /build, et ${USE_CASE_COUNT} agents dorment autour de la salle, un par FORME de problème : un chercheur, un rédacteur, un répondant, un ingénieur, un analyste, un trieur, un extracteur, une sentinelle, un planificateur, un opérateur, un expérimentateur, un chef d'orchestre. Ils dorment parce qu'aucun n'existe encore. Tu cliques sur celui dont tu as vraiment le problème, il se réveille, et sa page s'ouvre en plein écran avec tout le cours qui lui correspond. Chacun s'enseigne à part parce que chacun ÉCHOUE à sa manière : un agent de recherche invente des sources, un agent de tri confond deux catégories voisines, un extracteur te rend une valeur plausible pour un champ qui était tout simplement absent. Un cours général du genre « écris une bonne consigne » ne te prépare à aucun des trois. Chaque parcours fait quatre étapes, et chaque étape FABRIQUE quelque chose qui n'existait pas : une règle, une instruction, un jeu d'épreuves. Pour chaque étape, la page t'explique pourquoi elle existe, les gestes concrets, et la même chose mal écrite à côté de la même chose bien écrite. À la fin, tu repars avec ton agent sous forme de fichier, dans cinq formats (consigne système, dossier markdown, schémas d'outils, dossier de compétence, manifeste neutre), dont aucun n'appartient à un fournisseur.`,
+        `Construire un agent, c'est le premier des ${COURSE_COUNT} cours, et c'est par là que tu commences. Tu entres dans le dojo, à /build, et ${USE_CASE_COUNT} agents dorment autour de la salle, un par FORME de problème : un chercheur, un rédacteur, un répondant, un ingénieur, un analyste, un trieur, un extracteur, une sentinelle, un planificateur, un opérateur, un expérimentateur, un chef d'orchestre. Ils dorment parce qu'aucun n'existe encore. Tu cliques sur celui dont tu as vraiment le problème, il se réveille, et sa page s'ouvre en plein écran avec tout le cours qui lui correspond. Chacun s'enseigne à part parce que chacun ÉCHOUE à sa manière : un agent de recherche invente des sources, un agent de tri confond deux catégories voisines, un extracteur te rend une valeur plausible pour un champ qui était tout simplement absent. Un cours général du genre « écris un bon prompt » ne te prépare à aucun des trois. Chaque parcours fait quatre étapes, et chaque étape FABRIQUE quelque chose qui n'existait pas : une règle, une instruction, un jeu d'épreuves. Pour chaque étape, la page t'explique pourquoi elle existe, les gestes concrets, et la même chose mal écrite à côté de la même chose bien écrite. À la fin, tu repars avec ton agent sous forme de fichier, dans cinq formats (system prompt, dossier markdown, schémas d'outils, dossier de skill, manifeste neutre), dont aucun n'appartient à un provider.`,
       links: [
         "Entrer dans le dojo",
         "Comment marche la certification",
@@ -98,7 +98,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Où le faire tourner",
       answer:
-        `Tu termines un parcours avec un fichier : une instruction, des schémas d'outils, un manifeste. La question qui suit tout de suite, c'est où le faire tourner, et /frameworks y répond pour ${FRAMEWORK_COUNT} d'entre eux : LangGraph, LangChain, CrewAI, LlamaIndex, l'OpenAI Agents SDK, Google ADK, Pydantic AI, le Microsoft Agent Framework, AutoGen, Semantic Kernel, Mastra, Agno, Strands, smolagents et MetaGPT. Pour chacun : comment il MODÉLISE un agent (c'est la phrase à comprendre en premier, parce que c'est elle qui décide si le tien y rentre), où va chaque morceau de ton fichier exporté, ce qui piège les gens, et quand NE PAS le prendre. Il n'y a aucun code sur cette page, et c'est voulu. Ces projets bougent vite, et un extrait écrit aujourd'hui sera faux dans quelques mois : quelqu'un le copie, ça casse, et il croit avoir mal compris. On t'enseigne la partie qui ne se périme pas, et c'est aussi celle qui prend du temps : ce que ton agent DEVIENT dans chaque framework. Une consigne système est une instruction ici, une histoire là, une signature typée ailleurs. Une fois que tu sais ça, la documentation du jour se lit en cinq minutes. Chaque entrée y renvoie.`,
+        `Tu termines un parcours avec un fichier : un system prompt, des schémas d'outils, un manifeste. La question qui suit tout de suite, c'est où le faire tourner, et /frameworks y répond pour ${FRAMEWORK_COUNT} d'entre eux : LangGraph, LangChain, CrewAI, LlamaIndex, l'OpenAI Agents SDK, Google ADK, Pydantic AI, le Microsoft Agent Framework, AutoGen, Semantic Kernel, Mastra, Agno, Strands, smolagents et MetaGPT. Pour chacun : comment il MODÉLISE un agent (c'est la phrase à comprendre en premier, parce que c'est elle qui décide si le tien y rentre), où va chaque morceau de ton fichier exporté, ce qui piège les gens, et quand NE PAS le prendre. Il n'y a aucun code sur cette page, et c'est voulu. Ces projets bougent vite, et un extrait écrit aujourd'hui sera faux dans quelques mois : quelqu'un le copie, ça casse, et il croit avoir mal compris. On t'enseigne la partie qui ne se périme pas, et c'est aussi celle qui prend du temps : ce que ton agent DEVIENT dans chaque framework. Un system prompt est une instruction ici, une histoire là, une signature typée ailleurs. Une fois que tu sais ça, la documentation du jour se lit en cinq minutes. Chaque entrée y renvoie.`,
       links: [
         "Comparer les frameworks",
         "Construire un agent d'abord",
@@ -167,7 +167,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Maîtrise ta consommation",
       answer:
-        `La pastille au milieu de l'en-tête du dojo, c'est ton bouton des jetons. Elle te montre dans quel mode tu es et combien de jetons la journée aurait coûté, et un clic ouvre le sélecteur complet. Il y a trois modes et chacun change exactement trois choses : la longueur maximale d'une réponse, le fait que le modèle réfléchisse avant d'écrire, et le nombre d'applications branchées d'un coéquipier qui voyagent avec le passage. ÉCONOME : réponses plafonnées à 1 500 jetons, aucune application attachée, donc l'équipe rédige au lieu d'agir · le moyen le moins cher d'ajuster une consigne avant de t'engager. ÉQUILIBRÉ (par défaut) : 4 000 jetons et jusqu'à 3 applications, avec de vraies actions dedans · commence là, et ne change que si tu as une raison. MAXIMUM : 8 000 jetons, la réflexion allumée et jusqu'à 8 applications · trois à cinq fois les jetons d'Économe, donc garde-le pour le passage que tu vas vraiment livrer. Le panneau te montre notre estimation pour le prochain passage complet de ton équipe dans chaque mode, ET les comptes de jetons réels des passages déjà faits, rapportés par le modèle lui-même, pour que tu puisses confronter nos estimations à la réalité. Encore une chose à savoir : chaque application que tu allumes pour un coéquipier fait voyager ses définitions d'outils avec chacune de ses étapes, donc un coéquipier à huit applications coûte plus par étape que le même à deux, dans tous les modes. Brancher reste gratuit · c'est faire tourner qui compte.`,
+        `La pastille au milieu de l'en-tête du dojo, c'est ton bouton des tokens. Elle te montre dans quel mode tu es et combien de tokens la journée aurait coûté, et un clic ouvre le sélecteur complet. Il y a trois modes et chacun change exactement trois choses : la longueur maximale d'une réponse, le fait que le modèle réfléchisse avant d'écrire, et le nombre d'applications branchées d'un coéquipier qui voyagent avec le passage. ÉCONOME : réponses plafonnées à 1 500 tokens, aucune application attachée, donc l'équipe rédige au lieu d'agir · le moyen le moins cher d'ajuster un brief avant de t'engager. ÉQUILIBRÉ (par défaut) : 4 000 tokens et jusqu'à 3 applications, avec de vraies actions dedans · commence là, et ne change que si tu as une raison. MAXIMUM : 8 000 tokens, la réflexion allumée et jusqu'à 8 applications · trois à cinq fois les tokens d'Économe, donc garde-le pour le passage que tu vas vraiment livrer. Le panneau te montre notre estimation pour le prochain passage complet de ton équipe dans chaque mode, ET les comptes de tokens réels des passages déjà faits, rapportés par le modèle lui-même, pour que tu puisses confronter nos estimations à la réalité. Encore une chose à savoir : chaque application que tu allumes pour un coéquipier fait voyager ses définitions d'outils avec chacune de ses étapes, donc un coéquipier à huit applications coûte plus par étape que le même à deux, dans tous les modes. Brancher reste gratuit · c'est faire tourner qui compte.`,
       links: [
         "Ouvrir mon dojo",
         "La leçon sur le coût",
@@ -210,7 +210,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Pour commencer",
       answer:
-        `Deux écrans, aucune consigne à écrire. 1) Tu arrives sur une seule carte : donne un nom à ton dojo d'entraînement et appuie sur Ouvrir le dojo. Te connecter sert seulement à le retrouver d'un appareil à l'autre (ou continue en invité, enregistré dans ce navigateur seulement). 2) Vient ensuite « Choisis tes équipes de dojo » : le catalogue entier, et tu coches celles que tu veux étudier. Chaque carte nomme les coéquipiers qu'elle contient, les applications qu'ils utilisent, et le nombre de tâches d'un passage complet, et une barre en bas garde le total sous tes yeux. Appuie sur Ajouter les équipes et tu atterris dans le dojo : clique sur un coéquipier pour lire la fiche qui en fait un spécialiste, modifie-la, et regarde ce qui change. C'est un bac à sable : rien là-dedans n'appelle un modèle payant ni n'écrit dans tes vrais comptes. Chaque écran a un bouton « Comment faire ? » qui lance une visite animée en plein écran.`,
+        `Deux écrans, aucun prompt à écrire. 1) Tu arrives sur une seule carte : donne un nom à ton dojo d'entraînement et appuie sur Ouvrir le dojo. Te connecter sert seulement à le retrouver d'un appareil à l'autre (ou continue en invité, enregistré dans ce navigateur seulement). 2) Vient ensuite « Choisis tes équipes de dojo » : le catalogue entier, et tu coches celles que tu veux étudier. Chaque carte nomme les coéquipiers qu'elle contient, les applications qu'ils utilisent, et le nombre de tâches d'un passage complet, et une barre en bas garde le total sous tes yeux. Appuie sur Ajouter les équipes et tu atterris dans le dojo : clique sur un coéquipier pour lire la fiche qui en fait un spécialiste, modifie-la, et regarde ce qui change. C'est un bac à sable : rien là-dedans n'appelle un modèle payant ni n'écrit dans tes vrais comptes. Chaque écran a un bouton « Comment faire ? » qui lance une visite animée en plein écran.`,
       links: [
         "Ouvrir ton poste de pilotage",
         "Voir la visite guidée",
@@ -318,7 +318,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Profil et formule",
       answer:
-        `Il n'y a aucun portefeuille et aucune cryptomonnaie à gérer. Ton profil, c'est ton compte, ce que tu as acheté, et tes préférences. Ça se paie par carte, une seule fois : les ${DISCOVERY_DAYS} jours de découverte sont gratuits, le parcours entier coûte ${priceTag(PATH_EUR)}, et ton module métier ${priceTag(TRADE_EUR)} en plus. Rien ne se renouvelle, donc il n'y a rien à résilier. Tu ne vois jamais de portefeuille, de phrase secrète ni de jeton de cryptomonnaie.`,
+        `Il n'y a aucun portefeuille et aucune cryptomonnaie à gérer. Ton profil, c'est ton compte, ce que tu as acheté, et tes préférences. Ça se paie par carte, une seule fois : les ${DISCOVERY_DAYS} jours de découverte sont gratuits, le parcours entier coûte ${priceTag(PATH_EUR)}, et ton module métier ${priceTag(TRADE_EUR)} en plus. Rien ne se renouvelle, donc il n'y a rien à résilier. Tu ne vois jamais de portefeuille, de phrase secrète ni de token de cryptomonnaie.`,
       links: [
         "Profil et formule",
         "Formules et tarifs",
@@ -340,7 +340,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Ce que coûte une formule",
       answer:
-        `Rien de ce que tu fais ici ne te coûte quoi que ce soit à chaque passage, parce que rien ici n'appelle un modèle payant. Aucune formule ne décompte de tâches, de crédits ni de jetons. Tu paies le cours lui-même, une seule fois : ${priceTag(PATH_EUR)} le parcours entier, ${priceTag(TRADE_EUR)} de plus pour ton métier. Le coût qui existe vraiment commence le jour où tu sors un agent du dojo et que tu le fais tourner : c'est alors ta propre clé de fournisseur et ta propre facture, et c'est justement ce que le module de sobriété t'apprend à garder petite.`,
+        `Rien de ce que tu fais ici ne te coûte quoi que ce soit à chaque passage, parce que rien ici n'appelle un modèle payant. Aucune formule ne décompte de tâches, de crédits ni de tokens. Tu paies le cours lui-même, une seule fois : ${priceTag(PATH_EUR)} le parcours entier, ${priceTag(TRADE_EUR)} de plus pour ton métier. Le coût qui existe vraiment commence le jour où tu sors un agent du dojo et que tu le fais tourner : c'est alors ta propre clé de provider et ta propre facture, et c'est justement ce que le module de sobriété t'apprend à garder petite.`,
       links: [
         "Détail du coût",
         "Formules et tarifs",
@@ -383,7 +383,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Comment tu paies",
       answer:
-        `Une formule, par carte, dans ta propre monnaie (euro, dollar, yen), via Stripe. C'est tout : il n'y a aucun solde à recharger et aucun compteur à surveiller, parce qu'on ne te vend pas de jetons de modèle. Le jour où tu sors un agent, c'est ta propre clé qui fait tourner le travail et ton fournisseur qui te facture, séparément. Aucun portefeuille, aucun jeton de cryptomonnaie, aucune cryptomonnaie. Tu veux juste explorer ? La formule gratuite te laisse apprendre et construire sans rien dépenser.`,
+        `Une formule, par carte, dans ta propre monnaie (euro, dollar, yen), via Stripe. C'est tout : il n'y a aucun solde à recharger et aucun compteur à surveiller, parce qu'on ne te vend pas de tokens de modèle. Le jour où tu sors un agent, c'est ta propre clé qui fait tourner le travail et ton provider qui te facture, séparément. Aucun portefeuille, aucun token de cryptomonnaie, aucune cryptomonnaie. Tu veux juste explorer ? La formule gratuite te laisse apprendre et construire sans rien dépenser.`,
       links: [
         "Voir tout le parcours",
         "Le coût par tâche",
@@ -404,7 +404,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Comment marchent les paiements",
       answer:
-        `C'est simple : tu paies une formule par carte, dans ta propre monnaie. Il n'y a aucun portefeuille, aucun jeton de cryptomonnaie et aucune cryptomonnaie nulle part. Chaque tâche laisse une trace dans ton tableau de bord, donc tu vois toujours exactement ce qui a tourné, peu importe qui a payé le modèle.`,
+        `C'est simple : tu paies une formule par carte, dans ta propre monnaie. Il n'y a aucun portefeuille, aucun token de cryptomonnaie et aucune cryptomonnaie nulle part. Chaque tâche laisse une trace dans ton tableau de bord, donc tu vois toujours exactement ce qui a tourné, peu importe qui a payé le modèle.`,
       links: [
         "Apporte ta propre clé",
         "Comment ça marche",
@@ -425,7 +425,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Sécurité et vie privée",
       answer:
-        `Il n'y a aucune cryptomonnaie à sécuriser · aucun portefeuille, aucune phrase secrète, aucun jeton. Tu as une formule, payée par carte. L'application est livrée avec une politique de sécurité du contenu stricte, des en-têtes de sécurité et une protection contre les moissonneurs. Tes accès aux applications et la clé de modèle de l'opérateur sont scellés sur le serveur, derrière des limites de débit et des plafonds de dépense. Les clés que tu apportes toi-même (par exemple une clé de voix ElevenLabs) et tout ce qui relève d'un portefeuille local restent dans ton navigateur : traite donc ce navigateur comme ton propre appareil.`,
+        `Il n'y a aucune cryptomonnaie à sécuriser · aucun portefeuille, aucune phrase secrète, aucun token. Tu as une formule, payée par carte. L'application est livrée avec une politique de sécurité du contenu stricte, des en-têtes de sécurité et une protection contre les moissonneurs. Tes accès aux applications et la clé de modèle de l'opérateur sont scellés sur le serveur, derrière des limites de débit et des plafonds de dépense. Les clés que tu apportes toi-même (par exemple une clé de voix ElevenLabs) et tout ce qui relève d'un portefeuille local restent dans ton navigateur : traite donc ce navigateur comme ton propre appareil.`,
       links: [
         "Le détail de la sécurité",
         "Profil et formule",
@@ -579,7 +579,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Dans le nuage ou chez toi",
       answer:
-        `Deux façons de le faire tourner. Dans le nuage : un exécutant géré fait tourner le modèle et les appels d'outils et garde les agents en marche quand l'onglet est fermé, avec chaque clé scellée sur le serveur. Chez toi : fais tourner ton propre exécutant et pointe les connecteurs sur tes propres points d'accès MCP · tes clés, ta machine, le même bureau. Dans les deux cas, le navigateur n'est que le poste de pilotage : il montre le bureau en trois dimensions et déclenche les tâches ; c'est l'exécutant qui fait le travail authentifié.`,
+        `Deux façons de le faire tourner. Dans le nuage : un exécutant géré fait tourner le modèle et les tool calls et garde les agents en marche quand l'onglet est fermé, avec chaque clé scellée sur le serveur. Chez toi : fais tourner ton propre exécutant et pointe les connecteurs sur tes propres points d'accès MCP · tes clés, ta machine, le même bureau. Dans les deux cas, le navigateur n'est que le poste de pilotage : il montre le bureau en trois dimensions et déclenche les tâches ; c'est l'exécutant qui fait le travail authentifié.`,
       links: [
         "Nuage ou machine locale",
         "Exécution et environnement",
@@ -600,7 +600,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Explorer gratuitement ou passer en vrai",
       answer:
-        `Commence par la formule gratuite · suis les cours, rencontre l'équipe et démonte les exemples travaillés dans le bac à sable, sans rien payer, et termine avec le diplôme. Quand tu es prêt à passer en vrai, tu repars avec un fichier plutôt qu'avec un abonnement : l'instruction et les schémas d'outils que tu as construits, que tu pointes sur un framework et que tu fais tourner sur ta propre clé de fournisseur, avec le modèle de ton choix. On ne se met jamais entre toi et cette facture. Aucune cryptomonnaie, à aucun moment.`,
+        `Commence par la formule gratuite · suis les cours, rencontre l'équipe et démonte les exemples travaillés dans le bac à sable, sans rien payer, et termine avec le diplôme. Quand tu es prêt à passer en vrai, tu repars avec un fichier plutôt qu'avec un abonnement : le system prompt et les schémas d'outils que tu as construits, que tu pointes sur un framework et que tu fais tourner sur ta propre clé de provider, avec le modèle de ton choix. On ne se met jamais entre toi et cette facture. Aucune cryptomonnaie, à aucun moment.`,
       links: [
         "Ouvrir l'application",
         "Formules et tarifs",
@@ -621,7 +621,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Faut-il un portefeuille ?",
       answer:
-        `Non · il n'y a aucun portefeuille, aucune phrase secrète et aucun jeton de cryptomonnaie nulle part dans DojoBuro. Tu paies une formule dans ta propre monnaie (euro, dollar, yen…) avec une carte. Il n'y a rien de cryptographique à installer, à sécuriser ni à comprendre.`,
+        `Non · il n'y a aucun portefeuille, aucune phrase secrète et aucun token de cryptomonnaie nulle part dans DojoBuro. Tu paies une formule dans ta propre monnaie (euro, dollar, yen…) avec une carte. Il n'y a rien de cryptographique à installer, à sécuriser ni à comprendre.`,
       links: [
         "Comment tu paies",
         "Profil et formule",
