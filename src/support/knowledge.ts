@@ -163,7 +163,7 @@ export const KB: KBTopic[] = [
       { label: 'The cost lesson', href: '/academy/the-landscape/what-it-costs' },
     ],
     follow: ['cost', 'budget', 'tools'],
-    keywords: ['token', 'tokens', 'consumption', 'consommation', 'cost', 'coût', 'mode', 'saver', 'balanced', 'max', 'economy', 'économie', 'spend', 'dépense', 'limit', 'limite', 'optimise', 'optimiser', 'usage', 'meter', 'compteur'],
+    keywords: ['token', 'tokens', 'jeton', 'jetons', 'consumption', 'consommation', 'cost', 'coût', 'mode', 'saver', 'balanced', 'max', 'economy', 'économie', 'spend', 'dépense', 'limit', 'limite', 'optimise', 'optimiser', 'usage', 'meter', 'compteur'],
     fr: {
       chip: "Maîtrise ta consommation",
       answer:

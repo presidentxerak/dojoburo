@@ -37,6 +37,11 @@ const FORBIDDEN = [
 export const stripComments = (src) => src
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .split('\n').map((l) => l.replace(/(^|\s)\/\/.*$/, '$1')).join('\n')
+  // LES MOTS-CLÉS DU ROBOT D'AIDE · ce que l'élève TAPE, jamais ce qu'il lit.
+  // Quelqu'un qui écrit « jetons » doit encore tomber sur la bonne réponse :
+  // la première version de cette garde interdisait le mot partout, et le
+  // robot ne comprenait plus la question.
+  .replace(/\bkeywords:\s*\[[^\]]*\]/g, '')
 
 export const offences = (code) => {
   const out = []
@@ -72,6 +77,10 @@ ok('morsure · « fenêtre de contexte » aussi', offences("'La fenêtre de cont
 ok('morsure · un commentaire ne l\'est pas', offences(stripComments('// le jeton est compté\n/* les jetons */')).length === 0)
 ok('morsure · une adresse n\'est pas un commentaire',
   offences(stripComments("fr: 'https://exemple.fr · un jeton'")).length === 1)
+ok('morsure · un mot-clé tapé par l\'élève n\'est pas accusé',
+  offences(stripComments("keywords: ['token', 'jetons'],")).length === 0)
+ok('morsure · … mais la réponse affichée à côté l\'est',
+  offences(stripComments("keywords: ['jetons'], answer: { fr: 'Un jeton est…' }")).length === 1)
 ok('morsure · « token » passe', offences("fr: 'On te facture au token.'").length === 0)
 ok('morsure · « consigne » seul n\'est pas accusé', offences("fr: 'Lis la consigne de l\\'exercice.'").length === 0)
 
