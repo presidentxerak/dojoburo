@@ -57,6 +57,16 @@ export function recordAnswer(track: string, lesson: string, pick: number) {
 
 export function resetAll() { write(EMPTY) }
 
+/** RELIRE LE STOCKAGE · appelé par la sauvegarde en ligne (lib/account) après
+ *  qu'elle a écrit la progression fusionnée d'un autre appareil. Sans cela,
+ *  l'écran garderait la copie en mémoire jusqu'au prochain rechargement. */
+export function reloadProgress() {
+  const next = read()
+  if (JSON.stringify(next) === JSON.stringify(state)) return
+  state = next
+  for (const l of listeners) l()
+}
+
 function subscribe(l: () => void) { listeners.add(l); return () => { listeners.delete(l) } }
 
 /** Read the progress state · re-renders when it changes.

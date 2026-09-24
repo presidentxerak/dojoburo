@@ -295,18 +295,18 @@ export const KB: KBTopic[] = [
     id: 'signin',
     chip: 'Do I need an account?',
     answer:
-      'No. There are no accounts and no passwords. The free AI weekend asks for your email and nothing else. Everything else, your progress, your badges, what you unlocked and your Dojoburo save, is kept in this browser. ' +
-      'That has one consequence worth knowing: another browser, another device or a private window starts from zero, and clearing this browser\'s data erases what you finished here. The Profile page says where your progress lives, and has a button to erase everything if you share this browser.',
+      'No, but you can create one. Signing in takes your email address or your Google account, with no password, from the "Your account" card on the Profile page (or the small account button at the top right). Once you are signed in, your progress, your badges, your Dojoburo save and your clan pseudonym are saved online and synced across every device where you sign in, and a training you paid for follows your account too. ' +
+      'Without signing in, everything is kept in this browser only: another browser, another device or a private window starts from zero, and clearing this browser\'s data erases what you finished here. The free AI weekend still asks for your email and nothing else. Signing out never erases what is in this browser.',
     links: [
       { label: 'Your progress', href: '/profil' },
       { label: 'Start the free weekend', href: FREE_HREF },
     ],
     follow: ['profile', 'buy', 'security'],
-    keywords: ['sign in', 'signin', 'log in', 'login', 'account', 'compte', 'register', 'sign up', 'signup', 'inscription', "s'inscrire", 'password', 'mot de passe', 'guest', 'invité', 'another device', 'autre appareil', 'another browser', 'autre navigateur', 'sync', 'synchro', 'save my progress', 'sauvegarde', 'do i need an account', 'faut-il un compte', 'votre compte'],
+    keywords: ['sign in', 'signin', 'log in', 'login', 'account', 'compte', 'register', 'sign up', 'signup', 'inscription', "s'inscrire", 'password', 'mot de passe', 'guest', 'invité', 'another device', 'autre appareil', 'another browser', 'autre navigateur', 'sync', 'synchro', 'save my progress', 'sauvegarde', 'do i need an account', 'faut-il un compte', 'votre compte', 'connexion', 'se connecter', 'sign out', 'log out', 'se déconnecter', 'déconnexion', 'sign in with google', 'connexion google', 'synchronisation', 'synchronised', 'synced', 'online save', 'sauvegarde en ligne'],
     fr: {
       chip: 'Faut-il un compte ?',
       answer:
-        `Non. Il n'existe ni compte ni mot de passe. Le week-end de l'IA gratuit demande uniquement votre adresse e-mail. Tout le reste (votre progression, vos badges, ce que vous avez débloqué et votre partie de Dojoburo) est conservé dans ce navigateur. Il en découle une conséquence importante : un autre navigateur, un autre appareil ou une fenêtre de navigation privée repart de zéro, et l'effacement des données de ce navigateur supprime ce que vous y avez terminé. La page Profil indique où votre progression est enregistrée et propose un bouton pour tout effacer si vous partagez ce navigateur.`,
+        `Non, mais vous pouvez en créer un. La connexion se fait avec votre adresse e-mail ou votre compte Google, sans mot de passe, depuis la carte « Votre compte » de la page Profil (ou le petit bouton de compte en haut à droite). Une fois connecté, votre progression, vos badges, votre partie de Dojoburo et votre pseudonyme du clan sont sauvegardés en ligne et synchronisés sur chaque appareil où vous vous connectez ; une formation payée suit également votre compte. Sans connexion, tout est conservé uniquement dans ce navigateur : un autre navigateur, un autre appareil ou une fenêtre de navigation privée repart de zéro, et l'effacement des données de ce navigateur supprime ce que vous y avez terminé. Le week-end de l'IA gratuit demande toujours votre adresse e-mail, et rien d'autre. La déconnexion n'efface jamais ce qui se trouve dans ce navigateur.`,
       links: [
         'Votre progression',
         'Commencer le week-end gratuit',
@@ -317,7 +317,7 @@ export const KB: KBTopic[] = [
     id: 'profile',
     chip: 'Your profile',
     answer:
-      'Profile is the fourth button of the bottom bar, and it answers one question: where am I? It shows your level, your XP and how much of the path you have done, a gauge towards the next level, and a button to pick up where you left off. From there you open the valley map, full screen, to see every dojo city. You also see which trainings you have unlocked, your trophy case with every badge (earned or not), the trade you are working on, and where your progress lives: in this browser and nowhere else, with a button to erase everything.',
+      'Profile is the fourth button of the bottom bar, and it answers one question: where am I? It shows your level, your XP and how much of the path you have done, a gauge towards the next level, and a button to pick up where you left off. From there you open the valley map, full screen, to see every dojo city. You also see which trainings you have unlocked, your trophy case with every badge (earned or not), the trade you are working on, and your account: sign in with your email or Google to save your progress online and sync it across your devices, or stay signed out and keep it in this browser only. The card shows when the last sync happened, and signing out keeps your progress in the browser.',
     links: [
       { label: 'Open your profile', href: '/profil' },
       { label: 'The valley map', href: '/carte' },
@@ -327,7 +327,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Votre profil',
       answer:
-        `Profil est le quatrième bouton de la barre du bas, et il répond à une seule question : où en suis-je ? Il affiche votre niveau, votre XP et la part du parcours accomplie, une jauge vers le niveau suivant, ainsi qu'un bouton pour reprendre là où vous vous étiez arrêté. De là, vous ouvrez la carte de la vallée en plein écran pour voir toutes les cités dojo. Vous y trouvez également les formations débloquées, votre vitrine de badges (obtenus ou non), le métier sur lequel vous travaillez, et l'emplacement de votre progression : dans ce navigateur exclusivement, avec un bouton pour tout effacer.`,
+        `Profil est le quatrième bouton de la barre du bas, et il répond à une seule question : où en suis-je ? Il affiche votre niveau, votre XP et la part du parcours accomplie, une jauge vers le niveau suivant, ainsi qu'un bouton pour reprendre là où vous vous étiez arrêté. De là, vous ouvrez la carte de la vallée en plein écran pour voir toutes les cités dojo. Vous y trouvez également les formations débloquées, votre vitrine de badges (obtenus ou non), le métier sur lequel vous travaillez, ainsi que votre compte : connectez-vous avec votre adresse e-mail ou Google pour sauvegarder votre progression en ligne et la synchroniser entre vos appareils, ou restez déconnecté pour la conserver uniquement dans ce navigateur. La carte indique l'heure de la dernière synchronisation, et la déconnexion conserve votre progression dans le navigateur.`,
       links: [
         'Ouvrir votre profil',
         'La carte de la vallée',

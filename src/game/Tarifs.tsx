@@ -26,6 +26,7 @@ import { say } from '../data/bilingual'
 import { PACKS, PACK_BY_ID, packPath } from '../data/packs'
 import { PLAN_BY_ID, priceTag, PATH_EUR, TRADE_EUR } from '../data/plans'
 import { apiFetch } from '../lib/apiFetch'
+import { addReceipt } from '../lib/account'
 import { useAccess, grant, chooseTrade } from './access'
 import { Shell } from './Shell'
 
@@ -176,6 +177,10 @@ export function MerciPage() {
         const r = await apiFetch(`/api/buy?session_id=${encodeURIComponent(id)}`)
         const j = await r.json()
         if (!alive) return
+        // LE REÇU · gardé pour être inscrit sur le compte (lib/account), dès
+        // maintenant si l'élève est connecté, sinon à sa prochaine connexion.
+        // La formation suit alors l'élève sur ses autres appareils.
+        if (j?.ok && j.paid && (j.plan === 'path' || (j.plan === 'trade' && j.trade))) addReceipt(id)
         if (j?.ok && j.paid && j.plan === 'path') { grant({ path: true }); setTo('generaliste'); setState('ok') }
         else if (j?.ok && j.paid && j.plan === 'trade' && j.trade) {
           grant({ trade: j.trade }); chooseTrade(j.trade)

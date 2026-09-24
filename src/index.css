@@ -10207,6 +10207,34 @@ button.wm-tag { border-radius: 999px !important; }
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 3px 10px -2px rgba(124, 58, 237, 0.8);
 }
 
+/* L'ENTRÉE DU COMPTE · une pastille ronde à l'initiale (connecté) ou une puce
+   « Connexion » (déconnecté), toutes deux vers /profil. À PLAT : une couleur
+   pleine, ni dégradé ni ombre, comme les boutons du jeu. Elle n'existe que si
+   la connexion est activée (VITE_PRIVY_APP_ID), et c'est alors que l'en-tête
+   porte .has-acct pour lui faire de la place sur les petits écrans. */
+.gm-acct {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 32px; min-width: 32px; padding: 0 12px; border: 0; border-radius: 999px;
+  font-family: var(--font-game); font-weight: 800; font-size: 13px; line-height: 1;
+  color: #fff; background: #7c3aed; box-shadow: none; white-space: nowrap;
+  transition: background-color 160ms ease;
+}
+.gm-acct.in { width: 32px; padding: 0; font-size: 15px; }
+.gm-acct.out { background: #2c1d52; color: #ede9fe; }
+.gm-acct:hover { background: #8b5cf6; color: #fff; }
+.gm-acct:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+@media (max-width: 719px) {
+  .gm-acct.out { width: 32px; padding: 0; }
+  .gm-acct.out .gm-acct-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (max-width: 479px) {
+  .gm-top.has-acct .gm-brand-wm { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (max-width: 359px) {
+  .gm-acct, .gm-acct.in, .gm-acct.out { width: 28px; height: 28px; min-width: 28px; }
+  .gm-top.has-acct .gm-xp-body { min-width: 56px; }
+}
+
 .gm-main { flex: 1; width: 100%; max-width: 780px; margin: 0 auto; }
 .gm-main.wide { max-width: none; }
 
@@ -10964,6 +10992,24 @@ button.wm-tag { border-radius: 999px !important; }
   background: radial-gradient(circle at 35% 30%, #fff6b0, #facc15 50%, #ca8a04);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 4px 12px rgba(250, 204, 21, 0.45);
 }
+
+/* LE COMPTE · une carte à plat, violet pâle, sans bordure ni ombre. */
+.pf-acct { padding: 16px clamp(14px, 3vw, 20px) 18px; border-radius: 18px; background: rgba(124, 58, 237, 0.14); box-shadow: none; }
+.pf-acct .pf-h2 { margin-bottom: 8px; }
+.pf-acct .gm-cta { margin-top: 12px; }
+.pf-acct-note { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: var(--g-sub); }
+.pf-acct-who { display: flex; align-items: center; gap: 12px; margin: 4px 0 10px; min-width: 0; }
+.pf-acct-av {
+  flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+  font-family: var(--font-game); font-weight: 800; font-size: 18px; color: #fff; background: #7c3aed;
+}
+.pf-acct-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pf-acct-id em { font-style: normal; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--g-sub); }
+.pf-acct-id b { font-size: 15px; font-weight: 800; color: #fff; overflow-wrap: anywhere; }
+.pf-acct-st { margin: 10px 0 0; font-size: 14px; font-weight: 700; color: #bef264; }
+.pf-acct-st.err { color: #fca5a5; }
+.pf-acct-acts { display: flex; flex-wrap: wrap; gap: 0 10px; }
+.pf-acct-acts .cc-btn { min-height: 42px; padding: 9px 18px; font-size: 15px; margin-top: 12px; }
 
 .pf-end { padding-bottom: 30px; }
 .pf-forget { --b: #e11d48; --b-hi: #f43f5e; --b-lo: #be123c; }

@@ -10,7 +10,7 @@
 //      Privy user into the local workshop account (provider:'privy').
 import { useEffect, type ReactNode } from 'react'
 import { PrivyProvider, usePrivy } from '@privy-io/react-auth'
-import { privyControls } from './controls'
+import { privyControls, publishAuth } from './controls'
 import { useWorkshop } from '../workshop'
 
 const APP_ID = import.meta.env.VITE_PRIVY_APP_ID as string
@@ -53,6 +53,18 @@ function Bridge({ children }: { children: ReactNode }) {
     }
   }, [ready, login, logout, getAccessToken])
 
+  // L'ÉTAT DE CONNEXION pour le jeu · la sauvegarde en ligne (lib/account)
+  // démarre et s'arrête sur ce signal. Démonté, le pont dit « déconnecté ».
+  useEffect(() => {
+    publishAuth({
+      ready,
+      authenticated: !!(ready && authenticated && user),
+      email: user ? readUser(user).email : '',
+      did: user?.id ?? '',
+    })
+  }, [ready, authenticated, user])
+  useEffect(() => () => publishAuth(null), [])
+
   // mirror the authenticated Privy identity into the local account store
   useEffect(() => {
     if (!ready) return
@@ -84,8 +96,9 @@ export default function PrivyGate({ children }: { children: ReactNode }) {
       config={{
         // sign in with email or Google (Gmail) only · nothing else
         loginMethods: ['email', 'google'],
-        // l'app n'a qu'un thème, violet de nuit · la fenêtre de connexion le suit
-        appearance: { theme: 'dark', accentColor: '#ff2d9b', walletList: [] },
+        // l'app n'a qu'un thème, violet de nuit · la fenêtre de connexion le
+        // suit, avec le violet des boutons du jeu (voir .gm-cta)
+        appearance: { theme: 'dark', accentColor: '#7c3aed', walletList: [] },
         // no crypto wallet is created or required for signing in
         embeddedWallets: { ethereum: { createOnLogin: 'off' } },
       }}

@@ -245,6 +245,19 @@ const ENDPOINTS = [
     ['DELETE', '/api/clan?id=00000000-0000-4000-8000-000000000001'],
     ['PUT', '/api/clan', '{}'],
   ]],
+  // LE PROFIL · la sauvegarde en ligne. Une fonction Node (Postgres). Sans
+  // base ni Privy, chaque méthode répond « not_configured » en 503, et jamais
+  // « ok » : l'écran dit alors que la progression reste dans le navigateur.
+  ['profile', 'api/profile.ts', [
+    ['GET', '/api/profile'],
+    ['PUT', '/api/profile', '{'],
+    ['PUT', '/api/profile', JSON.stringify({ data: { v: 1, academy: { done: ['a/b'], answers: {} } } })],
+    ['POST', '/api/profile?action=sync', JSON.stringify({ data: {}, access: { path: true } })],
+    ['POST', '/api/profile?action=claim', JSON.stringify({ session_id: 'cs_test_abc123' })],
+    ['POST', '/api/profile?action=claim', JSON.stringify({ session_id: 'pas-une-session' })],
+    ['POST', '/api/profile?action=inventée', '{}'],
+    ['DELETE', '/api/profile', '{}'],
+  ]],
   ['agent-run', 'api/agent-run.ts', [
     ['POST', '/api/agent-run', '{'],
     ['POST', '/api/agent-run', JSON.stringify({ task: 'positioning', agentName: 'Scout' })],
@@ -299,6 +312,9 @@ console.log('\n--- sans base, personne ne prétend avoir réussi ---------------
     ['clan', 'api/clan.ts', 'POST', '/api/clan?action=create', { key: 'k'.repeat(43), pseudo: 'Nora', title: 'Un agent', body: 'Il trie mes e-mails chaque matin.' }],
     ['clan', 'api/clan.ts', 'POST', '/api/clan?action=bravo', { key: 'k'.repeat(43), id: '00000000-0000-4000-8000-000000000001' }],
     ['clan', 'api/clan.ts', 'POST', '/api/clan?action=report', { key: 'k'.repeat(43), id: '00000000-0000-4000-8000-000000000001' }],
+    ['profile', 'api/profile.ts', 'PUT', '/api/profile', { data: { v: 1, academy: { done: ['a/b'], answers: {} } } }],
+    ['profile', 'api/profile.ts', 'POST', '/api/profile?action=sync', { data: {}, access: { path: true } }],
+    ['profile', 'api/profile.ts', 'POST', '/api/profile?action=claim', { session_id: 'cs_test_abc123' }],
   ]
   const bad = []
   for (const [name, entry, m, u, payload] of WRITES) {
