@@ -756,7 +756,7 @@ export const ENRICH_PATH_C: Record<string, Enrichment> = {
           "Pourquoi le tour 30 d'une conversation coûte-t-il plus que le tour 3, pour la même petite question ?"),
         options: [
           B("The model gets tired and writes longer answers", "Le modèle fatigue et écrit des réponses plus longues"),
-          B("Providers charge a penalty on long conversations", "Les providers facturent une pénalité sur les longues conversations"),
+          B("Providers charge an extra penalty on long conversations","Les providers facturent une pénalité sur les longues conversations"),
           B("The 29 previous turns are resent with the question", "Les 29 tours précédents sont renvoyés avec la question"),
         ],
         answer: 2,
