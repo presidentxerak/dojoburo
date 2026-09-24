@@ -81,20 +81,20 @@ const B = (en: string, fr: string): Bi => ({ en, fr })
 export const DESIGN_COURSE: DesignCourse = {
   id: 'design',
   path: '/design',
-  title: B('Design with a model', 'Le design avec un modèle'),
+  title: B('Design with a model', 'Fais du design avec un modèle !'),
   forWho: B(
     'For someone in growth, communications or product who has to ship a screen and has never been taught design.',
-    "Pour quelqu'un du growth, de la communication ou du produit qui doit sortir un écran et n'a jamais appris le design.",
+    "Pour toi qui bosses dans le growth, la communication ou le produit, qui dois sortir un écran sans avoir jamais appris le design.",
   ),
   promise: B(
     'You will not learn to draw. You will learn to judge: to say what is wrong with a screen, in words a model can act on.',
-    "Vous n'apprendrez pas à dessiner. Vous apprendrez à juger : à dire ce qui ne va pas dans un écran, avec des mots sur lesquels un modèle peut agir.",
+    "Tu n'apprendras pas à dessiner. Tu vas apprendre à juger : dire ce qui ne va pas dans un écran, avec des mots sur lesquels un modèle peut enfin agir.",
   ),
   lessons: [
     {
       id: 'plausible',
       title: B('What a model knows about design, and what it does not',
-        "Ce qu'un modèle sait du design, et ce qu'il ne sait pas"),
+        "Ce qu'un modèle sait du design (et ce qu'il ignore)"),
       plain: B(
         'A model has read millions of pages, so it knows what a page LOOKS like. It has never watched anyone fail to find a button. It produces work that is plausible, and plausible is the trap: it has the shape of a finished design without any of the decisions that make one work.',
         "Un modèle a lu des millions de pages, donc il sait à quoi une page RESSEMBLE. Il n'a jamais vu personne ne pas trouver un bouton. Il produit du plausible, et le plausible est le piège : ça a la forme d'un design fini sans aucune des décisions qui en font un.",
@@ -110,19 +110,19 @@ export const DESIGN_COURSE: DesignCourse = {
       ],
       steps: [
         B('Take any screen a model made for you and ask one question: where is my eye supposed to go first?',
-          "Prenez n'importe quel écran qu'un modèle vous a fait et posez une seule question : où mon oeil doit-il aller en premier ?"),
+          "Prends n'importe quel écran qu'un modèle t'a fait et pose une seule question : où mon oeil doit-il aller en premier ?"),
         B('If three things compete for that place, the model has decorated rather than designed. Name the one that should win.',
-          "Si trois choses se disputent cette place, le modèle a décoré au lieu de designer. Nommez celle qui doit gagner."),
+          "Si trois choses se disputent cette place, le modèle a décoré au lieu de designer. Nomme celle qui doit gagner."),
         B('Ask again for the same screen, saying which element must dominate and which must recede. That single sentence changes more than any adjective.',
-          "Redemandez le même écran en disant quel élément doit dominer et lequel doit s'effacer. Cette seule phrase change plus que n'importe quel adjectif."),
+          "Redemande le même écran en disant quel élément doit dominer et lequel doit s'effacer. Cette seule phrase change plus que n'importe quel adjectif."),
       ],
       trap: B(
         'Asking for "more modern" or "cleaner". Those words mean nothing operational, so the model swaps one set of decorations for another and you go round for an hour feeling that it is nearly there.',
-        "Demander « plus moderne » ou « plus épuré ». Ces mots n'ont aucune traduction opérationnelle, donc le modèle échange un jeu de décorations contre un autre et vous tournez une heure avec le sentiment que ça y est presque.",
+        "Demander « plus moderne » ou « plus épuré ». Ces mots n'ont aucune traduction opérationnelle, donc le modèle échange un jeu de décorations contre un autre et tu tournes une heure avec le sentiment que ça y est presque.",
       ),
       check: B(
         'Squint at the screen until it blurs. Whatever is still visible is your hierarchy. If that is not what you meant, the design is wrong regardless of how it looks sharp.',
-        "Plissez les yeux jusqu'à ce que l'écran devienne flou. Ce qui reste visible est votre hiérarchie. Si ce n'est pas ce que vous vouliez, le design est faux quelle que soit son allure une fois net.",
+        "Plisse les yeux jusqu'à ce que l'écran devienne flou. Ce qui reste visible est ta hiérarchie. Si ce n'est pas ce que tu voulais, le design est faux quelle que soit son allure une fois net.",
       ),
     },
     {
@@ -135,37 +135,37 @@ export const DESIGN_COURSE: DesignCourse = {
       ),
       like: B(
         'Briefing a photographer. "Make it feel premium" gets you a guess. "One subject, no props, natural light from the left, nothing red in frame" gets you the photograph.',
-        "Briefer un photographe. « Qu'on sente le haut de gamme » vous rend une supposition. « Un seul sujet, aucun accessoire, lumière naturelle venant de la gauche, aucun rouge dans le cadre » vous rend la photo.",
+        "Briefer un photographe. « Qu'on sente le haut de gamme » te rend une supposition. « Un seul sujet, aucun accessoire, lumière naturelle venant de la gauche, aucun rouge dans le cadre » te rend la photo.",
       ),
       words: [
         { term: B('Constraint', 'Contrainte'), means: B('A rule that can be checked by looking. Two typefaces maximum. No shadow. Nothing below the fold.', "Une règle qui se vérifie en regardant. Deux polices maximum. Aucune ombre. Rien sous la ligne de flottaison.") },
-        { term: B('Type scale', 'Échelle typographique'), means: B('The handful of text sizes you allow yourself, and nothing between them. It is what makes a page look decided rather than assembled.', "La poignée de tailles de texte que vous vous autorisez, et rien entre elles. C'est ce qui fait qu'une page a l'air décidée plutôt qu'assemblée.") },
+        { term: B('Type scale', 'Échelle typographique'), means: B('The handful of text sizes you allow yourself, and nothing between them. It is what makes a page look decided rather than assembled.', "La poignée de tailles de texte que tu t'autorises, et rien entre elles. C'est ce qui fait qu'une page a l'air décidée plutôt qu'assemblée.") },
         { term: B('Spacing scale', 'Échelle d\'espacement'), means: B('The same idea for gaps: a fixed set of distances, used everywhere, instead of whatever number felt right.', "La même idée pour les écarts : un jeu fixe de distances, utilisé partout, au lieu du chiffre qui semblait bien sur le moment.") },
       ],
       steps: [
         B('Write the three things the design may NOT do before you write anything it should do.',
-          "Écrivez les trois choses que le design n'a PAS le droit de faire avant d'écrire quoi que ce soit qu'il doive faire."),
+          "Écris les trois choses que le design n'a PAS le droit de faire avant d'écrire quoi que ce soit qu'il doive faire."),
         B('Name the scales: how many text sizes, how many spacings, how many colours. Small numbers. Four, four and three is plenty.',
-          "Nommez les échelles : combien de tailles de texte, combien d'espacements, combien de couleurs. De petits nombres. Quatre, quatre et trois suffisent largement."),
+          "Nomme les échelles : combien de tailles de texte, combien d'espacements, combien de couleurs. De petits nombres. Quatre, quatre et trois suffisent largement."),
         B('State the one job of the screen in a sentence that contains a verb. Not "the pricing page" but "make someone pick a plan without scrolling twice".',
-          "Énoncez le travail de l'écran en une phrase contenant un verbe. Pas « la page tarifs » mais « faire choisir une formule sans avoir à défiler deux fois »."),
+          "Énonce le travail de l'écran en une phrase contenant un verbe. Pas « la page tarifs » mais « faire choisir une formule sans avoir à défiler deux fois »."),
       ],
       trap: B(
         'Giving a reference and nothing else. A model shown a famous site will copy its surface, including the decisions that only made sense for that company, and you inherit them without knowing you did.',
-        "Donner une référence et rien d'autre. Un modèle à qui on montre un site connu en recopie la surface, y compris les décisions qui n'avaient de sens que pour cette entreprise, et vous en héritez sans le savoir.",
+        "Donner une référence et rien d'autre. Un modèle à qui on montre un site connu en recopie la surface, y compris les décisions qui n'avaient de sens que pour cette entreprise, et tu en hérites sans le savoir.",
       ),
       check: B(
         'Hand your brief to someone else and ask them to tell you what is forbidden. If they cannot, you wrote adjectives.',
-        "Donnez votre brief à quelqu'un d'autre et demandez-lui ce qui est interdit. S'il ne peut pas le dire, vous avez écrit des adjectifs.",
+        "Donne ton brief à quelqu'un d'autre et demande-lui ce qui est interdit. S'il ne peut pas le dire, tu as écrit des adjectifs.",
       ),
     },
     {
       id: 'decisions',
       title: B('The decisions a model will get wrong if you do not make them',
-        "Les décisions qu'un modèle prendra mal si vous ne les prenez pas"),
+        "Les décisions qu'un modèle prendra mal si tu ne les prends pas"),
       plain: B(
         'Left alone, a model defaults to the average of everything it has seen. The average is not neutral: it is a real set of choices, made by nobody, for no one. These are the places where the average is actively wrong for you.',
-        "Laissé seul, un modèle retombe sur la moyenne de tout ce qu'il a vu. La moyenne n'est pas neutre : c'est un vrai jeu de choix, fait par personne, pour personne. Voici les endroits où la moyenne est franchement mauvaise pour vous.",
+        "Laissé seul, un modèle retombe sur la moyenne de tout ce qu'il a vu. La moyenne n'est pas neutre : c'est un vrai jeu de choix, fait par personne, pour personne. Voici les endroits où la moyenne est franchement mauvaise pour toi.",
       ),
       like: B(
         'Buying a suit off the rack in the most common size. It fits nobody in particular, and it is obvious on everybody.',
@@ -178,43 +178,43 @@ export const DESIGN_COURSE: DesignCourse = {
       ],
       steps: [
         B('Decide density first: is this screen read in three seconds or worked in for an hour? Everything else follows.',
-          "Décidez la densité d'abord : cet écran se lit en trois secondes ou s'y travaille-t-on une heure ? Tout le reste en découle."),
+          "Décide la densité d'abord : cet écran se lit en trois secondes ou s'y travaille-t-on une heure ? Tout le reste en découle."),
         B('Decide the one colour that means "act here", and forbid it everywhere else. A page with four accent colours has none.',
-          "Décidez la seule couleur qui veut dire « agissez ici », et interdisez-la partout ailleurs. Une page avec quatre couleurs d'accent n'en a aucune."),
+          "Décide la seule couleur qui veut dire « agis ici », et interdis-la partout ailleurs. Une page avec quatre couleurs d'accent n'en a aucune."),
         B('Decide what happens when there is nothing to show. Empty states are where generated design is always weakest, because nobody photographs them.',
-          "Décidez ce qui se passe quand il n'y a rien à montrer. Les états vides sont l'endroit où le design généré est toujours le plus faible, parce que personne ne les photographie."),
+          "Décide ce qui se passe quand il n'y a rien à montrer. Les états vides sont l'endroit où le design généré est toujours le plus faible, parce que personne ne les photographie."),
       ],
       trap: B(
         'Letting the model choose the accent colour. It will pick the blue that every product uses, and your screen will be indistinguishable from software people already ignore.',
-        "Laisser le modèle choisir la couleur d'accent. Il prendra le bleu que tous les produits utilisent, et votre écran sera indiscernable de logiciels que les gens ignorent déjà.",
+        "Laisser le modèle choisir la couleur d'accent. Il prendra le bleu que tous les produits utilisent, et ton écran sera indiscernable de logiciels que les gens ignorent déjà.",
       ),
       check: B(
         'Print the screen in black and white. If it still works, your hierarchy is built on size and weight, which is where it belongs. If it collapses, you were leaning on colour to do structural work.',
-        "Imprimez l'écran en noir et blanc. S'il fonctionne encore, votre hiérarchie repose sur la taille et la graisse, là où elle doit être. S'il s'effondre, vous faisiez porter à la couleur un travail de structure.",
+        "Imprime l'écran en noir et blanc. S'il fonctionne encore, ta hiérarchie repose sur la taille et la graisse, là où elle doit être. S'il s'effondre, tu faisais porter à la couleur un travail de structure.",
       ),
     },
     {
       id: 'iterate',
-      title: B('Iterate without destroying what worked', 'Itérer sans casser ce qui marchait'),
+      title: B('Iterate without destroying what worked', 'Itère sans casser ce qui marchait !'),
       plain: B(
         'The usual failure is not a bad first draft, it is the fifth one. You ask for six changes at once, the model rewrites the whole screen, two things you liked disappear, and you cannot say which request caused it.',
-        "L'échec habituel n'est pas le premier jet, c'est le cinquième. Vous demandez six changements d'un coup, le modèle réécrit tout l'écran, deux choses qui vous plaisaient disparaissent, et vous ne pouvez pas dire quelle demande en est la cause.",
+        "L'échec habituel n'est pas le premier jet, c'est le cinquième. Tu demandes six changements d'un coup, le modèle réécrit tout l'écran, deux choses qui te plaisaient disparaissent, et tu ne peux pas dire quelle demande en est la cause.",
       ),
       like: B(
         'Adjusting a recipe by changing five ingredients at once. It tastes different and you have learned nothing you can reuse.',
-        "Corriger une recette en changeant cinq ingrédients d'un coup. Le goût a changé et vous n'avez rien appris de réutilisable.",
+        "Corriger une recette en changeant cinq ingrédients d'un coup. Le goût a changé et tu n'as rien appris de réutilisable.",
       ),
       words: [
-        { term: B('One variable', 'Une variable'), means: B('Changing exactly one thing per round, so the difference tells you something.', "Changer exactement une chose par tour, pour que l'écart vous apprenne quelque chose.") },
+        { term: B('One variable', 'Une variable'), means: B('Changing exactly one thing per round, so the difference tells you something.', "Changer exactement une chose par tour, pour que l'écart t'apprenne quelque chose.") },
         { term: B('Lock', 'Verrou'), means: B('Naming what must not change, out loud, in the same message as what must.', "Nommer ce qui ne doit pas bouger, explicitement, dans le même message que ce qui doit bouger.") },
       ],
       steps: [
         B('Say what to keep before you say what to change. "Keep the layout and the type sizes. Change only the spacing between the cards."',
-          "Dites quoi garder avant de dire quoi changer. « Garde la mise en page et les tailles de texte. Change seulement l'espace entre les cartes. »"),
+          "Dis quoi garder avant de dire quoi changer. « Garde la mise en page et les tailles de texte. Change seulement l'espace entre les cartes. »"),
         B('Keep the version you liked. A model cannot go back to something you did not save, and it will not reproduce it from a description.',
-          "Gardez la version qui vous plaisait. Un modèle ne peut pas revenir à ce que vous n'avez pas conservé, et il ne la reproduira pas depuis une description."),
+          "Garde la version qui te plaisait. Un modèle ne peut pas revenir à ce que tu n'as pas conservé, et il ne la reproduira pas depuis une description."),
         B('When you cannot say why a version is better, stop and write it down. If you cannot write it, you are choosing by mood, and tomorrow you will choose differently.',
-          "Quand vous ne savez pas dire pourquoi une version est meilleure, arrêtez et écrivez-le. Si vous ne pouvez pas l'écrire, vous choisissez à l'humeur, et demain vous choisirez autrement."),
+          "Quand tu ne sais pas dire pourquoi une version est meilleure, arrête-toi et écris-le. Si tu ne peux pas l'écrire, tu choisis à l'humeur, et demain tu choisiras autrement."),
       ],
       trap: B(
         'Correcting forward for twenty turns. Beyond a few rounds the thread carries every rejected version with it, the model averages them, and the output gets blander with each attempt.',
@@ -222,16 +222,16 @@ export const DESIGN_COURSE: DesignCourse = {
       ),
       check: B(
         'Put the first version and the current one side by side. If you cannot name three deliberate differences, you have been busy rather than productive.',
-        "Mettez la première version et l'actuelle côte à côte. Si vous ne pouvez pas nommer trois différences voulues, vous avez été occupé plutôt que productif.",
+        "Mets la première version et l'actuelle côte à côte. Si tu ne peux pas nommer trois différences voulues, tu as été occupé plutôt que productif.",
       ),
     },
     {
       id: 'system',
       title: B('What you leave with is a system, not a picture',
-        "Ce que vous emportez est un système, pas une image"),
+        "Ce que tu emportes : un système, pas une image"),
       plain: B(
         'One good screen is worth very little. What is worth something is the short list of rules that produced it, because that list makes the next twenty screens agree with each other without you in the room.',
-        "Un bel écran ne vaut presque rien. Ce qui vaut quelque chose, c'est la courte liste de règles qui l'a produit, parce que cette liste fait que les vingt écrans suivants s'accordent entre eux sans vous dans la pièce.",
+        "Un bel écran ne vaut presque rien. Ce qui vaut quelque chose, c'est la courte liste de règles qui l'a produit, parce que cette liste fait que les vingt écrans suivants s'accordent entre eux sans toi dans la pièce.",
       ),
       like: B(
         'The difference between one good sentence and a style guide. The sentence is used once; the guide keeps a whole team sounding like one person.',
@@ -243,19 +243,19 @@ export const DESIGN_COURSE: DesignCourse = {
       ],
       steps: [
         B('At the end of any screen you are happy with, write down the sizes, spacings and colours it actually used. Name them.',
-          "À la fin de tout écran qui vous satisfait, notez les tailles, les espacements et les couleurs réellement employés. Nommez-les."),
+          "À la fin de tout écran qui te satisfait, note les tailles, les espacements et les couleurs réellement employés. Nomme-les."),
         B('Give that list to the model at the START of the next screen, as constraints. This is the whole trick, and it is why the brief lesson came before this one.',
-          "Donnez cette liste au modèle au DÉBUT de l'écran suivant, comme contraintes. C'est tout le truc, et c'est pourquoi la leçon sur le brief venait avant celle-ci."),
+          "Donne cette liste au modèle au DÉBUT de l'écran suivant, comme contraintes. C'est tout le truc, et c'est pourquoi la leçon sur le brief venait avant celle-ci."),
         B('Keep the list in a file, not in a conversation. A conversation ends; the file is what makes the second month easier than the first.',
-          "Gardez la liste dans un fichier, pas dans une conversation. Une conversation se termine ; le fichier est ce qui rend le deuxième mois plus facile que le premier."),
+          "Garde la liste dans un fichier, pas dans une conversation. Une conversation se termine ; le fichier est ce qui rend le deuxième mois plus facile que le premier."),
       ],
       trap: B(
         'Treating each screen as a fresh request. It is the most expensive habit in this course: every screen starts from the average again, and nothing you learned accumulates.',
-        "Traiter chaque écran comme une demande neuve. C'est l'habitude la plus coûteuse de ce cours : chaque écran repart de la moyenne, et rien de ce que vous avez appris ne s'accumule.",
+        "Traiter chaque écran comme une demande neuve. C'est l'habitude la plus coûteuse de ce cours : chaque écran repart de la moyenne, et rien de ce que tu as appris ne s'accumule.",
       ),
       check: B(
         'Ask someone to point at two screens and say whether they come from the same product. If they hesitate, you have pictures, not a system.',
-        "Demandez à quelqu'un de regarder deux écrans et de dire s'ils viennent du même produit. S'il hésite, vous avez des images, pas un système.",
+        "Demande à quelqu'un de regarder deux écrans et de dire s'ils viennent du même produit. S'il hésite, tu as des images, pas un système.",
       ),
     },
   ],
@@ -276,10 +276,10 @@ export const DESIGN_COURSE: DesignCourse = {
 export const FIGMA_COURSE: DesignCourse = {
   id: 'figma',
   path: '/figma',
-  title: B('Figma, the model behind the buttons', 'Figma, le modèle derrière les boutons'),
+  title: B('Figma, the model behind the buttons', 'Figma : entre dans le modèle derrière les boutons'),
   forWho: B(
     'For someone who has been sent a Figma link, has to change something in it, and has never opened the tool.',
-    "Pour quelqu'un à qui on a envoyé un lien Figma, qui doit y changer quelque chose, et qui n'a jamais ouvert l'outil.",
+    "Pour toi, à qui on a envoyé un lien Figma, qui dois y changer quelque chose, et qui n'as jamais ouvert l'outil.",
   ),
   promise: B(
     'Five ideas. Once you hold them, the current interface is a ten minute discovery rather than a course, and it stays true when the buttons move.',
@@ -303,29 +303,29 @@ export const FIGMA_COURSE: DesignCourse = {
       ],
       steps: [
         B('Before moving anything, find out what it is inside. Almost every "why did that jump" is a thing that belonged to a box you did not see.',
-          "Avant de déplacer quoi que ce soit, trouvez dans quoi c'est. Presque tous les « pourquoi ça a sauté » sont une chose qui appartenait à une boîte que vous n'aviez pas vue."),
+          "Avant de déplacer quoi que ce soit, trouve dans quoi c'est. Presque tous les « pourquoi ça a sauté » sont une chose qui appartenait à une boîte que tu n'avais pas vue."),
         B('Use frames where you would have used a group. A group tracks its contents; a frame governs them, and governing is what you want.',
-          "Utilisez des cadres là où vous auriez mis un groupe. Un groupe suit son contenu ; un cadre le gouverne, et c'est gouverner que vous voulez."),
+          "Utilise des cadres là où tu aurais mis un groupe. Un groupe suit son contenu ; un cadre le gouverne, et c'est gouverner que tu veux."),
       ],
       trap: B(
         'Dragging things loose on the canvas because it is faster. It is faster for ten minutes and then nothing can be resized without breaking, and you cannot say why.',
-        "Poser les choses en vrac sur le plan de travail parce que c'est plus rapide. Ça l'est dix minutes, puis plus rien ne se redimensionne sans casser, et vous ne savez pas dire pourquoi.",
+        "Poser les choses en vrac sur le plan de travail parce que c'est plus rapide. Ça l'est dix minutes, puis plus rien ne se redimensionne sans casser, et tu ne sais pas dire pourquoi.",
       ),
       check: B(
         'Resize the outer box. If everything inside behaves sensibly, your structure is right. If things overlap or fly off, you have groups where you needed frames.',
-        "Redimensionnez la boîte extérieure. Si tout ce qu'elle contient se comporte raisonnablement, votre structure est bonne. Si des choses se chevauchent ou s'envolent, vous avez des groupes là où il fallait des cadres.",
+        "Redimensionne la boîte extérieure. Si tout ce qu'elle contient se comporte raisonnablement, ta structure est bonne. Si des choses se chevauchent ou s'envolent, tu as des groupes là où il fallait des cadres.",
       ),
     },
     {
       id: 'autolayout',
-      title: B('Auto layout: stop placing things by hand', "Auto layout : arrêter de placer à la main"),
+      title: B('Auto layout: stop placing things by hand', "Auto layout : arrête enfin de tout placer à la main !"),
       plain: B(
         'Auto layout tells a frame to arrange its children in a direction, with a fixed gap, instead of you positioning each one. It is the difference between a document that survives a text change and one that has to be rebuilt every time.',
-        "L'auto layout dit à un cadre de ranger ses enfants dans une direction, avec un écart fixe, au lieu que vous placiez chacun. C'est la différence entre un document qui survit à un changement de texte et un qui se refait à chaque fois.",
+        "L'auto layout dit à un cadre de ranger ses enfants dans une direction, avec un écart fixe, au lieu que tu places chacun. C'est la différence entre un document qui survit à un changement de texte et un qui se refait à chaque fois.",
       ),
       like: B(
         'A shelf rather than a pile. Add a book to a shelf and the others shift along; add one to a pile and you restack the lot.',
-        "Une étagère plutôt qu'une pile. Ajoutez un livre sur une étagère et les autres se décalent ; ajoutez-en un sur une pile et vous réempilez tout.",
+        "Une étagère plutôt qu'une pile. Ajoute un livre sur une étagère et les autres se décalent ; ajoutes-en un sur une pile et tu réempiles tout.",
       ),
       words: [
         { term: B('Direction', 'Direction'), means: B('Whether children stack downwards or run across. Almost every layout is these two, nested.', "Si les enfants s'empilent vers le bas ou se suivent en largeur. Presque toute mise en page est ces deux là, imbriqués.") },
@@ -334,27 +334,27 @@ export const FIGMA_COURSE: DesignCourse = {
       ],
       steps: [
         B('Put auto layout on anything that is a list, a row of buttons, a card, or a page. In practice, on nearly everything.',
-          "Mettez de l'auto layout sur tout ce qui est une liste, une rangée de boutons, une carte ou une page. En pratique, sur presque tout."),
+          "Mets de l'auto layout sur tout ce qui est une liste, une rangée de boutons, une carte ou une page. En pratique, sur presque tout."),
         B('Set the gap from your spacing scale, not by dragging until it looks right. This is where the first design course pays off here.',
-          "Réglez l'écart depuis votre échelle d'espacement, pas en tirant jusqu'à ce que ça semble bien. C'est ici que le premier cours de design se rentabilise."),
+          "Règle l'écart depuis ton échelle d'espacement, pas en tirant jusqu'à ce que ça semble bien. C'est ici que le premier cours de design se rentabilise."),
         B('Then change a label to something twice as long, on purpose. That is the test, and it takes four seconds.',
-          "Puis changez un libellé pour un deux fois plus long, exprès. C'est le test, et il prend quatre secondes."),
+          "Puis change un libellé pour un deux fois plus long, exprès. C'est le test, et il prend quatre secondes."),
       ],
       trap: B(
         'Nesting auto layouts six deep to force one stubborn alignment. When you are fighting it, the answer is almost always that one box should hug where it fills, or the reverse.',
-        "Imbriquer six niveaux d'auto layout pour forcer un alignement récalcitrant. Quand vous vous battez, la réponse est presque toujours qu'une boîte doit ajuster là où elle remplit, ou l'inverse.",
+        "Imbriquer six niveaux d'auto layout pour forcer un alignement récalcitrant. Quand tu te bats, la réponse est presque toujours qu'une boîte doit ajuster là où elle remplit, ou l'inverse.",
       ),
       check: B(
         'Double the length of the longest piece of text. A layout that survives that is a layout; one that does not is a drawing.',
-        "Doublez la longueur du plus long texte. Une mise en page qui survit à ça est une mise en page ; une qui n'y survit pas est un dessin.",
+        "Double la longueur du plus long texte. Une mise en page qui survit à ça est une mise en page ; une qui n'y survit pas est un dessin.",
       ),
     },
     {
       id: 'components',
-      title: B('Components: write a thing once', 'Composants : écrire une chose une fois'),
+      title: B('Components: write a thing once', 'Composants : écris une chose une seule fois'),
       plain: B(
         'A component is one definition and many copies that follow it. Change the definition and every copy changes. It is the same idea as a function in code, and the same idea as the design system from the other course.',
-        "Un composant est une définition et des copies qui la suivent. Changez la définition et toutes les copies changent. C'est la même idée qu'une fonction en programmation, et la même idée que le système de design de l'autre cours.",
+        "Un composant est une définition et des copies qui la suivent. Change la définition et toutes les copies changent. C'est la même idée qu'une fonction en programmation, et la même idée que le système de design de l'autre cours.",
       ),
       like: B(
         'A rubber stamp. You recut the stamp, not the four hundred pages you already stamped.',
@@ -366,17 +366,17 @@ export const FIGMA_COURSE: DesignCourse = {
       ],
       steps: [
         B('Make a component the second time you need the same thing, not the first. Building a system for something used once costs more than it returns.',
-          "Faites un composant la deuxième fois que vous avez besoin de la même chose, pas la première. Bâtir un système pour une chose utilisée une fois coûte plus que ça ne rapporte."),
+          "Fais un composant la deuxième fois que tu as besoin de la même chose, pas la première. Bâtir un système pour une chose utilisée une fois coûte plus que ça ne rapporte."),
         B('Name it for what it is, not what it looks like. "Primary button", never "blue button": the day it turns green the name lies.',
-          "Nommez-le pour ce qu'il est, pas pour son allure. « Bouton principal », jamais « bouton bleu » : le jour où il devient vert le nom ment."),
+          "Nomme-le pour ce qu'il est, pas pour son allure. « Bouton principal », jamais « bouton bleu » : le jour où il devient vert le nom ment."),
       ],
       trap: B(
         'Making everything a component on day one. You end up maintaining a library for a design nobody has approved yet, and changing direction costs ten times more.',
-        "Tout transformer en composant dès le premier jour. Vous entretenez une bibliothèque pour un design que personne n'a validé, et changer de direction coûte dix fois plus.",
+        "Tout transformer en composant dès le premier jour. Tu entretiens une bibliothèque pour un design que personne n'a validé, et changer de direction coûte dix fois plus.",
       ),
       check: B(
         'Change the definition and watch. If some copies did not follow, they were detached, and you have quietly got two versions of your button.',
-        "Changez la définition et regardez. Si certaines copies n'ont pas suivi, elles étaient détachées, et vous avez discrètement deux versions de votre bouton.",
+        "Change la définition et regarde. Si certaines copies n'ont pas suivi, elles étaient détachées, et tu as discrètement deux versions de ton bouton.",
       ),
     },
     {
@@ -392,30 +392,30 @@ export const FIGMA_COURSE: DesignCourse = {
       ),
       words: [
         { term: B('Collection', 'Collection'), means: B('A set of variables that change together, which is how light and dark themes are actually built.', "Un ensemble de variables qui changent ensemble, et c'est comme ça qu'un thème clair et un thème sombre se construisent vraiment.") },
-        { term: B('Alias', 'Alias'), means: B('A variable pointing at another: "button background" points at "accent". You change accent, the button follows, and the meaning stays readable.', "Une variable qui pointe vers une autre : « fond du bouton » pointe vers « accent ». Vous changez l'accent, le bouton suit, et le sens reste lisible.") },
+        { term: B('Alias', 'Alias'), means: B('A variable pointing at another: "button background" points at "accent". You change accent, the button follows, and the meaning stays readable.', "Une variable qui pointe vers une autre : « fond du bouton » pointe vers « accent ». Tu changes l'accent, le bouton suit, et le sens reste lisible.") },
       ],
       steps: [
         B('Define the scales as variables before drawing the second screen. Not the first: you do not know them yet.',
-          "Définissez les échelles en variables avant de dessiner le deuxième écran. Pas le premier : vous ne les connaissez pas encore."),
+          "Définis les échelles en variables avant de dessiner le deuxième écran. Pas le premier : tu ne les connais pas encore."),
         B('Name by role, never by appearance. "Surface", "accent", "danger". A name that describes a colour is a name that becomes false.',
-          "Nommez par rôle, jamais par apparence. « Surface », « accent », « danger ». Un nom qui décrit une couleur est un nom qui deviendra faux."),
+          "Nomme par rôle, jamais par apparence. « Surface », « accent », « danger ». Un nom qui décrit une couleur est un nom qui deviendra faux."),
       ],
       trap: B(
         'Creating sixty variables for a design with four colours. A system larger than the thing it governs is a second job, and you will abandon it.',
-        "Créer soixante variables pour un design à quatre couleurs. Un système plus grand que ce qu'il gouverne est un second métier, et vous l'abandonnerez.",
+        "Créer soixante variables pour un design à quatre couleurs. Un système plus grand que ce qu'il gouverne est un second métier, et tu l'abandonneras.",
       ),
       check: B(
         'Change one variable and see how much of the design moves. If nothing moves, you named values nobody uses. If everything moves at once, you aliased too little.',
-        "Changez une variable et regardez ce qui bouge. Si rien ne bouge, vous avez nommé des valeurs que personne n'utilise. Si tout bouge d'un coup, vous avez trop peu utilisé d'alias.",
+        "Change une variable et regarde ce qui bouge. Si rien ne bouge, tu as nommé des valeurs que personne n'utilise. Si tout bouge d'un coup, tu as trop peu utilisé d'alias.",
       ),
     },
     {
       id: 'handoff',
       title: B('Handing over: what a developer, or a model, needs to receive',
-        "Passer la main : ce qu'un développeur, ou un modèle, doit recevoir"),
+        "Passe la main : ce qu'un développeur, ou un modèle, doit recevoir"),
       plain: B(
         'A design is finished when someone else can build it without asking you a question. That is a testable condition, and it is almost never true of a file that looks finished.',
-        "Un design est fini quand quelqu'un d'autre peut le construire sans vous poser de question. C'est une condition vérifiable, et elle est presque jamais vraie d'un fichier qui a l'air fini.",
+        "Un design est fini quand quelqu'un d'autre peut le construire sans te poser de question. C'est une condition vérifiable, et elle est presque jamais vraie d'un fichier qui a l'air fini.",
       ),
       like: B(
         'A recipe versus a photograph of a dish. Both show what it should be; only one lets someone make it.',
@@ -427,11 +427,11 @@ export const FIGMA_COURSE: DesignCourse = {
       ],
       steps: [
         B('Draw the empty state and the error state before you polish the happy one. They take twenty minutes and they are where real products look unfinished.',
-          "Dessinez l'état vide et l'état d'erreur avant de peaufiner le cas idéal. Ils prennent vingt minutes et ce sont eux qui font qu'un vrai produit a l'air inachevé."),
+          "Dessine l'état vide et l'état d'erreur avant de peaufiner le cas idéal. Ils prennent vingt minutes et ce sont eux qui font qu'un vrai produit a l'air inachevé."),
         B('Write the rules that the picture cannot show: what wraps, what truncates, what happens at the narrowest width you support.',
-          "Écrivez les règles que l'image ne peut pas montrer : ce qui passe à la ligne, ce qui se tronque, ce qui se passe à la largeur la plus étroite que vous acceptez."),
+          "Écris les règles que l'image ne peut pas montrer : ce qui passe à la ligne, ce qui se tronque, ce qui se passe à la largeur la plus étroite que tu acceptes."),
         B('If a model is going to build it, give it the variables and the rules, not a screenshot. A screenshot is the one input that forces it back to guessing.',
-          "Si c'est un modèle qui doit le construire, donnez-lui les variables et les règles, pas une capture d'écran. Une capture est le seul apport qui le force à revenir à la supposition."),
+          "Si c'est un modèle qui doit le construire, donne-lui les variables et les règles, pas une capture d'écran. Une capture est le seul apport qui le force à revenir à la supposition."),
       ],
       trap: B(
         'Handing over the happy path only. Every question that comes back costs more than the state would have, and the answer gets decided by whoever is building, at speed, alone.',
@@ -439,7 +439,7 @@ export const FIGMA_COURSE: DesignCourse = {
       ),
       check: B(
         'Give the file to someone with no context and ask them to list their questions. The list is your unfinished work, and it is shorter to fix than to answer.',
-        "Donnez le fichier à quelqu'un sans contexte et demandez-lui de lister ses questions. Cette liste est votre travail inachevé, et il est plus court à corriger qu'à répondre.",
+        "Donne le fichier à quelqu'un sans contexte et demande-lui de lister ses questions. Cette liste est ton travail inachevé, et il est plus court à corriger qu'à répondre.",
       ),
     },
   ],

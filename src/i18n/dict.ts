@@ -371,7 +371,7 @@ export const DICT = {
     en: 'projects day to day, and they change without telling me. What is written here is their shape, which is stable. Every entry links to its own documentation for everything that is not.',
     fr: "projets au jour le jour, et ils changent sans me prévenir. Ce qui est écrit ici est leur forme, qui est stable. Chaque entrée renvoie à sa propre documentation pour tout ce qui ne l'est pas.",
   },
-  'fw.weDoNotTrack': { en: 'I do not track these', fr: 'Je ne suis pas ces' },
+  'fw.weDoNotTrack': { en: 'I do not track these', fr: 'Je ne surveille pas ces' },
 
   // ---- le robot de support ------------------------------------------------
   // Les RÉPONSES ne sont pas ici · elles vivent dans support/knowledge, à côté
