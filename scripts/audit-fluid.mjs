@@ -18,7 +18,7 @@ const B = process.env.BASE || 'http://localhost:4173'
 const ROUTES = [
   '/', '/clan', '/profil', '/carte', '/dojo/weekend', '/dojo/weekend/words', '/dojo/generaliste',
   '/decouvrir', '/terms', '/privacy', '/academy', '/build', '/frameworks', '/frugality',
-  '/design', '/figma', '/guide', '/teammates',
+  '/design', '/figma', '/guide', '/teammates', '/tarifs', '/dojoburo',
 ]
 const WIDTHS = [320, 390, 768, 1440, 1920]
 

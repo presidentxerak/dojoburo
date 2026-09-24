@@ -76,7 +76,7 @@ export const T = {
   avgQuality: B('Average quality', 'Qualité moyenne'),
   excellentN: B('Excellent jobs', 'Travaux excellents'),
   frugal: B('Frugality bonus', 'Bonus de frugalité'),
-  frugalWhy: B('1 € per 250 tokens you did not spend.', '1 € pour 250 tokens non dépensés.'),
+  frugalWhy: B('1 € per 250 tokens left, paid when the objective is reached.', "1 € pour 250 tokens restants, payé si l'objectif est atteint."),
   toShop: B('Go to the shop', 'Aller à la boutique'),
   nextDay: B('Start day', 'Commencer le jour'),
   replay: B('Replay day', 'Rejouer le jour'),

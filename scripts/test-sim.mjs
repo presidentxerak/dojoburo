@@ -146,6 +146,10 @@ ok('le bonus de frugalité paie les tokens restants', closing.summary.bonus === 
 ok('l\'objectif atteint ouvre le jour suivant', closing.save.day === 2 && closing.save.cash === 740)
 const poor = E.closeDay({ ...E.startDay(save, 5), revenue: 100 }, save)
 ok('un objectif manqué fait rejouer le jour, sans rien reprendre', poor.save.day === 1 && poor.save.cash >= 100)
+// UNE JOURNÉE OISIVE NE RAPPORTE RIEN · sans cette règle, rejouer le jour 1 les
+// bras croisés payait 240 € de frugalité à chaque fois.
+const idle = E.closeDay(E.startDay(save, 5), save)
+ok('la frugalité ne paie pas une journée sans travail', idle.summary.bonus === 0 && idle.save.cash === save.cash, `${idle.summary.bonus} €`)
 const rich = { ...save, cash: 2000 }
 const b1 = E.buy(rich, 'library')
 ok('acheter débite la caisse', b1.ok && b1.save.cash === 1600 && b1.save.upgrades.library)

@@ -517,8 +517,13 @@ export interface Summary {
  *  de ce qui a été gagné : un jeu qui punit l'essai n'apprend rien. */
 export function closeDay(day: Day, save: Save): { save: Save; summary: Summary } {
   const left = Math.max(0, day.budget - day.spent)
-  const bonus = Math.floor(left / FRUGAL_TOKENS_PER_EURO)
   const won = day.revenue >= day.objective
+  // LA FRUGALITÉ SE MÉRITE · elle ne paie que si l'objectif est atteint. Payée
+  // sans condition, une journée passée à ne rien faire rapportait le budget
+  // entier (240 € au jour 1), à rejouer autant de fois qu'on voulait : c'est
+  // l'inverse de la leçon, qui est de faire le travail avec peu, pas de ne
+  // pas le faire.
+  const bonus = won ? Math.floor(left / FRUGAL_TOKENS_PER_EURO) : 0
   const q = day.results.length ? Math.round(day.results.reduce((n, r) => n + r.quality, 0) / day.results.length) : 0
   const next = won ? save.day + 1 : save.day
   return {

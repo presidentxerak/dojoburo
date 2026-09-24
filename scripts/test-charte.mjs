@@ -312,6 +312,15 @@ ok('la barre : Dojoburo, Training, Clan, Profil', TAB_KEYS.join(',') === 'nav.ga
 ok('Dojoburo porte la marque, Training la toque',
   /\{ to: '\/dojoburo', key: 'nav\.game', glyph: null \}/.test(SHELL) && /\{ to: '\/', key: 'nav\.training', glyph: 'training' \}/.test(SHELL))
 ok('Training ne s\'allume pas sur le jeu', /path\.startsWith\('\/dojo\/'\)/.test(SHELL))
+// L'ONGLET MÈNE QUELQUE PART · un onglet vers une adresse que le routeur ne
+// sert pas retombe sur l'écran des formations, sans erreur nulle part.
+ok('l\'onglet Dojoburo ouvre le jeu', /path === '\/dojoburo'\) return <Suspense[^\n]*<SimPage \/>/.test(readFileSync('src/main.tsx', 'utf8')))
+// LE JEU EST À PLAT LUI AUSSI · « un style flat design » vaut pour ses boutons,
+// ses touches de commande et ses cartes de client, pas seulement pour l'app.
+const SIM_BTNS = ['.sim-ico', '.sim-btn', '.sim-client', '.sim-step button', '.sim-toast']
+const simBad = SIM_BTNS.filter((sel) => { const r = rulesFor(sel); return r.length === 0 || !r.every(flat) })
+ok('les boutons du jeu Dojoburo sont flat', simBad.length === 0, simBad.join(', ') || `${SIM_BTNS.length} familles`)
+ok('… et ses CTA sont ceux de l\'app', /className="gm-cta sim-go"/.test(readFileSync('src/sim/SimPage.tsx', 'utf8')))
 ok('l\'onglet Profil porte un sourire', /glyph:\s*'smile'/.test(SHELL))
 ok('le sourire existe dans le jeu d\'icônes', /'smile'/.test(ICONS))
 // LE CLAN EST UN GROUPE, PAS UNE FORME · deux cercles concentriques ne disaient
