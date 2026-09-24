@@ -477,6 +477,15 @@ ok('le texte et les titres sont en Outfit', /--font-ui:\s*'Outfit Variable'/.tes
 // et laissait une bande vide à droite de chaque vignette, pour toujours.
 const ART = readFileSync('src/game/PackArt.tsx', 'utf8')
 ok('la vignette ignore les transformations en se mesurant', /resize=\{\{\s*offsetSize:\s*true\s*\}\}/.test(ART))
+// « ÇA LAG BEAUCOUP » · huit salles en « always », 400 appels de dessin
+// chacune, toutes dans la même image. Ce qui a tenu doit rester en place.
+const CLOCK = readFileSync('src/components/three/cardClock.ts', 'utf8')
+const FROZEN = readFileSync('src/components/three/Frozen.tsx', 'utf8')
+ok('les vignettes ne tournent plus en continu', /frameloop="demand"/.test(ART) && /<Heartbeat live=\{live\} \/>/.test(ART) && !/'always'/.test(ART))
+ok('… leur cadence est plafonnée et étalée', /CARD_FPS = modest \? 24 : 30/.test(CLOCK) && /due\.slice\(0, share\)/.test(CLOCK))
+ok('… leur décor est figé et fusionné par matériau', /<Frozen>/.test(ART) && /mergeGeometries/.test(FROZEN) && /if \(merge\) \{ bake\(o\)/.test(FROZEN))
+ok('… et leur résolution plafonnée', /dpr=\{\[1, 1\.25\]\}/.test(ART))
+ok('morsure · une vignette en « always » serait vue', /'always'/.test("frameloop={live ? 'always' : 'demand'}"))
 ok('chaque formation a sa salle', /kit=\{pack\.kit\}/.test(readFileSync('src/game/Dojos.tsx', 'utf8'))
   && /kit=\{pack\.kit\}/.test(readFileSync('src/game/PackPage.tsx', 'utf8')))
 
