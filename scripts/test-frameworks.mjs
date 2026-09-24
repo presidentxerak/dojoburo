@@ -187,7 +187,10 @@ says('fw.noCodeA', /wrong in a few months/i, /a tort dans quelques mois/i)
 // LA LIMITE ASSUMÉE · nous ne suivons pas ces projets au jour le jour, et ils
 // changent sans prévenir. Le taire serait une promesse qu'on ne tient pas.
 ok('…et reconnaît qu\'elle ne suit pas ces projets', /t\('fw\.weDoNotTrack'\)/.test(page))
-says('fw.weDoNotTrack', /do not track these/i, /ne suivons pas ces/i)
+// Le texte est passé à la première personne (le formateur parle en « je ») :
+// la garde suit la phrase nouvelle, et « je ne suis pas ces projets » a été
+// écarté parce qu'il se lit aussi « je ne suis pas ces projets ».
+says('fw.weDoNotTrack', /do not track these/i, /ne surveille pas ces/i)
 ok('chaque entrée renvoie à sa propre documentation', /f\.docs/.test(page))
 
 /* --- 5 · la page est atteignable ---------------------------------------- */

@@ -962,13 +962,24 @@ export const THEMED_ARCHETYPES = Object.keys(KITS)
  * d'un mobilier générique qui ne veut rien dire. Les onze mondes restent
  * intacts dans les deux cas.
  */
-export function ThemeProps({ archetype, accent }: { archetype?: string | null; accent: string }) {
+export function ThemeProps({ archetype, accent, slots }: {
+  archetype?: string | null
+  accent: string
+  /** DES EMPLACEMENTS À LA PLACE DE CEUX DE LA SALLE · pour une composition
+   *  qui n'est pas la salle entière. Les emplacements par défaut sont contre
+   *  les murs, à neuf unités du centre, parce que le centre appartient aux
+   *  postes de travail. Dans une vignette de carte, à neuf unités, un meuble
+   *  est hors cadre ou réduit à quelques pixels, et c'est justement lui qui
+   *  dit le métier. Même kit, même indices, positions resserrées. */
+  slots?: { p: [number, number, number]; r: number }[]
+}) {
   const kit = archetype ? KITS[archetype] : null
   if (!kit) return null
+  const S = slots ?? SLOTS
   return (
     <group>
       {kit.map((piece, i) => {
-        const s = SLOTS[piece.slot]
+        const s = S[piece.slot] ?? SLOTS[piece.slot]
         return (
           <group key={i} position={s.p} rotation={[0, s.r, 0]} scale={piece.scale ?? 1}>
             {piece.el(accent)}

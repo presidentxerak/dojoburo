@@ -21,15 +21,20 @@
 (function () {
   /* ---- 1 · le thème, avant le premier pixel --------------------------- */
   //
-  // CLAIR PAR DÉFAUT, sur tous les appareils. Un choix enregistré l'emporte
-  // toujours — quelqu'un qui a coché Sombre l'a voulu — mais la préférence du
-  // SYSTÈME n'est plus consultée.
+  // SOMBRE PAR DÉFAUT, sur tous les appareils. Un choix enregistré l'emporte
+  // toujours · quelqu'un qui a coché Clair l'a voulu · et la préférence du
+  // SYSTÈME n'est toujours pas consultée.
   //
-  // Elle l'était, et c'était défendable : on arrivait dans le thème du reste
-  // de son écran. Sauf que dojoburo est une salle de tatami, de papier de riz
-  // et de bois — un décor clair. Servi dans une coque noire, le produit
-  // arrivait à contre-emploi, et c'était le cas de la majorité des visiteurs
-  // sur téléphone.
+  // C'ÉTAIT L'INVERSE, avec une raison écrite ici : « dojoburo est une salle de
+  // tatami, de papier de riz et de bois, un décor clair ; servi dans une coque
+  // noire, le produit arrivait à contre-emploi ». La raison tenait tant que
+  // l'interface était une page claire posée autour d'une salle claire. Elle
+  // est devenue un JEU, dans le style des jeux de gestion mobiles : une barre
+  // de nuit, des panneaux d'ardoise, des boutons brillants qui ressortent sur
+  // le sombre. La salle de tatami, elle, est dans les vignettes, et elle y
+  // gagne à être vue sur du sombre comme une maquette éclairée.
+  //
+  // La décision a été demandée explicitement, et elle se prend toujours ICI.
   //
   // C'EST ICI que la décision se prend, et nulle part ailleurs. `loadTheme`
   // dans store.ts relit la marque posée par ce fichier : la changer là-bas
@@ -38,12 +43,14 @@
   // qu'aucune recherche dans `src/` ne le trouve.
   var t = null
   try { t = localStorage.getItem('dojoburo.theme') } catch (e) { /* navigation privée */ }
-  if (t !== 'dark' && t !== 'light') t = 'light'
+  if (t !== 'dark' && t !== 'light') t = 'dark'
   document.documentElement.setAttribute('data-theme', t)
   // La barre du navigateur suit aussi · une encoche noire au-dessus d'une page
   // blanche se lit comme un défaut d'affichage.
   var m = document.querySelector('meta[name="theme-color"]')
-  if (m) m.setAttribute('content', t === 'dark' ? '#000000' : '#ffffff')
+  // la teinte de la barre du jeu, pas un noir pur · la barre du navigateur et
+  // l'en-tête se raccordent alors sans marche d'escalier.
+  if (m) m.setAttribute('content', t === 'dark' ? '#0f1120' : '#7fbf3a')
 
   /* ---- 2 · la police, sans bloquer le premier pixel -------------------- */
   // Une feuille de style distante est BLOQUANTE au rendu : tant qu'elle n'est

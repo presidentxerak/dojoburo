@@ -46,22 +46,22 @@ function masterSays(chosen: UseCase | null, done: number, total: number, lang: '
   // le panneau supprimé emportait avec lui.
   if (!chosen) {
     return fr
-      ? `${USE_CASE_COUNT} agents, tous endormis, parce qu'aucun n'existe encore. Cliquez-en un et il se réveille.`
+      ? `${USE_CASE_COUNT} agents, tous endormis, parce qu'aucun n'existe encore. Clique sur l'un d'eux et il se réveille !`
       : `${USE_CASE_COUNT} agents, all asleep, because none of them exists yet. Click one and it wakes up.`
   }
   const c = useCaseIn(chosen, lang)
   if (done === 0) {
     return fr
-      ? `${c.name} est réveillé. Commencez par le plus dur : ${c.hard.split('.')[0]}.`
+      ? `${c.name} est réveillé. Attaque par le plus dur : ${c.hard.split('.')[0]}.`
       : `${c.name} is awake. Start where it is hardest: ${c.hard.split('.')[0]}.`
   }
   if (done < total) {
     return fr
-      ? `Étape ${done} sur ${total}. Gardez pour la fin celle que vous ne savez pas expliquer.`
+      ? `Étape ${done} sur ${total}. Garde pour la fin celle que tu ne sais pas expliquer.`
       : `Step ${done} of ${total}. Keep the one you cannot explain for last.`
   }
   return fr
-    ? 'Terminé. Emportez le fichier et faites-le tourner pour de vrai.'
+    ? 'Terminé ! Emporte le fichier et fais-le enfin tourner pour de vrai.'
     : 'Finished. Take the file with you and run it somewhere real.'
 }
 

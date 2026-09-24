@@ -148,22 +148,23 @@ await sideways('app')
   ok((await page.locator('.modhost-fs.fs').count()) === 0, 'and closes back into the app')
 }
 
-/* ---- le thème par défaut est CLAIR, quel que soit l'appareil ------------- *
+/* ---- le thème par défaut est SOMBRE, quel que soit l'appareil ------------ *
  *
- * Cette épreuve exigeait l'inverse : elle vérifiait que l'application suivait
- * la préférence du système. C'était le comportement voulu, il ne l'est plus —
- * dojoburo est une salle de tatami et de papier de riz, et servie en coque
- * noire à quelqu'un dont le téléphone est en sombre, elle arrivait à
- * contre-emploi.
+ * Cette épreuve a exigé trois choses successives : suivre la préférence du
+ * système, puis le clair partout (la salle de tatami servie en coque noire
+ * arrivait à contre-emploi), et maintenant le SOMBRE partout. L'interface est
+ * devenue un jeu, avec une barre de nuit et des panneaux d'ardoise ; le
+ * défaut a été demandé explicitement. La décision se prend dans
+ * public/boot.js, et test-charte vérifie que store.ts dit la même chose.
  *
- * Ce qui reste gardé, et c'est le plus important : le thème SOMBRE existe
+ * Ce qui reste gardé, et c'est le plus important : le thème CLAIR existe
  * toujours et il fonctionne. Un choix explicite y bascule et y reste. Une
- * épreuve qui ne vérifierait plus que le clair laisserait le sombre pourrir
+ * épreuve qui ne vérifierait plus que le sombre laisserait le clair pourrir
  * sans que personne ne s'en aperçoive.                                       */
 {
-  // sans rien de sauvegardé, téléphone réglé en SOMBRE · on attend du CLAIR
+  // sans rien de sauvegardé, téléphone réglé en CLAIR · on attend du SOMBRE
   await page.evaluate(() => { try { localStorage.removeItem('dojoburo.theme') } catch { /* */ } })
-  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.emulateMedia({ colorScheme: 'light' })
   await page.reload({ waitUntil: 'load' })
   await page.waitForTimeout(1200)
   // On mesure le fond EFFECTIVEMENT peint.
@@ -189,21 +190,22 @@ await sideways('app')
     return paint(document.body) ?? paint(document.documentElement) ?? -1
   })
   const sys = await lumOf()
-  ok(sys > 150, 'clair par défaut même quand le téléphone est en sombre', `luminance ${Math.round(sys)}`)
+  ok(sys >= 0 && sys < 120, 'sombre par défaut même quand le téléphone est en clair', `luminance ${Math.round(sys)}`)
 
-  // un choix EXPLICITE doit être respecté · sinon le thème sombre est mort
-  await page.evaluate(() => { try { localStorage.setItem('dojoburo.theme', 'dark') } catch { /* */ } })
+  // un choix EXPLICITE doit être respecté · sinon le thème clair est mort
+  await page.evaluate(() => { try { localStorage.setItem('dojoburo.theme', 'light') } catch { /* */ } })
+  await page.emulateMedia({ colorScheme: 'dark' })
   await page.reload({ waitUntil: 'load' })
   await page.waitForTimeout(1200)
   const chosen = await lumOf()
-  ok(chosen >= 0 && chosen < 120, 'et vraiment sombre quand on le demande', `luminance ${Math.round(chosen)}`)
+  ok(chosen > 150, 'et vraiment clair quand on le demande, même en téléphone sombre', `luminance ${Math.round(chosen)}`)
 
-  await page.evaluate(() => { try { localStorage.removeItem('dojoburo.theme') } catch { /* */ } })
-  await page.emulateMedia({ colorScheme: 'light' })
+  await page.evaluate(() => { try { localStorage.setItem('dojoburo.theme', 'dark') } catch { /* */ } })
   await page.reload({ waitUntil: 'load' })
   await page.waitForTimeout(1200)
-  const light = await lumOf()
-  ok(light > 150, 'et clair quand le téléphone est en clair', `luminance ${Math.round(light)}`)
+  const dark = await lumOf()
+  ok(dark >= 0 && dark < 120, 'et sombre quand on le redemande', `luminance ${Math.round(dark)}`)
+  await page.evaluate(() => { try { localStorage.removeItem('dojoburo.theme') } catch { /* */ } })
 }
 
 /* ---- la carte de la vallée · les noms de cité, et leurs chevauchements ---- */

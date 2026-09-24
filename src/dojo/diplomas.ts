@@ -60,7 +60,7 @@ export const DIPLOMAS: Diploma[] = [
     awarded: 'You took one shape of problem from a blank page to a file that runs elsewhere.',
     earned: (c) => c.build.done >= 1,
     remaining: (_c, lang) => (lang === 'fr' ? "Un agent, terminé d'un bout à l'autre." : 'One agent, finished end to end.'),
-    fr: { title: "Premier agent", how: "Construire un agent de bout en bout, chaque étape de son parcours.", awarded: "Vous avez mené une forme de problème de la page blanche jusqu'à un fichier qui tourne ailleurs." },
+    fr: { title: "Premier agent", how: "Construis un agent de bout en bout, chaque étape de son parcours.", awarded: "Tu as mené une forme de problème de la page blanche jusqu'à un fichier qui tourne ailleurs." },
   },
   {
     id: 'three',
@@ -72,7 +72,7 @@ export const DIPLOMAS: Diploma[] = [
       const n = Math.max(0, 3 - c.build.done)
       return lang === 'fr' ? `${n} agent${n > 1 ? 's' : ''} de plus, terminé${n > 1 ? 's' : ''}.` : `${n} more agents finished.`
     },
-    fr: { title: "Trois formes", how: "Terminer trois agents différents. Des formes différentes, pas trois tentatives sur une seule.", awarded: "Vous avez vu trois façons dont un agent échoue, soit trois de plus que la plupart de ceux qui en livrent un." },
+    fr: { title: "Trois formes", how: "Termine trois agents différents. Des formes différentes, pas trois tentatives sur une seule.", awarded: "Tu as vu trois façons dont un agent échoue, soit trois de plus que la plupart de ceux qui en livrent un." },
   },
   {
     // LE DIPLÔME QUI TRAVERSE DEUX COURS · il existe pour dire une chose que
@@ -91,7 +91,7 @@ export const DIPLOMAS: Diploma[] = [
         : [a && `${a} more agents`, l && `${l} more lessons`]
       return parts.filter(Boolean).join(lang === 'fr' ? ' et ' : ' and ') + '.'
     },
-    fr: { title: "Bâtisseur qui lit", how: `Terminer deux agents et la moitié des ${LESSON_COUNT} leçons de prompt engineering.`, awarded: "Vous savez en construire un et dire pourquoi l'instruction qu'il contient fonctionne. Le deuxième ne devra rien à la chance." },
+    fr: { title: "Bâtisseur qui lit", how: `Termine deux agents et la moitié des ${LESSON_COUNT} leçons de prompt engineering.`, awarded: "Tu sais en construire un et dire pourquoi le prompt qu'il contient fonctionne. Le deuxième ne devra rien à la chance." },
   },
   {
     id: 'frugal',
@@ -107,7 +107,7 @@ export const DIPLOMAS: Diploma[] = [
         : [a && `${a} agent`, l && `${l} more levers`]
       return parts.filter(Boolean).join(lang === 'fr' ? ' et ' : ' and ') + '.'
     },
-    fr: { title: "Compte ce que cela coûte", how: `Construire un agent, puis travailler les ${LEVERS.length} leviers de sobriété.`, awarded: "Vous savez ce que coûte un de vos agents à faire tourner, et quel levier déplace le plus ce chiffre." },
+    fr: { title: "Compte ce que ça coûte", how: `Construis un agent, puis travaille les ${LEVERS.length} leviers de sobriété.`, awarded: "Tu sais ce que coûte un de tes agents à faire tourner, et quel levier déplace le plus ce chiffre." },
   },
   {
     id: 'half',
@@ -119,7 +119,7 @@ export const DIPLOMAS: Diploma[] = [
       const n = Math.max(0, HALF - c.build.done)
       return lang === 'fr' ? `${n} agent${n > 1 ? 's' : ''} de plus, terminé${n > 1 ? 's' : ''}.` : `${n} more agents finished.`
     },
-    fr: { title: "La moitié de la salle", how: `Terminer ${HALF} des ${USE_CASE_COUNT} agents du dojo.`, awarded: "La moitié de la salle est réveillée grâce à vous. Vous savez désormais dire de quelle forme est un problème nouveau." },
+    fr: { title: "La moitié de la salle", how: `Termine ${HALF} des ${USE_CASE_COUNT} agents du dojo.`, awarded: "La moitié de la salle est réveillée grâce à toi. Tu sais désormais dire de quelle forme est un problème nouveau." },
   },
   {
     // LE DERNIER · il demande LES TROIS cours en entier, et c'est le seul.
@@ -142,7 +142,7 @@ export const DIPLOMAS: Diploma[] = [
         })
       return left.join(', ') + '.'
     },
-    fr: { title: "Le dojo entier", how: "Terminer les trois cours, en entier. Le maître ne donne pas celui-ci deux fois.", awarded: "Chaque agent de cette salle est réveillé, chaque leçon lue, chaque levier tiré. Il ne reste rien ici." },
+    fr: { title: "Le dojo entier", how: "Termine les trois cours, en entier. Le maître ne donne pas celui-ci deux fois.", awarded: "Chaque agent de cette salle est réveillé, chaque leçon lue, chaque levier tiré. Il ne reste rien ici." },
   },
 ]
 

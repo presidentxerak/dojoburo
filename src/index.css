@@ -20,14 +20,16 @@
    Aucun emprunt entre elles. Une couleur de données posée sur une bordure est
    la faute que ce système existe pour empêcher.
 
-   CE QU'ON N'A PAS REPRIS, ET POURQUOI C'EST ASSUMÉ. Hyperobust dit « rayon
-   zéro sur tous les composants, sans exception » et range l'ombre parmi les
-   interdits. Sa raison est écrite noir sur blanc : « l'angle vif donne à
-   l'interface son air d'outil, et non d'application grand public ». Ce produit
-   EST une application grand public, et un jeu. Les cartes de formation
-   prennent donc seize pixels de rayon et une ombre large, demandés
-   explicitement · le reste de l'app garde le rayon zéro du système. La
-   dérogation est nommée, bornée à --radius-card, et ne s'étend pas.
+   OÙ CETTE CHARTE S'ARRÊTE. Hyperobust dit « rayon zéro sur tous les
+   composants » et range l'ombre, le trait épais et l'arrondi parmi les
+   interdits · « l'angle vif donne à l'interface son air d'outil, et non
+   d'application grand public ». Le JEU a d'abord pris une dérogation bornée
+   (seize pixels et une ombre sur les cartes), puis il a été redemandé dans le
+   style des jeux de gestion mobiles, qui repose précisément sur ce que le
+   système interdit. Le jeu a donc sa propre grammaire, écrite tout en bas de
+   ce fichier (« LE JEU · le style jeu de gestion mobile »), avec ses jetons
+   --g-* et sa police. Tout le reste · la brochure, le studio, les pages
+   d'académie · garde ces jetons-ci et le rayon zéro.
    =========================================================================== */
 
 :root {
@@ -52,12 +54,6 @@
   --shadow-sm: none;
   --radius: 0px;           /* rayon zéro · la règle du système */
   --radius-sm: 0px;
-  /* LA SEULE DÉROGATION, et elle est nommée · voir l'en-tête. Les cartes de
-     formation sont les objets qu'on touche dans un jeu ; elles portent seize
-     pixels et une ombre large. Rien d'autre ne lit ce jeton. */
-  --radius-card: 16px;
-  --shadow-card: 0 2px 6px rgba(11, 12, 14, 0.04), 0 12px 32px -8px rgba(11, 12, 14, 0.10);
-  --shadow-card-lift: 0 4px 10px rgba(11, 12, 14, 0.06), 0 22px 48px -10px rgba(124, 58, 237, 0.22);
 
   /* --- l'échelle typographique · Outfit, deux graisses ------------------- */
   /* Bold pour les titres, Regular pour le texte. Aucune autre graisse. */
@@ -159,8 +155,6 @@
   --border-lit: rgba(255, 255, 255, 0.26);
   --shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
   --shadow-sm: 0 3px 12px rgba(0, 0, 0, 0.5);
-  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.5), 0 12px 32px -8px rgba(0, 0, 0, 0.6);
-  --shadow-card-lift: 0 4px 10px rgba(0, 0, 0, 0.55), 0 22px 48px -10px rgba(167, 139, 250, 0.30);
   --btn-bg: #ffffff;
   --btn-fg: #0e1011;
   /* le violet de marque, version sombre */
@@ -9594,95 +9588,80 @@ a.lp-trade { text-decoration: none; display: inline-block; }
    rien ne reliait la carte à la liste en dessous. Les trois sont corrigées :
    elle monte au dessus du fleuron (voir game/WorldMap), elle porte un fond
    plein avec une ombre portée, et elle commence par le numéro de la cité. */
-/* L'ÉTIQUETTE D'UNE CITÉ · elle garde sa taille quelle que soit la distance de
-   la caméra (voir WorldMap, où le distanceFactor a été retiré), donc c'est
-   ICI et seulement ici qu'on décide de combien elle pèse à l'écran.
-   ELLE PORTE LE RAYON ET L'OMBRE DES CARTES · c'est un objet qu'on touche
-   dans un jeu, au même titre qu'une carte de formation. */
+/* L'ÉTIQUETTE D'UNE CITÉ · un jeton de jeu, à taille constante.
+   ---------------------------------------------------------------------------
+   Elle garde sa taille quelle que soit la distance de la caméra (voir
+   WorldMap, où le distanceFactor a été retiré) · un nom de lieu est de
+   l'interface posée sur une carte, pas un objet du décor. C'est donc ICI et
+   seulement ici qu'on décide de combien elle pèse à l'écran.
+
+   ELLE PREND LA FORME DES JETONS DU JEU · pilule d'ardoise cernée d'encre, la
+   pièce ronde du numéro à la couleur de la cité, le nom en police de jeu, le
+   compte en jaune. Finie, la cité passe à l'or. Elle rebondit sous le doigt
+   comme tous les boutons du jeu.
+
+   LES MESURES QUI TIENNENT TOUJOURS, reprises telles quelles :
+     · le nom est plafonné à 160 pixels · à taille constante, « Ce que ça
+       coûte vraiment » faisait 330 pixels et touchait sa voisine (trois
+       chevauchements à 1440 avant le plafond, zéro après),
+     · sur un téléphone, 20vw · à 30vw une étiquette prenait 45 % de l'écran
+       et couvrait les temples, à 20vw 31 %. Un nom tronqué se lit encore, un
+       temple couvert non,
+     · le nom reste affiché sur téléphone · la liste « juste en dessous de la
+       carte » qui devait le porter n'a jamais existé.
+   Le chevauchement est MESURÉ par scripts/verify-mobile, pas supposé.
+
+   UNE SEULE RÈGLE POUR LE TÉLÉPHONE · il y en avait deux, pour les mêmes
+   sélecteurs, et la seconde écrasait la première entièrement. Une règle qui
+   ne s'applique jamais ne lève aucune erreur : elle trompe seulement celui
+   qui la lit. */
 .wm-tag {
+  --wtag-ink: #14161f;
   display: flex; align-items: center; gap: 0; white-space: nowrap;
-  background: var(--paper); border: 1px solid var(--border);
-  border-radius: var(--radius-card); overflow: hidden;
-  padding: 0; cursor: pointer; font-family: var(--font-ui);
-  box-shadow: var(--shadow-card); transform: translateZ(0);
-  transition: transform 180ms cubic-bezier(.34,1.56,.64,1), box-shadow 180ms ease;
+  padding: 0; cursor: pointer;
+  font-family: var(--font-game, var(--font-ui)); font-weight: 400;
+  color: #fff;
+  border: 3px solid var(--wtag-ink); border-radius: 999px; overflow: hidden;
+  background: linear-gradient(180deg, #4a5372, #2b3048 60%, #232739);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.16), 0 3px 0 var(--wtag-ink), 0 8px 12px rgba(0,0,0,.35);
+  transform: translateZ(0);
+  transition: transform 160ms cubic-bezier(.34,1.56,.64,1), filter 160ms ease;
 }
-.wm-tag:hover { transform: scale(1.07); box-shadow: var(--shadow-card-lift); }
-.wm-tag:active { transform: scale(.94); transition-duration: 90ms; }
-/* SUR UN TÉLÉPHONE ELLE MAIGRIT · treize étiquettes à taille constante sur
-   trois cent quatre-vingt-dix pixels de large se marchent dessus. Ce n'est pas
-   la taille de la police qui pose problème mais la largeur totale, donc on
-   resserre les marges avant de toucher au texte. */
-@media (max-width: 720px) {
-  .wm-tag b { font-size: 12px; padding: 3px 6px; }
-  .wm-tag em { font-size: 10px; padding: 3px 6px 3px 5px; }
-  .wm-n { font-size: 10px; padding: 3px 5px; min-width: 18px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .wm-tag, .wm-tag:hover, .wm-tag:active { transition: none; transform: none; }
-}
+.wm-tag:hover { transform: translateY(-2px) scale(1.08); filter: brightness(1.12); }
+.wm-tag:active { transform: translateY(3px) scale(.96); transition-duration: 60ms; }
 .wm-n {
-  font-style: normal; font-size: 12px; font-weight: 800; color: #fff;
-  background: var(--wt); padding: 5px 8px; align-self: stretch;
-  display: flex; align-items: center; min-width: 22px; justify-content: center;
+  font-style: normal; font-size: 14px; color: #fff;
+  text-shadow: -1px -1px 0 #14161f, 1px -1px 0 #14161f, -1px 1px 0 #14161f, 1px 1px 0 #14161f, 0 2px 0 #14161f;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.4) 0 40%, transparent 42%),
+    var(--wt);
+  align-self: stretch; min-width: 30px; padding: 3px 8px 4px;
+  display: flex; align-items: center; justify-content: center;
+  border-right: 3px solid #14161f;
 }
-/* LE NOM EST PLAFONNÉ EN LARGEUR, et c'est la contrepartie d'une étiquette qui
-   garde sa taille. Tant qu'elle rétrécissait avec la caméra, sa largeur se
-   réglait toute seule ; à taille constante, « Ce que ça coûte vraiment » fait
-   trois cent trente pixels et vient toucher sa voisine. Mesuré : trois
-   chevauchements sur un écran de 1440 avant ce plafond, zéro après. */
 .wm-tag b {
-  font-size: 13px; font-weight: 800; color: var(--ink); padding: 5px 9px;
+  font-weight: 400; font-size: 15px; letter-spacing: .02em; color: #fff; padding: 4px 10px 5px;
+  text-shadow: -1.5px -1.5px 0 #14161f, 1.5px -1.5px 0 #14161f, -1.5px 1.5px 0 #14161f, 1.5px 1.5px 0 #14161f, 0 2.5px 0 #14161f;
   max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .wm-tag em {
-  font-style: normal; font-size: 11px; font-weight: 800; color: var(--muted);
-  border-left: 1px solid var(--border); padding: 5px 9px 5px 8px;
+  font-style: normal; font-size: 13px; color: #ffe066;
+  text-shadow: -1px -1px 0 #14161f, 1px -1px 0 #14161f, -1px 1px 0 #14161f, 1px 1px 0 #14161f, 0 2px 0 #14161f;
+  padding: 4px 11px 5px 2px;
 }
-.wm-tag:hover { background: var(--wt); }
-.wm-tag:hover b, .wm-tag:hover em { color: #fff; }
-.wm-tag.on { background: var(--wt); border-color: var(--ink); }
-.wm-tag.on b, .wm-tag.on em { color: #fff; border-color: rgba(255,255,255,0.45); }
-.wm-tag.on .wm-n { background: rgba(0,0,0,0.25); }
+/* LA CITÉ FINIE PASSE À L'OR · c'est la récompense qu'on voit depuis la carte
+   entière, et c'est la seule étiquette de la vallée qui n'est pas en ardoise. */
+.wm-tag.on { background: linear-gradient(180deg, #fff09a, #ffd23f 55%, #d39a00); }
+.wm-tag.on b, .wm-tag.on em { color: #fff; }
 
-/* L'ÉTIQUETTE RETROUVE SON NOM SUR UN TÉLÉPHONE, et il faut dire pourquoi elle
-   l'avait perdu, parce que la règle d'avant était juste.
-
-   ELLE DISAIT : « treize titres de cité sur trois cent quatre-vingt-dix pixels
-   se recouvrent les uns les autres · neuf chevauchements mesurés, donc neuf
-   noms illisibles et une carte plus encombrée qu'informative. Il reste le
-   numéro et le compte, et la liste juste en dessous de la carte porte les noms
-   en entier. »
-
-   DEUX DE SES TROIS PRÉMISSES ONT BOUGÉ, et la troisième était déjà fausse :
-
-     · la vallée PIVOTE maintenant sur un écran debout (voir WorldMap) · trois
-       cités par rangée au lieu de cinq, donc trois étiquettes à se partager la
-       largeur et non cinq,
-     · les étiquettes ne RÉTRÉCISSENT plus avec la caméra, donc leur largeur ne
-       dépend plus de la distance et se règle ici, une fois,
-     · et « la liste juste en dessous de la carte » n'existe pas · cette carte
-       est un plein écran qu'on quitte par une croix. Le nom n'était donc
-       disponible nulle part ailleurs, et masquer un titre en renvoyant vers un
-       endroit qui ne le porte pas est la pire forme de compromis.
-
-   Le nom revient donc, à une taille resserrée, et le chevauchement est MESURÉ
-   plutôt que supposé · voir scripts/verify-mobile. Une prémisse qui a bougé se
-   remesure ; elle ne se reconduit pas parce que la règle avait raison hier. */
 @media (max-width: 720px) {
-  /* ELLE PÈSE LE MOINS POSSIBLE · treize étiquettes lisibles sur un téléphone,
-     c'est treize bandeaux blancs posés sur les temples qu'on est venu voir.
-     Mesuré : à 30vw de nom, une étiquette prenait 45 % de la largeur de
-     l'écran ; à 20vw elle en prend 31, et les toits réapparaissent entre
-     elles. Le nom se coupe alors plus tôt · c'est le compromis, et il va dans
-     le bon sens : un nom tronqué se lit encore, un temple couvert non. */
-  .wm-tag b { font-size: 11px; padding: 3px 5px; max-width: 20vw; }
-  .wm-tag em { border-left: 0; padding: 3px 5px; font-size: 9px; }
-  .wm-n { padding: 3px 5px; font-size: 10px; min-width: 16px; }
-  /* et l'affichage de tête cesse de couvrir la dernière rangée */
-  /* la carte d'en-tête est réglée plus bas, avec le reste du téléphone ·
-     deux blocs qui se disputent le même sélecteur sont la raison pour
-     laquelle elle recouvrait la vallée. */
+  .wm-tag { border-width: 2.5px; }
+  .wm-tag b { font-size: 12px; padding: 3px 6px 4px; max-width: 20vw; }
+  .wm-tag em { font-size: 11px; padding: 3px 8px 4px 0; }
+  .wm-n { font-size: 12px; min-width: 24px; padding: 2px 6px 3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wm-tag, .wm-tag:hover, .wm-tag:active { transition: none; transform: none; }
 }
 
 /* --- la page de la carte ------------------------------------------------ */
@@ -10059,619 +10038,1031 @@ a.lp-trade { text-decoration: none; display: inline-block; }
   .lp2-offers, .lp2-who { grid-template-columns: 1fr; }
 }
 
+
 /* ========================================================================== */
-/* LE JEU · la coquille, la barre du bas, les cartes                          */
+/* LE JEU · le style « jeu de gestion mobile », à la Clash of Clans           */
 /* ========================================================================== */
 /*
-   LA CHARTE NE BOUGE PAS. Les maquettes sont sombres, violettes et arrondies ;
-   ce produit est clair, plat, à angles droits, en Outfit. Ce qu'on leur prend
-   est la DISPOSITION · une colonne, des cartes, une barre du bas, un état par
-   ligne. Reprendre aussi leur peinture aurait donné un produit qui ne
-   ressemble plus à rien de ce qu'on a construit, et la charte n'était pas en
-   cause : c'est l'ergonomie qui l'était.
+   CE QUI A CHANGÉ, ET POURQUOI LA CHARTE PRÉCÉDENTE NE S'APPLIQUE PLUS ICI.
+   ---------------------------------------------------------------------------
+   Le jeu suivait la charte Hyperobust : un pixel de trait, aucun arrondi,
+   aucune ombre, une seule action pleine par écran. Elle a été demandée, puis
+   jugée « pas du tout » à l'écran, et remplacée par une autre demande
+   explicite : le style d'un jeu de gestion mobile, Clash of Clans en tête.
+
+   Les deux sont incompatibles point par point · Hyperobust interdit
+   exactement ce qui fait ce style (le trait épais, le rebord, le reflet,
+   l'ombre). Ce bloc ne cherche donc pas un compromis. Il applique la nouvelle
+   demande AU JEU, et au jeu seulement : la brochure, le studio et le reste
+   gardent leurs jetons, qui sont plus haut dans ce fichier.
+
+   LA GRAMMAIRE, en cinq traits · c'est ce qu'on reconnaît sans pouvoir le nommer :
+
+     LE CONTOUR ÉPAIS. Trois pixels d'encre autour de tout ce qui se touche.
+     C'est lui qui fait « objet » plutôt que « zone d'écran ».
+
+     LE REBORD. Sous chaque bouton, une tranche plus sombre, décalée de cinq
+     pixels · le bouton est un bloc posé, pas un aplat. Appuyer l'enfonce
+     jusqu'à ce que le rebord disparaisse.
+
+     LE REFLET. Une bande claire arrondie dans le haut de chaque bouton, comme
+     sur du plastique brillant. C'est lui qui dit « on peut appuyer ».
+
+     LE TEXTE BLANC CERNÉ DE NOIR, en police épaisse. Il reste lisible sur
+     n'importe quel fond, clair ou sombre, ce qui est pour ça qu'il est
+     partout dans ce genre de jeu.
+
+     LA JAUGE À ICÔNE DÉBORDANTE. Une pilule à contour, un remplissage brillant,
+     et un jeton rond qui déborde à droite · c'est la façon de montrer une
+     ressource, et ici on s'en sert pour l'expérience et l'avancement.
+
+   ET TOUT RESTE ERGONOMIQUE, ce qui est l'autre moitié de la demande :
+
+     · la police épaisse ne sert QU'AUX titres, aux boutons et aux nombres.
+       Un paragraphe en police de jeu se lit mal, et un cours est fait de
+       paragraphes · le texte courant reste en Outfit,
+     · le contraste du texte courant est vérifié contre le fond du panneau
+       dans les deux thèmes, pas seulement dans celui qu'on regarde,
+     · tout ce qui bouge s'arrête si le système demande un mouvement réduit.
 */
+
+/* --- les jetons du jeu ---------------------------------------------------- */
+/* LE SOMBRE EST LE THÈME PAR DÉFAUT (voir store.ts), et c'est lui qui est
+   écrit en premier. Le clair suit, et il n'est pas un sombre inversé : c'est
+   l'herbe et le parchemin, comme en plein jour dans le jeu dont on reprend le
+   style. Deux ambiances, une seule grammaire. */
+:root {
+  --font-game: 'Lilita One', 'Outfit', system-ui, sans-serif;
+  /* L'ENCRE DU CONTOUR · la même dans les deux thèmes. C'est le trait qui
+     tient tout ; le changer avec le thème ferait deux jeux. */
+  --g-ink: #14161f;
+  /* le clair · parchemin sur herbe */
+  --g-page: #7fbf3a;
+  --g-page-2: #6aab2b;
+  --g-panel-top: #fff7e1;
+  --g-panel: #f6e6c0;
+  --g-panel-bot: #e9d19c;
+  --g-ledge: #a98446;
+  --g-slot: #e2c88f;
+  --g-slot-edge: #b99658;
+  --g-text: #2b1e0f;
+  --g-sub: #6a5433;
+  --g-bar-bg: #3b2f22;
+}
+:root[data-theme='dark'] {
+  /* le sombre · ardoise sur nuit violette */
+  --g-page: #171a2b;
+  --g-page-2: #121423;
+  --g-panel-top: #414a66;
+  --g-panel: #313852;
+  --g-panel-bot: #272c42;
+  --g-ledge: #0d0f18;
+  --g-slot: #1f2336;
+  --g-slot-edge: #0f111b;
+  --g-text: #f3f5ff;
+  --g-sub: #aeb6d2;
+  --g-bar-bg: #0f111b;
+}
+
+/* LE TEXTE CERNÉ · quatre ombres décalées font le contour, une cinquième le
+   pose au sol. On n'utilise pas « -webkit-text-stroke » : il trace le contour
+   AU MILIEU du trait de la lettre, donc il mange la moitié du blanc, et une
+   police déjà épaisse finit en pâté noir sur un téléphone. */
+.gm {
+  --g-stroke:
+    -2px -2px 0 var(--g-ink), 2px -2px 0 var(--g-ink),
+    -2px 2px 0 var(--g-ink), 2px 2px 0 var(--g-ink),
+    0 -2px 0 var(--g-ink), 0 2px 0 var(--g-ink),
+    -2px 0 0 var(--g-ink), 2px 0 0 var(--g-ink),
+    0 4px 0 var(--g-ink);
+  --g-stroke-sm:
+    -1.5px -1.5px 0 var(--g-ink), 1.5px -1.5px 0 var(--g-ink),
+    -1.5px 1.5px 0 var(--g-ink), 1.5px 1.5px 0 var(--g-ink),
+    0 2.5px 0 var(--g-ink);
+  /* LE TITRE EXTRUDÉ · le contour seul ne suffit pas sur le fond de nuit.
+     Mesuré : l'encre du contour (#14161f) posée sur la page (#171a2b), c'est
+     du sombre sur du sombre, et le contour disparaissait exactement là où
+     sont les titres. Sous le contour on pose donc une tranche violette puis
+     une ombre portée · le titre devient un bloc en relief, comme un logo de
+     jeu, et il se détache du fond quel que soit le thème. */
+  --g-title:
+    -2px -2px 0 var(--g-ink), 2px -2px 0 var(--g-ink),
+    -2px 2px 0 var(--g-ink), 2px 2px 0 var(--g-ink),
+    0 -2px 0 var(--g-ink), -2px 0 0 var(--g-ink), 2px 0 0 var(--g-ink),
+    0 3px 0 var(--g-ink),
+    0 6px 0 #7b3ff0,
+    0 8px 0 var(--g-ink),
+    0 14px 22px rgba(0, 0, 0, .5);
+}
+
+/* --- la coquille ----------------------------------------------------------- */
 
 .gm {
   min-height: 100dvh;
   display: flex; flex-direction: column;
-  background: var(--bg);
+  color: var(--g-text);
+  /* LE SOL DU JEU · un damier très doux sur un fond qui porte une lueur. Le
+     damier rappelle l'herbe tondue du jeu vu de haut ; la lueur empêche un
+     aplat de nuit de ressembler à un écran éteint. */
+  background:
+    radial-gradient(1100px 520px at 50% -8%, color-mix(in srgb, var(--violet) 38%, transparent), transparent 70%),
+    radial-gradient(800px 480px at 105% 105%, color-mix(in srgb, #0ea5e9 22%, transparent), transparent 70%),
+    repeating-conic-gradient(from 45deg, rgba(255,255,255,.035) 0 25%, transparent 0 50%) 0 0 / 72px 72px,
+    linear-gradient(180deg, var(--g-page), var(--g-page-2));
+  background-attachment: fixed;
   /* LA PLACE DE LA BARRE DU BAS · réservée ici plutôt qu'écran par écran. Une
      marge oubliée sur un seul écran cache son dernier bouton sous la barre, et
      c'est toujours le bouton qui compte. */
-  padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+}
+:root:not([data-theme='dark']) .gm {
+  background:
+    repeating-conic-gradient(from 45deg, rgba(255,255,255,.07) 0 25%, transparent 0 50%) 0 0 / 72px 72px,
+    linear-gradient(180deg, var(--g-page), var(--g-page-2));
+  background-attachment: fixed;
 }
 
-/* --- l'en-tête ----------------------------------------------------------- */
+/* --- l'en-tête ------------------------------------------------------------ */
 
 .gm-top {
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 10px 16px;
-  background: var(--paper); border-bottom: 1px solid var(--border);
+  padding: 10px clamp(12px, 3vw, 28px);
+  background: linear-gradient(180deg, rgba(10, 12, 22, .88), rgba(10, 12, 22, .72));
+  backdrop-filter: blur(10px);
+  border-bottom: 3px solid var(--g-ink);
+  box-shadow: 0 4px 0 rgba(0,0,0,.25);
+  color: #fff;
 }
-.gm-brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: inherit; }
-.gm-brand-wm { display: flex; align-items: center; }
-.gm-top-right { display: flex; align-items: center; gap: 10px; }
-.gm-xp {
-  display: inline-flex; align-items: baseline; gap: 4px;
-  border: 1px solid var(--ink); padding: 4px 9px; background: var(--card);
+.gm-brand { display: flex; align-items: center; gap: 9px; min-width: 0; text-decoration: none; color: #fff; }
+.gm-brand .logo-badge { filter: drop-shadow(0 2px 0 var(--g-ink)); }
+/* LA BARRE DU JEU EST SOMBRE DANS LES DEUX THÈMES · le logo et le nom suivent
+   l'encre du thème ailleurs, ce qui les rendait noirs sur la barre de nuit dès
+   qu'on choisissait le clair. Ici ils sont blancs, toujours. */
+.gm-brand .logo-badge { color: #fff; }
+.gm-brand .wordmark { color: #fff; -webkit-text-fill-color: #fff; }
+.gm-brand-wm { display: flex; align-items: center; min-width: 0; }
+.gm-top-right { display: flex; align-items: center; gap: clamp(8px, 2.4vw, 12px); flex: 0 0 auto; }
+/* LE PLUS PETIT TÉLÉPHONE · à 320 px, logo, nom, jauge et langue dépassaient
+   de sept pixels et toute la page glissait de côté. Le nom s'efface À L'ŒIL
+   seulement : le lien garde son nom pour qui l'écoute au lecteur d'écran. */
+@media (max-width: 359px) {
+  .gm-brand-wm { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
-.gm-xp b { font-family: var(--font-ui); font-size: 14px; font-weight: 800; }
-.gm-xp i { font-style: normal; font-size: 10px; font-weight: 800; color: var(--muted); }
 
-.gm-main { flex: 1; width: 100%; max-width: 760px; margin: 0 auto; }
+/* L'EXPÉRIENCE EST UNE JAUGE DE RESSOURCE · la pilule à contour, le nombre
+   cerné, et le jeton violet qui déborde à droite. Elle n'a pas de maximum, donc
+   elle n'a pas de remplissage partiel à inventer : elle est pleine, et c'est
+   le nombre qui monte. */
+.gm-xp {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 6px;
+  min-width: 108px; height: 32px;
+  padding: 0 40px 0 14px;
+  border: 3px solid var(--g-ink); border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.35) 0 38%, transparent 40%),
+    linear-gradient(180deg, #c89bff, #9a5cff 55%, #6f33e0);
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), 0 3px 0 var(--g-ink);
+  color: #fff;
+}
+.gm-xp b { font-family: var(--font-game); font-size: 17px; font-weight: 400; letter-spacing: .02em; text-shadow: var(--g-stroke-sm); }
+.gm-xp i { font-style: normal; font-family: var(--font-game); font-size: 11px; text-shadow: var(--g-stroke-sm); opacity: .95; }
+.gm-xp::after {
+  content: ''; position: absolute; right: -10px; top: 50%;
+  width: 40px; height: 40px; transform: translateY(-50%) rotate(45deg);
+  border: 3px solid var(--g-ink); border-radius: 50% 50% 50% 0;
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255,255,255,.85) 0 11%, transparent 12%),
+    radial-gradient(circle at 40% 40%, #e4c2ff, #a568ff 55%, #5b22c9);
+  box-shadow: 0 3px 0 var(--g-ink);
+}
+
+/* LA LANGUE, EN DEUX JETONS · le sélecteur du reste du produit est un filet
+   d'un pixel, invisible sur la barre sombre du jeu. */
+.gm-top .lsw { border: 3px solid var(--g-ink); border-radius: 12px; overflow: hidden; box-shadow: 0 3px 0 var(--g-ink); }
+.gm-top .lsw-b { font-family: var(--font-game); font-weight: 400; color: #cfd5ee; background: #2a2f45; border-color: var(--g-ink); }
+.gm-top .lsw-b.on { color: #fff; background: linear-gradient(180deg, #ffb347, #ff8a1f 55%, #e0600f); text-shadow: var(--g-stroke-sm); }
+
+.gm-main { flex: 1; width: 100%; max-width: 780px; margin: 0 auto; }
 .gm-main.wide { max-width: none; }
 
-.gm-sec { padding: 18px 16px 0; }
-/* LA TAILLE EST IMPOSÉE · un « h1 { font-size: 60px !important } » global
-   vit plus haut dans ce fichier, écrit pour le hero de la page de vente. Sans
-   la même force ici, « Vos dojos » s'affichait en soixante pixels sur un
-   téléphone de trois cent quatre-vingt-dix. On ne retire pas la règle globale,
-   qui tient une page qui marche ; on lui répond. */
-.gm-h1 { font-size: 26px !important; font-weight: 800 !important; letter-spacing: -0.025em; margin: 0 0 6px; line-height: 1.15; }
-.gm-lead { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0 0 4px; }
+.gm-sec { padding: clamp(14px, 2.4vw, 22px) clamp(12px, 3vw, 28px) 0; }
+
+/* LES TITRES DU JEU · police épaisse, blanc cerné, taille fluide.
+   LA TAILLE EST IMPOSÉE · un « h1 { font-size: 60px !important } » global vit
+   plus haut dans ce fichier, écrit pour le hero de la page de vente. Sans la
+   même force ici, « Vos dojos » s'affichait en soixante pixels sur un
+   téléphone. On ne retire pas la règle globale, qui tient une page qui
+   marche ; on lui répond. */
+.gm-h1 {
+  font-family: var(--font-game) !important; font-weight: 400 !important;
+  font-size: clamp(30px, 3.2vw + 18px, 50px) !important;
+  line-height: 1.02; letter-spacing: .01em;
+  color: #fff; text-shadow: var(--g-title);
+  margin: 4px 0 12px;
+}
+.gm-lead { font-size: clamp(14px, .4vw + 13px, 16px); color: var(--g-sub); line-height: 1.55; margin: 0 0 4px; max-width: 64ch; }
+:root:not([data-theme='dark']) .gm-lead { color: #1d3a0c; font-weight: 600; }
 .gm-back {
-  display: inline-block; font-size: 12px; font-weight: 800; color: var(--muted);
-  text-decoration: none; margin-bottom: 10px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-game); font-size: 15px; color: #fff; text-shadow: var(--g-stroke-sm);
+  text-decoration: none; margin-bottom: 12px;
+  transition: transform 140ms cubic-bezier(.34, 1.56, .64, 1);
 }
-.gm-back:hover { color: var(--ink); }
-/* LE BOUTON D'ACTION · un seul plein par écran, c'est la règle du système.
-   Il porte le violet de marque, et tout ce qui l'accompagne sur le même écran
-   est en contour. Deux boutons pleins l'un au-dessus de l'autre ne se lisent
-   pas comme un choix mais comme une répétition. */
-.gm-cta {
-  display: inline-flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-3);
-  background: var(--ink); color: var(--paper); text-decoration: none;
-  font-weight: 800; font-size: var(--t-small); padding: var(--sp-3) var(--sp-4) var(--sp-3) var(--sp-4);
-  border: 1px solid var(--ink);
-  border-radius: var(--radius-card);
-  cursor: pointer;
-  /* LE RESSORT, la même courbe que les cartes · un produit dont deux objets
-     rebondissent différemment se lit comme deux produits. */
-  transform: translateZ(0);
+.gm-back:hover { transform: translateX(-3px); }
+
+/* --- les boutons ------------------------------------------------------------ */
+/* LE BOUTON DE JEU · contour, rebord, reflet, texte cerné. Voir l'en-tête.
+
+   LE VERT EST L'ACTION QUI AVANCE · « Commencer », « Continuer », « Entrer ».
+   C'est la couleur que le genre a apprise à ses joueurs, et on ne la
+   réinvente pas. L'orange est l'action secondaire, le violet la marque.
+
+   LE REFLET EST UN PSEUDO-ÉLÉMENT SOUS LE TEXTE. « isolation: isolate » crée
+   un contexte d'empilement, et le reflet à z-index -1 se peint alors AU-DESSUS
+   du fond du bouton mais SOUS son texte. Sans ça, il recouvrait les lettres
+   d'un voile blanc. */
+.gm-cta, .cc-btn {
+  --b-top: #b6f05c; --b-mid: #72cc1d; --b-bot: #4c9f0f; --b-ledge: #2e6606;
+  position: relative; isolation: isolate;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 14px;
+  min-height: 48px; padding: 10px 22px 12px;
+  font-family: var(--font-game); font-weight: 400;
+  font-size: clamp(16px, .6vw + 13px, 19px); letter-spacing: .02em; line-height: 1.1;
+  color: #fff; text-shadow: var(--g-stroke-sm);
+  text-decoration: none; cursor: pointer;
+  background: linear-gradient(180deg, var(--b-top), var(--b-mid) 58%, var(--b-bot));
+  border: 3px solid var(--g-ink); border-radius: 16px;
+  box-shadow:
+    inset 0 -5px 0 rgba(0,0,0,.16),
+    0 5px 0 var(--b-ledge),
+    0 5px 0 3px var(--g-ink),
+    0 12px 18px rgba(0,0,0,.35);
+  transform: translateY(0);
   transition:
-    transform 180ms cubic-bezier(.34, 1.56, .64, 1),
-    box-shadow 180ms ease,
-    background-color 140ms ease,
-    border-color 140ms ease;
-  will-change: transform;
+    transform 140ms cubic-bezier(.34, 1.56, .64, 1),
+    box-shadow 140ms ease,
+    filter 140ms ease;
 }
-.gm-cta:hover {
-  background: var(--ac, var(--violet)); border-color: var(--ac, var(--violet));
-  transform: translateY(-2px) scale(1.035);
-  box-shadow: var(--shadow-card-lift);
+.gm-cta::before, .cc-btn::before {
+  content: ''; position: absolute; z-index: -1;
+  left: 6px; right: 6px; top: 4px; height: 42%;
+  border-radius: 11px;
+  background: linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.16));
+  pointer-events: none;
 }
-.gm-cta:active { transform: translateY(0) scale(.955); transition-duration: 90ms; box-shadow: none; }
-.gm-cta:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
-.gm-cta:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+.gm-cta:hover, .cc-btn:hover {
+  filter: brightness(1.07) saturate(1.08);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 -5px 0 rgba(0,0,0,.16),
+    0 7px 0 var(--b-ledge),
+    0 7px 0 3px var(--g-ink),
+    0 16px 22px rgba(0,0,0,.35);
+}
+/* L'ENFONCEMENT · le bouton descend de la hauteur exacte de son rebord, qui
+   disparaît. C'est la sensation qu'on attend d'un bouton de jeu : il a une
+   course, il bute au fond, il remonte. */
+.gm-cta:active, .cc-btn:active {
+  transform: translateY(5px);
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,.16),
+    0 0 0 var(--b-ledge),
+    0 0 0 3px var(--g-ink),
+    0 3px 6px rgba(0,0,0,.3);
+  transition-duration: 60ms;
+}
+.gm-cta:focus-visible, .cc-btn:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.gm-cta:disabled, .cc-btn:disabled { filter: grayscale(.85) brightness(.85); cursor: not-allowed; transform: none; }
+.cc-orange { --b-top: #ffc76b; --b-mid: #ff8f24; --b-bot: #e5620e; --b-ledge: #9c3f06; }
+.cc-violet { --b-top: #cfa6ff; --b-mid: #9a5cff; --b-bot: #6f33e0; --b-ledge: #431b9c; }
+.cc-slate  { --b-top: #5a6485; --b-mid: #3d4561; --b-bot: #2b3148; --b-ledge: #151827; }
 
 /* --- le ressort du jeu ---------------------------------------------------- */
 /* POURQUOI UNE COURBE ÉLASTIQUE PLUTÔT QU'UN FONDU.
-   ---------------------------------------------------------------------------
    Un « ease » va d'un état à l'autre et s'arrête. Une courbe qui DÉPASSE puis
-   revient (le quatrième nombre de cubic-bezier est au dessus de 1) donne à
-   l'objet une masse : il a été poussé, il a résisté, il est revenu. C'est
-   toute la différence entre une case qu'on coche et un objet qu'on prend, et
-   c'est ce qu'un jeu fait partout où un formulaire ne fait rien.
+   revient (le quatrième nombre de cubic-bezier est au-dessus de 1) donne à
+   l'objet une masse : il a été poussé, il a résisté, il est revenu.
 
    TROIS RÈGLES POUR QUE ÇA RESTE UN PRODUIT ET NON UNE FÊTE FORAINE :
-     · on n'anime QUE transform et opacity, jamais une géométrie · animer une
-       largeur refait la mise en page à chaque image et fait tomber le
-       téléphone à quinze images par seconde,
-     · l'enfoncement est plus court que le retour (90 ms contre 180) · un appui
-       est instantané, un relâchement respire,
-     · une seule chose bouge à la fois sur un écran donné.
+     · on n'anime QUE transform, opacity et filter, jamais une géométrie ·
+       animer une largeur refait la mise en page à chaque image,
+     · l'enfoncement est plus court que le retour · un appui est instantané,
+       un relâchement respire,
+     · une seule chose bouge en permanence sur un écran donné. */
 
-   ET ELLE S'ARRÊTE SI ON LE DEMANDE · voir la règle de mouvement réduit tout
-   en bas de cette section. Ce n'est pas une politesse, c'est la différence
-   entre une animation et un malaise pour qui y est sensible. */
-
-/* LA PULSATION DE CE QUI ATTEND · la carte suivante à faire respire, une fois
-   toutes les deux secondes et demie, de deux pour cent. Assez pour attirer
-   l'oeil au bon endroit, assez peu pour qu'on ne la remarque pas quand on
-   regarde ailleurs. */
+/* LA PULSATION DE CE QUI ATTEND · l'action suivante respire. Assez pour
+   attirer l'oeil au bon endroit, assez peu pour qu'on l'oublie ailleurs. */
 @keyframes gm-pump {
-  0%, 72%, 100% { transform: scale(1); }
-  80% { transform: scale(1.028); }
-  88% { transform: scale(.992); }
+  0%, 70%, 100% { transform: translateY(0) scale(1); }
+  78% { transform: translateY(-3px) scale(1.045); }
+  86% { transform: translateY(0) scale(.985); }
 }
-.gm-pump { animation: gm-pump 2.6s ease-in-out infinite; }
+.gm-pump { animation: gm-pump 2.4s ease-in-out infinite; }
+.gm-pump:hover, .gm-pump:active { animation-play-state: paused; }
 
 /* LE COUP · ce qui vient d'être gagné. Une seule fois, à l'arrivée. */
 @keyframes gm-bump {
-  0% { transform: scale(.82); opacity: 0; }
-  55% { transform: scale(1.08); opacity: 1; }
-  78% { transform: scale(.97); }
-  100% { transform: scale(1); opacity: 1; }
+  0% { transform: scale(.7); }
+  45% { transform: scale(1.22); }
+  70% { transform: scale(.94); }
+  100% { transform: scale(1); }
 }
-.gm-bumped { animation: gm-bump 420ms cubic-bezier(.34, 1.56, .64, 1) both; }
+.gm-bumped { animation: gm-bump 480ms cubic-bezier(.34, 1.56, .64, 1) both; }
 
-/* L'ARRIVÉE D'UNE LISTE · chaque carte monte d'un cran, décalée de quarante
-   millisecondes sur sa voisine. Le décalage est porté par --i, posé par le
-   composant, parce qu'un « nth-child » ici casserait au premier filtre. */
+/* L'ARRIVÉE D'UNE LISTE · chaque carte tombe en place avec un petit rebond,
+   décalée sur sa voisine par --i, posé par le composant.
+   « BACKWARDS » ET NON « BOTH » · avec « both », la dernière image clé reste
+   appliquée, une animation l'emporte sur une transition, et la carte ne
+   bougeait plus jamais au survol. */
 @keyframes gm-rise {
-  from { transform: translateY(14px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  0%   { transform: translateY(26px) scale(.94); opacity: 0; }
+  70%  { transform: translateY(-4px) scale(1.01); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
 }
-/* « BACKWARDS » ET NON « BOTH », ET CE N'EST PAS UN DÉTAIL.
-   Avec « both », la dernière image clé reste appliquée après la fin, et une
-   animation l'emporte sur une transition : la carte montait bien, puis ne
-   bougeait plus jamais au survol, parce que son « transform: translateY(0) »
-   d'arrivée écrasait silencieusement le ressort. Avec « backwards », seule
-   l'image de DÉPART est tenue pendant le délai · ce qui évite le clignotement
-   avant le tour de la carte · et la fin rend la main au style de l'élément. */
-.gm-rise { animation: gm-rise 380ms cubic-bezier(.22, 1, .36, 1) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+.gm-rise { animation: gm-rise 460ms cubic-bezier(.22, 1, .36, 1) backwards; animation-delay: calc(var(--i, 0) * 60ms); }
+
+/* LE BALANCEMENT DE L'ONGLET ACTIF · une seule fois, au moment où il devient
+   actif, parce qu'un onglet qui gigote en permanence tire l'oeil loin de ce
+   qu'on lit. */
+@keyframes gm-hop {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-6px) scale(1.14); }
+  70% { transform: translateY(1px) scale(.97); }
+  100% { transform: translateY(-2px) scale(1.06); }
+}
 
 /* MOUVEMENT RÉDUIT · tout s'arrête, et rien ne disparaît. Une animation
    d'arrivée coupée sans « opacity: 1 » laisserait la moitié de l'écran
    invisible, ce qui est bien pire que l'animation. */
 @media (prefers-reduced-motion: reduce) {
-  .gm-pump, .gm-bumped, .gm-rise { animation: none; }
+  .gm-pump, .gm-bumped, .gm-rise, .gm-tab.on .gm-tab-g, .cm-sheet { animation: none; }
   .gm-rise, .gm-bumped { opacity: 1; transform: none; }
   .pk, .gm-cta { transition-duration: 1ms; }
   .pk:hover, .pk:active, .gm-cta:hover, .gm-cta:active { transform: none; }
 }
 
-/* --- la barre du bas ----------------------------------------------------- */
-/* Elle ne défile pas, elle reste à hauteur de pouce, et elle porte trois
-   portes. Voir game/Shell pour pourquoi trois et non cinq. */
+/* --- la barre du bas ------------------------------------------------------- */
+/* TROIS PORTES, EN JETONS DE JEU · l'onglet actif est un bouton levé, orange,
+   avec son rebord ; les deux autres sont posés à plat. C'est la même lecture
+   que la barre d'un jeu mobile : on voit où l'on est avant de lire un mot. */
 
 .gm-tabs {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  background: var(--paper); border-top: 1px solid var(--ink);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  display: flex; justify-content: center; gap: clamp(8px, 3vw, 18px);
+  padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(10, 12, 22, .82), rgba(10, 12, 22, .96));
+  backdrop-filter: blur(10px);
+  border-top: 3px solid var(--g-ink);
+  box-shadow: 0 -4px 0 rgba(0,0,0,.25);
 }
 .gm-tab {
-  display: flex; flex-direction: column; align-items: center; gap: var(--sp-1);
-  padding: 9px 4px 8px; text-decoration: none; color: var(--muted);
-  font-size: 10px; font-weight: 800; letter-spacing: 0.02em;
-  border-top: 2px solid transparent; margin-top: -1px;
+  flex: 1 1 0; max-width: 130px;
+  position: relative; isolation: isolate;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 60px; padding: 6px 4px 7px;
+  text-decoration: none;
+  font-family: var(--font-game); font-size: 13px; letter-spacing: .02em;
+  color: #cfd5ee; text-shadow: var(--g-stroke-sm);
+  border: 3px solid var(--g-ink); border-radius: 16px;
+  background: linear-gradient(180deg, #3b425e, #2a2f45 60%, #222638);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.12), 0 4px 0 #0c0e17;
+  transition: transform 140ms cubic-bezier(.34, 1.56, .64, 1), box-shadow 140ms ease, filter 140ms ease;
 }
-/* LA BOÎTE DU SIGNE · une taille fixe, que ce soit la marque ou une icône.
-   Sans elle, le logo et les primitives Bauhaus ne s'alignent pas : le logo a
-   un dessin plein bord, les icônes respirent dans leur grille de 24, et les
-   trois libellés partaient en escalier de deux pixels. */
-.gm-tab-g { width: 22px; height: 22px; display: grid; place-items: center; }
+.gm-tab:hover { filter: brightness(1.12); }
+.gm-tab:active { transform: translateY(4px); box-shadow: inset 0 2px 0 rgba(255,255,255,.12), 0 0 0 #0c0e17; transition-duration: 60ms; }
+.gm-tab.on {
+  color: #fff;
+  background: linear-gradient(180deg, #ffc76b, #ff8f24 58%, #e5620e);
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,.16), 0 4px 0 #9c3f06, 0 4px 0 3px var(--g-ink);
+  transform: translateY(-4px);
+}
+.gm-tab.on::before {
+  content: ''; position: absolute; z-index: -1; left: 5px; right: 5px; top: 3px; height: 40%;
+  border-radius: 10px; background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,.14));
+}
+/* LA BOÎTE DU SIGNE · une taille fixe, que ce soit la marque ou une icône,
+   sinon les trois libellés partent en escalier. */
+.gm-tab-g { width: 26px; height: 26px; display: grid; place-items: center; color: #fff; filter: drop-shadow(0 2px 0 var(--g-ink)); }
 .gm-tab-g .logo-badge { display: grid; place-items: center; }
-/* LE RESSORT DE LA BARRE · l'onglet qu'on touche s'enfonce, celui qui est
-   actif a son signe légèrement agrandi. C'est la seule animation permanente
-   de l'écran, et elle ne tourne pas en boucle. */
-.gm-tab .gm-tab-g { transition: transform 180ms cubic-bezier(.34, 1.56, .64, 1); }
-.gm-tab:active .gm-tab-g { transform: scale(.86); transition-duration: 90ms; }
-.gm-tab.on { color: var(--ink); border-top-color: var(--violet); }
-.gm-tab.on .gm-tab-g { transform: scale(1.12); }
-@media (prefers-reduced-motion: reduce) {
-  .gm-tab .gm-tab-g, .gm-tab.on .gm-tab-g, .gm-tab:active .gm-tab-g { transition: none; transform: none; }
-}
+.gm-tab-g svg { stroke-width: 2; }
+.gm-tab.on .gm-tab-g { animation: gm-hop 520ms cubic-bezier(.34, 1.56, .64, 1) both; }
 
-/* --- les frises Bauhaus --------------------------------------------------- */
-/* DEUX ENCRES, ET DEUX SEULEMENT · le noir et le violet de marque. Voir
-   components/BauhausBand pour pourquoi une frise plutôt qu'une icône, et
-   pourquoi le violet ne tombe jamais deux fois d'affilée.
-
-   ELLES SONT ICI ET NON DANS LE COMPOSANT parce que ce sont des couleurs de
-   THÈME : le noir de la frise est l'encre de la page, donc il devient blanc en
-   mode sombre sans qu'on ait à écrire une deuxième frise. Une couleur posée
-   dans le SVG aurait figé le mode clair dans un fichier que personne ne
-   penserait à relire en changeant de thème. */
-.bh-band { display: block; margin: 0 0 var(--sp-3); }
+/* --- les frises Bauhaus ------------------------------------------------------ */
+/* Deux encres, et seulement deux · le blanc de la barre de jeu et le violet de
+   marque, pour qu'elles se lisent sur le fond de nuit comme sur l'herbe. */
+.bh-band { display: block; margin: 0 0 10px; opacity: .9; filter: drop-shadow(0 2px 0 var(--g-ink)); }
+.gm .bh-k { fill: #fff; }
 .bh-k { fill: var(--ink); }
 .bh-v { fill: var(--violet); }
-/* LA FRISE EST RETENUE · elle annonce une rubrique, elle ne la remplace pas.
-   À pleine opacité, douze formes noires au dessus d'un titre pèsent plus lourd
-   que le titre, et on lit la décoration avant le mot. */
-.bh-band { opacity: 0.85; }
+.gm .bh-v { fill: #b98aff; }
 .bh-titled { display: grid; gap: var(--sp-1); }
 
-/* --- les cartes de formation --------------------------------------------- */
-/* LA GRILLE EST FLUIDE, ET C'EST LA GRILLE QUI DÉCIDE.
-   ---------------------------------------------------------------------------
-   Elle était « 1fr » puis « 1fr 1fr » à 760 pixels, donc deux colonnes du
-   téléphone jusqu'au vingt-sept pouces : sur un écran large, huit formations
-   en deux colonnes font quatre rangs et un demi écran de blanc à droite.
+/* --- les panneaux ------------------------------------------------------------ */
+/* LE PANNEAU DE JEU · ardoise la nuit, parchemin le jour, toujours cerné
+   d'encre et posé sur sa tranche. Une seule définition, que toutes les
+   surfaces du jeu reprennent · une carte, un module, une question, une fiche.
+   Deux surfaces qui ont l'air de venir de deux jeux, c'est ce qui fait
+   « maquette » au lieu de « produit ». */
+.pk, .md, .pkl, .ln-quiz, .cl-me, .cl-note, .pf-map, .cm-sheet, .ae {
+  background: linear-gradient(180deg, var(--g-panel-top), var(--g-panel) 26%, var(--g-panel-bot));
+  border: 3px solid var(--g-ink);
+  border-radius: 20px;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.16),
+    inset 0 -3px 0 rgba(0,0,0,.18),
+    0 6px 0 var(--g-ledge),
+    0 6px 0 3px var(--g-ink),
+    0 16px 26px rgba(0,0,0,.35);
+  color: var(--g-text);
+}
 
-   auto-fit + minmax laisse la GRILLE compter les colonnes, au lieu de les
-   énumérer par paliers. Une carte ne descend jamais sous 260 pixels, et tant
-   qu'il y a la place pour une de plus, il y en a une de plus : une colonne sur
-   un téléphone, deux sur une tablette, trois sur un portable, et davantage
-   au-delà sans qu'on ait à écrire le palier. Le plafond de trois rangs
-   d'écran est posé par --pk-cols, que la règle large fixe à 3 · c'est ce que
-   demande « trois formations sur la même ligne », et une quatrième colonne
-   ferait des vignettes trop petites pour qu'on y reconnaisse un temple. */
+/* --- les cartes de formation --------------------------------------------- */
+/* LA GRILLE EST FLUIDE, ET C'EST LA GRILLE QUI DÉCIDE · auto-fit et un minimum
+   de 260 pixels donnent une colonne sur un téléphone, deux sur une tablette,
+   trois sur un portable, sans palier écrit à la main. Le plafond de trois est
+   posé plus bas : une quatrième colonne rendrait les salles trop petites pour
+   qu'on y reconnaisse un métier. */
 .pk-grid {
   display: grid;
-  gap: var(--sp-4);
+  gap: clamp(18px, 2.2vw, 28px);
   grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  padding-bottom: 10px;
 }
 .pk {
-  display: grid;
-  /* LE CONTENU S'ALIGNE D'UNE CARTE À L'AUTRE · la vignette, puis le corps
-     qui s'étire. Sans cette ligne, une formation au libellé court laisse son
-     bouton remonter et le rang entier part en escalier. */
-  grid-template-rows: auto 1fr;
-  border: 1px solid var(--border); background: var(--card);
-  text-decoration: none; color: inherit; overflow: hidden;
-  /* LES SEIZE PIXELS ET L'OMBRE LARGE · la dérogation nommée en tête de
-     fichier. Elle s'arrête ici et aux surfaces de jeu qui lisent le même
-     jeton ; le reste du produit garde l'angle vif du système. */
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  /* LE RESSORT · voir la section « le ressort du jeu » plus bas. C'est ce qui
-     fait qu'une carte se prend en main au lieu de se cliquer. */
-  transform: translateZ(0);
+  display: flex; flex-direction: column;
+  text-decoration: none; overflow: hidden;
+  padding: 8px;
+  /* LE RESSORT · la carte se soulève au survol et s'enfonce sous le doigt, de
+     la hauteur de sa tranche. C'est ce qui fait qu'elle se PREND. */
+  transform: translateY(0);
   transition:
-    transform 180ms cubic-bezier(.34, 1.56, .64, 1),
-    box-shadow 180ms ease,
-    border-color 140ms ease;
-  will-change: transform;
+    transform 160ms cubic-bezier(.34, 1.56, .64, 1),
+    box-shadow 160ms ease,
+    filter 160ms ease;
 }
-.pk:hover { border-color: var(--ac); box-shadow: var(--shadow-card-lift); transform: translateY(-4px) scale(1.012); }
-/* L'ENFONCEMENT · le doigt appuie, la carte cède, puis elle rebondit au
-   relâchement par la courbe élastique ci-dessus. Une carte qui ne bouge pas
-   sous le doigt laisse croire que le geste n'a pas pris. */
-.pk:active { transform: translateY(-1px) scale(.978); transition-duration: 90ms; box-shadow: var(--shadow-card); }
-.pk:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
-.pk.done { border-color: var(--ac); }
+.pk:hover {
+  transform: translateY(-6px) rotate(-.4deg);
+  filter: brightness(1.05);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.16),
+    inset 0 -3px 0 rgba(0,0,0,.18),
+    0 12px 0 var(--g-ledge),
+    0 12px 0 3px var(--g-ink),
+    0 26px 34px rgba(0,0,0,.4);
+}
+.pk:active {
+  transform: translateY(5px);
+  transition-duration: 60ms;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.16),
+    inset 0 -3px 0 rgba(0,0,0,.18),
+    0 1px 0 var(--g-ledge),
+    0 1px 0 3px var(--g-ink),
+    0 6px 10px rgba(0,0,0,.3);
+}
+.pk:focus-visible { outline: 3px solid #fff; outline-offset: 5px; }
 
-/* LA VIGNETTE · un rapport fixe, sinon la carte saute pendant que la scène
-   se monte et la liste danse au chargement. */
-.pa { position: relative; width: 100%; aspect-ratio: 16 / 9; background: var(--bg); }
+/* LA SALLE DANS SON CADRE · encastrée dans la carte avec son propre contour,
+   comme une vignette de bâtiment dans un menu de jeu. Rapport fixe, sinon la
+   carte saute pendant que la scène se monte. */
+.pa {
+  position: relative; width: 100%; aspect-ratio: 16 / 10;
+  border: 3px solid var(--g-ink); border-radius: 14px; overflow: hidden;
+  background: #bfe3ff;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.25);
+}
 .pa canvas { display: block; }
-/* UNE FORMATION FERMÉE N'EST PAS GRISÉE.
-   Une première version désaturait sa vignette. Sur un écran d'accueil où les
-   huit formations sont fermées tant qu'on n'a rien donné, ça faisait huit
-   images grises : la seule chose qui donne envie d'ouvrir une formation,
-   éteinte précisément quand elle doit convaincre. Le cadenas dit ce qu'il y a
-   à dire ; la scène, elle, travaille. */
+/* UNE FORMATION FERMÉE N'EST PAS GRISÉE · huit salles grises sur l'écran
+   d'accueil éteindraient la seule chose qui donne envie d'en ouvrir une. Le
+   cadenas dit ce qu'il y a à dire. */
 .pa.off { filter: none; }
 
-.pk-body { display: grid; gap: 7px; padding: 14px 16px 16px; }
-.pk-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pk-body { display: flex; flex-direction: column; gap: 9px; padding: 14px 8px 8px; flex: 1; }
+.pk-tags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+/* LE PRIX EST UN JETON · pilule cernée, dégradé de la couleur de la
+   formation, chiffre en police de jeu. */
 .pk-price {
-  font-family: var(--font-ui); font-size: 12px; font-weight: 800;
-  background: var(--ac); color: #fff; padding: 3px 8px;
+  display: inline-flex; align-items: center;
+  font-family: var(--font-game); font-size: 16px; letter-spacing: .02em;
+  color: #fff; text-shadow: var(--g-stroke-sm);
+  padding: 3px 12px 4px;
+  border: 3px solid var(--g-ink); border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.4) 0 40%, transparent 42%),
+    var(--ac);
+  box-shadow: 0 3px 0 var(--g-ink);
 }
 .pk-lock, .pk-ok {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 11px; font-weight: 800; padding: 3px 8px; border: 1px solid var(--border);
-  color: var(--muted);
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-game); font-size: 13px; letter-spacing: .02em;
+  padding: 4px 11px 5px; border: 3px solid var(--g-ink); border-radius: 999px;
+  color: #fff; text-shadow: var(--g-stroke-sm);
+  background: linear-gradient(180deg, #4a5270, #2d3248);
+  box-shadow: 0 3px 0 var(--g-ink);
 }
-.pk-ok { border-color: var(--ac); color: var(--ac); }
-.pk-title { font-size: 18px; letter-spacing: -0.02em; }
-.pk-blurb { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
-.pk-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; font-weight: 800; color: var(--muted); }
-.pk-bar { display: block; height: 3px; background: var(--border); }
-.pk-bar i { display: block; height: 100%; background: var(--ac); }
-.pk-bar.big { height: 5px; margin-top: 14px; }
-.pk-go { font-size: 13px; font-weight: 800; color: var(--ac); }
-.pk.shut .pk-title, .pk.shut .pk-go { color: var(--muted); }
+.pk-ok { background: linear-gradient(180deg, #7fe03a, #3f9a0c); }
+.pk-title {
+  font-family: var(--font-game); font-weight: 400;
+  font-size: clamp(21px, .8vw + 17px, 26px); line-height: 1.08; letter-spacing: .01em;
+  color: #fff; text-shadow: var(--g-stroke);
+}
+.pk-blurb { margin: 0; font-size: 14px; color: var(--g-sub); line-height: 1.5; }
+.pk-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+/* LES CHIFFRES EN PASTILLES · modules, dojos, minutes, expérience. Des mots
+   séparés par des espaces se lisaient comme une phrase cassée. */
+.pk-meta span {
+  font-family: var(--font-game); font-size: 12.5px; letter-spacing: .02em;
+  padding: 3px 9px 4px; border-radius: 10px;
+  background: var(--g-slot); color: var(--g-text);
+  border: 2px solid var(--g-slot-edge);
+}
+/* LA JAUGE D'AVANCEMENT · même grammaire que l'expérience : pilule à contour,
+   remplissage brillant de la couleur de la formation. */
+.pk-bar {
+  position: relative; display: block; height: 16px;
+  border: 3px solid var(--g-ink); border-radius: 999px;
+  background: var(--g-bar-bg);
+  box-shadow: inset 0 3px 0 rgba(0,0,0,.35);
+  overflow: hidden;
+}
+.pk-bar i {
+  display: block; height: 100%; border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.45) 0 40%, transparent 42%),
+    var(--ac);
+  transition: width 600ms cubic-bezier(.22, 1, .36, 1);
+}
+.pk-bar.big { height: 22px; margin-top: 16px; }
 
 /* --- l'en-tête d'une formation ------------------------------------------- */
 
-.pkh-top { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.pkh-art { border: 1px solid var(--border); overflow: hidden; border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
-.pkh-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 11px; font-weight: 800; color: var(--muted); margin-top: 8px; }
-.pkh-count { margin: 6px 0 0; font-size: 11px; font-weight: 800; color: var(--muted); }
+.pkh-top { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.pkh-art { flex: 1 1 280px; max-width: 460px; }
+.pkh-art .pa { border-radius: 18px; box-shadow: 0 6px 0 var(--g-ink), 0 16px 26px rgba(0,0,0,.35); }
+.pkh-txt { flex: 1 1 280px; min-width: 0; }
+.pkh-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.pkh-meta span {
+  font-family: var(--font-game); font-size: 13px; padding: 3px 10px 4px; border-radius: 10px;
+  background: var(--g-slot); color: var(--g-text); border: 2px solid var(--g-slot-edge);
+}
+.pkh-count { margin: 8px 0 0; font-family: var(--font-game); font-size: 15px; color: #fff; text-shadow: var(--g-stroke-sm); }
 
-.pkl { border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); background: var(--card); padding: var(--sp-4) var(--sp-4); display: grid; gap: var(--sp-2); margin-top: var(--sp-4); }
-.pkl b { display: flex; align-items: center; gap: 7px; font-size: 15px; }
-.pkl p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.55; }
-.pkl .gm-cta { justify-self: start; }
+.pkl { padding: 18px; display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.pkl b { display: flex; align-items: center; gap: 8px; font-family: var(--font-game); font-weight: 400; font-size: 20px; color: #fff; text-shadow: var(--g-stroke-sm); }
+.pkl p { margin: 0; font-size: 14px; color: var(--g-sub); line-height: 1.55; }
+.pkl .gm-cta { align-self: flex-start; }
 
 /* --- un module et ses dojos ---------------------------------------------- */
 
-.md { border: 1px solid var(--border); background: var(--card); padding: var(--sp-4); display: grid; gap: var(--sp-3);
-  border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
-.md-head { display: flex; justify-content: space-between; align-items: center; }
-.md-n { font-family: var(--font-ui); font-size: 11px; font-weight: 800; color: var(--ac); letter-spacing: 0.06em; text-transform: uppercase; }
-.md-count { font-size: 11px; font-weight: 800; color: var(--muted); border: 1px solid var(--border); padding: 2px 7px; }
-.md-top { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
-.md-glyph { width: 38px; height: 38px; display: grid; place-items: center; background: var(--ac); color: #fff; }
-.md-title { margin: 0 0 3px; font-size: 17px; letter-spacing: -0.02em; }
-.md-blurb { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
-.md-xp { margin: 0; font-size: 11px; font-weight: 800; color: var(--muted); text-align: right; }
+.md { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.md-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.md-n {
+  font-family: var(--font-game); font-size: 14px; letter-spacing: .04em;
+  padding: 3px 12px 4px; border-radius: 999px; border: 3px solid var(--g-ink);
+  color: #fff; text-shadow: var(--g-stroke-sm);
+  background: linear-gradient(180deg, rgba(255,255,255,.35) 0 40%, transparent 42%), var(--ac);
+  box-shadow: 0 3px 0 var(--g-ink);
+}
+.md-count { font-family: var(--font-game); font-size: 15px; color: #fff; text-shadow: var(--g-stroke-sm); }
+.md-top { display: flex; gap: 14px; align-items: flex-start; }
+.md-glyph {
+  flex: none; width: 52px; height: 52px; display: grid; place-items: center;
+  position: relative; isolation: isolate;
+  border: 3px solid var(--g-ink); border-radius: 14px; color: #fff;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ac) 70%, #fff), var(--ac) 60%, color-mix(in srgb, var(--ac) 70%, #000));
+  box-shadow: 0 4px 0 var(--g-ink);
+  filter: drop-shadow(0 1px 0 var(--g-ink));
+}
+.md-glyph::before { content: ''; position: absolute; z-index: -1; left: 4px; right: 4px; top: 3px; height: 40%; border-radius: 9px; background: rgba(255,255,255,.35); }
+.md-glyph svg { stroke-width: 2; }
+.md-title { margin: 0 0 4px; font-family: var(--font-game); font-weight: 400; font-size: clamp(20px, .6vw + 17px, 24px); line-height: 1.1; color: #fff; text-shadow: var(--g-stroke); }
+.md-blurb { margin: 0; font-size: 14px; color: var(--g-sub); line-height: 1.5; }
+.md-xp { margin: 0; align-self: flex-end; font-family: var(--font-game); font-size: 15px; color: #fff; text-shadow: var(--g-stroke-sm); }
 
-.md-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+/* LES DOJOS EN EMPLACEMENTS · des cases creusées dans le panneau, comme les
+   emplacements d'un inventaire. Une ligne qu'on survole se soulève ; une
+   ligne fermée reste en place, plus terne. */
+.md-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .ls a {
-  display: grid; grid-template-columns: auto 1fr auto; gap: 11px; align-items: center;
-  border: 1px solid var(--border); padding: 11px 13px; text-decoration: none; color: inherit;
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 14px;
+  background: var(--g-slot); border: 2px solid var(--g-slot-edge);
+  box-shadow: inset 0 3px 0 rgba(0,0,0,.18);
+  text-decoration: none; color: var(--g-text);
+  transition: transform 140ms cubic-bezier(.34, 1.56, .64, 1), filter 140ms ease, border-color 140ms ease;
 }
-.ls a:hover { border-color: var(--ac); }
+.ls a:hover { transform: translateX(4px); filter: brightness(1.1); border-color: var(--ac); }
+.ls a:active { transform: scale(.98); transition-duration: 60ms; }
+/* LE JETON D'ÉTAT · une pièce ronde. Vide : à faire. Pleine et cochée : fait. */
 .ls-mark {
-  width: 22px; height: 22px; display: grid; place-items: center; flex: none;
-  border: 1px solid var(--border); color: var(--muted);
+  flex: none; width: 30px; height: 30px; display: grid; place-items: center;
+  border: 3px solid var(--g-ink); border-radius: 50%;
+  background: linear-gradient(180deg, #5b6384, #363c56);
+  color: #fff; box-shadow: 0 2px 0 var(--g-ink);
 }
-.ls-mark i { display: block; width: 7px; height: 7px; background: var(--border); }
-.ls.done .ls-mark { background: var(--ac); border-color: var(--ac); color: #fff; }
-.ls-txt { display: grid; gap: 2px; min-width: 0; }
-.ls-txt strong { font-size: 14px; }
-.ls-txt em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--muted); }
-.ls-go { font-size: 11px; font-weight: 800; color: var(--ac); white-space: nowrap; }
-.ls.done .ls-go { color: var(--muted); }
-.ls.shut { opacity: 0.62; }
-.ls.shut .ls-go { color: var(--muted); }
+.ls-mark i { display: block; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.55); }
+.ls.done .ls-mark { background: linear-gradient(180deg, #ffe066, #f2b705); color: var(--g-ink); }
+.ls-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.ls-txt strong { font-size: 15px; font-weight: 800; }
+.ls-txt em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--g-sub); }
+.ls-go {
+  flex: none; font-family: var(--font-game); font-size: 14px; white-space: nowrap;
+  color: #fff; text-shadow: var(--g-stroke-sm);
+}
+.ls.shut a { filter: saturate(.55) brightness(.9); }
+.ls.shut a:hover { filter: saturate(.7) brightness(1); }
 
 /* --- un dojo ------------------------------------------------------------- */
-/* LA SALLE A MAIGRI · elle prenait 46 % de la hauteur, donc on ouvrait un
-   cours et on voyait un décor. Elle occupe une bande : assez pour voir qui
-   attend, assez peu pour que la première phrase soit au-dessus du pli. */
 
-.ln { max-width: 680px; margin: 0 auto; padding: 16px 16px 40px; }
-/* LA SALLE · une bande, et elle ROGNE ce qui dépasse. La bulle du maître est
-   du HTML projeté par la caméra : elle ne connaît pas la largeur de l'écran,
-   donc sur un téléphone elle sortait par la droite et faisait défiler la page
-   de côté. */
-/* LA SALLE DE LA LEÇON · et pourquoi ces deux règles ne servaient à rien.
-   ---------------------------------------------------------------------------
-   Elles étaient écrites « .ln .dr », c'est à dire « la salle DANS l'article de
-   la leçon ». Or la salle n'y est pas : game/Lesson la pose en SOEUR de
-   l'article, juste avant lui, parce qu'elle occupe toute la largeur alors que
-   le texte tient dans une colonne. Le sélecteur ne désignait donc rien, et
-   trois décisions qu'on croyait prises ne l'étaient pas :
+.ln { max-width: 720px; margin: 0 auto; padding: 16px clamp(12px, 3vw, 24px) 40px; }
 
-     · la salle devait être bornée à 28vh · elle faisait 34vh, soit 287 pixels
-       sur un téléphone, et on ouvrait un cours pour voir un décor,
-     · elle devait ROGNER ce qui dépasse · elle ne rognait rien,
-     · la bulle du maître devait tenir dans 70 % de la largeur · elle faisait
-       433 pixels sur un écran de 390, donc son texte sortait par la droite.
-
-   RIEN NE LE SIGNALAIT. Une règle CSS qui ne s'applique pas ne lève aucune
-   erreur, ne casse aucune construction, et laisse la page s'afficher · avec
-   les valeurs d'AVANT, qui sont des valeurs plausibles. C'est la même famille
-   de panne que la racine qui mangeait les fragments : ce qu'on voit marche,
-   et ce n'est pas ce qu'on avait décidé.
-
-   ELLES VISENT MAINTENANT « .gm .dr » · la coquille du jeu, qui contient bien
-   la salle. Deux classes contre une suffisent à l'emporter sur la règle
-   générique et sur celle du téléphone, sans toucher ni à l'une ni à l'autre. */
-.gm .dr { height: min(28vh, 240px); border: 1px solid var(--border); margin-bottom: var(--sp-4); overflow: hidden;
-  border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+/* LA SALLE DE LA LEÇON · une bande encadrée, bornée en hauteur, qui ROGNE ce
+   qui dépasse. « .gm .dr » et non « .ln .dr » : la salle est la SOEUR de
+   l'article, posée avant lui, et le second sélecteur ne désignait rien · la
+   salle faisait 287 pixels au lieu de 236 et la bulle du maître débordait de
+   l'écran. Deux classes suffisent à l'emporter sur la règle générique et sur
+   celle du téléphone. */
+.gm .dr {
+  height: min(30vh, 260px);
+  margin: 12px clamp(12px, 3vw, 28px) 16px;
+  border: 3px solid var(--g-ink); border-radius: 20px; overflow: hidden;
+  box-shadow: 0 6px 0 var(--g-ink), 0 16px 26px rgba(0,0,0,.35);
+}
 /* LA BULLE EST DU HTML PROJETÉ PAR LA CAMÉRA · elle ne connaît pas la largeur
-   de l'écran, donc c'est ici qu'on la lui donne. « nowrap » lui vient de la
-   mascotte du grand dojo, où elle a sa place ; dans une bande de deux cent
-   quarante pixels, elle la sort du cadre. */
+   de l'écran, donc on la lui donne. */
 .gm .dr .panda-bubble { max-width: 70vw; white-space: normal; text-align: center; font-size: 13px; }
-/* L'ÉTIQUETTE DU MAÎTRE, LISIBLE · elle ne l'était pas, et la cause est un
-   conflit que rien ne signale.
-   « .tag3d.panda » se peint en blanc sur un dégradé bleu-vert. Mais une règle
-   générique posée bien plus haut dans ce fichier impose à TOUT « .tag3d » un
-   fond blanc à cinquante pour cent, en !important · elle tient les étiquettes
-   de nom du grand dojo, qui sont en encre sombre et lui vont très bien. Le
-   dégradé tombait donc, le blanc du texte restait, et on obtenait du blanc sur
-   du blanc translucide au-dessus d'une salle claire.
-   On ne retire pas la règle générique, qui tient un écran qui marche · on lui
-   répond avec la même force, et seulement ici. Le fond prend l'encre du thème,
-   donc l'étiquette reste lisible en clair comme en sombre, où l'encre et le
-   papier s'échangent. */
+/* L'ÉTIQUETTE DU MAÎTRE · une règle générique impose à tout « .tag3d » un fond
+   blanc translucide en !important ; on lui répond avec la même force, ici
+   seulement, en jeton de jeu cerné. */
 .gm .dr .tag3d.panda {
-  background: var(--ink) !important;
-  color: var(--paper);
-  padding: 3px 10px !important;
-  border-radius: var(--radius-card) !important;
-  text-shadow: none !important;
-  font-size: 12px; font-weight: 800;
+  background: linear-gradient(180deg, #ffc76b, #ff8f24 58%, #e5620e) !important;
+  color: #fff;
+  font-family: var(--font-game); font-weight: 400; font-size: 13px;
+  padding: 3px 12px 4px !important;
+  border: 3px solid var(--g-ink) !important;
+  border-radius: 999px !important;
+  text-shadow: var(--g-stroke-sm) !important;
+  box-shadow: 0 3px 0 var(--g-ink);
 }
-.ln-n { font-family: var(--font-ui); font-size: 11px; font-weight: 800; color: var(--ac); letter-spacing: 0.06em; text-transform: uppercase; }
-.ln-free { color: var(--ink); }
-.ln-head h1 { margin: 5px 0 7px; font-size: 24px !important; font-weight: 800 !important; letter-spacing: -0.025em; line-height: 1.2; }
-.ln-learn { margin: 0 0 7px; font-size: 15px; color: var(--muted); line-height: 1.5; }
-.ln-meta { margin: 0; font-size: 11px; font-weight: 800; color: var(--muted); }
-.ln-ok { color: var(--ac); display: inline-flex; align-items: center; gap: 4px; }
-.ln-k { font-family: var(--font-ui); font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.ln-act { margin: var(--sp-6) 0 0; padding: var(--sp-3) var(--sp-4); border: 1px solid var(--ac); border-radius: var(--radius-card); }
-.ln-act p { margin: 5px 0 0; font-size: 15px; font-weight: 700; line-height: 1.45; }
-.ln-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
-.ln-steps li { display: grid; grid-template-columns: auto 1fr; gap: 11px; font-size: 14px; line-height: 1.5; }
+.ln-n {
+  display: inline-block; font-family: var(--font-game); font-size: 14px; letter-spacing: .04em;
+  color: #fff; text-shadow: var(--g-stroke-sm);
+}
+.ln-free { color: #ffe066; }
+.ln-head h1 {
+  margin: 6px 0 8px;
+  font-family: var(--font-game) !important; font-weight: 400 !important;
+  font-size: clamp(28px, 2.4vw + 18px, 42px) !important; line-height: 1.05;
+  color: #fff; text-shadow: var(--g-title);
+}
+.ln-learn { margin: 0 0 8px; font-size: 16px; color: var(--g-sub); line-height: 1.55; }
+:root:not([data-theme='dark']) .ln-learn, :root:not([data-theme='dark']) .ln-meta { color: #1d3a0c; font-weight: 600; }
+.ln-meta { margin: 0; font-size: 12px; font-weight: 800; color: var(--g-sub); }
+.ln-ok { color: #ffe066; display: inline-flex; align-items: center; gap: 4px; }
+.ln-k {
+  display: inline-block; font-family: var(--font-game); font-size: 13px; letter-spacing: .05em;
+  padding: 2px 11px 3px; border-radius: 999px; border: 3px solid var(--g-ink);
+  color: #fff; text-shadow: var(--g-stroke-sm);
+  background: linear-gradient(180deg, #ffc76b, #ff8f24 58%, #e5620e);
+  box-shadow: 0 3px 0 var(--g-ink);
+}
+/* LA MISSION · ce qu'on vient faire, dans un panneau à bord orange. C'est la
+   seule chose de l'écran qu'on doit retenir en partant, donc c'est la seule
+   qui porte la couleur d'action secondaire. */
+.ln-act {
+  margin: 22px 0 0; padding: 16px 18px;
+  border: 3px solid var(--g-ink); border-radius: 18px;
+  background: linear-gradient(180deg, #ffe7b8, #ffd27a);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.5), 0 5px 0 #b56d12, 0 5px 0 3px var(--g-ink);
+  color: #2b1e0f;
+}
+.ln-act p { margin: 8px 0 0; font-size: 17px; font-weight: 800; line-height: 1.45; }
+.ln-steps { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ln-steps li { display: flex; gap: 12px; font-size: 15px; line-height: 1.55; color: var(--g-text); }
+:root:not([data-theme='dark']) .ln-steps li { color: #10240a; font-weight: 600; }
 .ln-steps li span {
-  width: 20px; height: 20px; display: grid; place-items: center;
-  border: 1px solid var(--border); font-size: 11px; font-weight: 800;
+  flex: none; width: 30px; height: 30px; display: grid; place-items: center;
+  font-family: var(--font-game); font-size: 15px; color: #fff; text-shadow: var(--g-stroke-sm);
+  border: 3px solid var(--g-ink); border-radius: 50%;
+  background: linear-gradient(180deg, #7fb6ff, #3a78e8);
+  box-shadow: 0 2px 0 var(--g-ink);
 }
-.ln-trap { margin: 16px 0 0; padding: 12px 14px; background: var(--bg); border-left: 3px solid var(--ink); }
-.ln-trap p { margin: 4px 0 0; font-size: 13px; line-height: 1.5; }
+.ln-trap {
+  margin: 18px 0 0; padding: 14px 16px;
+  border: 3px solid var(--g-ink); border-radius: 16px;
+  background: linear-gradient(180deg, #ff8a8a, #e5484d);
+  box-shadow: 0 4px 0 #8e1f22, 0 4px 0 3px var(--g-ink);
+  color: #fff;
+}
+.ln-trap .ln-k { background: linear-gradient(180deg, #3b425e, #222638); }
+.ln-trap p { margin: 8px 0 0; font-size: 14.5px; font-weight: 700; line-height: 1.5; }
 
-.ln-quiz { margin: var(--sp-6) 0 0; padding: var(--sp-4); border: 1px solid var(--border); background: var(--card);
-  border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
-.ln-quiz h3 { margin: 6px 0 12px; font-size: 16px; line-height: 1.35; }
-.ln-opts { display: grid; gap: 7px; }
+.ln-quiz { margin: 24px 0 0; padding: 18px; }
+.ln-quiz h3 { margin: 10px 0 14px; font-family: var(--font-game); font-weight: 400; font-size: clamp(19px, .6vw + 16px, 23px); line-height: 1.2; color: #fff; text-shadow: var(--g-stroke-sm); }
+.ln-opts { display: flex; flex-direction: column; gap: 10px; }
+/* LES RÉPONSES SONT DES BOUTONS DE JEU · ardoise au repos, vertes quand c'est
+   juste, rouges quand c'est faux, avec la même course que tous les boutons. */
 .ln-opt {
-  display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;
-  text-align: left; font: inherit; font-size: 14px; padding: 11px 13px;
-  background: var(--card); border: 1px solid var(--border); cursor: pointer; color: inherit;
-  border-radius: var(--radius-card);
-  transition: transform 160ms cubic-bezier(.34,1.56,.64,1), border-color 140ms ease, box-shadow 160ms ease;
+  display: flex; align-items: center; gap: 12px;
+  text-align: left; font: inherit; font-size: 15px; font-weight: 700; padding: 12px 14px;
+  color: #fff; cursor: pointer;
+  border: 3px solid var(--g-ink); border-radius: 16px;
+  background: linear-gradient(180deg, #56607f, #3a4260 60%, #2d3450);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.14), 0 4px 0 #151827, 0 4px 0 3px var(--g-ink);
+  transition: transform 140ms cubic-bezier(.34, 1.56, .64, 1), box-shadow 140ms ease, filter 140ms ease;
 }
-.ln-opt:hover:not(:disabled) { border-color: var(--ink); transform: translateX(3px); box-shadow: var(--shadow-card); }
-.ln-opt:active:not(:disabled) { transform: scale(.985); transition-duration: 90ms; }
+.ln-opt:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+.ln-opt:active:not(:disabled) { transform: translateY(4px); box-shadow: inset 0 2px 0 rgba(255,255,255,.14), 0 0 0 #151827, 0 0 0 3px var(--g-ink); transition-duration: 60ms; }
+.ln-opt:disabled { cursor: default; }
 .ln-opt-k {
-  width: 20px; height: 20px; display: grid; place-items: center;
-  border: 1px solid var(--border); font-size: 11px; font-weight: 800;
+  flex: none; width: 30px; height: 30px; display: grid; place-items: center;
+  font-family: var(--font-game); font-size: 15px; text-shadow: var(--g-stroke-sm);
+  border: 3px solid var(--g-ink); border-radius: 50%;
+  background: linear-gradient(180deg, #ffc76b, #e5620e);
 }
-.ln-opt.right { border-color: #1fa563; }
-.ln-opt.right .ln-opt-k { background: #1fa563; border-color: #1fa563; color: #fff; }
-.ln-opt.wrong { border-color: #e0483f; }
-.ln-opt.wrong .ln-opt-k { background: #e0483f; border-color: #e0483f; color: #fff; }
-.ln-opt.dim { opacity: 0.5; }
-.ln-why { margin: 12px 0 0; font-size: 13px; line-height: 1.55; color: var(--muted); }
-.ln-why b { color: #e0483f; }
-.ln-why.right b { color: #1fa563; }
+.ln-opt.right { background: linear-gradient(180deg, #9ae84c, #52b21a 60%, #3c8d0f); box-shadow: inset 0 2px 0 rgba(255,255,255,.3), 0 4px 0 #2e6606, 0 4px 0 3px var(--g-ink); }
+.ln-opt.right .ln-opt-k { background: linear-gradient(180deg, #ffe066, #f2b705); color: var(--g-ink); text-shadow: none; }
+.ln-opt.wrong { background: linear-gradient(180deg, #ff8a8a, #e5484d 60%, #c02b31); box-shadow: inset 0 2px 0 rgba(255,255,255,.25), 0 4px 0 #8e1f22, 0 4px 0 3px var(--g-ink); }
+.ln-opt.dim { opacity: .5; }
+.ln-why { margin: 14px 0 0; font-size: 14.5px; line-height: 1.6; color: var(--g-text); }
+.ln-why b { color: #ff7b7b; }
+.ln-why.right b { color: #8fe04a; }
 
-.ln-end { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 22px; }
-.ln-claim {
-  display: inline-flex; align-items: center; gap: var(--sp-2); font: inherit; font-weight: 800;
-  font-size: var(--t-small); padding: var(--sp-3) var(--sp-4); background: var(--card);
-  border: 1px solid var(--ink); cursor: pointer; color: inherit;
-  border-radius: var(--radius-card);
-  transition: transform 180ms cubic-bezier(.34,1.56,.64,1), box-shadow 180ms ease, background-color 140ms ease;
-}
-.ln-claim:hover { transform: translateY(-2px) scale(1.03); box-shadow: var(--shadow-card-lift); }
-.ln-claim:active { transform: scale(.955); transition-duration: 90ms; }
-.ln-claim.on { background: var(--ac); border-color: var(--ac); color: #fff; }
+.ln-end { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 26px; }
+.ln-claim { --b-top: #ffc76b; --b-mid: #ff8f24; --b-bot: #e5620e; --b-ledge: #9c3f06; }
+.ln-claim.on { --b-top: #ffe98a; --b-mid: #f5c518; --b-bot: #d39a00; --b-ledge: #8a6200; }
 .ln-end .gm-cta { margin-top: 0; }
 
 /* --- le clan ------------------------------------------------------------- */
 
-.cl-note { border: 1px dashed var(--border); border-radius: var(--radius-card); padding: var(--sp-4); display: grid; gap: var(--sp-2); }
-.cl-note b { font-size: 15px; }
-.cl-note p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
-.cl-me { display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3); align-items: center; border: 1px solid var(--border); background: var(--card); padding: var(--sp-4);
-  border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
-.cl-me-g { width: 38px; height: 38px; display: grid; place-items: center; background: var(--ink); color: var(--paper); }
-.cl-me b { display: block; font-family: var(--font-ui); font-size: 20px; }
-.cl-me em { font-style: normal; font-size: 12px; color: var(--muted); font-weight: 700; }
+.cl-note { padding: 18px; display: flex; flex-direction: column; gap: 8px; }
+.cl-note b { font-family: var(--font-game); font-weight: 400; font-size: 20px; color: #fff; text-shadow: var(--g-stroke-sm); }
+.cl-note p { margin: 0; font-size: 14px; color: var(--g-sub); line-height: 1.6; }
+.cl-me { display: flex; gap: 14px; align-items: center; padding: 16px 18px; }
+.cl-me-g {
+  flex: none; width: 52px; height: 52px; display: grid; place-items: center;
+  border: 3px solid var(--g-ink); border-radius: 14px; color: #fff;
+  background: linear-gradient(180deg, #cfa6ff, #9a5cff 58%, #6f33e0);
+  box-shadow: 0 4px 0 var(--g-ink);
+}
+.cl-me b { display: block; font-family: var(--font-game); font-weight: 400; font-size: 26px; color: #fff; text-shadow: var(--g-stroke-sm); }
+.cl-me em { font-style: normal; font-size: 13px; color: var(--g-sub); font-weight: 700; }
 
-/* LE ROBOT REMONTE AU DESSUS DE LA BARRE · il se posait dessus, et cachait
-   l'onglet Profil. Un bouton flottant qui recouvre une navigation est pire
-   qu'un bouton absent : on ne peut plus aller là où il empêche d'aller. */
-.gm .sb-launch { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+/* LE ROBOT REMONTE AU-DESSUS DE LA BARRE · il se posait dessus et cachait
+   l'onglet Profil. */
+.gm .sb-launch { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 
 /* --- au-delà du téléphone ------------------------------------------------ */
-/* La disposition est pensée pour un pouce. Sur un écran large, la colonne
-   s'élargit et les cartes se rangent · on ne redessine rien.
-   LA GRILLE COMPTE SEULE jusqu'ici (auto-fit, voir .pk-grid) ; ces règles ne
-   font que lui donner la place de compter jusqu'à trois. */
-
-@media (min-width: 760px) {
-  .pkh-top { grid-template-columns: 260px 1fr; align-items: center; }
-  .gm-h1 { font-size: var(--t-h2) !important; line-height: var(--t-h2-lh); }
-  .gm-tabs { grid-template-columns: repeat(3, 130px); justify-content: center; }
-}
-
-/* TROIS FORMATIONS SUR LA MÊME LIGNE · à partir d'ici la colonne s'ouvre à
-   1180 pixels, ce qui donne exactement trois cartes de 370 avec leurs seize
-   pixels de gouttière. Le plafond est volontaire : une quatrième colonne
-   rendrait les vignettes trop petites pour qu'on y reconnaisse un temple, et
-   c'est la vignette qui fait qu'on distingue une formation d'une autre. */
+/* TROIS FORMATIONS SUR LA MÊME LIGNE · à partir de 1100 pixels la colonne
+   s'ouvre à 1180, soit trois cartes de 370. Le plafond est volontaire : une
+   quatrième colonne rendrait les salles trop petites pour qu'on y reconnaisse
+   un métier. */
 @media (min-width: 1100px) {
   .gm-main { max-width: 1180px; }
   .pk-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .gm-h1 { font-size: var(--t-h1) !important; line-height: var(--t-h1-lh); letter-spacing: var(--t-h1-ls); }
-  .gm-sec { padding-left: var(--sp-6); padding-right: var(--sp-6); }
 }
 
 /* --- le profil ------------------------------------------------------------ */
 
-.pf-nums { display: flex; flex-wrap: wrap; gap: 22px; margin: 16px 0 4px; }
-.pf-nums span { display: grid; gap: 1px; }
-.pf-nums b { font-family: var(--font-ui); font-size: 28px; line-height: 1; letter-spacing: -0.03em; }
-.pf-nums i { font-style: normal; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
-.pf-h2 { font-size: 15px !important; font-weight: 800 !important; margin: 0 0 9px; letter-spacing: 0; }
-.pf-of { font-size: 12px; font-weight: 800; color: var(--muted); }
+.pf-nums { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 6px; }
+/* LES COMPTEURS EN JETONS · trois pastilles de jeu, un nombre cerné chacune. */
+.pf-nums span {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 96px; padding: 10px 14px 12px;
+  border: 3px solid var(--g-ink); border-radius: 18px;
+  background: linear-gradient(180deg, var(--g-panel-top), var(--g-panel-bot));
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.16), 0 5px 0 var(--g-ledge), 0 5px 0 3px var(--g-ink);
+}
+.pf-nums b { font-family: var(--font-game); font-weight: 400; font-size: 32px; line-height: 1; color: #fff; text-shadow: var(--g-stroke); }
+.pf-nums i { font-style: normal; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--g-sub); }
+.pf-h2 {
+  font-family: var(--font-game) !important; font-weight: 400 !important;
+  font-size: clamp(21px, .6vw + 18px, 26px) !important;
+  color: #fff; text-shadow: var(--g-stroke-sm); margin: 0 0 12px; letter-spacing: .01em;
+}
+.pf-of { font-family: var(--font-game); font-size: 16px; color: #ffe066; text-shadow: var(--g-stroke-sm); }
 
 .pf-map {
-  display: grid; grid-template-columns: auto 1fr auto; gap: var(--sp-3); align-items: center;
-  border: 1px solid var(--border); background: var(--card); padding: var(--sp-3) var(--sp-4);
-  text-decoration: none; color: inherit;
-  border-radius: var(--radius-card); box-shadow: var(--shadow-card);
-  transition: transform 180ms cubic-bezier(.34,1.56,.64,1), box-shadow 180ms ease, border-color 140ms ease;
+  display: flex; gap: 14px; align-items: center; padding: 14px 18px;
+  text-decoration: none;
+  transition: transform 160ms cubic-bezier(.34, 1.56, .64, 1), filter 160ms ease;
 }
-.pf-map:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-lift); border-color: var(--violet); }
-.pf-map:active { transform: scale(.982); transition-duration: 90ms; }
-.pf-map-g { width: 36px; height: 36px; display: grid; place-items: center; background: var(--ink); color: var(--paper); }
-.pf-map-t b { display: block; font-size: 15px; }
-.pf-map-t em { font-style: normal; font-size: 12px; color: var(--muted); }
-.pf-map-go { font-size: 17px; font-weight: 800; }
+.pf-map:hover { transform: translateY(-4px); filter: brightness(1.06); }
+.pf-map:active { transform: translateY(4px); transition-duration: 60ms; }
+.pf-map-g {
+  flex: none; width: 54px; height: 54px; display: grid; place-items: center; color: #fff;
+  border: 3px solid var(--g-ink); border-radius: 14px;
+  background: linear-gradient(180deg, #9ae84c, #52b21a 60%, #3c8d0f);
+  box-shadow: 0 4px 0 var(--g-ink);
+}
+.pf-map-t { flex: 1; min-width: 0; }
+.pf-map-t b { display: block; font-family: var(--font-game); font-weight: 400; font-size: 21px; color: #fff; text-shadow: var(--g-stroke-sm); }
+.pf-map-t em { font-style: normal; font-size: 13px; color: var(--g-sub); }
+.pf-map-go { font-family: var(--font-game); font-size: 26px; color: #fff; text-shadow: var(--g-stroke-sm); }
 
-.pf-owned { display: grid; gap: 6px; }
+.pf-owned { display: flex; flex-direction: column; gap: 8px; }
 .pf-own {
-  display: grid; grid-template-columns: auto 1fr; gap: var(--sp-3); align-items: center;
-  border: 1px solid var(--border); padding: var(--sp-3); text-decoration: none; color: inherit;
-  border-radius: var(--radius-card); background: var(--card);
-  transition: transform 160ms cubic-bezier(.34,1.56,.64,1), box-shadow 160ms ease;
+  display: flex; gap: 12px; align-items: center; padding: 10px 14px;
+  border-radius: 14px; background: var(--g-slot); border: 2px solid var(--g-slot-edge);
+  box-shadow: inset 0 3px 0 rgba(0,0,0,.18);
+  text-decoration: none; color: var(--g-text);
+  transition: transform 140ms cubic-bezier(.34, 1.56, .64, 1), filter 140ms ease;
 }
-.pf-own-m { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--border); color: var(--muted); }
-.pf-own.on .pf-own-m { background: var(--ac); border-color: var(--ac); color: #fff; }
-.pf-own-t b { display: block; font-size: 13px; }
-.pf-own-t em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--muted); }
-.pf-tester { margin: 10px 0 0; font-size: 12px; color: var(--muted); line-height: 1.55; border-left: 3px solid var(--ink); padding-left: 10px; }
+.pf-own:hover { transform: translateX(4px); filter: brightness(1.1); }
+.pf-own-m {
+  flex: none; width: 28px; height: 28px; display: grid; place-items: center;
+  border: 3px solid var(--g-ink); border-radius: 50%;
+  background: linear-gradient(180deg, #5b6384, #363c56); color: #fff;
+}
+.pf-own.on .pf-own-m { background: linear-gradient(180deg, #9ae84c, #3c8d0f); }
+.pf-own-t b { display: block; font-size: 14px; font-weight: 800; }
+.pf-own-t em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--g-sub); }
+.pf-tester { margin: 12px 0 0; font-size: 13px; color: var(--g-sub); line-height: 1.55; border-left: 4px solid #ffb347; padding-left: 12px; }
 
-.pf-case { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+/* LA VITRINE · les badges sont des médailles : rondes, cernées, dorées quand
+   elles sont gagnées, en creux quand elles ne le sont pas encore. */
+.pf-case { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(160px, 100%), 1fr)); gap: 8px; }
 .pf-badge {
-  display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center;
-  border: 1px solid var(--border); padding: 8px 10px; color: var(--muted);
+  display: flex; gap: 10px; align-items: center; padding: 9px 11px;
+  border-radius: 14px; background: var(--g-slot); border: 2px solid var(--g-slot-edge);
+  box-shadow: inset 0 3px 0 rgba(0,0,0,.18);
+  color: var(--g-sub);
 }
-.pf-badge i { width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--border); }
-.pf-badge b { font-size: 11px; font-weight: 800; }
-.pf-badge.on { color: var(--ink); border-color: var(--ac); }
-.pf-badge.on i { background: var(--ac); border-color: var(--ac); color: #fff; }
+.pf-badge i {
+  flex: none; width: 32px; height: 32px; display: grid; place-items: center;
+  border: 3px solid var(--g-ink); border-radius: 50%;
+  background: linear-gradient(180deg, #4a5270, #2d3248); color: rgba(255,255,255,.6);
+}
+.pf-badge b { font-size: 12px; font-weight: 800; }
+.pf-badge.on { color: var(--g-text); border-color: #d39a00; }
+.pf-badge.on i { background: radial-gradient(circle at 35% 30%, #fff6b0, #ffd23f 45%, #d39a00); color: var(--g-ink); box-shadow: 0 2px 0 var(--g-ink); }
 
 .pf-end { padding-bottom: 30px; }
-.pf-forget {
-  font: inherit; font-size: 12px; font-weight: 800; margin-top: 10px;
-  background: none; border: 1px solid var(--border); padding: 8px 13px; cursor: pointer; color: var(--muted);
-}
-.pf-forget:hover { border-color: #e0483f; color: #e0483f; }
+.pf-forget { --b-top: #ff9b9b; --b-mid: #e5484d; --b-bot: #c02b31; --b-ledge: #7a1418; }
 
 /* --- la carte en plein écran --------------------------------------------- */
 
-.cm { position: fixed; inset: 0; background: var(--bg); }
+.cm { position: fixed; inset: 0; background: #a8ddf5; }
 .cm .wm { position: absolute; inset: 0; }
 .cm-close {
   position: absolute; top: 14px; right: 14px; z-index: 42;
-  border-radius: var(--radius-card); box-shadow: var(--shadow-card);
-  width: 40px; height: 40px; display: grid; place-items: center;
-  background: var(--paper); border: 1px solid var(--ink); color: var(--ink); text-decoration: none;
+  width: 50px; height: 50px; display: grid; place-items: center;
+  color: #fff; text-decoration: none;
+  border: 3px solid var(--g-ink); border-radius: 16px;
+  background: linear-gradient(180deg, #ff9b9b, #e5484d 58%, #c02b31);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 4px 0 #7a1418, 0 4px 0 3px var(--g-ink);
+  transition: transform 140ms cubic-bezier(.34, 1.56, .64, 1);
 }
+.cm-close:hover { transform: translateY(-2px) rotate(-4deg); }
+.cm-close:active { transform: translateY(4px); transition-duration: 60ms; }
+.cm-close svg { stroke-width: 2.5; }
 .cm-hud {
   position: absolute; top: 14px; left: 14px; z-index: 42;
-  border-radius: var(--radius-card); box-shadow: var(--shadow-card);
-  background: var(--paper); border: 1px solid var(--ink); padding: 9px 12px;
+  padding: 10px 16px 12px;
+  border: 3px solid var(--g-ink); border-radius: 18px;
+  background: linear-gradient(180deg, #414a66, #272c42);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.16), 0 5px 0 #0d0f18, 0 5px 0 3px var(--g-ink);
+  color: #fff;
 }
-.cm-hud b { display: block; font-family: var(--font-ui); font-size: 15px; }
-.cm-hud em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--muted); }
+.cm-hud b { display: block; font-family: var(--font-game); font-weight: 400; font-size: 20px; text-shadow: var(--g-stroke-sm); }
+.cm-hud em { font-style: normal; font-family: var(--font-game); font-size: 14px; color: #ffe066; text-shadow: var(--g-stroke-sm); }
 
-/* LE CHROME DE LA CARTE PASSE AU DESSUS DES ÉTIQUETTES DE LA SCÈNE.
-   ---------------------------------------------------------------------------
-   Les titres de cités sont du HTML projeté par la caméra, rendus par drei dans
-   un calque à part dont on fixe la profondeur (voir WorldMap, zIndexRange). Ce
-   calque montait à vingt et la fiche d'une cité vivait à sept : on ouvrait une
-   cité et son titre, plus ceux des voisines, se dessinaient PAR DESSUS le
-   panneau et par dessus le voile · lisibles, cliquables, et parfaitement
-   incompréhensibles pour qui regardait l'écran.
-
-   Les étiquettes sont redescendues à douze là-bas, et tout ce qui est de
-   l'interface passe ici au dessus de cette plage. Les deux moitiés sont
-   nécessaires : baisser les étiquettes sans remonter la fiche laisserait la
-   prochaine étiquette ajoutée refaire la panne, et remonter la fiche sans
-   baisser les étiquettes laisserait un futur panneau la refaire aussi. */
-.cm-scrim { position: absolute; inset: 0; z-index: 40; background: rgba(11, 12, 14, 0.42); }
-/* LA FICHE MONTE PAR LE BAS · c'est le geste attendu sur un téléphone, et elle
-   ne dépasse jamais les trois quarts de l'écran pour qu'on voie toujours d'où
-   elle sort. */
+/* LE CHROME DE LA CARTE PASSE AU-DESSUS DES ÉTIQUETTES DE LA SCÈNE.
+   Les titres de cités sont du HTML projeté par la caméra, dans un calque dont
+   la profondeur est fixée dans WorldMap (zIndexRange, douze). Le voile et la
+   fiche passent au-dessus de cette plage · sinon on ouvrait une cité et son
+   titre se dessinait PAR-DESSUS le panneau. Les deux moitiés sont
+   nécessaires, et scripts/test-charte compare les deux fichiers. */
+.cm-scrim { position: absolute; inset: 0; z-index: 40; background: rgba(8, 10, 20, 0.5); }
+/* LA FICHE MONTE PAR LE BAS · le geste attendu sur un téléphone, jamais plus
+   des trois quarts de l'écran pour qu'on voie d'où elle sort. */
 .cm-sheet {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 41;
+  position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 41;
   max-height: 74dvh; overflow: auto;
-  background: var(--paper); border-top: 1px solid var(--border);
-  border-radius: var(--radius-card) var(--radius-card) 0 0; box-shadow: var(--shadow-card-lift);
-  padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  padding: 16px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+  animation: gm-rise 360ms cubic-bezier(.22, 1, .36, 1) backwards;
 }
-.cm-sheet-top { display: grid; grid-template-columns: auto 1fr auto; gap: 11px; align-items: center; }
-.cm-sheet-g { width: 34px; height: 34px; display: grid; place-items: center; background: var(--ac); color: #fff; }
-.cm-sheet-top b { display: block; font-size: 16px; }
-.cm-sheet-top em { font-style: normal; font-size: 11px; font-weight: 800; color: var(--ac); }
-.cm-sheet-x { width: 30px; height: 30px; display: grid; place-items: center; background: none; border: 1px solid var(--border); cursor: pointer; color: var(--muted); }
-.cm-sheet-blurb { margin: 10px 0 12px; font-size: 13px; color: var(--muted); line-height: 1.5; }
-.cm-sheet-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.cm-sheet-list li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; border: 1px solid var(--border); padding: 9px 11px; }
-.cm-sheet-list strong { display: block; font-size: 13px; }
-.cm-sheet-list em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--muted); }
-.cm-mark { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--border); color: var(--muted); }
-.cm-mark i { display: block; width: 6px; height: 6px; background: var(--border); }
-.cm-sheet-list li.done .cm-mark { background: var(--ac); border-color: var(--ac); color: #fff; }
+.cm-sheet-top { display: flex; gap: 12px; align-items: center; }
+.cm-sheet-top > div { flex: 1; min-width: 0; }
+.cm-sheet-g {
+  flex: none; width: 48px; height: 48px; display: grid; place-items: center; color: #fff;
+  border: 3px solid var(--g-ink); border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.35) 0 40%, transparent 42%), var(--ac);
+  box-shadow: 0 4px 0 var(--g-ink);
+}
+.cm-sheet-top b { display: block; font-family: var(--font-game); font-weight: 400; font-size: 22px; line-height: 1.1; color: #fff; text-shadow: var(--g-stroke-sm); }
+.cm-sheet-top em { font-style: normal; font-size: 13px; font-weight: 800; color: #ffe066; }
+.cm-sheet-x {
+  flex: none; width: 40px; height: 40px; display: grid; place-items: center; cursor: pointer; color: #fff;
+  border: 3px solid var(--g-ink); border-radius: 12px;
+  background: linear-gradient(180deg, #5a6485, #2b3148);
+  box-shadow: 0 3px 0 var(--g-ink);
+}
+.cm-sheet-blurb { margin: 12px 0 14px; font-size: 14px; color: var(--g-sub); line-height: 1.55; }
+.cm-sheet-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cm-sheet-list li {
+  display: flex; gap: 12px; align-items: center; padding: 10px 12px;
+  border-radius: 14px; background: var(--g-slot); border: 2px solid var(--g-slot-edge);
+  box-shadow: inset 0 3px 0 rgba(0,0,0,.18);
+}
+.cm-sheet-list strong { display: block; font-size: 14px; font-weight: 800; }
+.cm-sheet-list em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--g-sub); }
+.cm-mark {
+  flex: none; width: 28px; height: 28px; display: grid; place-items: center;
+  border: 3px solid var(--g-ink); border-radius: 50%;
+  background: linear-gradient(180deg, #5b6384, #363c56); color: #fff;
+}
+.cm-mark i { display: block; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.55); }
+.cm-sheet-list li.done .cm-mark { background: linear-gradient(180deg, #ffe066, #f2b705); color: var(--g-ink); }
+/* La fiche lit les jetons du jeu : elle est rendue hors de la coquille .gm,
+   donc elle reprend ici les variables de texte cerné qu'elle n'hérite pas. */
+.cm {
+  --g-stroke:
+    -2px -2px 0 var(--g-ink), 2px -2px 0 var(--g-ink), -2px 2px 0 var(--g-ink), 2px 2px 0 var(--g-ink), 0 4px 0 var(--g-ink);
+  --g-stroke-sm:
+    -1.5px -1.5px 0 var(--g-ink), 1.5px -1.5px 0 var(--g-ink), -1.5px 1.5px 0 var(--g-ink), 1.5px 1.5px 0 var(--g-ink), 0 2.5px 0 var(--g-ink);
+}
 
 @media (min-width: 760px) {
-  .cm-sheet { left: auto; right: 16px; bottom: 16px; width: 380px; border: 1px solid var(--border); border-radius: var(--radius-card); max-height: 76dvh; }
+  .cm-sheet { left: auto; right: 18px; bottom: 18px; width: 400px; max-height: 76dvh; }
 }
 
 /* --- ouvrir le week-end --------------------------------------------------- */
 
-.ae { margin-top: 14px; border: 1px solid var(--ink); padding: 14px 16px; }
-.ae-lab { display: block; font-size: 13px; font-weight: 800; margin-bottom: 9px; }
-.ae-row { display: flex; gap: 9px; flex-wrap: wrap; }
+.ae { margin-top: 16px; padding: 16px 18px; }
+.ae-lab { display: block; font-family: var(--font-game); font-weight: 400; font-size: 18px; color: #fff; text-shadow: var(--g-stroke-sm); margin-bottom: 10px; }
+.ae-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+/* LE CHAMP EST UN EMPLACEMENT CREUSÉ · le contraire du bouton, qui est en
+   relief. On distingue au premier coup d'oeil où l'on écrit et où l'on
+   appuie. */
 .ae-inp {
-  flex: 1 1 200px; min-width: 0; padding: 12px 13px; font: inherit; font-size: 15px;
-  border: 1px solid var(--ink); background: var(--card); color: var(--ink);
+  flex: 1 1 220px; min-width: 0; min-height: 50px; padding: 12px 14px;
+  font: inherit; font-size: 16px; font-weight: 700;
+  border: 3px solid var(--g-ink); border-radius: 14px;
+  background: var(--g-slot); color: var(--g-text);
+  box-shadow: inset 0 4px 0 rgba(0,0,0,.2);
 }
-.ae-inp:focus { outline: 2px solid var(--ac); outline-offset: 1px; }
+.ae-inp::placeholder { color: var(--g-sub); }
+.ae-inp:focus { outline: 3px solid #ffb347; outline-offset: 2px; }
 .ae .gm-cta { margin-top: 0; }
-.ae-fine { margin: 9px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.ae-fine { margin: 10px 0 0; font-size: 13px; color: var(--g-sub); line-height: 1.5; }
+
+/* --- les boutons retrouvent leurs arrondis ---------------------------------- */
+/* UNE RÈGLE GÉNÉRALE LES APLATISSAIT, ET SEULEMENT CERTAINS.
+   Plus haut dans ce fichier, la passe « angles vifs partout » impose
+   « input, textarea, select, button { border-radius: 0 !important } ». Elle
+   vise l'ÉLÉMENT, pas la classe. Résultat à l'écran : les boutons du jeu qui
+   sont des liens (« Commencer », « Voir les tarifs ») étaient bien arrondis,
+   et ceux qui sont de vrais <button> · les réponses du quiz, « Prendre le
+   badge », « Tout effacer », le champ d'adresse · sortaient carrés. Deux
+   boutons côte à côte, l'un en pilule et l'autre en brique.
+   On ne retire pas la règle générale, qui tient le studio et ses formulaires ;
+   on lui répond avec la même force, et seulement dans le jeu et sa carte. */
+.gm button.gm-cta, .gm .cc-btn, .cm button.gm-cta { border-radius: 16px !important; }
+.gm .ln-opt { border-radius: 16px !important; }
+.gm .ae-inp { border-radius: 14px !important; }
+.cm .cm-sheet-x { border-radius: 12px !important; }
+.gm .lsw-b { border-radius: 0 !important; }
+
+/* LE ROBOT EST UN BOUTON DE JEU · il était un disque noir sans contour, le
+   seul objet de l'écran qui n'appartenait pas au jeu. Il prend le violet de la
+   marque, le contour et le rebord. Même force que la règle qui le peignait en
+   noir, et seulement dans la coquille du jeu. */
+.gm .sb-launch {
+  background: linear-gradient(180deg, #cfa6ff, #9a5cff 58%, #6f33e0) !important;
+  border: 3px solid var(--g-ink) !important;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.4), 0 5px 0 #431b9c, 0 5px 0 3px var(--g-ink), 0 12px 20px rgba(0,0,0,.4) !important;
+  font-family: var(--font-game); font-weight: 400;
+  text-shadow: var(--g-stroke-sm);
+  transition: transform 140ms cubic-bezier(.34, 1.56, .64, 1);
+}
+.gm .sb-launch:hover { transform: translateY(-3px) scale(1.04); }
+.gm .sb-launch:active { transform: translateY(4px); }
+
+/* L'APPEL DE LA CARTE EST UN BOUTON · « Voir ce qu'il y a dedans » était une
+   ligne de texte en bas de carte, la seule chose de la carte qui ne se lisait
+   pas comme un objet à toucher. La carte entière reste le lien (un bouton
+   dans un lien serait invalide) ; ce qui change est que son appel en a la
+   forme, et qu'il s'enfonce avec elle. */
+.pk-go {
+  --b-top: #b6f05c; --b-mid: #72cc1d; --b-bot: #4c9f0f; --b-ledge: #2e6606;
+  font-family: var(--font-game); font-size: 16px; letter-spacing: .02em;
+  color: #fff; text-shadow: var(--g-stroke-sm);
+  position: relative; isolation: isolate;
+  align-self: stretch; text-align: center;
+  margin-top: 6px; padding: 9px 16px 11px;
+  border: 3px solid var(--g-ink); border-radius: 14px;
+  background: linear-gradient(180deg, var(--b-top), var(--b-mid) 58%, var(--b-bot));
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,.16), 0 4px 0 var(--b-ledge), 0 4px 0 3px var(--g-ink);
+}
+.pk-go::before {
+  content: ''; position: absolute; z-index: -1; left: 5px; right: 5px; top: 3px; height: 40%;
+  border-radius: 9px; background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,.14));
+}
+/* UNE FORMATION FERMÉE APPELLE EN ORANGE · « Voir ce qu'il y a dedans » n'est
+   pas « Commencer », et la couleur qui avance est réservée à ce qui s'ouvre. */
+.pk.shut .pk-go { --b-top: #ffc76b; --b-mid: #ff8f24; --b-bot: #e5620e; --b-ledge: #9c3f06; opacity: 1; }
+.pk:active .pk-go { box-shadow: inset 0 -4px 0 rgba(0,0,0,.16), 0 1px 0 var(--b-ledge), 0 1px 0 3px var(--g-ink); transform: translateY(3px); }

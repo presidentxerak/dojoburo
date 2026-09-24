@@ -225,11 +225,13 @@ for (const [name, go] of SCREENS) {
   await go()
   const r = await probe()
   const over = r.scrollW > r.vw + 1
-  // Le thème attendu est CLAIR quoi qu'il arrive · l'application ne suit plus
-  // la préférence du système (voir store.ts · loadTheme).
-  const wrongTheme = r.theme !== 'light'
+  // Le thème attendu est SOMBRE quoi qu'il arrive · l'application ne suit pas
+  // la préférence du système, et son défaut est devenu le sombre (le jeu, sa
+  // barre de nuit ; voir public/boot.js). Cette ligne attendait le clair, qui
+  // était le défaut précédent : la garde suit la décision, elle ne la fige pas.
+  const wrongTheme = r.theme !== 'dark'
   if (wrongTheme) bad++
-  console.log(`\n=== ${name} · data-theme=${r.theme}${wrongTheme ? ` ← DEVRAIT ÊTRE light` : ''} · ${r.vw}px de large, ${r.scrollW}px à faire défiler${over ? '  ← DÉBORDE' : ''}`)
+  console.log(`\n=== ${name} · data-theme=${r.theme}${wrongTheme ? ` ← DEVRAIT ÊTRE dark` : ''} · ${r.vw}px de large, ${r.scrollW}px à faire défiler${over ? '  ← DÉBORDE' : ''}`)
   if (r.wide.length) {
     bad += r.wide.length
     console.log('  hors de l’écran :')

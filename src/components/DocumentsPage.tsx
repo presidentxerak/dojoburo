@@ -134,7 +134,7 @@ export function DocumentsSurface({ onClose }: { onClose: () => void }) {
 
         {backend === false ? (
           <p className="docs-empty">
-            Cet écran lit et écrit dans Postgres. Appliquez <code>db/rag.sql</code> et posez
+            Cet écran lit et écrit dans Postgres. Applique <code>db/rag.sql</code> et pose
             <code>DATABASE_URL</code> ; voir <code>docs/DOCUMENTS.md</code>.
           </p>
         ) : (
@@ -260,7 +260,7 @@ export function DocumentsSurface({ onClose }: { onClose: () => void }) {
               ))}
               {docs.length === 0 && (
                 <li className="docs-empty">
-                  Aucun document. Déposez un PDF, un .docx, un .csv : il est analysé ici même,
+                  Aucun document. Dépose un PDF, un .docx, un .csv : il est analysé ici même,
                   puis interrogeable par sa page.
                 </li>
               )}

@@ -41,6 +41,17 @@ import { ProfilPage } from './game/Profil'
 import { CartePage } from './game/Carte'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
+// LA POLICE DU JEU EST SERVIE PAR NOUS, PAS PAR GOOGLE.
+// Outfit vient toujours des polices Google, chargées hors du chemin critique
+// par public/boot.js : si elles n'arrivent pas, la police système prend le
+// relais et le texte reste lisible. Lilita One ne supporte pas ce repli · un
+// titre de jeu en police système perd tout ce qui en fait un titre de jeu, le
+// poids, la rondeur, le contour. Elle est donc embarquée dans le paquet (licence
+// OFL), servie depuis notre origine, et la politique de sécurité l'accepte déjà
+// (« font-src 'self' »). Seuls les jeux latins sont chargés : le navigateur ne
+// télécharge un fichier que si la page contient un caractère de sa plage.
+import '@fontsource/lilita-one/latin-400.css'
+import '@fontsource/lilita-one/latin-ext-400.css'
 import './index.css'
 
 // Route ephemeral Vercel preview URLs (which change every deploy and aren't in

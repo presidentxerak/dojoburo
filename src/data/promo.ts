@@ -40,26 +40,26 @@ export interface Qa { q: Bi; a: Bi }
 export const FOR_WHOM: { glyph: string; title: Bi; body: Bi }[] = [
   {
     glyph: 'peak',
-    title: B('You have never really started', "Vous n'avez jamais vraiment commencé"),
+    title: B('You have never really started', "Tu n'as jamais vraiment commencé"),
     body: B(
-      'You have opened a chat window, been impressed for ten minutes, and gone back to working as before.',
-      "Vous avez ouvert une fenêtre de discussion, été impressionné dix minutes, et repris votre travail comme avant.",
+      'You opened a chat window, were impressed for ten minutes, then went back to working as before.',
+      "Tu as ouvert une fenêtre de discussion, tu as été bluffé dix minutes, puis tu as repris ton travail comme avant.",
     ),
   },
   {
     glyph: 'gear',
-    title: B('You use it, badly', "Vous vous en servez, mal"),
+    title: B('You use it, badly', "Tu t'en sers, mal"),
     body: B(
-      'It works one time in three and you do not know why, so you cannot rely on it for anything that matters.',
-      "Cela marche une fois sur trois sans que vous sachiez pourquoi, donc vous ne pouvez rien lui confier d'important.",
+      'It works one time in three and you have no idea why, so you cannot trust it with anything that matters.',
+      "Ça marche une fois sur trois sans que tu saches pourquoi, alors tu ne peux rien lui confier d'important.",
     ),
   },
   {
     glyph: 'target',
-    title: B('You want it for your job', 'Vous le voulez pour votre métier'),
+    title: B('You want it for your job', 'Tu le veux pour ton métier'),
     body: B(
       'General advice does not survive contact with your week. You want the objects and the mistakes of your trade.',
-      "Les conseils généraux ne survivent pas à votre semaine. Vous voulez les objets et les erreurs de votre métier.",
+      "Les conseils généraux ne tiennent pas face à ta semaine. Tu veux les objets et les erreurs de ton métier.",
     ),
   },
 ]
@@ -70,7 +70,7 @@ export const HOW: { glyph: string; title: Bi; body: Bi }[] = [
     glyph: 'grid',
     title: B('A map of cities', 'Une carte de cités'),
     body: B('Each city is a module. You go where you want, in any order.',
-      "Chaque cité est un module. Vous allez où vous voulez, dans l'ordre que vous voulez."),
+      "Chaque cité est un module. Tu vas où tu veux, dans l'ordre que tu veux."),
   },
   {
     glyph: 'house',
@@ -82,13 +82,13 @@ export const HOW: { glyph: string; title: Bi; body: Bi }[] = [
     glyph: 'check',
     title: B('A question that closes it', 'Une question qui ferme'),
     body: B('You answer once, you see why, and you move on. No retry loop.',
-      "Vous répondez une fois, vous voyez pourquoi, et vous avancez. Pas de seconde chance."),
+      "Tu réponds une fois, tu vois pourquoi, et tu avances. Pas de seconde chance."),
   },
   {
     glyph: 'star4',
     title: B('A badge, and it stays', 'Un badge, et il reste'),
     body: B('Every dojo gives one. You can redo any of them, any time.',
-      "Chaque dojo en donne un. Vous pouvez tous les refaire, quand vous voulez."),
+      "Chaque dojo en donne un. Tu peux tous les refaire, quand tu veux."),
   },
 ]
 
@@ -97,24 +97,24 @@ export const HOW: { glyph: string; title: Bi; body: Bi }[] = [
  *  une page de vente déguisée, et ça se voit. */
 export const FAQ: Qa[] = [
   {
-    q: B('Do I need to know how to code?', 'Faut-il savoir coder ?'),
+    q: B('Do I need to know how to code?', 'Est-ce que je dois savoir coder ?'),
     a: B(
       'No. Nothing in the path asks you to write a line of code. The one module about building things uses tools that do not require it.',
-      "Non. Rien dans le parcours ne demande d'écrire une ligne de code. Le module qui construit quelque chose emploie des outils qui n'en réclament pas.",
+      "Non. Rien dans le parcours ne te demande d'écrire une ligne de code. Le module où tu construis quelque chose utilise des outils qui n'en réclament pas.",
     ),
   },
   {
     q: B('How long does it take?', 'Combien de temps cela prend ?'),
     a: B(
       'The free week is seven lessons of about seven minutes. The full path is a little over four hours, and it is built to be taken one dojo at a time.',
-      "La semaine gratuite fait sept leçons d'environ sept minutes. Le parcours complet dépasse un peu quatre heures, et il est fait pour être suivi un dojo à la fois.",
+      "La semaine gratuite, c'est sept leçons d'environ sept minutes. Le parcours complet dépasse un peu quatre heures, et il est pensé pour avancer un dojo à la fois.",
     ),
   },
   {
     q: B('Is it a subscription?', 'Est-ce un abonnement ?'),
     a: B(
       'No. You pay once and it is yours, including what is added later. There is no trial that turns into a charge.',
-      "Non. Vous payez une fois et c'est à vous, y compris ce qui sera ajouté ensuite. Aucun essai ne se transforme en prélèvement.",
+      "Non. Tu paies une fois et c'est à toi, y compris ce qui sera ajouté ensuite. Aucun essai ne se transforme en prélèvement.",
     ),
   },
   {
@@ -128,14 +128,14 @@ export const FAQ: Qa[] = [
     q: B('Which tools do I need?', 'Quels outils faut-il ?'),
     a: B(
       'The free versions of the main assistants are enough for the whole path. Where a paid feature changes the answer, the lesson says so and says what it costs.',
-      "Les versions gratuites des principaux assistants suffisent pour tout le parcours. Là où une fonction payante change la réponse, la leçon le dit et dit ce qu'elle coûte.",
+      "Les versions gratuites des principaux assistants suffisent pour tout le parcours. Là où une fonction payante change la donne, la leçon te le dit, avec son prix.",
     ),
   },
   {
     q: B('What if it is not for me?', "Et si cela ne me convient pas ?"),
     a: B(
-      'Take the free week first. It is seven real lessons, not a sample, and it is the honest way to find out before paying anything.',
-      "Prenez d'abord la semaine gratuite. Ce sont sept vraies leçons, pas un échantillon, et c'est la façon honnête de le savoir avant de payer.",
+      'Start with the free week. It is seven real lessons, not a sample, and it is the honest way to find out before paying anything.',
+      "Commence par la semaine gratuite. Ce sont sept vraies leçons, pas un échantillon, et c'est la façon honnête de le savoir avant de payer quoi que ce soit.",
     ),
   },
 ]

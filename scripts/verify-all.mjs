@@ -105,6 +105,8 @@ const CHECKS = [
   // risque d'un site à moitié traduit n'est pas la faute de traduction, c'est
   // de le croire terminé.
   ['test-i18n.mjs', 1, true],
+  // LE JARGON IA ANGLOPHONE EN FRANÇAIS · token, prompt, system prompt.
+  ['check-jargon.mjs', 1, true],
   // LES DEUX COURS DE DESIGN · qu'ils n'enseignent AUCUN chemin de menu, parce
   // qu'un chemin de menu est faux à la prochaine version et que le lecteur en
   // conclut qu'il a mal compris. Et que la forme pédagogique tienne : les mots
@@ -131,6 +133,9 @@ const CHECKS = [
   ['verify-bricks.mjs', 3, true],
   ['verify-visual.mjs', 3, true],
   ['verify-mobile.mjs', 3, true],
+  // LA MISE EN PAGE FLUIDE · toutes les pages publiques, de 320 à 1920 px.
+  // L'en-tête du jeu dépassait à 320 px et aucune épreuve ne mesurait si étroit.
+  ['audit-fluid.mjs', 3, true],
   ['audit-hero.mjs', 3, true],
   ['perf-scene.mjs', 3, true],
   ['verify-dedupe.mjs', 3, true],

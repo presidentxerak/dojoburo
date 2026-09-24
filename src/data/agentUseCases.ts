@@ -86,13 +86,13 @@ export const USE_CASES: UseCase[] = [
       failure:
         "Des références de pages assurées qui n'existent pas, et un résumé qui couvre une question que le document n'abordait jamais.",
       steps: [
-        { title: "Dire ce qu'est une source", makes: "une règle de ce qui compte comme preuve dans votre domaine", check: "Pouvez-vous dire à un collègue, en une phrase, ce que vous n'accepterez pas comme source ?" },
-        { title: "Imposer la citation", makes: "la consigne qui fait porter à chaque affirmation un fragment mot à mot", check: "Que se passe-t-il quand l'agent ne trouve aucun fragment à citer ?" },
+        { title: "Dire ce qu'est une source", makes: "une règle de ce qui compte comme preuve dans ton domaine", check: "Peux-tu dire à un collègue, en une phrase, ce que tu n'accepteras pas comme source ?" },
+        { title: "Imposer la citation", makes: "l'instruction qui fait porter à chaque affirmation un fragment mot à mot", check: "Que se passe-t-il quand l'agent ne trouve aucun fragment à citer ?" },
         { title: "Demander les trous", makes: "une section obligatoire listant ce que la matière ne couvre pas", check: "Pourquoi une section « non couvert » vide est-elle un avertissement plutôt qu'un bon résultat ?" },
         { title: "L'éprouver sur un piège", makes: "un document avec un trou plausible, et l'agent qui n'invente pas", check: "A-t-il dit qu'il ne savait pas, ou a-t-il deviné ?" },
       ],
       ships: [
-        "Une consigne système",
+        "Un system prompt",
         "Une règle de contrôle applicable à toute réponse",
         "Un document pour l'éprouver",
       ],
@@ -118,17 +118,17 @@ export const USE_CASES: UseCase[] = [
     fr: {
       name: "Le rédacteur",
       shape: "Écrire dans une voix qui n'est pas celle du modèle",
-      does: "Produit un texte qui vous ressemble plutôt qu'à un assistant, à partir d'un brief écrit une seule fois.",
+      does: "Produit un texte qui te ressemble à toi plutôt qu'à un assistant, à partir d'un brief écrit une seule fois.",
       forWhom: "Quiconque corrige les trois mêmes choses sur chaque brouillon et s'apprête à tout réécrire soi-même.",
       hard:
-        "La voix est invisible pour un modèle quand on la décrit. Les adjectifs coûtent des jetons et ne changent rien, donc la plupart des briefs de style sont de la décoration.",
+        "La voix est invisible pour un modèle quand on la décrit. Les adjectifs coûtent des tokens et ne changent rien, donc la plupart des briefs de style sont de la décoration.",
       failure:
-        "Un texte fluide et bien structuré qui pourrait venir de n'importe qui, avec vos trois tics détestés revenus dedans.",
+        "Un texte fluide et bien structuré qui pourrait venir de n'importe qui, avec tes trois tics détestés revenus dedans.",
       steps: [
-        { title: "Réunir trois mauvais brouillons", makes: "la matière première de chaque règle que vous écrirez", check: "Qu'y avait-il exactement de faux dans chacun, en mots qu'un inconnu comprendrait ?" },
-        { title: "Transformer le goût en interdits", makes: "une liste de choses à ne jamais faire, chacune traçable jusqu'à un brouillon", check: "Quelqu'un d'autre pourrait-il vérifier qu'une règle a été enfreinte, sans vous demander ?" },
+        { title: "Réunir trois mauvais brouillons", makes: "la matière première de chaque règle que tu écriras", check: "Qu'y avait-il exactement de faux dans chacun, en mots qu'un inconnu comprendrait ?" },
+        { title: "Transformer le goût en interdits", makes: "une liste de choses à ne jamais faire, chacune traçable jusqu'à un brouillon", check: "Quelqu'un d'autre pourrait-il vérifier qu'une règle a été enfreinte, sans te demander ?" },
         { title: "Ajouter un exemple travaillé", makes: "une paire avant et après qui porte la voix", check: "L'exemple apprend-il quelque chose que les interdits ne disent pas déjà ?" },
-        { title: "Le réduire à vingt règles", makes: "un brief assez court pour être suivi", check: "Quelle règle avez-vous supprimée, et que faudrait-il pour que vous la remettiez ?" },
+        { title: "Le réduire à vingt règles", makes: "un brief assez court pour être suivi", check: "Quelle règle as-tu supprimée, et que faudrait-il pour que tu la remettes ?" },
       ],
       ships: [
         "Un brief de style maison",
@@ -157,15 +157,15 @@ export const USE_CASES: UseCase[] = [
     fr: {
       name: "Le répondant",
       shape: "Répondre aux gens sans promettre ce qu'on ne peut pas",
-      does: "Répond aux clients dans votre voix, dans des limites que vous posez, et passe la main quand il le doit.",
+      does: "Répond aux clients avec ta voix, dans des limites que tu poses, et passe la main quand il le doit.",
       forWhom: "Quiconque a un agent de support poli, rapide, et qui a deux fois promis un correctif que personne n'avait prévu.",
       hard:
         "Un modèle préfère être utile qu'exact. Laissé seul, il invente une date, parce qu'une date est ce que le lecteur voulait.",
       failure:
-        "Une réponse chaleureuse et bien écrite qui vous engage sur ce que vous ne pouvez pas livrer, envoyée avant que personne ne l'ait lue.",
+        "Une réponse chaleureuse et bien écrite qui t'engage sur ce que tu ne peux pas livrer, envoyée avant que personne ne l'ait lue.",
       steps: [
         { title: "Écrire les interdits durs", makes: "les trois choses qu'il ne peut jamais énoncer : une date, un prix, un remboursement", check: "Que dit-il à la place, mot pour mot ?" },
-        { title: "Faire de « je ne sais pas » une vraie réponse", makes: "une réponse approuvée pour le cas où il ne doit pas deviner", check: "Seriez-vous content de recevoir cette réponse vous-même ?" },
+        { title: "Faire de « je ne sais pas » une vraie réponse", makes: "une réponse approuvée pour le cas où il ne doit pas deviner", check: "Serais-tu content de recevoir cette réponse toi-même ?" },
         { title: "Lister les déclencheurs de transfert", makes: "un jeu de conditions, pas une appréciation", check: "Pourquoi une liste de déclencheurs est-elle plus sûre que de lui demander de juger ?" },
         { title: "Lui donner la vraie politique", makes: "une section de connaissance qu'il cite au lieu de la résumer", check: "Qu'est-ce qui se casse quand une politique est résumée ?" },
       ],
@@ -204,7 +204,7 @@ export const USE_CASES: UseCase[] = [
         "Un relecteur minutieux que personne ne lit, ce qui est pire que pas de relecteur du tout.",
       steps: [
         { title: "Définir ce qu'est un constat", makes: "les trois lignes qu'un constat doit porter pour exister : entrées, comportement, attente", check: "Que fait-il quand il ne peut pas écrire ces trois lignes ?" },
-        { title: "Interdire le goût", makes: "une liste explicite de ce qu'il n'a pas le droit de signaler", check: "Où va-t-il chercher vos conventions, et s'il n'y en a aucune ?" },
+        { title: "Interdire le goût", makes: "une liste explicite de ce qu'il n'a pas le droit de signaler", check: "Où va-t-il chercher tes conventions, et s'il n'y en a aucune ?" },
         { title: "Plafonner et classer", makes: "un plafond de constats, les pires d'abord", check: "Pourquoi une liste non classée de quarante équivaut-elle à aucune liste ?" },
         { title: "Le lancer sur un vrai changement", makes: "la preuve qu'il a trouvé quelque chose de vrai et s'est tu sinon", check: "A-t-il rempli le quota, ou s'est-il arrêté ?" },
       ],
@@ -238,14 +238,14 @@ export const USE_CASES: UseCase[] = [
       does: "Vérifie des chiffres, puis dit ce qu'il ferait et ce qui rendrait cela faux.",
       forWhom: "Quiconque s'apprête à envoyer une prévision à un conseil avec une ligne dont la somme oublie une cellule.",
       hard:
-        "Séparer l'arithmétique du jugement. À qui on demande de vérifier des chiffres, un modèle se met à discuter vos hypothèses, ce qui est une autre réunion.",
+        "Séparer l'arithmétique du jugement. À qui on demande de vérifier des chiffres, un modèle se met à discuter tes hypothèses, ce qui est une autre réunion.",
       failure:
         "Une revue qui dit que le modèle semble raisonnable, et un total qui n'égale pas la somme de ses parties.",
       steps: [
-        { title: "Nommer les quatre erreurs", makes: "une liste de contrôle de ce qui survit à une relecture humaine", check: "Lesquelles des quatre avez-vous personnellement laissé passer ?" },
+        { title: "Nommer les quatre erreurs", makes: "une liste de contrôle de ce qui survit à une relecture humaine", check: "Lesquelles des quatre as-tu toi-même laissé passer ?" },
         { title: "Séparer arithmétique et opinion", makes: "deux sections de sortie qui ne se mélangent jamais", check: "Qu'est-ce qui n'appartient ni à l'une ni à l'autre ?" },
         { title: "Exiger la liste du non vérifié", makes: "une section pour ce qu'il a dû prendre pour argent comptant", check: "Pourquoi le silence ici donne-t-il une fausse assurance ?" },
-        { title: "Forcer une recommandation", makes: "une consigne qui interdit de rester entre deux chaises", check: "Que recommande-t-il quand les preuves sont réellement équilibrées ?" },
+        { title: "Forcer une recommandation", makes: "une instruction qui interdit de rester entre deux chaises", check: "Que recommande-t-il quand les preuves sont réellement équilibrées ?" },
       ],
       ships: [
         "Un prompt d'audit",
@@ -281,9 +281,9 @@ export const USE_CASES: UseCase[] = [
       failure:
         "Quatre-vingt-dix pour cent de justesse qui cachent une catégorie fausse à chaque fois, et c'était celle qui comptait.",
       steps: [
-        { title: "Écrire les catégories comme des tests", makes: "une définition par catégorie qu'on pourrait appliquer à l'aveugle", check: "Prenez-en deux voisines : quelle question unique les sépare ?" },
+        { title: "Écrire les catégories comme des tests", makes: "une définition par catégorie qu'on pourrait appliquer à l'aveugle", check: "Prends-en deux voisines : quelle question unique les sépare ?" },
         { title: "Ajouter le « aucune de celles-ci »", makes: "une issue de secours pour qu'il cesse de forcer un rangement", check: "Que devient ce qui atterrit là, en aval ?" },
-        { title: "Construire vingt exemples étiquetés", makes: "la seule façon honnête de savoir si ça marche", check: "Sur lesquels vous êtes-vous contredit vous-même ?" },
+        { title: "Construire vingt exemples étiquetés", makes: "la seule façon honnête de savoir si ça marche", check: "Sur lesquels t'es-tu contredit toi-même ?" },
         { title: "Mesurer catégorie par catégorie", makes: "un score qui ne peut pas cacher une classe ratée dans une moyenne", check: "Quelle catégorie est la pire, et est-ce que ça compte ?" },
       ],
       ships: [
@@ -321,9 +321,9 @@ export const USE_CASES: UseCase[] = [
         "Un tableau propre dont une colonne est discrètement inventée, découverte trois mois plus tard lors d'un audit.",
       steps: [
         { title: "Écrire le schéma d'abord", makes: "une liste de champs avec leurs types, et ce que chacun veut dire", check: "Pour chaque champ : à quoi ressemble l'absence, et est-elle permise ?" },
-        { title: "Interdire la supposition", makes: "la consigne qui rend un vide plutôt qu'une valeur plausible", check: "Comment remarqueriez-vous qu'il a deviné quand même ?" },
-        { title: "Demander l'emplacement", makes: "chaque valeur accompagnée de l'endroit du document d'où elle vient", check: "Que faites-vous d'une valeur dont l'emplacement est faux ?" },
-        { title: "Essayer les documents laids", makes: "un jeu de test de ceux qui cassent tout", check: "Quel document avez-vous dû exclure, et pourquoi ?" },
+        { title: "Interdire la supposition", makes: "l'instruction qui rend un vide plutôt qu'une valeur plausible", check: "Comment remarquerais-tu qu'il a deviné quand même ?" },
+        { title: "Demander l'emplacement", makes: "chaque valeur accompagnée de l'endroit du document d'où elle vient", check: "Que fais-tu d'une valeur dont l'emplacement est faux ?" },
+        { title: "Essayer les documents laids", makes: "un jeu de test de ceux qui cassent tout", check: "Quel document as-tu dû exclure, et pourquoi ?" },
       ],
       ships: [
         "Un schéma",
@@ -355,14 +355,14 @@ export const USE_CASES: UseCase[] = [
       does: "Regarde une source à un rythme et signale ce qui diffère, pas ce qu'elle en pense.",
       forWhom: "Quiconque doit savoir quand un concurrent, un prix, une page ou un service a bougé.",
       hard:
-        "Ne rien dire. Une sentinelle qui parle à chaque passage vous apprend à l'ignorer en quinze jours.",
+        "Ne rien dire. Une sentinelle qui parle à chaque passage t'apprend à l'ignorer en quinze jours.",
       failure:
         "Un rapport hebdomadaire magnifiquement écrit qui se lirait à l'identique si rien ne s'était passé.",
       steps: [
         { title: "Définir ce que « changé » veut dire", makes: "une règle qui sépare un vrai changement du bruit", check: "Un paragraphe reformulé est-il un changement ?" },
         { title: "Interdire les adjectifs", makes: "une liste de mots qu'elle ne peut jamais employer pour remplir une semaine calme", check: "Qu'envoie-t-elle quand il ne s'est rien passé ?" },
         { title: "Garder l'état précédent", makes: "la comparaison qui rend un rapport digne d'être écrit", check: "Où vit l'état précédent, et qui en est responsable ?" },
-        { title: "Régler le rythme sur la décision", makes: "une cadence calée sur ce que vous en ferez", check: "Quelle décision cela alimente-t-il, et à quelle fréquence est-elle vraiment prise ?" },
+        { title: "Régler le rythme sur la décision", makes: "une cadence calée sur ce que tu en feras", check: "Quelle décision cela alimente-t-il, et à quelle fréquence est-elle vraiment prise ?" },
       ],
       ships: [
         "Un brief de sentinelle",
@@ -398,9 +398,9 @@ export const USE_CASES: UseCase[] = [
       failure:
         "Un plan bien rangé qui a discrètement tranché chaque ambiguïté en devinant, si bien que personne n'a vu qu'elles existaient.",
       steps: [
-        { title: "Écrire l'objectif comme un objet", makes: "une ligne d'arrivée que vous pourriez photographier", check: "Comment saurez-vous que c'est fini sans demander à personne ?" },
+        { title: "Écrire l'objectif comme un objet", makes: "une ligne d'arrivée que tu pourrais photographier", check: "Comment sauras-tu que c'est fini sans demander à personne ?" },
         { title: "Remonter depuis la fin", makes: "un plan bâti depuis l'arrivée, pas depuis le départ", check: "Quelle étape n'existe que parce qu'elle semblait être une bonne idée ?" },
-        { title: "Forcer les questions ouvertes", makes: "une section qui ne doit pas rester vide", check: "Qu'a-t-il voulu supposer, et qu'avez-vous décidé à la place ?" },
+        { title: "Forcer les questions ouvertes", makes: "une section qui ne doit pas rester vide", check: "Qu'a-t-il voulu supposer, et qu'as-tu décidé à la place ?" },
         { title: "Donner à chaque étape un résultat observable", makes: "des critères d'acceptation dont on peut débattre avant le travail", check: "Deux personnes pourraient-elles vérifier la même étape et ne pas être d'accord ?" },
       ],
       ships: [
@@ -435,7 +435,7 @@ export const USE_CASES: UseCase[] = [
       hard:
         "Le rayon d'action. Le prompt est la partie facile ; décider ce qu'il ne doit jamais toucher, et prouver qu'il ne le peut pas, c'est le travail.",
       failure:
-        "Il a fait exactement ce que vous demandiez, sur la mauvaise fiche, et il n'y a pas de retour en arrière.",
+        "Il a fait exactement ce que tu demandais, sur la mauvaise fiche, et il n'y a pas de retour en arrière.",
       steps: [
         { title: "Tracer le rayon d'action", makes: "une liste écrite de ce qu'il peut lire, écrire, et ne jamais toucher", check: "Quelle est la pire action unique qu'il pourrait faire aujourd'hui ?" },
         { title: "Séparer la lecture de l'écriture", makes: "deux configurations, dont une qui ne peut rien changer", check: "Quelle part du travail se fait en lecture seule ?" },
@@ -472,14 +472,14 @@ export const USE_CASES: UseCase[] = [
       does: "Produit des alternatives contre un brief, puis lit les résultats et dit quoi garder.",
       forWhom: "Quiconque génère vingt versions de quelque chose et choisit au feeling.",
       hard:
-        "Une variété qui veut dire quelque chose. À qui l'on demande des variantes, un modèle change les mots et garde l'idée, donc vous testez la même chose vingt fois.",
+        "Une variété qui veut dire quelque chose. À qui l'on demande des variantes, un modèle change les mots et garde l'idée, donc tu testes la même chose vingt fois.",
       failure:
-        "Vingt options, une seule idée, et un test qui ne peut rien vous apprendre parce que rien ne différait vraiment.",
+        "Vingt options, une seule idée, et un test qui ne peut rien t'apprendre parce que rien ne différait vraiment.",
       steps: [
-        { title: "Nommer l'axe de différence", makes: "un énoncé de ce qui doit varier entre les variantes", check: "Deux variantes pourraient-elles différer sur votre axe et se lire à l'identique ?" },
+        { title: "Nommer l'axe de différence", makes: "un énoncé de ce qui doit varier entre les variantes", check: "Deux variantes pourraient-elles différer sur ton axe et se lire à l'identique ?" },
         { title: "Demander l'hypothèse", makes: "chaque variante accompagnée de ce qu'elle teste", check: "Quelle variante n'a aucune hypothèse, et pourquoi est-elle là ?" },
-        { title: "Décider la règle d'arrêt d'abord", makes: "le chiffre qui met fin au test, écrit avant de commencer", check: "Quel résultat vous ferait garder la version actuelle ?" },
-        { title: "Lire le résultat honnêtement", makes: "un prompt qui rend ce qui s'est passé, pas ce que vous espériez", check: "Que dit-il quand l'écart est du bruit ?" },
+        { title: "Décider la règle d'arrêt d'abord", makes: "le chiffre qui met fin au test, écrit avant de commencer", check: "Quel résultat te ferait garder la version actuelle ?" },
+        { title: "Lire le résultat honnêtement", makes: "un prompt qui rend ce qui s'est passé, pas ce que tu espérais", check: "Que dit-il quand l'écart est du bruit ?" },
       ],
       ships: [
         "Un prompt de variantes",
@@ -513,11 +513,11 @@ export const USE_CASES: UseCase[] = [
       hard:
         "Trouver l'étape cassée. Quand la sortie est fausse à la fin, chaque étape en amont est suspecte, et une chaîne sans trace est une boîte noire avec un surcoût.",
       failure:
-        "Un système qui produit quelque chose de faux et ne vous donne aucun moyen de savoir où ça a dérapé.",
+        "Un système qui produit quelque chose de faux et ne te donne aucun moyen de savoir où ça a dérapé.",
       steps: [
         { title: "Écrire le contrat entre les étapes", makes: "une forme définie pour ce que chaque étape passe à la suivante", check: "Que fait une étape quand elle reçoit quelque chose de mal formé ?" },
-        { title: "Rendre chaque étape vérifiable seule", makes: "un moyen de faire tourner n'importe quelle étape sur une entrée fixe", check: "Pouvez-vous reproduire l'étape trois sans lancer la une et la deux ?" },
-        { title: "Garder la trace", makes: "un relevé de ce qui est entré et sorti de chaque étape", check: "Combien de temps la gardez-vous, et que contient-elle qu'elle ne devrait pas ?" },
+        { title: "Rendre chaque étape vérifiable seule", makes: "un moyen de faire tourner n'importe quelle étape sur une entrée fixe", check: "Peux-tu reproduire l'étape trois sans lancer la une et la deux ?" },
+        { title: "Garder la trace", makes: "un relevé de ce qui est entré et sorti de chaque étape", check: "Combien de temps la gardes-tu, et que contient-elle qu'elle ne devrait pas ?" },
         { title: "Décider ce qui se passe en cas d'échec", makes: "une règle par étape : reprendre, sauter, arrêter, demander", check: "Quelle étape ne doit jamais être reprise, et pourquoi ?" },
       ],
       ships: [
