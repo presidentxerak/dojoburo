@@ -61,7 +61,7 @@ export const KB: KBTopic[] = [
     id: 'build',
     chip: 'Build an agent',
     answer:
-      `Building an agent is the first of the ${COURSE_COUNT} courses, and it is where to start. You walk into the dojo at /build and ${USE_CASE_COUNT} agents are asleep around the room, one per SHAPE of problem: a researcher, a writer, a responder, an engineer, an analyst, a sorter, an extractor, a watcher, a planner, an operator, a campaigner, a conductor. They are asleep because none of them exists yet. You click the one whose problem you actually have, it wakes up, and its page opens full screen with the whole course for it. ` +
+      `Building an agent is the first of the ${COURSE_COUNT} courses, and it is where you start. You walk into the dojo at /build and ${USE_CASE_COUNT} agents are asleep around the room, one per SHAPE of problem: a researcher, a writer, a responder, an engineer, an analyst, a sorter, an extractor, a watcher, a planner, an operator, a campaigner, a conductor. They are asleep because none of them exists yet. You click the one whose problem you actually have, it wakes up, and its page opens full screen with the whole course for it. ` +
       'Each one is taught separately because each one FAILS differently: a research agent invents sources, a sorting agent confuses two neighbouring categories, an extractor returns a plausible value for a field that was simply missing. A general "write a good prompt" course prepares you for none of them. ' +
       'Every path is four steps, and each step MAKES something that did not exist before: a rule, an instruction, a test set. The page explains, for each step, why it exists, the concrete moves, and the same thing written badly next to the same thing written well. At the end you take the agent away as a file in five formats (system prompt, markdown brief, tool schemas, skill folder, neutral manifest), none of which belongs to a provider.',
     links: [
@@ -73,7 +73,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Construire un agent",
       answer:
-        `Construire un agent est le premier des ${COURSE_COUNT} cours, et c'est par là qu'il faut commencer. Vous entrez dans le dojo, à /build, et ${USE_CASE_COUNT} agents y dorment autour de la salle, un par FORME de problème : un chercheur, un rédacteur, un répondant, un ingénieur, un analyste, un trieur, un extracteur, une sentinelle, un planificateur, un opérateur, un expérimentateur, un chef d'orchestre. Ils dorment parce qu'aucun n'existe encore. Vous cliquez celui dont vous avez réellement le problème, il se réveille, et sa page s'ouvre en plein écran avec tout le cours qui lui correspond. Chacun s'enseigne à part parce que chacun ÉCHOUE différemment : un agent de recherche invente des sources, un agent de tri confond deux catégories voisines, un extracteur rend une valeur plausible pour un champ qui était simplement absent. Un cours général du genre « écrivez une bonne consigne » ne vous prépare à aucun des trois. Chaque parcours fait quatre étapes, et chaque étape FABRIQUE quelque chose qui n'existait pas : une règle, une instruction, un jeu d'épreuves. La page explique, pour chaque étape, pourquoi elle existe, les gestes concrets, et la même chose mal écrite à côté de la même chose bien écrite. À la fin vous emportez l'agent sous forme de fichier, dans cinq formats (consigne système, dossier markdown, schémas d'outils, dossier de compétence, manifeste neutre), dont aucun n'appartient à un fournisseur.`,
+        `Construire un agent, c'est le premier des ${COURSE_COUNT} cours, et c'est par là que tu commences. Tu entres dans le dojo, à /build, et ${USE_CASE_COUNT} agents dorment autour de la salle, un par FORME de problème : un chercheur, un rédacteur, un répondant, un ingénieur, un analyste, un trieur, un extracteur, une sentinelle, un planificateur, un opérateur, un expérimentateur, un chef d'orchestre. Ils dorment parce qu'aucun n'existe encore. Tu cliques sur celui dont tu as vraiment le problème, il se réveille, et sa page s'ouvre en plein écran avec tout le cours qui lui correspond. Chacun s'enseigne à part parce que chacun ÉCHOUE à sa manière : un agent de recherche invente des sources, un agent de tri confond deux catégories voisines, un extracteur te rend une valeur plausible pour un champ qui était tout simplement absent. Un cours général du genre « écris une bonne consigne » ne te prépare à aucun des trois. Chaque parcours fait quatre étapes, et chaque étape FABRIQUE quelque chose qui n'existait pas : une règle, une instruction, un jeu d'épreuves. Pour chaque étape, la page t'explique pourquoi elle existe, les gestes concrets, et la même chose mal écrite à côté de la même chose bien écrite. À la fin, tu repars avec ton agent sous forme de fichier, dans cinq formats (consigne système, dossier markdown, schémas d'outils, dossier de compétence, manifeste neutre), dont aucun n'appartient à un fournisseur.`,
       links: [
         "Entrer dans le dojo",
         "Comment marche la certification",
@@ -98,7 +98,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Où le faire tourner",
       answer:
-        `Vous terminez un parcours avec un fichier : une instruction, des schémas d'outils, un manifeste. La question qui suit immédiatement est où le faire tourner, et /frameworks y répond pour ${FRAMEWORK_COUNT} d'entre eux : LangGraph, LangChain, CrewAI, LlamaIndex, l'OpenAI Agents SDK, Google ADK, Pydantic AI, le Microsoft Agent Framework, AutoGen, Semantic Kernel, Mastra, Agno, Strands, smolagents et MetaGPT. Pour chacun : comment il MODÉLISE un agent (c'est la phrase à comprendre en premier, parce que c'est elle qui décide si le vôtre y rentre), où va chaque morceau de votre fichier exporté, ce qui surprend, et quand NE PAS le prendre. Il n'y a aucun code sur cette page, et c'est voulu. Ces projets bougent vite, et un extrait écrit aujourd'hui a tort dans quelques mois : quelqu'un le copie, ça casse, et il croit avoir mal compris. Nous enseignons la partie qui ne se périme pas, qui est aussi celle qui prend du temps : ce que votre agent DEVIENT dans chaque framework. Une consigne système est une instruction ici, une histoire là, une signature typée ailleurs. Une fois que vous savez cela, la documentation du jour se lit en cinq minutes. Chaque entrée y renvoie.`,
+        `Tu termines un parcours avec un fichier : une instruction, des schémas d'outils, un manifeste. La question qui suit tout de suite, c'est où le faire tourner, et /frameworks y répond pour ${FRAMEWORK_COUNT} d'entre eux : LangGraph, LangChain, CrewAI, LlamaIndex, l'OpenAI Agents SDK, Google ADK, Pydantic AI, le Microsoft Agent Framework, AutoGen, Semantic Kernel, Mastra, Agno, Strands, smolagents et MetaGPT. Pour chacun : comment il MODÉLISE un agent (c'est la phrase à comprendre en premier, parce que c'est elle qui décide si le tien y rentre), où va chaque morceau de ton fichier exporté, ce qui piège les gens, et quand NE PAS le prendre. Il n'y a aucun code sur cette page, et c'est voulu. Ces projets bougent vite, et un extrait écrit aujourd'hui sera faux dans quelques mois : quelqu'un le copie, ça casse, et il croit avoir mal compris. On t'enseigne la partie qui ne se périme pas, et c'est aussi celle qui prend du temps : ce que ton agent DEVIENT dans chaque framework. Une consigne système est une instruction ici, une histoire là, une signature typée ailleurs. Une fois que tu sais ça, la documentation du jour se lit en cinq minutes. Chaque entrée y renvoie.`,
       links: [
         "Comparer les frameworks",
         "Construire un agent d'abord",
@@ -125,10 +125,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Insignes et ceintures",
       answer:
-        `Les étapes font les insignes, les insignes et les agents terminés font avancer votre ceinture, et les ${COURSE_COUNT} cours ensemble font le diplôme. Les règles sont les mêmes pour tous et rien ne se donne pour avoir été présent. Une ÉTAPE se coche quand vous avez FABRIQUÉ ce qu'elle produit, pas quand vous avez lu à son sujet. Personne ne vous surveille, et c'est le propos : une barre de progression qu'on peut tricher ne vous apprend rien. Un INSIGNE ne se donne jamais pour une étape. Il se donne pour un parcours mené d'un bout à l'autre, ce qui veut dire que vous savez traiter une forme de problème. Une CEINTURE compte les agents TERMINÉS, jamais les étapes : commencer quatre parcours et n'en finir aucun ne fait rien avancer du tout. Il y en a ${GRADE_COUNT}, de la blanche à la noire, et la noire demande les ${USE_CASE_COUNT}. Le DIPLÔME demande les trois cours en entier. Il porte la mention « certifié DojoBuro », ce qui veut dire certifié par nous et par personne d'autre : ce n'est pas une qualification reconnue par une branche, aucun employeur n'en a entendu parler, et nous préférons le dire ici plutôt que vous le laisser découvrir ensuite. Tout est gardé dans votre navigateur, personne ne le vend et personne ne le vérifie.`,
+        `Les étapes font les insignes, les insignes et les agents terminés font avancer ta ceinture, et les ${COURSE_COUNT} cours ensemble font le diplôme. Les règles sont les mêmes pour tout le monde, et rien ne se gagne juste en étant présent. Une ÉTAPE se coche quand tu as FABRIQUÉ ce qu'elle produit, pas quand tu as lu à son sujet. Personne ne te surveille, et c'est tout l'intérêt : une barre de progression qu'on peut tricher ne t'apprend rien. Un INSIGNE ne se donne jamais pour une étape. Il se gagne sur un parcours mené d'un bout à l'autre, ce qui veut dire que tu sais traiter une forme de problème. Une CEINTURE compte les agents TERMINÉS, jamais les étapes : commencer quatre parcours sans en finir aucun ne fait rien avancer du tout. Il y en a ${GRADE_COUNT}, de la blanche à la noire, et la noire demande les ${USE_CASE_COUNT}. Le DIPLÔME demande les trois cours en entier. Il porte la mention « certifié DojoBuro », ce qui veut dire certifié par nous et par personne d'autre : ce n'est pas une qualification reconnue par une branche, aucun employeur n'en a entendu parler, et je préfère te le dire ici plutôt que tu le découvres plus tard. Tout est gardé dans ton navigateur, personne ne le vend et personne ne le vérifie.`,
       links: [
-        "Voir comment cela marche",
-        "Votre progression",
+        "Voir comment ça marche",
+        "Ta progression",
       ],
     },
   },
@@ -146,7 +146,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "L'académie du dojo",
       answer:
-        `L'académie du dojo est notre cours gratuit sur la façon dont tout cela marche vraiment · ${ACADEMY_LESSONS} leçons réparties sur ${ACADEMY_TRACKS} pistes, environ ${ACADEMY_HOURS} heures en tout, et cela part de absolument zéro. Le cours suppose que vous n'avez jamais entendu les mots « agent », « vibe coding », « éditeur de code » ou « agent développeur », et il explique chacun en mots simples au moment où il apparaît. Chaque leçon est courte (5 à 8 minutes), a une animation à côté qui montre la chose expliquée en train de se produire, et se termine par une question pour vérifier que vous avez compris plus une chose à aller faire. Rien n'est verrouillé et aucun compte n'est nécessaire · votre progression est retenue dans ce navigateur. Les cinq pistes : 1) COMMENCEZ ICI · ce qu'est un agent, pourquoi une équipe vaut mieux qu'un assistant seul, votre premier projet, et comment lire le travail produit. 2) LE PAYSAGE, SANS JARGON · le vibe coding, les agents conversationnels contre les éditeurs de code contre les agents développeurs contre un atelier d'agents, comment écrire une commande plutôt qu'un souhait, et ce que tout cela coûte. 3) VOS COÉQUIPIERS · les huit champs en clair qui définissent un coéquipier, comment en modifier un pour que tous les passages à venir s'améliorent, choisir ses applications, et façonner l'équipe. 4) CONSTRUIRE UN SYSTÈME · ce qu'est une boucle, comment dessiner votre plan à l'envers depuis l'objet produit, mettre plusieurs équipes en chaîne, et trouver l'étape qui a cassé. 5) PASSER EN VRAI · brancher une vraie application sans danger, la liste à relire avant de livrer, les sept erreurs que tout le monde commet, et un plan sur trente jours. Si vous débutez, commencez à la leçon une · c'est la façon la plus rapide d'arrêter de deviner.`,
+        `L'académie du dojo, c'est notre cours gratuit pour comprendre comment tout ça marche vraiment · ${ACADEMY_LESSONS} leçons réparties sur ${ACADEMY_TRACKS} pistes, environ ${ACADEMY_HOURS} heures en tout, et on part vraiment de zéro. Le cours suppose que tu n'as jamais entendu les mots « agent », « vibe coding », « éditeur de code » ou « agent développeur », et il explique chacun en mots simples au moment où il apparaît. Chaque leçon est courte (5 à 8 minutes), a une animation à côté qui montre la chose expliquée en train de se produire, et se termine par une question pour vérifier que tu as compris, plus une chose à aller faire. Rien n'est verrouillé et aucun compte n'est nécessaire · ta progression est retenue dans ce navigateur. Les cinq pistes : 1) COMMENCE ICI · ce qu'est un agent, pourquoi une équipe vaut mieux qu'un assistant seul, ton premier projet, et comment lire le travail produit. 2) LE PAYSAGE, SANS JARGON · le vibe coding, les agents conversationnels contre les éditeurs de code contre les agents développeurs contre un atelier d'agents, comment écrire une commande plutôt qu'un souhait, et ce que tout ça coûte. 3) TES COÉQUIPIERS · les huit champs en clair qui définissent un coéquipier, comment en modifier un pour que tous les passages à venir s'améliorent, choisir ses applications, et façonner l'équipe. 4) CONSTRUIRE UN SYSTÈME · ce qu'est une boucle, comment dessiner ton plan à l'envers depuis l'objet produit, mettre plusieurs équipes en chaîne, et trouver l'étape qui a cassé. 5) PASSER EN VRAI · brancher une vraie application sans danger, la liste à relire avant de livrer, les sept erreurs que tout le monde commet, et un plan sur trente jours. Si tu débutes, commence à la leçon une · c'est le moyen le plus rapide d'arrêter de deviner.`,
       links: [
         "Ouvrir l'académie",
         "Commencer la leçon 1",
@@ -165,9 +165,9 @@ export const KB: KBTopic[] = [
     follow: ['cost', 'budget', 'tools'],
     keywords: ['token', 'tokens', 'consumption', 'consommation', 'cost', 'coût', 'mode', 'saver', 'balanced', 'max', 'economy', 'économie', 'spend', 'dépense', 'limit', 'limite', 'optimise', 'optimiser', 'usage', 'meter', 'compteur'],
     fr: {
-      chip: "Maîtriser votre consommation",
+      chip: "Maîtrise ta consommation",
       answer:
-        `La pastille au milieu de l'en-tête du dojo est votre bouton des jetons. Elle montre dans quel mode vous êtes et combien de jetons la journée aurait coûté, et un clic ouvre le sélecteur complet. Il y a trois modes et chacun change exactement trois choses : la longueur maximale d'une réponse, le fait que le modèle réfléchisse avant d'écrire, et le nombre d'applications branchées d'un coéquipier qui voyagent avec le passage. ÉCONOME : réponses plafonnées à 1 500 jetons, aucune application attachée, donc l'équipe rédige au lieu d'agir · la façon la moins chère d'ajuster une consigne avant de s'engager. ÉQUILIBRÉ (par défaut) : 4 000 jetons et jusqu'à 3 applications, avec de vraies actions dedans · commencez là et ne changez que si vous avez une raison. MAXIMUM : 8 000 jetons, la réflexion allumée et jusqu'à 8 applications · trois à cinq fois les jetons d'Économe, donc gardez-le pour le passage que vous allez vraiment livrer. Le panneau montre notre estimation pour le prochain passage complet de votre équipe dans chaque mode, ET les comptes de jetons réels des passages déjà faits, rapportés par le modèle lui-même, pour que vous puissiez confronter nos estimations à la réalité. Une chose encore vaut d'être sue : chaque application que vous allumez pour un coéquipier fait voyager ses définitions d'outils avec chacune de ses étapes, donc un coéquipier à huit applications coûte plus par étape que le même à deux, dans tous les modes. Brancher reste gratuit · c'est faire tourner qui compte.`,
+        `La pastille au milieu de l'en-tête du dojo, c'est ton bouton des jetons. Elle te montre dans quel mode tu es et combien de jetons la journée aurait coûté, et un clic ouvre le sélecteur complet. Il y a trois modes et chacun change exactement trois choses : la longueur maximale d'une réponse, le fait que le modèle réfléchisse avant d'écrire, et le nombre d'applications branchées d'un coéquipier qui voyagent avec le passage. ÉCONOME : réponses plafonnées à 1 500 jetons, aucune application attachée, donc l'équipe rédige au lieu d'agir · le moyen le moins cher d'ajuster une consigne avant de t'engager. ÉQUILIBRÉ (par défaut) : 4 000 jetons et jusqu'à 3 applications, avec de vraies actions dedans · commence là, et ne change que si tu as une raison. MAXIMUM : 8 000 jetons, la réflexion allumée et jusqu'à 8 applications · trois à cinq fois les jetons d'Économe, donc garde-le pour le passage que tu vas vraiment livrer. Le panneau te montre notre estimation pour le prochain passage complet de ton équipe dans chaque mode, ET les comptes de jetons réels des passages déjà faits, rapportés par le modèle lui-même, pour que tu puisses confronter nos estimations à la réalité. Encore une chose à savoir : chaque application que tu allumes pour un coéquipier fait voyager ses définitions d'outils avec chacune de ses étapes, donc un coéquipier à huit applications coûte plus par étape que le même à deux, dans tous les modes. Brancher reste gratuit · c'est faire tourner qui compte.`,
       links: [
         "Ouvrir mon dojo",
         "La leçon sur le coût",
@@ -188,7 +188,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Les ateliers",
       answer:
-        `Le dojo d'entraînement est peuplé de ${CREW_WORD} personnages, chacun ouvrant son propre espace de travail quand vous le cliquez : ${CREW_LIST.map((r) => r.name + ' (' + r.title + ')').join(', ')}. Vous pouvez masquer ceux dont vous n'avez pas besoin et créer aussi vos PROPRES agents. La marque que vous choisissez dans Brandi se répand dans tous les ateliers, pour que l'équipe entière partage un seul nom de société, un seul domaine et un seul aspect. Le montage et l'export tournent sur votre machine · la vidéo, la compression d'images et les exports ne la quittent jamais. Les documents produits par votre société sont aussi conservés pour votre organisation, pour qu'un collègue voie le même travail. L'IA fabrique une première version et vous gardez la main de bout en bout. Et au centre de votre bureau en trois dimensions se tient le panda de l'équipe · une mascotte qui encourage tout le monde et part en danse à chaque tâche terminée (touchez-le pour qu'il fête cela sur commande).`,
+        `Le dojo d'entraînement est peuplé de ${CREW_WORD} personnages, et chacun ouvre son propre espace de travail quand tu cliques dessus : ${CREW_LIST.map((r) => r.name + ' (' + r.title + ')').join(', ')}. Tu peux masquer ceux dont tu n'as pas besoin et créer aussi tes PROPRES agents. La marque que tu choisis dans Brandi se répand dans tous les ateliers, pour que toute l'équipe partage un seul nom de société, un seul domaine et un seul style. Le montage et l'export tournent sur ta machine · la vidéo, la compression d'images et les exports ne la quittent jamais. Les documents produits par ta société sont aussi conservés pour ton organisation, pour qu'un collègue voie le même travail. L'IA fabrique une première version et tu gardes la main de bout en bout. Et au centre de ton bureau en trois dimensions se tient le panda de l'équipe · une mascotte qui encourage tout le monde et se met à danser à chaque tâche terminée (touche-le pour qu'il fasse la fête sur commande).`,
       links: [
         "Voir les ateliers",
         "Ouvrir mon bureau",
@@ -210,9 +210,9 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Pour commencer",
       answer:
-        `Deux écrans, aucune consigne à écrire. 1) Vous arrivez sur une seule carte : nommez un dojo d'entraînement et appuyez sur Ouvrir le dojo. Se connecter sert seulement à le garder d'un appareil à l'autre (ou continuez en invité, enregistré dans ce navigateur seulement). 2) Vient ensuite « Choisissez vos équipes de dojo » : le catalogue entier, et vous cochez celles que vous voulez étudier. Chaque carte nomme les coéquipiers qu'elle contient, les applications qu'ils utilisent, et le nombre de tâches d'un passage complet, et une barre en bas garde le total sous les yeux. Appuyez sur Ajouter les équipes et vous atterrissez dans le dojo : cliquez un coéquipier pour lire la fiche qui en fait un spécialiste, changez-la, et voyez ce qui change. C'est un bac à sable : rien là-dedans n'appelle un modèle payant ni n'écrit dans vos vrais comptes. Chaque écran a un bouton « Comment faire ? » qui joue une visite animée en plein écran.`,
+        `Deux écrans, aucune consigne à écrire. 1) Tu arrives sur une seule carte : donne un nom à ton dojo d'entraînement et appuie sur Ouvrir le dojo. Te connecter sert seulement à le retrouver d'un appareil à l'autre (ou continue en invité, enregistré dans ce navigateur seulement). 2) Vient ensuite « Choisis tes équipes de dojo » : le catalogue entier, et tu coches celles que tu veux étudier. Chaque carte nomme les coéquipiers qu'elle contient, les applications qu'ils utilisent, et le nombre de tâches d'un passage complet, et une barre en bas garde le total sous tes yeux. Appuie sur Ajouter les équipes et tu atterris dans le dojo : clique sur un coéquipier pour lire la fiche qui en fait un spécialiste, modifie-la, et regarde ce qui change. C'est un bac à sable : rien là-dedans n'appelle un modèle payant ni n'écrit dans tes vrais comptes. Chaque écran a un bouton « Comment faire ? » qui lance une visite animée en plein écran.`,
       links: [
-        "Ouvrir votre poste de pilotage",
+        "Ouvrir ton poste de pilotage",
         "Voir la visite guidée",
       ],
     },
@@ -232,10 +232,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Les cartes d'équipe",
       answer:
-        `Une carte d'équipe de dojo est un exemple travaillé d'une équipe entière, toute faite. Chaque carte nomme chaque coéquipier qu'elle contient et combien ils sont (un chercheur, un fabricant, un analyste, un responsable d'équipe…), les applications dans lesquelles ils travaillent, le nombre d'étapes de leur plan, et le nombre de tâches d'un passage complet, marqué Léger, Moyen ou Lourd. Elles sont groupées par spécialité : marketing, produit, contenu, création, affaires et opérations. Cochez-en autant qu'il vous en faut : la barre du bas additionne les équipes, les coéquipiers, les tâches et les branchements à mesure. Chacune devient un dojo dans votre société : un bureau en trois dimensions où vous pouvez renommer des coéquipiers, en ajouter ou en retirer, changer les applications qu'ils utilisent, réécrire la façon de travailler de n'importe lequel, et lancer le plan entier d'un coup. Rien n'est verrouillé et rien n'a besoin d'être configuré d'abord.`,
+        `Une carte d'équipe de dojo, c'est un exemple travaillé d'une équipe entière, prête à l'emploi. Chaque carte nomme chaque coéquipier qu'elle contient et combien ils sont (un chercheur, un fabricant, un analyste, un responsable d'équipe…), les applications dans lesquelles ils travaillent, le nombre d'étapes de leur plan, et le nombre de tâches d'un passage complet, marqué Léger, Moyen ou Lourd. Elles sont groupées par spécialité : marketing, produit, contenu, création, affaires et opérations. Coches-en autant qu'il t'en faut : la barre du bas additionne les équipes, les coéquipiers, les tâches et les branchements au fur et à mesure. Chacune devient un dojo dans ta société : un bureau en trois dimensions où tu peux renommer des coéquipiers, en ajouter ou en retirer, changer les applications qu'ils utilisent, réécrire la façon de travailler de n'importe lequel, et lancer le plan entier d'un coup. Rien n'est verrouillé et rien n'a besoin d'être configuré avant.`,
       links: [
         "Choisir une équipe",
-        "Façonner votre équipe",
+        "Façonner ton équipe",
       ],
     },
   },
@@ -254,7 +254,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Ce que coûte une équipe",
       answer:
-        `Chaque carte d'équipe de dojo montre sa taille avant que vous ne la choisissiez. Le plan d'une équipe est une liste d'étapes fixe et une étape est une tâche, donc une équipe à 4 étapes fait 4 tâches pour un passage complet. Les cartes sont marquées Léger (jusqu'à 3 tâches), Moyen (jusqu'à 5) ou Lourd au-delà, et la barre en bas du sélecteur additionne tout ce que vous avez coché. Cela ne vous coûte rien ici : rien dans le dojo n'appelle un modèle payant, donc aucune formule ne tire sur quoi que ce soit. Le montant en dollars à côté d'une carte est ce que ces tâches coûteraient au tarif publié du modèle le jour où vous les lancerez vous-même, sur votre propre clé, et c'est ce chiffre-là qu'il vaut la peine d'apprendre à lire.`,
+        `Chaque carte d'équipe de dojo te montre sa taille avant que tu la choisisses. Le plan d'une équipe est une liste d'étapes fixe et une étape est une tâche, donc une équipe à 4 étapes fait 4 tâches pour un passage complet. Les cartes sont marquées Léger (jusqu'à 3 tâches), Moyen (jusqu'à 5) ou Lourd au-delà, et la barre en bas du sélecteur additionne tout ce que tu as coché. Ici, ça ne te coûte rien : rien dans le dojo n'appelle un modèle payant, donc aucune formule ne tire sur quoi que ce soit. Le montant en dollars à côté d'une carte, c'est ce que ces tâches coûteraient au tarif publié du modèle le jour où tu les lanceras toi-même, sur ta propre clé, et c'est ce chiffre-là qu'il vaut la peine d'apprendre à lire.`,
       links: [
         "Choisir une équipe",
         "Formules et tarifs",
@@ -276,10 +276,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Faut-il un compte ?",
       answer:
-        `Pas pour regarder. Vous pouvez ouvrir l'application, taper un nom et lire chaque carte d'équipe sans vous connecter. La connexion est demandée à un seul moment : quand vous appuyez sur Créer votre projet, parce que cela enregistre quelque chose de réel. Connectez-vous avec votre adresse ou avec Google, et votre projet, vos coéquipiers et tout ce qu'ils fabriquent seront encore là la fois suivante, sur n'importe quel appareil depuis lequel vous vous connectez. Vous préférez éviter ? « Continuer en invité » garde tout dans ce navigateur seulement : cela marche exactement pareil, mais effacer les données de votre navigateur efface votre projet avec.`,
+        `Pas pour regarder. Tu peux ouvrir l'application, taper un nom et lire chaque carte d'équipe sans te connecter. La connexion t'est demandée à un seul moment : quand tu appuies sur Crée ton projet, parce que ça enregistre quelque chose de réel. Connecte-toi avec ton adresse e-mail ou avec Google, et ton projet, tes coéquipiers et tout ce qu'ils fabriquent seront encore là la fois suivante, sur n'importe quel appareil depuis lequel tu te connectes. Tu préfères t'en passer ? « Continuer en invité » garde tout dans ce navigateur seulement : ça marche exactement pareil, mais effacer les données de ton navigateur efface ton projet avec.`,
       links: [
         "Ouvrir l'application",
-        "Comment cela marche",
+        "Comment ça marche",
       ],
     },
   },
@@ -295,11 +295,11 @@ export const KB: KBTopic[] = [
     follow: ['setup', 'tools', 'cost'],
     keywords: ['job', 'profession', 'metier', 'role', 'trade', 'growth hacker', 'community', 'freelance', 'lawyer', 'accountant', 'hr', 'designer', 'researcher', 'manager', 'secretary', 'sales', 'seller', 'vendor', 'marketer', 'founder', 'realtor', 'real estate', 'wealth', 'cgp', 'advisor', 'student', 'teacher', 'educator', 'school', 'my work'],
     fr: {
-      chip: "S'adapte à votre métier",
+      chip: "S'adapte à ton métier",
       answer:
-        `DojoBuro est un espace de travail qui se remodèle selon votre profession. 23 profils prêts · fondateur de start-up, dirigeant, entrepreneur, chef de produit, ingénieur, créateur d'applications et de jeux, chercheur, growth hacker, animateur de communauté, marketeur, commercial, vendeur, designer, avocat, comptable, agent immobilier, conseiller en gestion de patrimoine, ressources humaines, manager, secrétaire, support et centre d'appels, étudiant et enseignant · chacun amorce une équipe qui lui correspond, un univers en trois dimensions qui lui va, et exactement les applications dont ce métier a besoin (un enseignant reçoit Google Classroom, Drive et Agenda ; un agent immobilier un CRM, DocuSign et WhatsApp ; un conseiller en patrimoine Salesforce et DocuSign). Tout reste modifiable, donc vous pouvez mélanger n'importe quelle équipe, n'importe quel univers et n'importe quels outils.`,
+        `DojoBuro est un espace de travail qui se remodèle selon ton métier. 23 profils prêts · fondateur de start-up, dirigeant, entrepreneur, chef de produit, ingénieur, créateur d'applications et de jeux, chercheur, growth hacker, animateur de communauté, marketeur, commercial, vendeur, designer, avocat, comptable, agent immobilier, conseiller en gestion de patrimoine, ressources humaines, manager, secrétaire, support et centre d'appels, étudiant et enseignant · chacun amorce une équipe qui lui correspond, un univers en trois dimensions qui lui va, et exactement les applications dont ce métier a besoin (un enseignant reçoit Google Classroom, Drive et Agenda ; un agent immobilier un CRM, DocuSign et WhatsApp ; un conseiller en patrimoine Salesforce et DocuSign). Tout reste modifiable, donc tu peux mélanger n'importe quelle équipe, n'importe quel univers et n'importe quels outils.`,
       links: [
-        "Fait pour votre métier",
+        "Fait pour ton métier",
         "Comment brancher une application",
       ],
     },
@@ -318,7 +318,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Profil et formule",
       answer:
-        `Il n'y a aucun portefeuille et aucune cryptomonnaie à gérer. Votre profil est votre compte, ce que vous avez acheté, et vos préférences. Cela se paie par carte, une fois : les ${DISCOVERY_DAYS} jours de découverte sont gratuits, le parcours entier coûte ${priceTag(PATH_EUR)}, et votre module métier ${priceTag(TRADE_EUR)} en plus. Rien ne se renouvelle, donc il n'y a rien à résilier. Vous ne voyez jamais de portefeuille, de phrase secrète ni de jeton de cryptomonnaie.`,
+        `Il n'y a aucun portefeuille et aucune cryptomonnaie à gérer. Ton profil, c'est ton compte, ce que tu as acheté, et tes préférences. Ça se paie par carte, une seule fois : les ${DISCOVERY_DAYS} jours de découverte sont gratuits, le parcours entier coûte ${priceTag(PATH_EUR)}, et ton module métier ${priceTag(TRADE_EUR)} en plus. Rien ne se renouvelle, donc il n'y a rien à résilier. Tu ne vois jamais de portefeuille, de phrase secrète ni de jeton de cryptomonnaie.`,
       links: [
         "Profil et formule",
         "Formules et tarifs",
@@ -340,7 +340,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Ce que coûte une formule",
       answer:
-        `Rien de ce que vous faites ici ne vous coûte quoi que ce soit au passage, parce que rien ici n'appelle un modèle payant. Aucune formule ne décompte de tâches, de crédits ni de jetons. Vous payez une fois le cours lui-même : ${priceTag(PATH_EUR)} le parcours entier, ${priceTag(TRADE_EUR)} de plus pour votre métier. Le coût qui existe vraiment commence le jour où vous sortez un agent du dojo et le faites tourner : c'est alors votre propre clé de fournisseur et votre propre facture, ce que le module de sobriété vous apprend justement à garder petite.`,
+        `Rien de ce que tu fais ici ne te coûte quoi que ce soit à chaque passage, parce que rien ici n'appelle un modèle payant. Aucune formule ne décompte de tâches, de crédits ni de jetons. Tu paies le cours lui-même, une seule fois : ${priceTag(PATH_EUR)} le parcours entier, ${priceTag(TRADE_EUR)} de plus pour ton métier. Le coût qui existe vraiment commence le jour où tu sors un agent du dojo et que tu le fais tourner : c'est alors ta propre clé de fournisseur et ta propre facture, et c'est justement ce que le module de sobriété t'apprend à garder petite.`,
       links: [
         "Détail du coût",
         "Formules et tarifs",
@@ -362,7 +362,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Formules et tarifs",
       answer:
-        `Rien ne se renouvelle, et c'est la première chose à savoir : aucun abonnement, aucun compteur, rien à résilier. Découverte (${priceTag(0)}), c'est ${DISCOVERY_DAYS} jours, une leçon par jour, et cela demande votre adresse et rien d'autre. Formation (${priceTag(PATH_EUR)}, payée une fois) ouvre toutes les cités dojo, dans l'ordre que vous voulez, avec les fichiers et les mises à jour. Métier (${priceTag(TRADE_EUR)}, en supplément) ajoute une cité écrite pour le travail que vous faites vraiment. Les deux ensemble font ${priceTag(BUNDLE_EUR)}. Payable par carte · aucune cryptomonnaie.`,
+        `Rien ne se renouvelle, et c'est la première chose à savoir : aucun abonnement, aucun compteur, rien à résilier. Découverte (${priceTag(0)}), c'est ${DISCOVERY_DAYS} jours, une leçon par jour, et on te demande ton adresse e-mail, rien d'autre. Formation (${priceTag(PATH_EUR)}, payée une fois) t'ouvre toutes les cités dojo, dans l'ordre que tu veux, avec les fichiers et les mises à jour. Métier (${priceTag(TRADE_EUR)}, en supplément) ajoute une cité écrite pour le travail que tu fais vraiment. Les deux ensemble font ${priceTag(BUNDLE_EUR)}. Paiement par carte · aucune cryptomonnaie.`,
       links: [
         "Voir les formules",
         "Le coût par tâche",
@@ -381,9 +381,9 @@ export const KB: KBTopic[] = [
     follow: ['wallet', 'pricing', 'security'],
     keywords: ['pay', 'card', 'credit card', 'subscribe', 'subscription', 'fiat', 'euro', 'dollar', 'stripe', 'checkout', 'purchase', 'currency'],
     fr: {
-      chip: "Comment vous payez",
+      chip: "Comment tu paies",
       answer:
-        `Une formule, par carte, dans votre propre monnaie (euro, dollar, yen), par Stripe. C'est tout : il n'y a aucun solde à recharger et aucun compteur à surveiller, parce que nous ne vous vendons pas de jetons de modèle. Le jour où vous sortez un agent, c'est votre propre clé qui fait tourner le travail et votre fournisseur qui vous facture, séparément. Aucun portefeuille, aucun jeton de cryptomonnaie, aucune cryptomonnaie. Vous explorez seulement ? La formule gratuite vous laisse apprendre et construire sans rien dépenser.`,
+        `Une formule, par carte, dans ta propre monnaie (euro, dollar, yen), via Stripe. C'est tout : il n'y a aucun solde à recharger et aucun compteur à surveiller, parce qu'on ne te vend pas de jetons de modèle. Le jour où tu sors un agent, c'est ta propre clé qui fait tourner le travail et ton fournisseur qui te facture, séparément. Aucun portefeuille, aucun jeton de cryptomonnaie, aucune cryptomonnaie. Tu veux juste explorer ? La formule gratuite te laisse apprendre et construire sans rien dépenser.`,
       links: [
         "Voir tout le parcours",
         "Le coût par tâche",
@@ -404,10 +404,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Comment marchent les paiements",
       answer:
-        `C'est simple : vous payez une formule par carte, dans votre propre monnaie. Il n'y a aucun portefeuille, aucun jeton de cryptomonnaie et aucune cryptomonnaie nulle part. Chaque tâche laisse une trace dans votre tableau de bord, donc vous voyez toujours exactement ce qui a tourné, quel que soit celui qui a payé le modèle.`,
+        `C'est simple : tu paies une formule par carte, dans ta propre monnaie. Il n'y a aucun portefeuille, aucun jeton de cryptomonnaie et aucune cryptomonnaie nulle part. Chaque tâche laisse une trace dans ton tableau de bord, donc tu vois toujours exactement ce qui a tourné, peu importe qui a payé le modèle.`,
       links: [
-        "Apportez votre propre clé",
-        "Comment cela marche",
+        "Apporte ta propre clé",
+        "Comment ça marche",
       ],
     },
   },
@@ -425,7 +425,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Sécurité et vie privée",
       answer:
-        `Il n'y a aucune cryptomonnaie à sécuriser · aucun portefeuille, aucune phrase secrète, aucun jeton. Vous avez une formule, payée par carte. L'application est livrée avec une politique de sécurité du contenu stricte, des en-têtes de sécurité et une protection contre les moissonneurs. Vos accès aux applications et la clé de modèle de l'opérateur sont scellés sur le serveur, derrière des limites de débit et des plafonds de dépense. Les clés que vous apportez vous-même (par exemple une clé de voix ElevenLabs) et tout ce qui relève d'un portefeuille local restent dans votre navigateur : traitez donc ce navigateur comme votre propre appareil.`,
+        `Il n'y a aucune cryptomonnaie à sécuriser · aucun portefeuille, aucune phrase secrète, aucun jeton. Tu as une formule, payée par carte. L'application est livrée avec une politique de sécurité du contenu stricte, des en-têtes de sécurité et une protection contre les moissonneurs. Tes accès aux applications et la clé de modèle de l'opérateur sont scellés sur le serveur, derrière des limites de débit et des plafonds de dépense. Les clés que tu apportes toi-même (par exemple une clé de voix ElevenLabs) et tout ce qui relève d'un portefeuille local restent dans ton navigateur : traite donc ce navigateur comme ton propre appareil.`,
       links: [
         "Le détail de la sécurité",
         "Profil et formule",
@@ -447,10 +447,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Brancher de vrais outils",
       answer:
-        `Plus de 40 applications · Notion, GitHub, Gmail, Google Drive, Agenda et Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 et d'autres. Brancher tient en un clic sur l'écran de l'application elle-même ; l'accès est scellé côté serveur et tenu à jour pour vous. Pendant que votre coéquipier travaille, il atteint l'application directement, donc le travail se fait vraiment dans votre compte · et chaque tâche laisse une trace dans votre tableau de bord. Chaque agent arrive avec un petit jeu choisi des meilleures applications pour son métier (sans doublons), et c'est entièrement modulaire : ouvrez son panneau Brancher des applications, touchez « + Ajouter » pour en apporter une autre, ou retirez-en une dont vous ne vous servez pas · enregistré par société.`,
+        `Plus de 40 applications · Notion, GitHub, Gmail, Google Drive, Agenda et Classroom, Slack, Discord, Zoom, WhatsApp, Linear, Jira, Trello, Asana, Airtable, Stripe, QuickBooks, Xero, Shopify, HubSpot, Salesforce, Apollo, Calendly, Mailchimp, X, LinkedIn, Buffer, Figma, Canva, Cloudinary, DocuSign, Zendesk, Intercom, Supabase, PostHog, GA4 et d'autres. Brancher tient en un clic sur l'écran de l'application elle-même ; l'accès est scellé côté serveur et tenu à jour pour toi. Pendant que ton coéquipier travaille, il atteint l'application directement, donc le travail se fait vraiment dans ton compte · et chaque tâche laisse une trace dans ton tableau de bord. Chaque agent arrive avec un petit jeu choisi des meilleures applications pour son métier (sans doublons), et c'est entièrement modulaire : ouvre son panneau Brancher des applications, touche « + Ajouter » pour en apporter une autre, ou retires-en une dont tu ne te sers pas · enregistré par société.`,
       links: [
         "Régler chaque application, pas à pas",
-        "Brancher vos outils",
+        "Brancher tes outils",
       ],
     },
   },
@@ -467,9 +467,9 @@ export const KB: KBTopic[] = [
     follow: ['tools', 'setup', 'security'],
     keywords: ['external agent', 'external agents', 'link agent', 'connect agent', 'my agent', 'own agent', 'a2a', 'agent2agent', 'agent to agent', 'delegate', 'mcp agent', 'webhook', 'notion agent', 'slack agent', 'other agents', 'third party agent'],
     fr: {
-      chip: "Brancher vos propres agents",
+      chip: "Brancher tes propres agents",
       answer:
-        `Vous faites déjà tourner un agent IA chez Notion, chez Slack ou ailleurs ? Amenez-le pour aider un de vos coéquipiers. Ouvrez l'éditeur d'agent dans l'atelier du dojo, descendez jusqu'à « Aides extérieures » et cliquez « + Ajouter une aide », puis choisissez comment elle aide : elle peut prêter ses outils (ils rejoignent tout ce que fait ce coéquipier, exactement comme une application branchée · c'est le standard MCP), prendre une tâche entière à sa charge et renvoyer la réponse (le standard A2A), ou n'être qu'une adresse web à laquelle nous envoyons la tâche et dont nous lisons la réponse. Collez l'adresse https et une clé d'accès facultative, puis appuyez sur Vérifier pour contrôler qu'elle répond et relire son nom et ce qu'elle sait faire. La clé ne touche jamais ce navigateur · c'est le serveur qui la détient, comme pour vos applications branchées. Passez une tâche entière depuis la carte du coéquipier dans le bureau ; les aides qui prêtent des outils accompagnent automatiquement ce coéquipier chaque fois qu'il travaille.`,
+        `Tu fais déjà tourner un agent IA chez Notion, chez Slack ou ailleurs ? Amène-le pour aider un de tes coéquipiers. Ouvre l'éditeur d'agent dans l'atelier du dojo, descends jusqu'à « Aides extérieures » et clique sur « + Ajouter une aide », puis choisis comment elle aide : elle peut prêter ses outils (ils rejoignent tout ce que fait ce coéquipier, exactement comme une application branchée · c'est le standard MCP), prendre une tâche entière à sa charge et renvoyer la réponse (le standard A2A), ou n'être qu'une adresse web à laquelle on envoie la tâche et dont on lit la réponse. Colle l'adresse https et une clé d'accès facultative, puis appuie sur Vérifier pour contrôler qu'elle répond et relire son nom et ce qu'elle sait faire. La clé ne touche jamais ce navigateur · c'est le serveur qui la détient, comme pour tes applications branchées. Passe une tâche entière depuis la carte du coéquipier dans le bureau ; les aides qui prêtent des outils accompagnent automatiquement ce coéquipier chaque fois qu'il travaille.`,
       links: [
         "Ouvrir l'atelier du dojo",
         "Ce qu'est A2A",
@@ -493,7 +493,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Comment brancher une application",
       answer:
-        `Chaque carte d'agent ET l'éditeur de l'atelier montrent un panneau « Brancher des outils » avec les applications choisies de l'agent (et un bouton « + Ajouter » pour en apporter n'importe quelle autre, ou en retirer une dont vous ne vous servez pas · entièrement modulaire, enregistré par société), plus un court guide de réglage. POUR VOUS cela tient en un clic : ouvrez le coéquipier, trouvez l'application sous ses tâches, cliquez Brancher et donnez votre accord une fois sur l'écran de l'application · l'accès est scellé sur le serveur et votre coéquipier peut travailler dans l'application pour de vrai. SI VOUS EXPLOITEZ CE DÉPLOIEMENT (une seule fois, par application) : 1) créez une application OAuth dans la console du fournisseur (intégrations Notion, applications OAuth GitHub, identifiants Google Cloud…) et réglez l'adresse de redirection sur https://VOTRE-SITE/api/connect ; 2) recopiez l'identifiant et le secret client dans l'environnement, sous <APP>_CLIENT_ID et <APP>_CLIENT_SECRET (les applications Google partagent GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET) ; 3) les applications qui ont leur propre serveur MCP (Notion, GitHub, Linear, Stripe) marchent tout de suite ; celles qui n'en ont pas (Gmail, Drive, Agenda, Slack…) demandent en plus <APP>_MCP_URL pointé sur un concentrateur MCP hébergé (Composio, Zapier, Pipedream). Les applications en PKCE (Airtable, X, Canva) sont automatiques. Une fois l'environnement réglé, l'outil affiche un bouton Brancher au lieu d'un lien « à régler ». Chaque application a aussi sa page pas à pas dans le guide du dojo (permissions, variables exactes, pièges) · nommez-moi l'application et je vous y emmène.`,
+        `Chaque carte d'agent ET l'éditeur de l'atelier montrent un panneau « Brancher des outils » avec les applications choisies de l'agent (et un bouton « + Ajouter » pour en apporter n'importe quelle autre, ou en retirer une dont tu ne te sers pas · entièrement modulaire, enregistré par société), plus un court guide de réglage. POUR TOI, ça tient en un clic : ouvre le coéquipier, trouve l'application sous ses tâches, clique sur Brancher et donne ton accord une fois sur l'écran de l'application · l'accès est scellé sur le serveur et ton coéquipier peut travailler dans l'application pour de vrai. SI TU EXPLOITES CE DÉPLOIEMENT (une seule fois, par application) : 1) crée une application OAuth dans la console du fournisseur (intégrations Notion, applications OAuth GitHub, identifiants Google Cloud…) et règle l'adresse de redirection sur https://TON-SITE/api/connect ; 2) recopie l'identifiant et le secret client dans l'environnement, sous <APP>_CLIENT_ID et <APP>_CLIENT_SECRET (les applications Google partagent GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET) ; 3) les applications qui ont leur propre serveur MCP (Notion, GitHub, Linear, Stripe) marchent tout de suite ; celles qui n'en ont pas (Gmail, Drive, Agenda, Slack…) demandent en plus <APP>_MCP_URL pointé sur un concentrateur MCP hébergé (Composio, Zapier, Pipedream). Les applications en PKCE (Airtable, X, Canva) sont automatiques. Une fois l'environnement réglé, l'outil affiche un bouton Brancher au lieu d'un lien « à régler ». Chaque application a aussi sa page pas à pas dans le guide du dojo (permissions, variables exactes, pièges) · donne-moi le nom de l'application et je t'y emmène.`,
       links: [
         "Réglage pas à pas de chaque application",
         "Concentrateur MCP (Composio)",
@@ -516,7 +516,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Le guide du dojo",
       answer:
-        `Le guide du dojo est le manuel complet, et chaque section porte son propre bouton « Comment faire ? » qui joue la visite animée correspondante en plein écran. Il couvre : comment tout cela marche, comment le dojo d'entraînement est agencé, comment façonner une équipe, ce que fait chaque atelier, comment brancher une application pas à pas (avec une page dédiée par application), comment garder votre budget sous contrôle, comment rester en sécurité, et le dépannage. Ouvrez-le depuis le bouton « Guide du dojo » dans l'en-tête, sur la page d'accueil ou dans l'application.`,
+        `Le guide du dojo, c'est le manuel complet, et chaque section a son propre bouton « Comment faire ? » qui lance la visite animée correspondante en plein écran. Il couvre : comment tout ça marche, comment le dojo d'entraînement est agencé, comment façonner une équipe, ce que fait chaque atelier, comment brancher une application pas à pas (avec une page dédiée par application), comment garder ton budget sous contrôle, comment rester en sécurité, et le dépannage. Ouvre-le depuis le bouton « Guide du dojo » dans l'en-tête, sur la page d'accueil ou dans l'application.`,
       links: [
         "Ouvrir le guide du dojo",
         "Comment brancher une application",
@@ -537,10 +537,10 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Créer et disposer les agents",
       answer:
-        `Votre dojo arrive avec ${CREW_WORD} coéquipiers, et vous pouvez façonner l'équipe comme vous voulez. Créez votre PROPRE agent depuis le tableau de bord : touchez « Nouvel agent », donnez-lui un nom et un intitulé, puis ouvrez-le pour régler sa couleur d'accent, les applications avec lesquelles il travaille (branchement en place), une liste de tâches que vous lui confiez et un bloc-notes privé · le tout enregistré localement. Masquez les préréglages dont vous n'avez pas besoin (vous pourrez les rétablir à tout moment depuis la liste), et redisposez tout le monde sur la grille du dojo : touchez « Disposer l'équipe » sur le dojo (ou « Disposer sur la grille » dans le tableau de bord), touchez un agent, puis une case · le bureau en trois dimensions se réorganise en direct, sur ordinateur comme sur téléphone. Appuyez sur Cmd ou Ctrl + K (ou sur le bouton Rechercher) à tout moment pour un lanceur rapide qui saute à n'importe quel agent, n'importe quelle page ou n'importe quelle action.`,
+        `Ton dojo arrive avec ${CREW_WORD} coéquipiers, et tu peux façonner l'équipe comme tu veux. Crée ton PROPRE agent depuis le tableau de bord : touche « Nouvel agent », donne-lui un nom et un intitulé, puis ouvre-le pour régler sa couleur d'accent, les applications avec lesquelles il travaille (branchement en place), une liste de tâches que tu lui confies et un bloc-notes privé · le tout enregistré localement. Masque les préréglages dont tu n'as pas besoin (tu pourras les rétablir à tout moment depuis la liste), et redispose tout le monde sur la grille du dojo : touche « Disposer l'équipe » sur le dojo (ou « Disposer sur la grille » dans le tableau de bord), touche un agent, puis une case · le bureau en trois dimensions se réorganise en direct, sur ordinateur comme sur téléphone. Appuie sur Cmd ou Ctrl + K (ou sur le bouton Rechercher) à tout moment pour ouvrir un lanceur rapide qui saute à n'importe quel agent, n'importe quelle page ou n'importe quelle action.`,
       links: [
         "Ouvrir le tableau de bord",
-        "Bâtir votre propre équipe",
+        "Bâtir ta propre équipe",
       ],
     },
   },
@@ -558,9 +558,9 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Apparences et personnalisation",
       answer:
-        `Chaque agent se personnalise entièrement dans l'atelier du dojo : plus de 180 apparences réparties sur 30 thèmes et de nombreux personnages · robots, ninjas, extraterrestres, chats, dragons, fantômes, pandas, un bonhomme de pneus, une méduse, et des chevaliers, des mages et des professeurs savants fous à la Zelda · chacun avec un visage marqué, des jambes et ses propres chaussures, parfois un chapeau (melon, haut-de-forme, béret, chapeau de fête ou couronne de fleurs). Cliquez l'avatar d'un agent pour ouvrir son éditeur, puis changez l'apparence, renommez-le, échangez sa fonction et ses tâches, posez un budget, ou déplacez-le sur la grille. Vous pouvez faire tourner plusieurs dojos (sociétés) dans des univers différents côte à côte.`,
+        `Chaque agent se personnalise entièrement dans l'atelier du dojo : plus de 180 apparences réparties sur 30 thèmes et de nombreux personnages · robots, ninjas, extraterrestres, chats, dragons, fantômes, pandas, un bonhomme de pneus, une méduse, et des chevaliers, des mages et des professeurs savants fous à la Zelda · chacun avec un visage marqué, des jambes et ses propres chaussures, parfois un chapeau (melon, haut-de-forme, béret, chapeau de fête ou couronne de fleurs). Clique sur l'avatar d'un agent pour ouvrir son éditeur, puis change l'apparence, renomme-le, échange sa fonction et ses tâches, pose un budget, ou déplace-le sur la grille. Tu peux faire tourner plusieurs dojos (sociétés) dans des univers différents, côte à côte.`,
       links: [
-        "Bâtir votre propre équipe",
+        "Bâtir ta propre équipe",
         "Voir le bureau",
       ],
     },
@@ -577,9 +577,9 @@ export const KB: KBTopic[] = [
     follow: ['tools', 'security'],
     keywords: ['run', 'runs', 'where', 'cloud', 'server', 'browser', 'local', 'self-host', 'self hosted', 'backend', 'worker', 'environment', 'on premise'],
     fr: {
-      chip: "Dans le nuage ou chez vous",
+      chip: "Dans le nuage ou chez toi",
       answer:
-        `Deux façons de le faire tourner. Dans le nuage : un exécutant géré fait tourner le modèle et les appels d'outils et garde les agents en marche quand l'onglet est fermé, avec chaque clé scellée sur le serveur. Chez vous : faites tourner votre propre exécutant et pointez les connecteurs sur vos propres points d'accès MCP · vos clés, votre machine, le même bureau. Dans les deux cas le navigateur n'est que le poste de pilotage : il montre le bureau en trois dimensions et déclenche les tâches ; c'est l'exécutant qui fait le travail authentifié.`,
+        `Deux façons de le faire tourner. Dans le nuage : un exécutant géré fait tourner le modèle et les appels d'outils et garde les agents en marche quand l'onglet est fermé, avec chaque clé scellée sur le serveur. Chez toi : fais tourner ton propre exécutant et pointe les connecteurs sur tes propres points d'accès MCP · tes clés, ta machine, le même bureau. Dans les deux cas, le navigateur n'est que le poste de pilotage : il montre le bureau en trois dimensions et déclenche les tâches ; c'est l'exécutant qui fait le travail authentifié.`,
       links: [
         "Nuage ou machine locale",
         "Exécution et environnement",
@@ -600,7 +600,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Explorer gratuitement ou passer en vrai",
       answer:
-        `Commencez par la formule gratuite · suivez les cours, rencontrez l'équipe et démontez les exemples travaillés dans le bac à sable, sans rien payer, et finissez avec le diplôme. Quand vous êtes prêt à passer en vrai, vous repartez avec un fichier plutôt qu'avec un abonnement : l'instruction et les schémas d'outils que vous avez construits, que vous pointez sur un framework et faites tourner sur votre propre clé de fournisseur, sur le modèle de votre choix. Nous ne nous mettons jamais entre vous et cette facture. Aucune cryptomonnaie à aucun moment.`,
+        `Commence par la formule gratuite · suis les cours, rencontre l'équipe et démonte les exemples travaillés dans le bac à sable, sans rien payer, et termine avec le diplôme. Quand tu es prêt à passer en vrai, tu repars avec un fichier plutôt qu'avec un abonnement : l'instruction et les schémas d'outils que tu as construits, que tu pointes sur un framework et que tu fais tourner sur ta propre clé de fournisseur, avec le modèle de ton choix. On ne se met jamais entre toi et cette facture. Aucune cryptomonnaie, à aucun moment.`,
       links: [
         "Ouvrir l'application",
         "Formules et tarifs",
@@ -621,9 +621,9 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Faut-il un portefeuille ?",
       answer:
-        `Non · il n'y a aucun portefeuille, aucune phrase secrète et aucun jeton de cryptomonnaie nulle part dans DojoBuro. Vous payez une formule dans votre propre monnaie (euro, dollar, yen…) avec une carte. Il n'y a rien de cryptographique à installer, à sécuriser ni à comprendre.`,
+        `Non · il n'y a aucun portefeuille, aucune phrase secrète et aucun jeton de cryptomonnaie nulle part dans DojoBuro. Tu paies une formule dans ta propre monnaie (euro, dollar, yen…) avec une carte. Il n'y a rien de cryptographique à installer, à sécuriser ni à comprendre.`,
       links: [
-        "Comment vous payez",
+        "Comment tu paies",
         "Profil et formule",
       ],
     },
@@ -641,7 +641,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: "Dépannage",
       answer:
-        `Si une tâche refuse de partir, vérifiez que vous n'avez pas atteint votre plafond quotidien (ou ajoutez votre propre clé Claude, qui n'en a aucun), et que l'application dont elle a besoin est branchée. Si des totaux semblent figés, rechargez la page pour les rafraîchir. Si le bureau en trois dimensions est vide, votre navigateur bloque peut-être WebGL · essayez un autre navigateur ou activez l'accélération matérielle.`,
+        `Si une tâche refuse de partir, vérifie que tu n'as pas atteint ton plafond quotidien (ou ajoute ta propre clé Claude, qui n'en a aucun), et que l'application dont elle a besoin est bien branchée. Si des totaux semblent figés, recharge la page pour les rafraîchir. Si le bureau en trois dimensions reste vide, ton navigateur bloque peut-être WebGL · essaie un autre navigateur ou active l'accélération matérielle.`,
       links: [
         "Ouvrir l'application",
       ],
@@ -749,5 +749,5 @@ export const GREETING = {
   en:
     "Hi, I'm Dojobot. Short version: this is a training centre. You walk into the dojo, pick the shape of agent you actually need, and build it step by step until you leave with a file you can run anywhere. Everything is free to learn, nothing here calls a paid model, and no account is needed. Ask me anything in your own words, or pick a topic below. When a question has a walkthrough, I can play it for you full screen.",
   fr:
-    "Bonjour, je suis Dojobot. En bref : ceci est un centre de formation. Vous entrez dans le dojo, vous choisissez la forme d'agent dont vous avez vraiment besoin, et vous la construisez étape par étape jusqu'à repartir avec un fichier qui tourne n'importe où. Tout l'apprentissage est gratuit, rien ici n'appelle un modèle payant, et aucun compte n'est nécessaire. Posez-moi n'importe quelle question dans vos propres mots, ou choisissez un sujet ci-dessous. Quand une question a une visite guidée, je peux vous la jouer en plein écran.",
+    "Salut, moi c'est Dojobot. En bref : ici, c'est un centre de formation. Tu entres dans le dojo, tu choisis la forme d'agent dont tu as vraiment besoin, et tu construis ton agent étape par étape jusqu'à repartir avec un fichier qui tourne n'importe où. Tout l'apprentissage est gratuit, rien ici n'appelle un modèle payant, et aucun compte n'est nécessaire. Pose-moi ta question avec tes propres mots, ou choisis un sujet ci-dessous. Quand une question a sa visite guidée, je peux te la lancer en plein écran.",
 }
