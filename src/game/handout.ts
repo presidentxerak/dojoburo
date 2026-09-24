@@ -40,7 +40,7 @@ export function handout(m: Module, lang: Lang): string {
     out.push('')
     out.push(say(l.learn, lang))
     out.push('')
-    out.push(`**${fr ? 'Ce que vous faites' : 'What you do'}** · ${say(l.act, lang)}`)
+    out.push(`**${fr ? 'Ta mission' : 'Your mission'}** · ${say(l.act, lang)}`)
     out.push('')
     l.steps.forEach((s, n) => out.push(`${n + 1}. ${say(s, lang)}`))
     out.push('')
@@ -53,7 +53,7 @@ export function handout(m: Module, lang: Lang): string {
   out.push('---')
   out.push('')
   out.push(fr
-    ? 'DojoBuro · vous pouvez refaire chaque dojo autant de fois que vous voulez.'
+    ? 'DojoBuro · refais chaque dojo autant de fois que tu veux.'
     : 'DojoBuro · you can redo every dojo as many times as you want.')
   out.push('')
   return out.join('\n')

@@ -281,9 +281,45 @@ ok('un niveau réel se retrouve',
   findLevel(PATH_MODULES[0].id, PATH_MODULES[0].levels[0].id)?.level.id === PATH_MODULES[0].levels[0].id)
 ok('chaque cité est dans l\'index', ALL_MODULES.every((m) => MODULE_BY_ID[m.id] === m))
 
+/* --- le dojo tutoie ----------------------------------------------------- */
+//
+// LE TON EST CELUI DU FORMATEUR, demandé explicitement : « tu », l'impératif
+// direct. Un dojo qui dit « tu » dans sa mission et « vous » dans son piège se
+// lit comme deux auteurs recollés.
+//
+// CE QUI N'EST PAS LA VOIX DU DOJO, ET QUE LA GARDE LAISSE PASSER. Ce que
+// l'élève écrit ou dit À UN CLIENT : « je me permets de revenir vers vous »
+// entre guillemets, ou une réponse de quiz qui est elle-même la question posée
+// au prospect (« Quelles sont vos priorités cette année ? »). La précision
+// vient du périmètre : le texte cité est retiré, et une réponse qui est une
+// question n'est pas une phrase adressée à l'élève.
+// « rendez-vous » est un nom, pas un vouvoiement ; il est retiré avant la
+// recherche, et « avez-vous » adressé à l'élève reste vu.
+const VOUS = /\b(vous|votre|vos)\b/i
+const unquoted = (t) => String(t).replace(/«[^»]*»/g, '').replace(/rendez-vous/gi, '')
+const formal = []
+for (const { module, level } of ALL_LEVELS) {
+  const w = `${module.id}/${level.id}`
+  const fields = [
+    ['title', level.title], ['learn', level.learn], ['act', level.act], ['trap', level.trap],
+    ['badge', level.badge], ['q', level.quiz.q], ['why', level.quiz.why],
+    ...level.steps.map((x, i) => [`step${i}`, x]),
+    ...level.quiz.options.filter((o) => !o.fr.trim().endsWith('?')).map((x, i) => [`opt${i}`, x]),
+  ]
+  for (const [k, bi] of fields) if (VOUS.test(unquoted(bi.fr))) formal.push(`${w}/${k}`)
+}
+for (const m of ALL_MODULES) {
+  for (const [k, bi] of [['title', m.title], ['blurb', m.blurb]]) if (bi && VOUS.test(unquoted(bi.fr))) formal.push(`${m.id}/${k}`)
+}
+ok('chaque dojo tutoie', formal.length === 0, formal.slice(0, 4).join(', ') || `${ALL_LEVELS.length} dojos`)
+
 /* --- 8 · les morsures ---------------------------------------------------- */
 
 // Une garde qu'on ne peut pas faire rougir ne garde rien.
+ok('morsure · un « vous » adressé à l\'élève serait vu', VOUS.test(unquoted('Écrivez votre consigne.')))
+ok('morsure · une phrase citée pour un client ne l\'est pas', !VOUS.test(unquoted('Écrire « je reviens vers vous » ne sert à rien.')))
+ok('morsure · « rendez-vous » n\'est pas un vouvoiement', !VOUS.test(unquoted('Prends rendez-vous.')))
+ok('morsure · « avez-vous » adressé à l\'élève l\'est', VOUS.test(unquoted('Avez-vous lu la consigne ?')))
 ok('morsure · un texte trop long serait vu', 'x'.repeat(CAP.learn + 1).length > CAP.learn)
 ok('morsure · un chemin de menu serait vu',
   CLICKY.some(([re]) => re.test('Click the Settings tab in the top-right menu')))
