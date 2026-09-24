@@ -776,22 +776,27 @@ ok(proseDone
   proseDone || (!!DICT['i18n.partial'] && DICT['i18n.partial'].fr.length > 20),
   `${proseWithFr}/${proseFiles.length} fichiers de prose`)
 
-/* --- 6b · l'app tutoie ------------------------------------------------- */
+/* --- 6b · l'app vouvoie ------------------------------------------------ */
 //
-// LE TON EST CELUI D'UN FORMATEUR QUI TE PARLE, pas celui d'une notice. Il a
-// été demandé explicitement : le tutoiement, l'impératif direct, « enfin ».
-// Une app qui dit « tu » sur une carte et « vous » sur le bouton d'à côté se
-// lit comme deux produits recollés, et c'est exactement ce qui arrive quand
-// un texte est ajouté un mardi sans relire les autres.
-const VOUS = /\b(vous|votre|vos)\b/i
-const formal = keys.filter((k) => VOUS.test(DICT[k].fr))
-ok('l\'interface tutoie, partout', formal.length === 0, formal.slice(0, 4).join(', ') || `${keys.length} clés`)
+// LE REGISTRE A CHANGÉ, ET LA GARDE AVEC LUI · le tutoiement avait été demandé,
+// puis le propriétaire a demandé « un style plus académique et pédagogique »
+// et un appel « Découvrez ». L'app vouvoie donc, partout. Ce que la garde
+// protège ne change pas : une app qui dit « vous » sur une carte et « tu » sur
+// le bouton d'à côté se lit comme deux produits recollés.
+// LE TUTOIEMENT, REPÉRÉ SANS FAUX POSITIF · les limites de mot sont celles
+// des LETTRES (\p{L}), pas celles de \b, qui prend « â » pour une frontière et
+// verrait « te » dans « pâte ». « ton » précédé d'un article est le nom (le
+// ton d'un message), pas le possessif.
+const TU = /(?<!\p{L})(?:tu|te|toi|ta|tes)(?!\p{L})|(?<!\p{L})t['’](?=\p{L})|(?<!\p{L})(?<!(?<!\p{L})(?:le|un|du|au|ce|même|bon|mauvais|son) )ton(?!\p{L})/iu
+const familiar = keys.filter((k) => TU.test(DICT[k].fr.replace(/«[^»]*»/g, '')))
+ok('l\'interface vouvoie, partout', familiar.length === 0, familiar.slice(0, 4).join(', ') || `${keys.length} clés`)
 
 /* --- 7 · les morsures ---------------------------------------------------- */
 
 // LA MORSURE QUI A RÉVÉLÉ LE TROU · elle est gardée telle quelle.
-ok('morsure · un « vous » dans l\'interface serait vu', VOUS.test('Choisissez votre formation'))
-ok('morsure · « vos » aussi, et pas « avos »', VOUS.test('Vos dojos') && !VOUS.test('bravos'))
+ok('morsure · un tutoiement dans l\'interface serait vu', TU.test('Choisis ta formation') && TU.test('Ça t\'aide') && TU.test('Tes dojos'))
+ok('morsure · le vouvoiement passe', !TU.test('Choisissez votre formation. Vos dojos vous attendent.'))
+ok('morsure · « pâte », « tête » et « le ton » ne sont pas du tutoiement', !TU.test('Une pâte, une tête, le ton du message.'))
 ok('morsure · de l\'anglais reformulé est vu',
   !looksFrench('A source is a document I can open at a URL or a file path, that carries a date.'))
 ok('morsure · du vrai français passe',

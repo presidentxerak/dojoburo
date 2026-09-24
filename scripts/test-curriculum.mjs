@@ -281,22 +281,24 @@ ok('un niveau réel se retrouve',
   findLevel(PATH_MODULES[0].id, PATH_MODULES[0].levels[0].id)?.level.id === PATH_MODULES[0].levels[0].id)
 ok('chaque cité est dans l\'index', ALL_MODULES.every((m) => MODULE_BY_ID[m.id] === m))
 
-/* --- le dojo tutoie ----------------------------------------------------- */
+/* --- le dojo vouvoie ---------------------------------------------------- */
 //
-// LE TON EST CELUI DU FORMATEUR, demandé explicitement : « tu », l'impératif
-// direct. Un dojo qui dit « tu » dans sa mission et « vous » dans son piège se
-// lit comme deux auteurs recollés.
+// LE TON EST CELUI D'UN ENSEIGNANT, demandé explicitement : « un style plus
+// académique et pédagogique », donc le vouvoiement. Un dojo qui dit « vous »
+// dans sa mission et « tu » dans son piège se lit comme deux auteurs recollés.
 //
 // CE QUI N'EST PAS LA VOIX DU DOJO, ET QUE LA GARDE LAISSE PASSER. Ce que
 // l'élève écrit ou dit À UN CLIENT : « je me permets de revenir vers vous »
-// entre guillemets, ou une réponse de quiz qui est elle-même la question posée
-// au prospect (« Quelles sont vos priorités cette année ? »). La précision
+// entre guillemets, ou une réponse de quiz qui est elle-même une réplique
+// (« Tu peux m'aider ? »). La précision
 // vient du périmètre : le texte cité est retiré, et une réponse qui est une
 // question n'est pas une phrase adressée à l'élève.
-// « rendez-vous » est un nom, pas un vouvoiement ; il est retiré avant la
-// recherche, et « avez-vous » adressé à l'élève reste vu.
-const VOUS = /\b(vous|votre|vos)\b/i
-const unquoted = (t) => String(t).replace(/«[^»]*»/g, '').replace(/rendez-vous/gi, '')
+// LE TUTOIEMENT, REPÉRÉ SANS FAUX POSITIF · les limites de mot sont celles
+// des LETTRES (\p{L}), pas celles de \b, qui prend « â » pour une frontière et
+// verrait « te » dans « pâte ». « ton » précédé d'un article est le nom (le
+// ton d'un message), pas le possessif.
+const TU = /(?<!\p{L})(?:tu|te|toi|ta|tes)(?!\p{L})|(?<!\p{L})t['’](?=\p{L})|(?<!\p{L})(?<!(?<!\p{L})(?:le|un|du|au|ce|même|bon|mauvais|son) )ton(?!\p{L})/iu
+const unquoted = (t) => String(t).replace(/«[^»]*»/g, '')
 const formal = []
 for (const { module, level } of ALL_LEVELS) {
   const w = `${module.id}/${level.id}`
@@ -306,20 +308,20 @@ for (const { module, level } of ALL_LEVELS) {
     ...level.steps.map((x, i) => [`step${i}`, x]),
     ...level.quiz.options.filter((o) => !o.fr.trim().endsWith('?')).map((x, i) => [`opt${i}`, x]),
   ]
-  for (const [k, bi] of fields) if (VOUS.test(unquoted(bi.fr))) formal.push(`${w}/${k}`)
+  for (const [k, bi] of fields) if (TU.test(unquoted(bi.fr))) formal.push(`${w}/${k}`)
 }
 for (const m of ALL_MODULES) {
-  for (const [k, bi] of [['title', m.title], ['blurb', m.blurb]]) if (bi && VOUS.test(unquoted(bi.fr))) formal.push(`${m.id}/${k}`)
+  for (const [k, bi] of [['title', m.title], ['blurb', m.blurb]]) if (bi && TU.test(unquoted(bi.fr))) formal.push(`${m.id}/${k}`)
 }
-ok('chaque dojo tutoie', formal.length === 0, formal.slice(0, 4).join(', ') || `${ALL_LEVELS.length} dojos`)
+ok('chaque dojo vouvoie', formal.length === 0, formal.slice(0, 4).join(', ') || `${ALL_LEVELS.length} dojos`)
 
 /* --- 8 · les morsures ---------------------------------------------------- */
 
 // Une garde qu'on ne peut pas faire rougir ne garde rien.
-ok('morsure · un « vous » adressé à l\'élève serait vu', VOUS.test(unquoted('Écrivez votre consigne.')))
-ok('morsure · une phrase citée pour un client ne l\'est pas', !VOUS.test(unquoted('Écrire « je reviens vers vous » ne sert à rien.')))
-ok('morsure · « rendez-vous » n\'est pas un vouvoiement', !VOUS.test(unquoted('Prends rendez-vous.')))
-ok('morsure · « avez-vous » adressé à l\'élève l\'est', VOUS.test(unquoted('Avez-vous lu la consigne ?')))
+ok('morsure · un « tu » adressé à l\'élève serait vu', TU.test(unquoted('Écris ta consigne.')))
+ok('morsure · une phrase citée ne l\'est pas', !TU.test(unquoted('Écrire « je te rappelle » ne sert à rien.')))
+ok('morsure · « le ton » n\'est pas un tutoiement', !TU.test(unquoted('Fixez le ton du message.')))
+ok('morsure · « as-tu » adressé à l\'élève l\'est', TU.test(unquoted('As-tu lu la consigne ?')))
 ok('morsure · un texte trop long serait vu', 'x'.repeat(CAP.learn + 1).length > CAP.learn)
 ok('morsure · un chemin de menu serait vu',
   CLICKY.some(([re]) => re.test('Click the Settings tab in the top-right menu')))

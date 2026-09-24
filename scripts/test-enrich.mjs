@@ -15,7 +15,7 @@
 //   · les longueurs · assez pour apprendre, pas assez pour devenir un article,
 //   · les questions sont de vraies questions : trois réponses au moins, une
 //     seule juste, et la juste n'est pas toujours la plus longue,
-//   · le dojo tutoie, sauf DANS les prompts : un prompt parle au modèle ou à
+//   · le dojo vouvoie, sauf DANS les prompts : un prompt parle au modèle ou à
 //     un client, et il a le droit de vouvoyer.
 import { build } from 'esbuild'
 import { writeFileSync, mkdirSync } from 'node:fs'
@@ -63,8 +63,12 @@ const FR_ELISION = /\b[cdjlmnst]'|\bqu'/i
 const FR_WORDS = /\b(?:le|la|les|un|une|des|du|de|au|aux|et|ou|ne|pas|plus|sans|pour|par|dans|avec|sur|tu|te|ton|ta|tes|qui|que|est|sont|ce|cette|ces|il|elle)\b/i
 const wordCount = (t) => (String(t).match(/[A-Za-zÀ-ÿ]{2,}/g) || []).length
 const looksFrench = (t) => typeof t === 'string' && (wordCount(t) < 6 || FR_ACCENT.test(t) || FR_ELISION.test(t) || FR_WORDS.test(t))
-const VOUS = /\b(vous|votre|vos)\b/i
-const learnerText = (t) => String(t).replace(/«[^»]*»/g, '').replace(/rendez-vous/gi, '')
+// LE TUTOIEMENT, REPÉRÉ SANS FAUX POSITIF · les limites de mot sont celles
+// des LETTRES (\p{L}), pas celles de \b, qui prend « â » pour une frontière et
+// verrait « te » dans « pâte ». « ton » précédé d'un article est le nom (le
+// ton d'un message), pas le possessif.
+const TU = /(?<!\p{L})(?:tu|te|toi|ta|tes)(?!\p{L})|(?<!\p{L})t['’](?=\p{L})|(?<!\p{L})(?<!(?<!\p{L})(?:le|un|du|au|ce|même|bon|mauvais|son) )ton(?!\p{L})/iu
+const learnerText = (t) => String(t).replace(/«[^»]*»/g, '')
 
 const problems = { size: [], lang: [], copy: [], vous: [], shape: [], quiz: [] }
 const measure = (where, kind, bi, { prompt = false } = {}) => {
@@ -77,7 +81,7 @@ const measure = (where, kind, bi, { prompt = false } = {}) => {
   if (bi?.fr && !looksFrench(bi.fr)) problems.lang.push(`${where} · ${kind}`)
   // un prompt de code ou un nom propre peut être identique · le reste non
   if (bi?.fr && bi.fr === bi.en && wordCount(bi.en) >= 4) problems.copy.push(`${where} · ${kind}`)
-  if (!prompt && bi?.fr && VOUS.test(learnerText(bi.fr))) problems.vous.push(`${where} · ${kind}`)
+  if (!prompt && bi?.fr && TU.test(learnerText(bi.fr))) problems.vous.push(`${where} · ${kind}`)
 }
 
 for (const k of keys) {
@@ -118,7 +122,7 @@ ok('chaque approfondissement a sa forme', problems.shape.length === 0, problems.
 ok('rien ne dépasse sa taille, rien n\'est trop maigre', problems.size.length === 0, problems.size.slice(0, 4).join(' | ') || 'à la bonne taille')
 ok('le français est du français', problems.lang.length === 0, problems.lang.slice(0, 4).join(' | ') || 'oui')
 ok('aucune traduction n\'est la copie de l\'anglais', problems.copy.length === 0, problems.copy.slice(0, 4).join(' | ') || 'aucune')
-ok('le dojo tutoie (hors prompts)', problems.vous.length === 0, problems.vous.slice(0, 4).join(' | ') || 'oui')
+ok('le dojo vouvoie (hors prompts)', problems.vous.length === 0, problems.vous.slice(0, 4).join(' | ') || 'oui')
 ok('les questions sont de vraies questions', problems.quiz.length === 0, problems.quiz.slice(0, 4).join(' | ') || 'oui')
 
 // LA BONNE RÉPONSE N'EST PAS TOUJOURS LA PLUS LONGUE · sinon on la trouve sans
@@ -139,8 +143,8 @@ ok('les bonnes réponses sont réparties', allMore.length === 0 || Math.max(...r
 /* --- 3 · les morsures -------------------------------------------------- */
 
 ok('morsure · un français qui est de l\'anglais serait vu', !looksFrench('Rewrite your brief so a stranger could follow it without asking.'))
-ok('morsure · un vouvoiement hors prompt serait vu', VOUS.test(learnerText('Collez votre prompt ici.')))
-ok('morsure · une phrase citée pour un client ne l\'est pas', !VOUS.test(learnerText('Écris « je reviens vers vous » et rien d\'autre.')))
+ok('morsure · un tutoiement hors prompt serait vu', TU.test(learnerText('Colle ton prompt ici.')))
+ok('morsure · une phrase citée ne l\'est pas', !TU.test(learnerText('Écrivez « je te rappelle » et rien d\'autre.')))
 ok('morsure · un prompt sans champ serait vu', !/\[[^\]]+\]/.test('Écris un mail de relance.'))
 
 console.log(fails ? `\ntest-enrich · ${fails} problème(s)` : `\ntest-enrich · ${keys.length} dojos approfondis, ${allMore.length} questions de plus`)
