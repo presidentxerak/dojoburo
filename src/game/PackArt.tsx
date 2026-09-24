@@ -69,12 +69,33 @@
 //   gagner au-delà.
 //
 //   MOUVEMENT RÉDUIT · la salle est dessinée une fois et s'arrête.
+//
+// ---------------------------------------------------------------------------
+// « ÇA LAG BEAUCOUP » · CE QUI A ÉTÉ CHANGÉ POUR TENIR
+//
+// Les huit salles tournaient en « always », chacune à la fréquence de l'écran,
+// toutes dans la même image : sur un ordinateur ordinaire, la page tombait à
+// moins d'une image par seconde en rendu logiciel, et le défilement ramait.
+// Trois changements, qui gardent la même image :
+//
+//   UNE HORLOGE PARTAGÉE (three/cardClock) · les salles passent en « demand »
+//   et c'est l'horloge qui les réveille, à 30 images par seconde au plus (24
+//   sur un téléphone), et jamais toutes dans la même image.
+//
+//   LE DÉCOR FIGÉ (three/Frozen) · murs, sol et meubles ne bougent jamais ; leur
+//   place est calculée une fois au lieu de l'être à chaque image. Il ne reste à
+//   recalculer que les personnages.
+//
+//   UNE RÉSOLUTION PLAFONNÉE À 1,25 · une vignette de trois cents pixels n'a
+//   rien à gagner à 1,5, et coûte 44 % de pixels en plus.
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { Decor3D } from '../components/three/Decor3D'
 import { ThemeProps } from '../components/three/ThemeProps'
 import { Character3D } from '../components/three/Character3D'
+import { Frozen } from '../components/three/Frozen'
+import { Heartbeat } from '../components/three/Heartbeat'
 import { GaitProvider, advance, type Gait } from '../components/three/gait'
 import { templateById, type DojoPalette } from '../data/templates'
 import type { Character } from '../data/looks'
@@ -402,14 +423,14 @@ export function PackArt({ kit, tint, locked = false }: {
   return (
     <div className={`pa${locked ? ' off' : ''}`} ref={box} aria-hidden>
       <Canvas
-        frameloop={live ? 'always' : 'demand'}
+        frameloop="demand"
         // LA TAILLE SANS LES TRANSFORMATIONS · la carte arrive avec une
         // translation et se soulève au survol. La mesure par défaut lit le
         // rectangle À L'ÉCRAN, transformations comprises, et la salle se
         // dimensionnait à la taille réduite en laissant une bande de ciel. La
         // largeur de mise en page, elle, ignore les transformations.
         resize={{ offsetSize: true }}
-        dpr={[1, 1.5]}
+        dpr={[1, 1.25]}
         camera={{ position: [0, 7.6, 12.4], fov: 40, near: 0.1, far: 80 }}
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.18 }}
         onCreated={({ camera }) => camera.lookAt(0, 1.4, -0.9)}
@@ -422,10 +443,13 @@ export function PackArt({ kit, tint, locked = false }: {
         <directionalLight position={[-8, 6, -4]} color="#c8dcff" intensity={0.5} />
         <pointLight position={[0, 4.2, -3.5]} color={tint} intensity={0.9} distance={22} />
         <Suspense fallback={null}>
-          <Decor3D palette={P} decor={R.decor} enclosed={tpl.enclosed} stations={stations} />
-          <ThemeProps archetype={kit} accent={tint} slots={LAYOUTS[R.layout]} />
+          <Frozen>
+            <Decor3D palette={P} decor={R.decor} enclosed={tpl.enclosed} stations={stations} />
+            <ThemeProps archetype={kit} accent={tint} slots={LAYOUTS[R.layout]} />
+          </Frozen>
           <Cast kit={kit} phase={phase} />
         </Suspense>
+        <Heartbeat live={live} />
       </Canvas>
     </div>
   )

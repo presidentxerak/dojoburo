@@ -24,6 +24,7 @@ import { characterFor, faceIdForUseCase } from '../data/agentFaces'
 import { USE_CASES, useCaseIn } from '../data/agentUseCases'
 import { useLang } from '../i18n'
 import type { Department } from '../data/agents'
+import { Frozen } from '../components/three/Frozen'
 
 // LES VISAGES viennent de data/agentFaces, qui est aussi ce que lit la fiche
 // d'un agent. Ils étaient pris ICI par position dans le catalogue de looks, au
@@ -70,13 +71,15 @@ export function ClassScene({ chosen, onChoose, says }: {
         <hemisphereLight args={['#ffffff', '#ffcf9a', 0.85]} />
         <directionalLight
           position={[4, 9, 6]} color="#ffffff" intensity={1.15} castShadow
-          shadow-mapSize-width={2048} shadow-mapSize-height={2048}
+          shadow-mapSize-width={1024} shadow-mapSize-height={1024}
           shadow-bias={-0.0004} shadow-normalBias={0.03}
           shadow-camera-left={-16} shadow-camera-right={16}
           shadow-camera-top={16} shadow-camera-bottom={-16}
         />
         <Suspense fallback={null}>
-          <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
+          <Frozen>
+            <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
+          </Frozen>
           {USE_CASES.map((u, i) => (
             <Character3D
               key={u.id}

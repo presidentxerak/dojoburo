@@ -32,6 +32,7 @@ import type { Department } from '../data/agents'
 import { SKILLS, type Skill } from './types'
 import { staffCharacter, staffShort } from './staff'
 import type { Lang } from '../i18n/lang'
+import { Frozen } from '../components/three/Frozen'
 
 /* ------------------------------------------------------------------ */
 /* LE PLAN DE LA SALLE                                                 */
@@ -264,8 +265,8 @@ export function SimScene({ staff, clients, masterSays, paused, lang, onPickStaff
         color="#fff4e2"
         intensity={1.25}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={1536}
+        shadow-mapSize-height={1536}
         shadow-bias={-0.0004}
         shadow-normalBias={0.03}
         shadow-camera-left={-14}
@@ -280,8 +281,11 @@ export function SimScene({ staff, clients, masterSays, paused, lang, onPickStaff
       <pointLight position={[8, 3.2, 4]} color="#ffb86b" intensity={0.9} distance={14} />
       <Rig />
       <Suspense fallback={null}>
-        <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
-        <Welcome />
+        {/* LE DÉCOR NE BOUGE PAS · sa place est calculée une fois (three/Frozen) */}
+        <Frozen>
+          <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
+          <Welcome />
+        </Frozen>
         {SKILLS.map((s) => <Specialist key={s} skill={s} view={staff[s]} lang={lang} onPick={onPickStaff} />)}
         {clients.map((c) => <Client key={c.uid} view={c} onGone={onClientGone} />)}
         <Sensei3D quiet={!masterSays} says={masterSays ?? undefined} />
