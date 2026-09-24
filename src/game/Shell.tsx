@@ -43,6 +43,8 @@ import { levelOf } from './Gauge'
 import type { IconName } from '../data/icons'
 import { LangSwitch } from '../components/LangSwitch'
 import { useGame } from './progress'
+import { useAccount, initialOf } from '../lib/account'
+import { AT, useAccountText } from './accountText'
 
 /** Les trois portes · l'ordre est celui de la barre, de gauche à droite.
  *
@@ -115,10 +117,11 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
   const g = useGame()
   const bump = useBump(g.xp)
   const lv = levelOf(g.xp)
+  const acc = useAccount()
 
   return (
     <div className="gm">
-      <header className="gm-top">
+      <header className={`gm-top${acc.enabled ? ' has-acct' : ''}`}>
         <Lnk className="gm-brand" href="/">
           <Logo size={30} />
           <span className="gm-brand-wm"><Wordmark /></span>
@@ -147,6 +150,7 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
             </span>
           </span>
           <LangSwitch compact />
+          <AccountEntry />
         </div>
       </header>
 
@@ -176,5 +180,33 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
         ))}
       </nav>
     </div>
+  )
+}
+
+/** L'ENTRÉE DU COMPTE · une pastille ronde à l'initiale quand on est connecté,
+ *  une puce « Connexion » sinon · les deux mènent au profil, où vit la carte
+ *  « Votre compte ». Rien du tout quand la connexion n'est pas activée sur ce
+ *  déploiement : un bouton qui ne mène à rien serait une promesse fausse.
+ *
+ *  À PLAT, et petite · l'en-tête tient déjà le logo, la jauge et la langue à
+ *  320 px. Sous 720 px la puce perd son texte (il reste pour le lecteur
+ *  d'écran), et sous 480 px le nom de la marque s'efface à l'oeil pour lui
+ *  faire place (voir .gm-top.has-acct dans index.css). */
+function AccountEntry() {
+  const acc = useAccount()
+  const { t } = useAccountText()
+  if (!acc.enabled) return null
+  if (acc.signedIn) {
+    return (
+      <Lnk className="gm-acct in" href="/profil" aria-label={`${t(AT.headerAccount)} · ${acc.email}`} title={acc.email}>
+        {initialOf(acc.email)}
+      </Lnk>
+    )
+  }
+  return (
+    <Lnk className="gm-acct out" href="/profil" aria-label={t(AT.headerSignIn)}>
+      <BauhausIcon name="smile" size={16} />
+      <span className="gm-acct-t">{t(AT.headerSignIn)}</span>
+    </Lnk>
   )
 }

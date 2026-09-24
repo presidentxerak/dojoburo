@@ -60,6 +60,11 @@ const CHECKS = [
   // LE CLAN · la logique du fil de la communauté (validation, nettoyage, liens,
   // spam, curseur), et la réponse honnête de l'endpoint sans base.
   ['test-clan.mjs', 1, true],
+  // LE PROFIL · la sauvegarde en ligne des joueurs connectés : la fusion
+  // (union des leçons, partie la plus avancée prise entière), l'accès qui ne
+  // vient que d'un paiement vérifié, et le handler (401 sans jeton, 503 sans
+  // base ni tables) sur une base en mémoire.
+  ['test-profile.mjs', 1, true],
   // LA CHARTE, LE DÉFILEMENT ET LA MISE EN PAGE. Une seule règle de style ·
   // « overflow: hidden » sur le corps de page · a rendu six des huit formations
   // inatteignables, et les trente-huit épreuves d'alors l'ont laissée passer :

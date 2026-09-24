@@ -38,18 +38,45 @@ import { Frozen } from '../components/three/Frozen'
 /* LE PLAN DE LA SALLE                                                 */
 /* ------------------------------------------------------------------ */
 
-const COLS = [-6, -2, 2, 6]
-const ROWS = [-3.0, -0.2, 2.6]
-/** où travaille chaque spécialiste · trois rangées de quatre, dans l'ordre
- *  de SKILLS, pour que la salle et le panneau se lisent dans le même ordre */
-export const DESK: Record<Skill, [number, number]> = Object.fromEntries(
-  SKILLS.map((s, i) => [s, [COLS[i % 4], ROWS[Math.floor(i / 4)]]]),
-) as Record<Skill, [number, number]>
+/** LE PLAN · où travaille chaque spécialiste, où attendent les clients, et
+ *  l'allée qu'ils empruntent. Les bureaux suivent l'ordre de SKILLS, pour que
+ *  la salle et le panneau se lisent dans le même ordre.
+ *
+ *  DEUX PLANS, SELON L'ÉCRAN · la salle est plus large que profonde, un
+ *  téléphone tenu droit est plus haut que large. Avec quatre colonnes de
+ *  bureaux, la salle entière ne tenait dans la largeur d'un téléphone qu'en
+ *  reculant la caméra : des personnages minuscules en haut de l'écran et une
+ *  bande vide en bas. En portrait, les bureaux passent donc sur trois colonnes
+ *  et quatre rangées : la salle devient plus profonde que large, comme
+ *  l'écran, et la caméra peut s'approcher. */
+export interface Plan {
+  desk: Record<Skill, [number, number]>
+  slots: [number, number][]
+  aisle: number
+}
+function makePlan(cols: number[], rows: number[], slots: [number, number][], aisle: number): Plan {
+  const n = cols.length
+  const desk = Object.fromEntries(
+    SKILLS.map((s, i) => [s, [cols[i % n], rows[Math.floor(i / n)]]]),
+  ) as Record<Skill, [number, number]>
+  return { desk, slots, aisle }
+}
+/** sur un écran large · trois rangées de quatre */
+export const WIDE_PLAN = makePlan([-6, -2, 2, 6], [-3.0, -0.2, 2.6], [[-3.4, 5.6], [0, 5.9], [3.4, 5.6]], -4)
+/** sur un téléphone tenu droit · quatre rangées de trois */
+export const TALL_PLAN = makePlan([-4.2, 0, 4.2], [-3.0, -0.6, 1.8, 4.2], [[-3.0, 6.3], [0, 6.6], [3.0, 6.3]], -2.1)
 
-/** le comptoir · trois places devant, face à la salle */
-const SLOTS: [number, number][] = [[-3.4, 5.6], [0, 5.9], [3.4, 5.6]]
-/** l'allée · entre la première et la deuxième colonne de bureaux */
-const AISLE_X = -4
+/** L'écran est-il tenu droit ? · lu en continu, un téléphone se tourne. */
+function useTall(): boolean {
+  const read = () => typeof window !== 'undefined' && window.innerHeight > window.innerWidth * 1.1
+  const [tall, setTall] = useState(read)
+  useEffect(() => {
+    const on = () => setTall(read())
+    window.addEventListener('resize', on)
+    return () => window.removeEventListener('resize', on)
+  }, [])
+  return tall
+}
 
 /* ------------------------------------------------------------------ */
 /* LES CLIENTS                                                         */
@@ -73,16 +100,16 @@ const lookOf = (uid: string) => {
 }
 
 /** Le trajet d'un client · de la porte au comptoir par l'allée, ou l'inverse. */
-function pathTo(slot: [number, number]): [number, number][] {
+function pathTo(slot: [number, number], aisle: number): [number, number][] {
   const door = doorAt(true)
-  return [[door.x, BACK_Z + 0.4], [door.x, BACK_Z + 1.6], [AISLE_X, BACK_Z + 1.6], [AISLE_X, slot[1] - 1.2], slot]
+  return [[door.x, BACK_Z + 0.4], [door.x, BACK_Z + 1.6], [aisle, BACK_Z + 1.6], [aisle, slot[1] - 1.2], slot]
 }
 
-function Client({ view, onGone }: { view: ClientView; onGone: (uid: string) => void }) {
+function Client({ view, plan, onGone }: { view: ClientView; plan: Plan; onGone: (uid: string) => void }) {
   const g = useRef<THREE.Group>(null)
   const gait = useRef<Gait>({ speed: 0, phase: 0, bow: 0 })
-  const slot = SLOTS[view.slot % SLOTS.length]
-  const inPath = useMemo(() => pathTo(slot), [slot])
+  const slot = plan.slots[view.slot % plan.slots.length]
+  const inPath = useMemo(() => pathTo(slot, plan.aisle), [slot, plan.aisle])
   const st = useRef({ path: inPath, i: 1, x: inPath[0][0], z: inPath[0][1], leaving: false, gone: false })
   const leaving = view.state !== 'waiting'
 
@@ -140,10 +167,10 @@ function Client({ view, onGone }: { view: ClientView; onGone: (uid: string) => v
 }
 
 /** L'ACCUEIL · trois tapis ronds marquent où les clients attendent. */
-function Welcome() {
+function Welcome({ slots }: { slots: [number, number][] }) {
   return (
     <group>
-      {SLOTS.map(([x, z], i) => (
+      {slots.map(([x, z], i) => (
         <group key={i} position={[x, 0, z]}>
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]} receiveShadow>
             <circleGeometry args={[0.95, 40]} />
@@ -173,8 +200,8 @@ export interface StaffView {
   picked: boolean
 }
 
-function Specialist({ skill, view, lang, onPick }: { skill: Skill; view: StaffView; lang: Lang; onPick: (s: Skill) => void }) {
-  const [x, z] = DESK[skill]
+function Specialist({ skill, at, view, lang, onPick }: { skill: Skill; at: [number, number]; view: StaffView; lang: Lang; onPick: (s: Skill) => void }) {
+  const [x, z] = at
   // L'HUMEUR DIT L'ÉTAT · au travail il tape, fatigué et libre il somnole,
   // absent il dort, et un travail qui vient de finir se voit sur son visage.
   const mood: Mood = view.flash ?? (view.down ? 'sleep' : view.busy ? 'work' : view.tired ? 'sleep' : 'idle')
@@ -202,6 +229,9 @@ function Specialist({ skill, view, lang, onPick }: { skill: Skill; view: StaffVi
 /** Un cadrage de maquette · en surplomb, la salle entière dans le cadre. En
  *  portrait (téléphone), le champ s'ouvre et la caméra recule, sinon les
  *  bureaux des côtés sortent de l'écran. */
+/** le cadrage en portrait · réglé sur un écran de 390 × 844 */
+const CAM_TALL = { fov: 46, y: 25, z: 10, look: -0.8 }
+
 function Rig() {
   const { camera, size } = useThree()
   useEffect(() => {
@@ -209,10 +239,11 @@ function Rig() {
     const portrait = size.height > size.width * 1.1
     // en portrait, la caméra monte presque à la verticale · la profondeur de
     // la salle devient la hauteur de l'écran, qu'un téléphone a en trop
-    cam.fov = portrait ? 56 : 42
-    // et la salle descend sous la bande des clients, en haut de l'écran
-    cam.position.set(0, portrait ? 27 : 13.2, portrait ? 10.5 : 15.2)
-    cam.lookAt(0, 0, portrait ? -0.6 : 1.0)
+    // (le plan à quatre rangées, voir TALL_PLAN, la rend assez étroite pour
+    // que la caméra s'approche et que les personnages grandissent)
+    cam.fov = portrait ? CAM_TALL.fov : 42
+    cam.position.set(0, portrait ? CAM_TALL.y : 13.2, portrait ? CAM_TALL.z : 15.2)
+    cam.lookAt(0, 0, portrait ? CAM_TALL.look : 1.0)
     cam.updateProjectionMatrix()
   }, [camera, size.width, size.height])
   return null
@@ -233,9 +264,11 @@ export function SimScene({ staff, clients, masterSays, paused, lang, onPickStaff
 }) {
   const tpl = templateById('dojo')
   const P = useMemo(() => ({ ...tpl.palette, accent: '#8b5cf6' }), [tpl.palette])
+  const tall = useTall()
+  const plan = tall ? TALL_PLAN : WIDE_PLAN
   const stations = useMemo(
-    () => SKILLS.map((s) => ({ id: `desk-${s}`, fn: 'Product' as Department, x: DESK[s][0], z: DESK[s][1] })),
-    [],
+    () => SKILLS.map((s) => ({ id: `desk-${s}`, fn: 'Product' as Department, x: plan.desk[s][0], z: plan.desk[s][1] })),
+    [plan],
   )
   const [calm, setCalm] = useState(false)
   useEffect(() => {
@@ -282,12 +315,14 @@ export function SimScene({ staff, clients, masterSays, paused, lang, onPickStaff
       <Rig />
       <Suspense fallback={null}>
         {/* LE DÉCOR NE BOUGE PAS · sa place est calculée une fois (three/Frozen) */}
-        <Frozen>
+        {/* la clé du plan · un téléphone qu'on tourne change les bureaux de
+            place, et un décor figé doit être refait, pas déplacé */}
+        <Frozen key={tall ? 'tall' : 'wide'}>
           <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
-          <Welcome />
+          <Welcome slots={plan.slots} />
         </Frozen>
-        {SKILLS.map((s) => <Specialist key={s} skill={s} view={staff[s]} lang={lang} onPick={onPickStaff} />)}
-        {clients.map((c) => <Client key={c.uid} view={c} onGone={onClientGone} />)}
+        {SKILLS.map((s) => <Specialist key={s} skill={s} at={plan.desk[s]} view={staff[s]} lang={lang} onPick={onPickStaff} />)}
+        {clients.map((c) => <Client key={c.uid} view={c} plan={plan} onGone={onClientGone} />)}
         <Sensei3D quiet={!masterSays} says={masterSays ?? undefined} />
       </Suspense>
     </Canvas>

@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import { Landing } from './Landing'
 import { AuthProvider } from './auth/AuthProvider'
 import { handleConnectReturn, onConnectResult, takeConnectResult } from './lib/connectReturn'
+// LA SAUVEGARDE EN LIGNE · ne fait rien sans Privy configuré ni sans connexion.
+// Voir lib/account.
+import { startAccountSync } from './lib/account'
 
 // The product, behind the beta door.
 //
@@ -321,6 +324,7 @@ if (handleConnectReturn()) {
   const pending = takeConnectResult()
   if (pending) void announce(pending)
   onConnectResult((r) => void announce(r))
+  startAccountSync()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

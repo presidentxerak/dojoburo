@@ -116,6 +116,10 @@ export function chooseTrade(id: string) {
   save({ ...cache, pick: id })
 }
 
+/** Ce que ce navigateur a en mémoire, sans s'abonner · lu par la sauvegarde en
+ *  ligne (lib/account) pour ne réappliquer que ce qui manque. */
+export const readAccess = (): Access => cache
+
 export function forgetAccess() {
   save(EMPTY)
 }

@@ -19,6 +19,8 @@
 // prix UNIQUES, pas récurrents) : ils se changent sans déploiement et ne
 // peuvent pas diverger de ce qui est facturé. Sans clé, la réponse le dit et
 // rien n'est débité.
+import { BUY_TRADES as TRADES, isCheckoutSessionId, stripeRequest, verifyCheckoutSession } from './_lib/checkoutSession.js'
+
 export const config = { runtime: 'edge' }
 
 const ENV: Record<string, string | undefined> = ((globalThis as any).process?.env ?? {}) as any
@@ -27,9 +29,9 @@ const PRICE: Record<string, string | undefined> = {
   path: ENV.STRIPE_PRICE_PATH,
   trade: ENV.STRIPE_PRICE_TRADE,
 }
-/** les métiers qu'on peut acheter · recopiés des identifiants de data/trades,
- *  parce qu'une fonction serveur ne lit pas le paquet du navigateur */
-const TRADES = new Set(['growth', 'comms', 'founder', 'product', 'sales', 'assistant'])
+// Les métiers qu'on peut acheter (TRADES) et la lecture d'une session vivent
+// dans _lib/checkoutSession · api/profile.ts pose la même question à Stripe
+// pour inscrire l'achat sur le compte, et deux copies finiraient par diverger.
 const RATE_MAX = int(ENV.BUY_RATE_MAX, 12)
 const RATE_WINDOW_MS = int(ENV.BUY_RATE_WINDOW_MS, 10 * 60 * 1000)
 const UPSTREAM_TIMEOUT_MS = int(ENV.CHECKOUT_TIMEOUT_MS, 12000)
@@ -52,19 +54,12 @@ export default async function handler(req: Request): Promise<Response> {
 
   if (req.method === 'GET') {
     const id = new URL(req.url).searchParams.get('session_id') || ''
-    if (!/^cs_[A-Za-z0-9_]+$/.test(id)) return json({ ok: false, error: 'session' }, 400)
+    if (!isCheckoutSessionId(id)) return json({ ok: false, error: 'session' }, 400)
     if (!key) return json({ ok: false, error: 'not_configured' }, 200)
-    const r = await stripe(`checkout/sessions/${encodeURIComponent(id)}`, key)
-    if (!r) return json({ ok: false, error: 'upstream' }, 200)
-    const plan = String(r.metadata?.plan || '')
-    const trade = String(r.metadata?.trade || '')
-    return json({
-      ok: true,
-      // PAYÉ, ET SEULEMENT PAYÉ · une session ouverte ou expirée n'ouvre rien.
-      paid: r.payment_status === 'paid',
-      plan: plan === 'path' || plan === 'trade' ? plan : null,
-      trade: TRADES.has(trade) ? trade : null,
-    }, 200)
+    const v = await verifyCheckoutSession(id, key, UPSTREAM_TIMEOUT_MS)
+    if (!v) return json({ ok: false, error: 'upstream' }, 200)
+    // PAYÉ, ET SEULEMENT PAYÉ · une session ouverte ou expirée n'ouvre rien.
+    return json({ ok: true, paid: v.paid, plan: v.plan, trade: v.trade }, 200)
   }
 
   if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405)
@@ -94,36 +89,12 @@ export default async function handler(req: Request): Promise<Response> {
   form.set('metadata[plan]', plan)
   if (plan === 'trade') form.set('metadata[trade]', trade)
 
-  const r = await stripe('checkout/sessions', key, form)
+  const r = await stripeRequest('checkout/sessions', key, UPSTREAM_TIMEOUT_MS, form)
   if (!r?.url) return json({ ok: false, error: 'upstream' }, 200)
   return json({ ok: true, url: r.url }, 200)
 }
 
 // ---- helpers --------------------------------------------------------------
-
-/** Un appel à Stripe, borné dans le temps · rend null sur toute erreur, pour
- *  ne jamais renvoyer au navigateur une erreur brute qui porterait la clé. */
-async function stripe(path: string, key: string, form?: URLSearchParams): Promise<any | null> {
-  const ctrl = new AbortController()
-  const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS)
-  try {
-    const res = await fetch(`https://api.stripe.com/v1/${path}`, {
-      method: form ? 'POST' : 'GET',
-      signal: ctrl.signal,
-      headers: {
-        authorization: `Bearer ${key}`,
-        ...(form ? { 'content-type': 'application/x-www-form-urlencoded' } : {}),
-      },
-      body: form,
-    })
-    const j = await res.json().catch(() => null)
-    return res.ok ? j : null
-  } catch {
-    return null
-  } finally {
-    clearTimeout(t)
-  }
-}
 
 function bare(h: string): string {
   try { return new URL(/^https?:/.test(h) ? h : 'https://' + h).host.replace(/^www\./, '').toLowerCase() } catch { return h.replace(/^www\./, '').toLowerCase() }

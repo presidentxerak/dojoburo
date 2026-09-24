@@ -563,7 +563,7 @@ export const DICT = {
   'pr.ownedH2': { en: "What you unlocked", fr: "Ce que vous avez débloqué" },
   'pr.tester': { en: "This address opens every training so you can read them. It is a test pass, not a purchase.", fr: "Cette adresse ouvre toutes les formations afin que vous puissiez les consulter. Il s'agit d'un accès de test, non d'un achat." },
   'pr.dataH2': { en: "Where your progress lives", fr: "Où votre progression est conservée" },
-  'pr.dataBody': { en: "In this browser, and nowhere else. No account, nothing sent. Clear it and you lose what you finished here.", fr: "Dans ce navigateur, et nulle part ailleurs. Aucun compte, aucune donnée envoyée. Si vous effacez ces données, vous perdez ce que vous avez terminé ici." },
+  'pr.dataBody': { en: "In this browser. If you sign in, it is also saved online with your account and synced across your devices; without signing in, nothing is sent. Clearing this browser erases what was never synced.", fr: "Dans ce navigateur. Si vous vous connectez, elle est également sauvegardée en ligne avec votre compte et synchronisée entre vos appareils ; sans connexion, aucune donnée n'est envoyée. Effacer les données de ce navigateur supprime ce qui n'a jamais été synchronisé." },
   'pr.forget': { en: 'Erase everything', fr: 'Tout effacer' },
   'pr.opened': { en: 'Open', fr: 'Ouverte' },
   'cm.title': { en: 'The valley', fr: 'La vallée' },

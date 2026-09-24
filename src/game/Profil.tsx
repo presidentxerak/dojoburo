@@ -29,6 +29,8 @@ import { useGame } from './progress'
 import { useAccess, forgetAccess } from './access'
 import { Shell } from './Shell'
 import { Gauge, levelOf } from './Gauge'
+import { useAccount, signIn, signOut, syncNow, initialOf } from '../lib/account'
+import { AT, SYNC_ERROR, useAccountText } from './accountText'
 
 export function ProfilPage() {
   const lang = useLang()
@@ -69,6 +71,11 @@ export function ProfilPage() {
           </Lnk>
         )}
       </section>
+
+      {/* LE COMPTE · « Où est la connexion avec le profil utilisateur ? ».
+          Juste sous les compteurs : c'est la question qui décide si ce qu'on
+          vient de lire survivra à un changement d'appareil. */}
+      <AccountCard />
 
       {/* LA CARTE · une porte, pas un passage obligé. */}
       <section className="gm-sec">
@@ -143,6 +150,72 @@ export function ProfilPage() {
 function packOfNext(moduleId: string): string {
   const p = PACKS.find((x) => x.modules.includes(moduleId))
   return p ? p.id : PACKS[0].id
+}
+
+/* ------------------------------------------------------------------ */
+/* LE COMPTE · trois états, dits honnêtement                           */
+/* ------------------------------------------------------------------ */
+//
+//   (a) la connexion n'est pas activée sur ce déploiement · on le dit, et on
+//       dit où vit la progression, au lieu d'afficher un bouton qui ne mène
+//       nulle part ;
+//   (b) déconnecté · ce que la connexion apporte, et le bouton ;
+//   (c) connecté · l'adresse, l'état de la synchronisation, la déconnexion.
+
+function AccountCard() {
+  const { t, lang } = useAccountText()
+  const acc = useAccount()
+  const time = (ms: number) =>
+    new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { hour: '2-digit', minute: '2-digit' }).format(ms)
+
+  return (
+    <section className="gm-sec" aria-labelledby="pf-acct-h">
+      <div className="pf-acct">
+        <h2 id="pf-acct-h" className="pf-h2">{t(AT.title)}</h2>
+
+        {!acc.enabled && <p className="gm-lead">{t(AT.offBody)}</p>}
+
+        {acc.enabled && !acc.signedIn && (
+          <>
+            <p className="gm-lead">{t(AT.outBody)}</p>
+            <p className="pf-acct-note">{t(AT.outHow)}</p>
+            <button className="gm-cta pf-acct-in" onClick={signIn} disabled={!acc.ready}>
+              {acc.ready ? t(AT.signIn) : t(AT.starting)}
+            </button>
+          </>
+        )}
+
+        {acc.enabled && acc.signedIn && (
+          <>
+            <p className="pf-acct-who">
+              <span className="pf-acct-av" aria-hidden="true">{initialOf(acc.email)}</span>
+              <span className="pf-acct-id">
+                <em>{t(AT.account)}</em>
+                <b>{acc.email || '·'}</b>
+              </span>
+            </p>
+            <p className="gm-lead">{t(AT.inBody)}</p>
+            <p className={`pf-acct-st${acc.status === 'error' ? ' err' : ''}`} role="status">
+              {acc.status === 'syncing'
+                ? t(AT.syncing)
+                : acc.status === 'error' && acc.error
+                  ? t(SYNC_ERROR[acc.error])
+                  : acc.at
+                    ? t(AT.syncedAt).replace('{time}', time(acc.at))
+                    : t(AT.notYet)}
+            </p>
+            <div className="pf-acct-acts">
+              {acc.status === 'error' && (
+                <button className="cc-btn cc-violet" onClick={() => void syncNow()}>{t(AT.retry)}</button>
+              )}
+              <button className="cc-btn cc-slate" onClick={() => void signOut()}>{t(AT.signOut)}</button>
+            </div>
+            <p className="pf-acct-note">{t(AT.signOutNote)}</p>
+          </>
+        )}
+      </div>
+    </section>
+  )
 }
 
 /* ------------------------------------------------------------------ */
