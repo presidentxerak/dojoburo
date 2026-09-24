@@ -10,25 +10,36 @@ import type { Character } from './looks'
 import type { DojoKit } from './packs'
 import { characterFor, faceIdForUseCase } from './agentFaces'
 
-/** CE QUE FAIT LE PERSONNAGE PRINCIPAL D'UNE SALLE · une action par salle.
+/** CE QUI SE JOUE DANS CHAQUE SALLE · une scène par métier.
  *
- *  Demandé : « ils font tous la même action, diversifie ». Tous tapaient sur
- *  un clavier derrière un bureau. Chaque salle a maintenant son geste, choisi
- *  pour dire le métier : le fondateur fait les cent pas en répétant son pitch,
- *  la communicante parle au micro, le chef de produit fête une mise en ligne,
- *  la growth fait le tour de ses tableaux, le commercial marche au téléphone,
- *  l'assistante tape au clavier. Les deux salles de classe ont un maître qui
- *  enseigne, face à ses élèves. */
-export type RoomAction = 'teach' | 'pace' | 'broadcast' | 'celebrate' | 'tour' | 'call' | 'type'
+ *  PREMIÈRE DEMANDE : « ils font tous la même action, diversifie ». Chaque
+ *  salle a reçu son geste, mais un seul spécialiste, seul dans sa pièce.
+ *
+ *  DEUXIÈME DEMANDE, qui l'emporte : « les scènes doivent être plus en rapport
+ *  avec le thème de la spécialité : un commercial vend des produits à
+ *  quelqu'un, un growth marketer montre des courbes d'acquisition client à
+ *  son boss, un fondateur parle devant ses équipes, un chef de produit
+ *  construit des produits ». Un métier se reconnaît à la personne avec qui on
+ *  l'exerce. Chaque salle de métier met donc en scène une situation de travail,
+ *  avec ses interlocuteurs et son objet :
+ *    · VENTE · le commercial présente un produit à une cliente,
+ *    · GROWTH · la growth marketer montre les courbes d'acquisition au boss,
+ *    · FONDATEUR · il parle depuis une estrade, son équipe devant lui,
+ *    · PRODUIT · le chef de produit assemble son produit, bloc après bloc,
+ *    · COMMUNICATION · une interview en studio, micro contre micro,
+ *    · ASSISTANT · il organise le planning, entre son bureau et le tableau.
+ *  Les deux salles de classe gardent leur maître qui enseigne à ses élèves. */
+export type RoomAction = 'teach' | 'sell' | 'present' | 'address' | 'build' | 'interview' | 'organize'
 
 export interface RoomCast {
-  /** le maître d'une classe, ou le seul spécialiste d'un métier */
+  /** le maître d'une classe, ou le professionnel d'un métier */
   lead: Character
   action: RoomAction
-  /** LES ÉLÈVES · seulement dans les salles de classe. Demandé : « dans la
-   *  formation complète un maître et plusieurs élèves, pour chaque dojo de
-   *  spécialité juste un seul spécialiste ». */
+  /** LES ÉLÈVES · seulement dans les salles de classe. */
   students: Character[]
+  /** LES INTERLOCUTEURS · la cliente, le boss, l'équipe, l'invité : ceux avec
+   *  qui le métier s'exerce. Vide dans les salles de classe. */
+  others: Character[]
 }
 
 export const DOJO_CAST: Record<DojoKit, RoomCast> = {
@@ -40,6 +51,7 @@ export const DOJO_CAST: Record<DojoKit, RoomCast> = {
       { kind: 'duck', face: '#fde68a', outfit: '#ef4444', outfit2: '#b91c1c', pants: '#334155', extra: '#fb923c' },
       { kind: 'bear', face: '#a47551', outfit: '#0ea5e9', outfit2: '#0c4a6e', pants: '#3f3f46', extra: '#fde68a' },
     ],
+    others: [],
   },
   // la formation complète · la vraie classe : le sorcier et quatre élèves
   study: {
@@ -51,36 +63,47 @@ export const DOJO_CAST: Record<DojoKit, RoomCast> = {
       { kind: 'frog', face: '#8cc56a', outfit: '#db2777', outfit2: '#9d174d', pants: '#1f2937', extra: '#facc15' },
       { kind: 'chicken', face: '#fafaf9', outfit: '#8b5cf6', outfit2: '#6d28d9', pants: '#44403c', extra: '#ef4444' },
     ],
+    others: [],
   },
-  // growth · la savante fait le tour de ses tableaux
+  // growth · la savante montre ses courbes d'acquisition au boss, en costume
   saas: {
     lead: { kind: 'madscientist', face: '#ecd9c6', outfit: '#f4f4f5', outfit2: '#db2777', pants: '#334155', extra: '#a3e635' },
-    action: 'tour', students: [],
+    action: 'present', students: [],
+    others: [{ kind: 'penguin', face: '#f4f1ea', outfit: '#1f2937', outfit2: '#111827', pants: '#111827', extra: '#dc2626' }],
   },
-  // communication · la chatte parle au micro
+  // communication · la chatte interviewe un invité, micro contre micro
   podcast: {
     lead: { kind: 'cat', face: '#e8d8bc', outfit: '#0ea5e9', outfit2: '#0369a1', pants: '#1e293b', extra: '#f472b6' },
-    action: 'broadcast', students: [],
+    action: 'interview', students: [],
+    others: [{ kind: 'bear', face: '#b98b62', outfit: '#fbbf24', outfit2: '#b45309', pants: '#374151', extra: '#f472b6' }],
   },
-  // fondateur · le chevalier fait les cent pas en répétant son pitch
+  // fondateur · le chevalier parle depuis l'estrade, son équipe devant lui
   pitch: {
     lead: { kind: 'knight', face: '#cbd5e1', outfit: '#8b5cf6', outfit2: '#5b21b6', pants: '#374151', extra: '#fbbf24' },
-    action: 'pace', students: [],
+    action: 'address', students: [],
+    others: [
+      { kind: 'rabbit', face: '#efe6dc', outfit: '#0ea5e9', outfit2: '#0369a1', pants: '#334155', extra: '#fda4af' },
+      { kind: 'frog', face: '#8cc56a', outfit: '#f59e0b', outfit2: '#b45309', pants: '#1f2937', extra: '#facc15' },
+      { kind: 'panda', face: '#fafafa', outfit: '#ef4444', outfit2: '#991b1b', pants: '#27272a', extra: '#fde68a' },
+      { kind: 'duck', face: '#fde68a', outfit: '#22c55e', outfit2: '#15803d', pants: '#334155', extra: '#fb923c' },
+    ],
   },
-  // produit · le robot fête la mise en ligne
+  // produit · le robot assemble son produit, bloc après bloc, puis le lance
   app: {
     lead: { kind: 'robot', face: '#9ca3af', outfit: '#10b981', outfit2: '#047857', pants: '#1f2937', extra: '#f59e0b' },
-    action: 'celebrate', students: [],
+    action: 'build', students: [], others: [],
   },
-  // vente · le dragon marche au téléphone
+  // vente · le dragon présente un produit à une cliente
   sales: {
     lead: { kind: 'dragon', face: '#e0785a', outfit: '#f97316', outfit2: '#c2410c', pants: '#292524', extra: '#fde047' },
-    action: 'call', students: [],
+    action: 'sell', students: [],
+    others: [{ kind: 'panda', face: '#fafafa', outfit: '#6366f1', outfit2: '#3730a3', pants: '#334155', extra: '#f9a8d4' }],
   },
-  // assistant · le fantôme tape à son bureau
+  // assistant · le fantôme organise le planning, sous l'oeil de sa manager
   ops: {
     lead: { kind: 'ghost', face: '#eef2ff', outfit: '#a855f7', outfit2: '#7e22ce', pants: '#312e81', extra: '#fda4af' },
-    action: 'type', students: [],
+    action: 'organize', students: [],
+    others: [{ kind: 'cat', face: '#f5e6cc', outfit: '#334155', outfit2: '#1e293b', pants: '#0f172a', extra: '#f59e0b' }],
   },
 }
 

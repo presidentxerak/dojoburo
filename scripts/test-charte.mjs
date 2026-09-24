@@ -242,11 +242,14 @@ ok('le jeu n\'a plus de damier', !/repeating-conic-gradient/.test(GAME_CODE))
 // lire seulement la première la laissait passer.
 const rulesFor = (sel) => [...CSS.matchAll(new RegExp(`\\n${sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`, 'g'))].map((m) => m[1])
 ok('l\'en-tête n\'a pas de fond', rulesFor('.gm-top').length > 0 && rulesFor('.gm-top').every((b) => !/background/.test(b)))
-ok('la barre du bas n\'a pas de fond', rulesFor('.gm-tabs').length > 0 && rulesFor('.gm-tabs').every((b) => !/background/.test(b)))
-// … et comme elle n'a plus de fond, elle ne capte plus le doigt entre ses
-// touches : on touche ce qui est dessous.
-ok('la barre laisse passer le doigt entre ses touches',
-  /pointer-events:\s*none/.test(rule('.gm-tabs')) && /pointer-events:\s*auto/.test(rule('.gm-tab')))
+// LA BARRE DU BAS A UN FOND NOIR · elle n'en avait plus, puis le propriétaire
+// a demandé « ajoute un fond noir à la bottom bar ». La garde affirme la
+// nouvelle règle : un aplat noir, sans dégradé ni ombre.
+ok('la barre du bas a un fond noir, à plat', rulesFor('.gm-tabs').length > 0 && rulesFor('.gm-tabs').some((b) => /background:\s*#000\b/.test(b)) && rulesFor('.gm-tabs').every((b) => !/gradient\(|box-shadow:\s*(?!none)[^;]*\d/.test(b)))
+// … ET PUISQU'ELLE EST PLEINE, ELLE GARDE LE DOIGT · une bande noire qui
+// laisserait passer le toucher déclencherait la carte cachée dessous, qu'on
+// ne voit plus. La règle d'avant (laisser passer) valait pour une barre vide.
+ok('la barre pleine garde le doigt', !/pointer-events:\s*none/.test(rule('.gm-tabs')) && /pointer-events:\s*auto/.test(rule('.gm-tab')))
 
 // LE SURVOL D'UNE CARTE · elle monte, sa lueur s'élargit, rien d'autre. Pas de
 // rotation, et plus aucun soulignement : la règle générale « a:hover » est

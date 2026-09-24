@@ -10314,7 +10314,11 @@ button.wm-tag { border-radius: 999px !important; }
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
   display: flex; justify-content: center; gap: clamp(8px, 3vw, 16px);
   padding: 8px 10px calc(12px + env(safe-area-inset-bottom, 0px));
-  pointer-events: none;
+  /* UN FOND NOIR · demandé (« ajoute un fond noir à la bottom bar »). Sans
+     fond, les cartes défilaient sous les touches et leurs illustrations se
+     lisaient à travers les interstices ; la barre est maintenant une bande
+     pleine, à plat, qui tient le bas de l'écran. */
+  background: #000;
 }
 .gm-tab {
   pointer-events: auto;
