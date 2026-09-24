@@ -39,19 +39,19 @@ import { ClanPage } from './game/Clan'
 import { PACK_OF_MODULE, packPath, lessonPath, FREE_PACK } from './data/packs'
 import { ProfilPage } from './game/Profil'
 import { CartePage } from './game/Carte'
+import { TarifsPage, MerciPage } from './game/Tarifs'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
-// LA POLICE DU JEU EST SERVIE PAR NOUS, PAS PAR GOOGLE.
-// Outfit vient toujours des polices Google, chargées hors du chemin critique
-// par public/boot.js : si elles n'arrivent pas, la police système prend le
-// relais et le texte reste lisible. Lilita One ne supporte pas ce repli · un
-// titre de jeu en police système perd tout ce qui en fait un titre de jeu, le
-// poids, la rondeur, le contour. Elle est donc embarquée dans le paquet (licence
-// OFL), servie depuis notre origine, et la politique de sécurité l'accepte déjà
-// (« font-src 'self' »). Seuls les jeux latins sont chargés : le navigateur ne
-// télécharge un fichier que si la page contient un caractère de sa plage.
-import '@fontsource/lilita-one/latin-400.css'
-import '@fontsource/lilita-one/latin-ext-400.css'
+// LA POLICE EST SERVIE PAR NOUS, PAS PAR GOOGLE.
+// Une seule famille pour toute l'app, Outfit, demandée explicitement (« change
+// la typo en Outfit ») à la place de la police de jeu Lilita One. Elle venait
+// des polices Google, chargées hors du chemin critique par public/boot.js ; si
+// elles n'arrivaient pas, le texte tombait en police système et les titres
+// perdaient leur graisse. Elle est donc embarquée dans le paquet (licence OFL),
+// en version variable · un seul fichier pour toutes les graisses, de 400 à 900
+// · servie depuis notre origine, que la politique de sécurité accepte déjà
+// (« font-src 'self' »).
+import '@fontsource-variable/outfit/index.css'
 import './index.css'
 
 // Route ephemeral Vercel preview URLs (which change every deploy and aren't in
@@ -177,6 +177,10 @@ function Root() {
   if (path === '/profil') return <ProfilPage />
   // LA CARTE · plein écran, sans coquille ni barre du bas. Voir game/Carte.
   if (path === '/carte') return <CartePage />
+  // LES TARIFS ET LE RETOUR DE PAIEMENT · dans le jeu, pas sur l'ancienne page
+  // de présentation. Voir game/Tarifs.
+  if (path === '/tarifs') return <TarifsPage />
+  if (path === '/merci') return <MerciPage />
   const pk = path.match(/^\/dojo\/([a-z0-9-]+)$/i)
   if (pk) return <PackPage packId={pk[1].toLowerCase()} />
   const ls = path.match(/^\/dojo\/([a-z0-9-]+)\/([a-z0-9-]+)$/i)

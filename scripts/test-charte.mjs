@@ -98,8 +98,9 @@ const TOKENS = [
   // LE SOMBRE EST UN VIOLET DE NUIT · demandé : « un fond violet très foncé
   // pour tous les backgrounds de l'app ». Les trois valeurs sombres du système
   // (#08090a, #0e1011, #8a8f98) ont été remplacées par leur équivalent violet.
-  ['le fond, un violet de nuit et non un noir', '#120a24'],
-  ['la carte, un violet un cran plus clair', '#1a1132'],
+  // PUIS ENCORE PLUS FONCÉ · « fais le background encore plus foncé ».
+  ['le fond, un violet de nuit très foncé et non un noir', '#0a0514'],
+  ['la carte, un violet un cran plus clair', '#140b26'],
   ['le texte second, lavande', '#a99fc6'],
   ['l\'emplacement de données 1', '#5c72e8'],
   ['l\'emplacement de données 2', '#70e8bd'],
@@ -150,7 +151,7 @@ for (const jeton of ['--ink', '--muted', '--border']) {
 // juste au-dessus ne compte pas.
 const DARK = CSS.match(/\n:root\[data-theme='dark'\]\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
 ok('le fond est un violet de nuit',
-  /--bg:\s*#120a24/i.test(DARK) && !/--bg:\s*#(000000|08090a)/i.test(DARK),
+  /--bg:\s*#0a0514/i.test(DARK) && !/--bg:\s*#(000000|08090a)/i.test(DARK),
   DARK.match(/--bg:[^;]*/)?.[0] ?? 'absent')
 
 /* --- 3 · la matière du jeu, sans bordure ni contour ---------------------- */
@@ -434,17 +435,20 @@ ok('les réglages n\'offrent plus de clair', !/setTheme|>Light</.test(SETTINGS))
 ok('la feuille n\'a plus de règle réservée au clair', !/:root\[data-theme='light'\]|:root:not\(\[data-theme='dark'\]\)/.test(CSS))
 // La barre du navigateur a la teinte de la page, aux deux endroits.
 const HTML = readFileSync('index.html', 'utf8')
-ok('la barre du navigateur naît violette', /name="theme-color" content="#120a24"/.test(HTML))
-ok('… et boot.js lui donne la même', /#120a24/.test(BOOT))
+ok('la barre du navigateur naît violette', /name="theme-color" content="#0a0514"/.test(HTML))
+ok('… et boot.js lui donne la même', /#0a0514/.test(BOOT))
 
-// LA POLICE DU JEU EST SERVIE PAR NOUS. Chargée depuis Google, elle manquait
-// dès que Google ne répondait pas, et le titre tombait en police système sous
-// un contour prévu pour une police épaisse. Le test « document.fonts.check »
-// répondait vrai quand même : il le fait pour toute famille sans @font-face.
+// UNE SEULE FAMILLE, OUTFIT, SERVIE PAR NOUS · « change la typo en Outfit ».
+// La police de jeu Lilita One est retirée ; Outfit en version variable est
+// embarquée dans le paquet, parce que Google ne répond pas partout et qu'un
+// titre en police système perd sa graisse. La graisse fait la hiérarchie.
 const MAIN = readFileSync('src/main.tsx', 'utf8')
-ok('la police du jeu est servie par nous', /import '@fontsource\/lilita-one\/latin-400\.css'/.test(MAIN))
-ok('… et pas demandée à Google', !/Lilita/.test(HTML))
-ok('elle ne sert qu\'à l\'affichage', /--font-game:\s*'Lilita One'/.test(CSS))
+ok('Outfit est servie par nous', /import '@fontsource-variable\/outfit\/index\.css'/.test(MAIN))
+// le CODE, pas les commentaires · l'histoire de la décision a le droit de
+// nommer la police retirée.
+const uncommented = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/.*$/gm, '$1').replace(/<!--[\s\S]*?-->/g, '')
+ok('… et Lilita One a disparu', !/lilita/i.test(uncommented(MAIN) + uncommented(CSS) + uncommented(HTML)))
+ok('le texte et les titres sont en Outfit', /--font-ui:\s*'Outfit Variable'/.test(CSS) && /--font-game:\s*'Outfit Variable'/.test(CSS))
 
 // LA VIGNETTE MESURE SA BOÎTE, PAS SON APPARENCE. Pendant l'arrivée de la
 // carte (une mise à l'échelle), la mesure par défaut lisait la taille RÉDUITE
@@ -493,8 +497,8 @@ ok('morsure · des lettres cernées seraient vues',
   ('-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000'.match(/-?\d[\d.]*px\s+-?\d[\d.]*px\s+0\b/g) || []).length >= 3)
 ok('morsure · une ombre douce ne l\'est pas',
   ('0 2px 14px rgba(0, 0, 0, 0.45)'.match(/-?\d[\d.]*px\s+-?\d[\d.]*px\s+0\b/g) || []).length < 3)
-ok('morsure · une police demandée à Google serait vue',
-  /Lilita/.test('<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Outfit">'))
+ok('morsure · un retour de Lilita serait vu',
+  /lilita/i.test("import '@fontsource/lilita-one/latin-400.css'"))
 ok('morsure · une vignette mesurée sans offsetSize serait vue',
   !/resize=\{\{\s*offsetSize:\s*true\s*\}\}/.test('<Canvas dpr={[1, 1.5]} frameloop="demand">'))
 

@@ -90,11 +90,9 @@ function PackCard({ pack, i }: { pack: Pack; i: number }) {
     <Lnk className={`pk gm-rise${open ? '' : ' shut'}${done && done === levels.length ? ' done' : ''}`}
       href={packPath(pack.id)}
       style={{ ['--ac' as string]: pack.tint, ['--i' as string]: i }}>
-      {/* LE MAÎTRE DU PREMIER DOJO attend sur la vignette · c'est celui qu'on
-          rencontrera en entrant, donc la carte montre qui enseigne avant
-          d'avoir été ouverte. Un visage pris ailleurs aurait été plus joli et
-          aurait menti. */}
-      <PackArt kit={pack.kit} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
+      {/* LA SALLE DE LA FORMATION · une classe pour les parcours, un
+          spécialiste à son geste pour les métiers. Voir PackArt et data/cast. */}
+      <PackArt kit={pack.kit} tint={pack.tint} locked={!open} />
 
       <div className="pk-body">
         <div className="pk-tags">

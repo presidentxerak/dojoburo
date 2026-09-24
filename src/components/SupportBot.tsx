@@ -172,9 +172,11 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
   return (
     <>
       {!embedded && !open && (
-        <button className="sb-launch" onClick={() => setOpen(true)} aria-label={t('sb.ask')}>
-          <Logo size={26} className="sb-face" />
-          <span className="sb-launch-label">Dojobot</span>
+        // UNE BULLE ET SON ICÔNE, SANS NOM · demandé ainsi. La pilule
+        // « Dojobot » couvrait le bord des cartes ; le nom reste annoncé au
+        // lecteur d'écran par l'étiquette du bouton.
+        <button className="sb-launch" onClick={() => setOpen(true)} aria-label={`Dojobot · ${t('sb.ask')}`}>
+          <Logo size={28} className="sb-face" />
         </button>
       )}
 

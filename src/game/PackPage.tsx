@@ -80,7 +80,7 @@ export function PackPage({ packId }: { packId: string }) {
         <Lnk className="gm-back" href="/">← {t('gm.backDojos')}</Lnk>
         <div className="pkh-top">
           <div className="pkh-art">
-            <PackArt kit={pack.kit} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
+            <PackArt kit={pack.kit} tint={pack.tint} locked={!open} />
           </div>
           <div className="pkh-txt">
             <h1 className="gm-h1">{say(pack.title, lang)}</h1>
@@ -128,7 +128,7 @@ function PackLock({ eur }: { eur: number }) {
     <div className="pkl">
       <b><BauhausIcon name="lock" size={16} /> {t('gm.lockTitle')}</b>
       <p>{t('gm.lockBody')}</p>
-      <Lnk className="gm-cta" href="/decouvrir#pricing">{priceTag(eur)} · {t('g.seePrices')} →</Lnk>
+      <Lnk className="gm-cta" href="/tarifs">{priceTag(eur)} · {t('g.seePrices')} →</Lnk>
     </div>
   )
 }

@@ -127,6 +127,8 @@ const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac
   // « agent » s'écrit pareil dans les deux langues, au singulier comme au
   // pluriel : c'est le même mot, emprunté au latin par les deux.
   'mp.agent', 'mp.agents',
+  // « question » aussi : même mot, même sens, dans les deux langues.
+  'ln.q',
   // « dojo » et « badge » non plus ne se traduisent pas : le premier est un
   // emprunt au japonais dans les deux langues, le second un emprunt du
   // français vers l'anglais qui est revenu identique. Les traduire serait

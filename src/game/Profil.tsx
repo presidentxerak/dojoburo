@@ -89,6 +89,7 @@ export function ProfilPage() {
           {PACKS.map((p) => <OwnedRow key={p.id} pack={p} />)}
         </div>
         {a.tester && <p className="pf-tester">{t('pr.tester')}</p>}
+        <Lnk className="gm-cta" href="/tarifs">{t('g.seePrices')} →</Lnk>
       </section>
 
       {/* LA VITRINE · tous les badges de la portée, gagnés ou non. Une vitrine

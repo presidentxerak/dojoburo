@@ -105,6 +105,11 @@ const ok = (n, c, extra = '') => { console.log((c ? 'ok    ' : 'FAIL  ') + n + (
  * Elle vérifie donc : la marque EST posée (donc le script tourne), elle vaut
  * « dark » quel que soit le système, ET un ancien choix de clair enregistré
  * ne la fait pas repasser au clair.                                         */
+// LA TEINTE ATTENDUE EST LUE DANS index.html, pas recopiée ici · elle a déjà
+// changé deux fois (le violet de nuit, puis plus foncé), et une garde qui la
+// recopiait accusait une barre juste. test-charte exige que boot.js et
+// index.html disent la même ; celle-ci vérifie que le navigateur la reçoit.
+const BAR = readFileSync('index.html', 'utf8').match(/name="theme-color" content="(#[0-9a-f]{6})"/i)?.[1] ?? '(absente)'
 for (const scheme of ['dark', 'light']) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: scheme })
   const p = await ctx.newPage()
@@ -115,7 +120,7 @@ for (const scheme of ['dark', 'light']) {
   ok(`violet posé avant le rendu de React, téléphone en ${scheme}`, stamp === 'dark',
     `data-theme=${stamp} · un script EN LIGNE serait refusé, et la marque ne serait jamais posée`)
   const meta = await p.evaluate(() => document.querySelector('meta[name="theme-color"]')?.getAttribute('content'))
-  ok('et la barre du navigateur suit', meta === '#120a24', String(meta))
+  ok('et la barre du navigateur suit', meta === BAR, `${meta} · attendu ${BAR}`)
   await ctx.close()
 }
 {

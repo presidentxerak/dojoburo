@@ -49,7 +49,7 @@ async function load(entry) {
 // un `Request` du Web et rendent une `Response`. Les treize autres sont des
 // fonctions Node et reçoivent (req, res). Les éprouver toutes avec la même
 // forme ne prouve rien — c'est l'épreuve qui se trompe de produit.
-const EDGE = new Set(['chat', 'checkout'])
+const EDGE = new Set(['chat', 'checkout', 'buy'])
 
 async function callEdge(handler, method, url, body) {
   const r = await handler(new Request(`https://dojoburo.test${url}`, {
@@ -222,6 +222,15 @@ const ENDPOINTS = [
     ['POST', '/api/checkout', '{'],
     ['POST', '/api/checkout', JSON.stringify({ plan: 'managed', email: 'a@b.fr' })],
     ['POST', '/api/checkout', JSON.stringify({ plan: 'inventé' })],
+  ]],
+  // L'ACHAT D'UNE FORMATION · paiement unique, puis vérification au retour.
+  ['buy', 'api/buy.ts', [
+    ['POST', '/api/buy', '{'],
+    ['POST', '/api/buy', JSON.stringify({ plan: 'inventé' })],
+    ['POST', '/api/buy', JSON.stringify({ plan: 'trade', trade: 'astronaute' })],
+    ['POST', '/api/buy', JSON.stringify({ plan: 'path', email: 'a@b.fr' })],
+    ['GET', '/api/buy?session_id=pas-une-session'],
+    ['GET', '/api/buy?session_id=cs_test_abc123'],
   ]],
   ['agent-run', 'api/agent-run.ts', [
     ['POST', '/api/agent-run', '{'],
