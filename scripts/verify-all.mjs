@@ -55,6 +55,8 @@ const CHECKS = [
   ['test-enrich.mjs', 1, true],
   ['test-trades.mjs', 1, true],
   ['test-game.mjs', 1, true],
+  // LE JEU DOJOBURO · son moteur, ses règles, son équilibre (voir src/sim).
+  ['test-sim.mjs', 1, true],
   // LA CHARTE, LE DÉFILEMENT ET LA MISE EN PAGE. Une seule règle de style ·
   // « overflow: hidden » sur le corps de page · a rendu six des huit formations
   // inatteignables, et les trente-huit épreuves d'alors l'ont laissée passer :
@@ -139,6 +141,9 @@ const CHECKS = [
   // L'en-tête du jeu dépassait à 320 px et aucune épreuve ne mesurait si étroit.
   ['audit-fluid.mjs', 3, true],
   ['audit-hero.mjs', 3, true],
+  // LE JEU DOJOBURO JOUÉ POUR DE VRAI · un brief ouvert, une équipe, un lancement,
+  // sur ordinateur et sur téléphone.
+  ['verify-sim.mjs', 3, true],
   ['perf-scene.mjs', 3, true],
   ['verify-dedupe.mjs', 3, true],
   ['verify-documents.mjs', 3, true],

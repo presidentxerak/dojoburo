@@ -16,6 +16,9 @@ const WidgetApp = lazy(() => import('./WidgetApp').then((m) => ({ default: m.Wid
 const StudioPage = lazy(() => import('./components/workshop/WorkshopModal').then((m) => ({ default: m.StudioPage })))
 const ConnectorsPage = lazy(() => import('./components/ConnectorsPage').then((m) => ({ default: m.ConnectorsPage })))
 const DocumentsPage = lazy(() => import('./components/DocumentsPage').then((m) => ({ default: m.DocumentsPage })))
+// LE JEU DOJOBURO · la simulation de studio, chargée à part : son moteur, sa
+// scène et son son n'ont rien à faire dans le paquet de qui vient suivre un cours.
+const SimPage = lazy(() => import('./sim/SimPage').then((m) => ({ default: m.SimPage })))
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
@@ -177,6 +180,8 @@ function Root() {
   if (path === '/profil') return <ProfilPage />
   // LA CARTE · plein écran, sans coquille ni barre du bas. Voir game/Carte.
   if (path === '/carte') return <CartePage />
+  // LE JEU DOJOBURO · plein écran lui aussi, hors coquille. Voir sim/SimPage.
+  if (path === '/dojoburo') return <Suspense fallback={<div className="boot-wait sim-boot">Dojoburo</div>}><SimPage /></Suspense>
   // LES TARIFS ET LE RETOUR DE PAIEMENT · dans le jeu, pas sur l'ancienne page
   // de présentation. Voir game/Tarifs.
   if (path === '/tarifs') return <TarifsPage />

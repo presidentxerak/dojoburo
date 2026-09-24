@@ -489,7 +489,8 @@ export const DICT = {
   'g.seePrices': { en: 'See the prices', fr: 'Voir les tarifs' },
 
   /* --- le jeu · la coquille et les onglets -------------------------------- */
-  'nav.dojos': { en: 'Dojos', fr: 'Dojos' },
+  'nav.game': { en: 'Dojoburo', fr: 'Dojoburo' },
+  'nav.training': { en: 'Training', fr: 'Training' },
   'nav.clan': { en: 'Clan', fr: 'Clan' },
   'nav.profile': { en: 'Profile', fr: 'Profil' },
   'gm.tabs': { en: 'Main navigation', fr: 'Navigation principale' },

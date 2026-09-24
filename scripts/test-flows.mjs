@@ -401,6 +401,21 @@ ok('le prompt du robot décrit un centre de formation', /TRAINING CENTRE/i.test(
 ok('…et il dément explicitement l\'ancien produit', /It does not any more/.test(chat))
 ok('…et ne promet pas de faire le travail', /it does not do the work for you/i.test(chat))
 
+/* --- 7 bis · le robot répond à ce qu'il propose --------------------------- */
+// LES QUESTIONS QU'IL SUGGÈRE ARRIVENT SUR UNE RÉPONSE · une suggestion qui ne
+// trouve aucun sujet part dans la cascade payante, alors que la réponse est
+// écrite. Et une pastille d'accueil qui nomme un sujet disparu n'affiche rien.
+const KBM = await load('src/support/knowledge.ts', 'kb.mjs')
+const BOT = readFileSync('src/components/SupportBot.tsx', 'utf8')
+const sugg = [...(BOT.match(/const SUGGESTIONS = \[([\s\S]*?)\n\]/)?.[1] ?? '').matchAll(/(en|fr): (['"])(.*?)\2/g)].map((m) => m[3].replace(/\\'/g, "'"))
+const unanswered = sugg.filter((q) => !KBM.matchTopic(q))
+ok('chaque question suggérée par le robot trouve sa réponse', sugg.length >= 6 && unanswered.length === 0, unanswered.join(' | ') || `${sugg.length} questions`)
+const chips = (BOT.match(/const START_CHIPS = \[([^\]]*)\]/)?.[1] ?? '').match(/'([a-z]+)'/g)?.map((x) => x.slice(1, -1)) ?? []
+const deadChips = chips.filter((id) => !KBM.TOPIC_BY_ID[id])
+ok('chaque pastille d\'accueil mène à un sujet', chips.length > 0 && deadChips.length === 0, deadChips.join(', ') || chips.join(', '))
+ok('le robot parle du jeu dès l\'accueil', chips[1] === 'studios' && /Dojoburo/.test(KBM.TOPIC_BY_ID.studios.answer))
+ok('« prix » tapé seul trouve les tarifs', KBM.matchTopic('prix')?.id === 'pricing')
+
 /* --- 8 · les listes que les pages parcourent ne sont pas vides ------------ */
 
 // Une page qui itère sur une liste vide s'affiche : elle est simplement nue,

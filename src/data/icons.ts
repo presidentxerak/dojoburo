@@ -56,6 +56,7 @@ export const ICON_NAMES = [
   'smile',      // le cercle, deux points et un arc · la seule figure du jeu
   'lock',       // le cadenas · ce qui est fermé
   'clan',       // deux personnes · le clan
+  'training',   // la toque · l'onglet Training
 ] as const
 
 export type IconName = (typeof ICON_NAMES)[number]

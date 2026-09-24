@@ -139,7 +139,7 @@ ok('les droits se lisent dans un seul fichier',
 /* --- 5 · les adresses sont publiques -------------------------------------- */
 
 const routes = SRC('src/main.tsx')
-for (const p of ['/clan', '/profil', '/carte', '/decouvrir']) {
+for (const p of ['/clan', '/profil', '/carte', '/decouvrir', '/tarifs', '/dojoburo']) {
   ok(`l'adresse ${p} est branchée`, routes.includes(`'${p}'`))
 }
 ok('la racine sert le jeu', /path === '\/'\) return <DojosPage/.test(routes))

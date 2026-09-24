@@ -207,6 +207,13 @@ const SHAPES: Record<IconName, JSX.Element> = {
   // une lune, pas un sourire : ce sont les deux extrémités relevées qui
   // portent l'expression, et elles ne relèvent que si la courbe s'arrête
   // avant l'horizontale.
+  // LA TOQUE · l'onglet Training. Le plateau en losange, la calotte, le gland.
+  training: <>
+    <path d="M2.5 9 L12 4.5 L21.5 9 L12 13.5 Z" />
+    <path d="M6.5 11.2 V15.8 A5.5 2.8 0 0 0 17.5 15.8 V11.2" />
+    <path d="M21.5 9 V14.2" />
+    <circle cx="21.5" cy="15.4" r="1.2" fill="currentColor" stroke="none" />
+  </>,
   // LE CLAN · deux personnes, une devant l'autre. Il remplace les deux cercles
   // concentriques de l'onglet Clan, qui étaient une forme, pas un groupe.
   clan: <>
