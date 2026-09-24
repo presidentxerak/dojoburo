@@ -564,5 +564,565 @@ export const ENRICH_TRADES_C: Record<string, Enrichment> = {
     ],
   },
 
-  /* ASSISTANT_PLACEHOLDER */
+  /* ================================================================ */
+  /* ASSISTANT · LE FLOT                                              */
+  /* ================================================================ */
+
+  'as-flow/as-inbox': {
+    why: [
+      B("Sorting by sender means deciding before reading. Sorting by request asks each message one question: what does it expect from me? There are only four answers: reply, do something, wait for someone, nothing.",
+        "Trier par expéditeur, c'est décider avant d'avoir lu. Trier par demande pose une seule question à chaque message : qu'attend-il de moi ? Il n'y a que quatre réponses : répondre, faire, attendre quelqu'un, rien."),
+      B("A model sorts very well when the boxes are closed and defined. Give it the four piles with one definition each, and demand the action in four words. It can no longer write a summary: it has to decide. You then read one list, not thirty emails.",
+        "Un modèle classe très bien quand les cases sont fermées et définies. Donne-lui les quatre tas avec une définition chacun, et exige l'action en quatre mots. Il ne peut plus écrire de résumé : il doit trancher. Tu lis ensuite une liste, pas trente mails."),
+      B("Think of your inbox as a desk covered in paper. You throw away the flyers first, and only then do you see what is left. The \"nothing\" pile (newsletters, copies, notifications) goes first, and what remains is a list you can face.",
+        "Vois ta boîte comme un bureau couvert de papiers. Tu jettes d'abord les prospectus, et c'est seulement là que tu vois ce qui reste. Le tas « rien » (newsletters, copies, notifications) part en premier, et ce qui reste est une liste que tu peux regarder en face."),
+    ],
+    example: {
+      context: B("Amandine is an executive assistant in a building company. On Monday morning, 64 unread emails are waiting, half of them for her director.",
+        "Amandine est assistante de direction dans une PME du bâtiment. Lundi matin, 64 mails non lus l'attendent, dont la moitié pour son directeur."),
+      before: B("Here are my emails, tell me which ones are important.",
+        "Voici mes mails, dis-moi lesquels sont importants."),
+      after: B("You are my sorting assistant. Below are 30 lines: sender | subject | first sentence.\nPut each email in ONE of these 4 piles:\n- REPLY: someone expects a written answer from me or my director\n- DO: there is a task to carry out (book, send, pay, file)\n- WAIT: what happens next depends on someone else\n- NOTHING: information, copy, newsletter, notification\nFormat: a table no. | pile | action in 4 words maximum | deadline if written in the email.\nNever sort by sender. If you hesitate, write \"to check\" instead of choosing.\n(the 30 lines follow)",
+        "Tu es mon assistant de tri. Voici 30 lignes : expéditeur | objet | première phrase.\nClasse chaque mail dans UN de ces 4 tas :\n- RÉPONDRE : quelqu'un attend une réponse écrite de moi ou de mon directeur\n- FAIRE : il y a une tâche à exécuter (réserver, envoyer, payer, classer)\n- ATTENDRE : la suite dépend de quelqu'un d'autre\n- RIEN : information, copie, newsletter, notification\nFormat : un tableau n° | tas | action en 4 mots maximum | échéance si elle est écrite dans le mail.\nNe classe jamais selon l'expéditeur. Si tu hésites, écris « à vérifier » au lieu de choisir.\n(les 30 lignes suivent)"),
+      takeaway: B("\"Important\" means nothing to the model, so it invents a criterion, often the sender. With four defined piles and a four-word action, Amandine gets a list she can work through in order.",
+        "« Important » ne veut rien dire pour le modèle, donc il invente un critère, souvent l'expéditeur. Avec quatre tas définis et une action en quatre mots, Amandine obtient une liste qu'elle traite dans l'ordre."),
+    },
+    exercise: {
+      goal: B("Your inbox sorted into four piles, the \"nothing\" pile deleted or archived, and a four-word action for everything else.",
+        "Ta boîte de réception triée en quatre tas, le tas « rien » supprimé ou archivé, et une action en quatre mots pour tout le reste."),
+      prompt: B("You are my sorting assistant. I am [YOUR ROLE] and I also handle the emails of [PERSON, IF RELEVANT].\nHere are my unread emails, one per line: sender | subject | first sentence.\n[PASTE 20 TO 30 LINES]\nPut each line in one pile only:\n- REPLY: someone expects a written answer\n- DO: there is a task to carry out\n- WAIT: what happens next depends on someone else (say who)\n- NOTHING: information, copy, newsletter, notification\nGive a table: no. | pile | action in 4 words maximum | deadline if it is written in the email.\nNever sort by sender. If you hesitate between two piles, write \"to check\".\nEnd with the number of emails in each pile.",
+        "Tu es mon assistant de tri. Je suis [TON POSTE] et je gère aussi les mails de [PERSONNE, SI C'EST LE CAS].\nVoici mes mails non lus, un par ligne : expéditeur | objet | première phrase.\n[COLLE 20 À 30 LIGNES]\nClasse chaque ligne dans un seul tas :\n- RÉPONDRE : quelqu'un attend une réponse écrite\n- FAIRE : il y a une tâche à exécuter\n- ATTENDRE : la suite dépend de quelqu'un d'autre (précise qui)\n- RIEN : information, copie, newsletter, notification\nDonne un tableau : n° | tas | action en 4 mots maximum | échéance si elle est écrite dans le mail.\nNe trie jamais selon l'expéditeur. Si tu hésites entre deux tas, écris « à vérifier ».\nTermine par le nombre de mails dans chaque tas."),
+      check: [
+        B("Each email is in one pile only, with an action of four words maximum", "Chaque mail est dans un seul tas, avec une action de quatre mots maximum"),
+        B("You deleted or archived the \"nothing\" pile before reading the rest", "Tu as supprimé ou archivé le tas « rien » avant de lire le reste"),
+        B("No deadline was invented: each one is written in the email", "Aucune échéance n'a été inventée : chacune figure dans le mail"),
+        B("You pasted nothing your company forbids you to give an AI tool", "Tu n'as collé aucun mail que ton entreprise interdit de confier à un outil IA"),
+      ],
+      bonus: B("Turn this prompt into a permanent setup: a project or custom assistant in your tool, if it offers one, with the four piles already defined. Each morning you paste, and it is sorted.",
+        "Transforme ce prompt en réglage permanent : un projet ou un assistant personnalisé dans ton outil, s'il le permet, avec les quatre tas déjà définis. Chaque matin, tu colles, et c'est trié."),
+    },
+    more: [
+      {
+        q: B("The model puts all your director's emails at the top, even a copy sent for information. What do you fix?",
+          "Le modèle met en tête tous les mails de ton directeur, même une copie pour info. Que corriges-tu ?"),
+        options: [
+          B("Add \"never sort by sender\"", "Tu ajoutes « ne trie jamais selon l'expéditeur »"),
+          B("Nothing, the director comes first anyway", "Rien, le directeur passe avant de toute façon"),
+          B("Ask for a sort by date instead", "Tu demandes plutôt un tri par date"),
+        ],
+        answer: 0,
+        why: B("A copy for information is still a copy, even from the director: it goes in \"nothing\". What is asked of you is what counts, not who writes.",
+          "Une copie pour info reste une copie, même venant du directeur : elle va dans « rien ». C'est ce qu'on te demande qui compte, pas qui écrit."),
+      },
+      {
+        q: B("An email says: \"I will get back to you as soon as I have the supplier's quote.\" Which pile?",
+          "Un mail dit : « Je reviens vers toi dès que j'ai le devis du fournisseur. » Quel tas ?"),
+        options: [
+          B("Reply", "Répondre"),
+          B("Do", "Faire"),
+          B("Wait", "Attendre"),
+          B("Nothing", "Rien"),
+        ],
+        answer: 2,
+        why: B("What happens next depends on the supplier, not on you. Note who you are waiting for and by when, so you can chase it. It is not \"nothing\": a missing quote can block a whole file.",
+          "La suite dépend du fournisseur, pas de toi. Note qui tu attends et pour quand, pour relancer si rien ne vient. Ce n'est pas « rien » : un devis attendu peut bloquer tout un dossier."),
+      },
+    ],
+  },
+
+  'as-flow/as-agenda': {
+    why: [
+      B("A topic has no end. \"Lille renovation works\" can fill an hour, and the meeting stops when time runs out, not when something is decided. A question has an end: it is settled or it is not. \"Do we accept the plumber's quote or ask for another?\" stops as soon as someone decides.",
+        "Un sujet n'a pas de fin. « Travaux de Lille » peut remplir une heure, et la réunion s'arrête quand l'heure tourne, pas quand quelque chose est décidé. Une question, elle, a une fin : elle est tranchée ou non. « On accepte le devis du plombier ou on en demande un autre ? » s'arrête dès que quelqu'un tranche."),
+      B("A model turns topics into questions well, if you give it the context you have and ask for three things per line: the question, the one person who decides, the minutes. When it cannot guess the decision, it should say so. You then know what to ask the organiser before the meeting, not during it.",
+        "Un modèle transforme bien des sujets en questions, si tu lui donnes le contexte que tu as et que tu demandes trois choses par ligne : la question, la personne qui tranche, les minutes. Quand il ne peut pas deviner la décision, il doit le dire. Tu sais alors quoi demander à l'organisateur avant la réunion, pas pendant."),
+      B("Anything with no decision becomes a five-line written note, sent the day before with the agenda. People arrive having read it, and knowing what they will have to decide. The meeting time goes to decisions only.",
+        "Tout ce qui n'appelle pas de décision devient une note écrite de cinq lignes, envoyée la veille avec l'ordre du jour. Les participants arrivent en l'ayant lue, et en sachant ce qu'ils vont devoir trancher. Le temps de réunion ne sert plus qu'aux décisions."),
+    ],
+    example: {
+      context: B("Mathieu is assistant to the CEO of a chain of 8 hotels. He is preparing Thursday's management committee and has received a loose list of topics.",
+        "Mathieu est assistant du directeur général d'une chaîne de 8 hôtels. Il prépare le comité de direction du jeudi et a reçu une liste de sujets en vrac."),
+      before: B("Make an agenda for Thursday's management committee with: seminar budget, front desk hiring, Lille hotel works, CSR update.",
+        "Fais un ordre du jour pour le comité de direction de jeudi avec : budget séminaire, recrutement réception, travaux hôtel de Lille, point RSE."),
+      after: B("You are an executive assistant. Turn this list of topics into an agenda of decisions for a one-hour management committee.\nTopics: seminar budget, Lille front desk hiring, Lille hotel works, CSR update.\nFor each topic:\n- write the question to settle, phrased so it is answered by a choice (yes/no, A or B, an amount)\n- who decides, by role: CEO, CFO, operations director\n- how many minutes\nIf a topic calls for no decision, remove it and write instead a 5-line note to send beforehand.\nThe total must not exceed 50 minutes.\nIf you do not know which decision is expected, write the question I should ask the CEO.",
+        "Tu es assistant de direction. Transforme cette liste de sujets en ordre du jour de décisions pour un comité de direction d'une heure.\nSujets : budget séminaire, recrutement réception Lille, travaux hôtel de Lille, point RSE.\nPour chaque sujet :\n- écris la question à trancher, formulée pour qu'on y réponde par un choix (oui/non, A ou B, un montant)\n- qui tranche, par son rôle : DG, DAF, directrice des opérations\n- combien de minutes\nSi un sujet n'appelle aucune décision, retire-le et rédige à la place une note de 5 lignes à envoyer avant.\nLe total ne doit pas dépasser 50 minutes.\nSi tu ne sais pas quelle décision est attendue, écris la question que je dois poser au DG."),
+      takeaway: B("\"Lille works\" can last an hour. \"Do we accept the plumber's quote or ask for another?\" is settled in ten minutes. The CSR update, with no decision in it, becomes a note read before the meeting.",
+        "« Travaux de Lille » peut durer une heure. « On accepte le devis du plombier ou on en demande un autre ? » se tranche en dix minutes. Le point RSE, sans décision, devient une note lue avant la réunion."),
+    },
+    exercise: {
+      goal: B("The agenda of your next meeting, where each line is a question with who decides and how many minutes, ready to send the day before.",
+        "L'ordre du jour de ta prochaine réunion, où chaque ligne est une question avec qui tranche et combien de minutes, prêt à partir la veille."),
+      prompt: B("You are an executive assistant. Here are the topics planned for the [MEETING NAME] on [DATE], length [DURATION]:\n[PASTE THE LIST OF TOPICS, WITH THE CONTEXT YOU KNOW]\nFor each topic:\n1. Write the question to settle, answered by a choice (yes/no, A or B, a date, an amount).\n2. Say who decides (a name or a role, one person only).\n3. Give a duration in minutes.\nIf a topic calls for no decision, take it off the agenda and write a written note of 5 lines maximum to send with it.\nIf you cannot guess the expected decision, write the question I should ask the organiser.\nThe total must leave 10 minutes of margin.\nEnd with the email to send the day before, 5 lines maximum.",
+        "Tu es assistant de direction. Voici les sujets prévus pour la réunion [NOM DE LA RÉUNION] du [DATE], durée [DURÉE] :\n[COLLE LA LISTE DES SUJETS, AVEC LE CONTEXTE QUE TU CONNAIS]\nPour chaque sujet :\n1. Écris la question à trancher, qui se répond par un choix (oui/non, A ou B, une date, un montant).\n2. Indique qui tranche (un nom ou un rôle, une seule personne).\n3. Donne une durée en minutes.\nSi un sujet n'appelle aucune décision, sors-le de l'ordre du jour et rédige une note écrite de 5 lignes maximum à envoyer avec.\nSi tu ne peux pas deviner la décision attendue, écris la question que je dois poser à l'organisateur.\nLe total doit laisser 10 minutes de marge.\nTermine par le mail d'envoi, à envoyer la veille, 5 lignes maximum."),
+      check: [
+        B("Each line ends with a question mark", "Chaque ligne finit par un point d'interrogation"),
+        B("Each question has one single person who decides", "Chaque question a une seule personne qui tranche"),
+        B("Topics with no decision are out and go as a written note", "Les sujets sans décision sont sortis et partent en note écrite"),
+        B("The total minutes leave a margin before the end", "Le total des minutes laisse une marge avant la fin"),
+      ],
+      bonus: B("After the meeting, paste the agenda and your notes. Ask which questions stayed unanswered: they open the next agenda, at the top.",
+        "Après la réunion, colle l'ordre du jour et tes notes. Demande quelles questions sont restées sans réponse : elles ouvrent le prochain ordre du jour, en premier."),
+    },
+    more: [
+      {
+        q: B("Your line says \"Update on the trade show\". Which version gets a decision?",
+          "Ta ligne dit « Point sur le salon professionnel ». Quelle version fait décider ?"),
+        options: [
+          B("\"Trade show: update and presentation by Julie (15 min)\"", "« Salon pro : point et présentation par Julie (15 min) »"),
+          B("\"9 or 18 m² stand? Julie decides, 10 min\"", "« Stand de 9 ou 18 m² ? Julie tranche, 10 min »"),
+          B("\"Trade show: round table\"", "« Salon pro : tour de table »"),
+        ],
+        answer: 1,
+        why: B("A presentation or a round table has no end. A question with two options and one person who decides stops as soon as it has its answer.",
+          "Une présentation ou un tour de table n'ont pas de fin. Une question avec deux options et une personne qui tranche s'arrête dès qu'elle a sa réponse."),
+      },
+      {
+        q: B("One topic is \"Quarterly results, for information\". What do you do with it?",
+          "Un sujet est « Résultats du trimestre, pour information ». Qu'en fais-tu ?"),
+        options: [
+          B("Give it 20 minutes at the start", "Tu lui donnes 20 minutes en début de réunion"),
+          B("Put it last, if there is time left", "Tu le mets en dernier, s'il reste du temps"),
+          B("Send it in writing, off the agenda", "Tu l'envoies par écrit, hors ordre du jour"),
+        ],
+        answer: 2,
+        why: B("Information is read in two minutes and needs nobody else to be understood. Reading it out in the meeting takes the time the decisions needed.",
+          "Une information se lit en deux minutes et n'a besoin de personne pour être comprise. La lire à voix haute en réunion prend le temps des décisions."),
+      },
+    ],
+  },
+
+  'as-flow/as-minutes': {
+    why: [
+      B("If you write down everything during the meeting, you stop listening, and the four decisions drown in an hour of talk. Note only two things live: what was decided, and who owns it. Before the end, read the decisions out loud. Corrections take ten seconds while everyone is still there.",
+        "Si tu écris tout pendant la réunion, tu cesses d'écouter, et les quatre décisions se noient dans une heure de parole. Ne note que deux choses en direct : ce qui a été décidé, et qui le porte. Avant la fin, relis les décisions à voix haute. Une correction prend dix secondes tant que tout le monde est là."),
+      B("Afterwards, the model expands your notes into a clean record. Tell it to use your notes only. Otherwise it fills the gaps with something plausible: a deadline nobody gave, an owner nobody named. Ask for \"to be set\" wherever something is missing, so the gap stays visible.",
+        "Ensuite, le modèle développe tes notes en un compte rendu propre. Dis-lui de n'utiliser que tes notes. Sinon, il comble les trous avec du plausible : une échéance que personne n'a donnée, un responsable que personne n'a nommé. Demande « à fixer » partout où il manque quelque chose, pour que le trou reste visible."),
+      B("An automatic transcript does not replace your notes. In a long transcript, \"we could hire an intern\" and \"we will hire an intern\" look alike, and a model can take an idea for a decision. Your notes, confirmed in the room, are the reference.",
+        "Une transcription automatique ne remplace pas tes notes. Dans une longue transcription, « on pourrait prendre un stagiaire » et « on prend un stagiaire » se ressemblent, et un modèle peut prendre une idée pour une décision. Tes notes, confirmées dans la salle, font référence."),
+    ],
+    example: {
+      context: B("Chloé is an assistant in a real estate agency. She takes the notes at the Monday team meeting and has written five lines in her notebook.",
+        "Chloé est assistante dans une agence immobilière. Elle prend les notes de la réunion d'équipe du lundi et a écrit cinq lignes dans son carnet."),
+      before: B("Write me a report of this morning's team meeting.",
+        "Fais-moi un compte rendu de la réunion d'équipe de ce matin."),
+      after: B("Here are my notes from Monday's team meeting (7 people). These are the decisions read out loud at the end:\n- Victor-Hugo street listing: price cut proposed to the seller, Karim calls on Wednesday\n- professional photos for properties over 400k: yes, Chloé gets 2 quotes by Friday\n- Saturday shifts: November schedule done by Sophie\n- shop window: postponed to next meeting\nWrite the report from these notes only:\n1. Decisions (table: decision | owner | deadline)\n2. Postponed (with the reason if I noted it)\nAdd no decision, no name, no date. If a deadline is missing, write \"to be set\".\nNeutral tone, 1 page max, ready to send to the team.",
+        "Voici mes notes de la réunion d'équipe de ce lundi (7 personnes). Ce sont les décisions relues à voix haute en fin de réunion :\n- mandat rue Victor-Hugo : baisse de prix proposée au vendeur, Karim appelle mercredi\n- photos pro pour les biens de plus de 400 000 euros : oui, Chloé demande 2 devis d'ici vendredi\n- permanences du samedi : planning de novembre fait par Sophie\n- vitrine : reportée à la prochaine réunion\nRédige le compte rendu à partir de ces notes uniquement :\n1. Décisions (tableau : décision | responsable | échéance)\n2. Reporté (avec la raison si je l'ai notée)\nN'ajoute aucune décision, aucun nom, aucune date. S'il manque une échéance, écris « à fixer ».\nTon neutre, 1 page maximum, prêt à envoyer à l'équipe."),
+      takeaway: B("The first prompt has nothing to read, so the model invents a meeting. The second starts from decisions confirmed in the room: it formats them, and flags what is missing (Sophie's deadline) instead of filling it in.",
+        "Le premier prompt n'a rien à lire, donc le modèle invente une réunion. Le second part des décisions confirmées dans la salle : il les met en forme, et signale ce qui manque (l'échéance de Sophie) au lieu de le combler."),
+    },
+    exercise: {
+      goal: B("The report of your next meeting, sent within the hour, built only from your notes of the decisions.",
+        "Le compte rendu de ta prochaine réunion, envoyé dans l'heure, construit à partir de tes seules notes de décisions."),
+      prompt: B("You are an executive assistant. Here are my notes from the [NAME] meeting on [DATE], with [PARTICIPANTS].\nI noted only the decisions and their owners, read out loud at the end of the meeting:\n[PASTE YOUR NOTES]\nWrite the report from these notes only:\n1. A table: decision | owner | deadline\n2. Postponed items, with the reason if I noted it\n3. Open questions, if any\nRules: add no decision, no name, no date. If an owner or a deadline is missing, write \"to be set\" in bold.\nNeutral tone, one page maximum.\nEnd with a 3-line cover email asking people to flag any error before [DEADLINE].",
+        "Tu es assistant de direction. Voici mes notes de la réunion [NOM] du [DATE], avec [PARTICIPANTS].\nJ'ai noté uniquement les décisions et leurs responsables, relues à voix haute en fin de réunion :\n[COLLE TES NOTES]\nRédige le compte rendu à partir de ces notes uniquement :\n1. Un tableau : décision | responsable | échéance\n2. Les points reportés, avec la raison si je l'ai notée\n3. Les questions ouvertes, s'il y en a\nRègles : n'ajoute aucune décision, aucun nom, aucune date. S'il manque un responsable ou une échéance, écris « à fixer » en gras.\nTon neutre, une page maximum.\nTermine par un mail d'envoi de 3 lignes qui demande de signaler une erreur avant le [DATE LIMITE]."),
+      check: [
+        B("Every decision in the report is in your notes", "Chaque décision du compte rendu figure dans tes notes"),
+        B("Every decision has an owner, or says \"to be set\"", "Chaque décision a un responsable, ou la mention « à fixer »"),
+        B("The report went out the same day", "Le compte rendu est parti le jour même"),
+        B("You chased each \"to be set\" with the right person", "Tu as relancé chaque « à fixer » auprès de la bonne personne"),
+      ],
+      bonus: B("If your meeting is transcribed and your company allows it, compare: ask the model for the decisions from the transcript, then set them against your notes. Note every idea it took for a decision.",
+        "Si ta réunion est transcrite et que ton entreprise l'autorise, compare : demande au modèle les décisions à partir de la transcription, puis mets-les face à tes notes. Note chaque idée qu'il a prise pour une décision."),
+    },
+    more: [
+      {
+        q: B("The report says \"Decision: hire an intern\". In the meeting, someone only said \"we could\". What happened?",
+          "Le compte rendu dit « Décision : prendre un stagiaire ». En réunion, on a seulement dit « on pourrait ». Que s'est-il passé ?"),
+        options: [
+          B("It took an idea for a decision", "Il a pris une idée pour une décision"),
+          B("The transcript was of poor quality", "La transcription était de mauvaise qualité"),
+          B("The intern was approved later on", "Le stagiaire a été validé plus tard"),
+        ],
+        answer: 0,
+        why: B("In an hour of talk, \"we could\" and \"we will\" look alike. Your notes of the decisions read out at the end are the only reliable source: the report starts from them.",
+          "Dans une heure de parole, « on pourrait » et « on fait » se ressemblent. Tes notes des décisions relues en fin de réunion sont la seule source fiable : le compte rendu part d'elles."),
+      },
+      {
+        q: B("A decision has no owner in your notes. What should the report say?",
+          "Une décision n'a pas de responsable dans tes notes. Que doit écrire le compte rendu ?"),
+        options: [
+          B("The name of whoever raised it first", "Le nom de la personne qui l'a proposée"),
+          B("\"To be set\", clearly visible", "« À fixer », bien visible"),
+          B("Nothing: drop the decision", "Rien : on retire la décision"),
+        ],
+        answer: 1,
+        why: B("A decision with no owner will not be carried out. A visible \"to be set\" forces someone to take it. A guessed name puts the task on someone who never accepted it.",
+          "Une décision sans responsable ne sera pas faite. Un « à fixer » visible oblige quelqu'un à la prendre. Un nom deviné met la tâche sur quelqu'un qui ne l'a jamais acceptée."),
+      },
+    ],
+  },
+
+  /* ================================================================ */
+  /* ASSISTANT · LES DOCUMENTS                                        */
+  /* ================================================================ */
+
+  'as-docs/as-extract': {
+    why: [
+      B("When a model fills a field, it writes the most likely value. An empty field is unusual text, so it tends to put something plausible there: a 30-day due date, a standard amount. That value then looks exactly like the ones it really read.",
+        "Quand un modèle remplit un champ, il écrit la valeur la plus probable. Un champ vide est un texte inhabituel, alors il a tendance à y mettre quelque chose de plausible : une échéance à 30 jours, un montant standard. Cette valeur ressemble ensuite trait pour trait à celles qu'il a vraiment lues."),
+      B("So give it the right to say nothing. Name the fields, give the expected format, and demand the word \"absent\" when the information is not written. Also ask where each value was read (page or section): you can then check any line in a few seconds.",
+        "Donne-lui donc le droit de ne rien dire. Nomme les champs, donne le format attendu, et exige le mot « absent » quand l'information n'est pas écrite. Demande aussi où chaque valeur a été lue (page ou section) : tu peux alors vérifier n'importe quelle ligne en quelques secondes."),
+      B("Check three documents by hand before trusting the rest. If those three are right, field by field, your list of fields is understood. If one is wrong, fix the prompt now, not once two hundred lines depend on it.",
+        "Vérifie trois documents à la main avant de croire les autres. Si ces trois-là sont justes, champ par champ, ta liste de champs est comprise. Si l'un est faux, corrige le prompt maintenant, pas quand deux cents lignes en dépendront."),
+    ],
+    example: {
+      context: B("Nadia, executive assistant in an architecture firm, must record the key data of 40 subcontractor contracts before an audit.",
+        "Nadia, assistante de direction dans un cabinet d'architectes, doit relever les informations clés de 40 contrats de sous-traitants avant un audit."),
+      before: B("Extract the important information from these contracts.",
+        "Extrais les infos importantes de ces contrats."),
+      after: B("You extract information from subcontracting contracts. For EACH contract, fill in these fields and nothing else:\n- subcontractor: company name as written\n- purpose: 10 words maximum\n- amount excl. VAT: number in euros, as written\n- signature date: DD/MM/YYYY\n- end date: DD/MM/YYYY\n- insurance certificate attached: yes / no\nIf a piece of information is not written in the contract, write \"absent\". Deduce nothing, calculate nothing, complete nothing.\nFor each value, give the page where you read it.\nAnswer with a table, one row per contract.",
+        "Tu extrais des informations de contrats de sous-traitance. Pour CHAQUE contrat, remplis ces champs, et rien d'autre :\n- sous-traitant : raison sociale telle qu'écrite\n- objet : 10 mots maximum\n- montant HT : nombre en euros, tel qu'écrit\n- date de signature : JJ/MM/AAAA\n- date de fin : JJ/MM/AAAA\n- attestation d'assurance jointe : oui / non\nSi une information n'est pas écrite dans le contrat, écris « absent ». Ne déduis rien, ne calcule rien, ne complète rien.\nPour chaque valeur, indique la page où tu l'as lue.\nRéponds par un tableau, une ligne par contrat."),
+      takeaway: B("\"Important information\" lets the model choose and fill in. Named fields, a format and the word \"absent\" make every gap visible. With the page given, Nadia checks any value in seconds.",
+        "« Infos importantes » laisse le modèle choisir et compléter. Des champs nommés, un format et le mot « absent » rendent chaque trou visible. Avec la page citée, Nadia vérifie une valeur en quelques secondes."),
+    },
+    exercise: {
+      goal: B("A clean table drawn from at least five of your real documents (invoices, contracts, quotes, order forms), gaps marked \"absent\" and three rows checked by hand.",
+        "Un tableau propre tiré d'au moins cinq de tes vrais documents (factures, contrats, devis, bons de commande), les trous marqués « absent » et trois lignes vérifiées à la main."),
+      prompt: B("You extract information from [TYPE OF DOCUMENTS: invoices, contracts, quotes...].\nFor each document, fill in only these fields:\n[FIELD 1]: [EXPECTED FORMAT, e.g. DD/MM/YYYY]\n[FIELD 2]: [EXPECTED FORMAT]\n[FIELD 3]: [EXPECTED FORMAT]\nRules:\n- if the information is not written in the document, write \"absent\"\n- deduce nothing, calculate nothing, never reuse a value from another document\n- for each value, say where you read it (page or section)\nAnswer with a table: document | one column per field.\nAt the end, list the documents with at least one \"absent\".",
+        "Tu extrais des informations de [TYPE DE DOCUMENTS : factures, contrats, devis...].\nPour chaque document, remplis uniquement ces champs :\n[CHAMP 1] : [FORMAT ATTENDU, par exemple JJ/MM/AAAA]\n[CHAMP 2] : [FORMAT ATTENDU]\n[CHAMP 3] : [FORMAT ATTENDU]\nRègles :\n- si l'information n'est pas écrite dans le document, écris « absent »\n- ne déduis rien, ne calcule rien, ne reprends jamais une valeur d'un autre document\n- pour chaque valeur, indique où tu l'as lue (page ou section)\nRéponds par un tableau : document | une colonne par champ.\nÀ la fin, liste les documents qui ont au moins un « absent »."),
+      check: [
+        B("You checked three documents by hand, field by field", "Tu as vérifié trois documents à la main, champ par champ"),
+        B("Each \"absent\" matches a real gap in the document", "Chaque « absent » correspond à un vrai trou dans le document"),
+        B("No value is calculated or deduced, even if it looks right", "Aucune valeur n'est calculée ou déduite, même si elle paraît juste"),
+        B("You removed any personal data you are not allowed to give the tool", "Tu as retiré les données personnelles que tu n'as pas le droit de confier à l'outil"),
+      ],
+      bonus: B("Slip in on purpose a document with a missing date. If the table does not say \"absent\" there, your prompt still lets guesses through: make the rule stronger and run it again.",
+        "Glisse exprès un document où il manque une date. Si le tableau ne dit pas « absent » à cet endroit, ton prompt laisse encore passer des suppositions : renforce la règle et recommence."),
+    },
+    more: [
+      {
+        q: B("An invoice shows no due date. The model writes \"30 days\". What do you do?",
+          "Une facture n'affiche pas d'échéance. Le modèle écrit « 30 jours ». Que fais-tu ?"),
+        options: [
+          B("Keep it, it is the usual term", "Tu gardes, c'est le délai habituel"),
+          B("Add: \"if missing, write absent\"", "Tu ajoutes : « si absent, écris absent »"),
+          B("Work out the due date yourself", "Tu calcules toi-même l'échéance"),
+        ],
+        answer: 1,
+        why: B("\"30 days\" is plausible, so nobody will ever check it. If the due date is missing, the supplier has to state it, and your table must show that it is missing.",
+          "« 30 jours » est plausible, donc personne ne le vérifiera jamais. Si l'échéance manque, c'est au fournisseur de la préciser, et ton tableau doit montrer qu'elle manque."),
+      },
+      {
+        q: B("You run the extraction on 150 CVs. What do you do before using the table?",
+          "Tu lances l'extraction sur 150 CV. Que fais-tu avant d'utiliser le tableau ?"),
+        options: [
+          B("Ask the model whether it is sure", "Tu demandes au modèle s'il est sûr de lui"),
+          B("Run the extraction a second time", "Tu relances l'extraction une deuxième fois"),
+          B("Check three CVs by hand", "Tu vérifies trois CV à la main"),
+        ],
+        answer: 2,
+        why: B("The model will always say it is sure, and a second run can repeat the same mistake. Three documents checked by hand show whether your fields are understood, before 150 rows depend on them.",
+          "Le modèle se dira toujours sûr, et une deuxième passe peut refaire la même erreur. Trois documents vérifiés à la main montrent si tes champs sont compris, avant que 150 lignes en dépendent."),
+      },
+    ],
+  },
+
+  'as-docs/as-table': {
+    why: [
+      B("Free text cannot be counted. \"Appt\", \"appointment\" and \"booking for vaccine\" are three spellings of one thing, and a count by label gives three small numbers instead of one big one. Your manager's question, why do people call, stays unanswered.",
+        "Du texte libre ne se compte pas. « RDV », « rendez-vous » et « prise de RDV vaccin » sont trois orthographes d'une seule chose, et un comptage par étiquette donne trois petits chiffres au lieu d'un gros. La question de ton responsable, pourquoi les gens appellent, reste sans réponse."),
+      B("A closed list forces the model to choose among values you set. Asking it to copy them exactly makes every cell countable. Add one value, \"other\", with five words to say what it is: the model no longer needs to invent a label when a line does not fit.",
+        "Une liste fermée oblige le modèle à choisir parmi des valeurs que tu as fixées. Lui demander de les recopier à l'identique rend chaque cellule comptable. Ajoute une valeur « autre », avec cinq mots pour dire ce que c'est : le modèle n'a plus besoin d'inventer une étiquette quand une ligne ne rentre pas."),
+      B("\"Other\" is your alarm. If it gets large, a real category exists that your list did not name. Fix the list and run it again. Renaming rows one by one fixes this table, but not next month's.",
+        "« Autre » est ton signal d'alarme. S'il grossit, une vraie catégorie existe que ta liste n'a pas nommée. Corrige la liste et relance. Renommer les lignes une à une répare ce tableau-ci, mais pas celui du mois prochain."),
+    ],
+    example: {
+      context: B("Élise works at the front desk of a veterinary clinic. She has three months of call notes in free text. Her manager wants to know why people call.",
+        "Élise travaille à l'accueil d'une clinique vétérinaire. Elle a trois mois de notes d'appels en texte libre. Son responsable veut savoir pourquoi les gens appellent."),
+      before: B("Sort these call notes and tell me what comes up most.",
+        "Classe ces notes d'appels et dis-moi ce qui revient le plus."),
+      after: B("Here are 20 notes of calls received at the front desk, one per line (names removed).\nTurn them into a table with these columns:\n- reason: ONE value among: appointment | test result | emergency | invoice | medication | other\n- species: dog | cat | small pet | unknown\n- callback needed: yes | no\n- if reason = other: 5 words saying what it is about\nInvent no other value. No synonyms, no plurals: copy the values exactly as listed.\nAt the end, count the rows for each reason.",
+        "Voici 20 notes d'appels reçus à l'accueil, une par ligne (noms retirés).\nTransforme-les en tableau avec ces colonnes :\n- motif : UNE valeur parmi : rendez-vous | résultat d'analyse | urgence | facture | médicament | autre\n- espèce : chien | chat | NAC | inconnu\n- rappel nécessaire : oui | non\n- si motif = autre : 5 mots pour dire de quoi il s'agit\nN'invente aucune autre valeur. Pas de synonymes, pas de pluriels : recopie les valeurs exactement comme dans la liste.\nÀ la fin, compte le nombre de lignes par motif."),
+      takeaway: B("Without a closed list, you get \"appt\", \"appointment\" and \"vaccine booking\": three rows for one thing. Here every row can be counted, and the \"other\" column shows what the list forgot.",
+        "Sans liste fermée, on obtient « RDV », « rendez-vous » et « rdv vaccin » : trois lignes pour une même chose. Ici, chaque ligne se compte, et la colonne « autre » montre ce que la liste a oublié."),
+    },
+    exercise: {
+      goal: B("A twenty-row table drawn from your own free text (requests, customer feedback, notes), with closed-value columns and a count per category.",
+        "Un tableau de vingt lignes tiré de ton propre texte libre (demandes, retours clients, notes), avec des colonnes à valeurs fermées et un décompte par catégorie."),
+      prompt: B("You turn free text into a table I can count.\nHere are [NUMBER] lines of [KIND OF TEXT: internal requests, customer feedback, call notes...]:\n[PASTE THE LINES]\nColumns, with the ONLY allowed values:\n- [COLUMN 1]: [VALUE A] | [VALUE B] | [VALUE C] | other\n- [COLUMN 2]: [ALLOWED VALUES]\n- detail: if you chose \"other\", 5 words saying what it is\nCopy the values exactly as written in the list, with no synonym or plural.\nAt the end:\n1. the number of rows for each value\n2. if \"other\" is above 15% of the rows, suggest the category or categories missing from my list.",
+        "Tu transformes du texte libre en tableau que je pourrai compter.\nVoici [NOMBRE] lignes de [NATURE DU TEXTE : demandes internes, retours clients, notes d'appels...] :\n[COLLE LES LIGNES]\nColonnes, avec les SEULES valeurs permises :\n- [COLONNE 1] : [VALEUR A] | [VALEUR B] | [VALEUR C] | autre\n- [COLONNE 2] : [VALEURS PERMISES]\n- précision : si tu as choisi « autre », 5 mots pour dire ce que c'est\nRecopie les valeurs exactement comme dans la liste, sans synonyme ni pluriel.\nÀ la fin :\n1. le nombre de lignes par valeur\n2. si « autre » dépasse 15 % des lignes, propose la ou les catégories qui manquent à ma liste."),
+      check: [
+        B("Each cell holds a value from your list, spelled exactly the same", "Chaque cellule contient une valeur de ta liste, écrite à l'identique"),
+        B("You read every row filed under \"other\"", "Tu as lu toutes les lignes classées « autre »"),
+        B("If \"other\" was large, you fixed the list, then ran it again", "Si « autre » était gros, tu as corrigé la liste, puis relancé"),
+        B("The final count matches the number of lines you pasted", "Le décompte final correspond au nombre de lignes collées"),
+      ],
+      bonus: B("Paste the table into your spreadsheet and build a pivot table, for example reason by month. Notes nobody read have become a number your manager can follow.",
+        "Colle le tableau dans ton tableur et fais un tableau croisé dynamique, par exemple motif par mois. Des notes que personne ne lisait sont devenues un chiffre que ton responsable peut suivre."),
+    },
+    more: [
+      {
+        q: B("Your table has \"appt\", \"appointment\" and \"booking\". What do you fix?",
+          "Ton tableau contient « RDV », « rendez-vous » et « prise de RDV ». Que corriges-tu ?"),
+        options: [
+          B("Rename the rows one by one", "Tu renommes les lignes une par une"),
+          B("Set a closed list of values, then rerun", "Tu imposes une liste fermée, puis tu relances"),
+          B("Ask the model to be more consistent overall", "Tu demandes au modèle d'être plus cohérent"),
+        ],
+        answer: 1,
+        why: B("Renaming by hand repairs this table, not the next one. A closed list in the prompt prevents the problem every time, and your table stays comparable from one month to the next.",
+          "Renommer à la main répare ce tableau-ci, pas le prochain. Une liste fermée dans le prompt empêche le problème à chaque fois, et ton tableau reste comparable d'un mois à l'autre."),
+      },
+      {
+        q: B("You read the \"other\" rows: 8 out of 30 are quote requests. What do you do?",
+          "Tu lis les lignes « autre » : 8 sur 30 sont des demandes de devis. Que fais-tu ?"),
+        options: [
+          B("Add \"quote\" to the list and rerun", "Tu ajoutes « devis » à la liste et tu relances"),
+          B("Leave it, that is what other is for", "Tu laisses, « autre » est fait pour ça"),
+          B("Delete those rows from the table", "Tu supprimes ces lignes du tableau"),
+        ],
+        answer: 0,
+        why: B("Eight rows out of thirty is a real category your list did not name. Add it: it is the only way to count it.",
+          "Huit lignes sur trente, c'est une vraie catégorie que ta liste ne nommait pas. Ajoute-la : c'est le seul moyen de la compter."),
+      },
+    ],
+  },
+
+  'as-docs/as-template': {
+    why: [
+      B("What never changes in a document you keep retyping is already written, three times, in your past versions. A model compares texts well: give it three and it separates what is identical from what changes. The identical parts become the fixed text, the rest become named blanks.",
+        "Ce qui ne change jamais dans un document que tu retapes est déjà écrit, trois fois, dans tes versions passées. Un modèle compare bien des textes : donne-lui-en trois et il sépare ce qui est identique de ce qui change. Les parties identiques deviennent le texte fixe, le reste devient des blancs nommés."),
+      B("A blank named [MANAGER] still leaves room for guessing: full name or first name? job title? Put an example in each blank, and keep one fully filled example next to the template. People copy what they see more faithfully than they follow instructions. Models do too: that is the idea behind few-shot.",
+        "Un blanc nommé [MANAGER] laisse encore deviner : nom complet ou prénom ? avec le poste ? Mets un exemple dans chaque blanc, et garde un exemple entièrement rempli à côté du modèle. Les gens copient ce qu'ils voient plus fidèlement qu'ils ne suivent une notice. Les modèles aussi : c'est l'idée du few-shot."),
+      B("Start from your own versions, not from \"make me a template\". The model then keeps your phrasing, your sections and what your colleagues are used to reading, instead of producing an average document nobody recognises.",
+        "Pars de tes propres versions, pas de « fais-moi un modèle ». Le modèle garde alors tes formulations, tes rubriques et ce que tes collègues ont l'habitude de lire, au lieu de produire un document moyen que personne ne reconnaît."),
+    ],
+    example: {
+      context: B("Sandrine, executive assistant in an 80-person manufacturing company, writes a welcome email for every new hire: hours, badge, parking, first day. Two a month, never the same way.",
+        "Sandrine, assistante de direction dans une PME industrielle de 80 personnes, écrit un mail d'accueil à chaque arrivée : horaires, badge, parking, premier jour. Deux par mois, jamais de la même façon."),
+      before: B("Make me a welcome email template for new employees.",
+        "Fais-moi un modèle de mail d'accueil pour les nouveaux salariés."),
+      after: B("Here are three welcome emails I sent to new employees in recent months:\n(email 1)\n(email 2)\n(email 3)\n1. List what is identical or nearly so in all three: this will be the fixed text of the template.\n2. List what changes from one email to another: these become blanks named in CAPITALS in square brackets, for example [MANAGER NAME].\n3. Write the template.\n4. Next to it, write a filled example for a fictional new hire: Lucas, maintenance technician, starting on a Monday at 8 am.",
+        "Voici trois mails d'accueil que j'ai envoyés à de nouveaux salariés ces derniers mois :\n(mail 1)\n(mail 2)\n(mail 3)\n1. Liste ce qui est identique ou presque dans les trois : ce sera le texte fixe du modèle.\n2. Liste ce qui change d'un mail à l'autre : ce seront des blancs nommés en MAJUSCULES entre crochets, par exemple [NOM DU MANAGER].\n3. Écris le modèle.\n4. À côté, écris un exemple rempli pour un arrivant fictif : Lucas, technicien de maintenance, qui arrive un lundi à 8 h."),
+      takeaway: B("The first prompt invents a generic welcome email. The second starts from Sandrine's real emails: the model keeps her phrasing, leaves blank only what changes, and provides the example her colleagues will copy.",
+        "Le premier prompt invente un mail d'accueil générique. Le second part des vrais mails de Sandrine : le modèle garde ses formulations, ne laisse en blanc que ce qui change, et fournit l'exemple que ses collègues copieront."),
+    },
+    exercise: {
+      goal: B("A template for a document you often retype, with named blanks and a filled example, stored where you find it in ten seconds.",
+        "Un modèle de document que tu retapes souvent, avec ses blancs nommés et un exemple rempli, rangé là où tu le retrouves en dix secondes."),
+      prompt: B("You are an executive assistant. Here are 3 past versions of a document I often write: [TYPE OF DOCUMENT].\nVersion 1:\n[PASTE]\nVersion 2:\n[PASTE]\nVersion 3:\n[PASTE]\n1. List what is identical in the three versions: this will be the fixed text.\n2. List what changes: each item becomes a blank named in capitals in square brackets, with an example in brackets.\n3. Write the full template.\n4. Write a filled example, realistic, for a fictional case.\n5. Point out the parts that change for no reason from one version to another (greetings, order of paragraphs): propose a single version for each.\nKeep my phrasing. Add no section I did not have.",
+        "Tu es assistant de direction. Voici 3 versions passées d'un document que je rédige souvent : [TYPE DE DOCUMENT].\nVersion 1 :\n[COLLE]\nVersion 2 :\n[COLLE]\nVersion 3 :\n[COLLE]\n1. Liste ce qui est identique dans les trois versions : ce sera le texte fixe.\n2. Liste ce qui change : chaque élément devient un blanc nommé en majuscules entre crochets, avec un exemple entre parenthèses.\n3. Écris le modèle complet.\n4. Écris un exemple rempli, réaliste, pour un cas fictif.\n5. Signale les passages qui changent sans raison d'une version à l'autre (formules de politesse, ordre des paragraphes) : propose une seule version pour chacun.\nGarde mes formulations. N'ajoute aucune rubrique que je n'avais pas."),
+      check: [
+        B("Each blank has a clear name and an example in brackets", "Chaque blanc a un nom clair et un exemple entre parenthèses"),
+        B("The fixed text uses your phrasing, not the model's", "Le texte fixe reprend tes formulations, pas celles du modèle"),
+        B("A colleague can fill the template without asking you anything", "Un collègue peut remplir le modèle sans te poser de question"),
+        B("The filled example is stored right next to the template", "L'exemple rempli est rangé juste à côté du modèle"),
+      ],
+      bonus: B("Give the template and the example to a colleague, with no explanation. Note every question they ask you: each one points to a badly named blank or a missing example.",
+        "Donne le modèle et l'exemple à un collègue, sans explication. Note chaque question qu'il te pose : chacune signale un blanc mal nommé ou un exemple qui manque."),
+    },
+    more: [
+      {
+        q: B("Two colleagues fill in your template. One writes \"Monday 3rd\", the other \"03/11 at 9:00\". What is missing?",
+          "Deux collègues remplissent ton modèle. L'un écrit « lundi 3 », l'autre « 03/11 à 9h00 ». Que manque-t-il ?"),
+        options: [
+          B("A two-page guide on how to fill it", "Une notice de remplissage de deux pages"),
+          B("A finished example next to it", "Un exemple rempli à côté du modèle"),
+          B("An email reminder every time", "Un rappel par mail à chaque fois"),
+        ],
+        answer: 1,
+        why: B("Faced with a bare blank, everyone fills it their own way. A filled example shows the expected format at a glance, and people copy what they see.",
+          "Face à un blanc nu, chacun remplit à sa façon. Un exemple rempli montre le format attendu d'un coup d'oeil, et les gens copient ce qu'ils voient."),
+      },
+      {
+        q: B("You ask \"make me a meeting report template\" and provide nothing. What is the risk?",
+          "Tu demandes « fais-moi un modèle de compte rendu » sans rien fournir. Quel est le risque ?"),
+        options: [
+          B("A template too short to be useful", "Un modèle trop court pour servir"),
+          B("None, the model knows the formats", "Aucun, le modèle connaît les formats"),
+          B("Something generic, not yours", "Un document générique, pas le tien"),
+        ],
+        answer: 2,
+        why: B("Without your past versions, the model writes an average report. It loses your phrasing, your sections and what your team is used to reading. Three real examples give it all that.",
+          "Sans tes versions passées, le modèle écrit un compte rendu moyen. Il perd tes formulations, tes rubriques et ce que ton équipe a l'habitude de lire. Trois vrais exemples lui donnent tout ça."),
+      },
+    ],
+  },
+
+  /* ================================================================ */
+  /* ASSISTANT · LE TEMPS DES AUTRES                                  */
+  /* ================================================================ */
+
+  'as-time/as-schedule': {
+    why: [
+      B("Asking six people when they are free gets you six lists that do not overlap, and a second round of emails. Scheduling is a problem of constraints. Once the constraints are written down, one person can solve it: you, with the model.",
+        "Demander leurs disponibilités à six personnes te donne six listes qui ne se croisent pas, et un deuxième tour de mails. Caler une réunion, c'est un problème de contraintes. Une fois les contraintes écrites, une seule personne peut le résoudre : toi, avec le modèle."),
+      B("The key constraint is who must attend and who can miss it. Give it to the model, with the busy slots copied from calendars, travel and time zones. Ask for three slots, ranked, each with who it inconveniences. You can then send a decision with one fallback, instead of a question.",
+        "La contrainte clé, c'est qui doit être là et qui peut manquer. Donne-la au modèle, avec les créneaux pris copiés des agendas, les déplacements et les fuseaux horaires. Demande trois créneaux classés, chacun avec qui il dérange. Tu peux alors envoyer une décision avec un repli, au lieu d'une question."),
+      B("A model does not look at a calendar: it writes what is likely, and it can get a weekday wrong. Check every date and every weekday in your own calendar before sending. Trust the ranking, check the dates.",
+        "Un modèle ne regarde pas un calendrier : il écrit ce qui est probable, et il peut se tromper de jour de la semaine. Vérifie chaque date et chaque jour dans ton propre agenda avant d'envoyer. Fais confiance au classement, vérifie les dates."),
+    ],
+    example: {
+      context: B("Julie, assistant to the sales director of a retail group, must set up a 90-minute meeting with six people, including two regional directors.",
+        "Julie, assistante du directeur commercial d'un groupe de distribution, doit caler une réunion d'une heure trente avec six personnes, dont deux directeurs régionaux."),
+      before: B("When can I set up a meeting with 6 people next week?",
+        "Quand est-ce que je peux caler une réunion avec 6 personnes la semaine prochaine ?"),
+      after: B("I need to set up a 90-minute meeting next week.\nMust attend: Marc (sales director), Hélène (CFO), Yann (West regional director).\nNice to have, may be absent: Inès, Paul, Lina.\nConstraints:\n- Yann is on the road Monday and Tuesday; video call possible only after 5 pm on those days\n- Hélène: month-end closing until Wednesday noon, nothing before\n- Marc is busy all day Thursday\n- no meeting on Friday afternoon\nSuggest 3 slots, ranked. For each: who it inconveniences and why.\nThen write the invitation announcing slot 1 as a decision, with slot 2 as the fallback. Direct tone, between colleagues, 5 lines.",
+        "Je dois caler une réunion d'une heure trente la semaine prochaine.\nIndispensables : Marc (directeur commercial), Hélène (DAF), Yann (directeur régional Ouest).\nSouhaitables, peuvent être absents : Inès, Paul, Lina.\nContraintes :\n- Yann est en tournée lundi et mardi ; visio possible uniquement après 17 h ces jours-là\n- Hélène : clôture comptable jusqu'à mercredi midi, rien avant\n- Marc est pris toute la journée de jeudi\n- pas de réunion le vendredi après-midi\nPropose 3 créneaux classés. Pour chacun : qui il dérange et pourquoi.\nPuis écris l'invitation qui annonce le créneau n° 1 comme une décision, avec le n° 2 en repli. Ton direct, entre collègues, 5 lignes."),
+      takeaway: B("The first prompt gives no constraint, so the model can only suggest a poll. The second separates must-attend from nice-to-have: Julie sends a decision and, at worst, gets one objection.",
+        "Le premier prompt ne donne aucune contrainte, donc le modèle ne peut que conseiller un sondage. Le second sépare l'indispensable du souhaitable : Julie envoie une décision et reçoit, au pire, une seule objection."),
+    },
+    exercise: {
+      goal: B("Three ranked slots for your next hard-to-schedule meeting, and the invitation that announces the first one as a decision.",
+        "Trois créneaux classés pour ta prochaine réunion difficile à caler, et l'invitation qui annonce le premier comme une décision."),
+      prompt: B("You are an executive assistant. I need to schedule: [PURPOSE OF THE MEETING], length [DURATION], between [DATE] and [DATE].\nMust attend: [NAMES].\nNice to have, may miss it: [NAMES].\nKnown constraints: [TRAVEL, TIME ZONES, PART-TIME DAYS, FORBIDDEN SLOTS].\nBusy slots, copied from calendars: [LIST].\nSuggest 3 slots, ranked from best to worst. For each: the weekday AND the date, who it inconveniences, and why.\nUse only the information above. If a constraint is missing for you to decide, ask me.\nThen write the invitation: slot 1 announced as decided, slot 2 as the fallback, and a deadline to report a conflict. 5 lines maximum.",
+        "Tu es assistant de direction. Je dois caler : [OBJET DE LA RÉUNION], durée [DURÉE], entre le [DATE] et le [DATE].\nIndispensables : [NOMS].\nSouhaitables, peuvent manquer : [NOMS].\nContraintes connues : [DÉPLACEMENTS, FUSEAUX HORAIRES, TEMPS PARTIELS, CRÉNEAUX INTERDITS].\nCréneaux déjà pris, copiés des agendas : [LISTE].\nPropose 3 créneaux, classés du meilleur au moins bon. Pour chacun : le jour de la semaine ET la date, qui il dérange, et pourquoi.\nN'utilise que les informations ci-dessus. S'il te manque une contrainte pour trancher, pose-moi la question.\nPuis écris l'invitation : le créneau n° 1 annoncé comme décidé, le n° 2 en repli, et une date limite pour signaler un empêchement. 5 lignes maximum."),
+      check: [
+        B("You checked in your calendar that each date falls on the weekday given", "Tu as vérifié dans ton agenda que chaque date tombe bien le jour annoncé"),
+        B("Each slot says clearly who it inconveniences", "Chaque créneau dit clairement qui il dérange"),
+        B("Everyone who must attend is free on slot 1", "Tous les indispensables sont libres sur le créneau n° 1"),
+        B("The invitation announces a decision, not an open question", "L'invitation annonce une décision, pas une question ouverte"),
+      ],
+      bonus: B("Do the same exercise with people in two time zones, for example Paris and Montreal. Demand each person's local time in the invitation, and check it yourself.",
+        "Refais l'exercice avec des participants dans deux fuseaux horaires, par exemple Paris et Montréal. Exige l'heure locale de chacun dans l'invitation, et vérifie-la toi-même."),
+    },
+    more: [
+      {
+        q: B("The model suggests \"Thursday the 16th\". In your calendar, the 16th is a Friday. What do you take from it?",
+          "Le modèle propose « jeudi 16 ». Dans ton agenda, le 16 est un vendredi. Qu'en retiens-tu ?"),
+        options: [
+          B("Stop using AI for any scheduling at all", "Tu arrêtes d'utiliser l'IA pour tes agendas"),
+          B("Check every date before sending", "Tu vérifies chaque date avant d'envoyer"),
+          B("It is rare, send it anyway", "C'est rare, tu envoies quand même"),
+        ],
+        answer: 1,
+        why: B("A model can get a weekday wrong: it writes what is likely, it does not look at a calendar. The ranking stays useful, but every date is checked before it goes out.",
+          "Un modèle peut se tromper de jour : il écrit ce qui est probable, il ne consulte pas de calendrier. Le classement reste utile, mais chaque date se vérifie avant de partir."),
+      },
+      {
+        q: B("Lina cannot make any of the three slots. She is \"nice to have\". What do you do?",
+          "Lina ne peut sur aucun des trois créneaux. Elle est « souhaitable ». Que fais-tu ?"),
+        options: [
+          B("Run a whole new round of availability checks", "Tu relances un tour complet de disponibilités"),
+          B("Keep slot 1 and send her the minutes", "Tu gardes le n° 1 et tu lui envoies le compte rendu"),
+          B("Push it back by a week", "Tu décales d'une semaine"),
+        ],
+        answer: 1,
+        why: B("You said in advance who could miss it: this is exactly the case it was for. Reopening the question for an optional person restarts six calendars.",
+          "Tu as dit à l'avance qui pouvait manquer : c'est exactement pour ce cas. Rouvrir la question pour une personne facultative relance six agendas."),
+      },
+    ],
+  },
+
+  'as-time/as-voice': {
+    why: [
+      B("Ask for an email \"like my boss, professional\" and the model uses its own default voice: smooth, polite, a little long. People who know your boss notice it within two lines. The problem is not quality: the text is too polished to be theirs.",
+        "Demande un mail « comme mon patron, professionnel » et le modèle prend sa voix par défaut : lisse, polie, un peu longue. Ceux qui connaissent ton patron le remarquent en deux lignes. Le problème n'est pas la qualité : le texte est trop soigné pour être le sien."),
+      B("Five messages the person wrote themselves hold the real rules: how they open, how they sign off, how long they write, tu or vous, the words they use and the ones they never use. Ask the model to describe those rules without improving them. A short list of rules is easier to check than any draft.",
+        "Cinq messages écrits par la personne elle-même contiennent les vraies règles : comment elle ouvre, comment elle signe, la longueur, « tu » ou « vous », les mots qu'elle emploie et ceux qu'elle n'emploie jamais. Demande au modèle de décrire ces règles sans les améliorer. Une courte liste de règles se vérifie plus facilement qu'un brouillon."),
+      B("Have the person approve the rules once. Every message after that follows them, and you stop submitting drafts one by one. Writing for someone is honest when they agree and know you do it: the approved rules make that agreement clear.",
+        "Fais valider les règles une fois par la personne. Tous les messages suivants les respectent, et tu arrêtes de soumettre les brouillons un par un. Écrire pour quelqu'un est honnête quand il est d'accord et sait que tu le fais : les règles validées rendent cet accord clair."),
+    ],
+    example: {
+      context: B("Sophie is assistant to Bernard, who runs a family transport company. He asks her to answer his long-standing clients' emails for him.",
+        "Sophie est l'assistante de Bernard, dirigeant d'une entreprise familiale de transport. Il lui demande de répondre à sa place aux mails de ses clients historiques."),
+      before: B("Answer this client as if my boss were writing, in a professional way.",
+        "Réponds à ce client comme si c'était mon patron qui écrivait, de façon professionnelle."),
+      after: B("Here are 5 emails Bernard wrote himself to clients (not written by me):\n(the 5 emails)\nBefore writing anything, derive his writing rules:\n- how he opens and how he signs off\n- average length, in lines\n- tu or vous, depending on who\n- words and phrases he uses often, and those he never uses\n- his punctuation (exclamation marks, capitals, abbreviations)\nPresent these rules in 10 lines maximum. I will have Bernard approve them.\nDo not improve his style: describe it.",
+        "Voici 5 mails écrits par Bernard lui-même à des clients (pas par moi) :\n(les 5 mails)\nAvant d'écrire quoi que ce soit, tires-en ses règles d'écriture :\n- comment il ouvre et comment il signe\n- longueur moyenne, en lignes\n- tutoiement ou vouvoiement, selon qui\n- les mots et tournures qu'il emploie souvent, et ceux qu'il n'emploie jamais\n- sa ponctuation (points d'exclamation, majuscules, abréviations)\nPrésente ces règles en 10 lignes maximum. Je les ferai valider par Bernard.\nN'améliore pas son style : décris-le."),
+      takeaway: B("\"Professional\" gives the model's standard voice, which Bernard's clients spot at once. The second prompt starts from his real emails and produces rules Bernard approves once and for all.",
+        "« Professionnel » donne la voix standard du modèle, que les clients de Bernard repèrent tout de suite. Le second prompt part de ses vrais mails et produit des règles que Bernard valide une fois pour toutes."),
+    },
+    exercise: {
+      goal: B("The style sheet of the person you write for, approved by them, and a first message drafted with those rules.",
+        "La fiche de style de la personne pour qui tu écris, validée par elle, et un premier message rédigé avec ces règles."),
+      prompt: B("You help me write on behalf of [FIRST NAME, ROLE], with their agreement.\nHere are 5 messages this person wrote themselves:\n[PASTE THE 5 MESSAGES]\nStep 1: derive a style sheet of 10 lines maximum:\n- opening and sign-off\n- usual length\n- tu or vous, depending on the recipient\n- frequent words and phrases, and what this person never writes\n- punctuation and habits (abbreviations, capitals, emojis)\nDescribe the style, do not improve it.\nStep 2: wait until I tell you \"sheet approved\".\nStep 3: write the reply to this message, applying the sheet:\n[PASTE THE MESSAGE RECEIVED]",
+        "Tu m'aides à écrire au nom de [PRÉNOM, POSTE], avec son accord.\nVoici 5 messages écrits par cette personne elle-même :\n[COLLE LES 5 MESSAGES]\nÉtape 1 : tires-en une fiche de style de 10 lignes maximum :\n- ouverture et signature\n- longueur habituelle\n- tutoiement ou vouvoiement, selon les destinataires\n- mots et tournures fréquents, et ce que cette personne n'écrit jamais\n- ponctuation et habitudes (abréviations, majuscules, emojis)\nDécris son style, ne l'améliore pas.\nÉtape 2 : attends que je te dise « fiche validée ».\nÉtape 3 : écris la réponse à ce message en appliquant la fiche :\n[COLLE LE MESSAGE REÇU]"),
+      check: [
+        B("The 5 messages were written by the person, not by you", "Les 5 messages ont été écrits par la personne, pas par toi"),
+        B("The sheet describes and does not correct: the quirks are in it too", "La fiche décrit sans corriger : les manies de style y sont aussi"),
+        B("The person approved the sheet before your first message went out", "La personne a validé la fiche avant ton premier envoi"),
+        B("Your draft is the same length as their real messages", "Ton brouillon a la même longueur que ses vrais messages"),
+      ],
+      bonus: B("Mix your draft with two of their real messages and have a colleague who knows them well read all three. If they spot yours, ask how, and add that rule to the sheet.",
+        "Mélange ton brouillon avec deux de ses vrais messages et fais lire les trois à un collègue qui la connaît bien. S'il trouve le tien, demande-lui comment, et ajoute la règle à la fiche."),
+    },
+    more: [
+      {
+        q: B("Your director writes 2-line emails with no greeting. The model produces 8 careful lines. What do you do?",
+          "Ta directrice écrit des mails de 2 lignes, sans formule de politesse. Le modèle en fait 8, très soignées. Que fais-tu ?"),
+        options: [
+          B("Keep it, it is more professional", "Tu gardes, c'est plus professionnel"),
+          B("Add to the sheet: \"2 lines, no greeting\"", "Tu ajoutes à la fiche : « 2 lignes, pas de formule »"),
+          B("Ask the model to sound a lot more natural", "Tu demandes au modèle d'être plus naturel"),
+        ],
+        answer: 1,
+        why: B("An email that is too polished shows it is not hers. \"More natural\" stays vague. A precise rule, the length and no greeting, is followed in every message.",
+          "Un mail trop soigné montre que ce n'est pas elle. « Plus naturel » reste vague. Une règle précise, la longueur et l'absence de formule, se respecte à chaque message."),
+      },
+      {
+        q: B("Why use messages she wrote herself, and not the ones you wrote for her?",
+          "Pourquoi prendre des messages qu'elle a écrits elle-même, et pas ceux que tu as écrits pour elle ?"),
+        options: [
+          B("Yours carry your voice, not hers", "Les tiens portent ta voix, pas la sienne"),
+          B("Hers are usually the more recent ones", "Les siens sont en général plus récents"),
+          B("Hers are better written", "Les siens sont mieux écrits"),
+        ],
+        answer: 0,
+        why: B("If you start from your own drafts, the sheet describes your style. Only her own messages hold her real habits.",
+          "Si tu pars de tes propres brouillons, la fiche décrit ton style. Seuls ses messages à elle contiennent ses vraies habitudes."),
+      },
+    ],
+  },
+
+  'as-time/as-never': {
+    why: [
+      B("When you paste a document into an AI tool, it leaves your computer and goes to the provider's servers. What happens next depends on the tool, your account and its settings: some keep conversations, some can use them to improve their models. Personal data about other people is also covered by the GDPR.",
+        "Quand tu colles un document dans un outil IA, il quitte ton ordinateur et part sur les serveurs du provider. La suite dépend de l'outil, de ton compte et de ses réglages : certains gardent les conversations, certains peuvent s'en servir pour améliorer leurs modèles. Les données personnelles des autres relèvent en plus du RGPD."),
+      B("Draw the line in advance, because in the moment there is always a good reason for an exception: the director is waiting, it is Friday at 5 pm. A written list removes the decision. You no longer weigh the case: you check the list.",
+        "Trace la limite à l'avance, parce que sur le moment il y a toujours une bonne raison de faire une exception : le directeur attend, il est vendredi 17 h. Une liste écrite supprime la décision. Tu ne pèses plus le cas : tu regardes la liste."),
+      B("Three categories are enough: never, anonymised only, allowed with a given tool. Anonymising means removing everything that identifies someone: the name, but also the address, the date of birth, the file number. When in doubt, it is never.",
+        "Trois catégories suffisent : jamais, anonymisé seulement, autorisé avec tel outil. Anonymiser veut dire retirer tout ce qui identifie quelqu'un : le nom, mais aussi l'adresse, la date de naissance, le numéro de dossier. Dans le doute, c'est jamais."),
+    ],
+    example: {
+      context: B("Céline is assistant to the director of a private clinic. One Friday at 5 pm, she has to summarise a dispute file with a patient, and she is tempted to paste it into a chatbot.",
+        "Céline est assistante du directeur d'une clinique privée. Un vendredi à 17 h, elle doit résumer un dossier de litige avec un patient, et elle est tentée de le coller dans un chatbot."),
+      before: B("Summarise this lawyer's letter about the dispute with Mr Dupont, a patient operated on in March, for my director.\n(letter pasted in full)",
+        "Résume ce courrier d'avocat sur le litige avec M. Dupont, patient opéré en mars, pour mon directeur.\n(courrier collé en entier)"),
+      after: B("I am an executive assistant in a private clinic. Help me write my rule for using AI tools, BEFORE I need it.\nDocuments I handle every week: patient letters, dispute files, care staff schedules, supplier invoices, management committee minutes, internal memos, job ads.\nFor each type, classify it:\n- NEVER: does not leave, even anonymised\n- ANONYMISED: only after removing names, dates of birth, addresses and any identifying detail\n- ALLOWED: with the tool approved by the clinic\nGive a one-line reason for each. Give no final legal advice: flag what I must have confirmed by management or the DPO (data protection officer).",
+        "Je suis assistante de direction dans une clinique privée. Aide-moi à écrire ma règle d'usage des outils IA, AVANT d'en avoir besoin.\nDocuments que je manipule chaque semaine : courriers de patients, dossiers de litige, plannings des soignants, factures fournisseurs, comptes rendus du comité de direction, notes de service, offres d'emploi.\nPour chaque type, classe-le :\n- JAMAIS : ne sort pas, même anonymisé\n- ANONYMISÉ : seulement après avoir retiré noms, dates de naissance, adresses et tout détail qui identifie\n- AUTORISÉ : avec l'outil validé par la clinique\nDonne la raison en une ligne pour chacun. Ne donne aucun avis juridique définitif : signale ce que je dois faire confirmer par la direction ou le DPO (délégué à la protection des données)."),
+      takeaway: B("The first prompt sends a named patient's health data on a Friday evening, because it was urgent. The second draws the line calmly: on the day of the dispute, Céline has nothing to decide, she applies her list.",
+        "Le premier prompt envoie les données de santé d'un patient nommé, un vendredi soir, parce que c'était urgent. Le second trace la limite à froid : le jour du litige, Céline n'a plus rien à décider, elle applique sa liste."),
+    },
+    exercise: {
+      goal: B("Your AI usage rule on one page: your document types sorted into never, anonymised or allowed, with the permitted tool for each case.",
+        "Ta règle d'usage de l'IA sur une page : tes types de documents classés en jamais, anonymisé ou autorisé, avec l'outil permis pour chaque cas."),
+      prompt: B("Help me write my personal rule for using AI tools at work. I am [YOUR ROLE] in [TYPE OF COMPANY].\nTools I use or that the company allows: [TOOLS, AND WHETHER THE ACCOUNTS ARE PERSONAL OR PROFESSIONAL].\nTypes of documents I handle: [LIST: emails, contracts, HR, finance, clients...].\nFor each type:\n1. Classify it: NEVER, ANONYMISED (after removing the data that identifies someone) or ALLOWED (with which tool).\n2. Give the reason in one line: personal data, confidentiality, trade secret, legal obligation.\n3. For ANONYMISED: list what must be removed or replaced.\nPut the simple rule at the top: when in doubt, it is NEVER.\nFlag what I must have confirmed by my management or the DPO (data protection officer). Give no final legal opinion.\nProduce one page I can print.",
+        "Aide-moi à écrire ma règle personnelle d'usage des outils IA au travail. Je suis [TON POSTE] dans [TYPE D'ENTREPRISE].\nLes outils que j'utilise ou que l'entreprise autorise : [OUTILS, ET S'IL S'AGIT DE COMPTES PERSONNELS OU PROFESSIONNELS].\nLes types de documents que je manipule : [LISTE : mails, contrats, RH, finances, clients...].\nPour chaque type :\n1. Classe-le : JAMAIS, ANONYMISÉ (après avoir retiré les données qui identifient quelqu'un) ou AUTORISÉ (avec quel outil).\n2. Donne la raison en une ligne : données personnelles, confidentialité, secret des affaires, obligation légale.\n3. Pour ANONYMISÉ : liste ce qu'il faut retirer ou remplacer.\nMets en tête la règle simple : dans le doute, c'est JAMAIS.\nSignale ce que je dois faire confirmer par ma direction ou le DPO (délégué à la protection des données). Ne donne aucun avis juridique définitif.\nRends une page que je peux imprimer."),
+      check: [
+        B("Every document with someone else's personal data is in NEVER or ANONYMISED", "Tout document avec les données personnelles d'autrui est en JAMAIS ou ANONYMISÉ"),
+        B("Each ALLOWED type names a precise tool, not just \"AI\"", "Chaque type AUTORISÉ nomme un outil précis, pas juste « l'IA »"),
+        B("You can say in one sentence what you remove to anonymise", "Tu sais dire en une phrase ce que tu retires pour anonymiser"),
+        B("Your list is written down and within reach, not only in your head", "Ta liste est écrite et à portée de main, pas seulement dans ta tête"),
+      ],
+      bonus: B("Have your page approved by your manager or the DPO, then share it with your team. A shared rule stops each person from drawing their own line on a rushed afternoon.",
+        "Fais valider ta page par ton responsable ou le DPO, puis propose-la à ton équipe. Une règle commune évite que chacun trace sa propre limite un après-midi de rush."),
+    },
+    more: [
+      {
+        q: B("Your director urgently asks you to summarise an HR report with employees' names. Your list says NEVER. What do you do?",
+          "Ton directeur te demande en urgence de résumer un rapport RH avec des noms de salariés. Ta liste dit JAMAIS. Que fais-tu ?"),
+        options: [
+          B("Do it this once, it is urgent", "Tu le fais cette fois, c'est urgent"),
+          B("Summarise it yourself, and say why", "Tu le résumes toi-même, et tu dis pourquoi"),
+          B("Use a different, less well-known AI tool", "Tu passes par un autre outil IA, moins connu"),
+        ],
+        answer: 1,
+        why: B("The list exists for exactly this moment. Changing tools does not change the problem: the data still leaves. Explaining your rule to your director makes it legitimate for next time.",
+          "La liste existe pour ce moment précis. Changer d'outil ne change pas le problème : les données sortent quand même. Expliquer ta règle à ton directeur la rend légitime pour la prochaine fois."),
+      },
+      {
+        q: B("Your list puts client emails in ANONYMISED. You want one reworded; it has a name, address and contract number. What do you do?",
+          "Ta liste classe les mails clients en ANONYMISÉ. Tu veux en faire reformuler un, avec nom, adresse et n° de contrat. Que fais-tu ?"),
+        options: [
+          B("Swap them for tags like [CLIENT]", "Tu les remplaces par des repères comme [CLIENT]"),
+          B("Paste it as is, the tool is secure", "Tu colles tel quel, l'outil est sécurisé"),
+          B("Just remove the name", "Tu retires juste le nom"),
+        ],
+        answer: 0,
+        why: B("The name alone is not enough: an address or a contract number also identifies the client. Replace each piece of data with a tag, and put the real values back afterwards, in your email tool.",
+          "Le nom seul ne suffit pas : une adresse ou un numéro de contrat identifient aussi le client. Remplace chaque donnée par un repère, et remets les vraies valeurs après, dans ta messagerie."),
+      },
+    ],
+  },
 }
