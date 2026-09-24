@@ -1117,7 +1117,7 @@ const FO_TEAM: Level[] = [
     ],
     trap: B(
       'Keeping a task because explaining it takes longer than doing it? True the first time. But if it comes back every week, you lose that time each time.',
-      "Tu gardes une tâche parce que l'expliquer prend plus de temps que la faire ? Vrai la première fois. Mais si elle revient chaque semaine, tu perds ce temps à chaque fois.",
+      "Tu gardes une tâche parce que l'expliquer prend plus de temps que la faire ? Vrai une fois. Mais si elle revient chaque semaine, tu perds ce temps à chaque fois.",
     ),
     quiz: {
       q: B('Explaining a task takes longer than doing it. What do you do?',
@@ -1397,8 +1397,8 @@ const PR_SPEC: Level[] = [
       'You will find the states nobody drew, before your users find them for you.',
       "Tu vas trouver les états que personne n'a dessinés, avant que tes utilisateurs ne les trouvent pour toi.",
     ),
-    act: B('Give it your spec and ask for every state a user could be in.',
-      'Donne-lui ta spécification et demande tous les états où un utilisateur peut se trouver.'),
+    act: B('Give the AI your spec and ask for every state a user could be in.',
+      "Donne à l'IA ta spécification et demande tous les états où un utilisateur peut se trouver."),
     steps: [
       B('Ask for the empty case, the huge case, and the case interrupted halfway.',
         "Demande le cas vide, le cas énorme, et le cas interrompu en cours de route."),
