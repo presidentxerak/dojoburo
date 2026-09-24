@@ -148,21 +148,17 @@ await sideways('app')
   ok((await page.locator('.modhost-fs.fs').count()) === 0, 'and closes back into the app')
 }
 
-/* ---- le thème par défaut est SOMBRE, quel que soit l'appareil ------------ *
+/* ---- un seul thème, le violet de nuit, quel que soit l'appareil ---------- *
  *
- * Cette épreuve a exigé trois choses successives : suivre la préférence du
- * système, puis le clair partout (la salle de tatami servie en coque noire
- * arrivait à contre-emploi), et maintenant le SOMBRE partout. L'interface est
- * devenue un jeu, avec une barre de nuit et des panneaux d'ardoise ; le
- * défaut a été demandé explicitement. La décision se prend dans
- * public/boot.js, et test-charte vérifie que store.ts dit la même chose.
- *
- * Ce qui reste gardé, et c'est le plus important : le thème CLAIR existe
- * toujours et il fonctionne. Un choix explicite y bascule et y reste. Une
- * épreuve qui ne vérifierait plus que le sombre laisserait le clair pourrir
- * sans que personne ne s'en aperçoive.                                       */
+ * Cette épreuve a exigé successivement : suivre le système, le clair partout,
+ * le sombre par défaut avec un clair au choix. La demande est maintenant « un
+ * fond violet très foncé pour tous les backgrounds de l'app » : le clair
+ * n'existe plus. Ce qu'elle garde, et qui compte :
+ *   · le fond peint est sombre, quel que soit le réglage du téléphone,
+ *   · un ancien choix de clair enregistré à l'époque ne ressuscite pas l'herbe
+ *     verte · il est effacé, et la page reste violette,
+ *   · le fond n'est pas un noir : c'est un violet (bleu au-dessus du vert).   */
 {
-  // sans rien de sauvegardé, téléphone réglé en CLAIR · on attend du SOMBRE
   await page.evaluate(() => { try { localStorage.removeItem('dojoburo.theme') } catch { /* */ } })
   await page.emulateMedia({ colorScheme: 'light' })
   await page.reload({ waitUntil: 'load' })
@@ -190,22 +186,23 @@ await sideways('app')
     return paint(document.body) ?? paint(document.documentElement) ?? -1
   })
   const sys = await lumOf()
-  ok(sys >= 0 && sys < 120, 'sombre par défaut même quand le téléphone est en clair', `luminance ${Math.round(sys)}`)
+  ok(sys >= 0 && sys < 60, 'violet de nuit même quand le téléphone est en clair', `luminance ${Math.round(sys)}`)
 
-  // un choix EXPLICITE doit être respecté · sinon le thème clair est mort
+  // UN ANCIEN CHOIX DE CLAIR NE REVIENT PAS · et il est effacé au passage.
   await page.evaluate(() => { try { localStorage.setItem('dojoburo.theme', 'light') } catch { /* */ } })
-  await page.emulateMedia({ colorScheme: 'dark' })
   await page.reload({ waitUntil: 'load' })
   await page.waitForTimeout(1200)
-  const chosen = await lumOf()
-  ok(chosen > 150, 'et vraiment clair quand on le demande, même en téléphone sombre', `luminance ${Math.round(chosen)}`)
+  const old = await lumOf()
+  const kept = await page.evaluate(() => { try { return localStorage.getItem('dojoburo.theme') } catch { return null } })
+  ok(old >= 0 && old < 60 && kept === null, 'un ancien choix de clair est effacé, la page reste violette',
+    `luminance ${Math.round(old)}, marque ${kept}`)
 
-  await page.evaluate(() => { try { localStorage.setItem('dojoburo.theme', 'dark') } catch { /* */ } })
-  await page.reload({ waitUntil: 'load' })
-  await page.waitForTimeout(1200)
-  const dark = await lumOf()
-  ok(dark >= 0 && dark < 120, 'et sombre quand on le redemande', `luminance ${Math.round(dark)}`)
-  await page.evaluate(() => { try { localStorage.removeItem('dojoburo.theme') } catch { /* */ } })
+  // C'EST UN VIOLET, PAS UN NOIR · le bleu passe au-dessus du vert.
+  const rgb = await page.evaluate(() => {
+    const pick = (el) => { const m = getComputedStyle(el).backgroundColor.match(/[\d.]+/g); return m && !(m.length > 3 && Number(m[3]) === 0) ? m.map(Number) : null }
+    return pick(document.body) ?? pick(document.documentElement)
+  })
+  ok(!!rgb && rgb[2] > rgb[1] + 12 && rgb[0] > rgb[1], 'le fond est un violet, pas un noir', rgb ? rgb.slice(0, 3).join(',') : 'aucun')
 }
 
 /* ---- la carte de la vallée · les noms de cité, et leurs chevauchements ---- */

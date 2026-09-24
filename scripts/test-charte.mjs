@@ -34,7 +34,7 @@
 // l'interface qui les recouvre.
 //
 //   node scripts/test-charte.mjs
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 
 let fails = 0
 const ok = (n, c, extra = '') => {
@@ -95,9 +95,12 @@ const TOKENS = [
   ['l\'encre, mode clair', '#0b0c0e'],
   ['le texte second, mode clair', '#62666d'],
   ['la bordure, mode clair', '#e3e4e6'],
-  ['le fond sombre, bleuté et non noir', '#08090a'],
-  ['la carte, mode sombre', '#0e1011'],
-  ['le texte second, mode sombre', '#8a8f98'],
+  // LE SOMBRE EST UN VIOLET DE NUIT · demandé : « un fond violet très foncé
+  // pour tous les backgrounds de l'app ». Les trois valeurs sombres du système
+  // (#08090a, #0e1011, #8a8f98) ont été remplacées par leur équivalent violet.
+  ['le fond, un violet de nuit et non un noir', '#120a24'],
+  ['la carte, un violet un cran plus clair', '#1a1132'],
+  ['le texte second, lavande', '#a99fc6'],
   ['l\'emplacement de données 1', '#5c72e8'],
   ['l\'emplacement de données 2', '#70e8bd'],
   ['l\'emplacement de données 3', '#e56fd2'],
@@ -141,29 +144,35 @@ for (const jeton of ['--ink', '--muted', '--border']) {
     roots.length === 2, roots.join(' | ') || 'aucune')
 }
 
-// LE FOND SOMBRE N'EST PAS UN NOIR PUR · le système l'écrit noir sur blanc, et
-// la raison est le halo des bordures claires sur écran OLED. C'était #000000.
-const DARK = CSS.match(/:root\[data-theme='dark'\]\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
-ok('le mode sombre n\'est pas un noir pur',
-  /--bg:\s*#08090a/i.test(DARK) && !/--bg:\s*#000000/i.test(DARK),
+// LE FOND EST UN VIOLET DE NUIT, PAS UN NOIR · ni #000000 (le halo des
+// bordures claires sur écran OLED), ni le gris-noir d'avant (#08090a), mais la
+// teinte demandée. Le bloc sombre est lu à sa PORTÉE : un commentaire posé
+// juste au-dessus ne compte pas.
+const DARK = CSS.match(/\n:root\[data-theme='dark'\]\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
+ok('le fond est un violet de nuit',
+  /--bg:\s*#120a24/i.test(DARK) && !/--bg:\s*#(000000|08090a)/i.test(DARK),
   DARK.match(/--bg:[^;]*/)?.[0] ?? 'absent')
 
-/* --- 3 · le style de jeu, et il s'arrête au jeu --------------------------- */
+/* --- 3 · la matière du jeu, sans bordure ni contour ---------------------- */
 //
-// CE QUE CETTE SECTION GARDAIT, ET POURQUOI ELLE A CHANGÉ. Elle vérifiait la
-// dérogation Hyperobust : seize pixels et une ombre sur les cartes, lus dans le
-// jeton --radius-card, jamais recopiés. Le jeu a ensuite été redemandé dans le
-// style des jeux de gestion mobiles, qui repose précisément sur ce que ce
-// système interdit · le trait épais, le rebord, le reflet. Le jeton est mort,
-// il a été retiré, et une garde qui continuerait d'exiger sa présence
-// garderait un cadavre.
+// CE QUE CETTE SECTION GARDE, ET POURQUOI ELLE A CHANGÉ DEUX FOIS. Elle a gardé
+// la dérogation Hyperobust (seize pixels et une ombre), puis la grammaire des
+// jeux de gestion mobiles (contour d'encre, rebord, texte cerné, titre
+// extrudé). Les deux ont été remplacées à l'écran par une demande explicite :
+// le skeuomorphisme, « on enlève les bordures des composants », « enlève
+// toutes les bordures sur tous les textes », une « large light shadow » sur les
+// cartes, et plus de fond au header ni à la barre du bas. Une garde qui
+// continuerait d'exiger le contour d'encre empêcherait de livrer la demande.
 //
-// CE QUI NE DOIT TOUJOURS PAS BOUGER SANS QU'ON LE DÉCIDE :
-//   · le reste du produit garde le rayon zéro · le style de jeu est BORNÉ,
-//   · les surfaces du jeu sont UNE surface · une seule règle de panneau, que
-//     la carte, le module, la question, la fiche reprennent,
-//   · le contour vient du jeton d'encre, jamais d'un hexadécimal recopié,
-//   · le bouton a une COURSE · il descend de la hauteur exacte de son rebord.
+// CE QUI NE DOIT PAS REVENIR SANS QU'ON LE DÉCIDE :
+//   · un contour sur un composant du jeu,
+//   · des lettres cernées (le texte-ombre à quatre décalages, ou le trait),
+//   · le damier vert, et un fond sous l'en-tête ou sous la barre du bas,
+//   · une carte qui tourne ou qui se souligne au survol.
+// ET CE QUI DOIT RESTER :
+//   · UNE seule règle de surface pour la carte, le module, la question, la
+//     fiche, portée par sa large ombre claire,
+//   · le reste du produit au rayon zéro · le style du jeu est BORNÉ.
 
 /** La règle d'une classe · lue par sa PORTÉE, parce que « .pk » apparaît dans
  *  une vingtaine de sélecteurs et que celui qu'on veut est le premier. */
@@ -176,56 +185,99 @@ ok('le reste du produit garde le rayon zéro', /--radius:\s*0px/.test(CSS))
 ok('le jeton de la dérogation a bien disparu', !/--radius-card/.test(CSS),
   CSS.match(/[^\n]*--radius-card[^\n]*/)?.[0]?.trim() ?? 'absent')
 
-// LA FEUILLE DU JEU · bornée par PORTÉE, pour la même raison qu'avant : la
-// garde a accusé du travail juste le jour où elle lisait les onze mille lignes
-// et rougissait sur un panneau du studio arrondi pour ses propres raisons.
-const GAME_AT = CSS.indexOf('LE JEU · le style « jeu de gestion mobile »')
+// LA FEUILLE DU JEU · bornée par PORTÉE : lire les onze mille lignes accuserait
+// un panneau du studio qui a ses propres raisons.
+// LA BANNIÈRE, PAS SA MENTION · l'en-tête du fichier cite le nom de la section,
+// et chercher le nom seul faisait commencer « la feuille du jeu » à la ligne
+// trente, c'est-à-dire lire tout le fichier.
+const GAME_AT = CSS.indexOf('/* LE JEU · skeuomorphisme sur violet de nuit')
 const GAME_CSS = GAME_AT >= 0 ? CSS.slice(GAME_AT) : ''
 ok('la feuille du jeu a bien été trouvée', GAME_CSS.length > 5000, `${GAME_CSS.length} caractères`)
+/** la feuille du jeu sans ses commentaires · une règle citée dans un commentaire
+ *  (« le texte cerné d'avant ») n'est pas une règle. */
+const GAME_CODE = GAME_CSS.replace(/\/\*[\s\S]*?\*\//g, '')
+// LES ÉTIQUETTES DE LA CARTE sont dessinées plus haut dans le fichier, mais
+// elles appartiennent au jeu : elles suivent la même règle.
+const TAG_CODE = (CSS.match(/\n\.wm-tag \{[\s\S]*?\n@media \(max-width: 720px\)/)?.[0] ?? '').replace(/\/\*[\s\S]*?\*\//g, '')
+ok('les étiquettes de la carte ont bien été trouvées', TAG_CODE.length > 500, `${TAG_CODE.length} caractères`)
 
-// UNE SEULE RÈGLE DE PANNEAU · carte, module, question, fiche.
+// UNE SEULE RÈGLE DE SURFACE · carte, module, question, fiche.
 const PANEL = GAME_CSS.match(/\n(\.pk, \.md,[^{]*)\{([\s\S]*?)\n\}/)
 const panelSel = PANEL?.[1] ?? ''
 for (const cls of ['.pk', '.md', '.ln-quiz', '.cm-sheet']) {
-  ok(`${cls} est un panneau de jeu`, panelSel.split(',').map((x) => x.trim()).includes(cls), panelSel.trim().slice(0, 60))
+  ok(`${cls} est une surface du jeu`, panelSel.split(',').map((x) => x.trim()).includes(cls), panelSel.trim().slice(0, 60))
 }
-ok('le panneau est cerné d\'encre', /border:\s*3px solid var\(--g-ink\)/.test(PANEL?.[2] ?? ''))
-ok('… et posé sur sa tranche', /0 6px 0 var\(--g-ledge\)/.test(PANEL?.[2] ?? ''))
+ok('la surface n\'a pas de bordure', /border:\s*0;/.test(PANEL?.[2] ?? ''))
+ok('… et elle porte la large ombre claire', /var\(--g-lift\)/.test(PANEL?.[2] ?? ''))
+// LA LARGE OMBRE CLAIRE, MESURÉE · une lueur de la teinte violette, floue sur
+// au moins quatre-vingts pixels. Une ombre noire serrée ne se voit pas sur la
+// nuit : c'est la lueur qui soulève la carte.
+const LIFT = CSS.match(/--g-lift:([\s\S]*?);/)?.[1] ?? ''
+const glowBlur = Number(LIFT.match(/0 \d+px (\d+)px -?\d+px var\(--g-glow\)/)?.[1] ?? 0)
+const GLOW = CSS.match(/--g-glow:\s*rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/)
+ok('la lueur est large', glowBlur >= 80, `${glowBlur}px de flou`)
+ok('… et claire, violette', !!GLOW && Number(GLOW[3]) > 200 && Number(GLOW[1]) > 120 && Number(GLOW[4]) >= 0.3,
+  GLOW?.[0] ?? 'absente')
 
-// LE CONTOUR VIENT DU JETON · un « 3px solid #14161f » recopié marcherait
-// aujourd'hui et divergerait le jour où l'encre change avec un thème.
-// La garde vise L'ENCRE et elle seule : un liseré d'accent orange (le passe de
-// test du profil) est une couleur voulue, pas un contour recopié. La première
-// version attrapait toute couleur en dur et accusait ce liseré.
-const INK = CSS.match(/--g-ink:\s*(#[0-9a-f]{3,6})/i)?.[1] ?? '#14161f'
-const rawInk = [...GAME_CSS.matchAll(new RegExp(`border[a-z-]*:\\s*[\\d.]+px solid ${INK}\\b`, 'gi'))].map((m) => m[0])
-ok('aucun contour du jeu n\'écrit l\'encre en dur', rawInk.length === 0, rawInk.slice(0, 2).join(' | ') || 'aucun')
+// AUCUNE BORDURE DANS LE JEU · « on enlève les bordures des composants ». Une
+// bordure écrite à zéro est permise, c'est même ce qui annule celle d'un
+// <button> natif.
+const borders = [...(GAME_CODE + TAG_CODE).matchAll(/border(-(top|right|bottom|left))?:\s*[\d.]*[1-9][\d.]*px\s+solid[^;]*/g)].map((m) => m[0])
+ok('aucun composant du jeu n\'a de bordure', borders.length === 0, borders.slice(0, 3).join(' | ') || 'aucune')
 
-// LE BOUTON A UNE COURSE, ET ELLE EST EXACTE · il s'enfonce de la hauteur de
-// son rebord et le rebord disparaît. Un enfoncement plus court laisse une
-// marche sous le bouton ; plus long, le bouton passe SOUS sa propre tranche.
+// AUCUNE LETTRE CERNÉE · ni trait, ni ombre à quatre décalages qui dessine un
+// contour. Une ombre douce, unique, est une ombre et reste permise.
+const strokes = [...(GAME_CODE + TAG_CODE).matchAll(/text-shadow:\s*([^;]*)/g)]
+  .map((m) => m[1]).filter((v) => (v.match(/-?\d[\d.]*px\s+-?\d[\d.]*px\s+0\b/g) || []).length >= 3)
+ok('aucun texte n\'est cerné', strokes.length === 0 && !/-webkit-text-stroke|--g-stroke|--g-title/.test(GAME_CODE + TAG_CODE),
+  strokes[0]?.slice(0, 80) ?? 'aucun')
+ok('le grand titre porte une ombre douce, pas un contour', /text-shadow:\s*var\(--g-soft\)/.test(rule('.gm-h1')))
+
+// LE FOND EST LA NUIT, SANS MOTIF · le damier vert est retiré, et l'en-tête et
+// la barre du bas n'ont plus de fond.
+ok('le jeu n\'a plus de damier', !/repeating-conic-gradient/.test(GAME_CODE))
+// TOUTES LES RÈGLES DU SÉLECTEUR, pas la première · une seconde règle plus bas
+// qui repeindrait la barre gagnerait la cascade, et la morsure l'a montré :
+// lire seulement la première la laissait passer.
+const rulesFor = (sel) => [...CSS.matchAll(new RegExp(`\\n${sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`, 'g'))].map((m) => m[1])
+ok('l\'en-tête n\'a pas de fond', rulesFor('.gm-top').length > 0 && rulesFor('.gm-top').every((b) => !/background/.test(b)))
+ok('la barre du bas n\'a pas de fond', rulesFor('.gm-tabs').length > 0 && rulesFor('.gm-tabs').every((b) => !/background/.test(b)))
+// … et comme elle n'a plus de fond, elle ne capte plus le doigt entre ses
+// touches : on touche ce qui est dessous.
+ok('la barre laisse passer le doigt entre ses touches',
+  /pointer-events:\s*none/.test(rule('.gm-tabs')) && /pointer-events:\s*auto/.test(rule('.gm-tab')))
+
+// LE SURVOL D'UNE CARTE · elle monte, sa lueur s'élargit, rien d'autre. Pas de
+// rotation, et plus aucun soulignement : la règle générale « a:hover » est
+// neutralisée dans le jeu.
+ok('la carte ne tourne pas au survol', !/rotate/.test(rule('.pk:hover')))
+ok('… et monte en élargissant sa lueur', /translateY\(-\d+px\)/.test(rule('.pk:hover')) && /--g-lift-hi/.test(rule('.pk:hover')))
+ok('aucun texte ne se souligne au survol dans le jeu',
+  /\n\.gm a, \.gm a:hover, \.cm a, \.cm a:hover \{ text-decoration: none; \}/.test(CSS))
+
+// LE BOUTON S'ENFONCE DANS LA MATIÈRE · appuyé, il descend et son ombre passe
+// à l'intérieur. Le reflet reste sous le texte.
 const CTA = GAME_CSS.match(/\n\.gm-cta, \.cc-btn \{([\s\S]*?)\n\}/)?.[1] ?? ''
 const CTA_DOWN = GAME_CSS.match(/\n\.gm-cta:active, \.cc-btn:active \{([\s\S]*?)\n\}/)?.[1] ?? ''
-const ledge = Number(CTA.match(/0 (\d+)px 0 var\(--b-ledge\)/)?.[1] ?? NaN)
-const press = Number(CTA_DOWN.match(/translateY\((\d+)px\)/)?.[1] ?? NaN)
-ok('le bouton descend de la hauteur de son rebord', ledge === press, `rebord ${ledge}px, course ${press}px`)
-// LE REFLET PASSE SOUS LE TEXTE · sans contexte d'empilement, le pseudo-élément
-// du reflet se peignait par-dessus les lettres, en voile blanc.
+ok('le bouton n\'a pas de bordure', /border:\s*0;/.test(CTA))
+ok('appuyé, il s\'enfonce', /translateY\(1px\)/.test(CTA_DOWN) && /inset 0 2px/.test(CTA_DOWN))
 ok('le reflet ne recouvre pas le texte', /isolation:\s*isolate/.test(CTA) && /z-index:\s*-1/.test(GAME_CSS))
 
-// LES VRAIS <button> GARDENT LEUR ARRONDI · une règle générale plus haut dans
-// le fichier aplatit « button » en !important. Les boutons du jeu qui sont des
-// liens étaient ronds, ceux qui sont des <button> sortaient en briques, côte à
-// côte sur le même écran.
+// LES VRAIS <button> GARDENT LEUR ARRONDI · une règle générale les aplatit en
+// !important ; le jeu, et les étiquettes de la carte, leur répondent.
 ok('une règle générale aplatit bien les <button>', /input, textarea, select, button \{ border-radius: 0 !important; \}/.test(CSS))
 ok('… et le jeu leur rend leur arrondi avec la même force',
   /\.gm button\.gm-cta, \.gm \.cc-btn[^{]*\{ border-radius: 16px !important; \}/.test(CSS)
-  && /\.gm \.ln-opt \{ border-radius: 16px !important; \}/.test(CSS))
+  && /\.gm \.ln-opt \{ border-radius: 16px !important; \}/.test(CSS)
+  && /button\.wm-tag \{ border-radius: 999px !important; \}/.test(CSS))
 
-// LE TITRE EST EXTRUDÉ · mesuré : l'encre du contour posée sur la page de nuit,
-// c'était du sombre sur du sombre, et le contour disparaissait exactement là où
-// sont les titres. La tranche violette sous le contour est ce qui les détache.
-ok('le grand titre porte l\'extrusion', /text-shadow:\s*var\(--g-title\)/.test(rule('.gm-h1')))
+// PLUS AUCUNE FORME BAUHAUS DÉCORATIVE · la frise est supprimée de l'app, et
+// ses règles avec elle. Les icônes restent : ce sont des signes, pas des
+// décors.
+const SRC_ALL = ['src/game/Dojos.tsx', 'src/game/PackPage.tsx', 'src/game/Clan.tsx', 'src/game/Profil.tsx',
+  'src/game/Carte.tsx', 'src/Landing.tsx'].map((f) => readFileSync(f, 'utf8')).join('\n')
+ok('la frise Bauhaus n\'existe plus', !existsSync('src/components/BauhausBand.tsx') && !/<BauhausBand|bh-band/.test(SRC_ALL + CSS))
+ok('les modules n\'affichent plus de forme décorative', !/md-glyph|cm-sheet-g|lp2-c-g/.test(SRC_ALL))
 
 /* --- 4 · trois formations sur la même ligne ------------------------------- */
 //
@@ -247,7 +299,10 @@ ok('aucun palier ne la rabat à deux colonnes',
 
 ok('l\'onglet Dojos porte la marque', /glyph:\s*null/.test(SHELL) && /<Logo size=/.test(SHELL))
 ok('l\'onglet Profil porte un sourire', /glyph:\s*'smile'/.test(SHELL))
-ok('le sourire existe dans le jeu Bauhaus', /'smile'/.test(ICONS))
+ok('le sourire existe dans le jeu d\'icônes', /'smile'/.test(ICONS))
+// LE CLAN EST UN GROUPE, PAS UNE FORME · deux cercles concentriques ne disaient
+// rien ; deux personnes disent « les autres ».
+ok('l\'onglet Clan porte deux personnes', /glyph:\s*'clan'/.test(SHELL) && /'clan'/.test(ICONS))
 // LES SIGNES D'EMPRUNT NE REVIENNENT PAS · une maison pour l'accueil et une
 // étoile pour le profil sont corrects et interchangeables ; c'est justement le
 // problème, et c'est ce qui a été demandé de changer.
@@ -362,21 +417,25 @@ ok('et elle évite les enceintes', /free\(x,\s*z,\s*6\.2\)/.test(MAP))
 
 /* --- 8b · le sombre par défaut, la police du jeu, la mesure des vignettes - */
 //
-// LE SOMBRE PAR DÉFAUT SE DÉCIDE À DEUX ENDROITS, et ils doivent dire la même
-// chose. public/boot.js pose le thème avant le premier pixel ; loadTheme dans
-// store.ts le relit. S'ils divergent, la page naît dans un thème et React la
-// bascule dans l'autre au premier rendu : un éclair, à chaque chargement.
+// UN SEUL THÈME, VIOLET DE NUIT · « un fond violet très foncé pour tous les
+// backgrounds de l'app ». Le clair n'existe plus : ni sélecteur dans les
+// réglages, ni préférence relue, ni règle de feuille qui ne s'appliquerait
+// qu'à lui. Tout se décide dans public/boot.js, avant le premier pixel ; un
+// second endroit qui déciderait aussi est exactement ce qui faisait basculer
+// l'écran au premier rendu.
 const BOOT = readFileSync('public/boot.js', 'utf8')
 const STORE = readFileSync('src/store.ts', 'utf8')
-const bootDefault = BOOT.match(/if \(t !== 'dark' && t !== 'light'\) t = '(dark|light)'/)?.[1]
-const storeDefault = STORE.match(/function loadTheme[\s\S]*?return '(dark|light)'\s*\n\}/)?.[1]
-ok('le thème par défaut est le sombre', bootDefault === 'dark', bootDefault ?? 'introuvable')
-ok('boot.js et store.ts disent le même défaut', bootDefault && bootDefault === storeDefault,
-  `${bootDefault} / ${storeDefault}`)
-// La barre du navigateur a la teinte de l'en-tête du jeu, aux trois endroits.
+const SETTINGS = readFileSync('src/components/SettingsModal.tsx', 'utf8')
+ok('boot.js pose toujours le violet de nuit', /setAttribute\('data-theme', 'dark'\)/.test(BOOT))
+ok('… sans relire un ancien choix de clair', !/getItem\('dojoburo\.theme'\)/.test(BOOT)
+  && /removeItem\('dojoburo\.theme'\)/.test(BOOT))
+ok('le store ne décide plus de thème', !/loadTheme|setTheme|applyTheme/.test(STORE))
+ok('les réglages n\'offrent plus de clair', !/setTheme|>Light</.test(SETTINGS))
+ok('la feuille n\'a plus de règle réservée au clair', !/:root\[data-theme='light'\]|:root:not\(\[data-theme='dark'\]\)/.test(CSS))
+// La barre du navigateur a la teinte de la page, aux deux endroits.
 const HTML = readFileSync('index.html', 'utf8')
-ok('la barre du navigateur naît sombre', /name="theme-color" content="#0f1120"/.test(HTML))
-ok('… et reste raccordée des deux côtés', /#0f1120/.test(BOOT) && /#0f1120/.test(STORE))
+ok('la barre du navigateur naît violette', /name="theme-color" content="#120a24"/.test(HTML))
+ok('… et boot.js lui donne la même', /#120a24/.test(BOOT))
 
 // LA POLICE DU JEU EST SERVIE PAR NOUS. Chargée depuis Google, elle manquait
 // dès que Google ne répondait pas, et le titre tombait en police système sous
@@ -424,8 +483,16 @@ ok('morsure · le sourire ne l\'est pas',
 ok('morsure · deux colonnes énumérées seraient vues',
   /\.pk-grid\s*\{\s*grid-template-columns:\s*1fr\s+1fr\s*\}/.test('.pk-grid { grid-template-columns: 1fr 1fr }'))
 
-ok('morsure · un défaut clair serait vu',
-  "if (t !== 'dark' && t !== 'light') t = 'light'".match(/t = '(dark|light)'$/)?.[1] !== 'dark')
+ok('morsure · un boot qui relit le clair serait vu',
+  /getItem\('dojoburo\.theme'\)/.test("var t = localStorage.getItem('dojoburo.theme')"))
+ok('morsure · une bordure de 3px serait vue',
+  /border(-(top|right|bottom|left))?:\s*[\d.]*[1-9][\d.]*px\s+solid/.test('.pk { border: 3px solid var(--g-ink); }'))
+ok('morsure · une bordure à zéro ne l\'est pas',
+  !/border(-(top|right|bottom|left))?:\s*[\d.]*[1-9][\d.]*px\s+solid/.test('.pk { border: 0; }'))
+ok('morsure · des lettres cernées seraient vues',
+  ('-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000'.match(/-?\d[\d.]*px\s+-?\d[\d.]*px\s+0\b/g) || []).length >= 3)
+ok('morsure · une ombre douce ne l\'est pas',
+  ('0 2px 14px rgba(0, 0, 0, 0.45)'.match(/-?\d[\d.]*px\s+-?\d[\d.]*px\s+0\b/g) || []).length < 3)
 ok('morsure · une police demandée à Google serait vue',
   /Lilita/.test('<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Outfit">'))
 ok('morsure · une vignette mesurée sans offsetSize serait vue',

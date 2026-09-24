@@ -61,7 +61,8 @@ import { ThemeProps } from '../components/three/ThemeProps'
 import { Character3D } from '../components/three/Character3D'
 import { GaitProvider, advance, type Gait } from '../components/three/gait'
 import { templateById } from '../data/templates'
-import { characterFor, faceIdForUseCase } from '../data/agentFaces'
+import type { Character } from '../data/looks'
+import { DOJO_CAST } from '../data/cast'
 import type { Department } from '../data/agents'
 import type { DojoKit } from '../data/packs'
 
@@ -73,7 +74,7 @@ import type { DojoKit } from '../data/packs'
  *  dit qu'on entre dans un atelier et non dans une salle d'attente. On ajoute
  *  un balancement très lent autour de lui · sans lui, un personnage parfaitement
  *  aligné face caméra se lit comme une figurine posée, pas comme quelqu'un. */
-function Master({ useCaseId, phase }: { useCaseId: string; phase: number }) {
+function Master({ who, character, phase }: { who: string; character: Character; phase: number }) {
   const g = useRef<THREE.Group>(null)
   useFrame(({ clock }) => {
     if (!g.current) return
@@ -83,8 +84,8 @@ function Master({ useCaseId, phase }: { useCaseId: string; phase: number }) {
   return (
     <group ref={g}>
       <Character3D
-        id={`card-master-${useCaseId}`}
-        character={characterFor(faceIdForUseCase(useCaseId))}
+        id={`card-master-${who}`}
+        character={character}
         fn="Product"
         x={0}
         z={1.2}
@@ -108,7 +109,7 @@ function Master({ useCaseId, phase }: { useCaseId: string; phase: number }) {
  *  SA LIGNE EST DEVANT LE BUREAU, pas derrière · derrière, il passerait à
  *  travers les meubles adossés au mur du fond, et un personnage qui traverse
  *  un meuble se lit comme un bug. */
-function Disciple({ faceId, phase }: { faceId: string; phase: number }) {
+function Disciple({ who, character, phase }: { who: string; character: Character; phase: number }) {
   const g = useRef<THREE.Group>(null)
   const gait = useRef<Gait>({ speed: 0, phase: 0, bow: 0 })
   // IL ARPENTE LA MOITIÉ GAUCHE DE LA SALLE, pas toute la largeur. Sur toute
@@ -144,8 +145,8 @@ function Disciple({ faceId, phase }: { faceId: string; phase: number }) {
     <GaitProvider value={gait}>
       <group ref={g} position={[0, 0, 3.2]} scale={0.9}>
         <Character3D
-          id={`card-disciple-${faceId}`}
-          character={characterFor(faceIdForUseCase(faceId))}
+          id={`card-disciple-${who}`}
+          character={character}
           fn="Product"
           x={0}
           z={0}
@@ -219,11 +220,6 @@ const CARD_SLOTS: { p: [number, number, number]; r: number }[] = [
   { p: [6.2, 0, 2.4], r: -1.1 },
 ]
 
-/** LE DISCIPLE N'EST PAS LE MAÎTRE · un visage différent, choisi dans le
- *  catalogue à partir de la formation. Deux fois le même personnage dans une
- *  salle se lit comme un clone, pas comme un élève et son professeur. */
-const DISCIPLES = ['support', 'research', 'design', 'data', 'sales', 'ops']
-
 export function PackArt({ kit, tint, master, locked = false }: {
   /** la salle de la spécialité · voir data/packs */
   kit: DojoKit
@@ -251,7 +247,7 @@ export function PackArt({ kit, tint, master, locked = false }: {
     [master],
   )
   const phase = phaseOf(kit + (master ?? ''))
-  const disciple = DISCIPLES[Math.floor(phase * 1.5) % DISCIPLES.length]
+  const cast = DOJO_CAST[kit]
 
   return (
     <div className={`pa${locked ? ' off' : ''}`} ref={box} aria-hidden>
@@ -282,8 +278,8 @@ export function PackArt({ kit, tint, master, locked = false }: {
         <Suspense fallback={null}>
           <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
           <ThemeProps archetype={kit} accent={tint} slots={CARD_SLOTS} />
-          {master && <Master useCaseId={master} phase={phase} />}
-          <Disciple faceId={disciple} phase={phase} />
+          <Master who={kit} character={cast.master} phase={phase} />
+          <Disciple who={kit} character={cast.disciple} phase={phase} />
         </Suspense>
       </Canvas>
     </div>

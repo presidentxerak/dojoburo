@@ -19,15 +19,9 @@ import { TRADES, TRADE_COUNT, TRADE_LEVEL_COUNT, tradePath } from './data/trades
 import { PATH_EUR, TRADE_EUR, priceTag } from './data/plans'
 import { useLang, useT } from './i18n'
 import { BauhausIcon } from './components/BauhausIcon'
-import { isIconName } from './data/icons'
 import { SiteFooter } from './components/SiteFooter'
 
 const C = { magenta: '#2f6bff', teal: '#08c2ac', orange: '#ff7a1a' }
-
-/** Un nom d'icône venu d'un fichier de données · les données ne peuvent pas
- *  importer le composant (voir data/icons), donc le nom arrive en chaîne et on
- *  le valide ici plutôt que de laisser passer une icône vide. */
-const glyph = (name: string) => (isIconName(name) ? name : 'dot')
 
 /**
  * La page d'accueil · elle vend un parcours, et elle le vend dans l'ordre.
@@ -115,7 +109,6 @@ export function Landing({ enter }: { enter: () => void }) {
         <div className="lp2-who">
           {FOR_WHOM.map((w) => (
             <div className="appcard lp2-w" key={w.glyph}>
-              <BauhausIcon name={glyph(w.glyph)} size={22} />
               <b>{say(w.title, lang)}</b>
               <span>{say(w.body, lang)}</span>
             </div>
@@ -166,7 +159,6 @@ export function Landing({ enter }: { enter: () => void }) {
           {PATH_MODULES.map((m) => (
             <a className="lp2-city" key={m.id} href={modulePath(m.id)} style={{ ['--ac' as string]: m.tint }}>
               <span className="lp2-c-n">{moduleNumber(m.id)}</span>
-              <BauhausIcon className="lp2-c-g" name={m.glyph} size={20} />
               <b>{say(m.title, lang)}</b>
               <span>{say(m.blurb, lang)}</span>
               <em>{m.levels.length} {t('g.dojos')}</em>
@@ -204,7 +196,6 @@ export function Landing({ enter }: { enter: () => void }) {
         <div className="lp2-trades">
           {TRADES.map((tr) => (
             <a className="lp2-trade" key={tr.id} href={tradePath(tr.id)} style={{ ['--ac' as string]: tr.tint }}>
-              <BauhausIcon name={tr.glyph} size={18} />
               <b>{say(tr.label, lang)}</b>
               <span>{say(tr.who, lang)}</span>
             </a>

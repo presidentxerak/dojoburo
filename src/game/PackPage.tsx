@@ -20,7 +20,6 @@
 // se voit.
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
-import { BauhausBand } from '../components/BauhausBand'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
@@ -36,6 +35,7 @@ import { useState } from 'react'
 import { useGame } from './progress'
 import { useAccess, giveEmail } from './access'
 import { PackArt } from './PackArt'
+import { Gauge } from './Gauge'
 import { Shell } from './Shell'
 import { plural } from './plural'
 
@@ -68,7 +68,6 @@ export function PackPage({ packId }: { packId: string }) {
   const modules = modulesOf(pack)
   const levels = levelsOf(pack)
   const done = levels.filter(({ module, level }) => g.isDone(module.id, level.id)).length
-  const percent = levels.length ? Math.round((done / levels.length) * 100) : 0
   const next = levels.find(({ module, level }) => !g.isDone(module.id, level.id))
 
   return (
@@ -84,7 +83,6 @@ export function PackPage({ packId }: { packId: string }) {
             <PackArt kit={pack.kit} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
           </div>
           <div className="pkh-txt">
-            <BauhausBand seed={`pack-${pack.id}`} n={9} height={12} />
             <h1 className="gm-h1">{say(pack.title, lang)}</h1>
             <p className="gm-lead">{say(pack.blurb, lang)}</p>
             <div className="pkh-meta">
@@ -95,8 +93,7 @@ export function PackPage({ packId }: { packId: string }) {
           </div>
         </div>
 
-        <span className="pk-bar big"><i style={{ width: `${percent}%` }} /></span>
-        <p className="pkh-count">{done} / {levels.length} {t('g.dojos')}</p>
+        <Gauge value={done} total={levels.length} label={t('gm.dojosDone')} big />
 
         {open && next && (
           /* ELLE RESPIRE · c'est la seule chose qui bouge en permanence sur
@@ -129,7 +126,7 @@ function PackLock({ eur }: { eur: number }) {
   const t = useT()
   return (
     <div className="pkl">
-      <b><BauhausIcon name="box" size={13} /> {t('gm.lockTitle')}</b>
+      <b><BauhausIcon name="lock" size={16} /> {t('gm.lockTitle')}</b>
       <p>{t('gm.lockBody')}</p>
       <Lnk className="gm-cta" href="/decouvrir#pricing">{priceTag(eur)} · {t('g.seePrices')} →</Lnk>
     </div>
@@ -185,7 +182,6 @@ function ModuleCard({ module, n, packId, open }: {
           <span className="md-count">{c.done} / {c.total}</span>
         </header>
         <div className="md-top">
-          <span className="md-glyph"><BauhausIcon name={module.glyph} size={22} /></span>
           <div>
             <h2 className="md-title">{say(module.title, lang)}</h2>
             <p className="md-blurb">{say(module.blurb, lang)}</p>
@@ -207,7 +203,7 @@ function ModuleCard({ module, n, packId, open }: {
                   <span className="ls-mark">
                     {isDone
                       ? <BauhausIcon name="check" size={13} />
-                      : canEnter ? <i /> : <BauhausIcon name="box" size={12} />}
+                      : canEnter ? <i /> : <BauhausIcon name="lock" size={13} />}
                   </span>
                   <span className="ls-txt">
                     <strong>{say(l.title, lang)}</strong>

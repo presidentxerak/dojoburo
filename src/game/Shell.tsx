@@ -39,6 +39,7 @@ import { useT } from '../i18n'
 import { Logo } from '../components/Logo'
 import { Wordmark } from '../components/Wordmark'
 import { BauhausIcon } from '../components/BauhausIcon'
+import { levelOf } from './Gauge'
 import type { IconName } from '../data/icons'
 import { LangSwitch } from '../components/LangSwitch'
 import { useGame } from './progress'
@@ -66,7 +67,7 @@ import { useGame } from './progress'
  *  marque a ses proportions et son histoire, une icône a une grille. */
 const TABS: { to: string; key: string; glyph: IconName | null }[] = [
   { to: '/', key: 'nav.dojos', glyph: null },
-  { to: '/clan', key: 'nav.clan', glyph: 'ring' },
+  { to: '/clan', key: 'nav.clan', glyph: 'clan' },
   { to: '/profil', key: 'nav.profile', glyph: 'smile' },
 ]
 
@@ -109,6 +110,7 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
   const path = usePath()
   const g = useGame()
   const bump = useBump(g.xp)
+  const lv = levelOf(g.xp)
 
   return (
     <div className="gm">
@@ -118,10 +120,27 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
           <span className="gm-brand-wm"><Wordmark /></span>
         </Lnk>
         <div className="gm-top-right">
-          {/* L'EXPÉRIENCE · dérivée des dojos finis, jamais écrite. Elle SAUTE
-              quand elle monte · voir useBump. */}
-          <span className={`gm-xp${bump ? ' gm-bumped' : ''}`} title={t('gm.xpTitle')}>
-            <b>{g.xp}</b> <i>XP</i>
+          {/* L'EXPÉRIENCE · dérivée des dojos finis, jamais écrite. Un niveau
+              tous les 250 XP (voir Gauge), et la barre se remplit vers le
+              suivant. Elle SAUTE quand elle monte · voir useBump. */}
+          <span
+            className={`gm-xp${bump ? ' gm-bumped' : ''}`}
+            title={`${t('gm.xpTitle')} · ${lv.need - lv.into} ${t('gm.toNext')}`}
+          >
+            <span className="gm-lv">{t('gm.lv')} {lv.level}</span>
+            <span className="gm-xp-body">
+              <span className="gm-xp-n"><b>{g.xp}</b> XP</span>
+              <span
+                className="gm-xp-bar"
+                role="progressbar"
+                aria-label={t('gm.toNext')}
+                aria-valuemin={0}
+                aria-valuemax={lv.need}
+                aria-valuenow={lv.into}
+              >
+                <i style={{ width: `${Math.round((lv.into / lv.need) * 100)}%` }} />
+              </span>
+            </span>
           </span>
           <LangSwitch compact />
         </div>
@@ -141,8 +160,8 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
           >
             {/* LA MARQUE OU L'ICÔNE, jamais les deux · voir TABS. Elles sont
                 posées à la même taille de boîte pour que les trois signes
-                s'alignent, le logo ayant un dessin plus dense que les
-                primitives Bauhaus et paraissant plus gros à taille égale. */}
+                s'alignent, le logo ayant un dessin plus dense que les icônes
+                et paraissant plus gros à taille égale. */}
             <span className="gm-tab-g">
               {tab.glyph === null
                 ? <Logo size={20} />

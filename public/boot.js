@@ -21,36 +21,25 @@
 (function () {
   /* ---- 1 · le thème, avant le premier pixel --------------------------- */
   //
-  // SOMBRE PAR DÉFAUT, sur tous les appareils. Un choix enregistré l'emporte
-  // toujours · quelqu'un qui a coché Clair l'a voulu · et la préférence du
-  // SYSTÈME n'est toujours pas consultée.
+  // UN SEUL THÈME, VIOLET DE NUIT, partout et pour tout le monde. Demandé
+  // explicitement : « un fond violet très foncé pour tous les backgrounds de
+  // l'app ». Un thème clair ne peut pas coexister avec cette phrase, donc il
+  // n'existe plus : ni sélecteur dans les réglages, ni préférence lue.
   //
-  // C'ÉTAIT L'INVERSE, avec une raison écrite ici : « dojoburo est une salle de
-  // tatami, de papier de riz et de bois, un décor clair ; servi dans une coque
-  // noire, le produit arrivait à contre-emploi ». La raison tenait tant que
-  // l'interface était une page claire posée autour d'une salle claire. Elle
-  // est devenue un JEU, dans le style des jeux de gestion mobiles : une barre
-  // de nuit, des panneaux d'ardoise, des boutons brillants qui ressortent sur
-  // le sombre. La salle de tatami, elle, est dans les vignettes, et elle y
-  // gagne à être vue sur du sombre comme une maquette éclairée.
+  // HISTOIRE · le produit a suivi le système, puis a été clair partout, puis
+  // sombre par défaut avec un clair au choix. Un visiteur qui avait coché
+  // « clair » à cette époque gardait l'herbe verte du jeu pendant que tout le
+  // monde voyait la nuit : sa marque est effacée ici, une fois, pour qu'il
+  // voie la même application que les autres.
   //
-  // La décision a été demandée explicitement, et elle se prend toujours ICI.
-  //
-  // C'EST ICI que la décision se prend, et nulle part ailleurs. `loadTheme`
-  // dans store.ts relit la marque posée par ce fichier : la changer là-bas
-  // sans la changer ici ne produit rigoureusement aucun effet — j'ai perdu
-  // une demi-heure à le découvrir, parce que ce fichier est dans `public/` et
-  // qu'aucune recherche dans `src/` ne le trouve.
-  var t = null
-  try { t = localStorage.getItem('dojoburo.theme') } catch (e) { /* navigation privée */ }
-  if (t !== 'dark' && t !== 'light') t = 'dark'
-  document.documentElement.setAttribute('data-theme', t)
-  // La barre du navigateur suit aussi · une encoche noire au-dessus d'une page
-  // blanche se lit comme un défaut d'affichage.
+  // La marque reste posée sur <html> parce que toute la feuille de style lit
+  // ses jetons sous :root[data-theme='dark'] · c'est elle qui les allume.
+  try { localStorage.removeItem('dojoburo.theme') } catch (e) { /* navigation privée */ }
+  document.documentElement.setAttribute('data-theme', 'dark')
+  // La barre du navigateur prend le violet de la page · une encoche d'une
+  // autre couleur au-dessus de l'app se lit comme un défaut d'affichage.
   var m = document.querySelector('meta[name="theme-color"]')
-  // la teinte de la barre du jeu, pas un noir pur · la barre du navigateur et
-  // l'en-tête se raccordent alors sans marche d'escalier.
-  if (m) m.setAttribute('content', t === 'dark' ? '#0f1120' : '#7fbf3a')
+  if (m) m.setAttribute('content', '#120a24')
 
   /* ---- 2 · la police, sans bloquer le premier pixel -------------------- */
   // Une feuille de style distante est BLOQUANTE au rendu : tant qu'elle n'est

@@ -26,7 +26,6 @@
 //   laisse partir quelqu'un qui aurait payé ; celle-ci affiche ce qu'il faut.
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
-import { BauhausBand } from '../components/BauhausBand'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
@@ -38,6 +37,7 @@ import { priceTag } from '../data/plans'
 import { useGame } from './progress'
 import { useAccess } from './access'
 import { PackArt } from './PackArt'
+import { Gauge } from './Gauge'
 import { Shell } from './Shell'
 import { plural } from './plural'
 
@@ -53,10 +53,6 @@ export function DojosPage() {
   return (
     <Shell>
       <section className="gm-sec">
-        {/* LA FRISE OUVRE L'ÉCRAN · elle ne dit rien, elle donne le ton, et
-            c'est la première chose qu'on voit sous la barre du haut. Voir
-            components/BauhausBand pour pourquoi une frise et pas une icône. */}
-        <BauhausBand seed="accueil-dojos" n={14} height={16} />
         <h1 className="gm-h1">{t('gm.dojosTitle')}</h1>
         <p className="gm-lead">{t('gm.dojosLead')}</p>
       </section>
@@ -88,7 +84,6 @@ function PackCard({ pack, i }: { pack: Pack; i: number }) {
   const open = a.opensPack(pack)
   const levels = levelsOf(pack)
   const done = levels.filter(({ module, level }) => g.isDone(module.id, level.id)).length
-  const percent = levels.length ? Math.round((done / levels.length) * 100) : 0
   const eur = eurOf(pack)
 
   return (
@@ -109,7 +104,7 @@ function PackCard({ pack, i }: { pack: Pack; i: number }) {
               qui décourage doit être réservé à ce qui coûte. */}
           {!open && (
             <span className="pk-lock">
-              <BauhausIcon name="box" size={11} /> {eur === 0 ? t('gm.needEmail') : t('gm.locked')}
+              <BauhausIcon name="lock" size={12} /> {eur === 0 ? t('gm.needEmail') : t('gm.locked')}
             </span>
           )}
           {open && done === levels.length && levels.length > 0 && (
@@ -130,7 +125,7 @@ function PackCard({ pack, i }: { pack: Pack; i: number }) {
         {/* LA JAUGE N'APPARAÎT QU'UNE FOIS COMMENCÉ · une barre à zéro sur
             huit cartes fait huit rappels de ce qu'on n'a pas fait. */}
         {done > 0 && (
-          <span className="pk-bar"><i style={{ width: `${percent}%` }} /></span>
+          <Gauge value={done} total={levels.length} label={t('g.dojos')} />
         )}
 
         <span className="pk-go">

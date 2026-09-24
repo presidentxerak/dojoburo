@@ -91,9 +91,10 @@ ok('no standalone "Account" row', items.filter((t) => t === 'Account').length ==
 ok('no Sound row', !/sound/i.test(menu))
 ok('no City row', !/city/i.test(menu))
 ok('no duplicate rows', new Set(items).size === items.length, items.filter((t, i) => items.indexOf(t) !== i).join(','))
-// Display mode and the build stamp are settings; they belong in Settings, and
-// keeping a copy in the menu is exactly the kind of double entry this menu was
-// rebuilt to remove.
+// The build stamp is a setting; it belongs in Settings, and keeping a copy in
+// the menu is exactly the kind of double entry this menu was rebuilt to
+// remove. There is no display mode any more (one dark violet theme), so it
+// must not come back here either.
 ok('no Display mode row in the menu', !/display mode/i.test(menu))
 ok('no build stamp in the menu', (await p.locator('.tb-menu-build').count()) === 0)
 // but the stamp, and the way to force fresh files, must still exist somewhere

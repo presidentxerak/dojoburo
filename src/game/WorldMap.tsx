@@ -82,7 +82,7 @@ import * as THREE from 'three'
 import { StudioLight } from '../components/three/StudioLight'
 import { Character3D } from '../components/three/Character3D'
 import { GaitProvider, advance, type Gait } from '../components/three/gait'
-import { characterFor, faceIdForUseCase } from '../data/agentFaces'
+import { DOJO_CAST, masterCharacter } from '../data/cast'
 import { PATH_MODULES, say, type Module } from '../data/curriculum'
 import { useLang } from '../i18n'
 import { useGame } from './progress'
@@ -373,7 +373,7 @@ function City3D({
       <group scale={0.72} position={[0, 0, 3.1]}>
         <Character3D
           id={`master-${module.id}`}
-          character={characterFor(faceIdForUseCase(master))}
+          character={masterCharacter(master)}
           fn="Product"
           x={0}
           z={0}
@@ -744,10 +744,12 @@ function Countryside({ span, points }: {
  *  saccade ne donne envie d'aller nulle part. */
 const MAX_WALKERS = 6
 
-/** Les visages des promeneurs · pris dans le catalogue, pas inventés.
- *  Ce sont des élèves, pas des maîtres : ils n'ont pas de titre, pas
- *  d'étiquette, et on ne peut pas cliquer dessus. */
-const WALKER_FACES = ['research', 'support', 'ops', 'sales', 'design', 'data']
+/** Les promeneurs · ce sont les DISCIPLES des salles (voir data/cast), pas
+ *  des maîtres : ils n'ont pas de titre, pas d'étiquette, et on ne peut pas
+ *  cliquer dessus. Ils étaient tirés d'une liste de noms de services que la
+ *  table des visages ne connaissait pas · les six retombaient sur le même
+ *  personnage. */
+const WALKER_KITS = Object.keys(DOJO_CAST) as (keyof typeof DOJO_CAST)[]
 
 /** UN PROMENEUR · il va d'un bout à l'autre d'un chemin, s'arrête, repart.
  *
@@ -758,7 +760,8 @@ const WALKER_FACES = ['research', 'support', 'ops', 'sales', 'design', 'data']
  *  différentes, et celui du chemin court court. */
 function Walker({ curve, faceId, t0, speed, restEvery, restFor }: {
   curve: THREE.CatmullRomCurve3
-  faceId: string
+  /** la salle dont vient ce disciple · voir WALKER_KITS */
+  faceId: keyof typeof DOJO_CAST
   t0: number
   speed: number
   restEvery: number
@@ -813,7 +816,7 @@ function Walker({ curve, faceId, t0, speed, restEvery, restFor }: {
       <group ref={g} scale={0.62}>
         <Character3D
           id={`walker-${faceId}-${t0.toFixed(3)}`}
-          character={characterFor(faceIdForUseCase(faceId))}
+          character={DOJO_CAST[faceId].disciple}
           fn="Product"
           x={0}
           z={0}
@@ -847,7 +850,7 @@ function Walkers({ trails }: { trails: THREE.CatmullRomCurve3[] }) {
     for (let i = 0; i < trails.length && picked.length < MAX_WALKERS; i += step) picked.push(i)
     return picked.map((i, k) => ({
       i,
-      faceId: WALKER_FACES[k % WALKER_FACES.length],
+      faceId: WALKER_KITS[k % WALKER_KITS.length],
       t0: 0.15 + rnd() * 0.7,
       // LA VITESSE EST UNE VITESSE DE MARCHE, pas de course · autour de 1,2
       // unité par seconde, ce qui est la vitesse pour laquelle l'amplitude du

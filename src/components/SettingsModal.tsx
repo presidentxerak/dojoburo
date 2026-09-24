@@ -16,10 +16,9 @@ import { BUILD_ID, forceFresh } from '../lib/build'
 // and a "Language & region" section whose only field was the currency those
 // prices are shown in. Two doors to one room, and a founder looking for their
 // credits had to guess which. Everything about money is in Billing.
-type Section = 'general' | 'appearance' | 'apps' | 'automation' | 'about'
+type Section = 'general' | 'apps' | 'automation' | 'about'
 const SECTIONS: { id: Section; label: string }[] = [
   { id: 'general', label: 'General' },
-  { id: 'appearance', label: 'Appearance' },
   { id: 'apps', label: 'Connected apps' },
   { id: 'automation', label: 'Automation & safety' },
   { id: 'about', label: 'About' },
@@ -29,8 +28,6 @@ const SECTIONS: { id: Section; label: string }[] = [
 export function SettingsModal() {
   const open = useDojo((s) => s.settingsOpen)
   const close = () => useDojo.getState().setSettingsOpen(false)
-  const theme = useDojo((s) => s.theme)
-  const setTheme = useDojo((s) => s.setTheme)
   const account = useWorkshop((s) => s.account)
   const updateAccount = useWorkshop((s) => s.updateAccount)
   const dojo = useWorkshop((s) => s.dojos.find((d) => d.id === s.activeDojoId))
@@ -66,19 +63,6 @@ export function SettingsModal() {
                 <input value={account?.name ?? ''} onChange={(e) => updateAccount({ name: e.target.value })} maxLength={40} placeholder="Founder" />
               </label>
               <div className="set-field"><span>Workspace type</span><b className="set-static">{tpl.label ?? 'Dojo'}</b></div>
-            </section>
-          )}
-
-          {section === 'appearance' && (
-            <section className="set-sec">
-              <h3>Appearance</h3>
-              <p className="set-lead">How the app looks.</p>
-              <div className="set-field"><span>Display mode</span>
-                <div className="set-seg">
-                  <button className={theme === 'light' ? 'on' : ''} onClick={() => setTheme('light')}>Light</button>
-                  <button className={theme === 'dark' ? 'on' : ''} onClick={() => setTheme('dark')}>Dark</button>
-                </div>
-              </div>
             </section>
           )}
 
