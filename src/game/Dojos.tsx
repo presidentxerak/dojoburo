@@ -99,7 +99,7 @@ function PackCard({ pack, i }: { pack: Pack; i: number }) {
           rencontrera en entrant, donc la carte montre qui enseigne avant
           d'avoir été ouverte. Un visage pris ailleurs aurait été plus joli et
           aurait menti. */}
-      <PackArt scene={pack.scene} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
+      <PackArt kit={pack.kit} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
 
       <div className="pk-body">
         <div className="pk-tags">

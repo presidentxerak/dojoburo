@@ -114,7 +114,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
 
             <section className="ln-end">
               <button
-                className={`ln-claim${done ? ' on' : ''}`}
+                className={`cc-btn ln-claim${done ? ' on' : ''}`}
                 onClick={() => (done ? clearDone(module.id, level.id) : markDone(module.id, level.id))}
               >
                 {done

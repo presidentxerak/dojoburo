@@ -165,8 +165,11 @@ function loadTheme(): Theme {
   try {
     const saved = localStorage.getItem('dojoburo.theme')
     if (saved === 'dark' || saved === 'light') return saved
-  } catch { /* fenêtre privée · on retombe sur le clair */ }
-  return 'light'
+  } catch { /* fenêtre privée · on retombe sur le sombre */ }
+  // LE MÊME DÉFAUT QUE public/boot.js, qui décide · voir là-bas. Ce repli ne
+  // sert que si boot.js n'a pas tourné (rendu sans document), et deux défauts
+  // différents feraient basculer l'écran au premier rendu.
+  return 'dark'
 }
 
 /**
@@ -180,7 +183,7 @@ export function applyTheme(t: Theme): void {
   try {
     document.documentElement.dataset.theme = t
     const m = document.querySelector('meta[name="theme-color"]')
-    if (m) m.setAttribute('content', t === 'dark' ? '#000000' : '#ffffff')
+    if (m) m.setAttribute('content', t === 'dark' ? '#0f1120' : '#7fbf3a')
   } catch { /* pas de document */ }
 }
 

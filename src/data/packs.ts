@@ -62,6 +62,11 @@ export const xpOfModule = (m: Module): number =>
  *  que ce que la grille de tarifs annonce. */
 export type Door = 'free' | 'path' | 'trade'
 
+/** Les kits de salle qu'une formation peut porter · un sous-ensemble choisi des
+ *  kits de three/ThemeProps. Écrit en type plutôt qu'en chaîne libre pour
+ *  qu'une faute de frappe se voie à la compilation et non par une salle vide. */
+export type DojoKit = 'course' | 'study' | 'saas' | 'podcast' | 'pitch' | 'app' | 'sales' | 'ops'
+
 export interface Pack {
   id: string
   door: Door
@@ -72,10 +77,12 @@ export interface Pack {
   blurb: Bi
   glyph: IconName
   tint: string
-  /** LE DÉCOR DE SON ILLUSTRATION · chaque carte porte un dojo en trois
-   *  dimensions plutôt qu'une image, et c'est ce mot qui dit lequel. Voir
-   *  game/PackArt. */
-  scene: 'gate' | 'garden' | 'forge' | 'hall' | 'terrace' | 'pavilion'
+  /** LA SALLE DE SON DOJO · la carte montre l'INTÉRIEUR du dojo de la
+   *  spécialité, meublé du kit de son métier (voir three/ThemeProps). C'était
+   *  un extérieur de temple, le même pour tous à la couleur près ; une salle
+   *  meublée dit de quoi on parle avant qu'on ait lu le titre · un studio de
+   *  podcast n'est pas une salle des marchés. */
+  kit: DojoKit
   /** les identifiants de ses modules, dans l'ordre conseillé */
   modules: string[]
   /** le métier auquel ce pack appartient · absent pour les deux généralistes */
@@ -99,7 +106,7 @@ const WEEKEND: Pack = {
     "Sept leçons, moins d'une heure, gratuit. Les mots, les limites, le coût."),
   glyph: 'peak',
   tint: '#7b5cff',
-  scene: 'gate',
+  kit: 'course',
   modules: [DISCOVERY_MODULE.id],
 }
 
@@ -111,22 +118,34 @@ const GENERAL: Pack = {
     "Treize cités dojo : le prompt, les modèles, les assistants, les agents, le design, le coût."),
   glyph: 'diamond',
   tint: '#0ea5e9',
-  scene: 'hall',
+  kit: 'study',
   modules: PATH_MODULES.map((m) => m.id),
 }
 
-/** LES SIX MÉTIERS · construits depuis data/trades plutôt que recopiés. Une
- *  liste écrite ici aurait survécu au septième métier sans le montrer. */
-const TRADE_SCENES: Pack['scene'][] = ['garden', 'terrace', 'pavilion', 'forge', 'garden', 'terrace']
+/** LE KIT DE CHAQUE MÉTIER · la salle qui ressemble au travail qu'on y fait.
+ *
+ *  UNE TABLE ET NON UN CYCLE. La version d'avant tirait un décor dans une
+ *  liste de six par l'indice du métier, donc « commercial » avait un pavillon
+ *  sur l'eau parce qu'il était cinquième, pas parce qu'un commercial travaille
+ *  au bord d'un bassin. Ici chaque métier nomme SA salle, et un métier ajouté
+ *  sans salle tombe sur la salle d'étude plutôt que sur celle d'un autre. */
+const TRADE_KIT: Record<string, DojoKit> = {
+  growth: 'saas',        // les tableaux de bord, les courbes
+  comms: 'podcast',      // le micro, la lumière annulaire, le mur de studio
+  founder: 'pitch',      // la scène, le trophée
+  product: 'app',        // les serveurs, le tableau de flux
+  sales: 'sales',        // les téléphones, la carte du territoire
+  assistant: 'ops',      // le tapis roulant, les palettes, le flux
+}
 
-const TRADE_PACKS: Pack[] = TRADES.map((t, i) => ({
+const TRADE_PACKS: Pack[] = TRADES.map((t) => ({
   id: `metier-${t.id}`,
   door: 'trade' as Door,
   title: t.label,
   blurb: t.who,
   glyph: t.glyph,
   tint: t.tint,
-  scene: TRADE_SCENES[i % TRADE_SCENES.length],
+  kit: TRADE_KIT[t.id] ?? 'study',
   modules: citiesOfTrade(t.id).map((m) => m.id),
   trade: t.id,
 }))

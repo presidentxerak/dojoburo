@@ -148,48 +148,84 @@ ok('le mode sombre n\'est pas un noir pur',
   /--bg:\s*#08090a/i.test(DARK) && !/--bg:\s*#000000/i.test(DARK),
   DARK.match(/--bg:[^;]*/)?.[0] ?? 'absent')
 
-/* --- 3 · le rayon des cartes, et la dérogation assumée -------------------- */
+/* --- 3 · le style de jeu, et il s'arrête au jeu --------------------------- */
 //
-// Hyperobust impose le rayon zéro « sur tous les composants, sans exception »
-// et range l'ombre parmi les interdits. La dérogation a été demandée
-// explicitement et elle est BORNÉE à un jeton : si elle fuit dans --radius,
-// c'est tout le produit qui s'arrondit sans que personne l'ait décidé.
-
-ok('le rayon du système reste zéro', /--radius:\s*0px/.test(CSS))
-ok('le rayon des cartes vaut seize pixels', /--radius-card:\s*16px/.test(CSS),
-  CSS.match(/--radius-card:[^;]*/)?.[0] ?? 'absent')
-ok('l\'ombre large des cartes existe', /--shadow-card:/.test(CSS))
+// CE QUE CETTE SECTION GARDAIT, ET POURQUOI ELLE A CHANGÉ. Elle vérifiait la
+// dérogation Hyperobust : seize pixels et une ombre sur les cartes, lus dans le
+// jeton --radius-card, jamais recopiés. Le jeu a ensuite été redemandé dans le
+// style des jeux de gestion mobiles, qui repose précisément sur ce que ce
+// système interdit · le trait épais, le rebord, le reflet. Le jeton est mort,
+// il a été retiré, et une garde qui continuerait d'exiger sa présence
+// garderait un cadavre.
+//
+// CE QUI NE DOIT TOUJOURS PAS BOUGER SANS QU'ON LE DÉCIDE :
+//   · le reste du produit garde le rayon zéro · le style de jeu est BORNÉ,
+//   · les surfaces du jeu sont UNE surface · une seule règle de panneau, que
+//     la carte, le module, la question, la fiche reprennent,
+//   · le contour vient du jeton d'encre, jamais d'un hexadécimal recopié,
+//   · le bouton a une COURSE · il descend de la hauteur exacte de son rebord.
 
 /** La règle d'une classe · lue par sa PORTÉE, parce que « .pk » apparaît dans
  *  une vingtaine de sélecteurs et que celui qu'on veut est le premier. */
 const rule = (sel) => {
-  const m = CSS.match(new RegExp(`\\n${sel.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}\\s*\\{([\\s\\S]*?)\\n\\}`))
+  const m = CSS.match(new RegExp(`\\n${sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([\\s\\S]*?)\\n\\}`))
   return m ? m[1] : ''
 }
-const PK = rule('.pk')
-ok('la carte de formation porte le rayon', /border-radius:\s*var\(--radius-card\)/.test(PK))
-ok('… et l\'ombre', /box-shadow:\s*var\(--shadow-card\)/.test(PK))
-// LE JETON EST LU, JAMAIS RECOPIÉ · « border-radius: 16px » écrit en dur
-// marcherait aujourd'hui et divergerait au premier réglage. C'est exactement
-// la faute que le système nomme : « prendre la valeur dans le jeton, jamais
-// l'écrire en dur ».
-//
-// LA RÈGLE EST BORNÉE À LA FEUILLE DU JEU, et cette borne a été posée parce que
-// la garde a accusé du travail juste au premier passage : elle lisait les dix
-// mille lignes du fichier et rougissait sur « .pgpick », un panneau écrit bien
-// avant que ce jeton existe, arrondi à seize pixels pour ses propres raisons et
-// que personne ne demande de changer. Une garde qui accuse du travail juste
-// apprend à la contourner, et elle ne garde plus rien.
-//
-// La précision vient donc de la PORTÉE et non d'un motif plus malin · ce qu'on
-// surveille est le jeu, dont les seize pixels viennent d'être décidés, et où un
-// deuxième endroit qui les recopierait divergerait au premier réglage.
-const GAME_CSS = CSS.slice(CSS.indexOf('.gm {\n  min-height: 100dvh;'))
-ok('la feuille du jeu a bien été trouvée', GAME_CSS.length > 2000,
-  `${GAME_CSS.length} caractères`)
-ok('aucune surface du jeu n\'écrit seize pixels en dur',
-  !/border-radius:\s*16px/.test(GAME_CSS),
-  GAME_CSS.match(/[^\n]*border-radius:\s*16px[^\n]*/)?.[0]?.trim() ?? 'aucune')
+
+ok('le reste du produit garde le rayon zéro', /--radius:\s*0px/.test(CSS))
+ok('le jeton de la dérogation a bien disparu', !/--radius-card/.test(CSS),
+  CSS.match(/[^\n]*--radius-card[^\n]*/)?.[0]?.trim() ?? 'absent')
+
+// LA FEUILLE DU JEU · bornée par PORTÉE, pour la même raison qu'avant : la
+// garde a accusé du travail juste le jour où elle lisait les onze mille lignes
+// et rougissait sur un panneau du studio arrondi pour ses propres raisons.
+const GAME_AT = CSS.indexOf('LE JEU · le style « jeu de gestion mobile »')
+const GAME_CSS = GAME_AT >= 0 ? CSS.slice(GAME_AT) : ''
+ok('la feuille du jeu a bien été trouvée', GAME_CSS.length > 5000, `${GAME_CSS.length} caractères`)
+
+// UNE SEULE RÈGLE DE PANNEAU · carte, module, question, fiche.
+const PANEL = GAME_CSS.match(/\n(\.pk, \.md,[^{]*)\{([\s\S]*?)\n\}/)
+const panelSel = PANEL?.[1] ?? ''
+for (const cls of ['.pk', '.md', '.ln-quiz', '.cm-sheet']) {
+  ok(`${cls} est un panneau de jeu`, panelSel.split(',').map((x) => x.trim()).includes(cls), panelSel.trim().slice(0, 60))
+}
+ok('le panneau est cerné d\'encre', /border:\s*3px solid var\(--g-ink\)/.test(PANEL?.[2] ?? ''))
+ok('… et posé sur sa tranche', /0 6px 0 var\(--g-ledge\)/.test(PANEL?.[2] ?? ''))
+
+// LE CONTOUR VIENT DU JETON · un « 3px solid #14161f » recopié marcherait
+// aujourd'hui et divergerait le jour où l'encre change avec un thème.
+// La garde vise L'ENCRE et elle seule : un liseré d'accent orange (le passe de
+// test du profil) est une couleur voulue, pas un contour recopié. La première
+// version attrapait toute couleur en dur et accusait ce liseré.
+const INK = CSS.match(/--g-ink:\s*(#[0-9a-f]{3,6})/i)?.[1] ?? '#14161f'
+const rawInk = [...GAME_CSS.matchAll(new RegExp(`border[a-z-]*:\\s*[\\d.]+px solid ${INK}\\b`, 'gi'))].map((m) => m[0])
+ok('aucun contour du jeu n\'écrit l\'encre en dur', rawInk.length === 0, rawInk.slice(0, 2).join(' | ') || 'aucun')
+
+// LE BOUTON A UNE COURSE, ET ELLE EST EXACTE · il s'enfonce de la hauteur de
+// son rebord et le rebord disparaît. Un enfoncement plus court laisse une
+// marche sous le bouton ; plus long, le bouton passe SOUS sa propre tranche.
+const CTA = GAME_CSS.match(/\n\.gm-cta, \.cc-btn \{([\s\S]*?)\n\}/)?.[1] ?? ''
+const CTA_DOWN = GAME_CSS.match(/\n\.gm-cta:active, \.cc-btn:active \{([\s\S]*?)\n\}/)?.[1] ?? ''
+const ledge = Number(CTA.match(/0 (\d+)px 0 var\(--b-ledge\)/)?.[1] ?? NaN)
+const press = Number(CTA_DOWN.match(/translateY\((\d+)px\)/)?.[1] ?? NaN)
+ok('le bouton descend de la hauteur de son rebord', ledge === press, `rebord ${ledge}px, course ${press}px`)
+// LE REFLET PASSE SOUS LE TEXTE · sans contexte d'empilement, le pseudo-élément
+// du reflet se peignait par-dessus les lettres, en voile blanc.
+ok('le reflet ne recouvre pas le texte', /isolation:\s*isolate/.test(CTA) && /z-index:\s*-1/.test(GAME_CSS))
+
+// LES VRAIS <button> GARDENT LEUR ARRONDI · une règle générale plus haut dans
+// le fichier aplatit « button » en !important. Les boutons du jeu qui sont des
+// liens étaient ronds, ceux qui sont des <button> sortaient en briques, côte à
+// côte sur le même écran.
+ok('une règle générale aplatit bien les <button>', /input, textarea, select, button \{ border-radius: 0 !important; \}/.test(CSS))
+ok('… et le jeu leur rend leur arrondi avec la même force',
+  /\.gm button\.gm-cta, \.gm \.cc-btn[^{]*\{ border-radius: 16px !important; \}/.test(CSS)
+  && /\.gm \.ln-opt \{ border-radius: 16px !important; \}/.test(CSS))
+
+// LE TITRE EST EXTRUDÉ · mesuré : l'encre du contour posée sur la page de nuit,
+// c'était du sombre sur du sombre, et le contour disparaissait exactement là où
+// sont les titres. La tranche violette sous le contour est ce qui les détache.
+ok('le grand titre porte l\'extrusion', /text-shadow:\s*var\(--g-title\)/.test(rule('.gm-h1')))
 
 /* --- 4 · trois formations sur la même ligne ------------------------------- */
 //
@@ -223,43 +259,65 @@ ok('la barre ne reprend ni la maison ni l\'étoile',
 //
 // Ce n'est pas une politesse. Pour qui est sensible au mouvement, une animation
 // qui continue après qu'on a demandé qu'elle s'arrête est la différence entre
-// un produit utilisable et un malaise. La règle est donc vérifiée par
-// CONSTRUCTION : chaque nom d'animation déclaré doit être cité dans un bloc de
-// mouvement réduit, sinon il en manquera une, un jour, et personne ne le verra.
+// un produit utilisable et un malaise.
+//
+// LA RÈGLE SUIT LES ÉLÉMENTS, PAS LES NOMS, et c'est une réparation.
+// La première version vérifiait qu'un NOM d'animation apparaissait dans un bloc
+// de mouvement réduit, et qu'il apparaissait dans un composant. Elle a rougi
+// sur « gm-hop », qui était pourtant juste des deux côtés : l'animation est
+// posée par la feuille sur « .gm-tab.on .gm-tab-g » (l'onglet actif, qui est
+// bien dans Shell), et ce même sélecteur est coupé en mouvement réduit. Le nom
+// n'apparaissait simplement nulle part en toutes lettres. Une garde qui accuse
+// du travail juste apprend à la contourner.
+//
+// Ce qui compte vraiment est donc vérifié : chaque SÉLECTEUR qui porte une
+// animation du jeu est coupé en mouvement réduit, et chaque animation est
+// portée par au moins un élément qui existe dans un composant.
 
+/** Les règles d'un texte CSS, à plat · les blocs @media ne sont pas ouverts,
+ *  mais leurs règles internes sont trouvées puisqu'elles n'ont pas d'accolade
+ *  dans leur corps. */
+// Les commentaires sont retirés d'abord · sinon le commentaire qui précède une
+// règle devient une partie de son sélecteur, et la règle n'est plus reconnue.
+const rulesOf = (text) => [...text.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+  .map(([, sel, body]) => ({ sels: sel.split(',').map((x) => x.trim()).filter(Boolean), body }))
 const KEYFRAMES = [...CSS.matchAll(/@keyframes\s+(gm-[a-z-]+)/g)].map((m) => m[1])
 const CALM = CSS.match(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*?)\n\}/g)?.join('\n') ?? ''
-const uncovered = KEYFRAMES.filter((k) => !CALM.includes(k))
-ok('chaque animation du jeu est coupée en mouvement réduit',
-  uncovered.length === 0,
-  uncovered.join(', ') || `${KEYFRAMES.length} animations`)
+const CALM_RULES = rulesOf(CALM)
+const ALL_RULES = rulesOf(CSS.replace(/@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, ''))
+/** les sélecteurs qui posent cette animation */
+const carriers = (k) => ALL_RULES
+  .filter((r) => new RegExp(`animation(-name)?:\\s*${k}\\b`).test(r.body))
+  .flatMap((r) => r.sels)
+const stilled = (sel) => CALM_RULES.some((r) => r.sels.includes(sel) && /animation:\s*none/.test(r.body))
+
+const loose = []
+for (const k of KEYFRAMES) for (const sel of carriers(k)) if (!stilled(sel)) loose.push(`${k} sur ${sel}`)
+ok('chaque élément animé du jeu est coupé en mouvement réduit', loose.length === 0,
+  loose.slice(0, 3).join(' | ') || `${KEYFRAMES.length} animations`)
 ok('le ressort des cartes et des boutons aussi',
   /\.pk,\s*\.gm-cta\s*\{\s*transition-duration/.test(CALM))
 
-// … ET CHAQUE ANIMATION EST RÉELLEMENT POSÉE QUELQUE PART.
-//
-// C'est la moitié qui manquait au premier jet, et elle vaut plus que l'autre.
-// « gm-pump » et « gm-bumped » existaient, avec leurs images clés, leur
-// échappatoire de mouvement réduit et un commentaire qui expliquait à quoi
-// elles servaient · et AUCUN composant ne les portait. Une classe que rien
+// … ET CHAQUE ANIMATION EST PORTÉE PAR UN ÉLÉMENT QUI EXISTE.
+// « gm-pump » et « gm-bumped » ont existé avec leurs images clés et leur
+// commentaire, et AUCUN composant ne les portait. Une classe que rien
 // n'applique n'est pas une animation, c'est une intention, et un commentaire
-// qui décrit une intention comme si elle était faite est un mensonge que la
-// prochaine lecture croira.
-//
-// La règle est donc : ce qui est déclaré ici est utilisé là-bas.
-const USERS = ['src/game/Shell.tsx', 'src/game/Dojos.tsx', 'src/game/Profil.tsx', 'src/game/PackPage.tsx']
+// qui décrit une intention comme si elle était faite est un mensonge.
+const SOURCES = ['src/game/Shell.tsx', 'src/game/Dojos.tsx', 'src/game/Profil.tsx', 'src/game/PackPage.tsx',
+  'src/game/Lesson.tsx', 'src/game/Carte.tsx', 'src/game/WorldMap.tsx']
   .map((f) => readFileSync(f, 'utf8')).join('\n')
-const unused = KEYFRAMES.filter((k) => !USERS.includes(k))
-ok('chaque animation déclarée est portée par un composant',
-  unused.length === 0,
-  unused.join(', ') || KEYFRAMES.join(', '))
+const classesOf = (sel) => [...sel.matchAll(/\.([a-z][a-z0-9-]*)/g)].map((m) => m[1])
+const orphan = KEYFRAMES.filter((k) => {
+  const sels = carriers(k)
+  return !sels.some((sel) => classesOf(sel).some((c) => SOURCES.includes(c)))
+})
+ok('chaque animation est portée par un élément qui existe', orphan.length === 0,
+  orphan.join(', ') || KEYFRAMES.join(', '))
 // L'ARRIVÉE NE DOIT PAS LAISSER LA PAGE VIDE · couper une animation d'arrivée
-// sans rendre l'opacité laisse la moitié de l'écran invisible, ce qui est bien
-// pire que l'animation qu'on voulait éviter.
+// sans rendre l'opacité laisse la moitié de l'écran invisible.
 ok('couper l\'arrivée ne cache rien', /\.gm-rise,\s*\.gm-bumped\s*\{\s*opacity:\s*1/.test(CALM))
 // … ET L'ARRIVÉE REND LA MAIN AU SURVOL. Avec « both », la dernière image clé
-// reste appliquée et écrase la transition : la carte montait, puis ne bougeait
-// plus jamais sous le doigt.
+// reste appliquée et écrase la transition : la carte ne bougeait plus.
 ok('l\'arrivée ne fige pas le ressort', /\.gm-rise\s*\{[^}]*backwards/.test(CSS))
 
 /* --- 7 · les étiquettes de la carte passent SOUS l'interface -------------- */
@@ -302,6 +360,41 @@ ok('la campagne remplit le vide entre les cités', /<Countryside\b/.test(MAP))
 // travers un temple, est exactement ce qui fait dire qu'une carte est buggée.
 ok('et elle évite les enceintes', /free\(x,\s*z,\s*6\.2\)/.test(MAP))
 
+/* --- 8b · le sombre par défaut, la police du jeu, la mesure des vignettes - */
+//
+// LE SOMBRE PAR DÉFAUT SE DÉCIDE À DEUX ENDROITS, et ils doivent dire la même
+// chose. public/boot.js pose le thème avant le premier pixel ; loadTheme dans
+// store.ts le relit. S'ils divergent, la page naît dans un thème et React la
+// bascule dans l'autre au premier rendu : un éclair, à chaque chargement.
+const BOOT = readFileSync('public/boot.js', 'utf8')
+const STORE = readFileSync('src/store.ts', 'utf8')
+const bootDefault = BOOT.match(/if \(t !== 'dark' && t !== 'light'\) t = '(dark|light)'/)?.[1]
+const storeDefault = STORE.match(/function loadTheme[\s\S]*?return '(dark|light)'\s*\n\}/)?.[1]
+ok('le thème par défaut est le sombre', bootDefault === 'dark', bootDefault ?? 'introuvable')
+ok('boot.js et store.ts disent le même défaut', bootDefault && bootDefault === storeDefault,
+  `${bootDefault} / ${storeDefault}`)
+// La barre du navigateur a la teinte de l'en-tête du jeu, aux trois endroits.
+const HTML = readFileSync('index.html', 'utf8')
+ok('la barre du navigateur naît sombre', /name="theme-color" content="#0f1120"/.test(HTML))
+ok('… et reste raccordée des deux côtés', /#0f1120/.test(BOOT) && /#0f1120/.test(STORE))
+
+// LA POLICE DU JEU EST SERVIE PAR NOUS. Chargée depuis Google, elle manquait
+// dès que Google ne répondait pas, et le titre tombait en police système sous
+// un contour prévu pour une police épaisse. Le test « document.fonts.check »
+// répondait vrai quand même : il le fait pour toute famille sans @font-face.
+const MAIN = readFileSync('src/main.tsx', 'utf8')
+ok('la police du jeu est servie par nous', /import '@fontsource\/lilita-one\/latin-400\.css'/.test(MAIN))
+ok('… et pas demandée à Google', !/Lilita/.test(HTML))
+ok('elle ne sert qu\'à l\'affichage', /--font-game:\s*'Lilita One'/.test(CSS))
+
+// LA VIGNETTE MESURE SA BOÎTE, PAS SON APPARENCE. Pendant l'arrivée de la
+// carte (une mise à l'échelle), la mesure par défaut lisait la taille RÉDUITE
+// et laissait une bande vide à droite de chaque vignette, pour toujours.
+const ART = readFileSync('src/game/PackArt.tsx', 'utf8')
+ok('la vignette ignore les transformations en se mesurant', /resize=\{\{\s*offsetSize:\s*true\s*\}\}/.test(ART))
+ok('chaque formation a sa salle', /kit=\{pack\.kit\}/.test(readFileSync('src/game/Dojos.tsx', 'utf8'))
+  && /kit=\{pack\.kit\}/.test(readFileSync('src/game/PackPage.tsx', 'utf8')))
+
 /* --- 9 · les morsures ------------------------------------------------------ */
 //
 // Une garde qu'on ne peut pas faire rougir ne garde rien, et une garde qui
@@ -330,6 +423,13 @@ ok('morsure · le sourire ne l\'est pas',
   !/glyph:\s*'(house|star)'/.test("{ to: '/profil', key: 'nav.profile', glyph: 'smile' },"))
 ok('morsure · deux colonnes énumérées seraient vues',
   /\.pk-grid\s*\{\s*grid-template-columns:\s*1fr\s+1fr\s*\}/.test('.pk-grid { grid-template-columns: 1fr 1fr }'))
+
+ok('morsure · un défaut clair serait vu',
+  "if (t !== 'dark' && t !== 'light') t = 'light'".match(/t = '(dark|light)'$/)?.[1] !== 'dark')
+ok('morsure · une police demandée à Google serait vue',
+  /Lilita/.test('<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Outfit">'))
+ok('morsure · une vignette mesurée sans offsetSize serait vue',
+  !/resize=\{\{\s*offsetSize:\s*true\s*\}\}/.test('<Canvas dpr={[1, 1.5]} frameloop="demand">'))
 
 console.log(fails
   ? `\ntest-charte · ${fails} problème(s)`

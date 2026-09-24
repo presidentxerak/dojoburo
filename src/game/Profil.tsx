@@ -125,7 +125,7 @@ export function ProfilPage() {
         <BauhausBand seed="profil-donnees" />
         <h2 className="pf-h2">{t('pr.dataH2')}</h2>
         <p className="gm-lead">{t('pr.dataBody')}</p>
-        <button className="pf-forget" onClick={() => { forgetAccess(); location.reload() }}>
+        <button className="cc-btn pf-forget" onClick={() => { forgetAccess(); location.reload() }}>
           {t('pr.forget')}
         </button>
       </section>

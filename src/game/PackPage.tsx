@@ -81,7 +81,7 @@ export function PackPage({ packId }: { packId: string }) {
         <Lnk className="gm-back" href="/">← {t('gm.backDojos')}</Lnk>
         <div className="pkh-top">
           <div className="pkh-art">
-            <PackArt scene={pack.scene} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
+            <PackArt kit={pack.kit} tint={pack.tint} master={levels[0]?.level.master} locked={!open} />
           </div>
           <div className="pkh-txt">
             <BauhausBand seed={`pack-${pack.id}`} n={9} height={12} />
