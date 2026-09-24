@@ -99,14 +99,14 @@ function Client({ view, onGone }: { view: ClientView; onGone: (uid: string) => v
     const o = g.current
     const s = st.current
     if (!o || s.gone) return
-    const dt = Math.min(raw, 0.05)
+    const dt = Math.min(raw, 0.1)
     const target = s.path[s.i]
     let speed = 0
     if (target) {
       const dx = target[0] - s.x
       const dz = target[1] - s.z
       const d = Math.hypot(dx, dz)
-      const v = (s.leaving ? 2.2 : 1.8)
+      const v = s.leaving ? 3 : 2.6
       if (d < 0.05) {
         s.i++
         if (s.i >= s.path.length && s.leaving) { s.gone = true; onGone(view.uid); return }
@@ -135,6 +135,26 @@ function Client({ view, onGone }: { view: ClientView; onGone: (uid: string) => v
           mood={mood} selected={false} busy={false} walk bare onSelect={() => {}} />
       </group>
     </GaitProvider>
+  )
+}
+
+/** L'ACCUEIL · trois tapis ronds marquent où les clients attendent. */
+function Welcome() {
+  return (
+    <group>
+      {SLOTS.map(([x, z], i) => (
+        <group key={i} position={[x, 0, z]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]} receiveShadow>
+            <circleGeometry args={[0.95, 40]} />
+            <meshStandardMaterial color="#7c3aed" roughness={0.9} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+            <ringGeometry args={[0.72, 0.8, 40]} />
+            <meshStandardMaterial color="#c4b5fd" roughness={0.8} />
+          </mesh>
+        </group>
+      ))}
+    </group>
   )
 }
 
@@ -186,9 +206,12 @@ function Rig() {
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera
     const portrait = size.height > size.width * 1.1
-    cam.fov = portrait ? 64 : 42
-    cam.position.set(0, portrait ? 17 : 13.2, portrait ? 17.5 : 15.2)
-    cam.lookAt(0, 0.6, portrait ? 0.6 : 1.0)
+    // en portrait, la caméra monte presque à la verticale · la profondeur de
+    // la salle devient la hauteur de l'écran, qu'un téléphone a en trop
+    cam.fov = portrait ? 56 : 42
+    // et la salle descend sous la bande des clients, en haut de l'écran
+    cam.position.set(0, portrait ? 27 : 13.2, portrait ? 10.5 : 15.2)
+    cam.lookAt(0, 0, portrait ? -0.6 : 1.0)
     cam.updateProjectionMatrix()
   }, [camera, size.width, size.height])
   return null
@@ -258,6 +281,7 @@ export function SimScene({ staff, clients, masterSays, paused, lang, onPickStaff
       <Rig />
       <Suspense fallback={null}>
         <Decor3D palette={P} decor={tpl.id} enclosed={tpl.enclosed} stations={stations} />
+        <Welcome />
         {SKILLS.map((s) => <Specialist key={s} skill={s} view={staff[s]} lang={lang} onPick={onPickStaff} />)}
         {clients.map((c) => <Client key={c.uid} view={c} onGone={onClientGone} />)}
         <Sensei3D quiet={!masterSays} says={masterSays ?? undefined} />

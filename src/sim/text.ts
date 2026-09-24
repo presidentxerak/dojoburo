@@ -20,6 +20,7 @@ export const T = {
   newGame: B('New game', 'Nouvelle partie'),
   confirmReset: B('Start again from day 1? Your studio will be reset.', 'Recommencer au jour 1 ? Ton studio sera remis à zéro.'),
   back: B('Back to Training', 'Retour au Training'),
+  backShort: B('Back', 'Retour'),
   day: B('Day', 'Jour'),
   budget: B('Tokens', 'Tokens'),
   budgetLeft: B('tokens left', 'tokens restants'),
@@ -93,6 +94,20 @@ export const T = {
   master: B('The master', 'Le maître'),
   best: B('Best day reached', 'Meilleur jour atteint'),
   totalServed: B('Clients served in all', 'Clients servis au total'),
+  wanted: B('Needed', 'Demandé'),
+  given: B('given', 'donnés'),
+  closing: B('Closing soon: new clients stop at 5 pm.', 'Fermeture bientôt : plus de nouveaux clients après 17 h.'),
+  closed: B('Closed. Finishing the last jobs.', 'Fermé. On termine les derniers travaux.'),
+  today: B('Today', "Aujourd'hui"),
+  noEvent: B('A quiet first day. Learn the ropes.', 'Un premier jour calme. Prends tes marques.'),
+  cantPick: B('Not available right now.', 'Pas disponible pour le moment.'),
+  noCash: B('Not enough cash.', 'Pas assez dans la caisse.'),
+  bought: B('Bought', 'Acheté'),
+  exit: B('Exit full screen', 'Quitter le plein écran'),
+  resumeGame: B('Resume', 'Reprendre'),
+  quit: B('Quit the day', 'Quitter la journée'),
+  quitWarn: B('Leave now? Today\'s progress is lost, your studio is kept.', "Partir maintenant ? La journée en cours est perdue, ton studio est gardé."),
+  hint: B('Tap a client card to open the brief.', "Touche la carte d'un client pour ouvrir son brief."),
 }
 
 export const OUTCOME: Record<Outcome, Bi> = {
