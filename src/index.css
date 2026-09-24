@@ -10873,6 +10873,14 @@ button.wm-tag { border-radius: 999px !important; }
 /* LE ROBOT D'AIDE · une bulle violette flat, l'icône seule, au-dessus de la
    barre du bas. Le nom reste dit au lecteur d'écran par l'étiquette. */
 .gm .sb-launch { bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+/* SUR TÉLÉPHONE, LA BULLE NE CACHE PLUS LA FIN DE LA PAGE · elle flottait
+   par-dessus le dernier bouton (« Démarrer gratuitement » sur les tarifs, le
+   bas des cartes). Elle rapetisse, et la page gagne de quoi défiler au-delà :
+   le dernier élément remonte au-dessus de la bulle. */
+@media (max-width: 720px) {
+  .gm { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+  .gm .sb-launch { width: 48px !important; height: 46px !important; right: 10px; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+}
 
 /* --- au-delà du téléphone ------------------------------------------------ */
 /* TROIS FORMATIONS SUR LA MÊME LIGNE · à partir de 1100 pixels. Une quatrième
