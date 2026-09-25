@@ -22,6 +22,7 @@
 // faut faire défiler pour trouver la première phrase. Elle occupe maintenant
 // une bande, assez pour qu'on voie qui nous attend, assez peu pour que le
 // cours commence au-dessus de la ligne de flottaison.
+import { burst } from '../lib/juice'
 import { useState } from 'react'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { Lnk } from '../lib/router'
@@ -229,7 +230,12 @@ function QuizCard({ q, n, of, saved, onPick }: {
               key={o.en}
               className={`ln-opt${state}`}
               disabled={answered}
-              onClick={() => { setPick(k); onPick?.(k) }}
+              onClick={(e) => {
+                setPick(k); onPick?.(k)
+                // LA BONNE RÉPONSE SE FÊTE · une gerbe plus fournie que celle
+                // d'un bouton, partie de la réponse choisie (voir lib/juice).
+                if (k === q.answer) burst(e.clientX, e.clientY, 24)
+              }}
             >
               <span className="ln-opt-k" aria-hidden>
                 {answered && k === q.answer ? <BauhausIcon name="check" size={12} />

@@ -315,6 +315,15 @@ ok('la barre : Dojoburo, Training, Clan, Profil', TAB_KEYS.join(',') === 'nav.ga
 ok('Dojoburo porte la marque, Training la toque',
   /\{ to: '\/dojoburo', key: 'nav\.game', glyph: null \}/.test(SHELL) && /\{ to: '\/', key: 'nav\.training', glyph: 'training' \}/.test(SHELL))
 ok('Training ne s\'allume pas sur le jeu', /path\.startsWith\('\/dojo\/'\)/.test(SHELL))
+// LE NOM · « renomme le bouton et la page Training par IA Training ». Le
+// bouton et le titre de la page disent la même chose, dans les deux langues.
+{
+  const DICT = readFileSync('src/i18n/dict.ts', 'utf8')
+  ok('le bouton s\'appelle IA Training (AI Training en anglais)',
+    /'nav\.training': \{ en: 'AI Training', fr: 'IA Training' \}/.test(DICT))
+  ok('la page porte le même nom',
+    /'gm\.dojosTitle': \{ en: "AI Training", fr: "IA Training" \}/.test(DICT))
+}
 // L'ONGLET MÈNE QUELQUE PART · un onglet vers une adresse que le routeur ne
 // sert pas retombe sur l'écran des formations, sans erreur nulle part.
 ok('l\'onglet Dojoburo ouvre le jeu', /path === '\/dojoburo'\) return <Suspense[^\n]*<SimPage \/>/.test(readFileSync('src/main.tsx', 'utf8')))

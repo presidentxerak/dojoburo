@@ -19,7 +19,7 @@ export const T = {
   resume: B('Resume', 'Reprendre'),
   newGame: B('New game', 'Nouvelle partie'),
   confirmReset: B('Start again from day 1? Your studio will be reset.', "Recommencer au jour 1 ? Votre studio sera réinitialisé."),
-  back: B('Back to Training', 'Retour au Training'),
+  back: B('Back to AI Training', 'Retour à IA Training'),
   backShort: B('Back', 'Retour'),
   day: B('Day', 'Jour'),
   budget: B('Tokens', 'Tokens'),

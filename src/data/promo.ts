@@ -29,6 +29,17 @@
 // élève ne pardonne pas. La section existe, elle est honnête, et elle se
 // remplira quand de vrais élèves auront fini.
 import { B, type Bi } from './bilingual'
+// LES CHIFFRES DE LA FAQ · lus dans les données, comme ceux de la page. Une
+// réponse qui annonce sept leçons quand le week-end en sert six ment au
+// visiteur qui hésite encore, c'est à dire au pire moment.
+import { DISCOVERY_LEVEL_COUNT, DISCOVERY_MINUTES, PATH_HOURS } from './curriculum'
+import { TRADE_COUNT } from './trades'
+import { RANKS } from '../game/ranks'
+import { XP_PER_LEVEL } from '../game/Gauge'
+
+const HOURS_FR = String(PATH_HOURS).replace('.', ',')
+const RANK_COUNT = RANKS.length
+const BLACK_FROM = RANKS[RANKS.length - 1].from
 
 /** Une question et sa réponse · les deux langues, comme tout le reste. */
 export interface Qa { q: Bi; a: Bi }
@@ -75,14 +86,14 @@ export const HOW: { glyph: string; title: Bi; body: Bi }[] = [
   {
     glyph: 'house',
     title: B('A master in each dojo', 'Un maître dans chaque dojo'),
-    body: B('One thing to learn, one thing to do, three or four moves. Seven minutes.',
-      "Une notion à apprendre, un exercice à réaliser, trois ou quatre étapes. Sept minutes."),
+    body: B('The essentials, the key concepts, a case solved step by step, the common mistakes, then something to do in your own AI tool.',
+      "L'essentiel, les notions clés, un cas résolu pas à pas, les erreurs fréquentes, puis un exercice à réaliser dans votre propre outil d'IA."),
   },
   {
     glyph: 'check',
-    title: B('A question that closes it', 'Une question de validation'),
-    body: B('You answer once, you see why, and you move on. No retry loop.',
-      "Vous répondez une seule fois, vous découvrez l'explication, puis vous poursuivez. Il n'y a pas de seconde tentative."),
+    title: B('Five questions that close it', 'Cinq questions de validation'),
+    body: B('You answer each once, you see why, and you move on.',
+      "Vous répondez une fois à chacune, vous découvrez l'explication, puis vous poursuivez."),
   },
   {
     glyph: 'star4',
@@ -106,8 +117,15 @@ export const FAQ: Qa[] = [
   {
     q: B('How long does it take?', 'Combien de temps cela demande-t-il ?'),
     a: B(
-      'The free week is seven lessons of about seven minutes. The full path is a little over four hours, and it is built to be taken one dojo at a time.',
-      "La semaine gratuite comprend sept leçons d'environ sept minutes. Le parcours complet dure un peu plus de quatre heures et se suit un dojo à la fois.",
+      `The free AI weekend is ${DISCOVERY_LEVEL_COUNT} lessons, about ${DISCOVERY_MINUTES} minutes in total. The full training is about ${PATH_HOURS} hours, and it is built to be taken one dojo at a time. Each of the ${TRADE_COUNT} trade trainings comes on top of it.`,
+      `Le week-end de l'IA gratuit comprend ${DISCOVERY_LEVEL_COUNT} leçons, soit environ ${DISCOVERY_MINUTES} minutes au total. La formation complète dure environ ${HOURS_FR} heures et se suit un dojo à la fois. Chacune des ${TRADE_COUNT} formations métier s'y ajoute.`,
+    ),
+  },
+  {
+    q: B('What is in a lesson?', 'Que contient une leçon ?'),
+    a: B(
+      'Each dojo, in AI Training, runs in the same order: the essentials, what you do, key concepts, why it works, the steps, a worked example solved step by step, a prompt before and after, common mistakes and how to fix them, the trap, an exercise to do in your own AI tool, a recap and a step to go further. It ends with a five question quiz, then a badge and some XP.',
+      "Chaque dojo, dans IA Training, suit le même ordre : l'essentiel, ce que vous faites, les notions clés, pourquoi cela fonctionne, les étapes, un exemple résolu pas à pas, un prompt avant et après, les erreurs fréquentes et leur correction, le piège, un exercice à réaliser dans votre propre outil d'IA, un récapitulatif et une étape pour aller plus loin. Il se conclut par un quiz de cinq questions, puis par un badge et de l'XP.",
     ),
   },
   {
@@ -134,8 +152,22 @@ export const FAQ: Qa[] = [
   {
     q: B('What if it is not for me?', "Et si cela ne me convient pas ?"),
     a: B(
-      'Start with the free week. It is seven real lessons, not a sample, and it is the honest way to find out before paying anything.',
-      "Commencez par la semaine gratuite. Elle comprend sept leçons complètes, non un simple échantillon, et constitue le moyen le plus honnête d'en juger avant tout paiement.",
+      `Start with the free AI weekend. It is ${DISCOVERY_LEVEL_COUNT} real lessons, not a sample, and it is the honest way to find out before paying anything.`,
+      `Commencez par le week-end de l'IA gratuit. Il comprend ${DISCOVERY_LEVEL_COUNT} leçons complètes, non un simple échantillon, et constitue le moyen le plus honnête d'en juger avant tout paiement.`,
+    ),
+  },
+  {
+    q: B('What are the belts?', 'À quoi correspondent les ceintures ?'),
+    a: B(
+      `Your grade is a belt, from white to black, among ${RANK_COUNT}. It follows your level, and your level follows the XP of the dojos you actually finished: one level every ${XP_PER_LEVEL} XP. Nothing can be bought. Each belt has its own 3D character, which becomes your profile icon. The black belt starts at level ${BLACK_FROM}, which roughly means the AI weekend, the full training and one trade training.`,
+      `Votre grade est une ceinture, de la blanche à la noire, parmi ${RANK_COUNT}. Il suit votre niveau, lequel suit l'XP des dojos que vous avez effectivement terminés : un niveau tous les ${XP_PER_LEVEL} XP. Rien ne s'achète. Chaque ceinture possède son propre personnage en trois dimensions, qui devient votre icône de profil. La ceinture noire commence au niveau ${BLACK_FROM}, ce qui correspond à peu près au week-end de l'IA, à la formation complète et à une formation métier.`,
+    ),
+  },
+  {
+    q: B('Can I turn off the animations?', 'Peut-on désactiver les animations ?'),
+    a: B(
+      'Yes. Buttons bounce and throw small particles when you press them. In your profile, the Settings tab switches off the visual effects, reduces the animations, turns the vibrations and the game sound on or off, and changes the language. The effects also switch off by themselves when your system asks for reduced motion.',
+      "Oui. Les boutons rebondissent et projettent de petites particules lorsque vous appuyez dessus. Dans votre profil, l'onglet Paramètres permet de désactiver les effets visuels, de réduire les animations, d'activer ou de couper les vibrations et le son du jeu, et de changer de langue. Les effets se désactivent également d'eux-mêmes lorsque votre système demande de réduire les animations.",
     ),
   },
 ]
