@@ -12176,3 +12176,21 @@ h2.cy-post-title { font-size: 24px !important; }
 .cy-facade-t { position: relative; display: flex; flex-direction: column; gap: 2px; }
 .cy-facade-t b { font-family: var(--font-game); font-weight: 800; font-size: 15px; }
 .cy-facade-t em { font-style: normal; font-size: 12px; opacity: 0.85; }
+
+/* LES MENTIONS ET LES SONDAGES */
+.cy-mention { font-weight: 800; color: #7c3aed; }
+.cy-mention-wrap { position: relative; }
+.cy-suggest { position: absolute; z-index: 10; left: 8px; right: 8px; top: calc(100% - 6px); list-style: none; margin: 0; padding: 6px; border-radius: 14px; background: var(--g-card-top); box-shadow: 0 14px 34px -12px rgba(0, 0, 0, 0.45); }
+.cy-suggest button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border: 0; border-radius: 10px; background: transparent; color: var(--g-text); cursor: pointer; font: 700 14px var(--font-game); text-align: left; }
+.cy-suggest button:hover { background: var(--g-slot); }
+.cy-poll-add { align-self: flex-start; }
+.cy-poll-edit { display: flex; flex-direction: column; gap: 6px; }
+.cy-poll-edit-acts { display: flex; gap: 6px; }
+.cy-poll { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.gm button.cy-poll-opt { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 10px 14px; border: 0; border-radius: 12px !important; background: var(--g-slot); color: var(--g-text); font: 700 14.5px var(--font-game); text-align: left; cursor: pointer; }
+.gm button.cy-poll-opt:hover { box-shadow: inset 0 0 0 2px rgba(124, 58, 237, 0.4); }
+.cy-poll-opt i { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(124, 58, 237, 0.18); transition: width 400ms var(--g-ease); }
+.cy-poll-opt.mine i { background: rgba(124, 58, 237, 0.34); }
+.cy-poll-opt span, .cy-poll-opt b { position: relative; }
+.gm button.cy-poll-opt.mine { box-shadow: inset 0 0 0 2px #7c3aed; }
+.cy-poll-foot { margin: 2px 0 0; font-size: 13px; color: var(--g-sub); }

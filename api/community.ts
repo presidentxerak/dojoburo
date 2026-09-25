@@ -25,7 +25,8 @@ import { ADMIN_EMAILS } from './_lib/admins.js'
 import {
   LIMITS, RATES, isId, isCategory, validateName, validateBio, validatePost, validateComment, cleanQuery,
   encodeCursor, decodeCursor, serializePost, serializeComment, serializeMember, levelOfPoints,
-  validateEvent, serializeEvent, validateMessage, shouldNotify, type NotificationKind,
+  validateEvent, serializeEvent, validateMessage, shouldNotify, mentionsIn, validatePoll, pollView,
+  type NotificationKind, type PollView,
   type PostRow, type CommentRow, type MemberRow, type EventRow,
 } from './_lib/community.js'
 
@@ -104,6 +105,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (action === 'pin') return await pin(res, me, body)
     if (action === 'delete') return await remove(res, me, body)
     if (action === 'edit') return await edit(res, me, body)
+    if (action === 'vote') return await vote(res, me, body)
     return send(res, 400, { ok: false, error: 'action' })
   } catch {
     return send(res, 500, { ok: false, error: 'server' })
@@ -153,10 +155,12 @@ async function feed(res: ServerResponse, url: URL, me: string | null) {
     pinned = pr.rows as PostRow[]
   }
   const last = page[page.length - 1]
+  const polls = await pollsFor([...pinned, ...page].map((p) => p.id), me)
+  const withPoll = (p: PostRow) => ({ ...serializePost(p, me, true), poll: polls.get(p.id) ?? null })
   return send(res, 200, {
     ok: true,
-    pinned: pinned.map((p) => serializePost(p, me, true)),
-    posts: page.map((p) => serializePost(p, me, true)),
+    pinned: pinned.map(withPoll),
+    posts: page.map(withPoll),
     next: more && last ? encodeCursor({ t: last.created_at.toISOString(), id: last.id }) : null,
   })
 }
@@ -179,9 +183,10 @@ async function onePost(res: ServerResponse, url: URL, me: string | null) {
       where c.post_id = $1 order by c.created_at asc limit 500`,
     [id, me || ''],
   )
+  const polls = await pollsFor([id as string], me)
   return send(res, 200, {
     ok: true,
-    post: serializePost(r.rows[0] as PostRow, me),
+    post: { ...serializePost(r.rows[0] as PostRow, me), poll: polls.get(id as string) ?? null },
     comments: (c.rows as CommentRow[]).map((x) => serializeComment(x, me)),
   })
 }
@@ -470,11 +475,16 @@ async function createPost(res: ServerResponse, me: string, body: unknown) {
   const v = validatePost(body)
   if ('error' in v) return send(res, 400, { ok: false, error: v.error })
   if (!(await limited('post', me))) return send(res, 429, { ok: false, error: 'rate' })
+  const poll = validatePoll((body as { poll?: unknown })?.poll)
+  if (poll && !Array.isArray(poll)) return send(res, 400, { ok: false, error: 'poll' })
   const r = await getPool().query(
     `insert into community_posts (author_did, category, title, body) values ($1, $2, $3, $4) returning id`,
     [me, v.category, v.title, v.body],
   )
-  return send(res, 200, { ok: true, id: r.rows[0].id })
+  const id = r.rows[0].id as string
+  if (Array.isArray(poll)) await getPool().query('insert into community_polls (post_id, options) values ($1, $2)', [id, poll])
+  await notifyMentions(v.body, me, id, new Set())
+  return send(res, 200, { ok: true, id })
 }
 
 async function createComment(res: ServerResponse, me: string, body: unknown) {
@@ -509,6 +519,7 @@ async function createComment(res: ServerResponse, me: string, body: unknown) {
   }
   if (parentAuthor) await notify(parentAuthor, 'reply', me, v.postId)
   if (postAuthor && postAuthor !== parentAuthor) await notify(postAuthor, 'comment', me, v.postId)
+  await notifyMentions(v.body, me, v.postId, new Set([parentAuthor, postAuthor].filter(Boolean) as string[]))
   return send(res, 200, { ok: true, id: r.rows[0].id })
 }
 
@@ -572,6 +583,62 @@ async function remove(res: ServerResponse, me: string, body: unknown) {
   await pool.query(`update ${table} set deleted = true where id = $1`, [b.id])
   if (type === 'comment') await pool.query('update community_posts set comments = greatest(comments - 1, 0) where id = $1', [r.rows[0].post_id])
   return send(res, 200, { ok: true, deleted: true })
+}
+
+/** LES MENTIONS · une notification par personne mentionnée, sauf l'auteur
+ *  lui-même et ceux déjà prévenus par ce geste (auteur du message commenté). */
+async function notifyMentions(text: string, me: string, postId: string, already: Set<string>) {
+  const handles = mentionsIn(text)
+  if (!handles.length) return
+  const r = await getPool().query('select did from community_members where handle = any($1::uuid[])', [handles])
+  for (const row of r.rows as { did: string }[]) {
+    if (row.did === me || already.has(row.did)) continue
+    await notify(row.did, 'mention', me, postId)
+  }
+}
+
+/** LES SONDAGES · les résultats d'une liste de publications, en une requête. */
+async function pollsFor(ids: string[], me: string | null): Promise<Map<string, PollView>> {
+  const out = new Map<string, PollView>()
+  if (!ids.length) return out
+  const pool = getPool()
+  const polls = await pool.query('select post_id, options from community_polls where post_id = any($1::uuid[])', [ids])
+  if (!polls.rows.length) return out
+  const pids = polls.rows.map((x) => x.post_id)
+  const votes = await pool.query(
+    'select post_id, option, count(*)::int as n from community_poll_votes where post_id = any($1::uuid[]) group by post_id, option', [pids])
+  const mine = me
+    ? await pool.query('select post_id, option from community_poll_votes where post_id = any($1::uuid[]) and did = $2', [pids, me])
+    : { rows: [] as { post_id: string; option: number }[] }
+  for (const p of polls.rows as { post_id: string; options: string[] }[]) {
+    const vs = (votes.rows as { post_id: string; option: number; n: number }[]).filter((v) => v.post_id === p.post_id)
+    const my = (mine.rows as { post_id: string; option: number }[]).find((v) => v.post_id === p.post_id)
+    out.set(p.post_id, pollView(p.options, vs, my ? my.option : null))
+  }
+  return out
+}
+
+async function vote(res: ServerResponse, me: string, body: unknown) {
+  const b = (body || {}) as { postId?: unknown; option?: unknown }
+  if (!isId(b.postId)) return send(res, 400, { ok: false, error: 'post' })
+  if (!(await memberName(me))) return send(res, 409, { ok: false, error: 'join' })
+  if (!(await limited('like', me))) return send(res, 429, { ok: false, error: 'rate' })
+  const pool = getPool()
+  const p = await pool.query('select options from community_polls where post_id = $1', [b.postId])
+  if (!p.rows[0]) return send(res, 404, { ok: false, error: 'not_found' })
+  const n = (p.rows[0].options as string[]).length
+  const option = Number(b.option)
+  // -1 RETIRE LE VOTE · un vote se change, il se retire aussi.
+  if (option === -1) await pool.query('delete from community_poll_votes where post_id = $1 and did = $2', [b.postId, me])
+  else if (Number.isInteger(option) && option >= 0 && option < n) {
+    await pool.query(
+      `insert into community_poll_votes (post_id, did, option) values ($1, $2, $3)
+         on conflict (post_id, did) do update set option = excluded.option, created_at = now()`,
+      [b.postId, me, option],
+    )
+  } else return send(res, 400, { ok: false, error: 'option' })
+  const view = (await pollsFor([b.postId as string], me)).get(b.postId as string)
+  return send(res, 200, { ok: true, poll: view })
 }
 
 /** MODIFIER · seul l'auteur modifie son texte (un admin supprime, il ne

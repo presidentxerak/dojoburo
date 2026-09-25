@@ -140,6 +140,25 @@ ok('on ne modifie qu\'un texte qu\'on voit en entier', /full && p\.mine && <butt
   ok('aucune image distante avant le clic', !/backgroundImage: `url\(\$\{e\.thumb\}\)`/.test(page))
 }
 
+/* --- 5g · les mentions et les sondages ------------------------------------ */
+{
+  const H = '00000000-0000-4000-8000-000000000001'
+  ok('une mention se lit dans le texte', C.mentionsIn(`Merci @[Nora](${H}) !`).join() === H)
+  ok('cinq mentions au plus', C.mentionsIn(Array.from({ length: 8 }, (_, i) => `@[N${i}](00000000-0000-4000-8000-00000000000${i})`).join(' ')).length === C.MAX_MENTIONS)
+  ok('une mention sans identifiant valide n\'en est pas une', C.mentionsIn('@[Nora](did:privy:x)').length === 0)
+  ok('un sondage de 2 à 6 options, sans doublon', Array.isArray(C.validatePoll(['Oui', 'Non'])) && 'error' in C.validatePoll(['Oui']) && 'error' in C.validatePoll(['A', 'B', 'C', 'D', 'E', 'F', 'G']) && 'error' in C.validatePoll(['Oui', 'oui']))
+  ok('sans options, pas de sondage', C.validatePoll(undefined) === null && C.validatePoll(['', ' ']) === null)
+  const v = C.pollView(['A', 'B'], [{ option: 1, n: 3 }], 1)
+  ok('les résultats se comptent', v.total === 3 && v.counts.join() === '0,3' && v.mine === 1)
+  const row2 = { ...row, body: 'x'.repeat(300) + ` @[Nora](${H}) fin` }
+  ok('l\'extrait ne coupe pas une mention', !/@\[[^\]]*$|\]\([^)]*\.\.\.$/.test(C.serializePost(row2, null, true).body))
+  ok('une mention prévient la personne, pas l\'auteur', /async function notifyMentions[\s\S]*?row\.did === me \|\| already\.has\(row\.did\)/.test(api))
+  ok('un vote se change et se retire', /on conflict \(post_id, did\) do update set option/.test(api) && /option === -1/.test(api))
+  ok('la notification « mention » est permise par le schéma', /'mention'\)\)/.test(sql))
+  const rc = await build({ entryPoints: ['src/lib/community.ts'], bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent', external: ['./apiFetch'] }).catch(() => null)
+  ok('le client range et relit les mentions', /export function encodeMentions/.test(client) && /export function decodeMentions/.test(client) && !!rc)
+}
+
 /* --- 6 · les morsures ---------------------------------------------------- */
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))
 ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(title\\) between 3 and 120').test('char_length(title) between 3 and 200'))

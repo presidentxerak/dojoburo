@@ -187,7 +187,9 @@ export function serializePost(r: PostRow, me: string | null, excerpt = false) {
     id: r.id,
     category: r.category,
     title: r.title,
-    body: excerpt && r.body.length > 320 ? `${r.body.slice(0, 320).trimEnd()}...` : r.body,
+    // L'EXTRAIT NE COUPE PAS UNE MENTION · un « @[Nom](ident » tronqué se
+    // lirait brut ; on le retire plutôt que de l'afficher cassé.
+    body: excerpt && r.body.length > 320 ? `${r.body.slice(0, 320).replace(/@\[[^\]\n]*(?:\]\([^)\n]*)?$/, '').trimEnd()}...` : r.body,
     truncated: excerpt && r.body.length > 320,
     pinned: r.pinned,
     likes: r.likes,
@@ -286,8 +288,48 @@ export function validateMessage(b: unknown): Check<{ to: string; body: string }>
   return { to: o.to, body }
 }
 
-export const NOTIFICATION_KINDS = ['comment', 'reply', 'like_post', 'like_comment'] as const
+export const NOTIFICATION_KINDS = ['comment', 'reply', 'like_post', 'like_comment', 'mention'] as const
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
 
 /** Une notification ne naît jamais d'un geste sur son propre contenu. */
 export const shouldNotify = (recipient: string | null | undefined, actor: string): boolean => !!recipient && recipient !== actor
+
+/* ---- les mentions ------------------------------------------------------------ */
+
+/** Une mention · @[Nom](identifiant public). Cinq au plus par message : au-delà,
+ *  ce n'est plus une mention, c'est un envoi en masse. */
+export const MENTION_RE = /@\[([^\]\n]{1,32})\]\(([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\)/gi
+export const MAX_MENTIONS = 5
+
+export function mentionsIn(text: string): string[] {
+  const out: string[] = []
+  for (const m of text.matchAll(MENTION_RE)) {
+    const h = m[2].toLowerCase()
+    if (!out.includes(h)) out.push(h)
+    if (out.length === MAX_MENTIONS) break
+  }
+  return out
+}
+
+/* ---- les sondages ------------------------------------------------------------ */
+
+export const POLL_LIMITS = { options: { min: 2, max: 6 }, option: { min: 1, max: 80 } } as const
+
+/** Un sondage lisible, null s'il n'y en a pas, ou la raison du refus. */
+export function validatePoll(v: unknown): Check<string[] | null> {
+  if (v == null) return null
+  if (!Array.isArray(v)) return { error: 'poll' }
+  const opts = v.map((x) => clean(x)).filter((x) => x.length > 0)
+  if (opts.length === 0) return null
+  if (opts.length < POLL_LIMITS.options.min || opts.length > POLL_LIMITS.options.max) return { error: 'poll' }
+  if (opts.some((o) => o.length > POLL_LIMITS.option.max)) return { error: 'poll' }
+  if (new Set(opts.map((o) => o.toLowerCase())).size !== opts.length) return { error: 'poll' }
+  return opts
+}
+
+export interface PollView { options: string[]; counts: number[]; total: number; mine: number | null }
+
+export function pollView(options: string[], votes: { option: number; n: number }[], mine: number | null): PollView {
+  const counts = options.map((_, i) => votes.find((v) => v.option === i)?.n ?? 0)
+  return { options, counts, total: counts.reduce((a, b) => a + b, 0), mine }
+}

@@ -341,6 +341,7 @@ console.log('\n--- sans base, personne ne prétend avoir réussi ---------------
     ['community', 'api/community.ts', 'POST', '/api/community?action=event', { title: 'Live', startsAt: '2026-10-01T16:00:00Z', duration: 60 }],
     ['community', 'api/community.ts', 'POST', '/api/community?action=message', { to: '00000000-0000-4000-8000-000000000001', body: 'Bonjour' }],
     ['community', 'api/community.ts', 'POST', '/api/community?action=edit', { type: 'comment', id: '00000000-0000-4000-8000-000000000001', body: 'Corrigé' }],
+    ['community', 'api/community.ts', 'POST', '/api/community?action=vote', { postId: '00000000-0000-4000-8000-000000000001', option: 0 }],
     ['community', 'api/community.ts', 'POST', '/api/community?action=post', { category: 'general', title: 'Bonjour', body: 'Mon premier message ici.' }],
     ['community', 'api/community.ts', 'POST', '/api/community?action=comment', { postId: '00000000-0000-4000-8000-000000000001', body: 'Merci !' }],
     ['profile', 'api/profile.ts', 'PUT', '/api/profile', { data: { v: 1, academy: { done: ['a/b'], answers: {} } } }],
