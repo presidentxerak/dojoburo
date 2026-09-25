@@ -114,7 +114,7 @@ ok('le rebond reste à plat', BUMP_RULES.length > 0 && !/gradient\(|box-shadow/.
 //
 // Demandé : « faut que les icônes soient animées en fonction de leur thème ».
 const ICON = readFileSync('src/game/Icon3D.tsx', 'utf8')
-ok('les icônes 3D sont dessinées en bande d\'images', /requestStrip\(/.test(ICON) && /const FRAMES = \d+/.test(ICON))
+ok('les icônes 3D sont dessinées en bande d\'images', /requestStrip\(/.test(ICON) && /export const FRAMES = \d+/.test(readFileSync('src/components/three/snapshotStrip.ts', 'utf8')))
 for (const [fn, what] of [['Settings', 'les engrenages tournent'], ['Badges', 'la médaille se balance'], ['Progress', 'les barres montent'], ['Account', 'le cadenas s\'ouvre'], ['Trainings', 'la toque saute']]) {
   const body = ICON.match(new RegExp(`function ${fn}\\(\\{ t = 0 \\}[\\s\\S]*?\\n\\}`))?.[0] ?? ''
   ok(`${what} (${fn} suit t)`, /TAU \* t|TAU \/ \d+\) \* t/.test(body))

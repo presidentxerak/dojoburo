@@ -11766,8 +11766,10 @@ html.calm *, html.calm *::before, html.calm *::after {
    ================================================================== */
 .i3d-win, .gav-win { display: block; overflow: hidden; flex: none; }
 .gav-win { transform: translateY(6%); }
-.i3d-strip { display: block; max-width: none; animation: i3d-play var(--dur, 2000ms) steps(16) infinite; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45)); }
-.gav .i3d-strip { filter: none; }
+.i3d-strip { display: block; max-width: none; animation: i3d-play var(--dur, 2000ms) steps(12) infinite; }
+/* L'OMBRE EST SUR LA FENÊTRE, PAS SUR LA BANDE · posée sur la bande, elle
+   était coupée net au bord de la fenêtre et dessinait un carré. */
+.i3d-win { filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45)); }
 @keyframes i3d-play { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 /* un onglet qui n'est pas ouvert joue plus lentement, pour ne pas voler la
    vedette à celui qui l'est */
@@ -11801,6 +11803,7 @@ html.calm *, html.calm *::before, html.calm *::after {
 /* LA TOUCHE SKEUOMORPHE SUR LES AUTRES PIÈCES · onglets du profil, touches
    de la langue, interrupteurs, boutons du jeu. */
 .pf-tab.on, .gm .st-row .lsw-b.on, .st-toggle.on, .gm-top .lsw-b.on { background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.gm-top .lsw-b.on { background-color: #7c3aed; }
 .st-toggle i { box-shadow: var(--sk-press); }
 .st-toggle i::after { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
 .sim-ico, .sim-btn { background-image: var(--sk-grad); box-shadow: var(--sk-btn); }

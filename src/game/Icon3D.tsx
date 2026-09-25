@@ -14,12 +14,13 @@
 //
 // JAMAIS VIDE · tant que l'image n'est pas prête (ou si WebGL est refusé),
 // l'icône plate du même sens s'affiche à sa place.
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import * as THREE from 'three'
 import { RoundedBox } from '@react-three/drei'
 import { BauhausIcon } from '../components/BauhausIcon'
 import type { IconName } from '../data/icons'
 import { requestNodeSnapshot, requestSnapshot, cachedSnapshot, skinKey } from '../components/three/snapshotFactory'
+import { FRAMES, requestStrip, cachedStrip } from '../components/three/snapshotStrip'
 import { Character3D } from '../components/three/Character3D'
 import type { Rank } from './ranks'
 
@@ -253,52 +254,8 @@ const OBJECTS: Record<Icon3DName, (p: { t?: number }) => JSX.Element> = {
 // la bande par à-coups (CSS steps), comme un dessin animé : zéro WebGL une
 // fois la bande faite, et elle est gardée pour la session.
 
-const FRAMES = 16
-const strips = new Map<string, string>()
-const pendingStrips = new Map<string, Promise<string>>()
-
-function readStored(key: string): string | null {
-  try { return sessionStorage.getItem(key) } catch { return null }
-}
-
-/** La bande d'images d'une scène animée · `render(t)` rend l'instant t. */
-export function requestStrip(key: string, render: (t: number) => ReactNode): Promise<string> {
-  const hit = strips.get(key) ?? readStored(key)
-  if (hit) { strips.set(key, hit); return Promise.resolve(hit) }
-  const pending = pendingStrips.get(key)
-  if (pending) return pending
-  const job = (async () => {
-    const urls = await Promise.all(
-      Array.from({ length: FRAMES }, (_, i) => requestNodeSnapshot(`${key}#${i}`, render(i / FRAMES))),
-    )
-    if (urls.some((u) => !u)) return ''
-    const imgs = await Promise.all(urls.map((u) => new Promise<HTMLImageElement>((ok, ko) => {
-      const im = new Image()
-      im.onload = () => ok(im)
-      im.onerror = ko
-      im.src = u
-    })))
-    const w = imgs[0].naturalWidth
-    const h = imgs[0].naturalHeight
-    const c = document.createElement('canvas')
-    c.width = w * FRAMES
-    c.height = h
-    const g = c.getContext('2d')
-    if (!g) return ''
-    imgs.forEach((im, i) => g.drawImage(im, i * w, 0, w, h))
-    const strip = c.toDataURL('image/png')
-    strips.set(key, strip)
-    try { sessionStorage.setItem(key, strip) } catch { /* plein ou refusé */ }
-    return strip
-  })().catch(() => '')
-  pendingStrips.set(key, job)
-  job.finally(() => pendingStrips.delete(key))
-  return job
-}
-
-export function cachedStrip(key: string): string | null {
-  return strips.get(key) ?? readStored(key)
-}
+// (la fabrique des bandes vit à côté de celle des portraits : voir
+// components/three/snapshotStrip)
 
 /** Une bande qui défile · la première image seule en mouvement réduit (la
  *  feuille de style arrête l'animation, voir .i3d-strip). */
@@ -321,27 +278,33 @@ const DURATION: Record<Icon3DName, number> = {
   settings: 1500,
 }
 
-const iconKey = (name: Icon3DName) => `icon3d:${name}:3`
+const iconKey = (name: Icon3DName) => `icon3d:${name}:4`
 
 /** Une icône 3D animée · l'icône plate le temps que la bande arrive. */
 export function Icon3D({ name, size = 40, className = '' }: { name: Icon3DName; size?: number; className?: string }) {
   const key = iconKey(name)
   const [url, setUrl] = useState<string | null>(() => cachedStrip(key))
+  const [still, setStill] = useState<string | null>(null)
   useEffect(() => {
     if (url) return
     let alive = true
     const Obj = OBJECTS[name]
     // UN PEU PLUS GRAND QUE LE CADRE D'UN PORTRAIT · un objet seul doit
     // remplir sa pastille, là où un personnage garde de l'air autour de lui.
-    requestStrip(key, (t) => <group scale={1.32} position={[0, 0.2, 0]}><Obj t={t} /></group>)
-      .then((u) => { if (alive && u) setUrl(u) })
+    const render = (t: number) => <group scale={1.32} position={[0, 0.2, 0]}><Obj t={t} /></group>
+    // LA PREMIÈRE IMAGE D'ABORD · elle sort de la fabrique avant les autres,
+    // et l'objet s'affiche immobile le temps que la bande se termine.
+    requestNodeSnapshot(`${key}#0`, render(0)).then((u) => { if (alive && u) setStill(u) })
+    requestStrip(key, render).then((u) => { if (alive && u) setUrl(u) })
     return () => { alive = false }
   }, [key, name, url])
   return (
     <span className={`i3d ${className}`} style={{ width: size, height: size }} aria-hidden="true">
       {url
         ? <Strip url={url} size={size} dur={DURATION[name]} />
-        : <BauhausIcon name={FALLBACK[name]} size={Math.round(size * 0.6)} />}
+        : still
+          ? <img src={still} width={size} height={size} alt="" draggable={false} />
+          : <BauhausIcon name={FALLBACK[name]} size={Math.round(size * 0.6)} />}
     </span>
   )
 }
@@ -359,7 +322,7 @@ export function GradeAvatar({ rank, size = 36, locked = false, animated = false,
 }) {
   const c = rank.character
   const id = skinKey(c)
-  const stripKey = `grade:${id}:1`
+  const stripKey = `grade:${id}:2`
   const [url, setUrl] = useState<string | null>(() => cachedSnapshot(c))
   const [strip, setStrip] = useState<string | null>(() => (animated ? cachedStrip(stripKey) : null))
   useEffect(() => {
