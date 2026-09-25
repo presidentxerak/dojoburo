@@ -11572,7 +11572,7 @@ button.wm-tag { border-radius: 999px !important; }
 
 /* L'ICÔNE 3D · une image, l'icône plate en attendant. */
 .i3d { flex: none; display: inline-grid; place-items: center; color: #c4b5fd; }
-.i3d img { width: 100%; height: 100%; display: block; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45)); }
+.i3d img { width: 100%; height: 100%; display: block; object-fit: contain; }
 
 /* ==================================================================
    LE REBOND ET LES PARTICULES · « ajoute plus de design d'interaction avec
@@ -11766,10 +11766,11 @@ html.calm *, html.calm *::before, html.calm *::after {
    ================================================================== */
 .i3d-win, .gav-win { display: block; overflow: hidden; flex: none; }
 .gav-win { transform: translateY(6%); }
-.i3d-strip { display: block; max-width: none; animation: i3d-play var(--dur, 2000ms) steps(12) infinite; }
-/* L'OMBRE EST SUR LA FENÊTRE, PAS SUR LA BANDE · posée sur la bande, elle
-   était coupée net au bord de la fenêtre et dessinait un carré. */
-.i3d-win { filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45)); }
+.i3d-strip { display: block; max-width: none !important; animation: i3d-play var(--dur, 2000ms) steps(12) infinite; }
+/* PAS D'OMBRE SOUS LES ICÔNES · demandé : « efface les ombres des icônes
+   dans le profil ». Posée sur une bande d'images, l'ombre floue des images
+   voisines débordait dans la fenêtre et dessinait un carré. */
+.i3d img, .i3d-strip, .i3d-win { filter: none; }
 @keyframes i3d-play { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 /* un onglet qui n'est pas ouvert joue plus lentement, pour ne pas voler la
    vedette à celui qui l'est */

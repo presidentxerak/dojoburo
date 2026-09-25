@@ -51,13 +51,20 @@
   // posé ici sur <html data-look="light"> avant le premier pixel : le poser
   // depuis React ferait clignoter la nuit à chaque chargement.
   try {
+    // LE CLAIR PAR DÉFAUT · demandé ensuite : « affiche le light mode par
+    // défaut ». Sans choix enregistré, la page naît claire ; la nuit reste à
+    // un réglage de distance ('dark'), et « appareil » suit le système.
     var look = localStorage.getItem('dojoburo.look')
-    var light = look === 'light' || (look === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+    var light = look !== 'dark' && (look !== 'system' || !(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches))
     if (light) {
       document.documentElement.setAttribute('data-look', 'light')
       if (m) m.setAttribute('content', '#f4f0ff')
     }
-  } catch (e) { /* navigation privée : la nuit */ }
+  } catch (e) {
+    // stockage refusé (navigation privée) : le défaut, qui est le clair
+    document.documentElement.setAttribute('data-look', 'light')
+    if (m) m.setAttribute('content', '#f4f0ff')
+  }
 
   /* ---- 2 · la police, sans bloquer le premier pixel -------------------- */
   // Une feuille de style distante est BLOQUANTE au rendu : tant qu'elle n'est

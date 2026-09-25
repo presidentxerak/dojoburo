@@ -127,8 +127,13 @@ ok('les bandes s\'arrêtent en mouvement réduit', /\.i3d-strip, \.gm-tab \.gm-t
 //
 // Demandé : « ajoute un affichage light mode ». La nuit reste le défaut.
 const BOOT = readFileSync('public/boot.js', 'utf8')
-ok('boot.js pose le clair avant le premier pixel, s\'il a été choisi', /getItem\('dojoburo\.look'\)/.test(BOOT) && /setAttribute\('data-look', 'light'\)/.test(BOOT))
-ok('… et la nuit reste le défaut', /setAttribute\('data-theme', 'dark'\)/.test(BOOT) && /look === 'light' \|\| \(look === 'system'/.test(BOOT))
+ok('boot.js pose l\'affichage avant le premier pixel', /getItem\('dojoburo\.look'\)/.test(BOOT) && /setAttribute\('data-look', 'light'\)/.test(BOOT))
+// LE CLAIR EST DEVENU LE DÉFAUT · demandé : « affiche le light mode par
+// défaut ». La nuit n'est plus posée que sur choix ('dark'), ou par
+// « appareil » quand le système la demande.
+ok('… et le clair est le défaut', /look !== 'dark' && \(look !== 'system'/.test(BOOT))
+ok('… côté React aussi', /v === 'dark' \|\| v === 'system' \? v : 'light'/.test(readFileSync('src/lib/settings.ts', 'utf8')))
+ok('morsure · un défaut sombre serait vu', !/look !== 'dark' && \(look !== 'system'/.test("var light = look === 'light'"))
 ok('le profil propose Sombre, Clair, Appareil', /<LookRow \/>/.test(PROFIL) && /setLook\(o\.id\)/.test(PROFIL))
 const LIGHT = readFileSync('src/styles/look-light.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
 const lightSels = [...LIGHT.matchAll(/([^{}]+)\{/g)].map((m) => m[1].trim()).filter(Boolean)

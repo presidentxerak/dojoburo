@@ -322,8 +322,7 @@
 :root[data-look='light'] .gav.locked img { filter: grayscale(1) brightness(0.75) contrast(0.9) opacity(0.6); }
 :root[data-look='light'] .i3d { color: #7c3aed; }
 :root[data-look='light'] .i3d img,
-:root[data-look='light'] .i3d-strip { filter: drop-shadow(0 4px 6px rgba(60, 30, 120, 0.25)); }
-:root[data-look='light'] .gav .i3d-strip { filter: none; }
+:root[data-look='light'] .i3d-strip { filter: none; }
 
 /* --- la carte en plein écran --------------------------------------------- */
 :root[data-look='light'] .cm-hud {
