@@ -35,6 +35,7 @@ import { useGame, markDone, clearDone, recordAnswer } from './progress'
 import { useAccess } from './access'
 import { DojoRoom } from './DojoRoom'
 import { enrichmentOf, type Enrichment } from '../data/enrich'
+import { deepeningOf, type Deepening } from '../data/deep'
 import type { Quiz as QuizData } from '../data/curriculum'
 import { Shell } from './Shell'
 
@@ -77,6 +78,10 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
   // sien s'affiche avec son squelette ; scripts/test-enrich empêche qu'il y en
   // ait un en production.
   const deep = enrichmentOf(module.id, level.id)
+  // LA COUCHE PÉDAGOGIQUE · voir data/deep : l'essentiel, les notions, un
+  // exemple guidé, les erreurs fréquentes, la synthèse.
+  const more = deepeningOf(module.id, level.id)
+  const extra = [...(deep?.more ?? []), ...(more?.more ?? [])]
 
   return (
     <Shell>
@@ -100,10 +105,19 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
 
         {open ? (
           <>
+            {more && (
+              <section className="ln-block ln-essential">
+                <h2 className="ln-h2">{t('ln.essential')}</h2>
+                <p>{say(more.intro, lang)}</p>
+              </section>
+            )}
+
             <section className="ln-act">
               <span className="ln-k">{t('g.youDo')}</span>
               <p>{say(level.act, lang)}</p>
             </section>
+
+            {more && <Concepts d={more} />}
 
             {deep && <Why e={deep} />}
 
@@ -116,7 +130,11 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
               </ol>
             </section>
 
+            {more && <Walkthrough d={more} />}
+
             {deep && <Example e={deep} />}
+
+            {more && <Mistakes d={more} />}
 
             <section className="ln-trap">
               <span className="ln-k">{t('g.trap')}</span>
@@ -125,11 +143,13 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
 
             {deep && <Exercise key={`ex-${pack.id}/${level.id}`} e={deep} />}
 
+            {more && <Recap d={more} />}
+
             <section className="ln-block">
               <h2 className="ln-h2">{t('ac.check')}</h2>
-              <Quiz key={`${pack.id}/${level.id}`} packId={pack.id} levelId={level.id} n={1} of={1 + (deep?.more.length ?? 0)} />
-              {deep?.more.map((q, k) => (
-                <QuizCard key={`${pack.id}/${level.id}#${k}`} q={q} n={k + 2} of={1 + deep.more.length} />
+              <Quiz key={`${pack.id}/${level.id}`} packId={pack.id} levelId={level.id} n={1} of={1 + extra.length} />
+              {extra.map((q, k) => (
+                <QuizCard key={`${pack.id}/${level.id}#${k}`} q={q} n={k + 2} of={1 + extra.length} />
               ))}
             </section>
 
@@ -229,6 +249,76 @@ function QuizCard({ q, n, of, saved, onPick }: {
 }
 
 /* ------------------------------------------------------------------ */
+
+/** LES NOTIONS CLÉS · les mots du sujet, définis avant d'être employés. */
+function Concepts({ d }: { d: Deepening }) {
+  const lang = useLang()
+  const t = useT()
+  return (
+    <section className="ln-block">
+      <h2 className="ln-h2">{t('ln.concepts')}</h2>
+      <dl className="ln-dl">
+        {d.concepts.map((c) => (
+          <div key={c.term.en}>
+            <dt>{say(c.term, lang)}</dt>
+            <dd>{say(c.def, lang)}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )
+}
+
+/** L'EXEMPLE GUIDÉ · un cas réel, déroulé pas à pas, raisonnement compris. */
+function Walkthrough({ d }: { d: Deepening }) {
+  const lang = useLang()
+  const t = useT()
+  return (
+    <section className="ln-block">
+      <h2 className="ln-h2">{t('ln.walk')}</h2>
+      <p className="ln-ctx">{say(d.walkthrough.title, lang)}</p>
+      <ol className="ln-steps ln-walk">
+        {d.walkthrough.steps.map((s, n) => (
+          <li key={s.en}><span>{n + 1}</span>{say(s, lang)}</li>
+        ))}
+      </ol>
+    </section>
+  )
+}
+
+/** LES ERREURS FRÉQUENTES · l'erreur, puis sa correction. */
+function Mistakes({ d }: { d: Deepening }) {
+  const lang = useLang()
+  const t = useT()
+  return (
+    <section className="ln-block">
+      <h2 className="ln-h2">{t('ln.mistakes')}</h2>
+      <ul className="ln-mis">
+        {d.mistakes.map((m) => (
+          <li key={m.wrong.en}>
+            <p className="ln-wrong"><b>{t('ln.wrong')}</b> {say(m.wrong, lang)}</p>
+            <p className="ln-fix"><b>{t('ln.fix')}</b> {say(m.fix, lang)}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+/** À RETENIR · la synthèse, puis une piste pour aller plus loin. */
+function Recap({ d }: { d: Deepening }) {
+  const lang = useLang()
+  const t = useT()
+  return (
+    <section className="ln-block ln-recap">
+      <h2 className="ln-h2">{t('ln.recap')}</h2>
+      <ul>
+        {d.recap.map((r) => <li key={r.en}>{say(r, lang)}</li>)}
+      </ul>
+      <p className="ln-further"><b>{t('ln.further')}</b> {say(d.further, lang)}</p>
+    </section>
+  )
+}
 
 /** POURQUOI ÇA MARCHE · le mécanisme, avant les gestes. Savoir pourquoi un
  *  geste marche, c'est savoir quand il ne marchera pas. */

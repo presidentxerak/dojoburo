@@ -11434,3 +11434,82 @@ button.wm-tag { border-radius: 999px !important; }
 @media (prefers-reduced-motion: reduce) {
   .sim-client, .sim-panel, .sim-toast, .sim-card { animation: none; }
 }
+
+/* ========================================================================== */
+/* LES LEÇONS · la largeur de la bannière, le texte justifié, les nouvelles    */
+/* sections pédagogiques, les boutons alignés                                  */
+/* ========================================================================== */
+/* À LA LARGEUR DE LA BANNIÈRE · demandé : « toutes les pages des formations
+   doivent être justifiées sur la largeur de la bannière ». La salle en tête de
+   leçon occupait toute la largeur et le texte, dessous, une colonne de 720 px
+   au milieu : deux largeurs pour une même page. La salle et le texte ont
+   maintenant la même largeur et les mêmes bords, plafonnée pour rester
+   lisible sur un grand écran. */
+.gm .dr { width: calc(100% - 2 * clamp(12px, 3vw, 28px)); max-width: 1080px; margin: 8px auto 16px; }
+.ln { width: calc(100% - 2 * clamp(12px, 3vw, 28px)); max-width: 1080px; margin: 0 auto; padding: 16px 0 40px; }
+/* LE TEXTE JUSTIFIÉ · aligné sur les deux bords, avec la césure pour éviter
+   les grands blancs (la langue de la page, lue par le navigateur, décide des
+   coupures). Les blocs de prompt restent alignés à gauche : un prompt se
+   copie tel quel. */
+.ln p, .ln li, .ln dd, .md-blurb, .pkh .gm-lead {
+  text-align: justify; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: break-word;
+}
+.ln pre, .ln .ln-code, .ln h1, .ln h2, .ln h3, .ln-opt, .ln-opt * { text-align: left; hyphens: manual; }
+
+/* L'ESSENTIEL · la première chose qu'on lit, un cran plus grand. */
+.ln-essential p { font-size: clamp(16px, .4vw + 14px, 18px); line-height: 1.65; color: #efeafc; margin: 0; }
+/* LES NOTIONS CLÉS · des fiches, deux par ligne sur un écran large. */
+.ln-dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 10px; margin: 0; }
+.ln-dl > div { padding: 14px 16px; border-radius: 16px; background: var(--g-slot, #1f1540); }
+.ln-dl dt { font-family: var(--font-game); font-weight: 800; font-size: 16px; color: #fff; margin: 0 0 6px; }
+.ln-dl dd { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--g-sub); }
+/* L'EXEMPLE GUIDÉ · les étapes, numérotées en violet. */
+.ln-walk li span { background: #7c3aed; box-shadow: none; }
+/* LES ERREURS · l'erreur sur fond rouge sourd, la correction sur fond vert. */
+.ln-mis { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ln-mis li { display: flex; flex-direction: column; gap: 6px; }
+.ln-mis p { margin: 0; padding: 12px 14px; border-radius: 14px; font-size: 14.5px; line-height: 1.6; }
+.ln-wrong { background: rgba(244, 63, 94, .12); color: #fecdd3; }
+.ln-fix { background: rgba(34, 197, 94, .12); color: #bbf7d0; }
+.ln-mis b { color: #fff; margin-right: 4px; }
+/* À RETENIR · un encadré violet, puis la piste pour aller plus loin. */
+.ln-recap { padding: 18px 20px; border-radius: 20px; background: rgba(124, 58, 237, .16); }
+.ln-recap ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.ln-recap li { font-size: 15px; line-height: 1.55; color: #efeafc; }
+.ln-further { margin: 14px 0 0; font-size: 14.5px; line-height: 1.6; color: var(--g-sub); }
+.ln-further b { color: #fff; }
+
+/* LES BOUTONS DE FIN DE LEÇON, ALIGNÉS · le bouton du badge gardait la marge
+   haute de 14 px de tous les boutons, pas le lien d'à côté : les deux
+   n'étaient ni à la même hauteur ni de la même taille. Même marge, même
+   hauteur minimale, centrés sur la même ligne ; empilés sur téléphone. */
+.ln-end { align-items: stretch; }
+.ln-end > .cc-btn, .ln-end > .gm-cta { margin-top: 0 !important; min-height: 54px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+@media (max-width: 640px) {
+  .ln-end { flex-direction: column; }
+  .ln-end > .cc-btn, .ln-end > .gm-cta { width: 100%; }
+}
+
+/* LES FENÊTRES DU JEU NE SONT PLUS COUPÉES · la boutique, plus haute que
+   l'écran, était centrée par une grille : son bas sortait de l'écran sans
+   qu'on puisse défiler jusqu'à lui. Le voile devient une colonne qui défile,
+   et la carte se centre par ses marges automatiques : centrée quand elle
+   tient, lisible de haut en bas quand elle ne tient pas. */
+.sim-veil {
+  display: flex; flex-direction: column; align-items: center;
+  overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: calc(72px + env(safe-area-inset-top, 0px)) 16px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+.sim-veil > .sim-card { margin: auto 0; flex: none; }
+/* LA BOUTIQUE SUR DEUX COLONNES, SUR UN ÉCRAN LARGE · les améliorations à
+   gauche, la formation des spécialistes à droite : tout tient d'un regard. */
+@media (min-width: 900px) {
+  .sim-shop {
+    width: min(1000px, 100%);
+    display: grid; grid-template-columns: 1fr 1fr; column-gap: 22px; row-gap: 12px; align-content: start;
+  }
+  .sim-shop > .sim-ph, .sim-shop > .sim-row { grid-column: 1 / -1; }
+  .sim-shop > .sim-offers { grid-column: 1; grid-row: 2 / span 4; align-self: start; }
+  .sim-shop > :not(.sim-ph):not(.sim-row):not(.sim-offers) { grid-column: 2; }
+  .sim-shop > .sim-h3 { margin-top: 0; }
+}

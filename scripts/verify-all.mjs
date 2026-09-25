@@ -53,6 +53,9 @@ const CHECKS = [
   ['test-curriculum.mjs', 1, true],
   // CHAQUE DOJO EST UN VRAI COURS · pourquoi, avant/après, exercice, questions.
   ['test-enrich.mjs', 1, true],
+  // LA COUCHE PÉDAGOGIQUE · l'essentiel, les notions, l'exemple guidé, les
+  // erreurs, la synthèse, sur chaque dojo (voir data/deep).
+  ['test-deep.mjs', 1, true],
   ['test-trades.mjs', 1, true],
   ['test-game.mjs', 1, true],
   // LE JEU DOJOBURO · son moteur, ses règles, son équilibre (voir src/sim).
