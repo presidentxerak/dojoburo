@@ -79,9 +79,12 @@ export function useSettings(): Settings {
   return useSyncExternalStore(subscribe, getSettings, () => DEFAULT_SETTINGS)
 }
 
-/** Le système demande moins de mouvement · lu à chaque fois, il peut changer. */
+/** Le système demande moins de mouvement · la requête est gardée, sa réponse
+ *  relue à chaque fois (elle peut changer pendant la visite), et c'est lu à
+ *  chaque image par l'horloge des vignettes : pas de nouvelle requête là. */
+const motionQuery = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null
 export function systemReducesMotion(): boolean {
-  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+  return !!motionQuery?.matches
 }
 
 /** Les effets sont-ils permis maintenant · réglage ET système. */

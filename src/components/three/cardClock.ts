@@ -15,6 +15,8 @@
 // suivant. Le travail est réparti sur le temps au lieu de tomber en bloc, et
 // le fil principal garde de quoi faire défiler la page.
 
+import { getSettings, systemReducesMotion } from '../../lib/settings'
+
 type Entry = { wake: () => void; next: number }
 
 const entries = new Set<Entry>()
@@ -34,6 +36,10 @@ export const CARD_FPS = modest ? 24 : 30
 
 function loop(now: number) {
   raf = entries.size ? requestAnimationFrame(loop) : 0
+  // MOINS DE MOUVEMENT · le réglage « Réduire les animations » du profil, ou la
+  // préférence du système : les salles restent sur leur dernière image (le
+  // mode « demand » a dessiné la première au montage), et ne coûtent plus rien.
+  if (getSettings().calm || systemReducesMotion()) return
   const due = [...entries].filter((e) => now >= e.next)
   if (!due.length) return
   // LA PART DE CE TOUR · juste assez pour que chacune tienne sa cadence sur

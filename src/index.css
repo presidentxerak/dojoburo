@@ -11557,3 +11557,51 @@ button.wm-tag { border-radius: 999px !important; }
 /* L'ICÔNE 3D · une image, l'icône plate en attendant. */
 .i3d { flex: none; display: inline-grid; place-items: center; color: #c4b5fd; }
 .i3d img { width: 100%; height: 100%; display: block; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45)); }
+
+/* ==================================================================
+   LE REBOND ET LES PARTICULES · « ajoute plus de design d'interaction avec
+   des particules et des bump sur les CTA » (voir lib/juice). Les boutons
+   restent à plat : le rebond est un mouvement, jamais une ombre ni un
+   dégradé.
+   ================================================================== */
+.jz-bump { animation: jz-bump 420ms cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes jz-bump {
+  0% { transform: scale(1); }
+  22% { transform: scale(0.9, 0.86); }
+  48% { transform: scale(1.07, 1.1); }
+  70% { transform: scale(0.98, 0.97); }
+  100% { transform: scale(1); }
+}
+.jz-layer { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; overflow: hidden; }
+.jz-p { position: absolute; display: block; border-radius: 999px; will-change: transform, opacity; }
+.jz-star { border-radius: 0; clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+
+/* LA RÉPONSE · la bonne se soulève, la mauvaise secoue la tête. */
+.ln-opt.right { animation: jz-pop 460ms cubic-bezier(.34, 1.56, .64, 1); }
+.ln-opt.wrong { animation: jz-shake 420ms ease; }
+@keyframes jz-pop { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+@keyframes jz-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); } 40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); } 80% { transform: translateX(2px); }
+}
+
+/* L'ONGLET QU'ON VIENT D'OUVRIR · son signe saute une fois. */
+.gm-tab.on .gm-tab-g { animation: jz-hop 480ms cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes jz-hop { 0% { transform: translateY(0) scale(1); } 40% { transform: translateY(-5px) scale(1.12); } 100% { transform: translateY(0) scale(1); } }
+
+/* L'ARRIVÉE D'UN ÉCRAN · les sections montent l'une après l'autre. */
+.gm-main > .gm-sec { animation: jz-rise 380ms cubic-bezier(.2, .7, .3, 1) both; }
+.gm-main > .gm-sec:nth-child(2) { animation-delay: 50ms; }
+.gm-main > .gm-sec:nth-child(3) { animation-delay: 100ms; }
+.gm-main > .gm-sec:nth-child(n + 4) { animation-delay: 150ms; }
+@keyframes jz-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* MOINS DE MOUVEMENT · le réglage du profil (html.calm) ou le système. */
+html.calm *, html.calm *::before, html.calm *::after {
+  animation-duration: 1ms !important; animation-iteration-count: 1 !important; animation-delay: 0ms !important;
+  transition-duration: 1ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jz-bump, .ln-opt.right, .ln-opt.wrong, .gm-tab.on .gm-tab-g, .gm-main > .gm-sec { animation: none !important; }
+}

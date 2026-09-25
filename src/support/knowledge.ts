@@ -6,8 +6,12 @@
 // ---------------------------------------------------------------------------
 // CE QUE CE ROBOT DÉCRIT, AUJOURD'HUI
 //
-// La barre du bas a quatre boutons : Dojoburo (le jeu, /dojoburo), Training
-// (les formations, l'ancien onglet « Dojos », sur /), Clan et Profil. Les
+// La barre du bas a quatre boutons : Dojoburo (le jeu, /dojoburo), IA Training
+// (« AI Training » en anglais : les formations, l'ancien onglet « Training »,
+// lui même l'ancien « Dojos », sur /), Clan et Profil. Le profil a des
+// onglets (Progression, Badges, Formations, Compte, Paramètres), et l'élève
+// porte un grade (une ceinture, game/ranks) qui devient son icône de profil.
+// Les
 // sujets de l'ancien produit (le bureau en trois dimensions, les ateliers, la
 // société, les apparences, les profils métier, l'exécutant dans le nuage, la
 // connexion par compte) ont été retirés : ils répondaient avec assurance sur

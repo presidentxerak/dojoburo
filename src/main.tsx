@@ -6,6 +6,7 @@ import { handleConnectReturn, onConnectResult, takeConnectResult } from './lib/c
 // LA SAUVEGARDE EN LIGNE · ne fait rien sans Privy configuré ni sans connexion.
 // Voir lib/account.
 import { startAccountSync } from './lib/account'
+import { installJuice } from './lib/juice'
 
 // The product, behind the beta door.
 //
@@ -325,6 +326,8 @@ if (handleConnectReturn()) {
   if (pending) void announce(pending)
   onConnectResult((r) => void announce(r))
   startAccountSync()
+  // LE REBOND ET LES PARTICULES · un seul écouteur pour toute l'application.
+  installJuice()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
