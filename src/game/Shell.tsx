@@ -173,7 +173,7 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
           <Lnk
             key={tab.to}
             href={tab.to}
-            className={`gm-tab${isOn(path, tab.to) ? ' on' : ''}`}
+            className={`gm-tab gm-tab-${tab.key.split('.')[1]}${isOn(path, tab.to) ? ' on' : ''}`}
             aria-current={isOn(path, tab.to) ? 'page' : undefined}
           >
             {/* LA MARQUE OU L'ICÔNE, jamais les deux · voir TABS. Elles sont
@@ -219,7 +219,7 @@ function AccountEntry() {
     : waiting ? `${t(AT.headerSignIn)} · ${grade}` : grade
   return (
     <Lnk className={`gm-acct gm-me${waiting ? ' out' : ' in'}`} href="/profil" aria-label={label} title={grade}>
-      <GradeAvatar rank={rank} size={34} />
+      <GradeAvatar rank={rank} size={34} animated />
       {waiting && <i className="gm-me-dot" aria-hidden="true" />}
       {waiting && <span className="gm-acct-t">{t(AT.headerSignIn)}</span>}
     </Lnk>

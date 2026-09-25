@@ -110,6 +110,35 @@ ok('le mouvement réduit coupe les animations CSS', /html\.calm \*/.test(CSS))
 const BUMP_RULES = [...CSS.matchAll(/\n\.jz-bump\s*\{([^}]*)\}/g)].map((m) => m[1]).join(' ')
 ok('le rebond reste à plat', BUMP_RULES.length > 0 && !/gradient\(|box-shadow/.test(BUMP_RULES))
 
+/* --- 6b · les icônes animées selon leur thème ---------------------------- */
+//
+// Demandé : « faut que les icônes soient animées en fonction de leur thème ».
+const ICON = readFileSync('src/game/Icon3D.tsx', 'utf8')
+ok('les icônes 3D sont dessinées en bande d\'images', /requestStrip\(/.test(ICON) && /export const FRAMES = \d+/.test(readFileSync('src/components/three/snapshotStrip.ts', 'utf8')))
+for (const [fn, what] of [['Settings', 'les engrenages tournent'], ['Badges', 'la médaille se balance'], ['Progress', 'les barres montent'], ['Account', 'le cadenas s\'ouvre'], ['Trainings', 'la toque saute']]) {
+  const body = ICON.match(new RegExp(`function ${fn}\\(\\{ t = 0 \\}[\\s\\S]*?\\n\\}`))?.[0] ?? ''
+  ok(`${what} (${fn} suit t)`, /TAU \* t|TAU \/ \d+\) \* t/.test(body))
+}
+ok('l\'avatar du grade s\'anime dans l\'en-tête et le profil', /<GradeAvatar rank=\{rank\} size=\{34\} animated \/>/.test(SHELL) && /size=\{104\} animated/.test(PROFIL))
+ok('chaque signe de la barre a son geste', ['game', 'training', 'clan', 'profile'].every((k) => new RegExp(`\\.gm-tab-${k}\\.on \\.gm-tab-g \\{ animation: tab-${k} `).test(CSS)))
+ok('les bandes s\'arrêtent en mouvement réduit', /\.i3d-strip, \.gm-tab \.gm-tab-g \{ animation: none !important; \}/.test(CSS))
+
+/* --- 6c · l'affichage clair ------------------------------------------------ */
+//
+// Demandé : « ajoute un affichage light mode ». La nuit reste le défaut.
+const BOOT = readFileSync('public/boot.js', 'utf8')
+ok('boot.js pose le clair avant le premier pixel, s\'il a été choisi', /getItem\('dojoburo\.look'\)/.test(BOOT) && /setAttribute\('data-look', 'light'\)/.test(BOOT))
+ok('… et la nuit reste le défaut', /setAttribute\('data-theme', 'dark'\)/.test(BOOT) && /look === 'light' \|\| \(look === 'system'/.test(BOOT))
+ok('le profil propose Sombre, Clair, Appareil', /<LookRow \/>/.test(PROFIL) && /setLook\(o\.id\)/.test(PROFIL))
+const LIGHT = readFileSync('src/styles/look-light.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+const lightSels = [...LIGHT.matchAll(/([^{}]+)\{/g)].map((m) => m[1].trim()).filter(Boolean)
+ok('la feuille claire existe et ne touche que le clair', lightSels.length > 20 && lightSels.every((sel) => sel.split(',').every((x) => /^:root\[data-look='light'\]/.test(x.trim()) || /^@media|^from|^to|^\d/.test(x.trim()))),
+  `${lightSels.length} règles`)
+ok('elle est chargée après la feuille principale', /import '\.\/index\.css'\n[\s\S]{0,120}import '\.\/styles\/look-light\.css'/.test(MAIN))
+
+/* --- 6d · les jauges prennent la largeur des cartes ------------------------ */
+ok('les jauges du profil prennent toute la largeur', /\.pf-gauges \{[^}]*width: 100%;/.test(CSS) && !/\.pf-gauges \{[^}]*max-width/.test(CSS))
+
 /* --- 7 · les morsures ---------------------------------------------------- */
 
 ok('morsure · un lien vers la carte serait vu', /\/carte/.test('<Lnk href="/carte">'))
