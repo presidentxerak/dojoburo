@@ -491,7 +491,7 @@ export const DICT = {
   /* --- le jeu · la coquille et les onglets -------------------------------- */
   'nav.game': { en: 'Dojoburo', fr: 'Dojoburo' },
   'nav.training': { en: 'AI Training', fr: 'IA Training' },
-  'nav.clan': { en: 'Clan', fr: 'Clan' },
+  'nav.clan': { en: 'Community', fr: 'Communauté' },
   'nav.profile': { en: 'Profile', fr: 'Profil' },
   'gm.tabs': { en: 'Main navigation', fr: 'Navigation principale' },
   'tf.title': { en: "Pricing", fr: "Les tarifs" },

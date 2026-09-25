@@ -220,8 +220,12 @@ console.log('\n--- les bornes, partout les mêmes -----------------------------'
 console.log('\n--- l’endpoint et la page -------------------------------------')
 {
   const api = readFileSync('api/clan.ts', 'utf8')
-  const page = readFileSync('src/game/Clan.tsx', 'utf8')
-  const text = readFileSync('src/game/clanText.ts', 'utf8')
+  // LA PAGE A CHANGÉ · demandé : « Clan devient Communauté », refaite à la
+  // manière de Skool (game/Community). Les assertions sur la page portent
+  // maintenant sur elle ; celles sur l'endpoint du clan restent, il sert
+  // toujours les anciens messages.
+  const page = readFileSync('src/game/Community.tsx', 'utf8')
+  const text = readFileSync('src/game/communityText.ts', 'utf8')
   ok('l’endpoint vérifie l’origine', /originAllowed\(/.test(api))
   ok('sans base, il le dit en 503', /dbConfigured\(\)\)\s*return send\(res,\s*503,\s*\{\s*ok:\s*false,\s*error:\s*'not_configured'/.test(api))
   ok('il passe par le limiteur partagé', /from '\.\/_lib\/ratelimit\.js'/.test(api))
@@ -230,8 +234,10 @@ console.log('\n--- l’endpoint et la page -------------------------------------
   ok('la page ne rend jamais de HTML', !/dangerouslySetInnerHTML|innerHTML/.test(page))
   ok('la page dit quand le serveur n’est pas configuré', /'not_configured'/.test(page) && /CT\.offTitle/.test(page))
   ok('la page n’emploie plus les clés cl.* du dictionnaire', !/t\('cl\./.test(page))
-  ok('la page passe par apiFetch', /from '\.\/apiFetch'/.test(readFileSync('src/lib/clan.ts', 'utf8')))
-  ok('le lien sortant ne transmet rien', /rel="noopener noreferrer nofollow ugc"/.test(page))
+  ok('la page passe par apiFetch', /from '\.\/apiFetch'/.test(readFileSync('src/lib/community.ts', 'utf8')))
+  // AUCUN LIEN FABRIQUÉ À PARTIR D'UN MESSAGE · le texte d'un membre est
+  // affiché comme du texte ; une adresse qu'il contient n'est pas cliquable.
+  ok('aucun lien n\'est tiré du texte d\'un membre', !/href=\{(?:p|x|post|c)\./.test(page))
 
   // LE FRANÇAIS DU CLAN · vouvoiement, pas de tiret cadratin.
   const fr = [...text.matchAll(/B\(\s*(?:'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")\s*,\s*('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")/g)].map((m) => m[1].slice(1, -1))

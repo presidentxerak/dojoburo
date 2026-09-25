@@ -43,7 +43,7 @@ import { PromoPage } from './game/Promo'
 // l'académie, importée plus haut. Deux choses différentes sous le même nom
 // dans la même portée est la façon la plus discrète de casser une page.
 import { LessonPage as DojoLesson } from './game/Lesson'
-import { ClanPage } from './game/Clan'
+import { CommunityPage } from './game/Community'
 import { PACK_OF_MODULE, packPath, lessonPath, FREE_PACK } from './data/packs'
 import { ProfilPage } from './game/Profil'
 import { CartePage } from './game/Carte'
@@ -183,7 +183,10 @@ function Root() {
   // ajouter une vue demande une ligne là-haut, et elle est protégée ici sans
   // que personne ait à y penser.
   if (path === '/' && !isAppRoute(route)) return <DojosPage />
-  if (path === '/clan') return <ClanPage />
+  // LA COMMUNAUTÉ · l'ancien Clan, refait à la manière de Skool (voir
+  // game/Community). Le fil, une publication, la page À propos.
+  if (path === '/clan' || path === '/clan/a-propos' || path === '/communaute') return <CommunityPage />
+  if (path.match(/^\/clan\/p\/[0-9a-f-]+$/i)) return <CommunityPage />
   if (path === '/profil') return <ProfilPage />
   // LA CARTE · plein écran, sans coquille ni barre du bas. Voir game/Carte.
   if (path === '/carte') return <CartePage />
