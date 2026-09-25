@@ -91,6 +91,16 @@ ok('un membre est montré par son identifiant public', !JSON.stringify(C.seriali
 ok('en ligne = vu il y a moins de cinq minutes', C.serializeMember({ handle: 'h', name: 'N', points: 0, created_at: new Date(), last_seen_at: new Date(Date.now() - 60e3) }).online === true
   && C.serializeMember({ handle: 'h', name: 'N', points: 0, created_at: new Date(), last_seen_at: new Date(Date.now() - 3600e3) }).online === false)
 
+/* --- 5c · le calendrier --------------------------------------------------- */
+const ev = C.validateEvent({ title: 'Live questions-réponses', startsAt: '2026-10-01T16:00:00.000Z', duration: 60, link: 'https://meet.example.com/abc' })
+ok('un événement valide passe', !('error' in ev) && ev.startsAt === '2026-10-01T16:00:00.000Z')
+ok('un lien de visio non chiffré est refusé', 'error' in C.validateEvent({ title: 'Live', startsAt: '2026-10-01T16:00:00Z', link: 'http://meet.example.com' }))
+ok('une date illisible est refusée', 'error' in C.validateEvent({ title: 'Live', startsAt: 'demain' }))
+ok('une durée hors bornes est refusée', 'error' in C.validateEvent({ title: 'Live', startsAt: '2026-10-01T16:00:00Z', duration: 5000 }))
+ok('seuls les admins créent et suppriment un événement', /async function createEvent[\s\S]*?isAdmin\(me\)/.test(api) && /async function deleteEvent[\s\S]*?isAdmin\(me\)/.test(api))
+ok('le calendrier a sa vue et son adresse', /calendarTab \? <Calendar me=\{me\} \/>/.test(code) && /'\/clan\/calendrier'/.test(readFileSync('src/main.tsx', 'utf8')))
+ok('l\'agenda (.ics) se construit dans le navigateur', /export function icsOf/.test(client) && /BEGIN:VCALENDAR/.test(client))
+
 /* --- 6 · les morsures ---------------------------------------------------- */
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))
 ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(title\\) between 3 and 120').test('char_length(title) between 3 and 200'))

@@ -12082,3 +12082,35 @@ h2.cy-post-title { font-size: 24px !important; }
 .cy-profile-nums b { font-family: var(--font-game); font-weight: 800; font-size: 20px; }
 .cy-profile-nums span { font-size: 12px; color: var(--g-sub); }
 .gm .cy-profile .cc-btn { align-self: flex-start; margin-top: 4px; }
+
+/* LA COMMUNAUTÉ · le calendrier (lot 3). */
+.cy-cal-head { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.gm .cy-cal-add { margin-top: 0; }
+.cy-cal-nav { display: flex; align-items: center; gap: 6px; margin: 14px 0 8px; }
+.cy-cal-nav b { font-family: var(--font-game); font-weight: 800; font-size: 17px; text-transform: capitalize; min-width: 150px; text-align: center; }
+.cy-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cy-wd { padding: 4px; text-align: center; font: 800 12px var(--font-game); color: var(--g-sub); text-transform: capitalize; }
+.cy-day { min-height: 84px; padding: 6px; border-radius: 10px; background: var(--g-slot); display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cy-day.out { opacity: 0.45; }
+.cy-day.today { box-shadow: inset 0 0 0 2px #7c3aed; }
+.cy-day-n { font: 800 13px var(--font-game); color: var(--g-sub); }
+.cy-day.today .cy-day-n { color: #7c3aed; }
+.cy-day-ev { display: block; padding: 2px 5px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #fff; background: #7c3aed; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 639px) {
+  .cy-day { min-height: 46px; padding: 4px; }
+  .cy-day-ev { font-size: 0; height: 6px; padding: 0; }
+}
+.cy-evform { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.cy-evform-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 559px) { .cy-evform-row { grid-template-columns: 1fr; } }
+.cy-evform label { display: flex; flex-direction: column; gap: 4px; font: 800 12.5px var(--font-game); color: var(--g-sub); }
+.cy-event { display: flex; gap: 14px; }
+.cy-event-date { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 58px; height: 62px; border-radius: 14px; color: #fff; background-color: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.cy-event-date b { font: 800 22px/1 var(--font-game); }
+.cy-event-date span { font: 800 11px var(--font-game); text-transform: uppercase; }
+.cy-event-t { flex: 1; min-width: 0; }
+.cy-event-t h4 { margin: 0; font-family: var(--font-game); font-weight: 800; font-size: 17px; }
+.cy-event-t .cy-sub { text-transform: none; }
+.cy-event-d { margin: 6px 0 0; font-size: 14.5px; line-height: 1.55; white-space: pre-wrap; }
+.cy-event-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
+.gm .cy-event-acts .gm-cta, .gm .cy-event-acts .cc-btn { margin-top: 0; min-height: 40px; padding: 8px 16px; font-size: 14.5px; }

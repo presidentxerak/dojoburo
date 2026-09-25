@@ -119,3 +119,31 @@ export const createComment = (c: { postId: string; parentId?: string | null; bod
 export const toggleLike = (type: 'post' | 'comment', id: string) => post<{ liked: boolean; likes: number }>('like', { type, id })
 export const setPinned = (id: string, pinned: boolean) => post<{ pinned: boolean }>('pin', { id, pinned })
 export const removeItem = (type: 'post' | 'comment', id: string) => post<{ deleted: boolean }>('delete', { type, id })
+
+/* ---- le calendrier ---------------------------------------------------------- */
+
+export interface CEvent { id: string; title: string; description: string; startsAt: string; duration: number; link: string | null }
+
+export function fetchEvents(from?: Date, to?: Date) {
+  const p = new URLSearchParams({ action: 'events' })
+  if (from) p.set('from', from.toISOString())
+  if (to) p.set('to', to.toISOString())
+  return call<{ events: CEvent[] }>(`/api/community?${p}`)
+}
+export const createEvent = (e: { title: string; description: string; startsAt: string; duration: number; link: string }) => post<{ id: string }>('event', e)
+export const deleteEvent = (id: string) => post<{ deleted: boolean }>('event-delete', { id })
+
+/** Le fichier d'agenda d'un événement (.ics) · construit dans le navigateur,
+ *  rien ne part au serveur. */
+export function icsOf(e: CEvent, site: string): string {
+  const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+  const start = new Date(e.startsAt)
+  const end = new Date(start.getTime() + e.duration * 60000)
+  const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1')
+  return [
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//DojoBuro//Community//FR', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
+    `UID:${e.id}@dojoburo`, `DTSTAMP:${fmt(new Date())}`, `DTSTART:${fmt(start)}`, `DTEND:${fmt(end)}`,
+    `SUMMARY:${esc(e.title)}`, `DESCRIPTION:${esc([e.description, e.link || '', `${site}/clan/calendrier`].filter(Boolean).join('\n'))}`,
+    ...(e.link ? [`URL:${e.link}`] : []), 'END:VEVENT', 'END:VCALENDAR',
+  ].join('\r\n')
+}

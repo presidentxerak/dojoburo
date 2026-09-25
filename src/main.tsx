@@ -186,7 +186,7 @@ function Root() {
   // LA COMMUNAUTÉ · l'ancien Clan, refait à la manière de Skool (voir
   // game/Community). Le fil, une publication, la page À propos.
   if (path === '/clan' || path === '/clan/a-propos' || path === '/communaute') return <CommunityPage />
-  if (path === '/clan/membres' || path === '/clan/classements') return <CommunityPage />
+  if (path === '/clan/membres' || path === '/clan/classements' || path === '/clan/calendrier') return <CommunityPage />
   if (path.match(/^\/clan\/p\/[0-9a-f-]+$/i)) return <CommunityPage />
   if (path.match(/^\/clan\/m\/[0-9a-f-]+$/i)) return <CommunityPage />
   if (path === '/profil') return <ProfilPage />

@@ -221,3 +221,53 @@ export function serializeComment(r: CommentRow, me: string | null) {
     liked: !!r.liked,
   }
 }
+
+/* ---- le calendrier ----------------------------------------------------------- */
+
+export const EVENT_LIMITS = {
+  title: { min: 3, max: 120 },
+  description: { max: 2000 },
+  duration: { min: 15, max: 480 },
+  link: { max: 300 },
+} as const
+
+/** Un événement lisible, ou la raison du refus. Le lien de visio doit être en
+ *  https : une adresse en clair dans une invitation est une invitation à
+ *  l'espionnage. */
+export function validateEvent(b: unknown): Check<{ title: string; description: string; startsAt: string; duration: number; link: string | null }> {
+  const o = (b && typeof b === 'object' ? b : {}) as Record<string, unknown>
+  const title = clean(o.title)
+  if (!within(title, EVENT_LIMITS.title)) return { error: 'title' }
+  const description = clean(o.description, true)
+  if (description.length > EVENT_LIMITS.description.max) return { error: 'description' }
+  const t = typeof o.startsAt === 'string' ? Date.parse(o.startsAt) : NaN
+  if (Number.isNaN(t)) return { error: 'date' }
+  const duration = Number(o.duration ?? 60)
+  if (!Number.isInteger(duration) || duration < EVENT_LIMITS.duration.min || duration > EVENT_LIMITS.duration.max) return { error: 'duration' }
+  let link: string | null = null
+  if (typeof o.link === 'string' && o.link.trim()) {
+    link = o.link.trim()
+    if (link.length > EVENT_LIMITS.link.max || !/^https:\/\/[^\s]+$/i.test(link)) return { error: 'link' }
+  }
+  return { title, description, startsAt: new Date(t).toISOString(), duration, link }
+}
+
+export interface EventRow {
+  id: string
+  title: string
+  description: string
+  starts_at: Date
+  duration_min: number
+  link: string | null
+}
+
+export function serializeEvent(r: EventRow) {
+  return {
+    id: r.id,
+    title: r.title,
+    description: r.description,
+    startsAt: r.starts_at.toISOString(),
+    duration: r.duration_min,
+    link: r.link,
+  }
+}

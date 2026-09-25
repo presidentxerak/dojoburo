@@ -25,7 +25,8 @@ import { ADMIN_EMAILS } from './_lib/admins.js'
 import {
   LIMITS, RATES, isId, isCategory, validateName, validateBio, validatePost, validateComment, cleanQuery,
   encodeCursor, decodeCursor, serializePost, serializeComment, serializeMember, levelOfPoints,
-  type PostRow, type CommentRow, type MemberRow,
+  validateEvent, serializeEvent,
+  type PostRow, type CommentRow, type MemberRow, type EventRow,
 } from './_lib/community.js'
 
 export const config = { maxDuration: 15 }
@@ -67,6 +68,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       if (action === 'members') return await members(res, url)
       if (action === 'member') return await oneMember(res, url, me)
       if (action === 'leaderboard') return await leaderboard(res, me)
+      if (action === 'events') return await events(res, url)
       if (action === 'me') {
         if (!privyEnabled()) return send(res, 503, { ok: false, error: 'not_configured', detail: 'auth' })
         if (!me) return send(res, 401, { ok: false, error: 'auth' })
@@ -84,6 +86,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     if (action === 'join') return await join(res, me, body)
     if (action === 'profile') return await editProfile(res, me, body)
+    if (action === 'event') return await createEvent(res, me, body)
+    if (action === 'event-delete') return await deleteEvent(res, me, body)
     if (action === 'post') return await createPost(res, me, body)
     if (action === 'comment') return await createComment(res, me, body)
     if (action === 'like') return await toggleLike(res, me, body)
@@ -261,6 +265,46 @@ async function leaderboard(res: ServerResponse, me: string | null) {
     all: all.rows.map((x) => ({ handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, points: x.points })),
     me: mine,
   })
+}
+
+/* ---- le calendrier ----------------------------------------------------------- */
+
+/** Les événements d'une période · par défaut, de 7 jours en arrière à 120
+ *  jours devant (la vue mois et la liste « à venir »). */
+async function events(res: ServerResponse, url: URL) {
+  const from = Date.parse(url.searchParams.get('from') || '')
+  const to = Date.parse(url.searchParams.get('to') || '')
+  const start = Number.isNaN(from) ? new Date(Date.now() - 7 * 86400e3) : new Date(from)
+  let end = Number.isNaN(to) ? new Date(Date.now() + 120 * 86400e3) : new Date(to)
+  // UNE PÉRIODE BORNÉE · jamais plus d'un an d'un coup.
+  if (end.getTime() - start.getTime() > 366 * 86400e3) end = new Date(start.getTime() + 366 * 86400e3)
+  const r = await getPool().query(
+    `select id, title, description, starts_at, duration_min, link from community_events
+      where not deleted and starts_at >= $1 and starts_at < $2 order by starts_at asc limit 200`,
+    [start.toISOString(), end.toISOString()],
+  )
+  return send(res, 200, { ok: true, events: (r.rows as EventRow[]).map(serializeEvent) })
+}
+
+async function createEvent(res: ServerResponse, me: string, body: unknown) {
+  if (!(await isAdmin(me))) return send(res, 403, { ok: false, error: 'admin' })
+  const v = validateEvent(body)
+  if ('error' in v) return send(res, 400, { ok: false, error: v.error })
+  const r = await getPool().query(
+    `insert into community_events (title, description, starts_at, duration_min, link, created_by)
+       values ($1, $2, $3, $4, $5, $6) returning id`,
+    [v.title, v.description, v.startsAt, v.duration, v.link, me],
+  )
+  return send(res, 200, { ok: true, id: r.rows[0].id })
+}
+
+async function deleteEvent(res: ServerResponse, me: string, body: unknown) {
+  const id = (body as { id?: unknown })?.id
+  if (!isId(id)) return send(res, 400, { ok: false, error: 'event' })
+  if (!(await isAdmin(me))) return send(res, 403, { ok: false, error: 'admin' })
+  const r = await getPool().query('update community_events set deleted = true where id = $1 and not deleted returning id', [id])
+  if (!r.rows[0]) return send(res, 404, { ok: false, error: 'not_found' })
+  return send(res, 200, { ok: true, deleted: true })
 }
 
 async function editProfile(res: ServerResponse, me: string, body: unknown) {
