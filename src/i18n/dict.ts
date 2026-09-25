@@ -616,6 +616,11 @@ export const DICT = {
   // LES PARAMÈTRES · « ajoute des paramètres ».
   'st.h2': { en: "Settings", fr: "Paramètres" },
   'st.lead': { en: "They are kept in this browser and apply right away.", fr: "Ils sont conservés dans ce navigateur et s'appliquent immédiatement." },
+  'st.look': { en: "Display", fr: "Affichage" },
+  'st.lookBody': { en: "Dark violet by default, light if you prefer, or the one your device uses.", fr: "Violet sombre par défaut, clair si vous le préférez, ou celui de votre appareil." },
+  'st.dark': { en: "Dark", fr: "Sombre" },
+  'st.light': { en: "Light", fr: "Clair" },
+  'st.system': { en: "Device", fr: "Appareil" },
   'st.lang': { en: "Language", fr: "Langue" },
   'st.langBody': { en: "The language of the whole app, lessons included.", fr: "La langue de toute l'application, leçons comprises." },
   'st.sound': { en: "Game sound", fr: "Son du jeu" },

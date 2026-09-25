@@ -41,6 +41,24 @@
   var m = document.querySelector('meta[name="theme-color"]')
   if (m) m.setAttribute('content', '#0a0514')
 
+  /* ---- 1b · l'affichage clair du jeu, s'il a été choisi ----------------- */
+  //
+  // DEMANDÉ ENSUITE : « ajoute un affichage light mode ». Le violet de nuit
+  // reste l'affichage par défaut et la marque data-theme ne change pas (toute
+  // la feuille lit ses jetons dessous). Le clair est un CHOIX de l'élève,
+  // fait dans Profil > Paramètres, rangé sous une autre clé que l'ancien
+  // réglage effacé plus haut ('dojoburo.look' : dark, light ou system), et
+  // posé ici sur <html data-look="light"> avant le premier pixel : le poser
+  // depuis React ferait clignoter la nuit à chaque chargement.
+  try {
+    var look = localStorage.getItem('dojoburo.look')
+    var light = look === 'light' || (look === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+    if (light) {
+      document.documentElement.setAttribute('data-look', 'light')
+      if (m) m.setAttribute('content', '#f4f0ff')
+    }
+  } catch (e) { /* navigation privée : la nuit */ }
+
   /* ---- 2 · la police, sans bloquer le premier pixel -------------------- */
   // Une feuille de style distante est BLOQUANTE au rendu : tant qu'elle n'est
   // pas arrivée, le navigateur ne peint rien. Tant que Google répond vite, cela

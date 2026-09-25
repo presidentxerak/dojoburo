@@ -259,19 +259,44 @@ ok('… et monte en élargissant sa lueur', /translateY\(-\d+px\)/.test(rule('.p
 ok('aucun texte ne se souligne au survol dans le jeu',
   /\n\.gm a, \.gm a:hover, \.cm a, \.cm a:hover \{ text-decoration: none; \}/.test(CSS))
 
-// LES BOUTONS SONT FLAT · « change les CTA de l'app et les boutons de la bottom
-// bar avec un style flat design ». Une couleur pleine : pas de dégradé, pas de
-// reflet, pas d'ombre. L'appui se lit par la couleur qui fonce et un léger
-// rétrécissement.
+// LES BOUTONS : UNE COULEUR PLEINE, ET UNE LÉGÈRE TOUCHE SKEUOMORPHE.
+//
+// HISTOIRE · « change les CTA de l'app et les boutons de la bottom bar avec un
+// style flat design » avait retiré dégradés, reflets et ombres. Puis, demandé
+// ensuite : « ajoute une légère touche graphique skeuomorphisme sur les
+// boutons et les icônes ». La garde affirme la NOUVELLE règle, aussi
+// précisément que l'ancienne : la couleur reste pleine (celle de la charte),
+// et la touche est UNE, partagée, légère, posée par-dessus :
+//   · --sk-grad, un voile clair qui s'efface, jamais un dégradé de couleurs,
+//   · --sk-btn, un reflet d'un pixel en haut, une assise de deux en bas, une
+//     ombre portée courte,
+//   · --sk-press, l'enfoncement au toucher.
+// Tout autre dégradé ou ombre écrit à la main sur un bouton reste refusé :
+// c'est ce qui empêche la touche de redevenir une surcharge.
 const CTA = GAME_CSS.match(/\n\.gm-cta, \.cc-btn \{([\s\S]*?)\n\}/)?.[1] ?? ''
 const CTA_DOWN = GAME_CSS.match(/\n\.gm-cta:active, \.cc-btn:active \{([^}]*)\}/)?.[1] ?? ''
-const flat = (body) => !/gradient\(/.test(body) && !/box-shadow:\s*(?!none)[^;]*\d/.test(body)
+const SK = (name) => CSS.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1] ?? ''
+// UNE TOUCHE LÉGÈRE · chaque transparence du voile et des ombres reste sous
+// 0,3 ; aucune ombre portée ne s'étale sur plus de 10 px.
+const alphas = (v) => [...v.matchAll(/rgba\([^)]*,\s*([\d.]+)\)/g)].map((m) => Number(m[1]))
+const blurs = (v) => [...v.matchAll(/(?<!inset )-?\d+(?:px)?\s+-?\d+px\s+(\d+)px/g)].map((m) => Number(m[1]))
+ok('la touche skeuomorphe existe, une seule fois, en jetons', !!SK('sk-grad') && !!SK('sk-btn') && !!SK('sk-press'))
+ok('… et elle est légère', ['sk-grad', 'sk-btn', 'sk-press'].every((n) => alphas(SK(n)).every((a) => a <= 0.3)) && blurs(SK('sk-btn')).every((b) => b <= 10),
+  `${SK('sk-btn')}`)
+ok('… son voile est clair ou sombre, jamais une couleur', !/#[0-9a-f]{3,6}/i.test(SK('sk-grad')))
+// Rien d'autre que ces jetons : pas de dégradé ni d'ombre écrits à la main.
+const flat = (body) => !/gradient\(/.test(body) && !/box-shadow:\s*(?!none|var\(--sk-)[^;]*\d/.test(body)
+const touched = (body) => /var\(--sk-grad\)/.test(body) && /box-shadow:\s*var\(--sk-btn\)/.test(body)
 ok('le bouton n\'a pas de bordure', /border:\s*0;/.test(CTA))
-ok('le bouton est flat', CTA.length > 0 && flat(CTA), CTA.match(/background:[^;]*/)?.[0] ?? 'introuvable')
-ok('… sans reflet', !/\.gm-cta::before|\.cc-btn::before|\.pk-go::before|\.gm-tab\.on::before/.test(GAME_CODE))
-ok('appuyé, il fonce et se resserre', /background:\s*var\(--b-lo\)/.test(CTA_DOWN) && /scale\(/.test(CTA_DOWN))
-ok('l\'appel des cartes est flat', flat(rule('.pk-go')))
-ok('les touches de la barre du bas sont flat', rulesFor('.gm-tab').every(flat) && rulesFor('.gm-tab.on').every(flat))
+ok('le bouton garde sa couleur pleine', /background:\s*var\(--b\);/.test(CTA) && flat(CTA), CTA.match(/background:[^;]*/)?.[0] ?? 'introuvable')
+ok('… et porte la touche skeuomorphe', touched(CTA))
+ok('… sans reflet dessiné à part', !/\.gm-cta::before|\.cc-btn::before|\.pk-go::before|\.gm-tab\.on::before/.test(GAME_CODE))
+ok('appuyé, il fonce, s\'enfonce et se resserre', /background:\s*var\(--b-lo\)/.test(CTA_DOWN) && /scale\(/.test(CTA_DOWN) && /var\(--sk-press\)/.test(CTA_DOWN))
+ok('l\'appel des cartes : couleur pleine et touche', flat(rule('.pk-go')) && touched(rule('.pk-go')))
+ok('les touches de la barre du bas : couleur pleine et touche', rulesFor('.gm-tab').every(flat) && rulesFor('.gm-tab.on').every(flat) && touched(rule('.gm-tab')))
+ok('les signes de la barre ont leur relief', /\.gm-tab-g svg, \.gm-tab-g \.logo-badge \{ filter: var\(--sk-ico\); \}/.test(CSS))
+ok('morsure · un dégradé écrit à la main serait vu', !flat('background: linear-gradient(180deg, #b794ff, #7c3aed);'))
+ok('morsure · une ombre lourde serait vue', !['0 18px 40px rgba(0, 0, 0, 0.7)'].every((v) => blurs(v).every((b) => b <= 10) && alphas(v).every((a) => a <= 0.3)))
 
 // LES VRAIS <button> GARDENT LEUR ARRONDI · une règle générale les aplatit en
 // !important ; le jeu, et les étiquettes de la carte, leur répondent.
@@ -327,11 +352,12 @@ ok('Training ne s\'allume pas sur le jeu', /path\.startsWith\('\/dojo\/'\)/.test
 // L'ONGLET MÈNE QUELQUE PART · un onglet vers une adresse que le routeur ne
 // sert pas retombe sur l'écran des formations, sans erreur nulle part.
 ok('l\'onglet Dojoburo ouvre le jeu', /path === '\/dojoburo'\) return <Suspense[^\n]*<SimPage \/>/.test(readFileSync('src/main.tsx', 'utf8')))
-// LE JEU EST À PLAT LUI AUSSI · « un style flat design » vaut pour ses boutons,
-// ses touches de commande et ses cartes de client, pas seulement pour l'app.
+// LE JEU SUIT LA MÊME RÈGLE · couleur pleine, et la touche skeuomorphe par
+// les seuls jetons partagés (voir plus haut), pour ses boutons, ses touches de
+// commande et ses cartes de client comme pour l'app.
 const SIM_BTNS = ['.sim-ico', '.sim-btn', '.sim-client', '.sim-step button', '.sim-toast']
 const simBad = SIM_BTNS.filter((sel) => { const r = rulesFor(sel); return r.length === 0 || !r.every(flat) })
-ok('les boutons du jeu Dojoburo sont flat', simBad.length === 0, simBad.join(', ') || `${SIM_BTNS.length} familles`)
+ok('les boutons du jeu Dojoburo : couleur pleine, sans relief écrit à la main', simBad.length === 0, simBad.join(', ') || `${SIM_BTNS.length} familles`)
 ok('… et ses CTA sont ceux de l\'app', /className="gm-cta sim-go"/.test(readFileSync('src/sim/SimPage.tsx', 'utf8')))
 ok('l\'onglet Profil porte un sourire', /glyph:\s*'smile'/.test(SHELL))
 ok('le sourire existe dans le jeu d\'icônes', /'smile'/.test(ICONS))

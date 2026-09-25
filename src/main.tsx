@@ -60,6 +60,8 @@ import { AccessGate, betaUnlocked } from './components/AccessGate'
 // (« font-src 'self' »).
 import '@fontsource-variable/outfit/index.css'
 import './index.css'
+// l'affichage clair du jeu, APRÈS la feuille principale : il la corrige
+import './styles/look-light.css'
 
 // Route ephemeral Vercel preview URLs (which change every deploy and aren't in
 // Privy's allowed-origins) to the canonical production domain, so auth and

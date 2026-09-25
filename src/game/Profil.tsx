@@ -41,7 +41,7 @@ import { useAccount, signIn, signOut, syncNow } from '../lib/account'
 import { AT, SYNC_ERROR, useAccountText } from './accountText'
 import { RANKS, rankOf, nextRank } from './ranks'
 import { GradeAvatar, Icon3D, type Icon3DName } from './Icon3D'
-import { useSettings, setSetting, resetSettings, systemReducesMotion } from '../lib/settings'
+import { useSettings, setSetting, resetSettings, systemReducesMotion, useLook, setLook, type Look } from '../lib/settings'
 import { audio } from '../sim/audio'
 import { eraseLocalData } from '../lib/erase'
 
@@ -166,7 +166,7 @@ function Hero() {
     // LA CEINTURE NOIRE SUR FOND NOIR · son nom s'écrit en violet clair, sinon
     // on ne le lirait pas.
     <div className="pf-hero" style={{ ['--belt' as string]: rank.tint, ['--belt-ink' as string]: rank.id === 'black' ? '#c4b5fd' : rank.tint }}>
-      <GradeAvatar rank={rank} size={104} className="pf-hero-av" />
+      <GradeAvatar rank={rank} size={104} animated className="pf-hero-av" />
       <div className="pf-hero-t">
         <em>{t('pr.yourGrade')}</em>
         <b>{say(rank.belt, lang)}</b>
@@ -230,7 +230,7 @@ function ProgressTab() {
             const got = lv.level >= r.from
             return (
               <li key={r.id} className={`pf-rung${now ? ' now' : ''}${got ? ' got' : ''}`} style={{ ['--belt' as string]: r.tint }}>
-                <GradeAvatar rank={r} size={64} locked={!got} />
+                <GradeAvatar rank={r} size={64} locked={!got} animated={now} />
                 <span className="pf-rung-t">
                   <b>{say(r.belt, lang)}</b>
                   <em>{say(r.title, lang)} · {t('pr.fromLevel').replace('{n}', String(r.from))}</em>
@@ -353,6 +353,7 @@ function SettingsTab() {
       <p className="gm-lead">{t('st.lead')}</p>
 
       <div className="st-list">
+        <LookRow />
         <div className="st-row">
           <span className="st-t"><b>{t('st.lang')}</b><em>{t('st.langBody')}</em></span>
           <LangSwitch />
@@ -375,6 +376,30 @@ function SettingsTab() {
         <button className="cc-btn pf-forget" onClick={eraseEverything}>{t('pr.forget')}</button>
       </div>
     </section>
+  )
+}
+
+/** L'AFFICHAGE · trois choix côte à côte, comme la langue : l'état et les
+ *  alternatives se lisent d'un coup d'oeil. */
+function LookRow() {
+  const t = useT()
+  const look = useLook()
+  const opts: { id: Look; key: string }[] = [
+    { id: 'dark', key: 'st.dark' },
+    { id: 'light', key: 'st.light' },
+    { id: 'system', key: 'st.system' },
+  ]
+  return (
+    <div className="st-row">
+      <span className="st-t"><b>{t('st.look')}</b><em>{t('st.lookBody')}</em></span>
+      <div className="st-seg" role="group" aria-label={t('st.look')}>
+        {opts.map((o) => (
+          <button key={o.id} className={`st-seg-b${look === o.id ? ' on' : ''}`} aria-pressed={look === o.id} onClick={() => setLook(o.id)}>
+            {t(o.key)}
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 

@@ -15,6 +15,7 @@ export const ERASED_KEYS = [
   'dojoburo.sim.v1',
   'dojoburo.clan.pseudo',
   'dojoburo.settings',
+  'dojoburo.look',
   'dojoburo.sound',
 ]
 
