@@ -1,0 +1,425 @@
+/* ==================================================================
+   L'AFFICHAGE CLAIR DU JEU · « ajoute un affichage light mode ».
+
+   Le violet de nuit reste l'affichage par défaut. Le clair est un choix de
+   l'élève (Profil > Paramètres > Affichage), posé par public/boot.js sur
+   <html data-look="light"> avant le premier pixel. Toutes les règles de ce
+   fichier sont donc sous :root[data-look='light'] : sans ce choix, aucune ne
+   s'applique, et la nuit est exactement celle d'avant.
+
+   LA MÉTHODE · d'abord les jetons (--g-*, --bg), que presque toutes les
+   surfaces reprennent. Ensuite, une à une, les règles qui écrivaient du
+   blanc sur la nuit en dur. Les CTA violets, les ceintures, la teinte de
+   chaque formation restent ; le vert et le rouge s'assombrissent pour se
+   lire sur le clair.
+   ================================================================== */
+
+/* --- les jetons ------------------------------------------------------------ */
+:root[data-look='light'] {
+  color-scheme: light;
+  --bg: #f4f0ff;
+  --g-page: #f4f0ff;
+  --g-card-top: #ffffff;
+  --g-card: #fdfbff;
+  --g-card-bot: #f7f3ff;
+  --g-raise: #efe8ff;
+  --g-slot: rgba(124, 58, 237, 0.08);
+  --g-text: #1b1030;
+  --g-sub: #5b4f7a;
+  --g-glow: rgba(124, 58, 237, 0.2);
+  --g-glow-hi: rgba(124, 58, 237, 0.3);
+  --g-edge: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -2px 6px rgba(91, 33, 182, 0.04);
+  --g-lift:
+    0 1px 2px rgba(60, 30, 120, 0.08),
+    0 12px 28px -14px rgba(60, 30, 120, 0.22),
+    0 30px 70px -30px var(--g-glow);
+  --g-lift-hi:
+    0 2px 4px rgba(60, 30, 120, 0.1),
+    0 20px 40px -16px rgba(60, 30, 120, 0.26),
+    0 44px 100px -30px var(--g-glow-hi);
+  --g-sunk: inset 0 1px 3px rgba(60, 30, 120, 0.12), inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+  --g-soft: none;
+  /* les couleurs d'état, assombries pour le clair */
+  --l-ink: #1b1030;
+  --l-ok: #3f6212;
+  --l-gold: #a16207;
+  --l-ko: #be123c;
+  --l-violet: #6d28d9;
+  --l-focus: #4c1d95;
+  --l-chip: #ede5ff;
+  --l-chip-hi: #e2d6ff;
+  --l-chip-ink: #4c1d95;
+}
+
+/* --- la coquille ----------------------------------------------------------- */
+:root[data-look='light'] .gm {
+  background:
+    radial-gradient(1200px 620px at 50% -12%, rgba(124, 58, 237, 0.1), transparent 70%),
+    var(--g-page);
+  background-attachment: fixed;
+}
+:root[data-look='light'] .gm-top,
+:root[data-look='light'] .gm-brand,
+:root[data-look='light'] .gm-brand .logo-badge { color: var(--l-ink); }
+:root[data-look='light'] .gm-brand .logo-badge { filter: none; }
+:root[data-look='light'] .gm-brand .wordmark { color: var(--l-ink); -webkit-text-fill-color: var(--l-ink); }
+
+/* la jauge d'expérience */
+:root[data-look='light'] .gm-xp {
+  box-shadow: var(--g-edge), 0 6px 18px -8px rgba(60, 30, 120, 0.28);
+  color: var(--l-ink);
+}
+:root[data-look='light'] .gm-lv { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -2px 4px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(109, 40, 217, 0.35); }
+:root[data-look='light'] .gm-xp-n b { color: var(--l-ink); }
+:root[data-look='light'] .gm-xp-bar i { box-shadow: 0 0 6px rgba(139, 92, 246, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
+:root[data-look='light'] .gm-top .lsw-b.on { box-shadow: 0 3px 8px -2px rgba(124, 58, 237, 0.5); }
+
+/* l'entrée du compte */
+:root[data-look='light'] .gm-acct.out { background: var(--l-chip); color: var(--l-chip-ink); }
+:root[data-look='light'] .gm-acct.out:hover { background: #7c3aed; color: #fff; }
+:root[data-look='light'] .gm-acct.gm-me.out { background: var(--l-chip); }
+:root[data-look='light'] .gm-acct.gm-me.out:hover { background: var(--l-chip-hi); color: var(--l-chip-ink); }
+:root[data-look='light'] .gm-acct.gm-me:hover { background: transparent; }
+@media (max-width: 719px) {
+  :root[data-look='light'] .gm-acct.gm-me.out { background: transparent; }
+}
+:root[data-look='light'] .gm-me-dot { box-shadow: 0 0 0 2px var(--g-page); }
+
+/* les titres · encre sombre, sans ombre */
+:root[data-look='light'] .gm-h1,
+:root[data-look='light'] .pk-title,
+:root[data-look='light'] .md-title,
+:root[data-look='light'] .ln-head h1,
+:root[data-look='light'] .pf-h2 { color: var(--l-ink); text-shadow: none; }
+:root[data-look='light'] .gm-back:hover { color: var(--l-ink); }
+
+/* le contour du clavier · violet foncé au lieu du blanc */
+:root[data-look='light'] .gm-acct:focus-visible,
+:root[data-look='light'] .gm-cta:focus-visible,
+:root[data-look='light'] .cc-btn:focus-visible,
+:root[data-look='light'] .pk:focus-visible,
+:root[data-look='light'] .cf-tag:focus-visible,
+:root[data-look='light'] .pf-tab:focus-visible,
+:root[data-look='light'] .st-toggle:focus-visible,
+:root[data-look='light'] .st-seg-b:focus-visible,
+:root[data-look='light'] .sb-launch:focus-visible,
+:root[data-look='light'] .sim-ico:focus-visible,
+:root[data-look='light'] .sim-btn:focus-visible,
+:root[data-look='light'] .sim-client:focus-visible,
+:root[data-look='light'] .sim-sp:focus-visible { outline-color: var(--l-focus); }
+
+/* --- les boutons ------------------------------------------------------------ */
+:root[data-look='light'] .gm-cta:disabled,
+:root[data-look='light'] .cc-btn:disabled { background: #ddd3f5; color: #5b4f7a; }
+/* LE BOUTON ARDOISE DEVIENT UNE PASTILLE PÂLE · du blanc sur du lavande ne
+   se lirait pas. */
+:root[data-look='light'] .cc-slate { --b: var(--l-chip); --b-hi: var(--l-chip-hi); --b-lo: #d6c7fb; color: var(--l-chip-ink); }
+:root[data-look='light'] .cf-act.on { color: #fff; }
+:root[data-look='light'] .cf-del { --b: #be123c; --b-hi: #e11d48; --b-lo: #9f1239; color: #fff; }
+
+/* --- la barre du bas ------------------------------------------------------- */
+:root[data-look='light'] .gm-tabs {
+  background: #ffffff;
+  box-shadow: 0 -8px 24px -12px rgba(60, 30, 120, 0.22);
+}
+:root[data-look='light'] .gm-tab { background: #f1ebff; color: var(--g-sub); }
+:root[data-look='light'] .gm-tab:hover { background: #e6dbff; color: var(--l-ink); }
+:root[data-look='light'] .gm-tab.on { background: #7c3aed; color: #fff; }
+
+/* --- les cartes de formation --------------------------------------------- */
+:root[data-look='light'] .pk {
+  --g-glow: color-mix(in srgb, var(--ac, #8b5cf6) 28%, transparent);
+  --g-glow-hi: color-mix(in srgb, var(--ac, #8b5cf6) 42%, transparent);
+}
+:root[data-look='light'] .pa {
+  background: #ece4ff;
+  box-shadow: 0 4px 12px -6px rgba(60, 30, 120, 0.3);
+}
+:root[data-look='light'] .pk-ok { color: var(--l-ok); }
+
+/* --- les jauges ------------------------------------------------------------ */
+:root[data-look='light'] .gg-read b,
+:root[data-look='light'] .gg-pct { color: var(--l-ink); }
+:root[data-look='light'] .gg-fill { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 8px color-mix(in srgb, var(--gg-c) 45%, transparent); }
+
+/* --- une formation, ses modules ------------------------------------------- */
+:root[data-look='light'] .pkl b { color: var(--l-ink); }
+:root[data-look='light'] .pkl b svg { color: #d97706; }
+:root[data-look='light'] .ls a:hover,
+:root[data-look='light'] .pf-own:hover { background: rgba(124, 58, 237, 0.13); }
+/* LE JETON D'ÉTAT · une pièce pâle au lieu d'une pièce de nuit. */
+:root[data-look='light'] .ls-mark,
+:root[data-look='light'] .pf-own-m,
+:root[data-look='light'] .cm-mark {
+  color: var(--l-chip-ink);
+  background: linear-gradient(180deg, #f1eaff, #ddd0ff);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 6px rgba(60, 30, 120, 0.18);
+}
+:root[data-look='light'] .ls-mark i,
+:root[data-look='light'] .cm-mark i { background: rgba(76, 29, 149, 0.45); }
+:root[data-look='light'] .ls.done .ls-mark,
+:root[data-look='light'] .cm-sheet-list li.done .cm-mark {
+  color: #3b2400;
+  background: radial-gradient(circle at 35% 30%, #fff6b0, #facc15 50%, #ca8a04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 8px rgba(202, 138, 4, 0.35);
+}
+:root[data-look='light'] .pf-own.on .pf-own-m { color: #fff; background: radial-gradient(circle at 35% 30%, #a3e635, #65a30d 55%, #4d7c0f); }
+:root[data-look='light'] .ls-go { color: var(--l-ok); }
+:root[data-look='light'] .ls.done .ls-go { color: var(--l-gold); }
+:root[data-look='light'] .ls.shut .ls-go { color: var(--g-sub); }
+
+/* --- un dojo ------------------------------------------------------------- */
+:root[data-look='light'] .ln-free,
+:root[data-look='light'] .ln-ok { color: var(--l-gold); }
+:root[data-look='light'] .ln-h2,
+:root[data-look='light'] .ln-h3,
+:root[data-look='light'] .ln-quiz h3 { color: var(--l-ink); }
+:root[data-look='light'] .ln-h2::before { box-shadow: 0 0 6px var(--h-c, #8b5cf6); }
+:root[data-look='light'] .ln-whyb p { background: linear-gradient(180deg, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.05)); box-shadow: none; }
+:root[data-look='light'] .ln-take { color: var(--l-ok); }
+:root[data-look='light'] .ln-act { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -3px 8px rgba(160, 90, 0, 0.14), 0 16px 36px -18px rgba(217, 119, 6, 0.4); }
+:root[data-look='light'] .ln-trap { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -3px 8px rgba(0, 0, 0, 0.15), 0 16px 36px -18px rgba(225, 29, 72, 0.45); }
+
+/* L'EXERCICE · une surface violet pâle, le prompt dans un encart blanc. */
+:root[data-look='light'] .ln-ex {
+  background: linear-gradient(180deg, #f1eaff, #e9dfff 45%, #e1d4ff);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 22px 50px -24px rgba(124, 58, 237, 0.4);
+  color: var(--l-ink);
+}
+:root[data-look='light'] .ln-goal { color: var(--l-ink); }
+:root[data-look='light'] .ln-goal b { color: var(--l-violet); }
+:root[data-look='light'] .ln-code { background: #ffffff; box-shadow: inset 0 1px 3px rgba(60, 30, 120, 0.14); }
+:root[data-look='light'] .ln-code pre { color: var(--l-ink); }
+:root[data-look='light'] .ln-checks label { background: rgba(255, 255, 255, 0.7); }
+:root[data-look='light'] .ln-checks input { accent-color: #4d7c0f; }
+:root[data-look='light'] .ln-checks input:checked + span { color: var(--l-ok); text-decoration-color: rgba(63, 98, 18, 0.5); }
+:root[data-look='light'] .ln-bonus b { color: #b45309; }
+
+/* LES RÉPONSES · des touches blanches en léger relief, vertes ou rouges une
+   fois jouées (ces deux-là gardent leur texte blanc). */
+:root[data-look='light'] .ln-opt {
+  color: var(--l-ink);
+  background: linear-gradient(180deg, #ffffff, #f7f3ff 60%, #efe8ff);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -2px 5px rgba(91, 33, 182, 0.06), 0 6px 16px -10px rgba(60, 30, 120, 0.35);
+}
+:root[data-look='light'] .ln-opt:hover:not(:disabled) { filter: brightness(1.02); }
+:root[data-look='light'] .ln-opt:active:not(:disabled) { box-shadow: inset 0 2px 6px rgba(60, 30, 120, 0.2); }
+:root[data-look='light'] .ln-opt-k { color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 6px rgba(194, 65, 12, 0.3); }
+:root[data-look='light'] .ln-opt.right,
+:root[data-look='light'] .ln-opt.wrong { color: #fff; }
+:root[data-look='light'] .ln-opt.right { background: linear-gradient(180deg, #65a30d, #4d7c0f 60%, #3f6212); box-shadow: 0 10px 22px -12px rgba(77, 124, 15, 0.6); }
+:root[data-look='light'] .ln-opt.wrong { background: linear-gradient(180deg, #e11d48, #be123c 60%, #9f1239); box-shadow: 0 10px 22px -12px rgba(190, 18, 60, 0.6); }
+:root[data-look='light'] .ln-why b { color: var(--l-ko); }
+:root[data-look='light'] .ln-why.right b { color: var(--l-ok); }
+
+/* les sections pédagogiques */
+:root[data-look='light'] .ln-essential p,
+:root[data-look='light'] .ln-recap li { color: var(--l-ink); }
+:root[data-look='light'] .ln-dl dt,
+:root[data-look='light'] .ln-mis b,
+:root[data-look='light'] .ln-further b { color: var(--l-ink); }
+:root[data-look='light'] .ln-wrong { color: #9f1239; background: rgba(244, 63, 94, 0.1); }
+:root[data-look='light'] .ln-fix { color: #166534; background: rgba(34, 197, 94, 0.12); }
+:root[data-look='light'] .ln-recap { background: rgba(124, 58, 237, 0.1); }
+
+/* --- le clan ------------------------------------------------------------- */
+:root[data-look='light'] .cl-note b,
+:root[data-look='light'] .cl-me b,
+:root[data-look='light'] .cf-h2,
+:root[data-look='light'] .cf-note b,
+:root[data-look='light'] .cf-lab,
+:root[data-look='light'] .cf-who,
+:root[data-look='light'] .cf-title { color: var(--l-ink); }
+:root[data-look='light'] .cl-me-g { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -3px 6px rgba(0, 0, 0, 0.2), 0 8px 20px -8px rgba(109, 40, 217, 0.5); }
+:root[data-look='light'] .cf-tag { background: var(--l-chip); color: var(--l-chip-ink); }
+:root[data-look='light'] .cf-tag:hover { background: var(--l-chip-hi); color: var(--l-ink); }
+:root[data-look='light'] .cf-tag.on { background: #7c3aed; color: #fff; }
+:root[data-look='light'] .cf-inp:focus { outline-color: #7c3aed; }
+:root[data-look='light'] .cf-inp[aria-invalid='true'] { outline-color: #e11d48; }
+:root[data-look='light'] .cf-err { color: var(--l-ko); }
+:root[data-look='light'] .cf-ok { color: var(--l-ok); }
+:root[data-look='light'] .cf-card.mine { box-shadow: var(--g-edge), var(--g-lift), inset 0 0 0 2px rgba(124, 58, 237, 0.3); }
+:root[data-look='light'] .cf-link { color: var(--l-violet); }
+:root[data-look='light'] .cf-link:hover { color: var(--l-ink); }
+
+/* --- le profil ------------------------------------------------------------ */
+:root[data-look='light'] .pf-nums span:not(.lv) b { color: var(--l-ink); }
+:root[data-look='light'] .pf-nums span.lv { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 14px 30px -14px rgba(124, 58, 237, 0.6); }
+:root[data-look='light'] .pf-of { color: var(--l-gold); }
+:root[data-look='light'] .pf-map-t b { color: var(--l-ink); }
+:root[data-look='light'] .pf-map-go { color: var(--l-ok); }
+:root[data-look='light'] .pf-tester { box-shadow: inset 4px 0 0 #d97706; }
+:root[data-look='light'] .pf-badge i { background: rgba(124, 58, 237, 0.1); box-shadow: inset 0 1px 3px rgba(60, 30, 120, 0.18); }
+:root[data-look='light'] .pf-badge.on { background: rgba(250, 204, 21, 0.18); }
+:root[data-look='light'] .pf-badge.on i { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 3px 8px rgba(202, 138, 4, 0.35); }
+:root[data-look='light'] .pf-acct { background: rgba(124, 58, 237, 0.1); }
+:root[data-look='light'] .pf-acct-id b { color: var(--l-ink); }
+:root[data-look='light'] .pf-acct-st { color: var(--l-ok); }
+:root[data-look='light'] .pf-acct-st.err { color: #b91c1c; }
+
+/* l'en-tête du profil */
+:root[data-look='light'] .pf-hero { box-shadow: var(--g-edge), 0 14px 32px -18px rgba(60, 30, 120, 0.35); }
+:root[data-look='light'] .pf-hero-t > b { color: var(--l-ink); }
+/* LA CEINTURE ÉCRITE · la ceinture blanche sur du clair ne se lirait pas :
+   sa teinte, mêlée à l'encre. */
+:root[data-look='light'] .pf-hero-title { color: color-mix(in srgb, var(--belt-ink, var(--belt)) 45%, #1b1030); }
+:root[data-look='light'] .pf-chip { color: var(--l-chip-ink); }
+:root[data-look='light'] .pf-chip.lv { color: #fff; }
+:root[data-look='light'] .pf-hero-next { color: #3b2f5c; }
+
+/* les onglets du profil */
+:root[data-look='light'] .pf-tabs-sec { background: linear-gradient(180deg, var(--g-page) 70%, rgba(244, 240, 255, 0)); }
+:root[data-look='light'] .pf-tab:hover { color: var(--l-ink); background: rgba(124, 58, 237, 0.13); }
+:root[data-look='light'] .pf-tab.on { color: #fff; background: #7c3aed; }
+
+/* l'échelle des grades */
+:root[data-look='light'] .pf-rung { background: rgba(255, 255, 255, 0.7); }
+:root[data-look='light'] .pf-rung.got { background: rgba(124, 58, 237, 0.1); }
+:root[data-look='light'] .pf-rung.now { background: color-mix(in srgb, var(--belt) 22%, #ffffff); }
+:root[data-look='light'] .pf-rung-t b { color: var(--l-ink); }
+:root[data-look='light'] .pf-rung-t span { color: #3b2f5c; }
+:root[data-look='light'] .pf-rung:not(.got) .pf-rung-t span { color: #6b5f8a; }
+:root[data-look='light'] .pf-rung-st.got { color: var(--l-ok); }
+:root[data-look='light'] .pf-rung-st.now { color: #fff; }
+
+/* les paramètres */
+:root[data-look='light'] .st-t b { color: var(--l-ink); }
+:root[data-look='light'] .st-toggle { background: var(--l-chip); color: var(--l-chip-ink); }
+:root[data-look='light'] .st-toggle i { background: #cdbff3; }
+:root[data-look='light'] .st-toggle i::after { background: #ffffff; box-shadow: 0 1px 3px rgba(60, 30, 120, 0.35); }
+:root[data-look='light'] .st-toggle.on { background: #7c3aed; color: #fff; }
+:root[data-look='light'] .st-toggle.on i { background: #4c1d95; }
+:root[data-look='light'] .st-row .lsw,
+:root[data-look='light'] .st-seg { background: #e6dcff; }
+:root[data-look='light'] .gm .st-row .lsw-b { color: var(--l-chip-ink); }
+:root[data-look='light'] .gm .st-row .lsw-b.on { color: #fff; background: #7c3aed; }
+:root[data-look='light'] .st-seg-b { color: var(--l-chip-ink); }
+:root[data-look='light'] .st-seg-b.on { color: #fff; background: #7c3aed; }
+:root[data-look='light'] .st-danger h3 { color: #b91c1c; }
+:root[data-look='light'] .st-danger p { color: #5b3a3a; }
+
+/* les grades et les icônes */
+/* LA CEINTURE BLANCHE · un anneau blanc sur du clair disparaît : une ombre
+   fine autour de l'anneau le détache. */
+:root[data-look='light'] .gav {
+  background: radial-gradient(circle at 50% 38%, #ffffff, #e4d8ff 72%);
+  box-shadow: 0 0 0 3px var(--belt), 0 0 0 4px rgba(60, 30, 120, 0.12), 0 4px 12px -6px rgba(60, 30, 120, 0.4);
+}
+:root[data-look='light'] .gav-black { box-shadow: 0 0 0 3px #18181b, 0 0 0 5px #8b5cf6, 0 4px 12px -6px rgba(60, 30, 120, 0.4); }
+:root[data-look='light'] .gav.locked { background: radial-gradient(circle at 50% 38%, #f3effc, #dcd4ee 72%); box-shadow: 0 0 0 3px rgba(76, 29, 149, 0.16); }
+:root[data-look='light'] .gav.locked img { filter: grayscale(1) brightness(0.75) contrast(0.9) opacity(0.6); }
+:root[data-look='light'] .i3d { color: #7c3aed; }
+:root[data-look='light'] .i3d img { filter: drop-shadow(0 4px 6px rgba(60, 30, 120, 0.25)); }
+
+/* --- la carte en plein écran --------------------------------------------- */
+:root[data-look='light'] .cm-hud {
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--l-ink);
+}
+:root[data-look='light'] .cm-hud em,
+:root[data-look='light'] .cm-sheet-top em { color: var(--l-gold); }
+:root[data-look='light'] .cm-scrim { background: rgba(40, 20, 80, 0.3); }
+:root[data-look='light'] .cm-sheet-top b { color: var(--l-ink); }
+:root[data-look='light'] .cm-sheet-x { color: var(--l-ink); }
+
+/* --- les tarifs ---------------------------------------------------------- */
+:root[data-look='light'] .tf-card { --g-glow: color-mix(in srgb, var(--ac, #8b5cf6) 26%, transparent); }
+:root[data-look='light'] .tf-card.main {
+  --g-glow: rgba(124, 58, 237, 0.32);
+  background: linear-gradient(180deg, #f5efff, #ede4ff 45%, #e5d9ff);
+}
+:root[data-look='light'] .tf-name,
+:root[data-look='light'] .tf-price { color: var(--l-ink); }
+:root[data-look='light'] .tf-flag { box-shadow: 0 4px 12px -6px rgba(124, 58, 237, 0.6); }
+:root[data-look='light'] .tf-incl li svg { color: #4d7c0f; }
+:root[data-look='light'] .tf-note { color: var(--l-ok); background: rgba(132, 204, 22, 0.16); }
+:root[data-look='light'] .tf-note.err { color: var(--l-ko); background: rgba(244, 63, 94, 0.12); }
+:root[data-look='light'] .ae-lab { color: var(--l-ink); }
+:root[data-look='light'] .ae-inp:focus { outline-color: #ea580c; }
+
+/* --- le robot d'aide ---------------------------------------------------- */
+/* SES JETONS SONT CEUX DU SITE, POSÉS SOMBRES · on les redonne clairs dans
+   son panneau seulement, pour ne rien changer au reste du site. */
+:root[data-look='light'] .sb-panel {
+  --ink: #1b1030;
+  --muted: #5b4f7a;
+  --panel: rgba(255, 255, 255, 0.96);
+  --panel-solid: #ffffff;
+  --panel-2: #f4f0ff;
+  --paper: #ffffff;
+  --border: #e6def8;
+  --border-lit: #d6caf3;
+  --violet: #7c3aed;
+  --btn-bg: #7c3aed;
+  --btn-fg: #ffffff;
+  --shadow: 0 8px 28px rgba(60, 30, 120, 0.16);
+  color-scheme: light;
+  color: var(--ink);
+}
+:root[data-look='light'] .sb-panel .sb-link { color: var(--l-violet); }
+
+/* ========================================================================== */
+/* DOJOBURO · le jeu de simulation                                            */
+/* ========================================================================== */
+/* LA SCÈNE RESTE LA MÊME · seuls les panneaux qui flottent dessus passent au
+   clair : blanc presque opaque, encre sombre, emplacements lavande. */
+:root[data-look='light'] .sim {
+  color: var(--l-ink);
+  --s-panel: rgba(255, 255, 255, 0.94);
+  --s-slot: #f1ebff;
+  --s-slot-hi: #e6dcff;
+  --s-sub: #5b4f7a;
+  --s-ex: #047857; --s-ok: #6d28d9; --s-meh: #b45309; --s-ko: #be123c;
+}
+:root[data-look='light'] .sim-boot { background: #f4f0ff; color: #5b4f7a; }
+:root[data-look='light'] .sim-ico { color: var(--l-ink); }
+:root[data-look='light'] .sim-ico:hover { background: #ece4ff; }
+:root[data-look='light'] .sim-speed.on { background: #7c3aed; color: #fff; }
+:root[data-look='light'] .sim-rep svg { color: #d97706; }
+:root[data-look='light'] .sim-cash { color: #92400e; }
+:root[data-look='light'] .sim-gl b { color: var(--l-ink); }
+:root[data-look='light'] .sim-bar { background: rgba(76, 29, 149, 0.12); }
+:root[data-look='light'] .sim-bar.tok > i { background: #0284c7; }
+:root[data-look='light'] .sim-bar.pat > i { background: #65a30d; }
+:root[data-look='light'] .sim-client:hover { background: #f1eaff; }
+:root[data-look='light'] .sim-client.on { background: #7c3aed; color: #fff; }
+:root[data-look='light'] .sim-client.on .sim-bar { background: rgba(255, 255, 255, 0.25); }
+:root[data-look='light'] .sim-kick { color: var(--l-violet); }
+:root[data-look='light'] .sim-ask { color: #2a1d4a; }
+:root[data-look='light'] .sim-h3 { color: #4c1d95; }
+:root[data-look='light'] .sim-needs li.ok { background: rgba(16, 185, 129, 0.14); color: #047857; }
+:root[data-look='light'] .sim-needs li.part { background: rgba(245, 158, 11, 0.16); color: #92400e; }
+:root[data-look='light'] .sim-btn { color: var(--l-ink); }
+:root[data-look='light'] .sim-btn:hover { background: #dccfff; }
+:root[data-look='light'] .sim-btn.sim-quiet { background: transparent; color: var(--s-sub); }
+:root[data-look='light'] .sim-btn.sim-quiet:hover { background: rgba(124, 58, 237, 0.08); color: var(--l-ink); }
+:root[data-look='light'] .sim-staff li.wanted { background: #e8e0ff; }
+:root[data-look='light'] .sim-staff li.on { background: #d6c6ff; }
+:root[data-look='light'] .sim-tag { background: rgba(76, 29, 149, 0.08); }
+:root[data-look='light'] .sim-tag.warn { background: rgba(245, 158, 11, 0.18); color: #92400e; }
+:root[data-look='light'] .sim-tag.want { background: rgba(16, 185, 129, 0.16); color: #047857; }
+:root[data-look='light'] .sim-step button { background: rgba(76, 29, 149, 0.1); }
+:root[data-look='light'] .sim-step button:hover { background: rgba(76, 29, 149, 0.18); }
+:root[data-look='light'] .sim-pvc b { color: var(--l-ink); }
+:root[data-look='light'] .sim-warn { color: #92400e; }
+:root[data-look='light'] .sim-panel,
+:root[data-look='light'] .sim-card { box-shadow: 0 18px 50px -20px rgba(40, 20, 80, 0.45); }
+
+/* les toasts · le neutre passe au blanc, les couleurs d'état restent */
+:root[data-look='light'] .sim-toast { background: #ffffff; color: var(--l-ink); box-shadow: 0 10px 30px -14px rgba(40, 20, 80, 0.45); }
+:root[data-look='light'] .sim-toast span { color: #4a3d6e; }
+:root[data-look='light'] .sim-toast.ex,
+:root[data-look='light'] .sim-toast.ok,
+:root[data-look='light'] .sim-toast.meh,
+:root[data-look='light'] .sim-toast.ko { color: #fff; }
+:root[data-look='light'] .sim-toast.ex span,
+:root[data-look='light'] .sim-toast.ok span,
+:root[data-look='light'] .sim-toast.meh span,
+:root[data-look='light'] .sim-toast.ko span { color: rgba(255, 255, 255, 0.9); }
+
+/* les écrans par-dessus */
+:root[data-look='light'] .sim-veil { background: rgba(40, 20, 80, 0.28); }
+:root[data-look='light'] .sim-veil.soft { background: rgba(40, 20, 80, 0.14); }
+:root[data-look='light'] .sim-card { background: rgba(255, 255, 255, 0.97); }
+:root[data-look='light'] .sim-tagline { color: var(--l-violet); }
+:root[data-look='light'] .sim-pitch { color: #3b2f5c; }
