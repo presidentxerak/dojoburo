@@ -187,8 +187,10 @@ function Root() {
   // game/Community). Le fil, une publication, la page À propos.
   if (path === '/clan' || path === '/clan/a-propos' || path === '/communaute') return <CommunityPage />
   if (path === '/clan/membres' || path === '/clan/classements' || path === '/clan/calendrier') return <CommunityPage />
+  if (path === '/clan/notifications' || path === '/clan/messages') return <CommunityPage />
   if (path.match(/^\/clan\/p\/[0-9a-f-]+$/i)) return <CommunityPage />
   if (path.match(/^\/clan\/m\/[0-9a-f-]+$/i)) return <CommunityPage />
+  if (path.match(/^\/clan\/messages\/[0-9a-f-]+$/i)) return <CommunityPage />
   if (path === '/profil') return <ProfilPage />
   // LA CARTE · plein écran, sans coquille ni barre du bas. Voir game/Carte.
   if (path === '/carte') return <CartePage />

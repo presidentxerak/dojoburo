@@ -14,6 +14,7 @@ export const LIMITS = {
   comment: { min: 1, max: 2000 },
   query: { max: 80 },
   bio: { max: 280 },
+  message: { min: 1, max: 2000 },
   pageSize: 20,
   membersPage: 30,
   board: 10,
@@ -42,6 +43,7 @@ export const RATES = {
   post: { max: 10, windowMs: 60 * 60 * 1000 },
   comment: { max: 60, windowMs: 60 * 60 * 1000 },
   like: { max: 300, windowMs: 60 * 60 * 1000 },
+  message: { max: 60, windowMs: 60 * 60 * 1000 },
   read: { max: 600, windowMs: 60 * 60 * 1000 },
 } as const
 
@@ -271,3 +273,19 @@ export function serializeEvent(r: EventRow) {
     link: r.link,
   }
 }
+
+/* ---- les messages privés ---------------------------------------------------- */
+
+export function validateMessage(b: unknown): Check<{ to: string; body: string }> {
+  const o = (b && typeof b === 'object' ? b : {}) as Record<string, unknown>
+  if (!isId(o.to)) return { error: 'to' }
+  const body = clean(o.body, true)
+  if (!within(body, LIMITS.message)) return { error: 'body' }
+  return { to: o.to, body }
+}
+
+export const NOTIFICATION_KINDS = ['comment', 'reply', 'like_post', 'like_comment'] as const
+export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
+
+/** Une notification ne naît jamais d'un geste sur son propre contenu. */
+export const shouldNotify = (recipient: string | null | undefined, actor: string): boolean => !!recipient && recipient !== actor

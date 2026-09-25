@@ -12114,3 +12114,46 @@ h2.cy-post-title { font-size: 24px !important; }
 .cy-event-d { margin: 6px 0 0; font-size: 14.5px; line-height: 1.55; white-space: pre-wrap; }
 .cy-event-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
 .gm .cy-event-acts .gm-cta, .gm .cy-event-acts .cc-btn { margin-top: 0; min-height: 40px; padding: 8px 16px; font-size: 14.5px; }
+
+/* LA COMMUNAUTÉ · la cloche, les notifications, la messagerie (lot 4). */
+.cy-tabbar { display: flex; align-items: flex-end; gap: 10px; }
+.cy-tabbar .cy-tabs { flex: 1; min-width: 0; }
+.cy-inbox { display: flex; gap: 6px; padding-bottom: 6px; }
+.cy-inbox-b { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: var(--g-sub); background: var(--g-slot); }
+.cy-inbox-b:hover, .cy-inbox-b.on { color: #fff; background-color: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.cy-inbox-b i { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; display: grid; place-items: center; font: 800 11px var(--font-game); font-style: normal; color: #fff; background: #dc2626; box-shadow: 0 0 0 2px var(--g-page); }
+
+.cy-notifs ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.cy-notifs li { display: flex; gap: 10px; align-items: flex-start; padding: 10px; border-radius: 12px; }
+.cy-notifs li.new { background: rgba(124, 58, 237, 0.1); }
+.cy-notif-t { font-size: 14.5px; line-height: 1.5; min-width: 0; }
+.cy-notif-t a { color: inherit; font-weight: 700; }
+.cy-notif-t em { display: block; font-style: normal; font-size: 12.5px; color: var(--g-sub); }
+
+.cy-dm { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 0; padding: 0; overflow: hidden; min-height: 520px; }
+.cy-dm-list { padding: 16px; box-shadow: inset -1px 0 0 var(--g-slot); }
+.cy-dm-list ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.cy-conv { display: flex; align-items: center; gap: 10px; padding: 10px 8px; border-radius: 12px; color: inherit; }
+.cy-conv:hover, .cy-conv.on { background: var(--g-slot); }
+.cy-conv-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cy-conv-t b { font-family: var(--font-game); font-weight: 800; font-size: 14.5px; }
+.cy-conv-t em { font-style: normal; font-size: 13px; color: var(--g-sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-conv-n { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; font: 800 11px var(--font-game); font-style: normal; color: #fff; background: #7c3aed; }
+.cy-dm-thread { display: flex; flex-direction: column; min-width: 0; padding: 16px; }
+.cy-dm-head { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; box-shadow: inset 0 -1px 0 var(--g-slot); }
+.cy-dm-back { display: none; font: 800 18px var(--font-game); color: var(--g-sub); }
+.cy-bubbles { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px 2px; max-height: 60vh; }
+.cy-bubble { align-self: flex-start; max-width: 78%; padding: 10px 14px; border-radius: 16px 16px 16px 4px; background: var(--g-slot); }
+.cy-bubble.mine { align-self: flex-end; border-radius: 16px 16px 4px 16px; color: #fff; background-color: #7c3aed; background-image: var(--sk-grad); }
+.cy-bubble p { margin: 0; font-size: 14.5px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cy-bubble em { display: block; margin-top: 2px; font-style: normal; font-size: 11px; opacity: 0.7; }
+.cy-dm-form { display: flex; gap: 8px; align-items: flex-end; }
+.cy-dm-form .cy-inp { flex: 1; }
+.gm .cy-dm-form .gm-cta { margin-top: 0; min-height: 48px; }
+@media (max-width: 719px) {
+  .cy-dm { grid-template-columns: 1fr; }
+  .cy-dm.has-peer .cy-dm-list { display: none; }
+  .cy-dm:not(.has-peer) .cy-dm-thread { display: none; }
+  .cy-dm-list { box-shadow: none; }
+  .cy-dm-back { display: inline; }
+}

@@ -101,6 +101,18 @@ ok('seuls les admins créent et suppriment un événement', /async function crea
 ok('le calendrier a sa vue et son adresse', /calendarTab \? <Calendar me=\{me\} \/>/.test(code) && /'\/clan\/calendrier'/.test(readFileSync('src/main.tsx', 'utf8')))
 ok('l\'agenda (.ics) se construit dans le navigateur', /export function icsOf/.test(client) && /BEGIN:VCALENDAR/.test(client))
 
+/* --- 5d · les notifications et les messages ------------------------------ */
+ok('jamais de notification pour son propre geste', C.shouldNotify('a', 'a') === false && C.shouldNotify('a', 'b') === true && C.shouldNotify(null, 'b') === false)
+ok('un message vide ou trop long est refusé', 'error' in C.validateMessage({ to: '00000000-0000-4000-8000-000000000001', body: ' ' })
+  && 'error' in C.validateMessage({ to: '00000000-0000-4000-8000-000000000001', body: 'x'.repeat(C.LIMITS.message.max + 1) }))
+ok('un destinataire est désigné par son identifiant public', 'error' in C.validateMessage({ to: 'did:privy:x', body: 'Bonjour' }))
+ok('on ne s\'écrit pas à soi-même', /if \(to === me\) return send\(res, 400/.test(api) && /check \(from_did <> to_did\)/.test(sql))
+ok('un commentaire prévient l\'auteur, une réponse prévient celui à qui l\'on répond', /notify\(parentAuthor, 'reply'/.test(api) && /notify\(postAuthor, 'comment'/.test(api))
+ok('un j\'aime prévient l\'auteur', /notify\(author, type === 'post' \? 'like_post' : 'like_comment'/.test(api))
+ok('ouvrir une conversation marque ses messages comme lus', /update community_messages set read_at = now\(\) where to_did = \$1 and from_did = \$2/.test(api))
+ok('la cloche et la messagerie ont leur adresse', /'\/clan\/notifications'/.test(readFileSync('src/main.tsx', 'utf8')) && /clan\\\/messages\\\//.test(readFileSync('src/main.tsx', 'utf8')))
+ok('les non-lus se relisent sans canal permanent', /setInterval\(tick, 60000\)/.test(page) && !/WebSocket|EventSource/.test(page))
+
 /* --- 6 · les morsures ---------------------------------------------------- */
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))
 ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(title\\) between 3 and 120').test('char_length(title) between 3 and 200'))
