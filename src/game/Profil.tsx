@@ -385,8 +385,8 @@ function LookRow() {
   const t = useT()
   const look = useLook()
   const opts: { id: Look; key: string }[] = [
-    { id: 'dark', key: 'st.dark' },
     { id: 'light', key: 'st.light' },
+    { id: 'dark', key: 'st.dark' },
     { id: 'system', key: 'st.system' },
   ]
   return (

@@ -93,12 +93,13 @@ export function effectsOn(): boolean {
 }
 
 /* ------------------------------------------------------------------ */
-/* L'AFFICHAGE · sombre (par défaut), clair, ou celui du système       */
+/* L'AFFICHAGE · clair (par défaut), sombre, ou celui du système       */
 /* ------------------------------------------------------------------ */
 //
 // Demandé : « ajoute un affichage light mode ». Rangé à part des autres
 // réglages parce que public/boot.js le lit AVANT React, pour que la page
-// naisse dans la bonne lumière (voir boot.js, 1b).
+// naisse dans la bonne lumière (voir boot.js, 1b). Le clair est le défaut
+// depuis la demande « affiche le light mode par défaut ».
 
 export type Look = 'dark' | 'light' | 'system'
 const LOOK_KEY = 'dojoburo.look'
@@ -107,18 +108,18 @@ const lookListeners = new Set<() => void>()
 function readLook(): Look {
   try {
     const v = localStorage.getItem(LOOK_KEY)
-    return v === 'light' || v === 'system' ? v : 'dark'
+    return v === 'dark' || v === 'system' ? v : 'light'
   } catch {
-    return 'dark'
+    return 'light'
   }
 }
 
-let look: Look = typeof window === 'undefined' ? 'dark' : readLook()
-const lightQuery = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: light)') : null
+let look: Look = typeof window === 'undefined' ? 'light' : readLook()
+const darkQuery = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null
 
 /** L'affichage réellement appliqué · « système » se résout ici. */
 export function lookIsLight(l: Look = look): boolean {
-  return l === 'light' || (l === 'system' && !!lightQuery?.matches)
+  return l === 'light' || (l === 'system' && !darkQuery?.matches)
 }
 
 function applyLook() {
@@ -135,7 +136,7 @@ export function setLook(l: Look) {
   if (l === look) return
   look = l
   try {
-    if (l === 'dark') localStorage.removeItem(LOOK_KEY)
+    if (l === 'light') localStorage.removeItem(LOOK_KEY)
     else localStorage.setItem(LOOK_KEY, l)
   } catch { /* stockage refusé */ }
   applyLook()
@@ -144,12 +145,12 @@ export function setLook(l: Look) {
 
 // LE SYSTÈME CHANGE D'AVIS (le soir, par exemple) · suivi seulement si
 // l'élève a choisi « système ».
-lightQuery?.addEventListener?.('change', () => { if (look === 'system') { applyLook(); lookListeners.forEach((fn) => fn()) } })
+darkQuery?.addEventListener?.('change', () => { if (look === 'system') { applyLook(); lookListeners.forEach((fn) => fn()) } })
 
 export function useLook(): Look {
   return useSyncExternalStore(
     (fn) => { lookListeners.add(fn); return () => { lookListeners.delete(fn) } },
     getLook,
-    () => 'dark' as Look,
+    () => 'light' as Look,
   )
 }

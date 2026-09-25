@@ -617,7 +617,7 @@ export const DICT = {
   'st.h2': { en: "Settings", fr: "Paramètres" },
   'st.lead': { en: "They are kept in this browser and apply right away.", fr: "Ils sont conservés dans ce navigateur et s'appliquent immédiatement." },
   'st.look': { en: "Display", fr: "Affichage" },
-  'st.lookBody': { en: "Dark violet by default, light if you prefer, or the one your device uses.", fr: "Violet sombre par défaut, clair si vous le préférez, ou celui de votre appareil." },
+  'st.lookBody': { en: "Light by default, dark violet if you prefer, or the one your device uses.", fr: "Clair par défaut, violet sombre si vous le préférez, ou celui de votre appareil." },
   'st.dark': { en: "Dark", fr: "Sombre" },
   'st.light': { en: "Light", fr: "Clair" },
   'st.system': { en: "Device", fr: "Appareil" },
