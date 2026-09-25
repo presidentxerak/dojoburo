@@ -59,3 +59,21 @@ create table if not exists community_likes (
   created_at   timestamptz not null default now(),
   primary key (target_type, target_id, did)
 );
+
+-- ---------------------------------------------------------------------------
+-- LOT 2 · MEMBRES ET CLASSEMENTS (ajouté ensuite, sans rien casser : chaque
+-- instruction peut être rejouée).
+--
+-- · handle : l'identifiant PUBLIC d'un membre (son profil /clan/m/<handle>),
+--   jamais son compte Privy.
+-- · points : les j'aime reçus, tenus à jour à chaque j'aime (un j'aime sur
+--   son propre message ne compte pas).
+-- · recipient_did : à qui profite un j'aime, pour les classements sur 7 et
+--   30 jours.
+alter table community_members add column if not exists handle uuid not null default gen_random_uuid();
+alter table community_members add column if not exists points integer not null default 0;
+create unique index if not exists community_members_handle_idx on community_members (handle);
+create index if not exists community_members_points_idx on community_members (points desc);
+create index if not exists community_members_seen_idx on community_members (last_seen_at desc);
+alter table community_likes add column if not exists recipient_did text;
+create index if not exists community_likes_board_idx on community_likes (recipient_did, created_at desc);

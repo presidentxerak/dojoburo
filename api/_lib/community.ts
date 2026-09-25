@@ -13,8 +13,29 @@ export const LIMITS = {
   body: { min: 10, max: 5000 },
   comment: { min: 1, max: 2000 },
   query: { max: 80 },
+  bio: { max: 280 },
   pageSize: 20,
+  membersPage: 30,
+  board: 10,
 } as const
+
+/* ---- les niveaux · les points sont les j'aime reçus ------------------------ */
+//
+// Neuf niveaux, sur la courbe de Skool : faciles au début (un premier message
+// utile suffit à passer le niveau 2), longs ensuite. Ils mesurent l'aide
+// apportée aux autres, pas le temps passé.
+export const LEVEL_POINTS = [0, 5, 20, 65, 155, 515, 2015, 8015, 33015] as const
+
+export function levelOfPoints(points: number): { level: number; next: number | null } {
+  let level = 1
+  for (let i = 0; i < LEVEL_POINTS.length; i++) if (points >= LEVEL_POINTS[i]) level = i + 1
+  return { level, next: level < LEVEL_POINTS.length ? LEVEL_POINTS[level] : null }
+}
+
+export function validateBio(v: unknown): Check<string> {
+  const bio = clean(v)
+  return bio.length <= LIMITS.bio.max ? bio : { error: 'bio' }
+}
 
 /** Le débit par compte · une fenêtre d'une heure. */
 export const RATES = {
@@ -94,6 +115,29 @@ export function decodeCursor(s: unknown): Cursor | null {
 
 /* ---- ce qui sort · jamais une ligne brute ---------------------------------- */
 
+export interface MemberRow {
+  handle: string
+  name: string
+  bio?: string
+  points: number
+  created_at: Date
+  last_seen_at: Date
+}
+
+/** Un membre, tel que la page le montre · en ligne s'il a été vu il y a moins
+ *  de cinq minutes. */
+export function serializeMember(r: MemberRow, now = Date.now()) {
+  return {
+    handle: r.handle,
+    name: r.name,
+    bio: r.bio ?? '',
+    points: r.points,
+    level: levelOfPoints(r.points).level,
+    joinedAt: r.created_at.toISOString(),
+    online: now - r.last_seen_at.getTime() < 5 * 60 * 1000,
+  }
+}
+
 export interface PostRow {
   id: string
   category: string
@@ -106,6 +150,8 @@ export interface PostRow {
   edited_at: Date | null
   author_did: string
   author_name: string
+  author_handle?: string
+  author_points?: number
   liked?: boolean
 }
 
@@ -119,6 +165,8 @@ export interface CommentRow {
   created_at: Date
   author_did: string
   author_name: string
+  author_handle?: string
+  author_points?: number
   liked?: boolean
 }
 
@@ -143,9 +191,20 @@ export function serializePost(r: PostRow, me: string | null, excerpt = false) {
     comments: r.comments,
     createdAt: r.created_at.toISOString(),
     edited: !!r.edited_at,
-    author: { name: r.author_name, key: authorKey(r.author_did) },
+    author: authorOf(r),
     mine: !!me && me === r.author_did,
     liked: !!r.liked,
+  }
+}
+
+/** L'auteur montré · son nom, sa clé de couleur, son identifiant public et son
+ *  niveau (quand la requête les a lus). */
+function authorOf(r: { author_did: string; author_name: string; author_handle?: string; author_points?: number }) {
+  return {
+    name: r.author_name,
+    key: authorKey(r.author_did),
+    handle: r.author_handle ?? null,
+    level: typeof r.author_points === 'number' ? levelOfPoints(r.author_points).level : null,
   }
 }
 
@@ -157,7 +216,7 @@ export function serializeComment(r: CommentRow, me: string | null) {
     deleted: r.deleted,
     likes: r.likes,
     createdAt: r.created_at.toISOString(),
-    author: r.deleted ? null : { name: r.author_name, key: authorKey(r.author_did) },
+    author: r.deleted ? null : authorOf(r),
     mine: !!me && me === r.author_did && !r.deleted,
     liked: !!r.liked,
   }

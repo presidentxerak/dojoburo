@@ -12017,3 +12017,68 @@ h2.cy-post-title { font-size: 24px !important; }
 .gm .cy-aside .gm-cta { margin-top: 6px; font-size: 15px; }
 .cy-about h3 { margin: 16px 0 6px; font-family: var(--font-game); font-weight: 800; font-size: 18px; }
 .cy-rules { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 1.5; }
+
+/* LA COMMUNAUTÉ · membres, classements, profils (lot 2). */
+.cy-av { position: relative; }
+.cy-av.big { width: 76px; height: 76px; font-size: 32px; }
+.cy-lv {
+  position: absolute; right: -4px; bottom: -4px; display: grid; place-items: center;
+  min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px;
+  font: 800 11px var(--font-game); font-style: normal; color: #fff; background: #1e1b4b;
+  box-shadow: 0 0 0 2px var(--g-card-top);
+}
+.cy-av.big .cy-lv { min-width: 26px; height: 26px; font-size: 14px; right: -2px; bottom: -2px; }
+.cy-av.sm .cy-lv { min-width: 15px; height: 15px; font-size: 9.5px; right: -5px; bottom: -5px; }
+.cy-name { color: inherit; }
+.cy-name:hover b { color: #7c3aed; }
+.cy-sub { margin: 4px 0 0; font-size: 14px; line-height: 1.5; color: var(--g-sub); }
+.cy-h3 { margin: 10px 0 0; font-family: var(--font-game); font-weight: 800; font-size: 18px; color: var(--g-text); }
+
+.cy-members-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cy-mlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.cy-mrow { display: flex; align-items: center; gap: 14px; padding: 12px 6px; border-radius: 14px; color: inherit; }
+.cy-mrow:hover { background: var(--g-slot); }
+.cy-mlist li + li .cy-mrow { box-shadow: inset 0 1px 0 var(--g-slot); }
+.cy-mrow-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cy-mrow-t b { font-family: var(--font-game); font-weight: 800; font-size: 15.5px; display: inline-flex; align-items: center; gap: 8px; }
+.cy-mrow-t em { font-style: normal; font-size: 14px; color: var(--g-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cy-mrow-t small { font-size: 12.5px; color: var(--g-sub); }
+.cy-online { display: inline-flex; align-items: center; gap: 5px; font: 800 11.5px var(--font-game); font-style: normal; color: #16a34a; }
+.cy-online::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: #22c55e; }
+.cy-online span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.cy-mrow-t .cy-online span, .cy-profile .cy-online span { position: static; width: auto; height: auto; clip-path: none; }
+
+.cy-mylevel { display: flex; flex-direction: column; gap: 14px; }
+.cy-mylevel-l { display: flex; gap: 16px; align-items: center; }
+.cy-mylevel-n { margin: 8px 0 0; font-size: 14.5px; color: var(--g-text); }
+.cy-levels { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
+@media (max-width: 639px) { .cy-levels { grid-template-columns: repeat(5, 1fr); } }
+.cy-levels li { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 12px; background: var(--g-slot); }
+.cy-levels b { font-family: var(--font-game); font-weight: 800; font-size: 18px; color: var(--g-text); }
+.cy-levels span { font-size: 11px; color: var(--g-sub); white-space: nowrap; }
+.cy-levels li.got { background: rgba(124, 58, 237, 0.14); }
+.cy-levels li.on { background-color: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.cy-levels li.on b, .cy-levels li.on span { color: #fff; }
+
+.cy-boards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 1099px) { .cy-boards { grid-template-columns: 1fr; } }
+.cy-board h3 { margin: 0 0 8px; font-family: var(--font-game); font-weight: 800; font-size: 16px; }
+.cy-board ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cy-board li { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.cy-board .cy-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14.5px; }
+.cy-rank { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 999px; font: 800 12px var(--font-game); color: var(--g-sub); background: var(--g-slot); }
+.cy-rank.r1 { color: #fff; background: #f59e0b; }
+.cy-rank.r2 { color: #fff; background: #94a3b8; }
+.cy-rank.r3 { color: #fff; background: #b45309; }
+.cy-pts { font: 800 13px var(--font-game); color: #16a34a; }
+
+.cy-profile { display: flex; gap: 18px; align-items: flex-start; }
+@media (max-width: 479px) { .cy-profile { flex-direction: column; } }
+.cy-profile-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.cy-profile-t .pf-h2 { display: flex; align-items: center; gap: 10px; }
+.cy-profile-bio { margin: 0; font-size: 15px; line-height: 1.55; }
+.cy-profile-nums { list-style: none; margin: 6px 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.cy-profile-nums li { display: flex; flex-direction: column; align-items: center; padding: 10px 4px; border-radius: 12px; background: var(--g-slot); }
+.cy-profile-nums b { font-family: var(--font-game); font-weight: 800; font-size: 20px; }
+.cy-profile-nums span { font-size: 12px; color: var(--g-sub); }
+.gm .cy-profile .cc-btn { align-self: flex-start; margin-top: 4px; }
