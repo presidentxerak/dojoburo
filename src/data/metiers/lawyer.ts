@@ -49,7 +49,7 @@ const JU_CONTRACTS: Level[] = [
         'Les noms ont disparu, mais le contrat cite un projet unique et médiatisé. Que faites-vous ?'),
       options: [
         B('Paste it: without names, secrecy is kept', 'Vous le collez : sans les noms, le secret est préservé'),
-        B('Replace the project with a generic label too', 'Vous remplacez aussi le projet par un libellé générique'),
+        B('Label the project generically too', 'Vous neutralisez aussi le projet'),
         B('Paste only the first half of the contract', 'Vous ne collez que la première moitié du contrat'),
       ],
       answer: 1,
@@ -88,8 +88,8 @@ const JU_CONTRACTS: Level[] = [
         "La synthèse indique « aucune limitation de responsabilité ». Que faites-vous avant de le répéter ?"),
       options: [
         B('Ask the model if it is sure', "Vous demandez au modèle s'il est sûr"),
-        B('Ask for a shorter, clearer summary', 'Vous demandez une synthèse plus courte et plus claire'),
-        B('Search the contract for the clause yourself', 'Vous cherchez vous-même la clause dans le contrat'),
+        B('Ask for a shorter and clearer version of the summary', 'Vous demandez une version plus courte et plus claire de la synthèse'),
+        B('Find the clause in the contract yourself', 'Vous cherchez la clause dans le contrat'),
       ],
       answer: 2,
       why: B(
@@ -112,7 +112,7 @@ const JU_CONTRACTS: Level[] = [
       "Donnez à l'IA votre checklist et le contrat, puis demandez un tableau : point, clause, constat, niveau de risque."),
     steps: [
       B('Write your checklist first: liability cap, auto-renewal, unilateral changes, exclusivity, governing law.',
-        "Rédigez d'abord votre checklist : plafond de responsabilité, tacite reconduction, modification unilatérale, exclusivité, droit applicable."),
+        "Rédigez d'abord votre checklist : plafond de responsabilité, tacite reconduction, modification unilatérale, exclusivité, droit."),
       B('Tell the AI whose side you are on. A clause is risky for one party, not in general.',
         "Indiquez à l'IA de quel côté vous êtes. Une clause est risquée pour une partie, pas dans l'absolu."),
       B('Ask for one line per point, including « absent », so nothing on your list is skipped silently.',
@@ -129,7 +129,7 @@ const JU_CONTRACTS: Level[] = [
         "Pourquoi indiquer à l'IA quelle partie vous représentez ?"),
       options: [
         B('A clause that protects one side exposes the other', "Une clause qui protège une partie expose l'autre"),
-        B('So that it writes in a more formal tone', "Pour qu'elle rédige sur un ton plus formel"),
+        B('So that it writes in the formal tone clients expect', "Pour qu'elle adopte le registre formel attendu des clients"),
         B('It is required to respect professional secrecy', 'Cela est exigé par le secret professionnel'),
       ],
       answer: 0,
@@ -157,7 +157,7 @@ const JU_DRAFTING: Level[] = [
       "Vous apprendrez à rédiger une clause à partir des termes négociés et de votre style maison, et non d'une clause type générique.",
     ),
     act: B('List the agreed terms, paste a house clause as a style model, and ask for the clause plus its open questions.',
-      "Listez les termes convenus, collez une clause maison comme modèle de style, et demandez la clause et ses questions ouvertes."),
+      "Listez les termes convenus, collez une clause maison pour le style, et demandez la clause et ses questions ouvertes."),
     steps: [
       B('Write the agreed terms as a short list: who, what, when, how much, what happens if not.',
         "Écrivez les termes convenus en liste courte : qui, quoi, quand, combien, que se passe-t-il sinon."),
@@ -168,7 +168,7 @@ const JU_DRAFTING: Level[] = [
     ],
     trap: B(
       'Asking for « a standard confidentiality clause ». You get an average clause, often built on another legal system, that matches nothing you negotiated.',
-      "Demander « une clause de confidentialité standard ». Vous obtenez une clause moyenne, souvent pensée pour un autre droit, qui ne reflète rien de ce que vous avez négocié.",
+      "Demander « une clause de confidentialité standard ». Vous obtenez une clause moyenne, souvent pensée pour un autre droit, sans rien de ce que vous avez négocié.",
     ),
     quiz: {
       q: B('The draft sets a 5-year confidentiality term that nobody discussed. What does it tell you?',
@@ -278,10 +278,10 @@ const JU_RESEARCH: Level[] = [
     title: B('Frame the legal question before searching', 'Posez la question de droit avant de chercher'),
     learn: B(
       'You will turn a client story into a precise legal question: facts, jurisdiction, date, and what must be decided.',
-      "Vous apprendrez à transformer le récit d'un client en question de droit précise : faits, juridiction, date, et ce qu'il faut trancher.",
+      "Vous apprendrez à transformer le récit d'un client en question de droit précise : faits, juridiction, date, point à trancher.",
     ),
     act: B('Ask the AI to separate facts, unknowns and legal questions in a client email, then reword each question.',
-      "Demandez à l'IA de séparer faits, inconnues et questions de droit dans le mail d'un client, puis reformulez chaque question."),
+      "Faites séparer par l'IA faits, inconnues et questions de droit dans le mail d'un client, puis reformulez chaque question."),
     steps: [
       B('Paste the anonymised client email and ask for three lists: established facts, missing facts, questions.',
         "Collez le mail anonymisé du client et demandez trois listes : faits établis, faits manquants, questions."),
@@ -317,7 +317,7 @@ const JU_RESEARCH: Level[] = [
     title: B('Check every citation in an official database', 'Vérifiez chaque source dans une base officielle'),
     learn: B(
       'You will treat every case, article and reference produced by the AI as a lead to check, never as a source.',
-      "Vous apprendrez à traiter chaque décision, article et référence produits par l'IA comme une piste à vérifier, jamais comme une source.",
+      "Vous apprendrez à traiter chaque décision ou article produit par l'IA comme une piste à vérifier, jamais comme une source.",
     ),
     act: B('Ask the AI for its sources as a list, then look up each one in an official database and mark it.',
       "Demandez à l'IA ses sources sous forme de liste, puis cherchez chacune dans une base officielle et annotez-la."),
@@ -465,7 +465,7 @@ const JU_ENRICH: Record<string, Enrichment> = {
       { q: B("Which detail can usually stay in an anonymised contract?",
           "Quel détail peut généralement rester dans un contrat anonymisé ?"),
         options: [
-          B("The name of the project manager", "Le nom du chef de projet"),
+          B("The name of the project manager on the supplier side", "Le nom du chef de projet côté fournisseur"),
           B("The exact address of the plant", "L'adresse exacte de l'usine"),
           B("A 30-day notice period for termination", "Un préavis de résiliation de 30 jours"),
         ],
@@ -570,7 +570,7 @@ const JU_ENRICH: Record<string, Enrichment> = {
           "Le tableau du modèle indique « droit d'audit : absent ». Que faites-vous ?"),
         options: [
           B("Note it as good news and move on", "Vous le notez comme une bonne nouvelle et passez à la suite"),
-          B("Ask the model to double-check", "Vous demandez au modèle de revérifier"),
+          B("Ask the model to double-check its table line by line", "Vous demandez au modèle de revérifier son tableau ligne à ligne"),
           B("Search the contract and its annexes yourself", "Vous cherchez vous-même dans le contrat et ses annexes"),
         ],
         answer: 2,
@@ -579,8 +579,8 @@ const JU_ENRICH: Record<string, Enrichment> = {
       { q: B("Why ask the model not to rate the risk?",
           "Pourquoi demander au modèle de ne pas noter le risque ?"),
         options: [
-          B("Because it cannot read tables", "Parce qu'il ne sait pas lire les tableaux"),
-          B("Because risk depends on the deal and the client, which you know", "Parce que le risque dépend de l'affaire et du client, que vous connaissez"),
+          B("Because models are not allowed to give legal opinions", "Parce que les modèles n'ont pas le droit de donner un avis juridique"),
+          B("Because the risk depends on the deal and the client", "Parce que le risque dépend de l'affaire et du client"),
           B("To keep the answer shorter", "Pour obtenir une réponse plus courte"),
         ],
         answer: 1,
@@ -626,8 +626,8 @@ const JU_ENRICH: Record<string, Enrichment> = {
       { q: B("Why forbid the model to cite any law in a drafting prompt?",
           "Pourquoi interdire au modèle de citer une loi dans un prompt de rédaction ?"),
         options: [
-          B("Because clauses never refer to the law", "Parce que les clauses ne renvoient jamais à la loi"),
-          B("Because it may cite an article that does not exist or is outdated", "Parce qu'il peut citer un article inexistant ou abrogé"),
+          B("Because a clause must never refer to any statute", "Parce qu'une clause ne doit jamais viser un texte de loi"),
+          B("It may cite a non-existent or repealed article", "Il peut citer un article inexistant ou abrogé"),
           B("To make the clause shorter", "Pour raccourcir la clause"),
         ],
         answer: 1,
@@ -638,7 +638,7 @@ const JU_ENRICH: Record<string, Enrichment> = {
         options: [
           B("It filled the gaps silently: reread it closely", "Il a comblé les trous en silence : relisez de près"),
           B("Your brief was perfect", "Votre brief était parfait"),
-          B("The clause is too simple to have gaps", "La clause est trop simple pour avoir des trous"),
+          B("The clause was too simple and short to leave any gap", "La clause était trop simple et trop courte pour laisser un trou"),
         ],
         answer: 0,
         why: B("Almost every brief leaves something open: notice, timing, form. A model that reports nothing has usually decided on its own. Compare the clause to your list line by line.",
@@ -685,7 +685,7 @@ const JU_ENRICH: Record<string, Enrichment> = {
         options: [
           B("To make the answer longer and more complete", "Pour obtenir une réponse plus longue et plus complète"),
           B("Because the model cannot redraft without it", "Parce que le modèle ne sait pas réécrire sans elle"),
-          B("So that no discreet change escapes your review", "Pour qu'aucun changement discret n'échappe à votre revue"),
+          B("So no discreet change escapes you", "Pour qu'aucun changement discret ne vous échappe"),
         ],
         answer: 2,
         why: B("A counter-version drafted straight away may quietly keep a change you never noticed. The explicit list lets you check every change against your positions.",
@@ -693,7 +693,7 @@ const JU_ENRICH: Record<string, Enrichment> = {
       { q: B("You gave no « never » position. What risk do you run?",
           "Vous n'avez donné aucune position « jamais ». Quel risque courez-vous ?"),
         options: [
-          B("The model proposes a compromise that concedes a key point", "Le modèle propose un compromis qui cède un point essentiel"),
+          B("A compromise that concedes a key point", "Un compromis qui cède un point essentiel"),
           B("The model refuses to answer", "Le modèle refuse de répondre"),
           B("The clause becomes too favourable to your client", "La clause devient trop favorable à votre client"),
         ],
@@ -741,8 +741,8 @@ const JU_ENRICH: Record<string, Enrichment> = {
           "Le rapport indique « article 9.2 : la cible n'existe pas ». Que s'est-il le plus probablement passé ?"),
         options: [
           B("The model misread the contract", "Le modèle a mal lu le contrat"),
-          B("A clause was deleted or renumbered during negotiation", "Un article a été supprimé ou renuméroté pendant la négociation"),
-          B("Clause 9.2 was never meant to exist", "L'article 9.2 n'a jamais dû exister"),
+          B("A clause was deleted or renumbered", "Un article a été supprimé ou renuméroté"),
+          B("Clause 9.2 was never meant to exist in this contract", "L'article 9.2 n'a jamais dû exister dans ce contrat"),
         ],
         answer: 1,
         why: B("Renumbering is the classic cause of broken references after several rounds. Check the text, then find which clause the reference was meant to reach.",
@@ -750,8 +750,8 @@ const JU_ENRICH: Record<string, Enrichment> = {
       { q: B("Why tell the model « do not rewrite, only list »?",
           "Pourquoi dire au modèle « ne réécris rien, liste seulement » ?"),
         options: [
-          B("So you keep control of each correction and see what changes", "Pour garder la main sur chaque correction et voir ce qui change"),
-          B("Because models cannot edit long texts", "Parce que les modèles ne savent pas modifier de longs textes"),
+          B("To keep control of each correction", "Pour garder la main sur chaque correction"),
+          B("Because models cannot edit long texts without errors", "Parce que les modèles ne savent pas modifier un long texte sans erreur"),
           B("To save time on the answer", "Pour gagner du temps sur la réponse"),
         ],
         answer: 0,
@@ -799,7 +799,7 @@ const JU_ENRICH: Record<string, Enrichment> = {
         options: [
           B("Because it is not allowed to give legal answers", "Parce qu'il n'a pas le droit de répondre en droit"),
           B("To make the answer shorter", "Pour raccourcir la réponse"),
-          B("So that a premature answer does not steer the fact analysis", "Pour qu'une réponse prématurée n'oriente pas l'analyse des faits"),
+          B("So an early answer does not steer the facts", "Pour qu'une réponse hâtive n'oriente pas les faits"),
         ],
         answer: 2,
         why: B("Once an answer is written, the facts tend to be read to support it. Sorting the facts first, then answering, keeps the reasoning in the right order.",
@@ -808,7 +808,7 @@ const JU_ENRICH: Record<string, Enrichment> = {
           "Le mail du client ne dit pas si le retard a été notifié par écrit. Où cela va-t-il ?"),
         options: [
           B("In established facts, assuming it was", "Dans les faits établis, en supposant que oui"),
-          B("In missing facts, as a question for the client", "Dans les faits manquants, comme question au client"),
+          B("In missing facts, to ask the client", "Dans les faits manquants, à demander au client"),
           B("Nowhere: it is a detail", "Nulle part : c'est un détail"),
         ],
         answer: 1,
@@ -854,9 +854,9 @@ const JU_ENRICH: Record<string, Enrichment> = {
       { q: B("The decision exists in the official database, but it rules the opposite of what the AI said. What does that show?",
           "La décision existe dans la base officielle, mais elle juge l'inverse de ce qu'a dit l'IA. Qu'est-ce que cela montre ?"),
         options: [
-          B("That finding the reference is not enough: you must read it", "Que trouver la référence ne suffit pas : il faut la lire"),
-          B("That the database is outdated", "Que la base est obsolète"),
-          B("That the AI used a better source", "Que l'IA a utilisé une meilleure source"),
+          B("That you must read it, not just find it", "Qu'il faut la lire, pas seulement la trouver"),
+          B("That the official database is outdated", "Que la base officielle est obsolète"),
+          B("That the AI used a better, more recent source", "Que l'IA a utilisé une source meilleure et plus récente"),
         ],
         answer: 0,
         why: B("A real reference with a wrong summary is the most dangerous case, because it passes a quick existence check. Only reading the passage protects you.",
@@ -865,7 +865,7 @@ const JU_ENRICH: Record<string, Enrichment> = {
           "Sur quelle source pouvez-vous vous fonder pour confirmer qu'une décision existe ?"),
         options: [
           B("The AI tool, if you ask it twice", "L'outil d'IA, si vous lui demandez deux fois"),
-          B("A blog post that cites the same case", "Un article de blog qui cite la même décision"),
+          B("A well-known blog post that cites the same case number", "Un article de blog connu qui cite le même numéro de décision"),
           B("An official or authoritative legal database", "Une base juridique officielle ou faisant autorité"),
         ],
         answer: 2,
@@ -912,8 +912,8 @@ const JU_ENRICH: Record<string, Enrichment> = {
           "Pourquoi écrire vous-même la réponse au lieu de laisser le modèle conclure ?"),
         options: [
           B("Because the model writes too slowly", "Parce que le modèle rédige trop lentement"),
-          B("Because the legal judgement is yours and so is the responsibility", "Parce que le jugement juridique est le vôtre, et la responsabilité aussi"),
-          B("Because the model refuses to conclude", "Parce que le modèle refuse de conclure"),
+          B("Because the judgement and liability are yours", "Parce que le jugement et la responsabilité sont les vôtres"),
+          B("Because the model refuses to conclude on legal matters", "Parce que le modèle refuse de conclure en matière juridique"),
         ],
         answer: 1,
         why: B("The professional who signs the memo answers for it. The model can structure and clarify, but the conclusion must come from someone who knows the file and the law.",
@@ -921,8 +921,8 @@ const JU_ENRICH: Record<string, Enrichment> = {
       { q: B("The draft memo contains a citation you never gave the model. What do you do?",
           "Le projet de note contient une référence que vous n'avez jamais donnée au modèle. Que faites-vous ?"),
         options: [
-          B("Remove it, or verify it like any new lead before keeping it", "La retirer, ou la vérifier comme toute nouvelle piste avant de la garder"),
-          B("Keep it: it strengthens the memo", "La garder : elle renforce la note"),
+          B("Remove it, or verify it first", "La retirer, ou la vérifier d'abord"),
+          B("Keep it: an extra citation strengthens the memo", "La garder : une référence de plus renforce la note"),
           B("Put it in a footnote", "La mettre en note de bas de page"),
         ],
         answer: 0,
@@ -944,7 +944,7 @@ const JU_DEEP: Record<string, Deepening> = {
       { term: B('Approved tool', 'Outil approuvé'),
         def: B("An AI tool your organisation has authorised for a given type of data, usually after checking its terms on storage, access and reuse of what you paste.",
           "Un outil d'IA que votre organisation a autorisé pour un type de données donné, en général après avoir vérifié ses conditions sur la conservation, l'accès et la réutilisation de ce que vous collez.") },
-      { term: B('Anonymisation', 'Anonymisation'),
+      { term: B('Anonymising', 'Anonymisation'),
         def: B("Removing or replacing every element that allows someone to identify a person or a company, directly (a name) or indirectly (a context).",
           "Le fait de retirer ou de remplacer tout élément permettant d'identifier une personne ou une entreprise, directement (un nom) ou indirectement (un contexte).") },
       { term: B('Indirect identifier', 'Identifiant indirect'),
@@ -995,8 +995,8 @@ const JU_DEEP: Record<string, Deepening> = {
       { q: B("A contract is anonymised, but its file name is « Supply_LaiteriesDuVal_final.docx ». What is the risk?",
           "Un contrat est anonymisé, mais son fichier s'appelle « Approvisionnement_LaiteriesDuVal_final.docx ». Quel est le risque ?"),
         options: [
-          B("None: the model only reads the content", "Aucun : le modèle ne lit que le contenu"),
-          B("The file name reveals the client if you upload the file", "Le nom du fichier révèle le client si vous téléversez le fichier"),
+          B("None: the model only ever reads the content", "Aucun : le modèle ne lit jamais que le contenu"),
+          B("Its name reveals the client once uploaded", "Son nom révèle le client une fois téléversé"),
           B("The file will be rejected by the tool", "Le fichier sera refusé par l'outil"),
         ],
         answer: 1,
@@ -1006,7 +1006,7 @@ const JU_DEEP: Record<string, Deepening> = {
           "Quel remplacement garde l'analyse utile et protège le client ?"),
         options: [
           B("« 14.2 M€ » becomes « an amount above 10 M€ »", "« 14,2 M€ » devient « un montant supérieur à 10 M€ »"),
-          B("« 14.2 M€ » is deleted without replacement", "« 14,2 M€ » est supprimé sans remplacement"),
+          B("« 14.2 M€ » is deleted and nothing replaces it at all", "« 14,2 M€ » est supprimé et rien ne le remplace"),
           B("« 14.2 M€ » becomes « 14 M€ »", "« 14,2 M€ » devient « 14 M€ »"),
         ],
         answer: 0,
@@ -1072,7 +1072,7 @@ const JU_DEEP: Record<string, Deepening> = {
         options: [
           B("The price line is probably still right", "La ligne sur le prix est sans doute juste quand même"),
           B("The clause numbering of the contract is wrong", "La numérotation du contrat est fausse"),
-          B("The line is unreliable: find the price clause and check more references", "La ligne n'est pas fiable : trouvez la clause de prix et vérifiez d'autres renvois"),
+          B("The line is unreliable: check it and others", "La ligne n'est pas fiable : vérifiez-la, et d'autres"),
         ],
         answer: 2,
         why: B("A wrong reference means the model may have taken the content from elsewhere, or invented it. Correct the line from the text and widen your sample.",
@@ -1081,7 +1081,7 @@ const JU_DEEP: Record<string, Deepening> = {
           "Pourquoi « non prévu » est-il un constat important pour le lecteur ?"),
         options: [
           B("Because it means the topic is forbidden", "Parce qu'il signifie que le sujet est interdit"),
-          B("Because the default rules of the governing law will then apply", "Parce que les règles supplétives du droit applicable s'appliqueront alors"),
+          B("Because the law's default rules then apply", "Parce que les règles supplétives s'appliquent alors"),
           B("Because the contract becomes void on that point", "Parce que le contrat devient nul sur ce point"),
         ],
         answer: 1,
@@ -1146,8 +1146,8 @@ const JU_DEEP: Record<string, Deepening> = {
       { q: B("You represent the Customer. The contract caps the Supplier's liability at one month of fees. How should the table describe it?",
           "Vous représentez le Client. Le contrat plafonne la responsabilité du Fournisseur à un mois de redevances. Comment le tableau doit-il le décrire ?"),
         options: [
-          B("Present, but different from standard: low cap against the Customer", "Présent, mais différent du standard : plafond bas, défavorable au Client"),
-          B("Absent, since the cap protects the Supplier", "Absent, puisque le plafond protège le Fournisseur"),
+          B("Present, but below standard for the Customer", "Présent, mais sous le standard du Client"),
+          B("Absent, since the cap only protects the Supplier", "Absent, puisque le plafond protège seulement le Fournisseur"),
           B("Acceptable, since a cap exists", "Acceptable, puisqu'un plafond existe"),
         ],
         answer: 0,
@@ -1158,7 +1158,7 @@ const JU_DEEP: Record<string, Deepening> = {
         options: [
           B("To replace your checklist with its own list", "Pour remplacer votre checklist par sa liste"),
           B("To make the table longer", "Pour allonger le tableau"),
-          B("To catch a risk your list did not anticipate", "Pour repérer un risque que votre liste n'avait pas prévu"),
+          B("To catch a risk your list missed", "Pour repérer un risque oublié par votre liste"),
         ],
         answer: 2,
         why: B("A checklist only finds what it looks for. The extra list is a safety net for new risks, which you then judge yourself and may add to the checklist.",
@@ -1224,7 +1224,7 @@ const JU_DEEP: Record<string, Deepening> = {
           B("Keep it: everyone understands who is meant", "Le garder : tout le monde comprend de qui il s'agit"),
           B("Add « the builder » to the definitions", "Ajouter « le constructeur » aux définitions"),
           B("Delete the clause and start again from a template", "Supprimer la clause et repartir d'un modèle"),
-          B("Replace it with the defined term, and search for other stray terms", "Le remplacer par le terme défini, et chercher d'autres termes égarés"),
+          B("Use the defined term, and look for others", "Employer le terme défini, et chercher d'autres écarts"),
         ],
         answer: 3,
         why: B("A new word creates a doubt a party can exploit in a dispute. Use the defined term, and check the rest of the clause for the same slip.",
@@ -1310,7 +1310,7 @@ const JU_DEEP: Record<string, Deepening> = {
       { q: B("Which reason is best to send with a counter-proposal?",
           "Quel motif est le meilleur à envoyer avec une contre-proposition ?"),
         options: [
-          B("« Your change is unacceptable and one-sided. »", "« Votre modification est inacceptable et déséquilibrée. »"),
+          B("« Your change is unacceptable, one-sided and contrary to our talks. »", "« Votre modification est inacceptable, déséquilibrée et contraire à nos échanges. »"),
           B("« We prefer our version. »", "« Nous préférons notre version. »"),
           B("« Annual assessment avoids ending exclusivity after one seasonal dip. »", "« Une appréciation annuelle évite de perdre l'exclusivité pour une baisse saisonnière. »"),
         ],
@@ -1385,9 +1385,9 @@ const JU_DEEP: Record<string, Deepening> = {
       { q: B("Why run the check section by section on a very long contract?",
           "Pourquoi lancer le contrôle section par section sur un très long contrat ?"),
         options: [
-          B("Because models refuse long texts", "Parce que les modèles refusent les textes longs"),
+          B("Because models refuse to process long texts in one go", "Parce que les modèles refusent de traiter un long texte d'un seul coup"),
           B("To get a shorter answer", "Pour obtenir une réponse plus courte"),
-          B("Because the model is more likely to miss occurrences in a very long text", "Parce que le modèle risque davantage de manquer des occurrences dans un texte très long"),
+          B("Because long texts raise the risk of missed items", "Parce qu'un long texte augmente le risque d'oublis"),
         ],
         answer: 2,
         why: B("The longer the text, the more a systematic listing can skip items. Smaller sections keep each list complete, and you then merge the results.",
@@ -1452,7 +1452,7 @@ const JU_DEEP: Record<string, Deepening> = {
         options: [
           B("As an established fact, since the client says so", "Comme un fait établi, puisque le client le dit"),
           B("As a question for the court only", "Comme une question réservée au juge"),
-          B("As a point to verify, with the facts that would support it", "Comme un point à vérifier, avec les faits qui le fonderaient"),
+          B("As a point to verify with supporting facts", "Comme un point à vérifier, faits à l'appui"),
         ],
         answer: 2,
         why: B("Bad faith is a legal characterisation, not a fact. List the concrete facts that could prove it (emails, dates, refusals) and ask the client for them.",
@@ -1461,7 +1461,7 @@ const JU_DEEP: Record<string, Deepening> = {
           "Pourquoi ajouter la date de signature du contrat à votre question ?"),
         options: [
           B("To make the question longer and more formal", "Pour rendre la question plus longue et plus formelle"),
-          B("Because the applicable text may have changed since", "Parce que le texte applicable a pu changer depuis"),
+          B("The applicable text may have changed since", "Le texte applicable a pu changer depuis"),
           B("Because the model needs a date to answer at all", "Parce que le modèle a besoin d'une date pour répondre"),
         ],
         answer: 1,
@@ -1541,7 +1541,7 @@ const JU_DEEP: Record<string, Deepening> = {
       { q: B("Why does a real decision cited for the wrong point pose the greatest risk?",
           "Pourquoi une vraie décision citée pour le mauvais point présente-t-elle le plus grand risque ?"),
         options: [
-          B("Because it passes a quick existence check", "Parce qu'elle passe un contrôle rapide d'existence"),
+          B("It passes a quick existence check", "Elle passe un contrôle rapide d'existence"),
           B("Because official databases often hide it", "Parce que les bases officielles la cachent souvent"),
           B("Because it is always an old decision", "Parce qu'il s'agit toujours d'une décision ancienne"),
           B("Because the model marks it as uncertain", "Parce que le modèle la marque comme incertaine"),
@@ -1607,9 +1607,9 @@ const JU_DEEP: Record<string, Deepening> = {
       { q: B("Your client operates in France and Germany. Your memo covers French law only. What must it say?",
           "Votre client opère en France et en Allemagne. Votre note ne couvre que le droit français. Que doit-elle dire ?"),
         options: [
-          B("That the answer covers French law only, and German law must be checked", "Que la réponse couvre le seul droit français, et que le droit allemand est à vérifier"),
+          B("That it covers French law only", "Qu'elle couvre le seul droit français"),
           B("Nothing: EU law makes the two identical", "Rien : le droit de l'Union rend les deux identiques"),
-          B("That German law is probably similar", "Que le droit allemand est probablement similaire"),
+          B("That German law is probably similar enough to rely on", "Que le droit allemand est sans doute assez proche pour s'y fier"),
         ],
         answer: 0,
         why: B("A memo must state its scope. Guessing that another legal system is similar is exactly the kind of uncertain advice presented as certain that the memo must avoid.",
