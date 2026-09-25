@@ -31,6 +31,7 @@ import { say, type Bi } from '../data/bilingual'
 import { useAccount, signIn } from '../lib/account'
 import { packPath, FREE_PACK } from '../data/packs'
 import { Shell } from './Shell'
+import { embedsIn, EMBED_LABEL, type Embed } from '../lib/embeds'
 import { CT, CATEGORY_LABEL } from './communityText'
 import {
   COMMUNITY_CATEGORIES, COMMUNITY_LIMITS, fetchFeed, fetchPost, fetchMe, joinCommunity, createPost,
@@ -281,6 +282,8 @@ function Composer({ me, onPosted }: { me: Me; onPosted: () => void }) {
       <textarea className="cy-inp" value={body} onChange={(e) => setBody(e.target.value)} rows={6}
         placeholder={s(CT.write)} aria-label={s(CT.postBody)}
         minLength={COMMUNITY_LIMITS.body.min} maxLength={COMMUNITY_LIMITS.body.max} required />
+      <p className="cy-hint">{s(CT.mediaHint)}</p>
+      <Media text={body} />
       {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
       <div className="cy-compose-acts">
         <button type="button" className="cc-btn cc-slate" onClick={() => setOpen(false)}>{s(CT.cancel)}</button>
@@ -359,6 +362,7 @@ function PostCard({ post, me, onChange, full = false }: { post: CPost; me: Me; o
         : <h3 className="cy-post-title"><button className="cy-link" onClick={open}>{p.title}</button></h3>}
       <p className="cy-post-body">{p.body}</p>
       {p.truncated && !full && <button className="cy-link cy-read" onClick={open}>{s(CT.readMore)}</button>}
+      <Media text={p.body} />
       <footer className="cy-post-foot">
         <button className={`cy-act${p.liked ? ' on' : ''}`} onClick={like} aria-pressed={p.liked}>
           <BauhausIcon name="smile" size={16} /> {s(CT.like)} · {p.likes}
@@ -1074,6 +1078,47 @@ function ProfileForm({ initial, onDone }: { initial: { name: string; bio: string
 
 function DateOnly({ iso, lang }: { iso: string; lang: string }) {
   return <time dateTime={iso}>{new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(Date.parse(iso))}</time>
+}
+
+/* ------------------------------------------------------------------ */
+/* LES MÉDIAS INTÉGRÉS · chargés au clic (voir lib/embeds)              */
+/* ------------------------------------------------------------------ */
+
+function Media({ text }: { text: string }) {
+  const list = embedsIn(text)
+  if (!list.length) return null
+  return <div className="cy-media">{list.map((e) => <EmbedBox key={e.src} e={e} />)}</div>
+}
+
+function EmbedBox({ e }: { e: Embed }) {
+  const { s } = useSay()
+  const [on, setOn] = useState(false)
+  if (on) {
+    return (
+      <div className={`cy-embed${e.tall ? ' tall' : ''}`}>
+        <iframe
+          src={e.src}
+          title={EMBED_LABEL[e.kind]}
+          loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
+          sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+          allow="encrypted-media; picture-in-picture; fullscreen"
+          allowFullScreen
+        />
+      </div>
+    )
+  }
+  return (
+    // PAS DE VIGNETTE DISTANTE · même l'image d'aperçu d'une vidéo est une
+    // requête vers le service : la façade reste à nous jusqu'au clic.
+    <button className={`cy-embed cy-facade${e.tall ? ' tall' : ''} k-${e.kind}`} onClick={() => setOn(true)}>
+      <span className="cy-facade-play" aria-hidden="true"><BauhausIcon name="play" size={22} /></span>
+      <span className="cy-facade-t">
+        <b>{s(CT.mediaPlay)} {EMBED_LABEL[e.kind]}</b>
+        <em>{s(CT.mediaPrivacy)}</em>
+      </span>
+    </button>
+  )
 }
 
 /* ------------------------------------------------------------------ */

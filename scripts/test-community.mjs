@@ -118,6 +118,28 @@ ok('seul l\'auteur modifie son texte', /async function edit[\s\S]*?author_did !=
 ok('une modification est signalée', /edited_at = now\(\)/.test(api) && /edited_at timestamptz/.test(sql))
 ok('on ne modifie qu\'un texte qu\'on voit en entier', /full && p\.mine && <button/.test(page))
 
+/* --- 5f · les médias intégrés ---------------------------------------------- */
+{
+  const rb = await build({ entryPoints: ['src/lib/embeds.ts'], bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent' })
+  writeFileSync(join(OUT, 'e.mjs'), rb.outputFiles[0].text)
+  const E = await import(pathToFileURL(join(OUT, 'e.mjs')).href)
+  const yt = E.parseEmbed('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=10')
+  ok('YouTube : lecteur sans cookie reconstruit', yt?.src === 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?rel=0')
+  ok('youtu.be et Shorts reconnus', E.parseEmbed('https://youtu.be/dQw4w9WgXcQ')?.kind === 'youtube' && E.parseEmbed('https://youtube.com/shorts/dQw4w9WgXcQ')?.tall === true)
+  ok('Instagram, Vimeo, Loom, TikTok reconnus',
+    E.parseEmbed('https://www.instagram.com/reel/Cabc123XYZ/')?.src === 'https://www.instagram.com/reel/Cabc123XYZ/embed'
+    && E.parseEmbed('https://vimeo.com/123456789')?.src === 'https://player.vimeo.com/video/123456789'
+    && E.parseEmbed('https://www.loom.com/share/' + 'a'.repeat(32))?.kind === 'loom'
+    && E.parseEmbed('https://www.tiktok.com/@dojo/video/7212345678901234567')?.kind === 'tiktok')
+  ok('un domaine inconnu reste du texte', E.parseEmbed('https://evil.example.com/watch?v=dQw4w9WgXcQ') === null)
+  ok('une adresse piégée ne passe pas', E.parseEmbed('https://www.youtube.com/watch?v=abc"onload=x') === null && E.parseEmbed('http://www.youtube.com/watch?v=dQw4w9WgXcQ') === null)
+  ok('trois médias au plus par message', E.embedsIn(Array.from({ length: 5 }, (_, i) => `https://vimeo.com/12345678${i}`).join(' ')).length === 3)
+  const csp = readFileSync('vercel.json', 'utf8').match(/frame-src ([^;]*);/)?.[1] || ''
+  ok('la CSP n\'ouvre que les lecteurs de la liste', E.EMBED_ORIGINS.every((o) => csp.includes(o)))
+  ok('le lecteur ne se charge qu\'au clic', /const \[on, setOn\] = useState\(false\)/.test(page) && /sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"/.test(page))
+  ok('aucune image distante avant le clic', !/backgroundImage: `url\(\$\{e\.thumb\}\)`/.test(page))
+}
+
 /* --- 6 · les morsures ---------------------------------------------------- */
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))
 ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(title\\) between 3 and 120').test('char_length(title) between 3 and 200'))

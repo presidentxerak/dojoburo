@@ -12158,3 +12158,21 @@ h2.cy-post-title { font-size: 24px !important; }
   .cy-dm-back { display: inline; }
 }
 .promo-main.unsub { min-height: 70vh; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 8px; max-width: 640px; }
+
+/* LES MÉDIAS INTÉGRÉS · une façade, puis le lecteur au clic. */
+.cy-hint { margin: 0; font-size: 12.5px; color: var(--g-sub); }
+.cy-media { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.cy-embed { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #0b0717; }
+.cy-embed.tall { aspect-ratio: 9 / 16; max-width: 340px; }
+.cy-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.gm button.cy-facade { display: flex; align-items: flex-end; justify-content: flex-start; gap: 12px; padding: 16px; border: 0; border-radius: 14px !important; cursor: pointer; text-align: left; background-size: cover; background-position: center; color: #fff; }
+.cy-facade::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 7, 23, 0.1), rgba(11, 7, 23, 0.75)); }
+.cy-facade.k-youtube { background-image: linear-gradient(135deg, #ff0033, #8c0019); }
+.cy-facade.k-instagram { background-image: linear-gradient(135deg, #f58529, #dd2a7b 50%, #8134af); }
+.cy-facade.k-tiktok { background-image: linear-gradient(135deg, #111, #333); }
+.cy-facade.k-vimeo { background-image: linear-gradient(135deg, #1ab7ea, #0e6a8a); }
+.cy-facade.k-loom { background-image: linear-gradient(135deg, #625df5, #3b37b8); }
+.cy-facade-play { position: relative; flex: none; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 999px; background: rgba(124, 58, 237, 0.92); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4); }
+.cy-facade-t { position: relative; display: flex; flex-direction: column; gap: 2px; }
+.cy-facade-t b { font-family: var(--font-game); font-weight: 800; font-size: 15px; }
+.cy-facade-t em { font-style: normal; font-size: 12px; opacity: 0.85; }
