@@ -281,7 +281,7 @@ const JU_RESEARCH: Level[] = [
       "Vous apprendrez à transformer le récit d'un client en question de droit précise : faits, juridiction, date, point à trancher.",
     ),
     act: B('Ask the AI to separate facts, unknowns and legal questions in a client email, then reword each question.',
-      "Faites séparer par l'IA faits, inconnues et questions de droit dans le mail d'un client, puis reformulez chaque question."),
+      "Faites trier par l'IA faits, inconnues et questions de droit du mail d'un client, puis reformulez chaque question."),
     steps: [
       B('Paste the anonymised client email and ask for three lists: established facts, missing facts, questions.',
         "Collez le mail anonymisé du client et demandez trois listes : faits établis, faits manquants, questions."),
@@ -385,7 +385,7 @@ const JU_RESEARCH: Level[] = [
       answer: 1,
       why: B(
         'The reader decides with the memo. A hidden uncertainty becomes a surprise in court. Stating the risk lets the client choose knowingly.',
-        "Le lecteur décide avec la note. Une incertitude cachée devient une surprise à l'audience. Chiffrer le risque permet au client de choisir en connaissance de cause.",
+        "Le lecteur décide avec la note. Une incertitude cachée devient une surprise à l'audience. Exposer le risque permet au client de choisir en connaissance de cause.",
       ),
     },
     badge: B('Memos that state their limits', 'Notes qui disent leurs limites'),
@@ -452,8 +452,8 @@ const JU_ENRICH: Record<string, Enrichment> = {
         "Rédigez une checklist d'anonymisation d'une page pour votre équipe, à partir de ce que le modèle a trouvé dans cet exercice. La prochaine fois, vous l'appliquerez avant de coller, et non après."),
     },
     more: [
-      { q: B("Your firm has approved one AI tool under a contract covering confidentiality. A colleague uses a free public chatbot for a client file. What do you say?",
-          "Votre cabinet a approuvé un outil d'IA sous un contrat couvrant la confidentialité. Un collègue utilise un chatbot public gratuit pour un dossier client. Que lui dites-vous ?"),
+      { q: B("Your firm approved one AI tool for client files. A colleague uses a free public chatbot for one. What do you tell him?",
+          "Votre cabinet a approuvé un outil d'IA pour les dossiers clients. Un collègue utilise un chatbot public gratuit. Que lui dites-vous ?"),
         options: [
           B("Use the approved tool: the other one is not covered", "D'utiliser l'outil approuvé : l'autre n'est pas couvert"),
           B("It is fine as long as he deletes the chat afterwards", "Que c'est acceptable s'il supprime la conversation ensuite"),
@@ -1233,7 +1233,7 @@ const JU_DEEP: Record<string, Deepening> = {
           "Quel élément améliore le plus la fidélité d'une clause rédigée ?"),
         options: [
           B("The list of agreed terms", "La liste des termes convenus"),
-          B("A request for a formal tone", "Une demande de ton formel"),
+          B("A request for a formal register", "Une demande de registre formel"),
           B("The name of the governing law only", "Le seul nom du droit applicable"),
         ],
         answer: 0,
