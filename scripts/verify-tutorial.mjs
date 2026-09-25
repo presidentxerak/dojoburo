@@ -140,7 +140,7 @@ for (const [w, h, tag] of [[390, 780, 'phone'], [537, 741, 'narrow'], [1280, 900
   // venait de corriger · un bouton de hero introuvable · pour une cause qui
   // n'avait plus rien à voir. Une barre oblique de trop ne casse rien
   // visiblement, et c'est exactement ce qui la rend coûteuse à trouver.
-  await p.goto(B + 'decouvrir', { waitUntil: 'networkidle' })
+  await p.goto(B + 'decouvrir-studio', { waitUntil: 'networkidle' })
   await p.waitForTimeout(1600)
   await p.locator('.lp-hero-how').click()
   await p.waitForTimeout(1600)

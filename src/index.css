@@ -11817,3 +11817,100 @@ html.calm *, html.calm *::before, html.calm *::after {
 /* LA CASE NEWSLETTER · à part, non cochée, lisible. */
 .ae-news { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; font-size: 14px; line-height: 1.45; color: var(--g-sub); cursor: pointer; }
 .ae-news input { flex: none; width: 20px; height: 20px; margin-top: 1px; accent-color: #7c3aed; cursor: pointer; }
+
+/* ==================================================================
+   LA LANDING PROMO · /decouvrir (voir game/Promo). Les jetons du jeu, donc
+   claire par défaut et sombre au choix, sans règle à part.
+   ================================================================== */
+.gm.promo { padding-bottom: 40px; }
+.promo-top { position: sticky; top: 0; z-index: 30; backdrop-filter: blur(10px); padding-bottom: 12px; }
+.promo-signin { font-family: var(--font-game); font-weight: 800; font-size: 14px; color: var(--g-sub); white-space: nowrap; }
+.promo-signin:hover { color: var(--g-text); }
+.gm .promo-top-go { margin-top: 0; min-height: 40px; padding: 8px 16px; font-size: 15px; }
+@media (max-width: 559px) { .promo-top-go, .promo-signin { display: none !important; } }
+.promo-main { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 32px); }
+
+.promo-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(20px, 4vw, 48px); align-items: center; padding: clamp(18px, 4vw, 48px) 0 clamp(18px, 3vw, 32px); scroll-margin-top: 80px; }
+@media (max-width: 899px) { .promo-hero { grid-template-columns: 1fr; } .promo-hero-art { order: -1; } }
+.promo-kicker { display: inline-block; padding: 6px 12px; border-radius: 999px; font-family: var(--font-game); font-weight: 800; font-size: 13px; color: #6d28d9; background: rgba(124, 58, 237, 0.12); }
+:root:not([data-look='light']) .promo-kicker { color: #ddd6fe; background: rgba(124, 58, 237, 0.26); }
+.promo-h1 { margin: 14px 0 12px; font-family: var(--font-game); font-weight: 800; font-size: clamp(34px, 5.6vw, 60px) !important; line-height: 1.02; letter-spacing: -0.02em; color: var(--g-text); }
+.promo-sub { margin: 0 0 18px; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.55; color: var(--g-sub); }
+.promo-hero-art { position: relative; border-radius: 26px; overflow: hidden; box-shadow: var(--g-lift); }
+/* LA SALLE REMPLIT SON CADRE · la vignette garde son propre ratio, le cadre
+   le suit (un ratio imposé laissait une bande vide sous la scène). */
+.promo-hero-art .pa { width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 0; margin: 0; }
+
+.promo-form { width: 100%; }
+.promo-form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.promo-inp {
+  flex: 1 1 240px; min-width: 0; min-height: 54px; padding: 12px 18px; border: 0; border-radius: 14px;
+  font: 600 17px var(--font-game); color: var(--g-text); background: var(--g-slot); box-shadow: var(--g-sunk);
+}
+.promo-inp::placeholder { color: var(--g-sub); }
+.promo-inp:focus { outline: 3px solid #8b5cf6; outline-offset: 2px; }
+.gm .promo-form .gm-cta { margin-top: 0; min-height: 54px; flex: 0 0 auto; }
+@media (max-width: 479px) { .gm .promo-form .gm-cta { flex: 1 1 100%; } }
+.promo-fine { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: var(--g-sub); }
+
+.promo-facts { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 0 8px; padding: 0; }
+@media (max-width: 639px) { .promo-facts { grid-template-columns: repeat(2, 1fr); } }
+.promo-facts li { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 16px 10px; border-radius: 18px; background: linear-gradient(180deg, var(--g-card-top), var(--g-card-bot)); box-shadow: var(--g-edge); }
+.promo-facts b { font-family: var(--font-game); font-weight: 800; font-size: 30px; line-height: 1; color: var(--g-text); }
+.promo-facts span { font-size: 13px; font-weight: 700; color: var(--g-sub); text-align: center; }
+
+.promo-sec { padding: clamp(34px, 6vw, 64px) 0 0; }
+.promo-pill { display: inline-block; padding: 5px 12px; border-radius: 999px; font-family: var(--font-game); font-weight: 800; font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase; color: #fff; background: #7c3aed; }
+.promo-pill.free { background: #16a34a; }
+.promo-h2 { margin: 12px 0 10px; font-family: var(--font-game); font-weight: 800; font-size: clamp(26px, 3.6vw, 40px) !important; line-height: 1.08; color: var(--g-text); }
+.promo-lead { margin: 0 0 18px; max-width: 760px; font-size: 16.5px; line-height: 1.55; color: var(--g-sub); }
+
+.promo-steps { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0 0; padding: 0; }
+@media (max-width: 899px) { .promo-steps { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 479px) { .promo-steps { grid-template-columns: 1fr; } }
+.promo-steps li, .promo-part, .promo-card { display: flex; flex-direction: column; gap: 6px; padding: 18px; border-radius: 20px; background: linear-gradient(180deg, var(--g-card-top), var(--g-card-bot)); box-shadow: var(--g-edge), 0 10px 24px -16px rgba(0, 0, 0, 0.35); }
+.promo-steps b, .promo-part b { font-family: var(--font-game); font-weight: 800; font-size: 17px; color: var(--g-text); }
+.promo-steps span:not(.promo-step-n), .promo-part span:not(.promo-part-n) { font-size: 14.5px; line-height: 1.5; color: var(--g-sub); }
+.promo-step-n, .promo-part-n, .promo-lesson-n {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 999px;
+  font-family: var(--font-game); font-weight: 800; font-size: 16px; color: #fff;
+  background-color: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn);
+}
+
+.promo-lessons { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 0 0 18px; padding: 0; }
+.promo-lessons li { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 12px 16px; border-radius: 16px; background: linear-gradient(180deg, var(--g-card-top), var(--g-card-bot)); box-shadow: var(--g-edge); }
+.promo-lesson-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.promo-lesson-t b { font-family: var(--font-game); font-weight: 800; font-size: 16px; color: var(--g-text); }
+.promo-lesson-t em { font-style: normal; font-size: 14px; line-height: 1.45; color: var(--g-sub); }
+.promo-lesson-m { font-family: var(--font-game); font-weight: 800; font-size: 13px; color: var(--g-sub); white-space: nowrap; }
+
+.promo-parts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+@media (max-width: 899px) { .promo-parts { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 479px) { .promo-parts { grid-template-columns: 1fr; } }
+
+.promo-belts { list-style: none; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin: 18px 0 22px; padding: 0; }
+@media (max-width: 899px) { .promo-belts { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 479px) { .promo-belts { grid-template-columns: repeat(3, 1fr); } }
+.promo-belts li { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.promo-belts b { font-family: var(--font-game); font-weight: 800; font-size: 13.5px; line-height: 1.2; color: var(--g-text); }
+.promo-belts em { font-style: normal; font-size: 12.5px; color: var(--g-sub); }
+
+.promo-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0 14px; }
+@media (max-width: 719px) { .promo-duo { grid-template-columns: 1fr; } }
+.promo-card h3 { margin: 4px 0 0; font-family: var(--font-game); font-weight: 800; font-size: 20px; color: var(--g-text); }
+.promo-card p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--g-sub); }
+.promo-card .cc-btn { align-self: flex-start; }
+.promo-price b { font-family: var(--font-game); font-weight: 800; font-size: 22px; color: #7c3aed; }
+:root:not([data-look='light']) .promo-price b { color: #c4b5fd; }
+.promo-trades { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.promo-trades span { padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700; color: var(--g-text); background: color-mix(in srgb, var(--ac) 16%, transparent); }
+
+.promo-faq { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.promo-faq details { padding: 14px 18px; border-radius: 16px; background: linear-gradient(180deg, var(--g-card-top), var(--g-card-bot)); box-shadow: var(--g-edge); }
+.promo-faq summary { cursor: pointer; font-family: var(--font-game); font-weight: 800; font-size: 16px; color: var(--g-text); }
+.promo-faq p { margin: 10px 0 0; font-size: 15px; line-height: 1.6; color: var(--g-sub); }
+
+.promo-final { text-align: left; }
+.promo-final .promo-form { max-width: 640px; }
+.promo-legal { margin: 40px 0 0; text-align: center; font-size: 13px; color: var(--g-sub); }
+.promo-legal a { color: inherit; text-decoration: underline; }

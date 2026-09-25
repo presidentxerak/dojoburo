@@ -41,5 +41,15 @@ ok('l\'accès gratuit s\'ouvre sans attendre le serveur', /giveEmail\(v\)\n\s*vo
 const SQL = readFileSync('db/newsletter.sql', 'utf8')
 ok('la table garde le consentement et sa date', /newsletter\s+boolean not null default false/.test(SQL) && /consent_at/.test(SQL) && /unsubscribed_at/.test(SQL))
 
+// LA LANDING PROMO · « explique de A à Z Dojoburo et met en avant la
+// formation gratuite ». Le formulaire est dans le héros, la newsletter est une
+// case à part, et l'envoi ouvre la première leçon.
+const PROMO = readFileSync('src/game/Promo.tsx', 'utf8')
+const MAIN = readFileSync('src/main.tsx', 'utf8')
+ok('/decouvrir sert la landing promo', /path === '\/decouvrir'\) return <PromoPage \/>/.test(MAIN))
+ok('le formulaire est dans le héros', /<section className="promo-hero" id="commencer">[\s\S]*?<StartForm/.test(PROMO))
+ok('l\'envoi ouvre la première leçon, sans attendre le serveur', /giveEmail\(v\)\n\s*void sendSignup\(v, news, source\)\n\s*navigate\(FIRST_LESSON\)/.test(PROMO))
+ok('la newsletter y est aussi une case à part, non cochée', /const \[news, setNews\] = useState\(false\)/.test(PROMO))
+ok('le programme gratuit se lit en entier', /DISCOVERY_MODULE\.levels\.map/.test(PROMO))
 console.log('\ntest-newsletter')
 process.exitCode = fails ? 1 : 0
