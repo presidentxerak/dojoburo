@@ -228,7 +228,7 @@ const OBJECTS: Record<Icon3DName, () => JSX.Element> = {
 /* Les images                                                          */
 /* ------------------------------------------------------------------ */
 
-const iconKey = (name: Icon3DName) => `icon3d:${name}:1`
+const iconKey = (name: Icon3DName) => `icon3d:${name}:2`
 
 /** Une icône 3D, en image · l'icône plate le temps qu'elle arrive. */
 export function Icon3D({ name, size = 40, className = '' }: { name: Icon3DName; size?: number; className?: string }) {
@@ -238,7 +238,9 @@ export function Icon3D({ name, size = 40, className = '' }: { name: Icon3DName; 
     if (url) return
     let alive = true
     const Obj = OBJECTS[name]
-    requestNodeSnapshot(key, <Obj />).then((u) => { if (alive && u) setUrl(u) })
+    // UN PEU PLUS GRAND QUE LE CADRE D'UN PORTRAIT · un objet seul doit
+    // remplir sa pastille, là où un personnage garde de l'air autour de lui.
+    requestNodeSnapshot(key, <group scale={1.32} position={[0, 0.2, 0]}><Obj /></group>).then((u) => { if (alive && u) setUrl(u) })
     return () => { alive = false }
   }, [key, name, url])
   return (

@@ -11647,7 +11647,7 @@ html.calm *, html.calm *::before, html.calm *::after {
 .pf-tabs {
   display: grid; grid-auto-flow: column; grid-auto-columns: minmax(72px, 1fr); gap: 6px;
   overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
-  padding: 6px; border-radius: 20px; background: var(--g-slot);
+  padding: 6px; border-radius: 20px; background: rgba(124, 58, 237, 0.1);
 }
 .pf-tabs::-webkit-scrollbar { display: none; }
 .pf-tab {
@@ -11663,6 +11663,14 @@ html.calm *, html.calm *::before, html.calm *::after {
 .pf-tab.on { color: #fff; background: #7c3aed; }
 .pf-tab.on .i3d { transform: scale(1.1); }
 .pf-tab:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+/* le « button { border-radius: 0 !important } » global de l'ancien site */
+.gm button.pf-tab { border-radius: 15px !important; }
+.gm button.st-toggle { border-radius: 999px !important; }
+@media (max-width: 419px) {
+  .pf-tabs { grid-auto-columns: minmax(62px, 1fr); gap: 3px; padding: 4px; }
+  .pf-tab { min-height: 70px; padding: 5px 2px 7px; font-size: 11px; }
+  .pf-tab .i3d { width: 36px !important; height: 36px !important; }
+}
 .pf-panel { animation: jz-rise 300ms cubic-bezier(.2, .7, .3, 1) both; }
 
 /* L'ÉCHELLE DES GRADES · une ligne par ceinture, l'actuelle éclairée. */
@@ -11716,7 +11724,14 @@ html.calm *, html.calm *::before, html.calm *::after {
 .st-toggle.on i { background: #4c1d95; }
 .st-toggle.on i::after { transform: translateX(20px); background: #fff; }
 .st-toggle:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
-.st-row .lsw { flex: none; }
+.st-row .lsw {
+  flex: none; display: inline-flex; gap: 2px; padding: 4px; border: 0; border-radius: 999px; background: #140a2b;
+}
+.gm .st-row .lsw-b {
+  min-height: 34px; padding: 6px 14px; border: 0; border-radius: 999px !important;
+  font-family: var(--font-game); font-weight: 800; font-size: 13px; color: var(--g-sub); background: transparent; box-shadow: none;
+}
+.gm .st-row .lsw-b.on { color: #fff; background: #7c3aed; }
 .gm .st-reset { margin-top: 14px; }
 .st-danger { margin-top: 22px; padding: 16px; border-radius: 16px; background: rgba(239, 68, 68, 0.1); }
 .st-danger h3 { margin: 0 0 6px; font-family: var(--font-game); font-weight: 800; font-size: 17px; color: #fecaca; }
