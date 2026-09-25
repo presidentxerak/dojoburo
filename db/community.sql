@@ -150,3 +150,9 @@ create table if not exists community_poll_votes (
   created_at   timestamptz not null default now(),
   primary key (post_id, did)
 );
+
+-- ---------------------------------------------------------------------------
+-- LOT 7 · LES NOTIFICATIONS PAR E-MAIL (Brevo). Activées par défaut, coupées
+-- d'un clic dans son profil de membre. La langue sert aux e-mails.
+alter table community_members add column if not exists email_notify boolean not null default true;
+alter table community_members add column if not exists lang text not null default 'fr';

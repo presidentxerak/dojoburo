@@ -121,6 +121,7 @@ export const CT = {
   editProfile: B('Edit my profile', 'Modifier mon profil'),
   bio: B('A few words about you', 'Quelques mots sur vous'),
   save: B('Save', 'Enregistrer'),
+  emailNotify: B('Email me for comments, replies, mentions and private messages (never for likes).', "Recevoir un e-mail pour les commentaires, les réponses, les mentions et les messages privés (jamais pour les j'aime)."),
   saved: B('Saved', 'Enregistré'),
   own: B('Your own messages cannot be liked: points measure the help given to others.', "Vos propres messages ne peuvent pas être aimés : les points mesurent l'aide apportée aux autres."),
   noPosts: B('No post yet.', 'Aucune publication pour le moment.'),

@@ -104,7 +104,7 @@ export function fetchFeed(opts: { cat?: string; q?: string; cursor?: string | nu
 export const fetchPost = (id: string) =>
   call<{ post: CPost; comments: CComment[] }>(`/api/community?action=post&id=${encodeURIComponent(id)}`)
 
-export interface MeData { handle: string; name: string; bio: string; points: number; level: number }
+export interface MeData { handle: string; name: string; bio: string; points: number; level: number; emailNotify?: boolean }
 export const fetchMe = () => call<{ member: MeData | null; admin: boolean }>('/api/community?action=me')
 
 export function fetchMembers(page = 0, q = '') {
@@ -116,9 +116,9 @@ export const fetchMember = (handle: string) =>
   call<{ member: CMember & { posts: number; comments: number; me: boolean }; posts: CPost[] }>(`/api/community?action=member&id=${encodeURIComponent(handle)}`)
 export const fetchLeaderboard = () =>
   call<{ week: BoardRow[]; month: BoardRow[]; all: BoardRow[]; me: { points: number; level: number; next: number | null } | null }>('/api/community?action=leaderboard')
-export const editProfile = (p: { name: string; bio: string }) => post<{ member: { name: string; bio: string } }>('profile', p)
+export const editProfile = (p: { name: string; bio: string; emailNotify?: boolean; lang?: string }) => post<{ member: { name: string; bio: string } }>('profile', p)
 
-export const joinCommunity = (name: string) => post<{ member: { name: string } }>('join', { name })
+export const joinCommunity = (name: string, lang: string) => post<{ member: { name: string } }>('join', { name, lang })
 export const createPost = (p: { category: CommunityCategory; title: string; body: string; poll?: string[] }) => post<{ id: string }>('post', p)
 export const votePoll = (postId: string, option: number) => post<{ poll: PollView }>('vote', { postId, option })
 export const createComment = (c: { postId: string; parentId?: string | null; body: string }) => post<{ id: string }>('comment', c)

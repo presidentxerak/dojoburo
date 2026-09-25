@@ -22,6 +22,7 @@ import { allow as rateAllow } from './_lib/ratelimit.js'
 import { verifyPrivyToken, privyEnabled } from './_lib/authz.js'
 import { verifiedEmailOf, canVerifyEmail } from './_lib/privyUser.js'
 import { ADMIN_EMAILS } from './_lib/admins.js'
+import { brevoConfigured, sendEmail, layout, esc, siteUrl } from './_lib/brevo.js'
 import {
   LIMITS, RATES, isId, isCategory, validateName, validateBio, validatePost, validateComment, cleanQuery,
   encodeCursor, decodeCursor, serializePost, serializeComment, serializeMember, levelOfPoints,
@@ -194,11 +195,11 @@ async function onePost(res: ServerResponse, url: URL, me: string | null) {
 async function whoAmI(res: ServerResponse, me: string) {
   // ÊTRE VU · « en ligne » dans la liste des membres vient de là.
   const r = await getPool().query(
-    'update community_members set last_seen_at = now() where did = $1 returning handle, name, bio, points', [me])
+    'update community_members set last_seen_at = now() where did = $1 returning handle, name, bio, points, email_notify', [me])
   const m = r.rows[0]
   return send(res, 200, {
     ok: true,
-    member: m ? { handle: m.handle, name: m.name, bio: m.bio, points: m.points, level: levelOfPoints(m.points).level } : null,
+    member: m ? { handle: m.handle, name: m.name, bio: m.bio, points: m.points, level: levelOfPoints(m.points).level, emailNotify: m.email_notify } : null,
     admin: await isAdmin(me),
   })
 }
@@ -293,6 +294,53 @@ async function notify(did: string, kind: NotificationKind, actor: string, postId
       [did, kind, actor, postId],
     )
   } catch { /* une notification manquée ne fait pas échouer le geste */ }
+  // L'E-MAIL · pour ce qui appelle une réponse (un commentaire, une réponse,
+  // une mention), jamais pour un j'aime.
+  if (kind === 'comment' || kind === 'reply' || kind === 'mention') await mailNotification(did, kind, actor, postId)
+}
+
+/** UN E-MAIL DE NOTIFICATION · seulement si le membre ne les a pas coupés, si
+ *  Brevo est branché et si Privy peut donner son adresse vérifiée. Six au plus
+ *  par heure et par membre : au-delà, la cloche suffit. */
+async function mailNotification(did: string, kind: 'comment' | 'reply' | 'mention' | 'message', actor: string, postId: string | null) {
+  if (!brevoConfigured() || !canVerifyEmail()) return
+  try {
+    const pool = getPool()
+    const r = await pool.query(
+      `select m.email_notify, m.lang, m.handle, a.name as actor_name,
+              (select title from community_posts where id = $3) as post_title
+         from community_members m, community_members a where m.did = $1 and a.did = $2`,
+      [did, actor, postId],
+    )
+    const row = r.rows[0]
+    if (!row || !row.email_notify) return
+    if (!(await rateAllow(`community:mail:${did}`, 6, 60 * 60 * 1000))) return
+    const email = await verifiedEmailOf(did)
+    if (!email) return
+    const fr = row.lang !== 'en'
+    const who = esc(String(row.actor_name))
+    const title = row.post_title ? esc(String(row.post_title)) : ''
+    const site = siteUrl()
+    const href = kind === 'message' ? `${site}/clan/messages` : `${site}/clan/p/${postId}`
+    const what = {
+      comment: fr ? `${who} a commenté votre publication` : `${who} commented on your post`,
+      reply: fr ? `${who} a répondu à votre commentaire` : `${who} replied to your comment`,
+      mention: fr ? `${who} vous a mentionné` : `${who} mentioned you`,
+      message: fr ? `${who} vous a écrit un message privé` : `${who} sent you a private message`,
+    }[kind]
+    await sendEmail({
+      to: email,
+      subject: fr ? `${String(row.actor_name)} dans la communauté DojoBuro` : `${String(row.actor_name)} in the DojoBuro community`,
+      html: layout({
+        title: what,
+        lines: title ? [fr ? `Publication : « ${title} »` : `Post: “${title}”`] : [],
+        cta: { label: fr ? 'Voir dans la communauté' : 'See it in the community', href },
+        foot: fr
+          ? `Vous recevez cet e-mail parce que les notifications par e-mail sont activées sur votre profil de membre. <a href="${site}/clan/m/${row.handle}" style="color:#6b5f8a">Les désactiver</a>.`
+          : `You receive this email because email notifications are on in your member profile. <a href="${site}/clan/m/${row.handle}" style="color:#6b5f8a">Turn them off</a>.`,
+      }),
+    })
+  } catch { /* un e-mail manqué ne fait pas échouer le geste */ }
 }
 
 async function unread(res: ServerResponse, me: string) {
@@ -393,6 +441,8 @@ async function sendMessage(res: ServerResponse, me: string, body: unknown) {
   if (!to) return send(res, 404, { ok: false, error: 'not_found' })
   if (to === me) return send(res, 400, { ok: false, error: 'self' })
   const r = await pool.query('insert into community_messages (from_did, to_did, body) values ($1, $2, $3) returning id', [me, to, v.body])
+  // UN E-MAIL PAR CONVERSATION ET PAR DEMI-HEURE · pas un par message.
+  if (await rateAllow(`community:mailpair:${me}:${to}`, 1, 30 * 60 * 1000)) await mailNotification(to, 'message', me, null)
   return send(res, 200, { ok: true, id: r.rows[0].id })
 }
 
@@ -437,12 +487,15 @@ async function deleteEvent(res: ServerResponse, me: string, body: unknown) {
 }
 
 async function editProfile(res: ServerResponse, me: string, body: unknown) {
-  const b = (body || {}) as { name?: unknown; bio?: unknown }
+  const b = (body || {}) as { name?: unknown; bio?: unknown; emailNotify?: unknown; lang?: unknown }
   const name = validateName(b.name)
   if (typeof name !== 'string') return send(res, 400, { ok: false, error: 'name' })
   const bio = validateBio(b.bio ?? '')
   if (typeof bio !== 'string') return send(res, 400, { ok: false, error: 'bio' })
-  const r = await getPool().query('update community_members set name = $2, bio = $3 where did = $1 returning handle', [me, name, bio])
+  const r = await getPool().query(
+    `update community_members set name = $2, bio = $3,
+        email_notify = coalesce($4, email_notify), lang = coalesce($5, lang) where did = $1 returning handle`,
+    [me, name, bio, typeof b.emailNotify === 'boolean' ? b.emailNotify : null, b.lang === 'en' || b.lang === 'fr' ? b.lang : null])
   if (!r.rows[0]) return send(res, 409, { ok: false, error: 'join' })
   return send(res, 200, { ok: true, member: { name, bio } })
 }
@@ -462,10 +515,11 @@ async function memberName(me: string): Promise<string | null> {
 async function join(res: ServerResponse, me: string, body: unknown) {
   const name = validateName((body as { name?: unknown })?.name)
   if (typeof name !== 'string') return send(res, 400, { ok: false, error: 'name' })
+  const lang = (body as { lang?: unknown })?.lang === 'en' ? 'en' : 'fr'
   await getPool().query(
-    `insert into community_members (did, name) values ($1, $2)
-       on conflict (did) do update set name = excluded.name, last_seen_at = now()`,
-    [me, name],
+    `insert into community_members (did, name, lang) values ($1, $2, $3)
+       on conflict (did) do update set name = excluded.name, lang = excluded.lang, last_seen_at = now()`,
+    [me, name, lang],
   )
   return send(res, 200, { ok: true, member: { name } })
 }
