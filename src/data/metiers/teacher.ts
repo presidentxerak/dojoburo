@@ -778,7 +778,7 @@ const ENRICH: Record<string, Enrichment> = {
         B('The message contains exactly one request to the parents', "Le message contient exactement une demande aux parents"),
         B('No word in it labels the child', "Aucun mot n'y pose d'étiquette sur l'enfant"),
       ],
-      bonus: B('Ask for the same message rewritten for parents who read French or English with difficulty: short sentences, common words. Check that no fact changed in the simpler version.',
+      bonus: B('Ask for the same message rewritten for parents who find the school language hard to read: short sentences, common words. Check that no fact changed in the simpler version.',
         "Demandez le même message réécrit pour des parents qui lisent difficilement le français : phrases courtes, mots courants. Vérifiez qu'aucun fait n'a changé dans la version simplifiée."),
     },
     more: [
