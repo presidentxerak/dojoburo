@@ -11,7 +11,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { getPool, dbConfigured } from './_lib/db.js'
 import { originAllowed } from './_lib/origin.js'
 import { allow as rateAllow } from './_lib/ratelimit.js'
-import { parseSignup, tokenMatches } from './_lib/newsletter.js'
+import { parseSignup, tokenMatches, unsubscribeToken } from './_lib/newsletter.js'
+import { brevoConfigured, subscribeContact, unsubscribeContact, sendEmail, layout, siteUrl } from './_lib/brevo.js'
 import { createHash } from 'node:crypto'
 
 export const config = { maxDuration: 10 }
@@ -41,6 +42,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         'update newsletter_contacts set newsletter = false, unsubscribed_at = now(), updated_at = now() where email = $1',
         [email],
       )
+      // BREVO AUSSI · la liste de la newsletter vit chez Brevo.
+      await unsubscribeContact(email)
       return send(res, 200, { ok: true, unsubscribed: true })
     }
 
@@ -57,7 +60,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     // UN CONSENTEMENT DONNÉ N'EST PAS RETIRÉ PAR UN FORMULAIRE SANS CASE · seul
     // le lien de désinscription le retire. Un nouveau consentement efface une
     // désinscription passée.
-    await getPool().query(
+    const up = await getPool().query(
       `insert into newsletter_contacts (email, lang, source, newsletter, consent_at)
          values ($1, $2, $3, $4, case when $4 then now() end)
        on conflict (email) do update set
@@ -65,13 +68,58 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
          newsletter = newsletter_contacts.newsletter or excluded.newsletter,
          consent_at = case when excluded.newsletter then now() else newsletter_contacts.consent_at end,
          unsubscribed_at = case when excluded.newsletter then null else newsletter_contacts.unsubscribed_at end,
-         updated_at = now()`,
+         updated_at = now()
+       returning (xmax = 0) as inserted`,
       [s.email, s.lang, s.source, s.newsletter],
     )
+    // BREVO · la liste seulement avec la case cochée ; la bienvenue une fois,
+    // à la première inscription (c'est le service demandé, pas de la
+    // prospection). Ni l'un ni l'autre ne retient la réponse s'il échoue.
+    if (brevoConfigured()) {
+      const jobs: Promise<boolean>[] = []
+      if (s.newsletter) jobs.push(subscribeContact(s.email, s.lang, s.source))
+      if (up.rows[0]?.inserted) jobs.push(sendEmail(welcomeEmail(s.email, s.lang)))
+      await Promise.allSettled(jobs)
+    }
     return send(res, 200, { ok: true, newsletter: s.newsletter })
   } catch {
     return send(res, 500, { ok: false, error: 'server' })
   }
+}
+
+/** L'e-mail de bienvenue · le lien de la formation gratuite, et de quoi se
+ *  désinscrire de la newsletter si l'on s'y est inscrit. */
+function welcomeEmail(email: string, lang: 'fr' | 'en') {
+  const site = siteUrl()
+  const start = `${site}/dojo/weekend`
+  const out = `${site}/newsletter/desinscription?email=${encodeURIComponent(email)}&token=${encodeURIComponent(unsubscribeToken(email, SECRET))}`
+  return lang === 'fr'
+    ? {
+        to: email,
+        subject: "Votre week-end de l'IA commence ici",
+        html: layout({
+          title: "Bienvenue dans le week-end de l'IA",
+          lines: [
+            "Vos sept leçons gratuites sont ouvertes. Chacune prend quelques minutes et se termine par un exercice à réaliser dans votre propre outil d'IA.",
+            "Commencez par la première : vous y apprendrez les mots de l'IA que tout le monde emploie sans jamais les définir.",
+          ],
+          cta: { label: 'Commencer la première leçon', href: start },
+          foot: `Vous recevez cet e-mail parce que cette adresse a été donnée sur DojoBuro pour ouvrir la formation gratuite. Newsletter : <a href="${out}" style="color:#6b5f8a">se désinscrire</a>.`,
+        }),
+      }
+    : {
+        to: email,
+        subject: 'Your AI weekend starts here',
+        html: layout({
+          title: 'Welcome to the AI weekend',
+          lines: [
+            'Your seven free lessons are open. Each takes a few minutes and ends with an exercise in your own AI tool.',
+            'Start with the first one: the AI words everyone uses without ever defining them.',
+          ],
+          cta: { label: 'Start the first lesson', href: start },
+          foot: `You receive this email because this address was given on DojoBuro to open the free training. Newsletter: <a href="${out}" style="color:#6b5f8a">unsubscribe</a>.`,
+        }),
+      }
 }
 
 function header(req: IncomingMessage, name: string): string {

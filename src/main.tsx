@@ -39,6 +39,7 @@ import { usePath, useHashAnchor } from './lib/router'
 import { DojosPage } from './game/Dojos'
 import { PackPage } from './game/PackPage'
 import { PromoPage } from './game/Promo'
+import { UnsubscribePage } from './game/Unsubscribe'
 // NOMMÉE AUTREMENT ICI · « LessonPage » est déjà le nom de la leçon de
 // l'académie, importée plus haut. Deux choses différentes sous le même nom
 // dans la même portée est la façon la plus discrète de casser une page.
@@ -208,6 +209,7 @@ function Root() {
   // formation gratuite » (voir game/Promo). L'ancienne brochure du studio
   // reste servie à part, pour ses pages liées et ses épreuves.
   if (path === '/decouvrir') return <PromoPage />
+  if (path === '/newsletter/desinscription') return <UnsubscribePage />
   if (path === '/decouvrir-studio') return <Landing enter={() => { location.hash = 'app' }} />
 
   // ---- public · no gate ----------------------------------------------------

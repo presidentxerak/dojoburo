@@ -12157,3 +12157,4 @@ h2.cy-post-title { font-size: 24px !important; }
   .cy-dm-list { box-shadow: none; }
   .cy-dm-back { display: inline; }
 }
+.promo-main.unsub { min-height: 70vh; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 8px; max-width: 640px; }

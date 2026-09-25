@@ -51,5 +51,16 @@ ok('le formulaire est dans le héros', /<section className="promo-hero" id="comm
 ok('l\'envoi ouvre la première leçon, sans attendre le serveur', /giveEmail\(v\)\n\s*void sendSignup\(v, news, source\)\n\s*navigate\(FIRST_LESSON\)/.test(PROMO))
 ok('la newsletter y est aussi une case à part, non cochée', /const \[news, setNews\] = useState\(false\)/.test(PROMO))
 ok('le programme gratuit se lit en entier', /DISCOVERY_MODULE\.levels\.map/.test(PROMO))
+// BREVO · « On utilise Brevo ». La liste de la newsletter seulement avec la
+// case cochée ; la bienvenue une seule fois ; la désinscription répercutée.
+const BREVO = readFileSync('api/_lib/brevo.ts', 'utf8')
+ok('la liste Brevo seulement avec la case cochée', /if \(s\.newsletter\) jobs\.push\(subscribeContact\(/.test(API))
+ok('la bienvenue une seule fois, à la première inscription', /returning \(xmax = 0\) as inserted/.test(API) && /if \(up\.rows\[0\]\?\.inserted\) jobs\.push\(sendEmail\(welcomeEmail/.test(API))
+ok('la désinscription part aussi chez Brevo', /await unsubscribeContact\(email\)/.test(API))
+ok('la bienvenue porte un lien de désinscription signé', /newsletter\/desinscription\?email=.*token=/.test(API) && /'\/newsletter\/desinscription'/.test(MAIN))
+ok('sans clé Brevo, rien ne part et rien ne casse', /if \(!key\) return false/.test(BREVO) && /if \(brevoConfigured\(\)\)/.test(API))
+ok('un e-mail n\'insère jamais un texte brut', /export function esc/.test(BREVO))
+ok('la clé Brevo reste côté serveur', !/BREVO_API_KEY/.test(readFileSync('src/lib/newsletter.ts', 'utf8')))
+
 console.log('\ntest-newsletter')
 process.exitCode = fails ? 1 : 0
