@@ -312,13 +312,13 @@ function Composer({ me, onPosted }: { me: Me; onPosted: () => void }) {
 }
 
 function JoinForm({ onJoined }: { onJoined: () => void }) {
-  const { s } = useSay()
+  const { s, lang } = useSay()
   const [name, setName] = useState('')
   const [error, setError] = useState<CError | null>(null)
   return (
     <form className="cy-card cy-join" onSubmit={async (e) => {
       e.preventDefault()
-      const r = await joinCommunity(name)
+      const r = await joinCommunity(name, lang)
       if (!r.ok) { setError(r.error); return }
       onJoined()
     }}>
@@ -1064,7 +1064,7 @@ function MemberView({ handle, me }: { handle: string; me: Me }) {
           {!m.me && me.signedIn && me.name && <Lnk className="gm-cta" href={`/clan/messages/${m.handle}`}>{s(CT.writeTo)}</Lnk>}
         </div>
       </div>
-      {m.me && editing && <ProfileForm initial={{ name: m.name, bio: m.bio }} onDone={() => { setEditing(false); load(); me.refresh() }} />}
+      {m.me && editing && <ProfileForm initial={{ name: m.name, bio: m.bio, emailNotify: me.data?.emailNotify ?? true }} onDone={() => { setEditing(false); load(); me.refresh() }} />}
       <h3 className="cy-h3">{s(CT.profilePosts)}</h3>
       {data.posts.length === 0 && <p className="cy-empty">{s(CT.noPosts)}</p>}
       <div className="cy-list">
@@ -1074,15 +1074,16 @@ function MemberView({ handle, me }: { handle: string; me: Me }) {
   )
 }
 
-function ProfileForm({ initial, onDone }: { initial: { name: string; bio: string }; onDone: () => void }) {
-  const { s } = useSay()
+function ProfileForm({ initial, onDone }: { initial: { name: string; bio: string; emailNotify: boolean }; onDone: () => void }) {
+  const { s, lang } = useSay()
   const [name, setName] = useState(initial.name)
   const [bio, setBio] = useState(initial.bio)
+  const [mail, setMail] = useState(initial.emailNotify)
   const [error, setError] = useState<CError | null>(null)
   return (
     <form className="cy-card cy-compose" onSubmit={async (e) => {
       e.preventDefault()
-      const r = await editProfile({ name, bio })
+      const r = await editProfile({ name, bio, emailNotify: mail, lang })
       if (!r.ok) { setError(r.error); return }
       onDone()
     }}>
@@ -1090,6 +1091,10 @@ function ProfileForm({ initial, onDone }: { initial: { name: string; bio: string
         minLength={COMMUNITY_LIMITS.name.min} maxLength={COMMUNITY_LIMITS.name.max} required />
       <textarea className="cy-inp" rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder={s(CT.bio)} aria-label={s(CT.bio)}
         maxLength={COMMUNITY_LIMITS.bio.max} />
+      <label className="ae-news">
+        <input type="checkbox" checked={mail} onChange={(e) => setMail(e.target.checked)} />
+        <span>{s(CT.emailNotify)}</span>
+      </label>
       {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
       <div className="cy-compose-acts">
         <button type="button" className="cc-btn cc-slate" onClick={onDone}>{s(CT.cancel)}</button>

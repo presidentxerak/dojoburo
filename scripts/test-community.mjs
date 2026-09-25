@@ -159,6 +159,15 @@ ok('on ne modifie qu\'un texte qu\'on voit en entier', /full && p\.mine && <butt
   ok('le client range et relit les mentions', /export function encodeMentions/.test(client) && /export function decodeMentions/.test(client) && !!rc)
 }
 
+/* --- 5h · les notifications par e-mail (Brevo) ------------------------------ */
+ok('un e-mail pour ce qui appelle une réponse, jamais pour un j\'aime', /if \(kind === 'comment' \|\| kind === 'reply' \|\| kind === 'mention'\) await mailNotification/.test(api))
+ok('seulement si le membre ne les a pas coupées', /if \(!row \|\| !row\.email_notify\) return/.test(api) && /email_notify boolean not null default true/.test(sql))
+ok('six au plus par heure et par membre', /community:mail:\$\{did\}`, 6, 60 \* 60 \* 1000/.test(api))
+ok('un message privé : un e-mail par conversation et par demi-heure', /community:mailpair:\$\{me\}:\$\{to\}`, 1, 30 \* 60 \* 1000/.test(api))
+ok('les noms et titres sont échappés dans l\'e-mail', /const who = esc\(/.test(api) && /esc\(String\(row\.post_title\)\)/.test(api))
+ok('l\'adresse vient de Privy, jamais de la base de la communauté', /verifiedEmailOf\(did\)/.test(api) && !/email\s+text/.test(sql.split('LOT 7')[1] || ''))
+ok('le membre coupe les e-mails depuis son profil', /setMail\(e\.target\.checked\)/.test(page))
+
 /* --- 6 · les morsures ---------------------------------------------------- */
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))
 ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(title\\) between 3 and 120').test('char_length(title) between 3 and 200'))
