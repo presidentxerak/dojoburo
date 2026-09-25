@@ -25,7 +25,7 @@ import { ADMIN_EMAILS } from './_lib/admins.js'
 import {
   LIMITS, RATES, isId, isCategory, validateName, validateBio, validatePost, validateComment, cleanQuery,
   encodeCursor, decodeCursor, serializePost, serializeComment, serializeMember, levelOfPoints,
-  validateEvent, serializeEvent,
+  validateEvent, serializeEvent, validateMessage, shouldNotify, type NotificationKind,
   type PostRow, type CommentRow, type MemberRow, type EventRow,
 } from './_lib/community.js'
 
@@ -69,6 +69,14 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       if (action === 'member') return await oneMember(res, url, me)
       if (action === 'leaderboard') return await leaderboard(res, me)
       if (action === 'events') return await events(res, url)
+      if (action === 'unread' || action === 'notifications' || action === 'conversations' || action === 'messages') {
+        if (!privyEnabled()) return send(res, 503, { ok: false, error: 'not_configured', detail: 'auth' })
+        if (!me) return send(res, 401, { ok: false, error: 'auth' })
+        if (action === 'unread') return await unread(res, me)
+        if (action === 'notifications') return await notifications(res, me)
+        if (action === 'conversations') return await conversations(res, me)
+        return await thread(res, url, me)
+      }
       if (action === 'me') {
         if (!privyEnabled()) return send(res, 503, { ok: false, error: 'not_configured', detail: 'auth' })
         if (!me) return send(res, 401, { ok: false, error: 'auth' })
@@ -87,6 +95,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (action === 'join') return await join(res, me, body)
     if (action === 'profile') return await editProfile(res, me, body)
     if (action === 'event') return await createEvent(res, me, body)
+    if (action === 'notifications-read') return await markRead(res, me)
+    if (action === 'message') return await sendMessage(res, me, body)
     if (action === 'event-delete') return await deleteEvent(res, me, body)
     if (action === 'post') return await createPost(res, me, body)
     if (action === 'comment') return await createComment(res, me, body)
@@ -267,6 +277,119 @@ async function leaderboard(res: ServerResponse, me: string | null) {
   })
 }
 
+/* ---- les notifications et les messages ----------------------------------------- */
+
+async function notify(did: string, kind: NotificationKind, actor: string, postId: string | null) {
+  if (!shouldNotify(did, actor)) return
+  try {
+    await getPool().query(
+      'insert into community_notifications (did, kind, actor_did, post_id) values ($1, $2, $3, $4)',
+      [did, kind, actor, postId],
+    )
+  } catch { /* une notification manquée ne fait pas échouer le geste */ }
+}
+
+async function unread(res: ServerResponse, me: string) {
+  const r = await getPool().query(
+    `select (select count(*)::int from community_notifications where did = $1 and read_at is null) as notifications,
+            (select count(*)::int from community_messages where to_did = $1 and read_at is null) as messages`,
+    [me],
+  )
+  return send(res, 200, { ok: true, notifications: r.rows[0]?.notifications ?? 0, messages: r.rows[0]?.messages ?? 0 })
+}
+
+async function notifications(res: ServerResponse, me: string) {
+  const r = await getPool().query(
+    `select n.id, n.kind, n.created_at, n.read_at, n.post_id, a.name as actor_name, a.handle as actor_handle, p.title as post_title
+       from community_notifications n
+       join community_members a on a.did = n.actor_did
+       left join community_posts p on p.id = n.post_id
+      where n.did = $1 order by n.created_at desc limit 40`,
+    [me],
+  )
+  return send(res, 200, {
+    ok: true,
+    notifications: r.rows.map((x) => ({
+      id: x.id, kind: x.kind, createdAt: x.created_at.toISOString(), read: !!x.read_at, postId: x.post_id,
+      postTitle: x.post_title ?? null, actor: { name: x.actor_name, handle: x.actor_handle },
+    })),
+  })
+}
+
+async function markRead(res: ServerResponse, me: string) {
+  await getPool().query('update community_notifications set read_at = now() where did = $1 and read_at is null', [me])
+  return send(res, 200, { ok: true, read: true })
+}
+
+/** Les conversations · une par interlocuteur, la plus récente d'abord. */
+async function conversations(res: ServerResponse, me: string) {
+  const r = await getPool().query(
+    `select distinct on (other) other, body, created_at, from_did
+       from (select case when from_did = $1 then to_did else from_did end as other, body, created_at, from_did
+               from community_messages where from_did = $1 or to_did = $1) t
+      order by other, created_at desc`,
+    [me],
+  )
+  const others = r.rows.map((x) => x.other)
+  const names = others.length
+    ? await getPool().query('select did, name, handle, points from community_members where did = any($1)', [others])
+    : { rows: [] as { did: string; name: string; handle: string; points: number }[] }
+  const unreadBy = await getPool().query(
+    'select from_did, count(*)::int as n from community_messages where to_did = $1 and read_at is null group by from_did', [me])
+  const byDid = new Map(names.rows.map((x) => [x.did, x]))
+  const unreadMap = new Map(unreadBy.rows.map((x) => [x.from_did, x.n]))
+  const list = r.rows
+    .map((x) => {
+      const m = byDid.get(x.other)
+      if (!m) return null
+      return {
+        with: { name: m.name, handle: m.handle, level: levelOfPoints(m.points).level },
+        last: x.body.length > 120 ? `${x.body.slice(0, 120)}...` : x.body,
+        lastAt: x.created_at.toISOString(),
+        mineLast: x.from_did === me,
+        unread: unreadMap.get(x.other) ?? 0,
+      }
+    })
+    .filter(Boolean)
+    .sort((a, b) => (a!.lastAt < b!.lastAt ? 1 : -1))
+  return send(res, 200, { ok: true, conversations: list })
+}
+
+async function thread(res: ServerResponse, url: URL, me: string) {
+  const handle = url.searchParams.get('with')
+  if (!isId(handle)) return send(res, 400, { ok: false, error: 'member' })
+  const pool = getPool()
+  const o = await pool.query('select did, name, handle, points from community_members where handle = $1', [handle])
+  const other = o.rows[0]
+  if (!other) return send(res, 404, { ok: false, error: 'not_found' })
+  const r = await pool.query(
+    `select id, from_did, body, created_at from community_messages
+      where (from_did = $1 and to_did = $2) or (from_did = $2 and to_did = $1)
+      order by created_at desc limit 100`,
+    [me, other.did],
+  )
+  await pool.query('update community_messages set read_at = now() where to_did = $1 and from_did = $2 and read_at is null', [me, other.did])
+  return send(res, 200, {
+    ok: true,
+    with: { name: other.name, handle: other.handle, level: levelOfPoints(other.points).level },
+    messages: r.rows.reverse().map((x) => ({ id: x.id, mine: x.from_did === me, body: x.body, createdAt: x.created_at.toISOString() })),
+  })
+}
+
+async function sendMessage(res: ServerResponse, me: string, body: unknown) {
+  if (!(await memberName(me))) return send(res, 409, { ok: false, error: 'join' })
+  const v = validateMessage(body)
+  if ('error' in v) return send(res, 400, { ok: false, error: v.error })
+  if (!(await limited('message', me))) return send(res, 429, { ok: false, error: 'rate' })
+  const pool = getPool()
+  const o = await pool.query('select did from community_members where handle = $1', [v.to])
+  const to = o.rows[0]?.did as string | undefined
+  if (!to) return send(res, 404, { ok: false, error: 'not_found' })
+  if (to === me) return send(res, 400, { ok: false, error: 'self' })
+  const r = await pool.query('insert into community_messages (from_did, to_did, body) values ($1, $2, $3) returning id', [me, to, v.body])
+  return send(res, 200, { ok: true, id: r.rows[0].id })
+}
+
 /* ---- le calendrier ----------------------------------------------------------- */
 
 /** Les événements d'une période · par défaut, de 7 jours en arrière à 120
@@ -374,6 +497,17 @@ async function createComment(res: ServerResponse, me: string, body: unknown) {
     [v.postId, parent, me, v.body],
   )
   await pool.query('update community_posts set comments = comments + 1, last_activity_at = now() where id = $1', [v.postId])
+  // PRÉVENIR · l'auteur de la publication, et celui du commentaire auquel on
+  // répond (une seule fois s'il s'agit de la même personne).
+  const owner = await pool.query('select author_did from community_posts where id = $1', [v.postId])
+  const postAuthor = owner.rows[0]?.author_did as string | undefined
+  let parentAuthor: string | undefined
+  if (parent) {
+    const pa = await pool.query('select author_did from community_comments where id = $1', [parent])
+    parentAuthor = pa.rows[0]?.author_did
+  }
+  if (parentAuthor) await notify(parentAuthor, 'reply', me, v.postId)
+  if (postAuthor && postAuthor !== parentAuthor) await notify(postAuthor, 'comment', me, v.postId)
   return send(res, 200, { ok: true, id: r.rows[0].id })
 }
 
@@ -404,6 +538,12 @@ async function toggleLike(res: ServerResponse, me: string, body: unknown) {
     if (ins.rowCount) {
       await pool.query(`update ${table} set likes = likes + 1 where id = $1`, [b.id])
       await pool.query('update community_members set points = points + 1 where did = $1', [author])
+      let postId = b.id as string
+      if (type === 'comment') {
+        const c = await pool.query('select post_id from community_comments where id = $1', [b.id])
+        postId = c.rows[0]?.post_id
+      }
+      await notify(author, type === 'post' ? 'like_post' : 'like_comment', me, postId)
     }
   }
   const n = await pool.query(`select likes from ${table} where id = $1`, [b.id])

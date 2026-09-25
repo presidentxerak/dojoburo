@@ -93,3 +93,33 @@ create table if not exists community_events (
   created_at   timestamptz not null default now()
 );
 create index if not exists community_events_start_idx on community_events (starts_at) where not deleted;
+
+-- ---------------------------------------------------------------------------
+-- LOT 4 · LES NOTIFICATIONS ET LES MESSAGES PRIVÉS.
+--
+-- Une notification naît d'un geste d'un autre membre (un commentaire sur ma
+-- publication, une réponse à mon commentaire, un j'aime) ; jamais de moi vers
+-- moi. Les messages privés vont d'un membre à un autre ; la conversation est
+-- la paire des deux comptes, rangée dans l'ordre pour n'en faire qu'une.
+create table if not exists community_notifications (
+  id           uuid primary key default gen_random_uuid(),
+  did          text not null references community_members(did) on delete cascade,
+  kind         text not null check (kind in ('comment', 'reply', 'like_post', 'like_comment')),
+  actor_did    text not null references community_members(did) on delete cascade,
+  post_id      uuid references community_posts(id) on delete cascade,
+  created_at   timestamptz not null default now(),
+  read_at      timestamptz
+);
+create index if not exists community_notifications_did_idx on community_notifications (did, created_at desc);
+
+create table if not exists community_messages (
+  id           uuid primary key default gen_random_uuid(),
+  from_did     text not null references community_members(did) on delete cascade,
+  to_did       text not null references community_members(did) on delete cascade,
+  body         text not null check (char_length(body) between 1 and 2000),
+  created_at   timestamptz not null default now(),
+  read_at      timestamptz,
+  check (from_did <> to_did)
+);
+create index if not exists community_messages_pair_idx on community_messages (least(from_did, to_did), greatest(from_did, to_did), created_at desc);
+create index if not exists community_messages_to_idx on community_messages (to_did, read_at);

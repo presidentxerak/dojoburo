@@ -13,6 +13,7 @@ export const COMMUNITY_LIMITS = {
   body: { min: 10, max: 5000 },
   comment: { min: 1, max: 2000 },
   bio: { max: 280 },
+  message: { min: 1, max: 2000 },
 } as const
 
 export interface Author { name: string; key: string; handle?: string | null; level?: number | null }
@@ -147,3 +148,27 @@ export function icsOf(e: CEvent, site: string): string {
     ...(e.link ? [`URL:${e.link}`] : []), 'END:VEVENT', 'END:VCALENDAR',
   ].join('\r\n')
 }
+
+/* ---- les notifications et les messages -------------------------------------- */
+
+export type NotificationKind = 'comment' | 'reply' | 'like_post' | 'like_comment'
+export interface CNotification {
+  id: string
+  kind: NotificationKind
+  createdAt: string
+  read: boolean
+  postId: string | null
+  postTitle: string | null
+  actor: { name: string; handle: string }
+}
+export interface Peer { name: string; handle: string; level: number }
+export interface CConversation { with: Peer; last: string; lastAt: string; mineLast: boolean; unread: number }
+export interface CMessage { id: string; mine: boolean; body: string; createdAt: string }
+
+export const fetchUnread = () => call<{ notifications: number; messages: number }>('/api/community?action=unread')
+export const fetchNotifications = () => call<{ notifications: CNotification[] }>('/api/community?action=notifications')
+export const markNotificationsRead = () => post<{ read: boolean }>('notifications-read', {})
+export const fetchConversations = () => call<{ conversations: CConversation[] }>('/api/community?action=conversations')
+export const fetchThread = (handle: string) =>
+  call<{ with: Peer; messages: CMessage[] }>(`/api/community?action=messages&with=${encodeURIComponent(handle)}`)
+export const sendMessage = (to: string, body: string) => post<{ id: string }>('message', { to, body })

@@ -13,6 +13,8 @@
 //   /clan/classements  les points (j'aime reçus), les niveaux, les podiums
 //   /clan/m/<handle>   le profil public d'un membre
 //   /clan/a-propos     la communauté, ses règles
+//   /clan/notifications, /clan/messages[/<handle>] · la cloche et la
+//                      messagerie privée, pour un compte connecté
 //
 // LIRE EST OUVERT, PARTICIPER DEMANDE UN COMPTE · décidé ainsi. Déconnecté, le
 // champ d'écriture devient un bouton de connexion. Connecté pour la première
@@ -34,6 +36,8 @@ import {
   COMMUNITY_CATEGORIES, COMMUNITY_LIMITS, fetchFeed, fetchPost, fetchMe, joinCommunity, createPost,
   createComment, toggleLike, setPinned, removeItem, fetchMembers, fetchMember, fetchLeaderboard, editProfile,
   LEVEL_POINTS, fetchEvents, createEvent, deleteEvent, icsOf,
+  fetchUnread, fetchNotifications, markNotificationsRead, fetchConversations, fetchThread, sendMessage,
+  type CNotification, type CConversation, type CMessage, type Peer,
   type CEvent, type CPost, type CComment, type CError, type CommunityCategory, type Author, type CMember, type BoardRow, type MeData,
 } from '../lib/community'
 
@@ -66,7 +70,10 @@ export function CommunityPage() {
   const membersTab = path === '/clan/membres'
   const boards = path === '/clan/classements'
   const calendarTab = path === '/clan/calendrier'
-  const feedTab = !about && !membersTab && !boards && !memberId && !calendarTab
+  const notifTab = path === '/clan/notifications'
+  const msgMatch = path.match(/^\/clan\/messages(?:\/([0-9a-f-]{36}))?$/i)
+  const msgTab = !!msgMatch
+  const feedTab = !about && !membersTab && !boards && !memberId && !calendarTab && !notifTab && !msgTab
   const TABS: { href: string; on: boolean; label: Bi }[] = [
     { href: '/clan', on: feedTab, label: CT.tabFeed },
     { href: '/clan/calendrier', on: calendarTab, label: CT.tabCalendar },
@@ -83,16 +90,21 @@ export function CommunityPage() {
     <Shell>
       <section className="gm-sec">
         <h1 className="gm-h1">{s(CT.title)}</h1>
-        <nav className="cy-tabs" aria-label={s(CT.tabs)}>
-          {TABS.map((t) => (
-            <Lnk key={t.href} className={`cy-tab${t.on ? ' on' : ''}`} href={t.href} aria-current={t.on ? 'page' : undefined}>{s(t.label)}</Lnk>
-          ))}
-        </nav>
+        <div className="cy-tabbar">
+          <nav className="cy-tabs" aria-label={s(CT.tabs)}>
+            {TABS.map((t) => (
+              <Lnk key={t.href} className={`cy-tab${t.on ? ' on' : ''}`} href={t.href} aria-current={t.on ? 'page' : undefined}>{s(t.label)}</Lnk>
+            ))}
+          </nav>
+          {me.signedIn && me.name && <Inbox path={path} />}
+        </div>
       </section>
 
       <div className="cy-layout">
         <div className="cy-main">
           {about ? <About />
+            : notifTab ? <Notifications me={me} />
+            : msgTab ? <Messages me={me} peer={msgMatch?.[1] ?? null} />
             : calendarTab ? <Calendar me={me} />
             : membersTab ? <Members />
               : boards ? <Boards me={me} />
@@ -493,6 +505,172 @@ function AboutCard() {
 }
 
 /* ------------------------------------------------------------------ */
+/* LA CLOCHE ET LA MESSAGERIE                                          */
+/* ------------------------------------------------------------------ */
+
+/** LES NON-LUS · relus toutes les minutes tant que la page est visible, et à
+ *  chaque changement d'écran de la communauté. Pas de connexion permanente :
+ *  une minute de retard sur une notification ne coûte rien, un canal ouvert
+ *  pour chaque visiteur coûte cher. */
+function Inbox({ path }: { path: string }) {
+  const { s } = useSay()
+  const [n, setN] = useState({ notifications: 0, messages: 0 })
+  useEffect(() => {
+    let alive = true
+    const tick = () => {
+      if (document.visibilityState !== 'visible') return
+      void fetchUnread().then((r) => { if (alive && r.ok) setN(r.data) })
+    }
+    tick()
+    const id = window.setInterval(tick, 60000)
+    return () => { alive = false; clearInterval(id) }
+  }, [path])
+  return (
+    <div className="cy-inbox">
+      <Lnk className={`cy-inbox-b${path === '/clan/notifications' ? ' on' : ''}`} href="/clan/notifications" aria-label={`${s(CT.notifications)} (${n.notifications})`}>
+        <BauhausIcon name="target" size={18} />
+        {n.notifications > 0 && <i>{n.notifications > 99 ? '99+' : n.notifications}</i>}
+      </Lnk>
+      <Lnk className={`cy-inbox-b${path.startsWith('/clan/messages') ? ' on' : ''}`} href="/clan/messages" aria-label={`${s(CT.messages)} (${n.messages})`}>
+        <BauhausIcon name="envelope" size={18} />
+        {n.messages > 0 && <i>{n.messages > 99 ? '99+' : n.messages}</i>}
+      </Lnk>
+    </div>
+  )
+}
+
+const NOTIF_TEXT: Record<CNotification['kind'], Bi> = {
+  comment: CT.nComment,
+  reply: CT.nReply,
+  like_post: CT.nLikePost,
+  like_comment: CT.nLikeComment,
+}
+
+function Notifications({ me }: { me: Me }) {
+  const { s } = useSay()
+  const [list, setList] = useState<CNotification[] | null>(null)
+  const [error, setError] = useState<CError | null>(null)
+  useEffect(() => {
+    if (!me.signedIn) return
+    void fetchNotifications().then((r) => {
+      if (!r.ok) { setError(r.error); return }
+      setList(r.data.notifications)
+      // LUES EN LES VOYANT · comme partout ailleurs.
+      if (r.data.notifications.some((x) => !x.read)) void markNotificationsRead()
+    })
+  }, [me.signedIn])
+  if (!me.signedIn) return <div className="cy-card"><p className="cy-sub">{s(CT.signInMessages)}</p><button className="gm-cta" onClick={signIn}>{s(CT.signIn)}</button></div>
+  return (
+    <div className="cy-card cy-notifs">
+      <h2 className="pf-h2">{s(CT.notifications)}</h2>
+      {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
+      {list && list.length === 0 && <p className="cy-empty">{s(CT.noNotifications)}</p>}
+      <ul>
+        {(list || []).map((n) => (
+          <li key={n.id} className={n.read ? '' : 'new'}>
+            <Avatar author={{ name: n.actor.name, key: n.actor.handle }} small />
+            <span className="cy-notif-t">
+              <Lnk className="cy-name" href={`/clan/m/${n.actor.handle}`}><b>{n.actor.name}</b></Lnk> {s(NOTIF_TEXT[n.kind])}
+              {n.postId && n.postTitle && <> · <Lnk href={`/clan/p/${n.postId}`}>{n.postTitle}</Lnk></>}
+              <em><TimeAgo iso={n.createdAt} /></em>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function Messages({ me, peer }: { me: Me; peer: string | null }) {
+  const { s } = useSay()
+  const [convs, setConvs] = useState<CConversation[] | null>(null)
+  const [error, setError] = useState<CError | null>(null)
+  const loadConvs = useCallback(() => {
+    void fetchConversations().then((r) => { if (r.ok) setConvs(r.data.conversations); else setError(r.error) })
+  }, [])
+  useEffect(() => { if (me.signedIn) loadConvs() }, [me.signedIn, loadConvs, peer])
+  if (!me.signedIn) return <div className="cy-card"><p className="cy-sub">{s(CT.signInMessages)}</p><button className="gm-cta" onClick={signIn}>{s(CT.signIn)}</button></div>
+  return (
+    <div className={`cy-card cy-dm${peer ? ' has-peer' : ''}`}>
+      <div className="cy-dm-list">
+        <h2 className="pf-h2">{s(CT.messages)}</h2>
+        {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
+        {convs && convs.length === 0 && <p className="cy-sub">{s(CT.noConversations)}</p>}
+        <ul>
+          {(convs || []).map((c) => (
+            <li key={c.with.handle}>
+              <Lnk className={`cy-conv${peer === c.with.handle ? ' on' : ''}`} href={`/clan/messages/${c.with.handle}`}>
+                <Avatar author={{ name: c.with.name, key: c.with.handle, level: c.with.level }} small />
+                <span className="cy-conv-t">
+                  <b>{c.with.name}</b>
+                  <em>{c.mineLast ? `${s(CT.you)} : ` : ''}{c.last}</em>
+                </span>
+                {c.unread > 0 && <i className="cy-conv-n">{c.unread}</i>}
+              </Lnk>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="cy-dm-thread">
+        {peer ? <Thread handle={peer} onSent={loadConvs} /> : <p className="cy-empty">{s(CT.pickConversation)}</p>}
+      </div>
+    </div>
+  )
+}
+
+function Thread({ handle, onSent }: { handle: string; onSent: () => void }) {
+  const { s } = useSay()
+  const [data, setData] = useState<{ with: Peer; messages: CMessage[] } | null>(null)
+  const [body, setBody] = useState('')
+  const [error, setError] = useState<CError | null>(null)
+  const load = useCallback(() => {
+    void fetchThread(handle).then((r) => { if (r.ok) { setData(r.data); setError(null) } else setError(r.error) })
+  }, [handle])
+  useEffect(() => {
+    load()
+    // LA CONVERSATION OUVERTE se relit toutes les quinze secondes.
+    const id = window.setInterval(() => { if (document.visibilityState === 'visible') load() }, 15000)
+    return () => clearInterval(id)
+  }, [load])
+  useEffect(() => {
+    const el = document.querySelector('.cy-bubbles')
+    if (el) el.scrollTop = el.scrollHeight
+  }, [data])
+  return (
+    <>
+      {data && (
+        <header className="cy-dm-head">
+          <Lnk className="cy-dm-back" href="/clan/messages" aria-label={s(CT.messages)}>←</Lnk>
+          <Avatar author={{ name: data.with.name, key: data.with.handle, level: data.with.level }} small />
+          <Lnk className="cy-name" href={`/clan/m/${data.with.handle}`}><b>{data.with.name}</b></Lnk>
+        </header>
+      )}
+      {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
+      <div className="cy-bubbles">
+        {(data?.messages || []).map((m) => (
+          <div key={m.id} className={`cy-bubble${m.mine ? ' mine' : ''}`}>
+            <p>{m.body}</p>
+            <em><TimeAgo iso={m.createdAt} /></em>
+          </div>
+        ))}
+      </div>
+      <form className="cy-dm-form" onSubmit={async (e) => {
+        e.preventDefault()
+        if (!body.trim()) return
+        const r = await sendMessage(handle, body)
+        if (!r.ok) { setError(r.error); return }
+        setBody(''); load(); onSent()
+      }}>
+        <textarea className="cy-inp" rows={2} value={body} onChange={(e) => setBody(e.target.value)} placeholder={s(CT.yourMessage)}
+          aria-label={s(CT.yourMessage)} maxLength={COMMUNITY_LIMITS.message.max}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); (e.currentTarget.form as HTMLFormElement).requestSubmit() } }} />
+        <button className="gm-cta" type="submit">{s(CT.send)}</button>
+      </form>
+    </>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* LE CALENDRIER                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -804,6 +982,7 @@ function MemberView({ handle, me }: { handle: string; me: Me }) {
             <li><b>{m.comments}</b><span>{s(CT.profileComments)}</span></li>
           </ul>
           {m.me && !editing && <button className="cc-btn cc-slate" onClick={() => setEditing(true)}>{s(CT.editProfile)}</button>}
+          {!m.me && me.signedIn && me.name && <Lnk className="gm-cta" href={`/clan/messages/${m.handle}`}>{s(CT.writeTo)}</Lnk>}
         </div>
       </div>
       {m.me && editing && <ProfileForm initial={{ name: m.name, bio: m.bio }} onDone={() => { setEditing(false); load(); me.refresh() }} />}
