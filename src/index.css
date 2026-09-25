@@ -11914,3 +11914,106 @@ html.calm *, html.calm *::before, html.calm *::after {
 .promo-final .promo-form { max-width: 640px; }
 .promo-legal { margin: 40px 0 0; text-align: center; font-size: 13px; color: var(--g-sub); }
 .promo-legal a { color: inherit; text-decoration: underline; }
+
+/* ==================================================================
+   LA COMMUNAUTÉ · le fil à la manière de Skool (voir game/Community). Les
+   jetons du jeu : clair par défaut, sombre au choix.
+   ================================================================== */
+.cy-tabs { display: flex; gap: 4px; margin-top: 10px; box-shadow: inset 0 -2px 0 var(--g-slot); overflow-x: auto; scrollbar-width: none; }
+.cy-tab { padding: 10px 14px; font-family: var(--font-game); font-weight: 800; font-size: 15px; color: var(--g-sub); white-space: nowrap; }
+.cy-tab:hover { color: var(--g-text); }
+.cy-tab.on { color: var(--g-text); box-shadow: inset 0 -3px 0 #7c3aed; }
+
+.cy-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; padding: 16px clamp(12px, 3vw, 28px) 0; align-items: start; }
+.gm-main:has(.cy-layout) { max-width: 1100px; }
+@media (max-width: 899px) { .cy-layout { grid-template-columns: 1fr; } }
+/* SUR TÉLÉPHONE · le fil d'abord (la carte de présentation passe dessous), et
+   les catégories défilent de côté au lieu d'empiler trois lignes. */
+@media (max-width: 639px) {
+  .cy-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; padding-bottom: 2px; }
+  .cy-chips::-webkit-scrollbar { display: none; }
+  .gm button.cy-chip { flex: none; }
+  .cy-search { max-width: none; }
+}
+.cy-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+.cy-card { padding: 16px 18px; border-radius: 18px; background: linear-gradient(180deg, var(--g-card-top), var(--g-card-bot)); box-shadow: var(--g-edge), 0 8px 22px -16px rgba(0, 0, 0, 0.4); color: var(--g-text); }
+.cy-compose-fake { display: flex; align-items: center; gap: 12px; width: 100%; border: 0; text-align: left; cursor: pointer; font: 600 15px var(--font-game); color: var(--g-sub); }
+.cy-compose-fake:hover { color: var(--g-text); }
+.gm .cy-compose-go { margin: 0 0 0 auto; min-height: 38px; padding: 8px 16px; font-size: 14px; }
+.cy-compose-off p { margin: 0; color: var(--g-sub); font-size: 14.5px; }
+.cy-compose, .cy-join { display: flex; flex-direction: column; gap: 10px; }
+.cy-compose-head { display: flex; align-items: center; gap: 10px; }
+.cy-compose-head select { margin-left: auto; padding: 6px 10px; border: 0; border-radius: 10px; font: 700 14px var(--font-game); color: var(--g-text); background: var(--g-slot); }
+.cy-inp { width: 100%; padding: 12px 14px; border: 0; border-radius: 12px; font: 500 15px/1.5 var(--font-game); color: var(--g-text); background: var(--g-slot); box-shadow: var(--g-sunk); resize: vertical; }
+.cy-inp:focus { outline: 2px solid #8b5cf6; outline-offset: 1px; }
+.cy-title-inp { font-weight: 800; font-size: 17px; }
+.cy-compose-acts { display: flex; justify-content: flex-end; gap: 10px; }
+.gm .cy-compose-acts .gm-cta, .gm .cy-compose-acts .cc-btn { margin-top: 0; }
+.cy-join b { font-family: var(--font-game); font-weight: 800; font-size: 17px; }
+.cy-join p { margin: 0; color: var(--g-sub); font-size: 14px; }
+.cy-join-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.cy-join-row .cy-inp { flex: 1 1 200px; }
+.gm .cy-join-row .gm-cta { margin-top: 0; }
+
+.cy-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.cy-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.gm button.cy-chip { padding: 7px 13px; border: 0; border-radius: 999px !important; font: 800 13.5px var(--font-game); color: var(--g-sub); background: var(--g-slot); cursor: pointer; }
+.gm button.cy-chip:hover { color: var(--g-text); }
+.gm button.cy-chip.on { color: #fff; background-color: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.cy-search { display: flex; align-items: center; gap: 8px; flex: 1 1 200px; max-width: 320px; padding: 0 12px; border-radius: 12px; background: var(--g-slot); color: var(--g-sub); }
+.cy-search input { flex: 1; min-width: 0; padding: 10px 0; border: 0; background: transparent; font: 600 14px var(--font-game); color: var(--g-text); }
+.cy-search input:focus { outline: none; }
+
+.cy-list { display: flex; flex-direction: column; gap: 12px; }
+.cy-post.pinned { box-shadow: var(--g-edge), inset 4px 0 0 #7c3aed, 0 8px 22px -16px rgba(0, 0, 0, 0.4); }
+.cy-post-head { display: flex; align-items: center; gap: 10px; }
+.cy-post-who { display: flex; flex-direction: column; min-width: 0; }
+.cy-post-who b { font-family: var(--font-game); font-weight: 800; font-size: 15px; }
+.cy-post-who em { font-style: normal; font-size: 12.5px; color: var(--g-sub); }
+.cy-pin { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font: 800 12px var(--font-game); color: #7c3aed; background: rgba(124, 58, 237, 0.12); }
+.cy-post-title { margin: 10px 0 4px; font-family: var(--font-game); font-weight: 800; font-size: 19px !important; line-height: 1.25; }
+h2.cy-post-title { font-size: 24px !important; }
+.cy-link { padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.cy-link:hover { color: #7c3aed; }
+.cy-post-body { margin: 0; font-size: 15px; line-height: 1.6; color: var(--g-text); white-space: pre-wrap; overflow-wrap: anywhere; }
+.cy-read { margin-top: 4px; font-weight: 800; font-size: 14px; color: #7c3aed; }
+.cy-post-foot { display: flex; align-items: center; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+.cy-grow { flex: 1; }
+.gm button.cy-act { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 0; border-radius: 10px !important; font: 800 13px var(--font-game); color: var(--g-sub); background: transparent; cursor: pointer; }
+.gm button.cy-act:hover { color: var(--g-text); background: var(--g-slot); }
+.gm button.cy-act.on { color: #7c3aed; }
+.gm button.cy-act.danger:hover { color: #dc2626; }
+.gm button.cy-act.sm { padding: 3px 8px; font-size: 12.5px; }
+
+.cy-av { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; font: 800 17px var(--font-game); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.15); }
+.cy-av.sm { width: 32px; height: 32px; font-size: 14px; }
+.cy-av.ghost { background: var(--g-slot); color: var(--g-sub); box-shadow: none; }
+
+.cy-comments { display: flex; flex-direction: column; gap: 14px; }
+.cy-cform { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+.cy-cform .cy-inp { flex: 1 1 240px; }
+.gm .cy-cform .gm-cta { margin-top: 0; min-height: 44px; }
+.cy-thread { display: flex; flex-direction: column; gap: 10px; }
+.cy-replies { display: flex; flex-direction: column; gap: 10px; margin-left: 42px; }
+.cy-com { display: flex; gap: 10px; }
+.cy-com-b { flex: 1; min-width: 0; }
+.cy-com-head { margin: 0; font-size: 14px; }
+.cy-com-head b { font-family: var(--font-game); font-weight: 800; }
+.cy-com-head em { font-style: normal; font-size: 12.5px; color: var(--g-sub); }
+.cy-com-text { margin: 2px 0 0; font-size: 14.5px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cy-com-acts { display: flex; gap: 4px; margin-top: 2px; }
+.cy-com.deleted { font-style: italic; font-size: 13.5px; color: var(--g-sub); margin: 0; }
+
+.cy-err { margin: 0; padding: 10px 14px; border-radius: 12px; font-size: 14px; color: #b91c1c; background: rgba(239, 68, 68, 0.1); }
+:root:not([data-look='light']) .cy-err { color: #fecaca; }
+.cy-empty { margin: 8px 0; text-align: center; color: var(--g-sub); font-size: 15px; }
+.gm .cy-more { align-self: center; }
+
+.cy-aside { display: flex; flex-direction: column; gap: 8px; position: sticky; top: 16px; }
+.cy-aside-t { font-family: var(--font-game); font-weight: 800; font-size: 18px; }
+.cy-free { align-self: flex-start; padding: 3px 10px; border-radius: 999px; font: 800 12px var(--font-game); color: #fff; background: #16a34a; }
+.cy-aside p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--g-sub); }
+.gm .cy-aside .gm-cta { margin-top: 6px; font-size: 15px; }
+.cy-about h3 { margin: 16px 0 6px; font-family: var(--font-game); font-weight: 800; font-size: 18px; }
+.cy-rules { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 1.5; }

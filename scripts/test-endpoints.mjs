@@ -267,6 +267,14 @@ const ENDPOINTS = [
     ['POST', '/api/agent-proxy', '{'],
     ['POST', '/api/agent-proxy', JSON.stringify({ url: 'http://127.0.0.1:1/interne' })],
   ]],
+  // LA COMMUNAUTÉ · lecture ouverte, écriture avec un compte. Sans base, 503.
+  ['community', 'api/community.ts', [
+    ['GET', '/api/community'],
+    ['GET', '/api/community?action=post&id=pas-un-id'],
+    ['GET', '/api/community?action=me'],
+    ['POST', '/api/community?action=post', JSON.stringify({ category: 'general', title: 'Bonjour', body: 'Mon premier message ici.' })],
+    ['POST', '/api/community?action=like', JSON.stringify({ type: 'post', id: '00000000-0000-4000-8000-000000000001' })],
+  ]],
   // LA NEWSLETTER · l'adresse du week-end gratuit et le consentement à part.
   // Sans base, 503 « not_configured » ; jamais un faux succès.
   ['newsletter', 'api/newsletter.ts', [
@@ -322,6 +330,9 @@ console.log('\n--- sans base, personne ne prétend avoir réussi ---------------
     ['clan', 'api/clan.ts', 'POST', '/api/clan?action=bravo', { key: 'k'.repeat(43), id: '00000000-0000-4000-8000-000000000001' }],
     ['clan', 'api/clan.ts', 'POST', '/api/clan?action=report', { key: 'k'.repeat(43), id: '00000000-0000-4000-8000-000000000001' }],
     ['newsletter', 'api/newsletter.ts', 'POST', '/api/newsletter', { email: 'nora@exemple.fr', newsletter: true }],
+    ['community', 'api/community.ts', 'POST', '/api/community?action=join', { name: 'Nora' }],
+    ['community', 'api/community.ts', 'POST', '/api/community?action=post', { category: 'general', title: 'Bonjour', body: 'Mon premier message ici.' }],
+    ['community', 'api/community.ts', 'POST', '/api/community?action=comment', { postId: '00000000-0000-4000-8000-000000000001', body: 'Merci !' }],
     ['profile', 'api/profile.ts', 'PUT', '/api/profile', { data: { v: 1, academy: { done: ['a/b'], answers: {} } } }],
     ['profile', 'api/profile.ts', 'POST', '/api/profile?action=sync', { data: {}, access: { path: true } }],
     ['profile', 'api/profile.ts', 'POST', '/api/profile?action=claim', { session_id: 'cs_test_abc123' }],
