@@ -584,12 +584,19 @@ export const DICT = {
   'd.whatH2': { en: 'The seven days', fr: 'Les sept jours' },
   'd.afterH2': { en: 'And after the week', fr: 'Et après la semaine' },
   'd.seePath': { en: 'See the full path', fr: 'Voir le parcours complet' },
-  'd.ask': { en: "Your email opens the week", fr: "Votre adresse e-mail ouvre la semaine" },
+  'd.ask': { en: "Your email opens the AI weekend", fr: "Votre adresse e-mail ouvre le week-end de l'IA" },
   'd.place': { en: "you@example.com", fr: "vous@exemple.com" },
-  'd.open': { en: "Open my week", fr: "Ouvrir ma semaine" },
+  'd.open': { en: "Start for free", fr: "Commencer gratuitement" },
+  // LE CONSENTEMENT À PART · « la version gratuite sert à l'acquisition de
+  // mails pour la newsletter ». La case n'est pas cochée d'avance et l'accès
+  // gratuit n'en dépend pas : c'est ce que le RGPD exige.
+  'd.news': {
+    en: "Also send me the DojoBuro newsletter: practical AI use cases and what is new on the platform. Unsubscribe in one click.",
+    fr: "Recevoir aussi la newsletter DojoBuro : des cas d'usage concrets de l'IA et les nouveautés de la plateforme. Désinscription en un clic.",
+  },
   'd.fine': {
-    en: 'Kept in this browser. Nothing is sent anywhere, and the seven days open straight away.',
-    fr: "Conservée dans ce navigateur. Rien n'est envoyé, et les sept jours s'ouvrent immédiatement.",
+    en: 'Your address opens the seven lessons straight away and is kept to give you access. The newsletter only if you tick the box.',
+    fr: "Votre adresse ouvre immédiatement les sept leçons et est conservée pour vous en donner l'accès. La newsletter, seulement si vous cochez la case.",
   },
 
   /* --- le profil ---------------------------------------------------------- */

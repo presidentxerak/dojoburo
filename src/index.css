@@ -11813,3 +11813,7 @@ html.calm *, html.calm *::before, html.calm *::after {
 @media (prefers-reduced-motion: reduce) {
   .i3d-strip, .gm-tab .gm-tab-g { animation: none !important; }
 }
+
+/* LA CASE NEWSLETTER · à part, non cochée, lisible. */
+.ae-news { display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; font-size: 14px; line-height: 1.45; color: var(--g-sub); cursor: pointer; }
+.ae-news input { flex: none; width: 20px; height: 20px; margin-top: 1px; accent-color: #7c3aed; cursor: pointer; }
