@@ -51,20 +51,24 @@ export function burst(x: number, y: number, count = 14) {
     const p = document.createElement('i')
     const star = i % 4 === 0
     p.className = star ? 'jz-p jz-star' : 'jz-p'
-    const size = star ? 10 + Math.random() * 6 : 5 + Math.random() * 5
-    p.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;background:${COLORS[i % COLORS.length]}`
+    const size = star ? 13 + Math.random() * 7 : 7 + Math.random() * 5
+    // CENTRÉE PAR SES MARGES · la transformation ne porte que le trajet, sans
+    // calc() : un pourcentage mêlé à des pixels dans une image clé est lu
+    // différemment d'un navigateur à l'autre.
+    p.style.cssText = `left:${x}px;top:${y}px;width:${size}px;height:${size}px;margin:${-size / 2}px 0 0 ${-size / 2}px;background:${COLORS[i % COLORS.length]}`
     host.appendChild(p)
     const a = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.6
-    const d = 34 + Math.random() * 46
-    const dx = Math.cos(a) * d
-    const dy = Math.sin(a) * d - 12
+    const d = 38 + Math.random() * 50
+    const dx = Math.round(Math.cos(a) * d)
+    const dy = Math.round(Math.sin(a) * d - 12)
+    const spin = star ? 180 : 0
     const anim = p.animate(
       [
-        { transform: 'translate(-50%, -50%) scale(0.4) rotate(0deg)', opacity: 1 },
-        { transform: `translate(calc(-50% + ${dx * 0.75}px), calc(-50% + ${dy * 0.75}px)) scale(1) rotate(${star ? 90 : 0}deg)`, opacity: 1, offset: 0.55 },
-        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 18}px)) scale(0.2) rotate(${star ? 180 : 0}deg)`, opacity: 0 },
+        { transform: 'translate(0px, 0px) scale(0.5) rotate(0deg)', opacity: 1 },
+        { transform: `translate(${Math.round(dx * 0.75)}px, ${Math.round(dy * 0.75)}px) scale(1.1) rotate(${spin / 2}deg)`, opacity: 1, offset: 0.55 },
+        { transform: `translate(${dx}px, ${dy + 18}px) scale(0.3) rotate(${spin}deg)`, opacity: 0 },
       ],
-      { duration: 520 + Math.random() * 260, easing: 'cubic-bezier(.2,.7,.3,1)' },
+      { duration: 560 + Math.random() * 260, easing: 'cubic-bezier(.2,.7,.3,1)' },
     )
     anim.onfinish = () => p.remove()
     anim.oncancel = () => p.remove()
