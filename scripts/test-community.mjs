@@ -113,6 +113,11 @@ ok('ouvrir une conversation marque ses messages comme lus', /update community_me
 ok('la cloche et la messagerie ont leur adresse', /'\/clan\/notifications'/.test(readFileSync('src/main.tsx', 'utf8')) && /clan\\\/messages\\\//.test(readFileSync('src/main.tsx', 'utf8')))
 ok('les non-lus se relisent sans canal permanent', /setInterval\(tick, 60000\)/.test(page) && !/WebSocket|EventSource/.test(page))
 
+/* --- 5e · modifier ------------------------------------------------------- */
+ok('seul l\'auteur modifie son texte', /async function edit[\s\S]*?author_did !== me\) return send\(res, 403/.test(api))
+ok('une modification est signalée', /edited_at = now\(\)/.test(api) && /edited_at timestamptz/.test(sql))
+ok('on ne modifie qu\'un texte qu\'on voit en entier', /full && p\.mine && <button/.test(page))
+
 /* --- 6 · les morsures ---------------------------------------------------- */
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))
 ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(title\\) between 3 and 120').test('char_length(title) between 3 and 200'))

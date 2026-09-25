@@ -123,3 +123,7 @@ create table if not exists community_messages (
 );
 create index if not exists community_messages_pair_idx on community_messages (least(from_did, to_did), greatest(from_did, to_did), created_at desc);
 create index if not exists community_messages_to_idx on community_messages (to_did, read_at);
+
+-- LOT 5 · MODIFIER · un commentaire garde la trace de sa modification, comme
+-- une publication.
+alter table community_comments add column if not exists edited_at timestamptz;

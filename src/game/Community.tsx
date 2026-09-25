@@ -34,7 +34,7 @@ import { Shell } from './Shell'
 import { CT, CATEGORY_LABEL } from './communityText'
 import {
   COMMUNITY_CATEGORIES, COMMUNITY_LIMITS, fetchFeed, fetchPost, fetchMe, joinCommunity, createPost,
-  createComment, toggleLike, setPinned, removeItem, fetchMembers, fetchMember, fetchLeaderboard, editProfile,
+  createComment, toggleLike, setPinned, removeItem, editItem, fetchMembers, fetchMember, fetchLeaderboard, editProfile,
   LEVEL_POINTS, fetchEvents, createEvent, deleteEvent, icsOf,
   fetchUnread, fetchNotifications, markNotificationsRead, fetchConversations, fetchThread, sendMessage,
   type CNotification, type CConversation, type CMessage, type Peer,
@@ -320,6 +320,7 @@ function JoinForm({ onJoined }: { onJoined: () => void }) {
 function PostCard({ post, me, onChange, full = false }: { post: CPost; me: Me; onChange: () => void; full?: boolean }) {
   const { s, lang } = useSay()
   const [p, setP] = useState(post)
+  const [editing, setEditing] = useState(false)
   useEffect(() => setP(post), [post])
   const canAct = me.signedIn && !!me.name
 
@@ -340,6 +341,9 @@ function PostCard({ post, me, onChange, full = false }: { post: CPost; me: Me; o
   }
 
   const open = () => navigate(`/clan/p/${p.id}`)
+  // MODIFIER · depuis la publication ouverte seulement : la carte du fil ne
+  // porte qu'un extrait, et on ne réécrit pas un texte qu'on ne voit pas.
+  if (editing) return <EditPost post={p} onDone={(changed) => { setEditing(false); if (changed) onChange() }} />
   return (
     <article className={`cy-card cy-post${p.pinned ? ' pinned' : ''}`}>
       <header className="cy-post-head">
@@ -366,9 +370,42 @@ function PostCard({ post, me, onChange, full = false }: { post: CPost; me: Me; o
         )}
         <span className="cy-grow" />
         {me.admin && <button className="cy-act" onClick={pin}>{p.pinned ? s(CT.unpin) : s(CT.pin)}</button>}
+        {full && p.mine && <button className="cy-act" onClick={() => setEditing(true)}>{s(CT.edit)}</button>}
         {(p.mine || me.admin) && <button className="cy-act danger" onClick={del}>{s(CT.delete)}</button>}
       </footer>
     </article>
+  )
+}
+
+function EditPost({ post, onDone }: { post: CPost; onDone: (changed: boolean) => void }) {
+  const { s, lang } = useSay()
+  const [cat, setCat] = useState<CommunityCategory>(post.category)
+  const [title, setTitle] = useState(post.title)
+  const [body, setBody] = useState(post.body)
+  const [error, setError] = useState<CError | null>(null)
+  return (
+    <form className="cy-card cy-compose" onSubmit={async (e) => {
+      e.preventDefault()
+      const r = await editItem({ type: 'post', id: post.id, category: cat, title, body })
+      if (!r.ok) { setError(r.error); return }
+      onDone(true)
+    }}>
+      <div className="cy-compose-head">
+        <b>{s(CT.edit)}</b>
+        <select value={cat} onChange={(e) => setCat(e.target.value as CommunityCategory)} aria-label={s(CT.category)}>
+          {COMMUNITY_CATEGORIES.map((c) => <option key={c} value={c}>{say(CATEGORY_LABEL[c], lang)}</option>)}
+        </select>
+      </div>
+      <input className="cy-inp cy-title-inp" value={title} onChange={(e) => setTitle(e.target.value)} aria-label={s(CT.postTitle)}
+        minLength={COMMUNITY_LIMITS.title.min} maxLength={COMMUNITY_LIMITS.title.max} required />
+      <textarea className="cy-inp" rows={8} value={body} onChange={(e) => setBody(e.target.value)} aria-label={s(CT.postBody)}
+        minLength={COMMUNITY_LIMITS.body.min} maxLength={COMMUNITY_LIMITS.body.max} required />
+      {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
+      <div className="cy-compose-acts">
+        <button type="button" className="cc-btn cc-slate" onClick={() => onDone(false)}>{s(CT.cancel)}</button>
+        <button type="submit" className="gm-cta">{s(CT.save)}</button>
+      </div>
+    </form>
   )
 }
 
@@ -422,6 +459,8 @@ function CommentItem({ c, postId, me, onChange, reply = false }: { c: CComment; 
   const { s, lang } = useSay()
   const [x, setX] = useState(c)
   const [replying, setReplying] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(c.body)
   useEffect(() => setX(c), [c])
   const canAct = me.signedIn && !!me.name
   const like = async () => {
@@ -440,11 +479,24 @@ function CommentItem({ c, postId, me, onChange, reply = false }: { c: CComment; 
     <div className={`cy-com${reply ? ' reply' : ''}`}>
       {x.author && <Avatar author={x.author} small />}
       <div className="cy-com-b">
-        <p className="cy-com-head">{x.author && <AuthorName author={x.author} />} <em><TimeAgo iso={x.createdAt} /></em></p>
-        <p className="cy-com-text">{x.body}</p>
+        <p className="cy-com-head">{x.author && <AuthorName author={x.author} />} <em><TimeAgo iso={x.createdAt} />{x.edited ? ` · ${s(CT.edited)}` : ''}</em></p>
+        {editing
+          ? (
+            <form className="cy-cform" onSubmit={async (e) => {
+              e.preventDefault()
+              const r = await editItem({ type: 'comment', id: x.id, body: draft })
+              if (r.ok) { setEditing(false); onChange() }
+            }}>
+              <textarea className="cy-inp" rows={2} value={draft} onChange={(e) => setDraft(e.target.value)} aria-label={s(CT.edit)} maxLength={COMMUNITY_LIMITS.comment.max} required />
+              <button className="cc-btn cc-slate" type="button" onClick={() => { setEditing(false); setDraft(x.body) }}>{s(CT.cancel)}</button>
+              <button className="gm-cta" type="submit">{s(CT.save)}</button>
+            </form>
+          )
+          : <p className="cy-com-text">{x.body}</p>}
         <div className="cy-com-acts">
           <button className={`cy-act sm${x.liked ? ' on' : ''}`} onClick={like} aria-pressed={x.liked}>{s(CT.like)} · {x.likes}</button>
           {canAct && <button className="cy-act sm" onClick={() => setReplying((v) => !v)}>{s(CT.reply)}</button>}
+          {x.mine && !editing && <button className="cy-act sm" onClick={() => setEditing(true)}>{s(CT.edit)}</button>}
           {(x.mine || me.admin) && <button className="cy-act sm danger" onClick={del}>{s(CT.delete)}</button>}
         </div>
         {replying && <CommentForm postId={postId} parentId={x.id} me={me} onSent={() => { setReplying(false); onChange() }} />}

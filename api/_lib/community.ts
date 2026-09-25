@@ -165,6 +165,7 @@ export interface CommentRow {
   likes: number
   deleted: boolean
   created_at: Date
+  edited_at?: Date | null
   author_did: string
   author_name: string
   author_handle?: string
@@ -218,6 +219,7 @@ export function serializeComment(r: CommentRow, me: string | null) {
     deleted: r.deleted,
     likes: r.likes,
     createdAt: r.created_at.toISOString(),
+    edited: !!r.edited_at && !r.deleted,
     author: r.deleted ? null : authorOf(r),
     mine: !!me && me === r.author_did && !r.deleted,
     liked: !!r.liked,

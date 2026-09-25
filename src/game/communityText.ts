@@ -31,6 +31,7 @@ export const CT = {
   comment1: B('comment', 'commentaire'),
   reply: B('Reply', 'Répondre'),
   delete: B('Delete', 'Supprimer'),
+  edit: B('Edit', 'Modifier'),
   confirmDelete: B('Delete this for good?', 'Supprimer définitivement ?'),
   deleted: B('Deleted message', 'Message supprimé'),
   addComment: B('Your comment', 'Votre commentaire'),
