@@ -1,9 +1,10 @@
 /* ==================================================================
    L'AFFICHAGE CLAIR DU JEU · « ajoute un affichage light mode ».
 
-   Le violet de nuit reste l'affichage par défaut. Le clair est un choix de
-   l'élève (Profil > Paramètres > Affichage), posé par public/boot.js sur
-   <html data-look="light"> avant le premier pixel. Toutes les règles de ce
+   Le clair est l'affichage par défaut (« affiche le light mode par
+   défaut »), le violet de nuit un choix de l'élève (Profil > Paramètres >
+   Affichage). public/boot.js pose <html data-look="light"> avant le premier
+   pixel. Toutes les règles de ce
    fichier sont donc sous :root[data-look='light'] : sans ce choix, aucune ne
    s'applique, et la nuit est exactement celle d'avant.
 

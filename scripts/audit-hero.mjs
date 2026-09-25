@@ -60,7 +60,7 @@ for (const v of VIEWS) {
   // reste utile · la scène remplit son cadre, le dojo se voit au dessus de la
   // ligne de flottaison, le titre est celui qu'on a écrit. Une garde dont la
   // cible a bougé se repointe ; supprimée, elle emporte ce qu'elle tenait.
-  await p.goto(B + '/decouvrir', { waitUntil: 'networkidle' })
+  await p.goto(B + '/decouvrir-studio', { waitUntil: 'networkidle' })
   await p.waitForTimeout(2500)
 
   const m = await p.evaluate(() => {

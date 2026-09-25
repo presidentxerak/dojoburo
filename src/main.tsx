@@ -38,6 +38,7 @@ import { usePath, useHashAnchor } from './lib/router'
 // LE JEU · c'est lui qui répond à « / » désormais. Voir game/Dojos.
 import { DojosPage } from './game/Dojos'
 import { PackPage } from './game/PackPage'
+import { PromoPage } from './game/Promo'
 // NOMMÉE AUTREMENT ICI · « LessonPage » est déjà le nom de la leçon de
 // l'académie, importée plus haut. Deux choses différentes sous le même nom
 // dans la même portée est la façon la plus discrète de casser une page.
@@ -196,8 +197,11 @@ function Root() {
   if (pk) return <PackPage packId={pk[1].toLowerCase()} />
   const ls = path.match(/^\/dojo\/([a-z0-9-]+)\/([a-z0-9-]+)$/i)
   if (ls) return <DojoLesson packId={ls[1].toLowerCase()} levelId={ls[2].toLowerCase()} />
-  // LA BROCHURE · elle garde toutes ses ancres, elle change juste d'adresse.
-  if (path === '/decouvrir') return <Landing enter={() => { location.hash = 'app' }} />
+  // LA LANDING PROMO · « explique de A à Z Dojoburo et met en avant la
+  // formation gratuite » (voir game/Promo). L'ancienne brochure du studio
+  // reste servie à part, pour ses pages liées et ses épreuves.
+  if (path === '/decouvrir') return <PromoPage />
+  if (path === '/decouvrir-studio') return <Landing enter={() => { location.hash = 'app' }} />
 
   // ---- public · no gate ----------------------------------------------------
   if (path === '/terms') return <Terms />

@@ -21,6 +21,7 @@ psql "$DATABASE_URL" -f db/permits.sql     # ce qu'un agent a le droit d'écrire
 psql "$DATABASE_URL" -f db/secrets.sql     # le coffre chiffré côté serveur
 psql "$DATABASE_URL" -f db/rag.sql         # les espaces documentaires, les documents, la recherche
 psql "$DATABASE_URL" -f db/clan.sql        # le fil de la communauté (auteurs anonymes, bravos, signalements)
+psql "$DATABASE_URL" -f db/newsletter.sql  # les adresses du week-end gratuit et le consentement newsletter
 psql "$DATABASE_URL" -f db/profile.sql     # les profils des joueurs connectés, et les paiements réclamés
 ```
 
@@ -86,6 +87,7 @@ fichier qui la crée, après avoir sauvegardé ce qu'elle contient.
 | `rag.sql` | `rag_spaces`, `rag_documents`, `rag_chunks`, `rag_queries` |
 | `clan.sql` | `clan_posts`, `clan_bravos`, `clan_reports` |
 | `profile.sql` | `game_profiles`, `game_profile_claims` |
+| `newsletter.sql` | `newsletter_contacts` |
 
 Cette liste est vérifiée par `scripts/test-deploy.mjs` : un fichier de schéma
 ajouté sans être écrit ici fait rougir la construction, pour que ce tableau ne

@@ -88,6 +88,9 @@ export function Privacy() {
       <h2>3. Other data processed by the server</h2>
       <p>We process only what is needed to run your requests: OAuth tokens for the apps you connect (encrypted at rest with AES-256-GCM), an optional model API key you provide, and minimal request metadata. The browser never receives another user's secrets. We do not sell your data.</p>
 
+      <h2>3b. Your email for the free training, and the newsletter</h2>
+      <p>The address you give to open the free AI weekend is stored on our server, with its language and the page it came from, to give you access to that training. The newsletter is separate: you receive it only if you tick its box, the free training never depends on it, and every newsletter carries a one-click unsubscribe link. To have the address deleted, use the contact below.</p>
+
       <h2>4. Third parties</h2>
       <p>Some features involve independent providers who process data under their own policies: Stripe (card payments), AI model providers (task execution) and the apps you connect. We share with them only what a feature requires.</p>
 

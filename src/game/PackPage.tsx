@@ -34,6 +34,7 @@ import type { Module } from '../data/curriculum'
 import { useState } from 'react'
 import { useGame } from './progress'
 import { useAccess, giveEmail } from './access'
+import { sendSignup } from '../lib/newsletter'
 import { PackArt } from './PackArt'
 import { Gauge } from './Gauge'
 import { Shell } from './Shell'
@@ -138,15 +139,25 @@ function PackLock({ eur }: { eur: number }) {
 /** OUVRIR LE WEEK-END · un champ, un bouton, et ce qu'on fait de l'adresse
  *  écrit juste en dessous plutôt que dans une politique qu'on n'ouvrira pas.
  *
- *  ELLE NE PROMET PAS DE COURRIER. Rien dans ce produit n'en envoie
- *  aujourd'hui, et écrire « vous recevrez la leçon chaque matin » serait une
- *  promesse que le code ne tient pas. */
+ *  L'ADRESSE PART AU SERVEUR (api/newsletter) · demandé : « la version
+ *  gratuite sert à l'acquisition de mails pour la newsletter ». Le
+ *  consentement à la newsletter est une case à part, non cochée, et l'accès
+ *  gratuit n'en dépend pas (RGPD). La phrase sous le champ dit exactement ce
+ *  qui est fait de l'adresse. */
 function AskEmail() {
   const t = useT()
   const [v, setV] = useState('')
+  const [news, setNews] = useState(false)
   const ok = /.+@.+\..+/.test(v.trim())
   return (
-    <form className="ae" onSubmit={(e) => { e.preventDefault(); if (ok) giveEmail(v) }}>
+    <form className="ae" onSubmit={(e) => {
+      e.preventDefault()
+      if (!ok) return
+      // L'ACCÈS D'ABORD, LA COLLECTE ENSUITE · la formation s'ouvre tout de
+      // suite ; l'adresse part au serveur sans qu'on l'attende.
+      giveEmail(v)
+      void sendSignup(v, news, 'weekend')
+    }}>
       <label className="ae-lab" htmlFor="ae-mail">{t('d.ask')}</label>
       <div className="ae-row">
         <input
@@ -156,6 +167,10 @@ function AskEmail() {
         />
         <button className="gm-cta" type="submit" disabled={!ok}>{t('d.open')}</button>
       </div>
+      <label className="ae-news">
+        <input type="checkbox" checked={news} onChange={(e) => setNews(e.target.checked)} />
+        <span>{t('d.news')}</span>
+      </label>
       <p className="ae-fine">{t('d.fine')}</p>
     </form>
   )
