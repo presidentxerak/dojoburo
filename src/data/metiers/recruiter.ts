@@ -208,7 +208,7 @@ const RH_SELECT: Level[] = [
       B('Run your usual screening prompt several times on each copy, in separate conversations.',
         "Lancez votre prompt de tri habituel plusieurs fois sur chaque copie, dans des conversations séparées."),
       B('Compare evidence, wording and tone. A difference that repeats comes from the detail you changed.',
-        "Comparez preuves, formulations et ton. Une différence qui se répète vient du détail modifié."),
+        "Comparez les preuves, les formulations et le ton. Une différence qui se répète vient du détail modifié."),
       B('If the outputs differ, suspend the workflow and report it; do not correct case by case.',
         "Si les résultats diffèrent, suspendez le procédé et signalez-le ; ne corrigez pas au cas par cas."),
     ],
