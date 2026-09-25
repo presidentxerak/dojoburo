@@ -23,8 +23,9 @@ import { verifyPrivyToken, privyEnabled } from './_lib/authz.js'
 import { verifiedEmailOf, canVerifyEmail } from './_lib/privyUser.js'
 import { ADMIN_EMAILS } from './_lib/admins.js'
 import {
-  LIMITS, RATES, isId, isCategory, validateName, validatePost, validateComment, cleanQuery,
-  encodeCursor, decodeCursor, serializePost, serializeComment, type PostRow, type CommentRow,
+  LIMITS, RATES, isId, isCategory, validateName, validateBio, validatePost, validateComment, cleanQuery,
+  encodeCursor, decodeCursor, serializePost, serializeComment, serializeMember, levelOfPoints,
+  type PostRow, type CommentRow, type MemberRow,
 } from './_lib/community.js'
 
 export const config = { maxDuration: 15 }
@@ -63,6 +64,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       if (!(await rateAllow(`community:read:${me || ipKey}`, RATES.read.max, RATES.read.windowMs))) return send(res, 429, { ok: false, error: 'rate' })
       if (action === 'feed') return await feed(res, url, me)
       if (action === 'post') return await onePost(res, url, me)
+      if (action === 'members') return await members(res, url)
+      if (action === 'member') return await oneMember(res, url, me)
+      if (action === 'leaderboard') return await leaderboard(res, me)
       if (action === 'me') {
         if (!privyEnabled()) return send(res, 503, { ok: false, error: 'not_configured', detail: 'auth' })
         if (!me) return send(res, 401, { ok: false, error: 'auth' })
@@ -79,6 +83,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     try { body = JSON.parse((await readBody(req)) || '{}') } catch { return send(res, 400, { ok: false, error: 'bad_json' }) }
 
     if (action === 'join') return await join(res, me, body)
+    if (action === 'profile') return await editProfile(res, me, body)
     if (action === 'post') return await createPost(res, me, body)
     if (action === 'comment') return await createComment(res, me, body)
     if (action === 'like') return await toggleLike(res, me, body)
@@ -93,7 +98,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 /* ---- lire ------------------------------------------------------------------ */
 
 const POST_COLS = `p.id, p.category, p.title, p.body, p.pinned, p.likes, p.comments, p.created_at, p.edited_at,
-  p.author_did, m.name as author_name`
+  p.author_did, m.name as author_name, m.handle as author_handle, m.points as author_points`
 
 async function feed(res: ServerResponse, url: URL, me: string | null) {
   const cat = url.searchParams.get('cat')
@@ -153,6 +158,7 @@ async function onePost(res: ServerResponse, url: URL, me: string | null) {
   if (!r.rows[0]) return send(res, 404, { ok: false, error: 'not_found' })
   const c = await pool.query(
     `select c.id, c.post_id, c.parent_id, c.body, c.likes, c.deleted, c.created_at, c.author_did, m.name as author_name,
+            m.handle as author_handle, m.points as author_points,
             exists(select 1 from community_likes l where l.target_type = 'comment' and l.target_id = c.id and l.did = $2) as liked
        from community_comments c join community_members m on m.did = c.author_did
       where c.post_id = $1 order by c.created_at asc limit 500`,
@@ -166,8 +172,106 @@ async function onePost(res: ServerResponse, url: URL, me: string | null) {
 }
 
 async function whoAmI(res: ServerResponse, me: string) {
-  const r = await getPool().query('update community_members set last_seen_at = now() where did = $1 returning name, bio', [me])
-  return send(res, 200, { ok: true, member: r.rows[0] ? { name: r.rows[0].name, bio: r.rows[0].bio } : null, admin: await isAdmin(me) })
+  // ÊTRE VU · « en ligne » dans la liste des membres vient de là.
+  const r = await getPool().query(
+    'update community_members set last_seen_at = now() where did = $1 returning handle, name, bio, points', [me])
+  const m = r.rows[0]
+  return send(res, 200, {
+    ok: true,
+    member: m ? { handle: m.handle, name: m.name, bio: m.bio, points: m.points, level: levelOfPoints(m.points).level } : null,
+    admin: await isAdmin(me),
+  })
+}
+
+/* ---- les membres et les classements ----------------------------------------- */
+
+const MEMBER_COLS = 'm.handle, m.name, m.bio, m.points, m.created_at, m.last_seen_at'
+
+async function members(res: ServerResponse, url: URL) {
+  const page = Math.max(0, Math.min(200, Number(url.searchParams.get('page')) || 0))
+  const q = cleanQuery(url.searchParams.get('q'))
+  const args: unknown[] = []
+  let where = ''
+  if (q) { args.push(`%${q.replace(/[%_\\]/g, '')}%`); where = `where m.name ilike $${args.length}` }
+  args.push(LIMITS.membersPage + 1, page * LIMITS.membersPage)
+  const r = await getPool().query(
+    `select ${MEMBER_COLS} from community_members m ${where}
+      order by m.last_seen_at desc limit $${args.length - 1} offset $${args.length}`,
+    args,
+  )
+  const rows = r.rows as MemberRow[]
+  const total = await getPool().query('select count(*)::int as n from community_members')
+  return send(res, 200, {
+    ok: true,
+    members: rows.slice(0, LIMITS.membersPage).map((x) => serializeMember(x)),
+    more: rows.length > LIMITS.membersPage,
+    total: total.rows[0]?.n ?? 0,
+  })
+}
+
+async function oneMember(res: ServerResponse, url: URL, me: string | null) {
+  const handle = url.searchParams.get('id')
+  if (!isId(handle)) return send(res, 400, { ok: false, error: 'member' })
+  const pool = getPool()
+  const r = await pool.query(`select ${MEMBER_COLS}, m.did from community_members m where m.handle = $1`, [handle])
+  const m = r.rows[0]
+  if (!m) return send(res, 404, { ok: false, error: 'not_found' })
+  const counts = await pool.query(
+    `select (select count(*)::int from community_posts where author_did = $1 and not deleted) as posts,
+            (select count(*)::int from community_comments where author_did = $1 and not deleted) as comments`,
+    [m.did],
+  )
+  const posts = await pool.query(
+    `select ${POST_COLS}, false as liked from community_posts p join community_members m on m.did = p.author_did
+      where p.author_did = $1 and not p.deleted order by p.created_at desc limit 10`,
+    [m.did],
+  )
+  return send(res, 200, {
+    ok: true,
+    member: { ...serializeMember(m as MemberRow), posts: counts.rows[0]?.posts ?? 0, comments: counts.rows[0]?.comments ?? 0, me: me === m.did },
+    posts: (posts.rows as PostRow[]).map((p) => serializePost(p, me, true)),
+  })
+}
+
+/** Les classements · les j'aime reçus sur 7 jours, 30 jours, et depuis
+ *  toujours (le compteur du membre). */
+async function leaderboard(res: ServerResponse, me: string | null) {
+  const pool = getPool()
+  const period = async (days: number) => {
+    const r = await pool.query(
+      `select m.handle, m.name, m.points, count(*)::int as won
+         from community_likes l join community_members m on m.did = l.recipient_did
+        where l.created_at > now() - ($1 || ' days')::interval
+        group by m.handle, m.name, m.points order by won desc, m.name asc limit $2`,
+      [String(days), LIMITS.board],
+    )
+    return r.rows.map((x) => ({ handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, points: x.won }))
+  }
+  const all = await pool.query(
+    `select handle, name, points from community_members where points > 0 order by points desc, name asc limit $1`, [LIMITS.board])
+  let mine: { points: number; level: number; next: number | null } | null = null
+  if (me) {
+    const r = await pool.query('select points from community_members where did = $1', [me])
+    if (r.rows[0]) mine = { points: r.rows[0].points, ...levelOfPoints(r.rows[0].points) }
+  }
+  return send(res, 200, {
+    ok: true,
+    week: await period(7),
+    month: await period(30),
+    all: all.rows.map((x) => ({ handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, points: x.points })),
+    me: mine,
+  })
+}
+
+async function editProfile(res: ServerResponse, me: string, body: unknown) {
+  const b = (body || {}) as { name?: unknown; bio?: unknown }
+  const name = validateName(b.name)
+  if (typeof name !== 'string') return send(res, 400, { ok: false, error: 'name' })
+  const bio = validateBio(b.bio ?? '')
+  if (typeof bio !== 'string') return send(res, 400, { ok: false, error: 'bio' })
+  const r = await getPool().query('update community_members set name = $2, bio = $3 where did = $1 returning handle', [me, name, bio])
+  if (!r.rows[0]) return send(res, 409, { ok: false, error: 'join' })
+  return send(res, 200, { ok: true, member: { name, bio } })
 }
 
 /* ---- écrire ---------------------------------------------------------------- */
@@ -237,17 +341,26 @@ async function toggleLike(res: ServerResponse, me: string, body: unknown) {
   if (!(await limited('like', me))) return send(res, 429, { ok: false, error: 'rate' })
   const table = type === 'post' ? 'community_posts' : 'community_comments'
   const pool = getPool()
-  const exists = await pool.query(`select 1 from ${table} where id = $1 and not deleted`, [b.id])
+  const exists = await pool.query(`select author_did from ${table} where id = $1 and not deleted`, [b.id])
   if (!exists.rows[0]) return send(res, 404, { ok: false, error: 'not_found' })
+  // PAS D'AUTO-J'AIME · les points mesurent l'aide apportée aux autres.
+  const author = exists.rows[0].author_did as string
+  if (author === me) return send(res, 400, { ok: false, error: 'own' })
   const del = await pool.query('delete from community_likes where target_type = $1 and target_id = $2 and did = $3', [type, b.id, me])
   let liked: boolean
   if (del.rowCount) {
     liked = false
     await pool.query(`update ${table} set likes = greatest(likes - 1, 0) where id = $1`, [b.id])
+    await pool.query('update community_members set points = greatest(points - 1, 0) where did = $1', [author])
   } else {
     liked = true
-    await pool.query('insert into community_likes (target_type, target_id, did) values ($1, $2, $3) on conflict do nothing', [type, b.id, me])
-    await pool.query(`update ${table} set likes = likes + 1 where id = $1`, [b.id])
+    const ins = await pool.query(
+      'insert into community_likes (target_type, target_id, did, recipient_did) values ($1, $2, $3, $4) on conflict do nothing',
+      [type, b.id, me, author])
+    if (ins.rowCount) {
+      await pool.query(`update ${table} set likes = likes + 1 where id = $1`, [b.id])
+      await pool.query('update community_members set points = points + 1 where did = $1', [author])
+    }
   }
   const n = await pool.query(`select likes from ${table} where id = $1`, [b.id])
   return send(res, 200, { ok: true, liked, likes: n.rows[0]?.likes ?? 0 })

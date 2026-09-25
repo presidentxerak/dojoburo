@@ -8,6 +8,9 @@
 //   /clan              le fil · catégories, recherche, épinglées d'abord
 //   /clan/p/<id>       une publication et ses commentaires (réponses sur un
 //                      niveau, comme Skool)
+//   /clan/membres      les membres, qui est en ligne
+//   /clan/classements  les points (j'aime reçus), les niveaux, les podiums
+//   /clan/m/<handle>   le profil public d'un membre
 //   /clan/a-propos     la communauté, ses règles
 //
 // LIRE EST OUVERT, PARTICIPER DEMANDE UN COMPTE · décidé ainsi. Déconnecté, le
@@ -28,8 +31,9 @@ import { Shell } from './Shell'
 import { CT, CATEGORY_LABEL } from './communityText'
 import {
   COMMUNITY_CATEGORIES, COMMUNITY_LIMITS, fetchFeed, fetchPost, fetchMe, joinCommunity, createPost,
-  createComment, toggleLike, setPinned, removeItem,
-  type CPost, type CComment, type CError, type CommunityCategory, type Author,
+  createComment, toggleLike, setPinned, removeItem, fetchMembers, fetchMember, fetchLeaderboard, editProfile,
+  LEVEL_POINTS,
+  type CPost, type CComment, type CError, type CommunityCategory, type Author, type CMember, type BoardRow, type MeData,
 } from '../lib/community'
 
 function useSay() {
@@ -44,6 +48,7 @@ function errorText(e: CError): Bi {
   if (e === 'rate') return CT.rate
   if (e === 'invalid') return CT.invalid
   if (e === 'not_found') return CT.notFound
+  if (e === 'own') return CT.own
   return CT.network
 }
 
@@ -55,7 +60,17 @@ export function CommunityPage() {
   const path = usePath()
   const { s } = useSay()
   const postId = path.match(/^\/clan\/p\/([0-9a-f-]{36})$/i)?.[1] ?? null
+  const memberId = path.match(/^\/clan\/m\/([0-9a-f-]{36})$/i)?.[1] ?? null
   const about = path === '/clan/a-propos'
+  const membersTab = path === '/clan/membres'
+  const boards = path === '/clan/classements'
+  const feedTab = !about && !membersTab && !boards && !memberId
+  const TABS: { href: string; on: boolean; label: Bi }[] = [
+    { href: '/clan', on: feedTab, label: CT.tabFeed },
+    { href: '/clan/membres', on: membersTab || !!memberId, label: CT.tabMembers },
+    { href: '/clan/classements', on: boards, label: CT.tabBoards },
+    { href: '/clan/a-propos', on: about, label: CT.tabAbout },
+  ]
 
   useHeadTags({ title: `${s(CT.title)} · DojoBuro`, description: s(CT.lead), path: '/clan' })
 
@@ -66,14 +81,19 @@ export function CommunityPage() {
       <section className="gm-sec">
         <h1 className="gm-h1">{s(CT.title)}</h1>
         <nav className="cy-tabs" aria-label={s(CT.tabs)}>
-          <Lnk className={`cy-tab${!about ? ' on' : ''}`} href="/clan" aria-current={!about ? 'page' : undefined}>{s(CT.tabFeed)}</Lnk>
-          <Lnk className={`cy-tab${about ? ' on' : ''}`} href="/clan/a-propos" aria-current={about ? 'page' : undefined}>{s(CT.tabAbout)}</Lnk>
+          {TABS.map((t) => (
+            <Lnk key={t.href} className={`cy-tab${t.on ? ' on' : ''}`} href={t.href} aria-current={t.on ? 'page' : undefined}>{s(t.label)}</Lnk>
+          ))}
         </nav>
       </section>
 
       <div className="cy-layout">
         <div className="cy-main">
-          {about ? <About /> : postId ? <PostView id={postId} me={me} /> : <Feed me={me} />}
+          {about ? <About />
+            : membersTab ? <Members />
+              : boards ? <Boards me={me} />
+                : memberId ? <MemberView handle={memberId} me={me} />
+                  : postId ? <PostView id={postId} me={me} /> : <Feed me={me} />}
         </div>
         <aside className="cy-side">
           <AboutCard />
@@ -92,6 +112,7 @@ interface Me {
   signedIn: boolean
   enabled: boolean
   name: string | null
+  data: MeData | null
   admin: boolean
   authOff: boolean
   refresh: () => void
@@ -99,12 +120,12 @@ interface Me {
 
 function useMember(): Me {
   const acc = useAccount()
-  const [state, setState] = useState<{ name: string | null; admin: boolean; authOff: boolean }>({ name: null, admin: false, authOff: false })
+  const [state, setState] = useState<{ name: string | null; data: MeData | null; admin: boolean; authOff: boolean }>({ name: null, data: null, admin: false, authOff: false })
   const load = useCallback(() => {
-    if (!acc.signedIn) { setState({ name: null, admin: false, authOff: false }); return }
+    if (!acc.signedIn) { setState({ name: null, data: null, admin: false, authOff: false }); return }
     void fetchMe().then((r) => {
-      if (r.ok) setState({ name: r.data.member?.name ?? null, admin: r.data.admin, authOff: false })
-      else setState({ name: null, admin: false, authOff: r.error === 'auth_off' })
+      if (r.ok) setState({ name: r.data.member?.name ?? null, data: r.data.member, admin: r.data.admin, authOff: false })
+      else setState({ name: null, data: null, admin: false, authOff: r.error === 'auth_off' })
     })
   }, [acc.signedIn])
   useEffect(() => { load() }, [load])
@@ -290,6 +311,7 @@ function PostCard({ post, me, onChange, full = false }: { post: CPost; me: Me; o
     if (!canAct) { if (!me.signedIn) signIn(); return }
     const r = await toggleLike('post', p.id)
     if (r.ok) setP({ ...p, liked: r.data.liked, likes: r.data.likes })
+    else if (r.error === 'own') window.alert(say(CT.own, lang))
   }
   const pin = async () => {
     const r = await setPinned(p.id, !p.pinned)
@@ -307,7 +329,7 @@ function PostCard({ post, me, onChange, full = false }: { post: CPost; me: Me; o
       <header className="cy-post-head">
         <Avatar author={p.author} />
         <span className="cy-post-who">
-          <b>{p.author.name}</b>
+          <AuthorName author={p.author} />
           <em><TimeAgo iso={p.createdAt} /> · {say(CATEGORY_LABEL[p.category], lang)}{p.edited ? ` · ${s(CT.edited)}` : ''}</em>
         </span>
         {p.pinned && <span className="cy-pin"><BauhausIcon name="star" size={12} /> {s(CT.pinned)}</span>}
@@ -390,6 +412,7 @@ function CommentItem({ c, postId, me, onChange, reply = false }: { c: CComment; 
     if (!canAct) { if (!me.signedIn) signIn(); return }
     const r = await toggleLike('comment', x.id)
     if (r.ok) setX({ ...x, liked: r.data.liked, likes: r.data.likes })
+    else if (r.error === 'own') window.alert(say(CT.own, lang))
   }
   const del = async () => {
     if (!window.confirm(say(CT.confirmDelete, lang))) return
@@ -401,7 +424,7 @@ function CommentItem({ c, postId, me, onChange, reply = false }: { c: CComment; 
     <div className={`cy-com${reply ? ' reply' : ''}`}>
       {x.author && <Avatar author={x.author} small />}
       <div className="cy-com-b">
-        <p className="cy-com-head"><b>{x.author?.name}</b> <em><TimeAgo iso={x.createdAt} /></em></p>
+        <p className="cy-com-head">{x.author && <AuthorName author={x.author} />} <em><TimeAgo iso={x.createdAt} /></em></p>
         <p className="cy-com-text">{x.body}</p>
         <div className="cy-com-acts">
           <button className={`cy-act sm${x.liked ? ' on' : ''}`} onClick={like} aria-pressed={x.liked}>{s(CT.like)} · {x.likes}</button>
@@ -466,19 +489,228 @@ function AboutCard() {
 }
 
 /* ------------------------------------------------------------------ */
+/* LES MEMBRES                                                         */
+/* ------------------------------------------------------------------ */
+
+function Members() {
+  const { s, lang } = useSay()
+  const [list, setList] = useState<CMember[]>([])
+  const [page, setPage] = useState(0)
+  const [more, setMore] = useState(false)
+  const [total, setTotal] = useState(0)
+  const [q, setQ] = useState('')
+  const [query, setQuery] = useState('')
+  const [error, setError] = useState<CError | null>(null)
+
+  const load = useCallback((p: number) => {
+    void fetchMembers(p, query).then((r) => {
+      if (!r.ok) { setError(r.error); return }
+      setError(null)
+      setList((prev) => (p ? [...prev, ...r.data.members] : r.data.members))
+      setMore(r.data.more); setTotal(r.data.total); setPage(p)
+    })
+  }, [query])
+  useEffect(() => { load(0) }, [load])
+
+  if (error === 'not_configured') return <div className="cy-card cy-off"><h2 className="pf-h2">{s(CT.offTitle)}</h2><p className="gm-lead">{s(CT.offBody)}</p></div>
+  return (
+    <div className="cy-card cy-members">
+      <div className="cy-members-head">
+        <h2 className="pf-h2">{s(CT.membersH2)} <span className="pf-of">{total} {s(CT.membersCount)}</span></h2>
+        <form className="cy-search" role="search" onSubmit={(e) => { e.preventDefault(); setQuery(q.trim()) }}>
+          <BauhausIcon name="target" size={16} />
+          <input type="search" value={q} onChange={(e) => { setQ(e.target.value); if (!e.target.value) setQuery('') }}
+            placeholder={s(CT.searchMembers)} aria-label={s(CT.searchMembers)} />
+        </form>
+      </div>
+      {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
+      {list.length === 0 && !error && <p className="cy-empty">{s(CT.noMembers)}</p>}
+      <ul className="cy-mlist">
+        {list.map((m) => (
+          <li key={m.handle}>
+            <Lnk className="cy-mrow" href={`/clan/m/${m.handle}`}>
+              <Avatar author={{ name: m.name, key: m.handle, level: m.level }} />
+              <span className="cy-mrow-t">
+                <b>{m.name} {m.online && <i className="cy-online" title={s(CT.online)}><span>{s(CT.online)}</span></i>}</b>
+                {m.bio && <em>{m.bio}</em>}
+                <small>{s(CT.level)} {m.level} · {m.points} {s(CT.points)} · {s(CT.joined)} <DateOnly iso={m.joinedAt} lang={lang} /></small>
+              </span>
+            </Lnk>
+          </li>
+        ))}
+      </ul>
+      {more && <button className="cc-btn cc-slate cy-more" onClick={() => load(page + 1)}>{s(CT.more)}</button>}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* LES CLASSEMENTS                                                     */
+/* ------------------------------------------------------------------ */
+
+function Boards({ me }: { me: Me }) {
+  const { s } = useSay()
+  const [data, setData] = useState<{ week: BoardRow[]; month: BoardRow[]; all: BoardRow[]; me: { points: number; level: number; next: number | null } | null } | null>(null)
+  const [error, setError] = useState<CError | null>(null)
+  useEffect(() => { void fetchLeaderboard().then((r) => { if (r.ok) setData(r.data); else setError(r.error) }) }, [me.signedIn])
+
+  if (error === 'not_configured') return <div className="cy-card cy-off"><h2 className="pf-h2">{s(CT.offTitle)}</h2><p className="gm-lead">{s(CT.offBody)}</p></div>
+  const mine = data?.me
+  return (
+    <>
+      <div className="cy-card cy-mylevel">
+        <div className="cy-mylevel-l">
+          {me.data
+            ? <Avatar author={{ name: me.data.name, key: me.data.handle, level: me.data.level }} big />
+            : <span className="cy-av big ghost" aria-hidden="true"><BauhausIcon name="smile" size={28} /></span>}
+          <div>
+            <h2 className="pf-h2">{s(CT.boardsH2)}</h2>
+            <p className="cy-sub">{s(CT.boardsLead)}</p>
+            {mine && (
+              <p className="cy-mylevel-n">
+                <b>{s(CT.yourLevel)} {mine.level}</b> · {mine.points} {s(CT.points)}
+                {mine.next !== null ? ` · ${mine.next - mine.points} ${s(CT.toNext)} ${mine.level + 1}` : ` · ${s(CT.maxLevel)}`}
+              </p>
+            )}
+          </div>
+        </div>
+        <ol className="cy-levels" aria-label={s(CT.levelsH3)}>
+          {LEVEL_POINTS.map((pts, i) => (
+            <li key={i} className={mine && mine.level === i + 1 ? 'on' : mine && mine.level > i + 1 ? 'got' : ''}>
+              <b>{i + 1}</b><span>{s(CT.fromPoints)} {pts}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+      {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
+      {data && (
+        <div className="cy-boards">
+          <Board title={CT.week} rows={data.week} />
+          <Board title={CT.month} rows={data.month} />
+          <Board title={CT.allTime} rows={data.all} />
+        </div>
+      )}
+    </>
+  )
+}
+
+function Board({ title, rows }: { title: Bi; rows: BoardRow[] }) {
+  const { s } = useSay()
+  return (
+    <div className="cy-card cy-board">
+      <h3>{s(title)}</h3>
+      {rows.length === 0 && <p className="cy-sub">{s(CT.noBoard)}</p>}
+      <ol>
+        {rows.map((r, i) => (
+          <li key={r.handle}>
+            <span className={`cy-rank r${i + 1}`}>{i + 1}</span>
+            <Avatar author={{ name: r.name, key: r.handle, level: r.level }} small />
+            <Lnk className="cy-name" href={`/clan/m/${r.handle}`}><b>{r.name}</b></Lnk>
+            <span className="cy-pts">+{r.points}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* LE PROFIL D'UN MEMBRE                                               */
+/* ------------------------------------------------------------------ */
+
+function MemberView({ handle, me }: { handle: string; me: Me }) {
+  const { s, lang } = useSay()
+  const [data, setData] = useState<{ member: CMember & { posts: number; comments: number; me: boolean }; posts: CPost[] } | null>(null)
+  const [error, setError] = useState<CError | null>(null)
+  const [editing, setEditing] = useState(false)
+  const load = useCallback(() => {
+    void fetchMember(handle).then((r) => { if (r.ok) { setData(r.data); setError(null) } else setError(r.error) })
+  }, [handle])
+  useEffect(() => { load() }, [load])
+
+  if (error) return <p className="cy-err" role="alert">{s(errorText(error))}</p>
+  if (!data) return <p className="cy-empty">{s(CT.loading)}</p>
+  const m = data.member
+  return (
+    <>
+      <div className="cy-card cy-profile">
+        <Avatar author={{ name: m.name, key: m.handle, level: m.level }} big />
+        <div className="cy-profile-t">
+          <h2 className="pf-h2">{m.name} {m.online && <i className="cy-online"><span>{s(CT.online)}</span></i>}</h2>
+          {m.bio && <p className="cy-profile-bio">{m.bio}</p>}
+          <p className="cy-sub">{s(CT.joined)} <DateOnly iso={m.joinedAt} lang={lang} /></p>
+          <ul className="cy-profile-nums">
+            <li><b>{m.level}</b><span>{s(CT.level)}</span></li>
+            <li><b>{m.points}</b><span>{s(CT.points)}</span></li>
+            <li><b>{m.posts}</b><span>{s(CT.profilePosts)}</span></li>
+            <li><b>{m.comments}</b><span>{s(CT.profileComments)}</span></li>
+          </ul>
+          {m.me && !editing && <button className="cc-btn cc-slate" onClick={() => setEditing(true)}>{s(CT.editProfile)}</button>}
+        </div>
+      </div>
+      {m.me && editing && <ProfileForm initial={{ name: m.name, bio: m.bio }} onDone={() => { setEditing(false); load(); me.refresh() }} />}
+      <h3 className="cy-h3">{s(CT.profilePosts)}</h3>
+      {data.posts.length === 0 && <p className="cy-empty">{s(CT.noPosts)}</p>}
+      <div className="cy-list">
+        {data.posts.map((p) => <PostCard key={p.id} post={p} me={me} onChange={load} />)}
+      </div>
+    </>
+  )
+}
+
+function ProfileForm({ initial, onDone }: { initial: { name: string; bio: string }; onDone: () => void }) {
+  const { s } = useSay()
+  const [name, setName] = useState(initial.name)
+  const [bio, setBio] = useState(initial.bio)
+  const [error, setError] = useState<CError | null>(null)
+  return (
+    <form className="cy-card cy-compose" onSubmit={async (e) => {
+      e.preventDefault()
+      const r = await editProfile({ name, bio })
+      if (!r.ok) { setError(r.error); return }
+      onDone()
+    }}>
+      <input className="cy-inp" value={name} onChange={(e) => setName(e.target.value)} aria-label={s(CT.joinPlace)}
+        minLength={COMMUNITY_LIMITS.name.min} maxLength={COMMUNITY_LIMITS.name.max} required />
+      <textarea className="cy-inp" rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder={s(CT.bio)} aria-label={s(CT.bio)}
+        maxLength={COMMUNITY_LIMITS.bio.max} />
+      {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
+      <div className="cy-compose-acts">
+        <button type="button" className="cc-btn cc-slate" onClick={onDone}>{s(CT.cancel)}</button>
+        <button type="submit" className="gm-cta">{s(CT.save)}</button>
+      </div>
+    </form>
+  )
+}
+
+function DateOnly({ iso, lang }: { iso: string; lang: string }) {
+  return <time dateTime={iso}>{new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(Date.parse(iso))}</time>
+}
+
+/* ------------------------------------------------------------------ */
 /* PETITS MORCEAUX                                                     */
 /* ------------------------------------------------------------------ */
 
 const AV_COLORS = ['#7c3aed', '#db2777', '#0891b2', '#16a34a', '#ea580c', '#4f46e5', '#b45309', '#0d9488']
 
-function Avatar({ author, small = false }: { author: Author; small?: boolean }) {
+/** L'AVATAR · l'initiale sur une couleur tirée du compte, et le niveau du
+ *  membre en pastille, comme sur Skool. */
+function Avatar({ author, small = false, big = false }: { author: Author; small?: boolean; big?: boolean }) {
   let h = 0
   for (const ch of author.key) h = (h * 31 + ch.charCodeAt(0)) >>> 0
   return (
-    <span className={`cy-av${small ? ' sm' : ''}`} style={{ background: AV_COLORS[h % AV_COLORS.length] }} aria-hidden="true">
+    <span className={`cy-av${small ? ' sm' : ''}${big ? ' big' : ''}`} style={{ background: AV_COLORS[h % AV_COLORS.length] }} aria-hidden="true">
       {(author.name.trim()[0] || '·').toUpperCase()}
+      {author.level ? <i className="cy-lv">{author.level}</i> : null}
     </span>
   )
+}
+
+/** Le nom d'un auteur · un lien vers son profil quand on le connaît. */
+function AuthorName({ author }: { author: Author }) {
+  return author.handle
+    ? <Lnk className="cy-name" href={`/clan/m/${author.handle}`}><b>{author.name}</b></Lnk>
+    : <b>{author.name}</b>
 }
 
 function TimeAgo({ iso }: { iso: string }) {

@@ -72,7 +72,24 @@ ok('l\'onglet Clan s\'appelle Communauté', /'nav\.clan': \{ en: 'Community', fr
 ok('déconnecté, écrire mène à la connexion', /onClick=\{signIn\}/.test(page))
 ok('connecté, on choisit un nom avant de publier', /<JoinForm/.test(page))
 ok('la page ne rend jamais de HTML', !/dangerouslySetInnerHTML|innerHTML/.test(page))
-ok('pas d\'onglet qui ne mène nulle part', !/Calendrier|Classements|Membres/.test(page.replace(/\/\/[^\n]*/g, '')))
+// CHAQUE ONGLET MÈNE À SA VUE · les onglets arrivent avec leur lot, jamais
+// avant (Membres et Classements avec le lot 2, le Calendrier ensuite).
+const code = page.replace(/\/\/[^\n]*/g, '')
+ok('Membres et Classements ont leur vue', /membersTab \? <Members \/>/.test(code) && /boards \? <Boards me=\{me\} \/>/.test(code))
+ok('un profil public par membre', /memberId \? <MemberView/.test(code) && /path\.match\(\/\^\\\/clan\\\/m\\\//.test(readFileSync('src/main.tsx', 'utf8')))
+ok('pas d\'onglet Calendrier avant son lot', !/tabCalendar/.test(code) || /calendarTab \? <Calendar/.test(code))
+
+/* --- 5b · les points et les niveaux -------------------------------------- */
+ok('neuf niveaux, qui montent', C.LEVEL_POINTS.length === 9 && C.LEVEL_POINTS.every((v, i, a) => i === 0 || v > a[i - 1]))
+ok('0 point, niveau 1 ; 5 points, niveau 2', C.levelOfPoints(0).level === 1 && C.levelOfPoints(5).level === 2 && C.levelOfPoints(4).level === 1)
+ok('au sommet, plus de palier suivant', C.levelOfPoints(1e9).level === 9 && C.levelOfPoints(1e9).next === null)
+const clientLevels = (client.match(/LEVEL_POINTS = \[([^\]]*)\]/)?.[1] || '').split(',').map((x) => Number(x.trim()))
+ok('le navigateur connaît les mêmes paliers', clientLevels.join(',') === C.LEVEL_POINTS.join(','))
+ok('pas d\'auto-j\'aime', /if \(author === me\) return send\(res, 400, \{ ok: false, error: 'own' \}\)/.test(api))
+ok('un j\'aime donne un point à l\'auteur, le retirer le reprend', /set points = points \+ 1 where did = \$1', \[author\]/.test(api) && /set points = greatest\(points - 1, 0\) where did = \$1', \[author\]/.test(api))
+ok('un membre est montré par son identifiant public', !JSON.stringify(C.serializeMember({ handle: 'h', name: 'N', points: 3, created_at: new Date(), last_seen_at: new Date() })).includes('did'))
+ok('en ligne = vu il y a moins de cinq minutes', C.serializeMember({ handle: 'h', name: 'N', points: 0, created_at: new Date(), last_seen_at: new Date(Date.now() - 60e3) }).online === true
+  && C.serializeMember({ handle: 'h', name: 'N', points: 0, created_at: new Date(), last_seen_at: new Date(Date.now() - 3600e3) }).online === false)
 
 /* --- 6 · les morsures ---------------------------------------------------- */
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))

@@ -12,9 +12,25 @@ export const COMMUNITY_LIMITS = {
   title: { min: 3, max: 120 },
   body: { min: 10, max: 5000 },
   comment: { min: 1, max: 2000 },
+  bio: { max: 280 },
 } as const
 
-export interface Author { name: string; key: string }
+export interface Author { name: string; key: string; handle?: string | null; level?: number | null }
+
+export interface CMember {
+  handle: string
+  name: string
+  bio: string
+  points: number
+  level: number
+  joinedAt: string
+  online: boolean
+}
+
+export interface BoardRow { handle: string; name: string; level: number; points: number }
+
+/** Les neuf niveaux · recopiés de api/_lib/community.ts (voir l'épreuve). */
+export const LEVEL_POINTS = [0, 5, 20, 65, 155, 515, 2015, 8015, 33015] as const
 
 export interface CPost {
   id: string
@@ -44,7 +60,7 @@ export interface CComment {
   liked: boolean
 }
 
-export type CError = 'not_configured' | 'auth' | 'auth_off' | 'join' | 'rate' | 'not_found' | 'invalid' | 'forbidden' | 'network'
+export type CError = 'not_configured' | 'auth' | 'auth_off' | 'join' | 'rate' | 'not_found' | 'invalid' | 'forbidden' | 'network' | 'own'
 
 export type CResult<T> = { ok: true; data: T } | { ok: false; error: CError }
 
@@ -59,6 +75,7 @@ async function call<T>(url: string, init?: RequestInit): Promise<CResult<T>> {
     if (r.status === 429) return { ok: false, error: 'rate' }
     if (r.status === 404) return { ok: false, error: 'not_found' }
     if (r.status === 403) return { ok: false, error: 'forbidden' }
+    if (j?.error === 'own') return { ok: false, error: 'own' }
     return { ok: false, error: 'invalid' }
   } catch {
     return { ok: false, error: 'network' }
@@ -82,7 +99,19 @@ export function fetchFeed(opts: { cat?: string; q?: string; cursor?: string | nu
 export const fetchPost = (id: string) =>
   call<{ post: CPost; comments: CComment[] }>(`/api/community?action=post&id=${encodeURIComponent(id)}`)
 
-export const fetchMe = () => call<{ member: { name: string; bio: string } | null; admin: boolean }>('/api/community?action=me')
+export interface MeData { handle: string; name: string; bio: string; points: number; level: number }
+export const fetchMe = () => call<{ member: MeData | null; admin: boolean }>('/api/community?action=me')
+
+export function fetchMembers(page = 0, q = '') {
+  const p = new URLSearchParams({ action: 'members', page: String(page) })
+  if (q) p.set('q', q)
+  return call<{ members: CMember[]; more: boolean; total: number }>(`/api/community?${p}`)
+}
+export const fetchMember = (handle: string) =>
+  call<{ member: CMember & { posts: number; comments: number; me: boolean }; posts: CPost[] }>(`/api/community?action=member&id=${encodeURIComponent(handle)}`)
+export const fetchLeaderboard = () =>
+  call<{ week: BoardRow[]; month: BoardRow[]; all: BoardRow[]; me: { points: number; level: number; next: number | null } | null }>('/api/community?action=leaderboard')
+export const editProfile = (p: { name: string; bio: string }) => post<{ member: { name: string; bio: string } }>('profile', p)
 
 export const joinCommunity = (name: string) => post<{ member: { name: string } }>('join', { name })
 export const createPost = (p: { category: CommunityCategory; title: string; body: string }) => post<{ id: string }>('post', p)
