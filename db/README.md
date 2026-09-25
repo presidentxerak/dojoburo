@@ -89,7 +89,7 @@ fichier qui la crée, après avoir sauvegardé ce qu'elle contient.
 | `clan.sql` | `clan_posts`, `clan_bravos`, `clan_reports` |
 | `profile.sql` | `game_profiles`, `game_profile_claims` |
 | `newsletter.sql` | `newsletter_contacts` |
-| `community.sql` | `community_members`, `community_posts`, `community_comments`, `community_likes`, `community_events`, `community_notifications`, `community_messages` |
+| `community.sql` | `community_members`, `community_posts`, `community_comments`, `community_likes`, `community_events`, `community_notifications`, `community_messages`, `community_polls`, `community_poll_votes` |
 
 Cette liste est vérifiée par `scripts/test-deploy.mjs` : un fichier de schéma
 ajouté sans être écrit ici fait rougir la construction, pour que ce tableau ne

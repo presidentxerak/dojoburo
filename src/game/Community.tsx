@@ -37,6 +37,7 @@ import {
   COMMUNITY_CATEGORIES, COMMUNITY_LIMITS, fetchFeed, fetchPost, fetchMe, joinCommunity, createPost,
   createComment, toggleLike, setPinned, removeItem, editItem, fetchMembers, fetchMember, fetchLeaderboard, editProfile,
   LEVEL_POINTS, fetchEvents, createEvent, deleteEvent, icsOf,
+  votePoll, encodeMentions, decodeMentions, MENTION_TOKEN, type PollView,
   fetchUnread, fetchNotifications, markNotificationsRead, fetchConversations, fetchThread, sendMessage,
   type CNotification, type CConversation, type CMessage, type Peer,
   type CEvent, type CPost, type CComment, type CError, type CommunityCategory, type Author, type CMember, type BoardRow, type MeData,
@@ -231,6 +232,8 @@ function Composer({ me, onPosted }: { me: Me; onPosted: () => void }) {
   const [cat, setCat] = useState<CommunityCategory>('general')
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [mentions] = useState(() => new Map<string, string>())
+  const [poll, setPoll] = useState<string[] | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<CError | null>(null)
 
@@ -260,10 +263,11 @@ function Composer({ me, onPosted }: { me: Me; onPosted: () => void }) {
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     setBusy(true)
-    const r = await createPost({ category: cat, title, body })
+    const opts = poll?.map((o) => o.trim()).filter(Boolean)
+    const r = await createPost({ category: cat, title, body: encodeMentions(body, mentions), ...(opts && opts.length ? { poll: opts } : {}) })
     setBusy(false)
     if (!r.ok) { setError(r.error); if (r.error === 'join') me.refresh(); return }
-    setTitle(''); setBody(''); setOpen(false); setError(null)
+    setTitle(''); setBody(''); setPoll(null); mentions.clear(); setOpen(false); setError(null)
     onPosted()
   }
 
@@ -279,11 +283,25 @@ function Composer({ me, onPosted }: { me: Me; onPosted: () => void }) {
       <input className="cy-inp cy-title-inp" value={title} onChange={(e) => setTitle(e.target.value)}
         placeholder={s(CT.postTitle)} aria-label={s(CT.postTitle)}
         minLength={COMMUNITY_LIMITS.title.min} maxLength={COMMUNITY_LIMITS.title.max} required />
-      <textarea className="cy-inp" value={body} onChange={(e) => setBody(e.target.value)} rows={6}
-        placeholder={s(CT.write)} aria-label={s(CT.postBody)}
-        minLength={COMMUNITY_LIMITS.body.min} maxLength={COMMUNITY_LIMITS.body.max} required />
-      <p className="cy-hint">{s(CT.mediaHint)}</p>
+      <MentionArea value={body} onChange={setBody} map={mentions} rows={6}
+        placeholder={s(CT.write)} label={s(CT.postBody)}
+        minLength={COMMUNITY_LIMITS.body.min} maxLength={COMMUNITY_LIMITS.body.max} />
+      <p className="cy-hint">{s(CT.mediaHint)} {s(CT.mentionHint)}</p>
       <Media text={body} />
+      {poll
+        ? (
+          <div className="cy-poll-edit">
+            {poll.map((o, i) => (
+              <input key={i} className="cy-inp" value={o} maxLength={80} placeholder={`${s(CT.pollOption)} ${i + 1}`} aria-label={`${s(CT.pollOption)} ${i + 1}`}
+                onChange={(e) => setPoll(poll.map((x, j) => (j === i ? e.target.value : x)))} />
+            ))}
+            <div className="cy-poll-edit-acts">
+              {poll.length < 6 && <button type="button" className="cy-act" onClick={() => setPoll([...poll, ''])}>{s(CT.addOption)}</button>}
+              <button type="button" className="cy-act danger" onClick={() => setPoll(null)}>{s(CT.removePoll)}</button>
+            </div>
+          </div>
+        )
+        : <button type="button" className="cy-act cy-poll-add" onClick={() => setPoll(['', ''])}>{s(CT.addPoll)}</button>}
       {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
       <div className="cy-compose-acts">
         <button type="button" className="cc-btn cc-slate" onClick={() => setOpen(false)}>{s(CT.cancel)}</button>
@@ -360,9 +378,10 @@ function PostCard({ post, me, onChange, full = false }: { post: CPost; me: Me; o
       {full
         ? <h2 className="cy-post-title">{p.title}</h2>
         : <h3 className="cy-post-title"><button className="cy-link" onClick={open}>{p.title}</button></h3>}
-      <p className="cy-post-body">{p.body}</p>
+      <p className="cy-post-body"><RichText text={p.body} /></p>
       {p.truncated && !full && <button className="cy-link cy-read" onClick={open}>{s(CT.readMore)}</button>}
       <Media text={p.body} />
+      {p.poll && <PollBox postId={p.id} poll={p.poll} me={me} />}
       <footer className="cy-post-foot">
         <button className={`cy-act${p.liked ? ' on' : ''}`} onClick={like} aria-pressed={p.liked}>
           <BauhausIcon name="smile" size={16} /> {s(CT.like)} · {p.likes}
@@ -385,12 +404,13 @@ function EditPost({ post, onDone }: { post: CPost; onDone: (changed: boolean) =>
   const { s, lang } = useSay()
   const [cat, setCat] = useState<CommunityCategory>(post.category)
   const [title, setTitle] = useState(post.title)
-  const [body, setBody] = useState(post.body)
+  const [initial] = useState(() => decodeMentions(post.body))
+  const [body, setBody] = useState(initial.text)
   const [error, setError] = useState<CError | null>(null)
   return (
     <form className="cy-card cy-compose" onSubmit={async (e) => {
       e.preventDefault()
-      const r = await editItem({ type: 'post', id: post.id, category: cat, title, body })
+      const r = await editItem({ type: 'post', id: post.id, category: cat, title, body: encodeMentions(body, initial.map) })
       if (!r.ok) { setError(r.error); return }
       onDone(true)
     }}>
@@ -402,8 +422,8 @@ function EditPost({ post, onDone }: { post: CPost; onDone: (changed: boolean) =>
       </div>
       <input className="cy-inp cy-title-inp" value={title} onChange={(e) => setTitle(e.target.value)} aria-label={s(CT.postTitle)}
         minLength={COMMUNITY_LIMITS.title.min} maxLength={COMMUNITY_LIMITS.title.max} required />
-      <textarea className="cy-inp" rows={8} value={body} onChange={(e) => setBody(e.target.value)} aria-label={s(CT.postBody)}
-        minLength={COMMUNITY_LIMITS.body.min} maxLength={COMMUNITY_LIMITS.body.max} required />
+      <MentionArea value={body} onChange={setBody} map={initial.map} rows={8} label={s(CT.postBody)}
+        minLength={COMMUNITY_LIMITS.body.min} maxLength={COMMUNITY_LIMITS.body.max} />
       {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
       <div className="cy-compose-acts">
         <button type="button" className="cc-btn cc-slate" onClick={() => onDone(false)}>{s(CT.cancel)}</button>
@@ -464,7 +484,8 @@ function CommentItem({ c, postId, me, onChange, reply = false }: { c: CComment; 
   const [x, setX] = useState(c)
   const [replying, setReplying] = useState(false)
   const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState(c.body)
+  const [initial] = useState(() => decodeMentions(c.body))
+  const [draft, setDraft] = useState(initial.text)
   useEffect(() => setX(c), [c])
   const canAct = me.signedIn && !!me.name
   const like = async () => {
@@ -488,15 +509,15 @@ function CommentItem({ c, postId, me, onChange, reply = false }: { c: CComment; 
           ? (
             <form className="cy-cform" onSubmit={async (e) => {
               e.preventDefault()
-              const r = await editItem({ type: 'comment', id: x.id, body: draft })
+              const r = await editItem({ type: 'comment', id: x.id, body: encodeMentions(draft, initial.map) })
               if (r.ok) { setEditing(false); onChange() }
             }}>
-              <textarea className="cy-inp" rows={2} value={draft} onChange={(e) => setDraft(e.target.value)} aria-label={s(CT.edit)} maxLength={COMMUNITY_LIMITS.comment.max} required />
-              <button className="cc-btn cc-slate" type="button" onClick={() => { setEditing(false); setDraft(x.body) }}>{s(CT.cancel)}</button>
+              <MentionArea value={draft} onChange={setDraft} map={initial.map} rows={2} label={s(CT.edit)} maxLength={COMMUNITY_LIMITS.comment.max} />
+              <button className="cc-btn cc-slate" type="button" onClick={() => { setEditing(false); setDraft(initial.text) }}>{s(CT.cancel)}</button>
               <button className="gm-cta" type="submit">{s(CT.save)}</button>
             </form>
           )
-          : <p className="cy-com-text">{x.body}</p>}
+          : <p className="cy-com-text"><RichText text={x.body} /></p>}
         <div className="cy-com-acts">
           <button className={`cy-act sm${x.liked ? ' on' : ''}`} onClick={like} aria-pressed={x.liked}>{s(CT.like)} · {x.likes}</button>
           {canAct && <button className="cy-act sm" onClick={() => setReplying((v) => !v)}>{s(CT.reply)}</button>}
@@ -512,6 +533,7 @@ function CommentItem({ c, postId, me, onChange, reply = false }: { c: CComment; 
 function CommentForm({ postId, parentId = null, me, onSent }: { postId: string; parentId?: string | null; me: Me; onSent: () => void }) {
   const { s } = useSay()
   const [body, setBody] = useState('')
+  const [mentions] = useState(() => new Map<string, string>())
   const [error, setError] = useState<CError | null>(null)
   if (!me.signedIn) {
     return <button className="cc-btn cc-slate" onClick={signIn}>{s(CT.signInToPost)}</button>
@@ -520,12 +542,12 @@ function CommentForm({ postId, parentId = null, me, onSent }: { postId: string; 
   return (
     <form className="cy-cform" onSubmit={async (e) => {
       e.preventDefault()
-      const r = await createComment({ postId, parentId, body })
+      const r = await createComment({ postId, parentId, body: encodeMentions(body, mentions) })
       if (!r.ok) { setError(r.error); return }
-      setBody(''); setError(null); onSent()
+      setBody(''); mentions.clear(); setError(null); onSent()
     }}>
-      <textarea className="cy-inp" rows={2} value={body} onChange={(e) => setBody(e.target.value)}
-        placeholder={s(CT.addComment)} aria-label={s(CT.addComment)} maxLength={COMMUNITY_LIMITS.comment.max} required />
+      <MentionArea value={body} onChange={setBody} map={mentions} rows={2}
+        placeholder={s(CT.addComment)} label={s(CT.addComment)} maxLength={COMMUNITY_LIMITS.comment.max} />
       <button className="gm-cta" type="submit">{s(CT.send)}</button>
       {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
     </form>
@@ -600,6 +622,7 @@ const NOTIF_TEXT: Record<CNotification['kind'], Bi> = {
   reply: CT.nReply,
   like_post: CT.nLikePost,
   like_comment: CT.nLikeComment,
+  mention: CT.nMention,
 }
 
 function Notifications({ me }: { me: Me }) {
@@ -1078,6 +1101,113 @@ function ProfileForm({ initial, onDone }: { initial: { name: string; bio: string
 
 function DateOnly({ iso, lang }: { iso: string; lang: string }) {
   return <time dateTime={iso}>{new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(Date.parse(iso))}</time>
+}
+
+/* ------------------------------------------------------------------ */
+/* LES MENTIONS ET LES SONDAGES                                        */
+/* ------------------------------------------------------------------ */
+
+/** LE TEXTE D'UN MEMBRE · du texte, et les mentions en liens vers les profils
+ *  (l'identifiant a été vérifié par l'expression, jamais pris tel quel). */
+function RichText({ text }: { text: string }) {
+  const parts: (string | { name: string; handle: string })[] = []
+  let last = 0
+  for (const m of text.matchAll(new RegExp(MENTION_TOKEN.source, 'gi'))) {
+    parts.push(text.slice(last, m.index))
+    parts.push({ name: m[1], handle: m[2] })
+    last = (m.index ?? 0) + m[0].length
+  }
+  parts.push(text.slice(last))
+  return <>{parts.map((x, i) => (typeof x === 'string' ? x : <Lnk key={i} className="cy-mention" href={`/clan/m/${x.handle}`}>@{x.name}</Lnk>))}</>
+}
+
+/** LA ZONE DE TEXTE À MENTIONS · « @ » suivi de quelques lettres propose les
+ *  membres ; choisir l'un d'eux écrit son nom et retient son identifiant. */
+function MentionArea({ value, onChange, map, rows, placeholder, label, minLength, maxLength }: {
+  value: string
+  onChange: (v: string) => void
+  map: Map<string, string>
+  rows: number
+  placeholder?: string
+  label: string
+  minLength?: number
+  maxLength?: number
+}) {
+  const [query, setQuery] = useState<string | null>(null)
+  const [list, setList] = useState<CMember[]>([])
+  const [ref, setRef] = useState<HTMLTextAreaElement | null>(null)
+  useEffect(() => {
+    if (query === null || query.length < 1) { setList([]); return }
+    const id = window.setTimeout(() => {
+      void fetchMembers(0, query).then((r) => { if (r.ok) setList(r.data.members.slice(0, 5)) })
+    }, 200)
+    return () => clearTimeout(id)
+  }, [query])
+  const detect = (text: string, caret: number) => {
+    const m = text.slice(0, caret).match(/(?:^|\s)@([\p{L}\p{N}_.-]{1,32})$/u)
+    setQuery(m ? m[1] : null)
+  }
+  const pick = (m: CMember) => {
+    if (!ref) return
+    const caret = ref.selectionStart
+    const before = value.slice(0, caret).replace(/@[\p{L}\p{N}_.-]{1,32}$/u, `@${m.name} `)
+    map.set(m.name, m.handle)
+    onChange(before + value.slice(caret))
+    setQuery(null)
+    requestAnimationFrame(() => { ref.focus(); ref.selectionStart = ref.selectionEnd = before.length })
+  }
+  return (
+    <div className="cy-mention-wrap">
+      <textarea ref={setRef} className="cy-inp" rows={rows} value={value} placeholder={placeholder} aria-label={label}
+        minLength={minLength} maxLength={maxLength} required
+        onChange={(e) => { onChange(e.target.value); detect(e.target.value, e.target.selectionStart) }}
+        onKeyDown={(e) => { if (e.key === 'Escape') setQuery(null) }} />
+      {query !== null && list.length > 0 && (
+        <ul className="cy-suggest" role="listbox">
+          {list.map((m) => (
+            <li key={m.handle}>
+              <button type="button" role="option" aria-selected="false" onMouseDown={(e) => { e.preventDefault(); pick(m) }}>
+                <Avatar author={{ name: m.name, key: m.handle, level: m.level }} small />
+                <b>{m.name}</b>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+/** LE SONDAGE · voter d'un clic, changer d'avis d'un autre, retirer son vote. */
+function PollBox({ postId, poll, me }: { postId: string; poll: PollView; me: Me }) {
+  const { s, lang } = useSay()
+  const [p, setP] = useState(poll)
+  useEffect(() => setP(poll), [poll])
+  const voted = p.mine !== null
+  const choose = async (i: number) => {
+    if (!me.signedIn) { signIn(); return }
+    if (!me.name) return
+    const r = await votePoll(postId, i)
+    if (r.ok) setP(r.data.poll)
+  }
+  return (
+    <div className="cy-poll">
+      {p.options.map((o, i) => {
+        const pct = p.total ? Math.round((p.counts[i] / p.total) * 100) : 0
+        return (
+          <button key={i} className={`cy-poll-opt${p.mine === i ? ' mine' : ''}${voted ? ' shown' : ''}`} onClick={() => choose(i)} aria-pressed={p.mine === i}>
+            {voted && <i style={{ width: `${pct}%` }} aria-hidden="true" />}
+            <span>{o}</span>
+            {voted && <b>{pct}{lang === 'fr' ? ' %' : '%'}</b>}
+          </button>
+        )
+      })}
+      <p className="cy-poll-foot">
+        {p.total} {p.total === 1 ? s(CT.vote1) : s(CT.votes)}
+        {voted && <> · <button className="cy-link" onClick={() => choose(-1)}>{s(CT.unvote)}</button></>}
+      </p>
+    </div>
+  )
 }
 
 /* ------------------------------------------------------------------ */

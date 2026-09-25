@@ -47,7 +47,10 @@ export interface CPost {
   author: Author
   mine: boolean
   liked: boolean
+  poll?: PollView | null
 }
+
+export interface PollView { options: string[]; counts: number[]; total: number; mine: number | null }
 
 export interface CComment {
   id: string
@@ -116,7 +119,8 @@ export const fetchLeaderboard = () =>
 export const editProfile = (p: { name: string; bio: string }) => post<{ member: { name: string; bio: string } }>('profile', p)
 
 export const joinCommunity = (name: string) => post<{ member: { name: string } }>('join', { name })
-export const createPost = (p: { category: CommunityCategory; title: string; body: string }) => post<{ id: string }>('post', p)
+export const createPost = (p: { category: CommunityCategory; title: string; body: string; poll?: string[] }) => post<{ id: string }>('post', p)
+export const votePoll = (postId: string, option: number) => post<{ poll: PollView }>('vote', { postId, option })
 export const createComment = (c: { postId: string; parentId?: string | null; body: string }) => post<{ id: string }>('comment', c)
 export const toggleLike = (type: 'post' | 'comment', id: string) => post<{ liked: boolean; likes: number }>('like', { type, id })
 export const setPinned = (id: string, pinned: boolean) => post<{ pinned: boolean }>('pin', { id, pinned })
@@ -154,7 +158,7 @@ export function icsOf(e: CEvent, site: string): string {
 
 /* ---- les notifications et les messages -------------------------------------- */
 
-export type NotificationKind = 'comment' | 'reply' | 'like_post' | 'like_comment'
+export type NotificationKind = 'comment' | 'reply' | 'like_post' | 'like_comment' | 'mention'
 export interface CNotification {
   id: string
   kind: NotificationKind
@@ -175,3 +179,29 @@ export const fetchConversations = () => call<{ conversations: CConversation[] }>
 export const fetchThread = (handle: string) =>
   call<{ with: Peer; messages: CMessage[] }>(`/api/community?action=messages&with=${encodeURIComponent(handle)}`)
 export const sendMessage = (to: string, body: string) => post<{ id: string }>('message', { to, body })
+
+/* ---- les mentions ------------------------------------------------------------ */
+//
+// Dans la zone de texte, une mention se lit « @Nora » ; elle est rangée
+// « @[Nora](identifiant) » au moment d'envoyer, pour que le serveur sache qui
+// prévenir sans deviner entre deux membres du même nom.
+
+export const MENTION_TOKEN = /@\[([^\]\n]{1,32})\]\(([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\)/gi
+
+const escRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/** Texte affiché → texte rangé. */
+export function encodeMentions(text: string, map: Map<string, string>): string {
+  let out = text
+  for (const [name, handle] of map) {
+    out = out.replace(new RegExp(`@${escRe(name)}(?![\\p{L}\\p{N}])`, 'gu'), `@[${name}](${handle})`)
+  }
+  return out
+}
+
+/** Texte rangé → texte affiché, et la table des mentions retrouvées. */
+export function decodeMentions(text: string): { text: string; map: Map<string, string> } {
+  const map = new Map<string, string>()
+  const plain = text.replace(MENTION_TOKEN, (_m, name: string, handle: string) => { map.set(name, handle); return `@${name}` })
+  return { text: plain, map }
+}

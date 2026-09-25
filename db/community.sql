@@ -127,3 +127,26 @@ create index if not exists community_messages_to_idx on community_messages (to_d
 -- LOT 5 · MODIFIER · un commentaire garde la trace de sa modification, comme
 -- une publication.
 alter table community_comments add column if not exists edited_at timestamptz;
+
+-- ---------------------------------------------------------------------------
+-- LOT 6 · LES MENTIONS ET LES SONDAGES.
+--
+-- Une mention s'écrit @[Nom](identifiant public) dans le texte ; la personne
+-- mentionnée reçoit une notification « mention ». Un sondage est attaché à
+-- une publication : 2 à 6 options, un vote par membre, qu'il peut changer.
+alter table community_notifications drop constraint if exists community_notifications_kind_check;
+alter table community_notifications add constraint community_notifications_kind_check
+  check (kind in ('comment', 'reply', 'like_post', 'like_comment', 'mention'));
+
+create table if not exists community_polls (
+  post_id      uuid primary key references community_posts(id) on delete cascade,
+  options      text[] not null check (cardinality(options) between 2 and 6)
+);
+
+create table if not exists community_poll_votes (
+  post_id      uuid not null references community_polls(post_id) on delete cascade,
+  did          text not null references community_members(did) on delete cascade,
+  option       smallint not null check (option between 0 and 5),
+  created_at   timestamptz not null default now(),
+  primary key (post_id, did)
+);
