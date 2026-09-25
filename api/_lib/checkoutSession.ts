@@ -16,7 +16,14 @@
 
 /** Les métiers qu'on peut acheter · recopiés des identifiants de data/trades,
  *  parce qu'une fonction serveur ne lit pas le paquet du navigateur. */
-export const BUY_TRADES: ReadonlySet<string> = new Set(['growth', 'comms', 'founder', 'product', 'sales', 'assistant'])
+// LA LISTE DES MÉTIERS EN VENTE · recopiée ici parce que les fonctions du
+// serveur ne lisent pas les données du jeu. scripts/test-trades vérifie qu'elle
+// est identique à celle du programme : un métier affiché qu'on ne peut pas
+// acheter, ou l'inverse, serait vu.
+export const BUY_TRADES: ReadonlySet<string> = new Set([
+  'growth', 'comms', 'founder', 'product', 'sales', 'assistant',
+  'designer', 'teacher', 'student', 'scientist', 'developer', 'recruiter', 'lawyer', 'consultant',
+])
 
 /** Un identifiant de session Stripe Checkout · « cs_… ». */
 export const isCheckoutSessionId = (v: unknown): v is string =>

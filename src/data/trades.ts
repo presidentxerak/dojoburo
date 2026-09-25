@@ -1,4 +1,4 @@
-// LES FORMATIONS MÉTIER · six métiers, trois cités chacun.
+// LES FORMATIONS MÉTIER · quatorze métiers, trois cités chacun (les huit derniers dans data/metiers).
 //
 // ---------------------------------------------------------------------------
 // CE QU'UNE FORMATION MÉTIER EST, ET CE QU'ELLE N'EST PAS

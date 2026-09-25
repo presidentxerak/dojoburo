@@ -160,7 +160,9 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
               >
                 {done
                   ? <><BauhausIcon name="check" size={13} /> {say(level.badge, lang)}</>
-                  : <>{t('g.claim')} · {say(level.badge, lang)}</>}
+                  // LE NOM DU BADGE ENTRE GUILLEMETS · « Parle la langue » décrit ce que
+                  // l'élève a acquis ; collé au bouton, il se lisait comme un ordre.
+                  : <>{t('g.claim')} {lang === 'fr' ? `« ${say(level.badge, lang)} »` : `“${say(level.badge, lang)}”`}</>}
               </button>
               {next && (
                 <Lnk className="gm-cta" href={lessonPath(pack.id, next.level.id)}>

@@ -741,7 +741,7 @@ export function SimPage() {
               onClick={() => doBuy('train', trainPick)}>
               {save.staff[trainPick].level >= LEVEL_MAX
                 ? `${staffName(trainPick, lang)} · ${t(T.maxed)}`
-                : `${t(T.train)} ${staffName(trainPick, lang)} · ${euros(trainPrice(save, trainPick), lang)}`}
+                : `${t(T.train)} ${staffName(trainPick, lang).replace(/^./, (c) => c.toLowerCase())} · ${euros(trainPrice(save, trainPick), lang)}`}
             </button>
             <div className="sim-row">
               <button className="sim-btn sim-quiet" onClick={() => { sfx('close'); setScreen(summary ? 'summary' : 'title') }}>{t(T.backShort)}</button>

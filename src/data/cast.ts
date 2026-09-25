@@ -30,6 +30,8 @@ import { characterFor, faceIdForUseCase } from './agentFaces'
  *    · ASSISTANT · il organise le planning, entre son bureau et le tableau.
  *  Les deux salles de classe gardent leur maître qui enseigne à ses élèves. */
 export type RoomAction = 'teach' | 'sell' | 'present' | 'address' | 'build' | 'interview' | 'organize'
+  // les huit métiers ajoutés
+  | 'design' | 'revise' | 'experiment' | 'code' | 'recruit' | 'counsel' | 'workshop'
 
 export interface RoomCast {
   /** le maître d'une classe, ou le professionnel d'un métier */
@@ -98,6 +100,62 @@ export const DOJO_CAST: Record<DojoKit, RoomCast> = {
     lead: { kind: 'dragon', face: '#e0785a', outfit: '#f97316', outfit2: '#c2410c', pants: '#292524', extra: '#fde047' },
     action: 'sell', students: [],
     others: [{ kind: 'panda', face: '#fafafa', outfit: '#6366f1', outfit2: '#3730a3', pants: '#334155', extra: '#f9a8d4' }],
+  },
+  // designer · la caniche présente son mur d'inspiration à une cliente
+  design: {
+    lead: { kind: 'poodle', face: '#f1e4d8', outfit: '#f43f5e', outfit2: '#9f1239', pants: '#1f2937', extra: '#fde68a', acc: 'beret' },
+    action: 'design', students: [],
+    others: [{ kind: 'alien', face: '#bef264', outfit: '#0ea5e9', outfit2: '#075985', pants: '#1e293b', extra: '#f472b6' }],
+  },
+  // enseignant · la pieuvre fait cours au tableau, quatre élèves devant elle
+  school: {
+    lead: { kind: 'octopus', face: '#e7b8c8', outfit: '#eab308', outfit2: '#a16207', pants: '#1e293b', extra: '#fde68a' },
+    action: 'teach',
+    students: [
+      { kind: 'chicken', face: '#fafaf9', outfit: '#ef4444', outfit2: '#b91c1c', pants: '#334155', extra: '#fb923c' },
+      { kind: 'duck', face: '#fde68a', outfit: '#3b82f6', outfit2: '#1d4ed8', pants: '#334155', extra: '#fb923c' },
+      { kind: 'frog', face: '#8cc56a', outfit: '#a855f7', outfit2: '#7e22ce', pants: '#1f2937', extra: '#facc15' },
+      { kind: 'rabbit', face: '#efe6dc', outfit: '#22c55e', outfit2: '#15803d', pants: '#475569', extra: '#f9a8d4' },
+    ],
+    others: [],
+  },
+  // étudiant · le lapin révise à sa table, ses fiches se retournent
+  campus: {
+    lead: { kind: 'rabbit', face: '#efe6dc', outfit: '#3b82f6', outfit2: '#1d4ed8', pants: '#334155', extra: '#fde68a' },
+    action: 'revise', students: [], others: [],
+  },
+  // scientifique · le cyborg en blouse mène son expérience, une collègue observe
+  lab: {
+    lead: { kind: 'cyborg', face: '#d6d3d1', outfit: '#f4f4f5', outfit2: '#6366f1', pants: '#27272a', extra: '#22d3ee' },
+    action: 'experiment', students: [],
+    others: [{ kind: 'jellyfish', face: '#f5d0fe', outfit: '#6366f1', outfit2: '#3730a3', pants: '#1e1b4b', extra: '#67e8f9' }],
+  },
+  // développeur · l'écran code, le ninja fait la revue
+  code: {
+    lead: { kind: 'monitor', face: '#9ca3af', outfit: '#84cc16', outfit2: '#3f6212', pants: '#1f2937', extra: '#22d3ee' },
+    action: 'code', students: [],
+    others: [{ kind: 'ninja', face: '#e9e4da', outfit: '#1f2937', outfit2: '#111827', pants: '#111827', extra: '#84cc16' }],
+  },
+  // recruteur · entretien d'embauche, le candidat en face
+  hire: {
+    lead: { kind: 'bibendum', face: '#fafafa', outfit: '#a855f7', outfit2: '#6b21a8', pants: '#334155', extra: '#fda4af' },
+    action: 'recruit', students: [],
+    others: [{ kind: 'frog', face: '#8cc56a', outfit: '#0f766e', outfit2: '#134e4a', pants: '#1f2937', extra: '#fde68a' }],
+  },
+  // juriste · la vampire relit un contrat avec son client, la balance entre eux
+  law: {
+    lead: { kind: 'vampire', face: '#e2e8f0', outfit: '#1e293b', outfit2: '#b45309', pants: '#0f172a', extra: '#7f1d1d' },
+    action: 'counsel', students: [],
+    others: [{ kind: 'duck', face: '#fde68a', outfit: '#0ea5e9', outfit2: '#0369a1', pants: '#334155', extra: '#fb923c' }],
+  },
+  // consultant · atelier au tableau de post-it, deux clients écoutent
+  consult: {
+    lead: { kind: 'goldorak', face: '#e5e7eb', outfit: '#d946ef', outfit2: '#86198f', pants: '#334155', extra: '#fde047' },
+    action: 'workshop', students: [],
+    others: [
+      { kind: 'penguin', face: '#f4f1ea', outfit: '#1f2937', outfit2: '#111827', pants: '#111827', extra: '#dc2626' },
+      { kind: 'bear', face: '#b98b62', outfit: '#16a34a', outfit2: '#14532d', pants: '#374151', extra: '#fde68a' },
+    ],
   },
   // assistant · le fantôme organise le planning, sous l'oeil de sa manager
   ops: {

@@ -24,7 +24,7 @@
 //
 //   node scripts/test-trades.mjs
 import { build } from 'esbuild'
-import { writeFileSync, mkdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -53,7 +53,18 @@ const { PATH_MODULES, ALL_MODULES, MODULE_BY_ID } = C
 
 /* --- 1 · chaque métier est entier ---------------------------------------- */
 
-ok('il y a six métiers', TRADE_COUNT === 6, `${TRADE_COUNT}`)
+// QUATORZE MÉTIERS · six au départ, puis huit demandés (« ajoute pleins
+// d'autres formations métier : Designer, Teacher, Student, Scientist… »).
+ok('il y a quatorze métiers', TRADE_COUNT === 14, `${TRADE_COUNT}`)
+// … ET CHACUN PEUT S'ACHETER · la liste du serveur est recopiée (les fonctions
+// ne lisent pas les données du jeu) ; elle doit être la même, ni plus ni moins.
+{
+  const src = readFileSync('api/_lib/checkoutSession.ts', 'utf8')
+  const block = src.match(/BUY_TRADES[^=]*=\s*new Set\(\[([\s\S]*?)\]\)/)?.[1] ?? ''
+  const buy = [...block.matchAll(/'([a-z]+)'/g)].map((m) => m[1]).sort()
+  const ids = TRADES.map((t) => t.id).sort()
+  ok('chaque métier du programme peut s\'acheter, et rien d\'autre', buy.join(',') === ids.join(','), `serveur ${buy.length} · programme ${ids.length}`)
+}
 ok('aucun identifiant de métier en double',
   new Set(TRADES.map((t) => t.id)).size === TRADES.length)
 

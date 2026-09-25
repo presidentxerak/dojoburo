@@ -66,6 +66,8 @@ export type Door = 'free' | 'path' | 'trade'
  *  kits de three/ThemeProps. Écrit en type plutôt qu'en chaîne libre pour
  *  qu'une faute de frappe se voie à la compilation et non par une salle vide. */
 export type DojoKit = 'course' | 'study' | 'saas' | 'podcast' | 'pitch' | 'app' | 'sales' | 'ops'
+  // les huit métiers ajoutés · voir data/metiers et game/PackArt
+  | 'design' | 'school' | 'campus' | 'lab' | 'code' | 'hire' | 'law' | 'consult'
 
 export interface Pack {
   id: string
@@ -136,6 +138,14 @@ const TRADE_KIT: Record<string, DojoKit> = {
   product: 'app',        // les serveurs, le tableau de flux
   sales: 'sales',        // les téléphones, la carte du territoire
   assistant: 'ops',      // le tapis roulant, les palettes, le flux
+  designer: 'design',    // le mur d'inspiration, les nuanciers
+  teacher: 'school',     // le tableau noir, la classe
+  student: 'campus',     // la table de révision, les fiches
+  scientist: 'lab',      // la paillasse, les fioles
+  developer: 'code',     // les écrans, la revue de code
+  recruiter: 'hire',     // la table d'entretien, le CV
+  lawyer: 'law',         // le contrat, la balance
+  consultant: 'consult', // l'atelier au tableau
 }
 
 const TRADE_PACKS: Pack[] = TRADES.map((t) => ({
