@@ -107,7 +107,11 @@ export function SnapshotFactory() {
   // unmounts · no idle GPU, and its WebGL context is released.
   if (!job) return null
   return (
-    <div aria-hidden style={{ position: 'fixed', left: -10000, top: -10000, width: 128, height: 128, pointerEvents: 'none', opacity: 0 }}>
+    // Parked INSIDE the viewport (top-left corner), invisible and clipped to
+    // nothing: a box at -10000 px counted as content overflowing the page for
+    // the layout audits, and some mobile browsers widen the layout viewport
+    // to include it. Clipping and opacity do not affect what the canvas draws.
+    <div aria-hidden style={{ position: 'fixed', left: 0, top: 0, width: 128, height: 128, pointerEvents: 'none', opacity: 0, clipPath: 'inset(50%)', zIndex: -1 }}>
       <Canvas
         dpr={1.3}
         camera={{ position: [0, 0.25, 4.3], fov: 40 }}
