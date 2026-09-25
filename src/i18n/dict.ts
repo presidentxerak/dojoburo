@@ -490,7 +490,7 @@ export const DICT = {
 
   /* --- le jeu · la coquille et les onglets -------------------------------- */
   'nav.game': { en: 'Dojoburo', fr: 'Dojoburo' },
-  'nav.training': { en: 'Training', fr: 'Training' },
+  'nav.training': { en: 'AI Training', fr: 'IA Training' },
   'nav.clan': { en: 'Clan', fr: 'Clan' },
   'nav.profile': { en: 'Profile', fr: 'Profil' },
   'gm.tabs': { en: 'Main navigation', fr: 'Navigation principale' },
@@ -545,7 +545,7 @@ export const DICT = {
   'gm.toNext': { en: "XP to the next level", fr: "XP avant le niveau suivant" },
   'gm.dojosDone': { en: "dojos done", fr: "dojos terminés" },
   'gm.xpTitle': { en: "Experience earned across every dojo you finished", fr: "Expérience acquise sur l'ensemble des dojos terminés" },
-  'gm.dojosTitle': { en: "Your dojos", fr: "Vos dojos" },
+  'gm.dojosTitle': { en: "AI Training", fr: "IA Training" },
   'gm.dojosLead': { en: "Pick your training and finally put AI to work. Each one is a set of dojo cities you cross at your own pace.", fr: "Choisissez une formation pour apprendre à faire travailler l'IA pour vous. Chacune regroupe des cités dojo, que vous parcourez à votre rythme." },
   'gm.modules': { en: 'modules', fr: 'modules' },
   'gm.module1': { en: 'module', fr: 'module' },
@@ -557,7 +557,7 @@ export const DICT = {
   'gm.finished': { en: 'Done', fr: 'Terminé' },
   'gm.start': { en: "Let's go", fr: "Commencer" },
   'gm.see': { en: "Discover", fr: "Découvrez" },
-  'gm.backDojos': { en: "Your dojos", fr: "Vos dojos" },
+  'gm.backDojos': { en: "Back to AI Training", fr: "Retour à IA Training" },
   'gm.noPack': { en: 'Training not found', fr: 'Formation introuvable' },
   'gm.noPackBody': { en: 'There is no training at that address.', fr: "Il n'y a aucune formation à cette adresse." },
   'gm.lockTitle': { en: "This training is still locked", fr: "Cette formation est encore verrouillée" },

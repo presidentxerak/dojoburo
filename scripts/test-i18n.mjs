@@ -129,9 +129,10 @@ const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac
   'mp.agent', 'mp.agents',
   // « question » aussi : même mot, même sens, dans les deux langues.
   'ln.q',
-  // « Dojoburo » est un nom propre, et « Training » a été demandé tel quel
-  // dans les deux langues.
-  'nav.game', 'nav.training',
+  // « Dojoburo » est un nom propre. (« Training » y figurait aussi ; il est
+  // devenu « IA Training » en français et « AI Training » en anglais, demandé :
+  // « renomme le bouton et la page Training par IA Training ».)
+  'nav.game',
   // « dojo » et « badge » non plus ne se traduisent pas : le premier est un
   // emprunt au japonais dans les deux langues, le second un emprunt du
   // français vers l'anglais qui est revenu identique. Les traduire serait

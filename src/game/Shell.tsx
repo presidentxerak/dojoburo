@@ -43,8 +43,13 @@ import { levelOf } from './Gauge'
 import type { IconName } from '../data/icons'
 import { LangSwitch } from '../components/LangSwitch'
 import { useGame } from './progress'
-import { useAccount, initialOf } from '../lib/account'
+import { useAccount } from '../lib/account'
 import { AT, useAccountText } from './accountText'
+import { SnapshotFactory } from '../components/three/snapshotFactory'
+import { GradeAvatar } from './Icon3D'
+import { rankOf } from './ranks'
+import { say } from '../data/bilingual'
+import { useLang } from '../i18n'
 
 /** Les trois portes · l'ordre est celui de la barre, de gauche à droite.
  *
@@ -117,11 +122,10 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
   const g = useGame()
   const bump = useBump(g.xp)
   const lv = levelOf(g.xp)
-  const acc = useAccount()
 
   return (
     <div className="gm">
-      <header className={`gm-top${acc.enabled ? ' has-acct' : ''}`}>
+      <header className="gm-top has-acct">
         <Lnk className="gm-brand" href="/">
           <Logo size={30} />
           <span className="gm-brand-wm"><Wordmark /></span>
@@ -154,6 +158,12 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
         </div>
       </header>
 
+      {/* LA FABRIQUE DES PORTRAITS · l'avatar de grade et les icônes 3D du
+          profil sont dessinés une fois, en image, par un seul contexte caché
+          (voir components/three/snapshotFactory). Elle ne monte son canvas que
+          s'il y a une image à faire. */}
+      <SnapshotFactory />
+
       <main className={`gm-main${wide ? ' wide' : ''}`}>{children}</main>
 
       {/* LA BARRE DU BAS · elle reste au doigt, à hauteur de pouce, et elle ne
@@ -183,30 +193,35 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
   )
 }
 
-/** L'ENTRÉE DU COMPTE · une pastille ronde à l'initiale quand on est connecté,
- *  une puce « Connexion » sinon · les deux mènent au profil, où vit la carte
- *  « Votre compte ». Rien du tout quand la connexion n'est pas activée sur ce
- *  déploiement : un bouton qui ne mène à rien serait une promesse fausse.
+/** L'ENTRÉE DU PROFIL · l'avatar du grade atteint, toujours présent.
  *
- *  À PLAT, et petite · l'en-tête tient déjà le logo, la jauge et la langue à
- *  320 px. Sous 720 px la puce perd son texte (il reste pour le lecteur
- *  d'écran), et sous 480 px le nom de la marque s'efface à l'oeil pour lui
- *  faire place (voir .gm-top.has-acct dans index.css). */
+ *  AVANT · une pastille à l'initiale de l'adresse (« A ») quand on était
+ *  connecté, une puce « Connexion » sinon, et rien du tout quand la connexion
+ *  n'était pas activée. Demandé : « crée des icônes de profil en fonction du
+ *  grade de l'étudiant ». L'initiale ne disait rien du travail fait ; le
+ *  personnage du grade, dans l'anneau de sa ceinture, le dit sur chaque écran
+ *  (voir game/ranks).
+ *
+ *  LA CONNEXION RESTE À UN GESTE · déconnecté, la puce garde son texte
+ *  « Connexion » à côté de l'avatar sur les grands écrans (il reste pour le
+ *  lecteur d'écran sur les petits), et un point violet signale qu'elle attend.
+ *  Tout mène au profil, où vit l'onglet « Compte ». */
 function AccountEntry() {
   const acc = useAccount()
   const { t } = useAccountText()
-  if (!acc.enabled) return null
-  if (acc.signedIn) {
-    return (
-      <Lnk className="gm-acct in" href="/profil" aria-label={`${t(AT.headerAccount)} · ${acc.email}`} title={acc.email}>
-        {initialOf(acc.email)}
-      </Lnk>
-    )
-  }
+  const lang = useLang()
+  const g = useGame()
+  const rank = rankOf(levelOf(g.xp).level)
+  const grade = `${say(rank.belt, lang)} · ${say(rank.title, lang)}`
+  const waiting = acc.enabled && !acc.signedIn
+  const label = acc.signedIn
+    ? `${t(AT.headerAccount)} · ${grade} · ${acc.email}`
+    : waiting ? `${t(AT.headerSignIn)} · ${grade}` : grade
   return (
-    <Lnk className="gm-acct out" href="/profil" aria-label={t(AT.headerSignIn)}>
-      <BauhausIcon name="smile" size={16} />
-      <span className="gm-acct-t">{t(AT.headerSignIn)}</span>
+    <Lnk className={`gm-acct gm-me${waiting ? ' out' : ' in'}`} href="/profil" aria-label={label} title={grade}>
+      <GradeAvatar rank={rank} size={34} />
+      {waiting && <i className="gm-me-dot" aria-hidden="true" />}
+      {waiting && <span className="gm-acct-t">{t(AT.headerSignIn)}</span>}
     </Lnk>
   )
 }
