@@ -1,4 +1,4 @@
-// LES FORMATIONS MÉTIER · six métiers, trois cités chacun.
+// LES FORMATIONS MÉTIER · quatorze métiers, trois cités chacun (les huit derniers dans data/metiers).
 //
 // ---------------------------------------------------------------------------
 // CE QU'UNE FORMATION MÉTIER EST, ET CE QU'ELLE N'EST PAS
@@ -32,6 +32,7 @@
 import { B } from './bilingual'
 import type { Level, Module } from './curriculum'
 import type { IconName } from './icons'
+import { NEW_TRADE_PACKS } from './metiers'
 
 /** Un métier · ce qu'on choisit avant de commencer. */
 export interface Trade {
@@ -2410,9 +2411,10 @@ export const TRADES_2: Trade[] = [
 // TOUT EST CALCULÉ ICI AUSSI · un métier qui annonce neuf dojos et en sert
 // huit ment à celui qui vient de payer, et c'est le pire moment pour mentir.
 
-export const TRADES: Trade[] = [...TRADES_1, ...TRADES_2]
+// LES NOUVEAUX MÉTIERS · un fichier chacun, voir data/metiers.
+export const TRADES: Trade[] = [...TRADES_1, ...TRADES_2, ...NEW_TRADE_PACKS.map((p) => p.trade)]
 
-export const TRADE_MODULES: Module[] = [...TRADE_MODULES_1, ...TRADE_MODULES_2]
+export const TRADE_MODULES: Module[] = [...TRADE_MODULES_1, ...TRADE_MODULES_2, ...NEW_TRADE_PACKS.flatMap((p) => p.modules)]
 
 export const TRADE_BY_ID: Record<string, Trade> =
   Object.fromEntries(TRADES.map((t) => [t.id, t]))

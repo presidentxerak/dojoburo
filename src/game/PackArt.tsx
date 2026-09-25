@@ -181,6 +181,23 @@ const ROOMS: Record<DojoKit, { decor: string; layout: string; walls: [string, st
   app: { decor: 'space', layout: 'left', walls: ['#e7e9f8', '#dcdff3'], trim: '#4338ca', sky: '#dbe0ff' },
   sales: { decor: 'garden', layout: 'right', walls: ['#ffe6d0', '#fad9bd'], trim: '#c2410c', sky: '#ffe0c2' },
   ops: { decor: 'forest', layout: 'wide', walls: ['#f3eee0', '#ebe4d0'], trim: '#065f46', sky: '#e3f1e5' },
+  // les huit métiers ajoutés · chacun ses murs, son sol, sa disposition
+  design: { decor: 'lab', layout: 'backwall', walls: ['#fff1f2', '#ffe4e6'], trim: '#be123c', sky: '#ffe4e6' },
+  school: { decor: 'castle', layout: 'sides', walls: ['#fefce8', '#fef9c3'], trim: '#854d0e', sky: '#fef3c7' },
+  campus: { decor: 'garden', layout: 'corners', walls: ['#eff6ff', '#dbeafe'], trim: '#1d4ed8', sky: '#dbeafe' },
+  lab: { decor: 'lab', layout: 'arc', walls: ['#eef2ff', '#e0e7ff'], trim: '#4338ca', sky: '#e0e7ff' },
+  code: { decor: 'space', layout: 'right', walls: ['#1f2937', '#111827'], trim: '#65a30d', sky: '#0f172a' },
+  hire: { decor: 'castle', layout: 'horseshoe', walls: ['#faf5ff', '#f3e8ff'], trim: '#7e22ce', sky: '#f3e8ff' },
+  law: { decor: 'castle', layout: 'backwall', walls: ['#f5efe6', '#ece2d2'], trim: '#78350f', sky: '#efe4d3' },
+  consult: { decor: 'lab', layout: 'wide', walls: ['#fdf4ff', '#fae8ff'], trim: '#a21caf', sky: '#fae8ff' },
+}
+
+/** LES MEUBLES DE CHAQUE SALLE · les kits de three/ThemeProps. Les six salles
+ *  d'origine portent un kit du même nom ; les huit nouvelles empruntent celui
+ *  qui dit le mieux leur métier. */
+const PROPS_OF: Partial<Record<DojoKit, string>> = {
+  design: 'brand', school: 'course', campus: 'book', lab: 'saas',
+  code: 'app', hire: 'hiring', law: 'book', consult: 'partnership',
 }
 
 /* ------------------------------------------------------------------ */
@@ -508,6 +525,169 @@ function PlannerBoard({ at, face, tint }: { at: [number, number]; face: number; 
   )
 }
 
+/** LE MUR D'INSPIRATION DU DESIGNER · des nuanciers qui changent de teinte,
+ *  comme une palette qu'on essaie. */
+function Moodboard({ at, face, tint }: { at: [number, number]; face: number; tint: string }) {
+  const tiles = useRef<(THREE.MeshStandardMaterial | null)[]>([])
+  const PALETTES = [[tint, '#fde68a', '#1f2937', '#f9a8d4', '#a5f3fc', '#ffffff'], ['#0ea5e9', '#f97316', '#fef3c7', '#1e3a8a', '#fda4af', '#d9f99d'], ['#16a34a', '#fef9c3', '#78350f', '#fecaca', '#111827', tint]]
+  useFrame(({ clock }) => {
+    const p = PALETTES[Math.floor(clock.elapsedTime / 3) % PALETTES.length]
+    tiles.current.forEach((m, i) => { if (m) m.color.set(p[i % p.length]) })
+  })
+  return (
+    <group position={[at[0], 0, at[1]]} rotation={[0, face, 0]}>
+      <mesh position={[0, 1.9, 0]}><boxGeometry args={[3.0, 2.0, 0.08]} /><meshStandardMaterial color="#f8fafc" roughness={0.8} /></mesh>
+      {Array.from({ length: 6 }, (_, i) => (
+        <mesh key={i} position={[-0.95 + (i % 3) * 0.95, 2.35 - Math.floor(i / 3) * 0.85, 0.06]} rotation={[0, 0, (i % 2 ? 1 : -1) * 0.05]}>
+          <boxGeometry args={[0.8, 0.7, 0.02]} />
+          <meshStandardMaterial ref={(m) => { tiles.current[i] = m }} color={tint} roughness={0.6} />
+        </mesh>
+      ))}
+      <mesh position={[-1.3, 0.45, 0]}><boxGeometry args={[0.08, 0.9, 0.08]} /><meshStandardMaterial color="#475569" /></mesh>
+      <mesh position={[1.3, 0.45, 0]}><boxGeometry args={[0.08, 0.9, 0.08]} /><meshStandardMaterial color="#475569" /></mesh>
+    </group>
+  )
+}
+
+/** LA PAILLASSE DU SCIENTIFIQUE · trois fioles dont la couleur pulse et d'où
+ *  montent des bulles. */
+function LabBench({ at, tint }: { at: [number, number]; tint: string }) {
+  const liquids = useRef<(THREE.MeshStandardMaterial | null)[]>([])
+  const bubbles = useRef<(THREE.Mesh | null)[]>([])
+  const COLS = [tint, '#22d3ee', '#a3e635']
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime
+    liquids.current.forEach((m, i) => { if (m) m.emissiveIntensity = 0.25 + Math.max(0, Math.sin(t * 1.4 + i * 2)) * 0.6 })
+    bubbles.current.forEach((b, i) => {
+      if (!b) return
+      const k = ((t * 0.6 + i * 0.37) % 1)
+      b.position.y = 1.35 + k * 0.9
+      b.scale.setScalar(0.6 + k * 0.6)
+      b.visible = k < 0.92
+    })
+  })
+  return (
+    <group position={[at[0], 0, at[1]]}>
+      <mesh position={[0, 0.45, 0]}><boxGeometry args={[2.8, 0.9, 1.0]} /><meshStandardMaterial color="#e2e8f0" roughness={0.7} /></mesh>
+      <mesh position={[0, 0.92, 0]}><boxGeometry args={[2.9, 0.06, 1.1]} /><meshStandardMaterial color="#1f2937" roughness={0.5} /></mesh>
+      {COLS.map((c, i) => (
+        <group key={i} position={[-0.9 + i * 0.9, 0.95, 0]}>
+          <mesh position={[0, 0.2, 0]}><coneGeometry args={[0.24, 0.4, 16, 1, true]} /><meshStandardMaterial color="#e0f2fe" transparent opacity={0.45} /></mesh>
+          <mesh position={[0, 0.12, 0]}><coneGeometry args={[0.19, 0.24, 16]} /><meshStandardMaterial ref={(m) => { liquids.current[i] = m }} color={c} emissive={c} emissiveIntensity={0.3} /></mesh>
+          <mesh position={[0, 0.5, 0]}><cylinderGeometry args={[0.06, 0.06, 0.25, 12]} /><meshStandardMaterial color="#e0f2fe" transparent opacity={0.45} /></mesh>
+          <mesh ref={(m) => { bubbles.current[i] = m }} position={[0, 1.35, 0]}><sphereGeometry args={[0.05, 10, 8]} /><meshStandardMaterial color={c} transparent opacity={0.7} /></mesh>
+        </group>
+      ))}
+    </group>
+  )
+}
+
+/** LE POSTE DU DÉVELOPPEUR · deux écrans où défilent des lignes de code. */
+function DevDesk({ at, tint }: { at: [number, number]; tint: string }) {
+  const lines = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (lines.current) lines.current.position.y = ((clock.elapsedTime * 0.25) % 0.36)
+  })
+  const W = [0.7, 0.45, 0.6, 0.3, 0.55, 0.4, 0.65, 0.35]
+  return (
+    <group position={[at[0], 0, at[1]]}>
+      <mesh position={[0, 0.45, 0]}><boxGeometry args={[2.6, 0.9, 1.0]} /><meshStandardMaterial color="#334155" roughness={0.7} /></mesh>
+      <mesh position={[0, 0.92, 0]}><boxGeometry args={[2.7, 0.06, 1.1]} /><meshStandardMaterial color="#1e293b" /></mesh>
+      {[-0.6, 0.6].map((x, s) => (
+        <group key={x} position={[x, 1.45, -0.2]} rotation={[0, s ? -0.2 : 0.2, 0]}>
+          <mesh><boxGeometry args={[1.05, 0.7, 0.05]} /><meshStandardMaterial color="#0f172a" /></mesh>
+          <group position={[0, 0, 0.03]}>
+            <group ref={s === 0 ? lines : undefined}>
+              {W.map((w, i) => (
+                <mesh key={i} position={[-0.45 + w / 2 + (i % 3) * 0.06, 0.24 - i * 0.07, 0]}>
+                  <boxGeometry args={[w, 0.03, 0.01]} />
+                  <meshStandardMaterial color={i % 3 === 0 ? tint : i % 3 === 1 ? '#38bdf8' : '#e2e8f0'} emissive={i % 3 === 0 ? tint : '#38bdf8'} emissiveIntensity={0.4} />
+                </mesh>
+              ))}
+            </group>
+          </group>
+          <mesh position={[0, -0.45, 0.05]}><boxGeometry args={[0.08, 0.25, 0.08]} /><meshStandardMaterial color="#475569" /></mesh>
+        </group>
+      ))}
+    </group>
+  )
+}
+
+/** LA TABLE DE RÉVISION DE L'ÉTUDIANT · des piles de livres, et une fiche
+ *  qui se retourne : question, puis réponse. */
+function StudyDesk({ at, tint }: { at: [number, number]; tint: string }) {
+  const card = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => {
+    if (card.current) card.current.rotation.y = Math.floor(clock.elapsedTime / 2.2) % 2 ? Math.PI : 0
+  })
+  const BOOKS = [tint, '#f97316', '#16a34a', '#eab308', '#6366f1']
+  return (
+    <group position={[at[0], 0, at[1]]}>
+      <mesh position={[0, 0.45, 0]}><boxGeometry args={[2.6, 0.9, 1.1]} /><meshStandardMaterial color="#c08a55" roughness={0.8} /></mesh>
+      <mesh position={[0, 0.92, 0]}><boxGeometry args={[2.7, 0.06, 1.2]} /><meshStandardMaterial color="#a16207" roughness={0.8} /></mesh>
+      {BOOKS.map((c, i) => (
+        <mesh key={i} position={[-0.9, 1.02 + i * 0.12, 0.1]} rotation={[0, i * 0.18, 0]}>
+          <boxGeometry args={[0.6, 0.1, 0.42]} /><meshStandardMaterial color={c} roughness={0.7} />
+        </mesh>
+      ))}
+      <group ref={card} position={[0.4, 1.3, 0.1]}>
+        <mesh><boxGeometry args={[0.7, 0.45, 0.02]} /><meshStandardMaterial color="#ffffff" /></mesh>
+        <mesh position={[0, 0.08, 0.015]}><boxGeometry args={[0.45, 0.05, 0.005]} /><meshStandardMaterial color={tint} /></mesh>
+        <mesh position={[0, -0.05, -0.015]}><boxGeometry args={[0.5, 0.05, 0.005]} /><meshStandardMaterial color="#16a34a" /></mesh>
+      </group>
+      <mesh position={[1.0, 1.02, 0.2]}><boxGeometry args={[0.5, 0.06, 0.36]} /><meshStandardMaterial color="#e2e8f0" /></mesh>
+    </group>
+  )
+}
+
+/** UNE TABLE D'ENTRETIEN OU DE RENDEZ-VOUS · deux côtés, un document au
+ *  milieu (un CV, un contrat), et pour le juriste, sa balance. */
+function MeetingDesk({ at, tint, paper, scales = false }: { at: [number, number]; tint: string; paper: string; scales?: boolean }) {
+  const beam = useRef<THREE.Group>(null)
+  useFrame(({ clock }) => { if (beam.current) beam.current.rotation.z = Math.sin(clock.elapsedTime * 1.2) * 0.12 })
+  return (
+    <group position={[at[0], 0, at[1]]}>
+      <mesh position={[0, 0.45, 0]}><boxGeometry args={[3.0, 0.9, 1.2]} /><meshStandardMaterial color="#7c4a2a" roughness={0.7} /></mesh>
+      <mesh position={[0, 0.92, 0]}><boxGeometry args={[3.1, 0.06, 1.3]} /><meshStandardMaterial color="#5b3520" roughness={0.6} /></mesh>
+      {[-0.25, 0.25].map((x, i) => (
+        <mesh key={x} position={[x, 0.97, 0.1]} rotation={[-Math.PI / 2, 0, (i ? -1 : 1) * 0.1]}><planeGeometry args={[0.42, 0.56]} /><meshStandardMaterial color={paper} side={THREE.DoubleSide} /></mesh>
+      ))}
+      <mesh position={[0.9, 1.0, -0.2]}><boxGeometry args={[0.5, 0.05, 0.36]} /><meshStandardMaterial color={tint} /></mesh>
+      {scales && (
+        <group position={[-1.0, 0.95, -0.2]}>
+          <mesh position={[0, 0.35, 0]}><cylinderGeometry args={[0.03, 0.05, 0.7, 10]} /><meshStandardMaterial color="#ca8a04" metalness={0.6} roughness={0.3} /></mesh>
+          <group ref={beam} position={[0, 0.7, 0]}>
+            <mesh><boxGeometry args={[0.7, 0.03, 0.03]} /><meshStandardMaterial color="#ca8a04" metalness={0.6} roughness={0.3} /></mesh>
+            {[-0.33, 0.33].map((x) => (
+              <mesh key={x} position={[x, -0.18, 0]}><cylinderGeometry args={[0.12, 0.08, 0.04, 16]} /><meshStandardMaterial color="#eab308" metalness={0.6} roughness={0.3} /></mesh>
+            ))}
+          </group>
+        </group>
+      )}
+    </group>
+  )
+}
+
+/** LE TABLEAU NOIR DE L'ENSEIGNANT · des lignes de craie qui s'écrivent. */
+function Blackboard({ at }: { at: [number, number] }) {
+  const lines = useRef<(THREE.Mesh | null)[]>([])
+  useFrame(({ clock }) => {
+    const c = clock.elapsedTime % 8
+    lines.current.forEach((m, i) => { if (m) { const k = Math.max(0, Math.min(1, (c - i * 1.4) / 1.2)); m.scale.x = Math.max(0.001, k); m.position.x = -1.1 + (1.6 * k) / 2 } })
+  })
+  return (
+    <group position={[at[0], 0, at[1]]}>
+      <mesh position={[0, 2.2, 0]}><boxGeometry args={[3.2, 1.7, 0.08]} /><meshStandardMaterial color="#14532d" roughness={0.9} /></mesh>
+      <mesh position={[0, 2.2, -0.03]}><boxGeometry args={[3.4, 1.9, 0.06]} /><meshStandardMaterial color="#78350f" /></mesh>
+      {[0, 1, 2, 3].map((i) => (
+        <mesh key={i} ref={(m) => { lines.current[i] = m }} position={[-1.1, 2.7 - i * 0.32, 0.05]}>
+          <boxGeometry args={[1.6, 0.05, 0.01]} /><meshStandardMaterial color="#f8fafc" />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
 /* ------------------------------------------------------------------ */
 /* LES SCÈNES                                                          */
 /* ------------------------------------------------------------------ */
@@ -527,6 +707,7 @@ function Cast({ kit, tint, phase }: { kit: DojoKit; tint: string; phase: number 
         : [[-3.6, 1.2], [-1.6, 2.2], [1.6, 2.2], [3.6, 1.2]]
       return (
         <>
+          {kit === 'school' && <Blackboard at={[0, -3.9]} />}
           <Actor who={`${kit}-lead`} character={cast.lead} gesture="teach" at={master} look={[0, 4]} phase={phase} />
           {cast.students.map((c, k) => (
             <Actor key={k} who={`${kit}-s${k}`} character={c} gesture="study"
@@ -604,6 +785,72 @@ function Cast({ kit, tint, phase }: { kit: DojoKit; tint: string; phase: number 
           <PlannerBoard at={board} face={0.3} tint={tint} />
           <Actor who={`${kit}-lead`} character={cast.lead} gesture="organize" at={[desk[0] - 0.2, desk[1] - 0.8]} look={[desk[0], desk[1] + 3]} look2={[board[0] + 0.6, board[1] + 1.3]} phase={phase} />
           {o[0] && <Actor who={`${kit}-o0`} character={o[0]} gesture="listen" at={[2.9, -0.8]} look={board} phase={phase + 0.6} />}
+        </>
+      )
+    }
+    case 'design': {
+      // LE DESIGNER PRÉSENTE SES PISTES · le mur de nuanciers d'un côté, la
+      // cliente de l'autre.
+      const board: [number, number] = [-1.6, -2.4], who: [number, number] = [0.5, -0.9], client: [number, number] = [2.2, 1.2]
+      return (
+        <>
+          <Moodboard at={board} face={0.35} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="talk" at={who} look={client} look2={board} phase={phase} />
+          {o[0] && <Actor who={`${kit}-o0`} character={o[0]} gesture="listen" at={client} look={[-0.6, -2.0]} phase={phase + 0.4} />}
+        </>
+      )
+    }
+    case 'revise':
+      // L'ÉTUDIANT RÉVISE · ses livres empilés, ses fiches qui se retournent.
+      return (
+        <>
+          <StudyDesk at={[0, 1.2]} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="build" at={[0.3, 0.1]} look={[0.3, 4]} phase={phase} />
+        </>
+      )
+    case 'experiment':
+      // LE SCIENTIFIQUE À SA PAILLASSE · une collègue suit l'expérience.
+      return (
+        <>
+          <LabBench at={[0, 1.2]} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="build" at={[-0.2, 0.1]} look={[-0.2, 4]} phase={phase} />
+          {o[0] && <Actor who={`${kit}-o0`} character={o[0]} gesture="listen" at={[2.4, 0.6]} look={[0, 1.2]} phase={phase + 0.5} />}
+        </>
+      )
+    case 'code':
+      // LE DÉVELOPPEUR À SES ÉCRANS · un relecteur fait la revue de code.
+      return (
+        <>
+          <DevDesk at={[0, 1.2]} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="build" at={[0, 0.1]} look={[0, 4]} phase={phase} />
+          {o[0] && <Actor who={`${kit}-o0`} character={o[0]} gesture="listen" at={[2.3, 0.4]} look={[0.6, 1.4]} phase={phase + 0.6} />}
+        </>
+      )
+    case 'recruit':
+    case 'counsel': {
+      // L'ENTRETIEN · le recruteur face au candidat, le juriste face à son
+      // client, le document entre eux.
+      const desk: [number, number] = [0, 0.9]
+      const pro: [number, number] = [-1.9, 0.6], guest: [number, number] = [1.9, 0.6]
+      return (
+        <>
+          <MeetingDesk at={desk} tint={tint} paper={cast.action === 'counsel' ? '#fefce8' : '#ffffff'} scales={cast.action === 'counsel'} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="talk" at={pro} look={[guest[0], guest[1] + 1]} look2={[desk[0], desk[1]]} phase={phase} />
+          {o[0] && <Actor who={`${kit}-o0`} character={o[0]} gesture="listen" at={guest} look={[pro[0], pro[1] + 1]} phase={phase + 0.5} />}
+        </>
+      )
+    }
+    case 'workshop': {
+      // L'ATELIER DU CONSULTANT · le tableau de post-it, deux clients.
+      const board: [number, number] = [0, -2.6], who: [number, number] = [-1.4, -1.2]
+      const clients: [number, number][] = [[1.0, 1.4], [2.6, 0.6]]
+      return (
+        <>
+          <PlannerBoard at={board} face={0} tint={tint} />
+          <Actor who={`${kit}-lead`} character={cast.lead} gesture="talk" at={who} look={clients[0]} look2={board} phase={phase} />
+          {o.map((c, k) => (
+            <Actor key={k} who={`${kit}-o${k}`} character={c} gesture="listen" at={clients[k % clients.length]} look={board} phase={phase + k * 0.7} />
+          ))}
         </>
       )
     }
@@ -707,7 +954,7 @@ export function PackArt({ kit, tint, locked = false }: {
         <Suspense fallback={null}>
           <Frozen>
             <Decor3D palette={P} decor={R.decor} enclosed={tpl.enclosed} stations={stations} />
-            <ThemeProps archetype={kit} accent={tint} slots={LAYOUTS[R.layout]} />
+            <ThemeProps archetype={PROPS_OF[kit] ?? kit} accent={tint} slots={LAYOUTS[R.layout]} />
           </Frozen>
           <Cast kit={kit} tint={tint} phase={phase} />
         </Suspense>
