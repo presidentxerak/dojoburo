@@ -103,6 +103,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (action === 'like') return await toggleLike(res, me, body)
     if (action === 'pin') return await pin(res, me, body)
     if (action === 'delete') return await remove(res, me, body)
+    if (action === 'edit') return await edit(res, me, body)
     return send(res, 400, { ok: false, error: 'action' })
   } catch {
     return send(res, 500, { ok: false, error: 'server' })
@@ -171,7 +172,7 @@ async function onePost(res: ServerResponse, url: URL, me: string | null) {
   )
   if (!r.rows[0]) return send(res, 404, { ok: false, error: 'not_found' })
   const c = await pool.query(
-    `select c.id, c.post_id, c.parent_id, c.body, c.likes, c.deleted, c.created_at, c.author_did, m.name as author_name,
+    `select c.id, c.post_id, c.parent_id, c.body, c.likes, c.deleted, c.created_at, c.edited_at, c.author_did, m.name as author_name,
             m.handle as author_handle, m.points as author_points,
             exists(select 1 from community_likes l where l.target_type = 'comment' and l.target_id = c.id and l.did = $2) as liked
        from community_comments c join community_members m on m.did = c.author_did
@@ -571,6 +572,31 @@ async function remove(res: ServerResponse, me: string, body: unknown) {
   await pool.query(`update ${table} set deleted = true where id = $1`, [b.id])
   if (type === 'comment') await pool.query('update community_posts set comments = greatest(comments - 1, 0) where id = $1', [r.rows[0].post_id])
   return send(res, 200, { ok: true, deleted: true })
+}
+
+/** MODIFIER · seul l'auteur modifie son texte (un admin supprime, il ne
+ *  réécrit pas les mots d'un autre). La modification est signalée. */
+async function edit(res: ServerResponse, me: string, body: unknown) {
+  const b = (body || {}) as { type?: unknown; id?: unknown; title?: unknown; body?: unknown; category?: unknown }
+  const type = b.type === 'comment' ? 'comment' : b.type === 'post' ? 'post' : null
+  if (!type || !isId(b.id)) return send(res, 400, { ok: false, error: 'target' })
+  const pool = getPool()
+  if (type === 'post') {
+    const r = await pool.query('select author_did, category from community_posts where id = $1 and not deleted', [b.id])
+    if (!r.rows[0]) return send(res, 404, { ok: false, error: 'not_found' })
+    if (r.rows[0].author_did !== me) return send(res, 403, { ok: false, error: 'forbidden' })
+    const v = validatePost({ category: b.category ?? r.rows[0].category, title: b.title, body: b.body })
+    if ('error' in v) return send(res, 400, { ok: false, error: v.error })
+    await pool.query('update community_posts set category = $2, title = $3, body = $4, edited_at = now() where id = $1', [b.id, v.category, v.title, v.body])
+    return send(res, 200, { ok: true, edited: true })
+  }
+  const r = await pool.query('select author_did, post_id from community_comments where id = $1 and not deleted', [b.id])
+  if (!r.rows[0]) return send(res, 404, { ok: false, error: 'not_found' })
+  if (r.rows[0].author_did !== me) return send(res, 403, { ok: false, error: 'forbidden' })
+  const v = validateComment({ postId: r.rows[0].post_id, body: b.body })
+  if ('error' in v) return send(res, 400, { ok: false, error: v.error })
+  await pool.query('update community_comments set body = $2, edited_at = now() where id = $1', [b.id, v.body])
+  return send(res, 200, { ok: true, edited: true })
 }
 
 /** Admin · un identifiant désigné, ou une adresse opérateur vérifiée par

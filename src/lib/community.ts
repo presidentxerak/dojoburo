@@ -53,6 +53,7 @@ export interface CComment {
   id: string
   parentId: string | null
   body: string
+  edited?: boolean
   deleted: boolean
   likes: number
   createdAt: string
@@ -120,6 +121,8 @@ export const createComment = (c: { postId: string; parentId?: string | null; bod
 export const toggleLike = (type: 'post' | 'comment', id: string) => post<{ liked: boolean; likes: number }>('like', { type, id })
 export const setPinned = (id: string, pinned: boolean) => post<{ pinned: boolean }>('pin', { id, pinned })
 export const removeItem = (type: 'post' | 'comment', id: string) => post<{ deleted: boolean }>('delete', { type, id })
+export const editItem = (e: { type: 'post'; id: string; category: CommunityCategory; title: string; body: string } | { type: 'comment'; id: string; body: string }) =>
+  post<{ edited: boolean }>('edit', e)
 
 /* ---- le calendrier ---------------------------------------------------------- */
 
