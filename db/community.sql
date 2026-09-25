@@ -77,3 +77,19 @@ create index if not exists community_members_points_idx on community_members (po
 create index if not exists community_members_seen_idx on community_members (last_seen_at desc);
 alter table community_likes add column if not exists recipient_did text;
 create index if not exists community_likes_board_idx on community_likes (recipient_did, created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- LOT 3 · LE CALENDRIER · les lives, masterclass et ateliers de la
+-- communauté. Créés par les admins, visibles par tous.
+create table if not exists community_events (
+  id           uuid primary key default gen_random_uuid(),
+  title        text not null check (char_length(title) between 3 and 120),
+  description  text not null default '' check (char_length(description) <= 2000),
+  starts_at    timestamptz not null,
+  duration_min integer not null default 60 check (duration_min between 15 and 480),
+  link         text check (link is null or (char_length(link) <= 300 and link ~* '^https://')),
+  created_by   text not null,
+  deleted      boolean not null default false,
+  created_at   timestamptz not null default now()
+);
+create index if not exists community_events_start_idx on community_events (starts_at) where not deleted;

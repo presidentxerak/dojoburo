@@ -8,6 +8,7 @@
 //   /clan              le fil · catégories, recherche, épinglées d'abord
 //   /clan/p/<id>       une publication et ses commentaires (réponses sur un
 //                      niveau, comme Skool)
+//   /clan/calendrier   les lives et ateliers, en heure locale, à ajouter à son agenda
 //   /clan/membres      les membres, qui est en ligne
 //   /clan/classements  les points (j'aime reçus), les niveaux, les podiums
 //   /clan/m/<handle>   le profil public d'un membre
@@ -32,8 +33,8 @@ import { CT, CATEGORY_LABEL } from './communityText'
 import {
   COMMUNITY_CATEGORIES, COMMUNITY_LIMITS, fetchFeed, fetchPost, fetchMe, joinCommunity, createPost,
   createComment, toggleLike, setPinned, removeItem, fetchMembers, fetchMember, fetchLeaderboard, editProfile,
-  LEVEL_POINTS,
-  type CPost, type CComment, type CError, type CommunityCategory, type Author, type CMember, type BoardRow, type MeData,
+  LEVEL_POINTS, fetchEvents, createEvent, deleteEvent, icsOf,
+  type CEvent, type CPost, type CComment, type CError, type CommunityCategory, type Author, type CMember, type BoardRow, type MeData,
 } from '../lib/community'
 
 function useSay() {
@@ -64,9 +65,11 @@ export function CommunityPage() {
   const about = path === '/clan/a-propos'
   const membersTab = path === '/clan/membres'
   const boards = path === '/clan/classements'
-  const feedTab = !about && !membersTab && !boards && !memberId
+  const calendarTab = path === '/clan/calendrier'
+  const feedTab = !about && !membersTab && !boards && !memberId && !calendarTab
   const TABS: { href: string; on: boolean; label: Bi }[] = [
     { href: '/clan', on: feedTab, label: CT.tabFeed },
+    { href: '/clan/calendrier', on: calendarTab, label: CT.tabCalendar },
     { href: '/clan/membres', on: membersTab || !!memberId, label: CT.tabMembers },
     { href: '/clan/classements', on: boards, label: CT.tabBoards },
     { href: '/clan/a-propos', on: about, label: CT.tabAbout },
@@ -90,6 +93,7 @@ export function CommunityPage() {
       <div className="cy-layout">
         <div className="cy-main">
           {about ? <About />
+            : calendarTab ? <Calendar me={me} />
             : membersTab ? <Members />
               : boards ? <Boards me={me} />
                 : memberId ? <MemberView handle={memberId} me={me} />
@@ -485,6 +489,160 @@ function AboutCard() {
       <p>{s(CT.lead)}</p>
       <Lnk className="gm-cta" href={packPath(FREE_PACK.id)}>{s(CT.startTraining)} →</Lnk>
     </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* LE CALENDRIER                                                       */
+/* ------------------------------------------------------------------ */
+
+const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+
+function Calendar({ me }: { me: Me }) {
+  const { s, lang } = useSay()
+  const loc = lang === 'fr' ? 'fr-FR' : 'en-GB'
+  const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1) })
+  const [events, setEvents] = useState<CEvent[]>([])
+  const [upcoming, setUpcoming] = useState<CEvent[]>([])
+  const [error, setError] = useState<CError | null>(null)
+  const [adding, setAdding] = useState(false)
+
+  const load = useCallback(() => {
+    // LA GRILLE COMMENCE UN LUNDI · on charge de son premier à son dernier jour.
+    const start = new Date(month); start.setDate(1 - ((month.getDay() + 6) % 7))
+    const end = new Date(start); end.setDate(start.getDate() + 42)
+    void fetchEvents(start, end).then((r) => { if (r.ok) { setEvents(r.data.events); setError(null) } else setError(r.error) })
+    void fetchEvents(new Date(), new Date(Date.now() + 120 * 86400e3)).then((r) => { if (r.ok) setUpcoming(r.data.events.slice(0, 8)) })
+  }, [month])
+  useEffect(() => { load() }, [load])
+
+  if (error === 'not_configured') return <div className="cy-card cy-off"><h2 className="pf-h2">{s(CT.offTitle)}</h2><p className="gm-lead">{s(CT.offBody)}</p></div>
+
+  const first = new Date(month); first.setDate(1 - ((month.getDay() + 6) % 7))
+  const days = Array.from({ length: 42 }, (_, i) => { const d = new Date(first); d.setDate(first.getDate() + i); return d })
+  const byDay = new Map<string, CEvent[]>()
+  for (const e of events) { const k = dayKey(new Date(e.startsAt)); byDay.set(k, [...(byDay.get(k) || []), e]) }
+  const todayK = dayKey(new Date())
+  const weekdays = Array.from({ length: 7 }, (_, i) => new Intl.DateTimeFormat(loc, { weekday: 'short' }).format(new Date(2024, 0, 1 + i)))
+  const shift = (n: number) => setMonth(new Date(month.getFullYear(), month.getMonth() + n, 1))
+
+  return (
+    <>
+      <div className="cy-card cy-cal">
+        <div className="cy-cal-head">
+          <div>
+            <h2 className="pf-h2">{s(CT.calH2)}</h2>
+            <p className="cy-sub">{s(CT.calLead)}</p>
+          </div>
+          {me.admin && <button className="gm-cta cy-cal-add" onClick={() => setAdding((v) => !v)}>{s(CT.newEvent)}</button>}
+        </div>
+        {adding && <EventForm onDone={() => { setAdding(false); load() }} />}
+        <div className="cy-cal-nav">
+          <button className="cy-act" onClick={() => shift(-1)} aria-label={s(CT.prevMonth)}>←</button>
+          <b>{new Intl.DateTimeFormat(loc, { month: 'long', year: 'numeric' }).format(month)}</b>
+          <button className="cy-act" onClick={() => shift(1)} aria-label={s(CT.nextMonth)}>→</button>
+          <button className="cy-act" onClick={() => { const d = new Date(); setMonth(new Date(d.getFullYear(), d.getMonth(), 1)) }}>{s(CT.today)}</button>
+        </div>
+        <div className="cy-grid" role="grid">
+          {weekdays.map((w) => <span key={w} className="cy-wd">{w}</span>)}
+          {days.map((d) => {
+            const k = dayKey(d)
+            const list = byDay.get(k) || []
+            return (
+              <div key={k} className={`cy-day${d.getMonth() !== month.getMonth() ? ' out' : ''}${k === todayK ? ' today' : ''}`}>
+                <span className="cy-day-n">{d.getDate()}</span>
+                {list.map((e) => (
+                  <span key={e.id} className="cy-day-ev" title={e.title}>
+                    {new Intl.DateTimeFormat(loc, { hour: '2-digit', minute: '2-digit' }).format(new Date(e.startsAt))} {e.title}
+                  </span>
+                ))}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+      {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
+      <h3 className="cy-h3">{s(CT.upcoming)}</h3>
+      {upcoming.length === 0 && <p className="cy-empty">{s(CT.noEvents)}</p>}
+      <div className="cy-list">
+        {upcoming.map((e) => <EventCard key={e.id} e={e} admin={me.admin} onChange={load} />)}
+      </div>
+    </>
+  )
+}
+
+function EventCard({ e, admin, onChange }: { e: CEvent; admin: boolean; onChange: () => void }) {
+  const { s, lang } = useSay()
+  const loc = lang === 'fr' ? 'fr-FR' : 'en-GB'
+  const start = new Date(e.startsAt)
+  const download = () => {
+    const blob = new Blob([icsOf(e, location.origin)], { type: 'text/calendar' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = 'dojoburo-evenement.ics'
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000)
+  }
+  const del = async () => {
+    if (!window.confirm(say(CT.confirmDelete, lang))) return
+    const r = await deleteEvent(e.id)
+    if (r.ok) onChange()
+  }
+  return (
+    <article className="cy-card cy-event">
+      <div className="cy-event-date" aria-hidden="true">
+        <b>{start.getDate()}</b>
+        <span>{new Intl.DateTimeFormat(loc, { month: 'short' }).format(start)}</span>
+      </div>
+      <div className="cy-event-t">
+        <h4>{e.title}</h4>
+        <p className="cy-sub">
+          {new Intl.DateTimeFormat(loc, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }).format(start)} · {e.duration} {s(CT.minutes)}
+        </p>
+        {e.description && <p className="cy-event-d">{e.description}</p>}
+        <div className="cy-event-acts">
+          {e.link && <a className="gm-cta" href={e.link} target="_blank" rel="noopener noreferrer">{s(CT.joinLive)}</a>}
+          <button className="cc-btn cc-slate" onClick={download}>{s(CT.addToCalendar)}</button>
+          {admin && <button className="cy-act danger" onClick={del}>{s(CT.delete)}</button>}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function EventForm({ onDone }: { onDone: () => void }) {
+  const { s } = useSay()
+  const [title, setTitle] = useState('')
+  const [date, setDate] = useState('')
+  const [time, setTime] = useState('18:00')
+  const [duration, setDuration] = useState(60)
+  const [link, setLink] = useState('')
+  const [description, setDescription] = useState('')
+  const [error, setError] = useState<CError | null>(null)
+  return (
+    <form className="cy-evform" onSubmit={async (ev) => {
+      ev.preventDefault()
+      // L'HEURE SAISIE EST CELLE DE L'ADMIN · convertie en UTC ici, et chaque
+      // membre la relit dans son propre fuseau.
+      const startsAt = new Date(`${date}T${time}`).toISOString()
+      const r = await createEvent({ title, description, startsAt, duration, link })
+      if (!r.ok) { setError(r.error); return }
+      onDone()
+    }}>
+      <input className="cy-inp" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={s(CT.eventTitle)} aria-label={s(CT.eventTitle)} required minLength={3} maxLength={120} />
+      <div className="cy-evform-row">
+        <label><span>{s(CT.eventDate)}</span><input className="cy-inp" type="date" value={date} onChange={(e) => setDate(e.target.value)} required /></label>
+        <label><span>{s(CT.eventTime)}</span><input className="cy-inp" type="time" value={time} onChange={(e) => setTime(e.target.value)} required /></label>
+        <label><span>{s(CT.eventDuration)}</span><input className="cy-inp" type="number" min={15} max={480} step={15} value={duration} onChange={(e) => setDuration(Number(e.target.value))} /></label>
+      </div>
+      <input className="cy-inp" type="url" value={link} onChange={(e) => setLink(e.target.value)} placeholder={s(CT.eventLink)} aria-label={s(CT.eventLink)} pattern="https://.*" />
+      <textarea className="cy-inp" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder={s(CT.eventDesc)} aria-label={s(CT.eventDesc)} maxLength={2000} />
+      {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
+      <div className="cy-compose-acts">
+        <button type="button" className="cc-btn cc-slate" onClick={onDone}>{s(CT.cancel)}</button>
+        <button type="submit" className="gm-cta">{s(CT.create)}</button>
+      </div>
+    </form>
   )
 }
 
