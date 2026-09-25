@@ -11,7 +11,7 @@
 // grade qui ne suivrait pas le travail serait un compteur décoratif.
 //
 // LES PALIERS · calés sur les formations réelles (en XP) : le week-end de l'IA
-// (environ 490 XP) mène à la ceinture orange, la formation complète en plus
+// (environ 490 XP) mène à la ceinture jaune, la formation complète en plus
 // (environ 2 960 XP) à la marron, et une formation métier par dessus à la
 // noire. La ceinture noire demande donc un vrai parcours, jamais un après-midi.
 //
@@ -50,25 +50,25 @@ export const RANKS: Rank[] = [
     id: 'yellow', from: 2, tint: '#facc15',
     belt: B('Yellow belt', 'Ceinture jaune'),
     title: B('Apprentice', 'Apprenti'),
-    means: B('You write clear prompts and you know why they work.', 'Vous rédigez des prompts clairs et vous savez pourquoi ils fonctionnent.'),
+    means: B('You write clear prompts and use AI on real tasks, as the AI weekend teaches.', "Vous rédigez des prompts clairs et utilisez l'IA sur des tâches réelles, comme l'enseigne le week-end de l'IA."),
     character: { kind: 'duck', face: '#fde68a', outfit: '#7c3aed', outfit2: '#facc15', pants: '#4c1d95', extra: '#fb923c' },
   },
   {
-    id: 'orange', from: 3, tint: '#fb923c',
+    id: 'orange', from: 4, tint: '#fb923c',
     belt: B('Orange belt', 'Ceinture orange'),
     title: B('Initiate', 'Initié'),
-    means: B('The AI weekend is behind you: you use AI every day, on real tasks.', "Le week-end de l'IA est derrière vous : vous utilisez l'IA chaque jour, sur des tâches réelles."),
+    means: B('You know how a model works, and you know why it sometimes gets things wrong.', "Vous savez comment fonctionne un modèle, et pourquoi il lui arrive de se tromper."),
     character: { kind: 'rabbit', face: '#f5efe6', outfit: '#6d28d9', outfit2: '#fb923c', pants: '#3b0764', extra: '#fda4af' },
   },
   {
-    id: 'green', from: 6, tint: '#22c55e',
+    id: 'green', from: 7, tint: '#22c55e',
     belt: B('Green belt', 'Ceinture verte'),
     title: B('Disciple', 'Disciple'),
     means: B('You choose the right model and the right context for each task.', 'Vous choisissez le bon modèle et le bon contexte pour chaque tâche.'),
     character: { kind: 'frog', face: '#86efac', outfit: '#5b21b6', outfit2: '#22c55e', pants: '#2e1065', extra: '#fde047' },
   },
   {
-    id: 'blue', from: 9, tint: '#3b82f6',
+    id: 'blue', from: 10, tint: '#3b82f6',
     belt: B('Blue belt', 'Ceinture bleue'),
     title: B('Practitioner', 'Pratiquant'),
     means: B('You build assistants and agents, and you check what they produce.', 'Vous construisez des assistants et des agents, et vous vérifiez ce qu\'ils produisent.'),

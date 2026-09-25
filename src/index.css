@@ -11605,3 +11605,124 @@ html.calm *, html.calm *::before, html.calm *::after {
 @media (prefers-reduced-motion: reduce) {
   .jz-bump, .ln-opt.right, .ln-opt.wrong, .gm-tab.on .gm-tab-g, .gm-main > .gm-sec { animation: none !important; }
 }
+
+/* ==================================================================
+   LE PROFIL À ONGLETS · « ajoute des onglets car elle n'est pas claire du
+   tout, avec de belles icônes 3D et personnages » (voir game/Profil).
+   ================================================================== */
+
+/* L'EN-TÊTE · le personnage du grade, grand, et ce qu'il dit. */
+.pf-hero {
+  display: flex; align-items: center; gap: clamp(14px, 4vw, 26px);
+  margin-top: 14px; padding: clamp(14px, 3vw, 22px);
+  border-radius: 22px;
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--belt) 26%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--g-card-top), var(--g-card-bot));
+  box-shadow: var(--g-edge), 0 18px 40px -18px rgba(0, 0, 0, 0.8);
+}
+.pf-hero-av { animation: pf-float 4s ease-in-out infinite; }
+@keyframes pf-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.pf-hero-t { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pf-hero-t em { font-style: normal; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--g-sub); }
+.pf-hero-t > b { font-family: var(--font-game); font-weight: 800; font-size: clamp(22px, 5.4vw, 30px); line-height: 1.05; color: #fff; }
+.pf-hero-title { font-weight: 800; font-size: 15px; color: var(--belt-ink, var(--belt)); }
+.pf-hero-mail { font-size: 13px; color: var(--g-sub); overflow-wrap: anywhere; }
+.pf-hero-nums { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.pf-chip {
+  display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px;
+  font-family: var(--font-game); font-weight: 800; font-size: 12.5px; color: #ede9fe; background: var(--g-slot);
+}
+.pf-chip.lv { background: #7c3aed; color: #fff; }
+.pf-hero-next { margin: 8px 0 0; font-size: 14px; line-height: 1.45; color: #ddd6fe; }
+@media (max-width: 419px) {
+  .pf-hero { flex-direction: column; text-align: center; }
+  .pf-hero-t { align-items: center; }
+  .pf-hero-nums { justify-content: center; }
+}
+
+/* LES ONGLETS · cinq touches à plat, l'icône 3D au-dessus du nom. Sur un
+   petit téléphone, la rangée défile de côté au lieu de serrer les noms. */
+.pf-tabs-sec { position: sticky; top: 0; z-index: 5; padding-bottom: 6px; background: linear-gradient(180deg, #0a0514 70%, rgba(10, 5, 20, 0)); }
+.pf-tabs {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(72px, 1fr); gap: 6px;
+  overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  padding: 6px; border-radius: 20px; background: var(--g-slot);
+}
+.pf-tabs::-webkit-scrollbar { display: none; }
+.pf-tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-height: 76px; padding: 6px 4px 8px; border: 0; border-radius: 15px;
+  font-family: var(--font-game); font-weight: 800; font-size: 12.5px; line-height: 1.1; color: var(--g-sub);
+  background: transparent; box-shadow: none; cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+.pf-tab .i3d { transition: transform 220ms cubic-bezier(.34, 1.56, .64, 1); }
+.pf-tab:hover { color: #fff; background: rgba(124, 58, 237, 0.16); }
+.pf-tab:hover .i3d { transform: translateY(-2px) rotate(-5deg) scale(1.06); }
+.pf-tab.on { color: #fff; background: #7c3aed; }
+.pf-tab.on .i3d { transform: scale(1.1); }
+.pf-tab:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.pf-panel { animation: jz-rise 300ms cubic-bezier(.2, .7, .3, 1) both; }
+
+/* L'ÉCHELLE DES GRADES · une ligne par ceinture, l'actuelle éclairée. */
+.pf-ladder { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pf-rung {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
+  padding: 10px 14px 10px 10px; border-radius: 18px; background: rgba(255, 255, 255, 0.04);
+}
+.pf-rung.got { background: rgba(124, 58, 237, 0.12); }
+.pf-rung.now { background: color-mix(in srgb, var(--belt) 22%, #1a0b38); }
+.pf-rung-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pf-rung-t b { font-family: var(--font-game); font-weight: 800; font-size: 16px; color: #fff; }
+.pf-rung-t em { font-style: normal; font-size: 12px; font-weight: 800; color: var(--g-sub); }
+.pf-rung-t span { font-size: 13.5px; line-height: 1.45; color: #d4cdef; }
+.pf-rung:not(.got) .pf-rung-t span { color: #8f86ad; }
+.pf-rung-st {
+  justify-self: end; padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  font-family: var(--font-game); font-weight: 800; font-size: 11.5px; color: var(--g-sub); background: var(--g-slot);
+}
+.pf-rung-st.got { color: #bef264; }
+.pf-rung-st.now { color: #fff; background: #7c3aed; }
+@media (max-width: 479px) {
+  .pf-rung { grid-template-columns: auto 1fr; }
+  .pf-rung-st { grid-column: 2; justify-self: start; }
+  .pf-rung .gav { width: 52px !important; height: 52px !important; }
+}
+
+/* LES PARAMÈTRES · une liste de lignes, un interrupteur à plat au bout. */
+.st-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.st-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  padding: 14px 16px; border-radius: 16px; background: rgba(124, 58, 237, 0.1);
+}
+.st-t { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1 1 200px; }
+.st-t b { font-family: var(--font-game); font-weight: 800; font-size: 16px; color: #fff; }
+.st-t em { font-style: normal; font-size: 13.5px; line-height: 1.45; color: var(--g-sub); }
+.st-toggle {
+  flex: none; display: inline-flex; align-items: center; gap: 10px;
+  min-height: 40px; padding: 4px 14px 4px 4px; border: 0; border-radius: 999px; cursor: pointer;
+  font-family: var(--font-game); font-weight: 800; font-size: 13px; color: var(--g-sub);
+  background: #2c1d52; box-shadow: none; transition: background-color 180ms ease, color 180ms ease;
+}
+.st-toggle i {
+  position: relative; display: block; width: 52px; height: 32px; border-radius: 999px; background: #140a2b;
+}
+.st-toggle i::after {
+  content: ''; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 999px;
+  background: #8f86ad; transition: transform 220ms cubic-bezier(.34, 1.56, .64, 1), background-color 180ms ease;
+}
+.st-toggle.on { color: #fff; background: #7c3aed; }
+.st-toggle.on i { background: #4c1d95; }
+.st-toggle.on i::after { transform: translateX(20px); background: #fff; }
+.st-toggle:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.st-row .lsw { flex: none; }
+.gm .st-reset { margin-top: 14px; }
+.st-danger { margin-top: 22px; padding: 16px; border-radius: 16px; background: rgba(239, 68, 68, 0.1); }
+.st-danger h3 { margin: 0 0 6px; font-family: var(--font-game); font-weight: 800; font-size: 17px; color: #fecaca; }
+.st-danger p { margin: 0; font-size: 14px; line-height: 1.5; color: #e9d5d5; }
+.gm .st-danger .pf-forget { margin-top: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-hero-av, .pf-panel { animation: none !important; }
+}

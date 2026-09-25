@@ -33,7 +33,7 @@ const MAX_LEN = 1500
 
 /** The topics offered up front, in the order someone meets them · the game
  *  first (it is the first button of the bar), then the training, then paying. */
-const START_CHIPS = ['start', 'studios', 'teams', 'budget', 'training', 'lessons', 'pricing', 'buy', 'signin']
+const START_CHIPS = ['start', 'studios', 'teams', 'budget', 'training', 'trades', 'lessons', 'grades', 'pricing', 'buy', 'signin', 'settings']
 
 /** Questions people actually ask, in their own words · one tap fills them in.
  *  Each one is written to land on its topic in the local answers, so a tap
@@ -45,6 +45,8 @@ const SUGGESTIONS = [
   { en: 'How much does it cost?', fr: 'Combien cela coûte-t-il ?' },
   { en: 'How does buying work?', fr: "Comment se passe l'achat ?" },
   { en: 'Where is my progress saved?', fr: 'Où est gardée ma progression ?' },
+  { en: 'How do I get the black belt?', fr: 'Comment obtenir la ceinture noire ?' },
+  { en: 'How do I turn off the animations?', fr: 'Comment désactiver les animations ?' },
 ]
 
 /** Every walkthrough, offered as a shortcut in the rail. */

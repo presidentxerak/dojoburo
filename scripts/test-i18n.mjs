@@ -137,7 +137,10 @@ const SAME_IN_BOTH = new Set(['nav.frameworks', 'lang.label', 'header.menu', 'ac
   // emprunt au japonais dans les deux langues, le second un emprunt du
   // français vers l'anglais qui est revenu identique. Les traduire serait
   // inventer un mot que personne n'emploie.
-  'g.dojo', 'g.dojos', 'pr.badges',
+  'g.dojo', 'g.dojos', 'pr.badges', 'pr.tabBadges',
+  // « vibrations » : même mot, même sens, dans les deux langues (réglage du
+  // profil).
+  'st.haptics',
   // « dojo » et « module » s'écrivent pareil des deux côtés · le premier est
   // un emprunt au japonais, le second au latin. Les traduire serait inventer
   // un mot que personne n'emploie. « Clan » aussi, passé du gaélique à
