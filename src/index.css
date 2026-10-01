@@ -12231,7 +12231,8 @@ svg.chibi.flip { transform: scaleX(-1); }
 }
 
 /* LA CARTE DU MONDE */
-.tw-title { font: 700 clamp(22px, 4vw, 34px)/1.1 var(--font-px); letter-spacing: .02em; margin: 0 0 6px; }
+/* le h1 global à 60px est !important (voir plus haut) · le titre pixel le reprend */
+.tw-title { font: 700 clamp(22px, 4vw, 34px)/1.15 var(--font-px); font-size: clamp(22px, 6vw, 34px) !important; letter-spacing: .02em; margin: 0 0 6px; overflow-wrap: anywhere; }
 .tw-choose { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .tw-choose > div { flex: 1 1 200px; }
 .tw-world { position: relative; width: 100%; overflow: hidden; border-radius: 6px; background: #3f8f3a; }
@@ -12442,3 +12443,11 @@ svg.picon { display: inline-block; image-rendering: pixelated; }
 @keyframes pi-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 @keyframes pi-nod { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-6deg); } }
 @keyframes pi-turn { to { transform: rotate(360deg); } }
+/* LE PLAN SUR TÉLÉPHONE · plus compact, et la tour lui laisse sa colonne pour
+   que l'élève, à droite de l'étage, ne passe jamais dessous. */
+@media (max-width: 700px) {
+  .tp-map { top: 66px; right: 6px; padding: 3px; gap: 2px; max-height: calc(100% - 150px); }
+  .tp-map-b { width: 36px; height: 22px; font-size: 11px; }
+  .tp-top { padding-right: 14px; }
+  .tp-scroll { padding: 16px 52px 24px 8px; }
+}
