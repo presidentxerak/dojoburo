@@ -491,6 +491,9 @@ ok('le texte et les titres sont en Outfit', /--font-ui:\s*'Outfit Variable'/.tes
   const PX_RULES = [...CSS.matchAll(/font:\s*(\d{3})[^;]*var\(--font-px\)/g)].map((m) => m[1])
   ok('Silkscreen n\'est chargée qu\'en regular', /@fontsource\/silkscreen\/latin-400\.css/.test(MAIN) && !/silkscreen\/latin-700/.test(MAIN))
   ok('toutes les règles Silkscreen sont en 400', PX_RULES.length > 5 && PX_RULES.every((w) => w === '400'), PX_RULES.join(','))
+  // LE TITRE DE LA CARTE EST UN h1 · la feuille donne aux h1 une graisse forte,
+  // et ce titre-là la reprend explicitement (vu en production : il restait gras).
+  ok('le titre des temples reprend la graisse regular', /\.tw-title \{[^}]*font-weight: 400 !important/.test(CSS))
   ok('… et aucun gras de synthèse', /\.tp, \.tw-world[^{]*\{ font-synthesis: none; \}/.test(CSS))
   ok('morsure · une règle Silkscreen en gras serait vue', /font:\s*(\d{3})[^;]*var\(--font-px\)/.exec('.x { font: 700 12px var(--font-px); }')?.[1] === '700')
 }
