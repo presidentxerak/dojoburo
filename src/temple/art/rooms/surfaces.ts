@@ -76,7 +76,7 @@ export const WALLS: Surf[] = [
   },
   // 4 · les panneaux de papier sur leur grille de bois (shoji)
   (s, P) => {
-    const paper = mix(P.paper, P.wall, 0.25)
+    const paper = mix(P.paper, P.wall, P.dark ? 0.6 : 0.25)
     s.rect(0, 4, FLOOR_W, 48, paper)
     for (let y = 4; y < 52; y += 2) s.hline(0, y, FLOOR_W, shade(paper, -0.03))
     const kumiko = shade(P.wood, 0.12)
@@ -152,7 +152,7 @@ export const WALLS: Surf[] = [
   },
   // 10 · les tiges de bambou serrées
   (s, P, r) => {
-    const cane = mix(P.wall, '#b8b86a', 0.35)
+    const cane = mix(P.wall, '#b8b86a', P.dark ? 0.22 : 0.35)
     s.rect(0, 4, FLOOR_W, 48, shade(cane, -0.35))
     for (let x = 0; x < FLOOR_W; x += 5) {
       const c = [cane, shade(cane, 0.08), shade(cane, -0.06)][Math.floor(r() * 3)]
@@ -222,7 +222,7 @@ export function paintWain(i: number, s: Grid, P: Pal, r: () => number, y0: numbe
 export const FLOORS: Surf[] = [
   // 0 · les tatamis
   (s, P) => {
-    const mat = mix('#cfc781', P.floor, 0.18), edge = mix('#3e6b3a', P.trim, 0.35)
+    const mat = mix('#cfc781', P.floor, P.dark ? 0.45 : 0.18), edge = mix('#3e6b3a', P.trim, 0.35)
     s.rect(0, 52, FLOOR_W, 12, mat)
     for (let y = 53; y < 64; y += 2) s.hline(0, y, FLOOR_W, shade(mat, -0.08))
     s.hline(0, 57, FLOOR_W, edge); s.hline(0, 58, FLOOR_W, shade(edge, 0.2))
@@ -266,7 +266,7 @@ export const FLOORS: Surf[] = [
   (s, P, r) => stones(s, 0, 52, FLOOR_W, 12, P.floor, shade(P.floor, -0.35), r, 9, 20),
   // 8 · le sable ratissé du jardin sec
   (s, P, r) => {
-    const sand = mix('#e9dfc4', P.floor, 0.15)
+    const sand = mix('#e9dfc4', P.floor, P.dark ? 0.4 : 0.15)
     s.rect(0, 52, FLOOR_W, 12, sand)
     for (let y = 53; y < 64; y += 2) for (let x = 0; x < FLOOR_W; x++) {
       const yy = y + Math.round(Math.sin(x / 7 + y) * 0.6)

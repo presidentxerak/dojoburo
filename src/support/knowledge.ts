@@ -48,7 +48,7 @@ import { TRADES } from '../data/trades'
 // faisait une cinquième grille de prix capable de contredire les quatre autres.
 // Elle l'a fait : elle vendait encore Founder à 29 $ et 2 000 tâches longtemps
 // après que le produit ait cessé d'exécuter quoi que ce soit.
-import { PATH_EUR, TRADE_EUR, BUNDLE_EUR, priceTag } from '../data/plans'
+import { PATH_EUR, TRADE_EUR, BUNDLE_EUR, COURSE_EUR, priceTag } from '../data/plans'
 // LES GRADES DE L'ÉLÈVE · lus dans game/ranks et game/Gauge, jamais recopiés.
 // Ce ne sont pas les ceintures du studio (dojo/grades, sujet 'certification').
 import { RANKS } from '../game/ranks'
@@ -306,6 +306,30 @@ export const KB: KBTopic[] = [
         `Votre grade est la ceinture que vous portez en tant qu'élève. Il découle de votre niveau, lequel découle de l'XP des dojos que vous avez effectivement terminés : un niveau tous les ${XP_PER_LEVEL} XP. Rien ne s'achète ; la seule manière de progresser consiste donc à terminer des dojos. Il existe ${RANK_COUNT} grades, et votre propre personnage pixel porte la ceinture du vôtre dans votre profil : ${rankLadder('fr')}. À titre indicatif, le week-end de l'IA gratuit vous conduit à la ${say(YELLOW.belt, 'fr').toLowerCase()}, la formation complète à la ${say(BROWN.belt, 'fr').toLowerCase()}, et une formation métier par-dessus à la ${say(BLACK.belt, 'fr').toLowerCase()}, au niveau ${BLACK.from}. La ${say(BLACK.belt, 'fr').toLowerCase()} demande donc un véritable parcours, jamais un après-midi. Votre icône change d'elle-même lorsque vous atteignez le grade suivant. L'onglet Progression de votre profil présente votre grade, votre niveau, votre XP, l'échelle des ${RANK_COUNT} grades et la distance qui vous sépare du suivant. Ces ceintures ne sont pas celles du studio, sur /build, qui comptent les agents que vous avez construits.`,
       links: [
         'Voir votre grade',
+        'Voir les temples',
+      ],
+    },
+  },
+  {
+    // LES COURS VENDUS À PART · « comment coder une app » et « coder une app
+    // avec Lovable ». Les prix viennent de data/plans.
+    id: 'courses',
+    chip: 'Code an app: the two courses',
+    answer:
+      `Two courses are sold separately, each paid once, each opening only its own temple. CODE AN APP (${priceTag(COURSE_EUR['coder-une-app'])}) teaches you to build a real web app from A to Z with the terminal, Git and GitHub, Claude Code, Supabase and Vercel: how each tool works, how to set it up, the good practices, around one example app built floor after floor, a habit tracker called Habitudes. ` +
+      `BUILD AN APP WITH LOVABLE (${priceTag(COURSE_EUR['coder-avec-lovable'])}) follows the same journey with Lovable, its backend and its GitHub sync, around a booking app for a pottery workshop called Atelier, from the first prompt to the published app. Both are on the Dojoburo map, with their own master, and on the /tarifs page.`,
+    links: [
+      { label: 'See the courses', href: '/tarifs' },
+      { label: 'See the temples', href: '/' },
+    ],
+    follow: ['pricing', 'buy', 'studios'],
+    keywords: ['code', 'coder', 'coding', 'app', 'application', 'claude code', 'vercel', 'supabase', 'github', 'git', 'terminal', 'lovable', 'no code', 'nocode', 'développer', 'develop', 'build an app', 'créer une app', 'site web', 'website', 'programmer', 'deploy', 'déployer'],
+    fr: {
+      chip: 'Coder une app : les deux cours',
+      answer:
+        `Deux cours sont vendus à part, chacun payé une seule fois et n'ouvrant que son propre temple. CODER UNE APP (${priceTag(COURSE_EUR['coder-une-app'])}) vous apprend à construire une vraie application web de A à Z avec le terminal, Git et GitHub, Claude Code, Supabase et Vercel : le fonctionnement de chaque outil, son installation, les bonnes pratiques, autour d'une app exemple construite étage après étage, un suivi d'habitudes nommé Habitudes. CODER UNE APP AVEC LOVABLE (${priceTag(COURSE_EUR['coder-avec-lovable'])}) suit le même parcours avec Lovable, son backend et sa synchronisation GitHub, autour d'une app de réservation pour un atelier de poterie nommée Atelier, du premier prompt à l'app publiée. Les deux figurent sur la carte de Dojoburo, chacun avec son maître, et sur la page /tarifs.`,
+      links: [
+        'Voir les cours',
         'Voir les temples',
       ],
     },

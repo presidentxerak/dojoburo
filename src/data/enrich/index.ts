@@ -8,6 +8,7 @@ import { ENRICH_TRADES_A } from './trades-a'
 import { ENRICH_TRADES_B } from './trades-b'
 import { ENRICH_TRADES_C } from './trades-c'
 import { NEW_TRADE_PACKS } from '../metiers'
+import { COURSE_ENRICH } from '../courses'
 
 export type { Enrichment }
 export { enrichKey }
@@ -17,6 +18,8 @@ export const ENRICH: Record<string, Enrichment> = {
   ...ENRICH_TRADES_A, ...ENRICH_TRADES_B, ...ENRICH_TRADES_C,
   // les nouveaux métiers portent le leur, voir data/metiers
   ...Object.assign({}, ...NEW_TRADE_PACKS.map((p) => p.enrich)),
+  // les cours vendus à part, voir data/courses
+  ...COURSE_ENRICH,
 }
 
 /** L'approfondissement d'un dojo, ou rien · un dojo sans le sien s'affiche

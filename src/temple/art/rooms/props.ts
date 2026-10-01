@@ -208,22 +208,21 @@ function kakemono(h: number): Prop {
   }
 }
 
-/** une calligraphie encadrée, trois caractères inventés et un sceau rouge */
+/** un lavis encadré (sumi-e) · des montagnes à l'encre et un soleil rouge */
 const calligraphy: Prop = {
   id: 'calligraphy', kind: 'wall', w: 26, h: 12, tags: ['zen', 'library', 'lux', 'school'],
   draw(c, x, y) {
+    const seed = c.r() * 6
     put(c.s, x, y, 26, 12, (g) => {
       board(g, 26, 12, WOOD_D, '#f8f0da')
-      g.hline(1, 10, 24, '#e6dcc0')
-      for (let k = 0; k < 3; k++) {
-        const bx = 3 + k * 7
-        const strokes = Math.floor(c.r() * 3)
-        g.hline(bx, 3, 5, SUMI); g.vline(bx + 2, 3, 6, SUMI)
-        if (strokes === 0) { g.set(bx, 7, SUMI); g.set(bx + 1, 6, SUMI); g.set(bx + 4, 7, SUMI) }
-        else if (strokes === 1) { g.hline(bx, 6, 5, SUMI); g.set(bx + 4, 8, SUMI) }
-        else { g.vline(bx, 5, 3, SUMI); g.vline(bx + 4, 5, 3, SUMI); g.hline(bx, 8, 5, SUMI) }
+      disc(g, 19, 3.5, 1.4, RED)
+      for (let i = 1; i < 25; i++) {
+        const far = Math.round(5 + Math.sin(i / 3 + seed) * 1.6)
+        g.vline(i, far, 10 - far, '#b9b2a2')
+        const near = Math.round(7 + Math.sin(i / 2.2 + seed * 2) * 1.4)
+        g.vline(i, near, 10 - near + 1, i % 5 === 0 ? '#2b2b2b' : '#5a5650')
       }
-      g.rect(22, 7, 2, 2, RED)
+      g.set(4, 9, '#2b2b2b'); g.set(5, 8, '#2b2b2b'); g.rect(22, 8, 2, 2, RED)
     })
   },
 }
@@ -429,7 +428,7 @@ const trophyShelf: Prop = {
 
 /** un masque de renard (kitsune) */
 const kitsune: Prop = {
-  id: 'kitsune', kind: 'wall', w: 9, h: 11, tags: ['zen'],
+  id: 'kitsune', kind: 'wall', w: 9, h: 11, tags: ['lux'],
   draw(c, x, y) {
     put(c.s, x, y, 9, 11, (g) => {
       g.rect(1, 0, 2, 3, WHITE); g.rect(6, 0, 2, 3, WHITE); g.set(1, 1, RED); g.set(7, 1, RED)
@@ -461,8 +460,10 @@ const banner: Prop = {
       g.rect(0, 0, 9, 2, WOOD_D)
       g.rect(1, 2, 7, 22, cloth)
       g.vline(1, 2, 22, shade(cloth, 0.25)); g.vline(7, 2, 22, shade(cloth, -0.25))
-      disc(g, 4, 8, 2.4, WHITE); disc(g, 4, 8, 1, cloth)
-      g.hline(3, 14, 3, WHITE); g.vline(4, 13, 6, WHITE)
+      // le blason (mon) · un losange, puis des bandes
+      for (let k = 0; k < 7; k++) { const half = 3 - Math.abs(3 - k); g.hline(4 - half, 5 + k, half * 2 + 1, WHITE) }
+      g.set(4, 8, cloth)
+      g.hline(2, 14, 5, WHITE); g.hline(2, 16, 5, shade(cloth, 0.35)); g.hline(2, 18, 5, WHITE)
       for (let i = 1; i < 8; i += 2) g.set(i, 24, cloth)
       g.hline(1, 21, 7, shade(cloth, -0.35))
     })

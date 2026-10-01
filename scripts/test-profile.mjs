@@ -148,6 +148,16 @@ console.log('\n--- l’accès --------------------------------------------------
   const a3 = P.applyGrant(a2, { path: true })
   ok('inscrire un droit est idempotent', JSON.stringify(a1) === JSON.stringify(a2) && a2.trades.length === 1)
   ok('les droits s’additionnent', a3.path === true && a3.trades[0] === 'sales')
+  // LES COURS VENDUS À PART · « un grand cours à 99 € [...] Un cours [...]
+  // avec Lovable à 49 € » : chacun s'ajoute, aucun n'en remplace un autre.
+  ok('une session payée pour un cours ouvre ce cours', JSON.stringify(P.grantOf({ paid: true, plan: 'course', trade: null, course: 'coder-une-app' })) === '{"course":"coder-une-app"}')
+  ok('un cours inventé n’ouvre rien', P.grantOf({ paid: true, plan: 'course', trade: null, course: 'astronomie' }) === null)
+  {
+    const c1 = P.applyGrant({}, { course: 'coder-une-app' })
+    const c2 = P.applyGrant(P.applyGrant(c1, { course: 'coder-avec-lovable' }), { course: 'coder-une-app' })
+    ok('les cours s’additionnent sans doublon', JSON.stringify(c2.courses) === '["coder-une-app","coder-avec-lovable"]')
+    ok('un cours inventé ne survit pas au nettoyage', JSON.stringify(P.cleanAccess({ courses: ['coder-une-app', 'x', 4] })) === '{"courses":["coder-une-app"]}')
+  }
   ok('l’accès lu en base ne garde que les formes connues', JSON.stringify(P.cleanAccess({ path: 'yes', trades: ['sales', 'x', 'sales', 3], admin: true })) === '{"trades":["sales"]}')
   ok('une session jamais réclamée · on l’inscrit', P.decideClaim(null, 'did:a') === 'new' && P.decideClaim(undefined, 'did:a') === 'new')
   ok('réclamée par ce compte · déjà fait', P.decideClaim('did:a', 'did:a') === 'mine')

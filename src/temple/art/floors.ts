@@ -16,7 +16,7 @@
 import { Grid, shade, rng, hashString } from '../../pixel/grid'
 import type { DojoKit } from '../../data/packs'
 import {
-  FLOOR_W, FLOOR_H, WOOD, WOOD_D, WOOD_L, PILLAR, PAPER, GOLD, RED, WHITE, INK, LEAF, CHALK,
+  FLOOR_W, FLOOR_H, WOOD, WOOD_D, WOOD_L, PILLAR, PAPER, GOLD, RED, WHITE, INK, CHALK,
   put, text, wall, speckle, vboards, bricks, tiles, wainscot, skirting, planksH, checker, tatami, carpet,
   glow, plant, cushion, lantern, bookcase, board, clock, table, chair, screen,
 } from './rooms/base'
@@ -1085,3 +1085,27 @@ const KITS: Record<DojoKit, Kit> = {
   },
 }
 
+
+/** Un étage du temple, 160 × 64, décoré selon la spécialité.
+ *
+ *  Demandé : « Les étages doivent être tous différents là ils sont trop
+ *  identiques ». `floor` est le rang de l'étage dans le temple (0 = le
+ *  premier) et `topic` le cas d'usage de la leçon (research, writing,
+ *  support, coding, analysis, triage, extraction, watch, planning, tools,
+ *  growth, orchestration, ou rien). Le premier étage garde la pièce dessinée
+ *  à la main ; les suivants sont composés (rooms/compose.ts), tous
+ *  différents, dans la palette et avec les objets de la spécialité. La porte,
+ *  les appliques et la structure sont les mêmes à tous les étages.
+ *  Même (kit, tint, floor, topic) : même dessin. */
+export function drawFloor(kit: DojoKit, tint: string, floor = 0, topic = ''): Grid {
+  const s = new Grid(FLOOR_W, FLOOR_H)
+  const paint = (g: Grid) => KITS[kit](g, tint, rng(hashString(kit)))
+  if (floor <= 0) paint(s)
+  else composeFloor(s, kit, tint, Math.floor(floor), topic, paint)
+  floorEdges(s)
+  doorLight(s)
+  door(s, tint)
+  sconces(s)
+  structure(s, tint)
+  return s
+}

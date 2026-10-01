@@ -229,6 +229,10 @@ const ENDPOINTS = [
     ['POST', '/api/buy', JSON.stringify({ plan: 'inventé' })],
     ['POST', '/api/buy', JSON.stringify({ plan: 'trade', trade: 'astronaute' })],
     ['POST', '/api/buy', JSON.stringify({ plan: 'path', email: 'a@b.fr' })],
+    // LES COURS VENDUS À PART · un cours inventé est refusé, un vrai attend sa clé
+    ['POST', '/api/buy', JSON.stringify({ plan: 'course', course: 'astronomie' })],
+    ['POST', '/api/buy', JSON.stringify({ plan: 'course', course: 'coder-une-app', email: 'a@b.fr' })],
+    ['POST', '/api/buy', JSON.stringify({ plan: 'course', course: 'coder-avec-lovable' })],
     ['GET', '/api/buy?session_id=pas-une-session'],
     ['GET', '/api/buy?session_id=cs_test_abc123'],
   ]],

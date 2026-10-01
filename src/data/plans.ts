@@ -87,6 +87,16 @@ export const TRADE_EUR = 49
 /** Les deux ensemble · jamais recopié à la main. */
 export const BUNDLE_EUR = PATH_EUR + TRADE_EUR
 
+/** LES COURS VENDUS À PART · demandé : « un grand cours à 99 € comment coder
+ *  une app [...] Un cours comment coder une app avec Lovable à 49 € ». Chacun
+ *  s'achète seul, une fois, et n'ouvre que lui (voir data/courses). Les clés
+ *  sont celles de data/courses/index, écrites ici en clair pour que la grille
+ *  de prix reste lisible d'un seul fichier. */
+export const COURSE_EUR: Record<'coder-une-app' | 'coder-avec-lovable', number> = {
+  'coder-une-app': 99,
+  'coder-avec-lovable': 49,
+}
+
 /** Le parcours découverte · sept jours, une leçon par jour. */
 export const DISCOVERY_DAYS = 7
 

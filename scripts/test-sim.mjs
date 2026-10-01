@@ -153,6 +153,37 @@ for (const [w, cols, step] of [[640, 4, 118], [320, 2, 112]]) {
 const Z = await load('src/lib/zen.ts', 'zen.mjs')
 ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function' && Z.zen.isPlaying() === false)
 
+/* --- 3c · les deux cours vendus à part ---------------------------------------- */
+//
+// Demandé : « un grand cours à 99 € comment coder une app [...] en apprenant
+// Claude Code, Vercel, Supabase, le terminal et GitHub [...] Un cours comment
+// coder une app avec Lovable à 49 € ». Chacun s'achète seul et n'ouvre que lui.
+{
+  const CO = await load('src/data/courses/index.ts', 'courses.mjs')
+  const PL = await load('src/data/plans.ts', 'plans2.mjs')
+  const PK = await load('src/data/packs.ts', 'packs3.mjs')
+  const cp = PK.PACKS.filter((p) => p.door === 'course')
+  ok('les deux cours sont publiés', cp.length === 2 && CO.COURSE_IDS.every((id) => cp.some((p) => p.id === id && p.course === id)), cp.map((p) => p.id).join(', ') || 'aucun')
+  ok('le cours « Coder une app » vaut 99 euros, celui de Lovable 49', PL.COURSE_EUR['coder-une-app'] === 99 && PL.COURSE_EUR['coder-avec-lovable'] === 49)
+  ok('le prix d\'un cours est lu dans la grille', cp.every((p) => PK.eurOf(p) === PL.COURSE_EUR[p.course]))
+  const SESSION = readFileSync('api/_lib/checkoutSession.ts', 'utf8')
+  const buyable = (SESSION.match(/BUY_COURSES[^=]*=\s*new Set\(\[([\s\S]*?)\]\)/)?.[1] ?? '').match(/'([a-z-]+)'/g)?.map((x) => x.slice(1, -1)) ?? []
+  ok('le serveur vend exactement les cours du programme', buyable.join(',') === CO.COURSE_IDS.join(','), buyable.join(','))
+  const BUY = readFileSync('api/buy.ts', 'utf8')
+  ok('chaque cours a son prix Stripe', CO.COURSE_IDS.every((id) => new RegExp(`'${id}': ENV\\.STRIPE_PRICE_COURSE_`).test(BUY)) && /metadata\[course\]/.test(BUY))
+  const ACC = readFileSync('src/game/access.ts', 'utf8')
+  ok('un cours acheté n\'ouvre que lui', /m\.track === 'course'\s*\?\s*\(a\.courses \?\? \[\]\)\.includes\(COURSE_OF_CITY\[m\.id\]\)/.test(ACC)
+    && /p\.door === 'course'\) return Boolean\(p\.course\) && \(a\.courses \?\? \[\]\)\.includes\(p\.course!\)/.test(ACC))
+  ok('un second cours s\'ajoute au premier', /courses: \[\.\.\.have, id\]/.test(ACC))
+  const code = CO.COURSE_CITIES['coder-une-app'].map((m) => m.title.fr.toLowerCase()).join(' | ')
+  ok('le cours de code couvre le terminal, GitHub, Claude Code, Supabase et Vercel', ['terminal', 'github', 'claude code', 'supabase', 'vercel'].every((w) => code.includes(w)), code)
+  const lv = CO.COURSE_CITIES['coder-avec-lovable'].map((m) => m.title.fr.toLowerCase()).join(' | ')
+  ok('le cours Lovable a son app exemple', /lovable/.test(lv) && CO.COURSE_CITIES['coder-avec-lovable'].length >= 4, lv)
+  const lessons = (id) => CO.COURSE_CITIES[id].reduce((n, m) => n + m.levels.length, 0)
+  ok('le grand cours est plus long que celui de Lovable', lessons('coder-une-app') > lessons('coder-avec-lovable') && lessons('coder-avec-lovable') >= 12, `${lessons('coder-une-app')} et ${lessons('coder-avec-lovable')} leçons`)
+  ok('chaque cité des cours est rangée « course »', CO.COURSE_MODULES.every((m) => m.track === 'course'))
+}
+
 /* --- 4 · les morsures ------------------------------------------------------ */
 
 ok('morsure · un import de l\'ancien jeu serait vu', OLD_IMPORT.test("import { PackArt } from './PackArt'") && OLD_IMPORT.test("import { audio } from '../sim/audio'"))

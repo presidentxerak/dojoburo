@@ -25,6 +25,13 @@ export const BUY_TRADES: ReadonlySet<string> = new Set([
   'designer', 'teacher', 'student', 'scientist', 'developer', 'recruiter', 'lawyer', 'consultant',
 ])
 
+// LES COURS VENDUS À PART · « coder une app » et « coder une app avec
+// Lovable ». Recopiés de data/courses pour la même raison que les métiers, et
+// vérifiés par scripts/test-sim contre la liste du programme.
+export const BUY_COURSES: ReadonlySet<string> = new Set([
+  'coder-une-app', 'coder-avec-lovable',
+])
+
 /** Un identifiant de session Stripe Checkout · « cs_… ». */
 export const isCheckoutSessionId = (v: unknown): v is string =>
   typeof v === 'string' && /^cs_[A-Za-z0-9_]+$/.test(v)
@@ -33,18 +40,22 @@ export const isCheckoutSessionId = (v: unknown): v is string =>
 export interface CheckoutVerdict {
   /** PAYÉ, ET SEULEMENT PAYÉ · une session ouverte ou expirée n'ouvre rien. */
   paid: boolean
-  plan: 'path' | 'trade' | null
+  plan: 'path' | 'trade' | 'course' | null
   trade: string | null
+  /** le cours payé, quand plan vaut 'course' */
+  course: string | null
 }
 
 /** La lecture d'une session brute renvoyée par Stripe · pure, testable. */
 export function readCheckoutSession(r: any): CheckoutVerdict {
   const plan = String(r?.metadata?.plan || '')
   const trade = String(r?.metadata?.trade || '')
+  const course = String(r?.metadata?.course || '')
   return {
     paid: r?.payment_status === 'paid',
-    plan: plan === 'path' || plan === 'trade' ? plan : null,
+    plan: plan === 'path' || plan === 'trade' || plan === 'course' ? plan : null,
     trade: BUY_TRADES.has(trade) ? trade : null,
+    course: BUY_COURSES.has(course) ? course : null,
   }
 }
 

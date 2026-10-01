@@ -13,6 +13,7 @@
 //
 // LA CLÉ EST `cité/dojo`, ce qui est exactement la forme `piste/leçon` déjà
 // employée. Aucune migration : ce qui a été fait reste fait.
+import { COURSE_CITIES, type CourseId } from '../data/courses'
 import { useProgress, markDone, clearDone, recordAnswer, key } from '../academy/progress'
 import {
   ALL_MODULES, PATH_MODULES, DISCOVERY_MODULE, MODULE_BY_ID,
@@ -72,7 +73,9 @@ export function useGame() {
 
   /** LA PORTÉE · les cités qui vous concernent, à plat, dans l'ordre où on les
    *  parcourt. C'est elle que lisent les badges et le prochain dojo. */
-  const scope: Module[] = [DISCOVERY_MODULE, ...PATH_MODULES, ...tradeCities]
+  // les cours vendus à part que l'élève a achetés · leurs badges comptent
+  const courseCities = (a.courses ?? []).flatMap((id) => COURSE_CITIES[id as CourseId] ?? [])
+  const scope: Module[] = [DISCOVERY_MODULE, ...PATH_MODULES, ...tradeCities, ...courseCities]
   const scopeLevels = scope.flatMap((module) => module.levels.map((level) => ({ module, level })))
 
   // LES BADGES SONT DÉRIVÉS DES DOJOS FINIS · une liste tenue à part finirait

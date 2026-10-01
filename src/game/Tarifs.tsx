@@ -23,14 +23,14 @@ import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
 import { say } from '../data/bilingual'
-import { PACKS, PACK_BY_ID, packPath } from '../data/packs'
+import { PACKS, PACK_BY_ID, packPath, levelsOf, minutesOf, eurOf } from '../data/packs'
 import { PLAN_BY_ID, priceTag, PATH_EUR, TRADE_EUR } from '../data/plans'
 import { apiFetch } from '../lib/apiFetch'
 import { addReceipt } from '../lib/account'
-import { useAccess, grant, chooseTrade } from './access'
+import { useAccess, grant, grantCourse, chooseTrade } from './access'
 import { Shell } from './Shell'
 
-type Buy = { plan: 'path' } | { plan: 'trade'; trade: string }
+type Buy = { plan: 'path' } | { plan: 'trade'; trade: string } | { plan: 'course'; course: string }
 
 /** Lancer le paiement · rend un message d'erreur lisible, ou part vers Stripe. */
 async function startPurchase(what: Buy, email: string | undefined, t: (k: string) => string): Promise<string> {
@@ -57,6 +57,8 @@ export function TarifsPage() {
   const [busy, setBusy] = useState<string | null>(null)
   const [msg, setMsg] = useState('')
   const trades = PACKS.filter((p) => p.door === 'trade')
+  // LES COURS VENDUS À PART · chacun s'achète seul et n'ouvre que lui
+  const courses = PACKS.filter((p) => p.door === 'course')
   const [pick, setPick] = useState<string>(a.pick ?? trades[0]?.trade ?? '')
   const cancelled = typeof location !== 'undefined' && /[?&]annule=1/.test(location.search)
 
@@ -139,6 +141,38 @@ export function TarifsPage() {
         </div>
       </section>
 
+      {courses.length > 0 && (
+        <section className="gm-sec">
+          <h2 className="pf-h2">{t('tf.coursesH')}</h2>
+          <p className="gm-lead">{t('tf.coursesLead')}</p>
+          <div className="tf-grid">
+            {courses.map((p) => {
+              const owned = a.tester || (p.course ? a.courses.includes(p.course) : false)
+              const key = `course:${p.course}`
+              return (
+                <article key={p.id} className="tf-card" style={{ ['--ac' as string]: p.tint }}>
+                  <span className="tf-name">{say(p.title, lang)}</span>
+                  <span className="tf-price">{priceTag(eurOf(p))} <i>{t('tf.once')}</i></span>
+                  <p className="tf-tag">{say(p.blurb, lang)}</p>
+                  <ul className="tf-incl">
+                    <li><BauhausIcon name="check" size={13} />{levelsOf(p).length} {t('tf.courseLessons')} · {Math.round(minutesOf(p) / 60)} h</li>
+                    <li><BauhausIcon name="check" size={13} />{t('tf.courseProject')}</li>
+                    <li><BauhausIcon name="check" size={13} />{t('tf.courseOnce')}</li>
+                  </ul>
+                  {owned ? (
+                    <Lnk className="gm-cta tf-go" href={packPath(p.id)}>{t('tf.owned')} · {t('ac.continue')} →</Lnk>
+                  ) : (
+                    <button className="gm-cta tf-go" disabled={busy !== null} onClick={() => p.course && buy({ plan: 'course', course: p.course }, key)}>
+                      {busy === key ? t('tf.going') : `${t('tf.buy')} · ${priceTag(eurOf(p))}`}
+                    </button>
+                  )}
+                </article>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
       <section className="gm-sec">
         <div className="cl-note tf-facts">
           <b>{t('tf.factsH')}</b>
@@ -180,11 +214,14 @@ export function MerciPage() {
         // LE REÇU · gardé pour être inscrit sur le compte (lib/account), dès
         // maintenant si l'élève est connecté, sinon à sa prochaine connexion.
         // La formation suit alors l'élève sur ses autres appareils.
-        if (j?.ok && j.paid && (j.plan === 'path' || (j.plan === 'trade' && j.trade))) addReceipt(id)
+        if (j?.ok && j.paid && (j.plan === 'path' || (j.plan === 'trade' && j.trade) || (j.plan === 'course' && j.course))) addReceipt(id)
         if (j?.ok && j.paid && j.plan === 'path') { grant({ path: true }); setTo('generaliste'); setState('ok') }
         else if (j?.ok && j.paid && j.plan === 'trade' && j.trade) {
           grant({ trade: j.trade }); chooseTrade(j.trade)
           setTo(PACKS.find((p) => p.trade === j.trade)?.id ?? 'generaliste'); setState('ok')
+        } else if (j?.ok && j.paid && j.plan === 'course' && j.course) {
+          grantCourse(j.course)
+          setTo(PACK_BY_ID[j.course] ? j.course : 'generaliste'); setState('ok')
         } else setState(j?.ok ? 'no' : 'err')
       } catch { if (alive) setState('err') }
     })()

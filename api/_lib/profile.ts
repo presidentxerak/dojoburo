@@ -35,7 +35,7 @@
 // (api/profile.ts?action=claim), et une session de paiement n'ouvre qu'UN
 // compte (voir decideClaim).
 
-import { BUY_TRADES } from './checkoutSession.js'
+import { BUY_TRADES, BUY_COURSES } from './checkoutSession.js'
 
 // ---- les bornes ----------------------------------------------------------
 
@@ -103,9 +103,11 @@ export interface Access {
   path?: true
   /** les métiers achetés, dans l'ordre d'achat */
   trades?: string[]
+  /** les cours vendus à part achetés · voir data/courses */
+  courses?: string[]
 }
 
-export type Grant = { path: true } | { trade: string }
+export type Grant = { path: true } | { trade: string } | { course: string }
 
 export const EMPTY_DATA: ProfileData = { v: 1, academy: null, sim: null, clan: null }
 
@@ -270,14 +272,19 @@ export function cleanAccess(raw: unknown): Access {
     const t = [...new Set(raw.trades.filter((x): x is string => typeof x === 'string' && BUY_TRADES.has(x)))]
     if (t.length) out.trades = t
   }
+  if (Array.isArray(raw.courses)) {
+    const c = [...new Set(raw.courses.filter((x): x is string => typeof x === 'string' && BUY_COURSES.has(x)))]
+    if (c.length) out.courses = c
+  }
   return out
 }
 
 /** Ce qu'une session payée ouvre · null si elle n'ouvre rien. */
-export function grantOf(v: { paid: boolean; plan: string | null; trade: string | null } | null): Grant | null {
+export function grantOf(v: { paid: boolean; plan: string | null; trade: string | null; course?: string | null } | null): Grant | null {
   if (!v || !v.paid) return null
   if (v.plan === 'path') return { path: true }
   if (v.plan === 'trade' && v.trade && BUY_TRADES.has(v.trade)) return { trade: v.trade }
+  if (v.plan === 'course' && v.course && BUY_COURSES.has(v.course)) return { course: v.course }
   return null
 }
 
@@ -286,6 +293,10 @@ export function applyGrant(access: Access, grant: Grant | null): Access {
   const a = cleanAccess(access)
   if (!grant) return a
   if ('path' in grant) return { ...a, path: true }
+  if ('course' in grant) {
+    const courses = a.courses ?? []
+    return courses.includes(grant.course) ? a : { ...a, courses: [...courses, grant.course] }
+  }
   const trades = a.trades ?? []
   return trades.includes(grant.trade) ? a : { ...a, trades: [...trades, grant.trade] }
 }

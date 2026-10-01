@@ -19,7 +19,7 @@
 // prix UNIQUES, pas récurrents) : ils se changent sans déploiement et ne
 // peuvent pas diverger de ce qui est facturé. Sans clé, la réponse le dit et
 // rien n'est débité.
-import { BUY_TRADES as TRADES, isCheckoutSessionId, stripeRequest, verifyCheckoutSession } from './_lib/checkoutSession.js'
+import { BUY_TRADES as TRADES, BUY_COURSES as COURSES, isCheckoutSessionId, stripeRequest, verifyCheckoutSession } from './_lib/checkoutSession.js'
 
 export const config = { runtime: 'edge' }
 
@@ -28,6 +28,13 @@ const ENV: Record<string, string | undefined> = ((globalThis as any).process?.en
 const PRICE: Record<string, string | undefined> = {
   path: ENV.STRIPE_PRICE_PATH,
   trade: ENV.STRIPE_PRICE_TRADE,
+  // un cours vendu à part · le prix dépend du cours, voir COURSE_PRICE
+  course: 'par cours',
+}
+/** LE PRIX STRIPE DE CHAQUE COURS · un produit par cours, payé une fois. */
+const COURSE_PRICE: Record<string, string | undefined> = {
+  'coder-une-app': ENV.STRIPE_PRICE_COURSE_APP,
+  'coder-avec-lovable': ENV.STRIPE_PRICE_COURSE_LOVABLE,
 }
 // Les métiers qu'on peut acheter (TRADES) et la lecture d'une session vivent
 // dans _lib/checkoutSession · api/profile.ts pose la même question à Stripe
@@ -59,7 +66,7 @@ export default async function handler(req: Request): Promise<Response> {
     const v = await verifyCheckoutSession(id, key, UPSTREAM_TIMEOUT_MS)
     if (!v) return json({ ok: false, error: 'upstream' }, 200)
     // PAYÉ, ET SEULEMENT PAYÉ · une session ouverte ou expirée n'ouvre rien.
-    return json({ ok: true, paid: v.paid, plan: v.plan, trade: v.trade }, 200)
+    return json({ ok: true, paid: v.paid, plan: v.plan, trade: v.trade, course: v.course }, 200)
   }
 
   if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405)
@@ -70,9 +77,11 @@ export default async function handler(req: Request): Promise<Response> {
   if (!Object.prototype.hasOwnProperty.call(PRICE, plan)) return json({ ok: false, error: 'unknown_plan' }, 400)
   const trade = String(body?.trade || '').toLowerCase()
   if (plan === 'trade' && !TRADES.has(trade)) return json({ ok: false, error: 'unknown_trade' }, 400)
+  const course = String(body?.course || '').toLowerCase()
+  if (plan === 'course' && !COURSES.has(course)) return json({ ok: false, error: 'unknown_course' }, 400)
   const email = typeof body?.email === 'string' && /.+@.+\..+/.test(body.email) ? body.email.trim().slice(0, 200) : ''
 
-  const price = PRICE[plan]
+  const price = plan === 'course' ? COURSE_PRICE[course] : PRICE[plan]
   if (!price) return json({ ok: false, error: 'plan_not_configured', plan }, 200)
   if (!key) return json({ ok: false, error: 'not_configured' }, 200)
 
@@ -88,6 +97,7 @@ export default async function handler(req: Request): Promise<Response> {
   if (email) form.set('customer_email', email)
   form.set('metadata[plan]', plan)
   if (plan === 'trade') form.set('metadata[trade]', trade)
+  if (plan === 'course') form.set('metadata[course]', course)
 
   const r = await stripeRequest('checkout/sessions', key, UPSTREAM_TIMEOUT_MS, form)
   if (!r?.url) return json({ ok: false, error: 'upstream' }, 200)
