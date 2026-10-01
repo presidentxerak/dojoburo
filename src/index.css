@@ -11811,7 +11811,7 @@ html.calm *, html.calm *::before, html.calm *::after {
 .gav { box-shadow: 0 0 0 3px var(--belt), inset 0 2px 6px rgba(0, 0, 0, 0.45), 0 6px 16px -6px rgba(0, 0, 0, 0.8); }
 
 @media (prefers-reduced-motion: reduce) {
-  .i3d-strip, .gm-tab .gm-tab-g { animation: none !important; }
+  .picon, .gm-tab .gm-tab-g { animation: none !important; }
 }
 
 /* LA CASE NEWSLETTER · à part, non cochée, lisible. */
@@ -12194,3 +12194,260 @@ h2.cy-post-title { font-size: 24px !important; }
 .cy-poll-opt span, .cy-poll-opt b { position: relative; }
 .gm button.cy-poll-opt.mine { box-shadow: inset 0 0 0 2px #7c3aed; }
 .cy-poll-foot { margin: 2px 0 0; font-size: 13px; color: var(--g-sub); }
+
+/* ==================================================================
+   LE PIXEL ART · personnages, éditeur (voir src/pixel).
+   ================================================================== */
+svg.px { display: block; image-rendering: pixelated; }
+svg.chibi.flip { transform: scaleX(-1); }
+.ap { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 719px) { .ap { grid-template-columns: 1fr; } }
+.ap-preview { position: sticky; top: 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.ap-stage { display: grid; place-items: center; width: 100%; padding: 18px 0; border-radius: 20px; background: radial-gradient(circle at 50% 40%, #fff, #e9e1ff 70%); }
+:root:not([data-look='light']) .ap-stage { background: radial-gradient(circle at 50% 40%, #3b2670, #1a0f36 70%); }
+.ap-stage svg { animation: px-bob 1.6s steps(2) infinite; }
+@keyframes px-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.ap-controls h3 { margin: 14px 0 6px; font: 800 13px var(--font-game); text-transform: uppercase; letter-spacing: .05em; color: var(--g-sub); }
+.ap-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gm button.ap-chip { padding: 7px 12px; border: 0; border-radius: 10px !important; font: 800 13px var(--font-game); color: var(--g-text); background: var(--g-slot); cursor: pointer; }
+.gm button.ap-chip.on { color: #fff; background-color: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.ap-colors { display: flex; flex-wrap: wrap; gap: 6px; }
+.gm button.ap-color { width: 30px; height: 30px; border: 0; border-radius: 8px !important; cursor: pointer; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2); }
+.gm button.ap-color.on { box-shadow: 0 0 0 3px var(--g-page), 0 0 0 5px #7c3aed; }
+.ap-acts { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+.gm .ap-acts .gm-cta, .gm .ap-acts .cc-btn { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .ap-stage svg { animation: none; } }
+
+/* LES TEMPLES · la carte du monde, le temple à étages, le chat du cours.
+   Demandé : « Change complètement le design des personnages et des dojo en
+   pixel art 2D, fais les dojo sous la forme d'un temple avec des étages ».
+   Les images sont dessinées pixel par pixel (src/temple/art) et agrandies sans
+   lissage ; les libellés prennent la police pixel Silkscreen. */
+:root { --font-px: 'Silkscreen', ui-monospace, monospace; --px-ink: #1b1530; }
+.tp img, .tw-world img, .tw-card-art svg { image-rendering: pixelated; }
+/* le cadre pixel · quatre ombres franches à la place d'une bordure */
+.tw-label, .tp-sign, .tp-nametag, .tp-map, .tp-bubble, .tp-ctrl-floor, .tp-lock-b {
+  box-shadow: 0 -2px 0 0 var(--px-ink), 0 2px 0 0 var(--px-ink), -2px 0 0 0 var(--px-ink), 2px 0 0 0 var(--px-ink);
+}
+
+/* LA CARTE DU MONDE */
+/* le h1 global à 60px est !important (voir plus haut) · le titre pixel le reprend */
+.tw-title { font: 700 clamp(22px, 4vw, 34px)/1.15 var(--font-px); font-size: clamp(22px, 6vw, 34px) !important; letter-spacing: .02em; margin: 0 0 6px; overflow-wrap: anywhere; }
+.tw-choose { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.tw-choose > div { flex: 1 1 200px; }
+.tw-world { position: relative; width: 100%; overflow: hidden; border-radius: 6px; background: #3f8f3a; }
+.tw-world-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tw-temple { position: absolute; display: block; transition: transform .12s steps(2); }
+.tw-temple img { display: block; width: 100%; height: auto; }
+.tw-temple:hover, .tw-temple:focus-visible { transform: translateY(-3px); }
+.tw-temple.locked img { filter: saturate(.55); }
+.tw-label {
+  position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%);
+  padding: 3px 6px; background: #fff7e0; color: var(--px-ink);
+  font: 400 clamp(8px, 1.4vw, 11px)/1.15 var(--font-px); text-align: center; white-space: nowrap; z-index: 2;
+}
+.tw-label::after { content: ''; position: absolute; left: 50%; top: 100%; width: 6px; height: 4px; margin-left: -3px; background: var(--ac, var(--px-ink)); }
+.tw-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.tw-card {
+  display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 16px; text-decoration: none; color: inherit;
+  background: color-mix(in srgb, var(--ac) 14%, var(--g-card, #160c2b)); box-shadow: var(--sk-btn);
+}
+.tw-card:hover { transform: translateY(-1px); }
+.tw-card-art { flex: none; display: grid; place-items: center; width: 84px; height: 104px; border-radius: 12px; background: color-mix(in srgb, var(--ac) 26%, transparent); }
+.tw-card-t { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tw-card-t b { font: 700 14px/1.2 var(--font-px); }
+.tw-card-t em { font-style: normal; font-size: 13px; opacity: .8; }
+.tw-tag { align-self: flex-start; padding: 2px 8px; border-radius: 999px; font: 400 10px/1.4 var(--font-px); background: #7c3aed; color: #fff; }
+.tw-tag.free { background: #16a34a; }
+.tw-tag.locked { background: #44405a; }
+
+/* LE TEMPLE · plein écran, au-dessus de tout */
+.tp {
+  position: fixed; inset: 0; z-index: 140; display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+  color: #fff; font-family: var(--font-game);
+  background: linear-gradient(180deg, #120a2e 0%, color-mix(in srgb, var(--ac) 30%, #1a0f3a) 70%, #0a0514 100%);
+}
+.tp-missing { place-items: center; align-content: center; gap: 16px; }
+.tp-top { display: flex; align-items: center; gap: 12px; padding: 10px 14px; padding-right: 76px; background: rgba(10, 5, 20, .72); z-index: 3; }
+.tp-back { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); color: #fff; font-size: 20px; text-decoration: none; }
+.tp-title { display: flex; flex-direction: column; min-width: 0; }
+.tp-title b { font: 700 clamp(13px, 2.4vw, 18px)/1.2 var(--font-px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tp-title em { font-style: normal; font-size: 13px; opacity: .78; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* le plan des étages, collé en haut à droite */
+.tp-map {
+  position: absolute; top: 10px; right: 10px; z-index: 5; display: flex; flex-direction: column; gap: 3px; padding: 5px;
+  max-height: calc(100% - 100px); overflow-y: auto; background: #fff7e0;
+}
+.tp-map-b {
+  display: flex; align-items: center; justify-content: center; gap: 2px; width: 44px; height: 26px; border: 0; padding: 0; cursor: pointer;
+  font: 700 12px/1 var(--font-px); color: var(--px-ink); background: #e8dcc0;
+}
+.tp-map-b.done { background: #bbe6b0; }
+.tp-map-b.locked { background: #c9c3d6; color: #5d5675; }
+.tp-map-b.on { background: var(--ac, #7c3aed); color: #fff; }
+
+/* la tour */
+.tp-scroll { overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; padding: 24px 12px 32px; }
+.tp-tower { width: min(100%, 720px); margin: 0 auto; }
+.tp-tower img { display: block; width: 100%; height: auto; }
+.tp-floor { position: relative; container-type: inline-size; aspect-ratio: 160 / 64; scroll-margin: 80px; }
+.tp-floor-img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tp-floor.cur { outline: 3px solid var(--ac); outline-offset: -3px; }
+.tp-sign {
+  position: absolute; left: 50%; top: 6.5%; transform: translateX(-50%); z-index: 1;
+  max-width: 62%; padding: .6cqw 1.6cqw; background: #fff7e0; color: var(--px-ink);
+  font: 400 clamp(8px, 2.1cqw, 13px)/1.2 var(--font-px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tp-sign b { font-weight: 700; color: var(--ac); filter: brightness(.7); }
+.tp-done { display: inline-flex; align-items: center; gap: 2px; margin-left: 4px; font-style: normal; color: #15803d; }
+.tp-door {
+  position: absolute; left: 43.75%; top: 28%; width: 12.5%; height: 53%; border: 0; padding: 0; cursor: pointer; background: transparent;
+}
+.tp-door:not(:disabled):hover, .tp-door:focus-visible { background: rgba(255, 240, 180, .22); }
+.tp-door:disabled { cursor: default; }
+.tp-master, .tp-student {
+  position: absolute; bottom: 7%; width: 16.25cqw; border: 0; padding: 0; background: transparent; cursor: pointer; color: inherit;
+}
+.tp-master { left: 11.25%; }
+.tp-master svg, .tp-student svg { width: 100%; height: auto; }
+.tp-master svg { animation: px-bob 1.6s steps(2) infinite; }
+.tp-students { position: absolute; left: 60%; right: 3%; bottom: 7%; height: 60%; }
+.tp-students .tp-student { position: relative; display: inline-block; bottom: auto; vertical-align: bottom; width: 12cqw; margin-right: -1.5cqw; }
+.tp-students { display: flex; align-items: flex-end; justify-content: center; }
+.tp-student.me { cursor: default; }
+.tp-nametag {
+  position: absolute; left: 50%; bottom: calc(100% + 2px); transform: translateX(-50%);
+  padding: 1px 4px; background: #fff7e0; color: var(--px-ink); white-space: nowrap;
+  font: 400 clamp(7px, 1.6cqw, 10px)/1.2 var(--font-px);
+}
+.tp-master .tp-nametag { background: var(--ac); color: #fff; }
+.tp-student.me .tp-nametag { background: #7c3aed; color: #fff; }
+.tp-lock {
+  position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6cqw;
+  background: rgba(10, 5, 20, .7); color: #fff; text-align: center; padding: 8px;
+}
+.tp-lock b { font: 700 clamp(10px, 2.6cqw, 15px)/1.2 var(--font-px); }
+.tp-lock .gm-cta { font-size: clamp(11px, 2.4cqw, 15px); padding: 8px 14px; }
+
+/* les commandes, comme dans un ascenseur */
+.tp-ctrl {
+  display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(10, 5, 20, .82);
+}
+.tp-ctrl-b, .tp-ctrl-chat {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 48px; min-width: 48px; padding: 0 12px; border: 0; border-radius: 14px; cursor: pointer;
+  color: #fff; background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); font: 400 12px/1 var(--font-px);
+}
+.tp-ctrl-b:active, .tp-ctrl-chat:active { box-shadow: var(--sk-press); }
+.tp-ctrl-b:disabled { opacity: .4; cursor: default; }
+.tp-arrow { display: inline-flex; }
+.tp-arrow.up { transform: rotate(-90deg); }
+.tp-arrow.down { transform: rotate(90deg); }
+.tp-ctrl-floor {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; height: 48px; min-width: 72px; border: 0; cursor: pointer;
+  background: #fff7e0; color: var(--px-ink);
+}
+.tp-ctrl-floor span { font: 400 9px/1 var(--font-px); }
+.tp-ctrl-floor b { font: 700 20px/1 var(--font-px); }
+
+/* le maître, en grand, qui accueille */
+.tp-modal { position: fixed; inset: 0; z-index: 150; display: grid; place-items: center; padding: 16px; background: rgba(10, 5, 20, .72); backdrop-filter: blur(3px); }
+.tp-modal-card { display: flex; align-items: flex-end; gap: 16px; width: min(100%, 720px); max-height: 100%; overflow-y: auto; }
+.tp-master-big { flex: none; animation: px-bob 1.6s steps(2) infinite; }
+.tp-master-big svg { width: 156px; height: auto; }
+.tp-bubble { position: relative; flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 16px 18px; background: #fff7e0; color: var(--px-ink); }
+.tp-bubble > b { font: 700 16px/1.2 var(--font-px); }
+.tp-bubble > em { font-style: normal; font-size: 13px; opacity: .7; }
+.tp-bubble p { margin: 0; line-height: 1.5; }
+.tp-bubble-lesson { padding: 10px 12px; background: color-mix(in srgb, var(--ac) 14%, #fff); }
+.tp-bubble-acts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 4px; }
+.tp-gate { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.tp-gate p { margin: 0; }
+.tp-gate-row { display: flex; gap: 8px; }
+.tp-gate-row .promo-inp { flex: 1; min-width: 0; }
+@media (max-width: 620px) {
+  .tp-modal-card { flex-direction: column; align-items: center; }
+  .tp-master-big svg { width: 120px; }
+  .tp-ctrl-chat { padding: 0 10px; }
+  .tp-gate-row { flex-direction: column; }
+}
+
+/* LE CHAT DU COURS · un tiroir à droite, plein écran sur téléphone */
+.tc {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 160; display: flex; flex-direction: column; width: min(100%, 400px);
+  background: var(--g-bg, #0a0514); color: var(--g-ink, #fff); box-shadow: -12px 0 40px rgba(0, 0, 0, .45);
+}
+.tc-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .08); }
+.tc-tabs { flex: 1; display: flex; gap: 6px; }
+.tc-tabs button { flex: 1; height: 38px; border: 0; border-radius: 12px; cursor: pointer; font: 400 11px/1 var(--font-px); color: inherit; background: rgba(124, 58, 237, .16); }
+.tc-tabs button.on { background: #7c3aed; color: #fff; box-shadow: var(--sk-btn); }
+.tc-x { width: 38px; height: 38px; border: 0; border-radius: 12px; cursor: pointer; font-size: 22px; color: inherit; background: rgba(255, 255, 255, .08); }
+.tc-signin { padding: 24px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.tc-msgs { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.tc-msg { display: flex; gap: 8px; align-items: flex-start; }
+.tc-msg svg { flex: none; width: 30px; height: auto; }
+.tc-msg > div { padding: 8px 10px; border-radius: 12px; background: rgba(124, 58, 237, .14); max-width: 80%; }
+.tc-msg b { font-size: 12px; }
+.tc-msg p { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.tc-msg.mine { flex-direction: row-reverse; }
+.tc-msg.mine > div { background: #7c3aed; color: #fff; }
+.tc-form { display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08); }
+.tc-form .promo-inp { flex: 1; min-width: 0; }
+.tc-people { list-style: none; margin: 0; padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.tc-people li { display: flex; align-items: center; gap: 10px; }
+.tc-people li > span { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.tc-people em { font-style: normal; font-size: 12px; opacity: .7; }
+.tc-empty { opacity: .7; padding: 12px; }
+html[data-look="light"] .tc { background: #fff; color: #1b1530; }
+html[data-look="light"] .tc-msg:not(.mine) > div { background: #f1ecff; }
+/* le maître en tête de la leçon */
+.ln-master { display: flex; align-items: flex-end; gap: 14px; margin: 8px 0 18px; }
+.ln-master-art { flex: none; display: grid; place-items: end center; width: 150px; height: 175px; border-radius: 18px; background: radial-gradient(circle at 50% 70%, color-mix(in srgb, var(--ac) 45%, transparent), transparent 70%); }
+.ln-master-art svg { animation: px-bob 1.6s steps(2) infinite; image-rendering: pixelated; }
+.ln-master-say {
+  position: relative; flex: 1; padding: 12px 16px; background: #fff7e0; color: #1b1530; margin-bottom: 30px;
+  box-shadow: 0 -2px 0 0 #1b1530, 0 2px 0 0 #1b1530, -2px 0 0 0 #1b1530, 2px 0 0 0 #1b1530;
+}
+.ln-master-say::before { content: ''; position: absolute; left: -10px; bottom: 14px; width: 10px; height: 8px; background: #1b1530; }
+.ln-master-say b { font: 700 14px/1.2 var(--font-px); }
+.ln-master-say p { margin: 6px 0 0; line-height: 1.5; }
+@media (max-width: 560px) {
+  .ln-master-art { width: 104px; height: 128px; }
+  .ln-master-art svg { width: 96px; height: auto; }
+}
+.gm-me-px { display: grid; place-items: end center; width: 36px; height: 36px; overflow: hidden; border-radius: 12px; background: #2c1d52; box-shadow: var(--sk-btn); }
+.gm-me-px svg { width: 30px; height: auto; margin-bottom: -6px; image-rendering: pixelated; }
+.gchibi { position: relative; display: inline-grid; place-items: end center; flex: none; overflow: hidden; border-radius: 50%; background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--rk) 55%, #fff), color-mix(in srgb, var(--rk) 70%, #1b1530) 75%); box-shadow: inset 0 0 0 3px var(--rk), var(--sk-btn); }
+.gchibi svg { width: 86%; height: auto; margin-bottom: -4%; image-rendering: pixelated; }
+.gchibi.locked svg { filter: grayscale(1) brightness(.35); }
+svg.picon { display: inline-block; image-rendering: pixelated; }
+.pf-hero { flex-wrap: wrap; }
+.pf-hero-edit { margin-top: 10px; align-self: flex-start; }
+.pf-hero-picker { flex: 1 1 100%; color: var(--g-ink, inherit); }
+.gchibi.now { box-shadow: inset 0 0 0 3px var(--rk), 0 0 0 3px #7c3aed, var(--sk-btn); }
+@media (max-width: 720px) { .ap { grid-template-columns: 1fr; } .ap-preview { position: static; } .pf-hero-edit { align-self: center; } }
+.promo-temple { width: min(100%, 420px); margin: 0 auto; }
+.promo-temple img { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.promo-temple-f { position: relative; container-type: inline-size; }
+.promo-temple-m { position: absolute; left: 11.25%; bottom: 7%; width: 16.25cqw; }
+.promo-temple-m svg { width: 100%; height: auto; animation: px-bob 1.6s steps(2) infinite; }
+/* LES GESTES DES ICÔNES PIXEL · un par thème, en pas de sprite */
+.picon-progress { transform-origin: 50% 100%; animation: pi-grow 1.8s steps(3) infinite; }
+.picon-badges { transform-origin: 50% 0; animation: pi-swing 1.6s steps(4) infinite; }
+.picon-trainings { animation: pi-hop 1.4s steps(2) infinite; }
+.picon-account { transform-origin: 50% 100%; animation: pi-nod 2s steps(2) infinite; }
+.picon-settings { animation: pi-turn 2.4s steps(8) infinite; }
+@keyframes pi-grow { 0%, 100% { transform: scaleY(.82); } 50% { transform: scaleY(1); } }
+@keyframes pi-swing { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+@keyframes pi-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes pi-nod { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-6deg); } }
+@keyframes pi-turn { to { transform: rotate(360deg); } }
+/* LE PLAN SUR TÉLÉPHONE · plus compact, et la tour lui laisse sa colonne pour
+   que l'élève, à droite de l'étage, ne passe jamais dessous. */
+@media (max-width: 700px) {
+  .tp-map { top: 66px; right: 6px; padding: 3px; gap: 2px; max-height: calc(100% - 150px); }
+  .tp-map-b { width: 36px; height: 22px; font-size: 11px; }
+  .tp-top { padding-right: 14px; }
+  .tp-scroll { padding: 16px 52px 24px 8px; }
+}

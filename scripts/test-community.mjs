@@ -168,6 +168,28 @@ ok('les noms et titres sont échappés dans l\'e-mail', /const who = esc\(/.test
 ok('l\'adresse vient de Privy, jamais de la base de la communauté', /verifiedEmailOf\(did\)/.test(api) && !/email\s+text/.test(sql.split('LOT 7')[1] || ''))
 ok('le membre coupe les e-mails depuis son profil', /setMail\(e\.target\.checked\)/.test(page))
 
+/* --- 5b · les temples : présence et chat du cours ------------------------- */
+//
+// Demandé : « voir les autres étudiants qui étudient en même temps [...] en
+// cliquant dessus discuter avec eux dans le chat du groupe du cours en privé
+// ou en groupe ». Un personnage vient du navigateur, donc de n'importe qui.
+ok('un personnage plat est accepté', JSON.stringify(C.cleanAvatar({ species: 'robot', skin: '#aabbcc' })) === '{"species":"robot","skin":"#aabbcc"}')
+ok('un personnage avec du balisage est refusé', C.cleanAvatar({ hair: '<script>' }) === null)
+ok('un personnage imbriqué est refusé', C.cleanAvatar({ hair: { a: 1 } }) === null && C.cleanAvatar([1]) === null)
+ok('un personnage de cent champs est refusé', C.cleanAvatar(Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`k${String.fromCharCode(97 + (i % 26))}`.repeat(1 + Math.floor(i / 26)), 'x']))) === null)
+ok('un message de cours valide passe', !('error' in C.validateRoomPost({ room: 'weekend', body: 'Bonjour' })))
+ok('un salon inventé est refusé', 'error' in C.validateRoomPost({ room: '../x', body: 'Bonjour' }))
+ok('un message vide est refusé', 'error' in C.validateRoomPost({ room: 'weekend', body: '   ' }))
+ok('un message trop long est refusé', 'error' in C.validateRoomPost({ room: 'weekend', body: 'a'.repeat(1001) }))
+ok('la présence ne compte que les dernières minutes', C.PRESENCE_WINDOW_S > 0 && C.PRESENCE_WINDOW_S <= 300)
+{
+  const API = readFileSync('api/community.ts', 'utf8')
+  const SQL = readFileSync('db/community.sql', 'utf8')
+  ok('la présence et le salon ont leurs tables', /create table if not exists community_presence/.test(SQL) && /create table if not exists community_room_messages/.test(SQL))
+  ok('lire le chat du cours demande un compte', /roomRead[\s\S]{0,400}(verif|auth|did)/i.test(API))
+  ok('la présence n\'expose pas l\'identifiant', !/presenceList[\s\S]{0,1200}\bdid:/.test(API.replace(/where[^\n]*/g, '')))
+}
+
 /* --- 6 · les morsures ---------------------------------------------------- */
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))
 ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(title\\) between 3 and 120').test('char_length(title) between 3 and 200'))

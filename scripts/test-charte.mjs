@@ -44,8 +44,12 @@ const ok = (n, c, extra = '') => {
 
 const CSS = readFileSync('src/index.css', 'utf8')
 const SHELL = readFileSync('src/game/Shell.tsx', 'utf8')
-const MAP = readFileSync('src/game/WorldMap.tsx', 'utf8')
-const CARTE = readFileSync('src/game/Carte.tsx', 'utf8')
+// LES TEMPLES REMPLACENT LA CARTE 3D · « Change complètement le design des
+// personnages et des dojo en pixel art 2D [...] Efface l'ancien jeu ». La
+// vallée en 3D (WorldMap, Carte) est partie ; la carte est celle des temples
+// et l'écran plein écran est le temple.
+const MAP = readFileSync('src/temple/World.tsx', 'utf8')
+const TEMPLE = readFileSync('src/temple/Temple.tsx', 'utf8')
 const ICONS = readFileSync('src/data/icons.ts', 'utf8')
 
 /** LE BLOC DE BASE, isolé · c'est LUI qui a cassé le défilement, et lui seul.
@@ -76,11 +80,11 @@ ok('la hauteur du document est un minimum, pas une hauteur fixe',
 // défile pas. Sans cette moitié, on aurait retiré la coupe sans la rendre
 // disponible, et le premier écran qui en a besoin la remettrait globalement.
 ok('un écran peut se figer, par une classe', /html\.is-fixed/.test(CSS))
-ok('la carte plein écran s\'en sert', /is-fixed/.test(CARTE))
-// … ET ELLE LA REPREND EN PARTANT. Une classe laissée sur <html> figerait tout
-// le produit depuis un écran qu'on a fermé, et c'est la panne qu'on ne
-// retrouve jamais parce qu'elle survit à la page qui l'a causée.
-ok('et elle la retire en quittant', /classList\.remove\('is-fixed'\)/.test(CARTE))
+// RÉPARÉE · le plein écran est désormais le temple (« Sur desktop et mobile le
+// temple est en fullscreen »). Il ne fige pas le document : c'est une couche
+// fixe qui défile en elle-même, donc rien à reprendre en partant.
+ok('le temple plein écran est une couche fixe', /\n\.tp \{\s*position: fixed; inset: 0;/.test(CSS) && /className="tp"/.test(TEMPLE))
+ok('… qui défile en elle-même, sans toucher au document', /\.tp-scroll \{ overflow-y: auto;/.test(CSS) && !/is-fixed/.test(TEMPLE))
 
 /* --- 2 · les jetons viennent du système ----------------------------------- */
 //
@@ -309,8 +313,8 @@ ok('… et le jeu leur rend leur arrondi avec la même force',
 // PLUS AUCUNE FORME BAUHAUS DÉCORATIVE · la frise est supprimée de l'app, et
 // ses règles avec elle. Les icônes restent : ce sont des signes, pas des
 // décors.
-const SRC_ALL = ['src/game/Dojos.tsx', 'src/game/PackPage.tsx', 'src/game/Clan.tsx', 'src/game/Profil.tsx',
-  'src/game/Carte.tsx', 'src/Landing.tsx'].map((f) => readFileSync(f, 'utf8')).join('\n')
+const SRC_ALL = ['src/temple/World.tsx', 'src/temple/Temple.tsx', 'src/game/Clan.tsx', 'src/game/Profil.tsx',
+  'src/Landing.tsx'].map((f) => readFileSync(f, 'utf8')).join('\n')
 ok('la frise Bauhaus n\'existe plus', !existsSync('src/components/BauhausBand.tsx') && !/<BauhausBand|bh-band/.test(SRC_ALL + CSS))
 ok('les modules n\'affichent plus de forme décorative', !/md-glyph|cm-sheet-g|lp2-c-g/.test(SRC_ALL))
 
@@ -332,33 +336,25 @@ ok('aucun palier ne la rabat à deux colonnes',
 
 /* --- 5 · la barre du bas porte nos signes --------------------------------- */
 
-// L'ORDRE DE LA BARRE · « ajoute un bouton [Dojoburo] dans la bottom bar,
-// déplace en 2e position le bouton dojo et renomme-le Training et change son
-// icône ».
+// L'ORDRE DE LA BARRE · RÉPARÉE. Demandé d'abord : « ajoute un bouton
+// [Dojoburo] [...] renomme-le Training ». Puis : « Dans la bottom bar on a
+// dojoburo avec la page des temples [...] Le deuxième bouton c'est la
+// communauté et le 3e le profil ». Trois boutons, Dojoburo porte la marque et
+// mène aux temples, l'onglet IA Training et l'ancien jeu sont partis.
 const TAB_KEYS = [...SHELL.matchAll(/key:\s*'(nav\.[a-z]+)'/g)].map((m) => m[1])
-ok('la barre : Dojoburo, Training, Clan, Profil', TAB_KEYS.join(',') === 'nav.game,nav.training,nav.clan,nav.profile', TAB_KEYS.join(','))
-ok('Dojoburo porte la marque, Training la toque',
-  /\{ to: '\/dojoburo', key: 'nav\.game', glyph: null \}/.test(SHELL) && /\{ to: '\/', key: 'nav\.training', glyph: 'training' \}/.test(SHELL))
-ok('Training ne s\'allume pas sur le jeu', /path\.startsWith\('\/dojo\/'\)/.test(SHELL))
-// LE NOM · « renomme le bouton et la page Training par IA Training ». Le
-// bouton et le titre de la page disent la même chose, dans les deux langues.
-{
-  const DICT = readFileSync('src/i18n/dict.ts', 'utf8')
-  ok('le bouton s\'appelle IA Training (AI Training en anglais)',
-    /'nav\.training': \{ en: 'AI Training', fr: 'IA Training' \}/.test(DICT))
-  ok('la page porte le même nom',
-    /'gm\.dojosTitle': \{ en: "AI Training", fr: "IA Training" \}/.test(DICT))
-}
+ok('la barre : Dojoburo, Communauté, Profil', TAB_KEYS.join(',') === 'nav.game,nav.clan,nav.profile', TAB_KEYS.join(','))
+ok('Dojoburo porte la marque et mène aux temples', /\{ to: '\/', key: 'nav\.game', glyph: null \}/.test(SHELL))
+ok('Dojoburo s\'allume dans un temple et ses leçons', /path\.startsWith\('\/dojo\/'\)/.test(SHELL))
+ok('plus d\'onglet IA Training', !/nav\.training/.test(SHELL))
 // L'ONGLET MÈNE QUELQUE PART · un onglet vers une adresse que le routeur ne
-// sert pas retombe sur l'écran des formations, sans erreur nulle part.
-ok('l\'onglet Dojoburo ouvre le jeu', /path === '\/dojoburo'\) return <Suspense[^\n]*<SimPage \/>/.test(readFileSync('src/main.tsx', 'utf8')))
-// LE JEU SUIT LA MÊME RÈGLE · couleur pleine, et la touche skeuomorphe par
-// les seuls jetons partagés (voir plus haut), pour ses boutons, ses touches de
-// commande et ses cartes de client comme pour l'app.
-const SIM_BTNS = ['.sim-ico', '.sim-btn', '.sim-client', '.sim-step button', '.sim-toast']
-const simBad = SIM_BTNS.filter((sel) => { const r = rulesFor(sel); return r.length === 0 || !r.every(flat) })
-ok('les boutons du jeu Dojoburo : couleur pleine, sans relief écrit à la main', simBad.length === 0, simBad.join(', ') || `${SIM_BTNS.length} familles`)
-ok('… et ses CTA sont ceux de l\'app', /className="gm-cta sim-go"/.test(readFileSync('src/sim/SimPage.tsx', 'utf8')))
+// sert pas retombe sur l'écran par défaut, sans erreur nulle part.
+ok('l\'onglet Dojoburo ouvre la carte des temples', /path === '\/' && !isAppRoute\(route\)\) return <WorldPage \/>/.test(readFileSync('src/main.tsx', 'utf8')))
+// LES TEMPLES SUIVENT LA MÊME RÈGLE · couleur pleine, et la touche skeuomorphe
+// par les seuls jetons partagés, pour les commandes du temple comme pour l'app.
+const TP_BTNS = ['.tp-back', '.tp-ctrl-b, .tp-ctrl-chat', '.tw-card']
+const tpBad = TP_BTNS.filter((sel) => { const r = rulesFor(sel); return r.length === 0 || !r.every(flat) })
+ok('les commandes des temples : couleur pleine, sans relief écrit à la main', tpBad.length === 0, tpBad.join(', ') || `${TP_BTNS.length} familles`)
+ok('… et leurs CTA sont ceux de l\'app', /className="gm-cta"/.test(TEMPLE))
 ok('l\'onglet Profil porte un sourire', /glyph:\s*'smile'/.test(SHELL))
 ok('le sourire existe dans le jeu d\'icônes', /'smile'/.test(ICONS))
 // LE CLAN EST UN GROUPE, PAS UNE FORME · deux cercles concentriques ne disaient
@@ -419,8 +415,8 @@ ok('le ressort des cartes et des boutons aussi',
 // commentaire, et AUCUN composant ne les portait. Une classe que rien
 // n'applique n'est pas une animation, c'est une intention, et un commentaire
 // qui décrit une intention comme si elle était faite est un mensonge.
-const SOURCES = ['src/game/Shell.tsx', 'src/game/Dojos.tsx', 'src/game/Profil.tsx', 'src/game/PackPage.tsx',
-  'src/game/Lesson.tsx', 'src/game/Carte.tsx', 'src/game/WorldMap.tsx']
+const SOURCES = ['src/game/Shell.tsx', 'src/temple/World.tsx', 'src/game/Profil.tsx', 'src/temple/Temple.tsx',
+  'src/game/Lesson.tsx', 'src/game/Community.tsx']
   .map((f) => readFileSync(f, 'utf8')).join('\n')
 const classesOf = (sel) => [...sel.matchAll(/\.([a-z][a-z0-9-]*)/g)].map((m) => m[1])
 const orphan = KEYFRAMES.filter((k) => {
@@ -438,43 +434,22 @@ ok('l\'arrivée ne fige pas le ressort', /\.gm-rise\s*\{[^}]*backwards/.test(CSS
 
 /* --- 7 · les étiquettes de la carte passent SOUS l'interface -------------- */
 //
-// On ouvrait une cité et son titre se dessinait par dessus le panneau, par
-// dessus le voile, lisible et cliquable alors que tout devait être derrière.
-// La cause est répartie sur deux fichiers · la profondeur des étiquettes dans
-// WorldMap, celle de la fiche dans la feuille de style · donc aucune lecture
-// d'un seul fichier ne pouvait la voir. C'est exactement pour ça que la garde
-// compare les deux.
-
-const LABEL_Z = Number(MAP.match(/zIndexRange=\{\[(\d+),/)?.[1] ?? NaN)
+// RÉPARÉE · la carte 3D est partie, la règle reste : le nom d'un lieu est de
+// l'interface posée sur la carte, il passe sous les couches qui s'ouvrent
+// (le temple, son maître, son chat) et il garde une taille lisible.
 const zOf = (sel) => Number(rule(sel).match(/z-index:\s*(\d+)/)?.[1] ?? NaN)
-const SHEET_Z = zOf('.cm-sheet')
-const SCRIM_Z = Number(CSS.match(/\.cm-scrim\s*\{[^}]*z-index:\s*(\d+)/)?.[1] ?? NaN)
-
+const LABEL_Z = zOf('.tw-label')
 ok('les étiquettes déclarent une profondeur', Number.isFinite(LABEL_Z), String(LABEL_Z))
-ok('la fiche d\'une cité passe au dessus des étiquettes',
-  SHEET_Z > LABEL_Z, `fiche ${SHEET_Z} > étiquettes ${LABEL_Z}`)
-ok('le voile aussi', SCRIM_Z > LABEL_Z, `voile ${SCRIM_Z} > étiquettes ${LABEL_Z}`)
-ok('… et la fiche passe au dessus du voile', SHEET_Z > SCRIM_Z, `${SHEET_Z} > ${SCRIM_Z}`)
+ok('le temple passe au dessus des étiquettes', zOf('.tp') > LABEL_Z, `temple ${zOf('.tp')} > étiquettes ${LABEL_Z}`)
+ok('le maître et le chat passent au dessus du temple', zOf('.tp-modal') > zOf('.tp') && zOf('.tc') > zOf('.tp'), `${zOf('.tp-modal')} / ${zOf('.tc')}`)
+ok('les étiquettes ne descendent pas sous huit pixels', /\.tw-label \{[\s\S]*?font: 400 clamp\(8px,/.test(CSS))
+ok('les étiquettes sont du texte, pas une image', /<span className="tw-label"/.test(MAP))
 
-// UNE ÉTIQUETTE GARDE SA TAILLE · elle rétrécissait avec la distance de la
-// caméra, réglage trouvé sur un écran large et faux sur un téléphone, où les
-// treize titres tombaient à six pixels. Un nom de lieu est de l'interface
-// posée sur une carte, pas un objet du décor.
-ok('les étiquettes ne rétrécissent pas avec la caméra',
-  !/wm-tag[\s\S]{0,400}distanceFactor/.test(MAP) && !/distanceFactor=\{26\}/.test(MAP))
+/* --- 8 · la carte des temples --------------------------------------------- */
 
-/* --- 8 · la vallée -------------------------------------------------------- */
-
-ok('la vallée est peuplée de promeneurs', /<Walkers\b/.test(MAP))
-ok('ils suivent les chemins existants', /trails\.map\(\(t\) => t\.curve\)/.test(MAP))
-// LA CADENCE VIENT DU DÉPLACEMENT · sans elle, le personnage patine, ce qui se
-// voit tout de suite et rend la scène bon marché. Voir three/gait.
-ok('leur démarche est tenue par celui qui les déplace',
-  /GaitProvider/.test(MAP) && /advance\(gait\.current/.test(MAP))
-ok('la campagne remplit le vide entre les cités', /<Countryside\b/.test(MAP))
-// RIEN NE SE POSE SUR UNE CITÉ · un arbre au milieu d'un jardin sec, ou à
-// travers un temple, est exactement ce qui fait dire qu'une carte est buggée.
-ok('et elle évite les enceintes', /free\(x,\s*z,\s*6\.2\)/.test(MAP))
+ok('un temple par formation, le nom au-dessus', /PACKS\.map\(\(p, i\) =>/.test(MAP) && /tw-label[^\n]*say\(p\.title, lang\)/.test(MAP))
+ok('le décor de la carte est dessiné une fois et gardé', /gridToUrl\(`world:/.test(MAP) && /cache\.get\(key\)/.test(readFileSync('src/pixel/raster.ts', 'utf8')))
+ok('les temples fermés portent un cadenas', /drawTempleIcon\(p\.tint, i, locked\)/.test(MAP))
 
 /* --- 8b · le sombre par défaut, la police du jeu, la mesure des vignettes - */
 //
@@ -510,22 +485,13 @@ const uncommented = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\
 ok('… et Lilita One a disparu', !/lilita/i.test(uncommented(MAIN) + uncommented(CSS) + uncommented(HTML)))
 ok('le texte et les titres sont en Outfit', /--font-ui:\s*'Outfit Variable'/.test(CSS) && /--font-game:\s*'Outfit Variable'/.test(CSS))
 
-// LA VIGNETTE MESURE SA BOÎTE, PAS SON APPARENCE. Pendant l'arrivée de la
-// carte (une mise à l'échelle), la mesure par défaut lisait la taille RÉDUITE
-// et laissait une bande vide à droite de chaque vignette, pour toujours.
-const ART = readFileSync('src/game/PackArt.tsx', 'utf8')
-ok('la vignette ignore les transformations en se mesurant', /resize=\{\{\s*offsetSize:\s*true\s*\}\}/.test(ART))
-// « ÇA LAG BEAUCOUP » · huit salles en « always », 400 appels de dessin
-// chacune, toutes dans la même image. Ce qui a tenu doit rester en place.
-const CLOCK = readFileSync('src/components/three/cardClock.ts', 'utf8')
-const FROZEN = readFileSync('src/components/three/Frozen.tsx', 'utf8')
-ok('les vignettes ne tournent plus en continu', /frameloop="demand"/.test(ART) && /<Heartbeat live=\{live\} \/>/.test(ART) && !/'always'/.test(ART))
-ok('… leur cadence est plafonnée et étalée', /CARD_FPS = modest \? 24 : 30/.test(CLOCK) && /due\.slice\(0, share\)/.test(CLOCK))
-ok('… leur décor est figé et fusionné par matériau', /<Frozen>/.test(ART) && /mergeGeometries/.test(FROZEN) && /if \(merge\) \{ bake\(o\)/.test(FROZEN))
-ok('… et leur résolution plafonnée', /dpr=\{\[1, 1\.25\]\}/.test(ART))
-ok('morsure · une vignette en « always » serait vue', /'always'/.test("frameloop={live ? 'always' : 'demand'}"))
-ok('chaque formation a sa salle', /kit=\{pack\.kit\}/.test(readFileSync('src/game/Dojos.tsx', 'utf8'))
-  && /kit=\{pack\.kit\}/.test(readFileSync('src/game/PackPage.tsx', 'utf8')))
+// LES DÉCORS SONT EN PIXEL ART · RÉPARÉE. Les vignettes 3D (PackArt) sont
+// parties avec l'ancien jeu ; « les décors des dojos en fonction des
+// différentes spécialités métiers » sont dessinés pixel par pixel, rendus une
+// fois en image et agrandis sans lissage. Plus rien ne tourne en continu.
+ok('chaque formation a sa salle', /drawFloor\(pack\.kit, pack\.tint\)/.test(TEMPLE))
+ok('les décors sont agrandis sans lissage', /\.tp img, \.tw-world img[^{]*\{ image-rendering: pixelated; \}/.test(CSS))
+ok('l\'ancienne vignette 3D est partie', !existsSync('src/game/PackArt.tsx'))
 
 /* --- 9 · les morsures ------------------------------------------------------ */
 //
@@ -573,7 +539,7 @@ ok('morsure · une vignette mesurée sans offsetSize serait vue',
 
 console.log(fails
   ? `\ntest-charte · ${fails} problème(s)`
-  : `\ntest-charte · ${TOKENS.length} jetons, ${KEYFRAMES.length} animations couvertes, étiquettes ${LABEL_Z} sous la fiche ${SHEET_Z}`)
+  : `\ntest-charte · ${TOKENS.length} jetons, ${KEYFRAMES.length} animations couvertes, étiquettes ${LABEL_Z} sous le temple ${zOf('.tp')}`)
 // LA SORTIE EST VIDÉE AVANT DE PARTIR · « process.exitCode » et non
 // « process.exit() ».
 //

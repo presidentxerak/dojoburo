@@ -156,3 +156,27 @@ create table if not exists community_poll_votes (
 -- d'un clic dans son profil de membre. La langue sert aux e-mails.
 alter table community_members add column if not exists email_notify boolean not null default true;
 alter table community_members add column if not exists lang text not null default 'fr';
+
+-- ---------------------------------------------------------------------------
+-- LOT 8 · LES TEMPLES · qui étudie où, en ce moment, et le chat de chaque
+-- cours. Demandé : « voir les autres étudiants qui étudient en même temps
+-- [...] discuter avec eux dans le chat du groupe du cours en privé ou en
+-- groupe ».
+alter table community_members add column if not exists avatar jsonb;
+
+create table if not exists community_presence (
+  did          text primary key references community_members(did) on delete cascade,
+  pack         text not null check (pack ~ '^[a-z0-9-]{2,60}$'),
+  floor        text not null check (floor ~ '^[a-z0-9-]{1,60}$'),
+  seen_at      timestamptz not null default now()
+);
+create index if not exists community_presence_pack_idx on community_presence (pack, seen_at desc);
+
+create table if not exists community_room_messages (
+  id           uuid primary key default gen_random_uuid(),
+  room         text not null check (room ~ '^[a-z0-9-]{2,60}$'),
+  did          text not null references community_members(did) on delete cascade,
+  body         text not null check (char_length(body) between 1 and 1000),
+  created_at   timestamptz not null default now()
+);
+create index if not exists community_room_messages_room_idx on community_room_messages (room, created_at desc);

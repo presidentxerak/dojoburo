@@ -39,10 +39,14 @@ import { Logo } from '../components/Logo'
 import { Wordmark } from '../components/Wordmark'
 import { LangSwitch } from '../components/LangSwitch'
 import { SupportBot } from '../components/SupportBot'
-import { SnapshotFactory } from '../components/three/snapshotFactory'
-import { GradeAvatar, Icon3D } from './Icon3D'
 import { RANKS } from './ranks'
-import { PackArt } from './PackArt'
+import { GradeChibi } from '../pixel/GradeChibi'
+import { PixelIcon } from '../pixel/PixelIcon'
+import { ChibiSprite } from '../pixel/ChibiSprite'
+import { masterOf } from '../pixel/masters'
+import { gridToUrl } from '../pixel/raster'
+import { drawRoof, drawFloorStrip, drawBase } from '../temple/art/facade'
+import { drawFloor } from '../temple/art/floors'
 
 const FIRST_LESSON = lessonPath(FREE_PACK.id, DISCOVERY_MODULE.levels[0].id)
 
@@ -70,7 +74,6 @@ export function PromoPage() {
           <a className="gm-cta promo-top-go" href="#commencer">{s(LP.start)}</a>
         </div>
       </header>
-      <SnapshotFactory />
 
       <main className="promo-main">
         {/* 1 · LE HÉROS · la promesse, puis le formulaire, tout de suite. */}
@@ -84,7 +87,7 @@ export function PromoPage() {
             <StartForm source="landing" />
           </div>
           <div className="promo-hero-art" aria-hidden="true">
-            <PackArt kit={FREE_PACK.kit} tint={FREE_PACK.tint} />
+            <HeroTemple />
           </div>
         </section>
 
@@ -151,9 +154,9 @@ export function PromoPage() {
           <h2 className="promo-h2">{s(LP.playH2)}</h2>
           <p className="promo-lead">{s(LP.playLead)}</p>
           <ol className="promo-belts">
-            {RANKS.map((r, i) => (
+            {RANKS.map((r) => (
               <li key={r.id} style={{ ['--belt' as string]: r.tint }}>
-                <GradeAvatar rank={r} size={64} animated={i === 0 || i === RANKS.length - 1} />
+                <GradeChibi rank={r} size={64} />
                 <b>{s(r.belt)}</b>
                 <em>{s(r.title)}</em>
               </li>
@@ -161,13 +164,13 @@ export function PromoPage() {
           </ol>
           <div className="promo-duo">
             <div className="promo-card">
-              <Icon3D name="progress" size={48} />
+              <PixelIcon name="trainings" size={48} />
               <h3>{s(LP.gameH3)}</h3>
               <p>{s(LP.gameBody)}</p>
-              <Lnk className="cc-btn cc-slate" href="/dojoburo">{s(LP.gameGo)} →</Lnk>
+              <Lnk className="cc-btn cc-slate" href="/">{s(LP.gameGo)} →</Lnk>
             </div>
             <div className="promo-card">
-              <Icon3D name="badges" size={48} />
+              <PixelIcon name="account" size={48} />
               <h3>{s(LP.clanPill)} · {s(LP.clanH2)}</h3>
               <p>{s(LP.clanBody)}</p>
               <Lnk className="cc-btn cc-slate" href="/clan">{s(LP.clanGo)} →</Lnk>
@@ -181,13 +184,13 @@ export function PromoPage() {
           <h2 className="promo-h2">{s(LP.nextH2)}</h2>
           <div className="promo-duo">
             <div className="promo-card">
-              <Icon3D name="trainings" size={48} />
+              <PixelIcon name="badges" size={48} />
               <h3>{s(LP.pathTitle)}</h3>
               <p className="promo-price"><b>{priceTag(PATH_EUR)}</b> {s(LP.once)} · {PATH_LEVEL_COUNT} {s(LP.dojos)}</p>
               <p>{s(LP.pathBody)}</p>
             </div>
             <div className="promo-card">
-              <Icon3D name="trainings" size={48} />
+              <PixelIcon name="badges" size={48} />
               <h3>{s(LP.tradeTitle)}</h3>
               <p className="promo-price"><b>{priceTag(TRADE_EUR)}</b> {s(LP.each)} · {TRADE_COUNT} {s(LP.factTrainings)}</p>
               <p>{s(LP.tradeBody)}</p>
@@ -260,5 +263,28 @@ function StartForm({ source }: { source: 'landing' }) {
       </label>
       <p className="promo-fine">{say(LP.reassure, lang)} {t('d.fine')}</p>
     </form>
+  )
+}
+
+/** LE TEMPLE GRATUIT EN VITRINE · le toit, deux étages et l'entrée, avec son
+ *  maître. Les mêmes dessins que l'écran du temple (voir temple/art). */
+function HeroTemple() {
+  const p = FREE_PACK
+  const roof = gridToUrl(`roof:${p.id}`, () => drawRoof(p.tint))
+  const floor = gridToUrl(`floor:${p.kit}:${p.tint}`, () => drawFloor(p.kit, p.tint))
+  const strip = gridToUrl('strip', () => drawFloorStrip())
+  const base = gridToUrl(`base:${p.id}`, () => drawBase(p.tint))
+  const m = masterOf(p.id)
+  return (
+    <div className="promo-temple">
+      {roof && <img src={roof} alt="" />}
+      {floor && <img src={floor} alt="" />}
+      {strip && <img src={strip} alt="" />}
+      <div className="promo-temple-f">
+        {floor && <img src={floor} alt="" />}
+        <span className="promo-temple-m"><ChibiSprite spec={m.spec} scale={1} /></span>
+      </div>
+      {base && <img src={base} alt="" />}
+    </div>
   )
 }

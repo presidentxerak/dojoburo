@@ -208,19 +208,21 @@ ok('le routeur distingue une ancre d\'une vue', /isAppRoute\(route\)/.test(shell
 // du source doit distinguer ce qui s'exécute de ce qui se raconte.
 const code = (src) => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1')
 const SHELL_CODE = code(shell)
-const rootLine = SHELL_CODE.match(/if \(path === '\/'[^\n]*?return <DojosPage \/>/)?.[0] ?? ''
+// La racine sert la carte des temples (« Efface l'ancien jeu », temple/World),
+// et la règle reste la même sur la nouvelle ligne.
+const rootLine = SHELL_CODE.match(/if \(path === '\/'[^\n]*?return <WorldPage \/>/)?.[0] ?? ''
 ok('la racine consulte le fragment avant de rendre le jeu',
   /!isAppRoute\(route\)/.test(rootLine), rootLine.trim() || 'ligne introuvable')
 // LA MORSURE, dans les deux sens · sans elle on ne saurait pas si la règle
 // regarde la bonne ligne ni si elle sait encore la refuser.
 ok('morsure · la racine sans garde serait vue',
   !/!isAppRoute\(route\)/.test(
-    "if (path === '/') return <DojosPage />"))
+    "if (path === '/') return <WorldPage />"))
 ok('morsure · et la racine gardée ne l\'est pas',
   /!isAppRoute\(route\)/.test(
-    "if (path === '/' && !isAppRoute(route)) return <DojosPage />"))
+    "if (path === '/' && !isAppRoute(route)) return <WorldPage />"))
 ok('morsure · un commentaire qui cite la faute n\'accuse pas',
-  !code("  // Sans elle : if (path === '/') return <DojosPage />\n").includes('DojosPage'))
+  !code("  // Sans elle : if (path === '/') return <WorldPage />\n").includes('WorldPage'))
 ok('…et il ne retombe plus sur « aucun fragment »', !/if \(!route\) return <Landing/.test(shell))
 // L'ancre a besoin que la section soit rendue avant d'y aller · un navigateur
 // abandonne en silence quand elle n'existe pas encore.

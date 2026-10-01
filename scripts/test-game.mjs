@@ -47,7 +47,12 @@ const H = await load('src/game/handout.ts', 'handout.mjs')
 const { ALL_MODULES, PATH_MODULES, DISCOVERY_MODULE, ALL_LEVELS, TRACK_ACCESS } = C
 
 const SRC = (p) => readFileSync(p, 'utf8')
-const GAME_FILES = readdirSync('src/game').map((f) => join('src/game', f))
+// LES TEMPLES SONT DU JEU · « fais les dojo sous la forme d'un temple avec des
+// étages » : leurs écrans (src/temple) suivent les mêmes règles que src/game.
+const GAME_FILES = [
+  ...readdirSync('src/game').map((f) => join('src/game', f)),
+  ...readdirSync('src/temple').filter((f) => /\.tsx?$/.test(f)).map((f) => join('src/temple', f)),
+]
 const SCREENS = GAME_FILES.filter((f) => f.endsWith('.tsx'))
 
 /* --- 1 · un seul magasin -------------------------------------------------- */
@@ -89,8 +94,9 @@ ok('aucun écran du jeu n\'écrit un compte à la main', hardCounts.length === 0
 
 // … ET LES ÉCRANS LISENT VRAIMENT LEURS COMPTES. Une règle qui n'interdit que
 // la faute laisse passer un écran qui n'affiche plus rien du tout.
+// RÉPARÉE · l'écran des formations est devenu la carte des temples.
 ok('l\'écran des formations lit ses comptes',
-  /levelsOf\(/.test(SRC('src/game/Dojos.tsx')) && /modulesOf\(/.test(SRC('src/game/Dojos.tsx')))
+  /levelsOf\(/.test(SRC('src/temple/World.tsx')) && /levels\.length/.test(SRC('src/temple/World.tsx')))
 
 const priced = SCREENS.filter((f) => /\d+\s*€|€\s*\d+|EUR\s*\d/.test(SRC(f)))
 ok('aucun écran du jeu n\'écrit un prix', priced.length === 0, priced.join(', ') || 'aucun')
@@ -139,10 +145,13 @@ ok('les droits se lisent dans un seul fichier',
 /* --- 5 · les adresses sont publiques -------------------------------------- */
 
 const routes = SRC('src/main.tsx')
-for (const p of ['/clan', '/profil', '/carte', '/decouvrir', '/tarifs', '/dojoburo']) {
+for (const p of ['/clan', '/profil', '/decouvrir', '/tarifs']) {
   ok(`l'adresse ${p} est branchée`, routes.includes(`'${p}'`))
 }
-ok('la racine sert le jeu', /path === '\/'\) return <DojosPage/.test(routes))
+// RÉPARÉE · « Efface l'ancien jeu » : le jeu du studio (/dojoburo) et la carte
+// 3D (/carte) sont partis, et leurs adresses mènent à la carte des temples.
+ok('l\'ancien jeu et sa carte mènent aux temples', /if \(path === '\/dojoburo' \|\| path === '\/carte'\) return '\/'/.test(routes))
+ok('la racine sert la carte des temples', /path === '\/' && !isAppRoute\(route\)\) return <WorldPage/.test(routes))
 // LES ANCIENNES ADRESSES NE RENDENT PAS 404 · elles étaient partagées et dans
 // le plan du site. Elles sont redirigées depuis les données.
 ok('les anciennes adresses du jeu sont redirigées', /legacyTarget/.test(routes))
@@ -168,8 +177,10 @@ ok('aucun écran ne renvoie vers la bibliothèque', libLinks.length === 0, libLi
 // Une liste de positions tenue dans la carte aurait donné une cité qui existe
 // dans le programme et nulle part à l'écran. Les positions sont portées par le
 // module · voir data/curriculum.
-const map = SRC('src/game/WorldMap.tsx')
-ok('la carte lit les cités du programme', /PATH_MODULES/.test(map))
+// RÉPARÉE · la carte est celle des temples (temple/World) : un temple par
+// formation, placé par le calcul de la disposition.
+const map = SRC('src/temple/World.tsx')
+ok('la carte lit les formations du programme', /PACKS\.map\(/.test(map) && /layout\(PACKS\.length/.test(map))
 ok('la carte ne tient aucune liste de positions',
   !/\bat\s*:\s*\[\s*\d+\s*,\s*\d+\s*\]/.test(map))
 

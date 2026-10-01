@@ -27,6 +27,7 @@ import {
   LIMITS, RATES, isId, isCategory, validateName, validateBio, validatePost, validateComment, cleanQuery,
   encodeCursor, decodeCursor, serializePost, serializeComment, serializeMember, levelOfPoints,
   validateEvent, serializeEvent, validateMessage, shouldNotify, mentionsIn, validatePoll, pollView,
+  SLUG, FLOOR, PRESENCE_WINDOW_S, cleanAvatar, validateRoomPost,
   type NotificationKind, type PollView,
   type PostRow, type CommentRow, type MemberRow, type EventRow,
 } from './_lib/community.js'
@@ -71,6 +72,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       if (action === 'member') return await oneMember(res, url, me)
       if (action === 'leaderboard') return await leaderboard(res, me)
       if (action === 'events') return await events(res, url)
+      if (action === 'presence') return await presenceList(res, url, me)
+      if (action === 'room') return await roomRead(res, url, me)
       if (action === 'unread' || action === 'notifications' || action === 'conversations' || action === 'messages') {
         if (!privyEnabled()) return send(res, 503, { ok: false, error: 'not_configured', detail: 'auth' })
         if (!me) return send(res, 401, { ok: false, error: 'auth' })
@@ -107,6 +110,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (action === 'delete') return await remove(res, me, body)
     if (action === 'edit') return await edit(res, me, body)
     if (action === 'vote') return await vote(res, me, body)
+    if (action === 'here') return await presenceBeat(res, me, body)
+    if (action === 'room-post') return await roomPost(res, me, body)
     return send(res, 400, { ok: false, error: 'action' })
   } catch {
     return send(res, 500, { ok: false, error: 'server' })
@@ -443,6 +448,83 @@ async function sendMessage(res: ServerResponse, me: string, body: unknown) {
   const r = await pool.query('insert into community_messages (from_did, to_did, body) values ($1, $2, $3) returning id', [me, to, v.body])
   // UN E-MAIL PAR CONVERSATION ET PAR DEMI-HEURE · pas un par message.
   if (await rateAllow(`community:mailpair:${me}:${to}`, 1, 30 * 60 * 1000)) await mailNotification(to, 'message', me, null)
+  return send(res, 200, { ok: true, id: r.rows[0].id })
+}
+
+/* ---- les temples : qui étudie où, et le chat du cours --------------------------- */
+
+/** ÊTRE LÀ · un battement toutes les trente secondes depuis l'étage ouvert.
+ *  Un élève connecté qui n'a pas encore de nom de membre en reçoit un
+ *  provisoire (« Disciple » et quatre caractères), qu'il change quand il veut
+ *  dans la communauté : il n'a rien à remplir pour être vu des autres. */
+async function presenceBeat(res: ServerResponse, me: string, body: unknown) {
+  const b = (body || {}) as { pack?: unknown; floor?: unknown; avatar?: unknown }
+  if (typeof b.pack !== 'string' || !SLUG.test(b.pack) || typeof b.floor !== 'string' || !FLOOR.test(b.floor)) {
+    return send(res, 400, { ok: false, error: 'place' })
+  }
+  if (!(await rateAllow(`community:here:${me}`, 240, 60 * 60 * 1000))) return send(res, 429, { ok: false, error: 'rate' })
+  const pool = getPool()
+  const avatar = cleanAvatar(b.avatar)
+  const suffix = createHash('sha256').update(me).digest('hex').slice(0, 4).toUpperCase()
+  await pool.query(
+    `insert into community_members (did, name, avatar) values ($1, $2, $3)
+       on conflict (did) do update set last_seen_at = now(), avatar = coalesce($3, community_members.avatar)`,
+    [me, `Disciple ${suffix}`, avatar ? JSON.stringify(avatar) : null],
+  )
+  await pool.query(
+    `insert into community_presence (did, pack, floor, seen_at) values ($1, $2, $3, now())
+       on conflict (did) do update set pack = excluded.pack, floor = excluded.floor, seen_at = now()`,
+    [me, b.pack, b.floor],
+  )
+  return send(res, 200, { ok: true })
+}
+
+/** QUI EST LÀ · les élèves vus dans ce temple depuis moins de 90 secondes. */
+async function presenceList(res: ServerResponse, url: URL, me: string | null) {
+  const pack = url.searchParams.get('pack') || ''
+  if (!SLUG.test(pack)) return send(res, 400, { ok: false, error: 'place' })
+  const r = await getPool().query(
+    `select p.floor, m.did, m.handle, m.name, m.points, m.avatar
+       from community_presence p join community_members m on m.did = p.did
+      where p.pack = $1 and p.seen_at > now() - ($2 || ' seconds')::interval
+      order by p.seen_at desc limit 60`,
+    [pack, String(PRESENCE_WINDOW_S)],
+  )
+  return send(res, 200, {
+    ok: true,
+    students: r.rows.map((x) => ({
+      floor: x.floor, handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, avatar: x.avatar ?? null, me: me === x.did,
+    })),
+  })
+}
+
+/** LE CHAT DU COURS · lu par tous les membres connectés. */
+async function roomRead(res: ServerResponse, url: URL, me: string | null) {
+  if (!privyEnabled()) return send(res, 503, { ok: false, error: 'not_configured', detail: 'auth' })
+  if (!me) return send(res, 401, { ok: false, error: 'auth' })
+  const room = url.searchParams.get('id') || ''
+  if (!SLUG.test(room)) return send(res, 400, { ok: false, error: 'room' })
+  const r = await getPool().query(
+    `select r.id, r.body, r.created_at, r.did, m.name, m.handle, m.points, m.avatar
+       from community_room_messages r join community_members m on m.did = r.did
+      where r.room = $1 order by r.created_at desc limit 60`,
+    [room],
+  )
+  return send(res, 200, {
+    ok: true,
+    messages: r.rows.reverse().map((x) => ({
+      id: x.id, body: x.body, createdAt: x.created_at.toISOString(), mine: x.did === me,
+      author: { name: x.name, handle: x.handle, level: levelOfPoints(x.points).level, avatar: x.avatar ?? null },
+    })),
+  })
+}
+
+async function roomPost(res: ServerResponse, me: string, body: unknown) {
+  if (!(await memberName(me))) return send(res, 409, { ok: false, error: 'join' })
+  const v = validateRoomPost(body)
+  if ('error' in v) return send(res, 400, { ok: false, error: v.error })
+  if (!(await limited('message', me))) return send(res, 429, { ok: false, error: 'rate' })
+  const r = await getPool().query('insert into community_room_messages (room, did, body) values ($1, $2, $3) returning id', [v.room, me, v.body])
   return send(res, 200, { ok: true, id: r.rows[0].id })
 }
 

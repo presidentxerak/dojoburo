@@ -40,14 +40,17 @@ import { Gauge, levelOf } from './Gauge'
 import { useAccount, signIn, signOut, syncNow } from '../lib/account'
 import { AT, SYNC_ERROR, useAccountText } from './accountText'
 import { RANKS, rankOf, nextRank } from './ranks'
-import { GradeAvatar, Icon3D, type Icon3DName } from './Icon3D'
+import { GradeChibi } from '../pixel/GradeChibi'
+import { PixelIcon, type PixelIconName } from '../pixel/PixelIcon'
+import { AvatarPicker } from '../pixel/AvatarPicker'
+import { useAvatar, saveAvatar } from '../pixel/avatar'
+import { TT } from '../temple/templeText'
 import { useSettings, setSetting, resetSettings, systemReducesMotion, useLook, setLook, type Look } from '../lib/settings'
-import { audio } from '../sim/audio'
 import { eraseLocalData } from '../lib/erase'
 
 type TabId = 'progression' | 'badges' | 'formations' | 'compte' | 'parametres'
 
-const TABS: { id: TabId; key: string; icon: Icon3DName }[] = [
+const TABS: { id: TabId; key: string; icon: PixelIconName }[] = [
   { id: 'progression', key: 'pr.tabProgress', icon: 'progress' },
   { id: 'badges', key: 'pr.tabBadges', icon: 'badges' },
   { id: 'formations', key: 'pr.tabTrainings', icon: 'trainings' },
@@ -121,7 +124,7 @@ export function ProfilPage() {
               tabIndex={tab === x.id ? 0 : -1}
               onClick={() => open(x.id)}
             >
-              <Icon3D name={x.icon} size={40} />
+              <PixelIcon name={x.icon} size={36} />
               <span>{t(x.key)}</span>
             </button>
           ))}
@@ -161,12 +164,14 @@ function Hero() {
   const acc = useAccount()
   const gap = next ? next.from - lv.level : 0
   const belt = next ? say(next.belt, lang).replace(/^./, (c) => (lang === 'fr' ? c.toLowerCase() : c)) : ''
+  const avatar = useAvatar()
+  const [picking, setPicking] = useState(false)
 
   return (
     // LA CEINTURE NOIRE SUR FOND NOIR · son nom s'écrit en violet clair, sinon
     // on ne le lirait pas.
     <div className="pf-hero" style={{ ['--belt' as string]: rank.tint, ['--belt-ink' as string]: rank.id === 'black' ? '#c4b5fd' : rank.tint }}>
-      <GradeAvatar rank={rank} size={104} animated className="pf-hero-av" />
+      <GradeChibi rank={rank} size={104} className="pf-hero-av" />
       <div className="pf-hero-t">
         <em>{t('pr.yourGrade')}</em>
         <b>{say(rank.belt, lang)}</b>
@@ -182,7 +187,14 @@ function Hero() {
             ? (gap === 1 ? t('pr.nextGrade1') : t('pr.nextGrade').replace('{n}', String(gap))).replace('{belt}', belt)
             : t('pr.topGrade')}
         </p>
+        {/* LE PERSONNAGE · celui des temples et de la communauté, modifiable ici. */}
+        {!picking && <button className="cc-btn cc-slate pf-hero-edit" onClick={() => setPicking(true)}>{say(TT.editCharacter, lang)}</button>}
       </div>
+      {picking && (
+        <div className="cy-card pf-hero-picker">
+          <AvatarPicker initial={avatar.spec} onCancel={() => setPicking(false)} onSave={(sp) => { saveAvatar(sp); setPicking(false) }} />
+        </div>
+      )}
     </div>
   )
 }
@@ -230,7 +242,7 @@ function ProgressTab() {
             const got = lv.level >= r.from
             return (
               <li key={r.id} className={`pf-rung${now ? ' now' : ''}${got ? ' got' : ''}`} style={{ ['--belt' as string]: r.tint }}>
-                <GradeAvatar rank={r} size={64} locked={!got} animated={now} />
+                <GradeChibi rank={r} size={64} locked={!got} className={now ? 'now' : undefined} />
                 <span className="pf-rung-t">
                   <b>{say(r.belt, lang)}</b>
                   <em>{say(r.title, lang)} · {t('pr.fromLevel').replace('{n}', String(r.from))}</em>
@@ -344,7 +356,6 @@ function eraseEverything() {
 function SettingsTab() {
   const t = useT()
   const s = useSettings()
-  const [muted, setMuted] = useState(() => audio.isMuted())
   const sysCalm = systemReducesMotion()
 
   return (
@@ -358,8 +369,6 @@ function SettingsTab() {
           <span className="st-t"><b>{t('st.lang')}</b><em>{t('st.langBody')}</em></span>
           <LangSwitch />
         </div>
-        <Toggle label={t('st.sound')} body={t('st.soundBody')} on={!muted}
-          onChange={(v) => { audio.setMuted(!v); setMuted(!v) }} />
         <Toggle label={t('st.fx')} body={t('st.fxBody')} on={s.fx}
           onChange={(v) => setSetting('fx', v)} />
         <Toggle label={t('st.calm')} body={sysCalm ? `${t('st.calmBody')} ${t('st.systemCalm')}` : t('st.calmBody')} on={s.calm}
@@ -469,7 +478,7 @@ function AccountCard() {
         {acc.enabled && acc.signedIn && (
           <>
             <p className="pf-acct-who">
-              <GradeAvatar rank={rank} size={44} className="pf-acct-av" />
+              <GradeChibi rank={rank} size={44} className="pf-acct-av" />
               <span className="pf-acct-id">
                 <em>{t(AT.account)}</em>
                 <b>{acc.email || '·'}</b>
