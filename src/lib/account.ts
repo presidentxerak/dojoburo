@@ -30,7 +30,7 @@ import { useSyncExternalStore } from 'react'
 import { apiFetch } from './apiFetch'
 import { privyConfigured, privyControls, authSnapshot, onAuth } from '../auth/controls'
 import { reloadProgress } from '../academy/progress'
-import { grant, giveEmail, readAccess } from '../game/access'
+import { grant, grantCourse, giveEmail, readAccess } from '../game/access'
 
 // ---- les clés ------------------------------------------------------------------
 
@@ -136,7 +136,7 @@ const snapshot = (): string => JSON.stringify([raw(ACADEMY_KEY), raw(SIM_KEY), r
 
 // ---- ce que le serveur renvoie --------------------------------------------------
 
-interface ServerAccess { path?: boolean; trades?: string[] }
+interface ServerAccess { path?: boolean; trades?: string[]; courses?: string[] }
 
 /** L'accès du COMPTE, appliqué ici · seulement ce qui manque. Une formation
  *  ouverte sur ce navigateur ne se ferme jamais parce que le compte ne la
@@ -147,6 +147,9 @@ function applyAccess(a: ServerAccess | null | undefined) {
   if (a.path === true && !local.path) grant({ path: true })
   const trades = Array.isArray(a.trades) ? a.trades.filter((x) => typeof x === 'string') : []
   if (trades.length && !local.trade) grant({ trade: trades[trades.length - 1] })
+  // les cours vendus à part · chacun s'ajoute, aucun n'en remplace un autre
+  const courses = Array.isArray(a.courses) ? a.courses.filter((x) => typeof x === 'string') : []
+  for (const c of courses) if (!(local.courses ?? []).includes(c)) grantCourse(c)
 }
 
 function applyData(d: any) {

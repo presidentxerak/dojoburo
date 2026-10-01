@@ -112,6 +112,20 @@ export const MASTERS: Record<string, Master> = {
     welcome: B('Confidentiality first, and every legal source verified. Then AI becomes precious.', "La confidentialité d'abord, et chaque source juridique vérifiée. Alors l'IA devient précieuse."),
     spec: human({ skin: '#f6c9a3', hair: 'short', hairColor: '#e9e4da', accessory: 'glasses', outfit: 'suit', outfitColor: '#1c1917', accent: '#b45309', facial: 'beard' }),
   },
+  // LES COURS VENDUS À PART · une développeuse au casque et au sweat, un
+  // personnage à la fleur et aux couleurs de Lovable.
+  'coder-une-app': {
+    name: 'Akira',
+    role: B('Master of code', 'Maître du code'),
+    welcome: B('A terminal, a repository, a database, a deployment. Floor by floor, we build your app together.', 'Un terminal, un dépôt, une base de données, un déploiement. Étage par étage, nous construisons votre app ensemble.'),
+    spec: human({ skin: '#e7ad82', hair: 'ponytail', hairColor: '#2b1d16', accessory: 'headphones', outfit: 'hoodie', outfitColor: '#f97316', accent: '#1e293b', eyes: 'happy' }),
+  },
+  'coder-avec-lovable': {
+    name: 'Momo',
+    role: B('Master of Lovable', 'Maître de Lovable'),
+    welcome: B('Describe it clearly, check it calmly, publish it proudly. Let us build your app with Lovable.', "Décrivez-la clairement, vérifiez-la calmement, publiez-la fièrement. Construisons votre app avec Lovable."),
+    spec: { ...base, species: 'weird', variant: 'mushroom', accessory: 'flower', outfit: 'overalls', outfitColor: '#ec4899', accent: '#f97316', eyes: 'big' },
+  },
   'metier-consultant': {
     name: 'Rio',
     role: B('Master of consultants', 'Maître des consultants'),

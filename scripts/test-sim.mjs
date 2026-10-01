@@ -102,6 +102,97 @@ const W = await load('src/temple/art/world.ts', 'world.mjs')
 ok('un temple de la carte fait 40 sur 44', (() => { const g = W.drawTempleIcon('#7c3aed', 0, false); return g.w === 40 && g.h === 44 })())
 ok('un temple fermé se distingue d\'un temple ouvert', sig(W.drawTempleIcon('#7c3aed', 0, true)) !== sig(W.drawTempleIcon('#7c3aed', 0, false)))
 
+/* --- 3b · chaque étage est différent, la porte s'ouvre, la carte vit ------- */
+//
+// Demandé : « Les étages doivent être tous différents là ils sont trop
+// identiques [...] L'étudiant doit être positionné devant la porte du dojo qui
+// s'ouvre et se ferme [...] mets des personnages qui marchent et vont et
+// partent des temples [...] ajoute une rivière des bassins des parcs zen ».
+const { levelsOf } = await load('src/data/packs.ts', 'packs2.mjs')
+const diff = (a, b) => {
+  let n = 0
+  for (let y = 0; y < 64; y++) for (let x = 0; x < 160; x++) if (a.get(x, y) !== b.get(x, y)) n++
+  return n / (160 * 64)
+}
+let worst = 1, worstAt = ''
+for (const p of PACKS) {
+  const gs = levelsOf(p).map(({ level }, i) => F.drawFloor(p.kit, p.tint, i, level.master))
+  for (let i = 0; i < gs.length; i++) for (let j = i + 1; j < gs.length; j++) {
+    const d = diff(gs[i], gs[j])
+    if (d < worst) { worst = d; worstAt = `${p.id} ${i + 1}F/${j + 1}F` }
+  }
+}
+ok('dans chaque temple, deux étages diffèrent d\'au moins un quart de leurs pixels', worst >= 0.25, `pire écart ${(worst * 100).toFixed(1)} % (${worstAt})`)
+const D = await load('src/temple/art/door.ts', 'door.mjs')
+const L = D.drawDoorLeaf('left'), Rt = D.drawDoorLeaf('right'), IN = D.drawDoorInside('#7c3aed')
+ok('les deux battants couvrent l\'ouverture de la porte', L.w + Rt.w === D.DOOR_W && L.h === D.DOOR_H && IN.w === D.DOOR_W && IN.h === D.DOOR_H)
+ok('l\'ouverture est celle du décor (x 72, y 21)', D.DOOR_X === 72 && D.DOOR_Y === 21)
+{
+  const TP = readFileSync('src/temple/Temple.tsx', 'utf8')
+  ok('l\'élève se tient devant la porte et la franchit', /className=\{`tp-me \$\{me\}`\}/.test(TP) && /setMe\('enter'\)/.test(TP) && /setMe\('exit'\)/.test(TP))
+  ok('monter passe par la porte', /onClick=\{\(\) => \(i < floors\.length - 1 \? void climb\(i, i \+ 1\)/.test(TP))
+}
+// LA CARTE · tous les temples sont joignables à pied depuis l'entrée
+const WK = await load('src/temple/Walkers.tsx', 'walkers.mjs')
+for (const [w, cols, step] of [[640, 4, 118], [320, 2, 112]]) {
+  const sx = w / cols
+  const spots = PACKS.map((_, i) => { const row = Math.floor(i / cols), c = i % cols, col = row % 2 === 0 ? c : cols - 1 - c; return { x: Math.round(sx / 2 + col * sx), y: Math.round(78 + row * step) } })
+  const h = Math.round(78 + (Math.ceil(PACKS.length / cols) - 1) * step + 70)
+  const routes = W.worldRoutes(w, h, spots, 7)
+  const net = WK.walkNetwork(routes)
+  const unreachable = net.doors.filter((d) => {
+    const r = net.route(net.entrance.node, d.node)
+    return r.length < 2 && Math.hypot(d.at.x - routes.entrance.x, d.at.y - routes.entrance.y) > 4
+  })
+  ok(`carte ${w} px · chaque temple est joignable depuis l'entrée`, routes.doors.length === PACKS.length && unreachable.length === 0, `${unreachable.length} injoignable(s)`)
+  const t0 = performance.now(); W.drawWorld(w, h, spots, 7); const ms = performance.now() - t0
+  // un premier appel à froid, sur une machine parfois chargée · la borne vise
+  // une régression grossière, pas une mesure fine
+  ok(`carte ${w} px · dessinée en moins de 500 ms`, ms < 500, `${ms.toFixed(0)} ms`)
+}
+// LE SON · rien ne se construit à l'import (Node n'a pas de son, un
+// navigateur le refuse avant un geste)
+const Z = await load('src/lib/zen.ts', 'zen.mjs')
+ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function' && Z.zen.isPlaying() === false)
+
+/* --- 3c · les deux cours vendus à part ---------------------------------------- */
+//
+// Demandé : « un grand cours à 99 € comment coder une app [...] en apprenant
+// Claude Code, Vercel, Supabase, le terminal et GitHub [...] Un cours comment
+// coder une app avec Lovable à 49 € ». Chacun s'achète seul et n'ouvre que lui.
+{
+  const CO = await load('src/data/courses/index.ts', 'courses.mjs')
+  const PL = await load('src/data/plans.ts', 'plans2.mjs')
+  const PK = await load('src/data/packs.ts', 'packs3.mjs')
+  const cp = PK.PACKS.filter((p) => p.door === 'course')
+  // UN COURS N'EST PUBLIÉ QUE PRÊT · voir data/courses (COURSE_READY)
+  const ready = CO.COURSE_IDS.filter((id) => CO.COURSE_READY[id])
+  ok('exactement les cours prêts sont publiés', cp.map((p) => p.id).sort().join(',') === [...ready].sort().join(',') && cp.every((p) => p.course === p.id), `${cp.map((p) => p.id).join(', ') || 'aucun'} · prêts : ${ready.join(', ') || 'aucun'}`)
+  ok('un cours pas prêt n\'a aucune cité publiée', CO.COURSE_IDS.filter((id) => !CO.COURSE_READY[id]).every((id) => CO.COURSE_CITIES[id].length === 0))
+  ok('le cours « Coder une app » vaut 99 euros, celui de Lovable 49', PL.COURSE_EUR['coder-une-app'] === 99 && PL.COURSE_EUR['coder-avec-lovable'] === 49)
+  ok('le prix d\'un cours est lu dans la grille', cp.every((p) => PK.eurOf(p) === PL.COURSE_EUR[p.course]))
+  const SESSION = readFileSync('api/_lib/checkoutSession.ts', 'utf8')
+  const buyable = (SESSION.match(/BUY_COURSES[^=]*=\s*new Set\(\[([\s\S]*?)\]\)/)?.[1] ?? '').match(/'([a-z-]+)'/g)?.map((x) => x.slice(1, -1)) ?? []
+  ok('le serveur vend exactement les cours du programme', buyable.join(',') === CO.COURSE_IDS.join(','), buyable.join(','))
+  const BUY = readFileSync('api/buy.ts', 'utf8')
+  ok('chaque cours a son prix Stripe', CO.COURSE_IDS.every((id) => new RegExp(`'${id}': ENV\\.STRIPE_PRICE_COURSE_`).test(BUY)) && /metadata\[course\]/.test(BUY))
+  const ACC = readFileSync('src/game/access.ts', 'utf8')
+  ok('un cours acheté n\'ouvre que lui', /m\.track === 'course'\s*\?\s*\(a\.courses \?\? \[\]\)\.includes\(COURSE_OF_CITY\[m\.id\]\)/.test(ACC)
+    && /p\.door === 'course'\) return Boolean\(p\.course\) && \(a\.courses \?\? \[\]\)\.includes\(p\.course!\)/.test(ACC))
+  ok('un second cours s\'ajoute au premier', /courses: \[\.\.\.have, id\]/.test(ACC))
+  // LE CONTENU · lu dans ce qui est écrit, publié ou non, et exigé complet dès
+  // qu'un cours est déclaré prêt
+  const draft = (id) => CO.COURSE_DRAFTS[id].flatMap((p) => p.modules)
+  const code = draft('coder-une-app').map((m) => m.title.fr.toLowerCase()).join(' | ')
+  const lv = draft('coder-avec-lovable').map((m) => m.title.fr.toLowerCase()).join(' | ')
+  const lessons = (id) => draft(id).reduce((n, m) => n + m.levels.length, 0)
+  if (CO.COURSE_READY['coder-une-app']) ok('le cours de code couvre le terminal, GitHub, Claude Code, Supabase et Vercel', ['terminal', 'github', 'claude code', 'supabase', 'vercel'].every((w) => code.includes(w)), code)
+  if (CO.COURSE_READY['coder-avec-lovable']) ok('le cours Lovable a son app exemple', /lovable/.test(lv) && draft('coder-avec-lovable').length >= 4, lv)
+  if (ready.length === 2) ok('le grand cours est plus long que celui de Lovable', lessons('coder-une-app') > lessons('coder-avec-lovable') && lessons('coder-avec-lovable') >= 12, `${lessons('coder-une-app')} et ${lessons('coder-avec-lovable')} leçons`)
+  console.log(`      rédaction en cours · ${lessons('coder-une-app')} leçons écrites pour Coder une app, ${lessons('coder-avec-lovable')} pour Lovable`)
+  ok('chaque cité des cours est rangée « course »', CO.COURSE_MODULES.every((m) => m.track === 'course'))
+}
+
 /* --- 4 · les morsures ------------------------------------------------------ */
 
 ok('morsure · un import de l\'ancien jeu serait vu', OLD_IMPORT.test("import { PackArt } from './PackArt'") && OLD_IMPORT.test("import { audio } from '../sim/audio'"))

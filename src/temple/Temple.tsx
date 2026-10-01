@@ -30,6 +30,10 @@ import { hashString } from '../pixel/grid'
 import { masterOf } from '../pixel/masters'
 import { sendPresence, fetchPresence, fetchRoom, postRoom, type Student, type RoomMessage } from '../lib/community'
 import { drawFloor } from './art/floors'
+import { drawDoorLeaf, drawDoorInside } from './art/door'
+import { zen, useZenAmbience } from '../lib/zen'
+import { getSettings, systemReducesMotion } from '../lib/settings'
+import { SoundToggle } from './SoundToggle'
 import { drawRoof, drawFloorStrip, drawBase } from './art/facade'
 import { TT } from './templeText'
 
@@ -69,6 +73,7 @@ export function TemplePage({ packId }: { packId: string }) {
   const [masterOpen, setMasterOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState<false | 'group' | 'people'>(false)
   const scroller = useRef<HTMLDivElement>(null)
+  useZenAmbience()
 
   const go = useCallback((i: number, smooth = true) => {
     const n = Math.max(0, Math.min(floors.length - 1, i))
@@ -78,7 +83,45 @@ export function TemplePage({ packId }: { packId: string }) {
     el?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'center' })
   }, [floors.length])
 
-  useEffect(() => { requestAnimationFrame(() => go(current, false)) }, [packId]) // eslint-disable-line react-hooks/exhaustive-deps
+  // LA PORTE ET L'ÉLÈVE · demandé : « L'étudiant doit être positionné devant
+  // la porte du dojo qui s'ouvre et se ferme : quand on monte d'un étage la
+  // porte s'ouvre et l'élève entre ». Monter : la porte s'ouvre, l'élève entre,
+  // elle se referme ; on arrive à l'étage choisi, sa porte s'ouvre, l'élève en
+  // sort, elle se referme. Un seul trajet à la fois.
+  const [doorOpen, setDoorOpen] = useState<number | null>(null)
+  const [me, setMe] = useState<'idle' | 'enter' | 'exit'>('exit')
+  const busy = useRef(false)
+  const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, getSettings().calm || systemReducesMotion() ? ms * 0.25 : ms))
+  const arrive = useCallback(async (to: number) => {
+    setMe('exit'); setDoorOpen(to); zen.sfx('door')
+    await wait(560)
+    setMe('idle'); setDoorOpen(null); zen.sfx('doorClose'); zen.sfx('arrive', 0.3)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const climb = useCallback(async (from: number, to: number) => {
+    const n = Math.max(0, Math.min(floors.length - 1, to))
+    if (busy.current || n === from) return
+    busy.current = true
+    try {
+      if (from !== current) go(from, false)
+      setDoorOpen(from); zen.sfx('door')
+      await wait(430)
+      setMe('enter'); zen.sfx('step'); zen.sfx('step', 0.2); zen.sfx('step', 0.4)
+      await wait(520)
+      setDoorOpen(null); zen.sfx('doorClose')
+      await wait(220)
+      go(n)
+      await wait(650)
+      await arrive(n)
+    } finally {
+      busy.current = false
+    }
+  }, [floors.length, current, go, arrive]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    requestAnimationFrame(() => go(current, false))
+    const id = setTimeout(() => { void arrive(current) }, 350)
+    return () => clearTimeout(id)
+  }, [packId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // LA PRÉSENCE · un battement toutes les trente secondes depuis l'étage
   // ouvert, et la liste des présents relue toutes les vingt secondes.
@@ -109,7 +152,9 @@ export function TemplePage({ packId }: { packId: string }) {
   const roofUrl = gridToUrl(`roof:${pack.id}`, () => drawRoof(pack.tint))
   const stripUrl = gridToUrl('strip', () => drawFloorStrip())
   const baseUrl = gridToUrl(`base:${pack.id}`, () => drawBase(pack.tint))
-  const floorUrl = gridToUrl(`floor:${pack.kit}:${pack.tint}`, () => drawFloor(pack.kit, pack.tint))
+  const leafL = gridToUrl('door:l', () => drawDoorLeaf('left'))
+  const leafR = gridToUrl('door:r', () => drawDoorLeaf('right'))
+  const inside = gridToUrl(`door:in:${pack.tint}`, () => drawDoorInside(pack.tint))
   const here = floors[current]
   const others = students.filter((x) => !x.me)
 
@@ -122,6 +167,7 @@ export function TemplePage({ packId }: { packId: string }) {
           <b>{say(pack.title, lang)}</b>
           <em>{s(TT.floor)} {current + 1} · {here ? say(here.level.title, lang) : ''}</em>
         </div>
+        <SoundToggle />
       </header>
 
       {/* LE PLAN DES ÉTAGES · collé en haut à droite. */}
@@ -132,7 +178,7 @@ export function TemplePage({ packId }: { packId: string }) {
           const done = g.isDone(module.id, level.id)
           return (
             <button key={level.id} className={`tp-map-b${i === current ? ' on' : ''}${done ? ' done' : ''}${open ? '' : ' locked'}`}
-              onClick={() => go(i)} aria-label={`${s(TT.floor)} ${i + 1} · ${say(level.title, lang)}${open ? '' : ` · ${s(TT.locked)}`}`}
+              onClick={() => { zen.sfx('tap'); void climb(current, i) }} aria-label={`${s(TT.floor)} ${i + 1} · ${say(level.title, lang)}${open ? '' : ` · ${s(TT.locked)}`}`}
               aria-current={i === current ? 'true' : undefined}>
               <span>{i + 1}</span>
               {!open && <BauhausIcon name="lock" size={10} />}
@@ -152,6 +198,9 @@ export function TemplePage({ packId }: { packId: string }) {
             const done = g.isDone(module.id, level.id)
             const isCur = i === current
             const onFloor = others.filter((x) => x.floor === level.id).slice(0, 3)
+            // un décor différent à chaque étage · la spécialité du temple, le
+            // rang de l'étage et le sujet de la leçon (voir art/floors)
+            const floorUrl = gridToUrl(`floor:${pack.kit}:${pack.tint}:${i}:${level.master}`, () => drawFloor(pack.kit, pack.tint, i, level.master))
             return (
               <div key={level.id}>
                 <section id={`etage-${i + 1}`} className={`tp-floor${isCur ? ' cur' : ''}${open ? '' : ' locked'}`}
@@ -162,26 +211,35 @@ export function TemplePage({ packId }: { packId: string }) {
                     {done && <i className="tp-done"><BauhausIcon name="check" size={10} /> {s(TT.done)}</i>}
                   </span>
 
-                  {/* LA PORTE DU FOND · elle monte d'un étage. */}
-                  <button className="tp-door" onClick={() => (i < floors.length - 1 ? go(i + 1) : undefined)}
-                    aria-label={i < floors.length - 1 ? s(TT.door) : s(TT.topFloor)} disabled={i >= floors.length - 1} />
+                  {/* LA PORTE DU FOND · elle s'ouvre, l'élève entre, et l'on monte d'un étage. */}
+                  <button className={`tp-door${doorOpen === i ? ' open' : ''}`}
+                    onClick={() => (i < floors.length - 1 ? void climb(i, i + 1) : zen.sfx('locked'))}
+                    aria-label={i < floors.length - 1 ? s(TT.door) : s(TT.topFloor)} aria-disabled={i >= floors.length - 1}>
+                    <span className="tp-door-win" aria-hidden="true">
+                      {inside && <img className="tp-door-in" src={inside} alt="" />}
+                      {leafL && <img className="tp-leaf l" src={leafL} alt="" />}
+                      {leafR && <img className="tp-leaf r" src={leafR} alt="" />}
+                    </span>
+                  </button>
+
+                  {/* L'ÉLÈVE · devant la porte, à l'étage où il se trouve. */}
+                  {isCur && (
+                    <span className={`tp-me ${me}`} aria-label={s(TT.you)}>
+                      <ChibiSprite spec={avatar.spec} scale={1} />
+                      <span className="tp-nametag">{s(TT.you)}</span>
+                    </span>
+                  )}
 
                   {/* LE MAÎTRE · il accueille, puis mène au cours. */}
-                  <button className="tp-master" onClick={() => { go(i); setMasterOpen(true) }} aria-label={`${s(TT.talkMaster)} ${master.name}`}>
+                  <button className="tp-master" onClick={() => { if (i !== current) go(i); zen.sfx('open'); setMasterOpen(true) }} aria-label={`${s(TT.talkMaster)} ${master.name}`}>
                     <ChibiSprite spec={master.spec} scale={1} />
                     <span className="tp-nametag">{s(TT.master)} {master.name}</span>
                   </button>
 
                   {/* LES ÉLÈVES · moi d'abord sur mon étage, puis ceux qui sont là. */}
                   <div className="tp-students">
-                    {isCur && (
-                      <span className="tp-student me">
-                        <ChibiSprite spec={avatar.spec} scale={1} flip />
-                        <span className="tp-nametag">{s(TT.you)}</span>
-                      </span>
-                    )}
                     {onFloor.map((st) => (
-                      <button key={st.handle} className="tp-student" onClick={() => setChatOpen('people')} aria-label={st.name}>
+                      <button key={st.handle} className="tp-student" onClick={() => { zen.sfx('tap'); setChatOpen('people') }} aria-label={st.name}>
                         <ChibiSprite spec={sanitizeChibi(st.avatar, hashString(st.handle))} scale={1} flip />
                         <span className="tp-nametag">{st.name}</span>
                       </button>
@@ -193,7 +251,7 @@ export function TemplePage({ packId }: { packId: string }) {
                       <BauhausIcon name="lock" size={22} />
                       <b>{s(TT.lockedFloor)}</b>
                       {eurOf(pack) === 0
-                        ? <button className="gm-cta" onClick={() => { go(i); setMasterOpen(true) }}>{s(TT.openWithEmail)} →</button>
+                        ? <button className="gm-cta" onClick={() => { go(i); zen.sfx('open'); setMasterOpen(true) }}>{s(TT.openWithEmail)} →</button>
                         : <Lnk className="gm-cta" href="/tarifs">{s(TT.unlock)} →</Lnk>}
                     </div>
                   )}
@@ -208,12 +266,12 @@ export function TemplePage({ packId }: { packId: string }) {
 
       {/* LES COMMANDES · comme un ascenseur : descendre, l'étage, monter. */}
       <footer className="tp-ctrl">
-        <button className="tp-ctrl-b" onClick={() => go(current - 1)} disabled={current <= 0} aria-label={s(TT.down)}><span className="tp-arrow down"><BauhausIcon name="play" size={16} /></span></button>
-        <button className="tp-ctrl-floor" onClick={() => setMasterOpen(true)}>
+        <button className="tp-ctrl-b" onClick={() => void climb(current, current - 1)} disabled={current <= 0} aria-label={s(TT.down)}><span className="tp-arrow down"><BauhausIcon name="play" size={16} /></span></button>
+        <button className="tp-ctrl-floor" onClick={() => { zen.sfx('open'); setMasterOpen(true) }}>
           <span>{s(TT.floor)}</span><b>{current + 1}</b>
         </button>
-        <button className="tp-ctrl-b" onClick={() => go(current + 1)} disabled={current >= floors.length - 1} aria-label={s(TT.up)}><span className="tp-arrow up"><BauhausIcon name="play" size={16} /></span></button>
-        <button className="tp-ctrl-chat" onClick={() => setChatOpen('group')}>
+        <button className="tp-ctrl-b" onClick={() => void climb(current, current + 1)} disabled={current >= floors.length - 1} aria-label={s(TT.up)}><span className="tp-arrow up"><BauhausIcon name="play" size={16} /></span></button>
+        <button className="tp-ctrl-chat" onClick={() => { zen.sfx('tap'); setChatOpen('group') }}>
           <BauhausIcon name="clan" size={18} /> {s(TT.chat)}{others.length ? ` · ${others.length}` : ''}
         </button>
       </footer>
@@ -231,7 +289,7 @@ export function TemplePage({ packId }: { packId: string }) {
                 <button className="cc-btn cc-slate" onClick={() => setMasterOpen(false)}>{s(TT.close)}</button>
                 {openAt(current)
                   ? (
-                    <button className="gm-cta" onClick={() => navigate(lessonPath(pack.id, here.level.id))}>
+                    <button className="gm-cta" onClick={() => { zen.sfx('chime'); navigate(lessonPath(pack.id, here.level.id)) }}>
                       {g.isDone(here.module.id, here.level.id) ? s(TT.redoLesson) : s(TT.startLesson)} →
                     </button>
                   )
@@ -336,7 +394,7 @@ function TempleChat({ room, initial, students, floorNo, onClose }: { room: strin
                 e.preventDefault()
                 if (!body.trim()) return
                 const r = await postRoom(room, body)
-                if (r.ok) { setBody(''); load() }
+                if (r.ok) { zen.sfx('send'); setBody(''); load() }
               }}>
                 <input className="promo-inp" value={body} onChange={(e) => setBody(e.target.value)} placeholder={s(TT.writeGroup)} aria-label={s(TT.writeGroup)} maxLength={1000} />
                 <button className="gm-cta" type="submit">{s(TT.send)}</button>

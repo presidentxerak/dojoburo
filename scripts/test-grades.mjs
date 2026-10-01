@@ -96,9 +96,20 @@ ok('l\'échelle des grades est montrée', /RANKS\.map/.test(PROFIL) && /locked=\
 const ST = readFileSync('src/lib/settings.ts', 'utf8')
 ok('les réglages : effets, animations réduites, vibrations', /fx: boolean/.test(ST) && /calm: boolean/.test(ST) && /haptics: boolean/.test(ST))
 for (const k of ['fx', 'calm', 'haptics']) ok(`le profil règle « ${k} »`, new RegExp(`setSetting\\('${k}'`).test(PROFIL))
-// RÉPARÉE · le son appartenait à l'ancien jeu, effacé (« Efface l'ancien
-// jeu ») : plus rien ne joue de son, donc plus de réglage qui ne règle rien.
-ok('plus de réglage du son de l\'ancien jeu', !/audio\./.test(PROFIL) && !existsSync('src/sim/audio.ts'))
+// RÉPARÉE DEUX FOIS · le son de l'ancien jeu est parti avec lui (« Efface
+// l'ancien jeu »), puis est revenu pour les temples : « Ajoute une musique
+// générative d'ambiance japonaise zen et des sound fx ». Deux réglages à part,
+// lus par le moteur (lib/zen), et l'ancien moteur ne revient pas.
+ok('plus de son de l\'ancien jeu', !/audio\./.test(PROFIL) && !existsSync('src/sim/audio.ts'))
+ok('la musique zen et les bruitages se règlent depuis le profil', /setSetting\('music'/.test(PROFIL) && /setSetting\('sfx'/.test(PROFIL) && /music: boolean/.test(ST) && /sfx: boolean/.test(ST))
+{
+  const ZEN = readFileSync('src/lib/zen.ts', 'utf8')
+  ok('le moteur suit les deux réglages', /getSettings\(\)\.music/.test(ZEN) && /getSettings\(\)\.sfx/.test(ZEN))
+  ok('aucun son avant un geste · le contexte naît au premier toucher', /addEventListener\('pointerdown'/.test(ZEN) && !/^const ctx = new|^let ctx = new/m.test(ZEN))
+  ok('la musique se suspend quand l\'onglet est caché', /visibilityState === 'hidden'[\s\S]{0,40}suspend\(\)/.test(ZEN))
+  ok('la gamme est japonaise (In) et la musique respire (le « ma »)', /IN_SCALE = \[0, 1, 5, 7, 8\]/.test(ZEN) && /le « ma »/.test(ZEN))
+  ok('aucun fichier audio', !/\.(mp3|ogg|wav|m4a)['"]/.test(ZEN))
+}
 ok('la langue se règle depuis le profil', /<LangSwitch \/>/.test(PROFIL))
 ok('les interrupteurs sont des « switch »', /role="switch"/.test(PROFIL) && /aria-checked=\{on\}/.test(PROFIL))
 

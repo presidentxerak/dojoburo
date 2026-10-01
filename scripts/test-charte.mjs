@@ -484,12 +484,27 @@ ok('Outfit est servie par nous', /import '@fontsource-variable\/outfit\/index\.c
 const uncommented = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/.*$/gm, '$1').replace(/<!--[\s\S]*?-->/g, '')
 ok('… et Lilita One a disparu', !/lilita/i.test(uncommented(MAIN) + uncommented(CSS) + uncommented(HTML)))
 ok('le texte et les titres sont en Outfit', /--font-ui:\s*'Outfit Variable'/.test(CSS) && /--font-game:\s*'Outfit Variable'/.test(CSS))
+// SILKSCREEN EN REGULAR PARTOUT · demandé : « la typo Silkscreen doit être en
+// regular partout ». Une seule graisse chargée, aucune règle qui en demande
+// une autre, et le navigateur n'a pas le droit d'en fabriquer une grasse.
+{
+  const PX_RULES = [...CSS.matchAll(/font:\s*(\d{3})[^;]*var\(--font-px\)/g)].map((m) => m[1])
+  ok('Silkscreen n\'est chargée qu\'en regular', /@fontsource\/silkscreen\/latin-400\.css/.test(MAIN) && !/silkscreen\/latin-700/.test(MAIN))
+  ok('toutes les règles Silkscreen sont en 400', PX_RULES.length > 5 && PX_RULES.every((w) => w === '400'), PX_RULES.join(','))
+  // LE TITRE DE LA CARTE EST UN h1 · la feuille donne aux h1 une graisse forte,
+  // et ce titre-là la reprend explicitement (vu en production : il restait gras).
+  ok('le titre des temples reprend la graisse regular', /\.tw-title \{[^}]*font-weight: 400 !important/.test(CSS))
+  ok('… et aucun gras de synthèse', /\.tp, \.tw-world[^{]*\{ font-synthesis: none; \}/.test(CSS))
+  ok('morsure · une règle Silkscreen en gras serait vue', /font:\s*(\d{3})[^;]*var\(--font-px\)/.exec('.x { font: 700 12px var(--font-px); }')?.[1] === '700')
+}
 
 // LES DÉCORS SONT EN PIXEL ART · RÉPARÉE. Les vignettes 3D (PackArt) sont
 // parties avec l'ancien jeu ; « les décors des dojos en fonction des
 // différentes spécialités métiers » sont dessinés pixel par pixel, rendus une
 // fois en image et agrandis sans lissage. Plus rien ne tourne en continu.
-ok('chaque formation a sa salle', /drawFloor\(pack\.kit, pack\.tint\)/.test(TEMPLE))
+// RÉPARÉE · « Les étages doivent être tous différents » : la salle dépend de
+// la spécialité du temple, du rang de l'étage et du sujet de la leçon.
+ok('chaque étage a sa salle', /drawFloor\(pack\.kit, pack\.tint, i, level\.master\)/.test(TEMPLE))
 ok('les décors sont agrandis sans lissage', /\.tp img, \.tw-world img[^{]*\{ image-rendering: pixelated; \}/.test(CSS))
 ok('l\'ancienne vignette 3D est partie', !existsSync('src/game/PackArt.tsx'))
 

@@ -26,6 +26,7 @@
 import { useSyncExternalStore } from 'react'
 import { TRACK_ACCESS, type Module, type TrackId } from '../data/curriculum'
 import { TRADE_OF_CITY } from '../data/trades'
+import { COURSE_OF_CITY } from '../data/courses'
 import type { Pack } from '../data/packs'
 
 const KEY = 'dojo.access'
@@ -68,6 +69,9 @@ export interface Access {
    *  regarder une formation métier l'aurait ouverte, soit l'avoir achetée
    *  aurait empêché de regarder les cinq autres avant de se décider. */
   pick?: string
+  /** les cours vendus à part ACHETÉS · un tableau, parce qu'on peut acheter
+   *  les deux, et qu'un champ unique aurait effacé le premier au second achat */
+  courses?: string[]
 }
 
 const EMPTY: Access = {}
@@ -108,6 +112,14 @@ export function grant(what: { path?: boolean; trade?: string }) {
   save({ ...cache, ...what })
 }
 
+/** Un cours vendu à part a été payé · ajouté à ceux déjà achetés, jamais à
+ *  leur place. */
+export function grantCourse(id: string) {
+  const have = cache.courses ?? []
+  if (have.includes(id)) return
+  save({ ...cache, courses: [...have, id] })
+}
+
 /** Le métier sur lequel on travaille · une préférence, pas un droit. Elle
  *  décide de la carte qu'on voit dans son profil et du dojo où l'on reprend,
  *  et elle se change sans rien perdre : la progression est rangée par cité, et
@@ -140,6 +152,7 @@ export function useAccess() {
     const needs = TRACK_ACCESS[track]
     if (needs === 'email') return Boolean(a.email)
     if (needs === 'path') return Boolean(a.path)
+    if (needs === 'course') return (a.courses ?? []).length > 0
     return Boolean(a.trade)
   }
 
@@ -151,7 +164,10 @@ export function useAccess() {
     tester ? true
       : m.track === 'trade'
         ? Boolean(a.trade) && TRADE_OF_CITY[m.id] === a.trade
-        : opens(m.track)
+        // UN COURS ACHETÉ N'OUVRE QUE LUI · même règle que le métier
+        : m.track === 'course'
+          ? (a.courses ?? []).includes(COURSE_OF_CITY[m.id])
+          : opens(m.track)
 
   /** LE PREMIER DOJO D'UNE CITÉ EST OUVERT · à qui a donné son adresse.
    *
@@ -178,6 +194,7 @@ export function useAccess() {
     if (tester) return true
     if (p.door === 'free') return Boolean(a.email)
     if (p.door === 'path') return Boolean(a.path)
+    if (p.door === 'course') return Boolean(p.course) && (a.courses ?? []).includes(p.course!)
     return Boolean(a.trade) && p.trade === a.trade
   }
 
@@ -190,6 +207,8 @@ export function useAccess() {
     pick: a.pick ?? a.trade,
     hasEmail: Boolean(a.email),
     hasPath: Boolean(a.path) || tester,
+    /** les cours vendus à part achetés */
+    courses: a.courses ?? [],
     /** cette adresse ouvre tout pour essayer · voir TESTERS plus haut */
     tester,
     opens,

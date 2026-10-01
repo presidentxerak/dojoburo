@@ -41,6 +41,7 @@
 import type { IconName } from './icons'
 import { B, say, type Bi } from './bilingual'
 import { TRADE_MODULES } from './trades'
+import { COURSE_MODULES } from './courses'
 
 // LE PRIMITIF BILINGUE VIT AILLEURS · dans data/bilingual, et il est réexporté
 // ici pour que tout ce qui lisait `B` et `say` depuis ce fichier continue de
@@ -54,7 +55,7 @@ export type { Bi }
 /* LES TROIS PARCOURS                                                  */
 /* ------------------------------------------------------------------ */
 
-export type TrackId = 'discovery' | 'path' | 'trade'
+export type TrackId = 'discovery' | 'path' | 'trade' | 'course'
 
 /** Ce que chaque parcours est, et ce qu'il faut avoir pour y entrer.
  *
@@ -63,10 +64,12 @@ export type TrackId = 'discovery' | 'path' | 'trade'
  *  le profil) et trois conditions écrites à la main auraient fini par ne plus
  *  dire la même chose, ce qui veut dire : quelqu'un lit gratuitement ce qu'un
  *  autre a payé, ou l'inverse. */
-export const TRACK_ACCESS: Record<TrackId, 'email' | 'path' | 'trade'> = {
+export const TRACK_ACCESS: Record<TrackId, 'email' | 'path' | 'trade' | 'course'> = {
   discovery: 'email',
   path: 'path',
   trade: 'trade',
+  // un cours vendu à part (data/courses) · il n'ouvre que lui
+  course: 'course',
 }
 
 /* ------------------------------------------------------------------ */
@@ -2156,7 +2159,7 @@ export const PATH_MODULES: Module[] = [
 // héritent de l'index, des adresses, du compteur de badges et des trente
 // règles de scripts/test-curriculum. Une deuxième structure pour les métiers
 // aurait demandé une deuxième copie de tout cela.
-export const ALL_MODULES: Module[] = [DISCOVERY_MODULE, ...PATH_MODULES, ...TRADE_MODULES]
+export const ALL_MODULES: Module[] = [DISCOVERY_MODULE, ...PATH_MODULES, ...TRADE_MODULES, ...COURSE_MODULES]
 
 export const MODULE_BY_ID: Record<string, Module> =
   Object.fromEntries(ALL_MODULES.map((m) => [m.id, m]))

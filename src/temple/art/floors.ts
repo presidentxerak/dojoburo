@@ -13,158 +13,20 @@
 //   - le maître se tient vers x = 18..44, les élèves vers x = 100..150, entre
 //     y = 20 et 52 : dans ces zones, rien de haut posé au sol (sommet sous
 //     y = 40), seulement des objets accrochés au mur du fond.
-import { Grid, shade, rng, hashString, OUTLINE } from '../../pixel/grid'
+import { Grid, shade, rng, hashString } from '../../pixel/grid'
 import type { DojoKit } from '../../data/packs'
+import {
+  FLOOR_W, FLOOR_H, WOOD, WOOD_D, WOOD_L, PILLAR, PAPER, GOLD, RED, WHITE, INK, CHALK,
+  put, text, wall, speckle, vboards, bricks, tiles, wainscot, skirting, planksH, checker, tatami, carpet,
+  glow, plant, cushion, lantern, bookcase, board, clock, table, chair, screen,
+} from './rooms/base'
+import { composeFloor } from './rooms/compose'
 
-export const FLOOR_W = 160
-export const FLOOR_H = 64
-
-/* ------------------------------------------------------------------ */
-/* La palette commune                                                  */
-/* ------------------------------------------------------------------ */
-
-const WOOD = '#9a6236'
-const WOOD_D = '#64391d'
-const WOOD_L = '#c4864f'
-const PILLAR = '#b8382c'
-const PAPER = '#fff4cf'
-const GOLD = '#f5c542'
-const RED = '#e5413a'
-const WHITE = '#ffffff'
-const INK = OUTLINE
-const LEAF = '#3fb35a'
-const POT = '#d0683a'
-const CHALK = '#eef6ea'
-
-type Draw = (g: Grid) => void
-
-/** un objet contouré · dessiné sur sa propre grille (coordonnées locales
- *  0..w-1, 0..h-1), puis collé avec son trait sombre autour */
-function put(s: Grid, x: number, y: number, w: number, h: number, draw: Draw) {
-  const g = new Grid(w + 2, h + 2, 1, 1)
-  draw(g)
-  g.outline()
-  s.blit(g, x - 1, y - 1)
-}
+export { FLOOR_W, FLOOR_H }
 
 /* ------------------------------------------------------------------ */
-/* Une petite police 3 × 5 (écriteaux, tableaux)                        */
+/* La structure commune à tous les étages                              */
 /* ------------------------------------------------------------------ */
-
-const FONT: Record<string, string> = {
-  A: '010101111101101', B: '110101110101110', C: '011100100100011', D: '110101101101110',
-  E: '111100110100111', F: '111100110100100', G: '011100101101011', H: '101101111101101',
-  I: '111010010010111', K: '101101110101101', L: '100100100100111', M: '101111111101101',
-  N: '10011101101110011001', O: '010101101101010', P: '110101110100100', R: '110101110101101',
-  S: '011100010001110', T: '111010010010010', U: '101101101101111', V: '101101101101010',
-  W: '101101111111101', X: '101101010101101', Y: '101101010010010',
-  0: '111101101101111', 1: '010110010010111', 2: '110001010100111', 3: '110001010001110',
-  4: '101101111001001', 5: '111100110001110',
-  '+': '000010111010000', '=': '000111000111000', '%': '101001010100101', '$': '011110010011110',
-  '!': '010010010000010', '?': '110001010000010', '{': '011010110010011', '}': '110010011010110',
-  '<': '001010100010001', '>': '100010001010100', '/': '001001010100100', '_': '000000000000111',
-}
-
-/** écrire un texte en capitales de 5 pixels de haut (3 de large, 4 pour N) */
-function text(g: Grid, x: number, y: number, str: string, c: string) {
-  let cx = x
-  for (const ch of str) {
-    const f = FONT[ch]
-    const fw = f ? f.length / 5 : 3
-    if (f) for (let i = 0; i < f.length; i++) if (f[i] === '1') g.set(cx + (i % fw), y + Math.floor(i / fw), c)
-    cx += fw + 1
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Murs, sols, structure                                               */
-/* ------------------------------------------------------------------ */
-
-const IN_X = 5
-const IN_W = 150
-
-function wall(s: Grid, c: string) { s.rect(0, 4, FLOOR_W, 48, c) }
-
-function speckle(s: Grid, x: number, y: number, w: number, h: number, c: string, n: number, r: () => number) {
-  for (let i = 0; i < n; i++) s.set(x + Math.floor(r() * w), y + Math.floor(r() * h), c)
-}
-
-/** des planches verticales */
-function vboards(s: Grid, y: number, h: number, base: string, step: number) {
-  s.rect(0, y, FLOOR_W, h, base)
-  for (let x = IN_X; x < IN_X + IN_W; x += step) {
-    s.vline(x, y, h, shade(base, -0.22))
-    s.vline(x + 1, y, h, shade(base, 0.1))
-  }
-}
-
-/** des briques ou des parpaings */
-function bricks(s: Grid, y: number, h: number, base: string, mortar: string, bw: number, bh: number) {
-  s.rect(0, y, FLOOR_W, h, base)
-  for (let j = 0; j * bh < h; j++) {
-    const yy = y + j * bh
-    s.hline(0, yy, FLOOR_W, mortar)
-    const off = j % 2 ? bw / 2 : 0
-    for (let x = off; x < FLOOR_W; x += bw) s.vline(x, yy, Math.min(bh, y + h - yy), mortar)
-    s.hline(0, yy + 1, FLOOR_W, shade(base, 0.08))
-  }
-}
-
-/** un carrelage régulier */
-function tiles(s: Grid, x0: number, y: number, w: number, h: number, base: string, line: string, tw: number, th: number) {
-  s.rect(x0, y, w, h, base)
-  for (let yy = y; yy < y + h; yy += th) s.hline(x0, yy, w, line)
-  for (let x = x0; x < x0 + w; x += tw) s.vline(x, y, h, line)
-}
-
-/** un soubassement en lambris */
-function wainscot(s: Grid, y0: number, c: string, step = 12) {
-  s.rect(0, y0, FLOOR_W, 52 - y0, c)
-  s.hline(0, y0, FLOOR_W, shade(c, 0.3))
-  s.hline(0, y0 + 1, FLOOR_W, shade(c, -0.35))
-  for (let x = IN_X + 6; x < IN_X + IN_W; x += step) {
-    s.vline(x, y0 + 3, 52 - y0 - 6, shade(c, -0.2))
-    s.vline(x + 1, y0 + 3, 52 - y0 - 6, shade(c, 0.15))
-  }
-}
-
-/** les plinthes · un trait sombre au pied du mur */
-function skirting(s: Grid, c: string) {
-  s.hline(0, 50, FLOOR_W, c)
-  s.hline(0, 51, FLOOR_W, shade(c, -0.4))
-}
-
-/* les sols, de y = 52 à 63 */
-function planksH(s: Grid, base: string, len: number, r: () => number) {
-  s.rect(0, 52, FLOOR_W, 12, base)
-  for (let j = 0; j < 4; j++) {
-    const y = 52 + j * 3
-    s.hline(0, y + 2, FLOOR_W, shade(base, -0.25))
-    s.hline(0, y, FLOOR_W, shade(base, 0.08))
-    const off = Math.floor(r() * len)
-    for (let x = off; x < FLOOR_W; x += len) s.vline(x, y, 2, shade(base, -0.25))
-  }
-}
-
-function checker(s: Grid, a: string, b: string, size: number, sh = size) {
-  for (let y = 52; y < 64; y++) for (let x = 0; x < FLOOR_W; x++) {
-    s.set(x, y, (Math.floor(x / size) + Math.floor((y - 52) / sh)) % 2 ? a : b)
-  }
-}
-
-function tatami(s: Grid) {
-  const mat = '#cfc781', edge = '#3e6b3a'
-  s.rect(0, 52, FLOOR_W, 12, mat)
-  for (let y = 53; y < 64; y += 2) s.hline(0, y, FLOOR_W, shade(mat, -0.08))
-  s.hline(0, 57, FLOOR_W, edge); s.hline(0, 58, FLOOR_W, shade(edge, 0.2))
-  for (const x of [20, 52, 84, 116, 148]) s.vline(x, 52, 5, edge)
-  for (const x of [36, 68, 100, 132]) s.vline(x, 59, 5, edge)
-}
-
-function carpet(s: Grid, base: string, dot: string, step: number) {
-  s.rect(0, 52, FLOOR_W, 12, base)
-  for (let y = 53; y < 64; y += 3) for (let x = (y % 2) * 2; x < FLOOR_W; x += step) s.set(x, y, dot)
-}
 
 /** l'ombre du mur sur le sol, le bord avant de la coupe */
 function floorEdges(s: Grid) {
@@ -188,19 +50,6 @@ function structure(s: Grid, tint: string) {
     for (const by of [4, 48]) {
       s.rect(x + 1, by, 3, 2, GOLD)
       s.hline(x + 1, by + 1, 3, shade(GOLD, -0.25))
-    }
-  }
-}
-
-/** un halo de lumière sur le mur, en deux paliers (pixel art oblige) */
-function glow(s: Grid, cx: number, cy: number, r: number, amt: number) {
-  for (let y = Math.max(4, cy - r); y <= Math.min(51, cy + r); y++) {
-    for (let x = cx - r; x <= cx + r; x++) {
-      const d = Math.hypot(x - cx, (y - cy) * 1.2)
-      if (d > r) continue
-      const c = s.get(x, y)
-      if (!c || c === INK) continue
-      s.set(x, y, shade(c, d < r * 0.55 ? amt : amt / 2))
     }
   }
 }
@@ -255,126 +104,6 @@ function doorLight(s: Grid) {
       if (c) s.set(x, y, shade(c, 0.18))
     }
   }
-}
-
-/* ------------------------------------------------------------------ */
-/* Les objets réutilisés                                               */
-/* ------------------------------------------------------------------ */
-
-/** une plante en pot, posée au sol (yb = la ligne du pied) */
-function plant(s: Grid, x: number, yb: number, w: number, h: number, leaf = LEAF, pot = POT) {
-  put(s, x, yb - h, w, h, (g) => {
-    const ph = Math.max(4, Math.floor(h / 3))
-    const top = h - ph
-    g.rect(1, top, w - 2, ph, pot)
-    g.hline(0, top, w, shade(pot, 0.2))
-    g.vline(w - 2, top + 1, ph - 1, shade(pot, -0.2))
-    const cx = (w - 1) / 2
-    const rad = Math.min(w / 2, top / 2 + 1)
-    for (let y = 0; y < top; y++) for (let xx = 0; xx < w; xx++) {
-      const d = Math.hypot(xx - cx, (y - top / 2) * (w / Math.max(top, 1)))
-      if (d <= rad) g.set(xx, y, (xx + y) % 5 === 0 ? shade(leaf, 0.3) : (xx > cx + 1 ? shade(leaf, -0.2) : leaf))
-    }
-    g.vline(Math.round(cx), top - 2, 2, shade(leaf, -0.35))
-  })
-}
-
-/** un coussin (zabuton) posé au sol */
-function cushion(s: Grid, x: number, y: number, c: string) {
-  put(s, x, y, 12, 3, (g) => {
-    g.round(0, 0, 12, 3, c)
-    g.hline(1, 0, 10, shade(c, 0.3))
-    g.hline(1, 2, 10, shade(c, -0.25))
-    g.set(6, 1, shade(c, -0.4))
-  })
-}
-
-/** une lanterne de papier suspendue à la poutre */
-function lantern(s: Grid, x: number, y: number, c: string) {
-  s.vline(x + 3, 4, y - 4, INK)
-  put(s, x, y, 7, 9, (g) => {
-    g.rect(1, 0, 5, 1, INK)
-    g.round(0, 1, 7, 7, c)
-    for (const yy of [3, 5]) g.hline(0, yy, 7, shade(c, -0.25))
-    g.vline(1, 2, 5, shade(c, 0.3))
-    g.set(3, 4, '#ffe58a')
-    g.rect(1, 8, 5, 1, INK)
-  })
-}
-
-/** des dos de livres sur une étagère (dans une grille locale) */
-function books(g: Grid, x: number, y: number, w: number, h: number, pal: string[], r: () => number) {
-  let cx = x
-  while (cx < x + w - 1) {
-    const bw = 2 + Math.floor(r() * 2)
-    if (cx + bw > x + w) break
-    const bh = h - Math.floor(r() * 3)
-    const c = pal[Math.floor(r() * pal.length)]
-    g.rect(cx, y + h - bh, bw, bh, c)
-    g.vline(cx, y + h - bh, bh, shade(c, 0.25))
-    g.set(cx + bw - 1, y + h - bh + 1, GOLD)
-    cx += bw
-    if (r() < 0.12) cx += 1
-  }
-}
-
-/** une bibliothèque sur pied ou murale */
-function bookcase(s: Grid, x: number, y: number, w: number, h: number, rows: number, pal: string[], r: () => number, wood = WOOD) {
-  put(s, x, y, w, h, (g) => {
-    g.rect(0, 0, w, h, wood)
-    g.hline(0, 0, w, shade(wood, 0.3))
-    const inner = Math.floor((h - 2) / rows)
-    for (let i = 0; i < rows; i++) {
-      const yy = 1 + i * inner
-      g.rect(1, yy, w - 2, inner - 1, shade(wood, -0.55))
-      books(g, 1, yy + 1, w - 2, inner - 2, pal, r)
-    }
-  })
-}
-
-/** un tableau encadré (fond + cadre) */
-function board(g: Grid, w: number, h: number, frame: string, fill: string) {
-  g.rect(0, 0, w, h, frame)
-  g.hline(0, 0, w, shade(frame, 0.3))
-  g.rect(1, 1, w - 2, h - 2, fill)
-}
-
-/** une horloge murale ronde */
-function clock(s: Grid, x: number, y: number, rim: string) {
-  put(s, x, y, 9, 9, (g) => {
-    g.round(0, 0, 9, 9, rim)
-    g.rect(1, 2, 7, 5, WHITE); g.rect(2, 1, 5, 7, WHITE)
-    g.vline(4, 2, 3, INK); g.hline(4, 4, 3, INK)
-    g.set(4, 1, rim); g.set(4, 7, rim); g.set(1, 4, rim); g.set(7, 4, rim)
-  })
-}
-
-/** une table basse ou un bureau · plateau, tranche, pieds */
-function table(s: Grid, x: number, y: number, w: number, h: number, c: string) {
-  put(s, x, y, w, h, (g) => {
-    g.rect(0, 0, w, 2, c)
-    g.hline(0, 0, w, shade(c, 0.3))
-    g.hline(0, 2, w, shade(c, -0.3))
-    g.rect(1, 3, 2, h - 3, shade(c, -0.15))
-    g.rect(w - 3, 3, 2, h - 3, shade(c, -0.15))
-  })
-}
-
-/** une chaise vue de face */
-function chair(s: Grid, x: number, y: number, c: string) {
-  put(s, x, y, 7, 12, (g) => {
-    g.rect(0, 0, 7, 5, c)
-    g.hline(0, 0, 7, shade(c, 0.3))
-    g.rect(0, 6, 7, 2, shade(c, -0.1))
-    g.vline(0, 8, 4, shade(c, -0.3)); g.vline(6, 8, 4, shade(c, -0.3))
-  })
-}
-
-/** un écran (moniteur) · w × h, sans pied */
-function screen(g: Grid, w: number, h: number, bezel: string, fill: string) {
-  g.rect(0, 0, w, h, bezel)
-  g.rect(1, 1, w - 2, h - 2, fill)
-  g.set(w - 2, h - 1, '#5cff8a')
 }
 
 /* ------------------------------------------------------------------ */
@@ -1356,11 +1085,23 @@ const KITS: Record<DojoKit, Kit> = {
   },
 }
 
-/** Un étage du temple, 160 × 64, décoré selon la spécialité. */
-export function drawFloor(kit: DojoKit, tint: string): Grid {
+
+/** Un étage du temple, 160 × 64, décoré selon la spécialité.
+ *
+ *  Demandé : « Les étages doivent être tous différents là ils sont trop
+ *  identiques ». `floor` est le rang de l'étage dans le temple (0 = le
+ *  premier) et `topic` le cas d'usage de la leçon (research, writing,
+ *  support, coding, analysis, triage, extraction, watch, planning, tools,
+ *  growth, orchestration, ou rien). Le premier étage garde la pièce dessinée
+ *  à la main ; les suivants sont composés (rooms/compose.ts), tous
+ *  différents, dans la palette et avec les objets de la spécialité. La porte,
+ *  les appliques et la structure sont les mêmes à tous les étages.
+ *  Même (kit, tint, floor, topic) : même dessin. */
+export function drawFloor(kit: DojoKit, tint: string, floor = 0, topic = ''): Grid {
   const s = new Grid(FLOOR_W, FLOOR_H)
-  const r = rng(hashString(kit))
-  KITS[kit](s, tint, r)
+  const paint = (g: Grid) => KITS[kit](g, tint, rng(hashString(kit)))
+  if (floor <= 0) paint(s)
+  else composeFloor(s, kit, tint, Math.floor(floor), topic, paint)
   floorEdges(s)
   doorLight(s)
   door(s, tint)

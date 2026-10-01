@@ -11,6 +11,8 @@ export const TT = {
   free: B('Free', 'Gratuit'),
   locked: B('Locked', 'Verrouillé'),
   open: B('Open', 'Ouvert'),
+  musicOn: B('Play the zen music', 'Jouer la musique zen'),
+  musicOff: B('Mute the zen music', 'Couper la musique zen'),
   openWithEmail: B('Open with my email', 'Ouvrir avec mon adresse'),
   enter: B('Enter the temple', 'Entrer dans le temple'),
   back: B('Back to the temples', 'Retour aux temples'),

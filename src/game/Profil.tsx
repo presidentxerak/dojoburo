@@ -369,6 +369,12 @@ function SettingsTab() {
           <span className="st-t"><b>{t('st.lang')}</b><em>{t('st.langBody')}</em></span>
           <LangSwitch />
         </div>
+        {/* LE SON DES TEMPLES · « une musique générative d'ambiance japonaise zen
+            et des sound fx », réglables à part (voir lib/zen). */}
+        <Toggle label={t('st.music')} body={t('st.musicBody')} on={s.music}
+          onChange={(v) => setSetting('music', v)} />
+        <Toggle label={t('st.sfx')} body={t('st.sfxBody')} on={s.sfx}
+          onChange={(v) => setSetting('sfx', v)} />
         <Toggle label={t('st.fx')} body={t('st.fxBody')} on={s.fx}
           onChange={(v) => setSetting('fx', v)} />
         <Toggle label={t('st.calm')} body={sysCalm ? `${t('st.calmBody')} ${t('st.systemCalm')}` : t('st.calmBody')} on={s.calm}

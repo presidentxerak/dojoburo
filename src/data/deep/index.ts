@@ -12,6 +12,7 @@ import { DEEP_TRADES_A } from './trades-a'
 import { DEEP_TRADES_B } from './trades-b'
 import { DEEP_TRADES_C } from './trades-c'
 import { DEEP_NEW_TRADES } from './new-trades'
+import { COURSE_DEEP } from '../courses'
 
 export type { Deepening }
 export { deepKey }
@@ -20,6 +21,8 @@ export const DEEP: Record<string, Deepening> = {
   ...DEEP_PATH_A, ...DEEP_PATH_B, ...DEEP_PATH_C,
   ...DEEP_TRADES_A, ...DEEP_TRADES_B, ...DEEP_TRADES_C,
   ...DEEP_NEW_TRADES,
+  // les cours vendus à part, voir data/courses
+  ...COURSE_DEEP,
 }
 
 export const deepeningOf = (moduleId: string, levelId: string): Deepening | null =>

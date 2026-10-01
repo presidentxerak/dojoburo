@@ -48,7 +48,7 @@ import { TRADES } from '../data/trades'
 // faisait une cinquième grille de prix capable de contredire les quatre autres.
 // Elle l'a fait : elle vendait encore Founder à 29 $ et 2 000 tâches longtemps
 // après que le produit ait cessé d'exécuter quoi que ce soit.
-import { PATH_EUR, TRADE_EUR, BUNDLE_EUR, priceTag } from '../data/plans'
+import { PATH_EUR, TRADE_EUR, BUNDLE_EUR, COURSE_EUR, priceTag } from '../data/plans'
 // LES GRADES DE L'ÉLÈVE · lus dans game/ranks et game/Gauge, jamais recopiés.
 // Ce ne sont pas les ceintures du studio (dojo/grades, sujet 'certification').
 import { RANKS } from '../game/ranks'
@@ -121,18 +121,18 @@ export const KB: KBTopic[] = [
     chip: 'The temples',
     answer:
       `Dojoburo, the first button of the bottom bar, opens the map of the temples, drawn in pixel art: one temple per training, ${PACK_COUNT} in all, with the name of the course above each one, and the course cards below the map. ` +
-      'Open a temple and it fills the screen, seen from the front: each floor is a dojo, that is one lesson, and the floor plan stays at the top right so you can jump to any floor. Click the door at the back of a floor to go up one floor, or use the arrows at the bottom. On each floor the master of the temple waits for you, dressed for their trade: click the master, they welcome you, and you enter the lesson, where their pixel portrait gives you the course. ' +
+      'Open a temple and it fills the screen, seen from the front: each floor is a dojo, that is one lesson, and the floor plan stays at the top right so you can jump to any floor. Every floor is decorated differently. Your character stands in front of the door at the back: click the door (or the up arrow) and it slides open, your character walks in, and you come out of the door of the next floor. On the map, other students walk along the paths, in and out of the temples, between the river, the ponds and the zen gardens. A generative Japanese zen music (koto, shakuhachi, temple bell) and sound effects play in the temples; the note button at the top mutes the music, and Profile, Settings turns the music and the sound effects on or off separately. On each floor the master of the temple waits for you, dressed for their trade: click the master, they welcome you, and you enter the lesson, where their pixel portrait gives you the course. ' +
       `The first temple, the AI weekend, is free: its first floor opens straight away and the others open with your email. In the other temples the first floor is open so you can see how they teach, and the other floors carry a padlock until you get the training (${priceTag(PATH_EUR)} for the full training, ${priceTag(TRADE_EUR)} for a trade training).`,
     links: [
       { label: 'See the temples', href: '/' },
       { label: 'Start the free weekend', href: FREE_HREF },
     ],
     follow: ['teams', 'training', 'pricing'],
-    keywords: ['dojoburo', 'temple', 'temples', 'étage', 'étages', 'floor', 'floors', 'map', 'carte', 'pixel', 'pixel art', 'game', 'jeu', 'jouer', 'play', 'door', 'porte', 'monter', 'go up', 'master', 'maître', 'padlock', 'cadenas', 'locked', 'verrouillé', 'fullscreen', 'plein écran', 'floor plan', 'plan des étages', 'studio', 'old game', 'ancien jeu'],
+    keywords: ['dojoburo', 'temple', 'temples', 'étage', 'étages', 'floor', 'floors', 'map', 'carte', 'pixel', 'pixel art', 'game', 'jeu', 'jouer', 'play', 'door', 'porte', 'monter', 'go up', 'master', 'maître', 'padlock', 'cadenas', 'locked', 'verrouillé', 'fullscreen', 'plein écran', 'floor plan', 'plan des étages', 'studio', 'old game', 'ancien jeu', 'music', 'musique', 'sound', 'son', 'zen', 'mute', 'couper le son', 'bruitage', 'sound effects'],
     fr: {
       chip: 'Les temples',
       answer:
-        `Dojoburo, le premier bouton de la barre du bas, ouvre la carte des temples, dessinée en pixel art : un temple par formation, ${PACK_COUNT} au total, avec le nom du cours au-dessus de chacun, et les cartes des cours sous la carte. Ouvrez un temple : il occupe tout l'écran, vu de face. Chaque étage est un dojo, c'est-à-dire une leçon, et le plan des étages reste affiché en haut à droite pour rejoindre n'importe quel étage. Cliquez sur la porte au fond d'un étage pour monter d'un étage, ou utilisez les flèches en bas de l'écran. À chaque étage, le maître du temple vous attend, vêtu selon son métier : cliquez sur lui, il vous accueille, et vous entrez dans la leçon, où son portrait en pixel art vous donne le cours. Le premier temple, le week-end de l'IA, est gratuit : son premier étage s'ouvre immédiatement et les suivants s'ouvrent avec votre adresse e-mail. Dans les autres temples, le premier étage est ouvert pour que vous puissiez apprécier la pédagogie, et les étages suivants portent un cadenas jusqu'à l'obtention de la formation (${priceTag(PATH_EUR)} pour la formation complète, ${priceTag(TRADE_EUR)} pour une formation métier).`,
+        `Dojoburo, le premier bouton de la barre du bas, ouvre la carte des temples, dessinée en pixel art : un temple par formation, ${PACK_COUNT} au total, avec le nom du cours au-dessus de chacun, et les cartes des cours sous la carte. Ouvrez un temple : il occupe tout l'écran, vu de face. Chaque étage est un dojo, c'est-à-dire une leçon, et le plan des étages reste affiché en haut à droite pour rejoindre n'importe quel étage. Chaque étage a son propre décor. Votre personnage se tient devant la porte du fond : cliquez sur la porte (ou sur la flèche du haut), elle coulisse, votre personnage entre, et vous ressortez par la porte de l'étage suivant. Sur la carte, d'autres élèves marchent le long des chemins, entrent dans les temples et en sortent, entre la rivière, les bassins et les jardins zen. Une musique zen japonaise générative (koto, shakuhachi, cloche de temple) et des bruitages accompagnent les temples ; le bouton de la note, en haut, coupe la musique, et Profil, Paramètres règle séparément la musique et les bruitages. À chaque étage, le maître du temple vous attend, vêtu selon son métier : cliquez sur lui, il vous accueille, et vous entrez dans la leçon, où son portrait en pixel art vous donne le cours. Le premier temple, le week-end de l'IA, est gratuit : son premier étage s'ouvre immédiatement et les suivants s'ouvrent avec votre adresse e-mail. Dans les autres temples, le premier étage est ouvert pour que vous puissiez apprécier la pédagogie, et les étages suivants portent un cadenas jusqu'à l'obtention de la formation (${priceTag(PATH_EUR)} pour la formation complète, ${priceTag(TRADE_EUR)} pour une formation métier).`,
       links: [
         'Voir les temples',
         'Commencer le week-end gratuit',
@@ -306,6 +306,30 @@ export const KB: KBTopic[] = [
         `Votre grade est la ceinture que vous portez en tant qu'élève. Il découle de votre niveau, lequel découle de l'XP des dojos que vous avez effectivement terminés : un niveau tous les ${XP_PER_LEVEL} XP. Rien ne s'achète ; la seule manière de progresser consiste donc à terminer des dojos. Il existe ${RANK_COUNT} grades, et votre propre personnage pixel porte la ceinture du vôtre dans votre profil : ${rankLadder('fr')}. À titre indicatif, le week-end de l'IA gratuit vous conduit à la ${say(YELLOW.belt, 'fr').toLowerCase()}, la formation complète à la ${say(BROWN.belt, 'fr').toLowerCase()}, et une formation métier par-dessus à la ${say(BLACK.belt, 'fr').toLowerCase()}, au niveau ${BLACK.from}. La ${say(BLACK.belt, 'fr').toLowerCase()} demande donc un véritable parcours, jamais un après-midi. Votre icône change d'elle-même lorsque vous atteignez le grade suivant. L'onglet Progression de votre profil présente votre grade, votre niveau, votre XP, l'échelle des ${RANK_COUNT} grades et la distance qui vous sépare du suivant. Ces ceintures ne sont pas celles du studio, sur /build, qui comptent les agents que vous avez construits.`,
       links: [
         'Voir votre grade',
+        'Voir les temples',
+      ],
+    },
+  },
+  {
+    // LES COURS VENDUS À PART · « comment coder une app » et « coder une app
+    // avec Lovable ». Les prix viennent de data/plans.
+    id: 'courses',
+    chip: 'Code an app: the two courses',
+    answer:
+      `Two courses are sold separately, each paid once, each opening only its own temple. CODE AN APP (${priceTag(COURSE_EUR['coder-une-app'])}) teaches you to build a real web app from A to Z with the terminal, Git and GitHub, Claude Code, Supabase and Vercel: how each tool works, how to set it up, the good practices, around one example app built floor after floor, a habit tracker called Habitudes. ` +
+      `BUILD AN APP WITH LOVABLE (${priceTag(COURSE_EUR['coder-avec-lovable'])}) follows the same journey with Lovable, its backend and its GitHub sync, around a booking app for a pottery workshop called Atelier, from the first prompt to the published app. Both are on the Dojoburo map, with their own master, and on the /tarifs page.`,
+    links: [
+      { label: 'See the courses', href: '/tarifs' },
+      { label: 'See the temples', href: '/' },
+    ],
+    follow: ['pricing', 'buy', 'studios'],
+    keywords: ['code', 'coder', 'coding', 'app', 'application', 'claude code', 'vercel', 'supabase', 'github', 'git', 'terminal', 'lovable', 'no code', 'nocode', 'développer', 'develop', 'build an app', 'créer une app', 'site web', 'website', 'programmer', 'deploy', 'déployer'],
+    fr: {
+      chip: 'Coder une app : les deux cours',
+      answer:
+        `Deux cours sont vendus à part, chacun payé une seule fois et n'ouvrant que son propre temple. CODER UNE APP (${priceTag(COURSE_EUR['coder-une-app'])}) vous apprend à construire une vraie application web de A à Z avec le terminal, Git et GitHub, Claude Code, Supabase et Vercel : le fonctionnement de chaque outil, son installation, les bonnes pratiques, autour d'une app exemple construite étage après étage, un suivi d'habitudes nommé Habitudes. CODER UNE APP AVEC LOVABLE (${priceTag(COURSE_EUR['coder-avec-lovable'])}) suit le même parcours avec Lovable, son backend et sa synchronisation GitHub, autour d'une app de réservation pour un atelier de poterie nommée Atelier, du premier prompt à l'app publiée. Les deux figurent sur la carte de Dojoburo, chacun avec son maître, et sur la page /tarifs.`,
+      links: [
+        'Voir les cours',
         'Voir les temples',
       ],
     },

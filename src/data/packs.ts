@@ -35,7 +35,8 @@ import {
   DISCOVERY_MODULE, PATH_MODULES, MODULE_BY_ID, type Module, type Level,
 } from './curriculum'
 import { TRADES, citiesOfTrade } from './trades'
-import { PATH_EUR, TRADE_EUR } from './plans'
+import { PATH_EUR, TRADE_EUR, COURSE_EUR } from './plans'
+import { COURSE_IDS, COURSE_CITIES, type CourseId } from './courses'
 import type { Lang } from '../i18n/lang'
 
 /* ================================================================== */
@@ -60,7 +61,7 @@ export const xpOfModule = (m: Module): number =>
 /** La porte d'une formation · trois seulement, et chacune correspond à une
  *  ligne de data/plans. Un quatrième cas voudrait dire qu'on vend autre chose
  *  que ce que la grille de tarifs annonce. */
-export type Door = 'free' | 'path' | 'trade'
+export type Door = 'free' | 'path' | 'trade' | 'course'
 
 /** Les kits de salle qu'une formation peut porter · un sous-ensemble choisi des
  *  kits de three/ThemeProps. Écrit en type plutôt qu'en chaîne libre pour
@@ -89,6 +90,8 @@ export interface Pack {
   modules: string[]
   /** le métier auquel ce pack appartient · absent pour les deux généralistes */
   trade?: string
+  /** le cours vendu à part que ce pack est · voir data/courses */
+  course?: CourseId
 }
 
 /* ================================================================== */
@@ -160,10 +163,36 @@ const TRADE_PACKS: Pack[] = TRADES.map((t) => ({
   trade: t.id,
 }))
 
+/** LES COURS VENDUS À PART · « comment coder une app » (Claude Code, le
+ *  terminal, GitHub, Supabase, Vercel) et « coder une app avec Lovable ».
+ *  Chacun est un temple à lui, avec son maître et sa salle. Un cours dont le
+ *  texte n'est pas encore écrit n'a pas de cité et n'est pas publié. */
+const COURSE_META: Record<CourseId, Omit<Pack, 'id' | 'door' | 'modules' | 'course'>> = {
+  'coder-une-app': {
+    title: B('Code an app', 'Coder une app'),
+    blurb: B('Build a real app from A to Z with Claude Code, the terminal, GitHub, Supabase and Vercel.',
+      'Construisez une vraie app de A à Z avec Claude Code, le terminal, GitHub, Supabase et Vercel.'),
+    glyph: 'frame',
+    tint: '#f97316',
+    kit: 'code',
+  },
+  'coder-avec-lovable': {
+    title: B('Build an app with Lovable', 'Coder une app avec Lovable'),
+    blurb: B('From the first prompt to the published app: Lovable, its backend and GitHub, explained from A to Z.',
+      "Du premier prompt à l'app publiée : Lovable, son backend et GitHub, expliqués de A à Z."),
+    glyph: 'smile',
+    tint: '#ec4899',
+    kit: 'app',
+  },
+}
+const COURSE_PACKS: Pack[] = COURSE_IDS
+  .filter((id) => COURSE_CITIES[id].length > 0)
+  .map((id) => ({ id, door: 'course' as Door, ...COURSE_META[id], modules: COURSE_CITIES[id].map((m) => m.id), course: id }))
+
 /** L'ORDRE DE LA LISTE EST L'ORDRE DE L'ÉCRAN · le gratuit d'abord, parce que
  *  c'est par là qu'on entre ; la généraliste ensuite, parce que c'est ce qu'on
  *  vend ; les métiers en dernier, parce qu'ils n'ont de sens qu'après. */
-export const PACKS: Pack[] = [WEEKEND, GENERAL, ...TRADE_PACKS]
+export const PACKS: Pack[] = [WEEKEND, GENERAL, ...COURSE_PACKS, ...TRADE_PACKS]
 
 export const PACK_BY_ID: Record<string, Pack> =
   Object.fromEntries(PACKS.map((p) => [p.id, p]))
@@ -189,7 +218,10 @@ export const xpOfPack = (p: Pack): number =>
 
 /** Le prix d'une formation, en euros · lu dans data/plans, jamais écrit ici. */
 export const eurOf = (p: Pack): number =>
-  p.door === 'free' ? 0 : p.door === 'path' ? PATH_EUR : TRADE_EUR
+  p.door === 'free' ? 0
+    : p.door === 'path' ? PATH_EUR
+      : p.door === 'course' && p.course ? COURSE_EUR[p.course]
+        : TRADE_EUR
 
 /** La formation à laquelle appartient un module · l'inverse de modulesOf,
  *  tenu au même endroit pour qu'il ne puisse pas le contredire. */
