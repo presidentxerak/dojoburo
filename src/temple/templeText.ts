@@ -11,6 +11,8 @@ export const TT = {
   free: B('Free', 'Gratuit'),
   locked: B('Locked', 'Verrouillé'),
   open: B('Open', 'Ouvert'),
+  freeLessons: B('free lessons', 'leçons offertes'),
+  testerNote: B('Test access is on in this browser: every temple opens for you, the padlocks show what a learner sees.', "L'accès d'essai est actif sur ce navigateur : tous les temples vous sont ouverts, les cadenas montrent ce que voit un élève."),
   musicOn: B('Play the zen music', 'Jouer la musique zen'),
   musicOff: B('Mute the zen music', 'Couper la musique zen'),
   openWithEmail: B('Open with my email', 'Ouvrir avec mon adresse'),

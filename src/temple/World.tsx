@@ -11,12 +11,13 @@
 // son personnage.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Lnk } from '../lib/router'
+import { BauhausIcon } from '../components/BauhausIcon'
 import { useHeadTags } from '../lib/headTags'
 import { useLang } from '../i18n'
 import { say, type Bi } from '../data/bilingual'
 import { PACKS, packPath, levelsOf, eurOf, type Pack } from '../data/packs'
 import { priceTag } from '../data/plans'
-import { useAccess } from '../game/access'
+import { useAccess, FREE_LESSONS } from '../game/access'
 import { useGame } from '../game/progress'
 import { Shell } from '../game/Shell'
 import { SupportBot } from '../components/SupportBot'
@@ -75,10 +76,13 @@ export function WorldPage() {
   const worldUrl = useMemo(() => gridToUrl(`world:${L.w}x${L.h}`, () => drawWorld(L.w, L.h, L.spots, 7)), [L])
   const routes = useMemo(() => worldRoutes(L.w, L.h, L.spots, 7), [L])
   const scale = width / L.w
-  const lockedOf = (p: Pack) => eurOf(p) > 0 && !a.opensPack(p)
+  // LE CADENAS SUIT L'ACHAT · pas le passe-droit d'essai, qui ouvre tout mais
+  // ne doit pas faire croire que tout est gratuit (voir game/access)
+  const lockedOf = (p: Pack) => eurOf(p) > 0 && !a.ownsPack(p)
 
   return (
     <Shell wide>
+      {a.tester && <section className="gm-sec"><p className="tf-note">{s(TT.testerNote)}</p></section>}
       <section className="gm-sec tw-head">
         <div className="tw-head-row">
           <h1 className="tw-title">{s(TT.worldTitle)}</h1>
@@ -146,7 +150,8 @@ export function WorldPage() {
                   <b>{say(p.title, lang)}</b>
                   <em>{s(TT.master)} {m.name} · {levels.length} {s(TT.floors)}{done ? ` · ${done}/${levels.length}` : ''}</em>
                   <span className={`tw-tag${locked ? ' locked' : eurOf(p) === 0 ? ' free' : ' open'}`}>
-                    {eurOf(p) === 0 ? s(TT.free) : locked ? `${s(TT.locked)} · ${priceTag(eurOf(p))}` : s(TT.open)}
+                    {locked && <BauhausIcon name="lock" size={10} />}
+                    {eurOf(p) === 0 ? s(TT.free) : locked ? `${priceTag(eurOf(p))} · ${FREE_LESSONS} ${s(TT.freeLessons)}` : s(TT.open)}
                   </span>
                 </span>
               </Lnk>

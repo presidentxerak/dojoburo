@@ -181,6 +181,14 @@ ok('un message de cours valide passe', !('error' in C.validateRoomPost({ room: '
 ok('un salon inventé est refusé', 'error' in C.validateRoomPost({ room: '../x', body: 'Bonjour' }))
 ok('un message vide est refusé', 'error' in C.validateRoomPost({ room: 'weekend', body: '   ' }))
 ok('un message trop long est refusé', 'error' in C.validateRoomPost({ room: 'weekend', body: 'a'.repeat(1001) }))
+// LE GRADE · « ajoute le classement des membres avec leur grade »
+ok('une ceinture connue est acceptée', C.cleanGrade('black') === 'black' && C.cleanGrade('white') === 'white')
+ok('une ceinture inventée est refusée', C.cleanGrade('platine') === null && C.cleanGrade(3) === null && C.cleanGrade("green' or 1=1") === null)
+ok('les ceintures du serveur sont celles du jeu', JSON.stringify(C.GRADES) === JSON.stringify(['white', 'yellow', 'orange', 'green', 'blue', 'brown', 'black']))
+{
+  const API = readFileSync('api/community.ts', 'utf8')
+  ok('le classement par grade existe', /grades: grades\.rows\.map/.test(API) && /array_position\(array\['white'/.test(API))
+}
 ok('la présence ne compte que les dernières minutes', C.PRESENCE_WINDOW_S > 0 && C.PRESENCE_WINDOW_S <= 300)
 {
   const API = readFileSync('api/community.ts', 'utf8')

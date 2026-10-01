@@ -196,6 +196,7 @@ function Root() {
   if (path === '/clan' || path === '/clan/a-propos' || path === '/communaute') return <CommunityPage />
   if (path === '/clan/membres' || path === '/clan/classements' || path === '/clan/calendrier') return <CommunityPage />
   if (path === '/clan/notifications' || path === '/clan/messages') return <CommunityPage />
+  if (path === '/clan/prompts' || path === '/clan/ressources' || path === '/clan/reussites') return <CommunityPage />
   if (path.match(/^\/clan\/p\/[0-9a-f-]+$/i)) return <CommunityPage />
   if (path.match(/^\/clan\/m\/[0-9a-f-]+$/i)) return <CommunityPage />
   if (path.match(/^\/clan\/messages\/[0-9a-f-]+$/i)) return <CommunityPage />

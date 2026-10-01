@@ -107,30 +107,38 @@ export function drawTempleIcon(tint: string, kitSeed: number, locked: boolean): 
 
 type Pt = { x: number; y: number }
 
-/** la place pavée autour de chaque temple */
+/** l'emprise réservée à chaque temple (rien n'y est posé ; le temple se
+ *  tient sur l'herbe, sans dallage) */
 const PW = 46, PH = 50
-/** le seuil, devant la porte : sur la bande pavée au pied du temple */
+/** le seuil, juste devant la porte, au bout de la courte allée */
 const STEP_Y = 20
 /** la porte elle-même, sur l'icône */
 const DOOR_Y = 14
-/** les sorties latérales de la place, où le chemin de terre commence */
+/** le chemin principal passe au pied des temples, à cette hauteur */
+const MAIN_Y = 30
+/** les points où le chemin s'écarte du temple sur les côtés */
 const PORT = 30
 
 export interface WorldDoor {
   x: number
   y: number
-  /** l'itinéraire qui passe par ce seuil (toujours 0, le chemin principal) */
+  /** l'allée qui mène à ce seuil : paths[path], qui part du chemin principal
+   *  (son premier point est exactement paths[0][from]) et finit au seuil */
   path: number
-  /** l'indice du point de cet itinéraire qui EST ce seuil */
+  /** l'indice du point de cette allée qui EST ce seuil (son dernier) */
   at: number
+  /** l'indice, sur paths[0], où l'allée de ce temple se raccorde */
+  from: number
 }
 
 export interface WorldRoutes {
   /** polylignes en px logiques de la carte, le long des chemins de terre
    *  peints (un point tous les 3 px environ) · paths[0] est le chemin
-   *  principal, qui passe par le seuil de chaque temple dans l'ordre ;
+   *  principal, qui passe au pied de chaque temple dans l'ordre ;
    *  paths[1] est l'embranchement de l'entrée : son premier point est
-   *  exactement paths[0][entranceAt], son dernier est `entrance` */
+   *  exactement paths[0][entranceAt], son dernier est `entrance` ;
+   *  paths[2 + i] est la courte allée du temple i, du chemin principal
+   *  jusqu'au seuil */
   paths: Pt[][]
   /** pour chaque place (même ordre), le seuil devant la porte du temple, où
    *  les promeneurs entrent et sortent, et le point du chemin qui le porte */
@@ -182,16 +190,20 @@ function follow(out: Pt[], f: (t: number) => Pt, step = 3) {
 }
 
 /** LE RÉSEAU · un seul calcul pour le chemin peint et pour les promeneurs.
- *  Le chemin principal passe sur la bande pavée au pied de chaque temple
- *  (le seuil), sort de la place par le côté, et rejoint la place suivante :
- *  en courbe douce dans une rangée, en contournant par l'extérieur au bout
- *  d'une rangée (jamais à travers un temple). L'entrée part du bas de la
- *  carte et rejoint le chemin principal entre deux places. */
+ *  Le chemin principal passe au pied de chaque temple, s'en écarte par le
+ *  côté et rejoint le temple suivant : presque droit dans une rangée (la
+ *  poche d'herbe entre deux temples reste libre pour un jardin), en
+ *  contournant par l'extérieur au bout d'une rangée (jamais à travers un
+ *  temple). Une courte allée monte du chemin jusqu'à chaque porte. L'entrée
+ *  part du bas de la carte et rejoint le chemin principal entre deux temples.
+ *
+ *  Demandé : « efface du dessous des temples le sol en pierres » · plus de
+ *  place pavée, le temple se tient sur l'herbe au bout de son allée. */
 function planRoutes(w: number, h: number, spots: Pt[], seed: number): Plan {
   const r = rng(seed * 374761393 + 668265263)
   const n = spots.length
-  const sill = (s: Pt): Pt => ({ x: s.x, y: s.y + STEP_Y })
-  const port = (s: Pt, side: number): Pt => ({ x: s.x + side * PORT, y: s.y + STEP_Y })
+  const sill = (s: Pt): Pt => ({ x: s.x, y: s.y + MAIN_Y })
+  const port = (s: Pt, side: number): Pt => ({ x: s.x + side * PORT, y: s.y + MAIN_Y })
   const main: Pt[] = []
   const doorAt: number[] = []
   const legs: Leg[] = []
@@ -205,12 +217,12 @@ function planRoutes(w: number, h: number, spots: Pt[], seed: number): Plan {
     const t = spots[i + 1]
     const dx = t.x - s.x
     let out: Pt, inn: Pt, c1: Pt, c2: Pt, kind: 'h' | 'v'
-    if (Math.abs(dx) >= 40) {
+    if (Math.abs(dx) >= 40 && Math.abs(t.y - s.y) < 40) {
       const sd = dx > 0 ? 1 : -1
       out = port(s, sd); inn = port(t, -sd); kind = 'h'
       const ddx = inn.x - out.x
-      // une courbe qui remonte un peu entre deux temples, parfois en S
-      const up = -(3 + r() * 12), tw = (r() - 0.5) * 10
+      // une courbe douce, à peine en S, qui laisse la poche libre
+      const up = -r() * 3, tw = (r() - 0.5) * 6
       c1 = { x: out.x + 0.4 * ddx, y: out.y + up + tw }
       c2 = { x: inn.x - 0.4 * ddx, y: inn.y + up - tw }
     } else {
@@ -235,7 +247,7 @@ function planRoutes(w: number, h: number, spots: Pt[], seed: number): Plan {
     const p = main[i]
     let ok = true
     for (const s of spots) {
-      if (Math.abs(s.x - p.x) < PW / 2 + 9 && s.y + PH / 2 > p.y - 4) { ok = false; break }
+      if (Math.abs(s.x - p.x) < PW / 2 + 9 && s.y + PH / 2 > p.y - 12) { ok = false; break }
     }
     if (!ok) continue
     const c = (h - p.y) + 0.5 * Math.abs(p.x - w / 2)
@@ -250,9 +262,16 @@ function planRoutes(w: number, h: number, spots: Pt[], seed: number): Plan {
   const dy = E.y - J.y
   const branch: Pt[] = [{ x: J.x, y: J.y }]
   follow(branch, cubicF(J, { x: J.x, y: J.y + 0.5 * dy }, { x: E.x, y: E.y - 0.5 * dy }, E))
+  // les allées · du chemin principal, droit jusqu'au seuil
+  const alleys = spots.map((s, i) => {
+    const a = main[doorAt[i]]
+    const out: Pt[] = [{ x: a.x, y: a.y }]
+    follow(out, lineF(a, { x: s.x, y: s.y + STEP_Y }), 2.5)
+    return out
+  })
   return {
-    paths: [main, branch],
-    doors: spots.map((s, i) => ({ x: s.x, y: s.y + STEP_Y, path: 0, at: doorAt[i] })),
+    paths: [main, branch, ...alleys],
+    doors: spots.map((s, i) => ({ x: s.x, y: s.y + STEP_Y, path: 2 + i, at: alleys[i].length - 1, from: doorAt[i] })),
     entrance: E,
     entranceAt: k,
     legs,
@@ -267,26 +286,31 @@ export function worldRoutes(w: number, h: number, spots: { x: number; y: number 
 }
 
 /** l'itinéraire complet de l'entrée jusque dans le temple `i` : la montée
- *  depuis le bas, le chemin principal jusqu'au seuil, puis le pas de la porte */
+ *  depuis le bas, le chemin principal, l'allée jusqu'au seuil, puis le pas
+ *  de la porte */
 export function walkToDoor(routes: WorldRoutes, i: number): Pt[] {
   const d = routes.doors[i]
   const branch = routes.paths[1] ?? []
   const main = routes.paths[0] ?? []
   const out: Pt[] = branch.slice().reverse()
   if (!d) return out
-  const a = routes.entranceAt, b = d.at
-  const dir = b >= a ? 1 : -1
-  for (let k = a + dir; dir > 0 ? k <= b : k >= b; k += dir) out.push(main[k])
+  out.push(...along(main, routes.entranceAt, d.from).slice(1))
+  out.push(...(routes.paths[d.path] ?? []).slice(1, d.at + 1))
   out.push({ x: d.x, y: d.y - (STEP_Y - DOOR_Y) })
   return out
 }
 
-/** d'un temple à un autre, de seuil à seuil, le long du chemin principal */
+/** d'un temple à un autre, de seuil à seuil : l'allée, le chemin principal,
+ *  l'allée */
 export function walkBetween(routes: WorldRoutes, i: number, j: number): Pt[] {
   const main = routes.paths[0] ?? []
-  const a = routes.doors[i]?.at ?? 0, b = routes.doors[j]?.at ?? 0
-  return a <= b ? main.slice(a, b + 1) : main.slice(b, a + 1).reverse()
+  const a = routes.doors[i], b = routes.doors[j]
+  if (!a || !b) return []
+  const up = (d: WorldDoor) => (routes.paths[d.path] ?? []).slice(0, d.at + 1)
+  return [...up(a).reverse(), ...along(main, a.from, b.from).slice(1), ...up(b).slice(1)]
 }
+
+const along = (line: Pt[], a: number, b: number) => (a <= b ? line.slice(a, b + 1) : line.slice(b, a + 1).reverse())
 
 /* ------------------------------------------------------------------ */
 /* La carte                                                            */
@@ -577,30 +601,44 @@ function torii(): Grid {
   return g
 }
 
-/** la porte d'honneur de l'entrée, deux toits · centre en colonne 21, le
- *  pied en ligne 34 */
+/** la porte d'honneur de l'entrée, un toit courbe · centre en colonne 21,
+ *  le pied des piliers en ligne 25 (assez basse pour tenir sous le chemin
+ *  de la dernière rangée) */
 function gate(): Grid {
-  const g = new Grid(43, 36, 1, 1)
+  const g = new Grid(43, 27, 1, 1)
   const roof = '#2f5266', roofL = '#5b8aa2', roofD = '#1f3646'
-  g.vline(20, 0, 2, GOLD); g.set(20, 0, '#fff1a8')
+  g.set(20, 0, GOLD); g.hline(19, 1, 3, GOLD)
   for (let j = 0; j < 4; j++) {
-    const hw = Math.round(5 + j * 3.4)
+    const hw = Math.round(8 + j * 3.6)
     for (let x = 20 - hw; x <= 20 + hw; x++) g.set(x, 2 + j, (x + 40) % 3 === 0 ? roofD : roof)
   }
-  g.hline(2, 6, 37, roofL); g.set(1, 5, roofL); g.set(39, 5, roofL)
-  g.rect(11, 7, 19, 4, RED); g.hline(11, 10, 19, RED_D)
+  g.hline(0, 6, 41, roofL); g.set(0, 5, roofL); g.set(40, 5, roofL)
+  g.hline(5, 7, 31, RED); g.hline(5, 8, 31, RED_D)
   g.rect(16, 7, 9, 3, GOLD); g.hline(17, 8, 7, '#b8860b'); g.set(20, 8, OUTLINE)
-  for (let j = 0; j < 4; j++) {
-    const hw = Math.round(11 + j * 2.6)
-    for (let x = 20 - hw; x <= 20 + hw; x++) g.set(x, 11 + j, (x + 40) % 3 === 0 ? roofD : roof)
+  g.rect(8, 9, 3, 13, RED); g.vline(10, 9, 13, RED_D); g.vline(8, 9, 13, RED_L)
+  g.rect(30, 9, 3, 13, RED); g.vline(32, 9, 13, RED_D); g.vline(30, 9, 13, RED_L)
+  g.hline(8, 12, 25, RED); g.hline(8, 13, 25, RED_D)
+  g.rect(7, 21, 5, 3, STONE); g.hline(7, 21, 5, STONE_L)
+  g.rect(29, 21, 5, 3, STONE); g.hline(29, 21, 5, STONE_L)
+  g.outline()
+  return g
+}
+
+/** le pavillon de l'île du lac · un toit hexagonal, des piliers rouges, un
+ *  plancher de bois */
+function pavilion(): Grid {
+  const g = new Grid(21, 20, 1, 1)
+  const roof = '#7a2e2a', roofL = '#b0473c', roofD = '#4e1c1a'
+  g.set(9, 0, GOLD); g.set(9, 1, GOLD)
+  for (let j = 0; j < 5; j++) {
+    const hw = 2 + j * 2
+    for (let x = 9 - hw; x <= 9 + hw; x++) g.set(x, 2 + j, x - 9 < -hw / 2 ? roofL : (x + 20) % 3 === 0 ? roofD : roof)
   }
-  g.hline(0, 15, 41, roofL); g.set(0, 14, roofL); g.set(40, 14, roofL)
-  g.hline(5, 16, 31, RED); g.hline(5, 17, 31, RED_D)
-  g.rect(8, 16, 3, 16, RED); g.vline(10, 16, 16, RED_D); g.vline(8, 16, 16, RED_L)
-  g.rect(30, 16, 3, 16, RED); g.vline(32, 16, 16, RED_D); g.vline(30, 16, 16, RED_L)
-  g.hline(8, 22, 25, RED_D)
-  g.rect(7, 30, 5, 3, STONE); g.hline(7, 30, 5, STONE_L)
-  g.rect(29, 30, 5, 3, STONE); g.hline(29, 30, 5, STONE_L)
+  g.hline(0, 7, 19, roofL); g.set(0, 6, roofL); g.set(18, 6, roofL)
+  g.rect(2, 8, 15, 6, '#3a2a20')
+  g.rect(2, 8, 2, 7, RED); g.rect(15, 8, 2, 7, RED); g.rect(8, 8, 3, 6, '#5e3a20')
+  g.set(9, 10, '#ffd36b')
+  g.rect(0, 14, 19, 3, WOOD); g.hline(0, 14, 19, WOOD_L); g.hline(0, 16, 19, WOOD_D)
   g.outline()
   return g
 }
@@ -645,23 +683,35 @@ function stone(rad: number, moss: boolean): Grid {
 
 /* --- la carte ---------------------------------------------------------- */
 
-type FeatKind = 'pond' | 'zen' | 'park' | 'fountain' | 'bed'
+type FeatKind = 'lake' | 'pond' | 'zen' | 'park' | 'fountain' | 'bed'
 type Feat = { kind: FeatKind; x: number; y: number; w: number; h: number; v: number }
 
+/** les tailles essayées, de la plus grande à la plus petite · les poches
+ *  d'herbe entre deux temples d'une rangée font environ 100 × 44 */
 const SIZES: Record<FeatKind, [number, number][]> = {
-  pond: [[66, 38], [54, 32], [42, 26]],
-  zen: [[64, 38], [52, 32], [40, 26]],
-  park: [[60, 42], [44, 32]],
+  lake: [[170, 80], [150, 70], [130, 60], [112, 50], [100, 44], [96, 40], [88, 38]],
+  zen: [[104, 46], [100, 42], [92, 40], [84, 38], [72, 36], [60, 32], [50, 28]],
+  park: [[100, 46], [92, 42], [80, 40], [66, 36], [54, 32]],
+  pond: [[60, 34], [52, 30], [44, 26], [38, 24]],
   fountain: [[34, 30], [26, 24]],
   bed: [[22, 10], [16, 9]],
 }
+/** LES DÉCORS DUS · demandé : « On ne voit pas de parc zen ni de lac etc...
+ *  sur la carte : ajoute les ». Sur chaque carte, dans cet ordre : un grand
+ *  lac, quatre jardins zen, deux parcs, trois bassins, une fontaine ; puis,
+ *  tant qu'il reste de la place, d'autres encore. */
+const MUST: FeatKind[] = ['lake', 'zen', 'park', 'zen', 'pond', 'zen', 'park', 'pond', 'zen', 'pond', 'fountain']
+const MORE: FeatKind[] = ['zen', 'pond', 'park', 'pond', 'zen', 'park', 'fountain', 'pond']
 
 /** Le fond de la carte, w × h · herbe, chemin qui passe au pied de chaque
- *  temple dans l'ordre, une place pavée de 46 × 50 autour de chaque centre,
- *  une rivière et ses ponts rouges, des bassins (nénuphars, carpes koï, pierres
- *  de gué), des jardins zen (gravier ratissé, rochers, mousse), des parcs de
- *  cerisiers en fleurs, une fontaine, des massifs, des lanternes, des torii,
- *  et la porte d'honneur de l'entrée. */
+ *  temple dans l'ordre et une courte allée jusqu'à chaque porte (le temple se
+ *  tient sur l'herbe), une rivière et ses ponts rouges, un grand lac (île,
+ *  pavillon, pont, carpes koï), des bassins (nénuphars, pierres de gué), des
+ *  jardins zen (gravier ratissé autour des rochers, mousse, lanterne, mur
+ *  bas et palissade de bambou), des parcs de cerisiers (allée de gravier,
+ *  bancs, lanternes), une fontaine, des massifs, des torii, et la porte
+ *  d'honneur de l'entrée. Rien ne se pose sur un temple, sur le chemin ni
+ *  sous les noms. */
 export function drawWorld(w: number, h: number, spots: { x: number; y: number }[], seed: number): Grid {
   const g = new Grid(w, h)
   const r = rng(seed * 2246822519 + 3266489917)
@@ -704,7 +754,7 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     g.set(x, y, '#8ee070')
   }
 
-  // 2. les masques · places, chemin, abords du chemin, cartouches des noms
+  // 2. les masques · emprises des temples, chemin, abords, cartouches des noms
   const plaza = new Mask(w, h)
   const path = new Mask(w, h)
   const near = new Mask(w, h)
@@ -713,12 +763,21 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     plaza.rect(Math.round(s.x - PW / 2), Math.round(s.y - PH / 2), PW, PH)
     label.rect(Math.round(s.x - 46), Math.round(s.y - PH / 2 - 24), 92, 24)
   }
-  for (const line of plan.paths) {
+  plan.paths.forEach((line, li) => {
+    const rad = li >= 2 ? 3 : 4.5
     for (let i = 0; i < line.length; i++) {
       const a = line[i], b = line[i + 1] ?? a
       const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 1.5))
-      for (let k = 0; k < n; k++) path.disc(a.x + ((b.x - a.x) * k) / n, a.y + ((b.y - a.y) * k) / n, 4.5)
+      for (let k = 0; k < n; k++) path.disc(a.x + ((b.x - a.x) * k) / n, a.y + ((b.y - a.y) * k) / n, rad)
       if (i % 2 === 0 || i === line.length - 1) near.disc(a.x, a.y, 11)
+    }
+  })
+  // l'allée se glisse jusque sous la porte ; l'ombre du temple sur l'herbe
+  for (const s of spots) {
+    path.disc(s.x, s.y + DOOR_Y + 2, 3)
+    for (let x = -18; x <= 18; x++) {
+      g.set(s.x + x, s.y + 18, '#3f8f38')
+      if (Math.abs(x) < 16) g.set(s.x + x, s.y + 19, '#4a9e3e')
     }
   }
 
@@ -785,11 +844,15 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     let wet = false
     for (let k = leg.from; k <= leg.to; k++) if (inRiver(main[k].x, main[k].y, 14)) wet = true
     if (wet) continue
-    const span = leg.to - leg.from
-    let bk = -1, bdx = 9
-    for (let k = leg.from + Math.floor(span * 0.3); k <= leg.to - Math.floor(span * 0.3); k++) {
+    const span = leg.to - leg.from, mid = (leg.from + leg.to) / 2
+    let bk = -1, bdx = Infinity
+    for (let k = leg.from + Math.floor(span * 0.2); k <= leg.to - Math.floor(span * 0.2); k++) {
       const dx = Math.abs(main[Math.min(leg.to, k + 1)].x - main[Math.max(leg.from, k - 1)].x)
-      if (dx < bdx) { bdx = dx; bk = k }
+      if (dx > 2.5) continue
+      const x = Math.round(main[k].x) - 13, y = Math.round(main[k].y) - 15
+      if (label.anyIn(x, y, 27, 21) || plaza.anyIn(x, y, 27, 21)) continue
+      const sc = Math.abs(k - mid) + dx * 4
+      if (sc < bdx) { bdx = sc; bk = k }
     }
     if (bk >= 0) toriiAt.push(main[bk])
   }
@@ -797,7 +860,7 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   toriiAt.forEach((p, i) => {
     if (toriiAt.length > 3 && i % 2 === 1) return
     const x = Math.round(p.x) - 13, y = Math.round(p.y) - 15
-    if (plaza.anyIn(x, y, tg.w, tg.h)) return
+    if (plaza.anyIn(x, y, tg.w, tg.h) || label.anyIn(x, y, tg.w, tg.h)) return
     addSprite(x, y, tg)
     solid.rect(x, y, tg.w, tg.h)
   })
@@ -806,15 +869,15 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   let gateY = -1
   if (branch && spots.length) {
     let gi = 0
-    for (let i = 0; i < branch.length; i++) if (Math.abs(branch[i].y - (h - 11)) < Math.abs(branch[gi].y - (h - 11))) gi = i
+    for (let i = 0; i < branch.length; i++) if (Math.abs(branch[i].y - (h - 8)) < Math.abs(branch[gi].y - (h - 8))) gi = i
     const gp = branch[gi]
     const gx = Math.round(gp.x), gy = Math.round(gp.y)
-    const top = gy - 33
-    if (!plaza.anyIn(gx - 21, top, 43, 36) && !water.anyIn(gx - 21, top, 43, 36) && gy > h - 20) {
+    const top = gy - 23
+    if (!plaza.anyIn(gx - 21, top, 43, 27) && !water.anyIn(gx - 21, top, 43, 27) && gy > h - 20) {
       gateY = gy
       const gg = gate()
-      addSprite(gx - 21, gy + 3 - 34, gg, 0.5)
-      solid.rect(gx - 21, top, 43, 37)
+      addSprite(gx - 21, gy - 23, gg, 0.5)
+      solid.rect(gx - 21, top, 43, 27)
       // le mur, de la porte vers chaque bord, tant que rien ne l'arrête
       const segs: [number, number][] = []
       const wy0 = gy - 7, wy1 = gy + 2
@@ -860,9 +923,12 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   const byPath = (x: number, y: number, fw: number, fh: number) =>
     near.get(x - 6, y + fh / 2) || near.get(x + fw + 6, y + fh / 2) || near.get(x + fw / 2, y - 6) || near.get(x + fw / 2, y + fh + 6)
   const feats: Feat[] = []
+  // le bas de la deuxième rangée de temples
+  const ys = [...new Set(spots.map((s) => s.y))].sort((a, b) => a - b)
+  const topRows = (ys[1] ?? ys[0] ?? h / 2) + 30
   // LA RECHERCHE · pour chaque taille, la liste des positions libres, et pour
   // chacune la distance au décor le plus proche, tenue à jour à chaque pose
-  type Cands = { kind: FeatKind; fw: number; fh: number; xy: Int32Array; alive: Uint8Array; dAll: Float32Array; dSame: Float32Array; base: Float32Array }
+  type Cands = { kind: FeatKind; fw: number; fh: number; xy: Int32Array; alive: Uint8Array; dAll: Float32Array; dSame: Float32Array; base: Float32Array; top: Uint8Array }
   const candsOf = new Map<string, Cands>()
   const apply = (c: Cands, f: Feat) => {
     const gap = c.kind === 'bed' ? 6 : 10
@@ -885,22 +951,24 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     const st = kind === 'bed' ? 6 : 5
     for (let y = 6; y + fh <= h - 6; y += st) for (let x = 6; x + fw <= w - 6; x += st) if (!free(x, y, fw, fh)) out.push(x, y)
     const n = out.length / 2
-    c = { kind, fw, fh, xy: Int32Array.from(out), alive: new Uint8Array(n).fill(1), dAll: new Float32Array(n).fill(260 * 260), dSame: new Float32Array(n).fill(1e9), base: new Float32Array(n) }
+    c = { kind, fw, fh, xy: Int32Array.from(out), alive: new Uint8Array(n).fill(1), dAll: new Float32Array(n).fill(260 * 260), dSame: new Float32Array(n).fill(1e9), base: new Float32Array(n), top: new Uint8Array(n) }
     for (let k = 0; k < n; k++) {
       const x = out[2 * k], y = out[2 * k + 1], cx = x + fw / 2, cy = y + fh / 2
       c.base[k] = cellHash(x, y + fw) * 30 + Math.min(cx, w - cx, cy, h - cy) * 0.3 + (kind === 'bed' && byPath(x, y, fw, fh) ? 120 : 0)
+      c.top[k] = cy < topRows ? 1 : 0
     }
     for (const f of feats) apply(c, f)
     candsOf.set(key, c)
     return c
   }
-  const tryPlace = (kind: FeatKind): boolean => {
+  const tryPlace = (kind: FeatKind, top = false): boolean => {
     for (const [fw, fh] of SIZES[kind]) {
       const c = candsFor(kind, fw, fh)
       let best = -Infinity, bk = -1
       for (let k = 0, n = c.alive.length; k < n; k++) {
         if (!c.alive[k]) continue
-        const s = c.base[k] + Math.sqrt(Math.min(c.dAll[k], c.dSame[k] * 0.3025))
+        // le premier jardin zen se voit dès les deux premières rangées
+        const s = c.base[k] + Math.sqrt(Math.min(c.dAll[k], c.dSame[k] * 0.3025)) + (top && c.top[k] ? 1000 : 0)
         if (s > best) { best = s; bk = k }
       }
       if (bk >= 0) {
@@ -912,16 +980,17 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     }
     return false
   }
-  const cycle: FeatKind[] = ['pond', 'zen', 'fountain', 'park', 'pond', 'zen', 'park', 'pond', 'zen', 'park', 'pond', 'zen', 'park', 'fountain', 'park', 'pond']
-  for (const kind of cycle) {
-    if (feats.length >= Math.max(3, Math.round((w * h) / 26000))) break
+  MUST.forEach((kind, i) => tryPlace(kind, i === 1))
+  const cap = Math.max(MUST.length, Math.round((w * h) / 24000))
+  for (const kind of MORE) {
+    if (feats.length >= cap) break
     tryPlace(kind)
   }
   const beds = Math.round((w * h) / 50000)
   for (let i = 0; i < beds; i++) if (!tryPlace('bed')) break
   for (const f of feats) {
     if (f.kind === 'park') continue
-    if (f.kind === 'pond') solid.rect(f.x + 4, f.y + 4, f.w - 8, f.h - 8)
+    if (f.kind === 'pond' || f.kind === 'lake') solid.rect(f.x + 4, f.y + 4, f.w - 8, f.h - 8)
     else solid.rect(f.x, f.y, f.w, f.h)
   }
 
@@ -930,46 +999,42 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   const pondRim = new Mask(w, h)
   const petals: Pt[] = []
   if (river) paintRiver(g, w, h, river, rdist, water, path, r)
-  for (const f of feats) if (f.kind === 'pond') paintPond(g, f, pondW, pondRim, r, sprites)
+  for (const f of feats) if (f.kind === 'pond' || f.kind === 'lake') paintPond(g, f, pondW, pondRim, r, sprites, f.kind === 'lake')
   // le chemin de terre (le pont recouvre la traversée)
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const i = y * w + x
-    if (!path.a[i] || plaza.a[i] || rdist[i] <= RB) continue
+    if (!path.a[i] || rdist[i] <= RB) continue
     g.set(x, y, path.edge(x, y) ? DIRT_D : DIRT)
   }
   for (let i = 0; i < (w * h) / 70; i++) {
     const x = Math.floor(r() * w), y = Math.floor(r() * h)
     if (path.get(x, y) && !path.edge(x, y) && !plaza.get(x, y) && rdist[y * w + x] > RB) g.set(x, y, r() < 0.5 ? '#c9a465' : '#ecd29c')
   }
-  for (const b of bridges) paintBridge(g, b.pts, b.vertical, (x, y) => water.get(x, y) === 1)
-  // les places pavées
+  // deux pierres plates sur chaque allée, au pied de la porte
   for (const s of spots) {
-    const x0 = Math.round(s.x - PW / 2), y0 = Math.round(s.y - PH / 2)
-    for (let j = 0; j < PH; j++) for (let i = 0; i < PW; i++) {
-      const corner = (i < 3 || i > PW - 4) && (j < 3 || j > PH - 4) && Math.hypot(Math.min(i, PW - 1 - i) - 3, Math.min(j, PH - 1 - j) - 3) > 3
-      if (corner) continue
-      const border = i === 0 || j === 0 || i === PW - 1 || j === PH - 1
-      let c = (Math.floor(i / 6) + Math.floor(j / 4)) % 2 ? '#dcd6c4' : '#d2cbb8'
-      if (i % 6 === 0 || j % 4 === 0) c = '#bdb5a0'
-      if (border) c = '#8f8775'
-      g.set(x0 + i, y0 + j, c)
+    for (const dy of [STEP_Y + 1, STEP_Y + 5]) {
+      g.hline(s.x - 2, s.y + dy, 5, STONE_L); g.hline(s.x - 2, s.y + dy + 1, 5, STONE_D)
+      g.set(s.x - 3, s.y + dy, DIRT_D); g.set(s.x + 3, s.y + dy, DIRT_D)
     }
   }
+  for (const b of bridges) paintBridge(g, b.pts, b.vertical, (x, y) => water.get(x, y) === 1)
   // les jardins zen, la fontaine, les massifs
   let zenN = 0
+  const walk = new Mask(w, h)
   for (const f of feats) {
-    if (f.kind === 'zen') paintZen(g, f, r, zenN++)
+    if (f.kind === 'zen') paintZen(g, f, r, zenN++, P.lantern())
     else if (f.kind === 'fountain') paintFountain(g, f, r)
     else if (f.kind === 'bed') paintBed(g, f, r)
+    else if (f.kind === 'park') paintParkWalk(g, f, walk)
   }
 
   // 7. les arbres et les objets · près des décors d'abord, puis la forêt
   const wet = (x: number, y: number, ww: number, hh: number) =>
-    water.anyIn(x, y, ww, hh) || bank.anyIn(x, y, ww, hh) || pondW.anyIn(x, y, ww, hh) || pondRim.anyIn(x, y, ww, hh)
+    water.anyIn(x, y, ww, hh) || bank.anyIn(x, y, ww, hh) || pondW.anyIn(x, y, ww, hh) || pondRim.anyIn(x, y, ww, hh) || walk.anyIn(x, y, ww, hh)
   const place = (x: number, y: number, sg: Grid, foot = 5): boolean => {
     const bx = x + 1, by = y + 1, bw = sg.w - 2, bh = sg.h - 2
     if (bx < -5 || bx + bw > w + 5 || by < -8 || by + bh > h + 1) return false
-    if (solid.anyIn(bx, by, bw, bh) || plaza.anyIn(bx - 1, by - 1, bw + 2, bh + 2) || path.anyIn(bx, by, bw, bh)) return false
+    if (solid.anyIn(bx, by, bw, bh) || plaza.anyIn(bx - 1, by - 1, bw + 2, bh + 2) || path.anyIn(bx, by, bw, bh) || label.anyIn(bx, by, bw, bh)) return false
     const fy = by + bh - foot
     if (wet(bx + 1, fy, bw - 2, foot) || busy.anyIn(bx + 1, fy, bw - 2, foot)) return false
     busy.rect(bx + 1, by + 1, bw - 2, bh - 2)
@@ -1004,30 +1069,28 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
       }
     }
     if (f.kind === 'park') {
+      // les bancs au bord de l'allée, en haut et en bas ; une lanterne de
+      // chaque côté ; puis les cerisiers, dedans et autour
+      const cx = f.x + f.w / 2, bg = P.bench()
+      for (const [bx, by] of [[cx - 6 - f.w * 0.18, f.y + 1], [cx - 6 + f.w * 0.18, f.y + f.h - 8]]) {
+        for (let t = 0; t < 6; t++) if (place(Math.round(bx + (t % 3) * 4 - 4), Math.round(by), bg, 3)) break
+      }
+      for (const lx of [f.x + 1, f.x + f.w - 9]) {
+        for (let t = 0; t < 6; t++) if (place(lx, Math.round(f.y + f.h / 2 - 12 + t * 2), P.lantern(), 4)) break
+      }
       const maple = f.v % 3 === 2
-      // les arbres du parc, en quinconce
-      for (let t = 0; t < 40; t++) {
-        const sg = maple ? P.maple() : P.cherry()
-        const x = f.x + Math.floor(r() * (f.w - 14)) - 3, y = f.y + Math.floor(r() * (f.h - 10)) - 8
+      for (let t = 0; t < 50; t++) {
+        const sg = maple && t % 2 ? P.maple() : P.cherry()
+        const x = f.x + Math.floor(r() * (f.w + 8)) - 14, y = f.y + Math.floor(r() * (f.h + 6)) - 16
         placeTree(x, y, sg)
       }
-      const bg = P.bench()
-      for (let t = 0; t < 20; t++) {
-        const x = f.x + Math.floor(r() * (f.w - 12)), y = f.y + f.h - 8 + Math.floor(r() * 4)
-        if (place(x, y, bg, 4)) break
-      }
-      for (let t = 0; t < 20; t++) {
-        const x = f.x + Math.floor(r() * (f.w - 8)), y = f.y + Math.floor(r() * (f.h - 12))
-        if (place(x, y, P.lantern(), 4)) break
-      }
-      for (let i = 0; i < 4; i++) petals.push({ x: f.x + r() * f.w, y: f.y + r() * f.h })
+      for (let i = 0; i < 6; i++) petals.push({ x: f.x + r() * f.w, y: f.y + r() * f.h })
     } else if (f.kind === 'zen') {
-      around(() => P.lantern(), 12, 1)
       around(() => P.pine(), 14, 1)
       around(() => (f.v % 2 ? P.cherry() : P.maple()), 14, 1)
       around(() => P.bamboo(), 10, 1)
-    } else if (f.kind === 'pond') {
-      around(() => (f.v % 2 ? P.maple() : P.cherry()), 16, 2)
+    } else if (f.kind === 'pond' || f.kind === 'lake') {
+      around(() => (f.v % 2 ? P.maple() : P.cherry()), 16, f.kind === 'lake' ? 4 : 2)
       around(() => P.lantern(), 12, 1)
       around(() => P.bigRock(), 10, 1)
     } else if (f.kind === 'fountain') {
@@ -1258,17 +1321,28 @@ function koi(g: Grid, x: number, y: number, white: boolean, vertical: boolean) {
 
 /* --- un bassin ----------------------------------------------------------- */
 
-function paintPond(g: Grid, f: Feat, pondW: Mask, pondRim: Mask, r: () => number, sprites: { x: number; y: number; g: Grid; z: number }[]) {
+/** un bassin, ou le grand lac (`lake`) : une île au pavillon rouge reliée à
+ *  la rive par un pont, des carpes koï en nombre */
+function paintPond(g: Grid, f: Feat, pondW: Mask, pondRim: Mask, r: () => number, sprites: { x: number; y: number; g: Grid; z: number }[], lake = false) {
   const cx = f.x + f.w / 2, cy = f.y + f.h / 2
   const rx = f.w / 2 - 4, ry = f.h / 2 - 4
   const a1 = r() * 6.28, a2 = r() * 6.28
+  const fill = lake ? 0.92 : 0.82
   const inside = (x: number, y: number) => {
     const dx = (x - cx) / rx, dy = (y - cy) / ry
     const th = Math.atan2(dy, dx)
-    return dx * dx + dy * dy <= 0.82 + 0.12 * Math.sin(th * 2 + a1) + 0.07 * Math.sin(th * 3 + a2)
+    return dx * dx + dy * dy <= fill + 0.12 * Math.sin(th * 2 + a1) + 0.07 * Math.sin(th * 3 + a2)
   }
   const m = new Mask(f.w, f.h)
   for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) if (inside(f.x + x, f.y + y)) m.set(x, y)
+  // l'île du lac, ôtée de l'eau : la margelle l'entoure d'elle-même
+  const irx = Math.max(10, rx * 0.3), iry = Math.max(6.5, ry * 0.42)
+  const icx = Math.round(cx - rx * 0.25), icy = Math.round(cy - ry * 0.15)
+  if (lake) {
+    for (let y = Math.floor(icy - iry); y <= icy + iry; y++) for (let x = Math.floor(icx - irx); x <= icx + irx; x++) {
+      if (((x - icx) / irx) ** 2 + ((y - icy) / iry) ** 2 <= 1) m.a[(y - f.y) * f.w + (x - f.x)] = 0
+    }
+  }
   // la margelle de pierres, la ligne sombre, puis l'eau
   // la distance (en carrés) à l'eau, en deux passes : ligne puis colonne
   const W2 = f.w + 2, H2 = f.h + 2
@@ -1316,8 +1390,19 @@ function paintPond(g: Grid, f: Feat, pondW: Mask, pondRim: Mask, r: () => number
     const x = Math.floor(r() * f.w), y = Math.floor(r() * f.h)
     if (m.get(x, y) && m.get(x + 2, y) && !m.edge(x, y, 2)) g.hline(f.x + x, f.y + y, 3, WATER_L)
   }
-  // les pierres de gué en travers, ou un petit pont rouge
-  if (f.v % 2 === 0) {
+  // le pavillon sur l'île et le pont vers la rive du bas · ou, pour un
+  // bassin, des pierres de gué en travers, ou un petit pont rouge
+  if (lake) {
+    const pg = pavilion()
+    sprites.push({ x: icx - 10, y: icy + 2 - 17, g: pg, z: icy + 3 })
+    let y1 = Math.ceil(icy + iry)
+    while (y1 < f.y + f.h && (m.get(icx - f.x, y1 - f.y) || !m.get(icx - f.x, y1 + 1 - f.y)) && y1 < icy + iry + 3) y1++
+    let y2 = y1
+    while (y2 < f.y + f.h - 1 && m.get(icx - f.x, y2 - f.y)) y2++
+    const pts: Pt[] = []
+    for (let y = Math.round(icy + iry - 3); y <= y2 + 3; y += 2) pts.push({ x: icx, y })
+    paintBridge(g, pts, true, (x, y) => pondW.get(x, y) === 1)
+  } else if (f.v % 2 === 0) {
     const n = Math.max(3, Math.round(rx / 7))
     for (let k = 0; k < n; k++) {
       const sx = cx - rx * 0.75 + (k * rx * 1.5) / (n - 1), sy = cy + (k % 2 ? 2 : -1)
@@ -1337,10 +1422,10 @@ function paintPond(g: Grid, f: Feat, pondW: Mask, pondRim: Mask, r: () => number
     if (Math.abs(f.y + y - cy) < 4) continue
     lily(g, f.x + x, f.y + y, r)
   }
-  for (let i = 0; i < 3; i++) {
-    for (let t = 0; t < 10; t++) {
+  for (let i = 0; i < (lake ? 8 : 3); i++) {
+    for (let t = 0; t < 14; t++) {
       const x = Math.floor(r() * f.w), y = Math.floor(r() * f.h)
-      if (!m.get(x - 2, y) || !m.get(x + 3, y) || m.edge(x, y, 2) || Math.abs(f.y + y - cy) < 4) continue
+      if (!m.get(x - 2, y) || !m.get(x + 3, y) || m.edge(x, y, 2) || (!lake && Math.abs(f.y + y - cy) < 4) || (lake && Math.abs(f.x + x - icx) < 9)) continue
       koi(g, f.x + x, f.y + y, i === 1, false)
       break
     }
@@ -1405,44 +1490,88 @@ function paintBridge(g: Grid, pts: Pt[], vertical: boolean, isWater: (x: number,
 
 /* --- un jardin zen ------------------------------------------------------- */
 
-function paintZen(g: Grid, f: Feat, r: () => number, n: number) {
+/** un jardin sec (karesansui) · un mur bas couvert de tuiles au fond, une
+ *  palissade de bambou sur les trois autres côtés, le gravier blanc ratissé
+ *  en lignes ondulées et en cercles autour des rochers, de la mousse, une
+ *  lanterne de pierre dans un coin */
+function paintZen(g: Grid, f: Feat, r: () => number, n: number, lantern: Grid) {
   const x0 = f.x, y0 = f.y, x1 = f.x + f.w - 1, y1 = f.y + f.h - 1
-  // les rochers, posés en triangle déséquilibré
-  const count = 1 + ((n + Math.floor(r() * 3)) % 3)
-  const anchors: [number, number][] = [[0.3, 0.42], [0.7, 0.6], [0.52, 0.3]]
-  const rocks = anchors.slice(0, count).map(([ax, ay], i) => ({
-    x: x0 + f.w * ax + (r() - 0.5) * 6, y: y0 + f.h * ay + (r() - 0.5) * 4, rad: i === 0 ? 3.6 : 2.6 + r() * 0.8,
+  const gy0 = y0 + 5, gy1 = y1 - 3, gx0 = x0 + 2, gx1 = x1 - 2
+  const left = n % 2 === 0 // la lanterne à gauche, les rochers à droite
+  const big = f.w >= 80
+  const anchors: [number, number, number][] = [[0.36, 0.48, 4.2], [0.44, 0.66, 2.4], [0.7, 0.42, 3.4], [0.62, 0.74, 2.2], [0.86, 0.62, 2.6]]
+  const count = big ? 3 + (n % 3) : 2 + (n % 2)
+  const rocks = anchors.slice(0, count).map(([ax, ay, rad]) => ({
+    x: gx0 + (gx1 - gx0) * (left ? ax : 1 - ax) + (r() - 0.5) * 4,
+    y: gy0 + (gy1 - gy0) * ay + (r() - 0.5) * 3,
+    rad: big ? rad : rad * 0.8,
   }))
   const phase = r() * 10
-  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-    const bx = Math.min(x - x0, x1 - x), by = Math.min(y - y0, y1 - y)
-    if (bx === 0 || by === 0) { g.set(x, y, '#4a3626'); continue }
-    if (bx === 1 || by === 1) { g.set(x, y, by === 1 && y - y0 === 1 ? '#b08a5c' : '#8a6a4a'); continue }
+  // le gravier et ses lignes
+  for (let y = gy0; y <= gy1; y++) for (let x = gx0; x <= gx1; x++) {
     let dmin = 99
-    for (const k of rocks) dmin = Math.min(dmin, Math.hypot(x - k.x, (y - k.y) * 1.35) - k.rad)
+    for (const k of rocks) { const d = Math.hypot(x - k.x, (y - k.y) * 1.35) - k.rad; if (d < dmin) dmin = d }
     let line: boolean
-    if (dmin < 10) line = dmin > 1.5 && Math.round(dmin) % 3 === 0
-    else line = (y + Math.round(Math.sin((x + phase) / 5) * 1.2)) % 3 === 0
-    let c = line ? '#bdb197' : '#f4f0e6'
+    if (dmin < 11) line = dmin > 1.5 && Math.round(dmin) % 3 === 0
+    else line = (y + Math.round(Math.sin((x + phase) / 5) * 1.3)) % 3 === 0
+    let c = line ? '#b5a98e' : '#f4f0e6'
     if (!line && cellHash(x, y) < 0.06) c = '#e2dccd'
     g.set(x, y, c)
   }
-  // la mousse · une île au pied du grand rocher, et un coin
+  // le mur du fond · tuiles, plâtre, poteaux
+  for (let x = x0; x <= x1; x++) {
+    g.set(x, y0, '#5b8aa2')
+    g.set(x, y0 + 1, (x % 3 === 0) ? '#1f3646' : '#2f5266')
+    g.set(x, y0 + 2, '#1f3646')
+    const post = (x - x0) % 14 === 7
+    g.set(x, y0 + 3, post ? WOOD_D : '#f4ead8')
+    g.set(x, y0 + 4, post ? WOOD_D : '#d8ccb4')
+  }
+  // la palissade de bambou · les côtés, puis le devant
+  const BAM = '#d9c27a', BAM_D = '#9a8040', BAM_K = '#6e5c2a'
+  for (let y = y0 + 3; y <= y1; y++) {
+    for (const [xo, xi] of [[x0, x0 + 1], [x1, x1 - 1]]) {
+      g.set(xo, y, BAM_K)
+      g.set(xi, y, (y - y0) % 4 === 0 ? BAM_D : BAM)
+    }
+  }
+  for (let x = x0; x <= x1; x++) {
+    g.set(x, y1 - 2, (x - x0) % 6 === 0 ? BAM_D : BAM)
+    g.set(x, y1 - 1, (x - x0) % 3 === 0 ? BAM_K : BAM)
+    g.set(x, y1, OUTLINE)
+  }
+  for (const x of [x0 - 1, x1 + 1]) for (let y = y0; y <= y1; y++) g.set(x, y, OUTLINE)
+  g.hline(x0, y0 - 1, f.w, OUTLINE)
+  // la mousse · au pied des grands rochers, et dans le coin opposé à la lanterne
   const mossAt = (mx: number, my: number, mrx: number, mry: number) => {
     for (let y = Math.floor(my - mry); y <= my + mry; y++) for (let x = Math.floor(mx - mrx); x <= mx + mrx; x++) {
-      if (x <= x0 + 1 || x >= x1 - 1 || y <= y0 + 1 || y >= y1 - 1) continue
+      if (x < gx0 || x > gx1 || y < gy0 || y > gy1) continue
       const d = ((x - mx) / mrx) ** 2 + ((y - my) / mry) ** 2
       if (d > 1 - cellHash(x, y) * 0.25) continue
       g.set(x, y, d > 0.7 ? '#3d7e2e' : cellHash(y, x) < 0.25 ? '#7cc458' : '#559a3a')
     }
   }
-  const k0 = rocks[0]
-  mossAt(k0.x, k0.y + 1.5, k0.rad + 3, k0.rad + 1)
-  const corner = Math.floor(r() * 4)
-  mossAt(corner % 2 ? x1 - 5 : x0 + 6, corner < 2 ? y0 + 5 : y1 - 4, 6, 3.5)
+  for (const k of rocks.filter((_, i) => i % 2 === 0)) mossAt(k.x, k.y + 1.5, k.rad + 3, k.rad + 1.2)
+  mossAt(left ? gx1 - 6 : gx0 + 6, gy0 + 3, 7, 3.5)
   for (const k of rocks) {
-    const sg = stone(k.rad, k === k0)
+    const sg = stone(k.rad, k.rad > 3)
     g.blit(sg, Math.round(k.x - sg.w / 2), Math.round(k.y - sg.h / 2))
+  }
+  // la lanterne, dans un coin du devant
+  g.blit(lantern, left ? gx0 : gx1 - 8, gy1 - 13)
+}
+
+/** l'allée de gravier d'un parc · un ovale où l'on se promène, et que les
+ *  troncs évitent */
+function paintParkWalk(g: Grid, f: Feat, walk: Mask) {
+  const cx = f.x + f.w / 2 - 0.5, cy = f.y + f.h / 2 - 0.5
+  const rx = f.w / 2 - 6, ry = f.h / 2 - 6
+  for (let y = f.y; y < f.y + f.h; y++) for (let x = f.x; x < f.x + f.w; x++) {
+    const d = Math.hypot((x - cx) / rx, (y - cy) / ry)
+    const band = Math.abs(d - 1) * Math.min(rx, ry)
+    if (band > 2) continue
+    g.set(x, y, band > 1.3 ? '#c9b58a' : cellHash(x, y) < 0.15 ? '#d6c69c' : '#ecdfb8')
+    walk.set(x, y)
   }
 }
 

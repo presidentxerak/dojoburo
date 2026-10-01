@@ -180,3 +180,11 @@ create table if not exists community_room_messages (
   created_at   timestamptz not null default now()
 );
 create index if not exists community_room_messages_room_idx on community_room_messages (room, created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- LOT 9 · LE GRADE DES MEMBRES · demandé : « ajoute le classement des membres
+-- avec leur grade ». La ceinture de l'élève (game/ranks), envoyée par son
+-- navigateur quand il ouvre la communauté ou un temple. Elle se montre, elle
+-- ne donne aucun droit.
+alter table community_members add column if not exists grade text
+  check (grade is null or grade in ('white', 'yellow', 'orange', 'green', 'blue', 'brown', 'black'));

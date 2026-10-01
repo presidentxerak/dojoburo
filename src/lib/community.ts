@@ -28,7 +28,7 @@ export interface CMember {
   online: boolean
 }
 
-export interface BoardRow { handle: string; name: string; level: number; points: number }
+export interface BoardRow { handle: string; name: string; level: number; points: number; grade?: string | null }
 
 /** Les neuf niveaux · recopiés de api/_lib/community.ts (voir l'épreuve). */
 export const LEVEL_POINTS = [0, 5, 20, 65, 155, 515, 2015, 8015, 33015] as const
@@ -115,7 +115,7 @@ export function fetchMembers(page = 0, q = '') {
 export const fetchMember = (handle: string) =>
   call<{ member: CMember & { posts: number; comments: number; me: boolean }; posts: CPost[] }>(`/api/community?action=member&id=${encodeURIComponent(handle)}`)
 export const fetchLeaderboard = () =>
-  call<{ week: BoardRow[]; month: BoardRow[]; all: BoardRow[]; me: { points: number; level: number; next: number | null } | null }>('/api/community?action=leaderboard')
+  call<{ week: BoardRow[]; month: BoardRow[]; all: BoardRow[]; grades?: BoardRow[]; me: { points: number; level: number; next: number | null } | null }>('/api/community?action=leaderboard')
 export const editProfile = (p: { name: string; bio: string; emailNotify?: boolean; lang?: string }) => post<{ member: { name: string; bio: string } }>('profile', p)
 
 export const joinCommunity = (name: string, lang: string) => post<{ member: { name: string } }>('join', { name, lang })
@@ -212,6 +212,8 @@ export interface Student { floor: string; handle: string; name: string; level: n
 export interface RoomMessage { id: string; body: string; createdAt: string; mine: boolean; author: { name: string; handle: string; level: number; avatar: unknown } }
 
 export const sendPresence = (pack: string, floor: string, avatar: unknown) => post<{ ok: true }>('here', { pack, floor, avatar })
+/** la ceinture de l'élève, montrée dans les classements · voir game/ranks */
+export const sendGrade = (grade: string) => post<{ ok: true }>('grade', { grade })
 export const fetchPresence = (pack: string) => call<{ students: Student[] }>(`/api/community?action=presence&pack=${encodeURIComponent(pack)}`)
 export const fetchRoom = (room: string) => call<{ messages: RoomMessage[] }>(`/api/community?action=room&id=${encodeURIComponent(room)}`)
 export const postRoom = (room: string, body: string) => post<{ id: string }>('room-post', { room, body })

@@ -339,6 +339,10 @@ export function pollView(options: string[], votes: { option: number; n: number }
 export const SLUG = /^[a-z0-9-]{2,60}$/
 export const FLOOR = /^[a-z0-9-]{1,60}$/
 export const PRESENCE_WINDOW_S = 90
+/** les ceintures des élèves, de la blanche à la noire · voir game/ranks */
+export const GRADES = ['white', 'yellow', 'orange', 'green', 'blue', 'brown', 'black'] as const
+export const cleanGrade = (v: unknown): string | null =>
+  typeof v === 'string' && (GRADES as readonly string[]).includes(v) ? v : null
 export const ROOM_LIMITS = { body: { min: 1, max: 1000 } } as const
 
 /** La fiche d'un personnage, telle qu'on accepte de la ranger · un objet plat

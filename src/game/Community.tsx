@@ -31,6 +31,10 @@ import { say, type Bi } from '../data/bilingual'
 import { useAccount, signIn } from '../lib/account'
 import { packPath, FREE_PACK } from '../data/packs'
 import { Shell } from './Shell'
+import { PromptLibrary, ResourceLibrary, WinsIntro } from './CommunityLibrary'
+import { RANKS, rankOf } from './ranks'
+import { levelOf } from './Gauge'
+import { useGame } from './progress'
 import { embedsIn, EMBED_LABEL, type Embed } from '../lib/embeds'
 import { CT, CATEGORY_LABEL } from './communityText'
 import {
@@ -40,7 +44,7 @@ import {
   votePoll, encodeMentions, decodeMentions, MENTION_TOKEN, type PollView,
   fetchUnread, fetchNotifications, markNotificationsRead, fetchConversations, fetchThread, sendMessage,
   type CNotification, type CConversation, type CMessage, type Peer,
-  type CEvent, type CPost, type CComment, type CError, type CommunityCategory, type Author, type CMember, type BoardRow, type MeData,
+  type CEvent, type CPost, type CComment, type CError, type CommunityCategory, type Author, type CMember, type BoardRow, type MeData, sendGrade,
 } from '../lib/community'
 
 function useSay() {
@@ -75,9 +79,17 @@ export function CommunityPage() {
   const notifTab = path === '/clan/notifications'
   const msgMatch = path.match(/^\/clan\/messages(?:\/([0-9a-f-]{36}))?$/i)
   const msgTab = !!msgMatch
-  const feedTab = !about && !membersTab && !boards && !memberId && !calendarTab && !notifTab && !msgTab
+  // LA BIBLIOTHÈQUE ET LES RÉUSSITES · des prompts originaux, des ressources
+  // gratuites vérifiées, et les réussites que les membres publient eux-mêmes
+  const promptsTab = path === '/clan/prompts'
+  const resourcesTab = path === '/clan/ressources'
+  const winsTab = path === '/clan/reussites'
+  const feedTab = !about && !membersTab && !boards && !memberId && !calendarTab && !notifTab && !msgTab && !promptsTab && !resourcesTab && !winsTab
   const TABS: { href: string; on: boolean; label: Bi }[] = [
     { href: '/clan', on: feedTab, label: CT.tabFeed },
+    { href: '/clan/prompts', on: promptsTab, label: CT.tabPrompts },
+    { href: '/clan/ressources', on: resourcesTab, label: CT.tabResources },
+    { href: '/clan/reussites', on: winsTab, label: CT.tabWins },
     { href: '/clan/calendrier', on: calendarTab, label: CT.tabCalendar },
     { href: '/clan/membres', on: membersTab || !!memberId, label: CT.tabMembers },
     { href: '/clan/classements', on: boards, label: CT.tabBoards },
@@ -87,6 +99,10 @@ export function CommunityPage() {
   useHeadTags({ title: `${s(CT.title)} · DojoBuro`, description: s(CT.lead), path: '/clan' })
 
   const me = useMember()
+  // LA CEINTURE DE L'ÉLÈVE · envoyée à la communauté pour son classement
+  const game = useGame()
+  const grade = rankOf(levelOf(game.xp).level).id
+  useEffect(() => { if (me.data) void sendGrade(grade) }, [me.data?.handle, grade]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Shell>
@@ -104,7 +120,10 @@ export function CommunityPage() {
 
       <div className="cy-layout">
         <div className="cy-main">
-          {about ? <About />
+          {promptsTab ? <PromptLibrary />
+            : resourcesTab ? <ResourceLibrary />
+            : winsTab ? <><WinsIntro /><Feed me={me} initialCat="wins" /></>
+            : about ? <About />
             : notifTab ? <Notifications me={me} />
             : msgTab ? <Messages me={me} peer={msgMatch?.[1] ?? null} />
             : calendarTab ? <Calendar me={me} />
@@ -154,9 +173,9 @@ function useMember(): Me {
 /* LE FIL                                                              */
 /* ------------------------------------------------------------------ */
 
-function Feed({ me }: { me: Me }) {
+function Feed({ me, initialCat = '' }: { me: Me; initialCat?: CommunityCategory | '' }) {
   const { s, lang } = useSay()
-  const [cat, setCat] = useState<CommunityCategory | ''>('')
+  const [cat, setCat] = useState<CommunityCategory | ''>(initialCat)
   const [q, setQ] = useState('')
   const [query, setQuery] = useState('')
   const [pinned, setPinnedPosts] = useState<CPost[]>([])
@@ -191,7 +210,7 @@ function Feed({ me }: { me: Me }) {
   const list = [...pinned, ...posts]
   return (
     <>
-      <Composer me={me} onPosted={() => load(null)} />
+      <Composer me={me} onPosted={() => load(null)} initialCat={initialCat || 'general'} />
 
       <div className="cy-filters">
         <div className="cy-chips" role="group" aria-label={s(CT.category)}>
@@ -226,10 +245,10 @@ function Feed({ me }: { me: Me }) {
 /* ÉCRIRE                                                              */
 /* ------------------------------------------------------------------ */
 
-function Composer({ me, onPosted }: { me: Me; onPosted: () => void }) {
+function Composer({ me, onPosted, initialCat = 'general' }: { me: Me; onPosted: () => void; initialCat?: CommunityCategory }) {
   const { s, lang } = useSay()
   const [open, setOpen] = useState(false)
-  const [cat, setCat] = useState<CommunityCategory>('general')
+  const [cat, setCat] = useState<CommunityCategory>(initialCat)
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [mentions] = useState(() => new Map<string, string>())
@@ -965,7 +984,7 @@ function Members() {
 
 function Boards({ me }: { me: Me }) {
   const { s } = useSay()
-  const [data, setData] = useState<{ week: BoardRow[]; month: BoardRow[]; all: BoardRow[]; me: { points: number; level: number; next: number | null } | null } | null>(null)
+  const [data, setData] = useState<{ week: BoardRow[]; month: BoardRow[]; all: BoardRow[]; grades?: BoardRow[]; me: { points: number; level: number; next: number | null } | null } | null>(null)
   const [error, setError] = useState<CError | null>(null)
   useEffect(() => { void fetchLeaderboard().then((r) => { if (r.ok) setData(r.data); else setError(r.error) }) }, [me.signedIn])
 
@@ -1003,13 +1022,24 @@ function Boards({ me }: { me: Me }) {
           <Board title={CT.week} rows={data.week} />
           <Board title={CT.month} rows={data.month} />
           <Board title={CT.allTime} rows={data.all} />
+          {/* LE CLASSEMENT PAR GRADE · « ajoute le classement des membres avec
+              leur grade » : la ceinture d'abord, puis les points */}
+          <Board title={CT.byGrade} rows={data.grades ?? []} showGradeFirst />
         </div>
       )}
     </>
   )
 }
 
-function Board({ title, rows }: { title: Bi; rows: BoardRow[] }) {
+/** LA CEINTURE D'UN MEMBRE · sa couleur et son nom, lus dans game/ranks */
+function GradeChip({ id }: { id: string }) {
+  const { lang } = useSay()
+  const r = RANKS.find((x) => x.id === id)
+  if (!r) return null
+  return <span className="cy-grade" style={{ ['--rk' as string]: r.tint }} title={say(r.title, lang)}><i />{say(r.belt, lang)}</span>
+}
+
+function Board({ title, rows, showGradeFirst = false }: { title: Bi; rows: BoardRow[]; showGradeFirst?: boolean }) {
   const { s } = useSay()
   return (
     <div className="cy-card cy-board">
@@ -1021,7 +1051,8 @@ function Board({ title, rows }: { title: Bi; rows: BoardRow[] }) {
             <span className={`cy-rank r${i + 1}`}>{i + 1}</span>
             <Avatar author={{ name: r.name, key: r.handle, level: r.level }} small />
             <Lnk className="cy-name" href={`/clan/m/${r.handle}`}><b>{r.name}</b></Lnk>
-            <span className="cy-pts">+{r.points}</span>
+            {r.grade && <GradeChip id={r.grade} />}
+            <span className="cy-pts">{showGradeFirst ? r.points : `+${r.points}`}</span>
           </li>
         ))}
       </ol>

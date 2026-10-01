@@ -27,7 +27,7 @@ import {
   LIMITS, RATES, isId, isCategory, validateName, validateBio, validatePost, validateComment, cleanQuery,
   encodeCursor, decodeCursor, serializePost, serializeComment, serializeMember, levelOfPoints,
   validateEvent, serializeEvent, validateMessage, shouldNotify, mentionsIn, validatePoll, pollView,
-  SLUG, FLOOR, PRESENCE_WINDOW_S, cleanAvatar, validateRoomPost,
+  SLUG, FLOOR, PRESENCE_WINDOW_S, cleanAvatar, cleanGrade, validateRoomPost,
   type NotificationKind, type PollView,
   type PostRow, type CommentRow, type MemberRow, type EventRow,
 } from './_lib/community.js'
@@ -111,6 +111,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (action === 'edit') return await edit(res, me, body)
     if (action === 'vote') return await vote(res, me, body)
     if (action === 'here') return await presenceBeat(res, me, body)
+    if (action === 'grade') return await gradeSet(res, me, body)
     if (action === 'room-post') return await roomPost(res, me, body)
     return send(res, 400, { ok: false, error: 'action' })
   } catch {
@@ -265,16 +266,22 @@ async function leaderboard(res: ServerResponse, me: string | null) {
   const pool = getPool()
   const period = async (days: number) => {
     const r = await pool.query(
-      `select m.handle, m.name, m.points, count(*)::int as won
+      `select m.handle, m.name, m.points, m.grade, count(*)::int as won
          from community_likes l join community_members m on m.did = l.recipient_did
         where l.created_at > now() - ($1 || ' days')::interval
-        group by m.handle, m.name, m.points order by won desc, m.name asc limit $2`,
+        group by m.handle, m.name, m.points, m.grade order by won desc, m.name asc limit $2`,
       [String(days), LIMITS.board],
     )
-    return r.rows.map((x) => ({ handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, points: x.won }))
+    return r.rows.map((x) => ({ handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, points: x.won, grade: x.grade ?? null }))
   }
   const all = await pool.query(
-    `select handle, name, points from community_members where points > 0 order by points desc, name asc limit $1`, [LIMITS.board])
+    `select handle, name, points, grade from community_members where points > 0 order by points desc, name asc limit $1`, [LIMITS.board])
+  // LE CLASSEMENT DES GRADES · la ceinture d'abord, de la noire à la blanche,
+  // puis les points de la communauté pour départager
+  const grades = await pool.query(
+    `select handle, name, points, grade from community_members where grade is not null
+      order by array_position(array['white','yellow','orange','green','blue','brown','black'], grade) desc, points desc, name asc
+      limit $1`, [LIMITS.board])
   let mine: { points: number; level: number; next: number | null } | null = null
   if (me) {
     const r = await pool.query('select points from community_members where did = $1', [me])
@@ -284,7 +291,8 @@ async function leaderboard(res: ServerResponse, me: string | null) {
     ok: true,
     week: await period(7),
     month: await period(30),
-    all: all.rows.map((x) => ({ handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, points: x.points })),
+    all: all.rows.map((x) => ({ handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, points: x.points, grade: x.grade ?? null })),
+    grades: grades.rows.map((x) => ({ handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, points: x.points, grade: x.grade })),
     me: mine,
   })
 }
@@ -476,6 +484,16 @@ async function presenceBeat(res: ServerResponse, me: string, body: unknown) {
        on conflict (did) do update set pack = excluded.pack, floor = excluded.floor, seen_at = now()`,
     [me, b.pack, b.floor],
   )
+  return send(res, 200, { ok: true })
+}
+
+/** LE GRADE · la ceinture de l'élève, envoyée par son navigateur. Seul un
+ *  membre déjà inscrit la porte ; elle ne crée pas de membre. */
+async function gradeSet(res: ServerResponse, me: string, body: unknown) {
+  const grade = cleanGrade((body as { grade?: unknown } | null)?.grade)
+  if (!grade) return send(res, 400, { ok: false, error: 'grade' })
+  if (!(await rateAllow(`community:grade:${me}`, 60, 60 * 60 * 1000))) return send(res, 429, { ok: false, error: 'rate' })
+  await getPool().query('update community_members set grade = $2 where did = $1', [me, grade])
   return send(res, 200, { ok: true })
 }
 

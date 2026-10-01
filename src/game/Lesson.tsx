@@ -32,7 +32,7 @@ import { say } from '../data/bilingual'
 import { findLesson, lessonPath, packPath, xpOf, eurOf, levelsOf } from '../data/packs'
 import { priceTag } from '../data/plans'
 import { useGame, markDone, clearDone, recordAnswer } from './progress'
-import { useAccess } from './access'
+import { useAccess, isFreeLesson } from './access'
 import { ChibiSprite } from '../pixel/ChibiSprite'
 import { masterOf } from '../pixel/masters'
 import { TT } from '../temple/templeText'
@@ -77,7 +77,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
   const sensei = masterOf(pack.id)
   // LE PREMIER DOJO DE LA FORMATION EST OFFERT · même règle que la liste, et
   // elle est calculée au même endroit pour ne pas pouvoir la contredire.
-  const open = a.opensPack(pack) || i === 0
+  const open = a.opensPack(pack) || isFreeLesson(i)
   // L'APPROFONDISSEMENT · voir data/enrich. Un dojo qui n'a pas encore le
   // sien s'affiche avec son squelette ; scripts/test-enrich empêche qu'il y en
   // ait un en production.
@@ -105,7 +105,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
         <header className="ln-head">
           <span className="ln-n">
             {t('g.dojo')} {i + 1} / {all.length} · {xpOf(level)} XP
-            {i === 0 && !a.opensPack(pack) && <b className="ln-free"> · {t('g.freeFirst')}</b>}
+            {isFreeLesson(i) && !a.opensPack(pack) && <b className="ln-free"> · {t('g.freeFirst')}</b>}
           </span>
           <h1>{say(level.title, lang)}</h1>
           <p className="ln-learn">{say(level.learn, lang)}</p>
