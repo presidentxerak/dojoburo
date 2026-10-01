@@ -55,13 +55,14 @@ export const LP = {
 
   playPill: B('Learn by playing', 'Apprendre en jouant'),
   playH2: B('A grade that shows your progress', 'Un grade qui montre votre progression'),
-  playLead: B('Seven belts, each with its own character. Your grade comes only from the dojos you finish: nothing is bought.', "Sept ceintures, chacune avec son personnage. Votre grade ne vient que des dojos que vous terminez : rien ne s'achète."),
-  gameH3: B('Dojoburo, the game', 'Dojoburo, le jeu'),
+  playLead: B('Seven belts, worn by the character you create. Your grade comes only from the dojos you finish: nothing is bought.', "Sept ceintures, portées par le personnage que vous créez. Votre grade ne vient que des dojos que vous terminez : rien ne s'achète."),
+  // LES TEMPLES · l'ancien jeu du studio est effacé (« Efface l'ancien jeu »).
+  gameH3: B('The temples', 'Les temples'),
   gameBody: B(
-    'Run an AI studio: clients bring briefs, you pick the right specialists and just enough tokens. The same judgement as in the lessons, in a game.',
-    "Dirigez un studio d'IA : des clients apportent leurs briefs, vous choisissez les bons spécialistes et juste assez de tokens. Le même discernement que dans les leçons, dans un jeu.",
+    'Each training is a pixel-art temple and each floor a lesson. Choose your character, climb floor by floor, and see who is studying with you.',
+    "Chaque formation est un temple en pixel art et chaque étage une leçon. Choisissez votre personnage, montez étage par étage et voyez qui étudie avec vous.",
   ),
-  gameGo: B('Play Dojoburo', 'Jouer à Dojoburo'),
+  gameGo: B('See the temples', 'Voir les temples'),
 
   clanPill: B('Community', 'Communauté'),
   clanH2: B('You do not learn alone', "On n'apprend pas seul"),

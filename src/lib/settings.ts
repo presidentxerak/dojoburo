@@ -6,8 +6,8 @@
 // global de lib/juice, la coquille du jeu, le profil). Un seul magasin, lu
 // partout de la même façon, évite qu'un réglage coupé ici reste allumé là.
 //
-// CE QUI N'EST PAS ICI · la langue (i18n/lang, elle a déjà son magasin) et le
-// son du jeu (sim/audio, idem). Le profil les expose à côté, sans les copier :
+// CE QUI N'EST PAS ICI · la langue (i18n/lang, elle a déjà son magasin). Le
+// son du jeu est parti avec l'ancien jeu. Le profil l'expose à côté, sans la copier :
 // deux sources pour le même réglage finissent toujours par se contredire.
 //
 // GARDÉ DANS CE NAVIGATEUR · comme la progression sans compte. Un stockage

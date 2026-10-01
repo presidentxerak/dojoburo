@@ -22,7 +22,6 @@ const ConnectorsPage = lazy(() => import('./components/ConnectorsPage').then((m)
 const DocumentsPage = lazy(() => import('./components/DocumentsPage').then((m) => ({ default: m.DocumentsPage })))
 // LE JEU DOJOBURO · la simulation de studio, chargée à part : son moteur, sa
 // scène et son son n'ont rien à faire dans le paquet de qui vient suivre un cours.
-const SimPage = lazy(() => import('./sim/SimPage').then((m) => ({ default: m.SimPage })))
 import { Terms, Privacy } from './LegalPage'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
@@ -36,8 +35,11 @@ import { FrameworksPage } from './dojo/Frameworks'
 import { TeammatePage, TeammatesPage, isTeammateSlug } from './TeammatePage'
 import { usePath, useHashAnchor } from './lib/router'
 // LE JEU · c'est lui qui répond à « / » désormais. Voir game/Dojos.
-import { DojosPage } from './game/Dojos'
-import { PackPage } from './game/PackPage'
+// LES TEMPLES · « Change complètement le design des personnages et des dojo
+// en pixel art 2D, fais les dojo sous la forme d'un temple avec des étages ».
+// La carte des temples remplace l'écran des dojos, le temple la page du pack.
+import { WorldPage } from './temple/World'
+import { TemplePage } from './temple/Temple'
 import { PromoPage } from './game/Promo'
 import { UnsubscribePage } from './game/Unsubscribe'
 // NOMMÉE AUTREMENT ICI · « LessonPage » est déjà le nom de la leçon de
@@ -47,7 +49,6 @@ import { LessonPage as DojoLesson } from './game/Lesson'
 import { CommunityPage } from './game/Community'
 import { PACK_OF_MODULE, packPath, lessonPath, FREE_PACK } from './data/packs'
 import { ProfilPage } from './game/Profil'
-import { CartePage } from './game/Carte'
 import { TarifsPage, MerciPage } from './game/Tarifs'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
@@ -61,6 +62,10 @@ import { AccessGate, betaUnlocked } from './components/AccessGate'
 // · servie depuis notre origine, que la politique de sécurité accepte déjà
 // (« font-src 'self' »).
 import '@fontsource-variable/outfit/index.css'
+// LA POLICE PIXEL · les titres des temples, les panneaux et les étages, façon
+// Zelda (voir src/temple). Servie par nous, comme Outfit.
+import '@fontsource/silkscreen/latin-400.css'
+import '@fontsource/silkscreen/latin-700.css'
 import './index.css'
 // l'affichage clair du jeu, APRÈS la feuille principale : il la corrige
 import './styles/look-light.css'
@@ -103,6 +108,9 @@ export const isAppRoute = (r: string) => APP_ROUTES.has(r) || r.startsWith('join
 function legacyTarget(path: string): string | null {
   if (path === '/7-jours') return packPath(FREE_PACK.id)
   if (path === '/formation' || path === '/metier') return '/'
+  // L'ANCIEN JEU ET SA CARTE · « Efface l'ancien jeu » : les temples les
+  // remplacent, et un lien gardé de l'ancienne version mène à leur carte.
+  if (path === '/dojoburo' || path === '/carte') return '/'
   const tm = path.match(/^\/metier\/([a-z0-9-]+)$/i)
   if (tm) return `/dojo/metier-${tm[1].toLowerCase()}`
   const fm = path.match(/^\/formation\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?$/i)
@@ -161,7 +169,7 @@ function Root() {
   // MAIS « / » NE MANGE PAS LES FRAGMENTS DE L'APPLICATION, et c'est ce que
   // cette condition rattrape.
   //
-  // Sans elle, la ligne était `if (path === '/') return <DojosPage />`, posée
+  // Sans elle, la ligne était `if (path === '/') return <WorldPage />`, posée
   // AVANT tout le routage par fragment · or l'application entière vit sur des
   // fragments de la racine : #app, #studio, #connect, #documents, #academy,
   // #guide, #widget. Le chemin valant « / » dans tous ces cas, la ligne partait
@@ -183,7 +191,7 @@ function Root() {
   // (APP_ROUTES, plus haut), donc cette condition ne peut pas diverger d'elle :
   // ajouter une vue demande une ligne là-haut, et elle est protégée ici sans
   // que personne ait à y penser.
-  if (path === '/' && !isAppRoute(route)) return <DojosPage />
+  if (path === '/' && !isAppRoute(route)) return <WorldPage />
   // LA COMMUNAUTÉ · l'ancien Clan, refait à la manière de Skool (voir
   // game/Community). Le fil, une publication, la page À propos.
   if (path === '/clan' || path === '/clan/a-propos' || path === '/communaute') return <CommunityPage />
@@ -193,16 +201,12 @@ function Root() {
   if (path.match(/^\/clan\/m\/[0-9a-f-]+$/i)) return <CommunityPage />
   if (path.match(/^\/clan\/messages\/[0-9a-f-]+$/i)) return <CommunityPage />
   if (path === '/profil') return <ProfilPage />
-  // LA CARTE · plein écran, sans coquille ni barre du bas. Voir game/Carte.
-  if (path === '/carte') return <CartePage />
-  // LE JEU DOJOBURO · plein écran lui aussi, hors coquille. Voir sim/SimPage.
-  if (path === '/dojoburo') return <Suspense fallback={<div className="boot-wait sim-boot">Dojoburo</div>}><SimPage /></Suspense>
   // LES TARIFS ET LE RETOUR DE PAIEMENT · dans le jeu, pas sur l'ancienne page
   // de présentation. Voir game/Tarifs.
   if (path === '/tarifs') return <TarifsPage />
   if (path === '/merci') return <MerciPage />
   const pk = path.match(/^\/dojo\/([a-z0-9-]+)$/i)
-  if (pk) return <PackPage packId={pk[1].toLowerCase()} />
+  if (pk) return <TemplePage packId={pk[1].toLowerCase()} />
   const ls = path.match(/^\/dojo\/([a-z0-9-]+)\/([a-z0-9-]+)$/i)
   if (ls) return <DojoLesson packId={ls[1].toLowerCase()} levelId={ls[2].toLowerCase()} />
   // LA LANDING PROMO · « explique de A à Z Dojoburo et met en avant la
@@ -266,7 +270,7 @@ function Root() {
   // `!route`, donc n'importe quelle ancre passait pour une vue.
   // UNE ANCRE QUI N'EST PAS UNE VUE RENVOIE AU JEU · la brochure a son
   // adresse à elle maintenant, donc « / » ne lui appartient plus.
-  if (!isAppRoute(route)) return <DojosPage />
+  if (!isAppRoute(route)) return <WorldPage />
 
   // ---- the product · gated -------------------------------------------------
   if (!open) return <AccessGate onOpen={() => setOpen(true)} />
@@ -295,7 +299,7 @@ function Root() {
   if (route === 'connect') return gated(<ConnectorsPage />)
   // Documents · la base documentaire de l'entreprise, en pleine page.
   if (route === 'documents') return gated(<DocumentsPage />)
-  return <DojosPage />
+  return <WorldPage />
 }
 
 // Le retour d'une autorisation, AVANT tout rendu.

@@ -3,7 +3,7 @@ import { memo, useMemo } from 'react'
 import { PixelSvg } from './grid'
 import { drawChibi, type ChibiSpec } from './chibi'
 
-export const Chibi = memo(function Chibi({ spec, scale = 4, className = '', title, flip = false }: {
+export const ChibiSprite = memo(function ChibiSprite({ spec, scale = 4, className = '', title, flip = false }: {
   spec: ChibiSpec
   scale?: number
   className?: string

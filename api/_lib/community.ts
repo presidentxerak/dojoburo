@@ -333,3 +333,33 @@ export function pollView(options: string[], votes: { option: number; n: number }
   const counts = options.map((_, i) => votes.find((v) => v.option === i)?.n ?? 0)
   return { options, counts, total: counts.reduce((a, b) => a + b, 0), mine }
 }
+
+/* ---- les temples : présence et salons --------------------------------------- */
+
+export const SLUG = /^[a-z0-9-]{2,60}$/
+export const FLOOR = /^[a-z0-9-]{1,60}$/
+export const PRESENCE_WINDOW_S = 90
+export const ROOM_LIMITS = { body: { min: 1, max: 1000 } } as const
+
+/** La fiche d'un personnage, telle qu'on accepte de la ranger · un objet plat
+ *  d'au plus 20 champs, des valeurs courtes faites de lettres, chiffres, # et
+ *  tirets. Le navigateur la revérifie champ par champ avant de la dessiner. */
+export function cleanAvatar(v: unknown): Record<string, string> | null {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return null
+  const out: Record<string, string> = {}
+  const entries = Object.entries(v as Record<string, unknown>)
+  if (entries.length > 20) return null
+  for (const [k, val] of entries) {
+    if (!/^[a-zA-Z]{1,16}$/.test(k) || typeof val !== 'string' || !/^[#a-z0-9-]{1,20}$/i.test(val)) return null
+    out[k] = val
+  }
+  return out
+}
+
+export function validateRoomPost(b: unknown): Check<{ room: string; body: string }> {
+  const o = (b && typeof b === 'object' ? b : {}) as Record<string, unknown>
+  if (typeof o.room !== 'string' || !SLUG.test(o.room)) return { error: 'room' }
+  const body = clean(o.body, true)
+  if (!within(body, ROOM_LIMITS.body)) return { error: 'body' }
+  return { room: o.room, body }
+}

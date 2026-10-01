@@ -35,9 +35,12 @@ ok('… et un faux jeton est refusé', !N.tokenMatches('nora@exemple.fr', 'faux'
 
 const API = readFileSync('api/newsletter.ts', 'utf8')
 ok('un formulaire sans case ne retire pas un consentement donné', /newsletter = newsletter_contacts\.newsletter or excluded\.newsletter/.test(API))
-const PACK = readFileSync('src/game/PackPage.tsx', 'utf8')
-ok('la case newsletter existe et n\'est pas cochée d\'avance', /useState\(false\)/.test(PACK) && /type="checkbox" checked=\{news\}/.test(PACK))
-ok('l\'accès gratuit s\'ouvre sans attendre le serveur', /giveEmail\(v\)\n\s*void sendSignup\(v, news, 'weekend'\)/.test(PACK))
+// LE TEMPLE GRATUIT · la page du pack est devenue le temple à étages (« fais
+// les dojo sous la forme d'un temple avec des étages »). Sa porte à adresse
+// garde la même case et le même ordre : l'accès d'abord, le serveur ensuite.
+const PACK = readFileSync('src/temple/Temple.tsx', 'utf8')
+ok('la case newsletter existe et n\'est pas cochée d\'avance', /const \[news, setNews\] = useState\(false\)/.test(PACK) && /type="checkbox" checked=\{news\}/.test(PACK))
+ok('l\'accès gratuit s\'ouvre sans attendre le serveur', /giveEmail\(v\); void sendSignup\(v, news, 'weekend'\)/.test(PACK))
 const SQL = readFileSync('db/newsletter.sql', 'utf8')
 ok('la table garde le consentement et sa date', /newsletter\s+boolean not null default false/.test(SQL) && /consent_at/.test(SQL) && /unsubscribed_at/.test(SQL))
 

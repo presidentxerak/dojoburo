@@ -280,6 +280,12 @@ const ENDPOINTS = [
     ['GET', '/api/community?action=messages&with=pas-un-id'],
     ['POST', '/api/community?action=post', JSON.stringify({ category: 'general', title: 'Bonjour', body: 'Mon premier message ici.' })],
     ['POST', '/api/community?action=like', JSON.stringify({ type: 'post', id: '00000000-0000-4000-8000-000000000001' })],
+    // LES TEMPLES · qui étudie à quel étage, et le chat du cours.
+    ['GET', '/api/community?action=presence&pack=weekend'],
+    ['GET', '/api/community?action=presence&pack=PAS_UN_SLUG'],
+    ['GET', '/api/community?action=room&id=weekend'],
+    ['POST', '/api/community?action=here', JSON.stringify({ pack: 'weekend', floor: 'mots', avatar: { species: 'robot' } })],
+    ['POST', '/api/community?action=room-post', JSON.stringify({ room: 'weekend', body: 'Bonjour à tous' })],
   ]],
   // LA NEWSLETTER · l'adresse du week-end gratuit et le consentement à part.
   // Sans base, 503 « not_configured » ; jamais un faux succès.
@@ -344,6 +350,8 @@ console.log('\n--- sans base, personne ne prétend avoir réussi ---------------
     ['community', 'api/community.ts', 'POST', '/api/community?action=vote', { postId: '00000000-0000-4000-8000-000000000001', option: 0 }],
     ['community', 'api/community.ts', 'POST', '/api/community?action=post', { category: 'general', title: 'Bonjour', body: 'Mon premier message ici.' }],
     ['community', 'api/community.ts', 'POST', '/api/community?action=comment', { postId: '00000000-0000-4000-8000-000000000001', body: 'Merci !' }],
+    ['community', 'api/community.ts', 'POST', '/api/community?action=here', { pack: 'weekend', floor: 'mots', avatar: { species: 'robot' } }],
+    ['community', 'api/community.ts', 'POST', '/api/community?action=room-post', { room: 'weekend', body: 'Bonjour à tous' }],
     ['profile', 'api/profile.ts', 'PUT', '/api/profile', { data: { v: 1, academy: { done: ['a/b'], answers: {} } } }],
     ['profile', 'api/profile.ts', 'POST', '/api/profile?action=sync', { data: {}, access: { path: true } }],
     ['profile', 'api/profile.ts', 'POST', '/api/profile?action=claim', { session_id: 'cs_test_abc123' }],

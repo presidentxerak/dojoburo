@@ -10,7 +10,7 @@
 // lien vers la carte qui revient, des particules qui ignorent le mouvement
 // réduit. Cette épreuve les tient, et mord dans les deux sens.
 import { build } from 'esbuild'
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -63,21 +63,27 @@ ok('la formation complète en plus mène à la marron', rankOf(levelAt(full)).id
 ok('une formation métier par-dessus mène à la noire', rankOf(levelAt(withTrade)).id === 'black', `${withTrade} XP · niveau ${levelAt(withTrade)}`)
 ok('la noire ne s\'obtient pas sans la formation complète', rankOf(levelAt(weekend + Math.max(...trade) * 2)).id !== 'black')
 
-/* --- 3 · l'en-tête montre le grade, et le bouton s'appelle IA Training ---- */
-
+/* --- 3 · l'en-tête montre le personnage, et la barre a trois boutons ----- */
+//
+// RÉPARÉE · demandé : « Change complètement le design des personnages [...] en
+// pixel art 2D [...] Dans la bottom bar on a dojoburo [...] Le deuxième bouton
+// c'est la communauté et le 3e le profil ». L'en-tête montre le personnage
+// pixel de l'élève (son grade reste dans le libellé), la fabrique des
+// portraits 3D n'est plus montée, et l'onglet IA Training a laissé sa place
+// aux temples.
 const SHELL = readFileSync('src/game/Shell.tsx', 'utf8')
-ok('l\'en-tête montre l\'avatar du grade', /<GradeAvatar rank=\{rank\}/.test(SHELL) && /rankOf\(levelOf\(g\.xp\)\.level\)/.test(SHELL))
+ok('l\'en-tête montre le personnage de l\'élève', /<ChibiSprite spec=\{avatar\.spec\}/.test(SHELL) && /rankOf\(levelOf\(g\.xp\)\.level\)/.test(SHELL))
 ok('… et plus l\'initiale de l\'adresse', !/initialOf\(/.test(SHELL))
-ok('la fabrique des portraits est montée dans la coquille', /<SnapshotFactory \/>/.test(SHELL))
-const DICT = readFileSync('src/i18n/dict.ts', 'utf8')
-ok('le bouton s\'appelle IA Training', /'nav\.training': \{ en: 'AI Training', fr: 'IA Training' \}/.test(DICT))
+ok('plus aucune fabrique de portraits 3D dans la coquille', !/SnapshotFactory/.test(SHELL))
+const TAB_TO = [...SHELL.matchAll(/\{ to: '([^']+)', key: '(nav\.[a-z]+)'/g)].map((m) => `${m[1]} ${m[2]}`)
+ok('trois boutons : Dojoburo, Communauté, Profil', TAB_TO.join(' | ') === '/ nav.game | /clan nav.clan | /profil nav.profile', TAB_TO.join(' | '))
 
 /* --- 4 · le profil a ses onglets, et plus la carte ----------------------- */
 
 const PROFIL = readFileSync('src/game/Profil.tsx', 'utf8')
 const TAB_IDS = [...PROFIL.matchAll(/\{ id: '([a-z]+)', key: 'pr\.tab[A-Za-z]+', icon: '([a-z]+)' \}/g)]
 ok('cinq onglets', TAB_IDS.length === 5, TAB_IDS.map((m) => m[1]).join(', '))
-ok('chacun a son icône 3D, toutes différentes', new Set(TAB_IDS.map((m) => m[2])).size === 5)
+ok('chacun a son icône pixel, toutes différentes', new Set(TAB_IDS.map((m) => m[2])).size === 5)
 ok('un vrai jeu d\'onglets (rôles ARIA)', /role="tablist"/.test(PROFIL) && /role="tab"/.test(PROFIL) && /role="tabpanel"/.test(PROFIL) && /aria-selected=/.test(PROFIL))
 ok('les flèches du clavier passent d\'un onglet à l\'autre', /ArrowRight/.test(PROFIL) && /ArrowLeft/.test(PROFIL))
 ok('un onglet Paramètres', TAB_IDS.some((m) => m[1] === 'parametres'))
@@ -90,7 +96,9 @@ ok('l\'échelle des grades est montrée', /RANKS\.map/.test(PROFIL) && /locked=\
 const ST = readFileSync('src/lib/settings.ts', 'utf8')
 ok('les réglages : effets, animations réduites, vibrations', /fx: boolean/.test(ST) && /calm: boolean/.test(ST) && /haptics: boolean/.test(ST))
 for (const k of ['fx', 'calm', 'haptics']) ok(`le profil règle « ${k} »`, new RegExp(`setSetting\\('${k}'`).test(PROFIL))
-ok('le son du jeu se règle depuis le profil', /audio\.setMuted\(/.test(PROFIL))
+// RÉPARÉE · le son appartenait à l'ancien jeu, effacé (« Efface l'ancien
+// jeu ») : plus rien ne joue de son, donc plus de réglage qui ne règle rien.
+ok('plus de réglage du son de l\'ancien jeu', !/audio\./.test(PROFIL) && !existsSync('src/sim/audio.ts'))
 ok('la langue se règle depuis le profil', /<LangSwitch \/>/.test(PROFIL))
 ok('les interrupteurs sont des « switch »', /role="switch"/.test(PROFIL) && /aria-checked=\{on\}/.test(PROFIL))
 
@@ -113,15 +121,16 @@ ok('le rebond reste à plat', BUMP_RULES.length > 0 && !/gradient\(|box-shadow/.
 /* --- 6b · les icônes animées selon leur thème ---------------------------- */
 //
 // Demandé : « faut que les icônes soient animées en fonction de leur thème ».
-const ICON = readFileSync('src/game/Icon3D.tsx', 'utf8')
-ok('les icônes 3D sont dessinées en bande d\'images', /requestStrip\(/.test(ICON) && /export const FRAMES = \d+/.test(readFileSync('src/components/three/snapshotStrip.ts', 'utf8')))
-for (const [fn, what] of [['Settings', 'les engrenages tournent'], ['Badges', 'la médaille se balance'], ['Progress', 'les barres montent'], ['Account', 'le cadenas s\'ouvre'], ['Trainings', 'la toque saute']]) {
-  const body = ICON.match(new RegExp(`function ${fn}\\(\\{ t = 0 \\}[\\s\\S]*?\\n\\}`))?.[0] ?? ''
-  ok(`${what} (${fn} suit t)`, /TAU \* t|TAU \/ \d+\) \* t/.test(body))
+// RÉPARÉE · les icônes 3D sont devenues des icônes pixel (« en pixel art
+// 2D »). Le geste par thème reste exigé, en pas de sprite.
+const ICON = readFileSync('src/pixel/PixelIcon.tsx', 'utf8')
+ok('les icônes pixel portent leur thème en classe', /picon-\$\{name\}/.test(ICON))
+for (const [name, what] of [['settings', 'l\'engrenage tourne'], ['badges', 'la médaille se balance'], ['progress', 'les barres montent'], ['account', 'la personne salue'], ['trainings', 'le temple saute']]) {
+  ok(`${what} (.picon-${name})`, new RegExp(`\\.picon-${name} \\{[^}]*animation: pi-[a-z]+ [^}]*steps\\(`).test(CSS))
 }
-ok('l\'avatar du grade s\'anime dans l\'en-tête et le profil', /<GradeAvatar rank=\{rank\} size=\{34\} animated \/>/.test(SHELL) && /size=\{104\} animated/.test(PROFIL))
-ok('chaque signe de la barre a son geste', ['game', 'training', 'clan', 'profile'].every((k) => new RegExp(`\\.gm-tab-${k}\\.on \\.gm-tab-g \\{ animation: tab-${k} `).test(CSS)))
-ok('les bandes s\'arrêtent en mouvement réduit', /\.i3d-strip, \.gm-tab \.gm-tab-g \{ animation: none !important; \}/.test(CSS))
+ok('le personnage du grade est montré dans le profil', /<GradeChibi rank=\{rank\} size=\{104\}/.test(PROFIL))
+ok('chaque signe de la barre a son geste', ['game', 'clan', 'profile'].every((k) => new RegExp(`\\.gm-tab-${k}\\.on \\.gm-tab-g \\{ animation: tab-${k} `).test(CSS)))
+ok('les icônes s\'arrêtent en mouvement réduit', /\.picon, \.gm-tab \.gm-tab-g \{ animation: none !important; \}/.test(CSS))
 
 /* --- 6c · l'affichage clair ------------------------------------------------ */
 //

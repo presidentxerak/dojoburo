@@ -45,8 +45,8 @@ import { LangSwitch } from '../components/LangSwitch'
 import { useGame } from './progress'
 import { useAccount } from '../lib/account'
 import { AT, useAccountText } from './accountText'
-import { SnapshotFactory } from '../components/three/snapshotFactory'
-import { GradeAvatar } from './Icon3D'
+import { ChibiSprite } from '../pixel/ChibiSprite'
+import { useAvatar } from '../pixel/avatar'
 import { rankOf } from './ranks'
 import { say } from '../data/bilingual'
 import { useLang } from '../i18n'
@@ -72,11 +72,11 @@ import { useLang } from '../i18n'
  *  nom du logo n'est pas dans le jeu Bauhaus, et il n'a rien à y faire : une
  *  marque a ses proportions et son histoire, une icône a une grille. */
 const TABS: { to: string; key: string; glyph: IconName | null }[] = [
-  // LE JEU EN PREMIER · Dojoburo porte la marque : c'est le jeu qui porte le
-  // nom du produit. La formation passe en deuxième, sous le nom « Training »,
-  // avec une toque d'école (demandé ainsi).
-  { to: '/dojoburo', key: 'nav.game', glyph: null },
-  { to: '/', key: 'nav.training', glyph: 'training' },
+  // TROIS PORTES · « Dans la bottom bar on a dojoburo avec la page des temples
+  // [...] Le deuxième bouton c'est la communauté et le 3e le profil ». Les
+  // temples remplacent l'ancien jeu et l'onglet IA Training : Dojoburo porte
+  // la marque et mène à la carte des temples.
+  { to: '/', key: 'nav.game', glyph: null },
   { to: '/clan', key: 'nav.clan', glyph: 'clan' },
   { to: '/profil', key: 'nav.profile', glyph: 'smile' },
 ]
@@ -84,7 +84,7 @@ const TABS: { to: string; key: string; glyph: IconName | null }[] = [
 /** L'onglet actif · « / » ne vaut que pour lui même, sinon il resterait
  *  allumé sur toutes les pages, ce qui ne dit plus où l'on est. */
 const isOn = (path: string, to: string) =>
-  // « /dojo/ » AVEC sa barre · sans elle, « /dojoburo » allumait Training.
+  // « /dojo/ » AVEC sa barre · un temple et ses leçons allument Dojoburo.
   to === '/' ? path === '/' || path.startsWith('/dojo/') : path.startsWith(to)
 
 /** LE COUP QUAND UN NOMBRE MONTE · vrai pendant le temps de l'animation, puis
@@ -158,11 +158,6 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
         </div>
       </header>
 
-      {/* LA FABRIQUE DES PORTRAITS · l'avatar de grade et les icônes 3D du
-          profil sont dessinés une fois, en image, par un seul contexte caché
-          (voir components/three/snapshotFactory). Elle ne monte son canvas que
-          s'il y a une image à faire. */}
-      <SnapshotFactory />
 
       <main className={`gm-main${wide ? ' wide' : ''}`}>{children}</main>
 
@@ -212,6 +207,9 @@ function AccountEntry() {
   const lang = useLang()
   const g = useGame()
   const rank = rankOf(levelOf(g.xp).level)
+  // LE PERSONNAGE · celui que l'élève a choisi (voir pixel/AvatarPicker),
+  // le même dans les temples et dans la communauté.
+  const avatar = useAvatar()
   const grade = `${say(rank.belt, lang)} · ${say(rank.title, lang)}`
   const waiting = acc.enabled && !acc.signedIn
   const label = acc.signedIn
@@ -219,7 +217,7 @@ function AccountEntry() {
     : waiting ? `${t(AT.headerSignIn)} · ${grade}` : grade
   return (
     <Lnk className={`gm-acct gm-me${waiting ? ' out' : ' in'}`} href="/profil" aria-label={label} title={grade}>
-      <GradeAvatar rank={rank} size={34} animated />
+      <span className="gm-me-px"><ChibiSprite spec={avatar.spec} scale={1} /></span>
       {waiting && <i className="gm-me-dot" aria-hidden="true" />}
       {waiting && <span className="gm-acct-t">{t(AT.headerSignIn)}</span>}
     </Lnk>

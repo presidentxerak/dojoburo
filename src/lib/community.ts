@@ -205,3 +205,13 @@ export function decodeMentions(text: string): { text: string; map: Map<string, s
   const plain = text.replace(MENTION_TOKEN, (_m, name: string, handle: string) => { map.set(name, handle); return `@${name}` })
   return { text: plain, map }
 }
+
+/* ---- les temples : présence et chat du cours -------------------------------- */
+
+export interface Student { floor: string; handle: string; name: string; level: number; avatar: unknown; me: boolean }
+export interface RoomMessage { id: string; body: string; createdAt: string; mine: boolean; author: { name: string; handle: string; level: number; avatar: unknown } }
+
+export const sendPresence = (pack: string, floor: string, avatar: unknown) => post<{ ok: true }>('here', { pack, floor, avatar })
+export const fetchPresence = (pack: string) => call<{ students: Student[] }>(`/api/community?action=presence&pack=${encodeURIComponent(pack)}`)
+export const fetchRoom = (room: string) => call<{ messages: RoomMessage[] }>(`/api/community?action=room&id=${encodeURIComponent(room)}`)
+export const postRoom = (room: string, body: string) => post<{ id: string }>('room-post', { room, body })

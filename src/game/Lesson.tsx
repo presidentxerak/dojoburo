@@ -30,11 +30,12 @@ import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
 import { say } from '../data/bilingual'
 import { findLesson, lessonPath, packPath, xpOf, eurOf, levelsOf } from '../data/packs'
-import { USE_CASE_BY_ID, useCaseIn } from '../data/agentUseCases'
 import { priceTag } from '../data/plans'
 import { useGame, markDone, clearDone, recordAnswer } from './progress'
 import { useAccess } from './access'
-import { DojoRoom } from './DojoRoom'
+import { ChibiSprite } from '../pixel/ChibiSprite'
+import { masterOf } from '../pixel/masters'
+import { TT } from '../temple/templeText'
 import { enrichmentOf, type Enrichment } from '../data/enrich'
 import { deepeningOf, type Deepening } from '../data/deep'
 import type { Quiz as QuizData } from '../data/curriculum'
@@ -70,8 +71,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
   const i = all.findIndex(({ level: l }) => l.id === level.id)
   const next = all[i + 1] ?? null
   const done = g.isDone(module.id, level.id)
-  const master = USE_CASE_BY_ID[level.master]
-  const masterName = master ? useCaseIn(master, lang).name : level.master
+  const sensei = masterOf(pack.id)
   // LE PREMIER DOJO DE LA FORMATION EST OFFERT · même règle que la liste, et
   // elle est calculée au même endroit pour ne pas pouvoir la contredire.
   const open = a.opensPack(pack) || i === 0
@@ -86,10 +86,18 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
 
   return (
     <Shell>
-      <DojoRoom master={level.master} tint={module.tint} />
-
       <article className="ln" style={{ ['--ac' as string]: module.tint }}>
-        <Lnk className="gm-back" href={packPath(pack.id)}>← {say(pack.title, lang)}</Lnk>
+        <Lnk className="gm-back" href={`${packPath(pack.id)}#etage-${i + 1}`}>← {say(pack.title, lang)}</Lnk>
+
+        {/* LE MAÎTRE DU TEMPLE · « son portrait en 2D pixel art nous fait son
+            cours ». Il ouvre la leçon, puis reste à côté du texte. */}
+        <div className="ln-master">
+          <span className="ln-master-art"><ChibiSprite spec={sensei.spec} scale={5} title={`${say(TT.master, lang)} ${sensei.name}`} /></span>
+          <div className="ln-master-say">
+            <b>{say(TT.master, lang)} {sensei.name}</b>
+            <p>{say(level.learn, lang)}</p>
+          </div>
+        </div>
 
         <header className="ln-head">
           <span className="ln-n">
@@ -99,7 +107,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
           <h1>{say(level.title, lang)}</h1>
           <p className="ln-learn">{say(level.learn, lang)}</p>
           <p className="ln-meta">
-            {level.minutes} {t('ac.min')} · {t('g.master')} {masterName}
+            {level.minutes} {t('ac.min')} · {t('g.master')} {sensei.name}
             {done && <> · <span className="ln-ok"><BauhausIcon name="check" size={11} /> {t('ac.isDone')}</span></>}
           </p>
         </header>
