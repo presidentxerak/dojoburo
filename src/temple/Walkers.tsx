@@ -103,7 +103,8 @@ export const Walkers = memo(function Walkers({ routes, scale, count, seed }: { r
       if (target === fromDoor) target = (target + 1) % doors.length
       const toNode = target < 0 ? net.entrance.node : doors[target].node
       const path = net.route(fromNode, toNode)
-      if (target >= 0) path.push(doors[target].at)
+      // le seuil est sur le chemin, la porte six pixels plus haut : il y entre
+      if (target >= 0) path.push({ x: doors[target].at.x, y: doors[target].at.y - 6 })
       w.path = path; w.seg = 0; w.t = 0; w.target = target
     }
     const spawn = (fresh: boolean): Walker => {

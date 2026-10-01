@@ -331,24 +331,24 @@ function valueNoise(w: number, h: number, cell: number, r: () => number) {
 }
 
 /** le même bruit, calculé d'un coup pour toute la carte (rapide) */
-function noiseField(w: number, h: number, cell: number, r: () => number): Float32Array {
+function noiseField(w: number, h: number, cell: number, r: () => number, k = 1, into?: Float32Array, st = 1): Float32Array {
   const cw = Math.ceil(w / cell) + 2, ch = Math.ceil(h / cell) + 2
   const v = new Float32Array(cw * ch)
   for (let i = 0; i < v.length; i++) v[i] = r()
-  const out = new Float32Array(w * h)
+  const out = into ?? new Float32Array(w * h)
   const sxs = new Float32Array(w), x0s = new Int32Array(w)
   for (let x = 0; x < w; x++) {
     const gx = x / cell, x0 = Math.floor(gx), fx = gx - x0
     x0s[x] = x0; sxs[x] = fx * fx * (3 - 2 * fx)
   }
-  for (let y = 0; y < h; y++) {
+  for (let y = 0; y < h; y += st) {
     const gy = y / cell, y0 = Math.floor(gy), fy = gy - y0
     const sy = fy * fy * (3 - 2 * fy)
     const r0 = y0 * cw, r1 = r0 + cw
-    for (let x = 0; x < w; x++) {
+    for (let x = 0; x < w; x += st) {
       const x0 = x0s[x], sx = sxs[x]
       const a = v[r0 + x0], b = v[r0 + x0 + 1], c = v[r1 + x0], d = v[r1 + x0 + 1]
-      out[y * w + x] = a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy
+      out[y * w + x] += k * (a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy)
     }
   }
   return out
@@ -388,13 +388,14 @@ class Mask {
 }
 
 /** une table des sommes, pour savoir en un coup si un rectangle est libre */
-function summed(m: Mask) {
+function summed(m: Mask, ...more: Mask[]) {
   const W = m.w + 1
   const s = new Int32Array(W * (m.h + 1))
+  const [b, c, d] = [more[0]?.a ?? m.a, more[1]?.a ?? m.a, more[2]?.a ?? m.a]
   for (let y = 0; y < m.h; y++) {
     let row = 0
-    for (let x = 0; x < m.w; x++) {
-      row += m.a[y * m.w + x]
+    for (let x = 0, i = y * m.w; x < m.w; x++, i++) {
+      if (m.a[i] || b[i] || c[i] || d[i]) row++
       s[(y + 1) * W + x + 1] = s[y * W + x + 1] + row
     }
   }
@@ -648,10 +649,10 @@ type FeatKind = 'pond' | 'zen' | 'park' | 'fountain' | 'bed'
 type Feat = { kind: FeatKind; x: number; y: number; w: number; h: number; v: number }
 
 const SIZES: Record<FeatKind, [number, number][]> = {
-  pond: [[66, 38], [58, 34], [50, 30], [42, 26]],
-  zen: [[64, 38], [56, 34], [48, 30], [40, 26]],
-  park: [[60, 42], [50, 36], [42, 32]],
-  fountain: [[34, 30], [30, 27], [26, 24]],
+  pond: [[66, 38], [54, 32], [42, 26]],
+  zen: [[64, 38], [52, 32], [40, 26]],
+  park: [[60, 42], [44, 32]],
+  fountain: [[34, 30], [26, 24]],
   bed: [[22, 10], [16, 9]],
 }
 
@@ -672,25 +673,25 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   }
   const pinkTrees = new Set<Grid>()
   const P = {
-    cherry: pool(6, () => { const t = blossom(r, CHERRY); pinkTrees.add(t); return t }),
-    maple: pool(6, (i) => blossom(r, MAPLES[i % MAPLES.length])),
-    tree: pool(6, () => tree(r)),
-    pine: pool(4, () => pine(r)),
-    bamboo: pool(4, () => bamboo(r)),
-    bush: pool(8, () => bush(r)),
-    rock: pool(4, () => rock(r)),
+    cherry: pool(4, () => { const t = blossom(r, CHERRY); pinkTrees.add(t); return t }),
+    maple: pool(4, (i) => blossom(r, MAPLES[i % MAPLES.length])),
+    tree: pool(4, () => tree(r)),
+    pine: pool(3, () => pine(r)),
+    bamboo: pool(3, () => bamboo(r)),
+    bush: pool(5, () => bush(r)),
+    rock: pool(3, () => rock(r)),
     bigRock: pool(2, () => rock(r, true)),
     lantern: pool(1, () => lantern()),
     bench: pool(1, () => bench()),
   }
 
   // 1. l'herbe et sa texture
-  const noise = noiseField(w, h, 24, r)
-  const fine = noiseField(w, h, 6, r)
+  const noise = noiseField(w, h, 24, r, 0.7, undefined, 2)
+  noiseField(w, h, 6, r, 0.3, noise, 2)
   const biome = valueNoise(w, h, 90, r)
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const n = noise[y * w + x] * 0.7 + fine[y * w + x] * 0.3
-    g.set(x, y, n > 0.62 ? GRASS_D : n < 0.3 ? GRASS_L : GRASS)
+  for (let y = 0; y < h; y += 2) for (let x = 0; x < w; x += 2) {
+    const n = noise[y * w + x]
+    g.rect(x, y, 2, 2, n > 0.62 ? GRASS_D : n < 0.3 ? GRASS_L : GRASS)
   }
   const tuft: Record<string, string> = { [GRASS]: shade(GRASS, -0.2), [GRASS_D]: shade(GRASS_D, -0.2), [GRASS_L]: shade(GRASS_L, -0.2) }
   for (let i = 0; i < (w * h) / 55; i++) {
@@ -715,7 +716,7 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   for (const line of plan.paths) {
     for (let i = 0; i < line.length; i++) {
       const a = line[i], b = line[i + 1] ?? a
-      const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y)))
+      const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 1.5))
       for (let k = 0; k < n; k++) path.disc(a.x + ((b.x - a.x) * k) / n, a.y + ((b.y - a.y) * k) / n, 4.5)
       if (i % 2 === 0 || i === line.length - 1) near.disc(a.x, a.y, 11)
     }
@@ -728,14 +729,19 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   const water = new Mask(w, h)
   const bank = new Mask(w, h)
   const RB = 3
+  // la rivière et ses abords (5 px), que les grands décors évitent ; les
+  // places élargies s'y ajoutent plus bas
+  const riverNear = new Mask(w, h)
   if (river) {
     const span = river.vertical ? h : w
     for (let u = 0; u < span; u++) {
       const c = river.c(u), hw = river.hw(u)
-      for (let v = Math.floor(c - hw - RB - 1); v <= Math.ceil(c + hw + RB + 1); v++) {
+      for (let v = Math.floor(c - hw - RB - 6); v <= Math.ceil(c + hw + RB + 6); v++) {
         const x = river.vertical ? v : u, y = river.vertical ? u : v
         if (x < 0 || y < 0 || x >= w || y >= h) continue
         const d = Math.abs(v - c) - hw
+        riverNear.a[y * w + x] = 1
+        if (d > RB + 1) continue
         rdist[y * w + x] = d
         if (d <= 0) water.set(x, y)
         else if (d <= RB) bank.set(x, y)
@@ -848,13 +854,11 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
 
   // 5. les grands décors · bassins, jardins zen, parcs, fontaine, massifs,
   // dans l'espace libre entre les places, loin du chemin, de l'eau, des noms
-  const block = new Mask(w, h)
-  for (const s of spots) block.rect(Math.round(s.x - PW / 2) - 6, Math.round(s.y - PH / 2) - 6, PW + 12, PH + 12)
-  for (let i = 0; i < w * h; i++) {
-    if (near.a[i] || label.a[i] || solid.a[i] || rdist[i] <= RB + 5) block.a[i] = 1
-  }
-  const free = summed(block)
-  const pathSum = summed(near)
+  for (const s of spots) riverNear.rect(Math.round(s.x - PW / 2) - 6, Math.round(s.y - PH / 2) - 6, PW + 12, PH + 12)
+  const free = summed(riverNear, near, label, solid)
+  /** un massif aime le bord du chemin · on tâte autour du rectangle */
+  const byPath = (x: number, y: number, fw: number, fh: number) =>
+    near.get(x - 6, y + fh / 2) || near.get(x + fw + 6, y + fh / 2) || near.get(x + fw / 2, y - 6) || near.get(x + fw / 2, y + fh + 6)
   const feats: Feat[] = []
   // LA RECHERCHE · pour chaque taille, la liste des positions libres, et pour
   // chacune la distance au décor le plus proche, tenue à jour à chaque pose
@@ -884,7 +888,7 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     c = { kind, fw, fh, xy: Int32Array.from(out), alive: new Uint8Array(n).fill(1), dAll: new Float32Array(n).fill(260 * 260), dSame: new Float32Array(n).fill(1e9), base: new Float32Array(n) }
     for (let k = 0; k < n; k++) {
       const x = out[2 * k], y = out[2 * k + 1], cx = x + fw / 2, cy = y + fh / 2
-      c.base[k] = cellHash(x, y + fw) * 30 + Math.min(cx, w - cx, cy, h - cy) * 0.3 + (kind === 'bed' && pathSum(x - 8, y - 8, fw + 16, fh + 16) ? 120 : 0)
+      c.base[k] = cellHash(x, y + fw) * 30 + Math.min(cx, w - cx, cy, h - cy) * 0.3 + (kind === 'bed' && byPath(x, y, fw, fh) ? 120 : 0)
     }
     for (const f of feats) apply(c, f)
     candsOf.set(key, c)
@@ -1087,16 +1091,18 @@ interface River { vertical: boolean; c: (u: number) => number; hw: (u: number) =
  *  aucune place ne doit être touchée, le chemin le moins possible (une
  *  traversée franche, pas un long voisinage), de préférence vers le milieu */
 function chooseRiver(w: number, h: number, spots: Pt[], path: Mask, label: Mask, r: () => number): River | null {
-  let best: River | null = null, bestS = Infinity
+  let best: River | null = null, bestS = Infinity, bestPath = Infinity
   // les places, élargies de 6 px : la rivière n'y touche jamais
   const pz = new Mask(w, h)
   for (const s of spots) pz.rect(Math.round(s.x - PW / 2) - 6, Math.round(s.y - PH / 2) - 6, PW + 12, PH + 12)
   for (const vertical of [false, true]) {
     const span = vertical ? h : w, across = vertical ? w : h
     if (across < 80 || span < 60) continue
+    // une rivière en travers qui ne coupe le chemin qu'une ou deux fois suffit
+    if (vertical && best && bestPath < 500) break
     // les cumuls le long de l'axe transverse, une tranche tous les 3 px
     const us: number[] = []
-    for (let u = 0; u < span; u += 3) us.push(u)
+    for (let u = 0; u < span; u += 4) us.push(u)
     const N = across + 1
     const P = new Uint16Array(us.length * N), F = new Uint16Array(us.length * N), L = new Uint16Array(us.length * N)
     us.forEach((u, k) => {
@@ -1118,7 +1124,7 @@ function chooseRiver(w: number, h: number, spots: Pt[], path: Mask, label: Mask,
       const wave = (u: number) => A * Math.sin(u / per + ph) + 2 * Math.sin(u / (per * 0.43) + ph * 1.7)
       const hw = (u: number) => 6.5 + 1.5 * Math.sin(u / 23 + ph * 0.5)
       const off = us.map(wave), half = us.map((u) => hw(u) + 3 + 4)
-      for (let c0 = 14; c0 <= across - 14; c0 += 2) {
+      for (let c0 = 14; c0 <= across - 14; c0 += 3) {
         let pathPx = 0, labelPx = 0, bad = false
         for (let q = 0; q < us.length; q++) {
           const k = order[q]
@@ -1132,7 +1138,7 @@ function chooseRiver(w: number, h: number, spots: Pt[], path: Mask, label: Mask,
         const before = coords.some((v) => v < c0 - 25), after = coords.some((v) => v > c0 + 25)
         let s = pathPx + 0.4 * labelPx + 1.2 * Math.abs(c0 - across / 2) - 6 * A + (vertical ? 40 : 0)
         if (spots.length && !(before && after)) s += 600
-        if (s < bestS) { bestS = s; const C = c0; best = { vertical, c: (u: number) => C + wave(u), hw } }
+        if (s < bestS) { bestS = s; bestPath = spots.length && !(before && after) ? 1e9 : pathPx; const C = c0; best = { vertical, c: (u: number) => C + wave(u), hw } }
       }
     }
   }
@@ -1264,11 +1270,29 @@ function paintPond(g: Grid, f: Feat, pondW: Mask, pondRim: Mask, r: () => number
   const m = new Mask(f.w, f.h)
   for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) if (inside(f.x + x, f.y + y)) m.set(x, y)
   // la margelle de pierres, la ligne sombre, puis l'eau
+  // la distance (en carrés) à l'eau, en deux passes : ligne puis colonne
+  const W2 = f.w + 2, H2 = f.h + 2
+  const dh = new Uint8Array(W2 * H2).fill(9)
+  for (let y = -1; y <= f.h; y++) {
+    let last = -99
+    for (let x = -4; x <= f.w + 3; x++) {
+      if (m.get(x, y)) last = x
+      if (x - 3 >= -1 && x - 3 <= f.w && last > -99) { const q = x - 3; const dd = Math.abs(q - last); const o = (y + 1) * W2 + q + 1; if (dd < dh[o]) dh[o] = dd }
+    }
+    last = 99 + f.w
+    for (let x = f.w + 3; x >= -4; x--) {
+      if (m.get(x, y)) last = x
+      if (x + 3 >= -1 && x + 3 <= f.w && last < 99 + f.w) { const q = x + 3; const dd = Math.abs(last - q); const o = (y + 1) * W2 + q + 1; if (dd < dh[o]) dh[o] = dd }
+    }
+  }
   for (let y = -1; y <= f.h; y++) for (let x = -1; x <= f.w; x++) {
     if (m.get(x, y)) continue
     let d = 9
-    for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
-      if (m.get(x + dx, y + dy)) d = Math.min(d, Math.max(Math.abs(dx), Math.abs(dy)))
+    for (let dy = -3; dy <= 3; dy++) {
+      const yy = y + dy
+      if (yy < -1 || yy > f.h) continue
+      const v = Math.max(dh[(yy + 1) * W2 + x + 1], Math.abs(dy))
+      if (v < d) d = v
     }
     const X = f.x + x, Y = f.y + y
     if (d <= 2) {
