@@ -18,7 +18,7 @@ export const COURSE_IDS: CourseId[] = ['coder-une-app', 'coder-avec-lovable']
  *  le lisent pas. On le passe à true quand toutes ses leçons sont relues. */
 export const COURSE_READY: Record<CourseId, boolean> = {
   'coder-une-app': false,
-  'coder-avec-lovable': false,
+  'coder-avec-lovable': true,
 }
 
 const WRITTEN: Record<CourseId, CoursePart[]> = {
