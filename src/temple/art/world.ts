@@ -209,8 +209,10 @@ function planRoutes(w: number, h: number, spots: Pt[], seed: number): Plan {
       const sd = dx > 0 ? 1 : -1
       out = port(s, sd); inn = port(t, -sd); kind = 'h'
       const ddx = inn.x - out.x
-      c1 = { x: out.x + 0.4 * ddx, y: out.y + (r() - 0.5) * 18 }
-      c2 = { x: inn.x - 0.4 * ddx, y: inn.y + (r() - 0.5) * 18 }
+      // une courbe qui remonte un peu entre deux temples, parfois en S
+      const up = -(3 + r() * 12), tw = (r() - 0.5) * 10
+      c1 = { x: out.x + 0.4 * ddx, y: out.y + up + tw }
+      c2 = { x: inn.x - 0.4 * ddx, y: inn.y + up - tw }
     } else {
       const sd = (s.x + t.x) / 2 >= w / 2 ? 1 : -1
       out = port(s, sd); inn = port(t, sd); kind = 'v'
@@ -649,8 +651,8 @@ const SIZES: Record<FeatKind, [number, number][]> = {
   pond: [[66, 38], [58, 34], [50, 30], [42, 26]],
   zen: [[64, 38], [56, 34], [48, 30], [40, 26]],
   park: [[60, 42], [50, 36], [42, 32]],
-  fountain: [[28, 26], [24, 22]],
-  bed: [[22, 9], [16, 8]],
+  fountain: [[34, 30], [30, 27], [26, 24]],
+  bed: [[22, 10], [16, 9]],
 }
 
 /** Le fond de la carte, w × h · herbe, chemin qui passe au pied de chaque
@@ -663,7 +665,6 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   const g = new Grid(w, h)
   const r = rng(seed * 2246822519 + 3266489917)
   const plan = planRoutes(w, h, spots, seed)
-  const __t: [string, number][] = [['start', performance.now()]]; (globalThis as any).__T = __t
   // les objets, tirés une fois chacun en quelques variantes puis réutilisés
   const pool = (n: number, make: (i: number) => Grid) => {
     const a = Array.from({ length: n }, (_, i) => make(i))
@@ -683,17 +684,14 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     bench: pool(1, () => bench()),
   }
 
-  __t.push(['s1', performance.now()])
   // 1. l'herbe et sa texture
   const noise = noiseField(w, h, 24, r)
   const fine = noiseField(w, h, 6, r)
   const biome = valueNoise(w, h, 90, r)
-  __t.push(['noise', performance.now()])
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const n = noise[y * w + x] * 0.7 + fine[y * w + x] * 0.3
     g.set(x, y, n > 0.62 ? GRASS_D : n < 0.3 ? GRASS_L : GRASS)
   }
-  __t.push(['grass0', performance.now()])
   const tuft: Record<string, string> = { [GRASS]: shade(GRASS, -0.2), [GRASS_D]: shade(GRASS_D, -0.2), [GRASS_L]: shade(GRASS_L, -0.2) }
   for (let i = 0; i < (w * h) / 55; i++) {
     const x = Math.floor(r() * w), y = Math.floor(r() * h)
@@ -705,7 +703,6 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     g.set(x, y, '#8ee070')
   }
 
-  __t.push(['s2', performance.now()])
   // 2. les masques · places, chemin, abords du chemin, cartouches des noms
   const plaza = new Mask(w, h)
   const path = new Mask(w, h)
@@ -724,7 +721,6 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     }
   }
 
-  __t.push(['s3', performance.now()])
   // 3. la rivière · une bande sinueuse d'un bord à l'autre, entre deux
   // rangées de temples, qui coupe le chemin le moins possible (un pont)
   const river = chooseRiver(w, h, spots, path, label, r)
@@ -751,7 +747,6 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     return X >= 0 && Y >= 0 && X < w && Y < h && rdist[Y * w + X] <= RB + m
   }
 
-  __t.push(['s4', performance.now()])
   // 4. ce qui se pose sur le chemin · ponts, torii, porte d'honneur, mur
   const solid = new Mask(w, h)
   const busy = new Mask(w, h)
@@ -768,11 +763,11 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
       if (!inRiver(line[i].x, line[i].y, 1)) { i++; continue }
       let j = i
       while (j + 1 < line.length && inRiver(line[j + 1].x, line[j + 1].y, 1)) j++
-      const a = Math.max(0, i - 1), b = Math.min(line.length - 1, j + 1)
+      const a = Math.max(0, i - 2), b = Math.min(line.length - 1, j + 2)
       const pts = line.slice(a, b + 1)
       const dx = pts[pts.length - 1].x - pts[0].x, dy = pts[pts.length - 1].y - pts[0].y
       bridges.push({ pts, vertical: Math.abs(dy) >= Math.abs(dx) })
-      for (const p of pts) solid.rect(Math.round(p.x) - 7, Math.round(p.y) - 7, 15, 15)
+      for (const p of pts) solid.rect(Math.round(p.x) - 9, Math.round(p.y) - 9, 19, 19)
       i = j + 1
     }
   }
@@ -805,7 +800,7 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   let gateY = -1
   if (branch && spots.length) {
     let gi = 0
-    for (let i = 0; i < branch.length; i++) if (Math.abs(branch[i].y - (h - 13)) < Math.abs(branch[gi].y - (h - 13))) gi = i
+    for (let i = 0; i < branch.length; i++) if (Math.abs(branch[i].y - (h - 11)) < Math.abs(branch[gi].y - (h - 11))) gi = i
     const gp = branch[gi]
     const gx = Math.round(gp.x), gy = Math.round(gp.y)
     const top = gy - 33
@@ -851,7 +846,6 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     }
   }
 
-  __t.push(['s5', performance.now()])
   // 5. les grands décors · bassins, jardins zen, parcs, fontaine, massifs,
   // dans l'espace libre entre les places, loin du chemin, de l'eau, des noms
   const block = new Mask(w, h)
@@ -859,7 +853,6 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   for (let i = 0; i < w * h; i++) {
     if (near.a[i] || label.a[i] || solid.a[i] || rdist[i] <= RB + 5) block.a[i] = 1
   }
-  __t.push(['blockmask', performance.now()])
   const free = summed(block)
   const pathSum = summed(near)
   const feats: Feat[] = []
@@ -915,12 +908,12 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     }
     return false
   }
-  const cycle: FeatKind[] = ['pond', 'zen', 'park', 'pond', 'zen', 'fountain', 'park', 'pond', 'zen', 'park', 'pond', 'zen', 'park', 'fountain', 'park', 'pond']
+  const cycle: FeatKind[] = ['pond', 'zen', 'fountain', 'park', 'pond', 'zen', 'park', 'pond', 'zen', 'park', 'pond', 'zen', 'park', 'fountain', 'park', 'pond']
   for (const kind of cycle) {
     if (feats.length >= Math.max(3, Math.round((w * h) / 26000))) break
     tryPlace(kind)
   }
-  const beds = Math.round((w * h) / 42000)
+  const beds = Math.round((w * h) / 50000)
   for (let i = 0; i < beds; i++) if (!tryPlace('bed')) break
   for (const f of feats) {
     if (f.kind === 'park') continue
@@ -928,13 +921,11 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     else solid.rect(f.x, f.y, f.w, f.h)
   }
 
-  __t.push(['s6', performance.now()])
   // 6. la peinture du sol · l'eau d'abord
   const pondW = new Mask(w, h)
   const pondRim = new Mask(w, h)
   const petals: Pt[] = []
   if (river) paintRiver(g, w, h, river, rdist, water, path, r)
-  __t.push(['river', performance.now()])
   for (const f of feats) if (f.kind === 'pond') paintPond(g, f, pondW, pondRim, r, sprites)
   // le chemin de terre (le pont recouvre la traversée)
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
@@ -968,7 +959,6 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     else if (f.kind === 'bed') paintBed(g, f, r)
   }
 
-  __t.push(['s7', performance.now()])
   // 7. les arbres et les objets · près des décors d'abord, puis la forêt
   const wet = (x: number, y: number, ww: number, hh: number) =>
     water.anyIn(x, y, ww, hh) || bank.anyIn(x, y, ww, hh) || pondW.anyIn(x, y, ww, hh) || pondRim.anyIn(x, y, ww, hh)
@@ -1043,12 +1033,11 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
       around(() => P.bush(), 6, 1)
     }
   }
-  __t.push(['companions', performance.now()])
   // la forêt du pourtour, puis des bosquets épars
   for (let y = -8; y < h; y += 10) for (let x = -6; x < w; x += 11) {
     const jx = x + Math.floor(r() * 6), jy = y + Math.floor(r() * 5)
     const edgeD = Math.min(jx + 8, w - jx - 8, jy + 8, h - jy - 10)
-    const p = edgeD < 14 ? 0.95 : edgeD < 30 ? 0.4 : 0.14
+    const p = edgeD < 14 ? 0.95 : edgeD < 30 ? 0.45 : 0.2
     if (r() < p) placeTree(jx, jy, species(jx, jy))
   }
   for (let i = 0; i < (w * h) / 700; i++) place(Math.floor(r() * w), Math.floor(r() * h), P.bush())
@@ -1056,7 +1045,6 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   for (let i = 0; i < (w * h) / 9000; i++) place(Math.floor(r() * w), Math.floor(r() * h), P.bamboo())
   if (gateY > 0) for (let x = 2; x < w - 8; x += 7 + Math.floor(r() * 4)) place(x, gateY + 2 + Math.floor(r() * 3), P.bush(), 3)
 
-  __t.push(['s8', performance.now()])
   // 8. les pétales, les fleurs des prés, les roseaux des berges
   for (const p of petals) {
     for (let i = 0; i < 14; i++) {
@@ -1085,12 +1073,9 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     }
   }
 
-  __t.push(['s9', performance.now()])
   // 9. les objets, du fond vers le devant
-  __t.push(['sort', performance.now()])
   sprites.sort((a, b) => a.z - b.z)
   for (const s of sprites) g.blit(s.g, s.x, s.y)
-  __t.push(['end', performance.now()])
   return g
 }
 
@@ -1190,7 +1175,7 @@ function paintRiver(g: Grid, w: number, h: number, rv: River, rdist: Float32Arra
   // une cascade · une rangée de rochers en travers, l'écume en aval, loin
   // des ponts
   const pathNear = (u: number) => {
-    for (let du = -16; du <= 16; du += 2) {
+    for (let du = -26; du <= 26; du += 2) {
       const v = Math.round(rv.c(u + du))
       if (rv.vertical ? path.anyIn(v - 12, u + du, 25, 1) : path.anyIn(u + du, v - 12, 1, 25)) return true
     }
@@ -1203,21 +1188,27 @@ function paintRiver(g: Grid, w: number, h: number, rv: River, rdist: Float32Arra
   }
   if (cu > 0) {
     const c = rv.c(cu), hw = rv.hw(cu)
-    for (let v = Math.floor(c - hw - 2); v <= Math.ceil(c + hw + 2); v++) {
-      const k = v - Math.floor(c - hw - 2)
-      put(cu, v, k % 3 === 2 ? '#7d788c' : STONE)
-      put(cu + 1, v, k % 3 === 0 ? STONE_L : STONE_D)
-      put(cu - 1, v, OUTLINE)
-      if (k % 4 === 1) { put(cu, v, '#ffffff'); put(cu + 1, v, '#ffffff') }
+    const v0 = Math.floor(c - hw), v1 = Math.ceil(c + hw)
+    // le seuil · l'eau s'assombrit, déborde en nappe claire, tombe en filets
+    for (let v = v0; v <= v1; v++) {
+      if (!at(cu, v) && !at(cu + 2, v)) continue
+      put(cu - 3, v, WATER_D); put(cu - 2, v, '#2558a0')
+      put(cu - 1, v, '#bfe6ff')
+      for (let du = 0; du < 4; du++) put(cu + du, v, (v + (du >> 1)) % 2 ? '#ffffff' : '#a8dcff')
+      for (let du = 4; du < 7; du++) put(cu + du, v, cellHash(cu + du, v) < 0.7 ? '#ffffff' : '#d8f0ff')
     }
-    for (let du = 2; du < 9; du++) for (let v = Math.floor(c - hw + 1); v <= Math.ceil(c + hw - 1); v++) {
+    for (let du = 7; du < 16; du++) for (let v = v0 + 1; v < v1; v++) {
       if (!at(cu + du, v)) continue
       const p = cellHash(cu + du, v)
-      if (p < 0.55 - du * 0.06) put(cu + du, v, p < 0.25 ? '#ffffff' : '#d8f0ff')
+      if (p < 0.6 - du * 0.035) put(cu + du, v, p < 0.25 ? '#ffffff' : '#d8f0ff')
     }
-    for (let du = -6; du < -1; du++) for (let v = Math.floor(c - hw + 1); v <= Math.ceil(c + hw - 1); v++) {
-      if (at(cu + du, v) && cellHash(v, cu + du) < 0.2) put(cu + du, v, WATER_D)
+    // les rochers du seuil, sur les berges et en travers
+    const boulder = (v: number, rad: number) => {
+      const sg = stone(rad, rad > 2)
+      const x = rv.vertical ? v : cu, y = rv.vertical ? cu : v
+      g.blit(sg, Math.round(x - sg.w / 2), Math.round(y - sg.h / 2))
     }
+    boulder(c - hw - 2, 2.8); boulder(c + hw + 2, 2.6)
   }
   // quelques rochers dans le courant, des nénuphars dans les anses, des koï
   for (let i = 0; i < span / 90; i++) {
@@ -1359,25 +1350,32 @@ function paintBridge(g: Grid, pts: Pt[], vertical: boolean, isWater: (x: number,
     last = c
     const t = a1 > a0 ? (a - a0) / (a1 - a0) : 0.5
     const lift = Math.sin(Math.PI * t)
-    for (let o = -6; o <= 6; o++) {
+    const post = (a - a0) % 5 === 0 || a === a1
+    for (let o = -7; o <= 7; o++) {
       let col: string
       const ao = Math.abs(o)
-      if (ao === 6) col = OUTLINE
-      else if (ao === 5) col = (a - a0) % 5 === 0 || a === a1 ? RED_D : (o < 0 ? RED_L : RED)
+      if (ao === 7) col = OUTLINE
+      else if (ao === 6) col = post ? RED_D : shade(o < 0 ? RED_L : RED, lift * 0.12)
+      else if (ao === 5) col = RED_D
       else {
         const plank = (a - a0) % 3 === 2
-        col = shade(plank ? '#8a5530' : (a - a0) % 6 < 3 ? WOOD : '#b47746', lift * 0.18 - (ao === 4 ? 0.12 : 0))
+        col = shade(plank ? '#8a5530' : (a - a0) % 6 < 3 ? WOOD : '#b47746', lift * 0.2 - (ao === 4 ? 0.14 : 0))
       }
       put(a, c + o, col)
     }
-    if ((a - a0) % 5 === 0 || a === a1) { put(a, c - 5, GOLD); put(a, c + 5, GOLD) }
+    if (post) { put(a, c - 6, GOLD); put(a, c + 6, GOLD) }
     // l'ombre du pont sur l'eau
-    for (const o of [7, 8]) if (wet(a, c + o)) put(a, c + o, '#2558a0')
+    for (const o of [8, 9]) if (wet(a, c + o)) put(a, c + o, '#2558a0')
   }
-  // les bouts, posés sur la terre
+  // les bouts, deux gros poteaux de chaque côté
   for (const a of [a0, a1]) {
     const c = centre.get(a) ?? last
-    for (let o = -6; o <= 6; o++) put(a, c + o, Math.abs(o) >= 5 ? OUTLINE : '#8a5530')
+    for (const sd of [-1, 1]) {
+      for (let o = 5; o <= 7; o++) { put(a, c + sd * o, RED_D); put(a + (a === a0 ? 1 : -1), c + sd * o, RED_D) }
+      put(a, c + sd * 6, GOLD)
+      put(a, c + sd * 8, OUTLINE); put(a + (a === a0 ? 1 : -1), c + sd * 8, OUTLINE)
+      put(a + (a === a0 ? -1 : 1), c + sd * 6, OUTLINE); put(a + (a === a0 ? -1 : 1), c + sd * 7, OUTLINE); put(a + (a === a0 ? -1 : 1), c + sd * 5, OUTLINE)
+    }
   }
 }
 
@@ -1401,7 +1399,7 @@ function paintZen(g: Grid, f: Feat, r: () => number, n: number) {
     let line: boolean
     if (dmin < 10) line = dmin > 1.5 && Math.round(dmin) % 3 === 0
     else line = (y + Math.round(Math.sin((x + phase) / 5) * 1.2)) % 3 === 0
-    let c = line ? '#cdc5b2' : '#f0ece2'
+    let c = line ? '#bdb197' : '#f4f0e6'
     if (!line && cellHash(x, y) < 0.06) c = '#e2dccd'
     g.set(x, y, c)
   }
@@ -1455,15 +1453,14 @@ function paintFountain(g: Grid, f: Feat, r: () => number) {
 /* --- un massif de fleurs ------------------------------------------------- */
 
 function paintBed(g: Grid, f: Feat, r: () => number) {
-  const pal = [['#ff5a7a', '#ffe14d'], ['#c98bff', '#ffffff'], ['#ff8a3d', '#ffe14d'], ['#ff6bb0', '#ffffff']][Math.floor(r() * 4)]
-  for (let y = f.y; y < f.y + f.h; y++) for (let x = f.x; x < f.x + f.w; x++) {
-    const bx = Math.min(x - f.x, f.x + f.w - 1 - x), by = Math.min(y - f.y, f.y + f.h - 1 - y)
+  const pal = [['#ff5a7a', '#ffe14d', '#ffffff'], ['#c98bff', '#ffffff', '#ff8fd0'], ['#ff8a3d', '#ffe14d', '#ff5a5a'], ['#ff6bb0', '#ffffff', '#ffd23f']][Math.floor(r() * 4)]
+  const x1 = f.x + f.w - 1, y1 = f.y + f.h - 1
+  for (let y = f.y; y <= y1; y++) for (let x = f.x; x <= x1; x++) {
+    const bx = Math.min(x - f.x, x1 - x), by = Math.min(y - f.y, y1 - y)
+    if (bx === 0 && by <= 1 || by === 0 && bx <= 1) continue
     if (bx === 0 || by === 0) { g.set(x, y, OUTLINE); continue }
-    if (bx === 1 || by === 1) { g.set(x, y, y - f.y === 1 ? WOOD_L : WOOD); continue }
-    g.set(x, y, '#6b4a2e')
-  }
-  for (let y = f.y + 2; y < f.y + f.h - 2; y += 2) for (let x = f.x + 2 + ((y - f.y) % 4 === 0 ? 1 : 0); x < f.x + f.w - 2; x += 2) {
-    g.set(x, y, pal[((x + y) >> 1) % 2])
-    if (g.get(x, y + 1) === '#6b4a2e') g.set(x, y + 1, '#3f9e44')
+    if (bx === 1 || by === 1) { g.set(x, y, y === f.y + 1 ? STONE_L : (x + y) % 3 === 0 ? STONE_D : STONE); continue }
+    const hsh = cellHash(x, y)
+    g.set(x, y, hsh < 0.5 ? pal[Math.floor(hsh * 6)] : hsh < 0.8 ? '#3f9e44' : '#2f7a3a')
   }
 }

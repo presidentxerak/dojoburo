@@ -119,9 +119,10 @@ export const TOPIC_PROPS: Record<Topic, Prop[]> = {
       put(c.s, x, y, 16, 24, (g) => {
         // deux écrans côte à côte sur le bureau, le clavier, la tasse
         stand(g, 16, 14, 24, c.P.wood)
-        screen(g, 8, 8, '#0b0d18', '#0d1117'); codeLines(g, 1, 2, 6, 3, c.r)
-        g.rect(8, 1, 8, 7, '#0b0d18'); g.rect(9, 2, 6, 5, '#0d1117'); text(g, 10, 2, '>', '#7ee787')
-        g.rect(3, 8, 2, 3, '#0b0d18'); g.rect(11, 8, 2, 3, '#0b0d18')
+        screen(g, 8, 9, '#5a5f73', '#0d1117'); codeLines(g, 1, 2, 6, 3, c.r); g.hline(0, 0, 8, '#8a8fa3')
+        g.rect(8, 2, 8, 7, '#5a5f73'); g.hline(8, 2, 8, '#8a8fa3'); g.rect(9, 3, 6, 5, '#0d1117'); text(g, 10, 3, '>', '#7ee787')
+        g.vline(7, 1, 8, '#2b2d3a')
+        g.rect(3, 9, 2, 2, '#2b2d3a'); g.rect(11, 9, 2, 2, '#2b2d3a')
         g.rect(2, 12, 9, 2, '#2b2d3a'); g.hline(3, 12, 7, '#5a5f73')
         g.rect(12, 11, 3, 3, WHITE); g.hline(12, 11, 3, '#6b4128')
       })

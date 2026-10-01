@@ -380,7 +380,7 @@ export function composeFloor(s: Grid, kit: DojoKit, tint: string, floor: number,
       }
     }
   }
-  if (r() < 0.85 || wlPiece) placeHero(7, 60, 30, wlPiece, floor * 2)
+  placeHero(7, 60, 30, wlPiece, floor * 2)
   placeHero(101, 153, 126, wrPiece, floor * 2 + 5)
 
   // 5 · les fentes debout · A (x 5..17), B si libre, C (x 91..99)
@@ -424,7 +424,7 @@ export function composeFloor(s: Grid, kit: DojoKit, tint: string, floor: number,
       let placed = false
       for (const p of smallWall) {
         if (p.w + 3 > gw) continue
-        if (used.has(p.id) && p.kind !== 'hang' && p.id !== 'clock' && !p.id.startsWith('kakemono')) continue
+        if (used.has(p.id) && p.kind !== 'hang' && !p.id.startsWith('kakemono')) continue
         const hang = p.kind === 'hang'
         const y = hang ? (p.id === 'lantern' ? 13 + Math.floor(r() * 7) : minTop + 2) : Math.max(minTop + 1, Math.min(34 - p.h, 20 - Math.floor(p.h / 2) + Math.floor((r() - 0.5) * 6)))
         const px = x + 1 + Math.floor((gw - p.w - 2) * (gw > p.w + 14 ? r() * 0.3 : 0.5))

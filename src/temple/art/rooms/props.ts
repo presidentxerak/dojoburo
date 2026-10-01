@@ -13,7 +13,7 @@ import { shade } from '../../../pixel/grid'
 import type { Grid } from '../../../pixel/grid'
 import {
   WOOD, WOOD_D, WOOD_L, PAPER, GOLD, RED, WHITE, INK, LEAF, POT, CHALK,
-  put, text, glow, plant, cushion, lantern, bookcase, board, clock, table, chair,
+  put, text, glow, plant, cushion, lantern, bookcase, board, clock, table,
   disc, line, mix, pick, type Ctx,
 } from './base'
 
@@ -1104,11 +1104,17 @@ const floorCandles: Prop = {
 
 /** un bureau et ses deux chaises */
 const desk: Prop = {
-  id: 'desk', kind: 'low', w: 44, h: 12, tags: ['office', 'tech', 'school'],
+  id: 'desk', kind: 'low', w: 44, h: 11, tags: ['office', 'tech', 'school'],
   draw(c, x, y) {
-    chair(c.s, x, y, '#5a6278'); chair(c.s, x + 37, y, '#5a6278')
-    table(c.s, x + 8, y + 4, 28, 8, c.P.wood)
-    put(c.s, x + 12, y, 10, 4, (g) => { g.rect(0, 0, 10, 3, '#cfd6e0'); g.rect(1, 0, 8, 2, '#2b6cb0'); g.hline(0, 3, 10, '#9aa5b4') })
+    // deux chaises basses, le bureau, le portable et la tasse
+    for (const cx of [x, x + 37]) {
+      put(c.s, cx, y, 7, 11, (g) => {
+        g.rect(0, 0, 7, 4, '#5a6278'); g.hline(0, 0, 7, shade('#5a6278', 0.3))
+        g.rect(0, 5, 7, 2, shade('#5a6278', -0.1)); g.vline(0, 7, 4, shade('#5a6278', -0.3)); g.vline(6, 7, 4, shade('#5a6278', -0.3))
+      })
+    }
+    table(c.s, x + 8, y + 4, 28, 7, c.P.wood)
+    put(c.s, x + 12, y + 1, 10, 3, (g) => { g.rect(1, 0, 8, 2, '#2b6cb0'); g.rect(0, 0, 1, 3, '#cfd6e0'); g.rect(9, 0, 1, 3, '#cfd6e0'); g.hline(0, 2, 10, '#9aa5b4') })
     put(c.s, x + 27, y + 1, 3, 3, (g) => { g.rect(0, 0, 3, 3, WHITE); g.hline(0, 0, 3, '#6b4128') })
   },
 }
