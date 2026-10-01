@@ -7,7 +7,7 @@
 // partout de la même façon, évite qu'un réglage coupé ici reste allumé là.
 //
 // CE QUI N'EST PAS ICI · la langue (i18n/lang, elle a déjà son magasin). Le
-// son du jeu est parti avec l'ancien jeu. Le profil l'expose à côté, sans la copier :
+// profil l'expose à côté, sans la copier :
 // deux sources pour le même réglage finissent toujours par se contredire.
 //
 // GARDÉ DANS CE NAVIGATEUR · comme la progression sans compte. Un stockage
@@ -21,9 +21,13 @@ export interface Settings {
   calm: boolean
   /** une courte vibration au toucher, sur les téléphones qui la permettent */
   haptics: boolean
+  /** la musique d'ambiance zen des temples · voir lib/zen */
+  music: boolean
+  /** les bruitages des temples (porte, pas, clochette) · voir lib/zen */
+  sfx: boolean
 }
 
-export const DEFAULT_SETTINGS: Settings = { fx: true, calm: false, haptics: true }
+export const DEFAULT_SETTINGS: Settings = { fx: true, calm: false, haptics: true, music: true, sfx: true }
 
 const KEY = 'dojoburo.settings'
 const listeners = new Set<() => void>()
@@ -37,6 +41,8 @@ function read(): Settings {
       fx: typeof v.fx === 'boolean' ? v.fx : DEFAULT_SETTINGS.fx,
       calm: typeof v.calm === 'boolean' ? v.calm : DEFAULT_SETTINGS.calm,
       haptics: typeof v.haptics === 'boolean' ? v.haptics : DEFAULT_SETTINGS.haptics,
+      music: typeof v.music === 'boolean' ? v.music : DEFAULT_SETTINGS.music,
+      sfx: typeof v.sfx === 'boolean' ? v.sfx : DEFAULT_SETTINGS.sfx,
     }
   } catch {
     return DEFAULT_SETTINGS

@@ -271,14 +271,15 @@ function StartForm({ source }: { source: 'landing' }) {
 function HeroTemple() {
   const p = FREE_PACK
   const roof = gridToUrl(`roof:${p.id}`, () => drawRoof(p.tint))
-  const floor = gridToUrl(`floor:${p.kit}:${p.tint}`, () => drawFloor(p.kit, p.tint))
+  const floor = gridToUrl(`floor:${p.kit}:${p.tint}:0:`, () => drawFloor(p.kit, p.tint, 0))
+  const floor2 = gridToUrl(`floor:${p.kit}:${p.tint}:1:`, () => drawFloor(p.kit, p.tint, 1))
   const strip = gridToUrl('strip', () => drawFloorStrip())
   const base = gridToUrl(`base:${p.id}`, () => drawBase(p.tint))
   const m = masterOf(p.id)
   return (
     <div className="promo-temple">
       {roof && <img src={roof} alt="" />}
-      {floor && <img src={floor} alt="" />}
+      {floor2 && <img src={floor2} alt="" />}
       {strip && <img src={strip} alt="" />}
       <div className="promo-temple-f">
         {floor && <img src={floor} alt="" />}

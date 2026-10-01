@@ -12,7 +12,7 @@
 import { memo } from 'react'
 import { Grid, PixelSvg, OUTLINE } from './grid'
 
-export type PixelIconName = 'progress' | 'badges' | 'trainings' | 'account' | 'settings'
+export type PixelIconName = 'progress' | 'badges' | 'trainings' | 'account' | 'settings' | 'music' | 'mute'
 
 const PAL: Record<string, string> = {
   v: '#7c3aed', V: '#a78bfa', y: '#facc15', Y: '#fde68a', o: '#fb923c', r: '#ef4444',
@@ -20,6 +20,40 @@ const PAL: Record<string, string> = {
 }
 
 const ART: Record<PixelIconName, string[]> = {
+  // une double croche · la musique joue
+  music: [
+    '..............',
+    '.....vvvvvvvv.',
+    '.....vvvvvvvv.',
+    '.....v......v.',
+    '.....v......v.',
+    '.....v......v.',
+    '.....v......v.',
+    '.....v......v.',
+    '..VVVv...VVVv.',
+    '.VVVVv..VVVVv.',
+    '.VVVVv..VVVVv.',
+    '..VVV....VVV..',
+    '..............',
+    '..............',
+  ],
+  // la même, barrée · la musique est coupée
+  mute: [
+    'r.............',
+    '.r...nnnnnnnn.',
+    '..r..nnnnnnnn.',
+    '...r.n......n.',
+    '....rn......n.',
+    '.....r......n.',
+    '.....nr.....n.',
+    '.....n.r....n.',
+    '..NNNn..rNNNn.',
+    '.NNNNn..NrNNn.',
+    '.NNNNn..NNrNn.',
+    '..NNN....NNr..',
+    '............r.',
+    '.............r',
+  ],
   // trois barres qui montent
   progress: [
     '..............',

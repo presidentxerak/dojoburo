@@ -65,7 +65,6 @@ import '@fontsource-variable/outfit/index.css'
 // LA POLICE PIXEL · les titres des temples, les panneaux et les étages, façon
 // Zelda (voir src/temple). Servie par nous, comme Outfit.
 import '@fontsource/silkscreen/latin-400.css'
-import '@fontsource/silkscreen/latin-700.css'
 import './index.css'
 // l'affichage clair du jeu, APRÈS la feuille principale : il la corrige
 import './styles/look-light.css'

@@ -102,6 +102,57 @@ const W = await load('src/temple/art/world.ts', 'world.mjs')
 ok('un temple de la carte fait 40 sur 44', (() => { const g = W.drawTempleIcon('#7c3aed', 0, false); return g.w === 40 && g.h === 44 })())
 ok('un temple fermé se distingue d\'un temple ouvert', sig(W.drawTempleIcon('#7c3aed', 0, true)) !== sig(W.drawTempleIcon('#7c3aed', 0, false)))
 
+/* --- 3b · chaque étage est différent, la porte s'ouvre, la carte vit ------- */
+//
+// Demandé : « Les étages doivent être tous différents là ils sont trop
+// identiques [...] L'étudiant doit être positionné devant la porte du dojo qui
+// s'ouvre et se ferme [...] mets des personnages qui marchent et vont et
+// partent des temples [...] ajoute une rivière des bassins des parcs zen ».
+const { levelsOf } = await load('src/data/packs.ts', 'packs2.mjs')
+const diff = (a, b) => {
+  let n = 0
+  for (let y = 0; y < 64; y++) for (let x = 0; x < 160; x++) if (a.get(x, y) !== b.get(x, y)) n++
+  return n / (160 * 64)
+}
+let worst = 1, worstAt = ''
+for (const p of PACKS) {
+  const gs = levelsOf(p).map(({ level }, i) => F.drawFloor(p.kit, p.tint, i, level.master))
+  for (let i = 0; i < gs.length; i++) for (let j = i + 1; j < gs.length; j++) {
+    const d = diff(gs[i], gs[j])
+    if (d < worst) { worst = d; worstAt = `${p.id} ${i + 1}F/${j + 1}F` }
+  }
+}
+ok('dans chaque temple, deux étages diffèrent d\'au moins un quart de leurs pixels', worst >= 0.25, `pire écart ${(worst * 100).toFixed(1)} % (${worstAt})`)
+const D = await load('src/temple/art/door.ts', 'door.mjs')
+const L = D.drawDoorLeaf('left'), Rt = D.drawDoorLeaf('right'), IN = D.drawDoorInside('#7c3aed')
+ok('les deux battants couvrent l\'ouverture de la porte', L.w + Rt.w === D.DOOR_W && L.h === D.DOOR_H && IN.w === D.DOOR_W && IN.h === D.DOOR_H)
+ok('l\'ouverture est celle du décor (x 72, y 21)', D.DOOR_X === 72 && D.DOOR_Y === 21)
+{
+  const TP = readFileSync('src/temple/Temple.tsx', 'utf8')
+  ok('l\'élève se tient devant la porte et la franchit', /className=\{`tp-me \$\{me\}`\}/.test(TP) && /setMe\('enter'\)/.test(TP) && /setMe\('exit'\)/.test(TP))
+  ok('monter passe par la porte', /onClick=\{\(\) => \(i < floors\.length - 1 \? void climb\(i, i \+ 1\)/.test(TP))
+}
+// LA CARTE · tous les temples sont joignables à pied depuis l'entrée
+const WK = await load('src/temple/Walkers.tsx', 'walkers.mjs')
+for (const [w, cols, step] of [[640, 4, 118], [320, 2, 112]]) {
+  const sx = w / cols
+  const spots = PACKS.map((_, i) => { const row = Math.floor(i / cols), c = i % cols, col = row % 2 === 0 ? c : cols - 1 - c; return { x: Math.round(sx / 2 + col * sx), y: Math.round(78 + row * step) } })
+  const h = Math.round(78 + (Math.ceil(PACKS.length / cols) - 1) * step + 70)
+  const routes = W.worldRoutes(w, h, spots, 7)
+  const net = WK.walkNetwork(routes)
+  const unreachable = net.doors.filter((d) => {
+    const r = net.route(net.entrance.node, d.node)
+    return r.length < 2 && Math.hypot(d.at.x - routes.entrance.x, d.at.y - routes.entrance.y) > 4
+  })
+  ok(`carte ${w} px · chaque temple est joignable depuis l'entrée`, routes.doors.length === PACKS.length && unreachable.length === 0, `${unreachable.length} injoignable(s)`)
+  const t0 = performance.now(); W.drawWorld(w, h, spots, 7); const ms = performance.now() - t0
+  ok(`carte ${w} px · dessinée en moins de 150 ms`, ms < 150, `${ms.toFixed(0)} ms`)
+}
+// LE SON · rien ne se construit à l'import (Node n'a pas de son, un
+// navigateur le refuse avant un geste)
+const Z = await load('src/lib/zen.ts', 'zen.mjs')
+ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function' && Z.zen.isPlaying() === false)
+
 /* --- 4 · les morsures ------------------------------------------------------ */
 
 ok('morsure · un import de l\'ancien jeu serait vu', OLD_IMPORT.test("import { PackArt } from './PackArt'") && OLD_IMPORT.test("import { audio } from '../sim/audio'"))

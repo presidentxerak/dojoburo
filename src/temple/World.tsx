@@ -25,7 +25,10 @@ import { ChibiSprite } from '../pixel/ChibiSprite'
 import { useAvatar, saveAvatar } from '../pixel/avatar'
 import { AvatarPicker } from '../pixel/AvatarPicker'
 import { masterOf } from '../pixel/masters'
-import { drawWorld, drawTempleIcon } from './art/world'
+import { drawWorld, drawTempleIcon, worldRoutes } from './art/world'
+import { Walkers } from './Walkers'
+import { SoundToggle } from './SoundToggle'
+import { zen, useZenAmbience } from '../lib/zen'
 import { TT } from './templeText'
 
 /** La disposition de la carte · quatre temples par rangée sur grand écran,
@@ -56,6 +59,7 @@ export function WorldPage() {
   const [width, setWidth] = useState(360)
 
   useHeadTags({ title: `${s(TT.worldTitle)} · DojoBuro`, description: s(TT.worldLead), path: '/' })
+  useZenAmbience()
 
   useEffect(() => {
     const el = box.current
@@ -69,13 +73,17 @@ export function WorldPage() {
   const wide = width >= 700
   const L = useMemo(() => layout(PACKS.length, wide), [wide])
   const worldUrl = useMemo(() => gridToUrl(`world:${L.w}x${L.h}`, () => drawWorld(L.w, L.h, L.spots, 7)), [L])
+  const routes = useMemo(() => worldRoutes(L.w, L.h, L.spots, 7), [L])
   const scale = width / L.w
   const lockedOf = (p: Pack) => eurOf(p) > 0 && !a.opensPack(p)
 
   return (
     <Shell wide>
       <section className="gm-sec tw-head">
-        <h1 className="tw-title">{s(TT.worldTitle)}</h1>
+        <div className="tw-head-row">
+          <h1 className="tw-title">{s(TT.worldTitle)}</h1>
+          <SoundToggle />
+        </div>
         <p className="gm-lead">{s(TT.worldLead)}</p>
       </section>
 
@@ -105,12 +113,13 @@ export function WorldPage() {
       <section className="gm-sec">
         <div className="tw-world" ref={box} style={{ height: L.h * scale }}>
           {worldUrl && <img className="tw-world-bg" src={worldUrl} alt="" aria-hidden="true" width={L.w * scale} height={L.h * scale} />}
+          <Walkers routes={routes} scale={scale} count={wide ? 12 : 7} seed={7} />
           {PACKS.map((p, i) => {
             const spot = L.spots[i]
             const locked = lockedOf(p)
             const icon = gridToUrl(`ti:${p.id}:${locked}`, () => drawTempleIcon(p.tint, i, locked))
             return (
-              <Lnk key={p.id} className={`tw-temple${locked ? ' locked' : ''}`} href={packPath(p.id)}
+              <Lnk key={p.id} className={`tw-temple${locked ? ' locked' : ''}`} href={packPath(p.id)} onClick={() => zen.sfx(locked ? 'locked' : 'door')}
                 style={{ left: (spot.x - 20) * scale, top: (spot.y - 26) * scale, width: 40 * scale }}
                 aria-label={`${say(p.title, lang)}${locked ? ` · ${s(TT.locked)}` : ''}`}>
                 <span className="tw-label" style={{ ['--ac' as string]: p.tint }}>{say(p.title, lang)}</span>
@@ -131,7 +140,7 @@ export function WorldPage() {
             const done = levels.filter(({ module, level }) => g.isDone(module.id, level.id)).length
             const m = masterOf(p.id)
             return (
-              <Lnk key={p.id} className="tw-card gm-rise" href={packPath(p.id)} style={{ ['--ac' as string]: p.tint, ['--i' as string]: k }}>
+              <Lnk key={p.id} className="tw-card gm-rise" href={packPath(p.id)} onClick={() => zen.sfx('tap')} style={{ ['--ac' as string]: p.tint, ['--i' as string]: k }}>
                 <span className="tw-card-art"><ChibiSprite spec={m.spec} scale={3} /></span>
                 <span className="tw-card-t">
                   <b>{say(p.title, lang)}</b>

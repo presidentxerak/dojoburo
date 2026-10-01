@@ -36,6 +36,7 @@ import { useAccess } from './access'
 import { ChibiSprite } from '../pixel/ChibiSprite'
 import { masterOf } from '../pixel/masters'
 import { TT } from '../temple/templeText'
+import { zen, useZenAmbience } from '../lib/zen'
 import { enrichmentOf, type Enrichment } from '../data/enrich'
 import { deepeningOf, type Deepening } from '../data/deep'
 import type { Quiz as QuizData } from '../data/curriculum'
@@ -47,6 +48,8 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
   const g = useGame()
   const a = useAccess()
   const found = findLesson(packId, levelId)
+  // l'ambiance du temple continue pendant le cours · voir lib/zen
+  useZenAmbience()
 
   useHeadTags({
     title: found ? `${say(found.level.title, lang)} · DojoBuro` : `${t('g.noLevel')} · DojoBuro`,
@@ -165,7 +168,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
             <section className="ln-end">
               <button
                 className={`cc-btn ln-claim${done ? ' on' : ''}`}
-                onClick={() => (done ? clearDone(module.id, level.id) : markDone(module.id, level.id))}
+                onClick={() => { if (done) clearDone(module.id, level.id); else { markDone(module.id, level.id); zen.sfx('chime') } }}
               >
                 {done
                   ? <><BauhausIcon name="check" size={13} /> {say(level.badge, lang)}</>
