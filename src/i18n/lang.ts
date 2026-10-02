@@ -67,7 +67,13 @@ function initial(): Lang {
   return 'en'
 }
 
-let current: Lang = typeof window === 'undefined' ? 'en' : initial()
+// LA LANGUE VOULUE ET LA LANGUE MONTRÉE · pour une langue à catalogue, la
+// page démarre en anglais et ne bascule qu'à l'arrivée du catalogue. Le
+// changement de valeur est ce qui fait redessiner React (useSyncExternalStore
+// compare la valeur) : notifier sans changer la langue ne redessinait rien, et
+// une page ouverte directement en espagnol restait en anglais.
+const wanted: Lang = typeof window === 'undefined' ? 'en' : initial()
+let current: Lang = wanted === 'fr' ? 'fr' : 'en'
 const listeners = new Set<() => void>()
 
 /** L'ATTRIBUT lang DU DOCUMENT suit la langue choisie.
@@ -111,4 +117,11 @@ export function useLang(): Lang {
 applyToDocument(current)
 // UNE LANGUE À CATALOGUE AU DÉMARRAGE · le premier rendu est en anglais le
 // temps que le fichier arrive, puis tout se redessine dans la bonne langue.
-if (typeof window !== 'undefined') void loadCatalog(current).then(() => listeners.forEach((fn) => fn()))
+if (typeof window !== 'undefined' && wanted !== current) {
+  void loadCatalog(wanted).then(() => {
+    if (current !== 'en') return // l'élève a choisi entre-temps
+    current = wanted
+    applyToDocument(wanted)
+    listeners.forEach((fn) => fn())
+  })
+}
