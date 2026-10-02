@@ -689,7 +689,7 @@ type Feat = { kind: FeatKind; x: number; y: number; w: number; h: number; v: num
 /** les tailles essayées, de la plus grande à la plus petite · les poches
  *  d'herbe entre deux temples d'une rangée font environ 100 × 44 */
 const SIZES: Record<FeatKind, [number, number][]> = {
-  lake: [[170, 80], [150, 70], [130, 60], [112, 50], [100, 44], [96, 40], [88, 38]],
+  lake: [[170, 80], [150, 70], [130, 60], [112, 50], [104, 42], [100, 42], [96, 40], [88, 38]],
   zen: [[104, 46], [100, 42], [92, 40], [84, 38], [72, 36], [60, 32], [50, 28]],
   park: [[100, 46], [92, 42], [80, 40], [66, 36], [54, 32]],
   pond: [[60, 34], [52, 30], [44, 26], [38, 24]],
@@ -903,18 +903,6 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
       }
     }
   }
-  // les lanternes de part et d'autre de chaque temple
-  const lgT = P.lantern()
-  for (const s of spots) {
-    for (const lx of [s.x - 33, s.x + 25]) {
-      const ly = s.y
-      if (path.anyIn(lx, ly, 9, 15) || plaza.anyIn(lx, ly, 9, 15) || water.anyIn(lx, ly, 9, 15) || bank.anyIn(lx, ly, 9, 15) || solid.anyIn(lx, ly, 9, 15)) continue
-      if (lx < 0 || lx + 9 > w) continue
-      addSprite(lx, ly, lgT)
-      solid.rect(lx, ly, 9, 15)
-    }
-  }
-
   // 5. les grands décors · bassins, jardins zen, parcs, fontaine, massifs,
   // dans l'espace libre entre les places, loin du chemin, de l'eau, des noms
   for (const s of spots) riverNear.rect(Math.round(s.x - PW / 2) - 6, Math.round(s.y - PH / 2) - 6, PW + 12, PH + 12)
@@ -993,6 +981,20 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     if (f.kind === 'pond' || f.kind === 'lake') solid.rect(f.x + 4, f.y + 4, f.w - 8, f.h - 8)
     else solid.rect(f.x, f.y, f.w, f.h)
   }
+
+  // les lanternes de part et d'autre de chaque temple, là où les grands
+  // décors ont laissé la place
+  const lgT = P.lantern()
+  for (const s of spots) {
+    for (const lx of [s.x - 33, s.x + 25]) {
+      const ly = s.y
+      if (path.anyIn(lx, ly, 9, 15) || plaza.anyIn(lx, ly, 9, 15) || water.anyIn(lx, ly, 9, 15) || bank.anyIn(lx, ly, 9, 15) || solid.anyIn(lx, ly, 9, 15)) continue
+      if (lx < 0 || lx + 9 > w) continue
+      addSprite(lx, ly, lgT)
+      solid.rect(lx, ly, 9, 15)
+    }
+  }
+
 
   // 6. la peinture du sol · l'eau d'abord
   const pondW = new Mask(w, h)
