@@ -24,6 +24,7 @@ import { sendSignup } from '../lib/newsletter'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { gridToUrl } from '../pixel/raster'
 import { ChibiSprite } from '../pixel/ChibiSprite'
+import { LiveChibi } from '../pixel/LiveChibi'
 import { useAvatar } from '../pixel/avatar'
 import { sanitizeChibi } from '../pixel/chibi'
 import { hashString } from '../pixel/grid'
@@ -265,7 +266,7 @@ export function TemplePage({ packId }: { packId: string }) {
 
                   {/* LE MAÎTRE · il accueille, puis mène au cours. */}
                   <button className="tp-master" onClick={() => { if (i !== current) go(i); zen.sfx('open'); setMasterOpen(true) }} aria-label={`${s(TT.talkMaster)} ${master.name}`}>
-                    <ChibiSprite spec={master.spec} scale={1} />
+                    <LiveChibi spec={master.spec} scale={1} seed={`${pack.id}:${i}`} />
                     <span className="tp-nametag">{s(TT.master)} {master.name}</span>
                   </button>
 
@@ -314,7 +315,7 @@ export function TemplePage({ packId }: { packId: string }) {
       {masterOpen && here && (
         <div className="tp-modal" role="dialog" aria-modal="true" aria-label={`${s(TT.master)} ${master.name}`} onClick={() => setMasterOpen(false)}>
           <div className="tp-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="tp-master-big"><ChibiSprite spec={master.spec} scale={6} /></div>
+            <div className="tp-master-big"><LiveChibi spec={master.spec} scale={6} seed={pack.id} /></div>
             <div className="tp-bubble">
               <b>{s(TT.master)} {master.name}</b>
               <em>{s(master.role)}</em>

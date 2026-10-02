@@ -215,6 +215,28 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   ok('l\'élève marche jusqu\'à la porte avant d\'entrer', /setMe\('walk'\)[\s\S]{0,200}setMe\('enter'\)/.test(TP) && /await settle\(n\)/.test(TP))
 }
 
+/* --- 3e · la leçon comme une quête, les maîtres vivants, la carte sans pierre - */
+//
+// Demandé : « Améliore le design des formations [...] le design d'interaction
+// type jeu vidéo. Enlève les sols en pierres en dessous des temples [...] Anime
+// les maîtres dans leur carte ».
+{
+  const LS = readFileSync('src/game/Lesson.tsx', 'utf8')
+  const LG = readFileSync('src/game/LessonGame.tsx', 'utf8')
+  ok('la leçon a son journal de quête', /<QuestHud /.test(LS) && /data-step="mission"/.test(LS) && /data-step="quiz"/.test(LS))
+  ok('le maître ouvre la leçon en dialogue', /<MasterDialog /.test(LS) && /onKeyDown=\{\(e\) => \{ if \(e\.key === 'Enter'/.test(LG))
+  ok('les étapes deviennent des objectifs à cocher', /<Mission act=\{level\.act\} steps=\{level\.steps\}/.test(LS))
+  ok('le quiz se joue au clavier et compte la série', /\^\[1-4\]\$/.test(LS) && /QT\.streak/.test(LS))
+  ok('la victoire mène à l\'étage suivant', /<Victory /.test(LS) && /#etage-\$\{i \+ 2\}/.test(LS))
+  ok('le mouvement réduit coupe les effets de la quête', /\.lq-hit, \.lq-miss, \.lq-float[^{]*\{ animation: none !important; \}/.test(readFileSync('src/index.css', 'utf8')))
+  const WD = readFileSync('src/temple/World.tsx', 'utf8')
+  ok('les maîtres des cartes sont animés', /<LiveChibi spec=\{m\.spec\}/.test(WD) && /lc-blink/.test(readFileSync('src/index.css', 'utf8')))
+  const icon = W.drawTempleIcon('#7c3aed', 0, false)
+  let grey = 0
+  for (let y = 38; y < 44; y++) for (let x = 0; x < 40; x++) { const c = icon.get(x, y); if (c && /^#(b9b4c4|dcd8e4|8f8aa0)$/i.test(c)) grey++ }
+  ok('plus de socle de pierre sous les temples', grey === 0, `${grey} pixels de pierre`)
+}
+
 /* --- 4 · les morsures ------------------------------------------------------ */
 
 ok('morsure · un import de l\'ancien jeu serait vu', OLD_IMPORT.test("import { PackArt } from './PackArt'") && OLD_IMPORT.test("import { audio } from '../sim/audio'"))

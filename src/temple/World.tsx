@@ -23,6 +23,7 @@ import { Shell } from '../game/Shell'
 import { SupportBot } from '../components/SupportBot'
 import { gridToUrl } from '../pixel/raster'
 import { ChibiSprite } from '../pixel/ChibiSprite'
+import { LiveChibi } from '../pixel/LiveChibi'
 import { useAvatar, saveAvatar } from '../pixel/avatar'
 import { AvatarPicker } from '../pixel/AvatarPicker'
 import { masterOf } from '../pixel/masters'
@@ -145,10 +146,14 @@ export function WorldPage() {
             const m = masterOf(p.id)
             return (
               <Lnk key={p.id} className="tw-card gm-rise" href={packPath(p.id)} onClick={() => zen.sfx('tap')} style={{ ['--ac' as string]: p.tint, ['--i' as string]: k }}>
-                <span className="tw-card-art"><ChibiSprite spec={m.spec} scale={3} /></span>
+                <span className="tw-card-art"><LiveChibi spec={m.spec} scale={3} seed={p.id} /></span>
                 <span className="tw-card-t">
                   <b>{say(p.title, lang)}</b>
-                  <em>{s(TT.master)} {m.name} · {levels.length} {s(TT.floors)}{done ? ` · ${done}/${levels.length}` : ''}</em>
+                  <em>{s(TT.master)} {m.name} · {levels.length} {s(TT.floors)}</em>
+                  {/* LA PROGRESSION · une barre de jeu, les étages gravis sur le total */}
+                  <span className="tw-card-bar" role="progressbar" aria-valuemin={0} aria-valuemax={levels.length} aria-valuenow={done}
+                    aria-label={`${done} / ${levels.length}`}><i style={{ width: `${levels.length ? (done / levels.length) * 100 : 0}%` }} /></span>
+                  <small className="tw-card-n">{done} / {levels.length} {s(TT.floors)}</small>
                   <span className={`tw-tag${locked ? ' locked' : eurOf(p) === 0 ? ' free' : ' open'}`}>
                     {locked && <BauhausIcon name="lock" size={10} />}
                     {eurOf(p) === 0 ? s(TT.free) : locked ? `${priceTag(eurOf(p))} · ${FREE_LESSONS} ${s(TT.freeLessons)}` : s(TT.open)}

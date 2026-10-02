@@ -23,7 +23,8 @@
 // une bande, assez pour qu'on voie qui nous attend, assez peu pour que le
 // cours commence au-dessus de la ligne de flottaison.
 import { burst } from '../lib/juice'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { QuestHud, MasterDialog, Mission, Victory, useQuestSteps, QT } from './LessonGame'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
@@ -33,7 +34,6 @@ import { findLesson, lessonPath, packPath, xpOf, eurOf, levelsOf } from '../data
 import { priceTag } from '../data/plans'
 import { useGame, markDone, clearDone, recordAnswer } from './progress'
 import { useAccess, isFreeLesson } from './access'
-import { ChibiSprite } from '../pixel/ChibiSprite'
 import { masterOf } from '../pixel/masters'
 import { TT } from '../temple/templeText'
 import { zen, useZenAmbience } from '../lib/zen'
@@ -87,20 +87,51 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
   const more = deepeningOf(module.id, level.id)
   const extra = [...(deep?.more ?? []), ...(more?.more ?? [])]
 
+  return <LessonQuest key={`${pack.id}/${level.id}`} found={found} all={all} i={i} next={next} done={done} sensei={sensei} open={open} deep={deep} more={more} extra={extra} />
+}
+
+/** LA LEÇON EN QUÊTE · voir game/LessonGame. Un composant à part pour que son
+ *  état (étapes franchies, score, victoire) reparte à zéro d'un dojo à l'autre. */
+function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extra }: {
+  found: NonNullable<ReturnType<typeof findLesson>>
+  all: ReturnType<typeof levelsOf>
+  i: number
+  next: ReturnType<typeof levelsOf>[number] | null
+  done: boolean
+  sensei: ReturnType<typeof masterOf>
+  open: boolean
+  deep: Enrichment | null
+  more: Deepening | null
+  extra: QuizData[]
+}) {
+  const lang = useLang()
+  const t = useT()
+  const g = useGame()
+  const a = useAccess()
+  const { pack, module, level } = found
+  const article = useRef<HTMLElement>(null)
+  const { steps, cleared } = useQuestSteps(article, `${pack.id}/${level.id}:${open}`)
+  // LE SCORE DU QUIZ · bonnes réponses et série en cours, pour la victoire
+  const [results, setResults] = useState<Record<number, boolean>>({})
+  const [win, setWin] = useState(false)
+  const onResult = (n: number, right: boolean) => setResults((r) => (n in r ? r : { ...r, [n]: right }))
+  const total = 1 + extra.length
+  const rightCount = Object.values(results).filter(Boolean).length
+  let streak = 0
+  for (let n = 1; n <= total && results[n] !== undefined; n++) streak = results[n] ? streak + 1 : 0
+
   return (
     <Shell>
-      <article className="ln" style={{ ['--ac' as string]: module.tint }}>
+      <article className="ln" ref={article} style={{ ['--ac' as string]: module.tint }}>
         <Lnk className="gm-back" href={`${packPath(pack.id)}#etage-${i + 1}`}>← {say(pack.title, lang)}</Lnk>
 
         {/* LE MAÎTRE DU TEMPLE · « son portrait en 2D pixel art nous fait son
-            cours ». Il ouvre la leçon, puis reste à côté du texte. */}
-        <div className="ln-master">
-          <span className="ln-master-art"><ChibiSprite spec={sensei.spec} scale={5} title={`${say(TT.master, lang)} ${sensei.name}`} /></span>
-          <div className="ln-master-say">
-            <b>{say(TT.master, lang)} {sensei.name}</b>
-            <p>{say(level.learn, lang)}</p>
-          </div>
-        </div>
+            cours ». Il ouvre la leçon en dialogue, comme dans un jeu de rôle. */}
+        <MasterDialog name={`${say(TT.master, lang)} ${sensei.name}`} spec={sensei.spec} lines={[
+          say(sensei.welcome, lang),
+          say(level.learn, lang),
+          `${say(QT.mission, lang)} : ${say(level.act, lang)}`,
+        ]} />
 
         <header className="ln-head">
           <span className="ln-n">
@@ -115,53 +146,47 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
           </p>
         </header>
 
+        {open && <QuestHud title={say(level.title, lang)} dojo={`${t('g.dojo')} ${i + 1} / ${all.length}`} xp={xpOf(level)}
+          steps={steps} cleared={cleared} done={done} master={sensei.spec} />}
+
         {open ? (
           <>
             {more && (
-              <section className="ln-block ln-essential">
+              <section className="ln-block ln-essential" data-step="essential" data-label={t('ln.essential')}>
                 <h2 className="ln-h2">{t('ln.essential')}</h2>
                 <p>{say(more.intro, lang)}</p>
               </section>
             )}
 
-            <section className="ln-act">
-              <span className="ln-k">{t('g.youDo')}</span>
-              <p>{say(level.act, lang)}</p>
-            </section>
+            {/* LA MISSION · ce que vous faites, et ses étapes devenues objectifs */}
+            <div data-step="mission" data-label={say(QT.mission, lang)}>
+              <Mission act={level.act} steps={level.steps} />
+            </div>
 
-            {more && <Concepts d={more} />}
+            {more && <div data-step="concepts" data-label={t('ln.concepts')}><Concepts d={more} /></div>}
 
-            {deep && <Why e={deep} />}
+            {deep && <div data-step="why" data-label={t('ln.why')}><Why e={deep} /></div>}
 
-            <section className="ln-block">
-              <h2 className="ln-h2">{t('ln.steps')}</h2>
-              <ol className="ln-steps">
-                {level.steps.map((s, n) => (
-                  <li key={s.en}><span>{n + 1}</span>{say(s, lang)}</li>
-                ))}
-              </ol>
-            </section>
+            {more && <div data-step="walk" data-label={t('ln.walk')}><Walkthrough d={more} /></div>}
 
-            {more && <Walkthrough d={more} />}
+            {deep && <div data-step="example" data-label={t('ln.example')}><Example e={deep} /></div>}
 
-            {deep && <Example e={deep} />}
+            {more && <div data-step="mistakes" data-label={t('ln.mistakes')}><Mistakes d={more} /></div>}
 
-            {more && <Mistakes d={more} />}
-
-            <section className="ln-trap">
+            <section className="ln-trap" data-step="trap" data-label={t('g.trap')}>
               <span className="ln-k">{t('g.trap')}</span>
               <p>{say(level.trap, lang)}</p>
             </section>
 
-            {deep && <Exercise key={`ex-${pack.id}/${level.id}`} e={deep} />}
+            {deep && <div data-step="exercise" data-label={t('ln.exercise')}><Exercise key={`ex-${pack.id}/${level.id}`} e={deep} /></div>}
 
-            {more && <Recap d={more} />}
+            {more && <div data-step="recap" data-label={t('ln.recap')}><Recap d={more} /></div>}
 
-            <section className="ln-block">
-              <h2 className="ln-h2">{t('ac.check')}</h2>
-              <Quiz key={`${pack.id}/${level.id}`} packId={pack.id} levelId={level.id} n={1} of={1 + extra.length} />
+            <section className="ln-block" data-step="quiz" data-label={t('ac.check')}>
+              <h2 className="ln-h2">{t('ac.check')} {streak > 1 && <span className="lq-streak">{say(QT.streak, lang)} ×{streak}</span>}</h2>
+              <Quiz key={`${pack.id}/${level.id}`} packId={pack.id} levelId={level.id} n={1} of={total} onResult={(r) => onResult(1, r)} />
               {extra.map((q, k) => (
-                <QuizCard key={`${pack.id}/${level.id}#${k}`} q={q} n={k + 2} of={1 + extra.length} />
+                <QuizCard key={`${pack.id}/${level.id}#${k}`} q={q} n={k + 2} of={total} onResult={(r) => onResult(k + 2, r)} />
               ))}
             </section>
 
@@ -178,7 +203,7 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
             <section className="ln-end">
               <button
                 className={`cc-btn ln-claim${done ? ' on' : ''}`}
-                onClick={() => { if (done) clearDone(module.id, level.id); else { markDone(module.id, level.id); zen.sfx('chime') } }}
+                onClick={() => { if (done) clearDone(module.id, level.id); else { markDone(module.id, level.id); setWin(true) } }}
               >
                 {done
                   ? <><BauhausIcon name="check" size={13} /> {say(level.badge, lang)}</>
@@ -203,6 +228,12 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
           </div>
         )}
       </article>
+      {/* LA VICTOIRE · le badge, l'XP, les étoiles, et l'étage suivant (la porte
+          s'ouvre à l'arrivée, voir temple/Temple) */}
+      {win && (
+        <Victory xp={xpOf(level)} badge={say(level.badge, lang)} right={rightCount} total={total}
+          nextHref={next ? `${packPath(pack.id)}#etage-${i + 2}` : null} templeHref={packPath(pack.id)} onClose={() => setWin(false)} />
+      )}
     </Shell>
   )
 }
@@ -215,32 +246,50 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
  *  POURQUOI ELLE NE SE REJOUE PAS : une question qu'on peut retenter jusqu'à
  *  tomber juste ne vérifie rien, elle mesure la patience. La réponse est
  *  enregistrée, l'explication s'affiche, et on passe. */
-function Quiz({ packId, levelId, n, of }: { packId: string; levelId: string; n: number; of: number }) {
+function Quiz({ packId, levelId, n, of, onResult }: { packId: string; levelId: string; n: number; of: number; onResult?: (right: boolean) => void }) {
   const found = findLesson(packId, levelId)!
   const saved = useGame().answerFor(found.module.id, levelId)
   return (
-    <QuizCard q={found.level.quiz} n={n} of={of} saved={saved}
+    <QuizCard q={found.level.quiz} n={n} of={of} saved={saved} onResult={onResult}
       onPick={(k) => recordAnswer(found.module.id, levelId, k)} />
   )
 }
 
 /** Une question · la carte elle-même. Les questions d'approfondissement ne
  *  sont pas enregistrées : elles vérifient, elles ne comptent pas. */
-function QuizCard({ q, n, of, saved, onPick }: {
+function QuizCard({ q, n, of, saved, onPick, onResult }: {
   q: QuizData
   n: number
   of: number
   saved?: number
   onPick?: (k: number) => void
+  onResult?: (right: boolean) => void
 }) {
   const lang = useLang()
   const t = useT()
   const [pick, setPick] = useState<number | undefined>(saved)
+  const [fx, setFx] = useState<'' | 'hit' | 'miss'>('')
   const answered = pick !== undefined
   const right = pick === q.answer
+  // LE COMBAT · une réponse se choisit aussi au clavier (1 à 4, ou A à D) quand
+  // la question a le focus ; juste, « +XP » s'envole ; faux, la carte tremble.
+  const choose = (k: number, x?: number, y?: number) => {
+    if (answered) return
+    setPick(k); onPick?.(k)
+    const ok = k === q.answer
+    onResult?.(ok)
+    setFx(ok ? 'hit' : 'miss')
+    zen.sfx(ok ? 'chime' : 'locked')
+    if (ok && x !== undefined && y !== undefined) burst(x, y, 24)
+  }
 
   return (
-    <div className="ln-quiz">
+    <div className={`ln-quiz${fx ? ` lq-${fx}` : ''}`} tabIndex={0} aria-label={`${t('ln.q')} ${n} / ${of}`}
+      onKeyDown={(e) => {
+        const k = /^[1-4]$/.test(e.key) ? Number(e.key) - 1 : /^[a-dA-D]$/.test(e.key) ? e.key.toLowerCase().charCodeAt(0) - 97 : -1
+        if (k >= 0 && k < q.options.length) { e.preventDefault(); choose(k) }
+      }}>
+      {fx === 'hit' && <span className="lq-float" aria-hidden="true">+XP</span>}
       <span className="ln-k">{t('ln.q')} {n} / {of}</span>
       <h3>{say(q.q, lang)}</h3>
       <div className="ln-opts">
@@ -252,10 +301,9 @@ function QuizCard({ q, n, of, saved, onPick }: {
               className={`ln-opt${state}`}
               disabled={answered}
               onClick={(e) => {
-                setPick(k); onPick?.(k)
-                // LA BONNE RÉPONSE SE FÊTE · une gerbe plus fournie que celle
-                // d'un bouton, partie de la réponse choisie (voir lib/juice).
-                if (k === q.answer) burst(e.clientX, e.clientY, 24)
+                // LA BONNE RÉPONSE SE FÊTE · une gerbe partie de la réponse
+                // choisie (voir lib/juice), dans choose()
+                choose(k, e.clientX, e.clientY)
               }}
             >
               <span className="ln-opt-k" aria-hidden>
