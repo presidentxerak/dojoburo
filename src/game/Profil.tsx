@@ -47,7 +47,8 @@ import { AvatarPicker } from '../pixel/AvatarPicker'
 import { useAvatar, saveAvatar } from '../pixel/avatar'
 import { TT } from '../temple/templeText'
 import { useSettings, setSetting, resetSettings, systemReducesMotion, useLook, setLook, type Look } from '../lib/settings'
-import { eraseLocalData } from '../lib/erase'
+import { eraseLocalData, exportLocalData } from '../lib/erase'
+import { LEGAL, LEGAL_PAGES } from '../data/legal'
 
 type TabId = 'progression' | 'badges' | 'formations' | 'compte' | 'parametres'
 
@@ -378,6 +379,7 @@ function eraseEverything() {
 
 function SettingsTab() {
   const t = useT()
+  const lang = useLang()
   const s = useSettings()
   const sysCalm = systemReducesMotion()
 
@@ -407,6 +409,26 @@ function SettingsTab() {
       </div>
 
       <button className="cc-btn cc-slate st-reset" onClick={resetSettings}>{t('st.reset')}</button>
+
+      {/* LÉGAL ET CONFIDENTIALITÉ · demandé : « ajoute dans les paramètres la
+          partie legal et privacy, RGPD etc... ». Les trois pages, et les deux
+          droits que ce navigateur peut exercer seul : télécharger ses données
+          (portabilité) et les effacer. Pour le serveur, la demande s'écrit. */}
+      <div className="st-legal" id="confidentialite">
+        <h3>{t('st.legalH3')}</h3>
+        <p>{t('st.legalBody')}</p>
+        <div className="st-legal-links">
+          <Lnk className="cc-btn cc-slate" href={LEGAL_PAGES.privacy.path}>{say(LEGAL_PAGES.privacy.title, lang)} →</Lnk>
+          <Lnk className="cc-btn cc-slate" href={LEGAL_PAGES.terms.path}>{say(LEGAL_PAGES.terms.title, lang)} →</Lnk>
+          <Lnk className="cc-btn cc-slate" href={LEGAL_PAGES.mentions.path}>{say(LEGAL_PAGES.mentions.title, lang)} →</Lnk>
+        </div>
+        <h4>{t('st.rightsH4')}</h4>
+        <ul className="st-rights">
+          <li><b>{t('st.exportT')}</b> {t('st.exportB')} <button className="cc-btn" onClick={exportLocalData}>{t('st.exportGo')}</button></li>
+          <li><b>{t('st.deleteT')}</b> {t('st.deleteB')} <a className="cc-btn cc-slate" href={`mailto:${LEGAL.email}?subject=${encodeURIComponent(t('st.deleteSubject'))}`}>{t('st.deleteGo')}</a></li>
+          <li><b>{t('st.cookiesT')}</b> {t('st.cookiesB')}</li>
+        </ul>
+      </div>
 
       <div className="st-danger">
         <h3>{t('st.dangerH3')}</h3>

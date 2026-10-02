@@ -33,6 +33,7 @@
 // calculé depuis les dojos réellement finis · un compteur décoratif qui ne
 // bouge pas quand on travaille est pire qu'un compteur absent, parce qu'il
 // apprend à ne plus regarder l'écran.
+import { GameFooter } from './GameFooter'
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { Lnk, usePath } from '../lib/router'
 import { useT } from '../i18n'
@@ -160,6 +161,7 @@ export function Shell({ children, wide = false }: { children: ReactNode; wide?: 
 
 
       <main className={`gm-main${wide ? ' wide' : ''}`}>{children}</main>
+      <GameFooter />
 
       {/* LA BARRE DU BAS · elle reste au doigt, à hauteur de pouce, et elle ne
           défile pas. C'est la seule navigation du produit sur un téléphone. */}

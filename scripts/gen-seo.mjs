@@ -145,8 +145,10 @@ const urls = [
   ...DISCOVERY_MODULE.levels.map((l) => ({ loc: `/dojo/${FREE_PACK.id}/${l.id}`, pri: '0.8', freq: 'monthly' })),
   // LA BROCHURE · elle a quitté la racine et garde une adresse à elle.
   { loc: '/decouvrir', pri: '0.9', freq: 'weekly' },
-  { loc: '/terms', pri: '0.2', freq: 'yearly' },
-  { loc: '/privacy', pri: '0.2', freq: 'yearly' },
+  // LES PAGES LÉGALES · leurs adresses françaises (/terms et /privacy y mènent)
+  { loc: '/mentions-legales', pri: '0.2', freq: 'yearly' },
+  { loc: '/confidentialite', pri: '0.2', freq: 'yearly' },
+  { loc: '/cgv', pri: '0.2', freq: 'yearly' },
 ]
 
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'),

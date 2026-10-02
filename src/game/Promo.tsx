@@ -22,6 +22,7 @@
 //
 // Pas de barre du bas ici : c'est une page d'entrée, une seule action compte.
 // Les couleurs sont celles du jeu (clair par défaut, sombre au choix).
+import { GameFooter } from './GameFooter'
 import { useState } from 'react'
 import { Lnk, navigate } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
@@ -228,6 +229,7 @@ export function PromoPage() {
           <Lnk href="/privacy">{t('nav.privacy')}</Lnk> · <Lnk href="/terms">{t('nav.terms')}</Lnk>
         </p>
       </main>
+      <GameFooter />
       <SupportBot />
     </div>
   )
