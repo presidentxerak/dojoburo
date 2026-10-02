@@ -979,8 +979,8 @@ const LANDSCAPE: Lesson[] = [
       },
       {
         kind: 'idea',
-        title: 'The three plans',
-        body: 'Discovery is 0 € and it is seven days, one lesson a day, complete, with no card and no trial that turns into anything. Formation is 99 € paid once: every dojo city opens, in any order, with the files, the resources, the updates and the right to replay any level for good. Métier is 49 € added on top, one more city written for the job you actually do, and it is sold after the Formation because it makes no sense before. Both together come to 148 €, and nothing renews.',
+        title: 'What you can buy',
+        body: 'Discovery is 0 € and it is seven days, one lesson a day, complete, with no card and no trial that turns into anything. Formation is 99 € paid once: every dojo city opens, in any order, with the files, the resources, the updates and the right to replay any level for good. Métier is 49 € added on top, one more city written for the job you actually do, and it is best taken after the Formation because it does not explain the basics again. Both together come to 148 €. The simplest choice is the Dojo Pass, 149 € paid once: it opens every temple at once, the full path, every trade, the courses sold separately and the temples still to come. Nothing renews.',
       },
       {
         kind: 'idea',
@@ -1052,8 +1052,8 @@ const LANDSCAPE: Lesson[] = [
           body: "C'est l'ensemble du modèle tarifaire, et il est préférable de l'énoncer clairement. Rien ici n'est facturé à l'usage et rien ne se renouvelle. Nous ne vendons ni exécutions, ni tâches, ni crédits, car rien dans le dojo n'appelle un modèle payant ; nous ne vendons pas non plus d'abonnement, car un cours se termine au lieu de se louer. Vous achetez le cours lui-même, une seule fois. La première semaine est gratuite afin que vous puissiez vérifier que cette pédagogie vous convient avant tout paiement.",
         },
         {
-          title: "Les trois formules",
-          body: "Découverte : 0 € pour sept jours, à raison d'une leçon complète par jour, sans carte bancaire et sans essai converti en abonnement. Formation : 99 € en un paiement unique ; toutes les cités dojo s'ouvrent, dans l'ordre de votre choix, avec les fichiers, les ressources, les mises à jour et la possibilité de refaire n'importe quel niveau, sans limite de durée. Métier : 49 € en supplément, pour une cité supplémentaire consacrée au travail que vous exercez réellement ; elle est proposée après la Formation, car elle n'a pas de sens avant. Les deux réunies coûtent 148 €, et rien ne se renouvelle.",
+          title: "Ce que vous pouvez acheter",
+          body: "Découverte : 0 € pour sept jours, à raison d'une leçon complète par jour, sans carte bancaire et sans essai converti en abonnement. Formation : 99 € en un paiement unique ; toutes les cités dojo s'ouvrent, dans l'ordre de votre choix, avec les fichiers, les ressources, les mises à jour et la possibilité de refaire n'importe quel niveau, sans limite de durée. Métier : 49 € en supplément, pour une cité supplémentaire consacrée au travail que vous exercez réellement ; il est préférable de la suivre après la Formation, car elle ne reprend pas les bases. Les deux réunies coûtent 148 €. Le choix le plus simple est le Pass Dojo, 149 € en un paiement unique : il ouvre tous les temples d'un coup, la formation complète, tous les métiers, les cours vendus à part et les temples à venir. Rien ne se renouvelle.",
         },
         {
           title: "Ce qui est entièrement gratuit",

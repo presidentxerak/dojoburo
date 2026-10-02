@@ -105,9 +105,11 @@ export interface Access {
   trades?: string[]
   /** les cours vendus à part achetés · voir data/courses */
   courses?: string[]
+  /** le Pass Dojo · tous les temples (voir data/plans, PASS_EUR) */
+  pass?: true
 }
 
-export type Grant = { path: true } | { trade: string } | { course: string }
+export type Grant = { path: true } | { trade: string } | { course: string } | { pass: true }
 
 export const EMPTY_DATA: ProfileData = { v: 1, academy: null, sim: null, clan: null }
 
@@ -268,6 +270,7 @@ export function cleanAccess(raw: unknown): Access {
   if (!isObj(raw)) return {}
   const out: Access = {}
   if (raw.path === true) out.path = true
+  if (raw.pass === true) out.pass = true
   if (Array.isArray(raw.trades)) {
     const t = [...new Set(raw.trades.filter((x): x is string => typeof x === 'string' && BUY_TRADES.has(x)))]
     if (t.length) out.trades = t
@@ -283,6 +286,7 @@ export function cleanAccess(raw: unknown): Access {
 export function grantOf(v: { paid: boolean; plan: string | null; trade: string | null; course?: string | null } | null): Grant | null {
   if (!v || !v.paid) return null
   if (v.plan === 'path') return { path: true }
+  if (v.plan === 'pass') return { pass: true }
   if (v.plan === 'trade' && v.trade && BUY_TRADES.has(v.trade)) return { trade: v.trade }
   if (v.plan === 'course' && v.course && BUY_COURSES.has(v.course)) return { course: v.course }
   return null
@@ -293,6 +297,7 @@ export function applyGrant(access: Access, grant: Grant | null): Access {
   const a = cleanAccess(access)
   if (!grant) return a
   if ('path' in grant) return { ...a, path: true }
+  if ('pass' in grant) return { ...a, pass: true }
   if ('course' in grant) {
     const courses = a.courses ?? []
     return courses.includes(grant.course) ? a : { ...a, courses: [...courses, grant.course] }

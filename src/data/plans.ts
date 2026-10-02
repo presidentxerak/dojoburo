@@ -97,6 +97,20 @@ export const COURSE_EUR: Record<'coder-une-app' | 'coder-avec-lovable', number> 
   'coder-avec-lovable': 49,
 }
 
+/** LE PASS DOJO · demandé : « fais moi le tableau des prix que tu me conseilles
+ *  fais un pricing simple pour ne pas perdre le user ».
+ *
+ *  La grille d'avant obligeait à comprendre quatre choses (la formation, le
+ *  métier qui la suppose, deux cours à part) avant de payer. La grille simple
+ *  n'en demande que trois, et la décision tient en une ligne :
+ *    · GRATUIT      le week-end IA et les premières leçons de chaque temple ;
+ *    · À L'UNITÉ    un temple, au prix de ce temple (99 € ou 49 €) ;
+ *    · PASS DOJO    tout, une fois, mises à jour et temples à venir compris.
+ *  Le pass coûte à peine plus qu'un grand temple : c'est voulu, c'est lui qu'on
+ *  recommande, et l'écart avec un seul temple suffit à le rendre évident.
+ *  Un prix rond, sans « ,99 » : une formation se juge sur le sérieux. */
+export const PASS_EUR = 149
+
 /** Le parcours découverte · sept jours, une leçon par jour. */
 export const DISCOVERY_DAYS = 7
 

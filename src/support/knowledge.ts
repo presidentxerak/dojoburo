@@ -48,7 +48,7 @@ import { TRADES } from '../data/trades'
 // faisait une cinquième grille de prix capable de contredire les quatre autres.
 // Elle l'a fait : elle vendait encore Founder à 29 $ et 2 000 tâches longtemps
 // après que le produit ait cessé d'exécuter quoi que ce soit.
-import { PATH_EUR, TRADE_EUR, BUNDLE_EUR, COURSE_EUR, priceTag } from '../data/plans'
+import { PATH_EUR, TRADE_EUR, BUNDLE_EUR, COURSE_EUR, PASS_EUR, priceTag } from '../data/plans'
 // LES GRADES DE L'ÉLÈVE · lus dans game/ranks et game/Gauge, jamais recopiés.
 // Ce ne sont pas les ceintures du studio (dojo/grades, sujet 'certification').
 import { RANKS } from '../game/ranks'
@@ -366,7 +366,7 @@ export const KB: KBTopic[] = [
     id: 'pricing',
     chip: 'Pricing',
     answer:
-      `No subscription: you pay once, and nothing renews. The AI weekend is free: ${FREE_LESSONS} short lessons, and it asks for your email, no card. The full training is ${priceTag(PATH_EUR)}, paid once: every one of the ${PATH_CITIES} dojo cities, in the order you like, with the files and the updates. A trade training is ${priceTag(TRADE_EUR)} per trade, paid once too: ${TRADE_CITIES} more cities written for one job. It is best taken after the full training, because it does not explain the basics again. Both together come to ${priceTag(BUNDLE_EUR)}. ` +
+      `No subscription: you pay once, and nothing renews. The AI weekend is free: ${FREE_LESSONS} short lessons, and it asks for your email, no card. The full training is ${priceTag(PATH_EUR)}, paid once: every one of the ${PATH_CITIES} dojo cities, in the order you like, with the files and the updates. A trade training is ${priceTag(TRADE_EUR)} per trade, paid once too: ${TRADE_CITIES} more cities written for one job. It is best taken after the full training, because it does not explain the basics again. Both together come to ${priceTag(BUNDLE_EUR)}. The simplest choice is the Dojo Pass, ${priceTag(PASS_EUR)} paid once: every temple at once, the full training, every trade, the two courses sold separately and the temples still to come. ` +
       'Not sure yet? The first three lessons of every training are free, so you can judge before paying. Everything is on the /tarifs page, and the training opens in this browser as soon as the payment is confirmed.',
     links: [
       { label: 'See the prices', href: '/tarifs' },
@@ -377,7 +377,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Les tarifs',
       answer:
-        `Aucun abonnement : vous payez une seule fois, et rien n'est reconduit. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, pour lesquelles seule votre adresse e-mail est demandée, sans carte bancaire. La formation complète coûte ${priceTag(PATH_EUR)}, en un paiement unique : chacune des ${PATH_CITIES} cités dojo, dans l'ordre de votre choix, avec les fichiers et les mises à jour. Une formation métier coûte ${priceTag(TRADE_EUR)} par métier, également en un paiement unique : ${TRADE_CITIES} cités supplémentaires, conçues pour un métier. Il est préférable de la suivre après la formation complète, car elle ne reprend pas les bases. Les deux réunies coûtent ${priceTag(BUNDLE_EUR)}. Vous hésitez encore ? Les trois premières leçons de chaque formation sont offertes, afin que vous puissiez juger avant de payer. Toutes les informations figurent sur la page /tarifs, et la formation s'ouvre dans ce navigateur dès que le paiement est confirmé.`,
+        `Aucun abonnement : vous payez une seule fois, et rien n'est reconduit. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, pour lesquelles seule votre adresse e-mail est demandée, sans carte bancaire. La formation complète coûte ${priceTag(PATH_EUR)}, en un paiement unique : chacune des ${PATH_CITIES} cités dojo, dans l'ordre de votre choix, avec les fichiers et les mises à jour. Une formation métier coûte ${priceTag(TRADE_EUR)} par métier, également en un paiement unique : ${TRADE_CITIES} cités supplémentaires, conçues pour un métier. Il est préférable de la suivre après la formation complète, car elle ne reprend pas les bases. Les deux réunies coûtent ${priceTag(BUNDLE_EUR)}. Le choix le plus simple est le Pass Dojo, ${priceTag(PASS_EUR)} en un paiement unique : tous les temples d'un coup, la formation complète, tous les métiers, les deux cours vendus à part et les temples à venir. Vous hésitez encore ? Les trois premières leçons de chaque formation sont offertes, afin que vous puissiez juger avant de payer. Toutes les informations figurent sur la page /tarifs, et la formation s'ouvre dans ce navigateur dès que le paiement est confirmé.`,
       links: [
         'Voir les tarifs',
         'Commencer le week-end gratuit',

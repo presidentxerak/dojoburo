@@ -42,7 +42,7 @@ async function load(entry, name) {
 }
 
 const P = await load('src/data/plans.ts', 'plans.mjs')
-const { PLANS, PLAN_BY_ID, PATH_EUR, TRADE_EUR, BUNDLE_EUR, DISCOVERY_DAYS, planPrice, priceTag } = P
+const { PLANS, PLAN_BY_ID, PATH_EUR, TRADE_EUR, BUNDLE_EUR, PASS_EUR, DISCOVERY_DAYS, planPrice, priceTag } = P
 
 /* --- 1 · la grille tient debout ------------------------------------------ */
 
@@ -124,6 +124,30 @@ ok('le parcours découverte dure une semaine', DISCOVERY_DAYS === 7, `${DISCOVER
   // un abonnement, et cela se vérifie sur `once`, juste au-dessus, où c'est une
   // propriété et non une tournure. Une garde qui bannit un vocabulaire finit
   // par faire écrire moins clairement pour lui plaire.
+}
+
+/* --- 2 bis · la grille simple et son Pass -------------------------------- */
+
+// Demandé : « fais moi le tableau des prix que tu me conseilles fais un pricing
+// simple pour ne pas perdre le user ». La page des tarifs ne propose plus que
+// trois choix (gratuit, un temple, le Pass Dojo) et un tableau qui les compare.
+// Ce qui rendrait la grille trompeuse est vérifié ici : un Pass plus cher que
+// la somme de ce qu'il ouvre, ou à peine moins cher qu'elle, n'aurait pas de
+// raison d'être ; un Pass moins cher qu'un seul grand temple rendrait l'achat
+// à l'unité absurde.
+{
+  ok('le Pass coûte plus qu\'un grand temple', PASS_EUR > Math.max(PATH_EUR, TRADE_EUR), `${PASS_EUR}`)
+  ok('le Pass coûte moins que le parcours et un métier achetés à part, plus un cours', PASS_EUR < BUNDLE_EUR + TRADE_EUR, `${PASS_EUR} < ${BUNDLE_EUR + TRADE_EUR}`)
+  ok('le Pass est un prix rond, en euros entiers', Number.isInteger(PASS_EUR) && PASS_EUR % 10 === 9 && !String(PASS_EUR).includes('.'), `${PASS_EUR}`)
+  const page = readFileSync('src/game/Tarifs.tsx', 'utf8')
+  const cards = (page.match(/<article className="tf-card/g) || []).length
+  ok('la page des tarifs propose trois choix, pas un de plus', cards === 3, `${cards} cartes`)
+  ok('le Pass est au milieu et recommandé', /tf-card main[\s\S]{0,240}tf\.reco/.test(page) && page.indexOf("tf.freeName") < page.indexOf("tf.passName") && page.indexOf("tf.passName") < page.indexOf("tf.unitName"))
+  ok('un tableau compare les trois choix', /<table className="tf-table">/.test(page) && /tf\.rowAll/.test(page))
+  ok('le total « achetés un par un » est calculé, jamais écrit', /const sum = paid\.reduce\(\(n, p\) => n \+ eurOf\(p\), 0\)/.test(page))
+  ok('le Pass se paie par le même point de paiement', /pass: ENV\.STRIPE_PRICE_PASS/.test(readFileSync('api/buy.ts', 'utf8')))
+  const access = readFileSync('src/game/access.ts', 'utf8')
+  ok('le Pass ouvre tous les temples', /if \(tester \|\| pass\) return true/.test(access) && /if \(pass\) return true/.test(access))
 }
 
 /* --- 3 · aucun forfait ne revend d'exécutions ---------------------------- */
@@ -239,12 +263,15 @@ ok('morsure · un plafond quotidien reste permis',
 // donc EXACTEMENT NOS DEUX PRIX, ce qui est plus précis que la forme générale
 // et attrape la seule faute qui compte : une copie qui survit à un changement.
 const PRICE_SHAPE = new RegExp(
-  `\\b(?:${PATH_EUR}|${TRADE_EUR}|${BUNDLE_EUR})\\s?(?:€|EUR\\b)` +
+  `\\b(?:${PATH_EUR}|${TRADE_EUR}|${BUNDLE_EUR}|${PASS_EUR})\\s?(?:€|EUR\\b)` +
   `|\\$\\d+\\s*(?:/\\s*(?:mo|month|seat)|a month\\b|per month\\b|per seat\\b|/mois)`, 'i')
 const SKIP = new Set(['src/data/plans.ts'])
 // Ces fichiers PRODUISENT du contenu d'exemple pour un site fictif fabriqué
 // dans le dojo · leurs prix sont de la matière pédagogique, pas notre grille.
-const FICTION = new Set(['src/agents/localDraft.ts', 'src/lib/site.ts'])
+// La leçon métier « fondateur » de trades-b fait chiffrer à un fondateur fictif
+// trois prix pour son propre outil (59, 149, 290 €) : l'un d'eux est aussi le
+// prix du Pass Dojo, par coïncidence, et ce n'est pas une copie de notre grille.
+const FICTION = new Set(['src/agents/localDraft.ts', 'src/lib/site.ts', 'src/data/deep/trades-b.ts'])
 
 // DEUX FICHIERS ONT LE DROIT D'ÉCRIRE LES PRIX, et ce ne sont pas des oublis :
 // une leçon est de la prose, et le prompt du robot de support part dans un
@@ -254,8 +281,8 @@ const FICTION = new Set(['src/agents/localDraft.ts', 'src/lib/site.ts'])
 // écrivent est bien ce que plans.ts dit. C'est exactement la copie qui avait
 // gardé « Founder à 29 $ » vivante des semaines après le repositionnement.
 const ALLOWED = {
-  'src/data/academy.ts': [`${PATH_EUR} €`, `${TRADE_EUR} €`, `${BUNDLE_EUR} €`],
-  'api/chat.ts': [`${PATH_EUR} €`, `${TRADE_EUR} €`, `${BUNDLE_EUR} €`],
+  'src/data/academy.ts': [`${PATH_EUR} €`, `${TRADE_EUR} €`, `${BUNDLE_EUR} €`, `${PASS_EUR} €`],
+  'api/chat.ts': [`${PATH_EUR} €`, `${TRADE_EUR} €`, `${BUNDLE_EUR} €`, `${PASS_EUR} €`],
 }
 for (const [rel, needles] of Object.entries(ALLOWED)) {
   const body = readFileSync(rel, 'utf8')

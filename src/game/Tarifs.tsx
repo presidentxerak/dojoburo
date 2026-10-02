@@ -16,6 +16,15 @@
 // progression et l'accès y sont gardés, voir game/access). Elle ne promet pas
 // de remboursement, de facture ni de compte, parce que rien de tout ça n'est
 // écrit dans le code.
+//
+// LA GRILLE SIMPLE · demandé : « fais moi le tableau des prix que tu me
+// conseilles fais un pricing simple pour ne pas perdre le user ». Trois choix
+// et pas un de plus, le Pass au milieu parce que c'est lui qu'on recommande :
+//   GRATUIT      le week-end IA et les premières leçons de chaque temple ;
+//   PASS DOJO    tous les temples, une fois (data/plans, PASS_EUR) ;
+//   UN TEMPLE    au prix de ce temple, qu'on choisit dans la liste.
+// Puis le tableau qui compare les trois, ligne à ligne. Le total « achetés un
+// par un » est calculé depuis les prix des temples, jamais écrit à la main.
 import { useEffect, useState } from 'react'
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
@@ -23,14 +32,21 @@ import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
 import { say } from '../data/bilingual'
-import { PACKS, PACK_BY_ID, packPath, levelsOf, minutesOf, eurOf } from '../data/packs'
-import { PLAN_BY_ID, priceTag, PATH_EUR, TRADE_EUR } from '../data/plans'
+import { PACKS, PACK_BY_ID, packPath, levelsOf, eurOf, type Pack } from '../data/packs'
+import { priceTag, PASS_EUR } from '../data/plans'
 import { apiFetch } from '../lib/apiFetch'
 import { addReceipt } from '../lib/account'
-import { useAccess, grant, grantCourse, chooseTrade } from './access'
+import { useAccess, grant, grantCourse, chooseTrade, FREE_LESSONS } from './access'
 import { Shell } from './Shell'
 
-type Buy = { plan: 'path' } | { plan: 'trade'; trade: string } | { plan: 'course'; course: string }
+type Buy = { plan: 'path' } | { plan: 'trade'; trade: string } | { plan: 'course'; course: string } | { plan: 'pass' }
+
+/** Ce qu'on achète pour ouvrir ce temple · null s'il ne se vend pas seul. */
+const buyOf = (p: Pack): Buy | null =>
+  p.door === 'path' ? { plan: 'path' }
+    : p.door === 'trade' && p.trade ? { plan: 'trade', trade: p.trade }
+      : p.door === 'course' && p.course ? { plan: 'course', course: p.course }
+        : null
 
 /** Lancer le paiement · rend un message d'erreur lisible, ou part vers Stripe. */
 async function startPurchase(what: Buy, email: string | undefined, t: (k: string) => string): Promise<string> {
@@ -56,10 +72,13 @@ export function TarifsPage() {
   const a = useAccess()
   const [busy, setBusy] = useState<string | null>(null)
   const [msg, setMsg] = useState('')
-  const trades = PACKS.filter((p) => p.door === 'trade')
-  // LES COURS VENDUS À PART · chacun s'achète seul et n'ouvre que lui
-  const courses = PACKS.filter((p) => p.door === 'course')
-  const [pick, setPick] = useState<string>(a.pick ?? trades[0]?.trade ?? '')
+  // LES TEMPLES QUI SE VENDENT SEULS · la formation complète, les métiers, les
+  // cours à part ; le week-end est gratuit et n'y figure donc pas.
+  const paid = PACKS.filter((p) => eurOf(p) > 0 && buyOf(p))
+  const sum = paid.reduce((n, p) => n + eurOf(p), 0)
+  const cheapest = Math.min(...paid.map(eurOf))
+  const [pick, setPick] = useState<string>(PACK_BY_ID.generaliste ? 'generaliste' : paid[0]?.id ?? '')
+  const unit = PACK_BY_ID[pick]
   const cancelled = typeof location !== 'undefined' && /[?&]annule=1/.test(location.search)
 
   useHeadTags({ title: `${t('tf.title')} · DojoBuro`, description: t('tf.lead'), path: '/tarifs' })
@@ -69,12 +88,16 @@ export function TarifsPage() {
     const m = await startPurchase(what, a.email, t)
     if (m) { setMsg(m); setBusy(null) }
   }
-
-  const free = PLAN_BY_ID.free
-  const full = PLAN_BY_ID.founder
-  const trade = PLAN_BY_ID.managed
-  const inclOf = (p: typeof free) => (lang === 'fr' && p.fr ? p.fr.incl : p.incl)
-  const pickedPack = trades.find((p) => p.trade === pick)
+  const yes = <span className="tf-yes" title={t('tf.yes')}><BauhausIcon name="check" size={15} /><span className="lq-sr">{t('tf.yes')}</span></span>
+  const no = <span className="tf-no" title={t('tf.no')}><BauhausIcon name="cross" size={12} /><span className="lq-sr">{t('tf.no')}</span></span>
+  const rows: [string, JSX.Element, JSX.Element, JSX.Element][] = [
+    [t('tf.rowWeekend'), yes, yes, yes],
+    [`${FREE_LESSONS} ${t('tf.freeLessons')}`, yes, yes, yes],
+    [t('tf.rowOne'), no, yes, yes],
+    [t('tf.rowAll'), no, no, yes],
+    [t('tf.rowFuture'), no, no, yes],
+    [t('tf.rowUpdates'), no, yes, yes],
+  ]
 
   return (
     <Shell>
@@ -87,91 +110,96 @@ export function TarifsPage() {
 
       <section className="gm-sec">
         <div className="tf-grid">
-          {/* LE WEEK-END · gratuit, une adresse suffit */}
+          {/* GRATUIT · une adresse suffit */}
           <article className="tf-card" style={{ ['--ac' as string]: PACK_BY_ID.weekend?.tint }}>
-            <span className="tf-name">{say(PACK_BY_ID.weekend.title, lang)}</span>
-            <span className="tf-price">{t('gm.free')}</span>
-            <p className="tf-tag">{lang === 'fr' && free.fr ? free.fr.tagline : free.tagline}</p>
-            <ul className="tf-incl">{inclOf(free).map((l) => <li key={l}><BauhausIcon name="check" size={13} />{l}</li>)}</ul>
+            <span className="tf-name">{t('tf.freeName')}</span>
+            <span className="tf-price">{priceTag(0)}</span>
+            <p className="tf-tag">{t('tf.freeTag')}</p>
+            <ul className="tf-incl">
+              <li><BauhausIcon name="check" size={13} />{t('tf.free1')}</li>
+              <li><BauhausIcon name="check" size={13} />{FREE_LESSONS} {t('tf.freeLessons')}</li>
+              <li><BauhausIcon name="check" size={13} />{t('tf.free3')}</li>
+            </ul>
             <Lnk className="gm-cta tf-go" href={packPath('weekend')}>
               {a.hasEmail ? t('ac.continue') : t('tf.startFree')} →
             </Lnk>
           </article>
 
-          {/* LA FORMATION COMPLÈTE · l'offre principale */}
-          <article className="tf-card main" style={{ ['--ac' as string]: PACK_BY_ID.generaliste?.tint }}>
-            <span className="tf-flag">{t('tf.main')}</span>
-            <span className="tf-name">{say(PACK_BY_ID.generaliste.title, lang)}</span>
-            <span className="tf-price">{priceTag(PATH_EUR)} <i>{t('tf.once')}</i></span>
-            <p className="tf-tag">{lang === 'fr' && full.fr ? full.fr.tagline : full.tagline}</p>
-            <ul className="tf-incl">{inclOf(full).map((l) => <li key={l}><BauhausIcon name="check" size={13} />{l}</li>)}</ul>
-            {a.hasPath ? (
-              <Lnk className="gm-cta tf-go" href={packPath('generaliste')}>{t('tf.owned')} · {t('ac.continue')} →</Lnk>
+          {/* LE PASS DOJO · l'offre recommandée, au milieu */}
+          <article className="tf-card main" style={{ ['--ac' as string]: '#7c3aed' }}>
+            <span className="tf-flag">{t('tf.reco')}</span>
+            <span className="tf-name">{t('tf.passName')}</span>
+            <span className="tf-price">{priceTag(PASS_EUR)} <i>{t('tf.once')}</i></span>
+            <p className="tf-tag">{t('tf.passTag')}</p>
+            <ul className="tf-incl">
+              <li><BauhausIcon name="check" size={13} />{paid.length} {t('tf.passTemples')}</li>
+              <li><BauhausIcon name="check" size={13} />{t('tf.pass2')}</li>
+              <li><BauhausIcon name="check" size={13} />{t('tf.pass3')}</li>
+            </ul>
+            <p className="tf-sum">{t('tf.passSum')} <s>{priceTag(sum)}</s></p>
+            {a.hasPass ? (
+              <Lnk className="gm-cta tf-go" href="/">{t('tf.owned')} · {t('ac.continue')} →</Lnk>
             ) : (
-              <button className="gm-cta tf-go" disabled={busy !== null} onClick={() => buy({ plan: 'path' }, 'path')}>
-                {busy === 'path' ? t('tf.going') : `${t('tf.buy')} · ${priceTag(PATH_EUR)}`}
+              <button className="gm-cta tf-go gm-pump" disabled={busy !== null} onClick={() => buy({ plan: 'pass' }, 'pass')}>
+                {busy === 'pass' ? t('tf.going') : `${t('tf.passBuy')} · ${priceTag(PASS_EUR)}`}
               </button>
             )}
           </article>
 
-          {/* LE MÉTIER · on choisit lequel, puis on l'achète */}
-          <article className="tf-card" style={{ ['--ac' as string]: pickedPack?.tint }}>
-            <span className="tf-name">{t('tf.trade')}</span>
-            <span className="tf-price">{priceTag(TRADE_EUR)} <i>{t('tf.perTrade')}</i></span>
-            <p className="tf-tag">{lang === 'fr' && trade.fr ? trade.fr.tagline : trade.tagline}</p>
-            <div className="tf-trades" role="radiogroup" aria-label={t('tf.trade')}>
-              {trades.map((p) => (
-                <button key={p.id} role="radio" aria-checked={pick === p.trade}
-                  className={`tf-chip${pick === p.trade ? ' on' : ''}`}
-                  style={{ ['--ac' as string]: p.tint }}
-                  onClick={() => { if (p.trade) { setPick(p.trade); chooseTrade(p.trade) } }}>
-                  {say(p.title, lang)}
-                </button>
-              ))}
-            </div>
-            {pickedPack && (a.trade === pick || a.tester) ? (
-              <Lnk className="gm-cta tf-go" href={packPath(pickedPack.id)}>{t('tf.owned')} · {t('ac.continue')} →</Lnk>
-            ) : (
-              <button className="gm-cta tf-go" disabled={busy !== null || !pick} onClick={() => buy({ plan: 'trade', trade: pick }, 'trade')}>
-                {busy === 'trade' ? t('tf.going') : `${t('tf.buy')} · ${priceTag(TRADE_EUR)}`}
+          {/* UN TEMPLE · on le choisit, on paie son prix */}
+          <article className="tf-card" style={{ ['--ac' as string]: unit?.tint }}>
+            <span className="tf-name">{t('tf.unitName')}</span>
+            <span className="tf-price"><i>{t('tf.from')}</i> {priceTag(cheapest)}</span>
+            <p className="tf-tag">{t('tf.unitTag')}</p>
+            <label className="tf-pick">
+              <span>{t('tf.unitPick')}</span>
+              <select value={pick} onChange={(e) => {
+                setPick(e.target.value)
+                const tr = PACK_BY_ID[e.target.value]?.trade
+                if (tr) chooseTrade(tr)
+              }}>
+                {paid.map((p) => <option key={p.id} value={p.id}>{say(p.title, lang)} · {priceTag(eurOf(p))}</option>)}
+              </select>
+            </label>
+            {unit && <p className="tf-fine">{levelsOf(unit).length} {t('tf.unitLessons')}</p>}
+            {unit && a.ownsPack(unit) ? (
+              <Lnk className="gm-cta tf-go" href={packPath(unit.id)}>{t('tf.owned')} · {t('ac.continue')} →</Lnk>
+            ) : unit && buyOf(unit) ? (
+              <button className="gm-cta tf-go" disabled={busy !== null} onClick={() => buy(buyOf(unit)!, 'unit')}>
+                {busy === 'unit' ? t('tf.going') : `${t('tf.buy')} · ${priceTag(eurOf(unit))}`}
               </button>
-            )}
-            <p className="tf-fine">{t('tf.tradeAfter')}</p>
+            ) : null}
           </article>
         </div>
       </section>
 
-      {courses.length > 0 && (
-        <section className="gm-sec">
-          <h2 className="pf-h2">{t('tf.coursesH')}</h2>
-          <p className="gm-lead">{t('tf.coursesLead')}</p>
-          <div className="tf-grid">
-            {courses.map((p) => {
-              const owned = a.tester || (p.course ? a.courses.includes(p.course) : false)
-              const key = `course:${p.course}`
-              return (
-                <article key={p.id} className="tf-card" style={{ ['--ac' as string]: p.tint }}>
-                  <span className="tf-name">{say(p.title, lang)}</span>
-                  <span className="tf-price">{priceTag(eurOf(p))} <i>{t('tf.once')}</i></span>
-                  <p className="tf-tag">{say(p.blurb, lang)}</p>
-                  <ul className="tf-incl">
-                    <li><BauhausIcon name="check" size={13} />{levelsOf(p).length} {t('tf.courseLessons')} · {Math.round(minutesOf(p) / 60)} h</li>
-                    <li><BauhausIcon name="check" size={13} />{t('tf.courseProject')}</li>
-                    <li><BauhausIcon name="check" size={13} />{t('tf.courseOnce')}</li>
-                  </ul>
-                  {owned ? (
-                    <Lnk className="gm-cta tf-go" href={packPath(p.id)}>{t('tf.owned')} · {t('ac.continue')} →</Lnk>
-                  ) : (
-                    <button className="gm-cta tf-go" disabled={busy !== null} onClick={() => p.course && buy({ plan: 'course', course: p.course }, key)}>
-                      {busy === key ? t('tf.going') : `${t('tf.buy')} · ${priceTag(eurOf(p))}`}
-                    </button>
-                  )}
-                </article>
-              )
-            })}
-          </div>
-        </section>
-      )}
+      {/* LE TABLEAU DES PRIX · les trois choix, ligne à ligne */}
+      <section className="gm-sec">
+        <h2 className="pf-h2">{t('tf.compareH')}</h2>
+        <div className="tf-table-wrap">
+          <table className="tf-table">
+            <thead>
+              <tr>
+                <th scope="col"><span className="lq-sr">{t('tf.title')}</span></th>
+                <th scope="col">{t('tf.freeName')}</th>
+                <th scope="col">{t('tf.unitName')}</th>
+                <th scope="col" className="main">{t('tf.passName')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(([label, f, u, p]) => (
+                <tr key={label}><th scope="row">{label}</th><td>{f}</td><td>{u}</td><td className="main">{p}</td></tr>
+              ))}
+              <tr className="tf-price-row">
+                <th scope="row">{t('tf.rowPrice')}</th>
+                <td>{priceTag(0)}</td>
+                <td>{t('tf.from')} {priceTag(cheapest)}</td>
+                <td className="main">{priceTag(PASS_EUR)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className="gm-sec">
         <div className="cl-note tf-facts">
@@ -179,7 +207,8 @@ export function TarifsPage() {
           <ul>
             <li>{t('tf.fact1')}</li>
             <li>{t('tf.fact2')}</li>
-            <li>{t('tf.fact3')}</li>
+            <li>{FREE_LESSONS} {t('tf.fact3')}</li>
+            <li>{t('tf.fact4')}</li>
           </ul>
         </div>
       </section>
@@ -214,8 +243,10 @@ export function MerciPage() {
         // LE REÇU · gardé pour être inscrit sur le compte (lib/account), dès
         // maintenant si l'élève est connecté, sinon à sa prochaine connexion.
         // La formation suit alors l'élève sur ses autres appareils.
-        if (j?.ok && j.paid && (j.plan === 'path' || (j.plan === 'trade' && j.trade) || (j.plan === 'course' && j.course))) addReceipt(id)
-        if (j?.ok && j.paid && j.plan === 'path') { grant({ path: true }); setTo('generaliste'); setState('ok') }
+        if (j?.ok && j.paid && (j.plan === 'pass' || j.plan === 'path' || (j.plan === 'trade' && j.trade) || (j.plan === 'course' && j.course))) addReceipt(id)
+        // LE PASS DOJO · tout s'ouvre ; on reprend par la formation complète
+        if (j?.ok && j.paid && j.plan === 'pass') { grant({ pass: true }); setTo('generaliste'); setState('ok') }
+        else if (j?.ok && j.paid && j.plan === 'path') { grant({ path: true }); setTo('generaliste'); setState('ok') }
         else if (j?.ok && j.paid && j.plan === 'trade' && j.trade) {
           grant({ trade: j.trade }); chooseTrade(j.trade)
           setTo(PACKS.find((p) => p.trade === j.trade)?.id ?? 'generaliste'); setState('ok')
