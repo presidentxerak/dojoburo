@@ -85,6 +85,55 @@ Un seul produit sert tous les temples. Le temple acheté est précisé à chaque
 
 Aucun produit Stripe : le Week-end IA s'ouvre avec une adresse e-mail.
 
+## 3 bis. Les métadonnées
+
+### Sur les produits (à saisir dans le tableau de bord Stripe, facultatif)
+
+Elles servent seulement à vos rapports et exports ; le code ne les lit pas.
+
+| Clé | Un temple Dojoburo | Pass Dojo |
+|---|---|---|
+| `dojo_offer` | `temple` | `pass` |
+| `dojo_access` | `one` | `all` |
+| `dojo_lifetime` | `true` | `true` |
+
+### Sur chaque paiement (posées par le serveur, `api/buy.ts`, rien à saisir)
+
+| Champ Stripe | Un temple | Pass Dojo |
+|---|---|---|
+| `metadata.plan` | `path`, `trade` ou `course` | `pass` |
+| `metadata.trade` | l'identifiant du métier, si `plan = trade` | absent |
+| `metadata.course` | l'identifiant du cours, si `plan = course` | absent |
+| `metadata.item` | `Un temple · <nom du temple>` | `Pass Dojo · toutes les formations, à vie` |
+| `payment_intent_data.description` | `Dojoburo · Un temple · <nom du temple>` | `Dojoburo · Pass Dojo · toutes les formations, à vie` |
+| `payment_intent_data.metadata.plan` | comme `metadata.plan` | `pass` |
+| `custom_text.submit.message` | `Vous achetez : Un temple · <nom>. Paiement unique, aucun abonnement.` | `Vous achetez : Pass Dojo · toutes les formations, à vie. Paiement unique, aucun abonnement.` |
+
+C'est `metadata.plan` (et `trade` ou `course`) que lisent la page `/merci`, la réclamation sur le compte et le webhook pour savoir quoi ouvrir.
+
+### Les valeurs, temple par temple
+
+| Temple | `plan` | `trade` / `course` |
+|---|---|---|
+| La formation complète | `path` | aucun |
+| Coder une app | `course` | `coder-une-app` |
+| Coder une app avec Lovable | `course` | `coder-avec-lovable` |
+| Growth marketer | `trade` | `growth` |
+| Communicant | `trade` | `comms` |
+| Fondateur | `trade` | `founder` |
+| Chef de produit | `trade` | `product` |
+| Commercial | `trade` | `sales` |
+| Assistant de direction | `trade` | `assistant` |
+| Designer | `trade` | `designer` |
+| Enseignant | `trade` | `teacher` |
+| Étudiant | `trade` | `student` |
+| Scientifique | `trade` | `scientist` |
+| Développeur | `trade` | `developer` |
+| Recruteur | `trade` | `recruiter` |
+| Juriste | `trade` | `lawyer` |
+| Consultant | `trade` | `consultant` |
+| Pass Dojo (toutes) | `pass` | aucun |
+
 ## 4. Les webhooks
 
 Un seul endpoint sert les deux produits : c'est la métadonnée `plan` qui dit lequel a été acheté. Stripe ne permet pas de filtrer les événements par produit, et deux endpoints recevraient exactement les mêmes événements.
