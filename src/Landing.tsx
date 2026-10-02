@@ -17,7 +17,7 @@ import {
 } from './data/curriculum'
 import { TRADES, TRADE_COUNT, TRADE_LEVEL_COUNT, tradePath } from './data/trades'
 import { PATH_EUR, TRADE_EUR, priceTag } from './data/plans'
-import { useLang, useT } from './i18n'
+import { useLang, useT, baseLang } from './i18n'
 import { BauhausIcon } from './components/BauhausIcon'
 import { SiteFooter } from './components/SiteFooter'
 
@@ -69,7 +69,7 @@ export function Landing({ enter }: { enter: () => void }) {
 
   const t = useT()
   const lang = useLang()
-  const pos = positioningFor(lang)
+  const pos = positioningFor(baseLang(lang))
 
   return (
     <div className="landing">

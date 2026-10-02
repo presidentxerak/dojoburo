@@ -22,6 +22,7 @@
 // Ces textes sont la seule source : les écrans (useHeadTags) et les pages
 // prérendues (scripts/gen-seo) lisent les mêmes.
 import { B, say, type Bi } from './bilingual'
+import type { Lang } from '../i18n/lang'
 import { TEMPLE_EUR, PASS_EUR, priceTag } from './plans'
 import { PACKS, type Pack } from './packs'
 
@@ -63,22 +64,25 @@ export const SEO = {
 
 /** L'INTENTION DE RECHERCHE DE CHAQUE FORMATION · la requête que la page vise,
  *  placée en tête du titre. Les métiers suivent un modèle commun. */
-const PACK_QUERY: Record<string, Bi> = {
+export const PACK_QUERY: Record<string, Bi> = {
   weekend: B('Free AI course: 7 lessons to get started', "Cours d'IA gratuit : 7 leçons pour débuter"),
   generaliste: B('Complete generative AI training', "Formation complète à l'IA générative"),
   'coder-une-app': B('Claude Code training: build an app', 'Formation Claude Code : coder une app'),
   'coder-avec-lovable': B('Lovable training: build an app without code', 'Formation Lovable : créer une app sans coder'),
 }
 
+/** Le modèle de titre d'une formation métier · {t} est le métier. */
+export const TRADE_TITLE = B('AI for {t}: hands-on training · Dojoburo', 'IA pour {t} : formation pratique · Dojoburo')
+
 /** Le titre d'une page de formation · la requête visée, puis la marque. */
-export function packTitle(p: Pack, lang: 'en' | 'fr'): string {
+export function packTitle(p: Pack, lang: Lang): string {
   const q = PACK_QUERY[p.id]
   if (q) return `${say(q, lang)} · Dojoburo`
-  return lang === 'fr' ? `IA pour ${say(p.title, lang).toLowerCase()} : formation pratique · Dojoburo` : `AI for ${say(p.title, lang).toLowerCase()}: hands-on training · Dojoburo`
+  return say(TRADE_TITLE, lang).replace('{t}', say(p.title, lang).toLowerCase())
 }
 
 /** La description d'une page de formation · le contenu, le gratuit, le prix. */
-export function packDescription(p: Pack, lang: 'en' | 'fr', lessons: number, eur: number): string {
+export function packDescription(p: Pack, lang: Lang, lessons: number, eur: number): string {
   const blurb = say(p.blurb, lang)
   if (eur === 0) return lang === 'fr' ? `${blurb} ${lessons} leçons gratuites.` : `${blurb} ${lessons} free lessons.`
   return lang === 'fr'

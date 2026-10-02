@@ -29,7 +29,7 @@ import { BauhausIcon } from '../components/BauhausIcon'
 import { StepStage } from './StepStage'
 import { lessonFor, lessonIn } from '../data/agentLessons'
 import { useCaseIn, type UseCase } from '../data/agentUseCases'
-import { useLang, useT } from '../i18n'
+import { useLang, useT, baseLang } from '../i18n'
 import { markDone, clearDone, useProgress } from '../academy/progress'
 import { AGENT_TRACK } from './masterProgress'
 import { gradeFor } from './grades'
@@ -88,7 +88,7 @@ export function AgentCard({ u: u0, onClose }: { u: UseCase; onClose: () => void 
   // Sans ça, la fiche affiche un nom français au-dessus d'un primer anglais,
   // ce qui est exactement la page à moitié traduite qu'on refuse de livrer.
   const lesson0 = lessonFor(u.id)
-  const lesson = lesson0 ? lessonIn(lesson0, lang) : null
+  const lesson = lesson0 ? lessonIn(lesson0, baseLang(lang)) : null
   const progress = useProgress()
   const [draft, setDraft] = useState<BuiltAgent>(() => scaffold(u, lang === 'fr'))
   const [fmt, setFmt] = useState<ExportFormat>('brief')

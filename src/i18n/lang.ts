@@ -28,14 +28,25 @@
 // veut pas revoir du français au prochain chargement sous prétexte que son
 // système est en français.
 import { useSyncExternalStore } from 'react'
+import { loadCatalog } from './catalog'
 
-export const LANGS = ['en', 'fr'] as const
+// SEPT LANGUES · demandé : « mets en place la traduction en fonction de la
+// langue du user (français, anglais, espagnol, italien, allemand, portugais,
+// japonais etc...) ». Le français et l'anglais sont écrits dans le code ; les
+// cinq autres viennent des catalogues (voir ./catalog).
+export const LANGS = ['fr', 'en', 'es', 'it', 'de', 'pt', 'ja'] as const
 export type Lang = (typeof LANGS)[number]
 
 /** Le libellé d'une langue dans le sélecteur · dans SA langue, jamais traduit.
  *  « French » écrit en anglais ne sert qu'à quelqu'un qui lit déjà l'anglais,
  *  c'est à dire exactement la personne qui n'a pas besoin du sélecteur. */
-export const LANG_LABEL: Record<Lang, string> = { en: 'English', fr: 'Français' }
+export const LANG_LABEL: Record<Lang, string> = {
+  fr: 'Français', en: 'English', es: 'Español', it: 'Italiano', de: 'Deutsch', pt: 'Português', ja: '日本語',
+}
+
+/** La langue d'écriture la plus proche · le code n'écrit que le français et
+ *  l'anglais ; une langue à catalogue retombe sur l'anglais. */
+export const baseLang = (l: Lang): 'en' | 'fr' => (l === 'fr' ? 'fr' : 'en')
 
 const KEY = 'dojo.lang'
 const isLang = (v: unknown): v is Lang => LANGS.includes(v as Lang)
@@ -56,7 +67,13 @@ function initial(): Lang {
   return 'en'
 }
 
-let current: Lang = typeof window === 'undefined' ? 'en' : initial()
+// LA LANGUE VOULUE ET LA LANGUE MONTRÉE · pour une langue à catalogue, la
+// page démarre en anglais et ne bascule qu'à l'arrivée du catalogue. Le
+// changement de valeur est ce qui fait redessiner React (useSyncExternalStore
+// compare la valeur) : notifier sans changer la langue ne redessinait rien, et
+// une page ouverte directement en espagnol restait en anglais.
+const wanted: Lang = typeof window === 'undefined' ? 'en' : initial()
+let current: Lang = wanted === 'fr' ? 'fr' : 'en'
 const listeners = new Set<() => void>()
 
 /** L'ATTRIBUT lang DU DOCUMENT suit la langue choisie.
@@ -74,10 +91,14 @@ export function getLang(): Lang { return current }
 
 export function setLang(l: Lang) {
   if (!isLang(l) || l === current) return
-  current = l
   try { localStorage.setItem(KEY, l) } catch { /* stockage refusé */ }
-  applyToDocument(l)
-  listeners.forEach((fn) => fn())
+  // LE CATALOGUE D'ABORD · on ne bascule qu'une fois la langue chargée, pour
+  // ne pas peindre un écran à moitié traduit.
+  void loadCatalog(l).then(() => {
+    current = l
+    applyToDocument(l)
+    listeners.forEach((fn) => fn())
+  })
 }
 
 function subscribe(fn: () => void) {
@@ -94,3 +115,13 @@ export function useLang(): Lang {
 // première peinture annonce l'anglais et un lecteur d'écran part sur la
 // mauvaise voix avant même que React ne monte.
 applyToDocument(current)
+// UNE LANGUE À CATALOGUE AU DÉMARRAGE · le premier rendu est en anglais le
+// temps que le fichier arrive, puis tout se redessine dans la bonne langue.
+if (typeof window !== 'undefined' && wanted !== current) {
+  void loadCatalog(wanted).then(() => {
+    if (current !== 'en') return // l'élève a choisi entre-temps
+    current = wanted
+    applyToDocument(wanted)
+    listeners.forEach((fn) => fn())
+  })
+}

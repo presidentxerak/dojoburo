@@ -5,12 +5,12 @@
 // looking at. Step through it yourself, or let it play.
 import { useEffect, useRef, useState } from 'react'
 import { WALKS, Stage, walkIn, type WalkId } from './tutorialBeats'
-import { useLang, useT } from '../../i18n'
+import { useLang, useT, baseLang } from '../../i18n'
 
 export function Tutorial({ walk = 'overview', autoPlay = false }: { walk?: WalkId; autoPlay?: boolean }) {
   const lang = useLang()
   const t = useT()
-  const beats = walkIn(WALKS[walk], lang).beats
+  const beats = walkIn(WALKS[walk], baseLang(lang)).beats
   const [i, setI] = useState(0)
   const [playing, setPlaying] = useState(autoPlay)
   const timer = useRef<number | undefined>(undefined)

@@ -254,7 +254,8 @@ const RULES = [
   { file: 'src/Landing.tsx', must: /pos\.notThis/, why: 'the landing must say in plain words what the product no longer does' },
   // … et la source reste UNE, dans les deux langues : positioningFor est le
   // seul chemin, donc il n'existe pas de version française qui vive ailleurs.
-  { file: 'src/Landing.tsx', must: /positioningFor\(lang\)/, why: 'one entry point for the positioning, in either language' },
+  // réparée pour les sept langues : le positionnement passe par baseLang
+  { file: 'src/Landing.tsx', must: /positioningFor\(baseLang\(lang\)\)/, why: 'one entry point for the positioning, in either written language' },
   { file: 'src/data/positioning.ts', must: /PROMISE_LEAD_FR/, why: 'the French promise lives with the English one, never in a parallel file' },
   { file: 'src/data/positioning.ts', must: /NOT_THIS_FR/, why: 'the same for the disclaimers' },
   // les quatre piliers sont la carte du produit · l'en-tête et l'accueil les

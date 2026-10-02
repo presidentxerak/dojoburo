@@ -12,7 +12,8 @@
 // projet. Ils se règlent dans les variables d'environnement (VITE_LEGAL_*,
 // voir .env.example) ; tant qu'ils manquent, la page le dit en clair plutôt
 // que d'afficher une identité fausse.
-import { B, type Bi } from './bilingual'
+import { B, say, type Bi } from './bilingual'
+import type { Lang } from '../i18n/lang'
 import { TEMPLE_EUR, PASS_EUR, priceTag } from './plans'
 
 const ENV = ((import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {}) as Record<string, string | undefined>
@@ -31,7 +32,7 @@ export const LEGAL = {
 }
 
 /** Une valeur de l'éditeur, ou la mention qu'elle manque. */
-export const legalValue = (v: string, lang: 'en' | 'fr'): string => v || `[${lang === 'fr' ? MISSING.fr : MISSING.en}]`
+export const legalValue = (v: string, lang: Lang): string => v || `[${say(MISSING, lang)}]`
 
 export interface LegalSection { h: Bi; p: Bi[] }
 

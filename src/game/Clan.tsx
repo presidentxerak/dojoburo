@@ -17,6 +17,7 @@
 //
 // Tous les textes viennent de ./clanText, dans les deux langues.
 // ---------------------------------------------------------------------------
+import { baseLang } from '../i18n'
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { SupportBot } from '../components/SupportBot'
 import { Lnk } from '../lib/router'
@@ -142,7 +143,7 @@ export function ClanPage() {
               <ol className="cf-list">
                 {posts.map((p) => (
                   <li key={p.id}>
-                    <PostCard post={p} lang={lang} onChange={(patch) => update(p.id, patch)} onGone={() => drop(p.id)} />
+                    <PostCard post={p} lang={baseLang(lang)} onChange={(patch) => update(p.id, patch)} onGone={() => drop(p.id)} />
                   </li>
                 ))}
               </ol>

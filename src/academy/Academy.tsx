@@ -29,7 +29,7 @@ import {
   findLesson, neighbours, lessonPath, trackPath, academyLessonIn, trackIn,
   type Block, type Lesson, type Track,
 } from '../data/academy'
-import { useLang, useT, pick } from '../i18n'
+import { useLang, useT, pick, baseLang } from '../i18n'
 import type { Lang } from '../i18n/lang'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { SiteFooter } from '../components/SiteFooter'
@@ -38,7 +38,7 @@ const HOURS = Math.round((TOTAL_MINUTES / 60) * 10) / 10
 
 /** Le nom du pilier « académie » dans la langue lue · c'est le mot sur lequel
  *  on a cliqué dans l'en-tête, et il doit être celui qu'on retrouve ici. */
-const pillarNav = (lang: Lang) => pillarIn(PILLAR_BY_ID.academy, lang).nav
+const pillarNav = (lang: Lang) => pillarIn(PILLAR_BY_ID.academy, baseLang(lang)).nav
 
 function Shell({ children, inApp }: { children: React.ReactNode; inApp?: boolean }) {
   return (
