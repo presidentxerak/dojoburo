@@ -21,6 +21,7 @@
 // fois, on choisit le nom affiché (jamais l'adresse). Les sous-onglets
 // Calendrier, Membres et Classements arriveront avec leurs lots : on ne montre
 // pas un onglet qui ne mène nulle part.
+import { useContentCatalog } from '../i18n/catalog'
 import { SEO } from '../data/seo'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { SupportBot } from '../components/SupportBot'
@@ -73,7 +74,9 @@ function errorText(e: CError): Bi {
 
 export function CommunityPage() {
   const path = usePath()
-  const { s } = useSay()
+  const { s, lang: cLang } = useSay()
+  // LA BIBLIOTHÈQUE (prompts, ressources) DANS LA LANGUE LUE · voir i18n/catalog
+  useContentCatalog(cLang)
   const postId = path.match(/^\/clan\/p\/([0-9a-f-]{36})$/i)?.[1] ?? null
   const memberId = path.match(/^\/clan\/m\/([0-9a-f-]{36})$/i)?.[1] ?? null
   const about = path === '/clan/a-propos'

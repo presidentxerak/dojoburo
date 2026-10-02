@@ -83,3 +83,23 @@ for (const f of [...files('src/game'), ...files('src/temple'), ...files('src/pix
 const list = [...pairs].map(([en, fr]) => ({ en, fr })).sort((a, b) => a.en.localeCompare(b.en))
 writeFileSync('src/i18n/source-ui.json', JSON.stringify(list, null, 1) + '\n')
 console.log(`i18n-extract · ${list.length} textes d'interface · ${list.reduce((n, x) => n + x.en.length, 0)} caractères`)
+
+// 5 · LE CONTENU DES COURS · demandé : « fais toutes les traductions et faudra
+// le faire pour tous les nouveaux cours ». Chaque leçon (corps, quiz,
+// approfondissements, enrichissements), les cours vendus à part, et la
+// bibliothèque de la communauté (prompts, ressources). Un texte déjà dans
+// l'interface n'y est pas répété. Les catalogues de contenu sont chargés à
+// part, à l'ouverture d'une leçon (voir src/i18n/catalog.ts).
+const uiKeys = new Set(list.map((x) => x.en))
+pairs.clear()
+const CONTENT = ['src/data/curriculum.ts', 'src/data/enrich/index.ts', 'src/data/deep/index.ts', 'src/data/community/prompts.ts', 'src/data/community/resources.ts']
+const walkDeep = (v, seen = new Set(), depth = 0) => {
+  if (!v || typeof v !== 'object' || seen.has(v) || depth > 14) return
+  seen.add(v)
+  if (isBi(v)) { if (!uiKeys.has(v.en.trim())) add(v.en, v.fr); return }
+  for (const x of Array.isArray(v) ? v : Object.values(v)) walkDeep(x, seen, depth + 1)
+}
+for (const [k, m] of CONTENT.entries()) walkDeep(await load(m, `c${k}.mjs`))
+const content = [...pairs].map(([en, fr]) => ({ en, fr })).sort((a, b) => a.en.localeCompare(b.en))
+writeFileSync('src/i18n/source-content.json', JSON.stringify(content, null, 1) + '\n')
+console.log(`i18n-extract · ${content.length} textes de cours · ${content.reduce((n, x) => n + x.en.length, 0)} caractères`)

@@ -27,6 +27,11 @@ Prévenir avant de lancer quoi que ce soit qui dure plus de 5 minutes.
 - Ne jamais inventer de témoignages, chiffres ou références.
 - Une garde dont la prémisse a changé est réparée pour affirmer la nouvelle règle (avec la demande citée en commentaire), jamais supprimée.
 
+## Traductions
+
+- L'app est en sept langues : français et anglais écrits dans le code, espagnol, italien, allemand, portugais et japonais dans des catalogues (voir `docs/I18N.md`).
+- Tout nouveau cours, toute nouvelle leçon ou tout nouveau texte d'interface doit être traduit dans les cinq langues à catalogue avant la fusion : `node scripts/i18n-extract.mjs`, puis `node scripts/i18n-missing.mjs <code> content|ui`, traduction, `i18n-merge`, `i18n-check`. `npm test` refuse un catalogue sous 99 %.
+
 ## Charte
 
 - Violet sombre par défaut (#0a0514), affichage clair au choix (Profil > Paramètres > Affichage, `html[data-look="light"]`, règles dans `src/styles/look-light.css`).

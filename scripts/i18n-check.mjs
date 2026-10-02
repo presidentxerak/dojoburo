@@ -10,17 +10,21 @@
 // Sort en échec si la couverture d'une langue est sous le seuil (95 %).
 import { readFileSync, existsSync } from 'node:fs'
 
-const SOURCE = JSON.parse(readFileSync('src/i18n/source-ui.json', 'utf8'))
+// --content · vérifie les catalogues du contenu des cours (src/i18n/locales/
+// content/<code>.json) contre src/i18n/source-content.json.
+const CONTENT = process.argv.includes('--content')
+const SOURCE = JSON.parse(readFileSync(CONTENT ? 'src/i18n/source-content.json' : 'src/i18n/source-ui.json', 'utf8'))
 const KEYS = new Set(SOURCE.map((x) => x.en))
-const LANGS = process.argv.slice(2).length ? process.argv.slice(2) : ['es', 'it', 'de', 'pt', 'ja']
+const args = process.argv.slice(2).filter((a) => !a.startsWith('--'))
+const LANGS = args.length ? args : ['es', 'it', 'de', 'pt', 'ja']
 const MIN = Number(process.env.I18N_MIN ?? 95)
 const MARK = /\{[a-z]+\}/g
-const DASH = /[–—]/
+const DASH = /[\u2013\u2014\u2015]/
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{2705}]/u
 
 let fails = 0
 for (const l of LANGS) {
-  const f = `src/i18n/locales/${l}.json`
+  const f = CONTENT ? `src/i18n/locales/content/${l}.json` : `src/i18n/locales/${l}.json`
   if (!existsSync(f)) { console.log(`FAIL  ${l} · fichier absent`); fails++; continue }
   let cat
   try { cat = JSON.parse(readFileSync(f, 'utf8')) } catch (e) { console.log(`FAIL  ${l} · JSON invalide · ${e.message}`); fails++; continue }
@@ -38,7 +42,7 @@ for (const l of LANGS) {
   const pct = Math.round((covered / KEYS.size) * 1000) / 10
   const ok = pct >= MIN && problems.length === 0
   if (!ok) fails++
-  console.log(`${ok ? 'ok   ' : 'FAIL '} ${l} · ${covered} / ${KEYS.size} (${pct} %)${problems.length ? ` · ${problems.length} problème(s)` : ''}`)
+  console.log(`${ok ? 'ok   ' : 'FAIL '} ${CONTENT ? 'cours · ' : ''}${l} · ${covered} / ${KEYS.size} (${pct} %)${problems.length ? ` · ${problems.length} problème(s)` : ''}`)
   for (const p of problems.slice(0, 15)) console.log(`        ${p}`)
 }
 process.exitCode = fails ? 1 : 0

@@ -120,7 +120,7 @@ export function ResourceLibrary() {
   const s = (b: Bi) => say(b, lang)
   const [cat, setCat] = useState('')
   const list = RESOURCES.filter((r) => !cat || r.category === cat)
-  const checked = new Date(`${RESOURCES_CHECKED_AT}T12:00:00Z`).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const checked = new Date(`${RESOURCES_CHECKED_AT}T12:00:00Z`).toLocaleDateString(lang === 'en' ? 'en-GB' : lang, { day: 'numeric', month: 'long', year: 'numeric' })
   return (
     <section className="cy-lib">
       <div className="cy-card">

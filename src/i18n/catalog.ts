@@ -13,6 +13,7 @@
 // visiteur francophone ne télécharge pas le japonais. Un texte absent du
 // catalogue s'affiche en anglais, jamais vide ; la couverture est mesurée par
 // scripts/test-i18n.mjs.
+import { useEffect, useSyncExternalStore } from 'react'
 import type { Lang } from './lang'
 
 export type Catalog = Record<string, string>
@@ -39,7 +40,42 @@ export async function loadCatalog(l: Lang): Promise<void> {
   try { loaded[l] = (await load()).default } catch { loaded[l] = {} }
 }
 
-/** La traduction d'un texte anglais dans une langue à catalogue, si elle existe. */
+/* ------------------------------------------------------------------ */
+/* LE CONTENU DES COURS · demandé : « fais toutes les traductions et faudra le
+   faire pour tous les nouveaux cours ». Un second catalogue par langue
+   (src/i18n/locales/content/<code>.json), bien plus lourd que celui de
+   l'interface : il n'est chargé qu'à l'ouverture d'une leçon ou de la
+   bibliothèque de la communauté (useContentCatalog), puis l'écran se redessine. */
+
+const content: Partial<Record<Lang, Catalog>> = {}
+const CONTENT_LOADERS: Partial<Record<Lang, () => Promise<{ default: Catalog }>>> = {
+  es: () => import('./locales/content/es.json'),
+  it: () => import('./locales/content/it.json'),
+  de: () => import('./locales/content/de.json'),
+  pt: () => import('./locales/content/pt.json'),
+  ja: () => import('./locales/content/ja.json'),
+}
+let version = 0
+const subs = new Set<() => void>()
+
+/** Charger le catalogue des cours d'une langue · une fois, sans jamais lever. */
+export async function loadContentCatalog(l: Lang): Promise<void> {
+  const load = CONTENT_LOADERS[l]
+  if (!load || content[l]) return
+  try { content[l] = (await load()).default } catch { content[l] = {} }
+  version++
+  subs.forEach((f) => f())
+}
+
+/** Les écrans qui montrent un cours appellent ce crochet · il charge le
+ *  catalogue des cours de la langue lue et redessine l'écran à son arrivée. */
+export function useContentCatalog(l: Lang): number {
+  useEffect(() => { void loadContentCatalog(l) }, [l])
+  return useSyncExternalStore((f) => { subs.add(f); return () => subs.delete(f) }, () => version, () => 0)
+}
+
+/** La traduction d'un texte anglais dans une langue à catalogue, si elle
+ *  existe · l'interface d'abord, puis le contenu des cours s'il est chargé. */
 export function fromCatalog(l: Lang, en: string): string | undefined {
-  return loaded[l]?.[en]
+  return loaded[l]?.[en] ?? content[l]?.[en]
 }
