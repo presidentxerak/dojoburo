@@ -9,6 +9,7 @@
 // built-in curated list, so the feature degrades gracefully.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { originAllowed } from './_lib/origin.js'
+import { allow as rateAllow } from './_lib/ratelimit.js'
 
 export const config = { maxDuration: 15 }
 
@@ -63,6 +64,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const origin = header(req, 'origin')
   const host = header(req, 'host') || ''
   if (origin && !originAllowed(origin, host, ALLOWED_ORIGIN)) { send(res, 403, { ok: false, error: 'origin' }, false); return }
+  // UN RELAIS N'EST PAS OUVERT À TOUS · demandé : « Vérifie la cyber sécurité
+  // et l'anti hacking ». L'en-tête Origin se fabrique hors d'un navigateur ;
+  // sans plafond, ce point servait de relais gratuit (et usait le quota de la
+  // clé). Un plafond par adresse IP, partagé entre les instances.
+  const ip = (header(req, 'x-forwarded-for') || '').split(',')[0].trim() || 'anon'
+  if (!(await rateAllow(`fonts:${ip}`, 20, 10 * 60 * 1000))) { send(res, 429, { ok: false, error: 'rate' }, false); return }
 
   if (!KEY) { send(res, 200, { ok: false, error: 'no_key' }, false); return }
 

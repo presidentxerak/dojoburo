@@ -38,6 +38,7 @@ const faces = await load('src/data/agentFaces.ts')
 const effort = await load('src/data/effort.ts')
 // la promesse du produit · elle est DÉRIVÉE ici, jamais retapée (voir plus bas)
 const pos = await load('src/data/positioning.ts')
+const seo = await load('src/data/seo.ts')
 // le catalogue de la bibliothèque · pour que sa taille annoncée soit la vraie
 // LES DOUZE AGENTS de la salle de classe · le centre de formation les annonce
 // dans son sous-titre, dans son en-tête, sur la page /build et dans le prompt
@@ -227,7 +228,14 @@ const RULES = [
   // lisent maintenant src/data/positioning.ts : le jour où la promesse change,
   // elle change à un seul endroit et la garde suit, au lieu d'échouer en
   // exigeant l'ancienne.
-  { file: 'index.html', must: pos.PROMISE, why: `the meta description must carry the promise: "${pos.PROMISE}"` },
+  // RÉPARÉE · demandé : « Trouve une stratégie pour améliorer le SEO dans
+  // l'app : change et améliore les titres et contenus en fonction ». La racine
+  // n'est plus la page du studio mais la carte des formations ; ce que le
+  // robot lit avant tout JavaScript est le titre et la description d'accueil
+  // de data/seo (SEO.home, en français), comparés à la source et non retapés.
+  { file: 'index.html', must: new RegExp(`<title>${seo.SEO.home.title.fr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</title>`), why: 'the static title is the home title from data/seo' },
+  { file: 'index.html', must: '<html lang="fr">', why: 'the static page is French, like the prerendered pages' },
+  { file: 'index.html', must: /"@type": "Organization"/, why: 'the site declares its organisation to search engines' },
   // Le SÉPARATEUR est lu lui aussi · il était écrit « — » dans cette règle et
   // dans le titre, et le jour où la promesse est passée à la virgule les deux
   // ont menti ensemble sans que rien n'échoue. Le titre pose maintenant les

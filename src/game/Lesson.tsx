@@ -53,7 +53,8 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
   useZenAmbience()
 
   useHeadTags({
-    title: found ? `${say(found.level.title, lang)} · DojoBuro` : `${t('g.noLevel')} · DojoBuro`,
+    // la leçon, puis sa formation : la recherche porte souvent sur le sujet
+    title: found ? `${say(found.level.title, lang)} · ${say(found.pack.title, lang)} · Dojoburo` : `${t('g.noLevel')} · Dojoburo`,
     description: found ? say(found.level.learn, lang) : t('g.noLevelBody'),
     path: lessonPath(packId, levelId),
   })

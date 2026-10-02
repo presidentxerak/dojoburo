@@ -21,6 +21,7 @@
 // fois, on choisit le nom affiché (jamais l'adresse). Les sous-onglets
 // Calendrier, Membres et Classements arriveront avec leurs lots : on ne montre
 // pas un onglet qui ne mène nulle part.
+import { SEO } from '../data/seo'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
@@ -99,7 +100,7 @@ export function CommunityPage() {
     { href: '/clan/a-propos', on: about, label: CT.tabAbout },
   ]
 
-  useHeadTags({ title: `${s(CT.title)} · DojoBuro`, description: s(CT.lead), path: '/clan' })
+  useHeadTags({ title: s(SEO.community.title), description: s(SEO.community.description), path: '/clan' })
 
   const me = useMember()
   // LA CEINTURE DE L'ÉLÈVE · envoyée à la communauté pour son classement

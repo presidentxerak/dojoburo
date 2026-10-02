@@ -26,6 +26,7 @@
 //   UN TEMPLE    n'importe quelle formation, au même prix (data/plans).
 // Puis le tableau qui compare les trois, ligne à ligne. Le total « achetés un
 // par un » est calculé depuis les prix des temples, jamais écrit à la main.
+import { SEO } from '../data/seo'
 import { useEffect, useState } from 'react'
 import { SupportBot } from '../components/SupportBot'
 import { BauhausIcon } from '../components/BauhausIcon'
@@ -81,7 +82,7 @@ export function TarifsPage() {
   const unit = PACK_BY_ID[pick]
   const cancelled = typeof location !== 'undefined' && /[?&]annule=1/.test(location.search)
 
-  useHeadTags({ title: `${t('tf.title')} · DojoBuro`, description: t('tf.lead'), path: '/tarifs' })
+  useHeadTags({ title: say(SEO.prices.title, lang), description: say(SEO.prices.description, lang), path: '/tarifs' })
 
   const buy = async (what: Buy, key: string) => {
     setBusy(key); setMsg('')

@@ -1,46 +1,59 @@
 # DojoBuro · robots policy
-# The marketing pages are open to search engines; the API and app internals are
-# not indexable and there is no server-side user data to scrape. Aggressive or
-# malicious bots are additionally handled at the edge (rate limits, bot/UA
-# filtering, SSRF guards) and at the CDN/WAF · robots.txt only guides the polite.
+#
+# Requested: "Vérifie la cyber sécurité et l'anti hacking et scraping de
+# données. Trouve une stratégie pour améliorer le SEO dans l'app".
+#
+# Two goals pull in opposite directions, so the policy draws one line:
+#   · SEARCH is welcome: classic search engines AND the AI answer engines that
+#     cite and link back (ChatGPT search, Perplexity, Claude search), because
+#     that is where people now look for a course;
+#   · TRAINING and bulk scraping are not: the crawlers that copy pages to train
+#     models or resell data are refused.
+# Private pages (profile, payment return, private messages, member pages) are
+# never indexed. robots.txt only guides the polite: the API also refuses
+# self-declared scrapers and rate-limits reads (api/_lib/scrapers.ts).
 
 Sitemap: https://www.dojoburo.com/sitemap.xml
 
 User-agent: *
 Allow: /
-Allow: /academy
-Allow: /teammates
 Disallow: /api/
 Disallow: /widget
+Disallow: /profil
+Disallow: /merci
+Disallow: /clan/messages
+Disallow: /clan/m/
+Disallow: /*?session_id=
 
-# Opt out of AI training / bulk-scraping crawlers.
-User-agent: GPTBot
-Disallow: /
+# AI answer engines that cite their sources: allowed, same private pages closed.
 User-agent: OAI-SearchBot
-Disallow: /
 User-agent: ChatGPT-User
-Disallow: /
-User-agent: CCBot
-Disallow: /
-User-agent: ClaudeBot
-Disallow: /
-User-agent: anthropic-ai
-Disallow: /
-User-agent: Google-Extended
-Disallow: /
 User-agent: PerplexityBot
-Disallow: /
+User-agent: Perplexity-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+Allow: /
+Disallow: /api/
+Disallow: /profil
+Disallow: /merci
+Disallow: /clan/messages
+Disallow: /clan/m/
+
+# Model training and bulk-scraping crawlers: refused.
+User-agent: GPTBot
+User-agent: CCBot
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Meta-ExternalAgent
 User-agent: Bytespider
-Disallow: /
 User-agent: Amazonbot
-Disallow: /
 User-agent: Diffbot
-Disallow: /
 User-agent: Scrapy
-Disallow: /
 User-agent: SemrushBot
-Disallow: /
 User-agent: AhrefsBot
-Disallow: /
 User-agent: DataForSeoBot
+User-agent: MJ12bot
+User-agent: PetalBot
 Disallow: /

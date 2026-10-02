@@ -73,7 +73,25 @@ const packBundle = await build({
   bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
 })
 const packMod = await import('data:text/javascript;base64,' + Buffer.from(packBundle.outputFiles[0].text).toString('base64'))
-const { PACKS, FREE_PACK } = packMod
+const { PACKS, FREE_PACK, levelsOf, eurOf, minutesOf, packPath } = packMod
+
+// LE RÉFÉRENCEMENT DU JEU · voir src/data/seo (la stratégie y est écrite).
+const seoBundle = await build({
+  entryPoints: [path.join(ROOT, 'src/data/seo.ts')],
+  bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
+})
+const seoMod = await import('data:text/javascript;base64,' + Buffer.from(seoBundle.outputFiles[0].text).toString('base64'))
+const { SEO, packTitle, packDescription } = seoMod
+const promoBundle = await build({
+  entryPoints: [path.join(ROOT, 'src/data/promo.ts')],
+  bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
+})
+const { FAQ } = await import('data:text/javascript;base64,' + Buffer.from(promoBundle.outputFiles[0].text).toString('base64'))
+const plansBundle = await build({
+  entryPoints: [path.join(ROOT, 'src/data/plans.ts')],
+  bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent',
+})
+const { TEMPLE_EUR, PASS_EUR } = await import('data:text/javascript;base64,' + Buffer.from(plansBundle.outputFiles[0].text).toString('base64'))
 
 // The roster, the same way. roleAgents.ts pulls in a Department type from
 // agents.ts, which esbuild resolves; nothing here is duplicated from the app.
@@ -145,8 +163,12 @@ const urls = [
   ...DISCOVERY_MODULE.levels.map((l) => ({ loc: `/dojo/${FREE_PACK.id}/${l.id}`, pri: '0.8', freq: 'monthly' })),
   // LA BROCHURE · elle a quitté la racine et garde une adresse à elle.
   { loc: '/decouvrir', pri: '0.9', freq: 'weekly' },
-  { loc: '/terms', pri: '0.2', freq: 'yearly' },
-  { loc: '/privacy', pri: '0.2', freq: 'yearly' },
+  { loc: '/tarifs', pri: '0.9', freq: 'monthly' },
+  { loc: '/clan', pri: '0.7', freq: 'daily' },
+  // LES PAGES LÉGALES · leurs adresses françaises (/terms et /privacy y mènent)
+  { loc: '/mentions-legales', pri: '0.2', freq: 'yearly' },
+  { loc: '/confidentialite', pri: '0.2', freq: 'yearly' },
+  { loc: '/cgv', pri: '0.2', freq: 'yearly' },
 ]
 
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'),
@@ -413,4 +435,103 @@ for (const u of USE_CASES) {
   shapes++
 }
 
-console.log(`gen-seo · sitemap with ${urls.length} urls · ${pages} prerendered Academy pages · ${roles} teammate pages · ${shapes} agent pages`)
+// --- LE JEU, LISIBLE SANS JAVASCRIPT -----------------------------------------
+// Demandé : « Trouve une stratégie pour améliorer le SEO dans l'app ». Une page
+// par formation (son titre de recherche, sa description, ses leçons, son prix
+// en données structurées Course + Offer), chaque leçon gratuite, la page des
+// tarifs et la page de présentation avec sa FAQ. En français : c'est le marché.
+const fr = (b) => (b && (b.fr || b.en)) || ''
+const ORG = { '@type': 'Organization', name: 'Dojoburo', url: SITE }
+let game = 0
+for (const p of PACKS) {
+  const lv = levelsOf(p)
+  const eur = eurOf(p)
+  const canonical = `${SITE}/dojo/${p.id}`
+  const title = packTitle(p, 'fr')
+  const description = packDescription(p, 'fr', lv.length, eur)
+  const body = `<article>
+<nav><a href="/">Dojoburo</a> › <a href="/">Les formations</a></nav>
+<h1>${esc(fr(p.title))}</h1>
+<p>${esc(fr(p.blurb))}</p>
+<p>${lv.length} leçons · environ ${Math.max(1, Math.round(minutesOf(p) / 60))} h · ${eur === 0 ? 'gratuit' : `${eur} € en paiement unique, les 3 premières leçons offertes, ou inclus dans le Pass Dojoburo à ${PASS_EUR} €`}</p>
+<h2>Le programme</h2>
+<ol>${lv.map(({ level }, k) => `<li>${k < 3 || eur === 0 ? `<a href="/dojo/${p.id}/${level.id}">${esc(fr(level.title))}</a>` : esc(fr(level.title))} · ${esc(fr(level.learn))}</li>`).join('')}</ol>
+<p><a href="/tarifs">Voir les tarifs</a> · <a href="/dojo/weekend">Commencer le Week-end IA gratuit</a></p>
+</article>`
+  const html = head(shell, {
+    title, description, canonical, type: 'website',
+    jsonLd: {
+      '@context': 'https://schema.org', '@type': 'Course',
+      name: fr(p.title), description: fr(p.blurb), url: canonical, inLanguage: 'fr',
+      provider: ORG, isAccessibleForFree: eur === 0,
+      numberOfLessons: lv.length, timeRequired: `PT${Math.max(1, minutesOf(p))}M`,
+      hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online', courseWorkload: `PT${Math.max(1, minutesOf(p))}M` },
+      offers: { '@type': 'Offer', price: String(eur), priceCurrency: 'EUR', category: eur === 0 ? 'Free' : 'Paid', availability: 'https://schema.org/InStock', url: eur === 0 ? canonical : `${SITE}/tarifs` },
+    },
+  }).replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+  write(`dojo/${p.id}`, html)
+  game++
+}
+// LES LEÇONS GRATUITES · lisibles par tous, donc indexées
+for (const { level } of levelsOf(FREE_PACK)) {
+  const canonical = `${SITE}/dojo/${FREE_PACK.id}/${level.id}`
+  const body = `<article>
+<nav><a href="/">Dojoburo</a> › <a href="/dojo/${FREE_PACK.id}">${esc(fr(FREE_PACK.title))}</a></nav>
+<h1>${esc(fr(level.title))}</h1>
+<p>${esc(fr(level.learn))}</p>
+<h2>Votre mission</h2><p>${esc(fr(level.act))}</p>
+<ol>${(level.steps || []).map((st) => `<li>${esc(fr(st))}</li>`).join('')}</ol>
+</article>`
+  const html = head(shell, {
+    title: `${fr(level.title)} · Cours d'IA gratuit · Dojoburo`,
+    description: fr(level.learn).slice(0, 158),
+    canonical, type: 'article',
+    jsonLd: {
+      '@context': 'https://schema.org', '@type': 'LearningResource',
+      name: fr(level.title), description: fr(level.learn), url: canonical, inLanguage: 'fr',
+      learningResourceType: 'Lesson', isAccessibleForFree: true, timeRequired: `PT${level.minutes || 5}M`,
+      isPartOf: { '@type': 'Course', name: fr(FREE_PACK.title), url: `${SITE}/dojo/${FREE_PACK.id}` }, provider: ORG,
+    },
+  }).replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+  write(`dojo/${FREE_PACK.id}/${level.id}`, html)
+  game++
+}
+// LES TARIFS · les trois offres en données structurées
+{
+  const canonical = `${SITE}/tarifs`
+  const paid = PACKS.filter((p) => eurOf(p) > 0)
+  const body = `<article><h1>Les tarifs</h1>
+<p>${esc(SEO.prices.description.fr)}</p>
+<ul><li>Gratuit · 0 € : le Week-end IA et les 3 premières leçons de chaque formation.</li>
+<li>Un cours · ${TEMPLE_EUR} € : une formation au choix parmi ${paid.length}, payée une fois.</li>
+<li>Pass Dojoburo · ${PASS_EUR} € : toutes les formations, actuelles et futures, à vie.</li></ul></article>`
+  const html = head(shell, {
+    title: SEO.prices.title.fr, description: SEO.prices.description.fr, canonical, type: 'website',
+    jsonLd: {
+      '@context': 'https://schema.org', '@type': 'OfferCatalog', name: 'Formations Dojoburo', url: canonical,
+      itemListElement: [
+        { '@type': 'Offer', name: 'Un cours Dojoburo', price: String(TEMPLE_EUR), priceCurrency: 'EUR', url: canonical },
+        { '@type': 'Offer', name: 'Pass Dojoburo', price: String(PASS_EUR), priceCurrency: 'EUR', url: canonical },
+      ],
+    },
+  }).replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+  write('tarifs', html)
+  game++
+}
+// LA PRÉSENTATION · sa FAQ en FAQPage, le résultat enrichi le plus visible
+{
+  const canonical = `${SITE}/decouvrir`
+  const body = `<article><h1>${esc(SEO.promo.title.fr.replace(' · Dojoburo', ''))}</h1><p>${esc(SEO.promo.description.fr)}</p>
+<h2>Vos questions</h2>${FAQ.map((qa) => `<h3>${esc(fr(qa.q))}</h3><p>${esc(fr(qa.a))}</p>`).join('')}</article>`
+  const html = head(shell, {
+    title: SEO.promo.title.fr, description: SEO.promo.description.fr, canonical, type: 'website',
+    jsonLd: {
+      '@context': 'https://schema.org', '@type': 'FAQPage',
+      mainEntity: FAQ.map((qa) => ({ '@type': 'Question', name: fr(qa.q), acceptedAnswer: { '@type': 'Answer', text: fr(qa.a) } })),
+    },
+  }).replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+  write('decouvrir', html)
+  game++
+}
+
+console.log(`gen-seo · sitemap with ${urls.length} urls · ${game} game pages · ${pages} prerendered Academy pages · ${roles} teammate pages · ${shapes} agent pages`)

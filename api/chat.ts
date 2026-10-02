@@ -9,6 +9,8 @@
 // Cloudflare Pages: move to functions/api/chat.ts and read keys from `env`
 // instead of process.env; the rest of the logic is portable.
 
+import { isAutomatedClient } from './_lib/scrapers.js'
+
 export const config = { runtime: 'edge' }
 
 const ENV: Record<string, string | undefined> = ((globalThis as any).process?.env ?? {}) as any
@@ -108,6 +110,9 @@ let paidCount = 0
 export default async function handler(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) })
   if (req.method !== 'POST') return json({ ok: false, error: 'method' }, 405, req)
+  // L'ANTI-ASPIRATION · un outil qui s'annonce comme un automate n'interroge
+  // pas le robot : chaque réponse coûte un appel de modèle. Voir _lib/scrapers.
+  if (isAutomatedClient(req.headers.get('user-agent'))) return json({ ok: false, error: 'automated' }, 403, req)
 
   // origin lock
   const origin = req.headers.get('origin') || ''

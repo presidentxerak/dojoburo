@@ -22,7 +22,7 @@ const ConnectorsPage = lazy(() => import('./components/ConnectorsPage').then((m)
 const DocumentsPage = lazy(() => import('./components/DocumentsPage').then((m) => ({ default: m.DocumentsPage })))
 // LE JEU DOJOBURO · la simulation de studio, chargée à part : son moteur, sa
 // scène et son son n'ont rien à faire dans le paquet de qui vient suivre un cours.
-import { Terms, Privacy } from './LegalPage'
+import { MentionsPage, PrivacyPage, TermsPage } from './game/Legal'
 import { GuidePage, ConnectorGuidePage } from './DojoGuide'
 import { AcademyHome, TrackPage, LessonPage } from './academy/Academy'
 import { FrugalityPage } from './frugality/Frugality'
@@ -217,8 +217,11 @@ function Root() {
   if (path === '/decouvrir-studio') return <Landing enter={() => { location.hash = 'app' }} />
 
   // ---- public · no gate ----------------------------------------------------
-  if (path === '/terms') return <Terms />
-  if (path === '/privacy') return <Privacy />
+  // LES PAGES LÉGALES · demandé : « ajoute [...] la partie legal et privacy,
+  // RGPD ». Les anciennes adresses anglaises mènent aux nouvelles pages.
+  if (path === '/mentions-legales') return <MentionsPage />
+  if (path === '/confidentialite' || path === '/privacy') return <PrivacyPage />
+  if (path === '/cgv' || path === '/terms') return <TermsPage />
   if (path === '/academy') return <AcademyHome />
   const am = path.match(/^\/academy\/([a-z0-9-]+)(?:\/([a-z0-9-]+))?$/i)
   if (am) return am[2]

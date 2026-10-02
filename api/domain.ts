@@ -6,6 +6,7 @@
 // there is no CSP / redirect problem for the browser, and no key to manage.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { originAllowed } from './_lib/origin.js'
+import { allow as rateAllow } from './_lib/ratelimit.js'
 
 export const config = { maxDuration: 20 }
 
@@ -98,6 +99,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const origin = header(req, 'origin')
   const host = header(req, 'host') || ''
   if (origin && !originAllowed(origin, host, ALLOWED_ORIGIN)) { send(res, 403, { ok: false, error: 'origin' }); return }
+  // UN RELAIS N'EST PAS OUVERT À TOUS · demandé : « Vérifie la cyber sécurité
+  // et l'anti hacking ». L'en-tête Origin se fabrique hors d'un navigateur ;
+  // sans plafond, ce point servait de relais gratuit (et usait le quota de la
+  // clé). Un plafond par adresse IP, partagé entre les instances.
+  const ip = (header(req, 'x-forwarded-for') || '').split(',')[0].trim() || 'anon'
+  if (!(await rateAllow(`domain:${ip}`, 30, 10 * 60 * 1000))) { send(res, 429, { ok: false, error: 'rate' }); return }
 
   const url = new URL(req.url || '', 'http://x')
   const name = slug(url.searchParams.get('name') || '')

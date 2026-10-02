@@ -16,6 +16,7 @@
 // serveur, les écritures répondent 503 « auth » : jamais un faux succès.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createHash } from 'node:crypto'
+import { isAutomatedClient } from './_lib/scrapers.js'
 import { getPool, dbConfigured } from './_lib/db.js'
 import { originAllowed } from './_lib/origin.js'
 import { allow as rateAllow } from './_lib/ratelimit.js'
@@ -67,7 +68,19 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const me = token && privyEnabled() ? await verifyPrivyToken(token) : null
 
     if (method === 'GET') {
+      // L'ANTI-ASPIRATION · voir _lib/scrapers. Un outil qui s'annonce comme
+      // tel ne lit pas la communauté, connecté ou non ; et la lecture a deux
+      // plafonds, par heure ET par minute, pour qu'une rafale soit coupée
+      // avant d'avoir vidé l'heure.
+      if (!me && isAutomatedClient(header(req, 'user-agent'))) return send(res, 403, { ok: false, error: 'automated' })
+      if (!(await rateAllow(`community:burst:${me || ipKey}`, me ? 120 : 40, 60 * 1000))) return send(res, 429, { ok: false, error: 'rate' })
       if (!(await rateAllow(`community:read:${me || ipKey}`, RATES.read.max, RATES.read.windowMs))) return send(res, 429, { ok: false, error: 'rate' })
+      // L'ANNUAIRE N'EST PAS UNE LISTE À ASPIRER · un visiteur anonyme voit la
+      // première page des membres ; parcourir les suivantes ou chercher un nom
+      // demande d'être connecté.
+      if (!me && action === 'members' && ((Number(url.searchParams.get('page')) || 0) > 0 || url.searchParams.get('q'))) {
+        return send(res, 401, { ok: false, error: 'auth' })
+      }
       if (action === 'feed') { await ensureSeed(); return await feed(res, url, me) }
       if (action === 'testimonials') return await testimonials(res)
       if (action === 'testimonials-pending') {
