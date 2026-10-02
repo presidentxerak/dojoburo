@@ -19,7 +19,7 @@ import { SupportBot } from '../components/SupportBot'
 import { useHeadTags } from '../lib/headTags'
 import { ClassScene } from './ClassScene'
 import { USE_CASES, USE_CASE_BY_ID, USE_CASE_COUNT, useCaseIn, type UseCase } from '../data/agentUseCases'
-import { useLang, useT } from '../i18n'
+import { useLang, useT, baseLang } from '../i18n'
 import { useProgress } from '../academy/progress'
 import { AgentCard } from './AgentCard'
 import { CertPath } from './CertPath'
@@ -101,7 +101,7 @@ export function BuildAgentPage({ slug }: { slug?: string }) {
     keywords: chosen ? chosen.keywords : ['build an ai agent', 'agent tutorial', 'agent use cases'],
   })
 
-  const says = masterSays(chosen, doneSteps, chosen?.steps.length ?? 0, lang)
+  const says = masterSays(chosen, doneSteps, chosen?.steps.length ?? 0, baseLang(lang))
 
   return (
     <div className="landing dg2 ac cls">

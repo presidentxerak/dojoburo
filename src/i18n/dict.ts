@@ -24,6 +24,7 @@
 // `Pricing` : une clé qui est sa propre valeur anglaise devient fausse dès
 // qu'on reformule l'anglais, et on se retrouve à renommer des clés pour
 // corriger une virgule.
+import { fromCatalog } from './catalog'
 import { type Lang } from './lang'
 
 export interface Entry { en: string; fr: string }
@@ -784,7 +785,8 @@ export type Key = keyof typeof DICT
 export function translate(key: Key | string, lang: Lang): string {
   const e = (DICT as Record<string, Entry>)[key]
   if (!e) return String(key)
-  return e[lang] ?? e.en
+  if (lang === 'fr' || lang === 'en') return e[lang] ?? e.en
+  return fromCatalog(lang, e.en) ?? e.en
 }
 
 /** Combien de clés le dictionnaire porte · dérivé, pour que la couverture

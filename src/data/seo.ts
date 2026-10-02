@@ -22,6 +22,7 @@
 // Ces textes sont la seule source : les écrans (useHeadTags) et les pages
 // prérendues (scripts/gen-seo) lisent les mêmes.
 import { B, say, type Bi } from './bilingual'
+import type { Lang } from '../i18n/lang'
 import { TEMPLE_EUR, PASS_EUR, priceTag } from './plans'
 import { PACKS, type Pack } from './packs'
 
@@ -71,14 +72,14 @@ const PACK_QUERY: Record<string, Bi> = {
 }
 
 /** Le titre d'une page de formation · la requête visée, puis la marque. */
-export function packTitle(p: Pack, lang: 'en' | 'fr'): string {
+export function packTitle(p: Pack, lang: Lang): string {
   const q = PACK_QUERY[p.id]
   if (q) return `${say(q, lang)} · Dojoburo`
   return lang === 'fr' ? `IA pour ${say(p.title, lang).toLowerCase()} : formation pratique · Dojoburo` : `AI for ${say(p.title, lang).toLowerCase()}: hands-on training · Dojoburo`
 }
 
 /** La description d'une page de formation · le contenu, le gratuit, le prix. */
-export function packDescription(p: Pack, lang: 'en' | 'fr', lessons: number, eur: number): string {
+export function packDescription(p: Pack, lang: Lang, lessons: number, eur: number): string {
   const blurb = say(p.blurb, lang)
   if (eur === 0) return lang === 'fr' ? `${blurb} ${lessons} leçons gratuites.` : `${blurb} ${lessons} free lessons.`
   return lang === 'fr'

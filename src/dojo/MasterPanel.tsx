@@ -18,7 +18,7 @@ import { DIPLOMAS, diplomaFor, diplomaIn } from './diplomas'
 import { GRADES, gradeFor, gradeIn, badgeIn, BADGES, AGENT_BADGES, badgesFor } from './grades'
 import { USE_CASES } from '../data/agentUseCases'
 import { AGENT_TRACK } from './masterProgress'
-import { useLang, useT } from '../i18n'
+import { useLang, useT, baseLang } from '../i18n'
 
 export function MasterPanel({ here }: {
   /** le cours qu'on est en train de suivre · il est mis en avant, et son lien
@@ -46,7 +46,7 @@ export function MasterPanel({ here }: {
 
       <div className="mp-courses">
         {courses.map((c) => {
-          const pillar = pillarIn(PILLAR_BY_ID[c.id], lang)
+          const pillar = pillarIn(PILLAR_BY_ID[c.id], baseLang(lang))
           const Body = (
             <>
               <span className="mp-c-top">

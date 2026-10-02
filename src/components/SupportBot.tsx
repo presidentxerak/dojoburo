@@ -10,7 +10,7 @@
 // "How to?" button in the app.
 import { useEffect, useRef, useState } from 'react'
 import { TOPIC_BY_ID, KB, matchTopic, matchConnector, connectorReply, topicIn, GREETING, type KBLink } from '../support/knowledge'
-import { useLang, useT, pick } from '../i18n'
+import { useLang, useT, pick, baseLang } from '../i18n'
 import { askCascade } from '../support/askCascade'
 import { TutorialOverlay } from './guide/TutorialOverlay'
 import { WALKS, walkIn, type WalkId } from './guide/tutorialBeats'
@@ -212,7 +212,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
                   {WALK_IDS.map((w) => (
                     <button key={w} className="sb-walk" onClick={() => setWalk(w)}>
                       <BauhausIcon className="sb-walk-play" name="play" size={12} />
-                      <span>{walkIn(WALKS[w], lang).title}</span>
+                      <span>{walkIn(WALKS[w], baseLang(lang)).title}</span>
                     </button>
                   ))}
                 </div>
@@ -241,7 +241,7 @@ export function SupportBot({ embedded = false }: { embedded?: boolean }) {
                     {/* the answer has a walkthrough · offer to play it here */}
                     {m.walk && (
                       <button className="sb-watch" onClick={() => setWalk(m.walk!)}>
-                        <BauhausIcon name="play" size={12} /> {t('sb.watchIt')} · {walkIn(WALKS[m.walk], lang).title}
+                        <BauhausIcon name="play" size={12} /> {t('sb.watchIt')} · {walkIn(WALKS[m.walk], baseLang(lang)).title}
                       </button>
                     )}
 

@@ -24,7 +24,7 @@ import { PILLAR_BY_ID, pillarIn } from '../data/positioning'
 import { USE_CASE_COUNT } from '../data/agentUseCases'
 import { RESOURCES, resourceTitle } from '../data/resources'
 import { downloadCoursePdf } from '../lib/coursePdf'
-import { useLang, useT } from '../i18n'
+import { useLang, useT, baseLang } from '../i18n'
 
 export function LearningPanel() {
   const p = useProgress()
@@ -82,7 +82,7 @@ export function LearningPanel() {
         <h4>{t('lrn.yourCourses')} {L.courses.length} {t('lrn.coursesWord')}</h4>
         <div className="lrn-courses">
           {L.courses.map((c) => {
-            const pill = pillarIn(PILLAR_BY_ID[c.id], lang)
+            const pill = pillarIn(PILLAR_BY_ID[c.id], baseLang(lang))
             return (
               <a className="lrn-course" key={c.id} href={pill.path}>
                 <span className="lrn-course-h">

@@ -9,6 +9,7 @@
 //
 // Trois lignes utiles, donc, dans un fichier qui ne dépend de rien.
 import type { Lang } from '../i18n/lang'
+import { fromCatalog } from '../i18n/catalog'
 
 export interface Bi { en: string; fr: string }
 
@@ -16,4 +17,7 @@ export interface Bi { en: string; fr: string }
 export const B = (en: string, fr: string): Bi => ({ en, fr })
 
 /** La valeur dans la langue lue · le seul chemin, comme partout ailleurs. */
-export const say = (b: Bi, lang: Lang): string => (lang === 'fr' ? b.fr : b.en)
+/** Le français et l'anglais sont dans le texte ; les autres langues viennent
+ *  du catalogue (i18n/catalog), et retombent sur l'anglais. */
+export const say = (b: Bi, lang: Lang): string =>
+  lang === 'fr' ? b.fr : lang === 'en' ? b.en : (fromCatalog(lang, b.en) ?? b.en)

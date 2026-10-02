@@ -8,7 +8,7 @@ import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Tutorial } from './Tutorial'
 import { WALKS, walkIn, type WalkId } from './tutorialBeats'
-import { useLang, useT } from '../../i18n'
+import { useLang, useT, baseLang } from '../../i18n'
 
 export function TutorialOverlay({ walk = 'overview', onClose, onStart, startLabel }: {
   walk?: WalkId
@@ -27,7 +27,7 @@ export function TutorialOverlay({ walk = 'overview', onClose, onStart, startLabe
     return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey) }
   }, [onClose])
 
-  const meta = walkIn(WALKS[walk], lang)
+  const meta = walkIn(WALKS[walk], baseLang(lang))
   return createPortal(
     <div className="tutfs" role="dialog" aria-modal="true" aria-label={meta.title}>
       <header className="tutfs-h">

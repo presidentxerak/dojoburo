@@ -13003,3 +13003,14 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
 .st-rights li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; line-height: 1.5; color: var(--g-sub); }
 .st-rights li b { color: var(--g-text); }
 .st-rights .cc-btn { min-height: 36px; padding: 6px 14px; font-size: 13.5px; }
+
+/* LE SÉLECTEUR DES SEPT LANGUES · une pastille qui montre la langue, et la
+   liste native du système posée dessus, invisible mais cliquable. */
+.lsw.lsw-sel { position: relative; display: inline-flex; align-items: center; border: 0; border-radius: 12px; background: var(--g-slot, rgba(124, 58, 237, .1)); box-shadow: var(--g-sunk, none); cursor: pointer; }
+.lsw-cur { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; font-family: var(--font-game); font-weight: 800; font-size: 13px; color: var(--g-text, inherit); pointer-events: none; white-space: nowrap; }
+.lsw.sm .lsw-cur { padding: 6px 10px; font-size: 12px; }
+.lsw-cur i { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor; opacity: .7; }
+.lsw-sel select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; appearance: none; border: 0; }
+.lsw-sel:focus-within { outline: 2px solid #7c3aed; outline-offset: 2px; }
+.lsw-sel:hover .lsw-cur { color: #7c3aed; }
+:root:not([data-look='light']) .lsw-sel:hover .lsw-cur { color: #c4b5fd; }
