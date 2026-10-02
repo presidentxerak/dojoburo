@@ -12941,7 +12941,7 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
   border: 0; font-family: var(--font-game); color: var(--g-text); background: var(--g-slot); box-shadow: var(--g-sunk);
 }
 .sb-full .sb-input input:focus { outline: 2px solid #7c3aed; outline-offset: 1px; }
-.sb-full .sb-input button { background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); transition: transform .14s ease, filter .14s ease; }
+.sb-full .sb-input button { flex: none; width: 52px; height: 52px; border-radius: 999px !important; background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); transition: transform .14s ease, filter .14s ease; }
 .sb-full .sb-input button:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
 .sb-full .sb-foot { color: var(--g-sub); padding: 4px var(--page-x, 20px) 14px; }
 :root:not([data-look='light']) .sb-full .sb-railtopic, :root:not([data-look='light']) .sb-full .sb-chip,
