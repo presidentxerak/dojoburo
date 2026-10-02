@@ -122,7 +122,7 @@ export const KB: KBTopic[] = [
     answer:
       `Dojoburo, the first button of the bottom bar, opens the map of the temples, drawn in pixel art: one temple per training, ${PACK_COUNT} in all, with the name of the course above each one, and the course cards below the map. ` +
       'Open a temple and it fills the screen, seen from the front: each floor is a dojo, that is one lesson, and the floor plan stays at the top right so you can jump to any floor. Every floor is decorated differently. Your character stands in front of the door at the back: click the door (or the up arrow) and it slides open, your character walks in, and you come out of the door of the next floor. On the map, other students walk along the paths, in and out of the temples, between the river, the ponds and the zen gardens. A generative Japanese zen music (koto, shakuhachi, temple bell) and sound effects play in the temples; the note button at the top mutes the music, and Profile, Settings turns the music and the sound effects on or off separately. On each floor the master of the temple waits for you, dressed for their trade: click the master, they welcome you, and you enter the lesson, where their pixel portrait gives you the course. ' +
-      `The first temple, the AI weekend, is free: its first floor opens straight away and the others open with your email. In the other temples the first floor is open so you can see how they teach, and the other floors carry a padlock until you get the training (${priceTag(PATH_EUR)} for the full training, ${priceTag(TRADE_EUR)} for a trade training).`,
+      `The first three floors of every temple are open, so you can see how it teaches. In the free AI weekend temple, the other floors open with your email; in the other temples they carry a padlock until you get the training (${priceTag(PATH_EUR)} for the full training, ${priceTag(TRADE_EUR)} for a trade training, ${priceTag(COURSE_EUR['coder-une-app'])} and ${priceTag(COURSE_EUR['coder-avec-lovable'])} for the two courses sold separately). Behind every temple there is a blue sky with drifting clouds, and a zen garden with its path at its foot.`,
     links: [
       { label: 'See the temples', href: '/' },
       { label: 'Start the free weekend', href: FREE_HREF },
@@ -132,7 +132,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Les temples',
       answer:
-        `Dojoburo, le premier bouton de la barre du bas, ouvre la carte des temples, dessinée en pixel art : un temple par formation, ${PACK_COUNT} au total, avec le nom du cours au-dessus de chacun, et les cartes des cours sous la carte. Ouvrez un temple : il occupe tout l'écran, vu de face. Chaque étage est un dojo, c'est-à-dire une leçon, et le plan des étages reste affiché en haut à droite pour rejoindre n'importe quel étage. Chaque étage a son propre décor. Votre personnage se tient devant la porte du fond : cliquez sur la porte (ou sur la flèche du haut), elle coulisse, votre personnage entre, et vous ressortez par la porte de l'étage suivant. Sur la carte, d'autres élèves marchent le long des chemins, entrent dans les temples et en sortent, entre la rivière, les bassins et les jardins zen. Une musique zen japonaise générative (koto, shakuhachi, cloche de temple) et des bruitages accompagnent les temples ; le bouton de la note, en haut, coupe la musique, et Profil, Paramètres règle séparément la musique et les bruitages. À chaque étage, le maître du temple vous attend, vêtu selon son métier : cliquez sur lui, il vous accueille, et vous entrez dans la leçon, où son portrait en pixel art vous donne le cours. Le premier temple, le week-end de l'IA, est gratuit : son premier étage s'ouvre immédiatement et les suivants s'ouvrent avec votre adresse e-mail. Dans les autres temples, le premier étage est ouvert pour que vous puissiez apprécier la pédagogie, et les étages suivants portent un cadenas jusqu'à l'obtention de la formation (${priceTag(PATH_EUR)} pour la formation complète, ${priceTag(TRADE_EUR)} pour une formation métier).`,
+        `Dojoburo, le premier bouton de la barre du bas, ouvre la carte des temples, dessinée en pixel art : un temple par formation, ${PACK_COUNT} au total, avec le nom du cours au-dessus de chacun, et les cartes des cours sous la carte. Ouvrez un temple : il occupe tout l'écran, vu de face. Chaque étage est un dojo, c'est-à-dire une leçon, et le plan des étages reste affiché en haut à droite pour rejoindre n'importe quel étage. Chaque étage a son propre décor. Votre personnage se tient devant la porte du fond : cliquez sur la porte (ou sur la flèche du haut), elle coulisse, votre personnage entre, et vous ressortez par la porte de l'étage suivant. Sur la carte, d'autres élèves marchent le long des chemins, entrent dans les temples et en sortent, entre la rivière, les bassins et les jardins zen. Une musique zen japonaise générative (koto, shakuhachi, cloche de temple) et des bruitages accompagnent les temples ; le bouton de la note, en haut, coupe la musique, et Profil, Paramètres règle séparément la musique et les bruitages. À chaque étage, le maître du temple vous attend, vêtu selon son métier : cliquez sur lui, il vous accueille, et vous entrez dans la leçon, où son portrait en pixel art vous donne le cours. Les trois premiers étages de chaque temple sont ouverts, pour que vous puissiez apprécier la pédagogie. Dans le temple gratuit du week-end de l'IA, les étages suivants s'ouvrent avec votre adresse e-mail ; dans les autres temples, ils portent un cadenas jusqu'à l'obtention de la formation (${priceTag(PATH_EUR)} pour la formation complète, ${priceTag(TRADE_EUR)} pour une formation métier, ${priceTag(COURSE_EUR['coder-une-app'])} et ${priceTag(COURSE_EUR['coder-avec-lovable'])} pour les deux cours vendus à part). Derrière chaque temple s'étend un ciel bleu où passent des nuages, et à son pied un jardin zen et son chemin.`,
       links: [
         'Voir les temples',
         'Commencer le week-end gratuit',
@@ -218,7 +218,7 @@ export const KB: KBTopic[] = [
     chip: 'The trainings',
     answer:
       `The trainings are the temples behind Dojoburo, the first button of the bottom bar (the former AI Training tab is now this map of temples). There are ${PACK_COUNT} trainings. The AI weekend is free: ${FREE_LESSONS} short lessons, about ${FREE_MINUTES} minutes in total, and it asks for your email and nothing else. The full training is ${PATH_CITIES} dojo cities and ${PATH_DOJOS} dojos: prompting, the models, the assistants, agents, design and cost. Then ${TRADE_COUNT} trade trainings, ${TRADE_CITIES} more cities each, written for one job. ` +
-      'Each training is a temple and each dojo a floor. You climb at your own pace and in the order you like, and the master of the temple waits for you on every floor. Every dojo is a lesson that ends with a short quiz, a badge and some XP, and you can replay any dojo whenever you want. The first floor of every temple is open, so you can see how it teaches before paying.',
+      'Each training is a temple and each dojo a floor. You climb at your own pace and in the order you like, and the master of the temple waits for you on every floor. Every dojo is a lesson that ends with a short quiz, a badge and some XP, and you can replay any dojo whenever you want. The first three floors of every temple are open, so you can see how it teaches before paying.',
     links: [
       { label: 'See the temples', href: '/' },
       { label: 'Start the free weekend', href: FREE_HREF },
@@ -228,7 +228,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Les formations',
       answer:
-        `Les formations sont les temples de Dojoburo, le premier bouton de la barre du bas (l'ancien onglet IA Training est devenu cette carte des temples). Il existe ${PACK_COUNT} formations. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, environ ${FREE_MINUTES} minutes au total, pour lesquelles seule votre adresse e-mail est demandée. La formation complète comprend ${PATH_CITIES} cités dojo et ${PATH_DOJOS} dojos : le prompt, les modèles, les assistants, les agents, le design et le coût. S'y ajoutent ${TRADE_COUNT} formations métier, comportant chacune ${TRADE_CITIES} cités supplémentaires, conçues pour un métier. Chaque formation est un temple et chaque dojo un étage. Vous montez à votre rythme et dans l'ordre de votre choix, et le maître du temple vous attend à chaque étage. Chaque dojo est une leçon qui se conclut par un court quiz, un badge et de l'XP, et vous pouvez refaire n'importe quel dojo à tout moment. Le premier étage de chaque temple est ouvert, afin que vous puissiez apprécier la pédagogie avant de payer.`,
+        `Les formations sont les temples de Dojoburo, le premier bouton de la barre du bas (l'ancien onglet IA Training est devenu cette carte des temples). Il existe ${PACK_COUNT} formations. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, environ ${FREE_MINUTES} minutes au total, pour lesquelles seule votre adresse e-mail est demandée. La formation complète comprend ${PATH_CITIES} cités dojo et ${PATH_DOJOS} dojos : le prompt, les modèles, les assistants, les agents, le design et le coût. S'y ajoutent ${TRADE_COUNT} formations métier, comportant chacune ${TRADE_CITIES} cités supplémentaires, conçues pour un métier. Chaque formation est un temple et chaque dojo un étage. Vous montez à votre rythme et dans l'ordre de votre choix, et le maître du temple vous attend à chaque étage. Chaque dojo est une leçon qui se conclut par un court quiz, un badge et de l'XP, et vous pouvez refaire n'importe quel dojo à tout moment. Les trois premiers étages de chaque temple sont ouverts, afin que vous puissiez apprécier la pédagogie avant de payer.`,
       links: [
         'Voir les temples',
         'Commencer le week-end gratuit',
@@ -311,6 +311,32 @@ export const KB: KBTopic[] = [
     },
   },
   {
+    // LA COMMUNAUTÉ · sa bibliothèque et ses classements. Rien n'y est inventé :
+    // les prompts sont originaux, les ressources réelles et vérifiées, les
+    // réussites écrites par les membres eux-mêmes.
+    id: 'community',
+    chip: 'The community library',
+    answer:
+      'Community, the second button of the bottom bar, has a PROMPTS tab: a library of original prompts written for DojoBuro, sorted by topic (writing, marketing, sales, HR, legal, code, data, teaching, productivity, images, agents and more), searchable, each ready to copy with what to fill in shown in [BRACKETS]. ' +
+      'RESOURCES gathers free, reliable resources selected by the DojoBuro team (official docs, free courses, French and European official sources), with the date the links were checked. WINS shows the stories members publish themselves, and the testimonials members leave with their consent, published after a review by the team. LEADERBOARDS rank members by the likes they receive (7 days, 30 days, all time) and by grade, the belt each one earned in the temples. ' +
+      'The masters of the temples are AIs and always say so: in each temple chat, the master opens with the challenge of the day and answers questions that end with a question mark. The first 500 members get the Founder badge for good, and the posts signed DojoBuro Team are written by the team.',
+    links: [
+      { label: 'Open the prompts', href: '/clan/prompts' },
+      { label: 'See the resources', href: '/clan/ressources' },
+    ],
+    follow: ['start', 'studios', 'courses'],
+    keywords: ['prompt library', 'bibliothèque de prompts', 'prompts', 'exemples de prompts', 'prompt examples', 'resources', 'ressources', 'docs', 'documentation', 'free course', 'cours gratuit', 'wins', 'réussites', 'témoignage', 'testimonial', 'leaderboard', 'classement', 'grade', 'ceinture', 'members', 'membres'],
+    fr: {
+      chip: 'La bibliothèque de la communauté',
+      answer:
+        "La Communauté, deuxième bouton de la barre du bas, propose un onglet PROMPTS : une bibliothèque de prompts originaux, écrits pour DojoBuro, classés par thème (écriture, marketing, vente, RH, juridique, code, données, enseignement, productivité, images, agents, et bien d'autres), avec une recherche ; chacun se copie d'un geste, et ce qu'il faut compléter figure entre [CROCHETS]. RESSOURCES réunit des ressources gratuites et fiables sélectionnées par l'équipe DojoBuro (documentations officielles, cours gratuits, sources officielles françaises et européennes), avec la date de vérification des liens. RÉUSSITES présente les récits que les membres publient eux-mêmes, et les témoignages qu'ils déposent avec leur accord, publiés après relecture par l'équipe. Les CLASSEMENTS ordonnent les membres selon les j'aime reçus (7 jours, 30 jours, depuis toujours) et selon leur grade, la ceinture obtenue dans les temples. Les maîtres des temples sont des IA, et ils le disent toujours : dans le chat de chaque temple, le maître ouvre avec le défi du jour et répond aux questions qui se terminent par un point d'interrogation. Les 500 premiers membres reçoivent le badge Fondateur, pour toujours, et les publications signées Équipe DojoBuro sont écrites par l'équipe.",
+      links: [
+        'Ouvrir les prompts',
+        'Voir les ressources',
+      ],
+    },
+  },
+  {
     // LES COURS VENDUS À PART · « comment coder une app » et « coder une app
     // avec Lovable ». Les prix viennent de data/plans.
     id: 'courses',
@@ -341,7 +367,7 @@ export const KB: KBTopic[] = [
     chip: 'Pricing',
     answer:
       `No subscription: you pay once, and nothing renews. The AI weekend is free: ${FREE_LESSONS} short lessons, and it asks for your email, no card. The full training is ${priceTag(PATH_EUR)}, paid once: every one of the ${PATH_CITIES} dojo cities, in the order you like, with the files and the updates. A trade training is ${priceTag(TRADE_EUR)} per trade, paid once too: ${TRADE_CITIES} more cities written for one job. It is best taken after the full training, because it does not explain the basics again. Both together come to ${priceTag(BUNDLE_EUR)}. ` +
-      'Not sure yet? Once you have given your email, the first dojo of every city is free, so you can judge before paying. Everything is on the /tarifs page, and the training opens in this browser as soon as the payment is confirmed.',
+      'Not sure yet? The first three lessons of every training are free, so you can judge before paying. Everything is on the /tarifs page, and the training opens in this browser as soon as the payment is confirmed.',
     links: [
       { label: 'See the prices', href: '/tarifs' },
       { label: 'Start the free weekend', href: FREE_HREF },
@@ -351,7 +377,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Les tarifs',
       answer:
-        `Aucun abonnement : vous payez une seule fois, et rien n'est reconduit. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, pour lesquelles seule votre adresse e-mail est demandée, sans carte bancaire. La formation complète coûte ${priceTag(PATH_EUR)}, en un paiement unique : chacune des ${PATH_CITIES} cités dojo, dans l'ordre de votre choix, avec les fichiers et les mises à jour. Une formation métier coûte ${priceTag(TRADE_EUR)} par métier, également en un paiement unique : ${TRADE_CITIES} cités supplémentaires, conçues pour un métier. Il est préférable de la suivre après la formation complète, car elle ne reprend pas les bases. Les deux réunies coûtent ${priceTag(BUNDLE_EUR)}. Vous hésitez encore ? Dès que vous avez communiqué votre adresse, le premier dojo de chaque cité est gratuit, afin que vous puissiez juger avant de payer. Toutes les informations figurent sur la page /tarifs, et la formation s'ouvre dans ce navigateur dès que le paiement est confirmé.`,
+        `Aucun abonnement : vous payez une seule fois, et rien n'est reconduit. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, pour lesquelles seule votre adresse e-mail est demandée, sans carte bancaire. La formation complète coûte ${priceTag(PATH_EUR)}, en un paiement unique : chacune des ${PATH_CITIES} cités dojo, dans l'ordre de votre choix, avec les fichiers et les mises à jour. Une formation métier coûte ${priceTag(TRADE_EUR)} par métier, également en un paiement unique : ${TRADE_CITIES} cités supplémentaires, conçues pour un métier. Il est préférable de la suivre après la formation complète, car elle ne reprend pas les bases. Les deux réunies coûtent ${priceTag(BUNDLE_EUR)}. Vous hésitez encore ? Les trois premières leçons de chaque formation sont offertes, afin que vous puissiez juger avant de payer. Toutes les informations figurent sur la page /tarifs, et la formation s'ouvre dans ce navigateur dès que le paiement est confirmé.`,
       links: [
         'Voir les tarifs',
         'Commencer le week-end gratuit',
@@ -646,7 +672,7 @@ export const KB: KBTopic[] = [
     id: 'troubleshoot',
     chip: 'Troubleshooting',
     answer:
-      'A few things usually explain it. A DOJO IS LOCKED: the AI weekend opens with your email, the first dojo of every city opens once you have given it, and the rest comes with the training it belongs to, on /tarifs. YOU PAID BUT NOTHING OPENED: the training opens on the thank-you page once our server confirms the payment. If that page found no paid order, open the link from your payment confirmation again; if it could not check, try again in a minute, nothing is lost. YOUR PROGRESS OR YOUR GAME IS GONE: without signing in, both live in this browser only, so another browser, another device, a private window or cleared site data starts from zero. THE 3D DOJO STAYS BLANK: your browser may be blocking WebGL, so try another browser or switch on hardware acceleration.',
+      'A few things usually explain it. A DOJO IS LOCKED: the AI weekend opens with your email, the first three lessons of every training are open to everyone, and the rest comes with the training it belongs to, on /tarifs. YOU PAID BUT NOTHING OPENED: the training opens on the thank-you page once our server confirms the payment. If that page found no paid order, open the link from your payment confirmation again; if it could not check, try again in a minute, nothing is lost. YOUR PROGRESS OR YOUR GAME IS GONE: without signing in, both live in this browser only, so another browser, another device, a private window or cleared site data starts from zero. THE 3D DOJO STAYS BLANK: your browser may be blocking WebGL, so try another browser or switch on hardware acceleration.',
     links: [
       { label: 'See the prices', href: '/tarifs' },
       { label: 'Your progress', href: '/profil' },
@@ -656,7 +682,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Dépannage',
       answer:
-        `Quelques causes expliquent la plupart des situations. UN DOJO EST FERMÉ : le week-end de l'IA s'ouvre avec votre adresse e-mail, le premier dojo de chaque cité s'ouvre dès que vous l'avez communiquée, et le reste est inclus dans la formation correspondante, sur /tarifs. VOUS AVEZ PAYÉ MAIS RIEN NE S'EST OUVERT : la formation s'ouvre sur la page de remerciement, une fois que notre serveur a confirmé le paiement. Si cette page n'a trouvé aucune commande payée, rouvrez le lien de votre confirmation de paiement ; si elle n'a pas pu effectuer la vérification, réessayez dans une minute, rien n'est perdu. VOTRE PROGRESSION OU VOTRE PARTIE A DISPARU : sans connexion, toutes deux sont conservées uniquement dans ce navigateur ; un autre navigateur, un autre appareil, une fenêtre de navigation privée ou des données effacées repartent donc de zéro. LE DOJO EN TROIS DIMENSIONS RESTE VIDE : votre navigateur bloque peut-être WebGL ; essayez un autre navigateur ou activez l'accélération matérielle.`,
+        `Quelques causes expliquent la plupart des situations. UN DOJO EST FERMÉ : le week-end de l'IA s'ouvre avec votre adresse e-mail, les trois premières leçons de chaque formation sont ouvertes à tous, et le reste est inclus dans la formation correspondante, sur /tarifs. VOUS AVEZ PAYÉ MAIS RIEN NE S'EST OUVERT : la formation s'ouvre sur la page de remerciement, une fois que notre serveur a confirmé le paiement. Si cette page n'a trouvé aucune commande payée, rouvrez le lien de votre confirmation de paiement ; si elle n'a pas pu effectuer la vérification, réessayez dans une minute, rien n'est perdu. VOTRE PROGRESSION OU VOTRE PARTIE A DISPARU : sans connexion, toutes deux sont conservées uniquement dans ce navigateur ; un autre navigateur, un autre appareil, une fenêtre de navigation privée ou des données effacées repartent donc de zéro. LE DOJO EN TROIS DIMENSIONS RESTE VIDE : votre navigateur bloque peut-être WebGL ; essayez un autre navigateur ou activez l'accélération matérielle.`,
       links: [
         'Voir les tarifs',
         'Votre progression',

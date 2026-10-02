@@ -193,6 +193,28 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   ok('chaque cité des cours est rangée « course »', CO.COURSE_MODULES.every((m) => m.track === 'course'))
 }
 
+/* --- 3d · trois leçons offertes, des cadenas qui suivent l'achat ------------- */
+//
+// Demandé : « Tous les packs sont débloqués remets les payants et mets leur un
+// cadenas mets juste les 3 premières leçons de chaque ouvertes ».
+{
+  const ACC = readFileSync('src/game/access.ts', 'utf8')
+  ok('trois leçons offertes par formation', /export const FREE_LESSONS = 3\b/.test(ACC) && /indexInPack < FREE_LESSONS/.test(ACC))
+  const TP = readFileSync('src/temple/Temple.tsx', 'utf8')
+  const LS = readFileSync('src/game/Lesson.tsx', 'utf8')
+  ok('le temple et la leçon appliquent la même règle', /a\.opensPack\(pack!\) \|\| isFreeLesson\(i\)/.test(TP) && /a\.opensPack\(pack\) \|\| isFreeLesson\(i\)/.test(LS))
+  const WD = readFileSync('src/temple/World.tsx', 'utf8')
+  ok('le cadenas de la carte suit l\'achat, pas le passe-droit d\'essai', /lockedOf = \(p: Pack\) => eurOf\(p\) > 0 && !a\.ownsPack\(p\)/.test(WD) && !/ownsPack[\s\S]{0,120}tester/.test(ACC.match(/const ownsPack[\s\S]*?\n  \}/)?.[0] ?? 'tester'))
+  ok('un compte d\'essai est prévenu', /a\.tester && [\s\S]{0,80}TT\.testerNote/.test(WD))
+  // LE DÉCOR DU TEMPLE · « un ciel bleu avec des nuages et en bas des jardins
+  // zen avec un chemin »
+  const SK = await load('src/temple/art/sky.ts', 'sky.mjs')
+  ok('le jardin zen fait trois fois la largeur d\'un étage', SK.drawGarden().w === 480)
+  ok('des nuages différents', JSON.stringify(SK.drawCloud(1).runs()) !== JSON.stringify(SK.drawCloud(2).runs()))
+  ok('le temple porte le ciel et le jardin', /className="tp-sky"/.test(TP) && /className="tp-ground"/.test(TP))
+  ok('l\'élève marche jusqu\'à la porte avant d\'entrer', /setMe\('walk'\)[\s\S]{0,200}setMe\('enter'\)/.test(TP) && /await settle\(n\)/.test(TP))
+}
+
 /* --- 4 · les morsures ------------------------------------------------------ */
 
 ok('morsure · un import de l\'ancien jeu serait vu', OLD_IMPORT.test("import { PackArt } from './PackArt'") && OLD_IMPORT.test("import { audio } from '../sim/audio'"))

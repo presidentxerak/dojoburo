@@ -17,7 +17,7 @@ import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
 import { say, type Bi } from '../data/bilingual'
 import { PACK_BY_ID, levelsOf, lessonPath, eurOf } from '../data/packs'
-import { useAccess, giveEmail } from '../game/access'
+import { useAccess, giveEmail, isFreeLesson } from '../game/access'
 import { useGame } from '../game/progress'
 import { useAccount, signIn } from '../lib/account'
 import { sendSignup } from '../lib/newsletter'
@@ -28,14 +28,18 @@ import { useAvatar } from '../pixel/avatar'
 import { sanitizeChibi } from '../pixel/chibi'
 import { hashString } from '../pixel/grid'
 import { masterOf } from '../pixel/masters'
-import { sendPresence, fetchPresence, fetchRoom, postRoom, type Student, type RoomMessage } from '../lib/community'
+import { sendPresence, sendGrade, fetchPresence, fetchRoom, postRoom, type Student, type RoomMessage } from '../lib/community'
 import { drawFloor } from './art/floors'
 import { drawDoorLeaf, drawDoorInside } from './art/door'
+import { drawCloud, drawGarden } from './art/sky'
 import { zen, useZenAmbience } from '../lib/zen'
+import { rankOf } from '../game/ranks'
+import { levelOf } from '../game/Gauge'
 import { getSettings, systemReducesMotion } from '../lib/settings'
 import { SoundToggle } from './SoundToggle'
 import { drawRoof, drawFloorStrip, drawBase } from './art/facade'
 import { TT } from './templeText'
+import { dailyChallenge } from './masterDaily'
 
 export function TemplePage({ packId }: { packId: string }) {
   const lang = useLang()
@@ -48,10 +52,10 @@ export function TemplePage({ packId }: { packId: string }) {
   const avatar = useAvatar()
   const floors = useMemo(() => (pack ? levelsOf(pack) : []), [pack])
   const master = masterOf(packId)
-  // LA RÈGLE D'OUVERTURE · celle de l'écran du cours (game/Lesson) : le premier
-  // étage de chaque temple est offert, les autres s'ouvrent avec la formation
-  // (une adresse pour le temple gratuit, un achat pour les autres).
-  const openAt = (i: number) => Boolean(pack) && (a.opensPack(pack!) || i === 0)
+  // LA RÈGLE D'OUVERTURE · celle de l'écran du cours (game/Lesson) : les trois
+  // premiers étages de chaque temple sont offerts, les autres s'ouvrent avec la
+  // formation (une adresse pour le temple gratuit, un achat pour les autres).
+  const openAt = (i: number) => Boolean(pack) && (a.opensPack(pack!) || isFreeLesson(i))
 
   useHeadTags({
     title: pack ? `${say(pack.title, lang)} · DojoBuro` : 'DojoBuro',
@@ -62,7 +66,7 @@ export function TemplePage({ packId }: { packId: string }) {
   // L'ÉTAGE OUVERT · celui de l'adresse (#etage-3), sinon le premier dojo
   // non terminé qu'on peut ouvrir.
   const firstUp = useMemo(() => {
-    const i = floors.findIndex(({ module, level }, k) => !g.isDone(module.id, level.id) && (a.opensPack(pack!) || k === 0))
+    const i = floors.findIndex(({ module, level }, k) => !g.isDone(module.id, level.id) && (a.opensPack(pack!) || isFreeLesson(k)))
     return i >= 0 ? i : 0
   }, [floors, g, a])
   const [cur, setCur] = useState<number>(() => {
@@ -89,13 +93,31 @@ export function TemplePage({ packId }: { packId: string }) {
   // elle se referme ; on arrive à l'étage choisi, sa porte s'ouvre, l'élève en
   // sort, elle se referme. Un seul trajet à la fois.
   const [doorOpen, setDoorOpen] = useState<number | null>(null)
-  const [me, setMe] = useState<'idle' | 'enter' | 'exit'>('exit')
+  const [me, setMe] = useState<'idle' | 'walk' | 'enter' | 'exit'>('exit')
   const busy = useRef(false)
   const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, getSettings().calm || systemReducesMotion() ? ms * 0.25 : ms))
+  /** attendre que l'étage visé soit à l'écran · un long trajet défile plus
+   *  longtemps qu'un court, et l'arrivée doit se voir */
+  const settle = (n: number) => new Promise<void>((resolve) => {
+    const t0 = performance.now()
+    const tick = () => {
+      const el = document.getElementById(`etage-${n + 1}`)
+      const r = el?.getBoundingClientRect()
+      const mid = r ? r.top + r.height / 2 : 0
+      if (!r || Math.abs(mid - window.innerHeight / 2) < r.height * 0.6 || performance.now() - t0 > 2500) resolve()
+      else requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  })
   const arrive = useCallback(async (to: number) => {
-    setMe('exit'); setDoorOpen(to); zen.sfx('door')
-    await wait(560)
-    setMe('idle'); setDoorOpen(null); zen.sfx('doorClose'); zen.sfx('arrive', 0.3)
+    // la porte s'ouvre, l'élève en sort, rejoint sa place, la porte se referme
+    setDoorOpen(to); zen.sfx('door')
+    await wait(380)
+    setMe('exit'); zen.sfx('step', 0.25); zen.sfx('step', 0.5); zen.sfx('step', 0.75)
+    await wait(600)
+    setDoorOpen(null); zen.sfx('doorClose'); zen.sfx('arrive', 0.3)
+    await wait(600)
+    setMe('idle')
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const climb = useCallback(async (from: number, to: number) => {
     const n = Math.max(0, Math.min(floors.length - 1, to))
@@ -103,14 +125,17 @@ export function TemplePage({ packId }: { packId: string }) {
     busy.current = true
     try {
       if (from !== current) go(from, false)
+      // la porte s'ouvre pendant que l'élève marche jusqu'à elle, il entre, elle se referme
       setDoorOpen(from); zen.sfx('door')
-      await wait(430)
-      setMe('enter'); zen.sfx('step'); zen.sfx('step', 0.2); zen.sfx('step', 0.4)
+      setMe('walk'); zen.sfx('step', 0.1); zen.sfx('step', 0.35); zen.sfx('step', 0.6)
+      await wait(650)
+      setMe('enter')
       await wait(520)
       setDoorOpen(null); zen.sfx('doorClose')
-      await wait(220)
+      await wait(260)
       go(n)
-      await wait(650)
+      await settle(n)
+      await wait(150)
       await arrive(n)
     } finally {
       busy.current = false
@@ -136,6 +161,8 @@ export function TemplePage({ packId }: { packId: string }) {
       void fetchPresence(pack.id).then((r) => { if (alive && r.ok) setStudents(r.data.students) })
     }
     beat()
+    // la ceinture, pour le classement de la communauté
+    if (acc.signedIn) void sendGrade(rankOf(levelOf(g.xp).level).id)
     const id = window.setInterval(beat, 25000)
     return () => { alive = false; clearInterval(id) }
   }, [pack, floorId, acc.signedIn, avatar.spec])
@@ -155,11 +182,17 @@ export function TemplePage({ packId }: { packId: string }) {
   const leafL = gridToUrl('door:l', () => drawDoorLeaf('left'))
   const leafR = gridToUrl('door:r', () => drawDoorLeaf('right'))
   const inside = gridToUrl(`door:in:${pack.tint}`, () => drawDoorInside(pack.tint))
+  const garden = gridToUrl('garden', () => drawGarden())
+  const clouds = [0, 1, 2, 3, 4, 5].map((k) => gridToUrl(`cloud:${k}`, () => drawCloud(k)))
   const here = floors[current]
   const others = students.filter((x) => !x.me)
 
   return (
     <div className="tp" style={{ ['--ac' as string]: pack.tint }}>
+      {/* LE CIEL · bleu, avec des nuages qui passent lentement derrière la tour */}
+      <div className="tp-sky" aria-hidden="true">
+        {clouds.map((c, k) => c && <img key={k} className={`tp-cloud c${k}`} src={c} alt="" />)}
+      </div>
       {/* L'EN-TÊTE · retour, le temple et l'étage. */}
       <header className="tp-top">
         <Lnk className="tp-back" href="/" aria-label={s(TT.back)}>←</Lnk>
@@ -262,6 +295,8 @@ export function TemplePage({ packId }: { packId: string }) {
           })}
           {baseUrl && <img className="tp-base" src={baseUrl} alt="" aria-hidden="true" />}
         </div>
+        {/* LE JARDIN ZEN · au pied du temple, le chemin part de l'escalier */}
+        {garden && <div className="tp-ground" aria-hidden="true"><img src={garden} alt="" /></div>}
       </div>
 
       {/* LES COMMANDES · comme un ascenseur : descendre, l'étage, monter. */}
@@ -300,7 +335,7 @@ export function TemplePage({ packId }: { packId: string }) {
         </div>
       )}
 
-      {chatOpen && <TempleChat room={pack.id} initial={chatOpen} students={others} floorNo={(id) => { const k = floors.findIndex((f) => f.level.id === id); return k >= 0 ? String(k + 1) : '' }} onClose={() => setChatOpen(false)} />}
+      {chatOpen && <TempleChat room={pack.id} course={say(pack.title, lang)} initial={chatOpen} students={others} floorNo={(id) => { const k = floors.findIndex((f) => f.level.id === id); return k >= 0 ? String(k + 1) : '' }} onClose={() => setChatOpen(false)} />}
     </div>
   )
 }
@@ -329,13 +364,17 @@ function EmailGate() {
 /* LE CHAT DU COURS · les présents, et le groupe                        */
 /* ------------------------------------------------------------------ */
 
-function TempleChat({ room, initial, students, floorNo, onClose }: { room: string; initial: 'group' | 'people'; students: Student[]; floorNo: (id: string) => string; onClose: () => void }) {
+function TempleChat({ room, course, initial, students, floorNo, onClose }: { room: string; course: string; initial: 'group' | 'people'; students: Student[]; floorNo: (id: string) => string; onClose: () => void }) {
   const lang = useLang()
   const s = (b: Bi) => say(b, lang)
   const acc = useAccount()
   const [tab, setTab] = useState<'group' | 'people'>(initial)
   const [msgs, setMsgs] = useState<RoomMessage[]>([])
   const [body, setBody] = useState('')
+  // LE MAÎTRE IA · il ouvre le chat avec le défi du jour, et répond aux
+  // questions. Son nom porte toujours « IA ».
+  const master = masterOf(room)
+  const [thinking, setThinking] = useState(false)
   const load = useCallback(() => {
     if (!acc.signedIn) return
     void fetchRoom(room).then((r) => { if (r.ok) setMsgs(r.data.messages) })
@@ -382,19 +421,28 @@ function TempleChat({ room, initial, students, floorNo, onClose }: { room: strin
           : (
             <>
               <div className="tc-msgs">
+                <div className="tc-msg master">
+                  <ChibiSprite spec={master.spec} scale={1} />
+                  <div><b>{s(TT.master)} {master.name} <span className="cy-kind master">IA</span></b><p>{s(TT.dailyChallenge)} {s(dailyChallenge())} {s(TT.askMaster)}</p></div>
+                </div>
                 {msgs.length === 0 && <p className="tc-empty">{s(TT.noMessages)}</p>}
                 {msgs.map((m) => (
-                  <div key={m.id} className={`tc-msg${m.mine ? ' mine' : ''}`}>
-                    <ChibiSprite spec={sanitizeChibi(m.author.avatar, hashString(m.author.handle))} scale={1} />
-                    <div><b>{m.author.name}</b><p>{m.body}</p></div>
+                  <div key={m.id} className={`tc-msg${m.mine ? ' mine' : ''}${m.author.kind === 'master' ? ' master' : ''}`}>
+                    <ChibiSprite spec={m.author.kind === 'master' ? master.spec : sanitizeChibi(m.author.avatar, hashString(m.author.handle))} scale={1} />
+                    <div><b>{m.author.name}{m.author.kind === 'master' && <> <span className="cy-kind master">IA</span></>}</b><p>{m.body}</p></div>
                   </div>
                 ))}
+                {thinking && <p className="tc-empty">{s(TT.master)} {master.name} · {s(TT.masterThinking)}</p>}
               </div>
               <form className="tc-form" onSubmit={async (e) => {
                 e.preventDefault()
                 if (!body.trim()) return
-                const r = await postRoom(room, body)
-                if (r.ok) { zen.sfx('send'); setBody(''); load() }
+                const text = body
+                setBody('')
+                setThinking(/\?\s*$/.test(text.trim()) || /\bma[iî]tre\b/i.test(text))
+                const r = await postRoom(room, text, course)
+                setThinking(false)
+                if (r.ok) { zen.sfx('send'); load() } else setBody(text)
               }}>
                 <input className="promo-inp" value={body} onChange={(e) => setBody(e.target.value)} placeholder={s(TT.writeGroup)} aria-label={s(TT.writeGroup)} maxLength={1000} />
                 <button className="gm-cta" type="submit">{s(TT.send)}</button>

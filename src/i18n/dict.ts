@@ -666,7 +666,7 @@ export const DICT = {
     en: 'The first dojo of every city is open. The rest comes with the path, bought once.',
     fr: "Le premier dojo de chaque cité est ouvert. Le reste est inclus dans le parcours, acheté une fois.",
   },
-  'g.freeFirst': { en: 'First dojo, free', fr: 'Premier dojo, gratuit' },
+  'g.freeFirst': { en: 'Free lesson', fr: 'Leçon offerte' },
   // L'ÉTIQUETTE DU MAÎTRE · elle était écrite en dur, en anglais, dans le
   // composant 3D. Sur un écran français elle donnait « Sensei · dojo master »
   // au milieu d'une leçon en français · exactement le mélange de langues déjà

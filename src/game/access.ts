@@ -54,6 +54,15 @@ const TESTERS = ['atomxnft@gmail.com', 'xguiter@gmail.com']
 /** Cette adresse est-elle un passe-droit d'essai ? · comparée en minuscules et
  *  sans espaces, parce qu'une adresse se tape à la main et qu'un T majuscule
  *  ne doit pas décider d'un accès. */
+/** LES LEÇONS OFFERTES · demandé : « mets juste les 3 premières leçons de
+ *  chaque [formation] ouvertes ». Les trois premiers dojos de chaque formation
+ *  s'ouvrent sans rien acheter ; les suivants portent un cadenas tant que la
+ *  formation n'est pas achetée (une adresse pour le week-end gratuit). */
+export const FREE_LESSONS = 3
+
+/** Ce dojo, à cette place dans sa formation, est-il offert ? */
+export const isFreeLesson = (indexInPack: number): boolean => indexInPack < FREE_LESSONS
+
 export const isTester = (email?: string): boolean =>
   Boolean(email) && TESTERS.includes(String(email).trim().toLowerCase())
 
@@ -190,6 +199,17 @@ export function useAccess() {
    *  c'est la formation qu'on achète. Poser la question module par module
    *  aurait donné une carte où six cités d'un même achat s'ouvrent et trois
    *  restent fermées, ce qui ne correspond à rien qu'on vende. */
+  /** LA FORMATION EST-ELLE ACHETÉE (ou, pour le week-end, l'adresse donnée) ?
+   *  · sans le passe-droit d'essai. C'est elle qui décide du cadenas affiché sur
+   *  la carte et les cartes de cours : un compte d'essai voit les cadenas comme
+   *  tout le monde, même s'il peut entrer. */
+  const ownsPack = (p: Pack): boolean => {
+    if (p.door === 'free') return Boolean(a.email)
+    if (p.door === 'path') return Boolean(a.path)
+    if (p.door === 'course') return Boolean(p.course) && (a.courses ?? []).includes(p.course!)
+    return Boolean(a.trade) && p.trade === a.trade
+  }
+
   const opensPack = (p: Pack): boolean => {
     if (tester) return true
     if (p.door === 'free') return Boolean(a.email)
@@ -216,5 +236,6 @@ export function useAccess() {
     canOpen,
     canOpenLevel,
     opensPack,
+    ownsPack,
   }
 }

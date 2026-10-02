@@ -124,6 +124,8 @@ export interface MemberRow {
   points: number
   created_at: Date
   last_seen_at: Date
+  kind?: string
+  founder?: boolean
 }
 
 /** Un membre, tel que la page le montre · en ligne s'il a été vu il y a moins
@@ -137,6 +139,8 @@ export function serializeMember(r: MemberRow, now = Date.now()) {
     level: levelOfPoints(r.points).level,
     joinedAt: r.created_at.toISOString(),
     online: now - r.last_seen_at.getTime() < 5 * 60 * 1000,
+    kind: r.kind === 'team' || r.kind === 'master' ? r.kind : 'member',
+    founder: r.founder === true,
   }
 }
 
@@ -204,12 +208,15 @@ export function serializePost(r: PostRow, me: string | null, excerpt = false) {
 
 /** L'auteur montré · son nom, sa clé de couleur, son identifiant public et son
  *  niveau (quand la requête les a lus). */
-function authorOf(r: { author_did: string; author_name: string; author_handle?: string; author_points?: number }) {
+function authorOf(r: { author_did: string; author_name: string; author_handle?: string; author_points?: number; author_kind?: string; author_founder?: boolean }) {
   return {
     name: r.author_name,
     key: authorKey(r.author_did),
     handle: r.author_handle ?? null,
     level: typeof r.author_points === 'number' ? levelOfPoints(r.author_points).level : null,
+    // QUI PARLE · une personne, l'équipe, ou un maître IA (toujours affiché comme tel)
+    kind: r.author_kind === 'team' || r.author_kind === 'master' ? r.author_kind : 'member',
+    founder: r.author_founder === true,
   }
 }
 
@@ -339,6 +346,10 @@ export function pollView(options: string[], votes: { option: number; n: number }
 export const SLUG = /^[a-z0-9-]{2,60}$/
 export const FLOOR = /^[a-z0-9-]{1,60}$/
 export const PRESENCE_WINDOW_S = 90
+/** les ceintures des élèves, de la blanche à la noire · voir game/ranks */
+export const GRADES = ['white', 'yellow', 'orange', 'green', 'blue', 'brown', 'black'] as const
+export const cleanGrade = (v: unknown): string | null =>
+  typeof v === 'string' && (GRADES as readonly string[]).includes(v) ? v : null
 export const ROOM_LIMITS = { body: { min: 1, max: 1000 } } as const
 
 /** La fiche d'un personnage, telle qu'on accepte de la ranger · un objet plat

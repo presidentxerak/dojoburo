@@ -17,7 +17,7 @@ export const COURSE_IDS: CourseId[] = ['coder-une-app', 'coder-avec-lovable']
  *  il n'a ni cité, ni temple, ni ligne sur /tarifs, et les gardes de contenu ne
  *  le lisent pas. On le passe à true quand toutes ses leçons sont relues. */
 export const COURSE_READY: Record<CourseId, boolean> = {
-  'coder-une-app': false,
+  'coder-une-app': true,
   'coder-avec-lovable': true,
 }
 

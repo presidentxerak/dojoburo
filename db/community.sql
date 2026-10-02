@@ -180,3 +180,42 @@ create table if not exists community_room_messages (
   created_at   timestamptz not null default now()
 );
 create index if not exists community_room_messages_room_idx on community_room_messages (room, created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- LOT 9 · LE GRADE DES MEMBRES · demandé : « ajoute le classement des membres
+-- avec leur grade ». La ceinture de l'élève (game/ranks), envoyée par son
+-- navigateur quand il ouvre la communauté ou un temple. Elle se montre, elle
+-- ne donne aucun droit.
+alter table community_members add column if not exists grade text
+  check (grade is null or grade in ('white', 'yellow', 'orange', 'green', 'blue', 'brown', 'black'));
+
+-- ---------------------------------------------------------------------------
+-- LOT 10 · UNE COMMUNAUTÉ QUI NE PARAÎT PAS VIDE, SANS RIEN INVENTER.
+-- Demandé : éviter une communauté vide pour rassurer les futurs élèves. Choisi
+-- (après refus des faux membres et des faux témoignages) : des maîtres IA
+-- animateurs clairement signalés, le statut de membre fondateur, des contenus
+-- signés de l'équipe, et la collecte de vrais témoignages avec consentement.
+--
+-- kind · 'member' (une personne), 'team' (l'équipe DojoBuro, qui signe ses
+-- publications) ou 'master' (un maître IA, toujours affiché comme tel).
+alter table community_members add column if not exists kind text not null default 'member'
+  check (kind in ('member', 'team', 'master'));
+-- founder · les 500 premiers membres, pour toujours
+alter table community_members add column if not exists founder boolean not null default false;
+update community_members set founder = true
+ where kind = 'member' and did in (select did from community_members where kind = 'member' order by created_at limit 500);
+
+-- LES TÉMOIGNAGES · écrits par le membre lui-même, publiés seulement avec son
+-- consentement explicite et après relecture par un administrateur.
+create table if not exists community_testimonials (
+  id           uuid primary key default gen_random_uuid(),
+  did          text not null references community_members(did) on delete cascade,
+  body         text not null check (char_length(body) between 40 and 800),
+  pack         text check (pack is null or pack ~ '^[a-z0-9-]{2,60}$'),
+  consent      boolean not null check (consent),
+  status       text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at   timestamptz not null default now(),
+  reviewed_at  timestamptz
+);
+create unique index if not exists community_testimonials_one_idx on community_testimonials (did, coalesce(pack, ''));
+create index if not exists community_testimonials_status_idx on community_testimonials (status, created_at desc);

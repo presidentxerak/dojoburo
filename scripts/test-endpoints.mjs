@@ -290,6 +290,12 @@ const ENDPOINTS = [
     ['GET', '/api/community?action=room&id=weekend'],
     ['POST', '/api/community?action=here', JSON.stringify({ pack: 'weekend', floor: 'mots', avatar: { species: 'robot' } })],
     ['POST', '/api/community?action=room-post', JSON.stringify({ room: 'weekend', body: 'Bonjour à tous' })],
+    ['POST', '/api/community?action=grade', JSON.stringify({ grade: 'green' })],
+    // LES TÉMOIGNAGES · publiés après relecture, jamais sans consentement
+    ['GET', '/api/community?action=testimonials'],
+    ['GET', '/api/community?action=testimonials-pending'],
+    ['POST', '/api/community?action=testimonial', JSON.stringify({ body: 'Grâce au cours, je rédige mes comptes rendus deux fois plus vite.', consent: true })],
+    ['POST', '/api/community?action=testimonial-review', JSON.stringify({ id: '00000000-0000-4000-8000-000000000001', approve: true })],
   ]],
   // LA NEWSLETTER · l'adresse du week-end gratuit et le consentement à part.
   // Sans base, 503 « not_configured » ; jamais un faux succès.
@@ -356,6 +362,8 @@ console.log('\n--- sans base, personne ne prétend avoir réussi ---------------
     ['community', 'api/community.ts', 'POST', '/api/community?action=comment', { postId: '00000000-0000-4000-8000-000000000001', body: 'Merci !' }],
     ['community', 'api/community.ts', 'POST', '/api/community?action=here', { pack: 'weekend', floor: 'mots', avatar: { species: 'robot' } }],
     ['community', 'api/community.ts', 'POST', '/api/community?action=room-post', { room: 'weekend', body: 'Bonjour à tous' }],
+    ['community', 'api/community.ts', 'POST', '/api/community?action=grade', { grade: 'green' }],
+    ['community', 'api/community.ts', 'POST', '/api/community?action=testimonial', { body: 'Grâce au cours, je rédige mes comptes rendus deux fois plus vite.', consent: true }],
     ['profile', 'api/profile.ts', 'PUT', '/api/profile', { data: { v: 1, academy: { done: ['a/b'], answers: {} } } }],
     ['profile', 'api/profile.ts', 'POST', '/api/profile?action=sync', { data: {}, access: { path: true } }],
     ['profile', 'api/profile.ts', 'POST', '/api/profile?action=claim', { session_id: 'cs_test_abc123' }],

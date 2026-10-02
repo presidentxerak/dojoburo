@@ -12261,7 +12261,7 @@ svg.chibi.flip { transform: scaleX(-1); }
 .tw-card-t { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .tw-card-t b { font: 400 14px/1.2 var(--font-px); }
 .tw-card-t em { font-style: normal; font-size: 13px; opacity: .8; }
-.tw-tag { align-self: flex-start; padding: 2px 8px; border-radius: 999px; font: 400 10px/1.4 var(--font-px); background: #7c3aed; color: #fff; }
+.tw-tag { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; padding: 2px 8px; border-radius: 999px; font: 400 10px/1.4 var(--font-px); background: #7c3aed; color: #fff; }
 .tw-tag.free { background: #16a34a; }
 .tw-tag.locked { background: #44405a; }
 
@@ -12269,8 +12269,24 @@ svg.chibi.flip { transform: scaleX(-1); }
 .tp {
   position: fixed; inset: 0; z-index: 140; display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
   color: #fff; font-family: var(--font-game);
-  background: linear-gradient(180deg, #120a2e 0%, color-mix(in srgb, var(--ac) 30%, #1a0f3a) 70%, #0a0514 100%);
+  background: linear-gradient(180deg, #4aa8ea 0%, #8fd0f6 55%, #cdeefc 100%);
 }
+/* le ciel et ses nuages · une couche fixe derrière la tour */
+.tp-sky { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.tp-cloud { position: absolute; image-rendering: pixelated; width: clamp(120px, 16vw, 230px); height: auto; opacity: .95; animation: tp-drift 140s linear infinite; }
+.tp-cloud.c0 { top: 9%; left: -10%; animation-duration: 160s; }
+.tp-cloud.c1 { top: 22%; left: 30%; width: clamp(90px, 11vw, 170px); animation-duration: 210s; animation-delay: -60s; }
+.tp-cloud.c2 { top: 38%; left: 70%; animation-duration: 180s; animation-delay: -120s; }
+.tp-cloud.c3 { top: 56%; left: 10%; width: clamp(80px, 9vw, 140px); animation-duration: 240s; animation-delay: -30s; }
+.tp-cloud.c4 { top: 14%; left: 82%; width: clamp(100px, 12vw, 180px); animation-duration: 200s; animation-delay: -90s; }
+.tp-cloud.c5 { top: 68%; left: 55%; width: clamp(90px, 10vw, 150px); animation-duration: 260s; animation-delay: -150s; }
+@keyframes tp-drift { from { transform: translateX(-30vw); } to { transform: translateX(130vw); } }
+.tp-top, .tp-scroll, .tp-ctrl, .tp-map { position: relative; z-index: 1; }
+.tp-map { position: absolute; }
+/* le jardin zen · trois fois la largeur de la tour, centré sous l'entrée */
+.tp-ground { display: flex; justify-content: center; overflow: hidden; margin: 0 -12px; }
+.tp-ground img { flex: none; width: calc(min(100vw - 24px, 720px) * 3); height: auto; image-rendering: pixelated; display: block; }
+@media (prefers-reduced-motion: reduce) { .tp-cloud { animation: none; } }
 .tp-missing { place-items: center; align-content: center; gap: 16px; }
 .tp-top { display: flex; align-items: center; gap: 12px; padding: 10px 14px; padding-right: 76px; background: rgba(10, 5, 20, .72); z-index: 3; }
 .tp-back { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); color: #fff; font-size: 20px; text-decoration: none; }
@@ -12292,7 +12308,7 @@ svg.chibi.flip { transform: scaleX(-1); }
 .tp-map-b.on { background: var(--ac, #7c3aed); color: #fff; }
 
 /* la tour */
-.tp-scroll { overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; padding: 24px 12px 32px; }
+.tp-scroll { overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scroll-behavior: smooth; padding: 24px 12px 0; }
 .tp-tower { width: min(100%, 720px); margin: 0 auto; }
 .tp-tower img { display: block; width: 100%; height: auto; }
 .tp-floor { position: relative; container-type: inline-size; aspect-ratio: 160 / 64; scroll-margin: 80px; }
@@ -12319,15 +12335,21 @@ svg.chibi.flip { transform: scaleX(-1); }
 .tp-door.open .tp-leaf.l { transform: translateX(-100%); }
 .tp-door.open .tp-leaf.r { transform: translateX(100%); }
 .tp-door:not([aria-disabled="true"]):hover .tp-leaf, .tp-door:focus-visible .tp-leaf { filter: brightness(1.08); }
-/* l'élève devant la porte · il y entre en montant, il en sort en arrivant */
-.tp-me { position: absolute; left: 42.2%; bottom: 6%; width: 15.6cqw; z-index: 2; pointer-events: none; transform-origin: 50% 100%; }
+/* l'élève à côté de la porte · il marche jusqu'à elle et y entre en montant,
+   il en sort et rejoint sa place en arrivant. Sa place est juste à droite de
+   la porte, pour qu'on voie la porte s'ouvrir. */
+.tp-me { position: absolute; left: 57.5%; bottom: 6%; width: 15.6cqw; z-index: 2; pointer-events: none; transform-origin: 50% 100%; }
 .tp-me svg { width: 100%; height: auto; display: block; }
 .tp-me .tp-nametag { background: #7c3aed; color: #fff; }
-.tp-me.enter { transition: transform .5s steps(5), opacity .5s steps(5); transform: translateY(-16%) scale(.66); opacity: 0; }
-.tp-me.enter svg { animation: px-walk .25s steps(2) infinite; }
-.tp-me.exit { animation: tp-me-out .55s steps(5) both; }
-.tp-me.exit svg { animation: px-walk .25s steps(2) infinite; }
-@keyframes tp-me-out { from { transform: translateY(-16%) scale(.66); opacity: 0; } to { transform: none; opacity: 1; } }
+.tp-me.walk { transition: transform .62s steps(6); transform: translateX(-98%); }
+.tp-me.enter { transition: transform .5s steps(5), opacity .5s steps(5); transform: translate(-98%, -14%) scale(.62); opacity: 0; }
+.tp-me.walk svg, .tp-me.exit svg { animation: px-walk .25s steps(2) infinite; }
+.tp-me.exit { animation: tp-me-out 1.15s steps(10) both; }
+@keyframes tp-me-out {
+  0% { transform: translate(-98%, -14%) scale(.62); opacity: 0; }
+  40% { transform: translate(-98%, 0) scale(1); opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
 @keyframes px-walk { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3%); } }
 .tp-snd { flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin-left: auto; border: 0; border-radius: 12px; cursor: pointer; background: #2c1d52; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
 .tp-snd[aria-pressed="false"] { background-color: #44405a; }
@@ -12338,7 +12360,7 @@ svg.chibi.flip { transform: scaleX(-1); }
 .tp-master { left: 11.25%; }
 .tp-master svg, .tp-student svg { width: 100%; height: auto; }
 .tp-master svg { animation: px-bob 1.6s steps(2) infinite; }
-.tp-students { position: absolute; left: 60%; right: 3%; bottom: 7%; height: 60%; }
+.tp-students { position: absolute; left: 75%; right: 3%; bottom: 7%; height: 60%; }
 .tp-students .tp-student { position: relative; display: inline-block; bottom: auto; vertical-align: bottom; width: 12cqw; margin-right: -1.5cqw; }
 .tp-students { display: flex; align-items: flex-end; justify-content: center; }
 .tp-student.me { cursor: default; }
@@ -12475,7 +12497,9 @@ svg.picon { display: inline-block; image-rendering: pixelated; }
   .tp-map { top: 66px; right: 6px; padding: 3px; gap: 2px; max-height: calc(100% - 150px); }
   .tp-map-b { width: 36px; height: 22px; font-size: 11px; }
   .tp-top { padding-right: 14px; }
-  .tp-scroll { padding: 16px 52px 24px 8px; }
+  .tp-scroll { padding: 16px 52px 0 8px; }
+  .tp-ground { margin: 0 -52px 0 -8px; }
+  .tp-ground img { width: calc((100vw - 60px) * 3); }
 }
 
 /* LA CARTE VIVANTE · les promeneurs, les noms agrandis. Demandé : « agrandi
@@ -12492,3 +12516,46 @@ svg.picon { display: inline-block; image-rendering: pixelated; }
   .tw-label { white-space: normal; width: max-content; max-width: 46vw; padding: 3px 7px; font-size: 11px; }
 }
 @media (prefers-reduced-motion: reduce) { .tw-walker svg, .tp-me svg, .tp-master svg { animation: none !important; } }
+/* la ceinture d'un membre dans les classements */
+.cy-grade { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; background: color-mix(in srgb, var(--rk) 22%, transparent); }
+.cy-grade i { width: 14px; height: 5px; border-radius: 2px; background: var(--rk); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
+/* LA BIBLIOTHÈQUE DE LA COMMUNAUTÉ · prompts et ressources */
+.cy-lib { display: flex; flex-direction: column; gap: 12px; }
+.cy-lib-q { width: 100%; margin: 10px 0; }
+.cy-lib-cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.cy-lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.cy-prompt, .cy-res { display: flex; flex-direction: column; gap: 8px; }
+.cy-prompt header, .cy-res header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.cy-prompt pre { margin: 0; max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 10px 12px; border-radius: 12px; background: rgba(124, 58, 237, .08); }
+.cy-prompt .cc-btn, .cy-res .cc-btn { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.cy-lib-level { flex: none; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(124, 58, 237, .14); }
+.cy-res-meta { margin: 0; font-size: 12px; opacity: .75; }
+.cy-wins { margin-bottom: 12px; }
+/* qui parle · l'équipe, un maître IA, un membre fondateur */
+.cy-kind { display: inline-flex; align-items: center; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 800; letter-spacing: .02em; vertical-align: middle; white-space: nowrap; }
+.cy-kind.team { background: #7c3aed; color: #fff; }
+.cy-kind.master { background: #0ea5e9; color: #fff; }
+.cy-kind.founder { background: #f5c542; color: #3b2a00; }
+.cy-founders { margin: 4px 0 10px; }
+.tc-msg.master > div { background: rgba(14, 165, 233, .14); }
+html[data-look="light"] .tc-msg.master > div { background: #e0f2fe; }
+.cy-daily { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; background: linear-gradient(135deg, rgba(14, 165, 233, .12), rgba(124, 58, 237, .1)); }
+.cy-daily-art { flex: none; display: grid; place-items: center; width: 70px; height: 80px; border-radius: 14px; background: rgba(14, 165, 233, .16); }
+.cy-daily-art svg { image-rendering: pixelated; }
+.cy-daily p { margin: 6px 0; line-height: 1.5; }
+.cy-daily-go { font-weight: 700; color: #7c3aed; text-decoration: none; }
+/* les témoignages des membres */
+.cy-h3 { margin: 0 0 8px; font-size: 17px; }
+.cy-tm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.cy-tm { margin: 0; padding: 14px 16px; border-radius: 16px; background: rgba(124, 58, 237, .08); display: flex; flex-direction: column; gap: 10px; }
+.cy-tm blockquote { margin: 0; line-height: 1.55; font-style: italic; }
+.cy-tm figcaption { display: flex; align-items: center; gap: 10px; }
+.cy-tm figcaption svg { width: 34px; height: auto; image-rendering: pixelated; }
+.cy-tm figcaption span { display: flex; flex-direction: column; gap: 2px; }
+.cy-tm figcaption em { font-style: normal; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; }
+.cy-tm figcaption em i { width: 14px; height: 5px; border-radius: 2px; background: var(--rk); }
+.cy-tm figcaption small { opacity: .7; font-size: 12px; }
+.cy-tm-form { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.cy-tm-form .gm-cta { align-self: flex-start; }
+.cy-tm-pending { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 0; box-shadow: inset 0 -1px 0 rgba(124, 58, 237, .15); }
+.cy-tm-pending p { flex: 1 1 100%; margin: 0; }
