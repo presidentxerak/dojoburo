@@ -547,6 +547,20 @@ ok('morsure · des lettres cernées seraient vues',
   ('-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000'.match(/-?\d[\d.]*px\s+-?\d[\d.]*px\s+0\b/g) || []).length >= 3)
 ok('morsure · une ombre douce ne l\'est pas',
   ('0 2px 14px rgba(0, 0, 0, 0.45)'.match(/-?\d[\d.]*px\s+-?\d[\d.]*px\s+0\b/g) || []).length < 3)
+// LA MARGE UNIQUE · demandé : « fais la fluid et flex avec 20 pixels de marge
+// sur les côtés pour toutes les pages ». Une variable, posée sur chaque
+// conteneur de page, et des sections qui n'en rajoutent pas.
+{
+  ok('la marge latérale des pages vaut 20 px, à un seul endroit', /:root \{ --page-x: 20px; \}/.test(CSS))
+  for (const sel of ['.gm-top', '.gm-main', '.promo-main', '.legal-body, .ac-lessonpage']) {
+    const at = CSS.lastIndexOf(`\n${sel} {`)
+    const rule = at >= 0 ? CSS.slice(at, CSS.indexOf('}', at)) : ''
+    ok(`« ${sel} » porte la marge de page`, /padding-left: var\(--page-x\)/.test(rule) && /padding-right: var\(--page-x\)/.test(rule))
+  }
+  const sec = CSS.slice(CSS.lastIndexOf('\n.gm-sec {'), CSS.indexOf('}', CSS.lastIndexOf('\n.gm-sec {')))
+  ok('les sections n\'ajoutent pas de marge latérale', /padding-left: 0; padding-right: 0/.test(sec))
+}
+
 ok('morsure · un retour de Lilita serait vu',
   /lilita/i.test("import '@fontsource/lilita-one/latin-400.css'"))
 ok('morsure · une vignette mesurée sans offsetSize serait vue',

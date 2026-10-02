@@ -11152,12 +11152,12 @@ button.wm-tag { border-radius: 999px !important; }
 .tf-sum s { font-weight: 800; color: var(--g-text); text-decoration-thickness: 2px; text-decoration-color: #f472b6; }
 .tf-table-wrap { overflow-x: auto; border-radius: 20px; background: linear-gradient(180deg, var(--g-card-top), var(--g-card) 40%, var(--g-card-bot)); box-shadow: var(--g-edge), var(--g-lift); }
 .tf-table { width: 100%; min-width: 460px; border-collapse: collapse; font-size: 14px; color: var(--g-text); }
-.tf-table th, .tf-table td { padding: 12px 14px; text-align: center; border-bottom: 1px solid rgba(183, 148, 255, 0.12); }
+.tf-table th, .tf-table td { padding: 12px 14px; text-align: center; box-shadow: inset 0 -1px 0 rgba(183, 148, 255, 0.12); }
 .tf-table thead th { font-family: var(--font-game); font-weight: 800; font-size: 14.5px; color: var(--g-text); }
 .tf-table tbody th { text-align: left; font-weight: 600; }
 .tf-table .main { background: rgba(124, 58, 237, 0.16); }
 .tf-table thead .main { color: #fff; background: linear-gradient(180deg, #8b5cf6, #7c3aed); }
-.tf-table tr:last-child th, .tf-table tr:last-child td { border-bottom: 0; }
+.tf-table tr:last-child th, .tf-table tr:last-child td { box-shadow: none; }
 .tf-price-row td, .tf-price-row th { font-family: var(--font-game); font-weight: 900; font-size: 16px; }
 .tf-yes { color: #a3e635; display: inline-flex; }
 .tf-no { color: var(--g-sub); opacity: .55; display: inline-flex; }
@@ -12720,3 +12720,26 @@ html[data-look="light"] .tc-msg.master > div { background: #e0f2fe; }
 @keyframes tw-hop { 0%, 40% { transform: translate(0, 0) scaleX(1); } 41%, 44% { transform: translate(2px, -3px) scaleX(1); } 45%, 70% { transform: translate(4px, 0) scaleX(-1); } 71%, 74% { transform: translate(2px, -3px) scaleX(-1); } 75%, 100% { transform: translate(0, 0) scaleX(1); } }
 @media (prefers-reduced-motion: reduce) { .tw-life * { animation: none !important; } }
 html.calm .tw-life * { animation: none !important; }
+
+/* =====================================================================
+   LA MARGE UNIQUE · demandé : « Améliore la mise en page de l'app pour toutes
+   les pages fais la fluid et flex avec 20 pixels de marge sur les côtés pour
+   toutes les pages ».
+   Une seule variable, --page-x, posée sur le conteneur de chaque page (le
+   cadre du jeu, la page promo, les pages légales, l'Académie) ; les sections
+   à l'intérieur ne rajoutent plus leur propre marge latérale, sinon la marge
+   réelle redevient la somme de deux règles qui varient chacune avec l'écran.
+   Les conteneurs sont fluides (largeur 100 %, plafond lisible) et leurs
+   enfants peuvent rétrécir (min-width: 0) au lieu de déborder.
+   ===================================================================== */
+:root { --page-x: 20px; }
+.gm-top { padding-left: var(--page-x); padding-right: var(--page-x); }
+.gm-main { box-sizing: border-box; width: 100%; min-width: 0; padding-left: var(--page-x); padding-right: var(--page-x); max-width: calc(780px + 2 * var(--page-x)); }
+.gm-main.wide { max-width: none; }
+.gm-main:has(.cy-layout) { max-width: calc(1100px + 2 * var(--page-x)); }
+.gm-main:has(.tf-grid) { max-width: calc(1120px + 2 * var(--page-x)); }
+.gm-sec { padding-left: 0; padding-right: 0; min-width: 0; }
+.cy-layout { padding-left: 0; padding-right: 0; }
+.promo-main { box-sizing: border-box; max-width: calc(1120px + 2 * var(--page-x)); padding-left: var(--page-x); padding-right: var(--page-x); }
+.legal-body, .ac-lessonpage { padding-left: var(--page-x); padding-right: var(--page-x); }
+.gm-main > *, .gm-sec > * { min-width: 0; }
