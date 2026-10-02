@@ -62,7 +62,14 @@ const SCREENS = GAME_FILES.filter((f) => f.endsWith('.tsx'))
 const storesInGame = GAME_FILES
   .filter((f) => /localStorage|sessionStorage|indexedDB/.test(SRC(f)))
   .filter((f) => !f.endsWith('access.ts'))
+  // LES SUCCÈS ONT LEUR CASIER · demandé : « ajoute des achievements avec
+  // acquisition de points entre chaque partie de la formation ». Ce ne sont pas
+  // des leçons finies mais des parties lues et des exploits : les ranger dans
+  // la progression aurait fait compter des parties comme des dojos. Le casier
+  // est admis à une condition, vérifiée juste après : il n'écrit aucune leçon.
+  .filter((f) => !f.endsWith('achievements.ts'))
 ok('aucun second magasin dans le jeu', storesInGame.length === 0, storesInGame.join(', ') || 'un seul')
+ok('le casier des succès n\'écrit aucune leçon', !/markDone|clearDone|recordAnswer|dojo\.progress|academy/.test(SRC('src/game/achievements.ts')))
 
 ok('la vue de progression lit le magasin de l\'académie',
   /from '\.\.\/academy\/progress'/.test(SRC('src/game/progress.ts')))

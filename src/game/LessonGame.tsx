@@ -22,6 +22,8 @@ import type { ChibiSpec } from '../pixel/chibi'
 import { getSettings, systemReducesMotion } from '../lib/settings'
 import { zen } from '../lib/zen'
 import { Lnk } from '../lib/router'
+import { burst } from '../lib/juice'
+import type { Feat } from './achievements'
 
 export const QT = {
   quest: B('Quest', 'Quête'),
@@ -38,7 +40,22 @@ export const QT = {
   climb: B('Climb to the next floor', "Monter à l'étage suivant"),
   stay: B('Stay here', 'Rester ici'),
   backTemple: B('Back to the temple', 'Retour au temple'),
+  points: B('points', 'points'),
+  partDone: B('Part completed', 'Partie terminée'),
+  featUnlocked: B('Achievement unlocked', 'Succès débloqué'),
+  gift: B('Here are your points.', 'Voici vos points.'),
 }
+
+/** LES FÉLICITATIONS DU MAÎTRE · une phrase par partie terminée, tirée selon
+ *  la partie pour ne pas répéter la même deux fois de suite. « {p} » est le
+ *  nom de la partie. */
+const CHEERS: Bi[] = [
+  B('Well done! “{p}” is behind you.', 'Bien joué ! « {p} » est derrière vous.'),
+  B('Excellent work on “{p}”.', 'Excellent travail sur « {p} ».'),
+  B('You are moving fast. “{p}”, done.', 'Vous progressez vite. « {p} », c\'est fait.'),
+  B('Fine focus on “{p}”. On to the next part.', 'Belle concentration sur « {p} ». Passons à la suite.'),
+  B('That is how one climbs a dojo: “{p}”, mastered.', 'C\'est ainsi qu\'on gravit un dojo : « {p} », maîtrisé.'),
+]
 
 const calm = () => getSettings().calm || systemReducesMotion()
 
@@ -146,7 +163,7 @@ export function MasterDialog({ name, spec, lines }: { name: string; spec: ChibiS
 /* LA MISSION                                                          */
 /* ------------------------------------------------------------------ */
 
-export function Mission({ act, steps }: { act: Bi; steps: Bi[] }) {
+export function Mission({ act, steps, onComplete }: { act: Bi; steps: Bi[]; onComplete?: () => void }) {
   const lang = useLang()
   const [got, setGot] = useState<Set<number>>(new Set())
   const all = got.size === steps.length
@@ -156,6 +173,8 @@ export function Mission({ act, steps }: { act: Bi; steps: Bi[] }) {
     else { next.add(n); zen.sfx(next.size === steps.length ? 'chime' : 'tap') }
     return next
   })
+  // LA MISSION ENTIÈRE · un succès, une seule fois (voir game/achievements)
+  useEffect(() => { if (all && steps.length) onComplete?.() }, [all])
   return (
     <div className="lq-mission">
       <span className="lq-mission-k"><PixelIcon name="badges" size={20} /> {say(QT.mission, lang)}</span>
@@ -220,6 +239,54 @@ export function Victory({ xp, badge, right, total, nextHref, templeHref, onClose
             : <Lnk className="gm-cta" href={templeHref}>{say(QT.backTemple, lang)} →</Lnk>}
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* LE MAÎTRE FÉLICITE ET OFFRE LES POINTS                              */
+/* ------------------------------------------------------------------ */
+
+/** Une récompense à montrer · une partie terminée ou un succès débloqué. */
+export interface Cheer { id: string; points: number; part?: string; feat?: Feat }
+
+/** LA SCÈNE DE RÉCOMPENSE · demandé : « le maître qui félicite et offre les
+ *  points ». Elle monte du bas de l'écran, le maître sautille et parle, la
+ *  pièce de points jaillit dans une gerbe de particules, puis tout redescend.
+ *  Une récompense à la fois : les suivantes attendent leur tour. Un clic, ou
+ *  Échap, passe à la suivante. Le mouvement réduit garde le texte, sans
+ *  particules ni mouvement. */
+export function MasterCheer({ queue, name, spec, onDone }: {
+  queue: Cheer[]; name: string; spec: ChibiSpec; onDone: (id: string) => void
+}) {
+  const lang = useLang()
+  const cur = queue[0]
+  const coin = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    if (!cur) return
+    zen.sfx(cur.feat ? 'chime' : 'arrive')
+    const fx = setTimeout(() => {
+      const r = coin.current?.getBoundingClientRect()
+      if (r && !calm()) burst(r.left + r.width / 2, r.top + r.height / 2, cur.feat ? 26 : 16)
+    }, 260)
+    const out = setTimeout(() => onDone(cur.id), cur.feat ? 3600 : 2600)
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') onDone(cur.id) }
+    window.addEventListener('keydown', esc)
+    return () => { clearTimeout(fx); clearTimeout(out); window.removeEventListener('keydown', esc) }
+  }, [cur?.id])
+  if (!cur) return null
+  const line = cur.feat
+    ? say(cur.feat.body, lang)
+    : say(CHEERS[[...cur.id].reduce((n, ch) => n + ch.charCodeAt(0), 0) % CHEERS.length], lang).replace('{p}', cur.part ?? '')
+  return (
+    <div className={`lq-cheer${cur.feat ? ' feat' : ''}`} role="status" aria-live="polite" key={cur.id} onClick={() => onDone(cur.id)}>
+      <span className="lq-cheer-av"><LiveChibi spec={spec} scale={3} seed={`cheer-${cur.id}`} /></span>
+      <span className="lq-cheer-box">
+        <span className="lq-cheer-k">{cur.feat ? <><PixelIcon name="badges" size={14} /> {say(QT.featUnlocked, lang)}</> : say(QT.partDone, lang)}</span>
+        <b className="lq-cheer-name">{cur.feat ? say(cur.feat.title, lang) : name}</b>
+        <span className="lq-cheer-line">{line} {cur.feat ? '' : say(QT.gift, lang)}</span>
+      </span>
+      <span className="lq-cheer-coin" ref={coin}><b>+{cur.points}</b><small>{say(QT.points, lang)}</small></span>
     </div>
   )
 }

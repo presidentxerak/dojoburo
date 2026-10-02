@@ -235,6 +235,19 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   ok('la victoire mène à l\'étage suivant', /<Victory /.test(LS) && /#etage-\$\{i \+ 2\}/.test(LS))
   ok('le mouvement réduit coupe les effets de la quête', /\.lq-hit, \.lq-miss, \.lq-float[^{]*\{ animation: none !important; \}/.test(readFileSync('src/index.css', 'utf8')))
   const WD = readFileSync('src/temple/World.tsx', 'utf8')
+  // « Améliore le graphisme des cards des formations dans le style de la page
+  // de la carte des temples et le design d'interaction sur le survol »
+  {
+    const CS = await load('src/temple/art/cardScene.ts', 'cardScene.mjs')
+    const a = CS.drawCardScene('#7c3aed', 1, false), b = CS.drawCardScene('#7c3aed', 2, false)
+    let diff = 0
+    for (let y = 0; y < CS.CARD_H; y++) for (let x = 0; x < CS.CARD_W; x++) if (a.get(x, y) !== b.get(x, y)) diff++
+    ok('chaque carte a son propre paysage', diff > 50, `${diff} pixels différents`)
+    const CSS2 = readFileSync('src/index.css', 'utf8')
+    ok('la carte porte le décor, le temple, le maître et le panneau', /className="tw-card-scene"/.test(WD) && /drawTempleIcon\(p\.tint, k, locked\)/.test(WD) && /className="tw-card-sign"/.test(WD))
+    ok('au survol, un reflet balaie le décor et le temple s\'éclaire', /\.tw-card:hover \.tw-card-shine/.test(CSS2) && /\.tw-card:hover \.tw-card-temple/.test(CSS2))
+    ok('les survols se coupent au mouvement réduit', /html\.calm \.tw-card-shine/.test(CSS2))
+  }
   ok('les maîtres des cartes sont animés', /<LiveChibi spec=\{m\.spec\}/.test(WD) && /lc-blink/.test(readFileSync('src/index.css', 'utf8')))
   const icon = W.drawTempleIcon('#7c3aed', 0, false)
   let grey = 0
@@ -246,6 +259,29 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   ok('le décor de la carte donne des eaux, des fleurs, des arbres', decor.water.length > 0 && decor.flowers.length > 0 && decor.trees.length > 0)
   const CSS = readFileSync('src/index.css', 'utf8')
   ok('la carte s\'anime de vie, coupée au mouvement réduit', /<WorldLife decor=\{decor\}/.test(WD) && /html\.calm \.tw-life \* \{ animation: none !important; \}/.test(CSS))
+}
+
+/* --- 3f · les succès et les points entre les parties ---------------------- */
+//
+// Demandé : « ajoute des achievements avec acquisition de points entre chaque
+// partie de la formation avec le maître qui félicite et offre les points :
+// dynamise le flow avec des FX de particules et des animations ».
+{
+  const AC = await load('src/game/achievements.ts', 'achievements.mjs')
+  const st = (parts, feats = []) => ({ parts: Array.from({ length: parts }, (_, k) => `p/${k}`), feats })
+  ok('une partie terminée rapporte ses points', AC.pointsOf(st(1)) === AC.PART_POINTS)
+  ok('un succès ajoute les siens', AC.pointsOf(st(0, ['flawless'])) === AC.FEATS.find((f) => f.id === 'flawless').points)
+  ok('les paliers se débloquent au bon compte', AC.tiersReached(st(10)).map((f) => f.id).join(',') === 'first-part,parts-10')
+  ok('un palier déjà débloqué ne revient pas', AC.tiersReached(st(10, ['first-part', 'parts-10'])).length === 0)
+  ok('chaque succès a un titre et un texte dans les deux langues', AC.FEATS.every((f) => f.title.en && f.title.fr && f.body.en && f.body.fr && f.points > 0))
+  const LS2 = readFileSync('src/game/Lesson.tsx', 'utf8')
+  const LG2 = readFileSync('src/game/LessonGame.tsx', 'utf8')
+  ok('atteindre une partie termine la précédente et la récompense', /const prev = steps\[k - 1\]/.test(LS2) && /awardPart\(`\$\{pack\.id\}\/\$\{level\.id\}\/\$\{prev\.id\}`\)/.test(LS2))
+  ok('le maître félicite et offre les points', /<MasterCheer queue=\{cheers\}/.test(LS2) && /className="lq-cheer-coin"/.test(LG2))
+  ok('la pièce éclate en particules, sauf au mouvement réduit', /if \(r && !calm\(\)\) burst\(/.test(LG2))
+  ok('les points comptent dans l\'XP', /\+ f\.points/.test(readFileSync('src/game/progress.ts', 'utf8')))
+  ok('le profil montre les succès', /FEATS\.map/.test(readFileSync('src/game/Profil.tsx', 'utf8')))
+  ok('la scène se fige au mouvement réduit', /html\.calm \.lq-cheer,/.test(readFileSync('src/index.css', 'utf8')))
 }
 
 /* --- 4 · les morsures ------------------------------------------------------ */

@@ -22,6 +22,7 @@ import {
 import { citiesOfTrade } from '../data/trades'
 import { xpOf } from '../data/packs'
 import { useAccess } from './access'
+import { useFeats } from './achievements'
 
 export { markDone, clearDone, recordAnswer, key }
 
@@ -46,6 +47,8 @@ export interface CityState {
 export function useGame() {
   const p = useProgress()
   const a = useAccess()
+  // LES POINTS DES PARTIES ET DES SUCCÈS · voir game/achievements
+  const f = useFeats()
 
   const cityOf = (m: Module): CityState => {
     const done = m.levels.filter((l) => p.isDone(m.id, l.id)).length
@@ -104,7 +107,9 @@ export function useGame() {
      *  et non dans la seule portée. Un compteur d'XP qui baisse parce qu'on a
      *  changé de métier serait la chose la plus décourageante que cet écran
      *  puisse faire : ce qui est gagné est gagné. */
-    xp: ALL_DONE.reduce((n, { level }) => n + xpOf(level), 0),
+    xp: ALL_DONE.reduce((n, { level }) => n + xpOf(level), 0) + f.points,
+    /** les points gagnés hors leçons finies · parties terminées et succès */
+    featPoints: f.points,
     badges,
     /** le dojo où reprendre · le premier non fait, cité par cité */
     nextUp: scopeLevels.find(({ module, level }) => !p.isDone(module.id, level.id)) ?? scopeLevels[0],

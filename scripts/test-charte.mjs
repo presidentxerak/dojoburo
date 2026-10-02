@@ -351,9 +351,17 @@ ok('plus d\'onglet IA Training', !/nav\.training/.test(SHELL))
 ok('l\'onglet Dojoburo ouvre la carte des temples', /path === '\/' && !isAppRoute\(route\)\) return <WorldPage \/>/.test(readFileSync('src/main.tsx', 'utf8')))
 // LES TEMPLES SUIVENT LA MÊME RÈGLE · couleur pleine, et la touche skeuomorphe
 // par les seuls jetons partagés, pour les commandes du temple comme pour l'app.
-const TP_BTNS = ['.tp-back', '.tp-ctrl-b, .tp-ctrl-chat', '.tw-card']
+const TP_BTNS = ['.tp-back', '.tp-ctrl-b, .tp-ctrl-chat']
 const tpBad = TP_BTNS.filter((sel) => { const r = rulesFor(sel); return r.length === 0 || !r.every(flat) })
 ok('les commandes des temples : couleur pleine, sans relief écrit à la main', tpBad.length === 0, tpBad.join(', ') || `${TP_BTNS.length} familles`)
+// LA CARTE DE FORMATION N'EST PLUS UNE COMMANDE PLATE · demandé : « Améliore
+// le graphisme des cards des formations dans le style de la page de la carte
+// des temples ». Elle prend le cadre pixel de la carte (--px-frame) et son
+// ombre portée en marche d'escalier ; elle reste sans dégradé.
+{
+  const card = rulesFor('.tw-card')
+  ok('la carte de formation : cadre pixel partagé, sans dégradé', card.length > 0 && card.every((b) => !/gradient\(/.test(b)) && card.some((b) => /box-shadow:\s*var\(--px-frame\)/.test(b)))
+}
 ok('… et leurs CTA sont ceux de l\'app', /className="gm-cta"/.test(TEMPLE))
 ok('l\'onglet Profil porte un sourire', /glyph:\s*'smile'/.test(SHELL))
 ok('le sourire existe dans le jeu d\'icônes', /'smile'/.test(ICONS))
@@ -547,6 +555,20 @@ ok('morsure · des lettres cernées seraient vues',
   ('-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000'.match(/-?\d[\d.]*px\s+-?\d[\d.]*px\s+0\b/g) || []).length >= 3)
 ok('morsure · une ombre douce ne l\'est pas',
   ('0 2px 14px rgba(0, 0, 0, 0.45)'.match(/-?\d[\d.]*px\s+-?\d[\d.]*px\s+0\b/g) || []).length < 3)
+// LA MARGE UNIQUE · demandé : « fais la fluid et flex avec 20 pixels de marge
+// sur les côtés pour toutes les pages ». Une variable, posée sur chaque
+// conteneur de page, et des sections qui n'en rajoutent pas.
+{
+  ok('la marge latérale des pages vaut 20 px, à un seul endroit', /:root \{ --page-x: 20px; \}/.test(CSS))
+  for (const sel of ['.gm-top', '.gm-main', '.promo-main', '.legal-body, .ac-lessonpage']) {
+    const at = CSS.lastIndexOf(`\n${sel} {`)
+    const rule = at >= 0 ? CSS.slice(at, CSS.indexOf('}', at)) : ''
+    ok(`« ${sel} » porte la marge de page`, /padding-left: var\(--page-x\)/.test(rule) && /padding-right: var\(--page-x\)/.test(rule))
+  }
+  const sec = CSS.slice(CSS.lastIndexOf('\n.gm-sec {'), CSS.indexOf('}', CSS.lastIndexOf('\n.gm-sec {')))
+  ok('les sections n\'ajoutent pas de marge latérale', /padding-left: 0; padding-right: 0/.test(sec))
+}
+
 ok('morsure · un retour de Lilita serait vu',
   /lilita/i.test("import '@fontsource/lilita-one/latin-400.css'"))
 ok('morsure · une vignette mesurée sans offsetSize serait vue',

@@ -23,8 +23,9 @@
 // une bande, assez pour qu'on voie qui nous attend, assez peu pour que le
 // cours commence au-dessus de la ligne de flottaison.
 import { burst } from '../lib/juice'
-import { useRef, useState } from 'react'
-import { QuestHud, MasterDialog, Mission, Victory, useQuestSteps, QT } from './LessonGame'
+import { useEffect, useRef, useState } from 'react'
+import { QuestHud, MasterDialog, Mission, Victory, MasterCheer, useQuestSteps, QT, type Cheer } from './LessonGame'
+import { awardPart, unlockFeat, type Feat } from './achievements'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { Lnk } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
@@ -120,6 +121,33 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
   let streak = 0
   for (let n = 1; n <= total && results[n] !== undefined; n++) streak = results[n] ? streak + 1 : 0
 
+  // LES POINTS ENTRE LES PARTIES · demandé : « des achievements avec
+  // acquisition de points entre chaque partie de la formation avec le maître
+  // qui félicite et offre les points ». Atteindre une partie termine la
+  // précédente : elle rapporte ses points une fois (game/achievements), et le
+  // maître vient les offrir. Les succès débloqués suivent dans la file.
+  const [cheers, setCheers] = useState<Cheer[]>([])
+  const pushFeat = (f: Feat | null) => { if (f) setCheers((q) => [...q, { id: `feat:${f.id}`, points: f.points, feat: f }]) }
+  useEffect(() => {
+    if (!open) return
+    const won: Cheer[] = []
+    steps.forEach((st, k) => {
+      if (k === 0 || !cleared.has(st.id)) return
+      const prev = steps[k - 1]
+      const r = awardPart(`${pack.id}/${level.id}/${prev.id}`)
+      if (!r) return
+      won.push({ id: `part:${pack.id}/${level.id}/${prev.id}`, points: r.points, part: prev.label })
+      r.feats.forEach((f) => won.push({ id: `feat:${f.id}`, points: f.points, feat: f }))
+    })
+    if (won.length) setCheers((q) => [...q, ...won])
+  }, [cleared, steps, open])
+  // LE QUIZ SANS FAUTE · toutes les questions répondues, toutes justes
+  useEffect(() => {
+    if (Object.keys(results).length === total && rightCount === total) pushFeat(unlockFeat('flawless'))
+  }, [results])
+  // TROIS DOJOS TERMINÉS
+  useEffect(() => { if (g.badges.length >= 3) pushFeat(unlockFeat('three-dojos')) }, [g.badges.length])
+
   return (
     <Shell>
       <article className="ln" ref={article} style={{ ['--ac' as string]: module.tint }}>
@@ -160,7 +188,7 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
 
             {/* LA MISSION · ce que vous faites, et ses étapes devenues objectifs */}
             <div data-step="mission" data-label={say(QT.mission, lang)}>
-              <Mission act={level.act} steps={level.steps} />
+              <Mission act={level.act} steps={level.steps} onComplete={() => pushFeat(unlockFeat('mission'))} />
             </div>
 
             {more && <div data-step="concepts" data-label={t('ln.concepts')}><Concepts d={more} /></div>}
@@ -230,6 +258,8 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
       </article>
       {/* LA VICTOIRE · le badge, l'XP, les étoiles, et l'étage suivant (la porte
           s'ouvre à l'arrivée, voir temple/Temple) */}
+      <MasterCheer queue={cheers} name={`${say(TT.master, lang)} ${sensei.name}`} spec={sensei.spec}
+        onDone={(id) => setCheers((q) => q.filter((c) => c.id !== id))} />
       {win && (
         <Victory xp={xpOf(level)} badge={say(level.badge, lang)} right={rightCount} total={total}
           nextHref={next ? `${packPath(pack.id)}#etage-${i + 2}` : null} templeHref={packPath(pack.id)} onClose={() => setWin(false)} />

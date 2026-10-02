@@ -34,6 +34,7 @@ import { say } from '../data/bilingual'
 import { PACKS, packPath, levelsOf, eurOf, type Pack } from '../data/packs'
 import { TRADE_BY_ID } from '../data/trades'
 import { useGame } from './progress'
+import { FEATS, PART_POINTS, useFeats } from './achievements'
 import { useAccess, forgetAccess } from './access'
 import { Shell } from './Shell'
 import { Gauge, levelOf } from './Gauge'
@@ -268,7 +269,28 @@ function BadgesTab() {
   const lang = useLang()
   const t = useT()
   const g = useGame()
+  const f = useFeats()
   return (
+    <>
+    {/* LES SUCCÈS · voir game/achievements. Les points des parties terminées
+        et des succès s'ajoutent à l'XP. */}
+    <section className="gm-sec">
+      <h2 className="pf-h2">{t('pr.featsH2')} <span className="pf-of">{f.unlocked.size} / {FEATS.length}</span></h2>
+      <p className="pf-feats-lead">{t('pr.featsParts')} {f.parts} · {PART_POINTS} {t('pr.featsPer')} · <b>{f.points} {t('pr.featsPoints')}</b></p>
+      <div className="pf-feats">
+        {FEATS.map((x) => {
+          const on = f.unlocked.has(x.id)
+          return (
+            <span key={x.id} className={`pf-feat${on ? ' on' : ''}`}>
+              <i>{on ? <PixelIcon name="badges" size={22} /> : <BauhausIcon name="lock" size={14} />}</i>
+              <b>{say(x.title, lang)}</b>
+              <small>{say(x.body, lang)}</small>
+              <em>+{x.points}</em>
+            </span>
+          )
+        })}
+      </div>
+    </section>
     <section className="gm-sec">
       <h2 className="pf-h2">{t('pr.caseH2')} <span className="pf-of">{g.badges.length} / {g.badgeTotal}</span></h2>
       <Gauge value={g.badges.length} total={g.badgeTotal} label={t('pr.badges')} />
@@ -286,6 +308,7 @@ function BadgesTab() {
         })}
       </div>
     </section>
+    </>
   )
 }
 
