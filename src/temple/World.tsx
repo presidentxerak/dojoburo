@@ -28,6 +28,7 @@ import { useAvatar, saveAvatar } from '../pixel/avatar'
 import { AvatarPicker } from '../pixel/AvatarPicker'
 import { masterOf } from '../pixel/masters'
 import { drawWorld, drawTempleIcon, worldRoutes, worldDecor } from './art/world'
+import { drawCardScene } from './art/cardScene'
 import { WorldLife } from './WorldLife'
 import { Walkers } from './Walkers'
 import { SoundToggle } from './SoundToggle'
@@ -148,19 +149,31 @@ export function WorldPage() {
             const done = levels.filter(({ module, level }) => g.isDone(module.id, level.id)).length
             const m = masterOf(p.id)
             return (
-              <Lnk key={p.id} className="tw-card gm-rise" href={packPath(p.id)} onClick={() => zen.sfx('tap')} style={{ ['--ac' as string]: p.tint, ['--i' as string]: k }}>
-                <span className="tw-card-art"><LiveChibi spec={m.spec} scale={3} seed={p.id} /></span>
+              <Lnk key={p.id} className={`tw-card gm-rise${locked ? ' is-locked' : ''}`} href={packPath(p.id)} onClick={() => zen.sfx(locked ? 'locked' : 'tap')}
+                onMouseEnter={() => zen.sfx('step')} style={{ ['--ac' as string]: p.tint, ['--i' as string]: k }}>
+                {/* LE DÉCOR · un morceau de la carte : ciel, collines, chemin, le
+                    temple au bout et son maître qui attend sur le chemin */}
+                <span className="tw-card-scene" style={{ backgroundImage: `url(${gridToUrl(`cs:${p.id}:${locked}`, () => drawCardScene(p.tint, k + 1, locked))})` }}>
+                  <img className="tw-card-temple" src={gridToUrl(`ti:${p.id}:${locked}`, () => drawTempleIcon(p.tint, k, locked))} alt="" width={80} height={88} />
+                  <span className="tw-card-master"><LiveChibi spec={m.spec} scale={2} seed={p.id} /></span>
+                  {locked && <span className="tw-card-lock" aria-hidden="true"><BauhausIcon name="lock" size={14} /></span>}
+                  <i className="tw-card-shine" aria-hidden="true" />
+                </span>
+                {/* LE PANNEAU · le même que celui posé au-dessus des temples */}
+                <b className="tw-card-sign">{say(p.title, lang)}</b>
                 <span className="tw-card-t">
-                  <b>{say(p.title, lang)}</b>
                   <em>{s(TT.master)} {m.name} · {levels.length} {s(TT.floors)}</em>
                   {/* LA PROGRESSION · une barre de jeu, les étages gravis sur le total */}
                   <span className="tw-card-bar" role="progressbar" aria-valuemin={0} aria-valuemax={levels.length} aria-valuenow={done}
                     aria-label={`${done} / ${levels.length}`}><i style={{ width: `${levels.length ? (done / levels.length) * 100 : 0}%` }} /></span>
-                  <small className="tw-card-n">{done} / {levels.length} {s(TT.floors)}</small>
-                  <span className={`tw-tag${locked ? ' locked' : eurOf(p) === 0 ? ' free' : ' open'}`}>
-                    {locked && <BauhausIcon name="lock" size={10} />}
-                    {eurOf(p) === 0 ? s(TT.free) : locked ? `${priceTag(eurOf(p))} · ${FREE_LESSONS} ${s(TT.freeLessons)}` : s(TT.open)}
+                  <span className="tw-card-foot">
+                    <small className="tw-card-n">{done} / {levels.length} {s(TT.floors)}</small>
+                    <span className={`tw-tag${locked ? ' locked' : eurOf(p) === 0 ? ' free' : ' open'}`}>
+                      {locked && <BauhausIcon name="lock" size={10} />}
+                      {eurOf(p) === 0 ? s(TT.free) : locked ? `${priceTag(eurOf(p))} · ${FREE_LESSONS} ${s(TT.freeLessons)}` : s(TT.open)}
+                    </span>
                   </span>
+                  <span className="tw-card-go">{s(TT.enter)} <BauhausIcon name="play" size={10} /></span>
                 </span>
               </Lnk>
             )

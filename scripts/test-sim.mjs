@@ -235,6 +235,19 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   ok('la victoire mène à l\'étage suivant', /<Victory /.test(LS) && /#etage-\$\{i \+ 2\}/.test(LS))
   ok('le mouvement réduit coupe les effets de la quête', /\.lq-hit, \.lq-miss, \.lq-float[^{]*\{ animation: none !important; \}/.test(readFileSync('src/index.css', 'utf8')))
   const WD = readFileSync('src/temple/World.tsx', 'utf8')
+  // « Améliore le graphisme des cards des formations dans le style de la page
+  // de la carte des temples et le design d'interaction sur le survol »
+  {
+    const CS = await load('src/temple/art/cardScene.ts', 'cardScene.mjs')
+    const a = CS.drawCardScene('#7c3aed', 1, false), b = CS.drawCardScene('#7c3aed', 2, false)
+    let diff = 0
+    for (let y = 0; y < CS.CARD_H; y++) for (let x = 0; x < CS.CARD_W; x++) if (a.get(x, y) !== b.get(x, y)) diff++
+    ok('chaque carte a son propre paysage', diff > 50, `${diff} pixels différents`)
+    const CSS2 = readFileSync('src/index.css', 'utf8')
+    ok('la carte porte le décor, le temple, le maître et le panneau', /className="tw-card-scene"/.test(WD) && /drawTempleIcon\(p\.tint, k, locked\)/.test(WD) && /className="tw-card-sign"/.test(WD))
+    ok('au survol, un reflet balaie le décor et le temple s\'éclaire', /\.tw-card:hover \.tw-card-shine/.test(CSS2) && /\.tw-card:hover \.tw-card-temple/.test(CSS2))
+    ok('les survols se coupent au mouvement réduit', /html\.calm \.tw-card-shine/.test(CSS2))
+  }
   ok('les maîtres des cartes sont animés', /<LiveChibi spec=\{m\.spec\}/.test(WD) && /lc-blink/.test(readFileSync('src/index.css', 'utf8')))
   const icon = W.drawTempleIcon('#7c3aed', 0, false)
   let grey = 0

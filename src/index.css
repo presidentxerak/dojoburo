@@ -12743,3 +12743,93 @@ html.calm .tw-life * { animation: none !important; }
 .promo-main { box-sizing: border-box; max-width: calc(1120px + 2 * var(--page-x)); padding-left: var(--page-x); padding-right: var(--page-x); }
 .legal-body, .ac-lessonpage { padding-left: var(--page-x); padding-right: var(--page-x); }
 .gm-main > *, .gm-sec > * { min-width: 0; }
+
+/* =====================================================================
+   LES CARTES DES FORMATIONS · demandé : « Améliore le graphisme des cards des
+   formations dans le style de la page de la carte des temples et le design
+   d'interaction sur le survol des cards et boutons ».
+   Une carte est un morceau de la carte : un décor pixel (art/cardScene), le
+   temple au bout du chemin, le maître qui attend, et le panneau crème au nom
+   de la formation, le même que celui des temples. Cadre pixel (--px-frame),
+   pas d'arrondi doux. Au survol, tout bouge par paliers, comme un jeu 8 bits :
+   la carte monte, le cadre prend la couleur de la formation, un reflet balaie
+   le décor, le temple s'éclaire, le maître sautille, « Entrer » avance.
+   ===================================================================== */
+.tw-cards { grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); gap: 18px; }
+.tw-card {
+  position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 0;
+  border-radius: 0; overflow: visible; color: var(--px-ink, #1b1530);
+  background: #fff7e0; box-shadow: var(--px-frame), 6px 6px 0 0 rgba(27, 21, 48, .35);
+  transition: transform .16s steps(2), box-shadow .16s steps(2);
+}
+.tw-card:hover, .tw-card:focus-visible {
+  box-shadow: 0 -3px 0 0 var(--ac), 0 3px 0 0 var(--ac), -3px 0 0 0 var(--ac), 3px 0 0 0 var(--ac), 10px 10px 0 0 rgba(27, 21, 48, .35);
+  outline: none;
+}
+.tw-card:active { transform: translate(1px, 1px); box-shadow: var(--px-frame), 2px 2px 0 0 rgba(27, 21, 48, .35); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tw-card:hover, .tw-card:focus-visible { transform: translate(-2px, -4px); }
+}
+.tw-card-scene {
+  position: relative; display: block; height: 128px; overflow: hidden;
+  background-size: cover; background-position: center bottom; image-rendering: pixelated;
+  box-shadow: inset 0 -3px 0 0 rgba(27, 21, 48, .25);
+}
+.tw-card-temple {
+  position: absolute; left: 50%; bottom: 22px; width: 80px; height: 88px; margin-left: -40px;
+  image-rendering: pixelated; transition: transform .2s steps(3), filter .2s steps(3);
+}
+.tw-card-master { position: absolute; right: 18%; bottom: 6px; }
+.tw-card-lock {
+  position: absolute; left: 8px; top: 8px; display: grid; place-items: center; width: 26px; height: 26px;
+  color: #fff; background: #44405a; box-shadow: 0 -2px 0 0 #1b1530, 0 2px 0 0 #1b1530, -2px 0 0 0 #1b1530, 2px 0 0 0 #1b1530;
+}
+.tw-card.is-locked .tw-card-temple { filter: saturate(.55); }
+.tw-card-shine {
+  position: absolute; top: 0; bottom: 0; left: -40%; width: 30%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .55), transparent);
+  transform: skewX(-18deg); opacity: 0;
+}
+.tw-card:hover .tw-card-shine, .tw-card:focus-visible .tw-card-shine { animation: tw-shine .7s steps(7) 1; }
+@keyframes tw-shine { 0% { left: -40%; opacity: 1; } 100% { left: 120%; opacity: 1; } }
+.tw-card:hover .tw-card-temple, .tw-card:focus-visible .tw-card-temple { transform: translateY(-4px); filter: brightness(1.12) drop-shadow(0 0 6px color-mix(in srgb, var(--ac) 70%, #fff)); }
+.tw-card.is-locked:hover .tw-card-temple { filter: saturate(.55) brightness(1.05); }
+.tw-card-sign {
+  position: relative; align-self: center; margin: -16px 12px 0; padding: 5px 10px; max-width: calc(100% - 24px);
+  font: 400 13px/1.2 var(--font-px) !important; text-align: center; color: var(--px-ink, #1b1530); background: #fff7e0;
+  box-shadow: 0 -3px 0 0 var(--px-ink, #1b1530), 0 3px 0 0 var(--px-ink, #1b1530), -3px 0 0 0 var(--px-ink, #1b1530), 3px 0 0 0 var(--px-ink, #1b1530), 0 6px 0 0 var(--ac);
+  overflow-wrap: anywhere;
+}
+.tw-card .tw-card-t { gap: 8px; padding: 14px 14px 14px; }
+.tw-card .tw-card-t em { color: #4a4163; opacity: 1; font-size: 13px; }
+.tw-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.tw-card-go {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; align-self: stretch; margin-top: 2px; padding: 8px 10px;
+  font: 400 11px/1 var(--font-px); color: #fff; background: var(--ac);
+  box-shadow: inset 0 -3px 0 0 rgba(0, 0, 0, .25), inset 0 2px 0 0 rgba(255, 255, 255, .25);
+  transition: transform .16s steps(2);
+}
+.tw-card:hover .tw-card-go svg { animation: tw-nudge .5s steps(2) infinite; }
+@keyframes tw-nudge { 50% { transform: translateX(3px); } }
+.tw-card.is-locked .tw-card-go { background: #5b5470; }
+.tw-card .tw-card-bar { background: rgba(27, 21, 48, .1); }
+
+/* LES BOUTONS · au survol, un reflet passe et le bouton monte d'un cran ; à
+   l'appui, il s'enfonce. Mêmes paliers que les cartes. */
+.gm-cta, .cc-btn { position: relative; overflow: hidden; }
+.gm-cta::after, .cc-btn::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .35), transparent); transform: skewX(-18deg); opacity: 0;
+}
+.gm-cta:hover::after, .cc-btn:hover::after, .gm-cta:focus-visible::after { animation: tw-btn-shine .6s steps(6) 1; }
+@keyframes tw-btn-shine { 0% { left: -60%; opacity: 1; } 100% { left: 130%; opacity: 1; } }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .gm-cta:hover:not(:disabled), .cc-btn:hover:not(:disabled) { transform: translateY(-2px); }
+  .gm-cta:active:not(:disabled), .cc-btn:active:not(:disabled) { transform: translateY(1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tw-card, .tw-card-temple, .gm-cta, .cc-btn { transition: none; }
+  .tw-card-shine, .gm-cta::after, .cc-btn::after, .tw-card:hover .tw-card-go svg { animation: none !important; }
+}
+html.calm .tw-card-shine, html.calm .gm-cta::after, html.calm .cc-btn::after, html.calm .tw-card:hover .tw-card-go svg { animation: none !important; }
