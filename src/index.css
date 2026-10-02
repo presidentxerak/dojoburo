@@ -12668,3 +12668,24 @@ html[data-look="light"] .tc-msg.master > div { background: #e0f2fe; }
 .tw-card-n { font: 400 10px/1.2 var(--font-px); opacity: .75; }
 .tw-card { transition: transform .15s steps(2), box-shadow .15s steps(2); }
 .tw-card:hover { transform: translateY(-3px); box-shadow: var(--sk-btn), 0 8px 0 -2px color-mix(in srgb, var(--ac) 50%, transparent); }
+/* LA CARTE QUI VIT · koï, ronds dans l'eau, papillons, oiseaux */
+.tw-life { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+.tw-life img { position: absolute; height: auto; image-rendering: pixelated; }
+.tw-koi { animation: tw-swim 8s steps(24) infinite; opacity: .92; }
+@keyframes tw-swim {
+  0% { transform: translate(0, 0) scaleX(1); } 25% { transform: translate(var(--r), calc(var(--r) * -.4)) scaleX(1); }
+  50% { transform: translate(0, calc(var(--r) * -.6)) scaleX(-1); } 75% { transform: translate(calc(var(--r) * -1), calc(var(--r) * -.2)) scaleX(-1); }
+  100% { transform: translate(0, 0) scaleX(1); }
+}
+.tw-ripple { position: absolute; width: var(--s); height: calc(var(--s) * .5); margin: calc(var(--s) * -.25) 0 0 calc(var(--s) * -.5); border-radius: 50%; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .7); animation: tw-ripple 3.2s steps(8) infinite; }
+@keyframes tw-ripple { 0% { transform: scale(.2); opacity: 0; } 20% { opacity: .9; } 100% { transform: scale(1); opacity: 0; } }
+.tw-fly { animation: tw-flutter 5s steps(20) infinite; }
+@keyframes tw-flutter {
+  0% { transform: translate(0, 0) scaleX(1); } 10% { transform: translate(4px, -5px) scaleX(.4); } 20% { transform: translate(9px, -2px) scaleX(1); }
+  35% { transform: translate(5px, -9px) scaleX(.4); } 50% { transform: translate(-3px, -6px) scaleX(1); } 65% { transform: translate(-8px, -1px) scaleX(.4); }
+  80% { transform: translate(-4px, -7px) scaleX(1); } 100% { transform: translate(0, 0) scaleX(1); }
+}
+.tw-bird { animation: tw-hop 10s steps(1) infinite; }
+@keyframes tw-hop { 0%, 40% { transform: translate(0, 0) scaleX(1); } 41%, 44% { transform: translate(2px, -3px) scaleX(1); } 45%, 70% { transform: translate(4px, 0) scaleX(-1); } 71%, 74% { transform: translate(2px, -3px) scaleX(-1); } 75%, 100% { transform: translate(0, 0) scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .tw-life * { animation: none !important; } }
+html.calm .tw-life * { animation: none !important; }

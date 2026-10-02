@@ -235,6 +235,12 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   let grey = 0
   for (let y = 38; y < 44; y++) for (let x = 0; x < 40; x++) { const c = icon.get(x, y); if (c && /^#(b9b4c4|dcd8e4|8f8aa0)$/i.test(c)) grey++ }
   ok('plus de socle de pierre sous les temples', grey === 0, `${grey} pixels de pierre`)
+  // « améliore encore les graphismes de la carte ajoute des détails » : la vie
+  // (carpes, ronds dans l'eau, papillons, oiseaux) se pose sur le décor dessiné
+  const decor = W.worldDecor(1000, 900, [{ x: 300, y: 300 }, { x: 700, y: 600 }], 7)
+  ok('le décor de la carte donne des eaux, des fleurs, des arbres', decor.water.length > 0 && decor.flowers.length > 0 && decor.trees.length > 0)
+  const CSS = readFileSync('src/index.css', 'utf8')
+  ok('la carte s\'anime de vie, coupée au mouvement réduit', /<WorldLife decor=\{decor\}/.test(WD) && /html\.calm \.tw-life \* \{ animation: none !important; \}/.test(CSS))
 }
 
 /* --- 4 · les morsures ------------------------------------------------------ */

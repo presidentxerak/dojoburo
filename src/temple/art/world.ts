@@ -1252,6 +1252,7 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     return true
   }
   // autour des décors
+  let wellDone = false
   for (const f of feats) {
     const around = (sg: () => Grid, tries: number, want: number) => {
       let got = 0
@@ -1299,9 +1300,10 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
       around(() => P.bush(), 6, 1)
     } else if (f.kind === 'veg') {
       // l'épouvantail au milieu des rangs, le puits à côté
-      placeLoose(Math.round(f.x + f.w * 0.62), Math.round(f.y + f.h / 2 - 10), scarecrow(), 3, false)
+      addSprite(Math.round(f.x + f.w * 0.62), Math.round(f.y + f.h - 17), scarecrow())
       const wg = well()
-      around(() => wg, 20, 1)
+      shadowed.add(wg)
+      wellDone = wellDone || (() => { const before = sprites.length; around(() => wg, 30, 1); return sprites.length > before })()
     }
   }
 
@@ -1333,12 +1335,23 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   for (let t = 0; t < 400 && shrines.length < 2; t++) {
     const x = 6 + Math.floor(cellHash(t, seed) * (w - 30)), y = 6 + Math.floor(cellHash(seed, t) * (h - 40))
     if (shrines.some((q) => Math.hypot(q.x - x, q.y - y) < Math.min(w, h) * 0.45)) continue
-    if (solid.anyIn(x - 2, y - 2, 20, 34) || label.anyIn(x - 2, y - 2, 20, 34) || plaza.anyIn(x - 4, y - 4, 24, 38) || path.anyIn(x - 2, y - 2, 20, 34) || wet(x - 2, y, 20, 32)) continue
-    if (busy.anyIn(x, y, 16, 30)) continue
+    if (solid.anyIn(x - 2, y - 2, 20, 38) || label.anyIn(x - 2, y - 2, 20, 38) || plaza.anyIn(x - 4, y - 4, 24, 42) || path.anyIn(x - 2, y - 2, 20, 38) || wet(x - 2, y, 20, 36)) continue
+    if (busy.anyIn(x, y, 16, 34)) continue
     if (!place(x, y, sg, 6)) continue
-    place(x + 1, y + 17, mt, 3)
-    solid.rect(x, y, 16, 30)
+    // le petit torii devant, un peu de terre battue entre les deux
+    for (let k = 0; k < 6; k++) g.hline(x + 6, y + 18 + k, 4, k % 2 ? DIRT : DIRT_D)
+    place(x + 1, y + 21, mt, 3)
+    solid.rect(x, y, 16, 34)
     shrines.push({ x, y })
+  }
+  // le puits, s'il n'a pas trouvé place près du potager
+  if (!wellDone) {
+    const wg = well()
+    shadowed.add(wg)
+    for (let t = 0; t < 300; t++) {
+      const x = 6 + Math.floor(cellHash(t, seed + 9) * (w - 24)), y = 6 + Math.floor(cellHash(seed + 9, t) * (h - 30))
+      if (place(x, y, wg, 5)) break
+    }
   }
   // un poteau indicateur à la fourche de l'entrée, et à quelques allées
   const mainL = plan.paths[0]
@@ -1511,10 +1524,16 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     if (decor.flowers.length >= 40) break
     if (decor.flowers.every((q) => Math.hypot(q.x - f.x, q.y - f.y) >= 18)) decor.flowers.push({ x: Math.round(f.x), y: Math.round(f.y) })
   }
+  const tops: Pt[] = []
   for (const s of sprites) {
     if (!canopies.has(s.g)) continue
     const x = Math.round(s.x + s.g.w / 2), y = s.y + 3
-    if (x >= 0 && x < w && y >= 0 && y < h) decor.trees.push({ x, y })
+    if (x >= 4 && x < w - 4 && y >= 4 && y < h - 4 && !label.get(x, y)) tops.push({ x, y })
+  }
+  tops.sort((a, b) => cellHash(a.x, a.y) - cellHash(b.x, b.y))
+  for (const t of tops) {
+    if (decor.trees.length >= 80) break
+    if (decor.trees.every((q) => Math.hypot(q.x - t.x, q.y - t.y) >= 14)) decor.trees.push(t)
   }
   rememberDecor(w, h, spots, seed, decor)
   return g

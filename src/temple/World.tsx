@@ -27,7 +27,8 @@ import { LiveChibi } from '../pixel/LiveChibi'
 import { useAvatar, saveAvatar } from '../pixel/avatar'
 import { AvatarPicker } from '../pixel/AvatarPicker'
 import { masterOf } from '../pixel/masters'
-import { drawWorld, drawTempleIcon, worldRoutes } from './art/world'
+import { drawWorld, drawTempleIcon, worldRoutes, worldDecor } from './art/world'
+import { WorldLife } from './WorldLife'
 import { Walkers } from './Walkers'
 import { SoundToggle } from './SoundToggle'
 import { zen, useZenAmbience } from '../lib/zen'
@@ -76,6 +77,7 @@ export function WorldPage() {
   const L = useMemo(() => layout(PACKS.length, wide), [wide])
   const worldUrl = useMemo(() => gridToUrl(`world:${L.w}x${L.h}`, () => drawWorld(L.w, L.h, L.spots, 7)), [L])
   const routes = useMemo(() => worldRoutes(L.w, L.h, L.spots, 7), [L])
+  const decor = useMemo(() => worldDecor(L.w, L.h, L.spots, 7), [L])
   const scale = width / L.w
   // LE CADENAS SUIT L'ACHAT · pas le passe-droit d'essai, qui ouvre tout mais
   // ne doit pas faire croire que tout est gratuit (voir game/access)
@@ -118,6 +120,7 @@ export function WorldPage() {
       <section className="gm-sec">
         <div className="tw-world" ref={box} style={{ height: L.h * scale }}>
           {worldUrl && <img className="tw-world-bg" src={worldUrl} alt="" aria-hidden="true" width={L.w * scale} height={L.h * scale} />}
+          <WorldLife decor={decor} scale={scale} />
           <Walkers routes={routes} scale={scale} count={wide ? 12 : 7} seed={7} />
           {PACKS.map((p, i) => {
             const spot = L.spots[i]
