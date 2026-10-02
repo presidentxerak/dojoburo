@@ -53,11 +53,17 @@ export function drawTempleIcon(tint: string, kitSeed: number, locked: boolean): 
   const walls = ['#f6ead2', '#fff6e6', '#efe0c4'][kitSeed % 3]
   const pillar = c('#c23b2e')
   const cx = 19
-  // le socle de pierre
-  g.rect(3, 39, 34, 4, c('#b9b4c4'))
-  g.hline(3, 39, 34, c('#dcd8e4'))
-  for (let x = 5; x < 37; x += 6) g.vline(x, 40, 3, c('#8f8aa0'))
-  g.rect(cx - 5, 41, 11, 2, c('#dcd8e4'))
+  // PLUS DE SOCLE DE PIERRE · demandé : « enlève les sols en pierres en
+  // dessous des temples ». Le temple repose sur une galerie de bois (engawa)
+  // posée dans l'herbe, avec une marche devant la porte.
+  g.rect(5, 39, 30, 2, c('#9a6236'))
+  g.hline(5, 39, 30, c('#c4864f'))
+  for (let x = 7; x < 34; x += 5) g.vline(x, 40, 2, c('#64391d'))
+  g.rect(cx - 4, 41, 9, 2, c('#b07443'))
+  g.hline(cx - 4, 41, 9, c('#d29a5c'))
+  // l'herbe au pied, de part et d'autre
+  for (const [gx, gy] of [[3, 41], [4, 40], [6, 42], [10, 42], [28, 42], [32, 42], [35, 40], [36, 41]]) g.set(gx, gy, c('#3f9a3c'))
+  for (const [gx, gy] of [[4, 41], [5, 42], [9, 42], [29, 42], [34, 42], [35, 41]]) g.set(gx, gy, c('#57b04a'))
   // le rez-de-chaussée
   g.rect(6, 28, 28, 11, c(walls))
   for (const x of [6, 7, 32, 33]) g.vline(x, 28, 11, pillar)
@@ -548,13 +554,158 @@ function bush(r: () => number): Grid {
   return g
 }
 
-function rock(r: () => number, big = r() < 0.5): Grid {
+function rock(r: () => number, big = r() < 0.5, moss = r() < 0.5): Grid {
   const g = new Grid(10, 8, 1, 1)
   const w = big ? 8 : 5, h = big ? 6 : 4
   g.round(0, 0, w, h, '#a7a2b3')
   g.hline(1, 0, w - 2, '#cfcad9'); g.set(1, 1, '#e6e2ee')
   g.hline(1, h - 1, w - 2, '#7d788c')
   if (big) { g.set(w - 2, 1, '#cfcad9'); g.set(2, h - 2, '#7d788c') }
+  // la mousse sur le dessus
+  if (moss) for (let x = 1; x < w - 1; x++) if (r() < 0.7) { g.set(x, 0, '#5a9a3a'); if (r() < 0.4) g.set(x, 1, '#7cc458') }
+  g.outline()
+  return g
+}
+
+/** un saule pleureur, au bord de l'eau · un dôme clair et des branches qui
+ *  retombent en rideaux */
+function willow(r: () => number): Grid {
+  const g = new Grid(22, 23, 1, 1)
+  g.rect(9, 14, 3, 6, TRUNK); g.vline(9, 14, 6, TRUNK_L)
+  for (let y = 0; y < 8; y++) for (let x = 0; x < 20; x++) {
+    const d = Math.hypot((x - 9.5) / 9.5, (y - 7) / 7)
+    if (d > 1) continue
+    g.set(x, y, d < 0.55 && x < 10 ? '#a6dc6a' : '#86c652')
+  }
+  for (let x = 0; x < 20; x++) {
+    const top = Math.round(4 + Math.abs(x - 9.5) * 0.25)
+    const len = 8 + Math.floor(r() * 7) - Math.round(Math.abs(x - 9.5) * 0.35)
+    for (let y = top; y < top + len && y < 19; y++) {
+      if (!g.get(x, y) || y > 6) g.set(x, y, x % 2 ? '#5aa83c' : y % 3 === 0 ? '#a6dc6a' : '#78bd4c')
+    }
+  }
+  g.outline()
+  return g
+}
+
+/** une clôture de bois basse, poteaux et deux lisses */
+function fence(len: number): Grid {
+  const g = new Grid(len + 2, 7, 1, 1)
+  for (let x = 0; x < len; x++) { g.set(x, 1, x % 2 ? WOOD : WOOD_L); g.set(x, 3, WOOD) }
+  for (let x = 0; x < len; x += 5) { g.vline(x, 0, 5, WOOD_D); g.set(x, 0, TRUNK_L) }
+  g.vline(len - 1, 0, 5, WOOD_D)
+  g.outline()
+  return g
+}
+
+/** un poteau indicateur, deux planchettes en flèche (sans texte) */
+function signpost(): Grid {
+  const g = new Grid(11, 15, 1, 1)
+  g.rect(4, 2, 2, 11, WOOD_D); g.vline(4, 2, 11, TRUNK_L)
+  g.rect(0, 2, 7, 3, WOOD_L); g.hline(0, 4, 7, WOOD); g.set(0, 2, null); g.set(0, 4, null)
+  g.rect(3, 6, 6, 3, WOOD_L); g.hline(3, 8, 6, WOOD); g.set(8, 6, null); g.set(8, 8, null)
+  g.hline(2, 3, 3, '#a8703f'); g.hline(4, 7, 3, '#a8703f')
+  g.hline(3, 12, 4, '#4f9e3a')
+  g.outline()
+  return g
+}
+
+/** un petit sanctuaire (hokora) · toit, façade rouge, papier en zigzag,
+ *  tronc à offrandes, sur un socle de bois */
+function shrine(): Grid {
+  const g = new Grid(16, 18, 1, 1)
+  const roof = '#3e3a4a', roofL = '#6a6680'
+  for (let j = 0; j < 4; j++) for (let x = 6 - j * 2; x <= 7 + j * 2; x++) g.set(x, j, (x + j) % 3 === 0 ? '#2a2632' : roof)
+  g.hline(0, 4, 14, roofL); g.set(0, 3, roofL); g.set(13, 3, roofL)
+  g.rect(2, 5, 10, 6, RED); g.vline(2, 5, 6, RED_D); g.vline(11, 5, 6, RED_D)
+  g.rect(5, 6, 4, 4, '#3a2a20'); g.set(6, 7, GOLD); g.set(7, 7, GOLD)
+  g.set(4, 5, '#ffffff'); g.set(4, 6, '#ffffff'); g.set(9, 5, '#ffffff'); g.set(9, 6, '#ffffff'); g.set(10, 7, '#ffffff')
+  g.rect(4, 11, 6, 2, WOOD); g.hline(4, 11, 6, WOOD_L)
+  g.rect(1, 13, 12, 3, WOOD_D); g.hline(1, 13, 12, WOOD)
+  g.outline()
+  return g
+}
+
+/** un petit torii devant le sanctuaire */
+function miniTorii(): Grid {
+  const g = new Grid(14, 11, 1, 1)
+  g.hline(0, 0, 12, '#2a2030'); g.hline(0, 1, 12, RED)
+  g.hline(2, 3, 8, RED)
+  g.vline(2, 2, 7, RED); g.vline(9, 2, 7, RED)
+  g.outline()
+  return g
+}
+
+/** la maison de thé du lac · toit de tuiles, cloisons de papier (shōji),
+ *  véranda de bois, une ombrelle rouge et un banc couvert de feutre rouge */
+function teahouse(): Grid {
+  const g = new Grid(44, 32, 1, 1)
+  const roof = '#3b4f5f', roofD = '#26343f', roofL = '#6f8fa3'
+  for (let j = 0; j < 8; j++) {
+    const hw = 10 + j * 1.6
+    for (let x = Math.round(17 - hw); x <= Math.round(17 + hw); x++) g.set(x, 2 + j, (x + 30) % 3 === 0 ? roofD : roof)
+  }
+  g.hline(13, 1, 9, roofL); g.hline(0, 10, 35, roofL); g.set(0, 9, roofL); g.set(34, 9, roofL)
+  g.rect(3, 11, 29, 9, '#f4ead8')
+  for (let x = 3; x < 32; x += 4) g.vline(x, 11, 9, WOOD_D)
+  g.hline(3, 15, 29, '#d8ccb4')
+  g.rect(14, 12, 7, 8, '#7a4a2a'); g.rect(15, 13, 5, 7, '#ffd36b'); g.vline(17, 13, 7, '#c99a3a')
+  g.rect(1, 20, 33, 3, WOOD); g.hline(1, 20, 33, WOOD_L); g.hline(1, 22, 33, WOOD_D)
+  for (let x = 2; x < 34; x += 6) g.vline(x, 23, 2, WOOD_D)
+  // l'ombrelle et le banc rouge
+  for (let j = 0; j < 4; j++) for (let x = 36 - j * 2; x <= 37 + j * 2; x++) g.set(x, 8 + j, j === 3 ? '#a8241c' : (x % 2 ? '#e2382a' : '#f05a44'))
+  g.vline(37, 12, 9, WOOD_D)
+  g.rect(31, 22, 10, 2, '#d8302a'); g.hline(31, 22, 10, '#ff5a48'); g.set(32, 24, WOOD_D); g.set(39, 24, WOOD_D)
+  g.outline()
+  return g
+}
+
+/** une barque amarrée */
+function boat(): Grid {
+  const g = new Grid(18, 8, 1, 1)
+  g.rect(1, 0, 14, 5, WOOD_D); g.rect(0, 1, 16, 3, WOOD_D)
+  g.rect(2, 1, 12, 3, '#9a6236'); g.hline(2, 1, 12, WOOD_L)
+  g.vline(6, 1, 3, WOOD_D); g.vline(10, 1, 3, WOOD_D)
+  g.hline(4, 5, 8, '#2558a0')
+  g.outline()
+  return g
+}
+
+/** un puits · margelle ronde, deux montants, un petit toit, le seau */
+function well(): Grid {
+  const g = new Grid(16, 20, 1, 1)
+  for (let j = 0; j < 3; j++) for (let x = 5 - j * 2; x <= 8 + j * 2; x++) g.set(x, j, (x + j) % 2 ? '#7a2e2a' : '#9a3c32')
+  g.hline(0, 3, 14, '#c25a48')
+  g.vline(2, 4, 8, WOOD_D); g.vline(11, 4, 8, WOOD_D)
+  g.hline(2, 6, 10, WOOD); g.vline(7, 7, 3, '#d8c8a0'); g.rect(6, 9, 3, 2, WOOD); g.set(7, 9, WOOD_D)
+  g.rect(1, 11, 12, 6, STONE); g.hline(1, 11, 12, STONE_L); g.hline(1, 16, 12, STONE_D)
+  g.rect(3, 12, 8, 2, '#1f3a6a')
+  for (let x = 1; x < 13; x += 3) g.vline(x, 14, 2, STONE_D)
+  g.outline()
+  return g
+}
+
+/** un poteau à lanterne de papier rouge (chōchin), qui penche sur le chemin */
+function chochin(left: boolean): Grid {
+  const g = new Grid(9, 17, 1, 1)
+  const px = left ? 6 : 0, lx = left ? 1 : 4
+  g.vline(px, 1, 14, WOOD_D); g.set(px, 0, WOOD)
+  g.hline(Math.min(px, lx + 1), 1, 6, WOOD)
+  g.set(lx + 1, 2, '#3a2a20')
+  g.rect(lx, 3, 3, 4, '#e8452c'); g.vline(lx, 3, 4, '#ff9a6a'); g.hline(lx, 5, 3, '#ffb070')
+  g.set(lx + 1, 7, '#3a2a20')
+  g.outline()
+  return g
+}
+
+/** un épouvantail du potager */
+function scarecrow(): Grid {
+  const g = new Grid(11, 15, 1, 1)
+  g.rect(3, 0, 3, 2, '#d8b060'); g.hline(2, 2, 5, '#d8b060')
+  g.rect(3, 3, 3, 3, '#f0d8b0'); g.set(3, 4, OUTLINE); g.set(5, 4, OUTLINE)
+  g.hline(0, 7, 9, WOOD_D)
+  g.rect(2, 6, 5, 5, '#4a7fc0'); g.set(4, 8, '#e8452c')
+  g.vline(4, 11, 3, WOOD_D)
   g.outline()
   return g
 }
@@ -683,7 +834,7 @@ function stone(rad: number, moss: boolean): Grid {
 
 /* --- la carte ---------------------------------------------------------- */
 
-type FeatKind = 'lake' | 'pond' | 'zen' | 'park' | 'fountain' | 'bed'
+type FeatKind = 'lake' | 'pond' | 'zen' | 'park' | 'fountain' | 'bed' | 'veg'
 type Feat = { kind: FeatKind; x: number; y: number; w: number; h: number; v: number }
 
 /** les tailles essayées, de la plus grande à la plus petite · les poches
@@ -695,12 +846,13 @@ const SIZES: Record<FeatKind, [number, number][]> = {
   pond: [[60, 34], [52, 30], [44, 26], [38, 24]],
   fountain: [[34, 30], [26, 24]],
   bed: [[22, 10], [16, 9]],
+  veg: [[58, 34], [48, 30], [40, 26]],
 }
 /** LES DÉCORS DUS · demandé : « On ne voit pas de parc zen ni de lac etc...
  *  sur la carte : ajoute les ». Sur chaque carte, dans cet ordre : un grand
  *  lac, quatre jardins zen, deux parcs, trois bassins, une fontaine ; puis,
  *  tant qu'il reste de la place, d'autres encore. */
-const MUST: FeatKind[] = ['lake', 'zen', 'park', 'zen', 'pond', 'zen', 'park', 'pond', 'zen', 'pond', 'fountain']
+const MUST: FeatKind[] = ['lake', 'zen', 'park', 'zen', 'pond', 'zen', 'park', 'pond', 'zen', 'pond', 'fountain', 'veg']
 const MORE: FeatKind[] = ['zen', 'pond', 'park', 'pond', 'zen', 'park', 'fountain', 'pond']
 
 /** Le fond de la carte, w × h · herbe, chemin qui passe au pied de chaque
@@ -722,15 +874,20 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     return () => a[Math.floor(r() * a.length)]
   }
   const pinkTrees = new Set<Grid>()
+  /** les objets qui portent une ombre au sol, et ceux où un oiseau se pose */
+  const shadowed = new Set<Grid>()
+  const canopies = new Set<Grid>()
+  const crown = (t: Grid) => { shadowed.add(t); canopies.add(t); return t }
   const P = {
-    cherry: pool(4, () => { const t = blossom(r, CHERRY); pinkTrees.add(t); return t }),
-    maple: pool(4, (i) => blossom(r, MAPLES[i % MAPLES.length])),
-    tree: pool(4, () => tree(r)),
-    pine: pool(3, () => pine(r)),
-    bamboo: pool(3, () => bamboo(r)),
+    cherry: pool(4, () => { const t = crown(blossom(r, CHERRY)); pinkTrees.add(t); return t }),
+    maple: pool(4, (i) => crown(blossom(r, MAPLES[i % MAPLES.length]))),
+    tree: pool(4, () => crown(tree(r))),
+    pine: pool(3, () => crown(pine(r))),
+    bamboo: pool(3, () => crown(bamboo(r))),
     bush: pool(5, () => bush(r)),
     rock: pool(3, () => rock(r)),
-    bigRock: pool(2, () => rock(r, true)),
+    bigRock: pool(2, () => rock(r, true, true)),
+    willow: pool(3, () => crown(willow(r))),
     lantern: pool(1, () => lantern()),
     bench: pool(1, () => bench()),
   }
@@ -739,6 +896,7 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
   const noise = noiseField(w, h, 24, r, 0.7, undefined, 2)
   noiseField(w, h, 6, r, 0.3, noise, 2)
   const biome = valueNoise(w, h, 90, r)
+  const meadow = valueNoise(w, h, 56, r)
   for (let y = 0; y < h; y += 2) for (let x = 0; x < w; x += 2) {
     const n = noise[y * w + x]
     g.rect(x, y, 2, 2, n > 0.62 ? GRASS_D : n < 0.3 ? GRASS_L : GRASS)
@@ -772,14 +930,8 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
       if (i % 2 === 0 || i === line.length - 1) near.disc(a.x, a.y, 11)
     }
   })
-  // l'allée se glisse jusque sous la porte ; l'ombre du temple sur l'herbe
-  for (const s of spots) {
-    path.disc(s.x, s.y + DOOR_Y + 2, 3)
-    for (let x = -18; x <= 18; x++) {
-      g.set(s.x + x, s.y + 18, '#3f8f38')
-      if (Math.abs(x) < 16) g.set(s.x + x, s.y + 19, '#4a9e3e')
-    }
-  }
+  // l'allée se glisse jusque sous la porte
+  for (const s of spots) path.disc(s.x, s.y + DOOR_Y + 2, 3)
 
   // 3. la rivière · une bande sinueuse d'un bord à l'autre, entre deux
   // rangées de temples, qui coupe le chemin le moins possible (un pont)
@@ -997,29 +1149,58 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
 
 
   // 6. la peinture du sol · l'eau d'abord
+  const darkMap = new Map<string, string>()
+  const darken = (c: string) => { let d = darkMap.get(c); if (!d) { d = shade(c, -0.26); darkMap.set(c, d) } return d }
+  const cover = new Mask(w, h)
   const pondW = new Mask(w, h)
   const pondRim = new Mask(w, h)
   const petals: Pt[] = []
   if (river) paintRiver(g, w, h, river, rdist, water, path, r)
-  for (const f of feats) if (f.kind === 'pond' || f.kind === 'lake') paintPond(g, f, pondW, pondRim, r, sprites, f.kind === 'lake')
+  for (const f of feats) if (f.kind === 'pond' || f.kind === 'lake') paintPond(g, f, pondW, pondRim, r, sprites, cover, f.kind === 'lake')
   // le chemin de terre (le pont recouvre la traversée)
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const i = y * w + x
     if (!path.a[i] || rdist[i] <= RB) continue
-    g.set(x, y, path.edge(x, y) ? DIRT_D : DIRT)
+    if (!path.edge(x, y)) { g.set(x, y, DIRT); continue }
+    // le bord usé · l'herbe mord sur la terre, la terre déborde sur l'herbe
+    const hsh = cellHash(x, y)
+    g.set(x, y, hsh < 0.07 ? GRASS_D : DIRT_D)
+    if (hsh > 0.8) {
+      const ox = !path.get(x - 1, y) ? -1 : !path.get(x + 1, y) ? 1 : 0, oy = ox ? 0 : !path.get(x, y - 1) ? -1 : 1
+      if (!plaza.get(x + ox, y + oy) && rdist[(y + oy) * w + x + ox] > RB + 1) g.set(x + ox, y + oy, hsh > 0.92 ? '#c9b070' : '#a6b860')
+    }
+  }
+  // les traces de pas, au milieu du chemin principal et de l'entrée
+  for (const line of plan.paths.slice(0, 2)) {
+    for (let k = 1; k + 1 < line.length; k += 2) {
+      const a = line[k - 1], b = line[k + 1], p = line[k]
+      const L = Math.hypot(b.x - a.x, b.y - a.y) || 1
+      const sd = (k >> 1) % 2 ? 1.3 : -1.3
+      const x = Math.round(p.x - ((b.y - a.y) / L) * sd), y = Math.round(p.y + ((b.x - a.x) / L) * sd)
+      if (path.get(x, y) && !path.edge(x, y) && rdist[y * w + x] > RB + 2 && cellHash(k, x) < 0.75) g.set(x, y, '#c49a5c')
+    }
   }
   for (let i = 0; i < (w * h) / 70; i++) {
     const x = Math.floor(r() * w), y = Math.floor(r() * h)
     if (path.get(x, y) && !path.edge(x, y) && !plaza.get(x, y) && rdist[y * w + x] > RB) g.set(x, y, r() < 0.5 ? '#c9a465' : '#ecd29c')
   }
-  // deux pierres plates sur chaque allée, au pied de la porte
+  // l'ombre du temple sur l'herbe et sur l'allée ; deux planches de bois
+  // posées sur la terre battue au pied de la porte (pas de pierre)
   for (const s of spots) {
+    for (let dy = 0; dy <= 4; dy++) for (let dx = -21; dx <= 21; dx++) {
+      if ((dx / 21) ** 2 + (dy / 4.5) ** 2 > 1) continue
+      const c = g.get(s.x + dx, s.y + 17 + dy)
+      if (c) g.set(s.x + dx, s.y + 17 + dy, darken(c))
+    }
     for (const dy of [STEP_Y + 1, STEP_Y + 5]) {
-      g.hline(s.x - 2, s.y + dy, 5, STONE_L); g.hline(s.x - 2, s.y + dy + 1, 5, STONE_D)
-      g.set(s.x - 3, s.y + dy, DIRT_D); g.set(s.x + 3, s.y + dy, DIRT_D)
+      g.hline(s.x - 3, s.y + dy, 7, '#b07443'); g.hline(s.x - 3, s.y + dy + 1, 7, '#8a5530')
+      g.set(s.x - 3, s.y + dy, '#64391d'); g.set(s.x + 3, s.y + dy, '#64391d'); g.set(s.x, s.y + dy, '#d29a5c')
     }
   }
-  for (const b of bridges) paintBridge(g, b.pts, b.vertical, (x, y) => water.get(x, y) === 1)
+  for (const b of bridges) {
+    paintBridge(g, b.pts, b.vertical, (x, y) => water.get(x, y) === 1)
+    for (const p of b.pts) cover.rect(Math.round(p.x) - 8, Math.round(p.y) - 8, 17, 17)
+  }
   // les jardins zen, la fontaine, les massifs
   let zenN = 0
   const walk = new Mask(w, h)
@@ -1028,6 +1209,7 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     else if (f.kind === 'fountain') paintFountain(g, f, r)
     else if (f.kind === 'bed') paintBed(g, f, r)
     else if (f.kind === 'park') paintParkWalk(g, f, walk)
+    else if (f.kind === 'veg') paintVeg(g, f, r)
   }
 
   // 7. les arbres et les objets · près des décors d'abord, puis la forêt
@@ -1040,6 +1222,20 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     const fy = by + bh - foot
     if (wet(bx + 1, fy, bw - 2, foot) || busy.anyIn(bx + 1, fy, bw - 2, foot)) return false
     busy.rect(bx + 1, by + 1, bw - 2, bh - 2)
+    addSprite(x, y, sg)
+    return true
+  }
+  /** un objet haut et fin (lanterne de papier, épouvantail) · seul son pied
+   *  doit être libre ; le haut peut pencher au-dessus du chemin */
+  const placeLoose = (x: number, y: number, sg: Grid, foot: number, overPath: boolean): boolean => {
+    const bx = x + 1, by = y + 1, bw = sg.w - 2, bh = sg.h - 2
+    if (bx < 0 || bx + bw > w || by < 0 || by + bh > h) return false
+    if (label.anyIn(bx, by, bw, bh) || plaza.anyIn(bx, by, bw, bh) || (!overPath && path.anyIn(bx, by, bw, bh))) return false
+    const fy = by + bh - foot
+    const post = overPath ? 3 : bw
+    const px = overPath && sg.get(6, 8) ? bx + bw - 3 : bx
+    if (path.anyIn(px, fy, post, foot) || solid.anyIn(px, fy, post, foot) || wet(px, fy, post, foot) || busy.anyIn(px, fy, post, foot)) return false
+    busy.rect(px, fy - 2, post, foot + 2)
     addSprite(x, y, sg)
     return true
   }
@@ -1092,7 +1288,8 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
       around(() => (f.v % 2 ? P.cherry() : P.maple()), 14, 1)
       around(() => P.bamboo(), 10, 1)
     } else if (f.kind === 'pond' || f.kind === 'lake') {
-      around(() => (f.v % 2 ? P.maple() : P.cherry()), 16, f.kind === 'lake' ? 4 : 2)
+      around(() => P.willow(), 14, 1)
+      around(() => (f.v % 2 ? P.maple() : P.cherry()), 16, f.kind === 'lake' ? 3 : 1)
       around(() => P.lantern(), 12, 1)
       around(() => P.bigRock(), 10, 1)
     } else if (f.kind === 'fountain') {
@@ -1100,6 +1297,98 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
       around(() => P.bush(), 10, 2)
     } else if (f.kind === 'bed') {
       around(() => P.bush(), 6, 1)
+    } else if (f.kind === 'veg') {
+      // l'épouvantail au milieu des rangs, le puits à côté
+      placeLoose(Math.round(f.x + f.w * 0.62), Math.round(f.y + f.h / 2 - 10), scarecrow(), 3, false)
+      const wg = well()
+      around(() => wg, 20, 1)
+    }
+  }
+
+  // LES PETITES CONSTRUCTIONS · la maison de thé au bord du lac, deux
+  // sanctuaires, les poteaux indicateurs, les clôtures, les lanternes de
+  // papier le long de l'entrée
+  const th = teahouse()
+  shadowed.add(th)
+  const waters = [...feats.filter((f) => f.kind === 'lake'), ...feats.filter((f) => f.kind === 'pond')]
+  let teaDone = false
+  for (const f of waters) {
+    if (teaDone) break
+    const spotsTry: [number, number][] = [
+      [f.x - th.w + 4, f.y + f.h / 2 - th.h + 8], [f.x + f.w - 4, f.y + f.h / 2 - th.h + 8],
+      [f.x + f.w / 2 - th.w / 2, f.y - th.h + 6], [f.x + f.w / 2 - th.w / 2, f.y + f.h - 6],
+      [f.x - th.w + 4, f.y - 10], [f.x + f.w - 4, f.y - 10], [f.x - th.w + 4, f.y + f.h - th.h + 10], [f.x + f.w - 4, f.y + f.h - th.h + 10],
+    ]
+    for (const [x, y] of spotsTry) {
+      for (const [dx, dy] of [[0, 0], [-6, 0], [6, 0], [0, -6], [0, 6]]) {
+        if (place(Math.round(x + dx), Math.round(y + dy), th, 8)) { teaDone = true; solid.rect(Math.round(x + dx), Math.round(y + dy), th.w, th.h); break }
+      }
+      if (teaDone) break
+    }
+  }
+  // les sanctuaires, loin l'un de l'autre, chacun avec son petit torii
+  const sg = shrine(), mt = miniTorii()
+  shadowed.add(sg)
+  const shrines: Pt[] = []
+  for (let t = 0; t < 400 && shrines.length < 2; t++) {
+    const x = 6 + Math.floor(cellHash(t, seed) * (w - 30)), y = 6 + Math.floor(cellHash(seed, t) * (h - 40))
+    if (shrines.some((q) => Math.hypot(q.x - x, q.y - y) < Math.min(w, h) * 0.45)) continue
+    if (solid.anyIn(x - 2, y - 2, 20, 34) || label.anyIn(x - 2, y - 2, 20, 34) || plaza.anyIn(x - 4, y - 4, 24, 38) || path.anyIn(x - 2, y - 2, 20, 34) || wet(x - 2, y, 20, 32)) continue
+    if (busy.anyIn(x, y, 16, 30)) continue
+    if (!place(x, y, sg, 6)) continue
+    place(x + 1, y + 17, mt, 3)
+    solid.rect(x, y, 16, 30)
+    shrines.push({ x, y })
+  }
+  // un poteau indicateur à la fourche de l'entrée, et à quelques allées
+  const mainL = plan.paths[0]
+  const forks: Pt[] = [mainL[plan.entranceAt]]
+  plan.doors.forEach((d, i) => { if (i % 5 === 2) forks.push(mainL[d.from]) })
+  const sp = signpost()
+  for (const J of forks) {
+    if (!J) continue
+    for (const [dx, dy] of [[8, 5], [-19, 5], [8, -19], [-19, -19], [12, 6], [-23, 6]]) {
+      if (place(Math.round(J.x + dx), Math.round(J.y + dy), sp, 3)) break
+    }
+  }
+  // des clôtures basses le long de quelques tronçons droits, sous le chemin
+  plan.legs.forEach((leg, li) => {
+    if (leg.kind !== 'h' || li % 3 !== 1) return
+    const a = leg.from + Math.floor((leg.to - leg.from) * 0.25), b = leg.to - Math.floor((leg.to - leg.from) * 0.25)
+    let x0 = Infinity, x1 = -Infinity, y1 = -Infinity
+    for (let k = a; k <= b; k++) { x0 = Math.min(x0, mainL[k].x); x1 = Math.max(x1, mainL[k].x); y1 = Math.max(y1, mainL[k].y) }
+    const len = Math.round(x1 - x0)
+    if (len < 16) return
+    const fg = fence(len)
+    if (place(Math.round(x0) - 1, Math.round(y1 + 5), fg, 3)) solid.rect(Math.round(x0) - 1, Math.round(y1 + 5), fg.w, fg.h)
+  })
+  // les lanternes de papier · de part et d'autre de la montée de l'entrée, et
+  // le long d'un virage de bout de rangée
+  const lanternRow = (line: Pt[], from: number, to: number, both: boolean, side: number) => {
+    for (let k = from; k <= to; k += 4) {
+      const p = line[k]
+      if (!p) continue
+      if (both || side < 0) placeLoose(Math.round(p.x) - 9, Math.round(p.y) - 13, chochinL, 3, true)
+      if (both || side > 0) placeLoose(Math.round(p.x) + 1, Math.round(p.y) - 13, chochinR, 3, true)
+    }
+  }
+  const chochinL = chochin(false), chochinR = chochin(true)
+  if (branch) lanternRow(branch, 2, branch.length - 1, true, 0)
+  const vlegs = plan.legs.filter((l) => l.kind === 'v')
+  if (vlegs.length) {
+    const leg = vlegs[Math.floor(vlegs.length / 2)]
+    const side = mainL[Math.round((leg.from + leg.to) / 2)].x > w / 2 ? 1 : -1
+    lanternRow(mainL, leg.from + 4, leg.to - 4, false, side)
+  }
+  // les saules, sur les berges de la rivière
+  if (river) {
+    const span = river.vertical ? h : w
+    for (let u = 20; u < span - 10; u += 46) {
+      for (const sd of [-1, 1]) {
+        const c = river.c(u) + sd * (river.hw(u) + 6)
+        const x = river.vertical ? c - 11 : u - 11, y = river.vertical ? u - 20 : c - (sd > 0 ? 6 : 20)
+        if (cellHash(u, sd + 3) < 0.55) placeTree(Math.round(x), Math.round(y), P.willow())
+      }
     }
   }
   // la forêt du pourtour, puis des bosquets épars
@@ -1123,6 +1412,43 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
       else if (!bank.get(x, y) && !pondRim.get(x, y)) g.set(x, y, i % 3 ? '#ffc4dc' : '#ffffff')
     }
   }
+  // LE SOL EN DÉTAIL · trèfles, hautes herbes, petites fleurs de quatre
+  // couleurs, champignons, et des prairies de fleurs sauvages
+  const flowerPts: Pt[] = []
+  const bare = (x: number, y: number, m = 1) =>
+    !path.anyIn(x - m - 1, y - m - 1, 2 * m + 3, 2 * m + 3) && !plaza.anyIn(x - m, y - m, 2 * m + 1, 2 * m + 1) && !solid.anyIn(x - m, y - m, 2 * m + 1, 2 * m + 1) && !wet(x - m - 1, y - m - 1, 2 * m + 3, 2 * m + 3)
+  const tiny = ['#ffffff', '#ffe14d', '#ff7aa8', '#8fb8ff']
+  for (let i = 0; i < (w * h) / 32; i++) {
+    const x = Math.floor(r() * w), y = Math.floor(r() * h)
+    const m = meadow(x, y)
+    if (m < 0.62 || !bare(x, y)) continue
+    const c = tiny[(i >> 1) % 4]
+    g.set(x, y, c)
+    g.set(x, y + 1, '#3f8f38')
+    if (m > 0.7 && i % 3 === 0) { g.set(x + 1, y, c); g.set(x, y - 1, c); g.set(x + 1, y - 1, '#ffb020') }
+    if (i % 9 === 0) flowerPts.push({ x, y })
+  }
+  for (let i = 0; i < (w * h) / 450; i++) {
+    const x = Math.floor(r() * w), y = Math.floor(r() * h)
+    if (!bare(x, y)) continue
+    g.set(x, y, '#3f9a3c'); g.set(x - 1, y, '#3f9a3c'); g.set(x, y - 1, '#3f9a3c'); g.set(x + 1, y - 1, '#7ccf5e')
+  }
+  for (let i = 0; i < (w * h) / 300; i++) {
+    const x = Math.floor(r() * w), y = Math.floor(r() * h)
+    if (!bare(x, y, 2)) continue
+    for (let k = 0; k < 3; k++) {
+      const tall = 2 + ((i + k) % 3)
+      for (let t = 0; t < tall; t++) g.set(x + k * 2 - 2, y - t - (k === 1 ? 1 : 0), t === tall - 1 ? '#8ee070' : '#3d8a35')
+    }
+  }
+  for (let i = 0; i < (w * h) / 5000; i++) {
+    const x = Math.floor(r() * w), y = Math.floor(r() * h)
+    if (!bare(x, y, 2)) continue
+    const cap = i % 3 ? '#e8452c' : '#c98a4a'
+    g.hline(x - 1, y - 1, 3, cap); g.set(x, y - 2, cap); g.set(x - 1, y - 1, i % 3 ? '#ffffff' : cap)
+    g.set(x, y, '#f0e6d0'); g.set(x - 1, y - 2, OUTLINE); g.set(x + 1, y - 2, OUTLINE); g.set(x - 2, y - 1, OUTLINE); g.set(x + 2, y - 1, OUTLINE)
+  }
+  for (const f of feats) if (f.kind === 'bed' || f.kind === 'park') flowerPts.push({ x: f.x + f.w / 2, y: f.y + f.h / 2 })
   const flowers = ['#ffffff', '#ffe14d', '#ff6b8a', '#c9a0ff']
   for (let i = 0; i < (w * h) / 200; i++) {
     const x = Math.floor(r() * w), y = Math.floor(r() * h)
@@ -1142,10 +1468,83 @@ export function drawWorld(w: number, h: number, spots: { x: number; y: number }[
     }
   }
 
-  // 9. les objets, du fond vers le devant
+  // 9. les ombres au sol, puis les objets, du fond vers le devant
+  for (const s of sprites) {
+    if (!shadowed.has(s.g)) continue
+    const cx = s.x + s.g.w / 2, cy = s.y + s.g.h - 3, rx = s.g.w / 2 - 1
+    for (let dy = -1; dy <= 3; dy++) for (let dx = -Math.ceil(rx); dx <= rx; dx++) {
+      if ((dx / rx) ** 2 + (dy / 3.2) ** 2 > 1) continue
+      const x = Math.round(cx + dx), y = Math.round(cy + dy)
+      if (plaza.get(x, y)) continue
+      const c = g.get(x, y)
+      if (c) g.set(x, y, darken(c))
+    }
+  }
   sprites.sort((a, b) => a.z - b.z)
   for (const s of sprites) g.blit(s.g, s.x, s.y)
+
+  // 10. LES POINTS VIVANTS · pour les animations posées par-dessus
+  const decor: WorldDecor = { water: [], flowers: [], trees: [] }
+  const isW = (x: number, y: number) => {
+    const X = Math.round(x), Y = Math.round(y)
+    return !!(water.get(X, Y) || pondW.get(X, Y)) && !cover.get(X, Y)
+  }
+  const wc: { x: number; y: number; r: number }[] = []
+  for (let y = 4; y < h - 4; y += 5) for (let x = 4; x < w - 4; x += 5) {
+    if (!isW(x, y)) continue
+    for (const rad of [9, 7, 5, 4]) {
+      let ok = true
+      for (let a = 0; a < 8 && ok; a++) {
+        const ca = Math.cos((a * Math.PI) / 4), sa = Math.sin((a * Math.PI) / 4)
+        ok = isW(x + ca * rad, y + sa * rad) && isW(x + ca * rad * 0.5, y + sa * rad * 0.5)
+      }
+      if (ok) { wc.push({ x, y, r: rad }); break }
+    }
+  }
+  wc.sort((a, b) => b.r - a.r || cellHash(a.x, a.y) - cellHash(b.x, b.y))
+  for (const c of wc) {
+    if (decor.water.length >= 40) break
+    if (decor.water.every((q) => Math.hypot(q.x - c.x, q.y - c.y) >= Math.max(16, q.r + c.r + 4))) decor.water.push(c)
+  }
+  flowerPts.sort((a, b) => cellHash(a.x, a.y) - cellHash(b.x, b.y))
+  for (const f of flowerPts) {
+    if (decor.flowers.length >= 40) break
+    if (decor.flowers.every((q) => Math.hypot(q.x - f.x, q.y - f.y) >= 18)) decor.flowers.push({ x: Math.round(f.x), y: Math.round(f.y) })
+  }
+  for (const s of sprites) {
+    if (!canopies.has(s.g)) continue
+    const x = Math.round(s.x + s.g.w / 2), y = s.y + 3
+    if (x >= 0 && x < w && y >= 0 && y < h) decor.trees.push({ x, y })
+  }
+  rememberDecor(w, h, spots, seed, decor)
   return g
+}
+
+/** LES POINTS VIVANTS DE LA CARTE · pour les animations posées par-dessus
+ *  (DOM) : des points bien à l'intérieur de l'eau, avec le rayon où un
+ *  poisson ou un rond peut vivre ; des points dans les prairies et les
+ *  massifs pour les papillons ; le haut des couronnes d'arbres pour les
+ *  oiseaux. Tirés du même calcul que `drawWorld` (mêmes arguments, mêmes
+ *  points). */
+export interface WorldDecor {
+  water: { x: number; y: number; r: number }[]
+  flowers: { x: number; y: number }[]
+  trees: { x: number; y: number }[]
+}
+
+const decorCache = new Map<string, WorldDecor>()
+const decorKey = (w: number, h: number, spots: Pt[], seed: number) => `${w}x${h}:${seed}:${spots.map((s) => `${s.x},${s.y}`).join(';')}`
+function rememberDecor(w: number, h: number, spots: Pt[], seed: number, d: WorldDecor) {
+  decorCache.set(decorKey(w, h, spots, seed), d)
+  if (decorCache.size > 4) decorCache.delete(decorCache.keys().next().value as string)
+}
+
+/** les points vivants de la carte · si `drawWorld` vient de la dessiner avec
+ *  les mêmes arguments, rien n'est recalculé */
+export function worldDecor(w: number, h: number, spots: { x: number; y: number }[], seed: number): WorldDecor {
+  const key = decorKey(w, h, spots, seed)
+  if (!decorCache.has(key)) drawWorld(w, h, spots, seed)
+  return decorCache.get(key) as WorldDecor
 }
 
 /* --- la rivière -------------------------------------------------------- */
@@ -1325,7 +1724,7 @@ function koi(g: Grid, x: number, y: number, white: boolean, vertical: boolean) {
 
 /** un bassin, ou le grand lac (`lake`) : une île au pavillon rouge reliée à
  *  la rive par un pont, des carpes koï en nombre */
-function paintPond(g: Grid, f: Feat, pondW: Mask, pondRim: Mask, r: () => number, sprites: { x: number; y: number; g: Grid; z: number }[], lake = false) {
+function paintPond(g: Grid, f: Feat, pondW: Mask, pondRim: Mask, r: () => number, sprites: { x: number; y: number; g: Grid; z: number }[], cover: Mask, lake = false) {
   const cx = f.x + f.w / 2, cy = f.y + f.h / 2
   const rx = f.w / 2 - 4, ry = f.h / 2 - 4
   const a1 = r() * 6.28, a2 = r() * 6.28
@@ -1404,6 +1803,26 @@ function paintPond(g: Grid, f: Feat, pondW: Mask, pondRim: Mask, r: () => number
     const pts: Pt[] = []
     for (let y = Math.round(icy + iry - 3); y <= y2 + 3; y += 2) pts.push({ x: icx, y })
     paintBridge(g, pts, true, (x, y) => pondW.get(x, y) === 1)
+    cover.rect(icx - 9, Math.round(icy - iry - 16), 19, Math.round(y2 - icy + iry + 20))
+    cover.rect(Math.round(icx - irx - 3), Math.round(icy - iry - 3), Math.round(2 * irx + 7), Math.round(2 * iry + 7))
+    // le ponton de bois sur la rive droite, et la barque amarrée
+    const dy0 = Math.round(cy + ry * 0.15)
+    let xr = f.x + f.w - 1
+    while (xr > cx && !m.get(xr - f.x, dy0 - f.y)) xr--
+    const dl = Math.min(16, Math.round(rx * 0.35))
+    for (let x = xr - dl; x <= xr + 3; x++) for (let y = dy0 - 2; y <= dy0 + 2; y++) {
+      const edge = y === dy0 - 2 || y === dy0 + 2
+      g.set(x, y, edge ? WOOD_D : (x - xr) % 3 === 0 ? '#8a5530' : y === dy0 - 1 ? WOOD_L : WOOD)
+    }
+    g.vline(xr - dl - 1, dy0 - 2, 6, OUTLINE)
+    for (const x of [xr - dl, xr - Math.round(dl / 2)]) { g.set(x, dy0 + 3, WOOD_D); g.set(x, dy0 - 3, WOOD_D) }
+    cover.rect(xr - dl - 2, dy0 - 4, dl + 8, 9)
+    const bg = boat()
+    const bx = xr - dl - 2, by = dy0 + 4
+    if (m.get(bx - f.x, by + 3 - f.y) && m.get(bx + 14 - f.x, by + 3 - f.y)) {
+      sprites.push({ x: bx - 1, y: by - 1, g: bg, z: by - 100 })
+      cover.rect(bx - 2, by - 2, 20, 11)
+    }
   } else if (f.v % 2 === 0) {
     const n = Math.max(3, Math.round(rx / 7))
     for (let k = 0; k < n; k++) {
@@ -1561,6 +1980,34 @@ function paintZen(g: Grid, f: Feat, r: () => number, n: number, lantern: Grid) {
   }
   // la lanterne, dans un coin du devant
   g.blit(lantern, left ? gx0 : gx1 - 8, gy1 - 13)
+}
+
+/** un potager · une clôture de piquets, la terre labourée en rangs, et des
+ *  choux, des carottes, des tomates sur leurs tuteurs */
+function paintVeg(g: Grid, f: Feat, r: () => number) {
+  const x0 = f.x, y0 = f.y, x1 = f.x + f.w - 1, y1 = f.y + f.h - 1
+  for (let y = y0 + 2; y <= y1 - 2; y++) for (let x = x0 + 2; x <= x1 - 2; x++) g.set(x, y, (y - y0) % 4 === 1 ? '#5e3a20' : (y - y0) % 4 === 0 ? '#7a4f2e' : '#8a5a34')
+  const crops = ['cabbage', 'carrot', 'tomato', 'leek'] as const
+  for (let row = 0, y = y0 + 4; y <= y1 - 4; y += 4, row++) {
+    const kind = crops[(row + Math.floor(r() * 2)) % crops.length]
+    for (let x = x0 + 4; x <= x1 - 4; x += 4) {
+      if (kind === 'cabbage') { g.rect(x - 1, y - 1, 3, 2, '#7cc458'); g.set(x, y - 1, '#b6e88a'); g.set(x - 1, y, '#4f9a3a'); g.set(x + 1, y, '#4f9a3a') }
+      else if (kind === 'carrot') { g.set(x, y, '#ff8a2a'); g.set(x, y - 1, '#4f9e3a'); g.set(x - 1, y - 2, '#6cbf4a'); g.set(x + 1, y - 2, '#6cbf4a') }
+      else if (kind === 'tomato') { g.vline(x, y - 3, 4, '#8a6a3a'); g.set(x - 1, y - 2, '#3f8f38'); g.set(x + 1, y - 1, '#3f8f38'); g.set(x - 1, y - 1, '#e8392a'); g.set(x + 1, y - 2, '#e8392a') }
+      else { g.vline(x, y - 2, 3, '#6cbf4a'); g.set(x, y, '#f0f0d8'); g.set(x + 1, y - 2, '#4f9a3a') }
+    }
+  }
+  // la clôture de piquets
+  for (let x = x0; x <= x1; x++) {
+    g.set(x, y0, (x - x0) % 3 === 0 ? WOOD_D : WOOD); g.set(x, y0 + 1, WOOD_D)
+    g.set(x, y1 - 1, (x - x0) % 3 === 0 ? WOOD_D : WOOD_L); g.set(x, y1, OUTLINE)
+  }
+  for (let y = y0; y <= y1; y++) { g.set(x0, y, WOOD_D); g.set(x1, y, WOOD_D); g.set(x0 + 1, y, (y - y0) % 3 ? WOOD : WOOD_L); g.set(x1 - 1, y, (y - y0) % 3 ? WOOD : WOOD_L) }
+  g.hline(x0, y0 - 1, f.w, OUTLINE)
+  for (const x of [x0 - 1, x1 + 1]) g.vline(x, y0, f.h, OUTLINE)
+  // l'entrée du potager, une trouée dans la clôture du bas
+  const gx = x0 + Math.floor(f.w / 2) - 2
+  g.hline(gx, y1 - 1, 5, '#8a5a34'); g.hline(gx, y1, 5, '#7a4f2e')
 }
 
 /** l'allée de gravier d'un parc · un ovale où l'on se promène, et que les
