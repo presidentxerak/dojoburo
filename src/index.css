@@ -12884,3 +12884,83 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
 .pf-feat b { font: 400 12px/1.2 var(--font-px) !important; }
 .pf-feat small { font-size: 12.5px; line-height: 1.35; color: #4a4163; }
 .pf-feat em { position: absolute; right: 10px; top: 10px; font: 400 10px/1 var(--font-px); font-style: normal; color: #b45309; }
+
+/* =====================================================================
+   LA PAGE DU CHATBOT · demandé : « améliore le design de la page du tchat bot
+   en fonction des autres pages ». Elle portait encore l'habillage de l'ancien
+   site (bandeau dégradé rose, filets gris, puces carrées). Elle prend celui du
+   jeu : le fond de page, l'en-tête sans fond, des cartes (--g-card, --g-lift),
+   les boutons violets à touche partagée (--sk-*), la marge de 20 px, et des
+   puces d'une seule forme partout (sujets, suggestions, réponses).
+   ===================================================================== */
+.sb-full {
+  font-family: var(--font-game); color: var(--g-text);
+  background: radial-gradient(1200px 620px at 50% -12%, rgba(124, 58, 237, 0.18), transparent 70%), var(--g-page);
+}
+.sb-full .sb-head { padding: 14px var(--page-x, 20px) 8px; background: transparent; color: var(--g-text); }
+.sb-full .sb-title strong { font-family: var(--font-game); font-weight: 800; font-size: 22px; color: var(--g-text); }
+.sb-full .sb-status { color: var(--g-sub); opacity: 1; }
+.sb-full .sb-reset, .sb-full .sb-x { color: var(--g-text); background: var(--g-card); box-shadow: var(--g-lift); }
+.sb-full .sb-reset:hover, .sb-full .sb-x:hover { background: color-mix(in srgb, #7c3aed 16%, var(--g-card)); }
+.sb-full .sb-main { gap: 20px; padding: 6px var(--page-x, 20px) 20px; min-height: 0; }
+.sb-full .sb-rail {
+  width: 280px; padding: 18px 14px; gap: 8px; border: 0; border-radius: 22px;
+  background: linear-gradient(180deg, var(--g-card-top), var(--g-card) 40%, var(--g-card-bot)); box-shadow: var(--g-edge), var(--g-lift);
+}
+.sb-full .sb-rail-h { color: var(--g-sub); font-family: var(--font-game); }
+.sb-full .sb-walk {
+  border: 0; border-radius: 14px !important; font-family: var(--font-game); font-weight: 700; color: var(--g-text);
+  background: color-mix(in srgb, #7c3aed 8%, transparent); transition: background-color .14s ease, transform .14s ease;
+}
+.sb-full .sb-walk:hover { background: color-mix(in srgb, #7c3aed 16%, transparent); transform: translateX(3px); }
+.sb-full .sb-walk-play { background: #7c3aed; box-shadow: var(--sk-btn); }
+/* UNE SEULE FORME DE PUCE · sujets de la colonne, sujets sous une réponse,
+   questions suggérées : la même pastille violette, alignée à gauche, qui
+   monte d'un cran au survol. */
+.sb-full .sb-railtopic, .sb-full .sb-chip, .sb-full .sb-suggq {
+  border: 0; border-radius: 999px !important; padding: 8px 14px; text-align: left;
+  font-family: var(--font-game); font-size: 13.5px; font-weight: 700; line-height: 1.25;
+  color: #6d28d9; background: color-mix(in srgb, #7c3aed 11%, transparent);
+  transition: background-color .14s ease, color .14s ease, transform .14s ease;
+}
+.sb-full .sb-railtopic:hover:not(:disabled), .sb-full .sb-chip:hover:not(:disabled), .sb-full .sb-suggq:hover:not(:disabled) {
+  color: #fff; background: #7c3aed; transform: translateY(-1px);
+}
+.sb-full .sb-convo {
+  border-radius: 22px; overflow: hidden;
+  background: linear-gradient(180deg, var(--g-card-top), var(--g-card) 40%, var(--g-card-bot)); box-shadow: var(--g-edge), var(--g-lift);
+}
+.sb-full .sb-body { background: transparent; padding: 22px var(--page-x, 20px); }
+.sb-full .sb-row.bot .sb-bubble { border: 0; color: var(--g-text); background: var(--g-slot); border-radius: 18px; border-bottom-left-radius: 6px; }
+.sb-full .sb-row.user .sb-bubble { background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); }
+.sb-full .sb-link { border: 0; font-family: var(--font-game); color: #6d28d9; background: color-mix(in srgb, #7c3aed 11%, transparent); }
+.sb-full .sb-watch { color: #fff; background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); animation: none; font-family: var(--font-game); }
+.sb-full .sb-sugg { justify-content: flex-start; padding: 0 var(--page-x, 20px) 8px; max-width: 764px; width: 100%; margin: 0 auto; box-sizing: border-box; }
+.sb-full .sb-input { border-top: 0; padding: 10px var(--page-x, 20px) 4px; box-sizing: border-box; }
+.sb-full .sb-input input {
+  border: 0; font-family: var(--font-game); color: var(--g-text); background: var(--g-slot); box-shadow: var(--g-sunk);
+}
+.sb-full .sb-input input:focus { outline: 2px solid #7c3aed; outline-offset: 1px; }
+.sb-full .sb-input button { background: #7c3aed; background-image: var(--sk-grad); box-shadow: var(--sk-btn); transition: transform .14s ease, filter .14s ease; }
+.sb-full .sb-input button:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+.sb-full .sb-foot { color: var(--g-sub); padding: 4px var(--page-x, 20px) 14px; }
+:root:not([data-look='light']) .sb-full .sb-railtopic, :root:not([data-look='light']) .sb-full .sb-chip,
+:root:not([data-look='light']) .sb-full .sb-suggq, :root:not([data-look='light']) .sb-full .sb-link { color: #d8c8ff; background: rgba(124, 58, 237, 0.22); }
+@media (max-width: 900px) { .sb-full .sb-main { padding: 4px var(--page-x, 20px) 14px; } }
+
+/* =====================================================================
+   PROFIL ET COMMUNAUTÉ · demandé : « la mise en page des onglets de la page
+   du profil doivent être fluide et flex avec une marge de 20 pixels sur les
+   côtés même chose pour la page communauté ».
+   Les deux pages suivent la largeur de l'écran (jusqu'à 1200 px de contenu),
+   avec la marge de page de 20 px. Les onglets sont une rangée flex : chacun
+   prend une part égale, ne descend pas sous une largeur lisible, et la rangée
+   défile au doigt quand l'écran est trop étroit.
+   ===================================================================== */
+.gm-main:has(.pf-tabs), .gm-main:has(.cy-layout) { max-width: calc(1200px + 2 * var(--page-x)); }
+.pf-tabs { display: flex; flex-wrap: nowrap; gap: 6px; }
+.pf-tab { flex: 1 1 0; min-width: 84px; }
+.cy-tabbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; }
+.cy-tabs { display: flex; flex: 1 1 auto; min-width: 0; gap: 4px; }
+.cy-tab { flex: 0 0 auto; }
+@media (max-width: 899px) { .cy-layout > * { min-width: 0; } }

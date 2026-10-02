@@ -569,6 +569,18 @@ ok('morsure · une ombre douce ne l\'est pas',
   ok('les sections n\'ajoutent pas de marge latérale', /padding-left: 0; padding-right: 0/.test(sec))
 }
 
+// LA PAGE DU CHATBOT, LE PROFIL, LA COMMUNAUTÉ · demandé : « améliore le
+// design de la page du tchat bot en fonction des autres pages, la mise en page
+// des onglets de la page du profil doivent être fluide et flex avec une marge
+// de 20 pixels sur les côtés même chose pour la page communauté ».
+{
+  ok('le chatbot prend le fond et les cartes du jeu', /\.sb-full \{[^}]*var\(--g-page\)/.test(CSS) && /\.sb-full \.sb-convo \{[^}]*var\(--g-lift\)/.test(CSS))
+  ok('le chatbot garde la marge de page', /\.sb-full \.sb-main \{[^}]*var\(--page-x, 20px\)/.test(CSS))
+  ok('ses boutons sont violets, à touche partagée', /\.sb-full \.sb-input button \{[^}]*var\(--sk-btn\)/.test(CSS))
+  ok('les onglets du profil sont une rangée flex', /\n\.pf-tabs \{ display: flex;/.test(CSS) && /\n\.pf-tab \{ flex: 1 1 0;/.test(CSS))
+  ok('profil et communauté suivent la largeur de l\'écran', /\.gm-main:has\(\.pf-tabs\), \.gm-main:has\(\.cy-layout\) \{ max-width: calc\(1200px \+ 2 \* var\(--page-x\)\); \}/.test(CSS))
+}
+
 ok('morsure · un retour de Lilita serait vu',
   /lilita/i.test("import '@fontsource/lilita-one/latin-400.css'"))
 ok('morsure · une vignette mesurée sans offsetSize serait vue',
