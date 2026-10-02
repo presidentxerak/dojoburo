@@ -11,6 +11,7 @@
 // au-dessus de l'entrée), un plan des étages collé en haut à droite, des
 // commandes en bas (descendre, l'étage, monter, le chat). Les étages fermés
 // portent un cadenas ; celui du temple gratuit s'ouvre avec une adresse.
+import { packTitle, packDescription } from '../data/seo'
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Lnk, navigate } from '../lib/router'
 import { useHeadTags } from '../lib/headTags'
@@ -59,8 +60,9 @@ export function TemplePage({ packId }: { packId: string }) {
   const openAt = (i: number) => Boolean(pack) && (a.opensPack(pack!) || isFreeLesson(i))
 
   useHeadTags({
-    title: pack ? `${say(pack.title, lang)} · DojoBuro` : 'DojoBuro',
-    description: pack ? say(pack.blurb, lang) : '',
+    // LE RÉFÉRENCEMENT · la requête visée en tête du titre (data/seo)
+    title: pack ? packTitle(pack, lang) : 'Dojoburo',
+    description: pack ? packDescription(pack, lang, levelsOf(pack).length, eurOf(pack)) : '',
     path: `/dojo/${packId}`,
   })
 

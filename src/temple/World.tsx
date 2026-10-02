@@ -9,6 +9,7 @@
 // du nom de son cours ; ensuite les cartes des cours, pour qui préfère une
 // liste. Les deux mènent au même temple. Un premier passage propose de créer
 // son personnage.
+import { SEO } from '../data/seo'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Lnk } from '../lib/router'
 import { BauhausIcon } from '../components/BauhausIcon'
@@ -62,7 +63,7 @@ export function WorldPage() {
   const box = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(360)
 
-  useHeadTags({ title: `${s(TT.worldTitle)} · DojoBuro`, description: s(TT.worldLead), path: '/' })
+  useHeadTags({ title: s(SEO.home.title), description: s(SEO.home.description), path: '/' })
   useZenAmbience()
 
   useEffect(() => {

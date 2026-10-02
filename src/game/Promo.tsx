@@ -22,6 +22,7 @@
 //
 // Pas de barre du bas ici : c'est une page d'entrée, une seule action compte.
 // Les couleurs sont celles du jeu (clair par défaut, sombre au choix).
+import { SEO } from '../data/seo'
 import { GameFooter } from './GameFooter'
 import { useState } from 'react'
 import { Lnk, navigate } from '../lib/router'
@@ -60,8 +61,8 @@ export function PromoPage() {
   const s = (b: Bi) => say(b, lang)
 
   useHeadTags({
-    title: `${s(LP.h1)} · DojoBuro`,
-    description: s(LP.sub),
+    title: s(SEO.promo.title),
+    description: s(SEO.promo.description),
     path: '/decouvrir',
   })
 
