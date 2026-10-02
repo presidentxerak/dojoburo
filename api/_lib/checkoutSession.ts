@@ -32,6 +32,33 @@ export const BUY_COURSES: ReadonlySet<string> = new Set([
   'coder-une-app', 'coder-avec-lovable',
 ])
 
+/** LE NOM DE CHAQUE TEMPLE, tel que l'acheteur le lit sur la page de paiement
+ *  Stripe et sur son reçu · demandé : « Un temple (une formation) à 49€ ».
+ *  Un seul produit Stripe vend tous les temples (STRIPE_PRICE_TEMPLE) ; c'est
+ *  ce nom, posé dans le texte de la page de paiement et dans la description du
+ *  paiement, qui dit lequel. Recopié des titres de data/packs pour la même
+ *  raison que les métiers, et vérifié par scripts/test-pricing. La clé est
+ *  'path', l'identifiant du métier, ou celui du cours. */
+export const TEMPLE_NAMES: Readonly<Record<string, string>> = {
+  path: 'La formation complète',
+  'coder-une-app': 'Coder une app',
+  'coder-avec-lovable': 'Coder une app avec Lovable',
+  growth: 'Growth marketer',
+  comms: 'Communicant',
+  founder: 'Fondateur',
+  product: 'Chef de produit',
+  sales: 'Commercial',
+  assistant: 'Assistant de direction',
+  designer: 'Designer',
+  teacher: 'Enseignant',
+  student: 'Étudiant',
+  scientist: 'Scientifique',
+  developer: 'Développeur',
+  recruiter: 'Recruteur',
+  lawyer: 'Juriste',
+  consultant: 'Consultant',
+}
+
 /** Un identifiant de session Stripe Checkout · « cs_… ». */
 export const isCheckoutSessionId = (v: unknown): v is string =>
   typeof v === 'string' && /^cs_[A-Za-z0-9_]+$/.test(v)

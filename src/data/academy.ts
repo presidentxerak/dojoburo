@@ -980,7 +980,7 @@ const LANDSCAPE: Lesson[] = [
       {
         kind: 'idea',
         title: 'What you can buy',
-        body: 'Discovery is 0 € and it is seven days, one lesson a day, complete, with no card and no trial that turns into anything. Formation is 99 € paid once: every dojo city opens, in any order, with the files, the resources, the updates and the right to replay any level for good. Métier is 49 € added on top, one more city written for the job you actually do, and it is best taken after the Formation because it does not explain the basics again. Both together come to 148 €. The simplest choice is the Dojo Pass, 149 € paid once: it opens every temple at once, the full path, every trade, the courses sold separately and the temples still to come. Nothing renews.',
+        body: 'There are three prices, and nothing renews. Free is 0 €: the AI weekend, seven days, one lesson a day, complete, plus the first lessons of every temple, with no card and no trial that turns into anything. One temple is 49 € paid once, whichever training you choose: the full path, a trade, Code an app or Build an app with Lovable, with the files, the resources, the updates and the right to replay any level for good. The Dojo Pass is 99 € paid once, for life: every training, present and future, so it pays for itself from the third temple.',
       },
       {
         kind: 'idea',
@@ -1053,7 +1053,7 @@ const LANDSCAPE: Lesson[] = [
         },
         {
           title: "Ce que vous pouvez acheter",
-          body: "Découverte : 0 € pour sept jours, à raison d'une leçon complète par jour, sans carte bancaire et sans essai converti en abonnement. Formation : 99 € en un paiement unique ; toutes les cités dojo s'ouvrent, dans l'ordre de votre choix, avec les fichiers, les ressources, les mises à jour et la possibilité de refaire n'importe quel niveau, sans limite de durée. Métier : 49 € en supplément, pour une cité supplémentaire consacrée au travail que vous exercez réellement ; il est préférable de la suivre après la Formation, car elle ne reprend pas les bases. Les deux réunies coûtent 148 €. Le choix le plus simple est le Pass Dojo, 149 € en un paiement unique : il ouvre tous les temples d'un coup, la formation complète, tous les métiers, les cours vendus à part et les temples à venir. Rien ne se renouvelle.",
+          body: "Il existe trois prix, et rien ne se renouvelle. Gratuit : 0 €, pour le Week-end IA, sept jours à raison d'une leçon complète par jour, ainsi que les premières leçons de chaque temple, sans carte bancaire et sans essai converti en abonnement. Un temple : 49 € en un paiement unique, quelle que soit la formation choisie, la formation complète, un métier, Coder une app ou Coder une app avec Lovable, avec les fichiers, les ressources, les mises à jour et la possibilité de refaire n'importe quel niveau, sans limite de durée. Le Pass Dojo : 99 € en un paiement unique, à vie, pour toutes les formations, actuelles et futures ; il est donc rentable dès le troisième temple.",
         },
         {
           title: "Ce qui est entièrement gratuit",

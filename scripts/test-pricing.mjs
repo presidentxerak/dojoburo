@@ -42,7 +42,7 @@ async function load(entry, name) {
 }
 
 const P = await load('src/data/plans.ts', 'plans.mjs')
-const { PLANS, PLAN_BY_ID, PATH_EUR, TRADE_EUR, BUNDLE_EUR, PASS_EUR, DISCOVERY_DAYS, planPrice, priceTag } = P
+const { PLANS, PLAN_BY_ID, PATH_EUR, TRADE_EUR, TEMPLE_EUR, COURSE_EUR, PASS_EUR, PASS_PAYS_FROM, DISCOVERY_DAYS, planPrice, priceTag } = P
 
 /* --- 1 · la grille tient debout ------------------------------------------ */
 
@@ -78,18 +78,18 @@ ok('« managed » n\'affiche plus Managed', PLAN_BY_ID.managed.name !== 'Managed
 // prix du compte ou celui d'un siège. Aujourd'hui, « 49 € » peut être le prix
 // d'entrée ou un supplément. Dans les deux cas quelqu'un achète en croyant
 // payer autre chose, et il le découvre au paiement.
-const addOns = PLANS.filter((p) => p.addOn)
-ok('une formule en supplément existe', addOns.length === 1, `${addOns.length}`)
-for (const p of addOns) {
-  ok(`« ${p.name} » dit de quoi elle est le supplément`, !!p.requires && !!PLAN_BY_ID[p.requires],
-    p.requires ?? 'rien')
-  ok(`« ${p.name} » coûte moins que ce qu'elle complète`, p.eur < PLAN_BY_ID[p.requires].eur,
-    `${priceTag(p.eur)} < ${priceTag(PLAN_BY_ID[p.requires].eur)}`)
-  // UN SUPPLÉMENT NE SE VEND PAS SEUL · s'il pouvait, ce ne serait pas un
-  // supplément mais une deuxième offre d'entrée, moins chère que la première.
-  ok(`« ${p.name} » n'est pas une porte d'entrée`, p.requires !== 'free')
-}
-ok('le total des deux est calculé, jamais recopié', BUNDLE_EUR === PATH_EUR + TRADE_EUR, `${BUNDLE_EUR}`)
+// QUATRIÈME FORME · demandé : « on va faire 3 prix 0€ gratuit, Un temple (une
+// formation) à 49€ et le Pass dojo à 99€ life time ». Le danger surveillé ici
+// est toujours un prix qui veut dire deux choses ; il a de nouveau changé de
+// forme. Il n'y a plus de supplément : un temple se vend seul, et TOUS les
+// temples ont le même prix. Un temple qui retrouverait un prix à part, ou une
+// formule qui redeviendrait un supplément, rendrait « 49 € » ambigu.
+ok('aucune formule n\'est un supplément', PLANS.every((p) => !p.addOn && !p.requires))
+ok('un temple coûte la même chose, quel qu\'il soit',
+  PATH_EUR === TEMPLE_EUR && TRADE_EUR === TEMPLE_EUR && Object.values(COURSE_EUR).every((e) => e === TEMPLE_EUR),
+  `${TEMPLE_EUR} €`)
+ok('la formule « Un temple » vend un temple, au prix d\'un temple', PLAN_BY_ID.founder.eur === TEMPLE_EUR, `${PLAN_BY_ID.founder.eur}`)
+ok('la formule mise en avant est le Pass', PLAN_BY_ID.managed.featured === true && PLAN_BY_ID.managed.eur === PASS_EUR)
 
 // RIEN NE SE RENOUVELLE · c'est la promesse centrale du nouveau modèle, et
 // c'est une propriété des données, pas une phrase. Une formule payante qui
@@ -136,16 +136,50 @@ ok('le parcours découverte dure une semaine', DISCOVERY_DAYS === 7, `${DISCOVER
 // raison d'être ; un Pass moins cher qu'un seul grand temple rendrait l'achat
 // à l'unité absurde.
 {
-  ok('le Pass coûte plus qu\'un grand temple', PASS_EUR > Math.max(PATH_EUR, TRADE_EUR), `${PASS_EUR}`)
-  ok('le Pass coûte moins que le parcours et un métier achetés à part, plus un cours', PASS_EUR < BUNDLE_EUR + TRADE_EUR, `${PASS_EUR} < ${BUNDLE_EUR + TRADE_EUR}`)
-  ok('le Pass est un prix rond, en euros entiers', Number.isInteger(PASS_EUR) && PASS_EUR % 10 === 9 && !String(PASS_EUR).includes('.'), `${PASS_EUR}`)
+  // LE PASS À VIE · plus cher que deux temples, moins cher que trois : il est
+  // donc rentable dès le troisième, et c'est ce que la page affiche.
+  ok('le Pass coûte plus que deux temples', PASS_EUR > 2 * TEMPLE_EUR, `${PASS_EUR} > ${2 * TEMPLE_EUR}`)
+  ok('le Pass coûte moins que trois temples', PASS_EUR < 3 * TEMPLE_EUR, `${PASS_EUR} < ${3 * TEMPLE_EUR}`)
+  ok('« rentable dès N temples » est calculé', PASS_PAYS_FROM === 3, `${PASS_PAYS_FROM}`)
+  ok('le Pass est un prix rond, en euros entiers', Number.isInteger(PASS_EUR) && PASS_EUR % 10 === 9, `${PASS_EUR}`)
   const page = readFileSync('src/game/Tarifs.tsx', 'utf8')
   const cards = (page.match(/<article className="tf-card/g) || []).length
   ok('la page des tarifs propose trois choix, pas un de plus', cards === 3, `${cards} cartes`)
   ok('le Pass est au milieu et recommandé', /tf-card main[\s\S]{0,240}tf\.reco/.test(page) && page.indexOf("tf.freeName") < page.indexOf("tf.passName") && page.indexOf("tf.passName") < page.indexOf("tf.unitName"))
   ok('un tableau compare les trois choix', /<table className="tf-table">/.test(page) && /tf\.rowAll/.test(page))
   ok('le total « achetés un par un » est calculé, jamais écrit', /const sum = paid\.reduce\(\(n, p\) => n \+ eurOf\(p\), 0\)/.test(page))
-  ok('le Pass se paie par le même point de paiement', /pass: ENV\.STRIPE_PRICE_PASS/.test(readFileSync('api/buy.ts', 'utf8')))
+  const buy = readFileSync('api/buy.ts', 'utf8')
+  ok('le Pass se paie par le même point de paiement', /pass: ENV\.STRIPE_PRICE_PASS/.test(buy))
+  // UN SEUL PRIX STRIPE POUR TOUS LES TEMPLES · l'ancien prix par formation
+  // (STRIPE_PRICE_PATH à 99 €) facturerait autre chose que ce qui est affiché.
+  ok('tout temple se paie au prix « Un temple »',
+    /path: ENV\.STRIPE_PRICE_TEMPLE/.test(buy) && /trade: ENV\.STRIPE_PRICE_TEMPLE/.test(buy) && /course: ENV\.STRIPE_PRICE_TEMPLE/.test(buy)
+      && !/STRIPE_PRICE_PATH|STRIPE_PRICE_TRADE|STRIPE_PRICE_COURSE_/.test(buy))
+  ok('la page de paiement dit quel temple on achète', /custom_text\[submit\]\[message\]/.test(buy) && /TEMPLE_NAMES\[/.test(buy))
+  // LES NOMS SUR LA PAGE STRIPE · recopiés des titres du jeu dans
+  // _lib/checkoutSession (le serveur ne lit pas data/packs). Une copie qui
+  // dériverait ferait payer « Un temple · Commercial » pour un autre temple.
+  {
+    const PK = await load('src/data/packs.ts', 'packs.mjs')
+    const sess = readFileSync('api/_lib/checkoutSession.ts', 'utf8')
+    const block = sess.slice(sess.indexOf('export const TEMPLE_NAMES'), sess.indexOf('}', sess.indexOf('export const TEMPLE_NAMES')))
+    const names = Object.fromEntries([...block.matchAll(/\n\s+'?([a-z-]+)'?: '([^']+)'/g)].map((m) => [m[1], m[2]]))
+    const keyOf = (p) => (p.door === 'path' ? 'path' : p.trade || p.course)
+    const sold = PK.PACKS.filter((p) => PK.eurOf(p) > 0)
+    const wrong = sold.filter((p) => names[keyOf(p)] !== p.title.fr).map((p) => `${keyOf(p)} : ${names[keyOf(p)] ?? 'absent'} ≠ ${p.title.fr}`)
+    ok('chaque temple vendu a son nom sur la page de paiement, identique au jeu', wrong.length === 0 && sold.length === Object.keys(names).length,
+      wrong.join(' | ') || `${sold.length} temples`)
+  }
+  // LE WEBHOOK DES ACHATS · chaque événement qui compte, et le remboursement
+  // qui retire le droit en recalculant l'accès, jamais en l'amputant à la main.
+  const hook = readFileSync('api/buy-webhook.ts', 'utf8')
+  for (const e of ['checkout.session.completed', 'checkout.session.async_payment_succeeded', 'checkout.session.async_payment_failed', 'charge.refunded']) {
+    ok(`le webhook des achats traite ${e}`, hook.includes(`'${e}'`))
+  }
+  ok('le webhook a son propre secret', /STRIPE_WEBHOOK_SECRET_BUY/.test(hook))
+  ok('un remboursement recalcule l\'accès depuis les droits restants', /accessFromGrants\(/.test(hook) && /charge\.refunded !== true/.test(hook))
+  ok('une session remboursée ne se réclame plus', /error: 'refunded'/.test(readFileSync('api/profile.ts', 'utf8')))
+  ok('le registre des achats est dans le schéma', /create table if not exists game_purchases/.test(readFileSync('db/profile.sql', 'utf8')))
   const access = readFileSync('src/game/access.ts', 'utf8')
   ok('le Pass ouvre tous les temples', /if \(tester \|\| pass\) return true/.test(access) && /if \(pass\) return true/.test(access))
 }
@@ -263,7 +297,7 @@ ok('morsure · un plafond quotidien reste permis',
 // donc EXACTEMENT NOS DEUX PRIX, ce qui est plus précis que la forme générale
 // et attrape la seule faute qui compte : une copie qui survit à un changement.
 const PRICE_SHAPE = new RegExp(
-  `\\b(?:${PATH_EUR}|${TRADE_EUR}|${BUNDLE_EUR}|${PASS_EUR})\\s?(?:€|EUR\\b)` +
+  `\\b(?:${TEMPLE_EUR}|${PASS_EUR})\\s?(?:€|EUR\\b)` +
   `|\\$\\d+\\s*(?:/\\s*(?:mo|month|seat)|a month\\b|per month\\b|per seat\\b|/mois)`, 'i')
 const SKIP = new Set(['src/data/plans.ts'])
 // Ces fichiers PRODUISENT du contenu d'exemple pour un site fictif fabriqué
@@ -281,8 +315,8 @@ const FICTION = new Set(['src/agents/localDraft.ts', 'src/lib/site.ts', 'src/dat
 // écrivent est bien ce que plans.ts dit. C'est exactement la copie qui avait
 // gardé « Founder à 29 $ » vivante des semaines après le repositionnement.
 const ALLOWED = {
-  'src/data/academy.ts': [`${PATH_EUR} €`, `${TRADE_EUR} €`, `${BUNDLE_EUR} €`, `${PASS_EUR} €`],
-  'api/chat.ts': [`${PATH_EUR} €`, `${TRADE_EUR} €`, `${BUNDLE_EUR} €`, `${PASS_EUR} €`],
+  'src/data/academy.ts': [`${TEMPLE_EUR} €`, `${PASS_EUR} €`],
+  'api/chat.ts': [`${TEMPLE_EUR} €`, `${PASS_EUR} €`],
 }
 for (const [rel, needles] of Object.entries(ALLOWED)) {
   const body = readFileSync(rel, 'utf8')

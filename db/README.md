@@ -34,6 +34,10 @@ sur une base qui ne sert qu'au fil du clan. Tant qu'il ne l'est pas, la page
 joueurs connectés (e-mail ou Google). Tant qu'il n'est pas appliqué, la page
 `/profil` dit que la synchronisation n'est pas disponible, et la progression
 reste dans le navigateur, comme avant.
+Son lot 2 ajoute `game_purchases` et `game_webhook_events` : le registre des
+achats du jeu (un temple, le Pass Dojo) tenu par le webhook `api/buy-webhook.ts`.
+Un achat remboursé en totalité y passe à `refunded`, le droit est retiré du
+compte qui l'avait réclamé, et la session ne peut plus être réclamée.
 
 `db/retire-settlement.sql` n'est PAS dans cette liste, et c'est voulu : ce n'est
 pas du schéma, c'est une migration d'un seul jour. Elle retire les tables d'un
@@ -87,7 +91,7 @@ fichier qui la crée, après avoir sauvegardé ce qu'elle contient.
 | `secrets.sql` | `company_secrets` |
 | `rag.sql` | `rag_spaces`, `rag_documents`, `rag_chunks`, `rag_queries` |
 | `clan.sql` | `clan_posts`, `clan_bravos`, `clan_reports` |
-| `profile.sql` | `game_profiles`, `game_profile_claims` |
+| `profile.sql` | `game_profiles`, `game_profile_claims`, `game_purchases`, `game_webhook_events` |
 | `newsletter.sql` | `newsletter_contacts` |
 | `community.sql` | `community_members`, `community_posts`, `community_comments`, `community_likes`, `community_events`, `community_notifications`, `community_messages`, `community_polls`, `community_poll_votes`, `community_presence`, `community_room_messages`, `community_testimonials` |
 

@@ -17,12 +17,13 @@
 // de remboursement, de facture ni de compte, parce que rien de tout ça n'est
 // écrit dans le code.
 //
-// LA GRILLE SIMPLE · demandé : « fais moi le tableau des prix que tu me
-// conseilles fais un pricing simple pour ne pas perdre le user ». Trois choix
-// et pas un de plus, le Pass au milieu parce que c'est lui qu'on recommande :
+// LA GRILLE À TROIS PRIX · demandé : « on va faire 3 prix [...] gratuit, Un
+// temple (une formation) [...] et le Pass dojo [...] life time (toutes les
+// formations actuelles et futures) ». Les montants ne s'écrivent pas ici, ils
+// viennent de data/plans (voir scripts/test-game). Le Pass au milieu :
 //   GRATUIT      le week-end IA et les premières leçons de chaque temple ;
-//   PASS DOJO    tous les temples, une fois (data/plans, PASS_EUR) ;
-//   UN TEMPLE    au prix de ce temple, qu'on choisit dans la liste.
+//   PASS DOJO    toutes les formations, actuelles et futures, à vie ;
+//   UN TEMPLE    n'importe quelle formation, au même prix (data/plans).
 // Puis le tableau qui compare les trois, ligne à ligne. Le total « achetés un
 // par un » est calculé depuis les prix des temples, jamais écrit à la main.
 import { useEffect, useState } from 'react'
@@ -33,7 +34,7 @@ import { useHeadTags } from '../lib/headTags'
 import { useLang, useT } from '../i18n'
 import { say } from '../data/bilingual'
 import { PACKS, PACK_BY_ID, packPath, levelsOf, eurOf, type Pack } from '../data/packs'
-import { priceTag, PASS_EUR } from '../data/plans'
+import { priceTag, PASS_EUR, TEMPLE_EUR, PASS_PAYS_FROM } from '../data/plans'
 import { apiFetch } from '../lib/apiFetch'
 import { addReceipt } from '../lib/account'
 import { useAccess, grant, grantCourse, chooseTrade, FREE_LESSONS } from './access'
@@ -76,7 +77,6 @@ export function TarifsPage() {
   // cours à part ; le week-end est gratuit et n'y figure donc pas.
   const paid = PACKS.filter((p) => eurOf(p) > 0 && buyOf(p))
   const sum = paid.reduce((n, p) => n + eurOf(p), 0)
-  const cheapest = Math.min(...paid.map(eurOf))
   const [pick, setPick] = useState<string>(PACK_BY_ID.generaliste ? 'generaliste' : paid[0]?.id ?? '')
   const unit = PACK_BY_ID[pick]
   const cancelled = typeof location !== 'undefined' && /[?&]annule=1/.test(location.search)
@@ -129,11 +129,12 @@ export function TarifsPage() {
           <article className="tf-card main" style={{ ['--ac' as string]: '#7c3aed' }}>
             <span className="tf-flag">{t('tf.reco')}</span>
             <span className="tf-name">{t('tf.passName')}</span>
-            <span className="tf-price">{priceTag(PASS_EUR)} <i>{t('tf.once')}</i></span>
+            <span className="tf-price">{priceTag(PASS_EUR)} <i>{t('tf.forLife')}</i></span>
             <p className="tf-tag">{t('tf.passTag')}</p>
             <ul className="tf-incl">
               <li><BauhausIcon name="check" size={13} />{paid.length} {t('tf.passTemples')}</li>
               <li><BauhausIcon name="check" size={13} />{t('tf.pass2')}</li>
+              <li><BauhausIcon name="check" size={13} />{t('tf.payFrom').replace('{n}', String(PASS_PAYS_FROM))}</li>
               <li><BauhausIcon name="check" size={13} />{t('tf.pass3')}</li>
             </ul>
             <p className="tf-sum">{t('tf.passSum')} <s>{priceTag(sum)}</s></p>
@@ -149,7 +150,7 @@ export function TarifsPage() {
           {/* UN TEMPLE · on le choisit, on paie son prix */}
           <article className="tf-card" style={{ ['--ac' as string]: unit?.tint }}>
             <span className="tf-name">{t('tf.unitName')}</span>
-            <span className="tf-price"><i>{t('tf.from')}</i> {priceTag(cheapest)}</span>
+            <span className="tf-price">{priceTag(TEMPLE_EUR)} <i>{t('tf.once')}</i></span>
             <p className="tf-tag">{t('tf.unitTag')}</p>
             <label className="tf-pick">
               <span>{t('tf.unitPick')}</span>
@@ -158,7 +159,7 @@ export function TarifsPage() {
                 const tr = PACK_BY_ID[e.target.value]?.trade
                 if (tr) chooseTrade(tr)
               }}>
-                {paid.map((p) => <option key={p.id} value={p.id}>{say(p.title, lang)} · {priceTag(eurOf(p))}</option>)}
+                {paid.map((p) => <option key={p.id} value={p.id}>{say(p.title, lang)}</option>)}
               </select>
             </label>
             {unit && <p className="tf-fine">{levelsOf(unit).length} {t('tf.unitLessons')}</p>}
@@ -193,7 +194,7 @@ export function TarifsPage() {
               <tr className="tf-price-row">
                 <th scope="row">{t('tf.rowPrice')}</th>
                 <td>{priceTag(0)}</td>
-                <td>{t('tf.from')} {priceTag(cheapest)}</td>
+                <td>{priceTag(TEMPLE_EUR)}</td>
                 <td className="main">{priceTag(PASS_EUR)}</td>
               </tr>
             </tbody>

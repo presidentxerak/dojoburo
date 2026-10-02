@@ -292,6 +292,25 @@ export function grantOf(v: { paid: boolean; plan: string | null; trade: string |
   return null
 }
 
+/** Un droit relu en base (game_profile_claims.grant_json) · null s'il n'a pas
+ *  une forme connue. */
+export function cleanGrant(raw: unknown): Grant | null {
+  if (!isObj(raw)) return null
+  if (raw.pass === true) return { pass: true }
+  if (raw.path === true) return { path: true }
+  if (typeof raw.trade === 'string' && BUY_TRADES.has(raw.trade)) return { trade: raw.trade }
+  if (typeof raw.course === 'string' && BUY_COURSES.has(raw.course)) return { course: raw.course }
+  return null
+}
+
+/** L'ACCÈS RECALCULÉ depuis les droits qui restent · utilisé quand un achat est
+ *  remboursé (api/buy-webhook.ts) : on ne retire pas « un » droit, on refait
+ *  l'accès avec tous ceux qui tiennent encore, ce qui ne peut pas en effacer
+ *  un autre par erreur. */
+export function accessFromGrants(grants: unknown[]): Access {
+  return grants.reduce<Access>((a, g) => applyGrant(a, cleanGrant(g)), {})
+}
+
 /** Inscrire un droit · idempotent : le réinscrire ne change rien. */
 export function applyGrant(access: Access, grant: Grant | null): Access {
   const a = cleanAccess(access)

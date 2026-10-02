@@ -74,13 +74,15 @@ export const LP = {
 
   nextPill: B('Afterwards', 'Ensuite'),
   nextH2: B('When you want to go further', 'Quand vous voulez aller plus loin'),
-  pathTitle: B('The full training', 'La formation complète'),
-  pathBody: B('Prompting, the models, the assistants, the agents, design and cost. Paid once, yours for good.', 'Le prompt, les modèles, les assistants, les agents, le design et le coût. Payée une fois, acquise pour de bon.'),
-  tradeTitle: B('A training for your trade', 'Une formation pour votre métier'),
-  tradeBody: B('The documents, decisions and mistakes of your job, with AI.', "Les documents, les décisions et les erreurs propres à votre métier, avec l'IA."),
+  // LA GRILLE À TROIS PRIX · « 0€ gratuit, Un temple (une formation) à 49€
+  // et le Pass dojo à 99€ life time ». Le gratuit est tout le reste de la page.
+  unitTitle: B('One temple', 'Un temple'),
+  unitBody: B('The training of your choice: the full path, your trade, Code an app or Build an app with Lovable. Paid once, yours for good.', "La formation de votre choix : la formation complète, votre métier, Coder une app ou Coder une app avec Lovable. Payée une fois, acquise pour de bon."),
+  passTitle: B('The Dojo Pass', 'Le Pass Dojo'),
+  passBody: B('Every training, present and future, for life. It pays for itself from the third temple.', "Toutes les formations, actuelles et futures, à vie. Rentable dès le troisième temple."),
   once: B('paid once', 'payée une fois'),
-  each: B('per trade', 'par métier'),
-  dojos: B('dojos', 'dojos'),
+  forLife: B('paid once, for life', 'payé une fois, à vie'),
+  trainings: B('trainings', 'formations'),
   seePrices: B('See the prices', 'Voir les tarifs'),
 
   faqH2: B('Your questions', 'Vos questions'),

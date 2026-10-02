@@ -52,7 +52,8 @@ const F = {
   creditUsd: budget.CREDIT_USD,
   pathEur: plans.PATH_EUR,
   tradeEur: plans.TRADE_EUR,
-  bundleEur: plans.BUNDLE_EUR,
+  templeEur: plans.TEMPLE_EUR,
+  passEur: plans.PASS_EUR,
   discoveryDays: plans.DISCOVERY_DAYS,
   lessons: academy.LESSON_COUNT,
   tracks: academy.TRACKS.length,
@@ -156,9 +157,12 @@ const RULES = [
   // premières : le modèle de vente a changé, donc ce que le robot doit dire a
   // changé avec lui. Ce n'est pas un assouplissement · c'est la nouvelle
   // vérité, affirmée aussi précisément que l'ancienne l'était.
-  { file: 'api/chat.ts', must: new RegExp(`FORMATION \\(${F.pathEur} €, paid once\\)`), why: `the path is ${F.pathEur} €, paid once` },
-  { file: 'api/chat.ts', must: new RegExp(`MÉTIER \\(${F.tradeEur} €, added after`), why: `the trade module is ${F.tradeEur} €, added after` },
-  { file: 'api/chat.ts', must: new RegExp(`DISCOVERY \\(0 €\\) is ${F.discoveryDays} days`), why: `the free week is ${F.discoveryDays} days` },
+  // QUATRIÈME RÉPARATION · demandé : « 3 prix 0€ gratuit, Un temple (une
+  // formation) à 49€ et le Pass dojo à 99€ life time ». Plus de formation et de
+  // métier en supplément : un prix par temple, et le Pass pour tout, à vie.
+  { file: 'api/chat.ts', must: new RegExp(`ONE TEMPLE \\(${F.templeEur} €, paid once`), why: `one temple is ${F.templeEur} €, paid once` },
+  { file: 'api/chat.ts', must: new RegExp(`THE DOJO PASS \\(${F.passEur} €, paid once, for life`), why: `the Dojo Pass is ${F.passEur} €, paid once, for life` },
+  { file: 'api/chat.ts', must: new RegExp(`FREE \\(0 €\\): the AI weekend, ${F.discoveryDays} days`), why: `the free weekend is ${F.discoveryDays} days` },
   { file: 'api/chat.ts', must: /NOTHING RECURS/, why: 'the one thing the bot must say first about price' },
   // LES PLANS MORTS · quelqu'un qui a lu une ancienne grille va poser la
   // question, et un robot qui revend une capacité éteinte fait une promesse que
@@ -179,9 +183,10 @@ const RULES = [
 
   // the Academy's own prose
   { file: 'src/data/academy.ts', must: /paying for the teams, not for tokens/i, why: 'the pricing lesson must lead with what is actually sold' },
-  { file: 'src/data/academy.ts', must: new RegExp(`Formation is ${F.pathEur} € paid once`), why: `the lesson must name the real price of the path` },
-  { file: 'src/data/academy.ts', must: new RegExp(`Métier is ${F.tradeEur} € added on top`), why: `the lesson must say the trade module is an add-on, and what it costs` },
-  { file: 'src/data/academy.ts', must: new RegExp(`come to ${F.bundleEur} €`), why: `the lesson must give the total of both, calculated` },
+  // même réparation · la leçon des prix dit les trois prix, et le Pass à vie
+  { file: 'src/data/academy.ts', must: new RegExp(`One temple is ${F.templeEur} € paid once, whichever training you choose`), why: `the lesson must name the one price of a temple` },
+  { file: 'src/data/academy.ts', must: new RegExp(`The Dojo Pass is ${F.passEur} € paid once, for life`), why: `the lesson must name the Pass, its price, and that it is for life` },
+  { file: 'src/data/academy.ts', must: /Free is 0 €/, why: `the lesson must say what is free` },
   { file: 'src/data/academy.ts', forbid: /\$29 a month|\$49 a month|includes 2,000 tasks/, why: 'the lesson taught the metered plans · they are gone' },
   { file: 'src/data/academy.ts', forbid: /(ships|comes) with (twelve|\d+) teammates/i, why: 'a crew-size claim belongs in facts.ts, not in a lesson' },
 

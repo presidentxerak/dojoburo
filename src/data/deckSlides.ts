@@ -1,7 +1,7 @@
 // Shared content for the investor pitch deck · used by both the on-screen deck
 // (PitchDeck.tsx) and the exported PDF (deckPdf.ts) so they never drift.
 
-import { PATH_EUR, TRADE_EUR, DISCOVERY_DAYS, priceTag } from './plans'
+import { TEMPLE_EUR, PASS_EUR, DISCOVERY_DAYS, priceTag } from './plans'
 export const DECK_ACCENTS = {
   magenta: '#ff2d9b', blue: '#2f6bff', teal: '#08c2ac', yellow: '#ffc61a', orange: '#ff7a1a', violet: '#a06bff',
 }
@@ -65,11 +65,11 @@ export const DECK_SLIDES: DeckSlide[] = [
     // bibliothèque de fichiers. On vend maintenant la formation elle-même, une
     // fois. Cette planche disait encore l'ancien modèle, avec ses prix, dans
     // le document qu'on montre aux investisseurs.
-    n: '05', eyebrow: 'The model', title: 'One week free, then one purchase.', line: `${DISCOVERY_DAYS} days free to find out whether this way of teaching suits you. Then ${priceTag(PATH_EUR)} buys the whole path, once, updates included, and ${priceTag(TRADE_EUR)} adds the city built for your trade. Nothing recurs, nothing is metered, and nobody pays for forgetting to cancel.`, obj: 'gem', accent: A.blue, layout: 'stats',
+    n: '05', eyebrow: 'The model', title: 'Free to start, then one purchase.', line: `${DISCOVERY_DAYS} days free, plus the first lessons of every temple, to find out whether this way of teaching suits you. Then ${priceTag(TEMPLE_EUR)} buys any one temple, or ${priceTag(PASS_EUR)} buys the Dojo Pass: every training, present and future, for life. Nothing recurs, nothing is metered, and nobody pays for forgetting to cancel.`, obj: 'gem', accent: A.blue, layout: 'stats',
     stats: [
       { big: priceTag(0), label: `The ${DISCOVERY_DAYS} discovery days` },
-      { big: priceTag(PATH_EUR), label: 'The whole path, paid once' },
-      { big: `+${priceTag(TRADE_EUR)}`, label: 'Your trade, added after' },
+      { big: priceTag(TEMPLE_EUR), label: 'One temple, any training, paid once' },
+      { big: priceTag(PASS_EUR), label: 'The Dojo Pass, every training, for life' },
     ],
   },
   {
