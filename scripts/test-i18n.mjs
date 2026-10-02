@@ -443,7 +443,11 @@ for (const f of ['src/academy/Academy.tsx', 'src/dojo/MasterPanel.tsx', 'src/doj
 {
   const lp = readFileSync('src/Landing.tsx', 'utf8')
   ok('la page d\'accueil traduit sa prose par say', /say\(/.test(lp))
-  ok('la page d\'accueil lit son positionnement dans la langue lue', /positioningFor\(lang\)/.test(lp))
+  // RÉPARÉE · « mets en place la traduction en fonction de la langue du user
+  // (français, anglais, espagnol...) ». Le positionnement n'est écrit qu'en
+  // français et en anglais : la langue lue y passe par baseLang, qui ramène
+  // les langues à catalogue sur l'anglais.
+  ok('la page d\'accueil lit son positionnement dans la langue lue', /positioningFor\(baseLang\(lang\)\)/.test(lp))
   // AUCUNE PHRASE ÉCRITE DANS LE JSX · on repère une phrase à ce qu'elle
   // contient plusieurs mots et un point. Un libellé court passe, un paragraphe
   // non, et c'est exactement le partage voulu.
