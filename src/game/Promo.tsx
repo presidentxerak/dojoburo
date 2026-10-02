@@ -29,10 +29,13 @@ import { useLang, useT } from '../i18n'
 import { say, type Bi } from '../data/bilingual'
 import { LP } from '../data/landing'
 import { FAQ } from '../data/promo'
-import { DISCOVERY_MODULE, DISCOVERY_LEVEL_COUNT, DISCOVERY_MINUTES, PATH_LEVEL_COUNT } from '../data/curriculum'
-import { TRADES, TRADE_COUNT } from '../data/trades'
-import { PACK_COUNT, FREE_PACK, lessonPath } from '../data/packs'
-import { PATH_EUR, TRADE_EUR, priceTag } from '../data/plans'
+import { DISCOVERY_MODULE, DISCOVERY_LEVEL_COUNT, DISCOVERY_MINUTES } from '../data/curriculum'
+import { TRADES } from '../data/trades'
+import { PACK_COUNT, FREE_PACK, lessonPath, PACKS, eurOf } from '../data/packs'
+
+/** les formations qui se vendent au prix d'un temple · le week-end est gratuit */
+const PAID_COUNT = PACKS.filter((p) => eurOf(p) > 0).length
+import { TEMPLE_EUR, PASS_EUR, priceTag } from '../data/plans'
 import { giveEmail } from './access'
 import { sendSignup } from '../lib/newsletter'
 import { Logo } from '../components/Logo'
@@ -185,18 +188,18 @@ export function PromoPage() {
           <div className="promo-duo">
             <div className="promo-card">
               <PixelIcon name="badges" size={48} />
-              <h3>{s(LP.pathTitle)}</h3>
-              <p className="promo-price"><b>{priceTag(PATH_EUR)}</b> {s(LP.once)} · {PATH_LEVEL_COUNT} {s(LP.dojos)}</p>
-              <p>{s(LP.pathBody)}</p>
-            </div>
-            <div className="promo-card">
-              <PixelIcon name="badges" size={48} />
-              <h3>{s(LP.tradeTitle)}</h3>
-              <p className="promo-price"><b>{priceTag(TRADE_EUR)}</b> {s(LP.each)} · {TRADE_COUNT} {s(LP.factTrainings)}</p>
-              <p>{s(LP.tradeBody)}</p>
+              <h3>{s(LP.unitTitle)}</h3>
+              <p className="promo-price"><b>{priceTag(TEMPLE_EUR)}</b> {s(LP.once)} · {PAID_COUNT} {s(LP.trainings)}</p>
+              <p>{s(LP.unitBody)}</p>
               <div className="promo-trades">
                 {TRADES.map((tr) => <span key={tr.id} style={{ ['--ac' as string]: tr.tint }}>{s(tr.label)}</span>)}
               </div>
+            </div>
+            <div className="promo-card">
+              <PixelIcon name="trainings" size={48} />
+              <h3>{s(LP.passTitle)}</h3>
+              <p className="promo-price"><b>{priceTag(PASS_EUR)}</b> {s(LP.forLife)}</p>
+              <p>{s(LP.passBody)}</p>
             </div>
           </div>
           <Lnk className="cc-btn cc-slate" href="/tarifs">{s(LP.seePrices)} →</Lnk>

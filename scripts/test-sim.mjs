@@ -169,13 +169,18 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   const ready = CO.COURSE_IDS.filter((id) => CO.COURSE_READY[id])
   ok('exactement les cours prêts sont publiés', cp.map((p) => p.id).sort().join(',') === [...ready].sort().join(',') && cp.every((p) => p.course === p.id), `${cp.map((p) => p.id).join(', ') || 'aucun'} · prêts : ${ready.join(', ') || 'aucun'}`)
   ok('un cours pas prêt n\'a aucune cité publiée', CO.COURSE_IDS.filter((id) => !CO.COURSE_READY[id]).every((id) => CO.COURSE_CITIES[id].length === 0))
-  ok('le cours « Coder une app » vaut 99 euros, celui de Lovable 49', PL.COURSE_EUR['coder-une-app'] === 99 && PL.COURSE_EUR['coder-avec-lovable'] === 49)
+  // RÉPARÉE · la demande était « un grand cours à 99€ [...] Lovable à 49€ » ;
+  // elle est devenue « Un temple (une formation) à 49€ » : chaque cours est un
+  // temple, au prix d'un temple.
+  ok('chaque cours vaut le prix d\'un temple', PL.COURSE_EUR['coder-une-app'] === PL.TEMPLE_EUR && PL.COURSE_EUR['coder-avec-lovable'] === PL.TEMPLE_EUR, `${PL.TEMPLE_EUR} €`)
   ok('le prix d\'un cours est lu dans la grille', cp.every((p) => PK.eurOf(p) === PL.COURSE_EUR[p.course]))
   const SESSION = readFileSync('api/_lib/checkoutSession.ts', 'utf8')
   const buyable = (SESSION.match(/BUY_COURSES[^=]*=\s*new Set\(\[([\s\S]*?)\]\)/)?.[1] ?? '').match(/'([a-z-]+)'/g)?.map((x) => x.slice(1, -1)) ?? []
   ok('le serveur vend exactement les cours du programme', buyable.join(',') === CO.COURSE_IDS.join(','), buyable.join(','))
   const BUY = readFileSync('api/buy.ts', 'utf8')
-  ok('chaque cours a son prix Stripe', CO.COURSE_IDS.every((id) => new RegExp(`'${id}': ENV\\.STRIPE_PRICE_COURSE_`).test(BUY)) && /metadata\[course\]/.test(BUY))
+  // RÉPARÉE · « Un temple (une formation) à 49€ » : un cours se paie au prix
+  // Stripe « Un temple », et c'est la métadonnée qui dit lequel.
+  ok('chaque cours se paie au prix « Un temple »', /course: ENV\.STRIPE_PRICE_TEMPLE/.test(BUY) && /metadata\[course\]/.test(BUY))
   const ACC = readFileSync('src/game/access.ts', 'utf8')
   ok('un cours acheté n\'ouvre que lui', /m\.track === 'course'\s*\?\s*\(a\.courses \?\? \[\]\)\.includes\(COURSE_OF_CITY\[m\.id\]\)/.test(ACC)
     && /p\.door === 'course'\) return Boolean\(p\.course\) && \(a\.courses \?\? \[\]\)\.includes\(p\.course!\)/.test(ACC))

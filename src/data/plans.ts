@@ -38,6 +38,11 @@
 // sans y repenser. Les deux sont des achats uniques, ce qui veut dire qu'on ne
 // vit pas de gens qui oublient de résilier.
 //
+// QUATRIÈME FORME, la grille à trois prix (voir TEMPLE_EUR plus bas) : gratuit,
+// un temple à 49 €, le Pass Dojo à 99 € pour tout et à vie. Le métier n'est
+// plus un supplément : chaque temple se vend seul, au même prix. Toujours des
+// achats uniques.
+//
 // ---------------------------------------------------------------------------
 // LES IDENTIFIANTS NE BOUGENT PAS, LE RESTE OUI.
 //
@@ -78,38 +83,39 @@ export interface Plan {
   fr?: { tagline: string; inclHead: string; incl: string[] }
 }
 
-/** La formation généraliste · achat unique, mises à jour comprises. */
-export const PATH_EUR = 99
-
-/** Le module métier · en supplément, une fois la généraliste achetée. */
-export const TRADE_EUR = 49
-
-/** Les deux ensemble · jamais recopié à la main. */
-export const BUNDLE_EUR = PATH_EUR + TRADE_EUR
-
-/** LES COURS VENDUS À PART · demandé : « un grand cours à 99 € comment coder
- *  une app [...] Un cours comment coder une app avec Lovable à 49 € ». Chacun
- *  s'achète seul, une fois, et n'ouvre que lui (voir data/courses). Les clés
- *  sont celles de data/courses/index, écrites ici en clair pour que la grille
- *  de prix reste lisible d'un seul fichier. */
-export const COURSE_EUR: Record<'coder-une-app' | 'coder-avec-lovable', number> = {
-  'coder-une-app': 99,
-  'coder-avec-lovable': 49,
-}
-
-/** LE PASS DOJO · demandé : « fais moi le tableau des prix que tu me conseilles
- *  fais un pricing simple pour ne pas perdre le user ».
+/** LA GRILLE À TROIS PRIX · demandé : « on va faire 3 prix 0€ gratuit, Un
+ *  temple (une formation) à 49€ et le Pass dojo à 99€ life time (toutes les
+ *  formations actuelles et futures) ».
  *
- *  La grille d'avant obligeait à comprendre quatre choses (la formation, le
- *  métier qui la suppose, deux cours à part) avant de payer. La grille simple
- *  n'en demande que trois, et la décision tient en une ligne :
- *    · GRATUIT      le week-end IA et les premières leçons de chaque temple ;
- *    · À L'UNITÉ    un temple, au prix de ce temple (99 € ou 49 €) ;
- *    · PASS DOJO    tout, une fois, mises à jour et temples à venir compris.
- *  Le pass coûte à peine plus qu'un grand temple : c'est voulu, c'est lui qu'on
- *  recommande, et l'écart avec un seul temple suffit à le rendre évident.
- *  Un prix rond, sans « ,99 » : une formation se juge sur le sérieux. */
-export const PASS_EUR = 149
+ *    · GRATUIT     0 €   le week-end IA et les premières leçons de chaque temple ;
+ *    · UN TEMPLE   49 €  n'importe quelle formation, la même somme pour toutes ;
+ *    · PASS DOJO   99 €  toutes les formations, actuelles et futures, à vie.
+ *
+ *  Un seul prix par temple, c'est la grille qui ne fait pas réfléchir : on ne
+ *  compare plus des temples entre eux, on choisit entre un et tous. Le Pass
+ *  vaut à peine plus que deux temples, donc il devient rentable dès le
+ *  troisième, et c'est l'argument qu'on affiche. Des prix ronds, sans « ,99 ». */
+export const TEMPLE_EUR = 49
+
+/** Le Pass Dojo · toutes les formations, actuelles et futures, à vie. */
+export const PASS_EUR = 99
+
+/** Le Pass est rentable à partir de ce nombre de temples · calculé. */
+export const PASS_PAYS_FROM = Math.floor(PASS_EUR / TEMPLE_EUR) + 1
+
+/** La formation complète · un temple comme un autre, au prix d'un temple. */
+export const PATH_EUR = TEMPLE_EUR
+
+/** Une formation métier · un temple, au même prix. */
+export const TRADE_EUR = TEMPLE_EUR
+
+/** LES COURS VENDUS À PART · « coder une app » et « coder une app avec
+ *  Lovable » sont des temples comme les autres depuis la grille à trois prix.
+ *  Les clés sont celles de data/courses/index. */
+export const COURSE_EUR: Record<'coder-une-app' | 'coder-avec-lovable', number> = {
+  'coder-une-app': TEMPLE_EUR,
+  'coder-avec-lovable': TEMPLE_EUR,
+}
 
 /** Le parcours découverte · sept jours, une leçon par jour. */
 export const DISCOVERY_DAYS = 7
@@ -120,77 +126,76 @@ export const priceTag = (eur: number): string => (eur === 0 ? '0 €' : `${eur} 
 export const PLANS: Plan[] = [
   {
     id: 'free',
-    name: 'Découverte',
+    name: 'Gratuit',
     eur: 0,
-    tagline: `${DISCOVERY_DAYS} days, one lesson a day. Your email, nothing else.`,
+    tagline: `The AI weekend, ${DISCOVERY_DAYS} days, and the first lessons of every temple. Your email, nothing else.`,
     inclHead: 'Includes',
     incl: [
-      `The ${DISCOVERY_DAYS} discovery lessons, in full`,
-      'One badge a day, and the map that shows where you are',
+      `The AI weekend, ${DISCOVERY_DAYS} days, one lesson a day, in full`,
+      'The first lessons of every temple, to judge before paying',
       'No card, no trial that turns into a subscription',
       'If it is not for you, you have lost a week and nothing else',
     ],
     fr: {
-      tagline: `${DISCOVERY_DAYS} jours, une leçon par jour. Votre adresse e-mail suffit.`,
+      tagline: `Le Week-end IA, ${DISCOVERY_DAYS} jours, et les premières leçons de chaque temple. Votre adresse e-mail suffit.`,
       inclHead: 'Inclus',
       incl: [
-        `Les ${DISCOVERY_DAYS} leçons de découverte, en entier`,
-        "Un badge par jour, et la carte qui indique votre progression",
+        `Le Week-end IA, ${DISCOVERY_DAYS} jours, une leçon par jour, en entier`,
+        "Les premières leçons de chaque temple, pour juger avant de payer",
         "Aucune carte bancaire, aucun essai qui se transforme en abonnement",
         "Si la formation ne vous convient pas, vous n'aurez perdu qu'une semaine",
       ],
     },
   },
+  // 'founder' DÉSIGNE MAINTENANT « UN TEMPLE » · la clé reste (voir plus haut),
+  // ce qu'elle vend a changé : une formation au choix, au prix d'un temple.
   {
     id: 'founder',
-    name: 'Formation',
-    eur: PATH_EUR,
+    name: 'Un temple',
+    eur: TEMPLE_EUR,
     once: true,
-    featured: true,
-    tagline: 'The whole path. Paid once, yours for good.',
-    inclHead: 'Everything in Découverte, plus',
+    tagline: 'One training of your choice. Paid once, yours for good.',
+    inclHead: 'Everything in Gratuit, plus',
     incl: [
-      'Every dojo city, in the order you choose',
-      'A master in each one, a badge at the end of each level',
-      'The files and resources of every module, downloadable',
+      'One complete temple, every floor open',
+      'A master on each floor, a badge at the end of each lesson',
+      'The files and resources of the temple, downloadable',
       'Updates included: the tools move, the course moves with them',
-      'Replay any level, any time, from your profile',
     ],
     fr: {
-      tagline: "Le parcours complet. Payé une fois, acquis définitivement.",
-      inclHead: "Tout le contenu de Découverte, et en plus",
+      tagline: "Une formation au choix. Payée une fois, acquise définitivement.",
+      inclHead: "Tout le contenu de Gratuit, et en plus",
       incl: [
-        "Chaque cité dojo, dans l'ordre de votre choix",
-        'Un maître dans chacune, un badge à la fin de chaque niveau',
-        'Les fichiers et les ressources de chaque module, à télécharger',
+        "Un temple complet, tous les étages ouverts",
+        "Un maître à chaque étage, un badge à la fin de chaque leçon",
+        "Les fichiers et les ressources du temple, à télécharger",
         "Les mises à jour comprises : les outils évoluent, le cours évolue avec eux",
-        "Chaque niveau peut être refait à tout moment, depuis votre profil",
       ],
     },
   },
+  // 'managed' DÉSIGNE MAINTENANT LE PASS DOJO · toutes les formations, à vie.
   {
     id: 'managed',
-    name: 'Métier',
-    eur: TRADE_EUR,
+    name: 'Pass Dojo',
+    eur: PASS_EUR,
     once: true,
-    addOn: true,
-    requires: 'founder',
-    tagline: 'One more city, built for the job you actually do.',
-    inclHead: 'Added to the Formation, for each trade',
+    featured: true,
+    tagline: 'Every training, present and future, for life.',
+    inclHead: 'Everything in Un temple, for every temple',
     incl: [
-      'A dojo city written for your trade, not adapted to it',
-      'The cases you meet on a Tuesday, not the ones that demo well',
-      'The same masters, the same badges, the same map',
-      'Bought after the Formation, because it makes no sense before',
+      'Every temple open: the full path, every trade, every course',
+      'The temples still to come, at no extra cost, for life',
+      `Pays for itself from ${PASS_PAYS_FROM} temples`,
+      'Paid once: no subscription, nothing renews',
     ],
     fr: {
-      tagline: "Une cité supplémentaire, conçue pour le métier que vous exercez.",
-      inclHead: 'En supplément de la Formation, par métier',
+      tagline: "Toutes les formations, actuelles et futures, à vie.",
+      inclHead: "Tout le contenu d'Un temple, pour tous les temples",
       incl: [
-        "Une cité dojo écrite pour votre métier, et non adaptée après coup",
-        "Les cas que vous rencontrez au quotidien, pas ceux qui brillent en démo",
-        'Les mêmes maîtres, les mêmes badges, la même carte',
-        "À acheter après la Formation, car il la suppose acquise",
+        "Tous les temples ouverts : la formation complète, les métiers, les cours",
+        "Les temples à venir, sans supplément, à vie",
+        `Rentable dès le ${PASS_PAYS_FROM}e temple`,
+        "Payé une fois : aucun abonnement, rien ne se renouvelle",
       ],
     },
   },

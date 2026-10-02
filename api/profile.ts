@@ -148,6 +148,15 @@ async function claim(res: ServerResponse, did: string, sessionId: string): Promi
   const grant = grantOf(verdict)
   if (!grant) return send(res, 400, { ok: false, error: 'invalid', reason: 'plan' })
 
+  // UN ACHAT REMBOURSÉ N'OUVRE PLUS RIEN · Stripe dit encore « payé » d'une
+  // session remboursée ; c'est le registre tenu par api/buy-webhook.ts qui le
+  // sait. Sans ligne (webhook pas encore passé, ou lot 2 de db/profile.sql pas
+  // encore appliqué), l'achat est cru payé. Lu hors de la transaction : une
+  // table absente y aurait annulé tout le reste.
+  const bought = await getPool().query<{ status: string }>(
+    `select status from game_purchases where session_id = $1`, [sessionId]).catch(() => ({ rows: [] as { status: string }[] }))
+  if (bought.rows[0]?.status === 'refunded') return send(res, 410, { ok: false, error: 'refunded' })
+
   const client = await getPool().connect()
   try {
     await client.query('begin')

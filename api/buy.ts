@@ -15,28 +15,32 @@
 //                              · lu par la page /merci, qui ouvre alors la
 //                              formation dans ce navigateur
 //
-// Les prix vivent dans Stripe (STRIPE_PRICE_PATH, STRIPE_PRICE_TRADE, des
-// prix UNIQUES, pas récurrents) : ils se changent sans déploiement et ne
-// peuvent pas diverger de ce qui est facturé. Sans clé, la réponse le dit et
-// rien n'est débité.
-import { BUY_TRADES as TRADES, BUY_COURSES as COURSES, isCheckoutSessionId, stripeRequest, verifyCheckoutSession } from './_lib/checkoutSession.js'
+// Les prix vivent dans Stripe, des prix UNIQUES et non récurrents : ils se
+// changent sans déploiement et ne peuvent pas diverger de ce qui est facturé.
+// Sans clé, la réponse le dit et rien n'est débité.
+//
+// LA GRILLE À TROIS PRIX · demandé : « 3 prix 0€ gratuit, Un temple (une
+// formation) à 49€ et le Pass dojo à 99€ life time ». Deux prix Stripe suffisent :
+//   STRIPE_PRICE_TEMPLE   49 €  le produit « Un temple », pour N'IMPORTE QUEL
+//                               temple ; lequel est dit par les métadonnées
+//                               (plan, trade, course) et par le nom du temple
+//                               posé sur la page de paiement et le reçu ;
+//   STRIPE_PRICE_PASS     99 €  le produit « Pass Dojo ».
+// Le webhook api/buy-webhook.ts enregistre chaque achat, et retire le droit
+// d'un compte quand l'achat est remboursé.
+import { BUY_TRADES as TRADES, BUY_COURSES as COURSES, TEMPLE_NAMES, isCheckoutSessionId, stripeRequest, verifyCheckoutSession } from './_lib/checkoutSession.js'
 
 export const config = { runtime: 'edge' }
 
 const ENV: Record<string, string | undefined> = ((globalThis as any).process?.env ?? {}) as any
 
+/** Un temple, quel qu'il soit, se paie au prix « Un temple » · seul le Pass a
+ *  le sien. */
 const PRICE: Record<string, string | undefined> = {
-  path: ENV.STRIPE_PRICE_PATH,
-  trade: ENV.STRIPE_PRICE_TRADE,
-  // un cours vendu à part · le prix dépend du cours, voir COURSE_PRICE
-  course: 'par cours',
-  // LE PASS DOJO · tous les temples en un seul paiement (voir data/plans)
+  path: ENV.STRIPE_PRICE_TEMPLE,
+  trade: ENV.STRIPE_PRICE_TEMPLE,
+  course: ENV.STRIPE_PRICE_TEMPLE,
   pass: ENV.STRIPE_PRICE_PASS,
-}
-/** LE PRIX STRIPE DE CHAQUE COURS · un produit par cours, payé une fois. */
-const COURSE_PRICE: Record<string, string | undefined> = {
-  'coder-une-app': ENV.STRIPE_PRICE_COURSE_APP,
-  'coder-avec-lovable': ENV.STRIPE_PRICE_COURSE_LOVABLE,
 }
 // Les métiers qu'on peut acheter (TRADES) et la lecture d'une session vivent
 // dans _lib/checkoutSession · api/profile.ts pose la même question à Stripe
@@ -83,7 +87,7 @@ export default async function handler(req: Request): Promise<Response> {
   if (plan === 'course' && !COURSES.has(course)) return json({ ok: false, error: 'unknown_course' }, 400)
   const email = typeof body?.email === 'string' && /.+@.+\..+/.test(body.email) ? body.email.trim().slice(0, 200) : ''
 
-  const price = plan === 'course' ? COURSE_PRICE[course] : PRICE[plan]
+  const price = PRICE[plan]
   if (!price) return json({ ok: false, error: 'plan_not_configured', plan }, 200)
   if (!key) return json({ ok: false, error: 'not_configured' }, 200)
 
@@ -100,6 +104,15 @@ export default async function handler(req: Request): Promise<Response> {
   form.set('metadata[plan]', plan)
   if (plan === 'trade') form.set('metadata[trade]', trade)
   if (plan === 'course') form.set('metadata[course]', course)
+  // CE QUE L'ON ACHÈTE, ÉCRIT EN CLAIR · le produit Stripe s'appelle « Un
+  // temple » pour tous les temples ; le nom du temple choisi s'affiche sous le
+  // bouton de paiement et accompagne le paiement jusqu'au reçu.
+  const what = plan === 'pass' ? 'Pass Dojo · toutes les formations, à vie'
+    : `Un temple · ${TEMPLE_NAMES[plan === 'path' ? 'path' : plan === 'trade' ? trade : course] ?? ''}`
+  form.set('metadata[item]', what)
+  form.set('payment_intent_data[description]', `Dojoburo · ${what}`)
+  form.set('payment_intent_data[metadata][plan]', plan)
+  form.set('custom_text[submit][message]', `Vous achetez : ${what}. Paiement unique, aucun abonnement.`)
 
   const r = await stripeRequest('checkout/sessions', key, UPSTREAM_TIMEOUT_MS, form)
   if (!r?.url) return json({ ok: false, error: 'upstream' }, 200)
