@@ -141,6 +141,9 @@ console.log('\n--- l’accès --------------------------------------------------
   ok('une session payée pour la formation ouvre la formation', JSON.stringify(P.grantOf({ paid: true, plan: 'path', trade: null })) === '{"path":true}')
   ok('une session payée pour un métier ouvre ce métier', JSON.stringify(P.grantOf({ paid: true, plan: 'trade', trade: 'sales' })) === '{"trade":"sales"}')
   ok('impayée, elle n’ouvre rien', P.grantOf({ paid: false, plan: 'path', trade: null }) === null)
+  // le Pass Dojo · « fais un pricing simple pour ne pas perdre le user »
+  ok('une session payée pour le Pass ouvre le Pass', JSON.stringify(P.grantOf({ paid: true, plan: 'pass', trade: null })) === '{"pass":true}')
+  ok('le Pass s’inscrit sur le compte et survit au nettoyage', P.cleanAccess(P.applyGrant({}, { pass: true })).pass === true)
   ok('un métier inventé n’ouvre rien', P.grantOf({ paid: true, plan: 'trade', trade: 'astronaute' }) === null
     && P.grantOf({ paid: true, plan: 'trade', trade: null }) === null && P.grantOf(null) === null)
   const a1 = P.applyGrant({}, { trade: 'sales' })

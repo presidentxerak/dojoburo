@@ -81,6 +81,10 @@ export interface Access {
   /** les cours vendus à part ACHETÉS · un tableau, parce qu'on peut acheter
    *  les deux, et qu'un champ unique aurait effacé le premier au second achat */
   courses?: string[]
+  /** LE PASS DOJO · tous les temples, ceux d'aujourd'hui et ceux à venir
+   *  (voir data/plans, PASS_EUR). Un drapeau et non la liste des temples :
+   *  un temple ajouté demain s'ouvre sans rien réécrire. */
+  pass?: boolean
 }
 
 const EMPTY: Access = {}
@@ -117,7 +121,7 @@ export function giveEmail(email: string) {
 
 /** Ce que le retour de paiement rapporte · appelé par la page de retour, pas
  *  par un écran de cours. */
-export function grant(what: { path?: boolean; trade?: string }) {
+export function grant(what: { path?: boolean; trade?: string; pass?: boolean }) {
   save({ ...cache, ...what })
 }
 
@@ -153,11 +157,13 @@ export function useAccess() {
   )
 
   const tester = isTester(a.email)
+  /** le Pass Dojo ouvre tout, comme le passe-droit d'essai, mais lui est payé */
+  const pass = Boolean(a.pass)
 
   /** Ce parcours est-il ouvert ? · la seule question, et elle lit la règle du
    *  programme plutôt que de la recopier. */
   const opens = (track: TrackId): boolean => {
-    if (tester) return true
+    if (tester || pass) return true
     const needs = TRACK_ACCESS[track]
     if (needs === 'email') return Boolean(a.email)
     if (needs === 'path') return Boolean(a.path)
@@ -170,7 +176,7 @@ export function useAccess() {
    *  ce qui est la même faute que la serrure posée sur le parcours plutôt que
    *  sur la cité. */
   const canOpen = (m: Module) =>
-    tester ? true
+    tester || pass ? true
       : m.track === 'trade'
         ? Boolean(a.trade) && TRADE_OF_CITY[m.id] === a.trade
         // UN COURS ACHETÉ N'OUVRE QUE LUI · même règle que le métier
@@ -204,6 +210,7 @@ export function useAccess() {
    *  la carte et les cartes de cours : un compte d'essai voit les cadenas comme
    *  tout le monde, même s'il peut entrer. */
   const ownsPack = (p: Pack): boolean => {
+    if (pass) return true
     if (p.door === 'free') return Boolean(a.email)
     if (p.door === 'path') return Boolean(a.path)
     if (p.door === 'course') return Boolean(p.course) && (a.courses ?? []).includes(p.course!)
@@ -211,7 +218,7 @@ export function useAccess() {
   }
 
   const opensPack = (p: Pack): boolean => {
-    if (tester) return true
+    if (tester || pass) return true
     if (p.door === 'free') return Boolean(a.email)
     if (p.door === 'path') return Boolean(a.path)
     if (p.door === 'course') return Boolean(p.course) && (a.courses ?? []).includes(p.course!)
@@ -226,7 +233,9 @@ export function useAccess() {
      *  qu'on a acheté, sinon aucun */
     pick: a.pick ?? a.trade,
     hasEmail: Boolean(a.email),
-    hasPath: Boolean(a.path) || tester,
+    hasPath: Boolean(a.path) || tester || pass,
+    /** le Pass Dojo est acheté */
+    hasPass: pass,
     /** les cours vendus à part achetés */
     courses: a.courses ?? [],
     /** cette adresse ouvre tout pour essayer · voir TESTERS plus haut */

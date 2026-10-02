@@ -40,7 +40,8 @@ export const isCheckoutSessionId = (v: unknown): v is string =>
 export interface CheckoutVerdict {
   /** PAYÉ, ET SEULEMENT PAYÉ · une session ouverte ou expirée n'ouvre rien. */
   paid: boolean
-  plan: 'path' | 'trade' | 'course' | null
+  /** 'pass' · le Pass Dojo, qui ouvre tous les temples (voir data/plans) */
+  plan: 'path' | 'trade' | 'course' | 'pass' | null
   trade: string | null
   /** le cours payé, quand plan vaut 'course' */
   course: string | null
@@ -53,7 +54,7 @@ export function readCheckoutSession(r: any): CheckoutVerdict {
   const course = String(r?.metadata?.course || '')
   return {
     paid: r?.payment_status === 'paid',
-    plan: plan === 'path' || plan === 'trade' || plan === 'course' ? plan : null,
+    plan: plan === 'path' || plan === 'trade' || plan === 'course' || plan === 'pass' ? plan : null,
     trade: BUY_TRADES.has(trade) ? trade : null,
     course: BUY_COURSES.has(course) ? course : null,
   }

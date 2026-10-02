@@ -9,7 +9,7 @@
 // c'était exactement le cas, « Voir les tarifs » menait à l'ancienne page et
 // aucun paiement ne débloquait rien.
 //
-//   POST /api/buy              { plan: 'path' | 'trade', trade?, email? }
+//   POST /api/buy              { plan: 'path' | 'trade' | 'course' | 'pass', trade?, course?, email? }
 //                              → { ok, url } · la page de paiement Stripe
 //   GET  /api/buy?session_id=  → { ok, paid, plan, trade }
 //                              · lu par la page /merci, qui ouvre alors la
@@ -30,6 +30,8 @@ const PRICE: Record<string, string | undefined> = {
   trade: ENV.STRIPE_PRICE_TRADE,
   // un cours vendu à part · le prix dépend du cours, voir COURSE_PRICE
   course: 'par cours',
+  // LE PASS DOJO · tous les temples en un seul paiement (voir data/plans)
+  pass: ENV.STRIPE_PRICE_PASS,
 }
 /** LE PRIX STRIPE DE CHAQUE COURS · un produit par cours, payé une fois. */
 const COURSE_PRICE: Record<string, string | undefined> = {

@@ -136,7 +136,7 @@ const snapshot = (): string => JSON.stringify([raw(ACADEMY_KEY), raw(SIM_KEY), r
 
 // ---- ce que le serveur renvoie --------------------------------------------------
 
-interface ServerAccess { path?: boolean; trades?: string[]; courses?: string[] }
+interface ServerAccess { path?: boolean; trades?: string[]; courses?: string[]; pass?: boolean }
 
 /** L'accès du COMPTE, appliqué ici · seulement ce qui manque. Une formation
  *  ouverte sur ce navigateur ne se ferme jamais parce que le compte ne la
@@ -145,6 +145,7 @@ function applyAccess(a: ServerAccess | null | undefined) {
   if (!a || typeof a !== 'object') return
   const local = readAccess()
   if (a.path === true && !local.path) grant({ path: true })
+  if (a.pass === true && !local.pass) grant({ pass: true })
   const trades = Array.isArray(a.trades) ? a.trades.filter((x) => typeof x === 'string') : []
   if (trades.length && !local.trade) grant({ trade: trades[trades.length - 1] })
   // les cours vendus à part · chacun s'ajoute, aucun n'en remplace un autre

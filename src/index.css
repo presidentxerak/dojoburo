@@ -11139,6 +11139,28 @@ button.wm-tag { border-radius: 999px !important; }
 .tf-fine { margin: 2px 0 0; font-size: 12.5px; color: var(--g-sub); line-height: 1.5; }
 .tf-note { margin: 12px 0 0; padding: 10px 14px; border-radius: 14px; font-size: 14px; font-weight: 700; color: #d9f99d; background: rgba(132, 204, 22, 0.12); }
 .tf-note.err { color: #fecdd3; background: rgba(244, 63, 94, 0.14); }
+/* LA GRILLE SIMPLE · le choix du temple, le total barré du Pass, le tableau */
+.tf-pick { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; color: var(--g-sub); }
+.tf-pick select {
+  appearance: none; width: 100%; padding: 11px 38px 11px 14px; border: 0; border-radius: 14px;
+  font: 600 14.5px/1.3 var(--font-game, inherit); color: var(--g-text);
+  background: rgba(255, 255, 255, 0.07) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b794ff' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 14px center;
+  box-shadow: inset 0 0 0 1px rgba(183, 148, 255, 0.25);
+}
+.tf-pick select:focus-visible { outline: 2px solid #b794ff; outline-offset: 2px; }
+.tf-sum { margin: 0; font-size: 13.5px; color: var(--g-sub); }
+.tf-sum s { font-weight: 800; color: var(--g-text); text-decoration-thickness: 2px; text-decoration-color: #f472b6; }
+.tf-table-wrap { overflow-x: auto; border-radius: 20px; background: linear-gradient(180deg, var(--g-card-top), var(--g-card) 40%, var(--g-card-bot)); box-shadow: var(--g-edge), var(--g-lift); }
+.tf-table { width: 100%; min-width: 460px; border-collapse: collapse; font-size: 14px; color: var(--g-text); }
+.tf-table th, .tf-table td { padding: 12px 14px; text-align: center; border-bottom: 1px solid rgba(183, 148, 255, 0.12); }
+.tf-table thead th { font-family: var(--font-game); font-weight: 800; font-size: 14.5px; color: var(--g-text); }
+.tf-table tbody th { text-align: left; font-weight: 600; }
+.tf-table .main { background: rgba(124, 58, 237, 0.16); }
+.tf-table thead .main { color: #fff; background: linear-gradient(180deg, #8b5cf6, #7c3aed); }
+.tf-table tr:last-child th, .tf-table tr:last-child td { border-bottom: 0; }
+.tf-price-row td, .tf-price-row th { font-family: var(--font-game); font-weight: 900; font-size: 16px; }
+.tf-yes { color: #a3e635; display: inline-flex; }
+.tf-no { color: var(--g-sub); opacity: .55; display: inline-flex; }
 .tf-facts ul { margin: 4px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; color: var(--g-text); font-size: 14.5px; line-height: 1.55; }
 
 /* --- ouvrir le week-end --------------------------------------------------- */
