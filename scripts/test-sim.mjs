@@ -261,6 +261,29 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   ok('la carte s\'anime de vie, coupée au mouvement réduit', /<WorldLife decor=\{decor\}/.test(WD) && /html\.calm \.tw-life \* \{ animation: none !important; \}/.test(CSS))
 }
 
+/* --- 3f · les succès et les points entre les parties ---------------------- */
+//
+// Demandé : « ajoute des achievements avec acquisition de points entre chaque
+// partie de la formation avec le maître qui félicite et offre les points :
+// dynamise le flow avec des FX de particules et des animations ».
+{
+  const AC = await load('src/game/achievements.ts', 'achievements.mjs')
+  const st = (parts, feats = []) => ({ parts: Array.from({ length: parts }, (_, k) => `p/${k}`), feats })
+  ok('une partie terminée rapporte ses points', AC.pointsOf(st(1)) === AC.PART_POINTS)
+  ok('un succès ajoute les siens', AC.pointsOf(st(0, ['flawless'])) === AC.FEATS.find((f) => f.id === 'flawless').points)
+  ok('les paliers se débloquent au bon compte', AC.tiersReached(st(10)).map((f) => f.id).join(',') === 'first-part,parts-10')
+  ok('un palier déjà débloqué ne revient pas', AC.tiersReached(st(10, ['first-part', 'parts-10'])).length === 0)
+  ok('chaque succès a un titre et un texte dans les deux langues', AC.FEATS.every((f) => f.title.en && f.title.fr && f.body.en && f.body.fr && f.points > 0))
+  const LS2 = readFileSync('src/game/Lesson.tsx', 'utf8')
+  const LG2 = readFileSync('src/game/LessonGame.tsx', 'utf8')
+  ok('atteindre une partie termine la précédente et la récompense', /const prev = steps\[k - 1\]/.test(LS2) && /awardPart\(`\$\{pack\.id\}\/\$\{level\.id\}\/\$\{prev\.id\}`\)/.test(LS2))
+  ok('le maître félicite et offre les points', /<MasterCheer queue=\{cheers\}/.test(LS2) && /className="lq-cheer-coin"/.test(LG2))
+  ok('la pièce éclate en particules, sauf au mouvement réduit', /if \(r && !calm\(\)\) burst\(/.test(LG2))
+  ok('les points comptent dans l\'XP', /\+ f\.points/.test(readFileSync('src/game/progress.ts', 'utf8')))
+  ok('le profil montre les succès', /FEATS\.map/.test(readFileSync('src/game/Profil.tsx', 'utf8')))
+  ok('la scène se fige au mouvement réduit', /html\.calm \.lq-cheer,/.test(readFileSync('src/index.css', 'utf8')))
+}
+
 /* --- 4 · les morsures ------------------------------------------------------ */
 
 ok('morsure · un import de l\'ancien jeu serait vu', OLD_IMPORT.test("import { PackArt } from './PackArt'") && OLD_IMPORT.test("import { audio } from '../sim/audio'"))
