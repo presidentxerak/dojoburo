@@ -11,13 +11,19 @@
 //     présentées comme une sélection de l'équipe, jamais attribuées à un membre ;
 //   · les réussites sont celles que les membres publient eux-mêmes, dans la
 //     catégorie Réussites du fil. Aucune n'est écrite à leur place.
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLang } from '../i18n'
 import { say, type Bi } from '../data/bilingual'
 import { B } from '../data/bilingual'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { PROMPTS, PROMPT_CATEGORIES } from '../data/community/prompts'
 import { RESOURCES, RESOURCE_CATEGORIES, RESOURCES_CHECKED_AT } from '../data/community/resources'
+import { fetchTestimonials, fetchPendingTestimonials, postTestimonial, reviewTestimonial, type Testimonial, type PendingTestimonial } from '../lib/community'
+import { PACKS, PACK_BY_ID } from '../data/packs'
+import { RANKS } from './ranks'
+import { ChibiSprite } from '../pixel/ChibiSprite'
+import { sanitizeChibi } from '../pixel/chibi'
+import { hashString } from '../pixel/grid'
 
 const LT = {
   promptsH2: B('The prompt library', 'La bibliothèque de prompts'),
@@ -36,6 +42,20 @@ const LT = {
   level: { debutant: B('Beginner', 'Débutant'), intermediaire: B('Intermediate', 'Intermédiaire'), avance: B('Advanced', 'Avancé') } as Record<string, Bi>,
   lang: { fr: B('In French', 'En français'), en: B('In English', 'En anglais'), 'fr-en': B('French and English', 'Français et anglais') } as Record<string, Bi>,
   winsH2: B('Members\' wins', 'Les réussites des membres'),
+  wallH3: B('Testimonials', 'Les témoignages'),
+  wallEmpty: B('No testimonial published yet. Finish a training and be the first to tell your story.', "Aucun témoignage publié pour l'instant. Terminez une formation et soyez le premier ou la première à raconter la vôtre."),
+  formH3: B('Leave your testimonial', 'Déposer votre témoignage'),
+  formLead: B('In your own words: where you started, what you did, what changed. 40 to 800 characters.', 'Avec vos mots : votre point de départ, ce que vous avez fait, ce qui a changé. De 40 à 800 caractères.'),
+  formPack: B('About the training (optional)', 'À propos de la formation (facultatif)'),
+  formNone: B('None in particular', 'Aucune en particulier'),
+  formConsent: B('I agree that this testimonial is published on DojoBuro with my member name and my grade. I can ask for its removal at any time.', "J'accepte que ce témoignage soit publié sur DojoBuro avec mon nom de membre et mon grade. Je peux en demander le retrait à tout moment."),
+  formSend: B('Send for review', 'Envoyer pour relecture'),
+  formSent: B('Thank you. Your testimonial will appear once reviewed by the team.', "Merci. Votre témoignage paraîtra après relecture par l'équipe."),
+  formSignIn: B('Join the community to leave a testimonial.', 'Rejoignez la communauté pour déposer un témoignage.'),
+  formError: B('It could not be sent. Check its length and the consent box, then try again.', "L'envoi n'a pas abouti. Vérifiez sa longueur et la case de consentement, puis réessayez."),
+  pendingH3: B('Testimonials to review (admin)', 'Témoignages à relire (administration)'),
+  approve: B('Publish', 'Publier'),
+  reject: B('Refuse', 'Refuser'),
   winsLead: B('A first agent that works, an hour saved every week, a project shipped: share what you achieved with AI, in a few lines. Every story here is written by the member who lived it.',
     "Un premier agent qui fonctionne, une heure gagnée chaque semaine, un projet livré : partagez en quelques lignes ce que vous avez réussi avec l'IA. Chaque récit publié ici est écrit par le membre qui l'a vécu."),
 }
@@ -136,12 +156,112 @@ export function ResourceLibrary() {
 
 /** LES RÉUSSITES · l'invitation à publier la sienne, au-dessus du fil filtré
  *  sur la catégorie Réussites. Rien n'y est écrit à la place d'un membre. */
-export function WinsIntro() {
+export function WinsIntro({ canWrite = false, admin = false }: { canWrite?: boolean; admin?: boolean }) {
   const lang = useLang()
+  const s = (b: Bi) => say(b, lang)
   return (
-    <div className="cy-card cy-wins">
-      <h2 className="pf-h2">{say(LT.winsH2, lang)}</h2>
-      <p className="cy-sub">{say(LT.winsLead, lang)}</p>
+    <>
+      <div className="cy-card cy-wins">
+        <h2 className="pf-h2">{s(LT.winsH2)}</h2>
+        <p className="cy-sub">{s(LT.winsLead)}</p>
+      </div>
+      <TestimonialWall />
+      <TestimonialForm canWrite={canWrite} />
+      {admin && <TestimonialReview />}
+    </>
+  )
+}
+
+/** LES TÉMOIGNAGES PUBLIÉS · écrits par les membres, relus, publiés avec leur
+ *  nom de membre et leur grade réels */
+function TestimonialWall() {
+  const lang = useLang()
+  const s = (b: Bi) => say(b, lang)
+  const [list, setList] = useState<Testimonial[] | null>(null)
+  useEffect(() => { void fetchTestimonials().then((r) => setList(r.ok ? r.data.testimonials : [])) }, [])
+  return (
+    <div className="cy-card">
+      <h3 className="cy-h3">{s(LT.wallH3)}</h3>
+      {list && list.length === 0 && <p className="cy-sub">{s(LT.wallEmpty)}</p>}
+      <div className="cy-tm-grid">
+        {(list ?? []).map((t) => {
+          const rank = RANKS.find((r) => r.id === t.author.grade)
+          const pack = t.pack ? PACK_BY_ID[t.pack] : null
+          return (
+            <figure key={t.id} className="cy-tm">
+              <blockquote>{t.body}</blockquote>
+              <figcaption>
+                <ChibiSprite spec={sanitizeChibi(t.author.avatar, hashString(t.author.handle))} scale={1} />
+                <span>
+                  <b>{t.author.name}</b>
+                  {rank && <em style={{ ['--rk' as string]: rank.tint }}><i />{say(rank.belt, lang)}</em>}
+                  {pack && <small>{say(pack.title, lang)}</small>}
+                </span>
+              </figcaption>
+            </figure>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function TestimonialForm({ canWrite }: { canWrite: boolean }) {
+  const lang = useLang()
+  const s = (b: Bi) => say(b, lang)
+  const [body, setBody] = useState('')
+  const [pack, setPack] = useState('')
+  const [consent, setConsent] = useState(false)
+  const [state, setState] = useState<'idle' | 'busy' | 'sent' | 'err'>('idle')
+  const len = body.trim().length
+  if (!canWrite) return <div className="cy-card" id="temoigner"><h3 className="cy-h3">{s(LT.formH3)}</h3><p className="cy-sub">{s(LT.formSignIn)}</p></div>
+  return (
+    <form className="cy-card cy-tm-form" id="temoigner" onSubmit={async (e) => {
+      e.preventDefault()
+      if (len < 40 || len > 800 || !consent) { setState('err'); return }
+      setState('busy')
+      const r = await postTestimonial(body.trim(), pack || null)
+      setState(r.ok ? 'sent' : 'err')
+    }}>
+      <h3 className="cy-h3">{s(LT.formH3)}</h3>
+      <p className="cy-sub">{s(LT.formLead)}</p>
+      {state === 'sent' ? <p className="tf-note">{s(LT.formSent)}</p> : (
+        <>
+          <textarea className="promo-inp" rows={5} maxLength={800} value={body} onChange={(e) => setBody(e.target.value)} aria-label={s(LT.formH3)} />
+          <small className="cy-sub">{len} / 800</small>
+          <label className="cy-sub">{s(LT.formPack)}{' '}
+            <select value={pack} onChange={(e) => setPack(e.target.value)}>
+              <option value="">{s(LT.formNone)}</option>
+              {PACKS.map((p) => <option key={p.id} value={p.id}>{say(p.title, lang)}</option>)}
+            </select>
+          </label>
+          <label className="ae-news"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /><span>{s(LT.formConsent)}</span></label>
+          {state === 'err' && <p className="cy-err" role="alert">{s(LT.formError)}</p>}
+          <button className="gm-cta" type="submit" disabled={state === 'busy' || !consent || len < 40}>{s(LT.formSend)}</button>
+        </>
+      )}
+    </form>
+  )
+}
+
+/** LA RELECTURE · réservée aux administrateurs de la communauté */
+function TestimonialReview() {
+  const lang = useLang()
+  const s = (b: Bi) => say(b, lang)
+  const [list, setList] = useState<PendingTestimonial[]>([])
+  const load = () => void fetchPendingTestimonials().then((r) => { if (r.ok) setList(r.data.testimonials) })
+  useEffect(load, [])
+  if (list.length === 0) return null
+  return (
+    <div className="cy-card">
+      <h3 className="cy-h3">{s(LT.pendingH3)}</h3>
+      {list.map((t) => (
+        <div key={t.id} className="cy-tm-pending">
+          <p><b>{t.author.name}</b> · {t.body}</p>
+          <button className="gm-cta" onClick={() => void reviewTestimonial(t.id, true).then(load)}>{s(LT.approve)}</button>
+          <button className="cc-btn cc-slate" onClick={() => void reviewTestimonial(t.id, false).then(load)}>{s(LT.reject)}</button>
+        </div>
+      ))}
     </div>
   )
 }

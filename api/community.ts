@@ -22,6 +22,8 @@ import { allow as rateAllow } from './_lib/ratelimit.js'
 import { verifyPrivyToken, privyEnabled } from './_lib/authz.js'
 import { verifiedEmailOf, canVerifyEmail } from './_lib/privyUser.js'
 import { ADMIN_EMAILS } from './_lib/admins.js'
+import { TEAM_DID, TEAM_NAME, SEED_POSTS, MASTER_NAMES, masterDid, masterName, masterSystem, callsMaster } from './_lib/communitySeed.js'
+import { cascadeComplete } from './_lib/llm.js'
 import { brevoConfigured, sendEmail, layout, esc, siteUrl } from './_lib/brevo.js'
 import {
   LIMITS, RATES, isId, isCategory, validateName, validateBio, validatePost, validateComment, cleanQuery,
@@ -66,7 +68,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     if (method === 'GET') {
       if (!(await rateAllow(`community:read:${me || ipKey}`, RATES.read.max, RATES.read.windowMs))) return send(res, 429, { ok: false, error: 'rate' })
-      if (action === 'feed') return await feed(res, url, me)
+      if (action === 'feed') { await ensureSeed(); return await feed(res, url, me) }
+      if (action === 'testimonials') return await testimonials(res)
+      if (action === 'testimonials-pending') {
+        if (!me) return send(res, 401, { ok: false, error: 'auth' })
+        return await testimonialsPending(res, me)
+      }
       if (action === 'post') return await onePost(res, url, me)
       if (action === 'members') return await members(res, url)
       if (action === 'member') return await oneMember(res, url, me)
@@ -112,6 +119,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (action === 'vote') return await vote(res, me, body)
     if (action === 'here') return await presenceBeat(res, me, body)
     if (action === 'grade') return await gradeSet(res, me, body)
+    if (action === 'testimonial') return await testimonialPost(res, me, body)
+    if (action === 'testimonial-review') return await testimonialReview(res, me, body)
     if (action === 'room-post') return await roomPost(res, me, body)
     return send(res, 400, { ok: false, error: 'action' })
   } catch {
@@ -122,7 +131,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 /* ---- lire ------------------------------------------------------------------ */
 
 const POST_COLS = `p.id, p.category, p.title, p.body, p.pinned, p.likes, p.comments, p.created_at, p.edited_at,
-  p.author_did, m.name as author_name, m.handle as author_handle, m.points as author_points`
+  p.author_did, m.name as author_name, m.handle as author_handle, m.points as author_points, m.kind as author_kind, m.founder as author_founder`
 
 async function feed(res: ServerResponse, url: URL, me: string | null) {
   const cat = url.searchParams.get('cat')
@@ -184,7 +193,7 @@ async function onePost(res: ServerResponse, url: URL, me: string | null) {
   if (!r.rows[0]) return send(res, 404, { ok: false, error: 'not_found' })
   const c = await pool.query(
     `select c.id, c.post_id, c.parent_id, c.body, c.likes, c.deleted, c.created_at, c.edited_at, c.author_did, m.name as author_name,
-            m.handle as author_handle, m.points as author_points,
+            m.handle as author_handle, m.points as author_points, m.kind as author_kind, m.founder as author_founder,
             exists(select 1 from community_likes l where l.target_type = 'comment' and l.target_id = c.id and l.did = $2) as liked
        from community_comments c join community_members m on m.did = c.author_did
       where c.post_id = $1 order by c.created_at asc limit 500`,
@@ -212,7 +221,7 @@ async function whoAmI(res: ServerResponse, me: string) {
 
 /* ---- les membres et les classements ----------------------------------------- */
 
-const MEMBER_COLS = 'm.handle, m.name, m.bio, m.points, m.created_at, m.last_seen_at'
+const MEMBER_COLS = 'm.handle, m.name, m.bio, m.points, m.created_at, m.last_seen_at, m.kind, m.founder'
 
 async function members(res: ServerResponse, url: URL) {
   const page = Math.max(0, Math.min(200, Number(url.searchParams.get('page')) || 0))
@@ -227,7 +236,7 @@ async function members(res: ServerResponse, url: URL) {
     args,
   )
   const rows = r.rows as MemberRow[]
-  const total = await getPool().query('select count(*)::int as n from community_members')
+  const total = await getPool().query("select count(*)::int as n from community_members where kind = 'member'")
   return send(res, 200, {
     ok: true,
     members: rows.slice(0, LIMITS.membersPage).map((x) => serializeMember(x)),
@@ -268,18 +277,18 @@ async function leaderboard(res: ServerResponse, me: string | null) {
     const r = await pool.query(
       `select m.handle, m.name, m.points, m.grade, count(*)::int as won
          from community_likes l join community_members m on m.did = l.recipient_did
-        where l.created_at > now() - ($1 || ' days')::interval
+        where l.created_at > now() - ($1 || ' days')::interval and m.kind = 'member'
         group by m.handle, m.name, m.points, m.grade order by won desc, m.name asc limit $2`,
       [String(days), LIMITS.board],
     )
     return r.rows.map((x) => ({ handle: x.handle, name: x.name, level: levelOfPoints(x.points).level, points: x.won, grade: x.grade ?? null }))
   }
   const all = await pool.query(
-    `select handle, name, points, grade from community_members where points > 0 order by points desc, name asc limit $1`, [LIMITS.board])
+    `select handle, name, points, grade from community_members where points > 0 and kind = 'member' order by points desc, name asc limit $1`, [LIMITS.board])
   // LE CLASSEMENT DES GRADES · la ceinture d'abord, de la noire à la blanche,
   // puis les points de la communauté pour départager
   const grades = await pool.query(
-    `select handle, name, points, grade from community_members where grade is not null
+    `select handle, name, points, grade from community_members where grade is not null and kind = 'member'
       order by array_position(array['white','yellow','orange','green','blue','brown','black'], grade) desc, points desc, name asc
       limit $1`, [LIMITS.board])
   let mine: { points: number; level: number; next: number | null } | null = null
@@ -475,7 +484,7 @@ async function presenceBeat(res: ServerResponse, me: string, body: unknown) {
   const avatar = cleanAvatar(b.avatar)
   const suffix = createHash('sha256').update(me).digest('hex').slice(0, 4).toUpperCase()
   await pool.query(
-    `insert into community_members (did, name, avatar) values ($1, $2, $3)
+    `insert into community_members (did, name, avatar, founder) values ($1, $2, $3, (select count(*) < 500 from community_members where kind = 'member'))
        on conflict (did) do update set last_seen_at = now(), avatar = coalesce($3, community_members.avatar)`,
     [me, `Disciple ${suffix}`, avatar ? JSON.stringify(avatar) : null],
   )
@@ -523,7 +532,7 @@ async function roomRead(res: ServerResponse, url: URL, me: string | null) {
   const room = url.searchParams.get('id') || ''
   if (!SLUG.test(room)) return send(res, 400, { ok: false, error: 'room' })
   const r = await getPool().query(
-    `select r.id, r.body, r.created_at, r.did, m.name, m.handle, m.points, m.avatar
+    `select r.id, r.body, r.created_at, r.did, m.name, m.handle, m.points, m.avatar, m.kind
        from community_room_messages r join community_members m on m.did = r.did
       where r.room = $1 order by r.created_at desc limit 60`,
     [room],
@@ -532,7 +541,7 @@ async function roomRead(res: ServerResponse, url: URL, me: string | null) {
     ok: true,
     messages: r.rows.reverse().map((x) => ({
       id: x.id, body: x.body, createdAt: x.created_at.toISOString(), mine: x.did === me,
-      author: { name: x.name, handle: x.handle, level: levelOfPoints(x.points).level, avatar: x.avatar ?? null },
+      author: { name: x.name, handle: x.handle, level: levelOfPoints(x.points).level, avatar: x.avatar ?? null, kind: x.kind ?? 'member' },
     })),
   })
 }
@@ -543,7 +552,120 @@ async function roomPost(res: ServerResponse, me: string, body: unknown) {
   if ('error' in v) return send(res, 400, { ok: false, error: v.error })
   if (!(await limited('message', me))) return send(res, 429, { ok: false, error: 'rate' })
   const r = await getPool().query('insert into community_room_messages (room, did, body) values ($1, $2, $3) returning id', [v.room, me, v.body])
-  return send(res, 200, { ok: true, id: r.rows[0].id })
+  // LE MAÎTRE IA RÉPOND · à une question ou quand on l'appelle. Il est une IA,
+  // son nom le dit, et il ne répond que dans la mesure du budget prévu.
+  const course = typeof (body as { course?: unknown })?.course === 'string' ? String((body as { course: string }).course).slice(0, 80) : ''
+  let replied = false
+  if (MASTER_NAMES[v.room] && callsMaster(v.body)
+    && await rateAllow(`community:master:${v.room}`, 30, 60 * 60 * 1000)
+    && await rateAllow('community:master:all', 400, 24 * 60 * 60 * 1000)) {
+    replied = await masterReply(v.room, course || v.room, v.body)
+  }
+  return send(res, 200, { ok: true, id: r.rows[0].id, master: replied })
+}
+
+/** La réponse d'un maître IA · rien si aucun modèle n'est configuré ou s'il
+ *  ne répond pas à temps : l'élève a posé sa question dans un chat de groupe,
+ *  les autres membres peuvent toujours y répondre. */
+async function masterReply(pack: string, courseTitle: string, question: string): Promise<boolean> {
+  try {
+    const out = await Promise.race([
+      cascadeComplete(masterSystem(pack, courseTitle), question, 350),
+      new Promise<null>((r) => setTimeout(() => r(null), 15000)),
+    ])
+    const text = (out?.text ?? '').replace(/[\u2013\u2014]/g, ',').trim().slice(0, 1000)
+    if (!text) return false
+    const pool = getPool()
+    await pool.query(
+      `insert into community_members (did, name, kind) values ($1, $2, 'master')
+         on conflict (did) do update set name = excluded.name, last_seen_at = now()`,
+      [masterDid(pack), masterName(pack)],
+    )
+    await pool.query('insert into community_room_messages (room, did, body) values ($1, $2, $3)', [pack, masterDid(pack), text])
+    return true
+  } catch {
+    return false
+  }
+}
+
+/* ---- les fils de départ de l'équipe ---------------------------------------------- */
+
+let seeded: Promise<void> | null = null
+/** UNE FOIS PAR DÉMARRAGE · le compte de l'équipe et ses fils de départ, avec
+ *  des identifiants fixes : jamais en double, et une publication supprimée par
+ *  un administrateur ne revient pas (« on conflict do nothing »). */
+function ensureSeed(): Promise<void> {
+  if (!seeded) {
+    seeded = (async () => {
+      const pool = getPool()
+      await pool.query(
+        `insert into community_members (did, name, kind) values ($1, $2, 'team') on conflict (did) do nothing`,
+        [TEAM_DID, TEAM_NAME],
+      )
+      for (const p of SEED_POSTS) {
+        await pool.query(
+          `insert into community_posts (id, author_did, category, title, body, pinned) values ($1, $2, $3, $4, $5, $6)
+             on conflict (id) do nothing`,
+          [p.id, TEAM_DID, p.category, p.title, p.body, p.pinned],
+        )
+      }
+    })().catch(() => { seeded = null })
+  }
+  return seeded
+}
+
+/* ---- les témoignages ---------------------------------------------------------- */
+//
+// ÉCRITS PAR LE MEMBRE, PUBLIÉS AVEC SON ACCORD · un témoignage ne paraît
+// qu'après relecture d'un administrateur, avec le nom de membre et le grade
+// réels de son auteur. Aucun n'est écrit à sa place.
+
+async function testimonials(res: ServerResponse) {
+  const r = await getPool().query(
+    `select t.id, t.body, t.pack, t.created_at, m.name, m.handle, m.grade, m.avatar, m.founder
+       from community_testimonials t join community_members m on m.did = t.did
+      where t.status = 'approved' and m.kind = 'member' order by t.reviewed_at desc nulls last limit 120`,
+  )
+  return send(res, 200, {
+    ok: true,
+    testimonials: r.rows.map((x) => ({
+      id: x.id, body: x.body, pack: x.pack, createdAt: x.created_at.toISOString(),
+      author: { name: x.name, handle: x.handle, grade: x.grade ?? null, avatar: x.avatar ?? null, founder: x.founder === true },
+    })),
+  })
+}
+
+async function testimonialPost(res: ServerResponse, me: string, body: unknown) {
+  if (!(await memberName(me))) return send(res, 409, { ok: false, error: 'join' })
+  const b = (body || {}) as { body?: unknown; pack?: unknown; consent?: unknown }
+  const text = typeof b.body === 'string' ? b.body.replace(/\s+/g, ' ').trim() : ''
+  if (text.length < 40 || text.length > 800) return send(res, 400, { ok: false, error: 'body' })
+  if (b.consent !== true) return send(res, 400, { ok: false, error: 'consent' })
+  const pack = typeof b.pack === 'string' && SLUG.test(b.pack) ? b.pack : null
+  if (!(await rateAllow(`community:testimonial:${me}`, 5, 24 * 60 * 60 * 1000))) return send(res, 429, { ok: false, error: 'rate' })
+  await getPool().query(
+    `insert into community_testimonials (did, body, pack, consent) values ($1, $2, $3, true)
+       on conflict (did, coalesce(pack, '')) do update set body = excluded.body, status = 'pending', created_at = now(), reviewed_at = null`,
+    [me, text, pack],
+  )
+  return send(res, 200, { ok: true, status: 'pending' })
+}
+
+async function testimonialsPending(res: ServerResponse, me: string) {
+  if (!(await isAdmin(me))) return send(res, 403, { ok: false, error: 'admin' })
+  const r = await getPool().query(
+    `select t.id, t.body, t.pack, t.created_at, m.name, m.handle from community_testimonials t
+       join community_members m on m.did = t.did where t.status = 'pending' order by t.created_at asc limit 100`,
+  )
+  return send(res, 200, { ok: true, testimonials: r.rows.map((x) => ({ id: x.id, body: x.body, pack: x.pack, createdAt: x.created_at.toISOString(), author: { name: x.name, handle: x.handle } })) })
+}
+
+async function testimonialReview(res: ServerResponse, me: string, body: unknown) {
+  if (!(await isAdmin(me))) return send(res, 403, { ok: false, error: 'admin' })
+  const b = (body || {}) as { id?: unknown; approve?: unknown }
+  if (!isId(b.id) || typeof b.approve !== 'boolean') return send(res, 400, { ok: false, error: 'id' })
+  await getPool().query(`update community_testimonials set status = $2, reviewed_at = now() where id = $1`, [b.id, b.approve ? 'approved' : 'rejected'])
+  return send(res, 200, { ok: true })
 }
 
 /* ---- le calendrier ----------------------------------------------------------- */
@@ -617,7 +739,7 @@ async function join(res: ServerResponse, me: string, body: unknown) {
   if (typeof name !== 'string') return send(res, 400, { ok: false, error: 'name' })
   const lang = (body as { lang?: unknown })?.lang === 'en' ? 'en' : 'fr'
   await getPool().query(
-    `insert into community_members (did, name, lang) values ($1, $2, $3)
+    `insert into community_members (did, name, lang, founder) values ($1, $2, $3, (select count(*) < 500 from community_members where kind = 'member'))
        on conflict (did) do update set name = excluded.name, lang = excluded.lang, last_seen_at = now()`,
     [me, name, lang],
   )

@@ -165,6 +165,16 @@ export function LessonPage({ packId, levelId }: { packId: string; levelId: strin
               ))}
             </section>
 
+            {/* LA FORMATION EST FINIE · on propose d'en témoigner, avec ses mots,
+                dans l'onglet Réussites (publié avec accord, après relecture) */}
+            {all.every(({ module: mo, level: lv }) => g.isDone(mo.id, lv.id)) && (
+              <section className="ln-block ln-testify">
+                <h2 className="ln-h2">{say(TT.testifyH, lang)}</h2>
+                <p>{say(TT.testifyBody, lang)}</p>
+                <Lnk className="gm-cta" href="/clan/reussites#temoigner">{say(TT.testifyGo, lang)} →</Lnk>
+              </section>
+            )}
+
             <section className="ln-end">
               <button
                 className={`cc-btn ln-claim${done ? ' on' : ''}`}

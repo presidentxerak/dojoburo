@@ -39,6 +39,7 @@ import { getSettings, systemReducesMotion } from '../lib/settings'
 import { SoundToggle } from './SoundToggle'
 import { drawRoof, drawFloorStrip, drawBase } from './art/facade'
 import { TT } from './templeText'
+import { dailyChallenge } from './masterDaily'
 
 export function TemplePage({ packId }: { packId: string }) {
   const lang = useLang()
@@ -334,7 +335,7 @@ export function TemplePage({ packId }: { packId: string }) {
         </div>
       )}
 
-      {chatOpen && <TempleChat room={pack.id} initial={chatOpen} students={others} floorNo={(id) => { const k = floors.findIndex((f) => f.level.id === id); return k >= 0 ? String(k + 1) : '' }} onClose={() => setChatOpen(false)} />}
+      {chatOpen && <TempleChat room={pack.id} course={say(pack.title, lang)} initial={chatOpen} students={others} floorNo={(id) => { const k = floors.findIndex((f) => f.level.id === id); return k >= 0 ? String(k + 1) : '' }} onClose={() => setChatOpen(false)} />}
     </div>
   )
 }
@@ -363,13 +364,17 @@ function EmailGate() {
 /* LE CHAT DU COURS · les présents, et le groupe                        */
 /* ------------------------------------------------------------------ */
 
-function TempleChat({ room, initial, students, floorNo, onClose }: { room: string; initial: 'group' | 'people'; students: Student[]; floorNo: (id: string) => string; onClose: () => void }) {
+function TempleChat({ room, course, initial, students, floorNo, onClose }: { room: string; course: string; initial: 'group' | 'people'; students: Student[]; floorNo: (id: string) => string; onClose: () => void }) {
   const lang = useLang()
   const s = (b: Bi) => say(b, lang)
   const acc = useAccount()
   const [tab, setTab] = useState<'group' | 'people'>(initial)
   const [msgs, setMsgs] = useState<RoomMessage[]>([])
   const [body, setBody] = useState('')
+  // LE MAÎTRE IA · il ouvre le chat avec le défi du jour, et répond aux
+  // questions. Son nom porte toujours « IA ».
+  const master = masterOf(room)
+  const [thinking, setThinking] = useState(false)
   const load = useCallback(() => {
     if (!acc.signedIn) return
     void fetchRoom(room).then((r) => { if (r.ok) setMsgs(r.data.messages) })
@@ -416,19 +421,28 @@ function TempleChat({ room, initial, students, floorNo, onClose }: { room: strin
           : (
             <>
               <div className="tc-msgs">
+                <div className="tc-msg master">
+                  <ChibiSprite spec={master.spec} scale={1} />
+                  <div><b>{s(TT.master)} {master.name} <span className="cy-kind master">IA</span></b><p>{s(TT.dailyChallenge)} {s(dailyChallenge())} {s(TT.askMaster)}</p></div>
+                </div>
                 {msgs.length === 0 && <p className="tc-empty">{s(TT.noMessages)}</p>}
                 {msgs.map((m) => (
-                  <div key={m.id} className={`tc-msg${m.mine ? ' mine' : ''}`}>
-                    <ChibiSprite spec={sanitizeChibi(m.author.avatar, hashString(m.author.handle))} scale={1} />
-                    <div><b>{m.author.name}</b><p>{m.body}</p></div>
+                  <div key={m.id} className={`tc-msg${m.mine ? ' mine' : ''}${m.author.kind === 'master' ? ' master' : ''}`}>
+                    <ChibiSprite spec={m.author.kind === 'master' ? master.spec : sanitizeChibi(m.author.avatar, hashString(m.author.handle))} scale={1} />
+                    <div><b>{m.author.name}{m.author.kind === 'master' && <> <span className="cy-kind master">IA</span></>}</b><p>{m.body}</p></div>
                   </div>
                 ))}
+                {thinking && <p className="tc-empty">{s(TT.master)} {master.name} · {s(TT.masterThinking)}</p>}
               </div>
               <form className="tc-form" onSubmit={async (e) => {
                 e.preventDefault()
                 if (!body.trim()) return
-                const r = await postRoom(room, body)
-                if (r.ok) { zen.sfx('send'); setBody(''); load() }
+                const text = body
+                setBody('')
+                setThinking(/\?\s*$/.test(text.trim()) || /\bma[iî]tre\b/i.test(text))
+                const r = await postRoom(room, text, course)
+                setThinking(false)
+                if (r.ok) { zen.sfx('send'); load() } else setBody(text)
               }}>
                 <input className="promo-inp" value={body} onChange={(e) => setBody(e.target.value)} placeholder={s(TT.writeGroup)} aria-label={s(TT.writeGroup)} maxLength={1000} />
                 <button className="gm-cta" type="submit">{s(TT.send)}</button>

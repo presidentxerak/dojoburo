@@ -198,6 +198,43 @@ ok('la présence ne compte que les dernières minutes', C.PRESENCE_WINDOW_S > 0 
   ok('la présence n\'expose pas l\'identifiant', !/presenceList[\s\S]{0,1200}\bdid:/.test(API.replace(/where[^\n]*/g, '')))
 }
 
+/* --- 5c · une communauté qui ne paraît pas vide, sans rien inventer --------- */
+//
+// Demandé : éviter une communauté vide pour rassurer les futurs élèves. Les
+// faux membres, la fausse activité et les faux témoignages ont été écartés ; à
+// la place (« fais tout ») : des maîtres IA signalés comme tels, le statut de
+// fondateur, des fils signés de l'équipe, de vrais témoignages avec accord.
+{
+  const rs = await build({ entryPoints: ['api/_lib/communitySeed.ts'], bundle: true, format: 'esm', platform: 'node', write: false, logLevel: 'silent' })
+  writeFileSync(join(OUT, 'seed.mjs'), rs.outputFiles[0].text)
+  const S = await import(pathToFileURL(join(OUT, 'seed.mjs')).href)
+  const API = readFileSync('api/community.ts', 'utf8')
+  const SQL = readFileSync('db/community.sql', 'utf8')
+  const MASTERS_SRC = readFileSync('src/pixel/masters.ts', 'utf8')
+  // LES MAÎTRES IA · leur nom dit toujours « IA », et ce sont ceux du jeu
+  ok('un maître IA porte « IA » dans son nom', Object.keys(S.MASTER_NAMES).every((p) => / · IA$/.test(S.masterName(p)) && S.masterName(p).length <= 32))
+  const srcNames = [...MASTERS_SRC.matchAll(/'?([a-z-]+)'?: \{\n\s+name: '([A-Za-z]+)'/g)].map((m) => `${m[1]}:${m[2]}`).sort()
+  const seedNames = Object.entries(S.MASTER_NAMES).map(([k, v]) => `${k}:${v}`).sort()
+  ok('les maîtres du serveur sont ceux du jeu', JSON.stringify(srcNames) === JSON.stringify(seedNames), `${srcNames.length} / ${seedNames.length}`)
+  ok('le maître se dit IA dans son prompt système', /You are an AI, not a person, and you never claim otherwise/.test(S.masterSystem('weekend', 'Le week-end')))
+  ok('il n\'invente ni chiffres ni témoignages', /Never invent facts, figures, prices, sources or testimonials/.test(S.masterSystem('weekend', 'x')))
+  ok('il répond à une question, pas à tout', S.callsMaster('Comment écrire un bon prompt ?') && S.callsMaster('Maître, une idée') && !S.callsMaster('Merci à tous'))
+  ok('son budget est borné', /rateAllow\(`community:master:\$\{v\.room\}`, 30,/.test(API) && /rateAllow\('community:master:all', 400,/.test(API))
+  ok('les maîtres et l\'équipe ne figurent pas aux classements', (API.match(/kind = 'member'/g) ?? []).length >= 5)
+  // L'ÉQUIPE · des fils de départ signés, valides, jamais en double
+  ok('les fils de l\'équipe sont signés de l\'équipe', S.TEAM_NAME === 'Équipe DojoBuro' && /author_did, category, title, body, pinned\) values \(\$1, \$2/.test(API) && /\[p\.id, TEAM_DID,/.test(API))
+  ok('ils ne se dupliquent pas', /on conflict \(id\) do nothing/.test(API) && new Set(S.SEED_POSTS.map((p) => p.id)).size === S.SEED_POSTS.length)
+  ok('ils respectent les bornes du fil', S.SEED_POSTS.every((p) => p.title.length >= 3 && p.title.length <= 120 && p.body.length >= 10 && p.body.length <= 5000))
+  ok('ils disent que les maîtres sont des IA', S.SEED_POSTS.some((p) => /maîtres[^.]*sont des IA/.test(p.body)))
+  ok('aucun nombre de membres inventé dans les fils', S.SEED_POSTS.every((p) => !/\d{3,}\s*(membres|élèves)/.test(p.body)))
+  // LES FONDATEURS · les 500 premiers, pour toujours
+  ok('le statut de fondateur est donné aux 500 premiers', /founder boolean not null default false/.test(SQL) && (API.match(/count\(\*\) < 500 from community_members where kind = 'member'/g) ?? []).length === 2)
+  // LES TÉMOIGNAGES · écrits par le membre, avec son accord, relus
+  ok('un témoignage exige le consentement', /consent\s+boolean not null check \(consent\)/.test(SQL) && /b\.consent !== true\) return send\(res, 400/.test(API))
+  ok('il n\'est publié qu\'après relecture', /status = 'approved'/.test(API) && /if \(!\(await isAdmin\(me\)\)\) return send\(res, 403[\s\S]{0,420}update community_testimonials set status/.test(API))
+  ok('il n\'existe aucun témoignage écrit à l\'avance', !/insert into community_testimonials[^;]*values \('/.test(API + SQL))
+}
+
 /* --- 6 · les morsures ---------------------------------------------------- */
 ok('morsure · un identifiant exposé serait vu', JSON.stringify({ did: 'did:privy:x' }).includes('did:privy'))
 ok('morsure · une borne divergente serait vue', !new RegExp('char_length\\(title\\) between 3 and 120').test('char_length(title) between 3 and 200'))

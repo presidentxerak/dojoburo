@@ -16,7 +16,9 @@ export const COMMUNITY_LIMITS = {
   message: { min: 1, max: 2000 },
 } as const
 
-export interface Author { name: string; key: string; handle?: string | null; level?: number | null }
+/** kind · une personne, l'équipe DojoBuro, ou un maître IA (toujours affiché comme tel) */
+export type AuthorKind = 'member' | 'team' | 'master'
+export interface Author { name: string; key: string; handle?: string | null; level?: number | null; kind?: AuthorKind; founder?: boolean }
 
 export interface CMember {
   handle: string
@@ -26,6 +28,8 @@ export interface CMember {
   level: number
   joinedAt: string
   online: boolean
+  kind?: AuthorKind
+  founder?: boolean
 }
 
 export interface BoardRow { handle: string; name: string; level: number; points: number; grade?: string | null }
@@ -209,11 +213,19 @@ export function decodeMentions(text: string): { text: string; map: Map<string, s
 /* ---- les temples : présence et chat du cours -------------------------------- */
 
 export interface Student { floor: string; handle: string; name: string; level: number; avatar: unknown; me: boolean }
-export interface RoomMessage { id: string; body: string; createdAt: string; mine: boolean; author: { name: string; handle: string; level: number; avatar: unknown } }
+export interface RoomMessage { id: string; body: string; createdAt: string; mine: boolean; author: { name: string; handle: string; level: number; avatar: unknown; kind?: AuthorKind } }
 
 export const sendPresence = (pack: string, floor: string, avatar: unknown) => post<{ ok: true }>('here', { pack, floor, avatar })
 /** la ceinture de l'élève, montrée dans les classements · voir game/ranks */
 export const sendGrade = (grade: string) => post<{ ok: true }>('grade', { grade })
 export const fetchPresence = (pack: string) => call<{ students: Student[] }>(`/api/community?action=presence&pack=${encodeURIComponent(pack)}`)
 export const fetchRoom = (room: string) => call<{ messages: RoomMessage[] }>(`/api/community?action=room&id=${encodeURIComponent(room)}`)
-export const postRoom = (room: string, body: string) => post<{ id: string }>('room-post', { room, body })
+export const postRoom = (room: string, body: string, course = '') => post<{ id: string; master?: boolean }>('room-post', { room, body, course })
+
+/* ---- les témoignages · écrits par les membres, publiés avec leur accord ---- */
+export interface Testimonial { id: string; body: string; pack: string | null; createdAt: string; author: { name: string; handle: string; grade: string | null; avatar: unknown; founder: boolean } }
+export interface PendingTestimonial { id: string; body: string; pack: string | null; createdAt: string; author: { name: string; handle: string } }
+export const fetchTestimonials = () => call<{ testimonials: Testimonial[] }>('/api/community?action=testimonials')
+export const fetchPendingTestimonials = () => call<{ testimonials: PendingTestimonial[] }>('/api/community?action=testimonials-pending')
+export const postTestimonial = (body: string, pack: string | null) => post<{ status: string }>('testimonial', { body, pack, consent: true })
+export const reviewTestimonial = (id: string, approve: boolean) => post<{ ok: true }>('testimonial-review', { id, approve })

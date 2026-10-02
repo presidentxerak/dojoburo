@@ -32,6 +32,9 @@ import { useAccount, signIn } from '../lib/account'
 import { packPath, FREE_PACK } from '../data/packs'
 import { Shell } from './Shell'
 import { PromptLibrary, ResourceLibrary, WinsIntro } from './CommunityLibrary'
+import { MASTERS } from '../pixel/masters'
+import { ChibiSprite } from '../pixel/ChibiSprite'
+import { dailyChallenge } from '../temple/masterDaily'
 import { RANKS, rankOf } from './ranks'
 import { levelOf } from './Gauge'
 import { useGame } from './progress'
@@ -122,7 +125,7 @@ export function CommunityPage() {
         <div className="cy-main">
           {promptsTab ? <PromptLibrary />
             : resourcesTab ? <ResourceLibrary />
-            : winsTab ? <><WinsIntro /><Feed me={me} initialCat="wins" /></>
+            : winsTab ? <><WinsIntro canWrite={me.signedIn && !!me.data} admin={me.admin} /><Feed me={me} initialCat="wins" /></>
             : about ? <About />
             : notifTab ? <Notifications me={me} />
             : msgTab ? <Messages me={me} peer={msgMatch?.[1] ?? null} />
@@ -210,6 +213,7 @@ function Feed({ me, initialCat = '' }: { me: Me; initialCat?: CommunityCategory 
   const list = [...pinned, ...posts]
   return (
     <>
+      {!initialCat && <DailyMaster />}
       <Composer me={me} onPosted={() => load(null)} initialCat={initialCat || 'general'} />
 
       <div className="cy-filters">
@@ -950,13 +954,16 @@ function Members() {
   return (
     <div className="cy-card cy-members">
       <div className="cy-members-head">
-        <h2 className="pf-h2">{s(CT.membersH2)} <span className="pf-of">{total} {s(CT.membersCount)}</span></h2>
+        {/* LES FONDATEURS · tant que la communauté démarre, on montre les places
+            de fondateur, pas un compteur qui paraîtrait vide */}
+        <h2 className="pf-h2">{s(CT.membersH2)} <span className="pf-of">{total < 500 ? `${total} ${s(CT.foundersCount)}` : `${total} ${s(CT.membersCount)}`}</span></h2>
         <form className="cy-search" role="search" onSubmit={(e) => { e.preventDefault(); setQuery(q.trim()) }}>
           <BauhausIcon name="target" size={16} />
           <input type="search" value={q} onChange={(e) => { setQ(e.target.value); if (!e.target.value) setQuery('') }}
             placeholder={s(CT.searchMembers)} aria-label={s(CT.searchMembers)} />
         </form>
       </div>
+      {total < 500 && <p className="cy-sub cy-founders">{s(CT.foundersLead)}</p>}
       {error && <p className="cy-err" role="alert">{s(errorText(error))}</p>}
       {list.length === 0 && !error && <p className="cy-empty">{s(CT.noMembers)}</p>}
       <ul className="cy-mlist">
@@ -965,7 +972,7 @@ function Members() {
             <Lnk className="cy-mrow" href={`/clan/m/${m.handle}`}>
               <Avatar author={{ name: m.name, key: m.handle, level: m.level }} />
               <span className="cy-mrow-t">
-                <b>{m.name} {m.online && <i className="cy-online" title={s(CT.online)}><span>{s(CT.online)}</span></i>}</b>
+                <b>{m.name} <KindBadge kind={m.kind} founder={m.founder} /> {m.online && <i className="cy-online" title={s(CT.online)}><span>{s(CT.online)}</span></i>}</b>
                 {m.bio && <em>{m.bio}</em>}
                 <small>{s(CT.level)} {m.level} · {m.points} {s(CT.points)} · {s(CT.joined)} <DateOnly iso={m.joinedAt} lang={lang} /></small>
               </span>
@@ -1308,9 +1315,44 @@ function Avatar({ author, small = false, big = false }: { author: Author; small?
 
 /** Le nom d'un auteur · un lien vers son profil quand on le connaît. */
 function AuthorName({ author }: { author: Author }) {
-  return author.handle
-    ? <Lnk className="cy-name" href={`/clan/m/${author.handle}`}><b>{author.name}</b></Lnk>
-    : <b>{author.name}</b>
+  return (
+    <>
+      {author.handle
+        ? <Lnk className="cy-name" href={`/clan/m/${author.handle}`}><b>{author.name}</b></Lnk>
+        : <b>{author.name}</b>}
+      <KindBadge kind={author.kind} founder={author.founder} />
+    </>
+  )
+}
+
+/** LE DÉFI DU JOUR · signé par un maître IA, qui change avec le jour comme le
+ *  défi. Les maîtres sont des IA, et la carte le dit. */
+function DailyMaster() {
+  const { s } = useSay()
+  const ids = Object.keys(MASTERS)
+  const day = Math.floor(Date.now() / 86400000)
+  const pack = ids[day % ids.length]
+  const m = MASTERS[pack]
+  return (
+    <div className="cy-card cy-daily">
+      <span className="cy-daily-art"><ChibiSprite spec={m.spec} scale={2} /></span>
+      <div>
+        <b>{s(CT.dailyH)} · {s(CT.masterWord)} {m.name} <span className="cy-kind master">{s(CT.badgeMaster)}</span></b>
+        <p>{s(dailyChallenge())}</p>
+        <Lnk className="cy-daily-go" href={`/dojo/${pack}`}>{s(CT.dailyGo)} →</Lnk>
+      </div>
+    </div>
+  )
+}
+
+/** QUI PARLE · l'équipe DojoBuro, un maître IA, ou un membre fondateur. Un
+ *  maître est toujours signalé comme une IA. */
+export function KindBadge({ kind, founder }: { kind?: string; founder?: boolean }) {
+  const { s } = useSay()
+  if (kind === 'team') return <span className="cy-kind team">{s(CT.badgeTeam)}</span>
+  if (kind === 'master') return <span className="cy-kind master">{s(CT.badgeMaster)}</span>
+  if (founder) return <span className="cy-kind founder">{s(CT.badgeFounder)}</span>
+  return null
 }
 
 function TimeAgo({ iso }: { iso: string }) {

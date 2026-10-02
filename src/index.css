@@ -12531,3 +12531,31 @@ svg.picon { display: inline-block; image-rendering: pixelated; }
 .cy-lib-level { flex: none; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(124, 58, 237, .14); }
 .cy-res-meta { margin: 0; font-size: 12px; opacity: .75; }
 .cy-wins { margin-bottom: 12px; }
+/* qui parle · l'équipe, un maître IA, un membre fondateur */
+.cy-kind { display: inline-flex; align-items: center; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 800; letter-spacing: .02em; vertical-align: middle; white-space: nowrap; }
+.cy-kind.team { background: #7c3aed; color: #fff; }
+.cy-kind.master { background: #0ea5e9; color: #fff; }
+.cy-kind.founder { background: #f5c542; color: #3b2a00; }
+.cy-founders { margin: 4px 0 10px; }
+.tc-msg.master > div { background: rgba(14, 165, 233, .14); }
+html[data-look="light"] .tc-msg.master > div { background: #e0f2fe; }
+.cy-daily { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; background: linear-gradient(135deg, rgba(14, 165, 233, .12), rgba(124, 58, 237, .1)); }
+.cy-daily-art { flex: none; display: grid; place-items: center; width: 70px; height: 80px; border-radius: 14px; background: rgba(14, 165, 233, .16); }
+.cy-daily-art svg { image-rendering: pixelated; }
+.cy-daily p { margin: 6px 0; line-height: 1.5; }
+.cy-daily-go { font-weight: 700; color: #7c3aed; text-decoration: none; }
+/* les témoignages des membres */
+.cy-h3 { margin: 0 0 8px; font-size: 17px; }
+.cy-tm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.cy-tm { margin: 0; padding: 14px 16px; border-radius: 16px; background: rgba(124, 58, 237, .08); display: flex; flex-direction: column; gap: 10px; }
+.cy-tm blockquote { margin: 0; line-height: 1.55; font-style: italic; }
+.cy-tm figcaption { display: flex; align-items: center; gap: 10px; }
+.cy-tm figcaption svg { width: 34px; height: auto; image-rendering: pixelated; }
+.cy-tm figcaption span { display: flex; flex-direction: column; gap: 2px; }
+.cy-tm figcaption em { font-style: normal; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; }
+.cy-tm figcaption em i { width: 14px; height: 5px; border-radius: 2px; background: var(--rk); }
+.cy-tm figcaption small { opacity: .7; font-size: 12px; }
+.cy-tm-form { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.cy-tm-form .gm-cta { align-self: flex-start; }
+.cy-tm-pending { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 0; box-shadow: inset 0 -1px 0 rgba(124, 58, 237, .15); }
+.cy-tm-pending p { flex: 1 1 100%; margin: 0; }
