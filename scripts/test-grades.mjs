@@ -121,7 +121,9 @@ const CSS = readFileSync('src/index.css', 'utf8')
 ok('un seul écouteur, posé au démarrage', /installJuice\(\)/.test(MAIN))
 ok('les boutons d\'action rebondissent', /'\.gm-cta'/.test(JUICE.match(/BUMP_SELECTOR = \[[\s\S]*?\]/)?.[0] ?? '') && /\.jz-bump \{ animation: jz-bump/.test(CSS))
 ok('les boutons principaux lancent des particules', /'\.gm-cta'/.test(JUICE.match(/BURST_SELECTOR = \[[\s\S]*?\]/)?.[0] ?? ''))
-ok('la bonne réponse d\'un quiz se fête', /if \(k === q\.answer\) burst\(/.test(readFileSync('src/game/Lesson.tsx', 'utf8')))
+// RÉPARÉE · le quiz est devenu un combat (« design d'interaction type jeu
+// vidéo ») : la bonne réponse lance toujours sa gerbe, depuis choose().
+ok('la bonne réponse d\'un quiz se fête', /if \(ok && x !== undefined && y !== undefined\) burst\(/.test(readFileSync('src/game/Lesson.tsx', 'utf8')))
 ok('les effets respectent le réglage ET le système', /current\.fx && !current\.calm && !systemReducesMotion\(\)/.test(ST) && /if \(!effectsOn\(\)\) return/.test(JUICE))
 ok('les vignettes 3D s\'arrêtent en mouvement réduit', /getSettings\(\)\.calm \|\| systemReducesMotion\(\)/.test(readFileSync('src/components/three/cardClock.ts', 'utf8')))
 ok('le mouvement réduit coupe les animations CSS', /html\.calm \*/.test(CSS))

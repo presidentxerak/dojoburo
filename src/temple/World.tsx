@@ -23,10 +23,12 @@ import { Shell } from '../game/Shell'
 import { SupportBot } from '../components/SupportBot'
 import { gridToUrl } from '../pixel/raster'
 import { ChibiSprite } from '../pixel/ChibiSprite'
+import { LiveChibi } from '../pixel/LiveChibi'
 import { useAvatar, saveAvatar } from '../pixel/avatar'
 import { AvatarPicker } from '../pixel/AvatarPicker'
 import { masterOf } from '../pixel/masters'
-import { drawWorld, drawTempleIcon, worldRoutes } from './art/world'
+import { drawWorld, drawTempleIcon, worldRoutes, worldDecor } from './art/world'
+import { WorldLife } from './WorldLife'
 import { Walkers } from './Walkers'
 import { SoundToggle } from './SoundToggle'
 import { zen, useZenAmbience } from '../lib/zen'
@@ -75,6 +77,7 @@ export function WorldPage() {
   const L = useMemo(() => layout(PACKS.length, wide), [wide])
   const worldUrl = useMemo(() => gridToUrl(`world:${L.w}x${L.h}`, () => drawWorld(L.w, L.h, L.spots, 7)), [L])
   const routes = useMemo(() => worldRoutes(L.w, L.h, L.spots, 7), [L])
+  const decor = useMemo(() => worldDecor(L.w, L.h, L.spots, 7), [L])
   const scale = width / L.w
   // LE CADENAS SUIT L'ACHAT · pas le passe-droit d'essai, qui ouvre tout mais
   // ne doit pas faire croire que tout est gratuit (voir game/access)
@@ -117,6 +120,7 @@ export function WorldPage() {
       <section className="gm-sec">
         <div className="tw-world" ref={box} style={{ height: L.h * scale }}>
           {worldUrl && <img className="tw-world-bg" src={worldUrl} alt="" aria-hidden="true" width={L.w * scale} height={L.h * scale} />}
+          <WorldLife decor={decor} scale={scale} />
           <Walkers routes={routes} scale={scale} count={wide ? 12 : 7} seed={7} />
           {PACKS.map((p, i) => {
             const spot = L.spots[i]
@@ -145,10 +149,14 @@ export function WorldPage() {
             const m = masterOf(p.id)
             return (
               <Lnk key={p.id} className="tw-card gm-rise" href={packPath(p.id)} onClick={() => zen.sfx('tap')} style={{ ['--ac' as string]: p.tint, ['--i' as string]: k }}>
-                <span className="tw-card-art"><ChibiSprite spec={m.spec} scale={3} /></span>
+                <span className="tw-card-art"><LiveChibi spec={m.spec} scale={3} seed={p.id} /></span>
                 <span className="tw-card-t">
                   <b>{say(p.title, lang)}</b>
-                  <em>{s(TT.master)} {m.name} · {levels.length} {s(TT.floors)}{done ? ` · ${done}/${levels.length}` : ''}</em>
+                  <em>{s(TT.master)} {m.name} · {levels.length} {s(TT.floors)}</em>
+                  {/* LA PROGRESSION · une barre de jeu, les étages gravis sur le total */}
+                  <span className="tw-card-bar" role="progressbar" aria-valuemin={0} aria-valuemax={levels.length} aria-valuenow={done}
+                    aria-label={`${done} / ${levels.length}`}><i style={{ width: `${levels.length ? (done / levels.length) * 100 : 0}%` }} /></span>
+                  <small className="tw-card-n">{done} / {levels.length} {s(TT.floors)}</small>
                   <span className={`tw-tag${locked ? ' locked' : eurOf(p) === 0 ? ' free' : ' open'}`}>
                     {locked && <BauhausIcon name="lock" size={10} />}
                     {eurOf(p) === 0 ? s(TT.free) : locked ? `${priceTag(eurOf(p))} · ${FREE_LESSONS} ${s(TT.freeLessons)}` : s(TT.open)}
