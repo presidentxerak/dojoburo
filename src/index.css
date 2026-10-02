@@ -12985,12 +12985,12 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
 .lg { max-width: 820px; }
 .lg-updated { margin: 0 0 18px; font-size: 13.5px; color: var(--g-sub); }
 .lg-sec { margin: 0 0 22px; }
-.lg-sec h2 { margin: 0 0 8px; font-family: var(--font-game); font-weight: 800; font-size: 19px; color: var(--g-text); }
+.lg-sec h2 { margin: 0 0 8px; font-family: var(--font-game) !important; font-weight: 800 !important; font-size: 20px !important; line-height: 1.25 !important; letter-spacing: 0 !important; color: var(--g-text); }
 .lg-sec p { margin: 0 0 10px; font-size: 15.5px; line-height: 1.7; color: var(--g-text); }
 .lg-dl { display: grid; gap: 8px; margin: 0; }
 .lg-dl > div { display: flex; flex-wrap: wrap; gap: 4px 12px; }
-.lg-dl dt { flex: 0 0 220px; font-weight: 700; color: var(--g-sub); }
-.lg-dl dd { flex: 1 1 200px; margin: 0; color: var(--g-text); overflow-wrap: anywhere; }
+.lg-dl dt { flex: 0 0 220px; font-size: 15px; font-weight: 700; color: var(--g-sub); }
+.lg-dl dd { flex: 1 1 200px; margin: 0; font-size: 15px; color: var(--g-text); overflow-wrap: anywhere; }
 .lg-contact { font-size: 15px; }
 .lg-contact a, .lg-sec a, .lg-dl a { color: #7c3aed; text-decoration: underline; }
 .lg-other { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
