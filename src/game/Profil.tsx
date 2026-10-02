@@ -276,7 +276,7 @@ function BadgesTab() {
         et des succès s'ajoutent à l'XP. */}
     <section className="gm-sec">
       <h2 className="pf-h2">{t('pr.featsH2')} <span className="pf-of">{f.unlocked.size} / {FEATS.length}</span></h2>
-      <p className="pf-feats-lead">{f.parts} {t('pr.featsParts')} · {PART_POINTS} {t('pr.featsPer')} · <b>{f.points} {t('pr.featsPoints')}</b></p>
+      <p className="pf-feats-lead">{t('pr.featsParts')} {f.parts} · {PART_POINTS} {t('pr.featsPer')} · <b>{f.points} {t('pr.featsPoints')}</b></p>
       <div className="pf-feats">
         {FEATS.map((x) => {
           const on = f.unlocked.has(x.id)

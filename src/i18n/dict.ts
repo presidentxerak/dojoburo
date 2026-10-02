@@ -495,7 +495,7 @@ export const DICT = {
   'nav.profile': { en: 'Profile', fr: 'Profil' },
   'gm.tabs': { en: 'Main navigation', fr: 'Navigation principale' },
   'pr.featsH2': { en: "Achievements", fr: "Les succès" },
-  'pr.featsParts': { en: "lesson parts completed", fr: "parties de leçons terminées" },
+  'pr.featsParts': { en: "Lesson parts completed:", fr: "Parties de leçons terminées :" },
   'pr.featsPer': { en: "points each", fr: "points chacune" },
   'pr.featsPoints': { en: "bonus points", fr: "points bonus" },
   'tf.title': { en: "Pricing", fr: "Les tarifs" },
