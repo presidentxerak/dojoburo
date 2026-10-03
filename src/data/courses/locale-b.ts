@@ -3,10 +3,10 @@
 // LES MODULES 3 ET 4 · les images, la vidéo et l'audio en local, puis la
 // sécurité, l'entretien et la combinaison du local et du cloud.
 //
-// UN SEUL FIL ROUGE · le « Studio Haliotis », un studio de communication
+// UN SEUL FIL ROUGE · le « the Delorme firm », un studio de communication
 // fictif de cinq personnes, qui travaille pour des clients sous accord de
-// confidentialité, dont la « Coopérative des Marais », une coopérative
-// ostréicole tout aussi fictive. Malo, le graphiste (fictif), installe et
+// confidentialité, dont la « Ferrand », une coopérative
+// ostréicole tout aussi fictive. Malik, le graphiste (fictif), installe et
 // fait tourner les outils sur le poste du studio : une tour équipée d'une
 // carte graphique NVIDIA, et un Mac Apple Silicon. Une règle tient les deux
 // modules : un fichier client ne quitte pas la machine sans qu'on l'ait
@@ -45,8 +45,8 @@ const MEDIA: Level[] = [
       'You will install ComfyUI, run its default workflow and read each node as one step of image generation.',
       'Vous saurez installer ComfyUI, lancer son workflow par défaut et lire chaque nœud comme une étape de la génération.',
     ),
-    act: B('Install ComfyUI on the Studio Haliotis workstation and trace the default workflow from checkpoint to image.',
-      "Installez ComfyUI sur le poste du Studio Haliotis et suivez le workflow par défaut, du checkpoint à l'image."),
+    act: B('Install ComfyUI on the Delorme firm's office PC and trace the default workflow from checkpoint to image.',
+      "Installez ComfyUI sur le PC du bureau du cabinet Delorme et suivez le workflow par défaut, du checkpoint à l'image."),
     steps: [
       B('Install ComfyUI Desktop, the portable Windows build or a git clone in a Python virtual environment, as its README says.',
         'Installez ComfyUI Desktop, la version portable Windows ou un clone git dans un environnement virtuel Python, selon le README.'),
@@ -86,8 +86,8 @@ const MEDIA: Level[] = [
       'You will choose between SD 1.5, SDXL and Flux, load the right files and set the sampler to suit each model family.',
       'Vous saurez choisir entre SD 1.5, SDXL et Flux, charger les bons fichiers et régler le sampler selon la famille du modèle.',
     ),
-    act: B('Produce the same Studio Haliotis visual with SDXL and with Flux, and compare quality, speed and licence.',
-      'Produisez le même visuel du Studio Haliotis avec SDXL puis avec Flux, et comparez qualité, vitesse et licence.'),
+    act: B('Produce the same the Delorme firm visual with SDXL and with Flux, and compare quality, speed and licence.',
+      'Produisez le même visuel du cabinet Delorme avec SDXL puis avec Flux, et comparez qualité, vitesse et licence.'),
     steps: [
       B('Read the model page first: family, native resolution, advised sampler and CFG, licence, required files.',
         "Lisez d'abord la page du modèle : famille, résolution native, sampler et CFG conseillés, licence, fichiers requis."),
@@ -127,8 +127,8 @@ const MEDIA: Level[] = [
       'You will generate short video clips locally with Wan, through Wan2GP or ComfyUI, within what your graphics card can hold.',
       'Vous saurez générer de courts clips vidéo en local avec Wan, via Wan2GP ou ComfyUI, dans les limites de votre carte graphique.',
     ),
-    act: B('Animate a Studio Haliotis still image into a short clip, starting small, then raising quality step by step.',
-      'Animez une image fixe du Studio Haliotis en un court clip, en commençant petit puis en montant la qualité par paliers.'),
+    act: B('Animate one of the Delorme firm's still images into a short clip, starting small, then raising quality step by step.',
+      'Animez une image fixe du cabinet Delorme en un court clip, en commençant petit puis en montant la qualité par paliers.'),
     steps: [
       B('Read the hardware notes of Wan and Wan2GP for your VRAM, and pick the model size and memory profile they suggest.',
         'Lisez les indications matérielles de Wan et de Wan2GP pour votre VRAM, et prenez la taille de modèle et le profil conseillés.'),
@@ -168,8 +168,8 @@ const MEDIA: Level[] = [
       'You will transcribe a recording on your machine with Whisper, choose the model size and export subtitles.',
       'Vous saurez transcrire un enregistrement sur votre machine avec Whisper, choisir la taille du modèle et exporter des sous-titres.',
     ),
-    act: B('Transcribe a confidential client interview for Studio Haliotis without the audio ever leaving the workstation.',
-      "Transcrivez un entretien client confidentiel du Studio Haliotis sans que l'audio quitte jamais le poste."),
+    act: B('Transcribe a confidential client interview for the Delorme firm without the audio ever leaving the workstation.',
+      "Transcrivez un entretien client confidentiel du cabinet Delorme sans que l'audio quitte jamais le poste."),
     steps: [
       B('Pick an implementation: openai-whisper (Python), faster-whisper, or whisper.cpp, which also runs well on Apple Silicon.',
         'Choisissez une implémentation : openai-whisper (Python), faster-whisper, ou whisper.cpp, efficace aussi sur Apple Silicon.'),
@@ -213,12 +213,12 @@ const MEDIA_ENRICH: Record<string, Enrichment> = {
         "Le prix de cette liberté est un risque. Les nœuds personnalisés, installés à la main ou par ComfyUI Manager, sont du code Python qui s'exécute avec vos droits d'utilisateur. Sur un poste qui détient des fichiers clients, n'installez que les nœuds nécessaires, issus de dépôts entretenus, et laissez ComfyUI à l'écoute sur 127.0.0.1, sauf raison de l'ouvrir au réseau."),
     ],
     example: {
-      context: B("Studio Haliotis, a fictional five-person communication studio, works for clients under non-disclosure agreements. Malo, its designer, has just installed ComfyUI and wants a first workflow he can hand to the team.",
-        "Le Studio Haliotis, un studio de communication fictif de cinq personnes, travaille pour des clients sous accord de confidentialité. Malo, son graphiste, vient d'installer ComfyUI et veut un premier workflow à confier à l'équipe."),
+      context: B("the Delorme firm, a fictional five-person communication studio, works for clients under non-disclosure agreements. Malik, its designer, has just installed ComfyUI and wants a first workflow he can hand to the team.",
+        "Le cabinet Delorme, un studio de communication fictif de cinq personnes, travaille pour des clients sous accord de confidentialité. Malik, son graphiste, vient d'installer ComfyUI et veut un premier workflow à confier à l'équipe."),
       before: B("Workflow \"ultimate-realism.json\" downloaded from a forum.\nThe 14 missing custom nodes it asked for: all installed.\nSeed, steps, sampler, size and prompt changed together until something looked good.\nComfyUI started with --listen to use it from the meeting room.\nNothing written down.",
         "Workflow « ultimate-realism.json » téléchargé sur un forum.\nLes 14 nœuds personnalisés manquants qu'il réclamait : tous installés.\nSeed, steps, sampler, taille et prompt changés ensemble jusqu'à ce que quelque chose plaise.\nComfyUI lancé avec --listen pour s'en servir depuis la salle de réunion.\nRien de noté."),
-      after: B("Workflow \"haliotis-base-sdxl-v1.json\", built from the default graph, no custom node:\nLoad Checkpoint: one SDXL model, downloaded from its official page, hash and licence noted.\nCLIP Text Encode (positive): subject, setting, light, framing, medium.\nCLIP Text Encode (negative): a short list of what to avoid.\nEmpty Latent Image: 1024 x 1024, the native size of SDXL.\nKSampler: seed fixed, steps and CFG as advised on the model card, one change per run.\nVAE Decode, then Save Image with the prefix haliotis/[client]/[date].\nComfyUI listens on 127.0.0.1 only. A Note node explains the graph in two sentences.",
-        "Workflow « haliotis-base-sdxl-v1.json », construit à partir du graphe par défaut, sans nœud personnalisé :\nLoad Checkpoint : un seul modèle SDXL, téléchargé depuis sa page officielle, empreinte et licence notées.\nCLIP Text Encode (positif) : sujet, décor, lumière, cadrage, médium.\nCLIP Text Encode (négatif) : une courte liste de ce qu'il faut éviter.\nEmpty Latent Image : 1024 x 1024, la taille native de SDXL.\nKSampler : seed fixée, steps et CFG selon la fiche du modèle, un changement par rendu.\nVAE Decode, puis Save Image avec le préfixe haliotis/[client]/[date].\nComfyUI écoute sur 127.0.0.1 seulement. Un nœud Note explique le graphe en deux phrases."),
+      after: B("Workflow \"delorme-base-sdxl-v1.json\", built from the default graph, no custom node:\nLoad Checkpoint: one SDXL model, downloaded from its official page, hash and licence noted.\nCLIP Text Encode (positive): subject, setting, light, framing, medium.\nCLIP Text Encode (negative): a short list of what to avoid.\nEmpty Latent Image: 1024 x 1024, the native size of SDXL.\nKSampler: seed fixed, steps and CFG as advised on the model card, one change per run.\nVAE Decode, then Save Image with the prefix delorme/[client]/[date].\nComfyUI listens on 127.0.0.1 only. A Note node explains the graph in two sentences.",
+        "Workflow « delorme-base-sdxl-v1.json », construit à partir du graphe par défaut, sans nœud personnalisé :\nLoad Checkpoint : un seul modèle SDXL, téléchargé depuis sa page officielle, empreinte et licence notées.\nCLIP Text Encode (positif) : sujet, décor, lumière, cadrage, médium.\nCLIP Text Encode (négatif) : une courte liste de ce qu'il faut éviter.\nEmpty Latent Image : 1024 x 1024, la taille native de SDXL.\nKSampler : seed fixée, steps et CFG selon la fiche du modèle, un changement par rendu.\nVAE Decode, puis Save Image avec le préfixe delorme/[client]/[date].\nComfyUI écoute sur 127.0.0.1 seulement. Un nœud Note explique le graphe en deux phrases."),
       takeaway: B("The first approach mixes unknown code, an open network port and five simultaneous changes: nothing can be reproduced or trusted. The second starts from the default graph, documents each node and stays reproducible for the whole team.",
         "La première approche mêle du code inconnu, un port ouvert au réseau et cinq changements simultanés : rien n'est reproductible ni sûr. La seconde part du graphe par défaut, documente chaque nœud et reste reproductible pour toute l'équipe."),
     },
@@ -270,8 +270,8 @@ const MEDIA_ENRICH: Record<string, Enrichment> = {
         "Le choix dépend aussi de la machine et de la licence. Flux est plus lourd que SDXL ; des versions réduites (fp8, GGUF quantifié) tiennent sur des cartes plus modestes, au prix d'un peu de fidélité. Les licences diffèrent : Flux.1 [schnell] est sous Apache 2.0, Flux.1 [dev] sous licence non commerciale, les modèles Stable Diffusion sous licences Stability AI. Lisez les conditions sur chaque page de modèle."),
     ],
     example: {
-      context: B("Studio Haliotis must produce a banner for the Coopérative des Marais, a fictional oyster cooperative under NDA: an oyster table on a pontoon at dusk, with the word MARAIS painted on a crate.",
-        "Le Studio Haliotis doit produire une bannière pour la Coopérative des Marais, une coopérative ostréicole fictive sous NDA : une table d'huîtres sur un ponton au crépuscule, avec le mot MARAIS peint sur une caisse."),
+      context: B("the Delorme firm must produce a banner for Ferrand, a fictional oyster cooperative under NDA: an oyster table on a pontoon at dusk, with the word MARAIS painted on a crate.",
+        "Le cabinet Delorme doit produire une bannière pour la société Ferrand, une coopérative ostréicole fictive sous NDA : une table d'huîtres sur un ponton au crépuscule, avec le mot MARAIS peint sur une caisse."),
       before: B("Model: Flux.1 [dev], CFG 7, licence not read.\nPositive: oysters, wooden table, pontoon, sunset, crate, text MARAIS, masterpiece, best quality, 8k, ultra detailed\nNegative: blurry, bad text, deformed, ugly, watermark, lowres",
         "Modèle : Flux.1 [dev], CFG 7, licence non lue.\nPositif : huîtres, table en bois, ponton, coucher de soleil, caisse, texte MARAIS, chef-d'oeuvre, meilleure qualité, 8k, ultra détaillé\nNégatif : flou, mauvais texte, déformé, laid, filigrane, basse résolution"),
       after: B("Flux.1 [dev], licence read on its model page and checked against the job; CFG 1, guidance as advised on the model card, native size.\nPrompt: A rustic wooden table on a pontoon at dusk, covered with freshly opened oysters on crushed ice and two lemon halves. In the foreground, a weathered wooden crate with the word \"MARAIS\" painted in white capital letters. Warm low sun from the left, calm water and oyster beds in the soft-focus background. Documentary photograph, natural colours, slight film grain.\n\nSame scene for SDXL, CFG as advised, 1024 x 1024:\nrustic wooden table on a pontoon, opened oysters on crushed ice, lemon halves, weathered wooden crate, dusk, low warm sun from the left, oyster beds in the background, documentary photo, natural colours, slight film grain\nNegative (SDXL only): watermark, oversaturated, text artefacts",
@@ -327,12 +327,12 @@ const MEDIA_ENRICH: Record<string, Enrichment> = {
         "La méthode est celle du brouillon. Vous rendez d'abord des clips courts en basse résolution pour juger composition et mouvement, gardez la seed du bon, puis montez un paramètre à la fois. L'image vers vidéo aide aussi : partir d'une image fixe déjà validée (faite dans ComfyUI, par exemple) fixe cadrage et style, et le modèle n'a plus qu'à animer."),
     ],
     example: {
-      context: B("For the Coopérative des Marais social media, Studio Haliotis wants a short loop: the banner scene with a slight movement. The footage must stay on the workstation until the client approves it.",
-        "Pour les réseaux sociaux de la Coopérative des Marais, le Studio Haliotis veut une courte boucle : la scène de la bannière, avec un léger mouvement. Les images doivent rester sur le poste jusqu'à validation du client."),
+      context: B("For Ferrand social media, the Delorme firm wants a short loop: the banner scene with a slight movement. The footage must stay on the workstation until the client approves it.",
+        "Pour les réseaux sociaux de la société Ferrand, le cabinet Delorme veut une courte boucle : la scène de la bannière, avec un léger mouvement. Les images doivent rester sur le poste jusqu'à validation du client."),
       before: B("Text-to-video, maximum resolution, longest duration, largest model.\nPrompt: cinematic epic shot of oyster farmers working at sunset, boats arriving, seagulls flying, camera flying over the bay then zooming on the table, people laughing, 8k, masterpiece",
         "Texte vers vidéo, résolution maximale, durée la plus longue, plus grand modèle.\nPrompt : plan cinématographique épique d'ostréiculteurs au travail au coucher du soleil, bateaux qui arrivent, mouettes en vol, caméra qui survole la baie puis zoome sur la table, gens qui rient, 8k, chef-d'oeuvre"),
-      after: B("Image-to-video, from the validated banner (haliotis/marais/banniere-v3.png).\nDraft settings: low resolution, short duration, seed fixed, memory profile advised by Wan2GP for the card.\nPrompt: The camera slowly pushes in towards the table of oysters. Light ripples move on the water in the background, a thin wisp of mist drifts from left to right. Nothing else moves. Calm, documentary feel.\nThen: same seed, higher resolution; then more steps if detail is lacking. Time of each render noted in the project sheet.",
-        "Image vers vidéo, à partir de la bannière validée (haliotis/marais/banniere-v3.png).\nRéglages de brouillon : basse résolution, durée courte, seed fixée, profil mémoire conseillé par Wan2GP pour la carte.\nPrompt : La caméra avance lentement vers la table d'huîtres. De légers reflets bougent sur l'eau à l'arrière-plan, un mince voile de brume glisse de gauche à droite. Rien d'autre ne bouge. Ambiance calme, documentaire.\nEnsuite : même seed, résolution plus haute ; puis plus de steps si le détail manque. Durée de chaque rendu notée dans la fiche projet."),
+      after: B("Image-to-video, from the validated banner (delorme/ferrand/couverture-v3.png).\nDraft settings: low resolution, short duration, seed fixed, memory profile advised by Wan2GP for the card.\nPrompt: The camera slowly pushes in towards the table of oysters. Light ripples move on the water in the background, a thin wisp of mist drifts from left to right. Nothing else moves. Calm, documentary feel.\nThen: same seed, higher resolution; then more steps if detail is lacking. Time of each render noted in the project sheet.",
+        "Image vers vidéo, à partir de la bannière validée (delorme/ferrand/couverture-v3.png).\nRéglages de brouillon : basse résolution, durée courte, seed fixée, profil mémoire conseillé par Wan2GP pour la carte.\nPrompt : La caméra avance lentement vers la table d'huîtres. De légers reflets bougent sur l'eau à l'arrière-plan, un mince voile de brume glisse de gauche à droite. Rien d'autre ne bouge. Ambiance calme, documentaire.\nEnsuite : même seed, résolution plus haute ; puis plus de steps si le détail manque. Durée de chaque rendu notée dans la fiche projet."),
       takeaway: B("The first request asks for many subjects, several camera moves and maximum settings at once: the render is long and the motion incoherent. The second animates a validated image with one camera move and two small motions, in draft first.",
         "La première demande réclame beaucoup de sujets, plusieurs mouvements de caméra et des réglages maximaux à la fois : rendu long, mouvement incohérent. La seconde anime une image validée, un mouvement de caméra et deux petits mouvements, en brouillon d'abord."),
     },
@@ -384,8 +384,8 @@ const MEDIA_ENRICH: Record<string, Enrichment> = {
         "Whisper prédit un texte plausible, il peut donc aussi inventer : sur un silence, de la musique ou du bruit, il écrit parfois des phrases jamais dites, ou en répète une en boucle. Il ne sait pas non plus qui parle. Une transcription professionnelle demande donc deux étapes de plus : la diarisation (qui parle quand) avec un outil dédié, et la relecture à l'écoute des noms, chiffres et citations."),
     ],
     example: {
-      context: B("Studio Haliotis records a one-hour interview with the director of the Coopérative des Marais, for a portrait on its website. The recording is confidential and must not go through an online service.",
-        "Le Studio Haliotis enregistre un entretien d'une heure avec la directrice de la Coopérative des Marais, pour un portrait sur son site. L'enregistrement est confidentiel et ne doit passer par aucun service en ligne."),
+      context: B("the Delorme firm records a one-hour interview with the director of Ferrand, for a portrait on its website. The recording is confidential and must not go through an online service.",
+        "Le cabinet Delorme enregistre un entretien d'une heure avec la directrice de la société Ferrand, pour un portrait sur son site. L'enregistrement est confidentiel et ne doit passer par aucun service en ligne."),
       before: B("whisper entretien-marais.m4a\n(default model, language detected automatically, raw text pasted straight into the portrait)",
         "whisper entretien-marais.m4a\n(modèle par défaut, langue détectée automatiquement, texte brut collé tel quel dans le portrait)"),
       after: B("ffmpeg -i entretien-marais.m4a -ar 16000 -ac 1 -c:a pcm_s16le entretien-marais.wav\n\nwhisper-cli -m models/ggml-[MODEL SIZE].bin -f entretien-marais.wav -l fr -otxt -osrt\n(whisper.cpp; the executable was called main in older versions, see its README)\n\nThen: diarization with pyannote run locally, speakers named in the text, and every proper noun, figure and quote checked against the audio through the SRT timecodes before the portrait is written.",
@@ -434,8 +434,8 @@ const MEDIA_ENRICH: Record<string, Enrichment> = {
 
 const MEDIA_DEEP: Record<string, Deepening> = {
   [deepKey(M3, 'lo-comfyui')]: {
-    intro: B("ComfyUI is an open-source interface that turns image generation into a visible graph of nodes. It looks intimidating at first, yet the default workflow has only seven nodes, each of which is one step of a diffusion model's work. This lesson installs ComfyUI on the Studio Haliotis workstation, walks through those seven nodes, and shows how a workflow is saved, shared and reproduced. At the end, you will read any basic graph and know where to act when an image goes wrong.",
-      "ComfyUI est une interface open source qui fait de la génération d'image un graphe de nœuds visible. Il intimide au premier abord, pourtant le workflow par défaut ne compte que sept nœuds, chacun étant une étape du travail d'un modèle de diffusion. Ce cours installe ComfyUI sur le poste du Studio Haliotis, parcourt ces sept nœuds, et montre comment un workflow s'enregistre, se partage et se reproduit. À la fin, vous lirez n'importe quel graphe simple et saurez où agir quand une image tourne mal."),
+    intro: B("ComfyUI is an open-source interface that turns image generation into a visible graph of nodes. It looks intimidating at first, yet the default workflow has only seven nodes, each of which is one step of a diffusion model's work. This lesson installs ComfyUI on the Delorme firm's office PC, walks through those seven nodes, and shows how a workflow is saved, shared and reproduced. At the end, you will read any basic graph and know where to act when an image goes wrong.",
+      "ComfyUI est une interface open source qui fait de la génération d'image un graphe de nœuds visible. Il intimide au premier abord, pourtant le workflow par défaut ne compte que sept nœuds, chacun étant une étape du travail d'un modèle de diffusion. Ce cours installe ComfyUI sur le PC du bureau du cabinet Delorme, parcourt ces sept nœuds, et montre comment un workflow s'enregistre, se partage et se reproduit. À la fin, vous lirez n'importe quel graphe simple et saurez où agir quand une image tourne mal."),
     concepts: [
       { term: B('Checkpoint', 'Checkpoint'),
         def: B("A model file that bundles the diffusion model, the text encoder (CLIP) and the VAE. It goes in models/checkpoints; some recent models, such as Flux, are often distributed as separate files instead.",
@@ -454,8 +454,8 @@ const MEDIA_DEEP: Record<string, Deepening> = {
           "Un nœud ajouté par une extension tierce, souvent via ComfyUI Manager. Il étend ce que ComfyUI sait faire, et c'est du code Python qui s'exécute avec vos droits.") },
     ],
     walkthrough: {
-      title: B("Malo installs ComfyUI on the Studio Haliotis workstation and builds the team's base workflow.",
-        "Malo installe ComfyUI sur le poste du Studio Haliotis et construit le workflow de base de l'équipe."),
+      title: B("Malik installs ComfyUI on the Delorme firm's office PC and builds the team's base workflow.",
+        "Malik installe ComfyUI sur le PC du bureau du cabinet Delorme et construit le workflow de base de l'équipe."),
       steps: [
         B("He installs ComfyUI Desktop on Windows, following the official README, and lets it create its own Python environment. Why: a separate environment keeps ComfyUI's dependencies from clashing with the other tools on the machine.",
           "Il installe ComfyUI Desktop sous Windows, selon le README officiel, et le laisse créer son propre environnement Python. Pourquoi : un environnement séparé empêche les dépendances de ComfyUI d'entrer en conflit avec les autres outils de la machine."),
@@ -465,8 +465,8 @@ const MEDIA_DEEP: Record<string, Deepening> = {
           "Il charge le workflow par défaut et suit les liens de Load Checkpoint à Save Image, en disant à voix haute ce que chaque nœud transmet. Pourquoi : lire le graphe comme une chaîne lui permettra ensuite de trouver d'où vient un défaut."),
         B("He sets Empty Latent Image to 1024 x 1024, fixes the seed and renders three images, changing only the steps, then only the CFG. Why: one change per run shows the real effect of each setting.",
           "Il règle Empty Latent Image sur 1024 x 1024, fixe la seed et rend trois images, en ne changeant que les steps, puis que la CFG. Pourquoi : un changement par rendu montre l'effet réel de chaque réglage."),
-        B("He saves the graph as haliotis-base-sdxl-v1.json in the shared folder and checks that loading a saved PNG restores it. Why: the team now has a reproducible base, versioned by its file name.",
-          "Il enregistre le graphe sous haliotis-base-sdxl-v1.json dans le dossier partagé et vérifie que recharger un PNG enregistré le restaure. Pourquoi : l'équipe dispose d'une base reproductible, versionnée par son nom de fichier."),
+        B("He saves the graph as delorme-base-sdxl-v1.json in the shared folder and checks that loading a saved PNG restores it. Why: the team now has a reproducible base, versioned by its file name.",
+          "Il enregistre le graphe sous delorme-base-sdxl-v1.json dans le dossier partagé et vérifie que recharger un PNG enregistré le restaure. Pourquoi : l'équipe dispose d'une base reproductible, versionnée par son nom de fichier."),
       ],
     },
     mistakes: [
@@ -517,8 +517,8 @@ const MEDIA_DEEP: Record<string, Deepening> = {
   },
 
   [deepKey(M3, 'lo-sd-flux')]: {
-    intro: B("Stable Diffusion and Flux are the two families of open image models most used locally. They share the diffusion principle but differ in text understanding, weight, native resolution, settings and licence. This lesson teaches you to read a model card, load the right files in ComfyUI and drive each family as it expects, with the Coopérative des Marais banner made by Studio Haliotis. At the end, you will choose a model for a need and explain why a setting that works with one fails with the other.",
-      "Stable Diffusion et Flux sont les deux familles de modèles d'image ouverts les plus employées en local. Elles partagent le principe de la diffusion mais diffèrent par la compréhension du texte, le poids, la résolution native, les réglages et la licence. Ce cours vous apprend à lire une fiche de modèle, à charger les bons fichiers dans ComfyUI et à piloter chaque famille comme elle l'attend, avec la bannière de la Coopérative des Marais réalisée par le Studio Haliotis. À la fin, vous choisirez un modèle selon le besoin et saurez expliquer pourquoi un réglage qui marche avec l'un échoue avec l'autre."),
+    intro: B("Stable Diffusion and Flux are the two families of open image models most used locally. They share the diffusion principle but differ in text understanding, weight, native resolution, settings and licence. This lesson teaches you to read a model card, load the right files in ComfyUI and drive each family as it expects, with Ferrand banner made by the Delorme firm. At the end, you will choose a model for a need and explain why a setting that works with one fails with the other.",
+      "Stable Diffusion et Flux sont les deux familles de modèles d'image ouverts les plus employées en local. Elles partagent le principe de la diffusion mais diffèrent par la compréhension du texte, le poids, la résolution native, les réglages et la licence. Ce cours vous apprend à lire une fiche de modèle, à charger les bons fichiers dans ComfyUI et à piloter chaque famille comme elle l'attend, avec la bannière de la société Ferrand réalisée par le cabinet Delorme. À la fin, vous choisirez un modèle selon le besoin et saurez expliquer pourquoi un réglage qui marche avec l'un échoue avec l'autre."),
     concepts: [
       { term: B('SD 1.5, SDXL, SD 3.5', 'SD 1.5, SDXL, SD 3.5'),
         def: B("Successive generations of Stable Diffusion, from Stability AI. SD 1.5 is light and has a vast ecosystem of add-ons; SDXL works around 1024 pixels; SD 3.5 is more recent. Each has its own licence.",
@@ -537,8 +537,8 @@ const MEDIA_DEEP: Record<string, Deepening> = {
           "Un petit fichier d'appoint qui oriente un modèle vers un style, un sujet ou un produit. Il ne fonctionne qu'avec la famille pour laquelle il a été entraîné : un LoRA SDXL sur SDXL.") },
     ],
     walkthrough: {
-      title: B("Malo produces the Coopérative des Marais banner with SDXL, then with Flux, and chooses.",
-        "Malo produit la bannière de la Coopérative des Marais avec SDXL, puis avec Flux, et choisit."),
+      title: B("Malik produces Ferrand banner with SDXL, then with Flux, and chooses.",
+        "Malik produit la bannière de la société Ferrand avec SDXL, puis avec Flux, et choisit."),
       steps: [
         B("He reads both model cards: native resolution, advised sampler, CFG or guidance, required files, licence. Why: these settings are each model's operating range, and the licence decides whether the client use is allowed.",
           "Il lit les deux fiches : résolution native, sampler conseillé, CFG ou guidance, fichiers requis, licence. Pourquoi : ces réglages sont la plage de fonctionnement de chaque modèle, et la licence décide si l'usage client est permis."),
@@ -599,8 +599,8 @@ const MEDIA_DEEP: Record<string, Deepening> = {
   },
 
   [deepKey(M3, 'lo-video-wan')]: {
-    intro: B("Local video generation is now possible on personal machines, within clear limits: short clips, long render times and a strong dependence on VRAM. This lesson presents Wan, a family of open video models released under Apache 2.0, and two ways to run it: Wan2GP, an interface built for modest graphics cards, and ComfyUI. Following Studio Haliotis, you will animate a validated image through drafts and plan a final render. At the end, you will know what to expect from your hardware and how to get a usable clip without wasting hours.",
-      "La génération vidéo locale est désormais possible sur des machines personnelles, dans des limites nettes : clips courts, rendus longs et forte dépendance à la VRAM. Ce cours présente Wan, une famille de modèles vidéo ouverts publiés sous Apache 2.0, et deux façons de le faire tourner : Wan2GP, une interface conçue pour les cartes modestes, et ComfyUI. Avec le Studio Haliotis, vous animerez une image validée par brouillons et planifierez un rendu final. À la fin, vous saurez quoi attendre de votre matériel et comment obtenir un clip exploitable sans perdre des heures."),
+    intro: B("Local video generation is now possible on personal machines, within clear limits: short clips, long render times and a strong dependence on VRAM. This lesson presents Wan, a family of open video models released under Apache 2.0, and two ways to run it: Wan2GP, an interface built for modest graphics cards, and ComfyUI. Following the Delorme firm, you will animate a validated image through drafts and plan a final render. At the end, you will know what to expect from your hardware and how to get a usable clip without wasting hours.",
+      "La génération vidéo locale est désormais possible sur des machines personnelles, dans des limites nettes : clips courts, rendus longs et forte dépendance à la VRAM. Ce cours présente Wan, une famille de modèles vidéo ouverts publiés sous Apache 2.0, et deux façons de le faire tourner : Wan2GP, une interface conçue pour les cartes modestes, et ComfyUI. Avec le cabinet Delorme, vous animerez une image validée par brouillons et planifierez un rendu final. À la fin, vous saurez quoi attendre de votre matériel et comment obtenir un clip exploitable sans perdre des heures."),
     concepts: [
       { term: B('Text-to-video, image-to-video', 'Texte vers vidéo, image vers vidéo'),
         def: B("Two modes: the first creates a clip from a description, the second animates an existing image. The second keeps framing and style under control, which suits a brand's visuals.",
@@ -619,15 +619,15 @@ const MEDIA_DEEP: Record<string, Deepening> = {
           "Un rendu court en basse résolution, qui sert à juger composition et mouvement avant de consacrer du temps à la version finale. Sa seed est gardée pour reproduire le bon.") },
     ],
     walkthrough: {
-      title: B("Malo animates the Coopérative des Marais banner on the Studio Haliotis workstation.",
-        "Malo anime la bannière de la Coopérative des Marais sur le poste du Studio Haliotis."),
+      title: B("Malik animates Ferrand banner on the Delorme firm's office PC.",
+        "Malik anime la bannière de la société Ferrand sur le PC du bureau du cabinet Delorme."),
       steps: [
         B("He reads the Wan2GP README and the Wan model pages to see which models and profiles suit his card's VRAM. Why: these notes are maintained by the projects and change with versions; they spare him a failed install or a render that never ends.",
           "Il lit le README de Wan2GP et les pages des modèles Wan pour voir quels modèles et profils conviennent à la VRAM de sa carte. Pourquoi : ces notes sont tenues par les projets et changent avec les versions ; elles lui évitent une installation ratée ou un rendu sans fin."),
         B("He installs Wan2GP in a dedicated Python environment, launches it and checks that the interface only listens locally. Why: a separate environment protects ComfyUI's dependencies, and a local address keeps the client files private.",
           "Il installe Wan2GP dans un environnement Python dédié, le lance et vérifie que l'interface n'écoute qu'en local. Pourquoi : un environnement séparé protège les dépendances de ComfyUI, et une adresse locale garde les fichiers clients privés."),
-        B("He chooses image-to-video, loads banniere-v3.png and writes a prompt with one slow push-in and two small motions (ripples, mist). Why: the image fixes framing and style, and a simple motion has the best chance of staying coherent.",
-          "Il choisit l'image vers vidéo, charge banniere-v3.png et écrit un prompt avec une lente avancée de caméra et deux petits mouvements (reflets, brume). Pourquoi : l'image fixe cadrage et style, et un mouvement simple a le plus de chances de rester cohérent."),
+        B("He chooses image-to-video, loads couverture-v3.png and writes a prompt with one slow push-in and two small motions (ripples, mist). Why: the image fixes framing and style, and a simple motion has the best chance of staying coherent.",
+          "Il choisit l'image vers vidéo, charge couverture-v3.png et écrit un prompt avec une lente avancée de caméra et deux petits mouvements (reflets, brume). Pourquoi : l'image fixe cadrage et style, et un mouvement simple a le plus de chances de rester cohérent."),
         B("He renders three drafts at low resolution and short duration, with the same seed, changing only the wording of the motion. He keeps the second. Why: drafts are fast enough to compare several ideas in one session.",
           "Il rend trois brouillons en basse résolution et durée courte, avec la même seed, en ne changeant que la formulation du mouvement. Il garde le deuxième. Pourquoi : les brouillons sont assez rapides pour comparer plusieurs idées en une séance."),
         B("He launches the final render at higher resolution during the lunch break, with the kept seed, and notes how long it took. Why: a long render is planned like a print job, and the noted time helps schedule the next ones.",
@@ -701,11 +701,11 @@ const MEDIA_DEEP: Record<string, Deepening> = {
           "Un texte produit par le modèle qui ne correspond à rien dans l'audio, souvent sur un silence, de la musique ou du bruit. Il se lit avec fluidité, et c'est justement pourquoi il faut le vérifier.") },
     ],
     walkthrough: {
-      title: B("Studio Haliotis transcribes the confidential interview with the director of the Coopérative des Marais.",
-        "Le Studio Haliotis transcrit l'entretien confidentiel avec la directrice de la Coopérative des Marais."),
+      title: B("the Delorme firm transcribes the confidential interview with the director of Ferrand.",
+        "Le cabinet Delorme transcrit l'entretien confidentiel avec la directrice de la société Ferrand."),
       steps: [
-        B("Malo converts the recording with ffmpeg to a 16 kHz mono WAV and trims the long silences at the start and end. Why: whisper.cpp expects this format, and silences are where invented text tends to appear.",
-          "Malo convertit l'enregistrement avec ffmpeg en WAV mono 16 kHz et coupe les longs silences du début et de la fin. Pourquoi : whisper.cpp attend ce format, et c'est sur les silences que le texte inventé apparaît volontiers."),
+        B("Malik converts the recording with ffmpeg to a 16 kHz mono WAV and trims the long silences at the start and end. Why: whisper.cpp expects this format, and silences are where invented text tends to appear.",
+          "Malik convertit l'enregistrement avec ffmpeg en WAV mono 16 kHz et coupe les longs silences du début et de la fin. Pourquoi : whisper.cpp attend ce format, et c'est sur les silences que le texte inventé apparaît volontiers."),
         B("He tests two model sizes with whisper.cpp on a five-minute extract, with the language set to French, and compares the names of places and people. Why: the extract shows quality and time before he commits the full hour.",
           "Il teste deux tailles de modèle avec whisper.cpp sur un extrait de cinq minutes, langue fixée au français, et compare les noms de lieux et de personnes. Pourquoi : l'extrait montre qualité et durée avant d'engager l'heure entière."),
         B("He transcribes the full hour with the chosen size, exporting TXT and SRT. Why: the text is for writing, the SRT for finding each quote in the audio by its timecode.",

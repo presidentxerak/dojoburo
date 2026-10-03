@@ -384,7 +384,7 @@ const COMPOSANTS_ENRICH: Record<string, Enrichment> = {
         "Les gabarits reposent sur des grilles de mise en page (colonnes, gouttières, marges, idéalement reliées à des variables) et sur l'auto layout. Ils font leurs preuves avec un contenu extrême : un long nom d'école, une liste vide, un libellé traduit. Un assistant IA est utile ici pour produire vite un contenu réaliste et limite ; vous le collez ensuite, ou vous passez par un plugin de contenu."),
     ],
     example: {
-      context: B("Sophie needs an enrolment form for the lessons of Cadenza. Tom asks an AI assistant for a form, and receives a design that uses none of the components of Cadenza.",
+      context: B("Sophie needs an enrolment form for the lessons of Cadenza. Tom asks an AI assistant for a form, and receives a design that uses none of the library components.",
         "Sophie a besoin d'un formulaire d'inscription aux cours dans Cadenza. Tom demande un formulaire à un assistant IA, et reçoit une proposition qui n'emploie aucun composant de la bibliothèque."),
       before: B("Create a sign-up form for my app.",
         "Crée un formulaire d'inscription pour mon app."),
