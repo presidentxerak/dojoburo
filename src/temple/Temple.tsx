@@ -40,6 +40,7 @@ import { levelOf } from '../game/Gauge'
 import { getSettings, systemReducesMotion } from '../lib/settings'
 import { SoundToggle } from './SoundToggle'
 import { drawRoof, drawFloorStrip, drawBase } from './art/facade'
+import { drawSideTile } from './art/world'
 import { TT } from './templeText'
 import { dailyChallenge } from './masterDaily'
 
@@ -182,6 +183,8 @@ export function TemplePage({ packId }: { packId: string }) {
   const roofUrl = gridToUrl(`roof:${pack.id}`, () => drawRoof(pack.tint))
   const stripUrl = gridToUrl('strip', () => drawFloorStrip())
   const baseUrl = gridToUrl(`base:${pack.id}`, () => drawBase(pack.tint))
+  const sideL = gridToUrl('side:l', () => drawSideTile(3))
+  const sideR = gridToUrl('side:r', () => drawSideTile(11))
   const leafL = gridToUrl('door:l', () => drawDoorLeaf('left'))
   const leafR = gridToUrl('door:r', () => drawDoorLeaf('right'))
   const inside = gridToUrl(`door:in:${pack.tint}`, () => drawDoorInside(pack.tint))
@@ -297,6 +300,9 @@ export function TemplePage({ packId }: { packId: string }) {
             )
           })}
           {baseUrl && <img className="tp-base" src={baseUrl} alt="" aria-hidden="true" />}
+          {/* LE DÉCOR DES CÔTÉS · arbres, bambous, buissons, de chaque côté du perron */}
+          {sideL && <span className="tp-side l" aria-hidden="true" style={{ backgroundImage: `url(${sideL})` }} />}
+          {sideR && <span className="tp-side r" aria-hidden="true" style={{ backgroundImage: `url(${sideR})` }} />}
         </div>
         {/* LE JARDIN ZEN · au pied du temple, le chemin part de l'escalier */}
         {garden && <div className="tp-ground" aria-hidden="true"><img src={garden} alt="" /></div>}

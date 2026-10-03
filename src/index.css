@@ -13082,3 +13082,16 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
    des cours, posé en haut à droite. */
 .tp-tower { width: calc(100% - 2 * var(--page-x)); margin: 0 auto; }
 @media (min-width: 700px) { .tp-tower { width: calc(100% - 2 * (var(--page-x) + 60px)); } }
+/* LE DÉCOR DES CÔTÉS DU TEMPLE · demandé : « améliore le décor sur les côtés du
+   temple ajoute des plantes et décors car là ça fait bug graphique ». Une
+   bande d'arbres, de bambous et de buissons part de chaque côté du perron
+   jusqu'au bord de l'écran ; son herbe est à la même échelle que celle du
+   perron (dessinée à demi-échelle : 64 cases valent 32 cases du perron),
+   donc les deux se raccordent. */
+.tp-tower { position: relative; container-type: inline-size; }
+.tp-side {
+  position: absolute; bottom: 0; width: 100vw; height: calc(100cqw * 32 / 160);
+  background-repeat: repeat-x; background-size: auto 100%; image-rendering: pixelated; pointer-events: none;
+}
+.tp-side.l { right: 100%; background-position: right bottom; }
+.tp-side.r { left: 100%; background-position: left bottom; }
