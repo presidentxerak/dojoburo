@@ -1,5 +1,780 @@
-// LE COURS « Tenir sa comptabilité de A à Z avec l'IA », PARTIE A · voir ./types et ./index. En rédaction.
+// LE COURS « Tenir sa comptabilité de A à Z avec l'IA », PARTIE A · voir ./types et ./index.
+//
+// CETTE PARTIE pose les bases (pourquoi tenir des comptes selon le statut, la
+// partie double et le plan comptable général, les journaux, le grand livre et
+// la balance, l'organisation et les outils), puis traite les pièces et les
+// écritures (collecte et extraction des justificatifs, catégorisation,
+// facturation conforme, rapprochement bancaire). La PARTIE B traite la TVA,
+// les obligations, la clôture et le pilotage.
+//
+// LE FIL ROUGE EST FICTIF, et c'est le même que dans la partie B · « Studio
+// Cerise », la SASU imaginaire de Lina Morel, graphiste, créée après deux ans
+// en micro-entreprise. Elle vend des prestations d'identité visuelle à des
+// clients professionnels (des services) et des carnets imprimés en ligne (des
+// marchandises, achetées à un imprimeur puis revendues). Exercice calendaire,
+// TVA applicable. Son expert-comptable, Paul, est lui aussi fictif.
+//
+// CE QUE LE COURS AFFIRME, ET CE QU'IL S'INTERDIT. Il s'en tient aux principes
+// stables (partie double, classes du plan comptable général, rôle des
+// journaux, mentions et numérotation des factures, rapprochement bancaire).
+// Les seuils, les taux, les dates et les conditions qui évoluent ne sont pas
+// recopiés : le cours décrit le principe et renvoie aux sources officielles
+// (Service-Public Entreprendre, impots.gouv.fr, urssaf.fr, economie.gouv.fr,
+// Autorité des normes comptables), sans adresse inventée, et ne donne jamais
+// de conseil fiscal personnalisé.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const COMPTA_A: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 1 · LES BASES DE LA COMPTABILITÉ                             */
+/* ================================================================== */
+
+const M1 = 'cp-m1'
+
+const BASICS: Level[] = [
+  {
+    id: 'cp-why-status',
+    master: 'research',
+    minutes: 10,
+    title: B('Why keep books, depending on your status', 'Pourquoi tenir une comptabilité, selon votre statut'),
+    learn: B(
+      'You will tell what bookkeeping your status requires and what the books are for, beyond the tax return.',
+      'Vous saurez dire quelle comptabilité votre statut impose et à quoi servent les comptes, au-delà de la déclaration.',
+    ),
+    act: B('Write the obligations sheet of Studio Cerise, then your own, from official sources checked line by line.',
+      'Rédigez la fiche des obligations de Studio Cerise, puis la vôtre, à partir de sources officielles vérifiées.'),
+    steps: [
+      B('Write down your exact status and tax regime: micro-entreprise, EI at the real regime, SASU or SARL, income or corporate tax.',
+        'Notez votre statut et votre régime exacts : micro-entreprise, EI au réel, SASU ou SARL, impôt sur le revenu ou sur les sociétés.'),
+      B('Ask an AI for a draft list of the bookkeeping obligations of this status, each with the official source to check.',
+        'Demandez à une IA la liste provisoire des obligations comptables de ce statut, avec la source officielle à vérifier.'),
+      B('Check each line on Service-Public Entreprendre, urssaf.fr or impots.gouv.fr, and strike out what you cannot confirm.',
+        'Vérifiez chaque ligne sur Service-Public Entreprendre, urssaf.fr ou impots.gouv.fr, et barrez ce que vous ne confirmez pas.'),
+      B('Add what the books will give you: margin by activity, cash at hand, the figures your bank or accountant will ask for.',
+        'Ajoutez ce que les comptes vous apporteront : marge par activité, trésorerie, chiffres demandés par la banque ou le cabinet.'),
+    ],
+    trap: B(
+      'Believing a micro-entreprise keeps no books at all: it keeps lighter records (a dated register of receipts, sometimes of purchases), not nothing.',
+      "Croire qu'une micro-entreprise n'a aucune comptabilité : elle tient des registres allégés (recettes datées, parfois achats), pas rien.",
+    ),
+    quiz: {
+      q: B('Lina is turning her micro-entreprise into a SASU, Studio Cerise. What changes most for her bookkeeping?',
+        "Lina transforme sa micro-entreprise en SASU, Studio Cerise. Qu'est-ce qui change le plus pour sa comptabilité ?"),
+      options: [
+        B('She moves from simple registers to full double-entry accounts', 'Elle passe de registres simples à une comptabilité complète en partie double'),
+        B('Nothing, since bookkeeping only depends on turnover levels', "Rien, puisque la comptabilité ne dépend que du chiffre d'affaires"),
+        B('She only needs to keep all her bank statements in a single folder', "Elle n'aura qu'à garder tous ses relevés bancaires dans un seul dossier"),
+      ],
+      answer: 0,
+      why: B(
+        'A company (SASU, SARL) keeps full accrual accounts and produces annual accounts each year. A micro-entreprise keeps simplified registers. The details depend on the case: check them.',
+        "Une société (SASU, SARL) tient une comptabilité d'engagement complète et établit chaque année ses comptes annuels. La micro-entreprise tient des registres simplifiés. Les détails dépendent du cas : vérifiez-les.",
+      ),
+    },
+    badge: B('Knows what a status requires', 'Connaît les obligations de son statut'),
+  },
+  {
+    id: 'cp-double-entry',
+    master: 'analysis',
+    minutes: 11,
+    title: B('Double entry, accounts and the chart of accounts', 'La partie double, les comptes et le plan comptable'),
+    learn: B(
+      'You will record an operation in double entry, pick its accounts in the plan comptable général and check the balance.',
+      "Vous saurez passer une opération en partie double, choisir ses comptes dans le plan comptable général et vérifier l'équilibre.",
+    ),
+    act: B('Write the entries of five Studio Cerise operations, with an AI as a tutor that explains, never one that decides.',
+      'Passez les écritures de cinq opérations de Studio Cerise, avec une IA qui explique, sans décider à votre place.'),
+    steps: [
+      B('For each operation, ask two questions: where does the value come from, and where does it go?',
+        "Pour chaque opération, posez deux questions : d'où vient la valeur, et où va-t-elle ?"),
+      B('Find the accounts by class: 4 for third parties, 5 for the bank, 6 for expenses, 7 for revenue.',
+        'Trouvez les comptes par classe : 4 pour les tiers, 5 pour la banque, 6 pour les charges, 7 pour les produits.'),
+      B('Write each entry on two sides, debit and credit, with the date, the document number and a clear label.',
+        'Écrivez chaque écriture sur deux côtés, débit et crédit, avec la date, le numéro de pièce et un libellé clair.'),
+      B('Check that total debits equal total credits before moving on to the next operation.',
+        "Vérifiez que le total des débits égale celui des crédits avant de passer à l'opération suivante."),
+    ],
+    trap: B(
+      'Reading credit as "money in" as on a bank statement: in your own books, money coming into the bank is a debit of account 512.',
+      "Lire crédit comme « argent qui entre », comme sur un relevé : dans vos propres comptes, l'argent qui arrive en banque est un débit du 512.",
+    ),
+    quiz: {
+      q: B('Studio Cerise receives by transfer 1,200 € that a client owed it. Which entry is right?',
+        "Studio Cerise reçoit par virement 1 200 € qu'un client lui devait. Quelle écriture est juste ?"),
+      options: [
+        B('Debit 411 Clients, credit 512 Bank, for 1,200 €', 'Débit 411 Clients, crédit 512 Banque, pour 1 200 €'),
+        B('Debit 512 Bank, credit 706 Services, for 1,200 €', 'Débit 512 Banque, crédit 706 Prestations, pour 1 200 €'),
+        B('Debit 512 Bank, credit 411 Clients, for 1,200 €', 'Débit 512 Banque, crédit 411 Clients, pour 1 200 €'),
+      ],
+      answer: 2,
+      why: B(
+        "The bank increases (debit 512) and the client's debt disappears (credit 411). The revenue was recorded in class 7 when the invoice was issued: recording it again on payment would count the sale twice.",
+        "La banque augmente (débit 512) et la dette du client disparaît (crédit 411). Le produit a été enregistré en classe 7 à l'émission de la facture : le reprendre au paiement compterait la vente deux fois.",
+      ),
+    },
+    badge: B('Writes balanced entries', 'Passe des écritures équilibrées'),
+  },
+  {
+    id: 'cp-journals',
+    master: 'analysis',
+    minutes: 10,
+    title: B('Journals, general ledger and trial balance', 'Journaux, grand livre et balance'),
+    learn: B(
+      'You will read a journal, a general ledger and a trial balance, and use each one to find and fix an error.',
+      "Vous saurez lire un journal, un grand livre et une balance, et vous servir de chacun pour trouver une erreur.",
+    ),
+    act: B('Rebuild the March ledger and trial balance of Studio Cerise in a spreadsheet, then find the planted error.',
+      "Reconstituez dans un tableur le grand livre et la balance de mars de Studio Cerise, puis trouvez l'erreur glissée."),
+    steps: [
+      B('Sort the entries into journals: sales, purchases, bank and miscellaneous operations, in date order.',
+        "Rangez les écritures par journal : ventes, achats, banque et opérations diverses, dans l'ordre des dates."),
+      B('Build the general ledger: the same entries regrouped account by account, with a running balance.',
+        'Construisez le grand livre : les mêmes écritures regroupées compte par compte, avec un solde progressif.'),
+      B('Draw up the trial balance: for each account, total debits, total credits and balance, then the grand totals.',
+        'Établissez la balance : pour chaque compte, total des débits, total des crédits et solde, puis les totaux généraux.'),
+      B('Read odd balances: a client account in credit, or a bank account in credit the statement does not show, points to an error.',
+        "Lisez les soldes anormaux : un client créditeur, ou une banque créditrice absente du relevé, est une piste d'erreur."),
+    ],
+    trap: B(
+      'Thinking a balanced trial balance proves the books are right: an entry in the wrong account, or forgotten entirely, still balances.',
+      "Croire qu'une balance équilibrée prouve que les comptes sont justes : une écriture au mauvais compte, ou oubliée, reste équilibrée.",
+    ),
+    quiz: {
+      q: B("Lina's trial balance balances, but notebooks bought for resale sit in 6064 office supplies. What does she conclude?",
+        "La balance de Lina est équilibrée, mais des carnets achetés pour revente sont en 6064. Qu'en déduit-elle ?"),
+      options: [
+        B('The books are right, since the trial balance is perfectly balanced', 'Les comptes sont justes, puisque la balance est bien équilibrée'),
+        B('An entry is in the wrong account, despite the balanced totals', 'Une écriture est au mauvais compte, malgré des totaux équilibrés'),
+        B('The error must come from the bank, to be reconciled first', "L'erreur vient forcément de la banque, à rapprocher d'abord"),
+      ],
+      answer: 1,
+      why: B(
+        'Balance only proves that each entry has equal debits and credits. An entry in the wrong account keeps the balance but distorts the accounts: goods bought for resale belong in 607, not in office supplies.',
+        "L'équilibre prouve seulement que chaque écriture a autant de débit que de crédit. Une écriture au mauvais compte le garde mais fausse les comptes : des marchandises revendues vont en 607, pas en fournitures.",
+      ),
+    },
+    badge: B('Reads a trial balance', 'Sait lire une balance'),
+  },
+  {
+    id: 'cp-setup',
+    master: 'tools',
+    minutes: 9,
+    title: B('Set up your organisation and tools', 'Préparer son organisation et ses outils'),
+    learn: B(
+      'You will set up a filing system, a weekly routine and a tool suited to your status, before the first receipt arrives.',
+      'Vous saurez mettre en place un classement, une routine hebdomadaire et un outil adapté à votre statut, avant la première pièce.',
+    ),
+    act: B('Design the bookkeeping kit of Studio Cerise: folders, naming rule, dedicated account, tool, weekly slot.',
+      'Concevez le kit comptable de Studio Cerise : dossiers, règle de nommage, compte dédié, outil, créneau hebdomadaire.'),
+    steps: [
+      B('Separate business and private money: a dedicated bank account, and the company card for every business expense.',
+        "Séparez l'argent professionnel et personnel : un compte bancaire dédié, et la carte de l'entreprise pour chaque dépense."),
+      B('Create one folder per year and per month, and name each file date_supplier_amount (2026-03-14_printer_480.pdf).',
+        'Créez un dossier par année et par mois, et nommez chaque fichier date_fournisseur_montant (2026-03-14_imprimeur_480.pdf).'),
+      B("Choose your tool on three criteria: your status, your volume of operations, and your accountant's way of working.",
+        "Choisissez l'outil selon trois critères : votre statut, votre volume d'opérations et la façon de travailler du cabinet."),
+      B('Block a weekly half hour in your calendar: collect, file, categorise, and note questions for the accountant.',
+        "Bloquez une demi-heure par semaine : collecter, classer, catégoriser, et noter les questions pour l'expert-comptable."),
+    ],
+    trap: B(
+      "Choosing software before the method: a tool that fits neither your status nor your accountant's practice makes you enter everything twice.",
+      'Choisir le logiciel avant la méthode : un outil inadapté à votre statut ou au cabinet vous fait tout saisir deux fois.',
+    ),
+    quiz: {
+      q: B('Lina pays a client lunch with her personal card, "just this once". What is the clean way to handle it?',
+        'Lina règle un déjeuner client avec sa carte personnelle, « pour une fois ». Comment le traiter proprement ?'),
+      options: [
+        B('Ignore it, since the amount is small and was paid privately', "L'ignorer, puisque le montant est faible et payé à titre privé"),
+        B('Record it as an expense and file the bank statement as proof', 'La passer en charge et classer le relevé bancaire comme preuve'),
+        B('Keep the invoice and get repaid via an expense claim', 'Garder la facture et se faire rembourser par une note de frais'),
+      ],
+      answer: 2,
+      why: B(
+        'The meal was paid with private money: the company repays it through an expense claim backed by the invoice. A bank statement is not an invoice, and a forgotten business expense distorts the accounts and the VAT.',
+        "Le repas a été payé avec de l'argent privé : l'entreprise le rembourse par une note de frais appuyée sur la facture. Un relevé n'est pas une facture, et une dépense oubliée fausse les comptes comme la TVA.",
+      ),
+    },
+    badge: B('Has a bookkeeping kit', 'A son kit comptable'),
+  },
+]
+
+const BASICS_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M1, 'cp-why-status')]: {
+    why: [
+      B("Bookkeeping has two readers. The administration needs reliable figures to compute taxes and social contributions; you need them to know whether your activity earns money, where the cash goes and what you can afford. Kept only for the tax return, the books arrive too late to steer anything. Kept every week, they become a dashboard.",
+        "La comptabilité a deux lecteurs. L'administration a besoin de chiffres fiables pour calculer impôts et cotisations ; vous, pour savoir si votre activité gagne de l'argent, où va la trésorerie et ce que vous pouvez vous permettre. Tenue seulement pour la déclaration, elle arrive trop tard pour piloter. Tenue chaque semaine, elle devient un tableau de bord."),
+      B("Obligations follow the status. A micro-entreprise keeps a dated register of receipts, plus a register of purchases if it sells goods; it produces no balance sheet. An individual entrepreneur at the real regime keeps fuller books, cash-based or accrual-based depending on the activity and options. A company (SASU, SARL) keeps full accrual accounts in double entry and produces annual accounts every year.",
+        "Les obligations suivent le statut. La micro-entreprise tient un registre chronologique des recettes, et un registre des achats si elle vend des marchandises ; elle n'établit pas de bilan. L'entrepreneur individuel au réel tient des comptes plus complets, de trésorerie ou d'engagement selon l'activité et les options. Une société (SASU, SARL) tient une comptabilité d'engagement complète en partie double et établit ses comptes annuels."),
+      B("These rules have details that change: thresholds, simplified options, dates. An AI helps to list the questions and explain the vocabulary, but it may mix statuses or quote an outdated threshold. The method stays the same: draft with the AI, check each line on Service-Public Entreprendre, urssaf.fr or impots.gouv.fr, and confirm doubtful points with an accountant.",
+        "Ces règles ont des détails qui bougent : seuils, options simplifiées, dates. Une IA aide à dresser la liste des questions et à expliquer le vocabulaire, mais elle peut mélanger les statuts ou citer un seuil périmé. La méthode reste la même : brouillon avec l'IA, vérification de chaque ligne sur Service-Public Entreprendre, urssaf.fr ou impots.gouv.fr, confirmation des points douteux par un expert-comptable."),
+    ],
+    example: {
+      context: B("Lina has just created Studio Cerise, a fictional SASU, after two years as a micro-entrepreneur. She asks an AI what changes for her bookkeeping.",
+        "Lina vient de créer Studio Cerise, SASU fictive, après deux ans en micro-entreprise. Elle demande à une IA ce qui change pour sa comptabilité."),
+      before: B("What accounting do I need to do now?",
+        "Qu'est-ce que je dois faire comme compta maintenant ?"),
+      after: B("Context: I was a micro-entrepreneur (graphic design services) and I have just created a SASU, Studio Cerise, which will sell design services to companies and printed notebooks online. Corporate tax, VAT applicable.\n1. List the bookkeeping obligations of a SASU compared with my former micro-entreprise, in a two-column table.\n2. For each line, name the official source where I can check it (Service-Public Entreprendre, impots.gouv.fr, urssaf.fr, greffe).\n3. Explain in plain words what \"accrual accounting\", \"annual accounts\" and \"filing the accounts\" mean.\n4. List the questions I should ask an accountant before my first month.\nDo not quote any threshold or date from memory: write \"to check\" instead. I am not asking for personalised advice.",
+        "Contexte : j'étais micro-entrepreneuse (prestations de design graphique) et je viens de créer une SASU, Studio Cerise, qui vendra des prestations de design à des entreprises et des carnets imprimés en ligne. Impôt sur les sociétés, TVA applicable.\n1. Liste les obligations comptables d'une SASU par rapport à mon ancienne micro-entreprise, dans un tableau à deux colonnes.\n2. Pour chaque ligne, nomme la source officielle où je peux la vérifier (Service-Public Entreprendre, impots.gouv.fr, urssaf.fr, greffe).\n3. Explique simplement ce que veulent dire « comptabilité d'engagement », « comptes annuels » et « dépôt des comptes ».\n4. Liste les questions à poser à un expert-comptable avant mon premier mois.\nNe cite aucun seuil ni aucune date de mémoire : écris « à vérifier » à la place. Je ne demande pas de conseil personnalisé."),
+      takeaway: B("The second prompt gives the old and new status, the activities and the tax regime, asks for a sourced comparison and forbids figures from memory. The answer becomes a checklist to verify, not a verdict.",
+        "Le second prompt donne l'ancien et le nouveau statut, les activités et le régime fiscal, demande une comparaison sourcée et interdit les chiffres de mémoire. La réponse devient une liste à vérifier, pas un verdict."),
+    },
+    exercise: {
+      goal: B("Your own one-page obligations sheet: status, what you must keep, what you must file, and the official source of each line.",
+        "Votre propre fiche d'obligations sur une page : statut, ce que vous devez tenir, ce que vous devez déposer, et la source officielle de chaque ligne."),
+      prompt: B("My situation: status [MICRO-ENTREPRISE / EI AT THE REAL REGIME / SASU / SARL / OTHER], activity [WHAT YOU SELL], taxation [INCOME TAX / CORPORATE TAX / I DO NOT KNOW], VAT [FRANCHISE / LIABLE / I DO NOT KNOW].\n1. List what I must keep (registers, journals, documents) and, as a general rule, for how long.\n2. List what I must produce or file each year (returns, annual accounts).\n3. For each line, give the official source to check: Service-Public Entreprendre, impots.gouv.fr, urssaf.fr or the greffe.\n4. Add three things my books could tell me beyond these obligations.\nWrite \"to check\" instead of any threshold, rate or date you are not sure of. Do not give personalised tax advice.",
+        "Ma situation : statut [MICRO-ENTREPRISE / EI AU RÉEL / SASU / SARL / AUTRE], activité [CE QUE VOUS VENDEZ], imposition [IR / IS / JE NE SAIS PAS], TVA [FRANCHISE / REDEVABLE / JE NE SAIS PAS].\n1. Liste ce que je dois tenir (registres, journaux, pièces) et, en règle générale, combien de temps le conserver.\n2. Liste ce que je dois produire ou déposer chaque année (déclarations, comptes annuels).\n3. Pour chaque ligne, donne la source officielle à consulter : Service-Public Entreprendre, impots.gouv.fr, urssaf.fr ou le greffe.\n4. Ajoute trois choses que mes comptes pourraient m'apprendre au-delà de ces obligations.\nÉcris « à vérifier » à la place de tout seuil, taux ou date dont tu n'es pas sûr. Ne donne pas de conseil fiscal personnalisé."),
+      check: [
+        B("Each obligation has its official source next to it", "Chaque obligation est suivie de sa source officielle"),
+        B("You checked at least three lines on the official site yourself", "Vous avez vérifié vous-même au moins trois lignes sur le site officiel"),
+        B("No threshold or date stays in the sheet unless you confirmed it", "Aucun seuil ni aucune date ne reste sans confirmation de votre part"),
+        B("Doubtful points are listed as questions for an accountant", "Les points douteux sont listés comme questions pour un expert-comptable"),
+      ],
+      bonus: B("Ask the AI to rewrite the sheet as if your status changed next year (for example from micro-entreprise to SASU), then compare the two versions: the differences are what the change would cost you in bookkeeping time.",
+        "Demandez à l'IA de réécrire la fiche comme si votre statut changeait l'an prochain (par exemple de micro-entreprise à SASU), puis comparez les deux versions : les différences sont ce que le changement vous coûterait en temps de comptabilité."),
+    },
+    more: [
+      { q: B("A micro-entrepreneur who sells handmade objects asks which register she must keep besides her receipts. What do you answer?",
+          "Une micro-entrepreneuse qui vend des objets faits main demande quel registre tenir en plus des recettes. Que répondez-vous ?"),
+        options: [
+          B("A register of purchases, since she sells goods", "Un registre des achats, puisqu'elle vend des biens"),
+          B("None: a micro-entreprise keeps no record at all", "Aucun : une micro-entreprise ne tient aucun registre"),
+          B("A full general ledger with a yearly balance sheet", "Un grand livre complet avec un bilan chaque année"),
+        ],
+        answer: 0,
+        why: B("Micro-entrepreneurs who sell goods keep a register of purchases in addition to the register of receipts. They produce no balance sheet. Check the details for your activity on Service-Public Entreprendre.",
+          "Les micro-entrepreneurs qui vendent des marchandises tiennent un registre des achats en plus du registre des recettes. Ils n'établissent pas de bilan. Vérifiez le détail pour votre activité sur Service-Public Entreprendre.") },
+      { q: B("An AI tells Lina that her SASU \"does not need to file its accounts\". What does she do?",
+          "Une IA affirme à Lina que sa SASU « n'a pas à déposer ses comptes ». Que fait-elle ?"),
+        options: [
+          B("She follows the answer, since AI tools know French law", "Elle suit la réponse, les IA connaissant le droit français"),
+          B("She checks it on Service-Public Entreprendre first", "Elle la vérifie d'abord sur Service-Public Entreprendre"),
+          B("She asks a second AI tool and keeps the majority answer", "Elle interroge une seconde IA et garde la réponse majoritaire"),
+        ],
+        answer: 1,
+        why: B("A company files its annual accounts with the greffe; confidentiality options exist under conditions. An AI answer is a lead to check, and two AI answers that agree are still not a source.",
+          "Une société dépose ses comptes annuels au greffe ; des options de confidentialité existent sous conditions. Une réponse d'IA est une piste à vérifier, et deux réponses d'IA concordantes ne font toujours pas une source.") },
+    ],
+  },
+
+  [enrichKey(M1, 'cp-double-entry')]: {
+    why: [
+      B("Double entry rests on one idea: every operation moves value from somewhere to somewhere. A sale creates a claim on the client and a revenue; a payment turns the claim into money in the bank. Each movement is written twice, as a debit in one account and a credit in another, for the same amount. This is why the books always balance, and why an imbalance always reveals an entry error.",
+        "La partie double repose sur une idée : toute opération déplace de la valeur d'un endroit vers un autre. Une vente crée une créance sur le client et un produit ; un paiement transforme la créance en argent à la banque. Chaque mouvement s'écrit deux fois, au débit d'un compte et au crédit d'un autre, pour le même montant. C'est pourquoi les comptes s'équilibrent, et pourquoi un déséquilibre trahit une erreur."),
+      B("The plan comptable général (PCG) gives each account a number whose first digit is its class: 1 equity and loans, 2 fixed assets, 3 stocks, 4 third parties (clients 411, suppliers 401, VAT 445), 5 financial accounts including the bank (512), 6 expenses, 7 revenue. Classes 1 to 5 build the balance sheet, classes 6 and 7 the profit and loss account.",
+        "Le plan comptable général (PCG) donne à chaque compte un numéro dont le premier chiffre est la classe : 1 capitaux et emprunts, 2 immobilisations, 3 stocks, 4 tiers (clients 411, fournisseurs 401, TVA 445), 5 financiers dont la banque (512), 6 charges, 7 produits. Les classes 1 à 5 forment le bilan, les classes 6 et 7 le compte de résultat."),
+      B("An AI is a patient tutor here: it explains why an entry goes one way, proposes accounts and spots an imbalance. It can also propose a plausible but wrong account, or mix the French chart with a foreign one. Ask it to justify each choice by the movement of value, and leave the choice of accounts in delicate cases to your accountant.",
+        "Une IA est ici un tuteur patient : elle explique pourquoi une écriture va dans un sens, propose des comptes et repère un déséquilibre. Elle peut aussi proposer un compte plausible mais faux, ou mêler le plan français à un plan étranger. Demandez-lui de justifier chaque choix par le mouvement de valeur, et laissez à votre expert-comptable le choix des comptes dans les cas délicats."),
+    ],
+    example: {
+      context: B("Lina sells 50 notebooks to a concept store: invoice 2026-007 issued on 3 March, 500 € excl. VAT plus 100 € of VAT, paid by transfer on 20 March.",
+        "Lina vend 50 carnets à une boutique : facture 2026-007 émise le 3 mars, 500 € HT plus 100 € de TVA, payée par virement le 20 mars."),
+      before: B("Give me the accounting entry for my 600 € notebook sale.",
+        "Donne-moi l'écriture comptable de ma vente de carnets à 600 €."),
+      after: B("You are a patient accounting tutor. Context: French SASU, accrual accounting, plan comptable général, liable to VAT.\nOperation 1: invoice 2026-007 issued on 3 March for 50 notebooks bought from a printer and resold, 500 € excl. VAT + 100 € VAT = 600 €.\nOperation 2: payment of this invoice by transfer on 20 March.\nFor each operation:\n1. Say where the value comes from and where it goes.\n2. Give the entry in a table: date, journal, account number, account name, debit, credit, label.\n3. Check that debits equal credits.\n4. Justify each account in one sentence.\nIf a choice depends on information you do not have, ask me instead of assuming.",
+        "Tu es un tuteur de comptabilité patient. Contexte : SASU française, comptabilité d'engagement, plan comptable général, redevable de la TVA.\nOpération 1 : facture 2026-007 émise le 3 mars pour 50 carnets achetés à un imprimeur et revendus, 500 € HT + 100 € de TVA = 600 €.\nOpération 2 : paiement de cette facture par virement le 20 mars.\nPour chaque opération :\n1. Dis d'où vient la valeur et où elle va.\n2. Donne l'écriture dans un tableau : date, journal, numéro de compte, intitulé, débit, crédit, libellé.\n3. Vérifie que les débits égalent les crédits.\n4. Justifie chaque compte en une phrase.\nSi un choix dépend d'une information que tu n'as pas, pose-moi la question au lieu de supposer."),
+      takeaway: B("The second prompt gives the framework (French chart, accrual, VAT), splits the operation into its two events and requires a reason for each account. The answer can be checked line by line, and it teaches the reasoning, not only the result.",
+        "Le second prompt donne le cadre (plan français, engagement, TVA), découpe l'opération en ses deux événements et exige une justification par compte. La réponse se vérifie ligne à ligne, et elle enseigne le raisonnement, pas seulement le résultat."),
+    },
+    exercise: {
+      goal: B("The entries of five operations of your own activity, real or fictional, each one balanced and justified.",
+        "Les écritures de cinq opérations de votre activité, réelles ou fictives, chacune équilibrée et justifiée."),
+      prompt: B("You are an accounting tutor. Context: [STATUS], [CASH OR ACCRUAL ACCOUNTING], liable to VAT: [YES / NO].\nHere are five operations: [OPERATION 1: DATE, DESCRIPTION, AMOUNTS], [OPERATION 2], [OPERATION 3], [OPERATION 4], [OPERATION 5].\nBefore any answer, ask me to propose my own entry for operation 1.\nThen, for each operation:\n1. Correct my entry, or give the right one, in a table (date, journal, account, debit, credit, label).\n2. Explain the movement of value in one sentence.\n3. Check that debits equal credits.\nUse only accounts of the French plan comptable général, and say when a choice should be confirmed by an accountant.",
+        "Tu es un tuteur de comptabilité. Contexte : [STATUT], [COMPTABILITÉ DE TRÉSORERIE OU D'ENGAGEMENT], redevable de la TVA : [OUI / NON].\nVoici cinq opérations : [OPÉRATION 1 : DATE, LIBELLÉ, MONTANTS], [OPÉRATION 2], [OPÉRATION 3], [OPÉRATION 4], [OPÉRATION 5].\nAvant toute réponse, demande-moi de proposer ma propre écriture pour l'opération 1.\nEnsuite, pour chaque opération :\n1. Corrige mon écriture, ou donne la bonne, dans un tableau (date, journal, compte, débit, crédit, libellé).\n2. Explique le mouvement de valeur en une phrase.\n3. Vérifie que les débits égalent les crédits.\nN'utilise que des comptes du plan comptable général français, et signale quand un choix doit être confirmé par un expert-comptable."),
+      check: [
+        B("Every entry has equal debits and credits", "Chaque écriture a autant de débit que de crédit"),
+        B("Each account number exists in the plan comptable général", "Chaque numéro de compte existe dans le plan comptable général"),
+        B("You wrote your own entry before reading the correction", "Vous avez écrit votre écriture avant de lire la correction"),
+        B("If you are liable to VAT, revenue and expenses are excl. VAT, with VAT apart", "Si vous êtes redevable, produits et charges sont HT, la TVA à part"),
+      ],
+      bonus: B("Swap roles: give the AI five entries containing one deliberate error (wrong side, wrong class, missing VAT line) and see whether it finds it. Explaining to yourself why it missed one is excellent practice.",
+        "Inversez les rôles : donnez à l'IA cinq écritures dont une contient une erreur volontaire (mauvais côté, mauvaise classe, ligne de TVA oubliée) et voyez si elle la trouve. Vous expliquer pourquoi elle en a manqué une est un excellent entraînement."),
+    },
+    more: [
+      { q: B("Studio Cerise buys software for 200 € excl. VAT plus 40 € of VAT, to be paid later. Where does supplier account 401 go?",
+          "Studio Cerise achète un logiciel 200 € HT plus 40 € de TVA, payable plus tard. De quel côté va le compte fournisseur 401 ?"),
+        options: [
+          B("Credit 401 for 240 €, since a debt to the supplier appears", "Crédit 401 pour 240 €, puisqu'une dette envers le fournisseur naît"),
+          B("Debit 401 for 200 €, since the company is buying a service", "Débit 401 pour 200 €, puisque l'entreprise achète un service"),
+          B("Debit 401 for 240 €, since the money will only go out later", "Débit 401 pour 240 €, puisque l'argent ne sortira que plus tard"),
+        ],
+        answer: 0,
+        why: B("Buying on credit creates a debt: supplier account 401 is credited for the full 240 €. The expense (200 €) is debited in class 6 and the VAT (40 €) in 44566. The payment will later debit 401 and credit 512.",
+          "Acheter à crédit crée une dette : le compte fournisseur 401 est crédité des 240 €. La charge (200 €) est débitée en classe 6 et la TVA (40 €) en 44566. Le paiement débitera ensuite le 401 et créditera le 512.") },
+      { q: B("In which part of the annual accounts will account 706 Services appear?",
+          "Dans quelle partie des comptes annuels le compte 706 Prestations de services apparaîtra-t-il ?"),
+        options: [
+          B("In the balance sheet, among the assets", "Au bilan, parmi les éléments d'actif"),
+          B("In the notes only, as a comment on the year's sales", "Dans l'annexe seulement, en commentaire des ventes"),
+          B("In the profit and loss account, as revenue", "Au compte de résultat, parmi les produits"),
+        ],
+        answer: 2,
+        why: B("Classes 6 and 7 feed the profit and loss account; classes 1 to 5 feed the balance sheet. Account 706, in class 7, is revenue: it appears in the profit and loss account.",
+          "Les classes 6 et 7 alimentent le compte de résultat ; les classes 1 à 5, le bilan. Le compte 706, en classe 7, est un produit : il apparaît au compte de résultat.") },
+    ],
+  },
+
+  [enrichKey(M1, 'cp-journals')]: {
+    why: [
+      B("Journals, ledger and trial balance are three views of the same entries. The journal tells the story in date order, usually split into sales, purchases, bank and miscellaneous operations. The general ledger regroups the same lines account by account, to see everything that touched the bank or a client. The trial balance sums each account in one line, to see the whole picture on one page.",
+        "Journaux, grand livre et balance sont trois vues des mêmes écritures. Le journal raconte l'histoire dans l'ordre des dates, en général séparé en ventes, achats, banque et opérations diverses. Le grand livre regroupe les mêmes lignes compte par compte, pour voir tout ce qui a touché la banque ou un client. La balance résume chaque compte en une ligne, pour voir l'ensemble sur une page."),
+      B("Each view finds a different error. The journal shows a missing or duplicated operation. The ledger shows a wrong line inside an account: a client paid twice, a supplier never settled. The trial balance shows odd balances and checks the totals. A company keeping computerised books must also be able to produce its entries as a standard file, the FEC (fichier des écritures comptables), in case of tax audit.",
+        "Chaque vue trouve une erreur différente. Le journal montre une opération oubliée ou en double. Le grand livre montre une ligne fausse dans un compte : un client payé deux fois, un fournisseur jamais réglé. La balance montre les soldes anormaux et contrôle les totaux. Une entreprise qui tient ses comptes sur informatique doit aussi pouvoir les produire dans un fichier normé, le FEC (fichier des écritures comptables), en cas de contrôle fiscal."),
+      B("A spreadsheet is enough to understand the mechanism: one table of entries, then SUMIFS formulas or a pivot table for the ledger and the balance. An AI can write and explain these formulas. For the real books, a compliant accounting software is safer: it numbers entries, locks validated periods and produces the FEC; check these points in its documentation.",
+        "Un tableur suffit pour comprendre le mécanisme : une table d'écritures, puis des formules SOMME.SI.ENS ou un tableau croisé dynamique pour le grand livre et la balance. Une IA sait écrire et expliquer ces formules. Pour les vrais comptes, un logiciel comptable conforme est plus sûr : il numérote les écritures, verrouille les périodes validées et produit le FEC ; vérifiez ces points dans sa documentation."),
+    ],
+    example: {
+      context: B("Lina has typed the forty March entries of Studio Cerise in a single spreadsheet table. She wants the ledger and the trial balance without building them by hand.",
+        "Lina a saisi les quarante écritures de mars de Studio Cerise dans un seul tableau. Elle veut le grand livre et la balance sans les construire à la main."),
+      before: B("Make me a trial balance from my sheet.",
+        "Fais-moi une balance à partir de mon tableau."),
+      after: B("My spreadsheet (Excel, English version) has a table named Entries with these columns: Date (A), Journal (B), Document (C), Account (D), Label (E), Debit (F), Credit (G).\n1. Give me the formulas to build, on another sheet, a trial balance: one row per account (UNIQUE on column D), total debit, total credit, balance.\n2. Add a final row with the grand totals and a cell that says OK when total debits equal total credits.\n3. Give me a formula that shows the ledger of the account typed in cell B1 (FILTER), with a running balance.\n4. Explain each formula in one sentence.\nUse the English function names (SUMIFS, UNIQUE, FILTER).",
+        "Mon tableur (Excel, version française) a un tableau nommé Écritures avec ces colonnes : Date (A), Journal (B), Pièce (C), Compte (D), Libellé (E), Débit (F), Crédit (G).\n1. Donne-moi les formules pour construire, sur une autre feuille, une balance : une ligne par compte (UNIQUE sur la colonne D), total débit, total crédit, solde.\n2. Ajoute une ligne de totaux généraux et une cellule qui affiche OK quand le total des débits égale celui des crédits.\n3. Donne-moi une formule qui affiche le grand livre du compte saisi en B1 (FILTRE), avec un solde progressif.\n4. Explique chaque formule en une phrase.\nUtilise les noms de fonctions de la version française (SOMME.SI.ENS, UNIQUE, FILTRE)."),
+      takeaway: B("The second prompt describes the exact structure of the table and the expected result, and asks for a control cell and explanations. Lina gets formulas she understands and reuses each month, instead of a one-off table she cannot check.",
+        "Le second prompt décrit la structure exacte du tableau et le résultat attendu, et demande une cellule de contrôle et des explications. Lina obtient des formules qu'elle comprend et réutilise chaque mois, au lieu d'un tableau ponctuel invérifiable."),
+    },
+    exercise: {
+      goal: B("A spreadsheet with your entries, a trial balance computed by formulas, a control cell, and the ledger of any account on demand.",
+        "Un tableur avec vos écritures, une balance calculée par formules, une cellule de contrôle, et le grand livre de n'importe quel compte à la demande."),
+      prompt: B("I keep my entries in [EXCEL / GOOGLE SHEETS / LIBREOFFICE CALC], in a table with the columns [LIST YOUR COLUMNS AND THEIR LETTERS].\n1. Give me the formulas for a trial balance: one row per account, total debit, total credit, balance.\n2. Add a control cell that shows the gap between total debits and total credits.\n3. Give me the formula that displays the ledger of the account typed in cell [CELL], with a running balance.\n4. Explain each formula in one sentence, and tell me what to look at if the control cell is not zero.\nUse the function names of the [FRENCH / ENGLISH] version of my spreadsheet.",
+        "Je tiens mes écritures dans [EXCEL / GOOGLE SHEETS / LIBREOFFICE CALC], dans un tableau avec les colonnes [LISTE DE VOS COLONNES ET DE LEURS LETTRES].\n1. Donne-moi les formules d'une balance : une ligne par compte, total débit, total crédit, solde.\n2. Ajoute une cellule de contrôle qui affiche l'écart entre le total des débits et celui des crédits.\n3. Donne-moi la formule qui affiche le grand livre du compte saisi en [CELLULE], avec un solde progressif.\n4. Explique chaque formule en une phrase, et dis-moi quoi regarder si la cellule de contrôle n'est pas à zéro.\nUtilise les noms de fonctions de la version [FRANÇAISE / ANGLAISE] de mon tableur."),
+      check: [
+        B("The control cell shows zero, or you found why it does not", "La cellule de contrôle affiche zéro, ou vous savez pourquoi"),
+        B("Each balance has a plausible side: clients in debit, suppliers in credit", "Chaque solde a un sens plausible : clients débiteurs, fournisseurs créditeurs"),
+        B("You can explain each formula without the AI", "Vous savez expliquer chaque formule sans l'IA"),
+        B("The ledger of account 512 matches the bank statement, or the gaps are known", "Le grand livre du 512 concorde avec le relevé, ou les écarts sont connus"),
+      ],
+      bonus: B("Plant an error in a copy of your table (an entry in the wrong account, a forgotten VAT line) and see which view reveals it: the control cell, the balance or the ledger. Next time, you will know which view to open first.",
+        "Glissez une erreur dans une copie de votre tableau (une écriture au mauvais compte, une ligne de TVA oubliée) et voyez quelle vue la révèle : la cellule de contrôle, la balance ou le grand livre. La prochaine fois, vous saurez quelle vue ouvrir d'abord."),
+    },
+    more: [
+      { q: B("Lina is looking for a client invoice paid twice by mistake. Which view shows it fastest?",
+          "Lina cherche une facture client payée deux fois par erreur. Quelle vue la montre le plus vite ?"),
+        options: [
+          B("The trial balance, which gives one total per account", "La balance, qui donne un total par compte"),
+          B("The sales journal, sorted by invoice date", "Le journal des ventes, trié par date de facture"),
+          B("The ledger of the client account, line by line", "Le grand livre du compte client, ligne à ligne"),
+        ],
+        answer: 2,
+        why: B("The ledger of the client account shows each invoice and each payment against it: two payments for one invoice leave a credit balance on that client. The balance only gives the total, and the sales journal does not show payments.",
+          "Le grand livre du compte client montre chaque facture et chaque paiement en face : deux paiements pour une facture laissent ce client créditeur. La balance ne donne que le total, et le journal des ventes ne montre pas les paiements.") },
+      { q: B("The control cell of Lina's trial balance shows a 100 € gap. What is the most likely cause?",
+          "La cellule de contrôle de la balance de Lina affiche un écart de 100 €. Quelle est la cause la plus probable ?"),
+        options: [
+          B("An expense entry posted to the wrong account number", "Une charge passée sur le mauvais numéro de compte"),
+          B("An entry whose debit and credit differ by 100 €", "Une écriture dont débit et crédit diffèrent de 100 €"),
+          B("A sale recorded in the wrong month", "Une vente enregistrée sur le mauvais mois"),
+        ],
+        answer: 1,
+        why: B("A wrong account or a wrong month keeps debits and credits equal. Only an unbalanced entry, for example a forgotten 100 € VAT line, creates a gap between the totals.",
+          "Un mauvais compte ou un mauvais mois gardent l'égalité des débits et des crédits. Seule une écriture déséquilibrée, par exemple une ligne de TVA de 100 € oubliée, crée un écart entre les totaux.") },
+    ],
+  },
+
+  [enrichKey(M1, 'cp-setup')]: {
+    why: [
+      B("Most bookkeeping problems are filing problems: a receipt lost in an inbox, a private expense paid with the company card, an invoice that exists only as a photo on a phone. Organisation comes before tools, because no software can classify a document it never receives. A dedicated bank account, a single place for documents and a naming rule remove most of the work before it starts.",
+        "La plupart des problèmes de comptabilité sont des problèmes de classement : un ticket perdu dans une boîte mail, une dépense privée payée avec la carte de l'entreprise, une facture qui n'existe qu'en photo sur un téléphone. L'organisation passe avant l'outil, car aucun logiciel ne classe un document qu'il ne reçoit pas. Un compte dédié, un lieu unique et une règle de nommage suppriment l'essentiel du travail."),
+      B("A company has its own bank account; a micro-entrepreneur must open a dedicated one under conditions described on urssaf.fr. Even where it is not required, it is the cleanest choice: each bank line is then professional, and reconciliation becomes possible. A weekly routine keeps the backlog small: a few receipts each week are easy, three months of receipts in December are not.",
+        "Une société a son propre compte bancaire ; un micro-entrepreneur doit ouvrir un compte dédié dans des conditions décrites sur urssaf.fr. Même sans obligation, c'est le choix le plus propre : chaque ligne bancaire est alors professionnelle, et le rapprochement devient possible. Une routine hebdomadaire limite le retard : quelques pièces par semaine se traitent vite, trois mois de pièces en décembre, non."),
+      B("The tool follows the status and the volume. A micro-entreprise with a few invoices a month can work with an invoicing tool and a spreadsheet. A company needs accrual accounts: an online accounting software (Pennylane, Tiime, Indy, QuickBooks, Sage and others) or the accountant's own tool. Ask the firm which tools it works with, then check bank connection, FEC export and e-invoicing readiness in each tool's documentation.",
+        "L'outil suit le statut et le volume. Une micro-entreprise qui émet quelques factures par mois peut travailler avec un outil de facturation et un tableur. Une société a besoin d'une comptabilité d'engagement : un logiciel en ligne (Pennylane, Tiime, Indy, QuickBooks, Sage et d'autres) ou l'outil du cabinet. Demandez au cabinet ses outils, puis vérifiez dans la documentation de chacun connexion bancaire, export du FEC et facture électronique."),
+    ],
+    example: {
+      context: B("Lina asks an AI for \"the best accounting software\" for Studio Cerise, without saying anything about her situation.",
+        "Lina demande à une IA « le meilleur logiciel de comptabilité » pour Studio Cerise, sans rien dire de sa situation."),
+      before: B("What is the best accounting software?",
+        "C'est quoi le meilleur logiciel de compta ?"),
+      after: B("I am setting up the bookkeeping of a French SASU: design services to companies, online sales of notebooks, about 15 invoices issued and 40 receipts per month, one business bank account. An accountant will produce the annual accounts.\n1. Give me the criteria to compare accounting tools for this case: accrual accounts, bank connection, receipt capture, invoicing, FEC export, collaboration with the accountant, e-invoicing readiness, data hosting.\n2. Turn them into a comparison grid I can fill in myself from each vendor's documentation.\n3. List the questions to ask my accountant before choosing.\nDo not rank brands and do not quote prices or features from memory, since they change: tell me where to check them.",
+        "Je mets en place la comptabilité d'une SASU française : prestations de design pour des entreprises, vente en ligne de carnets, environ 15 factures émises et 40 justificatifs par mois, un compte bancaire professionnel. Un expert-comptable établira les comptes annuels.\n1. Donne-moi les critères pour comparer des outils comptables dans ce cas : comptabilité d'engagement, connexion bancaire, capture des justificatifs, facturation, export du FEC, travail avec le cabinet, préparation à la facture électronique, hébergement des données.\n2. Transforme-les en grille de comparaison que je remplirai moi-même à partir de la documentation de chaque éditeur.\n3. Liste les questions à poser à mon expert-comptable avant de choisir.\nNe classe pas les marques et ne cite ni prix ni fonctionnalités de mémoire, car ils changent : dis-moi où les vérifier."),
+      takeaway: B("The first prompt asks for a verdict the AI cannot give. The second describes the case and asks for criteria and a grid, leaving facts (prices, features) to the official documentation and the decision to Lina and her accountant.",
+        "Le premier prompt demande un verdict que l'IA ne peut pas rendre. Le second décrit le cas et demande des critères et une grille, en laissant les faits (prix, fonctionnalités) à la documentation officielle et la décision à Lina et à son cabinet."),
+    },
+    exercise: {
+      goal: B("Your bookkeeping kit on one page: folder tree, naming rule, bank set-up, chosen tool and its reasons, weekly routine.",
+        "Votre kit comptable sur une page : arborescence, règle de nommage, organisation bancaire, outil choisi et ses raisons, routine hebdomadaire."),
+      prompt: B("Help me set up my bookkeeping organisation. My situation: status [STATUS], activity [WHAT YOU SELL], about [NUMBER] invoices issued and [NUMBER] receipts per month, [ONE / SEVERAL] bank accounts, accountant: [YES / NO].\n1. Propose a folder tree by year and month, and a file naming rule with three examples.\n2. Propose a weekly 30-minute routine in ordered steps, and a monthly one.\n3. Give a grid of criteria to choose my tool, without ranking brands.\n4. List what I must check in official sources about my bank account obligations.\nKeep the whole answer short enough to fit on one page.",
+        "Aide-moi à organiser ma comptabilité. Ma situation : statut [STATUT], activité [CE QUE VOUS VENDEZ], environ [NOMBRE] factures émises et [NOMBRE] justificatifs par mois, [UN / PLUSIEURS] comptes bancaires, expert-comptable : [OUI / NON].\n1. Propose une arborescence de dossiers par année et par mois, et une règle de nommage des fichiers avec trois exemples.\n2. Propose une routine hebdomadaire de 30 minutes en étapes ordonnées, et une routine mensuelle.\n3. Donne une grille de critères pour choisir mon outil, sans classer de marques.\n4. Liste ce que je dois vérifier dans les sources officielles sur mes obligations de compte bancaire.\nGarde une réponse assez courte pour tenir sur une page."),
+      check: [
+        B("Each business expense can be traced from the bank to a named file", "Chaque dépense se retrouve de la banque jusqu'à un fichier nommé"),
+        B("The naming rule sorts files by date on its own", "La règle de nommage trie les fichiers par date d'elle-même"),
+        B("Tool criteria come with a source to check, not a brand ranking", "Les critères d'outil ont une source à vérifier, pas un classement"),
+        B("The weekly slot is blocked in your calendar", "Le créneau hebdomadaire est bloqué dans votre agenda"),
+      ],
+      bonus: B("Run the routine on a real week and time it. If it takes much longer than planned, note which step slowed you down: it is the first one to automate, for example by forwarding all invoices to a single address.",
+        "Appliquez la routine sur une vraie semaine et chronométrez-la. Si elle dure bien plus que prévu, notez l'étape qui vous a ralenti : c'est la première à automatiser, par exemple en faisant suivre toutes les factures vers une adresse unique."),
+    },
+    more: [
+      { q: B("A micro-entrepreneur asks whether she must open a dedicated bank account. What is the right reflex?",
+          "Une micro-entrepreneuse demande si elle doit ouvrir un compte bancaire dédié. Quel est le bon réflexe ?"),
+        options: [
+          B("Answer no, since only companies need a bank account", "Répondre non, seules les sociétés ayant besoin d'un compte"),
+          B("Answer yes, since every business must open one at once", "Répondre oui, toute entreprise devant en ouvrir un aussitôt"),
+          B("Check the conditions on urssaf.fr for her own case", "Vérifier les conditions sur urssaf.fr pour son propre cas"),
+        ],
+        answer: 2,
+        why: B("For a micro-entrepreneur, the obligation depends on conditions set by the rules and described on urssaf.fr. Both general answers are wrong for some cases; the official source settles it.",
+          "Pour un micro-entrepreneur, l'obligation dépend de conditions fixées par les textes et décrites sur urssaf.fr. Les deux réponses générales sont fausses dans certains cas ; la source officielle tranche.") },
+      { q: B("Lina names her files \"invoice.pdf\", \"invoice(1).pdf\", \"scan_03.pdf\". What problem will she meet first?",
+          "Lina nomme ses fichiers « facture.pdf », « facture(1).pdf », « scan_03.pdf ». Quel problème rencontrera-t-elle d'abord ?"),
+        options: [
+          B("Her accounting software will refuse these files", "Son logiciel comptable refusera ces fichiers"),
+          B("She will struggle to find a document", "Elle peinera à retrouver un document"),
+          B("Her bank will reject the matching transactions", "Sa banque rejettera les opérations correspondantes"),
+        ],
+        answer: 1,
+        why: B("Software and banks do not care about file names; people do. Without date, supplier and amount in the name, finding the invoice behind a bank line means opening files one by one.",
+          "Logiciels et banques ne se soucient pas du nom des fichiers ; les personnes, si. Sans date, fournisseur et montant dans le nom, retrouver la facture d'une ligne bancaire oblige à ouvrir les fichiers un par un.") },
+    ],
+  },
+}
+
+const BASICS_DEEP: Record<string, Deepening> = {
+  [deepKey(M1, 'cp-why-status')]: {
+    intro: B("Before any software or prompt, you need to know what your status requires and what the books are for. This lesson compares the main French statuses (micro-entreprise, individual entrepreneur at the real regime, SASU and SARL) from the bookkeeping point of view, in principle and without thresholds, which change. You will follow Studio Cerise, the fictional SASU that Lina, a graphic designer, has just created after two years as a micro-entrepreneur; the course follows her through all its modules. At the end, you will have an obligations sheet with its official sources, and the questions to ask an accountant. Rules depend on each case: this lesson gives principles, never personalised advice.",
+      "Avant tout logiciel et tout prompt, il faut savoir ce que votre statut impose et à quoi servent les comptes. Ce cours compare les grands statuts français (micro-entreprise, entrepreneur individuel au réel, SASU et SARL) du point de vue comptable, dans leurs principes et sans seuils, qui changent. Vous suivrez Studio Cerise, la SASU fictive que Lina, graphiste, vient de créer après deux ans en micro-entreprise ; la formation l'accompagne dans tous ses modules. À la fin, vous aurez une fiche d'obligations avec ses sources officielles, et les questions à poser à un expert-comptable. Les règles dépendent de chaque cas : ce cours donne des principes, jamais un conseil personnalisé."),
+    concepts: [
+      { term: B('Register of receipts', 'Registre des recettes'),
+        def: B("The chronological list of the amounts collected by a micro-entreprise: date, client, amount, payment method, each backed by a document.",
+          "La liste chronologique des sommes encaissées par une micro-entreprise : date, client, montant, mode de paiement, chacune appuyée sur une pièce.") },
+      { term: B('Accrual accounting', "Comptabilité d'engagement"),
+        def: B("Recording revenue and expenses when they arise (invoice issued or received), not when they are paid. It is the rule for companies.",
+          "L'enregistrement des produits et des charges quand ils naissent (facture émise ou reçue), et non quand ils sont payés. C'est la règle pour les sociétés.") },
+      { term: B('Cash accounting', 'Comptabilité de trésorerie'),
+        def: B("Recording operations when money comes in or goes out. Some individual entrepreneurs may keep their books this way, depending on the activity and the options chosen.",
+          "L'enregistrement des opérations au moment où l'argent entre ou sort. Certains entrepreneurs individuels peuvent tenir leurs comptes ainsi, selon l'activité et les options choisies.") },
+      { term: B('Annual accounts', 'Comptes annuels'),
+        def: B("The balance sheet, the profit and loss account and, depending on the size, the notes. A company draws them up at each closing, has them approved, then files them with the greffe.",
+          "Le bilan, le compte de résultat et, selon la taille, l'annexe. Une société les établit à chaque clôture, les fait approuver, puis les dépose au greffe.") },
+      { term: B('Supporting document', 'Pièce justificative'),
+        def: B("The document that proves an entry: invoice, receipt, contract, bank statement. No entry without a document, and documents are kept for several years: check the durations on Service-Public Entreprendre.",
+          "Le document qui prouve une écriture : facture, ticket, contrat, relevé. Pas d'écriture sans pièce, et les pièces se conservent plusieurs années : vérifiez les durées sur Service-Public Entreprendre.") },
+    ],
+    walkthrough: {
+      title: B("Lina draws up the obligations sheet of Studio Cerise, the fictional SASU she has just created.",
+        "Lina dresse la fiche des obligations de Studio Cerise, la SASU fictive qu'elle vient de créer."),
+      steps: [
+        B("She writes her starting point: SASU, corporate tax, VAT applicable, design services and notebook sales. Why: every obligation depends on these facts, and an AI that does not have them answers for an average case.",
+          "Elle écrit son point de départ : SASU, impôt sur les sociétés, TVA applicable, prestations de design et vente de carnets. Pourquoi : chaque obligation dépend de ces faits, et une IA qui ne les a pas répond pour un cas moyen."),
+        B("She asks an AI for a two-column comparison, micro-entreprise versus SASU, with a source to check on each line. Why: the comparison shows what is new, and the source column turns the answer into a checklist.",
+          "Elle demande à une IA une comparaison en deux colonnes, micro-entreprise contre SASU, avec une source à vérifier sur chaque ligne. Pourquoi : la comparaison montre ce qui est nouveau, et la colonne des sources transforme la réponse en liste de contrôle."),
+        B("She opens Service-Public Entreprendre and her professional space on impots.gouv.fr, and ticks each line she can confirm. Why: the official source is authoritative; the AI only saved her the first draft.",
+          "Elle ouvre Service-Public Entreprendre et son espace professionnel sur impots.gouv.fr, et coche chaque ligne qu'elle peut confirmer. Pourquoi : la source officielle fait foi ; l'IA ne lui a épargné que le premier jet."),
+        B("She strikes out a line where the AI quoted a threshold she cannot find anywhere, and rewrites it as a question. Why: a figure that cannot be sourced has no place in the sheet.",
+          "Elle barre une ligne où l'IA citait un seuil introuvable, et la réécrit sous forme de question. Pourquoi : un chiffre qu'on ne peut pas sourcer n'a pas sa place dans la fiche."),
+        B("She sends the sheet and her questions to Paul, her accountant (fictional too), before the first month. Why: he confirms what applies to her case and says which tasks the firm takes on.",
+          "Elle envoie la fiche et ses questions à Paul, son expert-comptable (lui aussi fictif), avant le premier mois. Pourquoi : il confirme ce qui s'applique à son cas et précise les tâches que le cabinet prend en charge."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Copying the obligations of a friend who has \"the same status\".",
+          "Recopier les obligations d'une connaissance qui a « le même statut »."),
+        fix: B("Start from your own facts (status, taxation, VAT, activity) and check them on the official source: two SASU can have different regimes and options.",
+          "Partez de vos propres faits (statut, imposition, TVA, activité) et vérifiez-les sur la source officielle : deux SASU peuvent avoir des régimes et des options différents.") },
+      { wrong: B("Keeping the books only once a year, just before the tax return.",
+          "Tenir les comptes une seule fois par an, juste avant la déclaration."),
+        fix: B("Keep them weekly or monthly: the figures then help you decide during the year, and missing documents are still easy to find.",
+          "Tenez-les chaque semaine ou chaque mois : les chiffres aident alors à décider pendant l'année, et les pièces manquantes se retrouvent encore facilement.") },
+      { wrong: B("Treating an AI answer about obligations as a legal certainty.",
+          "Prendre la réponse d'une IA sur les obligations pour une certitude juridique."),
+        fix: B("Use it as a draft, check each line on Service-Public Entreprendre, impots.gouv.fr or urssaf.fr, and ask an accountant about doubtful points.",
+          "Servez-vous-en comme d'un brouillon, vérifiez chaque ligne sur Service-Public Entreprendre, impots.gouv.fr ou urssaf.fr, et soumettez les points douteux à un expert-comptable.") },
+    ],
+    recap: [
+      B("Books serve two readers: the administration, and you to steer the business.", "Les comptes servent deux lecteurs : l'administration, et vous pour piloter."),
+      B("A micro-entreprise keeps simplified registers; a company keeps full accrual accounts.", "La micro-entreprise tient des registres simplifiés ; la société, une comptabilité d'engagement complète."),
+      B("Thresholds, options and dates change: check them on the official sources.", "Seuils, options et dates changent : vérifiez-les sur les sources officielles."),
+      B("An AI drafts the list of questions; the official source and the accountant confirm.", "Une IA prépare la liste des questions ; la source officielle et l'expert-comptable confirment."),
+    ],
+    further: B("Read the pages on accounting obligations by status on Service-Public Entreprendre, then the page on the micro-entrepreneur regime on urssaf.fr if it concerns you. Compare them with your sheet and note every difference as a question for your accountant.",
+      "Lisez les pages consacrées aux obligations comptables selon le statut sur Service-Public Entreprendre, puis la page du régime micro-entrepreneur sur urssaf.fr si elle vous concerne. Comparez-les à votre fiche et notez chaque différence comme question pour votre expert-comptable."),
+    more: [
+      { q: B("Lina invoiced a client in December; the client paid in January. In the accrual accounts of Studio Cerise, which year carries the revenue?",
+          "Lina a facturé un client en décembre, qui a payé en janvier. Dans la comptabilité d'engagement de Studio Cerise, quel exercice porte le produit ?"),
+        options: [
+          B("The year of January, when the money arrives", "L'exercice de janvier, quand l'argent arrive"),
+          B("The year of December, when the service was invoiced", "L'exercice de décembre, quand la prestation est facturée"),
+          B("Both years, half each", "Les deux exercices, pour moitié chacun"),
+        ],
+        answer: 1,
+        why: B("In accrual accounting, revenue is recorded when it arises (service done, invoice issued), not when it is paid. The unpaid amount waits in the client account (411) until January.",
+          "En comptabilité d'engagement, le produit s'enregistre quand il naît (prestation faite, facture émise), et non au paiement. La somme impayée attend au compte client (411) jusqu'en janvier.") },
+      { q: B("Which document proves an expense entry in the books of Studio Cerise?",
+          "Quelle pièce justifie une écriture de charge dans les comptes de Studio Cerise ?"),
+        options: [
+          B("The supplier's invoice in the company's name", "La facture du fournisseur au nom de la société"),
+          B("The bank statement line showing the payment", "La ligne du relevé bancaire montrant le paiement"),
+          B("A note written by Lina describing the expense", "Une note rédigée par Lina décrivant la dépense"),
+        ],
+        answer: 0,
+        why: B("The invoice is the supporting document: it names the supplier, the buyer, the amounts and the VAT. A bank line proves a payment, not what was bought; a personal note proves nothing on its own.",
+          "La facture est la pièce justificative : elle nomme le fournisseur, l'acheteur, les montants et la TVA. Une ligne bancaire prouve un paiement, pas ce qui a été acheté ; une note personnelle ne prouve rien à elle seule.") },
+    ],
+  },
+
+  [deepKey(M1, 'cp-double-entry')]: {
+    intro: B("Double entry is the grammar of accounting: once you read it, every report becomes readable. This lesson explains debit and credit as movements of value rather than as \"plus\" and \"minus\", the structure of the plan comptable général by class, and how to record the everyday operations of Studio Cerise: a sale, a payment, a purchase. You will learn to check the balance of each entry before going further, and to use an AI as a tutor that justifies its choices. At the end, you will write and explain the entries of common operations, and know when a choice of account should go to your accountant.",
+      "La partie double est la grammaire de la comptabilité : une fois lue, chaque état devient lisible. Ce cours explique le débit et le crédit comme des mouvements de valeur plutôt que comme « plus » et « moins », la structure du plan comptable général par classes, et la façon d'enregistrer les opérations courantes de Studio Cerise : une vente, un paiement, un achat. Vous apprendrez à vérifier l'équilibre de chaque écriture avant d'aller plus loin, et à vous servir d'une IA comme d'un tuteur qui justifie ses choix. À la fin, vous saurez passer et expliquer les écritures courantes, et quand confier un choix de compte à votre expert-comptable."),
+    concepts: [
+      { term: B('Debit and credit', 'Débit et crédit'),
+        def: B("The two sides of every account. Each operation is written once on the debit side of an account and once on the credit side of another, for the same total.",
+          "Les deux côtés de tout compte. Chaque opération s'écrit une fois au débit d'un compte et une fois au crédit d'un autre, pour le même total.") },
+      { term: B('Account', 'Compte'),
+        def: B("A numbered box that collects all movements of one kind: the bank (512), a client (411), sales of goods (707). Its balance is the difference between its debits and credits.",
+          "Une case numérotée qui réunit tous les mouvements d'une même nature : la banque (512), un client (411), les ventes de marchandises (707). Son solde est l'écart entre ses débits et ses crédits.") },
+      { term: B('French chart of accounts (PCG)', 'Plan comptable général (PCG)'),
+        def: B("The French chart of accounts, published by the Autorité des normes comptables. The first digit of an account number gives its class, from 1 to 7.",
+          "La liste française des comptes, publiée par l'Autorité des normes comptables. Le premier chiffre d'un numéro de compte donne sa classe, de 1 à 7.") },
+      { term: B('Entry', 'Écriture'),
+        def: B("The record of one operation: a date, a journal, a document number, a label, and at least two lines whose debits equal credits.",
+          "L'enregistrement d'une opération : une date, un journal, un numéro de pièce, un libellé, et au moins deux lignes dont les débits égalent les crédits.") },
+      { term: B('Balance sheet and income accounts', 'Comptes de bilan et de gestion'),
+        def: B("Classes 1 to 5 describe what the company owns and owes (the balance sheet); classes 6 and 7 describe its expenses and revenue of the year (the profit and loss account).",
+          "Les classes 1 à 5 décrivent ce que l'entreprise possède et doit (le bilan) ; les classes 6 et 7 décrivent ses charges et ses produits de l'année (le compte de résultat).") },
+    ],
+    walkthrough: {
+      title: B("Lina records the sale and payment of 50 notebooks, then a software purchase, for Studio Cerise.",
+        "Lina enregistre la vente et le paiement de 50 carnets, puis l'achat d'un logiciel, pour Studio Cerise."),
+      steps: [
+        B("She identifies the first event: invoice 2026-007 issued on 3 March, 500 € excl. VAT and 100 € of VAT. Why: in accrual accounting, the sale is recorded when invoiced, not when paid.",
+          "Elle repère le premier événement : la facture 2026-007 émise le 3 mars, 500 € HT et 100 € de TVA. Pourquoi : en comptabilité d'engagement, la vente s'enregistre à la facturation, pas au paiement."),
+        B("She writes: debit 411 Clients 600 €, credit 707 Sales of goods 500 €, credit 44571 Output VAT 100 €. Why: the client owes the total, the revenue is excl. VAT, the VAT is owed to the State.",
+          "Elle écrit : débit 411 Clients 600 €, crédit 707 Ventes de marchandises 500 €, crédit 44571 TVA collectée 100 €. Pourquoi : le client doit le total, le produit est hors taxes, la TVA est due à l'État."),
+        B("On 20 March the transfer arrives: debit 512 Bank 600 €, credit 411 Clients 600 €. Why: the claim becomes money in the bank; no new revenue appears.",
+          "Le 20 mars, le virement arrive : débit 512 Banque 600 €, crédit 411 Clients 600 €. Pourquoi : la créance devient de l'argent en banque ; aucun nouveau produit n'apparaît."),
+        B("She records a software subscription received on credit: an expense account of class 6 for 50 € (to confirm with Paul), debit 44566 Input VAT 10 €, credit 401 Suppliers 60 €. Why: expense and deductible VAT are separate, and the supplier is owed the total.",
+          "Elle enregistre un abonnement logiciel reçu à crédit : un compte de charges de classe 6 pour 50 € (à confirmer avec Paul), débit 44566 TVA déductible 10 €, crédit 401 Fournisseurs 60 €. Pourquoi : la charge et la TVA déductible sont distinctes, et le fournisseur attend le total."),
+        B("She adds up each entry, checks that debits equal credits, then asks the AI to explain the one line she hesitated on. Why: balance is the first control, and the explanation fixes the reasoning for next time.",
+          "Elle additionne chaque écriture, vérifie que les débits égalent les crédits, puis demande à l'IA d'expliquer la ligne sur laquelle elle a hésité. Pourquoi : l'équilibre est le premier contrôle, et l'explication fixe le raisonnement pour la prochaine fois."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Recording the sale on the day of payment in accrual accounts.",
+          "Enregistrer la vente le jour du paiement en comptabilité d'engagement."),
+        fix: B("Record it on the invoice date, in 411 and class 7; the payment only moves the amount from 411 to 512.",
+          "Enregistrez-la à la date de facture, en 411 et en classe 7 ; le paiement ne fait que déplacer le montant du 411 vers le 512.") },
+      { wrong: B("Putting the total including VAT into the revenue or expense account.",
+          "Porter le total TTC au compte de produit ou de charge."),
+        fix: B("For a business liable to VAT, record revenue and expenses excluding VAT, and the VAT in its own accounts (44571, 44566).",
+          "Pour une entreprise redevable de la TVA, comptabilisez produits et charges hors taxes, et la TVA dans ses propres comptes (44571, 44566).") },
+      { wrong: B("Inventing an account number because it \"looks right\".",
+          "Inventer un numéro de compte parce qu'il « a l'air juste »."),
+        fix: B("Take the number from the plan comptable général published by the Autorité des normes comptables, or from the chart your software and your accountant use.",
+          "Prenez le numéro dans le plan comptable général publié par l'Autorité des normes comptables, ou dans le plan qu'utilisent votre logiciel et votre cabinet.") },
+    ],
+    recap: [
+      B("Every operation moves value: one account is debited, another credited, for the same amount.", "Toute opération déplace de la valeur : un compte est débité, un autre crédité, du même montant."),
+      B("The first digit of an account gives its class; classes 6 and 7 make the profit and loss account.", "Le premier chiffre d'un compte donne sa classe ; les classes 6 et 7 forment le compte de résultat."),
+      B("In your own books, money coming into the bank is a debit of 512.", "Dans vos propres comptes, l'argent qui entre en banque est un débit du 512."),
+      B("Ask the AI to justify each account, and keep delicate choices for your accountant.", "Demandez à l'IA de justifier chaque compte, et gardez les choix délicats pour votre expert-comptable."),
+    ],
+    further: B("Download the plan comptable général from the website of the Autorité des normes comptables and keep, on one page, the list of accounts your activity really uses. Ask your accountant whether the firm uses sub-accounts, so that your entries match theirs.",
+      "Téléchargez le plan comptable général sur le site de l'Autorité des normes comptables et gardez, sur une page, la liste des comptes que votre activité utilise vraiment. Demandez à votre expert-comptable si le cabinet emploie des sous-comptes, pour que vos écritures correspondent aux siennes."),
+    more: [
+      { q: B("Lina's entry for a 600 € sale shows 600 € in debit and 500 € in credit. What is most likely missing?",
+          "L'écriture de Lina pour une vente de 600 € montre 600 € au débit et 500 € au crédit. Que manque-t-il le plus probablement ?"),
+        options: [
+          B("The 100 € VAT line, in credit of 44571", "La ligne de TVA de 100 €, au crédit du 44571"),
+          B("A second 600 € line, in debit of 512", "Une seconde ligne de 600 €, au débit du 512"),
+          B("Nothing, since the gap is the profit made", "Rien, puisque l'écart est le bénéfice réalisé"),
+        ],
+        answer: 0,
+        why: B("The client owes 600 € including VAT; the revenue is 500 € excl. VAT. The missing 100 € is the output VAT, credited to 44571. With it, debits and credits are equal.",
+          "Le client doit 600 € TTC ; le produit est de 500 € HT. Les 100 € manquants sont la TVA collectée, créditée au 44571. Avec elle, débits et crédits s'égalisent.") },
+      { q: B("Studio Cerise receives a 5,000 € bank loan on its account. Where does the credit go?",
+          "Studio Cerise reçoit sur son compte un emprunt bancaire de 5 000 €. Où va le crédit ?"),
+        options: [
+          B("To a revenue account, since money comes in", "À un compte de produit, puisque de l'argent entre"),
+          B("To account 164 Borrowings, a balance sheet account", "Au compte 164 Emprunts, un compte de bilan"),
+          B("To an expense account, since a loan costs money", "À un compte de charge, puisqu'un emprunt coûte"),
+        ],
+        answer: 1,
+        why: B("Money in is not always revenue. The loan is a debt to repay: debit 512 Bank, credit 164 Borrowings, in class 1. Only the interest will later be an expense.",
+          "De l'argent qui entre n'est pas toujours un produit. L'emprunt est une dette à rembourser : débit 512 Banque, crédit 164 Emprunts, en classe 1. Seuls les intérêts seront plus tard une charge.") },
+    ],
+  },
+
+  [deepKey(M1, 'cp-journals')]: {
+    intro: B("Accountants rarely look at entries one by one: they read them through three views. This lesson explains the journal (the entries in date order, by type of operation), the general ledger (the entries grouped by account) and the trial balance (one line per account, with its totals and balance). You will rebuild these three views for Studio Cerise in a spreadsheet, with formulas an AI helps you write, and use each one to find a different kind of error. At the end, you will know which view to open to answer a question, and why a balanced trial balance is a first control, not a proof.",
+      "Un comptable lit rarement les écritures une à une : il les regarde à travers trois vues. Ce cours explique le journal (les écritures dans l'ordre des dates, par type d'opération), le grand livre (les écritures regroupées par compte) et la balance (une ligne par compte, avec ses totaux et son solde). Vous reconstituerez ces trois vues pour Studio Cerise dans un tableur, avec des formules qu'une IA vous aide à écrire, et vous servirez de chacune pour trouver un type d'erreur différent. À la fin, vous saurez quelle vue ouvrir pour répondre à une question, et pourquoi une balance équilibrée est un premier contrôle, pas une preuve."),
+    concepts: [
+      { term: B('Journal', 'Journal'),
+        def: B("The chronological record of entries, usually split by type: sales (VT), purchases (AC), bank (BQ) and miscellaneous operations (OD).",
+          "L'enregistrement chronologique des écritures, en général séparé par type : ventes (VT), achats (AC), banque (BQ) et opérations diverses (OD).") },
+      { term: B('General ledger', 'Grand livre'),
+        def: B("All entries regrouped account by account, with a running balance. It answers questions such as \"what has this client paid?\".",
+          "Toutes les écritures regroupées compte par compte, avec un solde progressif. Il répond à des questions comme « qu'a payé ce client ? ».") },
+      { term: B('Trial balance', 'Balance'),
+        def: B("One line per account with total debits, total credits and balance. Its grand totals must be equal; it is the basis of the annual accounts.",
+          "Une ligne par compte avec total des débits, total des crédits et solde. Ses totaux généraux doivent être égaux ; c'est la base des comptes annuels.") },
+      { term: B('Miscellaneous operations (OD)', 'Opérations diverses (OD)'),
+        def: B("The journal for entries that are neither sales, purchases nor bank: corrections, reclassifications, year-end adjustments.",
+          "Le journal des écritures qui ne sont ni des ventes, ni des achats, ni de la banque : corrections, reclassements, écritures de clôture.") },
+      { term: B('FEC', 'FEC'),
+        def: B("The fichier des écritures comptables: a standard file of all entries of the year, which a company keeping computerised books must be able to give the tax authorities on audit.",
+          "Le fichier des écritures comptables : un fichier normé de toutes les écritures de l'exercice, qu'une entreprise tenant ses comptes sur informatique doit pouvoir remettre à l'administration en cas de contrôle.") },
+    ],
+    walkthrough: {
+      title: B("Lina produces the March ledger and trial balance of Studio Cerise in a spreadsheet, and finds an error.",
+        "Lina produit le grand livre et la balance de mars de Studio Cerise dans un tableur, et y trouve une erreur."),
+      steps: [
+        B("She types each entry in one table: date, journal (VT, AC, BQ, OD), document number, account, label, debit, credit. Why: one table feeds the three views, and nothing is typed twice.",
+          "Elle saisit chaque écriture dans un seul tableau : date, journal (VT, AC, BQ, OD), numéro de pièce, compte, libellé, débit, crédit. Pourquoi : un seul tableau alimente les trois vues, et rien n'est saisi deux fois."),
+        B("She filters the table by journal and sorts it by date: this is the journal. Why: the chronological view shows whether an operation of the month is missing, for example a skipped invoice number.",
+          "Elle filtre le tableau par journal et le trie par date : c'est le journal. Pourquoi : la vue chronologique montre si une opération du mois manque, par exemple un numéro de facture sauté."),
+        B("She builds the trial balance with SUMIFS per account and a control cell, using formulas the AI wrote and explained. Why: the totals must be equal, and the control cell shows a 100 € gap at once.",
+          "Elle construit la balance avec SOMME.SI.ENS par compte et une cellule de contrôle, grâce à des formules écrites et expliquées par l'IA. Pourquoi : les totaux doivent être égaux, et la cellule de contrôle montre aussitôt un écart de 100 €."),
+        B("She opens the ledger of 44571 and finds a sale whose VAT line was forgotten. Why: the ledger shows the detail behind a suspicious total.",
+          "Elle ouvre le grand livre du 44571 et trouve une vente dont la ligne de TVA a été oubliée. Pourquoi : le grand livre montre le détail derrière un total suspect."),
+        B("She corrects the entry, checks the balance again, then compares the ledger of 512 with the bank statement. Why: a balanced trial balance does not prove the bank is right; the bank reconciliation, in module 2, does.",
+          "Elle corrige l'écriture, revérifie la balance, puis compare le grand livre du 512 au relevé bancaire. Pourquoi : une balance équilibrée ne prouve pas que la banque est juste ; le rapprochement bancaire, au module 2, le fait."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Correcting an entry of a validated period by overwriting it.",
+          "Corriger une écriture d'une période validée en l'écrasant."),
+        fix: B("Once a period is validated, correct with a new entry (reversal or adjustment) that keeps the trace, as compliant software requires.",
+          "Une fois une période validée, corrigez par une nouvelle écriture (extourne ou régularisation) qui garde la trace, comme l'exige un logiciel conforme.") },
+      { wrong: B("Reading only the trial balance and never opening the ledger.",
+          "Lire seulement la balance sans jamais ouvrir le grand livre."),
+        fix: B("Use the balance to spot an odd account, then the ledger to find the faulty line: each view has its role.",
+          "Servez-vous de la balance pour repérer un compte anormal, puis du grand livre pour trouver la ligne fautive : chaque vue a son rôle.") },
+      { wrong: B("Keeping entries in several unconnected files, one per month or per bank.",
+          "Garder les écritures dans plusieurs fichiers sans lien, un par mois ou par banque."),
+        fix: B("Keep one table, or one software, for all entries, so that the journal, the ledger and the balance always show the same data.",
+          "Gardez un seul tableau, ou un seul logiciel, pour toutes les écritures, afin que journal, grand livre et balance montrent toujours les mêmes données.") },
+    ],
+    recap: [
+      B("The journal, the ledger and the trial balance are three views of the same entries.", "Le journal, le grand livre et la balance sont trois vues des mêmes écritures."),
+      B("The balance spots an odd account; the ledger finds the faulty line.", "La balance repère un compte anormal ; le grand livre trouve la ligne fautive."),
+      B("A balanced trial balance is a first control, not a proof that the books are right.", "Une balance équilibrée est un premier contrôle, pas la preuve que les comptes sont justes."),
+      B("Validated entries are corrected by a new entry, never overwritten.", "Une écriture validée se corrige par une nouvelle écriture, jamais en l'écrasant."),
+    ],
+    further: B("Ask your software provider or your accountant how to export the FEC and the trial balance, and open both once. The administration publishes the description of the FEC format (BOFiP, impots.gouv.fr): read its introduction to see which fields each entry must carry.",
+      "Demandez à votre éditeur de logiciel ou à votre expert-comptable comment exporter le FEC et la balance, et ouvrez-les une fois. L'administration publie la description du format du FEC (BOFiP, impots.gouv.fr) : lisez-en l'introduction pour voir quels champs chaque écriture doit porter."),
+    more: [
+      { q: B("In Lina's trial balance, bank account 512 has a credit balance, yet her bank statement is positive. What does this suggest?",
+          "Dans la balance de Lina, le compte 512 est créditeur, alors que son relevé bancaire est positif. Que faut-il en penser ?"),
+        options: [
+          B("An error in the books, to look for in the 512 ledger", "Une erreur dans les comptes, à chercher dans le grand livre du 512"),
+          B("An overdraft, since the bank always shows the right figure", "Un découvert, puisque la banque affiche toujours le bon chiffre"),
+          B("Nothing special, since 512 normally has a credit balance", "Rien de spécial, puisque le 512 est normalement créditeur"),
+        ],
+        answer: 0,
+        why: B("In your books, money available in the bank gives 512 a debit balance. A credit balance with a positive statement means entries are missing or reversed: the 512 ledger shows which.",
+          "Dans vos comptes, l'argent disponible en banque rend le 512 débiteur. Un solde créditeur avec un relevé positif signale des écritures manquantes ou inversées : le grand livre du 512 dit lesquelles.") },
+      { q: B("A tax auditor asks Studio Cerise for its entries. Which standard file will be requested?",
+          "Un contrôleur des impôts demande à Studio Cerise ses écritures. Quel fichier normé sera demandé ?"),
+        options: [
+          B("The trial balance exported as a PDF document", "La balance exportée en document PDF"),
+          B("The fichier des écritures comptables (FEC)", "Le fichier des écritures comptables (FEC)"),
+          B("The bank statements of the whole financial year", "Les relevés bancaires de tout l'exercice"),
+        ],
+        answer: 1,
+        why: B("A company keeping computerised books must be able to provide the FEC, a standard file of all entries. The balance and the bank statements are useful, but they are not the requested format.",
+          "Une entreprise qui tient ses comptes sur informatique doit pouvoir fournir le FEC, fichier normé de toutes les écritures. La balance et les relevés sont utiles, mais ce n'est pas le format demandé.") },
+    ],
+  },
+
+  [deepKey(M1, 'cp-setup')]: {
+    intro: B("Good bookkeeping is mostly good habits set up on day one. This lesson shows how to organise the flow of documents before choosing any tool: a dedicated bank account, a single entry point for invoices, a folder tree and a naming rule, a weekly routine, and the choice of a tool suited to your status and to your accountant. You will set up the kit of Studio Cerise with Lina, and use an AI to build a comparison grid rather than to name \"the best software\". At the end, you will have your own one-page kit, ready before the first receipt arrives.",
+      "Une bonne comptabilité tient surtout à de bonnes habitudes prises dès le premier jour. Ce cours montre comment organiser le flux des pièces avant de choisir un outil : un compte bancaire dédié, une entrée unique pour les factures, une arborescence et une règle de nommage, une routine hebdomadaire, et le choix d'un outil adapté à votre statut et à votre expert-comptable. Vous mettrez en place le kit de Studio Cerise avec Lina, et vous servirez d'une IA pour bâtir une grille de comparaison plutôt que pour désigner « le meilleur logiciel ». À la fin, vous aurez votre propre kit sur une page, prêt avant la première pièce."),
+    concepts: [
+      { term: B('Dedicated bank account', 'Compte bancaire dédié'),
+        def: B("An account used only for the business. A company has its own; for a micro-entrepreneur, the conditions are described on urssaf.fr.",
+          "Un compte réservé à l'activité. Une société a le sien ; pour un micro-entrepreneur, les conditions sont décrites sur urssaf.fr.") },
+      { term: B('Naming rule', 'Règle de nommage'),
+        def: B("A fixed pattern for file names, such as date_supplier_amount, so that documents sort by date and can be found by supplier or amount.",
+          "Un modèle fixe pour le nom des fichiers, comme date_fournisseur_montant, pour que les pièces se trient par date et se retrouvent par fournisseur ou par montant.") },
+      { term: B('Expense claim', 'Note de frais'),
+        def: B("The document by which a company repays an expense paid with private money, backed by the original invoice.",
+          "Le document par lequel une société rembourse une dépense payée avec de l'argent personnel, appuyé sur la facture d'origine.") },
+      { term: B('Bookkeeping routine', 'Routine comptable'),
+        def: B("A short, fixed slot, weekly or monthly, to collect, file and categorise documents, so that nothing piles up before deadlines.",
+          "Un créneau court et fixe, hebdomadaire ou mensuel, pour collecter, classer et catégoriser les pièces, afin que rien ne s'accumule avant les échéances.") },
+    ],
+    walkthrough: {
+      title: B("Lina sets up the bookkeeping kit of Studio Cerise in one afternoon.",
+        "Lina met en place le kit comptable de Studio Cerise en un après-midi."),
+      steps: [
+        B("She uses the company's business account for every professional payment and keeps its card for business expenses only. Why: each bank line becomes professional, and the reconciliation gets simple.",
+          "Elle passe chaque paiement professionnel par le compte de la société et réserve sa carte aux dépenses de l'activité. Pourquoi : chaque ligne bancaire devient professionnelle, et le rapprochement se simplifie."),
+        B("She creates an email address reserved for invoices received and gives it to all her suppliers. Why: documents arrive in one place instead of five inboxes.",
+          "Elle crée une adresse email réservée aux factures reçues et la communique à tous ses fournisseurs. Pourquoi : les pièces arrivent à un seul endroit au lieu de cinq boîtes."),
+        B("She creates the folders 2026/01 to 2026/12, each split into Sales, Purchases and Bank, and adopts the rule date_supplier_amount. Why: files sort themselves by date and can be found by supplier.",
+          "Elle crée les dossiers 2026/01 à 2026/12, chacun séparé en Ventes, Achats et Banque, et adopte la règle date_fournisseur_montant. Pourquoi : les fichiers se trient seuls par date et se retrouvent par fournisseur."),
+        B("She asks Paul which tools the firm works with, then compares two of them with her criteria grid and their official documentation. Why: a tool the firm cannot read means exports, re-typing and errors.",
+          "Elle demande à Paul les outils avec lesquels le cabinet travaille, puis en compare deux avec sa grille de critères et leur documentation officielle. Pourquoi : un outil que le cabinet ne lit pas, c'est des exports, des ressaisies et des erreurs."),
+        B("She blocks Friday from 9:00 to 9:30 in her calendar: collect, file, categorise, list questions. Why: a short regular slot prevents the backlog that makes bookkeeping painful.",
+          "Elle bloque le vendredi de 9 h à 9 h 30 dans son agenda : collecter, classer, catégoriser, lister les questions. Pourquoi : un créneau court et régulier évite le retard qui rend la comptabilité pénible."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Paying business and private expenses from the same account and card.",
+          "Payer les dépenses professionnelles et privées avec le même compte et la même carte."),
+        fix: B("Separate them from the start; when a private payment for the business happens, handle it through an expense claim with the invoice.",
+          "Séparez-les dès le départ ; quand une dépense professionnelle est payée à titre privé, traitez-la par une note de frais avec la facture.") },
+      { wrong: B("Leaving invoices in email threads and photos on the phone.",
+          "Laisser les factures dans des fils d'emails et des photos sur le téléphone."),
+        fix: B("Route every document to one entry point, then file it under the naming rule during the weekly slot.",
+          "Faites arriver chaque pièce à une entrée unique, puis classez-la selon la règle de nommage pendant le créneau hebdomadaire.") },
+      { wrong: B("Choosing a tool on its price or on an advert alone.",
+          "Choisir un outil sur son seul prix ou sur une publicité."),
+        fix: B("Compare tools with a criteria grid (status, volume, bank connection, FEC export, work with the accountant) filled in from their official documentation.",
+          "Comparez les outils avec une grille de critères (statut, volume, connexion bancaire, export du FEC, travail avec le cabinet) remplie à partir de leur documentation officielle.") },
+    ],
+    recap: [
+      B("Organisation comes before the tool: no software files a document it never receives.", "L'organisation passe avant l'outil : aucun logiciel ne classe une pièce qu'il ne reçoit pas."),
+      B("A dedicated account makes every bank line professional and the reconciliation possible.", "Un compte dédié rend chaque ligne bancaire professionnelle et le rapprochement possible."),
+      B("A naming rule and a folder tree make any document findable in seconds.", "Une règle de nommage et une arborescence rendent toute pièce retrouvable en quelques secondes."),
+      B("Choose the tool with a criteria grid and your accountant, not from a ranking.", "Choisissez l'outil avec une grille de critères et votre cabinet, pas d'après un classement."),
+    ],
+    further: B("Read on Service-Public Entreprendre the rules on keeping accounting documents, including the conditions for digitising paper receipts. Then write in your kit how long you keep each kind of document, in what format and where.",
+      "Lisez sur Service-Public Entreprendre les règles de conservation des documents comptables, y compris les conditions de numérisation des pièces papier. Notez ensuite dans votre kit combien de temps vous gardez chaque type de pièce, sous quel format et où."),
+    more: [
+      { q: B("Lina's accountant works with one software, but Lina prefers a spreadsheet. What is the sound approach?",
+          "L'expert-comptable de Lina travaille avec un logiciel, mais Lina préfère un tableur. Quelle est la démarche saine ?"),
+        options: [
+          B("Keep the spreadsheet and send it to the firm in December", "Garder le tableur et l'envoyer au cabinet en décembre"),
+          B("Buy the firm's tool at once without looking at alternatives", "Acheter aussitôt l'outil du cabinet sans regarder ailleurs"),
+          B("Ask the firm how both can work together, then decide", "Demander au cabinet comment travailler ensemble, puis décider"),
+        ],
+        answer: 2,
+        why: B("The best tool is the one that fits both the company and the firm. Sending a spreadsheet once a year means late re-typing; buying blindly may mean paying for useless features.",
+          "Le meilleur outil est celui qui convient à l'entreprise et au cabinet. Envoyer un tableur une fois par an, c'est une ressaisie tardive ; acheter à l'aveugle, c'est peut-être payer des fonctions inutiles.") },
+      { q: B("Which file name lets Lina find a supplier invoice fastest a year later?",
+          "Quel nom de fichier permet à Lina de retrouver le plus vite une facture fournisseur un an plus tard ?"),
+        options: [
+          B("2026-03-14_printer_480.pdf", "2026-03-14_imprimeur_480.pdf"),
+          B("printer invoice March.pdf", "facture imprimeur mars.pdf"),
+          B("scan_0314.pdf, in the Downloads folder", "scan_0314.pdf, dans le dossier Téléchargements"),
+        ],
+        answer: 0,
+        why: B("The full date sorts files in order across years, the supplier allows a search, and the amount matches the bank line. A month without a year, or a scan number, says neither.",
+          "La date complète trie les fichiers d'une année sur l'autre, le fournisseur permet la recherche, et le montant correspond à la ligne bancaire. Un mois sans année, ou un numéro de scan, ne disent rien de tout cela.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DE CETTE PARTIE                                         */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M1, track: 'course', glyph: 'diamond', tint: '#059669', at: [12, 82], levels: BASICS,
+    title: B('The basics of bookkeeping', 'Les bases de la comptabilité'),
+    blurb: B('What your status requires, double entry and the chart of accounts, journals and trial balance, and a kit set up from day one.',
+      'Ce que votre statut impose, la partie double et le plan comptable, journaux et balance, et un kit en place dès le premier jour.'),
+  },
+]
+
+export const COMPTA_A: CoursePart = {
+  modules: MODULES,
+  enrich: { ...BASICS_ENRICH },
+  deep: { ...BASICS_DEEP },
+}

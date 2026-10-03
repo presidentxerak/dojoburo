@@ -145,7 +145,7 @@ const VAT: Level[] = [
     ),
     quiz: {
       q: B('A client asks Studio Cerise for its invoices "in electronic format". Lina emails a PDF. Under the reform, is it enough?',
-        'Un client veut ses factures « au format électronique ». Lina lui envoie un PDF. Au sens de la réforme, est-ce suffisant ?'),
+        'Un client veut ses factures « au format électronique ». Lina envoie un PDF. Au sens de la réforme, est-ce suffisant ?'),
       options: [
         B('No, it takes a structured file exchanged via an approved platform', 'Non, il faut un fichier structuré échangé via une plateforme agréée'),
         B('Yes, any invoice sent by email counts as an electronic invoice', 'Oui, toute facture envoyée par email compte comme électronique'),
@@ -207,8 +207,8 @@ const VAT_ENRICH: Record<string, Enrichment> = {
     why: [
       B("VAT is a tax on consumption that a company collects on behalf of the State. It adds VAT to its sales (output VAT, account 44571) and recovers the VAT paid on its business purchases (input VAT, accounts 44566 for goods and services and 44562 for fixed assets). The difference is paid, or becomes a credit. For a company liable to VAT, VAT is therefore neither a revenue nor a cost: it sits in third-party accounts.",
         "La TVA est un impôt sur la consommation que l'entreprise collecte pour le compte de l'État. Elle l'ajoute à ses ventes (TVA collectée, compte 44571) et récupère celle payée sur ses achats professionnels (TVA déductible, comptes 44566 pour les biens et services et 44562 pour les immobilisations). La différence se paie, ou forme un crédit. Pour une entreprise redevable, la TVA n'est donc ni un produit ni une charge : elle reste en compte de tiers."),
-      B("The regime decides how you declare. Under franchise en base, the company invoices no VAT and recovers none, with a mandatory mention on its invoices; the thresholds change and are published on impots.gouv.fr. Under the simplified real regime, instalments are paid during the year and an annual return (CA12) is filed. Under the normal real regime, a return (CA3) is filed every month, or every quarter in some cases. Your regime depends on your turnover, status and options.",
-        "Le régime décide de la façon de déclarer. En franchise en base, l'entreprise ne facture pas de TVA et n'en récupère pas, avec une mention obligatoire sur ses factures ; les seuils changent et sont publiés sur impots.gouv.fr. Au réel simplifié, on verse des acomptes en cours d'année et on dépose une déclaration annuelle (CA12). Au réel normal, on dépose une déclaration (CA3) chaque mois, ou chaque trimestre dans certains cas. Le régime dépend du chiffre d'affaires, du statut et des options."),
+      B("The regime decides how you declare. Under franchise en base, the company invoices no VAT and recovers none, with a mandatory mention on its invoices; thresholds change and are published on impots.gouv.fr. Under the simplified real regime, instalments are paid during the year and an annual return (CA12) is filed. Under the normal real regime, a return (CA3) is filed monthly, or quarterly in some cases. The regime depends on turnover, status and options.",
+        "Le régime fixe la façon de déclarer. En franchise en base, l'entreprise ne facture ni ne récupère de TVA, avec une mention obligatoire sur ses factures ; les seuils changent et sont publiés sur impots.gouv.fr. Au réel simplifié, on verse des acomptes et on dépose une déclaration annuelle (CA12). Au réel normal, on dépose une CA3 chaque mois, ou chaque trimestre dans certains cas. Le régime dépend du chiffre d'affaires, du statut et des options."),
       B("Two rules decide the month. Output VAT becomes chargeable on delivery for goods and on payment for services, unless the option for debits. Input VAT can be deducted only with a compliant invoice and an expense used for taxable operations; some expenses are excluded or limited, passenger cars for instance. An AI can sort and add up, but it cannot guess your options: state them, and ask it to flag what is uncertain.",
         "Deux règles décident du mois. La TVA collectée devient exigible à la livraison pour les biens et à l'encaissement pour les services, sauf option pour les débits. La TVA déductible suppose une facture conforme et une dépense utile à des opérations taxables ; certaines dépenses sont exclues ou limitées, les véhicules de tourisme par exemple. Une IA sait trier et additionner, pas deviner vos options : donnez-les, et demandez-lui de signaler le doute."),
     ],
@@ -320,9 +320,9 @@ const VAT_ENRICH: Record<string, Enrichment> = {
   [enrichKey(M3, 'cp-einvoicing')]: {
     why: [
       B("France is generalising electronic invoicing between companies liable to VAT established in France (e-invoicing), and the transmission of transaction data for sales to individuals and international operations (e-reporting). The aim stated by the administration is to fight VAT fraud and, in time, to prefill VAT returns. An electronic invoice here means structured data in a standard format (Factur-X, UBL, CII), not a PDF sent by email.",
-        "La France généralise la facturation électronique entre entreprises assujetties à la TVA établies en France (e-invoicing), et la transmission des données de transaction pour les ventes aux particuliers et les opérations internationales (e-reporting). L'objectif affiché par l'administration est de lutter contre la fraude à la TVA et, à terme, de préremplir les déclarations. Une facture électronique désigne ici des données structurées dans un format standard (Factur-X, UBL, CII), pas un PDF envoyé par email."),
-      B("Invoices travel through approved platforms (plateformes agréées, formerly called PDP), listed officially by the administration. The calendar published under the 2024 finance law, already postponed once, provides that all companies must be able to receive electronic invoices from 1 September 2026, that large and mid-sized companies must issue them from that date, and small companies and micro-enterprises from 1 September 2027. Check it on impots.gouv.fr: it may change again.",
-        "Les factures transitent par des plateformes agréées (anciennement appelées PDP), listées officiellement par l'administration. Le calendrier publié en application de la loi de finances pour 2024, déjà reporté une fois, prévoit que toutes les entreprises doivent pouvoir recevoir des factures électroniques à partir du 1er septembre 2026, que les grandes entreprises et les ETI doivent en émettre dès cette date, et les PME et microentreprises à partir du 1er septembre 2027. Vérifiez-le sur impots.gouv.fr : il peut encore évoluer."),
+        "La France généralise la facturation électronique entre entreprises assujetties à la TVA en France (e-invoicing), et la transmission des données des ventes aux particuliers et des opérations internationales (e-reporting). L'administration vise la lutte contre la fraude à la TVA et, à terme, le préremplissage des déclarations. Une facture électronique désigne des données structurées au format standard (Factur-X, UBL, CII), pas un PDF envoyé par email."),
+      B("Invoices travel through approved platforms (plateformes agréées, formerly PDP), listed by the administration. The calendar set under the 2024 finance law, already postponed once, provides that all companies must be able to receive electronic invoices from 1 September 2026, large and mid-sized companies must issue them from that date, and small companies and micro-enterprises from 1 September 2027. Check it on impots.gouv.fr: it may change again.",
+        "Les factures transitent par des plateformes agréées (anciennement PDP), listées par l'administration. Le calendrier fixé par la loi de finances pour 2024, déjà reporté une fois, prévoit que toutes les entreprises puissent recevoir des factures électroniques au 1er septembre 2026, que les grandes entreprises et les ETI en émettent dès cette date, et les PME et microentreprises au 1er septembre 2027. Vérifiez-le sur impots.gouv.fr : il peut encore évoluer."),
       B("For a small company, the work is mostly preparation: knowing its flows, choosing a platform, completing customer data. New mentions are announced, such as the customer's SIREN, the delivery address when it differs, the nature of the operation (goods, services or both) and, where relevant, the option for debits. An AI helps to inventory and to write the plan; the official texts and FAQ say what is required.",
         "Pour une petite entreprise, le travail est surtout de préparation : connaître ses flux, choisir une plateforme, compléter les données clients. De nouvelles mentions sont annoncées, comme le SIREN du client, l'adresse de livraison si elle diffère, la nature de l'opération (biens, services ou les deux) et, le cas échéant, l'option pour les débits. Une IA aide à inventorier et à écrire le plan ; les textes et la FAQ officiels disent ce qui est exigé."),
     ],
@@ -376,8 +376,8 @@ const VAT_ENRICH: Record<string, Enrichment> = {
 
   [enrichKey(M3, 'cp-calendar')]: {
     why: [
-      B("A small company faces deadlines from several authorities: VAT returns and payments, corporate tax instalments and the annual tax return for companies subject to it, social contributions (URSSAF), the CFE, and, for companies, the approval and filing of annual accounts. A missed deadline usually costs penalties or late interest, and the rules are public. The difficulty is not complexity but dispersion.",
-        "Une petite entreprise fait face à des échéances venues de plusieurs administrations : déclarations et paiements de TVA, acomptes et déclaration annuelle d'impôt sur les sociétés pour celles qui y sont soumises, cotisations sociales (URSSAF), CFE et, pour les sociétés, approbation et dépôt des comptes annuels. Une échéance manquée coûte en général des pénalités ou des intérêts de retard, et les règles sont publiques. La difficulté n'est pas la complexité mais la dispersion."),
+      B("A small company faces deadlines from several authorities: VAT returns and payments, corporate tax instalments and the annual tax return for companies subject to it, social contributions (URSSAF), the CFE, and, for companies, the approval and filing of annual accounts. A missed deadline usually costs penalties or late interest. The difficulty is not complexity but dispersion.",
+        "Une petite entreprise a des échéances auprès de plusieurs administrations : déclarations et paiements de TVA, acomptes et déclaration annuelle d'impôt sur les sociétés pour celles qui y sont soumises, cotisations sociales (URSSAF), CFE et, pour les sociétés, approbation et dépôt des comptes annuels. Une échéance manquée coûte en général des pénalités ou des intérêts de retard. La difficulté n'est pas la complexité mais la dispersion."),
       B("Dates move: they depend on the regime, the closing date, the size of the company, sometimes on the first letters of the SIREN or the department, and they are adjusted each year. The authoritative sources are your professional space on impots.gouv.fr (with its tax calendar), your URSSAF account, Service-Public Entreprendre for formalities, and the notices you receive. A blog or an AI only gives a starting point.",
         "Les dates bougent : elles dépendent du régime, de la date de clôture, de la taille de l'entreprise, parfois du SIREN ou du département, et elles sont ajustées chaque année. Les sources qui font foi sont votre espace professionnel sur impots.gouv.fr (avec son agenda fiscal), votre compte URSSAF, Service-Public Entreprendre pour les formalités, et les avis que vous recevez. Un blog ou une IA ne donne qu'un point de départ."),
       B("An AI is good at the structure: listing families of obligations for a status, turning them into a table, writing reminders. It is weak at exact dates. The method is therefore to have it draft with a source column, to check each line, and to keep the date of checking. A calendar checked once a year, then shared with the accountant, prevents most surprises.",
@@ -756,6 +756,409 @@ const VAT_DEEP: Record<string, Deepening> = {
 }
 
 /* ================================================================== */
+/* MODULE 4 · CLÔTURER ET PILOTER                                      */
+/* ================================================================== */
+
+const M4 = 'cp-m4'
+
+const CLOSE: Level[] = [
+  {
+    id: 'cp-closing',
+    master: 'triage',
+    minutes: 12,
+    title: B('Closing: inventory, depreciation, accruals', 'La clôture : stocks, amortissements, charges à payer'),
+    learn: B(
+      'You will close a financial year: count the stock, depreciate fixed assets and attach each income and expense to its year.',
+      "Vous saurez clôturer un exercice : compter le stock, amortir les immobilisations, rattacher charges et produits à leur année.",
+    ),
+    act: B('Prepare the 31 December closing file of Studio Cerise: stock count, depreciation table and list of accruals.',
+      "Préparez le dossier de clôture au 31 décembre de Studio Cerise : inventaire, plan d'amortissement, régularisations."),
+    steps: [
+      B('Count the stock on the closing date and value it at purchase cost, item by item, on a count sheet you keep.',
+        "Comptez le stock au jour de la clôture et valorisez-le au coût d'achat, article par article, sur une feuille d'inventaire gardée."),
+      B('List fixed assets with purchase date, cost excl. VAT and the useful life agreed with your accountant, then compute the charge.',
+        "Listez les immobilisations : date d'achat, coût HT, durée retenue avec votre expert-comptable, puis calculez la dotation."),
+      B('Find expenses of the year not yet invoiced (accrued expenses) and payments covering next year (prepaid expenses).',
+        "Repérez les charges de l'année pas encore facturées (charges à payer) et celles réglées pour l'an prochain (constatées d'avance)."),
+      B('Do the same for income: work done but not invoiced, and invoices covering work of next year.',
+        "Faites de même pour les produits : travaux faits mais non facturés, et factures portant sur un travail de l'an prochain."),
+    ],
+    trap: B(
+      'Booking the whole annual software subscription paid in October as an expense of the year: the share covering next year must be carried forward.',
+      "Passer en charge de l'année tout l'abonnement annuel payé en octobre : la part qui couvre l'année suivante doit être reportée.",
+    ),
+    quiz: {
+      q: B('The printer delivered notebooks on 20 December; its 400 € invoice arrives on 10 January. In which year is the expense?',
+        "Carnets livrés le 20 décembre, facture de 400 € HT de l'imprimeur reçue le 10 janvier : à quel exercice va la charge ?"),
+      options: [
+        B('To next year, the year the invoice is received and paid', "À l'année suivante, celle où la facture est reçue et payée"),
+        B('Split into two halves, since it straddles both financial years', "Partagée en deux moitiés, puisqu'elle chevauche deux exercices"),
+        B('To the closing year, as an accrued expense (account 408)', "À l'exercice clos, en charge à payer (compte 408)"),
+      ],
+      answer: 2,
+      why: B(
+        'The delivery took place in December, so the expense belongs to the year closed on 31 December. It is recorded as an invoice not yet received (408), reversed when the real invoice is entered.',
+        "La livraison a eu lieu en décembre : la charge appartient à l'exercice clos au 31 décembre. Elle s'inscrit en facture non parvenue (408), extournée à la saisie de la vraie facture.",
+      ),
+    },
+    badge: B('Closes the year cleanly', "Clôture l'exercice proprement"),
+  },
+  {
+    id: 'cp-statements',
+    master: 'analysis',
+    minutes: 11,
+    title: B('Read the balance sheet and income statement', 'Lire le bilan et le compte de résultat'),
+    learn: B(
+      'You will read a balance sheet and an income statement, explain the result and tell profit from cash.',
+      'Vous saurez lire un bilan et un compte de résultat, expliquer le résultat et distinguer bénéfice et trésorerie.',
+    ),
+    act: B('Read the annual accounts of Studio Cerise with an AI as a tutor, then write five questions for Paul.',
+      'Lisez les comptes annuels de Studio Cerise avec une IA comme tuteur, puis rédigez cinq questions pour Paul.'),
+    steps: [
+      B('Start with the income statement: revenue, operating expenses, operating result, then financial and exceptional items, and tax.',
+        "Commencez par le compte de résultat : chiffre d'affaires, charges, résultat d'exploitation, puis financier, exceptionnel, impôt."),
+      B('Read the balance sheet as two columns: what the company owns (assets) and how it is financed (equity and debts).',
+        "Lisez le bilan en deux colonnes : ce que l'entreprise possède (actif) et comment elle est financée (capitaux propres et dettes)."),
+      B('Link the two: the result of the year appears in equity; stock, receivables and cash appear in assets.',
+        "Reliez les deux : le résultat de l'année rejoint les capitaux propres ; stock, créances et trésorerie figurent à l'actif."),
+      B('Explain why profit and cash differ: receivables, stock, VAT and tax to pay, investments, loan repayments.',
+        'Expliquez pourquoi bénéfice et trésorerie diffèrent : créances, stock, TVA et impôts à payer, investissements, emprunts.'),
+    ],
+    trap: B(
+      'Reading the result as the money available: a profitable company can lack cash if its clients pay late or if it has invested.',
+      "Lire le résultat comme l'argent disponible : une entreprise bénéficiaire peut manquer de trésorerie si ses clients paient tard ou si elle a investi.",
+    ),
+    quiz: {
+      q: B('Studio Cerise shows a 12,000 € profit but only 3,000 € in the bank. Which explanation fits the accounts?',
+        'Studio Cerise affiche 12 000 € de bénéfice mais seulement 3 000 € en banque. Quelle explication colle aux comptes ?'),
+      options: [
+        B('Clients still owe 9,000 € of invoices recorded as revenue', "Des clients doivent encore 9 000 € de factures comptées en chiffre d'affaires"),
+        B('The accountant made an error, since profit always equals cash', "Le cabinet s'est trompé, puisque bénéfice et trésorerie sont égaux"),
+        B('The profit is only an estimate, recalculated next year', "Le bénéfice n'est qu'une estimation, recalculée l'an prochain"),
+      ],
+      answer: 0,
+      why: B(
+        'Revenue is recorded when invoiced, not when paid. Receivables, stock, investments or loan repayments explain why profit and cash differ; the balance sheet shows each of them.',
+        "Le chiffre d'affaires s'enregistre à la facture, pas à l'encaissement. Créances, stock, investissements ou emprunts expliquent l'écart entre bénéfice et trésorerie ; le bilan montre chacun d'eux.",
+      ),
+    },
+    badge: B('Reads the annual accounts', 'Lit les comptes annuels'),
+  },
+  {
+    id: 'cp-cashflow',
+    master: 'tools',
+    minutes: 12,
+    title: B('Cash forecast and dashboard with AI', "Prévision de trésorerie et tableau de bord avec l'IA"),
+    learn: B(
+      'You will build a 12-month cash forecast and a monthly dashboard in a spreadsheet, with formulas written and tested with AI.',
+      'Vous saurez bâtir une prévision de trésorerie sur douze mois et un tableau de bord dans un tableur, formules testées comprises.',
+    ),
+    act: B('Build the 12-month cash forecast of Studio Cerise, then a one-screen dashboard fed by the same table.',
+      "Bâtissez la prévision de trésorerie sur douze mois de Studio Cerise, puis un tableau de bord nourri des mêmes données."),
+    steps: [
+      B('Start from today\'s bank balance and date expected receipts when clients really pay, not at the invoice date.',
+        "Partez du solde bancaire du jour et datez les encaissements au moment où les clients paient vraiment, pas à la facture."),
+      B('List outflows at their due date: suppliers, pay, social contributions, VAT, tax instalments, loan repayments.',
+        "Listez les décaissements à leur échéance : fournisseurs, rémunération, cotisations sociales, TVA, acomptes d'impôt, emprunts."),
+      B('Have an AI write the formulas (SUMIFS by month, running balance) and explain each one, then test them on a known month.',
+        "Faites écrire les formules par l'IA (SOMME.SI.ENS par mois, solde cumulé) et expliquer chacune, puis testez-les sur un mois connu."),
+      B('Add a dashboard of four indicators, and update the forecast every month with the actual figures.',
+        'Ajoutez un tableau de bord de quatre indicateurs, et mettez à jour la prévision chaque mois avec le réel.'),
+    ],
+    trap: B(
+      'Placing receipts at the invoice date: if clients pay 45 days later, the forecast shows money that will not be there in time.',
+      "Placer les encaissements à la date de facture : si les clients paient 45 jours plus tard, la prévision montre un argent qui ne sera pas là à temps.",
+    ),
+    quiz: {
+      q: B('In the forecast of Studio Cerise, the March VAT payment is missing. April ends at 4,000 €. What is the risk?',
+        'Dans la prévision de Studio Cerise, le paiement de la TVA de mars manque. Avril finit à 4 000 €. Quel est le risque ?'),
+      options: [
+        B('None, since VAT is not an expense for the company', "Aucun, puisque la TVA n'est pas une charge de l'entreprise"),
+        B('The real April balance will be lower by the VAT payment', "Le solde réel d'avril sera inférieur du montant de TVA à payer"),
+        B('The forecast overstates the revenue by the full amount of VAT', "La prévision surestime le chiffre d'affaires du montant de TVA"),
+      ],
+      answer: 1,
+      why: B(
+        'VAT is not an expense, but it is a real outflow: the balance collected is paid on its due date. A forecast without it shows cash that belongs to the State.',
+        "La TVA n'est pas une charge, mais c'est une vraie sortie d'argent : le solde se paie à l'échéance. Une prévision qui l'oublie montre une trésorerie qui appartient à l'État.",
+      ),
+    },
+    badge: B('Forecasts cash ahead', 'Anticipe sa trésorerie'),
+  },
+  {
+    id: 'cp-privacy',
+    master: 'orchestration',
+    minutes: 10,
+    title: B("Data privacy and the accountant's role", "Confidentialité des données, rôle de l'expert-comptable"),
+    learn: B(
+      'You will share financial data with an AI safely and know what to do alone, with AI, or with your accountant.',
+      "Vous saurez confier des données financières à une IA avec prudence, et savoir quoi faire seul, avec l'IA ou avec le cabinet.",
+    ),
+    act: B('Write the data rules of Studio Cerise and its division of work between Lina, the AI and Paul.',
+      "Rédigez les règles de données de Studio Cerise et la répartition des tâches entre Lina, l'IA et Paul."),
+    steps: [
+      B('Classify your data: public, internal, confidential (bank details, pay, contracts), personal data of clients and staff.',
+        'Classez vos données : publiques, internes, confidentielles (coordonnées bancaires, paie, contrats), personnelles (clients, salariés).'),
+      B('Check the settings and terms of each AI tool: use for training, retention, business offer, hosting.',
+        "Vérifiez les conditions de chaque outil d'IA : usage pour l'entraînement, conservation, offre professionnelle, hébergement."),
+      B('Before pasting, replace names, IBANs and identifiers with codes, and send only the columns the task needs.',
+        "Avant de coller, remplacez noms, IBAN et identifiants par des codes, et n'envoyez que les colonnes utiles à la tâche."),
+      B('Write who does what: routine tasks done with AI, decisions and returns validated with your accountant.',
+        "Écrivez qui fait quoi : les tâches courantes faites avec l'IA, les décisions et déclarations validées avec l'expert-comptable."),
+    ],
+    trap: B(
+      'Pasting a full bank export with names and IBANs into a consumer AI account whose settings you have never checked.',
+      "Coller un export bancaire complet, avec noms et IBAN, dans un compte d'IA grand public dont vous n'avez jamais vérifié les paramètres.",
+    ),
+    quiz: {
+      q: B('Lina wants an AI to categorise 300 bank lines. Which version of the file should she send?',
+        'Lina veut faire catégoriser 300 lignes bancaires par une IA. Quelle version du fichier doit-elle envoyer ?'),
+      options: [
+        B('The full bank export, so the AI has every detail it may need', "L'export bancaire complet, pour que l'IA ait chaque détail utile"),
+        B('Date, label and amount, with client names replaced by codes', 'Date, libellé et montant, noms de clients remplacés par des codes'),
+        B('Only the monthly totals, since single lines are too sensitive', 'Seulement les totaux mensuels, les lignes étant trop sensibles'),
+      ],
+      answer: 1,
+      why: B(
+        'Data minimisation: send only what the task needs. Dates, labels and amounts are enough to categorise; names and IBANs add risk without improving the result. Totals would make the task impossible.',
+        "Minimisation : n'envoyez que ce que la tâche exige. Date, libellé et montant suffisent à catégoriser ; noms et IBAN ajoutent du risque sans rien améliorer. Des totaux rendraient la tâche impossible.",
+      ),
+    },
+    badge: B('Protects data, knows whom to ask', 'Protège ses données, sait qui consulter'),
+  },
+]
+
+const CLOSE_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M4, 'cp-closing')]: {
+    why: [
+      B("Closing turns a year of entries into accounts that give a true picture. Day-to-day bookkeeping follows invoices and the bank; closing applies the accrual principle: each expense and each income belongs to the year in which it arises, whatever the date of invoice or payment. It concerns companies keeping commitment accounting (EI under a real regime, SASU, SARL); a micro-entrepreneur, who keeps a receipts book, is not concerned in the same way.",
+        "La clôture transforme une année d'écritures en comptes qui donnent une image fidèle. La tenue courante suit factures et banque ; la clôture applique l'indépendance des exercices : chaque charge et chaque produit appartient à l'année où il naît, quelle que soit la date de facture ou de paiement. Elle concerne la comptabilité d'engagement (EI au réel, SASU, SARL) ; le micro-entrepreneur, qui tient un livre des recettes, n'est pas concerné de la même façon."),
+      B("Three operations make up most of a small company's closing. Stock: goods not yet sold are counted and valued at cost; the change in stock corrects purchases (accounts 37 and 6037). Depreciation: a fixed asset is spread over its useful life through an annual charge (6811, against 28). Accruals: accrued expenses (408), invoices to issue (418), prepaid expenses and deferred income (486, 487).",
+        "Trois opérations font l'essentiel d'une clôture de petite entreprise. Le stock : les marchandises non vendues sont comptées et valorisées au coût d'achat ; la variation de stock corrige les achats (comptes 37 et 6037). Les amortissements : une immobilisation s'étale sur sa durée d'utilisation par une dotation annuelle (6811, contre 28). Les régularisations : charges à payer (408), factures à établir (418), charges et produits constatés d'avance (486, 487)."),
+      B("An AI helps a lot to prepare: drafting the closing checklist, scanning the December and January ledgers for operations that straddle two years, computing a depreciation table, reformatting a stock count. The choices remain yours and your accountant's: useful lives, impairment of damaged stock, whether a purchase is a fixed asset. Usual practices are described in the official doctrine (BOFiP); ask rather than guess.",
+        "Une IA aide beaucoup à préparer : rédiger la check-list, parcourir les grands livres de décembre et de janvier pour repérer ce qui chevauche deux années, calculer un plan d'amortissement, mettre en forme un inventaire. Les choix restent les vôtres et ceux de votre expert-comptable : durées, dépréciation d'un stock abîmé, qualification d'un achat en immobilisation. Les usages figurent dans la doctrine officielle (BOFiP) ; demandez plutôt que de deviner."),
+    ],
+    example: {
+      context: B("In early January, Lina asks an AI to \"do the closing\" of Studio Cerise and pastes the ledger of the year. The AI returns a list of entries, including a depreciation over a duration it chose itself.",
+        "Début janvier, Lina demande à une IA de « faire la clôture » de Studio Cerise et colle le grand livre de l'année. L'IA renvoie une liste d'écritures, dont un amortissement sur une durée qu'elle a choisie seule."),
+      before: B("Do the year-end closing of my company from this ledger.",
+        "Fais la clôture de ma société à partir de ce grand livre."),
+      after: B("I am preparing, with my accountant, the closing at 31 December of a French SASU (commitment accounting, VAT under the normal real regime). Do not record anything: prepare a review.\nAttached, without client names: the ledgers of December and January [EXPORT], the fixed assets [DATE, ITEM, COST EXCL. VAT, USEFUL LIFE AGREED WITH THE ACCOUNTANT], the stock count at 31 December [ITEM, QUANTITY, UNIT PURCHASE COST].\n1. Compute the depreciation of the year for each asset, straight-line, pro rata from the purchase date, using only the durations given.\n2. Value the closing stock and compute the change from the opening stock of [AMOUNT].\n3. In the January ledger, list invoices for goods delivered or services received in December (accrued expenses).\n4. In the December ledger, list expenses covering a period after 31 December (prepaid expenses), with the share to carry forward.\n5. Do the same for income (unbilled work, deferred income).\nAnswer with one table per point, then a list of questions for my accountant.",
+        "Je prépare, avec mon expert-comptable, la clôture au 31 décembre d'une SASU française (comptabilité d'engagement, TVA au réel normal). N'enregistre rien : prépare une revue.\nCi-joint, sans noms de clients : les grands livres de décembre et de janvier [EXPORT], les immobilisations [DATE, BIEN, COÛT HT, DURÉE RETENUE AVEC LE CABINET], l'inventaire au 31 décembre [ARTICLE, QUANTITÉ, COÛT D'ACHAT UNITAIRE].\n1. Calcule la dotation de l'année pour chaque bien, en linéaire, au prorata depuis la date d'achat, avec les seules durées fournies.\n2. Valorise le stock final et calcule la variation par rapport au stock initial de [MONTANT].\n3. Dans le grand livre de janvier, liste les factures de biens livrés ou de services reçus en décembre (charges à payer).\n4. Dans celui de décembre, liste les dépenses qui couvrent une période après le 31 décembre (charges constatées d'avance), avec la part à reporter.\n5. Fais de même pour les produits (travaux non facturés, produits constatés d'avance).\nRéponds par un tableau par point, puis une liste de questions pour mon expert-comptable."),
+      takeaway: B("The AI no longer chooses durations or posts entries: it computes with the parameters given and searches the two ledgers where cut-off errors hide. Lina reaches her accountant with a prepared file and precise questions.",
+        "L'IA ne choisit plus les durées et n'enregistre rien : elle calcule avec les paramètres donnés et fouille les deux grands livres où se cachent les erreurs de rattachement. Lina arrive chez son expert-comptable avec un dossier prêt et des questions précises."),
+    },
+    exercise: {
+      goal: B("A closing file for a real or fictional company: stock valued, depreciation table, list of accruals, and questions for the accountant.",
+        "Un dossier de clôture pour une entreprise réelle ou fictive : stock valorisé, plan d'amortissement, liste des régularisations et questions pour l'expert-comptable."),
+      prompt: B("Context: [STATUS], closing date [DATE], VAT regime [REGIME]. Do not record any entry: prepare a review for my accountant.\nFixed assets: [DATE, ITEM, COST EXCL. VAT, USEFUL LIFE AGREED WITH THE ACCOUNTANT].\nStock count at closing: [ITEM, QUANTITY, UNIT COST]; opening stock: [AMOUNT].\nLedger of the last month of the year and of the first month of the next: [EXPORT WITHOUT NAMES OR BANK DETAILS].\n1. Depreciation of the year per asset, straight-line, pro rata, with the durations given only.\n2. Value of the closing stock and change in stock.\n3. Accrued expenses, prepaid expenses, invoices to issue and deferred income, each with the document concerned.\n4. Questions I must ask my accountant.\nIf a piece of information is missing, write \"missing\" instead of assuming.",
+        "Contexte : [STATUT], date de clôture [DATE], régime de TVA [RÉGIME]. N'enregistre aucune écriture : prépare une revue pour mon expert-comptable.\nImmobilisations : [DATE, BIEN, COÛT HT, DURÉE RETENUE AVEC LE CABINET].\nInventaire à la clôture : [ARTICLE, QUANTITÉ, COÛT UNITAIRE] ; stock initial : [MONTANT].\nGrand livre du dernier mois de l'exercice et du premier mois du suivant : [EXPORT SANS NOMS NI COORDONNÉES BANCAIRES].\n1. Dotation de l'année par immobilisation, en linéaire, au prorata, avec les seules durées fournies.\n2. Valeur du stock final et variation de stock.\n3. Charges à payer, charges constatées d'avance, factures à établir et produits constatés d'avance, chacun avec la pièce concernée.\n4. Questions à poser à mon expert-comptable.\nSi une information manque, écris « manquant » au lieu de supposer."),
+      check: [
+        B("The stock is counted on the closing date, not estimated from purchases", "Le stock est compté au jour de la clôture, pas estimé d'après les achats"),
+        B("Each depreciation uses a duration agreed with the accountant, pro rata", "Chaque dotation repose sur une durée validée par le cabinet, au prorata"),
+        B("Each accrual points to a document (delivery note, contract, invoice)", "Chaque régularisation renvoie à une pièce (bon de livraison, contrat, facture)"),
+        B("The questions for the accountant are written down, not left implicit", "Les questions pour l'expert-comptable sont écrites, pas sous-entendues"),
+      ],
+      bonus: B("Turn the review into a checklist you reuse every year: the same points, the same documents, the same questions. Closing becomes a routine, and the accountant receives the same file each year.",
+        "Transformez la revue en check-list réutilisée chaque année : mêmes points, mêmes pièces, mêmes questions. La clôture devient une routine, et le cabinet reçoit chaque année le même dossier."),
+    },
+    more: [
+      { q: B("Studio Cerise buys a 1,800 € excl. VAT laptop on 1 April, depreciated over 3 years as agreed with Paul. What is the first-year charge?",
+          "Studio Cerise achète le 1er avril un ordinateur de 1 800 € HT, amorti sur 3 ans selon Paul. Quelle est la dotation de la première année ?"),
+        options: [
+          B("600 €, a full third of the cost, whatever the purchase date", "600 €, un tiers du coût, quelle que soit la date d'achat"),
+          B("450 €, a third of the cost over nine months out of twelve", "450 €, un tiers du coût sur neuf mois de douze"),
+          B("1,800 €, since the laptop was fully paid during this year", "1 800 €, puisque l'ordinateur a été payé en entier cette année"),
+        ],
+        answer: 1,
+        why: B("Straight-line depreciation runs pro rata from the date of use: 1,800 / 3 = 600 € a year, times 9/12, so 450 € for the first year. The remaining months come at the end of the plan.",
+          "L'amortissement linéaire court au prorata depuis la mise en service : 1 800 / 3 = 600 € par an, fois 9/12, soit 450 € la première année. Les mois restants s'ajoutent en fin de plan.") },
+      { q: B("On 31 December, 120 notebooks bought 4 € each remain unsold. The opening stock was 300 €. What is the effect on the result?",
+          "Au 31 décembre, 120 carnets achetés 4 € pièce restent invendus. Le stock initial valait 300 €. Quel effet sur le résultat ?"),
+        options: [
+          B("Purchases are reduced by 180 €, so the result rises by 180 €", "Les achats diminuent de 180 €, et le résultat augmente d'autant"),
+          B("No effect: the stock only matters once the notebooks are sold", "Aucun effet : le stock ne compte qu'à la vente des carnets"),
+          B("The result falls by 480 €, the value of the unsold notebooks", "Le résultat baisse de 480 €, la valeur des carnets invendus"),
+        ],
+        answer: 0,
+        why: B("The closing stock is 480 € (120 times 4 €). The change in stock (300 € at the start, 480 € at the end) reduces the cost of purchases by 180 €: notebooks bought but unsold are not a cost of the year.",
+          "Le stock final vaut 480 € (120 fois 4 €). La variation de stock (300 € au début, 480 € à la fin) diminue le coût des achats de 180 € : des carnets achetés mais invendus ne sont pas une charge de l'année.") },
+    ],
+  },
+
+  [enrichKey(M4, 'cp-statements')]: {
+    why: [
+      B("The income statement tells the story of the year: what the company earned (income), what it consumed (expenses), and the difference, the result. It is read in levels: operating result (the activity), financial (interest), exceptional, then corporate tax where it applies. Intermediate balances (commercial margin, value added, gross operating surplus, EBE in French) show where the result is made or lost.",
+        "Le compte de résultat raconte l'année : ce que l'entreprise a gagné (produits), ce qu'elle a consommé (charges), et la différence, le résultat. Il se lit par niveaux : résultat d'exploitation (l'activité), financier (les intérêts), exceptionnel, puis impôt sur les sociétés s'il y a lieu. Les soldes intermédiaires de gestion (marge commerciale, valeur ajoutée, excédent brut d'exploitation ou EBE) montrent où le résultat se fait ou se perd."),
+      B("The balance sheet is a photograph at the closing date. On one side, the assets: fixed assets net of depreciation, stock, receivables (clients who owe), cash. On the other, the liabilities: equity (capital, reserves, result of the year) and debts (suppliers, the State for VAT and tax, social bodies, the bank). Both sides are equal by construction: every euro the company holds was financed by someone.",
+        "Le bilan est une photographie à la date de clôture. D'un côté, l'actif : immobilisations nettes d'amortissements, stocks, créances (les clients qui doivent), trésorerie. De l'autre, le passif : capitaux propres (capital, réserves, résultat de l'année) et dettes (fournisseurs, État pour la TVA et l'impôt, organismes sociaux, banque). Les deux côtés sont égaux par construction : chaque euro détenu a été financé par quelqu'un."),
+      B("An AI is a patient tutor for these documents: it explains a line, recomputes a balance, compares two years. It can also be wrong with confidence, especially when reading a scanned tax form. Give it the figures as a table, ask it to show each calculation, and keep the interpretation of your situation for your accountant.",
+        "Une IA est un tuteur patient pour ces documents : elle explique une ligne, recalcule un solde, compare deux années. Elle peut aussi se tromper avec aplomb, surtout en lisant une liasse fiscale scannée. Donnez-lui les chiffres sous forme de tableau, demandez-lui de montrer chaque calcul, et gardez l'interprétation de votre situation pour votre expert-comptable."),
+    ],
+    example: {
+      context: B("Lina receives her annual accounts from Paul as a PDF. She uploads it to an AI and asks whether her year was good. The answer praises the profit and says nothing about cash or late payments.",
+        "Lina reçoit ses comptes annuels de Paul en PDF. Elle le dépose dans une IA et demande si son année est bonne. La réponse salue le bénéfice et ne dit rien de la trésorerie ni des retards de paiement."),
+      before: B("Was my year good? Here are my accounts.",
+        "Mon année est bonne ? Voici mes comptes."),
+      after: B("I am the president of a small French SASU (graphic design services and sale of printed notebooks). I want to understand my annual accounts, not to get advice.\nHere are the figures, typed from the documents and rounded: [INCOME STATEMENT: SERVICES, SALES OF GOODS, PURCHASES, CHANGE IN STOCK, EXTERNAL EXPENSES, PAY, DEPRECIATION, RESULT] and [BALANCE SHEET: NET FIXED ASSETS, STOCK, RECEIVABLES, CASH, EQUITY, DEBTS BY TYPE], for this year and last year.\n1. Explain each line in one plain sentence.\n2. Compute the commercial margin, the value added and the gross operating surplus, showing each calculation.\n3. Explain the gap between the result and the change in cash, line by line.\n4. Point out the three changes between the two years that deserve a question.\nDo not guess any missing figure. End with five questions to ask my accountant.",
+        "Je suis présidente d'une petite SASU française (prestations de design graphique et vente de carnets imprimés). Je veux comprendre mes comptes annuels, pas recevoir de conseil.\nVoici les chiffres, recopiés des documents et arrondis : [COMPTE DE RÉSULTAT : PRESTATIONS, VENTES DE MARCHANDISES, ACHATS, VARIATION DE STOCK, CHARGES EXTERNES, RÉMUNÉRATION, DOTATIONS, RÉSULTAT] et [BILAN : IMMOBILISATIONS NETTES, STOCK, CRÉANCES, TRÉSORERIE, CAPITAUX PROPRES, DETTES PAR NATURE], pour cette année et la précédente.\n1. Explique chaque ligne en une phrase simple.\n2. Calcule la marge commerciale, la valeur ajoutée et l'excédent brut d'exploitation, en montrant chaque calcul.\n3. Explique l'écart entre le résultat et la variation de trésorerie, ligne à ligne.\n4. Signale les trois évolutions entre les deux années qui méritent une question.\nNe devine aucun chiffre manquant. Termine par cinq questions à poser à mon expert-comptable."),
+      takeaway: B("The figures arrive as a table, so the AI cannot misread a scan; it must show its calculations and compare two years. Lina gets an explanation she can check, and questions for Paul, instead of a compliment.",
+        "Les chiffres arrivent en tableau, l'IA ne peut donc pas mal lire un scan ; elle doit montrer ses calculs et comparer deux années. Lina obtient une explication vérifiable et des questions pour Paul, au lieu d'un compliment."),
+    },
+    exercise: {
+      goal: B("A one-page reading note on real or fictional annual accounts: key lines explained, three balances computed, the gap between profit and cash explained, five questions.",
+        "Une note de lecture d'une page sur des comptes annuels réels ou fictifs : lignes clés expliquées, trois soldes calculés, écart entre bénéfice et trésorerie expliqué, cinq questions."),
+      prompt: B("I want to understand the annual accounts of a [STATUS] doing [ACTIVITY]. No advice, explanations only.\nIncome statement, this year and last year: [LINES AND AMOUNTS].\nBalance sheet at closing, this year and last year: [LINES AND AMOUNTS].\n1. Explain each line in one plain sentence.\n2. Compute [THE COMMERCIAL MARGIN IF YOU SELL GOODS], the value added and the gross operating surplus, showing the calculation.\n3. Explain the gap between the result and the change in cash through receivables, stock, debts, investments and loans.\n4. List the three changes between the two years that deserve a question.\nIf a figure is missing, say so rather than estimate it. End with five questions for my accountant.",
+        "Je veux comprendre les comptes annuels d'une [STATUT] qui exerce [ACTIVITÉ]. Pas de conseil, seulement des explications.\nCompte de résultat, cette année et la précédente : [LIGNES ET MONTANTS].\nBilan à la clôture, cette année et la précédente : [LIGNES ET MONTANTS].\n1. Explique chaque ligne en une phrase simple.\n2. Calcule [LA MARGE COMMERCIALE SI VOUS VENDEZ DES MARCHANDISES], la valeur ajoutée et l'excédent brut d'exploitation, en montrant le calcul.\n3. Explique l'écart entre le résultat et la variation de trésorerie par les créances, le stock, les dettes, les investissements et les emprunts.\n4. Liste les trois évolutions entre les deux années qui méritent une question.\nSi un chiffre manque, dis-le plutôt que de l'estimer. Termine par cinq questions pour mon expert-comptable."),
+      check: [
+        B("You recomputed at least one balance yourself from the figures given", "Vous avez recalculé vous-même au moins un solde à partir des chiffres fournis"),
+        B("The gap between profit and cash is explained by named lines", "L'écart entre bénéfice et trésorerie est expliqué par des lignes nommées"),
+        B("No figure appears that is not in your documents", "Aucun chiffre n'apparaît qui ne figure dans vos documents"),
+        B("The five questions are concrete enough to be answered in a meeting", "Les cinq questions sont assez concrètes pour une réponse en rendez-vous"),
+      ],
+      bonus: B("Ask the AI to explain the accounts in ten lines to someone who knows nothing about accounting. If you can repeat these ten lines without reading them, you have understood your year.",
+        "Demandez à l'IA d'expliquer les comptes en dix lignes à quelqu'un qui ignore tout de la comptabilité. Si vous pouvez redire ces dix lignes sans les lire, vous avez compris votre année."),
+    },
+    more: [
+      { q: B("Studio Cerise buys a 1,800 € excl. VAT laptop in April, paid at once. How does it show in the accounts of the year?",
+          "Studio Cerise achète en avril un ordinateur de 1 800 € HT, payé comptant. Comment apparaît-il dans les comptes de l'année ?"),
+        options: [
+          B("1,800 € of expenses in the income statement, all this year", "1 800 € de charges au compte de résultat, toutes cette année"),
+          B("In assets, net of depreciation, with only 450 € of charge", "À l'actif, net d'amortissement, avec seulement 450 € de charge"),
+          B("Nowhere, since it was paid for and no debt remains", "Nulle part, puisqu'il est payé et qu'aucune dette ne reste"),
+        ],
+        answer: 1,
+        why: B("The laptop is a fixed asset: it appears in assets for 1,800 € less 450 € of depreciation, and only the 450 € charge weighs on the result. Cash, however, fell by the full amount.",
+          "L'ordinateur est une immobilisation : il figure à l'actif pour 1 800 € moins 450 € d'amortissement, et seule la dotation de 450 € pèse sur le résultat. La trésorerie, elle, a baissé du montant total.") },
+      { q: B("From one year to the next, the receivables of Studio Cerise rise from 2,000 € to 9,000 €, with similar revenue. What does it suggest?",
+          "D'une année à l'autre, les créances de Studio Cerise passent de 2 000 € à 9 000 €, à chiffre proche. Que cela suggère-t-il ?"),
+        options: [
+          B("That revenue was overstated and must be corrected at once", "Que le chiffre d'affaires est surévalué et doit être corrigé"),
+          B("That nothing changed, since receivables are not cash", "Que rien n'a changé, les créances n'étant pas de l'argent"),
+          B("That clients pay later, which weighs on the cash position", "Que les clients paient plus tard, ce qui pèse sur la trésorerie"),
+        ],
+        answer: 2,
+        why: B("Receivables are invoices not yet paid. If they grow while revenue is stable, clients pay later and cash suffers. Lina should look at overdue invoices and at how she follows up payments.",
+          "Les créances sont des factures non encore payées. Si elles grossissent à chiffre stable, les clients paient plus tard, et la trésorerie en souffre. Lina doit regarder les retards et sa relance des paiements.") },
+    ],
+  },
+
+  [enrichKey(M4, 'cp-cashflow')]: {
+    why: [
+      B("Accounts look backwards; a cash forecast looks forward. It answers a simple question: will the bank balance stay positive each month, given what will come in and go out? It is built on cash dates, not accounting dates: a sale counts when the client pays, a purchase when it is paid, VAT and contributions on their due dates. So it differs from the income statement, and warns in time.",
+        "La comptabilité regarde en arrière ; la prévision de trésorerie regarde devant. Elle répond à une question simple : le solde bancaire restera-t-il positif chaque mois, vu ce qui va entrer et sortir ? Elle se construit en dates de trésorerie, pas en dates comptables : une vente compte quand le client paie, un achat quand il est réglé, la TVA et les cotisations à leur échéance. Elle diffère donc du compte de résultat, et prévient à temps."),
+      B("The structure fits in one workbook: a tab of dated lines (date, label, category, amount in or out, status expected or actual), a tab of months that sums each category with SUMIFS, and a running balance that starts from the actual bank balance. The dashboard reads the same data: revenue of the month, cash at month end, overdue receivables, next deadlines. One source, several views, so the figures never contradict each other.",
+        "La structure tient dans un classeur : un onglet de lignes datées (date, libellé, catégorie, montant entrant ou sortant, statut prévu ou réel), un onglet de mois qui additionne chaque catégorie par SOMME.SI.ENS, et un solde cumulé qui part du solde bancaire réel. Le tableau de bord lit les mêmes données : chiffre du mois, trésorerie fin de mois, créances en retard, prochaines échéances. Une source, plusieurs vues : les chiffres ne se contredisent jamais."),
+      B("AI helps at two levels. A chat assistant writes and explains formulas (SUMIFS, EOMONTH, XLOOKUP) and suggests checks. Spreadsheets also include AI features (Copilot in Microsoft Excel, Gemini in Google Sheets) whose names and availability depend on the plan and change: see the official help. Either way, test each formula on a month whose result you know before trusting it.",
+        "L'IA aide à deux niveaux. Un assistant conversationnel écrit et explique les formules (SOMME.SI.ENS, FIN.MOIS, RECHERCHEX) et propose des contrôles. Les tableurs intègrent aussi des fonctions d'IA (Copilot dans Microsoft Excel, Gemini dans Google Sheets) dont le nom et la disponibilité dépendent de l'abonnement et évoluent : voyez l'aide officielle. Dans tous les cas, testez chaque formule sur un mois dont vous connaissez le résultat avant de vous y fier."),
+    ],
+    example: {
+      context: B("Lina asks an AI for \"a cash forecast for my company\". She receives a generic template with revenue spread evenly over the year, and no VAT, no contributions, no tax.",
+        "Lina demande à une IA « une prévision de trésorerie pour ma société ». Elle reçoit un modèle générique, chiffre réparti également sur l'année, sans TVA, ni cotisations, ni impôt."),
+      before: B("Make me a cash forecast for my company.",
+        "Fais-moi une prévision de trésorerie pour ma société."),
+      after: B("I want a 12-month cash forecast in a spreadsheet [EXCEL OR GOOGLE SHEETS, FUNCTION NAMES IN ENGLISH], for a French SASU (design services and printed notebooks, monthly VAT).\nTab \"Lines\": date, label, category (client receipt, supplier, pay, social contributions, VAT, corporate tax, loan, other), amount (positive in, negative out), status (expected, actual).\nTab \"Months\": one column per month from [START MONTH]; one row per category, summed with SUMIFS on the dates of the month; a row \"balance at month end\" starting from the bank balance of [AMOUNT] on [DATE].\n1. Give me the exact formulas for cell B2 and for the balance row, and explain each argument.\n2. Propose two checks: total of the lines equals total of the months, balance of the current month equals the bank.\n3. List the categories I may have forgotten for this kind of company.\nDo not invent amounts or dates: leave them for me to fill in.",
+        "Je veux une prévision de trésorerie sur douze mois dans un tableur [EXCEL OU GOOGLE SHEETS, NOMS DE FONCTIONS EN FRANÇAIS], pour une SASU française (prestations de design et carnets imprimés, TVA mensuelle).\nOnglet « Lignes » : date, libellé, catégorie (encaissement client, fournisseur, rémunération, cotisations sociales, TVA, impôt sur les sociétés, emprunt, autre), montant (positif en entrée, négatif en sortie), statut (prévu, réel).\nOnglet « Mois » : une colonne par mois à partir de [MOIS DE DÉPART] ; une ligne par catégorie, additionnée par SOMME.SI.ENS sur les dates du mois ; une ligne « solde fin de mois » qui part du solde bancaire de [MONTANT] au [DATE].\n1. Donne-moi les formules exactes de la cellule B2 et de la ligne de solde, et explique chaque argument.\n2. Propose deux contrôles : total des lignes égal au total des mois, solde du mois en cours égal à la banque.\n3. Liste les catégories que je risque d'oublier pour ce type de société.\nN'invente ni montants ni dates : laisse-les-moi."),
+      takeaway: B("The structure, the cash logic and the checks are stated; the AI writes formulas Lina can test, and lists what she may have forgotten. The amounts come from her own data, not from a template.",
+        "La structure, la logique de trésorerie et les contrôles sont donnés ; l'IA écrit des formules que Lina peut tester, et liste ce qu'elle a pu oublier. Les montants viennent de ses données, pas d'un modèle."),
+    },
+    exercise: {
+      goal: B("A working 12-month cash forecast for your activity, real or fictional, with tested formulas and a four-indicator dashboard.",
+        "Une prévision de trésorerie sur douze mois pour votre activité, réelle ou fictive, avec des formules testées et un tableau de bord de quatre indicateurs."),
+      prompt: B("Build with me a 12-month cash forecast in [SPREADSHEET], function names in [LANGUAGE], for a [STATUS] doing [ACTIVITY], VAT [REGIME AND FREQUENCY].\nTab \"Lines\": date, label, category, amount (+ in, - out), status (expected / actual).\nMy categories: [LIST: CLIENTS, SUPPLIERS, PAY, CONTRIBUTIONS, VAT, TAX, LOAN, OTHER].\nTab \"Months\": SUMIFS by category and month, and a running balance from [BANK BALANCE] on [DATE].\nTab \"Dashboard\": revenue invoiced this month, cash at month end, receivables overdue by more than [NUMBER] days, next three deadlines.\n1. Give the formulas cell by cell and explain them.\n2. Give me a test: three fictitious lines and the result each formula must return.\n3. List the checks to run each month.\nDo not invent my amounts; leave empty the cells I must fill in.",
+        "Construis avec moi une prévision de trésorerie sur douze mois dans [TABLEUR], noms de fonctions en [LANGUE], pour une [STATUT] qui exerce [ACTIVITÉ], TVA [RÉGIME ET PÉRIODICITÉ].\nOnglet « Lignes » : date, libellé, catégorie, montant (+ en entrée, - en sortie), statut (prévu / réel).\nMes catégories : [LISTE : CLIENTS, FOURNISSEURS, RÉMUNÉRATION, COTISATIONS, TVA, IMPÔT, EMPRUNT, AUTRE].\nOnglet « Mois » : SOMME.SI.ENS par catégorie et par mois, et un solde cumulé depuis [SOLDE BANCAIRE] au [DATE].\nOnglet « Tableau de bord » : chiffre facturé du mois, trésorerie fin de mois, créances en retard de plus de [NOMBRE] jours, trois prochaines échéances.\n1. Donne les formules cellule par cellule et explique-les.\n2. Donne-moi un test : trois lignes fictives et le résultat que chaque formule doit renvoyer.\n3. Liste les contrôles à faire chaque mois.\nN'invente pas mes montants ; laisse vides les cellules que je dois remplir."),
+      check: [
+        B("Receipts are dated when clients really pay, from your own history", "Les encaissements sont datés au paiement réel, d'après votre historique"),
+        B("VAT, contributions and tax appear as outflows on their due dates", "TVA, cotisations et impôt figurent en sorties à leur échéance"),
+        B("Each formula returned the expected result on the test lines", "Chaque formule a renvoyé le résultat attendu sur les lignes de test"),
+        B("The balance of the current month matches the bank statement", "Le solde du mois en cours correspond au relevé bancaire"),
+      ],
+      bonus: B("Add a cautious scenario: your two largest clients pay one month late. If the balance turns negative in some month, you know now which month to prepare, with your bank or by adjusting expenses.",
+        "Ajoutez un scénario prudent : vos deux plus gros clients paient avec un mois de retard. Si le solde devient négatif un mois donné, vous savez dès maintenant lequel préparer, avec votre banque ou en ajustant les dépenses."),
+    },
+    more: [
+      { q: B("In the \"Months\" tab, January receipts add up to 0 although lines exist. What is the most likely cause?",
+          "Dans l'onglet « Mois », les encaissements de janvier donnent 0 alors que des lignes existent. Quelle est la cause la plus probable ?"),
+        options: [
+          B("The dates are stored as text, so SUMIFS cannot compare them", "Les dates sont stockées en texte, SOMME.SI.ENS ne peut les comparer"),
+          B("January receipts are never counted until the year is closed", "Les encaissements de janvier ne comptent qu'après la clôture"),
+          B("The spreadsheet limits SUMIFS to one criterion per formula", "Le tableur limite SOMME.SI.ENS à un seul critère par formule"),
+        ],
+        answer: 0,
+        why: B("Dates pasted from a bank export are often text. SUMIFS then finds no date in the range. Converting the column to real dates, then testing on a known month, fixes it.",
+          "Des dates collées depuis un export bancaire sont souvent du texte. SOMME.SI.ENS ne trouve alors aucune date dans la plage. Convertir la colonne en vraies dates, puis tester sur un mois connu, règle le problème.") },
+      { q: B("Which indicator best warns Lina that her clients are paying later and later?",
+          "Quel indicateur prévient le mieux Lina que ses clients paient de plus en plus tard ?"),
+        options: [
+          B("Revenue invoiced in the month, compared with the previous month", "Le chiffre facturé du mois, comparé au mois précédent"),
+          B("The bank balance at the end of each month, taken on its own", "Le solde bancaire de fin de mois, pris isolément"),
+          B("Overdue receivables, in amount and in number of days", "Les créances en retard, en montant et en nombre de jours"),
+        ],
+        answer: 2,
+        why: B("Overdue receivables measure payment delays directly. Invoiced revenue says nothing about payment, and the bank balance mixes everything: it falls too late to tell why.",
+          "Les créances en retard mesurent directement les délais de paiement. Le chiffre facturé ne dit rien du paiement, et le solde bancaire mélange tout : il baisse trop tard pour dire pourquoi.") },
+    ],
+  },
+
+  [enrichKey(M4, 'cp-privacy')]: {
+    why: [
+      B("Accounting data is among the most sensitive a small company holds: bank details, pay, client contracts, margins, and personal data of clients who are individuals and of staff. The GDPR applies to personal data, with principles of minimisation and security that the CNIL explains to small businesses. In an EI, the line between the business and the person is thin: your own data is in the books too.",
+        "Les données comptables sont parmi les plus sensibles d'une petite entreprise : coordonnées bancaires, paie, contrats, marges, données personnelles des clients particuliers et des salariés. Le RGPD s'applique aux données personnelles, avec des principes de minimisation et de sécurité que la CNIL explique aux petites entreprises. En EI, la frontière entre l'entreprise et la personne est mince : vos propres données figurent aussi dans les comptes."),
+      B("Before using an AI tool, read its terms and settings: whether conversations may be used to train models, how long they are kept, where they are hosted, what business offers change. These conditions differ between consumer and business offers and change over time: rely on the provider's current privacy policy, not on memory. Then minimise: codes instead of names, no IBANs, only the columns the task needs.",
+        "Avant d'utiliser un outil d'IA, lisez ses conditions et ses paramètres : usage éventuel des conversations pour l'entraînement, durée de conservation, hébergement, apport des offres professionnelles. Ces conditions diffèrent entre offres grand public et professionnelles et évoluent : fiez-vous à la politique de confidentialité en vigueur, pas à votre mémoire. Puis minimisez : des codes au lieu des noms, pas d'IBAN, seulement les colonnes utiles."),
+      B("AI changes the division of work, not responsibility: the company answers for its accounts and returns. The chartered accountant (expert-comptable, member of the Ordre) brings judgement and, depending on the engagement letter, keeps or reviews the books, prepares the annual accounts and returns, and advises. Consult them for a change of status or regime, a first closing, a VAT doubt, a hiring, a large investment or a letter from the tax office.",
+        "L'IA change la répartition du travail, pas la responsabilité : l'entreprise répond de ses comptes et de ses déclarations. L'expert-comptable, inscrit à l'Ordre, apporte le jugement et, selon la lettre de mission, tient ou révise les comptes, établit comptes annuels et déclarations, et conseille. Consultez-le pour un changement de statut ou de régime, une première clôture, un doute sur la TVA, une embauche, un gros investissement ou un courrier du fisc."),
+    ],
+    example: {
+      context: B("To save time, Lina drops into a free AI account the full bank export, the client file with addresses and her pay slip, asking it to \"sort everything for Paul\".",
+        "Pour gagner du temps, Lina dépose dans un compte d'IA gratuit l'export bancaire complet, le fichier clients avec adresses et son bulletin de paie, en demandant de « tout trier pour Paul »."),
+      before: B("Here are all my files. Sort everything for my accountant.",
+        "Voici tous mes fichiers. Trie tout pour mon expert-comptable."),
+      after: B("I keep the books of a small company and am preparing a file for my accountant. The data below is pseudonymised: clients are coded C01 to C12, suppliers F01 to F08, and no IBAN or address appears.\nTable: [DATE, LABEL WITHOUT NAMES, AMOUNT, CODE].\n1. Propose a category for each line from this list: [CATEGORIES AGREED WITH THE ACCOUNTANT].\n2. Mark \"to check\" every line you are unsure of, with the reason.\n3. List the documents the accountant will need for the lines to check.\nDo not ask me for names or bank details: the correspondence table stays with me.",
+        "Je tiens les comptes d'une petite entreprise et prépare un dossier pour mon expert-comptable. Les données ci-dessous sont pseudonymisées : clients codés C01 à C12, fournisseurs F01 à F08, aucun IBAN ni adresse.\nTableau : [DATE, LIBELLÉ SANS NOMS, MONTANT, CODE].\n1. Propose une catégorie pour chaque ligne, dans cette liste : [CATÉGORIES CONVENUES AVEC LE CABINET].\n2. Marque « à vérifier » chaque ligne où tu as un doute, avec la raison.\n3. Liste les pièces dont le cabinet aura besoin pour ces lignes.\nNe me demande ni noms ni coordonnées bancaires : la table de correspondance reste chez moi."),
+      takeaway: B("Only the data the task needs leaves the company, coded, in a tool whose settings Lina has checked. The correspondence table stays with her, and the AI prepares work that Paul will validate.",
+        "Seules les données utiles sortent de l'entreprise, codées, dans un outil dont Lina a vérifié les paramètres. La table de correspondance reste chez elle, et l'IA prépare un travail que Paul validera."),
+    },
+    exercise: {
+      goal: B("A one-page data charter for your company: data classes, rules for AI tools, a pseudonymisation method and the division of work with your accountant.",
+        "Une charte de données d'une page pour votre entreprise : classes de données, règles pour les outils d'IA, méthode de pseudonymisation et répartition du travail avec le cabinet."),
+      prompt: B("Help me write a one-page data charter for a [STATUS] doing [ACTIVITY], with [NUMBER] employees, working with an accountant on a [TYPE OF ENGAGEMENT: BOOKKEEPING, REVIEW, ANNUAL ACCOUNTS ONLY].\nAI tools used: [TOOLS AND OFFERS].\n1. Propose data classes (public, internal, confidential, personal) with examples from accounting.\n2. For each class, say whether it may go into an AI tool, and on which conditions (pseudonymised, business offer, never).\n3. Describe a simple pseudonymisation method with a correspondence table kept locally.\n4. Propose a \"who does what\" table: me, me with AI, the accountant, for 10 recurring tasks.\n5. List the points I must check in the privacy policy of each tool.\nDo not state what a given tool does with data: tell me where to check it.",
+        "Aide-moi à rédiger une charte de données d'une page pour une [STATUT] qui exerce [ACTIVITÉ], avec [NOMBRE] salariés, qui travaille avec un cabinet sur une mission de [TYPE : TENUE, RÉVISION, COMPTES ANNUELS SEULEMENT].\nOutils d'IA utilisés : [OUTILS ET OFFRES].\n1. Propose des classes de données (publiques, internes, confidentielles, personnelles) avec des exemples comptables.\n2. Pour chaque classe, dis si elle peut aller dans un outil d'IA, et à quelles conditions (pseudonymisée, offre professionnelle, jamais).\n3. Décris une méthode simple de pseudonymisation avec une table de correspondance gardée en local.\n4. Propose un tableau « qui fait quoi » : moi, moi avec l'IA, le cabinet, pour 10 tâches récurrentes.\n5. Liste les points à vérifier dans la politique de confidentialité de chaque outil.\nN'affirme pas ce qu'un outil donné fait des données : dis-moi où le vérifier."),
+      check: [
+        B("Bank details and personal data never appear in clear in a prompt", "Coordonnées bancaires et données personnelles n'apparaissent jamais en clair dans un prompt"),
+        B("Each AI tool used has had its settings and terms checked, with the date", "Chaque outil d'IA utilisé a vu ses paramètres et conditions vérifiés, avec la date"),
+        B("The correspondence table is stored outside the AI tools", "La table de correspondance est conservée hors des outils d'IA"),
+        B("The accountant has read and completed the \"who does what\" table", "Le cabinet a relu et complété le tableau « qui fait quoi »"),
+      ],
+      bonus: B("Ask your accountant how the firm itself uses AI and protects your data, and add the answer to the charter. The same rules then apply on both sides.",
+        "Demandez à votre expert-comptable comment le cabinet utilise lui-même l'IA et protège vos données, et ajoutez la réponse à la charte. Les mêmes règles valent alors des deux côtés."),
+    },
+    more: [
+      { q: B("An invoice Lina wants an AI to check shows the name and address of a client who is an individual. What does she do?",
+          "Une facture que Lina veut faire vérifier par une IA porte le nom et l'adresse d'un client particulier. Que fait-elle ?"),
+        options: [
+          B("She sends the invoice as it is, since it is a business document", "Elle envoie la facture telle quelle, c'est un document professionnel"),
+          B("She gives up on AI for any document that mentions a client", "Elle renonce à l'IA pour tout document qui mentionne un client"),
+          B("She removes or codes the name and address before sending it", "Elle retire ou code le nom et l'adresse avant l'envoi"),
+        ],
+        answer: 2,
+        why: B("The name and address of an individual are personal data. Checking the calculations and the presence of each mention does not need the real values: coding them keeps the check possible and the risk low.",
+          "Le nom et l'adresse d'un particulier sont des données personnelles. Vérifier les calculs et la présence de chaque mention n'exige pas les vraies valeurs : les coder garde la vérification possible et le risque faible.") },
+      { q: B("Studio Cerise receives a letter from the tax authorities with questions about its VAT. What is the right first step?",
+          "Studio Cerise reçoit un courrier de l'administration fiscale qui pose des questions sur sa TVA. Quelle est la bonne première étape ?"),
+        options: [
+          B("Contact Paul and prepare the documents he asks for", "Contacter Paul et préparer les pièces qu'il demande"),
+          B("Have an AI draft and send the answer the same day", "Faire rédiger et envoyer la réponse par une IA le jour même"),
+          B("Wait for a second letter before reacting at all", "Attendre un second courrier avant de réagir"),
+        ],
+        answer: 0,
+        why: B("A letter from the administration engages the company and comes with deadlines. The accountant knows the file and the procedure; an AI can help gather documents, but the answer is prepared with him, from the actual books.",
+          "Un courrier de l'administration engage l'entreprise et comporte des délais. L'expert-comptable connaît le dossier et la procédure ; une IA peut aider à rassembler les pièces, mais la réponse se prépare avec lui, sur la base des comptes réels.") },
+    ],
+  },
+}
+
+/* ================================================================== */
 /* LES MODULES DE CETTE PARTIE                                         */
 /* ================================================================== */
 
@@ -766,10 +1169,16 @@ const MODULES: Module[] = [
     blurb: B('VAT regimes and the balance due, returns without errors, e-invoicing and a calendar checked on official sources.',
       'Les régimes de TVA et le solde dû, des déclarations sans erreur, la facture électronique et un calendrier vérifié aux sources officielles.'),
   },
+  {
+    id: M4, track: 'course', glyph: 'grid', tint: '#047857', at: [70, 58], levels: CLOSE,
+    title: B('Close and steer', 'Clôturer et piloter'),
+    blurb: B('Year-end closing, reading the annual accounts, a cash forecast built with AI, data privacy and the accountant\'s role.',
+      "La clôture de l'exercice, la lecture des comptes annuels, la prévision de trésorerie avec l'IA, la confidentialité et le rôle du cabinet."),
+  },
 ]
 
 export const COMPTA_B: CoursePart = {
   modules: MODULES,
-  enrich: { ...VAT_ENRICH },
+  enrich: { ...VAT_ENRICH, ...CLOSE_ENRICH },
   deep: { ...VAT_DEEP },
 }
