@@ -72,7 +72,7 @@
       ]
     },
     {
-      "source": "/api/(.*)",
+      "source": "/api/((?!video-credits).*)",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -81,6 +81,15 @@
         {
           "key": "Cache-Control",
           "value": "no-store, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/api/video-credits",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
         }
       ]
     },

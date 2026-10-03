@@ -607,11 +607,14 @@ export const DICT = {
   // EN VIDÉO · demandé : « On va ajouter dans toutes nos formations des vidéos
   // youtube qui traitent chacun des sujets évoqués dans les formations ».
   'ln.videosH': { en: "Watch it", fr: "En vidéo" },
-  'ln.videosLead': { en: "Videos published on YouTube by other creators, chosen because they cover the subject of this lesson.", fr: "Des vidéos publiées sur YouTube par d'autres créateurs, choisies parce qu'elles traitent le sujet de ce cours." },
+  'ln.videosLead': { en: "Videos published on YouTube by other creators, chosen because they cover the subject of this lesson. Each author is credited under their video.", fr: "Des vidéos publiées sur YouTube par d'autres créateurs, choisies parce qu'elles traitent le sujet de ce cours. Chaque auteur est crédité sous sa vidéo." },
   'ln.videoPlay': { en: "Play the video", fr: "Lire la vidéo" },
   'ln.videoPrivacy': { en: "Loads YouTube on click, without cookies", fr: "YouTube se charge au clic, sans cookie" },
   'ln.videoFr': { en: "in French", fr: "en français" },
   'ln.videoEn': { en: "in English", fr: "en anglais" },
+  'ln.videoBy': { en: "Video by", fr: "Vidéo de" },
+  'ln.videoChannel': { en: "its YouTube channel", fr: "sa chaîne YouTube" },
+  'ln.videoSource': { en: "Watch on YouTube", fr: "Voir sur YouTube" },
   'ln.recap': { en: "Remember", fr: "À retenir" },
   'ln.further': { en: "Going further:", fr: "Pour aller plus loin :" },
   'ln.why': { en: "Why it works", fr: "Pourquoi cela fonctionne" },
