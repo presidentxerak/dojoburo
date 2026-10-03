@@ -79,8 +79,8 @@ export const COURSE_READY: Record<CourseId, boolean> = {
   'design-system-figma': true,
   'ia-locale': true,
   'business-ia': true,
-  'copywriting': false,
-  'veille-outils': false,
+  'copywriting': true,
+  'veille-outils': true,
 }
 
 const WRITTEN: Record<CourseId, CoursePart[]> = {
