@@ -42,7 +42,7 @@ const METHOD: Level[] = [
     title: B('Why a method beats following the feed', 'Pourquoi une méthode plutôt que suivre le flux'),
     learn: B(
       'You will know why following the stream of AI news tires without informing, and what replaces it: questions, sources, a rhythm.',
-      "Vous saurez pourquoi suivre le flot d'annonces IA épuise sans informer, et ce qui le remplace : des questions, des sources, un rythme.",
+      "Vous saurez pourquoi suivre le flot d'annonces IA épuise sans informer, et ce qui le remplace : questions, sources, rythme.",
     ),
     act: B('Write the watch charter of Agence Pivot: three questions, one weekly slot, and what you deliberately ignore.',
       "Rédigez la charte de veille de l'Agence Pivot : trois questions, un créneau par semaine, ce que vous ignorez exprès."),
@@ -124,7 +124,7 @@ const METHOD: Level[] = [
     title: B('Organise your watch with Obsidian and AI', "Organiser sa veille avec Obsidian et l'IA"),
     learn: B(
       'You will keep a watch vault in Obsidian: one dated note per item, a template, tags, and an AI that summarises without inventing.',
-      'Vous saurez tenir un coffre de veille dans Obsidian : une fiche datée par sujet, un modèle, des tags, une IA qui résume sans inventer.',
+      'Vous saurez tenir un coffre de veille Obsidian : une fiche datée par sujet, un modèle, des tags, une IA qui résume sans inventer.',
     ),
     act: B('Create the Pivot watch vault and its item template, then turn three saved articles into sourced notes.',
       'Créez le coffre de veille Pivot et son modèle de fiche, puis transformez trois articles en fiches sourcées.'),
@@ -148,7 +148,7 @@ const METHOD: Level[] = [
       options: [
         B('Stick to the pasted text and write "not stated" for a missing field', 'Se limiter au texte collé et écrire « non précisé » si un champ manque'),
         B('Add what the AI knows about the tool to make the note complete', "Ajouter ce que l'IA sait de l'outil pour que la fiche soit complète"),
-        B('Summarise in three lines so the note stays short and easy to scan', 'Résumer en trois lignes pour que la fiche reste courte et lisible'),
+        B('Summarise it in three short lines, so that the note stays easy to scan', 'Le résumer en trois lignes courtes, pour que la fiche reste facile à lire'),
       ],
       answer: 0,
       why: B(
@@ -185,7 +185,7 @@ const METHOD: Level[] = [
     ),
     quiz: {
       q: B('The new tool writes better than the current one but stores work in a format nothing else opens. How do you score it?',
-        "Le nouvel outil rédige mieux que l'actuel mais stocke tout dans un format que rien d'autre n'ouvre. Comment le notez-vous ?"),
+        "Le nouvel outil rédige mieux mais stocke tout dans un format que rien d'autre n'ouvre. Comment le notez-vous ?"),
       options: [
         B('High everywhere, since the quality of the output comes first', 'Haut partout, la qualité du résultat passant avant le reste'),
         B('Low everywhere, since any closed format rules a tool out', 'Bas partout, tout format fermé excluant un outil'),
@@ -236,12 +236,12 @@ const METHOD_ENRICH: Record<string, Enrichment> = {
         "Montrez votre charte à un collègue et demandez-lui quelle question manque pour son propre travail. Une veille qui sert deux personnes est déjà une habitude d'équipe."),
     },
     more: [
-      { q: B("Camille's charter asks \"which tool drafts our meeting reports faster?\". A new model tops a public leaderboard. What does she do?",
-          "La charte de Camille demande « quel outil rédige plus vite nos comptes rendus ? ». Un nouveau modèle domine un classement public. Que fait-elle ?"),
+      { q: B("Camille is looking for the tool that drafts her meeting reports fastest. A new model tops a public leaderboard. What does she do?",
+          "Camille cherche l'outil qui rédige le plus vite ses comptes rendus. Un nouveau modèle domine un classement public. Que fait-elle ?"),
         options: [
-          B("She switches the whole agency to it, since it ranks first", "Elle y bascule toute l'agence, puisqu'il est classé premier"),
+          B("She switches the whole agency to it, since it ranks first overall", "Elle y bascule toute l'agence, puisqu'il est classé premier partout"),
           B("She notes it and tests it later on one of the agency's reports", "Elle le note et le testera sur un vrai compte rendu de l'agence"),
-          B("She ignores it, since leaderboards never say anything useful", "Elle l'ignore, les classements ne disant jamais rien d'utile"),
+          B("She ignores it for good, since leaderboards never say anything useful", "Elle l'ignore pour de bon, les classements ne disant jamais rien d'utile"),
         ],
         answer: 1,
         why: B("A leaderboard measures a set of tasks chosen by others. It can justify a test, never a decision: only a trial on the agency's own reports answers Camille's question.",
@@ -293,12 +293,12 @@ const METHOD_ENRICH: Record<string, Enrichment> = {
         "Désabonnez-vous d'une source que vous n'avez pas ouverte depuis un mois. Une veille s'améliore aussi par soustraction, et la place libérée servira à la prochaine source utile."),
     },
     more: [
-      { q: B("A newsletter announces a feature \"available to everyone\". The publisher's release notes mention it for one business plan in some regions. Which do you keep?",
-          "Une lettre annonce une fonction « disponible pour tous ». Les notes de l'éditeur la réservent à une offre professionnelle, dans certaines régions. Que retenez-vous ?"),
+      { q: B("A newsletter says a feature is \"available to everyone\"; the release notes limit it to one business plan. Which do you keep?",
+          "Une lettre dit une fonction « disponible pour tous » ; les notes de version la réservent à une offre pro. Que retenez-vous ?"),
         options: [
           B("The release notes, which commit the publisher and give the scope", "Les notes de version, qui engagent l'éditeur et donnent le périmètre"),
-          B("The newsletter, which is more recent and easier to understand", "La lettre, plus récente et plus facile à comprendre"),
-          B("Neither of them, until a colleague has tried the feature", "Aucune des deux, tant qu'un collègue n'a pas essayé"),
+          B("The newsletter, which is more recent and much easier to understand", "La lettre, plus récente et bien plus facile à comprendre"),
+          B("Neither, until a colleague has tried the feature on their account", "Aucune des deux, tant qu'un collègue n'a pas essayé sur son compte"),
         ],
         answer: 0,
         why: B("The release notes are the primary source: they state the plan, the region and the date. A newsletter that simplifies is useful to spot the news, not to know whether it concerns you.",
@@ -306,7 +306,7 @@ const METHOD_ENRICH: Record<string, Enrichment> = {
       { q: B("Why prefer an RSS reader to following publishers on a social network?",
           "Pourquoi préférer un lecteur RSS au suivi des éditeurs sur un réseau social ?"),
         options: [
-          B("Because RSS readers summarise each article with AI", "Parce que les lecteurs RSS résument chaque article avec l'IA"),
+          B("Because RSS readers summarise each new article for you with AI", "Parce que les lecteurs RSS résument pour vous chaque article avec l'IA"),
           B("Because the network's algorithm decides what you see, and when", "Parce que l'algorithme du réseau décide de ce que vous voyez, et quand"),
           B("Because publishers only post their news through RSS feeds", "Parce que les éditeurs ne publient leurs nouvelles que par RSS"),
         ],
@@ -365,7 +365,7 @@ const METHOD_ENRICH: Record<string, Enrichment> = {
         options: [
           B("Because a feature described in an old page may have changed since", "Parce qu'une fonction décrite dans une page ancienne a pu changer depuis"),
           B("Because Obsidian cannot sort notes without a date property", "Parce qu'Obsidian ne sait pas trier des notes sans propriété de date"),
-          B("Because publishers delete their release notes after a while", "Parce que les éditeurs suppriment leurs notes de version après un temps"),
+          B("Because publishers delete their older release notes after some months", "Parce que les éditeurs suppriment leurs anciennes notes de version après quelques mois"),
         ],
         answer: 0,
         why: B("A capture made today can describe a page from last year. The source date tells how fresh the information is, and when to check it again; the tool can sort by any field.",
@@ -407,10 +407,10 @@ const METHOD_ENRICH: Record<string, Enrichment> = {
         "Repassez le même protocole un mois plus tard sur l'outil retenu. Si les notes ont bougé, les notes de version de ce mois-là expliquent sans doute pourquoi."),
     },
     more: [
-      { q: B("During the test, the new tool gives a better report on the first try, but the current tool matches it after one follow-up prompt. How do you note it?",
-          "Pendant le test, le nouvel outil donne un meilleur compte rendu du premier coup, l'actuel l'égale après une relance. Comment le notez-vous ?"),
+      { q: B("The new tool gives a better report at once; the current one matches it after one follow-up prompt. How do you note it?",
+          "Le nouvel outil donne d'emblée un meilleur compte rendu ; l'actuel l'égale après une relance. Comment le notez-vous ?"),
         options: [
-          B("As a large gain, since the first answer is what counts", "Comme un gain important, la première réponse étant ce qui compte"),
+          B("As a large gain, since the very first answer is what really counts", "Comme un gain important, la toute première réponse étant ce qui compte vraiment"),
           B("As a small gain, to weigh against cost and the time to switch", "Comme un faible gain, à peser contre le coût et le temps de bascule"),
           B("As no gain at all, since both tools reach the same result", "Comme aucun gain, puisque les deux outils arrivent au même résultat"),
         ],
@@ -421,7 +421,7 @@ const METHOD_ENRICH: Record<string, Enrichment> = {
           "Pourquoi la décision « essayer jusqu'à une date » s'écrit-elle avec cette date ?"),
         options: [
           B("Because free trials of tools always end after a fixed period", "Parce que les essais gratuits des outils finissent toujours à date fixe"),
-          B("Because the publisher's terms require a date for any trial", "Parce que les conditions de l'éditeur exigent une date pour tout essai"),
+          B("Because the publisher's terms of use require a date for any trial", "Parce que les conditions d'utilisation de l'éditeur exigent une date pour tout essai"),
           B("Because without a date the trial becomes a habit nobody reviews", "Parce que sans date l'essai devient une habitude que personne ne revoit"),
         ],
         answer: 2,
@@ -492,7 +492,7 @@ const METHOD_DEEP: Record<string, Deepening> = {
           "Mercredi, un collègue envoie à Camille une vidéo enthousiaste sur un nouvel outil. D'après la charte, que fait-elle ?"),
         options: [
           B("She notes it in the vault's inbox, to be examined on Friday", "Elle la note dans l'entrée du coffre, pour l'examiner vendredi"),
-          B("She stops her current task to test the tool right away", "Elle interrompt sa tâche en cours pour tester l'outil aussitôt"),
+          B("She stops her current task so as to test the new tool right away", "Elle interrompt sa tâche en cours pour tester le nouvel outil aussitôt"),
           B("She deletes the message, since videos are never reliable", "Elle supprime le message, les vidéos n'étant jamais fiables"),
         ],
         answer: 0,
@@ -501,7 +501,7 @@ const METHOD_DEEP: Record<string, Deepening> = {
       { q: B("Which of these is a good watch question for Agence Pivot?",
           "Laquelle de ces questions est une bonne question de veille pour l'Agence Pivot ?"),
         options: [
-          B("What are the most talked-about AI tools of the month?", "Quels sont les outils IA dont on parle le plus ce mois-ci ?"),
+          B("What are the most talked-about new AI tools of this month?", "Quels sont les nouveaux outils IA dont on parle le plus ce mois-ci ?"),
           B("Which model scores highest on public benchmarks today?", "Quel modèle obtient les meilleurs scores aux tests publics ?"),
           B("How can we summarise long tender documents more reliably?", "Comment synthétiser plus sûrement les longs cahiers des charges ?"),
         ],
@@ -584,7 +584,7 @@ const METHOD_DEEP: Record<string, Deepening> = {
           "Qu'est-ce qui rend une lettre d'information digne d'être gardée dans une veille ?"),
         options: [
           B("It is sent every day, so nothing is ever missed", "Elle arrive chaque jour, pour ne jamais rien manquer"),
-          B("It has the largest number of subscribers in its field", "Elle a le plus grand nombre d'abonnés de son domaine"),
+          B("It has the largest number of subscribers in its whole field", "Elle a le plus grand nombre d'abonnés de tout son domaine"),
           B("It has a named author and links to the primary sources", "Elle a un auteur nommé et renvoie aux sources primaires"),
         ],
         answer: 2,
@@ -659,7 +659,7 @@ const METHOD_DEEP: Record<string, Deepening> = {
         options: [
           B("She checks what the plugin sends, and keeps client notes elsewhere", "Elle vérifie ce que le plugin envoie, et range les notes clients ailleurs"),
           B("She installs it, since plugins only read the note that is open", "Elle l'installe, les plugins ne lisant que la note ouverte"),
-          B("She gives up on AI in Obsidian, since no plugin can be trusted", "Elle renonce à l'IA dans Obsidian, aucun plugin n'étant sûr"),
+          B("She gives up on AI in Obsidian, since no plugin can ever be trusted", "Elle renonce à l'IA dans Obsidian, aucun plugin n'étant jamais sûr"),
         ],
         answer: 0,
         why: B("What a plugin sends depends on the plugin and its settings. Reading its documentation and separating confidential notes keeps the benefit without exposing client data.",
@@ -746,7 +746,7 @@ const METHOD_DEEP: Record<string, Deepening> = {
       { q: B("Why does the protocol use the same three tasks for every tool tested?",
           "Pourquoi le protocole utilise-t-il les trois mêmes tâches pour chaque outil testé ?"),
         options: [
-          B("To save time, since writing new tasks takes too long", "Pour gagner du temps, écrire de nouvelles tâches étant trop long"),
+          B("To save time, since writing new tasks each time takes too long", "Pour gagner du temps, écrire de nouvelles tâches à chaque fois étant trop long"),
           B("Because publishers optimise their tools for these tasks", "Parce que les éditeurs optimisent leurs outils pour ces tâches"),
           B("So that results stay comparable from one test to the next", "Pour que les résultats restent comparables d'un test à l'autre"),
         ],
