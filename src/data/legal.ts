@@ -79,8 +79,8 @@ export const PRIVACY: LegalSection[] = [
   {
     h: B('4. The assistant and the AI masters', "4. L'assistant et les maîtres IA"),
     p: [B(
-      'The questions you type to Dojobot, and the messages written in a temple chat that a master answers, are sent to an AI model provider to produce the answer. Do not type personal or confidential information there. Depending on the configuration, the providers may include Groq, Cerebras, OpenRouter, DeepSeek, Google (Gemini) or Anthropic, some of them outside the European Union.',
-      "Les questions posées à Dojobot, et les messages d'un chat de temple auxquels un maître répond, sont transmis à un fournisseur de modèles d'IA pour produire la réponse. N'y écrivez pas d'informations personnelles ou confidentielles. Selon la configuration, ces fournisseurs peuvent être Groq, Cerebras, OpenRouter, DeepSeek, Google (Gemini) ou Anthropic, dont certains hors de l'Union européenne.",
+      'The questions you type to Dojobot, and the messages written in a course chat that a master answers, are sent to an AI model provider to produce the answer. Do not type personal or confidential information there. Depending on the configuration, the providers may include Groq, Cerebras, OpenRouter, DeepSeek, Google (Gemini) or Anthropic, some of them outside the European Union.',
+      "Les questions posées à Dojobot, et les messages d'un chat de formation auxquels un maître répond, sont transmis à un fournisseur de modèles d'IA pour produire la réponse. N'y écrivez pas d'informations personnelles ou confidentielles. Selon la configuration, ces fournisseurs peuvent être Groq, Cerebras, OpenRouter, DeepSeek, Google (Gemini) ou Anthropic, dont certains hors de l'Union européenne.",
     )],
   },
   {

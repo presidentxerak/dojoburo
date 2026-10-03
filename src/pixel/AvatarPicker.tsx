@@ -18,7 +18,7 @@ import {
 
 const T = {
   title: B('Your character', 'Votre personnage'),
-  lead: B('It represents you in the temples and the community. Everything can be changed later.', 'Il vous représente dans les temples et dans la communauté. Tout se modifie ensuite.'),
+  lead: B('It represents you on the map, in the courses and in the community. Everything can be changed later.', 'Il vous représente sur la carte, dans les formations et dans la communauté. Tout se modifie ensuite.'),
   start: B('Start from', 'Partir de'),
   variant: B('Variant', 'Variante'),
   skin: B('Skin', 'Peau'),

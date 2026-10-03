@@ -57,12 +57,12 @@ export const LP = {
   playH2: B('A grade that shows your progress', 'Un grade qui montre votre progression'),
   playLead: B('Seven belts, worn by the character you create. Your grade comes only from the dojos you finish: nothing is bought.', "Sept ceintures, portées par le personnage que vous créez. Votre grade ne vient que des dojos que vous terminez : rien ne s'achète."),
   // LES TEMPLES · l'ancien jeu du studio est effacé (« Efface l'ancien jeu »).
-  gameH3: B('The temples', 'Les temples'),
+  gameH3: B('The map of courses', 'La carte des formations'),
   gameBody: B(
-    'Each training is a pixel-art temple and each floor a lesson. Choose your character, climb floor by floor, and see who is studying with you.',
-    "Chaque formation est un temple en pixel art et chaque étage une leçon. Choisissez votre personnage, montez étage par étage et voyez qui étudie avec vous.",
+    'Each course is drawn as a pixel-art building on the map, and each lesson as one of its rooms. Create your character, move from lesson to lesson, and see who is studying with you.',
+    "Sur la carte, chaque formation est dessinée comme un bâtiment en pixel art, et chaque cours comme une de ses salles. Créez votre personnage, passez d'un cours à l'autre et voyez qui étudie avec vous.",
   ),
-  gameGo: B('See the temples', 'Voir les temples'),
+  gameGo: B('See the map', 'Voir la carte'),
 
   clanPill: B('Community', 'Communauté'),
   clanH2: B('You do not learn alone', "On n'apprend pas seul"),
@@ -76,10 +76,10 @@ export const LP = {
   nextH2: B('When you want to go further', 'Quand vous voulez aller plus loin'),
   // LA GRILLE À TROIS PRIX · « 0€ gratuit, Un temple (une formation) à 49€
   // et le Pass dojo à 99€ life time ». Le gratuit est tout le reste de la page.
-  unitTitle: B('One temple', 'Un temple'),
+  unitTitle: B('One course', 'Une formation'),
   unitBody: B('The training of your choice: the full path, your trade, Code an app or Build an app with Lovable. Paid once, yours for good.', "La formation de votre choix : la formation complète, votre métier, Coder une app ou Coder une app avec Lovable. Payée une fois, acquise pour de bon."),
-  passTitle: B('The Dojo Pass', 'Le Pass Dojo'),
-  passBody: B('Every training, present and future, for life. It pays for itself from the third temple.', "Toutes les formations, actuelles et futures, à vie. Rentable dès le troisième temple."),
+  passTitle: B('The Dojoburo Pass', 'Le Pass Dojoburo'),
+  passBody: B('Every course, present and future, for life. It pays for itself from the third course.', "Toutes les formations, actuelles et futures, à vie. Rentable dès la troisième formation."),
   once: B('paid once', 'payée une fois'),
   forLife: B('paid once, for life', 'payé une fois, à vie'),
   trainings: B('trainings', 'formations'),

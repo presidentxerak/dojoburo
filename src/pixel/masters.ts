@@ -25,13 +25,13 @@ export const MASTERS: Record<string, Master> = {
   weekend: {
     name: 'Sora',
     role: B('Master of the AI weekend', "Maître du week-end de l'IA"),
-    welcome: B('Welcome, young disciple. Seven floors, seven lessons: we start with the words of AI.', "Bienvenue, jeune disciple. Sept étages, sept leçons : nous commençons par les mots de l'IA."),
+    welcome: B('Welcome. Seven short lessons: we start with the words of AI, like learning the highway code before driving.', "Bienvenue. Sept cours courts : nous commençons par les mots de l'IA, comme on apprend le code de la route avant de conduire."),
     spec: human({ skin: '#ffe0c8', hair: 'none', hairColor: '#e9e4da', facial: 'beard', accessory: 'wizard', accent: '#6d28d9', outfit: 'kimono', outfitColor: '#4c1d95', eyes: 'happy' }),
   },
   generaliste: {
     name: 'Hana',
     role: B('Master of the full training', 'Maître de la formation complète'),
-    welcome: B('Every floor of this temple teaches one gesture. Take them in order, or as you need them.', "Chaque étage de ce temple enseigne un geste. Prenez-les dans l'ordre, ou selon vos besoins."),
+    welcome: B('Each lesson of this course teaches one gesture, like the moves of a craft. Take them in order, or as you need them.', "Chaque cours de cette formation enseigne un geste, comme les gestes d'un métier. Prenez-les dans l'ordre, ou selon vos besoins."),
     spec: human({ skin: '#e7ad82', hair: 'bun', hairColor: '#e9e4da', accessory: 'glasses', outfit: 'kimono', outfitColor: '#7c3aed', accent: '#f7c948' }),
   },
   'metier-growth': {
@@ -117,7 +117,7 @@ export const MASTERS: Record<string, Master> = {
   'coder-une-app': {
     name: 'Akira',
     role: B('Master of code', 'Maître du code'),
-    welcome: B('A terminal, a repository, a database, a deployment. Floor by floor, we build your app together.', 'Un terminal, un dépôt, une base de données, un déploiement. Étage par étage, nous construisons votre app ensemble.'),
+    welcome: B('A terminal, a repository, a database, a deployment. Lesson by lesson, we build your app together, like a house: foundations first, roof last.', 'Un terminal, un dépôt, une base de données, un déploiement. Cours après cours, nous construisons votre app ensemble, comme une maison : les fondations d\'abord, le toit à la fin.'),
     spec: human({ skin: '#e7ad82', hair: 'ponytail', hairColor: '#2b1d16', accessory: 'headphones', outfit: 'hoodie', outfitColor: '#f97316', accent: '#1e293b', eyes: 'happy' }),
   },
   'coder-avec-lovable': {

@@ -8,7 +8,7 @@ import { LEGAL_PAGES } from '../data/legal'
 
 const FT = {
   trainings: B('Trainings', 'Formations'),
-  map: B('The temple map', 'La carte des temples'),
+  map: B('The map of courses', 'La carte des formations'),
   free: B('The free AI weekend', 'Le Week-end IA gratuit'),
   prices: B('Pricing', 'Les tarifs'),
   community: B('Community', 'Communauté'),
@@ -16,7 +16,7 @@ const FT = {
   settings: B('Privacy settings', 'Réglages de confidentialité'),
   legal: B('Legal', 'Informations légales'),
   rights: B('All rights reserved.', 'Tous droits réservés.'),
-  tagline: B('Learn to put AI to work, one temple at a time.', "Apprendre à faire travailler l'IA, un temple après l'autre."),
+  tagline: B('Learn to put AI to work, one course at a time.', "Apprendre à faire travailler l'IA, une formation après l'autre."),
 }
 
 const YEAR = new Date().getFullYear()

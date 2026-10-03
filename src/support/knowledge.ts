@@ -118,23 +118,23 @@ export const KB: KBTopic[] = [
     // LES TEMPLES · premier bouton de la barre du bas. L'identifiant reste
     // 'studios' parce que SupportBot le nomme dans ses pastilles d'accueil.
     id: 'studios',
-    chip: 'The temples',
+    chip: 'The map',
     answer:
-      `Dojoburo, the first button of the bottom bar, opens the map of the temples, drawn in pixel art: one temple per training, ${PACK_COUNT} in all, with the name of the course above each one, and the course cards below the map. ` +
-      'Open a temple and it fills the screen, seen from the front: each floor is a dojo, that is one lesson, and the floor plan stays at the top right so you can jump to any floor. Every floor is decorated differently. Your character stands in front of the door at the back: click the door (or the up arrow) and it slides open, your character walks in, and you come out of the door of the next floor. On the map, other students walk along the paths, in and out of the temples, between the river, the ponds and the zen gardens. A generative Japanese zen music (koto, shakuhachi, temple bell) and sound effects play in the temples; the note button at the top mutes the music, and Profile, Settings turns the music and the sound effects on or off separately. On each floor the master of the temple waits for you, dressed for their trade: click the master, they welcome you, and you enter the lesson, where their pixel portrait gives you the course. ' +
-      `The first three floors of every temple are open, so you can see how it teaches. In the free AI weekend temple, the other floors open with your email; in the other temples they carry a padlock until you get the training (${priceTag(TEMPLE_EUR)} for one temple, whichever it is, or ${priceTag(PASS_EUR)} for the Dojo Pass, which opens every temple for life). Behind every temple there is a blue sky with drifting clouds, and a zen garden with its path at its foot.`,
+      `Dojoburo, the first button of the bottom bar, opens the map: a pixel-art landscape where each building is one course, ${PACK_COUNT} in all, with its name above it. The buildings are only the decor; what matters is the course behind each one. The list of the courses, with their masters and their prices, is on the second button, Formations. ` +
+      'Open a course and you see its lessons one after the other, like the rooms of a building: the plan at the top right lets you jump to any lesson, and each lesson is given by the master of the course, dressed for their trade. Click the master and you enter the lesson, where their pixel portrait gives you the course. On the map, other learners walk along the paths. A generative Japanese zen music (koto, shakuhachi, temple bell) and sound effects play on the map and in the courses; the note button at the top mutes the music, and Profile, Settings turns the music and the sound effects on or off separately. ' +
+      `The first three lessons of every course are open, so you can see how it teaches. In the free AI weekend, the other lessons open with your email; in the other courses they carry a padlock until you get the course (${priceTag(TEMPLE_EUR)} for one course, whichever it is, or ${priceTag(PASS_EUR)} for the Dojoburo Pass, which opens every course for life).`,
     links: [
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
       { label: 'Start the free weekend', href: FREE_HREF },
     ],
     follow: ['teams', 'training', 'pricing'],
     keywords: ['dojoburo', 'temple', 'temples', 'étage', 'étages', 'floor', 'floors', 'map', 'carte', 'pixel', 'pixel art', 'game', 'jeu', 'jouer', 'play', 'door', 'porte', 'monter', 'go up', 'master', 'maître', 'padlock', 'cadenas', 'locked', 'verrouillé', 'fullscreen', 'plein écran', 'floor plan', 'plan des étages', 'studio', 'old game', 'ancien jeu', 'music', 'musique', 'sound', 'son', 'zen', 'mute', 'couper le son', 'bruitage', 'sound effects'],
     fr: {
-      chip: 'Les temples',
+      chip: 'La carte',
       answer:
-        `Dojoburo, le premier bouton de la barre du bas, ouvre la carte des temples, dessinée en pixel art : un temple par formation, ${PACK_COUNT} au total, avec le nom du cours au-dessus de chacun, et les cartes des cours sous la carte. Ouvrez un temple : il occupe tout l'écran, vu de face. Chaque étage est un dojo, c'est-à-dire une leçon, et le plan des étages reste affiché en haut à droite pour rejoindre n'importe quel étage. Chaque étage a son propre décor. Votre personnage se tient devant la porte du fond : cliquez sur la porte (ou sur la flèche du haut), elle coulisse, votre personnage entre, et vous ressortez par la porte de l'étage suivant. Sur la carte, d'autres élèves marchent le long des chemins, entrent dans les temples et en sortent, entre la rivière, les bassins et les jardins zen. Une musique zen japonaise générative (koto, shakuhachi, cloche de temple) et des bruitages accompagnent les temples ; le bouton de la note, en haut, coupe la musique, et Profil, Paramètres règle séparément la musique et les bruitages. À chaque étage, le maître du temple vous attend, vêtu selon son métier : cliquez sur lui, il vous accueille, et vous entrez dans la leçon, où son portrait en pixel art vous donne le cours. Les trois premiers étages de chaque temple sont ouverts, pour que vous puissiez apprécier la pédagogie. Dans le temple gratuit du week-end de l'IA, les étages suivants s'ouvrent avec votre adresse e-mail ; dans les autres temples, ils portent un cadenas jusqu'à l'obtention de la formation (${priceTag(TEMPLE_EUR)} pour un temple, quel qu'il soit, ou ${priceTag(PASS_EUR)} pour le Pass Dojo, qui ouvre tous les temples à vie). Derrière chaque temple s'étend un ciel bleu où passent des nuages, et à son pied un jardin zen et son chemin.`,
+        `Dojoburo, le premier bouton de la barre du bas, ouvre la carte : un paysage en pixel art où chaque bâtiment est une formation, ${PACK_COUNT} au total, avec son nom au-dessus. Les bâtiments ne sont qu'un décor ; ce qui compte est la formation qu'ils représentent. La liste des formations, avec leurs maîtres et leurs prix, se trouve sur le deuxième bouton, Formations. Ouvrez une formation : ses cours se suivent comme les salles d'un bâtiment, le plan en haut à droite permet de rejoindre n'importe quel cours, et chaque cours est donné par le maître de la formation, vêtu selon son métier. Cliquez sur le maître et vous entrez dans le cours, où son portrait en pixel art vous l'enseigne. Sur la carte, d'autres élèves marchent le long des chemins. Une musique zen japonaise générative (koto, shakuhachi, cloche de temple) et des bruitages accompagnent la carte et les formations ; le bouton de la note, en haut, coupe la musique, et Profil, Paramètres règle séparément la musique et les bruitages. Les trois premiers cours de chaque formation sont ouverts, pour que vous puissiez apprécier la pédagogie. Dans le week-end de l'IA, gratuit, les cours suivants s'ouvrent avec votre adresse e-mail ; dans les autres formations, ils portent un cadenas jusqu'à l'achat (${priceTag(TEMPLE_EUR)} pour une formation, quelle qu'elle soit, ou ${priceTag(PASS_EUR)} pour le Pass Dojoburo, qui ouvre toutes les formations à vie).`,
       links: [
-        'Voir les temples',
+        'Voir les formations',
         'Commencer le week-end gratuit',
       ],
     },
@@ -145,10 +145,10 @@ export const KB: KBTopic[] = [
     id: 'teams',
     chip: 'Your character and the other students',
     answer:
-      'You enter the temples with a pixel-art character in a chibi style that you create yourself: a man, a woman, a non-binary person, an alien, a robot, a monster, an animal or something weird, then the hair, eyes, outfit, colours, an accessory and a pride pin if you wish. "Surprise me" draws a whole character at random. You choose it on your first visit and change it at any time in Profile. Your character also wears your grade: in Profile, it appears in a kimono whose belt has the colour of your grade. ' +
-      'In a temple you see the students who are studying it at the same moment, on the floor where they are. Click one of them, or the Chat button, to open the course chat: the group chat of that temple, and the list of the students present, each with a button to write to them privately in the Community messages. Reading and writing in the chat needs a free account; your email is never shown, only your name.',
+      'You appear on the map and in the courses as a pixel-art character in a chibi style that you create yourself, in your Profile: a man, a woman, a non-binary person, an alien, a robot, a monster, an animal or something weird, then the hair, eyes, outfit, colours, an accessory and a pride pin if you wish. "Surprise me" draws a whole character at random. Your character also wears your grade: in Profile, it appears in a kimono whose belt has the colour of your grade. ' +
+      'In a course you see the learners who are taking it at the same moment, in the lesson where they are. Click one of them, or the Chat button, to open the course chat: the group chat of that course, and the list of the learners present, each with a button to write to them privately in the Community messages. Reading and writing in the chat needs a free account; your email is never shown, only your name.',
     links: [
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
       { label: 'Change my character', href: '/profil' },
     ],
     follow: ['studios', 'start', 'signin'],
@@ -156,9 +156,9 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Votre personnage et les autres élèves',
       answer:
-        `Vous entrez dans les temples avec un personnage en pixel art, de style chibi, que vous créez vous-même : un homme, une femme, une personne non binaire, un alien, un robot, un monstre, un animal ou une créature bizarre, puis la coiffure, les yeux, la tenue, les couleurs, un accessoire et, si vous le souhaitez, un badge des fiertés. Le bouton « Au hasard » tire un personnage entier. Vous le choisissez lors de votre première visite et vous le modifiez à tout moment dans le Profil. Votre personnage porte aussi votre grade : dans le Profil, il apparaît en kimono, avec une ceinture de la couleur de votre grade. Dans un temple, vous voyez les élèves qui l'étudient au même moment, à l'étage où ils se trouvent. Cliquez sur l'un d'eux, ou sur le bouton Chat, pour ouvrir le chat du cours : la discussion de groupe de ce temple, et la liste des élèves présents, chacun avec un bouton pour lui écrire en privé dans la messagerie de la Communauté. Lire et écrire dans le chat demande un compte gratuit ; votre adresse e-mail n'est jamais affichée, seulement votre nom.`,
+        `Vous apparaissez sur la carte et dans les formations sous la forme d'un personnage en pixel art, de style chibi, que vous créez vous-même dans votre Profil : un homme, une femme, une personne non binaire, un alien, un robot, un monstre, un animal ou une créature bizarre, puis la coiffure, les yeux, la tenue, les couleurs, un accessoire et, si vous le souhaitez, un badge des fiertés. Le bouton « Au hasard » tire un personnage entier. Votre personnage porte aussi votre grade : dans le Profil, il apparaît en kimono, avec une ceinture de la couleur de votre grade. Dans une formation, vous voyez les élèves qui la suivent au même moment, dans le cours où ils se trouvent. Cliquez sur l'un d'eux, ou sur le bouton Chat, pour ouvrir le chat de la formation : la discussion de groupe, et la liste des élèves présents, chacun avec un bouton pour lui écrire en privé dans la messagerie de la Communauté. Lire et écrire dans le chat demande un compte gratuit ; votre adresse e-mail n'est jamais affichée, seulement votre nom.`,
       links: [
-        'Voir les temples',
+        'Voir les formations',
         'Modifier mon personnage',
       ],
     },
@@ -173,7 +173,7 @@ export const KB: KBTopic[] = [
       'A token is the unit a model reads, writes and bills: a small piece of a word. Every prompt you send and every answer you get costs tokens, which is why tokens are what an AI job really costs. ' +
       'The training teaches how to spend them well: say exactly what you want, give the context the job needs and not more, pick a model sized for the task, and reuse what works. The /frugality page shows where your tokens actually go in a conversation.',
     links: [
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
       { label: 'Where your tokens go', href: '/frugality' },
     ],
     follow: ['studios', 'training', 'lessons'],
@@ -183,7 +183,7 @@ export const KB: KBTopic[] = [
       answer:
         `Un token est l'unité qu'un modèle lit, écrit et facture : un petit fragment de mot. Chaque prompt que vous envoyez et chaque réponse que vous recevez consomment des tokens ; c'est pourquoi les tokens représentent le coût réel d'un travail d'IA. La formation enseigne à bien les dépenser : formuler exactement ce que vous attendez, fournir le contexte dont le travail a besoin sans excès, choisir un modèle à la mesure de la tâche, et réutiliser ce qui fonctionne. La page /frugality montre où vont réellement vos tokens au cours d'une conversation.`,
       links: [
-        'Voir les temples',
+        'Voir les formations',
         'Où vont vos tokens',
       ],
     },
@@ -192,10 +192,10 @@ export const KB: KBTopic[] = [
     id: 'start',
     chip: 'Getting started',
     answer:
-      'Everything starts from the bottom bar, which has three buttons. DOJOBURO opens the map of the temples, in pixel art: one temple per training (the free AI weekend, the full training and the trade trainings), each floor a lesson given by the master of the temple, with the other students present and a course chat. COMMUNITY (formerly Clan) is the free community, in the style of Skool: a feed with categories (General, Introductions, Questions, Wins, Prompts, Resources), pinned posts, likes, threaded comments and search, plus a Calendar of lives and workshops (add them to your own calendar), Members (who is online, public profiles), Leaderboards (points are the likes others give you, nine levels, 7 days, 30 days and all time), notifications (also by email, which you can turn off in your member profile) and private messages, @mentions, polls, YouTube, Vimeo, Loom, Instagram and TikTok videos shown as players when you paste their link, and an About page. Anyone can read; a free account is needed to post, comment, like and write, and your email is never shown, only the name you choose. PROFILE is organised in tabs: Progression (your grade, level and XP), Badges, Trainings, Account and Settings. ' +
-      `The best way in: create your character, then enter the free AI weekend temple. No account is needed to learn: without one, everything is kept in this browser. The XP comes from the dojos you actually finished, and it gives you a grade, a belt among ${RANK_COUNT}, worn by your character. Your character is your profile icon at the top right. The app opens in a light display; a dark violet display is one setting away, in Profile, Settings, Display.`,
+      'Everything starts from the bottom bar, which has four buttons. DOJOBURO opens the map, in pixel art: each building is a course (the free AI weekend, the complete course and the trade courses). FORMATIONS lists every course with its master, its number of lessons and its price. COMMUNITY (formerly Clan) is the free community, in the style of Skool: a feed with categories (General, Introductions, Questions, Wins, Prompts, Resources), pinned posts, likes, threaded comments and search, plus a Calendar of lives and workshops (add them to your own calendar), Members (who is online, public profiles), Leaderboards (points are the likes others give you, nine levels, 7 days, 30 days and all time), notifications (also by email, which you can turn off in your member profile) and private messages, @mentions, polls, YouTube, Vimeo, Loom, Instagram and TikTok videos shown as players when you paste their link, and an About page. Anyone can read; a free account is needed to post, comment, like and write, and your email is never shown, only the name you choose. PROFILE is organised in tabs: Progression (your grade, level and XP), Badges, Trainings, Account and Settings. ' +
+      `The best way in: create your character in your Profile, then open the free AI weekend. No account is needed to learn: without one, everything is kept in this browser. The XP comes from the lessons you actually finished, and it gives you a grade, a belt among ${RANK_COUNT}, worn by your character. Your character is your profile icon at the top right. The app opens in a light display; a dark violet display is one setting away, in Profile, Settings, Display.`,
     links: [
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
       { label: 'Start the free weekend', href: FREE_HREF },
     ],
     follow: ['studios', 'teams', 'signin'],
@@ -203,9 +203,9 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Pour commencer',
       answer:
-        `Tout commence par la barre du bas, qui comporte trois boutons. DOJOBURO ouvre la carte des temples, en pixel art : un temple par formation (le week-end de l'IA gratuit, la formation complète et les formations métier), chaque étage étant une leçon donnée par le maître du temple, avec les autres élèves présents et un chat du cours. COMMUNAUTÉ (anciennement Clan) est la communauté gratuite, à la manière de Skool : un fil avec des catégories (Général, Présentations, Questions, Réussites, Prompts, Ressources), des publications épinglées, des j'aime, des commentaires en fil et une recherche, un Calendrier des lives et des ateliers (à ajouter à votre propre agenda), les Membres (qui est en ligne, profils publics), les Classements (les points sont les j'aime que les autres vous donnent, neuf niveaux, sur 7 jours, 30 jours et depuis toujours), des notifications (aussi par e-mail, désactivables dans votre profil de membre), une messagerie privée, les mentions @nom, les sondages, les vidéos YouTube, Vimeo, Loom, Instagram et TikTok affichées en lecteur lorsque vous collez leur lien, et une page À propos. Tout le monde peut lire ; un compte gratuit est nécessaire pour publier, commenter, aimer et écrire, et votre adresse e-mail n'est jamais affichée, seulement le nom que vous choisissez. PROFIL est organisé en onglets : Progression (votre grade, votre niveau et votre XP), Badges, Formations, Compte et Paramètres. Le meilleur point d'entrée : créer votre personnage, puis entrer dans le temple gratuit du week-end de l'IA. Aucun compte n'est nécessaire pour apprendre : sans compte, tout est conservé dans ce navigateur. L'XP provient des dojos que vous avez effectivement terminés, et elle vous confère un grade, c'est-à-dire une ceinture parmi ${RANK_COUNT}, portée par votre personnage. Votre personnage constitue votre icône de profil, en haut à droite. L'application s'ouvre en affichage clair ; un affichage violet sombre est disponible dans Profil, Paramètres, Affichage.`,
+        `Tout commence par la barre du bas, qui comporte quatre boutons. DOJOBURO ouvre la carte, en pixel art : chaque bâtiment est une formation (le week-end de l'IA gratuit, la formation complète et les formations métier). FORMATIONS liste chaque formation avec son maître, son nombre de cours et son prix. COMMUNAUTÉ (anciennement Clan) est la communauté gratuite, à la manière de Skool : un fil avec des catégories (Général, Présentations, Questions, Réussites, Prompts, Ressources), des publications épinglées, des j'aime, des commentaires en fil et une recherche, un Calendrier des lives et des ateliers (à ajouter à votre propre agenda), les Membres (qui est en ligne, profils publics), les Classements (les points sont les j'aime que les autres vous donnent, neuf niveaux, sur 7 jours, 30 jours et depuis toujours), des notifications (aussi par e-mail, désactivables dans votre profil de membre), une messagerie privée, les mentions @nom, les sondages, les vidéos YouTube, Vimeo, Loom, Instagram et TikTok affichées en lecteur lorsque vous collez leur lien, et une page À propos. Tout le monde peut lire ; un compte gratuit est nécessaire pour publier, commenter, aimer et écrire, et votre adresse e-mail n'est jamais affichée, seulement le nom que vous choisissez. PROFIL est organisé en onglets : Progression (votre grade, votre niveau et votre XP), Badges, Formations, Compte et Paramètres. Le meilleur point d'entrée : créer votre personnage dans votre Profil, puis ouvrir le week-end de l'IA, gratuit. Aucun compte n'est nécessaire pour apprendre : sans compte, tout est conservé dans ce navigateur. L'XP provient des cours que vous avez effectivement terminés, et elle vous confère un grade, c'est-à-dire une ceinture parmi ${RANK_COUNT}, portée par votre personnage. Votre personnage constitue votre icône de profil, en haut à droite. L'application s'ouvre en affichage clair ; un affichage violet sombre est disponible dans Profil, Paramètres, Affichage.`,
       links: [
-        'Voir les temples',
+        'Voir les formations',
         'Commencer le week-end gratuit',
       ],
     },
@@ -217,10 +217,10 @@ export const KB: KBTopic[] = [
     id: 'training',
     chip: 'The trainings',
     answer:
-      `The trainings are the temples behind Dojoburo, the first button of the bottom bar (the former AI Training tab is now this map of temples). There are ${PACK_COUNT} trainings. The AI weekend is free: ${FREE_LESSONS} short lessons, about ${FREE_MINUTES} minutes in total, and it asks for your email and nothing else. The full training is ${PATH_CITIES} dojo cities and ${PATH_DOJOS} dojos: prompting, the models, the assistants, agents, design and cost. Then ${TRADE_COUNT} trade trainings, ${TRADE_CITIES} more cities each, written for one job. ` +
-      'Each training is a temple and each dojo a floor. You climb at your own pace and in the order you like, and the master of the temple waits for you on every floor. Every dojo is a lesson that ends with a short quiz, a badge and some XP, and you can replay any dojo whenever you want. The first three floors of every temple are open, so you can see how it teaches before paying.',
+      `The courses are listed on the second button of the bottom bar, Formations, and drawn as buildings on the Dojoburo map. There are ${PACK_COUNT} courses. The AI weekend is free: ${FREE_LESSONS} short lessons, about ${FREE_MINUTES} minutes in total, and it asks for your email and nothing else. The complete course is ${PATH_CITIES} modules and ${PATH_DOJOS} lessons: prompting, the models, the assistants, agents, design and cost. Then ${TRADE_COUNT} trade courses, ${TRADE_CITIES} more modules each, written for one job. ` +
+      'Think of a course as a manual and of each lesson as one short chapter you can read in any order. The master of the course gives every lesson. Every lesson ends with a short quiz, a badge and some XP, and you can redo any lesson whenever you want. The first three lessons of every course are open, so you can see how it teaches before paying.',
     links: [
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
       { label: 'Start the free weekend', href: FREE_HREF },
     ],
     follow: ['trades', 'lessons', 'pricing'],
@@ -228,9 +228,9 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Les formations',
       answer:
-        `Les formations sont les temples de Dojoburo, le premier bouton de la barre du bas (l'ancien onglet IA Training est devenu cette carte des temples). Il existe ${PACK_COUNT} formations. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, environ ${FREE_MINUTES} minutes au total, pour lesquelles seule votre adresse e-mail est demandée. La formation complète comprend ${PATH_CITIES} cités dojo et ${PATH_DOJOS} dojos : le prompt, les modèles, les assistants, les agents, le design et le coût. S'y ajoutent ${TRADE_COUNT} formations métier, comportant chacune ${TRADE_CITIES} cités supplémentaires, conçues pour un métier. Chaque formation est un temple et chaque dojo un étage. Vous montez à votre rythme et dans l'ordre de votre choix, et le maître du temple vous attend à chaque étage. Chaque dojo est une leçon qui se conclut par un court quiz, un badge et de l'XP, et vous pouvez refaire n'importe quel dojo à tout moment. Les trois premiers étages de chaque temple sont ouverts, afin que vous puissiez apprécier la pédagogie avant de payer.`,
+        `Les formations sont listées sur le deuxième bouton de la barre du bas, Formations, et dessinées comme des bâtiments sur la carte Dojoburo. Il existe ${PACK_COUNT} formations. Le week-end de l'IA est gratuit : ${FREE_LESSONS} cours courts, environ ${FREE_MINUTES} minutes au total, pour lesquels seule votre adresse e-mail est demandée. La formation complète comprend ${PATH_CITIES} modules et ${PATH_DOJOS} cours : le prompt, les modèles, les assistants, les agents, le design et le coût. S'y ajoutent ${TRADE_COUNT} formations métier, comportant chacune ${TRADE_CITIES} modules supplémentaires, conçus pour un métier. Voyez une formation comme un manuel, et chaque cours comme un chapitre court que vous lisez dans l'ordre de votre choix. Le maître de la formation donne chaque cours. Chaque cours se conclut par un court quiz, un badge et de l'XP, et vous pouvez refaire n'importe quel cours à tout moment. Les trois premiers cours de chaque formation sont ouverts, afin que vous puissiez apprécier la pédagogie avant de payer.`,
       links: [
-        'Voir les temples',
+        'Voir les formations',
         'Commencer le week-end gratuit',
       ],
     },
@@ -241,21 +241,21 @@ export const KB: KBTopic[] = [
     id: 'trades',
     chip: 'The trade trainings',
     answer:
-      `There are ${TRADE_COUNT} trade trainings, one per job: ${tradeNames('en')}. Each one adds ${TRADE_CITIES} dojo cities (${TRADE_LESSONS} dojos) written for the objects and the mistakes of that job, and it is ${priceTag(TRADE_EUR)}, paid once. ` +
-      'It is best taken after the full training, because it does not explain the basics again. Each one is a temple on the Dojoburo map, and you pick your trade on the /tarifs page. As a rough guide, finishing one on top of the AI weekend and the full training takes you to the black belt.',
+      `There are ${TRADE_COUNT} trade courses, one per job: ${tradeNames('en')}. Each one adds ${TRADE_CITIES} modules (${TRADE_LESSONS} lessons) written for the objects and the mistakes of that job, and it is ${priceTag(TRADE_EUR)}, paid once. ` +
+      'It is best taken after the complete course, because it does not explain the basics again: the complete course is the driving licence, the trade course is learning to drive your own vehicle. Each one is listed on the Formations page, and you pick your trade on the /tarifs page. As a rough guide, finishing one on top of the AI weekend and the complete course takes you to the black belt.',
     links: [
       { label: 'Choose your trade', href: '/tarifs' },
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
     ],
     follow: ['training', 'pricing', 'grades'],
     keywords: ['trade', 'trades', 'trade training', 'trade trainings', 'métier', 'métiers', 'formation métier', 'formations métier', 'my job', 'mon métier', 'which jobs', 'quels métiers', 'profession', 'developer', 'développeur', 'teacher', 'enseignant', 'student', 'étudiant', 'scientist', 'scientifique', 'lawyer', 'legal', 'juriste', 'avocat', 'recruiter', 'recruteur', 'consultant', 'designer', 'growth', 'communication', 'founder', 'fondateur', 'product manager', 'chef de produit', 'sales', 'commercial', 'executive assistant', 'assistant de direction', 'new trades', 'nouveaux métiers'],
     fr: {
       chip: 'Les formations métier',
       answer:
-        `Il existe ${TRADE_COUNT} formations métier, une par métier : ${tradeNames('fr')}. Chacune ajoute ${TRADE_CITIES} cités dojo (${TRADE_LESSONS} dojos) consacrées aux objets et aux erreurs propres à ce métier, et coûte ${priceTag(TRADE_EUR)}, en un paiement unique. Il est préférable de la suivre après la formation complète, car elle ne reprend pas les bases. Chacune est un temple de la carte Dojoburo, et vous choisissez votre métier sur la page /tarifs. À titre indicatif, une formation métier achevée en plus du week-end de l'IA et de la formation complète conduit à la ceinture noire.`,
+        `Il existe ${TRADE_COUNT} formations métier, une par métier : ${tradeNames('fr')}. Chacune ajoute ${TRADE_CITIES} modules (${TRADE_LESSONS} cours) consacrés aux objets et aux erreurs propres à ce métier, et coûte ${priceTag(TRADE_EUR)}, en un paiement unique. Il est préférable de la suivre après la formation complète, car elle ne reprend pas les bases : la formation complète est le permis de conduire, la formation métier apprend à conduire votre propre véhicule. Chacune figure sur la page Formations, et vous choisissez votre métier sur la page /tarifs. À titre indicatif, une formation métier achevée en plus du week-end de l'IA et de la formation complète conduit à la ceinture noire.`,
       links: [
         'Choisir votre métier',
-        'Voir les temples',
+        'Voir les formations',
       ],
     },
   },
@@ -267,21 +267,21 @@ export const KB: KBTopic[] = [
     id: 'lessons',
     chip: 'How a lesson works',
     answer:
-      'Every dojo is a lesson taught by its master, built to make you do things, not just read. Its page runs in this order. THE ESSENTIALS: what you will learn, in a few lines. WHAT YOU DO: your mission. KEY CONCEPTS: the words and ideas you need. WHY IT WORKS: the mechanism, so you understand it instead of memorising a recipe. THE STEPS: the concrete moves. A WORKED EXAMPLE, solved step by step. BEFORE AND AFTER: a real prompt that went wrong, the same prompt fixed, and what changed. COMMON MISTAKES, and how to fix each one. THE TRAP to dodge. AN EXERCISE to do in your own AI tool, with a prompt to copy (replace the parts in [BRACKETS] with your own case), a checklist to check your result yourself, and a bonus. A RECAP, and a step to GO FURTHER. ' +
-      'Then a quiz of five questions (one, then two, then two) to check you really got it. When you are done, you grab the dojo\'s badge and its XP, and you can come back to any dojo whenever you want. The text is justified, as wide as the banner at the top of the page, and it reads just as well on a phone.',
+      'Every lesson is taught by the master of its course, built to make you do things, not just read. Its page runs in this order. THE ESSENTIALS: what you will learn, in a few lines. WHAT YOU DO: your mission. KEY CONCEPTS: the words and ideas you need. WHY IT WORKS: the mechanism, so you understand it instead of memorising a recipe. THE STEPS: the concrete moves. A WORKED EXAMPLE, solved step by step. BEFORE AND AFTER: a real prompt that went wrong, the same prompt fixed, and what changed. COMMON MISTAKES, and how to fix each one. THE TRAP to dodge. AN EXERCISE to do in your own AI tool, with a prompt to copy (replace the parts in [BRACKETS] with your own case), a checklist to check your result yourself, and a bonus. A RECAP, and a step to GO FURTHER. ' +
+      'Then a quiz of five questions (one, then two, then two) to check you really got it. When you are done, you grab the lesson\'s badge and its XP, and you can come back to any lesson whenever you want. The text is justified, as wide as the banner at the top of the page, and it reads just as well on a phone.',
     links: [
       { label: 'Try a free lesson', href: FREE_HREF },
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
     ],
     follow: ['training', 'grades', 'pricing'],
     keywords: ['lesson', 'lessons', 'leçon', 'leçons', 'exercise', 'exercice', 'exercices', 'why it works', 'pourquoi ça marche', 'before and after', 'avant / après', 'avant/après', 'copy the prompt', 'copier le prompt', 'prompt to copy', 'prompt à copier', 'checklist', 'quiz', 'five questions', 'cinq questions', 'lesson format', 'format', 'pourquoi cela fonctionne', 'à vous de jouer', "déroulement d'une leçon", 'worked example', 'exemple résolu', 'common mistakes', 'erreurs fréquentes', 'key concepts', 'notions clés', 'concepts clés', 'recap', 'récapitulatif', 'go further', 'aller plus loin', 'essentials', "l'essentiel", "what's in a lesson", 'what is in a lesson', 'que contient une leçon', 'contenu d\'une leçon'],
     fr: {
       chip: "Le déroulement d'une leçon",
       answer:
-        `Chaque dojo est une leçon conduite par son maître, et conçue pour vous faire agir plutôt que simplement lire. Sa page se déroule dans cet ordre. L'ESSENTIEL : ce que vous allez apprendre, en quelques lignes. CE QUE VOUS FAITES : votre mission. LES NOTIONS CLÉS : les termes et les idées dont vous avez besoin. POURQUOI CELA FONCTIONNE : le mécanisme, afin que vous compreniez plutôt que de mémoriser une recette. LES ÉTAPES : les gestes concrets. UN EXEMPLE RÉSOLU pas à pas. AVANT / APRÈS : un prompt réel qui a échoué, le même prompt corrigé, et l'analyse de ce qui a changé. LES ERREURS FRÉQUENTES, et la manière de corriger chacune. LE PIÈGE à éviter. UN EXERCICE à réaliser dans votre propre outil d'IA, avec un prompt à copier (remplacez les parties entre [CROCHETS] par votre propre cas), une checklist pour vérifier vous-même votre résultat, et un bonus. UN RÉCAPITULATIF, et une étape POUR ALLER PLUS LOIN. Vient enfin un quiz de cinq questions (une, puis deux, puis deux) qui permet de vérifier que la notion est acquise. Une fois la leçon terminée, vous obtenez le badge du dojo et son XP, et vous pouvez revenir sur n'importe quel dojo à tout moment. Le texte est justifié, aussi large que la bannière en haut de la page, et se lit tout aussi bien sur un téléphone.`,
+        `Chaque cours est donné par le maître de sa formation, et conçu pour vous faire agir plutôt que simplement lire. Sa page se déroule dans cet ordre. L'ESSENTIEL : ce que vous allez apprendre, en quelques lignes. CE QUE VOUS FAITES : votre mission. LES NOTIONS CLÉS : les termes et les idées dont vous avez besoin. POURQUOI CELA FONCTIONNE : le mécanisme, afin que vous compreniez plutôt que de mémoriser une recette. LES ÉTAPES : les gestes concrets. UN EXEMPLE RÉSOLU pas à pas. AVANT / APRÈS : un prompt réel qui a échoué, le même prompt corrigé, et l'analyse de ce qui a changé. LES ERREURS FRÉQUENTES, et la manière de corriger chacune. LE PIÈGE à éviter. UN EXERCICE à réaliser dans votre propre outil d'IA, avec un prompt à copier (remplacez les parties entre [CROCHETS] par votre propre cas), une checklist pour vérifier vous-même votre résultat, et un bonus. UN RÉCAPITULATIF, et une étape POUR ALLER PLUS LOIN. Vient enfin un quiz de cinq questions (une, puis deux, puis deux) qui permet de vérifier que la notion est acquise. Une fois la leçon terminée, vous obtenez le badge du dojo et son XP, et vous pouvez revenir sur n'importe quel dojo à tout moment. Le texte est justifié, aussi large que la bannière en haut de la page, et se lit tout aussi bien sur un téléphone.`,
       links: [
         'Essayer une leçon gratuite',
-        'Voir les temples',
+        'Voir les formations',
       ],
     },
   },
@@ -292,21 +292,21 @@ export const KB: KBTopic[] = [
     id: 'grades',
     chip: 'Your grade and belt',
     answer:
-      `Your grade is the belt you wear as a learner. It comes from your level, and your level comes from the XP of the dojos you actually finished: one level every ${XP_PER_LEVEL} XP. Nothing can be bought, so the only way up is to finish dojos. There are ${RANK_COUNT} grades, and your own pixel character wears the belt of yours in your profile: ${rankLadder('en')}. ` +
+      `Your grade is the belt you wear as a learner. It comes from your level, and your level comes from the XP of the lessons you actually finished: one level every ${XP_PER_LEVEL} XP. Nothing can be bought, so the only way up is to finish lessons. There are ${RANK_COUNT} grades, and your own pixel character wears the belt of yours in your profile: ${rankLadder('en')}. ` +
       `As a rough guide, the free AI weekend takes you to the ${say(YELLOW.belt, 'en').toLowerCase()}, the full training on top of it to the ${say(BROWN.belt, 'en').toLowerCase()}, and one trade training on top of that to the ${say(BLACK.belt, 'en').toLowerCase()}, level ${BLACK.from}. So the ${say(BLACK.belt, 'en').toLowerCase()} asks for a real path, never an afternoon. Your icon changes by itself when you reach the next grade. The Progression tab of your profile shows your grade, your level, your XP, the ladder of the ${RANK_COUNT} grades and how far the next one is. These belts are not the studio belts of /build, which count the agents you built.`,
     links: [
       { label: 'See your grade', href: '/profil' },
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
     ],
     follow: ['profile', 'trades', 'lessons'],
     keywords: ['grade', 'grades', 'belt', 'belts', 'ceinture', 'ceintures', 'my belt', 'ma ceinture', 'my grade', 'mon grade', 'black belt', 'ceinture noire', 'brown belt', 'ceinture marron', 'white belt', 'ceinture blanche', 'next belt', 'ceinture suivante', 'avatar', 'profile icon', 'icône de profil', 'icône du profil', 'my icon', 'mon icône', 'character', 'personnage', 'novice', 'apprentice', 'apprenti', 'initiate', 'initié', 'practitioner', 'pratiquant', 'master belt', 'ninja', 'panda', 'penguin', 'pingouin', 'chicken', 'poulet', 'duck', 'canard', 'rabbit', 'lapin', 'frog', 'grenouille'],
     fr: {
       chip: 'Votre grade et votre ceinture',
       answer:
-        `Votre grade est la ceinture que vous portez en tant qu'élève. Il découle de votre niveau, lequel découle de l'XP des dojos que vous avez effectivement terminés : un niveau tous les ${XP_PER_LEVEL} XP. Rien ne s'achète ; la seule manière de progresser consiste donc à terminer des dojos. Il existe ${RANK_COUNT} grades, et votre propre personnage pixel porte la ceinture du vôtre dans votre profil : ${rankLadder('fr')}. À titre indicatif, le week-end de l'IA gratuit vous conduit à la ${say(YELLOW.belt, 'fr').toLowerCase()}, la formation complète à la ${say(BROWN.belt, 'fr').toLowerCase()}, et une formation métier par-dessus à la ${say(BLACK.belt, 'fr').toLowerCase()}, au niveau ${BLACK.from}. La ${say(BLACK.belt, 'fr').toLowerCase()} demande donc un véritable parcours, jamais un après-midi. Votre icône change d'elle-même lorsque vous atteignez le grade suivant. L'onglet Progression de votre profil présente votre grade, votre niveau, votre XP, l'échelle des ${RANK_COUNT} grades et la distance qui vous sépare du suivant. Ces ceintures ne sont pas celles du studio, sur /build, qui comptent les agents que vous avez construits.`,
+        `Votre grade est la ceinture que vous portez en tant qu'élève. Il découle de votre niveau, lequel découle de l'XP des cours que vous avez effectivement terminés : un niveau tous les ${XP_PER_LEVEL} XP. Rien ne s'achète ; la seule manière de progresser consiste donc à terminer des cours. Il existe ${RANK_COUNT} grades, et votre propre personnage pixel porte la ceinture du vôtre dans votre profil : ${rankLadder('fr')}. À titre indicatif, le week-end de l'IA gratuit vous conduit à la ${say(YELLOW.belt, 'fr').toLowerCase()}, la formation complète à la ${say(BROWN.belt, 'fr').toLowerCase()}, et une formation métier par-dessus à la ${say(BLACK.belt, 'fr').toLowerCase()}, au niveau ${BLACK.from}. La ${say(BLACK.belt, 'fr').toLowerCase()} demande donc un véritable parcours, jamais un après-midi. Votre icône change d'elle-même lorsque vous atteignez le grade suivant. L'onglet Progression de votre profil présente votre grade, votre niveau, votre XP, l'échelle des ${RANK_COUNT} grades et la distance qui vous sépare du suivant. Ces ceintures ne sont pas celles du studio, sur /build, qui comptent les agents que vous avez construits.`,
       links: [
         'Voir votre grade',
-        'Voir les temples',
+        'Voir les formations',
       ],
     },
   },
@@ -318,8 +318,8 @@ export const KB: KBTopic[] = [
     chip: 'The community library',
     answer:
       'Community, the second button of the bottom bar, has a PROMPTS tab: a library of original prompts written for DojoBuro, sorted by topic (writing, marketing, sales, HR, legal, code, data, teaching, productivity, images, agents and more), searchable, each ready to copy with what to fill in shown in [BRACKETS]. ' +
-      'RESOURCES gathers free, reliable resources selected by the DojoBuro team (official docs, free courses, French and European official sources), with the date the links were checked. WINS shows the stories members publish themselves, and the testimonials members leave with their consent, published after a review by the team. LEADERBOARDS rank members by the likes they receive (7 days, 30 days, all time) and by grade, the belt each one earned in the temples. ' +
-      'The masters of the temples are AIs and always say so: in each temple chat, the master opens with the challenge of the day and answers questions that end with a question mark. The first 500 members get the Founder badge for good, and the posts signed DojoBuro Team are written by the team.',
+      'RESOURCES gathers free, reliable resources selected by the DojoBuro team (official docs, free courses, French and European official sources), with the date the links were checked. WINS shows the stories members publish themselves, and the testimonials members leave with their consent, published after a review by the team. LEADERBOARDS rank members by the likes they receive (7 days, 30 days, all time) and by grade, the belt each one earned in the courses. ' +
+      'The masters of the courses are AIs and always say so: in each course chat, the master opens with the challenge of the day and answers questions that end with a question mark. The first 500 members get the Founder badge for good, and the posts signed DojoBuro Team are written by the team.',
     links: [
       { label: 'Open the prompts', href: '/clan/prompts' },
       { label: 'See the resources', href: '/clan/ressources' },
@@ -342,21 +342,21 @@ export const KB: KBTopic[] = [
     id: 'courses',
     chip: 'Code an app: the two courses',
     answer:
-      `Two courses are sold separately, each paid once, each opening only its own temple. CODE AN APP (${priceTag(COURSE_EUR['coder-une-app'])}) teaches you to build a real web app from A to Z with the terminal, Git and GitHub, Claude Code, Supabase and Vercel: how each tool works, how to set it up, the good practices, around one example app built floor after floor, a habit tracker called Habitudes. ` +
+      `Two courses are sold separately, each paid once, each opening only its own course. CODE AN APP (${priceTag(COURSE_EUR['coder-une-app'])}) teaches you to build a real web app from A to Z with the terminal, Git and GitHub, Claude Code, Supabase and Vercel: how each tool works, how to set it up, the good practices, around one example app built lesson after lesson, a habit tracker called Habitudes. ` +
       `BUILD AN APP WITH LOVABLE (${priceTag(COURSE_EUR['coder-avec-lovable'])}) follows the same journey with Lovable, its backend and its GitHub sync, around a booking app for a pottery workshop called Atelier, from the first prompt to the published app. Both are on the Dojoburo map, with their own master, and on the /tarifs page.`,
     links: [
       { label: 'See the courses', href: '/tarifs' },
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
     ],
     follow: ['pricing', 'buy', 'studios'],
     keywords: ['code', 'coder', 'coding', 'app', 'application', 'claude code', 'vercel', 'supabase', 'github', 'git', 'terminal', 'lovable', 'no code', 'nocode', 'développer', 'develop', 'build an app', 'créer une app', 'site web', 'website', 'programmer', 'deploy', 'déployer'],
     fr: {
       chip: 'Coder une app : les deux cours',
       answer:
-        `Deux cours sont vendus à part, chacun payé une seule fois et n'ouvrant que son propre temple. CODER UNE APP (${priceTag(COURSE_EUR['coder-une-app'])}) vous apprend à construire une vraie application web de A à Z avec le terminal, Git et GitHub, Claude Code, Supabase et Vercel : le fonctionnement de chaque outil, son installation, les bonnes pratiques, autour d'une app exemple construite étage après étage, un suivi d'habitudes nommé Habitudes. CODER UNE APP AVEC LOVABLE (${priceTag(COURSE_EUR['coder-avec-lovable'])}) suit le même parcours avec Lovable, son backend et sa synchronisation GitHub, autour d'une app de réservation pour un atelier de poterie nommée Atelier, du premier prompt à l'app publiée. Les deux figurent sur la carte de Dojoburo, chacun avec son maître, et sur la page /tarifs.`,
+        `Deux cours sont vendus à part, chacun payé une seule fois et n'ouvrant que sa propre formation. CODER UNE APP (${priceTag(COURSE_EUR['coder-une-app'])}) vous apprend à construire une vraie application web de A à Z avec le terminal, Git et GitHub, Claude Code, Supabase et Vercel : le fonctionnement de chaque outil, son installation, les bonnes pratiques, autour d'une app exemple construite cours après cours, un suivi d'habitudes nommé Habitudes. CODER UNE APP AVEC LOVABLE (${priceTag(COURSE_EUR['coder-avec-lovable'])}) suit le même parcours avec Lovable, son backend et sa synchronisation GitHub, autour d'une app de réservation pour un atelier de poterie nommée Atelier, du premier prompt à l'app publiée. Les deux figurent sur la carte de Dojoburo, chacun avec son maître, et sur la page /tarifs.`,
       links: [
         'Voir les cours',
-        'Voir les temples',
+        'Voir les formations',
       ],
     },
   },
@@ -366,7 +366,7 @@ export const KB: KBTopic[] = [
     id: 'pricing',
     chip: 'Pricing',
     answer:
-      `No subscription: you pay once, and nothing renews. The AI weekend is free: ${FREE_LESSONS} short lessons, and it asks for your email, no card. There are three prices. Free: the AI weekend and the first lessons of every temple. One temple: ${priceTag(TEMPLE_EUR)}, paid once, for any training you choose (the full training with its ${PATH_CITIES} dojo cities, a trade training, Code an app or Build an app with Lovable), with the files and the updates. The Dojo Pass: ${priceTag(PASS_EUR)}, paid once, for life: every training, present and future. It pays for itself from ${PASS_PAYS_FROM} temples on. ` +
+      `No subscription: you pay once, and nothing renews. The AI weekend is free: ${FREE_LESSONS} short lessons, and it asks for your email, no card. There are three prices. Free: the AI weekend and the first lessons of every course. One course: ${priceTag(TEMPLE_EUR)}, paid once, for any training you choose (the complete course with its ${PATH_CITIES} modules, a trade training, Code an app or Build an app with Lovable), with the files and the updates. The Dojoburo Pass: ${priceTag(PASS_EUR)}, paid once, for life: every training, present and future. It pays for itself from ${PASS_PAYS_FROM} courses on. ` +
       'Not sure yet? The first three lessons of every training are free, so you can judge before paying. Everything is on the /tarifs page, and the training opens in this browser as soon as the payment is confirmed.',
     links: [
       { label: 'See the prices', href: '/tarifs' },
@@ -377,7 +377,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Les tarifs',
       answer:
-        `Aucun abonnement : vous payez une seule fois, et rien n'est reconduit. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, pour lesquelles seule votre adresse e-mail est demandée, sans carte bancaire. Il existe trois prix. Gratuit : le week-end de l'IA et les premières leçons de chaque temple. Un temple : ${priceTag(TEMPLE_EUR)}, en un paiement unique, pour la formation de votre choix (la formation complète et ses ${PATH_CITIES} cités dojo, une formation métier, Coder une app ou Coder une app avec Lovable), avec les fichiers et les mises à jour. Le Pass Dojo : ${priceTag(PASS_EUR)}, en un paiement unique, à vie : toutes les formations, actuelles et futures. Il est rentable dès le ${PASS_PAYS_FROM}e temple. Vous hésitez encore ? Les trois premières leçons de chaque formation sont offertes, afin que vous puissiez juger avant de payer. Toutes les informations figurent sur la page /tarifs, et la formation s'ouvre dans ce navigateur dès que le paiement est confirmé.`,
+        `Aucun abonnement : vous payez une seule fois, et rien n'est reconduit. Le week-end de l'IA est gratuit : ${FREE_LESSONS} leçons courtes, pour lesquelles seule votre adresse e-mail est demandée, sans carte bancaire. Il existe trois prix. Gratuit : le week-end de l'IA et les premiers cours de chaque formation. Une formation : ${priceTag(TEMPLE_EUR)}, en un paiement unique, pour la formation de votre choix (la formation complète et ses ${PATH_CITIES} modules, une formation métier, Coder une app ou Coder une app avec Lovable), avec les fichiers et les mises à jour. Le Pass Dojoburo : ${priceTag(PASS_EUR)}, en un paiement unique, à vie : toutes les formations, actuelles et futures. Il est rentable dès la ${PASS_PAYS_FROM}e formation. Vous hésitez encore ? Les trois premières leçons de chaque formation sont offertes, afin que vous puissiez juger avant de payer. Toutes les informations figurent sur la page /tarifs, et la formation s'ouvre dans ce navigateur dès que le paiement est confirmé.`,
       links: [
         'Voir les tarifs',
         'Commencer le week-end gratuit',
@@ -391,7 +391,7 @@ export const KB: KBTopic[] = [
     id: 'buy',
     chip: 'How buying works',
     answer:
-      'Buying happens on the /tarifs page, without leaving the app. Choose the full training, or pick your trade and choose a trade training, then press Buy: you go to a Stripe payment page and pay once. When the payment is done you come back to a thank-you page, which asks our server whether the payment really went through. Only then does the training open, in this browser, with a button that takes you to its first dojo. If you cancel, you come back to the prices and nothing was charged. ' +
+      'Buying happens on the /tarifs page, without leaving the app. Choose the full training, or pick your trade and choose a trade training, then press Buy: you go to a Stripe payment page and pay once. When the payment is done you come back to a thank-you page, which asks our server whether the payment really went through. Only then does the training open, in this browser, with a button that takes you to its first lesson. If you cancel, you come back to the prices and nothing was charged. ' +
       'Without signing in, your access and your progress are kept in this browser, so come back with the same one; signed in, the training follows your account. If the thank-you page says it found no paid order and you just paid, open the link from your payment confirmation again. If it could not check, try again in a minute: nothing is lost.',
     links: [
       { label: 'See the prices', href: '/tarifs' },
@@ -438,7 +438,7 @@ export const KB: KBTopic[] = [
       'Profile is the third button of the bottom bar, and your character at the top right opens it too. It is organised in five tabs, each with its own animated pixel icon. PROGRESSION answers the question "where am I?": your grade avatar, your level, your XP, gauges towards the next level, the ladder of the grades, and a button to pick up where you left off. BADGES is your trophy case, with every badge, earned or not. TRAININGS shows what you have unlocked and the trade you are working on. ACCOUNT is where you sign in with your email or Google, when sign-in is switched on for this site, to save your progress online and sync it across your devices, and where you sign out; signed out, everything stays in this browser only. SETTINGS holds the language, the display (light or dark violet), the visual effects, reduced animations, vibrations, and a button to erase the data kept in this browser.',
     links: [
       { label: 'Open your profile', href: '/profil' },
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
     ],
     follow: ['grades', 'settings', 'signin'],
     keywords: ['profile', 'profil', 'progress', 'progression', 'my progress', 'ma progression', 'saved', 'sauvegard', 'gardée', 'xp', 'experience', 'expérience', 'level', 'niveau', 'my badges', 'mes badges', 'trophy', 'vitrine', 'unlocked', 'débloqué', 'votre progression', 'votre profil', 'enregistrée', 'tabs', 'onglets', 'profile tabs', 'onglets du profil', 'progression tab', 'onglet progression', 'badges tab', 'onglet badges', 'account tab', 'onglet compte', 'trainings tab', 'onglet formations', 'resume', 'reprendre'],
@@ -448,7 +448,7 @@ export const KB: KBTopic[] = [
         `Profil est le troisième bouton de la barre du bas, et votre personnage, en haut à droite, l'ouvre également. Il est organisé en cinq onglets, chacun doté de sa propre icône pixel animée. PROGRESSION répond à la question « où en suis-je ? » : l'avatar de votre grade, votre niveau, votre XP, des jauges vers le niveau suivant, l'échelle des grades, ainsi qu'un bouton pour reprendre là où vous vous étiez arrêté. BADGES est votre vitrine, avec chaque badge, obtenu ou non. FORMATIONS présente ce que vous avez débloqué et le métier sur lequel vous travaillez. COMPTE permet de vous connecter avec votre adresse e-mail ou Google, lorsque la connexion est activée sur ce site, afin de sauvegarder votre progression en ligne et de la synchroniser entre vos appareils, ainsi que de vous déconnecter ; sans connexion, tout reste uniquement dans ce navigateur. PARAMÈTRES regroupe la langue, l'affichage (clair ou violet sombre), les effets visuels, la réduction des animations, les vibrations, et un bouton pour effacer les données conservées dans ce navigateur.`,
       links: [
         'Ouvrir votre profil',
-        'Voir les temples',
+        'Voir les formations',
       ],
     },
   },
@@ -462,7 +462,7 @@ export const KB: KBTopic[] = [
       'Your settings are kept in this browser.',
     links: [
       { label: 'Open your settings', href: '/profil' },
-      { label: 'See the temples', href: '/' },
+      { label: 'See the courses', href: '/formations' },
     ],
     follow: ['profile', 'signin', 'security'],
     keywords: ['settings', 'setting', 'paramètres', 'light mode', 'mode clair', 'dark mode', 'mode sombre', 'display', 'affichage', 'theme', 'thème', 'paramètre', 'réglages', 'réglage', 'preferences', 'préférences', 'animation', 'animations', 'particles', 'particules', 'bounce', 'rebond', 'effects', 'effets', 'visual effects', 'effets visuels', 'reduce motion', 'reduced motion', 'réduire les animations', 'vibration', 'vibrations', 'vibrate', 'vibrer', 'haptic', 'sound', 'son du jeu', 'le son', 'mute', 'couper le son', 'language', 'langue', 'english', 'anglais', 'french', 'français', 'change language', 'changer de langue', 'turn off', 'switch off', 'désactiver', 'couper', 'erase', 'effacer', 'erase my data', 'effacer mes données', 'delete my data', 'supprimer mes données', 'reset', 'réinitialiser'],
@@ -472,7 +472,7 @@ export const KB: KBTopic[] = [
         `Tout se trouve dans l'onglet Paramètres de votre profil. L'AFFICHAGE : clair (par défaut), violet sombre, ou celui de votre appareil. LA LANGUE : anglais ou français. LE SON DU JEU : activé ou coupé. LES EFFETS VISUELS : les boutons rebondissent et projettent de petites particules lorsque vous appuyez dessus ; désactivez ce réglage et ils restent immobiles. RÉDUIRE LES ANIMATIONS : moins de mouvement dans toute l'application. Les effets se désactivent également d'eux-mêmes lorsque votre système demande de réduire les animations. LES VIBRATIONS : une courte vibration au toucher, sur les téléphones qui la permettent. EFFACER MES DONNÉES : supprime tout ce qui est conservé dans ce navigateur. Réfléchissez avant d'appuyer : ce qui n'existe que dans ce navigateur ne peut pas être récupéré. Vos réglages sont conservés dans ce navigateur.`,
       links: [
         'Ouvrir vos paramètres',
-        'Voir les temples',
+        'Voir les formations',
       ],
     },
   },
@@ -804,7 +804,7 @@ export function matchTopic(text: string): KBTopic | null {
 // ouvre la carte des temples en pixel art.
 export const GREETING = {
   en:
-    "Hi, I'm Dojobot. Short version: the bottom bar has three buttons. Dojoburo opens the map of the temples, in pixel art: each training is a temple and each floor a lesson, starting with the free AI weekend temple. Community is where learners share and help each other, and Profile is where your grade, your progress and your settings live. No account is needed: without one, everything is kept in this browser. Ask me anything in your own words, or pick a topic below.",
+    "Hi, I'm Dojobot. Short version: the bottom bar has four buttons. Dojoburo opens the map, where each pixel-art building is a course, starting with the free AI weekend. Formations lists every course with its master and its price. Community is where learners share and help each other, and Profile is where your grade, your progress and your settings live. No account is needed: without one, everything is kept in this browser. Ask me anything in your own words, or pick a topic below.",
   fr:
-    "Bonjour, je suis Dojobot. En résumé, la barre du bas comporte trois boutons. Dojoburo ouvre la carte des temples, en pixel art : chaque formation est un temple et chaque étage une leçon, à commencer par le temple gratuit du week-end de l'IA. Communauté est l'espace d'échange entre les élèves, et Profil présente votre grade, votre progression et vos paramètres. Aucun compte n'est nécessaire : sans compte, tout est conservé dans ce navigateur. Posez votre question dans vos propres termes, ou choisissez un sujet ci-dessous.",
+    "Bonjour, je suis Dojobot. En résumé, la barre du bas comporte quatre boutons. Dojoburo ouvre la carte, où chaque bâtiment en pixel art est une formation, à commencer par le week-end de l'IA, gratuit. Formations liste chaque formation avec son maître et son prix. Communauté est l'espace d'échange entre les élèves, et Profil présente votre grade, votre progression et vos paramètres. Aucun compte n'est nécessaire : sans compte, tout est conservé dans ce navigateur. Posez votre question dans vos propres termes, ou choisissez un sujet ci-dessous.",
 }

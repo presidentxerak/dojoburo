@@ -63,7 +63,7 @@ export const CT = {
   badgeFounder: B('Founder', 'Fondateur'),
   dailyH: B("Today's challenge", 'Le défi du jour'),
   masterWord: B('Master', 'Maître'),
-  dailyGo: B('Visit the temple and its chat', 'Visiter le temple et son chat'),
+  dailyGo: B('Open the course and its chat', 'Ouvrir la formation et son chat'),
   foundersCount: B('founding members, out of 500 places', 'membres fondateurs, sur 500 places'),
   foundersLead: B('The community is starting: the first 500 members get the Founder badge, for good.', 'La communauté démarre : les 500 premiers membres reçoivent le badge Fondateur, pour toujours.'),
   notifications: B('Notifications', 'Notifications'),

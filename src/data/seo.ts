@@ -49,14 +49,14 @@ export const SEO = {
   community: {
     title: B('AI community: prompts, resources, mutual help · Dojoburo', 'Communauté IA : prompts, ressources, entraide · Dojoburo'),
     description: B(
-      'A free community to learn AI together: 300 ready-to-use prompts, verified resources, a daily challenge and masters who answer in each temple.',
+      'A free community to learn AI together: 300 ready-to-use prompts, verified resources, a daily challenge and masters who answer in each course.',
       "Une communauté gratuite pour apprendre l'IA ensemble : 300 prompts prêts à l'emploi, des ressources vérifiées et un défi du jour.",
     ),
   },
   promo: {
     title: B('Learn AI for free in a weekend · Dojoburo', "Apprendre l'IA gratuitement en un week-end · Dojoburo"),
     description: B(
-      'Seven short lessons, free, to understand AI and use it at work: prompts, models, assistants, limits and cost. Then go further, one temple at a time.',
+      'Seven short lessons, free, to understand AI and use it at work: prompts, models, assistants, limits and cost. Then go further, one course at a time.',
       "Sept leçons courtes et gratuites pour comprendre l'IA et l'utiliser au travail : prompts, modèles, assistants, limites et coût.",
     ),
   },
@@ -71,14 +71,15 @@ export const PACK_QUERY: Record<string, Bi> = {
   'coder-avec-lovable': B('Lovable training: build an app without code', 'Formation Lovable : créer une app sans coder'),
 }
 
-/** Le modèle de titre d'une formation métier · {t} est le métier. */
-export const TRADE_TITLE = B('AI for {t}: hands-on training · Dojoburo', 'IA pour {t} : formation pratique · Dojoburo')
+/** Le modèle de titre d'une formation métier · {t} est son titre, qui dit
+ *  déjà « L'IA pour ... » (voir data/packs). */
+export const TRADE_TITLE = B('{t}: hands-on course · Dojoburo', '{t} : formation pratique · Dojoburo')
 
 /** Le titre d'une page de formation · la requête visée, puis la marque. */
 export function packTitle(p: Pack, lang: Lang): string {
   const q = PACK_QUERY[p.id]
   if (q) return `${say(q, lang)} · Dojoburo`
-  return say(TRADE_TITLE, lang).replace('{t}', say(p.title, lang).toLowerCase())
+  return say(TRADE_TITLE, lang).replace('{t}', say(p.title, lang))
 }
 
 /** La description d'une page de formation · le contenu, le gratuit, le prix. */
