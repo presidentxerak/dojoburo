@@ -762,6 +762,409 @@ const STYLES_DEEP: Record<string, Deepening> = {
 }
 
 /* ================================================================== */
+/* MODULE 4 · RETOUCHE ET QUALITÉ PROFESSIONNELLE                      */
+/* ================================================================== */
+
+const M4 = 'im-m4'
+
+const RETOUCHE: Level[] = [
+  {
+    id: 'im-inpainting',
+    master: 'tools',
+    minutes: 11,
+    title: B('Inpainting a region, outpainting beyond the frame', 'Retoucher une zone (inpainting), étendre (outpainting)'),
+    learn: B(
+      'You will repaint a chosen region of an image and extend it beyond its frame, without touching what must stay true.',
+      "Vous saurez repeindre une zone choisie d'une image et l'étendre au-delà de son cadre, sans toucher à ce qui doit rester vrai.",
+    ),
+    act: B("Clean up Léa's vase photo by inpainting, then outpaint it from 4:5 into a wide website header.",
+      "Nettoyez la photo du vase de Léa par inpainting, puis étendez-la du format 4:5 à un bandeau large pour son site."),
+    steps: [
+      B('Mask a little more than the object to remove, including its shadow, and leave the product itself outside the mask.',
+        "Masquez un peu plus large que l'objet à retirer, ombre comprise, et laissez le produit lui-même hors du masque."),
+      B('Describe only what should fill the mask (a bare oak workbench), never the whole image again.',
+        "Décrivez seulement ce qui doit remplir le masque (un établi en chêne nu), jamais toute l'image à nouveau."),
+      B('To extend, add canvas on one side at a time and describe the continuation: same light, same horizon, same perspective.',
+        "Pour étendre, ajoutez de la toile d'un côté à la fois et décrivez la suite : même lumière, même horizon, même perspective."),
+      B('Generate several variants, inspect the seams at 100 %, and reject repeated patterns or objects that make no sense.',
+        'Générez plusieurs variantes, inspectez les raccords à 100 %, et rejetez les motifs répétés et les objets absurdes.'),
+    ],
+    trap: B(
+      "Masking the product to 'improve' it: the glaze, shape or speckles change, and the photo no longer shows the piece the customer will receive.",
+      "Masquer le produit pour « l'améliorer » : l'émail, la forme ou les mouchetures changent, et la photo ne montre plus la pièce que le client recevra.",
+    ),
+    quiz: {
+      q: B('After inpainting a cable away, a faint blurred halo remains around the area. What is the likeliest fix?',
+        'Après avoir effacé un câble par inpainting, un halo flou reste autour de la zone. Quelle correction est la plus probable ?'),
+      options: [
+        B('Write a longer prompt describing the whole photo again', 'Réécrire un prompt plus long qui décrit toute la photo'),
+        B('Upscale the image so that the halo becomes less visible', "Agrandir l'image pour que le halo se voie moins"),
+        B('Redo it with a wider mask, shadow included', 'Refaire avec un masque plus large, ombre comprise'),
+      ],
+      answer: 2,
+      why: B(
+        'A tight mask leaves traces of the object (its shadow, its edge) that the model must blend with. A wider mask gives it room to rebuild the surface; describing the whole photo again would not help.',
+        "Un masque serré laisse des traces de l'objet (son ombre, son bord) que le modèle doit raccorder. Un masque plus large lui laisse la place de reconstruire la surface ; redécrire toute la photo n'aide pas.",
+      ),
+    },
+    badge: B('Repaints and extends cleanly', 'Repeint et étend proprement'),
+  },
+  {
+    id: 'im-detourage',
+    master: 'extraction',
+    minutes: 11,
+    title: B('Generative fill and background removal', 'Le remplissage génératif et le détourage'),
+    learn: B(
+      'You will cut out a real product cleanly and place it in a generated setting whose light matches the photo.',
+      "Vous saurez détourer proprement un vrai produit et le placer dans un décor généré dont la lumière correspond à la photo.",
+    ),
+    act: B("Cut out Léa's real celadon bowl, generate a matching setting around it, and add a believable contact shadow.",
+      'Détourez le vrai bol céladon de Léa, générez un décor assorti autour de lui et ajoutez une ombre de contact crédible.'),
+    steps: [
+      B('Photograph the real piece on a plain background, noting where the light comes from (left window, overhead, softbox).',
+        "Photographiez la vraie pièce sur fond uni, en notant d'où vient la lumière (fenêtre à gauche, plafond, boîte à lumière)."),
+      B('Cut it out with an automatic subject selection, then refine the edges by hand: rim, reflections, thin or translucent parts.',
+        'Détourez-la par une sélection automatique du sujet, puis affinez les bords à la main : lèvre, reflets, parties fines ou translucides.'),
+      B('Generate or fill only the background, with a light whose direction and height match the product photo.',
+        'Générez ou remplissez seulement le fond, avec une lumière de même direction et de même hauteur que sur la photo du produit.'),
+      B('Rebuild the contact shadow and a slight colour bounce, then check the composite at 100 % and at thumbnail size.',
+        "Recréez l'ombre de contact et un léger reflet coloré, puis vérifiez le montage à 100 % et en vignette."),
+    ],
+    trap: B(
+      'Pasting a cut-out into a setting lit from the other side: a bowl lit from the left on a set lit from the right looks fake at first glance.',
+      "Coller un détourage dans un décor éclairé de l'autre côté : un bol éclairé de gauche dans un décor éclairé de droite paraît faux au premier regard.",
+    ),
+    quiz: {
+      q: B("Léa's composite looks pasted on: the bowl seems to float above the table. What is missing first?",
+        'Le montage de Léa semble collé : le bol paraît flotter au-dessus de la table. Que manque-t-il d\'abord ?'),
+      options: [
+        B('A soft contact shadow where the foot meets the table', 'Une ombre de contact douce là où le pied touche la table'),
+        B('A stronger outline around the bowl to make it stand out', 'Un contour plus marqué autour du bol pour le détacher'),
+        B('A higher resolution for the cut-out than for the setting', 'Une résolution plus haute pour le détourage que pour le décor'),
+      ],
+      answer: 0,
+      why: B(
+        'An object rests on a surface through its contact shadow, dark and tight where it touches, softer further away. Without it the eye reads a sticker; an outline makes it worse.',
+        "Un objet repose sur une surface grâce à son ombre de contact, sombre et serrée au point d'appui, plus douce au-delà. Sans elle, l'oeil lit un autocollant ; un contour aggrave l'effet.",
+      ),
+    },
+    badge: B('Cuts out and blends in', 'Détoure et intègre avec justesse'),
+  },
+  {
+    id: 'im-impression',
+    master: 'analysis',
+    minutes: 12,
+    title: B('Upscaling for print and exporting', "Agrandir pour l'impression et exporter"),
+    learn: B(
+      'You will compute the pixels a print needs, upscale without inventing errors, and export in the right colour space.',
+      "Vous saurez calculer les pixels d'un tirage, agrandir sans inventer d'erreurs, et exporter dans le bon espace couleur.",
+    ),
+    act: B("Prepare Atelier Sorel's A2 fair poster: compute the size, upscale, prepare for print and export the files.",
+      "Préparez l'affiche A2 du salon de l'Atelier Sorel : calculez la taille, agrandissez, préparez l'impression, exportez."),
+    steps: [
+      B('Compute the pixels: size in cm divided by 2.54, times the resolution the printer asks for (often 300 ppi for close viewing).',
+        "Calculez les pixels : taille en cm divisée par 2,54, multipliée par la résolution exigée par l'imprimeur (souvent 300 ppp de près)."),
+      B('Upscale in a faithful mode first; keep creative modes for the setting, and inspect text, hands and product at 100 %.',
+        'Agrandissez d\'abord en mode fidèle ; réservez le mode créatif au décor, et inspectez texte, mains et produit à 100 %.'),
+      B("Ask the printer for its colour profile, bleed and file format, then soft-proof to see which colours will shift.",
+        "Demandez à l'imprimeur son profil couleur, son fond perdu et son format de fichier, puis faites une épreuve écran des couleurs."),
+      B('Keep a master file, then export per use: sRGB JPEG or WebP for the web, a PDF or TIFF to the printer spec for print.',
+        "Gardez un fichier maître, puis exportez par usage : JPEG ou WebP sRGB pour le web, PDF ou TIFF selon l'imprimeur pour le papier."),
+    ],
+    trap: B(
+      "Sending the generator's original, about a thousand pixels wide, straight to print: stretched to A2 it turns soft and blocky.",
+      "Envoyer l'original du générateur, d'environ mille pixels de large, tel quel à l'imprimeur : étiré en A2, il devient mou et pixelisé.",
+    ),
+    quiz: {
+      q: B('After a creative upscale, the bowl on the poster shows speckles it never had. What do you do?',
+        "Après un agrandissement créatif, le bol de l'affiche porte des mouchetures qu'il n'a jamais eues. Que faites-vous ?"),
+      options: [
+        B('Keep it, as nobody at the fair is going to notice the change', 'Le garder, personne au salon ne remarquera la différence'),
+        B('Redo it in faithful mode, or mask the bowl from the upscale', "Refaire en mode fidèle, ou protéger le bol de l'agrandissement"),
+        B('Lower the print resolution to hide the added speckles', "Baisser la résolution d'impression pour masquer les ajouts"),
+      ],
+      answer: 1,
+      why: B(
+        'A creative upscaler invents detail to look sharp, and on a product that detail is false. A faithful mode, or upscaling the setting alone, keeps the piece as it really is.',
+        "Un agrandisseur créatif invente du détail pour paraître net, et sur un produit ce détail est faux. Un mode fidèle, ou l'agrandissement du seul décor, garde la pièce telle qu'elle est.",
+      ),
+    },
+    badge: B('Ready for print', "Prêt pour l'impression"),
+  },
+  {
+    id: 'im-droits',
+    master: 'triage',
+    minutes: 12,
+    title: B('Rights, licences, AI disclosure and ethics', "Droits, licences, mention de l'IA et éthique"),
+    learn: B(
+      'You will check what you may do with a generated image, say that AI was used, and refuse uses that harm people.',
+      "Vous saurez vérifier ce que vous pouvez faire d'une image générée, signaler l'usage de l'IA, et refuser ce qui nuit à autrui.",
+    ),
+    act: B("Run Atelier Sorel's images through a rights and ethics checklist, then write their AI disclosure line.",
+      "Passez les images de l'Atelier Sorel au crible d'une liste droits et éthique, puis rédigez leur mention de l'IA."),
+    steps: [
+      B("Read the current terms of each tool used: commercial use, plan required, use of your uploads, and keep a dated copy.",
+        "Lisez les conditions actuelles de chaque outil : usage commercial, abonnement requis, sort de vos envois, et gardez-en une copie datée."),
+      B('Check what each image contains: a recognisable person needs consent; a brand, logo or existing work needs a right to use it.',
+        "Vérifiez ce que contient chaque image : une personne reconnaissable exige son accord ; une marque, un logo ou une oeuvre, un droit d'usage."),
+      B('Keep Content Credentials (C2PA) when the tool adds them, and add a plain visible mention where the image is published.',
+        "Conservez les Content Credentials (C2PA) quand l'outil les ajoute, et ajoutez une mention visible et simple là où l'image paraît."),
+      B('Refuse deepfakes: no real person shown doing or saying what they did not, and no fake event presented as real.',
+        "Refusez les deepfakes : aucune personne réelle montrée faisant ou disant ce qu'elle n'a pas fait, aucun faux événement présenté comme vrai."),
+    ],
+    trap: B(
+      "Assuming that 'generated' means 'free of rights': the image may contain a logo, a likeness or a close copy, and the tool's terms still apply.",
+      "Croire que « généré » veut dire « libre de droits » : l'image peut contenir un logo, un visage ou une copie proche, et les conditions de l'outil s'appliquent.",
+    ),
+    quiz: {
+      q: B('Léa wants a generated fair image of a well-known local chef holding her bowl. What is the right call?',
+        'Léa veut une image générée pour le salon, où une cheffe locale connue tient son bol. Quelle est la bonne décision ?'),
+      options: [
+        B('Go ahead, since a generated image is not a real photo of her', "Y aller, une image générée n'est pas une vraie photo d'elle"),
+        B("Go ahead with a small mention reading 'AI image' in a corner", 'Y aller avec une petite mention « image IA » dans un coin'),
+        B('Only with her written consent, or else no recognisable person', 'Seulement avec son accord écrit, sinon aucune personne reconnaissable'),
+      ],
+      answer: 2,
+      why: B(
+        "A recognisable person's likeness is protected whatever the technique, and showing her endorse a product she never touched misleads customers. A disclosure line does not replace consent.",
+        "L'image d'une personne reconnaissable est protégée quelle que soit la technique, et la montrer soutenir un produit qu'elle n'a jamais touché trompe les clients. Une mention ne remplace pas l'accord.",
+      ),
+    },
+    badge: B('Publishes with a clear conscience', 'Publie en règle et en conscience'),
+  },
+]
+
+const RETOUCHE_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M4, 'im-inpainting')]: {
+    why: [
+      B("Inpainting regenerates only the masked region. The model sees the unmasked pixels around it and fills the hole so that it continues them: same light, same texture, same perspective. That is why the mask matters as much as the prompt: what is outside is preserved, what is inside is reinvented, including any shadow or reflection of the object you forgot to cover.",
+        "L'inpainting ne régénère que la zone masquée. Le modèle voit les pixels non masqués autour et comble le trou pour qu'il les prolonge : même lumière, même texture, même perspective. C'est pourquoi le masque compte autant que le prompt : ce qui est dehors est préservé, ce qui est dedans est réinventé, y compris l'ombre ou le reflet de l'objet que vous auriez oublié de couvrir."),
+      B("Outpainting is the same mechanism applied to new canvas around the image. The model has to invent what the camera never saw, so it extrapolates from the edges. Short extensions on one side at a time stay coherent; a single huge extension tends to bend the horizon, repeat patterns or add improbable objects.",
+        "L'outpainting est le même mécanisme appliqué à de la toile ajoutée autour de l'image. Le modèle doit inventer ce que l'appareil n'a jamais vu : il extrapole donc à partir des bords. De courtes extensions, un côté à la fois, restent cohérentes ; une seule extension immense tend à courber l'horizon, à répéter des motifs ou à ajouter des objets improbables."),
+      B("Tools differ in interface, not in principle: generative fill and expand in Photoshop, Firefly on the web, Vary Region, Pan and Zoom Out in Midjourney, editing a selection in ChatGPT, inpainting nodes in ComfyUI. Names and options change, so check each tool's help pages. One rule holds everywhere: the real product stays outside the mask.",
+        "Les outils diffèrent par l'interface, pas par le principe : remplissage et extension génératifs dans Photoshop, Firefly sur le web, Vary Region, Pan et Zoom Out dans Midjourney, édition d'une sélection dans ChatGPT, noeuds d'inpainting dans ComfyUI. Les noms et les options changent : consultez l'aide de chaque outil. Une règle vaut partout : le vrai produit reste hors du masque."),
+    ],
+    example: {
+      context: B("Léa photographed her best celadon vase on her workbench. The light is lovely, but a cable and a glaze pot stand behind it, and the image is 4:5 while her site header is very wide.",
+        "Léa a photographié son plus beau vase céladon sur son établi. La lumière est belle, mais un câble et un pot d'émail traînent derrière, et l'image est en 4:5 alors que le bandeau de son site est très large."),
+      before: B("[whole image selected] make this photo more beautiful, remove the mess, make it wide, professional product photo",
+        "[toute l'image sélectionnée] rends cette photo plus belle, enlève le désordre, mets-la en large, photo produit professionnelle"),
+      after: B("Step 1, inpainting. Mask: the cable and the glaze pot, with their shadows, drawn a little wider than the objects. The vase stays outside the mask.\nPrompt for the mask: bare oak workbench surface, same grain and wear as around it, same soft light from the left.\nStep 2, outpainting to the left. Canvas added on the left only, about a third of the width.\nPrompt: continuation of the same oak workbench and the same whitewashed wall, same horizon line, same light from the left, empty space, no objects.\nStep 3, outpainting to the right with the same prompt, then a check of every seam at 100 %.",
+        "Étape 1, inpainting. Masque : le câble et le pot d'émail, avec leurs ombres, tracé un peu plus large que les objets. Le vase reste hors du masque.\nPrompt pour le masque : surface nue d'établi en chêne, même veinage et même usure qu'autour, même lumière douce venant de gauche.\nÉtape 2, outpainting vers la gauche. Toile ajoutée à gauche seulement, environ un tiers de la largeur.\nPrompt : suite du même établi en chêne et du même mur blanchi à la chaux, même ligne d'horizon, même lumière venant de gauche, espace vide, aucun objet.\nÉtape 3, outpainting vers la droite avec le même prompt, puis vérification de chaque raccord à 100 %."),
+      takeaway: B("The first request lets the tool redo everything, vase included. The second separates two operations, masks only what must change, describes only what fills each zone, and extends one side at a time.",
+        "La première demande laisse l'outil tout refaire, vase compris. La seconde sépare deux opérations, ne masque que ce qui doit changer, ne décrit que ce qui remplit chaque zone, et étend un côté à la fois."),
+    },
+    exercise: {
+      goal: B("One of your own photos cleaned of a distracting element by inpainting, then extended to a new format by outpainting, with the main subject untouched.",
+        "Une de vos photos débarrassée d'un élément gênant par inpainting, puis étendue à un nouveau format par outpainting, sans toucher au sujet principal."),
+      prompt: B("Operation 1, inpainting\nMask: [ELEMENT TO REMOVE], including its shadow and reflection, a little wider than the object. Do not mask [MAIN SUBJECT].\nPrompt for the mask: [SURFACE OR BACKGROUND THAT SHOULD BE THERE], same [MATERIAL, TEXTURE] as around it, same light from [DIRECTION].\n\nOperation 2, outpainting\nTarget format: [ASPECT RATIO OR SIZE IN PIXELS]. Extend [ONE SIDE] first, by [FRACTION OF THE WIDTH].\nPrompt for the new area: continuation of [WHAT IS AT THE EDGE], same horizon, same perspective, same light from [DIRECTION], [EMPTY SPACE OR SPECIFIC ELEMENT].\nRepeat for [OTHER SIDE].\n\nFor each operation, generate at least three variants and keep the one whose seams are invisible at 100 %.",
+        "Opération 1, inpainting\nMasque : [ÉLÉMENT À RETIRER], ombre et reflet compris, un peu plus large que l'objet. Ne pas masquer [SUJET PRINCIPAL].\nPrompt pour le masque : [SURFACE OU FOND QUI DEVRAIT ÊTRE LÀ], même [MATIÈRE, TEXTURE] qu'autour, même lumière venant de [DIRECTION].\n\nOpération 2, outpainting\nFormat visé : [RAPPORT LARGEUR HAUTEUR OU TAILLE EN PIXELS]. Étendre d'abord [UN CÔTÉ], de [FRACTION DE LA LARGEUR].\nPrompt pour la zone nouvelle : suite de [CE QUI EST AU BORD], même horizon, même perspective, même lumière venant de [DIRECTION], [ESPACE VIDE OU ÉLÉMENT PRÉCIS].\nRecommencer pour [AUTRE CÔTÉ].\n\nPour chaque opération, générer au moins trois variantes et garder celle dont les raccords sont invisibles à 100 %."),
+      check: [
+        B("The main subject is outside every mask and identical to the original", "Le sujet principal est hors de tout masque et identique à l'original"),
+        B("No trace of the removed element remains: no shadow, no reflection, no halo", "Il ne reste aucune trace de l'élément retiré : ni ombre, ni reflet, ni halo"),
+        B("The horizon and perspective lines continue straight across the seams", "L'horizon et les lignes de perspective se prolongent droit à travers les raccords"),
+        B("No pattern, object or texture is visibly repeated in the extended areas", "Aucun motif, objet ou texture n'est visiblement répété dans les zones ajoutées"),
+      ],
+      bonus: B("Do the same extension once in a single large step and once in three small steps. Compare the two at 100 %: note where the large one bent the lines or invented objects, and keep the small-step habit.",
+        "Faites la même extension une fois en une seule grande étape et une fois en trois petites. Comparez les deux à 100 % : notez où la grande a courbé les lignes ou inventé des objets, et gardez l'habitude des petits pas."),
+    },
+    more: [
+      { q: B("You extend a photo by outpainting and a second, slightly different vase appears in the new area. Why?",
+          "Vous étendez une photo par outpainting et un second vase, un peu différent, apparaît dans la zone ajoutée. Pourquoi ?"),
+        options: [
+          B("The model continues what it sees, and nothing said the space was empty", "Le modèle prolonge ce qu'il voit, et rien n'a dit que l'espace était vide"),
+          B("The tool always duplicates the main subject to fill a larger canvas size", "L'outil duplique toujours le sujet principal pour remplir un plus grand format"),
+          B("The original photo was too sharp to be extended without artefacts", "La photo d'origine était trop nette pour être étendue sans artefacts"),
+        ],
+        answer: 0,
+        why: B("Outpainting extrapolates from the edges and from what dominates the image. Describing the new area explicitly (empty oak surface, bare wall, no objects) prevents it from repeating the subject.",
+          "L'outpainting extrapole à partir des bords et de ce qui domine l'image. Décrire explicitement la zone nouvelle (surface de chêne vide, mur nu, aucun objet) l'empêche de répéter le sujet.") },
+      { q: B("Why should the mask used to remove an object be a little wider than the object itself?",
+          "Pourquoi le masque qui sert à retirer un objet doit-il être un peu plus large que l'objet lui-même ?"),
+        options: [
+          B("Because a wider mask always produces a sharper result", "Parce qu'un masque plus large donne toujours un résultat plus net"),
+          B("Because tools refuse masks that follow an object closely", "Parce que les outils refusent les masques qui épousent un objet"),
+          B("To include its shadow and edges, leaving no outline", "Pour inclure son ombre et ses bords, sans laisser de contour"),
+        ],
+        answer: 2,
+        why: B("An object leaves traces beyond its outline: a shadow, a reflection, a slight colour cast. If the mask stops at the outline, those traces stay and the model has to blend with them, which leaves a ghost.",
+          "Un objet laisse des traces au-delà de son contour : une ombre, un reflet, une légère dominante de couleur. Si le masque s'arrête au contour, ces traces restent et le modèle doit s'y raccorder, ce qui laisse un fantôme.") },
+    ],
+  },
+
+  [enrichKey(M4, 'im-detourage')]: {
+    why: [
+      B("Generative fill is inpainting placed inside a retouching workflow. In Photoshop, the result arrives on a separate layer with its own mask, with several variants: the original stays intact underneath, so you can compare, mask further or delete. Firefly on the web and other editors follow the same logic. This non-destructive habit is what makes AI retouching usable for professional work.",
+        "Le remplissage génératif est de l'inpainting placé dans un workflow de retouche. Dans Photoshop, le résultat arrive sur un calque séparé avec son propre masque, en plusieurs variantes : l'original reste intact dessous, vous pouvez comparer, masquer davantage ou supprimer. Firefly sur le web et d'autres éditeurs suivent la même logique. Cette habitude non destructive rend la retouche par IA utilisable en contexte professionnel."),
+      B("Background removal is a segmentation problem: the tool decides, pixel by pixel, what belongs to the subject. It handles clear outlines well and struggles where a human retoucher does too: hair, glass, glossy glaze reflecting the background, thin parts, gaps. Automatic selection is a first draft that you refine by hand on the mask, then export with transparency (PNG) when needed.",
+        "Le détourage est un problème de segmentation : l'outil décide, pixel par pixel, ce qui appartient au sujet. Il gère bien les contours nets et bute là où bute aussi un retoucheur : cheveux, verre, émail brillant qui reflète le fond, parties fines, jours. La sélection automatique est un premier jet que vous affinez à la main sur le masque, puis que vous exportez avec transparence (PNG) au besoin."),
+      B("Placing a cut-out in a new setting only works if the light agrees. The eye checks direction, height and softness of light, the contact shadow and colour bounces before anything else. Generate the setting to match the product photo, not the reverse. Some tools offer relighting functions, but describing the light in the setting prompt remains the most reliable lever.",
+        "Placer un détourage dans un nouveau décor ne fonctionne que si la lumière concorde. L'oeil vérifie avant tout la direction, la hauteur et la douceur de la lumière, l'ombre de contact et les reflets colorés. Générez le décor pour qu'il corresponde à la photo du produit, pas l'inverse. Certains outils proposent des fonctions de rééclairage, mais décrire la lumière dans le prompt du décor reste le levier le plus fiable."),
+    ],
+    example: {
+      context: B("For her online shop, Léa needs her real celadon bowl in an autumn kitchen. She shot the bowl on a grey card with window light from the left, then asked an AI to do the rest.",
+        "Pour sa boutique en ligne, Léa veut son vrai bol céladon dans une cuisine d'automne. Elle a photographié le bol sur un carton gris, lumière de fenêtre à gauche, puis a demandé à une IA de faire le reste."),
+      before: B("[photo of the bowl uploaded] put this bowl in a beautiful autumn kitchen, make it look amazing",
+        "[photo du bol envoyée] mets ce bol dans une belle cuisine d'automne, rends-le magnifique"),
+      after: B("1. Cut-out: automatic subject selection on the bowl, then manual refinement of the rim and the inner reflection on the mask. Export as PNG with transparency. The bowl is never regenerated.\n2. Setting, generated separately in 4:5: autumn kitchen worktop in pale oak, linen cloth, a few chestnuts, soft window light from the left at table height, late afternoon, shallow depth of field, empty space in the centre foreground for an object, no bowl, no text.\n3. Composite: the bowl placed in the empty space, at a size consistent with the chestnuts.\n4. Generative fill on a thin zone under the foot only: soft contact shadow cast towards the right on the linen, consistent with the light from the left. The bowl stays outside the selection.",
+        "1. Détourage : sélection automatique du sujet sur le bol, puis affinage manuel de la lèvre et du reflet intérieur sur le masque. Export en PNG avec transparence. Le bol n'est jamais régénéré.\n2. Décor, généré à part en 4:5 : plan de travail de cuisine d'automne en chêne clair, torchon de lin, quelques châtaignes, douce lumière de fenêtre venant de gauche à hauteur de table, fin d'après-midi, faible profondeur de champ, espace vide au centre du premier plan pour un objet, pas de bol, pas de texte.\n3. Montage : le bol posé dans l'espace vide, à une taille cohérente avec les châtaignes.\n4. Remplissage génératif sur une fine zone sous le pied seulement : ombre de contact douce portée vers la droite sur le lin, cohérente avec la lumière de gauche. Le bol reste hors de la sélection."),
+      takeaway: B("The first request hands the real bowl to the generator, which may redraw its glaze. The second keeps the product as photographed, builds the setting around its light, and uses generative fill only for the shadow.",
+        "La première demande confie le vrai bol au générateur, qui peut en redessiner l'émail. La seconde garde le produit tel que photographié, construit le décor autour de sa lumière et n'emploie le remplissage génératif que pour l'ombre."),
+    },
+    exercise: {
+      goal: B("A real object you own, cut out cleanly and placed in a generated setting whose light, scale and shadow are consistent with the original photo.",
+        "Un vrai objet qui vous appartient, détouré proprement et placé dans un décor généré dont la lumière, l'échelle et l'ombre concordent avec la photo d'origine."),
+      prompt: B("Product photo: [OBJECT], shot on [PLAIN BACKGROUND], light coming from [DIRECTION] at [HEIGHT: LOW, TABLE HEIGHT, OVERHEAD], [SOFT OR HARD].\n\nSetting to generate (without the object):\n[PLACE AND SURFACE], [2 OR 3 PROPS THAT GIVE THE SCALE], light coming from [SAME DIRECTION] at [SAME HEIGHT], [SAME SOFTNESS], [TIME OF DAY], [FOCAL LENGTH AND VIEWPOINT CLOSE TO THE PRODUCT PHOTO], empty space at [POSITION] for an object, no [TYPE OF OBJECT], no text, [ASPECT RATIO].\n\nShadow (generative fill on a thin zone under the object only):\nsoft contact shadow cast towards [SIDE OPPOSITE THE LIGHT], darker where the object touches the surface.",
+        "Photo du produit : [OBJET], pris sur [FOND UNI], lumière venant de [DIRECTION] à [HAUTEUR : BASSE, HAUTEUR DE TABLE, PLAFOND], [DOUCE OU DURE].\n\nDécor à générer (sans l'objet) :\n[LIEU ET SURFACE], [2 OU 3 ACCESSOIRES QUI DONNENT L'ÉCHELLE], lumière venant de [MÊME DIRECTION] à [MÊME HAUTEUR], [MÊME DOUCEUR], [MOMENT DE LA JOURNÉE], [FOCALE ET POINT DE VUE PROCHES DE LA PHOTO PRODUIT], espace vide à [POSITION] pour un objet, pas de [TYPE D'OBJET], pas de texte, [FORMAT].\n\nOmbre (remplissage génératif sur une fine zone sous l'objet seulement) :\nombre de contact douce portée vers [CÔTÉ OPPOSÉ À LA LUMIÈRE], plus sombre là où l'objet touche la surface."),
+      check: [
+        B("The object's edges hold at 100 %: no fringe of the old background, no bitten rim", "Les bords de l'objet tiennent à 100 % : pas de liseré de l'ancien fond, pas de bord rogné"),
+        B("Light in the setting comes from the same side and height as on the object", "La lumière du décor vient du même côté et de la même hauteur que sur l'objet"),
+        B("A contact shadow anchors the object, darker at the point of contact", "Une ombre de contact ancre l'objet, plus sombre au point d'appui"),
+        B("The object itself was never regenerated or selected for generative fill", "L'objet lui-même n'a jamais été régénéré ni sélectionné pour un remplissage génératif"),
+      ],
+      bonus: B("Flip the setting horizontally and look again: the light now contradicts the object. Train your eye on this mismatch, then add the camera height and focal length of the product photo to your setting prompt, and compare the perspective.",
+        "Retournez le décor horizontalement et regardez de nouveau : la lumière contredit maintenant l'objet. Entraînez votre oeil à ce désaccord, puis ajoutez au prompt du décor la hauteur d'appareil et la focale de la photo produit, et comparez la perspective."),
+    },
+    more: [
+      { q: B("The automatic cut-out of a glossy bowl keeps a grey patch inside it. What is that patch, most likely?",
+          "Le détourage automatique d'un bol brillant garde une tache grise à l'intérieur. Qu'est-ce que cette tache, le plus probablement ?"),
+        options: [
+          B("A defect of the glaze that the tool has now revealed", "Un défaut de l'émail que l'outil vient de révéler"),
+          B("A reflection of the grey background on the glaze", "Un reflet du fond gris sur l'émail"),
+          B("A compression artefact added by the PNG export", "Un artefact de compression ajouté par l'export PNG"),
+        ],
+        answer: 1,
+        why: B("Glossy surfaces reflect their surroundings, including the background you are removing. Decide whether the reflection stays (it is real) or is toned down by hand to suit the new setting; PNG itself is lossless.",
+          "Les surfaces brillantes reflètent leur environnement, y compris le fond que vous retirez. Décidez si le reflet reste (il est réel) ou s'il s'atténue à la main pour s'accorder au nouveau décor ; le PNG, lui, est sans perte.") },
+      { q: B("Why does generative fill in Photoshop place its result on a separate layer?",
+          "Pourquoi le remplissage génératif de Photoshop place-t-il son résultat sur un calque séparé ?"),
+        options: [
+          B("So the original stays intact and the edit can be masked or undone", "Pour que l'original reste intact et que l'ajout se masque ou s'annule"),
+          B("Because layers make the final file lighter to export for the web", "Parce que les calques allègent le fichier final exporté pour le web"),
+          B("Because each layer is billed separately by the software publisher", "Parce que chaque calque est facturé à part par l'éditeur du logiciel"),
+        ],
+        answer: 0,
+        why: B("Non-destructive editing keeps every step reversible: you compare variants, refine the mask, or delete the layer without touching the photo underneath. It is the habit that makes AI edits safe on a client file.",
+          "La retouche non destructive garde chaque étape réversible : vous comparez les variantes, affinez le masque ou supprimez le calque sans toucher à la photo dessous. C'est l'habitude qui rend sûres les retouches IA sur un fichier client.") },
+    ],
+  },
+
+  [enrichKey(M4, 'im-impression')]: {
+    why: [
+      B("A generated image is a fixed grid of pixels. Its print size depends on how many pixels you spread over each inch: the same file is sharp as a postcard and soft as a poster. The calculation is simple: size in centimetres divided by 2.54, times the resolution in pixels per inch. Around 300 ppi is a common reference for prints seen up close; a large poster seen from afar can need less. The printer's specification decides.",
+        "Une image générée est une grille de pixels fixe. Sa taille d'impression dépend du nombre de pixels répartis sur chaque pouce : le même fichier est net en carte postale et mou en affiche. Le calcul est simple : taille en centimètres divisée par 2,54, multipliée par la résolution en pixels par pouce. Environ 300 ppp est une référence courante pour un tirage vu de près ; une grande affiche vue de loin peut en demander moins. La fiche de l'imprimeur tranche."),
+      B("AI upscalers do not only enlarge, they predict plausible detail. Faithful modes stay close to the original; creative modes add texture and can invent details: extra letters, altered faces, speckles on a glaze. Tools include the upscale options of Midjourney, Super Resolution in Photoshop (Camera Raw), and dedicated software such as Topaz or Upscayl. Settings vary: read their documentation, and always inspect at 100 %.",
+        "Les agrandisseurs IA ne font pas qu'agrandir : ils prédisent un détail plausible. Les modes fidèles restent proches de l'original ; les modes créatifs ajoutent de la texture et peuvent inventer des détails : lettres en trop, visages modifiés, mouchetures sur un émail. Parmi les outils : les options d'upscale de Midjourney, Super Resolution dans Photoshop (Camera Raw), des logiciels dédiés comme Topaz ou Upscayl. Les réglages varient : lisez leur documentation, inspectez toujours à 100 %."),
+      B("Screens show colour in RGB, presses print in CMYK, and CMYK cannot reproduce every saturated colour. Work and publish for the web in sRGB. For print, the printer gives you its ICC profile, its bleed and the file format it expects (often a PDF). A soft proof in Photoshop or Affinity shows on screen which greens or blues will dull, so you can adjust before paying for the print.",
+        "Les écrans affichent en RVB, les presses impriment en CMJN, et le CMJN ne reproduit pas toutes les couleurs saturées. Travaillez et publiez pour le web en sRGB. Pour l'impression, l'imprimeur vous donne son profil ICC, son fond perdu et le format attendu (souvent un PDF). Une épreuve écran dans Photoshop ou Affinity montre quels verts ou quels bleus vont se ternir, pour ajuster avant de payer le tirage."),
+    ],
+    example: {
+      context: B("Léa wants an A2 poster for a crafts fair, built on a generated autumn image about a thousand pixels wide, with the title set in layout software. She first asks an assistant to make it bigger.",
+        "Léa veut une affiche A2 pour un salon des métiers d'art, sur une image d'automne générée d'environ mille pixels de large, titre posé en mise en page. Elle demande d'abord à un assistant de l'agrandir."),
+      before: B("upscale this image to 8K for a poster, maximum quality",
+        "agrandis cette image en 8K pour une affiche, qualité maximale"),
+      after: B("Context: A2 poster, 42 x 59.4 cm, portrait, printed by a local print shop for a crafts fair, seen from one to three metres. Source: generated image of 1024 x 1448 pixels, sRGB. The title will be set afterwards in Affinity, not in the image. The bowl is a real photo placed later.\n1. Compute the pixel size needed at 300 ppi and at 150 ppi, showing the calculation, and the upscale factor from my file in each case.\n2. Tell me what a faithful and a creative upscale risk changing, and what to inspect at 100 % on a ceramic setting.\n3. Write the questions I must ask the print shop: colour profile, bleed, safe margins, file format, minimum resolution, proof.\nDo not present any value as the print shop's standard: their specification is what applies.",
+        "Contexte : affiche A2, 42 x 59,4 cm, portrait, imprimée par un imprimeur local pour un salon des métiers d'art, vue d'un à trois mètres. Source : image générée de 1024 x 1448 pixels, sRGB. Le titre sera posé ensuite dans Affinity, pas dans l'image. Le bol est une vraie photo ajoutée après.\n1. Calcule la taille en pixels nécessaire à 300 ppp et à 150 ppp, en montrant le calcul, et le facteur d'agrandissement depuis mon fichier dans chaque cas.\n2. Dis-moi ce qu'un agrandissement fidèle et un agrandissement créatif risquent de changer, et ce qu'il faut inspecter à 100 % sur un décor de céramique.\n3. Rédige les questions à poser à l'imprimeur : profil couleur, fond perdu, marges de sécurité, format de fichier, résolution minimale, épreuve.\nNe présente aucune valeur comme la norme de l'imprimeur : c'est sa fiche qui s'applique."),
+      takeaway: B("'8K' is not a print specification. The second request starts from the real size and viewing distance, computes the pixels needed, anticipates what upscaling can invent, and leaves the last word to the printer.",
+        "« 8K » n'est pas une spécification d'impression. La seconde demande part de la taille réelle et de la distance de lecture, calcule les pixels nécessaires, anticipe ce que l'agrandissement peut inventer, et laisse le dernier mot à l'imprimeur."),
+    },
+    exercise: {
+      goal: B("A print-ready file for a real format of your choice: pixel size computed, faithful upscale checked at 100 %, printer specifications collected, separate web and print exports.",
+        "Un fichier prêt à imprimer pour un format réel de votre choix : taille en pixels calculée, agrandissement fidèle vérifié à 100 %, exigences de l'imprimeur réunies, exports web et impression séparés."),
+      prompt: B("I am preparing an image for print.\nFormat: [WIDTH x HEIGHT IN CM], [PORTRAIT OR LANDSCAPE], viewed from [DISTANCE].\nSource file: [WIDTH x HEIGHT IN PIXELS], [COLOUR SPACE], made with [TOOL].\nContent to protect: [PRODUCT, FACE, TEXT, LOGO].\n1. Compute the pixels needed at [RESOLUTION ASKED BY THE PRINTER, OR 300 AND 150 PPI IF UNKNOWN], with the calculation, and the upscale factor.\n2. Recommend whether to upscale in one or several passes, and which areas to keep away from a creative mode.\n3. Give me a checklist to inspect at 100 % after upscaling.\n4. List the questions to ask the printer (ICC profile, bleed, safe margins, file format, proof).\nDo not invent the printer's standards: tell me what to ask.",
+        "Je prépare une image pour l'impression.\nFormat : [LARGEUR x HAUTEUR EN CM], [PORTRAIT OU PAYSAGE], vu à [DISTANCE].\nFichier source : [LARGEUR x HAUTEUR EN PIXELS], [ESPACE COULEUR], fait avec [OUTIL].\nContenu à protéger : [PRODUIT, VISAGE, TEXTE, LOGO].\n1. Calcule les pixels nécessaires à [RÉSOLUTION DEMANDÉE PAR L'IMPRIMEUR, OU 300 ET 150 PPP SI INCONNUE], avec le calcul, et le facteur d'agrandissement.\n2. Recommande d'agrandir en une ou plusieurs passes, et dis quelles zones tenir à l'écart d'un mode créatif.\n3. Donne-moi une liste à inspecter à 100 % après agrandissement.\n4. Liste les questions à poser à l'imprimeur (profil ICC, fond perdu, marges de sécurité, format de fichier, épreuve).\nN'invente pas les normes de l'imprimeur : dis-moi quoi demander."),
+      check: [
+        B("The pixel size was computed from the real format and the printer's resolution", "La taille en pixels a été calculée à partir du format réel et de la résolution de l'imprimeur"),
+        B("Product, text and faces were inspected at 100 % after upscaling", "Produit, texte et visages ont été inspectés à 100 % après agrandissement"),
+        B("Colour profile, bleed and file format come from the printer, not from a guess", "Profil couleur, fond perdu et format de fichier viennent de l'imprimeur, pas d'une supposition"),
+        B("A master file is kept, with separate exports for the web and for print", "Un fichier maître est conservé, avec des exports séparés pour le web et pour l'impression"),
+      ],
+      bonus: B("Print a small crop of the upscaled image at actual size on your office printer, and look at it from the real viewing distance. You will judge sharpness better than on screen, where zoom and screen density mislead.",
+        "Imprimez un petit recadrage de l'image agrandie à taille réelle sur votre imprimante de bureau, et regardez-le à la vraie distance de lecture. Vous jugerez la netteté mieux qu'à l'écran, où le zoom et la densité de l'écran trompent."),
+    },
+    more: [
+      { q: B("Your file is 2480 pixels wide. How wide can it print at 300 ppi without upscaling?",
+          "Votre fichier fait 2480 pixels de large. Sur quelle largeur s'imprime-t-il à 300 ppp sans agrandissement ?"),
+        options: [
+          B("About 42 cm, the width of an A2 sheet", "Environ 42 cm, la largeur d'une feuille A2"),
+          B("About 30 cm, the height of an A4 sheet", "Environ 30 cm, la hauteur d'une feuille A4"),
+          B("About 21 cm, the width of an A4 sheet", "Environ 21 cm, la largeur d'une feuille A4"),
+        ],
+        answer: 2,
+        why: B("2480 divided by 300 gives about 8.27 inches, and times 2.54 about 21 cm. To fill 42 cm at the same resolution, you would need about twice as many pixels in width.",
+          "2480 divisé par 300 donne environ 8,27 pouces, et multiplié par 2,54 environ 21 cm. Pour couvrir 42 cm à la même résolution, il faudrait environ deux fois plus de pixels en largeur.") },
+      { q: B("The celadon green looks duller in the soft proof than in normal display. What does this tell you?",
+          "Le vert céladon paraît plus terne en épreuve écran qu'en affichage normal. Qu'est-ce que cela vous indique ?"),
+        options: [
+          B("The screen is badly calibrated, so the proof can safely be ignored", "L'écran est mal calibré, et l'épreuve peut donc être ignorée"),
+          B("The colour is outside what the press can print, so adjust it", "La teinte sort de ce que la presse imprime : il faut l'ajuster"),
+          B("The image must be exported in RGB to keep its saturation", "L'image doit partir en RVB pour garder sa saturation"),
+        ],
+        answer: 1,
+        why: B("A soft proof simulates the printer's profile. A colour that dulls is outside the printable gamut: adjust it with that profile in view, or accept the shift knowingly, rather than discover it on paper.",
+          "L'épreuve écran simule le profil de l'imprimeur. Une teinte qui se ternit sort de la gamme imprimable : ajustez-la avec ce profil sous les yeux, ou acceptez l'écart en connaissance de cause, plutôt que de le découvrir sur papier.") },
+    ],
+  },
+
+  [enrichKey(M4, 'im-droits')]: {
+    why: [
+      B("Three layers of rules apply to a generated image, and none disappears because it is generated. The tool's terms define what you may do with outputs and uploads. Copyright and trademark law apply to what the image contains or copies. People's rights apply to anyone recognisable. Whether a purely generated image is itself protected by copyright is debated and depends on human input: ask the INPI or a lawyer for a precise case.",
+        "Trois couches de règles s'appliquent à une image générée, et aucune ne disparaît parce qu'elle est générée. Les conditions de l'outil fixent ce que vous pouvez faire des images et de vos envois. Le droit d'auteur et le droit des marques s'appliquent à ce que l'image contient ou copie. Les droits des personnes valent pour toute personne reconnaissable. Savoir si une image purement générée est protégée fait débat : interrogez l'INPI ou un avocat."),
+      B("Disclosure has two sides. Technical: C2PA Content Credentials are signed metadata that record origin and edits; Adobe Firefly and OpenAI add them, and Google marks its images with SynthID. They can be lost when a file is re-exported or posted on some platforms, so they are not enough alone. Human: a plain sentence where the image is published, saying what is AI and what is real.",
+        "La transparence a deux faces. Technique : les Content Credentials (C2PA) sont des métadonnées signées qui retracent l'origine et les retouches ; Adobe Firefly et OpenAI les ajoutent, et Google marque ses images avec SynthID. Elles peuvent se perdre à un nouvel export ou sur certaines plateformes : elles ne suffisent pas seules. Humaine : une phrase simple là où l'image paraît, qui dit ce qui est IA et ce qui est réel."),
+      B("Ethics starts where the law may lag behind. A deepfake shows a real person doing or saying what they did not; it can harm reputations and deceive voters or customers. Some uses are offences in France, and the European AI Act sets transparency duties. Rules and dates evolve: check Légifrance, service-public.fr and the CNIL. The workshop rule is simpler: no real person without consent, no fake event, no product shown other than it is.",
+        "L'éthique commence là où le droit peut être en retard. Un deepfake montre une personne réelle faisant ou disant ce qu'elle n'a pas fait ; il peut nuire à une réputation, tromper électeurs ou clients. Certains usages sont des délits en France, et le règlement européen sur l'IA (AI Act) impose des obligations de transparence. Règles et dates évoluent : consultez Légifrance, service-public.fr et la CNIL. La règle de l'atelier est plus simple : aucune personne réelle sans accord, aucun faux événement, aucun produit montré autrement qu'il n'est."),
+    ],
+    example: {
+      context: B("Before publishing her autumn campaign, Léa reviews eight images made with several tools: real product photos, generated settings, composites and an illustration. Her first caption is written quickly.",
+        "Avant de publier sa campagne d'automne, Léa relit huit images faites avec plusieurs outils : vraies photos produit, décors générés, montages et une illustration. Sa première légende est écrite vite."),
+      before: B("New autumn collection! 100% handmade, every photo taken in the workshop. #ceramics #handmade",
+        "Nouvelle collection d'automne ! 100 % fait main, toutes les photos prises à l'atelier. #céramique #faitmain"),
+      after: B("Caption: Autumn stoneware collection, handmade in the workshop. The pieces are photographed as they are; the settings and the illustration were created with AI.\n\nInternal checklist, filled in for each image:\n1. Tool, plan, date I read its terms, commercial use allowed: [YES, NO, TO CHECK].\n2. Product shown: real photo, never regenerated: [YES, NO].\n3. Recognisable person, brand, logo or existing work in the image: [NONE, OR WHICH ONE, WITH WHICH CONSENT OR LICENCE].\n4. Artist or brand name in the prompt: [NONE, OR WHICH ONE].\n5. Content Credentials kept in the exported file: [YES, NO, NOT OFFERED BY THE TOOL].\n6. Verdict: [PUBLISH, CORRECT, REFUSE], with the reason.",
+        "Légende : collection Grès d'automne, faite main à l'atelier. Les pièces sont photographiées telles qu'elles sont ; les décors et l'illustration ont été créés avec l'IA.\n\nListe interne, remplie pour chaque image :\n1. Outil, abonnement, date de lecture des conditions, usage commercial permis : [OUI, NON, À VÉRIFIER].\n2. Produit montré : vraie photo, jamais régénérée : [OUI, NON].\n3. Personne reconnaissable, marque, logo ou oeuvre existante dans l'image : [AUCUN, OU LEQUEL, AVEC QUEL ACCORD OU QUELLE LICENCE].\n4. Nom d'artiste ou de marque dans le prompt : [AUCUN, OU LEQUEL].\n5. Content Credentials conservés dans le fichier exporté : [OUI, NON, NON PROPOSÉS PAR L'OUTIL].\n6. Verdict : [PUBLIER, CORRIGER, REFUSER], avec la raison."),
+      takeaway: B("The first caption is false twice: some images are not photos, and customers are invited to trust settings that do not exist. The second says exactly what is real, and the checklist makes each image's status traceable.",
+        "La première légende est fausse deux fois : certaines images ne sont pas des photos, et les clients sont invités à croire à des décors qui n'existent pas. La seconde dit exactement ce qui est réel, et la liste rend traçable le statut de chaque image."),
+    },
+    exercise: {
+      goal: B("A rights and ethics sheet for five of your images, each with a verdict and a reason, and the disclosure line you will use where they are published.",
+        "Une fiche droits et éthique pour cinq de vos images, chacune avec un verdict et une raison, et la mention que vous utiliserez là où elles paraissent."),
+      prompt: B("Act as a careful reviewer. For each image I describe, fill in this grid and give a verdict (publish, correct, refuse) with the reason. Do not state any law, article or threshold as certain: tell me which official source to check (the tool's terms, INPI, CNIL, Légifrance, service-public.fr).\nImage: [DESCRIPTION]\nTool and plan: [TOOL, PLAN]\nUse: [WEBSITE, SOCIAL MEDIA, PRINT, ADVERTISING]\nReal elements: [PRODUCT PHOTOGRAPHED, PEOPLE, PLACES]\nRecognisable person: [NONE, OR WHO, WITH WHAT CONSENT]\nBrand, logo, existing work, artist name in the prompt: [NONE, OR WHICH]\nContent Credentials: [KEPT, LOST, UNKNOWN]\nThen write a one-sentence disclosure line for [PLACE OF PUBLICATION], saying what is real and what was made with AI.",
+        "Agis comme un relecteur rigoureux. Pour chaque image que je décris, remplis cette grille et donne un verdict (publier, corriger, refuser) avec la raison. N'affirme aucune loi, aucun article ni aucun seuil comme certain : indique-moi la source officielle à vérifier (conditions de l'outil, INPI, CNIL, Légifrance, service-public.fr).\nImage : [DESCRIPTION]\nOutil et abonnement : [OUTIL, ABONNEMENT]\nUsage : [SITE, RÉSEAUX SOCIAUX, IMPRESSION, PUBLICITÉ]\nÉléments réels : [PRODUIT PHOTOGRAPHIÉ, PERSONNES, LIEUX]\nPersonne reconnaissable : [AUCUNE, OU QUI, AVEC QUEL ACCORD]\nMarque, logo, oeuvre existante, nom d'artiste dans le prompt : [AUCUN, OU LEQUEL]\nContent Credentials : [CONSERVÉS, PERDUS, INCONNU]\nPuis rédige une mention d'une phrase pour [LIEU DE PUBLICATION], qui dit ce qui est réel et ce qui a été fait avec l'IA."),
+      check: [
+        B("Each image has a verdict and a reason, not a general impression", "Chaque image a un verdict et une raison, pas une impression générale"),
+        B("No recognisable person appears without documented consent", "Aucune personne reconnaissable n'apparaît sans accord documenté"),
+        B("The disclosure says what is real and what is AI, in plain words", "La mention dit ce qui est réel et ce qui est IA, en mots simples"),
+        B("The tool's terms were read in their current version, and the date noted", "Les conditions de l'outil ont été lues dans leur version actuelle, date notée"),
+      ],
+      bonus: B("Check one of your exported images with a Content Credentials inspection tool (the Content Authenticity Initiative offers one). Then post it through your usual channel, download it back and check again: you will see whether your workflow keeps or loses the credentials.",
+        "Vérifiez une de vos images exportées avec un outil d'inspection des Content Credentials (la Content Authenticity Initiative en propose un). Publiez-la ensuite par votre canal habituel, retéléchargez-la et vérifiez de nouveau : vous verrez si votre workflow garde ou perd ces informations."),
+    },
+    more: [
+      { q: B("Your generator's terms allowed commercial use when you made the images last year. A client asks about them today. What do you check?",
+          "Les conditions de votre générateur permettaient l'usage commercial quand vous avez créé les images l'an dernier. Un client s'en inquiète. Que vérifiez-vous ?"),
+        options: [
+          B("The terms when they were made, your plan then, and any change since", "Les conditions à leur création, votre abonnement d'alors, et tout changement depuis"),
+          B("Only today's terms, since the newest version always replaces it all", "Seulement les conditions du jour, la plus récente remplaçant toujours tout"),
+          B("Nothing, since a generated image belongs to nobody in any case", "Rien, puisqu'une image générée n'appartient à personne de toute façon"),
+        ],
+        answer: 0,
+        why: B("Rights over outputs usually depend on the terms and plan in force when you generated them, which is why you keep a dated copy. Reading the current version as well tells you whether anything changed for future use.",
+          "Les droits sur les images dépendent en général des conditions et de l'abonnement en vigueur à leur création, d'où la copie datée. Lire aussi la version actuelle vous dit si quelque chose a changé pour la suite.") },
+      { q: B("Why add a visible mention when the file already carries Content Credentials?",
+          "Pourquoi ajouter une mention visible quand le fichier porte déjà des Content Credentials ?"),
+        options: [
+          B("Because metadata is illegal to publish unless a written notice comes first", "Parce que des métadonnées ne peuvent légalement paraître sans notice écrite"),
+          B("Because metadata can be stripped, and most viewers never open it", "Parce que les métadonnées peuvent se perdre, et que peu de gens les lisent"),
+          B("Because a visible mention makes the image legally protected", "Parce qu'une mention visible rend l'image protégée juridiquement"),
+        ],
+        answer: 1,
+        why: B("Credentials travel with the file only as long as each tool and platform preserves them, and few people inspect them. A plain sentence next to the image informs everyone, whatever happened to the file.",
+          "Les Content Credentials ne suivent le fichier que si chaque outil et chaque plateforme les préservent, et peu de gens les consultent. Une phrase simple à côté de l'image informe chacun, quoi qu'il soit arrivé au fichier.") },
+    ],
+  },
+}
+
+/* ================================================================== */
 /* LES MODULES DE CETTE PARTIE                                         */
 /* ================================================================== */
 

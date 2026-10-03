@@ -1,5 +1,764 @@
-// LE COURS « Logotype et charte graphique avec l'IA », PARTIE B · voir ./types et ./index. En rédaction.
+// LE COURS « Logotype et charte graphique avec l'IA », PARTIE B · voir ./types et ./index.
+//
+// LE MÊME FIL ROUGE QUE LA PARTIE A · « Pagelune », le café-librairie de
+// quartier, fictif, ouvert par Camille, dont Nora, graphiste indépendante, crée
+// l'identité. Le logo combiné (un croissant formé par une page, et le nom) est
+// dessiné et testé dans la partie A. Ici, on lui donne ses couleurs, ses
+// typographies, son langage visuel, puis sa charte : règles d'usage du logo,
+// ton de voix, document de charte et déclinaisons.
+//
+// CE QUE LE COURS AFFIRME, ET CE QU'IL S'INTERDIT. Il s'en tient aux principes
+// stables : les seuils de contraste des WCAG du W3C, la différence entre
+// couleurs de lumière (RVB) et d'encre (CMJN), le rôle du profil ICC de
+// l'imprimeur, la lecture d'une licence de fonte, la zone de protection et la
+// taille minimale d'un logo. Les formats des réseaux sociaux, les offres des
+// outils et les conditions des nuanciers changent : le cours renvoie aux
+// centres d'aide et aux sites officiels, sans chiffre inventé.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const LOGO_B: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 3 · COULEURS ET TYPOGRAPHIES                                 */
+/* ================================================================== */
+
+const M3 = 'lg-m3'
+
+const COLOR: Level[] = [
+  {
+    id: 'lg-palette',
+    master: 'analysis',
+    minutes: 11,
+    title: B('Build a palette: contrast and accessibility', 'Construire une palette : contraste et accessibilité'),
+    learn: B(
+      'You will build a brand palette by roles (main, accent, neutrals) and check every text pairing against WCAG contrast.',
+      'Vous saurez bâtir une palette de marque par rôles (principale, accent, neutres) et tester chaque couple selon les WCAG.',
+    ),
+    act: B('Derive the Pagelune palette from the brief, then test each text and background pair in a contrast checker.',
+      'Tirez la palette de Pagelune du brief, puis testez chaque couple texte et fond dans un vérificateur de contraste.'),
+    steps: [
+      B('Ask the AI for three palette directions, each tied to values of the brief, with HEX codes and roles.',
+        "Demandez à l'IA trois pistes de palette, chacune reliée aux valeurs du brief, avec codes HEX et rôles."),
+      B('Assign roles: one main colour, one accent, two or three neutrals for text and backgrounds.',
+        'Attribuez des rôles : une couleur principale, un accent, deux ou trois neutres pour textes et fonds.'),
+      B('Measure every text pair in a checker such as the WebAIM one: 4.5:1 for body text, 3:1 for large text.',
+        'Mesurez chaque couple dans un vérificateur comme celui de WebAIM : 4,5:1 pour le texte courant, 3:1 pour le grand.'),
+      B('Simulate colour blindness and check that no information relies on colour alone.',
+        "Simulez les daltonismes et vérifiez qu'aucune information ne repose sur la seule couleur."),
+    ],
+    trap: B(
+      'Trusting the contrast ratios the AI announces: models often get them wrong. Measure each pair in a checker before approving.',
+      "Croire les ratios de contraste annoncés par l'IA : les modèles se trompent souvent. Mesurez chaque couple dans un vérificateur avant de valider.",
+    ),
+    quiz: {
+      q: B("Pagelune's orange accent on cream measures 2.8:1. Where can Nora still use it?",
+        "L'orange d'accent de Pagelune sur crème mesure 2,8:1. Où Nora peut-elle encore l'employer ?"),
+      options: [
+        B('For the paragraphs of the website, since it is the brand colour', 'Pour les paragraphes du site, puisque c\'est la couleur de la marque'),
+        B('For decorative shapes that carry no information, never for text', 'Pour des formes décoratives sans information, jamais pour du texte'),
+        B('For large headings, since large text only needs 2.5:1 to pass', 'Pour les grands titres, le grand texte ne demandant que 2,5:1'),
+      ],
+      answer: 1,
+      why: B(
+        'Below 3:1, the pair fails even for large text. Pure decoration carries no information and has no contrast requirement; any text or useful icon needs a darker shade.',
+        "Sous 3:1, le couple échoue même pour le grand texte. Une décoration pure ne porte aucune information et n'a pas d'exigence ; tout texte ou icône utile demande une teinte plus foncée.",
+      ),
+    },
+    badge: B('Measures before approving', 'Mesure avant de valider'),
+  },
+  {
+    id: 'lg-colorspace',
+    master: 'tools',
+    minutes: 10,
+    title: B('RGB, CMYK, HEX: colour for each medium', 'RVB, CMJN, HEX : les couleurs selon le support'),
+    learn: B(
+      "You will define each brand colour for screen (RGB, HEX) and for print (CMYK, spot colour), using the printer's profile.",
+      "Vous saurez définir chaque couleur pour l'écran (RVB, HEX) et l'impression (CMJN, voire un ton direct), selon l'imprimeur.",
+    ),
+    act: B('Write the colour sheet of Pagelune: HEX, RGB, CMYK and spot colour, then check them on a printed proof.',
+      'Rédigez la fiche couleurs de Pagelune : HEX, RVB, CMJN et le ton direct, puis vérifiez-les sur une épreuve imprimée.'),
+    steps: [
+      B('Ask the printer which ICC profile and which paper they use before converting anything to CMYK.',
+        "Demandez à l'imprimeur son profil ICC et son papier avant de convertir quoi que ce soit en CMJN."),
+      B('Convert in Illustrator or Affinity Designer with that profile, never from values an AI computed.',
+        "Convertissez dans Illustrator ou Affinity Designer avec ce profil, jamais à partir de valeurs calculées par l'IA."),
+      B('Compare a printed proof with a physical swatch guide, and pick a spot colour for one-colour jobs.',
+        'Comparez une épreuve imprimée à un nuancier physique, et choisissez un ton direct pour les travaux en une couleur.'),
+      B('Record everything in one table: role, HEX, RGB, CMYK with its profile, spot colour, approved uses.',
+        'Consignez tout dans un tableau : rôle, HEX, RVB, CMJN avec son profil, le ton direct, les usages validés.'),
+    ],
+    trap: B(
+      'Sending the printer HEX codes, or CMYK values converted by an AI: the result depends on profile and paper, and the orange may print brown.',
+      "Envoyer à l'imprimeur des codes HEX, ou un CMJN converti par une IA : le rendu dépend du profil et du papier, et l'orange peut sortir brun.",
+    ),
+    quiz: {
+      q: B('The cups of Pagelune print a dull orange, far from the screen. What is the most likely cause?',
+        "Les gobelets de Pagelune impriment un orange terne, loin de l'écran. Quelle est la cause la plus probable ?"),
+      options: [
+        B('The vivid screen orange lies outside what CMYK inks can reproduce', "L'orange vif de l'écran sort de ce que les encres CMJN reproduisent"),
+        B('The HEX code was typed in lower case instead of in capital letters', 'Le code HEX a été saisi en minuscules plutôt qu\'en majuscules'),
+        B('The logo was exported as an SVG file instead of a large PNG file', 'Le logo a été exporté en SVG au lieu d\'un grand fichier PNG'),
+      ],
+      answer: 0,
+      why: B(
+        'Screens mix light and reach saturated oranges that inks cannot. The fix is a CMYK value tuned on a proof, or a spot colour, not another file format.',
+        "Les écrans mélangent de la lumière et atteignent des orangés saturés que les encres n'atteignent pas. La solution : un CMJN réglé sur épreuve, ou un ton direct.",
+      ),
+    },
+    badge: B('Speaks screen and print', "Parle l'écran et l'imprimé"),
+  },
+  {
+    id: 'lg-type',
+    master: 'research',
+    minutes: 11,
+    title: B('Choose and pair typefaces, and check licences', 'Choisir et associer les typographies, et leurs licences'),
+    learn: B(
+      'You will pair two type families by role and contrast, and check that their licences cover every planned use.',
+      'Vous saurez associer deux familles de caractères par rôle et par contraste, et vérifier que leurs licences couvrent chaque usage.',
+    ),
+    act: B('Shortlist pairings for Pagelune with AI, test them on real texts, then read the licence of the chosen pair.',
+      "Présélectionnez des paires pour Pagelune avec l'IA, testez-les sur de vrais textes, puis lisez la licence retenue."),
+    steps: [
+      B('List the roles (headings, body text, small print, signage) and the uses: print, website, app, video.',
+        'Listez les rôles (titres, texte courant, petits textes, signalétique) et les usages : imprimé, site, app, vidéo.'),
+      B('Ask the AI for pairings that contrast in structure, such as a serif with a sans, with one reason each.',
+        "Demandez à l'IA des paires qui contrastent par leur structure, comme une serif et une sans, avec une raison chacune."),
+      B('Set the same real texts in each pair, at real sizes, and print them: price list, sign, social post.',
+        'Composez les mêmes vrais textes avec chaque paire, à taille réelle, et imprimez-les : tarifs, enseigne, publication.'),
+      B('Open the licence of the chosen fonts and check desktop, web, app and logo use, one by one.',
+        'Ouvrez la licence des fontes retenues et vérifiez les usages bureau, web, app et logo, un par un.'),
+    ],
+    trap: B(
+      'Taking the AI at its word when it says a font is free for commercial use: it mixes up families and licences. Only the licence is proof.',
+      "Croire l'IA qui affirme qu'une fonte est libre d'usage commercial : elle confond familles et licences. Seule la licence de la fonte fait foi.",
+    ),
+    quiz: {
+      q: B('Nora found a lovely display font on a free download site, with no licence file. What should she do?',
+        'Nora a trouvé une belle fonte de titrage sur un site de téléchargement gratuit, sans licence. Que faire ?'),
+      options: [
+        B('Use it, since a font offered as a free download is free for any use', "L'utiliser, une fonte en téléchargement gratuit étant libre de tout usage"),
+        B('Ask the AI to confirm the licence, and keep the font if it agrees', "Demander à l'IA de confirmer la licence, et la garder si elle approuve"),
+        B('Find the original foundry and its licence, or choose another family', "Retrouver la fonderie d'origine et sa licence, ou choisir une autre famille"),
+      ],
+      answer: 2,
+      why: B(
+        'Download sites often redistribute fonts without the right to. The licence of the foundry decides; without it, the logo and the guidelines rest on a font whose use cannot be proved.',
+        "Les sites de téléchargement redistribuent souvent des fontes sans en avoir le droit. La licence de la fonderie décide ; sans elle, logo et charte reposent sur un usage improuvable.",
+      ),
+    },
+    badge: B('Pairs and reads the licence', 'Associe et lit la licence'),
+  },
+  {
+    id: 'lg-imagery',
+    master: 'extraction',
+    minutes: 10,
+    title: B('Iconography, imagery and brand patterns', 'Iconographie, images et motifs de la marque'),
+    learn: B(
+      'You will derive icons, a photo style and patterns from the logo, and write rules that keep AI images consistent.',
+      'Vous saurez tirer du logo des icônes, un style photo et des motifs, et écrire des règles qui gardent les images IA cohérentes.',
+    ),
+    act: B('Extract the shapes of the Pagelune logo into a pattern and an icon set, then write its image rules.',
+      "Tirez les formes du logo de Pagelune en un motif et un jeu d'icônes, puis rédigez ses règles d'image."),
+    steps: [
+      B('Isolate the building blocks of the logo: the crescent, the curve of the page, the stroke weight, the corners.',
+        'Isolez les briques du logo : le croissant, la courbe de la page, la graisse du trait, les angles.'),
+      B('Draw icons on one grid with one stroke weight, or adapt an open icon set to those rules.',
+        "Dessinez les icônes sur une même grille avec une même graisse, ou adaptez un jeu d'icônes libre à ces règles."),
+      B('Build a repeat pattern from the crescent and test it behind text, on a paper bag and as a background.',
+        'Construisez un motif répété à partir du croissant et testez-le sous du texte, sur un sac en papier et en fond.'),
+      B('Write the image rules: light, framing, subjects, what AI may generate and what it must not.',
+        "Rédigez les règles d'image : lumière, cadrage, sujets, ce que l'IA peut générer et ce qu'elle ne doit pas."),
+    ],
+    trap: B(
+      'Generating each visual from a new prompt: the style drifts from one post to the next. Keep one written style block and reuse it as is.',
+      "Générer chaque visuel avec un nouveau prompt : le style dérive d'une publication à l'autre. Gardez un bloc de style écrit, réutilisé tel quel.",
+    ),
+    quiz: {
+      q: B('Before opening, Pagelune wants photos of happy customers for its website. What should the image rules say?',
+        "Avant l'ouverture, Pagelune veut des photos de clients heureux pour son site. Que disent les règles d'image ?"),
+      options: [
+        B('Generate realistic customers with AI, since nobody sees the difference', 'Générer des clients réalistes par IA, personne ne voyant la différence'),
+        B('No generated people shown as real customers; show the place and objects', 'Aucune personne générée montrée comme cliente réelle ; montrer lieu et objets'),
+        B('Use stock photos of any café, as long as they match the brand colours', "Prendre des photos d'un café quelconque, pourvu qu'elles aient ses couleurs"),
+      ],
+      answer: 1,
+      why: B(
+        'Generated faces shown as customers mislead visitors, like a fake testimonial. Before opening, the place, the books and the cups tell the truth; real photos come later, with consent.',
+        "Des visages générés présentés comme clients trompent le visiteur, comme un faux témoignage. Avant l'ouverture, le lieu, les livres et les tasses disent vrai ; les vraies photos viendront, avec accord.",
+      ),
+    },
+    badge: B('Extends the logo into a language', 'Étend le logo en un langage'),
+  },
+]
+
+const COLOR_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M3, 'lg-palette')]: {
+    why: [
+      B("A brand palette is a system of roles, not a list of favourite colours. One main colour carries recognition, an accent draws attention to what matters (an event, an action), and neutrals do most of the work: text, backgrounds, lines. Writing the role next to each colour prevents the usual drift, where the accent ends up everywhere and no longer means anything.",
+        "Une palette de marque est un système de rôles, pas une liste de couleurs préférées. Une couleur principale porte la reconnaissance, un accent attire l'attention sur ce qui compte (un événement, une action), et les neutres font l'essentiel du travail : textes, fonds, filets. Écrire le rôle à côté de chaque couleur évite la dérive habituelle, où l'accent finit partout et ne signifie plus rien."),
+      B("Contrast is measured, not judged by eye. The Web Content Accessibility Guidelines (WCAG) of the W3C define a ratio between text and background: at level AA, at least 4.5:1 for normal text and 3:1 for large text, and 3:1 for icons and interface parts that carry information. Logos are exempt, but every text the brand sets in its colours is not.",
+        "Le contraste se mesure, il ne s'estime pas à l'oeil. Les Web Content Accessibility Guidelines (WCAG) du W3C définissent un ratio entre texte et fond : au niveau AA, au moins 4,5:1 pour le texte courant et 3:1 pour le grand texte, et 3:1 pour les icônes et éléments d'interface porteurs d'information. Les logos en sont exemptés, pas les textes que la marque compose dans ses couleurs."),
+      B("AI is a good partner for proposing directions and explaining them, and a poor calculator: models often state contrast ratios that are wrong. The workflow is therefore split: the AI proposes and justifies, a checker measures, you decide. A colour blindness simulation completes the test, since two colours of equal lightness can look identical to some readers.",
+        "L'IA est une bonne partenaire pour proposer des pistes et les expliquer, et une mauvaise calculatrice : les modèles annoncent souvent des ratios faux. Le workflow se partage donc : l'IA propose et justifie, un vérificateur mesure, vous décidez. Une simulation des daltonismes complète le test, car deux couleurs de même clarté peuvent sembler identiques à certains lecteurs."),
+    ],
+    example: {
+      context: B("Nora asks the AI for a palette for Pagelune. She receives five pleasant colours, each labelled 'accessible' by the AI, and starts the website mock-up with them without measuring anything.",
+        "Nora demande à l'IA une palette pour Pagelune. Elle reçoit cinq couleurs agréables, chacune qualifiée d'« accessible » par l'IA, et commence la maquette du site avec elles, sans rien mesurer."),
+      before: B("Give me an accessible colour palette for Pagelune, a café and bookshop.",
+        "Donne-moi une palette de couleurs accessible pour Pagelune, un café-librairie."),
+      after: B("Here is the brief of Pagelune and its personality: [PASTE OF THE BRIEF AND THE ADJECTIVES].\nThe logo is a crescent formed by a page, with the name.\n1. Propose three palette directions. For each: one main colour, one accent, three neutrals (a light background, a dark text colour, a mid grey), with HEX codes.\n2. Link each colour to a value or an adjective of the brief, in one sentence.\n3. Give the role of each colour: what it is used for, and what it must never be used for.\n4. Do not calculate any contrast ratio. Instead, list the text and background pairs I must test, in a table I will fill with my own measurements.",
+        "Voici le brief de Pagelune et sa personnalité : [BRIEF ET ADJECTIFS COLLÉS].\nLe logo est un croissant formé par une page, accompagné du nom.\n1. Propose trois pistes de palette. Pour chacune : une couleur principale, un accent, trois neutres (un fond clair, une couleur de texte foncée, un gris moyen), avec codes HEX.\n2. Relie chaque couleur à une valeur ou à un adjectif du brief, en une phrase.\n3. Donne le rôle de chaque couleur : à quoi elle sert, et à quoi elle ne doit jamais servir.\n4. Ne calcule aucun ratio de contraste. Liste plutôt les couples texte et fond que je dois tester, dans un tableau que je remplirai avec mes propres mesures."),
+      takeaway: B("The AI now proposes and explains, and the measurement stays with Nora. Her table shows that the night blue on cream is comfortable for text, while the orange accent fails for body text and is kept for shapes and large highlights.",
+        "L'IA propose et explique désormais, et la mesure reste à Nora. Son tableau montre que le bleu nuit sur crème convient au texte, tandis que l'accent orange échoue pour le texte courant et se limite aux formes et aux grands aplats."),
+    },
+    exercise: {
+      goal: B("A palette of five or six colours with written roles, and a contrast table where every text pair has a measured ratio and a verdict (body text, large text only, decoration only).",
+        "Une palette de cinq ou six couleurs aux rôles écrits, et un tableau de contraste où chaque couple a un ratio mesuré et un verdict (texte courant, grand texte seulement, décoration seulement)."),
+      prompt: B("Here is the brief of [YOUR BRAND]: [PASTE THE POSITIONING, VALUES AND PERSONALITY].\nThe logo: [DESCRIBE IT IN ONE SENTENCE].\n1. Propose three palette directions, each with one main colour, one accent and three neutrals, in HEX.\n2. Tie each colour to a value or an adjective of the brief.\n3. For each colour, write its role and one forbidden use.\n4. Do not compute any contrast ratio. List the text and background pairs to test, as an empty table with these columns: text colour, background, measured ratio, verdict.\nAvoid these colours, already used by my main competitors: [COLOURS FROM YOUR AUDIT].",
+        "Voici le brief de [VOTRE MARQUE] : [COLLEZ POSITIONNEMENT, VALEURS ET PERSONNALITÉ].\nLe logo : [DÉCRIVEZ-LE EN UNE PHRASE].\n1. Propose trois pistes de palette, chacune avec une couleur principale, un accent et trois neutres, en HEX.\n2. Relie chaque couleur à une valeur ou à un adjectif du brief.\n3. Pour chaque couleur, écris son rôle et un usage interdit.\n4. Ne calcule aucun ratio de contraste. Liste les couples texte et fond à tester, sous forme de tableau vide avec ces colonnes : couleur du texte, fond, ratio mesuré, verdict.\nÉvite ces couleurs, déjà employées par mes principaux concurrents : [COULEURS DE VOTRE AUDIT]."),
+      check: [
+        B("Each colour has a role and a forbidden use, written down", "Chaque couleur a un rôle et un usage interdit, écrits"),
+        B("Every ratio in the table was measured in a checker, not copied from the AI", "Chaque ratio du tableau a été mesuré dans un vérificateur, pas recopié de l'IA"),
+        B("Body text pairs all reach at least 4.5:1", "Les couples de texte courant atteignent tous au moins 4,5:1"),
+        B("A colour blindness simulation shows no information carried by colour alone", "Une simulation des daltonismes ne montre aucune information portée par la seule couleur"),
+      ],
+      bonus: B("If the accent fails for text, ask the AI for a darker shade of the same hue reserved for text, then measure it. Many brands keep two versions of their accent: one to be seen, one to be read.",
+        "Si l'accent échoue pour le texte, demandez à l'IA une teinte plus foncée de la même couleur réservée au texte, puis mesurez-la. Beaucoup de marques gardent deux versions de leur accent : une pour être vue, une pour être lue."),
+    },
+    more: [
+      { q: B("The AI states that its night blue on cream reaches a very high ratio. What should Nora do with that figure?",
+          "L'IA affirme que son bleu nuit sur crème atteint un ratio très élevé. Que doit faire Nora de ce chiffre ?"),
+        options: [
+          B("Copy it into the guidelines, since the AI did the calculation", "Le recopier dans la charte, puisque l'IA a fait le calcul"),
+          B("Skip the test, since dark blue on cream is obviously readable", "Sauter le test, le bleu foncé sur crème étant lisible à l'évidence"),
+          B("Measure the pair in a checker and record her own value", "Mesurer le couple dans un vérificateur et noter sa propre valeur"),
+        ],
+        answer: 2,
+        why: B("A model's stated ratio is a guess that may be wrong. A checker applies the WCAG formula to the exact HEX codes, and the measured value is the one that belongs in the guidelines.",
+          "Le ratio annoncé par un modèle est une estimation qui peut être fausse. Un vérificateur applique la formule des WCAG aux codes HEX exacts, et c'est la valeur mesurée qui a sa place dans la charte.") },
+      { q: B("Why give the accent colour a written role in the palette?",
+          "Pourquoi donner à la couleur d'accent un rôle écrit dans la palette ?"),
+        options: [
+          B("So that it stays rare and keeps its power to draw the eye", "Pour qu'elle reste rare et garde son pouvoir d'attirer l'oeil"),
+          B("Because WCAG requires every colour to be named in a charter", "Parce que les WCAG exigent que chaque couleur soit nommée"),
+          B("Because printers refuse palettes that have no written roles", "Parce que les imprimeurs refusent les palettes sans rôles écrits"),
+        ],
+        answer: 0,
+        why: B("An accent works by contrast with the rest. Once it is used for everything, nothing stands out; a written role tells every future user of the palette when it is, and is not, the right colour.",
+          "Un accent agit par contraste avec le reste. Employé partout, plus rien ne ressort ; un rôle écrit dit à chaque futur utilisateur de la palette quand c'est, et quand ce n'est pas, la bonne couleur.") },
+    ],
+  },
+
+  [enrichKey(M3, 'lg-colorspace')]: {
+    why: [
+      B("Screens and paper make colour in opposite ways. A screen adds red, green and blue light (RGB), and HEX is simply a compact way of writing an RGB colour for the web. Printing subtracts light with cyan, magenta, yellow and black inks (CMYK). Some screen colours, especially saturated oranges, greens and blues, have no exact equivalent in ink.",
+        "L'écran et le papier fabriquent la couleur de façons opposées. Un écran additionne de la lumière rouge, verte et bleue (RVB), et le HEX n'est qu'une écriture compacte d'une couleur RVB pour le web. L'impression soustrait la lumière avec des encres cyan, magenta, jaune et noire (CMJN). Certaines couleurs d'écran, surtout les orangés, verts et bleus saturés, n'ont pas d'équivalent exact en encre."),
+      B("A CMYK value has no meaning without its profile. The same four numbers print differently on coated and uncoated paper, or on another press. The ICC profile, chosen with the printer, describes those conditions; conversion software uses it to compute the closest values. That is why a conversion done by an AI from memory, without the profile, is not a specification.",
+        "Une valeur CMJN n'a pas de sens sans son profil. Les quatre mêmes nombres impriment différemment sur papier couché et non couché, ou sur une autre presse. Le profil ICC, choisi avec l'imprimeur, décrit ces conditions ; le logiciel de conversion s'en sert pour calculer les valeurs les plus proches. Une conversion faite de mémoire par une IA, sans profil, n'est donc pas une spécification."),
+      B("Spot colours are premixed inks, identified by a reference in a swatch guide such as Pantone. They give a stable, vivid result on one-colour jobs like stamps, paper bags or cups. The access conditions of these libraries in design software change over time: check them on the official sites of Pantone and of your software.",
+        "Les tons directs sont des encres prémélangées, identifiées par une référence dans un nuancier comme Pantone. Ils donnent un rendu stable et vif sur les travaux en une couleur, comme les tampons, sacs en papier ou gobelets. Les conditions d'accès à ces bibliothèques dans les logiciels changent : vérifiez-les sur les sites officiels de Pantone et de votre logiciel."),
+    ],
+    example: {
+      context: B("Nora sends the printer of the Pagelune cups the HEX codes of the palette, with CMYK values the AI gave her. The proof comes back with a brownish orange and a night blue that looks almost black.",
+        "Nora envoie à l'imprimeur des gobelets de Pagelune les codes HEX de la palette, avec des CMJN donnés par l'IA. L'épreuve revient avec un orange brunâtre et un bleu nuit presque noir."),
+      before: B("Convert these HEX colours to CMYK for printing: [HEX CODES].",
+        "Convertis ces couleurs HEX en CMJN pour l'impression : [CODES HEX]."),
+      after: B("I am preparing the colour sheet of Pagelune for print. Do not give me CMYK values.\nContext: the printer prints the cups on [PAPER OR MATERIAL] and uses the ICC profile [NAME GIVEN BY THE PRINTER].\nHere are the screen colours: [HEX CODES WITH THEIR ROLES].\n1. For each colour, tell me if it risks falling outside what CMYK can reproduce, and why (saturation, hue).\n2. Write the step-by-step procedure to convert them in Illustrator with that profile, then to check them on a proof.\n3. List the questions to ask the printer: proof, tolerance, spot colour or four-colour printing, minimum line thickness.\n4. Propose a table for the colour sheet: role, HEX, RGB, CMYK (profile), spot colour, approved uses.",
+        "Je prépare la fiche couleurs de Pagelune pour l'impression. Ne me donne pas de valeurs CMJN.\nContexte : l'imprimeur imprime les gobelets sur [PAPIER OU MATIÈRE] et utilise le profil ICC [NOM DONNÉ PAR L'IMPRIMEUR].\nVoici les couleurs d'écran : [CODES HEX AVEC LEURS RÔLES].\n1. Pour chaque couleur, dis-moi si elle risque de sortir de ce que le CMJN reproduit, et pourquoi (saturation, teinte).\n2. Rédige la procédure pas à pas pour les convertir dans Illustrator avec ce profil, puis les contrôler sur épreuve.\n3. Liste les questions à poser à l'imprimeur : épreuve, tolérance, ton direct ou quadrichromie, épaisseur minimale des traits.\n4. Propose un tableau pour la fiche couleurs : rôle, HEX, RVB, CMJN (profil), ton direct, usages validés."),
+      takeaway: B("The AI no longer invents numbers: it flags the orange as risky, writes the procedure and the questions. The values come from Illustrator with the printer's profile, are adjusted on a proof, and the cups use a spot orange.",
+        "L'IA n'invente plus de chiffres : elle signale l'orange comme risqué, rédige la procédure et les questions. Les valeurs sortent d'Illustrator avec le profil de l'imprimeur, sont ajustées sur épreuve, et les gobelets passent en orange direct."),
+    },
+    exercise: {
+      goal: B("A colour sheet where each brand colour has its HEX, RGB, CMYK values with the profile named, a spot colour reference if needed, and approved uses, checked on at least one printed proof.",
+        "Une fiche couleurs où chaque couleur de marque a ses valeurs HEX, RVB, CMJN avec le profil nommé, la référence d'un ton direct au besoin, et ses usages validés, contrôlée sur au moins une épreuve imprimée."),
+      prompt: B("I am preparing the colour sheet of [YOUR BRAND]. Do not compute any CMYK value.\nScreen colours and roles: [HEX CODES AND ROLES].\nPrinted items planned: [ITEMS, E.G. BUSINESS CARDS, SIGN, BAGS], printed by [PRINTER] on [PAPER OR MATERIAL], with the ICC profile [PROFILE NAME].\n1. Flag each colour likely to fall outside CMYK, and explain why.\n2. Write the conversion and proofing procedure in [YOUR SOFTWARE].\n3. Tell me which items would benefit from a spot colour, and why.\n4. Give me the empty colour sheet as a table: role, HEX, RGB, CMYK (profile), spot colour, approved uses.",
+        "Je prépare la fiche couleurs de [VOTRE MARQUE]. Ne calcule aucune valeur CMJN.\nCouleurs d'écran et rôles : [CODES HEX ET RÔLES].\nImprimés prévus : [SUPPORTS, PAR EXEMPLE CARTES DE VISITE, ENSEIGNE, SACS], imprimés par [IMPRIMEUR] sur [PAPIER OU MATIÈRE], avec le profil ICC [NOM DU PROFIL].\n1. Signale chaque couleur susceptible de sortir du CMJN, et explique pourquoi.\n2. Rédige la procédure de conversion et d'épreuve dans [VOTRE LOGICIEL].\n3. Dis-moi quels supports gagneraient à un ton direct, et pourquoi.\n4. Donne-moi la fiche couleurs vide sous forme de tableau : rôle, HEX, RVB, CMJN (profil), ton direct, usages validés."),
+      check: [
+        B("The CMYK values name the profile they were converted with", "Les valeurs CMJN nomment le profil avec lequel elles ont été converties"),
+        B("No CMYK value was copied from an AI answer", "Aucune valeur CMJN n'a été recopiée d'une réponse d'IA"),
+        B("At least one item was checked on a printed proof", "Au moins un support a été contrôlé sur une épreuve imprimée"),
+        B("The sheet says which items use a spot colour and which use four-colour printing", "La fiche dit quels supports passent par un ton direct et lesquels en quadrichromie"),
+      ],
+      bonus: B("Print the palette at home and at the printer, then look at both under daylight next to the screen. The gap between the three is the best lesson on colour spaces you will ever get, and it costs a sheet of paper.",
+        "Imprimez la palette chez vous et chez l'imprimeur, puis regardez les deux à la lumière du jour à côté de l'écran. L'écart entre les trois est la meilleure leçon sur les espaces colorimétriques qui soit, pour le prix d'une feuille."),
+    },
+    more: [
+      { q: B("What is a HEX code such as #1F2A44, technically?",
+          "Qu'est-ce, techniquement, qu'un code HEX comme #1F2A44 ?"),
+        options: [
+          B("A print reference that every printer can reproduce exactly", "Une référence d'impression que tout imprimeur reproduit exactement"),
+          B("A compact way of writing an RGB colour, used on screens", "Une écriture compacte d'une couleur RVB, utilisée à l'écran"),
+          B("A spot colour number taken from an official swatch guide", "Le numéro d'un ton direct tiré d'un nuancier officiel"),
+        ],
+        answer: 1,
+        why: B("HEX writes the three RGB channels in hexadecimal. It describes light on a screen, so it says nothing about how inks on a given paper will render the colour.",
+          "Le HEX écrit les trois canaux RVB en hexadécimal. Il décrit de la lumière sur un écran, et ne dit donc rien de la façon dont des encres sur un papier donné rendront la couleur.") },
+      { q: B("Why does Nora ask the printer for the ICC profile before converting?",
+          "Pourquoi Nora demande-t-elle le profil ICC à l'imprimeur avant de convertir ?"),
+        options: [
+          B("Because the profile is needed to legally print a logo", "Parce que le profil est exigé pour imprimer légalement un logo"),
+          B("Because the profile sets the price of the print run", "Parce que le profil fixe le prix du tirage"),
+          B("Because CMYK values depend on that press and paper", "Parce que les CMJN dépendent de cette presse et de ce papier"),
+        ],
+        answer: 2,
+        why: B("The profile describes the printing conditions. Converting with the right one gives values that fit that press and paper; with another, the same numbers will print differently.",
+          "Le profil décrit les conditions d'impression. Convertir avec le bon donne des valeurs adaptées à cette presse et à ce papier ; avec un autre, les mêmes nombres imprimeront autrement.") },
+    ],
+  },
+
+  [enrichKey(M3, 'lg-type')]: {
+    why: [
+      B("Typefaces carry personality as much as colours do. A serif with soft curves reads as literary and warm, a geometric sans as clear and contemporary. A pairing works when the two families have distinct roles and a visible contrast in structure (serif and sans, or two weights far apart), while sharing something: proportions, x-height, or an era.",
+        "Les typographies portent la personnalité autant que les couleurs. Une serif aux courbes douces se lit comme littéraire et chaleureuse, une sans géométrique comme claire et contemporaine. Une association fonctionne quand les deux familles ont des rôles distincts et un contraste de structure visible (serif et sans, ou deux graisses éloignées), tout en partageant quelque chose : proportions, hauteur d'x ou époque."),
+      B("A pairing is judged on real texts at real sizes, not on a specimen. Headings must hold on a shop sign and in a narrow phone screen, body text must remain readable in small print on a receipt. Printing the tests matters: screens are forgiving, and weaknesses in small sizes appear on paper.",
+        "Une association se juge sur de vrais textes à taille réelle, pas sur un spécimen. Les titres doivent tenir sur une enseigne et dans l'écran étroit d'un téléphone, le texte courant doit rester lisible en petit corps sur un ticket. Imprimer les essais compte : l'écran est indulgent, et les faiblesses des petits corps apparaissent sur le papier."),
+      B("A font is software under a licence. Licences distinguish uses: desktop (print documents, images), web embedding, apps, e-books, sometimes logos. Families on Google Fonts are published under open licences, mostly the SIL Open Font License; commercial fonts are licensed by use or volume. The licence shipped with the font, or the foundry's site, is the only proof.",
+        "Une fonte est un logiciel sous licence. Les licences distinguent les usages : bureau (documents imprimés, images), intégration web, apps, livres numériques, parfois logos. Les familles de Google Fonts sont publiées sous licences libres, le plus souvent la SIL Open Font License ; les fontes commerciales se licencient par usage ou volume. La licence fournie avec la fonte, ou le site de la fonderie, est la seule preuve."),
+    ],
+    example: {
+      context: B("Nora asks the AI for fonts that suit Pagelune. She gets eight famous names, two of which are commercial families described as free, and no reason linked to the brief.",
+        "Nora demande à l'IA des polices qui conviennent à Pagelune. Elle obtient huit noms connus, dont deux familles commerciales présentées comme gratuites, et aucune raison liée au brief."),
+      before: B("Which fonts should I use for a café-bookshop brand?",
+        "Quelles polices utiliser pour la marque d'un café-librairie ?"),
+      after: B("Brand: Pagelune, café and bookshop. Personality: [ADJECTIVES WITH THEIR LIMITS]. The logo is set in [DESCRIPTION OF THE LETTERING OF THE LOGO].\nRoles: headings (sign, website, posters), body text (website, price list), small print (receipts, labels).\nUses: print, website, social media; perhaps an app later.\n1. Propose four pairings (headings + body), each contrasting in structure, with one sentence linking it to the personality.\n2. For each family, say where it is published, and that I must check its licence myself. Do not state any licence as certain.\n3. Write the test sheet I should set in each pairing: a sign, a price list, a post, a receipt line, with real sizes.",
+        "Marque : Pagelune, café-librairie. Personnalité : [ADJECTIFS AVEC LEURS LIMITES]. Le logo est composé en [DESCRIPTION DU LETTRAGE DU LOGO].\nRôles : titres (enseigne, site, affiches), texte courant (site, tarifs), petits textes (tickets, étiquettes).\nUsages : imprimé, site, réseaux sociaux ; peut-être une app plus tard.\n1. Propose quatre associations (titres + texte courant), chacune contrastée par sa structure, avec une phrase qui la relie à la personnalité.\n2. Pour chaque famille, dis où elle est publiée, et que je dois vérifier sa licence moi-même. N'affirme aucune licence comme certaine.\n3. Rédige la planche d'essai à composer avec chaque association : une enseigne, des tarifs, une publication, une ligne de ticket, à tailles réelles."),
+      takeaway: B("The answer becomes a shortlist with reasons and a test protocol. Nora prints the four sheets, keeps a soft serif for headings and a sober sans for text, then reads both licence files before writing anything in the guidelines.",
+        "La réponse devient une présélection argumentée et un protocole d'essai. Nora imprime les quatre planches, retient une serif douce pour les titres et une sans sobre pour le texte, puis lit les deux fichiers de licence avant d'écrire quoi que ce soit dans la charte."),
+    },
+    exercise: {
+      goal: B("A chosen pairing with written roles and sizes, a printed test sheet, and a licence table listing, for each family, the source, the licence and the uses it covers.",
+        "Une association retenue avec rôles et tailles écrits, une planche d'essai imprimée, et un tableau des licences indiquant pour chaque famille la source, la licence et les usages couverts."),
+      prompt: B("Brand: [NAME], [SECTOR]. Personality: [3 TO 5 ADJECTIVES, EACH WITH WHAT IT EXCLUDES].\nThe logo lettering: [DESCRIPTION].\nRoles to cover: [HEADINGS, BODY TEXT, SMALL PRINT, SIGNAGE...].\nPlanned uses: [PRINT, WEBSITE, APP, VIDEO, LOGO...].\n1. Propose four pairings, each with a contrast in structure and one shared trait, and link each to the personality.\n2. For each family, name where it is published. Do not state any licence: tell me what to check in it for my uses.\n3. Write a test sheet with real texts and real sizes for each role.\n4. Warn me if a pairing risks competing with the lettering of the logo.",
+        "Marque : [NOM], [SECTEUR]. Personnalité : [3 À 5 ADJECTIFS, CHACUN AVEC CE QU'IL EXCLUT].\nLe lettrage du logo : [DESCRIPTION].\nRôles à couvrir : [TITRES, TEXTE COURANT, PETITS TEXTES, SIGNALÉTIQUE...].\nUsages prévus : [IMPRIMÉ, SITE, APP, VIDÉO, LOGO...].\n1. Propose quatre associations, chacune avec un contraste de structure et un trait commun, et relie chacune à la personnalité.\n2. Pour chaque famille, indique où elle est publiée. N'affirme aucune licence : dis-moi quoi y vérifier pour mes usages.\n3. Rédige une planche d'essai avec de vrais textes et de vraies tailles pour chaque rôle.\n4. Préviens-moi si une association risque de concurrencer le lettrage du logo."),
+      check: [
+        B("Each family has a written role and a size range", "Chaque famille a un rôle écrit et une plage de tailles"),
+        B("The test sheet was printed and read at arm's length", "La planche d'essai a été imprimée et lue à bout de bras"),
+        B("The licence of each family was read in its own file or on the foundry's site", "La licence de chaque famille a été lue dans son fichier ou sur le site de la fonderie"),
+        B("Every planned use, including web and app, is covered or flagged as missing", "Chaque usage prévu, web et app compris, est couvert ou signalé comme manquant"),
+      ],
+      bonus: B("Ask the AI to write the type section of the guidelines from your licence table: families, roles, sizes, line spacing, and where to download them legally. You will reuse it word for word in the guidelines of module 4.",
+        "Demandez à l'IA de rédiger la section typographique de la charte à partir de votre tableau de licences : familles, rôles, tailles, interlignage, et où les télécharger légalement. Vous la reprendrez telle quelle dans la charte du module 4."),
+    },
+    more: [
+      { q: B("Nora hesitates between two sans serif families that look almost alike. What is the risk of pairing them?",
+          "Nora hésite entre deux sans serif presque identiques. Quel est le risque de les associer ?"),
+        options: [
+          B("The contrast is too weak, so the pairing looks like a mistake", "Le contraste est trop faible, l'association a l'air d'une erreur"),
+          B("Two sans serif families cannot legally be used together", "Deux familles sans serif ne peuvent pas être employées ensemble"),
+          B("Printers charge more for documents that use two families", "Les imprimeurs facturent plus cher les documents à deux familles"),
+        ],
+        answer: 0,
+        why: B("A pairing needs a visible difference in structure or weight. Two near-identical families give no clear hierarchy, and readers sense an inconsistency rather than a choice.",
+          "Une association demande une différence visible de structure ou de graisse. Deux familles presque identiques ne donnent aucune hiérarchie nette, et le lecteur perçoit une incohérence plutôt qu'un choix.") },
+      { q: B("The licence of a font covers desktop use only. Pagelune wants it on its website. What follows?",
+          "La licence d'une fonte ne couvre que l'usage bureau. Pagelune la veut sur son site. Qu'en découle-t-il ?"),
+        options: [
+          B("Nothing, a desktop licence covers every digital use", "Rien, une licence bureau couvre tout usage numérique"),
+          B("A web licence is needed, or another family for the site", "Il faut une licence web, ou une autre famille pour le site"),
+          B("The font may be used online if it is converted to images", "La fonte peut aller en ligne si on la convertit en images"),
+        ],
+        answer: 1,
+        why: B("Licences are split by use, and embedding a font in a website is a distinct use. Either the foundry sells a web licence, or the website uses another family whose licence covers it.",
+          "Les licences se découpent par usage, et intégrer une fonte à un site en est un distinct. Soit la fonderie vend une licence web, soit le site emploie une autre famille dont la licence le couvre.") },
+    ],
+  },
+
+  [enrichKey(M3, 'lg-imagery')]: {
+    why: [
+      B("A logo alone cannot fill a website, a menu board or a feed. What makes a brand recognisable at a glance is often its wider visual language: icons drawn with the same stroke, a pattern derived from the symbol, a recognisable photo style. Extracting these elements from the logo, rather than inventing new ones, keeps everything related.",
+        "Un logo seul ne remplit ni un site, ni une ardoise, ni un fil de publications. Ce qui rend une marque reconnaissable d'un coup d'oeil, c'est souvent son langage visuel élargi : des icônes dessinées du même trait, un motif tiré du symbole, un style photo identifiable. Extraire ces éléments du logo, plutôt que d'en inventer de nouveaux, garde le tout apparenté."),
+      B("Icons are consistent when they share a grid, a stroke weight, corner rounding and a level of detail. Open icon sets (for instance Lucide or Phosphor, whose licences you must read) give a solid base that can be adjusted to the brand rules; mixing icons from several sets is what makes interfaces look patched together.",
+        "Des icônes sont cohérentes quand elles partagent une grille, une graisse de trait, un arrondi d'angle et un niveau de détail. Les jeux d'icônes libres (par exemple Lucide ou Phosphor, dont il faut lire la licence) donnent une base solide à ajuster aux règles de la marque ; mélanger plusieurs jeux est ce qui donne aux interfaces un air rapiécé."),
+      B("Image generators can produce illustrations and atmospheres in the brand style, on one condition: a fixed, written style block reused in every prompt, and clear limits. Images of real-looking people presented as customers, or of the place before it exists, would mislead. The rights attached to generated images are still debated: read the terms of your tool.",
+        "Les générateurs d'images peuvent produire illustrations et ambiances dans le style de la marque, à une condition : un bloc de style fixe et écrit, réutilisé dans chaque prompt, et des limites claires. Des personnes réalistes présentées comme clientes, ou le lieu montré avant qu'il existe, tromperaient. Les droits attachés aux images générées restent discutés : lisez les conditions de votre outil."),
+    ],
+    example: {
+      context: B("For the opening posts of Pagelune, Nora generates three illustrations with three different prompts. One is in watercolour, one is flat, one looks photographic: the feed looks like three different brands.",
+        "Pour les publications d'ouverture de Pagelune, Nora génère trois illustrations avec trois prompts différents. L'une est à l'aquarelle, l'autre en aplat, la troisième photographique : le fil ressemble à trois marques différentes."),
+      before: B("Make an illustration of a cosy café-bookshop at night for Instagram.",
+        "Fais une illustration d'un café-librairie chaleureux la nuit pour Instagram."),
+      after: B("STYLE BLOCK OF PAGELUNE (reuse as is):\nFlat illustration, two to three colours only: night blue [HEX], cream [HEX], warm orange accent [HEX]. Thick, even strokes with rounded ends, like the logo. Soft evening light, no gradients, no photographic texture. Simple shapes, generous empty space. No text in the image. No recognisable person, no brand logo, no real building.\n\nSUBJECT: [ONE SUBJECT, E.G. A STACK OF BOOKS NEXT TO A STEAMING CUP UNDER A CRESCENT MOON].\nFORMAT: square.\nGenerate four variations. I will choose one and redraw details in vector if needed.",
+        "BLOC DE STYLE DE PAGELUNE (à réutiliser tel quel) :\nIllustration en aplats, deux à trois couleurs seulement : bleu nuit [HEX], crème [HEX], accent orange chaud [HEX]. Traits épais et réguliers aux extrémités arrondies, comme le logo. Lumière douce du soir, sans dégradé, sans texture photographique. Formes simples, beaucoup d'espace vide. Aucun texte dans l'image. Aucune personne reconnaissable, aucun logo de marque, aucun bâtiment réel.\n\nSUJET : [UN SUJET, PAR EXEMPLE UNE PILE DE LIVRES PRÈS D'UNE TASSE FUMANTE SOUS UN CROISSANT DE LUNE].\nFORMAT : carré.\nGénère quatre variantes. J'en choisirai une et redessinerai les détails en vectoriel si besoin."),
+      takeaway: B("The style block is separated from the subject and never rewritten. The three new posts share palette, stroke and light, and the limits written in the block rule out fake customers and invented buildings from the start.",
+        "Le bloc de style est séparé du sujet et jamais réécrit. Les trois nouvelles publications partagent palette, trait et lumière, et les limites écrites dans le bloc écartent d'emblée faux clients et bâtiments inventés."),
+    },
+    exercise: {
+      goal: B("A small visual language drawn from your logo: a pattern, six consistent icons, and a written style block with its limits, tested on three generated images that look like one brand.",
+        "Un petit langage visuel tiré de votre logo : un motif, six icônes cohérentes, et un bloc de style écrit avec ses limites, testé sur trois images générées qui ressemblent à une seule marque."),
+      prompt: B("Here is the description of my logo: [SHAPES, STROKE, CORNERS, COLOURS].\nPersonality: [ADJECTIVES WITH LIMITS]. Palette: [HEX CODES AND ROLES].\n1. List the graphic building blocks I can extract from the logo, and for each, two uses (pattern, icon, frame, divider).\n2. Write the rules of an icon set: grid size, stroke weight, corners, level of detail, and the six icons I need first: [YOUR LIST].\n3. Write a style block for image generation (medium, colours, stroke, light, composition) and a list of limits (what must never be generated).\n4. Give three subjects for a first series, to test the block.",
+        "Voici la description de mon logo : [FORMES, TRAIT, ANGLES, COULEURS].\nPersonnalité : [ADJECTIFS AVEC LIMITES]. Palette : [CODES HEX ET RÔLES].\n1. Liste les briques graphiques que je peux extraire du logo et, pour chacune, deux usages (motif, icône, cadre, séparateur).\n2. Rédige les règles d'un jeu d'icônes : taille de grille, graisse du trait, angles, niveau de détail, et les six icônes dont j'ai besoin d'abord : [VOTRE LISTE].\n3. Rédige un bloc de style pour la génération d'images (technique, couleurs, trait, lumière, composition) et une liste de limites (ce qui ne doit jamais être généré).\n4. Donne trois sujets pour une première série, afin de tester le bloc."),
+      check: [
+        B("The pattern and the icons reuse a shape or a stroke of the logo", "Le motif et les icônes reprennent une forme ou un trait du logo"),
+        B("All icons share one grid and one stroke weight", "Toutes les icônes partagent une grille et une graisse de trait"),
+        B("The style block was reused word for word in the three prompts", "Le bloc de style a été réutilisé mot pour mot dans les trois prompts"),
+        B("The limits exclude realistic people shown as customers", "Les limites excluent les personnes réalistes montrées comme clientes"),
+      ],
+      bonus: B("Put the three images side by side with two images from a competitor's feed. Ask someone which ones belong together. If your three are grouped at once, the style block works.",
+        "Placez les trois images côte à côte avec deux images du fil d'un concurrent. Demandez à quelqu'un lesquelles vont ensemble. Si vos trois sont regroupées aussitôt, le bloc de style fonctionne."),
+    },
+    more: [
+      { q: B("The Pagelune website mixes icons from three free sets. What is the visible effect?",
+          "Le site de Pagelune mélange des icônes de trois jeux gratuits. Quel est l'effet visible ?"),
+        options: [
+          B("The pages load more slowly than with a single set of icons", "Les pages se chargent plus lentement qu'avec un seul jeu"),
+          B("Search engines rank the website lower for mixing sources", "Les moteurs de recherche classent le site plus bas"),
+          B("Strokes and details differ, and the interface looks patched", "Traits et détails diffèrent, et l'interface semble rapiécée"),
+        ],
+        answer: 2,
+        why: B("Each set has its own grid, stroke and level of detail. Side by side, these differences show, and the interface loses the consistency the logo set up.",
+          "Chaque jeu a sa grille, son trait et son niveau de détail. Côte à côte, ces différences se voient, et l'interface perd la cohérence que le logo avait installée.") },
+      { q: B("Why separate the style block from the subject in image prompts?",
+          "Pourquoi séparer le bloc de style du sujet dans les prompts d'images ?"),
+        options: [
+          B("Because generators refuse prompts longer than one paragraph", "Parce que les générateurs refusent les prompts de plus d'un paragraphe"),
+          B("So the style stays fixed while only the subject changes", "Pour que le style reste fixe et que seul le sujet change"),
+          B("Because the subject must always be written in English first", "Parce que le sujet doit toujours être écrit d'abord en anglais"),
+        ],
+        answer: 1,
+        why: B("Rewriting the whole prompt each time lets the style drift. A fixed block, pasted as is, keeps palette, stroke and light constant; only the subject line varies from one image to the next.",
+          "Réécrire tout le prompt à chaque fois laisse dériver le style. Un bloc fixe, collé tel quel, garde palette, trait et lumière constants ; seule la ligne du sujet varie d'une image à l'autre.") },
+    ],
+  },
+}
+
+const COLOR_DEEP: Record<string, Deepening> = {
+  [deepKey(M3, 'lg-palette')]: {
+    intro: B("A palette is the second thing people remember about a brand, often before its name. This lesson shows how to turn the brief of Pagelune into a palette organised by roles (main colour, accent, neutrals), how to measure the contrast of every text pairing against the WCAG of the W3C, and how to check that no information relies on colour alone. AI helps propose and explain directions; a contrast checker measures. At the end, you will have a palette you can defend and a contrast table that proves it can be read.",
+      "Une palette est la deuxième chose que l'on retient d'une marque, souvent avant son nom. Ce cours montre comment traduire le brief de Pagelune en une palette organisée par rôles (couleur principale, accent, neutres), comment mesurer le contraste de chaque couple texte et fond selon les WCAG du W3C, et comment vérifier qu'aucune information ne repose sur la seule couleur. L'IA aide à proposer et à expliquer des pistes ; un vérificateur de contraste mesure. À la fin, vous aurez une palette défendable et un tableau de contraste qui prouve qu'elle se lit."),
+    concepts: [
+      { term: B('Colour roles', 'Rôles des couleurs'),
+        def: B("The function of each colour in the system: the main colour for recognition, the accent to draw attention, the neutrals for text, backgrounds and lines.",
+          "La fonction de chaque couleur dans le système : la principale pour la reconnaissance, l'accent pour attirer l'attention, les neutres pour textes, fonds et filets.") },
+      { term: B('Contrast ratio', 'Ratio de contraste'),
+        def: B("A number from 1:1 to 21:1 computed from the relative luminance of two colours. WCAG level AA asks at least 4.5:1 for normal text and 3:1 for large text.",
+          "Un nombre de 1:1 à 21:1 calculé à partir de la luminance relative de deux couleurs. Le niveau AA des WCAG demande au moins 4,5:1 pour le texte courant et 3:1 pour le grand texte.") },
+      { term: B('Non-text contrast', 'Contraste des éléments non textuels'),
+        def: B("WCAG also asks 3:1 for icons and interface parts that carry information, such as a form field border. Pure decoration and logos are exempt.",
+          "Les WCAG demandent aussi 3:1 pour les icônes et éléments d'interface porteurs d'information, comme la bordure d'un champ. La décoration pure et les logos en sont exemptés.") },
+      { term: B('Colour alone', 'La couleur seule'),
+        def: B("A rule of accessibility: information must not be conveyed only by colour. A price in promotion is marked by a word or an icon too, not only by orange.",
+          "Une règle d'accessibilité : une information ne doit pas passer par la seule couleur. Un prix en promotion se signale aussi par un mot ou une icône, pas seulement par l'orange.") },
+    ],
+    walkthrough: {
+      title: B("Nora builds the palette of Pagelune, from the brief to a measured contrast table.",
+        "Nora construit la palette de Pagelune, du brief au tableau de contraste mesuré."),
+      steps: [
+        B("She pastes the brief and the personality into the AI and asks for three directions, each colour linked to a value. Why: a colour justified by the brief can be defended in front of Camille, a favourite colour cannot.",
+          "Elle colle le brief et la personnalité dans l'IA et demande trois pistes, chaque couleur reliée à une valeur. Pourquoi : une couleur justifiée par le brief se défend devant Camille, une couleur préférée non."),
+        B("Camille chooses the direction built on a night blue, a warm cream and an orange like lamplight. Nora writes the role of each colour and one forbidden use. Why: roles stop the accent from spreading everywhere.",
+          "Camille retient la piste bâtie sur un bleu nuit, un crème chaud et un orange de lumière de lampe. Nora écrit le rôle de chaque couleur et un usage interdit. Pourquoi : les rôles empêchent l'accent de se répandre partout."),
+        B("She enters each text and background pair into a contrast checker and fills the table with measured ratios. Why: the AI's stated ratios are not reliable, and the guidelines will quote these values.",
+          "Elle saisit chaque couple texte et fond dans un vérificateur de contraste et remplit le tableau avec les ratios mesurés. Pourquoi : les ratios annoncés par l'IA ne sont pas fiables, et la charte citera ces valeurs."),
+        B("The orange fails for body text on cream. She asks the AI for a darker shade of the same hue, measures it, and keeps it for text links only. Why: the brand keeps its accent without sacrificing readability.",
+          "L'orange échoue pour le texte courant sur crème. Elle demande à l'IA une teinte plus foncée de la même couleur, la mesure, et la réserve aux liens. Pourquoi : la marque garde son accent sans sacrifier la lisibilité."),
+        B("She simulates the main forms of colour blindness on the website mock-up and adds an icon next to every orange label. Why: information must survive when colour is not perceived.",
+          "Elle simule les principales formes de daltonisme sur la maquette du site et ajoute une icône à chaque étiquette orange. Pourquoi : l'information doit survivre quand la couleur n'est pas perçue."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Copying into the guidelines the contrast ratios the AI announced in its answer.",
+          "Recopier dans la charte les ratios de contraste annoncés par l'IA dans sa réponse."),
+        fix: B("Measure every pair in a checker such as the WebAIM one, or a contrast plugin in Figma, and record the measured values only.",
+          "Mesurez chaque couple dans un vérificateur comme celui de WebAIM, ou un plugin de contraste dans Figma, et ne consignez que les valeurs mesurées.") },
+      { wrong: B("Choosing five strong colours of equal importance, with no neutrals.",
+          "Choisir cinq couleurs fortes d'égale importance, sans aucun neutre."),
+        fix: B("Give the system one main colour, one accent and several neutrals. Neutrals carry text and space; strong colours work by contrast with them.",
+          "Donnez au système une couleur principale, un accent et plusieurs neutres. Les neutres portent le texte et l'espace ; les couleurs fortes agissent par contraste avec eux.") },
+      { wrong: B("Signalling a sold-out event or an error by colour alone.",
+          "Signaler un événement complet ou une erreur par la seule couleur."),
+        fix: B("Add a word or an icon to every piece of information that colour carries, then check it with a colour blindness simulation.",
+          "Ajoutez un mot ou une icône à chaque information portée par la couleur, puis vérifiez-le avec une simulation des daltonismes.") },
+    ],
+    recap: [
+      B("A palette is a system of roles: main, accent, neutrals.", "Une palette est un système de rôles : principale, accent, neutres."),
+      B("WCAG AA asks 4.5:1 for normal text, 3:1 for large text and meaningful icons.", "Les WCAG AA demandent 4,5:1 pour le texte courant, 3:1 pour le grand texte et les icônes utiles."),
+      B("The AI proposes and explains; a checker measures; you decide.", "L'IA propose et explique ; un vérificateur mesure ; vous décidez."),
+      B("No information should rely on colour alone.", "Aucune information ne doit reposer sur la seule couleur."),
+    ],
+    further: B("Read, on the W3C website, the Understanding pages of the WCAG criteria on contrast (minimum and non-text) and on the use of colour. Then check your own palette against them: these pages explain the reasons behind the thresholds, and the exceptions.",
+      "Lisez sur le site du W3C les pages Understanding des critères WCAG sur le contraste (minimum et non textuel) et sur l'utilisation de la couleur. Confrontez-y votre palette : ces pages expliquent les raisons des seuils, et leurs exceptions."),
+    more: [
+      { q: B("The logo of Pagelune uses a light orange that fails 3:1 on cream. Does WCAG require changing it?",
+          "Le logo de Pagelune emploie un orange clair qui échoue à 3:1 sur crème. Les WCAG imposent-elles de le changer ?"),
+        options: [
+          B("Yes, every element of a page must reach 4.5:1 to be accessible", "Oui, tout élément d'une page doit atteindre 4,5:1 pour être accessible"),
+          B("No, logos are exempt, but texts set in that orange are not", "Non, les logos sont exemptés, mais pas les textes composés dans cet orange"),
+          B("Only if the logo is used on the website rather than on paper", "Seulement si le logo est employé sur le site plutôt que sur papier"),
+        ],
+        answer: 1,
+        why: B("WCAG exempts text that is part of a logo or brand name. The exemption stops at the logo: headings, buttons or labels set in the same orange must meet the thresholds.",
+          "Les WCAG exemptent le texte qui fait partie d'un logo ou d'un nom de marque. L'exemption s'arrête au logo : titres, liens ou étiquettes composés dans le même orange doivent respecter les seuils.") },
+      { q: B("Why simulate colour blindness even after all pairs pass the contrast test?",
+          "Pourquoi simuler les daltonismes même quand tous les couples passent le test de contraste ?"),
+        options: [
+          B("Because a colour blindness test replaces the contrast measurement", "Parce qu'un test de daltonisme remplace la mesure de contraste"),
+          B("Because simulation tools also compute the CMYK values for print", "Parce que les outils de simulation calculent aussi les CMJN"),
+          B("Because two colours can contrast with the background yet look alike", "Parce que deux couleurs peuvent contraster avec le fond et se ressembler"),
+        ],
+        answer: 2,
+        why: B("Contrast tests compare a colour with its background. They do not tell whether two colours used to distinguish information, such as available and full, can be told apart by everyone.",
+          "Le test de contraste compare une couleur à son fond. Il ne dit pas si deux couleurs employées pour distinguer des informations, comme disponible et complet, se distinguent pour tout le monde.") },
+    ],
+  },
+
+  [deepKey(M3, 'lg-colorspace')]: {
+    intro: B("A brand colour must look like itself on a phone, on a shop sign and on a paper cup. That requires defining it in several systems: RGB and HEX for screens, CMYK for four-colour printing, and sometimes a spot colour for one-colour jobs. This lesson explains why these systems do not match exactly, why a CMYK value means nothing without the ICC profile of the printer, and where AI helps (procedures, questions, risk flags) and where it must not be trusted (computed values). You will write the colour sheet of Pagelune and check it on a proof.",
+      "Une couleur de marque doit se ressembler sur un téléphone, une enseigne et un gobelet en carton. Il faut donc la définir dans plusieurs systèmes : RVB et HEX pour l'écran, CMJN pour la quadrichromie, et parfois un ton direct pour les travaux en une couleur. Ce cours explique pourquoi ces systèmes ne coïncident pas exactement, pourquoi une valeur CMJN ne veut rien dire sans le profil ICC de l'imprimeur, et où l'IA aide (procédures, questions, alertes) et où il ne faut pas s'y fier (valeurs calculées). Vous rédigerez la fiche couleurs de Pagelune et la contrôlerez sur épreuve."),
+    concepts: [
+      { term: B('RGB and HEX', 'RVB et HEX'),
+        def: B("Additive colour, made of red, green and blue light, used by screens. HEX writes the same three values in hexadecimal, for the web.",
+          "Couleur additive, faite de lumière rouge, verte et bleue, employée par les écrans. Le HEX écrit les trois mêmes valeurs en hexadécimal, pour le web.") },
+      { term: B('CMYK', 'CMJN'),
+        def: B("Subtractive colour, made of cyan, magenta, yellow and black inks. Its range, the gamut, is smaller than that of screens for many saturated colours.",
+          "Couleur soustractive, faite d'encres cyan, magenta, jaune et noire. Sa gamme reproductible, le gamut, est plus réduite que celle des écrans pour beaucoup de couleurs saturées.") },
+      { term: B('ICC profile', 'Profil ICC'),
+        def: B("A file describing how a given press and paper render colour. Converting with the printer's profile gives CMYK values adapted to that job.",
+          "Un fichier qui décrit comment une presse et un papier donnés rendent la couleur. Convertir avec le profil de l'imprimeur donne des CMJN adaptés à ce travail.") },
+      { term: B('Spot colours', 'Tons directs'),
+        def: B("A premixed ink identified by a reference in a swatch guide, such as Pantone. It gives stable, vivid results on one-colour items.",
+          "Une encre prémélangée identifiée par une référence dans un nuancier, comme Pantone. Elle donne un rendu stable et vif sur les supports en une couleur.") },
+    ],
+    walkthrough: {
+      title: B("Nora prepares the colour sheet of Pagelune for the cups, the paper bags and the website.",
+        "Nora prépare la fiche couleurs de Pagelune pour les gobelets, les sacs en papier et le site."),
+      steps: [
+        B("She lists the media: website and social media on screen, business cards in four colours, cups and bags in one colour. Why: each medium decides which colour system is needed.",
+          "Elle liste les supports : site et réseaux à l'écran, cartes de visite en quadrichromie, gobelets et sacs en une couleur. Pourquoi : chaque support décide du système de couleur nécessaire."),
+        B("She calls the printers and writes down their ICC profile, paper and proofing method. Why: without the profile, any CMYK value would be a guess.",
+          "Elle appelle les imprimeurs et note leur profil ICC, leur papier et leur méthode d'épreuve. Pourquoi : sans profil, toute valeur CMJN serait une supposition."),
+        B("She asks the AI which colours of the palette risk falling outside CMYK. The vivid orange is flagged. Why: knowing the risk in advance avoids discovering it on a thousand printed cups.",
+          "Elle demande à l'IA quelles couleurs de la palette risquent de sortir du CMJN. L'orange vif est signalé. Pourquoi : connaître le risque d'avance évite de le découvrir sur mille gobelets imprimés."),
+        B("She converts in Illustrator with the printer's profile, prints a proof and compares it with a physical swatch guide under daylight. She adjusts the orange by eye. Why: the screen cannot show what the ink will do.",
+          "Elle convertit dans Illustrator avec le profil de l'imprimeur, fait une épreuve et la compare à un nuancier physique à la lumière du jour. Elle ajuste l'orange à l'oeil. Pourquoi : l'écran ne peut pas montrer ce que fera l'encre."),
+        B("For the cups and bags, she chooses a spot orange with the printer and records its reference. The sheet now lists role, HEX, RGB, CMYK with profile, spot colour and uses. Why: anyone can now order a print without asking her.",
+          "Pour les gobelets et les sacs, elle choisit avec l'imprimeur un orange en encre prémélangée et note sa référence. La fiche liste désormais rôle, HEX, RVB, CMJN avec profil, le ton direct et les usages. Pourquoi : chacun peut commander un imprimé sans la solliciter."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Asking an AI to convert HEX codes to CMYK and sending the result to the printer.",
+          "Demander à une IA de convertir des HEX en CMJN et envoyer le résultat à l'imprimeur."),
+        fix: B("Convert in a design tool with the printer's ICC profile, then validate on a proof. Use the AI for the procedure and the questions, not for the values.",
+          "Convertissez dans un logiciel de création avec le profil ICC de l'imprimeur, puis validez sur épreuve. Servez-vous de l'IA pour la procédure et les questions, pas pour les valeurs.") },
+      { wrong: B("Judging the printed colour from the screen, without any proof.",
+          "Juger la couleur imprimée d'après l'écran, sans épreuve."),
+        fix: B("Ask for a proof on the real paper and look at it under daylight next to a swatch guide. Adjust before the full print run.",
+          "Demandez une épreuve sur le vrai papier et regardez-la à la lumière du jour à côté d'un nuancier. Ajustez avant le tirage complet.") },
+      { wrong: B("Writing CMYK values in the guidelines without saying which profile they come from.",
+          "Écrire des valeurs CMJN dans la charte sans dire de quel profil elles viennent."),
+        fix: B("Name the profile and the paper next to every CMYK value, and say that another printer must convert from the RGB reference with their own profile.",
+          "Nommez le profil et le papier à côté de chaque CMJN, et précisez qu'un autre imprimeur devra convertir depuis la référence RVB avec son propre profil.") },
+    ],
+    recap: [
+      B("Screens add light (RGB, HEX); print subtracts it with inks (CMYK).", "L'écran additionne la lumière (RVB, HEX) ; l'impression la soustrait avec des encres (CMJN)."),
+      B("Some saturated screen colours cannot be reproduced exactly in CMYK.", "Certaines couleurs d'écran saturées ne se reproduisent pas exactement en CMJN."),
+      B("A CMYK value is only valid with the ICC profile it was converted with.", "Une valeur CMJN ne vaut qu'avec le profil ICC qui a servi à la convertir."),
+      B("Spot colours give stable results on one-colour items.", "Les tons directs donnent un rendu stable sur les supports en une couleur."),
+      B("The AI writes procedures and flags risks; it does not compute print values.", "L'IA rédige les procédures et signale les risques ; elle ne calcule pas les valeurs d'impression."),
+    ],
+    further: B("Read the colour management pages of the Adobe Illustrator help (or of your own software) on document profiles and proofing, then ask your printer for a test sheet of your palette on their paper. Keep that sheet with the guidelines.",
+      "Lisez les pages de l'aide d'Adobe Illustrator (ou de votre logiciel) sur la gestion des couleurs, les profils de document et l'épreuvage, puis demandez à votre imprimeur une planche d'essai de votre palette sur son papier. Gardez cette planche avec la charte."),
+    more: [
+      { q: B("A second printer, with another paper, must print the Pagelune business cards. Which value should Nora give?",
+          "Un second imprimeur, sur un autre papier, doit imprimer les cartes de Pagelune. Quelle valeur Nora doit-elle donner ?"),
+        options: [
+          B("The RGB reference and the target, so he converts with his profile", "La référence RVB et la cible, pour qu'il convertisse avec son profil"),
+          B("The CMYK values made for the first printer, unchanged", "Les CMJN faits pour le premier imprimeur, sans changement"),
+          B("The HEX code alone, since every printer knows how to read it", "Le code HEX seul, puisque tout imprimeur sait le lire"),
+        ],
+        answer: 0,
+        why: B("CMYK values belong to a profile and a paper. A new printer should convert from the reference colour with his own conditions, then validate with a proof against the approved sample.",
+          "Les CMJN appartiennent à un profil et à un papier. Un nouvel imprimeur doit convertir depuis la couleur de référence avec ses propres conditions, puis valider par une épreuve comparée à l'échantillon approuvé.") },
+      { q: B("Why use a spot colour for the paper bags of Pagelune?",
+          "Pourquoi un ton direct pour les sacs en papier de Pagelune ?"),
+        options: [
+          B("Because four-colour printing is forbidden on paper bags", "Parce que la quadrichromie est interdite sur les sacs en papier"),
+          B("Because a single premixed ink gives a stable, vivid orange", "Parce qu'une seule encre prémélangée donne un orange stable et vif"),
+          B("Because spot colours do not need any proof before printing", "Parce que les tons directs n'ont besoin d'aucune épreuve"),
+        ],
+        answer: 1,
+        why: B("On a one-colour job, a premixed ink reproduces the orange more faithfully than a mix of four inks, and it stays consistent from one run to the next. A proof is still useful.",
+          "Sur un travail en une couleur, une encre prémélangée reproduit l'orange plus fidèlement qu'un mélange de quatre encres, et reste constante d'un tirage à l'autre. Une épreuve reste utile.") },
+    ],
+  },
+
+  [deepKey(M3, 'lg-type')]: {
+    intro: B("Typography is the voice of a brand made visible: it speaks on the sign, the website, the price list and every receipt. This lesson shows how to choose and pair type families for Pagelune: by roles (headings, body text, small print), by contrast of structure and by shared traits, tested on real texts at real sizes and printed. It also teaches how to read a font licence, because a font is software, and each use (desktop, web, app, logo) may require its own right. AI helps shortlist and argue; the licence file decides.",
+      "La typographie est la voix de la marque rendue visible : elle parle sur l'enseigne, le site, les tarifs et chaque ticket. Ce cours montre comment choisir et associer des familles de caractères pour Pagelune : par rôles (titres, texte courant, petits textes), par contraste de structure et par traits communs, testées sur de vrais textes à taille réelle et imprimées. Il apprend aussi à lire une licence de fonte, car une fonte est un logiciel, et chaque usage (bureau, web, app, logo) peut demander son propre droit. L'IA aide à présélectionner et à argumenter ; le fichier de licence décide."),
+    concepts: [
+      { term: B('Type family', 'Famille de caractères'),
+        def: B("A set of fonts sharing one design in several weights and styles (regular, italic, bold). Brands usually rely on one or two families.",
+          "Un ensemble de fontes partageant un même dessin en plusieurs graisses et styles (romain, italique, gras). Les marques s'appuient en général sur une ou deux familles.") },
+      { term: B('Contrast of structure', 'Contraste de structure'),
+        def: B("A visible difference between two families, such as serif and sans serif, or two very distant weights. It creates hierarchy without confusion.",
+          "Une différence visible entre deux familles, comme serif et sans serif, ou deux graisses très éloignées. Elle crée une hiérarchie sans confusion.") },
+      { term: B('x-height', "Hauteur d'x"),
+        def: B("The height of lowercase letters without ascenders. Families with similar x-heights sit well together, and a generous x-height helps small sizes.",
+          "La hauteur des minuscules sans hampe. Des familles aux hauteurs d'x proches s'accordent bien, et une hauteur d'x généreuse aide les petits corps.") },
+      { term: B('Font licence', 'Licence de fonte'),
+        def: B("The contract that says how a font may be used: desktop, web embedding, app, e-book, logo. Open licences such as the SIL Open Font License allow broad use.",
+          "Le contrat qui dit comment une fonte peut être employée : bureau, intégration web, app, livre numérique, logo. Les licences libres comme la SIL Open Font License autorisent un usage large.") },
+    ],
+    walkthrough: {
+      title: B("Nora chooses the typefaces of Pagelune and checks that their licences cover every use.",
+        "Nora choisit les typographies de Pagelune et vérifie que leurs licences couvrent chaque usage."),
+      steps: [
+        B("She lists the roles and uses: headings on the sign and the website, body text for the price list and the site, small print on receipts; print, web, social media, perhaps an app. Why: the roles say what to test, the uses say which licence to read.",
+          "Elle liste rôles et usages : titres sur l'enseigne et le site, texte courant pour les tarifs et le site, petits textes sur les tickets ; imprimé, web, réseaux, peut-être une app. Pourquoi : les rôles disent quoi tester, les usages quelle licence lire."),
+        B("She asks the AI for four pairings linked to the personality, and forbids it to state any licence. Why: the AI is useful for ideas and reasons, unreliable about legal terms.",
+          "Elle demande à l'IA quatre associations reliées à la personnalité, en lui interdisant d'affirmer une licence. Pourquoi : l'IA est utile pour les idées et les raisons, peu fiable sur les conditions juridiques."),
+        B("She sets the same texts in each pairing (the sign, a price list, a post, a receipt line) and prints them at real size. Why: weaknesses in small sizes and on paper do not appear on screen.",
+          "Elle compose les mêmes textes avec chaque association (l'enseigne, des tarifs, une publication, une ligne de ticket) et les imprime à taille réelle. Pourquoi : les faiblesses en petit corps et sur papier ne se voient pas à l'écran."),
+        B("Camille and she keep a soft serif for headings, close in spirit to the lettering of the logo without copying it, and a sober sans for text. Why: the headings echo the logo, the text stays neutral and readable.",
+          "Camille et elle retiennent une serif douce pour les titres, proche de l'esprit du lettrage du logo sans le copier, et une sans sobre pour le texte. Pourquoi : les titres font écho au logo, le texte reste neutre et lisible."),
+        B("She opens the licence file of each family, checks desktop, web, app and logo use, and fills a licence table with the source of each download. Why: the guidelines will say where to get the fonts legally.",
+          "Elle ouvre le fichier de licence de chaque famille, vérifie usage bureau, web, app et logo, et remplit un tableau des licences avec la source de chaque téléchargement. Pourquoi : la charte dira où obtenir les fontes légalement."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Pairing two families that are almost alike, such as two neutral sans serifs.",
+          "Associer deux familles presque identiques, comme deux sans serif neutres."),
+        fix: B("Look for a clear contrast of structure or weight, plus one shared trait. If the difference is not visible at a glance, use one family in several weights.",
+          "Cherchez un contraste net de structure ou de graisse, plus un trait commun. Si la différence ne se voit pas d'un coup d'oeil, employez une seule famille en plusieurs graisses.") },
+      { wrong: B("Choosing fonts on a specimen page, with the alphabet and a pangram.",
+          "Choisir des fontes sur une page de spécimen, avec l'alphabet et un pangramme."),
+        fix: B("Set the real texts of the brand at real sizes and print them. A price list and a receipt line tell more than any specimen.",
+          "Composez les vrais textes de la marque à taille réelle et imprimez-les. Des tarifs et une ligne de ticket en disent plus que tout spécimen.") },
+      { wrong: B("Believing a font is free because it was downloaded at no cost, or because an AI said so.",
+          "Croire qu'une fonte est libre parce qu'elle a été téléchargée gratuitement, ou parce qu'une IA l'a dit."),
+        fix: B("Read the licence shipped with the font or published by the foundry, and note in a table the uses it covers and the source of the file.",
+          "Lisez la licence fournie avec la fonte ou publiée par la fonderie, et notez dans un tableau les usages couverts et la source du fichier.") },
+    ],
+    recap: [
+      B("One or two families, each with a written role and a size range.", "Une ou deux familles, chacune avec un rôle écrit et une plage de tailles."),
+      B("A good pairing contrasts in structure and shares at least one trait.", "Une bonne association contraste par sa structure et partage au moins un trait."),
+      B("Pairings are judged on real texts, at real sizes, on paper.", "Les associations se jugent sur de vrais textes, à taille réelle, sur papier."),
+      B("A font is software: each use needs to be covered by its licence.", "Une fonte est un logiciel : chaque usage doit être couvert par sa licence."),
+    ],
+    further: B("Read the full text of the SIL Open Font License and its FAQ on the official site, then the licence of one commercial family of your choice. List what each allows for a logo, a website and an app: the comparison will make every future licence quicker to read.",
+      "Lisez le texte complet de la SIL Open Font License et sa FAQ sur le site officiel, puis la licence d'une famille commerciale de votre choix. Listez ce que chacune autorise pour un logo, un site et une app : la comparaison rendra chaque future licence plus rapide à lire."),
+    more: [
+      { q: B("The AI proposes, for Pagelune, a heading font almost identical to the lettering of the logo. What is the risk?",
+          "L'IA propose pour Pagelune une fonte de titres presque identique au lettrage du logo. Quel est le risque ?"),
+        options: [
+          B("The logo will become illegal to register as a trademark", "Le logo deviendra impossible à déposer comme marque"),
+          B("The headings will load too slowly on the website", "Les titres se chargeront trop lentement sur le site"),
+          B("The headings compete with the logo and dilute its uniqueness", "Les titres concurrencent le logo et diluent sa singularité"),
+        ],
+        answer: 2,
+        why: B("A logo stands out because its lettering is used nowhere else. Headings in the same style everywhere make it ordinary; an echo in spirit is enough.",
+          "Un logo se distingue parce que son lettrage ne sert nulle part ailleurs. Des titres du même style partout le banalisent ; un écho d'esprit suffit.") },
+      { q: B("Pagelune plans an app next year. What should the licence table already say?",
+          "Pagelune prévoit une app l'an prochain. Que doit déjà dire le tableau des licences ?"),
+        options: [
+          B("Whether each family's licence covers embedding in an app", "Si la licence de chaque famille couvre l'intégration dans une app"),
+          B("Nothing yet, since licences only matter once the app exists", "Rien encore, les licences ne comptant qu'une fois l'app créée"),
+          B("The price of the app licence for each family, copied from the AI", "Le prix de la licence app de chaque famille, recopié de l'IA"),
+        ],
+        answer: 0,
+        why: B("Checking now avoids discovering later that a key font cannot follow the brand into the app. Prices change and come from the foundry, never from an AI answer.",
+          "Vérifier maintenant évite de découvrir plus tard qu'une fonte clé ne peut pas suivre la marque dans l'app. Les prix changent et viennent de la fonderie, jamais d'une réponse d'IA.") },
+    ],
+  },
+
+  [deepKey(M3, 'lg-imagery')]: {
+    intro: B("A logo, a palette and two typefaces are not yet enough to fill a website, a feed or a shop window. This lesson extends the identity of Pagelune into a visual language: a pattern built from the crescent, a consistent set of icons, and image rules covering photos and AI illustrations. You will learn to extract building blocks from the logo, to set icon rules (grid, stroke, corners), and to write a fixed style block for image generation, with limits that keep the brand honest, such as no generated people presented as customers.",
+      "Un logo, une palette et deux typographies ne suffisent pas encore à remplir un site, un fil de publications ou une vitrine. Ce cours étend l'identité de Pagelune en un langage visuel : un motif construit à partir du croissant, un jeu d'icônes cohérent, et des règles d'image couvrant photos et illustrations IA. Vous apprendrez à extraire des briques du logo, à fixer les règles des icônes (grille, trait, angles), et à rédiger un bloc de style fixe pour la génération d'images, avec des limites qui gardent la marque honnête, comme l'absence de personnes générées présentées comme clientes."),
+    concepts: [
+      { term: B('Graphic building blocks', 'Briques graphiques'),
+        def: B("Shapes, strokes and angles taken from the logo and reused elsewhere: in patterns, frames, dividers or icons. They make the whole identity feel related.",
+          "Formes, traits et angles tirés du logo et réutilisés ailleurs : motifs, cadres, séparateurs ou icônes. Ils donnent à toute l'identité un air de famille.") },
+      { term: B('Icon grid', "Grille d'icônes"),
+        def: B("A fixed square, with margins and a stroke weight, on which every icon is drawn. It guarantees that icons look the same size and weight.",
+          "Un carré fixe, avec marges et graisse de trait, sur lequel chaque icône est dessinée. Il garantit que les icônes paraissent de même taille et de même poids.") },
+      { term: B('Style block', 'Bloc de style'),
+        def: B("A fixed paragraph describing medium, colours, stroke, light and composition, pasted unchanged into every image prompt. Only the subject line changes.",
+          "Un paragraphe fixe décrivant technique, couleurs, trait, lumière et composition, collé sans changement dans chaque prompt d'image. Seule la ligne du sujet change.") },
+      { term: B('Image limits', "Limites d'image"),
+        def: B("What the brand never generates or shows: realistic people presented as customers, real buildings, other brands' logos. They protect trust.",
+          "Ce que la marque ne génère ni ne montre jamais : personnes réalistes présentées comme clientes, bâtiments réels, logos d'autres marques. Elles protègent la confiance.") },
+    ],
+    walkthrough: {
+      title: B("Nora extends the identity of Pagelune into a pattern, icons and image rules.",
+        "Nora étend l'identité de Pagelune en un motif, des icônes et des règles d'image."),
+      steps: [
+        B("In Figma, she isolates the crescent, the curve of the page and the stroke weight of the logo. Why: these three elements are what makes the logo recognisable, and they will be repeated everywhere.",
+          "Dans Figma, elle isole le croissant, la courbe de la page et la graisse du trait du logo. Pourquoi : ces trois éléments rendent le logo reconnaissable, et ils seront répétés partout."),
+        B("She builds a repeat pattern of small crescents and tests it on a paper bag, behind a heading and as a website background. Behind text it is too busy, so she adds a lighter version. Why: a pattern must have a quiet version for text.",
+          "Elle construit un motif répété de petits croissants et le teste sur un sac en papier, sous un titre et en fond de site. Sous le texte, il est trop chargé : elle en ajoute une version plus claire. Pourquoi : un motif doit avoir une version discrète pour le texte."),
+        B("She starts from an open icon set whose licence she has read, and adjusts six icons (opening hours, events, books, coffee, location, contact) to the stroke and corners of the logo. Why: one grid and one stroke make the icons look like a family.",
+          "Elle part d'un jeu d'icônes libre dont elle a lu la licence, et ajuste six icônes (horaires, événements, livres, café, adresse, contact) au trait et aux angles du logo. Pourquoi : une grille et un trait communs font des icônes une famille."),
+        B("She writes the style block for AI illustrations and the list of limits, then generates three images with three subjects and the same block. Why: three images that look like one brand prove the block works.",
+          "Elle rédige le bloc de style des illustrations IA et la liste des limites, puis génère trois images avec trois sujets et le même bloc. Pourquoi : trois images qui ressemblent à une seule marque prouvent que le bloc fonctionne."),
+        B("For photos, she writes rules (evening light, close framing on books and cups, real customers only with their consent) and keeps them next to the style block. Why: photos and illustrations must speak the same language.",
+          "Pour les photos, elle écrit des règles (lumière du soir, cadrage serré sur livres et tasses, vrais clients seulement avec leur accord) et les range à côté du bloc de style. Pourquoi : photos et illustrations doivent parler le même langage."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Inventing decorative shapes unrelated to the logo, because they look nice.",
+          "Inventer des formes décoratives sans lien avec le logo, parce qu'elles sont jolies."),
+        fix: B("Derive patterns and frames from the building blocks of the logo. If a shape cannot be traced back to it, ask why it belongs to the brand.",
+          "Tirez motifs et cadres des briques du logo. Si une forme ne peut pas s'y rattacher, demandez-vous pourquoi elle appartient à la marque.") },
+      { wrong: B("Rewriting the image prompt from scratch for each new visual.",
+          "Réécrire le prompt d'image depuis zéro pour chaque nouveau visuel."),
+        fix: B("Keep a fixed style block in the guidelines, paste it unchanged, and change only the subject line. Save the chosen images with their prompts.",
+          "Gardez un bloc de style fixe dans la charte, collez-le sans changement, et ne modifiez que la ligne du sujet. Archivez les images retenues avec leurs prompts.") },
+      { wrong: B("Generating realistic customers or a finished interior before the place exists.",
+          "Générer des clients réalistes ou un intérieur fini avant que le lieu existe."),
+        fix: B("Write limits that rule out misleading images. Show objects, atmospheres and illustrations; wait for real photos, taken with consent, to show people and the place.",
+          "Écrivez des limites qui excluent les images trompeuses. Montrez objets, ambiances et illustrations ; attendez de vraies photos, prises avec accord, pour montrer des personnes et le lieu.") },
+    ],
+    recap: [
+      B("The visual language is extracted from the logo: shapes, strokes, angles.", "Le langage visuel s'extrait du logo : formes, traits, angles."),
+      B("Icons share one grid, one stroke weight and one level of detail.", "Les icônes partagent une grille, une graisse de trait et un niveau de détail."),
+      B("A fixed style block keeps AI images consistent; only the subject changes.", "Un bloc de style fixe garde les images IA cohérentes ; seul le sujet change."),
+      B("Written limits rule out images that would mislead customers.", "Des limites écrites excluent les images qui tromperaient les clients."),
+    ],
+    further: B("Choose an identity you admire and list, from its website and feed, every element that comes from its logo: shapes, strokes, colours, patterns. Then do the same for Pagelune or your own brand, and note what is still missing.",
+      "Choisissez une identité que vous admirez et listez, sur son site et son fil, chaque élément qui vient de son logo : formes, traits, couleurs, motifs. Faites ensuite de même pour Pagelune ou votre marque, et notez ce qui manque encore."),
+    more: [
+      { q: B("The crescent pattern of Pagelune makes headings hard to read when placed behind them. What should Nora do?",
+          "Le motif de croissants de Pagelune rend les titres difficiles à lire quand il passe dessous. Que doit faire Nora ?"),
+        options: [
+          B("Remove the pattern from the identity, since it does not work", "Retirer le motif de l'identité, puisqu'il ne fonctionne pas"),
+          B("Add a quieter version of the pattern for use behind text", "Ajouter une version plus discrète du motif pour passer sous le texte"),
+          B("Make the headings larger until they read over the pattern", "Agrandir les titres jusqu'à ce qu'ils se lisent sur le motif"),
+        ],
+        answer: 1,
+        why: B("A pattern usually needs two intensities: a strong one for surfaces like bags, a quiet one behind text. Removing it loses an asset; enlarging headings only hides the problem.",
+          "Un motif a souvent besoin de deux intensités : une forte pour les surfaces comme les sacs, une discrète sous le texte. Le retirer perd un atout ; agrandir les titres masque seulement le problème.") },
+      { q: B("Why start from an open icon set rather than generating each icon with an image AI?",
+          "Pourquoi partir d'un jeu d'icônes libre plutôt que de générer chaque icône avec une IA image ?"),
+        options: [
+          B("Because a set gives vectors on one grid, ready to adjust", "Parce qu'un jeu fournit des vecteurs sur une même grille, prêts à ajuster"),
+          B("Because image AIs are not allowed to draw small pictures", "Parce que les IA image n'ont pas le droit de dessiner de petites images"),
+          B("Because open sets never need their licence to be read", "Parce que les jeux libres n'exigent jamais de lire leur licence"),
+        ],
+        answer: 0,
+        why: B("Icons must be crisp vectors sharing one grid and stroke. Generated images are raster and vary from one to the next; a set gives a consistent base, whose licence must still be read.",
+          "Les icônes doivent être des vecteurs nets partageant grille et trait. Les images générées sont matricielles et varient d'une fois à l'autre ; un jeu donne une base cohérente, dont il faut tout de même lire la licence.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DE CETTE PARTIE                                         */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M3, track: 'course', glyph: 'layers', tint: '#f97316', at: [50, 76], levels: COLOR,
+    title: B('Colours and typefaces', 'Couleurs et typographies'),
+    blurb: B('An accessible palette, colours for screen and print, licensed typefaces, and a visual language drawn from the logo.',
+      'Une palette accessible, des couleurs pour l\'écran et l\'imprimé, des typographies sous licence, et un langage visuel tiré du logo.'),
+  },
+]
+
+export const LOGO_B: CoursePart = {
+  modules: MODULES,
+  enrich: { ...COLOR_ENRICH },
+  deep: { ...COLOR_DEEP },
+}
