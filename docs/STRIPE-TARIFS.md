@@ -3,6 +3,7 @@
 Demandes :
 - « on va faire 3 prix 0€ gratuit, Un temple (une formation) à 49€ et le Pass dojo à 99€ life time (toutes les formations actuelles et futures) » ;
 - « change les noms de produit de Stripe "Un temple Dojoburo" par "Un cours Dojoburo" et Pass Dojo par "Pass Dojoburo" refais le tableau entièrement avec toutes les infos pour Stripe avec tous les cours, meta données, description, prix et catégorie ».
+- « enrichi nos formations en en créant des nouvelles très détaillées » : treize formations thématiques ajoutées au tableau, avec leur catégorie `formation-thematique`.
 
 Les prix affichés dans l'app viennent de `src/data/plans.ts` (`TEMPLE_EUR`, `PASS_EUR`). Les prix facturés viennent de Stripe. Les deux doivent dire la même chose : 49 € et 99 €.
 
@@ -13,7 +14,7 @@ Tableau de bord Stripe, Catalogue de produits, Ajouter un produit. Le Gratuit n'
 | Champ Stripe | Un cours Dojoburo | Pass Dojoburo |
 |---|---|---|
 | Nom du produit | Un cours Dojoburo | Pass Dojoburo |
-| Description | Une formation Dojoburo au choix : la formation complète, une formation métier, Coder une app ou Coder une app avec Lovable. Tous les étages du cours sont ouverts, avec les fichiers, les ressources et les mises à jour. Paiement unique, aucun abonnement. | Toutes les formations Dojoburo, actuelles et futures, à vie : la formation complète, toutes les formations métier et tous les cours, avec les fichiers, les ressources et les mises à jour. Paiement unique, aucun abonnement. |
+| Description | Une formation Dojoburo au choix : la formation complète, une formation métier, une formation thématique (livre, storyboard, BD et manga, flow UX, architecture, comptabilité, images, logo et charte, design system, IA locale, business, copywriting, veille) ou une formation de développement d'app. Tous les étages du cours sont ouverts, avec les fichiers, les ressources et les mises à jour. Paiement unique, aucun abonnement. | Toutes les formations Dojoburo, actuelles et futures, à vie : la formation complète, toutes les formations métier et tous les cours, avec les fichiers, les ressources et les mises à jour. Paiement unique, aucun abonnement. |
 | Prix | 49,00 EUR | 99,00 EUR |
 | Type de tarif | ponctuel (one-off), pas récurrent | ponctuel (one-off), pas récurrent |
 | Taxes, comportement | TTC (prix taxes incluses) | TTC (prix taxes incluses) |
@@ -38,27 +39,40 @@ Un seul produit, « Un cours Dojoburo », sert tous les cours. À chaque paiemen
 
 | Cours | Description | Leçons | Durée | Prix | `category` | `plan` | `trade` / `course` | `item` (et description du paiement) |
 |---|---|---|---|---|---|---|---|---|
-| Le week-end de l'IA | Sept leçons, moins d'une heure, gratuitement. Maîtrisez le langage de l'IA : les mots, les limites, le coût. | 7 | 0,8 h | 0 € | aucun paiement | aucun | aucun | aucun |
-| La formation complète | Treize cités dojo pour apprendre à faire travailler l'IA pour vous : le prompt, les modèles, les assistants, les agents, le design, le coût. | 39 | 4,1 h | 49 € | `parcours-ia` | `path` | aucun | Un cours Dojoburo · La formation complète |
-| Coder une app | Construisez une vraie app de A à Z avec Claude Code, le terminal, GitHub, Supabase et Vercel. | 28 | 4,8 h | 49 € | `developpement-app` | `course` | `coder-une-app` | Un cours Dojoburo · Coder une app |
-| Coder une app avec Lovable | Du premier prompt à l'app publiée : Lovable, son backend et GitHub, expliqués de A à Z. | 16 | 2,8 h | 49 € | `developpement-app` | `course` | `coder-avec-lovable` | Un cours Dojoburo · Coder une app avec Lovable |
-| Growth marketer | Vous faites venir des clients, et vous rendez compte de ce que cela coûte. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `growth` | Un cours Dojoburo · Growth marketer |
-| Communicant | Vous rédigez ce que dit l'entreprise, et vous en portez la responsabilité. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `comms` | Un cours Dojoburo · Communicant |
-| Fondateur | Vous décidez, vous vendez et vous recrutez, souvent le même jour. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `founder` | Un cours Dojoburo · Fondateur |
-| Chef de produit | Vous décidez de ce qui se construit, et vous répondez de ce qui ne se construit pas. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `product` | Un cours Dojoburo · Chef de produit |
-| Commercial | Vous êtes évalué sur ce qui est signé, et sur ce qui suit. | 9 | 0,9 h | 49 € | `formation-metier` | `trade` | `sales` | Un cours Dojoburo · Commercial |
-| Assistant de direction | Vous gérez les messages, les documents, et le temps des autres. | 9 | 0,9 h | 49 € | `formation-metier` | `trade` | `assistant` | Un cours Dojoburo · Assistant de direction |
-| Designer | Vous concevez ce que les gens voient et utilisent, et vous répondez de ce que cela fonctionne pour eux. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `designer` | Un cours Dojoburo · Designer |
-| Enseignant | Vous préparez vos cours, évaluez vos élèves avec équité, et échangez avec leurs familles. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `teacher` | Un cours Dojoburo · Enseignant |
-| Étudiant | Vous suivez des cours, passez des examens et rendez des travaux écrits, et vous voulez apprendre, pas seulement finir. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `student` | Un cours Dojoburo · Étudiant |
-| Scientifique | Vous lisez la littérature, menez des études et publiez, et chacune de vos affirmations doit résister à la vérification. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `scientist` | Un cours Dojoburo · Scientifique |
-| Développeur | Vous écrivez et maintenez du code, et vous répondez de ce qui part en production. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `developer` | Un cours Dojoburo · Développeur |
-| Recruteur | Vous recrutez pour votre entreprise ou vos clients, et vous répondez de la façon dont chaque candidat est traité. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `recruiter` | Un cours Dojoburo · Recruteur |
-| Juriste | Vous lisez, rédigez et conseillez, et vous répondez de chaque mot et de chaque source. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `lawyer` | Un cours Dojoburo · Juriste |
-| Consultant | Vous cadrez le problème d'un client, établissez les faits et recommandez, et votre nom figure sous chaque chiffre. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `consultant` | Un cours Dojoburo · Consultant |
-| **Pass Dojoburo** | Les 17 cours payants ci-dessus, et les cours à venir, à vie. | 209 | 25,4 h | 99 € | `pass` | `pass` | aucun | Pass Dojoburo · toutes les formations, à vie |
+| Les bases de l'IA, gratuit | Comme le code de la route avant de conduire : sept cours courts et gratuits pour comprendre les mots, les limites et le coût de l'IA. | 7 | 0,8 h | 0 € | aucun paiement | aucun | aucun | aucun |
+| Faire travailler l'IA : la formation complète | Comme former un assistant très rapide mais qui prend tout au pied de la lettre : treize modules pour écrire des prompts clairs, choisir le bon outil, déléguer à des agents et maîtriser le coût. | 39 | 4,1 h | 49 € | `parcours-ia` | `path` | aucun | Un cours Dojoburo · Faire travailler l'IA : la formation complète |
+| Coder une app avec Claude Code | Comme construire une maison avec un artisan très rapide : vous dessinez le plan, Claude Code écrit le code, de GitHub et Supabase jusqu'à la mise en ligne sur Vercel. | 28 | 4,8 h | 49 € | `developpement-app` | `course` | `coder-une-app` | Un cours Dojoburo · Coder une app avec Claude Code |
+| Créer une app sans coder avec Lovable | Comme passer commande à un traiteur : vous décrivez l'app, Lovable la prépare, et vous apprenez à la vérifier, à brancher ses données et à la publier. | 16 | 2,8 h | 49 € | `developpement-app` | `course` | `coder-avec-lovable` | Un cours Dojoburo · Créer une app sans coder avec Lovable |
+| Écrire un livre de A à Z avec l'IA | Comme travailler avec un éditeur infatigable : idée, plan, personnages, écriture, réécriture, couverture et publication, avec l'IA en partenaire et vous en auteur. | 16 | 2,9 h | 49 € | `formation-thematique` | `course` | `ecrire-un-livre` | Un cours Dojoburo · Écrire un livre de A à Z avec l'IA |
+| Storyboard pour le cinéma et la pub | Comme la bande dessinée de votre film avant le tournage : découpage, plans, cadrages, personnages cohérents et animatique, générés et dirigés avec l'IA. | 16 | 2,8 h | 49 € | `formation-thematique` | `course` | `storyboard` | Un cours Dojoburo · Storyboard pour le cinéma et la pub |
+| Créer une bande dessinée ou un manga avec l'IA | Comme un atelier avec un assistant qui encre vite : histoire, personnages, mise en page, cases et lettrage, en gardant votre style et vos droits. | 16 | 2,8 h | 49 € | `formation-thematique` | `course` | `bd-manga` | Un cours Dojoburo · Créer une bande dessinée ou un manga avec l'IA |
+| Concevoir un flow UX avec l'IA | Comme tracer l'itinéraire d'un voyage avant de construire la route : recherche utilisateur, parcours, flows, wireframes et tests, accélérés par l'IA. | 16 | 2,9 h | 49 € | `formation-thematique` | `course` | `flow-ux` | Un cours Dojoburo · Concevoir un flow UX avec l'IA |
+| Architecture logicielle avec l'IA | Comme les plans d'un architecte avant le chantier : exigences, composants, données, API, sécurité et décisions tracées, raisonnés avec l'IA et vérifiés par vous. | 16 | 2,9 h | 49 € | `formation-thematique` | `course` | `architecture-logicielle` | Un cours Dojoburo · Architecture logicielle avec l'IA |
+| Tenir sa comptabilité de A à Z avec l'IA | Comme un classeur bien rangé qui se trie tout seul : justificatifs, écritures, rapprochement bancaire, TVA, clôture et tableaux de bord, avec l'IA en assistante et votre expert-comptable en arbitre. | 16 | 2,8 h | 49 € | `formation-thematique` | `course` | `comptabilite` | Un cours Dojoburo · Tenir sa comptabilité de A à Z avec l'IA |
+| Images IA de haute qualité : styles, Midjourney, retouche | Comme apprendre la photo et la peinture à la fois : prompts, styles, références, Midjourney et autres générateurs, puis retouche et agrandissement en qualité professionnelle. | 16 | 3 h | 49 € | `formation-thematique` | `course` | `images-ia` | Un cours Dojoburo · Images IA de haute qualité : styles, Midjourney, retouche |
+| Logotype et charte graphique avec l'IA | Comme habiller une marque de la tête aux pieds : stratégie, logo, couleurs, typographie et charte, explorés avec l'IA et finalisés en vectoriel par vous. | 16 | 2,8 h | 49 € | `formation-thematique` | `course` | `logo-charte` | Un cours Dojoburo · Logotype et charte graphique avec l'IA |
+| Design system de A à Z pour Figma | Comme une boîte de LEGO pour votre produit : tokens, composants, variantes, documentation et gouvernance dans Figma, construits plus vite avec l'IA et prêts pour les développeurs. | 16 | 2,9 h | 49 € | `formation-thematique` | `course` | `design-system-figma` | Un cours Dojoburo · Design system de A à Z pour Figma |
+| L'IA en local, open source et hors ligne | Comme avoir sa propre cuisine plutôt que manger dehors : des modèles de texte, d'image et de vidéo qui tournent sur votre machine, hors ligne, sans abonnement, vos données restant chez vous. | 16 | 2,9 h | 49 € | `formation-thematique` | `course` | `ia-locale` | Un cours Dojoburo · L'IA en local, open source et hors ligne |
+| Business et monétisation avec l'IA | Comme ouvrir une boutique dans un nouveau quartier : comprendre le marché, trouver un vrai problème, monter un prototype en une soirée, vendre, et tenir dans la durée. | 16 | 2,9 h | 49 € | `formation-thematique` | `course` | `business-ia` | Un cours Dojoburo · Business et monétisation avec l'IA |
+| Copywriting et vente avec l'IA | Comme un vendeur qui écrit : comprendre comment pense votre lecteur, positionner l'offre, capter l'attention, créer le désir et la confiance, avec l'IA en partenaire d'entraînement. | 16 | 2,8 h | 49 € | `formation-thematique` | `course` | `copywriting` | Un cours Dojoburo · Copywriting et vente avec l'IA |
+| Les outils IA du moment : suivre sans se noyer | Comme un bon lecteur de presse : une méthode pour suivre ChatGPT, Claude, Gemini, Grok, Mistral et les nouveaux outils, les tester vite et ne garder que ce qui vaut le détour. | 16 | 2,8 h | 49 € | `formation-thematique` | `course` | `veille-outils` | Un cours Dojoburo · Les outils IA du moment : suivre sans se noyer |
+| L'IA pour les growth marketers | Vous faites venir des clients, et vous rendez compte de ce que cela coûte. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `growth` | Un cours Dojoburo · L'IA pour les growth marketers |
+| L'IA pour la communication | Vous rédigez ce que dit l'entreprise, et vous en portez la responsabilité. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `comms` | Un cours Dojoburo · L'IA pour la communication |
+| L'IA pour les fondateurs | Vous décidez, vous vendez et vous recrutez, souvent le même jour. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `founder` | Un cours Dojoburo · L'IA pour les fondateurs |
+| L'IA pour les chefs de produit | Vous décidez de ce qui se construit, et vous répondez de ce qui ne se construit pas. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `product` | Un cours Dojoburo · L'IA pour les chefs de produit |
+| L'IA pour les commerciaux | Vous êtes évalué sur ce qui est signé, et sur ce qui suit. | 9 | 0,9 h | 49 € | `formation-metier` | `trade` | `sales` | Un cours Dojoburo · L'IA pour les commerciaux |
+| L'IA pour les assistants de direction | Vous gérez les messages, les documents, et le temps des autres. | 9 | 0,9 h | 49 € | `formation-metier` | `trade` | `assistant` | Un cours Dojoburo · L'IA pour les assistants de direction |
+| L'IA pour les designers | Vous concevez ce que les gens voient et utilisent, et vous répondez de ce que cela fonctionne pour eux. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `designer` | Un cours Dojoburo · L'IA pour les designers |
+| L'IA pour les enseignants | Vous préparez vos cours, évaluez vos élèves avec équité, et échangez avec leurs familles. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `teacher` | Un cours Dojoburo · L'IA pour les enseignants |
+| L'IA pour les étudiants | Vous suivez des cours, passez des examens et rendez des travaux écrits, et vous voulez apprendre, pas seulement finir. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `student` | Un cours Dojoburo · L'IA pour les étudiants |
+| L'IA pour les scientifiques | Vous lisez la littérature, menez des études et publiez, et chacune de vos affirmations doit résister à la vérification. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `scientist` | Un cours Dojoburo · L'IA pour les scientifiques |
+| L'IA pour les développeurs | Vous écrivez et maintenez du code, et vous répondez de ce qui part en production. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `developer` | Un cours Dojoburo · L'IA pour les développeurs |
+| L'IA pour les recruteurs | Vous recrutez pour votre entreprise ou vos clients, et vous répondez de la façon dont chaque candidat est traité. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `recruiter` | Un cours Dojoburo · L'IA pour les recruteurs |
+| L'IA pour les juristes | Vous lisez, rédigez et conseillez, et vous répondez de chaque mot et de chaque source. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `lawyer` | Un cours Dojoburo · L'IA pour les juristes |
+| L'IA pour les consultants | Vous cadrez le problème d'un client, établissez les faits et recommandez, et votre nom figure sous chaque chiffre. | 9 | 1 h | 49 € | `formation-metier` | `trade` | `consultant` | Un cours Dojoburo · L'IA pour les consultants |
+| **Pass Dojoburo** | Les 30 cours payants ci-dessus, et les cours à venir, à vie. | 417 | 62,6 h | 99 € | `pass` | `pass` | aucun | Pass Dojoburo · toutes les formations, à vie |
 
-Les 17 cours payants coûtent 833 € achetés un par un. Le Pass Dojoburo est rentable dès le troisième cours.
+Les 30 cours payants coûtent 1 470 € achetés un par un. Le Pass Dojoburo est rentable dès le troisième cours.
 
 Champs posés sur chaque paiement :
 
@@ -68,7 +82,7 @@ Champs posés sur chaque paiement :
 | `metadata.trade` | l'identifiant du métier, seulement si `plan = trade` |
 | `metadata.course` | l'identifiant du cours, seulement si `plan = course` |
 | `metadata.item` | le nom lisible, colonne `item` ci-dessus |
-| `metadata.category` | `parcours-ia`, `formation-metier`, `developpement-app` ou `pass` |
+| `metadata.category` | `parcours-ia`, `formation-metier`, `developpement-app`, `formation-thematique` ou `pass` |
 | `payment_intent_data.description` | comme `metadata.item` |
 | `payment_intent_data.metadata.plan` | comme `metadata.plan` |
 | `payment_intent_data.metadata.category` | comme `metadata.category` |
