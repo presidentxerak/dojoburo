@@ -7,19 +7,32 @@ import type { CoursePart } from './types'
 import { CODE_APP_A } from './code-app-a'
 import { CODE_APP_B } from './code-app-b'
 import { LOVABLE } from './lovable'
-import { LIVRE } from './livre'
-import { STORYBOARD } from './storyboard'
-import { MANGA } from './manga'
-import { FLOWUX } from './flowux'
-import { ARCHI } from './archi'
-import { COMPTA } from './compta'
-import { IMAGES } from './images'
-import { LOGO } from './logo'
-import { DESIGNSYS } from './designsys'
-import { LOCALE } from './locale'
-import { BUSINESS } from './business'
-import { COPY } from './copy'
-import { VEILLE } from './veille'
+import { LIVRE_A } from './livre-a'
+import { LIVRE_B } from './livre-b'
+import { STORYBOARD_A } from './storyboard-a'
+import { STORYBOARD_B } from './storyboard-b'
+import { MANGA_A } from './manga-a'
+import { MANGA_B } from './manga-b'
+import { FLOWUX_A } from './flowux-a'
+import { FLOWUX_B } from './flowux-b'
+import { ARCHI_A } from './archi-a'
+import { ARCHI_B } from './archi-b'
+import { COMPTA_A } from './compta-a'
+import { COMPTA_B } from './compta-b'
+import { IMAGES_A } from './images-a'
+import { IMAGES_B } from './images-b'
+import { LOGO_A } from './logo-a'
+import { LOGO_B } from './logo-b'
+import { DESIGNSYS_A } from './designsys-a'
+import { DESIGNSYS_B } from './designsys-b'
+import { LOCALE_A } from './locale-a'
+import { LOCALE_B } from './locale-b'
+import { BUSINESS_A } from './business-a'
+import { BUSINESS_B } from './business-b'
+import { COPY_A } from './copy-a'
+import { COPY_B } from './copy-b'
+import { VEILLE_A } from './veille-a'
+import { VEILLE_B } from './veille-b'
 
 /** l'identifiant d'un cours · c'est aussi celui de son temple (/dojo/<id>)
  *  et celui de son achat */
@@ -73,19 +86,19 @@ export const COURSE_READY: Record<CourseId, boolean> = {
 const WRITTEN: Record<CourseId, CoursePart[]> = {
   'coder-une-app': [CODE_APP_A, CODE_APP_B],
   'coder-avec-lovable': [LOVABLE],
-  'ecrire-un-livre': [LIVRE],
-  'storyboard': [STORYBOARD],
-  'bd-manga': [MANGA],
-  'flow-ux': [FLOWUX],
-  'architecture-logicielle': [ARCHI],
-  'comptabilite': [COMPTA],
-  'images-ia': [IMAGES],
-  'logo-charte': [LOGO],
-  'design-system-figma': [DESIGNSYS],
-  'ia-locale': [LOCALE],
-  'business-ia': [BUSINESS],
-  'copywriting': [COPY],
-  'veille-outils': [VEILLE],
+  'ecrire-un-livre': [LIVRE_A, LIVRE_B],
+  'storyboard': [STORYBOARD_A, STORYBOARD_B],
+  'bd-manga': [MANGA_A, MANGA_B],
+  'flow-ux': [FLOWUX_A, FLOWUX_B],
+  'architecture-logicielle': [ARCHI_A, ARCHI_B],
+  'comptabilite': [COMPTA_A, COMPTA_B],
+  'images-ia': [IMAGES_A, IMAGES_B],
+  'logo-charte': [LOGO_A, LOGO_B],
+  'design-system-figma': [DESIGNSYS_A, DESIGNSYS_B],
+  'ia-locale': [LOCALE_A, LOCALE_B],
+  'business-ia': [BUSINESS_A, BUSINESS_B],
+  'copywriting': [COPY_A, COPY_B],
+  'veille-outils': [VEILLE_A, VEILLE_B],
 }
 /** LE MODE BROUILLON DES GARDES · `DOJO_COURSE_DRAFTS=1 node scripts/test-…`
  *  fait lire aux gardes de contenu les cours encore en rédaction. Il n'existe
