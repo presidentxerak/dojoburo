@@ -1,0 +1,58 @@
+// LES VIDÉOS · la formation gratuite et la formation complète. Voir ./types : chaque identifiant vient d'un
+// résultat de recherche réel, jamais d'une supposition.
+import type { Video } from './types'
+
+export const V_PATH: Record<string, Video[]> = {
+  // Formation gratuite (weekend)
+  'discovery/words': [{ id: 'MsppVHXk3e0', title: 'Tokens & Context Window Explained for Beginners', channel: '', lang: 'en' }],
+  'discovery/limits': [{ id: 'ZqHIEeEGf_g', title: '[18/21] - Hallucinations IA expliqué : Pourquoi l\'IA ment-elle ?', channel: '', lang: 'fr' }],
+  'discovery/tools': [{ id: 'Q76yagCoWBs', title: 'Quelle IA pour quel besoin ? (le guide 2026)', channel: '', lang: 'fr' }],
+  'discovery/brief': [{ id: 'R2jdPmrirgE', title: 'CHATGPT : Rédiger le PROMPT PARFAIT (Tuto Prompt Engineering)', channel: '', lang: 'fr' }],
+  'discovery/levers': [{ id: 'iqZRyAff4Dk', title: '6 Prompting Techniques to Get BETTER ChatGPT Results (Master AI Prompting Fast)', channel: '', lang: 'en' }],
+  'discovery/agents': [{ id: 'Eyq5zWM36ZM', title: '3 minutes pour comprendre : Les agents IA', channel: '', lang: 'fr' }],
+  'discovery/cost': [{ id: 'e73xT054hFE', title: 'AI tokens explained: How LLMs count and charge for your prompts', channel: '', lang: 'en' }],
+
+  // Formation complète (generaliste)
+  'start/why-here': [{ id: 'WlDhONVLWII', title: 'Gagnez du temps avec ChatGPT : automatiser vos tâches quotidiennes - IA- Market Academy', channel: '', lang: 'fr' }],
+  'start/setup': [{ id: 'FsTpdR1Y-ts', title: 'Comment je sauvegarde mes prompts ChatGPT dans Notion - Template Offert', channel: '', lang: 'fr' }],
+  'start/judge': [{ id: 'P-jvG-no98I', title: 'How to Fact-Check ChatGPT and Other AI Tools', channel: '', lang: 'en' }],
+  'basics/one-job': [{ id: 'W6k-N3fWXsU', title: 'Les 4 règles d\'or pour maîtriser le Prompt Chaining', channel: '', lang: 'fr' }],
+  'basics/context': [{ id: 'lQ2V59aFUIo', title: 'Context rot: the silent killer of LLM performance.', channel: '', lang: 'en' }],
+  'basics/shape': [{ id: 'UAx1Frl8x98', title: 'Demander à ChatGPT d\'utiliser le bon format', channel: '', lang: 'fr' }],
+  'elements/role': [{ id: '_ntxGuJ3Opo', title: 'Role Prompting Explained', channel: '', lang: 'en' }],
+  'elements/example': [{ id: 'Ns7oxTn5U6A', title: 'Few-Shot Prompting Explained with Powerful Examples (No Coding!)', channel: '', lang: 'en' }],
+  'techniques/plan-first': [{ id: 'wIdRhPcak4Y', title: 'Using ChatGPT to Write an Outline', channel: '', lang: 'en' }],
+  'techniques/doubt': [{ id: '-rDRH6qFp4s', title: 'Transform Your Writing: Discover the Self-Critique Formula with ChatGPT', channel: '', lang: 'en' }],
+  'techniques/restart': [{ id: 'iv85KhaWfEg', title: 'When to Start a New Chat in ChatGPT (And When Not To)', channel: '', lang: 'en' }],
+  'models/families': [{ id: 'FCM3Cd7TQsA', title: 'Claude vs ChatGPT vs Gemini : lequel choisir en 2026 ?', channel: '', lang: 'fr' }],
+  'models/effort': [{ id: 'LurSA5aFSk4', title: 'ChatGPT “Thinking” Is Free Now (2026): What It Does + When You Should Use It', channel: '', lang: 'en' }],
+  'models/switch': [{ id: 'rkMFFLEMW_4', title: 'How to Build a Multi Model AI Strategy to Avoid AI Vendor Lock-In', channel: '', lang: 'en' }],
+  'chatgpt/gpt-memory': [{ id: 'CgrV3a3iT4Y', title: 'How To Delete and Manage ChatGPT Memories - Tutorial', channel: '', lang: 'en' }],
+  'chatgpt/gpt-projects': [{ id: 'oJ8_L_jHK30', title: 'Projets ChatGPT et GPTs personnalisés : le guide complet', channel: '', lang: 'fr' }],
+  'chatgpt/gpt-files': [{ id: 'cZte1oqnSqw', title: 'Quels fichiers ChatGPT peut-il vraiment lire… et où montre-t-il ses limites ?', channel: '', lang: 'fr' }],
+  'claude/cl-long': [{ id: 'Ay-dYLi5OY4', title: 'Analyzing Multiple Reports with Claude', channel: '', lang: 'en' }],
+  'claude/cl-artifacts': [{ id: 'fp_sMnuRFrU', title: 'Getting Started with Claude Artifacts', channel: '', lang: 'en' }],
+  'claude/cl-style': [{ id: '87xdps_eFGY', title: 'Créer son propre style avec l\'IA Claude !', channel: '', lang: 'fr' }],
+  'gemini/gm-inside': [{ id: '6TMjgS5KGS8', title: 'Tour d\'Horizon de GEMINI for Google Workspace', channel: '', lang: 'fr' }],
+  'gemini/gm-notebook': [{ id: '5JVHVSQ8PZc', title: 'Apprenez à utiliser NotebookLM en moins de 20 minutes', channel: '', lang: 'fr' }],
+  'gemini/gm-scale': [{ id: 'XuG7I6_nAY0', title: 'How to Use =AI in Google Sheets', channel: '', lang: 'en' }],
+  'perplexity/px-sources': [{ id: 'itKnSwW_fiU', title: 'How to Check the Sources Behind Any Perplexity Answer', channel: '', lang: 'en' }],
+  'perplexity/px-question': [{ id: '9SdSDsZDep8', title: 'Master Perplexity AI with These Prompt Engineering Tricks', channel: '', lang: 'en' }],
+  'perplexity/px-when': [{ id: 'gGcZ4Nn_P90', title: 'ChatGPT vs Perplexity: Which AI Tool Should You Use?', channel: '', lang: 'en' }],
+  'copilot/cp-context': [{ id: 'QNjcaHsUNLY', title: 'Microsoft Copilot : Tuto Complet (GPT-4, Word, Excel, Powerpoint...)', channel: '', lang: 'fr' }],
+  'copilot/cp-repeat': [{ id: 'mcphWUyUilY', title: 'How to use Copilot to keep meeting minutes and action points', channel: '', lang: 'en' }],
+  'copilot/cp-limits': [{ id: 'iJUUmQXplv4', title: 'Prevent oversharing in Microsoft 365 Copilot', channel: '', lang: 'en' }],
+  'agents/ag-shape': [{ id: 'vGueJIZWLL8', title: 'Building Effective Agents: Anthropic\'s Engineering Guide, Read and Highlighted', channel: '', lang: 'en' }],
+  'agents/ag-method': [{ id: 'qI7KTn47cg0', title: 'Comment Prompter Tes Agents IA en 13 Min', channel: '', lang: 'fr' }],
+  'agents/ag-safe': [{ id: 'CT9xynq7WZM', title: 'Permissions, settings.json, and plan mode: making one Claude Code session safe', channel: '', lang: 'en' }],
+  'design/ds-judge': [{ id: 'M7Q60-2EICc', title: 'Les Principes du UI Design', channel: '', lang: 'fr' }],
+  'design/ds-model': [{ id: 'UzNYjX_eoo8', title: 'How to use Claude for UI Design', channel: '', lang: 'en' }],
+  'design/ds-build': [{ id: '8zneti7_IKk', title: 'Maîtriser Lovable en 10 minutes (Tuto complet & rapide, Low Code / No Code)', channel: '', lang: 'fr' }],
+  'cost/ct-measure': [{ id: 'ZV97s-s0tjQ', title: 'How Many Tokens Did I Use? Estimating LLM Token Charges', channel: '', lang: 'en' }],
+  'cost/ct-levers': [
+    { id: '4x4nM0uPmg0', title: 'How I cut token costs by 90%: AI cost optimization guide', channel: '', lang: 'en' },
+    { id: 'etYgu0Q50vI', title: 'The Secret to Faster & Cheaper LLM Apps, Prompt Caching Explained', channel: '', lang: 'en' },
+  ],
+  'cost/ct-own': [{ id: 'eG7xHxwNMFs', title: 'How to Create a Claude API Key (2026 Tutorial)', channel: '', lang: 'en' }],
+  'elements/bans': [{ id: '9GHYUKYNbag', title: 'Constraint Based Prompts Explained with Examples (No Coding!)', channel: '', lang: 'en' }],
+}

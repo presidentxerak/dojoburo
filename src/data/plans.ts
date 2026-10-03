@@ -106,16 +106,15 @@ export const PASS_PAYS_FROM = Math.floor(PASS_EUR / TEMPLE_EUR) + 1
 /** La formation complète · un temple comme un autre, au prix d'un temple. */
 export const PATH_EUR = TEMPLE_EUR
 
+import { COURSE_IDS, type CourseId } from './courses'
+
 /** Une formation métier · un temple, au même prix. */
 export const TRADE_EUR = TEMPLE_EUR
 
 /** LES COURS VENDUS À PART · « coder une app » et « coder une app avec
  *  Lovable » sont des temples comme les autres depuis la grille à trois prix.
  *  Les clés sont celles de data/courses/index. */
-export const COURSE_EUR: Record<'coder-une-app' | 'coder-avec-lovable', number> = {
-  'coder-une-app': TEMPLE_EUR,
-  'coder-avec-lovable': TEMPLE_EUR,
-}
+export const COURSE_EUR: Record<CourseId, number> = Object.fromEntries(COURSE_IDS.map((id) => [id, TEMPLE_EUR])) as Record<CourseId, number>
 
 /** Le parcours découverte · sept jours, une leçon par jour. */
 export const DISCOVERY_DAYS = 7

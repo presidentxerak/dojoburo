@@ -467,8 +467,8 @@ export const DICT = {
   'g.map': { en: 'Map', fr: 'Carte' },
   'g.backMap': { en: 'Back to the map', fr: 'Retour à la carte' },
   'g.allCities': { en: "Every module", fr: "Tous les modules" },
-  'g.city': { en: "Module", fr: "Module" },
-  'g.cities': { en: "modules", fr: "modules" },
+  'g.city': { en: "Unit", fr: "Module" },
+  'g.cities': { en: "units", fr: "modules" },
   'g.dojo': { en: "Lesson", fr: "Cours" },
   'g.dojos': { en: "lessons", fr: "cours" },
   'g.master': { en: 'Master:', fr: 'Maître :' },
@@ -476,6 +476,11 @@ export const DICT = {
   'g.free': { en: 'Free', fr: 'Gratuit' },
   'g.youDo': { en: "Your mission", fr: "Votre mission" },
   'g.trap': { en: "The trap to dodge", fr: "Le piège à éviter" },
+  // LE BADGE SE MÉRITE · demandé : « J'ai reçu un badge dans un cours mais je
+  // n'ai répondu à aucune question!! : corrige et améliore ».
+  'ln.gateAnswer': { en: "Answer the quiz questions to receive the badge ({k} of {n} answered).", fr: "Répondez aux questions du quiz pour recevoir le badge ({k} sur {n} répondues)." },
+  'ln.gateFail': { en: "{k} right answers out of {n}: the badge asks for at least {m}. Read the lesson again, then take the quiz again.", fr: "{k} bonnes réponses sur {n} : le badge en demande au moins {m}. Relisez le cours, puis repassez le quiz." },
+  'ln.retry': { en: "Take the quiz again", fr: "Repasser le quiz" },
   'g.claim': { en: "Grab the badge", fr: "Recevoir le badge" },
   'g.badgeGot': { en: "Badge earned!", fr: "Badge obtenu !" },
   'g.cityDone': { en: "Back to the module", fr: "Retour au module" },
@@ -599,6 +604,14 @@ export const DICT = {
   'ln.mistakes': { en: "Common mistakes", fr: "Les erreurs fréquentes" },
   'ln.wrong': { en: "Mistake:", fr: "Erreur :" },
   'ln.fix': { en: "Instead:", fr: "Correction :" },
+  // EN VIDÉO · demandé : « On va ajouter dans toutes nos formations des vidéos
+  // youtube qui traitent chacun des sujets évoqués dans les formations ».
+  'ln.videosH': { en: "Watch it", fr: "En vidéo" },
+  'ln.videosLead': { en: "Videos published on YouTube by other creators, chosen because they cover the subject of this lesson.", fr: "Des vidéos publiées sur YouTube par d'autres créateurs, choisies parce qu'elles traitent le sujet de ce cours." },
+  'ln.videoPlay': { en: "Play the video", fr: "Lire la vidéo" },
+  'ln.videoPrivacy': { en: "Loads YouTube on click, without cookies", fr: "YouTube se charge au clic, sans cookie" },
+  'ln.videoFr': { en: "in French", fr: "en français" },
+  'ln.videoEn': { en: "in English", fr: "en anglais" },
   'ln.recap': { en: "Remember", fr: "À retenir" },
   'ln.further': { en: "Going further:", fr: "Pour aller plus loin :" },
   'ln.why': { en: "Why it works", fr: "Pourquoi cela fonctionne" },

@@ -26,6 +26,19 @@ export const MASTER_NAMES: Record<string, string> = {
   'metier-designer': 'Kai', 'metier-teacher': 'Nori', 'metier-student': 'Riku', 'metier-scientist': 'Emi',
   'metier-developer': 'Haru', 'metier-recruiter': 'Sena', 'metier-lawyer': 'Jun', 'metier-consultant': 'Rio',
   'coder-une-app': 'Akira', 'coder-avec-lovable': 'Momo',
+  'ecrire-un-livre': 'Fumi',
+  'storyboard': 'Taku',
+  'bd-manga': 'Hoshi',
+  'flow-ux': 'Nao',
+  'architecture-logicielle': 'Ken',
+  'comptabilite': 'Ume',
+  'images-ia': 'Iro',
+  'logo-charte': 'Akane',
+  'design-system-figma': 'Rin',
+  'ia-locale': 'Tetsu',
+  'business-ia': 'Daichi',
+  'copywriting': 'Mika',
+  'veille-outils': 'Sumi',
 }
 
 export const masterDid = (pack: string) => `master:${pack}`

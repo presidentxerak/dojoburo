@@ -42,6 +42,11 @@ import { enrichmentOf, type Enrichment } from '../data/enrich'
 import { deepeningOf, type Deepening } from '../data/deep'
 import type { Quiz as QuizData } from '../data/curriculum'
 import { Shell } from './Shell'
+import { videosFor } from '../data/videos'
+import type { Video } from '../data/videos/types'
+
+/** La part de bonnes réponses qu'il faut au quiz pour recevoir le badge. */
+const PASS_RATE = 0.6
 
 export function LessonPage({ packId, levelId }: { packId: string; levelId: string }) {
   const lang = useLang()
@@ -114,10 +119,23 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
   const article = useRef<HTMLElement>(null)
   const { steps, cleared } = useQuestSteps(article, `${pack.id}/${level.id}:${open}`)
   // LE SCORE DU QUIZ · bonnes réponses et série en cours, pour la victoire
-  const [results, setResults] = useState<Record<number, boolean>>({})
+  // LE BADGE SE MÉRITE · demandé : « J'ai reçu un badge dans un cours mais je
+  // n'ai répondu à aucune question!! : corrige et améliore ». Le bouton du
+  // badge ne s'ouvre qu'une fois toutes les questions du quiz répondues, avec
+  // au moins PASS_RATE de bonnes réponses. Sinon, l'élève relit le cours et
+  // repasse le quiz entier (une nouvelle tentative, pas un nouvel essai sur la
+  // même question).
+  const savedFirst = g.answerFor(module.id, level.id)
+  const [attempt, setAttempt] = useState(0)
+  const [results, setResults] = useState<Record<number, boolean>>(() =>
+    (savedFirst !== undefined ? { 1: savedFirst === level.quiz.answer } : {}) as Record<number, boolean>)
   const [win, setWin] = useState(false)
   const total = 1 + extra.length
   const rightCount = Object.values(results).filter(Boolean).length
+  const answeredAll = Object.keys(results).length >= total
+  const needed = Math.ceil(total * PASS_RATE)
+  const passed = answeredAll && rightCount >= needed
+  const retry = () => { setResults({}); setAttempt((n) => n + 1) }
   let streak = 0
   for (let n = 1; n <= total && results[n] !== undefined; n++) streak = results[n] ? streak + 1 : 0
 
@@ -212,11 +230,14 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
 
             {more && <div data-step="recap" data-label={t('ln.recap')}><Recap d={more} /></div>}
 
+            {/* EN VIDÉO · des vidéos YouTube réelles sur le sujet du cours */}
+            <LessonVideos list={videosFor(module.id, level.id)} />
+
             <section className="ln-block" data-step="quiz" data-label={t('ac.check')}>
               <h2 className="ln-h2">{t('ac.check')} {streak > 1 && <span className="lq-streak">{say(QT.streak, lang)} ×{streak}</span>}</h2>
-              <Quiz key={`${pack.id}/${level.id}`} packId={pack.id} levelId={level.id} n={1} of={total} onResult={(r) => onResult(1, r)} />
+              <Quiz key={`${pack.id}/${level.id}@${attempt}`} packId={pack.id} levelId={level.id} n={1} of={total} fresh={attempt > 0} onResult={(r) => onResult(1, r)} />
               {extra.map((q, k) => (
-                <QuizCard key={`${pack.id}/${level.id}#${k}`} q={q} n={k + 2} of={total} onResult={(r) => onResult(k + 2, r)} />
+                <QuizCard key={`${pack.id}/${level.id}#${k}@${attempt}`} q={q} n={k + 2} of={total} onResult={(r) => onResult(k + 2, r)} />
               ))}
             </section>
 
@@ -230,10 +251,20 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
               </section>
             )}
 
+            {/* LE BADGE · seulement après le quiz, réussi */}
+            {!done && !passed && (
+              <p className="ln-gate" role="status">
+                {!answeredAll
+                  ? t('ln.gateAnswer').replace('{k}', String(Object.keys(results).length)).replace('{n}', String(total))
+                  : t('ln.gateFail').replace('{m}', String(needed)).replace('{n}', String(total)).replace('{k}', String(rightCount))}
+                {answeredAll && <button className="cc-btn cc-slate ln-retry" onClick={retry}>{t('ln.retry')}</button>}
+              </p>
+            )}
             <section className="ln-end">
               <button
                 className={`cc-btn ln-claim${done ? ' on' : ''}`}
-                onClick={() => { if (done) clearDone(module.id, level.id); else { markDone(module.id, level.id); setWin(true) } }}
+                disabled={!done && !passed}
+                onClick={() => { if (done) clearDone(module.id, level.id); else if (passed) { markDone(module.id, level.id); setWin(true) } }}
               >
                 {done
                   ? <><BauhausIcon name="check" size={13} /> {say(level.badge, lang)}</>
@@ -278,9 +309,11 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
  *  POURQUOI ELLE NE SE REJOUE PAS : une question qu'on peut retenter jusqu'à
  *  tomber juste ne vérifie rien, elle mesure la patience. La réponse est
  *  enregistrée, l'explication s'affiche, et on passe. */
-function Quiz({ packId, levelId, n, of, onResult }: { packId: string; levelId: string; n: number; of: number; onResult?: (right: boolean) => void }) {
+function Quiz({ packId, levelId, n, of, fresh = false, onResult }: { packId: string; levelId: string; n: number; of: number; fresh?: boolean; onResult?: (right: boolean) => void }) {
   const found = findLesson(packId, levelId)!
-  const saved = useGame().answerFor(found.module.id, levelId)
+  const recorded = useGame().answerFor(found.module.id, levelId)
+  // une nouvelle tentative repart d'une question vierge
+  const saved = fresh ? undefined : recorded
   return (
     <QuizCard q={found.level.quiz} n={n} of={of} saved={saved} onResult={onResult}
       onPick={(k) => recordAnswer(found.module.id, levelId, k)} />
@@ -504,5 +537,56 @@ function Exercise({ e }: { e: Enrichment }) {
       </ul>
       <p className="ln-bonus"><b>{t('ln.bonus')}</b> {say(x.bonus, lang)}</p>
     </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* EN VIDÉO · demandé : « On va ajouter dans toutes nos formations des   */
+/* vidéos youtube qui traitent chacun des sujets évoqués ». Rien ne part */
+/* vers YouTube avant le clic, et le lecteur est celui sans cookie.      */
+/* ------------------------------------------------------------------ */
+
+function LessonVideos({ list }: { list: Video[] }) {
+  const t = useT()
+  if (!list.length) return null
+  return (
+    <section className="ln-block ln-videos">
+      <h2 className="ln-h2">{t('ln.videosH')}</h2>
+      <p className="ln-videos-lead">{t('ln.videosLead')}</p>
+      <div className="ln-videos-grid">{list.map((v) => <VideoBox key={v.id} v={v} />)}</div>
+    </section>
+  )
+}
+
+function VideoBox({ v }: { v: Video }) {
+  const t = useT()
+  const [on, setOn] = useState(false)
+  // L'IDENTIFIANT EST VÉRIFIÉ AVANT D'ENTRER DANS UNE ADRESSE
+  if (!/^[A-Za-z0-9_-]{11}$/.test(v.id)) return null
+  return (
+    <figure className="ln-video">
+      {on ? (
+        <div className="ln-video-frame">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0`}
+            title={v.title}
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allowFullScreen
+          />
+        </div>
+      ) : (
+        <button className="ln-video-frame ln-video-facade" onClick={() => setOn(true)} aria-label={`${t('ln.videoPlay')} · ${v.title}`}>
+          <span className="ln-video-play" aria-hidden="true"><BauhausIcon name="play" size={22} /></span>
+          <span className="ln-video-note">{t('ln.videoPrivacy')}</span>
+        </button>
+      )}
+      <figcaption>
+        <b>{v.title}</b>
+        <span>{v.channel ? `${v.channel} · ` : ''}YouTube · {v.lang === 'fr' ? t('ln.videoFr') : t('ln.videoEn')}</span>
+      </figcaption>
+    </figure>
   )
 }

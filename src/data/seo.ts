@@ -69,6 +69,19 @@ export const PACK_QUERY: Record<string, Bi> = {
   generaliste: B('Complete generative AI training', "Formation complète à l'IA générative"),
   'coder-une-app': B('Claude Code training: build an app', 'Formation Claude Code : coder une app'),
   'coder-avec-lovable': B('Lovable training: build an app without code', 'Formation Lovable : créer une app sans coder'),
+  'ecrire-un-livre': B('Write a book from A to Z with AI', 'Écrire un livre de A à Z avec l\'IA'),
+  'storyboard': B('Storyboards for film and advertising', 'Storyboard pour le cinéma et la pub'),
+  'bd-manga': B('Create a comic or a manga with AI', 'Créer une bande dessinée ou un manga avec l\'IA'),
+  'flow-ux': B('Design a UX flow with AI', 'Concevoir un flow UX avec l\'IA'),
+  'architecture-logicielle': B('Software architecture with AI', 'Architecture logicielle avec l\'IA'),
+  'comptabilite': B('Bookkeeping from A to Z with AI', 'Tenir sa comptabilité de A à Z avec l\'IA'),
+  'images-ia': B('High-quality AI images: styles, Midjourney, retouching', 'Images IA de haute qualité : styles, Midjourney, retouche'),
+  'logo-charte': B('Logos and brand guidelines with AI', 'Logotype et charte graphique avec l\'IA'),
+  'design-system-figma': B('A design system from A to Z in Figma', 'Design system de A à Z pour Figma'),
+  'ia-locale': B('Local AI, open source and offline', 'L\'IA en local, open source et hors ligne'),
+  'business-ia': B('Business and monetisation with AI', 'Business et monétisation avec l\'IA'),
+  'copywriting': B('Copywriting and sales with AI', 'Copywriting et vente avec l\'IA'),
+  'veille-outils': B('AI tools of the moment: keep up without drowning', 'Les outils IA du moment : suivre sans se noyer'),
 }
 
 /** Le modèle de titre d'une formation métier · {t} est son titre, qui dit
