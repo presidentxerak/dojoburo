@@ -50,6 +50,7 @@ import { CommunityPage } from './game/Community'
 import { PACK_OF_MODULE, packPath, lessonPath, FREE_PACK } from './data/packs'
 import { ProfilPage } from './game/Profil'
 import { TarifsPage, MerciPage } from './game/Tarifs'
+import { FormationsPage } from './game/Formations'
 import { Boundary } from './components/Boundary'
 import { AccessGate, betaUnlocked } from './components/AccessGate'
 // LA POLICE EST SERVIE PAR NOUS, PAS PAR GOOGLE.
@@ -204,6 +205,8 @@ function Root() {
   // LES TARIFS ET LE RETOUR DE PAIEMENT · dans le jeu, pas sur l'ancienne page
   // de présentation. Voir game/Tarifs.
   if (path === '/tarifs') return <TarifsPage />
+  // LES FORMATIONS · la liste, avec maîtres et prix (voir game/Formations)
+  if (path === '/formations') return <FormationsPage />
   if (path === '/merci') return <MerciPage />
   const pk = path.match(/^\/dojo\/([a-z0-9-]+)$/i)
   if (pk) return <TemplePage packId={pk[1].toLowerCase()} />

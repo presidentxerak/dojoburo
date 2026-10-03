@@ -101,9 +101,12 @@ ok('aucun écran du jeu n\'écrit un compte à la main', hardCounts.length === 0
 
 // … ET LES ÉCRANS LISENT VRAIMENT LEURS COMPTES. Une règle qui n'interdit que
 // la faute laisse passer un écran qui n'affiche plus rien du tout.
-// RÉPARÉE · l'écran des formations est devenu la carte des temples.
+// RÉPARÉE · l'écran des formations est devenu la carte des temples, puis
+// sa propre page : « Créé une page Formations avec les cards de formations et
+// leur maîtres avec leur pricing (déplace les card formation sur la page
+// carte dans cette page) ».
 ok('l\'écran des formations lit ses comptes',
-  /levelsOf\(/.test(SRC('src/temple/World.tsx')) && /levels\.length/.test(SRC('src/temple/World.tsx')))
+  /levelsOf\(/.test(SRC('src/game/Formations.tsx')) && /levels\.length/.test(SRC('src/game/Formations.tsx')))
 
 const priced = SCREENS.filter((f) => /\d+\s*€|€\s*\d+|EUR\s*\d/.test(SRC(f)))
 ok('aucun écran du jeu n\'écrit un prix', priced.length === 0, priced.join(', ') || 'aucun')

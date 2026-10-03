@@ -2,9 +2,9 @@
 import { B } from '../data/bilingual'
 
 export const TT = {
-  worldTitle: B('The temples of Dojoburo', 'Les temples de Dojoburo'),
-  worldLead: B('Each temple is a training, each floor a lesson. The first temple is free; the others open when you unlock them.',
-    "Chaque temple est une formation, chaque étage une leçon. Le premier temple est gratuit ; les autres s'ouvrent quand vous les débloquez."),
+  worldTitle: B('Learn AI with Dojoburo', "Apprenez l'IA avec Dojoburo"),
+  worldLead: B('Choose your AI course on the map.', 'Choisissez votre formation IA sur la carte.'),
+  allCourses: B('See every course, its master and its price', 'Voir toutes les formations, leurs maîtres et leurs prix'),
   coursesH2: B('The trainings', 'Les formations'),
   floors: B('floors', 'étages'),
   floor: B('Floor', 'Étage'),
@@ -12,7 +12,6 @@ export const TT = {
   locked: B('Locked', 'Verrouillé'),
   open: B('Open', 'Ouvert'),
   freeLessons: B('free lessons', 'leçons offertes'),
-  testerNote: B('Test access is on in this browser: every temple opens for you, the padlocks show what a learner sees.', "L'accès d'essai est actif sur ce navigateur : tous les temples vous sont ouverts, les cadenas montrent ce que voit un élève."),
   dailyChallenge: B("Today's challenge:", 'Défi du jour :'),
   askMaster: B('Ask me your questions about the course here: I am an AI and I answer when you end with a question mark.', "Posez-moi ici vos questions sur le cours : je suis une IA, et je réponds quand votre message se termine par un point d'interrogation."),
   masterThinking: B('writing an answer', 'écrit une réponse'),

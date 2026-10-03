@@ -78,6 +78,9 @@ const TABS: { to: string; key: string; glyph: IconName | null }[] = [
   // temples remplacent l'ancien jeu et l'onglet IA Training : Dojoburo porte
   // la marque et mène à la carte des temples.
   { to: '/', key: 'nav.game', glyph: null },
+  // LES FORMATIONS · demandé : « Créé une page Formations avec les cards de
+  // formations et leur maîtres avec leur pricing ». La toque d'école.
+  { to: '/formations', key: 'nav.training', glyph: 'training' },
   { to: '/clan', key: 'nav.clan', glyph: 'clan' },
   { to: '/profil', key: 'nav.profile', glyph: 'smile' },
 ]

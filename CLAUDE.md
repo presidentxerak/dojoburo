@@ -36,4 +36,4 @@ Prévenir avant de lancer quoi que ce soit qui dure plus de 5 minutes.
 
 - Violet sombre par défaut (#0a0514), affichage clair au choix (Profil > Paramètres > Affichage, `html[data-look="light"]`, règles dans `src/styles/look-light.css`).
 - Police Outfit. Boutons violets (#7c3aed) avec une légère touche skeuomorphe partagée (`--sk-grad`, `--sk-btn`, `--sk-press`), sans bordure.
-- Barre du bas : Dojoburo, IA Training, Clan, Profil.
+- Barre du bas : Dojoburo, Formations, Communauté, Profil.

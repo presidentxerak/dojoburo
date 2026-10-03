@@ -13009,8 +13009,20 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
 .lsw.lsw-sel { position: relative; display: inline-flex; align-items: center; border: 0; border-radius: 12px; background: var(--g-slot, rgba(124, 58, 237, .1)); box-shadow: var(--g-sunk, none); cursor: pointer; }
 .lsw-cur { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; font-family: var(--font-game); font-weight: 800; font-size: 13px; color: var(--g-text, inherit); pointer-events: none; white-space: nowrap; }
 .lsw.sm .lsw-cur { padding: 6px 10px; font-size: 12px; }
-.lsw-cur i { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor; opacity: .7; }
+.lsw-cur i { width: 8px; height: 5px; background: currentColor; clip-path: polygon(0 0, 100% 0, 50% 100%); opacity: .7; }
 .lsw-sel select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; appearance: none; border: 0; }
 .lsw-sel:focus-within { outline: 2px solid #7c3aed; outline-offset: 2px; }
 .lsw-sel:hover .lsw-cur { color: #7c3aed; }
 :root:not([data-look='light']) .lsw-sel:hover .lsw-cur { color: #c4b5fd; }
+
+/* LA PAGE DES FORMATIONS · demandé : « Créé une page Formations avec les cards
+   de formations et leur maîtres avec leur pricing ». La phrase de la formation,
+   son prix, et le bandeau du Pass. */
+.fm-blurb { font-size: 13.5px; line-height: 1.45; opacity: .92; }
+.fm-price { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.fm-price b { font: 700 18px/1.1 var(--font-ui, inherit); color: var(--ac, #a78bfa); }
+.fm-price small { font-size: 12px; opacity: .75; }
+.fm-pass { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.fm-pass > div { flex: 1 1 260px; min-width: 0; }
+.tw-pick { font-size: 17px; }
+.tw-more { display: flex; justify-content: center; }

@@ -5,31 +5,21 @@
 // le nom du cours au-dessus en mode Zelda pixel art 2D, quand on clique sur
 // les temples on voit le temple de face ».
 //
-// LA PAGE · d'abord la carte du monde vue de dessus, chaque temple surmonté
-// du nom de son cours ; ensuite les cartes des cours, pour qui préfère une
-// liste. Les deux mènent au même temple. Un premier passage propose de créer
-// son personnage.
+// LA PAGE · la carte du monde vue de dessus, chaque bâtiment surmonté du nom
+// de sa formation. La liste des formations, avec leurs maîtres et leurs prix,
+// vit sur sa propre page (game/Formations) ; le personnage se crée au profil.
 import { SEO } from '../data/seo'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Lnk } from '../lib/router'
-import { BauhausIcon } from '../components/BauhausIcon'
 import { useHeadTags } from '../lib/headTags'
 import { useLang } from '../i18n'
 import { say, type Bi } from '../data/bilingual'
-import { PACKS, packPath, levelsOf, eurOf, type Pack } from '../data/packs'
-import { priceTag } from '../data/plans'
-import { useAccess, FREE_LESSONS } from '../game/access'
-import { useGame } from '../game/progress'
+import { PACKS, packPath, eurOf, type Pack } from '../data/packs'
+import { useAccess } from '../game/access'
 import { Shell } from '../game/Shell'
 import { SupportBot } from '../components/SupportBot'
 import { gridToUrl } from '../pixel/raster'
-import { ChibiSprite } from '../pixel/ChibiSprite'
-import { LiveChibi } from '../pixel/LiveChibi'
-import { useAvatar, saveAvatar } from '../pixel/avatar'
-import { AvatarPicker } from '../pixel/AvatarPicker'
-import { masterOf } from '../pixel/masters'
 import { drawWorld, drawTempleIcon, worldRoutes, worldDecor } from './art/world'
-import { drawCardScene } from './art/cardScene'
 import { WorldLife } from './WorldLife'
 import { Walkers } from './Walkers'
 import { SoundToggle } from './SoundToggle'
@@ -57,9 +47,6 @@ export function WorldPage() {
   const lang = useLang()
   const s = (b: Bi) => say(b, lang)
   const a = useAccess()
-  const g = useGame()
-  const avatar = useAvatar()
-  const [picking, setPicking] = useState(false)
   const box = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(360)
 
@@ -87,36 +74,17 @@ export function WorldPage() {
 
   return (
     <Shell wide>
-      {a.tester && <section className="gm-sec"><p className="tf-note">{s(TT.testerNote)}</p></section>}
+      {/* L'EN-TÊTE · demandé : « en titre Apprenez l'IA avec Dojoburo, masque
+          la card Choisissez votre personnage [...] A la place écris :
+          Choisissez votre formation IA sur la carte ». Le personnage se crée
+          maintenant dans le profil, et la phrase d'accès d'essai est retirée. */}
       <section className="gm-sec tw-head">
         <div className="tw-head-row">
           <h1 className="tw-title">{s(TT.worldTitle)}</h1>
           <SoundToggle />
         </div>
-        <p className="gm-lead">{s(TT.worldLead)}</p>
+        <p className="gm-lead tw-pick">{s(TT.worldLead)}</p>
       </section>
-
-      {/* LE PERSONNAGE · proposé au premier passage, modifiable ensuite. */}
-      {(!avatar.chosen || picking) && (
-        <section className="gm-sec">
-          {picking
-            ? (
-              <div className="cy-card">
-                <AvatarPicker initial={avatar.spec} onCancel={() => setPicking(false)} onSave={(sp) => { saveAvatar(sp); setPicking(false) }} />
-              </div>
-            )
-            : (
-              <div className="cy-card tw-choose">
-                <ChibiSprite spec={avatar.spec} scale={4} />
-                <div>
-                  <b>{s(TT.chooseTitle)}</b>
-                  <p className="cy-sub">{s(TT.chooseLead)}</p>
-                </div>
-                <button className="gm-cta" onClick={() => setPicking(true)}>{s(TT.choose)}</button>
-              </div>
-            )}
-        </section>
-      )}
 
       {/* LA CARTE DU MONDE · un temple par formation, le nom au-dessus. */}
       <section className="gm-sec">
@@ -140,46 +108,9 @@ export function WorldPage() {
         </div>
       </section>
 
-      {/* LES CARTES DES COURS · la même chose, en liste. */}
-      <section className="gm-sec">
-        <h2 className="pf-h2">{s(TT.coursesH2)}</h2>
-        <div className="tw-cards">
-          {PACKS.map((p, k) => {
-            const locked = lockedOf(p)
-            const levels = levelsOf(p)
-            const done = levels.filter(({ module, level }) => g.isDone(module.id, level.id)).length
-            const m = masterOf(p.id)
-            return (
-              <Lnk key={p.id} className={`tw-card gm-rise${locked ? ' is-locked' : ''}`} href={packPath(p.id)} onClick={() => zen.sfx(locked ? 'locked' : 'tap')}
-                onMouseEnter={() => zen.sfx('step')} style={{ ['--ac' as string]: p.tint, ['--i' as string]: k }}>
-                {/* LE DÉCOR · un morceau de la carte : ciel, collines, chemin, le
-                    temple au bout et son maître qui attend sur le chemin */}
-                <span className="tw-card-scene" style={{ backgroundImage: `url(${gridToUrl(`cs:${p.id}:${locked}`, () => drawCardScene(p.tint, k + 1, locked))})` }}>
-                  <img className="tw-card-temple" src={gridToUrl(`ti:${p.id}:${locked}`, () => drawTempleIcon(p.tint, k, locked))} alt="" width={80} height={88} />
-                  <span className="tw-card-master"><LiveChibi spec={m.spec} scale={2} seed={p.id} /></span>
-                  {locked && <span className="tw-card-lock" aria-hidden="true"><BauhausIcon name="lock" size={14} /></span>}
-                  <i className="tw-card-shine" aria-hidden="true" />
-                </span>
-                {/* LE PANNEAU · le même que celui posé au-dessus des temples */}
-                <b className="tw-card-sign">{say(p.title, lang)}</b>
-                <span className="tw-card-t">
-                  <em>{s(TT.master)} {m.name} · {levels.length} {s(TT.floors)}</em>
-                  {/* LA PROGRESSION · une barre de jeu, les étages gravis sur le total */}
-                  <span className="tw-card-bar" role="progressbar" aria-valuemin={0} aria-valuemax={levels.length} aria-valuenow={done}
-                    aria-label={`${done} / ${levels.length}`}><i style={{ width: `${levels.length ? (done / levels.length) * 100 : 0}%` }} /></span>
-                  <span className="tw-card-foot">
-                    <small className="tw-card-n">{done} / {levels.length} {s(TT.floors)}</small>
-                    <span className={`tw-tag${locked ? ' locked' : eurOf(p) === 0 ? ' free' : ' open'}`}>
-                      {locked && <BauhausIcon name="lock" size={10} />}
-                      {eurOf(p) === 0 ? s(TT.free) : locked ? `${priceTag(eurOf(p))} · ${FREE_LESSONS} ${s(TT.freeLessons)}` : s(TT.open)}
-                    </span>
-                  </span>
-                  <span className="tw-card-go">{s(TT.enter)} <BauhausIcon name="play" size={10} /></span>
-                </span>
-              </Lnk>
-            )
-          })}
-        </div>
+      {/* LES CARTES DES FORMATIONS · déplacées sur la page Formations. */}
+      <section className="gm-sec tw-more">
+        <Lnk className="cc-btn cc-slate" href="/formations">{s(TT.allCourses)} →</Lnk>
       </section>
       <SupportBot />
     </Shell>
