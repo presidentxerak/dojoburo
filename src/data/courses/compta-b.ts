@@ -145,7 +145,7 @@ const VAT: Level[] = [
     ),
     quiz: {
       q: B('A client asks Studio Cerise for its invoices "in electronic format". Lina emails a PDF. Under the reform, is it enough?',
-        'Un client demande ses factures « au format électronique ». Lina envoie un PDF par email. Au sens de la réforme, est-ce suffisant ?'),
+        'Un client veut ses factures « au format électronique ». Lina lui envoie un PDF. Au sens de la réforme, est-ce suffisant ?'),
       options: [
         B('No, it takes a structured file exchanged via an approved platform', 'Non, il faut un fichier structuré échangé via une plateforme agréée'),
         B('Yes, any invoice sent by email counts as an electronic invoice', 'Oui, toute facture envoyée par email compte comme électronique'),
