@@ -77,8 +77,8 @@ export const COURSE_READY: Record<CourseId, boolean> = {
   'images-ia': true,
   'logo-charte': true,
   'design-system-figma': true,
-  'ia-locale': false,
-  'business-ia': false,
+  'ia-locale': true,
+  'business-ia': true,
   'copywriting': false,
   'veille-outils': false,
 }
