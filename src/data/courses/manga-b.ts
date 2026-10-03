@@ -1473,7 +1473,7 @@ const PUBLICATION_DEEP: Record<string, Deepening> = {
           "Où Camille doit-elle vérifier si Webtoon Canvas exige une mention de l'IA ?"),
         options: [
           B("In the platform's current rules and creator help pages", "Dans les règles actuelles et l'aide aux créateurs de la plateforme"),
-          B("In a summary written by an AI assistant last year", "Dans un résumé écrit l'an dernier par un assistant IA"),
+          B("In a summary written last year by a general AI assistant", "Dans un résumé écrit l'an dernier par un assistant IA"),
           B("In the terms of use of her own image generator tool", "Dans les conditions de son générateur d'images"),
         ],
         answer: 0,

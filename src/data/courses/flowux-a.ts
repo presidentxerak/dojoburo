@@ -164,7 +164,7 @@ const USER: Level[] = [
       'Vous saurez construire des personas à partir des constats, fondés sur les besoins et les comportements plutôt que sur des clichés.',
     ),
     act: B('Draft two Pagina personas from your findings with the AI, strip the stereotypes, then test them with patrons.',
-      "Rédigez deux personas de Pagina à partir de vos constats avec l'IA, retirez les stéréotypes, puis testez-les auprès d'usagers."),
+      "Rédigez avec l'IA deux personas de Pagina tirés des constats, ôtez les stéréotypes, puis testez-les auprès d'usagers."),
     steps: [
       B('Group participants by what they try to do and how, not by age: these behaviours define your personas.',
         "Regroupez les participants selon ce qu'ils cherchent à faire et comment, pas selon l'âge : ces comportements font les personas."),
