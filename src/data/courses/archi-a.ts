@@ -1,5 +1,765 @@
-// LE COURS « Architecture logicielle avec l'IA », PARTIE A · voir ./types et ./index. En rédaction.
+// LE COURS « Architecture logicielle avec l'IA », PARTIE A · voir ./types et ./index.
+//
+// LES DEUX PREMIERS MODULES · les exigences d'abord, puis modéliser et choisir.
+// La partie B (archi-b) couvre la robustesse, la sécurité, les ADR, les apps
+// qui utilisent un LLM et la durée.
+//
+// UN FIL ROUGE · « Panier Local », une coopérative fictive de producteurs qui
+// vend des paniers hebdomadaires en ligne. Les clients commandent avant la
+// livraison du vendredi, les producteurs déclarent leur stock, des livreurs
+// suivent leurs tournées. L'équipe technique : Léa, développeuse principale,
+// et Malik, développeur à temps partiel. Les chiffres du cas (pic du jeudi
+// soir, nombre de producteurs) sont des hypothèses du cas fictif, présentées
+// comme telles, jamais des statistiques réelles.
+//
+// CE QUE LE COURS S'INTERDIT · aucun chiffre de marché, aucun prix, aucune
+// citation. Les outils nommés (Mermaid, PlantUML, Structurizr, OpenAPI,
+// Swagger Editor, PostgreSQL, SQLite) le sont pour leurs principes stables ;
+// leurs fonctions exactes renvoient à leur documentation officielle.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const ARCHI_A: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 1 · LES EXIGENCES D'ABORD                                    */
+/* ================================================================== */
+
+const M1 = 'ar-m1'
+
+const REQS: Level[] = [
+  {
+    id: 'ar-what',
+    master: 'research',
+    minutes: 9,
+    title: B('What architecture is, and what it is not', "Ce qu'est une architecture, et ce qu'elle n'est pas"),
+    learn: B(
+      'You will tell architecture decisions, costly to reverse, from design details, and see what AI can and cannot decide.',
+      "Vous distinguerez les décisions d'architecture, coûteuses à défaire, des détails de conception, et ce que l'IA peut trancher.",
+    ),
+    act: B('Sort ten decisions of the Panier Local project into architecture and design, with the reason for each.',
+      'Classez dix décisions du projet Panier Local entre architecture et conception, avec la raison de chacune.'),
+    steps: [
+      B('List ten decisions the Panier Local team faces, from the database engine to the wording of an email.',
+        "Listez dix décisions qui attendent l'équipe de Panier Local, du moteur de base de données au texte d'un email."),
+      B('For each one, ask what it would cost to change in a year: weeks of work signal an architecture decision.',
+        "Pour chacune, demandez-vous ce que coûterait un changement dans un an : des semaines de travail signalent l'architecture."),
+      B('Link each architecture decision to the requirement that justifies it, or mark it as unjustified.',
+        "Reliez chaque décision d'architecture à l'exigence qui la justifie, ou marquez-la comme injustifiée."),
+      B('Ask an AI to challenge your sorting, then keep only the objections you can verify yourself.',
+        'Demandez à une IA de contester votre tri, puis ne gardez que les objections que vous pouvez vérifier vous-même.'),
+    ],
+    trap: B(
+      'Confusing architecture with a diagram or a list of trendy technologies: it is the set of costly decisions, and their reasons.',
+      "Confondre l'architecture avec un schéma ou une liste de technologies à la mode : ce sont les décisions coûteuses, et leurs raisons.",
+    ),
+    quiz: {
+      q: B('The Panier Local team must pick one topic for its architecture meeting. Which one belongs there?',
+        "L'équipe de Panier Local doit choisir un sujet pour sa réunion d'architecture. Lequel y a sa place ?"),
+      options: [
+        B('The naming convention for CSS classes in the order form', 'La convention de nommage des classes CSS du formulaire de commande'),
+        B('Whether producers and customers share one database or two', 'Une seule base partagée entre producteurs et clients, ou deux bases'),
+        B('The wording of the confirmation email sent after an order', "Le texte de l'email de confirmation envoyé après une commande"),
+      ],
+      answer: 1,
+      why: B(
+        'Sharing or splitting the database shapes every later change and would take weeks to reverse. CSS names and email wording change in an afternoon: they are design, not architecture.',
+        "Partager ou séparer la base conditionne tous les changements futurs et prendrait des semaines à défaire. Les noms CSS et le texte d'un email se changent en un après-midi : c'est de la conception.",
+      ),
+    },
+    badge: B('Tells a decision from a detail', 'Distingue la décision du détail'),
+  },
+  {
+    id: 'ar-reqs',
+    master: 'extraction',
+    minutes: 11,
+    title: B('Functional requirements and quality attributes', 'Exigences fonctionnelles et attributs de qualité'),
+    learn: B(
+      'You will turn a vague brief into functional requirements and measurable quality attribute scenarios.',
+      'Vous transformerez un cahier des charges flou en exigences fonctionnelles et en scénarios de qualité mesurables.',
+    ),
+    act: B('Extract the requirements of Panier Local with an AI, then rewrite three qualities as testable scenarios.',
+      'Extrayez avec une IA les exigences de Panier Local, puis réécrivez trois qualités en scénarios vérifiables.'),
+    steps: [
+      B('Give the AI the raw brief and ask what the system must do, as user stories with acceptance criteria.',
+        "Donnez le brief brut à l'IA et demandez ce que le système doit faire, en user stories avec critères d'acceptation."),
+      B('Ask separately for the implied qualities: performance, availability, security, usability, maintainability.',
+        'Demandez à part les qualités sous-entendues : performance, disponibilité, sécurité, ergonomie, maintenabilité.'),
+      B('Rewrite each quality as a scenario: source, stimulus, environment, response, and a measure.',
+        'Réécrivez chaque qualité en scénario : source, stimulus, environnement, réponse, et une mesure.'),
+      B('Rank the top three qualities with the cooperative: they will drive every later choice.',
+        'Classez les trois qualités prioritaires avec la coopérative : elles guideront tous les choix suivants.'),
+    ],
+    trap: B(
+      'Writing "the site must be fast and secure": a quality without a measure guides no choice and cannot be checked.',
+      'Écrire « le site doit être rapide et sécurisé » : une qualité sans mesure ne guide aucun choix et ne se vérifie pas.',
+    ),
+    quiz: {
+      q: B('Which requirement could actually decide between two architectures for Panier Local?',
+        'Quelle exigence pourrait réellement départager deux architectures pour Panier Local ?'),
+      options: [
+        B('The ordering site must be fast, modern and pleasant to use on phones', 'Le site de commande doit être rapide, moderne et agréable sur mobile'),
+        B('The site must look professional to reassure new customers', "Le site doit avoir l'air professionnel pour rassurer les clients"),
+        B('On Thursday 7 pm, 300 orders an hour, each confirmed in under 2 s', 'Le jeudi à 19 h, 300 commandes par heure, confirmées en moins de 2 s'),
+      ],
+      answer: 2,
+      why: B(
+        'Only a measured scenario can be tested against an option: can one server confirm 300 orders an hour in under 2 s? "Fast" and "professional" cannot rule anything out.',
+        "Seul un scénario mesuré se confronte à une option : un seul serveur confirme-t-il 300 commandes par heure en moins de 2 s ? « Rapide » et « professionnel » n'excluent rien.",
+      ),
+    },
+    badge: B('Turns qualities into measures', 'Transforme les qualités en mesures'),
+  },
+  {
+    id: 'ar-constraints',
+    master: 'planning',
+    minutes: 10,
+    title: B('Constraints, risks and assumptions', 'Contraintes, risques et hypothèses'),
+    learn: B(
+      'You will separate what is imposed (constraints) from what is uncertain (risks, assumptions), in a living register.',
+      'Vous séparerez ce qui est imposé (contraintes) de ce qui est incertain (risques, hypothèses), dans un registre vivant.',
+    ),
+    act: B('Build the constraints, risks and assumptions register of Panier Local, then have an AI hunt hidden assumptions.',
+      'Dressez le registre des contraintes, risques et hypothèses de Panier Local, puis faites traquer les non-dits par une IA.'),
+    steps: [
+      B('List the constraints: budget, a team of two, a deadline, an imposed payment provider, personal data rules.',
+        'Listez les contraintes : budget, équipe de deux, échéance, prestataire de paiement imposé, règles sur les données personnelles.'),
+      B('Write each assumption as a sentence that could be false: "producers update their stock every evening".',
+        'Écrivez chaque hypothèse comme une phrase qui peut être fausse : « les producteurs mettent à jour leur stock chaque soir ».'),
+      B('For each risk, note likelihood, impact and the cheapest way to reduce it or to test it early.',
+        'Pour chaque risque, notez probabilité, impact et la façon la moins chère de le réduire ou de le tester tôt.'),
+      B('Ask an AI which unstated assumptions your requirements rely on, and add the credible ones.',
+        'Demandez à une IA sur quelles hypothèses tacites reposent vos exigences, et ajoutez les plausibles.'),
+    ],
+    trap: B(
+      'Treating an assumption as a fact: "the payment API handles instalments" is true only once the provider documentation has been checked.',
+      "Traiter une hypothèse comme un fait : « l'API de paiement gère le paiement fractionné » n'est vrai qu'après lecture de la documentation du prestataire.",
+    ),
+    quiz: {
+      q: B('The cooperative says: "we keep our current host, the contract runs until next year". What is it?',
+        "La coopérative déclare : « nous gardons notre hébergeur, le contrat court jusqu'à l'an prochain ». De quoi s'agit-il ?"),
+      options: [
+        B('A constraint: it narrows the options and is not up for debate now', "Une contrainte : elle borne les options et ne se discute pas pour l'instant"),
+        B('A risk: it must be scored for likelihood and impact like the others', 'Un risque : il se note en probabilité et en impact comme les autres'),
+        B('An assumption: it must be tested with a prototype before relying on it', "Une hypothèse : il faut la tester par un prototype avant de s'y fier"),
+      ],
+      answer: 0,
+      why: B(
+        'A contract in force is imposed: it narrows the choices for now. It may create risks, such as a host without a managed database, but the statement itself is a constraint.',
+        "Un contrat en cours est imposé : il restreint les choix pour l'instant. Il peut créer des risques, un hébergeur sans base gérée par exemple, mais l'énoncé lui-même est une contrainte.",
+      ),
+    },
+    badge: B('Names what is imposed and what is guessed', "Nomme l'imposé et le supposé"),
+  },
+  {
+    id: 'ar-review',
+    master: 'analysis',
+    minutes: 11,
+    title: B('Using AI as an architecture reviewer', "Utiliser l'IA comme relecteur d'architecture"),
+    learn: B(
+      'You will brief an AI to review an architecture against your requirements, then sort its remarks by evidence.',
+      'Vous ferez relire une architecture par une IA au regard de vos exigences, puis trierez ses remarques selon les preuves.',
+    ),
+    act: B('Submit the Panier Local draft to an AI reviewer with a structured brief, then classify each remark.',
+      "Soumettez l'ébauche de Panier Local à une IA relectrice avec un brief structuré, puis classez chaque remarque."),
+    steps: [
+      B('Give the reviewer the context: requirements, top three qualities, constraints and the draft architecture.',
+        "Donnez au relecteur le contexte : exigences, trois qualités prioritaires, contraintes et ébauche d'architecture."),
+      B('Ask for risks tied to a named requirement, each with the scenario in which the design would fail.',
+        'Demandez des risques liés à une exigence nommée, chacun avec le scénario où la conception échouerait.'),
+      B('Sort each remark: verified, to check, out of context (it ignores a constraint), or generic advice.',
+        'Classez chaque remarque : vérifiée, à vérifier, hors contexte (elle ignore une contrainte), ou conseil générique.'),
+      B('Run a second pass in a new conversation with the opposite role, then compare the two lists.',
+        'Lancez une seconde passe dans une nouvelle conversation, avec le rôle opposé, puis comparez les deux listes.'),
+    ],
+    trap: B(
+      'Accepting a review because it sounds expert: a remark that cites no requirement or ignores your constraints is noise, however fluent.',
+      'Accepter une relecture parce qu\'elle sonne experte : une remarque qui ne cite aucune exigence ou ignore vos contraintes est du bruit, même bien tournée.',
+    ),
+    quiz: {
+      q: B('The AI reviewer advises Panier Local to move to microservices "for scalability". What do you do?',
+        "L'IA relectrice conseille à Panier Local de passer aux microservices « pour la scalabilité ». Que faites-vous ?"),
+      options: [
+        B('Adopt it: scalability is always a sound goal for a growing site', 'Vous l\'adoptez : la scalabilité est toujours un bon objectif'),
+        B('Discard every remark it made, since this advice proves it unreliable', 'Vous écartez toutes ses remarques, ce conseil prouve son manque de fiabilité'),
+        B('Check it against the peak scenario and the team-of-two constraint', "Vous le confrontez au scénario de pic et à la contrainte d'une équipe de deux"),
+      ],
+      answer: 2,
+      why: B(
+        'A remark is judged against your requirements and constraints, not its tone. A peak of 300 orders an hour and a team of two make microservices costly for no proven gain; other remarks may still be right.',
+        "Une remarque se juge sur vos exigences et contraintes, pas sur son ton. Un pic de 300 commandes par heure et une équipe de deux rendent les microservices coûteux sans gain prouvé ; d'autres remarques restent valables.",
+      ),
+    },
+    badge: B('Reviews the reviewer', 'Relit le relecteur'),
+  },
+]
+
+const REQS_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M1, 'ar-what')]: {
+    why: [
+      B("Software architecture is the set of significant decisions about a system: how it is cut into parts, how those parts communicate, where data lives, and which qualities are favoured when they conflict. A practical test, widely shared among practitioners, is the cost of change: a decision is architectural when reversing it later would take weeks rather than hours.",
+        "L'architecture logicielle est l'ensemble des décisions structurantes d'un système : comment il est découpé, comment ses parties communiquent, où vivent les données, et quelles qualités l'emportent quand elles s'opposent. Un test pratique, partagé par beaucoup de praticiens, est le coût du changement : une décision est d'architecture quand la défaire plus tard prendrait des semaines plutôt que des heures."),
+      B("Architecture is not a diagram, nor a list of technologies. A diagram is one view of the decisions; 'React, Node, PostgreSQL' is a stack. What makes the architecture is the reason: Panier Local keeps one relational database because its team has two developers and its data is tightly linked. Without the reason, nobody can tell later whether the decision still holds.",
+        "L'architecture n'est ni un schéma ni une liste de technologies. Un schéma est une vue des décisions ; « React, Node, PostgreSQL » est une stack. Ce qui fait l'architecture, c'est la raison : Panier Local garde une seule base relationnelle parce que son équipe compte deux développeurs et que ses données sont très liées. Sans la raison, personne ne saura plus tard si la décision tient encore."),
+      B("AI changes the speed, not the responsibility. A model can list options, draft diagrams and argue both sides in seconds, but it knows nothing of your team, budget, deadlines or users unless you tell it, and it tends to propose the most common architecture it has seen. Your role is to supply the context, then to judge.",
+        "L'IA change la vitesse, pas la responsabilité. Un modèle peut lister des options, esquisser des schémas et plaider les deux camps en quelques secondes, mais il ignore votre équipe, votre budget, vos délais et vos utilisateurs si vous ne les lui donnez pas, et il tend à proposer l'architecture la plus courante qu'il a vue. Votre rôle est de fournir le contexte, puis de juger."),
+    ],
+    example: {
+      context: B("Léa, lead developer of Panier Local, a fictional cooperative selling producers' weekly baskets, asks an AI for 'the architecture' of the new ordering platform and receives a fashionable, generic answer.",
+        "Léa, développeuse principale de Panier Local, coopérative fictive qui vend les paniers hebdomadaires de ses producteurs, demande à une IA « l'architecture » de la nouvelle plateforme et reçoit une réponse générique à la mode."),
+      before: B("Give me the best architecture for an online ordering platform.",
+        "Donne-moi la meilleure architecture pour une plateforme de commande en ligne."),
+      after: B("You are helping me prepare architecture decisions, not code.\nContext: Panier Local, a fictional cooperative of about twenty farm producers selling weekly baskets online. Team: two developers, one part-time. Orders concentrate on Thursday evening, before the Friday delivery.\nDecisions we face: database engine, one application or several services, hosting, payment provider, authentication method, CSS framework, wording of emails, folder naming, retention of order history, handling of the Thursday peak.\nFor each one: say whether it is architectural (costly to reverse) or a design detail, explain why in one sentence, and name the requirement or constraint it depends on.\nDo not recommend technologies yet. If information is missing to classify a decision, ask me instead of guessing.",
+        "Tu m'aides à préparer des décisions d'architecture, pas du code.\nContexte : Panier Local, coopérative fictive d'une vingtaine de producteurs qui vend des paniers hebdomadaires en ligne. Équipe : deux développeurs, dont un à temps partiel. Les commandes se concentrent le jeudi soir, avant la livraison du vendredi.\nDécisions à prendre : moteur de base de données, une application ou plusieurs services, hébergement, prestataire de paiement, méthode d'authentification, framework CSS, texte des emails, nommage des dossiers, durée de conservation des commandes, gestion du pic du jeudi.\nPour chacune : dis si elle relève de l'architecture (coûteuse à défaire) ou d'un détail de conception, explique pourquoi en une phrase, et nomme l'exigence ou la contrainte dont elle dépend.\nNe recommande encore aucune technologie. S'il manque une information pour classer une décision, pose-moi la question au lieu de deviner."),
+      takeaway: B("The second prompt gives the team, the load pattern and the list of decisions, and forbids premature technology choices. The answer becomes a sorted list Léa can discuss, instead of a fashionable diagram that fits no one in particular.",
+        "Le second prompt donne l'équipe, le profil de charge et la liste des décisions, et interdit les choix technologiques prématurés. La réponse devient une liste triée que Léa peut discuter, au lieu d'un schéma à la mode qui ne convient à personne en particulier."),
+    },
+    exercise: {
+      goal: B("A table of ten decisions from your own project, or from Panier Local, each classified as architecture or design, justified and tied to a requirement or a constraint.",
+        "Un tableau de dix décisions de votre propre projet, ou de Panier Local, chacune classée en architecture ou conception, justifiée et reliée à une exigence ou une contrainte."),
+      prompt: B("You are helping me sort decisions, not choose technologies.\nProject: [WHAT THE SYSTEM DOES, FOR WHOM].\nTeam and means: [SIZE OF THE TEAM, SKILLS, BUDGET IF KNOWN].\nKnown requirements: [THREE TO FIVE REQUIREMENTS].\nDecisions to sort: [TEN DECISIONS, FROM THE DATABASE TO SMALL DETAILS].\nFor each decision, give a table row: decision, architecture or design, cost of reversing it in a year (hours, days, weeks), the requirement or constraint it depends on.\nThen tell me which decisions have no justification in what I gave you.",
+        "Tu m'aides à trier des décisions, pas à choisir des technologies.\nProjet : [CE QUE FAIT LE SYSTÈME, POUR QUI].\nÉquipe et moyens : [TAILLE DE L'ÉQUIPE, COMPÉTENCES, BUDGET SI CONNU].\nExigences connues : [TROIS À CINQ EXIGENCES].\nDécisions à trier : [DIX DÉCISIONS, DE LA BASE DE DONNÉES AUX PETITS DÉTAILS].\nPour chaque décision, donne une ligne de tableau : décision, architecture ou conception, coût pour la défaire dans un an (heures, jours, semaines), exigence ou contrainte dont elle dépend.\nDis-moi ensuite quelles décisions n'ont aucune justification dans ce que je t'ai donné."),
+      check: [
+        B("Each decision has a cost of reversal, not just a label", "Chaque décision a un coût de retour arrière, pas seulement une étiquette"),
+        B("Every architecture decision points to a requirement or a constraint", "Chaque décision d'architecture renvoie à une exigence ou une contrainte"),
+        B("You disagreed with the AI at least once, with a reason you can state", "Vous avez contredit l'IA au moins une fois, pour une raison que vous savez dire"),
+        B("No technology was chosen at this stage, only decisions were sorted", "Aucune technologie n'a été choisie à ce stade, seules les décisions ont été triées"),
+      ],
+      bonus: B("Take the decisions marked 'no justification' and ask the person who wanted them why. Either a hidden requirement appears, and you add it to your list, or the decision was a habit, and you can drop it.",
+        "Reprenez les décisions marquées « sans justification » et demandez pourquoi à la personne qui les voulait. Soit une exigence cachée apparaît, et vous l'ajoutez à votre liste, soit la décision était une habitude, et vous pouvez l'abandonner."),
+    },
+    more: [
+      { q: B("A colleague shows a box-and-arrow diagram and says 'here is our architecture'. What is still missing?",
+          "Un collègue montre un schéma de boîtes et de flèches et dit « voici notre architecture ». Que manque-t-il encore ?"),
+        options: [
+          B("More colours, so that each layer can be told apart at a glance", "Plus de couleurs, pour distinguer chaque couche au premier coup d'oeil"),
+          B("The reasons behind each choice and the requirements they serve", "Les raisons de chaque choix et les exigences qu'il sert"),
+          B("The exact version number of every library used in the code", "Le numéro de version exact de chaque bibliothèque du code"),
+        ],
+        answer: 1,
+        why: B("A diagram shows what was decided, not why. Without the reasons and the requirements behind them, nobody can judge later whether a decision still holds when the context changes.",
+          "Un schéma montre ce qui a été décidé, pas pourquoi. Sans les raisons et les exigences qui les fondent, personne ne pourra juger plus tard si une décision tient encore quand le contexte change.") },
+      { q: B("Why does a model, asked for 'the best architecture' with no context, often propose microservices?",
+          "Pourquoi un modèle à qui l'on demande « la meilleure architecture » sans contexte propose-t-il souvent des microservices ?"),
+        options: [
+          B("Because it reproduces what is frequent in what it learned from", "Parce qu'il reproduit ce qui est fréquent dans ce qu'il a appris"),
+          B("Because microservices are the right choice for every project today", "Parce que les microservices sont le bon choix pour tout projet aujourd'hui"),
+          B("Because it has measured the load of your system in the background", "Parce qu'il a mesuré la charge de votre système en arrière-plan"),
+        ],
+        answer: 0,
+        why: B("Without context, a model falls back on what it has read most. Only your team size, load and constraints can show whether that common answer fits your case.",
+          "Sans contexte, un modèle se rabat sur ce qu'il a le plus lu. Seuls la taille de votre équipe, votre charge et vos contraintes peuvent montrer si cette réponse courante convient à votre cas.") },
+    ],
+  },
+
+  [enrichKey(M1, 'ar-reqs')]: {
+    why: [
+      B("Requirements come in two families. Functional requirements say what the system does: a customer orders a basket, a producer declares stock. Quality attributes say how well it must do it: how fast, how available, how secure, how easy to change. Functional requirements decide the features; quality attributes decide the architecture, because two designs offering the same features differ mostly in their qualities.",
+        "Les exigences forment deux familles. Les exigences fonctionnelles disent ce que fait le système : un client commande un panier, un producteur déclare son stock. Les attributs de qualité disent à quel point il doit bien le faire : vitesse, disponibilité, sécurité, facilité d'évolution. Les premières décident des fonctions ; les seconds décident de l'architecture, car deux conceptions aux mêmes fonctions diffèrent surtout par leurs qualités."),
+      B("A quality becomes usable once written as a scenario, the form proposed in the classic book Software Architecture in Practice: a source (a customer), a stimulus (places an order), an environment (Thursday evening peak), a response (the order is confirmed) and a measure (in under two seconds). The ISO/IEC 25010 standard gives a list of quality characteristics to make sure none is forgotten.",
+        "Une qualité devient utilisable une fois écrite en scénario, la forme proposée par le livre de référence Software Architecture in Practice : une source (un client), un stimulus (passe commande), un environnement (le pic du jeudi soir), une réponse (la commande est confirmée) et une mesure (en moins de deux secondes). La norme ISO/IEC 25010 fournit une liste de caractéristiques de qualité pour n'en oublier aucune."),
+      B("AI is an excellent extractor: given a messy brief, meeting notes or emails, it can list candidate user stories and implied qualities in a minute. It cannot know which numbers are true. The measures in your scenarios must come from the people who know the business, or be marked as assumptions to validate.",
+        "L'IA est une excellente extractrice : à partir d'un brief brouillon, de notes de réunion ou d'emails, elle liste en une minute des user stories candidates et les qualités sous-entendues. Elle ne peut pas savoir quels chiffres sont vrais. Les mesures de vos scénarios doivent venir des personnes qui connaissent le métier, ou être marquées comme hypothèses à valider."),
+    ],
+    example: {
+      context: B("Hugo, who coordinates the Panier Local cooperative, sends Léa a one-page brief. She asks an AI for the requirements and receives a list of adjectives she cannot design against.",
+        "Hugo, qui coordonne la coopérative Panier Local, envoie à Léa un brief d'une page. Elle demande les exigences à une IA et reçoit une liste d'adjectifs sur laquelle elle ne peut rien concevoir."),
+      before: B("Here is our brief. What are the requirements of the platform?",
+        "Voici notre brief. Quelles sont les exigences de la plateforme ?"),
+      after: B("Here is the brief of Panier Local, written by the cooperative: [brief pasted below].\nStep 1. List the functional requirements as user stories ('As a [role], I want [action] so that [benefit]'), each with two acceptance criteria. Roles: customer, producer, driver, coordinator.\nStep 2. Separately, list the quality attributes the brief implies, using the ISO/IEC 25010 characteristics as a checklist.\nStep 3. For the three that seem most important, write a scenario: source, stimulus, environment, response, measure. When a measure is not in the brief, write 'TO CONFIRM' instead of a number.\nStep 4. List the questions I must ask the cooperative to fill the gaps.",
+        "Voici le brief de Panier Local, rédigé par la coopérative : [brief collé ci-dessous].\nÉtape 1. Liste les exigences fonctionnelles en user stories (« En tant que [rôle], je veux [action] afin de [bénéfice] »), chacune avec deux critères d'acceptation. Rôles : client, producteur, livreur, coordinateur.\nÉtape 2. Liste à part les attributs de qualité que le brief sous-entend, en t'appuyant sur les caractéristiques de la norme ISO/IEC 25010 comme liste de contrôle.\nÉtape 3. Pour les trois qui semblent les plus importants, écris un scénario : source, stimulus, environnement, réponse, mesure. Quand une mesure n'est pas dans le brief, écris « À CONFIRMER » au lieu d'un chiffre.\nÉtape 4. Liste les questions que je dois poser à la coopérative pour combler les manques."),
+      takeaway: B("The second prompt separates the two families, imposes the scenario form and forbids invented numbers. Léa leaves with user stories, three draft scenarios and a list of questions for Hugo, the real source of the measures.",
+        "Le second prompt sépare les deux familles, impose la forme du scénario et interdit les chiffres inventés. Léa repart avec des user stories, trois scénarios à compléter et une liste de questions pour Hugo, la vraie source des mesures."),
+    },
+    exercise: {
+      goal: B("A requirements sheet for your project: user stories with acceptance criteria, then three quality attribute scenarios whose measures are confirmed or explicitly marked as assumptions.",
+        "Une fiche d'exigences pour votre projet : des user stories avec critères d'acceptation, puis trois scénarios de qualité dont les mesures sont confirmées ou explicitement marquées comme hypothèses."),
+      prompt: B("Here is the brief or the notes of my project: [PASTE THE BRIEF, NOTES OR EMAILS].\nUsers involved: [THE ROLES].\n1. List the functional requirements as user stories with two acceptance criteria each.\n2. List the implied quality attributes, using ISO/IEC 25010 as a checklist, and say for each one which sentence of the brief suggests it.\n3. For [THE THREE QUALITIES YOU THINK MATTER MOST], write a scenario: source, stimulus, environment, response, measure. Never invent a measure: write 'TO CONFIRM'.\n4. Give me the questions to ask [WHO KNOWS THE BUSINESS] to confirm the measures.",
+        "Voici le brief ou les notes de mon projet : [COLLEZ LE BRIEF, LES NOTES OU LES EMAILS].\nUtilisateurs concernés : [LES RÔLES].\n1. Liste les exigences fonctionnelles en user stories, avec deux critères d'acceptation chacune.\n2. Liste les attributs de qualité sous-entendus, avec la norme ISO/IEC 25010 comme liste de contrôle, et indique pour chacun la phrase du brief qui le suggère.\n3. Pour [LES TROIS QUALITÉS QUI VOUS SEMBLENT PRIORITAIRES], écris un scénario : source, stimulus, environnement, réponse, mesure. N'invente jamais de mesure : écris « À CONFIRMER ».\n4. Donne-moi les questions à poser à [QUI CONNAÎT LE MÉTIER] pour confirmer les mesures."),
+      check: [
+        B("Each user story has a role, an action, a benefit and two acceptance criteria", "Chaque user story a un rôle, une action, un bénéfice et deux critères d'acceptation"),
+        B("Each quality is traced back to a sentence of the brief", "Chaque qualité est rattachée à une phrase du brief"),
+        B("Your three scenarios have the five parts, including a measure", "Vos trois scénarios ont les cinq parties, mesure comprise"),
+        B("No number in the scenarios was invented by the AI", "Aucun chiffre des scénarios n'a été inventé par l'IA"),
+      ],
+      bonus: B("Take one scenario and ask: what design would fail it? If you cannot imagine any design that fails, the scenario is too vague or too easy, and it will not help you choose.",
+        "Prenez un scénario et demandez-vous : quelle conception l'échouerait ? Si vous n'imaginez aucune conception qui échoue, le scénario est trop vague ou trop facile, et il ne vous aidera pas à choisir."),
+    },
+    more: [
+      { q: B("'Producers can see their orders of the week' is which kind of requirement?",
+          "« Les producteurs voient leurs commandes de la semaine » est quel type d'exigence ?"),
+        options: [
+          B("A quality attribute, since it concerns how producers use the site", "Un attribut de qualité, car il concerne l'usage du site par les producteurs"),
+          B("A constraint, since the cooperative imposed it in its brief", "Une contrainte, puisque la coopérative l'a imposée dans son brief"),
+          B("A functional requirement, since it says what the system does", "Une exigence fonctionnelle, car elle dit ce que fait le système"),
+        ],
+        answer: 2,
+        why: B("It describes a behaviour of the system, not a level of quality. It becomes linked to a quality only if you add a measure, for example that the list loads in under two seconds.",
+          "Elle décrit un comportement du système, pas un niveau de qualité. Elle ne touche une qualité que si vous ajoutez une mesure, par exemple que la liste s'affiche en moins de deux secondes.") },
+      { q: B("The AI writes 'the site must be available 99.9 % of the time' in a scenario. What do you do?",
+          "L'IA écrit « le site doit être disponible 99,9 % du temps » dans un scénario. Que faites-vous ?"),
+        options: [
+          B("Ask where the figure comes from, and confirm it with the cooperative", "Vous demandez d'où vient le chiffre et le faites confirmer par la coopérative"),
+          B("Keep it, since it is a standard figure every serious site must meet", "Vous le gardez, c'est un chiffre standard que tout site sérieux doit tenir"),
+          B("Delete the scenario, since availability is not a quality attribute", "Vous supprimez le scénario, la disponibilité n'étant pas une qualité"),
+        ],
+        answer: 0,
+        why: B("A number the business did not give is an assumption. Each extra level of availability costs effort and money; only the cooperative can say what an outage on a Thursday evening really costs it.",
+          "Un chiffre que le métier n'a pas donné est une hypothèse. Chaque niveau de disponibilité supplémentaire coûte en effort et en argent ; seule la coopérative peut dire ce que lui coûte vraiment une panne un jeudi soir.") },
+    ],
+  },
+
+  [enrichKey(M1, 'ar-constraints')]: {
+    why: [
+      B("A constraint is a decision already taken for you: a budget, a deadline, a team size, an imposed provider, a law. It is not discussed, it is respected, and it removes options before any comparison. Writing constraints down early prevents a common waste: designing a brilliant solution that the context forbids.",
+        "Une contrainte est une décision déjà prise pour vous : un budget, une échéance, une taille d'équipe, un prestataire imposé, une loi. Elle ne se discute pas, elle se respecte, et elle élimine des options avant toute comparaison. Les écrire tôt évite un gaspillage courant : concevoir une solution brillante que le contexte interdit."),
+      B("An assumption is something you believe without having checked it: producers update stock every evening, the payment provider supports refunds, traffic will double next year. A risk is an uncertain event that would hurt the project if it happened. Assumptions feed risks: each unchecked assumption is a risk waiting to be discovered, usually late and at the worst moment.",
+        "Une hypothèse est ce que vous croyez sans l'avoir vérifié : les producteurs mettent à jour le stock chaque soir, le prestataire de paiement gère les remboursements, le trafic doublera l'an prochain. Un risque est un événement incertain qui nuirait au projet s'il survenait. Les hypothèses nourrissent les risques : chaque hypothèse non vérifiée est un risque qui attend d'être découvert, souvent tard et au pire moment."),
+      B("AI is useful precisely where you are blind: asked which assumptions your requirements rely on, it surfaces the obvious things nobody wrote down. It also invents. A legal threshold, a provider limit or a hosting price stated by a model is itself an assumption, to be checked at the official source: CNIL for personal data in France, the provider's documentation for an API.",
+        "L'IA est utile là où vous êtes aveugle : interrogée sur les hypothèses dont dépendent vos exigences, elle fait apparaître les évidences que personne n'a écrites. Elle invente aussi. Un seuil légal, une limite de prestataire ou un prix d'hébergement donné par un modèle est lui-même une hypothèse, à vérifier à la source officielle : la CNIL pour les données personnelles en France, la documentation du prestataire pour une API."),
+    ],
+    example: {
+      context: B("Léa asks an AI for the risks of the Panier Local project. She receives a list that could fit any project in the world, and nothing about the cooperative.",
+        "Léa demande à une IA les risques du projet Panier Local. Elle reçoit une liste qui conviendrait à n'importe quel projet au monde, et rien sur la coopérative."),
+      before: B("What are the risks of building an online ordering platform?",
+        "Quels sont les risques d'une plateforme de commande en ligne ?"),
+      after: B("Context: Panier Local, a fictional cooperative selling weekly baskets. Orders close on Thursday evening, delivery on Friday.\nConstraints (not negotiable): two developers, one part-time; launch before the spring season; payment provider already chosen by the cooperative; current hosting contract runs until next year; personal data of customers in France.\nRequirements: [the user stories and the three quality scenarios].\n1. List the assumptions these requirements rely on without saying so (about producers, customers, drivers, providers, data). Write each as a sentence that could turn out false.\n2. For each assumption, give the risk if it is false, a likelihood and an impact (low, medium, high), and the cheapest way to check it this week.\n3. Do not state any legal rule or provider limit as a fact: tell me which official source to check instead.",
+        "Contexte : Panier Local, coopérative fictive qui vend des paniers hebdomadaires. Les commandes ferment le jeudi soir, livraison le vendredi.\nContraintes (non négociables) : deux développeurs, dont un à temps partiel ; lancement avant la saison de printemps ; prestataire de paiement déjà choisi par la coopérative ; contrat d'hébergement en cours jusqu'à l'an prochain ; données personnelles de clients en France.\nExigences : [les user stories et les trois scénarios de qualité].\n1. Liste les hypothèses sur lesquelles ces exigences reposent sans le dire (producteurs, clients, livreurs, prestataires, données). Écris chacune comme une phrase qui pourrait se révéler fausse.\n2. Pour chaque hypothèse, donne le risque si elle est fausse, une probabilité et un impact (faible, moyen, élevé), et le moyen le moins cher de la vérifier cette semaine.\n3. N'énonce aucune règle légale ni limite de prestataire comme un fait : indique-moi plutôt la source officielle à consulter."),
+      takeaway: B("With the constraints and requirements in hand, the AI finds assumptions specific to the cooperative, such as producers updating stock from a phone in the field. Each comes with a cheap check, and no legal claim is taken on faith.",
+        "Avec les contraintes et les exigences en main, l'IA trouve des hypothèses propres à la coopérative, comme des producteurs qui mettent à jour leur stock depuis un téléphone au champ. Chacune vient avec une vérification peu coûteuse, et aucune affirmation légale n'est prise pour argent comptant."),
+    },
+    exercise: {
+      goal: B("A register in three columns for your project, constraints, assumptions and risks, where each assumption has a planned check and each risk a likelihood, an impact and a response.",
+        "Un registre en trois colonnes pour votre projet, contraintes, hypothèses et risques, où chaque hypothèse a une vérification prévue et chaque risque une probabilité, un impact et une réponse."),
+      prompt: B("Project: [WHAT THE SYSTEM DOES, FOR WHOM].\nConstraints I know (not negotiable): [BUDGET, DEADLINE, TEAM, IMPOSED PROVIDERS, RULES].\nRequirements: [YOUR USER STORIES AND QUALITY SCENARIOS].\n1. Sort what I gave you: anything I listed as a constraint that is in fact an assumption, tell me.\n2. List the unstated assumptions my requirements rely on, each as a sentence that could be false.\n3. Build a risk table: risk, the assumption it comes from, likelihood, impact, response (avoid, reduce, accept, check early).\n4. For any legal rule, price or provider limit, name the official source to check, without stating a value.",
+        "Projet : [CE QUE FAIT LE SYSTÈME, POUR QUI].\nContraintes connues (non négociables) : [BUDGET, ÉCHÉANCE, ÉQUIPE, PRESTATAIRES IMPOSÉS, RÈGLES].\nExigences : [VOS USER STORIES ET SCÉNARIOS DE QUALITÉ].\n1. Trie ce que je t'ai donné : si une de mes contraintes est en réalité une hypothèse, dis-le-moi.\n2. Liste les hypothèses tacites sur lesquelles reposent mes exigences, chacune comme une phrase qui pourrait être fausse.\n3. Construis un tableau des risques : risque, hypothèse d'origine, probabilité, impact, réponse (éviter, réduire, accepter, vérifier tôt).\n4. Pour toute règle légale, tout prix ou toute limite de prestataire, nomme la source officielle à consulter, sans donner de valeur."),
+      check: [
+        B("Every constraint is truly imposed, not a preference written as a rule", "Chaque contrainte est vraiment imposée, pas une préférence écrite comme une règle"),
+        B("Every assumption is a sentence that could be proven false", "Chaque hypothèse est une phrase qui pourrait être démentie"),
+        B("The three highest risks each have a concrete check or response", "Les trois risques les plus élevés ont chacun une vérification ou une réponse concrète"),
+        B("No legal threshold or price was copied from the AI without a source", "Aucun seuil légal ni prix n'a été recopié de l'IA sans source"),
+      ],
+      bonus: B("Choose the assumption whose failure would hurt most and test it this week: a phone call to a producer, a test account with the payment provider, a reading of the hosting contract. Then update the register with the result.",
+        "Choisissez l'hypothèse dont l'échec ferait le plus mal et testez-la cette semaine : un appel à un producteur, un compte de test chez le prestataire de paiement, une lecture du contrat d'hébergement. Mettez ensuite le registre à jour avec le résultat."),
+    },
+    more: [
+      { q: B("The AI states that a certain data retention period is 'required by law'. What is the right reflex?",
+          "L'IA affirme qu'une certaine durée de conservation des données est « imposée par la loi ». Quel est le bon réflexe ?"),
+        options: [
+          B("Write it into the constraints, since the model knows the law well", "L'inscrire dans les contraintes, le modèle connaissant bien la loi"),
+          B("Record it as an assumption and check it with CNIL or a lawyer", "La noter comme hypothèse et la vérifier auprès de la CNIL ou d'un juriste"),
+          B("Ignore it, since legal matters are outside software architecture", "L'ignorer, le juridique étant hors du champ de l'architecture logicielle"),
+        ],
+        answer: 1,
+        why: B("Legal obligations shape the architecture, for instance where data is stored and for how long, but a model can be wrong or outdated. The official source decides; until then, it is an assumption.",
+          "Les obligations légales façonnent l'architecture, par exemple où et combien de temps les données sont stockées, mais un modèle peut se tromper ou être dépassé. La source officielle tranche ; d'ici là, c'est une hypothèse.") },
+      { q: B("'Producers will enter their stock every evening' has never been checked. Why does it matter for architecture?",
+          "« Les producteurs saisiront leur stock chaque soir » n'a jamais été vérifié. Pourquoi est-ce important pour l'architecture ?"),
+        options: [
+          B("It does not matter: stock entry is a training issue, not a design one", "Ce n'est pas important : la saisie du stock relève de la formation"),
+          B("Because it decides the colour scheme of the producers' screens", "Parce qu'elle décide des couleurs des écrans des producteurs"),
+          B("If false, the site sells baskets that do not exist, and the design must handle it", "Si elle est fausse, le site vend des paniers inexistants, et il faut le prévoir"),
+        ],
+        answer: 2,
+        why: B("Stale stock leads to overselling. If the assumption fails, the design needs answers such as reservations confirmed by producers or stock entry from a phone. Checking it early is far cheaper.",
+          "Un stock périmé mène à la survente. Si l'hypothèse tombe, la conception doit répondre, par exemple avec des réservations confirmées par les producteurs ou une saisie depuis un téléphone. La vérifier tôt coûte bien moins cher.") },
+    ],
+  },
+
+  [enrichKey(M1, 'ar-review')]: {
+    why: [
+      B("A review finds problems while they are cheap to fix: on paper, before code exists. Human reviewers are scarce in a small team; an AI reviewer is available at any hour. Its value depends entirely on what you give it. Without your requirements and constraints, it can only compare your design to an average design, and every difference will look like a flaw.",
+        "Une relecture trouve les problèmes quand ils coûtent peu à corriger : sur le papier, avant que le code existe. Les relecteurs humains sont rares dans une petite équipe ; une IA relectrice est disponible à toute heure. Sa valeur dépend entièrement de ce que vous lui donnez. Sans vos exigences et vos contraintes, elle ne peut que comparer votre conception à une conception moyenne, et chaque écart ressemblera à un défaut."),
+      B("A useful remark has three parts: the requirement or quality at stake, the scenario in which the design fails, and a proposed change with its cost. Asking for that format filters out generic advice, such as 'consider adding a cache', which sounds wise and commits to nothing. A remark that cannot name the scenario where things break is an opinion.",
+        "Une remarque utile a trois parties : l'exigence ou la qualité en jeu, le scénario où la conception échoue, et un changement proposé avec son coût. Exiger ce format filtre les conseils génériques, comme « envisagez d'ajouter un cache », qui sonnent sages et n'engagent à rien. Une remarque incapable de nommer le scénario où tout casse est une opinion."),
+      B("Models tend to agree with the framing of the question and to sound confident. Two habits counter this: ask for the strongest objections rather than an opinion, and run a second review in a fresh conversation with an opposite role (the defender of the design, or a sceptical operator on call at night). Remarks that survive both passes deserve your time first.",
+        "Les modèles tendent à épouser le cadrage de la question et à paraître sûrs d'eux. Deux habitudes compensent : demander les objections les plus fortes plutôt qu'un avis, et lancer une seconde relecture dans une nouvelle conversation avec un rôle opposé (le défenseur de la conception, ou un exploitant sceptique d'astreinte la nuit). Les remarques qui survivent aux deux passes méritent votre temps en premier."),
+    ],
+    example: {
+      context: B("Léa has a first draft of the Panier Local architecture: one web application, one PostgreSQL database, an email service and the payment provider. She asks an AI what it thinks.",
+        "Léa a une première ébauche de l'architecture de Panier Local : une application web, une base PostgreSQL, un service d'email et le prestataire de paiement. Elle demande son avis à une IA."),
+      before: B("Here is my architecture: a web app, a PostgreSQL database, an email service and Stripe. What do you think?",
+        "Voici mon architecture : une app web, une base PostgreSQL, un service d'email et Stripe. Qu'en penses-tu ?"),
+      after: B("You are a demanding architecture reviewer. Do not rewrite the design; find its weaknesses.\nContext: Panier Local, fictional cooperative, two developers (one part-time), launch before spring.\nTop qualities, in order: 1) orders confirmed in under 2 s during the Thursday 7 pm peak (estimate: 300 orders an hour, TO CONFIRM); 2) no basket sold twice; 3) changes easy for a team of two.\nConstraints: payment provider imposed, current host until next year.\nDraft: one web application (server-rendered pages and an API for the drivers' app), one PostgreSQL database, a transactional email service, the payment provider.\nFor each weakness, give: the quality or constraint at stake, the concrete scenario where the design fails, a change and its cost for a team of two.\nList at most seven, strongest first. Then tell me which of your remarks are generic advice not tied to this context.",
+        "Tu es un relecteur d'architecture exigeant. Ne réécris pas la conception ; trouve ses faiblesses.\nContexte : Panier Local, coopérative fictive, deux développeurs (dont un à temps partiel), lancement avant le printemps.\nQualités prioritaires, dans l'ordre : 1) commandes confirmées en moins de 2 s pendant le pic du jeudi 19 h (estimation : 300 commandes par heure, À CONFIRMER) ; 2) aucun panier vendu deux fois ; 3) évolutions faciles pour une équipe de deux.\nContraintes : prestataire de paiement imposé, hébergeur actuel jusqu'à l'an prochain.\nÉbauche : une application web (pages rendues côté serveur et une API pour l'app des livreurs), une base PostgreSQL, un service d'email transactionnel, le prestataire de paiement.\nPour chaque faiblesse, donne : la qualité ou la contrainte en jeu, le scénario concret où la conception échoue, un changement et son coût pour une équipe de deux.\nListe-en au plus sept, la plus forte d'abord. Dis-moi ensuite lesquelles de tes remarques sont des conseils génériques sans lien avec ce contexte."),
+      takeaway: B("The first prompt invites praise or a catalogue of best practices. The second gives priorities, constraints and a format, so each remark can be checked; the AI even flags its own generic advice, which Léa can set aside.",
+        "Le premier prompt appelle des compliments ou un catalogue de bonnes pratiques. Le second donne des priorités, des contraintes et un format, si bien que chaque remarque se vérifie ; l'IA signale même ses propres conseils génériques, que Léa peut écarter."),
+    },
+    exercise: {
+      goal: B("A review table of your architecture draft: each remark classified as verified, to check, out of context or generic, with a decision (accept, reject, investigate) and its reason.",
+        "Un tableau de relecture de votre ébauche d'architecture : chaque remarque classée vérifiée, à vérifier, hors contexte ou générique, avec une décision (accepter, rejeter, approfondir) et sa raison."),
+      prompt: B("You are a demanding architecture reviewer. Do not redesign; find weaknesses.\nContext: [PROJECT, TEAM, DEADLINE].\nTop three qualities, with their scenarios: [YOUR SCENARIOS].\nConstraints: [YOUR CONSTRAINTS].\nDraft architecture: [THE PARTS, HOW THEY COMMUNICATE, WHERE DATA LIVES].\nFor each weakness: quality or constraint at stake, scenario where the design fails, proposed change and its cost for my team.\nAt most seven remarks, strongest first. Finally, flag which of your remarks are generic and not tied to my context.",
+        "Tu es un relecteur d'architecture exigeant. Ne refais pas la conception ; trouve les faiblesses.\nContexte : [PROJET, ÉQUIPE, ÉCHÉANCE].\nTrois qualités prioritaires, avec leurs scénarios : [VOS SCÉNARIOS].\nContraintes : [VOS CONTRAINTES].\nÉbauche d'architecture : [LES PARTIES, COMMENT ELLES COMMUNIQUENT, OÙ VIVENT LES DONNÉES].\nPour chaque faiblesse : qualité ou contrainte en jeu, scénario où la conception échoue, changement proposé et son coût pour mon équipe.\nAu plus sept remarques, la plus forte d'abord. Signale enfin lesquelles de tes remarques sont génériques et sans lien avec mon contexte."),
+      check: [
+        B("Every remark names a quality or a constraint from your brief", "Chaque remarque nomme une qualité ou une contrainte de votre brief"),
+        B("Every remark you accepted has a failure scenario you find credible", "Chaque remarque acceptée a un scénario d'échec que vous jugez crédible"),
+        B("You rejected at least one remark that ignored a constraint", "Vous avez rejeté au moins une remarque qui ignorait une contrainte"),
+        B("A second pass with an opposite role was run and compared", "Une seconde passe avec un rôle opposé a été lancée et comparée"),
+      ],
+      bonus: B("Give the same brief to a second model from another provider. Remarks found by both are strong candidates; a remark found by only one is not wrong for that, but deserves a closer look before you act.",
+        "Donnez le même brief à un second modèle d'un autre fournisseur. Les remarques trouvées par les deux sont de bonnes candidates ; une remarque trouvée par un seul n'est pas fausse pour autant, mais mérite un examen plus attentif avant d'agir."),
+    },
+    more: [
+      { q: B("The reviewer writes 'consider adding a cache to improve performance'. How do you classify this remark?",
+          "Le relecteur écrit « envisagez d'ajouter un cache pour améliorer les performances ». Comment classez-vous cette remarque ?"),
+        options: [
+          B("Verified, since caching always improves the performance of a site", "Vérifiée, puisqu'un cache améliore toujours les performances d'un site"),
+          B("Generic until it names the scenario and the measure it would fix", "Générique tant qu'elle ne nomme ni le scénario ni la mesure à corriger"),
+          B("Out of context, since a cache is never useful for a small team", "Hors contexte, un cache n'étant jamais utile à une petite équipe"),
+        ],
+        answer: 1,
+        why: B("A cache adds complexity and can serve stale data, such as outdated stock. It is worth it only for a precise scenario it would fix; without that link, the remark commits to nothing.",
+          "Un cache ajoute de la complexité et peut servir des données périmées, comme un stock dépassé. Il ne vaut que pour un scénario précis qu'il corrigerait ; sans ce lien, la remarque n'engage à rien.") },
+      { q: B("Why run the second review in a new conversation rather than in the same one?",
+          "Pourquoi lancer la seconde relecture dans une nouvelle conversation plutôt que dans la même ?"),
+        options: [
+          B("So that the earlier answers do not steer the new review", "Pour que les réponses précédentes n'orientent pas la nouvelle relecture"),
+          B("Because a conversation can only contain a single review", "Parce qu'une conversation ne peut contenir qu'une seule relecture"),
+          B("To pay less, since new conversations are always cheaper", "Pour payer moins, les nouvelles conversations coûtant toujours moins"),
+        ],
+        answer: 0,
+        why: B("In the same conversation, the model sees its earlier remarks and tends to stay consistent with them. A fresh conversation with an opposite role gives a more independent second opinion.",
+          "Dans la même conversation, le modèle voit ses remarques précédentes et tend à rester cohérent avec elles. Une conversation neuve avec un rôle opposé donne un second avis plus indépendant.") },
+    ],
+  },
+}
+
+const REQS_DEEP: Record<string, Deepening> = {
+  [deepKey(M1, 'ar-what')]: {
+    intro: B("Before drawing boxes or choosing a framework, you need to know what you are deciding. This lesson defines software architecture as the set of significant decisions about a system, those that are costly to reverse, together with the reasons behind them. It separates architecture from design details, from diagrams and from technology lists, and it places AI where it helps: listing options and challenging your reasoning, not deciding in your place. You will meet Panier Local, a fictional cooperative selling weekly baskets, which runs through the whole course, and you will be able to sort its decisions and justify each one.",
+      "Avant de dessiner des boîtes ou de choisir un framework, il faut savoir ce que l'on décide. Ce cours définit l'architecture logicielle comme l'ensemble des décisions structurantes d'un système, celles qui coûtent cher à défaire, accompagnées de leurs raisons. Il la distingue des détails de conception, des schémas et des listes de technologies, et place l'IA là où elle aide : lister des options et contester votre raisonnement, non décider à votre place. Vous découvrirez Panier Local, coopérative fictive qui vend des paniers hebdomadaires et sert de fil rouge à toute la formation, et vous saurez trier ses décisions et justifier chacune."),
+    concepts: [
+      { term: B('Architecture decision', "Décision d'architecture"),
+        def: B("A choice that shapes the structure or the qualities of the system and would be expensive to reverse: how it is split, where data lives, how parts communicate.",
+          "Un choix qui façonne la structure ou les qualités du système et coûterait cher à défaire : son découpage, l'emplacement des données, la communication entre ses parties.") },
+      { term: B('Design detail', 'Détail de conception'),
+        def: B("A choice local to one part, cheap to change: a variable name, a CSS convention, the wording of a message. It matters, but it does not belong in an architecture meeting.",
+          "Un choix local à une partie, peu coûteux à changer : un nom de variable, une convention CSS, le texte d'un message. Il compte, mais n'a pas sa place en réunion d'architecture.") },
+      { term: B('Rationale', 'Justification'),
+        def: B("The reason a decision was taken, tied to a requirement or a constraint. It is what allows someone, later, to judge whether the decision still holds.",
+          "La raison pour laquelle une décision a été prise, reliée à une exigence ou une contrainte. C'est elle qui permet, plus tard, de juger si la décision tient encore.") },
+      { term: B('Stack', 'Stack'),
+        def: B("The list of technologies used, such as a language, a framework and a database. A stack is a consequence of architecture decisions, not the architecture itself.",
+          "La liste des technologies employées, comme un langage, un framework et une base de données. Une stack découle des décisions d'architecture, elle n'est pas l'architecture.") },
+    ],
+    walkthrough: {
+      title: B("Léa, lead developer of Panier Local, sorts the first decisions of the new ordering platform before any code is written.",
+        "Léa, développeuse principale de Panier Local, trie les premières décisions de la nouvelle plateforme de commande avant toute ligne de code."),
+      steps: [
+        B("She writes ten decisions on a page, mixing large and small ones on purpose, from 'one database or two' to 'wording of the confirmation email'. Why: sorting needs a mixed list; a list of only big topics hides the line between architecture and design.",
+          "Elle écrit dix décisions sur une page, en mêlant volontairement grandes et petites, de « une base ou deux » au « texte de l'email de confirmation ». Pourquoi : trier demande une liste mélangée ; une liste de seuls grands sujets cache la frontière entre architecture et conception."),
+        B("For each decision, she estimates the cost of changing it in a year: hours, days or weeks. Why: the cost of reversal is the most reliable test of what is architectural, far more than the size or prestige of the topic.",
+          "Pour chacune, elle estime le coût d'un changement dans un an : heures, jours ou semaines. Pourquoi : le coût du retour arrière est le test le plus fiable de ce qui relève de l'architecture, bien plus que la taille ou le prestige du sujet."),
+        B("She links each decision marked 'weeks' to a requirement or a constraint: one database because the team has two developers and orders, stock and baskets are tightly linked. Why: a decision without a reason cannot be defended or revisited.",
+          "Elle relie chaque décision notée « semaines » à une exigence ou une contrainte : une seule base parce que l'équipe compte deux développeurs et que commandes, stock et paniers sont très liés. Pourquoi : une décision sans raison ne peut être ni défendue ni réexaminée."),
+        B("She gives her table to an AI with the context of the cooperative and asks it to contest her sorting. Why: a second view, even automated, catches decisions she underestimated, such as the retention period of order history.",
+          "Elle soumet son tableau à une IA avec le contexte de la coopérative et lui demande de contester son tri. Pourquoi : un second regard, même automatisé, repère les décisions sous-estimées, comme la durée de conservation de l'historique des commandes."),
+        B("She keeps only the objections she can verify and notes two decisions with no justification at all. Why: those two are either hidden requirements to clarify with the cooperative, or habits that can be dropped.",
+          "Elle ne garde que les objections qu'elle peut vérifier et note deux décisions sans aucune justification. Pourquoi : ces deux-là sont soit des exigences cachées à clarifier avec la coopérative, soit des habitudes à abandonner."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Presenting a diagram or a technology list as 'the architecture'.",
+          "Présenter un schéma ou une liste de technologies comme « l'architecture »."),
+        fix: B("Present the decisions and their reasons; the diagram and the stack then illustrate them. A reader should be able to tell why each box exists.",
+          "Présentez les décisions et leurs raisons ; le schéma et la stack viennent ensuite les illustrer. Un lecteur doit pouvoir dire pourquoi chaque boîte existe.") },
+      { wrong: B("Asking an AI for 'the best architecture' without any context.",
+          "Demander à une IA « la meilleure architecture » sans aucun contexte."),
+        fix: B("Give the team, the load, the constraints and the decisions at stake. Without them, the model can only return the most common answer it knows.",
+          "Donnez l'équipe, la charge, les contraintes et les décisions en jeu. Sans elles, le modèle ne peut renvoyer que la réponse la plus courante qu'il connaisse.") },
+      { wrong: B("Spending architecture meetings on details that change in an afternoon.",
+          "Consacrer les réunions d'architecture à des détails qui se changent en un après-midi."),
+        fix: B("Apply the cost of change test before the meeting. Leave cheap decisions to the person doing the work, and keep the meeting for what is costly to reverse.",
+          "Appliquez le test du coût du changement avant la réunion. Laissez les décisions peu coûteuses à la personne qui fait le travail, et gardez la réunion pour ce qui coûte cher à défaire.") },
+    ],
+    recap: [
+      B("Architecture is the set of decisions that are costly to reverse, with their reasons.", "L'architecture est l'ensemble des décisions coûteuses à défaire, avec leurs raisons."),
+      B("A diagram is a view of those decisions, and a stack is one of their consequences.", "Un schéma est une vue de ces décisions, et une stack l'une de leurs conséquences."),
+      B("The cost of change is the most reliable test of what is architectural.", "Le coût du changement est le test le plus fiable de ce qui relève de l'architecture."),
+      B("AI lists options and contests reasoning; the context and the decision remain yours.", "L'IA liste des options et conteste le raisonnement ; le contexte et la décision restent les vôtres."),
+    ],
+    further: B("Open the arc42 template, a free and widely used structure for documenting architecture, and read the titles of its sections. Note which sections concern decisions and reasons rather than diagrams: you will fill several of them during this course.",
+      "Ouvrez le modèle arc42, une structure gratuite et très utilisée pour documenter une architecture, et lisez les titres de ses sections. Repérez celles qui portent sur les décisions et leurs raisons plutôt que sur les schémas : vous en remplirez plusieurs au fil de cette formation."),
+    more: [
+      { q: B("Which question best tells whether a decision is architectural?",
+          "Quelle question indique le mieux si une décision relève de l'architecture ?"),
+        options: [
+          B("Is it discussed by the most senior people of the team?", "Est-elle discutée par les personnes les plus expérimentées de l'équipe ?"),
+          B("Does it involve a technology that is popular this year?", "Implique-t-elle une technologie populaire cette année ?"),
+          B("What would it cost to reverse it once the system is in use?", "Que coûterait-il de la défaire une fois le système en service ?"),
+        ],
+        answer: 2,
+        why: B("Seniority and popularity say nothing about the impact of a choice. The cost of reversing it, once data and users depend on it, is what makes a decision architectural.",
+          "L'ancienneté et la popularité ne disent rien de l'impact d'un choix. Le coût pour le défaire, une fois que les données et les utilisateurs en dépendent, est ce qui en fait une décision d'architecture.") },
+      { q: B("Panier Local chose one database. Two years later, a new developer wonders why. What helps most?",
+          "Panier Local a choisi une seule base. Deux ans plus tard, une nouvelle développeuse se demande pourquoi. Qu'est-ce qui l'aide le plus ?"),
+        options: [
+          B("The written reason: two developers and tightly linked data", "La raison écrite : deux développeurs et des données très liées"),
+          B("The diagram showing the database as a cylinder in the middle", "Le schéma qui montre la base en cylindre au centre"),
+          B("The name and version of the database engine in package files", "Le nom et la version du moteur dans les fichiers de dépendances"),
+        ],
+        answer: 0,
+        why: B("Only the reason lets her judge whether the decision still holds: if the team has grown or the data has split, the choice may deserve a review. The diagram and the version say what, not why.",
+          "Seule la raison lui permet de juger si la décision tient encore : si l'équipe a grandi ou si les données se sont séparées, le choix mérite peut-être d'être revu. Le schéma et la version disent quoi, pas pourquoi.") },
+    ],
+  },
+
+  [deepKey(M1, 'ar-reqs')]: {
+    intro: B("An architecture answers requirements; without them, it answers nothing in particular. This lesson separates functional requirements, what the system does, from quality attributes, how well it must do it, and shows why the latter drive architecture. You will learn to write a quality as a measurable scenario, to use AI to extract requirements from a messy brief, and to refuse the numbers it invents. With Panier Local, you will produce user stories with acceptance criteria and three quality scenarios ready to guide the choices of the next module.",
+      "Une architecture répond à des exigences ; sans elles, elle ne répond à rien de précis. Ce cours sépare les exigences fonctionnelles, ce que fait le système, des attributs de qualité, à quel point il doit bien le faire, et montre pourquoi ce sont les seconds qui guident l'architecture. Vous apprendrez à écrire une qualité comme un scénario mesurable, à utiliser l'IA pour extraire des exigences d'un brief brouillon, et à refuser les chiffres qu'elle invente. Avec Panier Local, vous produirez des user stories avec critères d'acceptation et trois scénarios de qualité prêts à guider les choix du module suivant."),
+    concepts: [
+      { term: B('Functional requirement', 'Exigence fonctionnelle'),
+        def: B("A behaviour the system must offer, often written as a user story: as a customer, I want to order a basket so that I receive it on Friday.",
+          "Un comportement que le système doit offrir, souvent écrit en user story : en tant que client, je veux commander un panier afin de le recevoir vendredi.") },
+      { term: B('Quality attribute', 'Attribut de qualité'),
+        def: B("A property of how the system behaves: performance, availability, security, usability, maintainability. The ISO/IEC 25010 standard lists them as a checklist.",
+          "Une propriété de la manière dont le système se comporte : performance, disponibilité, sécurité, ergonomie, maintenabilité. La norme ISO/IEC 25010 en donne la liste.") },
+      { term: B('Quality scenario', 'Scénario de qualité'),
+        def: B("A quality written in five parts: source, stimulus, environment, response, measure. It turns 'fast' into something that can be tested and that can rule out a design.",
+          "Une qualité écrite en cinq parties : source, stimulus, environnement, réponse, mesure. Il transforme « rapide » en quelque chose qui se teste et peut écarter une conception.") },
+      { term: B('Acceptance criterion', "Critère d'acceptation"),
+        def: B("A condition that says when a user story is done, such as 'the customer receives a confirmation email within a minute'.",
+          "Une condition qui dit quand une user story est terminée, par exemple « le client reçoit un email de confirmation en moins d'une minute ».") },
+    ],
+    walkthrough: {
+      title: B("Léa turns the one-page brief of the Panier Local cooperative into requirements she can design against.",
+        "Léa transforme le brief d'une page de la coopérative Panier Local en exigences sur lesquelles elle peut concevoir."),
+      steps: [
+        B("She pastes the brief into an AI and asks only for user stories, by role: customer, producer, driver, coordinator. Why: separating roles reveals forgotten users, here the drivers, absent from the brief but essential on Friday.",
+          "Elle colle le brief dans une IA et ne demande que des user stories, par rôle : client, producteur, livreur, coordinateur. Pourquoi : séparer les rôles révèle les oubliés, ici les livreurs, absents du brief mais essentiels le vendredi."),
+        B("In a second message, she asks for the implied qualities, using ISO/IEC 25010 as a checklist, each tied to a sentence of the brief. Why: the link to the text prevents qualities invented to look complete.",
+          "Dans un second message, elle demande les qualités sous-entendues, avec la norme ISO/IEC 25010 comme liste de contrôle, chacune reliée à une phrase du brief. Pourquoi : le lien au texte empêche les qualités inventées pour faire complet."),
+        B("She rewrites the three qualities that seem to matter most as scenarios, leaving 'TO CONFIRM' where the measure is unknown. Why: an honest gap is better than a plausible number nobody can defend.",
+          "Elle réécrit en scénarios les trois qualités qui semblent compter le plus, en laissant « À CONFIRMER » là où la mesure est inconnue. Pourquoi : un manque honnête vaut mieux qu'un chiffre plausible que personne ne peut défendre."),
+        B("She meets Hugo, the coordinator, with her questions. He confirms that orders cluster on Thursday evening and estimates the peak; overselling a basket is, for him, the worst failure. Why: the business gives the measures and the priorities.",
+          "Elle rencontre Hugo, le coordinateur, avec ses questions. Il confirme que les commandes se concentrent le jeudi soir et estime le pic ; vendre un panier deux fois est pour lui la pire défaillance. Pourquoi : le métier donne les mesures et les priorités."),
+        B("She ranks the qualities: no basket sold twice, then confirmation within two seconds at peak, then ease of change. Why: when two qualities conflict later, this ranking will decide, instead of the loudest opinion.",
+          "Elle classe les qualités : aucun panier vendu deux fois, puis confirmation en deux secondes au pic, puis facilité d'évolution. Pourquoi : quand deux qualités s'opposeront plus tard, ce classement tranchera, au lieu de l'avis le plus bruyant."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Writing qualities as adjectives: fast, secure, scalable, user-friendly.",
+          "Écrire les qualités comme des adjectifs : rapide, sûr, scalable, ergonomique."),
+        fix: B("Rewrite each one as a scenario with a measure. If you cannot imagine a design that fails the scenario, it is still too vague.",
+          "Réécrivez chacune en scénario avec une mesure. Si vous n'imaginez aucune conception qui échoue au scénario, il est encore trop vague.") },
+      { wrong: B("Keeping the numbers an AI wrote in the scenarios because they look reasonable.",
+          "Garder les chiffres écrits par une IA dans les scénarios parce qu'ils paraissent raisonnables."),
+        fix: B("Mark every unconfirmed number as an assumption and have it confirmed by the business. A model has no access to your traffic or your costs of failure.",
+          "Marquez chaque chiffre non confirmé comme hypothèse et faites-le valider par le métier. Un modèle n'a accès ni à votre trafic ni au coût de vos pannes.") },
+      { wrong: B("Treating all qualities as equally important.",
+          "Traiter toutes les qualités comme également importantes."),
+        fix: B("Rank the top three with the people who own the business. Qualities often conflict, and an architecture can only favour a few of them.",
+          "Classez les trois premières avec les responsables métier. Les qualités s'opposent souvent, et une architecture ne peut en privilégier que quelques-unes.") },
+    ],
+    recap: [
+      B("Functional requirements decide the features; quality attributes decide the architecture.", "Les exigences fonctionnelles décident des fonctions ; les attributs de qualité décident de l'architecture."),
+      B("A quality becomes usable as a five-part scenario with a measure.", "Une qualité devient utilisable sous forme de scénario en cinq parties, avec une mesure."),
+      B("AI extracts candidate requirements quickly, but the measures come from the business.", "L'IA extrait vite des exigences candidates, mais les mesures viennent du métier."),
+      B("Ranking the top three qualities settles future conflicts in advance.", "Classer les trois qualités prioritaires tranche à l'avance les conflits futurs."),
+    ],
+    further: B("Read the list of quality characteristics of ISO/IEC 25010, as presented on the ISO website or in a summary from a recognised source, and check your Panier Local requirements against it. Note any characteristic you had not considered, and decide whether it matters for the cooperative.",
+      "Lisez la liste des caractéristiques de qualité de la norme ISO/IEC 25010, telle que la présente le site de l'ISO ou un résumé de source reconnue, et confrontez-y vos exigences de Panier Local. Notez toute caractéristique que vous n'aviez pas envisagée, et décidez si elle compte pour la coopérative."),
+    more: [
+      { q: B("Which part of a quality scenario is missing in 'during the Thursday peak, the order is confirmed'?",
+          "Quelle partie d'un scénario de qualité manque dans « pendant le pic du jeudi, la commande est confirmée » ?"),
+        options: [
+          B("The environment, since the peak does not describe any context", "L'environnement, le pic ne décrivant aucun contexte"),
+          B("The measure, such as a maximum confirmation time", "La mesure, comme un temps de confirmation maximal"),
+          B("The response, since confirming is not something a system does", "La réponse, confirmer n'étant pas une action du système"),
+        ],
+        answer: 1,
+        why: B("The environment (the peak) and the response (confirmation) are there. Without a measure, nobody can say whether a design passes or fails, so the scenario cannot guide a choice.",
+          "L'environnement (le pic) et la réponse (la confirmation) sont présents. Sans mesure, personne ne peut dire si une conception réussit ou échoue, et le scénario ne peut guider aucun choix.") },
+      { q: B("Why ask the AI to tie each quality attribute to a sentence of the brief?",
+          "Pourquoi demander à l'IA de relier chaque attribut de qualité à une phrase du brief ?"),
+        options: [
+          B("To make the answer longer and therefore more convincing", "Pour rendre la réponse plus longue, donc plus convaincante"),
+          B("Because ISO/IEC 25010 requires a quotation for each quality", "Parce que la norme ISO/IEC 25010 exige une citation par qualité"),
+          B("To separate qualities the brief implies from ones it invented", "Pour séparer les qualités sous-entendues de celles qu'elle invente"),
+        ],
+        answer: 2,
+        why: B("A model tends to list every quality to look complete. Asking for the source sentence shows which ones the brief really suggests; the others become questions for the business, not requirements.",
+          "Un modèle tend à lister toutes les qualités pour paraître complet. Exiger la phrase d'origine montre celles que le brief suggère vraiment ; les autres deviennent des questions pour le métier, pas des exigences.") },
+    ],
+  },
+
+  [deepKey(M1, 'ar-constraints')]: {
+    intro: B("Requirements say what the system must achieve; constraints, risks and assumptions say within which limits and with which uncertainties. This lesson teaches you to tell them apart: a constraint is imposed and narrows the options, an assumption is believed without proof, and a risk is what happens if an assumption turns out false. You will build a simple register for Panier Local, use AI to surface the assumptions nobody wrote down, and plan cheap checks before they become expensive surprises. Legal and provider facts will always be checked at their official source.",
+      "Les exigences disent ce que le système doit accomplir ; les contraintes, risques et hypothèses disent dans quelles limites et avec quelles incertitudes. Ce cours vous apprend à les distinguer : une contrainte est imposée et restreint les options, une hypothèse est crue sans preuve, et un risque est ce qui arrive si une hypothèse se révèle fausse. Vous dresserez un registre simple pour Panier Local, utiliserez l'IA pour faire apparaître les hypothèses que personne n'a écrites, et prévoirez des vérifications peu coûteuses avant qu'elles ne deviennent des surprises chères. Les faits légaux et ceux des prestataires seront toujours vérifiés à leur source officielle."),
+    concepts: [
+      { term: B('Constraint', 'Contrainte'),
+        def: B("A limit imposed from outside the design: budget, deadline, team size, mandated provider, regulation. It is respected, not debated, and removes options early.",
+          "Une limite imposée de l'extérieur de la conception : budget, échéance, taille d'équipe, prestataire imposé, réglementation. Elle se respecte sans débat et élimine des options tôt.") },
+      { term: B('Assumption', 'Hypothèse'),
+        def: B("Something treated as true without having been checked, such as 'producers update stock every evening'. It should be written so that it can be proven false.",
+          "Une chose tenue pour vraie sans avoir été vérifiée, comme « les producteurs mettent à jour le stock chaque soir ». Elle doit être écrite de façon à pouvoir être démentie.") },
+      { term: B('Risk', 'Risque'),
+        def: B("An uncertain event that would harm the project, scored by likelihood and impact, with a response: avoid, reduce, accept or check early.",
+          "Un événement incertain qui nuirait au projet, noté en probabilité et en impact, avec une réponse : éviter, réduire, accepter ou vérifier tôt.") },
+      { term: B('Register', 'Registre'),
+        def: B("A short living document listing constraints, assumptions and risks, updated as checks are made. A shared table or a page in the repository is enough.",
+          "Un court document vivant qui liste contraintes, hypothèses et risques, mis à jour au fil des vérifications. Un tableau partagé ou une page du dépôt suffit.") },
+    ],
+    walkthrough: {
+      title: B("Léa builds the constraints, assumptions and risks register of Panier Local and tests the most dangerous assumption.",
+        "Léa dresse le registre des contraintes, hypothèses et risques de Panier Local et teste l'hypothèse la plus dangereuse."),
+      steps: [
+        B("She lists what is imposed: two developers, launch before spring, the payment provider chosen by the cooperative, the current hosting contract, personal data of customers in France. Why: these limits remove options before any comparison, which saves time.",
+          "Elle liste ce qui est imposé : deux développeurs, lancement avant le printemps, prestataire de paiement choisi par la coopérative, contrat d'hébergement en cours, données personnelles de clients en France. Pourquoi : ces limites éliminent des options avant toute comparaison, ce qui fait gagner du temps."),
+        B("She notices that 'customers pay online' was written as a constraint, while Hugo admits some customers pay on delivery. She moves it to assumptions. Why: a false constraint silently removes valid options.",
+          "Elle remarque que « les clients paient en ligne » était écrit comme une contrainte, alors qu'Hugo admet que certains paient à la livraison. Elle le passe en hypothèse. Pourquoi : une fausse contrainte supprime sans bruit des options valables."),
+        B("She asks an AI, with the requirements and constraints, which unstated assumptions they rely on. It suggests that producers have a connection in the field and that drivers read the route on a phone. Why: these are obvious to the team, so nobody wrote them.",
+          "Elle demande à une IA, exigences et contraintes en main, sur quelles hypothèses tacites elles reposent. Elle suggère que les producteurs ont du réseau au champ et que les livreurs lisent la tournée sur un téléphone. Pourquoi : ces évidences pour l'équipe n'avaient été écrites par personne."),
+        B("She scores each risk and picks the worst: stale stock leading to overselling. She plans a check, calling three producers to ask how and when they could enter their stock. Why: a phone call costs an hour; a redesign after launch costs weeks.",
+          "Elle note chaque risque et retient le pire : un stock périmé qui mène à la survente. Elle prévoit une vérification, appeler trois producteurs pour savoir comment et quand ils pourraient saisir leur stock. Pourquoi : un appel coûte une heure ; une refonte après lancement coûte des semaines."),
+        B("The AI also mentioned a data retention period 'required by law'. She records it as an assumption to check on the CNIL website. Why: a legal figure stated by a model may be wrong or outdated, and it shapes where and how long data is kept.",
+          "L'IA a aussi cité une durée de conservation « imposée par la loi ». Elle la note comme hypothèse à vérifier sur le site de la CNIL. Pourquoi : un chiffre légal donné par un modèle peut être faux ou dépassé, et il conditionne où et combien de temps les données sont gardées."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Writing preferences as constraints, such as 'we use microservices'.",
+          "Écrire des préférences comme des contraintes, par exemple « nous utilisons des microservices »."),
+        fix: B("Ask who imposes it and what happens if it is not respected. If nobody imposes it, it is an option to compare, not a constraint.",
+          "Demandez qui l'impose et ce qui arrive si elle n'est pas respectée. Si personne ne l'impose, c'est une option à comparer, pas une contrainte.") },
+      { wrong: B("Keeping the register in someone's head or in an old meeting note.",
+          "Garder le registre dans une tête ou dans un vieux compte rendu de réunion."),
+        fix: B("Keep it as a short shared document next to the code, and update it each time a check is made or a new assumption appears.",
+          "Tenez-le dans un court document partagé à côté du code, et mettez-le à jour à chaque vérification ou nouvelle hypothèse.") },
+      { wrong: B("Taking a legal threshold or a provider limit from an AI answer as a fact.",
+          "Prendre pour un fait un seuil légal ou une limite de prestataire tirés d'une réponse d'IA."),
+        fix: B("Record it as an assumption and check it at the official source, such as the CNIL for personal data or the provider's documentation for an API.",
+          "Notez-le comme hypothèse et vérifiez-le à la source officielle, comme la CNIL pour les données personnelles ou la documentation du prestataire pour une API.") },
+    ],
+    recap: [
+      B("A constraint is imposed, an assumption is believed, a risk is an uncertain harm.", "Une contrainte est imposée, une hypothèse est crue, un risque est un tort incertain."),
+      B("Every unchecked assumption is a risk waiting to be discovered.", "Chaque hypothèse non vérifiée est un risque qui attend d'être découvert."),
+      B("AI is good at surfacing assumptions nobody wrote down.", "L'IA est efficace pour faire apparaître les hypothèses que personne n'a écrites."),
+      B("Legal and provider facts are checked at their official source, never taken from a model.", "Les faits légaux et ceux des prestataires se vérifient à la source officielle, jamais auprès d'un modèle."),
+    ],
+    further: B("The arc42 template has dedicated sections for constraints and for risks and technical debt. Fill those two sections for Panier Local, or for your own project, in a page at most, and keep it next to the code so that it evolves with it.",
+      "Le modèle arc42 consacre des sections aux contraintes ainsi qu'aux risques et à la dette technique. Remplissez ces deux sections pour Panier Local, ou pour votre propre projet, en une page au plus, et gardez-la à côté du code pour qu'elle évolue avec lui."),
+    more: [
+      { q: B("'Traffic will double next year' appears in the requirements. How should it be recorded?",
+          "« Le trafic doublera l'an prochain » figure dans les exigences. Comment faut-il l'inscrire ?"),
+        options: [
+          B("As an assumption, with the risk if it turns out true or false", "Comme une hypothèse, avec le risque si elle se vérifie ou non"),
+          B("As a constraint, since growth is always imposed by the market", "Comme une contrainte, la croissance étant imposée par le marché"),
+          B("As a quality scenario, since it already contains a number", "Comme un scénario de qualité, puisqu'il contient déjà un chiffre"),
+        ],
+        answer: 0,
+        why: B("Nobody can impose next year's traffic; it is a forecast. Recording it as an assumption leads to the right question: what must the design allow if it happens, and what does it cost if it does not?",
+          "Personne ne peut imposer le trafic de l'an prochain ; c'est une prévision. L'inscrire comme hypothèse mène à la bonne question : que doit permettre la conception si elle se réalise, et que coûte-t-elle si elle ne se réalise pas ?") },
+      { q: B("Of these responses to a high risk, which costs least when done early?",
+          "Parmi ces réponses à un risque élevé, laquelle coûte le moins quand elle est faite tôt ?"),
+        options: [
+          B("Designing the whole system to resist the risk, just in case", "Concevoir tout le système pour résister au risque, par précaution"),
+          B("Waiting for launch to see whether the problem really appears", "Attendre le lancement pour voir si le problème apparaît vraiment"),
+          B("Checking the underlying assumption with a call, a test or a reading", "Vérifier l'hypothèse sous-jacente par un appel, un test ou une lecture"),
+        ],
+        answer: 2,
+        why: B("A check removes the uncertainty for the price of an hour. Designing for every risk costs a lot, and waiting for launch turns a doubt into a production incident.",
+          "Une vérification lève l'incertitude pour le prix d'une heure. Concevoir pour chaque risque coûte cher, et attendre le lancement transforme un doute en incident de production.") },
+    ],
+  },
+
+  [deepKey(M1, 'ar-review')]: {
+    intro: B("A review is the cheapest moment to find a flaw: on paper, before code and data depend on it. Small teams rarely have a second architect at hand, and AI can fill part of that role, provided it is briefed like a real reviewer. This lesson shows how to give it the requirements, priorities and constraints, how to demand remarks tied to a failure scenario, and how to sort what comes back: verified, to check, out of context or generic. You will review the draft architecture of Panier Local twice, with opposite roles, and decide what to change.",
+      "Une relecture est le moment le moins coûteux pour trouver un défaut : sur le papier, avant que le code et les données en dépendent. Les petites équipes ont rarement un second architecte sous la main, et l'IA peut tenir une partie de ce rôle, à condition d'être briefée comme un vrai relecteur. Ce cours montre comment lui donner les exigences, les priorités et les contraintes, comment exiger des remarques liées à un scénario d'échec, et comment trier ce qui revient : vérifié, à vérifier, hors contexte ou générique. Vous ferez relire deux fois l'ébauche de Panier Local, avec des rôles opposés, et déciderez de ce qu'il faut changer."),
+    concepts: [
+      { term: B('Review brief', 'Brief de relecture'),
+        def: B("The context given to the reviewer: requirements, ranked qualities with their scenarios, constraints and the draft. Without it, the reviewer compares your design to an average one.",
+          "Le contexte donné au relecteur : exigences, qualités classées avec leurs scénarios, contraintes et ébauche. Sans lui, le relecteur compare votre conception à une conception moyenne.") },
+      { term: B('Failure scenario', "Scénario d'échec"),
+        def: B("The concrete situation in which the design would not meet a requirement, such as two customers ordering the last basket at the same second.",
+          "La situation concrète dans laquelle la conception ne tiendrait pas une exigence, comme deux clients qui commandent le dernier panier à la même seconde.") },
+      { term: B('Generic advice', 'Conseil générique'),
+        def: B("A remark that would apply to any system, such as 'add a cache' or 'use microservices', with no link to your requirements. It sounds wise and commits to nothing.",
+          "Une remarque qui s'appliquerait à n'importe quel système, comme « ajoutez un cache » ou « passez aux microservices », sans lien avec vos exigences. Elle sonne sage et n'engage à rien.") },
+      { term: B('Opposite role', 'Rôle opposé'),
+        def: B("A second review where the model plays a different viewpoint, such as the defender of the design or the operator on call, to counter its tendency to agree.",
+          "Une seconde relecture où le modèle adopte un autre point de vue, comme le défenseur de la conception ou l'exploitant d'astreinte, pour contrer sa tendance à acquiescer.") },
+    ],
+    walkthrough: {
+      title: B("Léa has the draft architecture of Panier Local reviewed by an AI, then sorts and decides.",
+        "Léa fait relire par une IA l'ébauche d'architecture de Panier Local, puis trie et décide."),
+      steps: [
+        B("She writes the brief: ranked qualities with their scenarios, constraints, and the draft (one web application, one PostgreSQL database, an email service, the payment provider). Why: each remark will be judged against this brief, so it must be complete.",
+          "Elle rédige le brief : qualités classées avec leurs scénarios, contraintes, et l'ébauche (une application web, une base PostgreSQL, un service d'email, le prestataire de paiement). Pourquoi : chaque remarque sera jugée sur ce brief, qui doit donc être complet."),
+        B("She asks for at most seven weaknesses, each with the quality at stake, a failure scenario and a change with its cost. Why: a limit forces the model to rank, and the format filters out remarks with no scenario.",
+          "Elle demande au plus sept faiblesses, chacune avec la qualité en jeu, un scénario d'échec et un changement avec son coût. Pourquoi : une limite oblige le modèle à hiérarchiser, et le format filtre les remarques sans scénario."),
+        B("One remark is strong: if the payment confirmation arrives late, the stock is never released. Another advises microservices 'to scale'. Why sort: the first names a scenario tied to 'no basket sold twice'; the second ignores the team-of-two constraint.",
+          "Une remarque est solide : si la confirmation de paiement arrive en retard, le stock n'est jamais libéré. Une autre conseille les microservices « pour passer à l'échelle ». Pourquoi trier : la première nomme un scénario lié à « aucun panier vendu deux fois » ; la seconde ignore la contrainte d'une équipe de deux."),
+        B("In a new conversation, she asks the model to defend the design against the remarks, as the developer who must operate it alone at night. Why: a remark that survives a defender is more likely to be real.",
+          "Dans une nouvelle conversation, elle demande au modèle de défendre la conception contre les remarques, comme la développeuse qui devra l'exploiter seule la nuit. Pourquoi : une remarque qui résiste à un défenseur a plus de chances d'être réelle."),
+        B("She records three decisions: handle late payment confirmations, investigate a reservation of stock during payment, reject microservices for now. Why: each decision cites the remark and the requirement, so it can be revisited later.",
+          "Elle consigne trois décisions : gérer les confirmations de paiement tardives, étudier une réservation du stock pendant le paiement, écarter les microservices pour l'instant. Pourquoi : chaque décision cite la remarque et l'exigence, et pourra être réexaminée plus tard."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Asking 'what do you think of my architecture?' with only a list of components.",
+          "Demander « que penses-tu de mon architecture ? » avec une simple liste de composants."),
+        fix: B("Give the ranked qualities, the constraints and the draft, and ask for weaknesses in a fixed format with a failure scenario for each.",
+          "Donnez les qualités classées, les contraintes et l'ébauche, et demandez des faiblesses dans un format fixe, avec un scénario d'échec pour chacune.") },
+      { wrong: B("Applying every remark of the review, in order, without sorting.",
+          "Appliquer toutes les remarques de la relecture, dans l'ordre, sans les trier."),
+        fix: B("Classify each remark as verified, to check, out of context or generic, and decide for each one, with a reason you can state.",
+          "Classez chaque remarque en vérifiée, à vérifier, hors contexte ou générique, et décidez pour chacune, avec une raison que vous savez formuler.") },
+      { wrong: B("Rejecting the whole review because one remark was absurd.",
+          "Rejeter toute la relecture parce qu'une remarque était absurde."),
+        fix: B("Judge remarks one by one. A reviewer, human or AI, can be wrong on one point and right on the one that would have cost you a production incident.",
+          "Jugez les remarques une à une. Un relecteur, humain ou IA, peut se tromper sur un point et avoir raison sur celui qui vous aurait coûté un incident de production.") },
+    ],
+    recap: [
+      B("An AI reviewer is only as good as the brief: requirements, priorities, constraints, draft.", "Une IA relectrice ne vaut que par son brief : exigences, priorités, contraintes, ébauche."),
+      B("A useful remark names the quality, the failure scenario and the cost of the change.", "Une remarque utile nomme la qualité, le scénario d'échec et le coût du changement."),
+      B("Sort remarks into verified, to check, out of context and generic before acting.", "Triez les remarques en vérifiées, à vérifier, hors contexte et génériques avant d'agir."),
+      B("A second pass with an opposite role, in a new conversation, counters complacency.", "Une seconde passe avec un rôle opposé, dans une nouvelle conversation, contre la complaisance."),
+    ],
+    further: B("Look up the Architecture Tradeoff Analysis Method (ATAM), a structured review method from the Software Engineering Institute, and read its principle: confronting quality scenarios with architectural approaches. Compare it with your AI review brief and note what you could borrow from it.",
+      "Renseignez-vous sur l'Architecture Tradeoff Analysis Method (ATAM), une méthode de relecture structurée issue du Software Engineering Institute, et lisez son principe : confronter des scénarios de qualité aux approches d'architecture. Comparez-la à votre brief de relecture par IA et notez ce que vous pourriez lui emprunter."),
+    more: [
+      { q: B("Which remark from an AI reviewer is the most useful for Panier Local?",
+          "Quelle remarque d'une IA relectrice est la plus utile pour Panier Local ?"),
+        options: [
+          B("Consider modern best practices to make the platform future-proof", "Pensez aux bonnes pratiques modernes pour rendre la plateforme pérenne"),
+          B("If payment times out, the reserved stock is never released", "Si le paiement expire, le stock réservé n'est jamais libéré"),
+          B("A more popular framework would make hiring developers easier", "Un framework plus populaire faciliterait le recrutement"),
+        ],
+        answer: 1,
+        why: B("It names a precise failure scenario tied to the top quality, no basket sold twice or blocked for nothing, and it can be verified. The other two apply to any project and commit to nothing.",
+          "Elle nomme un scénario d'échec précis lié à la qualité prioritaire, aucun panier vendu deux fois ni bloqué pour rien, et elle se vérifie. Les deux autres s'appliquent à n'importe quel projet et n'engagent à rien.") },
+      { q: B("The reviewer ignores the constraint 'current host until next year'. What do you do with its hosting remarks?",
+          "Le relecteur ignore la contrainte « hébergeur actuel jusqu'à l'an prochain ». Que faites-vous de ses remarques sur l'hébergement ?"),
+        options: [
+          B("Apply them anyway, since the contract can always be broken", "Vous les appliquez quand même, un contrat pouvant toujours être rompu"),
+          B("Classify them as out of context, and restate the constraint", "Vous les classez hors contexte et rappelez la contrainte"),
+          B("Stop using AI review, since it clearly cannot read a brief", "Vous arrêtez la relecture par IA, incapable de lire un brief"),
+        ],
+        answer: 1,
+        why: B("A remark that contradicts a constraint is out of context. Restating the constraint in a follow-up often yields remarks that fit; the rest of the review may still be valuable.",
+          "Une remarque qui contredit une contrainte est hors contexte. Rappeler la contrainte dans un message suivant produit souvent des remarques adaptées ; le reste de la relecture peut garder sa valeur.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DU COURS                                                */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M1, track: 'course', glyph: 'target', tint: '#4f46e5', at: [12, 82], levels: REQS,
+    title: B('Requirements first', "Les exigences d'abord"),
+    blurb: B('What architecture is, requirements and quality attributes, constraints and risks, and AI as a reviewer.',
+      "Ce qu'est une architecture, exigences et attributs de qualité, contraintes et risques, et l'IA comme relecteur."),
+  },
+]
+
+export const ARCHI_A: CoursePart = {
+  modules: MODULES,
+  enrich: { ...REQS_ENRICH },
+  deep: { ...REQS_DEEP },
+}

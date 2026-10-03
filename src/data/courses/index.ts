@@ -69,7 +69,7 @@ export const COURSE_READY: Record<CourseId, boolean> = {
   'coder-une-app': true,
   'coder-avec-lovable': true,
   'ecrire-un-livre': false,
-  'storyboard': false,
+  'storyboard': true,
   'bd-manga': false,
   'flow-ux': false,
   'architecture-logicielle': false,

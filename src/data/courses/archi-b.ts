@@ -1,5 +1,781 @@
-// LE COURS « Architecture logicielle avec l'IA », PARTIE B · voir ./types et ./index. En rédaction.
+// LE COURS « Architecture logicielle avec l'IA », PARTIE B · voir ./types et ./index.
+//
+// LA PARTIE A a posé les exigences, les attributs de qualité, le modèle C4, les
+// styles d'architecture, les données et l'API. Celle-ci rend le système robuste
+// (menaces, charge, pannes, observabilité), puis apprend à décider par écrit,
+// à architecturer une application qui appelle un LLM, à faire évoluer sans tout
+// réécrire et à transmettre.
+//
+// LE FIL ROUGE EST FICTIF · « Panier du Val », l'application de commande de
+// paniers de légumes d'une coopérative imaginaire de fermes, le Val d'Orme. Les
+// clients commandent chaque semaine à partir du jeudi soir, les fermes publient
+// leurs stocks, les livreurs déposent les paniers aux points relais. Léa, lead
+// developer, travaille avec Karim et, plus tard, Hugo, qui arrive dans
+// l'équipe. Le système est un monolithe modulaire en TypeScript (Node.js), une
+// base PostgreSQL, un prestataire de paiement et un service d'emails.
+//
+// CE QUI BOUGE N'EST PAS ÉCRIT EN DUR · tarifs des fournisseurs de LLM, limites
+// des API, offres des hébergeurs, options exactes des outils : les leçons
+// décrivent le principe et renvoient à la documentation officielle de chaque
+// outil, sans chiffre inventé.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const ARCHI_B: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 3 · ROBUSTESSE ET SÉCURITÉ                                   */
+/* ================================================================== */
+
+const M3 = 'ar-m3'
+
+const ROBUST: Level[] = [
+  {
+    id: 'ar-threat',
+    master: 'analysis',
+    minutes: 11,
+    title: B('Security by design: the threat model', 'Sécurité dès la conception : modèle de menaces'),
+    learn: B(
+      'You will build a STRIDE threat model from a data flow diagram and turn each threat into a design measure.',
+      "Vous saurez dresser un modèle de menaces STRIDE à partir d'un schéma de flux et changer chaque menace en parade.",
+    ),
+    act: B('Model the threats of Panier du Val with STRIDE, flow by flow, then rank them and give each a measure.',
+      'Modélisez les menaces de Panier du Val avec STRIDE, flux par flux, puis classez-les et donnez à chacune une parade.'),
+    steps: [
+      B('Redraw the data flows: actors, processes, data stores, and the trust boundaries each flow crosses.',
+        'Redessinez les flux de données : acteurs, processus, stockages, et les frontières de confiance que chaque flux traverse.'),
+      B('On each flow that crosses a boundary, ask the six STRIDE questions, from spoofing to elevation of privilege.',
+        "Sur chaque flux qui franchit une frontière, posez les six questions STRIDE, de l'usurpation à l'élévation de privilège."),
+      B('Ask an AI for the threats you missed, then drop any that matches no real flow of your diagram.',
+        "Demandez à l'IA les menaces oubliées, puis écartez celles qui ne correspondent à aucun flux réel de votre schéma."),
+      B('Rank threats by likelihood and impact, and give the top ones a measure, an owner and a test.',
+        'Classez les menaces par probabilité et impact, et donnez aux premières une parade, un responsable et un test.'),
+    ],
+    trap: B(
+      'Asking an AI for "the security risks of my app" with no diagram: you get a generic checklist, not the threats of your own flows.',
+      "Demander à l'IA « les risques de sécurité de mon app » sans schéma : vous obtenez une liste générique, pas les menaces de vos flux.",
+    ),
+    quiz: {
+      q: B('Drivers mark baskets as delivered through a link sent by text message, with no login. Which threat comes first?',
+        'Les livreurs marquent les paniers livrés via un lien reçu par SMS, sans connexion. Quelle menace vient en premier ?'),
+      options: [
+        B('Denial of service, because the link can be opened many times', 'Le déni de service, car le lien peut être ouvert de nombreuses fois'),
+        B('Spoofing: whoever holds the link acts as the driver', "L'usurpation : quiconque détient le lien agit comme le livreur"),
+        B('Tampering with the database through the phone of the driver', 'L\'altération de la base de données depuis le téléphone du livreur'),
+      ],
+      answer: 1,
+      why: B(
+        'The link is the only proof of identity. Forwarded, leaked or guessed, it lets anyone mark baskets as delivered. Measures: a short-lived signed token tied to one round, and a log of each action.',
+        "Le lien est la seule preuve d'identité. Transféré, divulgué ou deviné, il permet à quiconque de marquer des paniers livrés. Parades : un token signé à courte durée, lié à une tournée, et un journal des actions.",
+      ),
+    },
+    badge: B('Thinks like an attacker, on paper', 'Pense comme un attaquant, sur papier'),
+  },
+  {
+    id: 'ar-scale',
+    master: 'planning',
+    minutes: 11,
+    title: B('Scaling: cache and queues', "Montée en charge, cache et files d'attente"),
+    learn: B(
+      'You will find the real bottleneck of a system under load and choose between a cache, a queue and more servers.',
+      "Vous saurez trouver le vrai goulot d'un système sous charge et choisir entre un cache, une file et plus de serveurs.",
+    ),
+    act: B('Load-test the Thursday opening of Panier du Val, find the bottleneck, then fix it with a cache or a queue.',
+      "Testez en charge l'ouverture du jeudi de Panier du Val, trouvez le goulot, puis réglez-le par un cache ou une file."),
+    steps: [
+      B('Write the load scenario from real usage: who arrives, when, doing what, and which response time is acceptable.',
+        "Écrivez le scénario de charge d'après l'usage réel : qui arrive, quand, pour quoi faire, avec quel temps de réponse."),
+      B('Run it with k6 or Locust against a copy of production, watching database, CPU and response times together.',
+        'Lancez-le avec k6 ou Locust sur une copie de la production, en suivant ensemble la base, le CPU et les temps de réponse.'),
+      B('Cache what is read often and changes rarely, such as the week catalogue, with an explicit expiry and invalidation.',
+        'Mettez en cache ce qui est lu souvent et change peu, comme le catalogue de la semaine, avec expiration et invalidation.'),
+      B('Move slow side work, such as emails and invoices, to a queue processed by workers, outside the request.',
+        'Déplacez le travail lent et annexe, emails et factures, dans une file traitée par des workers, hors de la requête.'),
+    ],
+    trap: B(
+      'Adding servers before measuring: if the database is the bottleneck, more application servers only send it more queries at once.',
+      "Ajouter des serveurs avant de mesurer : si la base est le goulot, plus de serveurs d'application lui envoient plus de requêtes à la fois.",
+    ),
+    quiz: {
+      q: B('At the Thursday opening, pages slow down and the database CPU is saturated, while app servers stay calm. First move?',
+        "Jeudi à l'ouverture, les pages ralentissent et la base sature, mais pas les serveurs d'app. Premier geste ?"),
+      options: [
+        B('Double the number of application servers behind the load balancer', "Doubler le nombre de serveurs d'application derrière le répartiteur"),
+        B('Move the whole catalogue to a NoSQL database before next Thursday', 'Migrer tout le catalogue vers une base NoSQL avant jeudi prochain'),
+        B('Find the heaviest queries, then cache the weekly catalogue', 'Trouver les requêtes les plus lourdes, puis cacher le catalogue'),
+      ],
+      answer: 2,
+      why: B(
+        'The measure points at the database. More app servers would send it more queries; a migration is a large, risky change. Fixing heavy queries and caching the catalogue, read by all and changed weekly, removes most of the load.',
+        "La mesure désigne la base. Plus de serveurs d'app lui enverraient plus de requêtes ; une migration est un gros chantier risqué. Corriger les requêtes lourdes et cacher le catalogue, lu par tous et changé chaque semaine, ôte l'essentiel.",
+      ),
+    },
+    badge: B('Measures before it scales', 'Mesure avant de monter en charge'),
+  },
+  {
+    id: 'ar-reliab',
+    master: 'triage',
+    minutes: 10,
+    title: B('Reliability: failures, retries, backups', 'Fiabilité : pannes, reprises, sauvegardes'),
+    learn: B(
+      'You will design for failure: timeouts, safe retries, a degraded mode, and backups you have actually restored.',
+      'Vous saurez concevoir pour la panne : délais, reprises sûres, mode dégradé, et sauvegardes réellement restaurées.',
+    ),
+    act: B('List the failure modes of Panier du Val, agree an RPO and an RTO with the cooperative, then rehearse a restore.',
+      'Listez les modes de panne de Panier du Val, fixez un RPO et un RTO avec la coopérative, puis répétez une restauration.'),
+    steps: [
+      B('For each dependency (database, payment, email), write what happens if it is slow, down or returns errors.',
+        'Pour chaque dépendance (base, paiement, email), écrivez ce qui se passe si elle est lente, absente ou en erreur.'),
+      B('Give every external call a timeout, and retry only idempotent operations, with backoff and a limit.',
+        'Donnez un délai maximal à chaque appel externe, et ne relancez que les opérations idempotentes, espacées et limitées.'),
+      B('Agree with the business how much data may be lost (RPO) and how long the service may stop (RTO).',
+        "Convenez avec le métier de la perte de données tolérable (RPO) et de la durée d'arrêt acceptable (RTO)."),
+      B("Restore last night's backup into a separate environment, time it, and compare the result with the RTO.",
+        'Restaurez la sauvegarde de la nuit dans un environnement séparé, chronométrez, et comparez le résultat au RTO.'),
+    ],
+    trap: B(
+      'Believing backups exist because a job runs every night: a backup that was never restored is a hope, not a recovery plan.',
+      "Croire aux sauvegardes parce qu'une tâche tourne chaque nuit : une sauvegarde jamais restaurée est un espoir, pas un plan de reprise.",
+    ),
+    quiz: {
+      q: B('The payment call times out, the client retries, and the customer is charged twice. What should the design have had?',
+        "L'appel de paiement expire, le client relance, et la cliente est débitée deux fois. Que devait prévoir la conception ?"),
+      options: [
+        B('An idempotency key sent with each payment request', "Une clé d'idempotence envoyée avec chaque demande de paiement"),
+        B('A longer timeout, so that the call never expires at all', "Un délai plus long, pour que l'appel n'expire plus jamais"),
+        B('More retries, so that one of them is sure to succeed', "Plus de relances, pour que l'une d'elles réussisse à coup sûr"),
+      ],
+      answer: 0,
+      why: B(
+        'A timeout does not mean the payment failed: it may have gone through. With an idempotency key, the provider sees the retry as the same operation and does not charge twice. Stripe, for instance, documents this mechanism.',
+        "Un délai dépassé ne veut pas dire que le paiement a échoué : il a pu passer. Avec une clé d'idempotence, le prestataire reconnaît la relance comme la même opération. Stripe, par exemple, documente ce mécanisme.",
+      ),
+    },
+    badge: B('Has restored a backup, for real', 'A vraiment restauré une sauvegarde'),
+  },
+  {
+    id: 'ar-observ',
+    master: 'watch',
+    minutes: 10,
+    title: B('Observability: logs, metrics, traces', 'Observabilité : journaux, métriques, traces'),
+    learn: B(
+      'You will instrument a system so that you can answer a new question about its behaviour without shipping new code.',
+      'Vous saurez instrumenter un système pour répondre à une question nouvelle sur son comportement sans livrer de code.',
+    ),
+    act: B('Instrument the order path of Panier du Val with OpenTelemetry, define two SLOs and one alert on a symptom.',
+      'Instrumentez le parcours de commande de Panier du Val avec OpenTelemetry, posez deux SLO et une alerte sur symptôme.'),
+    steps: [
+      B('Write structured logs (JSON) carrying a request identifier, never passwords, tokens or card data.',
+        'Écrivez des journaux structurés (JSON) avec un identifiant de requête, jamais de mot de passe, de token ni de carte.'),
+      B('Measure latency, traffic, errors and saturation on the order path: the four golden signals.',
+        'Mesurez latence, trafic, erreurs et saturation sur le parcours de commande : les quatre signaux clés.'),
+      B('Trace one order across the app, the queue and the payment call to see where the time goes.',
+        "Tracez une commande à travers l'app, la file et l'appel de paiement pour voir où passe le temps."),
+      B('Alert on what users feel (failed orders, slow checkout), not on every CPU spike.',
+        'Alertez sur ce que vivent les utilisateurs (commandes échouées, paiement lent), pas sur chaque pic de CPU.'),
+    ],
+    trap: B(
+      'Logging everything and alerting on everything: the noise hides the real incident, and the team learns to ignore alerts.',
+      "Tout journaliser et alerter sur tout : le bruit cache le vrai incident, et l'équipe apprend à ignorer les alertes.",
+    ),
+    quiz: {
+      q: B('Customers find checkout "sometimes slow". The logs show no error. What tells you where the time goes?',
+        "Des clients trouvent le paiement « parfois lent », sans erreur dans les journaux. Qu'est-ce qui dit où passe le temps ?"),
+      options: [
+        B('A CPU alert set at a lower threshold on every server', 'Une alerte CPU réglée à un seuil plus bas sur chaque serveur'),
+        B('A distributed trace of the slow orders, span by span', 'Une trace distribuée des commandes lentes, span par span'),
+        B('More log lines in the checkout code, at the debug level', 'Plus de lignes de journal dans le code de paiement, en debug'),
+      ],
+      answer: 1,
+      why: B(
+        'A trace follows one request across components and times each step: the query, the queue, the payment call. "Sometimes slow" becomes "the stock check is slow on large baskets", a cause you can fix.',
+        "Une trace suit une requête d'un composant à l'autre et chronomètre chaque étape : requête, file, paiement. « Parfois lent » devient « la vérification du stock est lente sur les gros paniers », une cause à corriger.",
+      ),
+    },
+    badge: B('Sees inside the running system', "Voit l'intérieur du système qui tourne"),
+  },
+]
+
+const ROBUST_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M3, 'ar-threat')]: {
+    why: [
+      B("A threat model answers four questions, in the order Adam Shostack made popular: what are we building, what can go wrong, what will we do about it, did we do a good job? The first answer is a diagram, not a list. Threats live where data crosses a trust boundary: between the browser and the server, the server and the payment provider, the app and the database.",
+        "Un modèle de menaces répond à quatre questions, dans l'ordre popularisé par Adam Shostack : que construisons-nous, qu'est-ce qui peut mal tourner, qu'allons-nous faire, avons-nous bien travaillé ? La première réponse est un schéma, pas une liste. Les menaces vivent là où les données franchissent une frontière de confiance : navigateur et serveur, serveur et prestataire de paiement, app et base."),
+      B("STRIDE gives six questions to ask on each crossing: Spoofing (pretending to be someone), Tampering (changing data), Repudiation (denying an action), Information disclosure, Denial of service, Elevation of privilege. Each category points to a family of measures: authentication, integrity, logging, encryption and access control, quotas, authorisation.",
+        "STRIDE donne six questions à poser à chaque franchissement : usurpation d'identité (Spoofing), altération (Tampering), répudiation, divulgation d'information, déni de service, élévation de privilège. Chaque catégorie renvoie à une famille de parades : authentification, intégrité, journalisation, chiffrement et contrôle d'accès, quotas, autorisation."),
+      B("An AI is a useful second pair of eyes here, on one condition: give it your diagram and your flows. Asked in general, it recites the usual checklist. Given the flows, it can suggest a threat you missed on a specific crossing, which you then verify against the diagram, keep or discard.",
+        "Une IA est ici un second regard utile, à une condition : lui donner votre schéma et vos flux. Interrogée en général, elle récite la liste habituelle. Avec les flux, elle peut proposer une menace oubliée sur un franchissement précis, que vous vérifiez ensuite sur le schéma, puis gardez ou écartez."),
+    ],
+    example: {
+      context: B("Léa wants a security review of Panier du Val before the cooperative opens accounts to all customers. Her first prompt gets a page of generic advice she cannot act on.",
+        "Léa veut une revue de sécurité de Panier du Val avant que la coopérative ouvre les comptes à tous les clients. Son premier prompt lui renvoie une page de conseils génériques, inexploitables."),
+      before: B("What are the security risks of my web app? It is in Node.js with PostgreSQL.",
+        "Quels sont les risques de sécurité de mon app web ? Elle est en Node.js avec PostgreSQL."),
+      after: B("You are reviewing the threat model of Panier du Val, a vegetable basket ordering app.\nHere is the data flow diagram, in Mermaid:\n[MERMAID DIAGRAM: customer browser, farm back office, driver page, app server, PostgreSQL, payment provider, email service]\nTrust boundaries: internet / app server; app server / payment provider; app server / database.\nFor each flow that crosses a boundary, apply STRIDE. Answer as a table: flow, STRIDE category, concrete threat, likelihood (low, medium, high), impact, measure.\nOnly list threats that match a flow in the diagram. If you need an assumption, write it in a separate column.\nEnd with the three threats you would treat first, and why.",
+        "Tu relis le modèle de menaces de Panier du Val, une app de commande de paniers de légumes.\nVoici le schéma des flux de données, en Mermaid :\n[SCHÉMA MERMAID : navigateur client, back office des fermes, page livreur, serveur d'app, PostgreSQL, prestataire de paiement, service d'emails]\nFrontières de confiance : internet / serveur d'app ; serveur d'app / prestataire de paiement ; serveur d'app / base.\nPour chaque flux qui franchit une frontière, applique STRIDE. Réponds en tableau : flux, catégorie STRIDE, menace concrète, probabilité (faible, moyenne, forte), impact, parade.\nNe liste que des menaces liées à un flux du schéma. Si tu fais une hypothèse, écris-la dans une colonne à part.\nTermine par les trois menaces à traiter en premier, et pourquoi."),
+      takeaway: B("The second prompt gives the diagram, the boundaries and the method. The answer is a table Léa can check flow by flow; it surfaces the driver link and the farm back office, which the generic list never mentioned.",
+        "Le second prompt donne le schéma, les frontières et la méthode. La réponse est un tableau que Léa vérifie flux par flux ; il fait apparaître le lien des livreurs et le back office des fermes, absents de la liste générique."),
+    },
+    exercise: {
+      goal: B("A STRIDE table for your own system (or for Panier du Val), with the three threats to treat first, each with a measure, an owner and a test.",
+        "Un tableau STRIDE pour votre propre système (ou pour Panier du Val), avec les trois menaces à traiter d'abord, chacune avec une parade, un responsable et un test."),
+      prompt: B("You are helping me build the threat model of [NAME OF THE SYSTEM].\nData flow diagram (Mermaid or list of flows):\n[YOUR DIAGRAM]\nTrust boundaries: [LIST OF BOUNDARIES].\nSensitive data handled: [E.G. ACCOUNTS, ADDRESSES, PAYMENTS].\n1. For each flow crossing a boundary, apply the six STRIDE categories. Table: flow, category, threat, likelihood, impact, measure.\n2. Flag any flow of the diagram you consider unclear, instead of guessing.\n3. Rank the threats and propose, for the top three, a measure that can be tested (what test would prove it works?).\nDo not list threats with no link to a flow of my diagram.",
+        "Tu m'aides à construire le modèle de menaces de [NOM DU SYSTÈME].\nSchéma des flux de données (Mermaid ou liste des flux) :\n[VOTRE SCHÉMA]\nFrontières de confiance : [LISTE DES FRONTIÈRES].\nDonnées sensibles traitées : [PAR EXEMPLE COMPTES, ADRESSES, PAIEMENTS].\n1. Pour chaque flux qui franchit une frontière, applique les six catégories STRIDE. Tableau : flux, catégorie, menace, probabilité, impact, parade.\n2. Signale tout flux du schéma qui te paraît flou, au lieu de deviner.\n3. Classe les menaces et propose, pour les trois premières, une parade vérifiable (quel test prouverait qu'elle fonctionne ?).\nNe liste aucune menace sans lien avec un flux de mon schéma."),
+      check: [
+        B("Every threat in the table points to a flow of your diagram", "Chaque menace du tableau renvoie à un flux de votre schéma"),
+        B("Each of the six STRIDE categories was considered, even if it was rejected", "Chacune des six catégories STRIDE a été examinée, même pour l'écarter"),
+        B("The top three threats each have a measure, an owner and a test", "Les trois premières menaces ont chacune une parade, un responsable et un test"),
+        B("You removed at least one suggestion that did not match your system", "Vous avez retiré au moins une suggestion qui ne correspondait pas à votre système"),
+      ],
+      bonus: B("Draw the same diagram in OWASP Threat Dragon or the Microsoft Threat Modeling Tool, both free, and compare the threats they generate with your table. Note what each source found that the others missed.",
+        "Dessinez le même schéma dans OWASP Threat Dragon ou le Microsoft Threat Modeling Tool, tous deux gratuits, et comparez les menaces qu'ils génèrent avec votre tableau. Notez ce que chaque source a trouvé et que les autres ont manqué."),
+    },
+    more: [
+      { q: B("A farm user can change the stock of another farm by editing the farm id in the request. Which STRIDE category is it?",
+          "Un utilisateur d'une ferme change le stock d'une autre ferme en modifiant l'identifiant dans la requête. Quelle catégorie STRIDE ?"),
+        options: [
+          B("Elevation of privilege: the check of rights on the farm is missing", "Élévation de privilège : le contrôle des droits sur la ferme manque"),
+          B("Denial of service, since the stock becomes unavailable to customers", "Déni de service, car le stock devient indisponible pour les clients"),
+          B("Repudiation, since the farm can later deny having changed its stock", "Répudiation, car la ferme pourra nier avoir modifié son stock"),
+        ],
+        answer: 0,
+        why: B("The user is authenticated but acts beyond their rights: the server trusts an identifier sent by the client. The measure is an authorisation check on the server, for every request, against the farm of the logged-in user.",
+          "L'utilisateur est authentifié mais agit au-delà de ses droits : le serveur fait confiance à un identifiant envoyé par le client. La parade est un contrôle d'autorisation côté serveur, à chaque requête, sur la ferme de l'utilisateur connecté.") },
+      { q: B("The AI lists a threat on a mobile app, but Panier du Val has no mobile app. What do you do?",
+          "L'IA liste une menace sur une app mobile, alors que Panier du Val n'en a pas. Que faites-vous ?"),
+        options: [
+          B("Keep it anyway, since a longer list is always a safer list", "Vous la gardez quand même, une liste plus longue est plus sûre"),
+          B("Discard it, and check that your diagram is complete and clear", "Vous l'écartez, et vérifiez que votre schéma est complet et clair"),
+          B("Ask the AI to build the mobile app, so that the threat applies", "Vous demandez à l'IA de créer l'app mobile pour que la menace s'applique"),
+        ],
+        answer: 1,
+        why: B("A threat must match a real flow. An unrelated one costs attention and hides the real ones. Its presence is also a signal: perhaps the diagram left room for guessing, so check it.",
+          "Une menace doit correspondre à un flux réel. Une menace hors sujet coûte de l'attention et masque les vraies. Sa présence est aussi un signal : le schéma laissait peut-être place à la devinette, vérifiez-le.") },
+    ],
+  },
+
+  [enrichKey(M3, 'ar-scale')]: {
+    why: [
+      B("A system under load is limited by its narrowest point, the bottleneck. Adding capacity elsewhere changes nothing, or makes things worse: more app servers send more simultaneous queries to a database that was already saturated. This is why scaling starts with a measure under a realistic scenario, never with a purchase.",
+        "Un système sous charge est limité par son point le plus étroit, le goulot d'étranglement. Ajouter de la capacité ailleurs ne change rien, voire aggrave : plus de serveurs d'app envoient plus de requêtes simultanées à une base déjà saturée. Voilà pourquoi la montée en charge commence par une mesure sous un scénario réaliste, jamais par un achat."),
+      B("A cache keeps the result of an expensive operation to serve it again. It works for data that is read often and changes rarely, and it brings a new question: when is the copy stale? Every cache needs an expiry (TTL) and an invalidation rule. A queue, such as RabbitMQ, Amazon SQS or a Redis-backed job library, does the opposite: it defers work. The request records the order and returns; workers send the email later.",
+        "Un cache garde le résultat d'une opération coûteuse pour le resservir. Il convient aux données lues souvent et modifiées rarement, et pose une question nouvelle : quand la copie est-elle périmée ? Tout cache exige une expiration (TTL) et une règle d'invalidation. Une file, comme RabbitMQ, Amazon SQS ou des jobs sur Redis, fait l'inverse : elle diffère le travail. La requête enregistre la commande et répond ; des workers envoient l'email ensuite."),
+      B("An AI can write the k6 script, read the results and suggest where to cache. It cannot know your traffic: you give it the scenario, the targets and the measures, and you check its explanations against the dashboards.",
+        "Une IA peut écrire le script k6, lire les résultats et suggérer où mettre un cache. Elle ne connaît pas votre trafic : vous lui donnez le scénario, les objectifs et les mesures, et vous confrontez ses explications aux tableaux de bord."),
+    ],
+    example: {
+      context: B("Every Thursday at 6 pm, the week baskets open and many customers arrive within minutes. Pages time out. Karim's first reflex is to ask how to add servers.",
+        "Chaque jeudi à 18 h, les paniers de la semaine ouvrent et beaucoup de clients arrivent en quelques minutes. Les pages expirent. Le premier réflexe de Karim est de demander comment ajouter des serveurs."),
+      before: B("My site is slow when lots of users connect. How do I scale it with more servers?",
+        "Mon site est lent quand beaucoup d'utilisateurs se connectent. Comment le faire monter en charge avec plus de serveurs ?"),
+      after: B("Context: Panier du Val, a modular monolith in Node.js with PostgreSQL. Every Thursday at 6 pm, orders open and traffic jumps.\nGoal: the catalogue page answers in [TARGET TIME] for 95% of requests, and checkout stays available.\n1. Write a k6 script that reproduces the opening: users arrive over [DURATION], browse the catalogue, add [NUMBER] items, and pay (use the payment provider's test mode).\n2. List the metrics I must watch during the test (database, app, response times) and how to read them.\nHere are the results of a first run: [PASTE THE K6 SUMMARY AND THE DATABASE METRICS].\n3. Name the bottleneck these figures point to, and justify it. Propose fixes in order of effort, and for any cache, give its expiry and its invalidation rule.",
+        "Contexte : Panier du Val, un monolithe modulaire en Node.js avec PostgreSQL. Chaque jeudi à 18 h, les commandes ouvrent et le trafic bondit.\nObjectif : la page catalogue répond en [TEMPS CIBLE] pour 95 % des requêtes, et le paiement reste disponible.\n1. Écris un script k6 qui reproduit l'ouverture : des utilisateurs arrivent sur [DURÉE], parcourent le catalogue, ajoutent [NOMBRE] articles et paient (mode test du prestataire de paiement).\n2. Liste les métriques à surveiller pendant le test (base, app, temps de réponse) et comment les lire.\nVoici les résultats d'un premier passage : [COLLER LE RÉSUMÉ K6 ET LES MÉTRIQUES DE LA BASE].\n3. Nomme le goulot que ces chiffres désignent, et justifie. Propose des corrections par ordre d'effort, et pour tout cache, donne son expiration et sa règle d'invalidation."),
+      takeaway: B("The second prompt describes the real peak, sets a target and supplies measures. The answer points at catalogue queries run for every visitor: a cache invalidated when a farm updates its stock solves it, with no new server.",
+        "Le second prompt décrit le vrai pic, fixe un objectif et fournit des mesures. La réponse désigne les requêtes du catalogue exécutées pour chaque visiteur : un cache invalidé à chaque mise à jour de stock règle le problème, sans nouveau serveur."),
+    },
+    exercise: {
+      goal: B("A load test script for one critical path of your system, a first run, the bottleneck named with evidence, and one fix chosen and justified.",
+        "Un script de test de charge pour un parcours critique de votre système, un premier passage, le goulot nommé preuves à l'appui, et une correction choisie et justifiée."),
+      prompt: B("System: [SHORT DESCRIPTION: STACK, HOSTING, MAIN COMPONENTS].\nCritical path to test: [E.G. CATALOGUE THEN CHECKOUT].\nExpected peak: [WHO ARRIVES, WHEN, HOW FAST].\nTarget: [RESPONSE TIME AND ERROR RATE YOU CAN ACCEPT].\n1. Write a k6 (or Locust) script for this path, with a ramp-up that matches the peak. Never target production: the script points to [TEST ENVIRONMENT URL].\n2. Tell me which metrics to collect during the run.\nAfter the run I will paste the results. Then:\n3. Name the bottleneck and the evidence for it.\n4. Compare three fixes (query fix, cache, queue, more instances) by effort, risk and expected gain, and say what you would measure to confirm the gain.",
+        "Système : [COURTE DESCRIPTION : STACK, HÉBERGEMENT, COMPOSANTS PRINCIPAUX].\nParcours critique à tester : [PAR EXEMPLE CATALOGUE PUIS PAIEMENT].\nPic attendu : [QUI ARRIVE, QUAND, À QUEL RYTHME].\nObjectif : [TEMPS DE RÉPONSE ET TAUX D'ERREUR ACCEPTABLES].\n1. Écris un script k6 (ou Locust) pour ce parcours, avec une montée qui reproduit le pic. Jamais sur la production : le script vise [ADRESSE DE L'ENVIRONNEMENT DE TEST].\n2. Dis-moi quelles métriques recueillir pendant le passage.\nAprès le passage, je collerai les résultats. Ensuite :\n3. Nomme le goulot et ce qui le prouve.\n4. Compare trois corrections (requête, cache, file, instances en plus) par effort, risque et gain attendu, et dis ce qu'il faudrait mesurer pour confirmer le gain."),
+      check: [
+        B("The scenario reproduces a peak you can describe from real usage", "Le scénario reproduit un pic que vous savez décrire d'après l'usage réel"),
+        B("The test ran against a test environment, never against production", "Le test a tourné sur un environnement de test, jamais sur la production"),
+        B("The bottleneck is named with a metric that proves it", "Le goulot est nommé avec une métrique qui le prouve"),
+        B("Any cache you add has an expiry and an invalidation rule written down", "Tout cache ajouté a une expiration et une règle d'invalidation écrites"),
+      ],
+      bonus: B("Run the same test again after the fix and put both summaries side by side. If the gain is smaller than expected, ask the AI to explain the gap from the new metrics: the second bottleneck is often waiting behind the first.",
+        "Relancez le même test après la correction et mettez les deux résumés côte à côte. Si le gain est plus faible que prévu, demandez à l'IA d'expliquer l'écart à partir des nouvelles métriques : le second goulot attend souvent derrière le premier."),
+    },
+    more: [
+      { q: B("The catalogue is cached for one hour. A farm sets a product to zero stock, but customers still order it. What is missing?",
+          "Le catalogue est en cache pour une heure. Une ferme passe un produit à zéro, mais des clients le commandent encore. Que manque-t-il ?"),
+        options: [
+          B("A larger cache server, so that the catalogue fits in memory", "Un serveur de cache plus gros, pour que le catalogue tienne en mémoire"),
+          B("A shorter page, so that customers see fewer products at once", "Une page plus courte, pour que les clients voient moins de produits"),
+          B("An invalidation of the cache when a farm changes its stock", "Une invalidation du cache quand une ferme modifie son stock"),
+        ],
+        answer: 2,
+        why: B("The expiry alone lets a stale copy live for an hour. Invalidating the entry when stock changes keeps the cache fast and correct; the order itself must still check stock in the database.",
+          "L'expiration seule laisse vivre une copie périmée pendant une heure. Invalider l'entrée quand le stock change garde le cache rapide et juste ; la commande elle-même doit encore vérifier le stock en base.") },
+      { q: B("Why send the order confirmation email through a queue rather than inside the order request?",
+          "Pourquoi envoyer l'email de confirmation par une file plutôt que dans la requête de commande ?"),
+        options: [
+          B("So that a slow or failing email service does not block the order", "Pour qu'un service d'email lent ou en panne ne bloque pas la commande"),
+          B("Because email services refuse any message sent from inside a web request", "Parce que les services d'email refusent tout envoi depuis une requête web"),
+          B("So that the email is never sent twice, whatever happens next", "Pour que l'email ne soit jamais envoyé deux fois, quoi qu'il arrive"),
+        ],
+        answer: 0,
+        why: B("The queue decouples the order from a side task. The customer gets a fast answer, and the worker retries the email if the service is down. A queue usually delivers at least once, so duplicates must still be handled.",
+          "La file découple la commande d'une tâche annexe. Le client obtient une réponse rapide, et le worker relance l'email si le service est en panne. Une file livre en général au moins une fois : les doublons restent à gérer.") },
+    ],
+  },
+
+  [enrichKey(M3, 'ar-reliab')]: {
+    why: [
+      B("Every dependency will fail one day: the network, the database, the payment provider. Reliability is not the absence of failure but a decided behaviour when it happens. A timeout stops a slow call from holding a request forever; a circuit breaker stops calling a service that keeps failing; a degraded mode keeps the essential running, such as taking orders while invoices wait.",
+        "Chaque dépendance tombera un jour en panne : le réseau, la base, le prestataire de paiement. La fiabilité n'est pas l'absence de panne mais un comportement décidé quand elle survient. Un délai maximal empêche un appel lent de bloquer une requête ; un disjoncteur (circuit breaker) cesse d'appeler un service qui échoue en boucle ; un mode dégradé garde l'essentiel, comme prendre les commandes pendant que les factures attendent."),
+      B("A retry is only safe if the operation is idempotent: doing it twice has the same effect as once. Reading a page is; charging a card is not, unless you send an idempotency key that the provider uses to recognise the repeat. Retries also need exponential backoff with some randomness (jitter), or every client retries at the same moment and overloads the service again.",
+        "Une relance n'est sûre que si l'opération est idempotente : la faire deux fois a le même effet qu'une seule. Lire une page l'est ; débiter une carte ne l'est pas, sauf avec une clé d'idempotence qui permet au prestataire de reconnaître la répétition. Les relances exigent aussi un espacement exponentiel avec un peu de hasard (jitter), sinon tous les clients relancent au même instant et surchargent à nouveau le service."),
+      B("Backups answer two business questions: how much data can we lose (RPO, recovery point objective) and how long can we stop (RTO, recovery time objective)? These are decided with the business, not by the developers alone. Then only a timed restore proves the plan holds.",
+        "Les sauvegardes répondent à deux questions métier : combien de données pouvons-nous perdre (RPO, objectif de point de reprise) et combien de temps pouvons-nous être arrêtés (RTO, objectif de temps de reprise) ? Elles se décident avec le métier, pas par les seuls développeurs. Ensuite, seule une restauration chronométrée prouve que le plan tient."),
+    ],
+    example: {
+      context: B("The cooperative asks Léa whether Panier du Val is \"backed up\". The hosting provider runs nightly snapshots, so she asks an AI to confirm that this is enough.",
+        "La coopérative demande à Léa si Panier du Val est « sauvegardé ». L'hébergeur fait des instantanés chaque nuit ; elle demande à une IA de confirmer que cela suffit."),
+      before: B("My database is backed up every night by my host. Is that enough?",
+        "Ma base est sauvegardée chaque nuit par mon hébergeur. Est-ce suffisant ?"),
+      after: B("Context: Panier du Val, PostgreSQL managed by [HOSTING PROVIDER], nightly snapshots kept [RETENTION].\nBusiness facts: orders are taken from Thursday 6 pm to Sunday night; one lost order means a basket not delivered and a refund.\nThe cooperative accepts losing at most [RPO] of orders and stopping at most [RTO] during the order window.\n1. With nightly snapshots only, what RPO do we really have? Explain.\n2. Propose a backup design that meets the RPO (for example continuous archiving of the write-ahead log, point-in-time recovery), and tell me which settings to check in my provider's documentation rather than assuming them.\n3. Write a restore drill: steps, who does what, how to time it, how to check the restored data is complete.\n4. List what a backup does not protect against (for example a bug that corrupts data for days).",
+        "Contexte : Panier du Val, PostgreSQL géré par [HÉBERGEUR], instantanés chaque nuit conservés [DURÉE DE RÉTENTION].\nFaits métier : les commandes sont prises du jeudi 18 h au dimanche soir ; une commande perdue, c'est un panier non livré et un remboursement.\nLa coopérative accepte de perdre au plus [RPO] de commandes et d'être arrêtée au plus [RTO] pendant la période de commande.\n1. Avec les seuls instantanés nocturnes, quel RPO avons-nous vraiment ? Explique.\n2. Propose une conception des sauvegardes qui respecte le RPO (par exemple archivage continu du journal d'écriture, restauration à un instant donné), et dis-moi quels réglages vérifier dans la documentation de mon hébergeur plutôt que de les supposer.\n3. Rédige un exercice de restauration : étapes, qui fait quoi, comment chronométrer, comment vérifier que les données restaurées sont complètes.\n4. Liste ce contre quoi une sauvegarde ne protège pas (par exemple un bug qui corrompt des données pendant des jours)."),
+      takeaway: B("With nightly snapshots, a failure on Saturday evening loses a whole day of orders. The second prompt makes that visible, ties the answer to the cooperative's tolerance, and ends with a drill, the only real proof.",
+        "Avec des instantanés nocturnes, une panne le samedi soir perd une journée entière de commandes. Le second prompt le rend visible, relie la réponse à la tolérance de la coopérative, et finit par un exercice, la seule vraie preuve."),
+    },
+    exercise: {
+      goal: B("A failure mode table for your system, an RPO and an RTO agreed with the person responsible for the business, and a restore actually performed and timed.",
+        "Un tableau des modes de panne de votre système, un RPO et un RTO convenus avec la personne responsable du métier, et une restauration réellement effectuée et chronométrée."),
+      prompt: B("System: [COMPONENTS AND EXTERNAL DEPENDENCIES].\nCritical user path: [E.G. PLACE AN ORDER AND PAY].\n1. Build a failure mode table: dependency, failure (slow, down, wrong answer), effect on the user, current behaviour, desired behaviour.\n2. For each external call on the critical path, propose a timeout, say whether a retry is safe (is the operation idempotent?) and, if not, how to make it safe.\n3. Propose a degraded mode that keeps the essential working when [THE DEPENDENCY YOU FEAR MOST] is down.\n4. Our agreed objectives are RPO [VALUE] and RTO [VALUE]. Check whether our backups [DESCRIBE THEM] can meet them, and write the restore drill.\nAsk me questions rather than inventing how my system behaves.",
+        "Système : [COMPOSANTS ET DÉPENDANCES EXTERNES].\nParcours critique : [PAR EXEMPLE PASSER COMMANDE ET PAYER].\n1. Construis un tableau des modes de panne : dépendance, panne (lente, absente, réponse fausse), effet pour l'utilisateur, comportement actuel, comportement voulu.\n2. Pour chaque appel externe du parcours critique, propose un délai maximal, dis si une relance est sûre (l'opération est-elle idempotente ?) et, sinon, comment la rendre sûre.\n3. Propose un mode dégradé qui garde l'essentiel quand [LA DÉPENDANCE QUE VOUS CRAIGNEZ LE PLUS] est en panne.\n4. Nos objectifs convenus sont RPO [VALEUR] et RTO [VALEUR]. Vérifie si nos sauvegardes [DÉCRIVEZ-LES] peuvent les tenir, et rédige l'exercice de restauration.\nPose-moi des questions plutôt que d'inventer le comportement de mon système."),
+      check: [
+        B("Every external dependency of the critical path appears in the table", "Chaque dépendance externe du parcours critique figure dans le tableau"),
+        B("No retry is planned on a non-idempotent operation without a key", "Aucune relance n'est prévue sur une opération non idempotente sans clé"),
+        B("The RPO and RTO were agreed with the business, not chosen alone", "Le RPO et le RTO ont été convenus avec le métier, pas choisis seul"),
+        B("A restore was performed, timed and compared with the RTO", "Une restauration a été faite, chronométrée et comparée au RTO"),
+      ],
+      bonus: B("Write the restore drill as a runbook in your repository, dated, with the measured time. Schedule the next drill. A procedure that is never rehearsed drifts as the system changes.",
+        "Rédigez l'exercice de restauration comme un runbook dans votre dépôt, daté, avec le temps mesuré. Planifiez le prochain exercice. Une procédure jamais répétée dérive à mesure que le système change."),
+    },
+    more: [
+      { q: B("The payment provider is down on Friday evening. Which degraded mode best protects the cooperative's business?",
+          "Le prestataire de paiement est en panne le vendredi soir. Quel mode dégradé protège le mieux l'activité de la coopérative ?"),
+        options: [
+          B("Close ordering until the provider is back, with a message", "Fermer les commandes jusqu'au retour du prestataire, avec un message"),
+          B("Accept orders anyway and never ask for payment for this week", "Accepter les commandes et ne jamais demander le paiement cette semaine"),
+          B("Record orders as pending, then ask for payment when it returns", "Enregistrer les commandes en attente, puis demander le paiement au retour"),
+        ],
+        answer: 2,
+        why: B("Pending orders keep the essential, the intention to buy, and defer the part that depends on the failed service. It requires a rule decided with the business: how long a pending order holds its basket.",
+          "Les commandes en attente gardent l'essentiel, l'intention d'achat, et diffèrent la partie qui dépend du service en panne. Il faut une règle décidée avec le métier : combien de temps une commande en attente réserve son panier.") },
+      { q: B("What does an RPO of fifteen minutes mean for Panier du Val?",
+          "Que signifie un RPO de quinze minutes pour Panier du Val ?"),
+        options: [
+          B("The service must be back online within fifteen minutes", "Le service doit être rétabli en moins de quinze minutes"),
+          B("At most fifteen minutes of data may be lost after a failure", "Au plus quinze minutes de données peuvent être perdues après une panne"),
+          B("Backups must be restored every fifteen minutes to be tested", "Les sauvegardes doivent être restaurées toutes les quinze minutes"),
+        ],
+        answer: 1,
+        why: B("The RPO is about data: how far back the restored state may be. The time to come back online is the RTO. A nightly snapshot cannot meet a fifteen minute RPO; continuous log archiving can.",
+          "Le RPO porte sur les données : jusqu'où peut remonter l'état restauré. Le temps de remise en ligne est le RTO. Un instantané nocturne ne peut pas tenir un RPO de quinze minutes ; un archivage continu du journal, si.") },
+    ],
+  },
+
+  [enrichKey(M3, 'ar-observ')]: {
+    why: [
+      B("Monitoring answers questions you thought of in advance: is the server up, is the CPU high? Observability lets you answer questions you did not foresee, such as why checkout is slow only for some baskets, from the data the system already emits. It rests on three signals: logs (events, structured), metrics (numbers over time) and traces (the path of one request across components).",
+        "La supervision répond aux questions prévues d'avance : le serveur répond-il, le CPU est-il haut ? L'observabilité permet de répondre à des questions imprévues, comme pourquoi le paiement n'est lent que pour certains paniers, à partir des données que le système émet déjà. Elle repose sur trois signaux : les journaux (événements structurés), les métriques (des nombres dans le temps) et les traces (le chemin d'une requête entre les composants)."),
+      B("OpenTelemetry is an open standard to produce these signals once and send them to the tool of your choice: Prometheus and Grafana, Jaeger, Sentry, or a commercial platform. A shared request identifier links the log line, the metric and the trace of the same order. Logs must never contain secrets or card data: what is logged is copied and kept.",
+        "OpenTelemetry est un standard ouvert pour produire ces signaux une seule fois et les envoyer à l'outil de votre choix : Prometheus et Grafana, Jaeger, Sentry, ou une plateforme commerciale. Un identifiant de requête commun relie la ligne de journal, la métrique et la trace d'une même commande. Les journaux ne doivent jamais contenir de secret ni de donnée de carte : ce qui est journalisé est copié et conservé."),
+      B("An SLO (service level objective) states what good service means, for instance a share of orders confirmed within a given time. It turns alerts into questions that matter: wake someone up when users suffer, not when a graph twitches. The Google SRE book describes this approach and the four golden signals.",
+        "Un SLO (objectif de niveau de service) dit ce qu'est un bon service, par exemple une part des commandes confirmées dans un délai donné. Il transforme les alertes en questions utiles : réveiller quelqu'un quand les utilisateurs souffrent, pas quand une courbe frémit. Le livre de Google sur le SRE décrit cette approche et les quatre signaux clés."),
+    ],
+    example: {
+      context: B("Karim adds logs everywhere after a slow Thursday. A week later, the logs are huge, the alerts fire all night, and the next slowdown is still a mystery.",
+        "Karim ajoute des journaux partout après un jeudi lent. Une semaine plus tard, les journaux sont énormes, les alertes sonnent toute la nuit, et le ralentissement suivant reste un mystère."),
+      before: B("Add more logs to my Node.js app so I can debug performance problems.",
+        "Ajoute plus de logs dans mon app Node.js pour que je puisse déboguer les problèmes de performance."),
+      after: B("Context: Panier du Val, Node.js modular monolith, PostgreSQL, a job queue for emails, an external payment provider.\nGoal: understand slow or failed orders without adding code each time.\n1. Show how to instrument the order path with OpenTelemetry: automatic instrumentation for HTTP and PostgreSQL, one manual span around the payment call, one around the stock check.\n2. Define a structured log format (JSON) with a request id shared with the trace. List the fields that must never be logged (passwords, tokens, card data, full addresses).\n3. Propose two SLOs for the order path, written as: [WHAT] for [WHICH SHARE] of requests over [WHICH PERIOD].\n4. Propose one alert on a symptom felt by users, with its threshold logic, and say which current alerts I could delete.",
+        "Contexte : Panier du Val, monolithe modulaire Node.js, PostgreSQL, une file de jobs pour les emails, un prestataire de paiement externe.\nObjectif : comprendre les commandes lentes ou échouées sans ajouter de code à chaque fois.\n1. Montre comment instrumenter le parcours de commande avec OpenTelemetry : instrumentation automatique pour HTTP et PostgreSQL, un span manuel autour de l'appel de paiement, un autour de la vérification du stock.\n2. Définis un format de journal structuré (JSON) avec un identifiant de requête partagé avec la trace. Liste les champs à ne jamais journaliser (mots de passe, tokens, données de carte, adresses complètes).\n3. Propose deux SLO pour le parcours de commande, écrits ainsi : [QUOI] pour [QUELLE PART] des requêtes sur [QUELLE PÉRIODE].\n4. Propose une alerte sur un symptôme vécu par les utilisateurs, avec sa logique de seuil, et dis quelles alertes actuelles je pourrais supprimer."),
+      takeaway: B("The first prompt adds volume; the second adds structure. Traces show the stock check slowing down on large baskets, and one symptom alert replaces a dozen CPU alerts nobody read.",
+        "Le premier prompt ajoute du volume ; le second ajoute de la structure. Les traces montrent la vérification du stock qui ralentit sur les gros paniers, et une alerte sur symptôme remplace une douzaine d'alertes CPU que personne ne lisait."),
+    },
+    exercise: {
+      goal: B("One critical path of your system instrumented with traces, a structured log format with its forbidden fields, two SLOs and one symptom alert.",
+        "Un parcours critique de votre système instrumenté par des traces, un format de journal structuré avec ses champs interdits, deux SLO et une alerte sur symptôme."),
+      prompt: B("System: [STACK AND MAIN COMPONENTS].\nCritical path: [E.G. SIGN UP, ORDER, PAY].\nObservability tools available: [E.G. GRAFANA, JAEGER, SENTRY, NONE YET].\n1. Show how to add OpenTelemetry to this path, with the minimal code and configuration for my stack. Point me to the official OpenTelemetry documentation pages I should read for my language.\n2. Propose a JSON log format with a request id, and a list of fields that must never appear in logs for my system.\n3. Propose two SLOs for this path, measurable with the data I will collect.\n4. Propose one alert based on an SLO, and explain why it is better than an alert on CPU.\nTell me what you assume about my system, in a separate list.",
+        "Système : [STACK ET COMPOSANTS PRINCIPAUX].\nParcours critique : [PAR EXEMPLE INSCRIPTION, COMMANDE, PAIEMENT].\nOutils d'observabilité disponibles : [PAR EXEMPLE GRAFANA, JAEGER, SENTRY, AUCUN POUR L'INSTANT].\n1. Montre comment ajouter OpenTelemetry à ce parcours, avec le code et la configuration minimaux pour ma stack. Indique-moi les pages de la documentation officielle d'OpenTelemetry à lire pour mon langage.\n2. Propose un format de journal JSON avec un identifiant de requête, et la liste des champs qui ne doivent jamais apparaître dans les journaux de mon système.\n3. Propose deux SLO pour ce parcours, mesurables avec les données que je vais recueillir.\n4. Propose une alerte fondée sur un SLO, et explique pourquoi elle vaut mieux qu'une alerte sur le CPU.\nDis-moi ce que tu supposes de mon système, dans une liste à part."),
+      check: [
+        B("One real request can be followed end to end in a trace", "Une vraie requête se suit de bout en bout dans une trace"),
+        B("The log format has a request id and a written list of forbidden fields", "Le format de journal a un identifiant de requête et une liste écrite de champs interdits"),
+        B("Each SLO names what is measured, the share and the period", "Chaque SLO nomme ce qui est mesuré, la part et la période"),
+        B("The alert fires on a symptom users feel, not on a resource", "L'alerte porte sur un symptôme vécu par les utilisateurs, pas sur une ressource"),
+      ],
+      bonus: B("Search your current logs for an email address, a token or a card number. If you find one, you have found a security problem as well as an observability one: fix the logging and plan how to purge what was kept.",
+        "Cherchez dans vos journaux actuels une adresse email, un token ou un numéro de carte. Si vous en trouvez un, vous tenez un problème de sécurité autant que d'observabilité : corrigez la journalisation et prévoyez comment purger ce qui a été conservé."),
+    },
+    more: [
+      { q: B("Which alert is most useful at night for Panier du Val during the order window?",
+          "Quelle alerte est la plus utile la nuit pour Panier du Val pendant la période de commande ?"),
+        options: [
+          B("The CPU of one application server goes above its usual level", "Le CPU d'un serveur d'application dépasse son niveau habituel"),
+          B("The share of failed orders exceeds what the SLO allows", "La part des commandes échouées dépasse ce que permet le SLO"),
+          B("A log line at the warning level appears in the email worker", "Une ligne de journal de niveau warning apparaît dans le worker d'email"),
+        ],
+        answer: 1,
+        why: B("Failed orders are what the cooperative and its customers feel. A CPU peak or a warning may be harmless. Alerting on the SLO wakes someone up only when service is really degraded.",
+          "Les commandes échouées sont ce que vivent la coopérative et ses clients. Un pic de CPU ou un avertissement peut être sans effet. Alerter sur le SLO ne réveille quelqu'un que lorsque le service est vraiment dégradé.") },
+      { q: B("Why share a single request id between logs and traces?",
+          "Pourquoi partager un même identifiant de requête entre journaux et traces ?"),
+        options: [
+          B("To go from a slow trace to the exact log lines of that order", "Pour passer d'une trace lente aux lignes de journal exactes de cette commande"),
+          B("Because OpenTelemetry refuses to export traces without that id", "Parce qu'OpenTelemetry refuse d'exporter des traces sans cet identifiant"),
+          B("To replace the customer id, so that logs are fully anonymous", "Pour remplacer l'identifiant client, afin que les journaux soient anonymes"),
+        ],
+        answer: 0,
+        why: B("The id links the signals of one request. From a slow span you jump to the logs of that very order, with its context. It does not anonymise anything by itself.",
+          "L'identifiant relie les signaux d'une même requête. D'un span lent, vous passez aux journaux de cette commande précise, avec son contexte. Il n'anonymise rien à lui seul.") },
+    ],
+  },
+}
+
+const ROBUST_DEEP: Record<string, Deepening> = {
+  [deepKey(M3, 'ar-threat')]: {
+    intro: B("Security is cheapest when it is designed, and most expensive when it is patched after an incident. A threat model is the design tool for it: a diagram of how data flows through the system, and a methodical look at what could go wrong at each crossing. This lesson teaches STRIDE, the six questions that structure that look, and how to use an AI as a reviewer that suggests threats you missed without drowning you in generic advice. You will build the threat model of Panier du Val, the ordering app of a fictional cooperative of farms, and turn its main threats into measures you can test.",
+      "La sécurité coûte le moins quand elle est conçue, et le plus quand on la rapièce après un incident. Le modèle de menaces est l'outil de conception qui s'y prête : un schéma de la circulation des données dans le système, et un examen méthodique de ce qui peut mal tourner à chaque franchissement. Ce cours enseigne STRIDE, les six questions qui structurent cet examen, et l'usage d'une IA comme relectrice qui suggère des menaces oubliées sans vous noyer sous des conseils génériques. Vous construirez le modèle de menaces de Panier du Val, l'app de commande d'une coopérative de fermes fictive, et changerez ses menaces principales en parades vérifiables."),
+    concepts: [
+      { term: B('Data flow diagram', 'Schéma de flux de données'),
+        def: B("A drawing of external actors, processes, data stores and the flows between them. It is the input of a threat model; without it, threats cannot be tied to anything.",
+          "Un dessin des acteurs externes, des processus, des stockages et des flux qui les relient. C'est l'entrée du modèle de menaces ; sans lui, aucune menace ne se rattache à rien.") },
+      { term: B('Trust boundary', 'Frontière de confiance'),
+        def: B("A line where the level of trust changes: between the internet and your server, your server and a third party. Data that crosses it must be checked.",
+          "Une ligne où le niveau de confiance change : entre internet et votre serveur, entre votre serveur et un tiers. Les données qui la franchissent doivent être vérifiées.") },
+      { term: B('STRIDE', 'STRIDE'),
+        def: B("Six threat categories: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege. Each one is a question to ask on each flow.",
+          "Six catégories de menaces : usurpation, altération, répudiation, divulgation d'information, déni de service, élévation de privilège (initiales anglaises). Chacune est une question à poser sur chaque flux.") },
+      { term: B('Measure', 'Parade'),
+        def: B("What reduces a threat: authentication, an authorisation check, encryption, a log, a quota. A good measure comes with a test that proves it works.",
+          "Ce qui réduit une menace : authentification, contrôle d'autorisation, chiffrement, journal, quota. Une bonne parade s'accompagne d'un test qui prouve qu'elle fonctionne.") },
+      { term: B('Secret', 'Secret'),
+        def: B("A key, password or token that grants access. It lives in a secrets manager or environment variables, never in the code or the repository.",
+          "Une clé, un mot de passe ou un token qui donne un accès. Il vit dans un gestionnaire de secrets ou des variables d'environnement, jamais dans le code ni dans le dépôt.") },
+    ],
+    walkthrough: {
+      title: B("Léa builds the threat model of Panier du Val before accounts open to all customers.",
+        "Léa construit le modèle de menaces de Panier du Val avant l'ouverture des comptes à tous les clients."),
+      steps: [
+        B("She draws the data flows in Mermaid: customer browser, farm back office, driver page, app server, PostgreSQL, payment provider, email service, with three trust boundaries. Why: every threat must be attached to a flow, so the flows come first.",
+          "Elle dessine les flux en Mermaid : navigateur client, back office des fermes, page livreur, serveur d'app, PostgreSQL, prestataire de paiement, service d'emails, avec trois frontières de confiance. Pourquoi : chaque menace doit se rattacher à un flux, donc les flux d'abord."),
+        B("With Karim, she walks each crossing flow and asks the six STRIDE questions, writing every answer, even \"not applicable\". Why: writing the rejected categories proves they were considered.",
+          "Avec Karim, elle parcourt chaque flux qui franchit une frontière et pose les six questions STRIDE, en notant chaque réponse, même « sans objet ». Pourquoi : noter les catégories écartées prouve qu'elles ont été examinées."),
+        B("She gives the diagram and their table to an AI and asks for missed threats only, tied to a flow. It suggests that the farm back office trusts the farm id sent by the browser. Why: a second reviewer finds what the authors are too close to see.",
+          "Elle donne le schéma et leur tableau à une IA et lui demande seulement les menaces oubliées, rattachées à un flux. Elle signale que le back office fait confiance à l'identifiant de ferme envoyé par le navigateur. Pourquoi : un second relecteur voit ce que les auteurs ne voient plus."),
+        B("They check the suggestion in the code: it is real. They discard two others that concern a mobile app that does not exist. Why: each AI suggestion is a hypothesis to verify, not a finding.",
+          "Ils vérifient la suggestion dans le code : elle est réelle. Ils en écartent deux autres, qui concernent une app mobile inexistante. Pourquoi : chaque suggestion de l'IA est une hypothèse à vérifier, pas un constat."),
+        B("They rank the threats and write, for the top three, a measure, an owner and a test: a server-side authorisation check with a test that tries another farm's id; signed, short-lived driver links; payment keys moved to the secrets manager. Why: a measure without a test is an intention.",
+          "Ils classent les menaces et notent, pour les trois premières, une parade, un responsable et un test : contrôle d'autorisation côté serveur avec un test qui tente l'identifiant d'une autre ferme ; liens livreurs signés à courte durée ; clés de paiement passées dans le gestionnaire de secrets. Pourquoi : une parade sans test reste une intention."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Asking an AI for a security review of the app without any diagram or flow.",
+          "Demander à une IA une revue de sécurité de l'app sans schéma ni flux."),
+        fix: B("Give the data flow diagram and the trust boundaries, ask for STRIDE on each crossing flow, and refuse threats tied to no flow.",
+          "Donnez le schéma des flux et les frontières de confiance, demandez STRIDE sur chaque flux qui franchit une frontière, et refusez les menaces rattachées à aucun flux.") },
+      { wrong: B("Doing the threat model once, before launch, and never again.",
+          "Faire le modèle de menaces une fois, avant le lancement, et plus jamais."),
+        fix: B("Update it whenever a flow or a boundary changes: a new provider, a new type of user, a new API. Keep it in the repository next to the architecture docs.",
+          "Mettez-le à jour dès qu'un flux ou une frontière change : nouveau prestataire, nouveau type d'utilisateur, nouvelle API. Gardez-le dans le dépôt, à côté de la documentation d'architecture.") },
+      { wrong: B("Trusting data sent by the browser, such as an id or a price, because the interface does not let users change it.",
+          "Faire confiance à une donnée envoyée par le navigateur, identifiant ou prix, parce que l'interface ne permet pas de la modifier."),
+        fix: B("Anything that crosses the internet boundary can be forged. Check rights and recompute prices on the server, for every request.",
+          "Tout ce qui franchit la frontière d'internet peut être forgé. Vérifiez les droits et recalculez les prix côté serveur, à chaque requête.") },
+    ],
+    recap: [
+      B("A threat model starts with a data flow diagram and its trust boundaries.", "Un modèle de menaces commence par un schéma de flux et ses frontières de confiance."),
+      B("STRIDE gives six questions to ask on each flow that crosses a boundary.", "STRIDE donne six questions à poser sur chaque flux qui franchit une frontière."),
+      B("An AI is a useful reviewer when it gets the diagram, and each suggestion is checked.", "Une IA est une relectrice utile quand elle reçoit le schéma, et chaque suggestion se vérifie."),
+      B("Each top threat gets a measure, an owner and a test.", "Chaque menace prioritaire reçoit une parade, un responsable et un test."),
+      B("Secrets never live in the code, and the server never trusts the browser.", "Les secrets ne vivent jamais dans le code, et le serveur ne fait jamais confiance au navigateur."),
+    ],
+    further: B("Read the OWASP Threat Modeling Cheat Sheet and the OWASP Application Security Verification Standard (ASVS), then pick from the ASVS the requirements that match your top three threats. Adam Shostack's book Threat Modeling: Designing for Security covers the method in depth.",
+      "Lisez la fiche OWASP Threat Modeling Cheat Sheet et le référentiel OWASP ASVS (Application Security Verification Standard), puis choisissez dans l'ASVS les exigences qui correspondent à vos trois menaces prioritaires. Le livre d'Adam Shostack, Threat Modeling: Designing for Security, approfondit la méthode."),
+    more: [
+      { q: B("Where should the payment provider's secret key of Panier du Val be stored?",
+          "Où doit être conservée la clé secrète du prestataire de paiement de Panier du Val ?"),
+        options: [
+          B("In a configuration file committed to the repository, for the team", "Dans un fichier de configuration commité dans le dépôt, pour l'équipe"),
+          B("In the front-end code, so that the browser can call the provider", "Dans le code front, pour que le navigateur appelle le prestataire"),
+          B("In a secrets manager or the server's environment variables", "Dans un gestionnaire de secrets ou les variables d'environnement du serveur"),
+        ],
+        answer: 2,
+        why: B("A secret in the repository is copied to every clone and stays in the history; in the front end, every visitor can read it. Only the server should hold it, injected at runtime from a secrets manager or the environment.",
+          "Un secret dans le dépôt est copié dans chaque clone et reste dans l'historique ; dans le front, chaque visiteur peut le lire. Seul le serveur doit le détenir, injecté à l'exécution depuis un gestionnaire de secrets ou l'environnement.") },
+      { q: B("A customer claims she never placed an order that was delivered. Which STRIDE category does this concern, and which measure helps?",
+          "Une cliente affirme n'avoir jamais passé une commande qui a été livrée. Quelle catégorie STRIDE est en jeu, et quelle parade aide ?"),
+        options: [
+          B("Repudiation, helped by a reliable log of who did what and when", "La répudiation, aidée par un journal fiable de qui a fait quoi et quand"),
+          B("Denial of service, helped by a quota on the number of orders", "Le déni de service, aidé par un quota sur le nombre de commandes"),
+          B("Tampering, helped by encrypting the database on the server disk", "L'altération, aidée par le chiffrement de la base sur le disque"),
+        ],
+        answer: 0,
+        why: B("Repudiation is denying an action. The measure is evidence: an audit log, protected from modification, that records the authenticated user, the action and the time.",
+          "La répudiation consiste à nier une action. La parade est une preuve : un journal d'audit, protégé contre la modification, qui enregistre l'utilisateur authentifié, l'action et l'heure.") },
+    ],
+  },
+
+  [deepKey(M3, 'ar-scale')]: {
+    intro: B("A system that works for ten users can collapse for a thousand, and rarely where you expect. Scaling well means three things: describing the real load, measuring where the system saturates, and choosing the cheapest change that moves the bottleneck. This lesson covers load testing with k6 or Locust, caching (what to cache, how long, how to invalidate) and queues (what to take out of the request). You will follow the Thursday opening of Panier du Val, when many customers arrive at once, and fix it with evidence rather than with more servers.",
+      "Un système qui fonctionne pour dix utilisateurs peut s'effondrer pour mille, et rarement là où on l'attend. Bien monter en charge, c'est trois choses : décrire la charge réelle, mesurer où le système sature, et choisir le changement le moins coûteux qui déplace le goulot. Ce cours couvre le test de charge avec k6 ou Locust, le cache (quoi mettre en cache, combien de temps, comment invalider) et les files d'attente (quoi sortir de la requête). Vous suivrez l'ouverture du jeudi de Panier du Val, quand beaucoup de clients arrivent à la fois, et la réglerez preuves en main plutôt qu'avec plus de serveurs."),
+    concepts: [
+      { term: B('Bottleneck', "Goulot d'étranglement"),
+        def: B("The component that saturates first and limits the whole system. Improving anything else brings no gain until it is relieved.",
+          "Le composant qui sature en premier et limite tout le système. Améliorer autre chose n'apporte rien tant qu'il n'est pas soulagé.") },
+      { term: B('Load test', 'Test de charge'),
+        def: B("A script that simulates many users following a realistic path, run against a test environment while you watch the metrics.",
+          "Un script qui simule de nombreux utilisateurs suivant un parcours réaliste, lancé sur un environnement de test pendant que vous suivez les métriques.") },
+      { term: B('Cache and invalidation', 'Cache et invalidation'),
+        def: B("A cache stores a computed result to serve it again. Invalidation removes it when the source changes; an expiry (TTL) bounds how stale it can get.",
+          "Un cache conserve un résultat calculé pour le resservir. L'invalidation le retire quand la source change ; une expiration (TTL) borne son ancienneté.") },
+      { term: B('Queue and worker', "File d'attente et worker"),
+        def: B("A queue stores tasks to do later; workers take them one by one. It absorbs peaks and isolates the request from slow or failing side services.",
+          "Une file stocke des tâches à faire plus tard ; des workers les prennent une à une. Elle absorbe les pics et isole la requête des services annexes lents ou en panne.") },
+      { term: B('Horizontal scaling', 'Montée en charge horizontale'),
+        def: B("Adding more instances of a component rather than a bigger machine. It only helps if the component is stateless and is the bottleneck.",
+          "Ajouter des instances d'un composant plutôt qu'une machine plus grosse. Cela n'aide que si le composant est sans état et constitue le goulot.") },
+    ],
+    walkthrough: {
+      title: B("Karim and Léa fix the Thursday opening of Panier du Val, step by step and with measures.",
+        "Karim et Léa règlent l'ouverture du jeudi de Panier du Val, pas à pas et mesures à l'appui."),
+      steps: [
+        B("They describe the peak from the order history: most customers arrive in the first minutes, browse the catalogue, fill a basket and pay. They set a target response time for the catalogue. Why: a test that does not reproduce real usage measures nothing useful.",
+          "Ils décrivent le pic d'après l'historique des commandes : la plupart des clients arrivent dans les premières minutes, parcourent le catalogue, remplissent un panier et paient. Ils fixent un temps de réponse cible pour le catalogue. Pourquoi : un test qui ne reproduit pas l'usage réel ne mesure rien d'utile."),
+        B("They ask an AI to write a k6 script for this path, read it line by line, point it at a copy of production and use the payment provider's test mode. Why: a generated script must be understood before it runs, and never hit real customers or real payments.",
+          "Ils demandent à une IA un script k6 pour ce parcours, le lisent ligne à ligne, le pointent vers une copie de la production et utilisent le mode test du prestataire de paiement. Pourquoi : un script généré se comprend avant de tourner, et ne touche jamais de vrais clients ni de vrais paiements."),
+        B("During the run, database CPU saturates while the app servers stay calm. The PostgreSQL statistics show the catalogue query run for every visitor, with a missing index. Why: the measure names the bottleneck; adding app servers would have made it worse.",
+          "Pendant le passage, le CPU de la base sature alors que les serveurs d'app restent calmes. Les statistiques de PostgreSQL montrent la requête du catalogue exécutée pour chaque visiteur, avec un index manquant. Pourquoi : la mesure nomme le goulot ; ajouter des serveurs d'app l'aurait aggravé."),
+        B("They add the index, then cache the week catalogue in Redis, invalidated whenever a farm updates its stock. The order still checks stock in the database. Why: the cache serves reads; the truth stays in the database for writes.",
+          "Ils ajoutent l'index, puis mettent le catalogue de la semaine en cache dans Redis, invalidé à chaque mise à jour de stock par une ferme. La commande vérifie toujours le stock en base. Pourquoi : le cache sert les lectures ; la vérité reste en base pour les écritures."),
+        B("They move confirmation emails and invoice generation to a job queue with workers, then rerun the same test and compare both summaries. Why: the comparison proves the gain and reveals the next bottleneck, if there is one.",
+          "Ils passent les emails de confirmation et la génération des factures dans une file de jobs avec des workers, puis relancent le même test et comparent les deux résumés. Pourquoi : la comparaison prouve le gain et révèle le goulot suivant, s'il existe."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Scaling by buying bigger or more servers before any measurement.",
+          "Monter en charge en achetant des serveurs plus gros ou plus nombreux avant toute mesure."),
+        fix: B("Run a realistic load test, find the saturated component with metrics, and change that component first.",
+          "Lancez un test de charge réaliste, trouvez le composant saturé grâce aux métriques, et changez d'abord ce composant.") },
+      { wrong: B("Adding a cache without deciding when its content becomes wrong.",
+          "Ajouter un cache sans décider quand son contenu devient faux."),
+        fix: B("Write for each cached item its expiry, the event that invalidates it, and which operations must still read the source of truth.",
+          "Écrivez pour chaque élément en cache son expiration, l'événement qui l'invalide, et les opérations qui doivent toujours lire la source de vérité.") },
+      { wrong: B("Running the load test against production, or with real payments.",
+          "Lancer le test de charge sur la production, ou avec de vrais paiements."),
+        fix: B("Use a copy of production with test data and the provider's test mode. Warn the hosting provider if its terms require it.",
+          "Utilisez une copie de la production avec des données de test et le mode test du prestataire. Prévenez l'hébergeur si ses conditions l'exigent.") },
+    ],
+    recap: [
+      B("A system is limited by its bottleneck; improving anything else changes nothing.", "Un système est limité par son goulot ; améliorer autre chose ne change rien."),
+      B("Load tests reproduce real usage, on a test environment, and are compared before and after.", "Un test de charge reproduit l'usage réel, sur un environnement de test, et se compare avant et après."),
+      B("A cache suits data read often and changed rarely, with an expiry and an invalidation rule.", "Un cache convient aux données lues souvent et modifiées rarement, avec expiration et règle d'invalidation."),
+      B("A queue takes slow side work out of the request and absorbs peaks.", "Une file sort le travail lent et annexe de la requête et absorbe les pics."),
+    ],
+    further: B("Read the k6 documentation on scenarios and thresholds, then the PostgreSQL documentation on the pg_stat_statements extension, which lists the most expensive queries. Run one test where the thresholds fail on purpose, to see how k6 reports it.",
+      "Lisez la documentation de k6 sur les scénarios et les seuils (thresholds), puis celle de PostgreSQL sur l'extension pg_stat_statements, qui liste les requêtes les plus coûteuses. Lancez un test où les seuils échouent volontairement, pour voir comment k6 le signale."),
+    more: [
+      { q: B("Which data of Panier du Val is the best candidate for a cache?",
+          "Quelle donnée de Panier du Val est la meilleure candidate pour un cache ?"),
+        options: [
+          B("The payment status of an order being paid right now", "Le statut de paiement d'une commande en train d'être payée"),
+          B("The week catalogue, read by everyone and changed by a few farms", "Le catalogue de la semaine, lu par tous et modifié par quelques fermes"),
+          B("The exact number of baskets left, used to accept an order", "Le nombre exact de paniers restants, utilisé pour accepter une commande"),
+        ],
+        answer: 1,
+        why: B("The catalogue is read constantly and changes rarely: a cache relieves the database. A payment status or the stock used to accept an order must be exact at the moment of the decision, so they are read from the source.",
+          "Le catalogue est lu sans cesse et change rarement : un cache soulage la base. Un statut de paiement ou le stock qui décide d'une commande doivent être exacts au moment de la décision ; ils se lisent à la source.") },
+      { q: B("After adding app servers, the Thursday slowdown is worse. What is the most likely explanation?",
+          "Après l'ajout de serveurs d'app, le ralentissement du jeudi est pire. Quelle est l'explication la plus probable ?"),
+        options: [
+          B("The new servers send more simultaneous queries to a saturated database", "Les nouveaux serveurs envoient plus de requêtes simultanées à une base saturée"),
+          B("The new servers are configured in a different time zone", "Les nouveaux serveurs sont configurés dans un autre fuseau horaire"),
+          B("The load balancer always slows down as soon as it has several servers behind it", "Le répartiteur de charge ralentit toujours dès qu'il a plusieurs serveurs derrière lui"),
+        ],
+        answer: 0,
+        why: B("When the database is the bottleneck, each extra app server opens more connections and queries against it. Throughput does not rise, contention does. The fix is to relieve the database first.",
+          "Quand la base est le goulot, chaque serveur d'app en plus ouvre davantage de connexions et de requêtes vers elle. Le débit ne monte pas, la contention si. La solution est de soulager d'abord la base.") },
+    ],
+  },
+
+  [deepKey(M3, 'ar-reliab')]: {
+    intro: B("Failures are not exceptional events in a running system: networks drop, providers go down, disks fill, people make mistakes. Reliable architecture decides in advance what happens then. This lesson covers timeouts, safe retries and idempotency, circuit breakers and degraded modes, then backups seen from the business side: how much data can be lost (RPO) and how long the service can stop (RTO). You will build the failure mode table of Panier du Val, agree its objectives with the cooperative and rehearse a restore, the only test that proves a backup exists.",
+      "Les pannes ne sont pas des événements exceptionnels dans un système en service : les réseaux coupent, les prestataires tombent, les disques se remplissent, les humains se trompent. Une architecture fiable décide d'avance ce qui se passe alors. Ce cours couvre les délais maximaux, les relances sûres et l'idempotence, les disjoncteurs et les modes dégradés, puis les sauvegardes vues du côté métier : combien de données peuvent être perdues (RPO) et combien de temps le service peut s'arrêter (RTO). Vous construirez le tableau des modes de panne de Panier du Val, conviendrez de ses objectifs avec la coopérative et répéterez une restauration, le seul test qui prouve qu'une sauvegarde existe."),
+    concepts: [
+      { term: B('Timeout', 'Délai maximal (timeout)'),
+        def: B("The longest time a call may take before it is abandoned. Without it, one slow dependency can block every request that waits on it.",
+          "Le temps le plus long qu'un appel peut prendre avant d'être abandonné. Sans lui, une seule dépendance lente peut bloquer toutes les requêtes qui l'attendent.") },
+      { term: B('Idempotency', 'Idempotence'),
+        def: B("An operation is idempotent if doing it twice has the same effect as once. Only idempotent operations can be retried safely; an idempotency key makes a payment so.",
+          "Une opération est idempotente si la faire deux fois a le même effet qu'une seule. Seules les opérations idempotentes se relancent sans risque ; une clé d'idempotence rend un paiement idempotent.") },
+      { term: B('Circuit breaker', 'Disjoncteur (circuit breaker)'),
+        def: B("A mechanism that stops calling a service after repeated failures, answers at once with a fallback, then tries again after a pause.",
+          "Un mécanisme qui cesse d'appeler un service après des échecs répétés, répond aussitôt par une solution de repli, puis réessaie après une pause.") },
+      { term: B('RPO and RTO', 'RPO et RTO'),
+        def: B("The RPO is the maximum data loss accepted, measured in time; the RTO is the maximum time to restore service. Both are business decisions.",
+          "Le RPO est la perte de données maximale acceptée, mesurée en temps ; le RTO est le temps maximal pour rétablir le service. Ce sont deux décisions métier.") },
+      { term: B('Restore drill', 'Exercice de restauration'),
+        def: B("A planned, timed restore of a backup into a separate environment, followed by a check of the data. It is the only proof that backups work.",
+          "Une restauration planifiée et chronométrée d'une sauvegarde dans un environnement séparé, suivie d'une vérification des données. C'est la seule preuve que les sauvegardes fonctionnent.") },
+    ],
+    walkthrough: {
+      title: B("Léa makes Panier du Val resilient to its three most feared failures, then proves its backups.",
+        "Léa rend Panier du Val résistant à ses trois pannes les plus redoutées, puis prouve ses sauvegardes."),
+      steps: [
+        B("She lists the dependencies of the order path (database, payment provider, email service, stock module) and fills a table: failure, effect on the customer, current behaviour, desired behaviour. Why: a failure that was never written down gets no designed behaviour.",
+          "Elle liste les dépendances du parcours de commande (base, prestataire de paiement, service d'emails, module de stock) et remplit un tableau : panne, effet pour le client, comportement actuel, comportement voulu. Pourquoi : une panne jamais écrite ne reçoit aucun comportement conçu."),
+        B("She gives every external call a timeout, sends an idempotency key with each payment request, and retries emails through the queue with exponential backoff and jitter. Why: retries become safe and stop hammering a service that is already struggling.",
+          "Elle donne un délai maximal à chaque appel externe, envoie une clé d'idempotence avec chaque demande de paiement, et relance les emails par la file avec espacement exponentiel et jitter. Pourquoi : les relances deviennent sûres et cessent de marteler un service déjà en difficulté."),
+        B("With the cooperative, she decides the degraded mode if payment is down: orders recorded as pending, payment requested later, basket held until a set time. Why: the business decides what matters most, the developers make it possible.",
+          "Avec la coopérative, elle décide du mode dégradé si le paiement tombe : commandes enregistrées en attente, paiement demandé plus tard, panier réservé jusqu'à une heure fixée. Pourquoi : le métier décide de l'essentiel, les développeurs le rendent possible."),
+        B("They agree an RPO and an RTO for the order window. Nightly snapshots cannot meet the RPO, so she enables point-in-time recovery as her provider documents it. Why: the backup design follows from the objective, not the other way round.",
+          "Ils conviennent d'un RPO et d'un RTO pour la période de commande. Les instantanés nocturnes ne tiennent pas le RPO : elle active la restauration à un instant donné telle que la documente son hébergeur. Pourquoi : la conception des sauvegardes découle de l'objectif, pas l'inverse."),
+        B("She restores the database to a separate environment at a chosen moment, times the operation, counts the orders and compares with production. She writes the runbook and schedules the next drill. Why: the drill proves the plan, and the runbook lets someone else repeat it.",
+          "Elle restaure la base dans un environnement séparé à un instant choisi, chronomètre l'opération, compte les commandes et compare avec la production. Elle rédige le runbook et planifie le prochain exercice. Pourquoi : l'exercice prouve le plan, et le runbook permet à quelqu'un d'autre de le refaire."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Retrying every failed call automatically, including payments.",
+          "Relancer automatiquement tout appel échoué, paiements compris."),
+        fix: B("Retry only idempotent operations, or make them idempotent with a key. Add exponential backoff, jitter and a maximum number of attempts.",
+          "Ne relancez que les opérations idempotentes, ou rendez-les idempotentes avec une clé. Ajoutez un espacement exponentiel, du jitter et un nombre maximal de tentatives.") },
+      { wrong: B("Choosing the RPO and RTO alone, as technical settings.",
+          "Choisir seul le RPO et le RTO, comme des réglages techniques."),
+        fix: B("Ask the business what one hour of lost orders or of downtime costs them, then design the backups and the recovery to meet their answer.",
+          "Demandez au métier ce que lui coûte une heure de commandes perdues ou d'arrêt, puis concevez sauvegardes et reprise pour tenir sa réponse.") },
+      { wrong: B("Keeping backups in the same account and region as production, with the same access.",
+          "Garder les sauvegardes dans le même compte et la même région que la production, avec les mêmes accès."),
+        fix: B("Keep at least one copy separated from production, in another location and with distinct credentials, so that one incident or one stolen key cannot destroy both.",
+          "Gardez au moins une copie séparée de la production, dans un autre lieu et avec des identifiants distincts, pour qu'un incident ou une clé volée ne détruise pas les deux.") },
+    ],
+    recap: [
+      B("Every external call has a timeout; every retry is on an idempotent operation.", "Chaque appel externe a un délai maximal ; chaque relance porte sur une opération idempotente."),
+      B("A degraded mode keeps the essential running and is decided with the business.", "Un mode dégradé garde l'essentiel et se décide avec le métier."),
+      B("RPO and RTO are business objectives that drive the backup design.", "RPO et RTO sont des objectifs métier qui guident la conception des sauvegardes."),
+      B("Only a timed restore drill proves that backups exist.", "Seul un exercice de restauration chronométré prouve que les sauvegardes existent."),
+    ],
+    further: B("Read the Stripe documentation on idempotent requests and the PostgreSQL documentation on continuous archiving and point-in-time recovery. Then read the chapter on handling overload in Google's free online book Site Reliability Engineering.",
+      "Lisez la documentation de Stripe sur les requêtes idempotentes et celle de PostgreSQL sur l'archivage continu et la restauration à un instant donné (point-in-time recovery). Lisez ensuite le chapitre sur la gestion de la surcharge dans le livre gratuit en ligne de Google, Site Reliability Engineering."),
+    more: [
+      { q: B("The email service fails repeatedly. What does a circuit breaker change for the order path?",
+          "Le service d'emails échoue à répétition. Que change un disjoncteur pour le parcours de commande ?"),
+        options: [
+          B("It repairs the email service automatically after a few failed attempts in a row", "Il répare automatiquement le service d'emails après quelques échecs consécutifs"),
+          B("It retries each email faster, so that none of them is lost", "Il relance chaque email plus vite, pour qu'aucun ne soit perdu"),
+          B("It stops calling the failing service for a while and falls back at once", "Il cesse d'appeler le service défaillant un moment et se replie aussitôt"),
+        ],
+        answer: 2,
+        why: B("The breaker avoids waiting on a service known to fail: calls fail fast with a fallback (here, leaving the email in the queue), and the service gets time to recover before the next attempt.",
+          "Le disjoncteur évite d'attendre un service qu'on sait défaillant : les appels échouent vite avec un repli (ici, laisser l'email dans la file), et le service a le temps de se rétablir avant la tentative suivante.") },
+      { q: B("A bug has silently corrupted prices for five days. Why might a backup with seven days of retention not be enough?",
+          "Un bug corrompt les prix en silence depuis cinq jours. Pourquoi une sauvegarde conservée sept jours peut-elle ne pas suffire ?"),
+        options: [
+          B("Because restoring would also erase five days of valid orders", "Parce que restaurer effacerait aussi cinq jours de commandes valides"),
+          B("Because backups never contain the prices, only the orders", "Parce que les sauvegardes ne contiennent jamais les prix, seulement les commandes"),
+          B("Because PostgreSQL forbids restoring data older than three days", "Parce que PostgreSQL interdit de restaurer des données de plus de trois jours"),
+        ],
+        answer: 0,
+        why: B("A restore brings back the whole state at a point in time, good data included. Logical corruption is repaired by targeted fixes from a backup and an audit log, which is why both matter.",
+          "Une restauration ramène tout l'état à un instant donné, bonnes données comprises. Une corruption logique se répare par des corrections ciblées à partir d'une sauvegarde et d'un journal d'audit : d'où l'intérêt des deux.") },
+    ],
+  },
+
+  [deepKey(M3, 'ar-observ')]: {
+    intro: B("A system in production is a black box until it tells you what it does. Observability is the property of a system whose internal state you can understand from what it emits: structured logs, metrics and traces. This lesson explains these three signals, the OpenTelemetry standard that produces them once for any tool, and the SLOs that turn a flood of data into a few alerts that matter. You will instrument the order path of Panier du Val, find a slowdown that the logs could not explain, and replace a dozen noisy alerts with one that reflects what customers feel.",
+      "Un système en production est une boîte noire tant qu'il ne dit pas ce qu'il fait. L'observabilité est la propriété d'un système dont on comprend l'état interne à partir de ce qu'il émet : journaux structurés, métriques et traces. Ce cours explique ces trois signaux, le standard OpenTelemetry qui les produit une seule fois pour n'importe quel outil, et les SLO qui changent un déluge de données en quelques alertes utiles. Vous instrumenterez le parcours de commande de Panier du Val, trouverez un ralentissement que les journaux n'expliquaient pas, et remplacerez une douzaine d'alertes bruyantes par une seule, fidèle à ce que vivent les clients."),
+    concepts: [
+      { term: B('Structured log', 'Journal structuré'),
+        def: B("An event written as fields (JSON) rather than free text: time, level, request id, action. It can be searched and filtered, and never carries secrets.",
+          "Un événement écrit sous forme de champs (JSON) plutôt qu'en texte libre : heure, niveau, identifiant de requête, action. Il se cherche et se filtre, et ne porte jamais de secret.") },
+      { term: B('Metric', 'Métrique'),
+        def: B("A number measured over time, such as requests per second, error rate or latency percentiles. Cheap to store, ideal for dashboards and alerts.",
+          "Un nombre mesuré dans le temps, comme les requêtes par seconde, le taux d'erreur ou les percentiles de latence. Peu coûteux à stocker, idéal pour tableaux de bord et alertes.") },
+      { term: B('Trace and span', 'Trace et span'),
+        def: B("A trace is the path of one request across components; each step is a span with its duration. Traces show where the time goes.",
+          "Une trace est le chemin d'une requête entre les composants ; chaque étape est un span avec sa durée. Les traces montrent où passe le temps.") },
+      { term: B('SLO and error budget', "SLO et budget d'erreur"),
+        def: B("An SLO is a measurable target for good service; the error budget is the failure it tolerates. Spending it too fast is what deserves an alert.",
+          "Un SLO est un objectif mesurable de bon service ; le budget d'erreur est la défaillance qu'il tolère. Le consommer trop vite mérite une alerte.") },
+      { term: B('OpenTelemetry', 'OpenTelemetry'),
+        def: B("An open standard and set of libraries to produce logs, metrics and traces, then export them to the backend of your choice without rewriting the code.",
+          "Un standard ouvert et un ensemble de bibliothèques pour produire journaux, métriques et traces, puis les exporter vers l'outil de votre choix sans réécrire le code.") },
+    ],
+    walkthrough: {
+      title: B("Karim instruments the order path of Panier du Val and finds why checkout is sometimes slow.",
+        "Karim instrumente le parcours de commande de Panier du Val et trouve pourquoi le paiement est parfois lent."),
+      steps: [
+        B("He adds the OpenTelemetry SDK for Node.js with automatic instrumentation of HTTP and PostgreSQL, then two manual spans: the stock check and the payment call. Why: automatic instrumentation covers the basics; manual spans name the steps that matter to the business.",
+          "Il ajoute le SDK OpenTelemetry pour Node.js avec l'instrumentation automatique de HTTP et de PostgreSQL, puis deux spans manuels : vérification du stock et appel de paiement. Pourquoi : l'automatique couvre la base ; les spans manuels nomment les étapes qui comptent pour le métier."),
+        B("He switches the logs to JSON with the trace id in each line, and asks an AI to scan the code for log statements that could contain emails, tokens or card data. He checks each finding. Why: logs are copied and kept, so a leaked secret there is a breach.",
+          "Il passe les journaux en JSON avec l'identifiant de trace dans chaque ligne, et demande à une IA de repérer dans le code les journalisations qui pourraient contenir emails, tokens ou données de carte. Il vérifie chaque résultat. Pourquoi : les journaux sont copiés et conservés, un secret qui y fuit est une brèche."),
+        B("On Thursday, he filters the slowest traces in Jaeger: the stock check span grows with the number of items, one query per item. Why: the trace turns a vague complaint into a precise, fixable cause.",
+          "Le jeudi, il filtre les traces les plus lentes dans Jaeger : le span de vérification du stock grandit avec le nombre d'articles, une requête par article. Pourquoi : la trace change une plainte vague en cause précise et corrigeable."),
+        B("With Léa, he writes two SLOs for the order path (share of orders confirmed within a set time, share of orders without error) and builds a Grafana dashboard on the four golden signals. Why: the SLOs say what good means before anyone looks at a graph.",
+          "Avec Léa, il écrit deux SLO pour le parcours de commande (part des commandes confirmées dans un délai fixé, part des commandes sans erreur) et construit un tableau de bord Grafana sur les quatre signaux clés. Pourquoi : les SLO disent ce qu'est un bon service avant qu'on regarde une courbe."),
+        B("He replaces the CPU and warning alerts with one alert on the error budget burn rate of the order SLO, and writes in the runbook what to check first when it fires. Why: an alert that fires rarely, and always for a reason, is one the team will answer.",
+          "Il remplace les alertes CPU et warning par une seule alerte sur la vitesse de consommation du budget d'erreur du SLO de commande, et écrit dans le runbook quoi vérifier d'abord quand elle sonne. Pourquoi : une alerte rare, et toujours justifiée, est une alerte à laquelle l'équipe répond."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Writing logs as free sentences, without a request id.",
+          "Écrire les journaux en phrases libres, sans identifiant de requête."),
+        fix: B("Log structured fields in JSON with a request or trace id, so that all the events of one order can be found together.",
+          "Journalisez des champs structurés en JSON avec un identifiant de requête ou de trace, pour retrouver ensemble tous les événements d'une commande.") },
+      { wrong: B("Alerting on every resource: CPU, memory, disk, each warning line.",
+          "Alerter sur chaque ressource : CPU, mémoire, disque, chaque ligne d'avertissement."),
+        fix: B("Alert on symptoms tied to an SLO, such as failed or slow orders. Keep resource metrics on dashboards for diagnosis, not for paging.",
+          "Alertez sur des symptômes liés à un SLO, comme les commandes échouées ou lentes. Gardez les métriques de ressources dans les tableaux de bord pour le diagnostic, pas pour l'astreinte.") },
+      { wrong: B("Logging full request bodies to have everything in case of need.",
+          "Journaliser les corps de requête complets pour tout avoir en cas de besoin."),
+        fix: B("Write an explicit list of forbidden fields (passwords, tokens, card data, addresses) and mask them in the logger, with a test that checks it.",
+          "Écrivez une liste explicite de champs interdits (mots de passe, tokens, données de carte, adresses) et masquez-les dans le logger, avec un test qui le vérifie.") },
+    ],
+    recap: [
+      B("Logs, metrics and traces answer different questions; together they explain behaviour.", "Journaux, métriques et traces répondent à des questions différentes ; ensemble, ils expliquent le comportement."),
+      B("OpenTelemetry produces the signals once and sends them to the tool of your choice.", "OpenTelemetry produit les signaux une fois et les envoie vers l'outil de votre choix."),
+      B("A shared request id links the signals of one order.", "Un identifiant de requête commun relie les signaux d'une même commande."),
+      B("SLOs define good service, and alerts fire on symptoms users feel.", "Les SLO définissent le bon service, et les alertes portent sur ce que vivent les utilisateurs."),
+      B("Logs never contain secrets or card data.", "Les journaux ne contiennent jamais de secret ni de donnée de carte."),
+    ],
+    further: B("Read the OpenTelemetry documentation for your language, then the chapters on monitoring distributed systems and on service level objectives in Google's book Site Reliability Engineering, free online. Write the SLOs of one service you know.",
+      "Lisez la documentation d'OpenTelemetry pour votre langage, puis les chapitres sur la supervision des systèmes distribués et sur les objectifs de niveau de service dans le livre de Google, Site Reliability Engineering, gratuit en ligne. Écrivez les SLO d'un service que vous connaissez."),
+    more: [
+      { q: B("Which signal answers best the question: how many orders failed in the last hour?",
+          "Quel signal répond le mieux à la question : combien de commandes ont échoué dans la dernière heure ?"),
+        options: [
+          B("A trace of one failed order, opened in the tracing tool", "La trace d'une commande échouée, ouverte dans l'outil de traces"),
+          B("A metric counting failed orders over time", "Une métrique qui compte les commandes échouées dans le temps"),
+          B("The full text of the logs, read line by line", "Le texte complet des journaux, lu ligne à ligne"),
+        ],
+        answer: 1,
+        why: B("Counting over time is the job of metrics: cheap, aggregated, ready for a graph or an alert. A trace explains one request; reading logs by hand does not scale.",
+          "Compter dans le temps est le rôle des métriques : peu coûteuses, agrégées, prêtes pour une courbe ou une alerte. Une trace explique une requête ; lire les journaux à la main ne passe pas à l'échelle.") },
+      { q: B("Why use OpenTelemetry rather than the specific library of one monitoring vendor?",
+          "Pourquoi utiliser OpenTelemetry plutôt que la bibliothèque propre à un fournisseur de supervision ?"),
+        options: [
+          B("Because it stores the data itself, with no backend needed at all", "Parce qu'il stocke lui-même les données, sans aucun outil derrière"),
+          B("Because vendors are forbidden from offering their own libraries", "Parce que les fournisseurs n'ont plus le droit d'offrir leur bibliothèque"),
+          B("To instrument once and keep the freedom to change the backend", "Pour instrumenter une fois et garder la liberté de changer d'outil"),
+        ],
+        answer: 2,
+        why: B("OpenTelemetry separates producing signals from storing them. The code is instrumented once; an exporter sends the data to Jaeger, Grafana or a vendor, and changing tools does not mean rewriting the instrumentation.",
+          "OpenTelemetry sépare la production des signaux de leur stockage. Le code est instrumenté une fois ; un exportateur envoie les données vers Jaeger, Grafana ou un fournisseur, et changer d'outil ne veut pas dire réécrire l'instrumentation.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DE CETTE PARTIE                                         */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M3, track: 'course', glyph: 'layers', tint: '#4f46e5', at: [50, 76], levels: ROBUST,
+    title: B('Robustness and security', 'Robustesse et sécurité'),
+    blurb: B('Threat modelling with STRIDE, scaling with caches and queues, designing for failure, and observing the running system.',
+      'Modéliser les menaces avec STRIDE, monter en charge avec cache et files, concevoir pour la panne, et observer le système en service.'),
+  },
+]
+
+export const ARCHI_B: CoursePart = {
+  modules: MODULES,
+  enrich: { ...ROBUST_ENRICH },
+  deep: { ...ROBUST_DEEP },
+}
