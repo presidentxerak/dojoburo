@@ -1,5 +1,774 @@
-// LE COURS « Business et monétisation avec l'IA », PARTIE B · voir ./types et ./index. En rédaction.
+// LE COURS « Business et monétisation avec l'IA », PARTIE B · voir ./types et ./index.
+//
+// LA PARTIE A lit le marché (où se crée la valeur, les modèles économiques, la
+// niche, les entretiens clients) puis construit l'offre et le prototype (prix,
+// prototype en une soirée, validation, bases juridiques). Celle-ci vend
+// (premiers clients, conversation de vente, livraison et recommandations,
+// automatisation des opérations) puis apprend à tenir dans la durée (mesurer,
+// se concentrer, gérer le doute, trouver le temps).
+//
+// LE FIL ROUGE EST FICTIF · « Relais Devis », la petite activité imaginaire de
+// Nora Vidal, assistante de direction salariée à plein temps dans une PME du
+// bâtiment. Le soir, elle installe chez de petits artisans (plombiers,
+// électriciens, carreleurs) un système simple de suivi et de relance des devis
+// avec des outils d'IA et de no-code : un tableau de suivi, des modèles de
+// messages, un kit de prompts, une automatisation. Les artisans nommés (Karim,
+// Sophie...) sont fictifs eux aussi.
+//
+// CE QUE LE COURS S'INTERDIT. Aucun revenu promis, aucun chiffre de marché,
+// aucun taux de conversion « normal », aucun prix inventé, aucun témoignage.
+// Les nombres du cas fictif sont des comptes d'exemple (messages, réponses,
+// appels), présentés comme tels, jamais comme des repères. Les règles qui
+// bougent (prospection, statut, cumul avec un emploi salarié, conditions des
+// plateformes, tarifs des outils) renvoient aux sources officielles nommées :
+// CNIL, Service-Public Entreprendre, URSSAF, conditions d'utilisation et
+// documentation de chaque outil, sans adresse inventée.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const BUSINESS_B: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 3 · VENDRE                                                   */
+/* ================================================================== */
+
+const M3 = 'bz-m3'
+
+const SELL: Level[] = [
+  {
+    id: 'bz-first-clients',
+    master: 'growth',
+    minutes: 11,
+    title: B('Find your first customers', 'Trouver les premiers clients'),
+    learn: B(
+      'You will build a list of qualified prospects and contact them with personal messages, starting with your network.',
+      'Vous saurez dresser une liste de prospects qualifiés et les contacter par des messages personnels, en partant de votre réseau.',
+    ),
+    act: B('Build the list of the first 30 artisans for Relais Devis, then write and send ten personal messages.',
+      'Dressez la liste des 30 premiers artisans de Relais Devis, puis rédigez et envoyez dix messages personnels.'),
+    steps: [
+      B('Start with your warm network: people who know you, then their introductions, before any cold message.',
+        'Commencez par votre réseau proche : ceux qui vous connaissent, puis leurs mises en relation, avant tout message à froid.'),
+      B('List 30 prospects of your niche in a sheet: name, source, visible sign of the problem, channel.',
+        'Listez 30 prospects de votre niche dans un tableur : nom, source, signe visible du problème, canal de contact.'),
+      B('Write each message from a short template: their situation, one question, no attachment, no pitch.',
+        'Rédigez chaque message à partir d\'un gabarit court : leur situation, une question, sans pièce jointe ni argumentaire.'),
+      B('Follow up once after a few days, log every answer, and publish one useful piece of content a week.',
+        'Relancez une fois après quelques jours, notez chaque réponse et publiez un contenu utile par semaine.'),
+    ],
+    trap: B(
+      'Mass-sending a generic AI-written message to hundreds of contacts: it is ignored, wears out your niche and can breach prospecting rules.',
+      'Envoyer en masse un message générique écrit par une IA à des centaines de contacts : il est ignoré, use votre niche et peut enfreindre les règles.',
+    ),
+    quiz: {
+      q: B('Nora has ten evenings and no audience. Which plan gives her the best chance of first paying artisans?',
+        'Nora a dix soirées et aucune audience. Quel plan lui donne le plus de chances d\'obtenir ses premiers clients ?'),
+      options: [
+        B('Post every day on LinkedIn and wait for artisans to come to her', 'Publier chaque jour sur LinkedIn et attendre que les artisans viennent'),
+        B('Contact 30 chosen artisans one by one, starting with her network', 'Contacter 30 artisans choisis, un par un, en partant de son réseau'),
+        B('Buy a list of 2,000 emails and send one automated sequence', 'Acheter 2 000 adresses et leur envoyer une séquence automatique'),
+      ],
+      answer: 1,
+      why: B(
+        'Content works slowly and needs an audience she lacks; bought lists target poorly and carry legal and reputation risks. Personal contact with a few chosen prospects opens conversations fast.',
+        'Le contenu agit lentement et suppose une audience ; les listes achetées ciblent mal et exposent à des risques juridiques et d\'image. Le contact direct avec quelques prospects choisis ouvre vite des échanges.',
+      ),
+    },
+    badge: B('Opens real conversations', 'Ouvre de vraies conversations'),
+  },
+  {
+    id: 'bz-sales-call',
+    master: 'support',
+    minutes: 12,
+    title: B('The sales conversation and objections', 'La conversation de vente et les objections'),
+    learn: B(
+      'You will lead a 30-minute sales call that diagnoses before proposing, and handle objections without pressure.',
+      'Vous saurez mener un appel de vente de 30 minutes qui diagnostique avant de proposer, et traiter les objections sans pression.',
+    ),
+    act: B('Prepare Nora\'s call plan and rehearse it with an AI playing a hesitant plumber, then debrief it.',
+      'Préparez le plan d\'appel de Nora, répétez-le avec une IA qui joue un plombier hésitant, puis faites le bilan.'),
+    steps: [
+      B('Open with the agenda and the time available, and ask permission to ask your questions first.',
+        'Ouvrez par l\'ordre du jour et la durée, et demandez la permission de poser d\'abord vos questions.'),
+      B('Diagnose: current situation, cost of the problem, what they tried, who decides and by when.',
+        'Diagnostiquez : situation actuelle, coût du problème, solutions déjà tentées, qui décide et pour quand.'),
+      B('Propose only what answers what you heard, with one price and one clear scope, then stop talking.',
+        'Ne proposez que ce qui répond à ce que vous avez entendu, avec un prix et un périmètre clairs, puis taisez-vous.'),
+      B('For each objection, ask what lies behind it, rephrase, answer, and agree on a dated next step.',
+        'Pour chaque objection, demandez ce qu\'elle recouvre, reformulez, répondez, puis convenez d\'une suite datée.'),
+    ],
+    trap: B(
+      'Presenting the offer in the first five minutes: without a diagnosis, the price is compared with nothing and every objection sounds final.',
+      'Présenter l\'offre dès les cinq premières minutes : sans diagnostic, le prix n\'est comparé à rien et chaque objection paraît définitive.',
+    ),
+    quiz: {
+      q: B('A plumber tells Nora: "It\'s too expensive." What is her best first reply?',
+        'Un plombier dit à Nora : « C\'est trop cher. » Quelle est sa meilleure première réponse ?'),
+      options: [
+        B('Offer a discount straight away so as not to lose the deal', 'Proposer tout de suite une remise pour ne pas perdre la vente'),
+        B('Explain again, in detail, everything the offer includes', 'Réexpliquer en détail tout ce que comprend l\'offre'),
+        B('Ask what he compares the price with, then answer that', 'Demander à quoi il compare ce prix, puis répondre sur ce point'),
+      ],
+      answer: 2,
+      why: B(
+        '"Too expensive" can mean no budget now, a cheaper alternative, doubt about the result or no real need. Asking reveals which one; a reflex discount says your price was not serious.',
+        '« Trop cher » peut signifier : pas de budget maintenant, une solution moins chère, un doute sur le résultat, ou pas de vrai besoin. La question révèle lequel ; une remise réflexe dit que le prix n\'était pas sérieux.',
+      ),
+    },
+    badge: B('Diagnoses before proposing', 'Diagnostique avant de proposer'),
+  },
+  {
+    id: 'bz-delivery',
+    master: 'planning',
+    minutes: 11,
+    title: B('Deliver with quality and earn referrals', 'Livrer avec qualité et obtenir des recommandations'),
+    learn: B(
+      'You will deliver to a written scope with a quality checklist, then ask for feedback, a testimonial and a referral.',
+      'Vous saurez livrer selon un périmètre écrit et une liste de contrôle, puis demander un retour, un témoignage, une recommandation.',
+    ),
+    act: B('Write the delivery checklist of Relais Devis and the email that asks for feedback and an introduction.',
+      'Rédigez la liste de contrôle de livraison de Relais Devis et l\'email qui demande un retour et une mise en relation.'),
+    steps: [
+      B('Start each job with a kickoff that writes down scope, deadlines, what the client provides and what "done" means.',
+        'Lancez chaque mission par un point qui fixe par écrit périmètre, délais, apports du client et définition de « terminé ».'),
+      B('Review every deliverable made with AI yourself, against a checklist, before the client sees it.',
+        'Relisez vous-même chaque livrable produit avec une IA, selon une liste de contrôle, avant que le client le voie.'),
+      B('Hand over with a short demo, a written guide and a check-in date a few weeks later.',
+        'Remettez le travail avec une courte démonstration, un guide écrit et un point de suivi quelques semaines après.'),
+      B('Once the result is visible, ask for feedback, then a testimonial with consent, then one introduction.',
+        'Une fois le résultat visible, demandez un retour, puis un témoignage avec accord écrit, puis une mise en relation.'),
+    ],
+    trap: B(
+      'Asking for a referral on delivery day, before any result: you ask the client to vouch for something they have not lived yet.',
+      'Demander une recommandation le jour de la livraison, avant tout résultat : vous demandez au client de garantir ce qu\'il n\'a pas encore vécu.',
+    ),
+    quiz: {
+      q: B('A happy client says: "Write the testimonial yourself, I\'ll sign it." What does Nora do?',
+        'Un client ravi dit : « Écrivez le témoignage vous-même, je signerai. » Que fait Nora ?'),
+      options: [
+        B('She drafts it from his own words, he edits it, she publishes with consent', 'Elle le rédige à partir de ses mots, il le corrige, elle publie avec son accord'),
+        B('She writes the most convincing text possible, since he will sign', 'Elle écrit le texte le plus convaincant possible, puisqu\'il signera'),
+        B('She declines and publishes no testimonial at all, to stay safe', 'Elle refuse et ne publie aucun témoignage, par simple prudence'),
+      ],
+      answer: 0,
+      why: B(
+        'A testimonial must reflect what the client really thinks. Starting from his words and letting him edit keeps it true; lending him claims he never made would mislead future clients.',
+        'Un témoignage doit refléter ce que le client pense vraiment. Partir de ses mots et le laisser corriger le garde exact ; lui prêter des affirmations qu\'il n\'a pas faites tromperait les futurs clients.',
+      ),
+    },
+    badge: B('Delivers, then earns referrals', 'Livre, puis se fait recommander'),
+  },
+  {
+    id: 'bz-automate-ops',
+    master: 'orchestration',
+    minutes: 12,
+    title: B('Automate operations with AI', 'Automatiser les opérations avec l\'IA'),
+    learn: B(
+      'You will map your operations, automate one repetitive step with AI and a no-code tool, and keep a human check.',
+      'Vous saurez cartographier vos opérations, automatiser une étape répétitive avec une IA et un outil no-code, sous contrôle humain.',
+    ),
+    act: B('Automate the step from call notes to proposal draft for Nora, with a review before anything is sent.',
+      'Automatisez chez Nora le passage des notes d\'appel au brouillon de proposition, relu avant tout envoi.'),
+    steps: [
+      B('Write down your process from first contact to invoice, and time each step for two weeks.',
+        'Écrivez votre processus, du premier contact à la facture, et chronométrez chaque étape pendant deux semaines.'),
+      B('Pick the step that is frequent, repetitive and low-risk; keep judgment and client relations for yourself.',
+        'Choisissez l\'étape fréquente, répétitive et à faible risque ; gardez pour vous le jugement et la relation client.'),
+      B('Build it in a no-code tool (Zapier, Make, n8n): trigger, AI step with a fixed prompt, draft saved for review.',
+        'Construisez-la dans un outil no-code (Zapier, Make, n8n) : déclencheur, étape IA au prompt fixe, brouillon à relire.'),
+      B('Run it beside the manual way for a week, compare the results, then switch and log the time saved.',
+        'Faites-la tourner une semaine à côté de la méthode manuelle, comparez, puis basculez et notez le temps gagné.'),
+    ],
+    trap: B(
+      'Letting an automation send AI-written emails straight to clients: one faulty output reaches a client without anyone reading it.',
+      'Laisser une automatisation envoyer aux clients des emails écrits par l\'IA : une sortie fautive part sans que personne l\'ait lue.',
+    ),
+    quiz: {
+      q: B('Nora spends her evenings on these three tasks. Which one should she automate first?',
+        'Nora passe ses soirées sur ces trois tâches. Laquelle doit-elle automatiser en premier ?'),
+      options: [
+        B('Setting the price of a custom request from an unusual client', 'Fixer le prix d\'une demande sur mesure d\'un client atypique'),
+        B('Answering an unhappy client who complains about a delay', 'Répondre à un client mécontent qui se plaint d\'un retard'),
+        B('Turning call notes into a proposal draft she reviews', 'Transformer ses notes d\'appel en brouillon de proposition relu'),
+      ],
+      answer: 2,
+      why: B(
+        'The proposal draft is frequent, follows a pattern and is reviewed before sending. Pricing an unusual case and calming an unhappy client need judgment and relationship: her attention matters most there.',
+        'Le brouillon de proposition est fréquent, suit un modèle et reste relu avant envoi. Chiffrer un cas atypique et apaiser un client mécontent demandent jugement et relation : son attention y compte le plus.',
+      ),
+    },
+    badge: B('Automates with a human check', 'Automatise sous contrôle humain'),
+  },
+]
+
+const SELL_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M3, 'bz-first-clients')]: {
+    why: [
+      B("Your first customers rarely come from an audience you do not have yet. They come from conversations: people who know you, people they introduce you to, then strangers you contact one by one because you saw a sign of the problem. This order follows trust: an introduction borrows someone else's credibility, while a cold message has to build it in three lines.",
+        "Vos premiers clients viennent rarement d'une audience que vous n'avez pas encore. Ils viennent de conversations : les personnes qui vous connaissent, celles qu'elles vous présentent, puis des inconnus contactés un par un parce que vous avez vu un signe du problème. Cet ordre suit la confiance : une mise en relation emprunte la crédibilité d'un tiers, un message à froid doit la construire en trois lignes."),
+      B("A good first message is about the other person: what you noticed, why you write to them, one simple question. It asks for a conversation, not a purchase. AI helps you prepare (summarise a public website, suggest an angle, shorten a draft), but the message that gets answered is the one that could only have been sent to that person.",
+        "Un bon premier message parle de l'autre : ce que vous avez remarqué, pourquoi vous lui écrivez, une question simple. Il demande un échange, pas un achat. L'IA aide à préparer (résumer un site public, proposer un angle, raccourcir un brouillon), mais le message qui obtient une réponse est celui qui ne pouvait être envoyé qu'à cette personne."),
+      B("Outreach is regulated. In France, the CNIL describes the rules for prospecting by email, which differ for businesses and for individuals, and platforms such as LinkedIn limit automated messaging in their terms of use. Check both before any volume. Content (posts, short guides) works in the background: it gives a prospect something to read when they look you up.",
+        "La prospection est encadrée. En France, la CNIL décrit les règles de la prospection par email, qui diffèrent entre professionnels et particuliers, et des plateformes comme LinkedIn limitent les messages automatisés dans leurs conditions d'utilisation. Vérifiez les deux avant tout volume. Le contenu (publications, guides courts) agit en arrière-plan : il donne au prospect de quoi lire quand il se renseigne sur vous."),
+    ],
+    example: {
+      context: B("Nora wants her first clients for Relais Devis. She asks an AI for a prospecting message and gets a generic pitch that she plans to send to every artisan she can find online.",
+        "Nora veut ses premiers clients pour Relais Devis. Elle demande à une IA un message de prospection et obtient un argumentaire générique qu'elle compte envoyer à tous les artisans trouvés en ligne."),
+      before: B("Write a prospecting message to sell my AI service to artisans.",
+        "Écris un message de prospection pour vendre mon service IA aux artisans."),
+      after: B("I am writing a first message to one artisan, not a campaign. Help me keep it personal and short.\nAbout me: I help small building firms follow up their quotes so that fewer are forgotten.\nThe person: Karim, plumber with two employees. Our mutual contact Julien told me Karim loses track of his quotes in busy weeks.\nWhat I saw: his website promises a quote within 48 hours and only has a contact form.\nConstraints:\n1. Fewer than 80 words, no attachment, no link, no price.\n2. Mention Julien and what I noticed, one sentence each.\n3. End with one easy question offering a 15-minute call.\n4. Plain tone, no hype words (revolutionary, unique, game-changer).\nGive me two versions, then point out the sentence that sounds most like a mass mailing so I can rewrite it.",
+        "J'écris un premier message à un artisan, pas une campagne. Aide-moi à le garder personnel et court.\nQui je suis : j'aide de petites entreprises du bâtiment à relancer leurs devis pour en oublier moins.\nLa personne : Karim, plombier avec deux salariés. Notre contact commun Julien m'a dit que Karim perd le fil de ses devis les semaines chargées.\nCe que j'ai vu : son site promet un devis sous 48 heures et ne propose qu'un formulaire de contact.\nContraintes :\n1. Moins de 80 mots, sans pièce jointe, sans lien, sans prix.\n2. Mentionne Julien et ce que j'ai remarqué, une phrase chacun.\n3. Termine par une question simple qui propose un appel de 15 minutes.\n4. Ton simple, sans mots creux (révolutionnaire, unique, incontournable).\nDonne-moi deux versions, puis signale la phrase qui sonne le plus comme un envoi de masse, pour que je la réécrive."),
+      takeaway: B("The second prompt gives a real person, a real link (the mutual contact) and a real observation. The AI shortens and polishes; the substance comes from Nora's research, and that is what makes the artisan answer.",
+        "Le second prompt donne une vraie personne, un vrai lien (le contact commun) et une vraie observation. L'IA raccourcit et polit ; le fond vient des recherches de Nora, et c'est lui qui fait répondre l'artisan."),
+    },
+    exercise: {
+      goal: B("A sheet of 30 qualified prospects for your own offer and ten personal first messages ready to send, each with its follow-up.",
+        "Un tableau de 30 prospects qualifiés pour votre propre offre et dix premiers messages personnels prêts à partir, chacun avec sa relance."),
+      prompt: B("I am preparing my first outreach for this offer: [YOUR OFFER IN ONE SENTENCE]. My niche: [WHO, WHERE, WHAT SIZE].\nHere are my notes on 10 prospects: [NAME OR CODE, HOW I KNOW OR FOUND THEM, SIGN OF THE PROBLEM I OBSERVED, CHANNEL].\nFor each prospect:\n1. Write a first message under 80 words that mentions how I know them or what I observed.\n2. Ask for a short conversation, never for a purchase: no price, no attachment.\n3. Add one follow-up to send if there is no reply after [NUMBER] days, shorter than the first message.\nThen list the prospects for whom my notes are too thin to write a personal message: I will research them before writing.",
+        "Je prépare ma première prospection pour cette offre : [VOTRE OFFRE EN UNE PHRASE]. Ma niche : [QUI, OÙ, QUELLE TAILLE].\nVoici mes notes sur 10 prospects : [NOM OU CODE, COMMENT JE LE CONNAIS OU L'AI TROUVÉ, SIGNE DU PROBLÈME OBSERVÉ, CANAL].\nPour chaque prospect :\n1. Rédige un premier message de moins de 80 mots qui mentionne comment je le connais ou ce que j'ai observé.\n2. Demande un court échange, jamais un achat : ni prix, ni pièce jointe.\n3. Ajoute une relance à envoyer sans réponse après [NOMBRE] jours, plus courte que le premier message.\nListe ensuite les prospects pour lesquels mes notes sont trop minces pour un message personnel : je me renseignerai avant d'écrire."),
+      check: [
+        B("Each message mentions something specific to that person", "Chaque message mentionne un élément propre à la personne"),
+        B("No message contains a price, a link or an attachment", "Aucun message ne contient de prix, de lien ni de pièce jointe"),
+        B("You rewrote at least one sentence of each message in your own words", "Vous avez réécrit au moins une phrase de chaque message avec vos mots"),
+        B("The channel you use respects the CNIL rules and the platform's terms", "Le canal choisi respecte les règles de la CNIL et les conditions de la plateforme"),
+      ],
+      bonus: B("Turn a question a prospect asked you into one useful post for your niche, with no sales pitch. Publish it, then note over the following weeks whether prospects mention it in their replies.",
+        "Transformez une question posée par un prospect en une publication utile pour votre niche, sans argumentaire. Publiez-la, puis notez dans les semaines suivantes si des prospects la mentionnent dans leurs réponses."),
+    },
+    more: [
+      { q: B("A prospect replies: \"Not now, maybe in the autumn.\" What does Nora do with this answer?",
+          "Un prospect répond : « Pas maintenant, peut-être à l'automne. » Que fait Nora de cette réponse ?"),
+        options: [
+          B("She marks him as lost and removes him from her list", "Elle le marque comme perdu et le retire de sa liste"),
+          B("She logs the reply and plans a short check-in in the autumn", "Elle note la réponse et prévoit un court message à l'automne"),
+          B("She sends her full proposal so that he can decide earlier", "Elle envoie sa proposition complète pour qu'il décide plus tôt"),
+        ],
+        answer: 1,
+        why: B("\"Not now\" is a timing answer, not a refusal. Logging it with a date keeps the relationship alive without pressure; pushing a proposal ignores what he has just said.",
+          "« Pas maintenant » est une réponse de calendrier, pas un refus. La noter avec une date garde le lien sans pression ; pousser une proposition ignore ce qu'il vient de dire.") },
+      { q: B("Nora considers a tool that sends automatic LinkedIn messages to 500 artisans. What should she check first?",
+          "Nora envisage un outil qui envoie des messages LinkedIn automatiques à 500 artisans. Que vérifie-t-elle d'abord ?"),
+        options: [
+          B("Whether the tool offers enough ready-made message templates", "Si l'outil propose assez de modèles de messages tout prêts"),
+          B("Whether its subscription fits her monthly tool budget", "Si son abonnement entre dans son budget mensuel d'outils"),
+          B("LinkedIn's terms of use and the CNIL prospecting rules", "Les conditions de LinkedIn et les règles de prospection de la CNIL"),
+        ],
+        answer: 2,
+        why: B("Platforms restrict automated messaging in their terms, and prospecting is regulated. A suspended account or a complaint costs more than the time saved: the rules come before the volume.",
+          "Les plateformes limitent les messages automatisés dans leurs conditions, et la prospection est encadrée. Un compte suspendu ou une plainte coûte plus que le temps gagné : les règles passent avant le volume.") },
+    ],
+  },
+
+  [enrichKey(M3, 'bz-sales-call')]: {
+    why: [
+      B("A sales call is a diagnosis before it is a presentation. The prospect decides by comparing your price with the cost of their problem; if that cost has not been spoken aloud in the call, the comparison happens against nothing, or against a cheaper tool. Questions on the situation, the impact and the attempts already made let the prospect hear their own reasons to act.",
+        "Un appel de vente est un diagnostic avant d'être une présentation. Le prospect décide en comparant votre prix au coût de son problème ; si ce coût n'a pas été dit pendant l'appel, la comparaison se fait avec rien, ou avec un outil moins cher. Les questions sur la situation, l'impact et les tentatives passées lui font entendre ses propres raisons d'agir."),
+      B("An objection is information, not an attack. \"Too expensive\", \"I need to think\" or \"I can do it myself with ChatGPT\" each hide a different worry: budget, trust, timing, decision-maker. The steady sequence is: ask what it covers, rephrase, answer the real point, then check that the answer suits. Pressure tactics may win one signature and lose the referral that would have followed.",
+        "Une objection est une information, pas une attaque. « Trop cher », « je vais réfléchir » ou « je peux le faire moi-même avec ChatGPT » cachent chacune une inquiétude différente : budget, confiance, calendrier, décideur. La séquence stable : demander ce qu'elle recouvre, reformuler, répondre au vrai point, vérifier que la réponse convient. La pression peut arracher une signature et perdre la recommandation qui aurait suivi."),
+      B("AI is a good sparring partner. It can play a hesitant prospect from your interview notes, raise the objections you fear, and then review the transcript of your rehearsal. It cannot sell for you: the call works because the prospect speaks to a person who listened.",
+        "L'IA est un bon partenaire d'entraînement. Elle peut jouer un prospect hésitant à partir de vos notes d'entretien, soulever les objections que vous redoutez, puis relire la transcription de votre répétition. Elle ne vend pas à votre place : l'appel fonctionne parce que le prospect parle à une personne qui l'a écouté."),
+    ],
+    example: {
+      context: B("Before her first call with Sophie, an electrician, Nora asks an AI for a sales script. She receives a polished monologue that presents the offer in the first minute.",
+        "Avant son premier appel avec Sophie, électricienne, Nora demande à une IA un script de vente. Elle reçoit un monologue soigné qui présente l'offre dès la première minute."),
+      before: B("Write me a sales script to sell my quote follow-up service.",
+        "Écris-moi un script de vente pour vendre mon service de relance de devis."),
+      after: B("You play Sophie, an electrician who runs a small firm with one apprentice. Stay in character until I write STOP.\nWhat I know from our first exchange: she sends many quotes, rarely follows them up, and once lost a large job to a competitor who called back first. She is wary of software she has paid for and never used.\nYour behaviour: answer briefly, never volunteer the cost of the problem unless I ask a good question, and raise at least two objections among: price, lack of time to set it up, \"I can do it myself with ChatGPT\".\nAfter STOP, step out of the role and give me feedback in a table: moments where I talked too much, questions that worked, objections I answered well or badly, and one question I should have asked.",
+        "Tu joues Sophie, électricienne à la tête d'une petite entreprise avec un apprenti. Reste dans le rôle jusqu'à ce que j'écrive STOP.\nCe que je sais de notre premier échange : elle envoie beaucoup de devis, les relance rarement, et a perdu un gros chantier au profit d'un concurrent qui a rappelé le premier. Elle se méfie des logiciels payés et jamais utilisés.\nTon comportement : réponds brièvement, ne donne le coût du problème que si je pose une bonne question, et soulève au moins deux objections parmi : le prix, le manque de temps pour la mise en place, « je peux le faire moi-même avec ChatGPT ».\nAprès STOP, sors du rôle et fais-moi un retour en tableau : moments où j'ai trop parlé, questions qui ont marché, objections bien ou mal traitées, et une question que j'aurais dû poser."),
+      takeaway: B("A script trains Nora to talk; the role-play trains her to listen and to answer real objections. The feedback table turns one rehearsal into precise corrections before the real call.",
+        "Un script entraîne Nora à parler ; le jeu de rôle l'entraîne à écouter et à répondre à de vraies objections. Le tableau de retour transforme une répétition en corrections précises avant l'appel réel."),
+    },
+    exercise: {
+      goal: B("A one-page call plan for your offer, rehearsed at least once with an AI playing your prospect, and a list of three corrections.",
+        "Un plan d'appel d'une page pour votre offre, répété au moins une fois avec une IA dans le rôle du prospect, et une liste de trois corrections."),
+      prompt: B("You play [PROSPECT'S FIRST NAME], [ROLE AND TYPE OF BUSINESS]. Stay in character until I write STOP.\nWhat I know about them: [NOTES FROM YOUR FIRST EXCHANGE OR INTERVIEW].\nMy offer: [OFFER, SCOPE, PRICE].\nYour behaviour:\n1. Answer briefly and realistically; do not make the sale easy.\n2. Reveal the cost of your problem only if I ask a precise question about it.\n3. Raise these objections at natural moments: [TWO OR THREE OBJECTIONS YOU FEAR].\n4. If I present the offer before understanding your situation, become more distant.\nAfter STOP, step out of the role and give me a table: what I did well, where I talked too much, each objection and how I handled it, the best question I asked, the question I forgot.",
+        "Tu joues [PRÉNOM DU PROSPECT], [FONCTION ET TYPE D'ENTREPRISE]. Reste dans le rôle jusqu'à ce que j'écrive STOP.\nCe que je sais de cette personne : [NOTES DE VOTRE PREMIER ÉCHANGE OU ENTRETIEN].\nMon offre : [OFFRE, PÉRIMÈTRE, PRIX].\nTon comportement :\n1. Réponds brièvement et de façon réaliste ; ne me facilite pas la vente.\n2. Ne révèle le coût de ton problème que si je pose une question précise à ce sujet.\n3. Soulève ces objections à des moments naturels : [DEUX OU TROIS OBJECTIONS QUE VOUS REDOUTEZ].\n4. Si je présente l'offre avant d'avoir compris ta situation, deviens plus distant.\nAprès STOP, sors du rôle et donne-moi un tableau : ce que j'ai bien fait, où j'ai trop parlé, chaque objection et ma réponse, ma meilleure question, la question oubliée."),
+      check: [
+        B("Your plan has a time-boxed agenda and at least five diagnostic questions", "Votre plan a un ordre du jour minuté et au moins cinq questions de diagnostic"),
+        B("You presented the offer only after the cost of the problem was stated", "Vous n'avez présenté l'offre qu'après l'énoncé du coût du problème"),
+        B("Each objection got a clarifying question before an answer", "Chaque objection a reçu une question de clarification avant une réponse"),
+        B("The call ends on a dated next step, even if it is a no", "L'appel se termine par une suite datée, même si c'est un non"),
+      ],
+      bonus: B("Record a rehearsal with a friend (with their consent), transcribe it, and ask an AI to count how much of the time you spoke versus the prospect. Aim for the prospect to talk more than you during the diagnosis.",
+        "Enregistrez une répétition avec un proche (avec son accord), transcrivez-la et demandez à une IA de mesurer votre temps de parole face à celui du prospect. Pendant le diagnostic, visez à ce que le prospect parle plus que vous."),
+    },
+    more: [
+      { q: B("At the end of the call, Sophie says: \"I need to think about it.\" What is the most useful reply?",
+          "En fin d'appel, Sophie dit : « Je dois réfléchir. » Quelle est la réponse la plus utile ?"),
+        options: [
+          B("\"Of course. What would you like to think over, so I can help?\"", "« Bien sûr. Sur quel point souhaitez-vous réfléchir, que je puisse aider ? »"),
+          B("\"The offer is only valid until tonight, so decide quickly.\"", "« L'offre n'est valable que jusqu'à ce soir, décidez vite. »"),
+          B("\"No problem, call me back whenever you are ready.\"", "« Pas de souci, rappelez-moi quand vous serez prête. »"),
+        ],
+        answer: 0,
+        why: B("\"I need to think\" often hides a precise doubt. Asking which point respects her pace and brings the doubt into the open; false urgency damages trust, and an open-ended \"call me back\" usually ends in silence.",
+          "« Je dois réfléchir » cache souvent un doute précis. Demander lequel respecte son rythme et met le doute sur la table ; une fausse urgence abîme la confiance, et un « rappelez-moi » sans date finit souvent en silence.") },
+      { q: B("A prospect objects: \"I can do all this myself with ChatGPT.\" What does Nora answer first?",
+          "Un prospect objecte : « Je peux faire tout ça moi-même avec ChatGPT. » Que répond Nora d'abord ?"),
+        options: [
+          B("That ChatGPT makes too many errors to be trusted for this", "Que ChatGPT fait trop d'erreurs pour qu'on s'y fie ici"),
+          B("That he is right, and she ends the call politely", "Qu'il a raison, puis elle met fin à l'appel poliment"),
+          B("She asks whether he has tried, and what got in the way", "Elle demande s'il a essayé, et ce qui l'en a empêché"),
+        ],
+        answer: 2,
+        why: B("The tool is rarely the obstacle: time, method and follow-through are. Asking what happened when he tried reveals whether he needs her or not; disparaging the tool sounds defensive and is often false.",
+          "L'outil est rarement l'obstacle : le temps, la méthode et la régularité le sont. Demander ce qui s'est passé révèle s'il a besoin d'elle ou non ; dénigrer l'outil paraît défensif et souvent inexact.") },
+    ],
+  },
+
+  [enrichKey(M3, 'bz-delivery')]: {
+    why: [
+      B("Quality is measured against what was promised. Most disappointments come from an unwritten scope: the client expected more, or something else. A short kickoff that writes down the scope, the deadlines, what the client must provide and the definition of \"done\" turns a vague promise into a list both sides can check.",
+        "La qualité se mesure à ce qui a été promis. La plupart des déceptions viennent d'un périmètre non écrit : le client attendait plus, ou autre chose. Un court point de lancement qui fixe par écrit le périmètre, les délais, ce que le client doit fournir et la définition de « terminé » transforme une promesse floue en liste vérifiable des deux côtés."),
+      B("When AI produces part of the work, you remain responsible for all of it. A model can invent a detail, mix two clients' contexts or produce a template that does not fit a trade. A checklist reviewed before every handover (facts, names, numbers, tone, links that work, nothing confidential) is what makes AI-assisted delivery reliable.",
+        "Quand une IA produit une partie du travail, vous restez responsable du tout. Un modèle peut inventer un détail, mélanger les contextes de deux clients ou produire un modèle inadapté à un métier. Une liste de contrôle relue avant chaque remise (faits, noms, chiffres, registre, liens qui fonctionnent, rien de confidentiel) rend fiable une livraison assistée par l'IA."),
+      B("Referrals follow results, not delivery. The right moment to ask is when the client has seen the benefit, often at the check-in a few weeks later. The order matters: feedback first, then a testimonial in their own words with their consent, then an introduction to one named person. Fake or embellished reviews are forbidden in France; the DGCCRF explains the rules on consumer reviews.",
+        "La recommandation suit le résultat, pas la livraison. Le bon moment est celui où le client a vu le bénéfice, souvent au point de suivi quelques semaines plus tard. L'ordre compte : un retour d'abord, puis un témoignage dans ses mots et avec son accord, puis une mise en relation avec une personne nommée. Les faux avis ou avis embellis sont interdits en France ; la DGCCRF explique les règles sur les avis."),
+    ],
+    example: {
+      context: B("Nora has just set up the quote follow-up system at Karim's. She wants a testimonial and introductions, and drafts the request on delivery day.",
+        "Nora vient d'installer le système de relance chez Karim. Elle veut un témoignage et des mises en relation, et prépare sa demande le jour même de la livraison."),
+      before: B("Write an email asking my client for a 5-star review and the contacts of other plumbers.",
+        "Écris un email qui demande à mon client un avis 5 étoiles et les contacts d'autres plombiers."),
+      after: B("Context: three weeks ago I set up a quote follow-up system for Karim, a plumber. At our check-in today he told me, in his words: \"[HIS EXACT WORDS ABOUT WHAT CHANGED]\".\nHelp me write a short email, in a warm and simple tone, that:\n1. Thanks him and recalls in one sentence what we set up.\n2. Asks two feedback questions: what was most useful, and what I should improve.\n3. Asks whether I may quote his words above on my website, with his first name and trade, and tells him he can edit or refuse.\n4. Asks whether he knows one artisan facing the same problem, and offers to write the introduction text for him.\nNo star rating request, no pressure, under 150 words. Do not add any claim he did not make.",
+        "Contexte : il y a trois semaines, j'ai installé un système de relance de devis chez Karim, plombier. À notre point de suivi aujourd'hui, il m'a dit, avec ses mots : « [SES MOTS EXACTS SUR CE QUI A CHANGÉ] ».\nAide-moi à écrire un email court, au ton chaleureux et simple, qui :\n1. Le remercie et rappelle en une phrase ce que nous avons mis en place.\n2. Pose deux questions de retour : ce qui a été le plus utile, ce que je devrais améliorer.\n3. Demande si je peux citer ses mots ci-dessus sur mon site, avec son prénom et son métier, en précisant qu'il peut les modifier ou refuser.\n4. Demande s'il connaît un artisan qui a le même problème, et propose de rédiger pour lui le texte de mise en relation.\nAucune demande d'étoiles, aucune pression, moins de 150 mots. N'ajoute aucune affirmation qu'il n'a pas faite."),
+      takeaway: B("The request now comes after a visible result, quotes the client's real words, asks permission explicitly and makes the introduction easy. It produces a true testimonial and a warm lead, not a forced review.",
+        "La demande arrive désormais après un résultat visible, cite les vrais mots du client, demande explicitement l'accord et facilite la mise en relation. Elle produit un témoignage exact et un contact chaleureux, pas un avis forcé."),
+    },
+    exercise: {
+      goal: B("A delivery checklist for your offer and a follow-up email template asking for feedback, a testimonial with consent and one introduction.",
+        "Une liste de contrôle de livraison pour votre offre et un modèle d'email de suivi qui demande un retour, un témoignage avec accord et une mise en relation."),
+      prompt: B("My offer: [OFFER AND WHAT THE CLIENT RECEIVES]. The parts I produce with AI: [WHICH DELIVERABLES OR PARTS].\n1. Write a delivery checklist in three blocks: before starting (scope, deadlines, what the client provides, definition of done), before handover (checks on every AI-produced part: facts, names, figures, tone, confidentiality, links), at handover (demo, written guide, check-in date).\n2. Each line must be checkable with yes or no.\n3. Then write a follow-up email for the check-in, under 150 words: two feedback questions, a request to quote [CLIENT'S OWN WORDS] with consent and the option to edit, and a request for one introduction.\nDo not invent any result or quote: leave [BRACKETS] where I must fill in real information.",
+        "Mon offre : [OFFRE ET CE QUE REÇOIT LE CLIENT]. Les parties que je produis avec une IA : [QUELS LIVRABLES OU PARTIES].\n1. Rédige une liste de contrôle de livraison en trois blocs : avant de commencer (périmètre, délais, apports du client, définition de « terminé »), avant la remise (contrôles de chaque partie produite par IA : faits, noms, chiffres, ton, confidentialité, liens), à la remise (démonstration, guide écrit, date du point de suivi).\n2. Chaque ligne doit pouvoir se cocher par oui ou non.\n3. Rédige ensuite un email de suivi de moins de 150 mots : deux questions de retour, une demande pour citer [LES MOTS DU CLIENT] avec accord et possibilité de les modifier, et une demande de mise en relation.\nN'invente aucun résultat ni citation : laisse des [CROCHETS] là où je dois mettre une information réelle."),
+      check: [
+        B("Every line of the checklist can be answered yes or no", "Chaque ligne de la liste se coche par oui ou non"),
+        B("AI-produced parts have their own review block before handover", "Les parties produites par IA ont leur bloc de relecture avant la remise"),
+        B("The email asks for consent and offers to edit or refuse", "L'email demande l'accord et propose de modifier ou de refuser"),
+        B("No result or quote in the template was invented by the AI", "Aucun résultat ni citation du modèle n'a été inventé par l'IA"),
+      ],
+      bonus: B("Keep a file of the feedback you receive, word for word, with the date and the consent status. After a few clients, ask an AI to group the remarks by theme: the most frequent improvement request becomes your next change to the offer.",
+        "Tenez un fichier des retours reçus, mot pour mot, avec la date et l'état de l'accord. Après quelques clients, demandez à une IA de regrouper les remarques par thème : l'amélioration la plus demandée devient votre prochaine modification de l'offre."),
+    },
+    more: [
+      { q: B("Halfway through the job, Karim asks Nora to also redo his quote template. It was not in the scope. What does she do?",
+          "En cours de mission, Karim demande à Nora de refaire aussi son modèle de devis, hors périmètre. Que fait-elle ?"),
+        options: [
+          B("She does it for free to keep him happy, without saying anything", "Elle le fait gratuitement pour lui faire plaisir, sans rien dire"),
+          B("She notes it as an addition, with its own price and deadline", "Elle le note comme un ajout, avec son propre prix et son délai"),
+          B("She refuses, since the scope was signed and cannot change", "Elle refuse, puisque le périmètre signé ne peut plus changer"),
+        ],
+        answer: 1,
+        why: B("A written scope makes additions visible. Treating the request as a separate, priced addition keeps the relationship good and the workload under control; silent extras set an expectation for every future client.",
+          "Un périmètre écrit rend les ajouts visibles. Traiter la demande comme un ajout chiffré à part garde une bonne relation et une charge maîtrisée ; les extras silencieux créent une attente pour tous les clients suivants.") },
+      { q: B("Nora's AI generated a client guide that names the wrong accounting software. Who is responsible for the error?",
+          "L'IA de Nora a produit un guide client qui cite le mauvais logiciel comptable. Qui est responsable de l'erreur ?"),
+        options: [
+          B("Nora, who delivered the guide to her client", "Nora, qui a remis le guide à son client"),
+          B("The AI provider, whose model produced the error", "Le fournisseur de l'IA, dont le modèle a produit l'erreur"),
+          B("The client, who should have checked it on receipt", "Le client, qui aurait dû le vérifier à la réception"),
+        ],
+        answer: 0,
+        why: B("The client bought a result from Nora, not from a model. Whatever the tool, the person who delivers answers for the deliverable: this is why the review before handover is not optional.",
+          "Le client a acheté un résultat à Nora, pas à un modèle. Quel que soit l'outil, celle qui livre répond du livrable : c'est pourquoi la relecture avant remise n'est pas facultative.") },
+    ],
+  },
+
+  [enrichKey(M3, 'bz-automate-ops')]: {
+    why: [
+      B("Automation multiplies a process, good or bad. Automating a step you have never written down, or done by hand only twice, freezes a method that is not yet stable. This is why mapping comes first: write each step from first contact to invoice, time it, and see which steps are frequent, repetitive and low-risk.",
+        "L'automatisation multiplie un processus, bon ou mauvais. Automatiser une étape jamais écrite, ou faite deux fois à la main, fige une méthode encore instable. C'est pourquoi la cartographie vient d'abord : écrire chaque étape du premier contact à la facture, la chronométrer, et voir lesquelles sont fréquentes, répétitives et à faible risque."),
+      B("A useful automation has three parts: a trigger (a form submitted, a file added, a meeting ended), one or more actions (an AI step with a fixed prompt, a row added to a sheet) and a checkpoint where a person validates before anything reaches a client. Tools such as Zapier, Make or n8n connect these parts without code; their pricing and limits change, so read their official documentation.",
+        "Une automatisation utile a trois parties : un déclencheur (un formulaire envoyé, un fichier ajouté, une réunion terminée), une ou plusieurs actions (une étape IA au prompt fixe, une ligne ajoutée à un tableau) et un point de contrôle où une personne valide avant que quoi que ce soit n'atteigne un client. Zapier, Make ou n8n relient ces parties sans code ; leurs tarifs et limites changent, lisez leur documentation officielle."),
+      B("Client data deserves care. Notes from a call may contain personal data; before sending them to an AI service or an automation tool, check its terms on data use and storage, keep only what is needed, and follow the CNIL guidance on personal data. A prompt fixed in the automation, tested on real cases, gives stable outputs; a prompt rewritten each time does not.",
+        "Les données des clients méritent du soin. Des notes d'appel peuvent contenir des données personnelles ; avant de les envoyer à un service d'IA ou à un outil d'automatisation, vérifiez ses conditions d'utilisation et de stockage des données, ne gardez que le nécessaire et suivez les recommandations de la CNIL. Un prompt fixé dans l'automatisation, testé sur des cas réels, donne des sorties stables ; un prompt réécrit à chaque fois, non."),
+    ],
+    example: {
+      context: B("After each sales call, Nora spends an evening turning her notes into a proposal. She wants an automation, and her first idea is to let it email the proposal directly.",
+        "Après chaque appel de vente, Nora passe une soirée à transformer ses notes en proposition. Elle veut une automatisation, et sa première idée est de la laisser envoyer la proposition directement."),
+      before: B("Write a proposal from these call notes and send it to the client.",
+        "Rédige une proposition à partir de ces notes d'appel et envoie-la au client."),
+      after: B("You are the AI step of an automation. Input: notes from a sales call with an artisan, in the fields below. Output: a proposal DRAFT saved for my review, never sent.\nFields: [TRADE], [SIZE OF THE FIRM], [PROBLEM IN THE CLIENT'S WORDS], [COST OF THE PROBLEM AS STATED], [OPTION CHOSEN: SETUP ONLY / SETUP + MONTHLY SUPPORT], [CONSTRAINTS].\nRules:\n1. Use only the facts in the fields; if a field is empty, write TO COMPLETE instead of guessing.\n2. Structure: the situation as I understood it, what we will set up, what the client provides, deadlines, price taken from the chosen option, next step.\n3. Quote the client's words on the problem exactly, without rephrasing them.\n4. Plain language, no jargon, under 350 words.\n5. End with a list of the points I must check before sending.",
+        "Tu es l'étape IA d'une automatisation. Entrée : les notes d'un appel de vente avec un artisan, dans les champs ci-dessous. Sortie : un BROUILLON de proposition enregistré pour ma relecture, jamais envoyé.\nChamps : [MÉTIER], [TAILLE DE L'ENTREPRISE], [PROBLÈME DANS LES MOTS DU CLIENT], [COÛT DU PROBLÈME TEL QU'ÉNONCÉ], [OPTION CHOISIE : MISE EN PLACE SEULE / MISE EN PLACE + SUIVI MENSUEL], [CONTRAINTES].\nRègles :\n1. N'utilise que les faits des champs ; si un champ est vide, écris À COMPLÉTER au lieu de deviner.\n2. Structure : la situation telle que je l'ai comprise, ce que nous mettrons en place, ce que fournit le client, les délais, le prix tiré de l'option choisie, la suite.\n3. Cite exactement les mots du client sur le problème, sans les reformuler.\n4. Langage simple, sans jargon, moins de 350 mots.\n5. Termine par la liste des points que je dois vérifier avant l'envoi."),
+      takeaway: B("The prompt becomes a stable component: fixed inputs, explicit rules, a draft instead of a sent email, and a list of checks. The automation saves the writing time while Nora keeps the decision.",
+        "Le prompt devient un composant stable : entrées fixes, règles explicites, un brouillon au lieu d'un email envoyé, et une liste de contrôles. L'automatisation fait gagner le temps de rédaction, Nora garde la décision."),
+    },
+    exercise: {
+      goal: B("A map of your operations with timings, one step chosen for automation, and the specification of that automation with its human checkpoint.",
+        "Une carte de vos opérations avec leurs durées, une étape choisie pour l'automatisation, et la spécification de cette automatisation avec son point de contrôle humain."),
+      prompt: B("Here is my process, from first contact to payment, with the time each step takes me per client: [STEP, TIME, FREQUENCY PER MONTH, WHAT COULD GO WRONG].\nMy tools: [TOOLS YOU ALREADY USE: EMAIL, CALENDAR, SHEET, FORM, AI ASSISTANT].\n1. Rank the steps by automation potential: frequent, repetitive, low-risk, clear input and output.\n2. For the top step, write a specification: trigger, inputs, AI prompt if needed, output, where the output is stored, human checkpoint, what happens on error.\n3. List the personal data that would pass through the automation and what I must check in each tool's terms.\n4. Propose a one-week test plan running beside the manual method, with what to compare.\nDo not recommend a paid plan or quote any price: I will check the official pages of the tools.",
+        "Voici mon processus, du premier contact au paiement, avec le temps que chaque étape me prend par client : [ÉTAPE, DURÉE, FRÉQUENCE PAR MOIS, CE QUI PEUT MAL TOURNER].\nMes outils : [OUTILS DÉJÀ UTILISÉS : EMAIL, AGENDA, TABLEUR, FORMULAIRE, ASSISTANT IA].\n1. Classe les étapes selon leur potentiel d'automatisation : fréquentes, répétitives, à faible risque, entrée et sortie claires.\n2. Pour l'étape en tête, rédige une spécification : déclencheur, entrées, prompt IA si besoin, sortie, lieu de stockage, point de contrôle humain, conduite en cas d'erreur.\n3. Liste les données personnelles qui passeraient par l'automatisation et ce que je dois vérifier dans les conditions de chaque outil.\n4. Propose un test d'une semaine en parallèle de la méthode manuelle, avec ce qu'il faut comparer.\nNe recommande aucune offre payante et ne cite aucun prix : je consulterai les pages officielles des outils."),
+      check: [
+        B("Each step of your process has a measured time, not a guess", "Chaque étape de votre processus a une durée mesurée, pas estimée"),
+        B("The chosen step never sends anything to a client without review", "L'étape choisie n'envoie rien à un client sans relecture"),
+        B("Personal data in the flow is listed, with the terms to check", "Les données personnelles du circuit sont listées, avec les conditions à vérifier"),
+        B("The test compares output quality and time with the manual method", "Le test compare qualité et temps avec la méthode manuelle"),
+      ],
+      bonus: B("Once the automation runs, add a log: one row per execution with the date, the input, whether you corrected the draft and how long the review took. After a month, the corrections show you how to improve the prompt.",
+        "Une fois l'automatisation lancée, ajoutez un journal : une ligne par exécution avec la date, l'entrée, la correction ou non du brouillon et la durée de relecture. Après un mois, les corrections vous montrent comment améliorer le prompt."),
+    },
+    more: [
+      { q: B("Nora's automation produced a proposal with the wrong trade for two clients this week. What should she do first?",
+          "L'automatisation de Nora a produit cette semaine deux propositions avec le mauvais métier. Que fait-elle d'abord ?"),
+        options: [
+          B("Switch to another AI model, hoping it makes fewer errors", "Changer de modèle d'IA, en espérant moins d'erreurs"),
+          B("Look at the inputs and the prompt of those two runs", "Examiner les entrées et le prompt de ces deux exécutions"),
+          B("Stop automating and go back to writing every proposal by hand", "Arrêter d'automatiser et revenir à tout rédiger à la main"),
+        ],
+        answer: 1,
+        why: B("An error repeated on a fixed process usually has a cause in the inputs (a field badly filled, mixed up) or in the prompt. Reading those two runs finds it; changing model or giving up skips the diagnosis.",
+          "Une erreur répétée dans un processus fixe a souvent sa cause dans les entrées (un champ mal rempli, inversé) ou dans le prompt. Relire ces deux exécutions la trouve ; changer de modèle ou abandonner saute le diagnostic.") },
+      { q: B("Before sending call notes to an automation tool, what must Nora check about client data?",
+          "Avant d'envoyer des notes d'appel à un outil d'automatisation, que doit vérifier Nora sur les données clients ?"),
+        options: [
+          B("How the tool uses and stores data, per its terms", "Comment l'outil utilise et stocke les données, selon ses conditions"),
+          B("Nothing, since the clients agreed to a phone call", "Rien, puisque les clients ont accepté un appel"),
+          B("Only that the tool is well known and widely used", "Seulement que l'outil soit connu et très utilisé"),
+        ],
+        answer: 0,
+        why: B("Call notes can contain personal data. Agreeing to a call is not agreeing to any processing; the tool's terms say how data is used and stored, and the CNIL explains the obligations that follow.",
+          "Des notes d'appel peuvent contenir des données personnelles. Accepter un appel n'est pas accepter n'importe quel traitement ; les conditions de l'outil disent comment les données sont utilisées et stockées, et la CNIL explique les obligations.") },
+    ],
+  },
+}
+
+const SELL_DEEP: Record<string, Deepening> = {
+  [deepKey(M3, 'bz-first-clients')]: {
+    intro: B("Finding your first customers is a matter of conversations, not of reach. This lesson orders the channels by trust (your network, introductions, targeted direct contact, then content), shows how to build a list of qualified prospects and how to write a first message that gets an answer. It opens the second part of the course with a fictional case: Nora Vidal, an office manager who works full time and runs Relais Devis in the evenings. She sets up, for small building firms (plumbers, electricians, tilers), a simple system to follow up their quotes with AI and no-code tools. At the end, you will have a prospect list, a message template and a weekly outreach routine.",
+      "Trouver ses premiers clients est une affaire de conversations, pas d'audience. Ce cours classe les canaux selon la confiance (votre réseau, les mises en relation, le contact direct ciblé, puis le contenu), montre comment dresser une liste de prospects qualifiés et comment écrire un premier message qui obtient une réponse. Il ouvre la seconde partie de la formation avec un cas fictif : Nora Vidal, assistante de direction à plein temps, qui fait vivre Relais Devis le soir. Elle installe chez de petites entreprises du bâtiment (plombiers, électriciens, carreleurs) un système simple de relance des devis avec des outils d'IA et de no-code. À la fin, vous aurez une liste de prospects, un gabarit de message et une routine de prospection hebdomadaire."),
+    concepts: [
+      { term: B('Warm network', 'Réseau proche'),
+        def: B("The people who already know you: former colleagues, friends, family, past clients. They answer more readily because trust already exists.",
+          "Les personnes qui vous connaissent déjà : anciens collègues, amis, famille, anciens clients. Elles répondent plus volontiers parce que la confiance existe déjà.") },
+      { term: B('Qualified prospect', 'Prospect qualifié'),
+        def: B("A person who belongs to your niche and shows a visible sign of the problem you solve. Without that sign, they are just a contact.",
+          "Une personne qui appartient à votre niche et montre un signe visible du problème que vous résolvez. Sans ce signe, c'est un simple contact.") },
+      { term: B('Introduction', 'Mise en relation'),
+        def: B("A message in which someone who knows both of you presents you to a prospect. It lends you their credibility for the first exchange.",
+          "Un message par lequel une personne qui vous connaît tous les deux vous présente à un prospect. Elle vous prête sa crédibilité pour le premier échange.") },
+      { term: B('Follow-up', 'Relance'),
+        def: B("A second, shorter message sent after a few days without an answer. One polite follow-up is useful; a series of them becomes pressure.",
+          "Un second message, plus court, envoyé après quelques jours sans réponse. Une relance courtoise est utile ; une série de relances devient une pression.") },
+    ],
+    walkthrough: {
+      title: B("Nora prepares her first two weeks of outreach for Relais Devis.",
+        "Nora prépare ses deux premières semaines de prospection pour Relais Devis."),
+      steps: [
+        B("She lists the people in her network linked to the building trades: colleagues at her employer's suppliers, her brother-in-law Julien, a former client of her uncle. Why: these people can answer, or introduce her, without any trust to build.",
+          "Elle liste les personnes de son réseau liées au bâtiment : des contacts chez les fournisseurs de son employeur, son beau-frère Julien, un ancien client de son oncle. Pourquoi : ces personnes peuvent répondre ou la présenter sans confiance à construire."),
+        B("She asks three of them for an introduction, with a two-line text they can forward as is. Why: making the introduction easy multiplies the chances that it actually happens.",
+          "Elle demande à trois d'entre elles une mise en relation, avec un texte de deux lignes qu'elles peuvent transférer tel quel. Pourquoi : faciliter la mise en relation multiplie les chances qu'elle ait vraiment lieu."),
+        B("She completes her sheet up to 30 artisans from local directories and websites, noting for each a visible sign: a site promising quick quotes, reviews mentioning slow answers. Why: the sign justifies the message and makes it personal.",
+          "Elle complète son tableau jusqu'à 30 artisans à partir d'annuaires locaux et de sites, en notant pour chacun un signe visible : un site qui promet des devis rapides, des avis qui évoquent des réponses lentes. Pourquoi : le signe justifie le message et le rend personnel."),
+        B("She writes ten messages with an AI from her notes, then rewrites one sentence of each herself. Why: the AI saves time on form, but the observation that makes the artisan answer must come from her.",
+          "Elle rédige dix messages avec une IA à partir de ses notes, puis réécrit elle-même une phrase de chacun. Pourquoi : l'IA fait gagner du temps sur la forme, mais l'observation qui fait répondre l'artisan doit venir d'elle."),
+        B("She sends them over two evenings, logs each answer in the sheet and plans one follow-up a few days later. Why: a log shows which source and which angle open conversations, and keeps her from forgetting anyone.",
+          "Elle les envoie sur deux soirées, note chaque réponse dans le tableau et prévoit une relance quelques jours plus tard. Pourquoi : le suivi montre quelle source et quel angle ouvrent des conversations, et évite d'oublier quelqu'un."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Waiting to have a perfect website and logo before contacting anyone.",
+          "Attendre d'avoir un site et un logo parfaits avant de contacter qui que ce soit."),
+        fix: B("Contact prospects as soon as your offer fits in one sentence. A short page or a PDF is enough at this stage; the conversations will tell you what to put on the website.",
+          "Contactez vos prospects dès que votre offre tient en une phrase. Une page courte ou un PDF suffit à ce stade ; les conversations vous diront quoi mettre sur le site.") },
+      { wrong: B("Sending the same message to everyone, with only the first name changed.",
+          "Envoyer le même message à tout le monde, en changeant seulement le prénom."),
+        fix: B("Base each message on a fact specific to the person: who introduced you, what you saw on their site, a question they asked publicly. Fewer messages, but read and answered.",
+          "Fondez chaque message sur un fait propre à la personne : qui vous a présenté, ce que vous avez vu sur son site, une question posée publiquement. Moins de messages, mais lus et suivis de réponses.") },
+      { wrong: B("Counting only on content and social posts to bring the first clients.",
+          "Compter uniquement sur le contenu et les publications pour attirer les premiers clients."),
+        fix: B("Keep content as a background support, published at a steady pace, and spend most of your outreach time on direct, personal conversations at the start.",
+          "Gardez le contenu comme un soutien de fond, publié à rythme régulier, et consacrez au départ l'essentiel de votre temps de prospection aux conversations directes et personnelles.") },
+    ],
+    recap: [
+      B("First customers come from conversations, ordered by trust.", "Les premiers clients viennent de conversations, classées par confiance."),
+      B("A qualified prospect is in your niche and shows a visible sign of the problem.", "Un prospect qualifié est dans votre niche et montre un signe visible du problème."),
+      B("A first message talks about the other person and asks for an exchange, not a purchase.", "Un premier message parle de l'autre et demande un échange, pas un achat."),
+      B("Prospecting rules (CNIL) and platform terms are checked before any volume.", "Les règles de prospection (CNIL) et les conditions des plateformes se vérifient avant tout volume."),
+    ],
+    further: B("Read the CNIL pages on commercial prospecting, which distinguish between businesses and individuals, and the terms of use of the platforms you use. Then set a fixed weekly slot for outreach and keep it for a month before judging the results.",
+      "Lisez les pages de la CNIL sur la prospection commerciale, qui distinguent professionnels et particuliers, ainsi que les conditions d'utilisation des plateformes que vous utilisez. Fixez ensuite un créneau hebdomadaire de prospection et tenez-le un mois avant de juger les résultats."),
+    more: [
+      { q: B("Nora's brother-in-law offers to introduce her to a roofer. What makes the introduction most likely to happen?",
+          "Le beau-frère de Nora propose de la présenter à un couvreur. Qu'est-ce qui rend la mise en relation la plus probable ?"),
+        options: [
+          B("Sending him a short text he can forward as it is", "Lui envoyer un texte court qu'il peut transférer tel quel"),
+          B("Letting him explain her offer in his own way, later on", "Le laisser expliquer son offre à sa façon, plus tard"),
+          B("Asking him for the roofer's number to call him directly", "Lui demander le numéro du couvreur pour l'appeler directement"),
+        ],
+        answer: 0,
+        why: B("The easier the introduction, the more likely it is to happen. A ready-made text removes the effort and keeps the message accurate; calling directly loses the trust that the introduction carries.",
+          "Plus la mise en relation est facile, plus elle a de chances d'avoir lieu. Un texte prêt retire l'effort et garde le message juste ; appeler directement perd la confiance que porte la présentation.") },
+      { q: B("After two weeks, Nora has sent 30 messages and has six conversations booked. What should she do with these numbers?",
+          "Après deux semaines, Nora a envoyé 30 messages et obtenu six conversations. Que fait-elle de ces nombres ?"),
+        options: [
+          B("Compare them with an average rate found on a blog", "Les comparer à un taux moyen trouvé sur un blog"),
+          B("Look at which sources and angles produced the six", "Regarder quelles sources et quels angles ont produit les six"),
+          B("Conclude that her offer is validated and stop prospecting", "Conclure que son offre est validée et arrêter de prospecter"),
+        ],
+        answer: 1,
+        why: B("With such small numbers, an external average says little. What is useful is the detail: which source and which angle brought the answers. She keeps what works and continues the routine.",
+          "Sur de si petits nombres, une moyenne extérieure dit peu de chose. L'utile est le détail : quelle source et quel angle ont amené les réponses. Elle garde ce qui marche et poursuit la routine.") },
+    ],
+  },
+
+  [deepKey(M3, 'bz-sales-call')]: {
+    intro: B("A sales call is a structured conversation in which the prospect discovers whether your offer solves a problem that matters to them. This lesson gives a 30-minute structure (agenda, diagnosis, proposal, objections, next step), explains why the diagnosis comes before the price, and shows how to handle the most frequent objections without pressure. You will follow Nora preparing her call with Sophie, a fictional electrician. At the end, you will have a call plan, a bank of questions and a way to rehearse with an AI.",
+      "Un appel de vente est une conversation structurée où le prospect découvre si votre offre résout un problème qui compte pour lui. Ce cours donne une structure de 30 minutes (ordre du jour, diagnostic, proposition, objections, suite), explique pourquoi le diagnostic précède le prix, et montre comment traiter les objections fréquentes sans pression. Vous suivrez Nora qui prépare son appel avec Sophie, électricienne fictive. À la fin, vous aurez un plan d'appel, une banque de questions et une méthode pour répéter avec une IA."),
+    concepts: [
+      { term: B('Diagnosis', 'Diagnostic'),
+        def: B("The part of the call where you ask about the situation, the impact of the problem, past attempts and the decision process, before saying anything about your offer.",
+          "La partie de l'appel où vous interrogez la situation, l'impact du problème, les tentatives passées et le processus de décision, avant de parler de votre offre.") },
+      { term: B('Cost of the problem', 'Coût du problème'),
+        def: B("What the problem costs the prospect, in their own words: lost jobs, evenings spent, stress. It is the reference against which they will judge your price.",
+          "Ce que le problème coûte au prospect, dans ses propres mots : chantiers perdus, soirées passées, stress. C'est la référence à laquelle il comparera votre prix.") },
+      { term: B('Objection', 'Objection'),
+        def: B("A reservation expressed by the prospect (price, timing, trust, decision-maker). It signals a worry to clarify, not a final refusal.",
+          "Une réserve exprimée par le prospect (prix, calendrier, confiance, décideur). Elle signale une inquiétude à éclaircir, pas un refus définitif.") },
+      { term: B('Next step', 'Suite convenue'),
+        def: B("The dated action agreed at the end of the call: a proposal sent on a given day, a second call, or a clear no. A call without a next step usually fades away.",
+          "L'action datée convenue en fin d'appel : une proposition envoyée tel jour, un second appel, ou un non clair. Un appel sans suite s'efface le plus souvent.") },
+    ],
+    walkthrough: {
+      title: B("Nora prepares and leads her 30-minute call with Sophie, a fictional electrician.",
+        "Nora prépare et mène son appel de 30 minutes avec Sophie, électricienne fictive."),
+      steps: [
+        B("She writes a one-page plan: agenda (2 minutes), diagnosis (15), proposal (5), questions and objections (6), next step (2). Why: a timed plan keeps the diagnosis from being cut short by the urge to present.",
+          "Elle rédige un plan d'une page : ordre du jour (2 minutes), diagnostic (15), proposition (5), questions et objections (6), suite (2). Pourquoi : un plan minuté évite de raccourcir le diagnostic sous l'envie de présenter."),
+        B("She prepares her diagnostic questions: how many quotes a month, how they are followed up today, the last job lost, what she has tried, who decides. Why: each answer feeds the proposal and the cost of the problem.",
+          "Elle prépare ses questions de diagnostic : combien de devis par mois, comment ils sont relancés aujourd'hui, le dernier chantier perdu, ce qui a été tenté, qui décide. Pourquoi : chaque réponse nourrit la proposition et le coût du problème."),
+        B("She rehearses with an AI playing Sophie, from her notes, and reads the feedback table. Why: she discovers she presents too early and forgets to ask who decides.",
+          "Elle répète avec une IA qui joue Sophie, à partir de ses notes, puis lit le tableau de retour. Pourquoi : elle découvre qu'elle présente trop tôt et oublie de demander qui décide."),
+        B("During the call, Sophie says she lost a large job because a competitor called back first. Nora asks what that job represented and lets the silence work. Why: the cost stated by Sophie herself will weigh more than any argument.",
+          "Pendant l'appel, Sophie raconte avoir perdu un gros chantier parce qu'un concurrent a rappelé le premier. Nora demande ce que représentait ce chantier et laisse le silence agir. Pourquoi : le coût énoncé par Sophie pèsera plus que tout argument."),
+        B("Sophie objects about the setup time. Nora asks how much time she could free, rephrases, and explains that the setup takes two short sessions at her pace. They agree that Nora sends the proposal on Thursday. Why: the objection was about time, not price.",
+          "Sophie objecte le temps de mise en place. Nora demande combien de temps elle pourrait dégager, reformule, puis explique que la mise en place tient en deux courtes séances à son rythme. Elles conviennent d'un envoi de proposition jeudi. Pourquoi : l'objection portait sur le temps, pas sur le prix."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Talking most of the call to show expertise.",
+          "Parler la plus grande partie de l'appel pour montrer son expertise."),
+        fix: B("During the diagnosis, let the prospect talk more than you. Expertise shows in the precision of your questions and in a proposal that fits exactly what was said.",
+          "Pendant le diagnostic, laissez le prospect parler plus que vous. L'expertise se voit dans la précision de vos questions et dans une proposition qui colle exactement à ce qui a été dit.") },
+      { wrong: B("Answering an objection immediately, before understanding it.",
+          "Répondre à une objection immédiatement, avant de l'avoir comprise."),
+        fix: B("Ask first what the objection covers, rephrase it, and only then answer. You often discover that \"too expensive\" means \"not sure it will work for me\".",
+          "Demandez d'abord ce que recouvre l'objection, reformulez-la, et seulement ensuite répondez. On découvre souvent que « trop cher » veut dire « pas sûr que ça marche pour moi ».") },
+      { wrong: B("Ending the call with \"I will send you something\" and no date.",
+          "Terminer l'appel par « je vous envoie quelque chose » sans date."),
+        fix: B("Agree on a dated next step before hanging up: the day the proposal arrives, the day you call back, or a clear no that frees both of you.",
+          "Convenez d'une suite datée avant de raccrocher : le jour où la proposition arrive, le jour où vous rappelez, ou un non clair qui libère tout le monde.") },
+    ],
+    recap: [
+      B("Diagnose before you propose: the price is judged against the cost of the problem.", "Diagnostiquez avant de proposer : le prix se juge face au coût du problème."),
+      B("An objection is a worry to clarify, not a final refusal.", "Une objection est une inquiétude à éclaircir, pas un refus définitif."),
+      B("Clarify, rephrase, answer, check: the same sequence for every objection.", "Clarifier, reformuler, répondre, vérifier : la même séquence pour chaque objection."),
+      B("Every call ends with a dated next step, even if it is a no.", "Chaque appel se termine par une suite datée, même si c'est un non."),
+      B("An AI playing your prospect is a cheap way to rehearse before the real call.", "Une IA qui joue votre prospect est un moyen simple de répéter avant l'appel réel."),
+    ],
+    further: B("After each real call, write in ten minutes what the prospect said about the cost of their problem, the objections raised and the next step. After five calls, reread the notes: the recurring objections should be answered earlier, in your offer page or your proposal.",
+      "Après chaque appel réel, notez en dix minutes ce que le prospect a dit du coût de son problème, les objections soulevées et la suite convenue. Après cinq appels, relisez ces notes : les objections récurrentes doivent trouver leur réponse plus tôt, dans votre page d'offre ou votre proposition."),
+    more: [
+      { q: B("Ten minutes into the call, Sophie asks: \"So how much is it?\" The diagnosis is not finished. What does Nora do?",
+          "Au bout de dix minutes, Sophie demande : « Alors, c'est combien ? » Le diagnostic n'est pas fini. Que fait Nora ?"),
+        options: [
+          B("She avoids the question until the very end of the call", "Elle évite la question jusqu'à la toute fin de l'appel"),
+          B("She gives the price and goes straight into presenting the offer", "Elle donne le prix et enchaîne sur la présentation de l'offre"),
+          B("She gives the price range, then asks to finish her questions first", "Elle donne la fourchette, puis demande à finir d'abord ses questions"),
+        ],
+        answer: 2,
+        why: B("Avoiding a direct question creates distrust; dropping the diagnosis loses the basis for the price. Giving the range honestly, then asking permission to finish the questions, respects both the prospect and the method.",
+          "Esquiver une question directe crée de la méfiance ; abandonner le diagnostic retire la base du prix. Donner honnêtement la fourchette, puis demander à finir ses questions, respecte le prospect et la méthode.") },
+      { q: B("Sophie says she must talk to her associate before deciding. What is the best next step?",
+          "Sophie dit qu'elle doit en parler à son associé avant de décider. Quelle est la meilleure suite ?"),
+        options: [
+          B("Ask her to decide alone today, to save time", "Lui demander de décider seule aujourd'hui, pour gagner du temps"),
+          B("Offer a short call with both of them on a set date", "Proposer un court appel à deux, à une date fixée"),
+          B("Send the proposal and wait for them to come back", "Envoyer la proposition et attendre qu'ils reviennent"),
+        ],
+        answer: 1,
+        why: B("The associate is part of the decision and has not heard the diagnosis. A short call with both, on a set date, lets him hear the problem in Sophie's words and ask his own questions.",
+          "L'associé fait partie de la décision et n'a pas entendu le diagnostic. Un court appel à deux, à date fixée, lui fait entendre le problème dans les mots de Sophie et poser ses propres questions.") },
+    ],
+  },
+
+  [deepKey(M3, 'bz-delivery')]: {
+    intro: B("Delivering well is what turns a first client into a second one, through referrals. This lesson shows how to frame a job with a written scope, how to review AI-assisted deliverables with a checklist, how to hand over, and when and how to ask for feedback, a testimonial and an introduction. You will follow Nora delivering her quote follow-up system to Karim, a fictional plumber. At the end, you will have a delivery checklist and a follow-up template that respects your clients and the rules on reviews.",
+      "Bien livrer est ce qui transforme un premier client en un second, par la recommandation. Ce cours montre comment cadrer une mission par un périmètre écrit, relire les livrables produits avec une IA grâce à une liste de contrôle, remettre le travail, puis quand et comment demander un retour, un témoignage et une mise en relation. Vous suivrez Nora qui livre son système de relance à Karim, plombier fictif. À la fin, vous aurez une liste de contrôle de livraison et un modèle de suivi qui respecte vos clients et les règles sur les avis."),
+    concepts: [
+      { term: B('Scope', 'Périmètre'),
+        def: B("The written list of what the job includes and excludes, with deadlines and what the client provides. It is the reference for quality and for additions.",
+          "La liste écrite de ce que la mission comprend et exclut, avec les délais et les apports du client. C'est la référence pour la qualité et pour les ajouts.") },
+      { term: B('Definition of done', 'Définition de « terminé »'),
+        def: B("The concrete conditions under which a deliverable is considered finished, agreed in advance: for example, the tracking sheet filled with the current quotes and one reminder sent.",
+          "Les conditions concrètes, convenues d'avance, pour qu'un livrable soit considéré comme fini : par exemple, le tableau de suivi rempli avec les devis en cours et une relance envoyée.") },
+      { term: B('Check-in', 'Point de suivi'),
+        def: B("A short meeting a few weeks after delivery to see how the client uses the work. It is the natural moment to collect feedback and ask for a referral.",
+          "Un court rendez-vous quelques semaines après la livraison pour voir comment le client utilise le travail. C'est le moment naturel pour recueillir un retour et demander une recommandation.") },
+      { term: B('Testimonial with consent', 'Témoignage avec accord'),
+        def: B("The client's own words about the result, published only with their explicit agreement, which they can edit or withdraw.",
+          "Les propres mots du client sur le résultat, publiés uniquement avec son accord explicite, qu'il peut modifier ou retirer.") },
+    ],
+    walkthrough: {
+      title: B("Nora delivers the quote follow-up system to Karim, then asks for feedback and an introduction.",
+        "Nora livre le système de relance à Karim, puis demande un retour et une mise en relation."),
+      steps: [
+        B("At the kickoff, she writes with Karim the scope: tracking sheet, three message templates, a prompt kit, one reminder automation; the definition of done; and what he provides (his current quotes). Why: both now share the same list.",
+          "Au lancement, elle écrit avec Karim le périmètre : tableau de suivi, trois modèles de messages, un kit de prompts, une automatisation de rappel ; la définition de « terminé » ; et ce qu'il fournit (ses devis en cours). Pourquoi : ils partagent désormais la même liste."),
+        B("She produces the message templates with an AI, then reviews them with her checklist: plumbing vocabulary, Karim's name and firm, no promise he cannot keep. Why: she finds a template mentioning a guarantee Karim does not offer, and removes it.",
+          "Elle produit les modèles de messages avec une IA, puis les relit avec sa liste : vocabulaire de la plomberie, nom de Karim et de son entreprise, aucune promesse qu'il ne peut tenir. Pourquoi : elle trouve un modèle qui évoque une garantie que Karim n'offre pas, et la retire."),
+        B("She hands over with a 20-minute demo on one real quote, a two-page guide and a check-in date three weeks later. Why: a demo on his own data proves the system works for him, not in theory.",
+          "Elle remet le travail avec une démonstration de 20 minutes sur un vrai devis, un guide de deux pages et un point de suivi trois semaines plus tard. Pourquoi : une démonstration sur ses propres données prouve que le système marche pour lui, pas en théorie."),
+        B("At the check-in, Karim explains in his words what changed. Nora notes them exactly and asks what she should improve. Why: the feedback improves the offer, and the exact words are the basis of a true testimonial.",
+          "Au point de suivi, Karim explique avec ses mots ce qui a changé. Nora les note exactement et demande ce qu'elle devrait améliorer. Pourquoi : le retour améliore l'offre, et les mots exacts fondent un témoignage fidèle."),
+        B("She sends the follow-up email: permission to quote his words, which he may edit, and an introduction to one artisan, with a ready-made text. Why: consent keeps the testimonial lawful, and the ready text makes the introduction easy.",
+          "Elle envoie l'email de suivi : autorisation de citer ses mots, qu'il peut modifier, et mise en relation avec un artisan, avec un texte prêt. Pourquoi : l'accord garde le témoignage licite, et le texte prêt facilite la mise en relation."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Starting the work after a verbal agreement, without a written scope.",
+          "Commencer le travail après un accord oral, sans périmètre écrit."),
+        fix: B("Send a short written summary after the kickoff (included, excluded, deadlines, client inputs, definition of done) and ask the client to confirm it before starting.",
+          "Envoyez un court récapitulatif écrit après le lancement (inclus, exclu, délais, apports du client, définition de « terminé ») et demandez au client de le confirmer avant de commencer.") },
+      { wrong: B("Delivering AI-generated content without reading it, because it looks right.",
+          "Livrer un contenu généré par IA sans le relire, parce qu'il a l'air juste."),
+        fix: B("Review every AI-produced part against a written checklist (facts, names, figures, tone, confidentiality, links) before the client sees it. You answer for the deliverable.",
+          "Relisez chaque partie produite par IA selon une liste écrite (faits, noms, chiffres, registre, confidentialité, liens) avant que le client la voie. Vous répondez du livrable.") },
+      { wrong: B("Rewriting a client's feedback into a more flattering testimonial.",
+          "Réécrire le retour d'un client en un témoignage plus flatteur."),
+        fix: B("Quote the client's own words, shorten only with their agreement, and publish nothing they have not approved. Embellished reviews mislead and are prohibited.",
+          "Citez les propres mots du client, ne raccourcissez qu'avec son accord, et ne publiez rien qu'il n'ait approuvé. Les avis embellis trompent et sont interdits.") },
+    ],
+    recap: [
+      B("Quality is measured against a written scope and a definition of done.", "La qualité se mesure à un périmètre écrit et à une définition de « terminé »."),
+      B("Every AI-produced part is reviewed against a checklist before handover.", "Chaque partie produite par IA est relue selon une liste avant la remise."),
+      B("Ask for referrals after a visible result, usually at the check-in.", "La recommandation se demande après un résultat visible, souvent au point de suivi."),
+      B("A testimonial uses the client's words and is published only with consent.", "Un témoignage reprend les mots du client et ne se publie qu'avec son accord."),
+    ],
+    further: B("Read the DGCCRF information on online reviews and misleading commercial practices, then write your own testimonial policy in three lines: how you collect, what you publish, how a client can withdraw. Attach it to your follow-up email template.",
+      "Lisez les informations de la DGCCRF sur les avis en ligne et les pratiques commerciales trompeuses, puis rédigez votre propre règle de témoignage en trois lignes : comment vous recueillez, ce que vous publiez, comment un client peut retirer son accord. Joignez-la à votre modèle d'email de suivi."),
+    more: [
+      { q: B("Karim has not used the system since delivery. At the check-in, what should Nora do first?",
+          "Karim n'a pas utilisé le système depuis la livraison. Au point de suivi, que fait Nora d'abord ?"),
+        options: [
+          B("Ask him for a testimonial anyway, since the work was delivered", "Lui demander quand même un témoignage, le travail étant livré"),
+          B("Find out what stopped him and help him use it on one real quote", "Comprendre ce qui l'a bloqué et l'aider à l'utiliser sur un vrai devis"),
+          B("Offer him a refund at once, to avoid a bad review later", "Lui proposer tout de suite un remboursement, pour éviter un mauvais avis"),
+        ],
+        answer: 1,
+        why: B("Without use, there is no result to vouch for. Understanding the block (time, habit, a step too complex) and getting a first real use is what creates value, and possibly a referral later.",
+          "Sans usage, il n'y a aucun résultat à recommander. Comprendre le blocage (temps, habitude, étape trop complexe) et obtenir un premier usage réel crée la valeur, et peut-être plus tard une recommandation.") },
+      { q: B("Which line belongs in a delivery checklist for AI-produced message templates?",
+          "Quelle ligne a sa place dans une liste de contrôle pour des modèles de messages produits par IA ?"),
+        options: [
+          B("\"No promise the client cannot keep appears in any template\"", "« Aucun modèle ne contient de promesse que le client ne peut tenir »"),
+          B("\"The templates were generated by the most recent model\"", "« Les modèles ont été générés par le modèle le plus récent »"),
+          B("\"The templates are long enough to look professional\"", "« Les modèles sont assez longs pour faire professionnel »"),
+        ],
+        answer: 0,
+        why: B("A checklist line must be checkable and protect the client. The model used or the length say nothing about accuracy; a promise the artisan cannot keep would engage him towards his own customers.",
+          "Une ligne de contrôle doit être vérifiable et protéger le client. Le modèle employé ou la longueur ne disent rien de l'exactitude ; une promesse intenable engagerait l'artisan auprès de ses propres clients.") },
+    ],
+  },
+
+  [deepKey(M3, 'bz-automate-ops')]: {
+    intro: B("Once a few clients are signed, the bottleneck becomes your time. This lesson shows how to map your operations, choose the right step to automate, build it with a no-code tool and an AI step, keep a human checkpoint, and protect client data. You will follow Nora automating the step that costs her the most evenings: turning call notes into a proposal draft. At the end, you will have a process map, the specification of one automation and a test plan, without having automated anything unstable.",
+      "Une fois quelques clients signés, la contrainte devient votre temps. Ce cours montre comment cartographier vos opérations, choisir la bonne étape à automatiser, la construire avec un outil no-code et une étape IA, garder un point de contrôle humain et protéger les données des clients. Vous suivrez Nora qui automatise l'étape qui lui coûte le plus de soirées : transformer ses notes d'appel en brouillon de proposition. À la fin, vous aurez une carte de votre processus, la spécification d'une automatisation et un plan de test, sans avoir automatisé quoi que ce soit d'instable."),
+    concepts: [
+      { term: B('Process map', 'Carte du processus'),
+        def: B("The written list of the steps from first contact to payment, with the time each one takes and its frequency. It shows where time really goes.",
+          "La liste écrite des étapes du premier contact au paiement, avec la durée et la fréquence de chacune. Elle montre où passe vraiment le temps.") },
+      { term: B('Trigger', 'Déclencheur'),
+        def: B("The event that starts an automation: a form submitted, a file added to a folder, a row added to a sheet, a meeting ended.",
+          "L'événement qui lance une automatisation : un formulaire envoyé, un fichier ajouté à un dossier, une ligne ajoutée à un tableau, une réunion terminée.") },
+      { term: B('Human checkpoint', 'Point de contrôle humain'),
+        def: B("The step where a person reviews and validates the output before it reaches a client or triggers an irreversible action.",
+          "L'étape où une personne relit et valide la sortie avant qu'elle n'atteigne un client ou ne déclenche une action irréversible.") },
+      { term: B('Fixed prompt', 'Prompt fixe'),
+        def: B("A prompt written once, tested on real cases and stored in the automation, with named input fields. It gives stable outputs, unlike a prompt rewritten each time.",
+          "Un prompt écrit une fois, testé sur des cas réels et rangé dans l'automatisation, avec des champs d'entrée nommés. Il donne des sorties stables, contrairement à un prompt réécrit à chaque fois.") },
+    ],
+    walkthrough: {
+      title: B("Nora automates the step from call notes to proposal draft.",
+        "Nora automatise le passage des notes d'appel au brouillon de proposition."),
+      steps: [
+        B("For two weeks, she times her steps: outreach, calls, proposals, setup, invoicing. The proposal takes her the longest after each call. Why: measured times point to the right step, not the one that annoys her most.",
+          "Pendant deux semaines, elle chronomètre ses étapes : prospection, appels, propositions, mise en place, facturation. La proposition est la plus longue après chaque appel. Pourquoi : des durées mesurées désignent la bonne étape, pas celle qui l'agace le plus."),
+        B("She replaces her free notes with a short form (Tally or Google Forms) she fills in right after each call: trade, size, problem in the client's words, stated cost, chosen option. Why: structured inputs make the AI output stable.",
+          "Elle remplace ses notes libres par un court formulaire (Tally ou Google Forms) rempli juste après chaque appel : métier, taille, problème dans les mots du client, coût énoncé, option choisie. Pourquoi : des entrées structurées stabilisent la sortie de l'IA."),
+        B("In Make, she connects the form (trigger) to an AI step with her fixed prompt, then saves the draft in a documents folder and sends herself a notification. Nothing goes to the client. Why: the checkpoint is built into the design.",
+          "Dans Make, elle relie le formulaire (déclencheur) à une étape IA avec son prompt fixe, puis enregistre le brouillon dans un dossier de documents et s'envoie une notification. Rien ne part au client. Pourquoi : le point de contrôle est inscrit dans la conception."),
+        B("Before going live, she checks in the terms of each tool how data is used and stored, and removes from the form anything not needed (no phone number, no address). Why: less personal data in the flow means less risk.",
+          "Avant la mise en service, elle vérifie dans les conditions de chaque outil comment les données sont utilisées et stockées, et retire du formulaire tout le superflu (ni téléphone, ni adresse). Pourquoi : moins de données personnelles dans le circuit, moins de risque."),
+        B("For a week, she writes each proposal both ways and compares. The drafts need light corrections, which she uses to adjust the prompt. Then she switches and logs her review time. Why: the parallel test proves the gain before she relies on it.",
+          "Pendant une semaine, elle rédige chaque proposition des deux façons et compare. Les brouillons demandent de légères corrections, qui lui servent à ajuster le prompt. Puis elle bascule et note son temps de relecture. Pourquoi : le test en parallèle prouve le gain avant qu'elle s'y fie."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Automating a step you have only done by hand once or twice.",
+          "Automatiser une étape qu'on n'a faite à la main qu'une ou deux fois."),
+        fix: B("Do the step manually enough times to write it down as a stable method, with its inputs and outputs. Automate it only once you can describe it in a few lines.",
+          "Faites l'étape à la main assez de fois pour l'écrire comme une méthode stable, avec ses entrées et ses sorties. Ne l'automatisez qu'une fois que vous savez la décrire en quelques lignes.") },
+      { wrong: B("Building a large automation connecting every tool at once.",
+          "Construire une grande automatisation qui relie tous les outils d'un coup."),
+        fix: B("Start with one step, one trigger and one output, test it, then add the next. A small automation that works beats a large one that fails silently.",
+          "Commencez par une étape, un déclencheur et une sortie, testez, puis ajoutez la suivante. Une petite automatisation qui fonctionne vaut mieux qu'une grande qui échoue en silence.") },
+      { wrong: B("Sending all client data to every tool, just in case.",
+          "Envoyer toutes les données clients à chaque outil, au cas où."),
+        fix: B("Pass only the fields the step needs, check each tool's terms on data, and follow the CNIL guidance. Remove what is not used.",
+          "Ne transmettez que les champs utiles à l'étape, vérifiez les conditions de chaque outil sur les données et suivez les recommandations de la CNIL. Retirez ce qui ne sert pas.") },
+    ],
+    recap: [
+      B("Map and time your process before automating anything.", "Cartographiez et chronométrez votre processus avant d'automatiser quoi que ce soit."),
+      B("Automate first what is frequent, repetitive and low-risk.", "Automatisez d'abord ce qui est fréquent, répétitif et à faible risque."),
+      B("Trigger, actions, human checkpoint: nothing reaches a client unread.", "Déclencheur, actions, point de contrôle humain : rien n'atteint un client sans relecture."),
+      B("A fixed prompt with named fields gives stable outputs.", "Un prompt fixe aux champs nommés donne des sorties stables."),
+      B("Only the data the step needs passes through the tools.", "Seules les données utiles à l'étape passent par les outils."),
+    ],
+    further: B("Read the getting-started guide of one no-code tool (Zapier, Make or n8n) in its official documentation, and the CNIL pages on personal data for small businesses. Then automate a single internal step that never touches a client, such as logging new form entries into your tracking sheet.",
+      "Lisez le guide de démarrage d'un outil no-code (Zapier, Make ou n8n) dans sa documentation officielle, et les pages de la CNIL sur les données personnelles pour les petites entreprises. Automatisez ensuite une seule étape interne qui ne touche aucun client, comme l'ajout des nouvelles réponses d'un formulaire à votre tableau de suivi."),
+    more: [
+      { q: B("Nora wants her automation to also send the invoice automatically when a proposal is accepted. What is the main precaution?",
+          "Nora veut que l'automatisation envoie aussi la facture dès qu'une proposition est acceptée. Quelle est la précaution principale ?"),
+        options: [
+          B("Use the fastest AI model so the invoice leaves immediately", "Prendre le modèle d'IA le plus rapide pour que la facture parte aussitôt"),
+          B("Write the invoice amount in the prompt so the AI computes it", "Écrire le montant dans le prompt pour que l'IA le calcule"),
+          B("Keep a review before sending, with amounts from her own records", "Garder une relecture avant envoi, avec des montants issus de ses fichiers"),
+        ],
+        answer: 2,
+        why: B("An invoice is a legal and financial document. Amounts must come from her own records, not be computed by a model, and a person checks before sending: an error is costly to correct afterwards.",
+          "Une facture est un document légal et financier. Les montants doivent venir de ses propres fichiers, pas d'un calcul du modèle, et une personne vérifie avant l'envoi : une erreur coûte cher à corriger ensuite.") },
+      { q: B("How does Nora know that her automation is really saving time?",
+          "Comment Nora sait-elle que son automatisation lui fait vraiment gagner du temps ?"),
+        options: [
+          B("By comparing writing time before with review time after", "En comparant le temps de rédaction avant et le temps de relecture après"),
+          B("By trusting the time saved shown on the tool's home page", "En se fiant au temps gagné affiché sur la page d'accueil de l'outil"),
+          B("By counting how many automations she has built this month", "En comptant le nombre d'automatisations construites ce mois-ci"),
+        ],
+        answer: 0,
+        why: B("The real gain is her own: time spent before minus time spent reviewing and correcting after. A tool's general claims and the number of automations measure nothing about her process.",
+          "Le vrai gain est le sien : le temps passé avant moins le temps de relecture et de correction après. Les affirmations générales d'un outil et le nombre d'automatisations ne mesurent rien de son processus.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DE CETTE PARTIE                                         */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M3, track: 'course', glyph: 'target', tint: '#ca8a04', at: [50, 76], levels: SELL,
+    title: B('Sell', 'Vendre'),
+    blurb: B('First customers through your network, a sales call that diagnoses first, quality delivery that earns referrals, and operations automated under human control.',
+      'Les premiers clients par votre réseau, un appel de vente qui diagnostique d\'abord, une livraison soignée qui amène des recommandations, des opérations automatisées sous contrôle humain.'),
+  },
+]
+
+export const BUSINESS_B: CoursePart = {
+  modules: MODULES,
+  enrich: { ...SELL_ENRICH },
+  deep: { ...SELL_DEEP },
+}
