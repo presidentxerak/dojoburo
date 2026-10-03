@@ -27,10 +27,10 @@ Prévenir avant de lancer quoi que ce soit qui dure plus de 5 minutes.
 - Ne jamais inventer de témoignages, chiffres ou références.
 - Une garde dont la prémisse a changé est réparée pour affirmer la nouvelle règle (avec la demande citée en commentaire), jamais supprimée.
 
-## Traductions
+## Langues
 
-- L'app est en sept langues : français et anglais écrits dans le code, espagnol, italien, allemand, portugais et japonais dans des catalogues (voir `docs/I18N.md`).
-- Tout nouveau cours, toute nouvelle leçon ou tout nouveau texte d'interface doit être traduit dans les cinq langues à catalogue avant la fusion : `node scripts/i18n-extract.mjs`, puis `node scripts/i18n-missing.mjs <code> content|ui`, traduction, `i18n-merge`, `i18n-check`. `npm test` refuse un catalogue sous 99 %.
+- L'app est en français et en anglais, écrits côte à côte dans le code (`B(en, fr)`, `src/i18n/dict.ts`). Les autres langues passent par la traduction automatique du navigateur (voir `docs/I18N.md`) : ne rien ajouter qui la bloque.
+- Tout nouveau cours ou texte d'interface est écrit dans les deux langues.
 
 ## Charte
 

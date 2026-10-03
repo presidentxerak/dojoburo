@@ -22,7 +22,6 @@
 // faut faire défiler pour trouver la première phrase. Elle occupe maintenant
 // une bande, assez pour qu'on voie qui nous attend, assez peu pour que le
 // cours commence au-dessus de la ligne de flottaison.
-import { useContentCatalog } from '../i18n/catalog'
 import { burst } from '../lib/juice'
 import { useEffect, useRef, useState } from 'react'
 import { QuestHud, MasterDialog, Mission, Victory, MasterCheer, useQuestSteps, QT, type Cheer } from './LessonGame'
@@ -46,9 +45,6 @@ import { Shell } from './Shell'
 
 export function LessonPage({ packId, levelId }: { packId: string; levelId: string }) {
   const lang = useLang()
-  // LE CONTENU DU COURS DANS LA LANGUE LUE · le catalogue se charge à
-  // l'ouverture de la leçon et l'écran se redessine (i18n/catalog)
-  useContentCatalog(lang)
   const t = useT()
   const g = useGame()
   const a = useAccess()
