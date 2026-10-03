@@ -1,5 +1,770 @@
-// LE COURS « Écrire un livre de A à Z avec l'IA », PARTIE A · voir ./types et ./index. En rédaction.
+// LE COURS « Écrire un livre de A à Z avec l'IA », PARTIE A · voir ./types et ./index.
+//
+// UN SEUL FIL ROUGE · Hélène Marchal, professeure de biologie à Lorient (cas
+// fictif), écrit son premier roman, « Le Carnet des sternes » : un polar
+// d'atmosphère pour adultes. Maëlle Kerbrat, ornithologue, compte les sternes
+// sur un îlot protégé de Bretagne et y trouve les carnets de son oncle, le
+// gardien disparu vingt ans plus tôt ; les relevés continuent après sa
+// disparition. Les deux modules de cette partie mènent de l'idée à la bible du
+// livre : prémisse, lecteur et promesse, cadre, comparables, structure, plan,
+// personnages, voix. La partie B (./livre-b) reprend avec la rédaction.
+//
+// CE QUE LE COURS S'INTERDIT · aucun chiffre de marché, aucune longueur
+// « réglementaire », aucun titre comparable cité comme fait : la longueur se
+// mesure sur de vrais livres, les comparables se vérifient dans un catalogue
+// (BnF, sites de libraires, Electre), et les fonctions des outils renvoient à
+// leur documentation officielle.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const LIVRE_A: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 1 · L'IDÉE ET LE LECTEUR                                     */
+/* ================================================================== */
+
+const M1 = 'lv2-m1'
+
+const IDEE: Level[] = [
+  {
+    id: 'lv2-idee',
+    master: 'triage',
+    minutes: 10,
+    title: B('Find and test a book idea', 'Trouver et tester une idée de livre'),
+    learn: B(
+      'You will turn a vague wish into a one-sentence premise, then test it before committing months of writing.',
+      "Vous saurez transformer une envie vague en prémisse d'une phrase, puis la tester avant d'y engager des mois d'écriture.",
+    ),
+    act: B('Generate ten variants of your idea with AI, keep three, then put each one through four written tests.',
+      'Faites générer dix variantes de votre idée, gardez-en trois, puis soumettez chacune à quatre tests écrits.'),
+    steps: [
+      B('Write your raw idea in one sentence: who, what they want, what stands in the way, what is at stake.',
+        "Écrivez l'idée brute en une phrase : qui, ce qu'il veut, ce qui l'en empêche, ce qui est en jeu."),
+      B('Ask the AI for ten variants that each change one element: hero, place, era, obstacle or ending.',
+        "Demandez à l'IA dix variantes qui changent chacune un élément : héros, lieu, époque, obstacle ou fin."),
+      B('Keep three, and for each one write three scenes you can already see. No scene in sight: drop it.',
+        'Gardez-en trois et notez pour chacune trois scènes que vous voyez déjà. Aucune scène en vue : écartez-la.'),
+      B('Ask the AI to argue against the survivor, as a demanding editor would, then answer each objection.',
+        "Demandez à l'IA d'attaquer la survivante comme un éditeur exigeant, puis répondez à chaque objection."),
+    ],
+    trap: B(
+      'Keeping the first idea the AI proposes: it is the most expected one, and you would write a book that is not yours.',
+      "Garder la première idée proposée par l'IA : c'est la plus attendue, et vous écririez un livre qui n'est pas le vôtre.",
+    ),
+    quiz: {
+      q: B('One premise excites you, but you cannot picture a single precise scene. What do you do?',
+        'Une prémisse vous enthousiasme, mais vous ne voyez aucune scène précise. Que faites-vous ?'),
+      options: [
+        B('Keep it and let the AI find the scenes once you start writing', "Vous la gardez : l'IA trouvera les scènes une fois l'écriture lancée"),
+        B('Set it aside and pick a premise that already shows you scenes', 'Vous la mettez de côté et retenez une prémisse qui montre déjà des scènes'),
+        B('Make it bigger by adding a second plot so there is more to write', "Vous l'étoffez d'une seconde intrigue pour avoir plus de matière"),
+      ],
+      answer: 1,
+      why: B(
+        'A premise that produces no scene in your own head is a concept, not yet a story. Scenes you can already see show that the idea will sustain a whole book.',
+        'Une prémisse qui ne fait naître aucune scène dans votre tête est un concept, pas encore une histoire. Des scènes déjà visibles montrent que l\'idée tiendra la longueur.',
+      ),
+    },
+    badge: B('Tests an idea before writing it', "Teste une idée avant de l'écrire"),
+  },
+  {
+    id: 'lv2-lecteur',
+    master: 'growth',
+    minutes: 9,
+    title: B('Define the reader and the promise', 'Définir le lecteur et la promesse du livre'),
+    learn: B(
+      'You will describe the reader you write for and state what your book promises them, in a form you can check later.',
+      'Vous saurez décrire le lecteur pour qui vous écrivez et formuler ce que le livre lui promet, sous une forme vérifiable.',
+    ),
+    act: B('Write the portrait of one precise reader, then a three-line promise, and test both against your premise.',
+      'Rédigez le portrait d\'un lecteur précis, puis une promesse en trois lignes, et confrontez-les à votre prémisse.'),
+    steps: [
+      B('Describe one reader: what they already read, when they read, what they expect and what bores them.',
+        "Décrivez un lecteur : ce qu'il lit déjà, quand il lit, ce qu'il attend et ce qui l'ennuie."),
+      B('Write the promise: what the reader will feel, understand or be able to do on closing the book.',
+        'Écrivez la promesse : ce que le lecteur ressentira, comprendra ou saura faire en refermant le livre.'),
+      B('Ask the AI, playing that reader, to react to your premise: what attracts, what worries, what is missing.',
+        "Demandez à l'IA, dans la peau de ce lecteur, de réagir à la prémisse : ce qui attire, inquiète ou manque."),
+      B('Draft a back-cover text of eight lines that keeps the promise without revealing the ending.',
+        'Rédigez une quatrième de couverture de huit lignes qui tient la promesse sans dévoiler la fin.'),
+    ],
+    trap: B(
+      "Writing 'for everyone': a book addressed to no one in particular disappoints every reader a little, and nobody recommends it.",
+      'Écrire « pour tout le monde » : un livre adressé à personne en particulier déçoit chaque lecteur un peu, et personne ne le recommande.',
+    ),
+    quiz: {
+      q: B("Hélène promises 'a fairly solved mystery', but the culprit only appears in the last chapter. What does she break?",
+        'Hélène promet « une énigme résolue loyalement », mais le coupable n\'apparaît qu\'au dernier chapitre. Que rompt-elle ?'),
+      options: [
+        B('A rule of style, which a careful proofreading will be enough to fix', 'Une règle de style, qu\'une relecture attentive suffira à corriger'),
+        B('Nothing, since a surprise ending always pleases readers of mysteries', "Rien, puisqu'une fin surprise plaît toujours aux lecteurs d'énigmes"),
+        B('The promise made to the reader, who could not have found the answer', 'La promesse faite au lecteur, qui ne pouvait pas trouver la réponse'),
+      ],
+      answer: 2,
+      why: B(
+        'A fair mystery promises that the clues are on the page. A culprit who appears at the end makes that impossible: the reader feels cheated, whatever the quality of the prose.',
+        'Une énigme loyale promet que les indices sont sur la page. Un coupable apparu à la fin rend la chose impossible : le lecteur se sent trompé, quelle que soit la qualité du style.',
+      ),
+    },
+    badge: B('Knows who the book is for', 'Sait pour qui il écrit'),
+  },
+  {
+    id: 'lv2-genre',
+    master: 'analysis',
+    minutes: 10,
+    title: B('Choose genre, tone and length', 'Choisir le genre, le ton et la longueur'),
+    learn: B(
+      'You will fix the genre, the tone and the target length of your book, and know which conventions you keep or break.',
+      'Vous saurez arrêter le genre, le ton et la longueur visée du livre, et quelles conventions vous gardez ou rompez.',
+    ),
+    act: B('List the conventions of your genre, write one paragraph in three tones, then infer a length from similar books.',
+      'Listez les conventions du genre, écrivez un paragraphe en trois tons, puis déduisez la longueur de livres voisins.'),
+    steps: [
+      B('Ask the AI for the conventions readers expect in your genre, then mark each one: keep, bend or break.',
+        "Demandez à l'IA les conventions attendues dans votre genre, puis marquez chacune : garder, plier ou rompre."),
+      B('Write a key paragraph yourself, then have it rewritten in three tones and note what each one changes.',
+        'Écrivez vous-même un paragraphe clé, faites-le réécrire dans trois tons et notez ce que chacun change.'),
+      B('Fix the tone in three adjectives and one sentence of yours that embodies it.',
+        'Fixez le ton en trois adjectifs et une phrase de votre main qui l\'incarne.'),
+      B('Count the words of three full pages in two comparable books, multiply by their page count, set a range.',
+        'Comptez les mots de trois pages pleines dans deux livres comparables, multipliez par leur nombre de pages, fixez une fourchette.'),
+    ],
+    trap: B(
+      "Adopting the AI's rewrite as your reference style: you would take on a voice you cannot sustain alone over three hundred pages.",
+      "Adopter la version de l'IA comme style de référence : vous prendriez une voix que vous ne sauriez pas tenir seul sur trois cents pages.",
+    ),
+    quiz: {
+      q: B("Hélène hesitates between a 'cosy' tone and a 'melancholic' one. Which test settles it best?",
+        'Hélène hésite entre un ton « douillet » et un ton « mélancolique ». Quel test tranche le mieux ?'),
+      options: [
+        B('Write the same key scene in both tones and see which one she can hold', 'Écrire la même scène clé dans les deux tons et voir lequel elle sait tenir'),
+        B('Ask the AI which of the two tones currently sells better in bookshops', 'Demander à l\'IA lequel des deux tons se vend le mieux en ce moment'),
+        B('Choose melancholy, because literary prizes tend to reward serious books', 'Choisir la mélancolie, parce que les prix littéraires préfèrent le sérieux'),
+      ],
+      answer: 0,
+      why: B(
+        'Tone is decided on the page, by the writer who will have to hold it for a whole book. An AI has no reliable sales data, and a rule about prizes says nothing about her book.',
+        "Le ton se décide sur la page, par l'autrice qui devra le tenir tout un livre. Une IA n'a pas de données de ventes fiables, et une règle sur les prix ne dit rien de son livre.",
+      ),
+    },
+    badge: B('Sets genre, tone and length', 'Fixe le genre, le ton et la longueur'),
+  },
+  {
+    id: 'lv2-comps',
+    master: 'research',
+    minutes: 11,
+    title: B('Study comparable books on the market', 'Étudier les livres comparables du marché'),
+    learn: B(
+      'You will choose three to five recent comparable titles, verify that they exist, and use them to position your book.',
+      'Vous saurez choisir trois à cinq titres comparables récents, vérifier qu\'ils existent et vous en servir pour situer le livre.',
+    ),
+    act: B('Build a table of comparable books, check each one in a catalogue, then write your positioning sentence.',
+      'Dressez un tableau de livres comparables, vérifiez chacun dans un catalogue, puis rédigez la phrase de positionnement.'),
+    steps: [
+      B('Ask the AI for candidate titles close to your premise, reader and tone, with author and publisher.',
+        "Demandez à l'IA des titres candidats proches de la prémisse, du lecteur et du ton, avec auteur et éditeur."),
+      B("Check every title in a real catalogue (BnF, a bookseller's site, Electre if you have access): drop what you cannot find.",
+        'Vérifiez chaque titre dans un vrai catalogue (BnF, site de libraire, Electre si vous y avez accès) : écartez l\'introuvable.'),
+      B('Keep three to five recent titles, not the giant bestsellers, and read their opening pages and back covers.',
+        'Gardez trois à cinq titres récents, hors très gros succès, et lisez leurs premières pages et leur quatrième.'),
+      B("Note what they share with your book and where yours differs, then write: 'for readers of X and Y, with Z'.",
+        'Notez ce qu\'ils partagent avec le vôtre et où il diffère, puis écrivez : « pour les lecteurs de X et Y, avec Z ».'),
+    ],
+    trap: B(
+      'Trusting the list the AI gives you: models can invent plausible titles and authors, and a fictitious comparable ruins a pitch.',
+      "Croire la liste fournie par l'IA : un modèle peut inventer des titres et des auteurs plausibles, et un comparable fictif ruine un pitch.",
+    ),
+    quiz: {
+      q: B('The AI suggests five comparable titles. Two cannot be found in any catalogue. What does that mean?',
+        "L'IA propose cinq titres comparables. Deux restent introuvables dans tout catalogue. Qu'en concluez-vous ?"),
+      options: [
+        B('They are probably very rare books, all the more valuable to quote', 'Ce sont sans doute des livres rares, d\'autant plus précieux à citer'),
+        B('They were withdrawn from sale, so you may still quote them in a pitch', 'Ils ont été retirés de la vente, vous pouvez donc les citer quand même'),
+        B('They are probably invented: drop them and check the other three too', 'Ils sont sans doute inventés : écartez-les et vérifiez aussi les trois autres'),
+      ],
+      answer: 2,
+      why: B(
+        'A model writes plausible text, and a plausible title is not a real one. A catalogue check is the only proof of existence, and a pitch quoting a fictitious book loses all credibility.',
+        "Un modèle écrit du texte plausible, et un titre plausible n'est pas un titre réel. La vérification en catalogue est la seule preuve d'existence, et un pitch qui cite un livre fictif perd tout crédit.",
+      ),
+    },
+    badge: B('Positions a book among real titles', 'Situe un livre parmi de vrais titres'),
+  },
+]
+
+const IDEE_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M1, 'lv2-idee')]: {
+    why: [
+      B("A book idea is rarely missing; what is missing is a premise that holds. A premise links a character, a desire, an obstacle and a stake in one sentence. Written this way, an idea can be compared, criticised and improved; left as a mood ('a novel about the sea and memory'), it cannot be tested at all.",
+        "Il manque rarement une idée de livre ; il manque une prémisse qui tienne. Une prémisse relie un personnage, un désir, un obstacle et un enjeu en une phrase. Écrite ainsi, une idée se compare, se critique et s'améliore ; laissée à l'état d'ambiance (« un roman sur la mer et la mémoire »), elle ne se teste pas."),
+      B("An LLM is good at producing many variants quickly, and poor at choosing among them: it tends towards the most probable, which is often the most familiar. The division of labour is therefore simple: the AI widens the field, you choose. Asking for variants that each change one element makes the comparison readable.",
+        "Un LLM produit vite de nombreuses variantes, et choisit mal entre elles : il tend vers le plus probable, qui est souvent le plus familier. La répartition des rôles est donc simple : l'IA élargit le champ, vous choisissez. Lui demander des variantes qui changent chacune un seul élément rend la comparaison lisible."),
+      B("Testing before writing saves months. Four tests are enough at this stage: the scene test (can you see three scenes?), the desire test (do you want to spend a year with it?), the summary test (can a stranger repeat it?) and the objection test (does it survive a demanding reader?). None requires writing a chapter.",
+        "Tester avant d'écrire fait gagner des mois. Quatre tests suffisent à ce stade : le test des scènes (en voyez-vous trois ?), le test de l'envie (voulez-vous y consacrer une année ?), le test du résumé (un inconnu peut-il la répéter ?) et le test de l'objection (résiste-t-elle à un lecteur exigeant ?). Aucun ne demande d'écrire un chapitre."),
+    ],
+    example: {
+      context: B("Hélène Marchal, a biology teacher in Lorient (a fictional case), has wanted to write a novel set on a Breton island for years. She asks an AI for an idea and gets a plot she does not recognise as hers.",
+        "Hélène Marchal, professeure de biologie à Lorient (cas fictif), veut depuis des années écrire un roman situé sur une île bretonne. Elle demande une idée à une IA et obtient une intrigue où elle ne se reconnaît pas."),
+      before: B("Give me an idea for a novel set on an island in Brittany.",
+        "Donne-moi une idée de roman qui se passe sur une île en Bretagne."),
+      after: B("Here is my raw idea: an ornithologist who counts terns on a small protected islet in Brittany finds the notebooks of the warden who vanished twenty years ago. The entries continue after his disappearance.\nPropose ten variants of this premise. Each variant changes ONE element only (the main character, the place, the era, the obstacle or the ending) and says which one.\nFor each, write the premise in one sentence: who, what they want, what stops them, what is at stake.\nDo not develop them. I will choose; then you will argue against my choice.",
+        "Voici mon idée brute : une ornithologue qui compte les sternes sur un petit îlot protégé de Bretagne trouve les carnets du gardien disparu vingt ans plus tôt. Les relevés continuent après sa disparition.\nPropose dix variantes de cette prémisse. Chaque variante change UN seul élément (le personnage principal, le lieu, l'époque, l'obstacle ou la fin) et dit lequel.\nPour chacune, écris la prémisse en une phrase : qui, ce qu'il veut, ce qui l'en empêche, ce qui est en jeu.\nNe les développe pas. Je choisirai ; ensuite, tu attaqueras mon choix."),
+      takeaway: B("In the first prompt, the AI invents the book; in the second, it serves Hélène's own idea. The variants can be compared because each changes one element, and the choice stays hers.",
+        "Dans le premier prompt, l'IA invente le livre ; dans le second, elle sert l'idée d'Hélène. Les variantes se comparent parce que chacune ne change qu'un élément, et le choix lui revient."),
+    },
+    exercise: {
+      goal: B("A one-sentence premise chosen among ten variants, with its three scenes and written answers to the strongest objections.",
+        "Une prémisse d'une phrase choisie parmi dix variantes, avec ses trois scènes et des réponses écrites aux objections les plus fortes."),
+      prompt: B("My raw book idea: [YOUR IDEA, IN TWO OR THREE SENTENCES].\nKind of book: [NOVEL, NARRATIVE NON-FICTION, PRACTICAL GUIDE...].\n1. Rewrite it as one premise: who, what they want, what stops them, what is at stake.\n2. Propose ten variants, each changing a single element, and name that element.\n3. When I give you my choice ([YOUR CHOICE]), act as a demanding editor: list the five strongest objections to it (predictable, too thin for a book, already done, unclear stakes...).\nDo not flatter me and do not write any chapter.",
+        "Mon idée brute de livre : [VOTRE IDÉE, EN DEUX OU TROIS PHRASES].\nType de livre : [ROMAN, RÉCIT, GUIDE PRATIQUE...].\n1. Réécris-la en une prémisse : qui, ce qu'il veut, ce qui l'en empêche, ce qui est en jeu.\n2. Propose dix variantes qui changent chacune un seul élément, et nomme cet élément.\n3. Quand je te donnerai mon choix ([VOTRE CHOIX]), joue un éditeur exigeant : liste les cinq objections les plus fortes (prévisible, trop mince pour un livre, déjà fait, enjeu flou...).\nNe me flatte pas et n'écris aucun chapitre."),
+      check: [
+        B("Your premise fits in one sentence and names a character, a desire, an obstacle and a stake", "Votre prémisse tient en une phrase et nomme un personnage, un désir, un obstacle et un enjeu"),
+        B("You wrote three scenes for the chosen premise, in your own words", "Vous avez noté trois scènes pour la prémisse retenue, avec vos mots"),
+        B("Each objection received a written answer, or changed the premise", "Chaque objection a reçu une réponse écrite, ou a modifié la prémisse"),
+        B("The final choice is yours, not the variant the AI ranked first", "Le choix final est le vôtre, pas la variante classée première par l'IA"),
+      ],
+      bonus: B("Tell your premise aloud to someone who has not read it, then ask them to repeat it. What they forget or distort shows what is still vague.",
+        "Racontez votre prémisse à voix haute à quelqu'un qui ne l'a pas lue, puis demandez-lui de la répéter. Ce qu'il oublie ou déforme montre ce qui reste flou."),
+    },
+    more: [
+      { q: B("Why ask for variants that change only one element each?",
+          "Pourquoi demander des variantes qui ne changent chacune qu'un seul élément ?"),
+        options: [
+          B("Because the AI cannot handle more than one change in a single answer", "Parce que l'IA ne sait pas gérer plus d'un changement par réponse"),
+          B("Because you can then see what each element brings to the premise", "Parce qu'on voit alors ce que chaque élément apporte à la prémisse"),
+          B("Because it guarantees that none of the variants already exists in print", "Parce que cela garantit qu'aucune variante n'existe déjà en librairie"),
+        ],
+        answer: 1,
+        why: B("When only one element moves, the difference between two variants is readable: you learn whether your idea depends on its place, its hero or its ending. Changing everything at once gives ten unrelated ideas.",
+          "Quand un seul élément bouge, la différence entre deux variantes se lit : vous apprenez si l'idée tient à son lieu, à son héros ou à sa fin. Tout changer à la fois donne dix idées sans lien.") },
+      { q: B("The AI calls your premise 'original and captivating'. What is this verdict worth as a test?",
+          "L'IA qualifie votre prémisse d'« originale et captivante ». Que vaut ce verdict comme test ?"),
+        options: [
+          B("Little: assistants tend to agree, so ask for objections instead", "Peu de chose : les assistants tendent à approuver, demandez des objections"),
+          B("A lot: the AI has read every published book and can compare yours", "Beaucoup : l'IA a lu tous les livres publiés et peut comparer le vôtre"),
+          B("Enough to start writing, provided you ask the same question twice", "Assez pour commencer, à condition de poser deux fois la même question"),
+        ],
+        answer: 0,
+        why: B("Assistants are inclined to please the person they talk to. A compliment tests nothing; a list of precise objections, which you answer one by one, does.",
+          "Les assistants sont enclins à donner raison à leur interlocuteur. Un compliment ne teste rien ; une liste d'objections précises, à laquelle vous répondez une à une, teste vraiment.") },
+    ],
+  },
+
+  [enrichKey(M1, 'lv2-lecteur')]: {
+    why: [
+      B("Every choice in a book, from vocabulary to chapter length, is made for someone. When that someone is vague, choices are made by default, and the AI, asked to write 'well', aims at an average reader who does not exist. Describing one precise reader gives each decision a criterion: would this reader keep reading here?",
+        "Chaque choix d'un livre, du vocabulaire à la longueur des chapitres, se fait pour quelqu'un. Quand ce quelqu'un est flou, les choix se font par défaut, et l'IA, priée d'écrire « bien », vise un lecteur moyen qui n'existe pas. Décrire un lecteur précis donne un critère à chaque décision : ce lecteur continuerait-il à lire ici ?"),
+      B("The promise is what the reader is entitled to expect. In fiction, it is an experience: tension, a puzzle solved fairly, an emotion. In non-fiction, it is a result: understanding a subject, knowing how to do something. Genre carries part of the promise: a mystery reader expects an answer, a reader of a guide expects to be able to act.",
+        "La promesse est ce que le lecteur est en droit d'attendre. En fiction, c'est une expérience : une tension, une énigme résolue loyalement, une émotion. En non-fiction, c'est un résultat : comprendre un sujet, savoir faire quelque chose. Le genre porte une partie de la promesse : le lecteur d'un polar attend une réponse, celui d'un guide attend de pouvoir agir."),
+      B("Written down, the promise becomes a checking tool for the whole project: does this chapter serve it? An AI can play the reader you described and react to your premise or a chapter, which gives a first reading. It does not replace human readers, but it reveals what you had not seen.",
+        "Écrite, la promesse devient un outil de contrôle pour tout le projet : ce chapitre la sert-il ? Une IA peut jouer le lecteur décrit et réagir à la prémisse ou à un chapitre, ce qui donne une première lecture. Elle ne remplace pas des lecteurs humains, mais elle révèle ce que vous n'aviez pas vu."),
+    ],
+    example: {
+      context: B("Hélène asks for a back-cover text for The Tern Notebook. The AI produces a grandiose text that could fit any thriller, and promises a pace her quiet novel will not deliver.",
+        "Hélène demande une quatrième de couverture pour « Le Carnet des sternes ». L'IA produit un texte grandiloquent qui irait à n'importe quel thriller, et promet un rythme que son roman calme ne tiendra pas."),
+      before: B("Write the back-cover text of my mystery novel set on an island.",
+        "Écris la quatrième de couverture de mon polar qui se passe sur une île."),
+      after: B("My reader: someone who reads one or two mysteries a month, mostly on the train, likes atmospheric settings and well-documented crafts, and drops any book with gratuitous violence or a twist that cheats.\nThe promise: a mystery with a fair solution (all clues on the page), a strong sense of place (a protected islet, its birds, its tides), and a family story that hurts but heals.\nPremise: Maëlle, an ornithologist, finds the tern-count notebooks of the islet's warden, who vanished twenty years ago; the entries continue after his disappearance.\nFirst, playing this reader, tell me what attracts you, what worries you and what is missing.\nThen write a back-cover text of eight lines that keeps this promise, in a sober tone, without revealing the ending or using superlatives.",
+        "Mon lecteur : quelqu'un qui lit un ou deux polars par mois, surtout dans le train, aime les décors marqués et les métiers bien documentés, et abandonne tout livre à la violence gratuite ou au retournement qui triche.\nLa promesse : une énigme résolue loyalement (tous les indices sur la page), un lieu fort (un îlot protégé, ses oiseaux, ses marées) et une histoire de famille qui blesse puis apaise.\nPrémisse : Maëlle, ornithologue, trouve les carnets de comptage du gardien de l'îlot, disparu vingt ans plus tôt ; les relevés continuent après sa disparition.\nD'abord, dans la peau de ce lecteur, dis-moi ce qui t'attire, ce qui t'inquiète et ce qui manque.\nEnsuite, écris une quatrième de couverture de huit lignes qui tient cette promesse, sur un ton sobre, sans dévoiler la fin ni employer de superlatifs."),
+      takeaway: B("The second prompt gives the AI a reader and a promise to aim at. The text becomes sober and specific, and the simulated reader reveals a gap: the family story promised is not yet visible in the premise.",
+        "Le second prompt donne à l'IA un lecteur et une promesse à viser. Le texte devient sobre et précis, et le lecteur simulé révèle un manque : l'histoire de famille promise n'apparaît pas encore dans la prémisse."),
+    },
+    exercise: {
+      goal: B("A reader portrait, a three-line promise and an eight-line back-cover text, checked against each other.",
+        "Un portrait de lecteur, une promesse en trois lignes et une quatrième de couverture de huit lignes, vérifiés l'un par l'autre."),
+      prompt: B("My book: [PREMISE IN ONE SENTENCE].\nMy reader: [WHAT THEY ALREADY READ, WHEN THEY READ, WHAT THEY EXPECT, WHAT BORES THEM].\nMy promise: [WHAT THEY WILL FEEL, UNDERSTAND OR KNOW HOW TO DO AT THE END].\n1. Playing this reader, react honestly to the premise: what attracts you, what worries you, what is missing.\n2. Tell me whether the promise and the premise match, and where they diverge.\n3. Write a back-cover text of eight lines that keeps the promise, without revealing the ending, without superlatives.\nDo not change my premise yourself: point out, I decide.",
+        "Mon livre : [PRÉMISSE EN UNE PHRASE].\nMon lecteur : [CE QU'IL LIT DÉJÀ, QUAND IL LIT, CE QU'IL ATTEND, CE QUI L'ENNUIE].\nMa promesse : [CE QU'IL RESSENTIRA, COMPRENDRA OU SAURA FAIRE À LA FIN].\n1. Dans la peau de ce lecteur, réagis honnêtement à la prémisse : ce qui t'attire, ce qui t'inquiète, ce qui manque.\n2. Dis-moi si la promesse et la prémisse concordent, et où elles divergent.\n3. Écris une quatrième de couverture de huit lignes qui tient la promesse, sans dévoiler la fin, sans superlatifs.\nNe modifie pas ma prémisse toi-même : signale, je décide."),
+      check: [
+        B("Your reader is one person, described by habits and expectations, not by an age bracket only", "Votre lecteur est une personne, décrite par ses habitudes et ses attentes, pas seulement par une tranche d'âge"),
+        B("The promise says what the reader gets, in words they would use themselves", "La promesse dit ce que le lecteur obtient, avec des mots qu'il emploierait lui-même"),
+        B("Every line of the back-cover text is something the book will really deliver", "Chaque ligne de la quatrième annonce une chose que le livre tiendra vraiment"),
+        B("You noted at least one gap revealed by the simulated reader", "Vous avez noté au moins un manque révélé par le lecteur simulé"),
+      ],
+      bonus: B("Show your back-cover text, without the title, to two people who read the genre. Ask what kind of book they expect. If their answer differs from your promise, the text or the promise must change.",
+        "Montrez la quatrième, sans le titre, à deux personnes qui lisent le genre. Demandez-leur quel livre elles attendent. Si leur réponse diffère de votre promesse, le texte ou la promesse doit changer."),
+    },
+    more: [
+      { q: B("Why describe one precise reader rather than 'readers of mysteries' in general?",
+          "Pourquoi décrire un lecteur précis plutôt que « les lecteurs de polars » en général ?"),
+        options: [
+          B("Because a precise reader gives a criterion for every choice in the book", "Parce qu'un lecteur précis donne un critère à chaque choix du livre"),
+          B("Because publishers turn down manuscripts that do not name a single reader", "Parce que les éditeurs refusent les manuscrits qui ne nomment pas de lecteur"),
+          B("Because the AI cannot write for more than one reader at the same time", "Parce que l'IA ne sait pas écrire pour plusieurs lecteurs à la fois"),
+        ],
+        answer: 0,
+        why: B("With a precise reader, you can ask of each scene or paragraph: would this person keep reading? A general category gives no such answer, and choices are then made by default.",
+          "Avec un lecteur précis, vous pouvez demander de chaque scène ou de chaque paragraphe : cette personne continuerait-elle ? Une catégorie générale ne répond pas, et les choix se font alors par défaut.") },
+      { q: B("The simulated reader says your premise 'lacks a personal stake'. What is the right use of this remark?",
+          "Le lecteur simulé juge que la prémisse « manque d'enjeu personnel ». Quel usage faire de cette remarque ?"),
+        options: [
+          B("Ignore it, since a simulated reader has no real taste of its own", "L'ignorer, puisqu'un lecteur simulé n'a pas de goût véritable"),
+          B("Ask the AI to rewrite the premise until the remark disappears", "Demander à l'IA de réécrire la prémisse jusqu'à ce que la remarque cesse"),
+          B("Treat it as a lead, then confirm it with human readers", "La traiter comme une piste, puis la confirmer auprès de lecteurs humains"),
+        ],
+        answer: 2,
+        why: B("A simulated reader is a quick first reading that reveals blind spots. Its remarks are hypotheses: you judge whether they are right, and you confirm the important ones with real readers of the genre.",
+          "Un lecteur simulé est une première lecture rapide qui révèle des angles morts. Ses remarques sont des hypothèses : vous jugez si elles sont justes, et vous confirmez les importantes auprès de vrais lecteurs du genre.") },
+    ],
+  },
+
+  [enrichKey(M1, 'lv2-genre')]: {
+    why: [
+      B("A genre is a contract with the reader: a set of conventions they take for granted. A mystery solves its puzzle, a romance brings its lovers together or explains why not, a practical guide gives steps one can follow. Knowing these conventions lets you choose which to keep, bend or break on purpose; ignoring them means breaking them by accident.",
+        "Un genre est un contrat avec le lecteur : un ensemble de conventions qu'il tient pour acquises. Un polar résout son énigme, une romance réunit ses amants ou explique pourquoi elle ne le fait pas, un guide pratique donne des étapes que l'on peut suivre. Connaître ces conventions permet de choisir celles que l'on garde, plie ou rompt exprès ; les ignorer, c'est les rompre par accident."),
+      B("Tone is the emotional colour of the text: ironic, tender, sombre, light. It comes from many small choices: sentence length, vocabulary, what the narrator notices or keeps silent. Rewriting one paragraph in several tones with an AI makes these choices visible. The aim is to understand them, not to borrow the AI's version, a voice you could not keep alone.",
+        "Le ton est la couleur émotionnelle du texte : ironique, tendre, sombre, léger. Il naît de nombreux petits choix : la longueur des phrases, le vocabulaire, ce que le narrateur remarque ou tait. Faire réécrire un paragraphe dans plusieurs tons par une IA rend ces choix visibles. Le but est de les comprendre, pas d'emprunter la version de l'IA, une voix impossible à tenir seul."),
+      B("Length is not a matter of taste: readers and publishers of each genre have habits, and they change. Rather than trusting a figure found online, measure it: count the words on three full pages of recent comparable books and multiply by their page count. Publishers' submission guidelines sometimes state their expectations too.",
+        "La longueur n'est pas une affaire de goût : lecteurs et éditeurs de chaque genre ont des habitudes, et elles évoluent. Plutôt que de croire un chiffre lu en ligne, mesurez : comptez les mots de trois pages pleines de livres récents comparables, puis multipliez par leur nombre de pages. Les consignes de soumission des éditeurs précisent parfois aussi leurs attentes."),
+    ],
+    example: {
+      context: B("Hélène wants to know what length to aim for and which tone to adopt. She asks both questions at once and receives a firm figure and advice that reads like a recipe.",
+        "Hélène veut savoir quelle longueur viser et le ton à adopter. Elle pose les deux questions d'un coup et reçoit un chiffre catégorique et un conseil qui ressemble à une recette."),
+      before: B("How many words should a mystery novel have, and what tone should I use?",
+        "Combien de mots doit faire un polar, et quel ton dois-je adopter ?"),
+      after: B("I am writing a mystery novel for adults: a fair puzzle, a protected islet in Brittany, a family story.\n1. List the conventions readers of this kind of mystery usually expect. For each, tell me what happens if I bend or break it.\n2. Here is a key paragraph I wrote: [PARAGRAPH: MAËLLE FINDS THE FIRST NOTEBOOK]. Rewrite it in three tones: restrained melancholy, dry irony, warm and cosy. Keep the facts identical. After each version, list in three points what changed (sentence length, vocabulary, what is noticed).\n3. Do not give me a target word count: explain how I can measure it myself on comparable books.",
+        "J'écris un polar pour adultes : une énigme loyale, un îlot protégé en Bretagne, une histoire de famille.\n1. Liste les conventions que les lecteurs de ce type de polar attendent habituellement. Pour chacune, dis-moi ce qui se passe si je la plie ou la romps.\n2. Voici un paragraphe clé que j'ai écrit : [PARAGRAPHE : MAËLLE TROUVE LE PREMIER CARNET]. Réécris-le dans trois tons : mélancolie retenue, ironie sèche, chaleureux et douillet. Garde les faits identiques. Après chaque version, liste en trois points ce qui a changé (longueur des phrases, vocabulaire, ce qui est remarqué).\n3. Ne me donne pas de nombre de mots cible : explique comment je peux le mesurer moi-même sur des livres comparables."),
+      takeaway: B("The first prompt invites an invented figure and a generic tone. The second asks for conventions with their consequences, makes tone visible on Hélène's own paragraph, and leaves length to a measurement she can trust.",
+        "Le premier prompt appelle un chiffre inventé et un ton générique. Le second demande des conventions avec leurs conséquences, rend le ton visible sur le paragraphe d'Hélène, et confie la longueur à une mesure fiable."),
+    },
+    exercise: {
+      goal: B("A table of your genre's conventions (keep, bend, break), a tone fixed in three adjectives and one sentence, and a length range measured on two books.",
+        "Un tableau des conventions du genre (garder, plier, rompre), un ton fixé en trois adjectifs et une phrase, et une fourchette de longueur mesurée sur deux livres."),
+      prompt: B("My book: [PREMISE] · genre: [GENRE AND SUB-GENRE] · reader: [READER IN ONE LINE].\n1. Give me, as a table, the conventions readers of this genre usually expect: convention, why readers expect it, effect if I bend it, effect if I break it.\n2. Here is a key paragraph I wrote: [YOUR PARAGRAPH]. Rewrite it in these three tones: [TONE 1], [TONE 2], [TONE 3]. Keep the facts. After each version, name three concrete differences.\n3. Ask me questions to help me choose, but do not choose for me.",
+        "Mon livre : [PRÉMISSE] · genre : [GENRE ET SOUS-GENRE] · lecteur : [LECTEUR EN UNE LIGNE].\n1. Donne-moi, sous forme de tableau, les conventions que les lecteurs de ce genre attendent habituellement : convention, pourquoi elle est attendue, effet si je la plie, effet si je la romps.\n2. Voici un paragraphe clé que j'ai écrit : [VOTRE PARAGRAPHE]. Réécris-le dans ces trois tons : [TON 1], [TON 2], [TON 3]. Garde les faits. Après chaque version, nomme trois différences concrètes.\n3. Pose-moi des questions pour m'aider à choisir, mais ne choisis pas à ma place."),
+      check: [
+        B("Each convention in your table is marked keep, bend or break, with a reason", "Chaque convention du tableau est marquée garder, plier ou rompre, avec une raison"),
+        B("Your tone is three adjectives plus one sentence written by you, not by the AI", "Le ton retenu tient en trois adjectifs et une phrase écrite par vous, pas par l'IA"),
+        B("Your length range comes from two real books you measured yourself", "La fourchette de longueur vient de deux vrais livres que vous avez mesurés"),
+        B("Every convention you break is broken on purpose, and you know what it costs", "Chaque convention rompue l'est exprès, et vous savez ce qu'elle coûte"),
+      ],
+      bonus: B("Rewrite the paragraph yourself in the tone you chose, without looking at the AI versions. Then compare: what you kept from them should be techniques (shorter sentences, a precise detail), not their sentences.",
+        "Réécrivez vous-même le paragraphe dans le ton choisi, sans regarder les versions de l'IA. Comparez ensuite : ce que vous en gardez doit être des procédés (phrases plus courtes, un détail précis), pas leurs phrases."),
+    },
+    more: [
+      { q: B("An AI gives you a precise word count that 'every mystery must reach'. What do you do with it?",
+          "Une IA vous donne un nombre de mots précis que « tout polar doit atteindre ». Qu'en faites-vous ?"),
+        options: [
+          B("Adopt it, since a precise figure shows that the AI is well informed", "Vous l'adoptez, puisqu'un chiffre précis prouve que l'IA est informée"),
+          B("Ignore length entirely, since only the quality of the story counts", "Vous ignorez la longueur, puisque seule la qualité de l'histoire compte"),
+          B("Check it against books of your genre that you measure yourself", "Vous le confrontez à des livres du genre que vous mesurez vous-même"),
+        ],
+        answer: 2,
+        why: B("A figure stated with confidence can be outdated or invented. Measuring recent comparable books, and reading publishers' guidelines, gives you a range you can trust and explain.",
+          "Un chiffre affirmé avec aplomb peut être daté ou inventé. Mesurer des livres récents comparables, et lire les consignes des éditeurs, donne une fourchette fiable et explicable.") },
+      { q: B("What makes the tone of a paragraph change, when the facts stay the same?",
+          "Qu'est-ce qui fait changer le ton d'un paragraphe quand les faits restent identiques ?"),
+        options: [
+          B("Only the adjectives, which carry the whole emotion of the text", "Seulement les adjectifs, qui portent toute l'émotion du texte"),
+          B("Sentence length, vocabulary and what the narrator notices", "La longueur des phrases, le vocabulaire et ce que le narrateur remarque"),
+          B("The tense, since a text in the present is always lighter to read", "Le temps des verbes, car un texte au présent est toujours plus léger"),
+        ],
+        answer: 1,
+        why: B("Tone emerges from many choices at once: rhythm, words, details selected or left out. Adjectives play a part, but a paragraph can change its atmosphere without changing a single adjective.",
+          "Le ton naît de nombreux choix à la fois : rythme, mots, détails retenus ou tus. Les adjectifs y participent, mais un paragraphe peut changer d'atmosphère sans changer un seul adjectif.") },
+    ],
+  },
+
+  [enrichKey(M1, 'lv2-comps')]: {
+    why: [
+      B("Comparable titles, often called comps, are recent books that your reader has read or would read. They serve three purposes: they show what readers of your genre receive today, they help you see where your book differs, and they let you describe it to a publisher, a bookseller or an online platform in one sentence everyone understands.",
+        "Les titres comparables, souvent appelés comps, sont des livres récents que votre lecteur a lus ou lirait. Ils servent à trois choses : montrer ce que les lecteurs du genre reçoivent aujourd'hui, voir en quoi le livre se distingue, et le décrire à un éditeur, un libraire ou une plateforme en ligne en une phrase que chacun comprend."),
+      B("An AI is useful to brainstorm candidates, because it has seen many book descriptions. It is unreliable on facts: it can attribute a book to the wrong author, mix up publishers or invent a title that sounds right. Every candidate must be checked in a real source: the catalogue of the Bibliothèque nationale de France, a bookseller's site, or Electre for professionals.",
+        "Une IA est utile pour trouver des candidats, parce qu'elle a vu beaucoup de présentations de livres. Elle est peu fiable sur les faits : elle peut attribuer un livre au mauvais auteur, confondre des éditeurs ou inventer un titre vraisemblable. Chaque candidat doit être vérifié dans une vraie source : le catalogue de la Bibliothèque nationale de France, le site d'un libraire, ou Electre pour les professionnels."),
+      B("Good comps are recent, because tastes move, and are not giant bestsellers, because nobody can promise to be the next phenomenon. Their first pages and back covers tell you the pace, the tone and the promise readers accept. Your positioning sentence follows: for readers of X and Y, with what makes your book different.",
+        "De bons comparables sont récents, parce que les goûts évoluent, et ne sont pas de très gros succès, parce que personne ne peut promettre d'être le prochain phénomène. Leurs premières pages et leur quatrième renseignent sur le rythme, le ton et la promesse que les lecteurs acceptent. La phrase de positionnement en découle : pour les lecteurs de X et Y, avec ce qui distingue votre livre."),
+    ],
+    example: {
+      context: B("Hélène asks an AI which books resemble hers. She copies the list straight into her letter to publishers, without checking. One of the titles does not exist.",
+        "Hélène demande à une IA quels livres ressemblent au sien. Elle recopie la liste telle quelle dans sa lettre aux éditeurs, sans vérifier. L'un des titres n'existe pas."),
+      before: B("Which books are similar to my novel? I want to quote them to publishers.",
+        "Quels livres ressemblent à mon roman ? Je veux les citer aux éditeurs."),
+      after: B("My book: an atmospheric adult mystery, a protected islet in Brittany, an ornithologist investigating her uncle's disappearance, a restrained and melancholic tone, a fair puzzle.\nPropose ten candidate comparable titles, preferably recent, in French or translated into French. Avoid the very biggest bestsellers.\nFor each: title, author, publisher, approximate year, and in one line why it is comparable (premise, setting, tone or reader).\nImportant: if you are not certain a title exists exactly as written, say so explicitly next to it. I will check each one in the BnF catalogue and on a bookseller's site before using it.",
+        "Mon livre : un polar d'atmosphère pour adultes, un îlot protégé en Bretagne, une ornithologue qui enquête sur la disparition de son oncle, un ton retenu et mélancolique, une énigme loyale.\nPropose dix titres comparables candidats, de préférence récents, en français ou traduits en français. Évite les plus gros succès.\nPour chacun : titre, auteur, éditeur, année approximative, et en une ligne pourquoi il est comparable (prémisse, décor, ton ou lecteur).\nImportant : si tu n'es pas certain qu'un titre existe exactement tel qu'écrit, signale-le explicitement à côté. Je vérifierai chacun dans le catalogue de la BnF et sur le site d'un libraire avant de m'en servir."),
+      takeaway: B("The second prompt asks for candidates, not answers, with the reason for each, and invites the AI to flag its doubts. The catalogue check remains Hélène's job, and it is the step that would have saved her letter.",
+        "Le second prompt demande des candidats, pas des réponses, avec la raison de chaque rapprochement, et invite l'IA à signaler ses doutes. La vérification en catalogue reste le travail d'Hélène, et c'est elle qui aurait sauvé sa lettre."),
+    },
+    exercise: {
+      goal: B("A table of three to five verified comparable titles, with what each shares with your book and where yours differs, and one positioning sentence.",
+        "Un tableau de trois à cinq titres comparables vérifiés, avec ce que chacun partage avec votre livre et où le vôtre diffère, et une phrase de positionnement."),
+      prompt: B("My book: [PREMISE] · genre: [GENRE] · reader: [READER] · tone: [TONE].\n1. Propose ten candidate comparable titles, preferably published in the last few years, available in [LANGUAGE OR COUNTRY]. No giant bestsellers.\n2. For each: title, author, publisher, approximate year, and why it is comparable (premise, setting, tone, reader).\n3. Mark 'TO CHECK' next to any detail you are not sure of.\nWhen I send back the titles I have verified ([VERIFIED LIST]), help me fill a table: shared points, differences, and a sentence 'for readers of X and Y, with Z'.",
+        "Mon livre : [PRÉMISSE] · genre : [GENRE] · lecteur : [LECTEUR] · ton : [TON].\n1. Propose dix titres comparables candidats, de préférence parus ces dernières années, disponibles en [LANGUE OU PAYS]. Pas de très gros succès.\n2. Pour chacun : titre, auteur, éditeur, année approximative, et pourquoi il est comparable (prémisse, décor, ton, lecteur).\n3. Marque « À VÉRIFIER » tout détail dont tu n'es pas sûr.\nQuand je te renverrai les titres vérifiés ([LISTE VÉRIFIÉE]), aide-moi à remplir un tableau : points communs, différences, et une phrase « pour les lecteurs de X et Y, avec Z »."),
+      check: [
+        B("Every title in your table was found in a catalogue or on a bookseller's site", "Chaque titre du tableau a été trouvé dans un catalogue ou sur le site d'un libraire"),
+        B("Author, publisher and year match what the catalogue says, not the AI", "Auteur, éditeur et année correspondent au catalogue, pas à l'IA"),
+        B("You read at least the first pages and the back cover of each comparable", "Vous avez lu au moins les premières pages et la quatrième de chaque comparable"),
+        B("Your positioning sentence names a real difference, not 'but better'", "La phrase de positionnement nomme une vraie différence, pas « mais en mieux »"),
+      ],
+      bonus: B("Ask a bookseller in an independent bookshop where they would shelve your book, from your positioning sentence alone, and which books they would place next to it. Compare with your list.",
+        "Demandez à un libraire indépendant où il rangerait votre livre, à partir de la seule phrase de positionnement, et quels livres il placerait à côté. Comparez avec votre liste."),
+    },
+    more: [
+      { q: B("Why avoid giant bestsellers as comparable titles?",
+          "Pourquoi éviter les très gros succès comme titres comparables ?"),
+        options: [
+          B("Because they are exceptions, telling little of a new book", "Parce que ce sont des exceptions, qui disent peu d'un nouveau livre"),
+          B("Because quoting them in a letter to a publisher is forbidden", "Parce qu'il est interdit de les citer dans une lettre à un éditeur"),
+          B("Because their fame makes any comparison look ridiculous", "Parce que leur renommée rend toute comparaison ridicule"),
+        ],
+        answer: 0,
+        why: B("A phenomenon depends on circumstances nobody controls. Recent books with ordinary success show what readers of the genre accept, and they make your positioning credible.",
+          "Un phénomène dépend de circonstances que personne ne maîtrise. Des livres récents au succès ordinaire montrent ce que les lecteurs du genre acceptent, et rendent le positionnement crédible.") },
+      { q: B("The AI gives a title and its author, but the catalogue shows the book was written by someone else. What do you do?",
+          "L'IA donne un titre et son auteur, mais le catalogue attribue le livre à quelqu'un d'autre. Que faites-vous ?"),
+        options: [
+          B("Keep the AI's version, since it may know a more recent edition", "Vous gardez la version de l'IA, qui connaît peut-être une édition récente"),
+          B("Use the catalogue's data and recheck the AI's other details", "Vous retenez le catalogue et revérifiez les autres détails de l'IA"),
+          B("Drop the title, since a book with two possible authors is suspect", "Vous écartez le titre, puisqu'un livre à deux auteurs possibles est suspect"),
+        ],
+        answer: 1,
+        why: B("The catalogue is the source; the AI is a lead. One wrong attribution is a sign that other details in the same list may be wrong, so each must be checked.",
+          "Le catalogue est la source ; l'IA est une piste. Une attribution fausse signale que d'autres détails de la même liste peuvent l'être aussi, et chacun doit être vérifié.") },
+    ],
+  },
+}
+
+const IDEE_DEEP: Record<string, Deepening> = {
+  [deepKey(M1, 'lv2-idee')]: {
+    intro: B("Every book starts as an idea, but not every idea can become a book. This lesson shows how to turn a vague wish into a premise, a single sentence that links a character, a desire, an obstacle and a stake, and how to test it before writing a single chapter. You will use AI for what it does well, producing variants and objections, and keep for yourself what it does badly, choosing. You will follow Hélène Marchal, a fictional teacher writing her first novel, The Tern Notebook, the example that runs through this course, and leave with a premise that has passed four tests.",
+      "Tout livre commence par une idée, mais toute idée ne devient pas un livre. Ce cours montre comment transformer une envie vague en prémisse, une phrase unique qui relie un personnage, un désir, un obstacle et un enjeu, et comment la tester avant d'écrire le moindre chapitre. Vous utiliserez l'IA pour ce qu'elle fait bien, produire des variantes et des objections, et garderez pour vous ce qu'elle fait mal, choisir. Vous suivrez Hélène Marchal, professeure fictive qui écrit son premier roman, « Le Carnet des sternes », exemple qui sert de fil rouge à cette formation, et repartirez avec une prémisse qui a passé quatre tests."),
+    concepts: [
+      { term: B('Premise', 'Prémisse'),
+        def: B("The book in one sentence: who, what they want, what stands in the way and what is at stake. It is a working tool, not the back-cover text.",
+          "Le livre en une phrase : qui, ce qu'il veut, ce qui s'y oppose et ce qui est en jeu. C'est un outil de travail, pas le texte de quatrième de couverture.") },
+      { term: B('Variant', 'Variante'),
+        def: B("A version of the premise in which one element changes (hero, place, era, obstacle, ending). It shows what the idea depends on.",
+          "Une version de la prémisse où un seul élément change (héros, lieu, époque, obstacle, fin). Elle révèle ce dont l'idée dépend.") },
+      { term: B('Scene test', 'Test des scènes'),
+        def: B("If a premise makes you see three concrete scenes, it can generate a book. If it makes you see none, it is still a theme.",
+          "Si une prémisse vous fait voir trois scènes concrètes, elle peut engendrer un livre. Si elle n'en fait voir aucune, c'est encore un thème.") },
+      { term: B('Objection test', "Test de l'objection"),
+        def: B("The AI plays a demanding editor and lists the weaknesses of the premise. You answer each one in writing, or you change the premise.",
+          "L'IA joue un éditeur exigeant et liste les faiblesses de la prémisse. Vous répondez à chacune par écrit, ou vous modifiez la prémisse.") },
+      { term: B('Non-fiction premise', "Prémisse d'un livre pratique"),
+        def: B("For a guide or an essay, the premise names a reader, a problem, the change the book brings, and why you are the person to write it.",
+          "Pour un guide ou un essai, la prémisse nomme un lecteur, un problème, le changement que le livre apporte, et pourquoi vous êtes la bonne personne pour l'écrire.") },
+    ],
+    walkthrough: {
+      title: B("Hélène turns a long-held wish into a tested premise for The Tern Notebook.",
+        "Hélène transforme une envie ancienne en prémisse testée pour « Le Carnet des sternes »."),
+      steps: [
+        B("She writes her raw idea in two sentences: an ornithologist counting terns on a protected islet finds the notebooks of a warden who vanished twenty years ago, and the entries continue after his disappearance. Why: an idea on paper can be worked on; an idea kept in one's head keeps changing.",
+          "Elle écrit son idée brute en deux phrases : une ornithologue qui compte les sternes sur un îlot protégé trouve les carnets d'un gardien disparu vingt ans plus tôt, et les relevés continuent après sa disparition. Pourquoi : une idée écrite se travaille ; une idée gardée en tête change sans cesse."),
+        B("She asks for ten variants, each changing one element. One moves the story to a lighthouse in winter, another makes the warden the narrator. Why: seeing what changes when one element moves tells her where the core of her idea lies.",
+          "Elle demande dix variantes qui changent chacune un élément. L'une déplace l'histoire dans un phare en hiver, une autre fait du gardien le narrateur. Pourquoi : voir ce qui change quand un élément bouge lui dit où est le coeur de son idée."),
+        B("She keeps three and writes three scenes for each. For the original premise, the scenes come at once: the first notebook in the hut, the impossible date, the return to the harbour. Why: the scene test separates a story from a theme.",
+          "Elle en garde trois et note trois scènes pour chacune. Pour la prémisse d'origine, les scènes viennent tout de suite : le premier carnet dans la cabane, la date impossible, le retour au port. Pourquoi : le test des scènes sépare une histoire d'un thème."),
+        B("She asks the AI to play a demanding editor. Objections: the supernatural reading is tempting but risky, and the heroine's stake is unclear. Why: she prefers to hear these objections now rather than at chapter twelve.",
+          "Elle demande à l'IA de jouer un éditeur exigeant. Objections : la piste surnaturelle tente mais inquiète, et l'enjeu de l'héroïne reste flou. Pourquoi : elle préfère entendre ces objections maintenant plutôt qu'au chapitre douze."),
+        B("She answers in writing: the explanation will be human, and the stake becomes personal, since the warden was the heroine's uncle. Her final premise fits in one sentence, and a colleague repeats it correctly. Why: an objection that changes the premise is progress, not a defeat.",
+          "Elle répond par écrit : l'explication sera humaine, et l'enjeu devient personnel, puisque le gardien était l'oncle de l'héroïne. Sa prémisse finale tient en une phrase, et une collègue la répète sans erreur. Pourquoi : une objection qui fait évoluer la prémisse est un progrès, pas une défaite."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Asking the AI for 'a good idea' and adopting the first answer.",
+          "Demander « une bonne idée » à l'IA et adopter la première réponse."),
+        fix: B("Bring your own raw idea, ask for variants around it, and choose yourself. The AI widens the field; it does not decide.",
+          "Apportez votre idée brute, demandez des variantes autour d'elle, et choisissez vous-même. L'IA élargit le champ ; elle ne décide pas.") },
+      { wrong: B("Confusing a theme ('memory', 'the sea') with a premise.",
+          "Confondre un thème (« la mémoire », « la mer ») avec une prémisse."),
+        fix: B("Turn the theme into a character who wants something, an obstacle and a stake. The theme will then appear through the story.",
+          "Transformez le thème en un personnage qui veut quelque chose, un obstacle et un enjeu. Le thème apparaîtra alors à travers l'histoire.") },
+      { wrong: B("Taking the AI's praise as a validation of the idea.",
+          "Prendre les éloges de l'IA pour une validation de l'idée."),
+        fix: B("Ask explicitly for objections, as a demanding editor would, and answer them. Then test the premise on a human reader.",
+          "Demandez explicitement des objections, comme le ferait un éditeur exigeant, et répondez-y. Testez ensuite la prémisse sur un lecteur humain.") },
+    ],
+    recap: [
+      B("A premise links a character, a desire, an obstacle and a stake in one sentence.", "Une prémisse relie un personnage, un désir, un obstacle et un enjeu en une phrase."),
+      B("The AI produces variants and objections; you choose.", "L'IA produit des variantes et des objections ; vous choisissez."),
+      B("A premise that makes you see no scene is still a theme.", "Une prémisse qui ne fait voir aucune scène est encore un thème."),
+      B("An objection that changes the premise is progress.", "Une objection qui fait évoluer la prémisse est un progrès."),
+    ],
+    further: B("Keep an idea notebook for two weeks (a paper notebook, a note in Notion or Obsidian): one line per idea, dated. At the end, put the three that still attract you through the four tests of this lesson, and compare the results.",
+      "Tenez un carnet d'idées pendant deux semaines (un carnet papier, une note dans Notion ou Obsidian) : une ligne par idée, datée. À la fin, soumettez les trois qui vous attirent encore aux quatre tests de ce cours, et comparez les résultats."),
+    more: [
+      { q: B("Which of these sentences is a premise rather than a theme?",
+          "Laquelle de ces phrases est une prémisse plutôt qu'un thème ?"),
+        options: [
+          B("A novel about memory, the sea and the secrets that families keep", "Un roman sur la mémoire, la mer et les secrets que gardent les familles"),
+          B("A Breton island in winter, its seabirds and the silence of its people", "Une île bretonne en hiver, ses oiseaux marins et le silence de ses habitants"),
+          B("An ornithologist must find who writes in her vanished uncle's notebooks", "Une ornithologue doit trouver qui écrit dans les carnets de son oncle disparu"),
+        ],
+        answer: 2,
+        why: B("Only the third names a character, a desire (to find out), an obstacle (the mystery) and a personal stake. The other two describe atmospheres, which a premise will later carry.",
+          "Seule la troisième nomme un personnage, un désir (découvrir), un obstacle (le mystère) et un enjeu personnel. Les deux autres décrivent des ambiances, qu'une prémisse portera ensuite.") },
+      { q: B("You are writing a practical guide. What must its premise name that a novel premise does not?",
+          "Vous écrivez un guide pratique. Que doit nommer sa prémisse qu'une prémisse de roman ne nomme pas ?"),
+        options: [
+          B("The reader's problem, the change the book brings and your legitimacy", "Le problème du lecteur, le changement apporté et votre légitimité"),
+          B("The number of chapters and the exact page count of the finished book", "Le nombre de chapitres et le nombre exact de pages du livre fini"),
+          B("The publishers that will be approached and the planned release date", "Les éditeurs qui seront sollicités et la date de sortie prévue"),
+        ],
+        answer: 0,
+        why: B("A practical book is bought to solve a problem. Its premise says for whom, which problem, what will change after reading, and why you can write it. Length and publishers come later.",
+          "Un livre pratique s'achète pour résoudre un problème. Sa prémisse dit pour qui, quel problème, ce qui changera après la lecture, et pourquoi vous pouvez l'écrire. Longueur et éditeurs viennent plus tard.") },
+    ],
+  },
+
+  [deepKey(M1, 'lv2-lecteur')]: {
+    intro: B("A book is always written for someone, whether the author knows it or not. This lesson teaches you to describe that someone, one precise reader with habits and expectations, and to state the promise the book makes to them: an experience for a novel, a result for a practical book. You will see how genre carries part of that promise, how an AI can play your reader to give you a first reaction, and how a back-cover text tests the whole. Hélène will define the reader of The Tern Notebook and discover a gap in her premise.",
+      "Un livre s'écrit toujours pour quelqu'un, que l'auteur le sache ou non. Ce cours vous apprend à décrire ce quelqu'un, un lecteur précis avec ses habitudes et ses attentes, et à formuler la promesse que le livre lui fait : une expérience pour un roman, un résultat pour un livre pratique. Vous verrez comment le genre porte une partie de cette promesse, comment une IA peut jouer votre lecteur pour vous donner une première réaction, et comment une quatrième de couverture met le tout à l'épreuve. Hélène définira le lecteur du « Carnet des sternes » et découvrira un manque dans sa prémisse."),
+    concepts: [
+      { term: B('Target reader', 'Lecteur cible'),
+        def: B("One person, described by what they read, how they read and what they expect. It is a decision tool, not a marketing segment.",
+          "Une personne, décrite par ce qu'elle lit, comment elle lit et ce qu'elle attend. C'est un outil de décision, pas un segment marketing.") },
+      { term: B("The book's promise", 'Promesse du livre'),
+        def: B("What the reader is entitled to expect on closing the book: an emotion, an answer, a skill. Every chapter must serve it.",
+          "Ce que le lecteur est en droit d'attendre en refermant le livre : une émotion, une réponse, une compétence. Chaque chapitre doit la servir.") },
+      { term: B('Genre expectations', 'Attentes du genre'),
+        def: B("The conventions a reader of a genre takes for granted, such as a solved puzzle in a mystery. Breaking one must be a choice, not an oversight.",
+          "Les conventions qu'un lecteur du genre tient pour acquises, comme une énigme résolue dans un polar. En rompre une doit être un choix, pas un oubli.") },
+      { term: B('Back-cover text', 'Quatrième de couverture'),
+        def: B("The short text on the back of a book. Writing it early tests whether the promise can be told simply and honestly.",
+          "Le court texte au dos d'un livre. L'écrire tôt vérifie que la promesse peut se dire simplement et honnêtement.") },
+      { term: B('Simulated reader', 'Lecteur simulé'),
+        def: B("An AI asked to react as the reader you described. Useful to find blind spots quickly; its remarks are hypotheses to confirm.",
+          "Une IA priée de réagir comme le lecteur décrit. Utile pour trouver vite des angles morts ; ses remarques sont des hypothèses à confirmer.") },
+    ],
+    walkthrough: {
+      title: B("Hélène defines the reader of The Tern Notebook and tests her promise with a back-cover text.",
+        "Hélène définit le lecteur du « Carnet des sternes » et teste sa promesse avec une quatrième de couverture."),
+      steps: [
+        B("She thinks of a reader she knows: her sister-in-law, who reads atmospheric mysteries on the train and drops any book that turns gory. She describes her habits without naming her. Why: a reader one can picture gives answers; a category gives none.",
+          "Elle pense à une lectrice qu'elle connaît : sa belle-soeur, qui lit des polars d'atmosphère dans le train et abandonne tout livre qui devient sanglant. Elle décrit ses habitudes sans la nommer. Pourquoi : un lecteur que l'on voit donne des réponses ; une catégorie n'en donne pas."),
+        B("She writes her promise in three lines: a fair puzzle, a strong place, a family story that hurts then heals. Why: three precise commitments can be checked chapter by chapter.",
+          "Elle écrit sa promesse en trois lignes : une énigme loyale, un lieu fort, une histoire de famille qui blesse puis apaise. Pourquoi : trois engagements précis se vérifient chapitre par chapitre."),
+        B("She asks the AI to react as this reader. The answer: the island and the notebooks attract, but nothing in the premise says why the heroine cares. Why: the simulated reader points to the gap between promise (a family story) and premise (a mystery only).",
+          "Elle demande à l'IA de réagir comme cette lectrice. Réponse : l'île et les carnets attirent, mais rien dans la prémisse ne dit pourquoi l'héroïne s'en soucie. Pourquoi : le lecteur simulé désigne l'écart entre la promesse (une histoire de famille) et la prémisse (une énigme seule)."),
+        B("She revises the premise: the warden is Maëlle's uncle, and his disappearance split the family. Why: the promise is a commitment, so it is the premise that adapts.",
+          "Elle révise la prémisse : le gardien est l'oncle de Maëlle, et sa disparition a divisé la famille. Pourquoi : la promesse est un engagement, c'est donc la prémisse qui s'ajuste."),
+        B("She writes an eight-line back-cover text, removes two superlatives proposed by the AI, and shows it to her sister-in-law, who describes exactly the book Hélène has in mind. Why: a human reader confirms what the simulation suggested.",
+          "Elle écrit une quatrième de huit lignes, retire deux superlatifs proposés par l'IA, et la montre à sa belle-soeur, qui décrit exactement le livre qu'Hélène a en tête. Pourquoi : un lecteur humain confirme ce que la simulation suggérait."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Describing the reader only by age and gender.",
+          "Décrire le lecteur seulement par son âge et son sexe."),
+        fix: B("Describe habits: what they read, when, how fast, what makes them stop. These are what guide writing choices.",
+          "Décrivez ses habitudes : ce qu'il lit, quand, à quel rythme, ce qui le fait abandonner. Ce sont elles qui guident les choix d'écriture.") },
+      { wrong: B("Promising in the back-cover text what the book does not deliver, to sound more attractive.",
+          "Promettre dans la quatrième ce que le livre ne tient pas, pour paraître plus attirant."),
+        fix: B("Each line of the text must match something on the page. A disappointed reader does not recommend the book.",
+          "Chaque ligne du texte doit correspondre à quelque chose dans le livre. Un lecteur déçu ne recommande pas le livre.") },
+      { wrong: B("Treating the simulated reader's verdict as final.",
+          "Tenir le verdict du lecteur simulé pour définitif."),
+        fix: B("Use it to find leads, then confirm the important ones with two or three real readers of the genre.",
+          "Servez-vous-en pour trouver des pistes, puis confirmez les plus importantes auprès de deux ou trois vrais lecteurs du genre.") },
+    ],
+    recap: [
+      B("A precise reader gives a criterion to every choice in the book.", "Un lecteur précis donne un critère à chaque choix du livre."),
+      B("The promise is an experience for a novel, a result for a practical book.", "La promesse est une expérience pour un roman, un résultat pour un livre pratique."),
+      B("Genre carries expectations; breaking one must be deliberate.", "Le genre porte des attentes ; en rompre une doit être délibéré."),
+      B("When premise and promise diverge, the premise adapts.", "Quand prémisse et promesse divergent, c'est la prémisse qui s'ajuste."),
+    ],
+    further: B("Take five books of your genre that you liked and copy their back-cover texts into a document. For each, write in one line the promise you read in it, then check, from memory, whether the book kept it. You will learn how promises are worded in your genre.",
+      "Prenez cinq livres de votre genre que vous avez aimés et recopiez leur quatrième de couverture dans un document. Pour chacun, écrivez en une ligne la promesse que vous y lisez, puis vérifiez, de mémoire, si le livre l'a tenue. Vous apprendrez comment les promesses se formulent dans votre genre."),
+    more: [
+      { q: B("Your reader drops any book that turns gory. You plan a detailed autopsy scene. What do you do?",
+          "Votre lecteur abandonne tout livre qui devient sanglant. Vous prévoyez une scène d'autopsie détaillée. Que faites-vous ?"),
+        options: [
+          B("Keep it as is, since the scene is realistic and well documented", "Vous la gardez telle quelle, car elle est réaliste et documentée"),
+          B("Keep the information the plot needs, and tell it without gore", "Vous gardez l'information utile à l'intrigue, racontée sans détails sanglants"),
+          B("Remove it and replace it with a summary written by the AI", "Vous la supprimez et la remplacez par un résumé rédigé par l'IA"),
+        ],
+        answer: 1,
+        why: B("The plot may need what the autopsy reveals; the reader does not need the gore. The reader portrait tells you how to deliver the information, not whether to remove it.",
+          "L'intrigue peut avoir besoin de ce que l'autopsie révèle ; le lecteur n'a pas besoin des détails sanglants. Le portrait du lecteur dit comment livrer l'information, pas s'il faut la supprimer.") },
+      { q: B("What does a practical book about growing vegetables on a balcony promise?",
+          "Que promet un livre pratique sur le potager en balcon ?"),
+        options: [
+          B("A pleasant atmosphere and a touching story about plants", "Une atmosphère agréable et une histoire touchante sur les plantes"),
+          B("An exhaustive list of all known vegetables and their history", "La liste exhaustive des légumes connus et de leur histoire"),
+          B("A result: the reader will know how to grow vegetables there", "Un résultat : le lecteur saura y faire pousser des légumes"),
+        ],
+        answer: 2,
+        why: B("A practical book is bought for a result. Atmosphere can help, completeness can impress, but the promise is what the reader will be able to do after reading.",
+          "Un livre pratique s'achète pour un résultat. L'atmosphère peut aider, l'exhaustivité impressionner, mais la promesse est ce que le lecteur saura faire après la lecture.") },
+    ],
+  },
+
+  [deepKey(M1, 'lv2-genre')]: {
+    intro: B("Before planning a book, three frames must be set: the genre, which is a contract with the reader; the tone, which is the emotional colour of the text; and the length, about which readers of each genre have habits. This lesson shows how to list your genre's conventions and decide which to keep, bend or break, how to find your tone by rewriting one paragraph in several tones, and how to measure a target length on real books instead of trusting a figure. Hélène will set the frame of The Tern Notebook: an adult mystery, a restrained melancholy, a length measured on two comparable novels.",
+      "Avant de planifier un livre, trois cadres doivent être posés : le genre, qui est un contrat avec le lecteur ; le ton, qui est la couleur émotionnelle du texte ; la longueur, sur laquelle les lecteurs de chaque genre ont des habitudes. Ce cours montre comment lister les conventions de votre genre et décider de celles que vous gardez, pliez ou rompez, comment trouver le ton en réécrivant un paragraphe dans plusieurs tons, et comment mesurer une longueur cible sur de vrais livres au lieu de croire un chiffre. Hélène fixera le cadre du « Carnet des sternes » : un polar pour adultes, une mélancolie retenue, une longueur mesurée sur deux romans comparables."),
+    concepts: [
+      { term: B('Genre convention', 'Convention de genre'),
+        def: B("An element readers of a genre take for granted, such as the solved puzzle of a mystery or the usable steps of a guide.",
+          "Un élément que les lecteurs d'un genre tiennent pour acquis, comme l'énigme résolue d'un polar ou les étapes applicables d'un guide.") },
+      { term: B('Tone', 'Le ton'),
+        def: B("The emotional colour of the text, born from sentence length, vocabulary and the details the narrator chooses to notice.",
+          "La couleur émotionnelle du texte, née de la longueur des phrases, du vocabulaire et des détails que le narrateur choisit de remarquer.") },
+      { term: B('Sub-genre', 'Sous-genre'),
+        def: B("A narrower family within a genre (atmospheric mystery, police procedural, psychological thriller), each with its own expectations.",
+          "Une famille plus étroite au sein d'un genre (polar d'atmosphère, procédure policière, thriller psychologique), chacune avec ses propres attentes.") },
+      { term: B('Length range', 'Fourchette de longueur'),
+        def: B("A minimum and maximum word count measured on recent comparable books, rather than a single figure taken on trust.",
+          "Un nombre de mots minimal et maximal mesuré sur des livres récents comparables, plutôt qu'un chiffre unique pris sur parole.") },
+    ],
+    walkthrough: {
+      title: B("Hélène sets the genre, tone and length of The Tern Notebook.",
+        "Hélène fixe le genre, le ton et la longueur du « Carnet des sternes »."),
+      steps: [
+        B("She asks the AI for the conventions of the atmospheric mystery and gets a table. She keeps the fair puzzle and the strong setting, bends the investigator figure (an ornithologist, not a police officer), and breaks nothing. Why: each choice is now deliberate and written down.",
+          "Elle demande à l'IA les conventions du polar d'atmosphère et obtient un tableau. Elle garde l'énigme loyale et le décor fort, plie la figure de l'enquêteur (une ornithologue, pas une policière), ne rompt rien. Pourquoi : chaque choix est désormais délibéré et écrit."),
+        B("She writes the paragraph of the first notebook herself, then has it rewritten in three tones. The ironic version amuses her but betrays the grief at the heart of the book. Why: comparing tones on her own material shows what each one costs.",
+          "Elle écrit elle-même le paragraphe du premier carnet, puis le fait réécrire dans trois tons. La version ironique l'amuse mais trahit le deuil au coeur du livre. Pourquoi : comparer les tons sur sa propre matière montre ce que chacun coûte."),
+        B("She fixes her tone: restrained, precise, melancholic, plus a sentence of hers that embodies it. Why: three adjectives and one real sentence are far easier to check later than a vague intention.",
+          "Elle fixe le ton : retenu, précis, mélancolique, et une phrase de sa main qui l'incarne. Pourquoi : trois adjectifs et une vraie phrase se vérifient plus tard bien mieux qu'une intention vague."),
+        B("She borrows two recent atmospheric mysteries from the library, counts the words on three full pages of each, multiplies by the page count, and gets a range. Why: a measurement on real books describes her genre today, unlike a figure read online.",
+          "Elle emprunte deux polars d'atmosphère récents à la médiathèque, compte les mots de trois pages pleines de chacun, multiplie par le nombre de pages et obtient une fourchette. Pourquoi : une mesure sur de vrais livres décrit son genre aujourd'hui, contrairement à un chiffre lu en ligne."),
+        B("She writes the three decisions on one page, the frame of the book, which she will reread before planning. Why: the structure of the next module depends on these choices, notably the length, which sets the number of chapters.",
+          "Elle note les trois décisions sur une page, le cadre du livre, qu'elle relira avant de planifier. Pourquoi : la structure du module suivant dépend de ces choix, notamment la longueur, qui fixe le nombre de chapitres."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Breaking a genre convention without knowing it exists.",
+          "Rompre une convention du genre sans savoir qu'elle existe."),
+        fix: B("List the conventions first, then mark each one keep, bend or break. A rupture that is chosen surprises; an accidental one disappoints.",
+          "Listez d'abord les conventions, puis marquez chacune garder, plier ou rompre. Une rupture choisie surprend ; une rupture accidentelle déçoit.") },
+      { wrong: B("Copying the AI's rewritten paragraph as the model of one's style.",
+          "Recopier le paragraphe réécrit par l'IA comme modèle de style."),
+        fix: B("Use the versions to identify techniques, then rewrite the paragraph yourself. Your tone must be one you can hold for a whole book.",
+          "Servez-vous des versions pour repérer des procédés, puis réécrivez le paragraphe vous-même. Le ton retenu doit être tenable sur tout un livre.") },
+      { wrong: B("Taking a word count from the internet or from an AI as a rule.",
+          "Prendre pour règle un nombre de mots lu sur internet ou donné par une IA."),
+        fix: B("Measure two or three recent comparable books and read the publishers' submission guidelines. Keep a range, not a single figure.",
+          "Mesurez deux ou trois livres récents comparables et lisez les consignes de soumission des éditeurs. Gardez une fourchette, pas un chiffre unique.") },
+    ],
+    recap: [
+      B("A genre is a contract: know its conventions before keeping or breaking them.", "Un genre est un contrat : connaissez ses conventions avant de les garder ou de les rompre."),
+      B("Tone comes from rhythm, vocabulary and the details the narrator notices.", "Le ton naît du rythme, du vocabulaire et des détails que le narrateur remarque."),
+      B("Find your tone on your own paragraph, then write it yourself.", "Trouvez le ton sur votre propre paragraphe, puis écrivez-le vous-même."),
+      B("Measure length on recent comparable books and keep a range.", "Mesurez la longueur sur des livres récents comparables et gardez une fourchette."),
+    ],
+    further: B("Read the submission guidelines of two publishers who publish your genre, usually found on their official websites. Note what they say about genre, length and form of the manuscript, and compare with the frame you have just set.",
+      "Lisez les consignes de soumission de deux éditeurs qui publient votre genre, généralement sur leur site officiel. Notez ce qu'ils disent du genre, de la longueur et de la forme du manuscrit, et comparez avec le cadre que vous venez de fixer."),
+    more: [
+      { q: B("Your mystery's investigator is an ornithologist rather than a police officer. Which convention have you bent?",
+          "L'enquêtrice de votre polar est ornithologue plutôt que policière. Quelle convention avez-vous pliée ?"),
+        options: [
+          B("The fair puzzle, since the reader can no longer follow the clues", "L'énigme loyale, puisque le lecteur ne peut plus suivre les indices"),
+          B("The figure of the investigator, while keeping the investigation", "La figure de l'enquêteur, tout en gardant l'enquête"),
+          B("The setting, since an ornithologist must work outside any town", "Le décor, puisqu'une ornithologue travaille forcément hors des villes"),
+        ],
+        answer: 1,
+        why: B("The convention of an investigation is kept; who leads it changes. Readers accept such bends easily, provided the investigator has believable reasons and means to look for the truth.",
+          "La convention de l'enquête est gardée ; c'est celui qui la mène qui change. Les lecteurs acceptent bien ce genre d'écart, si l'enquêtrice a des raisons et des moyens crédibles de chercher la vérité.") },
+      { q: B("How do you best estimate the length of a comparable book you hold in your hands?",
+          "Comment estimer au mieux la longueur d'un livre comparable que vous tenez en main ?"),
+        options: [
+          B("Words on three full pages, averaged, times the number of pages", "Les mots de trois pages pleines, en moyenne, multipliés par le nombre de pages"),
+          B("Ask an AI for the exact word count of this particular title", "Demander à une IA le nombre exact de mots de ce titre précis"),
+          B("Weigh the book and compare it with a novel of known length", "Peser le livre et le comparer à un roman de longueur connue"),
+        ],
+        answer: 0,
+        why: B("Averaging several full pages smooths out dialogue and chapter openings, and the result is an estimate you produced yourself. An AI may state a precise figure it cannot know.",
+          "Faire la moyenne de plusieurs pages pleines lisse les dialogues et les débuts de chapitre, et le résultat est une estimation que vous avez produite vous-même. Une IA peut affirmer un chiffre précis qu'elle ne peut pas connaître.") },
+    ],
+  },
+
+  [deepKey(M1, 'lv2-comps')]: {
+    intro: B("No book arrives alone: it lands on a shelf, physical or digital, among others. Comparable titles are the recent books your reader has read or would read; they tell you what the market offers today and let you describe your book in one sentence. This lesson shows how to use an AI to find candidates, why every one must be checked in a real catalogue, how to pick three to five good comparables and what to read in them, and how to write a positioning sentence. Hélène will build the comparable table of The Tern Notebook, and discover that one of the AI's suggestions does not exist.",
+      "Aucun livre n'arrive seul : il se pose sur un rayon, physique ou numérique, parmi d'autres. Les titres comparables sont les livres récents que votre lecteur a lus ou lirait ; ils disent ce que le marché propose aujourd'hui et permettent de décrire le livre en une phrase. Ce cours montre comment utiliser une IA pour trouver des candidats, pourquoi chacun doit être vérifié dans un vrai catalogue, comment choisir trois à cinq bons comparables et quoi y lire, et comment rédiger une phrase de positionnement. Hélène construira le tableau des comparables du « Carnet des sternes », et découvrira qu'une suggestion de l'IA n'existe pas."),
+    concepts: [
+      { term: B('Comparable title (comp)', 'Titre comparable (comp)'),
+        def: B("A recent book close to yours in premise, setting, tone or reader. It shows what readers accept and helps describe your book.",
+          "Un livre récent proche du vôtre par la prémisse, le décor, le ton ou le lecteur. Il montre ce que les lecteurs acceptent et aide à décrire le vôtre.") },
+      { term: B('Hallucination', 'Hallucination'),
+        def: B("A plausible but false answer from a model: an invented title, a wrong author, a mixed-up publisher. It is detected only by checking a source.",
+          "Une réponse plausible mais fausse d'un modèle : un titre inventé, un auteur erroné, un éditeur confondu. Elle ne se détecte qu'en vérifiant une source.") },
+      { term: B('Bibliographic source', 'Source bibliographique'),
+        def: B("A catalogue that records published books: the BnF general catalogue, Electre for professionals, booksellers' websites. It proves that a title exists.",
+          "Un catalogue qui recense les livres publiés : le catalogue général de la BnF, Electre pour les professionnels, les sites de libraires. Il prouve qu'un titre existe.") },
+      { term: B('Positioning sentence', 'Phrase de positionnement'),
+        def: B("One sentence of the form 'for readers of X and Y, with Z', where Z is what really sets your book apart.",
+          "Une phrase de la forme « pour les lecteurs de X et Y, avec Z », où Z est ce qui distingue réellement votre livre.") },
+    ],
+    walkthrough: {
+      title: B("Hélène builds and checks the comparable table of The Tern Notebook.",
+        "Hélène construit et vérifie le tableau des comparables du « Carnet des sternes »."),
+      steps: [
+        B("She sends the AI her premise, reader and tone, and asks for ten candidates with author, publisher, year and the reason for each, doubts flagged. Why: a request for reasoned candidates is easier to check than a ready-made list.",
+          "Elle envoie à l'IA sa prémisse, son lecteur et son ton, et demande dix candidats avec auteur, éditeur, année et la raison de chacun, doutes signalés. Pourquoi : une demande de candidats motivés se vérifie mieux qu'une liste toute faite."),
+        B("She checks each title in the BnF catalogue and on a bookseller's site. Seven exist as described, two exist with a different author or publisher, one cannot be found anywhere. Why: only a source proves that a book exists.",
+          "Elle vérifie chaque titre dans le catalogue de la BnF et sur le site d'un libraire. Sept existent tels que décrits, deux existent avec un autre auteur ou un autre éditeur, un est introuvable. Pourquoi : seule une source prouve qu'un livre existe."),
+        B("She removes the untraceable title, corrects the two others from the catalogue, and sets aside a title that became a huge success. Why: she wants comparables that are real and that say something about an ordinary career.",
+          "Elle retire le titre introuvable, corrige les deux autres d'après le catalogue, et met de côté un titre devenu un immense succès. Pourquoi : elle veut des comparables réels, qui disent quelque chose d'une carrière ordinaire."),
+        B("She borrows four of them from the library and reads their first chapters and back covers. All open on a strong place, and none has an ornithologist as heroine. Why: what they share shows expectations; what is missing shows her room.",
+          "Elle emprunte quatre d'entre eux à la médiathèque et lit leurs premiers chapitres et leur quatrième. Tous s'ouvrent sur un lieu fort, et aucun n'a une ornithologue pour héroïne. Pourquoi : ce qu'ils partagent montre les attentes ; ce qui manque montre la place libre."),
+        B("She writes her positioning sentence: for readers of two of these titles, with a heroine who reads the island through its birds. Why: this sentence will open her letter to publishers and later guide her cover brief.",
+          "Elle rédige sa phrase de positionnement : pour les lecteurs de deux de ces titres, avec une héroïne qui lit l'île à travers ses oiseaux. Pourquoi : cette phrase ouvrira sa lettre aux éditeurs et guidera plus tard le brief de couverture."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Copying the AI's list of comparable titles without checking it.",
+          "Recopier la liste de comparables de l'IA sans la vérifier."),
+        fix: B("Check each title, author and publisher in a catalogue. Drop anything you cannot find, and treat one error as a reason to recheck the rest.",
+          "Vérifiez chaque titre, auteur et éditeur dans un catalogue. Écartez l'introuvable, et traitez une erreur comme une raison de revérifier le reste.") },
+      { wrong: B("Choosing only famous bestsellers or classics as comparables.",
+          "Ne choisir comme comparables que des best-sellers célèbres ou des classiques."),
+        fix: B("Prefer recent books with ordinary success. They show what the market accepts now and make your positioning credible.",
+          "Préférez des livres récents au succès ordinaire. Ils montrent ce que le marché accepte aujourd'hui et rendent le positionnement crédible.") },
+      { wrong: B("Quoting comparables without having read them.",
+          "Citer des comparables sans les avoir lus."),
+        fix: B("Read at least their first chapters and back covers. You must be able to say in one line what each shares with your book.",
+          "Lisez au moins leurs premiers chapitres et leur quatrième. Vous devez pouvoir dire en une ligne ce que chacun partage avec votre livre.") },
+    ],
+    recap: [
+      B("Comparables are recent books your reader has read or would read.", "Les comparables sont des livres récents que votre lecteur a lus ou lirait."),
+      B("The AI suggests candidates; a catalogue proves they exist.", "L'IA suggère des candidats ; un catalogue prouve qu'ils existent."),
+      B("Three to five recent, verified and read titles are enough.", "Trois à cinq titres récents, vérifiés et lus suffisent."),
+      B("What comparables share shows expectations; what they lack shows your room.", "Ce que partagent les comparables montre les attentes ; ce qui leur manque montre votre place."),
+      B("The positioning sentence names a real difference.", "La phrase de positionnement nomme une vraie différence."),
+    ],
+    further: B("If you publish online later, look at how online bookshops classify your comparables (categories, keywords). In France, publishers and booksellers also use the CLIL subject classification; consult official sources to see which category fits your book.",
+      "Si vous publiez en ligne plus tard, regardez comment les librairies en ligne classent vos comparables (catégories, mots-clés). En France, éditeurs et libraires utilisent aussi la classification thématique CLIL ; consultez les sources officielles pour voir quelle catégorie convient au livre."),
+    more: [
+      { q: B("Which source proves that a comparable title exists as the AI described it?",
+          "Quelle source prouve qu'un titre comparable existe tel que l'IA l'a décrit ?"),
+        options: [
+          B("A second AI asked the same question, if it gives the same answer", "Une seconde IA interrogée, si elle donne la même réponse"),
+          B("A library catalogue or a bookseller's record for that book", "Un catalogue de bibliothèque ou la fiche d'un libraire"),
+          B("The quality and precision of the summary the AI wrote", "La qualité et la précision du résumé rédigé par l'IA"),
+        ],
+        answer: 1,
+        why: B("Two models can repeat the same error, and a detailed summary can be invented. A catalogue record is a source that exists independently of any model.",
+          "Deux modèles peuvent répéter la même erreur, et un résumé détaillé peut être inventé. La notice d'un catalogue est une source qui existe indépendamment de tout modèle.") },
+      { q: B("Hélène's positioning sentence ends with 'but better written'. What is wrong?",
+          "La phrase de positionnement d'Hélène finit par « mais mieux écrit ». Qu'est-ce qui ne va pas ?"),
+        options: [
+          B("Nothing, since quality is the best argument there is", "Rien, puisque la qualité est le meilleur argument"),
+          B("It is too short to be used in a letter to publishers", "Elle est trop courte pour une lettre aux éditeurs"),
+          B("It names no verifiable difference, only a claim", "Elle ne nomme aucune différence vérifiable, seulement une prétention"),
+        ],
+        answer: 2,
+        why: B("A difference must be concrete: a heroine, a setting, an angle. 'Better written' is a judgement for the reader to make, and it tells a publisher nothing about the book.",
+          "Une différence doit être concrète : une héroïne, un décor, un angle. « Mieux écrit » est un jugement qui revient au lecteur, et il ne dit rien du livre à un éditeur.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DE CETTE PARTIE                                         */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M1, track: 'course', glyph: 'diamond', tint: '#b45309', at: [12, 82], levels: IDEE,
+    title: B('The idea and the reader', "L'idée et le lecteur"),
+    blurb: B('Find and test the idea, define the reader and the promise, set genre, tone and length, and position the book among real comparable titles.',
+      'Trouver et tester l\'idée, définir le lecteur et la promesse, fixer le genre, le ton et la longueur, et situer le livre parmi de vrais titres comparables.'),
+  },
+]
+
+export const LIVRE_A: CoursePart = {
+  modules: MODULES,
+  enrich: { ...IDEE_ENRICH },
+  deep: { ...IDEE_DEEP },
+}
