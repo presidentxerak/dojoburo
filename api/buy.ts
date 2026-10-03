@@ -110,9 +110,13 @@ export default async function handler(req: Request): Promise<Response> {
   // les cours ; le nom du cours choisi s'affiche sous le bouton de paiement et
   // accompagne le paiement jusqu'au reçu. La catégorie range les ventes dans
   // les exports : parcours IA, formation métier, développement d'app, pass.
+  // Les formations thématiques (livre, storyboard, comptabilité...) ont leur
+  // propre catégorie : les ranger sous « développement d'app » faussait les
+  // exports dès leur publication.
   const what = plan === 'pass' ? 'Pass Dojoburo · toutes les formations, à vie'
     : `Un cours Dojoburo · ${TEMPLE_NAMES[plan === 'path' ? 'path' : plan === 'trade' ? trade : course] ?? ''}`
-  const category = plan === 'pass' ? 'pass' : plan === 'path' ? 'parcours-ia' : plan === 'trade' ? 'formation-metier' : 'developpement-app'
+  const category = plan === 'pass' ? 'pass' : plan === 'path' ? 'parcours-ia' : plan === 'trade' ? 'formation-metier'
+    : course === 'coder-une-app' || course === 'coder-avec-lovable' ? 'developpement-app' : 'formation-thematique'
   form.set('metadata[item]', what)
   form.set('metadata[category]', category)
   form.set('payment_intent_data[description]', what)

@@ -550,7 +550,7 @@ const SELL_DEEP: Record<string, Deepening> = {
         B("During the call, Sophie says she lost a large job because a competitor called back first. Nora asks what that job represented and lets the silence work. Why: the cost stated by Sophie herself will weigh more than any argument.",
           "Pendant l'appel, Sophie raconte avoir perdu un gros chantier parce qu'un concurrent a rappelé le premier. Nora demande ce que représentait ce chantier et laisse le silence agir. Pourquoi : le coût énoncé par Sophie pèsera plus que tout argument."),
         B("Sophie objects that she has no time to get started. Nora asks how much time she could free, rephrases, and explains that the start takes one 30-minute session: Nora collects the quotes, Sophie only validates the reminders. They agree that Nora sends the proposal on Thursday. Why: the objection was about time, not price.",
-          "Sophie objecte qu'elle n'a pas le temps de démarrer. Nora demande combien de temps elle pourrait dégager, reformule, puis explique que le démarrage tient en une séance de 30 minutes : Nora récupère les devis, Sophie ne fait que valider les relances. Elles conviennent d'un envoi de proposition jeudi. Pourquoi : l'objection portait sur le temps, pas sur le prix."),
+          "Sophie objecte qu'elle n'a pas le temps de démarrer. Nora demande combien de temps elle pourrait dégager, reformule, puis explique que le démarrage tient en une séance de 30 minutes : Nora récupère les devis, Sophie valide les relances. Elles conviennent d'un envoi de proposition jeudi. Pourquoi : l'objection portait sur le temps, pas sur le prix."),
       ],
     },
     mistakes: [
@@ -656,16 +656,16 @@ const SELL_DEEP: Record<string, Deepening> = {
     further: B("Read the DGCCRF information on online reviews and misleading commercial practices, then write your own testimonial policy in three lines: how you collect, what you publish, how a client can withdraw. Attach it to your follow-up email template.",
       "Lisez les informations de la DGCCRF sur les avis en ligne et les pratiques commerciales trompeuses, puis rédigez votre propre règle de témoignage en trois lignes : comment vous recueillez, ce que vous publiez, comment un client peut retirer son accord. Joignez-la à votre modèle d'email de suivi."),
     more: [
-      { q: B("Karim has not used the system since delivery. At the check-in, what should Nora do first?",
-          "Karim n'a pas utilisé le système depuis la livraison. Au point de suivi, que fait Nora d'abord ?"),
+      { q: B("For two weeks, Karim has validated none of the reminders Nora prepared. What should she do first?",
+          "Depuis deux semaines, Karim n'a validé aucune des relances préparées par Nora. Que fait-elle d'abord ?"),
         options: [
           B("Ask him for a testimonial anyway, since the work was delivered", "Lui demander quand même un témoignage, le travail étant livré"),
-          B("Find out what stopped him and help him use it on one real quote", "Comprendre ce qui l'a bloqué et l'aider à l'utiliser sur un vrai devis"),
+          B("Find out what stops him and validate one reminder with him", "Comprendre ce qui le bloque et valider une relance avec lui"),
           B("Offer him a refund at once, to avoid a bad review later", "Lui proposer tout de suite un remboursement, pour éviter un mauvais avis"),
         ],
         answer: 1,
-        why: B("Without use, there is no result to vouch for. Understanding the block (time, habit, a step too complex) and getting a first real use is what creates value, and possibly a referral later.",
-          "Sans usage, il n'y a aucun résultat à recommander. Comprendre le blocage (temps, habitude, étape trop complexe) et obtenir un premier usage réel crée la valeur, et peut-être plus tard une recommandation.") },
+        why: B("Without validated reminders, there is no result to vouch for. Understanding the block (time, habit, a step too complex) and getting a first real use is what creates value, and possibly a referral later.",
+          "Sans relance validée, il n'y a aucun résultat à recommander. Comprendre le blocage (temps, habitude, étape trop complexe) et obtenir un premier usage réel crée la valeur, et peut-être plus tard une recommandation.") },
       { q: B("Which line belongs in a delivery checklist for AI-produced message templates?",
           "Quelle ligne a sa place dans une liste de contrôle pour des modèles de messages produits par IA ?"),
         options: [
@@ -1136,7 +1136,7 @@ const LAST_ENRICH: Record<string, Enrichment> = {
         B("You reread your contract and noted the clauses to check", "Vous avez relu votre contrat et noté les clauses à vérifier"),
       ],
       bonus: B("Write a short availability note for clients (for example: replies in the evening within two working days, calls on Tuesday and Thursday evenings) and add it to your email signature and booking page. Clear availability prevents most of the pressure to answer during work.",
-        "Rédigez une courte mention de disponibilité pour vos clients (par exemple : réponses le soir sous deux jours ouvrés, appels le mardi et le jeudi soir) et ajoutez-la à votre signature et à votre page de réservation. Des disponibilités claires évitent l'essentiel de la pression à répondre pendant le travail."),
+        "Rédigez une courte mention de disponibilité (par exemple : réponses le soir sous deux jours ouvrés, appels le mardi et le jeudi soir) et ajoutez-la à votre signature et à votre page de réservation. Des horaires clairs évitent l'essentiel de la pression à répondre au travail."),
     },
     more: [
       { q: B("A prospect wants a call on a Tuesday at 11 am, during Nora's working hours. What does she do?",

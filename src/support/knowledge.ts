@@ -80,6 +80,12 @@ const TRADE_CITIES = TRADE_PACKS[0] ? modulesOf(TRADE_PACKS[0]).length : 0
 const tradeNames = (lang: Lang) => TRADES.map((t) => say(t.label, lang)).join(', ')
 const FREE_HREF = packPath(FREE_PACK.id)
 const TRADE_LESSONS = TRADE_PACKS[0] ? levelsOf(TRADE_PACKS[0]).length : 0
+// LES FORMATIONS THÉMATIQUES · demandé : « enrichi nos formations en en créant
+// des nouvelles très détaillées » (livre, storyboard, manga, flow UX...). Leur
+// liste est lue dans data/packs : une formation publiée y apparaît d'elle-même.
+const COURSE_PACKS = PACKS.filter((p) => p.door === 'course')
+const COURSE_PACK_COUNT = COURSE_PACKS.length
+const courseNames = (lang: Lang) => COURSE_PACKS.map((p) => say(p.title, lang)).join(' ; ')
 
 export interface KBLink {
   label: string
@@ -217,8 +223,8 @@ export const KB: KBTopic[] = [
     id: 'training',
     chip: 'The trainings',
     answer:
-      `The courses are listed on the second button of the bottom bar, Formations, and drawn as buildings on the Dojoburo map. There are ${PACK_COUNT} courses. The AI weekend is free: ${FREE_LESSONS} short lessons, about ${FREE_MINUTES} minutes in total, and it asks for your email and nothing else. The complete course is ${PATH_CITIES} modules and ${PATH_DOJOS} lessons: prompting, the models, the assistants, agents, design and cost. Then ${TRADE_COUNT} trade courses, ${TRADE_CITIES} more modules each, written for one job. ` +
-      'Think of a course as a manual and of each lesson as one short chapter you can read in any order. The master of the course gives every lesson. Every lesson ends with a short quiz, a badge and some XP, and you can redo any lesson whenever you want. The first three lessons of every course are open, so you can see how it teaches before paying.',
+      `The courses are listed on the second button of the bottom bar, Formations, and drawn as buildings on the Dojoburo map. There are ${PACK_COUNT} courses. The AI weekend is free: ${FREE_LESSONS} short lessons, about ${FREE_MINUTES} minutes in total, and it asks for your email and nothing else. The complete course is ${PATH_CITIES} modules and ${PATH_DOJOS} lessons: prompting, the models, the assistants, agents, design and cost. Then ${TRADE_COUNT} trade courses, ${TRADE_CITIES} more modules each, written for one job, and ${COURSE_PACK_COUNT} themed courses that take one project from A to Z: ${courseNames('en')}. ` +
+      'Think of a course as a manual and of each lesson as one short chapter you can read in any order. The master of the course gives every lesson, and the lessons end with YouTube videos on the same subject, loaded only when you click them. Every lesson ends with a short quiz, a badge and some XP, and you can redo any lesson whenever you want. The first three lessons of every course are open, so you can see how it teaches before paying.',
     links: [
       { label: 'See the courses', href: '/formations' },
       { label: 'Start the free weekend', href: FREE_HREF },
@@ -228,7 +234,7 @@ export const KB: KBTopic[] = [
     fr: {
       chip: 'Les formations',
       answer:
-        `Les formations sont listées sur le deuxième bouton de la barre du bas, Formations, et dessinées comme des bâtiments sur la carte Dojoburo. Il existe ${PACK_COUNT} formations. Le week-end de l'IA est gratuit : ${FREE_LESSONS} cours courts, environ ${FREE_MINUTES} minutes au total, pour lesquels seule votre adresse e-mail est demandée. La formation complète comprend ${PATH_CITIES} modules et ${PATH_DOJOS} cours : le prompt, les modèles, les assistants, les agents, le design et le coût. S'y ajoutent ${TRADE_COUNT} formations métier, comportant chacune ${TRADE_CITIES} modules supplémentaires, conçus pour un métier. Voyez une formation comme un manuel, et chaque cours comme un chapitre court que vous lisez dans l'ordre de votre choix. Le maître de la formation donne chaque cours. Chaque cours se conclut par un court quiz, un badge et de l'XP, et vous pouvez refaire n'importe quel cours à tout moment. Les trois premiers cours de chaque formation sont ouverts, afin que vous puissiez apprécier la pédagogie avant de payer.`,
+        `Les formations sont listées sur le deuxième bouton de la barre du bas, Formations, et dessinées comme des bâtiments sur la carte Dojoburo. Il existe ${PACK_COUNT} formations. Le week-end de l'IA est gratuit : ${FREE_LESSONS} cours courts, environ ${FREE_MINUTES} minutes au total, pour lesquels seule votre adresse e-mail est demandée. La formation complète comprend ${PATH_CITIES} modules et ${PATH_DOJOS} cours : le prompt, les modèles, les assistants, les agents, le design et le coût. S'y ajoutent ${TRADE_COUNT} formations métier, comportant chacune ${TRADE_CITIES} modules supplémentaires, conçus pour un métier, et ${COURSE_PACK_COUNT} formations thématiques qui mènent un projet de A à Z : ${courseNames('fr')}. Voyez une formation comme un manuel, et chaque cours comme un chapitre court que vous lisez dans l'ordre de votre choix. Le maître de la formation donne chaque cours, et les cours se terminent par des vidéos YouTube sur le même sujet, chargées seulement au clic. Chaque cours se conclut par un court quiz, un badge et de l'XP, et vous pouvez refaire n'importe quel cours à tout moment. Les trois premiers cours de chaque formation sont ouverts, afin que vous puissiez apprécier la pédagogie avant de payer.`,
       links: [
         'Voir les formations',
         'Commencer le week-end gratuit',
