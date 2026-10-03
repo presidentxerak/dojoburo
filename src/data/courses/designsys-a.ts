@@ -410,7 +410,7 @@ const FOUND_ENRICH: Record<string, Enrichment> = {
       { q: B("Why does Inès keep the icons in their own library file rather than inside the components file?",
           "Pourquoi Inès garde-t-elle les icônes dans leur propre fichier de bibliothèque plutôt que dans le fichier des composants ?"),
         options: [
-          B("Because Figma forbids icons and components in the same file", "Parce que Figma interdit icônes et composants dans un même fichier"),
+          B("Because Figma forbids storing icons and components inside the same file", "Parce que Figma interdit icônes et composants dans un même fichier"),
           B("Because icons look better when they are displayed on their own", "Parce que les icônes sont plus belles affichées à part"),
           B("Because icons change in batches and are used outside components too", "Parce que les icônes changent par lots et servent aussi hors des composants"),
         ],
@@ -757,6 +757,411 @@ const FOUND_DEEP: Record<string, Deepening> = {
 }
 
 /* ================================================================== */
+/* MODULE 2 · LES TOKENS                                               */
+/* ================================================================== */
+
+const M2 = 'ds-m2'
+
+const TOKENS: Level[] = [
+  {
+    id: 'ds-tokens',
+    master: 'triage',
+    minutes: 11,
+    title: B('Design tokens: primitives and semantics', 'Les design tokens : primitives et sémantiques'),
+    learn: B(
+      'You will separate primitive tokens (the palette) from semantic tokens (the roles) and link them through aliases.',
+      'Vous saurez distinguer les tokens primitifs (la palette) des tokens sémantiques (les rôles) et les relier par des alias.',
+    ),
+    act: B('Turn the Cadenza colour inventory into a primitive palette, then into semantic tokens that alias it.',
+      "Transformez l'inventaire des couleurs de Cadenza en palette primitive, puis en tokens sémantiques qui y renvoient."),
+    steps: [
+      B('Build the primitive palette from the audit: one scale per hue, named by hue and step, such as blue-500.',
+        "Bâtissez la palette primitive à partir de l'audit : une échelle par teinte, nommée par teinte et palier, comme blue-500."),
+      B('List the roles a colour plays in the interface: text, surface, border, action, feedback, with their states.',
+        "Listez les rôles qu'une couleur joue dans l'interface : texte, surface, bordure, action, retour, avec leurs états."),
+      B('Create one semantic token per role, such as color.text.muted, and point it to a primitive, never to a raw value.',
+        'Créez un token sémantique par rôle, comme color.text.muted, et faites-le pointer vers une primitive, jamais une valeur brute.'),
+      B('Have the AI map every old CSS value to a semantic token, and review each line where the role is ambiguous.',
+        "Faites associer par l'IA chaque ancienne valeur du CSS à un token sémantique, et relisez chaque ligne au rôle ambigu."),
+    ],
+    trap: B(
+      'Letting components use primitives directly: the day dark mode arrives, every component must be edited one by one.',
+      'Laisser les composants employer directement les primitives : le jour où arrive le mode sombre, il faut reprendre chaque composant un à un.',
+    ),
+    quiz: {
+      q: B('A card uses blue-50 for its background, and dark mode is coming. What should the card reference instead?',
+        'Une carte emploie blue-50 pour son fond, et le mode sombre arrive. Vers quoi la carte devrait-elle pointer ?'),
+      options: [
+        B('A semantic token such as color.surface.accent, aliased per mode', 'Un token sémantique comme color.surface.accent, aliasé selon le mode'),
+        B('A darker primitive such as blue-900, swapped by hand in dark mode', 'Une primitive plus sombre comme blue-900, changée à la main en sombre'),
+        B('The raw hex value, so that developers know the exact colour', 'La valeur hexadécimale brute, pour que le code connaisse la couleur'),
+      ],
+      answer: 0,
+      why: B(
+        'The card should say what the colour is for. The semantic token then points to blue-50 in light mode and to another primitive in dark mode, without touching the card.',
+        'La carte doit dire à quoi sert la couleur. Le token sémantique pointe alors vers blue-50 en mode clair et vers une autre primitive en mode sombre, sans toucher à la carte.',
+      ),
+    },
+    badge: B('Separates palette and roles', 'Sépare palette et rôles'),
+  },
+  {
+    id: 'ds-variables',
+    master: 'tools',
+    minutes: 12,
+    title: B('Figma variables and their light and dark modes', 'Les variables Figma et leurs modes clair et sombre'),
+    learn: B(
+      'You will build Figma variable collections with aliases, scopes and two modes, and switch a screen from light to dark.',
+      'Vous saurez créer des collections de variables Figma avec alias, portées et deux modes, et basculer un écran en sombre.',
+    ),
+    act: B('Create the Primitives and Semantic collections of Cadenza, add Light and Dark modes, and test them on three screens.',
+      'Créez les collections Primitives et Semantic de Cadenza, ajoutez les modes Light et Dark, testez-les sur trois écrans.'),
+    steps: [
+      B('Create a Primitives collection with a single mode, holding the palette, and hide it from publishing.',
+        'Créez une collection Primitives à un seul mode, qui porte la palette, et masquez-la à la publication.'),
+      B('Create a Semantic collection with Light and Dark modes, where each variable aliases a primitive in each mode.',
+        'Créez une collection Semantic aux modes Light et Dark, où chaque variable renvoie à une primitive dans chaque mode.'),
+      B('Set the scope of each variable, so that text colours are offered only for text and surface colours only for fills.',
+        'Réglez la portée de chaque variable : les couleurs de texte proposées pour le texte seul, les surfaces pour les fonds seuls.'),
+      B('Apply the Dark mode to a frame of three real screens, and check the contrast of each pair of text and background.',
+        'Appliquez le mode Dark à un cadre de trois vrais écrans, et vérifiez le contraste de chaque paire texte et fond.'),
+    ],
+    trap: B(
+      'Typing hex values into the Dark mode instead of aliasing primitives: the palette splits in two and drifts at the first update.',
+      'Taper des valeurs hexadécimales dans le mode Dark au lieu de renvoyer aux primitives : la palette se dédouble et dérive dès la mise à jour suivante.',
+    ),
+    quiz: {
+      q: B('In dark mode, a Cadenza screen shows dark grey text on a dark background. Where is the fault most likely?',
+        'En mode sombre, un écran de Cadenza montre un texte gris foncé sur fond sombre. Où est probablement la faute ?'),
+      options: [
+        B('In the Primitives collection, whose greys must all be made lighter', 'Dans la collection Primitives, dont tous les gris doivent être éclaircis'),
+        B('In the Dark alias of the text variable, or a primitive used directly', "Dans l'alias Dark de la variable de texte, ou une primitive employée telle quelle"),
+        B('In Figma itself, which cannot display a dark mode correctly inside files', 'Dans Figma lui-même, qui affiche mal les modes sombres dans les fichiers'),
+      ],
+      answer: 1,
+      why: B(
+        'Either the semantic variable points to the wrong primitive in Dark mode, or the text bypasses it with a primitive that does not change. Changing the palette would break light mode.',
+        'Soit la variable sémantique pointe vers la mauvaise primitive en mode Dark, soit le texte la contourne par une primitive qui ne change pas. Modifier la palette casserait le mode clair.',
+      ),
+    },
+    badge: B('Switches modes cleanly', 'Bascule les modes proprement'),
+  },
+  {
+    id: 'ds-scales',
+    master: 'analysis',
+    minutes: 12,
+    title: B('Typography, spacing, radius, elevation', 'Typographie, espacements, rayons, élévations'),
+    learn: B(
+      'You will derive short scales for type, spacing, radius and elevation from the audit, and store them as variables and styles.',
+      "Vous saurez tirer de l'audit des échelles courtes de typographie, d'espacement, de rayon et d'élévation, en variables et styles.",
+    ),
+    act: B("Reduce Cadenza's audited values to four scales, then create the matching variables, text styles and effect styles.",
+      "Ramenez les valeurs auditées de Cadenza à quatre échelles, puis créez les variables, styles de texte et styles d'effet."),
+    steps: [
+      B('Choose a base size and a ratio for type, and keep only the sizes the product needs, each with line height and weight.',
+        'Choisissez une taille de base et un rapport, et ne gardez que les tailles utiles au produit, chacune avec interlignage et graisse.'),
+      B('Build spacing on a 4-pixel base, with fewer than ten steps named by size, such as space-2 or space-6.',
+        "Bâtissez l'espacement sur une base de 4 pixels, en moins de dix paliers nommés par taille, comme space-2 ou space-6."),
+      B('Keep three or four radii and three levels of elevation, named by role, such as radius.control or elevation.overlay.',
+        "Gardez trois ou quatre rayons et trois niveaux d'élévation, nommés par rôle, comme radius.control ou elevation.overlay."),
+      B('Ask the AI to map each audited value to the nearest step, then review the mappings that visibly change a layout.',
+        "Demandez à l'IA de ramener chaque valeur auditée au palier voisin, puis relisez les cas qui changent visiblement une mise en page."),
+    ],
+    trap: B(
+      'Turning every audited value into a step: a scale of fifteen spacings guides nothing, and the drift comes back at once.',
+      "Faire de chaque valeur auditée un palier : une échelle de quinze espacements ne guide plus rien, et la dérive revient aussitôt.",
+    ),
+    quiz: {
+      q: B('The audit finds paddings of 14, 15 and 16 pixels, and the spacing scale has a 4-pixel base. What should Inès do?',
+        "L'audit relève des marges internes de 14, 15 et 16 pixels, sur une échelle de base 4 pixels. Que doit faire Inès ?"),
+      options: [
+        B('Add 14 and 15 to the scale, since the product already uses them', "Ajouter 14 et 15 à l'échelle, puisque le produit les emploie déjà"),
+        B('Leave paddings out of the scale and let each screen decide', 'Laisser les marges internes hors échelle, chaque écran décidant'),
+        B('Map all three to 16, then check the screens where it shows', 'Les ramener toutes trois à 16, puis vérifier les écrans où cela se voit'),
+      ],
+      answer: 2,
+      why: B(
+        'Values that close are almost always accidental. Mapping them to the nearest step keeps the scale short; the review catches the rare case where the difference mattered.',
+        "Des valeurs si proches sont presque toujours accidentelles. Les ramener au palier voisin garde l'échelle courte ; la relecture attrape le rare cas où l'écart comptait.",
+      ),
+    },
+    badge: B('Keeps scales short', 'Garde des échelles courtes'),
+  },
+  {
+    id: 'ds-export',
+    master: 'coding',
+    minutes: 12,
+    title: B('Export tokens to code', 'Exporter les tokens vers le code'),
+    learn: B(
+      'You will choose a source of truth for tokens and send them to code in the W3C format, transformed by Style Dictionary.',
+      'Vous saurez choisir une source de vérité pour les tokens et les livrer au code au format W3C, transformés par Style Dictionary.',
+    ),
+    act: B('Export the Cadenza tokens as JSON to a Git repository, generate CSS variables and check them on a test page.',
+      'Exportez les tokens de Cadenza en JSON dans un dépôt Git, générez les variables CSS et vérifiez-les sur une page test.'),
+    steps: [
+      B('Decide where tokens are edited: in Figma variables or in JSON files, never both, and write the rule down.',
+        'Décidez où se modifient les tokens : dans les variables Figma ou dans des fichiers JSON, jamais les deux, et écrivez la règle.'),
+      B('Export them as JSON in the W3C format ($value, $type), using Tokens Studio synced to Git or another exporter.',
+        'Exportez-les en JSON au format W3C ($value, $type), via Tokens Studio synchronisé avec Git ou un autre exporteur.'),
+      B('Have the AI draft a Style Dictionary configuration that outputs CSS variables, then read and run it with a developer.',
+        "Faites rédiger par l'IA une configuration Style Dictionary produisant des variables CSS, relisez-la et lancez-la avec un développeur."),
+      B('Compare a test page with the Figma file in both modes, and automate the build so that no value is copied by hand.',
+        "Comparez une page test au fichier Figma dans les deux modes, et automatisez la génération pour qu'aucune valeur ne soit recopiée."),
+    ],
+    trap: B(
+      'Copying hex values from Figma into the CSS by hand: two sources of truth appear, and they differ by the next release.',
+      'Recopier à la main les valeurs de Figma dans le CSS : deux sources de vérité apparaissent, et elles divergent dès la version suivante.',
+    ),
+    quiz: {
+      q: B('Malik edits a colour directly in the CSS file generated from the tokens. What happens at the next build?',
+        'Malik modifie une couleur dans le fichier CSS généré depuis les tokens. Que se passe-t-il à la génération suivante ?'),
+      options: [
+        B('His change is overwritten, since the CSS is regenerated from tokens', 'Sa modification est écrasée, le CSS étant régénéré depuis les tokens'),
+        B('Figma updates its own variable automatically to match the new CSS', 'Figma met à jour sa variable de lui-même pour suivre le nouveau CSS'),
+        B('The build stops with an error until someone deletes the CSS file by hand', "La génération s'arrête en erreur tant qu'on n'a pas supprimé le CSS"),
+      ],
+      answer: 0,
+      why: B(
+        'A generated file is an output, not a source. Changes are made in the tokens; otherwise the next build erases them, which is exactly what protects consistency.',
+        'Un fichier généré est un résultat, pas une source. Les changements se font dans les tokens ; sinon la génération suivante les efface, ce qui protège justement la cohérence.',
+      ),
+    },
+    badge: B('Ships tokens to code', 'Livre les tokens au code'),
+  },
+]
+
+const TOKENS_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M2, 'ds-tokens')]: {
+    why: [
+      B("A design token is a named design decision: a colour, a size, a duration, stored once and referenced everywhere. The name matters more than the value, because the name is what designers pick in Figma and what developers write in code. When the value changes, everything that references the name follows.",
+        "Un design token est une décision de design nommée : une couleur, une taille, une durée, stockée une fois et référencée partout. Le nom compte plus que la valeur, car c'est lui que les designers choisissent dans Figma et que les développeurs écrivent dans le code. Quand la valeur change, tout ce qui référence le nom suit."),
+      B("Two layers make the system flexible. Primitives describe the available palette (blue-500, grey-100) and carry raw values. Semantic tokens describe roles (color.text.muted, color.surface.raised) and point to primitives through aliases. Components use only semantic tokens, so a theme or a dark mode changes the aliases, not the components.",
+        "Deux couches rendent le système souple. Les primitives décrivent la palette disponible (blue-500, grey-100) et portent les valeurs brutes. Les tokens sémantiques décrivent des rôles (color.text.muted, color.surface.raised) et pointent vers les primitives par des alias. Les composants n'emploient que des tokens sémantiques : un thème ou un mode sombre change les alias, pas les composants."),
+      B("AI is useful to map hundreds of old values to the new roles, because it reads the context of each value (selector, property, page) and proposes a role. It can misread a role, for example a grey used both for borders and for disabled text, so ambiguous lines are reviewed by a person.",
+        "L'IA est utile pour associer des centaines d'anciennes valeurs aux nouveaux rôles, car elle lit le contexte de chaque valeur (sélecteur, propriété, page) et propose un rôle. Elle peut se tromper de rôle, par exemple pour un gris qui sert à la fois aux bordures et au texte désactivé : les lignes ambiguës sont relues par une personne."),
+    ],
+    example: {
+      context: B("Inès has the colour table from the audit. Her first prompt asks the AI to 'create tokens', and she gets a flat list where blue-500 and button-primary sit side by side with no link between them.",
+        "Inès dispose de la table des couleurs issue de l'audit. Son premier prompt demande à l'IA de « créer des tokens », et elle obtient une liste à plat où blue-500 et button-primary se côtoient sans lien entre eux."),
+      before: B("Create design tokens from these colours.",
+        "Crée des design tokens à partir de ces couleurs."),
+      after: B("Below is the colour table from the Cadenza audit (old value, use, pages).\nBuild two layers of tokens.\n1. Primitives: one scale per hue (neutral, blue, red, green, amber), steps from 50 to 900, named hue-step. Reuse the audited reference values where they fit, and mark every value you had to create to fill a scale.\n2. Semantic tokens for these roles only: text (default, muted, inverse, disabled), surface (default, raised, sunken, accent), border (subtle, strong), action (primary, primary-hover, secondary), feedback (danger, success, warning, info). Name them color.role.variant, and give each one an alias to a primitive, never a raw value.\n3. A mapping table: old value, CSS selector, proposed semantic token, confidence (high or low). Put every low-confidence line at the top.\n[TABLE]",
+        "Voici la table des couleurs de l'audit de Cadenza (ancienne valeur, usage, pages).\nConstruis deux couches de tokens.\n1. Primitives : une échelle par teinte (neutral, blue, red, green, amber), paliers de 50 à 900, nommés teinte-palier. Reprends les valeurs de référence de l'audit quand elles conviennent, et marque chaque valeur que tu as dû créer pour compléter une échelle.\n2. Tokens sémantiques pour ces rôles seulement : text (default, muted, inverse, disabled), surface (default, raised, sunken, accent), border (subtle, strong), action (primary, primary-hover, secondary), feedback (danger, success, warning, info). Nomme-les color.rôle.variante, et donne à chacun un alias vers une primitive, jamais une valeur brute.\n3. Une table de correspondance : ancienne valeur, sélecteur CSS, token sémantique proposé, confiance (haute ou basse). Place toutes les lignes de confiance basse en tête.\n[TABLE]"),
+      takeaway: B("The second prompt fixes the two layers, the naming and the list of roles, so the AI fills a structure instead of inventing one. The low-confidence lines tell Inès exactly where her judgement is needed.",
+        "Le second prompt fixe les deux couches, le nommage et la liste des rôles : l'IA remplit une structure au lieu d'en inventer une. Les lignes de confiance basse disent à Inès exactement où son jugement est requis."),
+    },
+    exercise: {
+      goal: B("A two-layer colour token set for a product you know: primitives by hue and step, semantic tokens by role with aliases, and a reviewed mapping of the old values.",
+        "Un jeu de tokens de couleur à deux couches pour un produit que vous connaissez : primitives par teinte et palier, tokens sémantiques par rôle avec alias, et une correspondance relue des anciennes valeurs."),
+      prompt: B("Here are the colours found in [PRODUCT], with their uses: [TABLE OF VALUES, USES, PAGES].\n1. Propose primitives: one scale per hue among [HUES], named hue-step. Mark the values you create to complete a scale.\n2. Propose semantic tokens for these roles: [ROLES AND VARIANTS YOU NEED]. Name them [YOUR CONVENTION, E.G. color.role.variant] and give each an alias to a primitive.\n3. Give a mapping table: old value, where it is used, proposed semantic token, confidence (high or low), low-confidence lines first.\n4. List the roles you think are missing, without adding them.\nNever give a semantic token a raw value.",
+        "Voici les couleurs trouvées dans [PRODUIT], avec leurs usages : [TABLE DES VALEURS, USAGES, PAGES].\n1. Propose des primitives : une échelle par teinte parmi [TEINTES], nommées teinte-palier. Marque les valeurs que tu crées pour compléter une échelle.\n2. Propose des tokens sémantiques pour ces rôles : [RÔLES ET VARIANTES DONT VOUS AVEZ BESOIN]. Nomme-les selon [VOTRE CONVENTION, PAR EXEMPLE color.rôle.variante] et donne à chacun un alias vers une primitive.\n3. Donne une table de correspondance : ancienne valeur, où elle est employée, token sémantique proposé, confiance (haute ou basse), les lignes de confiance basse en tête.\n4. Liste les rôles qui te semblent manquer, sans les ajouter.\nNe donne jamais de valeur brute à un token sémantique."),
+      check: [
+        B("No semantic token carries a raw value; each one is an alias", "Aucun token sémantique ne porte de valeur brute ; chacun est un alias"),
+        B("Semantic names describe roles, not appearances", "Les noms sémantiques décrivent des rôles, pas des apparences"),
+        B("You reviewed every low-confidence line yourself", "Vous avez relu vous-même chaque ligne de confiance basse"),
+        B("Every audited value maps to a token, or is listed as removed", "Chaque valeur auditée correspond à un token, ou figure comme supprimée"),
+      ],
+      bonus: B("Ask the AI which semantic tokens would need a different alias in a dark mode, and why. The answer prepares the next lesson and shows which roles your naming already handles well.",
+        "Demandez à l'IA quels tokens sémantiques changeraient d'alias dans un mode sombre, et pourquoi. La réponse prépare le cours suivant et montre quels rôles votre nommage gère déjà bien."),
+    },
+    more: [
+      { q: B("Inès wants to add a third layer of component tokens, such as button.primary.background. When is it worth it?",
+          "Inès envisage une troisième couche de tokens de composant, comme button.primary.background. Quand cela en vaut-il la peine ?"),
+        options: [
+          B("Always, since adding more layers makes every system more flexible", "Toujours, ajouter des couches rendant tout système plus souple"),
+          B("Never, since Figma cannot alias a token more than once", "Jamais, Figma ne pouvant pas aliaser un token plus d'une fois"),
+          B("When a component must vary on its own, for a theme or a brand", "Quand un composant doit varier seul, pour un thème ou une marque"),
+        ],
+        answer: 2,
+        why: B("Component tokens add names to maintain. They pay off when a component must change independently of its role, for example in a white-label theme; otherwise semantic tokens are enough.",
+          "Les tokens de composant ajoutent des noms à entretenir. Ils se justifient quand un composant doit changer indépendamment de son rôle, par exemple dans un thème en marque blanche ; sinon les tokens sémantiques suffisent.") },
+      { q: B("The AI maps a grey used for borders and for disabled text to one single token. What should Inès do?",
+          "L'IA associe un gris servant aux bordures et au texte désactivé à un seul token. Que doit faire Inès ?"),
+        options: [
+          B("Split it into two semantic tokens that may alias the same primitive", "Le séparer en deux tokens sémantiques pouvant viser la même primitive"),
+          B("Keep one single token, since the value is the same in both places today", "Garder un seul token, la valeur étant aujourd'hui la même aux deux endroits"),
+          B("Remove the grey and use pure black for both uses instead", "Supprimer ce gris et employer du noir pour les deux usages"),
+        ],
+        answer: 0,
+        why: B("Two roles deserve two names even when they share a value today. In dark mode, or after a contrast fix, borders and disabled text will probably need different values.",
+          "Deux rôles méritent deux noms même s'ils partagent aujourd'hui une valeur. En mode sombre, ou après une correction de contraste, bordures et texte désactivé auront probablement besoin de valeurs différentes.") },
+    ],
+  },
+
+  [enrichKey(M2, 'ds-variables')]: {
+    why: [
+      B("Figma variables store design tokens inside the file: colours, numbers, strings and booleans, grouped in collections. A collection can have several modes, and each variable takes one value per mode. Applying a mode to a frame switches every variable inside it, which is how one screen shows light and dark without being redrawn.",
+        "Les variables Figma stockent les design tokens dans le fichier : couleurs, nombres, chaînes et booléens, regroupés en collections. Une collection peut avoir plusieurs modes, et chaque variable prend une valeur par mode. Appliquer un mode à un cadre fait basculer toutes les variables qu'il contient : c'est ainsi qu'un écran se montre en clair et en sombre sans être redessiné."),
+      B("The two layers of tokens become two collections. Primitives hold raw values in a single mode and are hidden from publishing, so product designers never pick them. Semantic variables alias a primitive in each mode. Scopes limit where a variable is offered, so a border colour does not appear in the list for text.",
+        "Les deux couches de tokens deviennent deux collections. Les primitives portent les valeurs brutes dans un seul mode et sont masquées à la publication : les designers produit ne les choisissent jamais. Les variables sémantiques renvoient à une primitive dans chaque mode. Les portées limitent où une variable est proposée : une couleur de bordure n'apparaît pas dans la liste du texte."),
+      B("A dark mode is not an inversion. Surfaces get darker, but text must stay readable and accents often need a lighter step to keep contrast. WCAG level AA asks for a contrast ratio of at least 4.5 to 1 for body text, so each text and background pair is checked in both modes. The number of modes allowed depends on your Figma plan: check the Figma help center.",
+        "Un mode sombre n'est pas une inversion. Les surfaces s'assombrissent, mais le texte doit rester lisible et les accents demandent souvent un palier plus clair pour garder le contraste. Le niveau AA des WCAG demande un rapport d'au moins 4,5 pour 1 pour le texte courant : chaque paire texte et fond se vérifie dans les deux modes. Le nombre de modes autorisés dépend de votre offre Figma : voyez le centre d'aide."),
+    ],
+    example: {
+      context: B("Inès asks the AI for the dark values of the Cadenza semantic tokens. Her first prompt gets a list of new hex codes, inverted from the light ones, several of which fail contrast.",
+        "Inès demande à l'IA les valeurs sombres des tokens sémantiques de Cadenza. Son premier prompt lui vaut une liste de nouveaux codes hexadécimaux, inversés depuis les clairs, dont plusieurs échouent au contraste."),
+      before: B("Give me dark mode colours for my tokens.",
+        "Donne-moi les couleurs du mode sombre pour mes tokens."),
+      after: B("Here are the Cadenza primitives (neutral, blue, red, green, amber, steps 50 to 900) and the semantic tokens with their Light alias.\nFor the Dark mode, propose an alias to an existing primitive for each semantic token. Do not create any new colour.\nRules: surfaces use the dark end of neutral, with raised surfaces one step lighter than default; text uses the light end; accents may move one or two steps lighter to stay readable on dark surfaces.\nGive a table: token, Light alias, Dark alias, the text and background pair it belongs to.\nDo not compute contrast ratios yourself: list the pairs I must check with a contrast tool, starting with the riskiest.\n[PRIMITIVES]\n[SEMANTIC TOKENS]",
+        "Voici les primitives de Cadenza (neutral, blue, red, green, amber, paliers 50 à 900) et les tokens sémantiques avec leur alias Light.\nPour le mode Dark, propose pour chaque token sémantique un alias vers une primitive existante. Ne crée aucune couleur nouvelle.\nRègles : les surfaces emploient le bas sombre de neutral, les surfaces surélevées un palier plus clair que la surface par défaut ; le texte emploie le haut clair ; les accents peuvent remonter d'un ou deux paliers pour rester lisibles sur fond sombre.\nDonne une table : token, alias Light, alias Dark, la paire texte et fond dont il fait partie.\nNe calcule pas toi-même les rapports de contraste : liste les paires que je dois vérifier avec un outil de contraste, en commençant par les plus risquées.\n[PRIMITIVES]\n[TOKENS SÉMANTIQUES]"),
+      takeaway: B("The second prompt keeps the palette closed and asks for aliases, which is how Figma variables work. The contrast checks stay with a tool, and the riskiest pairs come first.",
+        "Le second prompt garde la palette fermée et demande des alias, ce qui correspond au fonctionnement des variables Figma. Les vérifications de contraste restent à un outil, et les paires les plus risquées viennent en premier."),
+    },
+    exercise: {
+      goal: B("Two Figma variable collections for a product you know: Primitives hidden from publishing, Semantic with Light and Dark modes and scopes, tested on three real screens with every contrast pair checked.",
+        "Deux collections de variables Figma pour un produit que vous connaissez : Primitives masquée à la publication, Semantic aux modes Light et Dark avec portées, testées sur trois vrais écrans, chaque paire de contraste vérifiée."),
+      prompt: B("Here are my primitives: [LIST OF PRIMITIVES WITH VALUES].\nHere are my semantic tokens with their Light alias: [LIST].\n1. For a Dark mode, propose an alias to an existing primitive for each semantic token. Never create a new value.\n2. For each semantic variable, propose its scope in Figma (for example text only, fills only, strokes only).\n3. List the text and background pairs I must check in each mode, the riskiest first.\n4. Propose a code syntax for each variable for the web, following [YOUR CONVENTION, E.G. var(--color-text-default)].\nI will create the variables myself and check contrast with [YOUR CONTRAST TOOL].",
+        "Voici mes primitives : [LISTE DES PRIMITIVES AVEC VALEURS].\nVoici mes tokens sémantiques avec leur alias Light : [LISTE].\n1. Pour un mode Dark, propose pour chaque token sémantique un alias vers une primitive existante. Ne crée jamais de valeur nouvelle.\n2. Pour chaque variable sémantique, propose sa portée dans Figma (par exemple texte seul, remplissages seuls, contours seuls).\n3. Liste les paires texte et fond à vérifier dans chaque mode, les plus risquées d'abord.\n4. Propose une syntaxe de code pour chaque variable côté web, selon [VOTRE CONVENTION, PAR EXEMPLE var(--color-text-default)].\nJe créerai les variables moi-même et vérifierai le contraste avec [VOTRE OUTIL DE CONTRASTE]."),
+      check: [
+        B("Primitives are hidden from publishing; product files only see semantic variables", "Les primitives sont masquées ; les fichiers produit ne voient que les variables sémantiques"),
+        B("Every Dark value is an alias, never a typed hex code", "Chaque valeur Dark est un alias, jamais un code hexadécimal tapé"),
+        B("Each semantic variable has a scope that matches its role", "Chaque variable sémantique a une portée conforme à son rôle"),
+        B("Every text and background pair passes your contrast check in both modes", "Chaque paire texte et fond passe votre vérification de contraste dans les deux modes"),
+      ],
+      bonus: B("Add a third mode for high contrast, using only existing primitives. If you cannot reach it without new colours, note which steps your palette is missing: that gap is a finding for the system.",
+        "Ajoutez un troisième mode à fort contraste, avec les seules primitives existantes. Si vous n'y parvenez pas sans couleurs nouvelles, notez les paliers qui manquent à votre palette : ce manque est un résultat pour le système."),
+    },
+    more: [
+      { q: B("Why does Inès hide the Primitives collection from publishing?",
+          "Pourquoi Inès masque-t-elle la collection Primitives à la publication ?"),
+        options: [
+          B("Because primitives would slow down every consumer file", "Parce que les primitives ralentiraient chaque fichier consommateur"),
+          B("So that product designers choose roles, never raw palette values", "Pour que les designers produit choisissent des rôles, jamais des valeurs brutes"),
+          B("Because Figma cannot publish two collections from the same library file", "Parce que Figma ne peut pas publier deux collections d'une même bibliothèque"),
+        ],
+        answer: 1,
+        why: B("If primitives are offered, someone will pick blue-500 for a background, and that screen will not switch to dark mode. Hiding them leaves only semantic choices, which are the ones that follow modes.",
+          "Si les primitives sont proposées, quelqu'un choisira blue-500 pour un fond, et cet écran ne basculera pas en sombre. Les masquer ne laisse que des choix sémantiques, ceux qui suivent les modes.") },
+      { q: B("A designer applies the Dark mode to a whole page, but one card stays light. What is the first thing to check?",
+          "Un designer applique le mode Dark à toute une page, mais une carte reste claire. Que vérifier d'abord ?"),
+        options: [
+          B("Whether the card has its own mode set to Light, or uses a primitive", "Si la carte a son propre mode réglé sur Light, ou emploie une primitive"),
+          B("Whether the designer's screen brightness is set too high", "Si la luminosité de l'écran du designer est réglée trop haut"),
+          B("Whether the page contains more than one hundred layers, which Figma cannot switch", "Si la page contient plus de cent calques, que Figma ne saurait basculer"),
+        ],
+        answer: 0,
+        why: B("Modes are inherited from the parent unless a child sets its own. A card with an explicit Light mode, or a fill bound to a primitive, will not follow the page.",
+          "Les modes s'héritent du parent, sauf si un enfant fixe le sien. Une carte avec un mode Light explicite, ou un remplissage lié à une primitive, ne suivra pas la page.") },
+    ],
+  },
+
+  [enrichKey(M2, 'ds-scales')]: {
+    why: [
+      B("A scale is a short list of allowed values chosen in advance. It replaces endless micro-decisions (13 or 14 pixels?) with one choice among a few, and it gives the interface a rhythm the eye recognises. The audit shows how many values the product uses today; the scale decides how many it needs.",
+        "Une échelle est une courte liste de valeurs autorisées, choisies d'avance. Elle remplace d'innombrables micro-décisions (13 ou 14 pixels ?) par un choix parmi quelques-uns, et donne à l'interface un rythme que l'oeil reconnaît. L'audit montre combien de valeurs le produit emploie aujourd'hui ; l'échelle décide combien il lui en faut."),
+      B("Each scale has its own logic. Type often follows a ratio from a base size, with a line height and weight per step. Spacing follows a small base unit, often 4 or 8 pixels. Radii and elevation need only a few steps, named by role. In Figma, numbers become variables, text sizes become text styles bound to them, shadows become effect styles.",
+        "Chaque échelle a sa logique. La typographie suit souvent un rapport à partir d'une taille de base, avec interlignage et graisse par palier. L'espacement suit une petite unité de base, souvent 4 ou 8 pixels. Rayons et élévations ne demandent que quelques paliers, nommés par rôle. Dans Figma, les nombres deviennent des variables, les tailles des styles de texte qui y sont liés, les ombres des styles d'effet."),
+      B("AI helps twice: to propose scales from the audited values, and to map each old value to the nearest step with the visible impact. It is not reliable on arithmetic, so the ratios and roundings it gives are recalculated, and the mappings that move a layout are checked on screen.",
+        "L'IA aide deux fois : pour proposer des échelles à partir des valeurs auditées, et pour ramener chaque ancienne valeur au palier voisin avec son impact visible. Elle n'est pas fiable en calcul : les rapports et arrondis qu'elle donne se recalculent, et les correspondances qui déplacent une mise en page se vérifient à l'écran."),
+    ],
+    example: {
+      context: B("Inès has twenty-two font sizes and nineteen spacing values from the audit. Her first prompt asks the AI for 'a type scale', and she receives a textbook scale that ignores what Cadenza actually displays.",
+        "Inès a relevé vingt-deux tailles de police et dix-neuf espacements dans l'audit. Son premier prompt demande à l'IA « une échelle typographique », et elle reçoit une échelle de manuel qui ignore ce qu'affiche vraiment Cadenza."),
+      before: B("Make me a type scale.",
+        "Fais-moi une échelle typographique."),
+      after: B("Here are the font sizes and spacing values found in the Cadenza audit, each with the number of occurrences and typical uses.\nThe product shows dense tables in the back office and short texts in the mobile app. Our principle: clarity over density.\n1. Type: propose a scale from a base of 16 pixels with at most seven steps. For each step give the size, a line height, a weight and its use (body, label, table, heading levels). Name steps by role, such as text.body or text.heading.lg.\n2. Spacing: propose a scale on a 4-pixel base with at most nine steps, named space-1, space-2 and so on by multiple of 4.\n3. Map every audited value to its nearest step in a table: old value, new step, visible impact (none, small, noticeable).\nShow your rounding so I can check it.\n[VALUES]",
+        "Voici les tailles de police et les espacements relevés dans l'audit de Cadenza, chacun avec son nombre d'occurrences et ses usages types.\nLe produit affiche des tableaux denses dans le back-office et des textes courts dans l'app mobile. Notre principe : la clarté plutôt que la densité.\n1. Typographie : propose une échelle à partir d'une base de 16 pixels, sept paliers au plus. Pour chaque palier, donne la taille, un interlignage, une graisse et son usage (texte courant, libellé, tableau, niveaux de titre). Nomme les paliers par rôle, comme text.body ou text.heading.lg.\n2. Espacement : propose une échelle sur une base de 4 pixels, neuf paliers au plus, nommés space-1, space-2 et ainsi de suite par multiple de 4.\n3. Ramène chaque valeur auditée à son palier voisin dans une table : ancienne valeur, nouveau palier, impact visible (aucun, faible, notable).\nMontre tes arrondis pour que je les vérifie.\n[VALEURS]"),
+      takeaway: B("The second prompt starts from Cadenza's real values, uses and principle, and limits the number of steps. The mapping table with its visible impact tells Inès which screens to check before the migration.",
+        "Le second prompt part des valeurs réelles de Cadenza, de ses usages et de son principe, et limite le nombre de paliers. La table de correspondance et son impact visible disent à Inès quels écrans vérifier avant la migration."),
+    },
+    exercise: {
+      goal: B("Four short scales for a product you know (type, spacing, radius, elevation), created in Figma as variables, text styles and effect styles, with a reviewed mapping of the old values.",
+        "Quatre échelles courtes pour un produit que vous connaissez (typographie, espacement, rayon, élévation), créées dans Figma en variables, styles de texte et styles d'effet, avec une correspondance relue des anciennes valeurs."),
+      prompt: B("Here are the values found in the audit of [PRODUCT]: font sizes [LIST], spacings [LIST], radii [LIST], shadows [LIST], each with occurrences and uses.\nContext: [WHAT THE PRODUCT SHOWS, DENSE OR AIRY], principle: [YOUR MAIN PRINCIPLE].\n1. Propose a type scale (at most [NUMBER] steps) with size, line height, weight and use, named by role.\n2. Propose a spacing scale on a [4 OR 8]-pixel base, at most [NUMBER] steps.\n3. Propose three or four radii and three elevation levels, named by role, with what each one is for.\n4. Map every audited value to its nearest step: old value, new step, visible impact.\nShow your calculations so that I can check them.",
+        "Voici les valeurs relevées dans l'audit de [PRODUIT] : tailles de police [LISTE], espacements [LISTE], rayons [LISTE], ombres [LISTE], chacune avec occurrences et usages.\nContexte : [CE QU'AFFICHE LE PRODUIT, DENSE OU AÉRÉ], principe : [VOTRE PRINCIPE PRINCIPAL].\n1. Propose une échelle typographique ([NOMBRE] paliers au plus) avec taille, interlignage, graisse et usage, nommés par rôle.\n2. Propose une échelle d'espacement sur une base de [4 OU 8] pixels, [NOMBRE] paliers au plus.\n3. Propose trois ou quatre rayons et trois niveaux d'élévation, nommés par rôle, avec l'usage de chacun.\n4. Ramène chaque valeur auditée à son palier voisin : ancienne valeur, nouveau palier, impact visible.\nMontre tes calculs pour que je les vérifie."),
+      check: [
+        B("Each scale has fewer steps than the audit had values", "Chaque échelle compte moins de paliers que l'audit ne comptait de valeurs"),
+        B("You recalculated the sizes and roundings the AI proposed", "Vous avez recalculé les tailles et arrondis proposés par l'IA"),
+        B("Text styles are bound to the size and line height variables", "Les styles de texte sont liés aux variables de taille et d'interlignage"),
+        B("You checked on screen every mapping marked as noticeable", "Vous avez vérifié à l'écran chaque correspondance marquée notable"),
+      ],
+      bonus: B("Rebuild one dense back-office screen using only the new scales, side by side with the original. Show both to a colleague without saying which is which, and ask which one reads more easily.",
+        "Reconstruisez un écran dense du back-office avec les seules nouvelles échelles, à côté de l'original. Montrez les deux à un collègue sans dire lequel est lequel, et demandez lequel se lit le plus facilement."),
+    },
+    more: [
+      { q: B("In dark mode, the shadows of Cadenza cards are barely visible. How can elevation stay readable?",
+          "En mode sombre, les ombres des cartes de Cadenza se voient à peine. Comment garder l'élévation lisible ?"),
+        options: [
+          B("By making every shadow pure black and twice as large", "En rendant chaque ombre noire et deux fois plus grande"),
+          B("By removing elevation from dark mode, since it is not needed there", "En supprimant l'élévation du mode sombre, inutile à cet endroit"),
+          B("By giving raised surfaces a slightly lighter colour in dark mode", "En donnant aux surfaces surélevées une couleur un peu plus claire en sombre"),
+        ],
+        answer: 2,
+        why: B("On dark backgrounds, shadows lose contrast. A common practice is to express height with a lighter surface, which the semantic token color.surface.raised can do through its Dark alias.",
+          "Sur fond sombre, les ombres perdent leur contraste. Une pratique courante consiste à exprimer la hauteur par une surface plus claire, ce que le token sémantique color.surface.raised peut faire par son alias Dark.") },
+      { q: B("Why does Inès name radii by role (radius.control, radius.card) rather than by size only?",
+          "Pourquoi Inès nomme-t-elle les rayons par rôle (radius.control, radius.card) plutôt que par taille seulement ?"),
+        options: [
+          B("So that changing the look of cards does not touch the controls", "Pour que changer l'allure des cartes ne touche pas aux contrôles"),
+          B("Because Figma refuses numeric names for any of its number variables", "Parce que Figma refuse les noms numériques pour les variables nombre"),
+          B("Because role names make the exported CSS file smaller", "Parce que les noms de rôle rendent le fichier CSS exporté plus léger"),
+        ],
+        answer: 0,
+        why: B("Two roles with the same value today may diverge tomorrow. Role names let the system change the corners of cards without affecting fields and other controls.",
+          "Deux rôles de même valeur aujourd'hui peuvent diverger demain. Des noms de rôle permettent au système de changer les coins des cartes sans toucher aux champs et autres contrôles.") },
+    ],
+  },
+
+  [enrichKey(M2, 'ds-export')]: {
+    why: [
+      B("Tokens are useful only if design and code read the same values. That requires one source of truth: either Figma variables are edited and exported, or JSON files in a repository are edited and imported into Figma. Editing both leads to two systems that drift apart, exactly the problem the system was built to solve.",
+        "Les tokens ne servent que si le design et le code lisent les mêmes valeurs. Cela suppose une seule source de vérité : soit on modifie les variables Figma et on les exporte, soit on modifie des fichiers JSON dans un dépôt et on les importe dans Figma. Modifier les deux mène à deux systèmes qui divergent, le problème même que le système devait résoudre."),
+      B("The format of the W3C Design Tokens Community Group describes each token with $value and $type, and aliases with braces, such as {color.blue.500}. Tokens Studio, a Figma plugin, can store tokens in that format and sync them with a Git repository. Style Dictionary, an open-source build tool, transforms the JSON into CSS variables, Swift or Android resources. Check the status of the format and the options of each tool in their official documentation.",
+        "Le format du W3C Design Tokens Community Group décrit chaque token par $value et $type, et les alias par des accolades, comme {color.blue.500}. Tokens Studio, un plugin Figma, peut stocker les tokens dans ce format et les synchroniser avec un dépôt Git. Style Dictionary, un outil libre de génération, transforme le JSON en variables CSS, en ressources Swift ou Android. Vérifiez le statut du format et les options des outils dans leur documentation."),
+      B("AI is effective for writing the configuration and the glue code: a Style Dictionary config, a script that splits modes into files, a CI step. It can confuse versions of a tool, so every generated config is read against the current documentation and run on a test branch before it reaches the product.",
+        "L'IA est efficace pour écrire la configuration et le code de liaison : une configuration Style Dictionary, un script qui répartit les modes en fichiers, une étape d'intégration continue. Elle peut confondre les versions d'un outil : chaque configuration générée se relit avec la documentation à jour et se lance sur une branche de test avant d'atteindre le produit."),
+    ],
+    example: {
+      context: B("Malik asks the AI to 'convert the Figma tokens to CSS'. He gets a CSS file with hex values copied from a screenshot, and no way to update it when Inès changes a colour.",
+        "Malik demande à l'IA de « convertir les tokens Figma en CSS ». Il obtient un fichier CSS aux valeurs hexadécimales recopiées d'une capture, sans aucun moyen de le mettre à jour quand Inès change une couleur."),
+      before: B("Convert my Figma colours to CSS variables.",
+        "Convertis mes couleurs Figma en variables CSS."),
+      after: B("We export the Cadenza tokens with Tokens Studio to a Git repository, in the W3C Design Tokens format ($value, $type, aliases in braces).\nFiles: tokens/primitives.json, tokens/semantic-light.json, tokens/semantic-dark.json.\nWrite a Style Dictionary configuration that:\n1. reads primitives with each semantic file;\n2. outputs build/css/light.css with the semantic tokens as CSS custom properties on :root, and build/css/dark.css with the same names under a [data-theme=dark] selector;\n3. keeps aliases resolved to final values, and names variables in kebab-case, such as --color-text-default.\nTell me which version of Style Dictionary your answer assumes, and which options I should check in its documentation.\nThen give me a short npm script to run the build, and a test HTML page that shows each semantic colour as a swatch with its name.",
+        "Nous exportons les tokens de Cadenza avec Tokens Studio vers un dépôt Git, au format W3C Design Tokens ($value, $type, alias entre accolades).\nFichiers : tokens/primitives.json, tokens/semantic-light.json, tokens/semantic-dark.json.\nÉcris une configuration Style Dictionary qui :\n1. lit les primitives avec chaque fichier sémantique ;\n2. produit build/css/light.css avec les tokens sémantiques en propriétés personnalisées CSS sur :root, et build/css/dark.css avec les mêmes noms sous un sélecteur [data-theme=dark] ;\n3. résout les alias en valeurs finales et nomme les variables en kebab-case, comme --color-text-default.\nDis-moi quelle version de Style Dictionary ta réponse suppose, et quelles options je dois vérifier dans sa documentation.\nDonne-moi ensuite un court script npm pour lancer la génération, et une page HTML de test qui affiche chaque couleur sémantique en pastille avec son nom."),
+      takeaway: B("The second prompt describes the real pipeline, the files and the expected output, and asks the AI to state its assumptions. Malik gets a build he can rerun whenever the tokens change, and a page to check the result.",
+        "Le second prompt décrit la vraie chaîne, les fichiers et le résultat attendu, et demande à l'IA d'énoncer ses hypothèses. Malik obtient une génération qu'il peut relancer à chaque changement de tokens, et une page pour vérifier le résultat."),
+    },
+    exercise: {
+      goal: B("A working pipeline for a small token set: one source of truth, JSON in the W3C format in a repository, a Style Dictionary build producing CSS variables for two modes, and a test page compared with Figma.",
+        "Une chaîne qui fonctionne pour un petit jeu de tokens : une source de vérité, du JSON au format W3C dans un dépôt, une génération Style Dictionary produisant des variables CSS pour deux modes, et une page test comparée à Figma."),
+      prompt: B("My tokens are stored as [WHERE: FIGMA VARIABLES EXPORTED WITH TOKENS STUDIO, OR JSON FILES IN A REPOSITORY], in the W3C Design Tokens format.\nFiles: [LIST OF FILES AND WHAT EACH ONE CONTAINS].\nTarget platforms: [WEB CSS, IOS, ANDROID].\n1. Write a Style Dictionary configuration that outputs [OUTPUTS, E.G. ONE CSS FILE PER MODE] with names following [YOUR CONVENTION].\n2. State the version of Style Dictionary you assume, and the options I must check in the official documentation.\n3. Give the command to run the build, and a test page showing every semantic token with its name and value.\n4. Propose a CI step that runs the build when token files change.\nDo not invent options: if you are unsure an option exists, say so.",
+        "Mes tokens sont stockés [OÙ : VARIABLES FIGMA EXPORTÉES AVEC TOKENS STUDIO, OU FICHIERS JSON DANS UN DÉPÔT], au format W3C Design Tokens.\nFichiers : [LISTE DES FICHIERS ET CONTENU DE CHACUN].\nPlateformes cibles : [WEB CSS, IOS, ANDROID].\n1. Écris une configuration Style Dictionary qui produit [SORTIES, PAR EXEMPLE UN FICHIER CSS PAR MODE] avec des noms selon [VOTRE CONVENTION].\n2. Indique la version de Style Dictionary que tu supposes, et les options que je dois vérifier dans la documentation officielle.\n3. Donne la commande qui lance la génération, et une page de test qui affiche chaque token sémantique avec son nom et sa valeur.\n4. Propose une étape d'intégration continue qui lance la génération quand les fichiers de tokens changent.\nN'invente pas d'option : si tu doutes qu'une option existe, dis-le."),
+      check: [
+        B("The source of truth is written down, and nobody edits the generated files", "La source de vérité est écrite, et personne ne modifie les fichiers générés"),
+        B("Token files use $value and $type, and aliases point to existing tokens", "Les fichiers de tokens emploient $value et $type, et les alias visent des tokens existants"),
+        B("You checked the config against the current Style Dictionary documentation", "Vous avez relu la configuration avec la documentation à jour de Style Dictionary"),
+        B("The test page matches Figma in both modes", "La page test correspond à Figma dans les deux modes"),
+      ],
+      bonus: B("Change one primitive in the source, run the pipeline end to end and time how long the change takes to reach the test page. If any step is manual, write it down: it is the next thing to automate.",
+        "Changez une primitive à la source, faites tourner toute la chaîne et mesurez le temps que met le changement pour atteindre la page test. Si une étape est manuelle, notez-la : c'est la prochaine à automatiser."),
+    },
+    more: [
+      { q: B("Inès edits colours in Figma, Malik edits the same colours in the JSON. What is the problem?",
+          "Inès modifie les couleurs dans Figma, Malik modifie les mêmes couleurs dans le JSON. Où est le problème ?"),
+        options: [
+          B("There are two sources of truth, and the next sync overwrites one side", "Il y a deux sources de vérité, et la synchronisation suivante écrase un côté"),
+          B("JSON cannot hold colour values, only numbers and strings", "Le JSON ne peut pas contenir de couleurs, seulement nombres et chaînes"),
+          B("There is no problem at all, as long as they both keep using the same names", "Aucun problème, tant qu'ils emploient tous deux les mêmes noms"),
+        ],
+        answer: 0,
+        why: B("With two places to edit, the next sync either loses one change or creates a conflict. One source of truth, chosen and written down, makes every change flow in one direction.",
+          "Avec deux endroits où modifier, la synchronisation suivante perd un changement ou crée un conflit. Une seule source de vérité, choisie et écrite, fait circuler chaque changement dans un seul sens.") },
+      { q: B("In the W3C format, color.text.default has the $value {color.neutral.900}. What does that mean?",
+          "Au format W3C, color.text.default a pour $value {color.neutral.900}. Qu'est-ce que cela signifie ?"),
+        options: [
+          B("The token is broken, since a value must always be a hex code", "Le token est cassé, une valeur devant toujours être un code hexadécimal"),
+          B("It is an alias: its value is the value of color.neutral.900", "C'est un alias : sa valeur est celle de color.neutral.900"),
+          B("It is a comment for designers, ignored by the build tools", "C'est un commentaire pour les designers, ignoré par les outils"),
+        ],
+        answer: 1,
+        why: B("Braces mark a reference to another token. Build tools resolve the alias to the final value, so changing the primitive updates every semantic token that points to it.",
+          "Les accolades marquent une référence à un autre token. Les outils de génération résolvent l'alias en valeur finale : changer la primitive met à jour chaque token sémantique qui y renvoie.") },
+    ],
+  },
+}
+
+const TOKENS_DEEP: Record<string, Deepening> = {}
+
+/* ================================================================== */
 /* LES MODULES DE CETTE PARTIE                                         */
 /* ================================================================== */
 
@@ -767,10 +1172,16 @@ const MODULES: Module[] = [
     blurb: B('Why a system and for whom, an inventory of the existing product, principles and naming, and the map of Figma libraries.',
       "Pourquoi un système et pour qui, l'inventaire de l'existant, les principes et le nommage, et la carte des bibliothèques Figma."),
   },
+  {
+    id: M2, track: 'course', glyph: 'diamond', tint: '#1d4ed8', at: [30, 66], levels: TOKENS,
+    title: B('The tokens', 'Les tokens'),
+    blurb: B('Primitive and semantic tokens, Figma variables with light and dark modes, short scales, and an export that reaches the code.',
+      'Tokens primitifs et sémantiques, variables Figma en modes clair et sombre, échelles courtes, et un export qui atteint le code.'),
+  },
 ]
 
 export const DESIGNSYS_A: CoursePart = {
   modules: MODULES,
-  enrich: { ...FOUND_ENRICH },
-  deep: { ...FOUND_DEEP },
+  enrich: { ...FOUND_ENRICH, ...TOKENS_ENRICH },
+  deep: { ...FOUND_DEEP, ...TOKENS_DEEP },
 }

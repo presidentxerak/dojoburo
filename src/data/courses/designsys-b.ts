@@ -1,5 +1,784 @@
-// LE COURS « Design system de A à Z pour Figma », PARTIE B · voir ./types et ./index. En rédaction.
+// LE COURS « Design system de A à Z pour Figma », PARTIE B · voir ./types et ./index.
+//
+// LES MODULES 3 ET 4 · les composants, puis documenter et faire vivre le système.
+//
+// UN SEUL FIL ROUGE · « Sève », le design system de « Brindille », une jeune
+// entreprise fictive qui édite une app de gestion pour les associations
+// (adhérents, événements, inscriptions). Léa, designer produit (fictive), porte
+// le système ; Tom, second designer, l'utilise et y contribue ; Malik,
+// développeur front-end, le traduit en code React ; Claire, responsable
+// produit, arbitre. Chaque cours fait avancer ce même système : on met les
+// composants en auto layout, on les modélise, on les rend accessibles, on les
+// assemble en motifs, on les documente, on les transmet, on les gouverne et on
+// mesure leur adoption.
+//
+// CE QUE LE COURS AFFIRME, ET CE QU'IL S'INTERDIT. Il s'en tient aux principes
+// stables : auto layout et contraintes, composants, variantes et propriétés,
+// critères WCAG (contraste, focus, taille des cibles), motifs et gabarits,
+// Dev Mode, versionnage sémantique, contribution et dépréciation, mesure de
+// l'adoption. Les libellés exacts de Figma, ses fonctions d'IA et ce que chaque
+// offre inclut bougent : le cours décrit le principe et renvoie au centre
+// d'aide et à la grille tarifaire de Figma, sans citer de chiffre.
+import { B } from '../bilingual'
+import type { Level, Module } from '../curriculum'
+import type { Enrichment } from '../enrich/types'
+import type { Deepening } from '../deep/types'
+import { enrichKey } from '../enrich/types'
+import { deepKey } from '../deep/types'
 import type { CoursePart } from './types'
-import { EMPTY_PART } from './types'
 
-export const DESIGNSYS_B: CoursePart = EMPTY_PART
+/* ================================================================== */
+/* MODULE 3 · LES COMPOSANTS                                           */
+/* ================================================================== */
+
+const M3 = 'ds-m3'
+
+const COMPOSANTS: Level[] = [
+  {
+    id: 'ds-autolayout',
+    master: 'tools',
+    minutes: 10,
+    title: B('Auto layout and constraints', 'Auto layout et contraintes'),
+    learn: B(
+      'You will build frames that resize on their own with auto layout, and know when constraints still apply.',
+      "Vous saurez construire des cadres qui s'adaptent seuls grâce à l'auto layout, et quand les contraintes s'appliquent encore.",
+    ),
+    act: B('Rebuild the event card of Brindille in auto layout, with gaps and padding tied to the spacing variables.',
+      "Reconstruisez la carte événement de Brindille en auto layout, avec écarts et marges liés aux variables d'espacement."),
+    steps: [
+      B('Break the card down into nested boxes: a vertical stack, a header row, a footer row, and name each one.',
+        "Décomposez la carte en boîtes imbriquées : une pile verticale, une ligne d'en-tête, une ligne de pied, et nommez chacune."),
+      B('Apply auto layout from the inside out, setting direction, gap and padding with spacing variables.',
+        "Appliquez l'auto layout de l'intérieur vers l'extérieur : direction, écart et marges reliés aux variables d'espacement."),
+      B('Set each child to hug, fill or fixed, then stretch the card to test it at a narrow and a wide width.',
+        'Réglez chaque enfant en hug, fill ou fixed, puis étirez la carte pour la tester étroite, puis large.'),
+      B('Keep constraints for what auto layout does not drive, such as a badge pinned to a corner of the image.',
+        "Gardez les contraintes pour ce que l'auto layout ne pilote pas, comme un badge épinglé dans un coin de l'image."),
+    ],
+    trap: B(
+      'Placing layers by hand inside a fixed frame: the card looks right at one width and breaks as soon as a title runs onto two lines.',
+      "Placer les calques à la main dans un cadre fixe : la carte semble juste à une largeur et casse dès qu'un titre passe sur deux lignes.",
+    ),
+    quiz: {
+      q: B('The title of an event card wraps onto two lines and now overlaps the date below it. What is the likely cause?',
+        "Le titre d'une carte passe sur deux lignes et chevauche désormais la date en dessous. Quelle est la cause probable ?"),
+      options: [
+        B('The text layer uses a font weight that the library does not include', 'Le calque de texte utilise une graisse absente de la bibliothèque'),
+        B('The card is a fixed frame without auto layout, so nothing moves', 'La carte est un cadre fixe sans auto layout : rien ne se décale'),
+        B('The spacing variables were only given a value in the light mode', "Les variables d'espacement n'ont de valeur qu'en mode clair"),
+      ],
+      answer: 1,
+      why: B(
+        'In a fixed frame, layers keep their position whatever their size. In a vertical auto layout, a taller title pushes the date down by the gap you set.',
+        "Dans un cadre fixe, les calques gardent leur position quelle que soit leur taille. Dans un auto layout vertical, un titre plus haut repousse la date de l'écart défini.",
+      ),
+    },
+    badge: B('Builds frames that adapt', "Construit des cadres qui s'adaptent"),
+  },
+  {
+    id: 'ds-components',
+    master: 'coding',
+    minutes: 11,
+    title: B('Components, variants and properties', 'Composants, variantes et propriétés'),
+    learn: B(
+      'You will turn a repeated element into a component set with variants and properties that nobody needs to detach.',
+      "Vous saurez transformer un élément répété en composant à variantes et à propriétés, que personne n'a besoin de détacher.",
+    ),
+    act: B('Build the Field of Sève: state variants, a label text property, a helper boolean and an icon swap.',
+      "Construisez le Champ de Sève : variantes d'état, propriété texte du libellé, booléen d'aide et échange d'icône."),
+    steps: [
+      B('List what really varies in the field from one screen to another, then sort it: variant, text, show or hide, swap.',
+        "Listez ce qui varie vraiment dans le champ d'un écran à l'autre, puis classez : variante, texte, affichage, échange."),
+      B('Create the main component in auto layout, then the state variants: default, focus, error, disabled.',
+        "Créez le composant principal en auto layout, puis les variantes d'état : défaut, focus, erreur, désactivé."),
+      B('Add the properties: label and helper texts, a boolean to show the helper, an instance swap for the icon.',
+        "Ajoutez les propriétés : textes du libellé et de l'aide, booléen pour afficher l'aide, échange d'instance pour l'icône."),
+      B('Place an instance in a test screen and set every property from the right panel, without detaching it.',
+        'Posez une instance dans un écran de test et réglez chaque propriété depuis le panneau, sans la détacher.'),
+    ],
+    trap: B(
+      'Creating one variant per combination (error with icon, error without icon, and so on): the set explodes, where a boolean and a swap would do.',
+      "Créer une variante par combinaison (erreur avec icône, erreur sans icône, etc.) : le jeu explose, alors qu'un booléen et un échange suffisaient.",
+    ),
+    quiz: {
+      q: B('The Field needs an optional icon, chosen among the icons of the library. Which modelling do you choose?',
+        "Le Champ doit pouvoir porter une icône facultative, choisie parmi celles de la bibliothèque. Quelle modélisation retenez-vous ?"),
+      options: [
+        B('One variant per icon, grouped under an Icon property of the set', 'Une variante par icône, regroupées sous une propriété Icône du jeu'),
+        B('An icon layer that designers detach and replace in each screen', "Un calque d'icône que l'on détache et remplace dans chaque écran"),
+        B('A boolean to show it and an instance swap to pick it', "Un booléen pour l'afficher et un échange d'instance pour la choisir"),
+      ],
+      answer: 2,
+      why: B(
+        'Variants are for states and sizes that change structure or style. Showing a layer is a boolean, choosing a nested component is an instance swap: the set stays small.',
+        "Les variantes servent aux états et tailles qui changent la structure ou le style. Afficher un calque relève d'un booléen, choisir un composant imbriqué d'un échange d'instance : le jeu reste petit.",
+      ),
+    },
+    badge: B('Models components cleanly', 'Modélise des composants propres'),
+  },
+  {
+    id: 'ds-a11y',
+    master: 'analysis',
+    minutes: 12,
+    title: B('Accessible components: contrast, focus, sizes', 'Des composants accessibles : contraste, focus, tailles'),
+    learn: B(
+      'You will check contrast, design a visible focus state and size targets so that each component meets WCAG.',
+      'Vous saurez vérifier les contrastes, dessiner un focus visible et dimensionner les cibles selon les WCAG.',
+    ),
+    act: B('Audit the Field and the Tag of Sève: contrast, focus ring and target size, in light and in dark mode.',
+      'Auditez le Champ et le Tag de Sève : contrastes, anneau de focus et taille des cibles, en mode clair et sombre.'),
+    steps: [
+      B('Measure each text against its background with a contrast checker, in both modes, and note each ratio.',
+        'Mesurez chaque texte sur son fond avec un vérificateur de contraste, dans les deux modes, et notez chaque ratio.'),
+      B('Check non-text contrast too: the field border and the focus ring against what surrounds them.',
+        "Vérifiez aussi le contraste non textuel : la bordure du champ et l'anneau de focus face à ce qui les entoure."),
+      B('Draw a focus variant whose ring stands apart from the border and is never clipped by the frame.',
+        "Dessinez une variante focus dont l'anneau se détache de la bordure et n'est jamais rogné par le cadre."),
+      B('Check target sizes: the active area of the close icon of the Tag must reach the documented minimum.',
+        "Vérifiez la taille des cibles : la zone active de l'icône de fermeture du Tag doit atteindre le minimum documenté."),
+    ],
+    trap: B(
+      'Checking contrast in light mode only: the dark mode reuses the same components with other variables, and its weak pairs go unseen.',
+      "Ne vérifier les contrastes qu'en mode clair : le mode sombre réutilise les composants avec d'autres variables, et ses paires faibles passent inaperçues.",
+    ),
+    quiz: {
+      q: B('In the Field, an error is shown only by a red border, with no message and no icon. What is the problem?',
+        "Dans le Champ, une erreur n'est signalée que par une bordure rouge, sans message ni icône. Quel est le problème ?"),
+      options: [
+        B('Color is the only signal, so some users will miss the error', "La couleur est le seul signal : certains ne verront pas l'erreur"),
+        B('Red is not one of the semantic tokens defined for the system', 'Le rouge ne figure pas parmi les tokens sémantiques du système'),
+        B('A border cannot be bound to a color variable in a Figma file', 'Une bordure ne peut pas être liée à une variable de couleur'),
+      ],
+      answer: 0,
+      why: B(
+        'WCAG asks that color not be the only means of conveying information. Add an icon and a message tied to the field, so the error is perceived without seeing red.',
+        "Les WCAG demandent que la couleur ne soit pas le seul moyen de transmettre une information. Ajoutez une icône et un message liés au champ : l'erreur se perçoit sans voir le rouge.",
+      ),
+    },
+    badge: B('Designs for every user', 'Conçoit pour tous les utilisateurs'),
+  },
+  {
+    id: 'ds-patterns',
+    master: 'planning',
+    minutes: 10,
+    title: B('Assembling patterns and page templates', 'Assembler des motifs et des gabarits de pages'),
+    learn: B(
+      'You will combine components into reusable patterns and page templates, and decide what enters the library.',
+      'Vous saurez combiner des composants en motifs et en gabarits de pages, et décider ce qui entre dans la bibliothèque.',
+    ),
+    act: B('Assemble the sign-up form pattern and the event list template of Brindille from Sève components only.',
+      "Assemblez le motif « formulaire d'inscription » et le gabarit « liste d'événements » avec les seuls composants de Sève."),
+    steps: [
+      B('List the screens of Brindille and circle the arrangements that repeat: a form, a list of cards, a page header.',
+        'Listez les écrans de Brindille et entourez les agencements qui se répètent : un formulaire, une liste de cartes, un en-tête.'),
+      B('Build the form pattern from Field instances, in a vertical auto layout with a spacing variable between groups.',
+        "Construisez le motif de formulaire avec des instances de Champ, en auto layout vertical, une variable d'espacement entre groupes."),
+      B('Build the list template on a layout grid, with content zones and no real content baked in.',
+        'Construisez le gabarit de liste sur une grille de mise en page, avec des zones de contenu et aucun contenu réel figé.'),
+      B('Decide for each pattern: in the library, on a reference page, or left to the product team.',
+        "Décidez pour chaque motif : dans la bibliothèque, sur une page de référence, ou laissé à l'équipe produit."),
+    ],
+    trap: B(
+      'Turning every screen into a component: the library fills with one-off pages that nobody reuses, and each product change means editing it.',
+      'Transformer chaque écran en composant : la bibliothèque se remplit de pages uniques que personne ne réutilise, et chaque évolution oblige à la modifier.',
+    ),
+    quiz: {
+      q: B("A 'Featured event' block appears on one screen only. The product team wants it in the library. What do you do?",
+        "Un bloc « Événement à la une » n'apparaît que sur un écran. L'équipe produit le veut dans la bibliothèque. Que faites-vous ?"),
+      options: [
+        B('Add it at once, since any request from a product team is a need', "L'ajouter aussitôt : toute demande d'une équipe produit est un besoin"),
+        B('Keep it local, and promote it if a second screen needs it', "Le garder local, et le promouvoir si un second écran en a besoin"),
+        B('Refuse it, since patterns never belong in a design system', "Le refuser : les motifs n'ont jamais leur place dans un design system"),
+      ],
+      answer: 1,
+      why: B(
+        'A library entry costs maintenance for every team. A pattern earns its place through reuse: keep it in the product file, note it, and promote it when a second use appears.',
+        "Une entrée de bibliothèque coûte de la maintenance à toutes les équipes. Un motif gagne sa place par la réutilisation : gardez-le dans le fichier produit, notez-le, promouvez-le au second usage.",
+      ),
+    },
+    badge: B('Assembles pages from parts', 'Assemble des pages à partir de briques'),
+  },
+]
+
+const COMPOSANTS_ENRICH: Record<string, Enrichment> = {
+  [enrichKey(M3, 'ds-autolayout')]: {
+    why: [
+      B("Auto layout turns a frame into a small layout engine. You state rules rather than positions: a direction (horizontal or vertical), a gap between children, padding around them, an alignment. Figma then computes where each layer goes. When the content changes (a longer title, an extra tag, a translated label), the frame recomputes, much as CSS flexbox does in code.",
+        "L'auto layout transforme un cadre en petit moteur de mise en page. Vous énoncez des règles plutôt que des positions : une direction (horizontale ou verticale), un écart entre les enfants, des marges autour, un alignement. Figma calcule alors la place de chaque calque. Quand le contenu change (un titre plus long, un tag de plus, un libellé traduit), le cadre se recalcule, à la manière du CSS flexbox dans le code."),
+      B("Each child also has a resizing rule. Hug fits it to its content, fill makes it take the space left in its parent, fixed keeps a set size. Most layout defects in a design system come from one wrong rule here: a text set to fixed that gets clipped, a container set to hug that never stretches. Reading these three words on each layer is the fastest audit there is.",
+        "Chaque enfant a aussi une règle de redimensionnement. Hug l'ajuste à son contenu, fill lui fait occuper l'espace restant dans son parent, fixed garde une taille donnée. La plupart des défauts de mise en page d'un design system viennent d'une seule règle mal choisie : un texte en fixed qui se coupe, un conteneur en hug qui ne s'étire jamais. Relire ces trois mots sur chaque calque est l'audit le plus rapide qui soit."),
+      B("Constraints are the older mechanism. They apply to the children of a frame without auto layout, and to children set in absolute position inside an auto layout frame. They say what a layer stays attached to (left, right, both, center, or scale) when its parent resizes. Auto layout carries the flow of content; constraints hold the exceptions in place.",
+        "Les contraintes sont le mécanisme plus ancien. Elles s'appliquent aux enfants d'un cadre sans auto layout, et aux enfants placés en position absolue dans un cadre en auto layout. Elles disent à quoi un calque reste attaché (gauche, droite, les deux, centre, ou mise à l'échelle) quand son parent change de taille. L'auto layout porte le flux du contenu ; les contraintes tiennent les exceptions."),
+    ],
+    example: {
+      context: B("Léa leads Sève, the design system of Brindille, a fictional app for associations. She asks an AI assistant to help structure the event card, and her first request gives nothing she can build.",
+        "Léa porte Sève, le design system de Brindille, une app fictive pour les associations. Elle demande à un assistant IA d'aider à structurer la carte événement, et sa première demande ne donne rien de construisible."),
+      before: B("Explain how to make my event card responsive in Figma.",
+        "Explique-moi comment rendre ma carte événement responsive dans Figma."),
+      after: B("You are helping me structure a component in Figma with auto layout.\nComponent: an event card for an app used by associations. Content from top to bottom: an image (16:9 ratio), a date, a title on one to three lines, a place, a row of up to three tags, a footer with the number of attendees and a 'Register' action.\nMy spacing variables: space/100 = 4, space/200 = 8, space/300 = 12, space/400 = 16, space/600 = 24.\nReturn a table with one row per frame, from the outermost to the innermost: frame name, direction, gap variable, padding variables, alignment, and the resizing rule (hug, fill, fixed) of each child.\nThen list the layers that should not follow the auto layout flow, and the constraints each one needs.\nUse only the variables listed above.",
+        "Tu m'aides à structurer un composant dans Figma avec l'auto layout.\nComposant : une carte événement pour une app destinée aux associations. Contenu de haut en bas : une image (ratio 16:9), une date, un titre sur une à trois lignes, un lieu, une ligne de trois tags au plus, un pied avec le nombre d'inscrits et une action « S'inscrire ».\nMes variables d'espacement : space/100 = 4, space/200 = 8, space/300 = 12, space/400 = 16, space/600 = 24.\nRends un tableau avec une ligne par cadre, du plus extérieur au plus intérieur : nom du cadre, direction, variable d'écart, variables de marge, alignement, et règle de redimensionnement (hug, fill, fixed) de chaque enfant.\nListe ensuite les calques qui ne doivent pas suivre le flux de l'auto layout, et les contraintes de chacun.\nN'utilise que les variables listées ci-dessus."),
+      takeaway: B("The second request gives the content, its limits, the variables and the expected format. Léa gets a table she can apply frame by frame and check, instead of a general lecture on responsive design.",
+        "La seconde demande donne le contenu, ses limites, les variables et le format attendu. Léa obtient un tableau qu'elle applique cadre par cadre et qu'elle vérifie, au lieu d'un exposé général sur le responsive."),
+    },
+    exercise: {
+      goal: B("One component of your product rebuilt in auto layout, with every gap and padding bound to a spacing variable, and tested at two widths with extreme content.",
+        "Un composant de votre produit reconstruit en auto layout, chaque écart et chaque marge reliés à une variable d'espacement, testé à deux largeurs avec un contenu extrême."),
+      prompt: B("You are helping me rebuild a component in Figma with auto layout.\nComponent: [NAME AND ROLE OF THE COMPONENT].\nContent, from top to bottom: [THE ELEMENTS, WITH THEIR LIMITS, E.G. A TITLE ON ONE TO THREE LINES].\nMy spacing variables: [YOUR SPACING SCALE, WITH NAMES AND VALUES].\nReturn a table, one row per frame from the outermost to the innermost: name, direction, gap variable, padding variables, alignment, resizing of each child (hug, fill, fixed).\nThen list the layers that need absolute position or constraints, and why.\nFinally, give me three content changes to stress the component (longest text, missing element, narrowest width).\nUse only the variables I listed.",
+        "Tu m'aides à reconstruire un composant dans Figma avec l'auto layout.\nComposant : [NOM ET RÔLE DU COMPOSANT].\nContenu, de haut en bas : [LES ÉLÉMENTS, AVEC LEURS LIMITES, PAR EXEMPLE UN TITRE SUR UNE À TROIS LIGNES].\nMes variables d'espacement : [VOTRE ÉCHELLE D'ESPACEMENT, AVEC NOMS ET VALEURS].\nRends un tableau, une ligne par cadre du plus extérieur au plus intérieur : nom, direction, variable d'écart, variables de marge, alignement, redimensionnement de chaque enfant (hug, fill, fixed).\nListe ensuite les calques qui demandent une position absolue ou des contraintes, et pourquoi.\nDonne enfin trois changements de contenu pour éprouver le composant (texte le plus long, élément absent, largeur la plus étroite).\nN'utilise que les variables que j'ai listées."),
+      check: [
+        B("Every frame of the component uses auto layout, except the exceptions you declared", "Chaque cadre du composant est en auto layout, sauf les exceptions déclarées"),
+        B("No gap or padding is a raw number: each one is bound to a spacing variable", "Aucun écart ni marge n'est un nombre brut : chacun est relié à une variable d'espacement"),
+        B("At the narrowest and the widest width, nothing overlaps and no text is clipped", "À la largeur la plus étroite comme la plus large, rien ne se chevauche, aucun texte n'est coupé"),
+        B("The three content stress tests were run, and every failure was fixed", "Les trois tests de contenu ont été passés, et chaque défaut corrigé"),
+      ],
+      bonus: B("Put the table next to the CSS a developer would write: direction is flex-direction, gap is gap, fill is close to flex-grow, hug to a size set by content. Showing this table to the developer of your team starts the handoff well before Dev Mode.",
+        "Mettez le tableau en regard du CSS qu'écrirait un développeur : la direction est flex-direction, l'écart est gap, fill est proche de flex-grow, hug d'une taille fixée par le contenu. Montrer ce tableau au développeur de l'équipe commence le passage bien avant le Dev Mode."),
+    },
+    more: [
+      { q: B("In the event card, the title must take all the width left beside the date. Which resizing rule fits the title?",
+          "Dans la carte, le titre doit occuper toute la largeur laissée libre à côté de la date. Quelle règle de redimensionnement lui donner ?"),
+        options: [
+          B("A fixed width, set to the length of the longest known title", "Une largeur fixe, réglée sur la longueur du plus long titre connu"),
+          B("Hug contents, so that the title grows with every new word", "Hug, pour que le titre grandisse avec chaque nouveau mot"),
+          B("Fill container, horizontally, in its auto layout row", "Fill, horizontalement, dans sa ligne en auto layout"),
+        ],
+        answer: 2,
+        why: B("Fill gives the title exactly the space left in the row, whatever the width of the card. Hug would let a long title push past the card; a fixed width would clip it or leave a gap.",
+          "Fill donne au titre exactement l'espace restant dans la ligne, quelle que soit la largeur de la carte. Hug laisserait un long titre déborder ; une largeur fixe le couperait ou laisserait un vide.") },
+      { q: B("A 'Full' badge must stay in the top right corner of the card image, whatever the width. How do you place it?",
+          "Un badge « Complet » doit rester dans le coin supérieur droit de l'image, quelle que soit la largeur. Comment le placer ?"),
+        options: [
+          B("In absolute position, with constraints set to right and top", "En position absolue, avec des contraintes droite et haut"),
+          B("As the last child of the auto layout, aligned to the end", "Comme dernier enfant de l'auto layout, aligné à la fin"),
+          B("In a separate frame laid over the card in each screen", "Dans un cadre séparé, posé sur la carte dans chaque écran"),
+        ],
+        answer: 0,
+        why: B("Absolute position takes the badge out of the flow, so it pushes nothing, and its constraints keep it attached to the right and top edges when the card resizes.",
+          "La position absolue sort le badge du flux, il ne pousse donc rien, et ses contraintes le gardent attaché aux bords droit et haut quand la carte change de taille.") },
+    ],
+  },
+
+  [enrichKey(M3, 'ds-components')]: {
+    why: [
+      B("A component is a main definition and its instances. Edit the main component and every instance follows; change a text or hide a layer in an instance and that override is kept. Detaching an instance cuts the link for good: the layers stay, but they will never receive an update again. A design system lives or dies on that link.",
+        "Un composant, c'est une définition principale et ses instances. Modifiez le composant principal et toutes les instances suivent ; changez un texte ou masquez un calque dans une instance et cette surcharge est conservée. Détacher une instance coupe le lien pour de bon : les calques restent, mais ne recevront plus jamais de mise à jour. Un design system vit ou meurt de ce lien."),
+      B("Variants group components into a set along named axes, such as State or Size. Each combination is a real component that must be drawn and maintained. Component properties (text, boolean, instance swap) expose controlled overrides without adding variants. The rule of thumb: a variant when the structure or the style changes, a property when the content or the visibility changes.",
+        "Les variantes regroupent des composants dans un jeu selon des axes nommés, comme State ou Size. Chaque combinaison est un vrai composant à dessiner et à maintenir. Les propriétés de composant (texte, booléen, échange d'instance) exposent des surcharges contrôlées sans ajouter de variantes. La règle : une variante quand la structure ou le style change, une propriété quand le contenu ou la visibilité change."),
+      B("Property names and values are an interface. Malik will map State=Error to a prop such as state=\"error\" in React. Using the same names across components (State and Size everywhere, never Status here and Taille there) makes the library predictable for designers and readable in Dev Mode. Nested instances can also expose their properties at the top level, so nobody digs into layers.",
+        "Les noms et valeurs des propriétés forment une interface. Malik fera correspondre State=Error à une prop comme state=\"error\" en React. Employer les mêmes noms d'un composant à l'autre (State et Size partout, jamais Status ici et Taille là) rend la bibliothèque prévisible pour les designers et lisible en Dev Mode. Les instances imbriquées peuvent aussi exposer leurs propriétés au premier niveau : personne ne fouille dans les calques."),
+    ],
+    example: {
+      context: B("Tom, the second designer at Brindille, built the Field of Sève as a set of twenty-four variants. Every new need adds more. Léa asks an AI assistant to help her remodel it.",
+        "Tom, second designer chez Brindille, a construit le Champ de Sève comme un jeu de vingt-quatre variantes. Chaque nouveau besoin en ajoute. Léa demande à un assistant IA de l'aider à le remodéliser."),
+      before: B("Make me all the variants I need for an input field component in Figma.",
+        "Fais-moi toutes les variantes dont j'ai besoin pour un composant champ de saisie dans Figma."),
+      after: B("You are helping me model a component in Figma. Do not draw anything: I want a model.\nComponent: Field (a text input) for an app used by associations.\nWhat varies across our screens, from our audit: states default, hover, focus, error, disabled; sizes medium and large; an optional leading icon chosen among our library icons; a label (always present); a helper text (sometimes); an error message (in the error state only).\nFor each variation, say whether it should be a variant property, a text property, a boolean property or an instance swap property, and justify it in one line.\nGive the resulting number of variants.\nName the properties and values as React props would be named (camelCase names, lowercase values).\nFlag anything in my list that you think should not be part of this component.",
+        "Tu m'aides à modéliser un composant dans Figma. Ne dessine rien : je veux un modèle.\nComposant : Field (un champ de saisie) pour une app destinée aux associations.\nCe qui varie dans nos écrans, d'après notre audit : états default, hover, focus, error, disabled ; tailles medium et large ; une icône facultative en tête, choisie parmi les icônes de la bibliothèque ; un libellé (toujours présent) ; un texte d'aide (parfois) ; un message d'erreur (dans l'état error seulement).\nPour chaque variation, dis s'il faut une propriété de variante, de texte, booléenne ou d'échange d'instance, et justifie en une ligne.\nDonne le nombre de variantes obtenu.\nNomme propriétés et valeurs comme des props React (noms en camelCase, valeurs en minuscules).\nSignale ce qui, dans ma liste, ne devrait pas faire partie de ce composant."),
+      takeaway: B("The second request brings the facts of the audit and asks for a decision per variation, with a reason. Léa can argue with each line, and the set drops to states times sizes, the rest handled by properties.",
+        "La seconde demande apporte les faits de l'audit et réclame une décision par variation, avec sa raison. Léa peut discuter chaque ligne, et le jeu se réduit aux états multipliés par les tailles, le reste passant par des propriétés."),
+    },
+    exercise: {
+      goal: B("A component of your product remodelled as a small set of variants plus properties, with names that a developer could use as props.",
+        "Un composant de votre produit remodélisé en un petit jeu de variantes complété de propriétés, avec des noms qu'un développeur pourrait reprendre en props."),
+      prompt: B("You are helping me model a component in Figma. Do not draw anything.\nComponent: [NAME AND ROLE].\nWhat varies across our screens: [THE VARIATIONS YOU OBSERVED, WITH WHEN THEY APPEAR].\nThe naming already used in our other components: [EXISTING PROPERTY NAMES, E.G. STATE, SIZE].\nFor each variation, choose: variant property, text property, boolean property or instance swap property. Justify each choice in one line.\nGive the number of variants of the resulting set.\nPropose property names and values consistent with our existing naming.\nList the variations you would leave out of this component, and where they belong instead.",
+        "Tu m'aides à modéliser un composant dans Figma. Ne dessine rien.\nComposant : [NOM ET RÔLE].\nCe qui varie dans nos écrans : [LES VARIATIONS OBSERVÉES, AVEC LE MOMENT OÙ ELLES APPARAISSENT].\nLe nommage déjà employé dans nos autres composants : [NOMS DE PROPRIÉTÉS EXISTANTS, PAR EXEMPLE STATE, SIZE].\nPour chaque variation, choisis : propriété de variante, de texte, booléenne ou d'échange d'instance. Justifie chaque choix en une ligne.\nDonne le nombre de variantes du jeu obtenu.\nPropose des noms de propriétés et de valeurs cohérents avec notre nommage existant.\nListe les variations que tu laisserais hors de ce composant, et où elles devraient aller."),
+      check: [
+        B("Variants only cover what changes structure or style, such as states and sizes", "Les variantes ne couvrent que ce qui change la structure ou le style, comme états et tailles"),
+        B("Texts, optional layers and icons are handled by properties, not by variants", "Textes, calques facultatifs et icônes passent par des propriétés, pas des variantes"),
+        B("Property names match those of your other components, value by value", "Les noms de propriétés correspondent à ceux de vos autres composants, valeur par valeur"),
+        B("An instance placed in a test screen can be fully set without being detached", "Une instance posée dans un écran de test se règle entièrement sans être détachée"),
+      ],
+      bonus: B("Show the property table to a developer and ask how they would write the props of the code component. Every difference between your names and theirs is a future misunderstanding in the handoff: settle it now.",
+        "Montrez le tableau des propriétés à un développeur et demandez-lui comment il écrirait les props du composant de code. Chaque écart entre vos noms et les siens est un malentendu futur lors du passage : tranchez-le maintenant."),
+    },
+    more: [
+      { q: B("A designer detached a Field instance to change its label. What happens at the next library update?",
+          "Un designer a détaché une instance de Champ pour changer son libellé. Que se passe-t-il à la prochaine mise à jour ?"),
+        options: [
+          B("The detached layers get the update, like every other instance", "Les calques détachés reçoivent la mise à jour, comme les autres"),
+          B("Nothing reaches it: the layers are no longer linked to the Field", "Rien ne leur parvient : les calques ne sont plus liés au Champ"),
+          B("Figma reattaches the layers to the Field automatically", "Figma rattache automatiquement les calques au Champ"),
+        ],
+        answer: 1,
+        why: B("Detaching turns an instance into plain layers. A text property for the label would have allowed the change and kept the link, so the instance would have followed every update.",
+          "Détacher transforme une instance en simples calques. Une propriété texte pour le libellé aurait permis le changement en gardant le lien, et l'instance aurait suivi chaque mise à jour.") },
+      { q: B("The Size values are 'S, M, L' in the Field and 'small, medium, large' in the Button. Why align them?",
+          "Les valeurs de Size sont « S, M, L » dans le Champ et « small, medium, large » dans le Button. Pourquoi les aligner ?"),
+        options: [
+          B("Because Figma refuses two different spellings in one library", "Parce que Figma refuse deux graphies dans une même bibliothèque"),
+          B("Because short values make the component heavier to load", "Parce que des valeurs courtes alourdissent le composant"),
+          B("Because names form an interface that designers and code share", "Parce que les noms forment une interface partagée avec le code"),
+        ],
+        answer: 2,
+        why: B("Figma accepts both spellings. The problem is human: designers must guess, and developers map each component differently. One naming convention makes the whole library predictable.",
+          "Figma accepte les deux graphies. Le problème est humain : les designers doivent deviner, et les développeurs font correspondre chaque composant autrement. Une seule convention rend toute la bibliothèque prévisible.") },
+    ],
+  },
+
+  [enrichKey(M3, 'ds-a11y')]: {
+    why: [
+      B("Contrast is a ratio of luminance between two colors. WCAG 2.2, at level AA, sets minimum ratios for text against its background, a lower one for large text, and another for non-text elements needed to use the interface, such as a field border or a focus indicator. Read the exact criteria in the W3C text. Tokens make these checks durable: if a text and surface pair passes, every component using it passes.",
+        "Le contraste est un rapport de luminance entre deux couleurs. Les WCAG 2.2, au niveau AA, fixent des ratios minimaux pour le texte sur son fond, un ratio plus bas pour le grand texte, et un autre pour les éléments non textuels nécessaires à l'usage, comme une bordure de champ ou un indicateur de focus. Lisez les critères exacts dans le texte du W3C. Les tokens rendent ces vérifications durables : si une paire texte et surface passe, tout composant qui l'emploie passe."),
+      B("People who navigate with a keyboard need to see where they are. The focus state is a variant like any other: designed once in the system, every product team gets it for free. A good ring stands apart from the component (an offset), contrasts with both the component and the background, and is not clipped when the frame clips its content.",
+        "Les personnes qui naviguent au clavier doivent voir où elles se trouvent. L'état focus est une variante comme une autre : dessinée une fois dans le système, chaque équipe produit l'obtient sans effort. Un bon anneau se détache du composant (un décalage), contraste à la fois avec le composant et avec le fond, et n'est pas rogné quand le cadre masque ce qui dépasse."),
+      B("Pointer targets need a minimum size: WCAG 2.2 has a criterion on it at level AA, and platform guides such as Apple Human Interface Guidelines and Material Design recommend larger touch areas. Store your minimum in a size token and document it. In France, the RGAA, based on WCAG, is the reference for public services: see its official site, accessibilite.numerique.gouv.fr.",
+        "Les cibles de pointage demandent une taille minimale : les WCAG 2.2 y consacrent un critère de niveau AA, et des guides de plateforme comme les Apple Human Interface Guidelines et Material Design recommandent des zones tactiles plus grandes. Rangez votre minimum dans un token de taille et documentez-le. En France, le RGAA, fondé sur les WCAG, fait référence pour les services publics : voir son site officiel, accessibilite.numerique.gouv.fr."),
+    ],
+    example: {
+      context: B("Before publishing the dark mode of Sève, Léa wants to know which token pairs fail. She first asks an AI assistant a question it cannot answer from what she gives it.",
+        "Avant de publier le mode sombre de Sève, Léa veut savoir quelles paires de tokens échouent. Elle pose d'abord à un assistant IA une question à laquelle il ne peut pas répondre avec ce qu'elle lui donne."),
+      before: B("Is my design system accessible?",
+        "Est-ce que mon design system est accessible ?"),
+      after: B("You are helping me audit color contrast in a design system.\nHere are the pairs used by our components, with their values in light mode, then in dark mode:\ntext/default on surface/default: #1F1B2E on #FFFFFF, then #EDEAF5 on #15121F\ntext/muted on surface/default: #6B6680 on #FFFFFF, then #8C87A0 on #15121F\nborder/field on surface/default: #C9C5D6 on #FFFFFF, then #3A3550 on #15121F\nfocus/ring on surface/default: #6D28D9 on #FFFFFF, then #A78BFA on #15121F\nFor each pair and each mode, compute the contrast ratio and show the calculation.\nSay which WCAG 2.2 AA criterion applies (text, large text, non-text) and whether the pair passes.\nI will check every ratio with a contrast checker: flag the ones you are least sure of.",
+        "Tu m'aides à auditer les contrastes d'un design system.\nVoici les paires employées par nos composants, avec leurs valeurs en mode clair, puis en mode sombre :\ntext/default sur surface/default : #1F1B2E sur #FFFFFF, puis #EDEAF5 sur #15121F\ntext/muted sur surface/default : #6B6680 sur #FFFFFF, puis #8C87A0 sur #15121F\nborder/field sur surface/default : #C9C5D6 sur #FFFFFF, puis #3A3550 sur #15121F\nfocus/ring sur surface/default : #6D28D9 sur #FFFFFF, puis #A78BFA sur #15121F\nPour chaque paire et chaque mode, calcule le ratio de contraste et montre le calcul.\nIndique quel critère WCAG 2.2 AA s'applique (texte, grand texte, non textuel) et si la paire passe.\nJe vérifierai chaque ratio avec un vérificateur de contraste : signale ceux dont tu es le moins sûr."),
+      takeaway: B("The second request gives the real pairs in both modes and the criteria to apply. The AI does the tedious work, and Léa keeps the final word with a contrast checker, since a computed ratio can be wrong.",
+        "La seconde demande fournit les vraies paires dans les deux modes et les critères à appliquer. L'IA fait le travail fastidieux, et Léa garde le dernier mot avec un vérificateur de contraste, car un ratio calculé peut être faux."),
+    },
+    exercise: {
+      goal: B("A contrast, focus and target size audit of two components of your system, in every mode, with each failure turned into a fix.",
+        "Un audit des contrastes, du focus et de la taille des cibles de deux composants de votre système, dans chaque mode, chaque échec transformé en correction."),
+      prompt: B("You are helping me audit the accessibility of two components of a design system.\nComponents: [THE TWO COMPONENTS, E.G. FIELD AND TAG].\nColor pairs they use, per mode: [TOKEN NAME, FOREGROUND VALUE, BACKGROUND VALUE, FOR EACH MODE].\nFocus state: [DESCRIPTION OF THE RING: COLOR, THICKNESS, OFFSET].\nSmallest interactive area: [SIZE OF THE SMALLEST TARGET, E.G. THE CLOSE ICON].\nFor each pair, compute the contrast ratio, name the WCAG 2.2 AA criterion that applies and say if it passes.\nCheck the focus ring against the non-text contrast criterion, on the component and on the background.\nSay whether the target meets the target size criterion, and how to enlarge the active area without enlarging the icon.\nPresent the result as a table, then a list of fixes ordered by impact.",
+        "Tu m'aides à auditer l'accessibilité de deux composants d'un design system.\nComposants : [LES DEUX COMPOSANTS, PAR EXEMPLE CHAMP ET TAG].\nPaires de couleurs employées, par mode : [NOM DU TOKEN, VALEUR DU PREMIER PLAN, VALEUR DU FOND, POUR CHAQUE MODE].\nÉtat focus : [DESCRIPTION DE L'ANNEAU : COULEUR, ÉPAISSEUR, DÉCALAGE].\nPlus petite zone interactive : [TAILLE DE LA PLUS PETITE CIBLE, PAR EXEMPLE L'ICÔNE DE FERMETURE].\nPour chaque paire, calcule le ratio de contraste, nomme le critère WCAG 2.2 AA applicable et dis s'il passe.\nVérifie l'anneau de focus selon le critère de contraste non textuel, sur le composant et sur le fond.\nDis si la cible respecte le critère de taille, et comment agrandir la zone active sans agrandir l'icône.\nPrésente le résultat en tableau, puis une liste de corrections classées par impact."),
+      check: [
+        B("Every ratio given by the AI was checked with a contrast checker or plugin", "Chaque ratio donné par l'IA a été vérifié avec un vérificateur ou un plugin de contraste"),
+        B("Both modes were audited, not only the one you design in", "Les deux modes ont été audités, pas seulement celui dans lequel vous dessinez"),
+        B("The focus variant exists, is visible on every background and is never clipped", "La variante focus existe, se voit sur chaque fond et n'est jamais rognée"),
+        B("Each failure has a fix in the tokens or the component, not in one screen", "Chaque échec a sa correction dans les tokens ou le composant, pas dans un écran"),
+      ],
+      bonus: B("Add an accessibility section to the documentation of each audited component: the token pairs checked, the focus behaviour, the minimum target. The next designer will not have to redo the audit, only to keep it true.",
+        "Ajoutez une section accessibilité à la documentation de chaque composant audité : paires de tokens vérifiées, comportement du focus, cible minimale. Le designer suivant n'aura pas à refaire l'audit, seulement à le garder vrai."),
+    },
+    more: [
+      { q: B("The focus ring of the Field is drawn outside its border, but it disappears in the screens. What is the likely cause?",
+          "L'anneau de focus du Champ est dessiné hors de sa bordure, mais il disparaît dans les écrans. Quelle est la cause probable ?"),
+        options: [
+          B("The parent frame clips its content and cuts what extends past it", "Le cadre parent masque ce qui dépasse et coupe l'anneau"),
+          B("Focus states cannot be shown in Figma, only in the code", "Les états focus ne peuvent pas s'afficher dans Figma"),
+          B("The ring color is a variable, and variables are hidden", "La couleur de l'anneau est une variable, et elles sont masquées"),
+        ],
+        answer: 0,
+        why: B("A frame that clips its content hides anything drawn past its edges. Draw the ring inside the component bounds, or leave room around it, so that it shows wherever the component is placed.",
+          "Un cadre qui masque son contenu cache tout ce qui dépasse de ses bords. Dessinez l'anneau dans les limites du composant, ou laissez-lui de la place, pour qu'il se voie partout où le composant est posé.") },
+      { q: B("The close icon of the Tag is small, and the team does not want a bigger icon. How do you meet the target size?",
+          "L'icône de fermeture du Tag est petite, et l'équipe ne veut pas d'icône plus grande. Comment atteindre la taille de cible ?"),
+        options: [
+          B("Reduce the spacing around it so the Tag looks more compact", "Réduire l'espace autour pour un Tag plus compact"),
+          B("Enlarge the active area with padding around the icon frame", "Agrandir la zone active avec des marges autour du cadre de l'icône"),
+          B("Write in the documentation that the icon is for mouse users", "Écrire dans la documentation que l'icône est pour la souris"),
+        ],
+        answer: 1,
+        why: B("The target is the active area, not the drawing. Padding inside the icon frame enlarges what can be hit while the glyph keeps its size, and the developer reproduces it as padding in code.",
+          "La cible est la zone active, pas le dessin. Des marges dans le cadre de l'icône agrandissent ce que l'on peut atteindre tandis que le pictogramme garde sa taille, et le développeur les reproduit en padding dans le code.") },
+    ],
+  },
+
+  [enrichKey(M3, 'ds-patterns')]: {
+    why: [
+      B("A design system has levels. Tokens hold decisions, components hold reusable pieces, patterns assemble components to solve a recurring problem (a form, a filter bar, an empty state), templates give the skeleton of a page with its zones, and pages are templates with real content. Brad Frost's atomic design named a similar ladder. The words matter less than the rule: each level is built only from the level below.",
+        "Un design system a des niveaux. Les tokens portent les décisions, les composants les pièces réutilisables, les motifs assemblent des composants pour résoudre un problème récurrent (un formulaire, une barre de filtres, un état vide), les gabarits donnent le squelette d'une page avec ses zones, et les pages sont des gabarits remplis de vrai contenu. L'atomic design de Brad Frost a nommé une échelle voisine. Les mots comptent moins que la règle : chaque niveau se construit à partir du niveau inférieur."),
+      B("A pattern is not always a component. Some are stable enough to lock (a page header). Others vary too much in content and are better documented as a recipe with examples: labels above fields, one column, the main action at the end. A locked pattern that does not fit gets detached; a documented recipe gets followed and adapted.",
+        "Un motif n'est pas toujours un composant. Certains sont assez stables pour être figés (un en-tête de page). D'autres varient trop dans leur contenu et gagnent à être documentés comme une recette illustrée : libellés au-dessus des champs, une seule colonne, l'action principale à la fin. Un motif figé qui ne convient pas finit détaché ; une recette documentée est suivie et adaptée."),
+      B("Templates rest on layout grids (columns, gutters, margins, ideally bound to variables) and on auto layout. They prove their worth with extreme content: a long association name, an empty list, a translated label. An AI assistant is useful here to produce realistic edge-case content quickly; you then paste it in, or use a content plugin.",
+        "Les gabarits reposent sur des grilles de mise en page (colonnes, gouttières, marges, idéalement reliées à des variables) et sur l'auto layout. Ils font leurs preuves avec un contenu extrême : un long nom d'association, une liste vide, un libellé traduit. Un assistant IA est utile ici pour produire vite un contenu réaliste et limite ; vous le collez ensuite, ou vous passez par un plugin de contenu."),
+    ],
+    example: {
+      context: B("Claire needs a sign-up form for events in Brindille. Tom asks an AI assistant for a form, and receives a design that uses none of the components of Sève.",
+        "Claire a besoin d'un formulaire d'inscription aux événements dans Brindille. Tom demande un formulaire à un assistant IA, et reçoit une proposition qui n'emploie aucun composant de Sève."),
+      before: B("Create a sign-up form for my app.",
+        "Crée un formulaire d'inscription pour mon app."),
+      after: B("You are helping me design a pattern from an existing design system. Do not invent components.\nAvailable components: Field (states default, focus, error, disabled; label, helper and icon properties), Select, Checkbox, Button (primary, secondary), InlineMessage (info, error).\nGoal: let a member sign up for an event of their association: name, email, number of seats (1 to 4), a dietary note (optional), acceptance of the association's rules.\nPropose the structure of the pattern, top to bottom: which component, which property values, which groups, which spacing variable between groups (space/400 inside a group, space/600 between groups).\nThen give five sets of edge-case content to test it: longest names, error on every field, optional fields empty, and so on.\nIf a need cannot be met with these components, say so instead of inventing one.",
+        "Tu m'aides à concevoir un motif à partir d'un design system existant. N'invente aucun composant.\nComposants disponibles : Field (états default, focus, error, disabled ; propriétés libellé, aide et icône), Select, Checkbox, Button (primary, secondary), InlineMessage (info, error).\nObjectif : permettre à un adhérent de s'inscrire à un événement de son association : nom, email, nombre de places (de 1 à 4), une remarque alimentaire (facultative), l'acceptation du règlement de l'association.\nPropose la structure du motif, de haut en bas : quel composant, quelles valeurs de propriétés, quels groupes, quelle variable d'espacement entre groupes (space/400 dans un groupe, space/600 entre groupes).\nDonne ensuite cinq jeux de contenus limites pour l'éprouver : noms les plus longs, erreur sur chaque champ, champs facultatifs vides, etc.\nSi un besoin ne peut pas être couvert par ces composants, dis-le au lieu d'en inventer un."),
+      takeaway: B("The second request confines the AI to the components of Sève and asks for edge cases. Tom gets a pattern he can assemble from instances, and a gap he can report: no stepper exists for the number of seats.",
+        "La seconde demande cantonne l'IA aux composants de Sève et réclame des cas limites. Tom obtient un motif qu'il assemble avec des instances, et un manque qu'il peut signaler : aucun sélecteur de quantité n'existe pour le nombre de places."),
+    },
+    exercise: {
+      goal: B("One pattern and one page template of your product, built only from the components of your system, tested with edge-case content.",
+        "Un motif et un gabarit de page de votre produit, construits uniquement avec les composants de votre système, éprouvés avec des contenus limites."),
+      prompt: B("You are helping me design a pattern from an existing design system. Do not invent components.\nAvailable components and their main properties: [LIST OF YOUR COMPONENTS].\nUser goal the pattern serves: [WHAT THE USER MUST ACHIEVE, WITH THE DATA REQUIRED].\nSpacing rules: [VARIABLES TO USE INSIDE AND BETWEEN GROUPS].\nPropose the structure of the pattern, top to bottom: component, property values, groups, spacing.\nThen propose the page template that hosts it: zones, layout grid, what is fixed and what varies.\nGive five sets of edge-case content to test both.\nList every need that the available components cannot meet.",
+        "Tu m'aides à concevoir un motif à partir d'un design system existant. N'invente aucun composant.\nComposants disponibles et leurs principales propriétés : [LISTE DE VOS COMPOSANTS].\nObjectif utilisateur servi par le motif : [CE QUE L'UTILISATEUR DOIT ACCOMPLIR, AVEC LES DONNÉES REQUISES].\nRègles d'espacement : [VARIABLES À EMPLOYER DANS ET ENTRE LES GROUPES].\nPropose la structure du motif, de haut en bas : composant, valeurs de propriétés, groupes, espacements.\nPropose ensuite le gabarit de page qui l'accueille : zones, grille de mise en page, ce qui est fixe et ce qui varie.\nDonne cinq jeux de contenus limites pour éprouver les deux.\nListe chaque besoin que les composants disponibles ne couvrent pas."),
+      check: [
+        B("The pattern contains only instances of your components, none detached", "Le motif ne contient que des instances de vos composants, aucune détachée"),
+        B("Spacing inside and between groups uses the variables, never raw numbers", "Les espacements dans et entre les groupes emploient les variables, jamais des nombres bruts"),
+        B("The template holds all five edge-case content sets without breaking", "Le gabarit tient les cinq jeux de contenus limites sans casser"),
+        B("Each missing need is written down as a request, not drawn as a local hack", "Chaque besoin manquant est consigné comme une demande, pas dessiné en bricolage local"),
+      ],
+      bonus: B("Decide where your pattern lives: a locked component in the library, a documented recipe on a patterns page, or a local assembly in the product file. Write the reason in one sentence; it is the start of your contribution criteria.",
+        "Décidez où vit votre motif : composant figé dans la bibliothèque, recette documentée sur une page de motifs, ou assemblage local dans le fichier produit. Écrivez la raison en une phrase : c'est le début de vos critères de contribution."),
+    },
+    more: [
+      { q: B("The search filter bar appears on three screens, with different filters each time. How should Sève offer it?",
+          "La barre de filtres de recherche apparaît sur trois écrans, avec des filtres différents à chaque fois. Comment Sève doit-il la proposer ?"),
+        options: [
+          B("As a documented recipe with examples, built from existing components", "Comme une recette documentée, construite avec les composants existants"),
+          B("As one locked component holding every filter of the three screens", "Comme un composant figé qui contient tous les filtres des trois écrans"),
+          B("As three separate components, one for each screen of the product", "Comme trois composants séparés, un pour chaque écran du produit"),
+        ],
+        answer: 0,
+        why: B("The structure repeats but the content varies. A recipe gives the rule and examples, and each screen assembles its own filters from instances. A locked component would be detached; three components would triple maintenance.",
+          "La structure se répète mais le contenu varie. Une recette donne la règle et des exemples, et chaque écran assemble ses filtres avec des instances. Un composant figé serait détaché ; trois composants tripleraient la maintenance.") },
+      { q: B("A template in the library contains the real title of a past event. What is wrong with it?",
+          "Un gabarit de la bibliothèque contient le vrai titre d'un événement passé. Qu'est-ce qui ne va pas ?"),
+        options: [
+          B("Nothing, since real content always makes templates more credible", "Rien : un contenu réel rend toujours un gabarit plus crédible"),
+          B("Real content is forbidden in Figma files shared across teams", "Un contenu réel est interdit dans un fichier partagé entre équipes"),
+          B("The template mixes a skeleton with a page, and hides its limits", "Le gabarit mêle squelette et page, et cache ses limites"),
+        ],
+        answer: 2,
+        why: B("A template describes zones and rules, not one case. Baked content makes it look finished and tested when it only fits one title. Use clear placeholders, and test with edge cases in product files.",
+          "Un gabarit décrit des zones et des règles, pas un cas. Un contenu figé le fait paraître fini et éprouvé alors qu'il ne convient qu'à un titre. Employez des contenus d'exemple explicites, et testez les cas limites dans les fichiers produits.") },
+    ],
+  },
+}
+
+const COMPOSANTS_DEEP: Record<string, Deepening> = {
+  [deepKey(M3, 'ds-autolayout')]: {
+    intro: B("A component of a design system is used in dozens of screens, with content its designer never saw: longer titles, translations, missing images. Auto layout is what lets it adapt without being redrawn. This lesson explains the model behind it (direction, gap, padding, alignment and resizing rules), how it maps to CSS flexbox, and where constraints still play a role. You will rebuild the event card of Sève, the design system of Brindille, a fictional app for associations that runs through modules 3 and 4, and you will be able to read any frame and say why it resizes as it does.",
+      "Un composant de design system sert dans des dizaines d'écrans, avec des contenus que son designer n'a jamais vus : titres plus longs, traductions, images absentes. L'auto layout lui permet de s'adapter sans être redessiné. Ce cours explique le modèle qui le porte (direction, écart, marges, alignement et règles de redimensionnement), sa correspondance avec le CSS flexbox, et la place qui reste aux contraintes. Vous reconstruirez la carte événement de Sève, le design system de Brindille, une app fictive pour les associations qui sert de fil rouge aux modules 3 et 4, et vous saurez lire n'importe quel cadre et dire pourquoi il se redimensionne ainsi."),
+    concepts: [
+      { term: B('Auto layout', 'Auto layout'),
+        def: B("A property of a frame that places its children by rules (direction, gap, padding, alignment) instead of fixed positions, and recomputes the layout when the content changes.",
+          "Une propriété d'un cadre qui place ses enfants selon des règles (direction, écart, marges, alignement) plutôt qu'à des positions fixes, et recalcule la mise en page quand le contenu change.") },
+      { term: B('Hug, fill, fixed', 'Hug, fill, fixed'),
+        def: B("The three resizing rules of a layer: fit to its content, take the space left in its parent, or keep a set size. Each axis has its own rule.",
+          "Les trois règles de redimensionnement d'un calque : s'ajuster à son contenu, occuper l'espace restant dans son parent, ou garder une taille donnée. Chaque axe a sa propre règle.") },
+      { term: B('Gap and padding', 'Écart et marges'),
+        def: B("The gap is the space between children; padding is the space between the children and the edges of the frame. In a design system, both are bound to spacing variables.",
+          "L'écart est l'espace entre les enfants ; les marges, l'espace entre les enfants et les bords du cadre. Dans un design system, les deux sont reliés à des variables d'espacement.") },
+      { term: B('Constraints', 'Contraintes'),
+        def: B("Rules saying what a layer stays attached to when its parent resizes (left, right, both, center, scale). They apply outside auto layout, or to layers in absolute position.",
+          "Des règles qui disent à quoi un calque reste attaché quand son parent change de taille (gauche, droite, les deux, centre, échelle). Elles s'appliquent hors auto layout, ou aux calques en position absolue.") },
+      { term: B('Absolute position', 'Position absolue'),
+        def: B("A child of an auto layout frame taken out of the flow: it pushes nothing, and its constraints decide where it stays. Useful for a badge or a corner icon.",
+          "Un enfant d'un cadre en auto layout sorti du flux : il ne pousse rien, et ses contraintes décident où il reste. Utile pour un badge ou une icône de coin.") },
+    ],
+    walkthrough: {
+      title: B("Léa rebuilds the event card of Sève, drawn by hand long ago, in auto layout.",
+        "Léa reconstruit en auto layout la carte événement de Sève, dessinée à la main il y a longtemps."),
+      steps: [
+        B("She duplicates the old card and lists its parts: image, body (date, title, place, tags), footer (attendees, action). Why: breaking the card down first gives the nesting order of the frames.",
+          "Elle duplique l'ancienne carte et en liste les parties : image, corps (date, titre, lieu, tags), pied (inscrits, action). Pourquoi : décomposer d'abord donne l'ordre d'imbrication des cadres."),
+        B("She wraps the tags in a horizontal frame with gap space/100, then date, title, place and tags in a vertical body with gap space/200 and padding space/400. Why: building from the inside out means each frame wraps content that already behaves.",
+          "Elle enveloppe les tags dans un cadre horizontal à écart space/100, puis date, titre, lieu et tags dans un corps vertical à écart space/200 et marges space/400. Pourquoi : construire de l'intérieur vers l'extérieur fait que chaque cadre enveloppe un contenu qui se comporte déjà bien."),
+        B("She sets the title to fill horizontally and hug vertically, and the card to a fixed width for the test. Why: fill gives the title the available width, hug lets it grow with its lines.",
+          "Elle règle le titre en fill horizontalement et en hug verticalement, et la carte en largeur fixe pour le test. Pourquoi : fill donne au titre la largeur disponible, hug le laisse grandir avec ses lignes."),
+        B("She types a three-line title, removes the image, adds a very long place name. Why: content stress tests reveal the fixed sizes that were forgotten.",
+          "Elle saisit un titre sur trois lignes, retire l'image, ajoute un très long nom de lieu. Pourquoi : ces tests de contenu révèlent les tailles fixes oubliées."),
+        B("She places the 'Full' badge in absolute position on the image, with constraints right and top, then stretches the card. Why: the exception is explicit, and it stays in its corner.",
+          "Elle place le badge « Complet » en position absolue sur l'image, contraintes droite et haut, puis étire la carte. Pourquoi : l'exception est explicite, et le badge reste dans son coin."),
+        B("She sends the table of frames to Malik, the front-end developer. Why: he reads the same rules as in flexbox, long before the formal handoff.",
+          "Elle envoie le tableau des cadres à Malik, le développeur front-end. Pourquoi : il y lit les mêmes règles qu'en flexbox, bien avant le passage formel."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Applying auto layout to the outermost frame of a messy design first, and watching the layers jump around.",
+          "Appliquer d'abord l'auto layout au cadre le plus extérieur d'une maquette désordonnée, et voir les calques sauter."),
+        fix: B("Work from the inside out: the smallest groups first (a row of tags, a footer), then their parents. Each step stays readable and can be checked.",
+          "Travaillez de l'intérieur vers l'extérieur : les plus petits groupes d'abord (une ligne de tags, un pied), puis leurs parents. Chaque étape reste lisible et vérifiable.") },
+      { wrong: B("Typing raw numbers into gap and padding fields.",
+          "Saisir des nombres bruts dans les champs d'écart et de marges."),
+        fix: B("Bind gap and padding to the spacing variables of module 2. When the scale changes, every component follows, and Dev Mode shows a token name instead of a number.",
+          "Reliez écarts et marges aux variables d'espacement du module 2. Quand l'échelle change, chaque composant suit, et le Dev Mode affiche un nom de token plutôt qu'un nombre.") },
+      { wrong: B("Setting text layers to a fixed width and height to make them look tidy.",
+          "Régler les calques de texte en largeur et hauteur fixes pour qu'ils paraissent nets."),
+        fix: B("Use fill or hug on text. Keep a fixed size only for a deliberate truncation, and then set the text to truncate so that the cut is visible and intended.",
+          "Employez fill ou hug sur le texte. Ne gardez une taille fixe que pour une troncature voulue, et réglez alors le texte pour qu'il se tronque : la coupure est visible et assumée.") },
+    ],
+    recap: [
+      B("Auto layout states rules (direction, gap, padding, alignment) and Figma computes the positions.", "L'auto layout énonce des règles (direction, écart, marges, alignement) et Figma calcule les positions."),
+      B("Hug, fill and fixed decide how each layer resizes, on each axis.", "Hug, fill et fixed décident comment chaque calque se redimensionne, sur chaque axe."),
+      B("Gap and padding are bound to spacing variables, never typed as numbers.", "Écarts et marges sont reliés à des variables d'espacement, jamais saisis en nombres."),
+      B("Constraints hold the exceptions: layers outside auto layout or in absolute position.", "Les contraintes tiennent les exceptions : calques hors auto layout ou en position absolue."),
+      B("A component is tested with extreme content before it is published.", "Un composant s'éprouve avec un contenu extrême avant d'être publié."),
+    ],
+    further: B("Read the articles on auto layout and on constraints in the Figma help center, then the MDN documentation on CSS flexbox. Write a three-column glossary (Figma, CSS, your own words): it will serve during the handoff in module 4.",
+      "Lisez les articles sur l'auto layout et sur les contraintes dans le centre d'aide de Figma, puis la documentation MDN sur le CSS flexbox. Rédigez un glossaire en trois colonnes (Figma, CSS, vos mots) : il servira lors du passage aux développeurs, au module 4."),
+    more: [
+      { q: B("The footer of the card must show the attendees on the left and the action on the right, whatever the width. Which setting?",
+          "Le pied de la carte doit montrer les inscrits à gauche et l'action à droite, quelle que soit la largeur. Quel réglage ?"),
+        options: [
+          B("A horizontal auto layout with space between, set to fill the card", "Un auto layout horizontal en space between, réglé en fill dans la carte"),
+          B("Two separate frames placed by hand at each end of the footer", "Deux cadres séparés posés à la main aux deux bouts du pied"),
+          B("A vertical auto layout, with the action aligned to the bottom", "Un auto layout vertical, avec l'action alignée en bas"),
+        ],
+        answer: 0,
+        why: B("Space between pushes the first and last children to the edges, and fill makes the footer as wide as the card. Placed by hand, the two parts would not follow the width.",
+          "Space between repousse le premier et le dernier enfant vers les bords, et fill rend le pied aussi large que la carte. Posées à la main, les deux parties ne suivraient pas la largeur.") },
+      { q: B("Which situation still calls for constraints rather than auto layout?",
+          "Quelle situation demande encore des contraintes plutôt que l'auto layout ?"),
+        options: [
+          B("Stacking the date, the title and the place of the card", "Empiler la date, le titre et le lieu de la carte"),
+          B("Spacing the tags of a row evenly with a spacing variable", "Espacer les tags d'une ligne avec une variable d'espacement"),
+          B("Keeping a badge pinned to a corner of an image as it resizes", "Garder un badge épinglé dans un coin d'une image qui change de taille"),
+        ],
+        answer: 2,
+        why: B("Stacking and spacing are the flow of content, handled by auto layout. A badge pinned to a corner is outside that flow: absolute position plus constraints keep it there.",
+          "Empiler et espacer relèvent du flux du contenu, géré par l'auto layout. Un badge épinglé dans un coin sort de ce flux : la position absolue et les contraintes l'y maintiennent.") },
+    ],
+  },
+
+  [deepKey(M3, 'ds-components')]: {
+    intro: B("A design system is useful only if its components are used as they are, not detached and redrawn. That depends on modelling: what becomes a variant, what becomes a property, how things are named. This lesson explains the main component and its instances, component sets and variants, and the three component properties (text, boolean, instance swap). You will remodel the Field of Sève, which Tom had built as a large set of variants, and you will be able to justify each modelling choice to a designer and to a developer.",
+      "Un design system n'est utile que si ses composants sont employés tels quels, pas détachés et redessinés. Cela tient à la modélisation : ce qui devient une variante, ce qui devient une propriété, comment on nomme. Ce cours explique le composant principal et ses instances, les jeux de variantes et les trois propriétés de composant (texte, booléen, échange d'instance). Vous remodéliserez le Champ de Sève, que Tom avait construit comme un grand jeu de variantes, et vous saurez justifier chaque choix devant un designer comme devant un développeur."),
+    concepts: [
+      { term: B('Main component and instance', 'Composant principal et instance'),
+        def: B("The main component is the definition; instances are its copies in screens. Changes to the main component reach every instance; overrides made in an instance are kept.",
+          "Le composant principal est la définition ; les instances en sont les copies dans les écrans. Les modifications du principal atteignent chaque instance ; les surcharges faites dans une instance sont conservées.") },
+      { term: B('Component set and variants', 'Jeu de composants et variantes'),
+        def: B("A group of related components organised along named properties, such as State or Size. Each combination of values is a variant, drawn and maintained.",
+          "Un groupe de composants apparentés, organisés selon des propriétés nommées comme State ou Size. Chaque combinaison de valeurs est une variante, dessinée et maintenue.") },
+      { term: B('Component properties', 'Propriétés de composant'),
+        def: B("Controlled overrides exposed in the panel: a text property for a label, a boolean to show or hide a layer, an instance swap to choose a nested component.",
+          "Des surcharges contrôlées, exposées dans le panneau : une propriété texte pour un libellé, un booléen pour afficher ou masquer un calque, un échange d'instance pour choisir un composant imbriqué.") },
+      { term: B('Detach', 'Détacher'),
+        def: B("Turning an instance into plain layers. The link to the main component is lost, and so are all future updates. Frequent detaching signals a modelling gap.",
+          "Transformer une instance en simples calques. Le lien au composant principal est perdu, et avec lui toutes les mises à jour futures. Des détachements fréquents signalent un manque de modélisation.") },
+      { term: B('Exposed nested properties', 'Propriétés imbriquées exposées'),
+        def: B("Properties of an instance nested inside a component, shown at the top level of the parent, so that the user sets them without selecting inner layers.",
+          "Les propriétés d'une instance imbriquée dans un composant, affichées au premier niveau du parent, pour qu'on les règle sans sélectionner les calques intérieurs.") },
+    ],
+    walkthrough: {
+      title: B("Léa remodels the Field of Sève, built by Tom as a large set of variants that grows with each need.",
+        "Léa remodélise le Champ de Sève, construit par Tom comme un grand jeu de variantes qui grossit à chaque besoin."),
+      steps: [
+        B("She lists every variation seen in the screens during the audit: five states, two sizes, an optional icon, a helper text, an error message. Why: the model must follow real needs, not every imaginable case.",
+          "Elle liste chaque variation vue dans les écrans lors de l'audit : cinq états, deux tailles, une icône facultative, un texte d'aide, un message d'erreur. Pourquoi : le modèle doit suivre les besoins réels, pas tous les cas imaginables."),
+        B("She sorts them: State and Size become variant properties, the label and helper become text properties, the helper visibility a boolean, the icon an instance swap. Why: only what changes structure or style needs a variant.",
+          "Elle les classe : State et Size deviennent des propriétés de variante, libellé et aide des propriétés texte, l'affichage de l'aide un booléen, l'icône un échange d'instance. Pourquoi : seul ce qui change la structure ou le style demande une variante."),
+        B("She builds the base in auto layout, then the variants, ending with five states times two sizes. Why: ten variants are drawn and checked once, instead of a set that keeps growing.",
+          "Elle construit la base en auto layout, puis les variantes, et obtient cinq états multipliés par deux tailles. Pourquoi : dix variantes se dessinent et se vérifient une fois, au lieu d'un jeu qui ne cesse de grossir."),
+        B("She names properties and values as Malik's props: state with default, hover, focus, error, disabled; size with md and lg. Why: the same names in Figma and in code make the handoff a reading, not a translation.",
+          "Elle nomme propriétés et valeurs comme les props de Malik : state avec default, hover, focus, error, disabled ; size avec md et lg. Pourquoi : les mêmes noms dans Figma et dans le code font du passage une lecture, pas une traduction."),
+        B("She swaps the old instances in product files for the new set and asks Tom to set a few by hand without detaching. Why: a model is validated by use, by someone who did not build it.",
+          "Elle remplace les anciennes instances des fichiers produits par le nouveau jeu et demande à Tom d'en régler quelques-unes sans détacher. Pourquoi : un modèle se valide à l'usage, par quelqu'un qui ne l'a pas construit."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Creating a variant for each combination of icon, helper text and state.",
+          "Créer une variante pour chaque combinaison d'icône, de texte d'aide et d'état."),
+        fix: B("Keep variants for states and sizes. Handle visibility with booleans and the choice of icon with an instance swap: the set stays small and maintainable.",
+          "Réservez les variantes aux états et tailles. Gérez l'affichage par des booléens et le choix de l'icône par un échange d'instance : le jeu reste petit et maintenable.") },
+      { wrong: B("Naming properties differently in each component: Status here, State there, Taille elsewhere.",
+          "Nommer les propriétés différemment dans chaque composant : Status ici, State là, Taille ailleurs."),
+        fix: B("Write a short naming convention for properties and values, aligned with the code props, and apply it to every component of the library.",
+          "Rédigez une courte convention de nommage des propriétés et des valeurs, alignée sur les props du code, et appliquez-la à chaque composant de la bibliothèque.") },
+      { wrong: B("Treating detached instances as a discipline problem among designers.",
+          "Traiter les instances détachées comme un problème de discipline chez les designers."),
+        fix: B("Look at what was changed after each detach. If it is always the same thing, the component lacks a property or a variant: add it.",
+          "Regardez ce qui a été modifié après chaque détachement. Si c'est toujours la même chose, il manque au composant une propriété ou une variante : ajoutez-la.") },
+    ],
+    recap: [
+      B("Instances follow the main component; a detached instance follows nothing any more.", "Les instances suivent le composant principal ; une instance détachée ne suit plus rien."),
+      B("Variants are for what changes structure or style, such as states and sizes.", "Les variantes servent à ce qui change la structure ou le style, comme états et tailles."),
+      B("Text, boolean and instance swap properties cover content, visibility and nested choices.", "Les propriétés texte, booléen et échange d'instance couvrent contenu, affichage et choix imbriqués."),
+      B("Property names are an interface shared with the code, written once and reused.", "Les noms de propriétés sont une interface partagée avec le code, écrite une fois et réutilisée."),
+    ],
+    further: B("Read the Figma help center articles on variants and on component properties, then open a public community library such as a well-known open design system and study how it names its properties. Compare with your own naming convention.",
+      "Lisez les articles du centre d'aide de Figma sur les variantes et sur les propriétés de composant, puis ouvrez une bibliothèque publique de la communauté, par exemple un design system ouvert reconnu, et étudiez comment elle nomme ses propriétés. Comparez avec votre propre convention."),
+    more: [
+      { q: B("The Field must show an error message only in the error state. How do you model this message?",
+          "Le Champ doit afficher un message d'erreur seulement dans l'état error. Comment modéliser ce message ?"),
+        options: [
+          B("As a separate component that designers add under the field", "Comme un composant séparé que l'on ajoute sous le champ"),
+          B("As a layer of the error variant, with a text property for it", "Comme un calque de la variante error, avec une propriété texte"),
+          B("As a boolean available in every state of the Field", "Comme un booléen disponible dans tous les états du Champ"),
+        ],
+        answer: 1,
+        why: B("The message belongs to the error state: drawing it only in that variant prevents a message in the default state, and a text property lets each screen write its own message without detaching.",
+          "Le message appartient à l'état error : le dessiner dans cette seule variante empêche un message dans l'état default, et une propriété texte laisse chaque écran écrire le sien sans détacher.") },
+      { q: B("Tom often detaches the Field to remove its label in a search bar. What does this reveal?",
+          "Tom détache souvent le Champ pour retirer son libellé dans une barre de recherche. Qu'est-ce que cela révèle ?"),
+        options: [
+          B("That Tom does not respect the rules of the system", "Que Tom ne respecte pas les règles du système"),
+          B("That the search bar should be drawn without components", "Que la barre de recherche doit se dessiner sans composant"),
+          B("A missing need, to settle with a property or a separate component", "Un besoin manquant, à régler par une propriété ou un composant dédié"),
+        ],
+        answer: 2,
+        why: B("A repeated detach is a request expressed through use. Decide whether a boolean for the label is right, keeping an accessible name in code, or whether search deserves its own component.",
+          "Un détachement répété est une demande exprimée par l'usage. Décidez si un booléen pour le libellé convient, en gardant un nom accessible dans le code, ou si la recherche mérite son propre composant.") },
+    ],
+  },
+
+  [deepKey(M3, 'ds-a11y')]: {
+    intro: B("An accessible component is accessible everywhere it is used; an inaccessible one spreads its defect to every screen. That is why accessibility belongs in the design system rather than in each project. This lesson covers three checks that depend on design: contrast (of text and of non-text elements), the visible focus state, and the size of targets. You will audit the Field and the Tag of Sève in light and dark mode, and you will be able to turn each failure into a fix in the tokens or the component, with the WCAG criterion that justifies it.",
+      "Un composant accessible l'est partout où il sert ; un composant qui ne l'est pas répand son défaut dans chaque écran. C'est pourquoi l'accessibilité se règle dans le design system plutôt que projet par projet. Ce cours couvre trois vérifications qui dépendent du design : le contraste (du texte et des éléments non textuels), l'état focus visible et la taille des cibles. Vous auditerez le Champ et le Tag de Sève en mode clair et sombre, et vous saurez transformer chaque échec en correction des tokens ou du composant, avec le critère WCAG qui la justifie."),
+    concepts: [
+      { term: B('Contrast ratio', 'Ratio de contraste'),
+        def: B("A measure of the difference in luminance between two colors. WCAG sets minimum ratios for normal text and for large text; a contrast checker computes them.",
+          "Une mesure de l'écart de luminance entre deux couleurs. Les WCAG fixent des ratios minimaux pour le texte courant et pour le grand texte ; un vérificateur de contraste les calcule.") },
+      { term: B('Non-text contrast', 'Contraste non textuel'),
+        def: B("The contrast required for visual elements needed to use the interface, such as a field border, an icon or a focus indicator, against what is next to them.",
+          "Le contraste exigé pour les éléments visuels nécessaires à l'usage, comme une bordure de champ, une icône ou un indicateur de focus, face à ce qui les jouxte.") },
+      { term: B('Focus indicator', 'Indicateur de focus'),
+        def: B("The visible mark of the element that receives keyboard input. In a design system, it is a focus variant of each interactive component.",
+          "La marque visible de l'élément qui reçoit la saisie au clavier. Dans un design system, c'est une variante focus de chaque composant interactif.") },
+      { term: B('Target size', 'Taille de cible'),
+        def: B("The size of the active area of an interactive element. It can exceed the drawn shape, through padding, so that it is easy to reach with a finger or a pointer.",
+          "La taille de la zone active d'un élément interactif. Elle peut dépasser la forme dessinée, grâce à des marges, pour être facile à atteindre au doigt ou au pointeur.") },
+      { term: B('RGAA', 'RGAA'),
+        def: B("The French accessibility reference framework, based on WCAG, which applies to public services and to some private organisations. Its official site gives the current version.",
+          "Le référentiel général d'amélioration de l'accessibilité, fondé sur les WCAG, qui s'applique aux services publics et à certaines organisations privées. Son site officiel donne la version en vigueur.") },
+    ],
+    walkthrough: {
+      title: B("Léa audits the Field and the Tag of Sève before publishing the dark mode.",
+        "Léa audite le Champ et le Tag de Sève avant de publier le mode sombre."),
+      steps: [
+        B("She lists the token pairs used by the two components (text on surface, border on surface, ring on surface) and reads their values in each mode. Why: auditing pairs of tokens fixes the problem for every component that uses them.",
+          "Elle liste les paires de tokens employées par les deux composants (texte sur surface, bordure sur surface, anneau sur surface) et relève leurs valeurs dans chaque mode. Pourquoi : auditer des paires de tokens règle le problème pour tous les composants qui les emploient."),
+        B("She has an AI assistant compute the ratios, then checks each one with a contrast plugin. Why: the AI saves time, the checker gives the reliable figure.",
+          "Elle fait calculer les ratios par un assistant IA, puis vérifie chacun avec un plugin de contraste. Pourquoi : l'IA fait gagner du temps, le vérificateur donne le chiffre fiable."),
+        B("She finds that the muted text fails in dark mode, and changes the value of the token text/muted in that mode only. Why: the fix lives in the variable, so every screen benefits at once.",
+          "Elle constate que le texte atténué échoue en mode sombre, et change la valeur du token text/muted dans ce seul mode. Pourquoi : la correction vit dans la variable, et chaque écran en profite d'un coup."),
+        B("She redraws the focus variant with a ring offset from the border, inside the bounds of the component. Why: the ring stays visible on any background and is never clipped by a parent.",
+          "Elle redessine la variante focus avec un anneau décalé de la bordure, dans les limites du composant. Pourquoi : l'anneau reste visible sur tout fond et n'est jamais rogné par un parent."),
+        B("She enlarges the active area of the close icon of the Tag with padding, and stores the minimum in a size token. Why: the target meets the criterion without changing the look, and Malik reads the rule in Dev Mode.",
+          "Elle agrandit la zone active de l'icône de fermeture du Tag par des marges, et range le minimum dans un token de taille. Pourquoi : la cible respecte le critère sans changer l'apparence, et Malik lit la règle en Dev Mode."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Signalling an error, a selection or a required field by color alone.",
+          "Signaler une erreur, une sélection ou un champ obligatoire par la seule couleur."),
+        fix: B("Pair the color with a second signal: an icon, a text, a change of shape or weight. The information survives for people who do not perceive the color.",
+          "Associez la couleur à un second signal : une icône, un texte, un changement de forme ou de graisse. L'information demeure pour les personnes qui ne perçoivent pas la couleur.") },
+      { wrong: B("Removing the focus ring because it looks heavy in the mock-ups.",
+          "Supprimer l'anneau de focus parce qu'il alourdit les maquettes."),
+        fix: B("Design a focus that suits the system rather than removing it: a clean offset ring, in a color that contrasts. Without it, keyboard users are lost.",
+          "Dessinez un focus qui convient au système plutôt que de le supprimer : un anneau net et décalé, d'une couleur qui contraste. Sans lui, les personnes au clavier sont perdues.") },
+      { wrong: B("Trusting the contrast ratios computed by an AI assistant without checking them.",
+          "Se fier aux ratios de contraste calculés par un assistant IA sans les vérifier."),
+        fix: B("Use the AI to list and pre-compute, then confirm each ratio with a contrast checker or plugin. Note the checked values in the documentation of the component.",
+          "Servez-vous de l'IA pour lister et précalculer, puis confirmez chaque ratio avec un vérificateur ou un plugin de contraste. Notez les valeurs vérifiées dans la documentation du composant.") },
+    ],
+    recap: [
+      B("Check text contrast and non-text contrast, in every mode of the system.", "Vérifiez le contraste du texte et le contraste non textuel, dans chaque mode du système."),
+      B("Color must never be the only way to convey a state or a piece of information.", "La couleur ne doit jamais être le seul moyen de transmettre un état ou une information."),
+      B("The focus state is a designed variant of every interactive component.", "L'état focus est une variante dessinée de chaque composant interactif."),
+      B("The target is the active area: padding can enlarge it without enlarging the icon.", "La cible est la zone active : des marges l'agrandissent sans agrandir l'icône."),
+      B("Fix contrast in the tokens, so that every component benefits at once.", "Corrigez les contrastes dans les tokens, pour que chaque composant en profite d'un coup."),
+    ],
+    further: B("Read the WCAG 2.2 criteria on contrast, non-text contrast, focus visible and target size on the W3C site, with their 'Understanding' documents. If you work for a French public service, read the RGAA on its official site and compare.",
+      "Lisez sur le site du W3C les critères WCAG 2.2 sur le contraste, le contraste non textuel, le focus visible et la taille des cibles, avec leurs documents explicatifs « Understanding ». Si vous travaillez pour un service public français, lisez le RGAA sur son site officiel et comparez."),
+    more: [
+      { q: B("The muted text of Sève passes contrast in light mode and fails in dark mode. Where do you fix it?",
+          "Le texte atténué de Sève passe le contraste en mode clair et échoue en mode sombre. Où le corriger ?"),
+        options: [
+          B("In each dark screen, by overriding the color of the text layers", "Dans chaque écran sombre, en surchargeant la couleur des textes"),
+          B("In the dark mode value of the semantic token text/muted", "Dans la valeur sombre du token sémantique text/muted"),
+          B("In the light mode value, so that both modes share one color", "Dans la valeur claire, pour que les deux modes partagent une couleur"),
+        ],
+        answer: 1,
+        why: B("The defect lies in one mode of one token. Changing that value fixes every component and screen using the token in dark mode, without touching the light mode that already passes.",
+          "Le défaut tient à un mode d'un token. Changer cette valeur corrige chaque composant et chaque écran qui l'emploient en mode sombre, sans toucher au mode clair qui passe déjà.") },
+      { q: B("Why design the focus state in the design system rather than leaving it to developers?",
+          "Pourquoi dessiner l'état focus dans le design system plutôt que de le laisser aux développeurs ?"),
+        options: [
+          B("Because a focus designed once reaches every product, consistent", "Parce qu'un focus dessiné une fois atteint chaque produit, cohérent"),
+          B("Because browsers show no focus at all without a Figma design", "Parce que les navigateurs n'affichent aucun focus sans maquette"),
+          B("Because the focus state only matters on screens built in Figma", "Parce que le focus ne compte que sur les écrans faits dans Figma"),
+        ],
+        answer: 0,
+        why: B("Browsers have a default focus, often removed or ill-suited to the brand. Designed in the system, with its tokens, the focus is consistent and visible in every product, and developers implement one rule.",
+          "Les navigateurs ont un focus par défaut, souvent retiré ou mal accordé à la marque. Dessiné dans le système, avec ses tokens, le focus est cohérent et visible dans chaque produit, et les développeurs appliquent une seule règle.") },
+    ],
+  },
+
+  [deepKey(M3, 'ds-patterns')]: {
+    intro: B("Components alone do not make screens. Between the Field and the sign-up page lies a level that teams often skip: patterns, which assemble components to solve a recurring problem, and templates, which give the skeleton of a page. This lesson explains these levels, how to decide whether a pattern becomes a locked component, a documented recipe or a local assembly, and how to test templates with extreme content. You will build the sign-up form and the event list of Brindille from Sève components only, and you will know what deserves a place in the library.",
+      "Des composants seuls ne font pas des écrans. Entre le Champ et la page d'inscription se trouve un niveau que les équipes sautent souvent : les motifs, qui assemblent des composants pour résoudre un problème récurrent, et les gabarits, qui donnent le squelette d'une page. Ce cours explique ces niveaux, comment décider si un motif devient un composant figé, une recette documentée ou un assemblage local, et comment éprouver un gabarit avec un contenu extrême. Vous construirez le formulaire d'inscription et la liste d'événements de Brindille avec les seuls composants de Sève, et vous saurez ce qui mérite une place dans la bibliothèque."),
+    concepts: [
+      { term: B('Pattern', 'Motif'),
+        def: B("An assembly of components that solves a recurring problem, such as a form, a filter bar or an empty state. It can be a component or a documented recipe.",
+          "Un assemblage de composants qui résout un problème récurrent, comme un formulaire, une barre de filtres ou un état vide. Il peut être un composant ou une recette documentée.") },
+      { term: B('Template', 'Gabarit'),
+        def: B("The skeleton of a page: its zones, its layout grid, what is fixed and what varies, without real content. A page is a template filled with content.",
+          "Le squelette d'une page : ses zones, sa grille de mise en page, ce qui est fixe et ce qui varie, sans contenu réel. Une page est un gabarit rempli de contenu.") },
+      { term: B('Layout grid', 'Grille de mise en page'),
+        def: B("Columns, gutters and margins applied to a frame. In a design system, their values come from variables so that templates follow the spacing scale.",
+          "Colonnes, gouttières et marges appliquées à un cadre. Dans un design system, leurs valeurs viennent de variables, pour que les gabarits suivent l'échelle d'espacement.") },
+      { term: B('Atomic design', 'Atomic design'),
+        def: B("A method described by Brad Frost that orders an interface into levels, from the smallest pieces to whole pages. Many systems use a similar ladder under other names.",
+          "Une méthode décrite par Brad Frost qui ordonne une interface en niveaux, des plus petites pièces aux pages entières. Beaucoup de systèmes emploient une échelle voisine sous d'autres noms.") },
+      { term: B('Edge-case content', 'Contenu limite'),
+        def: B("The longest, shortest, empty or translated content that a pattern or template must hold. It is the test that separates a mock-up from a robust template.",
+          "Le contenu le plus long, le plus court, vide ou traduit qu'un motif ou un gabarit doit supporter. C'est l'épreuve qui distingue une maquette d'un gabarit robuste.") },
+    ],
+    walkthrough: {
+      title: B("Léa and Tom assemble the sign-up form pattern and the event list template of Brindille.",
+        "Léa et Tom assemblent le motif de formulaire d'inscription et le gabarit de liste d'événements de Brindille."),
+      steps: [
+        B("They list the screens of Brindille and mark the arrangements that repeat: forms on four screens, card lists on three, a page header everywhere. Why: a pattern is born from repetition, not from a single screen.",
+          "Ils listent les écrans de Brindille et marquent les agencements qui se répètent : des formulaires sur quatre écrans, des listes de cartes sur trois, un en-tête partout. Pourquoi : un motif naît de la répétition, pas d'un écran isolé."),
+        B("Tom builds the form from Field, Select and Checkbox instances in a vertical auto layout, space/400 inside a group and space/600 between groups. Why: the rhythm of the form comes from the variables, not from the eye.",
+          "Tom construit le formulaire avec des instances de Field, Select et Checkbox dans un auto layout vertical, space/400 dans un groupe et space/600 entre groupes. Pourquoi : le rythme du formulaire vient des variables, pas de l'oeil."),
+        B("He notes that no component fits the number of seats, and files a request instead of drawing a local stepper. Why: a missing component is a contribution to discuss, not a hack to spread.",
+          "Il constate qu'aucun composant ne convient pour le nombre de places, et dépose une demande au lieu de dessiner un sélecteur local. Pourquoi : un composant manquant est une contribution à discuter, pas un bricolage à répandre."),
+        B("Léa builds the list template on a column grid bound to variables, with zones for the header, the filters and the cards, then fills it with five edge-case content sets. Why: the template is proven only once it holds the extremes.",
+          "Léa construit le gabarit de liste sur une grille de colonnes reliée à des variables, avec des zones pour l'en-tête, les filtres et les cartes, puis le remplit de cinq jeux de contenus limites. Pourquoi : un gabarit n'est éprouvé qu'une fois les extrêmes tenus."),
+        B("They decide: the page header becomes a library component, the form a documented recipe, the featured block stays local. Why: each level of commitment matches how stable and reused the pattern is.",
+          "Ils tranchent : l'en-tête de page devient un composant de bibliothèque, le formulaire une recette documentée, le bloc à la une reste local. Pourquoi : chaque niveau d'engagement correspond à la stabilité et à la réutilisation du motif."),
+      ],
+    },
+    mistakes: [
+      { wrong: B("Building patterns with local shapes and texts instead of instances of library components.",
+          "Construire des motifs avec des formes et des textes locaux au lieu d'instances des composants de la bibliothèque."),
+        fix: B("Assemble patterns only from instances. If something is missing, file a request: the pattern then benefits from every future update of its components.",
+          "N'assemblez les motifs qu'avec des instances. S'il manque quelque chose, déposez une demande : le motif profitera alors de chaque mise à jour future de ses composants.") },
+      { wrong: B("Locking every pattern as a component, including those whose content varies from screen to screen.",
+          "Figer chaque motif en composant, y compris ceux dont le contenu varie d'un écran à l'autre."),
+        fix: B("Lock only stable patterns. Document the variable ones as recipes with examples, which teams follow and adapt without detaching anything.",
+          "Ne figez que les motifs stables. Documentez les motifs variables comme des recettes illustrées, que les équipes suivent et adaptent sans rien détacher.") },
+      { wrong: B("Validating a template with the polished content of a presentation.",
+          "Valider un gabarit avec le contenu soigné d'une présentation."),
+        fix: B("Test it with extreme content: long names, empty lists, errors, translations. Ask an AI assistant for these sets, then fix what breaks before publishing.",
+          "Éprouvez-le avec un contenu extrême : noms longs, listes vides, erreurs, traductions. Demandez ces jeux à un assistant IA, puis corrigez ce qui casse avant de publier.") },
+    ],
+    recap: [
+      B("Tokens, components, patterns, templates, pages: each level is built from the one below.", "Tokens, composants, motifs, gabarits, pages : chaque niveau se construit sur le précédent."),
+      B("A pattern can be a locked component, a documented recipe or a local assembly.", "Un motif peut être un composant figé, une recette documentée ou un assemblage local."),
+      B("A pattern earns its place in the library through reuse, not through a single request.", "Un motif gagne sa place dans la bibliothèque par la réutilisation, pas par une demande isolée."),
+      B("Templates rest on layout grids and are proven with edge-case content.", "Les gabarits reposent sur des grilles de mise en page et s'éprouvent avec des contenus limites."),
+    ],
+    further: B("Read the chapters of Atomic Design by Brad Frost on templates and pages, freely available on its author's site. Then study the patterns section of a public design system and note which patterns are components and which are guidelines.",
+      "Lisez les chapitres d'Atomic Design de Brad Frost consacrés aux gabarits et aux pages, en libre accès sur le site de son auteur. Étudiez ensuite la section des motifs d'un design system public et notez lesquels sont des composants et lesquels des recommandations."),
+    more: [
+      { q: B("While building the form, Tom finds no component for the number of seats. What should he do?",
+          "En construisant le formulaire, Tom ne trouve aucun composant pour le nombre de places. Que doit-il faire ?"),
+        options: [
+          B("Draw a local stepper in the form and reuse it in other screens", "Dessiner un sélecteur local et le réutiliser dans d'autres écrans"),
+          B("File a request to the system team, with the need and its context", "Déposer une demande à l'équipe du système, avec le besoin et son contexte"),
+          B("Drop the number of seats from the form until a component exists", "Retirer le nombre de places du formulaire en attendant un composant"),
+        ],
+        answer: 1,
+        why: B("A request makes the gap visible and lets the team decide whether a stepper belongs in Sève. A local copy spreads without updates, and dropping the field ignores a real user need.",
+          "Une demande rend le manque visible et laisse l'équipe décider si un sélecteur a sa place dans Sève. Une copie locale se répand sans mises à jour, et retirer le champ ignore un vrai besoin.") },
+      { q: B("What distinguishes a template from a page in the ladder of a design system?",
+          "Qu'est-ce qui distingue un gabarit d'une page dans l'échelle d'un design system ?"),
+        options: [
+          B("A template is always larger and holds more components than a page", "Un gabarit est toujours plus grand et contient plus de composants"),
+          B("A page is built in code, while a template only exists in Figma", "Une page se construit en code, un gabarit n'existe que dans Figma"),
+          B("A template gives zones and rules; a page fills them with real content", "Un gabarit donne zones et règles ; une page les remplit de vrai contenu"),
+        ],
+        answer: 2,
+        why: B("The template is the reusable skeleton; the page is one case of it, with real content. Keeping them apart lets the template serve many pages and be tested against all of them.",
+          "Le gabarit est le squelette réutilisable ; la page en est un cas, avec un vrai contenu. Les garder distincts permet au gabarit de servir de nombreuses pages et d'être éprouvé face à toutes.") },
+    ],
+  },
+}
+
+/* ================================================================== */
+/* LES MODULES DE CETTE PARTIE                                         */
+/* ================================================================== */
+
+const MODULES: Module[] = [
+  {
+    id: M3, track: 'course', glyph: 'frame', tint: '#2563eb', at: [50, 76], levels: COMPOSANTS,
+    title: B('Components', 'Les composants'),
+    blurb: B('Auto layout and constraints, components with variants and properties, accessibility built in, then patterns and page templates.',
+      'Auto layout et contraintes, composants à variantes et propriétés, accessibilité intégrée, puis motifs et gabarits de pages.'),
+  },
+]
+
+export const DESIGNSYS_B: CoursePart = {
+  modules: MODULES,
+  enrich: { ...COMPOSANTS_ENRICH },
+  deep: { ...COMPOSANTS_DEEP },
+}
