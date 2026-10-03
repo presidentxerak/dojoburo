@@ -487,7 +487,7 @@ const REQS_DEEP: Record<string, Deepening> = {
       { q: B("Which question best tells whether a decision is architectural?",
           "Quelle question indique le mieux si une décision relève de l'architecture ?"),
         options: [
-          B("Is it discussed by the most senior people of the team?", "Est-elle discutée par les personnes les plus expérimentées de l'équipe ?"),
+          B("Is it discussed by the most senior and experienced people of the team?", "Est-elle discutée par les personnes les plus expérimentées de l'équipe ?"),
           B("Does it involve a technology that is popular this year?", "Implique-t-elle une technologie populaire cette année ?"),
           B("What would it cost to reverse it once the system is in use?", "Que coûterait-il de la défaire une fois le système en service ?"),
         ],
@@ -576,7 +576,7 @@ const REQS_DEEP: Record<string, Deepening> = {
       { q: B("Why ask the AI to tie each quality attribute to a sentence of the brief?",
           "Pourquoi demander à l'IA de relier chaque attribut de qualité à une phrase du brief ?"),
         options: [
-          B("To make the answer longer and therefore more convincing", "Pour rendre la réponse plus longue, donc plus convaincante"),
+          B("To make the answer longer and therefore more convincing to readers", "Pour rendre la réponse plus longue, donc plus convaincante"),
           B("Because ISO/IEC 25010 requires a quotation for each quality", "Parce que la norme ISO/IEC 25010 exige une citation par qualité"),
           B("To separate qualities the brief implies from ones it invented", "Pour séparer les qualités sous-entendues de celles qu'elle invente"),
         ],
@@ -656,7 +656,7 @@ const REQS_DEEP: Record<string, Deepening> = {
           "Parmi ces réponses à un risque élevé, laquelle coûte le moins quand elle est faite tôt ?"),
         options: [
           B("Designing the whole system to resist the risk, just in case", "Concevoir tout le système pour résister au risque, par précaution"),
-          B("Waiting for launch to see whether the problem really appears", "Attendre le lancement pour voir si le problème apparaît vraiment"),
+          B("Waiting for the launch to see whether the problem really appears at all", "Attendre le lancement pour voir si le problème apparaît vraiment"),
           B("Checking the underlying assumption with a call, a test or a reading", "Vérifier l'hypothèse sous-jacente par un appel, un test ou une lecture"),
         ],
         answer: 2,
@@ -808,7 +808,7 @@ const MODEL: Level[] = [
       B('Recall the top three qualities and the constraints: they are the columns of the comparison.',
         'Rappelez les trois qualités prioritaires et les contraintes : ce sont les colonnes de la comparaison.'),
       B('Describe each style in one line: one deployed unit, enforced modules, independent services, functions on demand.',
-        'Décrivez chaque style en une ligne : une seule unité déployée, des modules étanches, des services autonomes, des fonctions à la demande.'),
+        'Décrivez chaque style en une ligne : unité unique déployée, modules étanches, services autonomes, fonctions à la demande.'),
       B('Ask the AI to score each style per column with a reason, and reject any score that has none.',
         "Demandez à l'IA de noter chaque style par colonne avec une raison, et rejetez toute note qui n'en a pas."),
       B('Add events where they help: an "order placed" message can feed emails and stock without coupling them.',
@@ -885,7 +885,7 @@ const MODEL: Level[] = [
       "Vous écrirez d'abord le contrat d'une API en OpenAPI, choisirez REST ou GraphQL pour une raison, et prévoirez ses versions.",
     ),
     act: B('Write the OpenAPI contract of the Panier Local orders API with an AI, lint it, and plan a breaking change.',
-      "Rédigez avec une IA le contrat OpenAPI de l'API commandes de Panier Local, validez-le, et préparez un changement cassant."),
+      "Rédigez avec une IA le contrat OpenAPI de l'API commandes de Panier Local, validez-le, préparez un changement cassant."),
     steps: [
       B('List the clients and their needs: the ordering site, the drivers\' mobile app, a partner shop\'s system.',
         "Listez les clients et leurs besoins : le site de commande, l'app mobile des livreurs, le système d'une boutique partenaire."),
@@ -980,8 +980,8 @@ const MODEL_ENRICH: Record<string, Enrichment> = {
     why: [
       B("A monolith is one deployable unit: simple to develop, test and deploy, with one database and real transactions. Its risk is erosion, when every part ends up calling every other part. A modular monolith keeps the single deployment but splits the code into modules with explicit interfaces, each owning its data; the boundaries are enforced by the code structure and by checks in the build.",
         "Un monolithe est une seule unité déployée : simple à développer, tester et déployer, avec une base et de vraies transactions. Son risque est l'érosion, quand chaque partie finit par appeler toutes les autres. Un monolithe modulaire garde le déploiement unique mais découpe le code en modules aux interfaces explicites, chacun propriétaire de ses données ; les frontières sont imposées par la structure du code et par des contrôles à la compilation."),
-      B("Microservices are independently deployable services, each owning its data. They allow separate deployment and scaling and suit many autonomous teams, at the price of network failures, distributed consistency and heavier monitoring. Serverless runs functions on demand, billed by use, without managing servers, within limits set by the provider (check its documentation). Event-driven designs connect parts through events such as 'order placed', which decouples them but makes consistency eventual.",
-        "Les microservices sont des services déployables séparément, chacun propriétaire de ses données. Ils permettent déploiements et montée en charge séparés et conviennent à de nombreuses équipes autonomes, au prix de pannes réseau, d'une cohérence distribuée et d'une surveillance plus lourde. Le serverless exécute des fonctions à la demande, facturées à l'usage, sans serveur à gérer, dans des limites fixées par le fournisseur (voir sa documentation). L'événementiel relie les parties par des événements comme « commande passée » : il les découple mais rend la cohérence différée."),
+      B("Microservices are independently deployable services, each owning its data: separate deployment and scaling, suited to many autonomous teams, at the price of network failures, distributed consistency and heavier monitoring. Serverless runs functions on demand, billed by use, within limits set by the provider. Event-driven designs connect parts through events such as 'order placed': decoupled, but eventually consistent.",
+        "Les microservices sont des services déployables séparément, chacun maître de ses données : déploiement et montée en charge séparés, pour de nombreuses équipes, au prix de pannes réseau, de cohérence distribuée et de surveillance accrue. Le serverless exécute des fonctions à la demande, facturées à l'usage, selon les limites du fournisseur. L'événementiel relie les parties par des événements comme « commande passée » : découplées, mais à cohérence différée."),
       B("No style is better in general; each trades qualities against others. An AI can lay out the trade-offs in seconds, but its scores are generic unless tied to your scenarios and constraints. Many practitioners, Martin Fowler among them in his article MonolithFirst, advise starting with a well-structured monolith and extracting services only when a real need appears.",
         "Aucun style n'est meilleur en général ; chacun échange des qualités contre d'autres. Une IA expose les compromis en quelques secondes, mais ses notes restent génériques si elles ne sont pas reliées à vos scénarios et contraintes. Beaucoup de praticiens, dont Martin Fowler dans son article MonolithFirst, conseillent de commencer par un monolithe bien structuré et de n'extraire des services qu'au moment où un besoin réel apparaît."),
     ],
@@ -1038,7 +1038,7 @@ const MODEL_ENRICH: Record<string, Enrichment> = {
       B("Data outlives code. An application can be rewritten; its data stays, and migrating data is among the most expensive changes a team can face. A data model starts from the domain: the entities (customer, order, basket, product, producer, delivery), their relationships, and the invariants that must always hold, such as 'stock is never negative' or 'an order belongs to exactly one delivery week'.",
         "Les données survivent au code. Une application peut être réécrite ; ses données restent, et migrer des données compte parmi les changements les plus coûteux. Un modèle de données part du domaine : les entités (client, commande, panier, produit, producteur, livraison), leurs relations, et les invariants qui doivent toujours tenir, comme « le stock n'est jamais négatif » ou « une commande appartient à une seule semaine de livraison »."),
       B("Storage follows access patterns and consistency needs, not fashion. A relational database (PostgreSQL, SQLite) suits linked data, transactions, constraints and varied queries: the default for most business applications. A document store suits aggregates read whole; a key-value store such as Redis suits fast access by key; object storage suits files and photos. Each extra store is one more thing to operate, back up and secure.",
-        "Le stockage suit les schémas d'accès et les besoins de cohérence, pas la mode. Une base relationnelle (PostgreSQL, SQLite) convient aux données liées, aux transactions, aux contraintes et aux requêtes variées : le choix par défaut de la plupart des applications métier. Une base orientée documents convient aux agrégats lus d'un bloc ; une base clé-valeur comme Redis, à l'accès rapide par clé ; un stockage objet, aux fichiers et photos. Chaque stockage de plus est à exploiter, sauvegarder et sécuriser."),
+        "Le stockage suit les schémas d'accès et les besoins de cohérence, pas la mode. Une base relationnelle (PostgreSQL, SQLite) convient aux données liées, aux transactions et aux requêtes variées : c'est le choix par défaut des applications métier. Une base documents convient aux agrégats lus d'un bloc ; une base clé-valeur comme Redis, à l'accès par clé ; un stockage objet, aux fichiers. Chaque stockage de plus est à exploiter, sauvegarder et sécuriser."),
       B("AI drafts schemas well, as SQL, as a Mermaid ER diagram or for an ORM such as Prisma, and it generates sample data and queries in seconds. It often forgets constraints (NOT NULL, UNIQUE, foreign keys, CHECK), stores money as floating-point numbers and ignores concurrent writes. The test is simple: run the schema locally, insert data, execute the key queries, and try to break each invariant.",
         "L'IA rédige bien les schémas, en SQL, en diagramme ER Mermaid ou pour un ORM comme Prisma, et génère en quelques secondes données d'exemple et requêtes. Elle oublie souvent les contraintes (NOT NULL, UNIQUE, clés étrangères, CHECK), stocke l'argent en nombres à virgule flottante et ignore les écritures simultanées. Le test est simple : exécuter le schéma en local, insérer des données, lancer les requêtes clés, et tenter de violer chaque invariant."),
     ],
@@ -1209,7 +1209,7 @@ const MODEL_DEEP: Record<string, Deepening> = {
           "Sur le diagramme de conteneurs, l'app mobile des livreurs a une flèche directe vers la base. Que révèle-t-elle ?"),
         options: [
           B("A design or drawing error: the app should call the API, never the database", "Une erreur de conception ou de dessin : l'app doit appeler l'API, jamais la base"),
-          B("A good practice that saves a network hop and speeds up the app", "Une bonne pratique qui économise un saut réseau et accélère l'app"),
+          B("A good practice that saves one network hop and makes the app noticeably faster", "Une bonne pratique qui économise un saut réseau et accélère l'app"),
           B("Nothing important, since arrows are only decorative in C4", "Rien d'important, les flèches étant décoratives en C4"),
         ],
         answer: 0,
@@ -1303,7 +1303,7 @@ const MODEL_DEEP: Record<string, Deepening> = {
         options: [
           B("Because the parts that handle it react a little after the order", "Parce que les parties qui le traitent réagissent un peu après la commande"),
           B("Because events are deleted before anyone can read them", "Parce que les événements sont effacés avant d'être lus"),
-          B("Because the database refuses transactions once events exist", "Parce que la base refuse les transactions dès qu'il existe des événements"),
+          B("Because the database refuses all transactions as soon as events exist", "Parce que la base refuse les transactions dès qu'il existe des événements"),
         ],
         answer: 0,
         why: B("The order is recorded first; the email, statistics or other reactions happen when the event is handled, a moment later. For a short time, the parts of the system do not all show the same state.",
@@ -1452,7 +1452,7 @@ const MODEL_DEEP: Record<string, Deepening> = {
       { q: B("A customer's phone loses the connection and resends 'create order'. What prevents a duplicate order?",
           "Le téléphone d'un client perd la connexion et renvoie « créer la commande ». Qu'est-ce qui évite une commande en double ?"),
         options: [
-          B("A longer timeout on the server, so the first request always ends", "Un délai plus long côté serveur, pour que la première requête aboutisse"),
+          B("A longer timeout on the server, so that the first request always completes", "Un délai plus long côté serveur, pour que la première requête aboutisse"),
           B("An idempotency key sent with the request and checked by the server", "Une clé d'idempotence envoyée avec la requête et vérifiée par le serveur"),
           B("A message in the app asking customers never to press twice", "Un message dans l'app qui demande aux clients de ne jamais insister"),
         ],
@@ -1462,7 +1462,7 @@ const MODEL_DEEP: Record<string, Deepening> = {
       { q: B("Why open the OpenAPI file generated by the AI in Swagger Editor or run it through a linter?",
           "Pourquoi ouvrir le fichier OpenAPI généré par l'IA dans Swagger Editor ou le passer dans un linter ?"),
         options: [
-          B("To translate it automatically into the language of the clients", "Pour le traduire automatiquement dans la langue des clients"),
+          B("To translate it automatically into the spoken language of each client", "Pour le traduire automatiquement dans la langue des clients"),
           B("To deploy it to production directly from the editor", "Pour le déployer en production directement depuis l'éditeur"),
           B("To detect structural errors and gaps before anyone builds on it", "Pour détecter erreurs de structure et manques avant que quiconque s'en serve"),
         ],
