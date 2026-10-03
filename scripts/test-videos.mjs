@@ -45,6 +45,23 @@ const LS = readFileSync('src/game/Lesson.tsx', 'utf8')
 ok('le lecteur passe par le domaine sans cookie, au clic', /youtube-nocookie\.com\/embed\/\$\{v\.id\}/.test(LS) && /useState\(false\)[\s\S]{0,200}setOn|onClick=\{\(\) => setOn\(true\)\}/.test(LS))
 ok('le domaine du lecteur est autorisé par la CSP', /frame-src[^;"]*https:\/\/www\.youtube-nocookie\.com/.test(readFileSync('vercel.json', 'utf8')))
 
+// LES AUTEURS, CRÉDITÉS · demandé : « crédite bien les auteurs et chaines
+// youtube dans tous les cours en-dessous des vidéos ». Le nom de la chaîne est
+// lu chez YouTube par le serveur (jamais inventé), affiché sous chaque vidéo
+// avec un lien vers la chaîne et vers la vidéo d'origine.
+{
+  const VC = await load('api/video-credits.ts', 'video-credits.mjs')
+  const c = VC.readCredit({ author_name: 'Une chaîne', author_url: 'https://www.youtube.com/@unechaine' })
+  ok('le serveur lit le nom et l\'adresse de la chaîne', c?.author === 'Une chaîne' && c?.url === 'https://www.youtube.com/@unechaine')
+  ok('une adresse qui ne mène pas à YouTube est écartée', VC.readCredit({ author_name: 'X', author_url: 'https://exemple.test/x' })?.url === '' && VC.readCredit({ author_name: 'X', author_url: 'javascript:alert(1)' })?.url === '')
+  ok('sans nom de chaîne, aucun crédit inventé', VC.readCredit({}) === null && VC.readCredit({ author_name: '  ' }) === null)
+  ok('les identifiants demandés sont vérifiés et bornés', VC.parseIds('PJ2hKYTMyJA,bad,PJ2hKYTMyJA,' + 'a'.repeat(11)).join(',') === `PJ2hKYTMyJA,${'a'.repeat(11)}` && VC.parseIds(Array.from({ length: 20 }, (_, k) => String(k).padStart(11, 'x')).join(',')).length === VC.MAX_IDS)
+  ok('chaque vidéo crédite sa chaîne et renvoie vers l\'original', /className="ln-video-credit"/.test(LS) && /t\('ln\.videoBy'\)/.test(LS) && /href=\{credit\.url\}/.test(LS) && /href=\{`https:\/\/www\.youtube\.com\/watch\?v=\$\{v\.id\}`\}/.test(LS))
+  ok('le navigateur demande les crédits à notre serveur, pas à YouTube', /fetch\(`\/api\/video-credits\?ids=/.test(LS) && !/fetch\([^)]*youtube/.test(LS))
+  const VJ = readFileSync('vercel.json', 'utf8')
+  ok('les crédits se gardent en cache, les autres routes non', /"source": "\/api\/\(\(\?!video-credits\)\.\*\)"/.test(VJ) && /s-maxage=2592000/.test(readFileSync('api/video-credits.ts', 'utf8')))
+}
+
 const covered = [...lessons].filter((k) => (V.VIDEOS[k] ?? []).length > 0).length
 console.log(`      couverture · ${covered} leçons sur ${lessons.size} ont au moins une vidéo · ${all.length} vidéos`)
 console.log(fails ? `\ntest-videos · ${fails} problème(s)` : '\ntest-videos · ok')

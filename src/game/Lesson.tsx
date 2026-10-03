@@ -563,19 +563,48 @@ function Exercise({ e, onComplete }: { e: Enrichment; onComplete?: () => void })
 /* vers YouTube avant le clic, et le lecteur est celui sans cookie.      */
 /* ------------------------------------------------------------------ */
 
+/** LES CRÉDITS · demandé : « crédite bien les auteurs et chaines youtube dans
+ *  tous les cours en-dessous des vidéos ». Le nom de la chaîne est lu chez
+ *  YouTube par notre serveur (api/video-credits), jamais écrit à la main, et
+ *  gardé ici pour la session. Le navigateur ne contacte pas YouTube avant le
+ *  clic ; les liens vers la chaîne et la vidéo ne chargent rien d'eux-mêmes. */
+type Credit = { author: string; url: string } | null
+const creditCache = new Map<string, Credit>()
+function useVideoCredits(ids: string[]) {
+  const key = ids.join(',')
+  const [credits, setCredits] = useState<Record<string, Credit>>(() =>
+    Object.fromEntries(ids.filter((id) => creditCache.has(id)).map((id) => [id, creditCache.get(id)!])))
+  useEffect(() => {
+    const missing = ids.filter((id) => !creditCache.has(id))
+    if (!missing.length) return
+    let live = true
+    fetch(`/api/video-credits?ids=${missing.map(encodeURIComponent).join(',')}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { credits?: Record<string, Credit> } | null) => {
+        const got = d?.credits ?? {}
+        missing.forEach((id) => { if (got[id] !== undefined) creditCache.set(id, got[id]) })
+        if (live) setCredits(Object.fromEntries(ids.filter((id) => creditCache.has(id)).map((id) => [id, creditCache.get(id)!])))
+      })
+      .catch(() => { /* hors ligne ou sans serveur · le lien vers la vidéo crédite quand même */ })
+    return () => { live = false }
+  }, [key])
+  return credits
+}
+
 function LessonVideos({ list }: { list: Video[] }) {
   const t = useT()
+  const credits = useVideoCredits(list.map((v) => v.id).filter((id) => /^[A-Za-z0-9_-]{11}$/.test(id)))
   if (!list.length) return null
   return (
     <section className="ln-block ln-videos">
       <h2 className="ln-h2">{t('ln.videosH')}</h2>
       <p className="ln-videos-lead">{t('ln.videosLead')}</p>
-      <div className="ln-videos-grid">{list.map((v) => <VideoBox key={v.id} v={v} />)}</div>
+      <div className="ln-videos-grid">{list.map((v) => <VideoBox key={v.id} v={v} credit={credits[v.id] ?? null} />)}</div>
     </section>
   )
 }
 
-function VideoBox({ v }: { v: Video }) {
+function VideoBox({ v, credit }: { v: Video; credit: Credit }) {
   const t = useT()
   const [on, setOn] = useState(false)
   // L'IDENTIFIANT EST VÉRIFIÉ AVANT D'ENTRER DANS UNE ADRESSE
@@ -602,7 +631,17 @@ function VideoBox({ v }: { v: Video }) {
       )}
       <figcaption>
         <b>{v.title}</b>
-        <span>{v.channel ? `${v.channel} · ` : ''}YouTube · {v.lang === 'fr' ? t('ln.videoFr') : t('ln.videoEn')}</span>
+        {/* L'AUTEUR, CRÉDITÉ · la chaîne lue chez YouTube, sinon celle notée à la main */}
+        <span className="ln-video-credit">
+          {t('ln.videoBy')}{' '}
+          {credit?.url
+            ? <a href={credit.url} target="_blank" rel="noopener noreferrer">{credit.author}</a>
+            : <b>{credit?.author || v.channel || t('ln.videoChannel')}</b>}
+        </span>
+        <span>
+          {v.lang === 'fr' ? t('ln.videoFr') : t('ln.videoEn')} ·{' '}
+          <a href={`https://www.youtube.com/watch?v=${v.id}`} target="_blank" rel="noopener noreferrer">{t('ln.videoSource')}</a>
+        </span>
       </figcaption>
     </figure>
   )

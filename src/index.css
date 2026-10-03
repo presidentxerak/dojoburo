@@ -13116,3 +13116,7 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
 .ln-video figcaption { display: flex; flex-direction: column; gap: 2px; text-align: left; }
 .ln-video figcaption b { font-size: 15px; line-height: 1.35; }
 .ln-video figcaption span { font-size: 13px; color: var(--g-sub); }
+.ln-video figcaption a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.ln-video figcaption a:hover { color: var(--ac, #7c3aed); }
+.ln-video-credit { font-weight: 500; }
+.ln-video-credit b { font-size: inherit; font-weight: 600; }
