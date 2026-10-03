@@ -48,7 +48,7 @@ const MEDIA: Level[] = [
       'You will install ComfyUI, run its default workflow and read each node as one step of image generation.',
       'Vous saurez installer ComfyUI, lancer son workflow par défaut et lire chaque nœud comme une étape de la génération.',
     ),
-    act: B('Install ComfyUI on the Delorme firm's office PC and trace the default workflow from checkpoint to image.',
+    act: B("Install ComfyUI on the Delorme firm's office PC and trace the default workflow from checkpoint to image.",
       "Installez ComfyUI sur le PC du bureau du cabinet Delorme et suivez le workflow par défaut, du checkpoint à l'image."),
     steps: [
       B('Install ComfyUI Desktop, the portable Windows build or a git clone in a Python virtual environment, as its README says.',
@@ -130,7 +130,7 @@ const MEDIA: Level[] = [
       'You will generate short video clips locally with Wan, through Wan2GP or ComfyUI, within what your graphics card can hold.',
       'Vous saurez générer de courts clips vidéo en local avec Wan, via Wan2GP ou ComfyUI, dans les limites de votre carte graphique.',
     ),
-    act: B('Animate one of the Delorme firm's still images into a short clip, starting small, then raising quality step by step.',
+    act: B("Animate one of the Delorme firm's still images into a short clip, starting small, then raising quality step by step.",
       'Animez une image fixe du cabinet Delorme en un court clip, en commençant petit puis en montant la qualité par paliers.'),
     steps: [
       B('Read the hardware notes of Wan and Wan2GP for your VRAM, and pick the model size and memory profile they suggest.',
@@ -147,7 +147,7 @@ const MEDIA: Level[] = [
       "Lancer d'emblée un rendu long en haute résolution : sur une carte grand public, il peut tourner longtemps sans rien vous apprendre avant la fin.",
     ),
     quiz: {
-      q: B('Your first Wan clip is blurry and the mentor's hand warps as it moves. What do you change first?',
+      q: B("Your first Wan clip is blurry and the mentor's hand warps as it moves. What do you change first?",
         'Votre premier clip Wan est flou et la main du tuteur se déforme en bougeant. Que changez-vous d\'abord ?'),
       options: [
         B('Describe one simple motion and one camera move in the prompt', 'Décrire un seul mouvement simple et un seul mouvement de caméra'),
