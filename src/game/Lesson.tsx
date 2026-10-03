@@ -24,7 +24,7 @@
 // cours commence au-dessus de la ligne de flottaison.
 import { burst } from '../lib/juice'
 import { useEffect, useRef, useState } from 'react'
-import { QuestHud, MasterDialog, Mission, Victory, MasterCheer, useQuestSteps, QT, type Cheer } from './LessonGame'
+import { QuestHud, MasterDialog, Mission, Victory, MasterCheer, QT, type Cheer, type QuestStep } from './LessonGame'
 import { awardPart, unlockFeat, type Feat } from './achievements'
 import { BauhausIcon } from '../components/BauhausIcon'
 import { Lnk } from '../lib/router'
@@ -117,7 +117,6 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
   const a = useAccess()
   const { pack, module, level } = found
   const article = useRef<HTMLElement>(null)
-  const { steps, cleared } = useQuestSteps(article, `${pack.id}/${level.id}:${open}`)
   // LE SCORE DU QUIZ · bonnes réponses et série en cours, pour la victoire
   // LE BADGE SE MÉRITE · demandé : « J'ai reçu un badge dans un cours mais je
   // n'ai répondu à aucune question!! : corrige et améliore ». Le bouton du
@@ -136,6 +135,22 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
   const needed = Math.ceil(total * PASS_RATE)
   const passed = answeredAll && rightCount >= needed
   const retry = () => { setResults({}); setAttempt((n) => n + 1) }
+  // LES CARRÉS DE LA QUÊTE · un par exercice à achever : la mission, l'exercice
+  // pratique, puis chaque question du quiz. Gris tant qu'il n'est pas achevé,
+  // vert une fois validé (une question l'est quand sa réponse est juste) ; la
+  // jauge avance du même pas. Voir game/LessonGame, questProgress.
+  const [missionDone, setMissionDone] = useState(false)
+  const [exerciseDone, setExerciseDone] = useState(false)
+  const steps: QuestStep[] = [
+    { id: 'mission', label: say(QT.mission, lang) },
+    ...(deep ? [{ id: 'exercise', label: t('ln.exercise') }] : []),
+    ...Array.from({ length: total }, (_, k) => ({ id: `q${k + 1}`, label: `${t('ln.q')} ${k + 1}` })),
+  ]
+  const cleared = new Set<string>([
+    ...(missionDone ? ['mission'] : []),
+    ...(exerciseDone ? ['exercise'] : []),
+    ...Object.entries(results).filter(([, right]) => right).map(([n]) => `q${n}`),
+  ])
   let streak = 0
   for (let n = 1; n <= total && results[n] !== undefined; n++) streak = results[n] ? streak + 1 : 0
 
@@ -146,7 +161,7 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
   // vient donc plus au défilement : il félicite quand l'élève répond juste à
   // une question du quiz ou coche le dernier objectif de sa mission. Chaque
   // réussite rapporte ses points une fois (game/achievements). Le défilement
-  // ne fait que remplir la barre de quête, en silence.
+  // ne fait plus rien : les carrés de la quête suivent les exercices achevés.
   const [cheers, setCheers] = useState<Cheer[]>([])
   const pushFeat = (f: Feat | null) => { if (f) setCheers((q) => [...q, { id: `feat:${f.id}`, points: f.points, feat: f }]) }
   const reward = (part: string, label: string) => {
@@ -208,7 +223,7 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
 
             {/* LA MISSION · ce que vous faites, et ses étapes devenues objectifs */}
             <div data-step="mission" data-label={say(QT.mission, lang)}>
-              <Mission act={level.act} steps={level.steps} onComplete={() => { reward('mission', say(QT.mission, lang)); pushFeat(unlockFeat('mission')) }} />
+              <Mission act={level.act} steps={level.steps} onComplete={() => { setMissionDone(true); reward('mission', say(QT.mission, lang)); pushFeat(unlockFeat('mission')) }} />
             </div>
 
             {more && <div data-step="concepts" data-label={t('ln.concepts')}><Concepts d={more} /></div>}
@@ -226,7 +241,7 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
               <p>{say(level.trap, lang)}</p>
             </section>
 
-            {deep && <div data-step="exercise" data-label={t('ln.exercise')}><Exercise key={`ex-${pack.id}/${level.id}`} e={deep} /></div>}
+            {deep && <div data-step="exercise" data-label={t('ln.exercise')}><Exercise key={`ex-${pack.id}/${level.id}`} e={deep} onComplete={() => setExerciseDone(true)} /></div>}
 
             {more && <div data-step="recap" data-label={t('ln.recap')}><Recap d={more} /></div>}
 
@@ -235,9 +250,9 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
 
             <section className="ln-block" data-step="quiz" data-label={t('ac.check')}>
               <h2 className="ln-h2">{t('ac.check')} {streak > 1 && <span className="lq-streak">{say(QT.streak, lang)} ×{streak}</span>}</h2>
-              <Quiz key={`${pack.id}/${level.id}@${attempt}`} packId={pack.id} levelId={level.id} n={1} of={total} fresh={attempt > 0} onResult={(r) => onResult(1, r)} />
+              <div data-step="q1"><Quiz key={`${pack.id}/${level.id}@${attempt}`} packId={pack.id} levelId={level.id} n={1} of={total} fresh={attempt > 0} onResult={(r) => onResult(1, r)} /></div>
               {extra.map((q, k) => (
-                <QuizCard key={`${pack.id}/${level.id}#${k}@${attempt}`} q={q} n={k + 2} of={total} onResult={(r) => onResult(k + 2, r)} />
+                <div data-step={`q${k + 2}`} key={`${pack.id}/${level.id}#${k}@${attempt}`}><QuizCard q={q} n={k + 2} of={total} onResult={(r) => onResult(k + 2, r)} /></div>
               ))}
             </section>
 
@@ -504,13 +519,15 @@ function Example({ e }: { e: Enrichment }) {
  *  travail. Le prompt se copie d'un geste, les [CHAMPS] sont à remplacer, et
  *  la liste sert à se corriger soi-même. Les cases cochées ne sont pas
  *  enregistrées : c'est un brouillon de relecture, pas un examen. */
-function Exercise({ e }: { e: Enrichment }) {
+function Exercise({ e, onComplete }: { e: Enrichment; onComplete?: () => void }) {
   const lang = useLang()
   const t = useT()
   const x = e.exercise
   const [copied, setCopied] = useState(false)
   const [ticks, setTicks] = useState<boolean[]>(() => x.check.map(() => false))
   const text = say(x.prompt, lang)
+  // L'EXERCICE ACHEVÉ · toutes les vérifications cochées valident son carré
+  useEffect(() => { if (ticks.length && ticks.every(Boolean)) onComplete?.() }, [ticks])
   const copy = async () => {
     try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1800) } catch { /* presse-papiers refusé · le texte reste sélectionnable */ }
   }

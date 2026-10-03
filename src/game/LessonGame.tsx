@@ -65,37 +65,22 @@ const calm = () => getSettings().calm || systemReducesMotion()
 
 export interface QuestStep { id: string; label: string }
 
-/** Les étapes franchies · une étape l'est quand on l'a fait défiler jusqu'à
- *  la moitié de l'écran. Lu dans le DOM (attributs data-step), pour ne pas
- *  toucher à la mise en page de chaque bloc. */
-export function useQuestSteps(root: React.RefObject<HTMLElement | null>, key: string) {
-  const [steps, setSteps] = useState<QuestStep[]>([])
-  const [cleared, setCleared] = useState<Set<string>>(new Set())
-  useEffect(() => {
-    const el = root.current
-    if (!el) return
-    const nodes = [...el.querySelectorAll<HTMLElement>('[data-step]')]
-    setSteps(nodes.map((n) => ({ id: n.dataset.step!, label: n.dataset.label || n.dataset.step! })))
-    setCleared(new Set())
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting || e.boundingClientRect.top < 0) {
-          const id = (e.target as HTMLElement).dataset.step!
-          setCleared((s) => (s.has(id) ? s : new Set(s).add(id)))
-        }
-      }
-    }, { rootMargin: '0px 0px -50% 0px' })
-    nodes.forEach((n) => io.observe(n))
-    return () => io.disconnect()
-  }, [root, key])
-  return { steps, cleared }
+/** LES ÉTAPES DE LA QUÊTE · demandé : « l'UI d'étape ne doit pas valider un
+ *  carré si on a pas achevé l'exercice tant que l'on a pas validé le carré doit
+ *  être gris quand il est validé il doit être vert. La jauge doit avancée quand
+ *  on achève un exercice ». Un carré est donc un exercice (la mission, l'exercice
+ *  pratique, chaque question du quiz) et non plus une section lue : la leçon
+ *  dit lesquels sont achevés (voir game/Lesson), le défilement n'y touche plus. */
+export function questProgress(steps: QuestStep[], cleared: Set<string>, done: boolean) {
+  const n = steps.filter((st) => cleared.has(st.id)).length
+  return done ? 100 : steps.length ? Math.round((n / steps.length) * 100) : 0
 }
 
 export function QuestHud({ title, dojo, xp, steps, cleared, done, master }: {
   title: string; dojo: string; xp: number; steps: QuestStep[]; cleared: Set<string>; done: boolean; master: ChibiSpec
 }) {
   const lang = useLang()
-  const pct = steps.length ? Math.round((cleared.size / steps.length) * 100) : 0
+  const pct = questProgress(steps, cleared, done)
   return (
     <div className="lq-hud" role="navigation" aria-label={say(QT.quest, lang)}>
       <span className="lq-hud-av"><LiveChibi spec={master} scale={1} seed="hud" /></span>
@@ -105,11 +90,11 @@ export function QuestHud({ title, dojo, xp, steps, cleared, done, master }: {
           <span className="lq-hud-xp">{done ? <BauhausIcon name="check" size={12} /> : null} {xp} XP</span>
         </div>
         <span className="lq-hud-title">{title}</span>
-        <div className="lq-hud-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: `${done ? 100 : pct}%` }} /></div>
+        <div className="lq-hud-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}><i style={{ width: `${pct}%` }} /></div>
         <ol className="lq-hud-steps">
           {steps.map((st, k) => (
             <li key={st.id}>
-              <button className={cleared.has(st.id) || done ? 'on' : ''} title={st.label} aria-label={`${k + 1} · ${st.label}`}
+              <button className={cleared.has(st.id) || done ? 'on' : ''} title={st.label} aria-label={`${k + 1} · ${st.label}`} aria-pressed={cleared.has(st.id) || done}
                 onClick={() => document.querySelector(`[data-step="${st.id}"]`)?.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' })} />
             </li>
           ))}
