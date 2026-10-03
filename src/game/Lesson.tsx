@@ -116,32 +116,33 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
   // LE SCORE DU QUIZ · bonnes réponses et série en cours, pour la victoire
   const [results, setResults] = useState<Record<number, boolean>>({})
   const [win, setWin] = useState(false)
-  const onResult = (n: number, right: boolean) => setResults((r) => (n in r ? r : { ...r, [n]: right }))
   const total = 1 + extra.length
   const rightCount = Object.values(results).filter(Boolean).length
   let streak = 0
   for (let n = 1; n <= total && results[n] !== undefined; n++) streak = results[n] ? streak + 1 : 0
 
-  // LES POINTS ENTRE LES PARTIES · demandé : « des achievements avec
+  // LES POINTS QUAND ON RÉPOND · demandé d'abord : « des achievements avec
   // acquisition de points entre chaque partie de la formation avec le maître
-  // qui félicite et offre les points ». Atteindre une partie termine la
-  // précédente : elle rapporte ses points une fois (game/achievements), et le
-  // maître vient les offrir. Les succès débloqués suivent dans la file.
+  // qui félicite et offre les points ». Puis : « L'animation du maître bug il
+  // s'affiche quand on scrolle pas quand on répond : corrige ». Le maître ne
+  // vient donc plus au défilement : il félicite quand l'élève répond juste à
+  // une question du quiz ou coche le dernier objectif de sa mission. Chaque
+  // réussite rapporte ses points une fois (game/achievements). Le défilement
+  // ne fait que remplir la barre de quête, en silence.
   const [cheers, setCheers] = useState<Cheer[]>([])
   const pushFeat = (f: Feat | null) => { if (f) setCheers((q) => [...q, { id: `feat:${f.id}`, points: f.points, feat: f }]) }
-  useEffect(() => {
+  const reward = (part: string, label: string) => {
     if (!open) return
-    const won: Cheer[] = []
-    steps.forEach((st, k) => {
-      if (k === 0 || !cleared.has(st.id)) return
-      const prev = steps[k - 1]
-      const r = awardPart(`${pack.id}/${level.id}/${prev.id}`)
-      if (!r) return
-      won.push({ id: `part:${pack.id}/${level.id}/${prev.id}`, points: r.points, part: prev.label })
-      r.feats.forEach((f) => won.push({ id: `feat:${f.id}`, points: f.points, feat: f }))
-    })
-    if (won.length) setCheers((q) => [...q, ...won])
-  }, [cleared, steps, open])
+    const r = awardPart(`${pack.id}/${level.id}/${part}`)
+    if (!r) return
+    const won: Cheer[] = [{ id: `part:${pack.id}/${level.id}/${part}`, points: r.points, part: label }]
+    r.feats.forEach((f) => won.push({ id: `feat:${f.id}`, points: f.points, feat: f }))
+    setCheers((q) => [...q, ...won])
+  }
+  const onResult = (n: number, right: boolean) => {
+    setResults((r) => (n in r ? r : { ...r, [n]: right }))
+    if (right) reward(`q${n}`, `${t('ln.q')} ${n}`)
+  }
   // LE QUIZ SANS FAUTE · toutes les questions répondues, toutes justes
   useEffect(() => {
     if (Object.keys(results).length === total && rightCount === total) pushFeat(unlockFeat('flawless'))
@@ -189,7 +190,7 @@ function LessonQuest({ found, all, i, next, done, sensei, open, deep, more, extr
 
             {/* LA MISSION · ce que vous faites, et ses étapes devenues objectifs */}
             <div data-step="mission" data-label={say(QT.mission, lang)}>
-              <Mission act={level.act} steps={level.steps} onComplete={() => pushFeat(unlockFeat('mission'))} />
+              <Mission act={level.act} steps={level.steps} onComplete={() => { reward('mission', say(QT.mission, lang)); pushFeat(unlockFeat('mission')) }} />
             </div>
 
             {more && <div data-step="concepts" data-label={t('ln.concepts')}><Concepts d={more} /></div>}

@@ -283,7 +283,11 @@ ok('le moteur du son se charge sans navigateur', typeof Z.zen.sfx === 'function'
   ok('chaque succès a un titre et un texte dans les deux langues', AC.FEATS.every((f) => f.title.en && f.title.fr && f.body.en && f.body.fr && f.points > 0))
   const LS2 = readFileSync('src/game/Lesson.tsx', 'utf8')
   const LG2 = readFileSync('src/game/LessonGame.tsx', 'utf8')
-  ok('atteindre une partie termine la précédente et la récompense', /const prev = steps\[k - 1\]/.test(LS2) && /awardPart\(`\$\{pack\.id\}\/\$\{level\.id\}\/\$\{prev\.id\}`\)/.test(LS2))
+  // RÉPARÉE · demandé : « L'animation du maître bug il s'affiche quand on
+  // scrolle pas quand on répond : corrige » et « Enlève les sons quand on
+  // scrolle les cours ». La récompense suit la réponse, plus le défilement.
+  ok('une bonne réponse ou une mission finie rapporte les points', /if \(right\) reward\(`q\$\{n\}`/.test(LS2) && /reward\('mission'/.test(LS2) && /awardPart\(`\$\{pack\.id\}\/\$\{level\.id\}\/\$\{part\}`\)/.test(LS2))
+  ok('le défilement ne récompense plus et ne fait plus de bruit', !/cleared\.has\(st\.id\)/.test(LS2) && !/sfx/.test(LG2.slice(LG2.indexOf('export function useQuestSteps'), LG2.indexOf('export function QuestHud'))))
   ok('le maître félicite et offre les points', /<MasterCheer queue=\{cheers\}/.test(LS2) && /className="lq-cheer-coin"/.test(LG2))
   ok('la pièce éclate en particules, sauf au mouvement réduit', /if \(r && !calm\(\)\) burst\(/.test(LG2))
   ok('les points comptent dans l\'XP', /\+ f\.points/.test(readFileSync('src/game/progress.ts', 'utf8')))

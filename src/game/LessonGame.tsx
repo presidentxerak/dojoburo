@@ -41,7 +41,7 @@ export const QT = {
   stay: B('Stay here', 'Rester ici'),
   backTemple: B('Back to the course', 'Retour à la formation'),
   points: B('points', 'points'),
-  partDone: B('Part completed', 'Partie terminée'),
+  partDone: B('Well answered', 'Bonne réponse'),
   featUnlocked: B('Achievement unlocked', 'Succès débloqué'),
   gift: B('Here are your points.', 'Voici vos points.'),
 }
@@ -50,11 +50,11 @@ export const QT = {
  *  la partie pour ne pas répéter la même deux fois de suite. « {p} » est le
  *  nom de la partie. */
 const CHEERS: Bi[] = [
-  B('Well done! “{p}” is behind you.', 'Bien joué ! « {p} » est derrière vous.'),
+  B('Well done! “{p}” is right.', 'Bien joué ! « {p} » : c\'est juste.'),
   B('Excellent work on “{p}”.', 'Excellent travail sur « {p} ».'),
   B('You are moving fast. “{p}”, done.', 'Vous progressez vite. « {p} », c\'est fait.'),
-  B('Fine focus on “{p}”. On to the next part.', 'Belle concentration sur « {p} ». Passons à la suite.'),
-  B('That is how one climbs a dojo: “{p}”, mastered.', 'C\'est ainsi qu\'on gravit un dojo : « {p} », maîtrisé.'),
+  B('Right answer on “{p}”. On to the next one.', 'Bonne réponse sur « {p} ». Passons à la suite.'),
+  B('That is how a lesson is learned: “{p}”, mastered.', 'C\'est ainsi qu\'on apprend un cours : « {p} », maîtrisé.'),
 ]
 
 const calm = () => getSettings().calm || systemReducesMotion()

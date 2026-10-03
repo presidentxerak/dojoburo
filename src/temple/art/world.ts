@@ -2085,3 +2085,51 @@ function paintBed(g: Grid, f: Feat, r: () => number) {
     g.set(x, y, hsh < 0.5 ? pal[Math.floor(hsh * 6)] : hsh < 0.8 ? '#3f9e44' : '#2f7a3a')
   }
 }
+
+/* --- LE DÉCOR DE PART ET D'AUTRE DU TEMPLE ------------------------------ */
+// Demandé : « améliore le décor sur les côtés du temple ajoute des plantes et
+// décors car là ça fait bug graphique ». Depuis que la page d'une formation
+// suit la largeur de l'écran, le perron s'arrêtait net et le ciel apparaissait
+// à côté de son herbe. Cette bande se répète de chaque côté du temple : la
+// même herbe que le perron (mêmes couleurs, même hauteur à la même échelle),
+// et dessus des arbres, des bambous, des buissons fleuris, des rochers.
+
+/** LA BANDE EST DESSINÉE À DEMI-ÉCHELLE · une case y vaut une demi-case du
+ *  perron, pour que les arbres paraissent un peu en retrait et qu'il en tienne
+ *  plusieurs dans la marge. Son herbe fait donc 8 cases, soit les 4 cases
+ *  d'herbe du perron (drawBase : 28 cases dont 4 d'herbe). */
+export const SIDE_H = 64
+export const SIDE_W = 128
+
+export function drawSideTile(seed: number): Grid {
+  const r = rng(seed * 2654435761 + 977)
+  const g = new Grid(SIDE_W, SIDE_H)
+  const ground = SIDE_H - 8
+  // l'herbe, celle du perron à double résolution
+  g.rect(0, ground, SIDE_W, 8, '#5cbf4a')
+  for (let x = 0; x < SIDE_W; x += 6) g.rect(x, ground + ((x / 6) % 2) * 2, 2, 2, '#4aa83c')
+  g.rect(0, SIDE_H - 2, SIDE_W, 2, '#3f9434')
+  for (let x = 1; x < SIDE_W; x += 3 + Math.floor(r() * 4)) { g.set(x, ground - 1, '#4aa83c'); g.set(x + 1, ground - 2, '#5cbf4a') }
+  const place = (o: Grid, x: number, sink = 0) => g.blit(o, Math.round(x), ground - o.h + 1 + sink)
+  const big = [() => blossom(r, CHERRY), () => pine(r), () => tree(r), () => blossom(r, MAPLES[Math.floor(r() * 2)])]
+  const pick = () => big[Math.floor(r() * big.length)]()
+  // le fond : des arbres et des bambous, serrés comme une lisière
+  place(pick(), 2 + r() * 4)
+  place(bamboo(r), 22 + r() * 4)
+  place(pick(), 38 + r() * 6)
+  place(pick(), 62 + r() * 6)
+  place(bamboo(r), 84 + r() * 4)
+  place(pick(), 100 + r() * 8)
+  // le devant : buissons fleuris et rochers, posés dans l'herbe
+  place(bush(r), 14 + r() * 4, 2)
+  place(rock(r), 34 + r() * 4, 3)
+  place(bush(r), 54 + r() * 4, 2)
+  place(bush(r), 78 + r() * 4, 3)
+  place(rock(r), 96 + r() * 4, 2)
+  place(bush(r), 114 + r() * 4, 2)
+  for (let k = 0; k < 12; k++) {
+    const x = Math.floor(r() * SIDE_W), y = ground + 2 + Math.floor(r() * 4)
+    g.set(x, y, ['#ff5a7a', '#ffffff', '#ffd23f', '#c98bff'][k % 4])
+  }
+  return g
+}

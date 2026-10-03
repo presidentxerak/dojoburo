@@ -38,13 +38,13 @@ export interface Feat {
 }
 
 export const FEATS: Feat[] = [
-  { id: 'first-part', parts: 1, points: 20, title: B('First step', 'Premier pas'), body: B('You finished the first part of a lesson.', 'Vous avez terminé votre première partie de leçon.') },
-  { id: 'parts-10', parts: 10, points: 30, title: B('Steady reader', 'Lecteur assidu'), body: B('Ten parts of lessons finished.', 'Dix parties de leçons terminées.') },
-  { id: 'parts-50', parts: 50, points: 80, title: B('Scholar', 'Érudit'), body: B('Fifty parts of lessons finished.', 'Cinquante parties de leçons terminées.') },
-  { id: 'parts-150', parts: 150, points: 150, title: B('Sage of the dojo', 'Sage du dojo'), body: B('A hundred and fifty parts finished.', 'Cent cinquante parties terminées.') },
+  { id: 'first-part', parts: 1, points: 20, title: B('First step', 'Premier pas'), body: B('Your first right answer in a lesson.', 'Votre première bonne réponse dans un cours.') },
+  { id: 'parts-10', parts: 10, points: 30, title: B('Steady learner', 'Élève assidu'), body: B('Ten right answers and missions.', 'Dix bonnes réponses et missions réussies.') },
+  { id: 'parts-50', parts: 50, points: 80, title: B('Scholar', 'Érudit'), body: B('Fifty right answers and missions.', 'Cinquante bonnes réponses et missions réussies.') },
+  { id: 'parts-150', parts: 150, points: 150, title: B('Sage', 'Sage'), body: B('A hundred and fifty right answers and missions.', 'Cent cinquante bonnes réponses et missions réussies.') },
   { id: 'mission', points: 25, title: B('Mission accomplished', 'Mission accomplie'), body: B('Every objective of a mission ticked.', "Tous les objectifs d'une mission cochés.") },
   { id: 'flawless', points: 40, title: B('Flawless', 'Sans faute'), body: B('Every quiz question of a lesson right.', "Toutes les questions du quiz d'une leçon justes.") },
-  { id: 'three-dojos', points: 30, title: B('Three dojos', 'Trois dojos'), body: B('Three lessons completed.', 'Trois leçons terminées.') },
+  { id: 'three-dojos', points: 30, title: B('Three lessons', 'Trois cours'), body: B('Three lessons completed.', 'Trois cours terminés.') },
 ]
 
 const FEAT_BY_ID = Object.fromEntries(FEATS.map((f) => [f.id, f])) as Record<string, Feat>
