@@ -13095,3 +13095,8 @@ html.calm .lq-cheer, html.calm .lq-cheer.feat, html.calm .lq-cheer-av, html.calm
 }
 .tp-side.l { right: 100%; background-position: right bottom; }
 .tp-side.r { left: 100%; background-position: left bottom; }
+
+/* LE BADGE SE MÉRITE · la phrase qui dit ce qu'il reste à faire avant le
+   badge, et le bouton qui permet de repasser le quiz. */
+.ln-gate { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 18px 0 0; font-size: 15px; line-height: 1.5; color: var(--g-sub); }
+.ln-claim:disabled { opacity: .5; cursor: not-allowed; }
